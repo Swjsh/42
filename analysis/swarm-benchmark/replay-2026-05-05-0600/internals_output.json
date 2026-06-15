@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-05-17T20:23:48Z",
+  "bias": "bearish",
+  "confidence": 0.60,
+  "reasoning": "XLK -0.41% + XLF -0.39% both negative while XLE +1.12% = classic risk-off rotation with energy as the sole winner. Tech weakness (SPY's largest component at ~30% weighting) combined with financials weakness (-0.39%) is a negative breadth signal. Energy strength does not offset the drag from tech/financials leadership absence. SPY premarket at -0.29% reflects this underlying weakness. Bearish bias with medium confidence — sector internals show selective defensive rotation, not broad-based strength.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -0.41,
+    "xlf_change_pct": -0.39,
+    "xle_change_pct": 1.12,
+    "spy_change_pct": -0.29,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK -0.41%: Tech weakness (largest SPY sector) is the primary drag",
+    "XLF -0.39%: Financial weakness compounds the negative breadth picture",
+    "XLE +1.12%: Energy rallying but insufficient to offset tech/fin losses — indicates defensive rotation, not broad bullish leadership",
+    "Overall rotation: Clear risk-off with energy as defensive proxy; no risk-on support from growth/financials"
+  ],
+  "data_quality": "full"
+}

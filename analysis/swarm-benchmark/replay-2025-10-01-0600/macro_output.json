@@ -1,0 +1,24 @@
+{
+  "agent": "macro",
+  "generated_at": "2025-10-01T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.55,
+  "reasoning": "Overnight gap down -$2.34 (−0.35%) is the primary bearish signal. VIX at 16.78 (MID regime) is rising weakly (+3.07% = ~+0.50 points, not rapidly). No major macro events today (0 FOMC/CPI/NFP/earnings) leaves the tape clean for intraday moves. Moderate contradiction: sector rotation signals risk-on (XLK +0.55%, SPY +0.49%), which typically pairs with bullish bias, but gap-down overnight suggests institutional selling. Ribbon is MIXED (39¢ spread) = indecision. Macro backdrop is slightly bearish on gap + weak VIX rise, but not high-conviction due to offsetting risk-on signal.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 16.78,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -2.34,
+  "macro_backdrop": "neutral",
+  "key_observations": [
+    "Overnight gap down −$2.34 (−0.35%) from 666.06 close to 663.72 premarket → moderate bearish overnight sentiment",
+    "VIX 16.78 rising +3.07% (∼+0.50 points from prior ~16.28) → weak bullish-to-bearish shift, NOT rapidly rising (>1.5pt threshold not met)",
+    "Zero macro events today: no FOMC, CPI, NFP, or mega-cap earnings at market open → clean tape, no hard no-trade windows",
+    "Sector rotation signals risk-on (XLK +0.55%, SPY +0.49%, rotation signal = risk_on) → contradicts gap-down, suggests potential mean-reversion or selective strength",
+    "Ribbon MIXED (39¢ spread, under 30¢ threshold) → market indecision, neither bulls nor bears in control premarket",
+    "Premarket range 663.09–665.38 (155¢ volatility) → elevated intraday move potential despite weak directional setup"
+  ],
+  "data_quality": "full"
+}

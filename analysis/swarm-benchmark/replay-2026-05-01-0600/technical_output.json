@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-01T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.88,
+  "reasoning": "CLEAN_BULL ribbon (101c spread, fast/pivot/slow aligned bullishly) with price 32c above pivot 719.85 and 18c above fast 719.99. Last 3 premarket bars all green: 05:35 strong-body (+17c, 89% fill), 05:45 doji (+1c, held above pivot), 05:55 moderate (+6c, 46% body). Overnight gap up $1.78 (718.39→720.17) is significant bullish overnight flow. VIX falling 16.58 (-2.07%) supports risk-on. Premarket action touched ceiling 720.94; current 720.17 well-positioned between PML (718.66) and PMH. All major signals aligned for continuation bullish.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 101,
+  "bar_structure": "strong_bull",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon: fast 719.99 / pivot 719.85 / slow 718.97; 101c spread indicates strong structural bull alignment",
+    "Last 3 premarket bars all green with strong body on first bar (05:35: 89% body): last bar (05:55) at 720.17 near premarket high 720.94",
+    "Price positioning strong: 32c above pivot, 18c above fast EMA, 120c above slow EMA — excellent momentum positioning",
+    "Overnight gap up $1.78 (718.39 close → 720.17 current): significant bullish overnight sentiment, well above prior RTH resistance 719.79",
+    "Risk environment supportive: VIX falling 16.58 (-2.07% change, MID regime), energy (XLE +2.49%) and financials (XLF +1.2%) leading rotation"
+  ],
+  "data_quality": "full"
+}

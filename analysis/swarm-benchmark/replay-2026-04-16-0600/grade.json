@@ -1,0 +1,63 @@
+{
+  "date": "2026-04-16",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:13.485865+00:00",
+  "actual": {
+    "open": 700.86,
+    "close": 701.55,
+    "high": 702.78,
+    "low": 698.53,
+    "move_dollars": 0.69,
+    "actual_bias": "no_trade"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 80,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 701.99,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "ABSTAIN_ACTUAL",
+      "consensus": "bullish",
+      "actual": "no_trade"
+    },
+    "battle_level": {
+      "grade": "HELD",
+      "battle_level": 701.99,
+      "role": "resistance",
+      "first_touch_time": "2026-04-16T11:15:00"
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 701.99,
+        "touched_any_time": true,
+        "touched_in_specified_window": false,
+        "claim": "701.99 premarket high will be tested (SPY price touches 701.90 or above) within the first 60 minutes",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX will remain below 19.50 for the first 30 minutes of RTH (09:30\u201310:00 ET), consistent with MID-regime and supporting ",
+        "invalidation": "VIX prints above 19.50 at any 5m bar close before 10:00 ET, signaling accelerating uncertainty and invalidating the macr"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "If SPY closes a 5m bar above 701.99, the immediately following 5m bar will have a green body covering at least 50% of it",
+        "invalidation": "The first 5m bar to close above 701.99 is followed by a red bar that closes back below 701.99 within 10 minutes, confirm"
+      }
+    ]
+  },
+  "narrative": "Today's core tension is a technically clean CLEAN_BULL ribbon (80c spread, all 4 specialists unanimously bullish) set against the fragility of narrow tech-only sector leadership and a rising VIX (+4.43% to 18.86) that the validator rates as a medium-high invalidation risk. The unanimous 4/4 bullish "
+}

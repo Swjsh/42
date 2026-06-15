@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-31T10:00:01Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis"],
+    "bearish": ["internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 3,
+    "bearish": 1,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.90,
+    "bearish": 0.10
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 76,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["internals"],
+    "dissent_reason": "Internals agent flags XLK -2.87% and XLE -1.85% (2-of-3 key sectors down) as risk-off rotation contradicting the bull ribbon and gap-up momentum; tech is the largest SPY weighting and sustained weakness would collapse the overnight gap narrative."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Three bullish agents converge on technical structure (ribbon + gap) but collectively underweight XLK sector underperformance (-2.87% vs SPY -1.27%, a 1.6pp divergence) — if tech reverses at the RTH open, the entire bull narrative collapses immediately.",
+    "top_invalidation_scenario": "SPY fails to clear 638.0 resistance within the first 30 minutes and closes back below 636.5 by 10:00 ET — failed breakout pattern forms, fast EMA 637.35 breaks, bull ribbon inverts to bear stack."
+  },
+  "battle_level": {
+    "price": 638.88,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 638.88,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 638.49,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 638.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 636.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 631.97,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY tests 638.88 from below but fails to break it cleanly, pulling back to 636.0–637.0 support zone",
+      "bias": "bullish",
+      "target": 638.88,
+      "entry_trigger": "bull_ribbon_hold + 636 support confirmed + re-test_638.88"
+    },
+    "secondary": {
+      "condition": "if SPY breaks and closes above 638.88 (PMH break-up with volume) in first 60 min of RTH",
+      "bias": "bullish",
+      "target": 640.37,
+      "entry_trigger": "level_break + ribbon_stack_bull + momentum_continuation"
+    },
+    "invalidation": {
+      "condition": "SPY fails to clear 638.0 within first 30 minutes and closes back below 636.5 by 10:00 ET",
+      "effect": "Failed breakout pattern confirms; fast EMA 637.35 breaks as dynamic support, bull ribbon inverts to bear stack, overnight gap fills toward PML 631.97 — entire bull thesis invalidated, flip to no_trade or bearish watch."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "638.88 (PMH battle level) is tested from below within the first 90 minutes of RTH open (by 11:00 ET)",
+      "invalidation": "SPY does not reach 638.50 before 11:00 ET — battle level untested through the first 90 min implies gap fading or immediate reversal",
+      "confidence": 0.72,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 29.0 through the first 60 minutes of RTH, sustaining the overnight IV compression and bullish macro backdrop",
+      "invalidation": "VIX spikes back above 29.0 within first 60 minutes of RTH open — signals overnight VIX drop was mechanical bear trap, not genuine fear unwinding, reversing the bullish macro tailwind",
+      "confidence": 0.65,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "Bull ribbon (fast EMA 637.35 > slow EMA 635.89, spread 146c) holds intact and price remains above fast EMA 637.35 through 10:30 ET",
+      "invalidation": "Fast EMA crosses below slow EMA (ribbon inversion) or price closes a 5-min bar below fast EMA 637.35 before 10:30 ET — structural support fails, bearish internals signal vindicated",
+      "confidence": 0.68,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The core tension on 2026-03-31 is a structurally sound bull ribbon (146c spread, clean BULL stack) plus a +$5.1 overnight gap-up set against XLK -2.87% sector deterioration and a tight 3-layer resistance cluster at 638.0 / 638.49 / 638.88 overhead. Consensus bias is bullish with strong weighted score (0.90) driven by technical structure and zero macro event risk, but validator robustness is only moderate because the internals dissent points to a real contradiction: if tech weakness sustains through RTH open rather than reversing, the gap fades and the bull narrative collapses at the same resistance cluster that makes clean breakout difficult. The single most important thing to watch at the 09:30 ET open is whether XLK reverses from its overnight -2.87% reading — a tech rally flips the internals signal and validates the bull thesis, while sustained XLK weakness means the gap-up is a trap and the 638.0–638.88 cluster becomes the rejection zone for a flush toward PML 631.97.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "CLEAN_BULL ribbon (146c spread, fast 637.35 > pivot 637.0 > slow 635.89) with price above pivot; mixed premarket bars (1 green, 2 red, small bodies) signal profit-taking chop not reversal"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "VIX HIGH regime (27.37) but falling sharply -9.88% overnight with zero events today — clear runway, macro tailwind for directional bull trades"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.70,
+      "one_line": "Battle level 638.88 (PMH, 2★ Active) is immediate resistance from below; tight cluster at 638.0–638.49 makes clean breakout difficult, support floor 631.97 (PML, 2★) anchors downside"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "XLK -2.87% and XLE -1.85% risk-off rotation with XLF flat — tech-led breadth deterioration is the primary bearish dissent flag"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "SPY fails to clear 638.0 within first 30 min and closes below 636.5 by 10:00 ET — failed breakout triggers bull ribbon inversion and gap fill toward 631.97"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-09T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.75,
+  "reasoning": "SPY at 672.24 is sandwiched between Carry support at 669.67 (2★, 5-day RTH low, $2.57 below) and Active resistance at 676.10 (2★, prior-day RTH high, $3.86 above). Bearish ribbon stack (BEAR) with VIX 30.83 in HIGH regime rising +4.47% confirms downside risk. The battle level is 669.67 — the first meaningful test from above. If it holds, limited bounce room to 673.0 (round number). If it breaks, extended move into 666.45 (S2 pivot) or deeper psychological levels. Price location + ribbon stack + elevated VIX all point bearish on session open.",
+  "battle_level": {
+    "price": 669.67,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 669.67,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": -2.57
+    },
+    {
+      "price": 676.10,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 3.86
+    },
+    {
+      "price": 688.59,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 16.35
+    },
+    {
+      "price": 673.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 0.76
+    },
+    {
+      "price": 666.45,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": -5.79
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY tests and HOLDS 669.67 (Carry support) on first approach",
+      "bias": "bearish_recovery",
+      "target": 673.0,
+      "entry_trigger": "level_hold + ribbon_bearish_stack + vix_spike"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 669.67 with volume",
+      "bias": "bearish_continuation",
+      "target": 666.45,
+      "entry_trigger": "level_break + ribbon_confirm + vix_elevated"
+    },
+    "tertiary": {
+      "condition": "if SPY rallies past 676.10 (Active resistance)",
+      "bias": "bullish_breakout",
+      "target": 688.59,
+      "entry_trigger": "level_breakout + ribbon_flip_pending"
+    }
+  },
+  "levels_in_play_count": 5,
+  "key_observations": [
+    "Carry support 669.67 is the critical floor — tested from above with bearish ribbon backdrop",
+    "Ribbon BEAR stack with 111¢ spread confirms downside lean; fast EMA 672.42 near price, slow EMA 673.53 just above",
+    "Elevated VIX (30.83, HIGH regime) rising +4.47% adds volatility context — favors directional moves not chop",
+    "Active resistance 676.10 (prior-day RTH high) is 3.86 away — upper boundary of today's initial range",
+    "Round numbers 673/674/675 are reference-tier only (1★ each) — awareness levels, not primary triggers"
+  ],
+  "data_quality": "full"
+}

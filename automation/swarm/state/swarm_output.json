@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-06-08T19:22:57.591734+00:00",
+  "swarm_version": "v1",
+  "status": "failed",
+  "failure_reason": "all_specialist_agents_failed",
+  "consensus_bias": "no_trade",
+  "swarm_confidence": 0,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  }
+}

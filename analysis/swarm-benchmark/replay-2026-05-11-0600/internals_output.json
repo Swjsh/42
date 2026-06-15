@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-05-11T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.58,
+  "reasoning": "XLK +2.29% is strong risk-on signal and outperforms SPY +0.37% by 1.92%, indicating tech/growth leadership typical of SPY upside. However, divergence with XLF -0.85% reduces breadth confidence — financials down while tech surges signals narrow leadership, not broad risk-on. Rising VIX (+5.88%) alongside sector split suggests underlying instability. Bias is bullish (XLK is > 0.5% and outperforming), but confidence tempered by XLF divergence and mixed sector alignment.",
+  "rotation_signal": "risk_on_narrow",
+  "sector_alignment": {
+    "xlk_change_pct": 2.29,
+    "xlf_change_pct": -0.85,
+    "xle_change_pct": -0.27,
+    "spy_change_pct": 0.37,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +2.29% (strong up, outperforming SPY by 1.92 percentage points — growth leadership)",
+    "XLF: -0.85% (diverging DOWN — financials not participating, reduces breadth conviction)",
+    "XLE: -0.27% (flat, no energy rotation signal)",
+    "Overall rotation: Tech-led risk-on, but NARROW breadth due to XLF decline. Vulnerable to rotation reversal."
+  ],
+  "data_quality": "full"
+}

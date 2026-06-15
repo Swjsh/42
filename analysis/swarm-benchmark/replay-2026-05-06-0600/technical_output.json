@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-06T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.78,
+  "reasoning": "CLEAN_BULL ribbon with 205-cent spread, price 136 cents above pivot (729.30 vs 727.94). Last 3 bars show mixed structure (1 red doji + 2 green moderate bodies) leaning bullish. Strong overnight gap up $5.56 from 723.74 to 729.30. Premarket uptrend from 725.81 to 729.39 high. All primary signals (ribbon, pivot relationship, gap, recent bars) align bullish. Confidence slightly below max due to premarket zero-volume context and small bar bodies (dojis in bar 18).",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 205,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon stack: fast 728.48 > pivot 727.94 > slow 726.43, spread 205 cents (strong structure)",
+    "Price 136 cents above pivot — clear bullish momentum, premarket uptrend 725.81 → 729.30",
+    "Overnight gap +$5.56 (prior close 723.74) with premarket high 729.39 very close to current 729.30",
+    "Last 3 bars: 1 red doji (05:45: 729.08→729.03) + 2 green moderate (05:50: 729.08→729.17, 05:55: 729.22→729.30) — mixed trend leaning bullish",
+    "VIX falling at 17.15 (MID regime) — lower volatility supporting orderly uptrend"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 3,
+  "session_id": "2026-06-08",
+  "last_change_at": "2026-06-08T15:30:01-04:00",
+  "last_change_reason": "entry_gated_eod_hold",
+  "last_bar_timestamp": 1780946400,
+  "current_mode": "BASE",
+  "writes_today": 2,
+  "ticks_today": 1,
+  "spy": { "last": 739.42, "session_high": 745.33, "session_low": 738.91 },
+  "vix_cache": { "value": 19.16, "prior_value": 18.98, "dir": "rising", "fetched_at": "2026-06-08T15:21:40-04:00" },
+  "ribbon": { "fast": 739.73, "pivot": 740.57, "slow": 741.02, "spread_cents": 129, "stack": "BULL" },
+  "htf_15m": null,
+  "last_filter_score": { "bear": 0, "bear_blockers": ["TIME_PAST_ENTRY_CUTOFF_15:00"], "bull": 0, "bull_blockers": ["TIME_PAST_ENTRY_CUTOFF_15:00"] },
+  "developing_setup": null,
+  "first_entry_lock": [],
+  "next_tick_model": "haiku"
+}

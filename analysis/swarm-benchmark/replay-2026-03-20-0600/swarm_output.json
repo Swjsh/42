@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-20T10:01:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["internals"],
+    "bearish": ["technical", "macro", "level_thesis"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 1,
+    "bearish": 3,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.10,
+    "bearish": 0.90
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 76,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["internals"],
+    "dissent_reason": "Internals agent sees XLK +1.79% tech leadership and broad sector risk-on rotation (XLE +0.83%, XLF +0.45%) as structural bullish signals, arguing the gap-down premarket recovery ($4.73 range, price recovering to 659.83 high) represents seller exhaustion and a flush-and-bounce pattern rather than continuation of the overnight downtrend."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The assumption that VIX rising + overnight gap down automatically leads to carry-support flush (655.17→650). This ignores that premarket buyers already recovered 94% of the gap, XLK +1.79% signals risk-on reversal rather than continuation, and VIX at 25.81 is a moderate fear reading (not panic-level 28-30+) — consistent with a flush-and-bounce pattern.",
+    "top_invalidation_scenario": "Ribbon stack flips from BEAR to NEUTRAL by 09:30 ET (fast MA 657.02 crosses above pivot 657.51+) as price rallies to 657+; structural bearish bias collapses and upside conviction emerges."
+  },
+  "battle_level": {
+    "price": 655.17,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 655.17,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 659.83,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 655.60,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 657.00,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 658.00,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks below 655.17 Carry support with a close sub-655.00 and VIX spikes above 27.0",
+      "bias": "bearish",
+      "target": 650.0,
+      "entry_trigger": "breakdown through carry support + ribbon confirmation"
+    },
+    "secondary": {
+      "condition": "if SPY holds 655.17 and bounces, closing above 655.60 pivot S1",
+      "bias": "bullish",
+      "target": 659.83,
+      "entry_trigger": "failed breakdown + internals risk-on rotation reclaim above 655.60; BEAR ribbon limits upside conviction to PMH only"
+    },
+    "invalidation": {
+      "condition": "BEAR ribbon flips to neutral or bullish by 09:30 ET — fast MA 657.02 crosses above pivot 657.51+ and price rallies to 657+",
+      "effect": "Structural bearish thesis collapses entirely; CLEAN_BEAR alignment breaks; consensus bias should shift to no_trade or cautious bullish; no bearish entries justified."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "655.17 Carry support is tested (SPY touches 655.30 or below) within the first 60 minutes of RTH (by 10:30 ET)",
+      "invalidation": "SPY opens above 656.50 and does not touch 655.50 by 10:30 ET, indicating premarket buyers sustained their gap-recovery bid into the open",
+      "confidence": 0.72,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains above 25.0 through the first 60 minutes of RTH (09:30-10:30 ET), showing no mean reversion from the 25.81 rising print",
+      "invalidation": "VIX drops to or below 24.0 within 60 minutes of the RTH open, signaling fear is abating and intraday macro backdrop turning neutral-to-bullish",
+      "confidence": 0.65,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BEAR ribbon structure (fast 657.02 below pivot 657.51 below slow 658.10) remains intact with spread >= 50 cents at the 10:00 ET bar close",
+      "invalidation": "Fast MA crosses above pivot 657.51 before 10:30 ET, indicating the 108-cent bear spread is compressing and structural alignment is weakening",
+      "confidence": 0.75,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The central tension on 2026-03-20 is between the structural bearish setup — CLEAN_BEAR ribbon at 108-cent spread, overnight gap down $4.14, VIX rising to 25.81 HIGH regime — and a compelling counter-signal: premarket buyers already recovered 94% of the gap ($4.73 range, high 659.83), XLK is leading +1.79%, and the 655.17 Carry support is holding not breaking. Three of four specialists align bearish with 0.90 weighted score, driven by price below all MAs and high-VIX fear regime; the internals' bullish dissent (0.72 conf) is the legitimate wildcard and cannot be dismissed. The single most critical watch at RTH open: whether 655.17 holds or breaks with VIX cooperation — a confirmed break sub-655.00 with VIX spiking above 27 validates flush-to-650; a bounce and close above 655.60 flips the intraday edge to buyers and invalidates the primary bearish scenario.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.88,
+      "one_line": "CLEAN_BEAR ribbon (108c spread, fast 657.02/pivot 657.51/slow 658.10), price 193c below pivot with 3 consecutive strong-body red bars; overnight gap down -$4.14 and VIX HIGH regime all structurally aligned bearish"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.65,
+      "one_line": "VIX 25.81 rising +6.26% in HIGH regime with gap-down -0.63%; zero macro events today = clean execution; moderate confidence due to XLK +1.79% sector risk-on conflicting with macro fear signal"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.70,
+      "one_line": "655.17 Carry support (2★, 5-day RTH low) is the session pivot — price 0.41 above support; primary scenario is flush to 650 on break; secondary is bounce-to-PMH 659.83 capped by BEAR ribbon"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "XLK +1.79% significantly outperforming SPY with XLE +0.83% and XLF +0.45% confirming risk-on rotation; narrow tech-led breadth but all sectors positive signals structural gap-recovery, not continuation"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Ribbon flips BEAR→NEUTRAL by 09:30 ET (fast crosses pivot at 657.51+) while premarket buyers sustain above 656 — structural bearish thesis collapses, no bearish entries justified"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

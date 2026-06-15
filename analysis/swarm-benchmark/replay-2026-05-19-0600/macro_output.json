@@ -1,0 +1,26 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-05-19T10:00:44Z",
+  "bias": "neutral",
+  "confidence": 0.58,
+  "reasoning": "VIX at 17.79 is MID regime with flat direction (−0.22% change) — no directional volatility signal. Overnight gap down −$3.24 provides mild bearish context, and ribbon remains BEAR-stacked, but magnitude is modest. Tech sector weakness (XLK −1.84%) with concurrent risk-off rotation (vs. energy/financials +2%) suggests rotational caution. Critically: ZERO macro events today — the calendar is clean for the entire RTH session. No FOMC, CPI, NFP, or major earnings-related volatility. First real event is NVDA earnings AMC 5/20 16:20 ET (affects 5/21 open gap). This is a setup-favorable day with low event risk and modest bearish lean from technicals, but VIX flatness limits conviction.",
+  "vix_regime": "MID",
+  "vix_direction": "flat",
+  "vix_current": 17.79,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -3.24,
+  "macro_backdrop": "neutral",
+  "key_observations": [
+    "VIX 17.79 is solidly MID regime (15–22 normal band); no spike or compression",
+    "Overnight gap down −$3.24 with premarket range 733.09–739.35 shows 2-sided price discovery; close at 735.32 is near lows, bearish lean",
+    "Ribbon BEAR stack (fast 735.28, pivot 735.4, slow 735.69; spread 41c) remains the structural bearish bias",
+    "Sector rotation: XLK tech weakness (−1.84%) vs XLF financials (+1.43%) + XLE energy (+2.45%) = risk-off signal",
+    "ZERO scheduled events (no FOMC/CPI/NFP/earnings-related blocks); full day is clean for setups",
+    "NVDA AMC earnings tomorrow 5/20 16:20 ET will set up 5/21 open gap risk, but does not affect today's RTH",
+    "No near-term inflation data (CPI, PPI) until late May; no Fed events until 6/17 FOMC; low macro surprises expected",
+    "Consensus: setup-favorable day with mild bearish lean from technicals; VIX flatness = stable premium environment (neither crush nor expansion expected)"
+  ],
+  "data_quality": "full"
+}

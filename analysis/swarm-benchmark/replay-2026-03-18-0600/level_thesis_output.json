@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-18T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.70,
+  "reasoning": "SPY at 674.20 after gap-up of +3.47 overnight. Ribbon is BULL (fast 674.23, pivot 674.01, slow 673.15; spread 108¢). The battle level is 674.43 — yesterday's RTH high, just $0.23 overhead. Price is testing this Active-tier resistance FROM BELOW. If 674.43 holds on first test, pullback target is 673.50 (today's premarket low). If 674.43 breaks decisively, 675.0 and 676.0 are next resistances in a rising ribbon stack. Carry levels (661.37 support, 680.06 resistance) are out of range; battle is fought at Active tier. BULL bias is supported by the gap structure and ribbon alignment, but the tight margin between 674.43 and price leaves little room for error.",
+  "battle_level": {
+    "price": 674.43,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 674.43,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.23
+    },
+    {
+      "price": 673.50,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 0.70
+    },
+    {
+      "price": 675.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 0.80
+    },
+    {
+      "price": 673.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 1.20
+    },
+    {
+      "price": 676.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": 1.80
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 674.43 on first test",
+      "bias": "bullish",
+      "target": 675.50,
+      "entry_trigger": "level_hold + ribbon_support + gap_structure"
+    },
+    "secondary": {
+      "condition": "if SPY breaks 674.43 decisively",
+      "bias": "bullish_momentum",
+      "target": 676.0,
+      "entry_trigger": "level_break + gap_follow_through"
+    },
+    "bearish": {
+      "condition": "if SPY fails to hold 674.43 and falls through 673.50",
+      "bias": "bearish_reversal",
+      "target": 673.0,
+      "entry_trigger": "level_rejection + pullback_support_break"
+    }
+  },
+  "levels_in_play_count": 5,
+  "key_observations": [
+    "Tight clustering of resistances (674.43, 675.0, 676.0) within $1.80 signals confined upside range if price breaks 674.43.",
+    "BULL ribbon stack with $1.08 spread indicates sufficient separation for directional confidence (per strategy/ribbon-doctrine.md, spreads >30¢ = meaningful bias).",
+    "Carry-tier levels are OUT_OF_RANGE (>$6.00 away), so today's battle is entirely at Active tier; this reduces conviction relative to days where a Carry level is near current price.",
+    "Premarket already probed down to 673.50 (a $1.15 range 673.50→674.65) with no major support breakdown — suggests institutional buyers supporting the gap-up structure.",
+    "VIX rising +1.29% to 22.74 in HIGH regime — not immediately bearish, but volatility is expanding; expect larger intraday moves if 674.43 breaks either direction."
+  ],
+  "data_quality": "full"
+}

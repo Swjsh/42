@@ -1,0 +1,66 @@
+{
+  "date": "2026-04-21",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:14.225884+00:00",
+  "actual": {
+    "open": 709.55,
+    "close": 704.14,
+    "high": 711.28,
+    "low": 702.64,
+    "move_dollars": -5.41,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 76,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 712.39,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bullish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 712.39,
+      "role": "resistance",
+      "rth_range": [
+        702.64,
+        711.28
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 712.39,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "712.39 (Carry battle level) is tested within the first 2 hours of RTH (by 11:30 ET), contingent on S",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains in the 18.5\u201320.5 range through the first 90 minutes of RTH (09:30\u201311:00 ET), neither compressing to confirm ",
+        "invalidation": "VIX drops below 18.5 (full risk-on confirmed) or spikes above 20.5 (gap structure breaks) by 11:00 ET"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "SPY forms a higher low above the ribbon pivot (710.09) on its first RTH pullback, with the CLEAN_BULL ribbon spread main",
+        "invalidation": "SPY closes any 5-minute RTH bar below 710.09 within the first 60 minutes of RTH (ribbon pivot loss = bull structure brok"
+      }
+    ]
+  },
+  "narrative": "SPY gaps up +$2.21 into premarket high resistance at 710.92 with a CLEAN_BULL ribbon (86\u00a2 spread), creating a gap-and-test structure where the opening bar decides whether buyers break through PMH toward the 712.39 Carry battle level or exhaust into a false-gap reversal. Three of four specialists vot"
+}

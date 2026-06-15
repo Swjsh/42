@@ -1,0 +1,63 @@
+{
+  "date": "2026-02-27",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:05.412261+00:00",
+  "actual": {
+    "open": 683.0,
+    "close": 686.16,
+    "high": 686.85,
+    "low": 681.66,
+    "move_dollars": 3.16,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 70,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 684.37,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bearish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "BROKE",
+      "battle_level": 684.37,
+      "role": "support",
+      "first_touch_time": "2026-02-27T09:30:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 684.37,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY tests 684.37 Active support at least once before 13:00 ET on 2026-02-27",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains above 19.50 through the first 2 hours of RTH (through 11:30 ET), sustaining elevated premium environment and",
+        "invalidation": "VIX drops to 19.20 or below by 10:30 ET, signaling intraday fear reversal"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "SPY fails to close a 5-min bar above ribbon pivot 688.94 in the first 30 minutes of RTH (9:30\u201310:00 ET), confirming bear",
+        "invalidation": "SPY closes a 5-min bar above 689.20 before 10:05 ET, reclaiming the pivot with conviction"
+      }
+    ]
+  },
+  "narrative": "The central tension on 2026-02-27 is a structurally healthy CLEAN_BULL ribbon (53\u00a2 spread) squared against converging macro headwinds: VIX rising +8.48% into MID regime, risk-off sector rotation with XLK -1.35%, and SPY already 8\u00a2 below the ribbon pivot at 06:00 ET. Three of four specialists align b"
+}

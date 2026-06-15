@@ -1,0 +1,175 @@
+{
+  "schema_version": 2,
+  "protocol_version": "strategy/key-levels-protocol.md@1",
+  "as_of": "2026-05-08T16:30:02-04:00",
+  "for_session": "2026-05-11",
+
+  "session_recap": {
+    "prev_high_rth": 738.10,
+    "prev_low_rth": 735.05,
+    "prev_close_rth": 737.47,
+    "premarket_ref_price": 735.75,
+    "premarket_gap_dollars": 3.16,
+    "premarket_gap_direction": "up",
+    "note": "2026-05-08 post-FOMC Friday. 0 trades placed. Gap-and-grind — SPY opened at 735, swept 736.11 on open drive to session high 738.10, then consolidated 736-738 with ribbon spread <30c all afternoon. VIX pinned 17.24-17.46 (never fell to 16.50 as predicted). Filter discipline: 0 rule breaks, 36 ticks, 4 haiku timeouts. Ribbon chop zone all PM session."
+  },
+
+  "levels": [
+    {
+      "price": 738.10,
+      "type": "resistance",
+      "tier": "Active",
+      "source": "2026-05-08 RTH session high — intraday peak on post-FOMC gap-and-grind day.",
+      "verified_at": "2026-05-08T15:50:00-04:00",
+      "expires_at": "2026-05-11T17:30:00-04:00",
+      "reasoning": "Fresh resistance print — highest price reached today. On any Monday continuation, this is the first ceiling. Rejection here (wick above + close below + vol) opens a pullback toward 736.11. Clean break + hold = next target undefined (uncharted territory).",
+      "color": "#ef4444",
+      "style": "solid",
+      "entity_id": "CJuoP4",
+      "draw_needed": false
+    },
+    {
+      "price": 736.11,
+      "type": "support",
+      "tier": "Active",
+      "role": "broken_to_support",
+      "broken_at": "2026-05-08T10:03:00-04:00",
+      "bounce_history": [],
+      "source": "5/7 RTH high — was primary resistance ceiling. Swept cleanly on 5/8 open drive (SPY at 736.67 by 10:03 ET), held above all session.",
+      "verified_at": "2026-05-08T10:03:00-04:00",
+      "expires_at": "2026-05-11T17:30:00-04:00",
+      "reasoning": "Role flipped: resistance → support. SPY held well above 736.11 for the entire 5/8 session. On any Monday pullback, this is the first structural defense zone. If it holds on a retest (green bar off the level + vol) = confirmed flip. If it breaks cleanly = gap-fill path toward 735.40. bounce_history will populate on first retest.",
+      "color": "#22c55e",
+      "style": "solid",
+      "entity_id": "2B6CdJ",
+      "draw_needed": false
+    },
+    {
+      "price": 735.40,
+      "type": "support",
+      "tier": "Active",
+      "role": "support_candidate",
+      "bounce_history": [
+        { "time_et": "5/7 11:40", "high_reached": 736.12, "outcome": "rejected_close_lower" },
+        { "time_et": "5/7 12:15", "high_reached": 735.61, "outcome": "rejected_close_lower" },
+        { "time_et": "5/7 12:30", "high_reached": 735.41, "outcome": "rejected_close_below_round_number" }
+      ],
+      "source": "Multi-day pivot: resistance 5/6-5/7, 3× rejection on 5/7 staircase. Premarket P2 prediction untested on 5/8 (SPY never pulled back to test it).",
+      "verified_at": "2026-05-07T12:30:00-04:00",
+      "expires_at": "2026-05-11T17:30:00-04:00",
+      "reasoning": "P2 prediction from 5/8 premarket is still live — the support-flip thesis was never tested since SPY held 736+ all day. Monday first pullback to 735.40 is the acid test: hold with a bounce bar = confirmed support flip; break below 735.20 = bearish and opens path to 733.55.",
+      "color": "#22c55e",
+      "style": "solid",
+      "entity_id": "ZUEuwD",
+      "draw_needed": false
+    },
+    {
+      "price": 733.55,
+      "type": "support",
+      "tier": "Carry",
+      "source": "2026-05-07 10:20 ET bounce low — 107K vol; broke at ~12:04 ET pre-FOMC.",
+      "verified_at": "2026-05-07T16:30:02-04:00",
+      "expires_at": "2026-05-14T17:30:00-04:00",
+      "reasoning": "Deep structural support. Only relevant if 735.40 gives way on Monday. Carries multi-day session context. Vol-confirmed defense at 10:20 5/7 gives it weight.",
+      "color": "#3b82f6",
+      "style": "dashed",
+      "entity_id": "hIqsoE",
+      "draw_needed": false
+    },
+    {
+      "price": 730.94,
+      "type": "support",
+      "tier": "Reference",
+      "source": "2026-05-07 RTH close.",
+      "verified_at": "2026-05-07T17:00:00-04:00",
+      "expires_at": "2026-05-15T17:30:00-04:00",
+      "reasoning": "Remote floor. Gap-fill target if 733.55 breaks. Awareness-only on Monday — too far below current price (737.47) to be an actionable near-term level.",
+      "color": "#3b82f6",
+      "style": "dashed",
+      "entity_id": "Oe3mHK",
+      "draw_needed": false
+    },
+    {
+      "price": 729.75,
+      "type": "support",
+      "tier": "Reference",
+      "source": "2026-05-07 session low — pre-FOMC selloff floor.",
+      "verified_at": "2026-05-07T17:00:00-04:00",
+      "expires_at": "2026-05-15T17:30:00-04:00",
+      "reasoning": "Deep bear-case floor. Buyers appeared here on 5/7. Below 730.94 this is the next gravitational zone. Not actionable unless SPY breaks multiple levels above.",
+      "color": "#3b82f6",
+      "style": "dashed",
+      "entity_id": "5XPvj3",
+      "draw_needed": false
+    },
+    {
+      "price": 725.04,
+      "type": "support",
+      "tier": "Carry",
+      "source": "1D bar 2026-05-05 RTH high. Entity OgC9Tb on chart from 2026-05-05.",
+      "verified_at": "2026-05-05T17:30:00-04:00",
+      "expires_at": "2026-05-14T17:30:00-04:00",
+      "reasoning": "Multi-session carry level. Bear case target only if 729.75 breaks. Not actionable in the current 737 price regime.",
+      "color": "#3b82f6",
+      "style": "dashed",
+      "entity_id": "OgC9Tb",
+      "draw_needed": false
+    }
+  ],
+
+  "deprecated_levels": [
+    {
+      "price": 733.00,
+      "reason": "Active expires 2026-05-09. Too far below 737 close to be actionable Monday. One bounce-history entry. Drop.",
+      "drop_action": "removed at daily-review 2026-05-08"
+    },
+    {
+      "price": 730.00,
+      "reason": "Psychological reference only — 1 observation (5/7 close near it), not 3+ chart-confirmed defenses. Operating principle 5: round numbers are awareness-only and do not auto-carry.",
+      "drop_action": "removed at daily-review 2026-05-08"
+    },
+    {
+      "price": 737.91,
+      "reason": "5/7 premarket spike high (2.8K vol thin print) — dropped at 5/7 daily-review.",
+      "drop_action": "removed at daily-review 2026-05-07"
+    }
+  ],
+
+  "chart_cleanup_log": {
+    "ran_at": "2026-05-08T16:30:02-04:00",
+    "method": "pending_premarket_5_11 — draw_needed=true on 738.10; premarket Monday will run ui_evaluate cleanup + draw new level",
+    "before_count": 8,
+    "after_count": 7,
+    "removed_count": 2,
+    "kept_entity_ids": ["2B6CdJ", "ZUEuwD", "hIqsoE", "OgC9Tb", "Oe3mHK", "5XPvj3"],
+    "drew_new_entity_ids": [],
+    "note": "738.10 draw_needed=true — will be drawn by Monday 08:30 premarket task. Dropped 733.00 (D2ZsWV) and 730.00 (lbxoym). Chart draw will execute at Monday premarket."
+  },
+
+  "audit_log": {
+    "audited_at": "2026-05-08T16:30:02-04:00",
+    "manual_recovery": false,
+    "count_in": 8,
+    "count_pass": 7,
+    "count_dropped": 2,
+    "note": "Daily review 5/8. Added 738.10 (today's session high). Updated 736.11 role to broken_to_support. Confirmed 735.40 P2 thesis still live (untested today). Dropped 733.00 (expires) and 730.00 (psychological, 1 observation). Carried 733.55/730.94/729.75/725.04 deep support structure.",
+    "levels_reviewed": [
+      {"price": 738.10, "status": "pass", "note": "New — today's RTH high, fresh resistance"},
+      {"price": 736.11, "status": "pass", "note": "Role flip: resistance → support; swept 10:03 ET"},
+      {"price": 735.40, "status": "pass", "note": "Support candidate — P2 untested, still live for Monday"},
+      {"price": 733.55, "status": "pass", "note": "Carry support, valid"},
+      {"price": 730.94, "status": "pass", "note": "Reference floor, valid"},
+      {"price": 729.75, "status": "pass", "note": "Reference floor, valid"},
+      {"price": 725.04, "status": "pass", "note": "Carry support, within 5-session window"}
+    ],
+    "next_audit_at": "premarket 2026-05-11",
+    "protocol_check": {
+      "all_levels_have_price": true,
+      "all_levels_have_type": true,
+      "all_levels_have_tier": true,
+      "all_levels_have_source": true,
+      "all_levels_have_reasoning": true,
+      "violations": []
+    }
+  }
+}

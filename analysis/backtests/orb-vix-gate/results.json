@@ -1,0 +1,214 @@
+{
+  "candidate": "ORB_VIX_REGIME_GATE",
+  "generated_at": "2026-05-21T03:49:56.648215",
+  "methodology": "VIX-gated long-only ORB from 391 graded watcher observations (2025-01 to 2026-05). VIX daily close from vix_5m merged CSV, joined by observation date. Tests VIX thresholds 0/15/18/20/22/25.",
+  "scenarios": {
+    "LONG_ALL": {
+      "label": "LONG_ALL",
+      "n": 274,
+      "wins": 190,
+      "wr_pct": 69.3,
+      "pnl": 7378.44,
+      "positive_quarters": "4/6",
+      "quarters": {
+        "2025-Q1": {
+          "n": 12,
+          "wr_pct": 0.0,
+          "pnl": -766.5
+        },
+        "2025-Q2": {
+          "n": 42,
+          "wr_pct": 50.0,
+          "pnl": 316.89
+        },
+        "2025-Q3": {
+          "n": 57,
+          "wr_pct": 68.4,
+          "pnl": 1650.36
+        },
+        "2025-Q4": {
+          "n": 17,
+          "wr_pct": 47.1,
+          "pnl": 43.36
+        },
+        "2026-Q1": {
+          "n": 13,
+          "wr_pct": 61.5,
+          "pnl": -110.5
+        },
+        "2026-Q2": {
+          "n": 133,
+          "wr_pct": 85.7,
+          "pnl": 6244.83
+        }
+      },
+      "q2_2026_concentration_pct": 84.6,
+      "q2_2026_n": 133,
+      "q2_2026_pnl": 6244.83
+    },
+    "LONG_VIX15": {
+      "label": "LONG_VIX15",
+      "n": 256,
+      "wins": 178,
+      "wr_pct": 69.5,
+      "pnl": 6855.33,
+      "positive_quarters": "4/6",
+      "quarters": {
+        "2025-Q1": {
+          "n": 12,
+          "wr_pct": 0.0,
+          "pnl": -766.5
+        },
+        "2025-Q2": {
+          "n": 42,
+          "wr_pct": 50.0,
+          "pnl": 316.89
+        },
+        "2025-Q3": {
+          "n": 39,
+          "wr_pct": 69.2,
+          "pnl": 1127.25
+        },
+        "2025-Q4": {
+          "n": 17,
+          "wr_pct": 47.1,
+          "pnl": 43.36
+        },
+        "2026-Q1": {
+          "n": 13,
+          "wr_pct": 61.5,
+          "pnl": -110.5
+        },
+        "2026-Q2": {
+          "n": 133,
+          "wr_pct": 85.7,
+          "pnl": 6244.83
+        }
+      },
+      "q2_2026_concentration_pct": 91.1,
+      "q2_2026_n": 133,
+      "q2_2026_pnl": 6244.83
+    },
+    "LONG_VIX18": {
+      "label": "LONG_VIX18",
+      "n": 126,
+      "wins": 87,
+      "wr_pct": 69.0,
+      "pnl": 2137.75,
+      "positive_quarters": "2/5",
+      "quarters": {
+        "2025-Q1": {
+          "n": 6,
+          "wr_pct": 0.0,
+          "pnl": -529.5
+        },
+        "2025-Q2": {
+          "n": 33,
+          "wr_pct": 36.4,
+          "pnl": -212.61
+        },
+        "2025-Q4": {
+          "n": 6,
+          "wr_pct": 50.0,
+          "pnl": 154.5
+        },
+        "2026-Q1": {
+          "n": 8,
+          "wr_pct": 62.5,
+          "pnl": -88.5
+        },
+        "2026-Q2": {
+          "n": 73,
+          "wr_pct": 91.8,
+          "pnl": 2813.86
+        }
+      },
+      "q2_2026_concentration_pct": 131.6,
+      "q2_2026_n": 73,
+      "q2_2026_pnl": 2813.86
+    },
+    "LONG_VIX20": {
+      "label": "LONG_VIX20",
+      "n": 32,
+      "wins": 11,
+      "wr_pct": 34.4,
+      "pnl": -619.5,
+      "positive_quarters": "0/3",
+      "quarters": {
+        "2025-Q2": {
+          "n": 21,
+          "wr_pct": 28.6,
+          "pnl": -300.0
+        },
+        "2025-Q4": {
+          "n": 3,
+          "wr_pct": 0.0,
+          "pnl": -231.0
+        },
+        "2026-Q1": {
+          "n": 8,
+          "wr_pct": 62.5,
+          "pnl": -88.5
+        }
+      },
+      "q2_2026_concentration_pct": -0.0,
+      "q2_2026_n": 0,
+      "q2_2026_pnl": 0
+    },
+    "LONG_VIX22": {
+      "label": "LONG_VIX22",
+      "n": 18,
+      "wins": 3,
+      "wr_pct": 16.7,
+      "pnl": -706.5,
+      "positive_quarters": "0/2",
+      "quarters": {
+        "2025-Q2": {
+          "n": 15,
+          "wr_pct": 20.0,
+          "pnl": -469.5
+        },
+        "2026-Q1": {
+          "n": 3,
+          "wr_pct": 0.0,
+          "pnl": -237.0
+        }
+      },
+      "q2_2026_concentration_pct": -0.0,
+      "q2_2026_n": 0,
+      "q2_2026_pnl": 0
+    },
+    "LONG_VIX25": {
+      "label": "LONG_VIX25",
+      "n": 6,
+      "wins": 0,
+      "wr_pct": 0.0,
+      "pnl": -438.0,
+      "positive_quarters": "0/2",
+      "quarters": {
+        "2025-Q2": {
+          "n": 3,
+          "wr_pct": 0.0,
+          "pnl": -201.0
+        },
+        "2026-Q1": {
+          "n": 3,
+          "wr_pct": 0.0,
+          "pnl": -237.0
+        }
+      },
+      "q2_2026_concentration_pct": -0.0,
+      "q2_2026_n": 0,
+      "q2_2026_pnl": 0
+    }
+  },
+  "best_scenario": "LONG_ALL",
+  "op20_disclosure": {
+    "account_size": "$1K paper (qty=3, ~$30-60 per trade at ATM option premiums)",
+    "sample_bias": "391 obs from replay \u2014 watcher-based grading, not production fills",
+    "oos_test": "No walk-forward yet \u2014 pending if VIX gate shows promise",
+    "real_fills": "Not run \u2014 watcher grading uses fixed premium model",
+    "failure_modes": "VIX threshold may not generalize to future high-vol regimes. If VIX reverts to <20, ORB signals would be suppressed entirely.",
+    "concentration": "Q2-2026 concentration in LONG_ALL = ~85%. Best VIX gate Q2 concentration: -0.0%"
+  }
+}

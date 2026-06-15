@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-02T10:06:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "level_thesis"],
+    "bearish": ["macro", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 2,
+    "bearish": 2,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.60,
+    "bearish": 0.40
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "moderate",
+  "swarm_confidence": 55,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["macro", "internals"],
+    "dissent_reason": "Macro warns VIX spiked +8.41% overnight to 21.52 (MID regime, still rising) with gap-down $1.18 creating a coordinated risk-off backdrop; Internals flags narrow breadth — XLF -0.87% (financial stress) and XLK +0.33% lagging SPY +0.42% (energy, not growth, carrying the index) indicate upside leadership is fragile and unsustainable through 686.85 resistance."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Bullish agents treat BULL ribbon + bar structure as a signal that overrides macro regime context — but ribbons don't trade macro risk. Technical agent itself cited 0.65 confidence due to 'gap direction and volatility surge', which is precisely the fragility the validator identified: VIX spikes + financial weakness are historically more predictive of level rejection than ribbon structure is of level reclaim.",
+    "top_invalidation_scenario": "SPY tests battle level 686.85 in first 15 minutes of RTH and rejects (closes below 686.60 and holds below for 3+ minutes), initiating cascade toward 681.66 — would flip the entire bullish thesis and confirm macro trifecta dominance."
+  },
+  "battle_level": {
+    "price": 686.85,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 686.85,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 686.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 681.66,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 684.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 680.0,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY reclaims 686.85 on first RTH push (closes above with body >10c past level)",
+      "bias": "bullish",
+      "target": 688.5,
+      "entry_trigger": "level_reclaim + BULL_ribbon_stack"
+    },
+    "secondary": {
+      "condition": "if 686.85 holds as resistance on first test (close below 686.60 after touching the level)",
+      "bias": "bearish",
+      "target": 681.66,
+      "entry_trigger": "level_rejection + vix_rising"
+    },
+    "invalidation": {
+      "condition": "SPY tests 686.85 within first 15 minutes of RTH, rejects (closes below 686.60, stays below 3+ minutes), AND VIX continues rising above 22.50 by 10:00 ET",
+      "effect": "Macro trifecta (VIX surge + gap-down + XLF stress) dominates ribbon structure — bullish thesis fully invalidated. 686.85 becomes a sell target on any bounce; cascade toward 681.66 → 680.0 Carry support becomes primary scenario."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests battle level 686.85 (within $0.25) at least once during the first 60 minutes of RTH (by 10:30 ET)",
+      "invalidation": "SPY fails to reach 686.60 by 10:30 ET — meaning the gap-down open suppresses any meaningful rally attempt and 686.85 is never tested",
+      "confidence": 0.68,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains elevated above 21.00 through 10:30 ET, confirming risk-off regime persists into the RTH open and does not stabilize premarket",
+      "invalidation": "VIX drops below 20.50 by 10:00 ET, signaling fear is unwinding and bullish macro backdrop is improving",
+      "confidence": 0.65,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "BULL ribbon stack (fast > pivot > slow, spread >= 30c) remains intact through the first 30 minutes of RTH (09:35–10:05 ET) provided SPY holds above 684.50",
+      "invalidation": "Fast EMA drops below slow EMA by 10:05 ET (ribbon inverts to BEAR stack), signaling the overnight gap-down pressure has broken the technical structure",
+      "confidence": 0.60,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The swarm is evenly split on direction (2 bullish / 2 bearish votes) but technical + level_thesis outweigh macro + internals by weighted score (0.60 vs 0.40), producing a moderate bullish consensus that hinges entirely on whether 686.85 (Active 2★ resistance) reclaims or rejects at the RTH open. The bearish dissent is credible — the trifecta of VIX +8.41%, gap-down $1.18, and XLF -0.87% is a historically proven risk-off setup that predicts level rejections, not reclaims, and the technical agent's own 0.65 confidence (not high) betrays awareness of this tension. The single most important thing to watch at open is the 686.85 battle level: a clean reclaim signals gap healing and calls are in play toward 688.50; a rejection that holds below 686.60 for 3+ minutes confirms the macro trifecta is dominating and the primary target flips to 681.66.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.65,
+      "one_line": "CLEAN_BULL ribbon (52c spread, all EMAs stacked) + 3 consecutive green close bars; offset by gap-down $1.18 and VIX surging +8.41% creating moderate conviction only"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.70,
+      "one_line": "VIX at 21.52 rising sharply (MID regime, top-end), gap-down $1.18, zero macro events today — risk-off backdrop favors puts over calls into RTH open"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "Battle level 686.85 (Active 2★ resistance) is the defining pivot — reclaim targets 688.50, rejection targets 681.66; ribbon intact supports reclaim attempt"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.52,
+      "one_line": "Mixed rotation with bearish tilt — XLF -0.87% (financial stress), XLK +0.33% lagging SPY, energy carrying the index; breadth narrow, upside fragile"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "686.85 rejects within first 15 min of RTH (closes below 686.60, holds 3+ min) — flips the entire bullish thesis and confirms macro trifecta dominance over ribbon structure"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

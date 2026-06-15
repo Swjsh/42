@@ -1,0 +1,2484 @@
+{
+  "summary": {
+    "started_at": "2026-05-21T02:23:26.276427+00:00",
+    "finished_at": "2026-05-21T02:23:35.353809+00:00",
+    "symbol": "BTC-USD",
+    "granularity_seconds": 300,
+    "stages": 65,
+    "passed": 63,
+    "failed": 2,
+    "flaky_failed": [],
+    "overall_pass": false,
+    "per_stage": {
+      "v01_closed_bar.offline": true,
+      "v01_closed_bar.live": true,
+      "v02_source_parity": true,
+      "v03_indicators.offline": true,
+      "v03_indicators.live": true,
+      "v04_candlesticks.offline": true,
+      "v04_candlesticks.live": true,
+      "v05_levels.offline": true,
+      "v05_levels.live": true,
+      "v06_trendlines.offline": true,
+      "v06_trendlines.live": true,
+      "v07_volume.offline": true,
+      "v07_volume.live": true,
+      "v08_ribbon.offline": true,
+      "v08_ribbon.live": true,
+      "v09_regime.offline": true,
+      "v09_regime.live": true,
+      "v10_divergence.offline": true,
+      "v10_divergence.live": true,
+      "v11_breakout.offline": true,
+      "v11_breakout.live": true,
+      "v12_multi_timeframe.offline": true,
+      "v12_multi_timeframe.live": true,
+      "v13_tv_mcp_parity.fixture": false,
+      "v14_sweep.offline": true,
+      "v14_sweep.live": true,
+      "v15_three_source_parity.live": true,
+      "v16_session_levels_spy.offline": true,
+      "v16_session_levels_spy.live": false,
+      "v17_entry_gate_timing.offline": true,
+      "v17_entry_gate_timing.live": true,
+      "v18_vix_filter.offline": true,
+      "v18_vix_filter.live": true,
+      "v19_profit_lock.offline": true,
+      "v19_profit_lock.live": true,
+      "v20_strike_selection.offline": true,
+      "v20_strike_selection.live": true,
+      "v21_kill_switch.offline": true,
+      "v21_kill_switch.live": true,
+      "v22_chart_patterns.offline": true,
+      "v22_chart_patterns.live": true,
+      "v23_orb_warmup.offline": true,
+      "v23_orb_warmup.live": true,
+      "v24_runner_invariants.offline": true,
+      "v24_runner_invariants.live": true,
+      "v25_filter_gates.offline": true,
+      "v25_filter_gates.live": true,
+      "v26_ghost_entry_detection.offline": true,
+      "v26_ghost_entry_detection.live": true,
+      "v27_stale_cache_detection.offline": true,
+      "v27_stale_cache_detection.live": true,
+      "v28_nlwb_bounce_gate.offline": true,
+      "v28_nlwb_bounce_gate.live": true,
+      "v29_db_base_quiet_gate.offline": true,
+      "v29_db_base_quiet_gate.live": true,
+      "v30_db_morning_low_vol_gate.offline": true,
+      "v30_db_morning_low_vol_gate.live": true,
+      "v31_momentum_accel_highvol_gate.offline": true,
+      "v31_momentum_accel_highvol_gate.live": true,
+      "v32_db_base_quiet_gate.offline": true,
+      "v32_db_base_quiet_gate.live": true,
+      "v33_close_ceiling_detection.offline": true,
+      "v33_close_ceiling_detection.live": true,
+      "v34_ceiling_floor_watcher_gate.offline": true,
+      "v34_ceiling_floor_watcher_gate.live": true
+    }
+  },
+  "runs": [
+    {
+      "name": "v01_closed_bar.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_empty_series",
+            "pass": true,
+            "verdict": "no_closed_bars"
+          },
+          {
+            "name": "T2_only_in_progress",
+            "pass": true,
+            "verdict": "future_bar"
+          },
+          {
+            "name": "T3_boundary_close",
+            "pass": true,
+            "verdict": "ok"
+          },
+          {
+            "name": "T4_foot_gun_scenario",
+            "pass": true,
+            "verdict": "ok"
+          },
+          {
+            "name": "T5_multi_in_progress_tail",
+            "pass": true,
+            "verdict": "ok"
+          },
+          {
+            "name": "T6_stale_data",
+            "pass": true,
+            "verdict": "stale_data"
+          },
+          {
+            "name": "T7_reject_naive_now",
+            "pass": true,
+            "verdict": "ValueError raised"
+          },
+          {
+            "name": "T8_dst_transition_transparent",
+            "pass": true,
+            "verdict": "verdict=ok closed=2026-03-08T05:55:00+00:00"
+          },
+          {
+            "name": "T9_granularity_mismatch_rejected",
+            "pass": true,
+            "verdict": "ValueError raised"
+          },
+          {
+            "name": "T10_microsecond_timestamp_edge_case",
+            "pass": true,
+            "verdict": "verdict=future_bar (expected future_bar \u2014 microsecond offset pushes close past now)"
+          },
+          {
+            "name": "T11_duplicate_timestamp_rejected",
+            "pass": true,
+            "verdict": "ValueError raised"
+          },
+          {
+            "name": "T12_gap_in_bar_stream_transparent",
+            "pass": true,
+            "verdict": "verdict=ok last=2026-05-16T13:15:00+00:00"
+          }
+        ],
+        "passed": 12,
+        "total": 12,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v01_closed_bar.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "source": "coinbase",
+        "symbol": "BTC-USD",
+        "granularity_seconds": 300,
+        "fetched_at": "2026-05-21T02:23:26.276593+00:00",
+        "bars_count": 20,
+        "verdict": "ok",
+        "naive_last_bar_in_progress": true,
+        "naive_last_bar_open": "2026-05-21T02:20:00+00:00",
+        "naive_last_bar_seconds_until_close": 93.723407,
+        "filtered_last_closed_open": "2026-05-21T02:15:00+00:00",
+        "filtered_last_closed_age_seconds": 206.276593,
+        "bars_rejected_as_in_progress": 1,
+        "foot_gun_caught_this_fetch": true,
+        "ohlc_delta_naive_minus_filtered": {
+          "open": 108.44999999999709,
+          "high": 30.880000000004657,
+          "low": 123.63999999999942,
+          "close": 29.129999999990105,
+          "volume": -6.578894569999999
+        },
+        "pass": true
+      }
+    },
+    {
+      "name": "v02_source_parity",
+      "ok": true,
+      "result": {
+        "checked_at": "2026-05-21T02:23:26.540113+00:00",
+        "symbol": "BTC-USD",
+        "granularity_seconds": 300,
+        "coinbase_closed_bars": 19,
+        "yfinance_closed_bars": 19,
+        "shared_bars": 18,
+        "disagreements_above_tolerance": 0,
+        "price_tolerance_pct": 0.05,
+        "disagreements": [],
+        "pass": true
+      }
+    },
+    {
+      "name": "v03_indicators.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_ema_flat_series",
+            "pass": true,
+            "note": "ema[-1]=100.0"
+          },
+          {
+            "name": "T2_rsi_up_trend",
+            "pass": true,
+            "note": "rsi[-1]=100.0000"
+          },
+          {
+            "name": "T3_rsi_down_trend",
+            "pass": true,
+            "note": "rsi[-1]=0.0000"
+          },
+          {
+            "name": "T4_rsi_bounded",
+            "pass": true,
+            "note": "all values in [0,100] or NaN"
+          },
+          {
+            "name": "T5_atr_flat_series",
+            "pass": true,
+            "note": "atr[-1]=0.200000"
+          },
+          {
+            "name": "T6_vwap_flat",
+            "pass": true,
+            "note": "vwap[-1]=100.0"
+          },
+          {
+            "name": "T7_tr_first_bar",
+            "pass": true,
+            "note": "tr[0]=0.19999999999998863"
+          }
+        ],
+        "passed": 7,
+        "total": 7,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v03_indicators.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "symbol": "BTC-USD",
+        "granularity_seconds": 300,
+        "closed_bars": 199,
+        "last_close": 77910.91,
+        "rsi_14_last": 61.11707156631309,
+        "ema_20_last": 77785.91595168375,
+        "atr_14_last": 99.20296144920532,
+        "vwap_last": 77396.99994523785,
+        "high_max": 78100.0,
+        "low_min": 76794.91,
+        "checks": {
+          "rsi_bounded_0_100": true,
+          "rsi_no_nan_after_warmup": true,
+          "ema_no_nan_after_warmup": true,
+          "vwap_in_lo_hi_range": true
+        },
+        "pass": true
+      }
+    },
+    {
+      "name": "v04_candlesticks.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_bullish_engulfing_fires",
+            "pass": true,
+            "note": "[PatternHit(bar_index=1, pattern='bullish_engulfing', confidence=1.0)]"
+          },
+          {
+            "name": "T2_bullish_engulfing_skip",
+            "pass": true,
+            "note": "[]"
+          },
+          {
+            "name": "T3_bearish_engulfing_fires",
+            "pass": true,
+            "note": "[PatternHit(bar_index=1, pattern='bearish_engulfing', confidence=1.0)]"
+          },
+          {
+            "name": "T4_doji_fires",
+            "pass": true,
+            "note": "[PatternHit(bar_index=0, pattern='doji', confidence=1.0)]"
+          },
+          {
+            "name": "T5_doji_skip_full_body",
+            "pass": true,
+            "note": "[]"
+          },
+          {
+            "name": "T6_hammer_fires",
+            "pass": true,
+            "note": "[PatternHit(bar_index=0, pattern='hammer', confidence=1.0)]"
+          },
+          {
+            "name": "T7_shooting_star_fires",
+            "pass": true,
+            "note": "[PatternHit(bar_index=0, pattern='shooting_star', confidence=1.0)]"
+          },
+          {
+            "name": "T8_inside_bar_fires",
+            "pass": true,
+            "note": "[PatternHit(bar_index=1, pattern='inside_bar', confidence=1.0)]"
+          },
+          {
+            "name": "T9_inside_bar_skip",
+            "pass": true,
+            "note": "[]"
+          }
+        ],
+        "passed": 9,
+        "total": 9,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v04_candlesticks.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "symbol": "BTC-USD",
+        "granularity_seconds": 300,
+        "closed_bars": 199,
+        "total_hits": 112,
+        "hits_by_pattern": {
+          "doji": {
+            "count": 21,
+            "open_times": [
+              "2026-05-20T23:25:00+00:00",
+              "2026-05-21T00:05:00+00:00",
+              "2026-05-21T01:05:00+00:00",
+              "2026-05-21T01:20:00+00:00",
+              "2026-05-21T01:30:00+00:00"
+            ]
+          },
+          "bullish_engulfing": {
+            "count": 18,
+            "open_times": [
+              "2026-05-20T20:25:00+00:00",
+              "2026-05-20T23:30:00+00:00",
+              "2026-05-21T00:20:00+00:00",
+              "2026-05-21T01:10:00+00:00",
+              "2026-05-21T01:40:00+00:00"
+            ]
+          },
+          "inside_bar": {
+            "count": 34,
+            "open_times": [
+              "2026-05-21T00:20:00+00:00",
+              "2026-05-21T00:55:00+00:00",
+              "2026-05-21T01:30:00+00:00",
+              "2026-05-21T01:45:00+00:00",
+              "2026-05-21T01:55:00+00:00"
+            ]
+          },
+          "hammer": {
+            "count": 14,
+            "open_times": [
+              "2026-05-20T21:00:00+00:00",
+              "2026-05-20T21:05:00+00:00",
+              "2026-05-20T23:15:00+00:00",
+              "2026-05-21T00:35:00+00:00",
+              "2026-05-21T01:25:00+00:00"
+            ]
+          },
+          "bearish_engulfing": {
+            "count": 18,
+            "open_times": [
+              "2026-05-21T00:15:00+00:00",
+              "2026-05-21T00:35:00+00:00",
+              "2026-05-21T01:25:00+00:00",
+              "2026-05-21T01:35:00+00:00",
+              "2026-05-21T02:05:00+00:00"
+            ]
+          },
+          "shooting_star": {
+            "count": 7,
+            "open_times": [
+              "2026-05-20T14:30:00+00:00",
+              "2026-05-20T15:20:00+00:00",
+              "2026-05-20T20:35:00+00:00",
+              "2026-05-20T20:55:00+00:00",
+              "2026-05-21T01:40:00+00:00"
+            ]
+          }
+        },
+        "pass": true
+      }
+    },
+    {
+      "name": "v05_levels.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_prior_period_high",
+            "pass": true,
+            "note": "hi=Level(price=110, kind=<LevelKind.PRIOR_PERIOD_HIGH: 'prior_period_high'>, str"
+          },
+          {
+            "name": "T2_prior_period_low",
+            "pass": true,
+            "note": "lo=Level(price=95, kind=<LevelKind.PRIOR_PERIOD_LOW: 'prior_period_low'>, streng"
+          },
+          {
+            "name": "T3_round_numbers",
+            "pass": true,
+            "note": "prices=[78000, 79000, 80000, 81000, 82000]"
+          },
+          {
+            "name": "T4_round_strength_star3",
+            "pass": true,
+            "note": "strength=3"
+          },
+          {
+            "name": "T5_reclaim",
+            "pass": true,
+            "note": "event=LevelEvent.RECLAIM"
+          },
+          {
+            "name": "T6_break",
+            "pass": true,
+            "note": "event=LevelEvent.BREAK"
+          },
+          {
+            "name": "T7_reject_below",
+            "pass": true,
+            "note": "event=LevelEvent.REJECT"
+          },
+          {
+            "name": "T8_hold",
+            "pass": true,
+            "note": "event=LevelEvent.HOLD"
+          },
+          {
+            "name": "T9_pivot_p",
+            "pass": true,
+            "note": "p=101.66666666666667"
+          },
+          {
+            "name": "T10_nearest_top3",
+            "pass": true,
+            "note": "near=[79000, 80000, 81000]"
+          }
+        ],
+        "passed": 10,
+        "total": 10,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v05_levels.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "symbol": "BTC-USD",
+        "granularity_seconds": 300,
+        "closed_bars": 199,
+        "last_close": 77910.91,
+        "nearest_5_levels": [
+          {
+            "price": 78000,
+            "kind": "round_number",
+            "strength": 1,
+            "label": "Round 78000"
+          },
+          {
+            "price": 78100.0,
+            "kind": "prior_period_high",
+            "strength": 2,
+            "label": "Prior-96-bar H"
+          },
+          {
+            "price": 77142.29,
+            "kind": "prior_period_low",
+            "strength": 2,
+            "label": "Prior-96-bar L"
+          },
+          {
+            "price": 77000,
+            "kind": "round_number",
+            "strength": 1,
+            "label": "Round 77000"
+          },
+          {
+            "price": 79000,
+            "kind": "round_number",
+            "strength": 1,
+            "label": "Round 79000"
+          }
+        ],
+        "event_counts": {
+          "prior_period_low:hold": 9,
+          "round_number:hold": 4,
+          "prior_period_low:reject": 6,
+          "round_number:reject": 2,
+          "prior_period_low:reclaim": 1,
+          "round_number:reclaim": 1,
+          "round_number:break": 1,
+          "prior_period_high:reject": 1
+        },
+        "pass": true
+      }
+    },
+    {
+      "name": "v06_trendlines.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_v_shape_swing_low",
+            "pass": true,
+            "note": "swings=[SwingPoint(bar_index=5, bar_time_unix=1778891100.0, price=94.5, kind='sw"
+          },
+          {
+            "name": "T2_ascending_peaks",
+            "pass": true,
+            "note": "n_highs=4"
+          },
+          {
+            "name": "T3_fit_two_points",
+            "pass": true,
+            "note": "slope=0.0033333333333333335"
+          },
+          {
+            "name": "T4_project_forward",
+            "pass": true,
+            "note": "projected=120.0"
+          },
+          {
+            "name": "T5_single_point_none",
+            "pass": true,
+            "note": "None expected"
+          }
+        ],
+        "passed": 5,
+        "total": 5,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v06_trendlines.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "closed_bars": 199,
+        "swing_highs": 16,
+        "swing_lows": 18,
+        "resistance_slope_per_hr": 28.42883073130642,
+        "resistance_projected_at_last_bar": 77879.54313239641,
+        "resistance_touches": 65,
+        "support_slope_per_hr": 37.438740056293184,
+        "support_projected_at_last_bar": 77575.01285713166,
+        "support_touches": 32,
+        "last_close": 77910.91,
+        "pass": true
+      }
+    },
+    {
+      "name": "v07_volume.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_rolling_constant",
+            "pass": true,
+            "note": "m[-1]=100.0"
+          },
+          {
+            "name": "T2_ratio_2x",
+            "pass": true,
+            "note": "ratio=2.0"
+          },
+          {
+            "name": "T3_ratio_half",
+            "pass": true,
+            "note": "ratio=0.5"
+          },
+          {
+            "name": "T4_threshold_150",
+            "pass": true,
+            "note": "150=True 149=False"
+          },
+          {
+            "name": "T5_nan_before_warmup",
+            "pass": true,
+            "note": "all NaN"
+          },
+          {
+            "name": "T6_excludes_current",
+            "pass": true,
+            "note": "ratio=100.0"
+          }
+        ],
+        "passed": 6,
+        "total": 6,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v07_volume.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "closed_bars": 199,
+        "ratios_valid": 179,
+        "ratio_min": 0.1488059948090414,
+        "ratio_max": 9.26058831186823,
+        "ratio_mean": 1.0982649008295957,
+        "bars_above_1_5x": 26,
+        "bars_above_2x": 15,
+        "bars_above_3x": 9,
+        "pass": true
+      }
+    },
+    {
+      "name": "v08_ribbon.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_uptrend_bull",
+            "pass": true,
+            "note": "status=BULL"
+          },
+          {
+            "name": "T2_downtrend_bear",
+            "pass": true,
+            "note": "status=BEAR"
+          },
+          {
+            "name": "T3_flat_mixed",
+            "pass": true,
+            "note": "status=MIXED"
+          },
+          {
+            "name": "T4_short_series_mixed",
+            "pass": true,
+            "note": "status=MIXED"
+          },
+          {
+            "name": "T5_spread_positive",
+            "pass": true,
+            "note": "spread=11.50"
+          }
+        ],
+        "passed": 5,
+        "total": 5,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v08_ribbon.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "closed_bars": 199,
+        "last": {
+          "fast": 77820.9329415487,
+          "pivot": 77781.58626957744,
+          "slow": 77660.92534568922,
+          "spread": 160.00759585948254,
+          "status": "BULL"
+        },
+        "status_distribution": {
+          "BULL": 71,
+          "BEAR": 37,
+          "MIXED": 91
+        },
+        "pass": true
+      }
+    },
+    {
+      "name": "v09_regime.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_flat_chop",
+            "pass": true,
+            "note": "last10=['CHOP', 'CHOP', 'CHOP', 'CHOP', 'CHOP']"
+          },
+          {
+            "name": "T2_uptrend_trend_up",
+            "pass": true,
+            "note": "last=TREND_UP"
+          },
+          {
+            "name": "T3_downtrend_trend_down",
+            "pass": true,
+            "note": "last=TREND_DOWN"
+          },
+          {
+            "name": "T4_jump_breakout",
+            "pass": true,
+            "note": "last=BREAKOUT"
+          }
+        ],
+        "passed": 4,
+        "total": 4,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v09_regime.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "closed_bars": 199,
+        "last_regime": "TREND_UP",
+        "atr_14": 99.20296144920532,
+        "median_atr_50": 88.0329900770827,
+        "regime_distribution": {
+          "TREND_DOWN": 62,
+          "TREND_UP": 84,
+          "BREAKOUT": 4,
+          "CHOP": 30
+        },
+        "pass": true
+      }
+    },
+    {
+      "name": "v10_divergence.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_synth_runs_without_crash",
+            "pass": true,
+            "note": "hits=0"
+          },
+          {
+            "name": "T2_too_short_empty",
+            "pass": true,
+            "note": "empty"
+          },
+          {
+            "name": "T3_strict_monotonic_no_swings",
+            "pass": true,
+            "note": "hits=0"
+          }
+        ],
+        "passed": 3,
+        "total": 3,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v10_divergence.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "closed_bars": 199,
+        "divergences_count": 3,
+        "by_kind": {
+          "bearish_regular": 2,
+          "bullish_regular": 1
+        },
+        "examples": [
+          {
+            "kind": "bearish_regular",
+            "first_idx": 125,
+            "second_idx": 133,
+            "price_first": 77681.67,
+            "price_second": 77688.69,
+            "rsi_first": 68.45323248621688,
+            "rsi_second": 58.38345308475908
+          },
+          {
+            "kind": "bearish_regular",
+            "first_idx": 181,
+            "second_idx": 186,
+            "price_first": 78000.0,
+            "price_second": 78100.0,
+            "rsi_first": 81.3533110317663,
+            "rsi_second": 58.744635690788776
+          },
+          {
+            "kind": "bullish_regular",
+            "first_idx": 46,
+            "second_idx": 53,
+            "price_first": 76886.7,
+            "price_second": 76794.91,
+            "rsi_first": 23.25704933532046,
+            "rsi_second": 32.10170135989753
+          }
+        ],
+        "pass": true
+      }
+    },
+    {
+      "name": "v11_breakout.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_clean_breakout",
+            "pass": true,
+            "note": "hits=[BreakoutHit(bar_index=20, level_price=100.0, close=100.8, direction='up', "
+          },
+          {
+            "name": "T2_no_volume_no_break",
+            "pass": true,
+            "note": "hits=[]"
+          },
+          {
+            "name": "T3_break_down",
+            "pass": true,
+            "note": "hits=[BreakoutHit(bar_index=20, level_price=100.0, close=99.2, direction='down',"
+          },
+          {
+            "name": "T4_marginal_no_break",
+            "pass": true,
+            "note": "hits=[]"
+          }
+        ],
+        "passed": 4,
+        "total": 4,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v11_breakout.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "closed_bars": 199,
+        "levels_count": 7,
+        "breakout_hits": 0,
+        "by_direction": {
+          "up": 0,
+          "down": 0
+        },
+        "examples": [],
+        "pass": true
+      }
+    },
+    {
+      "name": "v12_multi_timeframe.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_5m_open_matches",
+            "pass": true,
+            "note": "open=100.0"
+          },
+          {
+            "name": "T2_5m_close_matches",
+            "pass": true,
+            "note": "close=100.42"
+          },
+          {
+            "name": "T3_5m_volume_sum",
+            "pass": true,
+            "note": "vol=50.0"
+          },
+          {
+            "name": "T4_15m_count",
+            "pass": true,
+            "note": "n=4"
+          },
+          {
+            "name": "T5_chained_agg_matches",
+            "pass": true,
+            "note": "chained=4 direct=4"
+          },
+          {
+            "name": "T6_chained_agg_values_match",
+            "pass": true,
+            "note": "OHLC matches"
+          }
+        ],
+        "passed": 6,
+        "total": 6,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v12_multi_timeframe.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "symbol": "BTC-USD",
+        "checked_at": "2026-05-21T02:23:32.893209+00:00",
+        "1m_closed_bars": 200,
+        "5m_closed_bars": 59,
+        "15m_closed_bars": 29,
+        "agg_1m_to_5m_vs_native_5m": {
+          "shared": 38,
+          "price_disagreements": [],
+          "price_disagreements_count": 0,
+          "vol_disagreements": [],
+          "vol_disagreements_count": 0,
+          "pass": true
+        },
+        "agg_5m_to_15m_vs_native_15m": {
+          "shared": 18,
+          "price_disagreements": [],
+          "price_disagreements_count": 0,
+          "vol_disagreements": [],
+          "vol_disagreements_count": 0,
+          "pass": true
+        },
+        "pass": true
+      }
+    },
+    {
+      "name": "v13_tv_mcp_parity.fixture",
+      "ok": false,
+      "error": "[Errno 2] No such file or directory: 'crypto\\\\data\\\\fixtures\\\\tv_mcp_snapshot_2026-05-16T14-24Z.json'",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\jackw\\Desktop\\42\\crypto\\validators\\runner.py\", line 46, in _run\n    return {\"name\": name, \"ok\": True, \"result\": fn(*args, **kwargs)}\n                                                ~~^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\jackw\\Desktop\\42\\crypto\\validators\\v13_tv_mcp_parity.py\", line 121, in run_fixture\n    fixture = json.loads(fixture_path.read_text())\n                         ~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_3.13.3568.0_x64__qbz5n2kfra8p0\\Lib\\pathlib\\_local.py\", line 546, in read_text\n    return PathBase.read_text(self, encoding, errors, newline)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_3.13.3568.0_x64__qbz5n2kfra8p0\\Lib\\pathlib\\_abc.py\", line 632, in read_text\n    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_3.13.3568.0_x64__qbz5n2kfra8p0\\Lib\\pathlib\\_local.py\", line 537, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: 'crypto\\\\data\\\\fixtures\\\\tv_mcp_snapshot_2026-05-16T14-24Z.json'\n"
+    },
+    {
+      "name": "v14_sweep.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_5_14_sweep_detected",
+            "pass": true,
+            "note": "hits=[SweepHit(bar_index=3, level_price=745.43, direction='up', wick_excess_pct="
+          },
+          {
+            "name": "T2_reclaim_not_sweep",
+            "pass": true,
+            "note": "hits=[]"
+          },
+          {
+            "name": "T3_down_sweep",
+            "pass": true,
+            "note": "hits=[SweepHit(bar_index=1, level_price=100, direction='down', wick_excess_pct=1"
+          },
+          {
+            "name": "T4_not_clean_no_sweep",
+            "pass": true,
+            "note": "hits=[]"
+          },
+          {
+            "name": "T5_marginal_wick_no_sweep",
+            "pass": true,
+            "note": "hits=[]"
+          }
+        ],
+        "passed": 5,
+        "total": 5,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v14_sweep.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "closed_bars": 199,
+        "levels": 5,
+        "sweep_hits": 1,
+        "by_direction": {
+          "up": 0,
+          "down": 1
+        },
+        "examples": [
+          {
+            "bar_idx": 50,
+            "level": 77000,
+            "dir": "down",
+            "wick_excess_pct": 0.04679220779220628,
+            "close_back_pct": 0.16305194805195183
+          }
+        ],
+        "pass": true
+      }
+    },
+    {
+      "name": "v15_three_source_parity.live",
+      "ok": true,
+      "result": {
+        "checked_at": "2026-05-21T02:23:34.024438+00:00",
+        "symbol": "BTC-USD",
+        "granularity_seconds": 300,
+        "three_way_shared_bars": 28,
+        "coinbase_closed_bars": 28,
+        "yfinance_closed_bars": 28,
+        "alpaca_closed_bars": 28,
+        "spreads_bp_mean": 1.218,
+        "spreads_bp_max": 3.18,
+        "tolerance_pct": 0.05,
+        "violations_count": 0,
+        "violations": [],
+        "median_disagrees": {
+          "coinbase": 0,
+          "yfinance": 0,
+          "alpaca": 0
+        },
+        "pass": true
+      }
+    },
+    {
+      "name": "v16_session_levels_spy.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_premarket_high",
+            "pass": true,
+            "note": "pmh=747.1697  expected~747.1697"
+          },
+          {
+            "name": "T2_rth_open_matches_0930",
+            "pass": true,
+            "note": "rth_open=747.0"
+          },
+          {
+            "name": "T3_ib_high_first_30min",
+            "pass": true,
+            "note": "ib_high=747.6923  expected~747.6923"
+          },
+          {
+            "name": "T4_ib_has_6_bars",
+            "pass": true,
+            "note": "ib=6 bars"
+          },
+          {
+            "name": "T5_premarket_66_bars",
+            "pass": true,
+            "note": "pm=66 bars"
+          },
+          {
+            "name": "T6_rth_78_bars",
+            "pass": true,
+            "note": "rth=78 bars"
+          },
+          {
+            "name": "T7_empty_session",
+            "pass": true,
+            "note": "all None on empty input"
+          },
+          {
+            "name": "T8_5_levels_produced",
+            "pass": true,
+            "note": "got 5 levels"
+          }
+        ],
+        "passed": 8,
+        "total": 8,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v16_session_levels_spy.live",
+      "ok": false,
+      "error": "[Errno 2] No such file or directory: 'backtest\\\\data\\\\spy_5m_2025-01-01_2026-05-15.csv'",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\jackw\\Desktop\\42\\crypto\\validators\\runner.py\", line 46, in _run\n    return {\"name\": name, \"ok\": True, \"result\": fn(*args, **kwargs)}\n                                                ~~^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\jackw\\Desktop\\42\\crypto\\validators\\v16_session_levels_spy.py\", line 120, in run_live\n    df = pd.read_csv(csv_path)\n  File \"C:\\Users\\jackw\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\pandas\\io\\parsers\\readers.py\", line 1026, in read_csv\n    return _read(filepath_or_buffer, kwds)\n  File \"C:\\Users\\jackw\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\pandas\\io\\parsers\\readers.py\", line 620, in _read\n    parser = TextFileReader(filepath_or_buffer, **kwds)\n  File \"C:\\Users\\jackw\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\pandas\\io\\parsers\\readers.py\", line 1620, in __init__\n    self._engine = self._make_engine(f, self.engine)\n                   ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\jackw\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\pandas\\io\\parsers\\readers.py\", line 1880, in _make_engine\n    self.handles = get_handle(\n                   ~~~~~~~~~~^\n        f,\n        ^^\n    ...<6 lines>...\n        storage_options=self.options.get(\"storage_options\", None),\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"C:\\Users\\jackw\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\pandas\\io\\common.py\", line 873, in get_handle\n    handle = open(\n        handle,\n    ...<3 lines>...\n        newline=\"\",\n    )\nFileNotFoundError: [Errno 2] No such file or directory: 'backtest\\\\data\\\\spy_5m_2025-01-01_2026-05-15.csv'\n"
+    },
+    {
+      "name": "v17_entry_gate_timing.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_09_32_before_open",
+            "pass": true,
+            "note": "passed=False reason=before_open"
+          },
+          {
+            "name": "T2_09_34_59_before_open",
+            "pass": true,
+            "note": "passed=False reason=before_open"
+          },
+          {
+            "name": "T3_09_35_boundary_inclusive",
+            "pass": true,
+            "note": "passed=True reason=ok"
+          },
+          {
+            "name": "T4_09_36_accept",
+            "pass": true,
+            "note": "passed=True reason=ok"
+          },
+          {
+            "name": "T5_10_30_accept",
+            "pass": true,
+            "note": "passed=True reason=ok"
+          },
+          {
+            "name": "T6_14_30_no_blackout_v15_1",
+            "pass": true,
+            "note": "passed=True reason=ok"
+          },
+          {
+            "name": "T7_14_59_59_last_legal",
+            "pass": true,
+            "note": "passed=True reason=ok"
+          },
+          {
+            "name": "T8_15_00_boundary_exclusive",
+            "pass": true,
+            "note": "passed=False reason=after_close"
+          },
+          {
+            "name": "T9_15_30_after_close",
+            "pass": true,
+            "note": "passed=False reason=after_close"
+          },
+          {
+            "name": "T10_R2_bar_in_progress",
+            "pass": true,
+            "note": "passed=False reason=bar_in_progress bar_close=10:00:00"
+          },
+          {
+            "name": "T11_R2_bar_closed_at_boundary",
+            "pass": true,
+            "note": "passed=True reason=ok bar_close=10:00:00"
+          },
+          {
+            "name": "T12_legacy_v14_midday_blackout",
+            "pass": true,
+            "note": "passed=False reason=midday_blackout"
+          }
+        ],
+        "passed": 12,
+        "total": 12,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v17_entry_gate_timing.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "now_et": "2026-05-20T22:23:34.880524",
+        "decision": {
+          "passed": false,
+          "reason": "after_close",
+          "now_et_time": "22:23:34.880524"
+        },
+        "pass": true
+      }
+    },
+    {
+      "name": "v18_vix_filter.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_sub_deadband_decline_3bar_catches",
+            "pass": true,
+            "note": "1bar=flat 3bar=falling"
+          },
+          {
+            "name": "T2_sub_deadband_climb_3bar_catches",
+            "pass": true,
+            "note": "1bar=flat 3bar=rising"
+          },
+          {
+            "name": "T3_above_deadband_drop_both_falling",
+            "pass": true,
+            "note": "1bar=falling 3bar=falling"
+          },
+          {
+            "name": "T4_above_deadband_rise_both_rising",
+            "pass": true,
+            "note": "1bar=rising 3bar=rising"
+          },
+          {
+            "name": "T5_true_flat_both_flat",
+            "pass": true,
+            "note": "1bar=flat 3bar=flat"
+          },
+          {
+            "name": "T6_F8_bull_under_threshold_passes",
+            "pass": true,
+            "note": "passes=True"
+          },
+          {
+            "name": "T7_F8_bull_above_threshold_but_falling_passes",
+            "pass": true,
+            "note": "passes=True"
+          },
+          {
+            "name": "T8_F8_bull_above_threshold_and_flat_rejects",
+            "pass": true,
+            "note": "passes=False"
+          },
+          {
+            "name": "T9_F8_bull_hard_cap_rejects_even_falling",
+            "pass": true,
+            "note": "passes=False"
+          },
+          {
+            "name": "T10_F8_bear_above_threshold_and_rising_passes",
+            "pass": true,
+            "note": "passes=True"
+          }
+        ],
+        "passed": 10,
+        "total": 10,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v18_vix_filter.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "fetched_at": "2026-05-21T02:23:35.128222+00:00",
+        "bars_count": 312,
+        "vix_now": 17.450000762939453,
+        "vix_hist_last3": [
+          17.3799991607666,
+          17.389999389648438,
+          17.43000030517578
+        ],
+        "single_bar_direction": "flat",
+        "three_bar_direction": "rising",
+        "three_bar_prior_used": 17.3799991607666,
+        "filter_8_bull_passes": false,
+        "filter_8_bear_passes": true,
+        "single_vs_three_bar_differ": true,
+        "pass": true
+      }
+    },
+    {
+      "name": "v19_profit_lock.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_just_under_threshold_not_armed",
+            "pass": true,
+            "note": "armed=False stop_floor=0.92"
+          },
+          {
+            "name": "T2_at_threshold_arms_to_BE",
+            "pass": true,
+            "note": "armed=True stop_floor=1.0"
+          },
+          {
+            "name": "T3_hwm_ratchet_trails_at_20pct_off",
+            "pass": true,
+            "note": "hwm=1.5 stop_floor=1.2000000000000002"
+          },
+          {
+            "name": "T4_retracement_stop_floor_monotonic",
+            "pass": true,
+            "note": "hwm=1.5 stop_floor=1.2000000000000002"
+          },
+          {
+            "name": "T5_stop_trigger_boundary",
+            "pass": true,
+            "note": "at_floor=True below=True above=False"
+          },
+          {
+            "name": "T6_hwm_only_goes_up",
+            "pass": true,
+            "note": "hwm=1.5 after oscillation"
+          },
+          {
+            "name": "T7_unarmed_stop_floor_preserved",
+            "pass": true,
+            "note": "armed=False stop_floor=0.92"
+          },
+          {
+            "name": "T8_arm_does_not_lower_stop",
+            "pass": true,
+            "note": "armed=True stop_floor=1.1"
+          },
+          {
+            "name": "T9_trailing_classic_scenario",
+            "pass": true,
+            "note": "hwm=1.5 stop_floor=1.2000000000000002"
+          },
+          {
+            "name": "T10_fixed_mode_does_not_trail",
+            "pass": true,
+            "note": "armed=True stop_floor=1.0 hwm=1.5"
+          }
+        ],
+        "passed": 10,
+        "total": 10,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v19_profit_lock.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "pass": true,
+        "note": "profit-lock is a pure state machine \u2014 no live data dependency"
+      }
+    },
+    {
+      "name": "v20_strike_selection.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_bold_1k_bull_OTM3",
+            "pass": true,
+            "note": "strike=743 expected=743"
+          },
+          {
+            "name": "T2_bold_1k_bear_OTM3",
+            "pass": true,
+            "note": "strike=737 expected=737"
+          },
+          {
+            "name": "T3_bold_5k_bull_OTM2",
+            "pass": true,
+            "note": "strike=742 expected=742"
+          },
+          {
+            "name": "T4_bold_9k_bear_OTM2",
+            "pass": true,
+            "note": "strike=738 expected=738"
+          },
+          {
+            "name": "T5_bold_15k_bull_OTM1",
+            "pass": true,
+            "note": "strike=741 expected=741"
+          },
+          {
+            "name": "T6_bold_24k_bear_OTM1",
+            "pass": true,
+            "note": "strike=739 expected=739"
+          },
+          {
+            "name": "T7_bold_50k_bull_ITM2",
+            "pass": true,
+            "note": "strike=738 expected=738"
+          },
+          {
+            "name": "T8_bold_50k_bear_ITM2",
+            "pass": true,
+            "note": "strike=742 expected=742"
+          },
+          {
+            "name": "T9_boundary_2k_inclusive_lower",
+            "pass": true,
+            "note": "tier=(2000.0,10000.0) offset=-2"
+          },
+          {
+            "name": "T10_boundary_25k_ITM2_tier",
+            "pass": true,
+            "note": "tier=(25000.0,999999999.0) offset=2"
+          },
+          {
+            "name": "T11_safe_1k_bull_ATM",
+            "pass": true,
+            "note": "strike=740 expected=740"
+          },
+          {
+            "name": "T12_moneyness_sanity_invariant",
+            "pass": true,
+            "note": "all OK"
+          }
+        ],
+        "passed": 12,
+        "total": 12,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v20_strike_selection.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "pass": true,
+        "note": "strike-selection is pure config math \u2014 no live data needed"
+      }
+    },
+    {
+      "name": "v21_kill_switch.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_safe_under_threshold_not_tripped",
+            "pass": true,
+            "note": "tripped=False"
+          },
+          {
+            "name": "T2_safe_at_threshold_boundary_tripped",
+            "pass": true,
+            "note": "tripped=True at_equity=700.0"
+          },
+          {
+            "name": "T3_safe_past_threshold_tripped",
+            "pass": true,
+            "note": "tripped=True"
+          },
+          {
+            "name": "T4_bold_under_threshold_not_tripped",
+            "pass": true,
+            "note": "tripped=False"
+          },
+          {
+            "name": "T5_bold_at_50pct_boundary_tripped",
+            "pass": true,
+            "note": "tripped=True at_equity=500.0"
+          },
+          {
+            "name": "T6_latching_trip_then_recover_stays_tripped",
+            "pass": true,
+            "note": "tripped=True at_equity=700.0"
+          },
+          {
+            "name": "T7_latching_oscillation_stays_tripped",
+            "pass": true,
+            "note": "tripped=True min_seen=700.0"
+          },
+          {
+            "name": "T8_above_threshold_never_trips",
+            "pass": true,
+            "note": "tripped=False min_seen=720.0"
+          },
+          {
+            "name": "T9_trading_allowed_flips_and_stays_false",
+            "pass": true,
+            "note": "before=True after_trip=False after_recover=False"
+          },
+          {
+            "name": "T10_account_isolation_safe_trip_no_affect_on_bold",
+            "pass": true,
+            "note": "safe.tripped=True bold.tripped=False"
+          },
+          {
+            "name": "T11_defensive_invalid_start_equity_raises",
+            "pass": true,
+            "note": "ValueError raised on zero/negative"
+          },
+          {
+            "name": "T12_defensive_invalid_threshold_pct_raises",
+            "pass": true,
+            "note": "a=True b=True c=True"
+          }
+        ],
+        "passed": 12,
+        "total": 12,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v21_kill_switch.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "pass": true,
+        "note": "kill-switch is pure state machine \u2014 no live data dependency"
+      }
+    },
+    {
+      "name": "v22_chart_patterns.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_textbook_double_bottom",
+            "pass": true,
+            "note": "hit=double_bottom bias=bullish"
+          },
+          {
+            "name": "T2_textbook_double_top",
+            "pass": true,
+            "note": "hit=double_top bias=bearish"
+          },
+          {
+            "name": "T3_textbook_failed_breakdown_wick",
+            "pass": true,
+            "note": "hit=failed_breakdown_wick"
+          },
+          {
+            "name": "T4_textbook_rejection_at_level",
+            "pass": true,
+            "note": "hit=rejection_at_level_bearish"
+          },
+          {
+            "name": "T5_empty_input_returns_none",
+            "pass": true,
+            "note": "all_none=True"
+          },
+          {
+            "name": "T6_too_few_bars_returns_none",
+            "pass": true,
+            "note": "all_none=True"
+          },
+          {
+            "name": "T7_trending_returns_none",
+            "pass": true,
+            "note": "all_none=True"
+          },
+          {
+            "name": "T8_pattern_hit_immutable",
+            "pass": true,
+            "note": "mutation correctly rejected"
+          },
+          {
+            "name": "T9_momentum_acceleration",
+            "pass": true,
+            "note": "hit=momentum_acceleration"
+          },
+          {
+            "name": "T10_inside_bar_consolidation",
+            "pass": true,
+            "note": "hit=inside_bar_consolidation"
+          },
+          {
+            "name": "T11_head_and_shoulders_top",
+            "pass": true,
+            "note": "hit=head_and_shoulders_top"
+          },
+          {
+            "name": "T12_disambiguate_by_regime",
+            "pass": true,
+            "note": "winner=bullish"
+          },
+          {
+            "name": "T13_is_contra_trend",
+            "pass": true,
+            "note": "bullish_contra=True bearish_contra=False"
+          },
+          {
+            "name": "T14_contra_db_uptrend_filtered",
+            "pass": true,
+            "note": "base_fired=True, contra_hit=None"
+          },
+          {
+            "name": "T15_contra_db_downtrend_passes",
+            "pass": true,
+            "note": "base_fired=True, contra_pattern=double_bottom::contra_regime"
+          },
+          {
+            "name": "T16_scan_all_contra_no_directional_pattern",
+            "pass": true,
+            "note": "total_hits=0, directional_hits=[]"
+          },
+          {
+            "name": "T17_scan_high_edge_excludes_no_edge_detectors",
+            "pass": true,
+            "note": "all_count=1 high_count=1 high_patterns=['double_bottom::contra_regime'] no_excluded=True is_subset=True"
+          },
+          {
+            "name": "T18_v2_version_stamp",
+            "pass": true,
+            "note": "confidence_version=v2"
+          },
+          {
+            "name": "T19_all_factors_conf_096",
+            "pass": true,
+            "note": "conf=0.96 factors=['decisive_reclaim', 'low2_volume_higher', 'bars_between_sweet_spot', 'very_tight_lows', 'decent_neckline_height']"
+          },
+          {
+            "name": "T20_two_factors_conf_065",
+            "pass": true,
+            "note": "conf=0.65 factors=['decent_neckline_height', 'decisive_reclaim']"
+          },
+          {
+            "name": "T21_conf_range_invariant",
+            "pass": true,
+            "note": "confs=[0.75, 0.96] all_in_range=True"
+          },
+          {
+            "name": "T22_v2_factors_list_correct",
+            "pass": true,
+            "note": "active=['decent_neckline_height', 'decisive_reclaim', 'very_tight_lows'] conf=0.75"
+          },
+          {
+            "name": "T23_fbw_named_level_override",
+            "pass": true,
+            "note": "key_price=99.8 support_source=named_level"
+          },
+          {
+            "name": "T24_ral_named_level_override",
+            "pass": true,
+            "note": "key_price=100.4 resistance_source=named_level"
+          },
+          {
+            "name": "T25_named_level_no_sweep_returns_none",
+            "pass": true,
+            "note": "ral_hit=False fbw_hit=False"
+          },
+          {
+            "name": "T26_enrich_hit_near_level",
+            "pass": true,
+            "note": "near_key_level=True dist=0.22 orig_unchanged=True"
+          },
+          {
+            "name": "T27_enrich_hit_far_from_level",
+            "pass": true,
+            "note": "near_key_level=False has_nearest_name=False"
+          },
+          {
+            "name": "T28_scan_high_edge_near_named_hit",
+            "pass": true,
+            "note": "total=1 hs_hits=1 near=True lvl=PDL"
+          },
+          {
+            "name": "T29_scan_high_edge_near_named_no_match",
+            "pass": true,
+            "note": "total=0 hs_hits=0 (expected 0)"
+          }
+        ],
+        "passed": 29,
+        "total": 29,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v22_chart_patterns.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "source": "coinbase",
+        "skipped": true,
+        "reason": "crypto.lib.data_sources or closed_bar not importable",
+        "pass": true
+      }
+    },
+    {
+      "name": "v23_orb_warmup.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_sequential_fires_at_retest_bar",
+            "pass": true,
+            "note": "sig=ORB_RETEST_LONG"
+          },
+          {
+            "name": "T2_fresh_state_produces_no_signal",
+            "pass": true,
+            "note": "sig=None"
+          },
+          {
+            "name": "T3_t82_warmup_fires_at_retest_bar",
+            "pass": true,
+            "note": "sig=ORB_RETEST_LONG"
+          },
+          {
+            "name": "T4_warmup_overhead_under_1000ms",
+            "pass": true,
+            "note": "elapsed=0.9ms (11 bars)"
+          },
+          {
+            "name": "T5_invalidation_resets_state_no_signal",
+            "pass": true,
+            "note": "sig=None (correct)"
+          }
+        ],
+        "passed": 5,
+        "total": 5,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v23_orb_warmup.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "pass": true,
+        "note": "ORB warmup regression is offline-only \u2014 tests state machine behavior, not live market data. T1-T5 cover sequential / fresh / warmup / overhead / invalidation scenarios using synthetic SPY-like bars."
+      }
+    },
+    {
+      "name": "v24_runner_invariants.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_rth_multi_day_bar_found_no_mismatch",
+            "pass": true,
+            "note": "stderr_lines=0 mismatch_warn=NO"
+          },
+          {
+            "name": "T2_rth_open_boundary_09_30_included",
+            "pass": true,
+            "note": "mismatch_warn=NO"
+          },
+          {
+            "name": "T3_post_market_mismatch_warns_no_crash",
+            "pass": true,
+            "note": "mismatch_warn=YES no_crash=True"
+          },
+          {
+            "name": "T4_watcher_exception_logged_not_swallowed",
+            "pass": true,
+            "note": "exception_in_stderr=YES no_propagation=True"
+          },
+          {
+            "name": "T5_none_return_watcher_clean_empty_list",
+            "pass": true,
+            "note": "clean_return=True result_is_list=True"
+          }
+        ],
+        "passed": 5,
+        "total": 5,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v24_runner_invariants.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "pass": true,
+        "note": "Runner invariant regression is offline-only \u2014 tests stderr-unmask + RTH mismatch contract using synthetic bars. T1-T5 cover multi-day RTH matching, boundary handling, post-market mismatch, exception surfacing, and clean None-return handling."
+      }
+    },
+    {
+      "name": "v25_filter_gates.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "B1a_F1_time_gate_PASS_at_0935",
+            "pass": true,
+            "note": "09:35 bar -> bear.passed=True"
+          },
+          {
+            "name": "B1b_F1_time_gate_BLOCK_at_0934",
+            "pass": true,
+            "note": "09:34 bar \u2192 blockers=[1]"
+          },
+          {
+            "name": "B5a_F5_ribbon_BEAR_stack_PASS",
+            "pass": true,
+            "note": "BEAR ribbon \u2192 passed=True"
+          },
+          {
+            "name": "B5b_F5_ribbon_MIXED_stack_BLOCK",
+            "pass": true,
+            "note": "MIXED ribbon \u2192 blockers=[5]"
+          },
+          {
+            "name": "B6a_F6_spread_30c_PASS",
+            "pass": true,
+            "note": "30c spread \u2192 passed=True"
+          },
+          {
+            "name": "B6b_F6_spread_29c_BLOCK",
+            "pass": true,
+            "note": "29c spread \u2192 blockers=[6]"
+          },
+          {
+            "name": "B8a_F8_vix_1735_rising_PASS",
+            "pass": true,
+            "note": "VIX=17.35 rising \u2192 passed=True"
+          },
+          {
+            "name": "B8b_F8_vix_1725_BLOCK",
+            "pass": true,
+            "note": "VIX=17.25 \u2192 blockers=[8]"
+          },
+          {
+            "name": "B8c_F8_vix_flat_BLOCK",
+            "pass": true,
+            "note": "VIX=17.35 flat (diff<0.05) \u2192 blockers=[8]"
+          },
+          {
+            "name": "B8d_F8_vix_soft_mode_no_hard_block",
+            "pass": true,
+            "note": "vix_soft_mode=True \u2192 blockers=[] passed=True"
+          },
+          {
+            "name": "B9a_F9_red_bar_vol_07x_PASS",
+            "pass": true,
+            "note": "red bar vol=750k baseline=1000k (0.75x) \u2192 passed=True"
+          },
+          {
+            "name": "B9b_F9_green_bar_BLOCK",
+            "pass": true,
+            "note": "green bar \u2192 blockers=[9, 10]"
+          },
+          {
+            "name": "U1a_bull_F8_vix_below_1720_PASS",
+            "pass": true,
+            "note": "VIX=17.10 \u2192 passed=True"
+          },
+          {
+            "name": "U1b_bull_F8_vix_1725_rising_BLOCK",
+            "pass": true,
+            "note": "VIX=17.25 rising \u2192 blockers=[8]"
+          },
+          {
+            "name": "U1c_bull_F8_vix_1750_falling_PASS",
+            "pass": true,
+            "note": "VIX=17.50 falling \u2192 passed=True"
+          },
+          {
+            "name": "U2a_bull_F9_hard_cap_vix_219_PASS",
+            "pass": true,
+            "note": "VIX=21.9 \u2192 passed=True"
+          },
+          {
+            "name": "U2b_bull_F9_hard_cap_vix_220_BLOCK",
+            "pass": true,
+            "note": "VIX=22.0 \u2192 blockers=[9]"
+          },
+          {
+            "name": "P1_parity_ribbon_spread_min_cents",
+            "pass": true,
+            "note": "filters=30 params=30"
+          },
+          {
+            "name": "P2_parity_vix_bear_threshold",
+            "pass": true,
+            "note": "filters=17.3 params=17.3"
+          },
+          {
+            "name": "P3_parity_vix_bull_low_threshold",
+            "pass": true,
+            "note": "filters=17.2 params=17.2"
+          },
+          {
+            "name": "P4_parity_vix_bull_hard_cap",
+            "pass": true,
+            "note": "filters=22.0 params=22.0"
+          },
+          {
+            "name": "P5_parity_vix_dir_deadband",
+            "pass": true,
+            "note": "filters=0.05 params=0.05"
+          }
+        ],
+        "passed": 22,
+        "total": 22,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v25_filter_gates.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "pass": true,
+        "note": "Filter gate regression is offline-only \u2014 tests boundary conditions and params.json parity using synthetic BarContext objects. B1-B9 cover bearish filters; U1-U2 cover bullish; P1-P5 verify threshold sync."
+      }
+    },
+    {
+      "name": "v26_ghost_entry_detection.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_ghost_count_is_2",
+            "pass": true,
+            "note": "ghosts=2 expected=2"
+          },
+          {
+            "name": "T2_null_symbol_ghost_flagged",
+            "pass": true,
+            "note": "null-symbol ghosts=1"
+          },
+          {
+            "name": "T3_empty_symbol_ghost_flagged",
+            "pass": true,
+            "note": "empty-symbol ghosts=1"
+          },
+          {
+            "name": "T4_real_enter_not_flagged",
+            "pass": true,
+            "note": "real-ENTER in ghosts=0 (must be 0)"
+          },
+          {
+            "name": "T5_non_enter_not_flagged",
+            "pass": true,
+            "note": "non-ENTER in ghosts=0 (must be 0)"
+          },
+          {
+            "name": "T6_single_ghost_fixture",
+            "pass": true,
+            "note": "single fixture ghosts=1 tick=11"
+          },
+          {
+            "name": "T7_empty_input_no_ghosts",
+            "pass": true,
+            "note": "empty list yields []"
+          }
+        ],
+        "passed": 7,
+        "total": 7,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v26_ghost_entry_detection.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "pass": true,
+        "verdict": "GREEN",
+        "total_decisions": 17,
+        "enter_count": 1,
+        "ghost_count": 0,
+        "ghosts": [],
+        "parse_errors": 52,
+        "note": "Scanned 17 decisions (1 ENTER records). Found 0 ghost entries (verdict=GREEN). Ghost = ENTER with symbol=None or symbol=empty. pass=True in audit mode - presence of historical ghosts is evidence, not a gym block."
+      }
+    },
+    {
+      "name": "v27_stale_cache_detection.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_stale_count_is_1",
+            "pass": true,
+            "note": "stale=1 expected=1"
+          },
+          {
+            "name": "T2_stale_tick_is_111",
+            "pass": true,
+            "note": "stale_ids=['111']"
+          },
+          {
+            "name": "T3_normal_tick_not_stale",
+            "pass": true,
+            "note": "normal in stale=0 (must be 0)"
+          },
+          {
+            "name": "T4_sub_threshold_not_stale",
+            "pass": true,
+            "note": "sub-threshold in stale=0 (must be 0)"
+          },
+          {
+            "name": "T5_below_threshold_misaligned_not_stale",
+            "pass": true,
+            "note": "early_misaligned in stale=0 (must be 0)"
+          },
+          {
+            "name": "T6_aligned_with_large_div_not_stale",
+            "pass": true,
+            "note": "ALIGNED large-div in stale=0 (must be 0)"
+          },
+          {
+            "name": "T7_single_stale_fixture",
+            "pass": true,
+            "note": "single fixture stale=1"
+          },
+          {
+            "name": "T8_empty_input_no_stale",
+            "pass": true,
+            "note": "empty list yields []"
+          },
+          {
+            "name": "T9_negative_large_div_also_stale",
+            "pass": true,
+            "note": "neg-large stale=1 (abs > 1.00 = flagged)"
+          }
+        ],
+        "passed": 9,
+        "total": 9,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v27_stale_cache_detection.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "pass": true,
+        "verdict": "YELLOW",
+        "audit_file": "heartbeat-tick-audit-2026-05-20.csv",
+        "total_rows": 33,
+        "stale_count": 1,
+        "stale_ticks": [
+          {
+            "tick_id": "86",
+            "fire_at": "13:48:03",
+            "claimed_spy": "737.86",
+            "divergence_dollars": "-2.3975",
+            "classification": "MISALIGNED-CRITICAL"
+          }
+        ],
+        "note": "Audit file: heartbeat-tick-audit-2026-05-20.csv. Scanned 33 ticks. Stale-cache ticks (|divergence|>$1.00 + MISALIGNED-CRITICAL): 1 (verdict=YELLOW). pass=True in audit mode."
+      }
+    },
+    {
+      "name": "v28_nlwb_bounce_gate.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "evidence_basis": "2026-05-19 12:35 ET: SPY 5m bar low=734.48 (8c wick below premarket-low 734.56), close=735.05 (49c above). (734.56-734.48)*100=7.9999... in IEEE 754 \u2014 round() fix required for the watcher to fire. Motivating case: SPY ran +$3.05 in 90 min.",
+        "tests": [
+          {
+            "name": "T1_nlwb_fires_lbfs_does_not",
+            "pass": true,
+            "note": "nlwb_fires=True lbfs_fires=False wick_cents=8.0"
+          },
+          {
+            "name": "T2_lbfs_fires_nlwb_does_not",
+            "pass": true,
+            "note": "nlwb_fires=False lbfs_fires=True"
+          },
+          {
+            "name": "T3_exact_level_neither_fires",
+            "pass": true,
+            "note": "nlwb_fires=False lbfs_fires=False"
+          },
+          {
+            "name": "T4_float_precision_round_fix",
+            "pass": true,
+            "note": "raw_float=7.999999999992724 (<8.0=True) rounded=8.0 (>=8.0=True)"
+          },
+          {
+            "name": "T5_small_wick_no_fire",
+            "pass": true,
+            "note": "fires=False wick_cents=6.0"
+          },
+          {
+            "name": "T6_wick_ok_but_close_below_no_fire",
+            "pass": true,
+            "note": "fires=False wick_cents=16.0 close=734.5"
+          }
+        ],
+        "passed": 6,
+        "total": 6,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v28_nlwb_bounce_gate.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "source": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\watcher-observations.jsonl",
+        "date": "2026-05-20",
+        "lines_read_today": 0,
+        "co_fires_nlwb_lbfs": [],
+        "co_fire_count": 0,
+        "verdict": "GREEN",
+        "note": "NLWB (close > level) and LBFS (close < level) are structurally mutually exclusive. Any co-fire on the same bar indicates a detector bug.",
+        "pass": true
+      }
+    },
+    {
+      "name": "v29_db_base_quiet_gate.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "evidence_basis": "2026-05-20: DOUBLE_BOTTOM_BASE_QUIET cross-validated N=168, WR=59.5%. Pathological 0.60-0.70 band OOS WR=46.8% (N=447). CONFIDENCE_LOW_CEILING=0.60 gate (>= not >) excludes decisive_reclaim-only patterns. T3 bars engineered for conf=0.45+0.15=0.60 exactly -> excluded.",
+        "constants_verified": {
+          "CONFIDENCE_LOW_CEILING": 0.6,
+          "VIX_LOW_VOL_CEILING": 20.0
+        },
+        "tests": [
+          {
+            "name": "T1_base_pattern_fires",
+            "pass": true,
+            "note": "direction=long setup=DOUBLE_BOTTOM_BASE_QUIET conf_score=0.450 conf_tier=low"
+          },
+          {
+            "name": "T2_textbook_high_conf_rejected",
+            "pass": true,
+            "note": "watcher_result=None detector_conf=0.75 expected_gate_reject=True"
+          },
+          {
+            "name": "T3_boundary_conf_0p60_rejected",
+            "pass": true,
+            "note": "watcher_result=None (PASS) detector_conf=0.6 ceiling=0.6 gate_expr='conf >= ceiling' so conf=0.60 is EXCLUDED"
+          },
+          {
+            "name": "T4_vix_gate_rejects_high_vol",
+            "pass": true,
+            "note": "vix_now=25.0 >= ceiling=20.0 watcher_result=None (PASS)"
+          },
+          {
+            "name": "T5_not_near_named_gate_rejects",
+            "pass": true,
+            "note": "level=100.45 at neckline (dist=$0.00 < $0.50 proximity_max) watcher_result=None (PASS)"
+          }
+        ],
+        "passed": 5,
+        "total": 5,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v29_db_base_quiet_gate.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "source": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\watcher-observations.jsonl",
+        "total_lines_scanned": 3958,
+        "db_base_quiet_obs": 1,
+        "gate_bypasses": 0,
+        "bypass_details": [],
+        "verdict": "GREEN",
+        "note": "Scanned all DOUBLE_BOTTOM_BASE_QUIET observations. Any row with metadata.confidence_score >= 0.60 is a gate-bypass bug (CONFIDENCE_LOW_CEILING gate should have returned None before WatcherSignal).",
+        "pass": true
+      }
+    },
+    {
+      "name": "v30_db_morning_low_vol_gate.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "evidence_basis": "2026-05-20: detect_db_morning_low_vol_setup gate logic verified. Time gate: ENTRY_TIME_START=09:35 (< rejects), ENTRY_TIME_END=11:30 (> rejects, so exactly 11:30 is REJECTED). VIX_LOW_VOL_CEILING=20.0 (>= rejects). NO CONFIDENCE_LOW_CEILING \u2014 morning watcher accepts all conf levels. Walk-forward DEGRADED -15.2pp (WATCH_FRAGILE \u2014 MORNING filter overfits 2025).",
+        "constants_verified": {
+          "ENTRY_TIME_START": "09:35",
+          "ENTRY_TIME_END": "11:30",
+          "VIX_LOW_VOL_CEILING": 20.0,
+          "CONFIDENCE_LOW_CEILING": null
+        },
+        "tests": [
+          {
+            "name": "T1_base_pattern_fires_in_morning",
+            "pass": true,
+            "note": "direction=long setup=DOUBLE_BOTTOM_MORNING_LOW_VOL conf_score=0.450 confidence_tier=low"
+          },
+          {
+            "name": "T2_afternoon_rejected_by_time_gate",
+            "pass": true,
+            "note": "timestamp=14:00 ET > ENTRY_TIME_END=11:30:00 watcher_result=None (PASS)"
+          },
+          {
+            "name": "T3_pre_rth_rejected_by_time_gate",
+            "pass": true,
+            "note": "timestamp=09:20 ET < ENTRY_TIME_START=09:35:00 watcher_result=None (PASS)"
+          },
+          {
+            "name": "T4_vix_gate_rejects_high_vol",
+            "pass": true,
+            "note": "vix_now=25.0 >= VIX_LOW_VOL_CEILING=20.0 watcher_result=None (PASS)"
+          },
+          {
+            "name": "T5_textbook_fires_no_confidence_ceiling",
+            "pass": true,
+            "note": "conf_score=0.750 \u2014 fires in morning window (NO ceiling). db_base_quiet would have rejected this (ceiling=0.60). CORRECT behavior."
+          },
+          {
+            "name": "T6_not_near_named_gate_rejects",
+            "pass": true,
+            "note": "level=100.45 at neckline (dist=$0.00 < PROXIMITY_MAX_DISTANCE=$0.50) watcher_result=None (PASS)"
+          }
+        ],
+        "passed": 6,
+        "total": 6,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v30_db_morning_low_vol_gate.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "source": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\watcher-observations.jsonl",
+        "total_lines_scanned": 3958,
+        "db_morning_low_vol_obs": 1,
+        "time_gate_bypasses": 0,
+        "vix_gate_bypasses": 0,
+        "bypass_details": [],
+        "verdict": "GREEN",
+        "note": "Scanned all DOUBLE_BOTTOM_MORNING_LOW_VOL observations. Time gate bypass = observation outside 09:35-11:30 ET window. VIX gate bypass = metadata.vix_now >= 20.0 in an accepted observation.",
+        "all_pass": true,
+        "pass": true
+      }
+    },
+    {
+      "name": "v31_momentum_accel_highvol_gate.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "evidence_basis": "2026-05-20: detect_momentum_accel_highvol_setup gate logic verified via t_momentum_accel_highvol_smoke.py (12/12 PASS). VIX_HIGH_VOL_FLOOR=20.0 rejects LOW_VOL (T1). ALIGNED_STACKS_BULL=('BULL',) rejects bullish momentum with BEAR ribbon (T2). Bull accel bars (range=4\u00d7, body=81%, vol=3\u00d7) + VIX=22.0 + BULL ribbon = long signal (T3). Bear accel bars + VIX=22.0 + BEAR ribbon = short signal (T4). Flat background bars (no acceleration) = None even at VIX=22.0 (T5). Walk-forward IMPROVED +6.6pp (SPY-price proxy). Real-fills WATCH_FRAGILE: WR=42.9% in VIX[20-25) drag; VIX_FLOOR=25 re-test queued.",
+        "constants_verified": {
+          "VIX_HIGH_VOL_FLOOR": 20.0,
+          "ALIGNED_STACKS_BULL": [
+            "BULL"
+          ],
+          "ALIGNED_STACKS_BEAR": [
+            "BEAR"
+          ],
+          "DEFAULT_PREMIUM_STOP_PCT_note": "-0.99 (chart-stop knob, not a detection gate)"
+        },
+        "tests": [
+          {
+            "name": "T1_vix_below_floor_rejected",
+            "pass": true,
+            "note": "vix_now=15.0 < VIX_HIGH_VOL_FLOOR=20.0 ribbon=BULL momentum=bullish watcher_result=None (PASS)"
+          },
+          {
+            "name": "T2_bull_momentum_bear_ribbon_rejected",
+            "pass": true,
+            "note": "vix_now=22.0 ribbon=BEAR (BEAR not in ALIGNED_STACKS_BULL=('BULL',)) bullish momentum hit present watcher_result=None (PASS)"
+          },
+          {
+            "name": "T3_vix_high_bull_ribbon_fires_long",
+            "pass": true,
+            "note": "direction=long setup=MOMENTUM_ACCELERATION_HIGHVOL confidence=medium entry=100.65"
+          },
+          {
+            "name": "T4_vix_high_bear_ribbon_fires_short",
+            "pass": true,
+            "note": "direction=short setup=MOMENTUM_ACCELERATION_HIGHVOL confidence=medium entry=100.05"
+          },
+          {
+            "name": "T5_flat_bars_no_momentum_signal",
+            "pass": true,
+            "note": "20 identical background bars (range=0.20, vol=40K) \u2014 no acceleration bar present. vix_now=22.0 ribbon=BULL watcher_result=None (PASS)"
+          }
+        ],
+        "passed": 5,
+        "total": 5,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v31_momentum_accel_highvol_gate.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "source": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\watcher-observations.jsonl",
+        "total_lines_scanned": 3958,
+        "momentum_accel_highvol_obs": 0,
+        "vix_gate_bypasses": 0,
+        "verdict": "GREEN",
+        "note": "No MOMENTUM_ACCELERATION_HIGHVOL observations yet \u2014 watcher is new as of 2026-05-20. VIX gate not yet exercised live. PASS: absence of bypass evidence.",
+        "all_pass": true,
+        "pass": true
+      }
+    },
+    {
+      "name": "v32_db_base_quiet_gate.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "evidence_basis": "2026-05-20: detect_db_base_quiet_setup gate logic verified. Full RTH window (09:35-15:55 ET, no morning restriction). CONFIDENCE_LOW_CEILING=0.60 \u2014 only base patterns (conf<0.60) accepted. VIX_LOW_VOL_CEILING=20.0 \u2014 same as morning watcher. Walk-forward STABLE +1.2pp. Real-fills FAVORABLE +4.4pp.",
+        "constants_verified": {
+          "_RTH_START": "09:35",
+          "_RTH_END": "15:55",
+          "VIX_LOW_VOL_CEILING": 20.0,
+          "CONFIDENCE_LOW_CEILING": 0.6
+        },
+        "tests": [
+          {
+            "name": "T1_base_pattern_fires_in_afternoon",
+            "pass": true,
+            "note": "direction=long setup=DOUBLE_BOTTOM_BASE_QUIET confidence_tier=low \u2014 fired at 13:00 ET (full RTH). db_morning_low_vol would have rejected this timestamp."
+          },
+          {
+            "name": "T2_vix_gate_rejects_high_vol",
+            "pass": true,
+            "note": "vix_now=25.0 >= VIX_LOW_VOL_CEILING=20.0 watcher_result=None (PASS)"
+          },
+          {
+            "name": "T3_textbook_conf_rejected_by_ceiling",
+            "pass": true,
+            "note": "textbook high-conf pattern correctly REJECTED at CONFIDENCE_LOW_CEILING=0.6. db_morning_low_vol would have accepted this (it has no ceiling). CORRECT base_quiet behavior: only clean base patterns allowed."
+          },
+          {
+            "name": "T4_late_rth_fires",
+            "pass": true,
+            "note": "timestamp=15:00 ET < _RTH_END=15:55:00 watcher_result=Signal (PASS)"
+          },
+          {
+            "name": "T5_pre_rth_rejected",
+            "pass": true,
+            "note": "timestamp=09:20 ET < _RTH_START=09:35:00 watcher_result=None (PASS)"
+          }
+        ],
+        "passed": 5,
+        "total": 5,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v32_db_base_quiet_gate.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "source": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\watcher-observations.jsonl",
+        "total_lines_scanned": 3958,
+        "db_base_quiet_obs": 1,
+        "vix_gate_bypasses": 0,
+        "conf_ceiling_bypasses": 0,
+        "bypass_details": [],
+        "verdict": "GREEN",
+        "note": "Scanned all DOUBLE_BOTTOM_BASE_QUIET observations. VIX gate bypass = vix_now >= 20.0 in accepted observation. Confidence ceiling bypass = confidence_score >= 0.60 in accepted observation.",
+        "all_pass": true,
+        "pass": true
+      }
+    },
+    {
+      "name": "v33_close_ceiling_detection.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T1_four_ceiling_bars",
+            "pass": true,
+            "note": "detected=True max_run=4 (expected True, 4)"
+          },
+          {
+            "name": "T2_only_two_qualifying_bars",
+            "pass": true,
+            "note": "detected=False max_run=2 (expected False, 2)"
+          },
+          {
+            "name": "T3_interrupted_sequence_run2_passes",
+            "pass": true,
+            "note": "detected=True max_run=3 (expected True, 3). Run-1=2 bars, reset by close-above, Run-2=3 bars. Second run clears n_min."
+          },
+          {
+            "name": "T4_floor_hold_bull_accumulation",
+            "pass": true,
+            "note": "detected=True max_run=3 (expected True, 3)"
+          },
+          {
+            "name": "T5_exactly_n_min_boundary",
+            "pass": true,
+            "note": "detected=True max_run=3 (expected True, 3 \u2014 boundary >= not >)"
+          },
+          {
+            "name": "T6_empty_input_returns_false",
+            "pass": true,
+            "note": "ceiling=(False,0) floor=(False,0) \u2014 both expected (False,0)"
+          },
+          {
+            "name": "T7_fake_breakout_scenario",
+            "pass": true,
+            "note": "detected=True max_run=3 (expected True, 3). Models 2026-05-20 14:00-14:45 ET sequence at SPY PM ceiling 740.49."
+          },
+          {
+            "name": "T8_real_fixture_2026_05_20_spy_740_49",
+            "pass": true,
+            "note": "detected=True max_run=4 (expected True, >=3). Calibrated from 2026-05-20 live session at SPY PM ceiling 740.49. Fake-breakout bar at 14:40 (C:740.72) resets counter; reversal at 14:45 (C:739.77)."
+          }
+        ],
+        "total": 8,
+        "passed": 8,
+        "failed_names": [],
+        "all_pass": true,
+        "pass": true,
+        "note": "close_ceiling + floor_hold primitive regression suite. 8/8 passed."
+      }
+    },
+    {
+      "name": "v33_close_ceiling_detection.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "source": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\watcher-observations.jsonl",
+        "total_lines_scanned": 3958,
+        "malformed_lines": 0,
+        "close_ceiling_obs": 0,
+        "floor_hold_obs": 0,
+        "verdict": "GREEN",
+        "note": "Audit mode: close_ceiling_fade_watcher shipped 2026-05-20 evening; floor_hold_bounce_watcher shipped 2026-05-20 evening. Both watchers are OP-21 WATCH-ONLY (live accumulation path). Found 0 ceiling + 0 floor_hold entries. all_pass=True always (presence of observations is evidence, not a gym block).",
+        "all_pass": true,
+        "pass": true
+      }
+    },
+    {
+      "name": "v34_ceiling_floor_watcher_gate.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "evidence_basis": "L59 (CLAUDE.md 2026-05-20): 6-bar distribution at SPY PM ceiling 740.49 \u2192 14:40 fake breakout \u2192 14:45 reversal (vol=45,411). N_MIN_STREAK=3 is the minimum defensible evidence window. CCF fixture level=750.00, FHB fixture level=735.00. Both watchers verified for time gate, streak gate, breakout/breakdown gate, level cache gate.",
+        "constants_verified": {
+          "CCF_N_MIN_STREAK": 3,
+          "CCF_ENTRY_TIME_START": "09:45:00",
+          "CCF_ENTRY_TIME_END": "14:30:00",
+          "CCF_BREAKOUT_MIN_CENTS": 0.05,
+          "FHB_N_MIN_STREAK": 3,
+          "FHB_ENTRY_TIME_START": "09:45:00",
+          "FHB_ENTRY_TIME_END": "14:30:00",
+          "FHB_BREAKDOWN_MIN_CENTS": 0.05
+        },
+        "tests": [
+          {
+            "name": "T1_ccf_fires_streak3",
+            "pass": true,
+            "note": "direction=short setup=CLOSE_CEILING_DISTRIBUTION_FADE streak_bars=3 confidence=low entry=750.12"
+          },
+          {
+            "name": "T2_ccf_time_gate_before_start",
+            "pass": true,
+            "note": "timestamp=09:30 ET < ENTRY_TIME_START=09:45:00 watcher_result=None (PASS)"
+          },
+          {
+            "name": "T3_ccf_time_gate_after_end",
+            "pass": true,
+            "note": "timestamp=15:00 ET > ENTRY_TIME_END=14:30:00 watcher_result=None (PASS)"
+          },
+          {
+            "name": "T4_ccf_streak2_insufficient",
+            "pass": true,
+            "note": "streak=2 (bar4 resets run, bars5-6 only) < N_MIN_STREAK=3 watcher_result=None (PASS)"
+          },
+          {
+            "name": "T5_ccf_breakout_insufficient",
+            "pass": true,
+            "note": "close=750.04 <= level(750.0)+BREAKOUT_MIN_CENTS(0.05)=750.05 gate_expr='bar_close <= level+min_cents' is True \u2192 skip \u2192 None watcher_result=None (PASS)"
+          },
+          {
+            "name": "T6_ccf_no_resistance_levels",
+            "pass": true,
+            "note": "resistance_levels=[] (empty cache \u2014 no \u2605\u2605+ levels loaded) watcher_result=None (PASS)"
+          },
+          {
+            "name": "T7_fhb_fires_streak3",
+            "pass": true,
+            "note": "direction=long setup=FLOOR_HOLD_DISTRIBUTION_BOUNCE streak_bars=3 confidence=low entry=734.88"
+          },
+          {
+            "name": "T8_fhb_time_gate_before_start",
+            "pass": true,
+            "note": "timestamp=09:30 ET < ENTRY_TIME_START=09:45:00 watcher_result=None (PASS)"
+          },
+          {
+            "name": "T9_fhb_time_gate_after_end",
+            "pass": true,
+            "note": "timestamp=15:00 ET > ENTRY_TIME_END=14:30:00 watcher_result=None (PASS)"
+          },
+          {
+            "name": "T10_fhb_streak2_insufficient",
+            "pass": true,
+            "note": "streak=2 (bar4 resets run, bars5-6 only) < N_MIN_STREAK=3 watcher_result=None (PASS)"
+          },
+          {
+            "name": "T11_fhb_breakdown_insufficient",
+            "pass": true,
+            "note": "close=734.97 >= level(735.0)-BREAKDOWN_MIN_CENTS(0.05)=734.95 gate_expr='bar_close >= level-min_cents' is True \u2192 skip \u2192 None watcher_result=None (PASS)"
+          },
+          {
+            "name": "T12_fhb_no_support_levels",
+            "pass": true,
+            "note": "support_levels=[] (empty cache \u2014 no \u2605\u2605+ levels loaded) watcher_result=None (PASS)"
+          }
+        ],
+        "passed": 12,
+        "total": 12,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v34_ceiling_floor_watcher_gate.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "source": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\watcher-observations.jsonl",
+        "total_lines_scanned": 3958,
+        "ccf_observations": 0,
+        "fhb_observations": 0,
+        "streak_gate_bypasses": 0,
+        "verdict": "GREEN",
+        "note": "No CLOSE_CEILING_DISTRIBUTION_FADE or FLOOR_HOLD_DISTRIBUTION_BOUNCE observations yet \u2014 watchers are new as of 2026-05-20. PASS: absence of bypass evidence.",
+        "pass": true
+      }
+    }
+  ]
+}

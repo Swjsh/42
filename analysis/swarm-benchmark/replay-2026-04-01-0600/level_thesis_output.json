@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-04-01T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.75,
+  "reasoning": "SPY at 653.54, up 3.30 overnight with BULL ribbon (fast 653.1, pivot 652.8, slow 650.94, 216¢ spread) and risk-on sector rotation (XLK +2.9%, XLF +0.92%). Price sandwiched between PML support 650.34 (below by 3.20) and PMH resistance 655.55 (above by 2.01). The battle level is 655.55 — the premarket high and most recent active resistance. VIX at 25.06 HIGH regime but falling suggests volatility settling into a directional move. Primary scenario: if PMH 655.55 holds on first test and breaks above, bulls target 5-day Carry high at 660.89. Secondary: if PMH fails or reverses sharply, bulls defend 651.54 (prior RTH high) or fold to PML 650.34.",
+  "battle_level": {
+    "price": 655.55,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 655.55,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 2.01
+    },
+    {
+      "price": 651.54,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": -2.00
+    },
+    {
+      "price": 650.34,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": -3.20
+    },
+    {
+      "price": 660.89,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 4,
+      "distance_from_price": 7.35
+    },
+    {
+      "price": 655.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": 1.46
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds and breaks above 655.55 PMH with volume",
+      "bias": "bullish",
+      "target": 660.89,
+      "entry_trigger": "level_break + ribbon_bull_confirmation"
+    },
+    "secondary": {
+      "condition": "if SPY fails at 655.55 or reverses sharply from PMH",
+      "bias": "bearish",
+      "target": 651.54,
+      "entry_trigger": "level_rejection + momentum_fade"
+    },
+    "tertiary": {
+      "condition": "if SPY breaks below 650.34 PML on volume",
+      "bias": "bearish",
+      "target": 629.28,
+      "entry_trigger": "carry_support_fail + gap_fill_down"
+    }
+  },
+  "levels_in_play_count": 7,
+  "key_observations": [
+    "BULL ribbon with 216¢ spread — macro-regime confirmation present; EMA stack is well-ordered and bullish",
+    "Gap up +3.30 overnight (650.24 close → 653.54 premarket) carrying momentum; PML 650.34 is the floor if gap fills",
+    "PMH 655.55 is exactly +2.01 away — a natural test point for breakout or rejection confirmation",
+    "VIX falling into HIGH regime suggests volatility contraction into a potential directional breakout — direction TBD by PMH test",
+    "Carry-tier resistance at 660.89 (5-day high) is the ultimate upside target if PMH clears; Carry-tier support at 629.28 is catastrophic downside if trend reverses"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-11T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "VIX at 24.65 is HIGH regime but FALLING (−1.04 pct), signaling capitulation and bullish compression. Overnight gap up +$0.99 reinforces risk-on sentiment. Zero macro events today = clean path for directional trades. Bearish ribbon stack (BEAR, spread 106¢) and flat sector rotation (XLF/XLE down, XLK/SPY flat) create modest caution, preventing higher confidence. Overall: falling VIX from high + gap up + no event risk = slight bullish edge.",
+  "vix_regime": "HIGH",
+  "vix_direction": "falling",
+  "vix_current": 24.65,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 0.99,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX 24.65 is elevated but falling: classic capitulation/mean-reversion setup favors call buyers over put buyers",
+    "Overnight gap up +$0.99 into falling-VIX environment signals moderate risk-on momentum from overseas",
+    "Zero macro events on calendar; no no-trade windows or surprise risk from news flow",
+    "Sector rotation mixed: XLE −0.82%, XLF −0.54%, XLK flat; no clear directional conviction in equities",
+    "Ribbon BEAR + SPY flat suggests price structure is cautious, not aggressive bullish"
+  ],
+  "data_quality": "full"
+}

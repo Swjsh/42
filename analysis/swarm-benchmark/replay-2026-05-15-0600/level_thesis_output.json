@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-05-15T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.55,
+  "reasoning": "SPY 740.39 sits at premarket low + 0.98 cents after a gap-down 7.69 from 748.08 prior close. The BEAR ribbon (fast 740.67 > pivot 741.27 > slow 743.36 inverted, spread 269¢) confirms structural weakness. Price is testing the 739.41 PML (premarket low) support from above. The battle level is 739.41 — if it holds, a relief bounce targets 743.56 (prior RTH low) then the 745-749 zone. If it breaks below, the next support shelf is the 735-736 reference range before the 731.83 carry support (5-day low). VIX rising (+7.84%) reinforces bearish pressure. Confidence moderate due to cluster of reference levels within $3, but no high-conviction Carry-tier support in immediate play zone except the PML.",
+  "battle_level": {
+    "price": 739.41,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 739.41,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.98
+    },
+    {
+      "price": 743.56,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 3.17
+    },
+    {
+      "price": 741.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 0.61
+    },
+    {
+      "price": 731.83,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 8.56
+    },
+    {
+      "price": 749.53,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": 9.14
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 739.41 on first test (support confirmed)",
+      "bias": "bullish_relief",
+      "target": 743.56,
+      "entry_trigger": "level_hold + ribbon_test_above_fast_ema"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 739.41 (support broken, flush continues)",
+      "bias": "bearish",
+      "target": 735.00,
+      "entry_trigger": "level_break + momentum_down"
+    },
+    "tertiary": {
+      "condition": "if SPY breaks above 741.0 (resistance reclaim, gap-fill attempt)",
+      "bias": "bullish",
+      "target": 745.00,
+      "entry_trigger": "level_reclaim + volume_confirmation"
+    }
+  },
+  "levels_in_play_count": 3,
+  "key_observations": [
+    "Gap-down overnight (−7.69) with premarket high 748.17 briefly tested then rejected — typical gap-down morning probe pattern.",
+    "BEAR ribbon stack inverted with 269¢ spread; fast EMA 740.67 is first overhead resistance above current 740.39 — a move above it weakens the bearish structure.",
+    "Price at exact premarket low + 1¢ — initial flush complete, decision point forming. If support at 739.41 holds, relief target 743-744. If broken, cascade to 735-736 then 731.83 carry support.",
+    "VIX rising (+7.84%, MID regime) reinforces structural weakness but not yet panic — room for further downside before capitulation.",
+    "5-day Carry levels (731.83 support, 749.53 resistance) are out of immediate $3 range — today's battle is local (PML/PMH zone) not multi-session."
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-04-17T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis"],
+    "bearish": [],
+    "no_trade": ["internals"]
+  },
+  "vote_counts": {
+    "bullish": 3,
+    "bearish": 0,
+    "no_trade": 1
+  },
+  "weighted_scores": {
+    "bullish": 0.90,
+    "bearish": 0.0
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 76,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["internals"],
+    "dissent_reason": "Internals flagged narrow breadth (SPY +0.09% lagging sectors +0.68% to +1.33%) with financials (XLF -0.12%) explicitly failing to participate — concentrated, not broad-based upside, which historically precedes mean-reversion rather than continuation."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Narrow breadth: price at premarket high (703.44 vs PMH 703.52) after small-body consolidation is a classic reversal zone; first test of PMH is statistically likely to fail, not confirm.",
+    "top_invalidation_scenario": "SPY opens below 703.30 and first RTH 5-min bar closes below 703.20 with volume >1.5x premarket average — breaks the ribbon + gap continuation narrative entirely."
+  },
+  "battle_level": {
+    "price": 703.52,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 703.52,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 702.78,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 701.66,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 704.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 702.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds or closes above 703.52 PMH on first RTH test with volume confirmation",
+      "bias": "bullish",
+      "target": 705.0,
+      "entry_trigger": "level_break_above_703.52 + ribbon_bull_confirmation"
+    },
+    "secondary": {
+      "condition": "if SPY fades from 703.52 but holds 702.78 prior RTH high as support",
+      "bias": "bullish",
+      "target": 704.0,
+      "entry_trigger": "702.78_bounce + ribbon_support_hold"
+    },
+    "invalidation": {
+      "condition": "SPY opens below 703.30 and first RTH 5-min bar closes below 703.20 with volume >1.5x premarket average",
+      "effect": "Bullish consensus collapses — overnight strength reverses into early-session capitulation. Consolidation pattern reclassified from momentum-building to distribution-before-fade. Bearish puts become the operative trade toward 701.66 PML."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "PMH 703.52 is tested (SPY trades at or above 703.50) within the first 30 minutes of RTH (by 10:00 ET), given price is only 8 cents below at premarket close",
+      "invalidation": "SPY does not reach 703.50 before 10:00 ET on any 5-min bar high",
+      "confidence": 0.78,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 18.50 for the entire RTH session, confirming the neutral-to-bullish low-IV regime and supporting directional call premium dynamics",
+      "invalidation": "VIX trades above 18.50 on any intraday tick before 15:00 ET",
+      "confidence": 0.72,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BULL ribbon (fast 703.16 > pivot 702.98 > slow 702.31, spread 85¢) remains intact with fast EMA above pivot on 5-min close through the first 30 minutes of RTH (09:35-10:00 ET)",
+      "invalidation": "Fast EMA crosses below pivot EMA on any 5-min bar close before 10:00 ET",
+      "confidence": 0.70,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The key tension today is whether the CLEAN_BULL ribbon (85¢ spread, $1.89 overnight gap, VIX falling to 17.64) can convert premarket structure into RTH continuation when price is already AT the ceiling — 703.44 vs PMH 703.52, with small consolidation bodies that could equally signal distribution as momentum-building. Consensus is decisively bullish (90% weighted score) because three of four specialists agree on the structure and the macro calendar is clean with zero event risk, but the validator flags moderate robustness: the internals dissent (narrow breadth, XLF non-participation) warns the foundation is fragile, and first tests of premarket highs fail more often than they succeed. Watch the first RTH 5-min bar: a strong close above 703.52 on elevated volume confirms the bull case to 705; an open-and-fade below 703.20 invalidates the entire consensus and opens 701.66 as the bear target.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.82,
+      "one_line": "CLEAN_BULL ribbon 85¢ spread (fast 703.16 > pivot 702.98 > slow 702.31), last 3 premarket bars all green, overnight gap +$1.89 — structurally bullish, doji bodies suggest pre-open consolidation"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "VIX 17.64 MID regime falling -1.12%, zero macro events today = clean 09:35-15:00 ET entry window, risk_on_light backdrop supports call premium dynamics"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.75,
+      "one_line": "Battle level 703.52 PMH is 8¢ away and imminent — hold or break above opens 704/705 reference; support shelf at 702.78 provides tight risk/reward on any fade"
+    },
+    "internals": {
+      "bias": "no_trade",
+      "confidence": 0.38,
+      "one_line": "Mixed rotation: XLF -0.12% (financials absent), SPY +0.09% lagging XLK +0.68%/XLE +1.33% — narrow breadth signals concentrated fragile strength, not broad risk-on"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Gap fully captured premarket + price at PMH after narrow-body consolidation = classic reversal zone; first RTH bar close below 703.20 on volume breaks the bull thesis entirely"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

@@ -1,0 +1,52 @@
+{
+  "date": "2026-05-14",
+  "total_ticks": 99,
+  "live_trading_ticks": 46,
+  "counts": {
+    "ALIGNED": 9,
+    "MISALIGNED-BENIGN": 34,
+    "MISALIGNED-CRITICAL": 3,
+    "STALE_PAUSED": 26,
+    "NO_DATA": 27,
+    "NO_BAR": 0
+  },
+  "misaligned_critical_count": 3,
+  "misaligned_critical_pct_of_live": 6.52,
+  "headline": "3 of 46 live-trading ticks (7%) were MISALIGNED-CRITICAL on 2026-05-14",
+  "critical_ticks": [
+    {
+      "tick_id": 9,
+      "fire_at": "2026-05-14T09:57:03",
+      "decision": "ENTER_BULL",
+      "claimed_spy": 745.35,
+      "closed_close": 745.02001953125,
+      "divergence": 0.33,
+      "reason": "spy=745.35 ribbon=30c(BULL) vix=17.9(falling) bear=3/10 bull=10/11 htf=N/A | level_reclaim+ribbon_flip, 10\u251c\u00f9745C limit 1.76, pending fill"
+    },
+    {
+      "tick_id": 23,
+      "fire_at": "2026-05-14T10:39:03",
+      "decision": "EXIT_TP1",
+      "claimed_spy": 746.52,
+      "closed_close": 745.989990234375,
+      "divergence": 0.53,
+      "reason": "spy=746.52 ribbon=63c(BULL) vix=18.04(rising) bear=3/10 bull=10/11 htf=null | TP1 50% split 5/10 @ $2.26 +$295, runner riding to $4.175 target profit-lock floor $1.837"
+    },
+    {
+      "tick_id": 49,
+      "fire_at": "2026-05-14T11:57:02",
+      "decision": "EXIT_RUNNER",
+      "claimed_spy": 749.21,
+      "closed_close": 748.6900024414062,
+      "divergence": 0.52,
+      "reason": "spy=749.21 ribbon=104c(BULL) vix=17.91(falling) bear=2/10 bull=10/11 htf=null | runner target $4.175 beaten to $4.32 fill, full position +$913"
+    }
+  ],
+  "log_path": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\logs\\heartbeat-2026-05-14.log",
+  "csv_path": "C:\\Users\\jackw\\Desktop\\42\\backtest\\data\\spy_5m_2026-05-08_2026-05-19.csv",
+  "audit_files": {
+    "per_tick_csv": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-05-14.csv",
+    "summary_json": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-05-14.json",
+    "human_md": "C:\\Users\\jackw\\Desktop\\42\\docs\\HEARTBEAT-TICK-AUDIT-2026-05-14.md"
+  }
+}

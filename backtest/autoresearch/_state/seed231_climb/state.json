@@ -1,0 +1,73 @@
+{
+  "current_params": {
+    "f9_vol_mult": 0.4,
+    "ribbon_spread_min_cents": 35,
+    "ribbon_flip_lookback_bars": 6,
+    "level_proximity_dollars": 0.3,
+    "confluence_tolerance_dollars": 0.5,
+    "no_trade_before": "09:35",
+    "no_trade_window_start": "14:00",
+    "no_trade_window_end": "15:00",
+    "min_triggers_bear": 2,
+    "min_triggers_bull": 2,
+    "vix_bear_threshold": 17.3,
+    "vix_bear_rising_deadband": 0.05,
+    "vix_bull_max": 22.0,
+    "premium_stop_pct_bear": -0.3,
+    "premium_stop_pct_bull": -0.12,
+    "tp1_premium_pct": 0.2,
+    "tp1_qty_fraction": 0.333,
+    "runner_target_premium_pct": 4.0,
+    "level_stop_buffer_dollars": 0.15,
+    "time_stop_minutes_before_close": 30,
+    "strike_offset_bear": 0,
+    "strike_offset_bull": -3
+  },
+  "baseline_metrics": {
+    "n_trades": 224,
+    "n_winners": 61,
+    "n_losers": 163,
+    "win_rate": 0.2723,
+    "total_pnl": 2640.56,
+    "expectancy": 11.79,
+    "avg_winner": 182.27,
+    "avg_loser": -52.01,
+    "wl_ratio": 3.504,
+    "max_drawdown": -2081.76,
+    "sharpe_daily": 1.4007,
+    "n_days_traded": 103
+  },
+  "validate_baseline_metrics": {
+    "n_trades": 36,
+    "n_winners": 16,
+    "n_losers": 20,
+    "win_rate": 0.4444,
+    "total_pnl": 2213.36,
+    "expectancy": 61.48,
+    "avg_winner": 276.74,
+    "avg_loser": -110.72,
+    "wl_ratio": 2.499,
+    "max_drawdown": -699.0,
+    "sharpe_daily": 3.3264,
+    "n_days_traded": 20
+  },
+  "training_window": {
+    "start": "2025-01-01",
+    "end": "2026-02-13"
+  },
+  "validate_window": {
+    "start": "2026-02-14",
+    "end": "2026-05-07"
+  },
+  "iteration": 0,
+  "modifications_kept": 0,
+  "modifications_reverted": 0,
+  "last_param_modified": null,
+  "last_modification_at": null,
+  "recently_modified": [],
+  "created_at": "2026-05-09T17:14:08",
+  "session_id": "ar_seed231_climb_full_validate_pnl_20260509_171408",
+  "mode": "seed231_climb",
+  "experiment": "full",
+  "objective": "validate_pnl"
+}

@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-05-17T12:17:30Z",
+  "bias": "bullish",
+  "confidence": 0.80,
+  "reasoning": "XLK (Tech) +2.79% significantly outperforming SPY (+1.78%) with XLF (Financials) +0.82% in support = classic risk-on rotation. Energy -0.91% confirms rotation OUT of commodities INTO growth. Sector breadth is broad (2 of 3 major sectors >0.5% up), not narrow tech-only. Financials leadership suggests yield curve normalization supporting broad upside. Bullish bias with high confidence — sector internals confirm strength heading into today.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 2.79,
+    "xlf_change_pct": 0.82,
+    "xle_change_pct": -0.91,
+    "spy_change_pct": 1.78,
+    "xlk_vs_spy": "outperform",
+    "breadth": "broad"
+  },
+  "key_observations": [
+    "XLK +2.79%: Tech significantly outperforming — growth leadership is the dominant force",
+    "XLF +0.82%: Financials supporting, confirming breadth beyond tech alone — yield normalization signal",
+    "XLE -0.91%: Energy weakness = rotation out of defensive hedges — low commodity demand expected",
+    "Overall rotation: Strong risk-on. SPY typically follows tech outperformance at 30% weight, supported by financial gains."
+  ],
+  "data_quality": "full"
+}

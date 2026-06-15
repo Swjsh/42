@@ -1,0 +1,98 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-20T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.70,
+  "reasoning": "SPY at 655.58, hammering the 655.17 Carry support (2★) just 0.41 below. Ribbon stack is BEAR (fast 657.02 < pivot 657.51 < slow 658.1), confirming directional pressure. Premarket low touched 655.1, validating support proximity. If 655.17 holds, upside target is PMH 659.83 (+4.25) but BEAR ribbon makes any rally a selling opportunity. If 655.17 breaks, flush target is 650 round number (-5.17). VIX rising at 25.81 in HIGH regime amplifies volatility edge of any breakdown. Battle level is 655.17 — the session's pivot.",
+  "battle_level": {
+    "price": 655.17,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 655.17,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": -0.41
+    },
+    {
+      "price": 659.83,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 4.25
+    },
+    {
+      "price": 655.6,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 0.02
+    },
+    {
+      "price": 657.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 1.42
+    },
+    {
+      "price": 658.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": 2.42
+    },
+    {
+      "price": 650.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 6,
+      "distance_from_price": -5.58
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks below 655.17 Carry support",
+      "bias": "bearish",
+      "target": 650.0,
+      "entry_trigger": "breakdown through carry support + ribbon confirmation"
+    },
+    "secondary": {
+      "condition": "if SPY holds 655.17 and bounces",
+      "bias": "neutral_to_bearish",
+      "target": 659.83,
+      "entry_trigger": "failed breakdown, but BEAR ribbon limits upside conviction"
+    }
+  },
+  "levels_in_play_count": 5,
+  "key_observations": [
+    "Carry support 655.17 is the session pivot — price tested premarket low 655.1 (0.07 below), confirming intraday floor.",
+    "BEAR ribbon stack amplifies bearish bias: any recovery toward 657-659 is opposed by downward MA alignment.",
+    "VIX rising (25.81, +6.26%) in HIGH regime = elevated volatility favors directional break of either 655.17 (down) or 659.83 (up) rather than range chop.",
+    "Overnight gap -4.14 + premarket test of support suggests institutional selling into weakness, not accumulation."
+  ],
+  "data_quality": "full"
+}

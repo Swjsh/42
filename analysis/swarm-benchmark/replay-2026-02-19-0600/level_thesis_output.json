@@ -1,0 +1,94 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-02-19T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.62,
+  "reasoning": "SPY at 686.19, flat overnight, positioned AT the ribbon slow EMA (686.18) with BEAR inversion. Asymmetric level landscape: Active support at 682.87 (−3.32) below vs. Active resistance at 689.14 (−2.95) above, with ribbon providing a defensive ceiling. The critical battle level is 689.14 (prior RTH high, 2★ Active)—if held and rejected, risk/reward favors a flush back toward 682.87 support; if broken, gap-up target 697.08 Carry. Ribbon inverted suggests downside structural advantage, but risk_on sector rotation + green opens create upside option. Confidence moderate (0.62) due to tight symmetric range and pending first test.",
+  "battle_level": {
+    "price": 689.14,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 689.14,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 2.95
+    },
+    {
+      "price": 682.87,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": -3.32
+    },
+    {
+      "price": 687.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 0.81
+    },
+    {
+      "price": 685.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": -1.19
+    },
+    {
+      "price": 684.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": -2.19
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 689.14 on first test (rejection candle + ribbon stack intact)",
+      "bias": "bearish",
+      "target": 682.87,
+      "entry_trigger": "reversal candle at 689.14 + fast EMA cross below pivot + vol ≥ 1.5× 20-bar avg"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 689.14 on strong vol (≥2× 20-bar avg)",
+      "bias": "bullish",
+      "target": 697.08,
+      "entry_trigger": "close above 689.14 + ribbon bullish flip (spread ≥30¢ + stack invert to BULL) + OBV confirmation"
+    },
+    "breakdown": {
+      "condition": "if SPY breaks below 682.87 on vol confirmation",
+      "bias": "very_bearish",
+      "target": 675.79,
+      "entry_trigger": "break + flush acceleration + close below 682 + vol spike"
+    }
+  },
+  "levels_in_play_count": 4,
+  "key_observations": [
+    "SPY at ribbon slow EMA (686.18) with BEAR stack inversion—thin margin of defense; any close below slow triggers downside bias confirmation.",
+    "689.14 (Active 2★) is the first real resistance above; 682.87 (Active 2★) is the critical support below—symmetric distance (~3¢ apart) makes today a boundary-test day.",
+    "Sector rotation risk_on + all green opens (+0.3-0.6%) provides tailwind, but ribbon inversion is a technical headwind—early morning may test upside first (689.14), but rejection bias is higher than breakout bias.",
+    "VIX rising (20.09, +2.71%), MID regime—volatility edge not yet determined; sub-21 regime typically favors range-bound behavior before directional conviction."
+  ],
+  "data_quality": "full"
+}

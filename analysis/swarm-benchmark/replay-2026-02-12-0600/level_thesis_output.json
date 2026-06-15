@@ -1,0 +1,125 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-02-12T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "SPY at 691.81, below the entire ribbon stack (fast EMA 692.59). Carry tier brackets the day: resistance 697.08 (+$5.27) and support 675.81 (−$16.00). The battle level is 697.08 — the Carry resistance that must hold for bears to maintain control. If 697.08 breaks upside with conviction, bias flips bullish; if it holds, price will likely flush downward toward Active support 689.22 (−$2.59), then cascade toward the 5-day Carry low at 675.81. Ribbon stack is BEAR (23¢ spread, fast < pivot < slow), VIX is rising (+6.69%), and risk-off sector rotation (XLK −1.07%, XLF −1.73%) reinforce bearish environment. Immediate IN_PLAY zone (691–695) has 6 Reference 1★ levels offering tactical noise but no strategic conviction.",
+  "battle_level": {
+    "price": 697.08,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 691.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 1,
+      "distance_from_price": -0.81
+    },
+    {
+      "price": 690.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": -1.81
+    },
+    {
+      "price": 689.22,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": -2.59
+    },
+    {
+      "price": 693.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 1.19
+    },
+    {
+      "price": 694.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": 2.19
+    },
+    {
+      "price": 695.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 6,
+      "distance_from_price": 3.19
+    },
+    {
+      "price": 697.08,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 7,
+      "distance_from_price": 5.27
+    },
+    {
+      "price": 675.81,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 8,
+      "distance_from_price": -16.0
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks below Active 689.22 with volume",
+      "bias": "bearish",
+      "target": 675.81,
+      "entry_trigger": "level break + ribbon BEAR confirmation + momentum"
+    },
+    "secondary": {
+      "condition": "if SPY bounces off 689.22 and tests 693-695 reference zone",
+      "bias": "bearish",
+      "target": "692-693 (fail and reverse), then back to 689 support",
+      "entry_trigger": "resistance failure at 697.08 Carry + ribbon hold"
+    },
+    "tertiary": {
+      "condition": "if SPY clears Carry resistance 697.08 with conviction",
+      "bias": "bullish",
+      "target": "higher (out of scope premarket)",
+      "entry_trigger": "break above 697.08 + volume + ribbon flip pending"
+    }
+  },
+  "levels_in_play_count": 6,
+  "key_observations": [
+    "Carry bracket is tight: 675.81–697.08 = 21.27 range. Price 691.81 is ~70% up within the cage, with room to fall.",
+    "Ribbon is BEAR (spread 23¢, fast < pivot < slow), and price closed below fast EMA 692.59. Downside bias is structurally sound.",
+    "VIX rising 6.69% into day + risk-off sectors (financials −1.73%, tech −1.07%) = risk-off environment favors bear continuation.",
+    "Immediate battle is 697.08 Carry resistance (+ 5.27). If held, price likely flushes toward 689.22 Active support. If broken upside, bias flip pending.",
+    "Reference 1★ levels (690, 691, 693, 694, 695) fill the IN_PLAY zone but lack strategic weight. Use for tactical stops only. Carry and Active levels (675.81, 689.22, 697.08) drive the session bias."
+  ],
+  "data_quality": "full"
+}

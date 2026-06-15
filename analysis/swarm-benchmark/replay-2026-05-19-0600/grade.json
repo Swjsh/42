@@ -1,0 +1,64 @@
+{
+  "date": "2026-05-19",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-20T02:03:06.695168+00:00",
+  "actual": {
+    "open": 736.97,
+    "close": 733.79,
+    "high": 737.57,
+    "low": 732.58,
+    "move_dollars": -3.18,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "no_trade",
+    "swarm_confidence": 0,
+    "consensus_strength": "moderate",
+    "battle_level": {
+      "price": 733.39,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "note": "5-day RTH Carry low \u2014 premarket already pierced to 733.09; RTH defense or failure here determines whether session produces a bear continuation or V-recovery. Designated in absence of level_thesis agent output."
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "ABSTAIN",
+      "consensus": "no_trade",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "TESTED_MIXED",
+      "battle_level": 733.39,
+      "role": "support",
+      "first_touch_time": "2026-05-19T11:45:00"
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 733.39,
+        "touched_any_time": true,
+        "touched_in_specified_window": false,
+        "claim": "The 5-day Carry support at 733.39 is tested (SPY touches 733.50 or lower) within the first 90 minute",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains in the 17.00-19.50 range throughout RTH \u2014 no spike above 20.00 and no compression below 16.50 \u2014 confirming M",
+        "invalidation": "VIX crosses 20.00 to the upside or 16.50 to the downside before 14:00 ET"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "The CLEAN_BEAR ribbon (41c spread, EMA13 735.28 / EMA20 735.40 / EMA48 735.69) holds intact through 10:30 ET \u2014 SPY fails",
+        "invalidation": "SPY prints a 5-minute bar closing above 736.00 before 10:30 ET on above-average volume"
+      }
+    ]
+  },
+  "narrative": "The key tension today: technical and internals both lean bearish (CLEAN_BEAR ribbon, gap-down overnight, XLK -1.84% risk-off rotation), but macro is neutral (zero events, VIX flat at 17.79, orderly selling) and level_thesis is MISSING \u2014 removing the critical structural anchor that would either valid"
+}

@@ -1,0 +1,63 @@
+{
+  "date": "2026-04-07",
+  "as_of_et": "06:00",
+  "replay_dir": "analysis\\swarm-benchmark\\replay-2026-04-07-0600",
+  "total_elapsed_s": 163.3,
+  "consensus_bias": "bullish",
+  "swarm_confidence": 61,
+  "consensus_strength": "strong",
+  "specialists_ok": 4,
+  "validator_ok": true,
+  "synthesis_ok": true,
+  "stage2_results": [
+    {
+      "agent": "technical",
+      "ok": true,
+      "wrote_output": true,
+      "returncode": 0,
+      "elapsed_s": 30.2,
+      "stderr_snippet": ""
+    },
+    {
+      "agent": "macro",
+      "ok": true,
+      "wrote_output": true,
+      "returncode": 0,
+      "elapsed_s": 32.2,
+      "stderr_snippet": ""
+    },
+    {
+      "agent": "level_thesis",
+      "ok": true,
+      "wrote_output": true,
+      "returncode": 0,
+      "elapsed_s": 42.4,
+      "stderr_snippet": ""
+    },
+    {
+      "agent": "internals",
+      "ok": true,
+      "wrote_output": true,
+      "returncode": 0,
+      "elapsed_s": 37.0,
+      "stderr_snippet": ""
+    }
+  ],
+  "stage3_result": {
+    "agent": "validator",
+    "ok": true,
+    "wrote_output": true,
+    "returncode": 0,
+    "elapsed_s": 42.8,
+    "stderr_snippet": ""
+  },
+  "stage4_result": {
+    "agent": "synthesis",
+    "ok": true,
+    "wrote_output": true,
+    "returncode": 0,
+    "elapsed_s": 77.2,
+    "stderr_snippet": ""
+  },
+  "completed_at": "2026-05-17T13:29:55.961153+00:00"
+}

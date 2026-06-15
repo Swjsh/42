@@ -1,0 +1,68 @@
+{
+  "date": "2025-10-01",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-20T02:19:28.767604+00:00",
+  "actual": {
+    "open": 667.99,
+    "close": 668.11,
+    "high": 669.37,
+    "low": 667.62,
+    "move_dollars": 0.12,
+    "actual_bias": "no_trade"
+  },
+  "swarm": {
+    "consensus_bias": "no_trade",
+    "swarm_confidence": 0,
+    "consensus_strength": "moderate",
+    "battle_level": {
+      "price": 665.38,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "battle_grade": "UNTESTED",
+      "battle_grade_note": "Premarket high tested in PM session only; RTH battle outcome unknown \u2014 abstain applies per v5 UNTESTED penalty"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "no_trade",
+      "actual": "no_trade"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 665.38,
+      "role": "resistance",
+      "rth_range": [
+        667.62,
+        669.37
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 665.38,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "SPY tests the 665.38 PMH battle level (within 10\u00a2) at some point during the first 90 minutes of RTH ",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX falls to 16.20 or below by 10:00 ET as the overnight gap-down fear normalizes and buyers step in at 663.09 premarket",
+        "invalidation": "VIX holds above 16.50 at 10:00 ET, confirming sustained elevated risk sentiment rather than normal gap mean-reversion"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "The MIXED ribbon resolves to a clean directional stack (spread \u2265 30\u00a2, fast clearly above or below slow) within the first",
+        "invalidation": "Ribbon spread remains under 20\u00a2 at 09:40 ET, confirming persistent chop and no directional trade available for the first"
+      }
+    ]
+  },
+  "narrative": "The key tension on 2025-10-01 is a 2-vs-2 specialist split: macro and level_thesis see a bearish setup (overnight gap-down, stacked resistances at 665.38\u2192666.65\u2192667.87) but technical reads pure chop (MIXED ribbon, alternating premarket bars) and internals shows only narrow tech leadership without br"
+}

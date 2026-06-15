@@ -1,0 +1,87 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-05-17T20:11:22Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "SPY at 711.84, nested in clean premarket range (708.2–713.14). Price trades above ribbon pivot (711.62) within BULL stack structure (63¢ spread, orderly). Immediate overhead: 712.11 (prior RTH high, +0.27) and 713.14 (PMH, +1.30). The battle level is 713.14 — a break on RTH open targets 715.63 Carry resistance; failure suggests pullback to 712.11, then 708.2 floor (−3.64 buffer). VIX falling (−1.53%), no chop signature. BULL bias intact if 713.14 holds or reclaims on first test; pullback risk if rejected at ceiling.",
+  "battle_level": {
+    "price": 713.14,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 713.14,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 1.30
+    },
+    {
+      "price": 715.63,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 3.79
+    },
+    {
+      "price": 712.11,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 0.27
+    },
+    {
+      "price": 708.2,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": -3.64
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds and reclaims above 713.14 on first RTH test",
+      "bias": "bullish",
+      "target": 715.63,
+      "entry_trigger": "level_reclaim + BULL ribbon stack confirmation"
+    },
+    "secondary": {
+      "condition": "if SPY fails at 713.14 and pulls back below 712.11",
+      "bias": "bearish",
+      "target": 708.2,
+      "entry_trigger": "level rejection + pullback via 712.11 support break"
+    },
+    "tertiary": {
+      "condition": "if SPY bounces from 708.2 support floor",
+      "bias": "bullish",
+      "target": 712.11,
+      "entry_trigger": "support bounce + lower-wick confirmation"
+    }
+  },
+  "levels_in_play_count": 4,
+  "key_observations": [
+    "Premarket range (708.2–713.14) spans 4.94 points with clean, defined boundaries—no gap ambiguity.",
+    "BULL ribbon stack: fast 711.79 > pivot 711.62 > slow 711.16 (63¢ spread)—orderly structure, no chop.",
+    "Current price 711.84 trades above ribbon pivot, aligned with BULL bias; VIX falling (−1.53%) removes downside fear.",
+    "Two Active 2★ resistances cluster tightly overhead (712.11 at +0.27, 713.14 at +1.30)—decision zone defined.",
+    "Carry tiers far from action: 702.28 support (−9.56) and 715.63 resistance (+3.79) mark extended targets, not today's battle.",
+    "PMH (713.14) is the immediate ceiling; breaking it opens upside to 715.63; failing it signals mean-reversion pullback.",
+    "Support floor at 708.2 (PML) provides 3.64-point buffer below current price—bull stop location clear."
+  ],
+  "data_quality": "full"
+}

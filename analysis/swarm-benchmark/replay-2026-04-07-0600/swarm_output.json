@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-04-07T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "level_thesis", "internals"],
+    "bearish": ["macro"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 3,
+    "bearish": 1,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.70,
+    "bearish": 0.30
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 61,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["macro"],
+    "dissent_reason": "Macro agent flagged VIX rising +9.43% into HIGH regime (26.45) as the dominant risk-off headwind — specifically noting that 'VIX spike typically dominates in risk-off regimes' and the overnight gap (+0.15%) is too small relative to the fear move to represent institutional conviction."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The overnight gap of only +0.15% is being treated as bullish conviction when it is undersized relative to the +9.43% VIX spike — classic gap-and-fade signature where overnight buyers may be trapped above 659.72.",
+    "top_invalidation_scenario": "SPY fails to hold 660.37 on first RTH test and breaks below 659.72 within the first 90 minutes, triggering ribbon inversion and confirming the bear-trap setup."
+  },
+  "battle_level": {
+    "price": 660.37,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 660.37,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 659.72,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 659.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 658.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 655.4,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "If SPY breaks and closes above 660.37 on first RTH test with body >= 10c above the level",
+      "bias": "bullish",
+      "target": 661.0,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "If SPY holds above 659.72 but repeatedly rejects at 660.37 without a clean close above",
+      "bias": "no_trade",
+      "target": 659.0,
+      "entry_trigger": "range_consolidation_at_pml_to_pmh"
+    },
+    "invalidation": {
+      "condition": "SPY fails 660.37 on first test and breaks below 659.72 within first 90 minutes of RTH, confirmed by ribbon inversion (price closes below 659.30)",
+      "effect": "Bull thesis invalidated — gap-and-fade confirmed. Cascade through 659.0 and 658.0 support likely as VIX buyers dominate and ribbon inverts. Pivot to bearish bias if this scenario triggers."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "660.37 (premarket high / battle level) is tested from below within the first 60 minutes of RTH (before 10:30 ET)",
+      "invalidation": "SPY does not touch 660.37 before 10:30 ET, instead consolidating below 659.72 or pulling back toward 659.0",
+      "confidence": 0.68,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX exceeds 27.00 at some point within the first 2 hours of RTH (before 11:30 ET), escalating the risk-off bid",
+      "invalidation": "VIX remains below 27.00 through 11:30 ET, suggesting the +9.43% overnight VIX spike was a pre-market overreaction that fades at open",
+      "confidence": 0.55,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY opens at or above 659.72 and the CLEAN_BULL ribbon (fast 659.69 / pivot 659.47 / slow 658.81) remains intact through the first 30 minutes of RTH, with price not closing below the ribbon inversion threshold of 659.30",
+      "invalidation": "SPY prints a 5-minute bar close below 659.30 before 10:00 ET, inverting the ribbon and negating the technical bull structure",
+      "confidence": 0.60,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "Today's setup is a contested high-volatility market: 3 of 4 specialists favor bulls on the basis of a CLEAN_BULL ribbon (88c spread), an overnight gap up to 659.83, and price already above prior RTH high 659.72 — but the macro agent and validator both flag VIX rising +9.43% into 26.45 HIGH regime as the dominant risk-off headwind that historically overwhelms undersized gap-up technicals (the gap is only +0.15%, dwarfed by the VIX move). The single most critical watch at market open is the 660.37 battle level: a decisive body-close above it on first test confirms institutional buying and opens the bull path to 661.0; a rejection at 660.37 followed by a break below 659.72 confirms the validator's gap-and-fade scenario and triggers the bearish cascade through 659.0 and 658.0.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.73,
+      "one_line": "CLEAN_BULL ribbon (88c spread, price 36c above pivot) + overnight gap up 96c; mixed bar structure with last bar a pullback candle — cautious bullish"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.65,
+      "one_line": "VIX 26.45 rising +9.43% into HIGH regime with RISK_OFF backdrop; no events today but macro fear dominates; bearish bias on contested setup"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.76,
+      "one_line": "Battle level 660.37 (PMH resistance) from below; price above 659.72 prior RTH high; primary scenario = break above 660.37 targets 661.0"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "XLF +0.75% + XLE +0.96% cyclical/reflation rotation confirmed; narrow breadth (XLK +0.22% lagging) limits upside sustainability"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Gap-and-fade setup: +0.15% overnight gap is too small vs +9.43% VIX spike; ribbon 53c away from inversion; XLK flat signals narrow breadth ceiling"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-02-09T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.82,
+  "reasoning": "XLK +2.26% + XLF +0.80% + XLE +1.43% = classic risk-on rotation. All three major sectors leading SPY higher. Tech leadership is strong but not isolated — financials and energy confirming breadth. Sector alignment perfect (3-of-3 > +0.5%). Bullish bias with high confidence — internals support directional upside.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 2.26,
+    "xlf_change_pct": 0.80,
+    "xle_change_pct": 1.43,
+    "spy_change_pct": 1.34,
+    "xlk_vs_spy": "outperform",
+    "breadth": "broad"
+  },
+  "key_observations": [
+    "XLK: +2.26% — tech leadership strong, driving SPY higher",
+    "XLF: +0.80% — financials up, confirms yield/rate normalization narrative",
+    "XLE: +1.43% — energy following, no defensive rotation into commodities",
+    "overall rotation: risk_on — all sectors aligned to the upside, broad-based move"
+  ],
+  "data_quality": "full"
+}

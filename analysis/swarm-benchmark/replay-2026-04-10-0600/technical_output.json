@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-17T13:36:36Z",
+  "bias": "bullish",
+  "confidence": 0.85,
+  "reasoning": "CLEAN_BULL ribbon (27¢ spread, properly stacked fast>pivot>slow) with current price 46¢ above EMA pivot. Last 3 closed bars all GREEN with strong continuation (05:50 bar full-body 30¢ move showing conviction between doji bookends). VIX falling at 18.99 (-2.62%) supports low-vol bullish setup. Overnight gap flat (+0.26), premarket range 678.91–680.50 demonstrates volatility but price holding near session highs at 680.13. All primary technical signals aligned.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 27,
+  "bar_structure": "strong_bull",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "Ribbon fast 679.72 > pivot 679.67 > slow 679.45 — clean bull stack with 27¢ spread",
+    "Last 3 bars 05:45/05:50/05:55 all green; middle bar (05:50) shows full-body conviction move of 30¢",
+    "Price 680.13 trading 46¢ above EMA pivot 679.67 — clear bullish momentum",
+    "VIX 18.99 falling -2.62% — low-volatility regime favors directional bull moves",
+    "Overnight gap +0.26 (flat); premarket high 680.50 tested but price holding 37¢ below that ceiling"
+  ],
+  "data_quality": "full"
+}

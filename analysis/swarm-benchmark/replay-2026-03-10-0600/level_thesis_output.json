@@ -1,0 +1,105 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-10T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "SPY at 677.64 is above the bullish ribbon stack (fast 676.77 > pivot 675.92 > slow 673.45, spread 332c healthy). Overnight gap down (-0.66 from 678.30 close) was partial; price is now 0.87 above the fast EMA, suggesting pullback bounce. The battle level is 679.88 (prior session RTH high, Active 2★) at +2.24 from price. If SPY rallies to test 679.88 from below and holds, the 5-day Carry high at 687.09 becomes the target. VIX falling (−2.47%, HIGH regime easing), XLK leadership (+2.79%), and risk-on rotation support upside. If 679.88 fails on first test, pullback to 675.92 pivot; if breaks below, S1 support at 667.19 is next target.",
+  "battle_level": {
+    "price": 679.88,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 679.88,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 2.24
+    },
+    {
+      "price": 687.09,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 9.45
+    },
+    {
+      "price": 675.92,
+      "tier": "Ribbon",
+      "strength_stars": 0,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": -1.72
+    },
+    {
+      "price": 676.77,
+      "tier": "Ribbon",
+      "strength_stars": 0,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": -0.87
+    },
+    {
+      "price": 667.19,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": -10.45
+    },
+    {
+      "price": 662.42,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 6,
+      "distance_from_price": -15.22
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY rallies to 679.88 and holds",
+      "bias": "bullish",
+      "target": 687.09,
+      "entry_trigger": "level_reclaim + ribbon_stack_bull + vix_falling"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 675.92 pivot",
+      "bias": "bearish",
+      "target": 667.19,
+      "entry_trigger": "level_rejection + pivot_break + momentum_loss"
+    },
+    "range": {
+      "condition": "if SPY oscillates 675.92 to 679.88",
+      "bias": "no_trade",
+      "range_width": 4.0,
+      "hold_condition": "ribbon holds, no directional commitment"
+    }
+  },
+  "levels_in_play_count": 6,
+  "key_observations": [
+    "Overnight gap down (-0.66 from 678.30 to 677.64) was partial; price holding above fast EMA (676.77) and ribbon pivot (675.92) suggests pullback-bounce setup.",
+    "Battle level 679.88 (prior session RTH high) is immediate resistance +2.24; success here enables 5-day Carry high at 687.09.",
+    "Bullish ribbon alignment (spread 332c, stack order clear) + VIX falling + XLK sector leadership (+2.79%) support upside bias; pivot 675.92 is the floor for conviction.",
+    "Reference round numbers ($676, $677, $679, $681, $682) provide awareness-only clutter; focus on 679.88 Active and 687.09 Carry for directional quality.",
+    "If 679.88 fails, the pullback targets are 675 reference level, then 667.19 S1 pivot. 5-day support at 662.42 is the floor below which conviction reverses."
+  ],
+  "data_quality": "full"
+}

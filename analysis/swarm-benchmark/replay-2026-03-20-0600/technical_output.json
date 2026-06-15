@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-03-20T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.88,
+  "reasoning": "CLEAN_BEAR ribbon with 108-cent spread; price 193 cents below pivot at 657.51. Last 3 closed bars all red with strong bodies (58-92% body size), showing consistent downtrend structure. Overnight gap down 4.14 dollars from 659.72 close into premarket lows. VIX rising 6.26% at 25.81 (HIGH regime), reinforcing downside environment. All signals aligned: ribbon direction, price position, bar structure, and overnight sentiment all bearish.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 108,
+  "bar_structure": "strong_bear",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "CLEAN_BEAR ribbon (fast 657.02 / pivot 657.51 / slow 658.1) with 108-cent spread, well-defined structure",
+    "Price 655.58 trading 193 cents below pivot, deep in the bearish zone below all moving averages",
+    "Last 3 closed bars: 05:40 RED (657.54→656.87), 05:45 RED (656.77→655.88 with 92% body), 05:50 RED (655.82→655.14 with 70% body); no rejection, consistent selling",
+    "Overnight gap down -4.14 from close 659.72 into premarket lows; price currently at PMH-lows zone (655.1-655.6), indicating sustained selling pressure post-gap",
+    "VIX 25.81 rising +6.26% in HIGH IV regime, fear environment confirms downside bias"
+  ],
+  "data_quality": "full"
+}

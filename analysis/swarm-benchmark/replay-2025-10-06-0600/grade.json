@@ -1,0 +1,65 @@
+{
+  "date": "2025-10-06",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-20T02:28:33.494714+00:00",
+  "actual": {
+    "open": 672.08,
+    "close": 671.78,
+    "high": 672.5,
+    "low": 671.57,
+    "move_dollars": -0.3,
+    "actual_bias": "no_trade"
+  },
+  "swarm": {
+    "consensus_bias": "no_trade",
+    "swarm_confidence": 0,
+    "consensus_strength": "weak",
+    "battle_level": {
+      "price": 671.63,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "source": "Today 2025-10-06 premarket high (PMH) \u2014 tested premarket, rejected -$1.62; first RTH overhead and key bull/bear decision line",
+      "battle_grade_estimated": "HELD"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "no_trade",
+      "actual": "no_trade"
+    },
+    "battle_level": {
+      "grade": "BROKE",
+      "battle_level": 671.63,
+      "role": "resistance",
+      "first_touch_time": "2025-10-06T09:35:00"
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 671.63,
+        "touched_any_time": true,
+        "touched_in_specified_window": false,
+        "claim": "PMH 671.63 acts as RTH resistance cap; SPY fails to close a 5m bar above 671.63 within the first 60 ",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains above 16.50 through the first hour of RTH, sustaining mild risk-off tone and preventing clean bullish moment",
+        "invalidation": "VIX drops below 16.00 by 10:30 ET"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "5m ribbon does not achieve clean BULL stack (\u226520c spread) before 10:30 ET; price oscillates in chop zone between PML 669",
+        "invalidation": "5m ribbon spread reaches \u226520c BULL stack within first 3 RTH bars (by 10:00 ET)"
+      }
+    ]
+  },
+  "narrative": "The key tension today is macro's bullish overnight-gap thesis (+$1.17 gap, zero events) versus real-time premarket price rejection (-$1.62 from PMH 671.63), a MIXED ribbon at only 16c spread (clean threshold: 20c+), and XLK underperformance (-0.59% vs XLF +0.56% \u2014 a tug-of-war, not risk-on rotation)"
+}

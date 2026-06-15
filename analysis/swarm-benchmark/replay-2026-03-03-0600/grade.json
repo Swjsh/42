@@ -1,0 +1,66 @@
+{
+  "date": "2026-03-03",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:05.892736+00:00",
+  "actual": {
+    "open": 675.03,
+    "close": 680.29,
+    "high": 682.58,
+    "low": 669.67,
+    "move_dollars": 5.26,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 36,
+    "consensus_strength": "moderate",
+    "battle_level": {
+      "price": 688.59,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bearish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 688.59,
+      "role": "resistance",
+      "rth_range": [
+        669.67,
+        682.58
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 685.0,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "685.00 support will be tested within the first 60 minutes of RTH (by 10:30 ET); if tested with a 5-m",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX will not print a new intraday high above 27.5 during RTH; it will close below 26.9, consistent with a fear-spike exh",
+        "invalidation": "VIX prints above 27.5 within the first 90 minutes of RTH, confirming fear is still accelerating rather than peaking."
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "Ribbon spread will remain below 30\u00a2 (CHOP classification) for the first 2 hours of RTH (through 11:30 ET), preventing an",
+        "invalidation": "Ribbon spread widens to 30\u00a2 or above on a 5-min bar before 11:30 ET, triggering a BEAR or BULL read and enabling a direc"
+      }
+    ]
+  },
+  "narrative": "The key tension today is a classic fear-divergence setup: VIX at 26.9 (+25% overnight) argues for bearish continuation, but risk-on sector rotation (XLK +1.83%, XLF +1.36%) and a flat overnight gap suggest institutional buyers stepped in overnight, raising the probability of a capitulation washout b"
+}

@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2025-10-07T06:00:00Z",
+  "bias": "neutral",
+  "confidence": 0.55,
+  "reasoning": "VIX at 16.31 in MID regime, flat direction (−0.37% overnight change) providing no volatility directional signal. Zero macro events scheduled for 2025-10-07. Overnight gap flat at +$0.41 indicates neutral sentiment. However, sector rotation shows risk_off bias: XLK −0.33%, XLF −0.43% overnight closes suggest institutional rotation into safety. Premarket BULL ribbon stack contradicts this slightly, but the defensive rotation in mega-cap tech and financials is a cautionary yellow flag. Overall: calm VIX environment with no scheduled events, but underlying sector rotation warrants measured risk posture.",
+  "vix_regime": "MID",
+  "vix_direction": "flat",
+  "vix_current": 16.31,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": 0.41,
+  "macro_backdrop": "neutral",
+  "key_observations": [
+    "VIX 16.31 flat (−0.37% change) — no trending volatility signal, regime is normal MID level",
+    "Zero macro events or FOMC/CPI/NFP scheduled for 2025-10-07 — clear calendar",
+    "Sector rotation into safety: XLK −0.33%, XLF −0.43% overnight — defensive institutional positioning",
+    "Overnight gap +$0.41 classified flat — neutral overnight sentiment from futures/pre-market",
+    "Premarket BULL ribbon stack at 28¢ spread contradicts risk_off signal slightly, no consensus between technicals and rotation"
+  ],
+  "data_quality": "full"
+}

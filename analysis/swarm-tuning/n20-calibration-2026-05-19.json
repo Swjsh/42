@@ -1,0 +1,62 @@
+{
+  "gate_met": true,
+  "n_untested_tradeable": 22,
+  "n_tradeable_total": 61,
+  "n_days_total": 73,
+  "ece_all_tradeable_pct": 32.31,
+  "ece_untested_only_pct": 37.86,
+  "drift_threshold_pp": 5.0,
+  "bucket_stats": {
+    "BROKE": {
+      "n": 10,
+      "n_correct": 8,
+      "wr_pct": 80.0,
+      "v5_penalty": 0,
+      "v5_implied_conf": 65,
+      "drift_pp": 15.0,
+      "mean_actual_conf": 74.1,
+      "drift_actual_pp": 5.9
+    },
+    "HELD": {
+      "n": 14,
+      "n_correct": 7,
+      "wr_pct": 50.0,
+      "v5_penalty": -20,
+      "v5_implied_conf": 45,
+      "drift_pp": 5.0,
+      "mean_actual_conf": 63.1,
+      "drift_actual_pp": -13.1
+    },
+    "TESTED_MIXED": {
+      "n": 15,
+      "n_correct": 13,
+      "wr_pct": 86.7,
+      "v5_penalty": 0,
+      "v5_implied_conf": 65,
+      "drift_pp": 21.7,
+      "mean_actual_conf": 65.8,
+      "drift_actual_pp": 20.9
+    },
+    "UNTESTED": {
+      "n": 22,
+      "n_correct": 12,
+      "wr_pct": 54.5,
+      "v5_penalty": -15,
+      "v5_implied_conf": 50,
+      "drift_pp": 4.5,
+      "mean_actual_conf": 52.1,
+      "drift_actual_pp": 2.4
+    }
+  },
+  "recommendations": {
+    "BROKE": "current_adjustment=0 -> recommend 5 (drift_actual=+5.9pp, mean_actual_conf=74.1% vs WR=80.0%)  [NOTE: base-65 assumption invalid for BROKE \u2014 use actual-conf drift]",
+    "TESTED_MIXED": "current_adjustment=0 -> recommend 20 (drift_actual=+20.9pp, mean_actual_conf=65.8% vs WR=86.7%)  [NOTE: base-65 assumption invalid for TESTED_MIXED \u2014 use actual-conf drift]"
+  },
+  "verdict": "PENALTY_UPDATE_RECOMMENDED",
+  "v5_penalties_current": {
+    "UNTESTED": -15,
+    "HELD": -20,
+    "BROKE": 0,
+    "TESTED_MIXED": 0
+  }
+}

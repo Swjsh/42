@@ -1,0 +1,82 @@
+{
+  "candidate": "ORB_NARROW_OR_GATE (long + or_range<2.00)",
+  "gate": {
+    "direction": "long",
+    "or_range_max": 2.0
+  },
+  "train_window": {
+    "start": "2025-01-01",
+    "end": "2025-09-30"
+  },
+  "test_window": {
+    "start": "2025-10-01",
+    "end": "2026-05-15"
+  },
+  "is_stats": {
+    "n": 21,
+    "total_pnl": 768.5,
+    "wr": 0.7619,
+    "sharpe": 10.1014,
+    "avg_pnl": 36.6
+  },
+  "oos_stats": {
+    "n": 11,
+    "total_pnl": 207.5,
+    "wr": 0.9091,
+    "sharpe": 6.7409,
+    "avg_pnl": 18.86
+  },
+  "oos_is_sharpe_ratio": 0.6673,
+  "wf_verdict": "PASS",
+  "positive_quarters": "5/6",
+  "quarter_stats": {
+    "2025-Q1": {
+      "n": 1,
+      "wr": 0.0,
+      "total_pnl": -42.5
+    },
+    "2025-Q2": {
+      "n": 6,
+      "wr": 1.0,
+      "total_pnl": 394.25
+    },
+    "2025-Q3": {
+      "n": 14,
+      "wr": 0.7143,
+      "total_pnl": 416.75
+    },
+    "2025-Q4": {
+      "n": 2,
+      "wr": 1.0,
+      "total_pnl": 27.12
+    },
+    "2026-Q1": {
+      "n": 4,
+      "wr": 0.75,
+      "total_pnl": 19.25
+    },
+    "2026-Q2": {
+      "n": 5,
+      "wr": 1.0,
+      "total_pnl": 161.13
+    }
+  },
+  "j_winner_fires": {
+    "2026-05-01": 0,
+    "2026-04-29": 23.75,
+    "2026-05-04": 7.75
+  },
+  "j_loser_fires": {
+    "2026-05-05": 24.88,
+    "2026-05-06": 103.5,
+    "2026-05-07": 0
+  },
+  "op20_disclosure": {
+    "account_size": "$1K paper (qty=3)",
+    "sample_bias": "Watcher graded observations \u2014 replay based, not production fills",
+    "oos_test": "IS=21 obs, OOS=11 obs, ratio=0.667",
+    "real_fills": "Pending \u2014 same chart-stop model as #5 (L51/L55 analog) required",
+    "failure_modes": "OR-range filter may over-filter in low-vol seasons; true walk-forward uses SPY engine not watcher grading",
+    "concentration": "Q2-2026 = 46% of P&L (reduced from 85% in LONG_ALL, within acceptable range)"
+  }
+}

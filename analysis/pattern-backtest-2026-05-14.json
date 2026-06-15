@@ -1,0 +1,60 @@
+{
+  "date": "2026-05-14",
+  "csv_source": "C:\\Users\\jackw\\Desktop\\42\\backtest\\data\\spy_5m_2026-05-08_2026-05-18.csv",
+  "bars_count": 78,
+  "heartbeat_decisions_count": 10,
+  "detectors_run": [
+    "double_bottom",
+    "double_top",
+    "failed_breakdown_wick",
+    "rejection_at_level_bearish"
+  ],
+  "summary_by_detector": {
+    "double_bottom": {
+      "hits": 0,
+      "wins": 0,
+      "losses": 0,
+      "neutral": 0,
+      "aligned": 0,
+      "diverged": 0,
+      "heartbeat_miss": 0,
+      "pattern_only": 0,
+      "win_rate_pct": null
+    },
+    "double_top": {
+      "hits": 0,
+      "wins": 0,
+      "losses": 0,
+      "neutral": 0,
+      "aligned": 0,
+      "diverged": 0,
+      "heartbeat_miss": 0,
+      "pattern_only": 0,
+      "win_rate_pct": null
+    },
+    "failed_breakdown_wick": {
+      "hits": 0,
+      "wins": 0,
+      "losses": 0,
+      "neutral": 0,
+      "aligned": 0,
+      "diverged": 0,
+      "heartbeat_miss": 0,
+      "pattern_only": 0,
+      "win_rate_pct": null
+    },
+    "rejection_at_level_bearish": {
+      "hits": 0,
+      "wins": 0,
+      "losses": 0,
+      "neutral": 0,
+      "aligned": 0,
+      "diverged": 0,
+      "heartbeat_miss": 0,
+      "pattern_only": 0,
+      "win_rate_pct": null
+    }
+  },
+  "total_hits": 0,
+  "hits": []
+}

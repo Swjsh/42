@@ -1,0 +1,21 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-03-10T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.85,
+  "reasoning": "CLEAN_BULL ribbon with exceptional 332-cent spread and price 172c above pivot (675.92). Last 3 bars show recovery structure: red-green-green, with bar 3 closing strong at 678.30 (body +113c) on 145,840 volume — highest volume of the EOD session. Price above fast EMA (676.77) confirmed. VIX falling (-2.47%) indicates de-risking. Minor headwind: small overnight gap down (-66c) but well within noise. Overall very clean bullish setup.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 332,
+  "bar_structure": "strong_bull",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "CLEAN_BULL ribbon with 332-cent spread — exceptional clarity and width",
+    "Price 677.64 is 172 cents above pivot (675.92) and 87 cents above slow EMA (673.45)",
+    "Last closed bar (15:55 ET, 678.30) has strong body (+113 cents, 50% of range) and extreme volume (145,840 — 2.4× second-highest bar of EOD session)",
+    "Bar structure green-red-green with strong close suggests recovery from mild intraday pullback",
+    "VIX falling (-2.47% to 24.87) and at HIGH regime — de-risking confirmed, bullish for directional moves",
+    "Overnight gap down -66c is modest and within normal noise vs. the strong EOD bullish structure"
+  ],
+  "data_quality": "full"
+}

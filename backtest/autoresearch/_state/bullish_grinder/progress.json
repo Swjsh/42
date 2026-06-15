@@ -1,0 +1,17 @@
+{
+  "started_at": "2026-06-14T21:12:18.494628",
+  "deadline_at": "2026-06-14T23:12:18.494628",
+  "total_combos": 81,
+  "completed": 81,
+  "passed_floors": 0,
+  "rejected": 81,
+  "keepers": 0,
+  "best_bull_pnl": null,
+  "best_bidir_pnl": null,
+  "current_pid": 27004,
+  "workers": 4,
+  "last_update": "2026-06-14T21:45:16.244850",
+  "status": "completed",
+  "stage": "bullish",
+  "completed_at": "2026-06-14T21:45:16.260486"
+}

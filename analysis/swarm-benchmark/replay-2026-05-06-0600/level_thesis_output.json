@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-05-06T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "SPY at 729.30, sandwiched just below PMH 729.39 (Active, 2★) resistance. Premarket rallied +5.62 from low 723.77, gap-up +5.56 overnight on BULL ribbon stack (Fast 728.48, Pivot 727.94, Slow 726.43, spread 205¢ clean). The battle level is PMH 729.39—if it holds on first RTH test, price corrects to ribbon Fast EMA 728.48 or 726.97 R2 support, then rides north to 732–734 round-number targets. If PMH breaks on RTH open, extension play unlocks above. Carry support far away (708.37) = asymmetry favors bulls. No structured overhead resistance until psychological round numbers.",
+  "battle_level": {
+    "price": 729.39,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 729.39,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.09
+    },
+    {
+      "price": 728.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 1.30
+    },
+    {
+      "price": 726.97,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 2.33
+    },
+    {
+      "price": 725.04,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 4.26
+    },
+    {
+      "price": 723.77,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": 5.53
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 729.39 PMH on first RTH test",
+      "bias": "bullish",
+      "target": 732.5,
+      "entry_trigger": "PMH_hold + ribbon_fast_reclaim + volume_confirmation"
+    },
+    "secondary": {
+      "condition": "if SPY breaks 729.39 PMH to upside early RTH",
+      "bias": "bullish_acceleration",
+      "target": 734.0,
+      "entry_trigger": "PMH_breakout + ribbon_stack_intact"
+    },
+    "downside": {
+      "condition": "if SPY fails at 729.39 and reverses below ribbon Fast EMA 728.48",
+      "bias": "bearish_pullback",
+      "target": 726.97,
+      "entry_trigger": "PMH_rejection + ribbon_first_test"
+    }
+  },
+  "levels_in_play_count": 4,
+  "key_observations": [
+    "Premarket high 729.39 set at 05:55 bar — extremely recent, likely to be tested early RTH.",
+    "BULL ribbon stack rock-solid (spread 205¢, all three MAs in clean order) — provides confidence in upside continuation.",
+    "Carry support 708.37 is 21.27 away — huge downside buffer. No intermediate Carry level between PMH and the 5-day Carry low.",
+    "All Active overhead resistance (725.04 prior RTH high) is now BELOW current price—typical for a gap-up play.",
+    "Round-number resistance 730, 731, 732, 733, 734 provides awareness landmarks but per OP 5 not trigger sources."
+  ],
+  "data_quality": "full"
+}

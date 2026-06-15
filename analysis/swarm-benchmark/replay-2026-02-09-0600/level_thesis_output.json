@@ -1,0 +1,94 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-02-09T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "SPY at 690.15 is sandwiched between yesterday's RTH low (681.14 Active, $9.01 below) and yesterday's RTH high (692.29 Active, $2.14 above). Ribbon is in BULL configuration (fast 690.37 > pivot 690.15 > slow 689.09, 129¢ spread). The battle level is 692.29 — the first overhead resistance. If price tests and holds 692.29, it confirms intraday resistance and may retrace toward 689–688 support. If it breaks 692.29, the next target is 696.95 (5-day Carry tier resistance, $6.80 above). Risk/reward favors bulls if ribbon remains intact (i.e., price stays above slow EMA 689.09); any break below 688 inverts the bias to neutral/bearish. Small overnight gap (-0.57) and falling VIX support a higher-probability test of 692.29.",
+  "battle_level": {
+    "price": 692.29,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 692.29,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 2.14
+    },
+    {
+      "price": 696.95,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 6.8
+    },
+    {
+      "price": 689.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 1.15
+    },
+    {
+      "price": 688.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 2.15
+    },
+    {
+      "price": 681.14,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": 9.01
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY tests and holds 692.29 on first approach",
+      "bias": "bullish",
+      "target": 696.95,
+      "entry_trigger": "level_reclaim from 692.29 bounce + ribbon_stack intact"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 692.29 cleanly",
+      "bias": "bullish",
+      "target": 696.95,
+      "entry_trigger": "breakout above yesterday's high + carry resistance breach"
+    },
+    "tertiary": {
+      "condition": "if SPY fails to reach 692.29 and retreats below 688.0",
+      "bias": "bearish",
+      "target": 681.14,
+      "entry_trigger": "ribbon inversion or support break"
+    }
+  },
+  "levels_in_play_count": 5,
+  "key_observations": [
+    "Price is $2.14 below yesterday's high (692.29) — immediate friction point if bulls want to extend.",
+    "BULL ribbon with 129-cent spread suggests intraday bias is positive; watch for ribbon inversion below 689.09 (slow EMA) as capitulation signal.",
+    "5-day Carry resistance (696.95) sits $6.80 above and is the secondary target if 692.29 breaks; no confluence until then.",
+    "Overnight gap was minimal (-0.57) and VIX is falling — low-friction environment for upside probe of 692.29."
+  ],
+  "data_quality": "full"
+}

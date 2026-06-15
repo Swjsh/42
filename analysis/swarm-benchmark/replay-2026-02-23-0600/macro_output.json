@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-02-23T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "VIX at 21.47 (MID regime) rising 12.53% (≈2.4 point move from ~19 yesterday) — rapid fear buildup triggers bearish framework (change >1.5pts). Overnight gap flat (−$0.15), zero macro events today. However, sector rotation is risk-on (XLK +1.21%, XLF +0.86%, SPY +1.04%) and SPY ribbon bullish (78¢ spread, full bull stack) — creating a critical divergence. This is volatility expansion on nominal gains = distribution risk. Rising VIX + bullish price structure often precedes intraday reversals or consolidation. No hard no-trade windows; caution warranted on both entries.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 21.47,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": -0.15,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX rose 12.53% to 21.47 from Friday close (≈2.4 point move from ~19.07 base) — rapid volatility expansion, change >1.5pts meets bearish threshold per framework",
+    "Zero macro events Feb 23 — no FOMC, CPI, NFP, earnings, or geopolitical catalysts. Full trading day, no scheduled no-trade windows.",
+    "Sector rotation bullish: XLK +1.21%, XLF +0.86%, SPY +1.04% — risk-on tone in price/flows, contradicts VIX directional signal",
+    "Ribbon BULL (fast 688.84 > pivot 688.70 > slow 688.08, 77¢ spread) with healthy multi-timeframe alignment — but VIX divergence flags potential distribution / tail-reversion risk",
+    "Overnight flat (−$0.15 gap) — market digested Friday PM VIX spike without capitulation; suggests controlled risk, not panic, but elevation persists"
+  ],
+  "data_quality": "full"
+}

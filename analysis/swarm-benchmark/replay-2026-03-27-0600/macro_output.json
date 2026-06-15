@@ -1,0 +1,24 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-27T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.85,
+  "reasoning": "VIX at 30.01 in HIGH regime and rising +6.49% = strong bearish signal. Fear building, not receding. Overnight gap down -$0.55 combined with risk-off rotation (XLK -1.98%, XLE +1.40%) confirms bearish backdrop. No macro events today, no no-trade windows. Ribbon in BEAR stack (111¢ spread) provides technical confirmation. Premium expensive due to elevated VIX — bearish setups have higher probability today.",
+  "vix_regime": "HIGH",
+  "vix_direction": "rising",
+  "vix_current": 30.01,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -0.55,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX rising +6.49% from prior day — fear is building, not settling. This is the primary macro signal.",
+    "Overnight gap down -$0.55 modest but directionally consistent with rising VIX. Premarket range 643.90-648.12 shows volatility; current 644.55 near lows.",
+    "Sector rotation to risk-off: XLK -1.98% (tech weakness), XLE +1.40% (energy strength). Classic defensiveness pattern.",
+    "Ribbon in BEAR stack (Fast 645.15, Pivot 645.34, Slow 646.26) with 111¢ spread provides technical confirmation of bearish bias.",
+    "No major macro events (CPI, NFP, FOMC, etc.) on 2026-03-27. Calendar is clean — no event risk or no-trade windows.",
+    "Premium is expensive (VIX 30) — directional entries favor bearish setups with tighter stops. Bullish entries require extreme caution and higher confluence."
+  ],
+  "data_quality": "full"
+}

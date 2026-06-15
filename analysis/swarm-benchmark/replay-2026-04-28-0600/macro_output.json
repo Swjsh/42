@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-04-28T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "VIX at 18.68 in MID regime is rising (+2.81%) — clear bearish momentum signal. Overnight gap down $1.36 confirms overnight weakness; current price 713.80 near premarket low (713.41) suggests bears have control. Ribbon in BEAR stack with 33-cent spread. No major macro events today (FOMC is tomorrow, not today) — clean window for intraday execution, but macro backdrop is risk-off. Energy sector weakness (-0.58%) adds minor bearish confirmation. Confidence 0.68: directional VIX + gap alignment, but changes are moderate rather than extreme.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 18.68,
+  "event_risk": "low",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -1.36,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX rising 2.81% (18.68 current) in MID regime — bearish momentum signal, not extreme but directional",
+    "Overnight gap down $1.36; current price 713.80 trading near premarket low 713.41, showing bears in control of overnight session",
+    "No macro events scheduled today (2026-04-28); FOMC meeting is tomorrow (2026-04-29) — no hard no-trade windows",
+    "Ribbon BEAR stack (spread 33¢) + energy sector weakness (-0.58%) add minor bearish confirmation to macro backdrop",
+    "Tech/financial sectors slightly positive (+0.34% XLK, +0.97% XLF) — some buying interest, but VIX rise overrides"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,22 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-02-18T11:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "VIX at 18.66 (MID regime) falling -8.03% signals rapid fear recession and premium compression, a strong bullish tailwind for call buyers. Overnight gap is flat (-0.18), so no overnight bullish reinforcement, but sector rotation is explicitly risk-on (XLK +0.61%, XLF +0.73% leading; XLE -1.48% lagging). Zero macro events today removes all event-risk noise. FOMC meeting not until 2026-03-18. Environment is clean for directional entry. Confidence moderated slightly due to flat overnight gap (would expect gap-up to reinforce bullish bias more strongly) and MIXED ribbon stack (not yet strongly aligned). Overall backdrop favors bullish 0DTE setups through EOD.",
+  "vix_regime": "MID",
+  "vix_direction": "falling",
+  "vix_current": 18.66,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": -0.18,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX fell 8.03% overnight (est. 20.3 yesterday to 18.66 today) — fear recession indicates premium is compressing and volatility sellers are exiting.",
+    "Sector breadth: XLK + XLF leading (tech + financials), XLE lagging (energy). Classic risk-on rotation into growth/financials.",
+    "Zero macro events on calendar for 2026-02-18; next high-impact event is FOMC on 2026-03-18 (28 days out, not a near-term concern).",
+    "Overnight gap is flat — no gap-up bullish thrust from Asia/futures, but also no gap-down fear. Price starting session unchanged from close signals neutral overnight but within a bullish-drift day (pre-market ribbon MIXED, not yet aligned)."
+  ],
+  "data_quality": "full"
+}

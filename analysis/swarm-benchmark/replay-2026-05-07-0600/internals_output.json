@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-05-07T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.62,
+  "reasoning": "XLK +1.28% leading the move while XLE -0.51% and XLF flat confirms risk-on rotation into growth. Tech sector is outperforming SPY (1.28% vs 0.78%), indicating somewhat narrow leadership. XLF's lack of participation (-0.15%) limits full breadth confirmation, but the directional signal is clear: growth/tech preference, no defensive rotation. Medium-confidence bullish bias on sector internals alone.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 1.28,
+    "xlf_change_pct": -0.15,
+    "xle_change_pct": -0.51,
+    "spy_change_pct": 0.78,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +1.28% — strong tech leadership, well above 0.5% threshold",
+    "XLF: -0.15% — essentially flat, not contributing to breadth",
+    "XLE: -0.51% — down while XLK up = classic risk-on (growth preferred over defensive)",
+    "overall rotation: Clear risk-on into growth; tech leading but not broad-based (only 1 of 3 major sectors >0.5%)"
+  ],
+  "data_quality": "full"
+}

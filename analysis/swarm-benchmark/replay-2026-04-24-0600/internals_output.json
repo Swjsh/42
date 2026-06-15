@@ -1,0 +1,24 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-04-24T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.72,
+  "reasoning": "XLK (Tech) -0.59% and XLF (Financials) -0.54% both down material premarket amounts. XLE flat at +0.16%. Classic risk-off rotation: the two largest SPY component sectors (tech ~30%, financials ~13%) selling while defensive (energy) holds. SPY only -0.15% shows these two leaders are underperforming the index — weakness concentrated in growth sectors. Breadth is therefore NARROW. Medium-high bearish confidence from dual sector selloff, moderated by premarket data (not RTH volumes yet) and SPY's relative resilience.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -0.59,
+    "xlf_change_pct": -0.54,
+    "xle_change_pct": 0.16,
+    "spy_change_pct": -0.15,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: -0.59% premarket. Tech sector selling hard into open.",
+    "XLF: -0.54% premarket. Financials following tech lower. Both >0.5% down = clear alignment.",
+    "XLE: +0.16% premarket. Energy flat-to-slightly-up, no rotation leadership (would need >0.5% for risk-on cover).",
+    "SPY: -0.15% premarket. Index lagging sector downside. Signals weakness is concentrated in XLK+XLF, not broad.",
+    "Overall rotation: RISK-OFF confirmed. Tech+Financials diverging lower while SPY holds suggests intra-day pressure likely."
+  ],
+  "data_quality": "full"
+}

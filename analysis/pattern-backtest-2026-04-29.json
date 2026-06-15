@@ -1,0 +1,221 @@
+{
+  "date": "2026-04-29",
+  "csv_source": "C:\\Users\\jackw\\Desktop\\42\\backtest\\data\\spy_5m_2025-01-01_2026-05-15.csv",
+  "bars_count": 78,
+  "heartbeat_decisions_count": 0,
+  "detectors_run": [
+    "double_bottom",
+    "double_top",
+    "failed_breakdown_wick",
+    "rejection_at_level_bearish"
+  ],
+  "summary_by_detector": {
+    "double_bottom": {
+      "hits": 3,
+      "wins": 2,
+      "losses": 1,
+      "neutral": 0,
+      "aligned": 0,
+      "diverged": 0,
+      "heartbeat_miss": 0,
+      "pattern_only": 3,
+      "win_rate_pct": 66.7
+    },
+    "double_top": {
+      "hits": 2,
+      "wins": 0,
+      "losses": 2,
+      "neutral": 0,
+      "aligned": 0,
+      "diverged": 0,
+      "heartbeat_miss": 0,
+      "pattern_only": 2,
+      "win_rate_pct": 0.0
+    },
+    "failed_breakdown_wick": {
+      "hits": 1,
+      "wins": 1,
+      "losses": 0,
+      "neutral": 0,
+      "aligned": 0,
+      "diverged": 0,
+      "heartbeat_miss": 0,
+      "pattern_only": 1,
+      "win_rate_pct": 100.0
+    },
+    "rejection_at_level_bearish": {
+      "hits": 0,
+      "wins": 0,
+      "losses": 0,
+      "neutral": 0,
+      "aligned": 0,
+      "diverged": 0,
+      "heartbeat_miss": 0,
+      "pattern_only": 0,
+      "win_rate_pct": null
+    }
+  },
+  "total_hits": 6,
+  "hits": [
+    {
+      "detector": "double_top",
+      "bar_index": 28,
+      "bar_time_et": "11:50",
+      "bar_close": 709.5501098632812,
+      "pattern": "double_top",
+      "bias": "bearish",
+      "confidence": 0.647,
+      "key_price": 711.92,
+      "notes": {
+        "high1_bar_idx": 15,
+        "high2_bar_idx": 23,
+        "high1_price": 711.92,
+        "high2_price": 711.11,
+        "neckline": 710.1,
+        "bars_between": 7,
+        "separation_pct": 0.00114,
+        "neckline_drop_pct": 0.00255,
+        "high2_volume_higher": false
+      },
+      "grade_next_bar": "LOSS",
+      "heartbeat_overlay": {
+        "alignment": "pattern_only",
+        "matched_decisions": 0
+      }
+    },
+    {
+      "detector": "double_top",
+      "bar_index": 62,
+      "bar_time_et": "14:40",
+      "bar_close": 708.7000122070312,
+      "pattern": "double_top",
+      "bias": "bearish",
+      "confidence": 0.749,
+      "key_price": 710.2,
+      "notes": {
+        "high1_bar_idx": 57,
+        "high2_bar_idx": 61,
+        "high1_price": 709.91,
+        "high2_price": 710.2,
+        "neckline": 708.75,
+        "bars_between": 3,
+        "separation_pct": 0.00041,
+        "neckline_drop_pct": 0.00204,
+        "high2_volume_higher": true
+      },
+      "grade_next_bar": "LOSS",
+      "heartbeat_overlay": {
+        "alignment": "pattern_only",
+        "matched_decisions": 0
+      }
+    },
+    {
+      "detector": "failed_breakdown_wick",
+      "bar_index": 63,
+      "bar_time_et": "14:45",
+      "bar_close": 709.4650268554688,
+      "pattern": "failed_breakdown_wick",
+      "bias": "bullish",
+      "confidence": 0.612,
+      "key_price": 708.46,
+      "notes": {
+        "support_price": 708.46,
+        "low": 708.37,
+        "close": 709.47,
+        "sweep_depth_dollars": 0.09,
+        "sweep_depth_pct": 0.00013,
+        "close_back_margin_dollars": 1.01,
+        "close_back_margin_pct": 0.00142,
+        "lower_wick_dollars": 0.33,
+        "body_dollars": 0.77,
+        "wick_to_body_ratio": 0.43,
+        "volume": 624589.0,
+        "avg_prior_volume": 479009.0,
+        "volume_mult": 1.3
+      },
+      "grade_next_bar": "WIN",
+      "heartbeat_overlay": {
+        "alignment": "pattern_only",
+        "matched_decisions": 0
+      }
+    },
+    {
+      "detector": "double_bottom",
+      "bar_index": 65,
+      "bar_time_et": "14:55",
+      "bar_close": 710.5700073242188,
+      "pattern": "double_bottom",
+      "bias": "bullish",
+      "confidence": 0.737,
+      "key_price": 708.37,
+      "notes": {
+        "low1_bar_idx": 60,
+        "low2_bar_idx": 63,
+        "low1_price": 708.75,
+        "low2_price": 708.37,
+        "neckline": 710.2,
+        "bars_between": 2,
+        "separation_pct": 0.00054,
+        "neckline_rise_pct": 0.00258,
+        "low2_volume_higher": true
+      },
+      "grade_next_bar": "LOSS",
+      "heartbeat_overlay": {
+        "alignment": "pattern_only",
+        "matched_decisions": 0
+      }
+    },
+    {
+      "detector": "double_bottom",
+      "bar_index": 66,
+      "bar_time_et": "15:00",
+      "bar_close": 710.385009765625,
+      "pattern": "double_bottom",
+      "bias": "bullish",
+      "confidence": 0.729,
+      "key_price": 708.37,
+      "notes": {
+        "low1_bar_idx": 60,
+        "low2_bar_idx": 63,
+        "low1_price": 708.75,
+        "low2_price": 708.37,
+        "neckline": 710.2,
+        "bars_between": 2,
+        "separation_pct": 0.00054,
+        "neckline_rise_pct": 0.00258,
+        "low2_volume_higher": true
+      },
+      "grade_next_bar": "WIN",
+      "heartbeat_overlay": {
+        "alignment": "pattern_only",
+        "matched_decisions": 0
+      }
+    },
+    {
+      "detector": "double_bottom",
+      "bar_index": 67,
+      "bar_time_et": "15:05",
+      "bar_close": 710.4600219726562,
+      "pattern": "double_bottom",
+      "bias": "bullish",
+      "confidence": 0.732,
+      "key_price": 708.37,
+      "notes": {
+        "low1_bar_idx": 60,
+        "low2_bar_idx": 63,
+        "low1_price": 708.75,
+        "low2_price": 708.37,
+        "neckline": 710.2,
+        "bars_between": 2,
+        "separation_pct": 0.00054,
+        "neckline_rise_pct": 0.00258,
+        "low2_volume_higher": true
+      },
+      "grade_next_bar": "WIN",
+      "heartbeat_overlay": {
+        "alignment": "pattern_only",
+        "matched_decisions": 0
+      }
+    }
+  ]
+}

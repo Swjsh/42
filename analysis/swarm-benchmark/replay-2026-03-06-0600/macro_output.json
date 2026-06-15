@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-06T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.72,
+  "reasoning": "VIX at 25.83 is in extreme-fear territory (above 22 HIGH threshold) and rising sharply (+8.76%), signaling building fear. Overnight SPY gapped down $0.94 (681.40 close → 680.46 premarket), confirming risk-off sentiment. Zero major macro events today removes event-risk uncertainty. Premium is expensive at VIX 25.83, but directionality is unambiguous: bearish. Mixed sector rotation (XLK +0.73%, others flat) suggests some defensive positioning. Macro backdrop is risk-off; playbook should favor bearish setups with tighter filters due to elevated premium cost.",
+  "vix_regime": "HIGH",
+  "vix_direction": "rising",
+  "vix_current": 25.83,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -0.94,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX spiked 8.76% overnight to 25.83, crossing extreme-fear threshold (>25); fear is building, not receding",
+    "SPY overnight gap down $0.94 (681.40 → 680.46) confirms risk-off market entry; sellers drove the move",
+    "Zero high-impact macro events on 2026-03-06; sentiment-driven, not event-driven selloff",
+    "Ribbon shows BULL stack but macro contradicts — macro backdrop is risk-off; ribbon stack is secondary to VIX regime today",
+    "XLK up 0.73% while rest of sectors flat/down suggests investor flight-to-quality (tech stable, cyclicals weak)"
+  ],
+  "data_quality": "full"
+}

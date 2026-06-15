@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Project Gamma — Where We Are: a visual snapshot of brainstorm, accomplishments, and roadmap." />
+<title>Project Gamma · Where We Are</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #050810;
+  color: #e6edf7;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+img, svg { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; cursor: pointer; background: none; border: none; }
+a { color: inherit; text-decoration: none; }
+::selection { background: rgba(34, 211, 238, 0.35); color: #fff; }
+
+:root {
+  --bg-deep: #050810;
+  --bg-base: #0a0f1c;
+  --bg-elev: #131b2e;
+  --bg-card: #161e35;
+  --bg-overlay: #1c2540;
+  --border: rgba(255,255,255,0.08);
+  --border-mid: rgba(255,255,255,0.12);
+  --border-strong: rgba(255,255,255,0.18);
+  --text-1: #e6edf7;
+  --text-2: #a4afc4;
+  --text-3: #6e7a92;
+  --text-4: #4a5570;
+  --up: #22c55e;
+  --up-soft: rgba(34,197,94,0.14);
+  --up-glow: rgba(34,197,94,0.4);
+  --down: #ef4444;
+  --down-soft: rgba(239,68,68,0.14);
+  --down-glow: rgba(239,68,68,0.4);
+  --amber: #f59e0b;
+  --amber-soft: rgba(245,158,11,0.14);
+  --cyan: #22d3ee;
+  --cyan-soft: rgba(34,211,238,0.16);
+  --cyan-glow: rgba(34,211,238,0.45);
+  --violet: #a78bfa;
+  --violet-soft: rgba(167,139,250,0.16);
+  --blue: #60a5fa;
+  --blue-soft: rgba(96,165,250,0.16);
+  --max: 1240px;
+  --pad: 32px;
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --shadow: 0 8px 24px rgba(0,0,0,0.35);
+  --shadow-lg: 0 24px 64px rgba(0,0,0,0.55);
+}
+
+h1, h2, h3, h4, h5 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; color: var(--text-1); }
+.mono { font-family: 'JetBrains Mono', monospace; }
+.container { max-width: var(--max); margin: 0 auto; padding: 0 var(--pad); }
+section { position: relative; padding: 90px 0; }
+section + section { border-top: 1px solid var(--border); }
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.15em; color: var(--cyan);
+  background: var(--cyan-soft);
+  border: 1px solid rgba(34,211,238,0.25);
+  padding: 6px 12px; border-radius: 100px;
+  margin-bottom: 24px;
+}
+.eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+.eyebrow.violet { color: var(--violet); background: var(--violet-soft); border-color: rgba(167,139,250,0.25); }
+.eyebrow.violet::before { background: var(--violet); box-shadow: 0 0 8px var(--violet); }
+.eyebrow.amber { color: var(--amber); background: var(--amber-soft); border-color: rgba(245,158,11,0.25); }
+.eyebrow.amber::before { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+.eyebrow.up { color: var(--up); background: var(--up-soft); border-color: rgba(34,197,94,0.25); }
+.eyebrow.up::before { background: var(--up); box-shadow: 0 0 8px var(--up); }
+.section-title { font-size: clamp(32px, 4vw, 52px); margin-bottom: 16px; }
+.section-lede { font-size: 18px; color: var(--text-2); max-width: 740px; margin-bottom: 56px; }
+
+/* NAV */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(5, 8, 16, 0.7);
+  backdrop-filter: saturate(140%) blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner { max-width: var(--max); margin: 0 auto; padding: 14px var(--pad); display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.nav-brand { display: flex; align-items: center; gap: 10px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 16px; }
+.nav-logo {
+  width: 28px; height: 28px; border-radius: 7px;
+  background: linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%);
+  display: grid; place-items: center; color: #050810; font-weight: 800;
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
+}
+.nav-links { display: flex; gap: 4px; flex-wrap: wrap; }
+.nav-link { padding: 8px 12px; border-radius: 8px; font-size: 13px; color: var(--text-2); font-weight: 500; transition: all 0.2s ease; }
+.nav-link:hover { color: var(--text-1); background: rgba(255,255,255,0.04); }
+@media (max-width: 920px) { .nav-links { display: none; } }
+
+/* HERO */
+.hero {
+  min-height: 92vh; padding-top: 96px;
+  display: grid; place-items: center;
+  position: relative; overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(34,211,238,0.12), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(167,139,250,0.10), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 20% 100%, rgba(34,197,94,0.06), transparent 60%);
+}
+.hero-grid {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, #000 30%, transparent 80%);
+}
+.hero-content { position: relative; z-index: 1; text-align: center; padding: 0 var(--pad); max-width: 1000px; }
+.hero h1 {
+  font-size: clamp(48px, 9vw, 110px);
+  line-height: 0.95; margin: 16px 0 24px;
+  letter-spacing: -0.04em;
+  background: linear-gradient(180deg, #ffffff 0%, #a4afc4 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hero-sub { font-size: clamp(18px, 2.2vw, 22px); color: var(--text-2); max-width: 760px; margin: 0 auto 40px; line-height: 1.5; }
+.hero-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 40px; max-width: 880px; margin-left: auto; margin-right: auto; }
+@media (max-width: 720px) { .hero-stats { grid-template-columns: repeat(2, 1fr); } }
+.hero-stat { padding: 22px 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: rgba(255,255,255,0.02); }
+.hero-stat-value { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700; color: var(--text-1); margin-bottom: 4px; }
+.hero-stat-label { font-size: 12px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; font-family: 'JetBrains Mono', monospace; }
+.hero-stat.up .hero-stat-value { color: var(--up); }
+.hero-stat.cyan .hero-stat-value { color: var(--cyan); }
+.hero-stat.violet .hero-stat-value { color: var(--violet); }
+
+/* PIPELINE */
+.pipeline { display: flex; flex-direction: column; gap: 16px; max-width: 920px; margin: 0 auto; }
+.stage {
+  position: relative; padding: 28px 32px;
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-elev) 100%);
+  display: grid; grid-template-columns: 64px 1fr auto; gap: 24px; align-items: center;
+  transition: all 0.3s ease;
+}
+.stage:hover { transform: translateX(4px); border-color: var(--border-strong); }
+.stage-num {
+  width: 64px; height: 64px; border-radius: 16px;
+  background: var(--bg-overlay); border: 1px solid var(--border);
+  display: grid; place-items: center;
+  font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700;
+  color: var(--accent); position: relative;
+}
+.stage-num::after {
+  content: ''; position: absolute; top: 50%; right: -16px; width: 16px; height: 1px; background: var(--border-strong);
+}
+.stage:last-child .stage-num::after { display: none; }
+.stage[data-accent="cyan"] { --accent: var(--cyan); }
+.stage[data-accent="violet"] { --accent: var(--violet); }
+.stage[data-accent="blue"] { --accent: var(--blue); }
+.stage[data-accent="amber"] { --accent: var(--amber); }
+.stage[data-accent="up"] { --accent: var(--up); }
+.stage-num { box-shadow: 0 0 20px rgba(34,211,238,0.15); }
+.stage[data-accent="violet"] .stage-num { box-shadow: 0 0 20px rgba(167,139,250,0.15); }
+.stage[data-accent="up"] .stage-num { box-shadow: 0 0 20px rgba(34,197,94,0.18); }
+.stage h3 { font-size: 19px; margin-bottom: 6px; }
+.stage-desc { font-size: 14px; color: var(--text-2); line-height: 1.5; }
+.stage-status {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  padding: 6px 12px; border-radius: 100px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.status-done { color: var(--up); background: var(--up-soft); border: 1px solid rgba(34,197,94,0.25); }
+.status-active { color: var(--cyan); background: var(--cyan-soft); border: 1px solid rgba(34,211,238,0.25); }
+.status-pending { color: var(--text-3); background: rgba(255,255,255,0.03); border: 1px solid var(--border); }
+@media (max-width: 720px) { .stage { grid-template-columns: 1fr; padding: 20px; gap: 12px; } .stage-num { width: 48px; height: 48px; font-size: 22px; } .stage-num::after { display: none; } }
+
+/* WATCHER GRID */
+.watcher-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+@media (max-width: 920px) { .watcher-grid { grid-template-columns: 1fr; } }
+.watcher-card {
+  position: relative; padding: 28px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-elev) 100%);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.watcher-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--accent);
+}
+.watcher-card[data-state="ev"] { --accent: var(--up); }
+.watcher-card[data-state="flat"] { --accent: var(--amber); }
+.watcher-card[data-state="off"] { --accent: var(--down); }
+.watcher-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.watcher-name { font-size: 22px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; }
+.watcher-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 4px 10px; border-radius: 100px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); background: rgba(255,255,255,0.04); border: 1px solid var(--border); }
+.watcher-tagline { color: var(--text-2); font-size: 14px; line-height: 1.5; margin-bottom: 24px; }
+.watcher-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 16px; background: rgba(0,0,0,0.2); border-radius: var(--radius); border: 1px solid var(--border); }
+.watcher-stat { text-align: center; }
+.watcher-stat-label { display: block; font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; font-family: 'JetBrains Mono', monospace; }
+.watcher-stat-value { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; color: var(--text-1); }
+.watcher-stat-value.up { color: var(--up); }
+.watcher-stat-value.down { color: var(--down); }
+.watcher-stat-value.amber { color: var(--amber); }
+.watcher-foot { margin-top: 16px; font-size: 13px; color: var(--text-3); font-family: 'JetBrains Mono', monospace; }
+
+/* OP TIMELINE */
+.op-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+@media (max-width: 720px) { .op-grid { grid-template-columns: 1fr; } }
+.op {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 16px 18px; border-radius: var(--radius);
+  background: var(--bg-elev); border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+.op:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+.op-num {
+  flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px;
+  background: var(--bg-overlay); border: 1px solid var(--border);
+  display: grid; place-items: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700;
+  color: var(--accent);
+}
+.op[data-color="cyan"] { --accent: var(--cyan); }
+.op[data-color="violet"] { --accent: var(--violet); }
+.op[data-color="amber"] { --accent: var(--amber); }
+.op[data-color="up"] { --accent: var(--up); }
+.op[data-color="blue"] { --accent: var(--blue); }
+.op-name { font-weight: 600; font-size: 14px; color: var(--text-1); margin-bottom: 4px; line-height: 1.3; }
+.op-desc { font-size: 12px; color: var(--text-3); line-height: 1.4; }
+.op-new { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: var(--cyan-soft); color: var(--cyan); margin-left: 6px; vertical-align: middle; letter-spacing: 0.1em; }
+
+/* ROADMAP */
+.roadmap { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+@media (max-width: 920px) { .roadmap { grid-template-columns: 1fr; } }
+.road-col { padding: 28px; border-radius: var(--radius-lg); background: var(--bg-elev); border: 1px solid var(--border); }
+.road-col h3 { font-size: 20px; margin-bottom: 6px; }
+.road-col[data-when="now"] { border-top: 3px solid var(--up); }
+.road-col[data-when="next"] { border-top: 3px solid var(--cyan); }
+.road-col[data-when="future"] { border-top: 3px solid var(--violet); }
+.road-when { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px; }
+.road-list { list-style: none; padding: 0; }
+.road-list li { padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; font-size: 14px; color: var(--text-2); }
+.road-list li:last-child { border-bottom: none; }
+.road-icon { flex-shrink: 0; width: 18px; height: 18px; border-radius: 5px; display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+.road-col[data-when="now"] .road-icon { background: var(--up-soft); color: var(--up); }
+.road-col[data-when="next"] .road-icon { background: var(--cyan-soft); color: var(--cyan); }
+.road-col[data-when="future"] .road-icon { background: var(--violet-soft); color: var(--violet); }
+
+/* WHAT WORKED / NUMBERS */
+.numbers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+@media (max-width: 920px) { .numbers-grid { grid-template-columns: repeat(2, 1fr); } }
+.num-card {
+  padding: 24px; border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-elev) 100%);
+  border: 1px solid var(--border); position: relative; overflow: hidden;
+}
+.num-card::before { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 3px; background: var(--accent); }
+.num-card[data-c="up"] { --accent: var(--up); }
+.num-card[data-c="cyan"] { --accent: var(--cyan); }
+.num-card[data-c="violet"] { --accent: var(--violet); }
+.num-card[data-c="amber"] { --accent: var(--amber); }
+.num-label { font-size: 12px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; }
+.num-value { font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 700; color: var(--text-1); margin-bottom: 8px; }
+.num-card[data-c="up"] .num-value { color: var(--up); }
+.num-card[data-c="cyan"] .num-value { color: var(--cyan); }
+.num-card[data-c="violet"] .num-value { color: var(--violet); }
+.num-card[data-c="amber"] .num-value { color: var(--amber); }
+.num-meta { font-size: 12px; color: var(--text-3); }
+
+/* INFRA TASKS */
+.tasks-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+@media (max-width: 920px) { .tasks-grid { grid-template-columns: repeat(2, 1fr); } }
+.task {
+  padding: 14px 16px; border-radius: var(--radius);
+  background: var(--bg-elev); border: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; font-family: 'JetBrains Mono', monospace;
+  color: var(--text-2);
+}
+.task-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--up); box-shadow: 0 0 8px var(--up); flex-shrink: 0; }
+
+/* FOOTER */
+.foot { padding: 60px 0 40px; text-align: center; }
+.foot p { color: var(--text-3); font-size: 13px; font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      <div class="nav-logo">G</div>
+      <span>Project Gamma · Where We Are</span>
+    </div>
+    <div class="nav-links">
+      <a class="nav-link" href="#mission">Mission</a>
+      <a class="nav-link" href="#pipeline">Pipeline</a>
+      <a class="nav-link" href="#watchers">Watchers</a>
+      <a class="nav-link" href="#ops">Doctrine</a>
+      <a class="nav-link" href="#numbers">Numbers</a>
+      <a class="nav-link" href="#roadmap">Roadmap</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="eyebrow">Snapshot · 2026-05-10</div>
+    <h1>Where We Are</h1>
+    <p class="hero-sub">After a weekend of grinding: 22 operating principles ratified, a 5-stage research pipeline, 3 strategy watchers, full Sunday→Monday autonomy, and an honest portfolio of what works, what doesn't, and what's next.</p>
+    <div class="hero-stats">
+      <div class="hero-stat up">
+        <div class="hero-stat-value">$19,627</div>
+        <div class="hero-stat-label">v15 wide_pnl 16mo</div>
+      </div>
+      <div class="hero-stat cyan">
+        <div class="hero-stat-value">22</div>
+        <div class="hero-stat-label">operating principles</div>
+      </div>
+      <div class="hero-stat violet">
+        <div class="hero-stat-value">20</div>
+        <div class="hero-stat-label">scheduled tasks</div>
+      </div>
+      <div class="hero-stat up">
+        <div class="hero-stat-value">6/6</div>
+        <div class="hero-stat-label">monday-ready gates</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MISSION -->
+<section id="mission">
+  <div class="container">
+    <div class="eyebrow violet">Mission</div>
+    <h2 class="section-title">Make money every day trading 0DTE SPY options.</h2>
+    <p class="section-lede">Bullish or bearish. Encode J's edge into the engine. Validate it across regimes. Watch for setups, log evidence, ratify only with non-theatre proof. Trade autonomously while J lives life.</p>
+
+    <div class="numbers-grid">
+      <div class="num-card" data-c="cyan">
+        <div class="num-label">Bear v15-final</div>
+        <div class="num-value">+$19.6K</div>
+        <div class="num-meta">16mo wide_pnl. OOS validated. Awaiting J ratification.</div>
+      </div>
+      <div class="num-card" data-c="up">
+        <div class="num-label">Edge capture</div>
+        <div class="num-value">$3,056</div>
+        <div class="num-meta">198% of J's $1,542 max possible. 4/29 + 5/04 BEAT.</div>
+      </div>
+      <div class="num-card" data-c="amber">
+        <div class="num-label">Concentration</div>
+        <div class="num-value">120%</div>
+        <div class="num-meta">Top-5 days vs total. Down from baseline 456%.</div>
+      </div>
+      <div class="num-card" data-c="violet">
+        <div class="num-label">Cost / day</div>
+        <div class="num-value">~$0</div>
+        <div class="num-meta">Pure Python research. LLM hard cap $5/day.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section id="pipeline">
+  <div class="container">
+    <div class="eyebrow">Research pipeline</div>
+    <h2 class="section-title">5-Stage Grinder</h2>
+    <p class="section-lede">Each stage applies stricter gates than the previous. Candidates flow stage→stage; only those passing every gate make it to ratification. Pure Python, $0 LLM, all autonomous via the hourly monitor.</p>
+
+    <div class="pipeline">
+      <div class="stage" data-accent="cyan">
+        <div class="stage-num">1</div>
+        <div>
+          <h3>Broad parameter sweep + floor protection</h3>
+          <p class="stage-desc">432 combos. Anchor trades (4/29 + 5/04) must not regress. Losers_added = 0.</p>
+        </div>
+        <div class="stage-status status-done">DONE · 4 keepers</div>
+      </div>
+      <div class="stage" data-accent="cyan">
+        <div class="stage-num">2</div>
+        <div>
+          <h3>Refine top-5 keepers</h3>
+          <p class="stage-desc">324 combos. ±1-step neighborhood around stage-1 winners.</p>
+        </div>
+        <div class="stage-status status-done">DONE · 2 keepers</div>
+      </div>
+      <div class="stage" data-accent="violet">
+        <div class="stage-num">3</div>
+        <div>
+          <h3>Regime-robustness gates</h3>
+          <p class="stage-desc">top5_pct ≤ 200% (concentration cap), ≥4 of 6 quarters net-positive.</p>
+        </div>
+        <div class="stage-status status-done">DONE · 4 keepers · best $19,627 wide_pnl</div>
+      </div>
+      <div class="stage" data-accent="amber">
+        <div class="stage-num">4</div>
+        <div>
+          <h3>Sub-window stability</h3>
+          <p class="stage-desc">EVERY quarter net-positive AND ≥3 trades per quarter. Strictest gate.</p>
+        </div>
+        <div class="stage-status status-done">0 keepers · regime-fragility CONFIRMED Q3+Q4 2025</div>
+      </div>
+      <div class="stage" data-accent="up">
+        <div class="stage-num">5</div>
+        <div>
+          <h3>Final ratification scorecard</h3>
+          <p class="stage-desc">Auto-writes <span class="mono">analysis/recommendations/v15-final.json</span>. Awaits J's YES.</p>
+        </div>
+        <div class="stage-status status-done">DONE · best_through_stage3_only verdict</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 40px; padding: 24px 28px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: rgba(34,211,238,0.04); display: flex; align-items: center; gap: 20px; max-width: 920px; margin-left: auto; margin-right: auto; flex-wrap: wrap;">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 6px 12px; border-radius: 100px; background: var(--cyan-soft); color: var(--cyan); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;">+ OOS</div>
+      <div style="flex: 1; min-width: 200px;"><strong>Walk-forward validation</strong> — train on 2025, test on 4.3mo of 2026. ALL 5 candidates pass per-month-normalized ratio (0.81-1.12x). Confirms strategy generalizes.</div>
+    </div>
+  </div>
+</section>
+
+<!-- WATCHERS -->
+<section id="watchers">
+  <div class="container">
+    <div class="eyebrow violet">Strategy portfolio</div>
+    <h2 class="section-title">Watchers — Watch-First, Promote on Evidence</h2>
+    <p class="section-lede">Per OP 21: every new strategy starts in WATCH-ONLY mode, logging setups + would-be P&L. Promotion to live requires 3+ historical wins AND positive 16-month expectancy AND J ratification. Honest verdict from 16-month full backfill below.</p>
+
+    <div class="watcher-grid">
+
+      <div class="watcher-card" data-state="ev">
+        <div class="watcher-head">
+          <div class="watcher-name">ORB</div>
+          <div class="watcher-badge">+EV</div>
+        </div>
+        <p class="watcher-tagline">Opening Range Break + RETEST. Rules pulled from your TradingView "ORB GOAT" indicator via MCP. State machine: NEUTRAL → WAITING_RETEST → ENTERED with bidirectional re-entry.</p>
+        <div class="watcher-stats">
+          <div class="watcher-stat">
+            <span class="watcher-stat-label">Net P&L</span>
+            <span class="watcher-stat-value up">+$399</span>
+          </div>
+          <div class="watcher-stat">
+            <span class="watcher-stat-label">Win rate</span>
+            <span class="watcher-stat-value">25%</span>
+          </div>
+          <div class="watcher-stat">
+            <span class="watcher-stat-label">Fires (16mo)</span>
+            <span class="watcher-stat-value">136</span>
+          </div>
+        </div>
+        <p class="watcher-foot">MEDIUM-confidence-only filter (LOW=noise, HIGH=consensus trap)<br>Wins in 2025-Q3 where bear engine LOSES. True regime complement.</p>
+      </div>
+
+      <div class="watcher-card" data-state="flat">
+        <div class="watcher-head">
+          <div class="watcher-name">Bullish</div>
+          <div class="watcher-badge">FLAT</div>
+        </div>
+        <p class="watcher-tagline">BULLISH_RECLAIM_RIDE_THE_RIBBON — mirror of bear setup. Conservative defaults until 3+ live wins per OP 16 (J's source-of-truth setup-scope-lock).</p>
+        <div class="watcher-stats">
+          <div class="watcher-stat">
+            <span class="watcher-stat-label">Net P&L</span>
+            <span class="watcher-stat-value down">-$471</span>
+          </div>
+          <div class="watcher-stat">
+            <span class="watcher-stat-label">Win rate</span>
+            <span class="watcher-stat-value">27%</span>
+          </div>
+          <div class="watcher-stat">
+            <span class="watcher-stat-label">Fires (16mo)</span>
+            <span class="watcher-stat-value">86</span>
+          </div>
+        </div>
+        <p class="watcher-foot">Watch-only — accumulates source-of-truth list for OP 16 promotion.<br>Net slightly negative; needs confluence-only refinement.</p>
+      </div>
+
+      <div class="watcher-card" data-state="off">
+        <div class="watcher-head">
+          <div class="watcher-name">PIN-FADE</div>
+          <div class="watcher-badge">OFF</div>
+        </div>
+        <p class="watcher-tagline">Iron Condor on classified-chop days. VIX&lt;17 + range&lt;0.5%/hr + MIXED ribbon + near VWAP. Disabled after 16mo backfill exposed broken classifier.</p>
+        <div class="watcher-stats">
+          <div class="watcher-stat">
+            <span class="watcher-stat-label">Net P&L</span>
+            <span class="watcher-stat-value down">-$7,900</span>
+          </div>
+          <div class="watcher-stat">
+            <span class="watcher-stat-label">Win rate</span>
+            <span class="watcher-stat-value down">1.9%</span>
+          </div>
+          <div class="watcher-stat">
+            <span class="watcher-stat-label">Fires (16mo)</span>
+            <span class="watcher-stat-value">54</span>
+          </div>
+        </div>
+        <p class="watcher-foot">DISABLED via _PINFADE_ENABLED = False.<br>Classifier identifies pre-breakout chop as fade setup. Needs ground-up rebuild.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- OPERATING PRINCIPLES -->
+<section id="ops">
+  <div class="container">
+    <div class="eyebrow amber">Doctrine</div>
+    <h2 class="section-title">22 Operating Principles</h2>
+    <p class="section-lede">The soul file. Each principle was paid for by a mistake or a lesson. Five new ones ratified this weekend: OP 18 (autonomous), OP 19 (self-healing), OP 20 (non-theatre), OP 21 (watch-first), OP 22 (don't stop).</p>
+
+    <div class="op-grid">
+      <div class="op" data-color="up"><div class="op-num">1</div><div><div class="op-name">Fix-on-find</div><div class="op-desc">When audit uncovers a problem, fix it now. Not tomorrow.</div></div></div>
+      <div class="op" data-color="up"><div class="op-num">2</div><div><div class="op-name">No speculation in doctrine</div><div class="op-desc">Cite evidence or mark explicitly speculative.</div></div></div>
+      <div class="op" data-color="amber"><div class="op-num">3</div><div><div class="op-name">Cost-effectiveness gate</div><div class="op-desc">$100/mo budget. Lean is default. Spam is enemy.</div></div></div>
+      <div class="op" data-color="cyan"><div class="op-num">4</div><div><div class="op-name">No code drift</div><div class="op-desc">Two systems with same logic update together.</div></div></div>
+      <div class="op" data-color="violet"><div class="op-num">5</div><div><div class="op-name">Round numbers awareness-only</div><div class="op-desc">Not auto-Carry. Not score modifiers. Not triggers.</div></div></div>
+      <div class="op" data-color="cyan"><div class="op-num">6</div><div><div class="op-name">Live-chart language</div><div class="op-desc">Candlestick names always. Awareness, not triggers.</div></div></div>
+      <div class="op" data-color="up"><div class="op-num">7</div><div><div class="op-name">Daily backtest ritual</div><div class="op-desc">EOD auto-replays rolling 60-day. Drift > 30% flagged.</div></div></div>
+      <div class="op" data-color="amber"><div class="op-num">8</div><div><div class="op-name">No deferral, no manual fallback</div><div class="op-desc">Fix it now. Ask J if you don't know how. Surrender phrases banned.</div></div></div>
+      <div class="op" data-color="violet"><div class="op-num">9</div><div><div class="op-name">Goal is autonomous execution</div><div class="op-desc">Encode J's edge into the engine. Not "let J handle it."</div></div></div>
+      <div class="op" data-color="up"><div class="op-num">10</div><div><div class="op-name">Build winners, not max-profit gambles</div><div class="op-desc">Tiered exits. Reliable smaller wins over rare big.</div></div></div>
+      <div class="op" data-color="violet"><div class="op-num">11</div><div><div class="op-name">Karpathy method</div><div class="op-desc">Eval-first. Data flywheel. Propose/eval/ratify. Shadow mode.</div></div></div>
+      <div class="op" data-color="cyan"><div class="op-num">12</div><div><div class="op-name">Tiered runner doctrine</div><div class="op-desc">Conservative + aggressive runner exit logic per setup.</div></div></div>
+      <div class="op" data-color="amber"><div class="op-num">13</div><div><div class="op-name">Weekend research is autonomous</div><div class="op-desc">Sat-Sun continuous waves. $0 LLM. Visible at dashboard.</div></div></div>
+      <div class="op" data-color="up"><div class="op-num">14</div><div><div class="op-name">WR is NOT primary metric</div><div class="op-desc">Sharpe + expectancy + max-DD + validate P&L drive KEEP.</div></div></div>
+      <div class="op" data-color="violet"><div class="op-num">15</div><div><div class="op-name">Multi-Agent Gamma 2.0</div><div class="op-desc">Process parallelism. 4-worker hard cap. Process-only (not threads).</div></div></div>
+      <div class="op" data-color="up"><div class="op-num">16</div><div><div class="op-name">J's edge is source of truth</div><div class="op-desc">edge_capture is PRIMARY. Aggregate is secondary tiebreaker.</div></div></div>
+      <div class="op" data-color="amber"><div class="op-num">17</div><div><div class="op-name">First-try shipping + GRIND-UNTIL-DONE</div><div class="op-desc">Standard IS the assignment. No permission-asking when answer is obviously yes.</div></div></div>
+      <div class="op" data-color="cyan"><div class="op-num">18</div><div><div class="op-name">Truly autonomous research mode <span class="op-new">NEW</span></div><div class="op-desc">Banned chatbot phrases. Required status format. Pre-plan full pipelines.</div></div></div>
+      <div class="op" data-color="cyan"><div class="op-num">19</div><div><div class="op-name">Self-healing pipeline <span class="op-new">NEW</span></div><div class="op-desc">Auto-chained stages. Hourly monitor restarts dead grinders. Default robustness metrics.</div></div></div>
+      <div class="op" data-color="cyan"><div class="op-num">20</div><div><div class="op-name">Non-theatre validation <span class="op-new">NEW</span></div><div class="op-desc">6 mandatory disclosures with every numeric claim. Banned theatrical phrasings.</div></div></div>
+      <div class="op" data-color="cyan"><div class="op-num">21</div><div><div class="op-name">Watch-First Promotion Path <span class="op-new">NEW</span></div><div class="op-desc">3+ historical wins + 16mo positive expectancy + J ratification. PIN-FADE economics gate.</div></div></div>
+      <div class="op" data-color="cyan"><div class="op-num">22</div><div><div class="op-name">Don't Stop Cooking <span class="op-new">NEW</span></div><div class="op-desc">When J away, pull from queue. Banned: stop-and-ask. Pine MCP for community indicator audit.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- NUMBERS / WHAT WORKED -->
+<section id="numbers">
+  <div class="container">
+    <div class="eyebrow up">What's accomplished</div>
+    <h2 class="section-title">The Receipts</h2>
+    <p class="section-lede">Numbers that survived 16-month full validation. No cherry-picks (per OP 20). Each metric comes with its account-size assumption and regime caveats.</p>
+
+    <div class="numbers-grid">
+      <div class="num-card" data-c="up">
+        <div class="num-label">4/29 BEAT-J</div>
+        <div class="num-value">+$655</div>
+        <div class="num-meta">vs J's $342. 191% capture.</div>
+      </div>
+      <div class="num-card" data-c="up">
+        <div class="num-label">5/04 BEAT-J</div>
+        <div class="num-value">+$2,418</div>
+        <div class="num-meta">vs J's $730. 331% capture.</div>
+      </div>
+      <div class="num-card" data-c="cyan">
+        <div class="num-label">Walk-forward OOS</div>
+        <div class="num-value">+$2,657</div>
+        <div class="num-meta">4.3mo of 2026 held-out test.</div>
+      </div>
+      <div class="num-card" data-c="violet">
+        <div class="num-label">Test/Train ratio</div>
+        <div class="num-value">1.0x</div>
+        <div class="num-meta">Per-month normalized. Consistent.</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 32px;">
+      <h3 style="font-size: 22px; margin-bottom: 16px;">20 Scheduled Tasks Running Autonomous</h3>
+      <div class="tasks-grid">
+        <div class="task"><div class="task-dot"></div>Gamma_LaunchTV</div>
+        <div class="task"><div class="task-dot"></div>Gamma_Premarket</div>
+        <div class="task"><div class="task-dot"></div>Gamma_Heartbeat</div>
+        <div class="task"><div class="task-dot"></div>Gamma_EodFlatten</div>
+        <div class="task"><div class="task-dot"></div>Gamma_EodSummary</div>
+        <div class="task"><div class="task-dot"></div>Gamma_DailyReview</div>
+        <div class="task"><div class="task-dot"></div>Gamma_WeeklyReview</div>
+        <div class="task"><div class="task-dot"></div>Gamma_DiscordResponder</div>
+        <div class="task"><div class="task-dot"></div>Gamma_DiscordWatchdog</div>
+        <div class="task"><div class="task-dot"></div>Gamma_GrinderMonitor</div>
+        <div class="task"><div class="task-dot"></div>Gamma_GrinderDiscordNotify</div>
+        <div class="task"><div class="task-dot"></div>Gamma_DailyStatus</div>
+        <div class="task"><div class="task-dot"></div>Gamma_SelfAudit</div>
+        <div class="task"><div class="task-dot"></div>Gamma_MondayReadyCheck</div>
+        <div class="task"><div class="task-dot"></div>Gamma_WatcherLive</div>
+        <div class="task"><div class="task-dot"></div>Gamma_WatcherReplay</div>
+        <div class="task"><div class="task-dot"></div>Gamma_WatcherMorningReport</div>
+        <div class="task"><div class="task-dot"></div>Gamma_AR_Watchdog</div>
+        <div class="task"><div class="task-dot"></div>Gamma_Heartbeat_Aggressive</div>
+        <div class="task"><div class="task-dot"></div>Gamma_EodFlatten_Aggressive</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap">
+  <div class="container">
+    <div class="eyebrow violet">Roadmap</div>
+    <h2 class="section-title">Where We're Headed</h2>
+    <p class="section-lede">Slow and steady. No clutter. Every new piece earns its way in via the Watch-First Promotion Path (OP 21) and Non-Theatre Validation (OP 20).</p>
+
+    <div class="roadmap">
+
+      <div class="road-col" data-when="now">
+        <div class="road-when">Monday 2026-05-11</div>
+        <h3>Live + observed</h3>
+        <ul class="road-list">
+          <li><div class="road-icon">✓</div>Bear v15-final ratification (J's YES)</li>
+          <li><div class="road-icon">✓</div>20 scheduled tasks fire on cadence</li>
+          <li><div class="road-icon">✓</div>ORB watcher logs medium-conf signals → Discord</li>
+          <li><div class="road-icon">✓</div>Bullish watcher logs source-of-truth observations</li>
+          <li><div class="road-icon">✓</div>17:00 ET daily watcher_replay + grade</li>
+          <li><div class="road-icon">✓</div>08:30 ET tomorrow watcher_morning_report</li>
+        </ul>
+      </div>
+
+      <div class="road-col" data-when="next">
+        <div class="road-when">Week of 5/11–5/15</div>
+        <h3>Build evidence</h3>
+        <ul class="road-list">
+          <li><div class="road-icon">→</div>Accumulate live observations for ORB + Bullish</li>
+          <li><div class="road-icon">→</div>3+ live wins per watcher → promotion eligibility (OP 21)</li>
+          <li><div class="road-icon">→</div>Quick ORB-LITE sweep — VIX-gated subset</li>
+          <li><div class="road-icon">→</div>Real OPRA fills validation on top candidate</li>
+          <li><div class="road-icon">→</div>Tune bullish — confluence-only filter</li>
+          <li><div class="road-icon">→</div>Investigate 5/01 BS-sim discrepancy further</li>
+        </ul>
+      </div>
+
+      <div class="road-col" data-when="future">
+        <div class="road-when">Future · queued</div>
+        <h3>Deferred per FUTURE-IMPROVEMENTS.md</h3>
+        <ul class="road-list">
+          <li><div class="road-icon">~</div>23 unexplored knobs (strike offsets per tier, no-trade-window times)</li>
+          <li><div class="road-icon">~</div>Full bullish grinder pipeline (after 3+ live wins)</li>
+          <li><div class="road-icon">~</div>Walk-forward across rolling 6mo train + 1mo test</li>
+          <li><div class="road-icon">~</div>SHORT-VEGA fade rebuild (replace broken PIN-FADE)</li>
+          <li><div class="road-icon">~</div>Setup expansion (VWAP_RECLAIM_FADE, OPENING_DRIVE)</li>
+          <li><div class="road-icon">~</div>Multi-account portfolio sizing ($25K+ phase)</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- KNOWLEDGE TRANSFER -->
+<section>
+  <div class="container">
+    <div class="eyebrow cyan">Knowledge transfer</div>
+    <h2 class="section-title">For Future Projects</h2>
+    <p class="section-lede">Two transferable docs capture every lesson. Any future trading-strategy project can fork these and skip our mistakes.</p>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+      <div style="padding: 28px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--bg-card); border-top: 3px solid var(--cyan);">
+        <h3 style="font-size: 22px; margin-bottom: 12px;">BACKTESTING-PLAYBOOK.md</h3>
+        <p style="color: var(--text-2); font-size: 14px; margin-bottom: 16px;">Comprehensive transferable knowledge — 10 sections, ~5500 words.</p>
+        <ul style="list-style: none; font-size: 13px; color: var(--text-3); font-family: 'JetBrains Mono', monospace;">
+          <li>§1 North Star Principles</li>
+          <li>§2 Anti-Patterns Catalog</li>
+          <li>§3 5-Stage Grinder Pipeline</li>
+          <li>§4 Validation Stack</li>
+          <li>§5 Disclosure Standards</li>
+          <li>§6 Infrastructure Patterns</li>
+          <li>§7 Autonomy Patterns</li>
+          <li>§8 Cost Discipline</li>
+          <li>§9 Adapting To Your Strategy</li>
+          <li>§10 Reference (file map + glossary)</li>
+        </ul>
+      </div>
+      <div style="padding: 28px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--bg-card); border-top: 3px solid var(--violet);">
+        <h3 style="font-size: 22px; margin-bottom: 12px;">LESSONS-LEARNED.md</h3>
+        <p style="color: var(--text-2); font-size: 14px; margin-bottom: 16px;">22 documented anti-patterns with code-level fixes — symptom → root cause → fix → code.</p>
+        <ul style="list-style: none; font-size: 13px; color: var(--text-3); font-family: 'JetBrains Mono', monospace;">
+          <li>L01–L10 Optimization + grader pitfalls</li>
+          <li>L11–L15 Reporting + validation pitfalls</li>
+          <li>L16–L20 Infrastructure + autonomy pitfalls</li>
+          <li>L21–L22 State + disclosure pitfalls</li>
+          <li>(Add new L# for each pattern hit)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="margin-top: 32px; padding: 24px 28px; border: 1px dashed var(--border-strong); border-radius: var(--radius-lg); background: rgba(167,139,250,0.04); text-align: center;">
+      <p style="color: var(--text-2); font-size: 15px;">
+        <strong style="color: var(--violet);">MONDAY-MORNING-PLAYBOOK.md</strong> — your 1-page action list.
+        Read 3 files, decide on ratification, then go about your day. Engine handles the rest.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="foot container">
+  <p>Project Gamma · Snapshot 2026-05-10 · 22 OPs · 20 tasks · 3 watchers · 5-stage pipeline</p>
+</div>
+
+</body>
+</html>

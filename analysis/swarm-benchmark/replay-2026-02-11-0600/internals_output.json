@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-02-11T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.58,
+  "reasoning": "XLK (tech) selling hard at -0.88% while XLF (financials) holds at -0.28%. This is a deterioration pattern with tech leading downside, not a full risk-off rotation. XLK underperforming SPY (-0.88% vs -0.41%) signals narrow tech-heavy weakness rather than broad selling. XLF's relative resilience prevents a high-confidence bearish signal, but tech weakness is a meaningful SPY headwind. Medium confidence bearish bias — sector internals show stress in the largest SPY component (tech) without compensating strength in financials.",
+  "rotation_signal": "mixed",
+  "sector_alignment": {
+    "xlk_change_pct": -0.88,
+    "xlf_change_pct": -0.28,
+    "xle_change_pct": -0.35,
+    "spy_change_pct": -0.41,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: -0.88% down — tech is the primary weakness, largest SPY weighting under pressure",
+    "XLF: -0.28% — financials holding relatively stable, no panic signal",
+    "XLE: -0.35% — energy also weak, no defensive rotation story",
+    "Tech underperforming SPY: narrow leadership on downside, not broad deterioration"
+  ],
+  "data_quality": "full"
+}

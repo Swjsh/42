@@ -1,0 +1,149 @@
+{
+  "generated_at": "2026-05-19T01:17:11.069390Z",
+  "purpose": "Sweep profit_lock_trail_pct on 3 J winner days to find optimal trail",
+  "production_trail_pct": 0.2,
+  "j_winner_pnl": {
+    "2026-04-29": 342,
+    "2026-05-01": 470,
+    "2026-05-04": 730
+  },
+  "j_winner_total": 1542,
+  "j_loser_pnl": {
+    "2026-05-05": -260,
+    "2026-05-06": -300,
+    "2026-05-07": -165
+  },
+  "config": "Safe-ATM (strike_offset=0, premium_stop=-8%, tp1=+30%)",
+  "variants": [
+    {
+      "trail_pct": 0.2,
+      "per_day": {
+        "2026-04-29": null,
+        "2026-05-01": -121.6,
+        "2026-05-04": -143.2,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": -93.52
+      },
+      "winner_total": -264.8,
+      "loser_exposure": 93.52,
+      "edge_capture": -358.32
+    },
+    {
+      "trail_pct": 0.25,
+      "per_day": {
+        "2026-04-29": null,
+        "2026-05-01": -121.6,
+        "2026-05-04": -143.2,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": -93.52
+      },
+      "winner_total": -264.8,
+      "loser_exposure": 93.52,
+      "edge_capture": -358.32
+    },
+    {
+      "trail_pct": 0.3,
+      "per_day": {
+        "2026-04-29": null,
+        "2026-05-01": -121.6,
+        "2026-05-04": -143.2,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": -93.52
+      },
+      "winner_total": -264.8,
+      "loser_exposure": 93.52,
+      "edge_capture": -358.32
+    },
+    {
+      "trail_pct": 0.35,
+      "per_day": {
+        "2026-04-29": null,
+        "2026-05-01": -121.6,
+        "2026-05-04": -143.2,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": -93.52
+      },
+      "winner_total": -264.8,
+      "loser_exposure": 93.52,
+      "edge_capture": -358.32
+    },
+    {
+      "trail_pct": 0.4,
+      "per_day": {
+        "2026-04-29": null,
+        "2026-05-01": -121.6,
+        "2026-05-04": -143.2,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": -93.52
+      },
+      "winner_total": -264.8,
+      "loser_exposure": 93.52,
+      "edge_capture": -358.32
+    },
+    {
+      "trail_pct": 0.45,
+      "per_day": {
+        "2026-04-29": null,
+        "2026-05-01": -121.6,
+        "2026-05-04": -143.2,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": -93.52
+      },
+      "winner_total": -264.8,
+      "loser_exposure": 93.52,
+      "edge_capture": -358.32
+    },
+    {
+      "trail_pct": 0.5,
+      "per_day": {
+        "2026-04-29": null,
+        "2026-05-01": -121.6,
+        "2026-05-04": -143.2,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": -93.52
+      },
+      "winner_total": -264.8,
+      "loser_exposure": 93.52,
+      "edge_capture": -358.32
+    },
+    {
+      "trail_pct": 0.6,
+      "per_day": {
+        "2026-04-29": null,
+        "2026-05-01": -121.6,
+        "2026-05-04": -143.2,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": -93.52
+      },
+      "winner_total": -264.8,
+      "loser_exposure": 93.52,
+      "edge_capture": -358.32
+    }
+  ],
+  "best_trail_pct": 0.2,
+  "best_edge_capture": -358.32,
+  "op16_floor": 771,
+  "op16_passing_variants": [],
+  "verdict": "OP16_MISS_NEED_MORE_CHANGES",
+  "recommendation": "Best trail_pct=0.20 still misses OP-16 (edge_capture=-358 < 771). Root cause may require exit redesign beyond chandelier trail widening (e.g., underlying-price-based runner stop).",
+  "root_cause_diagnosis": {
+    "finding": "Trail-pct is NOT the bottleneck. All 8 trail variants produce identical results.",
+    "explanation": "The premium stop (-8%) triggers BEFORE the chandelier ever arms (+5% threshold). Engine enters at midday (11:25-13:45 ET) during sustained trends when J entered at open (09:35-10:30 ET). max_fav == entry_premium on most trades -- premium immediately adverse after entry. SPY bounces from intraday low right after engine entry, hitting -8% stop before trend resumes.",
+    "per_day_detail": {
+      "2026-04-29": "Engine entry 13:45 ET (.07 ATM), immediately adverse, max_fav=entry. J entered ~10:00 AM at first level rejection.",
+      "2026-05-01": "Two engine entries: 12:20 + 13:55 ET, both immediately adverse. J entered in morning.",
+      "2026-05-04": "Engine entry 11:25 ET (.79), barely favorable (+4.5%), not enough to arm chandelier at +5%. J entered ~10:00 AM."
+    },
+    "correct_diagnosis": "ENTRY TIMING, not exit mechanics. Engine requires ribbon confirmation (3+ bars of lower closes) before entry, missing the morning rejection window J uses.",
+    "corrected_research_direction": "v15.3 (live-price trigger at PML/PMH/Carry \u2605\u2605+ levels in 09:35-09:45 ET window) IS the correct fix. NOT chandelier widening. The v15.3 trigger would have caught the morning level rejections on all 3 winner days. See: strategy/candidates/2026-05-17-live-price-first-bar-trigger.md",
+    "op16_path": "v15.3 ratification scorecard currently fails OP-16 gate (4/7 pass) because the BASELINE (v15.1) already fails OP-16. The scorecard needs to be re-evaluated on: does v15.3 CAPTURE the morning rejections on 4/29+5/01+5/04? If yes, edge_capture from winner days may cross OP-16 floor even if loser days unchanged."
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-02-24T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.70,
+  "reasoning": "VIX at 20.12 (MID regime) falling sharply −4.24% is the dominant signal — fear receding favors bullish directional entries. No macro events today clears all hard risk windows (no 08:30/10:00/14:00 ET prints). Overnight gap flat (+0.28) means yesterday's −0.79% SPY decline is fully absorbed with no setup. Sector rotation risk-off (XLF −2.80%, XLK −1.18%) creates caution undertone but does not override VIX mechanics. Macro backdrop: sideways consolidation with bullish bias into open.",
+  "vix_regime": "MID",
+  "vix_direction": "falling",
+  "vix_current": 20.12,
+  "vix_change_pct": -4.24,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": 0.28,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX fell 4.24% (20.12 vs ~21.0 prior) — clear fear-receding signal, compression bullish for calls",
+    "Zero macro events 2026-02-24 — no 08:30/10:00/14:00 ET hard risk windows, clean trading day",
+    "Overnight gap flat (+0.28) — yesterday's −0.79% SPY close fully absorbed, no gap-driven directional setup",
+    "Sector weakness (XLF −2.80%, XLK −1.18% yesterday) and risk_off rotation create caution but do not override VIX direction",
+    "Ribbon MIXED with 25¢ spread (Fast 682.09, Pivot 681.96, Slow 682.21) — neutral, no strong directional momentum"
+  ],
+  "data_quality": "full"
+}

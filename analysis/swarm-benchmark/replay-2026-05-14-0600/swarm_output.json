@@ -1,0 +1,156 @@
+{
+  "generated_at": "2026-05-14T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis"],
+    "bearish": [],
+    "no_trade": ["internals"]
+  },
+  "vote_counts": {
+    "bullish": 3,
+    "bearish": 0,
+    "no_trade": 1
+  },
+  "weighted_scores": {
+    "bullish": 0.90,
+    "bearish": 0.00
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 95,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["internals"],
+    "dissent_reason": "Internals agent flags narrow breadth — SPY +0.52% overnight while XLK −0.24% and XLF −0.29% lag, meaning the gap-up lacks broad sector confirmation and may reflect a liquidity artifact rather than true risk-on participation."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The overnight gap-up in zero premarket volume is structurally sound but participation-hollow — sectors are not confirming, internals show 0.33 confidence, and the bullish ribbon is built on no real committed capital.",
+    "top_invalidation_scenario": "CPI or Retail Sales at 08:30 ET surprise in either direction, reversing the overnight gap before the 09:35 entry gate — turning the bullish setup into a trapped-long scenario."
+  },
+  "battle_level": {
+    "price": 744.70,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 744.70,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to",
+      "context": "PMH — battle level, immediate overhead ceiling 0.63 above current price; binary decision point for the day"
+    },
+    {
+      "price": 742.31,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from",
+      "context": "PML — gap-down floor, first major support on any PMH rejection; $1.76 below current price"
+    },
+    {
+      "price": 743.91,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from",
+      "context": "Prior RTH high (2026-05-13) — already cleared by price; now first intermediate support shelf if price pulls back from PMH"
+    },
+    {
+      "price": 745.66,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "flush_to",
+      "context": "Pivot R1 — next resistance target if PMH 744.70 breaks with volume confirmation"
+    },
+    {
+      "price": 743.00,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from",
+      "context": "Round $743 — intermediate psychological support between prior RTH high 743.91 and PML 742.31"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks above PMH 744.70 on real RTH volume with a confirmed bar close above the level",
+      "bias": "bullish",
+      "target": 745.66,
+      "entry_trigger": "level_reclaim — PMH break with ribbon CLEAN_BULL and volume confirmation at open"
+    },
+    "secondary": {
+      "condition": "if SPY tests 744.70 and HOLDS on first touch — bar closes back below 744.70 with rejection wick",
+      "bias": "bearish",
+      "target": 742.31,
+      "entry_trigger": "level_rejection — PMH rejection + narrow breadth confirmation; intermediate support 743.91 then 743.00 on the way down"
+    },
+    "invalidation": {
+      "condition": "CPI or Retail Sales at 08:30 ET print with an unexpected result, reversing the overnight gap inside the premarket window (08:30–09:00 ET)",
+      "effect": "Invalidates the macro risk-on backdrop and technical ribbon structure simultaneously — the gap-up becomes a false signal, bullish thesis collapses before the 09:35 entry gate, and both primary and secondary scenarios are overridden by a reactive tape"
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY touches or exceeds PMH 744.70 within the first 30 minutes of RTH (by 10:00 ET) — the level is only $0.63 above current price with a CLEAN_BULL ribbon already pointing toward it",
+      "invalidation": "SPY does not print 744.50 or higher before 10:00 ET — price remains below current premarket range and never tests the battle level",
+      "confidence": 0.75,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 19.50 through the full RTH session on 2026-05-14 — CPI + Retail Sales absorbed by the 09:35 entry gate with MID-regime IV intact, supporting the bullish ribbon structure",
+      "invalidation": "VIX spikes above 19.50 at any point during RTH (09:30–16:00 ET), indicating the CPI print broke the neutral IV narrative and premium crush scenario switches to elevated-vol bearish regime",
+      "confidence": 0.68,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "The CLEAN_BULL ribbon structure (54¢ spread, fast > pivot > slow) remains intact with spread ≥ 30¢ through the first hour of RTH (10:30 ET) — gap-up momentum sustains the aligned EMA stack",
+      "invalidation": "Ribbon spread compresses below 20¢ OR fast EMA crosses below pivot EMA before 10:30 ET — signaling a ribbon breakdown that would invalidate the bullish structure and trigger re-evaluation of directional bias",
+      "confidence": 0.70,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The day enters RTH with a structurally strong bullish setup — CLEAN_BULL ribbon (54¢ spread), a significant +$1.75 overnight gap, and 3-of-4 specialists aligned bullish — but the consensus carries a hidden fragility: zero premarket volume means the rally is conviction-free, and sector internals (XLK −0.24%, XLF −0.29%) are lagging SPY, signaling narrow breadth that the validator correctly flags as 'emotionally hollow.' The key tension is whether the overnight move survives contact with real RTH volume at open: if CPI/Retail data were absorbed cleanly and PMH 744.70 breaks on the first RTH test, the bull case runs to 745.66+; if PMH holds as resistance and sectors continue to underperform, the bearish retest path to 742.31 becomes dominant despite the ribbon. The single most important thing to watch at open is the character of the 744.70 test in the first 15 minutes — volume, bar structure, and sector participation together will determine whether this gap has legs or collapses.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.85,
+      "one_line": "CLEAN_BULL ribbon 54¢ spread (fast 743.96 > pivot 743.91 > slow 743.41), +$1.75 gap-up, price 66¢ above slow EMA — structurally sound bullish, mixed last-3-bar pattern but net bullish pressure"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.70,
+      "one_line": "VIX 17.94 MID-regime flat, CPI + Retail Sales no-trade window ends 09:00 ET (35 min before entry gate), risk-on macro backdrop supports long bias into open"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "Battle level PMH 744.70 is only $0.63 above current price — binary test imminent; bullish if break with volume, bearish retest to 742.31 if PMH holds as resistance"
+    },
+    "internals": {
+      "bias": "no_trade",
+      "confidence": 0.33,
+      "one_line": "Narrow breadth — SPY +0.52% but XLK −0.24%, XLF −0.29%, XLE +0.28%; SPY outperforming all sectors signals fragile gap-up lacking broad risk-on confirmation"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Zero premarket volume gap-up with lagging sectors is a liquidity artifact not confirmed participation; CPI at 08:30 ET could reverse entire overnight move before 09:35 entry gate"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

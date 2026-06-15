@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-02-20T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.55,
+  "reasoning": "MIXED ribbon (12¢ spread) limits conviction, but price sits 114¢ above all three EMAs (fast 683.48, pivot 683.36, slow 683.47), a decisively bullish positioning. Last 3 bars all green: 15:45 (green, 52¢ moderate body, 54K vol), 15:50 (green, 13¢ small body), 15:55 (green, 56¢ strong body, 109.6K volume spike at end-of-day close). Final bar's massive volume (109.6K vs 35.8K prior) and strong body (60% of range) confirm bullish conviction into overnight. VIX falling 6.95%, IV regime MID. Overnight gap flat. Marginal bullish edge: price well above pivot + unanimous 3-bar green structure + volume confirmation override the MIXED ribbon ambiguity.",
+  "ribbon_verdict": "MIXED",
+  "ribbon_spread_cents": 12,
+  "bar_structure": "strong_bull",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "Price 114¢ above all EMAs (fast 683.48, pivot 683.36, slow 683.47) despite MIXED ribbon—decisively bullish positioning.",
+    "Last 3 bars unanimously green: 15:45 moderate body (54% range), 15:50 doji-like, 15:55 strong body (60% range) with 109.6K conviction volume at session close.",
+    "End-of-day volume spike (109.6K bar 15:55 vs 35.8K bar 15:50) confirms bullish conviction into overnight. Session closed on a power bar.",
+    "MIXED ribbon (12¢ spread) indicates consolidation but does not negate price-above-pivot + 3-bar green + volume conviction.",
+    "VIX falling 6.95%, IV regime MID. Overnight gap flat but strong session close suggests continuation bias."
+  ],
+  "data_quality": "full"
+}

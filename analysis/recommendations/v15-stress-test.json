@@ -1,0 +1,397 @@
+{
+  "candidate": "v15-seed6",
+  "generated_at": "2026-05-09T22:14:10Z",
+  "n_event_days": 11,
+  "total_pnl_across_event_days": -414.98,
+  "total_trades": 22,
+  "total_winners": 1,
+  "agg_win_rate": 0.0455,
+  "by_day": [
+    {
+      "date": "2026-05-07",
+      "n_trades": 1,
+      "n_winners": 0,
+      "n_losers": 1,
+      "total_pnl": -19.49,
+      "win_rate": 0.0,
+      "trades": [
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "qty": 3,
+          "entry_premium": 1.299,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        }
+      ],
+      "tag": "FOMC May 2026",
+      "type": "fomc",
+      "severity": "high",
+      "note": "live trade day -- system took counter-trend BULL into pre-FOMC bear sequence (-$45)"
+    },
+    {
+      "date": "2026-04-29",
+      "n_trades": 0,
+      "n_winners": 0,
+      "n_losers": 0,
+      "total_pnl": 0.0,
+      "win_rate": 0.0,
+      "trades": [],
+      "tag": "FOMC April 2026",
+      "type": "fomc",
+      "severity": "high",
+      "note": "J's manual winner +$342 (BEARISH_REJECTION)"
+    },
+    {
+      "date": "2026-03-19",
+      "n_trades": 4,
+      "n_winners": 0,
+      "n_losers": 4,
+      "total_pnl": -294.99,
+      "win_rate": 0.0,
+      "trades": [
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "P",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "qty": 3,
+          "entry_premium": 1.915,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "P",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "qty": 3,
+          "entry_premium": 1.778,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "P",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "qty": 3,
+          "entry_premium": 1.399,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "P",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "qty": 3,
+          "entry_premium": 1.462,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        }
+      ],
+      "tag": "FOMC March 2026",
+      "type": "fomc",
+      "severity": "high"
+    },
+    {
+      "date": "2026-04-10",
+      "n_trades": 3,
+      "n_winners": 0,
+      "n_losers": 3,
+      "total_pnl": -88.75,
+      "win_rate": 0.0,
+      "trades": [
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "qty": 5,
+          "entry_premium": 1.327,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "qty": 3,
+          "entry_premium": 1.289,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "qty": 5,
+          "entry_premium": 1.449,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        }
+      ],
+      "tag": "CPI March 2026",
+      "type": "cpi",
+      "severity": "high"
+    },
+    {
+      "date": "2026-03-12",
+      "n_trades": 0,
+      "n_winners": 0,
+      "n_losers": 0,
+      "total_pnl": 0.0,
+      "win_rate": 0.0,
+      "trades": [],
+      "tag": "CPI February 2026",
+      "type": "cpi",
+      "severity": "high"
+    },
+    {
+      "date": "2026-04-04",
+      "n_trades": 0,
+      "n_winners": 0,
+      "n_losers": 0,
+      "total_pnl": 0.0,
+      "win_rate": 0.0,
+      "trades": [],
+      "tag": "NFP March 2026",
+      "type": "nfp",
+      "severity": "high"
+    },
+    {
+      "date": "2026-03-07",
+      "n_trades": 0,
+      "n_winners": 0,
+      "n_losers": 0,
+      "total_pnl": 0.0,
+      "win_rate": 0.0,
+      "trades": [],
+      "tag": "NFP February 2026",
+      "type": "nfp",
+      "severity": "high"
+    },
+    {
+      "date": "2026-05-01",
+      "n_trades": 3,
+      "n_winners": 0,
+      "n_losers": 3,
+      "total_pnl": -51.95,
+      "win_rate": 0.0,
+      "trades": [
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "qty": 3,
+          "entry_premium": 1.362,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "qty": 3,
+          "entry_premium": 1.093,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "qty": 3,
+          "entry_premium": 1.009,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        }
+      ],
+      "tag": "J historical winner",
+      "type": "live_context",
+      "severity": "med",
+      "note": "J 721P +$470 / +72%"
+    },
+    {
+      "date": "2026-05-04",
+      "n_trades": 4,
+      "n_winners": 0,
+      "n_losers": 4,
+      "total_pnl": -267.01,
+      "win_rate": 0.0,
+      "trades": [
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "P",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "qty": 5,
+          "entry_premium": 1.267,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "P",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "qty": 3,
+          "entry_premium": 1.376,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "P",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "qty": 3,
+          "entry_premium": 1.369,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "P",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "qty": 3,
+          "entry_premium": 1.078,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        }
+      ],
+      "tag": "J historical winner",
+      "type": "live_context",
+      "severity": "med",
+      "note": "J 721P +$730 / +86% (best example)"
+    },
+    {
+      "date": "2026-05-05",
+      "n_trades": 0,
+      "n_winners": 0,
+      "n_losers": 0,
+      "total_pnl": 0.0,
+      "win_rate": 0.0,
+      "trades": [],
+      "tag": "J chop trap loss",
+      "type": "live_context",
+      "severity": "med",
+      "note": "J 722P -$260 manual"
+    },
+    {
+      "date": "2026-05-06",
+      "n_trades": 7,
+      "n_winners": 1,
+      "n_losers": 6,
+      "total_pnl": 307.21,
+      "win_rate": 0.1429,
+      "trades": [
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "qty": 3,
+          "entry_premium": 1.409,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "qty": 3,
+          "entry_premium": 1.171,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "qty": 3,
+          "entry_premium": 1.179,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "qty": 3,
+          "entry_premium": 1.395,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "qty": 3,
+          "entry_premium": 1.365,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "qty": 3,
+          "entry_premium": 1.013,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "entry_time": "?",
+          "exit_time": "?",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "qty": 3,
+          "entry_premium": 1.053,
+          "exit_premium": 0,
+          "pnl_dollars": 0,
+          "exit_reason": "TP1_THEN_RUNNER_TIME"
+        }
+      ],
+      "tag": "J held to zero",
+      "type": "live_context",
+      "severity": "med",
+      "note": "J 730P -$300 (rule 3 break)"
+    }
+  ]
+}

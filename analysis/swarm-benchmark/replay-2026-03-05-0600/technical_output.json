@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-17T12:06:30Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "MIXED ribbon (14c spread, below CLEAN threshold of 20c) but price is 41c below pivot (685.56 vs 685.97 pivot). Last 3 closed bars (15:45, 15:50, 15:55 ET 3/4) are all red: 686.49→686.32 (47% body), 686.32→685.98 (37% body), 685.95→685.13 (78% body, large drop on 163k volume at market close). Strong bearish momentum + price below EMA equilibrium despite weak ribbon structure. VIX rising +6.09% on HIGH IV regime. Flat overnight gap (0.43c) = no directional momentum from open. Bearish lean warranted but ribbon weakness limits confidence.",
+  "ribbon_verdict": "WEAK_BEAR",
+  "ribbon_spread_cents": 14,
+  "bar_structure": "strong_bear",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "Ribbon is MIXED (fast 685.83, pivot 685.97, slow 685.86) with only 14c spread — weak, transitional state, below 20c threshold for CLEAN verdict.",
+    "Last 3 closed bars all RED with cumulative 62c total drop, final bar (15:55 close) is 82-point body on 163,693 volume — strong end-of-day selling.",
+    "Price 685.56 trades 41 cents below pivot, indicating downside momentum; ribbon stack transitioning bearward despite low spread.",
+    "VIX +6.09% at 22.47 on HIGH IV regime; rising volatility on down bars = capitulation signal. Overnight gap flat (0.43c) — no gap-driven directional bias.",
+    "Premarket context: 06:00 ET with low volumes (200-226 shares in AH bars 16:10-16:15); await open for confirmation."
+  ],
+  "data_quality": "full"
+}

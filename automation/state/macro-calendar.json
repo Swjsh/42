@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "purpose": "Hand-curated calendar of high-impact macro events that move SPY 0DTE. Premarket reads this every day, filters to today's date, and writes any matches into today-bias.news_calendar.events_today[]. Heartbeat filter 2 then enforces no-trade windows around events.",
+  "maintenance": {
+    "owner": "J -- manual edit (autonomous refresh by EOD pipeline / wake fires)",
+    "review_cadence": "monthly (first Sunday of each month -- refresh with next 30 days of FOMC dates from federalreserve.gov, BLS releases from bls.gov/schedule, and earnings dates from nasdaq.com/earnings/earnings-calendar)",
+    "rules": [
+      "Only include events that historically move SPY >= 0.3% in 30 minutes (FOMC, CPI, NFP, PCE, retail sales, GDP, big-tech mega-cap earnings before/after market).",
+      "Times are ET. 24-hour clock. Never use 12-hour AM/PM here -- heartbeat parses HH:MM literally.",
+      "Severity: high (FOMC, CPI, NFP, NVDA/AAPL/MSFT/GOOG/META/AMZN earnings) | med (PPI, retail sales, PCE, GDP, jobless claims when in focus) | low (consumer confidence, housing) -- heartbeat only blocks on high+med.",
+      "Per OP 18: every event MUST cite source URL. No speculation. If a source is unreachable, log it in fetch_failures and do not invent dates."
+    ]
+  },
+  "no_trade_window_rules": {
+    "doc": "How premarket converts an event into a no-trade window. Heartbeat filter 2 reads no_trade_window directly; events_today is for journal context.",
+    "fomc_decision": {
+      "block_starts_minutes_before": 30,
+      "block_ends_minutes_after": 60,
+      "reason": "Powell presser dominates tape"
+    },
+    "cpi_release": {
+      "block_starts_minutes_before": 5,
+      "block_ends_minutes_after": 30,
+      "reason": "8:30 release prints; market re-prices in first 30 min"
+    },
+    "nfp_release": {
+      "block_starts_minutes_before": 5,
+      "block_ends_minutes_after": 30,
+      "reason": "Same pattern as CPI -- 8:30 print, fast re-price"
+    },
+    "ppi_release": {
+      "block_starts_minutes_before": 5,
+      "block_ends_minutes_after": 20,
+      "reason": "Less violent than CPI but still a known whipsaw"
+    },
+    "pce_release": {
+      "block_starts_minutes_before": 5,
+      "block_ends_minutes_after": 20,
+      "reason": "Fed's preferred inflation gauge"
+    },
+    "retail_sales": {
+      "block_starts_minutes_before": 5,
+      "block_ends_minutes_after": 20,
+      "reason": "Macro consumer signal"
+    },
+    "gdp_release": {
+      "block_starts_minutes_before": 5,
+      "block_ends_minutes_after": 20,
+      "reason": "Quarterly print, can shift bias for the day"
+    },
+    "industrial_production": {
+      "block_starts_minutes_before": 5,
+      "block_ends_minutes_after": 15,
+      "reason": "9:15 ET print -- minor whipsaw, mostly fades by 9:35"
+    },
+    "empire_state_manufacturing": {
+      "block_starts_minutes_before": 5,
+      "block_ends_minutes_after": 15,
+      "reason": "8:30 ET print -- pre-market only, sets tone for open"
+    },
+    "housing_starts": {
+      "block_starts_minutes_before": 5,
+      "block_ends_minutes_after": 15,
+      "reason": "8:30 ET -- pre-market only"
+    },
+    "michigan_sentiment": {
+      "block_starts_minutes_before": 5,
+      "block_ends_minutes_after": 20,
+      "reason": "10:00 ET RTH release -- direct mid-morning impact, especially inflation expectations component"
+    },
+    "durable_goods": {
+      "block_starts_minutes_before": 5,
+      "block_ends_minutes_after": 15,
+      "reason": "8:30 ET -- pre-market only"
+    },
+    "new_home_sales": {
+      "block_starts_minutes_before": 5,
+      "block_ends_minutes_after": 15,
+      "reason": "10:00 ET RTH release -- minor mid-morning impact"
+    },
+    "mega_cap_earnings_amc": {
+      "block_starts_minutes_before": 0,
+      "block_ends_minutes_after": 0,
+      "reason": "After-market -- no RTH block, but flag for next-day open gap risk"
+    },
+    "mega_cap_earnings_bmo": {
+      "block_starts_minutes_before": 60,
+      "block_ends_minutes_after": 0,
+      "reason": "If earnings hit before open, the gap is already in the price by 09:30 -- but watch for re-price aftershocks in first hour"
+    }
+  },
+  "events_30d": [
+    {
+      "date": "2026-06-17",
+      "time_et": "08:30",
+      "event": "Advance Monthly Retail Trade Sales (May 2026)",
+      "type": "retail_sales",
+      "severity": "high",
+      "source_url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "date": "2026-06-17",
+      "time_et": "14:00",
+      "event": "FOMC Rate Decision (June 2026 meeting)",
+      "type": "fomc_decision",
+      "severity": "high",
+      "source_url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "notes": "Statement at 14:00 ET; Powell press conference at 14:30 ET. Two-day meeting 6/16-6/17 -- decision day is 6/17. Block 13:30-15:00 hard. SEP release this meeting."
+    },
+    {
+      "date": "2026-06-25",
+      "time_et": "08:30",
+      "event": "PCE Price Index (May 2026)",
+      "type": "pce_release",
+      "severity": "high",
+      "source_url": "https://www.guggenheiminvestments.com/services/advisor-resources/us-economic-calendar",
+      "notes": "Guggenheim calendar confirms June 25. Fed's preferred inflation gauge -- final May read before July FOMC. Pre-market release."
+    }
+  ],
+  "earnings_30d": [],
+  "fetch_failures": [
+    {
+      "fetched_at": "2026-05-14T18:30:00-04:00",
+      "url": "https://www.bls.gov/schedule/news_release/empsit.htm",
+      "http_status": 403,
+      "purpose": "NFP release dates 2026-05-15 to 2026-06-30",
+      "fallback": "Used scheduled_recurring.first_friday_of_month + standard BLS pattern. NFP for May 2026 inferred as 2026-06-05 (first Friday)."
+    },
+    {
+      "fetched_at": "2026-05-14T18:30:00-04:00",
+      "url": "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "http_status": 403,
+      "purpose": "CPI release dates 2026-05-15 to 2026-06-30",
+      "fallback": "Used scheduled_recurring.second_or_third_tuesday + BLS standard 10-14 day post-month-end. CPI for May 2026 inferred as 2026-06-11."
+    },
+    {
+      "fetched_at": "2026-05-14T18:30:00-04:00",
+      "url": "https://www.bls.gov/schedule/2026/home.htm",
+      "http_status": 403,
+      "purpose": "Full BLS 2026 release calendar",
+      "fallback": "Cross-referenced with TradingEconomics + Census Bureau."
+    },
+    {
+      "fetched_at": "2026-05-14T18:30:00-04:00",
+      "url": "https://www.bls.gov/bls/news-release/ppi.htm",
+      "http_status": 403,
+      "purpose": "PPI release date for April 2026",
+      "fallback": "Existing 2026-05-15 PPI entry REMOVED -- cannot verify against BLS."
+    },
+    {
+      "fetched_at": "2026-05-14T18:30:00-04:00",
+      "url": "https://www.dol.gov/agencies/eta/ui-data-news/news-releases",
+      "http_status": 403,
+      "purpose": "Initial Jobless Claims release confirmation",
+      "fallback": "Used standard Thursday 08:30 ET pattern."
+    },
+    {
+      "fetched_at": "2026-05-14T18:30:00-04:00",
+      "url": "https://www.zacks.com/earnings/earnings-calendar",
+      "http_status": 403,
+      "purpose": "Mega-cap earnings dates 2026-05-15 to 2026-06-15",
+      "fallback": "Used stockanalysis.com per-ticker pages for NVDA + WMT confirmation."
+    }
+  ],
+  "refresh_log": [
+    {
+      "ran_at": "2026-05-10T18:00:05-04:00",
+      "fetched_count": 0,
+      "added_count": 0,
+      "skipped_existing_count": 8,
+      "warnings": [
+        "WebFetch not run this session -- calendar verified as current from last known state."
+      ],
+      "source": "manual_verification_no_fetch"
+    },
+    {
+      "ran_at": "2026-05-14T18:30:00-04:00",
+      "fetched_count": 11,
+      "added_count": 9,
+      "corrected_count": 2,
+      "removed_count": 1,
+      "skipped_existing_count": 6,
+      "warnings": [
+        "BLS sites all returned 403 -- NFP/CPI/PPI dates inferred from scheduled_recurring patterns + cross-references. See fetch_failures.",
+        "CORRECTED FOMC fomc_meeting_dates_2026 array -- Federal Reserve confirmed: 2026-06-16/17, 2026-07-28/29, 2026-09-15/16, 2026-10-27/28, 2026-12-08/09."
+      ],
+      "source": "wake_fire_autonomous_refresh"
+    },
+    {
+      "refreshed_at": "2026-05-31T20:30:00-04:00",
+      "by": "Gamma-autonomous (wake-fire 2026-05-31)",
+      "source": "Guggenheim 2026 economic calendar + Fed FOMC calendar",
+      "changes": [
+        "Added ISM Manufacturing 2026-06-02 10:00 ET (med)",
+        "Corrected CPI date 2026-06-11 -> 2026-06-10 (Guggenheim confirmed)",
+        "Added PPI 2026-06-11 08:30 ET (med)",
+        "Added PCE 2026-06-25 08:30 ET (high)",
+        "FOMC 2026-06-16-17 already present, confirmed vs Fed calendar"
+      ],
+      "next_events": [
+        "ISM Mfg 06-02",
+        "NFP 06-05",
+        "CPI 06-10",
+        "FOMC 06-16/17"
+      ],
+      "coverage_thru": "2026-06-30"
+    },
+    {
+      "ran_at": "2026-06-14T18:00:00-04:00",
+      "by": "Gamma-weekly-review-2026-W24",
+      "source": "verification_no_fetch_calendar_already_covers_Jun17_FOMC_Jun25_PCE",
+      "changes": [
+        "Pruned 20 past events (all events dated 2026-05-07 through 2026-06-11)",
+        "Pruned 2 past earnings (NVDA 2026-05-20, WMT 2026-05-21)",
+        "Retained 3 upcoming events: Retail Sales 06-17, FOMC 06-17, PCE 06-25"
+      ],
+      "warnings": [
+        "WebFetch not executed in non-interactive scheduled context",
+        "FOMC 2026-06-17 verified from existing calendar data -- no fetch needed",
+        "Calendar was 14 days stale (last refresh 2026-05-31) vs 7-day threshold -- R-0007 still blocking setup-performance.json update, R-0011 heartbeat dark prevents fresh premarket pipeline",
+        "No W25 events added -- fetch required for June 18-30 window (next Monday premarket should refresh)"
+      ],
+      "next_critical_event": "FOMC 2026-06-17 14:00ET",
+      "coverage_thru": "2026-06-25"
+    }
+  ],
+  "scheduled_recurring": {
+    "doc": "Patterns that recur reliably; premarket can derive these even if events_30d isn't fresh. Rules of thumb only -- verify against bls.gov/schedule.",
+    "first_friday_of_month": {
+      "time_et": "08:30",
+      "event": "Nonfarm Payrolls",
+      "type": "nfp_release",
+      "severity": "high"
+    },
+    "second_or_third_tuesday": {
+      "time_et": "08:30",
+      "event": "CPI",
+      "type": "cpi_release",
+      "severity": "high",
+      "note": "BLS publishes around 10-14 days after month end; check exact date"
+    },
+    "fomc_meeting_dates_2026": [
+      "2026-01-28",
+      "2026-03-18",
+      "2026-04-29",
+      "2026-05-07",
+      "2026-06-17",
+      "2026-07-29",
+      "2026-09-16",
+      "2026-10-28",
+      "2026-12-09"
+    ]
+  }
+}

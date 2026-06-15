@@ -1,0 +1,66 @@
+{
+  "date": "2026-04-07",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:11.795373+00:00",
+  "actual": {
+    "open": 656.65,
+    "close": 659.26,
+    "high": 659.6,
+    "low": 651.06,
+    "move_dollars": 2.61,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 61,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 660.37,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 660.37,
+      "role": "resistance",
+      "rth_range": [
+        651.06,
+        659.6
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 660.37,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "660.37 (premarket high / battle level) is tested from below within the first 60 minutes of RTH (befo",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX exceeds 27.00 at some point within the first 2 hours of RTH (before 11:30 ET), escalating the risk-off bid",
+        "invalidation": "VIX remains below 27.00 through 11:30 ET, suggesting the +9.43% overnight VIX spike was a pre-market overreaction that f"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "SPY opens at or above 659.72 and the CLEAN_BULL ribbon (fast 659.69 / pivot 659.47 / slow 658.81) remains intact through",
+        "invalidation": "SPY prints a 5-minute bar close below 659.30 before 10:00 ET, inverting the ribbon and negating the technical bull struc"
+      }
+    ]
+  },
+  "narrative": "Today's setup is a contested high-volatility market: 3 of 4 specialists favor bulls on the basis of a CLEAN_BULL ribbon (88c spread), an overnight gap up to 659.83, and price already above prior RTH high 659.72 \u2014 but the macro agent and validator both flag VIX rising +9.43% into 26.45 HIGH regime as"
+}

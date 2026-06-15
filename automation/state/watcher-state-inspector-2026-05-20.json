@@ -1,0 +1,11 @@
+{
+  "skill": "watcher-state-inspector",
+  "run_at": "2026-05-20T16:05:07",
+  "target_date": "2026-05-20",
+  "verdict": "YELLOW",
+  "reason": "no-bars-for-target-date-yet (market may not be open or csv stale)",
+  "orb_state": {},
+  "odf_state": {},
+  "watcher_obs_count_today": 2609,
+  "heal_action": "no-op-no-bars"
+}

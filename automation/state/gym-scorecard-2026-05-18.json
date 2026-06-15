@@ -1,0 +1,73 @@
+{
+  "generated_at": "2026-05-18T23:57:49.458722+00:00",
+  "for_date": "2026-05-18",
+  "overall_verdict": "RED",
+  "audits": [
+    {
+      "name": "crypto-gym (42 validators)",
+      "source_file": "crypto/data/scorecards/latest.json",
+      "verdict": "GREEN",
+      "summary": "42/42 pass",
+      "evidence": {
+        "stages": 42,
+        "passed": 42,
+        "flaky_failed": []
+      }
+    },
+    {
+      "name": "chart-data-verify",
+      "source_file": "automation/state/chart-data-verify-2026-05-18.json",
+      "verdict": "YELLOW",
+      "summary": "0 bars checked, max div $0.0000",
+      "evidence": {
+        "max_divergence_usd": 0
+      }
+    },
+    {
+      "name": "heartbeat-tick-audit",
+      "source_file": "automation/state/heartbeat-tick-audit-2026-05-18.json",
+      "verdict": "GREEN",
+      "summary": "0 ticks audited, 0 MISALIGNED-CRITICAL",
+      "evidence": {
+        "by_classification": {}
+      }
+    },
+    {
+      "name": "pin-chain-verify",
+      "source_file": "automation/state/pin-chain-verify-latest.json",
+      "verdict": "GREEN",
+      "summary": "rule_version=unknown, drifts=0",
+      "evidence": {
+        "rule_version_canonical": "unknown",
+        "drifts": []
+      }
+    },
+    {
+      "name": "heartbeat-mcp-self-test",
+      "source_file": "automation/state/heartbeat-mcp-self-test-latest.json",
+      "verdict": "MISSING",
+      "summary": "mcp-self-test output not found",
+      "evidence": {}
+    },
+    {
+      "name": "heartbeat-pulse-check",
+      "source_file": "automation/state/heartbeat-pulse-check-2026-05-18.json",
+      "verdict": "MISSING",
+      "summary": "pulse-check output not found",
+      "evidence": {}
+    },
+    {
+      "name": "watcher-state-inspector",
+      "source_file": "automation/state/watcher-state-inspector-2026-05-18.json",
+      "verdict": "YELLOW",
+      "summary": "no summary",
+      "evidence": {}
+    }
+  ],
+  "stale_reruns": {
+    "heartbeat_tick_audit": {
+      "exit": 0,
+      "log_tail": "26-05-18 ===\nHeadline: 7 of 25 live-trading ticks (28%) were MISALIGNED-CRITICAL on 2026-05-18\nCounts: {'ALIGNED': 13, 'MISALIGNED-BENIGN': 5, 'MISALIGNED-CRITICAL': 7, 'STALE_PAUSED': 0, 'NO_DATA': 11, 'NO_BAR': 0}\nFiles written:\n  per_tick_csv: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-05-18.csv\n  summary_json: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-05-18.json\n  human_md: C:\\Users\\jackw\\Desktop\\42\\docs\\HEARTBEAT-TICK-AUDIT-2026-05-18.md\n"
+    }
+  }
+}

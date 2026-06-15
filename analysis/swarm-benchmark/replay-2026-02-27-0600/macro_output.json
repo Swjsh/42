@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-02-27T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.70,
+  "reasoning": "VIX at 20.22 (MID regime) rising +8.48% overnight — clear bearish signal as fear builds. No extreme spike yet (threshold >22), but directional momentum is decidedly lower. Sector rotation confirms: XLK tech -1.35% leading weakness while XLF +0.83% and XLE +1.25% (defensives/cyclicals) outperform — textbook risk-off. Overnight gap flat (-$0.46, neutral). Zero macro events today → clean tape for 09:30 open. Ribbon still BULL (fast 689.08 > pivot 688.94 > slow 688.55) with 53¢ spread, but SPY price 688.86 sits below fast EMA — uptrend integrity fading. Overall: bearish bias from VIX + rotation, clean setup window, but MID regime (not HIGH) and technical uptrend still standing prevent extreme confidence.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 20.22,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": -0.46,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX surged +8.48% overnight to 20.22 (from ~18.65); rising fear is the dominant signal — higher puts more expensive but directional bearish edge clear",
+    "Sector rotation firmly risk-off: XLK tech -1.35% as growth weakens, XLE +1.25% + XLF +0.83% as defensives/energy lead — classic flight-to-safety pattern",
+    "Ribbon BULL but showing strain: fast EMA 689.08 > price 688.86 — uptrend support weakening, pullback setup forming",
+    "Overnight gap -$0.46 (flat) — no overnight panic, no gap-fill urgency; yesterday's -0.57% decline is mild carryover",
+    "Clean macro calendar (zero events, zero earnings pre-market) = no hard windows; bearish setups can run without event interference"
+  ],
+  "data_quality": "full"
+}

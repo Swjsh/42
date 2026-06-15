@@ -1,0 +1,103 @@
+{
+  "last_updated": "2026-05-19T04:24:54.994861+00:00",
+  "n_trading_days": 2,
+  "n_graded": 2,
+  "swarm_overall": {
+    "n_correct": 2,
+    "n_wrong": 0,
+    "accuracy_pct": 100.0
+  },
+  "agent_accuracy": {
+    "technical": {
+      "n_graded": 2,
+      "n_correct": 0,
+      "accuracy_pct": 0.0
+    },
+    "macro": {
+      "n_graded": 2,
+      "n_correct": 2,
+      "accuracy_pct": 100.0
+    },
+    "level_thesis": {
+      "n_graded": 2,
+      "n_correct": 0,
+      "accuracy_pct": 0.0
+    },
+    "internals": {
+      "n_graded": 2,
+      "n_correct": 0,
+      "accuracy_pct": 0.0
+    }
+  },
+  "confidence_calibration": {
+    "high_conf_days": 0,
+    "high_conf_accuracy_pct": null,
+    "low_conf_days": 2,
+    "low_conf_accuracy_pct": 100.0
+  },
+  "swarm_vs_premarket": {
+    "n_agree_days": 0,
+    "n_disagree_days": 2,
+    "on_agree_days_accuracy_pct": null,
+    "on_disagree_swarm_accuracy_pct": 100.0,
+    "on_disagree_premarket_accuracy_pct": 0.0
+  },
+  "phase2_eligibility": {
+    "min_days_required": 20,
+    "days_available": 2,
+    "ready_for_prompt_evolution": false,
+    "worst_agent": "technical"
+  },
+  "recent_records": [
+    {
+      "date": "2026-05-18",
+      "actual_bias": "bearish",
+      "swarm_consensus": "bearish",
+      "swarm_confidence": 10,
+      "swarm_strength": "weak",
+      "swarm_grade": "CORRECT",
+      "swarm_vote_map": {
+        "bullish": [
+          "level_thesis"
+        ],
+        "bearish": [
+          "macro"
+        ],
+        "no_trade": [
+          "technical",
+          "internals"
+        ]
+      },
+      "premarket_bias": "bullish",
+      "premarket_grade": "WRONG",
+      "swarm_vs_premarket": "disagree",
+      "dissent_was_active": true,
+      "graded_at": "2026-05-19T04:24:49.967456+00:00"
+    },
+    {
+      "date": "2026-05-18",
+      "actual_bias": "bearish",
+      "swarm_consensus": "bearish",
+      "swarm_confidence": 10,
+      "swarm_strength": "weak",
+      "swarm_grade": "CORRECT",
+      "swarm_vote_map": {
+        "bullish": [
+          "level_thesis"
+        ],
+        "bearish": [
+          "macro"
+        ],
+        "no_trade": [
+          "technical",
+          "internals"
+        ]
+      },
+      "premarket_bias": "bullish",
+      "premarket_grade": "WRONG",
+      "swarm_vs_premarket": "disagree",
+      "dissent_was_active": true,
+      "graded_at": "2026-05-19T04:24:54.990625+00:00"
+    }
+  ]
+}

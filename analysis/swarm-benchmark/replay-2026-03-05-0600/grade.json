@@ -1,0 +1,66 @@
+{
+  "date": "2026-03-05",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:06.370062+00:00",
+  "actual": {
+    "open": 682.09,
+    "close": 681.4,
+    "high": 685.51,
+    "low": 675.63,
+    "move_dollars": -0.69,
+    "actual_bias": "no_trade"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 44,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 687.09,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "ABSTAIN_ACTUAL",
+      "consensus": "bearish",
+      "actual": "no_trade"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 687.09,
+      "role": "resistance",
+      "rth_range": [
+        675.63,
+        685.51
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 687.09,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "SPY will test the 687.09 battle level (prior session RTH high, Active 2-star resistance) within the ",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX will remain elevated above 21.0 through 10:00 ET, sustaining the HIGH volatility regime and keeping put premium infl",
+        "invalidation": "VIX prints below 21.0 on any 5-minute bar before 10:00 ET"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "The ribbon spread will widen to at least 20 cents in the bearish direction (fast EMA < slow EMA, spread >= 20c) by 10:30",
+        "invalidation": "Ribbon spread widens to 20c+ in the bullish direction (fast > slow >= 20c) OR SPY posts a 5-minute bar close above 686.5"
+      }
+    ]
+  },
+  "narrative": "SPY enters 2026-03-05 in a volatility-expansion squeeze: price (685.56) is compressed between Reference support at 685.0 (\u22120.56) and Active resistance at 687.09 (+1.53) with a MIXED ribbon only 14 cents wide that refuses directional confirmation. The swarm leans bearish on the strength of the prior "
+}

@@ -1,0 +1,140 @@
+{
+  "run_date": "2026-05-20",
+  "source_file": "C:\\Users\\jackw\\Desktop\\42\\analysis\\recommendations\\nlwb_full_real_fills.json",
+  "full_window_summary": {
+    "n_completed": 23,
+    "wr_pct": 47.8,
+    "total_pnl": -1293.8,
+    "op21_gate": "FAIL"
+  },
+  "scenarios": {
+    "A_vix_lt17": {
+      "label": "VIX < 17 only",
+      "n": 8,
+      "wins": 5,
+      "losses": 3,
+      "wr_pct": 62.5,
+      "total_pnl": -33.2,
+      "avg_pnl_per_trade": -4.15,
+      "op21_wr_gate": "PASS",
+      "op21_pnl_gate": "FAIL",
+      "op21_n_adequate": "NO (N=8, need N>=15)",
+      "op21_real_fills_gate": "FAIL",
+      "by_vix_bucket": {
+        "<15": {
+          "n": 1,
+          "wins": 1,
+          "wr_pct": 100.0,
+          "pnl": 46.2
+        },
+        "15-17": {
+          "n": 7,
+          "wins": 4,
+          "wr_pct": 57.1,
+          "pnl": -79.4
+        }
+      }
+    },
+    "B_vix_ge20": {
+      "label": "VIX >= 20 only",
+      "n": 10,
+      "wins": 5,
+      "losses": 5,
+      "wr_pct": 50.0,
+      "total_pnl": -921.0,
+      "avg_pnl_per_trade": -92.1,
+      "op21_wr_gate": "PASS",
+      "op21_pnl_gate": "FAIL",
+      "op21_n_adequate": "NO (N=10, need N>=15)",
+      "op21_real_fills_gate": "FAIL",
+      "by_vix_bucket": {
+        "20-25": {
+          "n": 5,
+          "wins": 3,
+          "wr_pct": 60.0,
+          "pnl": -28.2
+        },
+        ">=25": {
+          "n": 5,
+          "wins": 2,
+          "wr_pct": 40.0,
+          "pnl": -892.8
+        }
+      }
+    },
+    "C_vix_lt17_or_ge25": {
+      "label": "VIX < 17 OR VIX >= 25 (skip 17-25 band)",
+      "n": 13,
+      "wins": 7,
+      "losses": 6,
+      "wr_pct": 53.8,
+      "total_pnl": -926.0,
+      "avg_pnl_per_trade": -71.23,
+      "op21_wr_gate": "PASS",
+      "op21_pnl_gate": "FAIL",
+      "op21_n_adequate": "NO (N=13, need N>=15)",
+      "op21_real_fills_gate": "FAIL",
+      "by_vix_bucket": {
+        "<15": {
+          "n": 1,
+          "wins": 1,
+          "wr_pct": 100.0,
+          "pnl": 46.2
+        },
+        "15-17": {
+          "n": 7,
+          "wins": 4,
+          "wr_pct": 57.1,
+          "pnl": -79.4
+        },
+        ">=25": {
+          "n": 5,
+          "wins": 2,
+          "wr_pct": 40.0,
+          "pnl": -892.8
+        }
+      }
+    },
+    "D_exclude_17_20": {
+      "label": "All except VIX 17-20 (skip only drag bucket)",
+      "n": 18,
+      "wins": 10,
+      "losses": 8,
+      "wr_pct": 55.6,
+      "total_pnl": -954.2,
+      "avg_pnl_per_trade": -53.01,
+      "op21_wr_gate": "PASS",
+      "op21_pnl_gate": "FAIL",
+      "op21_n_adequate": "YES",
+      "op21_real_fills_gate": "FAIL",
+      "by_vix_bucket": {
+        "<15": {
+          "n": 1,
+          "wins": 1,
+          "wr_pct": 100.0,
+          "pnl": 46.2
+        },
+        "15-17": {
+          "n": 7,
+          "wins": 4,
+          "wr_pct": 57.1,
+          "pnl": -79.4
+        },
+        "20-25": {
+          "n": 5,
+          "wins": 3,
+          "wr_pct": 60.0,
+          "pnl": -28.2
+        },
+        ">=25": {
+          "n": 5,
+          "wins": 2,
+          "wr_pct": 40.0,
+          "pnl": -892.8
+        }
+      }
+    }
+  },
+  "rescue_verdict": "NO_RESCUE \u2014 no VIX-gated variant achieves WR>=50% AND positive PnL across N>=15 signals",
+  "recommendation": "If MARGINAL scenario found: add VIX gate to watcher confidence tier. Route VIX-in-drag-bucket signals to confidence='low' (observe but lower weight). Accumulate live observations in qualifying VIX regime; revisit real-fills gate when N>=15 live signals in target regime. If NO_RESCUE: NLWB has no viable VIX-gated path to OP-21 promotion. Consider archiving as WATCH_FRAGILE-INACTIVE or removing from watcher fleet."
+}

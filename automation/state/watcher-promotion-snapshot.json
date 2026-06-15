@@ -1,0 +1,376 @@
+{
+  "generated_at": "2026-05-21T12:52:23.654229Z",
+  "live_cutoff": "2026-05-18",
+  "total_watchers": 13,
+  "ready_for_promotion": 0,
+  "watch_stable": 7,
+  "watch_fragile": 2,
+  "live_only": 2,
+  "observe_only": 2,
+  "watchers": [
+    {
+      "watcher_name": "hs_bear",
+      "display_name": "HEAD_AND_SHOULDERS_BEAR",
+      "direction": "short",
+      "overall_status": "WATCH_STABLE",
+      "gates": {
+        "historical": true,
+        "walk_forward": true,
+        "real_fills": true,
+        "live_observations": false
+      },
+      "evidence": {
+        "historical_n": 185,
+        "historical_wr_pct": 55.7,
+        "wf_note": "OOS 58.5% vs train 54.5% (+4.0pp STABLE)",
+        "real_fills_wr_pct": 73.7,
+        "real_fills_n": 19,
+        "real_fills_note": "Morning-only 09:40-12:00 ET. VIX 15-20=87.5% (best), >=25=80%."
+      },
+      "live": {
+        "total_obs": 7,
+        "live_wins_graded": 0,
+        "live_wins_needed": 3,
+        "live_pnl": 0.0
+      },
+      "ready_for_promotion": false,
+      "notes": "NO VIX gate needed \u2014 all VIX regimes good in morning window. premium_stop=-0.99 (chart-stop)."
+    },
+    {
+      "watcher_name": "fbw_morning_mid",
+      "display_name": "FAILED_BREAKDOWN_WICK_MORNING_MID",
+      "direction": "long",
+      "overall_status": "WATCH_STABLE",
+      "gates": {
+        "historical": true,
+        "walk_forward": true,
+        "real_fills": true,
+        "live_observations": false
+      },
+      "evidence": {
+        "historical_n": 35,
+        "historical_wr_pct": 74.3,
+        "wf_note": "OOS 78.9% vs train 68.8% (+10.1pp STABLE)",
+        "real_fills_wr_pct": 74.3,
+        "real_fills_n": 35,
+        "real_fills_note": "+$455 total. FAVORABLE +5.5pp vs proxy. WATCH_STABLE."
+      },
+      "live": {
+        "total_obs": 25,
+        "live_wins_graded": 0,
+        "live_wins_needed": 3,
+        "live_pnl": 0.0
+      },
+      "ready_for_promotion": false,
+      "notes": "conf=MID [0.65,0.80) | 09:35-11:30 ET | chart-stop only (L55)."
+    },
+    {
+      "watcher_name": "db_base_quiet",
+      "display_name": "DOUBLE_BOTTOM_BASE_QUIET",
+      "direction": "long",
+      "overall_status": "WATCH_STABLE",
+      "gates": {
+        "historical": true,
+        "walk_forward": true,
+        "real_fills": true,
+        "live_observations": false
+      },
+      "evidence": {
+        "historical_n": 122,
+        "historical_wr_pct": 63.9,
+        "wf_note": "OOS +1.2pp STABLE. Most robust watcher in fleet.",
+        "real_fills_wr_pct": 63.9,
+        "real_fills_n": 122,
+        "real_fills_note": "+$1,755 total. conf=LOW (< 0.60) gate excludes pathological 0.60-0.70 band."
+      },
+      "live": {
+        "total_obs": 3,
+        "live_wins_graded": 0,
+        "live_wins_needed": 3,
+        "live_pnl": 0.0
+      },
+      "ready_for_promotion": false,
+      "notes": "Full RTH 09:35-15:55 ET. VIX<20 only. Walk-forward verdict: STABLE."
+    },
+    {
+      "watcher_name": "named_level_wick_bounce_watcher",
+      "display_name": "NAMED_LEVEL_WICK_BOUNCE",
+      "direction": "long",
+      "overall_status": "WATCH_STABLE",
+      "gates": {
+        "historical": true,
+        "walk_forward": true,
+        "real_fills": true,
+        "live_observations": false
+      },
+      "evidence": {
+        "historical_n": 157,
+        "historical_wr_pct": 71.3,
+        "wf_note": "OOS -7.9pp STABLE (PDL proxy \u2014 weaker level type).",
+        "real_fills_wr_pct": 67.0,
+        "real_fills_n": 25,
+        "real_fills_note": "chart-stop only (L51/L55). PDL proxy WR=71.3% -> real 67%. L58: PDL parameter sweeps fail \u2014 need \u2605\u2605\u2605 named levels."
+      },
+      "live": {
+        "total_obs": 299,
+        "live_wins_graded": 1,
+        "live_wins_needed": 3,
+        "live_pnl": -138.61
+      },
+      "ready_for_promotion": false,
+      "notes": "L58: PDL is weakest level type \u2014 focus live obs on \u2605\u2605\u2605 bounce signals only."
+    },
+    {
+      "watcher_name": "db_morning_low_vol",
+      "display_name": "DOUBLE_BOTTOM_MORNING_LOW_VOL",
+      "direction": "long",
+      "overall_status": "WATCH_FRAGILE",
+      "gates": {
+        "historical": true,
+        "walk_forward": false,
+        "real_fills": true,
+        "live_observations": false
+      },
+      "evidence": {
+        "historical_n": 109,
+        "historical_wr_pct": 67.9,
+        "wf_note": "Walk-forward DEGRADED -15.2pp (WATCH_FRAGILE). Overfitting source: ENTRY_TIME_END=11:30.",
+        "real_fills_wr_pct": 67.9,
+        "real_fills_n": 109,
+        "real_fills_note": "+$828 total. FAVORABLE. But WF fails: WATCH_FRAGILE."
+      },
+      "live": {
+        "total_obs": 4,
+        "live_wins_graded": 0,
+        "live_wins_needed": 5,
+        "live_pnl": 0.0
+      },
+      "ready_for_promotion": false,
+      "notes": "11:30 ET cutoff may be overfit. Promote only with N>=5 live wins (higher bar due to WF fragility)."
+    },
+    {
+      "watcher_name": "level_break_first_strike_watcher",
+      "display_name": "LEVEL_BREAK_FIRST_STRIKE",
+      "direction": "short",
+      "overall_status": "WATCH_STABLE",
+      "gates": {
+        "historical": true,
+        "walk_forward": null,
+        "real_fills": null,
+        "live_observations": false
+      },
+      "evidence": {
+        "historical_n": 4,
+        "historical_wr_pct": 100.0,
+        "wf_note": "VIX>=20 gate: N=4 VIX-gated signals (all WIN) \u2014 too thin for WF.",
+        "real_fills_wr_pct": null,
+        "real_fills_n": null,
+        "real_fills_note": "VIX<20 real-fills: WR=0% (violent initial bounce). VIX>=20 real-fills not yet run (N=4 too thin)."
+      },
+      "live": {
+        "total_obs": 97,
+        "live_wins_graded": 0,
+        "live_wins_needed": 15,
+        "live_pnl": 0.0
+      },
+      "ready_for_promotion": false,
+      "notes": "VIX>=20 only gate. Need N_vix_ge_20>=15 across >=2 distinct high-vol regimes before promotion."
+    },
+    {
+      "watcher_name": "bearish_reversal_at_level_watcher",
+      "display_name": "BEARISH_REVERSAL_AT_LEVEL",
+      "direction": "short",
+      "overall_status": "WATCH_STABLE",
+      "gates": {
+        "historical": true,
+        "walk_forward": null,
+        "real_fills": null,
+        "live_observations": false
+      },
+      "evidence": {
+        "historical_n": 4,
+        "historical_wr_pct": 75.0,
+        "wf_note": "N too thin for walk-forward. 3/3 wins on verified subset (1 unverified).",
+        "real_fills_wr_pct": null,
+        "real_fills_n": null,
+        "real_fills_note": "Real-fills not yet run \u2014 N too thin."
+      },
+      "live": {
+        "total_obs": 67,
+        "live_wins_graded": 0,
+        "live_wins_needed": 3,
+        "live_pnl": 0.0
+      },
+      "ready_for_promotion": false,
+      "notes": "Countertrend setup: BULL ribbon day + SPY up>=$3 + \u2605\u2605\u2605 rejection + vol>=2x. 11:00 ET+ only."
+    },
+    {
+      "watcher_name": "close_ceiling_fade",
+      "display_name": "CLOSE_CEILING_DISTRIBUTION_FADE",
+      "direction": "short",
+      "overall_status": "LIVE_ONLY",
+      "gates": {
+        "historical": null,
+        "walk_forward": null,
+        "real_fills": null,
+        "live_observations": false
+      },
+      "evidence": {
+        "historical_n": null,
+        "historical_wr_pct": null,
+        "wf_note": "Historical backtest impossible \u2014 no key-levels archive exists.",
+        "real_fills_wr_pct": null,
+        "real_fills_n": null,
+        "real_fills_note": "Will run real-fills after N>=20 live observations."
+      },
+      "live": {
+        "total_obs": 1,
+        "live_wins_graded": 0,
+        "live_wins_needed": 20,
+        "live_pnl": 0.0
+      },
+      "ready_for_promotion": false,
+      "notes": "L59 pattern. N>=3 bars testing \u2605\u2605+ resistance \u2192 fake breakout \u2192 puts. promotion gate N>=20 obs WR>=50% -> real-fills -> 3 J wins."
+    },
+    {
+      "watcher_name": "floor_hold_bounce",
+      "display_name": "FLOOR_HOLD_DISTRIBUTION_BOUNCE",
+      "direction": "long",
+      "overall_status": "LIVE_ONLY",
+      "gates": {
+        "historical": null,
+        "walk_forward": null,
+        "real_fills": null,
+        "live_observations": false
+      },
+      "evidence": {
+        "historical_n": null,
+        "historical_wr_pct": null,
+        "wf_note": "Historical backtest impossible \u2014 no key-levels archive exists.",
+        "real_fills_wr_pct": null,
+        "real_fills_n": null,
+        "real_fills_note": "Will run real-fills after N>=20 live observations."
+      },
+      "live": {
+        "total_obs": 0,
+        "live_wins_graded": 0,
+        "live_wins_needed": 20,
+        "live_pnl": 0.0
+      },
+      "ready_for_promotion": false,
+      "notes": "L59 bull analog (Wyckoff spring). N>=3 bars testing \u2605\u2605+ support \u2192 fake breakdown \u2192 calls."
+    },
+    {
+      "watcher_name": "momentum_accel_highvol",
+      "display_name": "MOMENTUM_ACCELERATION_HIGHVOL",
+      "direction": "mixed",
+      "overall_status": "WATCH_FRAGILE",
+      "gates": {
+        "historical": true,
+        "walk_forward": true,
+        "real_fills": false,
+        "live_observations": false
+      },
+      "evidence": {
+        "historical_n": 47,
+        "historical_wr_pct": 59.6,
+        "wf_note": "OOS +6.6pp IMPROVED (SPY-price proxy).",
+        "real_fills_wr_pct": 42.9,
+        "real_fills_n": 35,
+        "real_fills_note": "DEGRADED -16.7pp. VIX[20-25) drag (WR=37.5%). VIX>=25: WR=54.5% N=11 (MARGINAL)."
+      },
+      "live": {
+        "total_obs": 17,
+        "live_wins_graded": 0,
+        "live_wins_needed": 15,
+        "live_pnl": 0.0
+      },
+      "ready_for_promotion": false,
+      "notes": "VIX>=25 subset promising but N=11 too thin. Real-fills FAIL on VIX[20-25). Needs VIX>=25 accumulation. Long direction at VIX>=25: WR=75% N=4 (very thin)."
+    },
+    {
+      "watcher_name": "hs_near_named",
+      "display_name": "HEAD_AND_SHOULDERS_NEAR_NAMED",
+      "direction": "short",
+      "overall_status": "OBSERVE_ONLY",
+      "gates": {
+        "historical": false,
+        "walk_forward": null,
+        "real_fills": null,
+        "live_observations": null
+      },
+      "evidence": {
+        "historical_n": 26,
+        "historical_wr_pct": 46.2,
+        "wf_note": "NOT RUN \u2014 WR below 50% gate.",
+        "real_fills_wr_pct": null,
+        "real_fills_n": null,
+        "real_fills_note": "NOT RUN \u2014 superseded by hs_watcher (no proximity filter)."
+      },
+      "live": {
+        "total_obs": 8,
+        "live_wins_graded": 0,
+        "live_wins_needed": null,
+        "live_pnl": 0.0
+      },
+      "ready_for_promotion": false,
+      "notes": "Proximity filter HURTS H&S (46.2% near vs 55.7% far). No promotion path. Kept for observation."
+    },
+    {
+      "watcher_name": "orb_watcher",
+      "display_name": "ORB_RETEST (medium-conf only)",
+      "direction": "mixed",
+      "overall_status": "WATCH_STABLE",
+      "gates": {
+        "historical": true,
+        "walk_forward": null,
+        "real_fills": null,
+        "live_observations": false
+      },
+      "evidence": {
+        "historical_n": 86,
+        "historical_wr_pct": null,
+        "wf_note": "Medium confidence only (+$589/86 fires). Low and High suppressed.",
+        "real_fills_wr_pct": null,
+        "real_fills_n": null,
+        "real_fills_note": "Proxy-based scoring. Real-fills not run."
+      },
+      "live": {
+        "total_obs": 98,
+        "live_wins_graded": 0,
+        "live_wins_needed": 3,
+        "live_pnl": 0.0
+      },
+      "ready_for_promotion": false,
+      "notes": "Medium-only filter active. Accumulating observations. Real-fills needed before promotion."
+    },
+    {
+      "watcher_name": "v14_enhanced_watcher",
+      "display_name": "BEARISH_REJECTION_v14e / BULLISH_RECLAIM_v14e",
+      "direction": "mixed",
+      "overall_status": "OBSERVE_ONLY",
+      "gates": {
+        "historical": true,
+        "walk_forward": true,
+        "real_fills": null,
+        "live_observations": null
+      },
+      "evidence": {
+        "historical_n": 505,
+        "historical_wr_pct": null,
+        "wf_note": "Walk-forward STABLE. $36K wide across 16mo.",
+        "real_fills_wr_pct": null,
+        "real_fills_n": null,
+        "real_fills_note": "Covered by production v15 engine \u2014 not separately validated as watcher."
+      },
+      "live": {
+        "total_obs": 338,
+        "live_wins_graded": 0,
+        "live_wins_needed": null,
+        "live_pnl": 0.0
+      },
+      "ready_for_promotion": false,
+      "notes": "Production engine covers this pattern. Watcher exists for observation parity."
+    }
+  ]
+}

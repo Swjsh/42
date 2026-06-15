@@ -1,0 +1,67 @@
+{
+  "date": "2025-10-08",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-20T02:36:59.304982+00:00",
+  "actual": {
+    "open": 672.94,
+    "close": 673.26,
+    "high": 673.52,
+    "low": 672.15,
+    "move_dollars": 0.32,
+    "actual_bias": "no_trade"
+  },
+  "swarm": {
+    "consensus_bias": "no_trade",
+    "swarm_confidence": 0,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 670.58,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "battle_grade": "UNTESTED"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "no_trade",
+      "actual": "no_trade"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 670.58,
+      "role": "resistance",
+      "rth_range": [
+        672.15,
+        673.52
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 670.58,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "670.58 (PMH/battle level) is tested within the first 90 minutes of RTH (by 11:00 ET) \u2014 SPY touches t",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 18.0 for the full RTH session \u2014 event-free day with no macro catalysts sustains the compression regime",
+        "invalidation": "VIX trades above 18.55 (a +1.5 point spike from 17.05) at any point during the first 60 minutes of RTH"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "Ribbon maintains BULL stack orientation (fast > pivot > slow, spread >= 30\u00a2) through at least the first 30 minutes of RT",
+        "invalidation": "Any 5-minute bar closing below 669.40 (slow EMA level) before 10:10 ET, signaling full ribbon stack inversion to bear or"
+      }
+    ]
+  },
+  "narrative": "Three specialists (technical, macro, level_thesis) align on a bullish backdrop \u2014 CLEAN_BULL ribbon, falling VIX at 17.05, overnight gap up +87\u00a2, no macro events \u2014 but the critical adjustment is that the 670.58 battle level is the PMH set today and UNTESTED in any prior RTH session, a structural cond"
+}

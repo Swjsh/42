@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-04-23T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": [],
+    "bearish": ["technical", "macro", "level_thesis", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 0,
+    "bearish": 4,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.0,
+    "bearish": 1.0
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 83,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Internals agent at 0.48 confidence with explicitly 'mixed' rotation — XLK +1.2% strength could broaden into risk-on rather than narrow leadership reversal, collapsing the bearish sector read.",
+    "top_invalidation_scenario": "VIX drops below 18.5 within first 30 minutes of RTH — fear reverses, macro bearish case collapses, clean calendar enables a gap-fill rally to PMH 711.21."
+  },
+  "battle_level": {
+    "price": 706.49,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 706.49,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 708.22,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 711.21,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 712.39,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 698.53,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 706.49 on first test (does not break below PML) — bear ribbon intact + price stays below 708.22",
+      "bias": "bearish",
+      "target": 698.53,
+      "entry_trigger": "hold_at_706.49_plus_bear_ribbon_confirmation"
+    },
+    "secondary": {
+      "condition": "if SPY reclaims above 708.22 and retests PMH 711.21 — gap-fill scenario takes over",
+      "bias": "bullish",
+      "target": 712.39,
+      "entry_trigger": "two_bar_reversal_above_711.21_plus_ribbon_alignment_shift"
+    },
+    "invalidation": {
+      "condition": "VIX drops below 18.5 within the first 30 minutes of RTH — fear dissipates on clean calendar, XLK strength broadens, gap-fill to PMH 711.21 becomes base case",
+      "effect": "Macro bearish case collapses simultaneously with level-thesis primary scenario. Bears lose all three structural pillars (VIX, ribbon sentiment, gap persistence). Positions should be re-evaluated if VIX prints below 18.5 before 10:00 ET."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests PML 706.49 within the first 90 minutes of RTH (by 11:00 ET) — price currently 1.27 above this level with bear ribbon fully formed and overnight gap-down of $3.45 supporting downside continuation.",
+      "invalidation": "SPY does not touch 706.49 before 11:00 ET, instead holding above 708.22 for the first 60 min and forming a higher low — confirming consolidation rather than breakdown.",
+      "confidence": 0.68,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains above 19.0 through 10:30 ET (first 60 minutes of RTH), sustaining the risk-off backdrop — consistent with MID regime VIX rising +3.09% pre-market and zero macro events to catalyze a reversal.",
+      "invalidation": "VIX prints below 18.5 on any 5-minute bar before 10:30 ET, collapsing the fear premium and reversing the macro bearish case.",
+      "confidence": 0.62,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "The CLEAN_BEAR ribbon (spread ≥ 30 cents) holds through the first 30 minutes of RTH — the 09:35 ET 5-minute bar closes below the pivot EMA at 708.01, confirming bearish structure survives the open.",
+      "invalidation": "SPY closes above pivot 708.01 on the 09:35 ET bar, inverting the ribbon alignment and shifting bar structure from strong_bear to reversal — the 05:55 doji would then complete as a reversal pattern.",
+      "confidence": 0.65,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "A rare 4-of-4 specialist unanimity for bearish sets up today with maximum structural conviction — CLEAN_BEAR ribbon (77-cent spread), $3.45 overnight gap-down, VIX rising to 19.32, and no macro events to disrupt the thesis. However, the validator correctly marks robustness only 'moderate': the three invalidation paths (VIX reversal, XLK strength broadening, modest gap-fill on clean calendar) all converge simultaneously if any one fires, collapsing the thesis on all fronts at once. The single most important thing to watch at the open: does VIX hold above 19.0 while SPY approaches PML 706.49? If VIX drops below 18.5 while SPY lifts above 708.22, the bear case is off — if VIX holds and 706.49 breaks, the path to Carry support 698.53 is open.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.78,
+      "one_line": "CLEAN_BEAR ribbon 77¢ spread (slow 708.61 > pivot 708.01 > fast 707.84); price 25¢ below pivot; overnight gap down $3.45; strong_bear bar structure with 05:55 doji as only tempering factor."
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "VIX MID regime rising +3.09% to 19.32; zero events today; overnight gap -$3.45 (-0.48%); mixed sector rotation (XLK +1.2%, XLF -0.51%) provides some friction but overall macro is risk_off."
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.72,
+      "one_line": "Battle level PML 706.49 just 1.27 below price — hold test determines bear continuation to Carry 698.53 (-9.23) vs. reclaim rally to PMH 711.21 (+3.45); asymmetry favors downside with bear ribbon aligned."
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.48,
+      "one_line": "Mixed rotation (XLK +1.2% outperforming, XLF -0.51% dragging) — narrow tech leadership with SPY underperforming at +0.29%; breadth pattern is consensus weakest link with genuine bull-reversal optionality."
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "VIX drops below 18.5 in first 30 min + clean calendar enables gap-fill to 711.21 — all three bearish pillars collapse simultaneously if this fires."
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

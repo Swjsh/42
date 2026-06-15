@@ -1,0 +1,22 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-04-24T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.70,
+  "reasoning": "VIX at 19.16 is rising (+0.95%) in MID regime, signaling building fear and weakness. Tech (XLK -0.59%) and financials (XLF -0.54%) are rotating down—classic risk-off backdrop. No major macro events today removes event-risk uncertainty; technicals will dominate. Overnight gap is flat ($0.40), so no bullish tailwind from overnight sentiment. Ribbon shows BULL stack but only 13¢ spread—weak construction. Overall: moderate bearish bias favors put side, especially if VIX continues higher through the session.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 19.16,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": 0.40,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX rising 0.95% from ~18.2 signals emerging weakness in MID regime—not extreme but directional",
+    "Risk-off rotation visible: XLK -0.59%, XLF -0.54% = institutional de-risking, typically bearish for SPY",
+    "Premarket range 708.09-710.40 shows activity width, but net overnight move flat—open action will set true bias",
+    "No macro calendar events today = pure technical trading; no event-driven whipsaw risk to hedge"
+  ],
+  "data_quality": "full"
+}

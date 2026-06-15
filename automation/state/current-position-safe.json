@@ -1,0 +1,5 @@
+{
+  "status": null,
+  "_cleared_at": "2026-06-02T15:27:01-04:00",
+  "_cleared_reason": "IRON_LAW_BREACH: order a6126cf7-aa2b-4e49-8eb6-3996fa775292 canceled at 14:51:02Z (36 min prior), position state was stale pending_fill. Cleared on tick 3."
+}

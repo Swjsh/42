@@ -1,0 +1,104 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-31T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.70,
+  "reasoning": "SPY at 637.10, gapped up $5.10 overnight and nested near the premarket high 638.88. Bull ribbon (fast 637.35 / pivot 637.0 / slow 635.89) with healthy 146c spread supports upside structure. The battle level is 638.88 (premarket high, 2★ Active resistance) — price will test this from below. If it holds, pullback zone is 636–637 with potential re-test. If 638.88 breaks, continuation toward 640.37 (prior RTH high). Multiple 1★ reference resistances (638.49 R1, 638.0 $638) cluster tightly above, raising breakout difficulty. Support floor at 631.97 (PML, 2★ Active) is -5.13 away; multi-session floor at 629.28 (5-day low) is -7.82 away. Bull bias backed by ribbon structure and overnight gap momentum.",
+  "battle_level": {
+    "price": 638.88,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 638.88,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 1.78
+    },
+    {
+      "price": 638.49,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 1.39
+    },
+    {
+      "price": 638.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 0.90
+    },
+    {
+      "price": 636.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": -1.10
+    },
+    {
+      "price": 635.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": -2.10
+    },
+    {
+      "price": 631.97,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 6,
+      "distance_from_price": -5.13
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 638.88 on first approach from below",
+      "bias": "bullish",
+      "target": 636.50,
+      "entry_trigger": "bull_ribbon_hold + 636 support confirmed + re-test_638.88"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 638.88 (PMH break-up)",
+      "bias": "bullish",
+      "target": 640.37,
+      "entry_trigger": "level_break + ribbon_stack_bull + momentum"
+    },
+    "tertiary": {
+      "condition": "if SPY breaks below 631.97 (PML break-down)",
+      "bias": "bearish",
+      "target": 629.28,
+      "entry_trigger": "ribbon_inversion + support_break + momentum"
+    }
+  },
+  "levels_in_play_count": 6,
+  "key_observations": [
+    "Battle level 638.88 (PMH, 2★) is the immediate test point with bull ribbon structural support.",
+    "Resistance stack above: 638.49 R1 + 638.0 $638 round cluster tightly (0.9–1.4 distance), making breakout above 638.88 more difficult; consolidation likely.",
+    "Support floor 631.97 (PML, 2★, -5.13) anchors downside risk; multi-session Carry floor 629.28 (-7.82) is secondary fallback.",
+    "Bull ribbon (146c healthy spread, BULL stack) aligns with gap-up bias and premarket structure; key watch: maintain fast EMA 637.35 as dynamic support."
+  ],
+  "data_quality": "full"
+}

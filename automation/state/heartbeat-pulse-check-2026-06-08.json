@@ -1,0 +1,25 @@
+{
+  "skill": "heartbeat-pulse-check",
+  "run_at": "2026-06-08T21:00:01.781345+00:00",
+  "target_date": "2026-06-08",
+  "verdict": "YELLOW",
+  "reason": "1-gaps-6-to-15-min",
+  "fire_count_total": 6,
+  "market_fire_count": 6,
+  "max_gap_minutes": 9.0,
+  "gaps_over_15_min": 0,
+  "gaps_6_to_15_min": 1,
+  "heal_action": "no-op",
+  "sample_gaps": [
+    {
+      "from": "15:33:39",
+      "to": "15:39:00",
+      "gap_min": 5.35
+    },
+    {
+      "from": "15:39:00",
+      "to": "15:48:00",
+      "gap_min": 9.0
+    }
+  ]
+}

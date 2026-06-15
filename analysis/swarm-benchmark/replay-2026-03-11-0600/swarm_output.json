@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-11T11:10:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["macro"],
+    "bearish": ["technical", "internals"],
+    "no_trade": ["level_thesis"]
+  },
+  "vote_counts": {
+    "bullish": 1,
+    "bearish": 2,
+    "no_trade": 1
+  },
+  "weighted_scores": {
+    "bullish": 0.30,
+    "bearish": 0.45
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "moderate",
+  "swarm_confidence": 14,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["macro", "level_thesis"],
+    "dissent_reason": "Macro agent (highest individual confidence at 0.68) sees falling VIX + overnight gap-up as classic capitulation-reversal setup, while level_thesis abstains as price at pivot is tactically neutral pending a 674.81 level test — neither dissenter is low-conviction."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "weak",
+    "weakest_link": "The bearish consensus assumes CLEAN_BEAR ribbon dominates overnight gap-up and falling VIX, but the ribbon spread of 106c (unusually wide — strong bears show <50c) already signals low bear conviction; both bearish agents' individual confidences (0.45–0.58) are lower than the dissenting macro agent (0.68).",
+    "top_invalidation_scenario": "SPY holds 674.81 Active support on any pullback in the first 60 minutes without a volume flush — gap does not fill, price stabilizes above the battle level, validating the falling-VIX + gap-up bullish macro thesis and invalidating the CLEAN_BEAR continuation read."
+  },
+  "battle_level": {
+    "price": 674.81,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 674.81,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 683.33,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 679.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 677.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 687.09,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY sells off from open and breaks 674.81 on volume ≥1.5× 20-bar average",
+      "bias": "bearish",
+      "target": 662.42,
+      "entry_trigger": "level_break + BEAR_ribbon_continuation"
+    },
+    "secondary": {
+      "condition": "if overnight gap-up momentum holds above pivot (678.12) and 679.0 Reference clears with a 5-min close",
+      "bias": "bullish",
+      "target": 683.33,
+      "entry_trigger": "gap_follow_through + ribbon_pivot_reclaim"
+    },
+    "invalidation": {
+      "condition": "SPY holds 674.81 on any pullback in the first 60 minutes without a volume flush — gap does not fill, price stabilizes above battle level",
+      "effect": "Bearish consensus structurally invalidated; falling VIX + gap-up risk-on macro thesis takes control targeting 683.33 Active resistance; no bearish entry on ribbon alone is justified."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "674.81 Active 2★ support is tested within the first 60 minutes of RTH (by 10:30 ET), as price is only $3.31 below the open (678.12) and the CLEAN_BEAR ribbon + prior-session low make a gap-fill attempt the most natural early move.",
+      "invalidation": "SPY does not touch 674.81 by 10:30 ET, instead extending immediately above 679.0 Reference resistance on gap-up follow-through.",
+      "confidence": 0.55,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 25.50 for the entire RTH session — the −1.04% falling trajectory from premarket continues and the overnight gap-up's risk-on signal is not reversed by a volatility spike.",
+      "invalidation": "VIX rises above 25.50 at any point during RTH, reversing the capitulation narrative and confirming the overnight gap as a bear trap.",
+      "confidence": 0.60,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BEAR ribbon (fast 677.80 < pivot 678.12 < slow 678.86, spread 106c) does not flip to bullish stack configuration (fast > pivot > slow, spread ≥30c) before 13:00 ET — bear structure remains the dominant daily frame even if price rallies.",
+      "invalidation": "Ribbon fully flips bullish (fast > pivot > slow, spread ≥30c) before 12:00 ET noon.",
+      "confidence": 0.50,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "Today's core tension: a CLEAN_BEAR ribbon (106c spread, established downtrend) is being directly challenged by a $0.99 overnight gap-up into falling VIX (24.65, −1.04%) — the exact combination that historically precedes reversals, not continuations. The narrow bearish vote majority (technical + internals, combined weight 0.45) is outgunned in individual conviction by the dissenting macro agent (0.68) and abstaining level_thesis (0.52); the validator explicitly rates the consensus 'weak,' noting the wide ribbon spread signals a low-conviction bear. The single most important thing to watch at open is whether price reaches and holds 674.81 Active support — a volume flush through that level activates the CLEAN_BEAR continuation toward 662.42 Carry, while any hold hands the session to the falling-VIX bull thesis targeting 683.33.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.58,
+      "one_line": "CLEAN_BEAR ribbon (106c spread) is the dominant structure but moderate confidence only — overnight gap-up at pivot and mixed last-3-bar structure (red→doji→green) create conflicting signals."
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "VIX HIGH but falling (−1.04%, 24.65) + zero event risk + overnight gap-up = classic capitulation setup favoring call buyers despite bearish ribbon context."
+    },
+    "level_thesis": {
+      "bias": "no_trade",
+      "confidence": 0.52,
+      "one_line": "Price locked at pivot (678.12) in tactically neutral zone — real decision is at 674.81 Active support below or 683.33 Active resistance above; abstaining until a directional test fires."
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.45,
+      "one_line": "XLF −0.54% + XLE −0.82% signal incomplete risk-off rotation — financials and energy weak but XLK flat; sector basis is modest bearish, not broad-based SPY selloff."
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "weak",
+      "top_invalidation": "Wide ribbon spread (106c vs <50c for strong bears) + macro's falling-VIX thesis carrying higher confidence (0.68) than either bearish agent — bear case is fragile and vulnerable to overnight gap-up follow-through if 674.81 holds."
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

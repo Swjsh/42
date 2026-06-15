@@ -1,0 +1,18 @@
+{
+  "train_end": "2025-09-30",
+  "test_start": "2025-10-01",
+  "test_end": "2026-05-15",
+  "results": [
+    {
+      "combo": "failed_breakdown_wick | conf=MID | time=MORNING",
+      "train_n": 0,
+      "train_wr_pct": null,
+      "test_n": 26,
+      "test_wr_pct": 69.23,
+      "delta_pp": null,
+      "verdict": "NOT_FOUND"
+    }
+  ],
+  "pass_count": 0,
+  "total": 1
+}

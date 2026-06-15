@@ -1,0 +1,96 @@
+{
+  "as_of": "2026-05-20T21:15:00-04:00",
+  "for_session": "2026-05-21",
+  "regime": "post_mega_cap_earnings_sell_the_news",
+  "refresh_source": "Overnight wake block ~21:15 ET 2026-05-20 — NVDA AMC confirmed. Updated from stale 5/14 file.",
+
+  "catalyst_summary": "NVDA EARNINGS SELL-THE-NEWS (highest significance). NVIDIA reported massive Q1 FY2027 beat after close 5/20: EPS $1.87 vs $1.78 est (+5.1%), Revenue $81.62B vs $79.2B est (+3%). Data center $75.2B (92% of revenue, doubled YoY). Gross margin 75.0%. Q2 guidance $91B (±2%), raised dividend $0.01->$0.25 (25x), $80B buyback authorized. Despite the MASSIVE beat on all fronts, NVDA stock declined AH: $223.33 close -> $220.40 AH (-1.31% to -2.83%). Classic SELL-THE-NEWS on the most anticipated earnings in the market. Implication for SPY 5/21: NVDA is ~5.5% of S&P 500. AH weakness from biggest AI name = tech-sector drag + sentiment shift from 'AI rally continuation' to 'beat fully priced in.' SPY already reflected this: closed 741.29, AH 737.82 (-$3.47 from close), AH high exactly 738.129 = rejected 738.10 *** Carry resistance (L59 1-bar close-ceiling confirmed). BEAR ribbon in AH (Fast 738.06 < Pivot 738.66 < Slow 739.19, spread 113c).",
+
+  "primary_catalyst": {
+    "type": "mega_cap_earnings",
+    "name": "NVIDIA (NVDA) Q1 FY2027",
+    "reported_at": "2026-05-20T16:20:00-04:00",
+    "description": "NVDA beat EPS ($1.87 vs $1.78 est), beat revenue ($81.62B vs $79.2B est), strong Q2 guidance ($91B). But AH reaction: NVDA down -1.31% to -2.83% from close ($223.33 -> $220.40). SELL THE NEWS pattern confirmed. NVDA weight in SPY ~5.5% — AH selling creates direct drag on SPY open. Sentiment channel: 'AI rally fully priced in' narrative accelerating.",
+    "direction": "bearish",
+    "confidence": "high",
+    "spy_impact": "BEARISH. SPY already at 737.82 AH (below 738.10 *** Carry). NVDA sell-the-news reinforces the AH bear signal. Bull scenario requires NVDA to reverse and SPY to reclaim 738.10+ — low probability given extent of the beat that still produced selling.",
+    "fragility": "Pre-market recovery possible if NVDA call goes well or institutional buying absorbs the AH selling. Check 08:15 ET Swarm output and 08:30 ET premarket chart before confirming bias."
+  },
+
+  "secondary_catalysts": [
+    {
+      "type": "macro_data",
+      "name": "Initial Jobless Claims + Philadelphia Fed Manufacturing Survey",
+      "timing_et": "08:30",
+      "description": "DOUBLE DATA EVENT at 08:30 ET. (1) Initial Jobless Claims: consensus ~220K-240K. Hot (>250K) = recession concern + equity weak. Cool (<210K) = labor strong + equity supportive. (2) Philadelphia Fed Manufacturing Survey (Philly Fed PMI): measures manufacturing activity in mid-Atlantic region. Negative surprises compound NVDA drag. With NVDA already selling, a hot claims print or weak Philly Fed could accelerate the bear move. Cool/strong data could provide a relief bounce bid — but NVDA headwind limits upside.",
+      "direction": "ambiguous_pending_print",
+      "confidence": "moderate",
+      "fragility": "first 5 min of RTH always volatile after 08:30 double-data events"
+    },
+    {
+      "type": "fed_context",
+      "description": "No FOMC meeting this week. Fed speakers possible but none confirmed at 21:15 ET 5/20. Premarket should check for any 08:00-12:00 ET Fed commentary.",
+      "direction": "trajectory_dependent",
+      "confidence": "low",
+      "timing_et": "varies"
+    },
+    {
+      "type": "macro_drift",
+      "description": "SPY had massive +$7.52 bull day on 5/20 (733.77 -> 741.29). Post-mega-gap rally day + sell-the-news catalyst = mean-reversion pressure. Traders who bought the 5/20 bull run may take profits. Adds to bear tilt.",
+      "direction": "bearish",
+      "confidence": "moderate"
+    }
+  ],
+
+  "vix_expectation": "5/20 RTH VIX likely compressed during the +$7.52 bull day (end of day VIX probably 16-17 range given the rally magnitude). AH ribbon bear (spread 113c) with NVDA selling suggests VIX could TICK UP in 5/21 premarket. If VIX opens above 17.30 and ticking up = v15 BEAR gate opens immediately. Watch for VIX 16.50-18.50 range. BEAR setups favored if VIX > 17.30 at first tick.",
+
+  "key_levels_for_session": {
+    "critical_level": "738.10 *** Carry (SPY)",
+    "critical_level_note": "The gating level. AH rejected exactly at 738.129 (1 bar close-ceiling). If SPY opens below 738.10 and rallies to test it -> BEARISH_REJECTION_RIDE_THE_RIBBON candidate. If SPY opens above 738.10 and holds -> bull scenario alive but needs to break 741.29 PDC for continuation.",
+    "bear_scenario": "SPY opens near 737-738 -> tests 738.10 -> fails to close above -> ENTER short, target 735.40 then 733.77. HS watcher (WATCH_STABLE, 3 live wins needed) would fire if ribbon BEAR + wicks near 738.10. BEARISH_REJECTION_RIDE_THE_RIBBON primary engine signal.",
+    "bull_scenario": "NVDA recovers premarket, SPY gaps up above 738.10, holds 738.10 as support -> BULL enter target 741.29/741.61. Low probability given NVDA sell-the-news overnight.",
+    "no_trade_scenario": "SPY opens between 737.50-738.50 with no clear directional momentum in first 15 min -> wait for break of 738.10 or 737.26 before entering."
+  },
+
+  "implication_for_setups": {
+    "bearish_setup": "FAVORED. NVDA sell-the-news + SPY below 738.10 Carry = bear pressure. BEARISH_REJECTION_RIDE_THE_RIBBON fires when: SPY tests 738.10 -> bar closes below -> ribbon BEAR (already in AH) -> volume >= 1.5x. Set alerts at 738.10. HS watcher (WATCH_STABLE, H+WF+RF all Y, 0/3 live wins) prime candidate to accumulate today.",
+    "bullish_setup": "LOW PROBABILITY. Bull scenario requires NVDA recovery AND SPY break above 741.29 PDC. With NVDA sell-the-news confirmed, the burden of proof is higher. Only enter bull if SPY opens above 738.10 AND holds it for 2+ bars AND ribbon flips BULL with spread >= 30c.",
+    "watcher_observation": "Today is Day 1 of live watcher accumulation (all 13 at 0/X live wins as of premarket). BEARISH_REJECTION_RIDE_THE_RIBBON + HS watcher (if HS forms near 738.10) are prime observation targets. Close-ceiling watcher may also fire if 738.10 gets tested multiple times without closing above (N>=3 bars = CLOSE_CEILING_DISTRIBUTION_FADE signal).",
+    "close_ceiling_fade": "HIGH ALERT: If SPY spends 3+ bars testing 738.10 without a close above it, close_ceiling_fade_watcher fires. This is the L59 pattern live. Watch 738.10 closely in first 60 min."
+  },
+
+  "watch_for_reversal": [
+    "NVDA gaps up strongly in premarket (above $225) -> bear thesis weakens, need SPY to also recover above 741 before entering bull",
+    "Initial NVDA call transcript shows unexpected negative comment (H100 restrictions, demand slowdown) -> ACCELERATE bear",
+    "SPY gaps down below 735.40 *** support at open -> potential trend-day-down; enter puts on first bear bar after 09:35",
+    "VIX > 19 at open -> LBFS watcher (high-vol floor) alert, momentum_accel_highvol watcher becomes relevant",
+    "SPY opens above 738.86 (flipped support level) -> bear thesis on hold, wait for rejection at 741.29 instead"
+  ],
+
+  "no_trade_windows_added_for_today": [
+    {"start_et": "09:30", "end_et": "09:35", "reason": "First-bar noise on NVDA reaction gap"},
+    {"start_et": "09:30", "end_et": "09:35", "reason": "Standard pre-entry gate per v15 params"}
+  ],
+
+  "swarm_note": "Gamma_SwarmPremarket fires 08:15 ET (first 13-agent live fire). data_fetcher will pull live TV + Alpaca data. synthesis_agent v5.1 will incorporate this NVDA catalyst context. Swarm output should show BEARISH or conditional bias. If swarm disagrees (shows BULL), investigate why before taking bull setups.",
+
+  "sources": [
+    {
+      "url": "https://www.stocktitan.net/news/NVDA/nvidia-announces-financial-results-for-first-quarter-fiscal-fq78amc9h84m.html",
+      "title": "NVIDIA Q1 FY2027 earnings results — beat on EPS, revenue, guidance"
+    },
+    {
+      "url": "https://www.cnbc.com/2026/05/20/nvidia-nvda-earnings-report-q1-2027.html",
+      "title": "CNBC: Nvidia Q1 FY2027 — data center revenue nearly doubles, stock slides AH"
+    },
+    {
+      "url": "https://www.kiplinger.com/investing/live/nvidia-earnings-live-updates-and-commentary-may-2026",
+      "title": "Kiplinger: Nvidia earnings live updates May 2026"
+    },
+    {
+      "note": "Premarket fire 08:30 ET 2026-05-21 MUST verify NVDA premarket price + ES futures direction before confirming session bias. This file reflects ~21:15 ET 5/20 snapshot — NVDA call may still be ongoing."
+    }
+  ],
+
+  "next_scheduled_news_check": "premarket fire 08:30 ET 2026-05-21 should re-check NVDA price + ES futures direction — NVDA earnings call typically ends 19:30-20:00 ET, additional color may surface by morning"
+}

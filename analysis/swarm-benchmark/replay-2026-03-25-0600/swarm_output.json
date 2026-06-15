@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-25T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis"],
+    "bearish": ["internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 3,
+    "bearish": 1,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.90,
+    "bearish": 0.10
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 76,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["internals"],
+    "dissent_reason": "Internals flags narrow energy-led leadership (XLE +1.74%) with XLK (48% of SPY weight) flat at +0.07%, interpreting the overnight gap as a risk-off inflation rotation rather than broad-based bullish strength — a classic bear-trap structure."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The interpretation that VIX falling from 26.22 signals bullish relief — at 26.22, VIX is still structurally ELEVATED; a move to ~25.5 is 'less acute fear,' not regime-safe confidence, and elevated VIX environments frequently produce sharp intraday whipsaws.",
+    "top_invalidation_scenario": "SPY breaks below 657.47 (premarket low) with volume in the first 15 minutes of RTH, confirming the overnight gap as a failed bear trap and cascading toward gap-fill target 653.20."
+  },
+  "battle_level": {
+    "price": 660.56,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 660.56,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 657.47,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 657.03,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 659.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 660.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY reclaims and closes above 660.56 (PMH) with broad sector participation",
+      "bias": "bullish",
+      "target": 669.72,
+      "entry_trigger": "level_reclaim + ribbon_bull + close above 660.56"
+    },
+    "secondary": {
+      "condition": "if SPY pulls back to 657.47 (PML) and holds on first test",
+      "bias": "bullish",
+      "target": 660.56,
+      "entry_trigger": "level_hold_at_657.47 + ribbon_bull_intact + rebound"
+    },
+    "invalidation": {
+      "condition": "if SPY breaks below 657.47 (premarket low) with volume in the first 15 minutes of RTH",
+      "effect": "Overnight gap confirmed as a failed bear trap; bullish confluence collapses. First cascade target 653.20 (prior close gap-fill). All long setups invalidated; bearish rejection setups replace them."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests the PMH at 660.56 within the first 60 minutes of RTH (by 10:30 ET)",
+      "invalidation": "SPY fails to reach 660.56 before 10:30 ET and instead reverses below 658.00",
+      "confidence": 0.62,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX continues declining and trades below 25.50 by 10:30 ET, confirming the macro agent's fear-receding thesis",
+      "invalidation": "VIX rebounds above 27.00 within the first 60 minutes of RTH, inverting the 'falling volatility = bullish' narrative",
+      "confidence": 0.55,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "BULL ribbon maintains structure (fast > pivot > slow, spread >= 80c) through the first 30 minutes of RTH, confirming pre-market momentum into the open",
+      "invalidation": "Ribbon inverts (fast crosses below pivot) or spread compresses below 30c by 10:00 ET",
+      "confidence": 0.68,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "Today's setup is a 3/4 bullish consensus anchored by a clean BULL ribbon (115c spread), a +$5.19 overnight gap, and VIX falling from 26.22 — but the validator and internals both flag this as a potential bear trap driven by narrow energy leadership with XLK (48% of SPY) conspicuously absent. The critical binary is at the PMH 660.56: a sustained reclaim with tech participation targets the 5-day high at 669.72, while a rejection or a 657.47 breakdown cascades to gap-fill 653.20. Watch XLK vs. XLE breadth in the first 15 minutes of RTH — broad tech participation confirms the bull case; continued tech non-participation flips the internals agent's bear-trap thesis to dominant.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.86,
+      "one_line": "CLEAN_BULL ribbon 115c spread, price 22c above pivot, overnight gap +$5.19, recovery bar at 05:55 confirms momentum into open"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.82,
+      "one_line": "VIX 26.22 falling -2.67% + zero events today + gap-up overnight = risk-on macro backdrop, though elevated VIX starting point caps maximum confidence"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "Battle level 660.56 (PMH, Active 2-star) is +2.17 above; three equal-strength Active levels cluster the zone — moderate confidence, asymmetry favors upside if 660.56 reclaims"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.55,
+      "one_line": "XLK flat (+0.07%) while XLE rallies +1.74% = narrow inflation-fear rotation, not broad growth rally; tech non-participation signals potential bear trap"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "657.47 PML break with volume in first 15 min confirms overnight gap as bear trap, targeting gap-fill at 653.20"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

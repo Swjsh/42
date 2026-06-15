@@ -1,0 +1,171 @@
+{
+  "generated_at": "2025-10-06T10:00:00Z",
+  "swarm_version": "v5",
+  "status": "ok",
+  "data_quality": "partial",
+  "note": "level_thesis_output.json missing — synthesis based on 3 of 4 specialist agents; battle level estimated directly from key-levels.json",
+  "vote_map": {
+    "bullish": ["macro"],
+    "bearish": [],
+    "no_trade": ["technical", "internals"],
+    "missing": ["level_thesis"]
+  },
+  "vote_counts": {
+    "bullish": 1,
+    "bearish": 0,
+    "no_trade": 2
+  },
+  "weighted_scores": {
+    "bullish": 0.40,
+    "bearish": 0.00
+  },
+  "weighted_scores_note": "Renormalized across 3 available specialists (technical=0.467, macro=0.400, internals=0.133; level_thesis=0.25 redistributed proportionally)",
+  "consensus_bias": "no_trade",
+  "consensus_strength": "weak",
+  "swarm_confidence": 0,
+  "no_trade_reason": "low_post_adjustment_confidence",
+  "confidence_calc_trace": {
+    "base": 24.0,
+    "adj_weak_specialist_agreement": -10,
+    "adj_weak_validator_robustness": -15,
+    "adj_missing_battle_grade_untested": -25,
+    "raw_conf": -26,
+    "gate_fired": "NO_TRADE (raw_conf < 40)"
+  },
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["macro"],
+    "dissent_reason": "Macro voted bullish on overnight gap-up +$1.17 and zero macro events, but the gap-up test was already failing in premarket (-$1.62 from PMH 671.63), and both technical (CHOP ribbon 16c, mixed bars) and internals (XLK -0.59% vs XLF +0.56% tug-of-war) see no directional conviction."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "weak",
+    "weakest_link": "Macro is anchoring to the overnight gap-up number and ignoring the real-time PMH rejection (-$1.62 from 671.63); this intraday invalidation of the bullish thesis is being systematically underweighted.",
+    "top_invalidation_scenario": "SPY breaks above and holds PMH 671.63 with BULL ribbon spread ≥20c within first 30 min of RTH — proves gap-up is structural, premarket reversal was profit-taking, macro thesis reasserts."
+  },
+  "battle_level": {
+    "price": 671.63,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "source": "Today 2025-10-06 premarket high (PMH) — tested premarket, rejected -$1.62; first RTH overhead and key bull/bear decision line",
+    "battle_grade_estimated": "HELD"
+  },
+  "level_priority": [
+    {
+      "price": 671.63,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "source": "PMH — premarket high, already rejected once",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 670.94,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "source": "5-day RTH high (rolling)",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 669.93,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "source": "PML — premarket low, gap-down floor",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 668.17,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "source": "Prior session (2025-10-03) RTH low — gap-fill target",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 661.82,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "source": "5-day RTH low (rolling) — deep support",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks below PML 669.93 with ribbon confirming BEAR stack ≥20c separation",
+      "bias": "bearish",
+      "target": 668.17,
+      "entry_trigger": "level_rejection"
+    },
+    "secondary": {
+      "condition": "if SPY reclaims and closes above PMH 671.63 with BULL ribbon ≥20c — gap-up thesis resumes",
+      "bias": "bullish",
+      "target": 672.00,
+      "entry_trigger": "level_reclaim"
+    },
+    "invalidation": {
+      "condition": "SPY breaks above and holds 671.63 with BULL ribbon spread ≥20c within first 30 min of RTH",
+      "effect": "Proves gap-up is structural bullish; premarket -$1.62 reversal was noise not rejection; macro thesis validated; no_trade bias flips to bullish setup."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "PMH 671.63 acts as RTH resistance cap; SPY fails to close a 5m bar above 671.63 within the first 60 min of RTH",
+      "invalidation": "SPY closes a 5m bar above 671.63 with BULL ribbon spread ≥20c before 10:30 ET",
+      "confidence": 0.58,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains above 16.50 through the first hour of RTH, sustaining mild risk-off tone and preventing clean bullish momentum from the overnight gap",
+      "invalidation": "VIX drops below 16.00 by 10:30 ET",
+      "confidence": 0.55,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "5m ribbon does not achieve clean BULL stack (≥20c spread) before 10:30 ET; price oscillates in chop zone between PML 669.93 and PMH 671.63",
+      "invalidation": "5m ribbon spread reaches ≥20c BULL stack within first 3 RTH bars (by 10:00 ET)",
+      "confidence": 0.62,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The key tension today is macro's bullish overnight-gap thesis (+$1.17 gap, zero events) versus real-time premarket price rejection (-$1.62 from PMH 671.63), a MIXED ribbon at only 16c spread (clean threshold: 20c+), and XLK underperformance (-0.59% vs XLF +0.56% — a tug-of-war, not risk-on rotation). With level_thesis data unavailable, only 1 of 3 specialists voted directionally, validator flags weak robustness with a bearish devil's advocate lean, and post-adjustment confidence collapses to -26 — triggering the NO_TRADE gate. The single most important watch at open: whether PMH 671.63 holds as resistance (bearish scenario → gap-fill path toward prior-day low 668.17) or SPY breaks cleanly above it with BULL ribbon ≥20c (macro thesis reasserts, chop resolves bullish).",
+  "agent_summaries": {
+    "technical": {
+      "bias": "no_trade",
+      "confidence": 0.35,
+      "one_line": "CHOP — MIXED ribbon 16c (sub-20c threshold); price at pivot 670.00 with zero separation; gap-up bullish edge lost on -$1.62 premarket reversal from PMH"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "Gap-up +$1.17 with zero macro events; VIX 16.98 rising mildly (+1.92%, +0.33pt); risk-on backdrop but intraday reversal undermines the dominant-gap thesis"
+    },
+    "level_thesis": {
+      "bias": "no_data",
+      "confidence": 0.0,
+      "one_line": "output file missing — level analysis estimated directly from key-levels.json; battle level 671.63 (PMH, tested/held premarket)"
+    },
+    "internals": {
+      "bias": "no_trade",
+      "confidence": 0.32,
+      "one_line": "XLK -0.59% vs XLF +0.56% = sector tug-of-war; narrow breadth (1 of 3 sectors green); no risk-on or risk-off rotation signal"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "weak",
+      "top_invalidation": "Macro anchoring to overnight gap-up while ignoring real-time PMH rejection; premarket selloff + tech weakness build early bearish case; gap-up thesis already failing intraday"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "partial"
+}

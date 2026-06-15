@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-25T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.82,
+  "reasoning": "VIX at 26.22 (HIGH regime) but falling -2.67% (bullish directional signal). Overnight gap +5.19 (0.79% up) shows strong risk-on sentiment. Energy (XLE +1.74%) and financials (XLF +0.98%) rallying confirms rotation into risk assets. No macro events scheduled for 2026-03-25 — clear calendar. Ribbon in BULL stack (spread 115¢). VIX falling from elevated level + gap up + no event blocks = bullish bias, but elevated VIX level (26.22) prevents maximum confidence.",
+  "vix_regime": "HIGH",
+  "vix_direction": "falling",
+  "vix_current": 26.22,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 5.19,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX falling -2.67% from elevated level (26.22) — fear receding, bullish for calls and risk assets",
+    "Overnight gap +5.19 (+0.79%) — significant bullish sentiment built into premarket open",
+    "Sector rotation: XLE +1.74%, XLF +0.98%, XLK flat — classic risk-on pattern favors continuation",
+    "Zero macro events today (calendar filtered and empty) — no hard blocks, no event-driven volatility expected",
+    "Ribbon in BULL stack (spread 115¢) — price structure supportive of bullish setups"
+  ],
+  "data_quality": "full"
+}

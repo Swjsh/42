@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-09T11:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": [],
+    "bearish": ["technical", "macro", "level_thesis", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 0,
+    "bearish": 4,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.0,
+    "bearish": 1.0
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 68,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "weak",
+    "weakest_link": "VIX 30.83 is presented as a bearish continuation signal but is historically an exhaustion threshold — the macro agent itself flagged that 'at VIX 30.83 we're near exhaustion levels'; once spike momentum crests, mean-reversion is the base case, not further downside.",
+    "top_invalidation_scenario": "VIX opens flat or reverses down (<=−1%) within the first 30 minutes, collapsing the spike-momentum narrative and triggering intraday mean-reversion bounce."
+  },
+  "battle_level": {
+    "price": 669.67,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 669.67,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 676.1,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 688.59,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 673.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 666.45,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY flushes to and holds 669.67 (Carry support) on first RTH test",
+      "bias": "bearish",
+      "target": 673.0,
+      "entry_trigger": "level_rejection"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 669.67 with volume confirmation and ribbon maintains inversion",
+      "bias": "bearish",
+      "target": 666.45,
+      "entry_trigger": "level_break"
+    },
+    "invalidation": {
+      "condition": "VIX opens flat or reverses down (<=−1%) within first 30 minutes AND SPY holds above 673.0 on the first two 5-minute bars",
+      "effect": "Bearish thesis loses its primary driver — VIX exhaustion triggers mean-reversion; 669.67 Carry never tested; shift to no_trade or monitor 676.10 Active resistance for bullish reclaim setup"
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY touches Carry support 669.67 within the first 90 minutes of RTH (by 11:00 ET on 2026-03-09)",
+      "invalidation": "SPY does not touch 669.67 before 11:00 ET and holds above 671.00 throughout the first 90-minute window",
+      "confidence": 0.58,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains above 29.0 at the 10:00 ET mark (60 minutes post-open), sustaining the HIGH regime and elevated premium environment",
+      "invalidation": "VIX drops to or below 29.0 before 10:00 ET, confirming spike exhaustion and mean-reversion dominant",
+      "confidence": 0.52,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY's first completed 5-minute bar after 09:35 ET closes below 672.24 (prior close) with CLEAN_BEAR ribbon maintaining full inversion through the first 30 minutes of RTH",
+      "invalidation": "SPY's first 5-minute bar after 09:35 ET closes at or above 673.00, or the ribbon fast EMA (672.42) is reclaimed by price within the first 15-minute bar",
+      "confidence": 0.60,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "All four specialists voted unanimously bearish — anchored by VIX 30.83 (HIGH regime, +4.47%), a 111-cent CLEAN_BEAR ribbon inversion, price 53 cents below the EMA20 pivot, and the Carry support at 669.67 acting as a magnetic flush target 2.57 below spot. However, the validator rates consensus robustness as WEAK: VIX 30.83 is historically an exhaustion threshold (the macro agent itself flagged this), the last two bars were 14–18 cent doji rejections indicating weak selling conviction, and Internals rates sector confirmation at only 0.35 confidence. The single most important thing to watch at open is VIX direction in the first 30 minutes — if VIX reverses ≤−1%, the bearish momentum narrative collapses and mean-reversion to 673–676 becomes the base case; if VIX holds elevated or continues rising, the flush to 669.67 Carry is the primary setup.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.75,
+      "one_line": "CLEAN_BEAR ribbon (111-cent spread, stack inverted) with price 53 cents below EMA20 pivot; last two bars are weak doji rejections (14–18 cents) — momentum decaying"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "VIX 30.83 HIGH regime rising +4.47%, risk-off sector backdrop, no macro events — internally driven fear spike but macro agent flags VIX exhaustion risk"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.75,
+      "one_line": "Battle level Carry support 669.67 (2.57 below price) is primary flush target; Active resistance 676.10 caps any bounce; ribbon and VIX backdrop confirm directional bias"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.35,
+      "one_line": "Mixed rotation with slight defensive lean (XLE −1.01%, XLK −0.38%, XLF +0.26%); flat breadth, no conviction risk-off — lowest-confidence specialist"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "weak",
+      "top_invalidation": "VIX spike at 30.83 is an exhaustion signal not continuation — ribbon tight (16-cent separation), doji bars confirm weak selling; VIX reversal within 30 min rated high probability"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

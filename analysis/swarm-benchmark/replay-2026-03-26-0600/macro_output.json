@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-26T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.82,
+  "reasoning": "VIX at 26.36 rising (+4.03%) into HIGH regime — fear actively building. Overnight gap down $4.94 (-0.75%) confirms risk-off rotation. Ribbon in BEAR configuration (fast 651.95 < pivot 652.42 < slow 654.05). Zero macro events today eliminates event risk. Sector weakness (XLK -0.39%, XLF -0.50%) aligns with bearish thesis. No major calendar blocks or uncertainty — clean bearish setup.",
+  "vix_regime": "HIGH",
+  "vix_direction": "rising",
+  "vix_current": 26.36,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -4.94,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX rising +4.03% into HIGH regime (26.36) — fear is building, not stable",
+    "Overnight gap down $4.94 (-0.75%) + sector rotation (tech/financials down) = risk-off confirmation",
+    "Zero macro events today (no FOMC/CPI/NFP/earnings) = clean day, no forced no-trade windows",
+    "Ribbon BEAR stack active; spread 210¢ well above chop threshold (30¢) — structure supports directional bias",
+    "SPY pre-market range 650.84–654.85 with current at 651.80 (near lows) — continuation bias down"
+  ],
+  "data_quality": "full"
+}

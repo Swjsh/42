@@ -1,0 +1,94 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-04-17T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.75,
+  "reasoning": "SPY at 703.44, just 8¢ below premarket high 703.52 (Active 2★), which serves as the immediate ceiling. Ribbon is BULL (spread 85¢, fast 703.16 above pivot). Overnight gap +$1.89 bullish. Price is sandwiched between PMH 703.52 (resistance above) and prior RTH high 702.78 (support below), with multiple support shelves (701.66 PML, 701.0, 700.0 rounds). Asymmetry favors upside: room to run to 704/705 reference rounds, while down has friction at every step. Battle level is 703.52—if it holds on first test or gets taken out on strong volume, expect bull continuation. If quick fade from 703.52, immediate support at 702.78 RTH high holds (tight risk/reward).",
+  "battle_level": {
+    "price": 703.52,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 703.52,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.08
+    },
+    {
+      "price": 702.78,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 0.66
+    },
+    {
+      "price": 701.66,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 1.78
+    },
+    {
+      "price": 704.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 4,
+      "distance_from_price": 0.56
+    },
+    {
+      "price": 702.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": 1.44
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 703.52 PMH on first test or takes it out on strong vol",
+      "bias": "bullish",
+      "target": 705.0,
+      "entry_trigger": "level_hold_or_break_above + ribbon_bull_confirmation"
+    },
+    "secondary": {
+      "condition": "if SPY fades from 703.52 but holds 702.78 RTH high",
+      "bias": "neutral_to_bullish",
+      "target": 704.0,
+      "entry_trigger": "702.78_bounce + ribbon_support"
+    },
+    "tertiary": {
+      "condition": "if SPY breaks below 702.78 cleanly",
+      "bias": "bearish",
+      "target": 701.66,
+      "entry_trigger": "702.78_break + momentum_continuation"
+    }
+  },
+  "levels_in_play_count": 5,
+  "key_observations": [
+    "Premarket high 703.52 is the immediate battle level—price at 703.44 is within 8¢, test is imminent at 09:30 RTH open or sooner.",
+    "Ribbon BULL (spread 85¢) + overnight gap +$1.89 = directional upside bias, but price is at a friction zone (premarket high).",
+    "Support structure is tight below: 702.78 (RTH high), 701.66 (PML), 701.0/700.0 rounds. Down has multiple re-entry points; up has clear path to 704/705 references.",
+    "If PMH 703.52 holds or breaks above on strong close, expect bullish continuation. If fade from 703.52, 702.78 is immediate support and floor for any reversal."
+  ],
+  "data_quality": "full"
+}

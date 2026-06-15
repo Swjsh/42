@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-04-15T10:01:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["macro", "level_thesis", "internals"],
+    "bearish": [],
+    "no_trade": ["technical"]
+  },
+  "vote_counts": {
+    "bullish": 3,
+    "bearish": 0,
+    "no_trade": 1
+  },
+  "weighted_scores": {
+    "bullish": 0.65,
+    "bearish": 0.0
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 57,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["technical"],
+    "dissent_reason": "Technical agent finds MIXED ribbon (29¢ spread, no clean stack direction) with price 20¢ below EMA20 pivot 694.10 and an overnight gap-down only ~50% recovered in premarket — structural equilibrium argues against any directional entry thesis and the chop verdict is structurally grounded, not conservative caution."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Macro/internals agents overlay bullish sentiment onto neutral-to-bearish chart structure; the level_thesis primary scenario (hold at 694.58 → flush to 687.66, 6.24¢ downside) is itself more probable per the agent's own reasoning than the secondary bullish breakout (1.52¢ upside), making the bullish consensus depend on a lower-probability scenario.",
+    "top_invalidation_scenario": "SPY fails to break and sustain above 694.58 Carry resistance on the RTH open, triggering a bearish rejection flush toward 693.77 then 687.66; energy weakness (XLE -0.97%) already flags a divergence in the claimed broad risk-on rotation."
+  },
+  "battle_level": {
+    "price": 694.58,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 694.58,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "reclaim_attempt"
+    },
+    {
+      "price": 695.42,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 693.77,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 696.76,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 687.66,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks and sustains above 694.58 Carry resistance on RTH open (3+ bars closing above with volume ≥20M shares)",
+      "bias": "bullish",
+      "target": 695.42,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if SPY fails to break above 694.58 at RTH open and produces a rejection candlestick with elevated volume",
+      "bias": "bearish",
+      "target": 693.77,
+      "entry_trigger": "level_rejection"
+    },
+    "invalidation": {
+      "condition": "XLE reverses above -0.97% to near-flat or positive by 10:30 ET AND VIX drops sharply below 17.00, confirming true broad-based risk-on rather than growth-only rotation",
+      "effect": "Unwinds the validator’s energy-divergence warning and ribbon-chop objection; both bullish scenarios escalate in probability and the 695.42 → 696.76 extension becomes the operative target."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests 694.58 Carry resistance within the first 60 minutes of RTH (by 10:30 ET)",
+      "invalidation": "SPY does not reach 694.40 by 10:30 ET, remaining below the battle level for the entire first hour",
+      "confidence": 0.75,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 18.50 for the full RTH session (09:30–16:00 ET), confirming fear-receding macro backdrop",
+      "invalidation": "VIX spikes above 18.50 at any point during RTH",
+      "confidence": 0.70,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "EMA ribbon does NOT achieve a clean bullish stack (fast > pivot > slow with spread ≥30¢) within the first 30 minutes of RTH (before 10:00 ET), extending the MIXED/CHOP structural read into the RTH open",
+      "invalidation": "Clean bullish ribbon stack (all three EMAs aligned bull, spread ≥30¢) forms on or before the 09:55 ET bar close",
+      "confidence": 0.62,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The key tension on 2026-04-15 is macro and internals presenting a clear bullish backdrop (VIX falling 3.92% to 17.64, risk-on sector rotation, clean event calendar) while the chart structure is in genuine equilibrium — MIXED ribbon at 29¢ spread, price 20¢ below pivot, and an overnight gap-down only half-recovered in premarket. The consensus leans bullish at moderate confidence (57) because three of four weighted specialists agree, but the structural dissent from the technical agent is substantively correct and not merely conservative. The single most important thing to watch at the RTH open is the 694.58 Carry resistance: a clean break with volume ≥20M confirms the bullish narrative and targets 695.42; a rejection at that level shifts the day to bearish and opens the 687.66 flush trade with 6.24¢ of defined downside.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "no_trade",
+      "confidence": 0.35,
+      "one_line": "MIXED ribbon (29¢ spread, no stack direction), price 20¢ below EMA20 pivot, overnight gap-down partially recovered — structural CHOP, no directional conviction"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.78,
+      "one_line": "MID VIX regime (17.64) falling 3.92% overnight, zero macro events today, risk-on backdrop — clean bullish macro canvas"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.70,
+      "one_line": "Battle level 694.58 Carry resistance is 68¢ overhead; premarket bounce from 693.77 PML favors upside test at open; break confirms bull, hold triggers flush to 687.66"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.78,
+      "one_line": "XLK +0.71% + XLF +0.52% two-sector leadership with XLE -0.97% rotation, SPY +0.98% broad-based advance — risk-on confirmed"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Bullish consensus rests on macro sentiment overlaid on MIXED ribbon + partial gap recovery; level_thesis primary scenario (rejection at 694.58 → 687.66 flush) is structurally higher-probability than the breakout, and XLE weakness flags a risk-on divergence"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-04-30T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.65,
+  "reasoning": "XLE +1.29% (energy inflation-hedge strength) significantly outperforming SPY +0.08% while XLK flatlines at +0.18% and XLF weakens to -0.40%. Premarket sector internals show classic risk-off rotation: energy leadership + tech flatness + financial weakness = defensive positioning + stagflation concern. No broad tech/financial support for SPY upside. Medium-high confidence bearish bias from sector breadth divergence.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": 0.18,
+    "xlf_change_pct": -0.40,
+    "xle_change_pct": 1.29,
+    "spy_change_pct": 0.08,
+    "xlk_vs_spy": "inline",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLE: +1.29% — decisive energy outperformance signals inflation-hedge positioning, not broad risk-on",
+    "XLF: -0.40% — financial sector weakness indicates credit/rate concerns; should be positive on bullish days",
+    "XLK: +0.18% — tech essentially flat; no growth leadership present to support broad SPY rally",
+    "Overall rotation: Risk-off / defensive. Energy strength absent broad market follow-through = stagflation concern, bearish for SPY breadth"
+  ],
+  "data_quality": "full"
+}

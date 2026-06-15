@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-02-17T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.72,
+  "reasoning": "SPY at 681.61, sitting below its ribbon stack (fast 681.72, pivot 682.24, slow 683.2 all above), confirming BEAR momentum. The critical battle level is 677.53 — the 5-day RTH low (Carry tier, 2★) which anchors today's support floor. Price is $4.08 above this level and approaching it from above. If 677.53 holds, it becomes a bounce platform; if broken with BEAR ribbon confirming downtrend, momentum continues lower toward 673 (S2 pivot). Near-term resistance exists at 683-686, but the asymmetry favors testing support at 677.53 first.",
+  "battle_level": {
+    "price": 677.53,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 677.53,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 1,
+      "distance_from_price": -4.08
+    },
+    {
+      "price": 697.08,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 15.47
+    },
+    {
+      "price": 686.26,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 4.65
+    },
+    {
+      "price": 683.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 1.39
+    },
+    {
+      "price": 681.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": -0.61
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 677.53 on first test",
+      "bias": "bearish",
+      "target": 677.53,
+      "entry_trigger": "level_hold_from_above + ribbon_confirmation"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 677.53 with volume",
+      "bias": "bearish",
+      "target": 673.07,
+      "entry_trigger": "support_break + ribbon_momentum"
+    },
+    "tertiary": {
+      "condition": "if SPY rallies above 683 and holds momentum",
+      "bias": "bullish_alternate",
+      "target": 686.26,
+      "entry_trigger": "ribbon_inversion_required"
+    }
+  },
+  "levels_in_play_count": 4,
+  "key_observations": [
+    "BEAR ribbon stack confirmed: all three EMAs above price (fast 681.72, pivot 682.24, slow 683.2 vs. current 681.61)",
+    "Battle level 677.53 (5-day Carry low, 2★) is -$4.08 and represents primary support floor for today",
+    "Price zone 681-683 is reference-tier only (1★ each); no strong intraday support until 677.53 below",
+    "VIX 22.03 rising 6.84% signals elevated volatility; high IV regime supports directional momentum plays",
+    "5-day resistance at 697.08 (Carry) is distant (+$15.47) but represents asymmetric upside cap if bear thesis breaks"
+  ],
+  "data_quality": "full"
+}

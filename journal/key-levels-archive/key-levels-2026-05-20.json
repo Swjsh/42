@@ -1,0 +1,386 @@
+{
+  "schema_version": 3,
+  "protocol_version": "strategy/key-levels-protocol.md@2",
+  "as_of": "2026-05-20T04:00:00-04:00",
+  "for_session": "2026-05-20",
+  "spot_at_compute": 734.25,
+  "spot_note": "After-hours price 734.25 at ~20:00 ET 5/19. 5/19 RTH: high=738.10 (exact Carry resistance \u2014 bears defended perfectly), low=732.33 (morning session), close=733.77. Daily-review FAILED at 16:30 ET (API rate-limit). These levels written by overnight wake cycle per OP-25.",
+  "computed_from": {
+    "prior_date": "2026-05-19",
+    "today_date": "2026-05-20",
+    "prior_rth_bars": 78,
+    "today_rth_bars": 0,
+    "premarket_bars": 0,
+    "tv_unavailable": false
+  },
+  "levels": [
+    {
+      "price": 741.4,
+      "type": "resistance",
+      "tier": "Active",
+      "source": "2026-05-18 RTH session high \u2014 2-touch rejection. Expires EOD 5/20.",
+      "reasoning": "Clean 2-touch rejection 5/18: premarket PMH 741.30 + RTH first-bar high 741.40. Bears defended twice. 5/19 RTH never reached this level (session high was 738.10). Expires EOD 5/20 \u2014 monitor for re-promotion if tested again.",
+      "verified_at": "2026-05-20T04:00:00-04:00",
+      "expires_at": "2026-05-20T18:00:00-04:00",
+      "color": "#ef4444",
+      "style": "solid",
+      "entity_id": "k3D09a",
+      "draw_needed": false,
+      "respect_count": 2,
+      "broken_count": 0,
+      "role": "resistance",
+      "bounce_history": [
+        "2026-05-18T09:30:00",
+        "2026-05-18T08:45:00"
+      ],
+      "strength": {
+        "stars": 2,
+        "points": 4,
+        "components": {
+          "touch_score": 2,
+          "recency_score": 2,
+          "mtf_score": 0,
+          "volume_score": 0,
+          "confluence_score": 0
+        }
+      },
+      "touch_count": 2,
+      "held_count": 2,
+      "volume_at_touches": 0,
+      "last_touched_at": "2026-05-18T09:30:00",
+      "recency_days": 2,
+      "mtf_agreement": 1,
+      "drawn_on_chart": true
+    },
+    {
+      "price": 738.86,
+      "type": "resistance",
+      "tier": "Reference",
+      "source": "FT R2 pivot \u2014 flipped support\u2192broken\u2192resistance 2026-05-18 10:35",
+      "reasoning": "Was flipped support from 5/13 reclaim. Broke on 5/18 10:35 bar. Clusters with 738.10 as 738.10\u2013738.86 overhead resistance zone. 5/19 RTH tested up to 738.10 and rejected; 738.86 not touched. Any retest from below = bearish rejection candidate.",
+      "verified_at": "2026-05-20T04:00:00-04:00",
+      "expires_at": "2026-06-13T16:30:00-04:00",
+      "color": "#f59e0b",
+      "style": "dashed",
+      "entity_id": "CfxLeN",
+      "draw_needed": false,
+      "respect_count": 0,
+      "broken_count": 2,
+      "role": "broken_to_resistance",
+      "bounce_history": [],
+      "strength": {
+        "stars": 2,
+        "points": 3,
+        "components": {
+          "touch_score": 0,
+          "recency_score": 2,
+          "mtf_score": 0,
+          "volume_score": 0,
+          "confluence_score": 1
+        }
+      },
+      "touch_count": 1,
+      "held_count": 0,
+      "volume_at_touches": 0,
+      "last_touched_at": "2026-05-18T10:35:00",
+      "recency_days": 2,
+      "mtf_agreement": 1,
+      "drawn_on_chart": false
+    },
+    {
+      "price": 738.1,
+      "type": "resistance",
+      "tier": "Carry",
+      "source": "Former 5-hold Carry \u2014 broke 2026-05-18 10:35 ET on 2.0x volume. 5/19 RTH exact session HIGH (3rd defense since break inversion).",
+      "reasoning": "THE level going into 5/20. Originally the binary bull/bear level (5 holds, 0 breaks). Broke decisively 5/18 10:35. Role reversed. Then: (1) 5/19 PM premarket opened at 739.06 \u2192 immediate rejection to 735.60 = 1st post-break defense. (2) 5/19 RTH: session HIGH = 738.10 exactly \u2014 bears capped the session at this level precisely. Touch count now 8, respect count 6. This is the dominant resistance for the week. Bull reclaim above 738.10 on volume would be MAJOR \u2014 flip to support = regime change.",
+      "verified_at": "2026-05-20T04:00:00-04:00",
+      "expires_at": "2026-05-22T18:00:00-04:00",
+      "color": "#f59e0b",
+      "style": "dashed",
+      "entity_id": "kY9RXc",
+      "draw_needed": false,
+      "respect_count": 6,
+      "broken_count": 1,
+      "role": "broken_to_resistance",
+      "bounce_history": [
+        "2026-05-13T11:30:00",
+        "2026-05-18T10:35:00",
+        "2026-05-19T04:00:00",
+        "2026-05-19T09:35:00"
+      ],
+      "strength": {
+        "stars": 3,
+        "points": 7,
+        "components": {
+          "touch_score": 2,
+          "recency_score": 2,
+          "mtf_score": 1,
+          "volume_score": 1,
+          "confluence_score": 1
+        }
+      },
+      "touch_count": 8,
+      "held_count": 6,
+      "volume_at_touches": 0,
+      "last_touched_at": "2026-05-19T09:35:00",
+      "recency_days": 1,
+      "mtf_agreement": 2,
+      "drawn_on_chart": false,
+      "drawn_skip_reason": "needs_restyle_to_resistance_orange"
+    },
+    {
+      "price": 737.26,
+      "type": "reference",
+      "tier": "Reference",
+      "source": "2026-05-15 prior-day RTH close",
+      "reasoning": "Friday 5/15 close. SPY briefly traded ABOVE this during 5/19 afternoon (bars 13:20-15:00 ET ranged 736-737). Then broke below 737.26 as afternoon sell-off developed. Less structurally significant now that 735.40 is the active broken support. Awareness-level reference inside the 735.40\u2013738.10 congestion zone.",
+      "verified_at": "2026-05-20T04:00:00-04:00",
+      "expires_at": "2026-05-22T18:00:00-04:00",
+      "color": "#3b82f6",
+      "style": "dashed",
+      "entity_id": "0y2Dom",
+      "draw_needed": false,
+      "respect_count": 0,
+      "broken_count": 2,
+      "role": "reference",
+      "bounce_history": [],
+      "strength": {
+        "stars": 1,
+        "points": 2,
+        "components": {
+          "touch_score": 0,
+          "recency_score": 1,
+          "mtf_score": 0,
+          "volume_score": 0,
+          "confluence_score": 1
+        }
+      },
+      "touch_count": 0,
+      "held_count": 0,
+      "volume_at_touches": 0,
+      "last_touched_at": null,
+      "recency_days": 5,
+      "mtf_agreement": 1,
+      "drawn_on_chart": true
+    },
+    {
+      "price": 735.4,
+      "type": "resistance",
+      "tier": "Active",
+      "source": "2026-05-18 RTH session low (2-touch) \u2014 BROKE 5/19 15:30 ET, now resistance.",
+      "reasoning": "Was 5/18 session low support, defended twice (10:35 + 14:30 ET on 5/18). On 5/19: SPY tested 735.40 multiple times in late afternoon, finally broke at 15:30 ET bar (close=734.89, vol=57399). Never reclaimed before 4pm close (RTH close=733.77). Role flipped: now the first overhead resistance for 5/20. BEARISH_REJECTION_RIDE_THE_RIBBON candidate if SPY opens gap-up near 735.40 then fails. BULLISH_RECLAIM candidate (DRAFT watch) if SPY punches through on volume.",
+      "verified_at": "2026-05-20T04:00:00-04:00",
+      "expires_at": "2026-05-21T18:00:00-04:00",
+      "color": "#f59e0b",
+      "style": "solid",
+      "entity_id": "dwxdpr",
+      "draw_needed": false,
+      "draw_note": "Redrawn orange 2026-05-20T08:39 premarket (old D2sSBF blue line could not be removed \u2014 getChartApi bug; new dwxdpr orange dashed drawn on top).",
+      "respect_count": 2,
+      "broken_count": 1,
+      "role": "broken_to_resistance",
+      "bounce_history": [
+        "2026-05-18T10:35:00",
+        "2026-05-18T14:30:00"
+      ],
+      "strength": {
+        "stars": 2,
+        "points": 4,
+        "components": {
+          "touch_score": 2,
+          "recency_score": 2,
+          "mtf_score": 0,
+          "volume_score": 0,
+          "confluence_score": 0
+        }
+      },
+      "touch_count": 3,
+      "held_count": 2,
+      "volume_at_touches": 0,
+      "last_touched_at": "2026-05-19T15:30:00",
+      "recency_days": 1,
+      "mtf_agreement": 1,
+      "drawn_on_chart": true
+    },
+    {
+      "price": 735.0,
+      "type": "psychological",
+      "tier": "Reference",
+      "source": "Round number \u2014 inside the 732.33\u2013735.40 current trading range",
+      "reasoning": "Awareness-only psychological integer. Per OP-5: NOT a score-modifier, NOT a trigger. Current price 734.25 is below this. 735.00 inside the 732.33\u2013735.40 zone.",
+      "verified_at": "2026-05-20T04:00:00-04:00",
+      "expires_at": "2026-06-13T16:30:00-04:00",
+      "color": "#f59e0b",
+      "style": "dashed",
+      "entity_id": null,
+      "draw_needed": false,
+      "respect_count": 0,
+      "broken_count": 0,
+      "role": null,
+      "bounce_history": [],
+      "strength": {
+        "stars": 1,
+        "points": 1,
+        "components": {
+          "touch_score": 0,
+          "recency_score": 0,
+          "mtf_score": 0,
+          "volume_score": 0,
+          "confluence_score": 1
+        }
+      },
+      "touch_count": 0,
+      "held_count": 0,
+      "volume_at_touches": 0,
+      "last_touched_at": null,
+      "recency_days": null,
+      "mtf_agreement": 1,
+      "drawn_on_chart": false,
+      "drawn_skip_reason": "psychological_awareness_only_per_OP5"
+    },
+    {
+      "price": 733.77,
+      "type": "reference",
+      "tier": "Reference",
+      "source": "2026-05-19 RTH close \u2014 confirmed from 15:55 ET bar (vol=753360)",
+      "reasoning": "Official 5/19 RTH close. SPY's final print: open=732.83, low=732.575, close=733.77 at bell. Current AH (7:55 PM ET) is 734.25, slightly above close. Bull context if 5/20 opens and holds above 733.77; bear context below. Key: a 5/20 open below 733.77 would confirm continuation selling.",
+      "verified_at": "2026-05-20T04:00:00-04:00",
+      "expires_at": "2026-05-21T18:00:00-04:00",
+      "color": "#3b82f6",
+      "style": "dashed",
+      "entity_id": null,
+      "draw_needed": false,
+      "respect_count": 0,
+      "broken_count": 0,
+      "role": "reference",
+      "bounce_history": [],
+      "strength": {
+        "stars": 1,
+        "points": 2,
+        "components": {
+          "touch_score": 1,
+          "recency_score": 1,
+          "mtf_score": 0,
+          "volume_score": 0,
+          "confluence_score": 0
+        }
+      },
+      "touch_count": 1,
+      "held_count": 0,
+      "volume_at_touches": 753360,
+      "last_touched_at": "2026-05-19T15:55:00",
+      "recency_days": 1,
+      "mtf_agreement": 1,
+      "drawn_on_chart": false,
+      "drawn_skip_reason": "reference_only_low_priority"
+    },
+    {
+      "price": 732.33,
+      "type": "support",
+      "tier": "Active",
+      "source": "2026-05-19 RTH session low \u2014 morning bear flush. Late session low cluster: 732.575.",
+      "reasoning": "5/19 session low from the morning bear flush (VIX spike, F8+F11 blocked all entries). Bears pushed SPY down ~$3 from open to 732.33. Late session also tested 732.575 into the close. 732.33\u2013732.58 = key support zone for 5/20: (1) NLWB setup if SPY dips below and wicks back above (bull entry candidate per OP-23); (2) Level break + hold below = bear continuation setup targeting 730-731 (next round psych). Draw on chart \u2014 this IS the floor the market has shown.",
+      "verified_at": "2026-05-20T04:00:00-04:00",
+      "expires_at": "2026-05-22T18:00:00-04:00",
+      "color": "#22c55e",
+      "style": "solid",
+      "entity_id": "KNPeJM",
+      "draw_needed": false,
+      "drawn_on_chart": true,
+      "respect_count": 1,
+      "broken_count": 0,
+      "role": "support",
+      "bounce_history": [
+        "2026-05-19T10:00:00"
+      ],
+      "strength": {
+        "stars": 2,
+        "points": 4,
+        "components": {
+          "touch_score": 1,
+          "recency_score": 2,
+          "mtf_score": 0,
+          "volume_score": 1,
+          "confluence_score": 0
+        }
+      },
+      "touch_count": 2,
+      "held_count": 1,
+      "volume_at_touches": 0,
+      "last_touched_at": "2026-05-19T15:55:00",
+      "recency_days": 1,
+      "mtf_agreement": 1,
+      "drawn_on_chart": false
+    }
+  ],
+  "dropped_for_expiry": [
+    {
+      "price": 739.14,
+      "reason": "5/19 premarket-only level (PMH). 1-touch, premarket_only. Never tested in RTH. Dropped per standard expiry."
+    },
+    {
+      "price": 734.56,
+      "reason": "5/19 PML \u2014 premarket only, 1-touch. AH price (734.25) is now below this level; current consolidation area, not a named structural level."
+    }
+  ],
+  "rth_high_today": null,
+  "rth_low_today": null,
+  "close_today": null,
+  "prior_session": {
+    "date": "2026-05-19",
+    "rth_high": 738.1,
+    "rth_low": 732.33,
+    "rth_close": 733.77,
+    "rth_close_source": "TV bar 15:55 ET vol=753360",
+    "ah_last": 734.25,
+    "ah_time": "19:55 ET"
+  },
+  "summary": {
+    "total_in": 9,
+    "kept": 9,
+    "dropped_distance": 0,
+    "dropped_expiry": 2,
+    "added_new": 2,
+    "by_stars": {
+      "3star": 1,
+      "2star": 3,
+      "1star": 5
+    }
+  },
+  "session_bias": {
+    "direction": "BEARISH",
+    "confidence": "MODERATE",
+    "reasoning": "SPY closed 733.77 after rejecting 738.10\u2605\u2605\u2605 (exact session high). Price is BELOW all key resistance levels (735.40\u2605\u2605, 738.10\u2605\u2605\u2605). AH 734.25 \u2014 no meaningful recovery. Ribbon at AH: MIXED (Fast>Pivot>Slow but Close below Fast, 49c spread). 50 SMA at ~733.65 \u2192 price is near/at 50 SMA. Bear case: failed reclaim of 735.40 \u2192 BEARISH_REJECTION_RIDE_THE_RIBBON \u2192 target 732.33 or below. Bull case: gap-up open + close above 735.40 on volume = regime flip attempt. Lean BEARISH unless 735.40 reclaimed in first 30 min.",
+    "key_scenario_bear": "Open below 735.40 \u2192 retest 735.40 from below \u2192 rejection \u2192 BEAR ENTER, target 732.33/730",
+    "key_scenario_bull": "Gap-up past 735.40 + 735.40 holds as support \u2192 BULL watch, target 738.10",
+    "invalidation_bear": "Closes above 735.40 on 5m bar with vol \u22651.5\u00d7 avg within first 2 bars"
+  },
+  "audit_log": [
+    {
+      "timestamp": "2026-05-20T08:39:45-04:00",
+      "count_in": 9,
+      "count_pass": 9,
+      "count_dropped": 0,
+      "count_added": 0,
+      "tv_available": true,
+      "note": "Premarket 08:39 ET audit — all 9 levels pass (all within expiry, all 5 mandatory fields present). DREW: 732.33 new green solid (KNPeJM). DREW: 735.40 new orange dashed (dwxdpr — old blue D2sSBF could not be removed, getChartApi bug, left in place). Chart: SPY PM at 737.63, PMH 737.68 ($0.42 below 738.10 Carry). Rule v15.2 match. Drift: none. Crypto gym: 62/62 PASS. Swarm: stale (48h). NVDA AMC 16:20 ET — no RTH block."
+    },
+    {
+      "timestamp": "2026-05-20T04:00:00-04:00",
+      "count_in": 8,
+      "count_pass": 7,
+      "count_dropped": 2,
+      "count_added": 2,
+      "tv_available": true,
+      "note": "Overnight wake fire wrote this file \u2014 Gamma_DailyReview FAILED at 16:30 ET 5/19 (API rate-limit exhausted by /loop session during market hours, per L54). Levels constructed from TV OHLCV data (5/19 RTH close bar confirmed 733.77, vol=753360). DROPPED: 739.14 (5/19 PMH, expired) and 734.56 (5/19 PML, superceded). ADDED: 733.77 (5/19 RTH close ref) and 732.33 (5/19 session low support). UPDATED: 738.10 touch_count\u21928 / respect_count\u21926 (exact session high 5/19). UPDATED: 735.40 role=support\u2192broken_to_resistance (broke 15:30 ET 5/19). Draw tasks: 732.33 (new green solid) + 735.40 restyle (blue\u2192orange). Premarket must verify and draw at 08:30 ET."
+    }
+  ],
+  "chart_cleanup_log": [],
+  "chart_drawing_summary": {
+    "drawn_count": 2,
+    "draw_needed_count": 0,
+    "draw_needed_levels": [],
+    "drawn_at_premarket": "2026-05-20T08:39:45-04:00",
+    "note": "Premarket drew 732.33 (KNPeJM green solid) and 735.40 (dwxdpr orange dashed). Note: old D2sSBF (735.40 blue) still on chart \u2014 draw_remove_one failed (getChartApi bug). Existing: k3D09a(741.40), CfxLeN(738.86), kY9RXc(738.10), 0y2Dom(737.26)."
+  }
+}

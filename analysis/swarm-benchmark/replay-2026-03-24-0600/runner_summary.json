@@ -1,0 +1,63 @@
+{
+  "date": "2026-03-24",
+  "as_of_et": "06:00",
+  "replay_dir": "analysis\\swarm-benchmark\\replay-2026-03-24-0600",
+  "total_elapsed_s": 195.4,
+  "consensus_bias": "bearish",
+  "swarm_confidence": 88,
+  "consensus_strength": "strong",
+  "specialists_ok": 4,
+  "validator_ok": true,
+  "synthesis_ok": true,
+  "stage2_results": [
+    {
+      "agent": "technical",
+      "ok": true,
+      "wrote_output": true,
+      "returncode": 0,
+      "elapsed_s": 38.6,
+      "stderr_snippet": ""
+    },
+    {
+      "agent": "macro",
+      "ok": true,
+      "wrote_output": true,
+      "returncode": 0,
+      "elapsed_s": 29.3,
+      "stderr_snippet": ""
+    },
+    {
+      "agent": "level_thesis",
+      "ok": false,
+      "wrote_output": true,
+      "returncode": 1,
+      "elapsed_s": 47.2,
+      "stderr_snippet": ""
+    },
+    {
+      "agent": "internals",
+      "ok": true,
+      "wrote_output": true,
+      "returncode": 0,
+      "elapsed_s": 25.5,
+      "stderr_snippet": ""
+    }
+  ],
+  "stage3_result": {
+    "agent": "validator",
+    "ok": true,
+    "wrote_output": true,
+    "returncode": 0,
+    "elapsed_s": 53.9,
+    "stderr_snippet": ""
+  },
+  "stage4_result": {
+    "agent": "synthesis",
+    "ok": true,
+    "wrote_output": true,
+    "returncode": 0,
+    "elapsed_s": 93.3,
+    "stderr_snippet": ""
+  },
+  "completed_at": "2026-05-17T12:58:58.395357+00:00"
+}

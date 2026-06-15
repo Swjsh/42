@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-03-26T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "XLK -0.39% + XLF -0.50% + XLE +0.41% = classic risk-off rotation. Both technology and financials (37% + 13% of SPY weighting) are dragging lower while energy rotates defensive. The sector divergence is sharp: growth/cyclicals weakening while commodities strengthen. Sector breadth contradicts SPY upside. Medium-high confidence in bearish bias — rotation signals are clear and well-aligned, though individual moves are modest (<0.5%). Overnight gap down (-4.94 points) + premarket range 650.84–654.85 reflects volatility. VIX +4.03% to 26.36 (HIGH regime) supports risk-off internals.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -0.39,
+    "xlf_change_pct": -0.5,
+    "xle_change_pct": 0.41,
+    "spy_change_pct": -0.28,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK (tech): -0.39% — largest SPY component under pressure; no growth leadership today",
+    "XLF (financials): -0.50% — second-largest sector weakness; rate/yield concerns likely",
+    "XLE (energy): +0.41% — commodity rotations up while growth rotates down = textbook defensive shift",
+    "Sector internals: RISK-OFF rotation confirmed. Tech + financials down, energy up = breadth is narrow and bearish. SPY likely to track weakness into open."
+  ],
+  "data_quality": "full"
+}

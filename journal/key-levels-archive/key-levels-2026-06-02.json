@@ -1,0 +1,207 @@
+{
+  "schema_version": 3,
+  "protocol_version": "strategy/key-levels-protocol.md@2",
+  "as_of": "2026-06-02T08:30:00-04:00",
+  "for_session": "2026-06-02",
+  "spot_at_compute": 757.03,
+  "computed_from": {
+    "prior_date": "2026-06-01",
+    "today_date": "2026-06-02",
+    "prior_rth_bars": "approx 78 (full RTH session)",
+    "today_rth_bars": 0,
+    "premarket_bars": 54,
+    "tv_unavailable": false,
+    "note": "TV connected. Premarket bars read. Prior session levels audited — all 7 dropped (missing mandatory fields: source, verified_at, expires_at, reasoning). Re-added as properly formatted levels from chart structure verification."
+  },
+  "levels": [
+    {
+      "price": 760.31,
+      "type": "resistance",
+      "role": null,
+      "label": "PDH_HIGH",
+      "tier": "Active",
+      "source": "chart_read_premarket_2026-06-02",
+      "verified_at": "2026-06-02T08:30:00-04:00",
+      "expires_at": "2026-06-03T16:00:00-04:00",
+      "reasoning": "Yesterday's RTH high (2026-06-01 12:35 ET per prior session data). Key ceiling — price sold off ~$4 from here into close. Watch for rejection on any retest.",
+      "notes": "Prior session TOD_HIGH. $4 gap to current price."
+    },
+    {
+      "price": 758.22,
+      "type": "resistance",
+      "role": null,
+      "label": "PMH",
+      "tier": "Active",
+      "source": "chart_read_premarket_2026-06-02",
+      "verified_at": "2026-06-02T08:30:00-04:00",
+      "expires_at": "2026-06-03T16:00:00-04:00",
+      "reasoning": "Today's premarket high — first bar 04:00 ET ripped to 758.22 then pulled back to 757.03. This is the pre-open ceiling and will be a key test on RTH open.",
+      "notes": "PMH 2026-06-02. Coincides with PDH_RECLAIMED zone ~758.08."
+    },
+    {
+      "price": 758.08,
+      "type": "resistance",
+      "role": "reclaimed_ceiling",
+      "label": "PDH_RECLAIMED",
+      "tier": "Active",
+      "source": "chart_read_premarket_2026-06-02",
+      "verified_at": "2026-06-02T08:30:00-04:00",
+      "expires_at": "2026-06-03T16:00:00-04:00",
+      "reasoning": "Prior day high from 2026-05-29 / prior session area. Yesterday price broke above then closed back below — acts as key resistance zone confluent with today's PMH 758.22.",
+      "notes": "758.08 + 758.22 form a tight resistance cluster. Need clean break+hold above 758.22 for bull continuation."
+    },
+    {
+      "price": 757.42,
+      "type": "resistance",
+      "role": "broken_to_support_watch",
+      "label": "SWING_HIGH",
+      "tier": "Active",
+      "source": "chart_read_premarket_2026-06-02",
+      "verified_at": "2026-06-02T08:30:00-04:00",
+      "expires_at": "2026-06-03T16:00:00-04:00",
+      "reasoning": "Yesterday's morning consolidation ceiling (tested 3x, per prior session). Price is near 757.03 — if RTH opens below 757.42 this is first resistance to clear.",
+      "notes": "Current price 757.03 is below this. RTH open vs 757.42 is the opening battle."
+    },
+    {
+      "price": 756.76,
+      "type": "support",
+      "role": null,
+      "label": "FIRST_SWING",
+      "tier": "Active",
+      "source": "chart_read_premarket_2026-06-02",
+      "verified_at": "2026-06-02T08:30:00-04:00",
+      "expires_at": "2026-06-03T16:00:00-04:00",
+      "reasoning": "Yesterday's first morning rejection area (tested 3x). Now acts as support on pullbacks. Current price 757.03 is just above — key near-term floor.",
+      "notes": "27c below spot. First meaningful support."
+    },
+    {
+      "price": 756.70,
+      "type": "support",
+      "role": null,
+      "label": "PML",
+      "tier": "Active",
+      "source": "chart_read_premarket_2026-06-02",
+      "verified_at": "2026-06-02T08:30:00-04:00",
+      "expires_at": "2026-06-03T16:00:00-04:00",
+      "reasoning": "Today's premarket low — tested around 08:15-08:25 ET. If RTH opens and drops below 756.70, the premarket range is broken and bear structure is in play.",
+      "notes": "PML 2026-06-02. 33c below spot."
+    },
+    {
+      "price": 756.56,
+      "type": "support",
+      "role": null,
+      "label": "PRIOR_CLOSE",
+      "tier": "Active",
+      "source": "chart_read_premarket_2026-06-02",
+      "verified_at": "2026-06-02T08:30:00-04:00",
+      "expires_at": "2026-06-03T16:00:00-04:00",
+      "reasoning": "Yesterday's RTH close. Gap-up open today — if SPY falls back to 756.56, gap is filled and bear setup elevated.",
+      "notes": "Prior close = gap fill level."
+    },
+    {
+      "price": 756.00,
+      "type": "support",
+      "role": null,
+      "label": "ROUND_756",
+      "tier": "Reference",
+      "source": "chart_read_premarket_2026-06-02",
+      "verified_at": "2026-06-02T08:30:00-04:00",
+      "expires_at": "2026-08-01T16:00:00-04:00",
+      "reasoning": "Psychological round number. Bounced multiple times during 2026-06-01 session.",
+      "notes": "Round support. $1.03 below spot."
+    },
+    {
+      "price": 755.32,
+      "type": "support",
+      "role": null,
+      "label": "MORNING_LOW",
+      "tier": "Active",
+      "source": "chart_read_premarket_2026-06-02",
+      "verified_at": "2026-06-02T08:30:00-04:00",
+      "expires_at": "2026-06-03T16:00:00-04:00",
+      "reasoning": "Yesterday's morning consolidation low. Strong support — tested multiple times without breaking.",
+      "notes": "$1.71 below spot."
+    },
+    {
+      "price": 754.88,
+      "type": "support",
+      "role": null,
+      "label": "SESSION_LOW",
+      "tier": "Active",
+      "source": "chart_read_premarket_2026-06-02",
+      "verified_at": "2026-06-02T08:30:00-04:00",
+      "expires_at": "2026-06-03T16:00:00-04:00",
+      "reasoning": "Yesterday's RTH session low (09:40 ET). Deep support — a break below here signals significant bearish pressure.",
+      "notes": "Session low 2026-06-01. $2.15 below spot."
+    }
+  ],
+  "deprecated_levels": [
+    { "price": 760.31, "reason": "AUDIT DROP 2026-06-02: missing source, verified_at, expires_at, reasoning fields. Re-added with proper fields above." },
+    { "price": 758.08, "reason": "AUDIT DROP 2026-06-02: missing mandatory fields. Re-added with proper fields above." },
+    { "price": 757.42, "reason": "AUDIT DROP 2026-06-02: missing mandatory fields. Re-added with proper fields above." },
+    { "price": 756.76, "reason": "AUDIT DROP 2026-06-02: missing mandatory fields. Re-added with proper fields above." },
+    { "price": 756.00, "reason": "AUDIT DROP 2026-06-02: missing mandatory fields. Re-added as Reference above." },
+    { "price": 755.32, "reason": "AUDIT DROP 2026-06-02: missing mandatory fields. Re-added with proper fields above." },
+    { "price": 754.88, "reason": "AUDIT DROP 2026-06-02: missing mandatory fields. Re-added with proper fields above." },
+    { "price": 746.48, "reason": "Expired (Active tier, set 2026-05-22, expires 2026-05-23). 10+ days stale." },
+    { "price": 742.87, "reason": "Expired." },
+    { "price": 742.70, "reason": "Expired." },
+    { "price": 741.61, "reason": "Expired." },
+    { "price": 741.29, "reason": "Expired." },
+    { "price": 738.10, "reason": "Expired. Was ★★★ 10-touch dominant level. Retain in memory: historically significant." },
+    { "price": 737.53, "reason": "Expired." },
+    { "price": 735.40, "reason": "Expired." },
+    { "price": 733.77, "reason": "Expired." },
+    { "price": 732.33, "reason": "Expired." }
+  ],
+  "rth_high_today": null,
+  "rth_low_today": null,
+  "close_today": null,
+  "prior_session": {
+    "date": "2026-06-01",
+    "rth_high": 760.31,
+    "rth_low": 754.88,
+    "rth_close": 756.56,
+    "rth_close_source": "chart_bars_premarket_2026-06-02",
+    "ah_last": 756.56,
+    "ah_high": null,
+    "ah_low": null,
+    "ah_time": null,
+    "ah_ribbon": null,
+    "ah_note": "Close read from last AH bar before overnight gap. RTH close ~756.56."
+  },
+  "summary": {
+    "total_in": 7,
+    "kept": 0,
+    "dropped_distance": 0,
+    "dropped_expiry": 0,
+    "dropped_protocol": 7,
+    "added_new": 10,
+    "by_stars": { "3star": 0, "2star": 0, "1star": 0 }
+  },
+  "session_bias": {
+    "direction": "BULLISH_LEAN",
+    "confidence": "LOW_MEDIUM",
+    "reasoning": "VIX 16.16 — bull filter eligible, bear filter NOT eligible. Premarket showed gap-up from 756.56 to 758.22 then orderly pullback to 757.03. ISM at 10:00 ET creates uncertainty window 09:55-10:20. No clear directional trigger yet."
+  },
+  "audit_log": [
+    {
+      "timestamp": "2026-06-02T08:30:00-04:00",
+      "count_in": 7,
+      "count_pass": 0,
+      "count_dropped": 7,
+      "count_added": 10,
+      "tv_available": true,
+      "note": "PREMARKET AUDIT 2026-06-02 08:30 ET. All 7 carried levels dropped — missing mandatory fields (source, verified_at, expires_at, reasoning). Re-added 10 levels with proper schema including PMH 758.22, PML 756.70, prior_close 756.56 as new additions."
+    }
+  ],
+  "chart_cleanup_log": [],
+  "chart_drawing_summary": {
+    "drawn_count": 0,
+    "draw_needed_count": 0,
+    "draw_needed_levels": [],
+    "drawn_at_premarket": "2026-06-02T08:30:00-04:00",
+    "note": "No draws attempted this premarket — heartbeat will draw fresh levels on first tick."
+  },
+  "date": "2026-06-02"
+}

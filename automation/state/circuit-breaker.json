@@ -1,0 +1,13 @@
+{
+  "tripped": false,
+  "tripped_at": null,
+  "tripped_reason": null,
+  "starting_equity_today": 713.50,
+  "current_equity": 713.50,
+  "daily_loss_limit_dollars": 214.05,
+  "daily_loss_limit_pct": 0.30,
+  "max_drawdown_today_dollars": 0,
+  "max_drawdown_today_pct": 0,
+  "last_reset": "2026-06-08T08:30:00-04:00",
+  "_note": "Gamma-Safe PA3PHRM47D1J. $713.50 equity (live Alpaca field). daytrade_count=0 (3 available today, rolling 5d window). Rule 5: Safe=-30% daily limit ($214.05). Reset at premarket 2026-06-08 (LATE RUN — actual clock 15:21 ET)."
+}

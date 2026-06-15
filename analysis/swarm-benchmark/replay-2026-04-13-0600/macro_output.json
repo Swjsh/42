@@ -1,0 +1,29 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-04-13T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.78,
+  "reasoning": "VIX at 20.1 in mid regime but rising sharply (+3.98%, well above the 1.5 threshold for directional signal), indicating fear is building into the session. SPY gapped down $3.97 overnight (significant bearish signal; 679.34 close to ~675.37 premarket). Ribbon is in full BEAR stack with 138-cent spread. Sector rotation shows weakness (XLF -0.9%, XLE -0.4%), consistent with bearish bias. Zero macro events today — calendar is clean, no hard no-trade windows. The gap, VIX direction, and technical structure all align bearish. Mixed rotation signal is the only minor uncertainty, but VIX + gap dominance is clear.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 20.1,
+  "vix_change_pct": 3.98,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -3.97,
+  "premarket_range": {
+    "high": 675.98,
+    "low": 673.98,
+    "range_cents": 200
+  },
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX 20.1 rising +3.98% — fear is building; directional signal is clear and above 1.5-point threshold",
+    "Overnight gap down $3.97 (from 679.34 to ~675.37) — significant bearish open, clear overnight risk-off sentiment",
+    "Ribbon BEAR stack (fast 675.62, pivot 675.88, slow 677.0, spread 138¢) — technical structure confirms bearish bias",
+    "Sector weakness: XLF -0.9%, XLE -0.4%, consistent with risk-off rotation; XLK flat suggests tech holding, mixed signal",
+    "Calendar completely clean — no macro events, FOMC minutes, CPI, NFP, or mega-cap earnings today; full trading window available"
+  ],
+  "data_quality": "full"
+}

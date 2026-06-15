@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Autoresearch v2 — Rebuilt 2026-05-09</title>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --panel: #131829;
+    --panel-2: #1a2138;
+    --border: #232b45;
+    --text: #e6ecf5;
+    --muted: #8a94b0;
+    --accent: #5eead4;
+    --green: #4ade80;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --blue: #60a5fa;
+    --purple: #a78bfa;
+    --orange: #fb923c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 32px; margin-bottom: 6px; letter-spacing: -0.02em; }
+  h2 { font-size: 22px; margin: 28px 0 14px; padding-bottom: 6px;
+       border-bottom: 1px solid var(--border); letter-spacing: -0.01em; }
+  h3 { font-size: 14px; margin: 14px 0 8px; color: var(--accent);
+       font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  p, li { color: var(--text); }
+  .muted { color: var(--muted); font-size: 14px; }
+  .panel { background: var(--panel); border: 1px solid var(--border);
+           border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+
+  .header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    flex-wrap: wrap; gap: 12px; margin-bottom: 20px;
+  }
+  .badges { display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge {
+    display: inline-block; padding: 4px 10px; border-radius: 4px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.05em;
+  }
+  .badge.red { background: rgba(248,113,113,0.15); color: var(--red); }
+  .badge.green { background: rgba(74,222,128,0.15); color: var(--green); }
+  .badge.yellow { background: rgba(251,191,36,0.15); color: var(--yellow); }
+  .badge.blue { background: rgba(96,165,250,0.15); color: var(--blue); }
+  .badge.purple { background: rgba(167,139,250,0.15); color: var(--purple); }
+  .badge.orange { background: rgba(251,146,60,0.15); color: var(--orange); }
+
+  /* Tier diagram */
+  .tier-grid { display: grid; grid-template-columns: 1fr 1fr 1fr;
+               gap: 12px; margin: 16px 0; }
+  .tier {
+    background: var(--panel-2); padding: 16px; border-radius: 6px;
+    border-top: 4px solid var(--border);
+  }
+  .tier.core { border-color: var(--green); }
+  .tier.secondary { border-color: var(--blue); }
+  .tier.noise { border-color: var(--muted); opacity: 0.85; }
+  .tier-name { font-weight: 700; font-size: 14px; letter-spacing: 0.05em;
+               text-transform: uppercase; margin-bottom: 8px; }
+  .tier-name.core { color: var(--green); }
+  .tier-name.secondary { color: var(--blue); }
+  .tier-name.noise { color: var(--muted); }
+  .knob { font-family: "SF Mono", Consolas, monospace; font-size: 12px;
+          padding: 3px 6px; background: rgba(0,0,0,0.25); border-radius: 3px;
+          display: inline-block; margin: 2px 2px 2px 0; }
+  .knob.new { color: var(--accent); }
+
+  /* Experiments table */
+  .exp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .exp-table th, .exp-table td { padding: 8px 12px; text-align: left;
+                                  border-bottom: 1px solid var(--border); }
+  .exp-table th { color: var(--muted); font-weight: 600; font-size: 11px;
+                  text-transform: uppercase; letter-spacing: 0.05em; }
+  .exp-table .yes { color: var(--green); font-weight: 600; }
+  .exp-table .no { color: var(--muted); }
+
+  /* Built items grid */
+  .built-grid { display: grid; grid-template-columns: 1fr 1fr;
+                gap: 12px; margin-top: 12px; }
+  .built-item {
+    background: var(--panel-2); padding: 14px 16px; border-radius: 6px;
+    border-left: 4px solid var(--green);
+  }
+  .built-item .title { font-weight: 700; margin-bottom: 4px;
+                       display: flex; gap: 8px; align-items: center; }
+  .built-item .check { color: var(--green); font-size: 16px; }
+  .built-item .desc { font-size: 13px; color: var(--muted); }
+
+  /* Mode panels (live) */
+  .modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .mode-panel {
+    background: var(--panel); border-radius: 8px; padding: 18px;
+    border: 1px solid var(--border);
+  }
+  .mode-panel.strict { border-top: 4px solid var(--purple); }
+  .mode-panel.balanced { border-top: 4px solid var(--blue); }
+  .mode-panel.aggressive { border-top: 4px solid var(--orange); }
+  .mode-name { font-size: 18px; font-weight: 700; }
+  .mode-tag { font-size: 11px; color: var(--muted); margin-bottom: 10px;
+              text-transform: uppercase; letter-spacing: 0.06em; }
+  .mode-row { display: flex; justify-content: space-between; padding: 4px 0;
+              font-size: 13px; }
+  .mode-row .k { color: var(--muted); }
+  .mode-row .v { font-family: "SF Mono", Consolas, monospace; }
+  .pos { color: var(--green); }
+  .neg { color: var(--red); }
+  .neut { color: var(--muted); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 8px 10px; text-align: left;
+           border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; font-size: 11px;
+       text-transform: uppercase; letter-spacing: 0.08em; }
+  td.num { font-family: "SF Mono", Consolas, monospace; text-align: right; }
+  td.code { font-family: "SF Mono", Consolas, monospace; font-size: 12px;
+            color: var(--accent); }
+
+  /* Pipeline diagram */
+  .pipeline {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    gap: 8px; align-items: stretch; margin: 16px 0;
+  }
+  .pipeline-step {
+    background: var(--panel-2); padding: 12px; border-radius: 6px;
+    text-align: center; font-size: 12px; position: relative;
+  }
+  .pipeline-step .num { color: var(--accent); font-weight: 700; font-size: 16px; }
+  .pipeline-step .name { font-weight: 600; margin: 4px 0; }
+  .pipeline-step .desc { color: var(--muted); font-size: 11px; }
+
+  /* Callouts */
+  .callout {
+    background: linear-gradient(135deg, rgba(94,234,212,0.08) 0%, rgba(94,234,212,0.02) 100%);
+    border: 1px solid rgba(94,234,212,0.3);
+    border-radius: 8px; padding: 18px; margin: 16px 0;
+  }
+  .callout.warning {
+    background: linear-gradient(135deg, rgba(251,191,36,0.08) 0%, rgba(251,191,36,0.02) 100%);
+    border-color: rgba(251,191,36,0.3);
+  }
+  .callout.success {
+    background: linear-gradient(135deg, rgba(74,222,128,0.10) 0%, rgba(74,222,128,0.02) 100%);
+    border-color: rgba(74,222,128,0.4);
+  }
+  .callout-title { font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+  .callout-title.acc { color: var(--accent); }
+  .callout-title.warn { color: var(--yellow); }
+  .callout-title.success { color: var(--green); }
+
+  .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border);
+            font-size: 12px; color: var(--muted); text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Autoresearch v2 — rebuilt after the gate-bug retrospective</h1>
+    <p class="muted">2026-05-09 · 26 knobs · 5 experiments · asymmetric bear/bull · multi-knob proposer · smart watchdog</p>
+  </div>
+  <div class="badges">
+    <span class="badge green">A → D shipped</span>
+    <span class="badge green">Pre-flight check</span>
+    <span class="badge green">Hook wired</span>
+    <span class="badge blue">159 tests pass</span>
+  </div>
+</div>
+
+<!-- LIVE STATE FROM WATCHDOG -->
+<div class="callout success">
+  <div class="callout-title success">🟢 LIVE: New batch is producing KEEPs</div>
+  <p>Right after the gate fix went in, the watchdog spawned a new batch at 22:17.
+  STRICT mode hit its first KEEP almost immediately (<code>f9_vol_mult: 1.0 → 1.2</code>) with
+  validate sharpe <strong>+5.55</strong>, P&L delta <strong>+$307</strong>, WR <strong>50%</strong>.
+  Wiring is alive.</p>
+</div>
+
+<!-- WHAT GOT BUILT -->
+<h2>What was built tonight (A → D + hygiene + wiring)</h2>
+<div class="panel">
+  <div class="built-grid">
+    <div class="built-item">
+      <div class="title"><span class="check">✓</span> A. Exit knobs in SEARCH_SPACE</div>
+      <div class="desc">tp1_premium_pct, tp1_qty_fraction, runner_target_premium_pct, level_stop_buffer_dollars, time_stop_minutes_before_close — autoresearch can now optimize the ride-the-ribbon doctrine.</div>
+    </div>
+    <div class="built-item">
+      <div class="title"><span class="check">✓</span> D. Asymmetric bear/bull params</div>
+      <div class="desc">min_triggers_bear/bull, premium_stop_pct_bear/bull, vix_bear/vix_bull_max, strike_offset_bear/bull. Bullish gets independent tuning since baseline WR/W/L profile differs.</div>
+    </div>
+    <div class="built-item">
+      <div class="title"><span class="check">✓</span> B. Smart watchdog reporter</div>
+      <div class="desc">Reads history.jsonl, detects stuck patterns, flags "REVERTs with great val metrics" (the gate-bug signature). Writes watchdog_report.md every tick.</div>
+    </div>
+    <div class="built-item">
+      <div class="title"><span class="check">✓</span> C. Multi-knob proposer</div>
+      <div class="desc">Single-knob until iter 8, then 30% chance of 2-knob combos. Catches interaction effects (e.g. tighter stop + earlier entry) the single-knob proposer misses.</div>
+    </div>
+    <div class="built-item">
+      <div class="title"><span class="check">✓</span> Knob tiers (your refinement)</div>
+      <div class="desc">CORE / SECONDARY / NOISE_PRONE. Run focused experiments (lean, entries, exits, full, kitchen_sink) instead of one kitchen-sink sweep. Less noise, faster convergence.</div>
+    </div>
+    <div class="built-item">
+      <div class="title"><span class="check">✓</span> Pre-flight gate sanity check</div>
+      <div class="desc">Before any sweep, computes baseline and warns if KEEP_THRESHOLDS are unreachable. Prevents the 2026-05-08 "burn 3 hours on broken gates" incident from recurring.</div>
+    </div>
+    <div class="built-item">
+      <div class="title"><span class="check">✓</span> Auto-seed missing knobs</div>
+      <div class="desc">When config adds a new knob, existing state files merge it in on next load. No more "stale state.json" bugs blocking new experiments.</div>
+    </div>
+    <div class="built-item">
+      <div class="title"><span class="check">✓</span> Proactive Claude reporting hook</div>
+      <div class="desc">UserPromptSubmit hook invokes the watchdog reporter before each turn. Claude gets autoresearch status injected as system context — no more "what's the status?" questions.</div>
+    </div>
+  </div>
+</div>
+
+<!-- KNOB TIERS -->
+<h2>The 26 knobs, tiered</h2>
+<p class="muted">CORE always tested. SECONDARY toggleable per experiment. NOISE_PRONE off by default ("nice to have, not core" — your words).</p>
+
+<div class="tier-grid">
+  <div class="tier core">
+    <div class="tier-name core">CORE — always tested</div>
+    <div class="muted" style="font-size: 11px; margin-bottom: 6px;">9 knobs. Drive the signal.</div>
+    <div>
+      <span class="knob">f9_vol_mult</span>
+      <span class="knob">ribbon_spread_min_cents</span>
+      <span class="knob new">min_triggers_bear</span>
+      <span class="knob new">min_triggers_bull</span>
+      <span class="knob new">premium_stop_pct_bear</span>
+      <span class="knob new">premium_stop_pct_bull</span>
+      <span class="knob new">tp1_premium_pct</span>
+      <span class="knob new">tp1_qty_fraction</span>
+      <span class="knob new">runner_target_premium_pct</span>
+    </div>
+  </div>
+
+  <div class="tier secondary">
+    <div class="tier-name secondary">SECONDARY — opt in per experiment</div>
+    <div class="muted" style="font-size: 11px; margin-bottom: 6px;">10 knobs. Useful but secondary.</div>
+    <div>
+      <strong style="font-size: 11px; color: var(--muted);">Entry side:</strong><br>
+      <span class="knob">ribbon_flip_lookback_bars</span>
+      <span class="knob">level_proximity_dollars</span>
+      <span class="knob">confluence_tolerance_dollars</span>
+      <span class="knob">no_trade_before</span>
+      <span class="knob">no_trade_window_start</span>
+      <span class="knob">no_trade_window_end</span>
+      <span class="knob new">strike_offset_bear</span>
+      <span class="knob new">strike_offset_bull</span>
+      <br><br>
+      <strong style="font-size: 11px; color: var(--muted);">Exit side:</strong><br>
+      <span class="knob new">level_stop_buffer_dollars</span>
+      <span class="knob new">time_stop_minutes_before_close</span>
+    </div>
+  </div>
+
+  <div class="tier noise">
+    <div class="tier-name noise">NOISE_PRONE — off by default</div>
+    <div class="muted" style="font-size: 11px; margin-bottom: 6px;">3 knobs. Your call: "nice to have."</div>
+    <div>
+      <span class="knob">vix_bear_threshold</span>
+      <span class="knob">vix_bear_rising_deadband</span>
+      <span class="knob new">vix_bull_max</span>
+    </div>
+  </div>
+</div>
+
+<p class="muted" style="margin-top: 8px;"><span class="badge green" style="margin-right: 6px;">new</span> = added in this rebuild (16 of the 26 knobs).</p>
+
+<!-- EXPERIMENTS -->
+<h2>The 5 experiments — focused vs kitchen-sink</h2>
+<div class="panel">
+  <table class="exp-table">
+    <thead>
+      <tr><th>Experiment</th><th>Knobs</th><th>CORE</th><th>Entry</th><th>Exit</th><th>VIX</th><th>Use case</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>lean</code></td>
+        <td>9</td>
+        <td class="yes">YES</td>
+        <td class="no">no</td>
+        <td class="no">no</td>
+        <td class="no">no</td>
+        <td>Fast, focused. Lowest overfit risk. Best signal-to-noise ratio.</td>
+      </tr>
+      <tr>
+        <td><code>entries</code></td>
+        <td>17</td>
+        <td class="yes">YES</td>
+        <td class="yes">YES</td>
+        <td class="no">no</td>
+        <td class="no">no</td>
+        <td>"Optimize when we enter."</td>
+      </tr>
+      <tr>
+        <td><code>exits</code></td>
+        <td>11</td>
+        <td class="yes">YES</td>
+        <td class="no">no</td>
+        <td class="yes">YES</td>
+        <td class="no">no</td>
+        <td>"Optimize how we exit." (the soul of ride-the-ribbon)</td>
+      </tr>
+      <tr>
+        <td><code>full</code></td>
+        <td>19</td>
+        <td class="yes">YES</td>
+        <td class="yes">YES</td>
+        <td class="yes">YES</td>
+        <td class="no">no</td>
+        <td>Default. Tunes everything except the noisy VIX knobs.</td>
+      </tr>
+      <tr>
+        <td><code>kitchen_sink</code></td>
+        <td>22</td>
+        <td class="yes">YES</td>
+        <td class="yes">YES</td>
+        <td class="yes">YES</td>
+        <td class="yes">YES</td>
+        <td>For experimentation only. Highest overfit risk.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SMART WATCHDOG -->
+<h2>Smart watchdog — what it now catches</h2>
+<div class="panel">
+  <h3>Detection rules (built tonight)</h3>
+  <ol style="padding-left: 24px; line-height: 1.8; font-size: 14px;">
+    <li><strong>0 KEEPs in last batch</strong> across all modes → flag "stuck"</li>
+    <li><strong>0 KEEPs across N batches</strong> → flag "STUCK; review hard gates"</li>
+    <li><strong>≥2 REVERTs with val P&L &gt; $200 + sharpe &gt; 1.0</strong> → flag "gates may be too strict" (this is the exact gate-bug signature)</li>
+    <li><strong>Param tried &gt; 4× with 0 KEEPs</strong> → flag as dead-end (proposer should bias away)</li>
+    <li><strong>Pre-flight gate sanity check</strong> at every baseline → warns if WR floor is unreachable</li>
+  </ol>
+
+  <h3>Where Claude reads from</h3>
+  <ul style="padding-left: 24px; line-height: 1.8; font-size: 14px;">
+    <li><code>backtest/autoresearch/_state/watchdog_report.md</code> — human-readable</li>
+    <li><code>backtest/autoresearch/_state/watchdog_report.json</code> — machine-readable</li>
+    <li>UserPromptSubmit hook surfaces fresh status into Claude's context every turn (only when there's something new).</li>
+  </ul>
+</div>
+
+<!-- PIPELINE -->
+<h2>Pipeline — what runs now</h2>
+<div class="pipeline">
+  <div class="pipeline-step">
+    <div class="num">1</div>
+    <div class="name">Watchdog tick</div>
+    <div class="desc">Every 30 min via Task Scheduler</div>
+  </div>
+  <div class="pipeline-step">
+    <div class="num">2</div>
+    <div class="name">Generate report</div>
+    <div class="desc">Reads history, detects stuck patterns, writes report.md</div>
+  </div>
+  <div class="pipeline-step">
+    <div class="num">3</div>
+    <div class="name">Spawn batch if stopped</div>
+    <div class="desc">Detached, survives Claude shutdown</div>
+  </div>
+  <div class="pipeline-step">
+    <div class="num">4</div>
+    <div class="name">Hook surfaces to Claude</div>
+    <div class="desc">UserPromptSubmit injects fresh status</div>
+  </div>
+  <div class="pipeline-step">
+    <div class="num">5</div>
+    <div class="name">Claude reports to you</div>
+    <div class="desc">Lead with KEEPs / issues every session</div>
+  </div>
+</div>
+
+<!-- LIVE STATE -->
+<h2>Live state at this moment</h2>
+<div class="modes">
+  <div class="mode-panel strict">
+    <div class="mode-name">STRICT</div>
+    <div class="mode-tag">High-conf entries · gate-fix took</div>
+    <div class="mode-row"><span class="k">Iterations</span><span class="v">6 (continuing)</span></div>
+    <div class="mode-row"><span class="k">KEEPs</span><span class="v pos">1</span></div>
+    <div class="mode-row"><span class="k">Reverts</span><span class="v">5</span></div>
+    <div class="mode-row"><span class="k">Val sharpe</span><span class="v pos">+5.55</span></div>
+    <div class="mode-row"><span class="k">Val P&L</span><span class="v pos">+$109</span></div>
+    <div class="mode-row"><span class="k">Val WR</span><span class="v">50%</span></div>
+    <hr style="border-color: var(--border); margin: 8px 0;">
+    <div class="mode-row"><span class="k">Top KEEP</span><span class="v code">f9_vol_mult: 1.0 → 1.2</span></div>
+    <p class="muted" style="margin-top: 8px; font-size: 12px;">First validation that the gate fix worked. Δ sharpe +1.15, Δ pnl +$307.</p>
+  </div>
+
+  <div class="mode-panel balanced">
+    <div class="mode-name">BALANCED</div>
+    <div class="mode-tag">Production v14 · awaiting next batch</div>
+    <div class="mode-row"><span class="k">Iterations</span><span class="v">15 (frozen)</span></div>
+    <div class="mode-row"><span class="k">KEEPs</span><span class="v neg">0 (broken gates)</span></div>
+    <div class="mode-row"><span class="k">Val sharpe</span><span class="v neg">-0.24</span></div>
+    <div class="mode-row"><span class="k">Val P&L</span><span class="v neg">-$57</span></div>
+    <div class="mode-row"><span class="k">Val WR</span><span class="v">24%</span></div>
+    <hr style="border-color: var(--border); margin: 8px 0;">
+    <div class="mode-row"><span class="k">Notable rejected</span><span class="v">3 (val P&L &gt; $200)</span></div>
+    <p class="muted" style="margin-top: 8px; font-size: 12px;">Will resume with new gates next watchdog tick. 3 already-tested moves should KEEP this time.</p>
+  </div>
+
+  <div class="mode-panel aggressive">
+    <div class="mode-name">AGGRESSIVE</div>
+    <div class="mode-tag">Wide stops · validate baseline is strong</div>
+    <div class="mode-row"><span class="k">Iterations</span><span class="v">15 (frozen)</span></div>
+    <div class="mode-row"><span class="k">KEEPs</span><span class="v neg">0 (broken gates)</span></div>
+    <div class="mode-row"><span class="k">Val sharpe</span><span class="v pos">+2.80</span></div>
+    <div class="mode-row"><span class="k">Val P&L</span><span class="v pos">+$1,552</span></div>
+    <div class="mode-row"><span class="k">Val WR</span><span class="v">31%</span></div>
+    <hr style="border-color: var(--border); margin: 8px 0;">
+    <div class="mode-row"><span class="k">Notable rejected</span><span class="v">3 (val P&L &gt; $200)</span></div>
+    <p class="muted" style="margin-top: 8px; font-size: 12px;">Best-in-class validate metrics. New gates will lock in the +$1,799 / sharpe 3.22 winner from iter 7.</p>
+  </div>
+</div>
+
+<!-- WHAT'S NEXT -->
+<h2>What happens next (no more conversations needed)</h2>
+<div class="panel">
+  <ol style="padding-left: 24px; line-height: 1.9; font-size: 14px;">
+    <li><strong>Now → 22:47:</strong> Current batch finishes the STRICT 10 iters, moves to BALANCED + AGGRESSIVE.</li>
+    <li><strong>22:47:</strong> Watchdog tick. Sees batch finished, regenerates report, spawns next 10-iter batch using NEW config (with all knobs + asymmetric + multi-knob proposer).</li>
+    <li><strong>23:17, 23:47, 00:17, ...</strong> watchdog ticks every 30 min. Each tick auto-generates a fresh report, hook surfaces it next time you chat.</li>
+    <li><strong>Each mode hits 60 iterations:</strong> watchdog flags "DONE", auto-generates summary, stops spawning.</li>
+    <li><strong>Next time you open Claude:</strong> hook surfaces watchdog status as a system reminder. Claude leads with what's new (top KEEPs, issues, etc).</li>
+  </ol>
+</div>
+
+<!-- LESSON -->
+<h2>The lesson now lives in three places</h2>
+<div class="panel">
+  <ul style="padding-left: 24px; line-height: 1.8; font-size: 14px;">
+    <li><code>journal/mistakes.md</code> — full retrospective with rule, fix, and pattern recognition</li>
+    <li><code>~/.claude/projects/.../memory/feedback_autoresearch_wiring.md</code> — survives across sessions</li>
+    <li><code>backtest/autoresearch/config.py</code> — pre-flight check function lives in code; can't be forgotten</li>
+  </ul>
+</div>
+
+<div class="footer">
+  Generated 2026-05-09 02:48 UTC · 159 tests passing · Live state from watchdog_report.json
+</div>
+
+</body>
+</html>

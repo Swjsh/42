@@ -1,0 +1,255 @@
+{
+  "instrument": "MES (Micro S&P, proxy from SPY*10)",
+  "window": "2025-01-01..2026-05-22",
+  "qty": 3,
+  "costs": "1-tick slippage/side + $1.24 round-turn",
+  "n_signals": 3695,
+  "by_watcher": {
+    "named_level_wick_bounce_watcher": {
+      "all": {
+        "n": 254,
+        "wr": 35.4,
+        "total": -2856.67,
+        "exp": -11.25
+      },
+      "long": {
+        "n": 254,
+        "wr": 35.4,
+        "total": -2856.67,
+        "exp": -11.25
+      },
+      "short": {
+        "n": 0,
+        "wr": 0.0,
+        "total": 0.0,
+        "exp": 0.0
+      }
+    },
+    "erl_irl_watcher": {
+      "all": {
+        "n": 580,
+        "wr": 73.4,
+        "total": -4367.04,
+        "exp": -7.53
+      },
+      "long": {
+        "n": 298,
+        "wr": 73.5,
+        "total": -1630.13,
+        "exp": -5.47
+      },
+      "short": {
+        "n": 282,
+        "wr": 73.4,
+        "total": -2736.91,
+        "exp": -9.71
+      }
+    },
+    "bullish_watcher": {
+      "all": {
+        "n": 102,
+        "wr": 55.9,
+        "total": -1258.0,
+        "exp": -12.33
+      },
+      "long": {
+        "n": 102,
+        "wr": 55.9,
+        "total": -1258.0,
+        "exp": -12.33
+      },
+      "short": {
+        "n": 0,
+        "wr": 0.0,
+        "total": 0.0,
+        "exp": 0.0
+      }
+    },
+    "shotgun_scalper_watcher": {
+      "all": {
+        "n": 1815,
+        "wr": 44.5,
+        "total": -5002.04,
+        "exp": -2.76
+      },
+      "long": {
+        "n": 867,
+        "wr": 45.2,
+        "total": 2505.54,
+        "exp": 2.89
+      },
+      "short": {
+        "n": 948,
+        "wr": 43.8,
+        "total": -7507.58,
+        "exp": -7.92
+      }
+    },
+    "tbr_high_vol_watcher": {
+      "all": {
+        "n": 489,
+        "wr": 47.0,
+        "total": -817.55,
+        "exp": -1.67
+      },
+      "long": {
+        "n": 241,
+        "wr": 47.3,
+        "total": 1402.7,
+        "exp": 5.82
+      },
+      "short": {
+        "n": 248,
+        "wr": 46.8,
+        "total": -2220.25,
+        "exp": -8.95
+      }
+    },
+    "bearish_rejection_morning_watcher": {
+      "all": {
+        "n": 100,
+        "wr": 59.0,
+        "total": 52.7,
+        "exp": 0.53
+      },
+      "long": {
+        "n": 0,
+        "wr": 0.0,
+        "total": 0.0,
+        "exp": 0.0
+      },
+      "short": {
+        "n": 100,
+        "wr": 59.0,
+        "total": 52.7,
+        "exp": 0.53
+      }
+    },
+    "rsi_divergence_watcher": {
+      "all": {
+        "n": 161,
+        "wr": 37.9,
+        "total": -3431.42,
+        "exp": -21.31
+      },
+      "long": {
+        "n": 161,
+        "wr": 37.9,
+        "total": -3431.42,
+        "exp": -21.31
+      },
+      "short": {
+        "n": 0,
+        "wr": 0.0,
+        "total": 0.0,
+        "exp": 0.0
+      }
+    },
+    "level_break_first_strike_watcher": {
+      "all": {
+        "n": 81,
+        "wr": 74.1,
+        "total": -2268.05,
+        "exp": -28.0
+      },
+      "long": {
+        "n": 0,
+        "wr": 0.0,
+        "total": 0.0,
+        "exp": 0.0
+      },
+      "short": {
+        "n": 81,
+        "wr": 74.1,
+        "total": -2268.05,
+        "exp": -28.0
+      }
+    },
+    "orb_watcher": {
+      "all": {
+        "n": 32,
+        "wr": 68.8,
+        "total": 754.72,
+        "exp": 23.58
+      },
+      "long": {
+        "n": 32,
+        "wr": 68.8,
+        "total": 754.72,
+        "exp": 23.58
+      },
+      "short": {
+        "n": 0,
+        "wr": 0.0,
+        "total": 0.0,
+        "exp": 0.0
+      }
+    },
+    "orb15_watcher": {
+      "all": {
+        "n": 63,
+        "wr": 34.9,
+        "total": -1559.18,
+        "exp": -24.75
+      },
+      "long": {
+        "n": 63,
+        "wr": 34.9,
+        "total": -1559.18,
+        "exp": -24.75
+      },
+      "short": {
+        "n": 0,
+        "wr": 0.0,
+        "total": 0.0,
+        "exp": 0.0
+      }
+    },
+    "bearish_reversal_at_level_watcher": {
+      "all": {
+        "n": 18,
+        "wr": 38.9,
+        "total": -267.09,
+        "exp": -14.84
+      },
+      "long": {
+        "n": 0,
+        "wr": 0.0,
+        "total": 0.0,
+        "exp": 0.0
+      },
+      "short": {
+        "n": 18,
+        "wr": 38.9,
+        "total": -267.09,
+        "exp": -14.84
+      }
+    }
+  },
+  "curated_v1": {
+    "n": 1240,
+    "wr": 47.3,
+    "total": 4715.66,
+    "exp": 3.8
+  },
+  "run_all_blind": {
+    "n": 3695,
+    "wr": 49.8,
+    "total": -21019.62,
+    "exp": -5.69
+  },
+  "caveats": [
+    "MES proxy uses SPY 5m bars (S&P); MNQ/Nasdaq needs real bars (Databento).",
+    "Long bias wins in 2025-26 bull regime; short sides bled; needs VIX/regime gate.",
+    "RTH-only, simplified bracket sim, no overnight/real-fills \u2014 Stage-1 signal."
+  ],
+  "curated_v2b_regime_gated": {
+    "n": 863,
+    "wr": 54.5,
+    "total": 14243.11,
+    "exp": 16.5,
+    "rules": "see backtest/futures/strategy_config.py CURATED_V2B_RULES",
+    "per_quarter_all_positive": true,
+    "caveat": "IN-SAMPLE slice selection \u2014 needs OOS walk-forward before trust. VIX>=16 gate is mechanistically sound; per-slice VIX cuts risk overfit."
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-05-06T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "VIX at 17.15 falling (−1.61% change) in MID regime signals bullish compression; overnight gap +$5.56 shows strong bullish overnight sentiment; no major macro events today (FOMC is 2026-05-07 14:00 ET, not today); BULL ribbon stack with 205c spread (well above 30c threshold) confirms structural bullish alignment. Premarket high 729.39 is +0.77% above prior close 723.74 with no reversal candle visible. Clean entry conditions without event risk.",
+  "vix_regime": "MID",
+  "vix_direction": "falling",
+  "vix_current": 17.15,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 5.56,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX at 17.15 falling 1.61% in MID regime = compression bullish, fear receding",
+    "Overnight gap +$5.56 (0.77% from prior close) shows material bullish overnight buying",
+    "BULL ribbon stack (fast 728.48 / pivot 727.94 / slow 726.43) with 205c spread = structural bullish; stack spacing far exceeds 30c minimum per OP 12",
+    "Zero macro events scheduled for 2026-05-06; FOMC decision is 2026-05-07 at 14:00 ET (block window 13:30-15:00 ET per policy)",
+    "Sector rotation mixed but XLK +1.07% (large mega-cap) and XLE +0.37% suggest some risk-on appetite"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,96 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-04-15T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.70,
+  "reasoning": "SPY at 693.90, nested between premarket low 693.77 (Active support, 2★) and 5-day carry resistance 694.58 (Carry, 2★). The battle level is 694.58 — a multi-session (5-day RTH high) that governs the directional outcome. If 694.58 holds on bounce, expect bearish flush toward 693.77 and 687.66. If 694.58 breaks above, bullish bias to 695.42 (PMH) and beyond. VIX falling (-3.92%) supports risk-on bias, but MIXED ribbon (29¢ spread, no stack direction) implies equilibrium. Premarket-to-RTH bounce pattern favors upside test of 694.58, hence bullish bias, though range-chop remains primary risk.",
+  "battle_level": {
+    "price": 694.58,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 694.58,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.68
+    },
+    {
+      "price": 695.42,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 1.52
+    },
+    {
+      "price": 693.77,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": -0.13
+    },
+    {
+      "price": 696.76,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 2.86
+    },
+    {
+      "price": 687.66,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": -6.24
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY bounces at 694.58 resistance (fails to break above)",
+      "bias": "bearish",
+      "target": 693.77,
+      "entry_trigger": "level_rejection + candlestick_reversal + volume_spike"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 694.58 carry resistance",
+      "bias": "bullish",
+      "target": 695.42,
+      "entry_trigger": "level_breakout + sustained_closes_above + ribbon_alignment"
+    },
+    "tertiary": {
+      "condition": "if SPY sustains above 695.42 PMH with follow-through volume",
+      "bias": "bullish",
+      "target": 698.0,
+      "entry_trigger": "breakout_continuation + R1_pivot_at_696.76"
+    }
+  },
+  "levels_in_play_count": 9,
+  "key_observations": [
+    "Tight premarket range (693.77–695.42, 1.65¢) with 694.58 Carry resistance embedded = natural first test point for RTH open.",
+    "MIXED ribbon (fast 694.07, pivot 694.1, slow 693.81, 29¢ spread) indicates equilibrium; no directional stack push.",
+    "VIX falling 3.92% to 17.64 = risk-on sentiment, supports bullish bounce bias from premarket lows, but insufficient to override level structure.",
+    "Distance from price to battle level (694.58) = 0.68¢ = immediate first-hour decision point; outcome determines day directional bias.",
+    "If 694.58 holds (resistance), flush target 687.66 (prior day low) = 6.24¢ downside = defined risk for puts.",
+    "If 694.58 breaks, PMH 695.42 = 1.52¢ upside = intermediate bull target; R1 pivot 696.76 = 2.86¢ extended target."
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-05-17T12:13:50.123456+00:00",
+  "bias": "bearish",
+  "confidence": 0.35,
+  "reasoning": "Sector data from 2026-03-06 close shows mixed rotation with slight risk-off tilt. XLK (tech) -0.38% and XLE (energy) -1.01% represent weakness in growth and cyclicals; XLF (financials) +0.26% shows resilience but insufficient to offset the tech pullback. SPY flat at -0.15% suggests the market is absorbing the sector weakness without conviction. Rising VIX (+4.47%) reinforces the cautious tone. No single sector is moving >0.5%, so this is a low-confidence, mixed signal leaning marginally defensive.",
+  "rotation_signal": "mixed",
+  "sector_alignment": {
+    "xlk_change_pct": -0.38,
+    "xlf_change_pct": 0.26,
+    "xle_change_pct": -1.01,
+    "spy_change_pct": -0.15,
+    "xlk_vs_spy": "underperform",
+    "breadth": "flat"
+  },
+  "key_observations": [
+    "XLK: -0.38% — tech sector soft, underperforming SPY by 0.23%",
+    "XLF: +0.26% — financials holding up despite tech weakness, slight outperformance of 0.41%",
+    "XLE: -1.01% — energy weak, most concerning sector move but limited SPY weighting",
+    "Overall rotation: Mixed with slight defensive lean; no conviction risk-off or risk-on"
+  ],
+  "data_quality": "full"
+}

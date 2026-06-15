@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-02-12T11:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": [],
+    "bearish": ["technical", "macro", "level_thesis", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 0,
+    "bearish": 4,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.0,
+    "bearish": 1.0
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 95,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Macro thesis (0.68 confidence) rests entirely on overnight VIX spike (+6.69% to 18.83, MID regime) — standard mean-reversion territory that should unwind within the first hour of RTH if stocks open flat-to-up.",
+    "top_invalidation_scenario": "XLK bounces +0.8% and outperforms XLE by 10:00 ET (rated HIGH probability by validator), collapsing the risk-off rotation narrative and invalidating both internals and macro consensus simultaneously."
+  },
+  "battle_level": {
+    "price": 697.08,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 697.08,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 689.22,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 691.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 690.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 693.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks below Active 689.22 on a 5-min bar close with volume >20k contracts",
+      "bias": "bearish",
+      "target": 675.81,
+      "entry_trigger": "level_rejection"
+    },
+    "secondary": {
+      "condition": "if SPY bounces off 689.22 and rallies toward 693-695 Reference zone, then fails at Carry resistance 697.08",
+      "bias": "bearish",
+      "target": 689.22,
+      "entry_trigger": "level_rejection"
+    },
+    "invalidation": {
+      "condition": "XLK bounces +0.8% and outperforms XLE before 10:00 ET, OR VIX drops below 17.50 in first 30 minutes of RTH",
+      "effect": "Risk-off rotation narrative collapses; macro and internals agents flip neutral-to-bullish. Ribbon is only 23c wide and will flip on a single strong bullish 5-min bar above 692.59. Bearish consensus becomes split — stand aside until a fresh confirmed setup."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests Active support 689.22 within the first 90 minutes of RTH (by 11:00 ET), driven by BEAR ribbon continuation and price already 2.59 below current spot.",
+      "invalidation": "SPY fails to trade below 690.50 by 11:00 ET — ribbon has flipped or price is holding above the 691-692 Reference zone.",
+      "confidence": 0.65,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains above 17.50 through 10:30 ET, sustaining the risk-off premium backdrop that underpins the bearish thesis.",
+      "invalidation": "VIX prints below 17.50 on any 5-min bar before 10:30 ET — overnight fear unwind is in progress, macro backstop removed.",
+      "confidence": 0.52,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BEAR ribbon holds intact through the first 60 minutes of RTH: no 5-min bar closes above the fast EMA at 692.59 before 10:35 ET.",
+      "invalidation": "Any 5-min bar closes above 692.59 (fast EMA) before 10:35 ET — ribbon has flipped to neutral and the structural bearish anchor is broken.",
+      "confidence": 0.68,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "All 4 specialist agents vote bearish with unanimity (weighted score 1.00), driven by a CLEAN_BEAR ribbon (23c spread), price 88c below pivot on exceptional EOD volume, rising VIX, and unambiguous risk-off sector rotation. The key tension is that this entire thesis is built on overnight data — yesterday's EOD bar and yesterday's sector close — both of which are fragile and could reverse within the first 30 minutes of RTH. The single most important thing at market open is whether VIX sustains above 17.50 and XLK stays weak: if both hold, the bearish setup is structurally sound and a flush to Active 689.22 is the primary scenario; if VIX unwinds and XLK bounces +0.8%, the 23c ribbon flips on a single bar and all 4 consensus threads collapse simultaneously.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.82,
+      "one_line": "CLEAN_BEAR ribbon (23c spread, fast < pivot < slow); strong red EOD bar −88c on 5-6x volume; price 88c below pivot"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "VIX MID regime (18.83) rising +6.69%; risk-off rotation confirmed; no macro events today — full 09:35-15:50 window open"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "Battle level 697.08 Carry resistance must hold for bears; flush target 689.22 Active support (−2.59); Carry cage 675.81-697.08 intact"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.80,
+      "one_line": "Risk-off rotation with high conviction: XLK −1.07%, XLF −1.73%, XLE +1.29%; no bullish sector offset"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "XLK snaps back +0.8% and outperforms XLE by 10:00 ET (HIGH probability) — overnight rotation unwinds, risk-off thesis collapses, ribbon fragile at 23c spread"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

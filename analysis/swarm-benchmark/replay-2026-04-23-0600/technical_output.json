@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-17T14:06:45Z",
+  "bias": "bearish",
+  "confidence": 0.78,
+  "reasoning": "CLEAN_BEAR ribbon (77-cent spread, slow 708.61 > pivot 708.01 > fast 707.84) with price 25 cents below pivot EMA. Last 2 of 3 bars are red: 05:50 bar was strong down (-24 cents, full body), followed by 05:55 consolidation doji. Overnight gap down of -$3.45 (0.48% from prior 711.21 close) confirms bearish overnight sentiment. VIX rising 3.09% to 19.32 supports downside. Latest bar consolidation slightly tempers maximum conviction but structure is clearly bearish.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 77,
+  "bar_structure": "strong_bear",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "CLEAN_BEAR ribbon: 77-cent spread well above 20-cent threshold, proper EMA stack (slow 708.61 > pivot 708.01 > fast 707.84)",
+    "Price 25 cents below pivot (707.76 vs 708.01) — solid bearish alignment with ribbon",
+    "05:50 bar: strong red down -24 cents (full body 1.0) from 707.98 to 707.74; 05:55 bar consolidating as doji (only -3 cents move) — suggests potential rest before continuation or early reversal",
+    "Overnight gap down: -$3.45 from prior close 711.21 to 707.76 (0.48% move) — substantial bearish overnight action",
+    "VIX rising 3.09% to 19.32 (mid regime) — consistent with gap-down bearish overnight"
+  ],
+  "data_quality": "full"
+}

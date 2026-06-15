@@ -1,0 +1,85 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-05-14T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "SPY at 744.07, positioned in the upper half of premarket range (742.31 PML → 744.70 PMH). Price is 0.63 below the premarket high at 744.70 (Active, 2★ resistance), testing it from below. The battle level is 744.70 — if it holds on first test, price will retest the 742.31 PML floor ($1.76 room to fall) with potential intermediate support at 743.0. If 744.70 breaks, continuation bullish to Pivot R1 at 745.66. The ribbon is BULL (fast 743.96, spread 54¢), and price has already cleared the prior RTH high at 743.91. Slight bullish bias due to ribbon stack + price position, but immediate decision hinges on PMH hold vs. break.",
+  "battle_level": {
+    "price": 744.70,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 744.70,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.63,
+      "context": "PMH — immediate overhead ceiling, price approaching"
+    },
+    {
+      "price": 742.31,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": -1.76,
+      "context": "PML — floor/anchor, first major support if PMH holds"
+    },
+    {
+      "price": 745.66,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 1.59,
+      "context": "Pivot R1 — next resistance target if PMH 744.70 breaks"
+    },
+    {
+      "price": 743.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": -1.07,
+      "context": "$743 round — intermediate support between price and PML"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 744.70 on first test from below",
+      "bias": "bearish_retest",
+      "target": 742.31,
+      "intermediate_support": 743.0,
+      "entry_trigger": "PMH rejection + close back below 744.70"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 744.70 with volume confirmation",
+      "bias": "bullish",
+      "target": 745.66,
+      "entry_trigger": "break above PMH + ribbon BULL"
+    }
+  },
+  "levels_in_play_count": 4,
+  "key_observations": [
+    "Price is only 0.63 below immediate overhead at PMH 744.70 — a critical test point.",
+    "Asymmetric downside to PML floor ($1.76 vs. +0.63 upside to PMH) — if PMH holds, retest likely goes deeper.",
+    "Ribbon is BULL (spread 54¢, stack healthy) — supports any upside breakout but doesn't override PMH resistance.",
+    "Prior RTH high at 743.91 already cleared — momentum has carried price into new PM range high.",
+    "Premarket volume is zero across all bars — ultra-light conditions, high volatility risk, low conviction."
+  ],
+  "data_quality": "full",
+  "notes": "The decision point is PMH 744.70. Price is testing it at 06:00 ET in dead-of-night premarket — typical chop until RTH 09:30 ET. The narrowness of the PM range (2.39 wide) and light volume suggest a wide-open day. Battle level PMH should anchor analysis until RTH opens."
+}

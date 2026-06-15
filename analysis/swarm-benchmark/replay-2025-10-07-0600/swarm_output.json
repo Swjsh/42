@@ -1,0 +1,172 @@
+{
+  "generated_at": "2025-10-07T06:00:00Z",
+  "swarm_version": "v5",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "level_thesis"],
+    "bearish": ["internals"],
+    "no_trade": ["macro"]
+  },
+  "vote_counts": {
+    "bullish": 2,
+    "bearish": 1,
+    "no_trade": 1
+  },
+  "weighted_scores": {
+    "bullish": 0.60,
+    "bearish": 0.10
+  },
+  "consensus_bias": "no_trade",
+  "consensus_strength": "moderate",
+  "swarm_confidence": 0,
+  "no_trade_reason": "low_post_adjustment_confidence",
+  "_confidence_calc": {
+    "base": 36,
+    "adj_specialist_agreement": -10,
+    "adj_event_risk_none": 5,
+    "adj_battle_grade_held": -20,
+    "raw_before_gate": 11,
+    "gate_fired": "NO_TRADE (raw 11 < threshold 40)",
+    "battle_grade": "HELD",
+    "battle_grade_rationale": "672.5 is the 5-day RTH rolling high — price touched it from below in a prior session and reversed (hence it became the 5-day high); classified as HELD per v5 rubric"
+  },
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["internals", "macro"],
+    "dissent_reason": "Internals cites clear risk-off rotation (XLK -0.33%, XLF -0.43% — two largest SPY weightings rolling over premarket) while Macro votes no_trade on neutral VIX with no events scheduled; both agents undermine the bullish structural thesis from technical and level_thesis."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "CLEAN_BULL ribbon without price conviction — price only 2 cents above pivot with chop bar pattern (RED-GREEN-RED) and premarket demonstrated 76-cent seller-dominated washout (672.95 → 672.19); ribbon alignment is infrastructure, not execution proof.",
+    "top_invalidation_scenario": "XLK reverses and rallies >+0.50% within first 15 minutes of RTH (tech institutional bid-in collapses the risk-off rotation narrative and validates bullish ribbon)"
+  },
+  "battle_level": {
+    "price": 672.5,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 672.5,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to",
+      "source": "5-day RTH high (rolling)",
+      "distance_from_spot": 0.31
+    },
+    {
+      "price": 672.99,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from",
+      "source": "Today premarket high (PMH)",
+      "distance_from_spot": 0.80
+    },
+    {
+      "price": 672.07,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from",
+      "source": "Today premarket low (PML)",
+      "distance_from_spot": -0.12
+    },
+    {
+      "price": 671.57,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from",
+      "source": "Prior session (2025-10-06) RTH low",
+      "distance_from_spot": -0.62
+    },
+    {
+      "price": 661.82,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from",
+      "source": "5-day RTH low (rolling)",
+      "distance_from_spot": -10.37
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY reclaims and holds above 672.5 (Carry resist) with sustained 5m bar close above and volume expansion",
+      "bias": "bullish",
+      "target": 674.0,
+      "entry_trigger": "level_reclaim at 672.5 + ribbon_bull_stack confirmation + premarket_range_extension"
+    },
+    "secondary": {
+      "condition": "if SPY loses 672.07 (PML) on a 5m close below with ribbon stack inverting south",
+      "bias": "bearish",
+      "target": 671.0,
+      "entry_trigger": "failed_bounce_off_pml + ribbon_penetration_south + sector_weakness_confirming"
+    },
+    "invalidation": {
+      "condition": "XLK rallies >+0.50% within first 15 minutes of RTH (tech institutional bid reversal within 09:30-09:45 ET)",
+      "effect": "Risk-off rotation narrative collapses; bullish ribbon structure thesis strengthens materially — Carry 672.5 reclaim becomes a higher-conviction entry if ribbon holds and price sustains above pivot"
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests Carry resistance 672.5 within the first 60 minutes of RTH (at or above 672.45 by 10:30 ET)",
+      "invalidation": "SPY does not reach 672.40 by 10:30 ET",
+      "confidence": 0.62,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains contained within 15.5–17.5 for the full session — clean macro calendar with no external expansion catalyst means no volatility breakout above 17.5",
+      "invalidation": "VIX touches 17.6 or higher at any point during RTH",
+      "confidence": 0.72,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "BULL ribbon fails to generate a clean directional impulse early session — SPY closes below fast EMA (672.25) on the 10:00 ET 5m bar close as premarket seller momentum carries into open",
+      "invalidation": "SPY bar close at 10:00 ET is at or above 672.25",
+      "confidence": 0.55,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The swarm sees a structurally bullish setup (CLEAN_BULL ribbon 28c spread, level_thesis 0.72 confidence) that is blocked from a directional signal by three simultaneous headwinds: a 76-cent premarket seller washout, risk-off sector rotation in XLK+XLF (~45% of SPY by weight), and only 2 of 4 specialists aligned bullish. With an HELD battle level at 672.5 and the v5 confidence formula producing raw 11 (well below the 40-point NO_TRADE floor), the swarm abstains from a directional call. The single most critical variable at the open is whether the premarket low (672.07) holds as a base or sellers drive through it toward 671.57 — that binary will determine which scenario map arm activates first.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.55,
+      "one_line": "CLEAN_BULL ribbon (fast 672.25 > pivot 672.17 > slow 671.96, 28c spread) undermined by chop bar structure and 76-cent premarket seller washout leaving price at pivot equilibrium"
+    },
+    "macro": {
+      "bias": "no_trade",
+      "confidence": 0.55,
+      "one_line": "VIX 16.31 MID flat, zero events on calendar, neutral +$0.41 overnight gap — backdrop calm but risk-off sector rotation adds caution"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "Battle level 672.5 (Carry 2★ resistance) just 31 cents overhead with test imminent; support layered at PML 672.07 then 671.57 — reactive open expected from 92-cent compressed range"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.60,
+      "one_line": "Risk-off rotation: XLK -0.33% and XLF -0.43% premarket — both largest SPY weightings rolling over despite flat SPY gap, narrow leadership signaling downside intraday pressure"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "XLK +0.50% reversal within first 15 min of RTH collapses the risk-off rotation narrative and validates the bullish ribbon structure case"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

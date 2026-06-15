@@ -1,0 +1,12 @@
+{
+  "skill": "chart-data-verify",
+  "run_at": "2026-05-23T15:16:53",
+  "target_date": "2026-05-23",
+  "verdict": "RED",
+  "reason": "no-csv-data-AND-no-yfinance-data",
+  "csv_path": "C:\\Users\\jackw\\Desktop\\42\\backtest\\data\\spy_5m_2026-05-08_2026-05-21.csv",
+  "max_divergence_dollars": 0,
+  "rows_compared": 0,
+  "heal_action": "no-op",
+  "rows": []
+}

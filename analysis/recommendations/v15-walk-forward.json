@@ -1,0 +1,191 @@
+{
+  "candidate": "v15-seed6",
+  "generated_at": "2026-05-09T22:15:09Z",
+  "n_windows": 16,
+  "window_size_days": 30,
+  "step_days": 30,
+  "n_pos_pnl": 9,
+  "n_pos_sharpe": 9,
+  "pos_pnl_pct": 0.562,
+  "avg_window_pnl": 351.73,
+  "total_pnl": 5627.69,
+  "total_trades": 425,
+  "by_window": [
+    {
+      "start": "2025-01-01",
+      "end": "2025-01-31",
+      "n_trades": 37,
+      "win_rate": 0.1081,
+      "total_pnl": 558.49,
+      "sharpe": 3.38,
+      "wl_ratio": 15.97,
+      "max_drawdown": -240.71,
+      "n_days_traded": 15
+    },
+    {
+      "start": "2025-01-31",
+      "end": "2025-03-02",
+      "n_trades": 21,
+      "win_rate": 0.0476,
+      "total_pnl": -387.87,
+      "sharpe": -8.476,
+      "wl_ratio": 4.0,
+      "max_drawdown": -484.7,
+      "n_days_traded": 11
+    },
+    {
+      "start": "2025-03-02",
+      "end": "2025-04-01",
+      "n_trades": 8,
+      "win_rate": 0.25,
+      "total_pnl": 1397.47,
+      "sharpe": 5.86,
+      "wl_ratio": 18.85,
+      "max_drawdown": -230.87,
+      "n_days_traded": 6
+    },
+    {
+      "start": "2025-04-01",
+      "end": "2025-05-01",
+      "n_trades": 6,
+      "win_rate": 0.3333,
+      "total_pnl": 935.9,
+      "sharpe": 5.607,
+      "wl_ratio": 8.27,
+      "max_drawdown": -167.91,
+      "n_days_traded": 6
+    },
+    {
+      "start": "2025-05-01",
+      "end": "2025-05-31",
+      "n_trades": 2,
+      "win_rate": 0.0,
+      "total_pnl": -88.81,
+      "sharpe": -16.458,
+      "wl_ratio": null,
+      "max_drawdown": -88.81,
+      "n_days_traded": 2
+    },
+    {
+      "start": "2025-05-31",
+      "end": "2025-06-30",
+      "n_trades": 26,
+      "win_rate": 0.0385,
+      "total_pnl": -150.27,
+      "sharpe": -1.646,
+      "wl_ratio": 18.12,
+      "max_drawdown": -392.77,
+      "n_days_traded": 11
+    },
+    {
+      "start": "2025-06-30",
+      "end": "2025-07-30",
+      "n_trades": 35,
+      "win_rate": 0.0,
+      "total_pnl": -649.26,
+      "sharpe": -20.684,
+      "wl_ratio": null,
+      "max_drawdown": -649.26,
+      "n_days_traded": 10
+    },
+    {
+      "start": "2025-07-30",
+      "end": "2025-08-29",
+      "n_trades": 27,
+      "win_rate": 0.1111,
+      "total_pnl": 80.55,
+      "sharpe": 1.076,
+      "wl_ratio": 9.36,
+      "max_drawdown": -244.18,
+      "n_days_traded": 8
+    },
+    {
+      "start": "2025-08-29",
+      "end": "2025-09-28",
+      "n_trades": 25,
+      "win_rate": 0.2,
+      "total_pnl": 1699.48,
+      "sharpe": 7.553,
+      "wl_ratio": 23.74,
+      "max_drawdown": -133.98,
+      "n_days_traded": 10
+    },
+    {
+      "start": "2025-09-28",
+      "end": "2025-10-28",
+      "n_trades": 34,
+      "win_rate": 0.0588,
+      "total_pnl": 311.24,
+      "sharpe": 1.418,
+      "wl_ratio": 23.73,
+      "max_drawdown": -466.46,
+      "n_days_traded": 16
+    },
+    {
+      "start": "2025-10-28",
+      "end": "2025-11-27",
+      "n_trades": 18,
+      "win_rate": 0.1111,
+      "total_pnl": -439.53,
+      "sharpe": -8.077,
+      "wl_ratio": 2.71,
+      "max_drawdown": -532.45,
+      "n_days_traded": 13
+    },
+    {
+      "start": "2025-11-27",
+      "end": "2025-12-27",
+      "n_trades": 47,
+      "win_rate": 0.0213,
+      "total_pnl": -547.66,
+      "sharpe": -7.006,
+      "wl_ratio": 14.44,
+      "max_drawdown": -707.44,
+      "n_days_traded": 13
+    },
+    {
+      "start": "2025-12-27",
+      "end": "2026-01-26",
+      "n_trades": 40,
+      "win_rate": 0.0,
+      "total_pnl": -729.63,
+      "sharpe": -24.18,
+      "wl_ratio": null,
+      "max_drawdown": -729.63,
+      "n_days_traded": 8
+    },
+    {
+      "start": "2026-01-26",
+      "end": "2026-02-25",
+      "n_trades": 25,
+      "win_rate": 0.16,
+      "total_pnl": 778.58,
+      "sharpe": 4.226,
+      "wl_ratio": 14.69,
+      "max_drawdown": -298.05,
+      "n_days_traded": 12
+    },
+    {
+      "start": "2026-02-25",
+      "end": "2026-03-27",
+      "n_trades": 32,
+      "win_rate": 0.1562,
+      "total_pnl": 2713.54,
+      "sharpe": 6.148,
+      "wl_ratio": 13.53,
+      "max_drawdown": -702.5,
+      "n_days_traded": 10
+    },
+    {
+      "start": "2026-03-27",
+      "end": "2026-04-26",
+      "n_trades": 42,
+      "win_rate": 0.119,
+      "total_pnl": 145.47,
+      "sharpe": 0.629,
+      "wl_ratio": 8.16,
+      "max_drawdown": -861.97,
+      "n_days_traded": 17
+    }
+  ]
+}

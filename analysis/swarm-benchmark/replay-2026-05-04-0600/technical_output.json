@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-04T06:00:00Z",
+  "bias": "no_trade",
+  "confidence": 0.35,
+  "reasoning": "MIXED ribbon with 13¢ spread (well below 20¢ CLEAN threshold) indicates chop. Price 721.41 sits 11¢ below pivot 721.52, a weak bearish signal only. Last 3 bars: doji (neutral) → small green (+2¢) → strong red (−29¢ body, 81% conviction). The 05:55 red bar shows emerging bearish pressure, but ribbon compression + tight overnight range (PML 720.34 to PMH 722.41) + gap-up context argue against conviction. Chop zone—no tradeable edge.",
+  "ribbon_verdict": "CHOP",
+  "ribbon_spread_cents": 13,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "MIXED ribbon (fast 721.54 / pivot 721.52 / slow 721.65) with only 13¢ spread—compressed and indecisive",
+    "Price 721.41 is 11¢ below pivot, weakly bearish, but ribbon momentum is insufficient to confirm",
+    "Last 3 bars show deterioration: doji (05:45) → small green (05:50) → strong red (05:55, −29¢ body). Late premarket selling, but single bar is not setup-grade conviction",
+    "Overnight gap +74¢ up, but premarket has traded sideways within 720.34–722.41 range; current at 721.41 is middle of range",
+    "VIX rising 2.53% to 17.43 (MID regime)—some intraday uncertainty present"
+  ],
+  "data_quality": "full"
+}

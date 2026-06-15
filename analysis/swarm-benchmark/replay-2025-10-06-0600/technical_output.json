@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-20T02:24:15Z",
+  "bias": "no_trade",
+  "confidence": 0.35,
+  "reasoning": "MIXED ribbon stack with tight 16-cent spread (clean threshold: 20c+) shows no directional conviction. Price 670.01 sits at the pivot 670.00 with zero separation, indicating equilibrium with no momentum. Last 3 premarket bars: 1 green (05:45) / 2 red (05:50, 05:55), a mixed pattern leaning marginally bearish. Overnight gap was bullish (+$1.17 from 668.84 to open 671.00), but premarket reversed hard, selling off $1.62 from PMH 671.63 back down to current 670.01 — the rally lost conviction. VIX 16.98 rising slightly in mid regime. All signals are either contradictory (gap up vs premarket selloff) or marginal (mixed bars, no ribbon separation). This is a CHOP environment waiting for ribbon cleanup or price momentum.",
+  "ribbon_verdict": "CHOP",
+  "ribbon_spread_cents": 16,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "at",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "Ribbon MIXED stack, only 16c spread (weak; need 20c+ for clean conviction)",
+    "Price 670.01 at pivot 670.00 = zero momentum, perfect equilibrium",
+    "Last 3 bars: 1 green / 2 red, marginal bearish lean but no consensus",
+    "Premarket gap up +$1.17 but reversed −$1.62 from PMH 671.63 — lost bullish edge",
+    "VIX 16.98 rising, mid regime; no vol spike to confirm momentum"
+  ],
+  "data_quality": "full"
+}

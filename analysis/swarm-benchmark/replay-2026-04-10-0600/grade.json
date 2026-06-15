@@ -1,0 +1,63 @@
+{
+  "date": "2026-04-10",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:12.513185+00:00",
+  "actual": {
+    "open": 681.32,
+    "close": 679.34,
+    "high": 682.03,
+    "low": 678.45,
+    "move_dollars": -1.98,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 82,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 681.16,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bullish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "HELD",
+      "battle_level": 681.16,
+      "role": "resistance",
+      "first_touch_time": "2026-04-10T09:30:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 681.16,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY tests the battle level at 681.16 at least once within the first 90 minutes of RTH (before 11:00 ",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 20.00 throughout the RTH session, sustaining the MID volatility-compression regime that supports direc",
+        "invalidation": "VIX spikes above 20.00 within the first 30 minutes of RTH (before 10:00 ET)"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "SPY holds above the slow EMA at 679.45 on any first-hour pullback, confirming the BULL ribbon stack remains intact",
+        "invalidation": "A 5-minute bar closes below 679.45 before 11:30 ET, signaling ribbon stack inversion and momentum loss"
+      }
+    ]
+  },
+  "narrative": "All four specialists unanimously favor bulls for 2026-04-10 \u2014 CLEAN_BULL ribbon, falling VIX at 18.99, zero macro events, and XLF-led financials driving the tape. However, the thesis is structurally narrow: ribbon spread of 27\u00a2 falls short of the 30\u00a2 conviction floor, XLK is dormant (+0.22%), and XL"
+}

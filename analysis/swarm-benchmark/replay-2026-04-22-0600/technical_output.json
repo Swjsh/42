@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-04-22T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.62,
+  "reasoning": "CLEAN_BULL ribbon with 78-cent spread and strong overnight gap-up (+$3.85 from 704.14 to 707.99) support bullish bias. However, last 3 bars show weakness: 05:45 red with 79% body, 05:50 sharply red with 91% body, 05:55 doji green with only 9% body. Price is at 707.99, essentially AT the 708.03 pivot (4 cents below), indicating consolidation rather than momentum. VIX falling at -5.82% confirms low-volatility environment. Ribbon structure alone warrants bullish lean, but momentum bars and AT-pivot price location limit conviction to moderate levels.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 78,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "at",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon (fast 708.24 > pivot 708.03 > slow 707.46) with 78c spread confirms bullish structure",
+    "Last 3 bars show momentum weakness: 2 red consecutive bars (05:45, 05:50) followed by doji green (05:55), indicating pullback or consolidation",
+    "Price at 707.99 is 4 cents below pivot 708.03 (essentially AT), 53 cents above slow EMA — structure intact but momentum stalled",
+    "Strong overnight gap-up of $3.85 from 704.14 close to 707.99 premarket reflects bullish overnight sentiment",
+    "VIX falling at -5.82% (current 19.11, regime MID) supports low-volatility, directionless premarket conditions"
+  ],
+  "data_quality": "full"
+}

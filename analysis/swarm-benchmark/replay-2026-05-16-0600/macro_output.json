@@ -1,0 +1,25 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-05-16T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.62,
+  "reasoning": "VIX at 18.22 (MID regime) is flat with no directional change, removing any volatility momentum signal. Zero high-impact events today — event calendar is clean after yesterday's CPI + retail + industrial production prints on 5/14-5/15. Overnight gap is flat (739.08), providing no overnight sentiment. Structural lean bearish: ribbon in BEAR stack (78¢ spread) and yesterday's close marked by violent intraday selling (740.25 → 738.94 in 5 min bar) followed by weak recovery bounce. Sector rotation mixed (XLE +1.26% risk-on vs XLF −0.43% risk-off). Overall: neutral-to-cautious macro with modest bearish lean from technical structure, not from macro-event fear. Clear runway for trading, both sides allowed.",
+  "vix_regime": "MID",
+  "vix_direction": "flat",
+  "vix_current": 18.22,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": 0.0,
+  "macro_backdrop": "neutral",
+  "key_observations": [
+    "VIX 18.22 is solidly MID regime (15-22); flat direction (0.0% change) removes momentum signal",
+    "Zero events today; clean event calendar after yesterday's CPI/retail/industrial prints (5/14-5/15). No hard no-trade windows needed.",
+    "Overnight gap flat at 739.08 = yesterday's close. No overnight sentiment directional signal.",
+    "Ribbon BEAR stack (fast 740.22 < pivot 740.56 < slow 741.0, 78¢ spread) provides structural bearish bias",
+    "Yesterday's violent selling late-session (740.25 → 738.94 in 11:50 bar, 6.7M shares) followed by weak bounce recovery (738.54 low → 739.08 close) suggests bears maintain control",
+    "Sector rotation mixed: energy XLE +1.26% (risk-on), financials XLF −0.43% (risk-off), tech XLK flat. No dominant rotational bias.",
+    "SPY net −0.35% from prior close on heavy volume (11M+ on final bars). Bearish technical tone, neutral macro tone."
+  ],
+  "data_quality": "full"
+}

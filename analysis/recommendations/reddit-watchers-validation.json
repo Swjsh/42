@@ -1,0 +1,285 @@
+{
+  "window": "2025-01-01..2026-05-22",
+  "streams": {
+    "ORB15_break": {
+      "raw": {
+        "n": 96,
+        "wr": 42.7,
+        "total": -71.54,
+        "exp": -0.75
+      },
+      "deduped": {
+        "n": 96,
+        "wr": 42.7,
+        "total": -71.54,
+        "exp": -0.75
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 3,
+          "wr": 0.0,
+          "total": -131.5,
+          "exp": -43.83
+        },
+        "2025Q2": {
+          "n": 18,
+          "wr": 38.9,
+          "total": 58.75,
+          "exp": 3.26
+        },
+        "2025Q3": {
+          "n": 39,
+          "wr": 46.2,
+          "total": 171.34,
+          "exp": 4.39
+        },
+        "2025Q4": {
+          "n": 14,
+          "wr": 57.1,
+          "total": 94.13,
+          "exp": 6.72
+        },
+        "2026Q1": {
+          "n": 9,
+          "wr": 22.2,
+          "total": -281.25,
+          "exp": -31.25
+        },
+        "2026Q2": {
+          "n": 13,
+          "wr": 46.2,
+          "total": 16.99,
+          "exp": 1.31
+        }
+      },
+      "top5day_share_pct": null,
+      "distinct_dates": 96
+    },
+    "ORB15_retest": {
+      "raw": {
+        "n": 63,
+        "wr": 49.2,
+        "total": -149.01,
+        "exp": -2.37
+      },
+      "deduped": {
+        "n": 63,
+        "wr": 49.2,
+        "total": -149.01,
+        "exp": -2.37
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 1,
+          "wr": 100.0,
+          "total": 13.13,
+          "exp": 13.13
+        },
+        "2025Q2": {
+          "n": 14,
+          "wr": 57.1,
+          "total": 75.88,
+          "exp": 5.42
+        },
+        "2025Q3": {
+          "n": 27,
+          "wr": 40.7,
+          "total": -68.63,
+          "exp": -2.54
+        },
+        "2025Q4": {
+          "n": 6,
+          "wr": 50.0,
+          "total": -89.0,
+          "exp": -14.83
+        },
+        "2026Q1": {
+          "n": 6,
+          "wr": 50.0,
+          "total": -49.75,
+          "exp": -8.29
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 55.6,
+          "total": -30.64,
+          "exp": -3.4
+        }
+      },
+      "top5day_share_pct": null,
+      "distinct_dates": 63
+    },
+    "ERL_IRL": {
+      "raw": {
+        "n": 1884,
+        "wr": 63.4,
+        "total": -10531.55,
+        "exp": -5.59
+      },
+      "deduped": {
+        "n": 329,
+        "wr": 69.3,
+        "total": 126.44,
+        "exp": 0.38
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 54,
+          "wr": 66.7,
+          "total": 157.12,
+          "exp": 2.91
+        },
+        "2025Q2": {
+          "n": 58,
+          "wr": 72.4,
+          "total": 580.72,
+          "exp": 10.01
+        },
+        "2025Q3": {
+          "n": 62,
+          "wr": 66.1,
+          "total": -18.73,
+          "exp": -0.3
+        },
+        "2025Q4": {
+          "n": 62,
+          "wr": 71.0,
+          "total": 168.44,
+          "exp": 2.72
+        },
+        "2026Q1": {
+          "n": 58,
+          "wr": 62.1,
+          "total": -728.87,
+          "exp": -12.57
+        },
+        "2026Q2": {
+          "n": 35,
+          "wr": 82.9,
+          "total": -32.24,
+          "exp": -0.92
+        }
+      },
+      "top5day_share_pct": 1874.6,
+      "distinct_dates": 329
+    }
+  },
+  "anchor_days": {
+    "2026-04-29": {
+      "label": "WIN",
+      "ORB15_break": {
+        "n": 1,
+        "pnl": 24.25
+      },
+      "ORB15_retest": {
+        "n": 1,
+        "pnl": 17.25
+      },
+      "ERL_IRL": {
+        "n": 9,
+        "pnl": -99.44
+      }
+    },
+    "2026-05-01": {
+      "label": "WIN",
+      "ORB15_break": {
+        "n": 0,
+        "pnl": 0
+      },
+      "ORB15_retest": {
+        "n": 0,
+        "pnl": 0
+      },
+      "ERL_IRL": {
+        "n": 4,
+        "pnl": -174.5
+      }
+    },
+    "2026-05-04": {
+      "label": "WIN",
+      "ORB15_break": {
+        "n": 1,
+        "pnl": -15.0
+      },
+      "ORB15_retest": {
+        "n": 1,
+        "pnl": -39.0
+      },
+      "ERL_IRL": {
+        "n": 4,
+        "pnl": 188.5
+      }
+    },
+    "2026-05-05": {
+      "label": "LOSS",
+      "ORB15_break": {
+        "n": 1,
+        "pnl": -10.0
+      },
+      "ORB15_retest": {
+        "n": 1,
+        "pnl": -75.37
+      },
+      "ERL_IRL": {
+        "n": 2,
+        "pnl": 155.0
+      }
+    },
+    "2026-05-06": {
+      "label": "LOSS",
+      "ORB15_break": {
+        "n": 0,
+        "pnl": 0
+      },
+      "ORB15_retest": {
+        "n": 0,
+        "pnl": 0
+      },
+      "ERL_IRL": {
+        "n": 2,
+        "pnl": 29.5
+      }
+    },
+    "2026-05-07": {
+      "label": "LOSS",
+      "ORB15_break": {
+        "n": 1,
+        "pnl": -14.5
+      },
+      "ORB15_retest": {
+        "n": 1,
+        "pnl": 53.5
+      },
+      "ERL_IRL": {
+        "n": 3,
+        "pnl": -79.5
+      }
+    }
+  },
+  "real_fills_q2_2026_capped": {
+    "ORB15_retest_ATM": {
+      "n": 9,
+      "wr": 55.6,
+      "total_pnl": 270.0,
+      "exp": 30.0
+    },
+    "ERL_IRL_ATM": {
+      "n": 75,
+      "wr": 54.7,
+      "total_pnl": -1903.2,
+      "exp": -25.38
+    },
+    "ERL_IRL_ITM2": {
+      "n": 71,
+      "wr": 45.1,
+      "total_pnl": -4166.0,
+      "exp": -58.68
+    }
+  },
+  "verdict": {
+    "ORB15_break": "WATCH-ONLY / DO-NOT-PROMOTE \u2014 SPY-space net -$72 over 16mo, WR 42.7%.",
+    "ORB15_retest": "WATCH-ONLY \u2014 SPY-space net -$149/16mo; real-fills +$30/trade but N=9 (Q2-2026 only). Insufficient.",
+    "ERL_IRL": "WATCH-ONLY / FAILS-REAL-FILLS \u2014 SPY-space WR 69% but real-fills ATM exp -$25, ITM2 exp -$59 (Q2-2026). R:R mismatch (chart-stop below swept low). Needs exit redesign before any promotion.",
+    "gate": "All three remain WATCH-ONLY. None clears OP-21 real-fills gate or OP-16 anchor preservation. No live heartbeat wiring."
+  }
+}

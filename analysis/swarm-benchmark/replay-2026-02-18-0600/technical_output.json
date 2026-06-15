@@ -1,0 +1,22 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-02-18T06:00:00Z",
+  "bias": "no_trade",
+  "confidence": 0.28,
+  "reasoning": "MIXED ribbon (Pivot 682.97 > Fast 682.86 > Slow 682.69, 29¢ spread below 30¢ threshold) with price 39¢ below pivot equilibrium. Last 3 closed bars mixed: red (682.82), red (682.44), green (682.76) — no consistent direction. Flat overnight gap (-18¢). Falling VIX (-8.03%) is the only positive signal, but insufficient to override structural chop. Clean verdict: CHOP — no clear edge.",
+  "ribbon_verdict": "CHOP",
+  "ribbon_spread_cents": 29,
+  "bar_structure": "chop",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "Ribbon stack MIXED: Pivot 682.97 > Fast 682.86 > Slow 682.69 (no bull or bear alignment)",
+    "Last 3 closed bars: 15:45 red (0.20¢ body), 15:50 red (0.51¢ body), 15:55 green (0.27¢ body) — inconsistent direction",
+    "Price 39¢ below pivot (682.58 vs 682.97) — below equilibrium",
+    "Overnight gap flat (-0.18 dollars, essentially no gap directivity)",
+    "Volume spike on close (15:55 bar: 93,437 vs prior avg ~6-9k) suggests late-day selling pressure",
+    "VIX falling -8.03% to 18.66 (MID regime) — only positive signal but not enough to offset chop",
+    "Sector mixed: Tech +0.61%, Finance +0.73%, Energy -1.48% — rotation present but no dominant direction"
+  ],
+  "data_quality": "full"
+}

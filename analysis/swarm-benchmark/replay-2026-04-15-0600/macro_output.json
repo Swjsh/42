@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-04-15T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.78,
+  "reasoning": "VIX at 17.64 falling (-3.92% overnight) signals fear receding — classic bullish macro backdrop. MID IV regime (15-22 range) supports both directional trades. No macro events today; next material event (FOMC) is 2026-04-29, clearing RTH for directional plays. Risk-on overnight rotation visible in tech (XLK +0.71%) and financials (XLF +0.52%), confirming bullish tone. Overnight gap flat (-$0.50) is neutral; premarket high of 695.42 suggests buyers active. Confidence moderately high due to clear VIX direction + clean event calendar + risk-on backdrop.",
+  "vix_regime": "MID",
+  "vix_direction": "falling",
+  "vix_current": 17.64,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": -0.5,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX falling 3.92% overnight (17.64 current) = fear receding, bullish macro signal",
+    "MID IV regime (17.64 in 15-22 range) supports normal directional trading",
+    "No macro events or economic releases scheduled for 2026-04-15; next event is FOMC 2026-04-29",
+    "Risk-on overnight: XLK +0.71%, XLF +0.52%; energy weak (XLE -0.97%) typical risk-on pattern",
+    "Overnight gap flat (-$0.50); SPY recovered from prior close 694.40 to 693.90 premarket high 695.42"
+  ],
+  "data_quality": "full"
+}

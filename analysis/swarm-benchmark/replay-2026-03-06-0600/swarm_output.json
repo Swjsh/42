@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-06T11:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "level_thesis"],
+    "bearish": ["macro"],
+    "no_trade": ["internals"]
+  },
+  "vote_counts": {
+    "bullish": 2,
+    "bearish": 1,
+    "no_trade": 1
+  },
+  "weighted_scores": {
+    "bullish": 0.60,
+    "bearish": 0.30
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "moderate",
+  "swarm_confidence": 35,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["macro", "internals"],
+    "dissent_reason": "Macro flags VIX at 25.83 rising +8.76% as extreme-fear regime that historically overrides ribbon structure on gap-down opens; internals finds only narrow tech leadership (XLK +0.73%) without financials or energy participation — mixed breadth, not a risk-on signal."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Bullish consensus assumes yesterday's 73c full-body momentum (330k vol close at 681.40) survives the overnight gap-down and VIX spike to 25.83; macro sentiment shifted to EXTREME FEAR overnight and the ribbon is a lagging indicator that can invert within 30 minutes if sellers press at the open.",
+    "top_invalidation_scenario": "SPY breaks below 679.0 on volume > 300k shares — invalidates BULL ribbon thesis entirely; next target Active support 675.63 (4.83 points lower)"
+  },
+  "battle_level": {
+    "price": 681.0,
+    "tier": "Reference",
+    "strength_stars": 1,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 681.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 679.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 682.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 678.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 675.63,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY reclaims and holds 681.0 on first RTH test with volume confirmation",
+      "bias": "bullish",
+      "target": 685.51,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if SPY holds 679.0 on opening weakness but fails to break above 681.0",
+      "bias": "no_trade",
+      "target": 680.0,
+      "entry_trigger": "range_bound_between_679_and_681"
+    },
+    "invalidation": {
+      "condition": "SPY breaks below 679.0 on volume > 300k shares (matching yesterday's final bar momentum)",
+      "effect": "Full bull case collapse — ribbon inversion imminent, macro bears confirmed, Active support 675.63 becomes next target; no bullish entries until price reclaims 679.0 AND XLF joins tech to the upside"
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests the 681.0 battle-level resistance within the first 60 minutes of RTH (by 10:30 ET); outcome at this level sets the day's directional bias",
+      "invalidation": "SPY does not touch 681.00 before 11:00 ET — implies immediate bearish continuation below the open",
+      "confidence": 0.60,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains above 23.00 through 13:00 ET, maintaining the HIGH/extreme-fear regime and keeping 0DTE put premium elevated",
+      "invalidation": "VIX drops below 23.00 before 13:00 ET — would collapse the macro bearish case and validate ribbon recovery thesis",
+      "confidence": 0.72,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "If SPY fails to hold above 681.0 on its first attempt, the CLEAN_BULL ribbon spread (currently 96c) compresses below 50c by 11:30 ET as macro pressure forces ribbon degradation",
+      "invalidation": "Ribbon spread remains above 50c through 11:30 ET even after an initial 681.0 rejection — signals structural bull resilience overriding macro headwinds",
+      "confidence": 0.55,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The core tension on 2026-03-06 is a structurally bullish ribbon (CLEAN_BULL, 96c spread, two consecutive strong green close bars) colliding head-on with an extreme-fear VIX regime (25.83, rising +8.76% overnight) that drove a 94c gap-down — the market's explicit rejection of yesterday's momentum. Weighted consensus leans bullish (0.60 vs 0.30) but only at moderate strength with two dissenting agents, and all in-play levels are weak 1-star Reference-tier round numbers offering no structural backing. The single most important thing to watch at the open: does 679.0 support hold on the first test — if it fails on volume > 300k shares, the bull case dissolves regardless of ribbon shape and the day's directional trade shifts bearish toward Active support at 675.63.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "CLEAN_BULL ribbon 96c spread + price 80c above pivot; overnight gap-down 94c and VIX 25.83 rising dampen conviction — mixed strength vs macro headwinds"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.72,
+      "one_line": "VIX 25.83 HIGH/extreme-fear regime rising +8.76%; SPY gap-down $0.94 confirms risk-off; zero macro events today — pure sentiment-driven selloff"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.62,
+      "one_line": "Battle level 681.0 (1-star Reference resistance 0.54 above spot); BULL ribbon intact but all in-play levels are weak round numbers — Active levels (675.63 / 685.51) frame macro range 4.8+ points away"
+    },
+    "internals": {
+      "bias": "no_trade",
+      "confidence": 0.42,
+      "one_line": "XLK +0.73% only leader; XLF/XLE flat — narrow tech leadership without broad sector participation signals mixed breadth, not risk-on"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "SPY breaks 679.0 on volume > 300k — full bull collapse to Active support 675.63; or VIX drops below 23 within first 30 min — full macro-bear collapse"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

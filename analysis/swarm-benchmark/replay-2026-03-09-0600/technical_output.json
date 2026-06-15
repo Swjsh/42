@@ -1,0 +1,18 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-03-09T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.75,
+  "reasoning": "CLEAN_BEAR ribbon (111¢ spread, stack inverted) with price 53¢ below the EMA20 pivot (672.77). Last 3 bars show GREEN-RED-RED bar structure with the final two bars closing with small bodies (dojis ~14-18¢), indicating momentum decay and reversal attempts failing. VIX at 30.83 and rising (+4.47%), signaling volatility expansion into the downside. Overnight gap flat. The ribbon inversion + below-pivot price + recent downside rejection pattern creates a cohesive bearish setup.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 111,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "CLEAN_BEAR ribbon (EMA13: 672.42, EMA20: 672.77, EMA48: 673.53) with 111¢ spread — stack inversion well-defined",
+    "Price 672.24 is 53¢ below pivot, establishing clear bearish momentum vector",
+    "Last 3 bars (15:45, 15:50, 15:55): GREEN 44¢ body, RED 18¢ doji, RED 14¢ doji — recent trend shows rejection of rally and downside momentum"
+  ],
+  "data_quality": "full"
+}

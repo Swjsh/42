@@ -1,0 +1,24 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-04-09T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.67,
+  "reasoning": "XLK -1.01% down (tech breaking premarket) + XLE +2.42% up (energy rallying on commodity rotation) while XLF flat = classic risk-off. Tech weakness is a major drag on SPY (tech ~30% weighting). Energy outperforming SPY significantly indicates narrow defensive rotation, not broad upside. Bearish bias with medium-high confidence — sector internals align on downside pressure into RTH.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -1.01,
+    "xlf_change_pct": 0.02,
+    "xle_change_pct": 2.42,
+    "spy_change_pct": -0.06,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: -1.01% — significant tech selling premarket, major headwind for SPY",
+    "XLE: +2.42% — energy rallying hard on defensive/commodity rotation, NOT bullish for growth stocks",
+    "XLF: +0.02% — financials flat, no support for broader market rally",
+    "Rotation: Risk-off. Energy strength + tech weakness is textbook defensive positioning.",
+    "Breadth: Narrow. Only energy is bidding. Tech weakness suggests downside continuation into RTH."
+  ],
+  "data_quality": "full"
+}

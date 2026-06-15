@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-02-27T11:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical"],
+    "bearish": ["macro", "level_thesis", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 1,
+    "bearish": 3,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.35,
+    "bearish": 0.65
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 70,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["technical"],
+    "dissent_reason": "Technical agent cites a structurally healthy CLEAN_BULL ribbon (53¢ spread, fast 689.08 > pivot 688.94 > slow 688.55) with price only 8¢ below pivot and a strong-volume premarket recovery bar — argues bullish ribbon structure could reassert if early bearish momentum exhausts."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The consensus assumes VIX fear and risk-off rotation will ACCELERATE through RTH, but MID-regime VIX (20.22) is historically mean-reverting — a flat overnight gap and strong premarket recovery volume suggest buyers may be present; if VIX rolls over intraday the bearish thesis loses its anchor.",
+    "top_invalidation_scenario": "XLK (tech) bounces +0.3% to +0.5% by 10:00 ET, reversing overnight weakness and collapsing the sector-rotation bearish signal — rated high probability by validator."
+  },
+  "battle_level": {
+    "price": 684.37,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 684.37,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 688.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 690.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "reclaim_attempt"
+    },
+    {
+      "price": 691.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 693.17,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY fails to reclaim 688.94 ribbon pivot in first 30 min of RTH and breaks below 688.00 Reference support",
+      "bias": "bearish",
+      "target": 684.37,
+      "entry_trigger": "level_rejection"
+    },
+    "secondary": {
+      "condition": "if SPY breaks and holds below 684.37 Active support (prior session RTH low) on increased volume",
+      "bias": "bearish",
+      "target": 680.0,
+      "entry_trigger": "level_rejection + macro_deterioration"
+    },
+    "invalidation": {
+      "condition": "SPY opens above 688.86, holds 688.00 for the first 30 minutes (9:35–10:05 ET), and XLK reverses overnight weakness by +0.3%+ before 10:00 ET",
+      "effect": "Bearish flush thesis fails — if buyers defend 688.00 at open and tech stabilizes, the 684.37 test does not materialize; watch for CLEAN_BULL ribbon to reassert and 690.00 reclaim attempt."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests 684.37 Active support at least once before 13:00 ET on 2026-02-27",
+      "invalidation": "SPY does not touch 684.37 through 13:00 ET, holding above 686.00 through midday",
+      "confidence": 0.60,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains above 19.50 through the first 2 hours of RTH (through 11:30 ET), sustaining elevated premium environment and confirming continued risk-off conditions",
+      "invalidation": "VIX drops to 19.20 or below by 10:30 ET, signaling intraday fear reversal",
+      "confidence": 0.62,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY fails to close a 5-min bar above ribbon pivot 688.94 in the first 30 minutes of RTH (9:30–10:00 ET), confirming bearish rejection of the pivot and mixed bar structure",
+      "invalidation": "SPY closes a 5-min bar above 689.20 before 10:05 ET, reclaiming the pivot with conviction",
+      "confidence": 0.55,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The central tension on 2026-02-27 is a structurally healthy CLEAN_BULL ribbon (53¢ spread) squared against converging macro headwinds: VIX rising +8.48% into MID regime, risk-off sector rotation with XLK -1.35%, and SPY already 8¢ below the ribbon pivot at 06:00 ET. Three of four specialists align bearish with a weighted score of 0.65 (strong), anchored by macro deterioration and level structure pointing toward a 684.37 test; the lone bullish dissent (technical) correctly notes the ribbon has not flipped and a flat overnight gap offers no carryover momentum for sellers. The single most critical observation at market open: whether SPY holds or loses the 688.00 Reference level in the first 30 minutes — a sustained hold above 688.00 invalidates the flush thesis, while a breakdown below it opens the path to 684.37 and potentially the 680.00 Carry level.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.55,
+      "one_line": "CLEAN_BULL ribbon (53¢ spread) intact; price 8¢ below pivot with mixed bar structure and overnight gap-down creating uncertainty at open"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.72,
+      "one_line": "VIX +8.48% rising into MID regime (20.22), risk-off rotation (XLK -1.35%), clean calendar provides unobstructed directional window favoring bears"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "Battle level 684.37 (Active 2★, prior RTH low) is the primary destination on any retrace; macro headwinds override bullish ribbon near-term"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "Risk-off rotation confirmed: XLK -1.35% tech sell-off dominant headwind, XLE +1.25% defensive demand, narrow breadth with growth exiting to safety"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "XLK tech bounce +0.3%–0.5% by 10:00 ET (rated high probability) collapses the sector-rotation bearish signal and invalidates the consensus narrative"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

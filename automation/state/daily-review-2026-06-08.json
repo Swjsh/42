@@ -1,0 +1,61 @@
+{
+  "date": "2026-06-08",
+  "morning_thesis": "SPY opened at 743.31 on a gap down from prior-week close (~755 area on June 3), sold off all session, current at 738.91 into close. VIX 19.16 rising (MID regime, above bear entry threshold 17.30). All prior support levels from June 2-3 (~754-760 area) irrelevant — market moved ~$15-20 lower during missed sessions June 4-5. Today's structure: morning rally to 745.33 session high (11:05 ET), then sustained sell-off breaking 740.80 support late session. Bear continuation setup into tomorrow unless 740.80 reclaimed. SWARM UNAVAILABLE (all agents failed). MACRO CALENDAR STALE (8 days since 2026-05-31 refresh, threshold 7). | Predictions: [0] If SPY opens above 738.91 on June 9, session low acts as support, 740.80 reclaim + ribbon flip = bull trigger. [1] Gap below 738.91 at June 9 open -> 735 magnet, no bull until 740.80 reclaimed. [2] VIX closing above 20.00 today -> HIGH iv_regime for tomorrow.",
+  "predictions": [
+    {
+      "prediction_idx": 0,
+      "claim": "If SPY opens above 738.91 on June 9, the session low acts as support and first bull trigger is eligible above 740.80 reclaim with ribbon flip to BULL",
+      "trigger_window": "09:35-10:30 ET 2026-06-09",
+      "invalidation": "SPY closes below 738.91 on any bar before 10:30 ET tomorrow, or fails to reclaim 740.80 within first hour",
+      "confidence": 0.50,
+      "specificity": 0.80,
+      "novelty": "fresh",
+      "outcome": "UNTESTED",
+      "actual": "Prediction window is 2026-06-09 — not yet tested as of 16:30 ET 2026-06-08",
+      "category": "level",
+      "evidence_timestamp": null,
+      "graded_at": "2026-06-08T16:30:00-04:00"
+    },
+    {
+      "prediction_idx": 1,
+      "claim": "If SPY gaps below 738.91 at tomorrow's open, 735.00 becomes the next magnet and no bull entries eligible until 740.80 is reclaimed on a closed bar",
+      "trigger_window": "09:30-09:40 ET 2026-06-09",
+      "invalidation": "SPY opens above 740.80 (negates gap-down scenario entirely)",
+      "confidence": 0.55,
+      "specificity": 0.85,
+      "novelty": "fresh",
+      "outcome": "UNTESTED",
+      "actual": "Prediction window is 2026-06-09 — not yet tested as of 16:30 ET 2026-06-08",
+      "category": "level",
+      "evidence_timestamp": null,
+      "graded_at": "2026-06-08T16:30:00-04:00"
+    },
+    {
+      "prediction_idx": 2,
+      "claim": "VIX closing above 20.00 today triggers HIGH iv_regime for tomorrow — bear-only entries with ribbon BEAR, NO bull entries (bull_hard_cap = 22.00 still allows bull but VIX direction elevated)",
+      "trigger_window": "16:00 ET close today",
+      "invalidation": "VIX closes below 19.00 today (MID regime reaffirmed)",
+      "confidence": 0.40,
+      "specificity": 0.75,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "VIX closed at approximately 19.16 — above the 19.00 invalidation floor but well below the 20.00 prediction threshold. MID regime persists for tomorrow. HIGH iv_regime NOT triggered.",
+      "category": "risk",
+      "evidence_timestamp": "16:00",
+      "graded_at": "2026-06-08T16:30:00-04:00"
+    }
+  ],
+  "surprises": [
+    "Premarket scheduled task fired at 15:21 ET (scheduled 08:30) — entire RTH session operated without morning key levels, bias context, or falsifiable hypothesis",
+    "Swarm all-agents-failed — no advisory context available; complete failure, not partial degradation",
+    "Morning bounce to 745.33 then clean sustained sell-off to 738.91 — clean bear tape with no chop, optimal BEARISH_REJECTION conditions, but no levels loaded to arm setup"
+  ],
+  "lesson": "Silent premarket failure is the highest-risk pipeline configuration: heartbeat operates in structurally degraded state (no key levels, no hypothesis) with no external alert. Watchdog needed: check today-bias.json written before 09:00 ET, write CRITICAL to STATUS.md if not.",
+  "tomorrow_hint": "TOMORROW — 740.80 reclaim = bull trigger; gap below 738.91 = 735 magnet; CPI Wed 06-10",
+  "predictions_count": 3,
+  "predictions_passed": 0,
+  "predictions_partial": 0,
+  "hit_rate_passing": 0.0,
+  "specificity_weighted_hit_rate": 0.0,
+  "graded_at": "2026-06-08T16:30:00-04:00"
+}

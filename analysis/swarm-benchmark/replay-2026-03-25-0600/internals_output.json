@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-05-17T13:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.55,
+  "reasoning": "XLF +0.98% and XLE +1.74% show risk-off energy/financial rotation while XLK flat at +0.07%. Energy outperforming SPY (+1.74% vs +0.29%) indicates narrow leadership and inflation pricing — not broad-based upside. Tech non-participation is bearish for sustainable SPY moves. This is defensive/inflation rotation, not growth-led. Medium confidence due to small premarket moves and unclear financial leadership direction (yield normalization bullish vs. defensive flight bearish).",
+  "rotation_signal": "mixed",
+  "sector_alignment": {
+    "xlk_change_pct": 0.07,
+    "xlf_change_pct": 0.98,
+    "xle_change_pct": 1.74,
+    "spy_change_pct": 0.29,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +0.07% flat — tech not participating in premarket strength",
+    "XLF: +0.98% up — financial sector showing modest strength, source unclear (yield curve vs. defensive flight)",
+    "XLE: +1.74% up — energy outperforming SPY, inflation pricing evident, typically bearish for growth equities",
+    "overall rotation: Energy + financials up with tech flat = classic risk-off/inflation rotation. Narrow leadership (energy outperforming) rather than broad. Bearish internals for sustainable SPY upside."
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-15T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.72,
+  "reasoning": "CLEAN_BEAR ribbon (269c spread, stack confirmed) with price 88c below pivot and all three EMAs. Massive gap down $7.69 overnight (-1.03%), premarket range 748.17-739.41, with price consolidating near premarket low (739.41). VIX rising +7.84% into MID regime. Last 3 bars show doji indecision (small bodies 23-25% of range) — 1 red, 2 green — typical premarket chop following a gap event. Ribbon verdict weighted most heavily; price positioning + overnight gap confirm bearish structure. Early consolidation near PML support suggests market digesting the overnight selloff before RTH open.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 269,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "CLEAN_BEAR ribbon 269c spread (743.36 slow - 740.67 fast) well above 20c threshold",
+    "Price 740.39 trades 88 cents below pivot 741.27, under all three EMAs",
+    "Overnight gap down $7.69 (-1.03% from 748.08 close) into gap-down floor support",
+    "VIX 18.7 rising +7.84% (7.84% 1D change) indicates elevated volatility on risk-off sentiment",
+    "Premarket bars show doji consolidation (05:45 -11c, 05:50 +15c, 05:55 +20c) near 739.41 PML low"
+  ],
+  "data_quality": "full"
+}

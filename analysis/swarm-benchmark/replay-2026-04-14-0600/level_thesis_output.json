@@ -1,0 +1,83 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-04-14T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.70,
+  "reasoning": "SPY at 687.23, just $0.91 below today's premarket high of 688.14. Overnight gap up +1.22 with ribbon BULL-stacked (170 cents spread). Price is sandwiched between 686.30 (prior RTH high) and 688.14 (premarket high). The battle level is 688.14 — if reclaimed on RTH open, it confirms gap-up strength and bulls target higher. If rejected, pullback risk to 686.30 or 676.58. Ribbon alignment + gap direction favor bullish, but execution at 688.14 is critical.",
+  "battle_level": {
+    "price": 688.14,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 688.14,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.91
+    },
+    {
+      "price": 686.30,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": -0.93
+    },
+    {
+      "price": 676.58,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": -10.65
+    },
+    {
+      "price": 670.0,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 4,
+      "distance_from_price": -17.23
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY reclaims and holds 688.14",
+      "bias": "bullish",
+      "target": 690.0,
+      "entry_trigger": "level_reclaim + ribbon_BULL + gap_confirmation"
+    },
+    "secondary": {
+      "condition": "if SPY fails at 688.14 and rolls over",
+      "bias": "bearish",
+      "target": 686.30,
+      "entry_trigger": "resistance_rejection + pullback"
+    },
+    "tertiary": {
+      "condition": "if 686.30 breaks on retrace",
+      "bias": "bearish",
+      "target": 676.58,
+      "entry_trigger": "support_breakdown + momentum"
+    }
+  },
+  "levels_in_play_count": 4,
+  "key_observations": [
+    "Premarket exhibited extreme volatility (670–688.14 = 18.14 point range), suggesting overnight news/gap-related activity or multiple hedge liquidations.",
+    "Ribbon BULL-stacked with healthy 170-cent spread indicates strong bullish structural bias, but execution at 688.14 will confirm or negate today's directional lean.",
+    "Price sandwiched between two Active resistance levels (686.30 and 688.14); pullback targets are clear if gap fails (676.58, 670.0)."
+  ],
+  "data_quality": "full"
+}

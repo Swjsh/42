@@ -1,0 +1,25 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-05-06T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.65,
+  "reasoning": "Tech sector (XLK) leading premarket with +1.07% while financials (XLF) remain flat at +0.04% and energy modest at +0.37%. This is narrow risk-on leadership — XLK outperforming SPY by 79bp suggests tech/growth momentum is driving the +5.56pt overnight gap and premarket rally. VIX falling (-1.61%) supports bullish sentiment. However, lack of financial sector participation (0.04% is essentially flat) and weak energy suggest breadth concerns — classic tech-only momentum pattern. Bullish bias on tech strength, but watch for rotation risk if XLF doesn't accelerate through the open.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 1.07,
+    "xlf_change_pct": 0.04,
+    "xle_change_pct": 0.37,
+    "spy_change_pct": 0.28,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +1.07% — clear tech leadership, well above 0.5% threshold, driving momentum",
+    "XLF: +0.04% — flat, no financial participation despite yield-curve-positive gap",
+    "XLE: +0.37% — weak energy, no commodity inflation story yet",
+    "Breadth: SPY up only +0.28% vs XLK +1.07% = 79bp outperformance, indicates narrow tech-only rally",
+    "VIX falling (-1.61%) supports bullish lean, IV regime MID (neutral)",
+    "Overnight context: +5.56pt gap up, ribbon BULL stack, suggests positive overnight catalyst"
+  ],
+  "data_quality": "full"
+}

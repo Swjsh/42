@@ -1,0 +1,15 @@
+{
+  "start": "2025-01-01",
+  "end": "2026-05-12",
+  "total_contracts_needed": 7458,
+  "cached_before_run": 100,
+  "to_fetch": 7358,
+  "fetched_this_run": 7358,
+  "errors_count": 0,
+  "errors_sample": [],
+  "last_update": "2026-05-13T13:08:41.735990+00:00",
+  "current_date": null,
+  "elapsed_seconds": 2841,
+  "eta_seconds_remaining": 0,
+  "status": "completed"
+}

@@ -1,0 +1,12 @@
+{
+  "updated": "2026-06-03T16:25:55",
+  "started_at": "2026-06-01 22:48",
+  "pass": 7,
+  "combos_tested": 356850,
+  "errors": 0,
+  "best_green": 4,
+  "best_totpc": 209.82,
+  "best_label": "stop-55 tp120 qf0.33 strike-1 fixed mtb1 entry09:35",
+  "baseline_green": 0,
+  "baseline_totpc": -10.48
+}

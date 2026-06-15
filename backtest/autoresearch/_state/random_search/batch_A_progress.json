@@ -1,0 +1,9 @@
+{
+  "batch_id": "A",
+  "seed_range": "0-9",
+  "total": 10,
+  "completed": 10,
+  "current_seed": null,
+  "started_at": "2026-05-09T14:22:23Z",
+  "finished_at": "2026-05-09T15:04:56Z"
+}

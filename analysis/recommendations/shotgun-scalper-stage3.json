@@ -1,0 +1,764 @@
+{
+  "strategy": "SHOTGUN_SCALPER",
+  "stage": 1,
+  "generated_at": "2026-05-16T17:44:25",
+  "run_identity": {
+    "run_id": "2026-05-16_67e97648_8de89a_028a39",
+    "data_hash": "8de89ab06520f297",
+    "code_hash": "67e97648943efe4a",
+    "params_hash": "028a3911c9bfb699",
+    "code_source": "files",
+    "computed_at": "2026-05-16T14:44:18"
+  },
+  "grid_size": 2160,
+  "gates": {
+    "min_sharpe": 0.8,
+    "min_expectancy_per_trade": 0.01,
+    "min_n_trades": 30,
+    "max_drawdown_dollars": 1500.0,
+    "min_edge_capture_pct": 0.5,
+    "min_positive_quarters": 4,
+    "max_top5_pct": 0.5
+  },
+  "anchor_days": {
+    "winners": [
+      {
+        "date": "2026-04-29",
+        "j_pnl": 342,
+        "side": "P",
+        "strike": 710,
+        "note": "711.4 rejection + ribbon flip"
+      },
+      {
+        "date": "2026-05-01",
+        "j_pnl": 470,
+        "side": "P",
+        "strike": 721,
+        "note": "trendline rejection at 13:36 (leg #2 was real trigger)"
+      },
+      {
+        "date": "2026-05-04",
+        "j_pnl": 730,
+        "side": "P",
+        "strike": 721,
+        "note": "premarket level + multi-day trendline + ribbon flip = CONFLUENCE"
+      },
+      {
+        "date": "2026-05-14",
+        "j_pnl": 1208,
+        "side": "C",
+        "strike": 0,
+        "note": "v15 first ENTER_BULL +$913 + manual scaling. Open-drive bull confluence."
+      },
+      {
+        "date": "2026-05-15",
+        "j_pnl": 1400,
+        "side": "P",
+        "strike": 0,
+        "note": "paper if held to wick low; today's PIN_FADE / chop-reversal scalp."
+      }
+    ],
+    "losers": [
+      {
+        "date": "2026-05-05",
+        "j_pnl": -260,
+        "side": "P",
+        "strike": 722,
+        "note": "chop-trap manual entry, no real setup"
+      },
+      {
+        "date": "2026-05-06",
+        "j_pnl": -300,
+        "side": "P",
+        "strike": 730,
+        "note": "held to zero, no stop"
+      },
+      {
+        "date": "2026-05-07",
+        "j_pnl": -120,
+        "side": "C",
+        "strike": 737,
+        "note": "engine BULL into pre-FOMC bear sequence + manual bullish anticipation"
+      }
+    ],
+    "max_edge_possible": 4150
+  },
+  "disclosures": {
+    "account_size_assumption": "qty=3 baseline (~$1K paper). Headline P&L scales linearly with qty.",
+    "sample_bias": "Top-10 selected from 2160-combo grid \u2014 overfit risk. Stage 2-5 required before live.",
+    "validation_status": "STAGE 1 ONLY. Walk-forward + real-fills + Monday-Ready pending.",
+    "wr_caveat": "WR is awareness-only per OP 14. Sharpe + expectancy + max-DD + edge_capture drive selection."
+  },
+  "top10": [
+    {
+      "combo": {
+        "tp_premium_pct": 0.5,
+        "stop_premium_pct": -0.35,
+        "time_stop_min": 12,
+        "strike_offset": 1,
+        "chandelier_arm_pct": 0.6,
+        "vol_ratio_threshold": 1.5
+      },
+      "by_day": {
+        "2026-04-29": 18.0,
+        "2026-05-01": 93.6,
+        "2026-05-04": 403.5,
+        "2026-05-14": 0,
+        "2026-05-15": 0,
+        "2026-05-05": -147.0,
+        "2026-05-06": 96.0,
+        "2026-05-07": 519.0
+      },
+      "winners_capture": 515.1,
+      "losers_added": 147.0,
+      "edge_capture": 368.1,
+      "edge_capture_pct": 0.089,
+      "max_edge_possible": 4150,
+      "wide_pnl": 17178.3,
+      "wide_n_trades": 1418,
+      "wide_wr": 0.552,
+      "expectancy_per_trade": 12.11,
+      "sharpe": 3.892,
+      "top5_pct": 0.216,
+      "quarter_pnl": {
+        "2025-Q1": 2872.05,
+        "2025-Q2": 2265.6,
+        "2025-Q3": 2204.1,
+        "2025-Q4": 3231.75,
+        "2026-Q1": 4451.25,
+        "2026-Q2": 2153.55
+      },
+      "positive_quarters": 6,
+      "quarter_count": 6,
+      "max_drawdown": 1090.05,
+      "final_score": 1432.69,
+      "passed_floors": true,
+      "regressions": [],
+      "stage3_directional_score": 2,
+      "stage3_directional_max": 5,
+      "stage3_loser_avoid_score": 2,
+      "stage3_loser_avoid_max": 3,
+      "stage3_direction_detail": {
+        "2026-04-29": "miss (j=short, engine=['long', 'long', 'long', 'long', 'long'])",
+        "2026-05-01": "YES same-dir (short), 5 fires",
+        "2026-05-04": "YES same-dir (short), 4 fires",
+        "2026-05-14": "miss (j=long, engine=no-fire)",
+        "2026-05-15": "miss (j=short, engine=no-fire)",
+        "2026-05-05": "caught loss (engine $-147.00)",
+        "2026-05-06": "AVOIDED loss (engine $96.00)",
+        "2026-05-07": "AVOIDED loss (engine $519.00)"
+      },
+      "stage3_final_score": 3618.1,
+      "stage3_gates": {
+        "min_directional_score": 2,
+        "min_loser_avoid_score": 2,
+        "min_wide_pnl_dollars": 1000.0,
+        "min_sharpe": 1.0,
+        "min_n_trades": 100
+      }
+    },
+    {
+      "combo": {
+        "tp_premium_pct": 0.5,
+        "stop_premium_pct": -0.35,
+        "time_stop_min": 15,
+        "strike_offset": 1,
+        "chandelier_arm_pct": 0.6,
+        "vol_ratio_threshold": 1.2
+      },
+      "by_day": {
+        "2026-04-29": 18.0,
+        "2026-05-01": 93.6,
+        "2026-05-04": 403.5,
+        "2026-05-14": 0,
+        "2026-05-15": 0,
+        "2026-05-05": -147.0,
+        "2026-05-06": 96.0,
+        "2026-05-07": 519.0
+      },
+      "winners_capture": 515.1,
+      "losers_added": 147.0,
+      "edge_capture": 368.1,
+      "edge_capture_pct": 0.089,
+      "max_edge_possible": 4150,
+      "wide_pnl": 17061.3,
+      "wide_n_trades": 1413,
+      "wide_wr": 0.552,
+      "expectancy_per_trade": 12.07,
+      "sharpe": 3.87,
+      "top5_pct": 0.217,
+      "quarter_pnl": {
+        "2025-Q1": 2872.05,
+        "2025-Q2": 2265.6,
+        "2025-Q3": 2204.1,
+        "2025-Q4": 3231.75,
+        "2026-Q1": 4451.25,
+        "2026-Q2": 2036.55
+      },
+      "positive_quarters": 6,
+      "quarter_count": 6,
+      "max_drawdown": 1090.05,
+      "final_score": 1424.48,
+      "passed_floors": true,
+      "regressions": [],
+      "stage3_directional_score": 2,
+      "stage3_directional_max": 5,
+      "stage3_loser_avoid_score": 2,
+      "stage3_loser_avoid_max": 3,
+      "stage3_direction_detail": {
+        "2026-04-29": "miss (j=short, engine=['long', 'long', 'long', 'long', 'long'])",
+        "2026-05-01": "YES same-dir (short), 5 fires",
+        "2026-05-04": "YES same-dir (short), 4 fires",
+        "2026-05-14": "miss (j=long, engine=no-fire)",
+        "2026-05-15": "miss (j=short, engine=no-fire)",
+        "2026-05-05": "caught loss (engine $-147.00)",
+        "2026-05-06": "AVOIDED loss (engine $96.00)",
+        "2026-05-07": "AVOIDED loss (engine $519.00)"
+      },
+      "stage3_final_score": 3616.7,
+      "stage3_gates": {
+        "min_directional_score": 2,
+        "min_loser_avoid_score": 2,
+        "min_wide_pnl_dollars": 1000.0,
+        "min_sharpe": 1.0,
+        "min_n_trades": 100
+      }
+    },
+    {
+      "combo": {
+        "tp_premium_pct": 0.5,
+        "stop_premium_pct": -0.35,
+        "time_stop_min": 15,
+        "strike_offset": 1,
+        "chandelier_arm_pct": 0.6,
+        "vol_ratio_threshold": 1.0
+      },
+      "by_day": {
+        "2026-04-29": 18.0,
+        "2026-05-01": 93.6,
+        "2026-05-04": 403.5,
+        "2026-05-14": 0,
+        "2026-05-15": 0,
+        "2026-05-05": -147.0,
+        "2026-05-06": 96.0,
+        "2026-05-07": 519.0
+      },
+      "winners_capture": 515.1,
+      "losers_added": 147.0,
+      "edge_capture": 368.1,
+      "edge_capture_pct": 0.089,
+      "max_edge_possible": 4150,
+      "wide_pnl": 17061.3,
+      "wide_n_trades": 1413,
+      "wide_wr": 0.552,
+      "expectancy_per_trade": 12.07,
+      "sharpe": 3.87,
+      "top5_pct": 0.217,
+      "quarter_pnl": {
+        "2025-Q1": 2872.05,
+        "2025-Q2": 2265.6,
+        "2025-Q3": 2204.1,
+        "2025-Q4": 3231.75,
+        "2026-Q1": 4451.25,
+        "2026-Q2": 2036.55
+      },
+      "positive_quarters": 6,
+      "quarter_count": 6,
+      "max_drawdown": 1090.05,
+      "final_score": 1424.48,
+      "passed_floors": true,
+      "regressions": [],
+      "stage3_directional_score": 2,
+      "stage3_directional_max": 5,
+      "stage3_loser_avoid_score": 2,
+      "stage3_loser_avoid_max": 3,
+      "stage3_direction_detail": {
+        "2026-04-29": "miss (j=short, engine=['long', 'long', 'long', 'long', 'long'])",
+        "2026-05-01": "YES same-dir (short), 5 fires",
+        "2026-05-04": "YES same-dir (short), 4 fires",
+        "2026-05-14": "miss (j=long, engine=no-fire)",
+        "2026-05-15": "miss (j=short, engine=no-fire)",
+        "2026-05-05": "caught loss (engine $-147.00)",
+        "2026-05-06": "AVOIDED loss (engine $96.00)",
+        "2026-05-07": "AVOIDED loss (engine $519.00)"
+      },
+      "stage3_final_score": 3616.7,
+      "stage3_gates": {
+        "min_directional_score": 2,
+        "min_loser_avoid_score": 2,
+        "min_wide_pnl_dollars": 1000.0,
+        "min_sharpe": 1.0,
+        "min_n_trades": 100
+      }
+    },
+    {
+      "combo": {
+        "tp_premium_pct": 0.5,
+        "stop_premium_pct": -0.35,
+        "time_stop_min": 12,
+        "strike_offset": 1,
+        "chandelier_arm_pct": 0.6,
+        "vol_ratio_threshold": 1.2
+      },
+      "by_day": {
+        "2026-04-29": 18.0,
+        "2026-05-01": 93.6,
+        "2026-05-04": 403.5,
+        "2026-05-14": 0,
+        "2026-05-15": 0,
+        "2026-05-05": -147.0,
+        "2026-05-06": 96.0,
+        "2026-05-07": 519.0
+      },
+      "winners_capture": 515.1,
+      "losers_added": 147.0,
+      "edge_capture": 368.1,
+      "edge_capture_pct": 0.089,
+      "max_edge_possible": 4150,
+      "wide_pnl": 17061.3,
+      "wide_n_trades": 1413,
+      "wide_wr": 0.552,
+      "expectancy_per_trade": 12.07,
+      "sharpe": 3.87,
+      "top5_pct": 0.217,
+      "quarter_pnl": {
+        "2025-Q1": 2872.05,
+        "2025-Q2": 2265.6,
+        "2025-Q3": 2204.1,
+        "2025-Q4": 3231.75,
+        "2026-Q1": 4451.25,
+        "2026-Q2": 2036.55
+      },
+      "positive_quarters": 6,
+      "quarter_count": 6,
+      "max_drawdown": 1090.05,
+      "final_score": 1424.48,
+      "passed_floors": true,
+      "regressions": [],
+      "stage3_directional_score": 2,
+      "stage3_directional_max": 5,
+      "stage3_loser_avoid_score": 2,
+      "stage3_loser_avoid_max": 3,
+      "stage3_direction_detail": {
+        "2026-04-29": "miss (j=short, engine=['long', 'long', 'long', 'long', 'long'])",
+        "2026-05-01": "YES same-dir (short), 5 fires",
+        "2026-05-04": "YES same-dir (short), 4 fires",
+        "2026-05-14": "miss (j=long, engine=no-fire)",
+        "2026-05-15": "miss (j=short, engine=no-fire)",
+        "2026-05-05": "caught loss (engine $-147.00)",
+        "2026-05-06": "AVOIDED loss (engine $96.00)",
+        "2026-05-07": "AVOIDED loss (engine $519.00)"
+      },
+      "stage3_final_score": 3616.7,
+      "stage3_gates": {
+        "min_directional_score": 2,
+        "min_loser_avoid_score": 2,
+        "min_wide_pnl_dollars": 1000.0,
+        "min_sharpe": 1.0,
+        "min_n_trades": 100
+      }
+    },
+    {
+      "combo": {
+        "tp_premium_pct": 0.5,
+        "stop_premium_pct": -0.35,
+        "time_stop_min": 12,
+        "strike_offset": 2,
+        "chandelier_arm_pct": 0.6,
+        "vol_ratio_threshold": 1.2
+      },
+      "by_day": {
+        "2026-04-29": 54.0,
+        "2026-05-01": 234.0,
+        "2026-05-04": 177.0,
+        "2026-05-14": 0,
+        "2026-05-15": 0,
+        "2026-05-05": -180.0,
+        "2026-05-06": 132.0,
+        "2026-05-07": 291.0
+      },
+      "winners_capture": 465.0,
+      "losers_added": 180.0,
+      "edge_capture": 285.0,
+      "edge_capture_pct": 0.069,
+      "max_edge_possible": 4150,
+      "wide_pnl": 23893.5,
+      "wide_n_trades": 1399,
+      "wide_wr": 0.567,
+      "expectancy_per_trade": 17.08,
+      "sharpe": 4.682,
+      "top5_pct": 0.153,
+      "quarter_pnl": {
+        "2025-Q1": 4168.95,
+        "2025-Q2": 3297.9,
+        "2025-Q3": 2115.75,
+        "2025-Q4": 5151.15,
+        "2026-Q1": 5792.4,
+        "2026-Q2": 3367.35
+      },
+      "positive_quarters": 6,
+      "quarter_count": 6,
+      "max_drawdown": 1614.75,
+      "final_score": 1334.49,
+      "passed_floors": true,
+      "regressions": [],
+      "stage3_directional_score": 2,
+      "stage3_directional_max": 5,
+      "stage3_loser_avoid_score": 2,
+      "stage3_loser_avoid_max": 3,
+      "stage3_direction_detail": {
+        "2026-04-29": "miss (j=short, engine=['long', 'long', 'long', 'long', 'long'])",
+        "2026-05-01": "YES same-dir (short), 5 fires",
+        "2026-05-04": "YES same-dir (short), 4 fires",
+        "2026-05-14": "miss (j=long, engine=no-fire)",
+        "2026-05-15": "miss (j=short, engine=no-fire)",
+        "2026-05-05": "caught loss (engine $-180.00)",
+        "2026-05-06": "AVOIDED loss (engine $132.00)",
+        "2026-05-07": "AVOIDED loss (engine $291.00)"
+      },
+      "stage3_final_score": 3671.93,
+      "stage3_gates": {
+        "min_directional_score": 2,
+        "min_loser_avoid_score": 2,
+        "min_wide_pnl_dollars": 1000.0,
+        "min_sharpe": 1.0,
+        "min_n_trades": 100
+      }
+    },
+    {
+      "combo": {
+        "tp_premium_pct": 0.5,
+        "stop_premium_pct": -0.35,
+        "time_stop_min": 12,
+        "strike_offset": 2,
+        "chandelier_arm_pct": 0.6,
+        "vol_ratio_threshold": 1.0
+      },
+      "by_day": {
+        "2026-04-29": 54.0,
+        "2026-05-01": 234.0,
+        "2026-05-04": 177.0,
+        "2026-05-14": 0,
+        "2026-05-15": 0,
+        "2026-05-05": -180.0,
+        "2026-05-06": 132.0,
+        "2026-05-07": 291.0
+      },
+      "winners_capture": 465.0,
+      "losers_added": 180.0,
+      "edge_capture": 285.0,
+      "edge_capture_pct": 0.069,
+      "max_edge_possible": 4150,
+      "wide_pnl": 23893.5,
+      "wide_n_trades": 1399,
+      "wide_wr": 0.567,
+      "expectancy_per_trade": 17.08,
+      "sharpe": 4.682,
+      "top5_pct": 0.153,
+      "quarter_pnl": {
+        "2025-Q1": 4168.95,
+        "2025-Q2": 3297.9,
+        "2025-Q3": 2115.75,
+        "2025-Q4": 5151.15,
+        "2026-Q1": 5792.4,
+        "2026-Q2": 3367.35
+      },
+      "positive_quarters": 6,
+      "quarter_count": 6,
+      "max_drawdown": 1614.75,
+      "final_score": 1334.49,
+      "passed_floors": true,
+      "regressions": [],
+      "stage3_directional_score": 2,
+      "stage3_directional_max": 5,
+      "stage3_loser_avoid_score": 2,
+      "stage3_loser_avoid_max": 3,
+      "stage3_direction_detail": {
+        "2026-04-29": "miss (j=short, engine=['long', 'long', 'long', 'long', 'long'])",
+        "2026-05-01": "YES same-dir (short), 5 fires",
+        "2026-05-04": "YES same-dir (short), 4 fires",
+        "2026-05-14": "miss (j=long, engine=no-fire)",
+        "2026-05-15": "miss (j=short, engine=no-fire)",
+        "2026-05-05": "caught loss (engine $-180.00)",
+        "2026-05-06": "AVOIDED loss (engine $132.00)",
+        "2026-05-07": "AVOIDED loss (engine $291.00)"
+      },
+      "stage3_final_score": 3671.93,
+      "stage3_gates": {
+        "min_directional_score": 2,
+        "min_loser_avoid_score": 2,
+        "min_wide_pnl_dollars": 1000.0,
+        "min_sharpe": 1.0,
+        "min_n_trades": 100
+      }
+    },
+    {
+      "combo": {
+        "tp_premium_pct": 0.5,
+        "stop_premium_pct": -0.35,
+        "time_stop_min": 15,
+        "strike_offset": 2,
+        "chandelier_arm_pct": 0.6,
+        "vol_ratio_threshold": 1.2
+      },
+      "by_day": {
+        "2026-04-29": 54.0,
+        "2026-05-01": 234.0,
+        "2026-05-04": 177.0,
+        "2026-05-14": 0,
+        "2026-05-15": 0,
+        "2026-05-05": -180.0,
+        "2026-05-06": 132.0,
+        "2026-05-07": 291.0
+      },
+      "winners_capture": 465.0,
+      "losers_added": 180.0,
+      "edge_capture": 285.0,
+      "edge_capture_pct": 0.069,
+      "max_edge_possible": 4150,
+      "wide_pnl": 23893.5,
+      "wide_n_trades": 1399,
+      "wide_wr": 0.567,
+      "expectancy_per_trade": 17.08,
+      "sharpe": 4.682,
+      "top5_pct": 0.153,
+      "quarter_pnl": {
+        "2025-Q1": 4168.95,
+        "2025-Q2": 3297.9,
+        "2025-Q3": 2115.75,
+        "2025-Q4": 5151.15,
+        "2026-Q1": 5792.4,
+        "2026-Q2": 3367.35
+      },
+      "positive_quarters": 6,
+      "quarter_count": 6,
+      "max_drawdown": 1614.75,
+      "final_score": 1334.49,
+      "passed_floors": true,
+      "regressions": [],
+      "stage3_directional_score": 2,
+      "stage3_directional_max": 5,
+      "stage3_loser_avoid_score": 2,
+      "stage3_loser_avoid_max": 3,
+      "stage3_direction_detail": {
+        "2026-04-29": "miss (j=short, engine=['long', 'long', 'long', 'long', 'long'])",
+        "2026-05-01": "YES same-dir (short), 5 fires",
+        "2026-05-04": "YES same-dir (short), 4 fires",
+        "2026-05-14": "miss (j=long, engine=no-fire)",
+        "2026-05-15": "miss (j=short, engine=no-fire)",
+        "2026-05-05": "caught loss (engine $-180.00)",
+        "2026-05-06": "AVOIDED loss (engine $132.00)",
+        "2026-05-07": "AVOIDED loss (engine $291.00)"
+      },
+      "stage3_final_score": 3671.93,
+      "stage3_gates": {
+        "min_directional_score": 2,
+        "min_loser_avoid_score": 2,
+        "min_wide_pnl_dollars": 1000.0,
+        "min_sharpe": 1.0,
+        "min_n_trades": 100
+      }
+    },
+    {
+      "combo": {
+        "tp_premium_pct": 0.5,
+        "stop_premium_pct": -0.35,
+        "time_stop_min": 15,
+        "strike_offset": 2,
+        "chandelier_arm_pct": 0.6,
+        "vol_ratio_threshold": 1.5
+      },
+      "by_day": {
+        "2026-04-29": 54.0,
+        "2026-05-01": 234.0,
+        "2026-05-04": 177.0,
+        "2026-05-14": 0,
+        "2026-05-15": 0,
+        "2026-05-05": -180.0,
+        "2026-05-06": 132.0,
+        "2026-05-07": 291.0
+      },
+      "winners_capture": 465.0,
+      "losers_added": 180.0,
+      "edge_capture": 285.0,
+      "edge_capture_pct": 0.069,
+      "max_edge_possible": 4150,
+      "wide_pnl": 23375.85,
+      "wide_n_trades": 1414,
+      "wide_wr": 0.566,
+      "expectancy_per_trade": 16.53,
+      "sharpe": 4.549,
+      "top5_pct": 0.156,
+      "quarter_pnl": {
+        "2025-Q1": 4168.95,
+        "2025-Q2": 3297.9,
+        "2025-Q3": 2115.75,
+        "2025-Q4": 5151.15,
+        "2026-Q1": 5792.4,
+        "2026-Q2": 2849.7
+      },
+      "positive_quarters": 6,
+      "quarter_count": 6,
+      "max_drawdown": 1614.75,
+      "final_score": 1296.47,
+      "passed_floors": true,
+      "regressions": [],
+      "stage3_directional_score": 2,
+      "stage3_directional_max": 5,
+      "stage3_loser_avoid_score": 2,
+      "stage3_loser_avoid_max": 3,
+      "stage3_direction_detail": {
+        "2026-04-29": "miss (j=short, engine=['long', 'long', 'long', 'long', 'long'])",
+        "2026-05-01": "YES same-dir (short), 5 fires",
+        "2026-05-04": "YES same-dir (short), 4 fires",
+        "2026-05-14": "miss (j=long, engine=no-fire)",
+        "2026-05-15": "miss (j=short, engine=no-fire)",
+        "2026-05-05": "caught loss (engine $-180.00)",
+        "2026-05-06": "AVOIDED loss (engine $132.00)",
+        "2026-05-07": "AVOIDED loss (engine $291.00)"
+      },
+      "stage3_final_score": 3664.33,
+      "stage3_gates": {
+        "min_directional_score": 2,
+        "min_loser_avoid_score": 2,
+        "min_wide_pnl_dollars": 1000.0,
+        "min_sharpe": 1.0,
+        "min_n_trades": 100
+      }
+    },
+    {
+      "combo": {
+        "tp_premium_pct": 1.0,
+        "stop_premium_pct": -0.35,
+        "time_stop_min": 15,
+        "strike_offset": 2,
+        "chandelier_arm_pct": 0.5,
+        "vol_ratio_threshold": 1.2
+      },
+      "by_day": {
+        "2026-04-29": 54.0,
+        "2026-05-01": 234.0,
+        "2026-05-04": 177.0,
+        "2026-05-14": 0,
+        "2026-05-15": 0,
+        "2026-05-05": -180.0,
+        "2026-05-06": 132.0,
+        "2026-05-07": 291.0
+      },
+      "winners_capture": 465.0,
+      "losers_added": 180.0,
+      "edge_capture": 285.0,
+      "edge_capture_pct": 0.069,
+      "max_edge_possible": 4150,
+      "wide_pnl": 19858.8,
+      "wide_n_trades": 1404,
+      "wide_wr": 0.567,
+      "expectancy_per_trade": 14.14,
+      "sharpe": 4.097,
+      "top5_pct": 0.168,
+      "quarter_pnl": {
+        "2025-Q1": 3775.35,
+        "2025-Q2": 2291.1,
+        "2025-Q3": 1799.85,
+        "2025-Q4": 4721.55,
+        "2026-Q1": 4172.7,
+        "2026-Q2": 3098.25
+      },
+      "positive_quarters": 6,
+      "quarter_count": 6,
+      "max_drawdown": 1881.45,
+      "final_score": 1167.67,
+      "passed_floors": true,
+      "regressions": [],
+      "stage3_directional_score": 2,
+      "stage3_directional_max": 5,
+      "stage3_loser_avoid_score": 2,
+      "stage3_loser_avoid_max": 3,
+      "stage3_direction_detail": {
+        "2026-04-29": "miss (j=short, engine=['long', 'long', 'long', 'long', 'long'])",
+        "2026-05-01": "YES same-dir (short), 5 fires",
+        "2026-05-04": "YES same-dir (short), 4 fires",
+        "2026-05-14": "miss (j=long, engine=no-fire)",
+        "2026-05-15": "miss (j=short, engine=no-fire)",
+        "2026-05-05": "caught loss (engine $-180.00)",
+        "2026-05-06": "AVOIDED loss (engine $132.00)",
+        "2026-05-07": "AVOIDED loss (engine $291.00)"
+      },
+      "stage3_final_score": 3634.65,
+      "stage3_gates": {
+        "min_directional_score": 2,
+        "min_loser_avoid_score": 2,
+        "min_wide_pnl_dollars": 1000.0,
+        "min_sharpe": 1.0,
+        "min_n_trades": 100
+      }
+    },
+    {
+      "combo": {
+        "tp_premium_pct": 0.5,
+        "stop_premium_pct": -0.35,
+        "time_stop_min": 15,
+        "strike_offset": 2,
+        "chandelier_arm_pct": 0.5,
+        "vol_ratio_threshold": 1.0
+      },
+      "by_day": {
+        "2026-04-29": 54.0,
+        "2026-05-01": 234.0,
+        "2026-05-04": 177.0,
+        "2026-05-14": 0,
+        "2026-05-15": 0,
+        "2026-05-05": -180.0,
+        "2026-05-06": 132.0,
+        "2026-05-07": 291.0
+      },
+      "winners_capture": 465.0,
+      "losers_added": 180.0,
+      "edge_capture": 285.0,
+      "edge_capture_pct": 0.069,
+      "max_edge_possible": 4150,
+      "wide_pnl": 19845.3,
+      "wide_n_trades": 1404,
+      "wide_wr": 0.567,
+      "expectancy_per_trade": 14.13,
+      "sharpe": 4.095,
+      "top5_pct": 0.168,
+      "quarter_pnl": {
+        "2025-Q1": 3760.35,
+        "2025-Q2": 2291.1,
+        "2025-Q3": 1801.35,
+        "2025-Q4": 4721.55,
+        "2026-Q1": 4172.7,
+        "2026-Q2": 3098.25
+      },
+      "positive_quarters": 6,
+      "quarter_count": 6,
+      "max_drawdown": 1881.45,
+      "final_score": 1166.99,
+      "passed_floors": true,
+      "regressions": [],
+      "stage3_directional_score": 2,
+      "stage3_directional_max": 5,
+      "stage3_loser_avoid_score": 2,
+      "stage3_loser_avoid_max": 3,
+      "stage3_direction_detail": {
+        "2026-04-29": "miss (j=short, engine=['long', 'long', 'long', 'long', 'long'])",
+        "2026-05-01": "YES same-dir (short), 5 fires",
+        "2026-05-04": "YES same-dir (short), 4 fires",
+        "2026-05-14": "miss (j=long, engine=no-fire)",
+        "2026-05-15": "miss (j=short, engine=no-fire)",
+        "2026-05-05": "caught loss (engine $-180.00)",
+        "2026-05-06": "AVOIDED loss (engine $132.00)",
+        "2026-05-07": "AVOIDED loss (engine $291.00)"
+      },
+      "stage3_final_score": 3634.52,
+      "stage3_gates": {
+        "min_directional_score": 2,
+        "min_loser_avoid_score": 2,
+        "min_wide_pnl_dollars": 1000.0,
+        "min_sharpe": 1.0,
+        "min_n_trades": 100
+      }
+    }
+  ]
+}

@@ -1,0 +1,221 @@
+{
+  "fetched_at": "2026-05-17T12:58:58.984910+00:00",
+  "replay_mode": true,
+  "replay_window": {
+    "date": "2026-03-25",
+    "as_of_et": "06:00"
+  },
+  "spy_bars": [
+    {
+      "time": "2026-03-25T04:20:00",
+      "open": 660.34,
+      "high": 660.56,
+      "low": 659.98,
+      "close": 660.11,
+      "volume": 0
+    },
+    {
+      "time": "2026-03-25T04:25:00",
+      "open": 660.09,
+      "high": 660.37,
+      "low": 659.9,
+      "close": 659.99,
+      "volume": 0
+    },
+    {
+      "time": "2026-03-25T04:30:00",
+      "open": 659.92,
+      "high": 660.48,
+      "low": 659.9,
+      "close": 660.37,
+      "volume": 0
+    },
+    {
+      "time": "2026-03-25T04:35:00",
+      "open": 660.34,
+      "high": 660.36,
+      "low": 659.16,
+      "close": 659.72,
+      "volume": 0
+    },
+    {
+      "time": "2026-03-25T04:40:00",
+      "open": 659.86,
+      "high": 660.04,
+      "low": 659.64,
+      "close": 659.66,
+      "volume": 0
+    },
+    {
+      "time": "2026-03-25T04:45:00",
+      "open": 659.63,
+      "high": 659.85,
+      "low": 659.25,
+      "close": 659.41,
+      "volume": 0
+    },
+    {
+      "time": "2026-03-25T04:50:00",
+      "open": 659.35,
+      "high": 659.54,
+      "low": 658.11,
+      "close": 658.15,
+      "volume": 0
+    },
+    {
+      "time": "2026-03-25T04:55:00",
+      "open": 658.19,
+      "high": 658.38,
+      "low": 657.91,
+      "close": 658.19,
+      "volume": 0
+    },
+    {
+      "time": "2026-03-25T05:00:00",
+      "open": 658.25,
+      "high": 658.57,
+      "low": 657.82,
+      "close": 658.42,
+      "volume": 0
+    },
+    {
+      "time": "2026-03-25T05:05:00",
+      "open": 658.52,
+      "high": 659.0,
+      "low": 658.52,
+      "close": 658.83,
+      "volume": 0
+    },
+    {
+      "time": "2026-03-25T05:10:00",
+      "open": 658.97,
+      "high": 659.19,
+      "low": 658.93,
+      "close": 659.14,
+      "volume": 0
+    },
+    {
+      "time": "2026-03-25T05:15:00",
+      "open": 659.09,
+      "high": 659.13,
+      "low": 658.91,
+      "close": 659.05,
+      "volume": 0
+    },
+    {
+      "time": "2026-03-25T05:20:00",
+      "open": 659.03,
+      "high": 659.1,
+      "low": 658.4,
+      "close": 658.54,
+      "volume": 0
+    },
+    {
+      "time": "2026-03-25T05:25:00",
+      "open": 658.42,
+      "high": 658.44,
+      "low": 658.12,
+      "close": 658.27,
+      "volume": 0
+    },
+    {
+      "time": "2026-03-25T05:30:00",
+      "open": 658.34,
+      "high": 658.71,
+      "low": 658.27,
+      "close": 658.41,
+      "volume": 0
+    },
+    {
+      "time": "2026-03-25T05:35:00",
+      "open": 658.35,
+      "high": 658.71,
+      "low": 658.26,
+      "close": 658.38,
+      "volume": 0
+    },
+    {
+      "time": "2026-03-25T05:40:00",
+      "open": 658.39,
+      "high": 658.53,
+      "low": 658.1,
+      "close": 658.13,
+      "volume": 0
+    },
+    {
+      "time": "2026-03-25T05:45:00",
+      "open": 658.11,
+      "high": 658.11,
+      "low": 657.47,
+      "close": 657.72,
+      "volume": 0
+    },
+    {
+      "time": "2026-03-25T05:50:00",
+      "open": 657.65,
+      "high": 657.99,
+      "low": 657.62,
+      "close": 657.75,
+      "volume": 0
+    },
+    {
+      "time": "2026-03-25T05:55:00",
+      "open": 657.84,
+      "high": 659.04,
+      "low": 657.8,
+      "close": 658.39,
+      "volume": 0
+    }
+  ],
+  "ribbon": {
+    "fast": 658.3,
+    "pivot": 658.17,
+    "slow": 657.15,
+    "stack": "BULL",
+    "spread_cents": 115,
+    "periods": {
+      "fast_ema": 13,
+      "pivot_ema": 20,
+      "slow_ema": 48
+    }
+  },
+  "vix": {
+    "current": 26.22,
+    "direction": "falling",
+    "change_pct": -2.67,
+    "iv_regime": "HIGH"
+  },
+  "spy_context": {
+    "current_price": 658.39,
+    "prior_session_close": 653.2,
+    "overnight_gap_dollars": 5.19,
+    "overnight_gap_dir": "up",
+    "premarket_high": 660.56,
+    "premarket_low": 657.47
+  },
+  "sectors": {
+    "XLK": {
+      "close": 136.15,
+      "change_pct": 0.07,
+      "direction": "flat"
+    },
+    "XLF": {
+      "close": 49.28,
+      "change_pct": 0.98,
+      "direction": "up"
+    },
+    "XLE": {
+      "close": 60.84,
+      "change_pct": 1.74,
+      "direction": "up"
+    },
+    "SPY": {
+      "close": 653.18,
+      "change_pct": 0.29,
+      "direction": "flat"
+    }
+  },
+  "rotation_signal": "mixed",
+  "tv_data_available": true,
+  "alpaca_data_available": true
+}

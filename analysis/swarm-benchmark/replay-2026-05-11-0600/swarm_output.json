@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-05-11T10:02:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis", "internals"],
+    "bearish": [],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 4,
+    "bearish": 0,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 1.0,
+    "bearish": 0.0
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 95,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "VIX at 18.19 with +5.88% rise is one VIX-point from breaching the 19.5 threshold that flips the macro backdrop to HIGH regime — if VIX accelerates at the open, the entire bullish macro thesis collapses before the first 0DTE entry gate opens at 09:35 ET.",
+    "top_invalidation_scenario": "VIX breaks 19.50 and reaches 20.0+ within first 15 minutes of cash open (09:30–09:45 ET), flipping macro backdrop from MID to HIGH regime and invalidating the 'both directions can work' premise underpinning the bullish consensus."
+  },
+  "battle_level": {
+    "price": 737.95,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 737.95,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 734.6,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 738.79,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 740.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 715.0,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds above 737.30 pivot at open and reclaims 737.95 Carry resistance with volume confirmation",
+      "bias": "bullish",
+      "target": 740.0,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if SPY tests 737.95 on first approach but stalls and pulls back to 737.00–737.30 range, trapped between Carry resistance and ribbon pivot",
+      "bias": "no_trade",
+      "target": 737.0,
+      "entry_trigger": "no setup — wait for resolution outside 737.00–737.95 compression zone"
+    },
+    "invalidation": {
+      "condition": "VIX breaks 19.50 in first 15 min of cash open AND/OR SPY first 5-min bar closes below 737.30 pivot",
+      "effect": "Macro backdrop flips to HIGH regime and/or BULL ribbon stack is confirmed fragile — bullish thesis is invalidated; no call trades. Monitor for bearish rejection setup at 737.95 if SPY gaps above and reverses."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests 737.95 Carry resistance (the 5-day RTH high) at least once before 11:00 ET on 2026-05-11, approaching from below within 41 cents of current price 737.54.",
+      "invalidation": "SPY does not print a tick at or above 737.90 before 11:00 ET — BULL ribbon fades without testing the battle level.",
+      "confidence": 0.72,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 19.50 through the first 30 minutes of cash open (09:30–10:00 ET), confirming MID regime holds and the macro risk-on backdrop stays intact for bullish setups.",
+      "invalidation": "VIX prints 19.50 or higher before 10:00 ET — rapid-rise threshold crossed and macro thesis invalidated regardless of chart structure.",
+      "confidence": 0.60,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "The first 5-minute RTH bar (09:30–09:35 ET) closes at or above 737.30 (the BULL ribbon pivot), confirming overnight CLEAN_BULL structure carries into the session open with no gap-down flush.",
+      "invalidation": "The 09:35 ET bar closes below 737.30 — pivot lost on the first bar signals open-bar sellers and invalidates the 'momentum bars into close' carryover thesis.",
+      "confidence": 0.65,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The key tension today is unanimous bullish alignment (4/4 specialists, 1.00 weighted score, CLEAN_BULL ribbon with 30c spread) against an inverted risk/reward at the day's gating level — only 41c of upside to the Carry resistance at 737.95 versus 294c of downside to Active support at 734.60, with VIX rising 5.88% and sitting one point below the HIGH-regime threshold. Consensus is bullish because structure, macro backdrop, and sector rotation all confirm risk-on appetite with zero catalysts to disrupt today, but the validator rightly flags that VIX acceleration or a failed open-bar hold of the 737.30 pivot would flip the setup instantly. The single most important thing to watch at market open is whether the first 5-minute bar holds 737.30 and whether VIX stays below 19.50 — if both hold, the primary scenario (reclaim 737.95, target 740.00) is active; if either breaks, stand down.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.78,
+      "one_line": "CLEAN_BULL ribbon (fast 737.36 > pivot 737.30 > slow 737.06, 30c spread), strong_bull bar structure with two consecutive momentum closes into prior session end, overnight gap flat — structure intact."
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "VIX 18.19 MID regime, rising +5.88% but sub-threshold (< 1.5-point rapid-rise trigger), zero macro events today, flat overnight gap, risk-on rotation — macro favors bulls with yellow-flag VIX caution."
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "Battle level 737.95 Carry (2★) is 41c away — price is positioned for immediate test; ribbon supports reclaim entry; inverted risk/reward means bulls need momentum to break through cleanly."
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.58,
+      "one_line": "risk_on_narrow — XLK +2.29% outperforms SPY by 192bp (growth leadership) but XLF -0.85% divergence signals narrow breadth; rotation is tech-concentrated and vulnerable to reversal."
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "VIX escape to 20.0+ in first 15 min, OR XLF drops additional 1.0%+ widening sector divergence to 3.0%+, OR first bar closes below 737.30 pivot — any one of three medium-probability invalidations collapses the bullish case."
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

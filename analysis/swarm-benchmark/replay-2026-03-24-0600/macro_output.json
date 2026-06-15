@@ -1,0 +1,22 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-24T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.80,
+  "reasoning": "VIX at 27.26 in HIGH regime and rising +4.17% overnight signals elevated fear with building momentum. Risk-off rotation confirmed by sector weakness (XLK −0.4%, XLF −0.87%) while energy (XLE +3.01%) rallies on flight-to-safety. Ribbon maintains BEAR stack structure (spread 105¢). Overnight gap essentially flat (+0.16) indicates no surprise overnight sentiment shift. Zero macro events on today's calendar creates a clean RTH tape for fear-driven moves. High VIX makes put premium expensive but increases probability of bearish setups.",
+  "vix_regime": "HIGH",
+  "vix_direction": "rising",
+  "vix_current": 27.26,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": 0.16,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX +4.17% overnight at 27.26 signals fear building; HIGH regime + rising direction = strong bearish signature",
+    "Sector rotation confirms risk-off: XLF −0.87%, XLK −0.4% weakness with energy XLE +3.01% flight-to-safety reallocation",
+    "Ribbon BEAR stack (spread 105¢) structurally aligned with macro backdrop; no bullish support underneath",
+    "Zero macro events = no hard no-trade windows; full day available for fear/premium-driven entries"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,98 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-05-18T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.70,
+  "reasoning": "SPY at 740.57 is above the BULL ribbon stack (slow 738.53, pivot 739.25, fast 739.57) with 103c spread. The battle level is 738.54 (Active support, 2★, prior RTH low from 2026-05-15) — 1.97 below current price and the first structural shelf. Premarket high 741.51 (Active resistance) is only 0.94 above, but the prior RTH high at 743.46 is the true overhead target. If 738.54 holds on any retest, risk/reward favors bulls targeting 743.46. If 738.54 breaks, downside target is 734.14 (Carry support, 5-day RTH low) with 6.43 further to fall. BULL bias supported by ribbon alignment and asymmetric room-to-run above the 741.51 gate.",
+  "battle_level": {
+    "price": 738.54,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 738.54,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 1,
+      "distance_from_price": -1.97
+    },
+    {
+      "price": 741.51,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 0.94
+    },
+    {
+      "price": 743.46,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 2.89
+    },
+    {
+      "price": 734.14,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": -6.43
+    },
+    {
+      "price": 748.69,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": 8.12
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 738.54 on retest from above",
+      "bias": "bullish",
+      "target": 743.46,
+      "entry_trigger": "level_hold + ribbon_stack_bull + volume_confirmation",
+      "probability": "high"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 738.54 and closes below 738.00",
+      "bias": "bearish",
+      "target": 734.14,
+      "entry_trigger": "level_break + momentum_shift",
+      "probability": "low"
+    },
+    "sideways": {
+      "condition": "if SPY oscillates between 738.54 and 741.51",
+      "bias": "no_trade",
+      "target": null,
+      "entry_trigger": "range_bound_chop",
+      "probability": "medium"
+    }
+  },
+  "levels_in_play_count": 6,
+  "key_observations": [
+    "BULL ribbon stack confirms up-bias: slow 738.53 < pivot 739.25 < fast 739.57, 103c spread indicates moderate bullish structure.",
+    "Battle level 738.54 (prior RTH low) is the primary hinge — if broken, downside accelerates to 734.14; if held, bulls control the day.",
+    "Premarket high 741.51 is very near (0.94 above), but prior RTH high 743.46 is the true resistance threshold — breaking PMH doesn't guarantee follow-through.",
+    "Carry-tier support/resistance (734.14 / 748.69) define the daily range extremes; odds favor staying between them given BULL ribbon.",
+    "VIX at 18.39 (MID regime) suggests moderate volatility — level tests will be crisp, not ambiguous."
+  ],
+  "data_quality": "full"
+}

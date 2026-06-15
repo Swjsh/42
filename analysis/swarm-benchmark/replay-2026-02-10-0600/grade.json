@@ -1,0 +1,66 @@
+{
+  "date": "2026-02-10",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:02.656294+00:00",
+  "actual": {
+    "open": 694.91,
+    "close": 692.11,
+    "high": 696.53,
+    "low": 691.66,
+    "move_dollars": -2.8,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 25,
+    "consensus_strength": "weak",
+    "battle_level": {
+      "price": 696.95,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bullish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 696.95,
+      "role": "resistance",
+      "rth_range": [
+        691.66,
+        696.53
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 695.86,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "695.86 (Active \u2605\u2605 prior-day high resistance) is tested within the first 60 minutes of RTH but SPY fa",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains in the 16.5\u201318.0 range throughout all of RTH on 2026-02-10 with no regime change from MID \u2014 zero macro event",
+        "invalidation": "VIX spikes above 18.5 or drops below 16.0 at any point during RTH (09:30\u201316:00 ET)"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "SPY 5m ribbon spread (fast minus slow EMA) stays below 30c through the first 30 minutes of RTH (through 10:00 ET), preve",
+        "invalidation": "Ribbon spread exceeds 30c with a fully ordered bullish or bearish stack (fast > pivot > slow OR fast < pivot < slow) by "
+      }
+    ]
+  },
+  "narrative": "The core tension on 2026-02-10 is between genuine overnight risk-on sector rotation (XLK +1.96%, XLE +0.81%) and the flat $0.17 overnight gap that negates any market conviction behind those moves \u2014 if overnight traders truly believed in the tech rally, SPY would have opened materially higher. Macro "
+}

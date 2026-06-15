@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-04T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "SPY at 680.29 with bullish ribbon stack (fast 680.62 > pivot 680.59 > slow 679.8, 81¢ spread). Price sits atop weak support zone (679.0, 678.0 at 1★ Reference tier) with clear overhead resistance at 682.58 (2★ Active, yesterday's RTH high). The battle level is 682.58 — a test from below with 2.29 room to target. Ribbon bullishness + positive overnight close + weak support below suggests bulls have room to run if they can clear 682.58, but that level is the critical gate. Bias is bullish on hold of 679.0 support and initial flush toward 682.58.",
+  "battle_level": {
+    "price": 682.58,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 682.58,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 2.29
+    },
+    {
+      "price": 681.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 0.71
+    },
+    {
+      "price": 679.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": -1.29
+    },
+    {
+      "price": 678.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": -2.29
+    },
+    {
+      "price": 693.66,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": 13.37
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "SPY holds 679.0 support and tests 682.58 resistance",
+      "bias": "bullish",
+      "target": 693.66,
+      "entry_trigger": "ribbon_stack_bullish + level_hold + flush_toward_resistance"
+    },
+    "secondary": {
+      "condition": "SPY breaks below 679.0 support without holding",
+      "bias": "bearish",
+      "target": 672.45,
+      "entry_trigger": "support_break + momentum_continuation"
+    },
+    "containment": {
+      "condition": "SPY fails at 682.58 resistance and retraces to 679.0",
+      "bias": "neutral",
+      "target": 679.0,
+      "entry_trigger": "resistance_rejection + containment_mode"
+    }
+  },
+  "levels_in_play_count": 5,
+  "key_observations": [
+    "Battle level 682.58 (2★ Active) is the critical gate — only 2.29 above current price",
+    "Bullish ribbon stack provides structural support to any upside push, but weak (1★) support below at 679.0 limits downside room",
+    "Carry levels (669.67 and 693.66) are both out of range — today is a shorter-duration intraday game with no cross-session targets visible",
+    "Price closed at prior-session close (680.29), flat gap overnight — no overnight momentum either direction",
+    "Risk/reward asymmetry: 2.29 upside room to 682.58 vs 1.29 downside to 679.0 — bulls have more room if thesis holds"
+  ],
+  "data_quality": "full"
+}

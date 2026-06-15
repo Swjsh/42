@@ -1,0 +1,43 @@
+{
+  "date": "2026-05-21",
+  "total_ticks": 15,
+  "live_trading_ticks": 3,
+  "counts": {
+    "ALIGNED": 0,
+    "MISALIGNED-BENIGN": 1,
+    "MISALIGNED-CRITICAL": 2,
+    "STALE_PAUSED": 0,
+    "NO_DATA": 12,
+    "NO_BAR": 0
+  },
+  "misaligned_critical_count": 2,
+  "misaligned_critical_pct_of_live": 66.67,
+  "headline": "2 of 3 live-trading ticks (67%) were MISALIGNED-CRITICAL on 2026-05-21",
+  "critical_ticks": [
+    {
+      "tick_id": 16,
+      "fire_at": "2026-05-21T10:18:02",
+      "decision": "ENTER_BEAR",
+      "claimed_spy": 738.83,
+      "closed_close": 739.4400024414062,
+      "divergence": -0.61,
+      "reason": "spy=738.83 ribbon=56c(BEAR) vix=17.74(cached) bear=8/10 bull=6/11 htf=null | close below Fast+Pivot, BEAR ribbon, VIX 17.74 > 17.30, BEARISH_REJECTION_CONTINUATION"
+    },
+    {
+      "tick_id": 116,
+      "fire_at": "2026-05-21T15:18:02",
+      "decision": "HOLD",
+      "claimed_spy": 738.87,
+      "closed_close": 742.5100708007812,
+      "divergence": -3.6401,
+      "reason": "spy=738.87 ribbon=56c(BEAR) vix=17.74(flat) bear=0/10 bull=0/11 htf=null | entry_cutoff_15:00_passed, flat, 32min_to_eod"
+    }
+  ],
+  "log_path": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\logs\\heartbeat-2026-05-21.log",
+  "csv_path": "C:\\Users\\jackw\\Desktop\\42\\backtest\\data\\spy_5m_2026-05-08_2026-05-21.csv",
+  "audit_files": {
+    "per_tick_csv": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-05-21.csv",
+    "summary_json": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-05-21.json",
+    "human_md": "C:\\Users\\jackw\\Desktop\\42\\docs\\HEARTBEAT-TICK-AUDIT-2026-05-21.md"
+  }
+}

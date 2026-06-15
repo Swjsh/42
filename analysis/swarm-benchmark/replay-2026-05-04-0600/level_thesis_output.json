@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-05-04T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "SPY at 721.41 in premarket, gapped up +0.74 overnight and now backing off slightly from the premarket high (722.41). Price is sandwiched in a tight $2.07 band between the PML (720.34 support, 2★) and PMH (722.41 resistance, 2★). The battle level is 722.41 — a re-test and hold here favors bulls targeting the 5-day Carry high at 724.87 (+$3.46 above current); a break below 722.41 invites a retreat to 720.34 and likely deeper to the $716–$718 zone. Ribbon is MIXED (13¢ spread, no directional bias), but price holding in the upper half of the premarket range (+51% from low) supports modest bullish lean into the RTH open. Tight range, high uncertainty, but directional edge favors UP until 722.41 breaks.",
+  "battle_level": {
+    "price": 722.41,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 722.41,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 1.0
+    },
+    {
+      "price": 720.34,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": -1.07
+    },
+    {
+      "price": 724.87,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 3.46
+    },
+    {
+      "price": 723.54,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 2.13
+    },
+    {
+      "price": 723.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": 1.59
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 722.41 on RTH open test",
+      "bias": "bullish",
+      "target": 724.87,
+      "entry_trigger": "level_hold + gap_gap follow-through"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 722.41 in first 30 min",
+      "bias": "bearish",
+      "target": 720.34,
+      "entry_trigger": "resistance_rejection + momentum_fade"
+    },
+    "tertiary": {
+      "condition": "if SPY gets trapped 720.34–722.41 for 90+ min",
+      "bias": "no_trade",
+      "target": "wait for breakout",
+      "entry_trigger": "none — range chop, defer to volatility expansion"
+    }
+  },
+  "levels_in_play_count": 6,
+  "key_observations": [
+    "Overnight gap +0.74 shows up-bias into premarket; price now consolidating within PMH/PML band.",
+    "Ribbon is MIXED (13¢ spread) — no directional momentum signal yet; directional bias will emerge once one side of the $2.07 band breaks clearly.",
+    "PMH at 722.41 is the day's first critical test; holding here is bullish toward 724.87 Carry target; failure invites breakdown toward $716–$718 zone.",
+    "Tight $2.07 range limits confidence; any expansion beyond this band will define the day's bias.",
+    "5-day Carry low at 708.37 is −$13.04 (far OOB); Carry high at 724.87 is the key extension target if 722.41 holds and breaks upside."
+  ],
+  "data_quality": "full"
+}

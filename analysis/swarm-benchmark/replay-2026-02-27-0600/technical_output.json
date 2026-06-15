@@ -1,0 +1,21 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-02-27T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.48,
+  "reasoning": "CLEAN_BULL ribbon (53c spread: fast 689.08 > pivot 688.94 > slow 688.55) is the dominant signal per framework weighting, supporting bullish bias. However, marginal conviction due to multiple headwinds: price currently 8c below pivot (momentum loss), bar structure mixed (2 red bars before 1 green recovery), overnight gap down 46c, VIX spiking 8.48% (volatility expansion), and sector rotation deeply risk-off (tech -1.35%, energy/financials +0.8-1.3% = defensive rotation). Meets only 1 of 4 bullish confirmation criteria (ribbon structure). Premarket context (06:00 ET, light volume, overnight bearish macro) argues for caution. Ribbon alone carries bullish lean but insufficient confluence for high conviction.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 53,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "CLEAN_BULL ribbon (53c spread) is the primary signal — Fast 689.08, Pivot 688.94, Slow 688.55",
+    "Price 688.86 trades 8 cents below pivot, showing weakness and hesitation despite bullish ribbon",
+    "Last 3 bars: RED (30.8k vol) → RED (59.3k vol) → GREEN (73.4k vol) — final recovery is offset by preceding weakness",
+    "Overnight gap down 46 cents from prior 689.32 close combined with rising VIX (+8.48%) indicates elevated uncertainty",
+    "Sector rotation RISK_OFF: tech weakness (-1.35%) while financials/energy rally (+0.8-1.3%) = defensive rotation, bearish macro backdrop",
+    "Premarket state at 06:00 ET — awaiting market open confirmation above pivot before committing to bullish entry"
+  ],
+  "data_quality": "full"
+}

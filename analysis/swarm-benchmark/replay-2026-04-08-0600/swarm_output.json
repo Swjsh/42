@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-04-08T10:00:05Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis", "internals"],
+    "bearish": [],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 4,
+    "bearish": 0,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 1.0,
+    "bearish": 0.0
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 73,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "weak",
+    "weakest_link": "Zero premarket volume + tech-concentration (XLK +54bps vs SPY) means the gap-up structure is built on short-covering and orphaned bids — not conviction buying — making the 677.45 battle level a fragile ceiling with inverted risk/reward (+$0.85 upside vs -$16 gap-fill downside).",
+    "top_invalidation_scenario": "XLK reverses and turns negative (-0.5%+) at the open while SPY attempts to rally — destroys sector alignment narrative and drains the bid instantly given tech did the heavy lifting overnight."
+  },
+  "battle_level": {
+    "price": 677.45,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 677.45,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 676.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 679.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 678.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 675.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds above fast EMA (676.23) at the open and reclaims 677.45 PMH on first test",
+      "bias": "bullish",
+      "target": 680.0,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if SPY breaks decisively above 677.45 on first attempt with rising volume",
+      "bias": "bullish",
+      "target": 681.0,
+      "entry_trigger": "breakout_momentum"
+    },
+    "invalidation": {
+      "condition": "XLK reverses -0.5%+ at the open while SPY loses 676.00 fast-EMA support on rising volume within first 10 minutes of RTH",
+      "effect": "Destroys the tech-led gap-up thesis; CLEAN_BULL ribbon loses structural credibility; price likely flushes toward 675.00 pivot support or lower — do not chase the bullish setup, wait for re-stabilization evidence."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests PMH 677.45 at least once within the first 60 minutes of RTH (by 10:30 ET)",
+      "invalidation": "SPY does not reach 677.00 before 10:30 ET — gap fades immediately on open",
+      "confidence": 0.72,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 22.0 through the first 90 minutes of RTH (through 11:00 ET), confirming overnight fear compression held",
+      "invalidation": "VIX spikes back above 22.0 before 11:00 ET — overnight compression reverses as a dead-cat bounce",
+      "confidence": 0.62,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY opens above the fast EMA (676.23) and CLEAN_BULL ribbon spread holds above 500 cents through the first 30 minutes of RTH without a 5m close below 675.00",
+      "invalidation": "SPY prints a 5m close below 675.00 before 10:00 ET, collapsing ribbon structure",
+      "confidence": 0.68,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "All four specialist agents deliver a unanimous strong bullish verdict anchored in the +$17.34 overnight gap, CLEAN_BULL ribbon with 724 cent EMA separation, and VIX compressing nearly 20% to 20.82 with zero macro catalysts on today's calendar. However, the validator correctly identifies that this consensus rests on structurally thin foundations: zero premarket volume (orphaned bids, not conviction), tech concentration (XLK running 54bps ahead of SPY with acknowledged narrow breadth), and an inverted risk/reward at the 677.45 battle level (+$0.85 upside to PMH vs -$16 downside to prior-day RTH high at 659.60). Confidence is capped at 73 — not a high-conviction trade — and the single most important watch at the open is XLK: if tech holds its gains and 677.45 is tested with volume, the primary bullish scenario is live; if tech fades and 676.00 fails on rising volume, stand aside.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.88,
+      "one_line": "CLEAN_BULL ribbon (724¢ spread, all EMAs in perfect order); price 176¢ above pivot; gap-up +$17.34 with premarket consolidation doji consistent with bullish continuation setup"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.85,
+      "one_line": "VIX MID regime falling -19.95% to 20.82; risk-on macro backdrop with all sectors up; zero event risk today — cleanest macro setup possible"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.78,
+      "one_line": "Battle level 677.45 (PMH, Active 2★) is the key intraday ceiling; primary scenario targets 680 on reclaim; bearish invalidation opens -$16 gap-fill to 659.60"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.76,
+      "one_line": "Risk-on rotation confirmed (XLK +0.93%, XLF +0.52%, XLE +0.59%); breadth is narrow with tech leading — watch for profit-taking reversal if XLK stalls"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "weak",
+      "top_invalidation": "XLK reversal at open (-0.5%+) would drain the bid instantly; combined with zero premarket volume and weak 2★ battle level, the bullish structure is one tech-fade away from full unwind"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

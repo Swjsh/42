@@ -1,0 +1,185 @@
+{
+  "generated_at": "2026-05-19T12:56:29.402652+00:00",
+  "purpose": "Historical analog scan for BEARISH_REVERSAL_AT_LEVEL_ON_BULL_RIBBON (OP-21 gate)",
+  "scan_period": "2025-01-02 to 2026-05-15",
+  "setup_criteria": {
+    "bull_ribbon_day_min_pct": 0.7,
+    "min_uptrend_from_open_dollars": 3.0,
+    "level_rejection_min_cents": 15,
+    "volume_multiplier": 2.0,
+    "entry_time_gate": "11:00",
+    "win_move_dollars": 1.0,
+    "forward_window_bars": 24
+  },
+  "summary": {
+    "days_scanned": 342,
+    "bull_ribbon_days": 110,
+    "bull_ribbon_day_pct": 0.322,
+    "total_signals": 6,
+    "wins": 2,
+    "losses": 4,
+    "win_rate": 0.333,
+    "avg_drop_on_wins": 1.87,
+    "avg_drop_on_losses": 0.53,
+    "expectancy_estimate": -0.0,
+    "op21_historical_wins_gate": "2/3 FAIL"
+  },
+  "quarter_breakdown": {
+    "Q1-2025": {
+      "signals": 0,
+      "wins": 0,
+      "win_rate": 0.0
+    },
+    "Q2-2025": {
+      "signals": 2,
+      "wins": 0,
+      "win_rate": 0.0
+    },
+    "Q3-2025": {
+      "signals": 0,
+      "wins": 0,
+      "win_rate": 0.0
+    },
+    "Q4-2025": {
+      "signals": 1,
+      "wins": 0,
+      "win_rate": 0.0
+    },
+    "Q1-2026": {
+      "signals": 2,
+      "wins": 2,
+      "win_rate": 1.0
+    },
+    "Q2-2026": {
+      "signals": 1,
+      "wins": 0,
+      "win_rate": 0.0
+    }
+  },
+  "j_day_cross_check": {
+    "winner_day_signals": [],
+    "loser_day_signals": []
+  },
+  "all_signals": [
+    {
+      "date": "2025-04-11",
+      "time": "14:20",
+      "bar_idx_global": 5462,
+      "bar_close": 532.79,
+      "bar_high": 533.06,
+      "rth_open": 522.99,
+      "move_from_open": 10.07,
+      "level_tested": 533.26,
+      "rejection_body_cents": 47.0,
+      "vol_ratio": 2.03,
+      "vix": 37.55,
+      "htf_15m_stack": "BULL",
+      "bull_ribbon_pct": 0.795,
+      "max_drop_2h": 0.72,
+      "bars_to_win": null,
+      "win": false,
+      "j_day_winner": false,
+      "j_day_loser": false
+    },
+    {
+      "date": "2025-06-02",
+      "time": "14:15",
+      "bar_idx_global": 8248,
+      "bar_close": 590.88,
+      "bar_high": 591.19,
+      "rth_open": 587.76,
+      "move_from_open": 3.43,
+      "level_tested": 591.12,
+      "rejection_body_cents": 24.0,
+      "vol_ratio": 2.35,
+      "vix": 18.37,
+      "htf_15m_stack": "BULL",
+      "bull_ribbon_pct": 0.833,
+      "max_drop_2h": 0.1,
+      "bars_to_win": null,
+      "win": false,
+      "j_day_winner": false,
+      "j_day_loser": false
+    },
+    {
+      "date": "2025-11-05",
+      "time": "11:50",
+      "bar_idx_global": 17213,
+      "bar_close": 679.7,
+      "bar_high": 679.74,
+      "rth_open": 674.96,
+      "move_from_open": 4.78,
+      "level_tested": 679.95,
+      "rejection_body_cents": 25.5,
+      "vol_ratio": 2.36,
+      "vix": 18.0,
+      "htf_15m_stack": "MIXED",
+      "bull_ribbon_pct": 0.808,
+      "max_drop_2h": 0.66,
+      "bars_to_win": null,
+      "win": false,
+      "j_day_winner": false,
+      "j_day_loser": false
+    },
+    {
+      "date": "2026-02-20",
+      "time": "13:45",
+      "bar_idx_global": 23622,
+      "bar_close": 689.14,
+      "bar_high": 690.06,
+      "rth_open": 682.23,
+      "move_from_open": 7.83,
+      "level_tested": 689.62,
+      "rejection_body_cents": 48.0,
+      "vol_ratio": 2.65,
+      "vix": 19.08,
+      "htf_15m_stack": "BULL",
+      "bull_ribbon_pct": 0.833,
+      "max_drop_2h": 1.32,
+      "bars_to_win": 11,
+      "win": true,
+      "j_day_winner": false,
+      "j_day_loser": false
+    },
+    {
+      "date": "2026-03-10",
+      "time": "14:10",
+      "bar_idx_global": 24742,
+      "bar_close": 678.64,
+      "bar_high": 681.98,
+      "rth_open": 677.68,
+      "move_from_open": 4.3,
+      "level_tested": 679.88,
+      "rejection_body_cents": 124.0,
+      "vol_ratio": 2.49,
+      "vix": 24.91,
+      "htf_15m_stack": "BULL",
+      "bull_ribbon_pct": 0.718,
+      "max_drop_2h": 2.41,
+      "bars_to_win": 2,
+      "win": true,
+      "j_day_winner": false,
+      "j_day_loser": false
+    },
+    {
+      "date": "2026-04-13",
+      "time": "12:30",
+      "bar_idx_global": 27824,
+      "bar_close": 681.35,
+      "bar_high": 682.0,
+      "rth_open": 677.41,
+      "move_from_open": 4.59,
+      "level_tested": 682.03,
+      "rejection_body_cents": 68.0,
+      "vol_ratio": 2.29,
+      "vix": 19.03,
+      "htf_15m_stack": "BULL",
+      "bull_ribbon_pct": 0.987,
+      "max_drop_2h": 0.65,
+      "bars_to_win": null,
+      "win": false,
+      "j_day_winner": false,
+      "j_day_loser": false
+    }
+  ]
+}

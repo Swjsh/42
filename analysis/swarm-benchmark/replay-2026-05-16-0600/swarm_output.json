@@ -1,0 +1,170 @@
+{
+  "generated_at": "2026-05-16T10:00:00Z",
+  "swarm_version": "v5",
+  "status": "ok",
+  "vote_map": {
+    "bullish": [],
+    "bearish": ["technical", "macro", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 0,
+    "bearish": 3,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.0,
+    "bearish": 0.75
+  },
+  "consensus_bias": "no_trade",
+  "consensus_strength": "strong",
+  "swarm_confidence": 0,
+  "no_trade_reason": "low_post_adjustment_confidence",
+  "confidence_trace": {
+    "base": 45.0,
+    "adjustments": {
+      "specialist_agreement_3_of_4_available": 0,
+      "validator_robustness_moderate": 0,
+      "event_risk_none_equiv_very_low": 5,
+      "battle_grade_held": -20
+    },
+    "raw_before_gate": 30,
+    "gate_triggered": "no_trade_raw_conf_lt_40",
+    "note": "level_thesis_output.json missing; 3 of 4 specialists available; battle_grade=HELD assigned from key-levels.json (738.54 held yesterday, untested today)"
+  },
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The 11:50 ET red bar may represent first-test exhaustion flush at support rather than ongoing seller momentum — the 11:55 doji recovery directly contradicts continuation selling",
+    "top_invalidation_scenario": "SPY opens above 740.00 at 09:30 ET and holds above 740 on normal volume (400-600K bars) through 10:00 ET, collapsing the bearish structure narrative"
+  },
+  "battle_level": {
+    "price": 738.54,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "battle_grade": "HELD"
+  },
+  "level_priority": [
+    {
+      "price": 738.54,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "flush_to",
+      "note": "Prior session RTH low; HELD yesterday (wicked to 738.81, closed 739.08); bearish break target"
+    },
+    {
+      "price": 743.46,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "reclaim_attempt",
+      "note": "Prior session RTH high; first overhead target on any bullish reversal"
+    },
+    {
+      "price": 734.14,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "flush_to",
+      "note": "5-day RTH low; secondary target if 738.54 breaks cleanly"
+    },
+    {
+      "price": 748.69,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "reclaim_attempt",
+      "note": "5-day RTH high; extended bull target only on decisive breakout"
+    },
+    {
+      "price": 737.26,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to",
+      "note": "Pivot S1 from 2026-05-15 OHLC; awareness-only, not a trigger source per OP-5"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY rejects 740.00 resistance at open and breaks below 738.54 on volume >= 1.5x 20-bar avg",
+      "bias": "bearish",
+      "target": 734.14,
+      "entry_trigger": "level_rejection"
+    },
+    "secondary": {
+      "condition": "if SPY holds 738.54 as support on first test and reclaims 740.00 on normal volume (400-600K bars)",
+      "bias": "bullish",
+      "target": 743.46,
+      "entry_trigger": "level_reclaim"
+    },
+    "invalidation": {
+      "condition": "SPY opens above 740.00 at 09:30 ET and holds above 740 on normal volume through 10:00 ET",
+      "effect": "Bearish ribbon structure narrative collapses; the 11:50 flush was exhaustion at support, not continuation — bias flips bullish toward 743.46 Active resistance"
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "738.54 Active support (prior RTH low) will be tested — SPY trades at or below 739.00 — within first 90 minutes of RTH",
+      "invalidation": "SPY does not trade below 739.08 (last known price) by 11:00 ET",
+      "confidence": 0.62,
+      "champion_agent": "technical",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains in 17.5-19.0 range for the full session with no expansion event on the clean event calendar",
+      "invalidation": "VIX moves outside 17.0-19.5 range at any point by 13:00 ET",
+      "confidence": 0.72,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BEAR ribbon (spread >= 30c) holds through 11:30 ET — SPY does not close a 5-min bar above the 740.56 pivot before 11:30 ET",
+      "invalidation": "SPY closes a 5-min bar above 740.56 before 11:30 ET",
+      "confidence": 0.60,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "Three of three available specialists voted bearish (level_thesis output missing — partial data day), driven by a CLEAN_BEAR ribbon with 78-cent spread, a dominant 11:50 ET red bar on 4.6x volume, and risk-off sector rotation (XLE +1.26% vs XLF -0.43%); however, SPY at 739.08 sits only 54 cents above the HELD Active support at 738.54 that survived yesterday's flush, and the v5 HELD battle-grade penalty drops post-adjustment confidence to 30 — below the 40-point NO_TRADE gate. The critical binary at the open: bears need a confirmed break of 738.54 on volume to justify puts, bulls need a hold + reclaim of 740.00 to flip structure — watch these two prices simultaneously for directional resolution.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.72,
+      "one_line": "CLEAN_BEAR ribbon 78c spread; price 148c below 20-EMA pivot 740.56; dominant 11:50 red bar 91% body 4.6x volume; 54c above Active support — bounce-candidate zone moderates conviction"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.62,
+      "one_line": "VIX 18.22 MID flat; zero events today after CPI/retail/industrial 5/14-5/15; neutral macro with structural bearish lean only from ribbon, no event-fear catalyst"
+    },
+    "level_thesis": {
+      "bias": "no_data",
+      "confidence": 0.0,
+      "one_line": "output file missing — level_thesis_output.json not found; level priority and battle_grade derived directly from key-levels.json"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.58,
+      "one_line": "XLE +1.26% vs XLF -0.43% + XLK flat = risk-off defensive rotation; narrow breadth; SPY net -0.35% on heavy close-session volume"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "11:50 red bar may be exhaustion flush (flat VIX + 11:55 doji recovery contradict bear continuation); SPY above 740.00 at open and held through 10:00 ET invalidates bearish thesis"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "partial"
+}

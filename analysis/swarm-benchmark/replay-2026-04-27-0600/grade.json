@@ -1,0 +1,63 @@
+{
+  "date": "2026-04-27",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:15.191745+00:00",
+  "actual": {
+    "open": 713.17,
+    "close": 715.16,
+    "high": 715.63,
+    "low": 712.29,
+    "move_dollars": 1.99,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 16,
+    "consensus_strength": "weak",
+    "battle_level": {
+      "price": 714.47,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "HELD",
+      "battle_level": 714.47,
+      "role": "resistance",
+      "first_touch_time": "2026-04-27T09:35:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 714.47,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY touches 714.47 Carry resistance within the first 60 minutes of RTH (by 10:30 ET on 2026-04-27)",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains in MID regime (15.0\u201320.0) for the entire RTH session on 2026-04-27; no spike into elevated territory",
+        "invalidation": "VIX crosses 20.0 within 30 minutes of the 09:30 ET open"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "SPY ribbon spread remains below 20\u00a2 (unstable structure) for the first 90 minutes of RTH, producing a range-bound open r",
+        "invalidation": "SPY ribbon spread exceeds 25\u00a2 AND price holds above 714.47 before 11:00 ET, confirming a genuine BULL_STRONG stack"
+      }
+    ]
+  },
+  "narrative": "Today's setup is a structural pinch \u2014 SPY at 713.47 sits exactly $1.00 below the 714.47 Carry resistance (the day's binary trigger) with a WEAK_BULL ribbon that falls below the 20\u00a2 stability threshold, and two of four specialists (Technical, Macro) abstained with no_trade/neutral votes. The fragile "
+}

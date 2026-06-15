@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-04-09T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "VIX at 20.94 in MID regime with flat direction — no fear signal. However, overnight gap down -$2.14 (-0.32%) combined with risk-off sector rotation (XLK -1.01%, XLE +2.42%) and bear ribbon stack create a mildly bearish backdrop. No macro events today removes noise. Confidence moderated by VIX being flat (not confirming) and MID regime allowing both directions. Tape is tentatively risk-off but not panicked.",
+  "vix_regime": "MID",
+  "vix_direction": "flat",
+  "vix_current": 20.94,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -2.14,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX at 20.94 with -0.43% change — flat direction, MID regime normal for both bulls and bears",
+    "Overnight gap down -2.14 dollars (-0.32% from 675.88 close) — moderate bearish signal, tape opened weak",
+    "Sector rotation: XLK -1.01%, XLE +2.42% — classic risk-off, money rotating into safety-perceived energy",
+    "Ribbon: BEAR stack with 36-cent spread — weak stack, but stack direction aligned with gap-down bias",
+    "No macro events on calendar for 2026-04-09 — clean trading day, no hard no-trade windows"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,583 @@
+{
+  "run_date": "2026-05-24",
+  "description": "TBR_HIGH_VOL trailing realized-vol regime filter analysis",
+  "combo": {
+    "strike_offset": -2,
+    "stop_pct": -0.35
+  },
+  "is_period": {
+    "start": "2025-01-01",
+    "end": "2025-09-30"
+  },
+  "oos_period": {
+    "start": "2025-10-01",
+    "end": "2026-05-22"
+  },
+  "n_trades": {
+    "is": 332,
+    "oos": 239
+  },
+  "windows_tested": [
+    20,
+    40,
+    60
+  ],
+  "results": {
+    "20": {
+      "window": 20,
+      "is_percentiles": {
+        "p25": 0.100239,
+        "p50": 0.125439,
+        "p75": 0.204914
+      },
+      "is_summary": {
+        "all": {
+          "n": 332,
+          "wr": 0.5934,
+          "exp": 2.39,
+          "total_pnl": 794.4,
+          "passes": true
+        },
+        "tiers": {
+          "HIGH": {
+            "n": 66,
+            "wr": 0.7273,
+            "exp": 7.79,
+            "total_pnl": 513.9,
+            "passes": true
+          },
+          "MED": {
+            "n": 161,
+            "wr": 0.5776,
+            "exp": 2.11,
+            "total_pnl": 339.75,
+            "passes": true
+          },
+          "LOW": {
+            "n": 61,
+            "wr": 0.5574,
+            "exp": 0.94,
+            "total_pnl": 57.3,
+            "passes": true
+          },
+          "NA": {
+            "n": 44,
+            "wr": 0.5,
+            "exp": -2.65,
+            "total_pnl": -116.55,
+            "passes": false
+          }
+        },
+        "concentration": {
+          "HIGH": {
+            "by_quarter": {
+              "2025-Q1": 26.25,
+              "2025-Q2": 487.65
+            },
+            "by_quarter_n": {
+              "2025-Q1": 18,
+              "2025-Q2": 48
+            },
+            "max_quarter": "2025-Q2",
+            "max_pct": 94.9
+          },
+          "MED": {
+            "by_quarter": {
+              "2025-Q1": 71.1,
+              "2025-Q2": 190.8,
+              "2025-Q3": 77.85
+            },
+            "by_quarter_n": {
+              "2025-Q1": 48,
+              "2025-Q2": 54,
+              "2025-Q3": 59
+            },
+            "max_quarter": "2025-Q2",
+            "max_pct": 56.2
+          },
+          "LOW": {
+            "by_quarter": {
+              "2025-Q1": 10.2,
+              "2025-Q3": 47.1
+            },
+            "by_quarter_n": {
+              "2025-Q1": 7,
+              "2025-Q3": 54
+            },
+            "max_quarter": "2025-Q3",
+            "max_pct": 82.2
+          }
+        }
+      },
+      "oos_summary": {
+        "all": {
+          "n": 239,
+          "wr": 0.6067,
+          "exp": 2.07,
+          "total_pnl": 495.9,
+          "passes": true
+        },
+        "tiers": {
+          "HIGH": {
+            "n": 0,
+            "wr": 0.0,
+            "exp": 0.0,
+            "total_pnl": 0.0,
+            "passes": false
+          },
+          "MED": {
+            "n": 202,
+            "wr": 0.6238,
+            "exp": 2.56,
+            "total_pnl": 518.1,
+            "passes": true
+          },
+          "LOW": {
+            "n": 37,
+            "wr": 0.5135,
+            "exp": -0.6,
+            "total_pnl": -22.2,
+            "passes": false
+          },
+          "NA": {
+            "n": 0,
+            "wr": 0.0,
+            "exp": 0.0,
+            "total_pnl": 0.0,
+            "passes": false
+          }
+        },
+        "concentration": {
+          "MED": {
+            "by_quarter": {
+              "2025-Q4": 48.3,
+              "2026-Q1": 453.3,
+              "2026-Q2": 16.5
+            },
+            "by_quarter_n": {
+              "2025-Q4": 69,
+              "2026-Q1": 73,
+              "2026-Q2": 60
+            },
+            "max_quarter": "2026-Q1",
+            "max_pct": 87.5
+          },
+          "LOW": {
+            "by_quarter": {
+              "2025-Q4": 24.0,
+              "2026-Q1": -3.9,
+              "2026-Q2": -42.3
+            },
+            "by_quarter_n": {
+              "2025-Q4": 19,
+              "2026-Q1": 14,
+              "2026-Q2": 4
+            },
+            "max_quarter": "2026-Q2",
+            "max_pct": 190.5
+          }
+        }
+      },
+      "wf": {
+        "HIGH": {
+          "is_exp": 7.79,
+          "oos_exp": 0.0,
+          "wf_ratio": 0.0,
+          "wf_pass": false,
+          "is_n": 66,
+          "oos_n": 0
+        },
+        "MED": {
+          "is_exp": 2.11,
+          "oos_exp": 2.56,
+          "wf_ratio": 1.2133,
+          "wf_pass": true,
+          "is_n": 161,
+          "oos_n": 202
+        },
+        "LOW": {
+          "is_exp": 0.94,
+          "oos_exp": -0.6,
+          "wf_ratio": -0.6383,
+          "wf_pass": false,
+          "is_n": 61,
+          "oos_n": 37
+        },
+        "ALL": {
+          "is_exp": 2.39,
+          "oos_exp": 2.07,
+          "wf_ratio": 0.8661,
+          "wf_pass": true,
+          "is_n": 332,
+          "oos_n": 239
+        }
+      }
+    },
+    "40": {
+      "window": 40,
+      "is_percentiles": {
+        "p25": 0.101557,
+        "p50": 0.145522,
+        "p75": 0.358404
+      },
+      "is_summary": {
+        "all": {
+          "n": 332,
+          "wr": 0.5934,
+          "exp": 2.39,
+          "total_pnl": 794.4,
+          "passes": true
+        },
+        "tiers": {
+          "HIGH": {
+            "n": 63,
+            "wr": 0.7143,
+            "exp": 8.08,
+            "total_pnl": 508.8,
+            "passes": true
+          },
+          "MED": {
+            "n": 130,
+            "wr": 0.5769,
+            "exp": 2.22,
+            "total_pnl": 288.75,
+            "passes": true
+          },
+          "LOW": {
+            "n": 60,
+            "wr": 0.6,
+            "exp": 2.62,
+            "total_pnl": 157.05,
+            "passes": true
+          },
+          "NA": {
+            "n": 79,
+            "wr": 0.519,
+            "exp": -2.03,
+            "total_pnl": -160.2,
+            "passes": false
+          }
+        },
+        "concentration": {
+          "HIGH": {
+            "by_quarter": {
+              "2025-Q2": 508.8
+            },
+            "by_quarter_n": {
+              "2025-Q2": 63
+            },
+            "max_quarter": "2025-Q2",
+            "max_pct": 100.0
+          },
+          "MED": {
+            "by_quarter": {
+              "2025-Q1": 151.2,
+              "2025-Q2": 169.65,
+              "2025-Q3": -32.1
+            },
+            "by_quarter_n": {
+              "2025-Q1": 38,
+              "2025-Q2": 39,
+              "2025-Q3": 53
+            },
+            "max_quarter": "2025-Q2",
+            "max_pct": 58.8
+          },
+          "LOW": {
+            "by_quarter": {
+              "2025-Q3": 157.05
+            },
+            "by_quarter_n": {
+              "2025-Q3": 60
+            },
+            "max_quarter": "2025-Q3",
+            "max_pct": 100.0
+          }
+        }
+      },
+      "oos_summary": {
+        "all": {
+          "n": 239,
+          "wr": 0.6067,
+          "exp": 2.07,
+          "total_pnl": 495.9,
+          "passes": true
+        },
+        "tiers": {
+          "HIGH": {
+            "n": 0,
+            "wr": 0.0,
+            "exp": 0.0,
+            "total_pnl": 0.0,
+            "passes": false
+          },
+          "MED": {
+            "n": 216,
+            "wr": 0.6111,
+            "exp": 1.99,
+            "total_pnl": 430.5,
+            "passes": true
+          },
+          "LOW": {
+            "n": 23,
+            "wr": 0.5652,
+            "exp": 2.84,
+            "total_pnl": 65.4,
+            "passes": true
+          },
+          "NA": {
+            "n": 0,
+            "wr": 0.0,
+            "exp": 0.0,
+            "total_pnl": 0.0,
+            "passes": false
+          }
+        },
+        "concentration": {
+          "MED": {
+            "by_quarter": {
+              "2025-Q4": 37.95,
+              "2026-Q1": 418.35,
+              "2026-Q2": -25.8
+            },
+            "by_quarter_n": {
+              "2025-Q4": 79,
+              "2026-Q1": 73,
+              "2026-Q2": 64
+            },
+            "max_quarter": "2026-Q1",
+            "max_pct": 97.2
+          },
+          "LOW": {
+            "by_quarter": {
+              "2025-Q4": 34.35,
+              "2026-Q1": 31.05
+            },
+            "by_quarter_n": {
+              "2025-Q4": 9,
+              "2026-Q1": 14
+            },
+            "max_quarter": "2025-Q4",
+            "max_pct": 52.5
+          }
+        }
+      },
+      "wf": {
+        "HIGH": {
+          "is_exp": 8.08,
+          "oos_exp": 0.0,
+          "wf_ratio": 0.0,
+          "wf_pass": false,
+          "is_n": 63,
+          "oos_n": 0
+        },
+        "MED": {
+          "is_exp": 2.22,
+          "oos_exp": 1.99,
+          "wf_ratio": 0.8964,
+          "wf_pass": true,
+          "is_n": 130,
+          "oos_n": 216
+        },
+        "LOW": {
+          "is_exp": 2.62,
+          "oos_exp": 2.84,
+          "wf_ratio": 1.084,
+          "wf_pass": true,
+          "is_n": 60,
+          "oos_n": 23
+        },
+        "ALL": {
+          "is_exp": 2.39,
+          "oos_exp": 2.07,
+          "wf_ratio": 0.8661,
+          "wf_pass": true,
+          "is_n": 332,
+          "oos_n": 239
+        }
+      }
+    },
+    "60": {
+      "window": 60,
+      "is_percentiles": {
+        "p25": 0.11121,
+        "p50": 0.221168,
+        "p75": 0.322797
+      },
+      "is_summary": {
+        "all": {
+          "n": 332,
+          "wr": 0.5934,
+          "exp": 2.39,
+          "total_pnl": 794.4,
+          "passes": true
+        },
+        "tiers": {
+          "HIGH": {
+            "n": 57,
+            "wr": 0.7193,
+            "exp": 11.33,
+            "total_pnl": 645.75,
+            "passes": true
+          },
+          "MED": {
+            "n": 108,
+            "wr": 0.5278,
+            "exp": -1.0,
+            "total_pnl": -107.85,
+            "passes": false
+          },
+          "LOW": {
+            "n": 50,
+            "wr": 0.62,
+            "exp": 5.31,
+            "total_pnl": 265.5,
+            "passes": true
+          },
+          "NA": {
+            "n": 117,
+            "wr": 0.5812,
+            "exp": -0.08,
+            "total_pnl": -9.0,
+            "passes": true
+          }
+        },
+        "concentration": {
+          "HIGH": {
+            "by_quarter": {
+              "2025-Q2": 645.75
+            },
+            "by_quarter_n": {
+              "2025-Q2": 57
+            },
+            "max_quarter": "2025-Q2",
+            "max_pct": 100.0
+          },
+          "MED": {
+            "by_quarter": {
+              "2025-Q2": 32.7,
+              "2025-Q3": -140.55
+            },
+            "by_quarter_n": {
+              "2025-Q2": 45,
+              "2025-Q3": 63
+            },
+            "max_quarter": "2025-Q3",
+            "max_pct": 130.3
+          },
+          "LOW": {
+            "by_quarter": {
+              "2025-Q3": 265.5
+            },
+            "by_quarter_n": {
+              "2025-Q3": 50
+            },
+            "max_quarter": "2025-Q3",
+            "max_pct": 100.0
+          }
+        }
+      },
+      "oos_summary": {
+        "all": {
+          "n": 239,
+          "wr": 0.6067,
+          "exp": 2.07,
+          "total_pnl": 495.9,
+          "passes": true
+        },
+        "tiers": {
+          "HIGH": {
+            "n": 0,
+            "wr": 0.0,
+            "exp": 0.0,
+            "total_pnl": 0.0,
+            "passes": false
+          },
+          "MED": {
+            "n": 193,
+            "wr": 0.6114,
+            "exp": 1.58,
+            "total_pnl": 304.95,
+            "passes": true
+          },
+          "LOW": {
+            "n": 46,
+            "wr": 0.587,
+            "exp": 4.15,
+            "total_pnl": 190.95,
+            "passes": true
+          },
+          "NA": {
+            "n": 0,
+            "wr": 0.0,
+            "exp": 0.0,
+            "total_pnl": 0.0,
+            "passes": false
+          }
+        },
+        "concentration": {
+          "MED": {
+            "by_quarter": {
+              "2025-Q4": -118.65,
+              "2026-Q1": 449.4,
+              "2026-Q2": -25.8
+            },
+            "by_quarter_n": {
+              "2025-Q4": 42,
+              "2026-Q1": 87,
+              "2026-Q2": 64
+            },
+            "max_quarter": "2026-Q1",
+            "max_pct": 147.4
+          },
+          "LOW": {
+            "by_quarter": {
+              "2025-Q4": 190.95
+            },
+            "by_quarter_n": {
+              "2025-Q4": 46
+            },
+            "max_quarter": "2025-Q4",
+            "max_pct": 100.0
+          }
+        }
+      },
+      "wf": {
+        "HIGH": {
+          "is_exp": 11.33,
+          "oos_exp": 0.0,
+          "wf_ratio": 0.0,
+          "wf_pass": false,
+          "is_n": 57,
+          "oos_n": 0
+        },
+        "MED": {
+          "is_exp": -1.0,
+          "oos_exp": 1.58,
+          "wf_ratio": -1.58,
+          "wf_pass": false,
+          "is_n": 108,
+          "oos_n": 193
+        },
+        "LOW": {
+          "is_exp": 5.31,
+          "oos_exp": 4.15,
+          "wf_ratio": 0.7815,
+          "wf_pass": true,
+          "is_n": 50,
+          "oos_n": 46
+        },
+        "ALL": {
+          "is_exp": 2.39,
+          "oos_exp": 2.07,
+          "wf_ratio": 0.8661,
+          "wf_pass": true,
+          "is_n": 332,
+          "oos_n": 239
+        }
+      }
+    }
+  },
+  "best_window": 20,
+  "best_high_rv_wf_ratio": 0.0
+}

@@ -1,0 +1,63 @@
+{
+  "date": "2026-02-09",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:02.423524+00:00",
+  "actual": {
+    "open": 689.47,
+    "close": 694.0,
+    "high": 695.86,
+    "low": 688.39,
+    "move_dollars": 4.53,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 65,
+    "consensus_strength": "moderate",
+    "battle_level": {
+      "price": 692.29,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "TESTED_MIXED",
+      "battle_level": 692.29,
+      "role": "resistance",
+      "first_touch_time": "2026-02-09T10:15:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 692.29,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY tests 692.29 (yesterday's RTH high) within the first 90 minutes of RTH (by 11:00 ET), driven by ",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 18.50 for the entire session, continuing the overnight -2.7% compression trend with no macro catalyst ",
+        "invalidation": "VIX spikes above 18.50 at any point before 13:00 ET"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "The BULL ribbon stack (fast EMA > slow EMA, spread >= 30 cents) remains intact through at least the first 60 minutes of ",
+        "invalidation": "SPY closes below 689.09 on any 5m bar before 10:30 ET"
+      }
+    ]
+  },
+  "narrative": "All three measurable specialist agents align bullish \u2014 falling VIX (17.28, -2.7% overnight), clean BULL ribbon (129-cent spread), broad risk-on sector rotation (XLK +2.26%, XLF +0.80%, XLE +1.43%), and SPY just $2.14 below the battle level at 692.29. The validator's key dissent is structural: SPY it"
+}

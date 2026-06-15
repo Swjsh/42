@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-05-13T06:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis"],
+    "bearish": ["internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 3,
+    "bearish": 1,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.90,
+    "bearish": 0.10
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 95,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["internals"],
+    "dissent_reason": "Internals agent flags narrow breadth divergence — XLK (largest SPY weighting) is down -0.54% while only financials lead, suggesting yield-curve rotation rather than broad risk-on conviction; SPY's +0.18% premarket gain is financial-led, not broad-based."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The assumption that XLF +0.78% financial strength can carry SPY higher when XLK (30%+ of index weighting) is selling off -0.54% — breadth divergence is the primary leading indicator for gap reversals in the first 2 hours.",
+    "top_invalidation_scenario": "SPY tests 740.73 by 09:50 ET and closes below Fast EMA 739.99 on a rejection candle with volume >= 1.5x 20-bar average — rated 'high' probability by validator."
+  },
+  "battle_level": {
+    "price": 740.73,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 740.73,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 743.3,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 738.84,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 738.18,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 745.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 740.73 on first test (09:45-10:15 ET) and Fast EMA 739.99 acts as intrabar support on any dip",
+      "bias": "bullish",
+      "target": 743.3,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if SPY breaks decisively above 740.73 with volume confirmation",
+      "bias": "bullish",
+      "target": 745.0,
+      "entry_trigger": "level_reclaim"
+    },
+    "invalidation": {
+      "condition": "SPY tests 740.73 by 09:50 ET and closes below Fast EMA 739.99 on rejection candle with volume >= 1.5x 20-bar average (validator high-probability scenario)",
+      "effect": "Ribbon support breaks, bull thesis flips bearish — gap-fill scenario (738.18-738.84) activates; consider put entry on level_rejection trigger at 739.99 with target 738.18."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests the 740.73 Carry resistance level within the first 45 minutes of RTH (by 10:15 ET), closing within $0.30 of that level on at least one 5-minute bar",
+      "invalidation": "SPY does not reach 740.50 by 10:15 ET, or immediately reverses more than $0.50 below 740.73 on first touch without a retest",
+      "confidence": 0.78,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 19.50 through 11:00 ET, sustaining MID regime and supporting continuation of bullish 0DTE call premium structure without a short-covering unwind spike",
+      "invalidation": "VIX spikes above 19.50 at any point before 11:00 ET, signaling short-covering completion and reversal pressure re-emergence",
+      "confidence": 0.72,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BULL ribbon (135¢ spread) remains intact through the 09:35-10:00 ET opening range, with Fast EMA 739.99 holding as intrabar support on the first post-open dip — no 5-minute bar closes below 739.99 before 10:00 ET",
+      "invalidation": "Any 5-minute bar between 09:35-10:00 ET closes below Fast EMA 739.99, causing ribbon spread compression below 80¢ and structural bull degradation",
+      "confidence": 0.71,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The key tension on 2026-05-13 is whether the CLEAN_BULL ribbon + sustained gap-up (+$2.07) represent genuine broad buying or a short-covering distribution episode masked by financial-sector strength while tech (XLK -0.54%) silently leads the index lower — the 3-of-4 specialist consensus is strongly bullish (weighted score 0.90) because technical structure, event-free macro, and favorable level geometry all align, but the internals dissent on breadth is the validator's sharpest warning. The single most important thing to watch at market open: whether SPY holds Fast EMA 739.99 on the first post-open dip — a close below that level on above-average volume would activate the validator's 'high probability' invalidation scenario and flip the thesis from bullish continuation to bearish gap-fill.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.84,
+      "one_line": "CLEAN_BULL ribbon (135¢ spread, stack BULL), mixed_bullish bar structure — price 45¢ above pivot with sustained +$2.07 gap, last bar strong green close at 740.26 (84% body)"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "VIX 18.09 MID regime rising mildly (0.56%), no events today (CPI tomorrow), risk_on backdrop — confidence tempered by VIX direction and mixed sector rotation"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.75,
+      "one_line": "Battle level 740.73 (5-day Carry high) only $0.47 away — primary scenario: hold confirms bullish floor, asymmetry favors upside to 743.3 vs tight stop at 738.18"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.48,
+      "one_line": "Mixed rotation signal — XLK -0.54% (tech, largest SPY weighting) selling vs XLF +0.78% (financials); SPY gain is narrow financial-led, not broad-based conviction"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "SPY tests 740.73 by 09:50 ET and closes below Fast EMA 739.99 on rejection candle with volume >= 1.5x average — rated high probability; breadth divergence (XLK) is the primary gap-reversal leading indicator"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

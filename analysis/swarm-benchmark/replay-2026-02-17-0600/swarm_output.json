@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-02-17T11:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": [],
+    "bearish": ["technical", "macro", "level_thesis", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 0,
+    "bearish": 4,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.0,
+    "bearish": 1.0
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 95,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Internals confidence 0.45 is the lowest of four; XLE +0.76% vs. XLK flat is narrow sector breadth — a single tech ramp in hour one flips the rotation narrative entirely. VIX interpretation also fragile: +6.84% spike from calm Friday close is historically a capitulation signature, not a multi-hour downtrend starter.",
+    "top_invalidation_scenario": "SPY rallies above 683.00 (slow EMA) by 09:40 ET on volume >= 1.5x 20-bar average — CLEAN_BEAR ribbon inverts, technical thesis collapses, support 677.53 goes untested."
+  },
+  "battle_level": {
+    "price": 677.53,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 677.53,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 697.08,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 686.26,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 683.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 681.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds below 683.00 (slow EMA) at open and BEAR ribbon persists",
+      "bias": "bearish",
+      "target": 677.53,
+      "entry_trigger": "level_rejection"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 677.53 (Carry support) with volume >= 1.5x 20-bar average",
+      "bias": "bearish",
+      "target": 673.07,
+      "entry_trigger": "support_break + ribbon_momentum"
+    },
+    "invalidation": {
+      "condition": "SPY rallies above 683.00 (slow EMA) by 09:40 ET on volume >= 1.5x 20-bar average, OR VIX drops below 20.50 within first 30 minutes of RTH",
+      "effect": "CLEAN_BEAR ribbon structure breaks; macro fear-engine collapses. Consensus trade invalidated — 677.53 support goes untested and price reverses toward 686.26 resistance instead."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY touches or trades through 677.53 (Carry support) at least once before 11:00 ET on 2026-02-17",
+      "invalidation": "SPY does not touch 678.00 (within $0.47 of battle level) before 11:00 ET — price stays in the 681–683 range, failing to follow through on BEAR ribbon",
+      "confidence": 0.62,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains above 20.50 through 10:00 ET — no capitulation-level reversal in the first 30 minutes of RTH — sustaining the HIGH regime macro backdrop",
+      "invalidation": "VIX drops below 20.50 before 09:35 ET, signaling that Friday's +6.84% spike was a premarket panic flush rather than momentum continuation",
+      "confidence": 0.68,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BEAR ribbon structure remains intact through the first 60 minutes of RTH (10:30 ET) — SPY does not close a 5-min bar above the pivot EMA at 682.24",
+      "invalidation": "SPY closes a 5-min bar above 682.24 before 10:30 ET on above-average volume, inverting the ribbon structure to transitional or BULL",
+      "confidence": 0.70,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "All four specialist agents voted unanimously bearish on 2026-02-17: a CLEAN_BEAR ribbon with 149-cent spread, VIX rising into HIGH regime (22.03, +6.84%), risk-off sector rotation (energy leads, tech flat), and price $4.08 above the Carry support floor at 677.53 collectively point to a put-biased session targeting that battle level. The sole structural tension — flagged by the validator at moderate robustness — is whether Friday's exhaustion pattern (body degradation 84%→22%→15%) and flat overnight gap represent completed seller flush rather than continuation, leaving the door open for a VIX-capitulation relief bounce that never reaches 677.53. Watch 683.00 (slow EMA, the CLEAN_BEAR gatekeeper) at open: a 5-min close above it on volume is the single most important event that would invalidate the entire day's thesis.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "CLEAN_BEAR ribbon (spread 149c, price 63c below pivot EMA) with Friday exhaustion pattern (body degradation 84%→22%→15%) — bear structure primary signal, VIX HIGH regime overlay"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.78,
+      "one_line": "VIX 22.03 rising +6.84% into HIGH regime, zero macro events today, flat overnight gap, risk-off macro backdrop — full trading day available under bearish tone"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.72,
+      "one_line": "Battle level 677.53 (Carry 2★) is primary target from $4.08 above; 681–683 zone is Reference-only with no strong intraday support between current price and Carry floor"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.45,
+      "one_line": "Risk-off rotation: XLE +0.76% leading while XLK 0.0% and XLF +0.19% flat — narrow breadth, tech not participating, defensive energy signal is fragile but directionally bearish"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "SPY rallies above 683.00 (slow EMA) by 09:40 ET on volume >= 1.5x 20-bar average — CLEAN_BEAR ribbon breaks, technical thesis inverts, 677.53 goes untested"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

@@ -1,0 +1,67 @@
+{
+  "rmom>=-20": {
+    "n": 268,
+    "pc_per_trade": 7.0,
+    "wr": 0.32
+  },
+  "rmom>=-10": {
+    "n": 225,
+    "pc_per_trade": 8.8,
+    "wr": 0.33
+  },
+  "rmom>=-5": {
+    "n": 198,
+    "pc_per_trade": 9.3,
+    "wr": 0.34
+  },
+  "rmom>=0": {
+    "n": 167,
+    "pc_per_trade": 10.3,
+    "wr": 0.35
+  },
+  "rmom>=5": {
+    "n": 122,
+    "pc_per_trade": 12.6,
+    "wr": 0.36
+  },
+  "rmom>=10": {
+    "n": 77,
+    "pc_per_trade": 20.2,
+    "wr": 0.43
+  },
+  "rmom>=15": {
+    "n": 53,
+    "pc_per_trade": 17.5,
+    "wr": 0.43
+  },
+  "rdur<=10": {
+    "n": 125,
+    "pc_per_trade": 2.8,
+    "wr": 0.28
+  },
+  "rdur<=15": {
+    "n": 173,
+    "pc_per_trade": 7.0,
+    "wr": 0.32
+  },
+  "rdur<=20": {
+    "n": 197,
+    "pc_per_trade": 7.4,
+    "wr": 0.34
+  },
+  "rdur<=25": {
+    "n": 216,
+    "pc_per_trade": 6.7,
+    "wr": 0.33
+  },
+  "rdur<=30": {
+    "n": 236,
+    "pc_per_trade": 6.8,
+    "wr": 0.34
+  },
+  "rdur<=999": {
+    "n": 312,
+    "pc_per_trade": 3.7,
+    "wr": 0.3
+  }
+}

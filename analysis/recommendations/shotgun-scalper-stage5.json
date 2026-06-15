@@ -1,0 +1,624 @@
+{
+  "generated_at": "2026-05-16T23:55:04.658565+00:00",
+  "source_stage": "stage4",
+  "input_keepers": 7,
+  "stage5_passed": 5,
+  "best": {
+    "rank": 1,
+    "combo": {
+      "tp_premium_pct": 1.5,
+      "stop_premium_pct": -0.35,
+      "time_stop_min": 12,
+      "strike_offset": 2,
+      "chandelier_arm_pct": 0.4,
+      "vol_ratio_threshold": 1.2
+    },
+    "source_stage": "stage4",
+    "wide_pnl": 18339.75,
+    "sharpe": 4.503,
+    "n_trades": 1204,
+    "expectancy": 15.23,
+    "max_drawdown": 1340.7,
+    "positive_quarters": 6,
+    "quarter_pnl": {
+      "2025-Q1": 2703.75,
+      "2025-Q2": 4160.4,
+      "2025-Q3": 2757.45,
+      "2025-Q4": 3037.2,
+      "2026-Q1": 2840.25,
+      "2026-Q2": 2840.7
+    },
+    "dir_score": 3,
+    "dir_max": 5,
+    "dir_detail": {
+      "2026-04-29": "YES same-dir (short), 1 fires",
+      "2026-05-01": "YES same-dir (short), 5 fires",
+      "2026-05-04": "YES same-dir (short), 4 fires",
+      "2026-05-14": "miss (j=long, engine=no-fire)",
+      "2026-05-15": "miss (j=short, engine=['long', 'long'])",
+      "2026-05-05": "caught loss (engine $-3.00)",
+      "2026-05-06": "AVOIDED loss (engine $231.00)",
+      "2026-05-07": "AVOIDED loss (engine $95.85)"
+    },
+    "loser_avoid_score": 2,
+    "walk_forward": {
+      "train_pnl": 12658.8,
+      "test_pnl": 5680.95,
+      "train_positive_quarters": 4,
+      "test_positive_quarters": 2,
+      "passed": true,
+      "reason": "PASS: test window net-positive, all test quarters positive"
+    },
+    "concentration": {
+      "top5_pct": 0.163,
+      "wide_pnl": 18339.75,
+      "n_trades": 1204,
+      "label": "Top-5 days = 16.3% of 18340 P&L",
+      "passed": true,
+      "reason": "PASS: 16.3% \u2264 50% concentration cap"
+    },
+    "gate": {
+      "passed": true,
+      "score": 2589.2772,
+      "checks": {
+        "walk_forward": true,
+        "directional": true,
+        "sharpe": true,
+        "wide_pnl": true,
+        "max_drawdown": true,
+        "positive_q6": true,
+        "edge_capture": true
+      }
+    },
+    "op20_disclosures": [
+      "1. ACCOUNT SIZE: Baseline qty=3 contracts / $1000 paper. Headline P&L (18340) scales with qty \u2014 at $1K paper, 3-contract positions represent high % risk.",
+      "2. SAMPLE BIAS: Top-5 best days = 16.3% of total P&L. Selected from Stage 4 grid of 288 combos \u2014 winner's curse applies. Out-of-sample walk-forward test below partially corrects for this.",
+      "3. OUT-OF-SAMPLE: walk-forward train=2025 (12659) test=2026 (5681). Result: PASS (PASS: test window net-positive, all test quarters positive). Full OPRA real-fills used throughout (no BS sim).",
+      "4. REAL-FILLS: All simulation uses Alpaca OPRA option bars (5-min OHLCV). No Black-Scholes pricing. Entry approx = VWAP of next 5m bar after signal. Slippage not explicitly modeled \u2014 bid/ask spread implicit in VWAP vs last.",
+      "5. FAILURE MODES: (a) Worst quarter=2025-Q1 (2704). (b) Max drawdown=1341 = 7.3% of total P&L. (c) Engine fires LONG on 4/29 (J SHORT) and 5/15 (J SHORT) \u2014 structural trendline-bias miss. (d) 5-trade/day cap: misses alpha on high-conviction days (5/04 engine fired 4 but J ran 10).",
+      "6. CONCENTRATION: top-5 days = 16.3% of 18340 P&L (PASS). N=1204 trades over 16 months. Sharpe=4.50, expectancy=15.23/trade."
+    ]
+  },
+  "all_results": [
+    {
+      "rank": 1,
+      "combo": {
+        "tp_premium_pct": 1.5,
+        "stop_premium_pct": -0.35,
+        "time_stop_min": 12,
+        "strike_offset": 2,
+        "chandelier_arm_pct": 0.4,
+        "vol_ratio_threshold": 1.2
+      },
+      "source_stage": "stage4",
+      "wide_pnl": 18339.75,
+      "sharpe": 4.503,
+      "n_trades": 1204,
+      "expectancy": 15.23,
+      "max_drawdown": 1340.7,
+      "positive_quarters": 6,
+      "quarter_pnl": {
+        "2025-Q1": 2703.75,
+        "2025-Q2": 4160.4,
+        "2025-Q3": 2757.45,
+        "2025-Q4": 3037.2,
+        "2026-Q1": 2840.25,
+        "2026-Q2": 2840.7
+      },
+      "dir_score": 3,
+      "dir_max": 5,
+      "dir_detail": {
+        "2026-04-29": "YES same-dir (short), 1 fires",
+        "2026-05-01": "YES same-dir (short), 5 fires",
+        "2026-05-04": "YES same-dir (short), 4 fires",
+        "2026-05-14": "miss (j=long, engine=no-fire)",
+        "2026-05-15": "miss (j=short, engine=['long', 'long'])",
+        "2026-05-05": "caught loss (engine $-3.00)",
+        "2026-05-06": "AVOIDED loss (engine $231.00)",
+        "2026-05-07": "AVOIDED loss (engine $95.85)"
+      },
+      "loser_avoid_score": 2,
+      "walk_forward": {
+        "train_pnl": 12658.8,
+        "test_pnl": 5680.95,
+        "train_positive_quarters": 4,
+        "test_positive_quarters": 2,
+        "passed": true,
+        "reason": "PASS: test window net-positive, all test quarters positive"
+      },
+      "concentration": {
+        "top5_pct": 0.163,
+        "wide_pnl": 18339.75,
+        "n_trades": 1204,
+        "label": "Top-5 days = 16.3% of 18340 P&L",
+        "passed": true,
+        "reason": "PASS: 16.3% \u2264 50% concentration cap"
+      },
+      "gate": {
+        "passed": true,
+        "score": 2589.2772,
+        "checks": {
+          "walk_forward": true,
+          "directional": true,
+          "sharpe": true,
+          "wide_pnl": true,
+          "max_drawdown": true,
+          "positive_q6": true,
+          "edge_capture": true
+        }
+      },
+      "op20_disclosures": [
+        "1. ACCOUNT SIZE: Baseline qty=3 contracts / $1000 paper. Headline P&L (18340) scales with qty \u2014 at $1K paper, 3-contract positions represent high % risk.",
+        "2. SAMPLE BIAS: Top-5 best days = 16.3% of total P&L. Selected from Stage 4 grid of 288 combos \u2014 winner's curse applies. Out-of-sample walk-forward test below partially corrects for this.",
+        "3. OUT-OF-SAMPLE: walk-forward train=2025 (12659) test=2026 (5681). Result: PASS (PASS: test window net-positive, all test quarters positive). Full OPRA real-fills used throughout (no BS sim).",
+        "4. REAL-FILLS: All simulation uses Alpaca OPRA option bars (5-min OHLCV). No Black-Scholes pricing. Entry approx = VWAP of next 5m bar after signal. Slippage not explicitly modeled \u2014 bid/ask spread implicit in VWAP vs last.",
+        "5. FAILURE MODES: (a) Worst quarter=2025-Q1 (2704). (b) Max drawdown=1341 = 7.3% of total P&L. (c) Engine fires LONG on 4/29 (J SHORT) and 5/15 (J SHORT) \u2014 structural trendline-bias miss. (d) 5-trade/day cap: misses alpha on high-conviction days (5/04 engine fired 4 but J ran 10).",
+        "6. CONCENTRATION: top-5 days = 16.3% of 18340 P&L (PASS). N=1204 trades over 16 months. Sharpe=4.50, expectancy=15.23/trade."
+      ]
+    },
+    {
+      "rank": 2,
+      "combo": {
+        "tp_premium_pct": 0.75,
+        "stop_premium_pct": -0.35,
+        "time_stop_min": 12,
+        "strike_offset": 2,
+        "chandelier_arm_pct": 0.6,
+        "vol_ratio_threshold": 1.2
+      },
+      "source_stage": "stage4",
+      "wide_pnl": 22084.2,
+      "sharpe": 5.093,
+      "n_trades": 1199,
+      "expectancy": 18.42,
+      "max_drawdown": 1338.3,
+      "positive_quarters": 6,
+      "quarter_pnl": {
+        "2025-Q1": 2960.55,
+        "2025-Q2": 5828.85,
+        "2025-Q3": 2425.65,
+        "2025-Q4": 3227.4,
+        "2026-Q1": 4363.65,
+        "2026-Q2": 3278.1
+      },
+      "dir_score": 3,
+      "dir_max": 5,
+      "dir_detail": {
+        "2026-04-29": "YES same-dir (short), 1 fires",
+        "2026-05-01": "YES same-dir (short), 5 fires",
+        "2026-05-04": "YES same-dir (short), 4 fires",
+        "2026-05-14": "miss (j=long, engine=no-fire)",
+        "2026-05-15": "miss (j=short, engine=['long', 'long'])",
+        "2026-05-05": "caught loss (engine $-3.00)",
+        "2026-05-06": "AVOIDED loss (engine $231.00)",
+        "2026-05-07": "AVOIDED loss (engine $95.85)"
+      },
+      "loser_avoid_score": 2,
+      "walk_forward": {
+        "train_pnl": 14442.45,
+        "test_pnl": 7641.75,
+        "train_positive_quarters": 4,
+        "test_positive_quarters": 2,
+        "passed": true,
+        "reason": "PASS: test window net-positive, all test quarters positive"
+      },
+      "concentration": {
+        "top5_pct": 0.139,
+        "wide_pnl": 22084.2,
+        "n_trades": 1199,
+        "label": "Top-5 days = 13.9% of 22084 P&L",
+        "passed": true,
+        "reason": "PASS: 13.9% \u2264 50% concentration cap"
+      },
+      "gate": {
+        "passed": true,
+        "score": 2587.5009,
+        "checks": {
+          "walk_forward": true,
+          "directional": true,
+          "sharpe": true,
+          "wide_pnl": true,
+          "max_drawdown": true,
+          "positive_q6": true,
+          "edge_capture": true
+        }
+      },
+      "op20_disclosures": [
+        "1. ACCOUNT SIZE: Baseline qty=3 contracts / $1000 paper. Headline P&L (22084) scales with qty \u2014 at $1K paper, 3-contract positions represent high % risk.",
+        "2. SAMPLE BIAS: Top-5 best days = 13.9% of total P&L. Selected from Stage 4 grid of 288 combos \u2014 winner's curse applies. Out-of-sample walk-forward test below partially corrects for this.",
+        "3. OUT-OF-SAMPLE: walk-forward train=2025 (14442) test=2026 (7642). Result: PASS (PASS: test window net-positive, all test quarters positive). Full OPRA real-fills used throughout (no BS sim).",
+        "4. REAL-FILLS: All simulation uses Alpaca OPRA option bars (5-min OHLCV). No Black-Scholes pricing. Entry approx = VWAP of next 5m bar after signal. Slippage not explicitly modeled \u2014 bid/ask spread implicit in VWAP vs last.",
+        "5. FAILURE MODES: (a) Worst quarter=2025-Q3 (2426). (b) Max drawdown=1338 = 6.1% of total P&L. (c) Engine fires LONG on 4/29 (J SHORT) and 5/15 (J SHORT) \u2014 structural trendline-bias miss. (d) 5-trade/day cap: misses alpha on high-conviction days (5/04 engine fired 4 but J ran 10).",
+        "6. CONCENTRATION: top-5 days = 13.9% of 22084 P&L (PASS). N=1199 trades over 16 months. Sharpe=5.09, expectancy=18.42/trade."
+      ]
+    },
+    {
+      "rank": 3,
+      "combo": {
+        "tp_premium_pct": 0.75,
+        "stop_premium_pct": -0.35,
+        "time_stop_min": 15,
+        "strike_offset": 1,
+        "chandelier_arm_pct": 0.6,
+        "vol_ratio_threshold": 1.2
+      },
+      "source_stage": "stage4",
+      "wide_pnl": 14253.9,
+      "sharpe": 3.727,
+      "n_trades": 1207,
+      "expectancy": 11.81,
+      "max_drawdown": 1803.9,
+      "positive_quarters": 6,
+      "quarter_pnl": {
+        "2025-Q1": 1583.55,
+        "2025-Q2": 3993.0,
+        "2025-Q3": 2230.8,
+        "2025-Q4": 1786.35,
+        "2026-Q1": 2627.55,
+        "2026-Q2": 2032.65
+      },
+      "dir_score": 3,
+      "dir_max": 5,
+      "dir_detail": {
+        "2026-04-29": "YES same-dir (short), 1 fires",
+        "2026-05-01": "YES same-dir (short), 5 fires",
+        "2026-05-04": "YES same-dir (short), 4 fires",
+        "2026-05-14": "miss (j=long, engine=no-fire)",
+        "2026-05-15": "miss (j=short, engine=['long', 'long'])",
+        "2026-05-05": "caught loss (engine $-12.00)",
+        "2026-05-06": "AVOIDED loss (engine $204.00)",
+        "2026-05-07": "AVOIDED loss (engine $116.70)"
+      },
+      "loser_avoid_score": 2,
+      "walk_forward": {
+        "train_pnl": 9593.7,
+        "test_pnl": 4660.2,
+        "train_positive_quarters": 4,
+        "test_positive_quarters": 2,
+        "passed": true,
+        "reason": "PASS: test window net-positive, all test quarters positive"
+      },
+      "concentration": {
+        "top5_pct": 0.176,
+        "wide_pnl": 14253.9,
+        "n_trades": 1207,
+        "label": "Top-5 days = 17.6% of 14254 P&L",
+        "passed": true,
+        "reason": "PASS: 17.6% \u2264 50% concentration cap"
+      },
+      "gate": {
+        "passed": true,
+        "score": 1703.6132,
+        "checks": {
+          "walk_forward": true,
+          "directional": true,
+          "sharpe": true,
+          "wide_pnl": true,
+          "max_drawdown": true,
+          "positive_q6": true,
+          "edge_capture": true
+        }
+      },
+      "op20_disclosures": [
+        "1. ACCOUNT SIZE: Baseline qty=3 contracts / $1000 paper. Headline P&L (14254) scales with qty \u2014 at $1K paper, 3-contract positions represent high % risk.",
+        "2. SAMPLE BIAS: Top-5 best days = 17.6% of total P&L. Selected from Stage 4 grid of 288 combos \u2014 winner's curse applies. Out-of-sample walk-forward test below partially corrects for this.",
+        "3. OUT-OF-SAMPLE: walk-forward train=2025 (9594) test=2026 (4660). Result: PASS (PASS: test window net-positive, all test quarters positive). Full OPRA real-fills used throughout (no BS sim).",
+        "4. REAL-FILLS: All simulation uses Alpaca OPRA option bars (5-min OHLCV). No Black-Scholes pricing. Entry approx = VWAP of next 5m bar after signal. Slippage not explicitly modeled \u2014 bid/ask spread implicit in VWAP vs last.",
+        "5. FAILURE MODES: (a) Worst quarter=2025-Q1 (1584). (b) Max drawdown=1804 = 12.7% of total P&L. (c) Engine fires LONG on 4/29 (J SHORT) and 5/15 (J SHORT) \u2014 structural trendline-bias miss. (d) 5-trade/day cap: misses alpha on high-conviction days (5/04 engine fired 4 but J ran 10).",
+        "6. CONCENTRATION: top-5 days = 17.6% of 14254 P&L (PASS). N=1207 trades over 16 months. Sharpe=3.73, expectancy=11.81/trade."
+      ]
+    },
+    {
+      "rank": 4,
+      "combo": {
+        "tp_premium_pct": 1.5,
+        "stop_premium_pct": -0.35,
+        "time_stop_min": 15,
+        "strike_offset": 2,
+        "chandelier_arm_pct": 0.5,
+        "vol_ratio_threshold": 1.0
+      },
+      "source_stage": "stage4",
+      "wide_pnl": 17480.4,
+      "sharpe": 3.931,
+      "n_trades": 1308,
+      "expectancy": 13.36,
+      "max_drawdown": 1958.4,
+      "positive_quarters": 6,
+      "quarter_pnl": {
+        "2025-Q1": 3331.5,
+        "2025-Q2": 3715.65,
+        "2025-Q3": 1522.05,
+        "2025-Q4": 2924.55,
+        "2026-Q1": 3350.4,
+        "2026-Q2": 2636.25
+      },
+      "dir_score": 4,
+      "dir_max": 5,
+      "dir_detail": {
+        "2026-04-29": "YES same-dir (short), 1 fires",
+        "2026-05-01": "YES same-dir (short), 5 fires",
+        "2026-05-04": "YES same-dir (short), 4 fires",
+        "2026-05-14": "YES same-dir (long), 1 fires",
+        "2026-05-15": "miss (j=short, engine=['long', 'long'])",
+        "2026-05-05": "caught loss (engine $-120.00)",
+        "2026-05-06": "AVOIDED loss (engine $204.00)",
+        "2026-05-07": "AVOIDED loss (engine $276.00)"
+      },
+      "loser_avoid_score": 2,
+      "walk_forward": {
+        "train_pnl": 11493.75,
+        "test_pnl": 5986.65,
+        "train_positive_quarters": 4,
+        "test_positive_quarters": 2,
+        "passed": true,
+        "reason": "PASS: test window net-positive, all test quarters positive"
+      },
+      "concentration": {
+        "top5_pct": 0.184,
+        "wide_pnl": 17480.4,
+        "n_trades": 1308,
+        "label": "Top-5 days = 18.4% of 17480 P&L",
+        "passed": true,
+        "reason": "PASS: 18.4% \u2264 50% concentration cap"
+      },
+      "gate": {
+        "passed": true,
+        "score": 1024.9018,
+        "checks": {
+          "walk_forward": true,
+          "directional": true,
+          "sharpe": true,
+          "wide_pnl": true,
+          "max_drawdown": true,
+          "positive_q6": true,
+          "edge_capture": true
+        }
+      },
+      "op20_disclosures": [
+        "1. ACCOUNT SIZE: Baseline qty=3 contracts / $1000 paper. Headline P&L (17480) scales with qty \u2014 at $1K paper, 3-contract positions represent high % risk.",
+        "2. SAMPLE BIAS: Top-5 best days = 18.4% of total P&L. Selected from Stage 4 grid of 288 combos \u2014 winner's curse applies. Out-of-sample walk-forward test below partially corrects for this.",
+        "3. OUT-OF-SAMPLE: walk-forward train=2025 (11494) test=2026 (5987). Result: PASS (PASS: test window net-positive, all test quarters positive). Full OPRA real-fills used throughout (no BS sim).",
+        "4. REAL-FILLS: All simulation uses Alpaca OPRA option bars (5-min OHLCV). No Black-Scholes pricing. Entry approx = VWAP of next 5m bar after signal. Slippage not explicitly modeled \u2014 bid/ask spread implicit in VWAP vs last.",
+        "5. FAILURE MODES: (a) Worst quarter=2025-Q3 (1522). (b) Max drawdown=1958 = 11.2% of total P&L. (c) Engine fires LONG on 4/29 (J SHORT) and 5/15 (J SHORT) \u2014 structural trendline-bias miss. (d) 5-trade/day cap: misses alpha on high-conviction days (5/04 engine fired 4 but J ran 10).",
+        "6. CONCENTRATION: top-5 days = 18.4% of 17480 P&L (PASS). N=1308 trades over 16 months. Sharpe=3.93, expectancy=13.36/trade."
+      ]
+    },
+    {
+      "rank": 5,
+      "combo": {
+        "tp_premium_pct": 1.0,
+        "stop_premium_pct": -0.3,
+        "time_stop_min": 12,
+        "strike_offset": 1,
+        "chandelier_arm_pct": 0.6,
+        "vol_ratio_threshold": 1.0
+      },
+      "source_stage": "stage4",
+      "wide_pnl": 8253.9,
+      "sharpe": 2.013,
+      "n_trades": 1320,
+      "expectancy": 6.25,
+      "max_drawdown": 1940.7,
+      "positive_quarters": 6,
+      "quarter_pnl": {
+        "2025-Q1": 1408.5,
+        "2025-Q2": 2304.3,
+        "2025-Q3": 608.4,
+        "2025-Q4": 902.1,
+        "2026-Q1": 2199.0,
+        "2026-Q2": 831.6
+      },
+      "dir_score": 4,
+      "dir_max": 5,
+      "dir_detail": {
+        "2026-04-29": "YES same-dir (short), 1 fires",
+        "2026-05-01": "YES same-dir (short), 5 fires",
+        "2026-05-04": "YES same-dir (short), 5 fires",
+        "2026-05-14": "YES same-dir (long), 1 fires",
+        "2026-05-15": "miss (j=short, engine=['long', 'long'])",
+        "2026-05-05": "caught loss (engine $-66.00)",
+        "2026-05-06": "AVOIDED loss (engine $165.00)",
+        "2026-05-07": "AVOIDED loss (engine $183.00)"
+      },
+      "loser_avoid_score": 2,
+      "walk_forward": {
+        "train_pnl": 5223.3,
+        "test_pnl": 3030.6,
+        "train_positive_quarters": 4,
+        "test_positive_quarters": 2,
+        "passed": true,
+        "reason": "PASS: test window net-positive, all test quarters positive"
+      },
+      "concentration": {
+        "top5_pct": 0.32,
+        "wide_pnl": 8253.9,
+        "n_trades": 1320,
+        "label": "Top-5 days = 32.0% of 8254 P&L",
+        "passed": true,
+        "reason": "PASS: 32.0% \u2264 50% concentration cap"
+      },
+      "gate": {
+        "passed": true,
+        "score": 216.2073,
+        "checks": {
+          "walk_forward": true,
+          "directional": true,
+          "sharpe": true,
+          "wide_pnl": true,
+          "max_drawdown": true,
+          "positive_q6": true,
+          "edge_capture": true
+        }
+      },
+      "op20_disclosures": [
+        "1. ACCOUNT SIZE: Baseline qty=3 contracts / $1000 paper. Headline P&L (8254) scales with qty \u2014 at $1K paper, 3-contract positions represent high % risk.",
+        "2. SAMPLE BIAS: Top-5 best days = 32.0% of total P&L. Selected from Stage 4 grid of 288 combos \u2014 winner's curse applies. Out-of-sample walk-forward test below partially corrects for this.",
+        "3. OUT-OF-SAMPLE: walk-forward train=2025 (5223) test=2026 (3031). Result: PASS (PASS: test window net-positive, all test quarters positive). Full OPRA real-fills used throughout (no BS sim).",
+        "4. REAL-FILLS: All simulation uses Alpaca OPRA option bars (5-min OHLCV). No Black-Scholes pricing. Entry approx = VWAP of next 5m bar after signal. Slippage not explicitly modeled \u2014 bid/ask spread implicit in VWAP vs last.",
+        "5. FAILURE MODES: (a) Worst quarter=2025-Q3 (608). (b) Max drawdown=1941 = 23.5% of total P&L. (c) Engine fires LONG on 4/29 (J SHORT) and 5/15 (J SHORT) \u2014 structural trendline-bias miss. (d) 5-trade/day cap: misses alpha on high-conviction days (5/04 engine fired 4 but J ran 10).",
+        "6. CONCENTRATION: top-5 days = 32.0% of 8254 P&L (PASS). N=1320 trades over 16 months. Sharpe=2.01, expectancy=6.25/trade."
+      ]
+    },
+    {
+      "rank": 6,
+      "combo": {
+        "tp_premium_pct": 1.0,
+        "stop_premium_pct": -0.35,
+        "time_stop_min": 15,
+        "strike_offset": 2,
+        "chandelier_arm_pct": 0.6,
+        "vol_ratio_threshold": 0.6
+      },
+      "source_stage": "stage4",
+      "wide_pnl": 14581.65,
+      "sharpe": 2.927,
+      "n_trades": 1397,
+      "expectancy": 10.44,
+      "max_drawdown": 1905.3,
+      "positive_quarters": 6,
+      "quarter_pnl": {
+        "2025-Q1": 2791.2,
+        "2025-Q2": 2145.45,
+        "2025-Q3": 1366.2,
+        "2025-Q4": 2830.8,
+        "2026-Q1": 2605.95,
+        "2026-Q2": 2842.05
+      },
+      "dir_score": 3,
+      "dir_max": 5,
+      "dir_detail": {
+        "2026-04-29": "miss (j=short, engine=['long', 'long', 'long', 'long', 'long'])",
+        "2026-05-01": "YES same-dir (short), 5 fires",
+        "2026-05-04": "YES same-dir (short), 4 fires",
+        "2026-05-14": "YES same-dir (long), 3 fires",
+        "2026-05-15": "miss (j=short, engine=['long', 'long', 'long', 'long'])",
+        "2026-05-05": "caught loss (engine $-162.00)",
+        "2026-05-06": "AVOIDED loss (engine $132.00)",
+        "2026-05-07": "AVOIDED loss (engine $291.00)"
+      },
+      "loser_avoid_score": 2,
+      "walk_forward": {
+        "train_pnl": 9133.65,
+        "test_pnl": 5448.0,
+        "train_positive_quarters": 4,
+        "test_positive_quarters": 2,
+        "passed": true,
+        "reason": "PASS: test window net-positive, all test quarters positive"
+      },
+      "concentration": {
+        "top5_pct": 0.226,
+        "wide_pnl": 14581.65,
+        "n_trades": 1397,
+        "label": "Top-5 days = 22.6% of 14582 P&L",
+        "passed": true,
+        "reason": "PASS: 22.6% \u2264 50% concentration cap"
+      },
+      "gate": {
+        "passed": false,
+        "score": -982.8535,
+        "checks": {
+          "walk_forward": true,
+          "directional": true,
+          "sharpe": true,
+          "wide_pnl": true,
+          "max_drawdown": true,
+          "positive_q6": true,
+          "edge_capture": false
+        }
+      },
+      "op20_disclosures": [
+        "1. ACCOUNT SIZE: Baseline qty=3 contracts / $1000 paper. Headline P&L (14582) scales with qty \u2014 at $1K paper, 3-contract positions represent high % risk.",
+        "2. SAMPLE BIAS: Top-5 best days = 22.6% of total P&L. Selected from Stage 4 grid of 288 combos \u2014 winner's curse applies. Out-of-sample walk-forward test below partially corrects for this.",
+        "3. OUT-OF-SAMPLE: walk-forward train=2025 (9134) test=2026 (5448). Result: PASS (PASS: test window net-positive, all test quarters positive). Full OPRA real-fills used throughout (no BS sim).",
+        "4. REAL-FILLS: All simulation uses Alpaca OPRA option bars (5-min OHLCV). No Black-Scholes pricing. Entry approx = VWAP of next 5m bar after signal. Slippage not explicitly modeled \u2014 bid/ask spread implicit in VWAP vs last.",
+        "5. FAILURE MODES: (a) Worst quarter=2025-Q3 (1366). (b) Max drawdown=1905 = 13.1% of total P&L. (c) Engine fires LONG on 4/29 (J SHORT) and 5/15 (J SHORT) \u2014 structural trendline-bias miss. (d) 5-trade/day cap: misses alpha on high-conviction days (5/04 engine fired 4 but J ran 10).",
+        "6. CONCENTRATION: top-5 days = 22.6% of 14582 P&L (PASS). N=1397 trades over 16 months. Sharpe=2.93, expectancy=10.44/trade."
+      ]
+    },
+    {
+      "rank": 7,
+      "combo": {
+        "tp_premium_pct": 1.5,
+        "stop_premium_pct": -0.35,
+        "time_stop_min": 12,
+        "strike_offset": 2,
+        "chandelier_arm_pct": 0.5,
+        "vol_ratio_threshold": 0.6
+      },
+      "source_stage": "stage4",
+      "wide_pnl": 14144.4,
+      "sharpe": 2.928,
+      "n_trades": 1397,
+      "expectancy": 10.12,
+      "max_drawdown": 1959.9,
+      "positive_quarters": 6,
+      "quarter_pnl": {
+        "2025-Q1": 2752.2,
+        "2025-Q2": 1825.65,
+        "2025-Q3": 1459.2,
+        "2025-Q4": 3516.45,
+        "2026-Q1": 1579.95,
+        "2026-Q2": 3010.95
+      },
+      "dir_score": 3,
+      "dir_max": 5,
+      "dir_detail": {
+        "2026-04-29": "miss (j=short, engine=['long', 'long', 'long', 'long', 'long'])",
+        "2026-05-01": "YES same-dir (short), 5 fires",
+        "2026-05-04": "YES same-dir (short), 4 fires",
+        "2026-05-14": "YES same-dir (long), 3 fires",
+        "2026-05-15": "miss (j=short, engine=['long', 'long', 'long', 'long'])",
+        "2026-05-05": "caught loss (engine $-162.00)",
+        "2026-05-06": "AVOIDED loss (engine $132.00)",
+        "2026-05-07": "AVOIDED loss (engine $291.00)"
+      },
+      "loser_avoid_score": 2,
+      "walk_forward": {
+        "train_pnl": 9553.5,
+        "test_pnl": 4590.9,
+        "train_positive_quarters": 4,
+        "test_positive_quarters": 2,
+        "passed": true,
+        "reason": "PASS: test window net-positive, all test quarters positive"
+      },
+      "concentration": {
+        "top5_pct": 0.237,
+        "wide_pnl": 14144.4,
+        "n_trades": 1397,
+        "label": "Top-5 days = 23.7% of 14144 P&L",
+        "passed": true,
+        "reason": "PASS: 23.7% \u2264 50% concentration cap"
+      },
+      "gate": {
+        "passed": false,
+        "score": -984.0483,
+        "checks": {
+          "walk_forward": true,
+          "directional": true,
+          "sharpe": true,
+          "wide_pnl": true,
+          "max_drawdown": true,
+          "positive_q6": true,
+          "edge_capture": false
+        }
+      },
+      "op20_disclosures": [
+        "1. ACCOUNT SIZE: Baseline qty=3 contracts / $1000 paper. Headline P&L (14144) scales with qty \u2014 at $1K paper, 3-contract positions represent high % risk.",
+        "2. SAMPLE BIAS: Top-5 best days = 23.7% of total P&L. Selected from Stage 4 grid of 288 combos \u2014 winner's curse applies. Out-of-sample walk-forward test below partially corrects for this.",
+        "3. OUT-OF-SAMPLE: walk-forward train=2025 (9554) test=2026 (4591). Result: PASS (PASS: test window net-positive, all test quarters positive). Full OPRA real-fills used throughout (no BS sim).",
+        "4. REAL-FILLS: All simulation uses Alpaca OPRA option bars (5-min OHLCV). No Black-Scholes pricing. Entry approx = VWAP of next 5m bar after signal. Slippage not explicitly modeled \u2014 bid/ask spread implicit in VWAP vs last.",
+        "5. FAILURE MODES: (a) Worst quarter=2025-Q3 (1459). (b) Max drawdown=1960 = 13.9% of total P&L. (c) Engine fires LONG on 4/29 (J SHORT) and 5/15 (J SHORT) \u2014 structural trendline-bias miss. (d) 5-trade/day cap: misses alpha on high-conviction days (5/04 engine fired 4 but J ran 10).",
+        "6. CONCENTRATION: top-5 days = 23.7% of 14144 P&L (PASS). N=1397 trades over 16 months. Sharpe=2.93, expectancy=10.12/trade."
+      ]
+    }
+  ],
+  "gates": {
+    "min_dir_score": 2,
+    "min_sharpe": 1.5,
+    "min_wide_pnl": 5000.0,
+    "max_drawdown_pct": 0.35,
+    "max_top5_pct": 0.5,
+    "walk_forward_test_positive": true
+  }
+}

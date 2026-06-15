@@ -1,0 +1,63 @@
+{
+  "date": "2026-04-01",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:11.019929+00:00",
+  "actual": {
+    "open": 653.9,
+    "close": 655.18,
+    "high": 658.52,
+    "low": 653.0,
+    "move_dollars": 1.28,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 88,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 655.55,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "TESTED_MIXED",
+      "battle_level": 655.55,
+      "role": "resistance",
+      "first_touch_time": "2026-04-01T09:30:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 655.55,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY tests PMH 655.55 within the first 60 minutes of RTH (by 10:30 ET), with the test outcome (break ",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 26.00 through the first 2 hours of RTH (through 11:30 ET), sustaining the macro risk-on narrative and ",
+        "invalidation": "VIX rises above 26.00 by 11:30 ET \u2014 macro agent's falling-VIX confidence narrative instantly flips, making directional c"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BULL ribbon (216c spread) holds through the first 30 minutes of RTH \u2014 no 5-minute bar closes below the 20-EMA pivo",
+        "invalidation": "Any 5-minute bar closes below 652.50 before 10:00 ET, signaling ribbon compression and loss of the premarket bullish str"
+      }
+    ]
+  },
+  "narrative": "A unanimous 4/4 bullish vote rests on a CLEAN_BULL ribbon (216c spread), a strong overnight gap (+$3.30 from $650.24 close), clean macro calendar (zero events on 4/1), and risk-on sector rotation (XLK +2.9%). The critical tension is that the premarket itself shows fading momentum in the final 3 bars"
+}

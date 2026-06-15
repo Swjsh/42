@@ -1,0 +1,94 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-26T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.70,
+  "reasoning": "SPY at 651.80, gap-down -4.94 from 656.74 close. Price is sandwiched between today's PML (650.84, -0.96 below) and PMH (654.85, +3.05 above), with a bearish ribbon stack (fast 651.95 < pivot 652.42 < slow 654.05) and VIX rising to 26.36 in HIGH IV regime. The battle level is 650.84 — the premarket low and first support test. If held, price may attempt to reclaim overhead at PMH 654.85 (bullish reversal risk). If broken, next target is 644.72 Carry support (5-day low). Current price location suggests downside risk dominates given gap conviction + ribbon inversion + risk-off rotation, but premarket low-volume action limits conviction.",
+  "battle_level": {
+    "price": 650.84,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 650.84,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.96
+    },
+    {
+      "price": 654.85,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 3.05
+    },
+    {
+      "price": 654.24,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 2.44
+    },
+    {
+      "price": 644.72,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 4,
+      "distance_from_price": 7.08
+    },
+    {
+      "price": 662.98,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": 11.18
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 650.84 on first test",
+      "bias": "neutral_to_bullish_reversal",
+      "target": 654.85,
+      "entry_trigger": "support_hold + ribbon_fast_defense + volume_confirmation"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 650.84",
+      "bias": "bearish",
+      "target": 644.72,
+      "entry_trigger": "gap_fill_flush + momentum_continuation"
+    },
+    "tertiary": {
+      "condition": "if SPY breaks above 654.85 and reclaims PMH",
+      "bias": "bullish",
+      "target": 660.89,
+      "entry_trigger": "level_reclaim + ribbon_inversion_potential"
+    }
+  },
+  "levels_in_play_count": 5,
+  "key_observations": [
+    "Gap-down open (-4.94) on moderate premarket volume indicates conviction for downside; PML at 650.84 is the critical test",
+    "Bearish ribbon stack (inverted, spread 210¢) aligns with VIX rise (26.36, +4.03%) and risk-off rotation signal",
+    "Price at 651.80 is above fast EMA (651.95 pivot point proximity) but below slow EMA (654.05); vulnerable to downside on ribbon support loss",
+    "Two-sided range (650.84–654.85) spans only $4.01; asymmetry favors downside given macro bearish setup"
+  ],
+  "data_quality": "full"
+}

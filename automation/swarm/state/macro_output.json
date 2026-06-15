@@ -1,0 +1,32 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-05-20T09:06:14Z",
+  "bias": "bullish",
+  "confidence": 0.7,
+  "reasoning": "VIX at 17.99 in MID regime with flat direction — neither bullish nor bearish from VIX alone. Overnight gap is +$2.60 (up), indicating significant bullish overnight sentiment. Today's only event is NVDA earnings AMC at 16:20 ET — per no_trade_window_rules, AMC events have no RTH block (block starts 0 min before, ends 0 min after), but flagged for next-day open gap risk on 5/21. No high-impact macro events (FOMC/CPI/NFP) affecting today's RTH session. Macro backdrop is risk-on given the gap-up and lack of pre-11:00 ET event risk.",
+  "vix_regime": "MID",
+  "vix_direction": "flat",
+  "vix_current": 17.99,
+  "event_risk": "low",
+  "events_today": [
+    {
+      "time_et": "16:20",
+      "name": "NVIDIA (NVDA) Q1 FY27 Earnings",
+      "severity": "high",
+      "no_trade_window": false,
+      "window_start_et": "16:20",
+      "window_end_et": "16:20"
+    }
+  ],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 2.6,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX at 17.99 in MID regime (15-22 range) with flat direction — neutral VIX signal",
+    "Overnight gap +$2.60 from prior close 733.73 to current 736.33 — significant bullish overnight sentiment",
+    "NVDA earnings AMC today (16:20 ET) — no RTH block per calendar rules, but flagged for tomorrow 5/21 open gap risk",
+    "No FOMC, CPI, NFP, or other high-severity events affecting today's regular trading session",
+    "Sectors show mixed rotation signal with XLE up 2.45% but SPY down 0.143% — energy leading, broad market slightly negative"
+  ],
+  "data_quality": "full"
+}

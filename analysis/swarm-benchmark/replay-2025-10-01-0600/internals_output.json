@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2025-10-01T06:00:00Z",
+  "bias": "mixed",
+  "confidence": 0.40,
+  "reasoning": "XLK +0.55% shows tech leadership above the 0.5% threshold, but XLF -0.35% + XLE -0.19% reveal weakness in financials and energy. This is a divergence, NOT classic risk-on (which would see tech AND financials up together). The premarket SPY +0.49% is following tech upward, but breadth is narrow — only one sector driving. VIX has risen +3.07% overnight despite sector gains, suggesting underlying risk-off sentiment beneath the surface. Ribbon is MIXED (no bullish alignment), and overnight gap was -2.34 points. Directional bias is uncertain; financial weakness creates a headwind against the tech bounce.",
+  "rotation_signal": "mixed",
+  "sector_alignment": {
+    "xlk_change_pct": 0.55,
+    "xlf_change_pct": -0.35,
+    "xle_change_pct": -0.19,
+    "spy_change_pct": 0.49,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +0.55% (clear tech leadership above threshold, bullish for SPY given 30% weighting)",
+    "XLF: -0.35% (financial weakness contradicts risk-on narrative, suggests caution on rates/credit)",
+    "XLE: -0.19% (flat, no energy/inflation rotation visible)",
+    "Overall rotation: Divergence — tech up but finance down. NOT risk-on; mixed/cautious."
+  ],
+  "data_quality": "full"
+}

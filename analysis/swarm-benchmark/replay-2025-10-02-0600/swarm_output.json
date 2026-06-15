@@ -1,0 +1,161 @@
+{
+  "generated_at": "2025-10-02T10:00:00Z",
+  "swarm_version": "v5",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "internals"],
+    "bearish": [],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 3,
+    "bearish": 0,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.75,
+    "bearish": 0.0
+  },
+  "consensus_bias": "no_trade",
+  "consensus_strength": "strong",
+  "swarm_confidence": 0,
+  "no_trade_reason": "low_post_adjustment_confidence",
+  "no_trade_detail": "Raw confidence 25 < 40 gate. Base 45 (0.75x60) + event_risk_very_low +5, battle_grade UNTESTED -25 (level_thesis agent output missing — no defined battle level, no entry trigger thesis, no profit target). Three of 4 specialist agents voted bullish but missing level_thesis eliminates the trigger layer entirely.",
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Overnight gap sustainability without RTH validation — +$1.26 gap is low-volume premarket, last bar closes RED into peak (05:55 small red), classic gap-fade setup; without level_thesis the gap-fade vs gap-continuation thesis is undefined.",
+    "top_invalidation_scenario": "SPY opens below 669.00 and fails to hold fast EMA ribbon from below within first 5 minutes of RTH — gap invalidated, ribbon stack inverts, entire bullish thesis reverses."
+  },
+  "battle_level": {
+    "price": 669.37,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "note": "Inferred from key-levels.json (prior session RTH high = current price). level_thesis agent output missing — battle_grade UNTESTED, no prior RTH test recorded. This level is a first approximation only; Premarket should re-derive battle level with full thesis."
+  },
+  "level_priority": [
+    {
+      "price": 669.37,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "reclaim_attempt",
+      "source": "Prior session (2025-10-01) RTH high — current price is sitting directly on this level; break above confirms gap-up, rejection below triggers fade"
+    },
+    {
+      "price": 670.55,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to",
+      "source": "Today premarket high (PMH) — first extension target above 669.37 if gap-up is confirmed"
+    },
+    {
+      "price": 668.76,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from",
+      "source": "Today premarket low (PML) — gap-down floor; fast EMA (669.11) sits just above this level; breach triggers ribbon stack reassessment"
+    },
+    {
+      "price": 667.62,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "flush_to",
+      "source": "Prior session (2025-10-01) RTH low — gap-fill target on bearish day; validator's primary invalidation target"
+    },
+    {
+      "price": 654.42,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from",
+      "source": "5-day RTH low (rolling) — macro floor; relevant only on multi-bar continuation bear move"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "SPY opens at or above 669.37 and first RTH bar closes above it (gap-up confirmed)",
+      "bias": "bullish",
+      "target": 670.55,
+      "entry_trigger": "level_reclaim",
+      "note": "CLEAN_BULL ribbon (65c spread) + rising VIX compression + zero event risk support a gap-continuation long. Trigger: 669.37 reclaim on pullback test within first 15 min. Target PMH 670.55."
+    },
+    "secondary": {
+      "condition": "SPY opens below 669.37 or first RTH bar closes red below 669.00",
+      "bias": "bearish",
+      "target": 667.62,
+      "entry_trigger": "level_rejection",
+      "note": "Gap-fade pattern: last premarket bar closed red into peak, overnight gap unvalidated by RTH flow. Rejection at 669.37 with fast EMA failure → put entry targeting prior RTH low 667.62."
+    },
+    "invalidation": {
+      "condition": "SPY opens below 669.00 AND fails to hold fast EMA (669.11) from below within first 5 minutes of RTH",
+      "effect": "Gap fully invalidated. Ribbon stack inverts BULL→BEAR. Macro 'risk_on' signal flips. Both primary scenario and VIX compression thesis are negated; this is a full consensus wipe. No trade in either direction until new setup forms."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "Prior RTH high 669.37 acts as the pivotal decision level in RTH: SPY either holds above it for 15+ consecutive minutes (gap-up confirmed) OR rejects below 669.00 within the first 30 minutes of RTH",
+      "invalidation": "SPY oscillates between 669.00 and 669.60 for the entire first 30 minutes without a clean directional resolution — neither holds nor breaks decisively",
+      "confidence": 0.62,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 17.0 through 11:00 ET given MID regime falling trend (-0.55%) and zero scheduled macro events today",
+      "invalidation": "VIX spikes above 17.5 within the first 30 minutes of RTH on an opening down-gap or surprise news headline",
+      "confidence": 0.72,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BULL ribbon (65c spread, fast 669.11 > pivot 668.98 > slow 668.46) remains intact through 10:30 ET as long as SPY holds above PML support at 668.76",
+      "invalidation": "Ribbon stack inverts to BEAR (fast EMA crosses below pivot) before 10:30 ET, signaling gap-fade continuation rather than gap-hold",
+      "confidence": 0.68,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "Three of four specialists voted bullish on a clean CLEAN_BULL ribbon (65c spread), VIX compression, +$1.26 overnight gap, and tech-led risk-on rotation — but the level_thesis agent output is missing, leaving no defined battle level, no entry trigger thesis, and no profit target. The validator flags the gap as low-volume and unvalidated by RTH order flow with the last premarket bar closing red into the peak. Raw confidence of 25 triggered the NO_TRADE gate: the bullish structural setup is real but without level_thesis the trigger layer is undefined and this is a wait-for-RTH-confirmation day. The single most important thing to watch at open is whether SPY reclaims and holds above 669.37 (prior RTH high) on the first closed RTH bar — that becomes the proxy battle level and gap-confirmation signal.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.75,
+      "one_line": "CLEAN_BULL ribbon 65c spread, price +39c above pivot, overnight gap up $1.26 — bar structure mixed (last bar red) but ribbon dominant"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "VIX 16.19 MID regime falling, zero events today, XLK +1.5% leading SPY — clean risk-on macro backdrop"
+    },
+    "level_thesis": {
+      "bias": "no_data",
+      "confidence": 0.0,
+      "one_line": "output file missing — no battle level thesis, no entry trigger, no profit target defined"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.58,
+      "one_line": "XLK +1.5% outperforming SPY +0.8%, rotation risk_on, but XLF -0.41% signals narrow breadth (tech-only rally, financials weak)"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Gap-fade risk: overnight +$1.26 is low-volume premarket, last bar red into peak, narrow breadth (XLF weak), ribbon extended +39c above pivot — SPY below 669.00 at open collapses the bullish case"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "partial"
+}

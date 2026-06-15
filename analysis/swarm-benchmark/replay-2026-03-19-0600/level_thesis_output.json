@@ -1,0 +1,94 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-19T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.70,
+  "reasoning": "SPY at 661.59, perched just $0.40 above critical Carry support at 661.19. Premarket ran from 658.58 (low) to 662.1 (high) in a 3.52-point churn. The battle level is 661.19 (multi-session low, 2★) — if it holds on first retest, bounce target is 663.00; if broken, floor drops to 658.58 (premarket low). Ribbon is BEAR-stacked, VIX rising (25.87, +5.21%), sectors all red (XLK −0.97%, XLF −0.81%, XLE −0.53%, SPY −1.04%). Risk-off sentiment + BEAR stack + rising IV favor downside. Price tested PMH (662.1) at 05:45 ET but backed off; morning likely consolidates around the 661.19/662.1 bracket before directional move.",
+  "battle_level": {
+    "price": 661.19,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 661.19,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 1,
+      "distance_from_price": -0.40
+    },
+    {
+      "price": 662.1,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 0.51
+    },
+    {
+      "price": 658.58,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": -3.01
+    },
+    {
+      "price": 663.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 1.41
+    },
+    {
+      "price": 660.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": -1.59
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 661.19 on first test from above",
+      "bias": "bullish",
+      "target": 663.00,
+      "entry_trigger": "hold_at_661.19 + reversal bar + BEAR_stack_holds"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 661.19 in morning flush",
+      "bias": "bearish",
+      "target": 658.58,
+      "entry_trigger": "break_661.19 + vol_confirmation + ribbon_BEAR"
+    },
+    "tertiary": {
+      "condition": "if SPY reclaims 662.1 on morning push",
+      "bias": "mixed",
+      "target": 664.00,
+      "entry_trigger": "high_odds_failure_if_ribbon_BEAR_holds"
+    }
+  },
+  "levels_in_play_count": 7,
+  "key_observations": [
+    "Price sandwiched in $1.09 bracket: 661.19 support (Carry, 2★) below, 662.1 resistance (Active, PMH, 2★) above. This is the critical zone.",
+    "Ribbon BEAR + rising VIX (25.87, +5.21%) + all-red sectors = structural downside lean. BEAR stack spread (144 cents) is meaningful — not chop.",
+    "Premarket already explored full range (658.58 to 662.1). Morning RTH likely reprices from one edge or consolidates. 661.19 is the pivot — holds = bounce to 663, breaks = gap to 658.58.",
+    "Risk-off sentiment evident. Market leaders (XLK, XLF) down 0.8-1.0% overnight. VIX rising into open = protective positioning for lower prices."
+  ],
+  "data_quality": "full"
+}

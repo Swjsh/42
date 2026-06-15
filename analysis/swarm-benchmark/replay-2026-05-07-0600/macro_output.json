@@ -1,0 +1,33 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-05-07T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.65,
+  "reasoning": "VIX at 17.24 (MID regime, flat direction: -0.06%) is neutral from volatility perspective. However, overnight gap up $0.69, BULL ribbon stack (65¢ spread >> 30¢ threshold), and risk_on sector rotation (XLK +1.28%, SPY +0.78%) create cohesive early-day bullish backdrop. CRITICAL constraint: FOMC Rate Decision + Powell presser 14:00-14:30 ET creates hard no-trade window 13:30-15:00 ET. Trading window: bullish setups favored 09:35-13:30 ET, hard stop at 13:30 ET. Confidence moderated due to VIX flatness (no directional conviction) and afternoon event risk truncating hold time.",
+  "vix_regime": "MID",
+  "vix_direction": "flat",
+  "vix_current": 17.24,
+  "event_risk": "high",
+  "events_today": [
+    {
+      "time_et": "14:00",
+      "name": "FOMC Rate Decision (May 2026 meeting)",
+      "severity": "high",
+      "no_trade_window": true,
+      "window_start_et": "13:30",
+      "window_end_et": "15:00"
+    }
+  ],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 0.69,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX flat at 17.24 (no directional conviction from volatility alone)",
+    "Overnight gap up +$0.69 (moderate bullish sentiment into the open)",
+    "BULL ribbon stack with 65¢ spread (bullish alignment above the 30¢ threshold)",
+    "Sector rotation risk_on: XLK +1.28%, SPY +0.78%, XLE -0.51% (tech leading, energy lagging — reflation play)",
+    "FOMC Rate Decision + Powell presser 14:00-14:30 ET — hard no-trade block 13:30-15:00 ET",
+    "Trading window truncated: bullish bias valid only 09:35-13:30 ET; afternoon requires extreme caution"
+  ],
+  "data_quality": "full"
+}

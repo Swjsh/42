@@ -1,0 +1,163 @@
+{
+  "label": "diag_v14_train_only_2025",
+  "start": "2025-01-01",
+  "end": "2025-12-31",
+  "disable_filters": [],
+  "result_metadata": {
+    "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "bars_evaluated": 17483,
+    "trades_fired": 142,
+    "start_date": "2025-01-02",
+    "end_date": "2025-12-31"
+  },
+  "run_at": "2026-05-09T01:03:53.064122",
+  "run_id": "2026-05-09_d9d16264_06c6e6_191d56",
+  "data_hash": "06c6e6aa8d8473e51b9d8941c88231631dbc9d9ddf53c11b81d9f6a51b193072",
+  "code_hash": "d9d16264c2de16d486a911f153344389f69d7973a8da153a6025efa9f801326b",
+  "code_source": "files",
+  "params_hash": "191d56789d4edae5ae96b9633408dc09a29a81860f55a511f386ef16736202b9",
+  "spy_bytes": 1965009,
+  "vix_bytes": 1872585,
+  "params_snapshot": {
+    "_doc": "CANONICAL CONFIG \u2014 single source of truth for rule values. Drift between this file and any prompt/code is a kill-switch event (premarket Step 1a enforces). When you change a value here, also change the embedded constant in the prompt that uses it (heartbeat.md, simulator_real.py, etc.). The pin check verifies they match next premarket.",
+    "schema_version": 3,
+    "rule_version": "v14",
+    "rule_version_ratified_at": "2026-05-08",
+    "rule_version_notes": "Premium stop tightened to -8% via micro-sweep (was v13b -10%). Sub-window stability confirmed: both halves of 53d window PASS 4-of-4 independently. NOT overfit. Findings: analysis/backtests/v14_iteration_findings.md",
+    "_heartbeat_section": "Per-tick parameters consumed by automation/prompts/heartbeat.md and backtest/lib/{filters,orchestrator,simulator_real}.py. Operating principle 4: drift = sync immediately.",
+    "heartbeat_interval_minutes": 3,
+    "_exits_section": "v14 ratified. Premium stop -8% (entry \u00d7 0.92). TP1 = chart-level OR +30% premium fallback (whichever first). After TP1: runner stop to breakeven. Runner exit per operating principle 11 tiered doctrine.",
+    "premium_stop_pct": -0.08,
+    "premium_stop_multiplier": 0.92,
+    "tp1_premium_pct": 0.3,
+    "tp1_premium_multiplier": 1.3,
+    "tp1_qty_fraction": 0.667,
+    "runner_be_stop_after_tp1": true,
+    "exit_all_on_runner_signal_if_tp1_unfired": true,
+    "runner_max_premium_pct": 3.0,
+    "chart_stop_buffer_dollars": 0.5,
+    "ribbon_flip_back_requires_opposite_stack": true,
+    "ribbon_flip_back_min_spread_cents": 30,
+    "time_stop_et": "15:50",
+    "_entry_section": "v11/v12 ratified. Asymmetric trigger requirement (bear \u22651, bull \u22652). Filter 9 vol_mult 0.7\u00d7 (catches morning rejection bars). No entries before 10:00 ET, no entries 14:00-15:00 ET.",
+    "entry_no_trade_before_et": "10:00",
+    "entry_no_trade_window_et": [
+      "14:00",
+      "15:00"
+    ],
+    "filter_9_vol_multiplier": 0.7,
+    "filter_10_min_triggers_bear": 1,
+    "filter_10_min_triggers_bull": 2,
+    "filter_10_level_tied_required": true,
+    "ribbon_min_spread_cents": 30,
+    "strike_offset_itm": 2,
+    "max_premium_per_contract": 3.3,
+    "_vix_section": "Two distinct VIX threshold ladders. (a) iv_regime bands (LOW/MID/HIGH) used by premarket for context tagging. (b) entry_thresholds used by heartbeat filters 8a/8b. Cache refresh logic in heartbeat refreshes when value within \u00b10.20 of any entry_threshold.",
+    "vix_iv_regime_bands": {
+      "low": {
+        "max_exclusive": 15,
+        "label": "LOW"
+      },
+      "mid": {
+        "min_inclusive": 15,
+        "max_inclusive": 22,
+        "label": "MID"
+      },
+      "high": {
+        "min_exclusive": 22,
+        "label": "HIGH"
+      }
+    },
+    "vix_entry_thresholds": {
+      "bull_max_exclusive_or_falling": 17.2,
+      "bear_min_exclusive_and_rising": 17.3,
+      "bull_hard_cap": 22.0
+    },
+    "vix_dir_deadband": 0.05,
+    "_sizing_section": "v13b quality-tiered. ELITE = trigger set includes confluence OR sequence_rejection/reclaim. BASE = otherwise. $0-$2k tier skips quality scaling (capital constraint).",
+    "min_contracts": 3,
+    "position_sizing_tiers": [
+      {
+        "equity_min": 0,
+        "equity_max": 2000,
+        "base_qty": 3,
+        "elite_qty": 3,
+        "structure": "2 TP1 + 1 conservative runner (no upsize \u2014 capital constraint)"
+      },
+      {
+        "equity_min": 2000,
+        "equity_max": 10000,
+        "base_qty": 5,
+        "elite_qty": 8,
+        "structure": "3 TP1 + 1 conservative + 1 aggressive runner"
+      },
+      {
+        "equity_min": 10000,
+        "equity_max": 999999999,
+        "base_qty": 10,
+        "elite_qty": 15,
+        "structure": "6 TP1 + 2 conservative + 2 aggressive runners"
+      }
+    ],
+    "scale_up_min_consecutive_days_above_threshold": 3,
+    "_risk_section": "Hard caps from risk-rules.md. Daily kill switch + per-trade risk. By construction one max-loss = day done.",
+    "per_trade_risk_cap_pct": 0.5,
+    "daily_loss_kill_switch_pct": 0.5,
+    "_first_entry_rule_section": "Added 2026-05-08. If a setup name has been entered AND stopped out today, no second entry on that setup name today. Was in risk-rules.md doctrine, not in heartbeat code. Now both (sync).",
+    "first_entry_after_stop_blocked": true,
+    "first_entry_after_tp_size_reduction": 1,
+    "_macro_section": "Macro Bias Inheritance v2 \u2014 HARD VETO if event \u2264 120 min ahead AND counter-trend to today-bias.bias. SOFT MODIFIER 120-240 min raises bull threshold to \u226510/11, lowers bear to \u22657/10.",
+    "macro_hard_veto_minutes": 120,
+    "macro_soft_modifier_minutes": 240,
+    "macro_soft_bull_threshold": 10,
+    "macro_soft_bear_threshold": 7,
+    "_calendar_freshness_section": "Premarket Step 1b checks macro-calendar.json#refresh_log[] last entry. > 7 days = stale, surface as journal warning. Sunday weekly-review owns the actual 30-day fetch.",
+    "macro_calendar_max_staleness_days": 7,
+    "_liquidity_gate_section": "Pre-entry liquidity check on candidate strike. Hard rejections per risk-rules.md.",
+    "bid_ask_spread_max_cents": 8,
+    "bid_ask_spread_max_pct_of_mid": 0.1,
+    "delta_min_abs": 0.3,
+    "delta_max_abs": 0.55,
+    "open_interest_min": 500,
+    "liquidity_strike_retries_max": 2,
+    "_catalyst_section": "Catalyst-awareness flags. Set true to graduate from journal-only to filter-active. Default: aware-only.",
+    "enable_news_no_trade_windows": true,
+    "enable_size_modifier_windows": false,
+    "_dealer_section": "Options dealer levels are written to key-levels.json as Liquidity tier; heartbeat treats them like any other level (price, distance) \u2014 no special dealer-aware logic. Set true to start tagging dealer-level interactions in journal.",
+    "enable_dealer_level_journaling": true,
+    "_liquidity_tier_section": "Volume Profile / AVWAP shelves are added to key-levels.json by premarket. Heartbeat treats them like any other level. No flag needed \u2014 Pine indicator availability is the only gate.",
+    "_dark_pool_section": "EOD aggregates yesterday's TRF block prints into Liquidity tier for tomorrow. Set false to disable the EOD step (e.g., if Alpaca rate-limits trade pulls).",
+    "enable_dark_pool_aggregation": true,
+    "dark_pool_min_block_size": 5000,
+    "dark_pool_top_n_shelves": 5,
+    "_session_timing_section": "Task Scheduler trigger times. Used by automation/morning-kickoff.md and setup/install-tasks.ps1.",
+    "no_trade_first_minutes": 5,
+    "eod_flatten_et": "15:55",
+    "eod_summary_et": "16:00",
+    "daily_review_et": "16:30",
+    "premarket_et": "08:30",
+    "weekly_review_et_sunday": "18:00",
+    "_resilience_section": "Self-healing harness invariants. Kept here for visibility \u2014 actual values are also embedded in _shared.ps1 (drift between the two = bug to fix).",
+    "max_consecutive_failed_mcp_calls": 3,
+    "max_consecutive_tv_failures_before_kill_switch": 3,
+    "min_disk_free_mb": 100,
+    "wedged_state_alert_hours": 24
+  },
+  "summary_metrics": {
+    "trades_fired": 142,
+    "bars_evaluated": 17483,
+    "hit_rate": 0.1268,
+    "total_pnl": -284.81,
+    "expectancy": -2.01,
+    "max_drawdown": -1630.27,
+    "wl_ratio": 6.357,
+    "thresholds_passed": 2,
+    "thresholds_total": 4,
+    "thresholds_breakdown": {
+      "trades_ge_20": true,
+      "wr_ge_45": false,
+      "wl_ge_15x": true,
+      "expectancy_gt_0": false
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "date": "2026-05-07",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:16.613933+00:00",
+  "actual": {
+    "open": 735.07,
+    "close": 731.53,
+    "high": 736.1,
+    "low": 729.75,
+    "move_dollars": -3.54,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 63,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 734.59,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bullish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "HELD",
+      "battle_level": 734.59,
+      "role": "resistance",
+      "first_touch_time": "2026-05-07T09:30:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 734.59,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY tests battle level 734.59 within the first 30 min of RTH (09:35-10:05 ET) and holds it as suppor",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 18.50 throughout the 09:35-13:30 ET trading window, preserving the low-volatility risk-on backdrop and",
+        "invalidation": "VIX rises above 18.50 at any 5-min bar close before 13:30 ET, signaling market makers repricing FOMC downside risk and c"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "SPY reclaims pivot 734.63 on the first or second 5-min bar close after 09:35 ET open, confirming CLEAN_BULL ribbon struc",
+        "invalidation": "SPY's first two 5-min bars after open both close below pivot 734.63, confirming premarket bear momentum (2 red bars + be"
+      }
+    ]
+  },
+  "narrative": "Today is a 4/4 unanimous bullish consensus anchored in CLEAN_BULL ribbon structure (65c spread), overnight gap +$0.69, and risk-on rotation (XLK +1.28%) \u2014 but the setup starts from a position of weakness: SPY is currently 17c below the pivot with 2 of the last 3 premarket bars red, and FOMC at 14:00"
+}

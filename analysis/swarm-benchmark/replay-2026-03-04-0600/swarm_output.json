@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-04T11:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis", "internals"],
+    "bearish": [],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 4,
+    "bearish": 0,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 1.00,
+    "bearish": 0.00
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 82,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Technical momentum validation — price sits 30 cents below pivot EMA 680.59 with last 3 bars all doji/chop; the bullish ribbon is structural background that has not yet attracted directional follow-through. Entire bullish case is conditional on a momentum confirmation that has not fired.",
+    "top_invalidation_scenario": "SPY fails to close above 680.59 pivot EMA by 11:00 ET and bars remain choppy/doji — bullish ribbon becomes structural noise, setup probability degrades to no-trade."
+  },
+  "battle_level": {
+    "price": 682.58,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 682.58,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 681.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 679.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 678.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 693.66,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "SPY holds 679.0 support and closes a 5m bar above pivot EMA 680.59 with directional body",
+      "bias": "bullish",
+      "target": 682.58,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "SPY breaks below 679.0 support with volume >= 1.5x 20-bar average in first 30 minutes",
+      "bias": "bearish",
+      "target": 672.45,
+      "entry_trigger": "level_rejection"
+    },
+    "invalidation": {
+      "condition": "SPY fails to close above 680.59 pivot EMA by 11:00 ET while bars remain doji/small-body chop",
+      "effect": "Bullish ribbon loses credibility as directional signal; setup degrades to no-trade — consolidation without follow-through confirms the ribbon is structural noise, not a live trigger source."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY trades up to touch 682.58 (prior RTH high, 2-star Active resistance) within the first 90 minutes of RTH (by 11:00 ET)",
+      "invalidation": "SPY fails to trade above 681.50 at any point before 11:00 ET",
+      "confidence": 0.58,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 22.00 for the entire RTH session (currently 20.61, falling 12.52% overnight; no macro catalysts to reverse the fear compression)",
+      "invalidation": "VIX spikes back above 22.00 at any point during RTH on 2026-03-04",
+      "confidence": 0.72,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY closes at least one 5-minute bar above pivot EMA 680.59 by 10:30 ET, confirming momentum catch-up to the ribbon structure",
+      "invalidation": "SPY does not close any 5m bar above 680.59 before 11:00 ET, with bars remaining doji or small-body pattern throughout",
+      "confidence": 0.55,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "Today's setup is structurally bullish — CLEAN_BULL ribbon with 81-cent spread, unanimous 4/4 specialist agreement, zero macro events, and risk-on rotation led by XLF +1.83% and XLK +0.84% — but the consensus is conditional, not confirmed. The critical friction is that price opened flat (680.29) and sits 30 cents below pivot EMA 680.59, with the last 3 closed bars all doji or small-body chop showing zero directional conviction, meaning the bullish structure is background environment that has not yet attracted follow-through momentum. The single most important thing to watch at the open is whether SPY closes a 5m bar above 680.59 within the first 30-60 minutes of RTH — that is the momentum confirmation gate separating a genuine bull setup targeting 682.58 from a consolidation trap with 7.84-point downside if 679.0 gives way.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.65,
+      "one_line": "CLEAN_BULL ribbon 81-cent spread + chop bar structure; price 30c below pivot EMA — structural bull awaiting momentum confirmation"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.82,
+      "one_line": "VIX 20.61 falling 12.52% (MID regime) + zero events today = clean low-friction bullish macro window"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "Battle level 682.58 (2-star Active) only 2.29 above current price; hold of 679.0 opens flush-to setup"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.80,
+      "one_line": "XLF +1.83% / XLK +0.84% risk-on rotation with broad sector leadership — two largest SPY weightings confirm upside bias"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "All 4 agents use conditional language ('if they hold', 'if they can clear') — this is a consensus hope, not a consensus conviction; two 'high' probability invalidation scenarios involving sector reversal and pivot EMA failure"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

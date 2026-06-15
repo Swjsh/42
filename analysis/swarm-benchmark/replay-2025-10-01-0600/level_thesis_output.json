@@ -1,0 +1,86 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2025-10-01T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.58,
+  "reasoning": "SPY at 663.72, overnight gap-down 2.34 points. Premarket rallied to 665.38 (Active resistance) but failed to hold above. Price now sandwiched between premarket low 663.09 (63¢ support) and premarket high 665.38 (166¢ resistance). Multiple stacked resistances above (665.38 → 666.65 Carry → 667.87 pivot R1) with compressed support below suggests asymmetric downside risk if 665.38 fails. MIXED ribbon (39¢ spread) shows indecision, no bullish confirmation. Rising VIX (3.07%) in gap-down context elevates uncertainty. Battle level is 665.38 — if it holds, expect test of 663.09 support; if broken, upside extends to 666.65 Carry level.",
+  "battle_level": {
+    "price": 665.38,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 665.38,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 1.66
+    },
+    {
+      "price": 663.09,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": -0.63
+    },
+    {
+      "price": 666.65,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 2.93
+    },
+    {
+      "price": 661.82,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 4,
+      "distance_from_price": -1.90
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY fails at 665.38 and holds 663.09 support",
+      "bias": "bearish",
+      "target": 661.82,
+      "entry_trigger": "level_rejection + reclaim_attempt at 663.09"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 665.38 on RTH open",
+      "bias": "bullish",
+      "target": 666.65,
+      "entry_trigger": "level_reclaim + momentum continuation"
+    },
+    "tertiary": {
+      "condition": "if SPY breaks below 663.09",
+      "bias": "bearish",
+      "target": 661.82,
+      "entry_trigger": "support_break + flush_move"
+    }
+  },
+  "levels_in_play_count": 4,
+  "key_observations": [
+    "Overnight gap-down 2.34 (down 0.35%) sets negative opening tone",
+    "Premarket high 665.38 is active resistance — immediate battle zone for RTH open in ~2 hours",
+    "Support at 663.09 is extremely fresh (premarket low, 15 min old) and very tight (63¢ below current price)",
+    "MIXED ribbon (39¢ spread, Fast 664.43 > Slow 664.07) with no clear stack direction = indecision, not a bullish signal",
+    "Stacked resistances above (665.38 → 666.65 Carry → 667.87 pivot R1) with compressed support below creates asymmetric downside bias",
+    "Rising VIX (+3.07% to 16.78) in a gap-down market = elevated volatility risk, favor directional move over range play"
+  ],
+  "data_quality": "full"
+}

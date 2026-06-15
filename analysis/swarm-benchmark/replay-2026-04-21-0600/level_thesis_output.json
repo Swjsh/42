@@ -1,0 +1,94 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-04-21T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "SPY at 710.90, near premarket high 710.92. Overnight gap of +$2.21 is intact and supported by a strong BULL ribbon stack (fast 710.27 > pivot 710.09 > slow 709.42, spread 86¢). The critical support zone is 709.46–709.91: if price holds above this, the battle level 712.39 (Carry tier, 5-day RTH high) becomes the primary target. If the premarket high (710.92) gives way, the next decision point is whether price can reclaim the prior session RTH high (709.91); failure there opens the bear case to 706.14. Current price location (sandwiched between PMH 710.92 overhead and PML 709.46 below, both only 1.4–2.4 handles away) creates asymmetric risk/reward: ~$1.50 to the battle level (712.39) versus ~$1.45 to the PML. The ribbon's bullish bias tilts conviction to the upside, contingent on the support hold.",
+  "battle_level": {
+    "price": 712.39,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 712.39,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 1.49
+    },
+    {
+      "price": 710.92,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 0.02
+    },
+    {
+      "price": 709.91,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_above",
+      "test_type": "reclaim_attempt",
+      "priority_rank": 3,
+      "distance_from_price": 0.99
+    },
+    {
+      "price": 709.46,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 1.44
+    },
+    {
+      "price": 706.14,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": 4.76
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 709.91 and breaks 710.92 PMH",
+      "bias": "bullish",
+      "target": 712.39,
+      "entry_trigger": "reclaim_of_prior_rth_high + ribbon_bullish_stack"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 709.46 PML (gap-floor loss)",
+      "bias": "bearish",
+      "target": 706.14,
+      "entry_trigger": "failure_at_support + gap_fill"
+    },
+    "neutral": {
+      "condition": "if SPY oscillates 709.46–710.92 without committing",
+      "bias": "no_trade",
+      "target": null,
+      "entry_trigger": "range_bound_chop"
+    }
+  },
+  "levels_in_play_count": 4,
+  "key_observations": [
+    "Premarket high (710.92) reached on first test; current price 710.90 sits at the resistance. Microstructure test: can buyers push through PMH on the open, or does it reject?",
+    "The overnight gap (+$2.21) is fully intact with support at PML 709.46 (1.44 handles below). This is a healthy gap structure; no sellers trapped above the open.",
+    "BULL ribbon stack with 86-cent spread signals confidence. The slow EMA (709.42) is well below current price, creating a cushion. First support on any pull-in is the pivot (710.09), then the PML.",
+    "Battle level 712.39 is a Carry-tier level (5-day RTH high), meaning it has cross-session weight. If the open doesn't gap-and-go above 710.92, intraday range is likely 709.46–712.39. The width (~$3) suggests a trending session if the buyers break overhead."
+  ],
+  "data_quality": "full"
+}

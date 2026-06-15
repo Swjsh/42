@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-05-12T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["internals"],
+    "bearish": ["technical", "macro", "level_thesis"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 1,
+    "bearish": 3,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.10,
+    "bearish": 0.90
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 95,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["internals"],
+    "dissent_reason": "Internals agent flagged explicit risk-on sector rotation (XLK +0.98%, XLE +1.62% both exceeding 0.5% threshold) as accumulation-into-dip signal contradicting bearish sentiment — narrow-breadth energy/tech leadership suggests institutional buying, not panic liquidation, raising gap-fill probability within first 30-60 minutes."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The overnight gap-down (+0.91 pts) is assumed to represent sustained institutional selling conviction capable of defending 740.73 and driving through to 736.52 — but no macro catalyst anchors it, and the concurrent risk-on sector rotation (XLK/XLE) plus heavy EOD accumulation volume (83.5k vs 15-30k avg) suggest the gap was gamma rebalancing, not directional selling, making early reversion within 30-90 minutes a high-probability invalidation.",
+    "top_invalidation_scenario": "SPY fills overnight gap and holds above 739.20 by 09:50 ET (first 20 minutes) on volume > 100k — evaporates overnight bearish sentiment and forces pivot reclaim assessment."
+  },
+  "battle_level": {
+    "price": 740.73,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 740.73,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 740.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 739.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 736.52,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 736.9,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY tests 740.73 Carry resistance and holds (rejection candle + ribbon intact)",
+      "bias": "bearish",
+      "target": 736.52,
+      "entry_trigger": "ribbon_bear_confirm + level_hold"
+    },
+    "secondary": {
+      "condition": "if SPY breaks and closes above 740.73 decisively with ribbon reclaim",
+      "bias": "bullish",
+      "target": 743.0,
+      "entry_trigger": "ribbon_reclaim + carry_break"
+    },
+    "invalidation": {
+      "condition": "SPY fills overnight gap and holds above 739.20 (prior close) by 09:50 ET on volume > 100k, OR SPY holds pivot EMA (738.95) for 15+ minutes by 10:00 ET on volume > 120k",
+      "effect": "Gap-fill on heavy volume signals overnight gap was gamma rebalancing not directional conviction — bearish ribbon thesis evaporates, bears abandon 740.73 defense, early bull flag triggers consideration of secondary scenario ahead of schedule. Both Technical and Macro bearish conviction collapse if this fires."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "740.73 Carry resistance is tested within the first 90 minutes of RTH (by 11:00 ET) and fails to break — SPY rejects and fades at least 1.50 pts back below 739.23 within 30 minutes of the test.",
+      "invalidation": "SPY closes a 5-minute bar above 740.80 and holds there for two consecutive bars before 11:00 ET, confirming a Carry level break and ribbon reclaim.",
+      "confidence": 0.62,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains at or above 18.50 through 11:00 ET, sustaining MID regime without an intraday collapse below 18.00, consistent with persistent risk-off undertone supporting the bearish directional setup.",
+      "invalidation": "VIX drops below 18.00 by 10:30 ET — a 4.4% intraday reversal from 18.84 — signaling fear premium evaporation and eliminating the primary macro bearish catalyst.",
+      "confidence": 0.58,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY ribbon remains in CLEAN_BEAR stack configuration (slow EMA > pivot EMA > fast EMA, spread >= 30 cents) through the first 60 minutes of RTH trading (i.e., through 10:30 ET), with price staying below the pivot EMA (738.95).",
+      "invalidation": "SPY closes above the pivot EMA (738.95) and ribbon spread compresses below 20 cents by 10:30 ET — confirming the overnight gap-down was a false directional signal and EOD accumulation volume was the true structural signal.",
+      "confidence": 0.55,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The swarm votes 3-of-4 bearish with a weighted score of 0.90, anchored by a CLEAN_BEAR ribbon (40c spread), gap-down 0.91 pts, rising VIX (+2.56% to MID 18.84), and the 740.73 Carry gatekeeper framing — but the validator assigns only moderate robustness because no macro event anchors the overnight gap and the internals (XLK/XLE both risk-on) plus heavy EOD accumulation volume (83.5k, 3-5x average) are textbook dip-buying signals that make a gap-fill in the first 20-30 minutes a high-probability invalidation scenario. The single most important thing to watch at market open is whether SPY reclaims and holds the prior close (739.20) within the first 20 minutes on volume > 100k — that alone is sufficient to invalidate the bearish thesis; absent that, the bear case holds and 736.52 Active support is the first downside target.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.62,
+      "one_line": "CLEAN_BEAR ribbon (40c spread, slow 739.21 > pivot 738.95 > fast 738.80) + price 66c below pivot + 91c gap-down; last 3 bars green (institutional EOD buying) introduces mixed bar structure but doesn't override ribbon."
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.58,
+      "one_line": "VIX MID regime rising +2.56% to 18.84 supports bearish premium expansion; no macro events today (CPI/Retail Sales not until Thursday 5/14); risk-on sector rotation (XLK/XLE) tempers conviction to moderate."
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.72,
+      "one_line": "Battle level 740.73 (5-day Carry resistance, 2★) is the gatekeeper — holds = bears target 736.52 Active support; breaks decisively = bulls reclaim ribbon toward 743.0; 739.0 round-number acts as first soft resistance."
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.60,
+      "one_line": "Risk-on rotation confirmed: XLK +0.98%, XLE +1.62% both above 0.5% threshold; breadth narrow (energy-driven, XLF -0.16% flat); signals accumulation into gap-down rather than fear-selling, contradicting bearish consensus."
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Gap-fill above 739.20 by 09:50 ET on volume > 100k evaporates overnight bearish sentiment — overnight gap was gamma rebalancing, not directional conviction; heavy EOD accumulation volume (83.5k) was institutional buying missed by bearish agents."
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

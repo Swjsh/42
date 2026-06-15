@@ -1,0 +1,96 @@
+{
+  "generated_at": "2026-05-19T01:29:31.992172Z",
+  "purpose": "Identify which filter blocks morning entries on J's 3 winner days (Safe-ATM config)",
+  "config": "Safe-ATM: strike_offset=0, premium_stop=-8%, tp1=+30%, no_trade_before=09:35, no_trade_window=None",
+  "op16_floor": 771,
+  "j_max_edge": 1542,
+  "day_results": [
+    {
+      "date": "2026-04-29",
+      "j_entry_time": "10:25:51",
+      "j_pnl": 342,
+      "engine_first_pass_time": "13:40:00",
+      "engine_first_entry_time": "13:40:00",
+      "entry_lag_minutes": 195,
+      "blocker_frequency": {
+        "F5": 11,
+        "F6": 28,
+        "F8": 46,
+        "F9": 43,
+        "F10": 17,
+        "F7": 8
+      },
+      "engine_pnl": -49.67999999999999,
+      "engine_n_trades": 1,
+      "trades": [
+        {
+          "entry_time": "2026-04-29 13:45:00",
+          "exit_time": "2026-04-29 13:50:00",
+          "dollar_pnl": -49.68,
+          "strike": 710,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        }
+      ]
+    },
+    {
+      "date": "2026-05-01",
+      "j_entry_time": "13:36:00",
+      "j_pnl": 470,
+      "engine_first_pass_time": null,
+      "engine_first_entry_time": null,
+      "entry_lag_minutes": null,
+      "blocker_frequency": {
+        "F5": 47,
+        "F8": 47,
+        "F9": 43,
+        "F7": 14,
+        "F10": 23
+      },
+      "engine_pnl": -121.59999999999994,
+      "engine_n_trades": 2,
+      "trades": [
+        {
+          "entry_time": "2026-05-01 12:20:00",
+          "exit_time": "2026-05-01 12:25:00",
+          "dollar_pnl": -72.8,
+          "strike": 723,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "entry_time": "2026-05-01 13:55:00",
+          "exit_time": "2026-05-01 14:00:00",
+          "dollar_pnl": -48.8,
+          "strike": 723,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        }
+      ]
+    },
+    {
+      "date": "2026-05-04",
+      "j_entry_time": "10:27:50",
+      "j_pnl": 730,
+      "engine_first_pass_time": "11:20:00",
+      "engine_first_entry_time": "11:20:00",
+      "entry_lag_minutes": 53,
+      "blocker_frequency": {
+        "F7": 17,
+        "F8": 41,
+        "F9": 40,
+        "F10": 17,
+        "F6": 8,
+        "F5": 9
+      },
+      "engine_pnl": -143.2,
+      "engine_n_trades": 1,
+      "trades": [
+        {
+          "entry_time": "2026-05-04 11:25:00",
+          "exit_time": "2026-05-04 11:30:00",
+          "dollar_pnl": -143.2,
+          "strike": 718,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        }
+      ]
+    }
+  ]
+}

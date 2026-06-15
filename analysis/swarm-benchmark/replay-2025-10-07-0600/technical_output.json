@@ -1,0 +1,21 @@
+{
+  "agent": "technical",
+  "generated_at": "2025-10-07T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.55,
+  "reasoning": "CLEAN_BULL ribbon (fast 672.25 > pivot 672.17 > slow 671.96, 28c spread) is the primary signal. However, execution quality is weak: price is essentially AT the pivot (only 2c above), last 3 bars show chop pattern (RED-GREEN-RED alternating), and premarket has delivered a sharp 76-cent selloff from 05:35-05:55 (672.95 → 672.19). Sellers demonstrated strength in early premarket despite clean ribbon structure. Risk-off rotation and sector weakness (XLF -0.43%, XLK -0.33%) provide headwind. Flat overnight gap (+0.41) is neutral. Ribbon structure supports bullish bias, but price action suggests consolidation / buyer hesitation.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 28,
+  "bar_structure": "chop",
+  "price_vs_pivot": "at",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "CLEAN_BULL ribbon: fast EMA (672.25) > pivot (672.17) > slow EMA (671.96), 28-cent spread well above 20-cent threshold",
+    "Price momentum weak: only 2 cents above pivot despite clean ribbon structure — sellers holding price back at equilibrium",
+    "Premarket bar pattern: RED (05:45 672.32) → GREEN (05:50 672.47) → RED (05:55 672.19 close) = chop, with overall trend DOWN 76 cents (672.95 → 672.19) over 20 minutes — sharp early selling pressure",
+    "Overnight gap negligible (+0.41 dollars = essentially flat open), no gap-driven directional sentiment",
+    "Risk-off sector rotation and financial weakness (XLF -0.43%, XLK -0.33%) provide structural headwind to bullish setup",
+    "VIX flat at 16.31 (MID regime) — no volatility expansion to support early directional conviction"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,21 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-02-17T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "CLEAN_BEAR ribbon structure with 149-cent spread and price 63 cents below pivot (681.61 < 682.24) confirms strong bearish alignment. Last 3 bars all green but with severely degrading bodies (84%, 22%, 15% ratios) indicate bullish momentum exhaustion rather than sustained strength. Friday's EOD volume spike (113k, 127k) on small bodies suggests buying pressure failed to sustain. Rising VIX (+6.84% to 22.03, HIGH regime) adds uncertainty overlay. Flat overnight gap removes gap fade pressure. Ribbon verdict is primary signal — CLEAN_BEAR dominates.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 149,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "CLEAN_BEAR ribbon: slow 683.20 > pivot 682.24 > fast 681.72, spread 1.49 points — very wide directional structure",
+    "Price 681.61 closes 63 cents below pivot EMA 682.24 — aligned bearish",
+    "Last 3 bars (15:45-15:55 Friday): green color but body degradation (84% → 22% → 15%) signals exhaustion, not conviction",
+    "Friday EOD volume spike (113k, 127k) on small bodies suggests order flow unable to sustain longs",
+    "VIX rising +6.84% to 22.03 (HIGH regime) — volatility expansion supports broader uncertainty",
+    "Flat overnight gap (0.0) removes gap-fade pressure; market opened where it closed Friday"
+  ],
+  "data_quality": "full"
+}

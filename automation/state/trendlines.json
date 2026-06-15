@@ -1,0 +1,62 @@
+{
+  "schema_version": 2,
+  "as_of": "2026-05-14T08:39:13-04:00",
+  "spot": 744.92,
+  "lookback_sessions": 5,
+  "manual_count": 3,
+  "auto_count": 0,
+  "manual": [
+    {
+      "id": "5EWHJK",
+      "direction": "ascending",
+      "slope_per_sec": 5.70e-05,
+      "slope_per_hour_dollars": 0.2052,
+      "anchor_points": [
+        { "time": 1778182200, "price": 733.94, "iso_et": "2026-05-07T15:30:00-04:00" },
+        { "time": 1778269500, "price": 738.92, "iso_et": "2026-05-08T15:45:00-04:00" }
+      ],
+      "touch_count": 2,
+      "source": "manual_chart_draw",
+      "projected_price_now": 767.0,
+      "distance_from_spot_dollars": 22.1,
+      "actionable": false,
+      "reason": "Projected $767 is $22 above spot $744.92 — stale ascending line from 5/07-5/08 session. Price well above this line."
+    },
+    {
+      "id": "S3pkoW",
+      "direction": "ascending",
+      "slope_per_sec": 2.76e-04,
+      "slope_per_hour_dollars": 0.993,
+      "anchor_points": [
+        { "time": 1778492100, "price": 737.40, "iso_et": "2026-05-12T09:15:00-04:00" },
+        { "time": 1778503500, "price": 740.55, "iso_et": "2026-05-12T12:25:00-04:00" }
+      ],
+      "touch_count": 2,
+      "source": "manual_chart_draw",
+      "projected_price_now": 812.0,
+      "distance_from_spot_dollars": 67.1,
+      "actionable": false,
+      "reason": "Projected $812 is $67 above spot — stale, extremely steep slope. Not relevant for today."
+    },
+    {
+      "id": "u6xABx",
+      "direction": "descending",
+      "slope_per_sec": -1.02e-04,
+      "slope_per_hour_dollars": -0.368,
+      "anchor_points": [
+        { "time": 1778151600, "price": 736.10, "iso_et": "2026-05-07T12:20:00-04:00" },
+        { "time": 1778213700, "price": 729.75, "iso_et": "2026-05-08T05:35:00-04:00" }
+      ],
+      "touch_count": 2,
+      "source": "manual_chart_draw",
+      "projected_price_now": 673.7,
+      "distance_from_spot_dollars": -71.2,
+      "actionable": false,
+      "reason": "Projected $674 is $71 below spot — stale descending line from 5/07-5/08. Far below current price."
+    }
+  ],
+  "auto": [],
+  "actionable_count": 0,
+  "doctrine_note": "Trendlines are CONTEXT data — heartbeat does NOT score them as entry triggers until a backtest demonstrates positive expectancy uplift. See OP-6 + strategy/playbook.md TRENDLINE_BREAK_RETEST (DRAFT).",
+  "stale_note": "All 3 manual trendlines drawn on 2026-05-07/08 session. None project within $20 of today's spot. J should draw fresh trendlines if structure is relevant for 2026-05-14. Also: entity 3k9w8h (expired ~733.55 level) still on chart — remove when draw_remove_one is restored."
+}

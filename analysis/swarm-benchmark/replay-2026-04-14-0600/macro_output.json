@@ -1,0 +1,22 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-04-14T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.75,
+  "reasoning": "VIX at 18.15 falling -4.62% (MID regime, fear receding) creates favorable condition for bullish directional plays. Overnight gap up $1.22 shows risk-on sentiment; sector rotation bullish (XLK +2.3%, XLF +2.3%). No macro events scheduled for 2026-04-14. Risk-on backdrop + VIX compression = tailwind for call setups; puts face headwind from falling IV and bullish overnight sentiment.",
+  "vix_regime": "MID",
+  "vix_direction": "falling",
+  "vix_current": 18.15,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 1.22,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX falling 4.62% from prior close (was ~19.0) — compression favors bullish directional premium",
+    "Overnight gap +$1.22 (1.78% move from prior close 686.01) = significant bullish overnight sentiment; gap-up holders controlling tone pre-market",
+    "Sector rotation into XLK/XLF (defensive/financial leadership) signals risk-on appetite with quality tilt; XLE flat = not energy-driven rally",
+    "Macro calendar clear — no CPI/NFP/FOMC/earnings events today; zero hard no-trade windows before 09:35 ET"
+  ],
+  "data_quality": "full"
+}

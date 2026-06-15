@@ -1,0 +1,77 @@
+{
+  "base": {
+    "n": 68,
+    "wr": 0.32,
+    "pc": 272.0,
+    "pc_per_trade": 4.0,
+    "green_days": 18,
+    "days": 46
+  },
+  "gates": {
+    "ALL (production, ungated)": {
+      "n": 68,
+      "wr": 0.32,
+      "pc": 272.0,
+      "pc_per_trade": 4.0,
+      "green_days": 18,
+      "days": 46
+    },
+    "G1: confluence required": {
+      "n": 19,
+      "wr": 0.42,
+      "pc": 490.0,
+      "pc_per_trade": 25.8,
+      "green_days": 8,
+      "days": 16
+    },
+    "G2: >=2 triggers": {
+      "n": 25,
+      "wr": 0.4,
+      "pc": 500.0,
+      "pc_per_trade": 20.0,
+      "green_days": 10,
+      "days": 20
+    },
+    "G3: not MIDDAY": {
+      "n": 35,
+      "wr": 0.4,
+      "pc": 555.0,
+      "pc_per_trade": 15.9,
+      "green_days": 14,
+      "days": 31
+    },
+    "G4: confluence OR >=2 trig": {
+      "n": 25,
+      "wr": 0.4,
+      "pc": 500.0,
+      "pc_per_trade": 20.0,
+      "green_days": 10,
+      "days": 20
+    },
+    "G5: (conf OR >=2trig) AND not-midday": {
+      "n": 17,
+      "wr": 0.47,
+      "pc": 448.0,
+      "pc_per_trade": 26.4,
+      "green_days": 8,
+      "days": 16
+    },
+    "G6: >=2 triggers AND not-midday": {
+      "n": 17,
+      "wr": 0.47,
+      "pc": 448.0,
+      "pc_per_trade": 26.4,
+      "green_days": 8,
+      "days": 16
+    },
+    "G7: confluence AND not-midday": {
+      "n": 15,
+      "wr": 0.47,
+      "pc": 424.0,
+      "pc_per_trade": 28.3,
+      "green_days": 7,
+      "days": 14
+    }
+  },
+  "best": "G7: confluence AND not-midday"
+}

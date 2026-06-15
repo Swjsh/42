@@ -1,0 +1,397 @@
+{
+  "schema_version": 3,
+  "protocol_version": "strategy/key-levels-protocol.md@2",
+  "as_of": "2026-05-20T23:00:00-04:00",
+  "for_session": "2026-05-21",
+  "spot_at_compute": 737.82,
+  "spot_note": "After-hours price ~737.82 at ~18:51 ET 2026-05-20. 5/20 RTH: HIGH=741.61 (session high via monitoring), CLOSE=741.29 (15:55 ET bar vol=260715 — MOC auction). AH: HIGH=738.129 (18:45 bar — exact 738.10 Carry rejection), LOW=737.13 (16:50-17:00 ET), AH price at 18:51=737.82. NVDA earnings AMC 16:20 ET — AH reaction TBD (drives 5/21 open). Bear ribbon in AH: Fast=738.06, Pivot=738.66, Slow=739.19, spread=113c. Written by Gamma evening work block (DailyReview failed 16:30 ET rate-limit). PREMARKET MUST VERIFY/REFINE at 08:30 ET with live chart data.",
+  "computed_from": {
+    "prior_date": "2026-05-20",
+    "today_date": "2026-05-21",
+    "prior_rth_bars": 78,
+    "today_rth_bars": 0,
+    "premarket_bars": 0,
+    "tv_unavailable": false,
+    "note": "Constructed from heartbeat monitoring ticks + AH price snapshots. No full RTH bar-by-bar data available for 5/20 (DailyReview failed). Premarket must audit + correct using live TV chart at 08:30 ET."
+  },
+  "levels": [
+    {
+      "price": 741.61,
+      "type": "resistance",
+      "tier": "Active",
+      "source": "2026-05-20 RTH session high — PDH. First level bulls must break above.",
+      "reasoning": "Today's RTH session high (from monitoring context). SPY broke all prior resistance in a +$7.52 rally from 5/19 close=733.77 to 5/20 close=741.29. PDH at 741.61 is now the key resistance above the close. Any gap-up approach to 741.61 = distribution risk (tested once, not defended). Above 741.61 = fresh ATH continuation territory. Below 741.29 open = gap-down bear pressure.",
+      "verified_at": "2026-05-20T23:00:00-04:00",
+      "expires_at": "2026-05-22T18:00:00-04:00",
+      "color": "#ef4444",
+      "style": "solid",
+      "entity_id": "CWPl5H",
+      "draw_needed": false,
+      "drawn_on_chart": true,
+      "drawn_at": "2026-05-21T08:30:00-04:00",
+      "respect_count": 0,
+      "broken_count": 0,
+      "role": "resistance",
+      "bounce_history": [],
+      "strength": {
+        "stars": 2,
+        "points": 3,
+        "components": {
+          "touch_score": 1,
+          "recency_score": 2,
+          "mtf_score": 0,
+          "volume_score": 0,
+          "confluence_score": 0
+        }
+      },
+      "touch_count": 1,
+      "held_count": 1,
+      "volume_at_touches": 0,
+      "last_touched_at": "2026-05-20T15:00:00",
+      "recency_days": 0,
+      "mtf_agreement": 1,
+      "drawn_on_chart": false
+    },
+    {
+      "price": 741.29,
+      "type": "reference",
+      "tier": "Reference",
+      "source": "2026-05-20 RTH close (PDC) — official close bar 15:55 ET vol=260715 (MOC auction)",
+      "reasoning": "Today's official RTH close. AH opened BELOW this at 737-738 range — large gap formed intraday but bears took over in AH (NVDA earnings AMC). Open above 741.29 = bullish continuation from close. Open below 741.29 (likely given AH at 737.82) = gap-down bear context. PDC is a critical anchor for tomorrow's opening range.",
+      "verified_at": "2026-05-20T23:00:00-04:00",
+      "expires_at": "2026-05-22T18:00:00-04:00",
+      "color": "#3b82f6",
+      "style": "dashed",
+      "entity_id": null,
+      "draw_needed": false,
+      "respect_count": 0,
+      "broken_count": 0,
+      "role": "reference",
+      "bounce_history": [],
+      "strength": {
+        "stars": 2,
+        "points": 3,
+        "components": {
+          "touch_score": 1,
+          "recency_score": 2,
+          "mtf_score": 0,
+          "volume_score": 0,
+          "confluence_score": 0
+        }
+      },
+      "touch_count": 1,
+      "held_count": 0,
+      "volume_at_touches": 260715,
+      "last_touched_at": "2026-05-20T15:55:00",
+      "recency_days": 0,
+      "mtf_agreement": 1,
+      "drawn_on_chart": false
+    },
+    {
+      "price": 738.86,
+      "type": "resistance",
+      "tier": "Reference",
+      "source": "Cluster level — within the 738.10-741.29 overhead zone. FT R2 pivot / flipped support.",
+      "reasoning": "FT R2 pivot. Broken support that flipped to resistance on 5/18. Part of the 738.10-741.29 overhead zone. Any AH/premarket retest from below = bearish rejection candidate. SPY closed above 741.29 but AH pulled back to 737.82 — 738.86 sits inside the overhead gap that needs to be re-captured for bull continuation.",
+      "verified_at": "2026-05-20T23:00:00-04:00",
+      "expires_at": "2026-06-13T16:30:00-04:00",
+      "color": "#f59e0b",
+      "style": "dashed",
+      "entity_id": "CfxLeN",
+      "draw_needed": false,
+      "respect_count": 0,
+      "broken_count": 2,
+      "role": "broken_to_resistance",
+      "bounce_history": [],
+      "strength": {
+        "stars": 2,
+        "points": 3,
+        "components": {
+          "touch_score": 0,
+          "recency_score": 2,
+          "mtf_score": 0,
+          "volume_score": 0,
+          "confluence_score": 1
+        }
+      },
+      "touch_count": 1,
+      "held_count": 0,
+      "volume_at_touches": 0,
+      "last_touched_at": "2026-05-18T10:35:00",
+      "recency_days": 2,
+      "mtf_agreement": 1,
+      "drawn_on_chart": false
+    },
+    {
+      "price": 738.1,
+      "type": "resistance",
+      "tier": "Carry",
+      "source": "THE dominant level. 5-hold Carry. Broke upside 5/20 RTH, immediately rejected AH at 738.129 (L59 confirmed). 9+ touches total.",
+      "reasoning": "THE level. Originally 5-hold binary bull/bear. Broke down 5/18, defended 5/19 as exact session HIGH. Then 5/20 RTH BROKE UPSIDE (SPY closed 741.29). BUT: AH immediately pulled back and 738.10 acted as resistance again — 18:45 ET bar HIGH=738.129, CLOSE=737.99 = EXACT 738.10 rejection (L59 close-ceiling pattern, 1 bar toward N>=3 confirmation). Bear ribbon formed in AH (Fast 738.06 < Pivot 738.66, spread 113c). For 5/21: this is the gating level. Open/hold above 738.10 = bull continuation; open/fail below = BEARISH_REJECTION_RIDE_THE_RIBBON candidate. NVDA AH reaction drives overnight gap direction.",
+      "verified_at": "2026-05-20T23:00:00-04:00",
+      "expires_at": "2026-05-22T18:00:00-04:00",
+      "color": "#f59e0b",
+      "style": "dashed",
+      "entity_id": "kY9RXc",
+      "draw_needed": false,
+      "respect_count": 7,
+      "broken_count": 2,
+      "role": "carry",
+      "bounce_history": [
+        "2026-05-13T11:30:00",
+        "2026-05-18T10:35:00",
+        "2026-05-19T04:00:00",
+        "2026-05-19T09:35:00",
+        "2026-05-20T18:45:00"
+      ],
+      "strength": {
+        "stars": 3,
+        "points": 8,
+        "components": {
+          "touch_score": 2,
+          "recency_score": 2,
+          "mtf_score": 2,
+          "volume_score": 1,
+          "confluence_score": 1
+        }
+      },
+      "touch_count": 9,
+      "held_count": 7,
+      "volume_at_touches": 0,
+      "last_touched_at": "2026-05-20T18:45:00",
+      "recency_days": 0,
+      "mtf_agreement": 2,
+      "drawn_on_chart": false,
+      "drawn_skip_reason": "needs_restyle_and_reverification_by_premarket"
+    },
+    {
+      "price": 737.26,
+      "type": "reference",
+      "tier": "Reference",
+      "source": "2026-05-15 prior-day RTH close — mid-range reference within 735.40-738.10 zone.",
+      "reasoning": "Friday 5/15 close. Sits between 735.40 support and 738.10 carry resistance. With AH at 737.82, this is immediately below current AH price. Price finding support above/below 737.26 in premarket is an early directional tell. Awareness-only reference.",
+      "verified_at": "2026-05-20T23:00:00-04:00",
+      "expires_at": "2026-05-22T18:00:00-04:00",
+      "color": "#3b82f6",
+      "style": "dashed",
+      "entity_id": "0y2Dom",
+      "draw_needed": false,
+      "respect_count": 0,
+      "broken_count": 2,
+      "role": "reference",
+      "bounce_history": [],
+      "strength": {
+        "stars": 1,
+        "points": 2,
+        "components": {
+          "touch_score": 0,
+          "recency_score": 1,
+          "mtf_score": 0,
+          "volume_score": 0,
+          "confluence_score": 1
+        }
+      },
+      "touch_count": 0,
+      "held_count": 0,
+      "volume_at_touches": 0,
+      "last_touched_at": null,
+      "recency_days": 5,
+      "mtf_agreement": 1,
+      "drawn_on_chart": true
+    },
+    {
+      "price": 735.4,
+      "type": "support",
+      "tier": "Active",
+      "source": "Key structural level. Was resistance 5/20 (broken from 5/19). Reclaimed decisively 5/20 RTH (SPY closed 741.29). Now reverts to support role for 5/21.",
+      "reasoning": "Multi-role level: was 5/18 session low (support), broke 5/19 15:30 to become resistance for 5/20. On 5/20 RTH: SPY opened near/above 735.40 and rallied all the way to 741.29 — 735.40 was reclaimed decisively. For 5/21: back to SUPPORT role. AH at 737.82 is above 735.40 by $2.42. If bears push below 738.10 and 737.26 next session, 735.40 is the first major support. Hold = bull case intact. Break = 733.77 target.",
+      "verified_at": "2026-05-20T23:00:00-04:00",
+      "expires_at": "2026-05-22T18:00:00-04:00",
+      "color": "#22c55e",
+      "style": "solid",
+      "entity_id": "dwxdpr",
+      "draw_needed": false,
+      "respect_count": 3,
+      "broken_count": 2,
+      "role": "support",
+      "bounce_history": [
+        "2026-05-18T10:35:00",
+        "2026-05-18T14:30:00",
+        "2026-05-20T09:35:00"
+      ],
+      "strength": {
+        "stars": 3,
+        "points": 6,
+        "components": {
+          "touch_score": 2,
+          "recency_score": 2,
+          "mtf_score": 1,
+          "volume_score": 0,
+          "confluence_score": 1
+        }
+      },
+      "touch_count": 4,
+      "held_count": 3,
+      "volume_at_touches": 0,
+      "last_touched_at": "2026-05-20T09:35:00",
+      "recency_days": 0,
+      "mtf_agreement": 2,
+      "drawn_on_chart": true
+    },
+    {
+      "price": 733.77,
+      "type": "reference",
+      "tier": "Reference",
+      "source": "2026-05-20 session open area / morning low zone. Also 5/19 RTH close reference.",
+      "reasoning": "5/19 RTH close AND approx 5/20 morning low area (SPY opened near 733-734 per J's context before the rally). Now ~$8 below current AH price. Relevant as a deep-bear scenario target: if 735.40 breaks and bears accelerate, 733.77 is the next meaningful reference. Awareness-level for 5/21.",
+      "verified_at": "2026-05-20T23:00:00-04:00",
+      "expires_at": "2026-05-22T18:00:00-04:00",
+      "color": "#3b82f6",
+      "style": "dashed",
+      "entity_id": null,
+      "draw_needed": false,
+      "respect_count": 0,
+      "broken_count": 1,
+      "role": "reference",
+      "bounce_history": [],
+      "strength": {
+        "stars": 1,
+        "points": 2,
+        "components": {
+          "touch_score": 1,
+          "recency_score": 1,
+          "mtf_score": 0,
+          "volume_score": 0,
+          "confluence_score": 0
+        }
+      },
+      "touch_count": 1,
+      "held_count": 0,
+      "volume_at_touches": 260715,
+      "last_touched_at": "2026-05-20T09:35:00",
+      "recency_days": 0,
+      "mtf_agreement": 1,
+      "drawn_on_chart": false
+    },
+    {
+      "price": 732.33,
+      "type": "support",
+      "tier": "Active",
+      "source": "2026-05-19 RTH session low — bear flush low. Last major structural support.",
+      "reasoning": "5/19 morning bear flush low. Still the deepest structural support in the current range. With SPY now at ~738 in AH, 732.33 is ~$5.50 below. Relevant for catastrophic NVDA-driven gap-down scenario only. If 735.40 AND 733.77 both fail, 732.33 is the floor. Drawn on chart.",
+      "verified_at": "2026-05-20T23:00:00-04:00",
+      "expires_at": "2026-05-22T18:00:00-04:00",
+      "color": "#22c55e",
+      "style": "solid",
+      "entity_id": "KNPeJM",
+      "draw_needed": false,
+      "drawn_on_chart": true,
+      "respect_count": 1,
+      "broken_count": 0,
+      "role": "support",
+      "bounce_history": [
+        "2026-05-19T10:00:00"
+      ],
+      "strength": {
+        "stars": 2,
+        "points": 4,
+        "components": {
+          "touch_score": 1,
+          "recency_score": 2,
+          "mtf_score": 0,
+          "volume_score": 1,
+          "confluence_score": 0
+        }
+      },
+      "touch_count": 2,
+      "held_count": 1,
+      "volume_at_touches": 0,
+      "last_touched_at": "2026-05-19T15:55:00",
+      "recency_days": 1,
+      "mtf_agreement": 1,
+      "drawn_on_chart": true
+    }
+  ],
+  "dropped_for_expiry": [
+    {
+      "price": 741.4,
+      "reason": "2026-05-18 RTH session high — PDH. Was ActR for 5/20. Replaced by 5/20 PDH 741.61. Session context superseded."
+    }
+  ],
+  "rth_high_today": null,
+  "rth_low_today": null,
+  "close_today": null,
+  "prior_session": {
+    "date": "2026-05-20",
+    "rth_high": 741.61,
+    "rth_low": null,
+    "rth_close": 741.29,
+    "rth_close_source": "TV bar 15:55 ET vol=260715 (MOC auction bar — confirmed by monitoring)",
+    "ah_last": 737.82,
+    "ah_high": 738.129,
+    "ah_low": 737.13,
+    "ah_time": "18:51 ET",
+    "ah_ribbon": "BEAR (Fast=738.06, Pivot=738.66, Slow=739.19, spread=113c)",
+    "ah_note": "AH high=738.129 = exact 738.10 Carry rejection (L59 1-bar ceiling, needs N>=3 for full confirmation). Bear ribbon confirmed 18:40 ET. NVDA AMC 16:20 ET — overnight reaction drives 5/21 open gap direction."
+  },
+  "summary": {
+    "total_in": 8,
+    "kept": 8,
+    "dropped_distance": 0,
+    "dropped_expiry": 1,
+    "added_new": 2,
+    "by_stars": {
+      "3star": 2,
+      "2star": 3,
+      "1star": 3
+    }
+  },
+  "session_bias": {
+    "direction": "BEARISH",
+    "confidence": "MEDIUM",
+    "reasoning": "NVDA SELL-THE-NEWS CONFIRMED (21:15 ET 5/20). NVDA beat massively (EPS $1.87 vs $1.78, Revenue $81.62B vs $79.2B, Q2 guidance $91B, raised dividend 25x) but stock declined AH: $223.33 close -> ~$220.40 AH (-1.31% to -2.83%). Classic sell-the-news on the most anticipated earnings. NVDA ~5.5% SPY weight. Combined with: (1) SPY AH already at 737.82 (-$3.47 from 741.29 close), (2) 738.10 Carry rejection confirmed in AH (HIGH=738.129, CLOSE below), (3) BEAR ribbon in AH (Fast 738.06 < Pivot 738.66 < Slow 739.19, spread 113c). BIAS TILTS BEARISH. Most likely scenario: SPY opens near 737-738, any rally to 738.10 gets rejected. PREMARKET must verify with live chart at 08:30 ET — overnight bid recovery possible.",
+    "key_scenario_bear": "Open at/below 738.10 (likely given AH at 737.82 + NVDA sell-the-news) -> rally to 738.10 -> bar closes below -> ribbon BEAR confirmed -> ENTER short. Target 735.40 (*** Active support). Runner to 733.77. HS watcher prime candidate for first live win here.",
+    "key_scenario_bull": "NVDA recovers in premarket above $225 AND SPY gaps above 738.10 AND holds 738.10 as support -> BULL enter, target 741.29/741.61. LOW PROBABILITY given extent of sell-the-news. Would require institutional buyers stepping in AH overnight.",
+    "invalidation_bear": "SPY opens above 738.86 (flipped resistance) and holds for 2+ bars with vol >= 1.2x avg -- means overnight buyers absorbed the NVDA selling",
+    "invalidation_bull": "Break and close below 735.40 *** support with vol >= 2x avg within first 60 min",
+    "nvda_catalyst_note": "NVDA AH reaction is the primary driver. Premarket task MUST check NVDA premarket price. If NVDA recovers above $225+ in premarket, SPY bias should be re-evaluated toward CONDITIONAL. If NVDA stays below $222, bear thesis stays ACTIVE.",
+    "close_ceiling_alert": "738.10 IS the close-ceiling level (L59 pattern). If first bar opens near 738 and tests 738.10 but fails -> N=1. Wait for N>=3 before CLOSE_CEILING_DISTRIBUTION_FADE signal fires. Track each bar carefully in first 60 min."
+  },
+  "audit_log": [
+    {
+      "timestamp": "2026-05-21T08:30:00-04:00",
+      "count_in": 8,
+      "count_pass": 8,
+      "count_dropped": 0,
+      "count_added": 0,
+      "tv_available": true,
+      "note": "Premarket 08:30 ET audit — all 8 levels pass (all within expiry, mandatory fields present). Chart confirmed BEAR ribbon (Fast 739.08, Pivot 739.39, Slow 739.64, spread 56c). SPY PM: H=743.23, L=738.13, current=738.87. 738.10 Carry tested as PM low (738.13) — still valid. Need to DRAW: 741.61 (PDH, draw_needed=true). Crypto gym: 69/69 PASS. Swarm: FAILED. Aggressive PDT LIMIT (daytrade_count=3). Rule version v15.2 matches."
+    },
+    {
+      "timestamp": "2026-05-20T23:00:00-04:00",
+      "count_in": 8,
+      "count_pass": 8,
+      "count_dropped": 1,
+      "count_added": 2,
+      "tv_available": false,
+      "note": "EVENING WORK BLOCK WRITE — Gamma_DailyReview FAILED at 16:30 ET 2026-05-20 (API rate-limit, resets 18:40 ET). 5/20 RTH data from monitoring ticks: HIGH=741.61, CLOSE=741.29 (vol=260715). AH: HIGH=738.129 (exact 738.10 rejection, L59 1-bar close-ceiling), LOW=737.13, LAST=737.82. Bear ribbon confirmed AH. NVDA AMC 16:20 ET reaction TBD. DROPPED: 741.40 (5/18 PDH, superseded by 741.61). ADDED: 741.61 (5/20 PDH), 741.29 (5/20 PDC). UPDATED: 738.10 touch_count->9, respect_count->7, added AH 18:45 ET bounce. 735.40 role reverted to support (reclaimed 5/20 RTH). 5-star Carry status REINFORCED by AH rejection. PREMARKET MUST VERIFY ALL LEVELS AND DRAW ON CHART AT 08:30 ET 5/21. Key task: check NVDA overnight reaction + ES futures direction before confirming session bias."
+    },
+    {
+      "timestamp": "2026-05-20T08:39:45-04:00",
+      "count_in": 9,
+      "count_pass": 9,
+      "count_dropped": 0,
+      "count_added": 0,
+      "tv_available": true,
+      "note": "Premarket 08:39 ET audit — all 9 levels pass (all within expiry, all 5 mandatory fields present). DREW: 732.33 new green solid (KNPeJM). DREW: 735.40 new orange dashed (dwxdpr). Crypto gym: 62/62 PASS. Swarm: stale (48h). NVDA AMC 16:20 ET — no RTH block."
+    }
+  ],
+  "chart_cleanup_log": [],
+  "chart_drawing_summary": {
+    "drawn_count": 0,
+    "draw_needed_count": 1,
+    "draw_needed_levels": [741.61],
+    "drawn_at_premarket": null,
+    "note": "Existing drawn levels from 5/20: kY9RXc(738.10), 0y2Dom(737.26), dwxdpr(735.40), KNPeJM(732.33). Chart may also still have k3D09a(741.40) — premarket must remove it and draw 741.61 (PDH). 741.29 PDC reference: draw only if premarket judges it actionable."
+  }
+}

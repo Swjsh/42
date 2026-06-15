@@ -1,0 +1,24 @@
+ARCHIVED 302440ea SNIPER OOS validation: the V_pullback+chart-stop combo is va
+ARCHIVED 439e2b86 SNIPER missed-move cost: V_pullback takes fewer signals than
+ARCHIVED e9bb54b6 SNIPER bearish-side test: V_pullback on the anchor window (m
+ARCHIVED e00607df SNIPER exit study: the engine 'rides the EMA ribbon' but TP1
+
+archived 4 remaining
+
+== FINAL: my hand-written SNIPER fleet ==
+  [in_progress] SNIPER pullback-param sweep: in backtest/tools/entry_experimen
+  [   ARCHIVED] SNIPER chart-stop buffer sweep: chart-stop (level +/- buffer) 
+  [   ARCHIVED] SNIPER OOS validation: the V_pullback+chart-stop combo is vali
+  [   ARCHIVED] SNIPER missed-move cost: V_pullback takes fewer signals than b
+  [   ARCHIVED] SNIPER bearish-side test: V_pullback on the anchor window (mos
+  [   ARCHIVED] SNIPER momentum-gate combo: V_mom_and_prox (trigger bar vol>=1
+  [   ARCHIVED] SNIPER exit study: the engine 'rides the EMA ribbon' but TP1+r
+  [    PENDING] TRUE-SNIPER entry-timing sweep (replaces an archived task that
+  [    PENDING] TRUE-SNIPER 05-28 deep dive (replaces archived fabricated-prem
+  [    PENDING] TRUE-SNIPER stop re-test (replaces archived task; CORRECTS my 
+  [    PENDING] TRUE-SNIPER pullback skip-cost (replaces archived fabricated-p
+  [    PENDING] TRUE-SNIPER momentum-gate (replaces archived task). VERIFIED: 
+  [    PENDING] TRUE-SNIPER exit-hold (replaces archived task; premise re-veri
+  [    PENDING] TRUE-SNIPER anchor-preservation (replaces archived task). VERI
+
+TRUE-SNIPER pending: 7 (want 7) | original-SNIPER pending: 0 (want 0)

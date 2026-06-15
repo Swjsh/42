@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-04-22T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.78,
+  "reasoning": "VIX at 19.11 in MID regime, falling -5.82% (bullish compression) with no major macro events today. Overnight gap +$3.85 (strong bullish sentiment, 0.55% rally) carries into premarket where ribbon shows BULL stack with 78¢ spread. Risk-on backdrop with no economic data releases until next week (FOMC decision 2026-04-29). VIX direction + gap alignment + quiet calendar = high-confidence bullish setup for intraday call work. No trade windows exist.",
+  "vix_regime": "MID",
+  "vix_direction": "falling",
+  "vix_current": 19.11,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 3.85,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX falling -5.82% into MID regime (19.11) signals bullish premium decay — favorable for call spreads and directional up exposure",
+    "Overnight gap +$3.85 off 704.14 close = strong bullish overnight sentiment; premarket rally to 708.8 confirms institutional buying into the gap",
+    "Zero macro events scheduled for 2026-04-22 — clean RTH tape without FOMC/CPI/NFP risk; next event risk is FOMC meeting decision on 2026-04-29 (1 week out)",
+    "Energy sector (XLE +0.99%) outperforming Financials (XLF -0.78%) in falling-VIX backdrop = classic risk-on rotation, bullish for SPY directional calls",
+    "Ribbon BULL stack with 78¢ spread provides multi-timeframe bullish alignment into open; premarket high 708.8 near prior day PMH"
+  ],
+  "data_quality": "full"
+}

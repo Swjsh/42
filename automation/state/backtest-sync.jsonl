@@ -1,0 +1,1 @@
+{"date":"2026-05-08","window_days":30,"backtest_trades":18,"backtest_total_pnl":70,"backtest_hit_rate":0.50,"backtest_expectancy":4,"live_trades_today":0,"live_pnl_today":0,"drift_detected":false,"drift_metrics":[],"note":"yfinance 5m limited to 30d window; 60d requested but API returned error for dates >30d back. Backtest and live both fired 0 trades on 2026-05-08 — no drift."}

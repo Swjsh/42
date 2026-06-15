@@ -1,0 +1,333 @@
+{
+  "generated_at": "2026-05-18T01:13Z",
+  "n_days_total": 65,
+  "n_tradeable": 55,
+  "multipliers_tested": [
+    55,
+    58,
+    60,
+    62,
+    65,
+    68,
+    70,
+    75
+  ],
+  "v2_current_ece_pct": 21.67,
+  "best_multiplier": 60,
+  "best_multiplier_ece_pct": 11.57,
+  "ece_improvement_vs_v2": 10.1,
+  "per_multiplier_results": {
+    "55": {
+      "ece_pct": 15.48,
+      "buckets": {
+        "low": {
+          "n": 14,
+          "accuracy_pct": 57.1,
+          "expected_pct": 15.7,
+          "gap_pp": 41.4
+        },
+        "medium": {
+          "n": 22,
+          "accuracy_pct": 54.5,
+          "expected_pct": 49.9,
+          "gap_pp": 4.6
+        },
+        "high": {
+          "n": 16,
+          "accuracy_pct": 75.0,
+          "expected_pct": 65.9,
+          "gap_pp": 9.1
+        },
+        "very_high": {
+          "n": 3,
+          "accuracy_pct": 66.7,
+          "expected_pct": 75.0,
+          "gap_pp": -8.3
+        },
+        "max": {
+          "n": 0,
+          "accuracy_pct": null,
+          "expected_pct": null,
+          "gap_pp": null
+        }
+      },
+      "days_conf80plus": 0,
+      "days_conf95": 0,
+      "pct_conf80plus": 0.0,
+      "pct_conf95": 0.0
+    },
+    "58": {
+      "ece_pct": 15.63,
+      "buckets": {
+        "low": {
+          "n": 13,
+          "accuracy_pct": 53.8,
+          "expected_pct": 14.8,
+          "gap_pp": 39.1
+        },
+        "medium": {
+          "n": 21,
+          "accuracy_pct": 61.9,
+          "expected_pct": 51.2,
+          "gap_pp": 10.7
+        },
+        "high": {
+          "n": 15,
+          "accuracy_pct": 60.0,
+          "expected_pct": 66.2,
+          "gap_pp": -6.2
+        },
+        "very_high": {
+          "n": 6,
+          "accuracy_pct": 83.3,
+          "expected_pct": 77.5,
+          "gap_pp": 5.8
+        },
+        "max": {
+          "n": 0,
+          "accuracy_pct": null,
+          "expected_pct": null,
+          "gap_pp": null
+        }
+      },
+      "days_conf80plus": 0,
+      "days_conf95": 0,
+      "pct_conf80plus": 0.0,
+      "pct_conf95": 0.0
+    },
+    "60": {
+      "ece_pct": 11.57,
+      "buckets": {
+        "low": {
+          "n": 13,
+          "accuracy_pct": 53.8,
+          "expected_pct": 15.4,
+          "gap_pp": 38.5
+        },
+        "medium": {
+          "n": 16,
+          "accuracy_pct": 56.2,
+          "expected_pct": 50.6,
+          "gap_pp": 5.7
+        },
+        "high": {
+          "n": 20,
+          "accuracy_pct": 65.0,
+          "expected_pct": 66.1,
+          "gap_pp": -1.1
+        },
+        "very_high": {
+          "n": 6,
+          "accuracy_pct": 83.3,
+          "expected_pct": 79.0,
+          "gap_pp": 4.3
+        },
+        "max": {
+          "n": 0,
+          "accuracy_pct": null,
+          "expected_pct": null,
+          "gap_pp": null
+        }
+      },
+      "days_conf80plus": 3,
+      "days_conf95": 0,
+      "pct_conf80plus": 5.5,
+      "pct_conf95": 0.0
+    },
+    "62": {
+      "ece_pct": 15.34,
+      "buckets": {
+        "low": {
+          "n": 13,
+          "accuracy_pct": 53.8,
+          "expected_pct": 16.0,
+          "gap_pp": 37.8
+        },
+        "medium": {
+          "n": 13,
+          "accuracy_pct": 61.5,
+          "expected_pct": 50.6,
+          "gap_pp": 10.9
+        },
+        "high": {
+          "n": 18,
+          "accuracy_pct": 55.6,
+          "expected_pct": 64.5,
+          "gap_pp": -8.9
+        },
+        "very_high": {
+          "n": 11,
+          "accuracy_pct": 81.8,
+          "expected_pct": 77.2,
+          "gap_pp": 4.6
+        },
+        "max": {
+          "n": 0,
+          "accuracy_pct": null,
+          "expected_pct": null,
+          "gap_pp": null
+        }
+      },
+      "days_conf80plus": 3,
+      "days_conf95": 0,
+      "pct_conf80plus": 5.5,
+      "pct_conf95": 0.0
+    },
+    "65": {
+      "ece_pct": 17.35,
+      "buckets": {
+        "low": {
+          "n": 13,
+          "accuracy_pct": 53.8,
+          "expected_pct": 16.9,
+          "gap_pp": 36.9
+        },
+        "medium": {
+          "n": 12,
+          "accuracy_pct": 66.7,
+          "expected_pct": 52.3,
+          "gap_pp": 14.3
+        },
+        "high": {
+          "n": 19,
+          "accuracy_pct": 52.6,
+          "expected_pct": 67.1,
+          "gap_pp": -14.4
+        },
+        "very_high": {
+          "n": 11,
+          "accuracy_pct": 81.8,
+          "expected_pct": 79.4,
+          "gap_pp": 2.5
+        },
+        "max": {
+          "n": 0,
+          "accuracy_pct": null,
+          "expected_pct": null,
+          "gap_pp": null
+        }
+      },
+      "days_conf80plus": 3,
+      "days_conf95": 0,
+      "pct_conf80plus": 5.5,
+      "pct_conf95": 0.0
+    },
+    "68": {
+      "ece_pct": 20.04,
+      "buckets": {
+        "low": {
+          "n": 13,
+          "accuracy_pct": 53.8,
+          "expected_pct": 18.1,
+          "gap_pp": 35.8
+        },
+        "medium": {
+          "n": 9,
+          "accuracy_pct": 77.8,
+          "expected_pct": 52.3,
+          "gap_pp": 25.4
+        },
+        "high": {
+          "n": 17,
+          "accuracy_pct": 47.1,
+          "expected_pct": 66.8,
+          "gap_pp": -19.8
+        },
+        "very_high": {
+          "n": 16,
+          "accuracy_pct": 75.0,
+          "expected_pct": 79.6,
+          "gap_pp": -4.6
+        },
+        "max": {
+          "n": 0,
+          "accuracy_pct": null,
+          "expected_pct": null,
+          "gap_pp": null
+        }
+      },
+      "days_conf80plus": 8,
+      "days_conf95": 0,
+      "pct_conf80plus": 14.5,
+      "pct_conf95": 0.0
+    },
+    "70": {
+      "ece_pct": 20.55,
+      "buckets": {
+        "low": {
+          "n": 12,
+          "accuracy_pct": 50.0,
+          "expected_pct": 17.1,
+          "gap_pp": 32.9
+        },
+        "medium": {
+          "n": 10,
+          "accuracy_pct": 80.0,
+          "expected_pct": 52.6,
+          "gap_pp": 27.4
+        },
+        "high": {
+          "n": 14,
+          "accuracy_pct": 42.9,
+          "expected_pct": 67.0,
+          "gap_pp": -24.1
+        },
+        "very_high": {
+          "n": 16,
+          "accuracy_pct": 75.0,
+          "expected_pct": 78.4,
+          "gap_pp": -3.4
+        },
+        "max": {
+          "n": 3,
+          "accuracy_pct": 66.7,
+          "expected_pct": 90.0,
+          "gap_pp": -23.3
+        }
+      },
+      "days_conf80plus": 8,
+      "days_conf95": 0,
+      "pct_conf80plus": 14.5,
+      "pct_conf95": 0.0
+    },
+    "75": {
+      "ece_pct": 21.66,
+      "buckets": {
+        "low": {
+          "n": 12,
+          "accuracy_pct": 50.0,
+          "expected_pct": 18.9,
+          "gap_pp": 31.1
+        },
+        "medium": {
+          "n": 7,
+          "accuracy_pct": 85.7,
+          "expected_pct": 53.7,
+          "gap_pp": 32.0
+        },
+        "high": {
+          "n": 16,
+          "accuracy_pct": 50.0,
+          "expected_pct": 69.5,
+          "gap_pp": -19.5
+        },
+        "very_high": {
+          "n": 17,
+          "accuracy_pct": 70.6,
+          "expected_pct": 82.2,
+          "gap_pp": -11.6
+        },
+        "max": {
+          "n": 3,
+          "accuracy_pct": 66.7,
+          "expected_pct": 95.0,
+          "gap_pp": -28.3
+        }
+      },
+      "days_conf80plus": 16,
+      "days_conf95": 3,
+      "pct_conf80plus": 29.1,
+      "pct_conf95": 5.5
+    }
+  }
+}

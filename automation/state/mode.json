@@ -1,0 +1,6 @@
+{
+  "mode": "live-paper",
+  "last_changed": "2026-05-06T11:16:00-04:00",
+  "changed_by": "Gamma",
+  "reason": "Restored after wrapper fix verification. Pipe-via-stdin fix confirmed working in manual heartbeat run (exit 0, 64 sec, paused-mode handled cleanly). Resuming autonomous trading."
+}

@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-05-18T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.58,
+  "reasoning": "XLE +1.26% leading while XLF -0.43% and XLK +0.03% (flat) = defensive rotation despite +$1.49 overnight gap-up. Energy outperformance without tech/financial leadership is risk-off signal. SPY down 0.35% despite gap-up suggests institutional selling in major constituents. VIX rising +0.93% confirms cautious tone. Not a strong bearish setup, but sector internals favor lower by cash open.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": 0.03,
+    "xlf_change_pct": -0.43,
+    "xle_change_pct": 1.26,
+    "spy_change_pct": -0.35,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLE +1.26% (energy) — defensive outperformance, not bullish signal",
+    "XLF -0.43% (financials) — weakness in major SPY weight; yield curve concern",
+    "XLK +0.03% (tech) — flat refusal to lead despite gap-up is underperformance vs SPY expectations",
+    "Risk-off rotation: only energy up, tech flat, financials down = no broad bullish breadth"
+  ],
+  "data_quality": "full"
+}

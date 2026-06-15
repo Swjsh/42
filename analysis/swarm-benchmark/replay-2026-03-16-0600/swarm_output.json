@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-16T10:00:01Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["level_thesis"],
+    "bearish": ["macro", "internals"],
+    "no_trade": ["technical"]
+  },
+  "vote_counts": {
+    "bullish": 1,
+    "bearish": 2,
+    "no_trade": 1
+  },
+  "weighted_scores": {
+    "bullish": 0.25,
+    "bearish": 0.40
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "weak",
+  "swarm_confidence": 20,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["technical", "level_thesis"],
+    "dissent_reason": "Technical sees no directional conviction (CLEAN_BULL ribbon but price 21c below pivot at a doji — mixed signals, no entry); level_thesis dissents bullish with 0.68 confidence, identifying a specific risk/reward structure: if 663.05 PML holds, upside to 666.58–672.34 is well-defined and outweighs the downside risk to 661.37 Carry."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The assumption that premarket sector weakness (XLK -1.19%, XLF -0.45% measured from yesterday's close) predicts same-day intraday direction — macro confidence is only 0.55 and premarket rotation frequently reverses when RTH volume hits.",
+    "top_invalidation_scenario": "SPY opens above 666.58 and closes the premarket gap on the first 15-minute candle while holding ribbon — would confirm overnight gap-up was institutional conviction, not exhaustion, invalidating the bearish rotation thesis entirely."
+  },
+  "battle_level": {
+    "price": 663.05,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 663.05,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 666.58,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 661.37,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 672.34,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 683.33,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks below 663.05 (PML) with follow-through volume on RTH open",
+      "bias": "bearish",
+      "target": 661.37,
+      "entry_trigger": "level_break_carry"
+    },
+    "secondary": {
+      "condition": "if SPY holds 663.05 (PML) on first test but fails to reclaim 666.58 (PMH) within first 60 minutes",
+      "bias": "no_trade",
+      "target": 664.50,
+      "entry_trigger": "wait — chop between PML and PMH, no clean trigger"
+    },
+    "invalidation": {
+      "condition": "SPY opens above 666.58 (PMH) and a 5-minute bar closes above that level in the first 15 minutes of RTH while ribbon holds BULL stack",
+      "effect": "Bearish consensus invalidated. Overnight gap-up was institutional conviction, not gap exhaustion. Bullish setup activates — level_thesis primary scenario (663.05 hold) is skipped; 672.34 becomes the target via PMH reclaim trigger."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "663.05 (PML) will be tested — SPY trades at or below 663.55 — within the first 90 minutes of RTH (by 11:00 ET)",
+      "invalidation": "SPY does not trade at or below 663.55 before 11:00 ET, staying above PML throughout the opening session",
+      "confidence": 0.55,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 26.00 through the first 30 minutes of RTH (by 10:00 ET), continuing the overnight compression trend",
+      "invalidation": "VIX prints above 26.00 on any tick before 10:00 ET, reversing the overnight compression and signaling fear re-escalation",
+      "confidence": 0.45,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY does not close a 5-minute bar above 666.58 (PMH) before 10:30 ET — the BULL ribbon with sub-30c spread and doji at pivot indicates consolidation, not breakout conviction",
+      "invalidation": "SPY closes any 5-minute bar above 666.58 before 10:30 ET on elevated volume",
+      "confidence": 0.50,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "SPY opened Monday with a +$2.01 overnight gap into a CLEAN_BULL ribbon (25c spread), but by 06:00 ET price had retreated to 664.31 — 21c below the ribbon pivot — and printed a doji, signaling indecision rather than breakout conviction. The bearish consensus (weighted 0.40 vs bullish 0.25) is driven by macro's risk-off backdrop (XLK -1.19%, XLF -0.45%, VIX 24.04 still in HIGH regime) and internals' broad sector confirmation, while level_thesis dissents with a structured 0.68-confidence bullish setup around 663.05 PML. The single most important thing to watch at RTH open: whether SPY holds or breaks 663.05 — a hold activates the bull-consolidation scenario (target 666.58); a break with volume confirms the rotation bearish thesis and opens 661.37 Carry as the next objective.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "no_trade",
+      "confidence": 0.42,
+      "one_line": "CLEAN_BULL ribbon 25c spread structurally valid, but price 21c below pivot at doji — mixed bar structure yields no directional entry signal"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.55,
+      "one_line": "VIX 24.04 HIGH regime falling (-11.65% overnight, bullish compression), but risk-off rotation (XLK -1.19%, XLF -0.45%) and FOMC in 52h create bearish tilt"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "Battle level 663.05 (PML, Active 2★) is $1.26 below current price — if it holds on first test, risk/reward favors 666.58 target; a break flips bearish to 661.37 Carry"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.70,
+      "one_line": "Textbook risk-off rotation: XLK -1.19% + XLF -0.45% both underperforming SPY -1.04%; broad sector alignment confirms bearish backdrop"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Gap-up above 666.58 held on first 15-min candle would confirm institutional conviction rather than exhaustion, invalidating the bearish premarket-rotation thesis entirely"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

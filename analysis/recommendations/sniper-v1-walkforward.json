@@ -1,0 +1,76 @@
+{
+  "rule_id": "sniper-v1",
+  "generated_at": "2026-05-13T05:11:07.109661",
+  "winner_combo": {
+    "vol_mult": 1.1,
+    "body_min_cents": 0.02,
+    "min_stars": 2,
+    "strike_offset": 2,
+    "premium_stop_pct": -0.1,
+    "tp1_premium_pct": 0.4,
+    "runner_target_pct": 1.25,
+    "profit_lock_threshold_pct": 0.0,
+    "profit_lock_stop_offset_pct": 0.08,
+    "tp1_qty_fraction": 0.667,
+    "qty": 10,
+    "proximity_dollars": 1.5,
+    "require_break_above_open": true
+  },
+  "train_window": "2025-01-01 to 2025-12-31",
+  "train_months": 11.99,
+  "test_window": "2026-01-01 to 2026-05-12",
+  "test_months": 4.34,
+  "train_pnl": 25676.33,
+  "test_pnl": 12536.96,
+  "train_n_trades": 163,
+  "test_n_trades": 66,
+  "train_wr": 0.92,
+  "test_wr": 0.955,
+  "train_pnl_per_month": 2141.16,
+  "test_pnl_per_month": 2890.86,
+  "ratio": 1.35,
+  "train_full": {
+    "window_start": "2025-01-01",
+    "window_end": "2025-12-31",
+    "total_pnl": 25676.33,
+    "n_trades": 163,
+    "n_winners": 150,
+    "win_rate": 0.92,
+    "trading_days": 163,
+    "quarter_pnl": {
+      "2025-Q1": 6315.84,
+      "2025-Q2": 5229.67,
+      "2025-Q3": 6373.67,
+      "2025-Q4": 7757.15
+    },
+    "positive_quarters": 4,
+    "quarter_count": 4,
+    "max_drawdown": 415.35,
+    "top5_pct": 0.051
+  },
+  "test_full": {
+    "window_start": "2026-01-01",
+    "window_end": "2026-05-12",
+    "total_pnl": 12536.96,
+    "n_trades": 66,
+    "n_winners": 63,
+    "win_rate": 0.955,
+    "trading_days": 66,
+    "quarter_pnl": {
+      "2026-Q1": 8980.39,
+      "2026-Q2": 3556.57
+    },
+    "positive_quarters": 2,
+    "quarter_count": 2,
+    "max_drawdown": 255.8,
+    "top5_pct": 0.101
+  },
+  "verdict": "PASS",
+  "verdict_reason": "TEST positive AND test_per_month 2891/mo is 1.35x train_per_month 2141/mo (>= 0.5x floor)",
+  "monday_ready": true,
+  "thresholds": {
+    "test_positive_required": true,
+    "test_per_month_min_ratio": 0.5,
+    "policy_reference": "CLAUDE.md OP 20 walk-forward gate"
+  }
+}

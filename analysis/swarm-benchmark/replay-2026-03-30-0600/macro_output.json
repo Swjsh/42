@@ -1,0 +1,24 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-30T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.58,
+  "reasoning": "VIX at 30.67 is in the extreme fear zone (>25), though direction is flat (-0.26% change — fear is stable, not accelerating). Overnight gap up +2.97 is bullish, but sector rotation is strongly risk-off: Tech (XLK) -1.22%, Financials (XLF) -2.01%, while only Energy (XLE) +1.67% is positive. This rotation pattern and high VIX regime favor bearish directional setups (premium cheaper on volatility, higher-probability reversals). No major macro events today removes binary risk. Early premarket ribbon is BULL stacked but spread is only 8 cents (session noise). Bias leans bearish due to elevated premium cost + sector weakness, though gap up + stable VIX direction prevent stronger conviction.",
+  "vix_regime": "HIGH",
+  "vix_direction": "flat",
+  "vix_current": 30.67,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 2.97,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX 30.67 = extreme fear regime (>25); premium expensive for bull directional, favorable for bear directional",
+    "VIX direction flat (-0.26%) = fear is stable, not building further; no sharp compression expected but no spike either",
+    "Overnight gap +2.97 significant, but sector rotation is weak: Tech -1.22%, Financials -2.01% (major cap outflows), Energy sole bright spot +1.67%",
+    "Risk-off rotation dominates macro sentiment despite gap up; suggests market absorbed fear and is rotating defensively, not rallying sustainably",
+    "No macro events today (calendar empty for 2026-03-30); removes hard no-trade windows but also removes catalyst for volatility reset",
+    "Ribbon BULL stack (+8 cents spread) is early-session noise; too tight to trust directional bias; wait for 09:30 RTH open to confirm structure"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-02-11T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.76,
+  "reasoning": "CLEAN_BEAR ribbon (72c spread, stack BEAR) with price 112 cents below pivot (692.11 vs 693.23). Last 3 bars show mixed structure (1 green, 2 red) but the final 2 bars were consistently red with strong conviction: 15:50 bar massive 105c red body with 121k volume, 15:55 bar another red close with 204k volume into the session end. Price is 45c above the Active support (691.66) and well below the entire ribbon stack. Overnight gap is flat, neutral on this metric. The selling volume and ribbon structure align strongly bearish.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 72,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "CLEAN_BEAR ribbon with 72c spread, price 112c below pivot (strong bearish alignment)",
+    "Last 2 bars (15:50, 15:55) both red with exceptional volume: 121k then 204k (conviction in selling)",
+    "15:50 bar: massive 105c red candle body, dropped from 693.38 open to 692.33 close",
+    "Price currently 45c above Active support 691.66, potential target on further weakness",
+    "VIX 17.86 flat, not elevated, but tech sector (XLK) down 0.88% and rotation signal is mixed"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,16 @@
+{
+  "_doc": "Karpathy shadow mode controller. When enabled=true, every heartbeat tick computes filter scores under BOTH production params (params.json) AND the overrides below; both decisions are logged to decisions.jsonl with a version field. The shadow is read-only — it never affects what the production engine actually does. EOD-summary 8c writes the daily diff. Default: disabled (no candidate to test).",
+
+  "enabled": false,
+  "version": null,
+  "rule_id": null,
+  "started_at": null,
+  "expires_at": null,
+
+  "_overrides_doc": "Shape mirrors params.json. Only the fields named here are overridden; unnamed fields fall through to params.json defaults. Use dot-notation for nested fields (e.g., 'vix_entry_thresholds.bear_min_exclusive_and_rising').",
+  "overrides": {},
+
+  "_lifecycle": "shadow runs typically last 5-10 trading days. After the window expires, EOD-summary 8c emits a final scorecard at analysis/recommendations/{rule_id}.json with verdict {auto_ratify | needs_review | reject}. If auto_ratify and J doesn't revoke within 24h, premarket bumps params.json + RULE_VERSION on the following day.",
+  "scorecard_path": null,
+  "decision_log_path_pattern": "automation/state/decisions.jsonl"
+}

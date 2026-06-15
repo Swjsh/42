@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-04-13T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": [],
+    "bearish": ["technical", "macro", "level_thesis", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 0,
+    "bearish": 4,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.0,
+    "bearish": 1.0
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 83,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Overnight gap is sentiment-driven (-0.59%, no catalyst), not structural — gap fills happen 70%+ of the time on news-free days; XLK outperforming SPY by +0.35% and compressed ribbon (only 1.38 EMA-wide) create real reversion pressure",
+    "top_invalidation_scenario": "SPY opens at or above PMH 675.98 and holds the first 5-min bar (09:30–09:35 ET) without a reversal close below it — level thesis secondary bullish scenario activates immediately and bear ribbon inverts on any sustained move above 676.25"
+  },
+  "battle_level": {
+    "price": 675.98,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 675.98,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 673.98,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 678.45,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "reclaim_attempt"
+    },
+    {
+      "price": 677.85,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 677.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY fails to reclaim PMH 675.98 and rolls over from that ceiling",
+      "bias": "bearish",
+      "target": 673.98,
+      "entry_trigger": "PMH rejection + bear ribbon confirmation"
+    },
+    "secondary": {
+      "condition": "if SPY reclaims PMH 675.98 and closes above it on a 5-min bar",
+      "bias": "bullish",
+      "target": 678.45,
+      "entry_trigger": "PMH reclaim with potential partial gap fill toward 678.45"
+    },
+    "invalidation": {
+      "condition": "SPY opens at or above 675.98 and holds the first RTH bar (09:30–09:35 ET) without a close back below it",
+      "effect": "Entire bearish consensus invalidated — level thesis secondary bullish scenario activates, bear ribbon inverts above 676.25, and macro gap-fill probability (~70% on news-free days) takes over as the dominant driver"
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests PMH 675.98 within first 60 min of RTH (by 10:30 ET) and fails to close a 5-min bar above it, then trades down to PML 673.98 before 12:00 ET",
+      "invalidation": "SPY closes any 5-min bar above 675.98 during the first 60 min of RTH (09:30–10:30 ET)",
+      "confidence": 0.62,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains above 19.50 through 10:30 ET, sustaining the risk-off macro backdrop and confirming no meaningful short-cover rally reversal",
+      "invalidation": "VIX drops below 18.50 by 09:45 ET, signaling sentiment reversal and collapsing the macro bearish case",
+      "confidence": 0.65,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BEAR ribbon (fast below pivot below slow) holds through the first two RTH bars (09:35 and 09:40 ET) — no full inversion on open",
+      "invalidation": "Fast EMA crosses above pivot EMA on the 09:35 or 09:40 ET bar (requires sustained SPY price above ~676.25)",
+      "confidence": 0.72,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "SPY enters 4/13 with the swarm's first 4/4 unanimous bearish vote: CLEAN_BEAR ribbon at 138c spread, $3.97 overnight gap down to 675.37, VIX rising +3.98% to 20.1, and a completely clean macro calendar — every specialist layer aligned. The pivotal tension is the paper-thin 61c gap between current price and PMH 675.98: SPY is coiled at the premarket ceiling with the validator flagging a moderate-robustness warning (gap fills happen 70%+ on news-free days, XLK is actually green on the session, ribbon is only 1.38 wide). Watch PMH 675.98 behavior on the first RTH bar: rejection confirms the flush to PML 673.98 (and potentially 651.06 below); a clean hold above it immediately flips to the bullish secondary scenario targeting 678.45.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.78,
+      "one_line": "CLEAN_BEAR ribbon (138c spread, fast 675.62 < pivot 675.88 < slow 677.00), price 51c below pivot, $3.97 gap down, doji indecision on final 2 bars near pivot ceiling"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.78,
+      "one_line": "VIX 20.1 MID regime rising +3.98% (above 1.5% threshold for directional signal), $3.97 overnight gap down, risk_off backdrop, zero macro events (full trading window)"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.62,
+      "one_line": "Battle level PMH 675.98 (61c above price) is the first decision — rejection confirms bear flush to PML 673.98; reclaim flips setup to bullish target 678.45"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.55,
+      "one_line": "Selective risk_off rotation: XLF -0.9% (yield/rate-driven weakness), XLK flat/green (+0.08%) — narrow breadth limits downside conviction but does not override structural bear"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "SPY holds above PMH 675.98 on first RTH bar — gap-fill probability (~70% on news-free days) + XLK outperformance + ribbon compression (1.38 wide) all point toward reversion; one good open reverses the entire thesis"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

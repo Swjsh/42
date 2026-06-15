@@ -1,0 +1,132 @@
+{
+  "seed": 240,
+  "params": {
+    "f9_vol_mult": 0.4,
+    "ribbon_spread_min_cents": 60,
+    "ribbon_flip_lookback_bars": 4,
+    "level_proximity_dollars": 0.2,
+    "confluence_tolerance_dollars": 0.5,
+    "no_trade_before": null,
+    "no_trade_window_start": "12:30",
+    "no_trade_window_end": "15:15",
+    "min_triggers_bear": 1,
+    "min_triggers_bull": 3,
+    "vix_bear_threshold": 17.3,
+    "vix_bear_rising_deadband": 0.05,
+    "vix_bull_max": 22.0,
+    "premium_stop_pct_bear": -0.1,
+    "premium_stop_pct_bull": -0.05,
+    "tp1_premium_pct": 0.25,
+    "tp1_qty_fraction": 0.5,
+    "runner_target_premium_pct": 2.0,
+    "level_stop_buffer_dollars": 0.1,
+    "time_stop_minutes_before_close": 30,
+    "strike_offset_bear": 1,
+    "strike_offset_bull": 1
+  },
+  "windows": [
+    {
+      "window": "2025-Q1",
+      "start": "2025-01-01",
+      "end": "2025-03-31",
+      "metrics": {
+        "n_trades": 12,
+        "n_winners": 3,
+        "n_losers": 9,
+        "win_rate": 0.25,
+        "total_pnl": 77.2,
+        "expectancy": 6.43,
+        "avg_winner": 147.59,
+        "avg_loser": -40.62,
+        "wl_ratio": 3.634,
+        "max_drawdown": -324.61,
+        "sharpe_daily": 0.9602,
+        "n_days_traded": 10
+      }
+    },
+    {
+      "window": "2025-Q2",
+      "start": "2025-04-01",
+      "end": "2025-06-30",
+      "metrics": {
+        "n_trades": 9,
+        "n_winners": 2,
+        "n_losers": 7,
+        "win_rate": 0.2222,
+        "total_pnl": 315.61,
+        "expectancy": 35.07,
+        "avg_winner": 307.38,
+        "avg_loser": -42.73,
+        "wl_ratio": 7.193,
+        "max_drawdown": -158.16,
+        "sharpe_daily": 2.9696,
+        "n_days_traded": 9
+      }
+    },
+    {
+      "window": "2025-Q3",
+      "start": "2025-07-01",
+      "end": "2025-09-30",
+      "metrics": {
+        "n_trades": 2,
+        "n_winners": 1,
+        "n_losers": 1,
+        "win_rate": 0.5,
+        "total_pnl": 31.83,
+        "expectancy": 15.91,
+        "avg_winner": 58.95,
+        "avg_loser": -27.13,
+        "wl_ratio": 2.173,
+        "max_drawdown": -27.13,
+        "sharpe_daily": 4.1503,
+        "n_days_traded": 2
+      }
+    },
+    {
+      "window": "2025-Q4",
+      "start": "2025-10-01",
+      "end": "2025-12-31",
+      "metrics": {
+        "n_trades": 9,
+        "n_winners": 0,
+        "n_losers": 9,
+        "win_rate": 0.0,
+        "total_pnl": -387.48,
+        "expectancy": -43.05,
+        "avg_winner": 0.0,
+        "avg_loser": -43.05,
+        "wl_ratio": 0.0,
+        "max_drawdown": -387.48,
+        "sharpe_daily": -39.2238,
+        "n_days_traded": 9
+      }
+    },
+    {
+      "window": "2026-VAL",
+      "start": "2026-02-14",
+      "end": "2026-05-07",
+      "metrics": {
+        "n_trades": 51,
+        "n_winners": 12,
+        "n_losers": 39,
+        "win_rate": 0.2353,
+        "total_pnl": -875.54,
+        "expectancy": -17.17,
+        "avg_winner": 82.27,
+        "avg_loser": -47.76,
+        "wl_ratio": 1.722,
+        "max_drawdown": -962.97,
+        "sharpe_daily": -5.0442,
+        "n_days_traded": 18
+      }
+    }
+  ],
+  "stability": {
+    "n_total_windows": 5,
+    "n_positive_pnl": 3,
+    "n_positive_sharpe": 3,
+    "is_robust": true,
+    "verdict": "ROBUST"
+  },
+  "evaluated_at": "2026-05-09T17:35:44Z"
+}

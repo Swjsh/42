@@ -1,0 +1,93 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-05-17T20:30:15Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "SPY at 734.46 in early premarket, 0.63 above premarket low (733.83), with overnight gap +0.69 bullish. The battle level is 734.59 (5-day Carry resistance, 2★), just 0.13 away — price is at or just above it. Ribbon is BULL-stacked (fast > pivot > slow, 65c spread) with favorable alignment. Premarket high 737.91 (Active, 2★) is the secondary resistance, +3.45 away. Bull setup is supported by positive overnight gap, ribbon alignment, and held premarket low, but tight clustering of 734.59 + 737.91 resistances ($3.45 zone) limits clarity. Risk_on rotation + XLK strength (+1.28%) reinforce bias.",
+  "battle_level": {
+    "price": 734.59,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 734.59,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 1,
+      "distance_from_price": 0.13
+    },
+    {
+      "price": 737.91,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 3.45
+    },
+    {
+      "price": 733.83,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": -0.63
+    },
+    {
+      "price": 727.82,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 4,
+      "distance_from_price": -6.64
+    },
+    {
+      "price": 710.45,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": -23.01
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds above 734.59 and breaks 737.91 PMH",
+      "bias": "bullish",
+      "target": 740.50,
+      "entry_trigger": "level_hold + breakout above PMH"
+    },
+    "secondary": {
+      "condition": "if SPY holds 737.91 PMH as resistance",
+      "bias": "bullish",
+      "target": 734.59,
+      "entry_trigger": "consolidation range 734–738"
+    },
+    "tertiary": {
+      "condition": "if SPY breaks below 733.83 PML support",
+      "bias": "bearish",
+      "target": 727.82,
+      "entry_trigger": "breakdown + gap-fill continuation"
+    }
+  },
+  "levels_in_play_count": 3,
+  "key_observations": [
+    "Bull ribbon stack with 65¢ spread indicates favorable long bias; price held premarket low (733.83) and rally initiated",
+    "Battle level 734.59 (5-day Carry high) is within 0.13 — very tight, price hovering near it; next resistance 737.91 PMH at +3.45 (dual resistance zone)",
+    "Overnight gap +0.69 bullish + XLK +1.28% strength support the directional bias, though early premarket (06:00 ET) leaves 3.5h before RTH open for regime clarification"
+  ],
+  "data_quality": "full"
+}

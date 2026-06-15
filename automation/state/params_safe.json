@@ -1,0 +1,68 @@
+{
+  "_doc": "Gamma-Safe account override config. Loaded on top of params.json by the heartbeat on each tick for Account 1. Only specifies values that DIFFER from params.json. Base params (VIX bands, liquidity gates, session timing, macro, etc.) still come from params.json. Drift between this file and heartbeat.md section 'ACCOUNT: safe' = kill-switch event.",
+
+  "account_id": "safe",
+  "account_alias": "Gamma-Safe",
+  "account_description": "Conservative paper account. Capital preservation priority. CONFIRMED setups only. ATM strikes. Tight risk per trade. High-WR focus over raw P&L.",
+  "alpaca_key_alias": "alpaca",
+  "alpaca_mcp_prefix": "mcp__alpaca__",
+  "alpaca_rest_base_url": "https://paper-api.alpaca.markets",
+  "position_state_file": "automation/state/current-position-safe.json",
+
+  "_risk_overrides": "Tighter than params.json defaults. 30% per-trade cap means 3 consecutive max-loss trades before kill switch instead of 2.",
+  "per_trade_risk_cap_pct": 0.30,
+  "daily_loss_kill_switch_pct": 0.30,
+
+  "_exits_overrides": "Conservative exits. Take profit early (WR focus). Symmetric stop — no asymmetry to manage.",
+  "premium_stop_pct": -0.08,
+  "premium_stop_pct_bear": -0.08,
+  "premium_stop_pct_bull": -0.08,
+  "tp1_premium_pct": 0.30,
+  "tp1_qty_fraction": 0.667,
+  "runner_target_premium_pct": 2.0,
+  "v15_profit_lock_mode": "trailing",
+  "v15_profit_lock_threshold_pct": 0.05,
+  "v15_profit_lock_trail_pct": 0.20,
+
+  "_entry_overrides": "v15.1 (LIVE 2026-05-14 evening per J): entries [09:35, 15:00) ET continuous. Mid-day blackout REMOVED. Cutoff 15:00 to protect against theta. Same as Bold for entry-window — Safe vs Bold differs in risk_cap / strike / TP1 fraction, NOT entry timing per J's 'goal is to make money safely AND consistently' (apply to both risk profiles). Existing positions still flatten by 15:50 ET hard time stop.",
+  "entry_no_trade_before_et": "09:35",
+  "entry_no_trade_after_et": "15:00",
+  "entry_no_trade_window_et": null,
+  "_entry_no_trade_window_et_history": "Pre-v15.1 had 14:00-15:00 mid-day blackout + 10:00 ET start gate. v15.1 (2026-05-14): start 09:35, no mid-day blackout, end 15:00.",
+  "filter_10_min_triggers_bear": 1,
+  "filter_10_min_triggers_bull": 2,
+
+  "_strike_overrides": "ATM only. No ITM exposure. Delta ~0.50 — pure directional, no gamma leverage. Per-tier caps still apply from params.json.",
+  "strike_offset_itm": 0,
+  "v15_strike_offset_per_tier": [
+    { "equity_min": 0,     "equity_max": 2000,      "strike_offset": 0,  "label": "ATM", "rationale": "Conservative: full premium at risk but well-defined delta. No OTM lottery-ticket risk." },
+    { "equity_min": 2000,  "equity_max": 10000,     "strike_offset": 0,  "label": "ATM", "rationale": "Same ATM discipline at $2K-$10K tier." },
+    { "equity_min": 10000, "equity_max": 25000,     "strike_offset": 1,  "label": "Slight ITM", "rationale": "At $10K+ more capital available; modest ITM for higher delta." },
+    { "equity_min": 25000, "equity_max": 999999999, "strike_offset": 2,  "label": "ITM-2", "rationale": "Full ITM-2 only at PDT-eligible capital level ($25K+)." }
+  ],
+
+  "_vix_overrides": "Tighter VIX gates than base. Only trade calls in genuinely low-vol regime; only trade puts in genuinely elevated regime.",
+  "vix_entry_thresholds": {
+    "bull_max_exclusive_or_falling": 17.20,
+    "bear_min_exclusive_and_rising": 17.30,
+    "bull_hard_cap": 22.00
+  },
+
+  "_setup_scope": "CONFIRMED setups only. No DRAFT, no WATCH-ONLY, no watcher candidates.",
+  "setups_allowed": ["BEARISH_REJECTION_RIDE_THE_RIBBON", "BULLISH_RECLAIM_RIDE_THE_RIBBON"],
+  "quality_gate_min": "BASE",
+
+  "_confluence_overrides": "Hard minimum of 2 of 3 confluence signals. No single-trigger entries allowed.",
+  "filter_10_level_tied_required": true,
+  "confluence_min_signals": 2,
+
+  "_sizing_math_note": "At $1K: max capital = $300. ATM premium ~$1.00 → max 3 contracts ($300 / $100). ATM premium ~$1.50 → max 2 contracts (round down, min 3 is floor — if 2 < 3 and cost too high, SKIP). ATM premium ~$0.75 → max 4 contracts (cap at 5 per tier). Always recompute against current equity before entry.",
+
+  "_overlap_resolution": "When same setup fires on both accounts simultaneously: Safe account takes ATM strike, 30% TP1, 67% TP1 fraction, -8% stop. Bold account takes ITM-2 strike, 75% TP1, 33% TP1 fraction, -15%/-5% stop. Both execute same second. Log both rows to decisions.jsonl with respective account_id.",
+
+  "schema_version": 3,
+  "config_version": "v1.0",
+  "config_ratified_at": "2026-05-14",
+  "config_ratified_by": "dual-account-design-plan",
+  "effective_date": "2026-05-18"
+}

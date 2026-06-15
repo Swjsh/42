@@ -1,0 +1,24 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-03-19T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.82,
+  "reasoning": "XLK -0.97%, XLF -0.81%, XLE -0.53% all negative — classic risk-off rotation. Tech leadership has broken, financials stressed, and energy flat. No sector support for SPY. VIX +5.21% rising into HIGH IV regime confirms fear is rising. SPY down 1.04% but outperformed by all three sectors, indicating concentrated selling in smaller/non-mega-cap components. Bearish bias with high confidence: sector breadth deteriorating, internals confirm downside continuation.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -0.97,
+    "xlf_change_pct": -0.81,
+    "xle_change_pct": -0.53,
+    "spy_change_pct": -1.04,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK -0.97%: Tech selling — growth/momentum leadership broken heading into cash open",
+    "XLF -0.81%: Financial stress despite typically holding better — rate/credit concerns",
+    "All three sectors aligned DOWN: Clear risk-off rotation, no bullish anchor",
+    "VIX +5.21% rising to HIGH regime: Fear escalating, volatility expanding",
+    "Sectors outperform SPY despite all negative: Indicates non-mega-cap weakness, concentration of selling"
+  ],
+  "data_quality": "full"
+}

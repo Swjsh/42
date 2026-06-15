@@ -1,0 +1,63 @@
+{
+  "date": "2026-03-30",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:10.541857+00:00",
+  "actual": {
+    "open": 640.11,
+    "close": 632.0,
+    "high": 640.37,
+    "low": 629.28,
+    "move_dollars": -8.11,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 25,
+    "consensus_strength": "moderate",
+    "battle_level": {
+      "price": 638.02,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bullish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "HELD",
+      "battle_level": 638.02,
+      "role": "resistance",
+      "first_touch_time": "2026-03-30T09:35:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 638.02,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "638.02 PMH battle level is tested (SPY touches 638.00 or higher) within the first 60 minutes of RTH ",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains above 28.0 through 12:00 ET, limiting sustained directional extension and keeping premium elevated for both ",
+        "invalidation": "VIX compresses below 28.0 before 12:00 ET \u2014 if this occurs, the macro bearish pillar collapses and bullish confidence sh"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "SPY ribbon spread expands beyond 30 cents within the first 90 minutes of RTH (before 11:00 ET), breaking out of the WEAK",
+        "invalidation": "Ribbon spread remains at or below 15 cents through 11:00 ET, confirming continued indecision with no actionable directio"
+      }
+    ]
+  },
+  "narrative": "The swarm is deadlocked 2-2 on direction, with the weighted framework narrowly favoring bullish (0.60 vs 0.40) on the strength of chart structure and level thesis supporting the overnight gap-up narrative, but the validator flags 'weak' consensus robustness given that the bearish case rests on fragi"
+}

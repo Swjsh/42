@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-04-10T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.75,
+  "reasoning": "SPY at 680.13, sandwiched between 678.91 Active support (2★) $1.22 below and 681.16 Carry resistance (2★) $1.03 above. Ribbon is BULL (fast > pivot > slow). The battle level is 681.16 — a multi-session high from the 5-day range — which will test the uptrend thesis. If 681.16 holds on first test from below, the risk/reward favors bulls targeting 682.76 (next reference level) and higher. Premarket established the 680.5 PMH; 681.16 sits $0.66 above it, forming a two-level resistance cluster that filters noise.",
+  "battle_level": {
+    "price": 681.16,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 681.16,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 1.03
+    },
+    {
+      "price": 680.5,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 0.37
+    },
+    {
+      "price": 678.91,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 1.22
+    },
+    {
+      "price": 682.76,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 4,
+      "distance_from_price": 2.63
+    },
+    {
+      "price": 682.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": 1.87
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 681.16 on first test from below",
+      "bias": "bullish",
+      "target": 682.76,
+      "entry_trigger": "close above 681.16 + BULL ribbon confirms"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 678.91 support",
+      "bias": "bearish",
+      "target": 673.77,
+      "entry_trigger": "close below 678.91 + volume confirmation"
+    },
+    "range": {
+      "condition": "if SPY rejected at 681.16 and oscillates between 680.5 and 678.91",
+      "bias": "neutral",
+      "target": "none — choppy day",
+      "entry_trigger": "none — wait for breakout"
+    }
+  },
+  "levels_in_play_count": 5,
+  "key_observations": [
+    "Price at 680.13 is well-positioned above all ribbon EMAs (fast 679.72, pivot 679.67, slow 679.45) confirming BULL stack",
+    "Carry-tier resistance at 681.16 is the single most important level today — it's multi-session high from 5-day range with 2-star strength",
+    "Two-level resistance cluster (680.5 PMH + 681.16 5-day high) $0.37–$1.03 above current — compact overhead zone filters weak breakout noise",
+    "Support floor at 678.91 PML is only $1.22 away — tight trading range suggests first strong directional move will be UP to 681.16, not down to 678.91",
+    "If 681.16 breaks, next reference target is 682.76 ($2.63 above) — visible next level with no crowding in between"
+  ],
+  "data_quality": "full"
+}

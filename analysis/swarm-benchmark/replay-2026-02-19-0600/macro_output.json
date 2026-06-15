@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-02-19T11:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.58,
+  "reasoning": "VIX at 20.09 is MID regime (normal), but direction is rising +2.71% (~0.5pt increase), signaling volatility creep. Overnight gap flat—no directional overnight sentiment. Critically, zero macro events today (no FOMC, CPI, NFP, earnings) creates a clear trading window. However, sector rotation is risk-on with all major sectors up (XLK, XLF, XLE, SPY all +0.3-0.6%); this contradicts the VIX rise and suggests the rally remains structurally intact but volatility is ticking up as a caution. Ribbon stack is BEAR at 52c spread, confirming technical bearish lean. The setup: bull tape with rising volatility often precedes consolidation or minor pullback before momentum resumes. Moderate confidence due to mixed signals—VIX rise is meaningful but modest (not >2pts), and the constructive tape limits downside bias.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 20.09,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": 0.0,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX rising +2.71% (circa +0.5pt) from ~19.55 baseline—volatility ticking up within MID regime; not extreme but directional warning.",
+    "Zero macro events on 2026-02-19: no FOMC decision, no CPI, NFP, or earnings releases—full trading window available all session.",
+    "Sector rotation risk-on (all sectors +0.3-0.6%): XLK +0.61%, XLF +0.46%, XLE +0.46%, SPY +0.33%—contradicts VIX rise, confirms bull tape is intact.",
+    "Overnight gap flat: SPY opened 686.19, exact close from 2026-02-18—zero gap signal, neutral overnight sentiment.",
+    "Ribbon BEAR stack (52c spread) confirms technical short bias, aligns with VIX rise warning."
+  ],
+  "data_quality": "full"
+}

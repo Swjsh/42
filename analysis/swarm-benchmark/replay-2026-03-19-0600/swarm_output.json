@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-19T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": [],
+    "bearish": ["technical", "macro", "level_thesis", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 0,
+    "bearish": 4,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.0,
+    "bearish": 1.0
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 82,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "strong",
+    "weakest_link": "Premarket exhaustion doji (05:55 bar, <5% body) occurs in thin premarket volume (5-10% of RTH liquidity) and may not predict RTH momentum — the actual bearish trigger (break of 661.19 with volume confirmation) has not fired yet as of 06:00 ET.",
+    "top_invalidation_scenario": "SPY opens at 661.50 or higher and holds 661.19 Carry support on first dip within 15 min of RTH (09:30-09:45 ET), breaking the exhaustion narrative and proving premarket doji was thin-volume noise."
+  },
+  "battle_level": {
+    "price": 661.19,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 661.19,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 662.1,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 658.58,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 663.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 660.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks below 661.19 Carry support with volume confirmation in morning RTH",
+      "bias": "bearish",
+      "target": 658.58,
+      "entry_trigger": "level_rejection"
+    },
+    "secondary": {
+      "condition": "if SPY holds 661.19 on first test from above and reclaims 662.10 PMH",
+      "bias": "bullish",
+      "target": 663.0,
+      "entry_trigger": "level_reclaim"
+    },
+    "invalidation": {
+      "condition": "SPY opens firm at 661.50+ and holds 661.19 Carry on first dip within 09:30-09:45 ET; OR VIX drops below 24.0 within 30 min of RTH open",
+      "effect": "Premarket BEAR exhaustion narrative collapses — RTH liquidity resets momentum; shorts covering at 661.19 trigger squeeze toward 663-664; bearish put thesis invalidated for the session."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests the 661.19 Carry support level at least once within the first 90 minutes of RTH (by 11:00 ET)",
+      "invalidation": "SPY does not trade at or below 661.30 before 11:00 ET — price remains pinned in 661.60-662.10 range or rallies directly toward 663",
+      "confidence": 0.70,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains above 24.50 through the first 60 minutes of RTH (09:30-10:30 ET), sustaining elevated put premium and confirming ongoing fear-driven selling pressure",
+      "invalidation": "VIX drops below 24.00 by 10:30 ET, indicating post-FOMC relief repricing and invalidating the 'fear escalating' macro narrative",
+      "confidence": 0.65,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY fails to close a 5-minute bar above 662.10 PMH within the first 90 minutes of RTH, consistent with the CLEAN_BEAR ribbon (144c spread) capping any early rally attempt",
+      "invalidation": "SPY prints a 5-minute bar with a close above 662.25 before 11:00 ET, signaling PMH breakout and ribbon compression that invalidates the BEAR stack structure",
+      "confidence": 0.68,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "All four specialist agents (technical, macro, level_thesis, internals) unanimously agree on a bearish bias: CLEAN_BEAR ribbon with 144-cent spread, VIX at 25.87 rising +5.21% into HIGH regime, all sectors red, and a failed premarket breakout at PMH 662.10 point to downside continuation. The critical tension is that the setup is structurally bearish but the trigger has NOT fired — price at 661.59 sits $0.40 above the battle-level Carry support (661.19), and the validator rightly flags that RTH open with full liquidity resets momentum and post-FOMC stabilization on a zero-event day is a historically common whipsaw scenario. Watch the 661.19 Carry level on first RTH test: a clean break with volume confirmation opens the path to 658.58; a hold with reversal invalidates the premarket BEAR thesis for the session.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.62,
+      "one_line": "CLEAN_BEAR ribbon 144c spread with failed premarket breakout (05:55 exhaustion doji) at PMH 662.10; price trapped between pivot and slow EMA"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.72,
+      "one_line": "VIX 25.87 HIGH regime rising +5.21%, all sectors red, zero macro events today — post-FOMC risk-off with no fresh catalysts to reverse"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.70,
+      "one_line": "Battle level 661.19 Carry support (2★) $0.40 below price; break targets 658.58 premarket low, hold targets 663.0 — BEAR ribbon + rising VIX favor the downside scenario"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.82,
+      "one_line": "XLK -0.97%, XLF -0.81%, XLE -0.53% all red with no bullish anchor — classic risk-off rotation with VIX escalating into HIGH regime"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "strong",
+      "top_invalidation": "Price is $0.40 ABOVE 661.19 support — trigger not yet fired; SPY holding Carry at RTH open would break the premarket exhaustion narrative and trigger short-covering squeeze to 663"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

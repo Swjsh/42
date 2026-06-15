@@ -1,0 +1,14 @@
+{
+  "last_phase": null,
+  "last_p0_completed": 60,
+  "last_top_score": null,
+  "v15_seen": true,
+  "kill_switch_seen": false,
+  "circuit_breaker_tripped_seen": false,
+  "drift_severity_seen": null,
+  "last_p0_completed_initialized": true,
+  "v15_stress_seen": true,
+  "v15_walk_seen": true,
+  "v15_j_edge_last_score": 0,
+  "v15_j_edge_first_seen_seed": null
+}

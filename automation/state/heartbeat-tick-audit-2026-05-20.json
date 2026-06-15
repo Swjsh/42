@@ -1,0 +1,34 @@
+{
+  "date": "2026-05-20",
+  "total_ticks": 33,
+  "live_trading_ticks": 10,
+  "counts": {
+    "ALIGNED": 3,
+    "MISALIGNED-BENIGN": 6,
+    "MISALIGNED-CRITICAL": 1,
+    "STALE_PAUSED": 0,
+    "NO_DATA": 23,
+    "NO_BAR": 0
+  },
+  "misaligned_critical_count": 1,
+  "misaligned_critical_pct_of_live": 10.0,
+  "headline": "1 of 10 live-trading ticks (10%) were MISALIGNED-CRITICAL on 2026-05-20",
+  "critical_ticks": [
+    {
+      "tick_id": 86,
+      "fire_at": "2026-05-20T13:48:03",
+      "decision": "HOLD",
+      "claimed_spy": 737.86,
+      "closed_close": 740.2575073242188,
+      "divergence": -2.3975,
+      "reason": "spy=737.86 ribbon=22c(COMPRESSED) vix=17.64(down) bear=7/10 bull=5/11 htf=null | ribbon_insufficient(22c<30c_min) + volume_blocker(67k<202k_req)"
+    }
+  ],
+  "log_path": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\logs\\heartbeat-2026-05-20.log",
+  "csv_path": "C:\\Users\\jackw\\Desktop\\42\\backtest\\data\\spy_5m_2026-05-08_2026-05-20.csv",
+  "audit_files": {
+    "per_tick_csv": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-05-20.csv",
+    "summary_json": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-05-20.json",
+    "human_md": "C:\\Users\\jackw\\Desktop\\42\\docs\\HEARTBEAT-TICK-AUDIT-2026-05-20.md"
+  }
+}

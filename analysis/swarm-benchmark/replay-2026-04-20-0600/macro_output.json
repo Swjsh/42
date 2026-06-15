@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-04-20T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.72,
+  "reasoning": "VIX at 18.83 rising sharply (+7.54% change) into MID regime = building fear signal. SPY gapped down -3.17 overnight (0.45% below Friday close of 710.05), closing at 706.88 with premarket contained in tight 706.71-707.13 range. Ribbon is BEAR stack (fast/pivot/slow all in bearish order), confirming structural bearish bias. No macro events fire today—no high/med severity releases until NVDA earnings Tuesday after-market (no RTH impact). Risk-off sentiment dominates overnight flow. VIX direction + gap alignment = consistent bearish backdrop for 0DTE entries, though absolute VIX level (18.83) is not extreme; fear is building but moderate. Sector rotation mixed (energy +1.12%, others flat) = no directional rotation signal.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 18.83,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -3.17,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX rose 7.54% overnight to 18.83—meaningful fear spike but within normal MID range, not extreme",
+    "SPY gapped down -3.17 (-0.45%) from Friday's 710.05 close, premarket holding 706.88 with tight range 706.71-707.13 suggesting consolidation into open",
+    "Ribbon in BEAR stack (fast 707.79 < pivot 708.26 < slow 709.04, spread 126¢) confirms structural bearish alignment",
+    "Overnight gap + rising VIX + BEAR ribbon = tripartite bearish signal; no macro events or earnings today provide relief rallies",
+    "Sector rotation mixed (XLE +1.12%, XLK/XLF/SPY flat), no clear risk-on rotation to offset macro bearishness"
+  ],
+  "data_quality": "full"
+}

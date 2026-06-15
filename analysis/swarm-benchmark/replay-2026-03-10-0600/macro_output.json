@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-10T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.80,
+  "reasoning": "VIX at 24.87 is HIGH regime but FALLING -2.47% — fear is receding, bullish structural signal. No major macro events today (no FOMC, CPI, NFP, earnings releases) provides clean trading window. Overnight gap down -0.66 is minimal and immaterial. Sector rotation is risk-on with XLK +2.79% and XLF +0.82% leading. Macro backdrop is neutral-to-bullish with no volatility catalysts scheduled.",
+  "vix_regime": "HIGH",
+  "vix_direction": "falling",
+  "vix_current": 24.87,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -0.66,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX at 24.87 is HIGH regime but declining -2.47% — fear is receding, bullish structural compression signal",
+    "Zero macro events on 2026-03-10 — clean trading day with no forced volatility blocks or hard news windows",
+    "Overnight gap down -0.66 is within noise range (< $1) — no overnight capitulation; gap is immaterial to intraday structure",
+    "Sector rotation risk-on: XLK +2.79%, XLF +0.82%, SPY +1.78% — tech and financials leading supports bullish bias",
+    "BULL ribbon stack with 332-cent spread — technical structure aligns with macro backdrop, supports upside bias"
+  ],
+  "data_quality": "full"
+}

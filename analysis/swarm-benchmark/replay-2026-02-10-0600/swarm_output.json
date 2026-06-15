@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-02-10T11:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["macro", "internals"],
+    "bearish": [],
+    "no_trade": ["technical", "level_thesis"]
+  },
+  "vote_counts": {
+    "bullish": 2,
+    "bearish": 0,
+    "no_trade": 2
+  },
+  "weighted_scores": {
+    "bullish": 0.40,
+    "bearish": 0.00
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "weak",
+  "swarm_confidence": 25,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["technical", "level_thesis"],
+    "dissent_reason": "Technical ribbon shows CHOP (15c spread, fast/slow nearly identical at 694.63/694.61, mixed bar structure) and level_thesis finds price sandwiched between 693.0 support and 695.86 resistance in a consolidation zone — both higher-weighted chart agents refuse to validate the bullish overnight sector-rotation narrative until price action confirms directional resolution at the open."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "weak",
+    "weakest_link": "The bullish agents rely entirely on overnight sector strength (XLK +1.96%) without acknowledging that the flat $0.17 overnight gap is a rejection of that strength — if overnight traders had conviction, SPY would have gapped up materially, not +$0.17.",
+    "top_invalidation_scenario": "SPY opens and holds above 695.0 on the first 09:30–09:40 bar with volume > 95K and ribbon orders bullish (fast > slow EMA), pushing 696.0+ by 09:50 ET — this resolves the technical chop bullish and initiates the battle-level test at 696.95."
+  },
+  "battle_level": {
+    "price": 696.95,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 696.95,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 695.86,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 693.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 695.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 688.39,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks above 696.95 (Carry ★★ 5-day high) on strong volume with ribbon ordered bullish",
+      "bias": "bullish",
+      "target": 700.21,
+      "entry_trigger": "level_break + resistance_conversion_to_support"
+    },
+    "secondary": {
+      "condition": "if SPY rallies into 695.86 (Active ★★ prior-day high) but fails to close above it on first attempt",
+      "bias": "bearish",
+      "target": 688.39,
+      "entry_trigger": "level_rejection + momentum_reversal"
+    },
+    "invalidation": {
+      "condition": "SPY opens above 695.0 on the 09:30–09:40 bar with volume > 95K AND ribbon orders bullish (fast > slow EMA) with spread > 30c AND price extends to 696.0+ by 09:50 ET",
+      "effect": "Technical chop resolves bullish; battle-level test at 696.95 begins in earnest; bearish/no_trade counter-argument fully invalidated; upgrade consensus strength from weak to moderate."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "695.86 (Active ★★ prior-day high resistance) is tested within the first 60 minutes of RTH but SPY fails to close a 5m bar above it on first attempt by 10:30 ET",
+      "invalidation": "SPY closes a 5m bar above 695.86 with volume > 95K at any point before 10:30 ET",
+      "confidence": 0.52,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains in the 16.5–18.0 range throughout all of RTH on 2026-02-10 with no regime change from MID — zero macro events prevent any spike above 18.5",
+      "invalidation": "VIX spikes above 18.5 or drops below 16.0 at any point during RTH (09:30–16:00 ET)",
+      "confidence": 0.72,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY 5m ribbon spread (fast minus slow EMA) stays below 30c through the first 30 minutes of RTH (through 10:00 ET), preventing any qualifying directional entry signal before 10:00 ET",
+      "invalidation": "Ribbon spread exceeds 30c with a fully ordered bullish or bearish stack (fast > pivot > slow OR fast < pivot < slow) by 09:50 ET close",
+      "confidence": 0.55,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The core tension on 2026-02-10 is between genuine overnight risk-on sector rotation (XLK +1.96%, XLE +0.81%) and the flat $0.17 overnight gap that negates any market conviction behind those moves — if overnight traders truly believed in the tech rally, SPY would have opened materially higher. Macro and internals cast bullish votes, but the two highest-chart-signal agents (technical at 0.35 weight and level_thesis at 0.25 weight) both vote no_trade, producing only a weak 0.40 weighted bullish score; validator further flags narrow breadth (XLF -0.26% diverging) and yesterday's bearish close as trapped-longs conditions that favor a first-hour flush toward 693.0 before any sustained rally. The single most important thing to watch at market open: whether SPY holds and closes above 695.0 on the first 09:30–09:40 bar with volume > 95K — that is the gateway to the bullish scenario and the only clean invalidation of the no_trade / bearish dissent.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "no_trade",
+      "confidence": 0.35,
+      "one_line": "CHOP ribbon (fast 694.63, slow 694.61, spread 15c) + alternating bar structure (2 red, 2 green, no sustained trend) — zero directional conviction."
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.65,
+      "one_line": "VIX 17.35 MID regime stable, zero events today, risk-on sector backdrop — modest bullish lean contingent on ribbon clarifying by 09:35 ET."
+    },
+    "level_thesis": {
+      "bias": "no_trade",
+      "confidence": 0.42,
+      "one_line": "Battle level 696.95 (Carry ★★) is 2.78 away with MIXED ribbon; price sandwiched between 695.86 resistance and 693.0 support — consolidation awaiting open-bar resolution."
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "XLK +1.96% tech leadership (130bps outperformance vs SPY) signals risk-on rotation — NARROW breadth (XLF -0.26%) limits conviction but net bullish."
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "weak",
+      "top_invalidation": "Flat $0.17 overnight gap rejects bullish overnight sector strength; XLF -0.26% + yesterday's 150bp bearish selloff + technical chop = trapped longs flush more likely than immediate rally toward 696.95."
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

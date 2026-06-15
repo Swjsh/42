@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2025-10-08T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.55,
+  "reasoning": "XLK (tech) down -1.18% is the dominant sector signal — a clear risk-off move. Tech is ~30% of SPY weighting, so this weakness directly headwinds broad strength. XLE (energy) flat at +0.25%, XLF (financials) flat at -0.2% — no offsetting leadership. Yesterday's SPY -0.51% move correlates with tech leadership down. While premarket shows overnight recovery (+$0.87 gap up, BULL ribbon), sector internals yesterday suggest caution — tech weakness persists as a headwind until the sector stabilizes.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -1.18,
+    "xlf_change_pct": -0.2,
+    "xle_change_pct": 0.25,
+    "spy_change_pct": -0.51,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: -1.18% (significant tech weakness, largest SPY component)",
+    "XLE: +0.25% (energy flat, slight defensive rotation)",
+    "XLF: -0.2% (financials flat, no conviction either direction)",
+    "Rotation: Classic risk-off — growth (XLK) underperforming, energy defending"
+  ],
+  "data_quality": "full"
+}

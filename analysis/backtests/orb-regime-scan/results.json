@@ -1,0 +1,254 @@
+{
+  "candidate": "ORB_REGIME_SCAN (or_range gates, correct quarter parsing)",
+  "generated_at": "2026-05-21T05:42:08.374604",
+  "vix_gate_finding": "VIX>=20 is WRONG direction. Q2-2026 ORB signals (133 obs) had VIX<20. VIX>=20 removes profitable signals, keeps losing ones. VIX is not the discriminator.",
+  "scenarios": {
+    "LONG_ALL": {
+      "label": "LONG_ALL",
+      "n": 61,
+      "wins": 37,
+      "wr_pct": 60.7,
+      "pnl": 1022.51,
+      "or_range_mean": 2.08,
+      "positive_quarters": "4/6",
+      "q2_2026_concentration_pct": 64.9,
+      "quarters": {
+        "2025-Q1": {
+          "n": 4,
+          "wr_pct": 0.0,
+          "pnl": -255.5
+        },
+        "2025-Q2": {
+          "n": 14,
+          "wr_pct": 50.0,
+          "pnl": 105.63
+        },
+        "2025-Q3": {
+          "n": 19,
+          "wr_pct": 68.4,
+          "pnl": 550.12
+        },
+        "2025-Q4": {
+          "n": 6,
+          "wr_pct": 50.0,
+          "pnl": 18.12
+        },
+        "2026-Q1": {
+          "n": 5,
+          "wr_pct": 60.0,
+          "pnl": -59.75
+        },
+        "2026-Q2": {
+          "n": 13,
+          "wr_pct": 84.6,
+          "pnl": 663.89
+        }
+      }
+    },
+    "LONG_OR_LT1.50": {
+      "label": "LONG_OR_LT1.50",
+      "n": 16,
+      "wins": 13,
+      "wr_pct": 81.2,
+      "pnl": 250.87,
+      "or_range_mean": 1.04,
+      "positive_quarters": "4/5",
+      "q2_2026_concentration_pct": 10.4,
+      "quarters": {
+        "2025-Q2": {
+          "n": 2,
+          "wr_pct": 100.0,
+          "pnl": 87.25
+        },
+        "2025-Q3": {
+          "n": 8,
+          "wr_pct": 75.0,
+          "pnl": 141.12
+        },
+        "2025-Q4": {
+          "n": 1,
+          "wr_pct": 100.0,
+          "pnl": 16.12
+        },
+        "2026-Q1": {
+          "n": 3,
+          "wr_pct": 66.7,
+          "pnl": -19.75
+        },
+        "2026-Q2": {
+          "n": 2,
+          "wr_pct": 100.0,
+          "pnl": 26.13
+        }
+      }
+    },
+    "LONG_OR_LT2.00": {
+      "label": "LONG_OR_LT2.00",
+      "n": 32,
+      "wins": 26,
+      "wr_pct": 81.2,
+      "pnl": 976.0,
+      "or_range_mean": 1.41,
+      "positive_quarters": "5/6",
+      "q2_2026_concentration_pct": 16.5,
+      "quarters": {
+        "2025-Q1": {
+          "n": 1,
+          "wr_pct": 0.0,
+          "pnl": -42.5
+        },
+        "2025-Q2": {
+          "n": 6,
+          "wr_pct": 100.0,
+          "pnl": 394.25
+        },
+        "2025-Q3": {
+          "n": 14,
+          "wr_pct": 71.4,
+          "pnl": 416.75
+        },
+        "2025-Q4": {
+          "n": 2,
+          "wr_pct": 100.0,
+          "pnl": 27.12
+        },
+        "2026-Q1": {
+          "n": 4,
+          "wr_pct": 75.0,
+          "pnl": 19.25
+        },
+        "2026-Q2": {
+          "n": 5,
+          "wr_pct": 100.0,
+          "pnl": 161.13
+        }
+      }
+    },
+    "LONG_OR_GT1.50": {
+      "label": "LONG_OR_GT1.50",
+      "n": 45,
+      "wins": 24,
+      "wr_pct": 53.3,
+      "pnl": 771.64,
+      "or_range_mean": 2.46,
+      "positive_quarters": "4/6",
+      "q2_2026_concentration_pct": 82.6,
+      "quarters": {
+        "2025-Q1": {
+          "n": 4,
+          "wr_pct": 0.0,
+          "pnl": -255.5
+        },
+        "2025-Q2": {
+          "n": 12,
+          "wr_pct": 41.7,
+          "pnl": 18.38
+        },
+        "2025-Q3": {
+          "n": 11,
+          "wr_pct": 63.6,
+          "pnl": 409.0
+        },
+        "2025-Q4": {
+          "n": 5,
+          "wr_pct": 40.0,
+          "pnl": 2.0
+        },
+        "2026-Q1": {
+          "n": 2,
+          "wr_pct": 50.0,
+          "pnl": -40.0
+        },
+        "2026-Q2": {
+          "n": 11,
+          "wr_pct": 81.8,
+          "pnl": 637.76
+        }
+      }
+    },
+    "LONG_OR_GT2.00": {
+      "label": "LONG_OR_GT2.00",
+      "n": 29,
+      "wins": 11,
+      "wr_pct": 37.9,
+      "pnl": 46.51,
+      "or_range_mean": 2.83,
+      "positive_quarters": "2/6",
+      "q2_2026_concentration_pct": 1081.0,
+      "quarters": {
+        "2025-Q1": {
+          "n": 3,
+          "wr_pct": 0.0,
+          "pnl": -213.0
+        },
+        "2025-Q2": {
+          "n": 8,
+          "wr_pct": 12.5,
+          "pnl": -288.62
+        },
+        "2025-Q3": {
+          "n": 5,
+          "wr_pct": 60.0,
+          "pnl": 133.37
+        },
+        "2025-Q4": {
+          "n": 4,
+          "wr_pct": 25.0,
+          "pnl": -9.0
+        },
+        "2026-Q1": {
+          "n": 1,
+          "wr_pct": 0.0,
+          "pnl": -79.0
+        },
+        "2026-Q2": {
+          "n": 8,
+          "wr_pct": 75.0,
+          "pnl": 502.76
+        }
+      }
+    },
+    "LONG_OR_1.5_to_3.0": {
+      "label": "LONG_OR_1.5_to_3.0",
+      "n": 36,
+      "wins": 23,
+      "wr_pct": 63.9,
+      "pnl": 1083.64,
+      "or_range_mean": 2.16,
+      "positive_quarters": "5/6",
+      "q2_2026_concentration_pct": 51.7,
+      "quarters": {
+        "2025-Q1": {
+          "n": 3,
+          "wr_pct": 0.0,
+          "pnl": -167.5
+        },
+        "2025-Q2": {
+          "n": 11,
+          "wr_pct": 45.5,
+          "pnl": 85.38
+        },
+        "2025-Q3": {
+          "n": 9,
+          "wr_pct": 77.8,
+          "pnl": 487.0
+        },
+        "2025-Q4": {
+          "n": 4,
+          "wr_pct": 50.0,
+          "pnl": 79.0
+        },
+        "2026-Q1": {
+          "n": 1,
+          "wr_pct": 100.0,
+          "pnl": 39.0
+        },
+        "2026-Q2": {
+          "n": 8,
+          "wr_pct": 100.0,
+          "pnl": 560.76
+        }
+      }
+    }
+  }
+}

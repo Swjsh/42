@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-04-13T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.78,
+  "reasoning": "CLEAN_BEAR ribbon (138c spread, slow 677.00 > pivot 675.88 > fast 675.62) with price 51c below pivot (675.37 vs 675.88), large gap down -$3.97 overnight, VIX rising +3.98% to mid-regime 20.1. Last 3 bars show mixed structure (red, green, red) with weak-body dojis on final two closes — suggests indecision near pivot, but the established bearish ribbon structure + below-pivot placement + overnight gap + rising VIX provide strong directional bias. Premarket range 673.98–675.98 (2.00 pt); current price near upper end of PM range.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 138,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "CLEAN_BEAR ribbon with 138c spread — fast/pivot/slow all properly stacked, spread well above 20c threshold for clean verdict",
+    "Price 675.37 is 51c below pivot 675.88, establishing bearish momentum zone below the equilibrium",
+    "Gap down -$3.97 overnight (679.34 → 675.37) plus VIX rising 3.98% signals bearish overnight sentiment and elevated uncertainty",
+    "Last 3 closed bars (05:45, 05:50, 05:55): red (71% body) → green DOJI (15% body) → red DOJI (4% body) — indecision in recent bar closes but no reversal above pivot",
+    "Premarket range 673.98–675.98 established; current price 675.37 sits mid-range, closer to the resist ceiling (675.98 PMH), offering structure for downside rejection tests"
+  ],
+  "data_quality": "full"
+}

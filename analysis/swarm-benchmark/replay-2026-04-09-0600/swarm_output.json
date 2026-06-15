@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-04-09T10:00:30Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": [],
+    "bearish": ["technical", "macro", "level_thesis", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 0,
+    "bearish": 4,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.0,
+    "bearish": 1.0
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 88,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "VIX flat at 20.94 in MID regime with no rising fear — the bearish thesis depends on sentiment staying negative, but a panic-free gap-down with a CHOP ribbon frequently resolves as range chop or reversal when RTH real money arrives.",
+    "top_invalidation_scenario": "PML 672.87 holds on first RTH test, VIX stays flat, and XLK reverses +0.5% or better by 09:45 ET — all three flip the tape from risk-off drift to range-bound bounce, invalidating the bearish cascade."
+  },
+  "battle_level": {
+    "price": 672.87,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 672.87,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 676.01,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 671.46,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 677.08,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 645.11,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY fails to hold 672.87 on first RTH test (bar closes below PML with volume)",
+      "bias": "bearish",
+      "target": 671.46,
+      "entry_trigger": "level_rejection"
+    },
+    "secondary": {
+      "condition": "if SPY tests 672.87 and holds, triggering a range-bound bounce toward PMH 676.01",
+      "bias": "bullish",
+      "target": 676.01,
+      "entry_trigger": "level_reclaim"
+    },
+    "invalidation": {
+      "condition": "PML 672.87 holds on first test, VIX stays flat below 22.00, and XLK reverses +0.5% or better by 09:45 ET",
+      "effect": "Range-bound chop prevails — bearish cascade thesis fails; premarket risk-off rotation reverses and the 672.87-to-676.01 band compresses without directional conviction, making 0DTE entries high-risk in either direction."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY touches PML 672.87 at least once within the first 60 minutes of RTH (by 10:30 ET)",
+      "invalidation": "SPY does not print 672.87 or lower before 10:30 ET — remains above 673.00 through the first hour",
+      "confidence": 0.68,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 22.50 throughout the RTH session — flat MID regime holds, no fear spike",
+      "invalidation": "VIX spikes above 23.00 within the first 10 minutes of RTH (by 09:40 ET)",
+      "confidence": 0.60,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "BEAR ribbon stack (slow > pivot > fast) is maintained through 10:30 ET with spread above 25 cents",
+      "invalidation": "Ribbon spread compresses below 20 cents or flips to BULL stack before 10:00 ET",
+      "confidence": 0.55,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "All four specialists align bearish on a convergence of CLEAN_BEAR ribbon (36c spread), overnight gap-down -$2.14, and risk-off sector rotation (XLK -1.01%), with SPY at 673.74 sitting just 87 cents above the battle level PML 672.87 — a test is imminent at open. The critical tension the validator correctly flags: VIX is flat at 20.94 with no fear confirmation, and the CHOP-width ribbon (36c) in a tight 3.14-point premarket range (672.87–676.01) is a range signal, not a breakdown signal — bears need PML to break with conviction volume or the tape could whipsaw into a range-bound bounce back toward 676.01. Watch the first 5-minute bar at 09:30 ET: if price closes below 672.87 on above-average volume, bears take control toward 671.46; if PML holds and VIX stays flat, fade the gap-down and target the top of the premarket range.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.60,
+      "one_line": "CLEAN_BEAR ribbon (36c spread, stack inverted) + gap-down -$2.14, offset by mixed 3-bar action and buyer support holding 11c above pivot"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "VIX 20.94 flat MID regime + risk-off rotation (XLK -1.01%, XLE +2.42%) + no events — mildly bearish, no panic"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "Battle level PML 672.87 just 87c below price; asymmetric downside room to 671.46 with PMH 676.01 capping upside +$2.27"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.67,
+      "one_line": "Classic risk-off rotation: XLK -1.01% (SPY headwind ~30% weight) + XLE +2.42% defensive bid, breadth narrow"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "CHOP ribbon + flat VIX + small gap-down + tight premarket range = range-chop environment, not bearish cascade; PML 672.87 likely holds on first test and triggers bounce to 676.01"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

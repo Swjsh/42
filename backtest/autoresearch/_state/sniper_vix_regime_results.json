@@ -1,0 +1,137 @@
+{
+  "run_at": "2026-05-23T23:18:06.705544",
+  "combo": {
+    "vol_mult": 1.1,
+    "body_min_cents": 0.02,
+    "min_stars": 2,
+    "strike_offset": 2,
+    "premium_stop_pct": -0.1,
+    "tp1_premium_pct": 0.5,
+    "tp1_qty_fraction": 0.5,
+    "runner_target_pct": 2.0,
+    "profit_lock_threshold_pct": 0.05,
+    "profit_lock_stop_offset_pct": 0.05,
+    "qty": 10,
+    "proximity_dollars": 1.5,
+    "require_break_above_open": true
+  },
+  "window": {
+    "start": "2025-01-01",
+    "end": "2026-05-22"
+  },
+  "thresholds": [
+    0,
+    14,
+    16,
+    18,
+    20,
+    22
+  ],
+  "results": [
+    {
+      "threshold": 0,
+      "label": "no_filter",
+      "n_trades": 150,
+      "wide_pnl": -90.8,
+      "wr": 0.5,
+      "positive_quarters": 2,
+      "total_quarters": 6,
+      "skipped_days": 0,
+      "quarter_pnl": {
+        "2025-Q1": 963.1,
+        "2025-Q2": -1061.5,
+        "2025-Q3": -1874.6,
+        "2025-Q4": -548.6,
+        "2026-Q1": 3700.9,
+        "2026-Q2": -1270.1
+      }
+    },
+    {
+      "threshold": 14,
+      "label": "vix>=14",
+      "n_trades": 149,
+      "wide_pnl": -228.8,
+      "wr": 0.497,
+      "positive_quarters": 2,
+      "total_quarters": 6,
+      "skipped_days": 2,
+      "quarter_pnl": {
+        "2025-Q1": 963.1,
+        "2025-Q2": -1061.5,
+        "2025-Q3": -1874.6,
+        "2025-Q4": -686.6,
+        "2026-Q1": 3700.9,
+        "2026-Q2": -1270.1
+      }
+    },
+    {
+      "threshold": 16,
+      "label": "vix>=16",
+      "n_trades": 115,
+      "wide_pnl": 983.0,
+      "wr": 0.513,
+      "positive_quarters": 2,
+      "total_quarters": 6,
+      "skipped_days": 74,
+      "quarter_pnl": {
+        "2025-Q1": 1047.6,
+        "2025-Q2": -1061.5,
+        "2025-Q3": -1000.0,
+        "2025-Q4": -648.3,
+        "2026-Q1": 3915.3,
+        "2026-Q2": -1270.1
+      }
+    },
+    {
+      "threshold": 18,
+      "label": "vix>=18",
+      "n_trades": 70,
+      "wide_pnl": 1471.9,
+      "wr": 0.543,
+      "positive_quarters": 3,
+      "total_quarters": 5,
+      "skipped_days": 190,
+      "quarter_pnl": {
+        "2025-Q1": 1636.6,
+        "2025-Q2": -252.5,
+        "2025-Q4": 521.6,
+        "2026-Q1": 617.3,
+        "2026-Q2": -1051.1
+      }
+    },
+    {
+      "threshold": 20,
+      "label": "vix>=20",
+      "n_trades": 41,
+      "wide_pnl": 39.9,
+      "wr": 0.585,
+      "positive_quarters": 3,
+      "total_quarters": 5,
+      "skipped_days": 250,
+      "quarter_pnl": {
+        "2025-Q1": 855.9,
+        "2025-Q2": 459.0,
+        "2025-Q4": -1119.2,
+        "2026-Q1": 226.2,
+        "2026-Q2": -382.0
+      }
+    },
+    {
+      "threshold": 22,
+      "label": "vix>=22",
+      "n_trades": 27,
+      "wide_pnl": -159.0,
+      "wr": 0.556,
+      "positive_quarters": 3,
+      "total_quarters": 5,
+      "skipped_days": 283,
+      "quarter_pnl": {
+        "2025-Q1": 25.0,
+        "2025-Q2": 566.5,
+        "2025-Q4": -816.0,
+        "2026-Q1": 447.5,
+        "2026-Q2": -382.0
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-05-01T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.85,
+  "reasoning": "VIX at 16.58 falling 2.07% (mid regime, fear receding) = bullish compression signal for calls. Overnight gap +$1.78 shows moderate bullish overnight sentiment. Zero macro events scheduled for 2026-05-01, clearing the calendar for clean setups. Energy (XLE +2.49%) and financials (XLF +1.2%) outperforming tech (XLK flat) signals risk-on backdrop. Ribbon BULL with 101c spread confirms the structural setup. No early morning (pre-09:30 ET) event risk. Confidence 0.85 due to falling VIX + clean calendar + bullish overnight context.",
+  "vix_regime": "MID",
+  "vix_direction": "falling",
+  "vix_current": 16.58,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 1.78,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX falling 2.07% from prior session — fear receding, bullish compression for call spreads",
+    "Overnight gap +1.78 is moderate bullish signal; premarket high 720.94 shows buyers engaged early",
+    "Zero macro events on calendar for 2026-05-01; no FOMC, CPI, NFP, or earnings to block RTH entry windows",
+    "Sector rotation: Energy (XLE) +2.49%, Financials (XLF) +1.2%, Tech (XLK) flat — textbook risk-on rotation supports bullish bias",
+    "Ribbon BULL stack with 101c spread (well above 30c threshold) confirms underlying structural support"
+  ],
+  "data_quality": "full"
+}

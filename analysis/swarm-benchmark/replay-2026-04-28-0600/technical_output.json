@@ -1,0 +1,21 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-04-28T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.75,
+  "reasoning": "CLEAN_BEAR ribbon (33c spread, fast 714.04 / pivot 714.17 / slow 714.36) with price 37c below pivot (713.80 vs 714.17 pivot) confirms bearish momentum. Gap down -$1.36 from prior close (715.16 → 713.80) reinforces overnight bearish sentiment. Rising VIX (18.68, +2.81%) adds structural headwind. Bar structure premarket is mixed (05:45 RED, 05:50 green rally attempt, 05:55 DOJI doji rejection) — the failed rally into the doji is consistent with bearish bias but not strongly conclusive on thin premarket volume. Overall: strong ribbon alignment, confirmed by price position and gap, slightly moderated by mixed bar action. Bias is BEARISH with 75% conviction.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 33,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "CLEAN_BEAR ribbon with 33c spread (fast 714.04 < pivot 714.17 < slow 714.36) — primary bearish signal",
+    "Current price 713.80 trades 37c below the 714.17 pivot, confirming bearish momentum",
+    "Overnight gap down -$1.36 from 715.16 close to current premarket lows (down 0.19%)",
+    "Last 3 premarket bars show RED (05:45), GREEN rally attempt (05:50), then DOJI rejection (05:55) — suggests failed attempt to reclaim, consistent with bearish bias",
+    "Rising VIX (+2.81% to 18.68) provides structural headwind",
+    "Premarket high 715.92 remains overhead; current price 713.80 = 212c below PMH, 39c above PML (713.41)"
+  ],
+  "data_quality": "full"
+}

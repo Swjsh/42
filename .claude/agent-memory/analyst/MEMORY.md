@@ -1,0 +1,6 @@
+- [Live trading context](project_live_trading_context.md) — Day 2 of live trading with $1K paper accounts. Zero trades executed on 5/19 due to infrastructure failures.
+- [F11 HTF filter pattern](project_f11_htf_filter.md) — F11 (HTF 15m must not be BEAR) is systematically late on reversal days — blocked 10/11 bull scores all afternoon on 5/19.
+- [Rate limit hard rule](feedback_rate_limit_market_hours.md) — NEVER run interactive /loop during 09:30-15:55 ET. Kills heartbeat via shared API quota.
+- [Ghost entry cross-check](project_ghost_entry_pattern.md) — After any session: cross-check decisions.jsonl ENTER_* against Alpaca orders. Any ENTER without Alpaca order_id = ghost entry.
+- [Gym verdict baseline](project_gym_verdicts.md) — 5/19 gym: RED. Heartbeat tick audit: 6/16 MISALIGNED-CRITICAL. These are the new baseline to track improvement against.
+- [VIX declining bear filter](project_vix_filter_f8.md) — F8 blocks bear on VIX "declining" even when VIX is only 22bps lower than open. Possible over-sensitivity. Chef item queued 5/19.

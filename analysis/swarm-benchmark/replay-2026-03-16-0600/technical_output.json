@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-17T12:34:50Z",
+  "bias": "no_trade",
+  "confidence": 0.42,
+  "reasoning": "CLEAN_BULL ribbon (25c spread, pivot 664.52) vs. bearish price action: current price 664.31 is 21c BELOW pivot, last two bars red, final bar doji (indecision). Overnight gap was +$2.01 (bullish), but premarket weakness into the doji suggests no conviction. Sector rotation is risk_off (XLK -1.19%, XLF -0.45%). Ribbon structure is bullish but price action lacks confirmation; conflicting signals warrant no entry.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 25,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon 25c spread (fast 664.56 > pivot 664.52 > slow 664.32), structurally bullish",
+    "Price 664.31 trading 21c BELOW pivot at 05:55 ET close, no bullish momentum confirmation",
+    "Last 3 bars: GREEN (05:45, +0.72), RED (05:50, -0.47), RED-DOJI (05:55, -0.09), recent weakness into indecision candle",
+    "Overnight gap +$2.01 (662.30→664.31) was bullish, but premarket price action failed to build above pivot",
+    "VIX falling -11.65% into HIGH regime, normally bullish, but sector rotation is RISK_OFF (defensive rotation underway)"
+  ],
+  "data_quality": "full"
+}

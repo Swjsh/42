@@ -1,0 +1,175 @@
+{
+  "generated_at": "2026-05-18T10:00:00Z",
+  "swarm_version": "v5",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis"],
+    "bearish": ["internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 3,
+    "bearish": 1,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.90,
+    "bearish": 0.10
+  },
+  "consensus_bias": "no_trade",
+  "consensus_strength": "strong",
+  "swarm_confidence": 0,
+  "no_trade_reason": "low_post_adjustment_confidence",
+  "confidence_calc_trace": {
+    "base": 54.0,
+    "adjustments": {
+      "three_of_four_agree": 0,
+      "validator_moderate": 0,
+      "event_risk_none_very_low": 5,
+      "battle_grade_untested": -25
+    },
+    "raw_confidence": 34,
+    "gate_fired": "NO_TRADE_raw_lt_40"
+  },
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["internals"],
+    "dissent_reason": "Internals voted bearish: XLE +1.26% defensive leadership, XLK flat at +0.03% (failure to lead on gap-up), XLF -0.43% (financial weakness), SPY -0.35% premarket despite overnight gap-up suggests institutional selling into strength — risk-off rotation contradicts bullish ribbon thesis."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The bullish thesis relies on ribbon structure overriding real-time price action: SPY is already -0.35% in premarket despite the +$1.49 overnight gap-up, meaning the gap has been sold back and breadth is narrow (energy only leading).",
+    "top_invalidation_scenario": "SPY opens above 741.51 and holds with XLK rallying +1.0%+ in the first 15 minutes — proves gap-up is genuine institutional buying and risk-off rotation was premarket noise."
+  },
+  "battle_level": {
+    "price": 738.54,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "battle_grade": "UNTESTED",
+    "source": "Prior session (2026-05-15) RTH low"
+  },
+  "level_priority": [
+    {
+      "price": 738.54,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "hold_from",
+      "distance_from_price": -1.97,
+      "source": "Prior session (2026-05-15) RTH low — first structural shelf on any retrace"
+    },
+    {
+      "price": 741.51,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to",
+      "distance_from_price": 0.94,
+      "source": "Today 2026-05-18 premarket high — gap-up ceiling, immediate overhead"
+    },
+    {
+      "price": 743.46,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "flush_to",
+      "distance_from_price": 2.89,
+      "source": "Prior session (2026-05-15) RTH high — true overhead target if PMH breaks"
+    },
+    {
+      "price": 734.14,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from",
+      "distance_from_price": -6.43,
+      "source": "5-day RTH low — secondary downside target if 738.54 breaks"
+    },
+    {
+      "price": 748.69,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "flush_to",
+      "distance_from_price": 8.12,
+      "source": "5-day RTH high — outer upside range extreme"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 738.54 on retest from above with volume < 1.5x average",
+      "bias": "bullish",
+      "target": 743.46,
+      "entry_trigger": "level_hold + ribbon_stack_bull + volume_confirmation"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 738.54 and closes a full 5m bar below 738.00",
+      "bias": "bearish",
+      "target": 734.14,
+      "entry_trigger": "level_break + momentum_shift + ribbon_inversion"
+    },
+    "invalidation": {
+      "condition": "SPY opens above 741.51 and holds it through first 15 minutes with XLK +1.0%+ and XLF turning green",
+      "effect": "Proves premarket risk-off rotation was position-squaring noise; genuine institutional buying confirmed, bullish bias valid for full-day continuation to 743.46+"
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "738.54 (prior RTH low from 2026-05-15) is tested within the first 90 minutes of RTH; whether it holds or breaks determines the day's directional move",
+      "invalidation": "SPY does not touch 738.60 before 11:00 ET and instead pushes directly above 741.51 within the first 30 minutes",
+      "confidence": 0.62,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains in the 17.50-20.00 range for the full RTH session; no spike above 21 that would force elevated premium pricing and squeeze 0DTE call buyers",
+      "invalidation": "VIX closes above 21.00 at 16:00 ET or spikes above 21.00 intraday",
+      "confidence": 0.65,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "The red doji at 05:55 ET (740.92→740.57, 864k vol) marks the premarket high-water mark — early RTH action sees a flush toward 738.54-739.25 before any bullish continuation",
+      "invalidation": "SPY opens and immediately holds above 740.90 for the first completed 5-minute bar after 09:35 ET open",
+      "confidence": 0.55,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The swarm holds a 3-of-4 bullish vote on daily structure (CLEAN_BULL ribbon, +$1.49 overnight gap, zero macro events), but the NO_TRADE gate fires because the battle level 738.54 is UNTESTED in RTH — the -25 UNTESTED penalty drives raw confidence to 34, below the 40-point signal floor. The key tension is structure vs. price-action: the ribbon and macro backdrop are aligned bullish, but SPY is already -0.35% premarket (gap being sold), internals show defensive rotation (XLE leading, XLK flat), and the battle level hasn't been tested yet today, making any bullish conviction premature. At market open, watch whether SPY immediately attacks 741.51 (with XLK joining) or sells toward 738.54 — that test will resolve the tension and may warrant a directional entry trigger after 09:35 ET.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.82,
+      "one_line": "CLEAN_BULL ribbon 103c spread, price 132c above pivot 739.25; 2/3 recent bars green but most recent bar red doji on elevated volume introduces caution"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.70,
+      "one_line": "VIX 18.39 MID regime rising +0.93%; zero events today; overnight gap +$1.49 intact; NVDA earnings tomorrow AMC (no RTH impact today)"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.70,
+      "one_line": "Battle level 738.54 (Active support, 2★) is UNTESTED with 1.97 downside; if held, targets 743.46; if broken, downside to 734.14"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.58,
+      "one_line": "Risk-off rotation: XLE +1.26% defensive, XLK flat +0.03% (failure to lead), XLF -0.43% weak; SPY -0.35% premarket signals institutional selling into gap"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "SPY opens above 741.51 and holds with XLK +1.0%+ — confirms genuine gap-up buying and invalidates risk-off rotation thesis"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

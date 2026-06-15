@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-02-23T11:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "level_thesis", "internals"],
+    "bearish": ["macro"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 3,
+    "bearish": 1,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.70,
+    "bearish": 0.30
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 75,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["macro"],
+    "dissent_reason": "Macro agent flags VIX rising +12.53% to 21.47 as a distribution risk signal — rising IV concurrent with price at a 5-day high is a classic pre-reversal pattern, and the flat overnight gap ($-0.15) reinforces the bear case that overnight holders hedged or exited rather than holding with conviction."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The assumption that the 15:55 high-volume bar (131k) represents accumulation rather than distribution — technical treats the subsequent red close as benign profit-taking, but it may signal smart money exiting at resistance.",
+    "top_invalidation_scenario": "SPY posts a 15-25c red-body reversal bar on the 09:35-09:50 ET candle into 690.06, confirming bearish rejection at the Carry resistance and activating the pullback thesis toward 681.87."
+  },
+  "battle_level": {
+    "price": 690.06,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 690.06,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 688.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 687.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 681.87,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 675.79,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds above 688.84 (fast EMA) on any early retrace and reclaims 690.06 with volume >= 100k on the breakout candle",
+      "bias": "bullish",
+      "target": 695.32,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if SPY breaks decisively above 690.06 on first touch (volume >= 100k, holds above 690.50 through 10:00 ET)",
+      "bias": "bullish",
+      "target": 700.0,
+      "entry_trigger": "break_of_5d_high + risk_on_rotation"
+    },
+    "invalidation": {
+      "condition": "SPY posts a 15-25c red-body reversal bar on the 09:35-09:50 ET candle into 690.06 (high near open, low at close), confirming rejection at Carry resistance",
+      "effect": "Bearish pullback thesis activates: fast EMA 688.84 becomes the first target, followed by Active support 681.87 as the flush target; all bull entries should wait for confirmed reclaim above 690.06 before re-engagement."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "690.06 (5-day Carry high) is tested within the first 60 minutes of RTH (before 10:35 ET)",
+      "invalidation": "SPY does not reach 690.06 before 10:35 ET — price remains below 689.50 through first hour, indicating weaker-than-expected follow-through from Friday's close",
+      "confidence": 0.78,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains above 20.50 through the first 90 minutes of RTH (through 11:00 ET), reflecting persistent hedge demand that caps SPY upside momentum",
+      "invalidation": "VIX drops below 20.50 within the first 30 minutes of RTH (before 10:05 ET), confirming the VIX spike was a transient hedging artifact rather than structural distribution signal",
+      "confidence": 0.62,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BULL ribbon holds intact through the morning session — no 5m bar closes below fast EMA 688.84 before 11:00 ET, and ribbon spread stays >= 40c",
+      "invalidation": "Any 5m bar closes below 688.84 before 11:00 ET, triggering ribbon inversion risk and activating the bearish_pullback counter-scenario toward 681.87",
+      "confidence": 0.65,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "SPY enters 2026-02-23 perched $0.77 below the 5-day Carry high at 690.06, with a CLEAN_BULL ribbon (77c spread) and risk-on sector leadership (XLK +1.21%, XLF +0.86%) supporting a 3-of-4 bullish vote and weighted score of 0.70. The central tension is macro's lone dissent: VIX rising 12.53% to 21.47 on a zero-catalyst day, combined with a flat overnight gap and red close after a high-volume 15:55 bar, is the classic distribution signature that consensus is discounting. The single most important watch at open is the character of the first test of 690.06 — a high-volume acceptance (>= 100k contracts, body closing above 690.50) validates the bull breakout thesis toward 695.32, while a low-volume red-body rejection fires the bearish pullback toward 688.84 and potentially 681.87.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "CLEAN_BULL ribbon 77c wide, price 59c above pivot — structurally bullish but bar structure mixed (green spike + red close) and VIX rising tempers maximum conviction"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "VIX MID regime rising +12.53% to 21.47 on zero-catalyst day signals distribution risk — IV expansion on price highs is bearish divergence despite risk-on sector rotation"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.78,
+      "one_line": "Battle level 690.06 (Carry 2-star) is $0.77 away with price above all EMAs — immediate test likely, bull continuation to 695.32 if held, bearish_pullback to 681.87 if rejected"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "XLK +1.21% and XLF +0.86% both decisively above threshold — textbook risk-on rotation with broad sector participation supporting bullish SPY bias"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Red-body reversal bar at 09:35-09:50 ET into 690.06 confirms distribution; high-volume 15:55 bar + flat gap + rising VIX = head-and-shoulders pre-reversal, not continuation setup"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

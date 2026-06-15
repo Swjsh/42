@@ -1,0 +1,63 @@
+{
+  "date": "2026-05-21",
+  "morning_thesis": "SPY opens 738-739, bear ribbon confirmed, rally into 739-740 fails at ribbon, 5m close below Fast EMA 739.08 = ENTER short targeting 735.40. Invalidated if 5m bar closes above 741.29 on volume. Predictions: (1) SPY tests 738.10 within first 60 min RTH (conf 0.72); (2) First signal bearish (conf 0.65); (3) No 5m close above 741.29 all session (conf 0.60). Context: NVDA sell-the-news, VIX 17.74 BEAR-eligible, Aggressive PDT LIMIT reached.",
+  "predictions": [
+    {
+      "prediction_idx": 0,
+      "claim": "SPY will test 738.10 Carry within first 60 min RTH — at least one 5m bar prints low within $0.20 of 738.10",
+      "trigger_window": "09:35-10:30 ET",
+      "invalidation": "SPY closes a 5m bar above 740.00 without touching 738.30 at any point",
+      "confidence": 0.72,
+      "specificity": 0.9,
+      "novelty": "fresh",
+      "outcome": "PARTIAL_MAGNITUDE",
+      "actual": "09:35 bar low 737.53 — broke THROUGH 738.10 by $0.57, well outside the $0.20 test window. Direction correct (tested the level) but magnitude exceeded (broke, not merely tested).",
+      "category": "level",
+      "evidence_timestamp": "09:35",
+      "graded_at": "2026-05-21T16:30:02-04:00"
+    },
+    {
+      "prediction_idx": 1,
+      "claim": "First trade signal is bearish: rally into 739-740 zone fails, 5m bar closes below Fast EMA 739.08 with BEAR ribbon spread >= 30c = ENTRY",
+      "trigger_window": "09:35-11:00 ET",
+      "invalidation": "SPY opens above 740.00 and holds 3+ closed bars above Slow EMA 739.64",
+      "confidence": 0.65,
+      "specificity": 0.85,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "ENTER_BEAR at 10:35 ET (Bear 8/10, BEAR ribbon 56c spread, 3×SPY735P @ $0.69). First and only signal was bearish, within window.",
+      "category": "trigger",
+      "evidence_timestamp": "10:35",
+      "graded_at": "2026-05-21T16:30:02-04:00"
+    },
+    {
+      "prediction_idx": 2,
+      "claim": "No 5m bar closes above 741.29 (PDC) today — NVDA sell-the-news overhang too heavy",
+      "trigger_window": "09:35-15:00 ET",
+      "invalidation": "5m bar closes above 741.29 on volume >= 1.2x 20-bar average",
+      "confidence": 0.60,
+      "specificity": 0.80,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "SPY closed ~742.70 with bars at 742.62-742.73 by 15:30 ET. Ribbon flipped BULL by 15:30. Session was a complete reversal of the bear thesis.",
+      "category": "bias",
+      "evidence_timestamp": "15:00",
+      "graded_at": "2026-05-21T16:30:02-04:00"
+    }
+  ],
+  "surprises": [
+    "738.10 ★★★ Carry became a bull launchpad — false-break to 737.53 then immediate recovery fueled a +$5 reversal (L59 floor_hold analog)",
+    "NVDA sell-the-news absorbed faster than expected; institutional buyers stepped in mid-morning",
+    "Rate-limit blackout 11:57-14:40 ET (2h43m, ~54 ticks) — position unmanaged during full reversal window",
+    "Ghost entry: loop-state.json flat at 10:48 despite confirmed fill f0456743 at 10:35 ET",
+    "Full intraday ribbon inversion: BEAR 56c premarket → BULL 56c by 15:30 ET"
+  ],
+  "lesson": "A ★★★ Carry level that breaks and immediately recovers is a bull launchpad (false-break pattern), not continuation — add this branch to the premarket checklist; and rate-limit during market hours costs real P&L through missing stop management.",
+  "tomorrow_hint": "BULL ribbon confirmed. 742.87 PDH = first resistance. 738.10 now support. Watch for pullback to 741-741.61 zone to hold for bull continuation.",
+  "predictions_count": 3,
+  "predictions_passed": 1,
+  "predictions_partial": 1,
+  "hit_rate_passing": 0.5,
+  "specificity_weighted_hit_rate": 0.51,
+  "graded_at": "2026-05-21T16:30:02-04:00"
+}

@@ -1,0 +1,12 @@
+== RUN_A_filter8_active (jedge_nonregression_2026-05-31) ==
+  n_trades=7  total_pnl=-215
+  2026-04-29 winner_captured=False  day_net=-76  n_on_day=1
+  2026-05-01 winner_captured=True  day_net=+3  n_on_day=1
+  2026-05-04 winner_captured=True  day_net=+616  n_on_day=2
+  calls=1 puts=6
+== RUN_B_filter8_off (jedge_nonreg_nofilter8_2026-05-31) ==
+  n_trades=10  total_pnl=+1078
+  2026-04-29 winner_captured=False  day_net=-76  n_on_day=1
+  2026-05-01 winner_captured=True  day_net=+3  n_on_day=1
+  2026-05-04 winner_captured=True  day_net=+616  n_on_day=2
+  calls=4 puts=6

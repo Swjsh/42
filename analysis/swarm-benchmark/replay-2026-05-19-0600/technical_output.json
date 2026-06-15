@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-19T06:00:00+00:00",
+  "bias": "bearish",
+  "confidence": 0.70,
+  "reasoning": "CLEAN_BEAR ribbon 41c spread (EMA13 735.28, EMA20 735.40, EMA48 735.69), structure intact. Price 8c below pivot (735.32 < 735.40). Overnight gap -3.24 points (-0.44%), premarket floor at 733.09 vs ceiling 739.35 shows sharp early selloff. Last 3 bars: 05:45 GREEN +98c, 05:50 GREEN +121c strong bounce off PML, 05:55 RED -48c reversal rejection. Bar structure mixed (2 green, 1 red terminating in rejection) not strong-bear, but the final RED reversal after the V-bounce is consistent with CLEAN_BEAR ribbon catching and rejecting the initial bounce. Sector rotation risk-off (XLK -1.84%, XLE +2.45%). VIX 17.79 flat, IV mid-regime, no panic signal.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 41,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "CLEAN_BEAR ribbon 41c spread maintained through premarket chop; fast EMA 735.28 within 4c support if tested during RTH",
+    "Overnight gap -3.24 points with premarket low 733.09 defines session floor; initial bounce recovery to 735.80 rejected by 735.32 close, suggesting sellers caught the bounce",
+    "Bar structure shows early V-bounce (05:45 +98c, 05:50 +121c off PML) immediately rejected (05:55 -48c); rejection pattern consistent with bear ribbon refusing to flip bullish despite bounce attempt",
+    "Sector rotation risk-off (tech weakness XLK -1.84% vs energy +2.45%) confirms overnight bearish sentiment; VIX 17.79 flat shows orderly selling, not panic liquidation",
+    "Price 8c below pivot (marginal), but CLEAN ribbon structure + gap down + rejection bar + risk-off rotation align on lower bias; entry not imminent, consolidation likely during RTH 09:30-10:30 before next directional move"
+  ],
+  "data_quality": "full"
+}

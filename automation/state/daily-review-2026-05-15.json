@@ -1,0 +1,75 @@
+{
+  "date": "2026-05-15",
+  "morning_thesis": "SPY gap down ~$4.55 from 5/14 last RTH price (747.98) to premarket open (743.26). Price sold off through premarket to PML 739.04 at 08:15 ET, currently 739.37 — below ALL ribbon EMAs (Fast 739.71, Pivot 740.42, Slow 740.89). BEAR ribbon stack confirmed with 118c spread. VIX 19.20 (MID regime, above bear-entry threshold 17.30 — bears eligible if rising). Critical watch: 738.10 Carry support ($1.27 below current price) has 5 multi-touch holds and is the primary flip level. Break below 738.10 on volume = bearish continuation. Hold + ribbon reclaim above 740.42 = cautious BULLISH_RECLAIM candidate. Friday expiry + gap-down + bearish ribbon = default bearish until proven otherwise. Predictions: [1] 738.10 Carry holds first RTH test (bounce >=1.00 within 3 bars) conf 0.55 | [2] PMH 744.35 caps early bounce (no 5m close above 744.40 before 11:00 ET) conf 0.70 | [3] SPY stays below Pivot EMA 740.42 through 10:00 ET conf 0.65 | [4] Industrial Production <=0.50 shock by 09:35 ET conf 0.60",
+  "predictions": [
+    {
+      "prediction_idx": 0,
+      "claim": "738.10 Carry support holds first RTH test — SPY bounces >=1.00 within 3 bars of touching 738.10",
+      "trigger_window": "First touch of 738.10 before 10:30 ET",
+      "invalidation": "5m bar closes below 737.60 on any touch of 738.10",
+      "confidence": 0.55,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "09:40 bar wicked to 737.96 (through 738.10) but closed at 738.66; SPY bounced +$1.87 within 3 bars; no bar closed below 737.60",
+      "category": "level",
+      "evidence_timestamp": "09:40",
+      "graded_at": "2026-05-15T16:30:02-04:00"
+    },
+    {
+      "prediction_idx": 1,
+      "claim": "PMH 744.35 caps early bounce — SPY fails to close a 5m bar above 744.40 before 11:00 ET",
+      "trigger_window": "09:35–11:00 ET",
+      "invalidation": "5m bar closes above 744.40 before 11:00 ET",
+      "confidence": 0.70,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "Session high 744.35 — exact PMH; no 5m bar closed above 744.40 at any point in the session (not just pre-11:00)",
+      "category": "level",
+      "evidence_timestamp": "10:45",
+      "graded_at": "2026-05-15T16:30:02-04:00"
+    },
+    {
+      "prediction_idx": 2,
+      "claim": "SPY stays below ribbon Pivot EMA (740.42) through 10:00 ET — confirming bearish continuation post-open",
+      "trigger_window": "09:35–10:00 ET",
+      "invalidation": "5m bar closes above 740.50 before 10:00 ET",
+      "confidence": 0.65,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "09:55 bar close ~740.44 (below 740.50); 10:03 bar pulled back to 739.15; no bar closed above 740.50 before 10:00 ET",
+      "category": "bias",
+      "evidence_timestamp": "09:55",
+      "graded_at": "2026-05-15T16:30:02-04:00"
+    },
+    {
+      "prediction_idx": 3,
+      "claim": "Industrial Production 09:15 ET produces <=0.50 shock — SPY within $0.50 of pre-release level by 09:35 ET",
+      "trigger_window": "09:15–09:35 ET",
+      "invalidation": "SPY >=0.75 above or below the 09:14 ET 5m bar close by 09:35 ET",
+      "confidence": 0.60,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "UNTESTED",
+      "actual": "Pre-market event (09:15 ET); 09:14 ET bar close unavailable in heartbeat logs; RTH open 741.84 occurred at 09:30 (after gate) — no intrabar comparison possible",
+      "category": "risk",
+      "evidence_timestamp": null,
+      "graded_at": "2026-05-15T16:30:02-04:00"
+    }
+  ],
+  "surprises": [
+    "Session high = PMH to the cent ($744.35) — after +$6.39 V-rally the session capped exactly at premarket high; textbook PMH-as-RTH-ceiling confirmation",
+    "VIX compressed 1.15 pts (19.20 -> 18.05) on gap-down Friday — fear peaked at session low 737.96 then methodically dissipated as SPY recovered; potential 'Friday expiry VIX fade after gap-down' pattern",
+    "One-tick data anomaly at 10:15 ET: heartbeat HB#0 reported SPY 748.32 / VIX 16.42 (both impossible given session range); followed timeout-kill at 10:18; engine scored but was blocked by time/trigger gates; data-freshness guard needed on quote responses"
+  ],
+  "lesson": "Closed-bar confirmation creates a systematic 1-bar lag on open-drive fast-V-reversal setups — fix is a conditional live-price trigger scoped to named ★★+ PML/PMH/Carry level breaks in the 09:35–09:45 window only, not the general case.",
+  "tomorrow_hint": "MONDAY — 744.35 overhead, 738.10 Carry (6-touch), 737.96 floor. VIX 18.05; bears eligible if rising, bulls open if VIX <=17.20 falling.",
+  "predictions_count": 4,
+  "predictions_passed": 3,
+  "predictions_partial": 0,
+  "hit_rate_passing": 1.0,
+  "specificity_weighted_hit_rate": 1.0,
+  "graded_at": "2026-05-15T16:30:02-04:00"
+}

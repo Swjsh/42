@@ -1,0 +1,76 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:medium.datadriveninvestor.com)",
+      "WebFetch(domain:chudi.dev)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.mindstudio.ai)",
+      "WebFetch(domain:dev.to)",
+      "WebFetch(domain:alpaca.markets)",
+      "Bash(Test-Path *)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\jackw\\\\Desktop\\\\SwjshAlgoKnife\\\\mcp-servers\\\\tradingview-mcp\" -Force | ForEach-Object { \"$\\($_.Name\\)  $\\($_.LastWriteTime\\)\" })",
+      "PowerShell(git *)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(Test-Path *)",
+      "PowerShell(Get-AppxPackageManifest *)",
+      "PowerShell(cmd /c \"C:\\\\Users\\\\jackw\\\\Desktop\\\\SwjshAlgoKnife\\\\mcp-servers\\\\tradingview-mcp\\\\scripts\\\\launch_tv_debug.bat 9222\" 2>&1 | Select-Object -First 30)",
+      "PowerShell(Get-AppxPackage *)",
+      "PowerShell(Start-Sleep -Seconds 5; try { $r = Invoke-WebRequest \"http://localhost:9222/json/version\" -UseBasicParsing -TimeoutSec 5; $r.Content } catch { \"Port 9222 not ready: $_\" })",
+      "PowerShell(Get-Acl *)",
+      "PowerShell(taskkill *)",
+      "PowerShell(Split-Path *)",
+      "Bash(curl -s http://localhost:9222/json/version)",
+      "Read(//c/Users/jackw/.claude/**)",
+      "Bash(node \"C:\\\\Users\\\\jackw\\\\Desktop\\\\SwjshAlgoKnife\\\\mcp-servers\\\\tradingview-mcp\\\\src\\\\server.js\")",
+      "Bash(node \"C:/Users/jackw/Desktop/tradingview-mcp/src/server.js\")",
+      "Bash(node \"C:/Users/jackw/Desktop/SwjshAlgoKnife/mcp-servers/tradingview-mcp/src/server.js\")",
+      "Bash(uvx alpaca-mcp-server *)",
+      "Bash(where node *)",
+      "Bash(where uvx *)",
+      "Read(//c/Users/jackw/Desktop/SwjshAlgoKnife/mcp-servers/tradingview-mcp/src/**)",
+      "Bash(node -e \"console.log\\('node ok'\\)\")",
+      "Read(//c/Users/jackw/Desktop/SwjshAlgoKnife/mcp-servers/tradingview-mcp/**)",
+      "Bash(timeout 5 node src/server.js)",
+      "Bash(curl -s http://localhost:9222/json)",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('C:/Users/jackw/.claude/settings.json','utf8'\\)\\); console.log\\('valid JSON'\\)\")",
+      "Read(//c/Program Files/nodejs/**)",
+      "Read(//c/Users/jackw/.local/bin/**)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:9222/json/version)",
+      "Bash(timeout 5 \"C:/Program Files/nodejs/node.exe\" \"C:/Users/jackw/Desktop/SwjshAlgoKnife/mcp-servers/tradingview-mcp/src/server.js\")",
+      "Bash(echo \"---exit: $?---\")",
+      "Bash(node -e \"const c=require\\('C:/Users/jackw/.claude.json'\\); console.log\\('top-level mcpServers:', Object.keys\\(c.mcpServers||{}\\)\\); if\\(c.projects\\){for\\(const[p,v] of Object.entries\\(c.projects\\)\\){if\\(v.mcpServers&&Object.keys\\(v.mcpServers\\).length\\){console.log\\('project',p,'mcpServers:',Object.keys\\(v.mcpServers\\)\\)}}}\")",
+      "mcp__tradingview__tv_health_check",
+      "mcp__tradingview__chart_get_state",
+      "mcp__tradingview__data_get_study_values",
+      "mcp__tradingview__quote_get",
+      "mcp__alpaca__get_account_info",
+      "mcp__alpaca__get_clock",
+      "mcp__alpaca__get_option_chain",
+      "Bash(claude plugins *)",
+      "Bash(mkdir -p ~/.claude/channels/discord)",
+      "Bash(touch ~/.claude/channels/discord/.env)",
+      "Bash(claude mcp *)",
+      "Bash(Get-ChildItem -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Head-50)",
+      "PowerShell(Head *)",
+      "PowerShell($content = Get-Content \"C:\\\\Users\\\\jackw\\\\Desktop\\\\42\\\\CLAUDE.md\" -Raw; \"Chars: $\\($content.Length\\)\"; \"Lines: $\\(\\(Get-Content 'C:\\\\Users\\\\jackw\\\\Desktop\\\\42\\\\CLAUDE.md'\\).Count\\)\")",
+      "Bash(Get-Date *)"
+    ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/jackw/Desktop/42/setup/hook-autoresearch-status.ps1"
+          }
+        ]
+      }
+    ]
+  }
+}

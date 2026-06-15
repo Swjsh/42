@@ -1,0 +1,25 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-03-12T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.58,
+  "reasoning": "XLE +2.43% while XLK -0.11% and XLF -0.68% = classic risk-off energy rotation. Tech flat, financials weak, energy rallying = no broad support for SPY. VIX rising +10.07% to 26.66 (HIGH regime) confirms defensive internals. Energy leadership typically signals inflation concern and equity caution, not bullish SPY setup. Narrow leadership (energy-driven), not broad-based. Bearish bias with medium confidence.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -0.11,
+    "xlf_change_pct": -0.68,
+    "xle_change_pct": 2.43,
+    "spy_change_pct": -0.18,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLE +2.43% — energy rallying strongly",
+    "XLK -0.11% — tech essentially flat, no leadership",
+    "XLF -0.68% — financials weak, rate sensitivity or credit concern",
+    "SPY -0.18% — slight weakness with no sector support",
+    "VIX +10.07% — volatility rising, defensive regime",
+    "Rotation: Risk-off. Energy outperformance typical of inflation/equity caution, not bullish setup."
+  ],
+  "data_quality": "full"
+}

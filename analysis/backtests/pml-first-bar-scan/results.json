@@ -1,0 +1,2168 @@
+{
+  "generated_at": "2026-05-21T04:19:34.334453",
+  "description": "PML/PMH first-bar trigger scan across 16-month SPY history",
+  "spy_file": "spy_5m_2025-01-01_2026-05-15.csv",
+  "total_days": 342,
+  "days_with_events": 91,
+  "days_with_events_pct": 26.6,
+  "bull_pml_reclaim": {
+    "n": 54,
+    "wr_pct": 48.1,
+    "avg_30min_move": 0.08,
+    "j_anchor_hits": 0,
+    "motivating_case_hit": false
+  },
+  "bear_pmh_rejection": {
+    "n": 41,
+    "wr_pct": 53.7,
+    "avg_30min_move": -0.35,
+    "j_anchor_hits": 0
+  },
+  "events": [
+    {
+      "date": "2025-01-13",
+      "pml": 576.26,
+      "pmh": 576.26,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 576.26,
+          "first_bar_low": 575.52,
+          "first_bar_close": 576.41,
+          "wick_below_pml": 0.74,
+          "close_above_pml": 0.15,
+          "move_30min": 1.35,
+          "win": true,
+          "date": "2025-01-13",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-01-15",
+      "pml": 590.52,
+      "pmh": 591.31,
+      "pm_bars_count": 2,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 590.52,
+          "first_bar_low": 589.61,
+          "first_bar_close": 590.6,
+          "wick_below_pml": 0.91,
+          "close_above_pml": 0.08,
+          "move_30min": 1.54,
+          "win": true,
+          "date": "2025-01-15",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-01-27",
+      "pml": 594.7,
+      "pmh": 596.38,
+      "pm_bars_count": 5,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 594.7,
+          "first_bar_low": 594.68,
+          "first_bar_close": 597.38,
+          "wick_below_pml": 0.02,
+          "close_above_pml": 2.68,
+          "move_30min": 0.21,
+          "win": true,
+          "date": "2025-01-27",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-02-11",
+      "pml": 602.71,
+      "pmh": 602.71,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 602.71,
+          "first_bar_low": 602.47,
+          "first_bar_close": 603.29,
+          "wick_below_pml": 0.24,
+          "close_above_pml": 0.58,
+          "move_30min": -0.09,
+          "win": false,
+          "date": "2025-02-11",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-03-18",
+      "pml": 564.66,
+      "pmh": 564.75,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 564.75,
+          "first_bar_high": 564.79,
+          "first_bar_close": 564.01,
+          "wick_above_pmh": 0.04,
+          "close_below_pmh": 0.74,
+          "move_30min": -3.03,
+          "win": true,
+          "date": "2025-03-18",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-04-01",
+      "pml": 556.68,
+      "pmh": 556.68,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 556.68,
+          "first_bar_low": 556.48,
+          "first_bar_close": 556.91,
+          "wick_below_pml": 0.2,
+          "close_above_pml": 0.23,
+          "move_30min": -0.73,
+          "win": false,
+          "date": "2025-04-01",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-04-02",
+      "pml": 555.53,
+      "pmh": 555.53,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 555.53,
+          "first_bar_low": 554.85,
+          "first_bar_close": 556.82,
+          "wick_below_pml": 0.68,
+          "close_above_pml": 1.29,
+          "move_30min": 3.54,
+          "win": true,
+          "date": "2025-04-02",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-04-08",
+      "pml": 518.96,
+      "pmh": 521.06,
+      "pm_bars_count": 4,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 521.06,
+          "first_bar_high": 522.14,
+          "first_bar_close": 520.48,
+          "wick_above_pmh": 1.08,
+          "close_below_pmh": 0.58,
+          "move_30min": 2.58,
+          "win": false,
+          "date": "2025-04-08",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-04-11",
+      "pml": 522.37,
+      "pmh": 527.5,
+      "pm_bars_count": 5,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 522.37,
+          "first_bar_low": 521.15,
+          "first_bar_close": 522.71,
+          "wick_below_pml": 1.22,
+          "close_above_pml": 0.34,
+          "move_30min": 2.6,
+          "win": true,
+          "date": "2025-04-11",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-04-14",
+      "pml": 542.29,
+      "pmh": 542.68,
+      "pm_bars_count": 2,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 542.29,
+          "first_bar_low": 542.08,
+          "first_bar_close": 542.72,
+          "wick_below_pml": 0.21,
+          "close_above_pml": 0.43,
+          "move_30min": -0.1,
+          "win": false,
+          "date": "2025-04-14",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-04-21",
+      "pml": 520.5,
+      "pmh": 521.06,
+      "pm_bars_count": 3,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 521.06,
+          "first_bar_high": 521.64,
+          "first_bar_close": 520.5,
+          "wick_above_pmh": 0.58,
+          "close_below_pmh": 0.56,
+          "move_30min": -3.72,
+          "win": true,
+          "date": "2025-04-21",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-04-25",
+      "pml": 546.34,
+      "pmh": 546.34,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 546.34,
+          "first_bar_low": 545.73,
+          "first_bar_close": 546.9,
+          "wick_below_pml": 0.61,
+          "close_above_pml": 0.56,
+          "move_30min": -1.31,
+          "win": false,
+          "date": "2025-04-25",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-04-30",
+      "pml": 545.93,
+      "pmh": 548.05,
+      "pm_bars_count": 2,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 545.93,
+          "first_bar_low": 545.59,
+          "first_bar_close": 546.38,
+          "wick_below_pml": 0.34,
+          "close_above_pml": 0.45,
+          "move_30min": -3.4,
+          "win": false,
+          "date": "2025-04-30",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-05-01",
+      "pml": 560.42,
+      "pmh": 560.45,
+      "pm_bars_count": 2,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 560.45,
+          "first_bar_high": 560.87,
+          "first_bar_close": 559.26,
+          "wick_above_pmh": 0.42,
+          "close_below_pmh": 1.19,
+          "move_30min": 0.7,
+          "win": false,
+          "date": "2025-05-01",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-05-06",
+      "pml": 558.02,
+      "pmh": 559.18,
+      "pm_bars_count": 7,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 558.02,
+          "first_bar_low": 557.58,
+          "first_bar_close": 559.22,
+          "wick_below_pml": 0.44,
+          "close_above_pml": 1.2,
+          "move_30min": -1.19,
+          "win": false,
+          "date": "2025-05-06",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-05-08",
+      "pml": 565.03,
+      "pmh": 565.03,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 565.03,
+          "first_bar_high": 565.61,
+          "first_bar_close": 564.75,
+          "wick_above_pmh": 0.58,
+          "close_below_pmh": 0.28,
+          "move_30min": -0.41,
+          "win": true,
+          "date": "2025-05-08",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-05-09",
+      "pml": 566.77,
+      "pmh": 567.12,
+      "pm_bars_count": 2,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 566.77,
+          "first_bar_low": 566.49,
+          "first_bar_close": 567.22,
+          "wick_below_pml": 0.28,
+          "close_above_pml": 0.45,
+          "move_30min": -0.17,
+          "win": false,
+          "date": "2025-05-09",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-05-13",
+      "pml": 583.06,
+      "pmh": 584.05,
+      "pm_bars_count": 4,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 583.06,
+          "first_bar_low": 582.9,
+          "first_bar_close": 583.47,
+          "wick_below_pml": 0.15,
+          "close_above_pml": 0.41,
+          "move_30min": 2.27,
+          "win": true,
+          "date": "2025-05-13",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-05-14",
+      "pml": 588.07,
+      "pmh": 588.49,
+      "pm_bars_count": 2,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 588.07,
+          "first_bar_low": 587.83,
+          "first_bar_close": 588.79,
+          "wick_below_pml": 0.24,
+          "close_above_pml": 0.72,
+          "move_30min": -1.44,
+          "win": false,
+          "date": "2025-05-14",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-05-21",
+      "pml": 589.0,
+      "pmh": 589.0,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 589.0,
+          "first_bar_low": 588.58,
+          "first_bar_close": 589.32,
+          "wick_below_pml": 0.42,
+          "close_above_pml": 0.32,
+          "move_30min": 1.21,
+          "win": true,
+          "date": "2025-05-21",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-05-28",
+      "pml": 591.67,
+      "pmh": 591.67,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 591.67,
+          "first_bar_low": 591.37,
+          "first_bar_close": 592.03,
+          "wick_below_pml": 0.3,
+          "close_above_pml": 0.36,
+          "move_30min": -1.12,
+          "win": false,
+          "date": "2025-05-28",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-05-29",
+      "pml": 592.36,
+      "pmh": 592.93,
+      "pm_bars_count": 3,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 592.93,
+          "first_bar_high": 593.1,
+          "first_bar_close": 592.06,
+          "wick_above_pmh": 0.17,
+          "close_below_pmh": 0.87,
+          "move_30min": -1.19,
+          "win": true,
+          "date": "2025-05-29",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-06-05",
+      "pml": 596.26,
+      "pmh": 598.38,
+      "pm_bars_count": 4,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 596.26,
+          "first_bar_low": 596.07,
+          "first_bar_close": 596.6,
+          "wick_below_pml": 0.19,
+          "close_above_pml": 0.34,
+          "move_30min": -2.1,
+          "win": false,
+          "date": "2025-06-05",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-06-09",
+      "pml": 599.78,
+      "pmh": 599.78,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 599.78,
+          "first_bar_high": 599.91,
+          "first_bar_close": 598.65,
+          "wick_above_pmh": 0.13,
+          "close_below_pmh": 1.13,
+          "move_30min": 0.42,
+          "win": false,
+          "date": "2025-06-09",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-06-10",
+      "pml": 600.55,
+      "pmh": 600.55,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 600.55,
+          "first_bar_high": 600.92,
+          "first_bar_close": 600.38,
+          "wick_above_pmh": 0.37,
+          "close_below_pmh": 0.17,
+          "move_30min": 0.37,
+          "win": false,
+          "date": "2025-06-10",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-06-16",
+      "pml": 600.64,
+      "pmh": 600.97,
+      "pm_bars_count": 3,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 600.64,
+          "first_bar_low": 600.24,
+          "first_bar_close": 601.52,
+          "wick_below_pml": 0.4,
+          "close_above_pml": 0.88,
+          "move_30min": 1.86,
+          "win": true,
+          "date": "2025-06-16",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-06-23",
+      "pml": 594.9,
+      "pmh": 594.9,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 594.9,
+          "first_bar_high": 595.07,
+          "first_bar_close": 594.03,
+          "wick_above_pmh": 0.17,
+          "close_below_pmh": 0.87,
+          "move_30min": 3.27,
+          "win": false,
+          "date": "2025-06-23",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-06-24",
+      "pml": 604.3,
+      "pmh": 604.39,
+      "pm_bars_count": 2,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 604.3,
+          "first_bar_low": 603.97,
+          "first_bar_close": 604.52,
+          "wick_below_pml": 0.33,
+          "close_above_pml": 0.22,
+          "move_30min": -0.12,
+          "win": false,
+          "date": "2025-06-24",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-06-25",
+      "pml": 607.95,
+      "pmh": 607.95,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 607.95,
+          "first_bar_low": 607.76,
+          "first_bar_close": 608.15,
+          "wick_below_pml": 0.19,
+          "close_above_pml": 0.2,
+          "move_30min": -0.17,
+          "win": false,
+          "date": "2025-06-25",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-06-27",
+      "pml": 613.13,
+      "pmh": 613.31,
+      "pm_bars_count": 2,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 613.31,
+          "first_bar_high": 613.33,
+          "first_bar_close": 613.11,
+          "wick_above_pmh": 0.02,
+          "close_below_pmh": 0.2,
+          "move_30min": 1.98,
+          "win": false,
+          "date": "2025-06-27",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-07-01",
+      "pml": 616.48,
+      "pmh": 616.48,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 616.48,
+          "first_bar_low": 616.28,
+          "first_bar_close": 616.53,
+          "wick_below_pml": 0.2,
+          "close_above_pml": 0.05,
+          "move_30min": 0.69,
+          "win": true,
+          "date": "2025-07-01",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-07-11",
+      "pml": 622.45,
+      "pmh": 622.87,
+      "pm_bars_count": 2,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 622.87,
+          "first_bar_high": 623.43,
+          "first_bar_close": 622.59,
+          "wick_above_pmh": 0.56,
+          "close_below_pmh": 0.28,
+          "move_30min": 0.62,
+          "win": false,
+          "date": "2025-07-11",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-07-16",
+      "pml": 623.29,
+      "pmh": 623.65,
+      "pm_bars_count": 4,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 623.29,
+          "first_bar_low": 622.91,
+          "first_bar_close": 623.5,
+          "wick_below_pml": 0.38,
+          "close_above_pml": 0.21,
+          "move_30min": -1.08,
+          "win": false,
+          "date": "2025-07-16",
+          "j_anchor_day": false,
+          "motivating_case": false
+        },
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 623.65,
+          "first_bar_high": 624.03,
+          "first_bar_close": 623.5,
+          "wick_above_pmh": 0.38,
+          "close_below_pmh": 0.15,
+          "move_30min": -1.08,
+          "win": true,
+          "date": "2025-07-16",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-07-23",
+      "pml": 631.31,
+      "pmh": 631.38,
+      "pm_bars_count": 2,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 631.38,
+          "first_bar_high": 631.56,
+          "first_bar_close": 631.15,
+          "wick_above_pmh": 0.18,
+          "close_below_pmh": 0.23,
+          "move_30min": -1.09,
+          "win": true,
+          "date": "2025-07-23",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-07-25",
+      "pml": 635.0,
+      "pmh": 635.0,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 635.0,
+          "first_bar_low": 634.96,
+          "first_bar_close": 635.24,
+          "wick_below_pml": 0.04,
+          "close_above_pml": 0.24,
+          "move_30min": -0.29,
+          "win": false,
+          "date": "2025-07-25",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-08-06",
+      "pml": 629.29,
+      "pmh": 629.53,
+      "pm_bars_count": 3,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 629.29,
+          "first_bar_low": 628.49,
+          "first_bar_close": 629.4,
+          "wick_below_pml": 0.8,
+          "close_above_pml": 0.11,
+          "move_30min": 0.82,
+          "win": true,
+          "date": "2025-08-06",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-08-07",
+      "pml": 636.3,
+      "pmh": 636.7,
+      "pm_bars_count": 6,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 636.3,
+          "first_bar_low": 635.71,
+          "first_bar_close": 636.72,
+          "wick_below_pml": 0.59,
+          "close_above_pml": 0.42,
+          "move_30min": -0.87,
+          "win": false,
+          "date": "2025-08-07",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-08-08",
+      "pml": 633.58,
+      "pmh": 634.29,
+      "pm_bars_count": 4,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 634.29,
+          "first_bar_high": 634.51,
+          "first_bar_close": 634.02,
+          "wick_above_pmh": 0.23,
+          "close_below_pmh": 0.27,
+          "move_30min": 2.33,
+          "win": false,
+          "date": "2025-08-08",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-08-19",
+      "pml": 642.76,
+      "pmh": 643.23,
+      "pm_bars_count": 3,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 643.23,
+          "first_bar_high": 643.24,
+          "first_bar_close": 642.17,
+          "wick_above_pmh": 0.01,
+          "close_below_pmh": 1.06,
+          "move_30min": 1.93,
+          "win": false,
+          "date": "2025-08-19",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-08-20",
+      "pml": 639.17,
+      "pmh": 639.32,
+      "pm_bars_count": 6,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 639.32,
+          "first_bar_high": 639.6,
+          "first_bar_close": 638.76,
+          "wick_above_pmh": 0.28,
+          "close_below_pmh": 0.56,
+          "move_30min": -3.15,
+          "win": true,
+          "date": "2025-08-20",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-08-21",
+      "pml": 635.4,
+      "pmh": 636.37,
+      "pm_bars_count": 4,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 635.4,
+          "first_bar_low": 635.29,
+          "first_bar_close": 635.9,
+          "wick_below_pml": 0.11,
+          "close_above_pml": 0.5,
+          "move_30min": 0.89,
+          "win": true,
+          "date": "2025-08-21",
+          "j_anchor_day": false,
+          "motivating_case": false
+        },
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 636.37,
+          "first_bar_high": 636.43,
+          "first_bar_close": 635.9,
+          "wick_above_pmh": 0.06,
+          "close_below_pmh": 0.47,
+          "move_30min": 0.89,
+          "win": false,
+          "date": "2025-08-21",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-08-29",
+      "pml": 646.86,
+      "pmh": 647.69,
+      "pm_bars_count": 6,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 647.69,
+          "first_bar_high": 647.82,
+          "first_bar_close": 647.4,
+          "wick_above_pmh": 0.13,
+          "close_below_pmh": 0.29,
+          "move_30min": -2.79,
+          "win": true,
+          "date": "2025-08-29",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-09-03",
+      "pml": 642.51,
+      "pmh": 643.21,
+      "pm_bars_count": 2,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 642.51,
+          "first_bar_low": 642.41,
+          "first_bar_close": 642.85,
+          "wick_below_pml": 0.1,
+          "close_above_pml": 0.34,
+          "move_30min": -0.19,
+          "win": false,
+          "date": "2025-09-03",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-09-09",
+      "pml": 648.91,
+      "pmh": 649.07,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 648.91,
+          "first_bar_low": 648.8,
+          "first_bar_close": 649.17,
+          "wick_below_pml": 0.11,
+          "close_above_pml": 0.26,
+          "move_30min": -0.41,
+          "win": false,
+          "date": "2025-09-09",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-09-11",
+      "pml": 654.18,
+      "pmh": 654.18,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 654.18,
+          "first_bar_low": 654.03,
+          "first_bar_close": 654.48,
+          "wick_below_pml": 0.15,
+          "close_above_pml": 0.3,
+          "move_30min": 1.25,
+          "win": true,
+          "date": "2025-09-11",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-09-12",
+      "pml": 657.51,
+      "pmh": 657.83,
+      "pm_bars_count": 2,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 657.51,
+          "first_bar_low": 657.45,
+          "first_bar_close": 657.67,
+          "wick_below_pml": 0.06,
+          "close_above_pml": 0.16,
+          "move_30min": 0.13,
+          "win": true,
+          "date": "2025-09-12",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-09-23",
+      "pml": 666.68,
+      "pmh": 666.77,
+      "pm_bars_count": 2,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 666.68,
+          "first_bar_low": 666.62,
+          "first_bar_close": 667.02,
+          "wick_below_pml": 0.06,
+          "close_above_pml": 0.34,
+          "move_30min": -0.34,
+          "win": false,
+          "date": "2025-09-23",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-09-24",
+      "pml": 664.19,
+      "pmh": 664.24,
+      "pm_bars_count": 2,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 664.24,
+          "first_bar_high": 664.58,
+          "first_bar_close": 664.12,
+          "wick_above_pmh": 0.34,
+          "close_below_pmh": 0.12,
+          "move_30min": -0.74,
+          "win": true,
+          "date": "2025-09-24",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-09-26",
+      "pml": 660.38,
+      "pmh": 660.72,
+      "pm_bars_count": 2,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 660.38,
+          "first_bar_low": 659.0,
+          "first_bar_close": 660.75,
+          "wick_below_pml": 1.38,
+          "close_above_pml": 0.37,
+          "move_30min": 0.24,
+          "win": true,
+          "date": "2025-09-26",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-10-01",
+      "pml": 663.33,
+      "pmh": 663.48,
+      "pm_bars_count": 2,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 663.33,
+          "first_bar_low": 663.16,
+          "first_bar_close": 664.53,
+          "wick_below_pml": 0.17,
+          "close_above_pml": 1.2,
+          "move_30min": -0.0,
+          "win": false,
+          "date": "2025-10-01",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-10-02",
+      "pml": 670.34,
+      "pmh": 670.34,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 670.34,
+          "first_bar_high": 670.55,
+          "first_bar_close": 670.25,
+          "wick_above_pmh": 0.21,
+          "close_below_pmh": 0.09,
+          "move_30min": -0.86,
+          "win": true,
+          "date": "2025-10-02",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-10-07",
+      "pml": 672.6,
+      "pmh": 672.6,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 672.6,
+          "first_bar_low": 672.27,
+          "first_bar_close": 672.92,
+          "wick_below_pml": 0.33,
+          "close_above_pml": 0.32,
+          "move_30min": -1.12,
+          "win": false,
+          "date": "2025-10-07",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-10-10",
+      "pml": 672.23,
+      "pmh": 672.23,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 672.23,
+          "first_bar_low": 671.91,
+          "first_bar_close": 672.48,
+          "wick_below_pml": 0.32,
+          "close_above_pml": 0.25,
+          "move_30min": 0.06,
+          "win": true,
+          "date": "2025-10-10",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-10-13",
+      "pml": 660.87,
+      "pmh": 660.93,
+      "pm_bars_count": 2,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 660.93,
+          "first_bar_high": 661.64,
+          "first_bar_close": 660.71,
+          "wick_above_pmh": 0.71,
+          "close_below_pmh": 0.22,
+          "move_30min": 2.28,
+          "win": false,
+          "date": "2025-10-13",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-10-17",
+      "pml": 660.45,
+      "pmh": 660.85,
+      "pm_bars_count": 2,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 660.45,
+          "first_bar_low": 658.75,
+          "first_bar_close": 660.47,
+          "wick_below_pml": 1.71,
+          "close_above_pml": 0.01,
+          "move_30min": 0.52,
+          "win": true,
+          "date": "2025-10-17",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-10-27",
+      "pml": 682.76,
+      "pmh": 682.85,
+      "pm_bars_count": 1,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 682.85,
+          "first_bar_high": 683.17,
+          "first_bar_close": 682.71,
+          "wick_above_pmh": 0.32,
+          "close_below_pmh": 0.14,
+          "move_30min": 0.66,
+          "win": false,
+          "date": "2025-10-27",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-10-28",
+      "pml": 685.97,
+      "pmh": 686.93,
+      "pm_bars_count": 2,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 686.93,
+          "first_bar_high": 687.2,
+          "first_bar_close": 686.77,
+          "wick_above_pmh": 0.27,
+          "close_below_pmh": 0.16,
+          "move_30min": -0.88,
+          "win": true,
+          "date": "2025-10-28",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-11-03",
+      "pml": 683.71,
+      "pmh": 685.43,
+      "pm_bars_count": 7,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 685.43,
+          "first_bar_high": 685.77,
+          "first_bar_close": 684.71,
+          "wick_above_pmh": 0.34,
+          "close_below_pmh": 0.72,
+          "move_30min": -2.57,
+          "win": true,
+          "date": "2025-11-03",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-11-17",
+      "pml": 670.05,
+      "pmh": 672.22,
+      "pm_bars_count": 3,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 670.05,
+          "first_bar_low": 668.96,
+          "first_bar_close": 671.06,
+          "wick_below_pml": 1.09,
+          "close_above_pml": 1.01,
+          "move_30min": 0.55,
+          "win": true,
+          "date": "2025-11-17",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-11-18",
+      "pml": 661.45,
+      "pmh": 662.76,
+      "pm_bars_count": 6,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 661.45,
+          "first_bar_low": 660.99,
+          "first_bar_close": 662.87,
+          "wick_below_pml": 0.46,
+          "close_above_pml": 1.42,
+          "move_30min": -5.86,
+          "win": false,
+          "date": "2025-11-18",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-11-19",
+      "pml": 660.93,
+      "pmh": 662.89,
+      "pm_bars_count": 9,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 660.93,
+          "first_bar_low": 660.15,
+          "first_bar_close": 661.4,
+          "wick_below_pml": 0.78,
+          "close_above_pml": 0.48,
+          "move_30min": 4.72,
+          "win": true,
+          "date": "2025-11-19",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-11-20",
+      "pml": 670.35,
+      "pmh": 673.55,
+      "pm_bars_count": 14,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 673.55,
+          "first_bar_high": 673.87,
+          "first_bar_close": 673.31,
+          "wick_above_pmh": 0.32,
+          "close_below_pmh": 0.24,
+          "move_30min": 1.63,
+          "win": false,
+          "date": "2025-11-20",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-11-25",
+      "pml": 668.25,
+      "pmh": 669.64,
+      "pm_bars_count": 10,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 668.25,
+          "first_bar_low": 668.2,
+          "first_bar_close": 669.46,
+          "wick_below_pml": 0.05,
+          "close_above_pml": 1.21,
+          "move_30min": -3.1,
+          "win": false,
+          "date": "2025-11-25",
+          "j_anchor_day": false,
+          "motivating_case": false
+        },
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 669.64,
+          "first_bar_high": 669.64,
+          "first_bar_close": 669.46,
+          "wick_above_pmh": 0.0,
+          "close_below_pmh": 0.18,
+          "move_30min": -3.1,
+          "win": true,
+          "date": "2025-11-25",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-11-28",
+      "pml": 681.29,
+      "pmh": 681.45,
+      "pm_bars_count": 3,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 681.29,
+          "first_bar_low": 680.87,
+          "first_bar_close": 681.41,
+          "wick_below_pml": 0.42,
+          "close_above_pml": 0.12,
+          "move_30min": -0.2,
+          "win": false,
+          "date": "2025-11-28",
+          "j_anchor_day": false,
+          "motivating_case": false
+        },
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 681.45,
+          "first_bar_high": 681.55,
+          "first_bar_close": 681.41,
+          "wick_above_pmh": 0.1,
+          "close_below_pmh": 0.04,
+          "move_30min": -0.2,
+          "win": true,
+          "date": "2025-11-28",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-12-02",
+      "pml": 681.76,
+      "pmh": 682.57,
+      "pm_bars_count": 10,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 681.76,
+          "first_bar_low": 681.67,
+          "first_bar_close": 681.84,
+          "wick_below_pml": 0.09,
+          "close_above_pml": 0.08,
+          "move_30min": 1.14,
+          "win": true,
+          "date": "2025-12-02",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-12-12",
+      "pml": 688.31,
+      "pmh": 689.35,
+      "pm_bars_count": 11,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 688.31,
+          "first_bar_low": 687.79,
+          "first_bar_close": 688.41,
+          "wick_below_pml": 0.52,
+          "close_above_pml": 0.1,
+          "move_30min": -1.73,
+          "win": false,
+          "date": "2025-12-12",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-12-15",
+      "pml": 684.84,
+      "pmh": 685.65,
+      "pm_bars_count": 7,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 685.65,
+          "first_bar_high": 685.75,
+          "first_bar_close": 683.99,
+          "wick_above_pmh": 0.1,
+          "close_below_pmh": 1.66,
+          "move_30min": -2.45,
+          "win": true,
+          "date": "2025-12-15",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-12-22",
+      "pml": 683.28,
+      "pmh": 683.97,
+      "pm_bars_count": 9,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 683.97,
+          "first_bar_high": 684.5,
+          "first_bar_close": 683.65,
+          "wick_above_pmh": 0.53,
+          "close_below_pmh": 0.32,
+          "move_30min": -0.16,
+          "win": true,
+          "date": "2025-12-22",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2025-12-24",
+      "pml": 687.91,
+      "pmh": 688.22,
+      "pm_bars_count": 5,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 687.91,
+          "first_bar_low": 687.83,
+          "first_bar_close": 688.22,
+          "wick_below_pml": 0.08,
+          "close_above_pml": 0.31,
+          "move_30min": 0.45,
+          "win": true,
+          "date": "2025-12-24",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-01-02",
+      "pml": 685.61,
+      "pmh": 686.0,
+      "pm_bars_count": 4,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 686.0,
+          "first_bar_high": 686.11,
+          "first_bar_close": 684.77,
+          "wick_above_pmh": 0.11,
+          "close_below_pmh": 1.23,
+          "move_30min": 1.64,
+          "win": false,
+          "date": "2026-01-02",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-01-07",
+      "pml": 691.38,
+      "pmh": 692.28,
+      "pm_bars_count": 8,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 692.28,
+          "first_bar_high": 692.42,
+          "first_bar_close": 691.88,
+          "wick_above_pmh": 0.14,
+          "close_below_pmh": 0.4,
+          "move_30min": 0.01,
+          "win": false,
+          "date": "2026-01-07",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-01-08",
+      "pml": 688.25,
+      "pmh": 689.25,
+      "pm_bars_count": 7,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 689.25,
+          "first_bar_high": 689.27,
+          "first_bar_close": 688.42,
+          "wick_above_pmh": 0.02,
+          "close_below_pmh": 0.83,
+          "move_30min": 0.19,
+          "win": false,
+          "date": "2026-01-08",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-01-09",
+      "pml": 690.63,
+      "pmh": 692.4,
+      "pm_bars_count": 10,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 690.63,
+          "first_bar_low": 690.47,
+          "first_bar_close": 690.93,
+          "wick_below_pml": 0.16,
+          "close_above_pml": 0.3,
+          "move_30min": -0.24,
+          "win": false,
+          "date": "2026-01-09",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-01-14",
+      "pml": 690.77,
+      "pmh": 691.4,
+      "pm_bars_count": 9,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 690.77,
+          "first_bar_low": 689.88,
+          "first_bar_close": 691.53,
+          "wick_below_pml": 0.89,
+          "close_above_pml": 0.76,
+          "move_30min": -3.28,
+          "win": false,
+          "date": "2026-01-14",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-01-21",
+      "pml": 676.22,
+      "pmh": 680.16,
+      "pm_bars_count": 13,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 680.16,
+          "first_bar_high": 680.44,
+          "first_bar_close": 679.62,
+          "wick_above_pmh": 0.28,
+          "close_below_pmh": 0.53,
+          "move_30min": 2.62,
+          "win": false,
+          "date": "2026-01-21",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-01-22",
+      "pml": 688.81,
+      "pmh": 690.03,
+      "pm_bars_count": 7,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 690.03,
+          "first_bar_high": 690.34,
+          "first_bar_close": 689.95,
+          "wick_above_pmh": 0.31,
+          "close_below_pmh": 0.08,
+          "move_30min": -2.67,
+          "win": true,
+          "date": "2026-01-22",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-01-23",
+      "pml": 687.35,
+      "pmh": 688.58,
+      "pm_bars_count": 7,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 688.58,
+          "first_bar_high": 688.63,
+          "first_bar_close": 687.71,
+          "wick_above_pmh": 0.05,
+          "close_below_pmh": 0.87,
+          "move_30min": 1.56,
+          "win": false,
+          "date": "2026-01-23",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-01-27",
+      "pml": 694.02,
+      "pmh": 694.58,
+      "pm_bars_count": 4,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 694.02,
+          "first_bar_low": 693.87,
+          "first_bar_close": 694.23,
+          "wick_below_pml": 0.15,
+          "close_above_pml": 0.21,
+          "move_30min": 0.92,
+          "win": true,
+          "date": "2026-01-27",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-01-29",
+      "pml": 696.19,
+      "pmh": 696.76,
+      "pm_bars_count": 4,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 696.76,
+          "first_bar_high": 697.06,
+          "first_bar_close": 696.02,
+          "wick_above_pmh": 0.3,
+          "close_below_pmh": 0.74,
+          "move_30min": -5.74,
+          "win": true,
+          "date": "2026-01-29",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-02-05",
+      "pml": 680.63,
+      "pmh": 683.37,
+      "pm_bars_count": 11,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 680.63,
+          "first_bar_low": 678.79,
+          "first_bar_close": 680.79,
+          "wick_below_pml": 1.84,
+          "close_above_pml": 0.16,
+          "move_30min": -1.41,
+          "win": false,
+          "date": "2026-02-05",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-02-09",
+      "pml": 689.22,
+      "pmh": 691.2,
+      "pm_bars_count": 5,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 689.22,
+          "first_bar_low": 688.39,
+          "first_bar_close": 689.87,
+          "wick_below_pml": 0.83,
+          "close_above_pml": 0.65,
+          "move_30min": 1.37,
+          "win": true,
+          "date": "2026-02-09",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-02-11",
+      "pml": 692.94,
+      "pmh": 696.37,
+      "pm_bars_count": 8,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 696.37,
+          "first_bar_high": 697.08,
+          "first_bar_close": 696.09,
+          "wick_above_pmh": 0.71,
+          "close_below_pmh": 0.28,
+          "move_30min": -2.39,
+          "win": true,
+          "date": "2026-02-11",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-02-19",
+      "pml": 683.2,
+      "pmh": 684.35,
+      "pm_bars_count": 6,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 684.35,
+          "first_bar_high": 684.48,
+          "first_bar_close": 684.05,
+          "wick_above_pmh": 0.13,
+          "close_below_pmh": 0.3,
+          "move_30min": 1.49,
+          "win": false,
+          "date": "2026-02-19",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-02-20",
+      "pml": 682.15,
+      "pmh": 684.54,
+      "pm_bars_count": 8,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 682.15,
+          "first_bar_low": 681.87,
+          "first_bar_close": 683.35,
+          "wick_below_pml": 0.28,
+          "close_above_pml": 1.2,
+          "move_30min": 3.35,
+          "win": true,
+          "date": "2026-02-20",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-03-02",
+      "pml": 678.21,
+      "pmh": 680.62,
+      "pm_bars_count": 12,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 678.21,
+          "first_bar_low": 678.03,
+          "first_bar_close": 681.2,
+          "wick_below_pml": 0.18,
+          "close_above_pml": 2.99,
+          "move_30min": 2.97,
+          "win": true,
+          "date": "2026-03-02",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-03-04",
+      "pml": 681.27,
+      "pmh": 683.3,
+      "pm_bars_count": 11,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 683.3,
+          "first_bar_high": 683.47,
+          "first_bar_close": 682.76,
+          "wick_above_pmh": 0.17,
+          "close_below_pmh": 0.53,
+          "move_30min": -1.17,
+          "win": true,
+          "date": "2026-03-04",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-03-06",
+      "pml": 672.06,
+      "pmh": 678.33,
+      "pm_bars_count": 14,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 672.06,
+          "first_bar_low": 672.02,
+          "first_bar_close": 672.43,
+          "wick_below_pml": 0.04,
+          "close_above_pml": 0.37,
+          "move_30min": 0.35,
+          "win": true,
+          "date": "2026-03-06",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-03-09",
+      "pml": 664.92,
+      "pmh": 667.23,
+      "pm_bars_count": 13,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 667.23,
+          "first_bar_high": 667.51,
+          "first_bar_close": 666.32,
+          "wick_above_pmh": 0.28,
+          "close_below_pmh": 0.91,
+          "move_30min": -0.5,
+          "win": true,
+          "date": "2026-03-09",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-03-10",
+      "pml": 675.19,
+      "pmh": 677.79,
+      "pm_bars_count": 8,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BEAR_PMH_REJECTION",
+          "pmh": 677.79,
+          "first_bar_high": 678.73,
+          "first_bar_close": 677.58,
+          "wick_above_pmh": 0.94,
+          "close_below_pmh": 0.21,
+          "move_30min": -1.5,
+          "win": true,
+          "date": "2026-03-10",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-03-12",
+      "pml": 670.65,
+      "pmh": 672.31,
+      "pm_bars_count": 12,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 670.65,
+          "first_bar_low": 669.92,
+          "first_bar_close": 671.05,
+          "wick_below_pml": 0.73,
+          "close_above_pml": 0.4,
+          "move_30min": -0.74,
+          "win": false,
+          "date": "2026-03-12",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    },
+    {
+      "date": "2026-03-19",
+      "pml": 656.1,
+      "pmh": 662.18,
+      "pm_bars_count": 63,
+      "j_anchor_day": false,
+      "motivating_case": false,
+      "events": [
+        {
+          "type": "BULL_PML_RECLAIM",
+          "pml": 656.1,
+          "first_bar_low": 655.17,
+          "first_bar_close": 656.17,
+          "wick_below_pml": 0.93,
+          "close_above_pml": 0.07,
+          "move_30min": 2.16,
+          "win": true,
+          "date": "2026-03-19",
+          "j_anchor_day": false,
+          "motivating_case": false
+        }
+      ]
+    }
+  ]
+}

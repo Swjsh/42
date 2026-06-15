@@ -1,0 +1,75 @@
+{
+  "date": "2026-06-02",
+  "morning_thesis": "VIX 16.16 (MID regime) — bull filter eligible (<17.20), bear filter NOT eligible (<17.30 threshold). This is a BULL-ONLY day from a filter perspective. Premarket showed strong early buying (756.72 → 758.22) then orderly pullback to 757.03 — net slightly above prior close 756.56. Key battleground is the 758.08/758.22 resistance cluster. PRIMARY RISK: ISM Manufacturing PMI at 10:00 ET creates a mandatory no-trade window 09:55-10:20 ET. Pre-ISM no-trade bias. After ISM clears, watch for BULLISH_RECLAIM if SPY holds above 757.42 ribbon support — BULL setups eligible, BEAR setups blocked by VIX filter. Setup required before any entry per Rule 1.\n\nFalsifiable predictions:\n0. SPY sustains above 757.42 on first 5m bar after ISM (10:20-10:30 ET), signaling bull continuation toward 758.08 | window: 10:20-10:30 ET | invalidation: first 5m bar after 10:20 closes below 757.00 | confidence: 0.55\n1. 758.08-758.22 cluster acts as resistance on first RTH test — no 5m bar closes above 758.30 before 11:00 ET | window: 09:35-11:00 ET | invalidation: 5m close above 758.30 with vol >=1.2x avg before 11:00 ET | confidence: 0.60\n2. VIX stays below 17.20 all RTH session — bull filter remains eligible, no bear setups fire today | window: 09:30-15:50 ET | invalidation: VIX >17.20 rising | confidence: 0.72\n3. Gap fill (756.56) is NOT tested today — SPY holds above 756.76 throughout RTH session | window: 09:30-15:50 ET | invalidation: any 5m bar closes below 756.56 | confidence: 0.58",
+  "predictions": [
+    {
+      "prediction_idx": 0,
+      "claim": "SPY sustains above 757.42 on first 5m bar after ISM (10:20-10:30 ET), signaling bull continuation toward 758.08",
+      "trigger_window": "10:20-10:30 ET (first 5m bar post-ISM window)",
+      "invalidation": "First 5m bar after 10:20 ET closes below 757.00",
+      "confidence": 0.55,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "First post-ISM fire at 10:33 ET: SPY 757.73, ribbon BULL 46c — above 757.42. Bull continuation materialized to session high 760.4.",
+      "category": "level",
+      "evidence_timestamp": "10:33",
+      "graded_at": "2026-06-02T16:30:00-04:00"
+    },
+    {
+      "prediction_idx": 1,
+      "claim": "758.08-758.22 cluster acts as resistance on first RTH test — no 5m bar closes above 758.30 before 11:00 ET",
+      "trigger_window": "09:35-11:00 ET (first approach of 758.00+ zone)",
+      "invalidation": "A 5m bar closes above 758.30 with volume >= 1.2x 20-bar avg before 11:00 ET",
+      "confidence": 0.60,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "SPY broke above 758.30 between 10:33 ET (757.73) and 11:00 ET (759.72) — obscured by tick timeout at 10:48-10:51. Post-ISM momentum blasted through cluster rather than rejecting.",
+      "category": "level",
+      "evidence_timestamp": "11:00",
+      "graded_at": "2026-06-02T16:30:00-04:00"
+    },
+    {
+      "prediction_idx": 2,
+      "claim": "VIX stays below 17.20 all RTH session — bull filter remains eligible, no bear setups fire today",
+      "trigger_window": "09:30-15:50 ET",
+      "invalidation": "VIX reads above 17.20 with rising direction at any point 09:30-15:50 ET",
+      "confidence": 0.72,
+      "specificity": 0.9,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "VIX ranged 15.96-16.19 all session (falling direction). Bull filter eligible all day; bear filter blocked all day. No bear setups fired.",
+      "category": "bias",
+      "evidence_timestamp": null,
+      "graded_at": "2026-06-02T16:30:00-04:00"
+    },
+    {
+      "prediction_idx": 3,
+      "claim": "Gap fill (756.56) is NOT tested today — SPY holds above 756.76 throughout RTH session",
+      "trigger_window": "09:30-15:50 ET",
+      "invalidation": "Any 5m bar closes below 756.56 during RTH",
+      "confidence": 0.58,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "Morning low was 757.31 (09:48 ET) — $0.75 above 756.76. Gap-fill level untested; no bear pressure materialized.",
+      "category": "level",
+      "evidence_timestamp": "09:48",
+      "graded_at": "2026-06-02T16:30:00-04:00"
+    }
+  ],
+  "surprises": [
+    "Double tick timeout (10:48-10:51 and 11:03-11:06 ET, 220s wall-clock) coincided with peak post-ISM rally — engine was blind during the highest-velocity bars of the session",
+    "BULL 11/11 scored twice (11:54, 12:18 ET) but Gate A blocked both on ribbon momentum compression — confirms Gate A is the binding constraint in low-volatility afternoon chop",
+    "Post-ISM breakout through 758.22 resistance happened inside the 10:20-10:33 window where ISM-lockout was still partially active — catalyst moves don't wait for the gate to open"
+  ],
+  "lesson": "Post-macro-window breakouts happen in the immediate first bar after the lockout expires; if the ribbon has already flipped BULL inside the window and price is above the key level, the trigger is the window expiry itself — flag for J's weekend review as a potential 'first-bar-post-macro' entry exception.",
+  "tomorrow_hint": "TOMORROW — PDH flip 760.4 is key: reclaim = bull extension to new highs, reject = range consolidation. Support cluster at 758.08-758.22 newly flipped.",
+  "predictions_count": 4,
+  "predictions_passed": 3,
+  "predictions_partial": 0,
+  "hit_rate_passing": 0.75,
+  "specificity_weighted_hit_rate": 0.744,
+  "graded_at": "2026-06-02T16:30:00-04:00"
+}

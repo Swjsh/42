@@ -1,0 +1,21 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-18T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.82,
+  "reasoning": "CLEAN_BULL ribbon with 103-cent spread, pivot at 739.25; SPY at 740.57 is 132 cents above pivot. Last 3 closed bars: GREEN (738.03→738.87), GREEN (738.84→740.88 with strong 717k vol), RED doji (740.92→740.57 with 864k vol). The red bar is minimal body (~34%), not a reversal. Overnight gap up $1.49 from 739.08 close. VIX rising to 18.39 (MID regime). All primary signals aligned (ribbon clean, price above pivot, 2/3 bars green, gap up), but the most recent bar's red color introduces slight caution despite its small size.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 103,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon stack with 103-cent spread; pivot at 739.25, fast EMA 739.57, slow EMA 738.53",
+    "Price 740.57 is 132 cents above pivot equilibrium — strong bullish positioning",
+    "Last 3 closed bars: GREEN (05:45), GREEN (05:50 with 717k vol), RED doji (05:55 with 864k vol) — 2/3 aligned, but most recent bar red",
+    "Overnight gap up +$1.49 from prior close 739.08; premarket high 741.51, low 733.69 = wide PM range",
+    "Volume building: 05:50 bar 717,886 vol, 05:55 bar 864,358 vol (strongest recent bars); above zero after PM transition at 05:30",
+    "VIX 18.39 rising +0.93% in MID regime; sector rotation mixed (XLE +1.26%, XLK flat, XLF -0.43%)"
+  ],
+  "data_quality": "full"
+}

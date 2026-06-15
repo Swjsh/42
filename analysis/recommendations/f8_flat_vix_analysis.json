@@ -1,0 +1,239 @@
+{
+  "generated_at": "2026-05-19T18:24:56.929368",
+  "loser_day_vix_profiles": {
+    "2026-05-05": {
+      "date": "2026-05-05",
+      "bars_scanned": 76,
+      "bars_above_vix_threshold": 53,
+      "rising": 8,
+      "flat": 62,
+      "falling": 6,
+      "flat_bars_wr_proxy": 3,
+      "flat_bars_total": 48,
+      "vix_open": 17.25,
+      "vix_close": 17.43,
+      "vix_max": 17.44,
+      "vix_min": 17.21,
+      "vix_range": 0.23,
+      "flat_bars_wr_pct": 0.062
+    },
+    "2026-05-06": {
+      "date": "2026-05-06",
+      "bars_scanned": 76,
+      "bars_above_vix_threshold": 3,
+      "rising": 4,
+      "flat": 69,
+      "falling": 3,
+      "flat_bars_wr_proxy": 0,
+      "flat_bars_total": 2,
+      "vix_open": 17.0,
+      "vix_close": 17.25,
+      "vix_max": 17.36,
+      "vix_min": 17.0,
+      "vix_range": 0.36,
+      "flat_bars_wr_pct": 0.0
+    },
+    "2026-05-07": {
+      "date": "2026-05-07",
+      "bars_scanned": 76,
+      "bars_above_vix_threshold": 4,
+      "rising": 3,
+      "flat": 64,
+      "falling": 9,
+      "flat_bars_wr_proxy": 0,
+      "flat_bars_total": 2,
+      "vix_open": 17.33,
+      "vix_close": 17.08,
+      "vix_max": 17.35,
+      "vix_min": 17.06,
+      "vix_range": 0.29,
+      "flat_bars_wr_pct": 0.0
+    }
+  },
+  "winner_day_vix_profiles": {
+    "2026-04-29": {
+      "date": "2026-04-29",
+      "bars_scanned": 76,
+      "bars_above_vix_threshold": 76,
+      "rising": 3,
+      "flat": 67,
+      "falling": 6,
+      "flat_bars_wr_proxy": 20,
+      "flat_bars_total": 67,
+      "vix_open": 18.48,
+      "vix_close": 18.36,
+      "vix_max": 18.86,
+      "vix_min": 18.33,
+      "vix_range": 0.53,
+      "flat_bars_wr_pct": 0.299
+    },
+    "2026-05-01": {
+      "date": "2026-05-01",
+      "bars_scanned": 76,
+      "bars_above_vix_threshold": 0,
+      "rising": 7,
+      "flat": 64,
+      "falling": 5,
+      "flat_bars_wr_proxy": 0,
+      "flat_bars_total": 0,
+      "vix_open": 16.79,
+      "vix_close": 17.0,
+      "vix_max": 17.0,
+      "vix_min": 16.66,
+      "vix_range": 0.34,
+      "flat_bars_wr_pct": null
+    },
+    "2026-05-04": {
+      "date": "2026-05-04",
+      "bars_scanned": 76,
+      "bars_above_vix_threshold": 76,
+      "rising": 9,
+      "flat": 57,
+      "falling": 10,
+      "flat_bars_wr_proxy": 13,
+      "flat_bars_total": 57,
+      "vix_open": 18.2,
+      "vix_close": 18.18,
+      "vix_max": 18.51,
+      "vix_min": 18.12,
+      "vix_range": 0.39,
+      "flat_bars_wr_pct": 0.228
+    }
+  },
+  "may19_vix_profile": {
+    "date": "2026-05-19",
+    "bars_scanned": 76,
+    "bars_above_vix_threshold": 76,
+    "rising": 0,
+    "flat": 76,
+    "falling": 0,
+    "flat_bars_wr_proxy": 34,
+    "flat_bars_total": 76,
+    "vix_open": 18.22,
+    "vix_close": 18.22,
+    "vix_max": 18.22,
+    "vix_min": 18.22,
+    "vix_range": 0.0,
+    "flat_bars_wr_pct": 0.447
+  },
+  "fix_comparison": {
+    "flat_only": {
+      "2026-04-29": {
+        "date": "2026-04-29",
+        "fix": "flat_only",
+        "unlocked": 67,
+        "unlocked_wins": 20,
+        "wr": 0.299
+      },
+      "2026-05-01": {
+        "date": "2026-05-01",
+        "fix": "flat_only",
+        "unlocked": 0,
+        "unlocked_wins": 0,
+        "wr": null
+      },
+      "2026-05-04": {
+        "date": "2026-05-04",
+        "fix": "flat_only",
+        "unlocked": 57,
+        "unlocked_wins": 13,
+        "wr": 0.228
+      },
+      "2026-05-05": {
+        "date": "2026-05-05",
+        "fix": "flat_only",
+        "unlocked": 48,
+        "unlocked_wins": 3,
+        "wr": 0.062
+      },
+      "2026-05-06": {
+        "date": "2026-05-06",
+        "fix": "flat_only",
+        "unlocked": 2,
+        "unlocked_wins": 0,
+        "wr": 0.0
+      },
+      "2026-05-07": {
+        "date": "2026-05-07",
+        "fix": "flat_only",
+        "unlocked": 2,
+        "unlocked_wins": 0,
+        "wr": 0.0
+      },
+      "2026-05-19": {
+        "date": "2026-05-19",
+        "fix": "flat_only",
+        "unlocked": 76,
+        "unlocked_wins": 34,
+        "wr": 0.447
+      },
+      "_aggregate": {
+        "total_unlocked": 13432,
+        "total_wins": 4813,
+        "wr": 0.358,
+        "loser_day_total": 52,
+        "winner_day_total": 124,
+        "loser_guard_intact": false
+      }
+    },
+    "flat_or_noise25": {
+      "2026-04-29": {
+        "date": "2026-04-29",
+        "fix": "flat_or_noise25",
+        "unlocked": 69,
+        "unlocked_wins": 20,
+        "wr": 0.29
+      },
+      "2026-05-01": {
+        "date": "2026-05-01",
+        "fix": "flat_or_noise25",
+        "unlocked": 0,
+        "unlocked_wins": 0,
+        "wr": null
+      },
+      "2026-05-04": {
+        "date": "2026-05-04",
+        "fix": "flat_or_noise25",
+        "unlocked": 65,
+        "unlocked_wins": 16,
+        "wr": 0.246
+      },
+      "2026-05-05": {
+        "date": "2026-05-05",
+        "fix": "flat_or_noise25",
+        "unlocked": 48,
+        "unlocked_wins": 3,
+        "wr": 0.062
+      },
+      "2026-05-06": {
+        "date": "2026-05-06",
+        "fix": "flat_or_noise25",
+        "unlocked": 2,
+        "unlocked_wins": 0,
+        "wr": 0.0
+      },
+      "2026-05-07": {
+        "date": "2026-05-07",
+        "fix": "flat_or_noise25",
+        "unlocked": 3,
+        "unlocked_wins": 1,
+        "wr": 0.333
+      },
+      "2026-05-19": {
+        "date": "2026-05-19",
+        "fix": "flat_or_noise25",
+        "unlocked": 76,
+        "unlocked_wins": 34,
+        "wr": 0.447
+      },
+      "_aggregate": {
+        "total_unlocked": 13644,
+        "total_wins": 4872,
+        "wr": 0.357,
+        "loser_day_total": 53,
+        "winner_day_total": 134,
+        "loser_guard_intact": false
+      }
+    }
+  }
+}

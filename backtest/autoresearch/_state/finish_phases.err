@@ -1,0 +1,66 @@
+2026-05-09 13:29:30,310 [INFO] PHASE 3 (sub-window) starting -- seeds=[6, 231, 55, 23, 210, 239, 226, 15] workers=4
+2026-05-09 13:29:31,573 [INFO] [seed=6] evaluating 5 sub-windows
+2026-05-09 13:29:31,591 [INFO] [seed=231] evaluating 5 sub-windows
+2026-05-09 13:29:31,596 [INFO] [seed=55] evaluating 5 sub-windows
+2026-05-09 13:29:31,624 [INFO] [seed=23] evaluating 5 sub-windows
+2026-05-09 13:29:48,995 [INFO]   [seed=6] 2025-Q1: pnl=$+1471 wr=9% sh=+2.49 n=65
+2026-05-09 13:29:49,643 [INFO]   [seed=55] 2025-Q1: pnl=$+1323 wr=38% sh=+3.36 n=26
+2026-05-09 13:29:49,948 [INFO]   [seed=231] 2025-Q1: pnl=$+2451 wr=32% sh=+5.12 n=22
+2026-05-09 13:29:50,111 [INFO]   [seed=23] 2025-Q1: pnl=$-381 wr=10% sh=-9.97 n=10
+2026-05-09 13:30:21,882 [INFO]   [seed=6] 2025-Q2: pnl=$+697 wr=9% sh=+2.19 n=34
+2026-05-09 13:30:23,051 [INFO]   [seed=55] 2025-Q2: pnl=$+2381 wr=28% sh=+4.49 n=18
+2026-05-09 13:30:23,505 [INFO]   [seed=231] 2025-Q2: pnl=$-750 wr=21% sh=-6.16 n=29
+2026-05-09 13:30:24,053 [INFO]   [seed=23] 2025-Q2: pnl=$+782 wr=25% sh=+3.77 n=8
+2026-05-09 13:31:04,670 [INFO]   [seed=6] 2025-Q3: pnl=$+1154 wr=9% sh=+2.64 n=86
+2026-05-09 13:31:04,921 [INFO]   [seed=231] 2025-Q3: pnl=$+1950 wr=29% sh=+3.33 n=75
+2026-05-09 13:31:06,089 [INFO]   [seed=55] 2025-Q3: pnl=$+1000 wr=30% sh=+3.21 n=27
+2026-05-09 13:31:10,680 [INFO]   [seed=23] 2025-Q3: pnl=$+0 wr=0% sh=+0.00 n=0
+2026-05-09 13:31:58,904 [INFO]   [seed=6] 2025-Q4: pnl=$-561 wr=5% sh=-1.48 n=92
+2026-05-09 13:32:00,195 [INFO]   [seed=231] 2025-Q4: pnl=$-884 wr=20% sh=-2.38 n=65
+2026-05-09 13:32:00,650 [INFO]   [seed=55] 2025-Q4: pnl=$-577 wr=18% sh=-1.58 n=33
+2026-05-09 13:32:08,152 [INFO]   [seed=23] 2025-Q4: pnl=$-44 wr=9% sh=-0.33 n=11
+2026-05-09 13:33:02,336 [INFO]   [seed=6] 2026-VAL: pnl=$+2295 wr=11% sh=+2.55 n=99
+2026-05-09 13:33:02,337 [INFO] [seed=210] evaluating 5 sub-windows
+2026-05-09 13:33:02,338 [INFO] seed=6 verdict=? pos_pnl=0/5 pos_sh=0/5
+2026-05-09 13:33:05,646 [INFO]   [seed=55] 2026-VAL: pnl=$+1931 wr=38% sh=+3.89 n=42
+2026-05-09 13:33:05,647 [INFO] [seed=239] evaluating 5 sub-windows
+2026-05-09 13:33:05,647 [INFO] seed=55 verdict=? pos_pnl=0/5 pos_sh=0/5
+2026-05-09 13:33:07,428 [INFO]   [seed=231] 2026-VAL: pnl=$+2213 wr=44% sh=+3.33 n=36
+2026-05-09 13:33:07,428 [INFO] [seed=226] evaluating 5 sub-windows
+2026-05-09 13:33:07,428 [INFO] seed=231 verdict=? pos_pnl=0/5 pos_sh=0/5
+2026-05-09 13:33:16,479 [INFO]   [seed=23] 2026-VAL: pnl=$+1513 wr=21% sh=+3.64 n=39
+2026-05-09 13:33:16,480 [INFO] [seed=15] evaluating 5 sub-windows
+2026-05-09 13:33:16,480 [INFO] seed=23 verdict=? pos_pnl=0/5 pos_sh=0/5
+2026-05-09 13:33:19,602 [INFO]   [seed=210] 2025-Q1: pnl=$+544 wr=11% sh=+1.83 n=74
+2026-05-09 13:33:22,929 [INFO]   [seed=239] 2025-Q1: pnl=$+1205 wr=7% sh=+3.08 n=72
+2026-05-09 13:33:23,986 [INFO]   [seed=226] 2025-Q1: pnl=$+2808 wr=30% sh=+4.58 n=47
+2026-05-09 13:33:34,383 [INFO]   [seed=15] 2025-Q1: pnl=$-111 wr=16% sh=-0.70 n=31
+2026-05-09 13:33:51,968 [INFO]   [seed=210] 2025-Q2: pnl=$-437 wr=3% sh=-6.04 n=34
+2026-05-09 13:33:54,504 [INFO]   [seed=226] 2025-Q2: pnl=$-76 wr=22% sh=-0.35 n=23
+2026-05-09 13:33:54,982 [INFO]   [seed=239] 2025-Q2: pnl=$+203 wr=9% sh=+1.81 n=34
+2026-05-09 13:34:07,483 [INFO]   [seed=15] 2025-Q2: pnl=$+631 wr=18% sh=+2.40 n=33
+2026-05-09 13:34:29,461 [INFO]   [seed=226] 2025-Q3: pnl=$+2995 wr=28% sh=+3.57 n=60
+2026-05-09 13:34:35,005 [INFO]   [seed=210] 2025-Q3: pnl=$+336 wr=9% sh=+1.43 n=58
+2026-05-09 13:34:38,261 [INFO]   [seed=239] 2025-Q3: pnl=$-117 wr=4% sh=-0.39 n=112
+2026-05-09 13:34:51,351 [INFO]   [seed=15] 2025-Q3: pnl=$+767 wr=15% sh=+2.56 n=54
+2026-05-09 13:35:14,367 [INFO]   [seed=226] 2025-Q4: pnl=$-1308 wr=17% sh=-2.28 n=76
+2026-05-09 13:35:27,878 [INFO]   [seed=210] 2025-Q4: pnl=$-251 wr=8% sh=-0.85 n=78
+2026-05-09 13:35:31,530 [INFO]   [seed=239] 2025-Q4: pnl=$-233 wr=4% sh=-0.65 n=114
+2026-05-09 13:35:43,736 [INFO]   [seed=15] 2025-Q4: pnl=$-920 wr=12% sh=-4.07 n=65
+2026-05-09 13:36:10,763 [INFO]   [seed=226] 2026-VAL: pnl=$+760 wr=23% sh=+1.42 n=47
+2026-05-09 13:36:10,764 [INFO] seed=226 verdict=? pos_pnl=0/5 pos_sh=0/5
+2026-05-09 13:36:25,749 [INFO]   [seed=210] 2026-VAL: pnl=$+1366 wr=6% sh=+2.22 n=80
+2026-05-09 13:36:25,750 [INFO] seed=210 verdict=? pos_pnl=0/5 pos_sh=0/5
+2026-05-09 13:36:31,381 [INFO]   [seed=239] 2026-VAL: pnl=$+782 wr=13% sh=+2.44 n=45
+2026-05-09 13:36:31,382 [INFO] seed=239 verdict=? pos_pnl=0/5 pos_sh=0/5
+2026-05-09 13:36:39,357 [INFO]   [seed=15] 2026-VAL: pnl=$+740 wr=26% sh=+1.79 n=81
+2026-05-09 13:36:39,358 [INFO] seed=15 verdict=? pos_pnl=0/5 pos_sh=0/5
+2026-05-09 13:36:39,371 [INFO] PHASE 3 done
+2026-05-09 13:36:39,371 [INFO] PHASE 4 (synthesize v15) starting
+2026-05-09 13:36:39,373 [INFO] loading random_eval results...
+2026-05-09 13:36:39,376 [INFO] loaded 124 random_eval records
+2026-05-09 13:36:39,376 [INFO] loading sub_window stability results...
+2026-05-09 13:36:39,377 [INFO] loaded sub_window for seeds: [6, 9, 23, 55, 210, 222, 231, 239, 240]
+2026-05-09 13:36:39,377 [INFO] loading hill-climb states...
+2026-05-09 13:36:39,379 [INFO] loaded climb states for seeds: [6, 9, 23, 55, 231]
+2026-05-09 13:36:39,379 [INFO] candidate pool size: 124

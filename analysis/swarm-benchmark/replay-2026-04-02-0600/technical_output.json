@@ -1,0 +1,18 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-04-02T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.78,
+  "reasoning": "CLEAN_BEAR ribbon with 284c spread; price 74c below 648.56 pivot; overnight gap down 7.36 points; VIX rising to 26.14 (+6.22%). Last 3 closed bars mixed (doji, green, red) show no strong trend confirmation, but the ribbon structure, price-to-pivot alignment, and bearish overnight sentiment create a high-conviction bearish bias for the open.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 284,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "CLEAN_BEAR ribbon 284c spread (slow 650.85 > pivot 648.56 > fast 648.02), well above clean threshold",
+    "Price 647.82 is 74c below pivot 648.56, strong bearish alignment",
+    "Overnight gap down 7.36 points from 655.18 to 647.82; VIX rising +6.22% to 26.14 (HIGH regime)"
+  ],
+  "data_quality": "full"
+}

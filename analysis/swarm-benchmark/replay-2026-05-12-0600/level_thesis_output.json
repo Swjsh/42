@@ -1,0 +1,105 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-05-12T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.72,
+  "reasoning": "SPY at 738.29, positioned below the bearish ribbon stack (fast 738.8 < pivot 738.95 < slow 739.21). The overnight -0.91 gap down confirms weakness. The battle level is 740.73 (5-day Carry resistance, 2★) — 2.44 above current price. If this holds on first test, bears maintain ribbon control and 736.52 Active support becomes the downside target. If 740.73 breaks decisively, bulls reclaim the ribbon and could extend toward 743.0. Immediate resistance at 739.0 (0.71 away) is soft and likely to be tested first.",
+  "battle_level": {
+    "price": 740.73,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 740.73,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 2.44
+    },
+    {
+      "price": 740.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 1.71
+    },
+    {
+      "price": 739.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 0.71
+    },
+    {
+      "price": 736.52,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 1.77
+    },
+    {
+      "price": 736.9,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": 1.39
+    },
+    {
+      "price": 736.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 6,
+      "distance_from_price": 2.29
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 740.73 on first test",
+      "bias": "bearish",
+      "target": 736.52,
+      "entry_trigger": "ribbon_bear_confirm + level_hold"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 740.73 decisively",
+      "bias": "bullish",
+      "target": 743.0,
+      "entry_trigger": "ribbon_reclaim + carry_break"
+    },
+    "tertiary": {
+      "condition": "if SPY reverses at 739.0 round number",
+      "bias": "bearish",
+      "target": 736.52,
+      "entry_trigger": "reference_hold + pullback"
+    }
+  },
+  "levels_in_play_count": 6,
+  "key_observations": [
+    "Bearish ribbon stack (fast < pivot < slow) with price below fast EMA — structural bearish setup",
+    "Carry resistance at 740.73 is the gatekeeper: holds = bears win, breaks = bulls reclaim ribbon",
+    "Overnight -0.91 gap down into minor support shelf at 736.52 (1.77 below) — defines max pain zone if bears gain momentum",
+    "Multiple Reference round-number supports (739, 740, 741, 742, 743 above; 736, 735, 734, 733 below) add absorption but Carry levels trump awareness-only tiers",
+    "VIX rising (+2.56%) into open supports volatility expansion, bias toward directional move once 740.73 tested"
+  ],
+  "data_quality": "full"
+}

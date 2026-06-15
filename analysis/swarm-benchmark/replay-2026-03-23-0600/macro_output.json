@@ -1,0 +1,24 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-23T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "VIX at 24.26 (HIGH regime) but falling -11.65% overnight signals fear receding yet still elevated. Significant overnight gap down $5.23 (-0.81%) reflects bearish sentiment that priced overnight. BEAR ribbon stack (fast 643.57 < pivot 644.0 < slow 645.91, spread 234c) reinforces bearish structure. Tech sector weakness (XLK -1.95%) adds pressure. Zero high-impact events today opens full trading window. VIX falling provides some compression tailwind for calls, tempering pure bearish conviction. Net: structural bias is bearish (gap down, ribbon, sector weakness) but VIX decompression creates opportunity for both directions. Bias leans bearish as primary directional signal.",
+  "vix_regime": "HIGH",
+  "vix_direction": "falling",
+  "vix_current": 24.26,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -5.23,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX 24.26 is elevated (HIGH regime > 22) but direction is FALLING (-11.65% overnight) — fear receding but still present, not extreme",
+    "Overnight gap down $5.23 (-0.81%) is significant bearish overnight sentiment; already priced into 06:00 current price 643.28",
+    "BEAR ribbon confirmed: 13-EMA 643.57 < 20-EMA 644.0 < 48-EMA 645.91, stack spread 234 cents (clear bearish structure)",
+    "Tech sector weakness (XLK -0.42% down, XLE -0.42% down) with SPY -1.21% day-over-day from Friday close adds directional pressure",
+    "Zero macro events scheduled today; no FOMC, CPI, NFP, or earnings announcements — full trading window available 09:30-15:55 ET",
+    "Premarket range 642.25-645.20 (442c spread) suggests volatility and indecision in overnight session"
+  ],
+  "data_quality": "full"
+}

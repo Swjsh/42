@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-04-08T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.78,
+  "reasoning": "SPY at 676.60, approaching premarket high (PMH) 677.45 from below. Overnight gap +17.34 (up) established risk-on tone. Ribbon stack BULL with 7.24 spread (fast 676.23, pivot 674.84, slow 668.99) provides structural support. The battle level is 677.45 PMH (Active, 2★) — a tested intraday ceiling. If held, price remains sandwiched between the PMH resistance above (+0.85) and psych 676.00 support below (-0.60), favoring bulls to test 678+. VIX falling -19.95% reinforces bullish bias. Primary scenario: SPY holds 677.45 on first test, targets 680 psychological round. Secondary: breaks through PMH toward 679-680. Risk: rejection below 676.0 opens retest to 659.6 PRTH or lower.",
+  "battle_level": {
+    "price": 677.45,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 677.45,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.85
+    },
+    {
+      "price": 676.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": -0.60
+    },
+    {
+      "price": 679.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 2.40
+    },
+    {
+      "price": 678.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 4,
+      "distance_from_price": 1.40
+    },
+    {
+      "price": 675.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": -1.60
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 677.45 PMH on first test",
+      "bias": "bullish",
+      "target": 680.0,
+      "entry_trigger": "level_reclaim + ribbon_support"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 677.45 toward 679-681",
+      "bias": "bullish",
+      "target": 681.0,
+      "entry_trigger": "breakout_momentum + multi_level_flush"
+    },
+    "tertiary": {
+      "condition": "if SPY rejects below 676.0 and closes below 675.0",
+      "bias": "bearish",
+      "target": 659.60,
+      "entry_trigger": "support_failure + downside_flush"
+    }
+  },
+  "levels_in_play_count": 5,
+  "key_observations": [
+    "PMH 677.45 is the single strongest in-play level; acts as first intraday resistance ceiling.",
+    "Ribbon BULL stack with 7.24 spread provides solid structural support; fast EMA (676.23) is just below current price, offering micro-support.",
+    "Overnight gap +17.34 established bullish momentum; no gap-fill targets visible (closest support is 659.6, -17 away).",
+    "Psych level 676.0 is 60 cents below current price; if touched intraday, likely to hold as bounce point.",
+    "Multiple 1★ reference levels (678, 679, 680, 681 psychos) reduce clarity for target selection but confirm upside trajectory."
+  ],
+  "data_quality": "full"
+}

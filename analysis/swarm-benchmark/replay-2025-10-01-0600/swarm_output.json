@@ -1,0 +1,178 @@
+{
+  "generated_at": "2025-10-01T10:00:00Z",
+  "swarm_version": "v5",
+  "status": "ok",
+  "vote_map": {
+    "bullish": [],
+    "bearish": ["macro", "level_thesis"],
+    "no_trade": ["technical", "internals"]
+  },
+  "vote_counts": {
+    "bullish": 0,
+    "bearish": 2,
+    "no_trade": 2
+  },
+  "weighted_scores": {
+    "bullish": 0.0,
+    "bearish": 0.55
+  },
+  "consensus_bias": "no_trade",
+  "consensus_strength": "moderate",
+  "swarm_confidence": 0,
+  "no_trade_reason": "low_post_adjustment_confidence",
+  "confidence_trace": {
+    "base": 33.0,
+    "adj_specialist_agreement_2of4": -10,
+    "adj_validator_robustness_moderate": 0,
+    "adj_event_risk_none": 5,
+    "adj_battle_grade_untested": -25,
+    "raw_pre_gate": 3.0,
+    "gate_fired": "NO_TRADE_GATE (raw < 40)"
+  },
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["technical", "internals"],
+    "dissent_reason": "Technical flagged a CHOP MIXED ribbon (39¢ spread, alternating bars with no directional momentum) disqualifying any directional bias; internals identified narrow breadth — only XLK leading (+0.55%) while XLF (−0.35%) and XLE (−0.19%) are weak, confirming mixed rather than clean risk-on rotation."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Treating an overnight gap-down (−$2.34, already 50% retraced in premarket) as a persistent bearish signal when overnight gaps are typically 80% mean-reverted by 09:35 ET — the consensus bets on a 50/50 coin flip at 665.38 resistance without technical conviction.",
+    "top_invalidation_scenario": "XLK sustains +0.55% through RTH open and SPY breaks 665.38 on first 5-min bar with volume ≥5M and bullish close — would prove 665.38 resistance is not hard and flip consensus to secondary bullish scenario targeting 666.65."
+  },
+  "battle_level": {
+    "price": 665.38,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "battle_grade": "UNTESTED",
+    "battle_grade_note": "Premarket high tested in PM session only; RTH battle outcome unknown — abstain applies per v5 UNTESTED penalty"
+  },
+  "level_priority": [
+    {
+      "price": 665.38,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to",
+      "source": "Today 2025-10-01 premarket high (PMH)",
+      "distance_from_price": 1.66,
+      "note": "Battle level — gap-up ceiling / first RTH overhead. Rejection here = bearish primary; break above = bullish secondary."
+    },
+    {
+      "price": 663.09,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from",
+      "source": "Today 2025-10-01 premarket low (PML)",
+      "distance_from_price": -0.63,
+      "note": "Very fresh (15-min-old) gap-down floor. 63¢ below current price — first intraday support if RTH opens weak."
+    },
+    {
+      "price": 666.65,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "flush_to",
+      "source": "5-day RTH high (rolling)",
+      "distance_from_price": 2.93,
+      "note": "Multi-session Carry resistance — target only if 665.38 breaks bullishly."
+    },
+    {
+      "price": 661.82,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "flush_to",
+      "source": "Prior session (2025-09-30) RTH low",
+      "distance_from_price": -1.90,
+      "note": "Gap-fill support shelf — activated only if 663.09 breaks and bears extend."
+    },
+    {
+      "price": 654.42,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to",
+      "source": "5-day RTH low (rolling)",
+      "distance_from_price": -9.30,
+      "note": "Deep Carry floor — awareness only unless a trending bear day develops. Not an intraday trigger candidate."
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY fails at 665.38 and holds 663.09 support on early RTH test",
+      "bias": "bearish",
+      "target": 661.82,
+      "entry_trigger": "level_rejection at 665.38 + reclaim_attempt at 663.09 — wait for confirmed rejection bar on RTH 5m with close below 665.00"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 665.38 on RTH open with bullish 5m bar close and volume ≥5M",
+      "bias": "bullish",
+      "target": 666.65,
+      "entry_trigger": "level_reclaim at 665.38 + momentum continuation — confirmation requires close above 665.50 to avoid false break"
+    },
+    "invalidation": {
+      "condition": "VIX falls to 16.20 or below by 10:00 ET AND RTH open breadth expands to 3+ sectors green",
+      "effect": "Eliminates both pillars of the bearish thesis (gap sentiment + elevated uncertainty); the overnight gap reverts as expected, internals shift to risk-on, and the bearish consensus loses all structural support. Bullish secondary becomes primary."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests the 665.38 PMH battle level (within 10¢) at some point during the first 90 minutes of RTH (by 11:00 ET)",
+      "invalidation": "SPY does not reach 665.00 before 11:00 ET — gap-down sentiment dominates and price stays below the PM range high",
+      "confidence": 0.62,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX falls to 16.20 or below by 10:00 ET as the overnight gap-down fear normalizes and buyers step in at 663.09 premarket low",
+      "invalidation": "VIX holds above 16.50 at 10:00 ET, confirming sustained elevated risk sentiment rather than normal gap mean-reversion",
+      "confidence": 0.58,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "The MIXED ribbon resolves to a clean directional stack (spread ≥ 30¢, fast clearly above or below slow) within the first two RTH 5-min bars (by 09:40 ET)",
+      "invalidation": "Ribbon spread remains under 20¢ at 09:40 ET, confirming persistent chop and no directional trade available for the first hour",
+      "confidence": 0.52,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The key tension on 2025-10-01 is a 2-vs-2 specialist split: macro and level_thesis see a bearish setup (overnight gap-down, stacked resistances at 665.38→666.65→667.87) but technical reads pure chop (MIXED ribbon, alternating premarket bars) and internals shows only narrow tech leadership without broad confirmation. The weighted bearish score of 0.55 would produce a moderate bearish signal in a typical session, but with only 2 of 4 specialists aligned AND the battle level at 665.38 untested in RTH, the v5 confidence formula produces a raw score of 3 (well below the 40-point NO_TRADE threshold) — the swarm correctly abstains. The single most important thing to watch at market open is the first 5-min bar's relationship to 665.38: a bullish break with volume ≥5M flips the entire setup to the secondary bullish scenario; a rejection with a red close activates the primary bearish path toward 661.82.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "no_trade",
+      "confidence": 0.30,
+      "one_line": "CHOP ribbon (MIXED, 39¢ spread, fast≈pivot) with alternating PM bars — no directional conviction, disqualified from providing directional signal"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.55,
+      "one_line": "Gap-down −$2.34 overnight + VIX rising to 16.78 MID regime with zero macro events today — slightly bearish backdrop offset by risk-on sector rotation signal"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.58,
+      "one_line": "Battle level 665.38 (PMH) as RTH-untested resistance with stacked supply above; asymmetric downside if 665.38 holds — primary target 661.82 via 663.09"
+    },
+    "internals": {
+      "bias": "no_trade",
+      "confidence": 0.40,
+      "one_line": "Divergent rotation: XLK +0.55% (narrow tech leadership) vs XLF −0.35% / XLE −0.19% (finance/energy weak) — NOT risk-on, insufficient breadth for directional confirmation"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "XLK sustaining +0.55%+ forces SPY above 665.38 at RTH open, triggering the secondary bullish scenario the bearish consensus defined but underweighted"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-05-04T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.66,
+  "reasoning": "VIX at 17.43 rising +2.53% (fear building) is the dominant bearish signal. Overnight gap of +$0.74 is modest and doesn't override the directional VIX move. Sector rotation is risk-off: XLK +0.92% but XLF -0.92% and XLE -0.36% both weak. No major macro events today; FOMC decision is 2026-05-07 (3 days away) so no immediate event risk or no-trade windows. Ribbon MIXED provides no directional bias. Overall macro backdrop favors bearish setups with caution on position sizing.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 17.43,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 0.74,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX rising +2.53% from prior close; directional but not extreme (MID regime at 17.43 not HIGH)",
+    "Overnight gap +$0.74 is modest (~0.10% of SPY 721.41); insufficient to override rising VIX bearish signal",
+    "Sector rotation weak: Financials XLF -0.92%, Energy XLE -0.36%, Tech XLK +0.92%; net risk-off",
+    "Zero macro events scheduled for 2026-05-04; FOMC decision 3 days out on 2026-05-07 14:00 ET (no blocks today)",
+    "Ribbon MIXED (fast 721.54, pivot 721.52, slow 721.65, spread 13¢) provides no strong directional anchor"
+  ],
+  "data_quality": "full"
+}

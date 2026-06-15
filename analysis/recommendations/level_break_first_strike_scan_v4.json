@@ -1,0 +1,121 @@
+{
+  "parameters": {
+    "break_cents": 20,
+    "vol_mult": 1.5,
+    "min_spread_mixed_cents": 12,
+    "max_spread_mixed_cents": 30,
+    "entry_gate_et": "09:45:00",
+    "win_drop_cents": 50,
+    "vix_falling_deadband": 0.1,
+    "vix_lookback_bars": 3
+  },
+  "aggregate": {
+    "n_total_signals": 4,
+    "n_wins": 4,
+    "win_rate": 1.0,
+    "n_trading_days": 334,
+    "n_days_with_signal": 3,
+    "avg_signals_per_signal_day": 1.33,
+    "avg_signals_per_month": 2.0,
+    "loser_day_guard_pass": true,
+    "months_with_signal": 2,
+    "months_coverage_pct": 11.8,
+    "top_quarter": "2026-Q1",
+    "top_quarter_signal_pct": 75.0,
+    "regime_concentrated_flag": true,
+    "spread_tier_win_rates": {
+      "lt12": null,
+      "12_to_20": 1.0,
+      "gt20": 1.0
+    },
+    "spread_tier_counts": {
+      "lt12": 0,
+      "12_to_20": 2,
+      "gt20": 2
+    }
+  },
+  "j_source_of_truth": {
+    "loser_day_fires": [],
+    "winner_day_fires": [],
+    "guard_pass": true
+  },
+  "monthly_signal_counts": {
+    "2025-10": 1,
+    "2026-03": 3
+  },
+  "signals": [
+    {
+      "date": "2025-10-10",
+      "time": "11:00",
+      "bar_close": 666.14,
+      "level": 667.7,
+      "break_below": 1.56,
+      "ribbon_stack": "MIXED",
+      "ribbon_spread_cents": 26.5,
+      "volume": 123284,
+      "vol_mult": 9.03,
+      "vix_now": 22.05,
+      "vix_diff": 0.0,
+      "win": true,
+      "min_favorable_cents": 145.0,
+      "max_adverse_cents": 207.0,
+      "is_j_loser_day": false,
+      "is_j_winner_day": false
+    },
+    {
+      "date": "2026-03-25",
+      "time": "09:50",
+      "bar_close": 656.76,
+      "level": 657.03,
+      "break_below": 0.27,
+      "ribbon_stack": "MIXED",
+      "ribbon_spread_cents": 12.9,
+      "volume": 1829877,
+      "vol_mult": 3.41,
+      "vix_now": 25.31,
+      "vix_diff": 0.0,
+      "win": true,
+      "min_favorable_cents": 109.0,
+      "max_adverse_cents": 83.0,
+      "is_j_loser_day": false,
+      "is_j_winner_day": false
+    },
+    {
+      "date": "2026-03-25",
+      "time": "09:55",
+      "bar_close": 656.49,
+      "level": 657.03,
+      "break_below": 0.54,
+      "ribbon_stack": "MIXED",
+      "ribbon_spread_cents": 17.9,
+      "volume": 1608121,
+      "vol_mult": 2.56,
+      "vix_now": 25.31,
+      "vix_diff": 0.19,
+      "win": true,
+      "min_favorable_cents": 82.0,
+      "max_adverse_cents": 163.0,
+      "is_j_loser_day": false,
+      "is_j_winner_day": false
+    },
+    {
+      "date": "2026-03-30",
+      "time": "09:50",
+      "bar_close": 635.77,
+      "level": 636.0,
+      "break_below": 0.23,
+      "ribbon_stack": "MIXED",
+      "ribbon_spread_cents": 23.5,
+      "volume": 1273512,
+      "vol_mult": 2.76,
+      "vix_now": 30.69,
+      "vix_diff": -0.02,
+      "win": true,
+      "min_favorable_cents": 108.5,
+      "max_adverse_cents": 50.5,
+      "is_j_loser_day": false,
+      "is_j_winner_day": false
+    }
+  ],
+  "total_signals_before_cap": 4
+}

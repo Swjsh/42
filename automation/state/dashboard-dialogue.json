@@ -1,0 +1,38 @@
+{
+  "updated_at": "2026-06-14T18:00:00-04:00",
+  "claude_status": "FLAT",
+  "claude_reasoning": "Weekly review 2026-W24 complete. CRITICAL: heartbeat dark since June 2. R-0011 must be diagnosed before Monday open. FOMC June 17. Safe $714 (-28.6% DD near compliance breach).",
+  "agents": {
+    "premarket": {
+      "active": true,
+      "speech": "LATE RUN 15:21ET | BEARISH | VIX 19.16 MID | Key: 740.80 watch / 738.91 session low | Safe $714 (3 PDT) / Bold $1122 (3 PDT) | CPI Wed",
+      "last_active_at": "2026-06-08T15:21:40-04:00"
+    },
+    "heartbeat": {
+      "active": false,
+      "speech": "DARK SINCE 2026-06-02 — R-0011 CRITICAL: diagnose Gamma_Heartbeat scheduler before Monday open",
+      "last_active_at": "2026-06-02T15:48:01-04:00"
+    },
+    "day_trader": {
+      "active": false,
+      "speech": null,
+      "last_active_at": "2026-05-07T10:51:02-04:00"
+    },
+    "eod": {
+      "active": true,
+      "speech": "EOD NOOP - already flat into close",
+      "last_active_at": "2026-06-08T15:55:02-04:00"
+    },
+    "eod_aggressive": {
+      "active": true,
+      "speech": "AGG EOD: NOOP - aggressive account flat at 15:55 ET",
+      "last_active_at": "2026-06-08T15:55:02-04:00"
+    },
+    "review": {
+      "active": true,
+      "speech": "Weekly review 2026-W24: HEARTBEAT DARK 12 DAYS (R-0011 CRITICAL). FOMC Wed 6/17. Safe $714 (-28.6% DD). Bear bias 738.91-740.80. 0 trades W24.",
+      "last_active_at": "2026-06-14T18:00:00-04:00"
+    }
+  },
+  "ticker_speech": "HEARTBEAT DARK 12D - fix R-0011 first. FOMC Wed 6/17 block 13:30-15:00. Safe $714 (-28.6% DD). Bear bias 740.80. 0 trades W24."
+}

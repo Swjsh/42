@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-04-30T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis"],
+    "bearish": ["internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 3,
+    "bearish": 1,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.90,
+    "bearish": 0.10
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 76,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["internals"],
+    "dissent_reason": "Internals signals risk-off rotation — XLE +1.29% (energy/inflation-hedge leadership), XLF -0.40% (financial weakness), XLK +0.18% (tech flat) — indicating narrow breadth without broad institutional participation to support SPY upside past resistance."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Bullish agents weighted ribbon structure and falling VIX as dominant signals and underweighted sector breadth divergence — momentum without tech/financial participation typically fails at resistance.",
+    "top_invalidation_scenario": "SPY breaks 713.14 and rallies toward 715.63 but XLF remains below -0.40% and XLK fails to exceed +1.0% through RTH — upside extension stalls on narrow breadth, making the bullish move fragile and unsustainable."
+  },
+  "battle_level": {
+    "price": 713.14,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 713.14,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 715.63,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 712.11,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 708.20,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 702.28,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds and reclaims above 713.14 on first RTH test with XLK/XLF turning positive",
+      "bias": "bullish",
+      "target": 715.63,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if SPY fails at 713.14 and pulls back below 712.11 support",
+      "bias": "bearish",
+      "target": 708.20,
+      "entry_trigger": "level_rejection"
+    },
+    "invalidation": {
+      "condition": "SPY breaks 713.14 but XLF stays below -0.40% and XLK fails to exceed +1.0% through RTH session",
+      "effect": "Bullish move proves fragile — ribbon + VIX momentum without institutional sector participation causes upside to stall before 715.63 Carry; fade the breakout rather than adding."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests 713.14 (PMH battle level) within first 60 minutes of RTH (by 10:30 ET on 2026-04-30)",
+      "invalidation": "SPY fails to reach 712.80 before 10:30 ET, showing no upside follow-through from the premarket BULL ribbon structure",
+      "confidence": 0.70,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 19.00 throughout the RTH session (2026-04-30 09:30-15:55 ET), confirming falling fear as a bullish premium tailwind",
+      "invalidation": "VIX crosses above 19.00 intraday from the 18.08 premarket reading, signaling fear returning and evaporating the macro bullish pillar",
+      "confidence": 0.72,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "BULL ribbon stack (fast 711.79 > pivot 711.62 > slow 711.16, 63-cent spread) remains intact through the first 60 minutes of RTH with fast EMA staying above pivot",
+      "invalidation": "Fast EMA crosses below pivot EMA before 10:30 ET, converting CLEAN_BULL to CHOP or BEAR stack — structural momentum failure",
+      "confidence": 0.65,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "SPY enters April 30 with a solid short-term bull case: CLEAN_BULL ribbon (63-cent spread), falling VIX (18.08, -1.53%), zero macro events, and price trading 22 cents above the pivot at 711.84. The core tension is the Internals agent's dissent — risk-off sector rotation (XLE alone outperforming while financials and tech stall) raises legitimate doubt whether institutional participation will show up at the 713.14 PMH ceiling to push through. Watch the first RTH test of 713.14: a clean reclaim with XLK and XLF turning positive confirms broad participation and targets 715.63 Carry; rejection with persistent defensive rotation triggers the secondary bearish scenario toward 708.20.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "CLEAN_BULL ribbon (63-cent spread, price 22c above pivot) with mixed recent bars (doji consolidation) — momentum intact, no breakdown signal"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.75,
+      "one_line": "VIX 18.08 falling -1.53% (MID regime, fear receding), zero macro events today, flat overnight gap — clean RTH window with risk-on backdrop"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "Battle level 713.14 (PMH, Active 2★) — break opens 715.63 Carry; rejection targets 712.11 then 708.20 floor"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.65,
+      "one_line": "Risk-off rotation: XLE +1.29% inflation-hedge leadership, XLF -0.40% financial weakness, XLK +0.18% tech flat — narrow breadth without institutional support"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "SPY rallies past 713.14 on ribbon+VIX momentum alone while XLF stays negative — breadth failure makes the move fragile and unsustainable into Carry resistance"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

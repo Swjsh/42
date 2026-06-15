@@ -1,0 +1,22 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-05-13T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.48,
+  "reasoning": "XLK (tech, largest SPY weighting) is down -0.54% while XLF (financials) rallies +0.78%. SPY's +0.18% gain is narrow and financial-led, not broad. Tech weakness is the dominant signal; XLF strength offsets some of the drag but does not confirm bullish internals. Sector divergence (tech down vs. financials up) suggests yield-curve rotation, not risk-on. Confidence is moderate due to mixed signals, but tech weakness tips the bias bearish.",
+  "rotation_signal": "mixed",
+  "sector_alignment": {
+    "xlk_change_pct": -0.54,
+    "xlf_change_pct": 0.78,
+    "xle_change_pct": -0.28,
+    "spy_change_pct": 0.18,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: -0.54% — tech selling off, largest SPY weighting under pressure",
+    "XLF: +0.78% — financials rallying, likely yield-curve driven (rates lower = banks benefit, growth pressured)",
+    "Overall rotation: Mixed sector rotation. Tech weakness is a headwind despite financial strength. SPY's +0.18% gain is narrow (financial-led), not broad-based."
+  ],
+  "data_quality": "full"
+}

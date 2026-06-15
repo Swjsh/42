@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-02-12T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.80,
+  "reasoning": "Strong risk-off rotation: XLK -1.07% and XLF -1.73% (both >0.5% down) while XLE +1.29% (defensive outperformance). The two largest SPY constituents (tech ~30%, financials ~15%) are leading lower. XLF weakness signals financial/credit stress, which argues against near-term SPY recovery. Tech underperforming SPY itself (-1.07% vs -0.64%) indicates sector-level selling pressure. Sector breadth is clear: growth/cyclicals out, defensives/commodities in. High-confidence bearish bias.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -1.07,
+    "xlf_change_pct": -1.73,
+    "xle_change_pct": 1.29,
+    "spy_change_pct": -0.64,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK -1.07%: Tech selling is a significant SPY headwind (tech is largest weighting); leadership deteriorating",
+    "XLF -1.73%: Financials in stress; largest decline among core sectors signals credit/yield concerns",
+    "XLE +1.29%: Energy outperforming while growth sectors sell = classic defensive rotation into commodity/inflation hedges",
+    "Overall rotation: Risk-off with high conviction — no bullish offset from any major sector"
+  ],
+  "data_quality": "full"
+}

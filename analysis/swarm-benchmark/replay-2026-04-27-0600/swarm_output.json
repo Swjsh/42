@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-04-27T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["level_thesis", "internals"],
+    "bearish": [],
+    "no_trade": ["technical", "macro"]
+  },
+  "vote_counts": {
+    "bullish": 2,
+    "bearish": 0,
+    "no_trade": 2
+  },
+  "weighted_scores": {
+    "bullish": 0.35,
+    "bearish": 0.0
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "weak",
+  "swarm_confidence": 16,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["technical", "macro"],
+    "dissent_reason": "Technical explicitly calls WEAK_BULL (13¢ spread < 20¢ stability threshold) with RED-GREEN-RED chop and price clinging 2¢ below pivot — no directional edge; Macro notes rising VIX (+1.34%) contradicts genuine risk-on and takes a neutral stance given mixed bullish/bearish signals."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "XLK's +1.13% outperformance is the only mechanical support for the bullish thesis — one reversal in the highest-beta sector collapses 50% of the bullish rationale instantly.",
+    "top_invalidation_scenario": "714.47 Carry resistance rejects on first RTH test (close below 714.00 same or next bar) — directly invalidates Level Thesis flush-through base case and triggers immediate test of 712.5 support."
+  },
+  "battle_level": {
+    "price": 714.47,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 714.47,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 715.06,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 712.5,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 712.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 711.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "SPY breaks and closes above 714.47 Carry resistance with conviction",
+      "bias": "bullish",
+      "target": 715.96,
+      "entry_trigger": "level_breakout"
+    },
+    "secondary": {
+      "condition": "SPY tests 714.47 and rejects (bar closes below 714.00)",
+      "bias": "bearish",
+      "target": 712.5,
+      "entry_trigger": "level_rejection_at_resistance"
+    },
+    "invalidation": {
+      "condition": "XLK reverses and closes RTH open >0.5% negative, stripping the narrow risk-on narrative",
+      "effect": "Removes the primary mechanical support for the bullish thesis; weak ribbon (13¢) has no standalone support — 714.47 test fails and 712.5 becomes the clear short target with potential flush to 709.01."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY touches 714.47 Carry resistance within the first 60 minutes of RTH (by 10:30 ET on 2026-04-27)",
+      "invalidation": "SPY fails to touch 714.00 before 11:00 ET — price stays pinned in 712.50–713.80 range",
+      "confidence": 0.52,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains in MID regime (15.0–20.0) for the entire RTH session on 2026-04-27; no spike into elevated territory",
+      "invalidation": "VIX crosses 20.0 within 30 minutes of the 09:30 ET open",
+      "confidence": 0.62,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY ribbon spread remains below 20¢ (unstable structure) for the first 90 minutes of RTH, producing a range-bound open rather than a sustained directional move",
+      "invalidation": "SPY ribbon spread exceeds 25¢ AND price holds above 714.47 before 11:00 ET, confirming a genuine BULL_STRONG stack",
+      "confidence": 0.58,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "Today's setup is a structural pinch — SPY at 713.47 sits exactly $1.00 below the 714.47 Carry resistance (the day's binary trigger) with a WEAK_BULL ribbon that falls below the 20¢ stability threshold, and two of four specialists (Technical, Macro) abstained with no_trade/neutral votes. The fragile bullish lean rests entirely on Level Thesis (flush-through to 715.96 as base case) and a narrow XLK-led risk-on signal that the Validator rates as one reversal away from collapse. The single most important thing at open: watch whether SPY closes a bar convincingly above 714.47 — that is the only confirmation that converts this low-confidence lean into a tradeable setup; absent that, 712.5 is the first live test.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "no_trade",
+      "confidence": 0.42,
+      "one_line": "WEAK_BULL ribbon (13¢ < 20¢ threshold) + RED-GREEN-RED chop + price 2¢ below pivot = no directional edge"
+    },
+    "macro": {
+      "bias": "no_trade",
+      "confidence": 0.58,
+      "one_line": "VIX MID regime rising +1.34%, zero catalysts today but FOMC in 48h — mixed signals yield neutral stance"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "Battle level 714.47 Carry in range from below; flush-through to 715.96 is base case if ribbon holds"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.60,
+      "one_line": "XLK +1.13% risk-on leadership with narrow breadth (XLF -0.31%) — fragile tech-only bull signal"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "714.47 Carry rejects on first RTH test (high probability) — one failed bar immediately invalidates the flush-through base case"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

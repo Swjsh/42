@@ -1,0 +1,303 @@
+{
+  "run_date": "2026-05-24",
+  "start": "2025-10-01",
+  "end": "2026-05-22",
+  "results": [
+    {
+      "label": "offset=0(ATM) stop=-15%",
+      "n": 277,
+      "wr": 0.4477,
+      "exp": -5.8,
+      "total_pnl": -1607.7,
+      "avg_win": 28.51,
+      "avg_loss": -33.61,
+      "passes": false,
+      "exits": {
+        "STOP": 135,
+        "CHANDELIER": 97,
+        "TIME_STOP": 33,
+        "TARGET_LEVEL": 7,
+        "EOD_FORCED": 5
+      },
+      "pct_stop": 48.7,
+      "pct_target": 2.5,
+      "strike_offset": 0,
+      "stop_premium_pct": -0.15
+    },
+    {
+      "label": "offset=0(ATM) stop=-25%",
+      "n": 270,
+      "wr": 0.5593,
+      "exp": -3.59,
+      "total_pnl": -969.45,
+      "avg_win": 29.02,
+      "avg_loss": -44.97,
+      "passes": true,
+      "exits": {
+        "TIME_STOP": 66,
+        "STOP": 74,
+        "CHANDELIER": 109,
+        "TARGET_LEVEL": 12,
+        "EOD_FORCED": 9
+      },
+      "pct_stop": 27.4,
+      "pct_target": 4.4,
+      "strike_offset": 0,
+      "stop_premium_pct": -0.25
+    },
+    {
+      "label": "offset=0(ATM) stop=-35%",
+      "n": 266,
+      "wr": 0.6165,
+      "exp": -0.55,
+      "total_pnl": -145.8,
+      "avg_win": 29.05,
+      "avg_loss": -48.14,
+      "passes": true,
+      "exits": {
+        "TIME_STOP": 87,
+        "CHANDELIER": 115,
+        "TARGET_LEVEL": 16,
+        "STOP": 38,
+        "EOD_FORCED": 10
+      },
+      "pct_stop": 14.3,
+      "pct_target": 6.0,
+      "strike_offset": 0,
+      "stop_premium_pct": -0.35
+    },
+    {
+      "label": "offset=-1(ITM-1) stop=-15%",
+      "n": 272,
+      "wr": 0.4706,
+      "exp": -2.58,
+      "total_pnl": -702.0,
+      "avg_win": 18.61,
+      "avg_loss": -21.42,
+      "passes": false,
+      "exits": {
+        "STOP": 128,
+        "CHANDELIER": 120,
+        "TIME_STOP": 16,
+        "EOD_FORCED": 2,
+        "TARGET_LEVEL": 6
+      },
+      "pct_stop": 47.1,
+      "pct_target": 2.2,
+      "strike_offset": -1,
+      "stop_premium_pct": -0.15
+    },
+    {
+      "label": "offset=-1(ITM-1) stop=-25%",
+      "n": 267,
+      "wr": 0.5581,
+      "exp": -2.49,
+      "total_pnl": -664.95,
+      "avg_win": 19.5,
+      "avg_loss": -30.26,
+      "passes": true,
+      "exits": {
+        "TIME_STOP": 35,
+        "STOP": 84,
+        "CHANDELIER": 133,
+        "TARGET_LEVEL": 9,
+        "EOD_FORCED": 6
+      },
+      "pct_stop": 31.5,
+      "pct_target": 3.4,
+      "strike_offset": -1,
+      "stop_premium_pct": -0.25
+    },
+    {
+      "label": "offset=-1(ITM-1) stop=-35%",
+      "n": 261,
+      "wr": 0.6245,
+      "exp": 0.18,
+      "total_pnl": 45.75,
+      "avg_win": 19.6,
+      "avg_loss": -32.14,
+      "passes": true,
+      "exits": {
+        "TIME_STOP": 57,
+        "CHANDELIER": 140,
+        "STOP": 42,
+        "TARGET_LEVEL": 14,
+        "EOD_FORCED": 8
+      },
+      "pct_stop": 16.1,
+      "pct_target": 5.4,
+      "strike_offset": -1,
+      "stop_premium_pct": -0.35
+    },
+    {
+      "label": "offset=-2(ITM-2) stop=-15%",
+      "n": 250,
+      "wr": 0.448,
+      "exp": 0.62,
+      "total_pnl": 156.15,
+      "avg_win": 16.64,
+      "avg_loss": -12.37,
+      "passes": false,
+      "exits": {
+        "STOP": 124,
+        "CHANDELIER": 104,
+        "TIME_STOP": 13,
+        "EOD_FORCED": 5,
+        "TARGET_LEVEL": 4
+      },
+      "pct_stop": 49.6,
+      "pct_target": 1.6,
+      "strike_offset": -2,
+      "stop_premium_pct": -0.15
+    },
+    {
+      "label": "offset=-2(ITM-2) stop=-25%",
+      "n": 244,
+      "wr": 0.5492,
+      "exp": 0.76,
+      "total_pnl": 184.8,
+      "avg_win": 15.93,
+      "avg_loss": -17.73,
+      "passes": false,
+      "exits": {
+        "STOP": 81,
+        "CHANDELIER": 118,
+        "TARGET_LEVEL": 8,
+        "TIME_STOP": 29,
+        "EOD_FORCED": 8
+      },
+      "pct_stop": 33.2,
+      "pct_target": 3.3,
+      "strike_offset": -2,
+      "stop_premium_pct": -0.25
+    },
+    {
+      "label": "offset=-2(ITM-2) stop=-35%",
+      "n": 239,
+      "wr": 0.6067,
+      "exp": 2.07,
+      "total_pnl": 495.9,
+      "avg_win": 15.64,
+      "avg_loss": -18.85,
+      "passes": true,
+      "exits": {
+        "CHANDELIER": 125,
+        "STOP": 46,
+        "TARGET_LEVEL": 11,
+        "TIME_STOP": 46,
+        "EOD_FORCED": 11
+      },
+      "pct_stop": 19.2,
+      "pct_target": 4.6,
+      "strike_offset": -2,
+      "stop_premium_pct": -0.35
+    }
+  ],
+  "passers": [
+    {
+      "label": "offset=0(ATM) stop=-25%",
+      "n": 270,
+      "wr": 0.5593,
+      "exp": -3.59,
+      "total_pnl": -969.45,
+      "avg_win": 29.02,
+      "avg_loss": -44.97,
+      "passes": true,
+      "exits": {
+        "TIME_STOP": 66,
+        "STOP": 74,
+        "CHANDELIER": 109,
+        "TARGET_LEVEL": 12,
+        "EOD_FORCED": 9
+      },
+      "pct_stop": 27.4,
+      "pct_target": 4.4,
+      "strike_offset": 0,
+      "stop_premium_pct": -0.25
+    },
+    {
+      "label": "offset=0(ATM) stop=-35%",
+      "n": 266,
+      "wr": 0.6165,
+      "exp": -0.55,
+      "total_pnl": -145.8,
+      "avg_win": 29.05,
+      "avg_loss": -48.14,
+      "passes": true,
+      "exits": {
+        "TIME_STOP": 87,
+        "CHANDELIER": 115,
+        "TARGET_LEVEL": 16,
+        "STOP": 38,
+        "EOD_FORCED": 10
+      },
+      "pct_stop": 14.3,
+      "pct_target": 6.0,
+      "strike_offset": 0,
+      "stop_premium_pct": -0.35
+    },
+    {
+      "label": "offset=-1(ITM-1) stop=-25%",
+      "n": 267,
+      "wr": 0.5581,
+      "exp": -2.49,
+      "total_pnl": -664.95,
+      "avg_win": 19.5,
+      "avg_loss": -30.26,
+      "passes": true,
+      "exits": {
+        "TIME_STOP": 35,
+        "STOP": 84,
+        "CHANDELIER": 133,
+        "TARGET_LEVEL": 9,
+        "EOD_FORCED": 6
+      },
+      "pct_stop": 31.5,
+      "pct_target": 3.4,
+      "strike_offset": -1,
+      "stop_premium_pct": -0.25
+    },
+    {
+      "label": "offset=-1(ITM-1) stop=-35%",
+      "n": 261,
+      "wr": 0.6245,
+      "exp": 0.18,
+      "total_pnl": 45.75,
+      "avg_win": 19.6,
+      "avg_loss": -32.14,
+      "passes": true,
+      "exits": {
+        "TIME_STOP": 57,
+        "CHANDELIER": 140,
+        "STOP": 42,
+        "TARGET_LEVEL": 14,
+        "EOD_FORCED": 8
+      },
+      "pct_stop": 16.1,
+      "pct_target": 5.4,
+      "strike_offset": -1,
+      "stop_premium_pct": -0.35
+    },
+    {
+      "label": "offset=-2(ITM-2) stop=-35%",
+      "n": 239,
+      "wr": 0.6067,
+      "exp": 2.07,
+      "total_pnl": 495.9,
+      "avg_win": 15.64,
+      "avg_loss": -18.85,
+      "passes": true,
+      "exits": {
+        "CHANDELIER": 125,
+        "STOP": 46,
+        "TARGET_LEVEL": 11,
+        "TIME_STOP": 46,
+        "EOD_FORCED": 11
+      },
+      "pct_stop": 19.2,
+      "pct_target": 4.6,
+      "strike_offset": -2,
+      "stop_premium_pct": -0.35
+    }
+  ]
+}

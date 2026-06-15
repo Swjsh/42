@@ -1,0 +1,94 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-24T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.70,
+  "reasoning": "SPY at 655.53, sandwiched between prior RTH low (653.94) 1.59 below and PMH (657.47) 1.94 above in a tight 3.53-point range. Ribbon is BEAR (slow 655.79), price is only 0.26 above slow line. VIX 27.26 rising in HIGH regime. Premarket probed both extremes; the battle level is PMH 657.47 — first RTH test. With BEAR ribbon + elevated volatility, asymmetry favors pullback to test support (655.0 or 653.94) rather than breakout above resistance. If 657.47 fails on approach, pullback target is 653.94 prior RTH low (1.59 support).",
+  "battle_level": {
+    "price": 657.47,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 657.47,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 1.94
+    },
+    {
+      "price": 653.94,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": -1.59
+    },
+    {
+      "price": 652.84,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": -2.69
+    },
+    {
+      "price": 655.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": -0.53
+    },
+    {
+      "price": 658.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": 2.47
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY fails at 657.47 PMH on first approach (most likely given BEAR ribbon + rising VIX)",
+      "bias": "bearish",
+      "target": 653.94,
+      "entry_trigger": "rejection_of_resistance + pullback_to_prior_rth_low"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 657.47 with volume and closes above it",
+      "bias": "bullish",
+      "target": 659.00,
+      "entry_trigger": "level_break + ribbon_unwind"
+    },
+    "tertiary": {
+      "condition": "if SPY double-tests 657.47 and holds for range trade",
+      "bias": "no_trade",
+      "target": "653.94_to_657.47_range",
+      "entry_trigger": "trapped_in_narrow_band"
+    }
+  },
+  "levels_in_play_count": 6,
+  "key_observations": [
+    "Premarket established 657.47 as hard PMH ceiling and 652.84 as hard PML floor — both touched, range 4.63 points.",
+    "Price at 655.53 is only 0.26 above ribbon slow line (655.79), indicating tight control. Any pullback finds support at 655.0 (round number) or 653.94 (prior RTH low).",
+    "BEAR ribbon stack (spread 105¢) combined with rising VIX (27.26, +4.17%) and risk-off rotation (XLK -0.4%, XLF -0.87%) bias toward support tests rather than continuation rallies.",
+    "No Carry-tier levels are in play today — the sandwich is dominated by Active (PMH/PML/prior RTH H/L) and Reference (round numbers) levels only."
+  ],
+  "data_quality": "full"
+}

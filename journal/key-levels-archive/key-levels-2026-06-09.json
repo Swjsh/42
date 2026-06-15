@@ -1,0 +1,164 @@
+{
+  "schema_version": 3,
+  "protocol_version": "strategy/key-levels-protocol.md@2",
+  "as_of": "2026-06-08T15:21:40-04:00",
+  "for_session": "2026-06-09",
+  "spot_at_compute": 738.91,
+  "computed_from": {
+    "prior_date": "2026-06-08",
+    "today_date": "2026-06-08",
+    "prior_rth_bars": 70,
+    "today_rth_bars": 70,
+    "premarket_bars": 9,
+    "tv_unavailable": false,
+    "note": "LATE PREMARKET RUN 15:21 ET (should have been 08:30). Built from 2026-06-08 live session data. All prior levels (from 06-02/03) expired — market moved ~$20 lower. All levels rebuilt fresh from today's chart."
+  },
+  "levels": [
+    {
+      "price": 745.33,
+      "type": "resistance",
+      "role": null,
+      "label": "SESSION_HIGH_2026-06-08",
+      "tier": "Active",
+      "source": "today_rth_high_premarket",
+      "verified_at": "2026-06-08T15:21:40-04:00",
+      "expires_at": "2026-06-10T16:00:00-04:00",
+      "reasoning": "Today's RTH session high (11:05 ET, H=745.33). First ceiling for any bounce tomorrow. Rejection here = bear setup elevated; break+hold = bull extension.",
+      "notes": "~$6.42 above current price 738.91. Strong multi-bar ceiling from morning rally peak.",
+      "entity_id": null,
+      "draw_needed": true
+    },
+    {
+      "price": 744.73,
+      "type": "resistance",
+      "role": null,
+      "label": "PMH_2026-06-08",
+      "tier": "Active",
+      "source": "premarket_high_premarket",
+      "verified_at": "2026-06-08T15:21:40-04:00",
+      "expires_at": "2026-06-10T16:00:00-04:00",
+      "reasoning": "Today's premarket high (08:50 ET). First resistance zone above open. Break above = bull momentum signal.",
+      "notes": "~$5.82 above current price.",
+      "entity_id": null,
+      "draw_needed": true
+    },
+    {
+      "price": 743.31,
+      "type": "resistance",
+      "role": "gap_reference",
+      "label": "RTH_OPEN_2026-06-08",
+      "tier": "Active",
+      "source": "today_rth_open_premarket",
+      "verified_at": "2026-06-08T15:21:40-04:00",
+      "expires_at": "2026-06-10T16:00:00-04:00",
+      "reasoning": "Today's RTH open bar (09:30 ET). Price failed to reclaim and spent the session below. Acts as resistance on any bounce. Reclaim + hold = bull trigger candidate.",
+      "notes": "~$4.40 above current. Downside gap from prior-week close now open.",
+      "entity_id": null,
+      "draw_needed": true
+    },
+    {
+      "price": 740.80,
+      "type": "support",
+      "role": null,
+      "label": "INTRADAY_BASE_2026-06-08",
+      "tier": "Active",
+      "source": "intraday_multi_test_premarket",
+      "verified_at": "2026-06-08T15:21:40-04:00",
+      "expires_at": "2026-06-10T16:00:00-04:00",
+      "reasoning": "Tested 5+ times across the session (10:00, 13:00–13:25 consolidation, 14:40–15:00 area). Held as intraday base most of the session. Now broken — role watch: if price reclaims 740.80 closing tomorrow, bullish; if rejected on attempted bounce, confirms bear continuation.",
+      "notes": "~$1.89 above current. Held for hours then broke late session ~15:05 ET.",
+      "entity_id": null,
+      "draw_needed": true
+    },
+    {
+      "price": 740.00,
+      "type": "psychological",
+      "role": null,
+      "label": "ROUND_740",
+      "tier": "Reference",
+      "source": "round_number_near_close",
+      "verified_at": "2026-06-08T15:21:40-04:00",
+      "expires_at": "2026-08-01T16:00:00-04:00",
+      "reasoning": "Round $1 number. Psychological awareness only — not a structural level. Engine does NOT treat as trigger source or score modifier.",
+      "notes": "~$1.09 above current. Price has been oscillating near this zone.",
+      "entity_id": null,
+      "draw_needed": false
+    },
+    {
+      "price": 738.91,
+      "type": "support",
+      "role": null,
+      "label": "SESSION_LOW_2026-06-08",
+      "tier": "Active",
+      "source": "today_rth_low_premarket",
+      "verified_at": "2026-06-08T15:21:40-04:00",
+      "expires_at": "2026-06-10T16:00:00-04:00",
+      "reasoning": "Today's session low (15:20 ET bar). Key floor — loss of this level on tomorrow's open = bear continuation. Hold + bounce = potential flush-and-reverse setup.",
+      "notes": "Current price. In-progress bar at capture time — may extend lower into close.",
+      "entity_id": null,
+      "draw_needed": true
+    }
+  ],
+  "deprecated_levels": [
+    { "price": 760.40, "reason": "Active tier, expired 2026-06-04. Market moved $20+ lower during missed sessions 2026-06-04/05." },
+    { "price": 759.00, "reason": "Reference, no longer proximate to current price (~$20 above). Irrelevant at current 739 area." },
+    { "price": 758.22, "reason": "Active tier, expired 2026-06-04. Market moved far below." },
+    { "price": 758.08, "reason": "Active tier, expired 2026-06-04. Market moved far below." },
+    { "price": 757.42, "reason": "Active tier, expired 2026-06-04. Market moved far below." },
+    { "price": 756.76, "reason": "Active tier, expired 2026-06-04. Market moved far below." },
+    { "price": 756.56, "reason": "Carry tier, expired 2026-06-05. Market moved far below." },
+    { "price": 756.00, "reason": "Reference, no longer proximate." },
+    { "price": 755.32, "reason": "Carry tier, expired 2026-06-05. Market moved far below." },
+    { "price": 754.88, "reason": "Carry tier, expired 2026-06-05. Market moved far below." }
+  ],
+  "rth_high_today": 745.33,
+  "rth_low_today": 738.91,
+  "close_today": null,
+  "prior_session": {
+    "date": "2026-06-08",
+    "rth_high": 745.33,
+    "rth_low": 738.91,
+    "rth_close": null,
+    "rth_close_source": "session_in_progress_15:21_ET",
+    "ah_last": null,
+    "ah_high": null,
+    "ah_low": null,
+    "ah_time": null,
+    "ah_ribbon": null,
+    "ah_note": "Session captured mid-close (15:21 ET). EOD daily-review will update close and add final levels."
+  },
+  "summary": {
+    "total_in": 10,
+    "kept": 0,
+    "dropped_distance": 0,
+    "dropped_expiry": 10,
+    "dropped_protocol": 0,
+    "added_new": 6,
+    "by_stars": { "3star": 0, "2star": 0, "1star": 0 }
+  },
+  "session_bias": {
+    "direction": "BEARISH",
+    "confidence": "HIGH",
+    "reasoning": "SPY sold off all session from 743.31 open to 738.91 current. VIX 19.16 rising, MID regime. All prior support levels ~$15-20 above current price were broken during missed trading days June 4-5. Bear continuation setup until 740.80 reclaimed."
+  },
+  "audit_log": [
+    {
+      "timestamp": "2026-06-08T15:21:40-04:00",
+      "count_in": 10,
+      "count_pass": 0,
+      "count_dropped": 10,
+      "count_added": 6,
+      "tv_available": true,
+      "note": "LATE PREMARKET AUDIT 2026-06-08 15:21 ET (scheduled 08:30). All 10 prior levels dropped — all expired (Active 2026-06-04, Carry 2026-06-05). Market moved $15-20 lower during missed sessions. Added 6 fresh levels from today's chart: session high, PMH, RTH open, intraday base, round 740, session low."
+    }
+  ],
+  "chart_cleanup_log": [],
+  "chart_drawing_summary": {
+    "drawn_count": 0,
+    "draw_needed_count": 5,
+    "draw_needed_levels": [745.33, 744.73, 743.31, 740.80, 738.91],
+    "drawn_at_premarket": null,
+    "note": "5 levels need chart draw. Deferred — draw_needed=true for next heartbeat tick."
+  },
+  "date": "2026-06-08"
+}

@@ -1,0 +1,63 @@
+{
+  "date": "2026-03-11",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:07.326986+00:00",
+  "actual": {
+    "open": 677.68,
+    "close": 676.34,
+    "high": 680.06,
+    "low": 673.36,
+    "move_dollars": -1.34,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 14,
+    "consensus_strength": "moderate",
+    "battle_level": {
+      "price": 674.81,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bearish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "TESTED_MIXED",
+      "battle_level": 674.81,
+      "role": "support",
+      "first_touch_time": "2026-03-11T11:15:00"
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 674.81,
+        "touched_any_time": true,
+        "touched_in_specified_window": false,
+        "claim": "674.81 Active 2\u2605 support is tested within the first 60 minutes of RTH (by 10:30 ET), as price is onl",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 25.50 for the entire RTH session \u2014 the \u22121.04% falling trajectory from premarket continues and the over",
+        "invalidation": "VIX rises above 25.50 at any point during RTH, reversing the capitulation narrative and confirming the overnight gap as "
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BEAR ribbon (fast 677.80 < pivot 678.12 < slow 678.86, spread 106c) does not flip to bullish stack configuration (",
+        "invalidation": "Ribbon fully flips bullish (fast > pivot > slow, spread \u226530c) before 12:00 ET noon."
+      }
+    ]
+  },
+  "narrative": "Today's core tension: a CLEAN_BEAR ribbon (106c spread, established downtrend) is being directly challenged by a $0.99 overnight gap-up into falling VIX (24.65, \u22121.04%) \u2014 the exact combination that historically precedes reversals, not continuations. The narrow bearish vote majority (technical + inte"
+}

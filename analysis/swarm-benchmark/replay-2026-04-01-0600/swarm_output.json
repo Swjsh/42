@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-04-01T10:00:05Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis", "internals"],
+    "bearish": [],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 4,
+    "bearish": 0,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 1.00,
+    "bearish": 0.00
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 88,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The assumption that premarket gap-up (+$3.30) sustains into RTH without confirmation — last 3 premarket bars show classic exhaustion (61c green body → 3c doji → 15c red), meaning the open must confirm before the bullish case is valid.",
+    "top_invalidation_scenario": "XLK reverses and underperforms SPY (falls below 0% change or loses 0.5%+ from session high) by 10:30 ET — narrows breadth to zero and proves overnight tech concentration was fragile, not foundational."
+  },
+  "battle_level": {
+    "price": 655.55,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 655.55,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 651.54,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 650.34,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 660.89,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 655.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds above 652.80 at open and breaks above PMH 655.55 with above-average volume",
+      "bias": "bullish",
+      "target": 660.89,
+      "entry_trigger": "level_break + ribbon_bull_confirmation"
+    },
+    "secondary": {
+      "condition": "if SPY fails at 655.55 on first test and reverses below 654.00 within first 30 minutes of RTH",
+      "bias": "bearish",
+      "target": 651.54,
+      "entry_trigger": "level_rejection + momentum_fade"
+    },
+    "invalidation": {
+      "condition": "XLK reverses below session high by 0.5%+ by 10:30 ET (narrow breadth collapses) OR VIX spikes above 26.00 in first 2 hours",
+      "effect": "Bullish consensus invalidated — overnight gap was tech concentration risk, not broad conviction. All 4 agents simultaneously wrong. Bearish target 651.54 / 650.34 PML."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests PMH 655.55 within the first 60 minutes of RTH (by 10:30 ET), with the test outcome (break or rejection) determining the dominant intraday trend direction",
+      "invalidation": "SPY does not reach 655.00 by 10:30 ET — fails to approach the PMH zone entirely, suggesting gap fade and range contraction rather than directional follow-through",
+      "confidence": 0.72,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 26.00 through the first 2 hours of RTH (through 11:30 ET), sustaining the macro risk-on narrative and supporting bullish premium dynamics for 0DTE calls",
+      "invalidation": "VIX rises above 26.00 by 11:30 ET — macro agent's falling-VIX confidence narrative instantly flips, making directional call premium prohibitively expensive relative to reward",
+      "confidence": 0.62,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BULL ribbon (216c spread) holds through the first 30 minutes of RTH — no 5-minute bar closes below the 20-EMA pivot at 652.80 before 10:00 ET",
+      "invalidation": "Any 5-minute bar closes below 652.50 before 10:00 ET, signaling ribbon compression and loss of the premarket bullish structure — gap-fill risk toward PML 650.34 activated",
+      "confidence": 0.68,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "A unanimous 4/4 bullish vote rests on a CLEAN_BULL ribbon (216c spread), a strong overnight gap (+$3.30 from $650.24 close), clean macro calendar (zero events on 4/1), and risk-on sector rotation (XLK +2.9%). The critical tension is that the premarket itself shows fading momentum in the final 3 bars (61c green → 3c doji → 15c red), meaning the overnight euphoria is already losing velocity before RTH begins, and the entire bullish case gates on a single level: PMH 655.55. Watch the first RTH test of 655.55 — a clean break with volume opens the 660.89 Carry target; a reversal below 654.00 puts all four agents simultaneously on the wrong side of a classic gap-then-reverse bear trap.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.75,
+      "one_line": "CLEAN_BULL ribbon 216c spread, price 74c above 20-EMA pivot; last 3 bars show consolidation/fade after strong gap-up"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "VIX 25.06 HIGH regime but falling (-1.49%), clean calendar, risk-on overnight context; caution warranted given still-elevated IV"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.75,
+      "one_line": "Battle level PMH 655.55 is the gating test; primary target 660.89 Carry on break, secondary bearish target 651.54 on rejection"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.76,
+      "one_line": "XLK +2.9% / XLF +0.92% risk-on rotation, XLE -1.26% confirming growth-over-defensive; breadth narrow (tech-concentrated)"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "XLK reverses below session high by 0.5%+ by 10:30 ET — narrow breadth collapses and proves gap-up was concentration risk, not broad conviction"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

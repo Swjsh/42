@@ -1,0 +1,17 @@
+{
+  "_doc": "Pending order tracking for aggressive account. Used during fill wait periods to monitor order status without repeated API calls.",
+  "order_id": "4c941576-80b8-4230-8ca1-a61bb6bac214",
+  "client_order_id": "GAMMA_BOLD_10092026_BEAREJECT_P734_4QTY",
+  "submitted_at": "2026-05-20T14:12:00.216918296Z",
+  "expires_at": "2026-05-20T20:15:00Z",
+  "symbol": "SPY260520P00734000",
+  "side": "buy",
+  "qty": "4",
+  "limit_price": "1.95",
+  "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+  "position_intent": "buy_to_open",
+  "status": "pending_new",
+  "filled_qty": "0",
+  "filled_avg_price": null,
+  "notes": "Entry on SPY 734P after break below 735.40 Active level. Bearish ribbon on 5m, BULL HTF 15m (pullback structure). First entry since Trade 1 exit at 10:05:36. Daily budget $289, order risk $156 max."
+}

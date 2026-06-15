@@ -1,0 +1,132 @@
+{
+  "generated_at": "2026-05-19T05:00:06.320096+00:00",
+  "purpose": "Walk-forward validation for Config F27 VIX relaxation",
+  "train_period": "2025-01-02 to 2025-12-31",
+  "test_period": "2026-01-02 to 2026-05-15",
+  "op16_floor": 771,
+  "results": [
+    {
+      "label": "A_baseline",
+      "train": {
+        "n_days": 159,
+        "total_pnl": 11802.65,
+        "pnl_per_day": 74.23,
+        "win_rate": 0.553,
+        "sharpe": 4.437,
+        "max_drawdown": 1564.2
+      },
+      "test": {
+        "n_days": 55,
+        "total_pnl": 8469.11,
+        "pnl_per_day": 153.98,
+        "win_rate": 0.618,
+        "sharpe": 6.824,
+        "max_drawdown": 646.77
+      },
+      "op16": {
+        "winner_total": -314.48,
+        "loser_exposure": 93.52,
+        "edge_capture": -408.0,
+        "edge_capture_pct": -26.5,
+        "op16_pass": false,
+        "j_days": {
+          "2026-04-29": -49.68,
+          "2026-05-01": -121.6,
+          "2026-05-04": -143.2,
+          "2026-05-05": 0,
+          "2026-05-06": 0,
+          "2026-05-07": -93.52
+        }
+      },
+      "walk_forward_pass": true,
+      "wf_criteria": {
+        "test_sharpe_ge_0.5": true,
+        "test_pnl_day_ge_50pct_train": true,
+        "test_wr_ge_40pct": true,
+        "test_maxdd_le_150pct_train": true
+      }
+    },
+    {
+      "label": "B_vix_soft",
+      "train": {
+        "n_days": 215,
+        "total_pnl": 54070.1,
+        "pnl_per_day": 251.49,
+        "win_rate": 0.633,
+        "sharpe": 7.375,
+        "max_drawdown": 898.84
+      },
+      "test": {
+        "n_days": 78,
+        "total_pnl": 29249.23,
+        "pnl_per_day": 374.99,
+        "win_rate": 0.744,
+        "sharpe": 9.363,
+        "max_drawdown": 1168.72
+      },
+      "op16": {
+        "winner_total": 205.2,
+        "loser_exposure": 0,
+        "edge_capture": 205.2,
+        "edge_capture_pct": 13.3,
+        "op16_pass": false,
+        "j_days": {
+          "2026-04-29": -35.4,
+          "2026-05-01": -121.6,
+          "2026-05-04": 362.2,
+          "2026-05-05": 0,
+          "2026-05-06": 0,
+          "2026-05-07": 62.6
+        }
+      },
+      "walk_forward_pass": true,
+      "wf_criteria": {
+        "test_sharpe_ge_0.5": true,
+        "test_pnl_day_ge_50pct_train": true,
+        "test_wr_ge_40pct": true,
+        "test_maxdd_le_150pct_train": true
+      }
+    },
+    {
+      "label": "F27",
+      "train": {
+        "n_days": 224,
+        "total_pnl": 69798.46,
+        "pnl_per_day": 311.6,
+        "win_rate": 0.688,
+        "sharpe": 8.27,
+        "max_drawdown": 898.84
+      },
+      "test": {
+        "n_days": 81,
+        "total_pnl": 38532.52,
+        "pnl_per_day": 475.71,
+        "win_rate": 0.741,
+        "sharpe": 10.706,
+        "max_drawdown": 679.89
+      },
+      "op16": {
+        "winner_total": 1660.94,
+        "loser_exposure": 0,
+        "edge_capture": 1660.94,
+        "edge_capture_pct": 107.7,
+        "op16_pass": true,
+        "j_days": {
+          "2026-04-29": -11.7,
+          "2026-05-01": -121.6,
+          "2026-05-04": 1794.24,
+          "2026-05-05": 0,
+          "2026-05-06": 0,
+          "2026-05-07": 290.0
+        }
+      },
+      "walk_forward_pass": true,
+      "wf_criteria": {
+        "test_sharpe_ge_0.5": true,
+        "test_pnl_day_ge_50pct_train": true,
+        "test_wr_ge_40pct": true,
+        "test_maxdd_le_150pct_train": true
+      }
+    }
+  ]
+}

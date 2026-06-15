@@ -1,0 +1,63 @@
+{
+  "date": "2026-04-24",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:14.947614+00:00",
+  "actual": {
+    "open": 710.75,
+    "close": 713.98,
+    "high": 714.47,
+    "low": 709.01,
+    "move_dollars": 3.23,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 25,
+    "consensus_strength": "weak",
+    "battle_level": {
+      "price": 710.4,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bearish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "HELD",
+      "battle_level": 710.4,
+      "role": "resistance",
+      "first_touch_time": "2026-04-24T09:30:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 710.4,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY tests premarket high 710.40 within the first 90 minutes of RTH (by 11:00 ET on 2026-04-24)",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX closes the RTH session above 19.50 (extending the MID-regime rising trend from pre-market 19.16)",
+        "invalidation": "VIX drops below 18.50 at any point during RTH, signaling fear dissipation and destroying the risk-off macro thesis"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "The pre-market BULL ribbon (13c spread) fails to hold clean structure: ribbon spread collapses below 10c or inverts to B",
+        "invalidation": "Ribbon spread expands above 20c bullish by 10:30 ET, confirming CLEAN BULL structure and invalidating the no_trade/beari"
+      }
+    ]
+  },
+  "narrative": "SPY enters 2026-04-24 with a genuinely contested setup: the chart structure argues constructively bullish (BULL ribbon, PML support held at 708.09, battle level 710.40 only $1.56 away) while macro headwinds provide a weak bearish edge (VIX rising into MID regime at 19.16, XLK/XLF both down >0.5%). T"
+}

@@ -1,0 +1,328 @@
+{
+  "2026-05-05": {
+    "n_bars": 77,
+    "orb_total": 1,
+    "orb_by_confidence": {
+      "medium": 1
+    },
+    "orb_samples": [
+      {
+        "time": "10:50",
+        "confidence": "medium",
+        "setup": "ORB_RETEST_LONG",
+        "direction": "long",
+        "reason": "ORH 722.79 broken at 723.29, retested at 722.51 held + green close 722.94, bullish SMA, vol=low"
+      }
+    ],
+    "bull_total": 6,
+    "bull_by_confidence": {
+      "medium": 6
+    },
+    "bull_samples": [
+      {
+        "time": "13:15",
+        "confidence": "medium",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim', 'confluence'] reclaim=723.3852882071682"
+      },
+      {
+        "time": "13:50",
+        "confidence": "medium",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim', 'confluence'] reclaim=724.0"
+      },
+      {
+        "time": "15:00",
+        "confidence": "medium",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim', 'confluence'] reclaim=724.3882287884477"
+      },
+      {
+        "time": "15:15",
+        "confidence": "medium",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim', 'confluence'] reclaim=724.8699951171875"
+      },
+      {
+        "time": "15:20",
+        "confidence": "medium",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim', 'confluence'] reclaim=724.8699951171875"
+      }
+    ]
+  },
+  "2026-05-07": {
+    "n_bars": 78,
+    "orb_total": 2,
+    "orb_by_confidence": {
+      "low": 1,
+      "medium": 1
+    },
+    "orb_samples": [
+      {
+        "time": "10:45",
+        "confidence": "low",
+        "setup": "ORB_RETEST_LONG",
+        "direction": "long",
+        "reason": "ORH 735.07 broken at 735.16, retested at 734.98 held + green close 735.21, neutral SMA, vol=low"
+      },
+      {
+        "time": "12:05",
+        "confidence": "medium",
+        "setup": "ORB_RETEST_SHORT",
+        "direction": "short",
+        "reason": "ORL 733.55 broken at 733.41, retested at 733.39 held + red close 733.31, bearish SMA, vol=low"
+      }
+    ],
+    "bull_total": 1,
+    "bull_by_confidence": {
+      "medium": 1
+    },
+    "bull_samples": [
+      {
+        "time": "11:50",
+        "confidence": "medium",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim', 'confluence'] reclaim=734.5900268554688"
+      }
+    ]
+  },
+  "2026-05-08": {
+    "n_bars": 78,
+    "orb_total": 1,
+    "orb_by_confidence": {
+      "low": 1
+    },
+    "orb_samples": [
+      {
+        "time": "10:15",
+        "confidence": "low",
+        "setup": "ORB_RETEST_LONG",
+        "direction": "long",
+        "reason": "ORH 736.66 broken at 736.77, retested at 736.57 held + green close 736.89, neutral SMA, vol=low"
+      }
+    ],
+    "bull_total": 7,
+    "bull_by_confidence": {
+      "low": 2,
+      "medium": 5
+    },
+    "bull_samples": [
+      {
+        "time": "10:20",
+        "confidence": "low",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim'] reclaim=737.0"
+      },
+      {
+        "time": "10:40",
+        "confidence": "low",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim'] reclaim=737.0"
+      },
+      {
+        "time": "11:35",
+        "confidence": "medium",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim', 'confluence'] reclaim=737.0"
+      },
+      {
+        "time": "11:45",
+        "confidence": "medium",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim', 'confluence'] reclaim=736.8082587439472"
+      },
+      {
+        "time": "13:00",
+        "confidence": "medium",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim', 'confluence'] reclaim=737.0"
+      }
+    ]
+  },
+  "2026-05-12": {
+    "n_bars": 78,
+    "orb_total": 1,
+    "orb_by_confidence": {
+      "low": 1
+    },
+    "orb_samples": [
+      {
+        "time": "10:30",
+        "confidence": "low",
+        "setup": "ORB_RETEST_SHORT",
+        "direction": "short",
+        "reason": "ORL 734.89 broken at 734.88, retested at 734.93 held + red close 734.01, neutral SMA, vol=low"
+      }
+    ],
+    "bull_total": 5,
+    "bull_by_confidence": {
+      "medium": 3,
+      "low": 2
+    },
+    "bull_samples": [
+      {
+        "time": "15:05",
+        "confidence": "medium",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim', 'confluence'] reclaim=736.1976060598275"
+      },
+      {
+        "time": "15:10",
+        "confidence": "medium",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim', 'confluence'] reclaim=736.52"
+      },
+      {
+        "time": "15:25",
+        "confidence": "low",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim'] reclaim=737.0"
+      },
+      {
+        "time": "15:30",
+        "confidence": "medium",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim', 'confluence'] reclaim=737.43"
+      },
+      {
+        "time": "15:45",
+        "confidence": "low",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim'] reclaim=738.0"
+      }
+    ]
+  },
+  "2026-05-13": {
+    "n_bars": 78,
+    "orb_total": 1,
+    "orb_by_confidence": {
+      "medium": 1
+    },
+    "orb_samples": [
+      {
+        "time": "10:50",
+        "confidence": "medium",
+        "setup": "ORB_RETEST_LONG",
+        "direction": "long",
+        "reason": "ORH 738.47 broken at 738.48, retested at 738.37 held + green close 738.89, bullish SMA, vol=low"
+      }
+    ],
+    "bull_total": 17,
+    "bull_by_confidence": {
+      "medium": 12,
+      "low": 5
+    },
+    "bull_samples": [
+      {
+        "time": "10:00",
+        "confidence": "medium",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim', 'confluence'] reclaim=737.0"
+      },
+      {
+        "time": "10:10",
+        "confidence": "medium",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim', 'confluence'] reclaim=737.0"
+      },
+      {
+        "time": "10:20",
+        "confidence": "medium",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim', 'confluence'] reclaim=737.2880207536676"
+      },
+      {
+        "time": "10:30",
+        "confidence": "medium",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim', 'confluence'] reclaim=738.19"
+      },
+      {
+        "time": "10:45",
+        "confidence": "medium",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim', 'confluence'] reclaim=738.19"
+      }
+    ]
+  },
+  "2026-05-14": {
+    "n_bars": 78,
+    "orb_total": 1,
+    "orb_by_confidence": {
+      "medium": 1
+    },
+    "orb_samples": [
+      {
+        "time": "10:30",
+        "confidence": "medium",
+        "setup": "ORB_RETEST_LONG",
+        "direction": "long",
+        "reason": "ORH 745.89 broken at 746.05, retested at 745.76 held + green close 745.99, bullish SMA, vol=low"
+      }
+    ],
+    "bull_total": 7,
+    "bull_by_confidence": {
+      "low": 3,
+      "medium": 4
+    },
+    "bull_samples": [
+      {
+        "time": "10:15",
+        "confidence": "low",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim'] reclaim=746.0"
+      },
+      {
+        "time": "11:55",
+        "confidence": "low",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim'] reclaim=749.0"
+      },
+      {
+        "time": "12:35",
+        "confidence": "low",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim'] reclaim=748.0"
+      },
+      {
+        "time": "13:00",
+        "confidence": "medium",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim', 'confluence'] reclaim=748.0"
+      },
+      {
+        "time": "15:30",
+        "confidence": "medium",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "direction": "long",
+        "reason": "bull_score=11/11 triggers=['level_reclaim', 'confluence'] reclaim=748.1680832031763"
+      }
+    ]
+  }
+}

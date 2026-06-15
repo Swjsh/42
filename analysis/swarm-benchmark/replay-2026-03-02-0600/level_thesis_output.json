@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-02T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "SPY at 684.98 is sandwiched between 686.85 (Active resistance, prior RTH high, 2★) $1.87 above and 681.66 (Active support, prior RTH low, 2★) $3.32 below. Overnight gap down -1.18 from 686.16 close, but BULL ribbon stack (spread 52c) signals upside bias. The battle level is 686.85 — if price reclaims it on first RTH push, the gap is healed and next targets are 688–689 (Reference round numbers). If 686.85 holds as resistance, downside targets are 681.66 → 680.0 (Carry support, 5-day low). VIX rising 8.41% adds caution but does not negate the BULL ribbon signal.",
+  "battle_level": {
+    "price": 686.85,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 686.85,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 1.87
+    },
+    {
+      "price": 686.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 1.02
+    },
+    {
+      "price": 681.66,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 3.32
+    },
+    {
+      "price": 684.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 0.98
+    },
+    {
+      "price": 680.0,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": 4.98
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY reclaims 686.85 on first RTH push",
+      "bias": "bullish",
+      "target": 688.5,
+      "entry_trigger": "level_reclaim + BULL_ribbon_stack"
+    },
+    "secondary": {
+      "condition": "if 686.85 holds as resistance on first test",
+      "bias": "bearish",
+      "target": 681.66,
+      "entry_trigger": "level_rejection + vix_rising"
+    },
+    "tertiary": {
+      "condition": "if 681.66 breaks below",
+      "bias": "bearish_continuation",
+      "target": 680.0,
+      "entry_trigger": "carry_support_break"
+    }
+  },
+  "levels_in_play_count": 4,
+  "key_observations": [
+    "Overnight gap down -1.18 from 686.16, but BULL ribbon intact (spread 52c, all EMAs stacked correctly).",
+    "Battle level 686.85 is immediate overhead — the defining intraday pivot. A successful reclaim signals gap healing and upside continuation; failure signals range or downside.",
+    "VIX rising 8.41% to 21.52 (MID regime) adds caution but not a veto on BULL bias given ribbon structure.",
+    "Support zone is well-defined: 681.66 (Active 2★, yesterday's RTH low) then 680.0 (Carry 2★, 5-day low). Failure below 681.66 cascades toward 680.0.",
+    "No strong confluence clusters detected (single-layer levels) — this is a pure near/far support vs resistance setup, not a multi-touch battle zone."
+  ],
+  "data_quality": "full"
+}

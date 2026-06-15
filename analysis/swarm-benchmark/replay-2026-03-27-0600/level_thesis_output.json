@@ -1,0 +1,84 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-27T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.70,
+  "reasoning": "SPY at 644.55 sits below the bearish ribbon stack (fast 645.15, slow 646.26, BEAR orientation) with VIX spiking +6.49% into HIGH regime. Two identical 2★ Active supports bracket current price: PML at 643.9 and prior RTH low at 644.82, spanning just 0.92 points. The battle level is 643.9—this premarket low is the day's floor. If the first RTH test holds it, a defensive bounce toward 646.0 is plausible; if it breaks, gap-fill targets emerge at 641.67 (pivot S1) or deeper. The inverted ribbon plus rising volatility suggest sellers control early momentum, so the path of least resistance is lower unless support structure intervenes.",
+  "battle_level": {
+    "price": 643.9,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 643.9,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": -0.65
+    },
+    {
+      "price": 644.82,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 0.27
+    },
+    {
+      "price": 648.12,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 3.57
+    },
+    {
+      "price": 646.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 1.45
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 643.9 on first RTH test",
+      "bias": "range_hold",
+      "target": 646.0,
+      "entry_trigger": "support_hold + ribbon_recovery_attempt"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 643.9",
+      "bias": "bearish",
+      "target": 641.67,
+      "entry_trigger": "support_break + gap_fill"
+    },
+    "tertiary": {
+      "condition": "if ribbon flips bullish AND price reclaims 645.15 fast EMA",
+      "bias": "bullish",
+      "target": 648.12,
+      "entry_trigger": "ribbon_recovery + carry_reclaim"
+    }
+  },
+  "levels_in_play_count": 4,
+  "key_observations": [
+    "Premarket ranged 643.9–648.12 (4.22-point spread)—wide indecision band indicates two-sided volume without clear directional commitment.",
+    "Ribbon inverted (BEAR stack, 111¢ spread) with price sub-fast EMA; seller advantage confirmed by VIX +6.49% into HIGH regime.",
+    "The two 2★ Active supports at 643.9 and 644.82 form a tight 0.92-point band—first RTH contact will reveal whether buyers defend or gap-fill continues.",
+    "Premarket high (648.12) sits 3.57 points away; reference resistance (646.0) only 1.45 away. Immediate overhead is weak (1★), so bounce room exists if support holds."
+  ],
+  "data_quality": "full"
+}

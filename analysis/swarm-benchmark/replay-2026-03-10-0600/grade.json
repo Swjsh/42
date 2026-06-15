@@ -1,0 +1,63 @@
+{
+  "date": "2026-03-10",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:07.093367+00:00",
+  "actual": {
+    "open": 677.68,
+    "close": 677.13,
+    "high": 683.33,
+    "low": 674.81,
+    "move_dollars": -0.55,
+    "actual_bias": "no_trade"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 88,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 679.88,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "ABSTAIN_ACTUAL",
+      "consensus": "bullish",
+      "actual": "no_trade"
+    },
+    "battle_level": {
+      "grade": "BROKE",
+      "battle_level": 679.88,
+      "role": "resistance",
+      "first_touch_time": "2026-03-10T10:40:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 679.88,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY tests battle level 679.88 (prior session RTH high) at least once within the first 90 minutes of ",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 26.50 for the entire RTH session, confirming the de-risking trend that began overnight (-2.47% to 24.8",
+        "invalidation": "VIX prints above 27.00 at any point during RTH (09:30-16:00 ET), signaling mean-reversion back to prior fear regime"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BULL ribbon with spread >= 250 cents holds intact through the open and first 60 minutes of RTH (through 10:30 ET),",
+        "invalidation": "Ribbon spread compresses below 200 cents or a bearish crossover occurs before 10:30 ET"
+      }
+    ]
+  },
+  "narrative": "The 4/4 unanimous bullish consensus is structurally clean \u2014 CLEAN_BULL ribbon (332c spread), VIX falling from high-regime, zero macro catalysts, and broad risk-on sector rotation (XLK +2.79%, XLF +0.82%) all point the same direction. The key tension, correctly surfaced by the validator, is that pric"
+}

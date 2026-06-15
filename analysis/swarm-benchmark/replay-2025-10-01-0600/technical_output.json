@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2025-10-01T06:00:00Z",
+  "bias": "no_trade",
+  "confidence": 0.30,
+  "reasoning": "MIXED ribbon (fast 664.43, pivot 664.46, slow 664.07, 39c spread) with chop status — EMAs not aligned. Last 3 bars alternating red/green/red (05:45 sharp -183c reversal, 05:50 weak +71c bounce, 05:55 tiny -16c doji) show no directional conviction. Gap down $2.34 overnight and price 74c below pivot suggest mild bearish lean, but MIXED ribbon structure prevents confirmation. Premarket held 663.09 floor; current 663.72 near support but lacking momentum structure. VIX rising +3.07% to 16.78 (volatility expanding, MID regime).",
+  "ribbon_verdict": "CHOP",
+  "ribbon_spread_cents": 39,
+  "bar_structure": "chop",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "MIXED ribbon with 39c spread — fast/pivot nearly identical at 664.43/664.46, slow at 664.07; chop status disqualifies directional bias",
+    "Premarket rejection bar at 05:45 (665.19→663.36, -183c body, 1.83-point reversal) rejected initial pump, but only weak 71c bounce follow-up at 05:50",
+    "Gap down $2.34 overnight (666.06→663.72) with current price 74c below pivot EMA — would suggest bearish IF ribbon were clean, but MIXED status prevents confirmation",
+    "Premarket floor at 663.09 holding as support; price stabilizing near low end of 663.09–665.38 premarket range",
+    "VIX rising to 16.78 (+3.07%) in MID regime — volatility expanding from subdued levels, neutral-to-slightly-bullish for option premium context"
+  ],
+  "data_quality": "full"
+}

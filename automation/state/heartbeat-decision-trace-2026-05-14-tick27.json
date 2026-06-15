@@ -1,0 +1,135 @@
+{
+  "skill": "heartbeat-decision-trace",
+  "run_at": "2026-05-14T22:08:38",
+  "target_date": "2026-05-14",
+  "tick_id": 27,
+  "time_et": "14:24",
+  "recorded_action": "HOLD",
+  "recorded_reason": "inside no_trade_window 14:00-15:00 ET, all entries blocked filter_1 time gate",
+  "params_rule_version": "v15.1",
+  "filter_results": [
+    {
+      "n": 1,
+      "name": "Time gate",
+      "direction": "both",
+      "passed": true,
+      "reason": "time_et=14:24 in entry window [09:35,15:00) AND no blackout active -> PASS"
+    },
+    {
+      "n": 2,
+      "name": "News blackout",
+      "direction": "both",
+      "passed": true,
+      "reason": "no news blackout indicated in reason field"
+    },
+    {
+      "n": 3,
+      "name": "Position-already-open",
+      "direction": "both",
+      "passed": true,
+      "reason": "no position open \u2192 new entries allowed"
+    },
+    {
+      "n": 4,
+      "name": "Daily kill-switch",
+      "direction": "both",
+      "passed": true,
+      "reason": "no kill-switch indicator"
+    },
+    {
+      "n": 5,
+      "name": "PDT day-trade count",
+      "direction": "both",
+      "passed": true,
+      "reason": "no PDT issue indicated"
+    },
+    {
+      "n": 6,
+      "name": "Per-trade risk cap",
+      "direction": "both",
+      "passed": true,
+      "reason": "evaluated at sizing time \u2014 assumed PASS"
+    },
+    {
+      "n": 7,
+      "name": "Ribbon spread",
+      "direction": "both",
+      "passed": false,
+      "reason": "ribbon=12c < min=30c"
+    },
+    {
+      "n": 8,
+      "name": "VIX gate (bull)",
+      "direction": "bull",
+      "passed": true,
+      "reason": "vix=17.48 dir=falling -> PASS"
+    },
+    {
+      "n": 8,
+      "name": "VIX gate (bear)",
+      "direction": "bear",
+      "passed": false,
+      "reason": "vix=17.48 dir=falling -> BLOCK (need vix > 17.3 AND rising)"
+    },
+    {
+      "n": 9,
+      "name": "Volume multiplier",
+      "direction": "both",
+      "passed": true,
+      "reason": "vol >= 0.7\u00d7 20-bar avg (no F9 in blocked list)"
+    },
+    {
+      "n": 10,
+      "name": "Trigger threshold (bear)",
+      "direction": "bear",
+      "passed": false,
+      "reason": "bear_score=0 < min=1 (level_tied required)"
+    },
+    {
+      "n": 10,
+      "name": "Trigger threshold (bull)",
+      "direction": "bull",
+      "passed": false,
+      "reason": "bull_score=0 < min=2 (level_tied required)"
+    },
+    {
+      "n": 11,
+      "name": "Direction selector",
+      "direction": "both",
+      "passed": false,
+      "reason": "neither side clean - HOLD"
+    }
+  ],
+  "bull_blockers": [
+    [
+      7,
+      "Ribbon spread"
+    ],
+    [
+      10,
+      "Trigger threshold (bull)"
+    ],
+    [
+      11,
+      "Direction selector"
+    ]
+  ],
+  "bear_blockers": [
+    [
+      7,
+      "Ribbon spread"
+    ],
+    [
+      8,
+      "VIX gate (bear)"
+    ],
+    [
+      10,
+      "Trigger threshold (bear)"
+    ],
+    [
+      11,
+      "Direction selector"
+    ]
+  ]
+}

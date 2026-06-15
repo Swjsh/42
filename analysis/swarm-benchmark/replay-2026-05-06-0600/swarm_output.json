@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-05-06T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis", "internals"],
+    "bearish": [],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 4,
+    "bearish": 0,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 1.0,
+    "bearish": 0.0
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 83,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The entire bullish case rests on premarket structure (CLEAN_BULL ribbon + 5.56pt gap + VIX falling) that has not been tested by RTH volume — overnight gap on zero-volume premarket + tech-only breadth (XLF +0.04%) creates acute rotation risk the moment real liquidity enters.",
+    "top_invalidation_scenario": "SPY opens within 10 cents of PMH 729.39 and closes below Fast EMA 728.48 within first 5 RTH bars (before 09:45 ET), breaking the CLEAN_BULL ribbon and triggering gap fill toward 723.74."
+  },
+  "battle_level": {
+    "price": 729.39,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 729.39,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 728.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 726.97,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 725.04,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 723.77,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds PMH 729.39 on first RTH test and Fast EMA 728.48 acts as support on any dip",
+      "bias": "bullish",
+      "target": 732.5,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above PMH 729.39 on first RTH bar with volume confirmation",
+      "bias": "bullish",
+      "target": 734.0,
+      "entry_trigger": "ribbon_reclaim"
+    },
+    "invalidation": {
+      "condition": "SPY closes below Fast EMA 728.48 within first 5 RTH bars (before 09:45 ET) after touching PMH 729.39",
+      "effect": "CLEAN_BULL ribbon breaks on first RTH test, confirms overnight gap was low-volume-fragile; likely triggers gap fill toward 723.74; bullish consensus collapses — treat as no_trade or reversal watch."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "PMH 729.39 is tested (SPY price touches within 5 cents) within the first 90 minutes of RTH (by 11:00 ET)",
+      "invalidation": "SPY does not reach 729.34 by 11:00 ET, suggesting price found support well below PMH and the level is not in immediate play",
+      "confidence": 0.80,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 18.50 through the first 60 minutes of RTH (through 10:30 ET), sustaining the MID-regime compression-bullish macro backdrop",
+      "invalidation": "VIX spikes above 18.50 before 10:30 ET, reversing the compression narrative and signaling intraday risk-off repricing",
+      "confidence": 0.70,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BULL ribbon stack (fast > pivot > slow, spread >120 cents) remains structurally intact through the 10:00 ET bar, confirming premarket bullish momentum survived early RTH selling pressure",
+      "invalidation": "Any EMA crosses to invert the fast/pivot/slow stack OR ribbon spread compresses below 80 cents by the 10:00 ET bar close",
+      "confidence": 0.68,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "SPY enters 2026-05-06 with a unanimous 4-of-4 bullish swarm consensus driven by CLEAN_BULL ribbon (205c spread), a +$5.56 overnight gap, VIX falling in MID regime, and zero macro events today. The single most important tension is that this entire setup is UNTESTED premarket structure — the battle level PMH 729.39 sits just 9 cents above current price and the gap was set on zero-volume overnight liquidity with narrow tech-only breadth (XLF +0.04%). Watch the first 5 RTH bars at PMH 729.39: a close above keeps the bull case intact for 732.5+; a rejection close below Fast EMA 728.48 invalidates the consensus and signals gap fill toward 723.74. FOMC tomorrow (14:00 ET, 5/7) introduces 48h event risk not fully priced by the macro agent's 'none' designation.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.78,
+      "one_line": "CLEAN_BULL ribbon (fast 728.48 > pivot 727.94 > slow 726.43, 205c spread) with price 136c above pivot; overnight gap +$5.56; premarket bar structure mixed but leaning bullish"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "VIX 17.15 falling 1.61% in MID regime = compression bullish; zero macro events today; FOMC tomorrow at 14:00 ET introduces latent event risk within 48h window"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "Battle level PMH 729.39 (Active, 2★) is only 9c above current price; Carry support far at 708.37 creates asymmetric upside; primary scenario targets 732.5 on PMH hold"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.65,
+      "one_line": "XLK +1.07% leading (tech risk-on) but XLF +0.04% flat = narrow-breadth concern; rotation risk acute if financials fail to accelerate through RTH open"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Unanimous 4/4 bullish on zero-RTH-volume premarket data; tech-only breadth + low-volume overnight gap = structurally fragile; PMH 729.39 rejection below Fast EMA 728.48 within first 5 bars triggers gap-fill to 723.74"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

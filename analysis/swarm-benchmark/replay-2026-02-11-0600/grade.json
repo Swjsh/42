@@ -1,0 +1,63 @@
+{
+  "date": "2026-02-11",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:02.880921+00:00",
+  "actual": {
+    "open": 696.43,
+    "close": 691.81,
+    "high": 697.08,
+    "low": 689.22,
+    "move_dollars": -4.62,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 95,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 691.66,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bearish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "BROKE",
+      "battle_level": 691.66,
+      "role": "support",
+      "first_touch_time": "2026-02-11T10:10:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 691.66,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY touches or breaks 691.66 Active support within the first 90 minutes of RTH (by 11:00 ET) \u2014 BEAR ",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 19.5 throughout the RTH session \u2014 flat VIX at 17.86 with no scheduled macro events and overnight gap f",
+        "invalidation": "VIX prints above 19.5 by 10:05 ET, confirming capitulation and validating full bearish thesis with conviction"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "BEAR ribbon (72c spread, fast 693.04 < pivot 693.23 < slow 693.76) does not flip to BULL in the first 60 minutes of RTH ",
+        "invalidation": "SPY closes a 5m bar above 693.23 (ribbon pivot) within the first 60 minutes of RTH (by 10:30 ET), signaling ribbon compr"
+      }
+    ]
+  },
+  "narrative": "The central tension on 2026-02-11 is whether the BEAR ribbon + high-conviction closing volume (121k/204k on the final two 5m bars) represents a true selling continuation or merely a squeeze zone with an immediate support test at 691.66 (45 bps below open). All 4 specialists voted bearish with aligne"
+}

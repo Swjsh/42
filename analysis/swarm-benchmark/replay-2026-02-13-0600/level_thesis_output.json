@@ -1,0 +1,98 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-02-13T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "SPY at 680.95, testing the 5-day Carry support at 680.4 from above. Ribbon is BEAR (fast 682.7 < pivot 683.2 < slow 684.5), all sectors down, risk-off rotation active. The Carry support at 680.4 (2★) is the critical level — if it holds, a rebound toward 682-683 reference resistance is possible; if it breaks, the next floor is 675.95, creating significant downside exposure. VIX falling (+opportunity for support to firm), but environment remains bearish.",
+  "battle_level": {
+    "price": 680.4,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 680.4,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": -0.55
+    },
+    {
+      "price": 697.08,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 16.13
+    },
+    {
+      "price": 682.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 1.05
+    },
+    {
+      "price": 683.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 2.05
+    },
+    {
+      "price": 675.95,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": -5.0
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 680.4 Carry support on first test",
+      "bias": "bullish_tactical",
+      "target": 682.0,
+      "entry_trigger": "level_hold + vix_falling + ribbon_spread_tightening",
+      "notes": "VIX falling is an early signal that support may firm. Rebound attempt toward first reference resistance at 682 / pivot EMA at 683.2."
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 680.4 Carry support",
+      "bias": "bearish",
+      "target": 675.95,
+      "entry_trigger": "level_break + risk_off_continuation + ribbon_confirm",
+      "notes": "Risk-off rotation + BEAR ribbon increases odds of flush through support. No meaningful defense until pivot S1 at 675.95. Sector weakness may accelerate break."
+    },
+    "tertiary": {
+      "condition": "if 680.4 is tested multiple times without break",
+      "bias": "range_bound",
+      "target": null,
+      "entry_trigger": "none_today",
+      "notes": "If support proves sticky across multiple touches, price may consolidate between 680.4 and 682-683, waiting for volatility catalyst."
+    }
+  },
+  "levels_in_play_count": 7,
+  "key_observations": [
+    "680.4 Carry support is the pivotal level — price is already within $0.55, first decision point comes immediately at market open.",
+    "Ribbon stack is inverted (BEAR) and spread is 180 cents — high conviction downside bias is encoded in the indicator structure.",
+    "All four reference supports (680, 679, 678, 677) are thin (1★ each) and will not hold a break — if 680.4 fails, next floor is 675.95 per-chance levels.",
+    "Resistance is distant: 697.08 is 16 points away; even 682-683 reference levels are 1-2 points up. Asymmetry favors downside continuation.",
+    "VIX falling (-2.4%) is an early sign of potential volatility compression, but sector rotation (XLK -2.86%, XLF -2.29%, XLE -1.75%) confirms institutional risk-off, not tactical oversold."
+  ],
+  "data_quality": "full"
+}

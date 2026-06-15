@@ -1,0 +1,83 @@
+{
+  "_doc": "A/B scorecard required for HIGH+ urgency rule recommendations. Karpathy method principle 3: propose/eval/ratify. No rule change is ratified without a logged side-by-side comparison of old (production) vs new (proposed) on the same content-addressed dataset. Premarket Step 1c refuses to apply any auto-ratified recommendation that lacks a scorecard. File: analysis/recommendations/{rule_id}.json",
+
+  "rule_id": "R-NNNN",
+  "title": "Short imperative — what changes",
+  "rationale": "1-3 sentences — what evidence triggered the proposal",
+  "proposed_at": "ISO 8601",
+  "proposed_by": "weekly-review|manual|skill-stocktake",
+
+  "_a_b_runs_section": "Both runs MUST share the same data_hash and only differ in params_hash and/or code_hash. Same window, same OPRA contracts, same ribbon series. If data_hash differs, the comparison is invalid (apples-to-oranges) and the recommendation is rejected automatically.",
+  "old_run": {
+    "run_id": "YYYY-MM-DD_aaaaaaaa_bbbbbb_cccccc",
+    "label": "production_rules_v14_tighter_stop",
+    "params_snapshot_path": "analysis/backtests/production_rules_v14_tighter_stop/metadata.json#params_snapshot",
+    "version_label": "v14"
+  },
+  "new_run": {
+    "run_id": "YYYY-MM-DD_aaaaaaaa_bbbbbb_dddddd",
+    "label": "proposed_v15_<short_change_name>",
+    "params_snapshot_path": "analysis/backtests/proposed_v15_<short_change_name>/metadata.json#params_snapshot",
+    "version_label": "v15-proposed"
+  },
+
+  "data_hash_match": true,
+  "data_hash": "sha256-of-spy_csv-plus-vix_csv",
+  "window_start": "YYYY-MM-DD",
+  "window_end": "YYYY-MM-DD",
+  "trading_days": 53,
+
+  "_metrics_section": "Side-by-side delta. Each metric labeled with direction (higher=better or lower=better). The 'dominates' field below is auto-computed: new dominates old iff new is at least as good on EVERY metric AND strictly better on at least one.",
+  "metrics": {
+    "n_trades":   { "old": 63, "new": 58, "delta":  -5,    "direction": "more_data_better" },
+    "hit_rate":   { "old": 0.49, "new": 0.52, "delta": 0.03, "direction": "higher_better" },
+    "expectancy": { "old": 75.0, "new": 82.0, "delta": 7.0, "direction": "higher_better" },
+    "total_pnl":  { "old": 4731.0, "new": 4756.0, "delta": 25.0, "direction": "higher_better" },
+    "wl_ratio":   { "old": 2.93, "new": 2.71, "delta": -0.22, "direction": "higher_better" },
+    "max_drawdown": { "old": -348.0, "new": -290.0, "delta": 58.0, "direction": "higher_better" },
+    "worst_trade": { "old": -183.0, "new": -160.0, "delta": 23.0, "direction": "higher_better" },
+    "thresholds_passed": { "old": 4, "new": 4, "delta": 0, "direction": "higher_better" }
+  },
+
+  "dominates": false,
+  "dominates_reason": "Set true iff new beats or ties on ALL metrics AND strictly better on ≥ 1. If false, must enumerate which metrics regressed.",
+  "regressed_metrics": ["wl_ratio", "n_trades"],
+
+  "_sub_window_stability_section": "Karpathy: split the window in half and verify the proposed rule holds on both halves independently. Catches overfitting to a single regime.",
+  "sub_window_stability": {
+    "first_half": {
+      "metrics": {"n_trades": null, "hit_rate": null, "expectancy": null, "thresholds_passed": null},
+      "passes_4_of_4": null
+    },
+    "second_half": {
+      "metrics": {"n_trades": null, "hit_rate": null, "expectancy": null, "thresholds_passed": null},
+      "passes_4_of_4": null
+    }
+  },
+
+  "_acceptance_section": "Auto-ratification gate. ALL conditions must be true to auto-promote new to production. Set by weekly-review when generating the scorecard. Fails closed: any null = needs J review.",
+  "auto_ratify_conditions": {
+    "dominates_or_tied_overall": false,
+    "data_hash_matches": true,
+    "thresholds_passed_4_of_4": null,
+    "sub_window_stable": null,
+    "min_evidence_n_trades": 20,
+    "evidence_n_trades_met": null
+  },
+  "auto_ratify_eligible": false,
+  "verdict": "needs_review",
+  "_verdict_options": "auto_ratify | needs_review | reject",
+
+  "_lifecycle_section": "Track ratification history. status flips from pending to ratified|declined|superseded.",
+  "status": "pending",
+  "decided_at": null,
+  "decided_by": null,
+  "decision_note": null,
+  "supersedes_recommendation_id": null,
+
+  "_provenance_section": "What triggered this proposal. Used by weekly-review to suppress duplicates (S6.2).",
+  "evidence_count": 0,
+  "evidence_window_days": 0,
+  "trigger_observation": "What live event or backtest finding prompted this. Cite specific timestamps/trade rows where possible.",
+  "related_changelog_entries": []
+}

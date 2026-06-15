@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-05-20T09:06:14Z",
+  "bias": "bearish",
+  "confidence": 0.72,
+  "reasoning": "SPY at 736.33 is trapped in a congestion zone between 735.40 resistance (2★ Active) below and 738.10 Carry resistance (3★) above. The battle level is 738.10 — it was the 5/19 session high exactly (bears capped there), broke decisively on 5/18, and represents the dominant multi-session resistance. Price is BELOW all key resistance levels with a failed reclaim attempt on 735.40. Ribbon shows BULL stack but price below fast — mixed signal. Bearish bias: if 735.40 fails from below, target 732.33. Bull case requires punch above 738.10 on volume.",
+  "battle_level": {
+    "price": 738.1,
+    "tier": "Carry",
+    "strength_stars": 3,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 738.1,
+      "tier": "Carry",
+      "strength_stars": 3,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 1.77
+    },
+    {
+      "price": 735.4,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_above",
+      "test_type": "reclaim_attempt",
+      "priority_rank": 2,
+      "distance_from_price": 0.93
+    },
+    {
+      "price": 735.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 1.33
+    },
+    {
+      "price": 733.77,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "reference",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 2.56
+    },
+    {
+      "price": 732.33,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": 4.0
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks below 735.40 from below",
+      "bias": "bearish",
+      "target": "732.33",
+      "entry_trigger": "level_rejection + momentum"
+    },
+    "secondary": {
+      "condition": "if SPY reclaims 735.40 and holds as support",
+      "bias": "bullish",
+      "target": "738.10",
+      "entry_trigger": "level_reclaim + volume_confirmation"
+    },
+    "tertiary": {
+      "condition": "if SPY breaks above 738.10 Carry on volume",
+      "bias": "bullish",
+      "target": "741.40",
+      "entry_trigger": "carry_flip + ribbon_stack"
+    }
+  },
+  "levels_in_play_count": 5,
+  "key_observations": [
+    "738.10 Carry is the dominant level — broke 5/18, defended 5/19 exactly at session high",
+    "735.40 broke 5/19 15:30 ET, now acts as first overhead resistance",
+    "Current price 736.33 is BELOW 735.40 — failed reclaim attempt",
+    "732.33 session low is the key support if bearish breakdown occurs",
+    "5 in-play levels within $2.56 create tight congestion zone — no clear asymmetry"
+  ],
+  "data_quality": "full"
+}

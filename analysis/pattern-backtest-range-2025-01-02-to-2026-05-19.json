@@ -1,0 +1,580 @@
+{
+  "range_start": "2025-01-02",
+  "range_end": "2026-05-19",
+  "days_with_data": 359,
+  "days_skipped_no_data": 0,
+  "aggregate": {
+    "total_days_scanned": 359,
+    "days_with_hits": 341,
+    "total_hits": 6340,
+    "summary_by_detector": {
+      "double_bottom": {
+        "hits": 1667,
+        "wins": 890,
+        "losses": 756,
+        "neutral": 21,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 1667,
+        "win_rate_pct": 54.1
+      },
+      "double_top": {
+        "hits": 1240,
+        "wins": 576,
+        "losses": 649,
+        "neutral": 15,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 1240,
+        "win_rate_pct": 47.0
+      },
+      "failed_breakdown_wick": {
+        "hits": 306,
+        "wins": 154,
+        "losses": 144,
+        "neutral": 8,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 306,
+        "win_rate_pct": 51.7
+      },
+      "rejection_at_level_bearish": {
+        "hits": 219,
+        "wins": 98,
+        "losses": 107,
+        "neutral": 14,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 219,
+        "win_rate_pct": 47.8
+      },
+      "momentum_acceleration": {
+        "hits": 371,
+        "wins": 160,
+        "losses": 172,
+        "neutral": 39,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 371,
+        "win_rate_pct": 48.2
+      },
+      "inside_bar_consolidation": {
+        "hits": 931,
+        "wins": 0,
+        "losses": 0,
+        "neutral": 931,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 1,
+        "pattern_only": 930,
+        "win_rate_pct": null
+      },
+      "head_and_shoulders_top": {
+        "hits": 285,
+        "wins": 152,
+        "losses": 131,
+        "neutral": 2,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 285,
+        "win_rate_pct": 53.7
+      },
+      "double_bottom_contra": {
+        "hits": 509,
+        "wins": 285,
+        "losses": 218,
+        "neutral": 6,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 509,
+        "win_rate_pct": 56.7
+      },
+      "double_top_contra": {
+        "hits": 199,
+        "wins": 92,
+        "losses": 103,
+        "neutral": 4,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 199,
+        "win_rate_pct": 47.2
+      },
+      "failed_breakdown_wick_contra": {
+        "hits": 226,
+        "wins": 113,
+        "losses": 108,
+        "neutral": 5,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 226,
+        "win_rate_pct": 51.1
+      },
+      "rejection_at_level_bearish_contra": {
+        "hits": 126,
+        "wins": 56,
+        "losses": 59,
+        "neutral": 11,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 126,
+        "win_rate_pct": 48.7
+      },
+      "momentum_acceleration_contra": {
+        "hits": 100,
+        "wins": 47,
+        "losses": 40,
+        "neutral": 13,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 100,
+        "win_rate_pct": 54.0
+      },
+      "head_and_shoulders_top_contra": {
+        "hits": 8,
+        "wins": 6,
+        "losses": 2,
+        "neutral": 0,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 8,
+        "win_rate_pct": 75.0
+      },
+      "ral_at_PDH": {
+        "hits": 67,
+        "wins": 28,
+        "losses": 36,
+        "neutral": 3,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 67,
+        "win_rate_pct": 43.8
+      },
+      "fbw_at_PDL": {
+        "hits": 86,
+        "wins": 42,
+        "losses": 44,
+        "neutral": 0,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 86,
+        "win_rate_pct": 48.8
+      },
+      "ral_at_ActR_741.40": {
+        "hits": 0,
+        "wins": 0,
+        "losses": 0,
+        "neutral": 0,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 0,
+        "win_rate_pct": null
+      },
+      "ral_at_RefR_738.86": {
+        "hits": 0,
+        "wins": 0,
+        "losses": 0,
+        "neutral": 0,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 0,
+        "win_rate_pct": null
+      },
+      "ral_at_CarR_738.10": {
+        "hits": 0,
+        "wins": 0,
+        "losses": 0,
+        "neutral": 0,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 0,
+        "win_rate_pct": null
+      },
+      "fbw_at_ActS_735.40": {
+        "hits": 0,
+        "wins": 0,
+        "losses": 0,
+        "neutral": 0,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 0,
+        "win_rate_pct": null
+      }
+    },
+    "confidence_band_wr": {
+      "<0.60": {
+        "n": 840,
+        "wins": 438,
+        "losses": 402,
+        "wr_pct": 52.1
+      },
+      "0.60-0.70": {
+        "n": 1874,
+        "wins": 933,
+        "losses": 941,
+        "wr_pct": 49.8
+      },
+      "0.70-0.80": {
+        "n": 1676,
+        "wins": 853,
+        "losses": 823,
+        "wr_pct": 50.9
+      },
+      "0.80+": {
+        "n": 878,
+        "wins": 475,
+        "losses": 403,
+        "wr_pct": 54.1
+      }
+    },
+    "regime_breakdown": {
+      "double_bottom::regime_unknown": {
+        "n": 6,
+        "wins": 4,
+        "losses": 2,
+        "wr_pct": 66.7
+      },
+      "failed_breakdown_wick::regime_unknown": {
+        "n": 1,
+        "wins": 1,
+        "losses": 0,
+        "wr_pct": 100.0
+      },
+      "double_top::regime_unknown": {
+        "n": 1,
+        "wins": 0,
+        "losses": 1,
+        "wr_pct": 0.0
+      },
+      "double_top::regime_aligned": {
+        "n": 1029,
+        "wins": 484,
+        "losses": 545,
+        "wr_pct": 47.0
+      },
+      "double_bottom::regime_contrary": {
+        "n": 503,
+        "wins": 285,
+        "losses": 218,
+        "wr_pct": 56.7
+      },
+      "double_bottom_contra::regime_contrary": {
+        "n": 503,
+        "wins": 285,
+        "losses": 218,
+        "wr_pct": 56.7
+      },
+      "double_bottom::regime_aligned": {
+        "n": 1137,
+        "wins": 601,
+        "losses": 536,
+        "wr_pct": 52.9
+      },
+      "failed_breakdown_wick::regime_aligned": {
+        "n": 76,
+        "wins": 40,
+        "losses": 36,
+        "wr_pct": 52.6
+      },
+      "double_top::regime_contrary": {
+        "n": 195,
+        "wins": 92,
+        "losses": 103,
+        "wr_pct": 47.2
+      },
+      "double_top_contra::regime_contrary": {
+        "n": 195,
+        "wins": 92,
+        "losses": 103,
+        "wr_pct": 47.2
+      },
+      "momentum_acceleration::regime_aligned": {
+        "n": 245,
+        "wins": 113,
+        "losses": 132,
+        "wr_pct": 46.1
+      },
+      "failed_breakdown_wick::regime_contrary": {
+        "n": 221,
+        "wins": 113,
+        "losses": 108,
+        "wr_pct": 51.1
+      },
+      "failed_breakdown_wick_contra::regime_contrary": {
+        "n": 221,
+        "wins": 113,
+        "losses": 108,
+        "wr_pct": 51.1
+      },
+      "fbw_at_PDL::regime_aligned": {
+        "n": 29,
+        "wins": 15,
+        "losses": 14,
+        "wr_pct": 51.7
+      },
+      "head_and_shoulders_top::regime_aligned": {
+        "n": 275,
+        "wins": 146,
+        "losses": 129,
+        "wr_pct": 53.1
+      },
+      "rejection_at_level_bearish::regime_contrary": {
+        "n": 115,
+        "wins": 56,
+        "losses": 59,
+        "wr_pct": 48.7
+      },
+      "rejection_at_level_bearish_contra::regime_contrary": {
+        "n": 115,
+        "wins": 56,
+        "losses": 59,
+        "wr_pct": 48.7
+      },
+      "ral_at_PDH::regime_contrary": {
+        "n": 41,
+        "wins": 17,
+        "losses": 24,
+        "wr_pct": 41.5
+      },
+      "momentum_acceleration::regime_contrary": {
+        "n": 87,
+        "wins": 47,
+        "losses": 40,
+        "wr_pct": 54.0
+      },
+      "momentum_acceleration_contra::regime_contrary": {
+        "n": 87,
+        "wins": 47,
+        "losses": 40,
+        "wr_pct": 54.0
+      },
+      "head_and_shoulders_top::regime_contrary": {
+        "n": 8,
+        "wins": 6,
+        "losses": 2,
+        "wr_pct": 75.0
+      },
+      "head_and_shoulders_top_contra::regime_contrary": {
+        "n": 8,
+        "wins": 6,
+        "losses": 2,
+        "wr_pct": 75.0
+      },
+      "ral_at_PDH::regime_aligned": {
+        "n": 23,
+        "wins": 11,
+        "losses": 12,
+        "wr_pct": 47.8
+      },
+      "rejection_at_level_bearish::regime_aligned": {
+        "n": 90,
+        "wins": 42,
+        "losses": 48,
+        "wr_pct": 46.7
+      },
+      "fbw_at_PDL::regime_contrary": {
+        "n": 57,
+        "wins": 27,
+        "losses": 30,
+        "wr_pct": 47.4
+      }
+    },
+    "named_level_breakdown": {
+      "double_bottom::no_named": {
+        "n": 1129,
+        "wins": 610,
+        "losses": 519,
+        "wr_pct": 54.0
+      },
+      "failed_breakdown_wick::no_named": {
+        "n": 224,
+        "wins": 110,
+        "losses": 114,
+        "wr_pct": 49.1
+      },
+      "double_top::no_named": {
+        "n": 856,
+        "wins": 410,
+        "losses": 446,
+        "wr_pct": 47.9
+      },
+      "double_bottom_contra::no_named": {
+        "n": 407,
+        "wins": 231,
+        "losses": 176,
+        "wr_pct": 56.8
+      },
+      "double_bottom::near_named": {
+        "n": 517,
+        "wins": 280,
+        "losses": 237,
+        "wr_pct": 54.2
+      },
+      "double_top_contra::no_named": {
+        "n": 161,
+        "wins": 80,
+        "losses": 81,
+        "wr_pct": 49.7
+      },
+      "momentum_acceleration::no_named": {
+        "n": 237,
+        "wins": 116,
+        "losses": 121,
+        "wr_pct": 48.9
+      },
+      "double_top::near_named": {
+        "n": 369,
+        "wins": 166,
+        "losses": 203,
+        "wr_pct": 45.0
+      },
+      "failed_breakdown_wick_contra::no_named": {
+        "n": 176,
+        "wins": 85,
+        "losses": 91,
+        "wr_pct": 48.3
+      },
+      "momentum_acceleration::near_named": {
+        "n": 95,
+        "wins": 44,
+        "losses": 51,
+        "wr_pct": 46.3
+      },
+      "fbw_at_PDL::near_named": {
+        "n": 86,
+        "wins": 42,
+        "losses": 44,
+        "wr_pct": 48.8
+      },
+      "double_top_contra::near_named": {
+        "n": 34,
+        "wins": 12,
+        "losses": 22,
+        "wr_pct": 35.3
+      },
+      "head_and_shoulders_top::near_named": {
+        "n": 88,
+        "wins": 44,
+        "losses": 44,
+        "wr_pct": 50.0
+      },
+      "rejection_at_level_bearish::no_named": {
+        "n": 162,
+        "wins": 80,
+        "losses": 82,
+        "wr_pct": 49.4
+      },
+      "rejection_at_level_bearish_contra::no_named": {
+        "n": 91,
+        "wins": 46,
+        "losses": 45,
+        "wr_pct": 50.5
+      },
+      "failed_breakdown_wick::near_named": {
+        "n": 74,
+        "wins": 44,
+        "losses": 30,
+        "wr_pct": 59.5
+      },
+      "rejection_at_level_bearish::near_named": {
+        "n": 43,
+        "wins": 18,
+        "losses": 25,
+        "wr_pct": 41.9
+      },
+      "rejection_at_level_bearish_contra::near_named": {
+        "n": 24,
+        "wins": 10,
+        "losses": 14,
+        "wr_pct": 41.7
+      },
+      "ral_at_PDH::near_named": {
+        "n": 64,
+        "wins": 28,
+        "losses": 36,
+        "wr_pct": 43.8
+      },
+      "momentum_acceleration_contra::near_named": {
+        "n": 23,
+        "wins": 11,
+        "losses": 12,
+        "wr_pct": 47.8
+      },
+      "momentum_acceleration_contra::no_named": {
+        "n": 64,
+        "wins": 36,
+        "losses": 28,
+        "wr_pct": 56.2
+      },
+      "failed_breakdown_wick_contra::near_named": {
+        "n": 45,
+        "wins": 28,
+        "losses": 17,
+        "wr_pct": 62.2
+      },
+      "head_and_shoulders_top_contra::near_named": {
+        "n": 1,
+        "wins": 0,
+        "losses": 1,
+        "wr_pct": 0.0
+      },
+      "head_and_shoulders_top::no_named": {
+        "n": 195,
+        "wins": 108,
+        "losses": 87,
+        "wr_pct": 55.4
+      },
+      "double_bottom_contra::near_named": {
+        "n": 96,
+        "wins": 54,
+        "losses": 42,
+        "wr_pct": 56.2
+      },
+      "head_and_shoulders_top_contra::no_named": {
+        "n": 7,
+        "wins": 6,
+        "losses": 1,
+        "wr_pct": 85.7
+      }
+    },
+    "disambiguated_summary": {
+      "total_disambiguated_hits": 4788,
+      "wins": 1950,
+      "losses": 1910,
+      "neutral": 928,
+      "win_rate_pct": 50.5,
+      "regime_resolved_count": 102,
+      "conflicts_total": 102,
+      "conflicts_resolved": 102,
+      "conflicts_unresolved_flat": 0,
+      "conflict_resolution_n": 100,
+      "conflict_resolution_wr_pct": 49.0
+    },
+    "ab_comparison": {
+      "raw_wr_pct": 51.2,
+      "raw_graded_n": 5268,
+      "disambiguated_wr_pct": 50.5,
+      "disambiguated_graded_n": 3860,
+      "wr_delta_pp": -0.7,
+      "conflict_only_wr_pct": 49.0,
+      "conflict_only_n": 100
+    }
+  }
+}

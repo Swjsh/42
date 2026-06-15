@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-03-16T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.70,
+  "reasoning": "XLK tech sector down -1.19% and XLF financials down -0.45% while XLE energy up only +0.35%. Clear risk-off rotation: both major growth + financial sectors are selling, while defensive (energy) bounce is insufficient to offset. Tech's -1.19% weakness is especially significant given ~30% SPY weighting. Broad-based market decline (SPY -1.04%) is confirmed by sector leadership negative. Risk-off bias with medium-high confidence — sector internals align bearishly.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -1.19,
+    "xlf_change_pct": -0.45,
+    "xle_change_pct": 0.35,
+    "spy_change_pct": -1.04,
+    "xlk_vs_spy": "underperform",
+    "breadth": "broad"
+  },
+  "key_observations": [
+    "XLK: -1.19% tech selloff is the primary downside driver; tech underperforming SPY",
+    "XLF: -0.45% financial weakness compounds bearish picture; both mega-cap leaders down",
+    "XLE: +0.35% energy bounce is weak countertrend; insufficient to reverse risk-off tone",
+    "Overall rotation: Textbook risk-off — growth + financial decay while defensive/inflation plays sideways. Broad market weakness confirmed by sector composition."
+  ],
+  "data_quality": "full"
+}

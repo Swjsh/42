@@ -1,0 +1,25 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-20T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.65,
+  "reasoning": "VIX at 25.81 (HIGH regime) and rising +6.26% — a strong bearish signal indicating fear is building. Overnight gap down $4.14 (-0.63%) confirms seller pressure. BEAR ribbon stack adds structural bearish confirmation. However, premarket traded from 655.14 to 659.83 showing intraday buyer strength, and tech sector (XLK) up +1.79% with rotation_signal=risk_on creates conflicting intraday upside potential. Zero macro events today (events_30d filtered to 0 for 2026-03-20). Net macro backdrop: risk-off, favoring bearish directional plays, but with intraday volatility and sector resilience creating choppy execution. Moderate confidence due to VIX direction strength balanced against intraday buyer showing.",
+  "vix_regime": "HIGH",
+  "vix_direction": "rising",
+  "vix_current": 25.81,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -4.14,
+  "overnight_gap_pct": -0.63,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX +6.26% to 25.81 — fear building, not receding; this strongly favors bearish setups (VIX spike = SPY falling expected)",
+    "Overnight gap down $4.14 (-0.63%) with BEAR ribbon stack (spread 108c) — structural bearish alignment on the opening",
+    "Premarket high 659.83 vs low 655.1 = $4.73 range with current 655.58 — intraday buyers showing, gap-fill attempt in progress but below prior close 659.72",
+    "XLK +1.79% and risk_on rotation signal suggest intraday sector strength / rotation play, conflicting with macro VIX rise — expect choppy morning",
+    "Zero macro events 2026-03-20 (no FOMC/CPI/NFP/earnings), clean for trading but no catalyst for large moves either"
+  ],
+  "data_quality": "full",
+  "summary": "Macro setup is bearish (high VIX rising + gap down), but intraday buyers showing strength in premarket and sector action. Recommend caution on bullish entries until VIX shows evidence of rolling over. Bearish setups align with macro regime. No events = clean execution window."
+}

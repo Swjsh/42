@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-05-08T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "SPY at 736.64 at the premarket high ceiling (736.66), having gapped up +5.34 from prior session close (731.30). The BULL ribbon stack is intact and well below (fast 734.32, pivot 733.58, slow 732.80). The critical battle level is 734.6 (premarket low) — if price holds above it, the gap-up rally sustains with targets at psychological resistance (738, 739, 740). The risk: price is already at the PMH with limited room to run in premarket, and the risk-off sector rotation (XLK, XLF down) creates a headwind. Confidence is moderate because the upside target is pure psychological levels (1-star strength) while the support (734.6) is Active-tier 2-star. First test of 734.6 will be definitive.",
+  "battle_level": {
+    "price": 734.6,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 734.6,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 1,
+      "distance_from_price": -2.04
+    },
+    {
+      "price": 736.66,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "at_level",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 0.02
+    },
+    {
+      "price": 732.18,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_above",
+      "test_type": "targets_on_break",
+      "priority_rank": 3,
+      "distance_from_price": -4.46
+    },
+    {
+      "price": 729.75,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "targets_on_break",
+      "priority_rank": 4,
+      "distance_from_price": -6.89
+    },
+    {
+      "price": 716.83,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "macro_anchor",
+      "priority_rank": 5,
+      "distance_from_price": -19.81
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 734.6 on first pullback test",
+      "bias": "bullish",
+      "target": 739.0,
+      "entry_trigger": "ribbon_intact + gap_hold + level_hold"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 734.6",
+      "bias": "bearish",
+      "target": 732.18,
+      "entry_trigger": "ribbon_break + gap_fail + support_rejection"
+    },
+    "tertiary": {
+      "condition": "if SPY holds 734.6 AND breaks above PMH (736.66)",
+      "bias": "bullish_strong",
+      "target": 740.0,
+      "entry_trigger": "new_session_high + momentum_continuation"
+    }
+  },
+  "levels_in_play_count": 5,
+  "key_observations": [
+    "Price at the premarket high ceiling (736.66) with near-zero margin to test resistance; limited RTH upside in premarket.",
+    "BULL ribbon stack is 2+ dollars below price — strong structural support. If 734.6 breaks, the entire gap-up thesis is invalidated.",
+    "Risk-off sector rotation (XLK -33bp, XLF -44bp) is a cross-current to the BULL bias — suggests institutional caution despite the gap-up.",
+    "No Carry-tier resistance above price (only psychological 738/739/740 at 1-star); the overhead is weak. Upside targets are thin.",
+    "Premarket volume is moderate (50 bars, 23K-26K avg). RTH will determine if the gap holds or fills. Watch 734.6 as the first real test."
+  ],
+  "data_quality": "full"
+}

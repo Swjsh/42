@@ -1,0 +1,66 @@
+{
+  "date": "2026-03-27",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:10.308446+00:00",
+  "actual": {
+    "open": 642.5,
+    "close": 634.08,
+    "high": 642.66,
+    "low": 633.1,
+    "move_dollars": -8.42,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 50,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 643.9,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bearish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 643.9,
+      "role": "support",
+      "rth_range": [
+        633.1,
+        642.66
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 643.9,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "SPY tests 643.9 (premarket low / battle level) within the first 30 minutes of RTH \u2014 price touches 64",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains above 27.00 through 10:30 ET, sustaining the HIGH regime \u2014 no intraday capitulation reversal in the first 60",
+        "invalidation": "VIX drops below 27.00 before 10:30 ET, signaling the overnight spike to 30.01 was a capitulation overshoot already fully"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BEAR ribbon (111c spread) holds through the first 30 minutes of RTH \u2014 SPY closes below fast EMA 645.15 on the 10:0",
+        "invalidation": "SPY closes above 645.15 on any 5-minute bar before 10:00 ET, signaling ribbon recovery and invalidating the bearish stru"
+      }
+    ]
+  },
+  "narrative": "All four specialists are unanimously bearish (4/4) on a CLEAN_BEAR ribbon day with VIX spiking to 30.01 and classic risk-off rotation (XLK -1.98%, XLE +1.40%), pointing to a test of and potential break below the 643.9 premarket low. However, the validator flags a critical fragility that cuts the con"
+}

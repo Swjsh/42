@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-04-10T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.60,
+  "reasoning": "XLF +0.77% driving SPY +0.75% move — financials clearly in control. However, XLE down -1.49% creates significant divergence (rate-positive but energy-weak dynamic). XLK flat at +0.22% means no tech momentum support. Breadth is narrow: only XLF leading, energy dragging, tech asleep. This is a rate-sensitive move, not broad risk-on. Bullish on the financials strength but cautious on the overall breadth picture. Vulnerable to reversal if energy stabilizes or tech rolls over.",
+  "rotation_signal": "mixed",
+  "sector_alignment": {
+    "xlk_change_pct": 0.22,
+    "xlf_change_pct": 0.77,
+    "xle_change_pct": -1.49,
+    "spy_change_pct": 0.75,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLF: +0.77% — strong financials leadership, nearly matching SPY's move. Rate-positive dynamic.",
+    "XLE: -1.49% — notable weakness. Energy underperforming signals inflation/commodity concern, contradicts pure risk-on.",
+    "XLK: +0.22% — flat, negligible contribution. Tech not supporting the move.",
+    "Overall rotation: rate-sensitive (banks up, energy down) rather than broad risk-on. Single-sector leadership, narrow breadth."
+  ],
+  "data_quality": "full"
+}

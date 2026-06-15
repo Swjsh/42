@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-02-10T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.65,
+  "reasoning": "VIX at 17.35 in MID regime with flat direction (no volatility directional pressure). Zero macro events on 2026-02-10 removes all hard no-trade windows and allows risk sentiment to drive the day. Overnight gap minimal ($0.17 flat). Sector rotation risk-on: tech XLK +1.96%, energy XLE +0.81%, SPY +0.66%. Broad strength suggests modest bullish bias, but ribbon is MIXED with 15-cent tight spread indicating consolidation rather than directional conviction. Normal trading day with slight bullish lean; monitor for ribbon stack clarity at 09:35 ET.",
+  "vix_regime": "MID",
+  "vix_direction": "flat",
+  "vix_current": 17.35,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": 0.17,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX 17.35 stable in MID regime. No volatility directional signal (-0.12% change). Both call and put directions viable from vol standpoint.",
+    "Zero macro events on 2026-02-10. No FOMC, CPI, NFP, or earnings. Clean day, no artificial price repricing windows.",
+    "Sector rotation risk-on: XLK +1.96%, XLE +0.81%, SPY +0.66%, XLF flat -0.26%. Tech leading; broad strength tilts risk-on bias.",
+    "Overnight gap minimal ($0.17 vs prior 694.0 close). Flat open suggests no overnight conviction. Neither bulls nor bears came in strong.",
+    "Ribbon MIXED with 15-cent spread (tight). Fast/pivot/slow EMAs not ordered; consolidation setup rather than directional stack. Range-day likely unless ribbon clarifies by 09:35 ET."
+  ],
+  "data_quality": "full"
+}

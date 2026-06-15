@@ -1,0 +1,85 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-04-09T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "SPY at 673.74, trapped in a tight premarket range (PML 672.87 to PMH 676.01 = 3.14 point band). Price is only 87c above the PML support — the first battleground. Ribbon is BEAR-stacked but spread is CHOP (36c), confirming range environment. Risk-off sector rotation (XLK -1.01%, defensive flow) + overnight gap-down -2.14 tips the balance toward support test over immediate upside breakout. Battle level is 672.87 PML. If it holds, the zone compresses further and next resistance is PMH 676.01 at +$2.27; if it breaks, tape opens toward prior day low 671.46 and the round-number support shelf. Asymmetric downside room with ribbon tailwind = bearish lean for the open.",
+  "battle_level": {
+    "price": 672.87,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 672.87,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": -0.87
+    },
+    {
+      "price": 676.01,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 2.27
+    },
+    {
+      "price": 671.46,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": -2.28
+    },
+    {
+      "price": 677.08,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 3.34
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 672.87 on first retest",
+      "bias": "bearish_consolidation",
+      "target": 671.46,
+      "entry_trigger": "support_test + ribbon_bear + sector_rotation"
+    },
+    "secondary": {
+      "condition": "if SPY bounces 672.87 and retests PMH 676.01",
+      "bias": "range_bound",
+      "target": 676.01,
+      "entry_trigger": "support_bounce + initial_resistance_test"
+    },
+    "tertiary": {
+      "condition": "if SPY breaks below 671.46",
+      "bias": "bearish",
+      "target": 670.0,
+      "entry_trigger": "support_rejection + momentum_cascade"
+    }
+  },
+  "levels_in_play_count": 7,
+  "key_observations": [
+    "Price 673.74 is 87 cents above PML (672.87) — first test imminent on any opening weakness.",
+    "Ribbon stack is BEAR but spread is tight (36c) — chop signal; no high-conviction stack yet.",
+    "Risk-off sector rotation (XLK down 1.01%) + VIX flat at 20.94 (MID regime) supports bearish lean into support test.",
+    "Overnight gap down -2.14 vs prior close 675.88; premarket high 676.01 already failed to reclaim it. Flag for tape bears.",
+    "Upside blocked by PMH 676.01 at +$2.27; downside path to 671.46 at -$2.28 — asymmetric room favors bears."
+  ],
+  "data_quality": "full"
+}

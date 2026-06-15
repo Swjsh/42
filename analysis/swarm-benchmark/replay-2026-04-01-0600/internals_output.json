@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-04-01T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.76,
+  "reasoning": "XLK +2.9% and XLF +0.92% both above 0.5% threshold, aligned bullish. XLE -1.26% confirms classic risk-on rotation (growth outperforming, energy/defensive selling off). Tech is outperforming SPY (+2.9% vs +1.78%) — indicates concentration on tech leadership, not fully broad-based breadth. Sector internals support the overnight +3.3 gap-up and risk-on positioning. Bullish bias with medium-high confidence.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 2.9,
+    "xlf_change_pct": 0.92,
+    "xle_change_pct": -1.26,
+    "spy_change_pct": 1.78,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +2.9% — strong tech leadership, well above 0.5% threshold",
+    "XLF: +0.92% — financials participating, modest but positive contribution to breadth",
+    "XLE: -1.26% — defensive energy selling off confirms risk-on rotation (growth > value/commodity)",
+    "Breadth: Tech concentration (XLK outperforming SPY by +1.12%) indicates narrow leadership, not fully broad-based"
+  ],
+  "data_quality": "full"
+}

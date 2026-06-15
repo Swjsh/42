@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-03-11T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.45,
+  "reasoning": "XLF down -0.54% (crosses risk-off threshold) + XLE down -0.82% indicates financial sector stress and energy weakness. However, XLK remains flat (-0.06%) and SPY itself is essentially flat (-0.08%), limiting conviction. This is modest downside bias from sector-specific weakness in financials rather than broad-based SPY selling. The rotation is risk-off but incomplete — tech is not yet participating in the selloff.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -0.06,
+    "xlf_change_pct": -0.54,
+    "xle_change_pct": -0.82,
+    "spy_change_pct": -0.08,
+    "xlk_vs_spy": "outperform",
+    "breadth": "flat"
+  },
+  "key_observations": [
+    "XLF -0.54%: Financial sector weakness crossing the -0.5% threshold — classic risk-off signal indicating stress/defensiveness",
+    "XLE -0.82%: Energy sector weakness, coordinated with financials to reinforce risk-off lean",
+    "XLK -0.06%: Tech holding flat while financials and energy sell — relative outperformance but no positive leadership",
+    "Overall rotation: Risk-off momentum from prior close, but low magnitude and incomplete (tech not following). SPY resilience (flat) suggests rotation may not be SPY-driven."
+  ],
+  "data_quality": "full"
+}

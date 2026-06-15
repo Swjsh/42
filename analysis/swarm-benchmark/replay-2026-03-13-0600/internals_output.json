@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-03-13T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.70,
+  "reasoning": "XLK -1.03% (tech weakness), XLF -0.31% (financials down), XLE +0.67% (defensive outperform). Classic risk-off rotation: growth sectors declining while energy holds, SPY following tech lower at -0.76%. Overnight gap +1.05 reversing in pre-market. Narrow breadth — tech-led selloff, not broad. Bearish bias with medium-high confidence.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -1.03,
+    "xlf_change_pct": -0.31,
+    "xle_change_pct": 0.67,
+    "spy_change_pct": -0.76,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK -1.03%: Material tech weakness. Tech is ~30% of SPY weight; this is dragging the index.",
+    "XLE +0.67%: Energy outperforming while growth sectors fall. Defensive rotation underway.",
+    "XLF -0.31%: Financials weakness adds secondary confirmation of risk-off; breadth deteriorating.",
+    "Overall rotation: Risk-off rotation in place. Overnight gap (+1.05) being surrendered. Narrow breadth (tech-led decline). Bearish setup for 2026-03-13."
+  ],
+  "data_quality": "full"
+}

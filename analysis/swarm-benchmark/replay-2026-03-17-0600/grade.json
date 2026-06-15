@@ -1,0 +1,66 @@
+{
+  "date": "2026-03-17",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:08.380094+00:00",
+  "actual": {
+    "open": 672.39,
+    "close": 670.73,
+    "high": 674.43,
+    "low": 669.7,
+    "move_dollars": -1.66,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 31,
+    "consensus_strength": "moderate",
+    "battle_level": {
+      "price": 668.49,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bullish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 668.49,
+      "role": "resistance",
+      "rth_range": [
+        669.7,
+        674.43
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 668.49,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "SPY will test PMH resistance at 668.49 within the first 30 minutes of RTH (by 10:00 ET), given price",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 23.50 through 11:00 ET, sustaining the overnight decompression signal and keeping the macro backstop i",
+        "invalidation": "VIX reverses and spikes back above 23.50 by 10:00 ET, signaling fear re-entering the market"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "Ribbon will remain CHOP (spread <30\u00a2, no full bull alignment) through 10:00 ET, preventing a clean ribbon-confirmation e",
+        "invalidation": "Ribbon aligns full bull stack (fast > pivot > slow with spread \u226530\u00a2) within the first 30 minutes of RTH"
+      }
+    ]
+  },
+  "narrative": "The core tension is a 2-2 split: macro and level_thesis both read bullish on VIX decompression and a $2.76 premarket bounce consolidating at PMH 668.49, while technical (inverted ribbon, doji bars = CHOP) and internals (zero sector breadth, all sub-0.3%) see no directional conviction. The weighted b"
+}

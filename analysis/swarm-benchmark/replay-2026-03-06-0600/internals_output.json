@@ -1,0 +1,24 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-03-06T06:00:00Z",
+  "bias": "mixed",
+  "confidence": 0.42,
+  "reasoning": "XLK +0.73% is the only meaningful sector move, while XLF flat (-0.02%), XLE flat (-0.09%), and SPY flat (-0.11%). Tech is outperforming on a weak market day — characteristic of narrow leadership without broad support. Financials not participating in tech's strength suggests lack of risk-on conviction. This is a divergence signal: tech strength isolated from the rest of the market. Not enough sector breadth alignment to declare a directional bias for SPY. Mixed signal with medium-low confidence.",
+  "rotation_signal": "mixed",
+  "sector_alignment": {
+    "xlk_change_pct": 0.73,
+    "xlf_change_pct": -0.02,
+    "xle_change_pct": -0.09,
+    "spy_change_pct": -0.11,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +0.73% — tech showing premarket strength",
+    "XLF: -0.02% — financials flat, not supporting tech leadership",
+    "XLE: -0.09% — energy flat, defensive posture",
+    "Breadth: narrow — only XLK > 0.5%, rest essentially flat",
+    "Rotation: mixed — tech leadership without broad support is not a risk-on signal for SPY"
+  ],
+  "data_quality": "full"
+}

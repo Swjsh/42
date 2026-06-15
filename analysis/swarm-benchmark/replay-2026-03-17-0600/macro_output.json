@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-17T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.70,
+  "reasoning": "VIX at 22.19 (HIGH regime) but falling -6.33% — strong decompression signal favoring calls. No major macro events today; FOMC tomorrow creates next-day risk but RTH clear. Overnight gap only -$0.50 (neutral); premarket rallied $2.79 from low to high (665.7→668.49), showing early buying interest. Ribbon MIXED (spread 24¢) reflects early-session indecision. Confidence tempered by elevated absolute IV (premium expensive for directional) and lack of strong structural confirmation yet.",
+  "vix_regime": "HIGH",
+  "vix_direction": "falling",
+  "vix_current": 22.19,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -0.50,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX -6.33% in single overnight session — fear receding rapidly, typical pre-rally decompression",
+    "Zero macro events 03-17 RTH; FOMC tomorrow 14:00 ET creates next-day gamma risk but today is clean",
+    "Premarket +$2.79 from low (665.7 to 668.49) despite negative gap — buyers present early",
+    "IV regime still HIGH at 22.19 — premium expensive relative to recent history, limits aggressive sizing",
+    "Ribbon MIXED (fast 667.87 / pivot 667.77 / slow 668.02, spread 24¢) — regime not yet decisive, watch for stack flip at 09:35 ET open"
+  ],
+  "data_quality": "full"
+}

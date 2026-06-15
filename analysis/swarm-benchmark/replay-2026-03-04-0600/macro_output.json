@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-04T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.82,
+  "reasoning": "VIX at 20.61 (MID regime) and FALLING 12.52% overnight — fear receding, compression bullish for calls. No macro events scheduled for today (2026-03-04); clean trading window all day. Overnight gap flat (SPY 680.29 open = prior close 680.29) — no overnight sentiment shift. Risk-on rotation confirmed by XLF +1.83% and XLK +0.84% (banks and tech leading). Ribbon in healthy BULL stack with 81¢ spread. Backdrop: low macro friction, falling volatility = tailwind for bullish directional setups.",
+  "vix_regime": "MID",
+  "vix_direction": "falling",
+  "vix_current": 20.61,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": 0.0,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX fell 12.52% to 20.61 overnight—fear receding, premium compression bullish for directional traders",
+    "Zero macro events scheduled for 2026-03-04; full RTH trading window with no hard volatility catalysts",
+    "Overnight gap flat; SPY opened at prior close (680.29)—no gap-driven momentum either direction",
+    "Risk-on rotation: XLF +1.83%, XLK +0.84% leading; only XLE down -1.52%—cyclical/tech strength",
+    "Ribbon BULL stack (spread 81¢) confirms upside bias structure"
+  ],
+  "data_quality": "full"
+}

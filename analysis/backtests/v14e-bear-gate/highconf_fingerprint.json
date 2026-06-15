@@ -1,0 +1,429 @@
+{
+  "analysis": "V14E BEAR_HIGH_CONF sub-tier fingerprint",
+  "n_total": 33,
+  "vix_regime_summary": {
+    "VIX_ELEVATED (20-25)": {
+      "n": 7,
+      "wins": 4,
+      "wr_pct": 57.1,
+      "total_pnl": 10.23
+    },
+    "VIX_HIGH (ge25)": {
+      "n": 2,
+      "wins": 1,
+      "wr_pct": 50.0,
+      "total_pnl": -118.3
+    },
+    "VIX_MODERATE (15-20)": {
+      "n": 24,
+      "wins": 23,
+      "wr_pct": 95.8,
+      "total_pnl": 1281.4
+    }
+  },
+  "time_bucket_summary": {
+    "09:30": {
+      "n": 3,
+      "wins": 3,
+      "wr_pct": 100.0,
+      "total_pnl": 89.76
+    },
+    "10:00": {
+      "n": 1,
+      "wins": 1,
+      "wr_pct": 100.0,
+      "total_pnl": 59.9
+    },
+    "10:30": {
+      "n": 3,
+      "wins": 2,
+      "wr_pct": 66.7,
+      "total_pnl": -18.48
+    },
+    "11:00": {
+      "n": 13,
+      "wins": 9,
+      "wr_pct": 69.2,
+      "total_pnl": 269.38
+    },
+    "11:30": {
+      "n": 6,
+      "wins": 6,
+      "wr_pct": 100.0,
+      "total_pnl": 233.64
+    },
+    "12:00": {
+      "n": 4,
+      "wins": 4,
+      "wr_pct": 100.0,
+      "total_pnl": 110.23
+    },
+    "13:00": {
+      "n": 3,
+      "wins": 3,
+      "wr_pct": 100.0,
+      "total_pnl": 428.9
+    }
+  },
+  "outcome_counts": {
+    "tp1_then_be_stop": 25,
+    "stopped": 5,
+    "runner_hit": 3
+  },
+  "trigger_individual_counts": {},
+  "trigger_combo_top10": [
+    {
+      "triggers": [],
+      "count": 33
+    }
+  ],
+  "score_distribution": {
+    "9": 7,
+    "10": 26
+  },
+  "quality_rank_distribution": {},
+  "date_concentration": {
+    "n_unique_dates": 15,
+    "obs_per_date_median": 1,
+    "top_5_dates": [
+      {
+        "date": "2026-05-04",
+        "count": 8
+      },
+      {
+        "date": "2026-05-15",
+        "count": 6
+      },
+      {
+        "date": "2026-04-23",
+        "count": 3
+      },
+      {
+        "date": "2026-04-28",
+        "count": 3
+      },
+      {
+        "date": "2026-04-20",
+        "count": 2
+      }
+    ],
+    "unknown_count": 0
+  },
+  "sample_records": [
+    {
+      "date": "2026-04-23",
+      "time": "13:10",
+      "triggers": [],
+      "outcome": "runner_hit",
+      "pnl": 102.5,
+      "confidence": "high",
+      "vix_regime": "VIX_MODERATE (15-20)",
+      "metadata_keys": [
+        "score",
+        "blockers",
+        "triggers",
+        "rejection_or_reclaim_level",
+        "setup_label",
+        "no_trade_before",
+        "no_trade_window",
+        "strike_offset"
+      ],
+      "score": 9,
+      "quality_rank": null
+    },
+    {
+      "date": "2026-04-28",
+      "time": "09:50",
+      "triggers": [],
+      "outcome": "tp1_then_be_stop",
+      "pnl": 29.92,
+      "confidence": "high",
+      "vix_regime": "VIX_MODERATE (15-20)",
+      "metadata_keys": [
+        "score",
+        "blockers",
+        "triggers",
+        "rejection_or_reclaim_level",
+        "setup_label",
+        "no_trade_before",
+        "no_trade_window",
+        "strike_offset"
+      ],
+      "score": 10,
+      "quality_rank": null
+    },
+    {
+      "date": "2026-05-04",
+      "time": "11:15",
+      "triggers": [],
+      "outcome": "tp1_then_be_stop",
+      "pnl": 66.5,
+      "confidence": "high",
+      "vix_regime": "VIX_MODERATE (15-20)",
+      "metadata_keys": [
+        "score",
+        "blockers",
+        "triggers",
+        "rejection_or_reclaim_level",
+        "setup_label",
+        "no_trade_before",
+        "no_trade_window",
+        "strike_offset"
+      ],
+      "score": 10,
+      "quality_rank": null
+    },
+    {
+      "date": "2026-04-20",
+      "time": "10:50",
+      "triggers": [],
+      "outcome": "tp1_then_be_stop",
+      "pnl": 38.26,
+      "confidence": "high",
+      "vix_regime": "VIX_MODERATE (15-20)",
+      "metadata_keys": [
+        "score",
+        "blockers",
+        "triggers",
+        "rejection_or_reclaim_level",
+        "setup_label",
+        "no_trade_before",
+        "no_trade_window",
+        "strike_offset"
+      ],
+      "score": 9,
+      "quality_rank": null
+    },
+    {
+      "date": "2026-04-21",
+      "time": "12:20",
+      "triggers": [],
+      "outcome": "tp1_then_be_stop",
+      "pnl": 23.1,
+      "confidence": "high",
+      "vix_regime": "VIX_ELEVATED (20-25)",
+      "metadata_keys": [
+        "score",
+        "blockers",
+        "triggers",
+        "rejection_or_reclaim_level",
+        "setup_label",
+        "no_trade_before",
+        "no_trade_window",
+        "strike_offset"
+      ],
+      "score": 10,
+      "quality_rank": null
+    },
+    {
+      "date": "2026-04-23",
+      "time": "13:05",
+      "triggers": [],
+      "outcome": "runner_hit",
+      "pnl": 163.2,
+      "confidence": "high",
+      "vix_regime": "VIX_MODERATE (15-20)",
+      "metadata_keys": [
+        "score",
+        "blockers",
+        "triggers",
+        "rejection_or_reclaim_level",
+        "setup_label",
+        "no_trade_before",
+        "no_trade_window",
+        "strike_offset"
+      ],
+      "score": 9,
+      "quality_rank": null
+    },
+    {
+      "date": "2026-04-28",
+      "time": "09:50",
+      "triggers": [],
+      "outcome": "tp1_then_be_stop",
+      "pnl": 29.92,
+      "confidence": "high",
+      "vix_regime": "VIX_MODERATE (15-20)",
+      "metadata_keys": [
+        "score",
+        "blockers",
+        "triggers",
+        "rejection_or_reclaim_level",
+        "setup_label",
+        "no_trade_before",
+        "no_trade_window",
+        "strike_offset"
+      ],
+      "score": 10,
+      "quality_rank": null
+    },
+    {
+      "date": "2026-05-04",
+      "time": "11:15",
+      "triggers": [],
+      "outcome": "tp1_then_be_stop",
+      "pnl": 66.5,
+      "confidence": "high",
+      "vix_regime": "VIX_MODERATE (15-20)",
+      "metadata_keys": [
+        "score",
+        "blockers",
+        "triggers",
+        "rejection_or_reclaim_level",
+        "setup_label",
+        "no_trade_before",
+        "no_trade_window",
+        "strike_offset"
+      ],
+      "score": 10,
+      "quality_rank": null
+    },
+    {
+      "date": "2026-04-20",
+      "time": "10:50",
+      "triggers": [],
+      "outcome": "tp1_then_be_stop",
+      "pnl": 38.26,
+      "confidence": "high",
+      "vix_regime": "VIX_MODERATE (15-20)",
+      "metadata_keys": [
+        "score",
+        "blockers",
+        "triggers",
+        "rejection_or_reclaim_level",
+        "setup_label",
+        "no_trade_before",
+        "no_trade_window",
+        "strike_offset"
+      ],
+      "score": 9,
+      "quality_rank": null
+    },
+    {
+      "date": "2026-04-21",
+      "time": "12:20",
+      "triggers": [],
+      "outcome": "tp1_then_be_stop",
+      "pnl": 23.1,
+      "confidence": "high",
+      "vix_regime": "VIX_ELEVATED (20-25)",
+      "metadata_keys": [
+        "score",
+        "blockers",
+        "triggers",
+        "rejection_or_reclaim_level",
+        "setup_label",
+        "no_trade_before",
+        "no_trade_window",
+        "strike_offset"
+      ],
+      "score": 10,
+      "quality_rank": null
+    },
+    {
+      "date": "2026-04-23",
+      "time": "13:05",
+      "triggers": [],
+      "outcome": "runner_hit",
+      "pnl": 163.2,
+      "confidence": "high",
+      "vix_regime": "VIX_MODERATE (15-20)",
+      "metadata_keys": [
+        "score",
+        "blockers",
+        "triggers",
+        "rejection_or_reclaim_level",
+        "setup_label",
+        "no_trade_before",
+        "no_trade_window",
+        "strike_offset"
+      ],
+      "score": 9,
+      "quality_rank": null
+    },
+    {
+      "date": "2026-04-28",
+      "time": "09:50",
+      "triggers": [],
+      "outcome": "tp1_then_be_stop",
+      "pnl": 29.92,
+      "confidence": "high",
+      "vix_regime": "VIX_MODERATE (15-20)",
+      "metadata_keys": [
+        "score",
+        "blockers",
+        "triggers",
+        "rejection_or_reclaim_level",
+        "setup_label",
+        "no_trade_before",
+        "no_trade_window",
+        "strike_offset"
+      ],
+      "score": 10,
+      "quality_rank": null
+    },
+    {
+      "date": "2026-05-04",
+      "time": "11:15",
+      "triggers": [],
+      "outcome": "tp1_then_be_stop",
+      "pnl": 66.5,
+      "confidence": "high",
+      "vix_regime": "VIX_MODERATE (15-20)",
+      "metadata_keys": [
+        "score",
+        "blockers",
+        "triggers",
+        "rejection_or_reclaim_level",
+        "setup_label",
+        "no_trade_before",
+        "no_trade_window",
+        "strike_offset"
+      ],
+      "score": 10,
+      "quality_rank": null
+    },
+    {
+      "date": "2026-05-15",
+      "time": "11:40",
+      "triggers": [],
+      "outcome": "tp1_then_be_stop",
+      "pnl": 38.94,
+      "confidence": "high",
+      "vix_regime": "VIX_MODERATE (15-20)",
+      "metadata_keys": [
+        "score",
+        "blockers",
+        "triggers",
+        "rejection_or_reclaim_level",
+        "setup_label",
+        "no_trade_before",
+        "no_trade_window",
+        "strike_offset"
+      ],
+      "score": 10,
+      "quality_rank": null
+    },
+    {
+      "date": "2026-05-04",
+      "time": "11:15",
+      "triggers": [],
+      "outcome": "tp1_then_be_stop",
+      "pnl": 66.5,
+      "confidence": "high",
+      "vix_regime": "VIX_MODERATE (15-20)",
+      "metadata_keys": [
+        "score",
+        "blockers",
+        "triggers",
+        "rejection_or_reclaim_level",
+        "setup_label",
+        "no_trade_before",
+        "no_trade_window",
+        "strike_offset"
+      ],
+      "score": 10,
+      "quality_rank": null
+    }
+  ]
+}

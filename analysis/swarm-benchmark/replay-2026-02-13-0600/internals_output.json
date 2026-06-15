@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-02-13T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.82,
+  "reasoning": "XLK -2.86% + XLF -2.29% + XLE -1.75% = broad-based risk-off rotation. All three major sectors down >0.5%, aligned in same direction. Tech and financials both underperforming SPY to downside, signaling institutional shift away from growth/cyclicals. No divergence or safe-haven support. Breadth is broad (all sectors selling together), not narrow. High-conviction bearish bias with strong sector internals confirmation.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -2.86,
+    "xlf_change_pct": -2.29,
+    "xle_change_pct": -1.75,
+    "spy_change_pct": -1.87,
+    "xlk_vs_spy": "underperform",
+    "breadth": "broad"
+  },
+  "key_observations": [
+    "XLK: -2.86% — Tech selling harder than SPY, risk-off leadership",
+    "XLF: -2.29% — Financials also down, no bank support for broad market",
+    "XLE: -1.75% — Energy slight outperformer but still negative; no refuge bid",
+    "Overall rotation: Risk-off confirmed — all sectors down together = broad institutional exit, not localized weakness"
+  ],
+  "data_quality": "full"
+}

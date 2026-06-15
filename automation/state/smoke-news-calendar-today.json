@@ -1,0 +1,41 @@
+{
+  "_smoke_test": "Manually-computed Step 3a output for 2026-05-07 (today). Validates news_calendar producer logic without a full premarket run. Real premarket at 08:30 will write into today-bias.news_calendar.",
+  "_computed_at": "2026-05-07T00:25:00-04:00",
+  "_target_date": "2026-05-07",
+
+  "_inputs": {
+    "macro_calendar_events_30d_filtered_to_today": "[] — no high-impact events scheduled for 2026-05-07. Closest upcoming: 2026-05-14 CPI (high severity). 2026-06-17 FOMC (in fomc_meeting_dates_2026[])",
+    "macro_calendar_earnings_30d_filtered_to_today": "[] — NVDA AMC entry is 2026-05-21",
+    "news_json_as_of": "2026-05-06T09:42:00-04:00",
+    "news_json_age_hours": 14.7,
+    "news_json_stale": false,
+    "news_json_action": "keep — < 36h threshold"
+  },
+
+  "news_calendar": {
+    "events_today": [],
+    "no_trade_window": [],
+    "size_modifier_windows": [],
+    "catalyst_narrative": {
+      "regime": "risk_on",
+      "primary_catalyst": "U.S.-Iran approaching peace deal with moratorium on nuclear enrichment",
+      "vix_expectation": "compressed — geopolitical de-escalation typically crushes VIX. Calls regime favored. Puts setup needs catalyst reversal to fire.",
+      "watch_for_reversal": [
+        "Negative peace-deal headline (talks break down, Iran refuses, etc.)",
+        "Oil reversing higher intraday",
+        "VIX breaking above 17.30 on any RTH bar",
+        "SPY breaking below 728 with conviction (would invalidate the buyer absorption)"
+      ],
+      "stale": false,
+      "source_as_of": "2026-05-06T09:42:00-04:00"
+    }
+  },
+
+  "_validation": {
+    "every_event_has_5_fields": "n/a — array empty",
+    "every_no_trade_window_has_start_lt_end": "n/a — array empty",
+    "fomc_meeting_today": false,
+    "fomc_meeting_today_window_emitted": "n/a — not an FOMC date",
+    "interpretation": "Today is a normal trading day with no scheduled high-impact macro events. Heartbeat filter 2 will pass (no_trade_window empty), bullish/bearish setups can fire purely on chart structure. Catalyst narrative from news.json carries forward as awareness context — not consumed by heartbeat."
+  }
+}

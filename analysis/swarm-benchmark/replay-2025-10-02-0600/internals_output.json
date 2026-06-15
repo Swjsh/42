@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2025-10-02T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.58,
+  "reasoning": "XLK (tech) +1.5% is outperforming SPY +0.8%, showing strong tech leadership and growth momentum heading into the day. However, XLF (financials) at -0.41% signals weakness in the broad base — this is a narrow, tech-led rally rather than broad-based strength. XLE +0.49% is neutral. Premarket ribbon is BULL stack with 65c spread. Bias is bullish on tech outperformance, but sector divergence (tech up / financials down) limits confidence to medium. Watch for XLF recovery to confirm broad-based upside; if XLF stays weak, tech rally may face selling pressure at resistance.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 1.5,
+    "xlf_change_pct": -0.41,
+    "xle_change_pct": 0.49,
+    "spy_change_pct": 0.8,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +1.5% — tech/growth leadership, outperforming SPY by 0.7pp",
+    "XLF: -0.41% — financials weakness is a caution, suggests incomplete sector rotation",
+    "XLE: +0.49% — energy stable but not leading; no inflation-driven rotation signal",
+    "Overall rotation: partial risk-on (growth up, but financials lagging) — narrow breadth, watch for XLF recovery"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-05-15T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.65,
+  "reasoning": "XLK +1.21% leading SPY +0.61% (tech outperformance) + XLE +0.73% participating = risk-on rotation signal. However, XLF flat at +0.04% breaks full sector breadth — financials not joining the upside move. Medium confidence: tech and energy are driving today's premarket strength, but the absence of financial sector participation prevents HIGH confidence. Supports bullish SPY bias with caution on rotation durability.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 1.21,
+    "xlf_change_pct": 0.04,
+    "xle_change_pct": 0.73,
+    "spy_change_pct": 0.61,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK +1.21%: strong tech leadership, outperforming SPY — bullish signal",
+    "XLF +0.04%: financials essentially flat, not participating — breadth concern",
+    "XLE +0.73%: energy joining risk-on rotation — supports bullish case",
+    "Overall rotation: risk_on, but narrow (tech-led, not broad). Watch for XLF participation post-open to confirm breadth."
+  ],
+  "data_quality": "full"
+}

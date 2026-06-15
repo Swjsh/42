@@ -1,0 +1,63 @@
+{
+  "date": "2026-03-13",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:07.889435+00:00",
+  "actual": {
+    "open": 669.24,
+    "close": 662.3,
+    "high": 672.34,
+    "low": 661.37,
+    "move_dollars": -6.94,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 61,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 665.91,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bearish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "TESTED_MIXED",
+      "battle_level": 665.91,
+      "role": "support",
+      "first_touch_time": "2026-03-13T10:55:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 665.91,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY tests 665.91 (prior-session RTH low, Active 2-star support) within the first 90 minutes of RTH \u2014",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX continues falling and closes below 24.00 by 10:30 ET, confirming fear-peak-to-recession dynamic initiated overnight",
+        "invalidation": "VIX remains above 24.50 at 10:30 ET or reverses higher above 26.00 at any point in the first hour of RTH"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "SPY trades below ribbon pivot 667.32 on a closing 5m bar within the first 30 minutes of RTH (09:35-10:00 ET), confirming",
+        "invalidation": "SPY prints a 5m bar close above 667.32 within the first 30 minutes of RTH"
+      }
+    ]
+  },
+  "narrative": "Three-to-one bearish consensus (technical CLEAN_BEAR ribbon + level_thesis gap-up into ceiling + internals risk-off rotation) is undermined by macro's lone but high-conviction bullish vote (VIX -7.3% compression + zero event risk), producing a moderate-robustness consensus rather than a strong one. "
+}

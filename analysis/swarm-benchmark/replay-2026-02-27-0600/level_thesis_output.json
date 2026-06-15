@@ -1,0 +1,104 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-02-27T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "SPY premarket at 688.86, sandwiched between 684.37 Active support (2★, 4.49 below) and 693.17 Active resistance (2★, 4.31 above). The battle level is 684.37—the first meaningful support on any retrace; it's also the prior session RTH low. Macro headwinds dominate: VIX rising +8.48% into MID regime, sector rotation into risk_off (Tech -1.35%), overnight gap flat. Ribbon remains BULL (fast 689.08 > pivot 688.94 > slow 688.55) but price hovering just below fast EMA provides a near-term floor. Directional bias is bearish due to macro deterioration, but the ribbon structure caps downside before testing 684.37.",
+  "battle_level": {
+    "price": 684.37,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 684.37,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 4.49
+    },
+    {
+      "price": 688.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 0.86
+    },
+    {
+      "price": 690.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 1.14
+    },
+    {
+      "price": 691.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 4,
+      "distance_from_price": 2.14
+    },
+    {
+      "price": 693.17,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": 4.31
+    },
+    {
+      "price": 680.0,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 6,
+      "distance_from_price": 8.86
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 684.37 on first test (does not break below)",
+      "bias": "bullish_consolidation",
+      "target": 690.0,
+      "entry_trigger": "level_hold + ribbon_bounce"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 684.37",
+      "bias": "bearish_continuation",
+      "target": 680.0,
+      "entry_trigger": "level_rejection + macro_deterioration"
+    },
+    "tertiary": {
+      "condition": "if SPY holds ribbon pivot (688.94) and rallies to 693.17",
+      "bias": "bullish_breakout",
+      "target": 697.76,
+      "entry_trigger": "ribbon_stack_inversion_to_bull + level_reclaim"
+    }
+  },
+  "levels_in_play_count": 9,
+  "key_observations": [
+    "Overnight gap is flat (−0.46)—price essentially back at prior-session close region; no gap-drive momentum",
+    "Ribbon BULL but price just below fast EMA (689.08) creates near-term floor; spread 53¢ is tight, stable stack",
+    "VIX rising +8.48% and risk_off sector rotation (XLK −1.35%, XLE +1.25%) override bullish ribbon—macro headwinds dominate intraday outlook",
+    "Battle level 684.37 is both prior-session RTH low AND the pivot point for today's range; a break opens the door to Carry support at 680.0 (5-day rolling low, 2★)"
+  ],
+  "data_quality": "full"
+}

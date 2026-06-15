@@ -1,0 +1,751 @@
+{
+  "last_updated": "2026-05-20T02:36:59.320951+00:00",
+  "n_days_graded": 73,
+  "direction": {
+    "n_correct": 40,
+    "n_wrong": 21,
+    "n_abstain": 12,
+    "accuracy_pct": 65.6
+  },
+  "battle_level": {
+    "n_tested": 46,
+    "n_untested": 27,
+    "tested_rate_pct": 63.0
+  },
+  "confidence_calibration": {
+    "high_conf_days": 41,
+    "high_conf_correct_pct": 51.2
+  },
+  "per_day": [
+    {
+      "date": "2025-10-01",
+      "swarm_bias": "no_trade",
+      "swarm_conf": 0,
+      "actual_bias": "no_trade",
+      "actual_move": 0.12,
+      "direction_grade": "CORRECT",
+      "battle_level": 665.38,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2025-10-02",
+      "swarm_bias": "no_trade",
+      "swarm_conf": 0,
+      "actual_bias": "no_trade",
+      "actual_move": 0.58,
+      "direction_grade": "CORRECT",
+      "battle_level": 669.37,
+      "battle_grade": "TESTED_MIXED"
+    },
+    {
+      "date": "2025-10-06",
+      "swarm_bias": "no_trade",
+      "swarm_conf": 0,
+      "actual_bias": "no_trade",
+      "actual_move": -0.3,
+      "direction_grade": "CORRECT",
+      "battle_level": 671.63,
+      "battle_grade": "BROKE"
+    },
+    {
+      "date": "2025-10-07",
+      "swarm_bias": "no_trade",
+      "swarm_conf": 0,
+      "actual_bias": "no_trade",
+      "actual_move": 0.54,
+      "direction_grade": "CORRECT",
+      "battle_level": 672.5,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2025-10-08",
+      "swarm_bias": "no_trade",
+      "swarm_conf": 0,
+      "actual_bias": "no_trade",
+      "actual_move": 0.32,
+      "direction_grade": "CORRECT",
+      "battle_level": 670.58,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-02-09",
+      "swarm_bias": "bullish",
+      "swarm_conf": 65,
+      "actual_bias": "bullish",
+      "actual_move": 4.53,
+      "direction_grade": "CORRECT",
+      "battle_level": 692.29,
+      "battle_grade": "TESTED_MIXED"
+    },
+    {
+      "date": "2026-02-10",
+      "swarm_bias": "bullish",
+      "swarm_conf": 25,
+      "actual_bias": "bearish",
+      "actual_move": -2.8,
+      "direction_grade": "WRONG",
+      "battle_level": 696.95,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-02-11",
+      "swarm_bias": "bearish",
+      "swarm_conf": 95,
+      "actual_bias": "bearish",
+      "actual_move": -4.62,
+      "direction_grade": "CORRECT",
+      "battle_level": 691.66,
+      "battle_grade": "BROKE"
+    },
+    {
+      "date": "2026-02-12",
+      "swarm_bias": "bearish",
+      "swarm_conf": 95,
+      "actual_bias": "bearish",
+      "actual_move": -13.04,
+      "direction_grade": "CORRECT",
+      "battle_level": 697.08,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-02-13",
+      "swarm_bias": "bearish",
+      "swarm_conf": 75,
+      "actual_bias": "no_trade",
+      "actual_move": -0.09,
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "battle_level": 680.4,
+      "battle_grade": "TESTED_MIXED"
+    },
+    {
+      "date": "2026-02-17",
+      "swarm_bias": "bearish",
+      "swarm_conf": 95,
+      "actual_bias": "bullish",
+      "actual_move": 2.61,
+      "direction_grade": "WRONG",
+      "battle_level": 677.53,
+      "battle_grade": "TESTED_MIXED"
+    },
+    {
+      "date": "2026-02-18",
+      "swarm_bias": "bullish",
+      "swarm_conf": 35,
+      "actual_bias": "bullish",
+      "actual_move": 2.32,
+      "direction_grade": "CORRECT",
+      "battle_level": 684.92,
+      "battle_grade": "TESTED_MIXED"
+    },
+    {
+      "date": "2026-02-19",
+      "swarm_bias": "bearish",
+      "swarm_conf": 95,
+      "actual_bias": "no_trade",
+      "actual_move": 0.65,
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "battle_level": 689.14,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-02-20",
+      "swarm_bias": "bullish",
+      "swarm_conf": 60,
+      "actual_bias": "bullish",
+      "actual_move": 7.21,
+      "direction_grade": "CORRECT",
+      "battle_level": 686.13,
+      "battle_grade": "TESTED_MIXED"
+    },
+    {
+      "date": "2026-02-23",
+      "swarm_bias": "bullish",
+      "swarm_conf": 75,
+      "actual_bias": "bearish",
+      "actual_move": -5.41,
+      "direction_grade": "WRONG",
+      "battle_level": 690.06,
+      "battle_grade": "HELD"
+    },
+    {
+      "date": "2026-02-24",
+      "swarm_bias": "bullish",
+      "swarm_conf": 50,
+      "actual_bias": "bullish",
+      "actual_move": 5.85,
+      "direction_grade": "CORRECT",
+      "battle_level": 680.38,
+      "battle_grade": "HELD"
+    },
+    {
+      "date": "2026-02-25",
+      "swarm_bias": "bullish",
+      "swarm_conf": 95,
+      "actual_bias": "bullish",
+      "actual_move": 2.96,
+      "direction_grade": "CORRECT",
+      "battle_level": 688.33,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-02-26",
+      "swarm_bias": "bullish",
+      "swarm_conf": 95,
+      "actual_bias": "bearish",
+      "actual_move": -3.8,
+      "direction_grade": "WRONG",
+      "battle_level": 693.66,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-02-27",
+      "swarm_bias": "bearish",
+      "swarm_conf": 70,
+      "actual_bias": "bullish",
+      "actual_move": 3.16,
+      "direction_grade": "WRONG",
+      "battle_level": 684.37,
+      "battle_grade": "BROKE"
+    },
+    {
+      "date": "2026-03-02",
+      "swarm_bias": "bullish",
+      "swarm_conf": 55,
+      "actual_bias": "bullish",
+      "actual_move": 7.62,
+      "direction_grade": "CORRECT",
+      "battle_level": 686.85,
+      "battle_grade": "HELD"
+    },
+    {
+      "date": "2026-03-03",
+      "swarm_bias": "bearish",
+      "swarm_conf": 36,
+      "actual_bias": "bullish",
+      "actual_move": 5.26,
+      "direction_grade": "WRONG",
+      "battle_level": 688.59,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-03-04",
+      "swarm_bias": "bullish",
+      "swarm_conf": 82,
+      "actual_bias": "bullish",
+      "actual_move": 3.44,
+      "direction_grade": "CORRECT",
+      "battle_level": 682.58,
+      "battle_grade": "TESTED_MIXED"
+    },
+    {
+      "date": "2026-03-05",
+      "swarm_bias": "bearish",
+      "swarm_conf": 44,
+      "actual_bias": "no_trade",
+      "actual_move": -0.69,
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "battle_level": 687.09,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-03-06",
+      "swarm_bias": "bullish",
+      "swarm_conf": 35,
+      "actual_bias": "no_trade",
+      "actual_move": -0.97,
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "battle_level": 681.0,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-03-09",
+      "swarm_bias": "bearish",
+      "swarm_conf": 68,
+      "actual_bias": "bullish",
+      "actual_move": 11.92,
+      "direction_grade": "WRONG",
+      "battle_level": 669.67,
+      "battle_grade": "BROKE"
+    },
+    {
+      "date": "2026-03-10",
+      "swarm_bias": "bullish",
+      "swarm_conf": 88,
+      "actual_bias": "no_trade",
+      "actual_move": -0.55,
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "battle_level": 679.88,
+      "battle_grade": "BROKE"
+    },
+    {
+      "date": "2026-03-11",
+      "swarm_bias": "bearish",
+      "swarm_conf": 14,
+      "actual_bias": "bearish",
+      "actual_move": -1.34,
+      "direction_grade": "CORRECT",
+      "battle_level": 674.81,
+      "battle_grade": "TESTED_MIXED"
+    },
+    {
+      "date": "2026-03-12",
+      "swarm_bias": "bearish",
+      "swarm_conf": 25,
+      "actual_bias": "bearish",
+      "actual_move": -5.07,
+      "direction_grade": "CORRECT",
+      "battle_level": 673.36,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-03-13",
+      "swarm_bias": "bearish",
+      "swarm_conf": 61,
+      "actual_bias": "bearish",
+      "actual_move": -6.94,
+      "direction_grade": "CORRECT",
+      "battle_level": 665.91,
+      "battle_grade": "TESTED_MIXED"
+    },
+    {
+      "date": "2026-03-16",
+      "swarm_bias": "bearish",
+      "swarm_conf": 20,
+      "actual_bias": "no_trade",
+      "actual_move": 0.58,
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "battle_level": 663.05,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-03-17",
+      "swarm_bias": "bullish",
+      "swarm_conf": 31,
+      "actual_bias": "bearish",
+      "actual_move": -1.66,
+      "direction_grade": "WRONG",
+      "battle_level": 668.49,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-03-18",
+      "swarm_bias": "bullish",
+      "swarm_conf": 15,
+      "actual_bias": "bearish",
+      "actual_move": -6.79,
+      "direction_grade": "WRONG",
+      "battle_level": 674.43,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-03-19",
+      "swarm_bias": "bearish",
+      "swarm_conf": 82,
+      "actual_bias": "bullish",
+      "actual_move": 2.75,
+      "direction_grade": "WRONG",
+      "battle_level": 661.19,
+      "battle_grade": "HELD"
+    },
+    {
+      "date": "2026-03-20",
+      "swarm_bias": "bearish",
+      "swarm_conf": 76,
+      "actual_bias": "bearish",
+      "actual_move": -8.0,
+      "direction_grade": "CORRECT",
+      "battle_level": 655.17,
+      "battle_grade": "TESTED_MIXED"
+    },
+    {
+      "date": "2026-03-23",
+      "swarm_bias": "bearish",
+      "swarm_conf": 88,
+      "actual_bias": "bearish",
+      "actual_move": -2.7,
+      "direction_grade": "CORRECT",
+      "battle_level": 642.25,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-03-24",
+      "swarm_bias": "bearish",
+      "swarm_conf": 88,
+      "actual_bias": "bullish",
+      "actual_move": 1.88,
+      "direction_grade": "WRONG",
+      "battle_level": 657.47,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-03-25",
+      "swarm_bias": "bullish",
+      "swarm_conf": 76,
+      "actual_bias": "bearish",
+      "actual_move": -1.93,
+      "direction_grade": "WRONG",
+      "battle_level": 660.56,
+      "battle_grade": "HELD"
+    },
+    {
+      "date": "2026-03-26",
+      "swarm_bias": "bearish",
+      "swarm_conf": 88,
+      "actual_bias": "bearish",
+      "actual_move": -6.96,
+      "direction_grade": "CORRECT",
+      "battle_level": 650.84,
+      "battle_grade": "HELD"
+    },
+    {
+      "date": "2026-03-27",
+      "swarm_bias": "bearish",
+      "swarm_conf": 50,
+      "actual_bias": "bearish",
+      "actual_move": -8.42,
+      "direction_grade": "CORRECT",
+      "battle_level": 643.9,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-03-30",
+      "swarm_bias": "bullish",
+      "swarm_conf": 25,
+      "actual_bias": "bearish",
+      "actual_move": -8.11,
+      "direction_grade": "WRONG",
+      "battle_level": 638.02,
+      "battle_grade": "HELD"
+    },
+    {
+      "date": "2026-03-31",
+      "swarm_bias": "bullish",
+      "swarm_conf": 76,
+      "actual_bias": "bullish",
+      "actual_move": 11.3,
+      "direction_grade": "CORRECT",
+      "battle_level": 638.88,
+      "battle_grade": "BROKE"
+    },
+    {
+      "date": "2026-04-01",
+      "swarm_bias": "bullish",
+      "swarm_conf": 88,
+      "actual_bias": "bullish",
+      "actual_move": 1.28,
+      "direction_grade": "CORRECT",
+      "battle_level": 655.55,
+      "battle_grade": "TESTED_MIXED"
+    },
+    {
+      "date": "2026-04-02",
+      "swarm_bias": "bearish",
+      "swarm_conf": 88,
+      "actual_bias": "bullish",
+      "actual_move": 9.46,
+      "direction_grade": "WRONG",
+      "battle_level": 645.75,
+      "battle_grade": "TESTED_MIXED"
+    },
+    {
+      "date": "2026-04-06",
+      "swarm_bias": "bullish",
+      "swarm_conf": 88,
+      "actual_bias": "bullish",
+      "actual_move": 3.01,
+      "direction_grade": "CORRECT",
+      "battle_level": 658.52,
+      "battle_grade": "HELD"
+    },
+    {
+      "date": "2026-04-07",
+      "swarm_bias": "bullish",
+      "swarm_conf": 61,
+      "actual_bias": "bullish",
+      "actual_move": 2.61,
+      "direction_grade": "CORRECT",
+      "battle_level": 660.37,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-04-08",
+      "swarm_bias": "bullish",
+      "swarm_conf": 73,
+      "actual_bias": "no_trade",
+      "actual_move": -0.51,
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "battle_level": 677.45,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-04-09",
+      "swarm_bias": "bearish",
+      "swarm_conf": 88,
+      "actual_bias": "bullish",
+      "actual_move": 5.03,
+      "direction_grade": "WRONG",
+      "battle_level": 672.87,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-04-10",
+      "swarm_bias": "bullish",
+      "swarm_conf": 82,
+      "actual_bias": "bearish",
+      "actual_move": -1.98,
+      "direction_grade": "WRONG",
+      "battle_level": 681.16,
+      "battle_grade": "HELD"
+    },
+    {
+      "date": "2026-04-13",
+      "swarm_bias": "bearish",
+      "swarm_conf": 83,
+      "actual_bias": "bullish",
+      "actual_move": 8.6,
+      "direction_grade": "WRONG",
+      "battle_level": 675.98,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-04-14",
+      "swarm_bias": "bullish",
+      "swarm_conf": 88,
+      "actual_bias": "bullish",
+      "actual_move": 6.71,
+      "direction_grade": "CORRECT",
+      "battle_level": 688.14,
+      "battle_grade": "BROKE"
+    },
+    {
+      "date": "2026-04-15",
+      "swarm_bias": "bullish",
+      "swarm_conf": 57,
+      "actual_bias": "bullish",
+      "actual_move": 4.58,
+      "direction_grade": "CORRECT",
+      "battle_level": 694.58,
+      "battle_grade": "TESTED_MIXED"
+    },
+    {
+      "date": "2026-04-16",
+      "swarm_bias": "bullish",
+      "swarm_conf": 80,
+      "actual_bias": "no_trade",
+      "actual_move": 0.69,
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "battle_level": 701.99,
+      "battle_grade": "HELD"
+    },
+    {
+      "date": "2026-04-17",
+      "swarm_bias": "bullish",
+      "swarm_conf": 76,
+      "actual_bias": "bullish",
+      "actual_move": 3.91,
+      "direction_grade": "CORRECT",
+      "battle_level": 703.52,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-04-20",
+      "swarm_bias": "bearish",
+      "swarm_conf": 88,
+      "actual_bias": "no_trade",
+      "actual_move": -0.09,
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "battle_level": 706.71,
+      "battle_grade": "HELD"
+    },
+    {
+      "date": "2026-04-21",
+      "swarm_bias": "bullish",
+      "swarm_conf": 76,
+      "actual_bias": "bearish",
+      "actual_move": -5.41,
+      "direction_grade": "WRONG",
+      "battle_level": 712.39,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-04-22",
+      "swarm_bias": "bullish",
+      "swarm_conf": 76,
+      "actual_bias": "bullish",
+      "actual_move": 2.06,
+      "direction_grade": "CORRECT",
+      "battle_level": 708.8,
+      "battle_grade": "TESTED_MIXED"
+    },
+    {
+      "date": "2026-04-23",
+      "swarm_bias": "bearish",
+      "swarm_conf": 83,
+      "actual_bias": "bearish",
+      "actual_move": -1.06,
+      "direction_grade": "CORRECT",
+      "battle_level": 706.49,
+      "battle_grade": "BROKE"
+    },
+    {
+      "date": "2026-04-24",
+      "swarm_bias": "bearish",
+      "swarm_conf": 25,
+      "actual_bias": "bullish",
+      "actual_move": 3.23,
+      "direction_grade": "WRONG",
+      "battle_level": 710.4,
+      "battle_grade": "HELD"
+    },
+    {
+      "date": "2026-04-27",
+      "swarm_bias": "bullish",
+      "swarm_conf": 16,
+      "actual_bias": "bullish",
+      "actual_move": 1.99,
+      "direction_grade": "CORRECT",
+      "battle_level": 714.47,
+      "battle_grade": "HELD"
+    },
+    {
+      "date": "2026-04-30",
+      "swarm_bias": "bullish",
+      "swarm_conf": 76,
+      "actual_bias": "bullish",
+      "actual_move": 3.76,
+      "direction_grade": "CORRECT",
+      "battle_level": 713.14,
+      "battle_grade": "HELD"
+    },
+    {
+      "date": "2026-05-01",
+      "swarm_bias": "bullish",
+      "swarm_conf": 76,
+      "actual_bias": "no_trade",
+      "actual_move": -0.58,
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "battle_level": 720.94,
+      "battle_grade": "BROKE"
+    },
+    {
+      "date": "2026-05-04",
+      "swarm_bias": "bearish",
+      "swarm_conf": 25,
+      "actual_bias": "bearish",
+      "actual_move": -1.65,
+      "direction_grade": "CORRECT",
+      "battle_level": 722.41,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-05-05",
+      "swarm_bias": "bullish",
+      "swarm_conf": 71,
+      "actual_bias": "bullish",
+      "actual_move": 1.97,
+      "direction_grade": "CORRECT",
+      "battle_level": 722.12,
+      "battle_grade": "BROKE"
+    },
+    {
+      "date": "2026-05-06",
+      "swarm_bias": "bullish",
+      "swarm_conf": 83,
+      "actual_bias": "bullish",
+      "actual_move": 5.61,
+      "direction_grade": "CORRECT",
+      "battle_level": 729.39,
+      "battle_grade": "HELD"
+    },
+    {
+      "date": "2026-05-07",
+      "swarm_bias": "bullish",
+      "swarm_conf": 63,
+      "actual_bias": "bearish",
+      "actual_move": -3.54,
+      "direction_grade": "WRONG",
+      "battle_level": 734.59,
+      "battle_grade": "HELD"
+    },
+    {
+      "date": "2026-05-08",
+      "swarm_bias": "no_trade",
+      "swarm_conf": 0,
+      "actual_bias": "no_trade",
+      "actual_move": -0.18,
+      "direction_grade": "CORRECT",
+      "battle_level": 734.6,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-05-11",
+      "swarm_bias": "bullish",
+      "swarm_conf": 95,
+      "actual_bias": "bullish",
+      "actual_move": 2.68,
+      "direction_grade": "CORRECT",
+      "battle_level": 737.95,
+      "battle_grade": "TESTED_MIXED"
+    },
+    {
+      "date": "2026-05-12",
+      "swarm_bias": "bearish",
+      "swarm_conf": 95,
+      "actual_bias": "bullish",
+      "actual_move": 1.32,
+      "direction_grade": "WRONG",
+      "battle_level": 740.73,
+      "battle_grade": "UNTESTED"
+    },
+    {
+      "date": "2026-05-13",
+      "swarm_bias": "bullish",
+      "swarm_conf": 95,
+      "actual_bias": "bullish",
+      "actual_move": 3.85,
+      "direction_grade": "CORRECT",
+      "battle_level": 740.73,
+      "battle_grade": "BROKE"
+    },
+    {
+      "date": "2026-05-14",
+      "swarm_bias": "bullish",
+      "swarm_conf": 95,
+      "actual_bias": "bullish",
+      "actual_move": 4.43,
+      "direction_grade": "CORRECT",
+      "battle_level": 744.7,
+      "battle_grade": "BROKE"
+    },
+    {
+      "date": "2026-05-15",
+      "swarm_bias": "bearish",
+      "swarm_conf": 95,
+      "actual_bias": "bearish",
+      "actual_move": -2.71,
+      "direction_grade": "CORRECT",
+      "battle_level": 739.41,
+      "battle_grade": "TESTED_MIXED"
+    },
+    {
+      "date": "2026-05-18",
+      "swarm_bias": "no_trade",
+      "swarm_conf": 0,
+      "actual_bias": "bullish",
+      "actual_move": 1.21,
+      "direction_grade": "ABSTAIN",
+      "battle_level": 738.54,
+      "battle_grade": "BROKE"
+    },
+    {
+      "date": "2026-05-19",
+      "swarm_bias": "no_trade",
+      "swarm_conf": 0,
+      "actual_bias": "bearish",
+      "actual_move": -3.18,
+      "direction_grade": "ABSTAIN",
+      "battle_level": 733.39,
+      "battle_grade": "TESTED_MIXED"
+    }
+  ]
+}

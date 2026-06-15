@@ -1,0 +1,76 @@
+{
+  "date": "2026-05-21",
+  "audited_at": "2026-05-21T17:30:01-04:00",
+  "phases": {
+    "scout": { "status": "PASS", "deliverable_path": "automation/scout/state/scout_output.json", "expected_time_et": "05:30", "notes": "File exists; date field unverified in this fire" },
+    "swarm": { "status": "FAIL", "deliverable_path": "automation/swarm/state/swarm_output.json", "expected_time_et": "08:10", "notes": "status=failed; all_specialist_agents_failed at 08:15 ET" },
+    "launchtv": { "status": "PASS", "deliverable_path": "port 9222 CDP", "expected_time_et": "08:00", "notes": "Confirmed via gym mcp-self-test: tv_cdp_listening=true" },
+    "premarket": { "status": "PASS", "deliverable_path": "automation/state/today-bias.json", "expected_time_et": "08:30", "notes": "date=2026-05-21, updated_at=08:30 ET, swarm_context populated (failure noted)" },
+    "heartbeat_pilot": { "status": "FAIL", "deliverable_path": "automation/state/decisions.jsonl", "expected_time_et": "09:30-15:55", "notes": "Only 3 ticks logged (aggressive acct, last 11:18 ET). 180-min blackout 11:57-14:40 ET (~54 ticks missed). Rate-limit exhaustion confirmed." },
+    "eod_flatten": { "status": "PASS", "deliverable_path": "automation/state/current-position.json", "expected_time_et": "15:55", "notes": "Cleared at 15:55:28 ET via EOD_SAFETY_NET. Required state-drift recovery: ghost 3x735P caught." },
+    "eod_summary": { "status": "YELLOW", "deliverable_path": "journal/2026-05-21.md", "expected_time_et": "16:00", "notes": "File exists but EOD reflection section not detected" },
+    "eod_deepdive": { "status": "FAIL", "deliverable_path": "eod_deep/output/2026-05-21/", "expected_time_et": "16:05", "notes": "Directory does not exist" },
+    "daily_review": { "status": "PASS", "deliverable_path": "automation/state/key-levels.json", "expected_time_et": "16:30", "notes": "as_of=2026-05-21T16:30, for_session=2026-05-22, 9 levels" },
+    "analyst_eod": { "status": "PASS", "deliverable_path": "analysis/eod/2026-05-21.md", "expected_time_et": "16:45", "notes": "Complete digest; 3 inbox items queued" },
+    "gym_session": { "status": "PASS", "deliverable_path": "automation/state/gym-scorecard-2026-05-21.json", "expected_time_et": "17:00", "notes": "Ran. Overall verdict: RED" },
+    "treasurer": { "status": "NA", "deliverable_path": null, "expected_time_et": "16:00 Sundays only", "notes": "Thursday — not applicable" },
+    "chef": { "status": "PASS", "deliverable_path": "strategy/candidates/_chef-inbox/", "expected_time_et": "overnight", "notes": "2 inbox items queued by Analyst" }
+  },
+  "handoffs": {
+    "scout_to_premarket": { "status": "PARTIAL", "evidence": "today-bias.json missing scout_addendum field; swarm_context shows failure" },
+    "swarm_to_premarket": { "status": "FAIL", "evidence": "swarm_context.consensus_bias=unavailable; status=failed" },
+    "premarket_to_pilot": { "status": "PASS", "evidence": "today-bias.json consumed by pilot ticks; PDT gate referenced correctly" },
+    "pilot_to_analyst": { "status": "PASS", "evidence": "decisions.jsonl has 3 ticks (limited); Analyst digest references specific decisions" },
+    "analyst_to_chef": { "status": "PASS", "evidence": "2 items in _chef-inbox: false-break-open-carry-gate, ghost-entry-v26-regression (both 5/21)" },
+    "analyst_to_validator_inbox": { "status": "PASS", "evidence": "_validator-inbox: 1 item (swarm-health-monitor, 5/21)" },
+    "analyst_to_skill_inbox": { "status": "PASS", "evidence": "_skill-inbox: 1 item (false-break-launchpad-carry, 5/21)" },
+    "analyst_to_lesson_inbox": { "status": "NA", "evidence": "_lesson-inbox: 0 new items today" },
+    "analyst_to_mistakes_log": { "status": "NA", "evidence": "rule_breaks=0 today per Analyst; no mistakes.md append required" },
+    "gym_to_manager": { "status": "PASS", "evidence": "gym-scorecard-2026-05-21.json overall_verdict=RED consumed" },
+    "key_levels_for_tomorrow": { "status": "PASS", "evidence": "key-levels.json for_session=2026-05-22, 9 levels, session_bias=BULL MEDIUM" }
+  },
+  "accounts": {
+    "safe": { "equity": 747.46, "last_equity": 963.70, "day_pnl": -216.24, "open_positions": 0, "daytrade_count": 3, "pdt_warning": "AT LIMIT" },
+    "bold": { "equity": 1535.83, "last_equity": 1535.83, "day_pnl": -264.0, "open_positions": 0, "daytrade_count": 3, "pdt_warning": "AT LIMIT", "notes": "Alpaca balance_asof=2026-05-20; Analyst reports -$264 from legacy 736P runner exit" }
+  },
+  "gym_verdict": {
+    "overall": "RED",
+    "per_audit": {
+      "crypto_gym": "GREEN",
+      "chart_data_verify": "YELLOW",
+      "heartbeat_tick_audit": "RED",
+      "pin_chain_verify": "GREEN",
+      "heartbeat_mcp_self_test": "GREEN",
+      "heartbeat_pulse_check": "RED",
+      "watcher_state_inspector": "RED"
+    }
+  },
+  "specialists_last_fired": {
+    "scout": "2026-05-21 (file exists; exact timestamp unverified)",
+    "swarm": "2026-05-21T08:15-04:00 (FAILED)",
+    "premarket": "2026-05-21T08:30-04:00",
+    "pilot": "2026-05-21T11:18-04:00 (last tick)",
+    "analyst": "2026-05-21T16:47-04:00 (approx)",
+    "chef": "overnight (inbox items pending)",
+    "treasurer": "N/A (Sunday only)",
+    "gym_session": "2026-05-21T17:00-04:00"
+  },
+  "stale_chef_inbox_items": [],
+  "stale_validator_inbox_items": [],
+  "stale_skill_inbox_items": [],
+  "stale_lesson_inbox_items": [],
+  "stale_treasurer_drafts": [],
+  "red_flags": [
+    "HEARTBEAT_BLACKOUT_REPEAT: 180-min gap 11:57-14:40 ET, only 3 ticks total (3rd documented occurrence, L54/L62). Cost ~$162 additional loss.",
+    "GHOST_ENTRY_REPEAT: loop-state.json did not reflect 10:35 fill; EOD safety net caught 3x735P at $0.01. v26 live-write-path bug unresolved.",
+    "SWARM_FAILED: all specialist agents failed at 08:15 ET; Pilot had no directional context.",
+    "GYM_RED: heartbeat-tick-audit RED (66.7% misaligned), heartbeat-pulse-check RED (180min gap), watcher-state-inspector RED.",
+    "EODDEEP DIVE_MISSING: eod_deep/output/2026-05-21/ not created.",
+    "SAFE_DOWN_22pct_TODAY: $747.46 vs $963.70 BOD. Primary driver: infrastructure failures, not bad setups.",
+    "BOTH_ACCOUNTS_PDT_MAXED: daytrade_count=3 on both Safe and Bold going into 5/22."
+  ],
+  "loop_status": "RED",
+  "phases_passed": 8,
+  "phases_failed": 3,
+  "phases_na": 2
+}

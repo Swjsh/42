@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-17T12:53:00Z",
+  "bias": "bearish",
+  "confidence": 0.75,
+  "reasoning": "CLEAN_BEAR ribbon with 234-cent spread (fast 643.57, pivot 644.0, slow 645.91) and current price 643.28 sitting 72 cents below pivot—textbook bearish structure. Last 3 closed bars show RED (642.92), RED (642.77), GREEN (643.28)—mixed bar structure with net 2 down, indicating prior downside momentum though the last bar shows intraday recovery attempt. Large overnight gap down 5.23 dollars from prior close 648.51 reflects strong bearish overnight sentiment, and premarket has already absorbed the full gap. VIX falling but HIGH IV regime persists. Sector weakness in tech (XLK -1.95%) and energy (XLE -0.42%) confirms the down pressure.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 234,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "CLEAN_BEAR ribbon: fast 643.57 < pivot 644.0 < slow 645.91, 234-cent spread",
+    "Current price 643.28 is 72 cents below pivot, confirming bearish momentum",
+    "Last 3 bars: RED (-13¢), RED (-27¢), GREEN (+53¢)—downside followed by intraday recovery",
+    "Large overnight gap down 5.23 dollars; premarket range 642.25-645.2 captured full gap",
+    "VIX falling -11.65% but HIGH IV regime; sector weakness across tech and energy; rotation mixed"
+  ],
+  "data_quality": "full"
+}

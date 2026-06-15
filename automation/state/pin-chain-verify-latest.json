@@ -1,0 +1,67 @@
+{
+  "skill": "pin-chain-verify",
+  "run_at": "2026-06-08T16:30:13",
+  "verdict": "RED",
+  "reason": "1-pin-mismatch(es)-vs-canonical-v15.3",
+  "canonical_rule_version": "v15.3",
+  "rule_version_ratified_at": "2026-06-01",
+  "production_pin_chain": {
+    "params.json": {
+      "version": "v15.3",
+      "path": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\params.json",
+      "line": null
+    },
+    "heartbeat.md": {
+      "version": "v15.3",
+      "path": "C:\\Users\\jackw\\Desktop\\42\\automation\\prompts\\heartbeat.md",
+      "line": 16
+    },
+    "premarket.md": {
+      "version": "v15.3",
+      "path": "C:\\Users\\jackw\\Desktop\\42\\automation\\prompts\\premarket.md",
+      "line": 41
+    },
+    "aggressive/heartbeat.md": {
+      "version": "v15.2",
+      "path": "C:\\Users\\jackw\\Desktop\\42\\automation\\prompts\\aggressive\\heartbeat.md",
+      "line": 9
+    }
+  },
+  "draft_versions": {
+    "heartbeat-v14-prod-backup.md": {
+      "version": "v14",
+      "path": "C:\\Users\\jackw\\Desktop\\42\\automation\\prompts\\heartbeat-v14-prod-backup.md",
+      "line": 16
+    },
+    "heartbeat-v15-draft.md": {
+      "version": "v15",
+      "path": "C:\\Users\\jackw\\Desktop\\42\\automation\\prompts\\heartbeat-v15-draft.md",
+      "line": 18
+    },
+    "premarket-v15-draft.md": {
+      "version": "v14",
+      "path": "C:\\Users\\jackw\\Desktop\\42\\automation\\prompts\\premarket-v15-draft.md",
+      "line": 40
+    }
+  },
+  "mismatches": [
+    {
+      "file": "C:\\Users\\jackw\\Desktop\\42\\automation\\prompts\\aggressive\\heartbeat.md",
+      "line": 9,
+      "found": "v15.2",
+      "expected": "v15.3",
+      "note": "aggressive-variant-may-be-intentionally-divergent-confirm-with-J"
+    }
+  ],
+  "proposed_fix_diff": [
+    {
+      "file": "C:\\Users\\jackw\\Desktop\\42\\automation\\prompts\\aggressive\\heartbeat.md",
+      "line": 9,
+      "current_value": "v15.2",
+      "proposed_value": "v15.3",
+      "manual_command": "python -c \"import re,pathlib; p=pathlib.Path(r\"C:\\Users\\jackw\\Desktop\\42\\automation\\prompts\\aggressive\\heartbeat.md\"); src=p.read_text(encoding=\"utf-8\"); p.write_text(re.sub(r\"RULE_VERSION(_EXPECTED)?\\s*=\\s*[\\'\\\"][^\\'\\\"]+[\\'\\\"]\", lambda mm: f\"RULE_VERSION{mm.group(1) or \\\"\\\" } = \\\"v15.3\\\"\", src), encoding=\"utf-8\")\"",
+      "warning": "DO-NOT-RUN-AUTOMATICALLY-needs-J-authorization-per-rule-9"
+    }
+  ],
+  "heal_action": "NO-AUTO-HEAL-rule-9-production-prompts-need-J-authorization"
+}

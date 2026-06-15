@@ -1,0 +1,95 @@
+{
+  "generated_at": "2026-05-20T21:00:02.378328+00:00",
+  "for_date": "2026-05-20",
+  "overall_verdict": "RED",
+  "audits": [
+    {
+      "name": "crypto-gym (42 validators)",
+      "source_file": "crypto/data/scorecards/latest.json",
+      "verdict": "GREEN",
+      "summary": "64/64 pass",
+      "evidence": {
+        "stages": 64,
+        "passed": 64,
+        "flaky_failed": []
+      }
+    },
+    {
+      "name": "chart-data-verify",
+      "source_file": "automation/state/chart-data-verify-2026-05-20.json",
+      "verdict": "YELLOW",
+      "summary": "5 bars checked, max div $0.0000",
+      "evidence": {
+        "max_divergence_usd": 0,
+        "bars_checked": 5
+      }
+    },
+    {
+      "name": "heartbeat-tick-audit",
+      "source_file": "automation/state/heartbeat-tick-audit-2026-05-20.json",
+      "verdict": "YELLOW",
+      "summary": "10 live ticks, 1 MISALIGNED-CRITICAL (10.0%) [HOLD-only \u2014 no trading impact]",
+      "evidence": {
+        "by_classification": {
+          "ALIGNED": 3,
+          "MISALIGNED-BENIGN": 6,
+          "MISALIGNED-CRITICAL": 1,
+          "STALE_PAUSED": 0,
+          "NO_DATA": 23,
+          "NO_BAR": 0
+        },
+        "live_ticks": 10,
+        "misaligned_critical": 1,
+        "misaligned_pct": 10.0
+      }
+    },
+    {
+      "name": "pin-chain-verify",
+      "source_file": "automation/state/pin-chain-verify-latest.json",
+      "verdict": "GREEN",
+      "summary": "rule_version=unknown, drifts=0",
+      "evidence": {
+        "rule_version_canonical": "unknown",
+        "drifts": []
+      }
+    },
+    {
+      "name": "heartbeat-mcp-self-test",
+      "source_file": "automation/state/heartbeat-mcp-self-test-latest.json",
+      "verdict": "GREEN",
+      "summary": "TV CDP listening=True",
+      "evidence": {
+        "tv_cdp_listening": true
+      }
+    },
+    {
+      "name": "heartbeat-pulse-check",
+      "source_file": "automation/state/heartbeat-pulse-check-2026-05-20.json",
+      "verdict": "RED",
+      "summary": "max gap 15.02min",
+      "evidence": {
+        "max_gap_minutes": 15.02
+      }
+    },
+    {
+      "name": "watcher-state-inspector",
+      "source_file": "automation/state/watcher-state-inspector-2026-05-20.json",
+      "verdict": "YELLOW",
+      "summary": "no-bars-for-target-date-yet (market may not be open or csv stale) (obs_today=2609)",
+      "evidence": {
+        "obs_today": 2609,
+        "reason": "no-bars-for-target-date-yet (market may not be open or csv stale)"
+      }
+    }
+  ],
+  "stale_reruns": {
+    "heartbeat_tick_audit": {
+      "exit": 0,
+      "log_tail": "026-05-20 ===\nHeadline: 1 of 10 live-trading ticks (10%) were MISALIGNED-CRITICAL on 2026-05-20\nCounts: {'ALIGNED': 3, 'MISALIGNED-BENIGN': 6, 'MISALIGNED-CRITICAL': 1, 'STALE_PAUSED': 0, 'NO_DATA': 23, 'NO_BAR': 0}\nFiles written:\n  per_tick_csv: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-05-20.csv\n  summary_json: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-05-20.json\n  human_md: C:\\Users\\jackw\\Desktop\\42\\docs\\HEARTBEAT-TICK-AUDIT-2026-05-20.md\n"
+    },
+    "heartbeat_pulse_check": {
+      "exit": 1,
+      "log_tail": "p_min': 6.0}, {'from': '10:03:02', 'to': '10:18:02', 'gap_min': 15.0}, {'from': '10:18:02', 'to': '10:24:02', 'gap_min': 6.0}, {'from': '10:24:02', 'to': '10:33:03', 'gap_min': 9.02}, {'from': '10:33:03', 'to': '10:42:03', 'gap_min': 9.0}, {'from': '10:42:03', 'to': '10:48:02', 'gap_min': 5.98}, {'from': '10:48:02', 'to': '11:03:02', 'gap_min': 15.0}, {'from': '11:03:02', 'to': '11:18:03', 'gap_min': 15.02}]\nWrote: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-pulse-check-2026-05-20.json\n"
+    }
+  }
+}

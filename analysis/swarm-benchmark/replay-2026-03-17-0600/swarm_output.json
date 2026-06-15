@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-17T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["macro", "level_thesis"],
+    "bearish": [],
+    "no_trade": ["technical", "internals"]
+  },
+  "vote_counts": {
+    "bullish": 2,
+    "bearish": 0,
+    "no_trade": 2
+  },
+  "weighted_scores": {
+    "bullish": 0.55,
+    "bearish": 0.0
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "moderate",
+  "swarm_confidence": 31,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["technical", "internals"],
+    "dissent_reason": "Technical reads CHOP ribbon (fast < pivot < slow, inverted 24¢ spread) with doji-ish alternating bars — no momentum; internals show zero sector breadth (all sectors sub-0.3%, no leadership), jointly undermining the bullish accumulation narrative."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Bullish agents treated the inverted ribbon (fast < pivot < slow) as neutral CHOP rather than a structurally bearish stack, borrowing unearned conviction from the no_trade votes; the premarket $2.79 bounce is consistent with vacuum fill, not buyer accumulation.",
+    "top_invalidation_scenario": "SPY rolls over from 668.49 resistance and closes below 667.12 support within first 90 minutes of RTH (by ~10:45 ET), proving the premarket bounce was short-covering vacuum fill rather than new buyer accumulation."
+  },
+  "battle_level": {
+    "price": 668.49,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 668.49,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 672.07,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 667.12,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 665.7,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 661.37,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks and holds above PMH 668.49 on first or second test with expanding volume",
+      "bias": "bullish",
+      "target": 672.07,
+      "entry_trigger": "level_break + sustained_close_above_668.49"
+    },
+    "secondary": {
+      "condition": "if SPY rejects at or below PMH 668.49 on open and rolls over with a red bar close below prior bar low",
+      "bias": "bearish",
+      "target": 667.12,
+      "entry_trigger": "rejection_candle_at_668.49 + close_below_prior_bar_low"
+    },
+    "invalidation": {
+      "condition": "SPY closes below 667.12 support within first 90 minutes of RTH (by ~10:45 ET)",
+      "effect": "Proves premarket bounce was vacuum fill — bullish level structure collapses; next flush targets 665.70; no bullish entry warranted until 667.12 is reclaimed."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY will test PMH resistance at 668.49 within the first 30 minutes of RTH (by 10:00 ET), given price is only $0.03 away at premarket close",
+      "invalidation": "SPY opens below 668.00 and does not touch 668.49 before 10:00 ET",
+      "confidence": 0.65,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 23.50 through 11:00 ET, sustaining the overnight decompression signal and keeping the macro backstop intact for a potential bullish break",
+      "invalidation": "VIX reverses and spikes back above 23.50 by 10:00 ET, signaling fear re-entering the market",
+      "confidence": 0.60,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "Ribbon will remain CHOP (spread <30¢, no full bull alignment) through 10:00 ET, preventing a clean ribbon-confirmation entry signal on the first test of 668.49",
+      "invalidation": "Ribbon aligns full bull stack (fast > pivot > slow with spread ≥30¢) within the first 30 minutes of RTH",
+      "confidence": 0.58,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The core tension is a 2-2 split: macro and level_thesis both read bullish on VIX decompression and a $2.76 premarket bounce consolidating at PMH 668.49, while technical (inverted ribbon, doji bars = CHOP) and internals (zero sector breadth, all sub-0.3%) see no directional conviction. The weighted bullish edge (0.55) is moderate at best, and FOMC tomorrow adds gamma-risk context that keeps today clean but tomorrow uncertain. The single most important watch at open: whether SPY can print a clean bar close above 668.49 on meaningful volume — a confirmed break opens 672.07, but a rejection at PMH with follow-through below 667.12 flips the tape to a bearish flush and invalidates the swarm's primary scenario.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "no_trade",
+      "confidence": 0.35,
+      "one_line": "CHOP ribbon (fast < pivot < slow, 24¢ spread) + alternating doji bars — no momentum direction, wait for structure"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.70,
+      "one_line": "VIX HIGH regime but falling -6.33% (decompression) + zero events today + pre-market buying interest = risk-on lean"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "Battle level PMH 668.49 at $0.03 overhead; steady premarket uptrend from 665.70 suggests accumulation; break opens 672.07"
+    },
+    "internals": {
+      "bias": "no_trade",
+      "confidence": 0.30,
+      "one_line": "All sectors sub-0.3%, flat breadth, zero rotation or leadership — insufficient internals signal for directional conviction"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Inverted ribbon is structurally bearish (not neutral CHOP); premarket bounce is vacuum fill; flat internals signal trapped longs not new buyers"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

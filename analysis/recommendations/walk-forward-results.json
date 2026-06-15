@@ -1,0 +1,218 @@
+{
+  "generated_at": "2026-05-10T16:50:56.008858",
+  "train_window": "2025-01-01 to 2025-12-31",
+  "test_window": "2026-01-01 to 2026-05-07",
+  "candidates": [
+    {
+      "source_stage": "stage3",
+      "combo": {
+        "super_stop": -0.15,
+        "super_tp1": 0.75,
+        "runner_target": 2.0,
+        "level_qty": 28,
+        "level_stop": -0.14,
+        "level_tp1": 0.4,
+        "trendline_stop": -0.06
+      },
+      "train_2025": {
+        "total_pnl": 7121.87,
+        "n_trades": 195,
+        "n_winners": 33,
+        "win_rate": 0.169,
+        "quarter_pnl": {
+          "2025-Q1": 2182.25,
+          "2025-Q2": 8360.07,
+          "2025-Q3": -1677.78,
+          "2025-Q4": -1742.66
+        },
+        "positive_quarters": 2,
+        "top5_pct": 2.977
+      },
+      "test_2026": {
+        "total_pnl": 2066.06,
+        "n_trades": 69,
+        "n_winners": 14,
+        "win_rate": 0.203,
+        "quarter_pnl": {
+          "2026-Q1": 1203.41,
+          "2026-Q2": 862.65
+        },
+        "positive_quarters": 2,
+        "top5_pct": 3.853
+      },
+      "train_pnl_per_month": 593.49,
+      "test_pnl_per_month": 480.48,
+      "ratio_normalized_per_month": 0.81,
+      "monday_ready": true
+    },
+    {
+      "source_stage": "stage3",
+      "combo": {
+        "super_stop": -0.15,
+        "super_tp1": 0.75,
+        "runner_target": 2.0,
+        "level_qty": 25,
+        "level_stop": -0.12,
+        "level_tp1": 0.4,
+        "trendline_stop": -0.06
+      },
+      "train_2025": {
+        "total_pnl": 6770.92,
+        "n_trades": 195,
+        "n_winners": 32,
+        "win_rate": 0.164,
+        "quarter_pnl": {
+          "2025-Q1": 1258.21,
+          "2025-Q2": 8128.64,
+          "2025-Q3": -1589.18,
+          "2025-Q4": -1026.75
+        },
+        "positive_quarters": 2,
+        "top5_pct": 2.892
+      },
+      "test_2026": {
+        "total_pnl": 2432.21,
+        "n_trades": 69,
+        "n_winners": 14,
+        "win_rate": 0.203,
+        "quarter_pnl": {
+          "2026-Q1": 1735.45,
+          "2026-Q2": 696.76
+        },
+        "positive_quarters": 2,
+        "top5_pct": 3.108
+      },
+      "train_pnl_per_month": 564.24,
+      "test_pnl_per_month": 565.63,
+      "ratio_normalized_per_month": 1.002,
+      "monday_ready": true
+    },
+    {
+      "source_stage": "stage3",
+      "combo": {
+        "super_stop": -0.15,
+        "super_tp1": 0.75,
+        "runner_target": 2.0,
+        "level_qty": 25,
+        "level_stop": -0.14,
+        "level_tp1": 0.4,
+        "trendline_stop": -0.06
+      },
+      "train_2025": {
+        "total_pnl": 6603.06,
+        "n_trades": 195,
+        "n_winners": 33,
+        "win_rate": 0.169,
+        "quarter_pnl": {
+          "2025-Q1": 2005.64,
+          "2025-Q2": 7675.21,
+          "2025-Q3": -1637.33,
+          "2025-Q4": -1440.47
+        },
+        "positive_quarters": 2,
+        "top5_pct": 2.965
+      },
+      "test_2026": {
+        "total_pnl": 2028.35,
+        "n_trades": 69,
+        "n_winners": 14,
+        "win_rate": 0.203,
+        "quarter_pnl": {
+          "2026-Q1": 1331.59,
+          "2026-Q2": 696.76
+        },
+        "positive_quarters": 2,
+        "top5_pct": 3.727
+      },
+      "train_pnl_per_month": 550.25,
+      "test_pnl_per_month": 471.71,
+      "ratio_normalized_per_month": 0.857,
+      "monday_ready": true
+    },
+    {
+      "source_stage": "stage2",
+      "combo": {
+        "super_stop": -0.15,
+        "super_tp1": 0.75,
+        "runner_target": 2.0,
+        "level_qty": 27,
+        "level_stop": -0.12,
+        "level_tp1": 0.4,
+        "trendline_stop": -0.06
+      },
+      "train_2025": {
+        "total_pnl": 6599.94,
+        "n_trades": 195,
+        "n_winners": 32,
+        "win_rate": 0.164,
+        "quarter_pnl": {
+          "2025-Q1": 1206.14,
+          "2025-Q2": 8306.5,
+          "2025-Q3": -1612.29,
+          "2025-Q4": -1300.4
+        },
+        "positive_quarters": 2,
+        "top5_pct": 3.037
+      },
+      "test_2026": {
+        "total_pnl": 2657.24,
+        "n_trades": 69,
+        "n_winners": 14,
+        "win_rate": 0.203,
+        "quarter_pnl": {
+          "2026-Q1": 1794.59,
+          "2026-Q2": 862.65
+        },
+        "positive_quarters": 2,
+        "top5_pct": 2.996
+      },
+      "train_pnl_per_month": 550.0,
+      "test_pnl_per_month": 617.96,
+      "ratio_normalized_per_month": 1.124,
+      "monday_ready": true
+    },
+    {
+      "source_stage": "stage3",
+      "combo": {
+        "super_stop": -0.15,
+        "super_tp1": 0.75,
+        "runner_target": 2.0,
+        "level_qty": 25,
+        "level_stop": -0.12,
+        "level_tp1": 0.35,
+        "trendline_stop": -0.06
+      },
+      "train_2025": {
+        "total_pnl": 6174.28,
+        "n_trades": 195,
+        "n_winners": 32,
+        "win_rate": 0.164,
+        "quarter_pnl": {
+          "2025-Q1": 1042.63,
+          "2025-Q2": 7806.81,
+          "2025-Q3": -1589.18,
+          "2025-Q4": -1085.97
+        },
+        "positive_quarters": 2,
+        "top5_pct": 3.115
+      },
+      "test_2026": {
+        "total_pnl": 2055.13,
+        "n_trades": 69,
+        "n_winners": 14,
+        "win_rate": 0.203,
+        "quarter_pnl": {
+          "2026-Q1": 1482.8,
+          "2026-Q2": 572.34
+        },
+        "positive_quarters": 2,
+        "top5_pct": 3.542
+      },
+      "train_pnl_per_month": 514.52,
+      "test_pnl_per_month": 477.94,
+      "ratio_normalized_per_month": 0.929,
+      "monday_ready": true
+    }
+  ],
+  "verdict": "monday_ready"
+}

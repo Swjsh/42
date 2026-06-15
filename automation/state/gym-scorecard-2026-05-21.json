@@ -1,0 +1,97 @@
+{
+  "generated_at": "2026-05-21T21:00:02.491322+00:00",
+  "for_date": "2026-05-21",
+  "overall_verdict": "RED",
+  "audits": [
+    {
+      "name": "crypto-gym (42 validators)",
+      "source_file": "crypto/data/scorecards/latest.json",
+      "verdict": "GREEN",
+      "summary": "69/70 pass (KNOWN_FLAKY excluded: 1)",
+      "evidence": {
+        "stages": 70,
+        "passed": 69,
+        "flaky_failed": [
+          "v15_three_source_parity.live"
+        ]
+      }
+    },
+    {
+      "name": "chart-data-verify",
+      "source_file": "automation/state/chart-data-verify-2026-05-21.json",
+      "verdict": "YELLOW",
+      "summary": "5 bars checked, max div $0.0000",
+      "evidence": {
+        "max_divergence_usd": 0,
+        "bars_checked": 5
+      }
+    },
+    {
+      "name": "heartbeat-tick-audit",
+      "source_file": "automation/state/heartbeat-tick-audit-2026-05-21.json",
+      "verdict": "RED",
+      "summary": "3 live ticks, 2 MISALIGNED-CRITICAL (66.7%)",
+      "evidence": {
+        "by_classification": {
+          "ALIGNED": 0,
+          "MISALIGNED-BENIGN": 1,
+          "MISALIGNED-CRITICAL": 2,
+          "STALE_PAUSED": 0,
+          "NO_DATA": 12,
+          "NO_BAR": 0
+        },
+        "live_ticks": 3,
+        "misaligned_critical": 2,
+        "misaligned_pct": 66.7
+      }
+    },
+    {
+      "name": "pin-chain-verify",
+      "source_file": "automation/state/pin-chain-verify-latest.json",
+      "verdict": "GREEN",
+      "summary": "rule_version=unknown, drifts=0",
+      "evidence": {
+        "rule_version_canonical": "unknown",
+        "drifts": []
+      }
+    },
+    {
+      "name": "heartbeat-mcp-self-test",
+      "source_file": "automation/state/heartbeat-mcp-self-test-latest.json",
+      "verdict": "GREEN",
+      "summary": "TV CDP listening=True",
+      "evidence": {
+        "tv_cdp_listening": true
+      }
+    },
+    {
+      "name": "heartbeat-pulse-check",
+      "source_file": "automation/state/heartbeat-pulse-check-2026-05-21.json",
+      "verdict": "RED",
+      "summary": "max gap 180.0min",
+      "evidence": {
+        "max_gap_minutes": 180.0
+      }
+    },
+    {
+      "name": "watcher-state-inspector",
+      "source_file": "automation/state/watcher-state-inspector-2026-05-21.json",
+      "verdict": "RED",
+      "summary": "could-not-load-bars-for-date (obs_today=955)",
+      "evidence": {
+        "obs_today": 955,
+        "reason": "could-not-load-bars-for-date"
+      }
+    }
+  ],
+  "stale_reruns": {
+    "heartbeat_tick_audit": {
+      "exit": 0,
+      "log_tail": "2026-05-21 ===\nHeadline: 2 of 3 live-trading ticks (67%) were MISALIGNED-CRITICAL on 2026-05-21\nCounts: {'ALIGNED': 0, 'MISALIGNED-BENIGN': 1, 'MISALIGNED-CRITICAL': 2, 'STALE_PAUSED': 0, 'NO_DATA': 12, 'NO_BAR': 0}\nFiles written:\n  per_tick_csv: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-05-21.csv\n  summary_json: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-05-21.json\n  human_md: C:\\Users\\jackw\\Desktop\\42\\docs\\HEARTBEAT-TICK-AUDIT-2026-05-21.md\n"
+    },
+    "heartbeat_pulse_check": {
+      "exit": 1,
+      "log_tail": "in': 15.0}, {'from': '10:18:02', 'to': '10:33:02', 'gap_min': 15.0}, {'from': '10:33:02', 'to': '10:48:02', 'gap_min': 15.0}, {'from': '10:48:02', 'to': '11:03:02', 'gap_min': 15.0}, {'from': '11:03:02', 'to': '11:18:02', 'gap_min': 15.0}, {'from': '11:18:02', 'to': '11:33:02', 'gap_min': 15.0}, {'from': '11:33:02', 'to': '11:48:02', 'gap_min': 15.0}, {'from': '11:48:02', 'to': '14:48:02', 'gap_min': 180.0}]\nWrote: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-pulse-check-2026-05-21.json\n"
+    }
+  }
+}

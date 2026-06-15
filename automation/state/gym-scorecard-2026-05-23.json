@@ -1,0 +1,68 @@
+{
+  "generated_at": "2026-05-23T19:16:35.310837+00:00",
+  "for_date": "2026-05-23",
+  "overall_verdict": "RED",
+  "audits": [
+    {
+      "name": "crypto-gym (42 validators)",
+      "source_file": "crypto/data/scorecards/latest.json",
+      "verdict": "GREEN",
+      "summary": "70/70 pass",
+      "evidence": {
+        "stages": 70,
+        "passed": 70,
+        "flaky_failed": []
+      }
+    },
+    {
+      "name": "chart-data-verify",
+      "source_file": "automation/state/chart-data-verify-2026-05-23.json",
+      "verdict": "MISSING",
+      "summary": "verify-output not found for today",
+      "evidence": {}
+    },
+    {
+      "name": "heartbeat-tick-audit",
+      "source_file": "automation/state/heartbeat-tick-audit-2026-05-23.json",
+      "verdict": "MISSING",
+      "summary": "tick-audit output not found",
+      "evidence": {}
+    },
+    {
+      "name": "pin-chain-verify",
+      "source_file": "automation/state/pin-chain-verify-latest.json",
+      "verdict": "GREEN",
+      "summary": "rule_version=unknown, drifts=0",
+      "evidence": {
+        "rule_version_canonical": "unknown",
+        "drifts": []
+      }
+    },
+    {
+      "name": "heartbeat-mcp-self-test",
+      "source_file": "automation/state/heartbeat-mcp-self-test-latest.json",
+      "verdict": "GREEN",
+      "summary": "TV CDP listening=True",
+      "evidence": {
+        "tv_cdp_listening": true
+      }
+    },
+    {
+      "name": "heartbeat-pulse-check",
+      "source_file": "automation/state/heartbeat-pulse-check-2026-05-23.json",
+      "verdict": "NOT_APPLICABLE",
+      "summary": "weekend \u2014 no heartbeat fires expected",
+      "evidence": {}
+    },
+    {
+      "name": "watcher-state-inspector",
+      "source_file": "automation/state/watcher-state-inspector-2026-05-23.json",
+      "verdict": "NOT_APPLICABLE",
+      "summary": "weekend \u2014 watchers idle",
+      "evidence": {}
+    }
+  ],
+  "stale_reruns": {
+    "skipped": "weekend \u2014 re-runs disabled (--rerun-all to force)"
+  }
+}

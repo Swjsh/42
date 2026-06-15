@@ -1,0 +1,96 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-05-13T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.75,
+  "reasoning": "SPY at 740.26, consolidating just below the 5-day Carry high at 740.73 (+$0.47 away). Overnight gap-up (+2.07) has been held in premarket. Ribbon is BULL stack (Fast 739.99, Pivot 739.81, Slow 738.63, spread 135c) with no inversion. The battle level is 740.73 — the immediate overhead resistance and the 5-day RTH high. If 740.73 holds on a test from below, it confirms a bullish floor. Below, 738.84 (yesterday's high) and 738.18 (premarket low) provide tight support. Asymmetry favors upside: room to 743.3 (Pivot R2) vs tight stop to 738.18. Entry triggers align with level hold + ribbon support.",
+  "battle_level": {
+    "price": 740.73,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 740.73,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.47
+    },
+    {
+      "price": 743.3,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 3.04
+    },
+    {
+      "price": 738.84,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 1.42
+    },
+    {
+      "price": 738.18,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 2.08
+    },
+    {
+      "price": 745.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": 4.74
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 740.73 on first test (likely within 09:45-10:15 ET as price consolidates toward resistance)",
+      "bias": "bullish",
+      "target": 743.3,
+      "entry_trigger": "level hold + Fast EMA (739.99) support confirmed + ribbon stack intact"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 740.73 with volume",
+      "bias": "bullish",
+      "target": 745.0,
+      "entry_trigger": "break of 740.73 + momentum continuation"
+    },
+    "tertiary": {
+      "condition": "if SPY rejects 740.73 and pulls back below Fast EMA (739.99)",
+      "bias": "bearish",
+      "target": 735.0,
+      "entry_trigger": "rejection candle at 740.73 + ribbon break below Fast EMA"
+    }
+  },
+  "levels_in_play_count": 8,
+  "key_observations": [
+    "Gap-up +2.07 (738.19 → 740.26) held through premarket — no gap-fill urgency yet.",
+    "Price consolidating in tight range (738.18 to 740.92 premarket) directly below 5-day high 740.73 — first real resistance is only 47 bps away.",
+    "Ribbon BULL (spread 135c), no inversion, Fast EMA 739.99 acts as effective support floor — price is ~26bps above Fast EMA.",
+    "Immediate support at 738.84 (yesterday RTH high) and 738.18 (PML) both within $1.50 — risk/reward asymmetry favors bullish entries.",
+    "VIX rising (18.09, +0.56%) despite gap-up — typical short-covering or hedge unwind into strength; not panic.",
+    "No multi-timeframe divergence visible in premarket — ribbon and price structure aligned."
+  ],
+  "data_quality": "full"
+}

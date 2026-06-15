@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-04-14T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis", "internals"],
+    "bearish": [],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 4,
+    "bearish": 0,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 1.00,
+    "bearish": 0.00
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 88,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Execution at 688.14 battle level assumed successful, but late premarket selling (91c drop in 55 min, 05:00–05:55 ET) and price trading below fast EMA (687.41) indicate material distribution risk into the open.",
+    "top_invalidation_scenario": "SPY opens below 687.00 and fails to reclaim 688.14 in first 10 minutes of RTH — gap-up thesis collapses, pullback to 686.30 or 676.58 becomes base case."
+  },
+  "battle_level": {
+    "price": 688.14,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 688.14,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "reclaim_attempt"
+    },
+    {
+      "price": 686.30,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 676.58,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 670.00,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 651.06,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY reclaims and holds 688.14 on RTH open",
+      "bias": "bullish",
+      "target": 690.0,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if SPY fails at 688.14 and rolls over below 686.30",
+      "bias": "bearish",
+      "target": 676.58,
+      "entry_trigger": "resistance_rejection"
+    },
+    "invalidation": {
+      "condition": "SPY opens below 687.00 and cannot reclaim 688.14 within first 10 minutes of RTH",
+      "effect": "Gap-up thesis collapses; late premarket selling confirmed as distribution; primary bullish scenario invalidated; bears target 686.30 then 676.58."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY trades at or above 688.14 (premarket high / battle level) at least once within the first 90 minutes of RTH (by 11:00 ET)",
+      "invalidation": "SPY does not trade above 687.50 before 11:00 ET",
+      "confidence": 0.70,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 19.50 for the entire RTH session, sustaining the bullish premium tailwind",
+      "invalidation": "VIX spikes above 19.50 at any point during RTH (09:30–16:00 ET)",
+      "confidence": 0.78,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BULL ribbon (fast EMA > slow EMA by ≥30 cents) remains intact on each of the first three 5-minute RTH bar closes (09:35, 09:40, 09:45 ET)",
+      "invalidation": "Fast EMA crosses below or within 10 cents of slow EMA on any of the first three 5m RTH bar closes",
+      "confidence": 0.68,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "All 4 specialists align bullish on a gap-up open (+$1.22) backed by CLEAN_BULL ribbon (170c spread), falling VIX (18.15 MID regime), and broad sector leadership (XLK/XLF both +2.3%). The critical tension is late premarket distribution: 688.14 peaked at 05:00 ET, then sold off 91 cents to 687.23 by 05:55 ET — price now sits below fast EMA (687.41) despite the bull ribbon, a structural contradiction the validator flagged as the weakest consensus link. The single most important thing to watch at market open: whether 688.14 (premarket high, battle level) is reclaimed and sustained within the first 10–15 minutes of RTH; clean reclaim confirms the gap-up bull thesis and targets 690.0, while rejection triggers the secondary bearish scenario with 686.30 or 676.58 in play.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.70,
+      "one_line": "CLEAN_BULL ribbon (170c spread) with overnight gap +$1.22 — but last 3 premarket bars bearish and price 18c below fast EMA; structure bullish, momentum weakening"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.75,
+      "one_line": "VIX 18.15 MID regime falling -4.62%, no events scheduled today, risk-on backdrop with XLK/XLF leading; zero hard no-trade windows"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.70,
+      "one_line": "Battle level 688.14 (PMH) is 91c away — reclaim = 690 target; failure triggers 686.30 or 676.58 retrace; execution at level is the fulcrum"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.85,
+      "one_line": "XLK +2.3% / XLF +2.3% outperforming SPY +1.28% with XLE -0.89% lagging — classic broad risk-on rotation, not narrow tech squeeze"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Late premarket selling (688.14→687.23 in 55 min) = distribution into open; price below fast EMA contradicts CLEAN_BULL verdict; 688.14 rejection sends SPY to 686.30 or 676.58"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

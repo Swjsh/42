@@ -1,0 +1,66 @@
+{
+  "date": "2025-10-07",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-20T02:33:27.272945+00:00",
+  "actual": {
+    "open": 668.89,
+    "close": 669.43,
+    "high": 669.58,
+    "low": 667.83,
+    "move_dollars": 0.54,
+    "actual_bias": "no_trade"
+  },
+  "swarm": {
+    "consensus_bias": "no_trade",
+    "swarm_confidence": 0,
+    "consensus_strength": "moderate",
+    "battle_level": {
+      "price": 672.5,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "no_trade",
+      "actual": "no_trade"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 672.5,
+      "role": "resistance",
+      "rth_range": [
+        667.83,
+        669.58
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 672.5,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "SPY tests Carry resistance 672.5 within the first 60 minutes of RTH (at or above 672.45 by 10:30 ET)",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains contained within 15.5\u201317.5 for the full session \u2014 clean macro calendar with no external expansion catalyst m",
+        "invalidation": "VIX touches 17.6 or higher at any point during RTH"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "BULL ribbon fails to generate a clean directional impulse early session \u2014 SPY closes below fast EMA (672.25) on the 10:0",
+        "invalidation": "SPY bar close at 10:00 ET is at or above 672.25"
+      }
+    ]
+  },
+  "narrative": "The swarm sees a structurally bullish setup (CLEAN_BULL ribbon 28c spread, level_thesis 0.72 confidence) that is blocked from a directional signal by three simultaneous headwinds: a 76-cent premarket seller washout, risk-off sector rotation in XLK+XLF (~45% of SPY by weight), and only 2 of 4 special"
+}

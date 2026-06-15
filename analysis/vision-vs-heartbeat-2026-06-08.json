@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0.0",
+  "date": "2026-06-08",
+  "generated_at_et": "2026-06-08T16:30:15",
+  "aggregate": {
+    "total_paired_ticks": 0,
+    "aligned": 0,
+    "diverged": 0,
+    "vision_only": 0,
+    "heartbeat_only": 0,
+    "vision_accuracy_pct": null,
+    "vision_graded_n": 0,
+    "heartbeat_accuracy_pct": null,
+    "heartbeat_graded_n": 0,
+    "diverged_vision_accuracy_pct": null,
+    "diverged_heartbeat_accuracy_pct": null,
+    "diverged_graded_n": 0,
+    "vision_minus_heartbeat_diverged_pp": null
+  },
+  "per_tick": [],
+  "ingest_warnings": [],
+  "verdict": {
+    "verdict": "NO_DATA",
+    "narrative": "no vision observations or heartbeat decisions for this date"
+  }
+}

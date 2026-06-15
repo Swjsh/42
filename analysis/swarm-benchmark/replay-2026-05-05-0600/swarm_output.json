@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-05-05T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis"],
+    "bearish": ["internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 3,
+    "bearish": 1,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.90,
+    "bearish": 0.10
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 71,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["internals"],
+    "dissent_reason": "Internals show XLK -0.41% and XLF -0.39% selling into the overnight gap-up, indicating tech and financials (the two largest SPY sectors) are absent from the bullish move — a breadth failure that raises the probability of intraday reversal from the 722.12 battle level."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The consensus assumes overnight momentum (gap-up, CLEAN_BULL ribbon, VIX fall) persists into RTH without intraday confirmation from tech and financials — but XLK -0.41% and XLF -0.39% are selling into the gap, a classic institutional distribution pattern.",
+    "top_invalidation_scenario": "SPY tests 722.12 battle level within first 90 min of RTH and gets rejected on volume, cascading back to 718.01 support — proving internals (risk-off breadth) trump technicals (overnight momentum) as directional signal."
+  },
+  "battle_level": {
+    "price": 722.12,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 722.12,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 724.87,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 720.86,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 718.01,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 715.0,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds above 720.86 (PMH) at open and breaks through 722.12 on volume",
+      "bias": "bullish",
+      "target": 724.87,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if SPY tests 722.12 but holds below it, consolidating between 720.86 and 722.12",
+      "bias": "bullish",
+      "target": 722.12,
+      "entry_trigger": "ribbon_reclaim"
+    },
+    "invalidation": {
+      "condition": "SPY tests 722.12 within first 90 min of RTH, gets rejected on volume with XLK remaining negative, then breaks below PMH 720.86",
+      "effect": "Overnight gap-up unwinds; bearish internals signal confirmed; price targets 718.01 support (-2.61 from 720.62); bull thesis invalidated for the session"
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests the 722.12 battle level (prior session RTH high) within the first 90 minutes of RTH (before 11:00 ET)",
+      "invalidation": "SPY does not reach 722.12 before 11:00 ET, holding below 721.50 for the full first 90 minutes",
+      "confidence": 0.68,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX holds below 18.00 for the entirety of the first hour of RTH (09:30-10:30 ET), keeping the MID-regime directional bias intact",
+      "invalidation": "VIX ticks back above 18.00 within the first 30 minutes of RTH (before 10:00 ET)",
+      "confidence": 0.65,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY ribbon maintains CLEAN_BULL status (all 3 EMAs stacked bullish: fast > pivot > slow) and price holds above pivot 720.27 through the 10:00 ET bar close",
+      "invalidation": "Any EMA crossover (ribbon inversion) or SPY bar closes below 720.27 before or at the 10:00 ET bar",
+      "confidence": 0.62,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "Today's core tension is a technically clean bull setup (CLEAN_BULL ribbon 87c spread, overnight gap +$2.55, VIX falling -4.07%) colliding with a sector breadth failure where XLK (-0.41%) and XLF (-0.39%) are selling into the gap — absent institutional leadership from SPY's two largest sectors. The consensus is bullish at 71 confidence (weighted 3-1) because chart structure and macro regime dominate the weighting, but the 722.12 battle level is only 1.50 away and a rejection there with continued tech weakness creates asymmetric downside risk to 718.01 (-2.61). The single most important thing to watch at market open is whether XLK turns positive and participates in any rally toward 722.12 — sector confirmation would validate the bull case; sustained XLK weakness into a 722.12 test strongly favors fading the gap.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.70,
+      "one_line": "CLEAN_BULL ribbon 87c spread, all EMAs stacked bullish, overnight gap +$2.55 with price 35c above pivot; bar structure mixed but recovering"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "VIX 17.44 MID-regime falling -4.07% (vol compression bullish), no events today, FOMC 2 days away; macro backdrop risk_on"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "Battle level 722.12 (prior RTH high) gates access to Carry ceiling 724.87; bull asymmetry intact with 718.01 floor providing -2.61 margin"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.60,
+      "one_line": "XLK -0.41% + XLF -0.39% = risk-off breadth failure into gap-up; only XLE +1.12% defensive winner; institutional participation absent"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "722.12 rejection on volume with XLK remaining negative cascades to 718.01 — breadth failure was the leading signal, not the lagging one"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

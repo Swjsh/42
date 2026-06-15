@@ -1,0 +1,143 @@
+{
+  "scan_date": "2026-05-20",
+  "scan_mode": "structural",
+  "scan_type": "CLOSE_CEILING_FAKE_BREAKOUT_BEAR",
+  "level_proxy": "structural",
+  "note": "Level proxy is an approximation. The real pattern fires at named \u2605\u2605+ carry/resistance levels from key-levels.json (which changes daily). PDH mode: too rare (N=2). morning_high mode: tests if morning high holds as afternoon resistance \u2014 a common intraday resistance-to-support-test pattern.",
+  "parameters": {
+    "n_min_streak": 3,
+    "entry_time_start": "09:45",
+    "entry_time_end": "14:30",
+    "cooldown_minutes": 45,
+    "win_bars_lookback": 3,
+    "win_revert_cents": 0.2,
+    "level_tolerance": 0.02
+  },
+  "n_signals": 5,
+  "n_completed": 5,
+  "n_wins": 0,
+  "n_losses": 5,
+  "wr_pct": 0.0,
+  "avg_streak_bars": 3.2,
+  "avg_max_drop_from_level": -0.13,
+  "loser_day_fires": 0,
+  "loser_day_details": [],
+  "by_streak": {
+    "3": {
+      "total": 4,
+      "wins": 0,
+      "wr_pct": 0.0
+    },
+    "4": {
+      "total": 1,
+      "wins": 0,
+      "wr_pct": 0.0
+    }
+  },
+  "by_hour": {
+    "10:00": {
+      "total": 3,
+      "wins": 0,
+      "wr_pct": 0.0
+    },
+    "11:00": {
+      "total": 2,
+      "wins": 0,
+      "wr_pct": 0.0
+    }
+  },
+  "guard_rail": "PASS",
+  "op21_economics_gate": "FAIL",
+  "signals": [
+    {
+      "date": "2025-01-15",
+      "time": "10:25",
+      "bar_idx": 11,
+      "streak": 3,
+      "structural_window": 6,
+      "resistance_level": 592.85,
+      "ceiling_range_cents": 0.23,
+      "entry_close": 593.1,
+      "breakout_above_level_by": 0.25,
+      "direction": "short",
+      "side": "P",
+      "signal_type": "CLOSE_CEILING_STRUCTURAL_FAKE_BREAKOUT",
+      "loser_day_guard": false,
+      "win": false,
+      "max_drop_from_level": -0.21,
+      "bars_to_revert": null
+    },
+    {
+      "date": "2025-05-16",
+      "time": "10:20",
+      "bar_idx": 10,
+      "streak": 3,
+      "structural_window": 6,
+      "resistance_level": 593.1,
+      "ceiling_range_cents": 0.26,
+      "entry_close": 593.22,
+      "breakout_above_level_by": 0.12,
+      "direction": "short",
+      "side": "P",
+      "signal_type": "CLOSE_CEILING_STRUCTURAL_FAKE_BREAKOUT",
+      "loser_day_guard": false,
+      "win": false,
+      "max_drop_from_level": -0.02,
+      "bars_to_revert": null
+    },
+    {
+      "date": "2025-07-28",
+      "time": "11:40",
+      "bar_idx": 26,
+      "streak": 3,
+      "structural_window": 6,
+      "resistance_level": 636.13,
+      "ceiling_range_cents": 0.16,
+      "entry_close": 636.24,
+      "breakout_above_level_by": 0.11,
+      "direction": "short",
+      "side": "P",
+      "signal_type": "CLOSE_CEILING_STRUCTURAL_FAKE_BREAKOUT",
+      "loser_day_guard": false,
+      "win": false,
+      "max_drop_from_level": -0.01,
+      "bars_to_revert": null
+    },
+    {
+      "date": "2025-08-27",
+      "time": "10:10",
+      "bar_idx": 8,
+      "streak": 3,
+      "structural_window": 6,
+      "resistance_level": 646.82,
+      "ceiling_range_cents": 0.11,
+      "entry_close": 647.18,
+      "breakout_above_level_by": 0.36,
+      "direction": "short",
+      "side": "P",
+      "signal_type": "CLOSE_CEILING_STRUCTURAL_FAKE_BREAKOUT",
+      "loser_day_guard": false,
+      "win": false,
+      "max_drop_from_level": -0.29,
+      "bars_to_revert": null
+    },
+    {
+      "date": "2026-05-04",
+      "time": "11:05",
+      "bar_idx": 19,
+      "streak": 4,
+      "structural_window": 6,
+      "resistance_level": 717.61,
+      "ceiling_range_cents": 0.12,
+      "entry_close": 717.91,
+      "breakout_above_level_by": 0.3,
+      "direction": "short",
+      "side": "P",
+      "signal_type": "CLOSE_CEILING_STRUCTURAL_FAKE_BREAKOUT",
+      "loser_day_guard": false,
+      "win": false,
+      "max_drop_from_level": -0.1,
+      "bars_to_revert": null
+    }
+  ]
+}

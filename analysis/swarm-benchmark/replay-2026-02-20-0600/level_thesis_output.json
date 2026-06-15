@@ -1,0 +1,85 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-02-20T06:00:00Z",
+  "bias": "no_trade",
+  "confidence": 0.40,
+  "reasoning": "SPY at 684.50, yesterday's close with no overnight gap, sits in a narrow indecisive range between Active Support 681.59 (2★, -2.91) and Active Resistance 686.13 (2★, +1.63). The ribbon is MIXED—fast/pivot/slow compressed in a 12¢ band with no bullish or bearish stack—indicating seller/buyer confusion. Price location offers no directional asymmetry: the upside target (695.34 Carry) is farther away ($10.84) but the overhead resistance (686.13) is closer (+1.63). The downside target (675.79 Carry) is similarly distant ($8.71) but the support (681.59) is also -2.91. VIX at 18.87 (mid regime) supplies no urgency. Honest assessment: this is a range-day setup. The battle level is 686.13—if it holds on first test, expect chop down toward 681.59; if it breaks, momentum targets 695.34 Carry. Wait for either level to definitively hold or break before committing to a direction.",
+  "battle_level": {
+    "price": 686.13,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 686.13,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 1,
+      "distance_from_price": 1.63
+    },
+    {
+      "price": 681.59,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 2.91
+    },
+    {
+      "price": 695.34,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 10.84
+    },
+    {
+      "price": 675.79,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 4,
+      "distance_from_price": 8.71
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 686.13 on first test",
+      "bias": "bearish_chop",
+      "target": 681.59,
+      "entry_trigger": "rejection_at_686.13 + reversal_bar"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 686.13 with volume",
+      "bias": "bullish",
+      "target": 695.34,
+      "entry_trigger": "breakout_above_686.13 + ribbon_confirmation"
+    },
+    "fallback": {
+      "condition": "if SPY breaks below 681.59",
+      "bias": "bearish",
+      "target": 675.79,
+      "entry_trigger": "breakdown_below_681.59 + momentum_continuation"
+    }
+  },
+  "levels_in_play_count": 8,
+  "key_observations": [
+    "Ribbon MIXED with 12¢ spread: no bullish or bearish stack conviction—indecision signature.",
+    "Price exactly at yesterday's close (684.50): no gap continuation or overnight momentum to ride.",
+    "Active levels 1.63 above and 2.91 below create symmetric risk/reward—no edge until one breaks.",
+    "Carry levels 10.84 above and 8.71 below: if up target is farther, downside break might be 'easier' but upside break target is richer.",
+    "VIX 18.87 / MID regime: neither fear-driven nor complacency—neutral volatility backdrop."
+  ],
+  "data_quality": "full"
+}

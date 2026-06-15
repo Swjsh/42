@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-05-04T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["level_thesis"],
+    "bearish": ["macro", "internals"],
+    "no_trade": ["technical"]
+  },
+  "vote_counts": {
+    "bullish": 1,
+    "bearish": 2,
+    "no_trade": 1
+  },
+  "weighted_scores": {
+    "bullish": 0.25,
+    "bearish": 0.40
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "weak",
+  "swarm_confidence": 25,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["technical", "level_thesis"],
+    "dissent_reason": "Technical sees ribbon compression (13c spread, sub-20c clean threshold) as a chop/no-trade coil rather than bearish structure; Level Thesis argues the intact gap-up and price holding the upper half of the premarket range (51% from PML) signal bullish continuation toward the Carry high 724.87."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Bearish agents anchor on modest VIX +2.53% to MID 17.43 and XLF/XLE weakness as proof of risk-off, while discounting that the overnight gap-up is still intact (price 721.41 vs PML 720.34), XLK +0.92% (largest sector) is leading, and Technical's 'no_trade' is more accurately a 'setup-pending' interpretation of the compressed ribbon coil.",
+    "top_invalidation_scenario": "SPY opens RTH below 721.50 and breaks PML 720.34 within first 5 minutes — validates VIX fear narrative as real expansion, not rotational noise."
+  },
+  "battle_level": {
+    "price": 722.41,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 722.41,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 720.34,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 724.87,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 723.54,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 723.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY tests PMH 722.41 within first 30 min of RTH and closes a 5-min bar below 722.00",
+      "bias": "bearish",
+      "target": 720.34,
+      "entry_trigger": "resistance_rejection"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 722.41 with conviction and holds a 5-min close above 722.60",
+      "bias": "bullish",
+      "target": 724.87,
+      "entry_trigger": "level_reclaim"
+    },
+    "invalidation": {
+      "condition": "SPY opens RTH below 721.50 AND breaks PML 720.34 within first 5 minutes of RTH",
+      "effect": "Overnight gap-up is a false signal; bears have real structural control. VIX fear-expansion narrative confirmed. Bearish acceleration likely toward 716-718 zone — original bear thesis is valid but deeper and faster than the moderate scenario assumed."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY reaches PMH 722.41 at some point within the first 90 min of RTH (by 11:00 ET) and then closes a 5-min bar below 722.00 within 30 min of that test, confirming resistance rejection",
+      "invalidation": "SPY breaks above 722.41 and closes a 5-min bar above 722.60 before 11:00 ET without returning below 722.00",
+      "confidence": 0.52,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX trades above 17.00 for the entire first 2 hours of RTH (09:30-11:30 ET), sustaining the MID regime macro backdrop and maintaining bearish premium bias",
+      "invalidation": "VIX drops below 16.50 by 11:00 ET",
+      "confidence": 0.60,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY EMA ribbon spread remains below 30c through the first 60 min of RTH (09:30-10:30 ET), producing a range-bound open between PML 720.34 and PMH 722.41 with no clean directional trend bar",
+      "invalidation": "Ribbon spread exceeds 30c (BULL or BEAR full alignment) before 10:30 ET",
+      "confidence": 0.48,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The 2026-05-04 setup is defined by a coiling tension: the overnight gap-up remains intact (+0.74, price 721.41 holding 51% from PML 720.34) and XLK leadership (+0.92%) argue for continuation, but rising VIX (+2.53% to MID 17.43), broad financial/energy weakness (XLF -0.92%, XLE -0.36%), and a ribbon compressed to just 13c (sub-clean threshold) tilt the weighted consensus modestly bearish (0.40 vs 0.25 bullish). Conviction is deliberately low at 25 — this is a split-specialist day where 2 of 4 agents disagree with the consensus direction. The single most important thing to watch at open: whether SPY tests PMH 722.41 and rejects (bearish trigger) or breaks through with a held close above 722.60 (bull case invalidation).",
+  "agent_summaries": {
+    "technical": {
+      "bias": "no_trade",
+      "confidence": 0.35,
+      "one_line": "CHOP ribbon (13c spread, below 20c clean threshold); mixed bar structure (doji → small green → strong red); price in middle of 720.34-722.41 overnight range — no tradeable edge yet"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.66,
+      "one_line": "MID VIX regime rising +2.53% to 17.43 drives bearish premium bias; zero macro events today; sector rotation risk-off (XLF -0.92%, XLE -0.36%) offsets modest overnight gap"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "PMH 722.41 is battle level; price holding upper half of premarket range supports modest bull lean; break above 722.41 targets Carry high 724.87 (+3.46); failure below 720.34 opens 716-718"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.62,
+      "one_line": "Narrow breadth (XLK alone leading, XLF/XLE weak); SPY flat despite gap-up; tech-without-financials divergence is classic fragile/unstable pattern"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Gap-up intact + XLK leadership + Level Thesis confidence (0.72) exceeding average bearish confidence (0.64) means bull case is equally data-supported; VIX at 17.43 is MID not HIGH, not an extreme fear signal"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

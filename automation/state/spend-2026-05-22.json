@@ -1,0 +1,43 @@
+{
+  "date_et": "2026-05-22",
+  "total_cost_usd": 167.8019,
+  "claude_cost_usd": 167.7727,
+  "minimax_cost_usd": 0.0292,
+  "claude_sessions": 38,
+  "claude_by_tier": {
+    "haiku": {
+      "tier": "haiku",
+      "messages": 462,
+      "input_tokens": 103066,
+      "output_tokens": 584987,
+      "cache_creation_input_tokens": 33134893,
+      "cache_read_input_tokens": 30220859,
+      "estimated_cost_usd": 47.4687
+    },
+    "sonnet": {
+      "tier": "sonnet",
+      "messages": 165,
+      "input_tokens": 11668,
+      "output_tokens": 248734,
+      "cache_creation_input_tokens": 2099982,
+      "cache_read_input_tokens": 14694441,
+      "estimated_cost_usd": 16.0493
+    },
+    "opus": {
+      "tier": "opus",
+      "messages": 139,
+      "input_tokens": 254,
+      "output_tokens": 188560,
+      "cache_creation_input_tokens": 2274454,
+      "cache_read_input_tokens": 31641909,
+      "estimated_cost_usd": 104.2547
+    }
+  },
+  "minimax_calls": 5,
+  "minimax_by_task": {
+    "kitchen.reviewer.tier3": 0.011839,
+    "kitchen.cook.interpret-overnight-grinder-gr.tier3": 0.006072,
+    "kitchen.cook.cook-nlwb-watcher-variant-usin.tier3": 0.005927,
+    "kitchen.cook.run-stage-1-backtest-splitting.tier3": 0.005366
+  }
+}

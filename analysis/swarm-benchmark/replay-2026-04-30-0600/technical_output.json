@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-04-30T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "CLEAN_BULL ribbon with 63-cent spread and price 22c above pivot (711.84 vs 711.62 pivot) indicates solid bullish structure. Last 3 bars show mixed action (green 05:45, red 05:50 and 05:55) with the most recent 05:55 bar closing as a doji (17c body in 35c range) suggesting consolidation rather than capitulation. Flat overnight gap (+0.26 = essentially no gap sentiment). VIX falling -1.53% supports the bullish tilt. Ribbon verdict dominates; bar weakness is secondary consolidation signal.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 63,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "CLEAN_BULL ribbon with 63-cent spread between slow (711.16) and fast (711.79) EMAs — well-formed bullish alignment",
+    "Price 711.84 trading 22 cents above the 20-period pivot (711.62) — confirms bullish momentum in premarket",
+    "Last 3 bars: 05:45 green close, followed by two red bars (05:50, 05:55) with doji-like body on 05:55 (close 711.84, range 35 cents, body only 17 cents) — mixed trend with recent indecision rather than breakdown",
+    "Overnight gap flat at +0.26 cents; prior close 711.58 vs current 711.84 — minimal gap sentiment, open essentially neutral",
+    "VIX at 18.08 and falling -1.53% — low volatility regime supportive of continuation higher"
+  ],
+  "data_quality": "full"
+}

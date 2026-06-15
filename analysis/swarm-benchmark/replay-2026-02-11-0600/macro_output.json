@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-02-11T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.65,
+  "reasoning": "VIX at 17.86 (MID regime) with flat direction (0.28% overnight change) provides a neutral IV backdrop — no strong bullish compression tailwind. Overnight gap is flat (692.11 = prior session close); no relief signal overnight. Yesterday's tape ended weak (SPY -0.41%, XLK -0.88%, XLE -0.35%), and ribbon shows BEAR stack (72¢ spread) = structural bearish bias into open. Mixed sector rotation (tech/energy weak, financials flat) suggests chop, but the bearish structure + tape weakness outweighs VIX neutrality. No macro events today = clean technical environment. Moderate conviction due to VIX not rising — a rising VIX would cement bearish bias, but flat VIX leaves room for consolidation or reversal.",
+  "vix_regime": "MID",
+  "vix_direction": "flat",
+  "vix_current": 17.86,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": 0.0,
+  "macro_backdrop": "neutral",
+  "key_observations": [
+    "VIX at 17.86 (MID), flat direction (0.28% change) — neutral IV backdrop, no strong bullish compression tailwind",
+    "Overnight gap flat (692.11 = prior close) — no overnight relief or capitulation, starts day where yesterday ended",
+    "Yesterday closed weak: SPY -0.41% overall, XLK -0.88%, XLE -0.35% — weakness in growth/tech/energy, financials holding",
+    "Ribbon shows BEAR stack (72¢ spread) = structural bearish bias from prior close into this open",
+    "No macro events scheduled for 2026-02-11 — clean technical tape, no hard no-trade windows, heartbeat entry gate OK"
+  ],
+  "data_quality": "full"
+}

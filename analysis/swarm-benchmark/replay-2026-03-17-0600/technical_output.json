@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-03-17T06:00:00Z",
+  "bias": "no_trade",
+  "confidence": 0.35,
+  "reasoning": "MIXED ribbon stack (fast < pivot < slow, 24c spread) with no clean alignment is the dominant signal. Last 3 bars alternate green-red-green with choppy body sizes (6%, 29%, 100%), indicating no momentum direction. Price is 69c above pivot (weak bullish signal), but insufficient to override CHOP ribbon. Gap down -50c adds slight bearish pressure. Premarket high at 668.49 was reached, but mixed structure suggests consolidation rather than thrust.",
+  "ribbon_verdict": "CHOP",
+  "ribbon_spread_cents": 24,
+  "bar_structure": "chop",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "Ribbon stack MIXED: fast 667.87 < pivot 667.77 < slow 668.02 — no clean bull or bear alignment",
+    "Last 3 bars (05:45-05:55) alternate green-red-green with doji-ish bodies (6%, 29%, 100%) — classic chop pattern",
+    "Price 668.46 is 69c above pivot, but CHOP ribbon overrides this single bullish signal",
+    "Gap down -50c from prior 668.96 close; premarket low 665.70 tested early, recovery stalled at PMH 668.49",
+    "VIX 22.19 falling -6.33% in HIGH regime — volatility shrinking, no explosive directional edge"
+  ],
+  "data_quality": "full"
+}

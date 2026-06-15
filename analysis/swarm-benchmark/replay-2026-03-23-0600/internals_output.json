@@ -1,0 +1,24 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-03-23T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "XLK down -1.95% + XLE down -0.42% while XLF flat (+0.25%) = risk-off rotation with tech leading the selloff. Tech's 1.95% decline versus SPY's 1.21% indicates narrow, tech-driven weakness. Financials offer no support to offset tech drag. Premarket gap down -5.23 points and ribbon BEAR stack reinforce downside bias. However, XLF's resilience (not selling) prevents higher-confidence bearish call — partial breadth failure reduces conviction to medium.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -1.95,
+    "xlf_change_pct": 0.25,
+    "xle_change_pct": -0.42,
+    "spy_change_pct": -1.21,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK -1.95%: tech weakness leading market lower, significant drag on SPY",
+    "XLF +0.25%: financials flat/neutral, no bullish support, no risk-on confirmation",
+    "XLE -0.42%: energy minor weakness, no sector leadership",
+    "Breadth: NARROW — tech selloff concentrated, not broad-based. SPY down 1.21% but XLK driving lower at -1.95%",
+    "Risk-off rotation confirmed: growth sectors weak, defensive neutral, no risk-on leadership"
+  ],
+  "data_quality": "full"
+}

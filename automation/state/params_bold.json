@@ -1,0 +1,71 @@
+{
+  "_doc": "Gamma-Bold account override config. Loaded on top of params.json by the heartbeat on each tick for Account 2. Only specifies values that DIFFER from params.json. Base params (VIX bands, liquidity gates, session timing, macro, etc.) still come from params.json. Drift between this file and heartbeat.md section 'ACCOUNT: bold' = kill-switch event.",
+
+  "account_id": "bold",
+  "account_alias": "Gamma-Bold",
+  "account_description": "Aggressive paper account. Max P&L per signal priority. ALL setups including DRAFT and WATCH-ONLY. ITM-2 strikes. Full risk per trade. Asymmetric stop (bear wide, bull tight). This account WILL blow up faster — that's the data.",
+  "alpaca_key_alias": "alpaca_aggressive",
+  "alpaca_mcp_prefix": "mcp__alpaca_aggressive__",
+  "alpaca_rest_base_url": "https://paper-api.alpaca.markets",
+  "alpaca_rest_key_env": "ALPACA_BOLD_API_KEY",
+  "position_state_file": "automation/state/current-position-bold.json",
+
+  "_risk_overrides": "Full v15 risk. 50% per-trade cap means one max-loss = day done (behavioral lock).",
+  "per_trade_risk_cap_pct": 0.50,
+  "daily_loss_kill_switch_pct": 0.50,
+
+  "_exits_overrides": "Aggressive exits. Let winners run (75% TP1 threshold, only 1/3 off at TP1, runner to 5×). v15 asymmetric stop: bear gets room, bull fails fast.",
+  "premium_stop_pct": -0.15,
+  "premium_stop_pct_bear": -0.15,
+  "premium_stop_pct_bull": -0.05,
+  "tp1_premium_pct": 0.75,
+  "tp1_qty_fraction": 0.333,
+  "runner_target_premium_pct": 5.0,
+  "v15_profit_lock_mode": "trailing",
+  "v15_profit_lock_threshold_pct": 0.05,
+  "v15_profit_lock_trail_pct": 0.20,
+
+  "_entry_overrides": "v15.1 (LIVE 2026-05-14 evening per J): entries [09:35, 15:00) ET continuous. Mid-day blackout REMOVED. Cutoff 15:00 to protect against theta. Aligned with Safe — entry timing identical, only risk_cap / strike / TP1 fraction differ between accounts. Existing positions still flatten by 15:50 ET hard time stop.",
+  "entry_no_trade_before_et": "09:35",
+  "entry_no_trade_after_et": "15:00",
+  "entry_no_trade_window_et": null,
+  "_entry_no_trade_window_et_history": "Pre-v15.1 had 13:45-15:45 ET 'wider' no-trade window (custom Bold variant). v15.1 (2026-05-14 per J): aligned with Safe — entry window now CONTINUOUS 09:35-15:00 ET. Theta is the post-3pm problem, mid-day was leaving setups.",
+  "filter_10_min_triggers_bear": 1,
+  "filter_10_min_triggers_bull": 1,
+
+  "_strike_overrides": "ITM-2 at $1K tier (more delta, more P&L per SPY point). Full tier ladder active.",
+  "strike_offset_itm": 2,
+  "v15_strike_offset_per_tier": [
+    { "equity_min": 0,     "equity_max": 2000,      "strike_offset": 2,  "label": "ITM-2", "rationale": "Max delta at $1K. More P&L per SPY move. Higher premium = fewer contracts within 50% cap — that's the trade-off." },
+    { "equity_min": 2000,  "equity_max": 10000,     "strike_offset": 2,  "label": "ITM-2", "rationale": "Same ITM-2 at $2K-$10K tier." },
+    { "equity_min": 10000, "equity_max": 25000,     "strike_offset": 2,  "label": "ITM-2", "rationale": "Continue ITM-2 until PDT threshold." },
+    { "equity_min": 25000, "equity_max": 999999999, "strike_offset": 2,  "label": "ITM-2", "rationale": "Full ITM-2 production v14/v15 default." }
+  ],
+
+  "_vix_overrides": "Looser VIX gates. Can trade calls up to VIX 20 (mid regime). Can trade puts down to VIX 15. Hard cap raised to 30 (stays active in vol spikes).",
+  "vix_entry_thresholds": {
+    "bull_max_exclusive_or_falling": 20.00,
+    "bear_min_exclusive_and_rising": 15.00,
+    "bull_hard_cap": 30.00
+  },
+
+  "_setup_scope": "ALL setups. CONFIRMED + DRAFT + WATCH-ONLY. When a setup fires on both accounts, Gamma picks the most appropriate expression for Bold (typically: deeper ITM, wider stop, later TP1). Bold never misses a signal the engine generates.",
+  "setups_allowed": ["ALL"],
+  "quality_gate_min": "WATCH",
+
+  "_confluence_overrides": "Single trigger allowed on ★★+ levels. Bold uses the signal; Safe waits for confirmation.",
+  "filter_10_level_tied_required": false,
+  "confluence_min_signals": 1,
+
+  "_sizing_math_note": "At $1K: max capital = $500. ITM-2 premium ~$2.50 → max 2 contracts ($500 / $250). ITM-2 premium ~$1.50 → max 3 contracts ($450 / $150). ITM-2 premium ~$1.00 → max 5 contracts (cap 5 at $1K tier). Always recompute against current equity before entry.",
+
+  "_overlap_resolution": "When same setup fires on both accounts simultaneously: Bold account takes ITM-2 strike, 75% TP1, 33% TP1 fraction, -15%/-5% stop. Bold executes same second as Safe. Log both rows to decisions.jsonl with respective account_id.",
+
+  "_watcher_setups": "Bold account is the primary vehicle for all watcher observations (ORB, PIN_FADE, BULLISH_RECLAIM live confirmations). All watcher observations are tagged account_id=bold in watcher-observations.jsonl. OP 21 watch-first promotion path applies: Bold can observe live trades for watcher promotion criteria.",
+
+  "schema_version": 3,
+  "config_version": "v1.0",
+  "config_ratified_at": "2026-05-14",
+  "config_ratified_by": "dual-account-design-plan",
+  "effective_date": "2026-05-18"
+}

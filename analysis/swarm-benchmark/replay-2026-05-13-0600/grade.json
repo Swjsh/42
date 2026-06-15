@@ -1,0 +1,63 @@
+{
+  "date": "2026-05-13",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:17.346376+00:00",
+  "actual": {
+    "open": 738.47,
+    "close": 742.32,
+    "high": 743.91,
+    "low": 735.47,
+    "move_dollars": 3.85,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 95,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 740.73,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "BROKE",
+      "battle_level": 740.73,
+      "role": "resistance",
+      "first_touch_time": "2026-05-13T12:10:00"
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 740.73,
+        "touched_any_time": true,
+        "touched_in_specified_window": false,
+        "claim": "SPY tests the 740.73 Carry resistance level within the first 45 minutes of RTH (by 10:15 ET), closin",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 19.50 through 11:00 ET, sustaining MID regime and supporting continuation of bullish 0DTE call premium",
+        "invalidation": "VIX spikes above 19.50 at any point before 11:00 ET, signaling short-covering completion and reversal pressure re-emerge"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BULL ribbon (135\u00a2 spread) remains intact through the 09:35-10:00 ET opening range, with Fast EMA 739.99 holding as",
+        "invalidation": "Any 5-minute bar between 09:35-10:00 ET closes below Fast EMA 739.99, causing ribbon spread compression below 80\u00a2 and st"
+      }
+    ]
+  },
+  "narrative": "The key tension on 2026-05-13 is whether the CLEAN_BULL ribbon + sustained gap-up (+$2.07) represent genuine broad buying or a short-covering distribution episode masked by financial-sector strength while tech (XLK -0.54%) silently leads the index lower \u2014 the 3-of-4 specialist consensus is strongly "
+}

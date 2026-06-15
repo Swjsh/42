@@ -1,0 +1,21 @@
+== TRUE-SNIPER tasks (my corrected fleet) ==
+  [    PENDING] 02edb3f0 TRUE-SNIPER entry-timing sweep (replaces an archived task that had a f
+  [    PENDING] dca4e155 TRUE-SNIPER 05-28 deep dive (replaces archived fabricated-premise task
+  [    PENDING] 25103c07 TRUE-SNIPER stop re-test (replaces archived task; CORRECTS my own L76 
+  [    PENDING] 5fc3bc98 TRUE-SNIPER pullback skip-cost (replaces archived fabricated-premise t
+  [    PENDING] 4d9492a9 TRUE-SNIPER momentum-gate (replaces archived task). VERIFIED: V_mom_ga
+  [    PENDING] ab1ad0cb TRUE-SNIPER exit-hold (replaces archived task; premise re-verified). V
+  [    PENDING] bf39e96e TRUE-SNIPER anchor-preservation (replaces archived task). VERIFIED: on
+
+== original SNIPER-fleet tasks I queued then corrected (should be ARCHIVED) ==
+  [in_progress] 3bcbfda5 SNIPER pullback-param sweep: in backtest/tools/entry_experim
+  [   ARCHIVED] 9e7b3263 SNIPER chart-stop buffer sweep: chart-stop (level +/- buffer
+  [    PENDING] 302440ea SNIPER OOS validation: the V_pullback+chart-stop combo is va
+  [    PENDING] 439e2b86 SNIPER missed-move cost: V_pullback takes fewer signals than
+  [    PENDING] e9bb54b6 SNIPER bearish-side test: V_pullback on the anchor window (m
+  [   ARCHIVED] 4ef9326c SNIPER momentum-gate combo: V_mom_and_prox (trigger bar vol>
+
+== premium-stop low-VIX cook (first one queued) ==
+  [  completed] 0e03a763 Backtest low-VIX BULLISH_RECLAIM exit fix per strategy/candi
+
+TOTAL create-events seen: 317 | currently PENDING (create is latest): 28

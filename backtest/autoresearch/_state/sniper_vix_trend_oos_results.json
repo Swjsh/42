@@ -1,0 +1,162 @@
+{
+  "run_at": "2026-05-24T00:26:39.895817",
+  "filter": "VIX>=18 AND VIX>prior_5d_avg",
+  "window": {
+    "is_start": "2025-01-01",
+    "is_end": "2025-10-31",
+    "oos_start": "2025-11-01",
+    "oos_end": "2026-05-22"
+  },
+  "gates": {
+    "wf_ratio_min": 0.5,
+    "oos_pnl_positive": true,
+    "oos_wr_min": 0.45
+  },
+  "results": [
+    {
+      "grinder_label": "off2_recommended_pnl5259_wr65",
+      "combo": {
+        "strike_offset": 2,
+        "premium_stop_pct": -0.1,
+        "tp1_premium_pct": 0.5,
+        "runner_target_pct": 1.25,
+        "profit_lock_threshold_pct": 0.05,
+        "profit_lock_stop_offset_pct": 0.08,
+        "vol_mult": 1.1,
+        "body_min_cents": 0.02,
+        "min_stars": 2,
+        "tp1_qty_fraction": 0.5,
+        "qty": 10,
+        "proximity_dollars": 1.5,
+        "require_break_above_open": true
+      },
+      "is_result": {
+        "label": "IS",
+        "window_start": "2025-01-01",
+        "window_end": "2025-10-31",
+        "wide_pnl": 2774.0,
+        "wide_n_trades": 18,
+        "wide_wr": 0.667,
+        "sharpe": 3.687,
+        "positive_quarters": 3,
+        "quarter_count": 3,
+        "max_drawdown": 670.0,
+        "top5_pct": 1.15,
+        "skipped_low": 121,
+        "skipped_trend": 42,
+        "quarter_pnl": {
+          "2025-Q1": 393.0,
+          "2025-Q2": 434.0,
+          "2025-Q4": 1946.0
+        }
+      },
+      "oos_result": {
+        "label": "OOS",
+        "window_start": "2025-11-01",
+        "window_end": "2026-05-22",
+        "wide_pnl": 2486.0,
+        "wide_n_trades": 20,
+        "wide_wr": 0.65,
+        "sharpe": 3.623,
+        "positive_quarters": 2,
+        "quarter_count": 3,
+        "max_drawdown": 465.0,
+        "top5_pct": 1.1,
+        "skipped_low": 69,
+        "skipped_trend": 28,
+        "quarter_pnl": {
+          "2025-Q4": -267.0,
+          "2026-Q1": 2626.0,
+          "2026-Q2": 126.0
+        }
+      },
+      "fold_results": [],
+      "wf_ratio": 0.983,
+      "wf_pass": true,
+      "pnl_pass": true,
+      "wr_pass": true,
+      "overall_pass": true
+    },
+    {
+      "grinder_label": "off3_rank1_pnl6012_wr68",
+      "combo": {
+        "strike_offset": 3,
+        "premium_stop_pct": -0.1,
+        "tp1_premium_pct": 0.5,
+        "runner_target_pct": 1.25,
+        "profit_lock_threshold_pct": 0.05,
+        "profit_lock_stop_offset_pct": 0.05,
+        "vol_mult": 1.1,
+        "body_min_cents": 0.02,
+        "min_stars": 2,
+        "tp1_qty_fraction": 0.5,
+        "qty": 10,
+        "proximity_dollars": 1.5,
+        "require_break_above_open": true
+      },
+      "is_result": {
+        "label": "IS",
+        "window_start": "2025-01-01",
+        "window_end": "2025-10-31",
+        "wide_pnl": 4181.0,
+        "wide_n_trades": 17,
+        "wide_wr": 0.706,
+        "sharpe": 4.508,
+        "positive_quarters": 3,
+        "quarter_count": 3,
+        "max_drawdown": 814.0,
+        "top5_pct": 1.02,
+        "skipped_low": 121,
+        "skipped_trend": 42,
+        "quarter_pnl": {
+          "2025-Q1": 1251.0,
+          "2025-Q2": 704.0,
+          "2025-Q4": 2226.0
+        }
+      },
+      "oos_result": {
+        "label": "OOS",
+        "window_start": "2025-11-01",
+        "window_end": "2026-05-22",
+        "wide_pnl": 1831.0,
+        "wide_n_trades": 18,
+        "wide_wr": 0.667,
+        "sharpe": 2.908,
+        "positive_quarters": 2,
+        "quarter_count": 3,
+        "max_drawdown": 652.0,
+        "top5_pct": 1.34,
+        "skipped_low": 69,
+        "skipped_trend": 28,
+        "quarter_pnl": {
+          "2025-Q4": 176.0,
+          "2026-Q1": 1814.0,
+          "2026-Q2": -158.0
+        }
+      },
+      "fold_results": [],
+      "wf_ratio": 0.645,
+      "wf_pass": true,
+      "pnl_pass": true,
+      "wr_pass": true,
+      "overall_pass": true
+    }
+  ],
+  "summary": {
+    "off2": {
+      "wf_ratio": 0.983,
+      "is_pnl": 2774,
+      "oos_pnl": 2486,
+      "verdict": "PASS_EXCELLENT"
+    },
+    "off3": {
+      "wf_ratio": 0.645,
+      "is_pnl": 4181,
+      "oos_pnl": 1831,
+      "verdict": "PASS_MILD_OVERFIT"
+    }
+  },
+  "recommendation": "off2 -- near-perfect WF ratio (0.983), OOS P&L 2486 not cherry-picking IS alpha",
+  "best_wf_ratio": 0.983,
+  "best_combo_label": "off2_recommended_pnl5259_wr65"
+}

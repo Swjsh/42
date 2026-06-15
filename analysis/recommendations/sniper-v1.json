@@ -1,0 +1,85 @@
+{
+  "rule_id": "sniper-v1",
+  "title": "SNIPER_LEVEL_BREAK \u2014 Stage 5 candidate",
+  "rationale": "Named \u2605\u2605+ level (prior day RTH H/L, 5-day H/L) broken or reclaimed on a 5m bar with vol >= vol_mult \u00d7 20-bar avg and body >= body_min_cents past the level. Bypasses v14's 10:00 ET gate + ribbon >=30c spread filter. Entry: ITM-2 or ATM 0DTE based on strike_offset. Profit-lock after favor_premium >= entry \u00d7 (1+threshold) raises stop to entry \u00d7 (1+offset) so a winning trade never goes negative.",
+  "proposed_at": "2026-05-13T04:04:10",
+  "proposed_by": "sniper_overnight_grinder pipeline (Stage 5)",
+  "status": "pending_human_ratification",
+  "winner_combo": {
+    "vol_mult": 1.1,
+    "body_min_cents": 0.02,
+    "min_stars": 2,
+    "strike_offset": 2,
+    "premium_stop_pct": -0.1,
+    "tp1_premium_pct": 0.4,
+    "runner_target_pct": 1.25,
+    "profit_lock_threshold_pct": 0.0,
+    "profit_lock_stop_offset_pct": 0.08,
+    "tp1_qty_fraction": 0.667,
+    "qty": 10,
+    "proximity_dollars": 1.5,
+    "require_break_above_open": true
+  },
+  "summary_metrics": {
+    "edge_capture": 373.48,
+    "winners_capture": 373.48,
+    "winners_capture_pct_of_j": 0.242,
+    "losers_added": 0.0,
+    "wide_pnl": 38022.19,
+    "wide_n_trades": 228,
+    "wide_wr": 0.93,
+    "max_drawdown": 415.35,
+    "top5_pct": 0.035,
+    "positive_quarters": 6,
+    "quarter_count": 6
+  },
+  "anchor_days": {
+    "2026-04-29": 181.84,
+    "2026-05-01": 0,
+    "2026-05-04": 191.64,
+    "2026-05-05": 202.41,
+    "2026-05-06": 0,
+    "2026-05-07": 235.05,
+    "2026-05-07_2": 235.05
+  },
+  "quarter_pnl": {
+    "2025-Q1": 6315.84,
+    "2025-Q2": 5229.67,
+    "2025-Q3": 6373.67,
+    "2025-Q4": 7757.15,
+    "2026-Q1": 8980.39,
+    "2026-Q2": 3365.47
+  },
+  "stage_funnel": {
+    "stage2_keepers": 4,
+    "stage3_passed": 4,
+    "stage4_passed": 4,
+    "stage5_winner": 1
+  },
+  "op20_disclosures": {
+    "account_size": {
+      "headline_assumes_qty": 10,
+      "note": "qty=10 capital ~ $670-$2,800 per trade depending on premium. $1K paper requires qty=3 -> 30% of headline P&L. $10K supports full qty=10. $25K+ no cap binds."
+    },
+    "sample_bias": "Selected from 1728 Stage 1 + Stage 2 grinder combos via 4 gates (Stage 1 floors, Stage 2 refine, Stage 3 regime-robustness, Stage 4 sub-window stability). Survivorship bias possible \u2014 walk-forward + real-fills required before live.",
+    "oos_evidence": "WALK-FORWARD PASS on BS sim 2026-05-13 (TRAIN $25,676 / TEST $12,537 / per-month ratio 1.35x), but BS sim itself INVALIDATED by real-fills test below. Walk-forward verdict UNRELIABLE until pipeline re-runs on real OPRA fills, not BS.",
+    "real_fills_evidence": "CAVEAT (effective FAIL) 2026-05-13 09:09 ET with FULL OPRA 16mo cache. 4 of 4 measured days FLIP from BS-winners to real-fills LOSSES. 2025-04-07 BS +$288 -> real -$926 (-422%). 2026-04-29 J anchor BS +$182 -> real -$329 (-281%). 2026-05-04 J anchor BS +$192 -> real -$234 (-222%). 2026-05-05 J anchor BS +$202 -> real -$236 (-217%). 2 of top-3 abs days STILL miss OPRA (2025-04-08 strike 521, 2026-03-26 strike 652) -- those strikes are 5 away from atm, at edge of cached \u00b15 window. PATTERN: SNIPER enters then immediately gets stopped at -10% premium. BS sim systematically OVER-estimates entry premium. See analysis/recommendations/sniper-v1-realfills.json + docs/REAL-FILLS-SNIPER-2026-05-13.md",
+    "failure_modes": {
+      "worst_quarter": "2026-Q2: $3365",
+      "max_drawdown": "$415 sequential",
+      "blow_up_scenario": "If profit_lock fails on a gap day, stop is -10% premium = ~$200 max loss/trade"
+    },
+    "concentration": "top-5 days = 3.5% of P&L",
+    "regime_sensitivity": "positive in 6/6 quarters",
+    "regime_note": "Strategy was discovered after 2026-05-11 (bull-flag break) and 2026-05-12 (level-break flush) J trades. Backtest spans 2025-01 to 2026-05; live regime unknown."
+  },
+  "next_actions": [
+    "1. STATUS: SNIPER is NOT ratifiable. Real-fills verdict CAVEAT confirmed even with full OPRA cache (7,358 contracts ingested 2026-05-13 09:08 ET).",
+    "2. ROOT CAUSE: BS sim fundamentally over-estimates entry premium. SNIPER 'wins' on BS but immediately stops at -10% on real fills. 4 of 4 measured days show |diff| > 200%. 0 of 4 within OP 20's ±20% tolerance.",
+    "3. T41 (HIGH, tonight): Retire BS sim entirely per J. Replace simulator.py with simulator_real.py wrapper. All evaluators move to real-fills. Estimated 20-30x slowdown per combo; may need batched OPRA pre-fetch.",
+    "4. T42 (HIGH, tonight): Re-run entire SNIPER pipeline (Stages 1-5) with simulator_real instead of BS sim. New winner combo expected to differ significantly — current winner's profit_lock OFF + tp1=0.40 may need re-tuning when real fills are honest.",
+    "5. WATCHER STATUS: sniper_watcher remains WATCH-ONLY per OP 21. Today's observations logged to watcher-observations.jsonl + graded EOD via watcher_replay. NOT promoting to live paper trades until pipeline re-runs on real fills.",
+    "6. STILL BLOCKED OPRA: 2 of top-3 absolute BS-P&L days (2025-04-08 strike 521C, 2026-03-26 strike 652C) — strikes at edge of ±5 cached window. T43 (LOW): re-ingest with ±10 strike window OR add per-day adaptive expansion.",
+    "7. J ratification (rule 9): no live trading until SNIPER pipeline re-runs on real fills + survives full OP 20 disclosures."
+  ]
+}

@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-04-16T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis", "internals"],
+    "bearish": [],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 4,
+    "bearish": 0,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 1.00,
+    "bearish": 0.00
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 80,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Narrow tech-only sector leadership (XLK +1.37% vs XLF +0.19%, XLE +0.29%) without financial or energy confirmation — if XLK momentum stalls, the entire bullish case collapses with no secondary sector support",
+    "top_invalidation_scenario": "VIX continues rising above 19.5 within first 30 minutes of RTH (medium-high probability) — signals institutional de-risking directly contradicting the macro MID-regime thesis"
+  },
+  "battle_level": {
+    "price": 701.99,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 701.99,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 700.28,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 699.94,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 703.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 699.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks and closes a 5m bar above 701.99 on first RTH test",
+      "bias": "bullish",
+      "target": 703.0,
+      "entry_trigger": "PMH breakout confirmed by ribbon BULL stack continuation"
+    },
+    "secondary": {
+      "condition": "if SPY tests 701.99 and is rejected, pulling back toward 700.28",
+      "bias": "bearish",
+      "target": 699.94,
+      "entry_trigger": "level_rejection at PMH with bearish 5m close below 701.00, ribbon still BULL but weakening"
+    },
+    "invalidation": {
+      "condition": "VIX prints above 19.50 within first 30 minutes of RTH open (by 10:00 ET)",
+      "effect": "Institutional de-risking signal that directly invalidates the macro MID-regime-supports-trend thesis; a rising-VIX open typically means real money is exiting, not entering — full consensus pivot to no_trade required"
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "701.99 premarket high will be tested (SPY price touches 701.90 or above) within the first 60 minutes of RTH, by 10:30 ET",
+      "invalidation": "SPY does not reach 701.80 at any point before 10:30 ET, suggesting the premarket high was thin-volume noise that fades on RTH open",
+      "confidence": 0.72,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX will remain below 19.50 for the first 30 minutes of RTH (09:30–10:00 ET), consistent with MID-regime and supporting controlled directional follow-through",
+      "invalidation": "VIX prints above 19.50 at any 5m bar close before 10:00 ET, signaling accelerating uncertainty and invalidating the macro bullish backdrop",
+      "confidence": 0.55,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "If SPY closes a 5m bar above 701.99, the immediately following 5m bar will have a green body covering at least 50% of its range, confirming breakout follow-through toward 703.0",
+      "invalidation": "The first 5m bar to close above 701.99 is followed by a red bar that closes back below 701.99 within 10 minutes, confirming a false breakout and gap-fill setup instead",
+      "confidence": 0.65,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "Today's core tension is a technically clean CLEAN_BULL ribbon (80c spread, all 4 specialists unanimously bullish) set against the fragility of narrow tech-only sector leadership and a rising VIX (+4.43% to 18.86) that the validator rates as a medium-high invalidation risk. The unanimous 4/4 bullish vote with a gap-up open (+$0.86) and zero macro events favors an early test of the 701.99 premarket high as the first meaningful RTH move, with a breakout targeting the 703.00 reference level. The single most important thing to watch at open is VIX behavior: a print above 19.50 in the first 30 minutes is the primary kill-switch for the bullish thesis, while XLF confirming risk-on participation (any move above +0.50%) would upgrade conviction meaningfully above current 80 confidence.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.85,
+      "one_line": "CLEAN_BULL ribbon 80c spread, RED-GREEN-GREEN bar momentum, overnight gap up +85c — strong directional conviction"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.70,
+      "one_line": "VIX 18.86 MID-regime rising +4.43% (caution), zero macro events today, tech-led risk-on overnight gap supports measured bullish lean"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.70,
+      "one_line": "Battle level 701.99 (PMH) is first resistance; breakout targets 703.0, rejection floor at 699.94 — gap-up BULL ribbon sets bullish default"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.58,
+      "one_line": "XLK +1.37% drives narrow tech-led risk-on rotation; XLF +0.19% and XLE +0.29% flat — breadth insufficient for high-conviction day"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "VIX rising 4.43% into open + narrow tech-only breadth (XLF flat) = fragile consensus; premarket high 701.99 is thin-volume noise easily faded by RTH volume"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

@@ -1,0 +1,63 @@
+{
+  "date": "2026-04-30",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:15.428253+00:00",
+  "actual": {
+    "open": 714.63,
+    "close": 718.39,
+    "high": 719.79,
+    "low": 710.45,
+    "move_dollars": 3.76,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 76,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 713.14,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "HELD",
+      "battle_level": 713.14,
+      "role": "resistance",
+      "first_touch_time": "2026-04-30T09:30:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 713.14,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY tests 713.14 (PMH battle level) within first 60 minutes of RTH (by 10:30 ET on 2026-04-30)",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 19.00 throughout the RTH session (2026-04-30 09:30-15:55 ET), confirming falling fear as a bullish pre",
+        "invalidation": "VIX crosses above 19.00 intraday from the 18.08 premarket reading, signaling fear returning and evaporating the macro bu"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "BULL ribbon stack (fast 711.79 > pivot 711.62 > slow 711.16, 63-cent spread) remains intact through the first 60 minutes",
+        "invalidation": "Fast EMA crosses below pivot EMA before 10:30 ET, converting CLEAN_BULL to CHOP or BEAR stack \u2014 structural momentum fail"
+      }
+    ]
+  },
+  "narrative": "SPY enters April 30 with a solid short-term bull case: CLEAN_BULL ribbon (63-cent spread), falling VIX (18.08, -1.53%), zero macro events, and price trading 22 cents above the pivot at 711.84. The core tension is the Internals agent's dissent \u2014 risk-off sector rotation (XLE alone outperforming while"
+}

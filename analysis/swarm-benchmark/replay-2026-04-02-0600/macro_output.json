@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-04-02T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.85,
+  "reasoning": "VIX at 26.14 (HIGH regime, rising +6.22%) signals elevated fear and volatility building. Overnight gap down $7.36 (from 655.18 to 647.82) is a significant bearish overnight sentiment signal. Full bearish ribbon alignment (fast 648.02 < pivot 648.56 < slow 650.85, $2.84 spread) confirms structural pressure. Zero macro events scheduled today removes any hedging risk-on signals. Sector rotation is mixed (XLK +0.59%, XLF/XLE down), providing no counter-bias. Clean trading day macro-wise, but elevated volatility premium and downward gap structure heavily favor bearish setups.",
+  "vix_regime": "HIGH",
+  "vix_direction": "rising",
+  "vix_current": 26.14,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -7.36,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX rising +6.22% to 26.14 — fear actively building, not static",
+    "Large overnight gap down $7.36 — significant bearish overnight conviction signal",
+    "Full bearish ribbon alignment with $2.84 spread — structural pressure sustained",
+    "Zero macro events today — clean canvas, no event-driven noise or blocks",
+    "Premarket tested yesterday's close (655.24) but failed to hold; current 647.82 is 7.36 below prior close"
+  ],
+  "data_quality": "full"
+}

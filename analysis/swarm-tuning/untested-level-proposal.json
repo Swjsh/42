@@ -1,0 +1,64 @@
+{
+  "proposal_id": "UNTESTED-BATTLE-LEVEL-DOWNGRADE-v1",
+  "generated_at": "2026-05-17T20:25:00Z",
+  "status": "DRAFT — awaiting J ratification per rule 9. N=18 tradeable UNTESTED (gate requires N>=20, gap>=15pp). 2 days short of N gate.",
+  "evidence": {
+    "n_days_analyzed": 62,
+    "n_total_tradeable": 52,
+    "untested_tradeable_days": 18,
+    "tested_tradeable_days": 34,
+    "untested_accuracy_pct": 44.4,
+    "tested_accuracy_pct": 70.6,
+    "gap_pp": 26.1,
+    "note_on_gap_evolution": "Initial measurement at N=6: 45.2pp gap (inflated — Feb-Mar 2026 bearish regime concentrated in UNTESTED). At N=18: 26.1pp. Gap narrowed as April+May data added more UNTESTED days in recovery regime. Still well above the 15pp minimum threshold.",
+    "untested_detail": [
+      {"date": "2026-02-10", "grade": "WRONG",   "swarm_bias": "bullish", "actual": "bearish", "actual_move": -2.8},
+      {"date": "2026-02-12", "grade": "CORRECT",  "swarm_bias": "bearish", "actual": "bearish", "actual_move": -13.04},
+      {"date": "2026-02-25", "grade": "CORRECT",  "swarm_bias": "bullish", "actual": "bullish", "actual_move": 2.96},
+      {"date": "2026-02-26", "grade": "WRONG",   "swarm_bias": "bullish", "actual": "bearish", "actual_move": -3.8},
+      {"date": "2026-03-03", "grade": "WRONG",   "swarm_bias": "bearish", "actual": "bullish", "actual_move": 5.26},
+      {"date": "2026-03-12", "grade": "CORRECT",  "swarm_bias": "bearish", "actual": "bearish", "actual_move": -5.07},
+      {"date": "2026-03-17", "grade": "WRONG",   "swarm_bias": "bullish", "actual": "bearish", "actual_move": -1.66},
+      {"date": "2026-03-18", "grade": "WRONG",   "swarm_bias": "bullish", "actual": "bearish", "actual_move": -6.79},
+      {"date": "2026-03-23", "grade": "CORRECT",  "swarm_bias": "bearish", "actual": "bearish", "actual_move": -2.7},
+      {"date": "2026-03-24", "grade": "WRONG",   "swarm_bias": "bearish", "actual": "bullish", "actual_move": 1.88},
+      {"date": "2026-03-27", "grade": "CORRECT",  "swarm_bias": "bearish", "actual": "bearish", "actual_move": -8.42},
+      {"date": "2026-04-07", "grade": "CORRECT",  "swarm_bias": "bullish", "actual": "bullish", "actual_move": 2.61},
+      {"date": "2026-04-09", "grade": "WRONG",   "swarm_bias": "bearish", "actual": "bullish", "actual_move": 5.03},
+      {"date": "2026-04-13", "grade": "WRONG",   "swarm_bias": "bearish", "actual": "bullish", "actual_move": 8.6},
+      {"date": "2026-04-17", "grade": "CORRECT",  "swarm_bias": "bullish", "actual": "bullish", "actual_move": 3.91},
+      {"date": "2026-04-21", "grade": "WRONG",   "swarm_bias": "bullish", "actual": "bearish", "actual_move": -5.41},
+      {"date": "2026-05-04", "grade": "CORRECT",  "swarm_bias": "bearish", "actual": "bearish", "actual_move": -1.65},
+      {"date": "2026-05-12", "grade": "WRONG",   "swarm_bias": "bearish", "actual": "bullish", "actual_move": 1.32}
+    ]
+  },
+  "overall_calibration_at_62_days": {
+    "ece_pct": 24.28,
+    "overall_accuracy_pct": 61.5,
+    "conf_inflation_pct_at_95": 19.2,
+    "bullish_accuracy_pct": 69.0,
+    "bearish_accuracy_pct": 52.2,
+    "note": "ECE 24.28% — significantly above 10% target. Confidence is systematically over-stated, especially at high conf. Formula v2 (base x75 vs x100) brought max-conf days from ~55% down to 19.2% but ECE remains high. Bullish/bearish gap (69% vs 52%) persists — bearish days in choppy/recovery regimes are harder to call."
+  },
+  "interpretation": "When the battle level is UNTESTED (price never interacted with it during RTH), the swarm's directional thesis is regime/macro-driven, not level-confirmed. The 26.1pp accuracy gap at N=18 is consistent and stable — the initial 45.2pp reading at N=6 was inflated by regime concentration, but the signal persisted across both bearish (Feb-Mar) and recovery (Apr-May) regimes.",
+  "proposed_changes": {
+    "file": "automation/swarm/prompts/synthesis_agent.md",
+    "change_type": "add_adjustment_to_step5",
+    "description": "Add UNTESTED battle level penalty to confidence formula",
+    "draft_text": "- battle_level UNTESTED (battle_grade from level_thesis output): -15 (level not in play today — directional thesis is regime-only, not level-grounded)",
+    "rationale": "Reduces conf by 15 points when the defining battle level has not been tested by price. Empirical basis: 26.1pp accuracy gap at N=18 tradeable UNTESTED days (44.4% vs 70.6% tested)."
+  },
+  "proposed_synthesis_narrative_flag": {
+    "description": "Add advisory text to synthesis_narrative when battle_grade == UNTESTED",
+    "draft_text": "NOTE: Battle level {price} is UNTESTED — price has not interacted with this level today. Direction thesis is regime/macro-driven, not level-confirmed. Historical accuracy on UNTESTED-level days: 44% (vs 71% on TESTED days, N=18). Treat this as lower-conviction."
+  },
+  "implementation_gate": {
+    "required_before_production": [
+      "N >= 20 untested tradeable days (currently 18 — 2 short)",
+      "Gap remains >= 15pp at N=20",
+      "J ratification per rule 9"
+    ],
+    "status": "PENDING — N=18, need 2 more UNTESTED tradeable days. Remaining backfill days (05-05 through 05-10) will likely provide 1-3 more. Gate expected to clear on next batch cycle.",
+    "expected_n20_timing": "Next swarm backfill batch (05-05 to 05-10 range). ~6 trading days remain in the queue."
+  }
+}

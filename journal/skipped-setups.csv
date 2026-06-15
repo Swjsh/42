@@ -1,0 +1,2 @@
+date,time_et,setup,bull_score,bear_score,blocked_filters,spy,vix,vix_dir,ribbon_stack,ribbon_spread_cents,htf_15m_stack,reason
+2026-06-03,13:35,BULLISH_RECLAIM,10,6,"11",754.65,16.29,rising,BULL,65,BULL,"bull_score_10/11_near_miss: filter_11_no_triggers (0/4, need>=2 confluence|level_reclaim|ribbon_flip|sequence_reclaim)"

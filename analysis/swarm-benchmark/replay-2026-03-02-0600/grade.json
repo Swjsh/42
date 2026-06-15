@@ -1,0 +1,63 @@
+{
+  "date": "2026-03-02",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:05.652076+00:00",
+  "actual": {
+    "open": 678.73,
+    "close": 686.35,
+    "high": 688.59,
+    "low": 678.03,
+    "move_dollars": 7.62,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 55,
+    "consensus_strength": "moderate",
+    "battle_level": {
+      "price": 686.85,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "HELD",
+      "battle_level": 686.85,
+      "role": "resistance",
+      "first_touch_time": "2026-03-02T11:45:00"
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 686.85,
+        "touched_any_time": true,
+        "touched_in_specified_window": false,
+        "claim": "SPY tests battle level 686.85 (within $0.25) at least once during the first 60 minutes of RTH (by 10",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains elevated above 21.00 through 10:30 ET, confirming risk-off regime persists into the RTH open and does not st",
+        "invalidation": "VIX drops below 20.50 by 10:00 ET, signaling fear is unwinding and bullish macro backdrop is improving"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "BULL ribbon stack (fast > pivot > slow, spread >= 30c) remains intact through the first 30 minutes of RTH (09:35\u201310:05 E",
+        "invalidation": "Fast EMA drops below slow EMA by 10:05 ET (ribbon inverts to BEAR stack), signaling the overnight gap-down pressure has "
+      }
+    ]
+  },
+  "narrative": "The swarm is evenly split on direction (2 bullish / 2 bearish votes) but technical + level_thesis outweigh macro + internals by weighted score (0.60 vs 0.40), producing a moderate bullish consensus that hinges entirely on whether 686.85 (Active 2\u2605 resistance) reclaims or rejects at the RTH open. The"
+}

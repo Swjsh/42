@@ -1,0 +1,85 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-16T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "SPY at 664.31 after overnight gap-up of +2.01, currently consolidating in the middle of premarket range (PML 663.05 / PMH 666.58). The battle level is 663.05 (today's premarket low), the immediate support $1.26 below current price. Price is closer to support than resistance, a typical bull-market formation. Ribbon is marginally bullish (BULL stack order with 25¢ spread—just below the 30¢ threshold for strong confirmation). If PML holds on first test from above, risk/reward favors a retest of PMH at 666.58 and potential continuation to 672.34 (prior session RTH high). VIX is elevated (24.04) but falling, consistent with consolidation before directional move.",
+  "battle_level": {
+    "price": 663.05,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 663.05,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 1.26
+    },
+    {
+      "price": 666.58,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 2.27
+    },
+    {
+      "price": 661.37,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 2.94
+    },
+    {
+      "price": 672.34,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 4,
+      "distance_from_price": 8.03
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 663.05 (PML) on first test",
+      "bias": "bullish",
+      "target": 666.58,
+      "entry_trigger": "level_hold + ribbon_stack"
+    },
+    "secondary": {
+      "condition": "if SPY reclaims 666.58 (PMH) on breakout",
+      "bias": "bullish",
+      "target": 672.34,
+      "entry_trigger": "level_reclaim + momentum"
+    },
+    "tertiary": {
+      "condition": "if SPY breaks below 663.05 (PML) with follow-through",
+      "bias": "bearish",
+      "target": 661.37,
+      "entry_trigger": "level_break_carry"
+    }
+  },
+  "levels_in_play_count": 3,
+  "key_observations": [
+    "Overnight gap-up of 2.01 tested premarket high of 666.58, price now consolidating $1.26 above immediate support 663.05",
+    "Ribbon stack is BULL order but spread is marginal at 25¢ (sub-30¢ threshold indicates chop rather than strong conviction)",
+    "Battle level 663.05 (PML) has 2★ strength; secondary support at 661.37 (Carry tier, 5-day RTH low) provides structural floor",
+    "VIX at 24.04 (HIGH regime) but direction is falling—consistent with volatile consolidation before directional breakout",
+    "Price location is bullish-leaning (closer to support than resistance) but lacks strong momentum confirmation; watch for early-RTH volume to confirm direction"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "date": "2026-05-07",
+    "starting_equity": 101134.83,
+    "closing_equity": 101089.83,
+    "pnl_dollars": -45,
+    "pnl_pct": -0.0445,
+    "trades_placed": 1,
+    "win_rate_today": 0.0
+  },
+  {
+    "date": "2026-05-08",
+    "starting_equity": 101086.34,
+    "closing_equity": 101086.34,
+    "pnl_dollars": 0,
+    "pnl_pct": 0.0,
+    "trades_placed": 0,
+    "win_rate_today": null
+  },
+  {
+    "date": "2026-05-13",
+    "starting_equity": 98801.24,
+    "closing_equity": 99688.24,
+    "pnl_dollars": 887,
+    "pnl_pct": 0.898,
+    "trades_placed": 2,
+    "win_rate_today": 1.0,
+    "_note": "Documented minimum: J manual 736P +$443 + Gamma 738C runner +$444. TP1 intermediate closes on ~8-13 contracts untracked due to state-position gap — actual P&L likely $1,000–$1,800."
+  },
+  {
+    "date": "2026-05-14",
+    "starting_equity": 101272.15,
+    "closing_equity": 102480.15,
+    "pnl_dollars": 1208,
+    "pnl_pct": 1.193,
+    "trades_placed": 1,
+    "win_rate_today": 1.0,
+    "_note": "1 entry (10x 745C), 2 exits: TP1 5x@$2.26 +$295, runner 5x@$3.496avg +$913. Kill-switch post-exit 12:15 ET (position state mismatch + TV CDP). v15 first live BULLISH_RECLAIM win."
+  },
+  {
+    "date": "2026-05-18",
+    "account": "safe",
+    "starting_equity": 1000.00,
+    "closing_equity": 1000.00,
+    "pnl_dollars": 0,
+    "pnl_pct": 0.0,
+    "trades_placed": 0,
+    "win_rate_today": null,
+    "_note": "FIRST LIVE DAY — Gamma-Safe PA3PHRM47D1J new $1K account. VIX gate (17.20) blocked all bull entries all day. No bear setups met ribbon-BEAR threshold. Flat."
+  },
+  {
+    "date": "2026-05-18",
+    "account": "bold",
+    "starting_equity": 1000.00,
+    "closing_equity": 901.00,
+    "pnl_dollars": -99,
+    "pnl_pct": -9.9,
+    "trades_placed": 1,
+    "win_rate_today": 0.0,
+    "_note": "FIRST LIVE DAY — Gamma-Bold PA35NRWPGKD5 new $1K account. 1 trade: BULLISH_RECLAIM 740C 3x @ $1.84, stopped out @ $1.51 after 9 min. Valid setup, valid execution, gap-and-fade resistance was stronger than setup implied."
+  }
+]

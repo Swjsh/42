@@ -1,0 +1,89 @@
+{
+  "date": "2026-05-07",
+  "morning_thesis": "Two-sided session forming. SPY opened at 735.08 (gap-up vs 5/6 close ~733). Tight distribution 09:30-10:00 capped at 735.40 (5+ touches). Sharp sell-off 10:00-10:20 to session low 733.55 on heavy volume (141K + 132K bars). Bounce off 733.55 on 107K vol = institutional defense. Ribbon flipped BEARISH on the move down (Fast 734.42 < Pivot 734.62 < Slow 734.68) but spread now 26c — below 30c directional floor. Setup is in transition. WAIT for ribbon to pick a side AND spread to expand before any entry. Falsifiable predictions: (1) 735.40 holds as resistance; (2) 733.55 holds as support; (3) ribbon spread >30c before 12:00 ET; (4) VIX stays <17.30; (5) no setup fires before 11:00 ET.",
+  "predictions": [
+    {
+      "prediction_idx": 0,
+      "claim": "735.40 holds as resistance on its next test (after 10:30 ET)",
+      "trigger_window": "first test of 735.40 after 10:30 ET",
+      "invalidation": "SPY closes a 5-min bar with close > 735.50",
+      "confidence": 0.65,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "Bull trap: SPY broke to 736.11 at 11:35, 5-min close ~735.84 at 11:40 exceeded 735.50 invalidation threshold. System offline during the break — missed the subsequent rejection.",
+      "category": "level",
+      "evidence_timestamp": "11:40",
+      "graded_at": "2026-05-07T16:00:02-04:00"
+    },
+    {
+      "prediction_idx": 1,
+      "claim": "733.55 holds as support on its next test (after 10:30 ET)",
+      "trigger_window": "first test of 733.55 after 10:30 ET",
+      "invalidation": "SPY closes a 5-min bar with close < 733.45",
+      "confidence": 0.60,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "First close below 733.45 at ~12:04 (HB#4 spy=733.40). Session continued to 729.75. Level broke decisively — pre-FOMC selling overwhelmed the support.",
+      "category": "level",
+      "evidence_timestamp": "12:04",
+      "graded_at": "2026-05-07T16:00:02-04:00"
+    },
+    {
+      "prediction_idx": 2,
+      "claim": "Ribbon spread expands above 30c before 12:00 ET, resolving chop",
+      "trigger_window": "by 12:00 ET",
+      "invalidation": "12:00 ET arrives with spread still < 30c",
+      "confidence": 0.70,
+      "specificity": 0.9,
+      "novelty": "fresh",
+      "outcome": "PARTIAL_TIMING",
+      "actual": "Spread reached 35c by 12:04 ET (HB#4). Chop resolved in the right direction, 4 minutes past the trigger window. Invalidation technically tripped at 12:00 but chop did resolve shortly after.",
+      "category": "trigger",
+      "evidence_timestamp": "12:04",
+      "graded_at": "2026-05-07T16:00:02-04:00"
+    },
+    {
+      "prediction_idx": 3,
+      "claim": "VIX stays below 17.30 today (no bearish-puts filter 8 eligibility)",
+      "trigger_window": "by 15:50 ET",
+      "invalidation": "VIX prints > 17.30 with rising direction at any time today",
+      "confidence": 0.75,
+      "specificity": 0.9,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "VIX session high 17.46. Rose above 17.30 with rising direction starting ~11:30 ET. FOMC day VIX expansion was predictable but not modeled. Invalidation tripped multiple times.",
+      "category": "risk",
+      "evidence_timestamp": "11:30",
+      "graded_at": "2026-05-07T16:00:02-04:00"
+    },
+    {
+      "prediction_idx": 4,
+      "claim": "No autonomous setup fires before 11:00 ET (chop resolution needed first)",
+      "trigger_window": "by 11:00 ET",
+      "invalidation": "ENTER_BULL or ENTER_BEAR action emitted before 11:00 ET",
+      "confidence": 0.85,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "All ticks before 11:00 ET were HOLD, HOLD_DEV, or infrastructure failures. First valid HB#1 at 10:24 produced HOLD. No ENTER_BULL/BEAR emitted before 11:00.",
+      "category": "trigger",
+      "evidence_timestamp": null,
+      "graded_at": "2026-05-07T16:00:02-04:00"
+    }
+  ],
+  "surprises": [
+    "FOMC May 7 at 14:00 ET was absent from macro-calendar.json — no autonomous veto fired; BULLISH_RECLAIM entered at 12:30 into pre-FOMC selling (primary operational failure of the day)",
+    "Bull trap at 736.11: 735.40 gave a clean false break to 736.11 before collapsing — resistance overshoot-and-reverse pattern, not named in playbook (candidate: RESISTANCE_OVERSHOOT_REVERSAL)",
+    "Pre-FOMC derisking drove $5+ SPY decline (735→729.75) in ~90min without a single news headline — institutional positioning pattern visible in hindsight"
+  ],
+  "lesson": "A 10/11 filter score is meaningless when the macro backdrop invalidates the direction thesis. FOMC was absent from macro-calendar.json; the fix is a mandatory Sunday audit of the next 5 trading days before every weekly open.",
+  "tomorrow_hint": "TOMORROW: 735.40 overhead resistance, 729.75 session low floor, Friday = watch for gap fill or continuation",
+  "predictions_count": 5,
+  "predictions_passed": 1,
+  "predictions_partial": 1,
+  "hit_rate_passing": 0.30,
+  "specificity_weighted_hit_rate": 0.29,
+  "graded_at": "2026-05-07T16:30:02-04:00"
+}

@@ -1,0 +1,63 @@
+{
+  "date": "2026-02-23",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:04.465461+00:00",
+  "actual": {
+    "open": 687.8,
+    "close": 682.39,
+    "high": 690.0,
+    "low": 680.38,
+    "move_dollars": -5.41,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 75,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 690.06,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bullish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "HELD",
+      "battle_level": 690.06,
+      "role": "resistance",
+      "first_touch_time": "2026-02-23T09:35:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 690.06,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "690.06 (5-day Carry high) is tested within the first 60 minutes of RTH (before 10:35 ET)",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains above 20.50 through the first 90 minutes of RTH (through 11:00 ET), reflecting persistent hedge demand that ",
+        "invalidation": "VIX drops below 20.50 within the first 30 minutes of RTH (before 10:05 ET), confirming the VIX spike was a transient hed"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BULL ribbon holds intact through the morning session \u2014 no 5m bar closes below fast EMA 688.84 before 11:00 ET, and",
+        "invalidation": "Any 5m bar closes below 688.84 before 11:00 ET, triggering ribbon inversion risk and activating the bearish_pullback cou"
+      }
+    ]
+  },
+  "narrative": "SPY enters 2026-02-23 perched $0.77 below the 5-day Carry high at 690.06, with a CLEAN_BULL ribbon (77c spread) and risk-on sector leadership (XLK +1.21%, XLF +0.86%) supporting a 3-of-4 bullish vote and weighted score of 0.70. The central tension is macro's lone dissent: VIX rising 12.53% to 21.47 "
+}

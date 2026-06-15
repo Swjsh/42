@@ -1,0 +1,66 @@
+{
+  "date": "2026-02-19",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:04.014385+00:00",
+  "actual": {
+    "open": 683.85,
+    "close": 684.5,
+    "high": 686.13,
+    "low": 681.59,
+    "move_dollars": 0.65,
+    "actual_bias": "no_trade"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 95,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 689.14,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "ABSTAIN_ACTUAL",
+      "consensus": "bearish",
+      "actual": "no_trade"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 689.14,
+      "role": "resistance",
+      "rth_range": [
+        681.59,
+        686.13
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 689.14,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "689.14 (Active 2\u2605 resistance) is tested within the first 90 minutes of RTH and rejected \u2014 SPY fails ",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX sustains at or above 20.00 through 12:00 ET, confirming that volatility creep is not transient \u2014 rising VIX caps any",
+        "invalidation": "VIX drops below 19.50 before noon ET, suggesting the overnight volatility spike was a fade rather than a structural shif"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BEAR ribbon maintains spread \u2265 35c and full bear stack (slow > pivot > fast) through the first 60 minutes of RTH (",
+        "invalidation": "Ribbon spread tightens below 35c OR stack inverts to BULL (fast > pivot) on any 5m bar before 10:30 ET."
+      }
+    ]
+  },
+  "narrative": "SPY opens at 686.19 with a CLEAN_BEAR ribbon (52c spread, slow 686.18 > pivot 685.72 > fast 685.66) and a flat overnight gap, sandwiched between Active support 682.87 and Active resistance 689.14 \u2014 a boundary-test day where the first directional move defines the session. The 3-of-4 weighted bearish "
+}

@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-04-02T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.70,
+  "reasoning": "SPY at 647.82 after -7.36 overnight gap down from 655.18. Price is sandwiched in a tight battle zone: support floor at 645.75 (Active, 2★, premarket low) only $2.07 below, and weak resistance at 649.0-650.0 (Reference, 1★ round numbers) overhead. Ribbon is full BEAR stack (fast/pivot/slow at 648.02/648.56/650.85 — price below all three, 284¢ spread). The battle level is 645.75 — if it holds on test from above, risk/reward may favor bounce to 649-650. If it breaks, next target is 653.0 Carry support (+5.18 away). Gap-down aggression and ribbon bearish alignment favor downside penetration unless 645.75 shows structural holding power.",
+  "battle_level": {
+    "price": 645.75,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 645.75,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": -2.07
+    },
+    {
+      "price": 649.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 1.18
+    },
+    {
+      "price": 650.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 2.18
+    },
+    {
+      "price": 653.0,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 4,
+      "distance_from_price": 5.18
+    },
+    {
+      "price": 658.52,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": 10.70
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 645.75 on first test",
+      "bias": "bullish",
+      "target": 650.0,
+      "entry_trigger": "support_hold + ribbon_flip_toward_bull"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 645.75",
+      "bias": "bearish",
+      "target": 653.0,
+      "entry_trigger": "support_break + continuation"
+    },
+    "tertiary": {
+      "condition": "if SPY bounces off 645.75 and breaks above 650.0",
+      "bias": "bullish",
+      "target": 658.52,
+      "entry_trigger": "reclaim + carry_resistance_test"
+    }
+  },
+  "levels_in_play_count": 3,
+  "key_observations": [
+    "SPY is trapped in a 4.25-point zone (645.75 to 650.0) with no strong confluence — all reference levels are psychology-only (1★).",
+    "Ribbon BEAR stack (284¢ spread, price below all three MAs) strongly favors downside bias unless 645.75 shows structural support.",
+    "Premarket action was minimal (63 bars, zero volume) — no real holding-power test of 645.75 yet; first RTH touch will be decisive.",
+    "Gap down magnitude (-7.36) and rising VIX (26.14, +6.22%) suggest continued selling pressure on any breakdown below 645.75.",
+    "If 645.75 holds and price reclaims 649.0, the next inflection is at 653.0 Carry support (multi-session significance)."
+  ],
+  "data_quality": "full"
+}

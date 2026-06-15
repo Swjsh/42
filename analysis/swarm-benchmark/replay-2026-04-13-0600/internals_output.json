@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-04-13T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.55,
+  "reasoning": "XLF down 0.9% while XLK flat (+0.08%) reveals selective financial weakness. SPY premarket down 0.27% is led by financial sector pressure, not broad tech selling. Tech resilience (XLK outperforming SPY by +0.35%) suggests the overnight gap-down (-0.59%) is yield/rate driven rather than momentum shift. Single sector weakness (XLF) with others muted = medium-strength bearish signal. Financial internals negative, but breadth not confirming.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": 0.08,
+    "xlf_change_pct": -0.9,
+    "xle_change_pct": -0.4,
+    "spy_change_pct": -0.27,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +0.08% — tech is holding, not selling. Largest SPY component resilient.",
+    "XLF: -0.9% — financials clearly weak, suggesting yield/rate pressure overnight into premarket.",
+    "Rotation: selective risk-off into financials only. XLE down 0.4% suggests mild commodity pressure but not broad energy collapse.",
+    "Breadth: narrow. XLK outperforming SPY indicates the -0.27% SPY move is financial-led, not tech-led. Limits downside conviction."
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,24 @@
+{
+  "started_at": "2026-06-15T04:34:50.879032",
+  "deadline_at": "2026-06-15T07:34:50.879032",
+  "total_combos": 2160,
+  "completed": 125,
+  "passed_floors": 0,
+  "rejected": 125,
+  "keepers": 0,
+  "best_edge_capture": 0.0,
+  "best_final_score": 0.0,
+  "best_wide_pnl": null,
+  "current_pid": 23376,
+  "workers": 4,
+  "run_identity": {
+    "run_id": "2026-06-15_540c294a_0d3b98_bff1dc",
+    "data_hash": "0d3b984a703498e4",
+    "code_hash": "540c294ad523e961",
+    "params_hash": "bff1dcb8927f7191",
+    "code_source": "files",
+    "computed_at": "2026-06-15T04:34:50"
+  },
+  "last_update": "2026-06-15T05:43:54.187025",
+  "status": "running"
+}

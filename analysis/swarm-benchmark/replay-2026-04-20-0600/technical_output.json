@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-17T13:56:35Z",
+  "bias": "bearish",
+  "confidence": 0.85,
+  "reasoning": "CLEAN_BEAR ribbon (126c spread, stack slow 709.04 > pivot 708.26 > fast 707.79) with price 138c below pivot at 706.88. Last 3 premarket bars all red (05:45, 05:50, 05:55 closes all below opens) with 35–47% bodies showing consistent downward pressure. Overnight gap down 3.17 (710.05 → 706.88) adds bearish context. VIX rising +7.54% to 18.83. Premarket bounce to 707.13 rejected; current retreat confirms seller control. All major signals aligned.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 126,
+  "bar_structure": "strong_bear",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "CLEAN_BEAR ribbon: 126c spread well above clean threshold; slow > pivot > fast stack intact, all EMAs above current price (708.26 pivot vs 706.88 spot)",
+    "Last 3 bars unanimously red: 05:55 (706.97→706.88), 05:50 (707.03→706.97), 05:45 (707.11→707.03) with 35–47% bodies — strong bearish bar structure, not weak wicks",
+    "Overnight gap down 3.17 from 710.05 close to premarket opening; premarket range 706.71–707.13 shows early support hold but subsequent retreat to 706.88 (midpoint) with renewed selling pressure",
+    "VIX rising +7.54% to 18.83 (mid regime); supports elevated volatility on downside bias",
+    "Price 138c below pivot; ribbon spread wide enough for confident directional bias"
+  ],
+  "data_quality": "full"
+}

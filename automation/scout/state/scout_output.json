@@ -1,0 +1,169 @@
+{
+  "generated_at": "2026-06-15T09:30:01Z",
+  "for_session_date": "2026-06-15",
+  "status": "ok",
+  "macro_calendar_today": [
+    {
+      "time_et": "08:30",
+      "event": "NY Empire State Manufacturing Index (Jun)",
+      "severity": "MEDIUM",
+      "expected_direction": "unknown",
+      "prior": "19.60",
+      "consensus": "13.20",
+      "minutes_until_at_06_30": 120
+    },
+    {
+      "time_et": "09:15",
+      "event": "Industrial Production MoM (May) + Capacity Utilization (May)",
+      "severity": "MEDIUM",
+      "expected_direction": "unknown",
+      "prior": "0.7% / 76.1%",
+      "consensus": "0.3% / 76.2%",
+      "minutes_until_at_06_30": 165
+    },
+    {
+      "time_et": "09:15",
+      "event": "Manufacturing Production MoM (May)",
+      "severity": "MEDIUM",
+      "expected_direction": "unknown",
+      "prior": "0.6%",
+      "consensus": null,
+      "minutes_until_at_06_30": 165
+    },
+    {
+      "time_et": "10:00",
+      "event": "NAHB Housing Market Index (Jun)",
+      "severity": "LOW",
+      "expected_direction": "unknown",
+      "prior": "37",
+      "consensus": "36",
+      "minutes_until_at_06_30": 210
+    },
+    {
+      "time_et": "11:30",
+      "event": "3-Month Bill Auction",
+      "severity": "LOW",
+      "expected_direction": "unknown",
+      "prior": "3.640%",
+      "consensus": null,
+      "minutes_until_at_06_30": 300
+    },
+    {
+      "time_et": "11:30",
+      "event": "6-Month Bill Auction",
+      "severity": "LOW",
+      "expected_direction": "unknown",
+      "prior": "3.690%",
+      "consensus": null,
+      "minutes_until_at_06_30": 300
+    }
+  ],
+  "news_top_5": [
+    {
+      "headline": "US and Iran confirm peace deal; stocks soar, oil -3.8% to $81.65 as Strait of Hormuz to reopen",
+      "source": "Bloomberg",
+      "url": "https://www.bloomberg.com/news/articles/2026-06-14/us-futures-climb-oil-falls-on-iran-peace-deal-markets-wrap",
+      "captured_at": "2026-06-15T09:30:01Z",
+      "relevance": 10,
+      "summary": "Washington and Tehran confirmed peace deal Sunday PM, triggering global risk rally. Asia +3-5%, ES futures +1%, Nasdaq futures +1.8%; WTI crude -3.8% to $81.65 (3-month low).",
+      "spy_implication": "risk_on"
+    },
+    {
+      "headline": "Inflation Worries Keep Markets Wary Even After Iran Peace Deal",
+      "source": "Bloomberg",
+      "url": "https://www.bloomberg.com/news/articles/2026-06-15/inflation-worries-keep-markets-wary-even-after-iran-peace-deal",
+      "captured_at": "2026-06-15T09:30:01Z",
+      "relevance": 8,
+      "summary": "Strategists at KCM Trade, Pepperstone, Stifel call deal a short-term trade not a trend change. Unresolved ~4 months of conflict economic fallout still weighs on inflation.",
+      "spy_implication": "mixed"
+    },
+    {
+      "headline": "US Futures Hold Surge after Iran Ceasefire; bonds rally, gold eases to $4,165",
+      "source": "CNBC",
+      "url": "https://www.cnbc.com/amp/2026/06/15/us-iran-deal-stocks-bonds-gold-oil.html",
+      "captured_at": "2026-06-15T09:30:01Z",
+      "relevance": 9,
+      "summary": "ES futures held ~+1% overnight; 10Y yield fell ~4bp from 4.53% to 4.49%; gold eased from $4,200 to $4,165 on reduced geo risk premium. DXY flat at 99.81.",
+      "spy_implication": "risk_on"
+    },
+    {
+      "headline": "Markets celebrate U.S.-Iran deal; Trump says 'oil will flow,' Strait of Hormuz reopens",
+      "source": "other",
+      "url": "https://ca.finance.yahoo.com/news/markets-celebrate-u-iran-deal-230113403.html",
+      "captured_at": "2026-06-15T09:30:01Z",
+      "relevance": 8,
+      "summary": "Deal removes ~4-month geopolitical oil supply risk premium. WTI at 3-month low; lower oil supports reduced inflation expectations, net dovish for Fed.",
+      "spy_implication": "risk_on"
+    },
+    {
+      "headline": "Nikkei +5.5%, Kospi +5.7%, MSCI Asia Pacific +3.2% — global risk sweep confirms peace deal",
+      "source": "Bloomberg",
+      "url": "https://www.bloomberg.com/news/articles/2026-06-15/inflation-worries-keep-markets-wary-even-after-iran-peace-deal",
+      "captured_at": "2026-06-15T09:30:01Z",
+      "relevance": 7,
+      "summary": "Massive Asia open magnitude (+3-5%) confirms peace deal is priced as genuine macro catalyst, not rumor. Scale suggests multi-session unwind of geo risk premium.",
+      "spy_implication": "risk_on"
+    }
+  ],
+  "catalysts_in_session": [
+    {
+      "type": "geopolitical",
+      "name": "US-Iran Peace Deal — gap-open repricing, first-bar volatility HIGH",
+      "time_et": "09:30",
+      "block_window": {"start": "09:30", "end": "09:40"}
+    },
+    {
+      "type": "data",
+      "name": "Industrial Production MoM (May) + Capacity Utilization (May)",
+      "time_et": "09:15",
+      "block_window": {"start": "09:10", "end": "09:20"}
+    },
+    {
+      "type": "data",
+      "name": "NAHB Housing Market Index (Jun)",
+      "time_et": "10:00",
+      "block_window": {"start": "09:55", "end": "10:05"}
+    }
+  ],
+  "risk_regime_call": {
+    "verdict": "risk_on",
+    "confidence": 72,
+    "reasoning": "US-Iran peace deal confirmed Sunday drives global relief rally — ES +1%, Nasdaq +1.8%, Asia +3-5%, oil -3.8%, yields -4bp. However Bloomberg and multi-strategist consensus warns this is a short-term trade not a trend change; unresolved inflation from 4-month conflict caps conviction. If SPY opens above Friday close with EMA stack intact, bias is consistent with risk_on continuation; gap-fade risk on intraday reversal after initial reprice."
+  },
+  "overnight_session_summary": {
+    "spy_overnight_change_pct": 1.0,
+    "es_futures_open_et": null,
+    "vix_current": null,
+    "dxy_change_pct": 0.13,
+    "yields_10y_current": 4.49,
+    "yields_10y_change_bp": -4,
+    "oil_wti_price": 81.65,
+    "oil_wti_change_pct": -3.8,
+    "gold_price": 4165,
+    "note": "Overnight context only — pre-open. Peace deal confirmed Sunday PM. Regime INVERTED vs last scout (2026-06-08 risk_off on Iran military exchange)."
+  },
+  "scout_addendum_to_swarm": {
+    "swarm_read": "did_read",
+    "agreement": "no_swarm_context",
+    "scout_caveat_to_swarm": "Swarm last output 2026-06-08 status=FAILED. Swarm has NO context on US-Iran peace deal (confirmed 2026-06-14 weekend) — this is the dominant driver today. Previous risk regime (mixed/risk_off on Iran military exchange) is now INVERTED. Swarm must re-fire with peace deal as primary catalyst input."
+  },
+  "today_no_trade_windows": [
+    {
+      "start": "09:10",
+      "end": "09:20",
+      "reason": "Industrial Production + Capacity Utilization at 09:15 ET — pre-open print may spike ES in final 15 min before open"
+    },
+    {
+      "start": "09:30",
+      "end": "09:40",
+      "reason": "Peace-deal gap-open volatility — first bar unreliable on large geo-driven gaps; ref L75 false-break-launchpad; wait for 09:35 bar close before any entry"
+    },
+    {
+      "start": "09:55",
+      "end": "10:05",
+      "reason": "NAHB Housing Market Index at 10:00 ET — mid-session spike risk"
+    }
+  ],
+  "scout_one_line_summary": "US-Iran peace deal confirmed: ES +1%, oil -3.8%, Asia +5% — risk_on gap open; wait 09:35 bar close, gap-fade risk on short-term trade narrative",
+  "cost_usd": 0.35
+}

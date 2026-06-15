@@ -1,0 +1,90 @@
+{
+  "date": "2026-06-08",
+  "_WARNING": "LATE PREMARKET RUN — actual clock was 15:21 ET (scheduled 08:30). Entry window CLOSED. This file is retrospective for today and forward-looking for tomorrow carry.",
+  "bias": "bearish",
+  "bias_note": "SPY opened at 743.31 on a gap down from prior-week close (~755 area on June 3), sold off all session, current at 738.91 into close. VIX 19.16 rising (MID regime, above bear entry threshold 17.30). All prior support levels from June 2-3 (~754-760 area) irrelevant — market moved ~$15-20 lower during missed sessions June 4-5. Today's structure: morning rally to 745.33 session high (11:05 ET), then sustained sell-off breaking 740.80 support late session. Bear continuation setup into tomorrow unless 740.80 reclaimed. SWARM UNAVAILABLE (all agents failed). MACRO CALENDAR STALE (8 days since 2026-05-31 refresh, threshold 7).",
+  "key_levels": {
+    "resistance": [745.33, 744.73, 743.31],
+    "support": [740.80, 738.91],
+    "ema_fast": null,
+    "ema_pivot": null,
+    "ema_slow": null,
+    "sma_50": null
+  },
+  "falsifiable_predictions": [
+    {
+      "claim": "If SPY opens above 738.91 on June 9, the session low acts as support and first bull trigger is eligible above 740.80 reclaim with ribbon flip to BULL",
+      "trigger_window": "09:35-10:30 ET 2026-06-09",
+      "invalidation": "SPY closes below 738.91 on any bar before 10:30 ET tomorrow, or fails to reclaim 740.80 within first hour",
+      "confidence": 0.50,
+      "specificity": 0.80,
+      "novelty": "fresh",
+      "outcome": null
+    },
+    {
+      "claim": "If SPY gaps below 738.91 at tomorrow's open, 735.00 becomes the next magnet and no bull entries eligible until 740.80 is reclaimed on a closed bar",
+      "trigger_window": "09:30-09:40 ET 2026-06-09",
+      "invalidation": "SPY opens above 740.80 (negates gap-down scenario entirely)",
+      "confidence": 0.55,
+      "specificity": 0.85,
+      "novelty": "fresh",
+      "outcome": null
+    },
+    {
+      "claim": "VIX closing above 20.00 today triggers HIGH iv_regime for tomorrow — bear-only entries with ribbon BEAR, NO bull entries (bull_hard_cap = 22.00 still allows bull but VIX direction elevated)",
+      "trigger_window": "16:00 ET close today",
+      "invalidation": "VIX closes below 19.00 today (MID regime reaffirmed)",
+      "confidence": 0.40,
+      "specificity": 0.75,
+      "novelty": "fresh",
+      "outcome": null
+    }
+  ],
+  "falsifiable_hypothesis": "SPY opens above 738.91 on June 9, 740.80 reclaimed within first hour, bull trigger eligible on ribbon flip.",
+  "vix_at_open": 18.98,
+  "vix_at_premarket_run": 19.16,
+  "vix_bias": "rising",
+  "iv_regime": "MID",
+  "iv_source": "vix_proxy",
+  "iv_value": 19.16,
+  "session_window": { "open_et": "09:30", "close_et": "16:00" },
+  "news_calendar": {
+    "events_today": [],
+    "no_trade_window": [],
+    "size_modifier_windows": [],
+    "catalyst_narrative": {
+      "stale": true,
+      "last_updated": null,
+      "note": "Macro calendar STALE (8 days since 2026-05-31 refresh, threshold 7 days). Tomorrow June 9: U.S. International Trade 08:30 ET (low severity, pre-market only, no RTH block). Wednesday June 10: CPI May 2026 08:30 ET (HIGH severity — pre-market block 08:25-09:00, sets bias for the day). Run weekly-review to refresh calendar."
+    },
+    "stale": true,
+    "calendar_freshness_days": 8
+  },
+  "daily_loss_budget_dollars": 214.05,
+  "day_trades_remaining": 3,
+  "bold_daily_loss_budget_dollars": 672.99,
+  "bold_day_trades_remaining": 3,
+  "prior_day_review_hint": "W23: 1 trade -18 | Bold ghost -123 | filter_11 starvation 7 near-misses | CPI 06-10 | NOT LIVE-READY | Fix R-0007+R-0009",
+  "swarm_context": {
+    "consensus_bias": "no_trade",
+    "swarm_confidence": 0,
+    "consensus_strength": "split",
+    "dissent_flag": { "active": false, "dissenting_agents": [], "reason": null },
+    "battle_level_price": null,
+    "top_invalidation_scenario": null,
+    "synthesis_narrative": "Swarm unavailable — all specialist agents failed. No advisory context available for today.",
+    "swarm_predictions": [],
+    "agreement_with_premarket": null
+  },
+  "gates_passed": {
+    "tv_connected": true,
+    "market_open": true,
+    "safe_position_check": "flat",
+    "bold_position_check": "flat",
+    "rule_version_pin": "PASS (v15.3 matches)",
+    "drift_gate": "NO_DATA (backtest-drift.json >48h stale from 2026-05-18)",
+    "crypto_harness": "UNKNOWN (file too large to read partial)",
+    "macro_calendar": "STALE (8 days, threshold 7)"
+  },
+  "updated_at": "2026-06-08T15:21:40-04:00"
+}

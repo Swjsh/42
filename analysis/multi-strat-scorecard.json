@@ -1,0 +1,563 @@
+{
+  "generated_at": "2026-05-15T17:09:32",
+  "window_days": 35,
+  "total_dates": 25,
+  "total_observations": 241,
+  "total_trades": 10,
+  "total_trade_pnl": 1550.0,
+  "days": [
+    {
+      "date": "2026-05-15",
+      "observations": 1,
+      "by_watcher": {
+        "v14_enhanced_watcher": 1
+      },
+      "by_setup": {
+        "BEARISH_REJECTION_v14e": 1
+      },
+      "directions": {
+        "short": 1
+      },
+      "trades_placed": 1,
+      "trade_setups": [
+        "BEARISH_REJECTION_RIDE_THE_RIBBON"
+      ],
+      "trade_pnl_dollars": -770.0,
+      "miss_ratio": "0.0% (1 observed, 1 traded)"
+    },
+    {
+      "date": "2026-05-14",
+      "observations": 0,
+      "by_watcher": {},
+      "by_setup": {},
+      "directions": {},
+      "trades_placed": 2,
+      "trade_setups": [
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+      ],
+      "trade_pnl_dollars": 1503.0,
+      "miss_ratio": "0.0% (no observations)"
+    },
+    {
+      "date": "2026-05-12",
+      "observations": 6,
+      "by_watcher": {
+        "v14_enhanced_watcher": 3,
+        "shotgun_scalper_watcher": 3
+      },
+      "by_setup": {
+        "BEARISH_REJECTION_v14e": 3,
+        "OPEN_REJECTION": 1,
+        "TRENDLINE_BREAK_RETEST": 2
+      },
+      "directions": {
+        "short": 5,
+        "long": 1
+      },
+      "trades_placed": 0,
+      "trade_setups": [],
+      "trade_pnl_dollars": 0.0,
+      "miss_ratio": "100% (6 observed, 0 traded)"
+    },
+    {
+      "date": "2026-05-11",
+      "observations": 4,
+      "by_watcher": {
+        "v14_enhanced_watcher": 3,
+        "shotgun_scalper_watcher": 1
+      },
+      "by_setup": {
+        "BEARISH_REJECTION_v14e": 3,
+        "TRENDLINE_BREAK_RETEST": 1
+      },
+      "directions": {
+        "short": 4
+      },
+      "trades_placed": 0,
+      "trade_setups": [],
+      "trade_pnl_dollars": 0.0,
+      "miss_ratio": "100% (4 observed, 0 traded)"
+    },
+    {
+      "date": "2026-05-08",
+      "observations": 6,
+      "by_watcher": {
+        "v14_enhanced_watcher": 3,
+        "shotgun_scalper_watcher": 3
+      },
+      "by_setup": {
+        "BULLISH_RECLAIM_v14e": 3,
+        "TRENDLINE_BREAK_RETEST": 3
+      },
+      "directions": {
+        "long": 4,
+        "short": 2
+      },
+      "trades_placed": 0,
+      "trade_setups": [],
+      "trade_pnl_dollars": 0.0,
+      "miss_ratio": "100% (6 observed, 0 traded)"
+    },
+    {
+      "date": "2026-05-07",
+      "observations": 13,
+      "by_watcher": {
+        "orb_watcher": 7,
+        "v14_enhanced_watcher": 4,
+        "shotgun_scalper_watcher": 2
+      },
+      "by_setup": {
+        "ORB_RETEST_SHORT": 7,
+        "BEARISH_REJECTION_v14e": 4,
+        "OPEN_REJECTION": 1,
+        "TRENDLINE_BREAK_RETEST": 1
+      },
+      "directions": {
+        "short": 13
+      },
+      "trades_placed": 2,
+      "trade_setups": [
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "UNCATEGORIZED_PROBE_MANUAL"
+      ],
+      "trade_pnl_dollars": -165.0,
+      "miss_ratio": "84.6% (13 observed, 2 traded)"
+    },
+    {
+      "date": "2026-05-06",
+      "observations": 14,
+      "by_watcher": {
+        "orb_watcher": 7,
+        "v14_enhanced_watcher": 3,
+        "bullish_watcher": 2,
+        "shotgun_scalper_watcher": 2
+      },
+      "by_setup": {
+        "ORB_RETEST_LONG": 7,
+        "BULLISH_RECLAIM_v14e": 3,
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 2,
+        "TRENDLINE_BREAK_RETEST": 2
+      },
+      "directions": {
+        "long": 13,
+        "short": 1
+      },
+      "trades_placed": 1,
+      "trade_setups": [
+        "UNCATEGORIZED_HOLD_TO_EXPIRY"
+      ],
+      "trade_pnl_dollars": -300.0,
+      "miss_ratio": "92.9% (14 observed, 1 traded)"
+    },
+    {
+      "date": "2026-05-05",
+      "observations": 16,
+      "by_watcher": {
+        "orb_watcher": 7,
+        "bullish_watcher": 3,
+        "v14_enhanced_watcher": 3,
+        "shotgun_scalper_watcher": 3
+      },
+      "by_setup": {
+        "ORB_RETEST_LONG": 7,
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 3,
+        "BULLISH_RECLAIM_v14e": 3,
+        "TRENDLINE_BREAK_RETEST": 3
+      },
+      "directions": {
+        "long": 14,
+        "short": 2
+      },
+      "trades_placed": 1,
+      "trade_setups": [
+        "UNCATEGORIZED_PROBE"
+      ],
+      "trade_pnl_dollars": -260.0,
+      "miss_ratio": "93.8% (16 observed, 1 traded)"
+    },
+    {
+      "date": "2026-05-04",
+      "observations": 14,
+      "by_watcher": {
+        "orb_watcher": 7,
+        "v14_enhanced_watcher": 6,
+        "shotgun_scalper_watcher": 1
+      },
+      "by_setup": {
+        "ORB_RETEST_LONG": 7,
+        "BEARISH_REJECTION_v14e": 6,
+        "TRENDLINE_BREAK_RETEST": 1
+      },
+      "directions": {
+        "long": 8,
+        "short": 6
+      },
+      "trades_placed": 1,
+      "trade_setups": [
+        "BEARISH_REJECTION_RIDE_THE_RIBBON"
+      ],
+      "trade_pnl_dollars": 730.0,
+      "miss_ratio": "92.9% (14 observed, 1 traded)"
+    },
+    {
+      "date": "2026-05-01",
+      "observations": 7,
+      "by_watcher": {
+        "v14_enhanced_watcher": 4,
+        "bullish_watcher": 2,
+        "shotgun_scalper_watcher": 1
+      },
+      "by_setup": {
+        "BULLISH_RECLAIM_v14e": 3,
+        "BEARISH_REJECTION_v14e": 1,
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 2,
+        "TRENDLINE_BREAK_RETEST": 1
+      },
+      "directions": {
+        "long": 5,
+        "short": 2
+      },
+      "trades_placed": 1,
+      "trade_setups": [
+        "BEARISH_REJECTION_RIDE_THE_RIBBON"
+      ],
+      "trade_pnl_dollars": 470.0,
+      "miss_ratio": "85.7% (7 observed, 1 traded)"
+    },
+    {
+      "date": "2026-04-30",
+      "observations": 19,
+      "by_watcher": {
+        "bullish_watcher": 7,
+        "orb_watcher": 7,
+        "v14_enhanced_watcher": 3,
+        "shotgun_scalper_watcher": 2
+      },
+      "by_setup": {
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 7,
+        "ORB_RETEST_LONG": 7,
+        "BULLISH_RECLAIM_v14e": 3,
+        "OPEN_REJECTION": 1,
+        "TRENDLINE_BREAK_RETEST": 1
+      },
+      "directions": {
+        "long": 17,
+        "short": 2
+      },
+      "trades_placed": 0,
+      "trade_setups": [],
+      "trade_pnl_dollars": 0.0,
+      "miss_ratio": "100% (19 observed, 0 traded)"
+    },
+    {
+      "date": "2026-04-29",
+      "observations": 18,
+      "by_watcher": {
+        "orb_watcher": 7,
+        "v14_enhanced_watcher": 7,
+        "bullish_watcher": 2,
+        "shotgun_scalper_watcher": 2
+      },
+      "by_setup": {
+        "ORB_RETEST_LONG": 7,
+        "BEARISH_REJECTION_v14e": 4,
+        "BULLISH_RECLAIM_v14e": 3,
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 2,
+        "OPEN_REJECTION": 1,
+        "TRENDLINE_BREAK_RETEST": 1
+      },
+      "directions": {
+        "long": 13,
+        "short": 5
+      },
+      "trades_placed": 1,
+      "trade_setups": [
+        "BEARISH_REJECTION_RIDE_THE_RIBBON"
+      ],
+      "trade_pnl_dollars": 342.0,
+      "miss_ratio": "94.4% (18 observed, 1 traded)"
+    },
+    {
+      "date": "2026-04-28",
+      "observations": 6,
+      "by_watcher": {
+        "v14_enhanced_watcher": 5,
+        "shotgun_scalper_watcher": 1
+      },
+      "by_setup": {
+        "BEARISH_REJECTION_v14e": 3,
+        "BULLISH_RECLAIM_v14e": 2,
+        "TRENDLINE_BREAK_RETEST": 1
+      },
+      "directions": {
+        "short": 3,
+        "long": 3
+      },
+      "trades_placed": 0,
+      "trade_setups": [],
+      "trade_pnl_dollars": 0.0,
+      "miss_ratio": "100% (6 observed, 0 traded)"
+    },
+    {
+      "date": "2026-04-27",
+      "observations": 10,
+      "by_watcher": {
+        "v14_enhanced_watcher": 6,
+        "bullish_watcher": 2,
+        "shotgun_scalper_watcher": 2
+      },
+      "by_setup": {
+        "BULLISH_RECLAIM_v14e": 3,
+        "BEARISH_REJECTION_v14e": 3,
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 2,
+        "TRENDLINE_BREAK_RETEST": 2
+      },
+      "directions": {
+        "long": 6,
+        "short": 4
+      },
+      "trades_placed": 0,
+      "trade_setups": [],
+      "trade_pnl_dollars": 0.0,
+      "miss_ratio": "100% (10 observed, 0 traded)"
+    },
+    {
+      "date": "2026-04-24",
+      "observations": 17,
+      "by_watcher": {
+        "orb_watcher": 7,
+        "v14_enhanced_watcher": 6,
+        "bullish_watcher": 2,
+        "shotgun_scalper_watcher": 2
+      },
+      "by_setup": {
+        "ORB_RETEST_LONG": 7,
+        "BEARISH_REJECTION_v14e": 3,
+        "BULLISH_RECLAIM_v14e": 3,
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 2,
+        "OPEN_REJECTION": 1,
+        "TRENDLINE_BREAK_RETEST": 1
+      },
+      "directions": {
+        "long": 12,
+        "short": 5
+      },
+      "trades_placed": 0,
+      "trade_setups": [],
+      "trade_pnl_dollars": 0.0,
+      "miss_ratio": "100% (17 observed, 0 traded)"
+    },
+    {
+      "date": "2026-04-23",
+      "observations": 5,
+      "by_watcher": {
+        "v14_enhanced_watcher": 4,
+        "shotgun_scalper_watcher": 1
+      },
+      "by_setup": {
+        "BEARISH_REJECTION_v14e": 4,
+        "OPEN_REJECTION": 1
+      },
+      "directions": {
+        "short": 5
+      },
+      "trades_placed": 0,
+      "trade_setups": [],
+      "trade_pnl_dollars": 0.0,
+      "miss_ratio": "100% (5 observed, 0 traded)"
+    },
+    {
+      "date": "2026-04-22",
+      "observations": 21,
+      "by_watcher": {
+        "orb_watcher": 7,
+        "v14_enhanced_watcher": 8,
+        "bullish_watcher": 3,
+        "shotgun_scalper_watcher": 3
+      },
+      "by_setup": {
+        "ORB_RETEST_LONG": 7,
+        "BULLISH_RECLAIM_v14e": 5,
+        "BEARISH_REJECTION_v14e": 3,
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 3,
+        "OPEN_REJECTION": 1,
+        "TRENDLINE_BREAK_RETEST": 2
+      },
+      "directions": {
+        "long": 16,
+        "short": 5
+      },
+      "trades_placed": 0,
+      "trade_setups": [],
+      "trade_pnl_dollars": 0.0,
+      "miss_ratio": "100% (21 observed, 0 traded)"
+    },
+    {
+      "date": "2026-04-21",
+      "observations": 6,
+      "by_watcher": {
+        "v14_enhanced_watcher": 5,
+        "shotgun_scalper_watcher": 1
+      },
+      "by_setup": {
+        "BEARISH_REJECTION_v14e": 5,
+        "OPEN_REJECTION": 1
+      },
+      "directions": {
+        "short": 6
+      },
+      "trades_placed": 0,
+      "trade_setups": [],
+      "trade_pnl_dollars": 0.0,
+      "miss_ratio": "100% (6 observed, 0 traded)"
+    },
+    {
+      "date": "2026-04-20",
+      "observations": 5,
+      "by_watcher": {
+        "v14_enhanced_watcher": 3,
+        "shotgun_scalper_watcher": 2
+      },
+      "by_setup": {
+        "BEARISH_REJECTION_v14e": 3,
+        "TRENDLINE_BREAK_RETEST": 2
+      },
+      "directions": {
+        "short": 4,
+        "long": 1
+      },
+      "trades_placed": 0,
+      "trade_setups": [],
+      "trade_pnl_dollars": 0.0,
+      "miss_ratio": "100% (5 observed, 0 traded)"
+    },
+    {
+      "date": "2026-04-17",
+      "observations": 5,
+      "by_watcher": {
+        "v14_enhanced_watcher": 3,
+        "shotgun_scalper_watcher": 2
+      },
+      "by_setup": {
+        "BULLISH_RECLAIM_v14e": 3,
+        "TRENDLINE_BREAK_RETEST": 2
+      },
+      "directions": {
+        "long": 4,
+        "short": 1
+      },
+      "trades_placed": 0,
+      "trade_setups": [],
+      "trade_pnl_dollars": 0.0,
+      "miss_ratio": "100% (5 observed, 0 traded)"
+    },
+    {
+      "date": "2026-04-16",
+      "observations": 12,
+      "by_watcher": {
+        "orb_watcher": 7,
+        "v14_enhanced_watcher": 3,
+        "shotgun_scalper_watcher": 2
+      },
+      "by_setup": {
+        "ORB_RETEST_LONG": 7,
+        "BULLISH_RECLAIM_v14e": 3,
+        "TRENDLINE_BREAK_RETEST": 2
+      },
+      "directions": {
+        "long": 10,
+        "short": 2
+      },
+      "trades_placed": 0,
+      "trade_setups": [],
+      "trade_pnl_dollars": 0.0,
+      "miss_ratio": "100% (12 observed, 0 traded)"
+    },
+    {
+      "date": "2026-04-15",
+      "observations": 13,
+      "by_watcher": {
+        "orb_watcher": 7,
+        "v14_enhanced_watcher": 3,
+        "bullish_watcher": 2,
+        "shotgun_scalper_watcher": 1
+      },
+      "by_setup": {
+        "ORB_RETEST_LONG": 7,
+        "BULLISH_RECLAIM_v14e": 3,
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 2,
+        "TRENDLINE_BREAK_RETEST": 1
+      },
+      "directions": {
+        "long": 12,
+        "short": 1
+      },
+      "trades_placed": 0,
+      "trade_setups": [],
+      "trade_pnl_dollars": 0.0,
+      "miss_ratio": "100% (13 observed, 0 traded)"
+    },
+    {
+      "date": "2026-04-14",
+      "observations": 9,
+      "by_watcher": {
+        "orb_watcher": 6,
+        "v14_enhanced_watcher": 2,
+        "bullish_watcher": 1
+      },
+      "by_setup": {
+        "ORB_RETEST_LONG": 6,
+        "BULLISH_RECLAIM_v14e": 2,
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 1
+      },
+      "directions": {
+        "long": 9
+      },
+      "trades_placed": 0,
+      "trade_setups": [],
+      "trade_pnl_dollars": 0.0,
+      "miss_ratio": "100% (9 observed, 0 traded)"
+    },
+    {
+      "date": "2026-04-13",
+      "observations": 12,
+      "by_watcher": {
+        "orb_watcher": 5,
+        "bullish_watcher": 5,
+        "v14_enhanced_watcher": 2
+      },
+      "by_setup": {
+        "ORB_RETEST_LONG": 5,
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 5,
+        "BEARISH_REJECTION_v14e": 1,
+        "BULLISH_RECLAIM_v14e": 1
+      },
+      "directions": {
+        "long": 11,
+        "short": 1
+      },
+      "trades_placed": 0,
+      "trade_setups": [],
+      "trade_pnl_dollars": 0.0,
+      "miss_ratio": "100% (12 observed, 0 traded)"
+    },
+    {
+      "date": "2026-04-10",
+      "observations": 2,
+      "by_watcher": {
+        "bullish_watcher": 2
+      },
+      "by_setup": {
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 2
+      },
+      "directions": {
+        "long": 2
+      },
+      "trades_placed": 0,
+      "trade_setups": [],
+      "trade_pnl_dollars": 0.0,
+      "miss_ratio": "100% (2 observed, 0 traded)"
+    }
+  ]
+}

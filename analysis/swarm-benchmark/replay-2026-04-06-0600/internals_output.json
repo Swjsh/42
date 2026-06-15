@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-04-06T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "XLK +3.09% and XLF +1.43% both up with XLE -2.11% down = classic risk-on rotation headwind into the open. Tech leadership (outperforming SPY +3.09% vs +1.46%) paired with financial sector support confirms directional upside bias. Breadth is narrow (tech-led) but sector composition is aligned bullish. Medium-high confidence — sector internals support SPY upside.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 3.09,
+    "xlf_change_pct": 1.43,
+    "xle_change_pct": -2.11,
+    "spy_change_pct": 1.46,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +3.09% — strong tech sector leadership into the open; outperforming SPY by 1.63%",
+    "XLF: +1.43% — financial sector up and inline with SPY; confirms broad risk-on participation",
+    "XLE: -2.11% — energy down; defensive positioning but weak enough not to override risk-on alignment",
+    "Overall rotation: Risk-on confirmed. Tech + financials up, energy down. Narrow but directional bullish breadth."
+  ],
+  "data_quality": "full"
+}

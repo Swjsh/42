@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-02-11T11:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": [],
+    "bearish": ["technical", "macro", "level_thesis", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 0,
+    "bearish": 4,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.0,
+    "bearish": 1.0
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 95,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Agents treat flat VIX + weak tape as confirmation of continued selling, but flat VIX after a weak close is historically correlated with short-covering at support — macro agent explicitly admits 'flat VIX leaves room for consolidation or reversal,' yet consensus remains bearish. Level_thesis also contradicts itself by identifying the primary level scenario as bullish (support hold → 696.53).",
+    "top_invalidation_scenario": "691.66 support holds AND price bounces above 693.00 by 09:55 ET — directly flips consensus to bullish per level_thesis's own primary scenario."
+  },
+  "battle_level": {
+    "price": 691.66,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 691.66,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 693.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 696.53,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 690.34,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 690.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks below 691.66 Active support with volume confirmation",
+      "bias": "bearish",
+      "target": 690.0,
+      "entry_trigger": "level_rejection"
+    },
+    "secondary": {
+      "condition": "if SPY tests and holds 691.66 then reclaims 693.00 psychological level",
+      "bias": "bullish",
+      "target": 696.53,
+      "entry_trigger": "level_reclaim"
+    },
+    "invalidation": {
+      "condition": "691.66 support holds AND price bounces above 693.00 by 09:55 ET (first 25 min of RTH)",
+      "effect": "Bearish consensus collapses — level_thesis's own primary scenario (support hold → 696.53) activates; BEAR ribbon would face compression from below the pivot; consider flipping to bullish puts-to-calls."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY touches or breaks 691.66 Active support within the first 90 minutes of RTH (by 11:00 ET) — BEAR ribbon at 72c spread and current price 45c above this level make an early test near-certain",
+      "invalidation": "SPY does not trade at or below 691.66 before 11:00 ET (price rallies directly from open toward 693+ without testing support)",
+      "confidence": 0.82,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 19.5 throughout the RTH session — flat VIX at 17.86 with no scheduled macro events and overnight gap flat signals no new panic premium entering; VIX stays range-bound 16.5–19.5",
+      "invalidation": "VIX prints above 19.5 by 10:05 ET, confirming capitulation and validating full bearish thesis with conviction",
+      "confidence": 0.70,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "BEAR ribbon (72c spread, fast 693.04 < pivot 693.23 < slow 693.76) does not flip to BULL in the first 60 minutes of RTH — a sustained 5m close above 693.23 pivot is required and BEAR momentum from two high-volume closing bars (121k + 204k) prevents this",
+      "invalidation": "SPY closes a 5m bar above 693.23 (ribbon pivot) within the first 60 minutes of RTH (by 10:30 ET), signaling ribbon compression toward a potential bull flip",
+      "confidence": 0.74,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The central tension on 2026-02-11 is whether the BEAR ribbon + high-conviction closing volume (121k/204k on the final two 5m bars) represents a true selling continuation or merely a squeeze zone with an immediate support test at 691.66 (45 bps below open). All 4 specialists voted bearish with aligned reasoning — weak tape (SPY -0.41%, XLK -0.88%), BEAR ribbon (72c spread), and structural positioning below the pivot — but the validator correctly flags that flat VIX historically favors short-covering bounces at support, and level_thesis's own primary scenario is bullish (support hold → 696.53). The single most important thing to watch at open: whether 691.66 is tested AND holds before 09:55 ET — a hold + bounce above 693.00 within the first 25 minutes directly invalidates the bearish consensus and triggers the bullish scenario.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.76,
+      "one_line": "CLEAN_BEAR ribbon (72c spread) with two extreme-volume red closes (121k/204k); price 112c below pivot; bar structure mixed but final 2 bars decisively bearish"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.65,
+      "one_line": "VIX 17.86 MID/flat with zero scheduled events — clean technical tape; yesterday's weak close (SPY -0.41%) + BEAR ribbon persist into open with no overnight relief"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.65,
+      "one_line": "Battle level 691.66 (prior RTH low, 2★ Active support) 45c below; asymmetry favors break — only 1★ resistance above until Carry 696.53 at +442 bps"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.58,
+      "one_line": "XLK -0.88% leading downside vs XLF -0.28% — narrow tech weakness is a SPY headwind; rotation signal mixed, not panic"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Support hold at 691.66 + bounce above 693.00 by 09:55 ET flips entire consensus to bullish per level_thesis's own primary scenario"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

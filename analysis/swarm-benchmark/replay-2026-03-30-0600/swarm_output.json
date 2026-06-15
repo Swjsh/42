@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-30T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "level_thesis"],
+    "bearish": ["macro", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 2,
+    "bearish": 2,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.60,
+    "bearish": 0.40
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "moderate",
+  "swarm_confidence": 25,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["macro", "internals"],
+    "dissent_reason": "Macro (VIX 30.67 HIGH regime, risk-off macro backdrop despite flat direction) and Internals (XLK -1.22%, XLF -2.01% defensive rotation) both voted bearish, citing elevated premium costs and sector leadership breakdown as structural headwinds that undermine a sustainable gap-up follow-through."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "weak",
+    "weakest_link": "The bearish analysts' reliance on VIX elevation (30.67) as a sustained bearish driver ignores that VIX direction is flat (-0.26%), meaning mean-reversion compression toward 27.5 is mathematically likely — which would directly support the bullish gap-up thesis rather than undermine it.",
+    "top_invalidation_scenario": "VIX fails to compress (remains > 30) AND XLK/XLF continue to lead lower through first 30 minutes of RTH — if both conditions hold, the bullish gap-up narrative loses its macro tailwind and the 2-2 split tips definitively bearish."
+  },
+  "battle_level": {
+    "price": 638.02,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 638.02,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "reclaim_attempt"
+    },
+    {
+      "price": 633.1,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 634.03,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 642.66,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 636.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY reclaims and closes above 638.02 PMH on volume > 1.5x 20-bar avg within first 10 bars of RTH",
+      "bias": "bullish",
+      "target": 642.66,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if SPY opens below 638.02, consolidates 636.0-638.02 range, and fails to break higher through morning session",
+      "bias": "bearish",
+      "target": 633.1,
+      "entry_trigger": "level_rejection"
+    },
+    "invalidation": {
+      "condition": "VIX remains above 30 through 10:00 ET AND XLK + XLF continue negative, deepening risk-off rotation with no recovery bounce",
+      "effect": "Bearish macro pillar strengthens — gap-up becomes a fade candidate and bullish consensus is invalidated; shift full bias to bearish with 633.1 Carry as target."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "638.02 PMH battle level is tested (SPY touches 638.00 or higher) within the first 60 minutes of RTH (by 10:30 ET)",
+      "invalidation": "SPY does not touch 638.00 before 10:30 ET, remaining trapped below premarket range throughout the morning session",
+      "confidence": 0.62,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains above 28.0 through 12:00 ET, limiting sustained directional extension and keeping premium elevated for both bull and bear plays",
+      "invalidation": "VIX compresses below 28.0 before 12:00 ET — if this occurs, the macro bearish pillar collapses and bullish confidence should be upgraded",
+      "confidence": 0.55,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY ribbon spread expands beyond 30 cents within the first 90 minutes of RTH (before 11:00 ET), breaking out of the WEAK_BULL 8-cent chop zone and establishing directional conviction",
+      "invalidation": "Ribbon spread remains at or below 15 cents through 11:00 ET, confirming continued indecision with no actionable directional signal from chart structure",
+      "confidence": 0.45,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The swarm is deadlocked 2-2 on direction, with the weighted framework narrowly favoring bullish (0.60 vs 0.40) on the strength of chart structure and level thesis supporting the overnight gap-up narrative, but the validator flags 'weak' consensus robustness given that the bearish case rests on fragile VIX-elevation logic that ignores flat VIX direction and normal post-gap-up sector rotation. Confidence is capped at 25 — this is a contested setup requiring RTH confirmation before committing. The single most important variable at open: does 638.02 PMH break cleanly on volume (bullish confirmed) or hold as resistance and push price back toward 636.0-634.03 (bearish confirmed)?",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.50,
+      "one_line": "WEAK_BULL ribbon (8c spread, near-chop) with gap-up +$2.97 overnight; mixed bar structure and low-conviction bodies mean bullish edge is marginal until ribbon spread expands post-RTH-open"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.58,
+      "one_line": "VIX 30.67 HIGH regime (flat direction), risk-off sector rotation (XLK -1.22%, XLF -2.01%), no calendar events — elevated premium cost favors bearish setups despite gap-up"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "Battle level 638.02 PMH is the immediate ceiling 97c above; reclaim targets 642.66 (5.61 away), risk defined by Carry floor at 633.1 (-$3.95) — 1:5.8 risk/reward structure favors bull thesis"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.78,
+      "one_line": "Classic risk-off rotation (XLK -1.22%, XLF -2.01%, XLE +1.67%) = growth and financials leading lower while energy rallies defensively; narrowing breadth argues against sustained directional follow-through to the upside"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "weak",
+      "top_invalidation": "Institutional gap-up (+$2.97 intentional) + tight ribbon (high conviction, not chop) + VIX flat/mean-reversion likely + 1:5.8 level risk/reward all argue the 2-2 split resolves bullish once RTH price discovery begins"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

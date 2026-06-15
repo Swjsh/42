@@ -1,0 +1,27 @@
+{
+  "winners": [
+    {
+      "stop": 0.5,
+      "variant": "V0",
+      "strike": "ATM",
+      "pl": "PLoff",
+      "week_totpc": 135.8,
+      "worst_pc": 0.0,
+      "n": 5
+    }
+  ],
+  "baseline_v0": {
+    "stop": 0.5,
+    "week_totpc": 135.8,
+    "worst_pc": 0.0
+  },
+  "anchor": {
+    "V0|0|PLoff|0.5": {
+      "cap_504": 31.2,
+      "totpc": 66.4,
+      "worst_pc": -58.0,
+      "n": 7
+    }
+  },
+  "engine_v0_green": 4
+}

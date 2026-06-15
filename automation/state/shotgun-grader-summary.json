@@ -1,0 +1,28 @@
+{
+  "graded_at": "2026-05-24T09:32:44",
+  "strategy": "shotgun_scalper",
+  "n_observations_raw": 2832,
+  "n_observations": 1723,
+  "outcomes": {
+    "stopped": 414,
+    "time_stop": 243,
+    "target_hit": 284,
+    "chandelier_lock": 770,
+    "ungraded": 12
+  },
+  "total_would_be_pnl_dollars": -2806.98,
+  "n_winners": 1054,
+  "n_losers": 414,
+  "win_rate": 0.612,
+  "expectancy_per_obs": -1.63,
+  "pnl_by_tier": {
+    "TRENDLINE_BREAK_RETEST": -362.45,
+    "OPEN_REJECTION": -276.51,
+    "LEVEL_REJECT_LIVE": -2168.02
+  },
+  "n_by_tier": {
+    "TRENDLINE_BREAK_RETEST": 828,
+    "OPEN_REJECTION": 102,
+    "LEVEL_REJECT_LIVE": 793
+  }
+}

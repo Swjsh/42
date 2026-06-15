@@ -1,0 +1,115 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-02-25T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "SPY at 687.03 sits right at the tight BULL ribbon (Fast 687.15 > Pivot 687.13 > Slow 686.86, 28¢ spread). The immediate battle level is 688.33 (yesterday's RTH high, Active 2★, only 1.30 away) — price must overcome this first hurdle to confirm upside continuation. If 688.33 holds, pullback risk targets 686.0 support (1.03 below). If 688.33 breaks, next target is 690.06 (5-day RTH high, Carry 2★, +3.03 away). VIX falling (−4.55%), risk-on sectors (XLK +0.78%, XLF +1.05%) and flat overnight gap all support the BULL setup. The battle is at the near-term overhead resistance, not the ultimate target; testing 688.33 today determines whether the bull continuation holds.",
+  "battle_level": {
+    "price": 688.33,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 688.33,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 1.30
+    },
+    {
+      "price": 690.06,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 3.03
+    },
+    {
+      "price": 689.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 1.97
+    },
+    {
+      "price": 688.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 0.97
+    },
+    {
+      "price": 686.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": -1.03
+    },
+    {
+      "price": 685.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 6,
+      "distance_from_price": -2.03
+    },
+    {
+      "price": 684.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 7,
+      "distance_from_price": -3.03
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks 688.33 on the first test with volume and ribbon stays BULL",
+      "bias": "bullish",
+      "target": 690.06,
+      "entry_trigger": "688.33 resistance break + ribbon integrity"
+    },
+    "secondary": {
+      "condition": "if SPY respects 688.33 and falls back into the ribbon zone",
+      "bias": "neutral_retest",
+      "target": 686.0,
+      "entry_trigger": "688.33 hold + test of slow EMA (686.86)"
+    },
+    "downside": {
+      "condition": "if 686.0 support breaks and ribbon inverts",
+      "bias": "bearish",
+      "target": 680.0,
+      "entry_trigger": "loss of ribbon stack + momentum reversal"
+    }
+  },
+  "levels_in_play_count": 7,
+  "key_observations": [
+    "BULL ribbon confirmed with 28¢ spread; Fast (687.15) above Pivot (687.13) above Slow (686.86) — upside bias intact as long as Slow holds",
+    "VIX at 18.66 and falling (−4.55% overnight) — low volatility regime supports calm continuation, not panic moves",
+    "Risk-on rotation (XLK +0.78%, XLF +1.05%) confirms market appetite for higher prices; earnings tail risk minimal at premarket",
+    "690.06 Carry resistance (5-day RTH high, 2★) dominates battle-level priority over 688.33 Active — multi-session significance > recent touch",
+    "Multiple Reference round numbers (685–689) create noise in tactical levels but don't override Carry/Active hierarchy; treat as zone awareness only"
+  ],
+  "data_quality": "full"
+}

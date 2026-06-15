@@ -1,0 +1,24 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-04-17T06:00:00Z",
+  "bias": "no_trade",
+  "confidence": 0.38,
+  "reasoning": "Mixed sector signals with narrow breadth. XLE (+1.33%) and XLK (+0.68%) both rallying premarket, but XLF flat/down (-0.12%) creates dispersion — no clean risk-on (would require XLF participation). Energy strength suggests inflation sensitivity rather than growth momentum. Critical red flag: SPY moving only +0.09% while components rally +0.68% to +1.33% indicates concentrated breadth, not broad-based upside. Rotation is unclear, breadth is weak, directional conviction lacking.",
+  "rotation_signal": "mixed",
+  "sector_alignment": {
+    "xlk_change_pct": 0.68,
+    "xlf_change_pct": -0.12,
+    "xle_change_pct": 1.33,
+    "spy_change_pct": 0.09,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +0.68% — tech showing moderate strength, above 0.5% threshold",
+    "XLF: -0.12% — financials NOT participating in the rally, breaks bullish picture",
+    "XLE: +1.33% — unusually strong premarket energy rally, suggests inflation rotation not growth risk-on",
+    "Breadth concern: SPY barely moving (+0.09%) while sectors show +0.68% to +1.33% — concentrated move, not broad",
+    "Rotation verdict: Neither clean risk-on (XLF missing) nor risk-off (both XLK and XLE up) — mixed/transition state unclear"
+  ],
+  "data_quality": "full"
+}

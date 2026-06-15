@@ -1,0 +1,24 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-02-26T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.82,
+  "reasoning": "Strong risk-on rotation confirmed by sector breadth: XLK +1.17% and XLF +1.23% both outperform SPY's +0.43%, indicating tech and financial leadership. XLE down -0.78% while growth/cyclical leadership rises = classic risk-off in defensive commodities. Tech (30% SPY weight) and financials both in positive momentum, supporting the overnight +1.39 gap up. Broad-based sector alignment suggests sustainable upside momentum.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 1.17,
+    "xlf_change_pct": 1.23,
+    "xle_change_pct": -0.78,
+    "spy_change_pct": 0.43,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +1.17% (tech leadership outperforming SPY by 0.74%) → growth momentum intact",
+    "XLF: +1.23% (financial leadership outperforming SPY by 0.80%) → yield curve support, credit confidence",
+    "XLE: -0.78% while cyclicals rise → commodities weakness, risk-on dominates defensive energy",
+    "Rotation: XLK + XLF both in positive momentum with synchronized leadership = risk-on confirmed, though narrow to tech/finance",
+    "Ribbon context: BULL stack with 87c spread supports bullish bias from internals"
+  ],
+  "data_quality": "full"
+}

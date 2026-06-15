@@ -1,0 +1,62 @@
+{
+  "date": "2026-05-13",
+  "morning_thesis": "TradingView CDP not connected at premarket — no fresh chart data available. SPY last close $738.18 (from Alpaca position data). Pre-CPI environment: CPI prints TOMORROW 2026-05-14 at 08:30 ET (HIGH severity). Markets likely to compress range or drift cautiously today as participants position ahead of the print. NO directional bias committed without chart confirmation. Heartbeat must pull fresh ribbon/VIX before any entry consideration. Key context: 200 SPY shares (legacy equity, 738C assignment residual) queued for market-sell at 09:30 ET — not a strategy position, treat as J's holding. After that sale clears, effective trading capital resets. Falsifiable predictions: [0] SPY closes a 5m bar above 738.10 before 11:00 ET, confirming bull continuation toward 738.86 (confidence 38%). [1] SPY opens below 736.13 and fails to reclaim in first 30 minutes — bear setup eligible, 733.55 as first target (confidence 32%). [2] SPY stays in $736.00–$738.50 range all session (pre-CPI compression) — no clean directional trigger fires (confidence 45%).",
+  "predictions": [
+    {
+      "prediction_idx": 0,
+      "claim": "SPY closes a 5m bar above 738.10 before 11:00 ET, confirming bull continuation toward 738.86",
+      "trigger_window": "09:30–11:00 ET",
+      "invalidation": "SPY fails to close any 5m bar above 738.10 by 11:00 ET — bias neutral to bearish",
+      "confidence": 0.38,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "10:24 ET bar closed SPY at 738.40 — above 738.10. Bull continuation followed to 743.79 HOD.",
+      "category": "level",
+      "evidence_timestamp": "10:24",
+      "graded_at": "2026-05-13T16:00:03-04:00"
+    },
+    {
+      "prediction_idx": 1,
+      "claim": "SPY opens below 736.13 and fails to reclaim in first 30 minutes — bear setup eligible, 733.55 as first target",
+      "trigger_window": "09:30–10:00 ET",
+      "invalidation": "SPY closes a 5m bar above 736.13 before 10:00 ET",
+      "confidence": 0.32,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "UNTESTED",
+      "actual": "SPY opened at $738.46 — never approached 736.13. Trigger condition (open below 736.13) never materialized.",
+      "category": "bias",
+      "evidence_timestamp": null,
+      "graded_at": "2026-05-13T16:00:03-04:00"
+    },
+    {
+      "prediction_idx": 2,
+      "claim": "SPY stays in $736.00–$738.50 range all session (pre-CPI compression) — no clean directional trigger fires",
+      "trigger_window": "09:30–15:50 ET",
+      "invalidation": "SPY closes a 5m bar outside $736.00–$738.50 with vol ≥1.5× 20-bar avg at any point before 15:00 ET",
+      "confidence": 0.45,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "Session high 743.79 — SPY broke $738.50 ceiling mid-morning and grinded to 743.79 HOD. 830-pip range day. Straight bull run from 09:45 low.",
+      "category": "bias",
+      "evidence_timestamp": "10:24",
+      "graded_at": "2026-05-13T16:00:03-04:00"
+    }
+  ],
+  "surprises": [
+    "SPY gained $5.33 on a pre-CPI day — range-compression narrative was exactly wrong; participants accumulated aggressively, not waited",
+    "J's 09:30 open-fade (736P × 5, +$443 / +115% in 18 min) captured the entire morning bear cascade (738.46→735.48) — a setup category the engine does not have",
+    "Haiku model hit usage rate-limit at 13:15 ET — 45-minute monitoring blackout with 8 open contracts; no failsafe existed",
+    "State-position tracking discrepancy: state showed 8 remaining contracts at EOD, Alpaca showed 2 — 6-contract partial-close writes missing"
+  ],
+  "lesson": "Pre-CPI tape compression is a prior, not a rule. Today the open-bar structure (gap up to 738.90 resistance cluster, immediate reversal) was the directional signal. PREMARKET_FAIL_FADE setup needed: detect open within $0.50 of resistance, first bar fails to close above it, body reverses ≥$0.20 → SHORT signal with target at nearest support. Build tonight.",
+  "tomorrow_hint": "CPI 08:30 ET HIGH — no entry until 09:45+. Watch 743.79 R / 738.10 S / 735.48 deep support",
+  "predictions_count": 3,
+  "predictions_passed": 1,
+  "predictions_partial": 0,
+  "hit_rate_passing": 0.5,
+  "specificity_weighted_hit_rate": 0.5,
+  "graded_at": "2026-05-13T16:30:00-04:00"
+}

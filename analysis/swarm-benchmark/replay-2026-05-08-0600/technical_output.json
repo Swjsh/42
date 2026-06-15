@@ -1,0 +1,22 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-08T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.82,
+  "reasoning": "CLEAN_BULL ribbon (152c spread, Fast 734.32 > Pivot 733.58 > Slow 732.80) with price trading 306c above pivot in strong premarket momentum. Last 3 bars show recovery pattern: strong green 78% body → small red doji → strong green 91% body closing at PMH. Overnight gap +3.36-5.34 points with current price holding at premarket high 736.64. VIX 17.04 MID regime stable. Minor headwind: sector rotation risk-off (Tech -33bps, Financials -44bps) but not disqualifying. All four primary bullish signals aligned (ribbon, price position, bar recovery, gap up).",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 152,
+  "bar_structure": "strong_bull",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon: Fast 734.32 > Pivot 733.58 > Slow 732.80 (152c spread) — all three EMAs in perfect bull alignment",
+    "Price 736.64 trading 306c above pivot (733.58) — well into bullish zone within first 30 minutes of premarket",
+    "Last 3 bars show recovery momentum: 05:45 strong green (78% body, +75c), 05:50 doji (small body, -8c), 05:55 strong green (91% body, +67c at PMH)",
+    "Overnight gap +3.36 points (open 734.66) to +5.34 cumulative, holding at premarket high 736.66 — strong overnight bullish sentiment intact",
+    "VIX 17.04, MID regime, flat change — normal volatility environment supports sustained momentum",
+    "Sector rotation risk-off: Tech -33bps, Financials -44bps, Energy +14bps — minor headwind but not enough to override 4 aligned bullish signals",
+    "Premarket volume moderate (15.6K–26.4K on recent bars) — sufficient for early trading but awaits RTH confirmation"
+  ],
+  "data_quality": "full"
+}

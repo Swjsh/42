@@ -1,0 +1,66 @@
+{
+  "date": "2026-03-24",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:09.592467+00:00",
+  "actual": {
+    "open": 651.32,
+    "close": 653.2,
+    "high": 657.03,
+    "low": 649.88,
+    "move_dollars": 1.88,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 88,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 657.47,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bearish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 657.47,
+      "role": "resistance",
+      "rth_range": [
+        649.88,
+        657.03
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 657.47,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "SPY tests PMH 657.47 within the first 60 min of RTH (by 10:30 ET) and gets rejected \u2014 no 5m bar clos",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains above 25.00 throughout the entire RTH session (no intraday flush below 25.00), sustaining the HIGH-regime fe",
+        "invalidation": "VIX drops below 25.00 within the first 30 min of RTH open, signaling a capitulation flush and reversing the macro bearis"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BEAR ribbon (105c spread, fast 654.74 / pivot 654.95 / slow 655.79) remains intact through the first 2 hours of RT",
+        "invalidation": "Fast EMA crosses above slow EMA OR ribbon spread compresses below 30c before 11:30 ET, indicating structural bearish mom"
+      }
+    ]
+  },
+  "narrative": "SPY enters 3/24 with a unanimous 4-of-4 bearish swarm vote \u2014 CLEAN_BEAR ribbon (105c spread), VIX 27.26 rising in HIGH regime, risk-off sector rotation (XLK \u22120.40%, XLF \u22120.87%, XLE +3.01%), and price sandwiched between PMH 657.47 (1.94 above) and prior RTH low 653.94 (1.59 below) with zero macro eve"
+}

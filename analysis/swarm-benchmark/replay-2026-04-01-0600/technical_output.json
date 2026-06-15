@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-04-01T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.75,
+  "reasoning": "CLEAN_BULL ribbon with 216c spread (excellent width) and price 74c above 20-EMA pivot — ribbon verdict is the dominant signal. Strong overnight gap-up (+$3.30, from $650.24 close to $653.54 premarket high $655.55) confirms bullish overnight sentiment. Price above all three EMAs (fast 653.1, pivot 652.8, slow 650.94). However, last 3 bars show consolidation: 05:45 green with 61c full body, followed by 05:50-05:55 small red bodies (3c doji, then 15c). This consolidation after the gap tempers conviction from 0.80+ to 0.75 — bullish structure intact but need confirmation higher at open. VIX falling 1.49% in HIGH IV regime + tech sector +2.9% add risk-on support.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 216,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon 216c spread (threshold 20c) — price 653.54 is 74c above 20-EMA pivot 652.8",
+    "Strong overnight gap-up +$3.30 from prior close $650.24; premarket high $655.55 validates bullish overnight sentiment",
+    "Last 3 closed bars: 05:45 GREEN (653.08→653.69, 61c body), 05:50 RED doji (653.70→653.67, 3c body), 05:55 RED (653.69→653.54, 15c body) — green momentum fades to consolidation",
+    "Price 653.54 above all three EMAs: fast 653.1 (+0.44c), pivot 652.8 (+0.74c), slow 650.94 (+2.60c) — confirmed bull positioning",
+    "VIX 25.06 falling (-1.49%) in HIGH IV regime suggests confidence/risk-on; XLK tech sector +2.9% provides leadership rotation"
+  ],
+  "data_quality": "full"
+}

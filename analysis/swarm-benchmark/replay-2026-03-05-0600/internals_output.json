@@ -1,0 +1,24 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-03-05T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "XLK +0.95% leading, XLF +0.33% supporting, XLE +0.23% neutral = classic risk-on rotation. Tech outperforming SPY +0.51% indicates narrow but directional breadth — growth is driving upside. All three major sectors aligned upward. VIX rising +6.09% introduces slight caution, tempering confidence from high to medium-high.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 0.95,
+    "xlf_change_pct": 0.33,
+    "xle_change_pct": 0.23,
+    "spy_change_pct": 0.51,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK +0.95%: Tech leadership clear and significant",
+    "XLF +0.33%: Financials supporting but modest",
+    "XLE +0.23%: Energy flat, not a drag",
+    "SPY +0.51%: Up, but tech is the primary driver — narrow breadth",
+    "Overall rotation: RISK-ON (all sectors positive, growth leading)"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,24 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-04-07T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.65,
+  "reasoning": "VIX at 26.45 and RISING +9.43 pct (HIGH regime) = significant macro headwind. Rising VIX typically precedes pullbacks or increased volatility. However, overnight gap up +$0.96 and bullish ribbon (BULL stack, 88¢ spread) suggest bulls have some conviction on this bounce. Conflict between macro fear (VIX) and technical setup (ribbon+gap). No major events today, clean entry windows. Macro backdrop is RISK_OFF, but amplitude/direction uncertain until open.",
+  "vix_regime": "HIGH",
+  "vix_direction": "rising",
+  "vix_current": 26.45,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 0.96,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX at 26.45, +9.43 pct change = fear building rapidly into HIGH territory",
+    "Overnight gap up +$0.96 (0.15 pct) shows modest bullish overnight sentiment, but small relative to VIX move",
+    "Ribbon bullish (BULL, 88¢ spread) creates technical floor, but VIX spike typically dominates in risk-off regimes",
+    "No macro events on calendar for 2026-04-07 — clean entry windows post-9:35 ET, but macro sentiment remains contested",
+    "Sector rotation mixed: XLE +0.96 pct (energy), XLF +0.75 pct (financials), XLK flat (tech) = defensive/commodity bid, less conviction growth"
+  ],
+  "data_quality": "full",
+  "market_state_summary": "Macro is RISK_OFF (rising VIX + HIGH regime), but technicals show resilience (bullish ribbon, small gap up). This is a contested market. Bearish bias on macro, but watch for ORB breakdown/breakdown tests — gap up + ribbon bulls could hold. Entry bias = cautious bearish with quick TP (don't hold through vol spike)."
+}

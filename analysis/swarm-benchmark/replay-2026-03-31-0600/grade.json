@@ -1,0 +1,63 @@
+{
+  "date": "2026-03-31",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:10.784864+00:00",
+  "actual": {
+    "open": 638.94,
+    "close": 650.24,
+    "high": 651.54,
+    "low": 637.98,
+    "move_dollars": 11.3,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 76,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 638.88,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "BROKE",
+      "battle_level": 638.88,
+      "role": "resistance",
+      "first_touch_time": "2026-03-31T09:30:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 638.88,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "638.88 (PMH battle level) is tested from below within the first 90 minutes of RTH open (by 11:00 ET)",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 29.0 through the first 60 minutes of RTH, sustaining the overnight IV compression and bullish macro ba",
+        "invalidation": "VIX spikes back above 29.0 within first 60 minutes of RTH open \u2014 signals overnight VIX drop was mechanical bear trap, no"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "Bull ribbon (fast EMA 637.35 > slow EMA 635.89, spread 146c) holds intact and price remains above fast EMA 637.35 throug",
+        "invalidation": "Fast EMA crosses below slow EMA (ribbon inversion) or price closes a 5-min bar below fast EMA 637.35 before 10:30 ET \u2014 s"
+      }
+    ]
+  },
+  "narrative": "The core tension on 2026-03-31 is a structurally sound bull ribbon (146c spread, clean BULL stack) plus a +$5.1 overnight gap-up set against XLK -2.87% sector deterioration and a tight 3-layer resistance cluster at 638.0 / 638.49 / 638.88 overhead. Consensus bias is bullish with strong weighted scor"
+}

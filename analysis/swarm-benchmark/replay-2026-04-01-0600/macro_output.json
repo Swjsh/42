@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-05-17T13:17:33Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "VIX at 25.06 is HIGH regime, but direction is FALLING (-1.49%) — fear receding favors bullish directional entries. Overnight gap +3.30 (0.5% bullish) + sector rotation risk_on (XLK +2.9%, SPY context +1.78% from prior session) confirm overnight confidence. No macro events scheduled for 2026-04-01. Caution: VIX premium is expensive at 25+ level; directional entries need tight stops. Confidence held to 0.72 due to elevated-but-receding fear regime.",
+  "vix_regime": "HIGH",
+  "vix_direction": "falling",
+  "vix_current": 25.06,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 3.3,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX 25.06 in HIGH regime but declining -1.49% — fear receding signal for directional upside",
+    "Significant overnight gap +3.30 (0.5% bullish) — overnight session prices in risk appetite",
+    "Sector rotation risk_on: XLK +2.9%, XLF +0.92%, broad SPY context +1.78% from prior session",
+    "Calendar clean — zero macro events on 2026-04-01, no hard no-trade windows",
+    "Ribbon BULL stack with 216c spread — technical bias agrees with macro risk_on signal"
+  ],
+  "data_quality": "full"
+}

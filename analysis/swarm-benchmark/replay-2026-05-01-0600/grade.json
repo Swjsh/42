@@ -1,0 +1,63 @@
+{
+  "date": "2026-05-01",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:15.663556+00:00",
+  "actual": {
+    "open": 721.25,
+    "close": 720.67,
+    "high": 724.87,
+    "low": 720.47,
+    "move_dollars": -0.58,
+    "actual_bias": "no_trade"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 76,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 720.94,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "ABSTAIN_ACTUAL",
+      "consensus": "bullish",
+      "actual": "no_trade"
+    },
+    "battle_level": {
+      "grade": "BROKE",
+      "battle_level": 720.94,
+      "role": "resistance",
+      "first_touch_time": "2026-05-01T09:30:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 720.94,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY tests premarket high 720.94 within the first 90 minutes of RTH (by 11:00 ET)",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 17.50 for the full RTH session, sustaining the bullish macro compression backdrop",
+        "invalidation": "VIX spikes above 17.50 within the first 60 minutes of RTH, signaling fear re-entry and regime flip"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BULL ribbon (fast 719.99 / pivot 719.85 / slow 718.97) remains intact through at least 11:00 ET, with SPY holding ",
+        "invalidation": "SPY closes a 5-minute RTH bar below pivot EMA 719.85 before 11:00 ET, breaking ribbon alignment and confirming the prema"
+      }
+    ]
+  },
+  "narrative": "Three specialists (technical, macro, level_thesis) converge on a strong bullish bias anchored by a CLEAN_BULL ribbon with 101c spread, a falling VIX at 16.58, and a clean macro calendar \u2014 but internals flagged a critical crack: XLK is flat (-0.09%) while SPY trades up +0.56%, meaning this is an ener"
+}

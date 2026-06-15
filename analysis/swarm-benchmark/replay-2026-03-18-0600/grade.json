@@ -1,0 +1,66 @@
+{
+  "date": "2026-03-18",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:08.619961+00:00",
+  "actual": {
+    "open": 668.36,
+    "close": 661.57,
+    "high": 669.72,
+    "low": 661.19,
+    "move_dollars": -6.79,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 15,
+    "consensus_strength": "moderate",
+    "battle_level": {
+      "price": 674.43,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bullish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 674.43,
+      "role": "resistance",
+      "rth_range": [
+        661.19,
+        669.72
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 674.43,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "SPY tests 674.43 resistance within the first 35 minutes of RTH (by 10:05 ET)",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains above 22.00 through 11:00 ET as FOMC positioning keeps fear elevated",
+        "invalidation": "VIX drops and holds below 22.00 by 10:00 ET"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BULL ribbon (108c spread) survives through first 60 minutes of RTH with price holding above premarket low 673.50",
+        "invalidation": "Any 5m RTH bar closes below 673.50 before 10:30 ET"
+      }
+    ]
+  },
+  "narrative": "Today's core tension is a structurally valid CLEAN_BULL ribbon (+$3.47 gap-up, 108c spread) running directly into FOMC event risk at 14:00 ET with a split 2-2 specialist vote and rising VIX \u2014 the technical picture is bullish but every confirmation mechanism (sector breadth, VIX direction, premarket "
+}

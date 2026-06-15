@@ -1,0 +1,11 @@
+{
+  "skill": "watcher-state-inspector",
+  "run_at": "2026-05-21T16:05:07",
+  "target_date": "2026-05-21",
+  "verdict": "RED",
+  "reason": "could-not-load-bars-for-date",
+  "orb_state": {},
+  "odf_state": {},
+  "watcher_obs_count_today": 955,
+  "heal_action": "no-op-bar-load-failed"
+}

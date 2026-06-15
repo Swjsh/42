@@ -1,0 +1,21 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-11T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.78,
+  "reasoning": "CLEAN_BULL ribbon with 30-cent spread, price 24 cents above 737.30 pivot. Last two bars (15:50 and 15:55 ET closes) both green with strong volume (196.5k shares on final bar), final bar up +10c. Momentum is positive — last two bars printed into market close with increasing conviction. Overnight gap flat at 737.54. Risk-on sector rotation (XLK +2.29%) confirms appetite. VIX rising slightly (+5.88%) but still MID regime, not a headwind. Carry resistance at 737.95 is 41c overhead; Active support at 734.60 is 294c below. Structure intact for bullish continuation or bounce setup.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 30,
+  "bar_structure": "strong_bull",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "CLEAN_BULL ribbon with fast (737.36) > pivot (737.30) > slow (737.06), 30c spread well above 20c threshold",
+    "Price 737.54 is 24c above pivot — bullish alignment maintained through market close",
+    "Last two consecutive bars green: 15:50 close 737.48 (+26c body, 68% body ratio), 15:55 close 737.54 (+10c body on 196,542 share volume) — momentum bars into close",
+    "Overnight gap flat (prior 737.54 = current 737.54) — neutral carrier, no overnight weakness or euphoria",
+    "Risk-on sector confirmation: XLK tech +2.29% up, rotation_signal='risk_on'",
+    "Resistance at Carry level 737.95 (41c away), Support at Active 734.60 (294c below) — room to run with defined structure"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,22 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-05-17T13:44:15Z",
+  "bias": "bullish",
+  "confidence": 0.85,
+  "reasoning": "XLK +2.3% and XLF +2.3% both outperforming SPY +1.28%, while XLE -0.89% lags. Classic risk-on rotation: tech and financials leading, energy down. Broad-based breadth confirms sustainable upside, not narrow tech-only move. Strong sector alignment supports bullish bias heading into market open.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 2.3,
+    "xlf_change_pct": 2.3,
+    "xle_change_pct": -0.89,
+    "spy_change_pct": 1.28,
+    "xlk_vs_spy": "outperform",
+    "breadth": "broad"
+  },
+  "key_observations": [
+    "XLK +2.3%: Tech leadership with 110 bps outperformance vs SPY",
+    "XLF +2.3%: Financials equally strong, reinforces broad rally, not tech-concentrated",
+    "XLE -0.89%: Energy down sharply—confirms risk-on rotation away from defensive hedges"
+  ],
+  "data_quality": "full"
+}

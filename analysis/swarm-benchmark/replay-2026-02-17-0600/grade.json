@@ -1,0 +1,63 @@
+{
+  "date": "2026-02-17",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:03.561568+00:00",
+  "actual": {
+    "open": 680.15,
+    "close": 682.76,
+    "high": 684.92,
+    "low": 675.79,
+    "move_dollars": 2.61,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 95,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 677.53,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bearish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "TESTED_MIXED",
+      "battle_level": 677.53,
+      "role": "support",
+      "first_touch_time": "2026-02-17T09:50:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 677.53,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY touches or trades through 677.53 (Carry support) at least once before 11:00 ET on 2026-02-17",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains above 20.50 through 10:00 ET \u2014 no capitulation-level reversal in the first 30 minutes of RTH \u2014 sustaining th",
+        "invalidation": "VIX drops below 20.50 before 09:35 ET, signaling that Friday's +6.84% spike was a premarket panic flush rather than mome"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BEAR ribbon structure remains intact through the first 60 minutes of RTH (10:30 ET) \u2014 SPY does not close a 5-min b",
+        "invalidation": "SPY closes a 5-min bar above 682.24 before 10:30 ET on above-average volume, inverting the ribbon structure to transitio"
+      }
+    ]
+  },
+  "narrative": "All four specialist agents voted unanimously bearish on 2026-02-17: a CLEAN_BEAR ribbon with 149-cent spread, VIX rising into HIGH regime (22.03, +6.84%), risk-off sector rotation (energy leads, tech flat), and price $4.08 above the Carry support floor at 677.53 collectively point to a put-biased se"
+}

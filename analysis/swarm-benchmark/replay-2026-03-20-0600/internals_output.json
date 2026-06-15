@@ -1,0 +1,22 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-03-20T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "Tech leadership driving premarket risk-on rotation. XLK +1.79% significantly outperforming SPY +0.43%, supported by XLE +0.83% and XLF +0.45%. All sectors aligned to the upside despite overnight -4.14 gap down, indicating sector breadth recovery into open. However, narrow tech dominance (XLK outperforming by 136bps) suggests strength may be concentrated in mega-cap growth rather than broad market participation. VIX rising +6.26% to HIGH regime adds caution against overextending bias.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 1.79,
+    "xlf_change_pct": 0.45,
+    "xle_change_pct": 0.83,
+    "spy_change_pct": 0.43,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK +1.79%: Strong tech leadership, significantly outperforming SPY",
+    "XLF +0.45% + XLE +0.83%: Sector participation confirms risk-on, but muted relative to tech",
+    "Overall rotation: Clear risk-on from gap-down recovery with all sectors positive; narrow tech-led move"
+  ],
+  "data_quality": "full"
+}

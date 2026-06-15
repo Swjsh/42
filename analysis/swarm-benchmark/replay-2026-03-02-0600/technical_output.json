@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-03-02T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.65,
+  "reasoning": "CLEAN_BULL ribbon (52c spread, fast > pivot > slow) with strong prior bar structure (3 consecutive green bars from 15:45-15:55 with 28-35% bodies). However, overnight sentiment is mixed: gap down $1.18 from 686.16 close into 684.98 current (bearish overnight), and VIX rising sharply +8.41% into 21.52 (risk-off tone). Current price sits 5c below pivot (685.03), marginal bearish tick. Ribbon structure + bar strength override overnight weakness, but conviction is moderate due to gap direction and volatility surge.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 52,
+  "bar_structure": "strong_bull",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "Ribbon stack BULL with 52c spread (fast 685.24 > pivot 685.03 > slow 684.72)",
+    "Last 3 real bars (15:45, 15:50, 15:55 ET) all green with 28-35% bodies — strong continuation setup",
+    "Overnight gap down $1.18 from prior close 686.16 to current 684.98 — session opened in weakness",
+    "VIX rising +8.41% to 21.52 (MID regime) — volatility expanding into open, risk-off creeping",
+    "Current price 684.98 sits 5 cents below pivot 685.03 — marginal bearish tick, test of EMA floor imminent"
+  ],
+  "data_quality": "full"
+}

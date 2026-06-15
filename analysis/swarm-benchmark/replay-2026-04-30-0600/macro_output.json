@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-04-30T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.75,
+  "reasoning": "VIX at 18.08 and FALLING (-1.53%) within MID regime signals fear receding and bullish tailwind for calls. No macro events fire today — clear RTH window 09:30-15:55 ET. Overnight gap flat (+$0.26, negligible) means open unbiased. BULL ribbon stack (fast 711.79 / pivot 711.62 / slow 711.16, 63-cent spread) structurally supportive. Mixed sector rotation (XLE +1.29%, XLF -0.4%) provides no headwind. Risk-on backdrop favors directional setups into RTH.",
+  "vix_regime": "MID",
+  "vix_direction": "falling",
+  "vix_current": 18.08,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": 0.26,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX falling 1.53% to 18.08 — fear receding, premium compression tailwind for long calls",
+    "Zero macro events on 2026-04-30 calendar — full RTH window, no hard blocks",
+    "Overnight gap flat (0.26¢ negligible) — no directional overnight pressure, open bias neutral",
+    "BULL ribbon (fast 711.79, pivot 711.62, slow 711.16) with healthy 63¢ spread — structural upside bias",
+    "Sector rotation mixed (XLE +1.29% energy support, XLF -0.4% financials slight pressure) — no clear sectoral headwind"
+  ],
+  "data_quality": "full"
+}

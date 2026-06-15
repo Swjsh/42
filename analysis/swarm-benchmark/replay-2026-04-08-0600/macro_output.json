@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-04-08T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.85,
+  "reasoning": "VIX at 20.82 (MID regime) is falling sharply (−19.95%), a textbook bullish compression signal. Overnight gap of +2.63% (+$17.34) signals strong risk-on sentiment. All four sectors (XLK, XLF, XLE, SPY) up overnight; ribbon shows BULL stack with wide 724c spread. No macro events or earnings catalysts today create uncertainty. Perfect alignment: VIX receding, gap up, sector rotation bullish, no event risk before open.",
+  "vix_regime": "MID",
+  "vix_direction": "falling",
+  "vix_current": 20.82,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 17.34,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX down 19.95% overnight (from ~26.0 to 20.82), indicating fear reversion and compression. This strongly favors long premium and bullish directional trades.",
+    "SPY overnight gap +$17.34 (+2.63% vs prior 659.26 close), signal-rich bullish move. Premarket already challenged PMH 677.45.",
+    "All overnight sectors up: XLK +0.93%, XLF +0.52%, XLE +0.59%. Rotation signal confirms risk-on environment, not sector-specific strength.",
+    "Ribbon status BULL with spread 724 cents (very wide); 5m bars showing tight doji range 675.74–676.97 during premarket chop (volume=0), suggesting gathering momentum before open.",
+    "Macro calendar empty: zero events, zero earnings today. No scheduled catalysts to derail the risk-on bid. Clean setup."
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-04-21T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "VIX at 19.13, MID regime, rising +1.22% (modest +0.22pt change, not rapid). Overnight gap +$2.21 up is strong bullish signal. BULL ribbon stack with 86¢ spread confirms bullish structure. No macro events today — green for trading. The modest VIX rise is a caution flag but insufficient to override overnight risk-on sentiment + structure confirmation. Mixed sector rotation (XLF +0.55%, others flat) adds moderate uncertainty to conviction.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 19.13,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 2.21,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX at 19.13 in MID regime (15-22 range); rising but modestly (+0.22 pts, +1.22%)",
+    "Overnight gap +$2.21 — significant bullish overnight sentiment, premarket high 710.92 already testing above prior close 708.69",
+    "BULL ribbon stack (fast 710.27, pivot 710.09, slow 709.42) with 86¢ spread — healthy bullish structure",
+    "Zero macro events scheduled for 2026-04-21 — no FOMC, CPI, NFP, or earnings today; next FOMC 2026-04-29 (8 days out)",
+    "Sector rotation mixed: XLF up 0.55% (strength), XLK/XLE/SPY flat (no clear conviction in direction)"
+  ],
+  "data_quality": "full"
+}

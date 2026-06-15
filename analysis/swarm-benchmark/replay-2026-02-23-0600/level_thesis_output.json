@@ -1,0 +1,96 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-02-23T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.78,
+  "reasoning": "SPY at 689.29, nested on top of a BULL ribbon stack (fast 688.84, pivot 688.7, slow 688.08) with only $0.77 to the immediate resistance at 690.06 (5-day Carry high, 2★). Price is above all moving averages and gap-flat overnight, positioning it for an early test of the 690.06 barrier. If that level holds, risk/reward favors continuation toward 691-694 round numbers. If it breaks, a new swing high is implied with 695.32 (R2 pivot) as the next confluent target. The only meaningful floor below is the fast EMA at 688.84 (~45¢ down), then the round-number zone (687-688) before Active support at 681.87. Sectors risk-on (XLK +1.21%, XLF +0.86%) and VIX rising but still MID regime confirms the setup.",
+  "battle_level": {
+    "price": 690.06,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 690.06,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.77
+    },
+    {
+      "price": 688.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 1.29
+    },
+    {
+      "price": 687.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 2.29
+    },
+    {
+      "price": 681.87,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 4,
+      "distance_from_price": 7.42
+    },
+    {
+      "price": 675.79,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": 13.50
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 690.06 on first touch",
+      "bias": "bullish",
+      "target": 695.32,
+      "entry_trigger": "level_reclaim + ribbon_stack_bull"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 690.06 convincingly",
+      "bias": "bullish_extended",
+      "target": 700.0,
+      "entry_trigger": "break_of_5d_high + risk_on_rotation"
+    },
+    "counter": {
+      "condition": "if SPY fails below 688.84 (fast EMA) on retrace",
+      "bias": "bearish_pullback",
+      "target": 681.87,
+      "entry_trigger": "ribbon_inversion + gap_fill"
+    }
+  },
+  "levels_in_play_count": 3,
+  "key_observations": [
+    "Battle level 690.06 is only $0.77 away — immediate test likely in early session.",
+    "BULL ribbon stack with $0.77 spread provides structural support; price is above all EMAs.",
+    "Overnight gap flat (−$0.15) with no premarket bars yet — setup is fresh and clean.",
+    "Risk-on rotation (XLK/XLF leading) supports continued strength through 690.06.",
+    "Only 1 Carry level + 3 Reference support levels in play; limited downside structure until 681.87.",
+    "VIX rising (+12.53%) but MID regime suggests IV expansion on an otherwise normal day."
+  ],
+  "data_quality": "full"
+}

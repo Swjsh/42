@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-31T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "VIX at 27.37 (HIGH regime) but falling sharply (-9.88% overnight) signals fear unwinding and bullish compression. No macro events today clears the runway entirely. Strong overnight gap up +5.1 ($632.0 → $637.1) reflects significant bullish overnight sentiment; premarket has already pushed to 638.88 high (+$6.88 from prior close). Ribbon is BULL stack with 146-cent spread, aligned with directional momentum. Confidence moderates from 0.80+ due to VIX still in absolute HIGH territory (27.37) and mixed sector rotation (tech/energy showing weakness), but direction is unambiguously bullish.",
+  "vix_regime": "HIGH",
+  "vix_direction": "falling",
+  "vix_current": 27.37,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 5.1,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX fallen 9.88% overnight (fear unwinding) — strong bullish signal despite still-elevated absolute level",
+    "Zero macro events scheduled for 2026-03-31 — clear runway for directional trades all session",
+    "Significant overnight gap up +5.1 ($5 move = +0.79%) with premarket high at 638.88 (+1.09% from prior close) confirms bullish overnight sentiment",
+    "Ribbon BULL stack with healthy 146-cent spread aligns with gap-up momentum; ribbon spread ≥ 146¢ = tradeable directional structure",
+    "Mixed sector rotation (XLK -2.87%, XLE -1.85% from prior close) suggests some rotation out of high-beta tech, but financials (XLF) stable (+0.27%) — no crash signal"
+  ],
+  "data_quality": "full"
+}

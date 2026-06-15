@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-04-20T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.65,
+  "reasoning": "SPY at 706.88, sandwiched between premarket low 706.71 and premarket high 707.13 in an extremely tight $0.42 overnight range. BEAR ribbon inversion (spread 126¢) + rising VIX (+7.54%) + gap-down overnight (-$3.17) signal bearish lean despite the price trap. Battle level is 706.71 (premarket low, Active support) — the first defense. If it holds on test from above, price could target 708-709. If it breaks, next support is 705.76, then 705.0. Carry resistance 712.39 is $5.51 above, requiring ribbon reclaim for a bullish failure.",
+  "battle_level": {
+    "price": 706.71,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 706.71,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 1,
+      "distance_from_price": -0.17
+    },
+    {
+      "price": 707.13,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 0.25
+    },
+    {
+      "price": 705.76,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": -1.12
+    },
+    {
+      "price": 708.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 1.12
+    },
+    {
+      "price": 712.39,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": 5.51
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 706.71 on first retest",
+      "bias": "bullish",
+      "target": 708.00,
+      "entry_trigger": "support_hold + early_buyers_defend_gap"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 706.71 (PMH fails to reclaim)",
+      "bias": "bearish",
+      "target": 705.76,
+      "entry_trigger": "support_break + momentum_confirm"
+    },
+    "tertiary": {
+      "condition": "if SPY breaks above 708 and ribbon reclaims (fast EMA > slow)",
+      "bias": "bullish",
+      "target": 712.39,
+      "entry_trigger": "resistance_break + ribbon_stack_bull"
+    }
+  },
+  "levels_in_play_count": 8,
+  "key_observations": [
+    "Overnight action trapped in a $0.42 range (706.71 to 707.13) — today's first battle will be: can bulls defend PMH, or does price flush toward PML?",
+    "BEAR ribbon stack + rising VIX create a bearish undertone; if early sellers overwhelm overnight buyers, 706.71 will be tested sharply on open",
+    "If 706.71 gives way, 705.76 (yesterday's RTH low, Active tier) is the next line of defense; a break below that reaches the 705.0 round-number floor",
+    "Carry resistance 712.39 is $5.51 above — only accessible if price clears 708-709 AND ribbon reverses to bull stack",
+    "Reference S1 pivot (706.41) is $0.47 below current price; it may provide micro-support on any early dip"
+  ],
+  "data_quality": "full"
+}

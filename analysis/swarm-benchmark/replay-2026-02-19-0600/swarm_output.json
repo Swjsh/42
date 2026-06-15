@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-02-19T11:20:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["internals"],
+    "bearish": ["technical", "macro", "level_thesis"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 1,
+    "bearish": 3,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.10,
+    "bearish": 0.90
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 95,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["internals"],
+    "dissent_reason": "Internals agent (0.68 confidence, highest of all agents) notes XLK +0.61% tech leadership with all major sectors positive (XLF +0.46%, XLE +0.46%), arguing that broad risk-on sector rotation alongside rising VIX signals conviction buying or short-covering rather than distribution — a bullish counter-narrative the three bearish specialists systematically underweight."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "VIX +2.71% is being interpreted as risk-off while sectors are simultaneously rallying +0.3-0.6% — this mixed signal is forced into a bearish narrative; rising VIX paired with broad sector strength is more consistent with conviction buying or short-covering than panic selling.",
+    "top_invalidation_scenario": "SPY tests and closes above 689.14 on the first approach (within first 45 min of RTH) with ribbon spread tightening to <35c — activates the secondary bullish scenario to Carry 697.08."
+  },
+  "battle_level": {
+    "price": 689.14,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 689.14,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 682.87,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 687.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 685.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 684.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY rallies to 689.14 and produces a rejection candle with ribbon spread ≥30c intact",
+      "bias": "bearish",
+      "target": 682.87,
+      "entry_trigger": "reversal candle at 689.14 + fast EMA cross below pivot + vol ≥ 1.5× 20-bar avg"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 689.14 on strong vol (≥2× 20-bar avg) and ribbon spread tightens below 35c",
+      "bias": "bullish",
+      "target": 697.08,
+      "entry_trigger": "close above 689.14 + ribbon bullish flip (spread ≥30c + stack inverts to BULL) + OBV confirmation"
+    },
+    "invalidation": {
+      "condition": "SPY tests and closes above 689.14 within first 45 minutes of RTH AND ribbon spread tightens to <35c on the same bar",
+      "effect": "Bearish consensus collapses entirely — the 689.14 resistance barrier breaks on early sector momentum, activating the gap-up target to Carry 697.08; bears caught short near 689 face a squeeze to 697."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "689.14 (Active 2★ resistance) is tested within the first 90 minutes of RTH and rejected — SPY fails to close above 689.14 on the first approach, producing a reversal candle with body ≥ 50c below the level.",
+      "invalidation": "SPY closes above 689.14 on the first test (any 5m bar closes ≥ 689.25) before 11:00 ET.",
+      "confidence": 0.62,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX sustains at or above 20.00 through 12:00 ET, confirming that volatility creep is not transient — rising VIX caps any SPY rally below 689.14 and supports the bearish bias.",
+      "invalidation": "VIX drops below 19.50 before noon ET, suggesting the overnight volatility spike was a fade rather than a structural shift.",
+      "confidence": 0.55,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BEAR ribbon maintains spread ≥ 35c and full bear stack (slow > pivot > fast) through the first 60 minutes of RTH (through at least 10:30 ET), confirming the structural bearish context.",
+      "invalidation": "Ribbon spread tightens below 35c OR stack inverts to BULL (fast > pivot) on any 5m bar before 10:30 ET.",
+      "confidence": 0.60,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "SPY opens at 686.19 with a CLEAN_BEAR ribbon (52c spread, slow 686.18 > pivot 685.72 > fast 685.66) and a flat overnight gap, sandwiched between Active support 682.87 and Active resistance 689.14 — a boundary-test day where the first directional move defines the session. The 3-of-4 weighted bearish consensus (score 0.90) is strong on structure: ribbon superiority, high-volume close rejection, and VIX rising to 20.09 all favor the rejection trade at 689.14 targeting 682.87, though the validator correctly flags that rising VIX alongside broad risk-on sector strength (XLK +0.61%) is a mixed signal, not clean risk-off. The single most important thing to watch at market open: how SPY reacts at 689.14 on first contact — a reversal candle with vol ≥ 1.5× the 20-bar average confirms the primary bearish case, while a close above with ribbon tightening flips the entire narrative to the 697.08 Carry target.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.62,
+      "one_line": "CLEAN_BEAR ribbon 52c spread + high-volume red rejection bar (188k, -83c) at 15:55 close signals buyer exhaustion; VIX +2.71% confirms risk-off pressure."
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.58,
+      "one_line": "VIX MID regime rising to 20.09 (+2.71%), zero macro events, flat overnight gap — volatility creep favors bearish lean despite risk-on sector backdrop."
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.62,
+      "one_line": "689.14 Active 2★ resistance is the battle level; rejection there targets 682.87 support; ribbon ceiling at 686.18 is the immediate bear defense."
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "Risk-on rotation with XLK +0.61% (exceeds 0.5% threshold) leading XLF +0.46% and XLE +0.46% — all sectors aligned, highest confidence of all agents."
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "SPY closes above 689.14 in first 45 min with ribbon tightening <35c — activates bullish gap-up to 697.08 Carry, squeezes bears caught short near the high."
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

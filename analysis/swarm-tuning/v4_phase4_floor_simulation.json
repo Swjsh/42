@@ -1,0 +1,530 @@
+{
+  "simulation": "v4 Phase 4 \u2014 low-bucket floor",
+  "n_days": 55,
+  "problem": "v4_combined ECE = 15.80% due to 16 low-bucket days (62.5% acc vs 15.5% exp = 13.67pp ECE)",
+  "fix": "floor conf >= ws * mult * floor_fraction, preventing over-penalty on UNTESTED/weak-val/high-event days",
+  "best_floor_fraction": 0.8,
+  "best_ece_pct": 13.95,
+  "best_improvement_vs_v2_pp": 7.72,
+  "target_met_10pct": false,
+  "n_floor_applied_best": 17,
+  "pct_floor_applied_best": 30.9,
+  "all_floor_results": {
+    "0.5": {
+      "floor_fraction": 0.5,
+      "ece_v4_pct": 15.49,
+      "ece_v2_pct": 21.67,
+      "improvement_pp": 6.18,
+      "n_floor_applied": 13,
+      "pct_floor_applied": 23.6,
+      "bucket_detail": {
+        "v2": {
+          "low": {
+            "n": 11,
+            "acc": 0.4545,
+            "exp_conf": 0.2473,
+            "gap": 0.2073,
+            "ece_contrib_pct": 4.15
+          },
+          "medium": {
+            "n": 4,
+            "acc": 1.0,
+            "exp_conf": 0.53,
+            "gap": 0.47,
+            "ece_contrib_pct": 3.42
+          },
+          "high": {
+            "n": 8,
+            "acc": 0.625,
+            "exp_conf": 0.6487,
+            "gap": -0.0237,
+            "ece_contrib_pct": 0.35
+          },
+          "very_high": {
+            "n": 22,
+            "acc": 0.5909,
+            "exp_conf": 0.8209,
+            "gap": -0.23,
+            "ece_contrib_pct": 9.2
+          },
+          "max": {
+            "n": 10,
+            "acc": 0.7,
+            "exp_conf": 0.95,
+            "gap": -0.25,
+            "ece_contrib_pct": 4.55
+          }
+        },
+        "v4_phase4": {
+          "low": {
+            "n": 16,
+            "acc": 0.625,
+            "exp_conf": 0.1656,
+            "gap": 0.4594,
+            "ece_contrib_pct": 13.36
+          },
+          "medium": {
+            "n": 10,
+            "acc": 0.5,
+            "exp_conf": 0.518,
+            "gap": -0.018,
+            "ece_contrib_pct": 0.33
+          },
+          "high": {
+            "n": 21,
+            "acc": 0.619,
+            "exp_conf": 0.6548,
+            "gap": -0.0357,
+            "ece_contrib_pct": 1.36
+          },
+          "very_high": {
+            "n": 8,
+            "acc": 0.75,
+            "exp_conf": 0.78,
+            "gap": -0.03,
+            "ece_contrib_pct": 0.44
+          },
+          "max": {
+            "n": 0,
+            "acc": null,
+            "exp_conf": null,
+            "gap": null,
+            "ece_contrib_pct": 0
+          }
+        }
+      }
+    },
+    "0.6": {
+      "floor_fraction": 0.6,
+      "ece_v4_pct": 15.04,
+      "ece_v2_pct": 21.67,
+      "improvement_pp": 6.63,
+      "n_floor_applied": 13,
+      "pct_floor_applied": 23.6,
+      "bucket_detail": {
+        "v2": {
+          "low": {
+            "n": 11,
+            "acc": 0.4545,
+            "exp_conf": 0.2473,
+            "gap": 0.2073,
+            "ece_contrib_pct": 4.15
+          },
+          "medium": {
+            "n": 4,
+            "acc": 1.0,
+            "exp_conf": 0.53,
+            "gap": 0.47,
+            "ece_contrib_pct": 3.42
+          },
+          "high": {
+            "n": 8,
+            "acc": 0.625,
+            "exp_conf": 0.6487,
+            "gap": -0.0237,
+            "ece_contrib_pct": 0.35
+          },
+          "very_high": {
+            "n": 22,
+            "acc": 0.5909,
+            "exp_conf": 0.8209,
+            "gap": -0.23,
+            "ece_contrib_pct": 9.2
+          },
+          "max": {
+            "n": 10,
+            "acc": 0.7,
+            "exp_conf": 0.95,
+            "gap": -0.25,
+            "ece_contrib_pct": 4.55
+          }
+        },
+        "v4_phase4": {
+          "low": {
+            "n": 16,
+            "acc": 0.625,
+            "exp_conf": 0.1812,
+            "gap": 0.4437,
+            "ece_contrib_pct": 12.91
+          },
+          "medium": {
+            "n": 10,
+            "acc": 0.5,
+            "exp_conf": 0.518,
+            "gap": -0.018,
+            "ece_contrib_pct": 0.33
+          },
+          "high": {
+            "n": 21,
+            "acc": 0.619,
+            "exp_conf": 0.6548,
+            "gap": -0.0357,
+            "ece_contrib_pct": 1.36
+          },
+          "very_high": {
+            "n": 8,
+            "acc": 0.75,
+            "exp_conf": 0.78,
+            "gap": -0.03,
+            "ece_contrib_pct": 0.44
+          },
+          "max": {
+            "n": 0,
+            "acc": null,
+            "exp_conf": null,
+            "gap": null,
+            "ece_contrib_pct": 0
+          }
+        }
+      }
+    },
+    "0.65": {
+      "floor_fraction": 0.65,
+      "ece_v4_pct": 14.78,
+      "ece_v2_pct": 21.67,
+      "improvement_pp": 6.89,
+      "n_floor_applied": 13,
+      "pct_floor_applied": 23.6,
+      "bucket_detail": {
+        "v2": {
+          "low": {
+            "n": 11,
+            "acc": 0.4545,
+            "exp_conf": 0.2473,
+            "gap": 0.2073,
+            "ece_contrib_pct": 4.15
+          },
+          "medium": {
+            "n": 4,
+            "acc": 1.0,
+            "exp_conf": 0.53,
+            "gap": 0.47,
+            "ece_contrib_pct": 3.42
+          },
+          "high": {
+            "n": 8,
+            "acc": 0.625,
+            "exp_conf": 0.6487,
+            "gap": -0.0237,
+            "ece_contrib_pct": 0.35
+          },
+          "very_high": {
+            "n": 22,
+            "acc": 0.5909,
+            "exp_conf": 0.8209,
+            "gap": -0.23,
+            "ece_contrib_pct": 9.2
+          },
+          "max": {
+            "n": 10,
+            "acc": 0.7,
+            "exp_conf": 0.95,
+            "gap": -0.25,
+            "ece_contrib_pct": 4.55
+          }
+        },
+        "v4_phase4": {
+          "low": {
+            "n": 16,
+            "acc": 0.625,
+            "exp_conf": 0.19,
+            "gap": 0.435,
+            "ece_contrib_pct": 12.65
+          },
+          "medium": {
+            "n": 10,
+            "acc": 0.5,
+            "exp_conf": 0.518,
+            "gap": -0.018,
+            "ece_contrib_pct": 0.33
+          },
+          "high": {
+            "n": 21,
+            "acc": 0.619,
+            "exp_conf": 0.6548,
+            "gap": -0.0357,
+            "ece_contrib_pct": 1.36
+          },
+          "very_high": {
+            "n": 8,
+            "acc": 0.75,
+            "exp_conf": 0.78,
+            "gap": -0.03,
+            "ece_contrib_pct": 0.44
+          },
+          "max": {
+            "n": 0,
+            "acc": null,
+            "exp_conf": null,
+            "gap": null,
+            "ece_contrib_pct": 0
+          }
+        }
+      }
+    },
+    "0.7": {
+      "floor_fraction": 0.7,
+      "ece_v4_pct": 14.53,
+      "ece_v2_pct": 21.67,
+      "improvement_pp": 7.14,
+      "n_floor_applied": 14,
+      "pct_floor_applied": 25.5,
+      "bucket_detail": {
+        "v2": {
+          "low": {
+            "n": 11,
+            "acc": 0.4545,
+            "exp_conf": 0.2473,
+            "gap": 0.2073,
+            "ece_contrib_pct": 4.15
+          },
+          "medium": {
+            "n": 4,
+            "acc": 1.0,
+            "exp_conf": 0.53,
+            "gap": 0.47,
+            "ece_contrib_pct": 3.42
+          },
+          "high": {
+            "n": 8,
+            "acc": 0.625,
+            "exp_conf": 0.6487,
+            "gap": -0.0237,
+            "ece_contrib_pct": 0.35
+          },
+          "very_high": {
+            "n": 22,
+            "acc": 0.5909,
+            "exp_conf": 0.8209,
+            "gap": -0.23,
+            "ece_contrib_pct": 9.2
+          },
+          "max": {
+            "n": 10,
+            "acc": 0.7,
+            "exp_conf": 0.95,
+            "gap": -0.25,
+            "ece_contrib_pct": 4.55
+          }
+        },
+        "v4_phase4": {
+          "low": {
+            "n": 16,
+            "acc": 0.625,
+            "exp_conf": 0.1988,
+            "gap": 0.4263,
+            "ece_contrib_pct": 12.4
+          },
+          "medium": {
+            "n": 10,
+            "acc": 0.5,
+            "exp_conf": 0.518,
+            "gap": -0.018,
+            "ece_contrib_pct": 0.33
+          },
+          "high": {
+            "n": 21,
+            "acc": 0.619,
+            "exp_conf": 0.6548,
+            "gap": -0.0357,
+            "ece_contrib_pct": 1.36
+          },
+          "very_high": {
+            "n": 8,
+            "acc": 0.75,
+            "exp_conf": 0.78,
+            "gap": -0.03,
+            "ece_contrib_pct": 0.44
+          },
+          "max": {
+            "n": 0,
+            "acc": null,
+            "exp_conf": null,
+            "gap": null,
+            "ece_contrib_pct": 0
+          }
+        }
+      }
+    },
+    "0.75": {
+      "floor_fraction": 0.75,
+      "ece_v4_pct": 14.2,
+      "ece_v2_pct": 21.67,
+      "improvement_pp": 7.47,
+      "n_floor_applied": 14,
+      "pct_floor_applied": 25.5,
+      "bucket_detail": {
+        "v2": {
+          "low": {
+            "n": 11,
+            "acc": 0.4545,
+            "exp_conf": 0.2473,
+            "gap": 0.2073,
+            "ece_contrib_pct": 4.15
+          },
+          "medium": {
+            "n": 4,
+            "acc": 1.0,
+            "exp_conf": 0.53,
+            "gap": 0.47,
+            "ece_contrib_pct": 3.42
+          },
+          "high": {
+            "n": 8,
+            "acc": 0.625,
+            "exp_conf": 0.6487,
+            "gap": -0.0237,
+            "ece_contrib_pct": 0.35
+          },
+          "very_high": {
+            "n": 22,
+            "acc": 0.5909,
+            "exp_conf": 0.8209,
+            "gap": -0.23,
+            "ece_contrib_pct": 9.2
+          },
+          "max": {
+            "n": 10,
+            "acc": 0.7,
+            "exp_conf": 0.95,
+            "gap": -0.25,
+            "ece_contrib_pct": 4.55
+          }
+        },
+        "v4_phase4": {
+          "low": {
+            "n": 16,
+            "acc": 0.625,
+            "exp_conf": 0.21,
+            "gap": 0.415,
+            "ece_contrib_pct": 12.07
+          },
+          "medium": {
+            "n": 10,
+            "acc": 0.5,
+            "exp_conf": 0.518,
+            "gap": -0.018,
+            "ece_contrib_pct": 0.33
+          },
+          "high": {
+            "n": 21,
+            "acc": 0.619,
+            "exp_conf": 0.6548,
+            "gap": -0.0357,
+            "ece_contrib_pct": 1.36
+          },
+          "very_high": {
+            "n": 8,
+            "acc": 0.75,
+            "exp_conf": 0.78,
+            "gap": -0.03,
+            "ece_contrib_pct": 0.44
+          },
+          "max": {
+            "n": 0,
+            "acc": null,
+            "exp_conf": null,
+            "gap": null,
+            "ece_contrib_pct": 0
+          }
+        }
+      }
+    },
+    "0.8": {
+      "floor_fraction": 0.8,
+      "ece_v4_pct": 13.95,
+      "ece_v2_pct": 21.67,
+      "improvement_pp": 7.72,
+      "n_floor_applied": 17,
+      "pct_floor_applied": 30.9,
+      "bucket_detail": {
+        "v2": {
+          "low": {
+            "n": 11,
+            "acc": 0.4545,
+            "exp_conf": 0.2473,
+            "gap": 0.2073,
+            "ece_contrib_pct": 4.15
+          },
+          "medium": {
+            "n": 4,
+            "acc": 1.0,
+            "exp_conf": 0.53,
+            "gap": 0.47,
+            "ece_contrib_pct": 3.42
+          },
+          "high": {
+            "n": 8,
+            "acc": 0.625,
+            "exp_conf": 0.6487,
+            "gap": -0.0237,
+            "ece_contrib_pct": 0.35
+          },
+          "very_high": {
+            "n": 22,
+            "acc": 0.5909,
+            "exp_conf": 0.8209,
+            "gap": -0.23,
+            "ece_contrib_pct": 9.2
+          },
+          "max": {
+            "n": 10,
+            "acc": 0.7,
+            "exp_conf": 0.95,
+            "gap": -0.25,
+            "ece_contrib_pct": 4.55
+          }
+        },
+        "v4_phase4": {
+          "low": {
+            "n": 16,
+            "acc": 0.625,
+            "exp_conf": 0.2225,
+            "gap": 0.4025,
+            "ece_contrib_pct": 11.71
+          },
+          "medium": {
+            "n": 10,
+            "acc": 0.5,
+            "exp_conf": 0.524,
+            "gap": -0.024,
+            "ece_contrib_pct": 0.44
+          },
+          "high": {
+            "n": 21,
+            "acc": 0.619,
+            "exp_conf": 0.6548,
+            "gap": -0.0357,
+            "ece_contrib_pct": 1.36
+          },
+          "very_high": {
+            "n": 8,
+            "acc": 0.75,
+            "exp_conf": 0.78,
+            "gap": -0.03,
+            "ece_contrib_pct": 0.44
+          },
+          "max": {
+            "n": 0,
+            "acc": null,
+            "exp_conf": null,
+            "gap": null,
+            "ece_contrib_pct": 0
+          }
+        }
+      }
+    }
+  },
+  "no_trade_approach": {
+    "description": "Output NO_TRADE when post-adjustment conf < 40, instead of low-confidence direction",
+    "n_signal_days": 39,
+    "n_notrade_days": 16,
+    "ece_signal_days_pct": 3.0,
+    "notrade_day_accuracy": 0.625,
+    "notrade_days_correct": 10,
+    "target_met_10pct": true,
+    "recommendation": "PREFERRED over floor approach. ECE = 3.00% (target 10%) vs floor best 13.95%. Add to synthesis_agent-v4-draft.md: if post-adjustment confidence < 40 -> output no_trade.",
+    "notrade_characteristics": "Primarily: specialist_agreement=2 (-10pp) PLUS at least one of UNTESTED (-15pp), weak_validator (-15pp), high_event_risk (-20pp). Natural abstain signal: only 2 specialists agree AND battle level untested in RTH."
+  },
+  "summary": "Phase 4 analysis complete. Floor approach (best=0.80): ECE=13.95% (-7.72pp vs v2). NO_TRADE approach (conf<40 -> abstain): ECE=3.00% on 39/55 days (target MET). Recommendation: add NO_TRADE rule to synthesis_agent-v4-draft.md. NO_TRADE days (n=16) are 62.5% correct -- acceptable abstain (coherent uncertainty: agree=2 + UNTESTED/weak)."
+}

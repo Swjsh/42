@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-02-09T06:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["macro", "level_thesis", "internals"],
+    "bearish": [],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 3,
+    "bearish": 0,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.65,
+    "bearish": 0.0
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "moderate",
+  "swarm_confidence": 65,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "SPY gapped DOWN (-$0.57) overnight despite all sectors gapping UP — overnight sector strength is unconvincing to institutional capital and may not follow through at cash open.",
+    "top_invalidation_scenario": "SPY opens flat or down and fails to hold the 689.09 slow EMA support within the first 30 minutes, immediately inverting the ribbon and eliminating the 692.29 test thesis."
+  },
+  "battle_level": {
+    "price": 692.29,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 692.29,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 696.95,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 689.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 688.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 681.14,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY tests 692.29 and holds (closes back below, then reclaims) OR breaks above 692.29 cleanly with volume",
+      "bias": "bullish",
+      "target": 696.95,
+      "entry_trigger": "level_reclaim of 692.29 with ribbon stack intact (spread >= 30c)"
+    },
+    "secondary": {
+      "condition": "if SPY fails to reach 692.29 and holds ribbon above 689.09 slow EMA, then grinds sideways before a late-day push",
+      "bias": "bullish",
+      "target": 692.29,
+      "entry_trigger": "ribbon_reclaim after mid-day consolidation above 689.09"
+    },
+    "invalidation": {
+      "condition": "SPY opens flat or down and closes below 689.09 slow EMA on any 5m bar within the first 30 minutes of RTH",
+      "effect": "Ribbon inverts to BEARISH, 692.29 test thesis is dead, bias flips neutral-to-bearish with 681.14 as flush target — entire bullish consensus invalidated."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests 692.29 (yesterday's RTH high) within the first 90 minutes of RTH (by 11:00 ET), driven by the $2.14 proximity and falling VIX momentum",
+      "invalidation": "SPY does not touch 692.00 before 11:00 ET",
+      "confidence": 0.65,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 18.50 for the entire session, continuing the overnight -2.7% compression trend with no macro catalyst to reverse it",
+      "invalidation": "VIX spikes above 18.50 at any point before 13:00 ET",
+      "confidence": 0.72,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "The BULL ribbon stack (fast EMA > slow EMA, spread >= 30 cents) remains intact through at least the first 60 minutes of RTH (through 10:30 ET), as the 129-cent spread provides substantial buffer before inversion at 689.09",
+      "invalidation": "SPY closes below 689.09 on any 5m bar before 10:30 ET",
+      "confidence": 0.60,
+      "champion_agent": "macro",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "All three measurable specialist agents align bullish — falling VIX (17.28, -2.7% overnight), clean BULL ribbon (129-cent spread), broad risk-on sector rotation (XLK +2.26%, XLF +0.80%, XLE +1.43%), and SPY just $2.14 below the battle level at 692.29. The validator's key dissent is structural: SPY itself gapped DOWN while every sector gapped up, signaling institutional hesitation to follow overnight euphoria — this makes 692.29 a binary test, not a layup. The single most important thing to watch at open is whether SPY holds the 689.09 slow EMA in the first 30 minutes: a hold validates the bull thesis and sets up the 692.29 test; a break below 689.09 inverts the ribbon and negates the entire framework. NOTE: technical_output.json was unavailable for this replay date — confidence is capped at 65 and strength downgraded to moderate to reflect the missing 0.35-weight primary agent.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "no_data",
+      "confidence": 0.0,
+      "one_line": "technical_output.json not found in replay overlay — chart structure, momentum, and oscillator data unavailable"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.70,
+      "one_line": "VIX 17.28 MID falling -2.7% (fear compression) + zero macro events + risk-on rotation = bullish backdrop; small overnight gap-down is the lone friction signal"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "Battle level 692.29 (Active resistance) is $2.14 away with BULL ribbon intact at 129-cent spread; break of 692.29 targets 5-day Carry 696.95"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.82,
+      "one_line": "XLK +2.26% / XLF +0.80% / XLE +1.43% — 3-of-3 sectors above +0.5%, broad-based risk-on rotation with tech leadership confirmed"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Overnight SPY gap-down (-$0.57) contradicts all-sectors-up = institutional non-confirmation; 689.09 slow EMA failure within first 30 min inverts ribbon and kills the 692.29 test thesis"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "partial"
+}

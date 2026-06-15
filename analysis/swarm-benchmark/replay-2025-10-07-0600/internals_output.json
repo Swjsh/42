@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2025-10-07T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.60,
+  "reasoning": "Premarket sector internals show classic risk-off rotation: XLK -0.33% and XLF -0.43% while XLE essentially flat at -0.13%. Both tech and financials selling into the open despite SPY holding flat overnight (+0.41c gap). Two largest SPY weightings rolling over signals narrow leadership, not broad support. Medium confidence — sector alignment is clear but moves are modest (<0.5%), and energy isn't confirming the risk-off. Intraday pressure expected as market opens.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -0.33,
+    "xlf_change_pct": -0.43,
+    "xle_change_pct": -0.13,
+    "spy_change_pct": -0.0,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: -0.33% — tech selling in premarket; largest SPY weighting under pressure",
+    "XLF: -0.43% — financials also lower; two major sectors aligned bearish",
+    "XLE: -0.13% — energy flat, not confirming risk-off but not contradicting it",
+    "Overall rotation: Risk-off setup. Tech and financial weakness despite flat SPY gap = narrow leadership. Intraday directional pressure likely toward the downside."
+  ],
+  "data_quality": "full"
+}

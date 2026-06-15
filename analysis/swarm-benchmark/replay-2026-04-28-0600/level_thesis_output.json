@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-04-28T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "SPY at 713.80, gapped down -136¢ from prior close 715.16, with bear-aligned ribbon (spread 33¢). Price is sandwiched between today's premarket low 713.41 (2★ support, $0.39 below) and the 5-day rolling high 715.63 (2★ Carry resistance, $1.83 above). The critical battle level is 713.41 (PML) — the overnight floor. If this support holds, SPY will attempt reclaim toward 715.63–715.92 resistance. If 713.41 breaks on RTH entry, the bearish bias confirms with target 712.29 (prior day low, $1.51 below). The asymmetry (support much closer than resistance) and bear-ribbon alignment favor sellers, but the 33¢ ribbon spread is weak — reduced confidence reflects genuine two-way uncertainty.",
+  "battle_level": {
+    "price": 713.41,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 713.41,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.39
+    },
+    {
+      "price": 715.63,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 1.83
+    },
+    {
+      "price": 712.29,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 1.51
+    },
+    {
+      "price": 715.92,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 2.12
+    },
+    {
+      "price": 715.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": 1.20
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 713.41 on first test or RTH open test",
+      "bias": "bullish",
+      "target": 715.63,
+      "entry_trigger": "support_hold + reversal_candle at 713.41 + vol_confirm"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 713.41 early in RTH",
+      "bias": "bearish",
+      "target": 712.29,
+      "entry_trigger": "level_break_sweep + follow_through"
+    },
+    "tertiary": {
+      "condition": "if 712.29 support also breaks",
+      "bias": "bearish",
+      "target": 702.28,
+      "entry_trigger": "multi_break_flush"
+    }
+  },
+  "levels_in_play_count": 6,
+  "key_observations": [
+    "Price is $0.39 above PML 713.41 (today's premarket floor) — the swing point that will determine directional intent.",
+    "Bear-aligned ribbon (BEAR stack, spread only 33¢) adds structural bearish weight but weak conviction due to tight spread — not a strong directional filter.",
+    "Carry-tier resistance 715.63 (5-day high) sits $1.83 above current price — bullish reclaim target if support holds.",
+    "Overnight gap down (-$1.36, -0.19%) positioned price in lower half of premarket range (713.41–715.92) — gravitational bias favors bears.",
+    "VIX rising (+2.81%) and MID IV regime suggest directional conviction may emerge on RTH open — early level test likely."
+  ],
+  "data_quality": "full"
+}

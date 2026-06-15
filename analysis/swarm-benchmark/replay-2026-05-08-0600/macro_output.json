@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-05-08T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "VIX at 17.04 (MID regime) with flat direction = neutral macro backdrop. Overnight gap up $5.34 (0.73%) is STRONG bullish signal — above the $1.00 threshold for significant bullish overnight sentiment. FOMC decision concluded yesterday (5/7 14:00 ET); no further macro events scheduled until NVDA earnings on 5/20 AMC. Ribbon already BULL with 152c spread. Early premarket sector rotation (XLK -0.33%, XLF -0.44%) is typical premarket volatility, not a directional signal. No trade window blocks. Net: bullish gap up with no event risk and neutral-to-supportive VIX regime.",
+  "vix_regime": "MID",
+  "vix_direction": "flat",
+  "vix_current": 17.04,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 5.34,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "Overnight gap +$5.34 — above typical bullish threshold ($1.00). Strong overnight risk-on signal.",
+    "VIX 17.04 flat (change -0.23%) — no fear building, normal IV environment. MID regime allows both directions to work.",
+    "FOMC completed 5/7 (block window 13:30–15:00 ET yesterday) — no event friction today until NVDA earnings AMC on 5/20.",
+    "Ribbon already BULL stack (fast 734.32, pivot 733.58, slow 732.8, spread 152c) — structural bias supportive.",
+    "Early premarket sector rotation risk-off (XLK -0.33%, XLF -0.44%) — noise at 6 AM, not a directional macro signal."
+  ],
+  "data_quality": "full"
+}

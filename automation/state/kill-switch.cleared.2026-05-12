@@ -1,0 +1,5 @@
+2026-05-11T10:30:02-04:00 AGGRESSIVE ACCOUNT STATE MISMATCH
+current-position.json claims position open (SPY260511C00738000, qty=15)
+Alpaca positions API returns [] (no positions)
+Aggressive account equity = $0 (account unfunded or reset)
+Safe account = $100,087.18 (functional)

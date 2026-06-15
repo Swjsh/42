@@ -1,0 +1,169 @@
+{
+  "n_days": 30,
+  "lookback_days_requested": 30,
+  "p10": 1057.64,
+  "p25": 1163.24,
+  "p50": 1755.01,
+  "p75": 2196.74,
+  "p90": 2926.78,
+  "method": "phase_2.5_simple_range_proxy",
+  "method_caveat": "TRADED-DAY-ONLY estimate; actual distribution has additional ~60% zero-P&L days. Phase 2.5b will replace with per-day simulator_real runs.",
+  "per_day_proxy": [
+    {
+      "date": "2026-03-31",
+      "range": 13.55999755859375,
+      "estimated_pnl_if_traded": 4068.0
+    },
+    {
+      "date": "2026-04-01",
+      "range": 5.52001953125,
+      "estimated_pnl_if_traded": 1656.01
+    },
+    {
+      "date": "2026-04-02",
+      "range": 13.09002685546875,
+      "estimated_pnl_if_traded": 3927.01
+    },
+    {
+      "date": "2026-04-06",
+      "range": 4.199951171875,
+      "estimated_pnl_if_traded": 1259.99
+    },
+    {
+      "date": "2026-04-07",
+      "range": 8.53997802734375,
+      "estimated_pnl_if_traded": 2561.99
+    },
+    {
+      "date": "2026-04-08",
+      "range": 5.6199951171875,
+      "estimated_pnl_if_traded": 1686.0
+    },
+    {
+      "date": "2026-04-09",
+      "range": 7.38995361328125,
+      "estimated_pnl_if_traded": 2216.99
+    },
+    {
+      "date": "2026-04-10",
+      "range": 3.58001708984375,
+      "estimated_pnl_if_traded": 1074.01
+    },
+    {
+      "date": "2026-04-13",
+      "range": 9.719970703125,
+      "estimated_pnl_if_traded": 2915.99
+    },
+    {
+      "date": "2026-04-14",
+      "range": 6.9200439453125,
+      "estimated_pnl_if_traded": 2076.01
+    },
+    {
+      "date": "2026-04-15",
+      "range": 6.08001708984375,
+      "estimated_pnl_if_traded": 1824.01
+    },
+    {
+      "date": "2026-04-16",
+      "range": 4.25,
+      "estimated_pnl_if_traded": 1275.0
+    },
+    {
+      "date": "2026-04-17",
+      "range": 6.6300048828125,
+      "estimated_pnl_if_traded": 1989.0
+    },
+    {
+      "date": "2026-04-20",
+      "range": 3.76995849609375,
+      "estimated_pnl_if_traded": 1130.99
+    },
+    {
+      "date": "2026-04-21",
+      "range": 8.635009765625,
+      "estimated_pnl_if_traded": 2590.5
+    },
+    {
+      "date": "2026-04-22",
+      "range": 3.23004150390625,
+      "estimated_pnl_if_traded": 969.01
+    },
+    {
+      "date": "2026-04-23",
+      "range": 10.07952880859375,
+      "estimated_pnl_if_traded": 3023.86
+    },
+    {
+      "date": "2026-04-24",
+      "range": 5.4599609375,
+      "estimated_pnl_if_traded": 1637.99
+    },
+    {
+      "date": "2026-04-27",
+      "range": 3.33502197265625,
+      "estimated_pnl_if_traded": 1000.51
+    },
+    {
+      "date": "2026-04-28",
+      "range": 3.6300048828125,
+      "estimated_pnl_if_traded": 1089.0
+    },
+    {
+      "date": "2026-04-29",
+      "range": 3.739990234375,
+      "estimated_pnl_if_traded": 1122.0
+    },
+    {
+      "date": "2026-04-30",
+      "range": 9.344970703125,
+      "estimated_pnl_if_traded": 2803.49
+    },
+    {
+      "date": "2026-05-01",
+      "range": 4.4000244140625,
+      "estimated_pnl_if_traded": 1320.01
+    },
+    {
+      "date": "2026-05-04",
+      "range": 7.1199951171875,
+      "estimated_pnl_if_traded": 2136.0
+    },
+    {
+      "date": "2026-05-05",
+      "range": 3.54498291015625,
+      "estimated_pnl_if_traded": 1063.49
+    },
+    {
+      "date": "2026-05-06",
+      "range": 6.77001953125,
+      "estimated_pnl_if_traded": 2031.01
+    },
+    {
+      "date": "2026-05-07",
+      "range": 6.350000000000023,
+      "estimated_pnl_if_traded": 1905.0
+    },
+    {
+      "date": "2026-05-08",
+      "range": 3.3500000000000227,
+      "estimated_pnl_if_traded": 1005.0
+    },
+    {
+      "date": "2026-05-11",
+      "range": 4.210000000000036,
+      "estimated_pnl_if_traded": 1263.0
+    },
+    {
+      "date": "2026-05-12",
+      "range": 7.009999999999991,
+      "estimated_pnl_if_traded": 2103.0
+    }
+  ],
+  "target_date": "2026-06-08",
+  "eligible_dates_window": [
+    "2026-03-31",
+    "2026-05-12"
+  ],
+  "as_of": "2026-06-08T16:30:12"
+}

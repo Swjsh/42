@@ -1,0 +1,63 @@
+{
+  "date": "2026-03-26",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:10.068118+00:00",
+  "actual": {
+    "open": 652.06,
+    "close": 645.1,
+    "high": 654.85,
+    "low": 644.82,
+    "move_dollars": -6.96,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 88,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 650.84,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bearish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "HELD",
+      "battle_level": 650.84,
+      "role": "support",
+      "first_touch_time": "2026-03-26T09:30:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 650.84,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "650.84 (PML battle level) is tested \u2014 SPY trades at or below 650.90 \u2014 within the first 60 minutes of",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains at or above 25.00 through the first 90 minutes of RTH (through 11:00 ET), sustaining the HIGH fear regime",
+        "invalidation": "VIX drops below 25.00 before 11:00 ET, signaling intraday equity strength deflating overnight fear and undermining the r"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "SPY 5-minute ribbon remains in BEAR configuration (fast EMA < slow EMA, spread >= 30 cents) through the first 45 minutes",
+        "invalidation": "Ribbon compresses to spread < 30 cents OR inverts (fast > slow) before 10:15 ET, indicating buyer absorption of the 210-"
+      }
+    ]
+  },
+  "narrative": "4-of-4 specialists align bearish: CLEAN_BEAR ribbon with a 210-cent spread, VIX rising to 26.36 (HIGH regime), a $4.94 overnight gap-down, and confirming risk-off sector rotation (tech XLK -0.39%, financials XLF -0.50%) all point to continued downside. The critical tension is at 650.84 \u2014 the \u2605\u2605 PML "
+}

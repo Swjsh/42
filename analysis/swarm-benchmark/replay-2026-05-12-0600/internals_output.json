@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-05-12T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.60,
+  "reasoning": "XLK +0.98% and XLE +1.62% both exceed the 0.5% risk-on threshold, confirming two-sector leadership. However, breadth is narrow: XLE significantly outperforms SPY (+1.62% vs +0.39%), suggesting energy sector is carrying the rally rather than a broad-based move. XLF remains flat at -0.16%, indicating financial sector weakness which slightly tempers broad upside conviction. Tech leadership (XLK > SPY) is positive for SPY composition, but energy dominance hints at inflation/commodity concerns rather than pure growth momentum. Bullish bias with medium confidence — valid risk-on signal, but monitor for rotation reversal as XLF weakness could widen.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 0.98,
+    "xlf_change_pct": -0.16,
+    "xle_change_pct": 1.62,
+    "spy_change_pct": 0.39,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK +0.98%: tech sector leadership, growth/momentum positive, outperforming SPY",
+    "XLE +1.62%: energy sector strongest, significantly outperforming SPY — suggests narrow breadth and possible inflation/energy demand signal",
+    "XLF -0.16%: financials essentially flat with slight weakness, headwind for broad SPY rally",
+    "Overall rotation: risk_on (two sectors aligned up), but narrow breadth (energy-driven not broad growth)"
+  ],
+  "data_quality": "full"
+}

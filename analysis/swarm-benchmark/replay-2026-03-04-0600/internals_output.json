@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-03-04T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.80,
+  "reasoning": "XLK +0.84% and XLF +1.83% both outperforming while XLE -1.52%. Classic risk-on rotation: growth + financials leadership with defensive rotation down. Both XLK and XLF well above the 0.5% threshold, representing the two largest SPY weightings. Sector breadth confirms bullish setup heading into market open.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 0.84,
+    "xlf_change_pct": 1.83,
+    "xle_change_pct": -1.52,
+    "spy_change_pct": 0.78,
+    "xlk_vs_spy": "outperform",
+    "breadth": "broad"
+  },
+  "key_observations": [
+    "XLK +0.84%: Tech leadership active, growth stocks performing well",
+    "XLF +1.83%: Financials dominating, strong outperformance suggests yield/rate tailwind",
+    "XLE -1.52%: Energy lagging confirms defensive rotation; not broad sell-off, selective rotation",
+    "Sector alignment: Two major leaders (XLK + XLF) both up with conviction, supporting SPY upside"
+  ],
+  "data_quality": "full"
+}

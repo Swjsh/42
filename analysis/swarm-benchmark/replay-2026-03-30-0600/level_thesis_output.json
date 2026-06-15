@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-30T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "SPY at 637.05, gap-up +$2.97 overnight, positioned just below premarket high (638.02). Ribbon firmly stacked BULL (fast 637.07 > pivot 637.0 > slow 636.99, tight 8¢ spread) — high conviction uptrend structure. The battle level is 638.02 (Premarket High, Active tier). If reclaimed, pullback room to 642.66 (prior RTH high). Support floor at 633.1 (5-day Carry low, −$3.95) contains downside risk. Elevated VIX (30.67, HIGH IV regime) and sector rotation risk-off (XLK −1.22%, XLF −2.01%) create chop headwinds, tempering execution confidence from 0.75 → 0.68. Range framework: 633.1 (support) ↔ 642.66 (resistance). Immediate test: does 638.02 PMH hold or reclaim?",
+  "battle_level": {
+    "price": 638.02,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 638.02,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 1,
+      "distance_from_price": 0.97
+    },
+    {
+      "price": 633.1,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 3.95
+    },
+    {
+      "price": 634.03,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 3.02
+    },
+    {
+      "price": 642.66,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 4,
+      "distance_from_price": 5.61
+    },
+    {
+      "price": 636.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": 1.05
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY reclaims/breaks 638.02 PMH on rally",
+      "bias": "bullish",
+      "target": 642.66,
+      "entry_trigger": "break above 638.02 + ribbon BULL confirm + volume > 1.5x avg"
+    },
+    "secondary": {
+      "condition": "if SPY holds 638.02 and consolidates, then tests 636.0–635.0",
+      "bias": "range_consolidation",
+      "target": "636.0 (pullback support)",
+      "entry_trigger": "hold at 638.02 + reversal bar at round levels"
+    },
+    "downside": {
+      "condition": "if SPY breaks below 636.0",
+      "bias": "bearish",
+      "target": 633.1,
+      "entry_trigger": "break below 636.0 + ribbon inversion signal"
+    }
+  },
+  "levels_in_play_count": 4,
+  "key_observations": [
+    "Ribbon BULL with tight 8¢ compression (637.07 > 637.0 > 636.99) indicates high conviction; minimal stack spread = low noise.",
+    "Battle level 638.02 (PMH) is the immediate ceiling; gap-up dynamics suggest buyers want higher. Reclaim target: 642.66 (prior RTH high).",
+    "Downside bounded: Carry-level 633.1 (5-day low) provides structural floor −$3.95 away; supports bullish thesis via defined risk.",
+    "VIX elevated (30.67, HIGH IV) and sector rotation risk-off (XLK, XLF down) inject chop and pullback probability; bulls should expect retests of 636.0–635.0 before continuation.",
+    "Price location: sandwiched between PMH (638.02 above) and 5-day Carry (633.1 below) = $9.73 range window. The width suggests a day with defined volatility and multiple level tests."
+  ],
+  "data_quality": "full"
+}

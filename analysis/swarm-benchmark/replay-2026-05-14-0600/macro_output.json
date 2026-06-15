@@ -1,0 +1,40 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-05-14T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.70,
+  "reasoning": "VIX at 17.94 (MID regime, flat direction, +0.45% overnight) signals neutral IV environment — neither suppressive nor volatile. Overnight gap +$1.75 up is moderately bullish, with premarket recovery to 744.07 (near 744.70 high) confirming conviction. Ribbon in BULL stack with 54¢ spread provides bullish structure. Two HIGH severity events (CPI + Retail Sales) fire simultaneously at 08:30 ET premarket — no RTH no-trade block after 09:00 ET, as both are absorbed 90+ minutes before 09:35 entry window. Retail sales already printed (+0.5% MoM); CPI is known-risk within the 08:30 window only. Macro backdrop is risk-on with no intraday announcements blocking RTH. Long bias supported into open.",
+  "vix_regime": "MID",
+  "vix_direction": "flat",
+  "vix_current": 17.94,
+  "event_risk": "medium",
+  "events_today": [
+    {
+      "time_et": "08:30",
+      "name": "CPI (April 2026)",
+      "severity": "high",
+      "no_trade_window": true,
+      "window_start_et": "08:25",
+      "window_end_et": "09:00"
+    },
+    {
+      "time_et": "08:30",
+      "name": "Advance Monthly Retail Trade Sales (April 2026)",
+      "severity": "high",
+      "no_trade_window": true,
+      "window_start_et": "08:25",
+      "window_end_et": "08:50"
+    }
+  ],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 1.75,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX 17.94 mid-regime, flat direction: no fear, no complacency. Neutral volatility signal.",
+    "Overnight gap +$1.75 up (0.24% of SPY 742.32 prior close): moderately bullish sentiment from overnight session. Sets opening bias toward long.",
+    "CPI + Retail Sales both release 08:30 ET premarket. Combined no-trade window ends 09:00 ET. News will be 35 minutes old by 09:35 entry gate — tape fully absorbed by open.",
+    "Ribbon in BULL stack with 54-cent spread (normal). Premarket high 744.7, low 742.31 — constructive range, no extreme whipsaw.",
+    "Sector internals mixed: XLK -0.24%, XLF -0.29% (slight defensive), XLE +0.28% (energy stable). SPY itself +0.52% overnight. Rotation signal = mixed, consistent with early-session positioning before CPI print."
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-04-21T06:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis"],
+    "bearish": [],
+    "no_trade": ["internals"]
+  },
+  "vote_counts": {
+    "bullish": 3,
+    "bearish": 0,
+    "no_trade": 1
+  },
+  "weighted_scores": {
+    "bullish": 0.90,
+    "bearish": 0.0
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 76,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["internals"],
+    "dissent_reason": "Internals voted no_trade: XLK (tech, ~30% of SPY) is flat at +0.17% while only XLF leads at +0.55%, signaling sector divergence rather than broad risk-on — tech non-confirmation is the consensus's weakest link and a classic early-exhaustion warning at resistance."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Sector internals divergence (XLK flat while XLF rallies) contradicts the broad risk-on narrative; tech should lead a genuine gap-and-go, but it is not confirming, raising the probability that the +$2.21 gap exhausts into PMH resistance rather than breaks through it.",
+    "top_invalidation_scenario": "SPY fails to break above 710.92 PMH in the first RTH bar and XLK remains below +0.35% by 09:45 ET — gap exhausts into resistance, secondary bear case to 706.14 triggers quickly."
+  },
+  "battle_level": {
+    "price": 712.39,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 712.39,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 710.92,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 709.91,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "reclaim_attempt"
+    },
+    {
+      "price": 709.46,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 706.14,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 709.91 (prior RTH high now support) and breaks above 710.92 PMH on the open with XLK confirmation",
+      "bias": "bullish",
+      "target": 712.39,
+      "entry_trigger": "level_reclaim_of_pmh_plus_ribbon_bullish_stack"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below PML 709.46 (gap-floor loss) with flat or declining XLK",
+      "bias": "bearish",
+      "target": 706.14,
+      "entry_trigger": "failure_at_support_plus_gap_fill"
+    },
+    "invalidation": {
+      "condition": "SPY rejects PMH 710.92 in the first RTH bar AND XLK remains at or below +0.17% by 09:45 ET AND VIX holds above 19.00 — classic false-gap-into-resistance structure",
+      "effect": "Bullish consensus invalidated; primary scenario aborts, secondary bear case (706.14 target) activates. Rising VIX + tech non-confirmation flips the gap from accumulation to distribution signal."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "712.39 (Carry battle level) is tested within the first 2 hours of RTH (by 11:30 ET), contingent on SPY breaking above 710.92 PMH at or shortly after the 09:30 open",
+      "invalidation": "SPY does not trade at or above 712.00 by 11:30 ET — gap fails to extend beyond PMH resistance",
+      "confidence": 0.55,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains in the 18.5–20.5 range through the first 90 minutes of RTH (09:30–11:00 ET), neither compressing to confirm full risk-on nor spiking to break the gap structure",
+      "invalidation": "VIX drops below 18.5 (full risk-on confirmed) or spikes above 20.5 (gap structure breaks) by 11:00 ET",
+      "confidence": 0.52,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY forms a higher low above the ribbon pivot (710.09) on its first RTH pullback, with the CLEAN_BULL ribbon spread maintaining above 60¢, confirming gap structure holds into the morning session",
+      "invalidation": "SPY closes any 5-minute RTH bar below 710.09 within the first 60 minutes of RTH (ribbon pivot loss = bull structure broken)",
+      "confidence": 0.65,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "SPY gaps up +$2.21 into premarket high resistance at 710.92 with a CLEAN_BULL ribbon (86¢ spread), creating a gap-and-test structure where the opening bar decides whether buyers break through PMH toward the 712.39 Carry battle level or exhaust into a false-gap reversal. Three of four specialists vote bullish at a weighted score of 0.90, but the validator correctly flags rising VIX (+1.22% to 19.13) and flat XLK (+0.17%) as countervailing signals — in a genuine risk-on gap, tech leads and volatility compresses, and neither is happening premarket. The single most important watch at the open is the PMH 710.92 break with XLK confirmation: a decisive break targets 712.39 (~$1.50 upside); a PMH rejection with flat tech and VIX holding above 19 triggers the secondary bear case toward 706.14.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.88,
+      "one_line": "CLEAN_BULL ribbon 86¢ spread, last 3 bars progressively green, strong full-body 5:55 close at 710.90 — cleanest bullish premarket structure"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "VIX 19.13 MID regime rising modestly, zero macro events today, overnight gap +$2.21 risk-on with mixed sectors (XLF up, XLK flat)"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "Battle level 712.39 (Carry resistance) is 1.49 handles above; price sandwiched PMH 710.92 / PML 709.46, BULL ribbon tilts conviction upside contingent on PMH break"
+    },
+    "internals": {
+      "bias": "no_trade",
+      "confidence": 0.42,
+      "one_line": "XLK flat +0.17% with only XLF leading at +0.55% — single-sector breadth without tech confirmation = mixed/flat rotation, insufficient directional internals signal"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Rising VIX + flat XLK + price AT (not above) PMH resistance = potential false-gap exhaustion; bull case requires XLK >+0.35% and PMH break in first RTH bar"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

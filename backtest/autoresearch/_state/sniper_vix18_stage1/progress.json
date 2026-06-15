@@ -1,0 +1,19 @@
+{
+  "started_at": "2026-05-23T23:32:43.852884",
+  "deadline_at": "2026-05-24T07:32:43.852884",
+  "total_combos": 432,
+  "vix_threshold": 18,
+  "completed": 432,
+  "passed_floors": 60,
+  "rejected": 372,
+  "keepers": 2,
+  "ratification_candidates": 24,
+  "best_wide_pnl": 3297.6,
+  "best_edge_capture": 0.0,
+  "current_pid": 22976,
+  "workers": 4,
+  "last_update": "2026-05-23T23:50:14.217235",
+  "status": "completed",
+  "mode": "real_fills_vix18",
+  "completed_at": "2026-05-23T23:50:14.231700"
+}

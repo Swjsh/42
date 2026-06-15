@@ -1,0 +1,21 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-03-25T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.86,
+  "reasoning": "CLEAN_BULL ribbon with 115c spread, fast/pivot/slow stack intact; price 658.39 firmly above pivot 658.17 (+22c), momentum above equilibrium. Overnight gap +$5.19 (653.2 → 658.39) shows strong bullish overnight sentiment. Last 3 bars: red dip at 05:45 (-39c full body), then recovery with green at 05:50 (doji) and final bar 05:55 strong green +55c with 0.44 body — momentum recovering into close. High VIX 26.22 falling (-2.67%) reduces tail risk. Premarket high 660.56 sits 2.17 above current; prior day RTH high 657.03 already below price. All 4 primary signals aligned (ribbon + price vs pivot + gap direction + recent bar momentum). Confidence backed by clean ribbon but tempered slightly by initial pullback bar before recovery.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 115,
+  "bar_structure": "mixed_with_bullish_recovery",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon: fast 658.30, pivot 658.17, slow 657.15 — all aligned with 115c spread (strong multi-timeframe agreement)",
+    "Price 658.39 trades 22c above pivot equilibrium — bullish momentum confirmed above the 20-EMA",
+    "Overnight gap +$5.19 (653.2 → 658.39) indicates strong bullish overnight sentiment; premarket floor 657.47, ceiling 660.56",
+    "Last 3 bars: 05:45 red pullback (-39c, full body rejection), 05:50 stabilization (doji), 05:55 strong recovery (+55c green with 0.44 body) — momentum climax into premarket close",
+    "High VIX 26.22 with falling direction (-2.67%) — tail risk declining, volatility may support aggressive longs into RTH open",
+    "Prior day resistance 657.03 already broken; premarket high 660.56 remains the immediate ceiling; carry support 644.72 is 13.67 points away (low-risk long baseline)"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,63 @@
+{
+  "date": "2026-02-18",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:03.795193+00:00",
+  "actual": {
+    "open": 683.87,
+    "close": 686.19,
+    "high": 689.14,
+    "low": 682.87,
+    "move_dollars": 2.32,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 35,
+    "consensus_strength": "weak",
+    "battle_level": {
+      "price": 684.92,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "TESTED_MIXED",
+      "battle_level": 684.92,
+      "role": "resistance",
+      "first_touch_time": "2026-02-18T09:40:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 684.92,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY rallies to test 684.92 resistance within the first 90 minutes of RTH (by 11:00 ET)",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 19.50 through 11:00 ET, sustaining the risk-on macro backdrop that anchors the bullish case",
+        "invalidation": "VIX ticks back above 19.50 within the first 30 minutes of market open, reversing the fear-recession narrative"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "Ribbon spread remains below 30\u00a2 (CHOP regime) through 10:15 ET, with SPY oscillating within \u00b1$1.00 of 682.58 during the ",
+        "invalidation": "Ribbon expands to 30\u00a2+ with full bull stack (Slow < Fast < Pivot) forming before 10:15 ET"
+      }
+    ]
+  },
+  "narrative": "The swarm delivers a weak bullish lean driven by macro tailwinds (VIX -8.03%, risk-on sector rotation into XLK/XLF) but the structural picture is distinctly cautious: technical sees CHOP with a 29\u00a2 ribbon spread and price below pivot, while level thesis flags a stark bearish asymmetry with 2\u2605 resist"
+}

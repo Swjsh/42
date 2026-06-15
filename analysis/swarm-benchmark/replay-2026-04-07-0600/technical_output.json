@@ -1,0 +1,21 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-04-07T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.73,
+  "reasoning": "CLEAN_BULL ribbon (88-cent spread, fast/pivot/slow stack in proper order) with price 36 cents above the 659.47 pivot. Overnight gap up 96 cents from prior close 658.87. Premarket testing extended from 655.40 low to 660.37 high with current consolidation at 659.83. Last 3 closed bars show 2 green / 1 red structure (05:50 full-body green +27c, 05:45 near-doji +3c, 05:55 pullback -9c). Momentum is positive but cautious—latest bar is a small-body pullback below the 05:50 high. VIX rising 9.43% into 26.45 (HIGH regime) suggests elevated volatility underpinning the move. Sectoral support: XLF +0.75%, XLE +0.96%, mixed rotation signal prevents extreme conviction.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 88,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon: 659.69 fast / 659.47 pivot / 658.81 slow (88c spread, well above 20c minimum)",
+    "Price 659.83 is 36 cents above the 659.47 pivot—bullish alignment",
+    "Overnight gap +96 cents from prior session close 658.87—strong opening above equilibrium",
+    "Last 3 bars: 05:50 green +27c full body, 05:45 doji +3c, 05:55 pullback red −9c—consolidating after premarket test of 660.37 PMH resistance",
+    "Premarket range 655.40 (PML) to 660.37 (PMH) with current price mid-range at 659.83—room to both sides but established higher floor",
+    "VIX 26.45 rising +9.43% into HIGH regime—elevated volatility context for the bullish structure"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,43 @@
+{
+  "skill": "chart-data-verify",
+  "run_at": "2026-05-19T20:27:28",
+  "target_date": "2026-05-19",
+  "verdict": "GREEN",
+  "reason": "all-bars-within-$0.05",
+  "csv_path": "C:\\Users\\jackw\\Desktop\\42\\backtest\\data\\spy_5m_2026-05-08_2026-05-19.csv",
+  "max_divergence_dollars": 0,
+  "rows_compared": 5,
+  "heal_action": "no-op",
+  "rows": [
+    {
+      "ts": "2026-05-19 15:35:00",
+      "csv_close": 734.1699829101562,
+      "yf_close": 734.1699829101562,
+      "divergence": 0.0
+    },
+    {
+      "ts": "2026-05-19 15:40:00",
+      "csv_close": 733.8599853515625,
+      "yf_close": 733.8599853515625,
+      "divergence": 0.0
+    },
+    {
+      "ts": "2026-05-19 15:45:00",
+      "csv_close": 733.7999877929688,
+      "yf_close": 733.7999877929688,
+      "divergence": 0.0
+    },
+    {
+      "ts": "2026-05-19 15:50:00",
+      "csv_close": 732.844970703125,
+      "yf_close": 732.844970703125,
+      "divergence": 0.0
+    },
+    {
+      "ts": "2026-05-19 15:55:00",
+      "csv_close": 733.7899780273438,
+      "yf_close": 733.7899780273438,
+      "divergence": 0.0
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-04-06T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "SPY at 657.30, having gapped up overnight +$1.42 to 655.88, is testing the lower edge of the 654.87–658.73 premarket range. BULL ribbon stack is confirmed (Fast 657.91 > Pivot 657.72 > Slow 656.52, 139¢ spread). Price sits just below the dual resistance zone at 658.20–658.52. The battle level is 658.52 (Carry ★★, 5-day RTH high at $1.22 above current price). If held, this level would be the first decisive test of overnight bullish structure. Below, 654.87 (premarket low, Active support) provides a tight floor $2.43 down. The configuration favors bulls: break above 658.52 targets 660+ round-number resistance; failure below 654.87 retraces to 652–645 shelf. Early-session consolidation likely given the wide premarket range has already been traversed.",
+  "battle_level": {
+    "price": 658.52,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 658.52,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 1.22
+    },
+    {
+      "price": 658.2,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 0.9
+    },
+    {
+      "price": 654.87,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 2.43
+    },
+    {
+      "price": 656.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 1.3
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 658.20 on first test and reclaims 658.52",
+      "bias": "bullish",
+      "target": 660.0,
+      "entry_trigger": "level_reclaim + BULL_ribbon_stack + gap_structure"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 654.87 with volume",
+      "bias": "bearish",
+      "target": 652.0,
+      "entry_trigger": "support_break + flip_to_range"
+    },
+    "intermediate": {
+      "condition": "if SPY consolidates 654.87–658.52 through open",
+      "bias": "no_trade",
+      "target": null,
+      "entry_trigger": "await_breakout_after_9:35"
+    }
+  },
+  "levels_in_play_count": 4,
+  "key_observations": [
+    "Dual Carry + Active resistance at 658.20–658.52 is the immediate battle zone; break above would confirm continuation north.",
+    "Premarket range (654.87–658.73) already traversed; likely consolidation before 09:35 ET directional signal.",
+    "BULL ribbon (Fast/Pivot/Slow spacing) and overnight gap structure both support bullish bias if 658.52 holds as support on a retest.",
+    "Support below is solid at 654.87 (premarket low, Active tier) — provides tight risk floor for any bull entry at resistance.",
+    "VIX at 24.21 (HIGH regime) — some vol risk if levels don't hold crisply; watch for false breaks through 658.20."
+  ],
+  "data_quality": "full"
+}

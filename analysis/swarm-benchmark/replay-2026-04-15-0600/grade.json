@@ -1,0 +1,63 @@
+{
+  "date": "2026-04-15",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:13.244514+00:00",
+  "actual": {
+    "open": 695.26,
+    "close": 699.84,
+    "high": 700.28,
+    "low": 694.2,
+    "move_dollars": 4.58,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 57,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 694.58,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "TESTED_MIXED",
+      "battle_level": 694.58,
+      "role": "resistance",
+      "first_touch_time": "2026-04-15T09:40:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 694.58,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY tests 694.58 Carry resistance within the first 60 minutes of RTH (by 10:30 ET)",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 18.50 for the full RTH session (09:30\u201316:00 ET), confirming fear-receding macro backdrop",
+        "invalidation": "VIX spikes above 18.50 at any point during RTH"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "EMA ribbon does NOT achieve a clean bullish stack (fast > pivot > slow with spread \u226530\u00a2) within the first 30 minutes of ",
+        "invalidation": "Clean bullish ribbon stack (all three EMAs aligned bull, spread \u226530\u00a2) forms on or before the 09:55 ET bar close"
+      }
+    ]
+  },
+  "narrative": "The key tension on 2026-04-15 is macro and internals presenting a clear bullish backdrop (VIX falling 3.92% to 17.64, risk-on sector rotation, clean event calendar) while the chart structure is in genuine equilibrium \u2014 MIXED ribbon at 29\u00a2 spread, price 20\u00a2 below pivot, and an overnight gap-down only"
+}

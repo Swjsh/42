@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-05-18T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.70,
+  "reasoning": "VIX at 18.39 in MID regime with modest +0.93% rise (bearish tilt, but not extreme). Overnight gap up +$1.49 is a strong bullish signal. BULL ribbon with 103-cent spread confirms directional alignment. Today has ZERO macro events—clean calendar for full RTH trading with no friction. Sector rotation mixed but energy leading (XLE +1.26%). Premarket consolidated lower from 741.51 high but remains bid; gap integrity intact. Risk-ON enabled. VIX rise is noted caution but insufficient to override the overnight momentum + ribbon + calendar clarity.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 18.39,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 1.49,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "Overnight gap up +$1.49 (1.49/739.08 = 0.20%) — bullish overnight sentiment fully intact, premarket high 741.51 confirms buyers were active",
+    "VIX rising +0.93% to 18.39 — mild fear increase but still MID regime (15-22 normal range); not a circuit-breaker signal",
+    "BULL ribbon 100+ cents spread — directional confirmation bullish, tape is structured for up-bias",
+    "Today (2026-05-18) has zero macro events — full RTH clear of friction; next major event is NVDA earnings tomorrow AMC (no RTH impact today)",
+    "Energy sector leading (XLE +1.26%) with tech flat and finance slightly down — mixed rotation but no flight-to-safety signal yet"
+  ],
+  "data_quality": "full"
+}

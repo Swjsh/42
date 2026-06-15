@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-04-27T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.60,
+  "reasoning": "Tech sector (XLK) is sharply outperforming at +1.13% vs SPY +0.45%, driving the morning's modest gains. However, breadth is narrow: financial sector (XLF) lags at -0.31%, signaling selective risk-on rotation into growth/tech only. Energy is flat at +0.18%. The divergence between XLK strength and XLF weakness suggests investors are betting on tech momentum rather than broad-based risk recovery. Bullish bias on SPY as long as tech outperformance holds, but financial weakness is a fragility signal — if XLK reverses, SPY loses its primary support.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 1.13,
+    "xlf_change_pct": -0.31,
+    "xle_change_pct": 0.18,
+    "spy_change_pct": 0.45,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +1.13% — strong tech leadership, largest SPY weighting (~30%)",
+    "XLF: -0.31% — financial weakness contradicts broad risk-on narrative",
+    "XLE: +0.18% — energy flat, no inflation signal",
+    "Breadth: narrow — tech outperforming SPY by 0.68pp, financial sector lagging suggests fragile risk-on"
+  ],
+  "data_quality": "full"
+}

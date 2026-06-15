@@ -1,0 +1,421 @@
+{
+  "generated_at": "2026-05-20T02:28:17.771064Z",
+  "candidate": "f8-flat-vix-unblock",
+  "proposed_change": {
+    "filter": "F8",
+    "description": "Allow flat VIX when vix_now > 17.50 for bear entries",
+    "current": "vix_now > 17.3 AND vd == 'rising'",
+    "proposed": "(vix_now > 17.3 AND vd == 'rising') OR (vix_now > 17.5 AND vd == 'flat')",
+    "vix_flat_bear_threshold": 17.5
+  },
+  "verdict": "FAIL \u2014 OP-16 FAIL (edge_capture=$-1457 < $771) | 5/05 guard FAIL (VIX max=17.85 >= 17.50)",
+  "confidence_score": 3,
+  "op16_pass": false,
+  "guard_505_protected": false,
+  "losers_guard_pass": true,
+  "anchor_day_scores": {
+    "baseline": {
+      "edge_capture": -949.36,
+      "winners_capture": -582.66,
+      "winners_capture_pct": -0.378,
+      "losers_added": 366.7,
+      "j_total_winners": 1542,
+      "j_total_losers_abs": 725,
+      "max_possible_score": 1542,
+      "by_day": [
+        {
+          "date": "2026-04-29",
+          "n_trades": 1,
+          "n_winners": 0,
+          "total_pnl": -20.15,
+          "trades": [
+            {
+              "side": "P",
+              "strike": 710,
+              "entry_premium": 0.84,
+              "exit_premium": 0,
+              "pnl": 0
+            }
+          ],
+          "j_pnl": 342,
+          "edge_kind": "WIN",
+          "capture_pct": -0.059
+        },
+        {
+          "date": "2026-05-01",
+          "n_trades": 2,
+          "n_winners": 0,
+          "total_pnl": -357.46,
+          "trades": [
+            {
+              "side": "C",
+              "strike": 721,
+              "entry_premium": 2.329,
+              "exit_premium": 0,
+              "pnl": 0
+            },
+            {
+              "side": "C",
+              "strike": 721,
+              "entry_premium": 2.139,
+              "exit_premium": 0,
+              "pnl": 0
+            }
+          ],
+          "j_pnl": 470,
+          "edge_kind": "WIN",
+          "capture_pct": -0.761
+        },
+        {
+          "date": "2026-05-04",
+          "n_trades": 1,
+          "n_winners": 0,
+          "total_pnl": -205.05,
+          "trades": [
+            {
+              "side": "P",
+              "strike": 718,
+              "entry_premium": 1.367,
+              "exit_premium": 0,
+              "pnl": 0
+            }
+          ],
+          "j_pnl": 730,
+          "edge_kind": "WIN",
+          "capture_pct": -0.281
+        },
+        {
+          "date": "2026-05-05",
+          "n_trades": 0,
+          "n_winners": 0,
+          "total_pnl": 0.0,
+          "trades": [],
+          "j_pnl": -260,
+          "edge_kind": "LOSS",
+          "engine_did_skip": true
+        },
+        {
+          "date": "2026-05-06",
+          "n_trades": 0,
+          "n_winners": 0,
+          "total_pnl": 0.0,
+          "trades": [],
+          "j_pnl": -300,
+          "edge_kind": "LOSS",
+          "engine_did_skip": true
+        },
+        {
+          "date": "2026-05-07",
+          "n_trades": 1,
+          "n_winners": 0,
+          "total_pnl": -183.35,
+          "trades": [
+            {
+              "side": "C",
+              "strike": 733,
+              "entry_premium": 2.292,
+              "exit_premium": 0,
+              "pnl": 0
+            }
+          ],
+          "j_pnl": -45,
+          "edge_kind": "LOSS",
+          "engine_did_skip": false
+        },
+        {
+          "date": "2026-05-07",
+          "n_trades": 1,
+          "n_winners": 0,
+          "total_pnl": -183.35,
+          "trades": [
+            {
+              "side": "C",
+              "strike": 733,
+              "entry_premium": 2.292,
+              "exit_premium": 0,
+              "pnl": 0
+            }
+          ],
+          "j_pnl": -120,
+          "edge_kind": "LOSS",
+          "engine_did_skip": false
+        }
+      ]
+    },
+    "proposed": {
+      "edge_capture": -1456.79,
+      "winners_capture": -1090.09,
+      "winners_capture_pct": -0.707,
+      "losers_added": 366.7,
+      "j_total_winners": 1542,
+      "j_total_losers_abs": 725,
+      "max_possible_score": 1542,
+      "by_day": [
+        {
+          "date": "2026-04-29",
+          "n_trades": 1,
+          "n_winners": 0,
+          "total_pnl": -176.21,
+          "trades": [
+            {
+              "side": "P",
+              "strike": 710,
+              "entry_premium": 1.175,
+              "exit_premium": 0,
+              "pnl": 0
+            }
+          ],
+          "j_pnl": 342,
+          "edge_kind": "WIN",
+          "capture_pct": -0.515
+        },
+        {
+          "date": "2026-05-01",
+          "n_trades": 2,
+          "n_winners": 0,
+          "total_pnl": -357.46,
+          "trades": [
+            {
+              "side": "C",
+              "strike": 721,
+              "entry_premium": 2.329,
+              "exit_premium": 0,
+              "pnl": 0
+            },
+            {
+              "side": "C",
+              "strike": 721,
+              "entry_premium": 2.139,
+              "exit_premium": 0,
+              "pnl": 0
+            }
+          ],
+          "j_pnl": 470,
+          "edge_kind": "WIN",
+          "capture_pct": -0.761
+        },
+        {
+          "date": "2026-05-04",
+          "n_trades": 3,
+          "n_winners": 0,
+          "total_pnl": -556.42,
+          "trades": [
+            {
+              "side": "P",
+              "strike": 720,
+              "entry_premium": 1.331,
+              "exit_premium": 0,
+              "pnl": 0
+            },
+            {
+              "side": "P",
+              "strike": 718,
+              "entry_premium": 1.367,
+              "exit_premium": 0,
+              "pnl": 0
+            },
+            {
+              "side": "P",
+              "strike": 718,
+              "entry_premium": 0.506,
+              "exit_premium": 0,
+              "pnl": 0
+            }
+          ],
+          "j_pnl": 730,
+          "edge_kind": "WIN",
+          "capture_pct": -0.762
+        },
+        {
+          "date": "2026-05-05",
+          "n_trades": 0,
+          "n_winners": 0,
+          "total_pnl": 0.0,
+          "trades": [],
+          "j_pnl": -260,
+          "edge_kind": "LOSS",
+          "engine_did_skip": true
+        },
+        {
+          "date": "2026-05-06",
+          "n_trades": 0,
+          "n_winners": 0,
+          "total_pnl": 0.0,
+          "trades": [],
+          "j_pnl": -300,
+          "edge_kind": "LOSS",
+          "engine_did_skip": true
+        },
+        {
+          "date": "2026-05-07",
+          "n_trades": 1,
+          "n_winners": 0,
+          "total_pnl": -183.35,
+          "trades": [
+            {
+              "side": "C",
+              "strike": 733,
+              "entry_premium": 2.292,
+              "exit_premium": 0,
+              "pnl": 0
+            }
+          ],
+          "j_pnl": -45,
+          "edge_kind": "LOSS",
+          "engine_did_skip": false
+        },
+        {
+          "date": "2026-05-07",
+          "n_trades": 1,
+          "n_winners": 0,
+          "total_pnl": -183.35,
+          "trades": [
+            {
+              "side": "C",
+              "strike": 733,
+              "entry_premium": 2.292,
+              "exit_premium": 0,
+              "pnl": 0
+            }
+          ],
+          "j_pnl": -120,
+          "edge_kind": "LOSS",
+          "engine_did_skip": false
+        }
+      ]
+    },
+    "edge_capture_delta": -507.43
+  },
+  "vix_profiles": {
+    "2026-04-29": {
+      "date": "2026-04-29",
+      "bars": 144,
+      "max_vix": 18.97,
+      "min_vix": 17.88,
+      "rising": 22,
+      "flat": 95,
+      "falling": 26,
+      "bars_above_1730": 144,
+      "bars_above_1750": 144,
+      "flat_bars_above_1750": 144
+    },
+    "2026-05-01": {
+      "date": "2026-05-01",
+      "bars": 144,
+      "max_vix": 17.12,
+      "min_vix": 16.49,
+      "rising": 23,
+      "flat": 94,
+      "falling": 26,
+      "bars_above_1730": 0,
+      "bars_above_1750": 0,
+      "flat_bars_above_1750": 0
+    },
+    "2026-05-04": {
+      "date": "2026-05-04",
+      "bars": 144,
+      "max_vix": 18.93,
+      "min_vix": 17.21,
+      "rising": 26,
+      "flat": 86,
+      "falling": 31,
+      "bars_above_1730": 139,
+      "bars_above_1750": 113,
+      "flat_bars_above_1750": 113
+    },
+    "2026-05-05": {
+      "date": "2026-05-05",
+      "bars": 144,
+      "max_vix": 17.85,
+      "min_vix": 17.21,
+      "rising": 22,
+      "flat": 98,
+      "falling": 23,
+      "bars_above_1730": 116,
+      "bars_above_1750": 77,
+      "flat_bars_above_1750": 77
+    },
+    "2026-05-06": {
+      "date": "2026-05-06",
+      "bars": 144,
+      "max_vix": 17.36,
+      "min_vix": 16.25,
+      "rising": 25,
+      "flat": 91,
+      "falling": 27,
+      "bars_above_1730": 4,
+      "bars_above_1750": 0,
+      "flat_bars_above_1750": 0
+    },
+    "2026-05-07": {
+      "date": "2026-05-07",
+      "bars": 156,
+      "max_vix": 17.58,
+      "min_vix": 17.06,
+      "rising": 16,
+      "flat": 117,
+      "falling": 22,
+      "bars_above_1730": 102,
+      "bars_above_1750": 21,
+      "flat_bars_above_1750": 21
+    }
+  },
+  "full_window_comparison": {
+    "train_baseline": {
+      "label": "train_baseline",
+      "start": "2025-01-02",
+      "end": "2025-12-31",
+      "n_trades": 236,
+      "n_winners": 40,
+      "win_rate": 0.169,
+      "total_pnl": 4051.32,
+      "avg_per_trade": 17.17,
+      "max_drawdown": -5718.95,
+      "sharpe": 0.0
+    },
+    "train_proposed": {
+      "label": "train_proposed",
+      "start": "2025-01-02",
+      "end": "2025-12-31",
+      "n_trades": 357,
+      "n_winners": 73,
+      "win_rate": 0.204,
+      "total_pnl": 14220.39,
+      "avg_per_trade": 39.83,
+      "max_drawdown": -10087.8,
+      "sharpe": 0.0
+    },
+    "oos_baseline": {
+      "label": "oos_baseline",
+      "start": "2026-01-02",
+      "end": "2026-05-16",
+      "n_trades": 75,
+      "n_winners": 15,
+      "win_rate": 0.2,
+      "total_pnl": 8145.69,
+      "avg_per_trade": 108.61,
+      "max_drawdown": -2150.26,
+      "sharpe": 0.0
+    },
+    "oos_proposed": {
+      "label": "oos_proposed",
+      "start": "2026-01-02",
+      "end": "2026-05-16",
+      "n_trades": 137,
+      "n_winners": 31,
+      "win_rate": 0.226,
+      "total_pnl": 14064.2,
+      "avg_per_trade": 102.66,
+      "max_drawdown": -4615.8,
+      "sharpe": 0.0
+    }
+  },
+  "params_used": {
+    "strike_offset_bear": 0,
+    "min_triggers_bear": 1,
+    "tp1_premium_pct": 0.75,
+    "tp1_qty_fraction": 0.5,
+    "runner_target_premium_pct": 2.0,
+    "premium_stop_pct_bear": -0.2
+  }
+}

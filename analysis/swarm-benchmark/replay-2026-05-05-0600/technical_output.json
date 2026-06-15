@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-05T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.70,
+  "reasoning": "CLEAN_BULL ribbon with 87c spread, price 35c above pivot (720.62 > 720.27) and above all three EMAs (fast 720.45 > pivot 720.27 > slow 719.59). Overnight gap up +$2.55 with premarket high 720.86 shows bullish conviction. Last 3 bars mixed (red, red, strong green) but current 05:55 bar is strong green close (75% body in 12c range). VIX falling -4.07% signals vol contraction and risk-on bias. Caution: sector rotation flags risk_off despite bullish technicals—suggests early consolidation before commitment.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 87,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon 87c spread (fast 720.45 > pivot 720.27 > slow 719.59) is primary bullish signal",
+    "Price 720.62 is 35c above pivot with all EMAs stacked bullish (fast > pivot > slow)",
+    "Last bar (05:55) strong green close: 9c body in 12c range (75% full), recovering from 2 red bars",
+    "Overnight gap +$2.55 with premarket high 720.86 shows conviction; price 24c below PMH, holding",
+    "VIX 17.44 falling -4.07% (vol contracting) + risk_off rotation = technicals bullish but macro cautious"
+  ],
+  "data_quality": "full"
+}

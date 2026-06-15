@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-04-08T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.76,
+  "reasoning": "XLK +0.93%, XLF +0.52%, XLE +0.59% — all major sectors aligned upward with strong risk-on participation. VIX falling -19.95% reinforces bullish breadth. However, all three sectors are outperforming SPY (+0.39%), indicating narrow tech-led leadership rather than broad-based buying. Market is risk-on but concentrated in growth/tech. Premarket gap +17.34 on strong ribbon (BULL, 724¢ spread) supports continuation, but watch for profit-taking reversal if tech pauses.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 0.93,
+    "xlf_change_pct": 0.52,
+    "xle_change_pct": 0.59,
+    "spy_change_pct": 0.39,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +0.93% — tech leading the charge, 54bps ahead of SPY",
+    "XLF: +0.52% — financials positive, supporting broad upside (but modest gain)",
+    "XLE: +0.59% — energy also up, confirms risk-on rotation (not defensive)",
+    "SPY lag: All three sectors outperforming SPY suggests concentration risk — tech is doing heavy lifting while broader market lags"
+  ],
+  "data_quality": "full"
+}

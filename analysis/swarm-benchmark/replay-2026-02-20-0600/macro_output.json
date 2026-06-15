@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-02-20T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "VIX at 18.87 (MID regime, 15-22 range) with direction FALLING (-6.95% overnight). Fear receding = bullish tailwind for directional calls; premium compression favorable for directional entries. Overnight gap flat ($0.00) — no overnight conviction, but VIX weakness carries forward. ZERO macro events scheduled today (no FOMC, CPI, NFP, earnings, or releases) — clean calendar with no 8:30 ET blocks or mid-morning surprises. Sector rotation mixed (XLK/XLF/SPY all flat, only XLE -0.50% weakness). Risk-on environment intact. Macro backdrop clear for directional setups. Caution: MID regime (not LOW) means premium still elevated vs. history; bullish entries work best with technical confluence (level reclaim, ribbon alignment, volume confirmation).",
+  "vix_regime": "MID",
+  "vix_direction": "falling",
+  "vix_current": 18.87,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": 0.0,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX falling -6.95% to 18.87 — overnight fear receded, bullish bias for calls and premium payers",
+    "Zero macro events today: no FOMC, CPI, NFP, PPI, earnings, or scheduled releases — clean RTH",
+    "Overnight gap flat at $0.00 — SPY opened exactly at prior close (684.50); no overnight directional signal",
+    "Sector breadth mixed: tech/financials/SPY all flat, energy XLE -0.5% slight weakness — no rotation signal",
+    "Premium cheaper than recent history (VIX 18.87 vs. prior 20+) — favorable for directional entries"
+  ],
+  "data_quality": "full"
+}

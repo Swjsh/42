@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-04-16T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.58,
+  "reasoning": "XLK up 1.37% while SPY up only 0.67% = tech outperformance and risk-on signal. However, XLF flat at +0.19% and XLE at +0.29% show no financial or energy participation. Narrow tech leadership without broad sector confirmation. Bullish tilt from tech dominance but medium confidence due to lack of secondary sector support — financials especially should be up if this is a sustained risk-on rotation.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 1.37,
+    "xlf_change_pct": 0.19,
+    "xle_change_pct": 0.29,
+    "spy_change_pct": 0.67,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +1.37% — tech leadership driving premarket rally, strong risk-on signal",
+    "XLF: +0.19% — financials essentially flat, not confirming broad risk-on rotation",
+    "XLE: +0.29% — energy neutral, no defensive shift",
+    "Overall rotation: Risk-on driven by tech sector only; lacks multi-sector breadth for high-conviction bullish day"
+  ],
+  "data_quality": "full"
+}

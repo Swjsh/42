@@ -1,0 +1,24 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-05-20T09:06:14Z",
+  "bias": "no_trade",
+  "confidence": 0.2,
+  "reasoning": "Sector data is incomplete — only XLE (+2.45%) and SPY (-0.143%) available, while XLK and XLF are null. Cannot assess classic sector rotation (tech + financials leadership) without XLK/XLF data. XLE up significantly while SPY slightly down could indicate defensive rotation but too many unknowns. Low confidence due to insufficient sector coverage.",
+  "rotation_signal": "mixed",
+  "sector_alignment": {
+    "xlk_change_pct": null,
+    "xlf_change_pct": null,
+    "xle_change_pct": 2.45,
+    "spy_change_pct": -0.143,
+    "xlk_vs_spy": "unknown",
+    "breadth": "flat"
+  },
+  "key_observations": [
+    "XLK: null — tech sector data unavailable, cannot assess growth/momentum leadership",
+    "XLF: null — financials sector data unavailable, cannot assess yield curve/banks sentiment",
+    "XLE: +2.45% — energy sector up significantly, typically defensive/inflation play",
+    "SPY: -0.143% — market slightly down on session",
+    "Cannot determine risk-on/risk-off rotation without XLK and XLF data — need at least 2 of 3 major sectors to assess alignment"
+  ],
+  "data_quality": "partial"
+}

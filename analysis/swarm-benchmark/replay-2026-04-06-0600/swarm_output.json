@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-04-06T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis", "internals"],
+    "bearish": [],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 4,
+    "bearish": 0,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 1.00,
+    "bearish": 0.00
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 88,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Price is trading 42 cents BELOW the ribbon pivot (657.30 vs 657.72) with 2 consecutive red bars into the open — the CLEAN_BULL ribbon thesis requires price to hold above the pivot, and current bar structure (1G/2R momentum loss) directly contradicts that requirement.",
+    "top_invalidation_scenario": "Price breaks below 654.87 (premarket low / Active support) within first 15 min of RTH with elevated volume — this destroys the bullish reclaim thesis, invalidates ribbon alignment, and opens a flush to 652-645 shelf."
+  },
+  "battle_level": {
+    "price": 658.52,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 658.52,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 658.20,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 654.87,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 656.00,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 645.11,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 658.20 on first test and reclaims 658.52 with a clean closed bar above",
+      "bias": "bullish",
+      "target": 660.0,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 654.87 with elevated volume (bearish momentum confirmation)",
+      "bias": "bearish",
+      "target": 652.0,
+      "entry_trigger": "support_break"
+    },
+    "invalidation": {
+      "condition": "if SPY breaks below 654.87 within first 15 minutes of RTH — validator's highest-probability invalidation scenario",
+      "effect": "Destroys the bullish reclaim thesis entirely; ribbon alignment becomes invalid with price below both pivot and premarket support; initiates flush toward 652-645 shelf and changes consensus_bias to no_trade or bearish"
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "658.52 (Carry resistance, 5-day RTH high) will be tested at least once within the first 90 minutes of RTH given price is only $1.22 below at open and ribbon + gap structure point higher",
+      "invalidation": "SPY does not trade at or above 658.20 before 11:00 ET",
+      "confidence": 0.68,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 26.00 through the first 30 minutes of RTH, confirming flat direction thesis and preventing premium-deflation mean-reversion fade from dominating early-session price action",
+      "invalidation": "VIX prints 26.00 or higher on any 5-minute bar before 10:00 ET",
+      "confidence": 0.62,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BULL ribbon (fast > pivot > slow, currently 139¢ spread) remains intact — no ribbon inversion — through the first 45 minutes of RTH, indicating the overnight gap holds and selling pressure from the two pre-open red bars does not deepen",
+      "invalidation": "Fast EMA closes below pivot EMA on any 5-minute bar before 10:15 ET",
+      "confidence": 0.60,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "All 4 specialists cast unanimous bullish votes on the back of a CLEAN_BULL ribbon (139¢ spread), overnight gap +$1.42, and risk-on rotation (XLK +3.09%), but validator rates consensus robustness as only MODERATE because price is 42 cents below the ribbon pivot with two consecutive red bars showing momentum loss into the open — the bull story is structural, the bar story is weakening. The single most important watch at market open is whether the dual resistance zone at 658.20–658.52 gets tested and cleared early (confirming gap-and-go continuation) or whether pre-open selling pressure deepens past 654.87 (the premarket low and the validator's highest-probability invalidation trigger), which would flip the day's thesis entirely.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.62,
+      "one_line": "CLEAN_BULL ribbon 139¢ spread (fast 657.91 > pivot 657.72 > slow 656.52) confirmed, but price 42¢ below pivot with 1G/2R bar structure shows momentum loss into the open"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.70,
+      "one_line": "VIX 24.21 HIGH regime flat direction, no macro events today, risk-on backdrop (XLK +3.09% tech leadership) overrides elevated premium caution"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "Battle level 658.52 (Carry ★★ resistance) $1.22 above; 654.87 Active support provides tight floor; break above 658.52 targets 660+ continuation"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "Risk-on rotation confirmed — XLK +3.09% outperforming SPY by 1.63%, XLF +1.43% broad participation, XLE -2.11% defensive not dominant; breadth narrow but directional"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Price below pivot (657.30 < 657.72) with 2 consecutive red bars contradicts CLEAN_BULL thesis; 654.87 break within first 15 min is high-probability invalidation that would collapse the entire bullish setup"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

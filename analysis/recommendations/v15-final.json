@@ -1,0 +1,92 @@
+{
+  "generated_at": "2026-05-10T16:44:04.876765",
+  "rule_id": "v15-final",
+  "method": "5-stage grinder pipeline (stages 1-3 produced this winner)",
+  "verdict": "best_through_stage3_only",
+  "chosen_from_stage": "stage3",
+  "winner_combo": {
+    "super_stop": -0.15,
+    "super_tp1": 0.75,
+    "runner_target": 2.0,
+    "level_qty": 28,
+    "level_stop": -0.14,
+    "level_tp1": 0.4,
+    "trendline_stop": -0.06
+  },
+  "winner_metrics": {
+    "pnl_4_29": 654.58,
+    "pnl_5_04": 2417.83,
+    "edge_capture": 3056.16,
+    "winners_capture": 3056.16,
+    "losers_added": 0,
+    "wide_pnl": 19627.32,
+    "wide_n_trades": 293,
+    "wide_wr": 0.188,
+    "top5_pct": 1.198,
+    "positive_quarters": 4,
+    "max_drawdown": null,
+    "sub_window_pnls": null,
+    "quarter_pnl": {
+      "2025-Q1": 2182.25,
+      "2025-Q2": 8360.07,
+      "2025-Q3": -1677.78,
+      "2025-Q4": -1742.66,
+      "2026-Q1": 7430.01,
+      "2026-Q2": 5075.44
+    }
+  },
+  "baselines": {
+    "BASELINE_4_29": 372.0,
+    "BASELINE_5_04": 2418.0,
+    "BASELINE_EDGE": 2769.0,
+    "BASELINE_WIDE_PNL": 3655.0,
+    "J_TOTAL_WINNERS": 1542
+  },
+  "improvements_vs_baseline": {
+    "edge_capture_delta": 287.16,
+    "wide_pnl_delta": 15972.32,
+    "wide_pnl_pct": 437.0,
+    "concentration_change": "track separately \u2014 see top5_pct vs baseline 456%"
+  },
+  "ratification_status": "AWAITING_J_REVIEW",
+  "params_json_bump_required": true,
+  "params_json_diff": {
+    "TODO": "Translate per-quality knobs into orchestrator override keys",
+    "winner_combo": {
+      "super_stop": -0.15,
+      "super_tp1": 0.75,
+      "runner_target": 2.0,
+      "level_qty": 28,
+      "level_stop": -0.14,
+      "level_tp1": 0.4,
+      "trendline_stop": -0.06
+    },
+    "current_baseline": "V15_J_EDGE_OVERRIDES (in autoresearch/j_edge_tracker.py)"
+  },
+  "pipeline_summary": {
+    "stage4": {
+      "completed": 4,
+      "keepers": 0,
+      "best_edge": null,
+      "best_wide": null
+    },
+    "stage3": {
+      "completed": 20,
+      "keepers": 1,
+      "best_edge": 3056.16,
+      "best_wide": 18693.19
+    },
+    "stage2": {
+      "completed": 236,
+      "keepers": 2,
+      "best_edge": 3056.16,
+      "best_wide": 12105.27
+    },
+    "stage1": {
+      "completed": 432,
+      "keepers": 4,
+      "best_edge": 2960.08,
+      "best_wide": 12105.27
+    }
+  }
+}

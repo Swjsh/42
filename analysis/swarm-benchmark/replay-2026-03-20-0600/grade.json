@@ -1,0 +1,63 @@
+{
+  "date": "2026-03-20",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:09.109417+00:00",
+  "actual": {
+    "open": 656.51,
+    "close": 648.51,
+    "high": 656.69,
+    "low": 644.72,
+    "move_dollars": -8.0,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 76,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 655.17,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bearish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "TESTED_MIXED",
+      "battle_level": 655.17,
+      "role": "support",
+      "first_touch_time": "2026-03-20T09:30:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 655.17,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "655.17 Carry support is tested (SPY touches 655.30 or below) within the first 60 minutes of RTH (by ",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains above 25.0 through the first 60 minutes of RTH (09:30-10:30 ET), showing no mean reversion from the 25.81 ri",
+        "invalidation": "VIX drops to or below 24.0 within 60 minutes of the RTH open, signaling fear is abating and intraday macro backdrop turn"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BEAR ribbon structure (fast 657.02 below pivot 657.51 below slow 658.10) remains intact with spread >= 50 cents at",
+        "invalidation": "Fast MA crosses above pivot 657.51 before 10:30 ET, indicating the 108-cent bear spread is compressing and structural al"
+      }
+    ]
+  },
+  "narrative": "The central tension on 2026-03-20 is between the structural bearish setup \u2014 CLEAN_BEAR ribbon at 108-cent spread, overnight gap down $4.14, VIX rising to 25.81 HIGH regime \u2014 and a compelling counter-signal: premarket buyers already recovered 94% of the gap ($4.73 range, high 659.83), XLK is leading "
+}

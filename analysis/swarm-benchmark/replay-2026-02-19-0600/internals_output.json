@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-02-19T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "XLK +0.61% (tech leadership above 0.5% threshold) paired with XLF +0.46% and XLE +0.46% = classic risk-on sector rotation into open. All three major sectors positive and aligned. Tech leading SPY by 28bp (0.61% vs 0.33%) indicates tech-driven rally, not broad-based — watch for breadth fade if XLE momentum doesn't pick up. VIX rising +2.71% alongside risk-on sectors = conviction move. Bullish bias on sector internals, medium confidence due to tech concentration.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 0.61,
+    "xlf_change_pct": 0.46,
+    "xle_change_pct": 0.46,
+    "spy_change_pct": 0.33,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +0.61% — clear tech leadership, exceeds 0.5% risk-on threshold",
+    "XLF: +0.46% — financials positive but sub-threshold; yield-curve supportive",
+    "XLE: +0.46% — energy aligned with risk-on, no defensive rotation",
+    "overall rotation: risk_on — all sectors up, tech concentrated, SPY lagging sector strength"
+  ],
+  "data_quality": "full"
+}

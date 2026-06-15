@@ -1,0 +1,98 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-04-13T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.62,
+  "reasoning": "SPY at 675.37, gapped down -3.97 overnight from 679.34, now sandwiched between PMH 675.98 (0.61 above) and PML 673.98 (1.39 below). Bear ribbon (slow 677.0 > pivot 675.88 > fast 675.62) + rising VIX +3.98% suggest lower bias. The battle level is PMH 675.98 — rejection on approach = confirm bearish and target PML 673.98; reclaim = test higher through 677-682 resistance zone. Moderate confidence due to tight band and two equidistant Active levels.",
+  "battle_level": {
+    "price": 675.98,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 675.98,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.61
+    },
+    {
+      "price": 673.98,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 1.39
+    },
+    {
+      "price": 677.85,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 2.48
+    },
+    {
+      "price": 677.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 4,
+      "distance_from_price": 1.63
+    },
+    {
+      "price": 678.45,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_below",
+      "test_type": "reclaim_attempt",
+      "priority_rank": 5,
+      "distance_from_price": 3.08
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY fails to reclaim PMH 675.98 and rolls over",
+      "bias": "bearish",
+      "target": 673.98,
+      "entry_trigger": "PMH rejection + bear ribbon confirmation",
+      "stop_if_wrong": 676.50
+    },
+    "secondary": {
+      "condition": "if SPY reclaims PMH 675.98 + closes above it",
+      "bias": "bullish",
+      "target": 678.45,
+      "entry_trigger": "PMH reclaim + potential gap fill",
+      "stop_if_wrong": 674.50
+    },
+    "contingency": {
+      "condition": "if SPY breaks below PML 673.98 decisively",
+      "bias": "bearish_strong",
+      "target": 651.06,
+      "entry_trigger": "gap defense failure",
+      "stop_if_wrong": 675.00
+    }
+  },
+  "levels_in_play_count": 5,
+  "key_observations": [
+    "Price trapped in 2.00-wide band (PMH 675.98 to PML 673.98) — the true battle zone today.",
+    "Bear ribbon + gap down + VIX rising = structural bearish lean; first test likely goes to PML floor.",
+    "If PMH holds as resistance on approach, that's reversal signal; rejection confirms bear bias.",
+    "Carry level 682.03 is 6.66 away — beyond immediate scope; focus on the two Active levels (PMH + PML).",
+    "Round numbers 676-677 are secondary overhead if PMH is reclaimed; below PML is open air to 651.06 (5-day low)."
+  ],
+  "data_quality": "full"
+}

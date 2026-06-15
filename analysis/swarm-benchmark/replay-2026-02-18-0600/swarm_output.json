@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-02-18T11:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["macro", "internals"],
+    "bearish": ["level_thesis"],
+    "no_trade": ["technical"]
+  },
+  "vote_counts": {
+    "bullish": 2,
+    "bearish": 1,
+    "no_trade": 1
+  },
+  "weighted_scores": {
+    "bullish": 0.40,
+    "bearish": 0.25
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "weak",
+  "swarm_confidence": 35,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["level_thesis", "technical"],
+    "dissent_reason": "Level thesis identifies bearish asymmetry with strong 2★ resistance at 684.92 only $2.34 above price while weak 1★ support cluster (682/681/680) offers minimal downside defense; technical agent sees CHOP with mixed ribbon (29¢ spread below 30¢ threshold) and price 39¢ below pivot equilibrium."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Bullish agents interpret VIX compression and sector rotation as a directional entry signal, but fail to reconcile this with the actual morning price structure: mixed ribbon (chop), below-pivot position, flat overnight gap, and a 2★ resistance level at 684.92 with no structural support until Carry at 675.79 ($6.79 away).",
+    "top_invalidation_scenario": "SPY tests 684.92 on first rally and REJECTS (closes below 684.00 on the test), confirming the bearish level asymmetry and triggering a flush through the weak 1★ support cluster toward Carry 675.79."
+  },
+  "battle_level": {
+    "price": 684.92,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 684.92,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 684.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 682.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 681.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 680.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY tests 684.92 and ribbon aligns bullish (spread ≥30¢, bull stack) on the hold",
+      "bias": "bullish",
+      "target": 686.52,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if SPY fails to hold 684.92 and breaks below 684.00 on the test",
+      "bias": "bearish",
+      "target": 680.0,
+      "entry_trigger": "level_rejection"
+    },
+    "invalidation": {
+      "condition": "SPY tests 684.92 on first rally and REJECTS (closes below 684.00); VIX stabilizes or ticks back above 19.50 in first 30 min",
+      "effect": "Bull-trap confirmed: macro tailwind proved insufficient for structural breakout; flush through weak 1★ support cluster (682/681/680) becomes the primary scenario, with strategic target at Carry 675.79."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY rallies to test 684.92 resistance within the first 90 minutes of RTH (by 11:00 ET)",
+      "invalidation": "SPY fails to touch 684.00 before 11:00 ET, remaining below 684.00 through the late morning",
+      "confidence": 0.60,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 19.50 through 11:00 ET, sustaining the risk-on macro backdrop that anchors the bullish case",
+      "invalidation": "VIX ticks back above 19.50 within the first 30 minutes of market open, reversing the fear-recession narrative",
+      "confidence": 0.65,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "Ribbon spread remains below 30¢ (CHOP regime) through 10:15 ET, with SPY oscillating within ±$1.00 of 682.58 during the opening 45 minutes",
+      "invalidation": "Ribbon expands to 30¢+ with full bull stack (Slow < Fast < Pivot) forming before 10:15 ET",
+      "confidence": 0.55,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The swarm delivers a weak bullish lean driven by macro tailwinds (VIX -8.03%, risk-on sector rotation into XLK/XLF) but the structural picture is distinctly cautious: technical sees CHOP with a 29¢ ribbon spread and price below pivot, while level thesis flags a stark bearish asymmetry with 2★ resistance at 684.92 blocking the upside and only weak 1★ supports below. The single most important thing to watch at open is the 684.92 test — a ribbon-confirmed hold above it flips the day bullish toward 686.52, but a rejection (close below 684.00) confirms the bull-trap and opens a flush through 682/681/680 toward Carry at 675.79.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "no_trade",
+      "confidence": 0.28,
+      "one_line": "CHOP: ribbon MIXED 29¢ spread (sub-30¢ threshold), last 3 bars red/red/green inconsistent, price 39¢ below pivot equilibrium — no structural directional edge"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "VIX MID regime falling -8.03% to 18.66 signals fear recession and premium compression; zero events today; XLK/XLF risk-on rotation confirms bullish backdrop despite flat overnight gap"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.70,
+      "one_line": "Battle level 684.92 (Active 2★ resistance) is $2.34 away; asymmetry bearish — strong resistance above, weak 1★ support cluster (682/681/680) below, Carry at 675.79 is the strategic flush target"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.78,
+      "one_line": "Classic risk-on rotation: XLK +0.61% and XLF +0.73% leading, XLE -1.48% lagging — tech and financials outperforming SPY, supports bullish directional bias"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "SPY tests 684.92 on first rally and REJECTS below 684.00 — bull trap confirmed, macro tailwind insufficient for structural breakout, weak 1★ cluster becomes a flush target"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

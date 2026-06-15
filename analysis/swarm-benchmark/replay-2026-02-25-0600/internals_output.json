@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-02-25T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.82,
+  "reasoning": "XLK +0.78% and XLF +1.05% both leading while XLE flat at -0.02% = classic risk-on sector rotation. Two major sectors aligned >0.5% in same direction with XLF outperforming SPY (+1.05% vs +0.8%) indicating broad cyclical strength, not narrow tech-only move. Tech participating inline (+0.78% vs +0.8%). Energy flat confirms yield-driven growth rotation, not inflation signal. Sector internals paint strong bullish, broad-based picture heading into market open.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 0.78,
+    "xlf_change_pct": 1.05,
+    "xle_change_pct": -0.02,
+    "spy_change_pct": 0.8,
+    "xlk_vs_spy": "inline",
+    "breadth": "broad"
+  },
+  "key_observations": [
+    "XLK: +0.78% — solid tech leadership, growth sector performing well",
+    "XLF: +1.05% — strongest sector, financials outperforming, cyclical risk appetite",
+    "XLE: -0.02% — flat, no defensive rotation signal, confirms risk-on picture",
+    "Overall rotation: Risk-on with broad-based leadership from growth and financial sectors. Two major indices aligned >0.5% threshold with proportional SPY participation."
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,55 @@
+{
+  "date_et": "2026-05-21",
+  "total_cost_usd": 536.3034,
+  "claude_cost_usd": 536.2063,
+  "minimax_cost_usd": 0.0971,
+  "claude_sessions": 122,
+  "claude_by_tier": {
+    "haiku": {
+      "tier": "haiku",
+      "messages": 1083,
+      "input_tokens": 49350,
+      "output_tokens": 1237561,
+      "cache_creation_input_tokens": 65152213,
+      "cache_read_input_tokens": 95001481,
+      "estimated_cost_usd": 97.1776
+    },
+    "sonnet": {
+      "tier": "sonnet",
+      "messages": 4135,
+      "input_tokens": 17349,
+      "output_tokens": 3437035,
+      "cache_creation_input_tokens": 16765869,
+      "cache_read_input_tokens": 491035739,
+      "estimated_cost_usd": 261.7903
+    },
+    "opus": {
+      "tier": "opus",
+      "messages": 135,
+      "input_tokens": 205,
+      "output_tokens": 172398,
+      "cache_creation_input_tokens": 3971119,
+      "cache_read_input_tokens": 59897999,
+      "estimated_cost_usd": 177.2384
+    }
+  },
+  "minimax_calls": 17,
+  "minimax_by_task": {
+    "kitchen.reviewer.tier3": 0.011814,
+    "kitchen.cook.review-the-stage-3-json-at-ana.tier3": 0.007207,
+    "kitchen.cook.examine-the-bearish-sweep-bloc.tier3": 0.007058,
+    "kitchen.cook.build-gym-validator-v37-false-.tier3": 0.00669,
+    "kitchen.cook.run-real-fills-backtest-on-nam.tier3": 0.006566,
+    "kitchen.cook.implement-or-range-computation.tier3": 0.006489,
+    "kitchen.cook.brainstorm-a-new-setup-class-t.tier3": 0.006442,
+    "kitchen.cook.add-false-break-launchpad-dete.tier3": 0.006404,
+    "kitchen.cook.design-a-real-fills-validation.tier3": 0.006261,
+    "kitchen.cook.simulate-accumulation-trajecto.tier3": 0.006141,
+    "kitchen.cook.survey-all-10-strategy-candida.tier3": 0.006129,
+    "kitchen.cook.write-a-strategic-proposal-giv.tier3": 0.005935,
+    "kitchen.cook.run-stage-2-spy-backtest-with-.tier3": 0.005795,
+    "chef.auto.tier3": 0.005291,
+    "swarm.technical": 0.002844,
+    "swarm.test_2026-05-21": 6.5e-05
+  }
+}

@@ -1,0 +1,480 @@
+{
+  "generated_at_utc": "2026-05-20T02:15:53.278635+00:00",
+  "range_start": "2025-01-02",
+  "range_end": "2026-05-15",
+  "total_graded_hits": 5118,
+  "mistuned_detectors": [],
+  "well_tuned_detectors": [
+    "double_bottom",
+    "double_top",
+    "failed_breakdown_wick",
+    "rejection_at_level_bearish",
+    "momentum_acceleration",
+    "head_and_shoulders_top",
+    "inside_bar_consolidation"
+  ],
+  "per_detector": [
+    {
+      "detector": "double_bottom",
+      "n_graded": 1646,
+      "wins": 890,
+      "losses": 756,
+      "current_confidence_band_wr": {
+        "<0.60": {
+          "n": 374,
+          "wr_pct": 51.3
+        },
+        "0.60-0.70": {
+          "n": 397,
+          "wr_pct": 54.9
+        },
+        "0.70-0.80": {
+          "n": 543,
+          "wr_pct": 54.9
+        },
+        "0.80+": {
+          "n": 332,
+          "wr_pct": 54.8
+        }
+      },
+      "factor_analysis": [
+        {
+          "factor": "separation_pct",
+          "n_total": 1646,
+          "median": 0.0008,
+          "wr_above_median": 54.0,
+          "wr_below_median": 54.2,
+          "wr_delta_pp": -0.2,
+          "snr": 0.04,
+          "predictive": false,
+          "direction": "lower_is_better"
+        },
+        {
+          "factor": "neckline_rise_pct",
+          "n_total": 1646,
+          "median": 0.0025,
+          "wr_above_median": 55.4,
+          "wr_below_median": 52.6,
+          "wr_delta_pp": 2.8,
+          "snr": 0.78,
+          "predictive": false,
+          "direction": "higher_is_better"
+        },
+        {
+          "factor": "bars_between",
+          "n_total": 1646,
+          "median": 2.0,
+          "wr_above_median": 53.4,
+          "wr_below_median": 56.0,
+          "wr_delta_pp": -2.5,
+          "snr": 0.51,
+          "predictive": false,
+          "direction": "lower_is_better"
+        }
+      ],
+      "top_predictor": null,
+      "draft_recommendation": {
+        "formula_mistuned": false,
+        "mid_band_wr": 54.9,
+        "high_band_wr": 54.8,
+        "high_band_n": 332,
+        "predictive_factors": [],
+        "non_predictive_factors": [
+          "separation_pct",
+          "neckline_rise_pct",
+          "bars_between"
+        ],
+        "action": "KEEP_CURRENT: formula appears well-tuned for this detector"
+      }
+    },
+    {
+      "detector": "double_top",
+      "n_graded": 1225,
+      "wins": 576,
+      "losses": 649,
+      "current_confidence_band_wr": {
+        "<0.60": {
+          "n": 116,
+          "wr_pct": 50.0
+        },
+        "0.60-0.70": {
+          "n": 450,
+          "wr_pct": 45.6
+        },
+        "0.70-0.80": {
+          "n": 435,
+          "wr_pct": 46.7
+        },
+        "0.80+": {
+          "n": 224,
+          "wr_pct": 49.1
+        }
+      },
+      "factor_analysis": [
+        {
+          "factor": "separation_pct",
+          "n_total": 1225,
+          "median": 0.0008,
+          "wr_above_median": 45.5,
+          "wr_below_median": 48.6,
+          "wr_delta_pp": -3.1,
+          "snr": 0.78,
+          "predictive": false,
+          "direction": "lower_is_better"
+        },
+        {
+          "factor": "neckline_drop_pct",
+          "n_total": 1225,
+          "median": 0.0025,
+          "wr_above_median": 46.5,
+          "wr_below_median": 47.5,
+          "wr_delta_pp": -1.0,
+          "snr": 0.25,
+          "predictive": false,
+          "direction": "lower_is_better"
+        },
+        {
+          "factor": "bars_between",
+          "n_total": 1225,
+          "median": 3.0,
+          "wr_above_median": 43.3,
+          "wr_below_median": 51.5,
+          "wr_delta_pp": -8.2,
+          "snr": 1.94,
+          "predictive": true,
+          "direction": "lower_is_better"
+        }
+      ],
+      "top_predictor": {
+        "factor": "bars_between",
+        "n_total": 1225,
+        "median": 3.0,
+        "wr_above_median": 43.3,
+        "wr_below_median": 51.5,
+        "wr_delta_pp": -8.2,
+        "snr": 1.94,
+        "predictive": true,
+        "direction": "lower_is_better"
+      },
+      "draft_recommendation": {
+        "formula_mistuned": false,
+        "mid_band_wr": 45.6,
+        "high_band_wr": 49.1,
+        "high_band_n": 224,
+        "predictive_factors": [
+          "bars_between"
+        ],
+        "non_predictive_factors": [
+          "separation_pct",
+          "neckline_drop_pct"
+        ],
+        "action": "KEEP_CURRENT: formula appears well-tuned for this detector",
+        "increase_weight_on": "bars_between",
+        "top_factor_snr": 1.94,
+        "top_factor_direction": "lower_is_better"
+      }
+    },
+    {
+      "detector": "failed_breakdown_wick",
+      "n_graded": 298,
+      "wins": 154,
+      "losses": 144,
+      "current_confidence_band_wr": {
+        "<0.60": {
+          "n": 58,
+          "wr_pct": 55.2
+        },
+        "0.60-0.70": {
+          "n": 147,
+          "wr_pct": 53.1
+        },
+        "0.70-0.80": {
+          "n": 74,
+          "wr_pct": 44.6
+        },
+        "0.80+": {
+          "n": 19,
+          "wr_pct": 57.9
+        }
+      },
+      "factor_analysis": [
+        {
+          "factor": "sweep_depth_pct",
+          "n_total": 298,
+          "median": 0.0003,
+          "wr_above_median": 52.3,
+          "wr_below_median": 51.0,
+          "wr_delta_pp": 1.3,
+          "snr": 0.16,
+          "predictive": false,
+          "direction": "higher_is_better"
+        },
+        {
+          "factor": "close_back_margin_pct",
+          "n_total": 298,
+          "median": 0.0013,
+          "wr_above_median": 57.7,
+          "wr_below_median": 45.6,
+          "wr_delta_pp": 12.1,
+          "snr": 1.47,
+          "predictive": true,
+          "direction": "higher_is_better"
+        },
+        {
+          "factor": "wick_to_body_ratio",
+          "n_total": 298,
+          "median": 0.635,
+          "wr_above_median": 49.7,
+          "wr_below_median": 53.7,
+          "wr_delta_pp": -4.0,
+          "snr": 0.49,
+          "predictive": false,
+          "direction": "lower_is_better"
+        }
+      ],
+      "top_predictor": {
+        "factor": "close_back_margin_pct",
+        "n_total": 298,
+        "median": 0.0013,
+        "wr_above_median": 57.7,
+        "wr_below_median": 45.6,
+        "wr_delta_pp": 12.1,
+        "snr": 1.47,
+        "predictive": true,
+        "direction": "higher_is_better"
+      },
+      "draft_recommendation": {
+        "formula_mistuned": false,
+        "mid_band_wr": 53.1,
+        "high_band_wr": 57.9,
+        "high_band_n": 19,
+        "predictive_factors": [
+          "close_back_margin_pct"
+        ],
+        "non_predictive_factors": [
+          "sweep_depth_pct",
+          "wick_to_body_ratio"
+        ],
+        "action": "KEEP_CURRENT: formula appears well-tuned for this detector",
+        "increase_weight_on": "close_back_margin_pct",
+        "top_factor_snr": 1.47,
+        "top_factor_direction": "higher_is_better"
+      }
+    },
+    {
+      "detector": "rejection_at_level_bearish",
+      "n_graded": 205,
+      "wins": 98,
+      "losses": 107,
+      "current_confidence_band_wr": {
+        "<0.60": {
+          "n": 36,
+          "wr_pct": 38.9
+        },
+        "0.60-0.70": {
+          "n": 96,
+          "wr_pct": 51.0
+        },
+        "0.70-0.80": {
+          "n": 64,
+          "wr_pct": 45.3
+        },
+        "0.80+": {
+          "n": 9,
+          "wr_pct": 66.7
+        }
+      },
+      "factor_analysis": [
+        {
+          "factor": "close_back_margin_pct",
+          "n_total": 205,
+          "median": 0.0014,
+          "wr_above_median": 51.0,
+          "wr_below_median": 44.6,
+          "wr_delta_pp": 6.4,
+          "snr": 0.64,
+          "predictive": false,
+          "direction": "higher_is_better"
+        }
+      ],
+      "top_predictor": null,
+      "draft_recommendation": {
+        "formula_mistuned": false,
+        "mid_band_wr": 51.0,
+        "high_band_wr": 66.7,
+        "high_band_n": 9,
+        "predictive_factors": [],
+        "non_predictive_factors": [
+          "close_back_margin_pct"
+        ],
+        "action": "KEEP_CURRENT: formula appears well-tuned for this detector"
+      }
+    },
+    {
+      "detector": "momentum_acceleration",
+      "n_graded": 332,
+      "wins": 160,
+      "losses": 172,
+      "current_confidence_band_wr": {
+        "<0.60": {
+          "n": 34,
+          "wr_pct": 55.9
+        },
+        "0.60-0.70": {
+          "n": 119,
+          "wr_pct": 40.3
+        },
+        "0.70-0.80": {
+          "n": 99,
+          "wr_pct": 48.5
+        },
+        "0.80+": {
+          "n": 80,
+          "wr_pct": 56.2
+        }
+      },
+      "factor_analysis": [
+        {
+          "factor": "range_mult",
+          "n_total": 332,
+          "median": 2.83,
+          "wr_above_median": 52.4,
+          "wr_below_median": 44.0,
+          "wr_delta_pp": 8.4,
+          "snr": 1.09,
+          "predictive": true,
+          "direction": "higher_is_better"
+        },
+        {
+          "factor": "body_to_range_pct",
+          "n_total": 332,
+          "median": 0.78,
+          "wr_above_median": 45.8,
+          "wr_below_median": 50.6,
+          "wr_delta_pp": -4.8,
+          "snr": 0.62,
+          "predictive": false,
+          "direction": "lower_is_better"
+        }
+      ],
+      "top_predictor": {
+        "factor": "range_mult",
+        "n_total": 332,
+        "median": 2.83,
+        "wr_above_median": 52.4,
+        "wr_below_median": 44.0,
+        "wr_delta_pp": 8.4,
+        "snr": 1.09,
+        "predictive": true,
+        "direction": "higher_is_better"
+      },
+      "draft_recommendation": {
+        "formula_mistuned": false,
+        "mid_band_wr": 40.3,
+        "high_band_wr": 56.2,
+        "high_band_n": 80,
+        "predictive_factors": [
+          "range_mult"
+        ],
+        "non_predictive_factors": [
+          "body_to_range_pct"
+        ],
+        "action": "KEEP_CURRENT: formula appears well-tuned for this detector",
+        "increase_weight_on": "range_mult",
+        "top_factor_snr": 1.09,
+        "top_factor_direction": "higher_is_better"
+      }
+    },
+    {
+      "detector": "head_and_shoulders_top",
+      "n_graded": 283,
+      "wins": 152,
+      "losses": 131,
+      "current_confidence_band_wr": {
+        "<0.60": {
+          "n": 8,
+          "wr_pct": 87.5
+        },
+        "0.60-0.70": {
+          "n": 86,
+          "wr_pct": 50.0
+        },
+        "0.70-0.80": {
+          "n": 118,
+          "wr_pct": 53.4
+        },
+        "0.80+": {
+          "n": 71,
+          "wr_pct": 54.9
+        }
+      },
+      "factor_analysis": [
+        {
+          "factor": "head_prominence_pct",
+          "n_total": 283,
+          "median": 0.26,
+          "wr_above_median": 52.4,
+          "wr_below_median": 55.0,
+          "wr_delta_pp": -2.6,
+          "snr": 0.3,
+          "predictive": false,
+          "direction": "lower_is_better"
+        },
+        {
+          "factor": "shoulder_diff_pct",
+          "n_total": 283,
+          "median": 0.071,
+          "wr_above_median": 55.7,
+          "wr_below_median": 51.2,
+          "wr_delta_pp": 4.5,
+          "snr": 0.5,
+          "predictive": false,
+          "direction": "higher_is_better"
+        },
+        {
+          "factor": "neckline_break_pct",
+          "n_total": 283,
+          "median": 0.196,
+          "wr_above_median": 56.3,
+          "wr_below_median": 51.1,
+          "wr_delta_pp": 5.3,
+          "snr": 0.63,
+          "predictive": false,
+          "direction": "higher_is_better"
+        }
+      ],
+      "top_predictor": null,
+      "draft_recommendation": {
+        "formula_mistuned": false,
+        "mid_band_wr": 50.0,
+        "high_band_wr": 54.9,
+        "high_band_n": 71,
+        "predictive_factors": [],
+        "non_predictive_factors": [
+          "head_prominence_pct",
+          "shoulder_diff_pct",
+          "neckline_break_pct"
+        ],
+        "action": "KEEP_CURRENT: formula appears well-tuned for this detector"
+      }
+    },
+    {
+      "detector": "inside_bar_consolidation",
+      "n_graded": 0,
+      "wins": 0,
+      "losses": 0,
+      "current_confidence_band_wr": {},
+      "factor_analysis": [],
+      "top_predictor": null,
+      "draft_recommendation": {
+        "formula_mistuned": false,
+        "action": "INSUFFICIENT_DATA",
+        "predictive_factors": [],
+        "non_predictive_factors": [],
+        "mid_band_wr": 0,
+        "high_band_wr": 0,
+        "high_band_n": 0
+      }
+    }
+  ]
+}

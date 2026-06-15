@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-05T11:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["internals"],
+    "bearish": ["technical", "macro"],
+    "no_trade": ["level_thesis"]
+  },
+  "vote_counts": {
+    "bullish": 1,
+    "bearish": 2,
+    "no_trade": 1
+  },
+  "weighted_scores": {
+    "bullish": 0.10,
+    "bearish": 0.65
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 44,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["level_thesis", "internals"],
+    "dissent_reason": "Level thesis is explicitly no_trade — it sees the ribbon MIXED (14¢ spread) as directional ambiguity and wants to see 687.09 test outcome before committing; internals casts a bullish vote on risk-on sector rotation (XLK +0.95%, all three sectors positive) that directly contradicts a sustained bearish thesis."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The bearish agents treat VIX elevation as a directional-down signal, but rising IV into tight consolidation with risk-on sector breadth (XLK +0.95%) signals volatility-expansion breakout with direction yet to be determined — not a confirmed downside continuation.",
+    "top_invalidation_scenario": "VIX rolls over and drops below 21.0 by 10:00 ET while sectors remain bid — high-probability event that would flip the dominant bearish rationale and confirm the bullish-expansion read internals is already pricing."
+  },
+  "battle_level": {
+    "price": 687.09,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 687.09,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 679.63,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 688.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 685.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 684.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY tests 687.09 (prior session RTH high) and holds it as resistance on first touch",
+      "bias": "bearish",
+      "target": 679.63,
+      "entry_trigger": "rejection_candlestick + volume_confirm"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 687.09 on volume > 2.5x 5-min average",
+      "bias": "bullish",
+      "target": 693.17,
+      "entry_trigger": "level_break + ribbon_stack_flip"
+    },
+    "invalidation": {
+      "condition": "VIX drops below 21.0 by 10:00 ET while XLK continues outperforming SPY",
+      "effect": "IV contraction + sector strength combination collapses the primary bearish thesis; pivot immediately to bullish breakout watch at 687.09 — the risk-on internals signal would be confirmed as structural, not residual."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY will test the 687.09 battle level (prior session RTH high, Active 2-star resistance) within the first 60 minutes of RTH (by 10:30 ET), given price is only 1.53 points below at the open",
+      "invalidation": "SPY does not touch 687.09 at any point before 10:30 ET, instead trading below 685.00 support at the open",
+      "confidence": 0.58,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX will remain elevated above 21.0 through 10:00 ET, sustaining the HIGH volatility regime and keeping put premium inflated relative to call premium",
+      "invalidation": "VIX prints below 21.0 on any 5-minute bar before 10:00 ET",
+      "confidence": 0.52,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "The ribbon spread will widen to at least 20 cents in the bearish direction (fast EMA < slow EMA, spread >= 20c) by 10:30 ET, confirming the WEAK_BEAR verdict into a CLEAN_BEAR signal — price needs to close at least one 5-minute bar below 685.56 on volume above the 20-bar average",
+      "invalidation": "Ribbon spread widens to 20c+ in the bullish direction (fast > slow >= 20c) OR SPY posts a 5-minute bar close above 686.50 (the pivot) on above-average volume before 10:30 ET",
+      "confidence": 0.45,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "SPY enters 2026-03-05 in a volatility-expansion squeeze: price (685.56) is compressed between Reference support at 685.0 (−0.56) and Active resistance at 687.09 (+1.53) with a MIXED ribbon only 14 cents wide that refuses directional confirmation. The swarm leans bearish on the strength of the prior session's late-day selling cascade (3 consecutive red bars, 62-cent cumulative drop on 163k volume) and VIX elevation at 22.47 HIGH regime, but the consensus carries low conviction (conf 44) because two of four specialists dissent — the level thesis explicitly waits for breakout direction and internals show clean risk-on rotation (XLK +0.95%) that structurally contradicts sustained weakness. The single most critical variable at open is whether 687.09 holds as resistance or yields on volume: a rejection with volume confirms the bearish case targeting 679.63; a breakout flips the entire thesis bullish targeting 693.17 with the highest-probability invalidation being VIX rolling below 21.0 by 10:00 ET while sectors remain bid.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "WEAK_BEAR ribbon (14c spread, below 20c clean threshold) + strong_bear bar structure (3 red bars, 62c cumulative drop, final bar 78% body on 163k volume) — bearish momentum confirmed by price below EMA pivot, limited by MIXED ribbon"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.65,
+      "one_line": "HIGH VIX regime (22.47, +6.09%) with zero macro events today favors bearish setups — but risk-on sector rotation (XLK +0.95%) creates a contradictory signal that limits conviction"
+    },
+    "level_thesis": {
+      "bias": "no_trade",
+      "confidence": 0.35,
+      "one_line": "Battle level 687.09 (Active resistance, +1.53 above price) sets the morning direction — MIXED ribbon vetoes any directional lean before breakout confirmation; await 687.09 test outcome"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "Risk-on rotation confirmed: XLK +0.95% leading, XLF +0.33% supporting, XLE +0.23% neutral — all sectors positive with Tech outperforming SPY, narrow breadth but directionally bullish"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "VIX spike into tight consolidation (685.0–687.09 = 2.09-wide range) with risk-on sector backdrop signals volatility-expansion breakout pending — rising IV does not determine direction, and the +7.61 upside to 693.17 exceeds the −5.93 downside to 679.63, giving slight bullish asymmetry that bearish agents overlooked"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

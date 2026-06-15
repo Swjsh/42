@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-23T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": [],
+    "bearish": ["technical", "macro", "level_thesis", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 0,
+    "bearish": 4,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.0,
+    "bearish": 1.0
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 88,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The consensus conflates a completed gap-down event (already priced at 06:00 ET) with a bearish directional day — the real battleground is whether 642.25 holds and bounces (short-covering) or breaks, and the bearish case assumes the former leads to continuation rather than the historically common V-shaped recovery on falling-VIX gap-down days.",
+    "top_invalidation_scenario": "SPY opens RTH above 644.72 and holds through 09:45 ET, breaking the BEAR ribbon thesis and signaling short-covering rally overrides ribbon resistance."
+  },
+  "battle_level": {
+    "price": 642.25,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 642.25,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 644.72,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 645.2,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 643.26,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 644.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 642.25 on first RTH test and BEAR ribbon suppresses any bounce below 644.72",
+      "bias": "bearish",
+      "target": 638.0,
+      "entry_trigger": "level_rejection"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 642.25 (premarket low / gap-floor violated)",
+      "bias": "bearish",
+      "target": 638.0,
+      "entry_trigger": "level_rejection"
+    },
+    "invalidation": {
+      "condition": "SPY opens RTH above 644.72 and holds through 09:45 ET — OR — first 5-min RTH bar shows V-shaped recovery from 642.25 flush to 645.0+ on declining volume",
+      "effect": "BEAR ribbon thesis breaks; short-covering rally to 644.72–645.20 becomes primary scenario; bearish consensus is invalidated and no put entries should be taken until ribbon re-confirms"
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests 642.25 (premarket low / battle level) within first 60 minutes of RTH, i.e., at or before 10:30 ET",
+      "invalidation": "SPY does not trade at or below 642.50 before 10:30 ET",
+      "confidence": 0.70,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX continues declining and closes below 23.00 by 16:00 ET (fear-unwinding compression from 24.26 at 06:00 ET), confirming the macro tailwind against pure bearish conviction",
+      "invalidation": "VIX rises above 25.50 at any point during RTH, signaling fear re-escalation and validating pure bearish macro backdrop",
+      "confidence": 0.55,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "BEAR ribbon remains structurally intact (13-EMA below 20-EMA, spread ≥ 100 cents) through at least 11:00 ET, confirming continuation bearish pressure in the first half of RTH",
+      "invalidation": "13-EMA crosses above 20-EMA before 11:00 ET, signaling ribbon flip and invalidating the bearish structure thesis",
+      "confidence": 0.72,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "All four specialists are unanimously bearish — CLEAN_BEAR ribbon (234-cent spread, price 72c below pivot), gap-down $5.23, tech-led sector weakness (XLK -1.95%), and risk-off rotation all point the same direction. However, the validator flags a material tension: the gap is already fully priced at 06:00 ET, VIX is actively falling (-11.65% overnight), and breadth is narrow rather than systemic — conditions that historically favor short-covering at support rather than continuation. The single most important event at open is whether SPY's first 5-minute RTH bar holds above 642.25 (battle level / premarket low): a clean hold with downside rejection confirms the bearish put thesis toward 638, while a V-shaped bounce through 644.72+ invalidates it entirely.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.75,
+      "one_line": "CLEAN_BEAR ribbon (234c spread, fast 643.57 < pivot 644.0 < slow 645.91); price 72c below pivot; last 3 bars RED-RED-GREEN (mixed, not trending)"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "VIX 24.26 HIGH regime but falling -11.65%; gap-down $5.23 priced; zero events today = clean technical day with some VIX-compression counter-pressure"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.70,
+      "one_line": "Battle level 642.25 (PML, 2★ Active support) is the gap-floor; BEAR ribbon caps any bounce below 644.72; break below 642.25 targets 638.0 reference zone"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "Risk-off rotation confirmed: XLK -1.95% leads lower vs SPY -1.21%; XLF +0.25% resilient but not bullish; narrow breadth limits confidence in trend extension"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Gap already priced + falling VIX + narrow breadth + GREEN premarket recovery bar = short-covering at 642.25 support is equally likely as continuation; robustness is moderate, not strong"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

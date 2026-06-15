@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-03T11:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["internals"],
+    "bearish": ["macro", "level_thesis"],
+    "no_trade": ["technical"]
+  },
+  "vote_counts": {
+    "bullish": 1,
+    "bearish": 2,
+    "no_trade": 1
+  },
+  "weighted_scores": {
+    "bullish": 0.10,
+    "bearish": 0.55
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "moderate",
+  "swarm_confidence": 36,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["technical", "internals"],
+    "dissent_reason": "Technical vetoes all directional trades due to CHOP ribbon (15¢ spread, below 20¢ clean threshold); Internals provides a bullish counter-signal via risk-on rotation (XLK +1.83%, XLF +1.36%), arguing that high-VIX + institutional sector buying represents a capitulation washout bottom rather than continuation selling."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The bearish thesis assumes high VIX + flat overnight gap means continued selling, but VIX 26.9 + XLK +1.83% + flat gap is historically consistent with a capitulation bottom forming — not continuation. Macro and Level Thesis acknowledged this divergence but did not fully weight the reversal implication.",
+    "top_invalidation_scenario": "VIX gaps higher to 28+ in the first 30 minutes of RTH, proving fear is still accelerating and invalidating the bullish washout counter-thesis, returning full power to the bearish case."
+  },
+  "battle_level": {
+    "price": 688.59,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 688.59,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 693.66,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 685.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 678.03,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 687.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks below 685.00 support with volume > 1.5× 20-bar average",
+      "bias": "bearish",
+      "target": 678.03,
+      "entry_trigger": "685.00 break + VIX expansion confirmed + momentum divergence"
+    },
+    "secondary": {
+      "condition": "if SPY holds above 685.00 and rallies through 687.00 toward 688.59",
+      "bias": "bullish",
+      "target": 693.66,
+      "entry_trigger": "688.59 resistance reclaim + volume confirmation + ribbon_alignment above 30¢ spread"
+    },
+    "invalidation": {
+      "condition": "VIX prints above 27.5 in the first 30 minutes of RTH, or XLK and XLF both roll to red during regular session",
+      "effect": "Capitulation-bottom validator thesis collapses; risk-on rotation was a trap. Bearish consensus strengthens significantly and 678.03 Carry becomes high-probability target without needing the 685.00 clean-break trigger."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "685.00 support will be tested within the first 60 minutes of RTH (by 10:30 ET); if tested with a 5-min bar closing below 685.00 on volume > 1.5× 20-bar average, SPY will extend to at least 683.00 before end of session.",
+      "invalidation": "SPY holds above 686.00 continuously through the first 60 minutes of RTH without touching 685.00, signaling overnight buyers are defending.",
+      "confidence": 0.50,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX will not print a new intraday high above 27.5 during RTH; it will close below 26.9, consistent with a fear-spike exhaustion pattern given the flat overnight gap and risk-on sector rotation.",
+      "invalidation": "VIX prints above 27.5 within the first 90 minutes of RTH, confirming fear is still accelerating rather than peaking.",
+      "confidence": 0.42,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "Ribbon spread will remain below 30¢ (CHOP classification) for the first 2 hours of RTH (through 11:30 ET), preventing any clean directional entry signal and keeping the session in consolidation between 685.00 and 688.59.",
+      "invalidation": "Ribbon spread widens to 30¢ or above on a 5-min bar before 11:30 ET, triggering a BEAR or BULL read and enabling a directional setup.",
+      "confidence": 0.52,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The key tension today is a classic fear-divergence setup: VIX at 26.9 (+25% overnight) argues for bearish continuation, but risk-on sector rotation (XLK +1.83%, XLF +1.36%) and a flat overnight gap suggest institutional buyers stepped in overnight, raising the probability of a capitulation washout bottom rather than continuation selling. The bearish consensus (weighted 0.55 vs 0.10) rests on macro regime + asymmetric level structure (7.92-point void below 685.00 vs 2.64-point ceiling at 688.59), but the moderate robustness rating and CHOP ribbon demand patience — the single most important thing to watch at open is whether 685.00 holds or fails on meaningful volume (>1.5× avg), as that is the only clean trigger that resolves the directional ambiguity.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "no_trade",
+      "confidence": 0.30,
+      "one_line": "CHOP ribbon (15¢ spread, below 20¢ threshold) vetoes all directional trades; mixed bar structure with 283k-volume session-end RED reversal bar"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.72,
+      "one_line": "VIX 26.9 HIGH regime rising +25.41% = fear acceleration; zero macro events today; risk-on sector rotation creates VIX-vs-price divergence suggesting possible late-stage washout"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.65,
+      "one_line": "688.59 Active 2★ resistance caps upside; asymmetric 7.92-point void below 685.00 to Carry 678.03 favors bears if support fails"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.78,
+      "one_line": "Risk-on rotation confirmed (XLK +1.83%, XLF +1.36%, XLE -1.26%); narrow tech leadership in HIGH-VIX environment signals institutional buying INTO the fear spike"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "VIX 26.9 + rising VIX + flat gap + risk-on sectors = classic capitulation-bottom fingerprint; bearish agents underweighted the contrarian institutional signal from Internals"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

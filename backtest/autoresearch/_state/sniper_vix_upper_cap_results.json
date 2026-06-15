@@ -1,0 +1,127 @@
+{
+  "run_at": "2026-05-23T23:42:45.630139",
+  "combo": {
+    "vol_mult": 1.1,
+    "body_min_cents": 0.02,
+    "min_stars": 2,
+    "strike_offset": 1,
+    "premium_stop_pct": -0.1,
+    "tp1_premium_pct": 0.3,
+    "tp1_qty_fraction": 0.5,
+    "runner_target_pct": 2.0,
+    "profit_lock_threshold_pct": 0.05,
+    "profit_lock_stop_offset_pct": 0.08,
+    "qty": 10,
+    "proximity_dollars": 1.5,
+    "require_break_above_open": true
+  },
+  "vix_lower": 18,
+  "upper_caps_tested": [
+    null,
+    40,
+    35,
+    32,
+    30
+  ],
+  "window": {
+    "start": "2025-01-01",
+    "end": "2026-05-22"
+  },
+  "results": [
+    {
+      "label": "VIX >=18 (no cap)",
+      "vix_lower": 18,
+      "vix_upper": null,
+      "wide_pnl": 3297.6,
+      "wide_n_trades": 73,
+      "wide_wr": 0.562,
+      "positive_quarters": 4,
+      "quarter_count": 5,
+      "skipped_low": 190,
+      "skipped_high": 0,
+      "quarter_pnl": {
+        "2025-Q1": 1785.6,
+        "2025-Q2": 670.0,
+        "2025-Q4": 446.0,
+        "2026-Q1": 732.6,
+        "2026-Q2": -336.6
+      }
+    },
+    {
+      "label": "VIX 18-40",
+      "vix_lower": 18,
+      "vix_upper": 40,
+      "wide_pnl": 2886.0,
+      "wide_n_trades": 71,
+      "wide_wr": 0.563,
+      "positive_quarters": 4,
+      "quarter_count": 5,
+      "skipped_low": 190,
+      "skipped_high": 4,
+      "quarter_pnl": {
+        "2025-Q1": 1785.6,
+        "2025-Q2": 258.4,
+        "2025-Q4": 446.0,
+        "2026-Q1": 732.6,
+        "2026-Q2": -336.6
+      }
+    },
+    {
+      "label": "VIX 18-35",
+      "vix_lower": 18,
+      "vix_upper": 35,
+      "wide_pnl": 3224.0,
+      "wide_n_trades": 70,
+      "wide_wr": 0.571,
+      "positive_quarters": 4,
+      "quarter_count": 5,
+      "skipped_low": 190,
+      "skipped_high": 5,
+      "quarter_pnl": {
+        "2025-Q1": 1785.6,
+        "2025-Q2": 596.4,
+        "2025-Q4": 446.0,
+        "2026-Q1": 732.6,
+        "2026-Q2": -336.6
+      }
+    },
+    {
+      "label": "VIX 18-32",
+      "vix_lower": 18,
+      "vix_upper": 32,
+      "wide_pnl": 3224.0,
+      "wide_n_trades": 70,
+      "wide_wr": 0.571,
+      "positive_quarters": 4,
+      "quarter_count": 5,
+      "skipped_low": 190,
+      "skipped_high": 8,
+      "quarter_pnl": {
+        "2025-Q1": 1785.6,
+        "2025-Q2": 596.4,
+        "2025-Q4": 446.0,
+        "2026-Q1": 732.6,
+        "2026-Q2": -336.6
+      }
+    },
+    {
+      "label": "VIX 18-30",
+      "vix_lower": 18,
+      "vix_upper": 30,
+      "wide_pnl": 3413.0,
+      "wide_n_trades": 69,
+      "wide_wr": 0.58,
+      "positive_quarters": 4,
+      "quarter_count": 5,
+      "skipped_low": 190,
+      "skipped_high": 13,
+      "quarter_pnl": {
+        "2025-Q1": 1785.6,
+        "2025-Q2": 596.4,
+        "2025-Q4": 446.0,
+        "2026-Q1": 921.6,
+        "2026-Q2": -336.6
+      }
+    }
+  ]
+}

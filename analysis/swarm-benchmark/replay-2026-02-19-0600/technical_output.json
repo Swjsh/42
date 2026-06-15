@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-02-19T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.62,
+  "reasoning": "CLEAN_BEAR ribbon (52c spread, slow 686.18 > pivot 685.72 > fast 685.66) is the dominant signal. Price 686.19 sits 47c above pivot, showing initial strength, but the final bar (15:55) delivered a high-volume (188k) red rejection of the 15:40-15:50 rally. Last 3 bars: strong green (15:45 +71c full body), strong green (15:50 +53c full body), then strong red (15:55 -83c full body, 1.14-point range). This is a failed-rally / buyer-exhaustion pattern. VIX rising +2.71% to 20.09 confirms risk-off pressure. Flat overnight gap (0c) provides no external bullish support. Ribbon superiority + VIX direction + high-volume bar rejection favor a bearish bias into market open, though price has not yet confirmed below pivot.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 52,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "CLEAN_BEAR ribbon with 52c spread (slow 686.18, pivot 685.72, fast 685.66) — cleanest bearish signal available",
+    "Final bar (15:55, 188k volume) is high-volume red rejection (-83c on 1.14-point range) of the two-bar rally in 15:40-15:50 window — suggests buyer exhaustion into close",
+    "Price 686.19 is 47c above pivot but failing to extend; two strong green bars preceded the rejection, indicating trapped buyers",
+    "VIX 20.09 rising +2.71% during overnight period indicates risk-off sentiment entering the session",
+    "Overnight gap is flat (0c) — no gap support for a bullish reversal, leaving the bearish ribbon verdict uncontested"
+  ],
+  "data_quality": "full"
+}

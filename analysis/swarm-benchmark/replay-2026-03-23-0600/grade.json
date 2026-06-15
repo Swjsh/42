@@ -1,0 +1,66 @@
+{
+  "date": "2026-03-23",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:09.356541+00:00",
+  "actual": {
+    "open": 658.07,
+    "close": 655.37,
+    "high": 662.61,
+    "low": 653.94,
+    "move_dollars": -2.7,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 88,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 642.25,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bearish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 642.25,
+      "role": "support",
+      "rth_range": [
+        653.94,
+        662.61
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 642.25,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "SPY tests 642.25 (premarket low / battle level) within first 60 minutes of RTH, i.e., at or before 1",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX continues declining and closes below 23.00 by 16:00 ET (fear-unwinding compression from 24.26 at 06:00 ET), confirmi",
+        "invalidation": "VIX rises above 25.50 at any point during RTH, signaling fear re-escalation and validating pure bearish macro backdrop"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "BEAR ribbon remains structurally intact (13-EMA below 20-EMA, spread \u2265 100 cents) through at least 11:00 ET, confirming ",
+        "invalidation": "13-EMA crosses above 20-EMA before 11:00 ET, signaling ribbon flip and invalidating the bearish structure thesis"
+      }
+    ]
+  },
+  "narrative": "All four specialists are unanimously bearish \u2014 CLEAN_BEAR ribbon (234-cent spread, price 72c below pivot), gap-down $5.23, tech-led sector weakness (XLK -1.95%), and risk-off rotation all point the same direction. However, the validator flags a material tension: the gap is already fully priced at 06"
+}

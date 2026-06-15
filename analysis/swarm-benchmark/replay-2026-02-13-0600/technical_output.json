@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-02-13T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.87,
+  "reasoning": "CLEAN_BEAR ribbon (180c spread) with price 226c below pivot signals strong bearish structure. Last 3 bars show power sell-off: 15:50 bar red -18c, 15:55 bar RED -49c on massive volume (157k shares), 16:00 close doji at 680.95. Overnight gap flat (-0.24) continues prior day's momentum. All major sectors down (XLK -2.86%, XLF -2.29%, XLE -1.75%, SPY -1.87%), rotation risk_off. VIX 20.33 falling but structure is clean bearish.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 180,
+  "bar_structure": "strong_bear",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "CLEAN_BEAR ribbon with 180c spread (slow 684.51, pivot 683.21, fast 682.7) — clean stack structure.",
+    "Price 680.95 is 226c below pivot, maximum distance from EMA equilibrium, strong bearish signal.",
+    "Last 3 bars: 15:50 red -18c, 15:55 POWER RED -49c on 157k volume (5x average), 16:00 doji at 680.95 — clear sell-off into close.",
+    "All sectors down: XLK -2.86%, XLF -2.29%, XLE -1.75%, SPY -1.87%. Rotation risk_off confirmed.",
+    "Overnight gap -0.24 (flat) maintains continuity of bearish momentum from prior session close at 681.19."
+  ],
+  "data_quality": "full"
+}

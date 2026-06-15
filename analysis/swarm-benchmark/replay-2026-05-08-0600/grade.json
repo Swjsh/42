@@ -1,0 +1,68 @@
+{
+  "date": "2026-05-08",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-20T02:12:22.873294+00:00",
+  "actual": {
+    "open": 737.72,
+    "close": 737.54,
+    "high": 737.95,
+    "low": 736.13,
+    "move_dollars": -0.18,
+    "actual_bias": "no_trade"
+  },
+  "swarm": {
+    "consensus_bias": "no_trade",
+    "swarm_confidence": 0,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 734.6,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "battle_grade": "UNTESTED",
+      "source": "Today 2026-05-08 premarket low (PML)"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "no_trade",
+      "actual": "no_trade"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 734.6,
+      "role": "support",
+      "rth_range": [
+        736.13,
+        737.95
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 734.6,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "734.6 (PML battle level) is tested at least once within the first 60 minutes of RTH (by 10:30 ET); t",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 18.00 through the entire RTH session, keeping option premium dynamics stable and preventing a volatili",
+        "invalidation": "VIX rises above 18.00 before 11:00 ET on any 5m bar close"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BULL ribbon stack (Fast > Pivot > Slow) remains intact with spread >= 80c through the first 60 minutes of RTH, pro",
+        "invalidation": "Ribbon spread compresses below 50c OR Fast EMA crosses below Pivot EMA at any point before 11:00 ET"
+      }
+    ]
+  },
+  "narrative": "Today's tape presents a classic tension between structure and composition: CLEAN_BULL ribbon (152c spread), +$5.34 overnight gap, and zero event friction argue for a continuation-bull session, but the internals signal \u2014 XLK -0.33% and XLF -0.44% selling simultaneously into the gap \u2014 suggests the ove"
+}

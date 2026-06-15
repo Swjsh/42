@@ -1,0 +1,71 @@
+# Lesson candidate: watcher-observations dedup — multiple ticks per SPY bar inflate WR metrics
+
+> Queued by overnight research session 2026-05-21. lesson-author picks up at next wake fire.
+
+## Symptom
+
+V14E BEAR_HIGH_CONF fingerprint (computed from `automation/state/watcher-observations.jsonl`)
+reported N=33, WR=95.8% for direction=short + confidence=high observations. After deduplication
+by `bar_timestamp_et[:16]` (minute precision), the true unique-bar count was N=16 with
+VIX_MODERATE N=9, WR=77.8%.
+
+Inflation factor: ~2× on sample size. A single SPY 5m bar (e.g., `2026-05-04T11:15`) had
+8 separate rows — one per heartbeat tick that fired within that bar's 5-minute window.
+
+## Root cause
+
+`Gamma_Heartbeat` fires every 3 minutes. Each fire runs `v14_enhanced_watcher.py` and, if a
+signal is detected, appends a row to `watcher-observations.jsonl`. A 5-minute SPY bar spans
+1-2 heartbeat ticks during normal hours and up to 3 ticks during active moves. For HOT mode
+(every 1-2 min) a single bar can generate 3-5 rows.
+
+The first_entry_lock in production ensures only ONE trade fires per bar, but the observation
+logger has no equivalent dedup gate — it records every tick that evaluates the bar regardless
+of whether a prior tick already logged it.
+
+## Fix
+
+Before any WR / N analysis on `watcher-observations.jsonl`, deduplicate by
+`bar_timestamp_et[:16]` (minute precision captures all ticks within the same 5m bar):
+
+```python
+seen: set[str] = set()
+deduped = []
+for row in sorted(rows, key=lambda x: x["bar_timestamp_et"]):
+    key = row["bar_timestamp_et"][:16]
+    if key not in seen:
+        seen.add(key)
+        deduped.append(row)
+```
+
+Apply as a mandatory pre-processing step in: `watcher_grader.py`, `shotgun_grader.py`,
+`v14e_highconf_vix_monitor.py` (already implemented), and any future analysis script that
+reads watcher-observations.jsonl.
+
+## Encoded in
+
+- `backtest/autoresearch/v14e_highconf_vix_monitor.py` — `_load_observations()` already applies
+  dedup by `bar_timestamp_et[:16]` with `seen: set[str]`.
+- `strategy/candidates/_analysis/2026-05-21-v14e-bear-highconf-promotion-path.md` — dedup note
+  appended.
+- `automation/overnight/STATUS.md` — key finding note: "fingerprint N=33 WR=95.8% was
+  undeduplicated — deduplicated unique-bar count is N=16, VIX_MODERATE N=9 WR=77.8%".
+
+## L## (optional)
+
+Suggested L67 — "Watcher observations JSONL contains multiple rows per SPY bar (one per
+heartbeat tick); deduplicate by bar_timestamp_et[:16] before any WR analysis."
+
+## Pre-analysis gate (canonical pattern)
+
+```python
+# Always run before reading watcher-observations.jsonl for any metric computation:
+seen: set[str] = set()
+unique_rows = []
+for row in rows:
+    key = row.get("bar_timestamp_et", "")[:16]
+    if key not in seen:
+        seen.add(key)
+        unique_rows.append(row)
+# unique_rows is now safe for WR / N / P&L metrics
+```

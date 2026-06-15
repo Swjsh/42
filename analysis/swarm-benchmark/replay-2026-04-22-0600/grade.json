@@ -1,0 +1,63 @@
+{
+  "date": "2026-04-22",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:14.467973+00:00",
+  "actual": {
+    "open": 709.15,
+    "close": 711.21,
+    "high": 711.45,
+    "low": 708.22,
+    "move_dollars": 2.06,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 76,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 708.8,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "TESTED_MIXED",
+      "battle_level": 708.8,
+      "role": "resistance",
+      "first_touch_time": "2026-04-22T09:30:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 708.8,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "PMH 708.80 is tested (price reaches \u2265 708.70) within the first 60 minutes of RTH (by 10:30 ET)",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 20.50 through the first 2 hours of RTH (09:30-11:30 ET), keeping premium decay environment intact for ",
+        "invalidation": "VIX spikes above 20.50 within the first 2 hours of RTH, signaling a volatility expansion event that raises premium and i"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BULL ribbon structure (fast > pivot > slow) holds with spread \u2265 30\u00a2 through at least 10:30 ET; no ribbon inversion",
+        "invalidation": "Fast EMA crosses below pivot EMA within the first 60 minutes of RTH, signaling ribbon collapse and invalidating the tech"
+      }
+    ]
+  },
+  "narrative": "The central tension on 2026-04-22 is a textbook gap-up bull setup (CLEAN_BULL ribbon, +$3.85 overnight gap, zero macro events) sitting on top of a structural breadth warning: energy is the only sector leading, while tech (30%+ of SPY) is flat and financials are down \u2014 the exact fingerprint of a defe"
+}

@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-10T11:05:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis", "internals"],
+    "bearish": [],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 4,
+    "bearish": 0,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 1.00,
+    "bearish": 0.00
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 88,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The assumption that overnight gap down and high-regime VIX (24.87) are immaterial noise — the recovery from gap down required 2.4x average EOD volume (effortful, not organic), and the tight consolidation range 675.92-679.88 (4 points) combined with 1.54% downside to S1 vs only 0.33% distance to battle level gives an inverted risk/reward at the decision point.",
+    "top_invalidation_scenario": "VIX spikes back above 27.00 within first 90 minutes of RTH — de-risking narrative collapses, high-regime fragility exposed, bullish thesis invalidated."
+  },
+  "battle_level": {
+    "price": 679.88,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 679.88,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 687.09,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 675.92,
+      "tier": "Ribbon",
+      "strength_stars": 0,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 676.77,
+      "tier": "Ribbon",
+      "strength_stars": 0,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 667.19,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY rallies to 679.88 and holds or breaks through on first test",
+      "bias": "bullish",
+      "target": 687.09,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if 679.88 fails on first touch and price breaks below ribbon pivot 675.92",
+      "bias": "bearish",
+      "target": 667.19,
+      "entry_trigger": "level_rejection"
+    },
+    "invalidation": {
+      "condition": "VIX spikes back above 27.00 within the first 90 minutes of RTH (before 11:00 ET)",
+      "effect": "De-risking narrative collapses; high-regime VIX fragility confirmed; the CLEAN_BULL ribbon compression signal is negated and the overnight gap down re-reads as a preview rather than noise — abandon bullish bias immediately, treat pivot 675.92 as a short entry if broken."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests battle level 679.88 (prior session RTH high) at least once within the first 90 minutes of RTH (by 11:00 ET)",
+      "invalidation": "SPY does not touch 679.88 before 11:00 ET — gap down bias dominates and price fades below 676.77 fast EMA instead",
+      "confidence": 0.70,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 26.50 for the entire RTH session, confirming the de-risking trend that began overnight (-2.47% to 24.87)",
+      "invalidation": "VIX prints above 27.00 at any point during RTH (09:30-16:00 ET), signaling mean-reversion back to prior fear regime",
+      "confidence": 0.72,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BULL ribbon with spread >= 250 cents holds intact through the open and first 60 minutes of RTH (through 10:30 ET), consistent with the 332c premarket spread",
+      "invalidation": "Ribbon spread compresses below 200 cents or a bearish crossover occurs before 10:30 ET",
+      "confidence": 0.78,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The 4/4 unanimous bullish consensus is structurally clean — CLEAN_BULL ribbon (332c spread), VIX falling from high-regime, zero macro catalysts, and broad risk-on sector rotation (XLK +2.79%, XLF +0.82%) all point the same direction. The key tension, correctly surfaced by the validator, is that price is already 96% of the way to the battle level (677.64 vs 679.88, only +2.24 away) with 4.7x more downside to S1 (667.19) than upside to battle level — this is an inflection point, not a confirmed breakout. The single most important thing to watch at open is whether 679.88 is tested and holds: a clean break and reclaim targets 687.09 Carry high; a high-volume rejection with VIX spiking toward 27.00 flips the setup bearish with pivot 675.92 as the last line before a cascade to 667.19.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.85,
+      "one_line": "CLEAN_BULL ribbon 332c spread; last bar strong body +113c on 2.4x volume; VIX -2.47% confirms de-risking"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.80,
+      "one_line": "VIX 24.87 HIGH regime but falling; zero macro events today; risk-on rotation with XLK +2.79% leading"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "Battle level 679.88 (prior RTH high) only +2.24 away; break targets 687.09 Carry; pivot 675.92 is the conviction floor"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.80,
+      "one_line": "Risk-on rotation: XLK +2.79% outperforms, XLF +0.82% confirms breadth, XLE -0.91% signals commodity exit"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Overnight gap down + effortful recovery volume (2.4x) + tight 675.92-679.88 range + inverted risk/reward (4.7x downside vs upside) make this an inflection point — VIX spike above 27 or 679.88 rejection collapses the thesis"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

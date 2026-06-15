@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-04-24T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["level_thesis"],
+    "bearish": ["macro", "internals"],
+    "no_trade": ["technical"]
+  },
+  "vote_counts": {
+    "bullish": 1,
+    "bearish": 2,
+    "no_trade": 1
+  },
+  "weighted_scores": {
+    "bullish": 0.25,
+    "bearish": 0.40
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "weak",
+  "swarm_confidence": 25,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["technical", "level_thesis"],
+    "dissent_reason": "Technical called no_trade citing weak BULL ribbon (13c spread, needs ≥20c for conviction) and 2-of-3 recent bars red; Level Thesis called bullish citing premarket PML support hold at 708.09 and battle level 710.40 only $1.56 above price — chart structure genuinely conflicts with the macro/internals bearish signal."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Treating premarket sector weakness (XLK -0.59%, XLF -0.54% on zero volume) as confirmed risk-off. Premarket reversals are common — a 0.3% XLK bounce at RTH open (statistically normal mean-reversion) would destroy the entire bearish narrative.",
+    "top_invalidation_scenario": "SPY opens and immediately breaks below 708.09 support within first 15 minutes of RTH — this is the only event that converts weak bearish consensus into a high-confidence directional read."
+  },
+  "battle_level": {
+    "price": 710.40,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 710.40,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 712.39,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 708.09,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 702.28,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 697.61,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if XLK/XLF weakness persists into RTH open and VIX continues higher above 19.50",
+      "bias": "bearish",
+      "target": 702.28,
+      "entry_trigger": "level_rejection at 710.40 OR 708.09_break on volume"
+    },
+    "secondary": {
+      "condition": "if sectors recover at RTH open (XLK bounces ≥0.3%) and SPY reclaims 710.40 on volume",
+      "bias": "bullish",
+      "target": 712.39,
+      "entry_trigger": "level_reclaim of 710.40 with ribbon_spread expanding above 20c"
+    },
+    "invalidation": {
+      "condition": "SPY opens and breaks below 708.09 (premarket low/PML) within first 15 minutes of RTH with confirming volume",
+      "effect": "Bearish consensus fully confirmed; BULL ribbon and Level Thesis's support-hold thesis both invalidated simultaneously — puts toward 702.28 Carry support activated."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests premarket high 710.40 within the first 90 minutes of RTH (by 11:00 ET on 2026-04-24)",
+      "invalidation": "SPY does not touch 710.40 before 11:00 ET — price remains trapped in 708.09–709.80 range through mid-morning",
+      "confidence": 0.55,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX closes the RTH session above 19.50 (extending the MID-regime rising trend from pre-market 19.16)",
+      "invalidation": "VIX drops below 18.50 at any point during RTH, signaling fear dissipation and destroying the risk-off macro thesis",
+      "confidence": 0.52,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "The pre-market BULL ribbon (13c spread) fails to hold clean structure: ribbon spread collapses below 10c or inverts to BEAR within the first 60 minutes of RTH",
+      "invalidation": "Ribbon spread expands above 20c bullish by 10:30 ET, confirming CLEAN BULL structure and invalidating the no_trade/bearish read",
+      "confidence": 0.48,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "SPY enters 2026-04-24 with a genuinely contested setup: the chart structure argues constructively bullish (BULL ribbon, PML support held at 708.09, battle level 710.40 only $1.56 away) while macro headwinds provide a weak bearish edge (VIX rising into MID regime at 19.16, XLK/XLF both down >0.5%). The swarm adopts bearish as the plurality direction but with low conviction (conf=25) precisely because the validator correctly identifies that premarket sector weakness on zero volume is the single most fragile assumption — a 0.3% sector bounce at the open would flip the entire thesis. The single most important thing to watch at market open: whether XLK and XLF recover (bullish pivot) or accelerate lower (bearish confirmation) — that sector decision in the first 15 minutes will resolve the ambiguity that no amount of pre-market analysis can.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "no_trade",
+      "confidence": 0.35,
+      "one_line": "WEAK_BULL ribbon (13c spread, needs ≥20c); mixed bar structure with 2-of-3 bars red; price 2c below pivot — insufficient edge, wait for RTH confirmation"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.70,
+      "one_line": "VIX 19.16 rising +0.95% in MID regime; XLK/XLF risk-off rotation; no macro events today means technicals dominate — moderate bearish backdrop"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "Battle level 710.40 (PMH, Active 2★) is first resistance; PML 708.09 support held in premarket; BULL ribbon supports 710.40 test as primary scenario"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.72,
+      "one_line": "XLK -0.59% + XLF -0.54% both underperforming SPY (-0.15%); risk-off rotation with narrow breadth confirms institutional de-risking"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Entire bearish thesis rests on zero-volume premarket sector weakness — a normal 0.3% XLK mean-reversion bounce at RTH open evaporates it instantly"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

@@ -1,0 +1,21 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-04-14T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.70,
+  "reasoning": "CLEAN_BULL ribbon with 170c ($1.70) spread dominates; price 687.23 holds above pivot 687.20 and overnight gap is +$1.22 up. However, last 3 premarket bars show deterioration: red (full body, -0.20) → red (doji, -0.04) → doji (neutral). Price is below fast EMA (687.41), suggesting weakness even within the bull ribbon. Falling VIX and risk-on sector rotation (XLK +2.3%, XLF +2.3%) support bullish overnight sentiment, but current momentum is transitioning from early-premarket strength (04:20–05:00 bars mostly green, peak 688.14) to late-premarket selling (05:15–05:55 bars mostly red). Intermediate bias: bullish structure, but price action weakening as market approaches cash open.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 170,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon (170c spread, fast=687.41, pivot=687.20, slow=685.71) — highest weight signal",
+    "Overnight gap +$1.22 (686.01 → 687.23) — bullish overnight sentiment intact",
+    "Last 3 bars trend bearish: 05:45 RED full body (-0.11c), 05:50 RED doji (-0.03c), 05:55 DOJI (neutral) — price momentum deteriorating",
+    "Price 687.23 marginally above pivot 687.20 (+0.03c) but below fast EMA 687.41 (-0.18c) — ribbon upside not yet confirmed by price action",
+    "Premarket high 688.14 at 05:00 ET → 687.23 now = 91c pullback in 55 min — early profit-taking or distribution?",
+    "Risk-on rotation confirmed: XLK +2.3%, XLF +2.3%, VIX falling -4.62% to 18.15 MID regime"
+  ],
+  "data_quality": "full"
+}

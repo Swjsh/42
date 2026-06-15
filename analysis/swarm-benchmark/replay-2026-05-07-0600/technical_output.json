@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-07T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "CLEAN_BULL ribbon (65c spread, fast 734.68 > pivot 734.63 > slow 734.03) is the primary bullish signal, confirmed by overnight gap up +0.69 and risk-on sector rotation (XLK +1.28%, SPY +0.78%). However, momentum is qualified: current price 734.46 trades 17c below the pivot (734.63), and the last 3 premarket bars show only 1 green vs 2 red (mixed structure with forced selling on the 05:50 bar). The ribbon architecture supports a bullish bias, but the weak cash momentum warns against conviction until RTH opens and price reclaims the pivot.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 65,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon with 65c spread — well-defined bullish structure (fast/pivot/slow all properly ordered)",
+    "Price 734.46 trades 17c below pivot 734.63 — momentum is temporarily weak despite clean ribbon setup",
+    "Last 3 bars: 1 green (05:45) followed by 2 red (05:50 strong body, 05:55 moderate doji) — recent action favors sellers, not bulls",
+    "Overnight gap +0.69 (up) + risk-on sector rotation (XLK +1.28%) provide bullish overnight sentiment to counterbalance weak premarket bars",
+    "VIX 17.24 (MID regime, flat) — no volatility expansion risk; backdrop is calm"
+  ],
+  "data_quality": "full"
+}

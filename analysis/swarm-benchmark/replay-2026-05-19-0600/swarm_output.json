@@ -1,0 +1,179 @@
+{
+  "generated_at": "2026-05-19T10:00:50Z",
+  "swarm_version": "v5",
+  "status": "ok",
+  "vote_map": {
+    "bullish": [],
+    "bearish": ["technical", "internals"],
+    "no_trade": ["macro"],
+    "no_data": ["level_thesis"]
+  },
+  "vote_counts": {
+    "bullish": 0,
+    "bearish": 2,
+    "no_trade": 1,
+    "no_data": 1
+  },
+  "weighted_scores": {
+    "bullish": 0.0,
+    "bearish": 0.45
+  },
+  "consensus_bias": "no_trade",
+  "consensus_strength": "moderate",
+  "swarm_confidence": 0,
+  "no_trade_reason": "low_post_adjustment_confidence",
+  "no_trade_calc_detail": {
+    "base": 27.0,
+    "adj_specialist_agreement": -10,
+    "adj_validator_robustness": 0,
+    "adj_macro_event_risk": 0,
+    "adj_battle_grade": -25,
+    "battle_grade_applied": "UNTESTED",
+    "battle_grade_source": "level_thesis MISSING — conservative UNTESTED applied per v5 rubric",
+    "raw_confidence_before_gate": -8,
+    "no_trade_gate_fired": true,
+    "underlying_directional_lean": "bearish",
+    "underlying_weighted_score_bearish": 0.45
+  },
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["technical", "internals"],
+    "dissent_reason": "Technical sees CLEAN_BEAR ribbon (41c spread) with gap-down overnight rejection and risk-off rotation confirming bearish lean; internals confirms XLK -1.84% vs XLE +2.45% risk-off rotation — both lean bearish, but missing level_thesis (0.25 weight gap) and macro voting neutral cap post-adjustment confidence below the NO_TRADE threshold of 40."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Level Thesis output is MISSING, removing the 0.25-weight structural anchor; additionally, the premarket bar-structure rejection (05:55 -48c after +121c bounce) is single-bar premarket noise being treated as directional evidence — RTH open with real volume can easily invalidate this.",
+    "top_invalidation_scenario": "SPY opens above 736.50 (05:50 premarket high) and holds above 735.69 (slow EMA) through 10:00 ET — would flip ribbon toward bull-stack and confirm the premarket bounce was structural."
+  },
+  "battle_level": {
+    "price": 733.39,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "support",
+    "note": "5-day RTH Carry low — premarket already pierced to 733.09; RTH defense or failure here determines whether session produces a bear continuation or V-recovery. Designated in absence of level_thesis agent output."
+  },
+  "level_priority": [
+    {
+      "price": 733.09,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "flush_to",
+      "note": "PML — premarket session floor; first RTH support; gap-down anchor"
+    },
+    {
+      "price": 733.39,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "flush_to",
+      "note": "5-day RTH Carry low; already breached in premarket (733.09 < 733.39); RTH reclaim attempt or failure is key tell"
+    },
+    {
+      "price": 738.73,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "reclaim_attempt",
+      "note": "Prior session (2026-05-18) RTH high — first overhead resistance ceiling; bull invalidation level"
+    },
+    {
+      "price": 739.35,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "reclaim_attempt",
+      "note": "PMH — premarket high ceiling; if SPY reclaims this the day is structurally inverted bull"
+    },
+    {
+      "price": 748.69,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "reclaim_attempt",
+      "note": "5-day RTH Carry high — upside Carry ceiling; would only be relevant if full bull reversal day"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "SPY opens at or below 735.32 (premarket close) and fails to reclaim 735.69 (slow EMA) in the first 30 min of RTH",
+      "bias": "bearish",
+      "target": 733.09,
+      "entry_trigger": "level_rejection",
+      "note": "CLEAN_BEAR ribbon rejection of any morning rally at 735.40-735.69 → bear continuation toward PML 733.09 and Carry 733.39 test"
+    },
+    "secondary": {
+      "condition": "SPY reclaims 735.69 (slow EMA) on a 5-min bar close and holds above it through 10:30 ET",
+      "bias": "bullish",
+      "target": 738.73,
+      "entry_trigger": "level_reclaim",
+      "note": "Ribbon-reclaim scenario: if buyers push through the slow EMA, the CLEAN_BEAR structure weakens and prior RTH high 738.73 becomes the target; macro supports clean setup day"
+    },
+    "invalidation": {
+      "condition": "SPY opens above 736.50 (05:50 premarket high) and holds above 735.69 through 10:00 ET — validator's top invalidation scenario",
+      "effect": "Invalidates bearish thesis entirely. RTH open above the fast EMA (735.28) and holding the slow EMA (735.69) would flip the ribbon toward BULL-stacking and confirm the premarket V-bounce was structural, not a bear-trap. Day becomes bullish consolidation targeting 738.73-739.35."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "The 5-day Carry support at 733.39 is tested (SPY touches 733.50 or lower) within the first 90 minutes of RTH (before 11:00 ET)",
+      "invalidation": "SPY does not touch 733.60 at any point before 11:00 ET",
+      "confidence": 0.48,
+      "champion_agent": "level_thesis",
+      "domain": "level",
+      "note": "Confidence downgraded from typical level prediction: level_thesis agent is MISSING and the Carry was already breached in premarket — RTH open with fresh buy-side volume could defend 735 range without retesting the low"
+    },
+    {
+      "claim": "VIX remains in the 17.00-19.50 range throughout RTH — no spike above 20.00 and no compression below 16.50 — confirming MID regime and stable premium environment",
+      "invalidation": "VIX crosses 20.00 to the upside or 16.50 to the downside before 14:00 ET",
+      "confidence": 0.72,
+      "champion_agent": "macro",
+      "domain": "vix_macro",
+      "note": "Zero scheduled events today; NVDA AMC is tomorrow (post-RTH 5/20); macro backdrop supports stable VIX with high confidence"
+    },
+    {
+      "claim": "The CLEAN_BEAR ribbon (41c spread, EMA13 735.28 / EMA20 735.40 / EMA48 735.69) holds intact through 10:30 ET — SPY fails to close any 5-minute bar above 736.00 before 10:30 ET",
+      "invalidation": "SPY prints a 5-minute bar closing above 736.00 before 10:30 ET on above-average volume",
+      "confidence": 0.55,
+      "champion_agent": "technical",
+      "domain": "technical",
+      "note": "Moderate confidence: ribbon structure is intact but validator correctly notes SPY -0.16% despite XLK -1.84% implies selective institutional bid; RTH open volume could flip ribbon quickly if buyers press"
+    }
+  ],
+  "synthesis_narrative": "The key tension today: technical and internals both lean bearish (CLEAN_BEAR ribbon, gap-down overnight, XLK -1.84% risk-off rotation), but macro is neutral (zero events, VIX flat at 17.79, orderly selling) and level_thesis is MISSING — removing the critical structural anchor that would either validate or refute the bearish case with hard level context. The v5 confidence formula produces a raw score of -8 (base 27, -10 for 2/4 agreement, -25 for UNTESTED battle grade due to missing level_thesis), firing the NO_TRADE gate: the swarm abstains with an underlying bearish lean but insufficient evidence to commit. The single most important thing to watch at open: whether SPY holds above or fails below 735.69 (slow EMA) in the first 30 min — that is the line between bear-ribbon-rejection continuation toward 733.09 and a bull-invalidation reclaim toward 738.73.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.70,
+      "one_line": "CLEAN_BEAR ribbon 41c spread intact; overnight gap -3.24 with premarket V-bounce immediately rejected (05:55 -48c reversal); price 8c below pivot; bar structure mixed but terminating bearishly"
+    },
+    "macro": {
+      "bias": "no_trade",
+      "confidence": 0.58,
+      "one_line": "VIX 17.79 MID regime flat; zero RTH events today (NVDA AMC tomorrow); mild bearish lean from gap-down and XLK weakness but 'setup-favorable day' with stable premium environment — no directional macro conviction"
+    },
+    "level_thesis": {
+      "bias": "no_data",
+      "confidence": 0.0,
+      "one_line": "Output file MISSING — level_thesis_output.json not found; 0.25 weight gap reduces weighted_score_bearish from 0.70 to 0.45 and removes battle_grade input, triggering UNTESTED penalty"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.58,
+      "one_line": "Risk-off rotation confirmed: XLK -1.84% vs XLE +2.45% / XLF +1.43%; but SPY only -0.16% despite 30% index XLK weight implies selective institutional bid in value sectors — bearish but not decisive"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "SPY opens above 736.50 and holds above slow EMA 735.69 through 10:00 ET — single-bar premarket rejection is noise, RTH volume can easily flip the narrative"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "partial",
+  "data_quality_note": "level_thesis_output.json missing — 3 of 4 specialist agents available; synthesis proceeds per minimum-viable-synthesis rule with conservative battle_grade=UNTESTED penalty applied"
+}

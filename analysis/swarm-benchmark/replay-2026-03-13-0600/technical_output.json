@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-03-13T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.62,
+  "reasoning": "CLEAN_BEAR ribbon (100-cent spread, fast 667.08 < pivot 667.32 < slow 668.08) is the dominant signal. Price 667.1 is 22 cents below pivot, confirming bearish lean. Last 3 RTH bars show 2 red (15:45 and 15:55) with climactic 150k volume on final bar, though bar structure is mixed (RED-GREEN-RED). Contradictory signal: overnight gap UP +1.05 from prior close 666.05, suggesting risk-on overnight momentum. VIX falling (-7.3%) from 25.28 further reduces bearish conviction. Ribbon dominance + price position support bearish, but up gap + mixed bars + declining VIX create meaningful offset. Marginal edge.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 100,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BEAR ribbon: fast 667.08 < pivot 667.32 < slow 668.08, spread 100 cents (1.00 dollar), fully inverted stack",
+    "Price 667.1 sits 22 cents BELOW pivot 667.32, confirming bearish lean relative to ribbon equilibrium",
+    "Last 3 RTH bars mixed: 15:45 RED (666.75 close), 15:50 GREEN (666.80 close, small 0.11 body), 15:55 RED (666.05 close); final bar has climactic 150k volume",
+    "Overnight gap UP +1.05 from 666.05 → 667.10, contradicting bearish setup; risk-on overnight sentiment",
+    "VIX 25.28 HIGH regime but falling -7.3%, suggesting volatility decline and potential risk-on rotation"
+  ],
+  "data_quality": "full"
+}

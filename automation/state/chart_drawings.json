@@ -1,0 +1,72 @@
+{
+  "schema_version": 2,
+  "purpose": "Snapshot of all line-tool drawings on the SPY chart. Read by trendline detection pipeline. Producer: premarket via mcp__tradingview__ui_evaluate + read_chart_drawings.js. Consumer: automation/scripts/compute_trendlines.py.",
+  "as_of": "2026-05-14T08:39:13-04:00",
+  "source": "ui_evaluate workaround — mcp__tradingview__draw_list returns 'getChartApi is not defined' (broken).",
+  "drawings": [
+    { "id": "1SgQTU", "title": "horizontal ray", "point_count": 1, "points": [{ "time": 1778162400, "price": 731.47 }] },
+    { "id": "2YToUA", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 728.62 }] },
+    { "id": "3k9w8h", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 734.23 }], "note": "STALE — scheduled for removal (chart_cleanup_log 2026-05-14, expired level ~733.55)" },
+    { "id": "4DaGTU", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 737.60 }] },
+    {
+      "id": "5EWHJK",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        { "time": 1778182200, "price": 733.94, "iso_et": "2026-05-07T15:30:00-04:00" },
+        { "time": 1778269500, "price": 738.92, "iso_et": "2026-05-08T15:45:00-04:00" }
+      ],
+      "direction": "ascending",
+      "slope_per_hour_dollars": 0.2052
+    },
+    { "id": "OBFYc2", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 725.04 }] },
+    {
+      "id": "S3pkoW",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        { "time": 1778492100, "price": 737.40, "iso_et": "2026-05-12T09:15:00-04:00" },
+        { "time": 1778503500, "price": 740.55, "iso_et": "2026-05-12T12:25:00-04:00" }
+      ],
+      "direction": "ascending",
+      "slope_per_hour_dollars": 0.993
+    },
+    {
+      "id": "YWmNb5",
+      "title": "ray",
+      "point_count": 2,
+      "points": [
+        { "time": 1778487300, "price": 738.84 },
+        { "time": 1778504700, "price": 738.85 }
+      ]
+    },
+    { "id": "eshyVr", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 741.01 }] },
+    { "id": "f4NgW7", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 736.13 }] },
+    { "id": "hpfK9w", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 734.58 }] },
+    { "id": "jbUg9Z", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 738.10 }] },
+    {
+      "id": "u6xABx",
+      "title": "trendline",
+      "point_count": 2,
+      "points": [
+        { "time": 1778151600, "price": 736.10, "iso_et": "2026-05-07T12:20:00-04:00" },
+        { "time": 1778213700, "price": 729.75, "iso_et": "2026-05-08T05:35:00-04:00" }
+      ],
+      "direction": "descending",
+      "slope_per_hour_dollars": -0.368
+    },
+    { "id": "RRjxhN", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 745.43 }], "note": "ACTIVE level — PMH 2026-05-14" },
+    { "id": "nt0mjg", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 743.79 }], "note": "ACTIVE level — prior RTH HOD flipped support" },
+    { "id": "CfxLeN", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 738.86 }], "note": "ACTIVE level — R2 pivot reference support" },
+    { "id": "kY9RXc", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 738.10 }], "note": "ACTIVE level — Carry support BULLISH_RECLAIM zone" },
+    { "id": "IP60WJ", "title": "horizontal line", "point_count": 1, "points": [{ "time": null, "price": 735.48 }], "note": "ACTIVE level — 5/13 RTH LOD" }
+  ],
+  "summary": {
+    "total_count": 18,
+    "trendline_count": 3,
+    "ray_count": 1,
+    "horizontal_line_count": 14,
+    "active_key_level_count": 5,
+    "stale_drawings_to_remove": ["3k9w8h"]
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-02T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.70,
+  "reasoning": "VIX at 21.52 rising sharply (+8.41% overnight from ~19.8) signals fear building—a clear bearish indicator. Overnight gap down $1.18 (0.17% of prior close) confirms selling pressure from overnight session. No major macro events today per calendar; FOMC is 2026-03-18 (16 days out). Sector rotation is mixed: financials weak (-0.87% XLF) but tech slight positive (+0.33% XLK). Ribbon remains BULL (fast 685.24 > pivot 685.03 > slow 684.72, spread 52c) but is under pressure from the gap-down open. This is not a no-trade scenario (VIX in MID regime, no critical events), but the combination of rising fear + negative overnight gap creates a bearish macro backdrop favoring put entries over call entries. Bias: bearish. Expect choppy to directionally-down morning until market digests the overnight pressure.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 21.52,
+  "vix_change_overnight": 8.41,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -1.18,
+  "overnight_gap_pct": -0.17,
+  "macro_backdrop": "risk_off",
+  "sector_signals": {
+    "XLF": {
+      "change_pct": -0.87,
+      "direction": "down",
+      "implication": "Financials weakness = lower risk appetite"
+    },
+    "XLK": {
+      "change_pct": 0.33,
+      "direction": "up",
+      "implication": "Tech holding up slightly"
+    },
+    "XLE": {
+      "change_pct": 0.50,
+      "direction": "up",
+      "implication": "Energy positive, mixed signal"
+    }
+  },
+  "key_observations": [
+    "VIX +8.41% overnight (19.8 → 21.52) = fear building; MID regime but at top end and rising",
+    "Gap down $1.18 = moderate bearish overnight sentiment; no retest of prior close at 686.16 in overnight session",
+    "Zero macro events today; calendar clear until FOMC 2026-03-18; no intraday landmines",
+    "Ribbon BULL (spread 52c) but on pressure from gap-down; expect resistance at 685.03 pivot and 685.24 fast EMA",
+    "Financials weakness (-0.87% XLF) amplifies risk-off tone; lower equity risk appetite"
+  ],
+  "data_quality": "full",
+  "calendar_freshness": "replay-filtered to 2026-03-02..2026-03-08 window (0 events in target window); macro-calendar.json refresh_log shows last refresh 2026-05-16 (54 days stale in absolute terms, but replay mode uses snapshot-filtered data)"
+}

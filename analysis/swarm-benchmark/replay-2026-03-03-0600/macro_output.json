@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-03T11:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.72,
+  "reasoning": "VIX at 26.9 in HIGH regime, rising +25.41% — fear is accelerating. No macro events today removes event-risk uncertainty. Overnight gap flat (-0.4) shows no panic gap-down, but risk_on sector rotation (XLK +1.83%, XLF +1.36%) suggests tape resilience despite elevated volatility. This divergence (high VIX + rising but risk-on rotation) indicates potential late-stage capitulation where fear is washing out. Structural bearish bias from VIX alone, but price action hints at possible exhaustion bottom forming.",
+  "vix_regime": "HIGH",
+  "vix_direction": "rising",
+  "vix_current": 26.9,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": -0.4,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX at 26.9 (HIGH regime, fear elevated) + rising 25.41% = sharp acceleration in volatility",
+    "Zero macro events scheduled for 2026-03-03 — tape is free to move on technicals/sentiment alone",
+    "Overnight gap flat despite high VIX suggests overnight buyers; no gap-down capitulation selling",
+    "Sector rotation risk_on (XLK, XLF outperforming) vs VIX spike = divergence suggests possible late-stage fear washout",
+    "Premium is expensive (VIX 26.9) — bearish setups higher-probability per regime, but watch for reversal if VIX peaks intraday"
+  ],
+  "data_quality": "full"
+}

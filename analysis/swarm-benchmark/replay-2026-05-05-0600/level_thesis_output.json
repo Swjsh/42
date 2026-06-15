@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-05-05T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "SPY at 720.62, fresh overnight gap-up +2.55 with bull ribbon stack (87¢ spread, all 3 EMAs aligned bullish). Price near premarket high (720.86) with immediate resistance at 722.12 (prior session RTH high, 2★). The battle level is 722.12 — it gates access to the Carry-tier ceiling at 724.87. If 722.12 holds, bulls have a constrained range. If it breaks, the move accelerates to 724.87. Support floor at 718.01 (PML, -2.61) provides safe margin. Confidence 0.68 reflects multiple active levels in quick succession, but clear bullish asymmetry anchored by Carry-tier 724.87.",
+  "battle_level": {
+    "price": 722.12,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 722.12,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 1.50
+    },
+    {
+      "price": 724.87,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 4.25
+    },
+    {
+      "price": 720.86,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 0.24
+    },
+    {
+      "price": 718.01,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": -2.61
+    },
+    {
+      "price": 715.0,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": -5.62
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 722.12 on first test",
+      "bias": "bullish_constrained",
+      "target": 724.87,
+      "entry_trigger": "level_hold + breakout_next_attempt"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 722.12",
+      "bias": "bullish_acceleration",
+      "target": 724.87,
+      "entry_trigger": "breakout_continuation + ribbon_stack_bull"
+    },
+    "tertiary": {
+      "condition": "if SPY rejects from 722.12 and breaks below 720.86",
+      "bias": "bearish_reversal",
+      "target": 718.01,
+      "entry_trigger": "level_rejection + momentum_reversal"
+    }
+  },
+  "levels_in_play_count": 6,
+  "key_observations": [
+    "Bull ribbon stack (87¢ spread) — strong bullish alignment entering RTH",
+    "Overnight gap-up +2.55 shows fresh buying momentum; price near PMH 720.86 showing strength post-gap",
+    "722.12 is the immediate overhead test; breaks here = acceleration to 724.87 (Carry ceiling)",
+    "Strong support floor at 718.01 (PML) provides -2.61 margin; bulls have 4.25 to the Carry level vs 12.25 to the 5-day low",
+    "VIX mid-regime (17.44) falling (-4.07%) — low volatility supports range trading near support/resistance tests"
+  ],
+  "data_quality": "full"
+}

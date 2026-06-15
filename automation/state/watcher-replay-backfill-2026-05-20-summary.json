@@ -1,0 +1,35 @@
+{
+  "target_watchers": [
+    "DOUBLE_BOTTOM_BASE_QUIET",
+    "DOUBLE_BOTTOM_MORNING_LOW_VOL",
+    "FAILED_BREAKDOWN_WICK_MORNING_MID",
+    "HEAD_AND_SHOULDERS_BEAR",
+    "HEAD_AND_SHOULDERS_NEAR_NAMED",
+    "MOMENTUM_ACCELERATION_HIGHVOL"
+  ],
+  "replay_window": "2025-01-01 to 2026-05-15",
+  "completed_at": "2026-05-20T05:58:26.903616",
+  "total_signals": 132,
+  "days_processed": 341,
+  "by_watcher_setup_confidence": {
+    "db_base_quiet_DOUBLE_BOTTOM_BASE_QUIET__low": 12,
+    "db_morning_low_vol_DOUBLE_BOTTOM_MORNING_LOW_VOL__high": 6,
+    "db_morning_low_vol_DOUBLE_BOTTOM_MORNING_LOW_VOL__medium": 7,
+    "fbw_morning_mid_FAILED_BREAKDOWN_WICK_MORNING_MID__high": 17,
+    "fbw_morning_mid_FAILED_BREAKDOWN_WICK_MORNING_MID__low": 11,
+    "fbw_morning_mid_FAILED_BREAKDOWN_WICK_MORNING_MID__medium": 21,
+    "hs_bear_HEAD_AND_SHOULDERS_BEAR__high": 10,
+    "hs_bear_HEAD_AND_SHOULDERS_BEAR__medium": 10,
+    "momentum_accel_highvol_MOMENTUM_ACCELERATION_HIGHVOL__high": 14,
+    "momentum_accel_highvol_MOMENTUM_ACCELERATION_HIGHVOL__medium": 24
+  },
+  "by_setup": {
+    "MOMENTUM_ACCELERATION_HIGHVOL": 38,
+    "DOUBLE_BOTTOM_MORNING_LOW_VOL": 13,
+    "FAILED_BREAKDOWN_WICK_MORNING_MID": 49,
+    "HEAD_AND_SHOULDERS_BEAR": 20,
+    "DOUBLE_BOTTOM_BASE_QUIET": 12,
+    "HEAD_AND_SHOULDERS_NEAR_NAMED": 0
+  },
+  "output_file": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\watcher-replay-backfill-2026-05-20.jsonl"
+}

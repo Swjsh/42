@@ -1,0 +1,75 @@
+{
+  "current_params": {
+    "f9_vol_mult": 0.9,
+    "ribbon_spread_min_cents": 15,
+    "ribbon_flip_lookback_bars": 6,
+    "level_proximity_dollars": 0.4,
+    "confluence_tolerance_dollars": 0.25,
+    "no_trade_before": "09:45",
+    "no_trade_window_start": "12:30",
+    "no_trade_window_end": "15:45",
+    "min_triggers_bear": 1,
+    "min_triggers_bull": 1,
+    "vix_bear_threshold": 17.3,
+    "vix_bear_rising_deadband": 0.05,
+    "vix_bull_max": 22.0,
+    "premium_stop_pct_bear": -0.15,
+    "premium_stop_pct_bull": -0.25,
+    "tp1_premium_pct": 0.75,
+    "tp1_qty_fraction": 1.0,
+    "runner_target_premium_pct": 4.0,
+    "level_stop_buffer_dollars": 0.05,
+    "time_stop_minutes_before_close": 45,
+    "strike_offset_bear": 0,
+    "strike_offset_bull": -2
+  },
+  "baseline_metrics": {
+    "n_trades": 162,
+    "n_winners": 48,
+    "n_losers": 114,
+    "win_rate": 0.2963,
+    "total_pnl": 4462.54,
+    "expectancy": 27.55,
+    "avg_winner": 273.58,
+    "avg_loser": -76.05,
+    "wl_ratio": 3.598,
+    "max_drawdown": -1661.43,
+    "sharpe_daily": 3.0792,
+    "n_days_traded": 110
+  },
+  "validate_baseline_metrics": {
+    "n_trades": 25,
+    "n_winners": 5,
+    "n_losers": 20,
+    "win_rate": 0.2,
+    "total_pnl": 539.33,
+    "expectancy": 21.57,
+    "avg_winner": 421.94,
+    "avg_loser": -78.52,
+    "wl_ratio": 5.374,
+    "max_drawdown": -522.28,
+    "sharpe_daily": 1.6694,
+    "n_days_traded": 23
+  },
+  "training_window": {
+    "start": "2025-01-01",
+    "end": "2026-02-13"
+  },
+  "validate_window": {
+    "start": "2026-02-14",
+    "end": "2026-05-07"
+  },
+  "iteration": 1,
+  "modifications_kept": 0,
+  "modifications_reverted": 1,
+  "last_param_modified": "f9_vol_mult",
+  "last_modification_at": "2026-05-09T15:40:04",
+  "recently_modified": [
+    "f9_vol_mult"
+  ],
+  "created_at": "2026-05-09T15:31:55",
+  "session_id": "ar_seed9_climb_full_validate_pnl_20260509_153155",
+  "mode": "seed9_climb",
+  "experiment": "full",
+  "objective": "validate_pnl"
+}

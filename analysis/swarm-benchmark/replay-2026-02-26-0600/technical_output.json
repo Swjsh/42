@@ -1,0 +1,21 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-02-26T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "CLEAN_BULL ribbon structure (87c spread: slow 692.86 < pivot 693.5 < fast 693.73) with price 99c above pivot (694.49 vs 693.5) signals strong bullish alignment. Overnight gap +$1.39 from 693.10 close confirms strong bullish sentiment. Risk-on rotation intact (XLK +1.17%, XLF +1.23%). Last 3 RTH closed bars show early strength (15:50 green, body 44% of range, +0.21) followed by consolidation-into-close (15:55 red −0.34 body 71%, 16:00 red −0.07 body 39%), typical end-of-day profit-taking. VIX rising +8.37% in MID regime adds minor caution. 3-of-4 major signals bullish; bar structure mixed rather than continuation.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 87,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon structure: 87c spread between slow EMA 692.86 and fast EMA 693.73; proper ordering with pivot 693.5 centered",
+    "Price 694.49 positioned 99c above pivot (strong bullish momentum) and 76c above fast EMA; well above entire ribbon structure",
+    "Overnight gap +$1.39 from prior RTH close 693.10 to premarket/early session 694.49 (highly bullish sentiment)",
+    "Last 3 RTH closed bars (15:50→16:00): green +0.21 at 15:50 (44% body, buying), red −0.34 at 15:55 (71% full body, sellers engaged), red −0.07 at 16:00 (39% body, weak close); pattern = consolidation after gap-up enthusiasm, not weak reversal",
+    "Sector risk-on confirmed: Tech XLK +1.17%, Finance XLF +1.23%, Energy XLE −0.78% (cyclical outperform)",
+    "VIX 19.43 rising +8.37% in MID IV regime (mild vol expansion, not panic); no elevated fear signal"
+  ],
+  "data_quality": "full"
+}

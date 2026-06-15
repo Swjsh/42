@@ -1,0 +1,541 @@
+{
+  "generated_at": "2026-05-13T18:09:05.945263",
+  "winner_combo_base": {
+    "vol_mult": 1.1,
+    "body_min_cents": 0.02,
+    "min_stars": 2,
+    "strike_offset": 2,
+    "premium_stop_pct": -0.1,
+    "tp1_premium_pct": 0.4,
+    "runner_target_pct": 1.25,
+    "profit_lock_threshold_pct": 0.0,
+    "profit_lock_stop_offset_pct": 0.08,
+    "tp1_qty_fraction": 0.667,
+    "qty": 10,
+    "proximity_dollars": 1.5,
+    "require_break_above_open": true
+  },
+  "variants": [
+    {
+      "variant": "control_pl_off",
+      "profit_lock_threshold_pct": 0.0,
+      "profit_lock_stop_offset_pct": 0.05,
+      "verdict": "STILL_FAILS",
+      "total_bs_pnl": 2717.06,
+      "total_real_pnl": -1725.0,
+      "anchor_4_29_real": -329.0,
+      "days": [
+        {
+          "date": "2025-04-07",
+          "real_pnl": -926.0,
+          "trades": [
+            {
+              "entry_time_et": "2025-04-07T10:10:00",
+              "side": "C",
+              "strike": 511,
+              "entry_spot": 513.12,
+              "entry_premium": 9.26,
+              "tp1_premium": null,
+              "runner_exit_premium": 8.334,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -926.0,
+              "symbol": "SPY250407C00511000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 2357.13,
+          "diff_pct": -139.3,
+          "status": "MEASURED"
+        },
+        {
+          "date": "2026-04-29",
+          "real_pnl": -329.0,
+          "trades": [
+            {
+              "entry_time_et": "2026-04-29T12:30:00",
+              "side": "P",
+              "strike": 711,
+              "entry_spot": 709.0900268554688,
+              "entry_premium": 3.29,
+              "tp1_premium": null,
+              "runner_exit_premium": 2.9610000000000003,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -329.0,
+              "symbol": "SPY260429P00711000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 113.65,
+          "diff_pct": -389.5,
+          "status": "MEASURED"
+        },
+        {
+          "date": "2026-05-04",
+          "real_pnl": -234.0,
+          "trades": [
+            {
+              "entry_time_et": "2026-05-04T09:55:00",
+              "side": "C",
+              "strike": 719,
+              "entry_spot": 720.7601928710938,
+              "entry_premium": 2.34,
+              "tp1_premium": null,
+              "runner_exit_premium": 2.106,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -234.0,
+              "symbol": "SPY260504C00719000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 119.77,
+          "diff_pct": -295.4,
+          "status": "MEASURED"
+        },
+        {
+          "date": "2026-05-05",
+          "real_pnl": -236.0,
+          "trades": [
+            {
+              "entry_time_et": "2026-05-05T09:35:00",
+              "side": "P",
+              "strike": 724,
+              "entry_spot": 722.0599975585938,
+              "entry_premium": 2.36,
+              "tp1_premium": null,
+              "runner_exit_premium": 2.124,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -236.0,
+              "symbol": "SPY260505P00724000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 126.51,
+          "diff_pct": -286.5,
+          "status": "MEASURED"
+        }
+      ]
+    },
+    {
+      "variant": "pl_05_off05",
+      "profit_lock_threshold_pct": 0.05,
+      "profit_lock_stop_offset_pct": 0.05,
+      "verdict": "STILL_FAILS",
+      "total_bs_pnl": 2717.06,
+      "total_real_pnl": -1725.0,
+      "anchor_4_29_real": -329.0,
+      "days": [
+        {
+          "date": "2025-04-07",
+          "real_pnl": -926.0,
+          "trades": [
+            {
+              "entry_time_et": "2025-04-07T10:10:00",
+              "side": "C",
+              "strike": 511,
+              "entry_spot": 513.12,
+              "entry_premium": 9.26,
+              "tp1_premium": null,
+              "runner_exit_premium": 8.334,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -926.0,
+              "symbol": "SPY250407C00511000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 2357.13,
+          "diff_pct": -139.3,
+          "status": "MEASURED"
+        },
+        {
+          "date": "2026-04-29",
+          "real_pnl": -329.0,
+          "trades": [
+            {
+              "entry_time_et": "2026-04-29T12:30:00",
+              "side": "P",
+              "strike": 711,
+              "entry_spot": 709.0900268554688,
+              "entry_premium": 3.29,
+              "tp1_premium": null,
+              "runner_exit_premium": 2.9610000000000003,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -329.0,
+              "symbol": "SPY260429P00711000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 113.65,
+          "diff_pct": -389.5,
+          "status": "MEASURED"
+        },
+        {
+          "date": "2026-05-04",
+          "real_pnl": -234.0,
+          "trades": [
+            {
+              "entry_time_et": "2026-05-04T09:55:00",
+              "side": "C",
+              "strike": 719,
+              "entry_spot": 720.7601928710938,
+              "entry_premium": 2.34,
+              "tp1_premium": null,
+              "runner_exit_premium": 2.106,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -234.0,
+              "symbol": "SPY260504C00719000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 119.77,
+          "diff_pct": -295.4,
+          "status": "MEASURED"
+        },
+        {
+          "date": "2026-05-05",
+          "real_pnl": -236.0,
+          "trades": [
+            {
+              "entry_time_et": "2026-05-05T09:35:00",
+              "side": "P",
+              "strike": 724,
+              "entry_spot": 722.0599975585938,
+              "entry_premium": 2.36,
+              "tp1_premium": null,
+              "runner_exit_premium": 2.124,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -236.0,
+              "symbol": "SPY260505P00724000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 126.51,
+          "diff_pct": -286.5,
+          "status": "MEASURED"
+        }
+      ]
+    },
+    {
+      "variant": "pl_05_off08",
+      "profit_lock_threshold_pct": 0.05,
+      "profit_lock_stop_offset_pct": 0.08,
+      "verdict": "STILL_FAILS",
+      "total_bs_pnl": 2717.06,
+      "total_real_pnl": -1725.0,
+      "anchor_4_29_real": -329.0,
+      "days": [
+        {
+          "date": "2025-04-07",
+          "real_pnl": -926.0,
+          "trades": [
+            {
+              "entry_time_et": "2025-04-07T10:10:00",
+              "side": "C",
+              "strike": 511,
+              "entry_spot": 513.12,
+              "entry_premium": 9.26,
+              "tp1_premium": null,
+              "runner_exit_premium": 8.334,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -926.0,
+              "symbol": "SPY250407C00511000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 2357.13,
+          "diff_pct": -139.3,
+          "status": "MEASURED"
+        },
+        {
+          "date": "2026-04-29",
+          "real_pnl": -329.0,
+          "trades": [
+            {
+              "entry_time_et": "2026-04-29T12:30:00",
+              "side": "P",
+              "strike": 711,
+              "entry_spot": 709.0900268554688,
+              "entry_premium": 3.29,
+              "tp1_premium": null,
+              "runner_exit_premium": 2.9610000000000003,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -329.0,
+              "symbol": "SPY260429P00711000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 113.65,
+          "diff_pct": -389.5,
+          "status": "MEASURED"
+        },
+        {
+          "date": "2026-05-04",
+          "real_pnl": -234.0,
+          "trades": [
+            {
+              "entry_time_et": "2026-05-04T09:55:00",
+              "side": "C",
+              "strike": 719,
+              "entry_spot": 720.7601928710938,
+              "entry_premium": 2.34,
+              "tp1_premium": null,
+              "runner_exit_premium": 2.106,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -234.0,
+              "symbol": "SPY260504C00719000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 119.77,
+          "diff_pct": -295.4,
+          "status": "MEASURED"
+        },
+        {
+          "date": "2026-05-05",
+          "real_pnl": -236.0,
+          "trades": [
+            {
+              "entry_time_et": "2026-05-05T09:35:00",
+              "side": "P",
+              "strike": 724,
+              "entry_spot": 722.0599975585938,
+              "entry_premium": 2.36,
+              "tp1_premium": null,
+              "runner_exit_premium": 2.124,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -236.0,
+              "symbol": "SPY260505P00724000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 126.51,
+          "diff_pct": -286.5,
+          "status": "MEASURED"
+        }
+      ]
+    },
+    {
+      "variant": "pl_10_off05",
+      "profit_lock_threshold_pct": 0.1,
+      "profit_lock_stop_offset_pct": 0.05,
+      "verdict": "STILL_FAILS",
+      "total_bs_pnl": 2717.06,
+      "total_real_pnl": -1725.0,
+      "anchor_4_29_real": -329.0,
+      "days": [
+        {
+          "date": "2025-04-07",
+          "real_pnl": -926.0,
+          "trades": [
+            {
+              "entry_time_et": "2025-04-07T10:10:00",
+              "side": "C",
+              "strike": 511,
+              "entry_spot": 513.12,
+              "entry_premium": 9.26,
+              "tp1_premium": null,
+              "runner_exit_premium": 8.334,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -926.0,
+              "symbol": "SPY250407C00511000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 2357.13,
+          "diff_pct": -139.3,
+          "status": "MEASURED"
+        },
+        {
+          "date": "2026-04-29",
+          "real_pnl": -329.0,
+          "trades": [
+            {
+              "entry_time_et": "2026-04-29T12:30:00",
+              "side": "P",
+              "strike": 711,
+              "entry_spot": 709.0900268554688,
+              "entry_premium": 3.29,
+              "tp1_premium": null,
+              "runner_exit_premium": 2.9610000000000003,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -329.0,
+              "symbol": "SPY260429P00711000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 113.65,
+          "diff_pct": -389.5,
+          "status": "MEASURED"
+        },
+        {
+          "date": "2026-05-04",
+          "real_pnl": -234.0,
+          "trades": [
+            {
+              "entry_time_et": "2026-05-04T09:55:00",
+              "side": "C",
+              "strike": 719,
+              "entry_spot": 720.7601928710938,
+              "entry_premium": 2.34,
+              "tp1_premium": null,
+              "runner_exit_premium": 2.106,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -234.0,
+              "symbol": "SPY260504C00719000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 119.77,
+          "diff_pct": -295.4,
+          "status": "MEASURED"
+        },
+        {
+          "date": "2026-05-05",
+          "real_pnl": -236.0,
+          "trades": [
+            {
+              "entry_time_et": "2026-05-05T09:35:00",
+              "side": "P",
+              "strike": 724,
+              "entry_spot": 722.0599975585938,
+              "entry_premium": 2.36,
+              "tp1_premium": null,
+              "runner_exit_premium": 2.124,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -236.0,
+              "symbol": "SPY260505P00724000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 126.51,
+          "diff_pct": -286.5,
+          "status": "MEASURED"
+        }
+      ]
+    },
+    {
+      "variant": "pl_10_off08",
+      "profit_lock_threshold_pct": 0.1,
+      "profit_lock_stop_offset_pct": 0.08,
+      "verdict": "STILL_FAILS",
+      "total_bs_pnl": 2717.06,
+      "total_real_pnl": -1725.0,
+      "anchor_4_29_real": -329.0,
+      "days": [
+        {
+          "date": "2025-04-07",
+          "real_pnl": -926.0,
+          "trades": [
+            {
+              "entry_time_et": "2025-04-07T10:10:00",
+              "side": "C",
+              "strike": 511,
+              "entry_spot": 513.12,
+              "entry_premium": 9.26,
+              "tp1_premium": null,
+              "runner_exit_premium": 8.334,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -926.0,
+              "symbol": "SPY250407C00511000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 2357.13,
+          "diff_pct": -139.3,
+          "status": "MEASURED"
+        },
+        {
+          "date": "2026-04-29",
+          "real_pnl": -329.0,
+          "trades": [
+            {
+              "entry_time_et": "2026-04-29T12:30:00",
+              "side": "P",
+              "strike": 711,
+              "entry_spot": 709.0900268554688,
+              "entry_premium": 3.29,
+              "tp1_premium": null,
+              "runner_exit_premium": 2.9610000000000003,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -329.0,
+              "symbol": "SPY260429P00711000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 113.65,
+          "diff_pct": -389.5,
+          "status": "MEASURED"
+        },
+        {
+          "date": "2026-05-04",
+          "real_pnl": -234.0,
+          "trades": [
+            {
+              "entry_time_et": "2026-05-04T09:55:00",
+              "side": "C",
+              "strike": 719,
+              "entry_spot": 720.7601928710938,
+              "entry_premium": 2.34,
+              "tp1_premium": null,
+              "runner_exit_premium": 2.106,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -234.0,
+              "symbol": "SPY260504C00719000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 119.77,
+          "diff_pct": -295.4,
+          "status": "MEASURED"
+        },
+        {
+          "date": "2026-05-05",
+          "real_pnl": -236.0,
+          "trades": [
+            {
+              "entry_time_et": "2026-05-05T09:35:00",
+              "side": "P",
+              "strike": 724,
+              "entry_spot": 722.0599975585938,
+              "entry_premium": 2.36,
+              "tp1_premium": null,
+              "runner_exit_premium": 2.124,
+              "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+              "dollar_pnl": -236.0,
+              "symbol": "SPY260505P00724000"
+            }
+          ],
+          "found_signal": true,
+          "notes": [],
+          "bs_pnl": 126.51,
+          "diff_pct": -286.5,
+          "status": "MEASURED"
+        }
+      ]
+    }
+  ],
+  "target_days": [
+    "2025-04-07",
+    "2026-04-29",
+    "2026-05-04",
+    "2026-05-05"
+  ]
+}

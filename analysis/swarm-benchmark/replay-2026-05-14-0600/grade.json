@@ -1,0 +1,63 @@
+{
+  "date": "2026-05-14",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:17.586625+00:00",
+  "actual": {
+    "open": 743.65,
+    "close": 748.08,
+    "high": 749.53,
+    "low": 743.56,
+    "move_dollars": 4.43,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 95,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 744.7,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "BROKE",
+      "battle_level": 744.7,
+      "role": "resistance",
+      "first_touch_time": "2026-05-14T09:30:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 744.7,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY touches or exceeds PMH 744.70 within the first 30 minutes of RTH (by 10:00 ET) \u2014 the level is on",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 19.50 through the full RTH session on 2026-05-14 \u2014 CPI + Retail Sales absorbed by the 09:35 entry gate",
+        "invalidation": "VIX spikes above 19.50 at any point during RTH (09:30\u201316:00 ET), indicating the CPI print broke the neutral IV narrative"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "The CLEAN_BULL ribbon structure (54\u00a2 spread, fast > pivot > slow) remains intact with spread \u2265 30\u00a2 through the first hou",
+        "invalidation": "Ribbon spread compresses below 20\u00a2 OR fast EMA crosses below pivot EMA before 10:30 ET \u2014 signaling a ribbon breakdown th"
+      }
+    ]
+  },
+  "narrative": "The day enters RTH with a structurally strong bullish setup \u2014 CLEAN_BULL ribbon (54\u00a2 spread), a significant +$1.75 overnight gap, and 3-of-4 specialists aligned bullish \u2014 but the consensus carries a hidden fragility: zero premarket volume means the rally is conviction-free, and sector internals (XLK"
+}

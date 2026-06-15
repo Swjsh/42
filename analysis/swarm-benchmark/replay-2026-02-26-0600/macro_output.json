@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-02-26T06:00:00+00:00",
+  "bias": "bullish",
+  "confidence": 0.60,
+  "reasoning": "Macro backdrop is decisively risk-on: overnight gap +$1.39, XLK +1.17%, XLF +1.23%, BULL ribbon 87¢ spread, ZERO macro events today. VIX at 19.43 (MID regime) is rising (+8.37%), which normally signals caution, but the absolute level remains below 22 (not HIGH). The overnight positive sentiment and sector strength outweigh the rising VIX warning. Elevated VIX direction keeps confidence moderate rather than strong, but premarket backdrop favors bullish directional entries with awareness that VIX divergence could trigger intraday weakness.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 19.43,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 1.39,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX rising 1.63 points to 19.43 (MID regime) — suggests building market caution, but not elevated fear (< 22)",
+    "Overnight gap +1.39 (strong bullish signal) — Asia/Europe session voted risk-on before US open",
+    "Zero macro events today — no FOMC, CPI, NFP, or earnings surprises to block trading",
+    "Sector rotation bullish: XLK +1.17%, XLF +1.23% (tech + financials leading); XLE -0.78% (normal energy chop); overall risk_on signal",
+    "BULL ribbon stack (87¢ spread, >30¢ healthy threshold) confirms structure strength"
+  ],
+  "data_quality": "full"
+}

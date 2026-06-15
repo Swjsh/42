@@ -1,0 +1,66 @@
+{
+  "date": "2026-03-06",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:06.613324+00:00",
+  "actual": {
+    "open": 673.41,
+    "close": 672.44,
+    "high": 676.1,
+    "low": 669.78,
+    "move_dollars": -0.97,
+    "actual_bias": "no_trade"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 35,
+    "consensus_strength": "moderate",
+    "battle_level": {
+      "price": 681.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "ABSTAIN_ACTUAL",
+      "consensus": "bullish",
+      "actual": "no_trade"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 681.0,
+      "role": "resistance",
+      "rth_range": [
+        669.78,
+        676.1
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 681.0,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "SPY tests the 681.0 battle-level resistance within the first 60 minutes of RTH (by 10:30 ET); outcom",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains above 23.00 through 13:00 ET, maintaining the HIGH/extreme-fear regime and keeping 0DTE put premium elevated",
+        "invalidation": "VIX drops below 23.00 before 13:00 ET \u2014 would collapse the macro bearish case and validate ribbon recovery thesis"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "If SPY fails to hold above 681.0 on its first attempt, the CLEAN_BULL ribbon spread (currently 96c) compresses below 50c",
+        "invalidation": "Ribbon spread remains above 50c through 11:30 ET even after an initial 681.0 rejection \u2014 signals structural bull resilie"
+      }
+    ]
+  },
+  "narrative": "The core tension on 2026-03-06 is a structurally bullish ribbon (CLEAN_BULL, 96c spread, two consecutive strong green close bars) colliding head-on with an extreme-fear VIX regime (25.83, rising +8.76% overnight) that drove a 94c gap-down \u2014 the market's explicit rejection of yesterday's momentum. We"
+}

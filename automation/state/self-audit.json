@@ -1,0 +1,244 @@
+{
+  "checked_at": "2026-05-23T15:16:47.969081",
+  "bridge": {
+    "alive": true,
+    "pid": 12024
+  },
+  "responder": {
+    "ran_recently": false,
+    "last_run_min_ago": 18314.6
+  },
+  "stages": {
+    "stage1": {
+      "state": "running",
+      "completed": 20,
+      "total": 432,
+      "keepers": 0,
+      "pid_alive": false,
+      "deadline_passed_but_running": true
+    },
+    "stage2": {
+      "state": "deadline_reached",
+      "completed": 236,
+      "total": 324,
+      "keepers": 2,
+      "pid_alive": false,
+      "deadline_passed_but_running": false
+    },
+    "stage3": {
+      "state": "running",
+      "completed": 0,
+      "total": 2592,
+      "keepers": 0,
+      "pid_alive": false,
+      "deadline_passed_but_running": true
+    },
+    "stage4": {
+      "state": "completed",
+      "completed": 4,
+      "total": 4,
+      "keepers": 0,
+      "pid_alive": false,
+      "deadline_passed_but_running": false
+    },
+    "bullish": {
+      "state": "running",
+      "completed": 0,
+      "total": 81,
+      "keepers": 0,
+      "pid_alive": true,
+      "deadline_passed_but_running": false
+    }
+  },
+  "scheduled_tasks": [
+    {
+      "TaskName": "Gamma_AnalystEodReview",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_AR_Watchdog",
+      "State": 1
+    },
+    {
+      "TaskName": "Gamma_ChartVisionObserver",
+      "State": 1
+    },
+    {
+      "TaskName": "Gamma_CryptoDaily",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_CryptoGrinderKeepalive",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_CryptoRegression",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_DailyReview",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_DailyStatus",
+      "State": 1
+    },
+    {
+      "TaskName": "Gamma_DiscordResponder",
+      "State": 1
+    },
+    {
+      "TaskName": "Gamma_DiscordWatchdog",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_EodDeepDive",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_EodFlatten",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_EodFlatten_Aggressive",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_EodSummary",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_GhostOrderReconciler",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_GrinderDiscordNotify",
+      "State": 1
+    },
+    {
+      "TaskName": "Gamma_GrinderMonitor",
+      "State": 1
+    },
+    {
+      "TaskName": "Gamma_GymSession",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_Heartbeat",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_Heartbeat_Aggressive",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_KitchenDaemonKeepalive",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_KitchenReviewer",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_KitchenSeeder",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_LaunchTV",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_ManagerDailyVerify",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_MarketHoursCircuitBreaker",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_MondayReadyCheck",
+      "State": 1
+    },
+    {
+      "TaskName": "Gamma_NumericPulse1m",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_PatternGymOvernight",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_Premarket",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_ScoutPremarket",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_SelfAudit",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_SessionGuard",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_SpendSummary",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_SwarmPremarket",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_TreasurerWeekly",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_WatcherGrader",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_WatcherLive",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_WatcherMorningReport",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_WatcherReplay",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_WeeklyReview",
+      "State": 3
+    },
+    {
+      "TaskName": "Gamma_WindowLeakDetectorKeepalive",
+      "State": 3
+    }
+  ],
+  "usage": {
+    "updated_at": "2026-05-10T14:32:15.427282",
+    "today_count": 1,
+    "today_est_cost_usd": 0.1,
+    "last_hour_count": 1,
+    "last_min_count": 1,
+    "caps": {
+      "daily": 50,
+      "hourly": 15,
+      "per_min": 1
+    },
+    "by_source_today": {
+      "discord-responder": 1
+    }
+  },
+  "health": "RED",
+  "red_flags": [
+    "Discord responder hasn't run in 18314.6 min",
+    "stage1: past deadline but still marked running",
+    "stage3: past deadline but still marked running"
+  ]
+}

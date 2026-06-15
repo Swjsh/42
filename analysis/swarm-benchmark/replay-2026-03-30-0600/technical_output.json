@@ -1,0 +1,18 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-03-30T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.50,
+  "reasoning": "WEAK_BULL ribbon (8¢ spread) with price 5¢ above pivot suggests structural weakness despite bullish stack. Overnight gap up $2.97 is the primary bullish signal, but contradicted by risk-off sector rotation (XLK −1.22%, XLF −2.01%) and doji-ish bar structures with small bodies. Last 3 bars (05:45–05:55) show RED-GREEN-GREEN mixed pattern with <40% bodies. Premarket established $3.99 range (634.03–638.02) showing volatility but no directional conviction yet. Price operating within ribbon noise (5¢ separation) is functionally equivalent to CHOP setup. Edge exists (gap-up narrative) but execution is marginal — recommend caution and wait for tighter structure confirmation.",
+  "ribbon_verdict": "WEAK_BULL",
+  "ribbon_spread_cents": 8,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "at",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "Overnight gap up $2.97 (634.08 → 637.05) is significant bullish overnight sentiment, but price currently only 5¢ above ribbon pivot — ribbon spread 8¢ indicates near-chop conditions",
+    "Last 3 closed bars show mixed structure: 05:45 RED (−2¢ doji), 05:50 GREEN (+13¢), 05:55 GREEN (+15¢). Small bodies (<40% of range) suggest indecision and low conviction despite majority green",
+    "VIX elevated at 30.67 (HIGH regime) with risk-off sector rotation (energy only winner at +1.67%) contradicts typical gap-up bullish backdrop; structural setup is bullish but sentiment is defensive"
+  ],
+  "data_quality": "full"
+}

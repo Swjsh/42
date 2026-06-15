@@ -1,0 +1,63 @@
+{
+  "alpaca_account": {
+    "equity": "102771.75",
+    "last_equity": "101272.15",
+    "cash": "102771.75",
+    "daytrade_count": 4,
+    "portfolio_value": "102771.75"
+  },
+  "alpaca_orders": [
+    {
+      "id": "7c827cdc-3e56-4854-bff0-04a9679bec03",
+      "client_order_id": "7532445e-0257-4dec-b7fb-7c3fbd9f3b2b",
+      "symbol": "SPY260514C00745000",
+      "side": "buy",
+      "qty": "10",
+      "filled_qty": "10",
+      "filled_avg_price": "1.67",
+      "order_type": "limit",
+      "status": "filled",
+      "filled_at": "2026-05-14T13:58:35.540746Z",
+      "created_at": "2026-05-14T13:58:35.448564Z"
+    },
+    {
+      "id": "c98ec65e-47e5-4d73-b29d-b82938229e1f",
+      "client_order_id": "ebc37f18-4e9e-43de-a8f0-e6f33e57d55c",
+      "symbol": "SPY260514C00745000",
+      "side": "sell",
+      "qty": "5",
+      "filled_qty": "5",
+      "filled_avg_price": "2.26",
+      "order_type": "market",
+      "status": "filled",
+      "filled_at": "2026-05-14T14:40:13.761574Z",
+      "created_at": "2026-05-14T14:40:13.489147Z"
+    },
+    {
+      "id": "c4a2bf9f-6037-4b65-bd15-acd05309544c",
+      "client_order_id": "scale-out-2of5-745c-1115et",
+      "symbol": "SPY260514C00745000",
+      "side": "sell",
+      "qty": "2",
+      "filled_qty": "2",
+      "filled_avg_price": "3.72",
+      "order_type": "market",
+      "status": "filled",
+      "filled_at": "2026-05-14T15:24:21.226801Z",
+      "created_at": "2026-05-14T15:24:21.129400Z"
+    },
+    {
+      "id": "556d787e-6a8a-4d5c-ac5c-71ba01d48460",
+      "client_order_id": "aff2c7c7-096a-4d26-be7d-4326ec531813",
+      "symbol": "SPY260514C00745000",
+      "side": "sell",
+      "qty": "3",
+      "filled_qty": "3",
+      "filled_avg_price": "4.32",
+      "order_type": "market",
+      "status": "filled",
+      "filled_at": "2026-05-14T15:57:59.803962Z",
+      "created_at": "2026-05-14T15:57:59.760502Z"
+    }
+  ]
+}

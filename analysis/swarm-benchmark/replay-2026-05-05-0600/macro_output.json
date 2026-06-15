@@ -1,0 +1,26 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-05-05T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "VIX at 17.44 (MID regime) falling -4.07% signals compression bullish — fear receding creates tailwind for calls. Overnight gap +$2.55 (moderate bullish) reinforces upside bias. No high-impact macro events today; FOMC decision is 2026-05-07 (2 days away). Sector rotation shows minor risk-off tone (Tech -0.41%, Finance -0.39%) offset by Energy +1.12%, but this is neutral noise against the VIX-gap alignment. Ribbon in BULL stack (87¢ spread, healthy). Setup favors bullish directional entries, though sector weakness warrants caution on oversize positions.",
+  "vix_regime": "MID",
+  "vix_direction": "falling",
+  "vix_current": 17.44,
+  "vix_change_pct": -4.07,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 2.55,
+  "overnight_gap_pct": 0.36,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX at 17.44 is MID regime sweet spot — good for directional trades both ways; falling direction (-4.07%) gives bullish bias",
+    "Overnight gap +$2.55 (0.36%) is moderate bullish; SPY premarket high 720.86, low 718.01, showing premarket volatility contained",
+    "Sector rotation shows XLK/XLF weakness (-0.40% range) but XLE strength (+1.12%) — mixed signal, no clear bearish commitment",
+    "FOMC Decision scheduled for 2026-05-07 (2 days) — no near-term event risk today; entry window clean through market close",
+    "Ribbon healthy BULL stack (87¢ spread) supports bullish context; premarket trend is neutral chop"
+  ],
+  "data_quality": "full",
+  "calendar_notes": "Calendar was filtered for replay window (2026-05-04..2026-05-10); 1 event (FOMC 2026-05-07) outside today. No data quality concerns; both raw_data and macro-calendar read successfully."
+}

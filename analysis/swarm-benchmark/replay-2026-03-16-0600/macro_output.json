@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-16T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.55,
+  "reasoning": "VIX at 24.04 remains in HIGH regime despite falling -11.65% overnight (compression signal). However, macro backdrop contradicts the VIX fall: risk-off rotation (XLK -1.19%, XLF -0.45%, SPY -1.04% yesterday), and overnight gap-up +$2.01 conflicts with persistent sector weakness. No events today block trades, but FOMC decision meeting 2026-03-18 (52 hours away) creates low-level caution. VIX compression alone would be bullish, but the risk_off rotation + elevated IV regime + yesterday's selloff creates a bearish tilt. Expect directional volatility and possible rotational chop.",
+  "vix_regime": "HIGH",
+  "vix_direction": "falling",
+  "vix_current": 24.04,
+  "event_risk": "low",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 2.01,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX 24.04 (HIGH regime, >22) with -11.65% drop overnight signals compression/fear receding, typically bullish for calls",
+    "Risk-off rotation: XLK -1.19%, XLF -0.45% vs SPY -1.04% yesterday contradicts gap-up signal; sector weakness persists despite overnight rally",
+    "Overnight gap +$2.01 vs premarket range 663.05–666.58 (3.53 pt spread) suggests exhaustion — gap did not extend, indicating possible mean-reversion or chop into 09:30 ET",
+    "FOMC decision Wed 2026-03-18 14:00 ET (52h away) = low immediate block risk, but vol-calm-before-storm possible Mon/Tue",
+    "Ribbon BULL but weak: 25¢ spread (fast 664.56, pivot 664.52, slow 664.32) — stack valid but low confidence for directional hold"
+  ],
+  "data_quality": "full"
+}

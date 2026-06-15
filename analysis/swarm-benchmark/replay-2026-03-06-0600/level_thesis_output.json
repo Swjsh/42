@@ -1,0 +1,113 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-06T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.62,
+  "reasoning": "SPY at 680.46, down -0.94 overnight from 681.4 close, but the ribbon remains in a BULL stack (fast 680.14 > pivot 679.66 > slow 679.19, spread 96¢), providing structural support. The battle level is 681.0 (the nearest Reference level, only 0.54 above), which matches the prior-session close vicinity and is the natural intraday resistance target. If price reclaims 681.0, the path opens toward the Active resistance at 685.51. The critical support defending the bull case is 679.0 (1.46 below) — if it holds on any weakness, the BULL ribbon setup remains intact. If 679.0 breaks, price would target the deeper Active support at 675.63. All in-play levels are low-weight Reference tiers (round numbers, 1★ strength); the macro structure is framed by the Carry tiers (669.67 support 10.79 below, 688.59 resistance 8.13 above). VIX at 25.83 and rising (HIGH regime) signals elevated volatility — bulls need volume confirmation on any resistance breaks.",
+  "battle_level": {
+    "price": 681.0,
+    "tier": "Reference",
+    "strength_stars": 1,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 681.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.54
+    },
+    {
+      "price": 679.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 1.46
+    },
+    {
+      "price": 682.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 1.54
+    },
+    {
+      "price": 678.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 2.46
+    },
+    {
+      "price": 683.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": 2.54
+    },
+    {
+      "price": 685.51,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 6,
+      "distance_from_price": 5.05
+    },
+    {
+      "price": 675.63,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 7,
+      "distance_from_price": 4.83
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY reclaims and holds 681.0",
+      "bias": "bullish",
+      "target": 685.51,
+      "entry_trigger": "level_reclaim + ribbon_support"
+    },
+    "secondary": {
+      "condition": "if SPY holds 679.0 support on weakness but fails to break 681.0",
+      "bias": "neutral",
+      "target": 679.0,
+      "entry_trigger": "range_bound_between_679_and_681"
+    },
+    "tertiary": {
+      "condition": "if SPY breaks below 679.0 on volume",
+      "bias": "bearish",
+      "target": 675.63,
+      "entry_trigger": "level_break + ribbon_inversion_risk"
+    }
+  },
+  "levels_in_play_count": 5,
+  "key_observations": [
+    "Overnight gap-down (-0.94) tested the ribbon structure; ribbon remains BULL, but price is now just below the pivot EMA (679.66) — any weakness toward 679.0 is a first test of structural support",
+    "All in-play levels are Reference tier (round numbers, 1★ strength, awareness-only weight); higher-tier Active/Carry levels frame the macro range (675.63 and 685.51) but are 4.8–5.1 points away",
+    "Elevated VIX (25.83, rising, HIGH regime) combined with BULL ribbon creates a risk-on-but-cautious setup; resistance breaks need volume confirmation; support breaks on volume are reversal-qualified"
+  ],
+  "data_quality": "full"
+}

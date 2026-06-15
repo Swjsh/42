@@ -1,0 +1,216 @@
+{
+  "generated_at": "2026-05-17T21:11:10.965906",
+  "rule_id": "v15.3",
+  "verdict": "NEEDS MORE WORK",
+  "gates_passed": 3,
+  "gates_total": 7,
+  "gates": {
+    "gate_1_oos_backtest": true,
+    "gate_2_quarterly_stability": true,
+    "gate_3_edge_capture_v153": false,
+    "gate_4_515_improvement": false,
+    "gate_5_concentration": true,
+    "gate_6_winner_not_regressed": false,
+    "gate_7_monday_ready": false
+  },
+  "edge_capture": {
+    "v151": -528.77,
+    "v153": -528.77,
+    "max_possible": 1542,
+    "floor": 771,
+    "v151_pct_of_max": -34.3,
+    "v153_pct_of_max": -34.3
+  },
+  "final_score": {
+    "v151": -5511.3,
+    "v153": -5511.3
+  },
+  "sharpe": {
+    "v151_full": 10.423,
+    "v153_full": 10.423
+  },
+  "total_pnl": {
+    "v151_full": 78691.91,
+    "v153_full": 78691.91,
+    "v151_train": 60375.77,
+    "v151_test": 18316.14,
+    "v153_test": 18316.14
+  },
+  "quarterly_pnl_v151": {
+    "2025-Q1": 17510.9,
+    "2025-Q2": 8518.97,
+    "2025-Q3": 14374.66,
+    "2025-Q4": 19971.24,
+    "2026-Q1": 17111.3,
+    "2026-Q2": 1204.84
+  },
+  "quarterly_pnl_v153": {
+    "2025-Q1": 17510.9,
+    "2025-Q2": 8518.97,
+    "2025-Q3": 14374.66,
+    "2025-Q4": 19971.24,
+    "2026-Q1": 17111.3,
+    "2026-Q2": 1204.84
+  },
+  "concentration": {
+    "top5_pct_v151": 15.5,
+    "top5_pct_v153": 15.5,
+    "threshold_warn": 200.0
+  },
+  "gate_4_515_replay": {
+    "v151_pnl": 155.62,
+    "v153_pnl_engine": 155.62,
+    "v153_trigger_fires": false,
+    "v153_estimate_adjusted": 155.62,
+    "improvement": 0.0
+  },
+  "gate_6_winner_day_results": [
+    {
+      "date": "2026-04-29",
+      "label": "SPY 710P x6",
+      "j_pnl": 342,
+      "v151_pnl": -52.43,
+      "v153_pnl": -52.43,
+      "regressed": true
+    },
+    {
+      "date": "2026-05-01",
+      "label": "SPY 721P x20",
+      "j_pnl": 470,
+      "v151_pnl": 294.75,
+      "v153_pnl": 294.75,
+      "regressed": false
+    },
+    {
+      "date": "2026-05-04",
+      "label": "SPY 721P x10",
+      "j_pnl": 730,
+      "v151_pnl": -404.39,
+      "v153_pnl": -404.39,
+      "regressed": true
+    }
+  ],
+  "gate_7_monday_checks": {
+    "smoke_test_7_7": true,
+    "edge_capture_v151_above_floor": false,
+    "edge_capture_v153_above_floor": false,
+    "quarterly_stability": true,
+    "oos_test_positive_v151": true,
+    "oos_test_positive_v153": true,
+    "winner_days_not_regressed": false,
+    "5_15_improvement": false,
+    "op20_all_6_disclosures_present": true,
+    "concentration_below_200pct": true,
+    "draft_only_no_production_edit": true
+  },
+  "edge_day_results": {
+    "v151": [
+      {
+        "date": "2026-04-29",
+        "side": "WINNER",
+        "j_pnl": 342,
+        "engine_pnl": -52.43,
+        "trigger_fires": false
+      },
+      {
+        "date": "2026-05-01",
+        "side": "WINNER",
+        "j_pnl": 470,
+        "engine_pnl": 294.75,
+        "trigger_fires": false
+      },
+      {
+        "date": "2026-05-04",
+        "side": "WINNER",
+        "j_pnl": 730,
+        "engine_pnl": -404.39,
+        "trigger_fires": false
+      },
+      {
+        "date": "2026-05-05",
+        "side": "LOSER",
+        "j_pnl": -260,
+        "engine_pnl": 0.0,
+        "trigger_fires": false
+      },
+      {
+        "date": "2026-05-06",
+        "side": "LOSER",
+        "j_pnl": -300,
+        "engine_pnl": 0.0,
+        "trigger_fires": false
+      },
+      {
+        "date": "2026-05-07",
+        "side": "LOSER",
+        "j_pnl": -45,
+        "engine_pnl": -183.35,
+        "trigger_fires": false
+      },
+      {
+        "date": "2026-05-07",
+        "side": "LOSER",
+        "j_pnl": -120,
+        "engine_pnl": -183.35,
+        "trigger_fires": false
+      }
+    ],
+    "v153": [
+      {
+        "date": "2026-04-29",
+        "side": "WINNER",
+        "j_pnl": 342,
+        "engine_pnl": -52.43,
+        "trigger_fires": false
+      },
+      {
+        "date": "2026-05-01",
+        "side": "WINNER",
+        "j_pnl": 470,
+        "engine_pnl": 294.75,
+        "trigger_fires": false
+      },
+      {
+        "date": "2026-05-04",
+        "side": "WINNER",
+        "j_pnl": 730,
+        "engine_pnl": -404.39,
+        "trigger_fires": false
+      },
+      {
+        "date": "2026-05-05",
+        "side": "LOSER",
+        "j_pnl": -260,
+        "engine_pnl": 0.0,
+        "trigger_fires": false
+      },
+      {
+        "date": "2026-05-06",
+        "side": "LOSER",
+        "j_pnl": -300,
+        "engine_pnl": 0.0,
+        "trigger_fires": false
+      },
+      {
+        "date": "2026-05-07",
+        "side": "LOSER",
+        "j_pnl": -45,
+        "engine_pnl": -183.35,
+        "trigger_fires": false
+      },
+      {
+        "date": "2026-05-07",
+        "side": "LOSER",
+        "j_pnl": -120,
+        "engine_pnl": -183.35,
+        "trigger_fires": false
+      }
+    ]
+  },
+  "meta": {
+    "train_window": "2025-01-01 to 2025-12-31",
+    "test_window": "2026-01-01 to 2026-05-15",
+    "full_window": "2025-01-01 to 2026-05-15",
+    "methodology_note": "v15.3 live-price trigger simulated from 5m bar data: fires when PMH/PML level crossed intraday (bar.low < level - $0.05 margin) during 09:35-09:45 ET window, prior bar close was above level. 5/15 P&L adjusted to +$50 (conservative chandelier-exit estimate) per forensic in candidate spec. All other days use v15.1 engine output."
+  }
+}

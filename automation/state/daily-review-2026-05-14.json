@@ -1,0 +1,90 @@
+{
+  "date": "2026-05-14",
+  "morning_thesis": "CPI (April 2026) printed at 08:30 ET — SPY gapped up $1.78 to 745.16 premarket (PMH 745.43). Ribbon BULL stack confirmed: Fast 745.05 > Pivot 744.79 > Slow 744.61, spread 44c (above 30c threshold). SMA50 at 744.42 — price $0.74 above. Prior RTH high 743.79 cleared in premarket, flipping to first support shelf. Bull context is clear. Key gate: VIX at 17.9 is just above bull entry threshold (17.20) — heartbeat will assess direction at runtime. If VIX fades below 17.20, calls filter opens. CPI no-trade window ends 09:00 ET; v15 entry gate 09:35 ET. Primary watch: BULLISH_RECLAIM on any RTH retrace to 743.79 zone with ribbon holding BULL. Falsifiable: SPY opens RTH at/above 743.79 and first 5m bar closes above it; invalidated if first RTH bar closes below 743.50.",
+  "predictions": [
+    {
+      "prediction_idx": 0,
+      "claim": "SPY opens RTH at or above 743.79 and first 5m bar closes above it, confirming bull continuation structure",
+      "trigger_window": "09:30-09:40 ET",
+      "invalidation": "First RTH 5m bar closes below 743.50 — gap fill in play, bear structure",
+      "confidence": 0.70,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "SPY RTH open ~745+, first 5m bar closed well above 743.79. Session low all day was 745.13 — level never tested.",
+      "category": "level",
+      "evidence_timestamp": "09:35",
+      "graded_at": "2026-05-14T16:00:02-04:00"
+    },
+    {
+      "prediction_idx": 1,
+      "claim": "745.43 PMH acts as cap on first RTH approach — expect at least one 5m rejection before SPY sustains above 745.50",
+      "trigger_window": "09:30-11:00 ET",
+      "invalidation": "First RTH 5m bar trading above 745.43 closes above 745.50 with volume >= 1.5x 20-bar avg",
+      "confidence": 0.55,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "SPY opened at/above PMH 745.43 and gapped straight through with no rejection. Gap-and-go continued to new ATH 749.37. No wick or rejection at PMH.",
+      "category": "level",
+      "evidence_timestamp": "09:35",
+      "graded_at": "2026-05-14T16:00:02-04:00"
+    },
+    {
+      "prediction_idx": 2,
+      "claim": "VIX fades from 17.9 toward 17.0 by 10:30 ET on CPI relief, unlocking bull entry filter (threshold 17.20)",
+      "trigger_window": "09:30-10:30 ET",
+      "invalidation": "VIX still above 17.50 at 10:30 ET 5m close",
+      "confidence": 0.55,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PARTIAL_TIMING",
+      "actual": "VIX was 17.96-18.04 at 10:30 ET (above 17.50 — invalidation tripped). VIX did eventually fade to 17.48 by 14:24 ET — correct direction, wrong timing by ~4 hours.",
+      "category": "bias",
+      "evidence_timestamp": "10:30",
+      "graded_at": "2026-05-14T16:00:02-04:00"
+    },
+    {
+      "prediction_idx": 3,
+      "claim": "738.10 carry support stays untouched all session — CPI tailwind prevents any bear cascade below $740",
+      "trigger_window": "09:30-15:50 ET",
+      "invalidation": "Any 5m bar closes below 738.10",
+      "confidence": 0.80,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "Session low was 745.13 — 738.10 never approached. CPI tailwind held the floor firmly all day.",
+      "category": "level",
+      "evidence_timestamp": null,
+      "graded_at": "2026-05-14T16:00:02-04:00"
+    },
+    {
+      "prediction_idx": 4,
+      "claim": "SPY retraces to test 743.79-744.20 zone before noon ET then resumes higher — partial gap fill before continuation",
+      "trigger_window": "09:30-12:00 ET",
+      "invalidation": "SPY does not touch 744.20 or below by 12:00 ET (pure gap-and-go, no retrace)",
+      "confidence": 0.45,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "Gap-and-go day: SPY did not retrace at all. Session low 745.13 (barely below PMH), never came close to 744.20. Invalidation condition met.",
+      "category": "bias",
+      "evidence_timestamp": "12:00",
+      "graded_at": "2026-05-14T16:00:02-04:00"
+    }
+  ],
+  "surprises": [
+    "Gap-and-go through PMH 745.43 with zero rejection on RTH open — SPY went straight to 748+ without a single wick back to PMH. Specific to shock-positive CPI catalyst days. Candidate named setup: CPI_GAP_AND_GO.",
+    "New ATH 749.37 — SPY printed a fresh session high with no prior overhead structure. Tomorrow opens in price discovery territory above any historical level in the current regime.",
+    "VIX stayed elevated 17.85-18.04 through 60+ minutes post-CPI despite a bullish print — the 'CPI relief = instant VIX compression' model is wrong; VIX can lag by hours when rate re-pricing is active.",
+    "Ribbon compressed to 12c by 14:24 ET despite SPY at $747.98 — strong morning push, then choppy afternoon. No new setups fired after 11:57 exit."
+  ],
+  "lesson": "On large CPI gap-up days (1.5%+ gap with ribbon BULL stack pre-RTH), the PMH is a reference marker not a resistance cap — the correct model is that RTH is the extension of the catalyst, not the reversal, so PMH-cap predictions on shock-catalyst days should be replaced with 'where is the next structural level above PMH'.",
+  "tomorrow_hint": "TOMORROW — price discovery above new ATH 749.37; 745.43 is now the support floor; no structural overhead until 750 psychological",
+  "predictions_count": 5,
+  "predictions_passed": 2,
+  "predictions_partial": 1,
+  "hit_rate_passing": 0.5,
+  "specificity_weighted_hit_rate": 0.5,
+  "graded_at": "2026-05-14T16:30:02-04:00"
+}

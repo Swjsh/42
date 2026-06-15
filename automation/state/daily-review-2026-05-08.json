@@ -1,0 +1,89 @@
+{
+  "date": "2026-05-08",
+  "morning_thesis": "BULLISH. SPY gaps up +$3.16 from yesterday's 730.94 RTH close, premarket at 735.75 with PMH 736.14 briefly exceeding yesterday's RTH high of 736.11. All prior resistance levels (735.40, 733.55) are now trading below current price — their role flips to support on any pullback. VIX at 16.87, falling from yesterday's 17.17 close — MID regime, no fear spike. No major macro today (post-FOMC, post-tariff-news Friday). Structural posture is bullish. Critical ceiling is 736.11. Predictions: (P1) 736.11 resists first touch conf=0.60, (P2) 735.40 flips to support conf=0.55, (P3) gap no-fill above 733.00 conf=0.70, (P4) VIX drops below 16.50 by 12:00 conf=0.45, (P5) first RTH bar closes above 735.00 conf=0.70",
+  "predictions": [
+    {
+      "prediction_idx": 0,
+      "claim": "736.11 acts as first-touch resistance — SPY wicks to 736.11 area at open but fails to close a 5-min bar above 736.25 before 10:05 ET",
+      "trigger_window": "09:30–10:05 ET",
+      "invalidation": "SPY closes a 5-min bar with close > 736.25 before 10:05 ET",
+      "confidence": 0.60,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "SPY at 736.67 at the 10:03 tick — open drive swept 736.11 cleanly and ran to 738.10 intraday high",
+      "category": "level",
+      "evidence_timestamp": "10:03",
+      "graded_at": "2026-05-08T16:30:02-04:00"
+    },
+    {
+      "prediction_idx": 1,
+      "claim": "735.40 flips to support — on the first RTH pullback SPY holds above 735.20 and bounces",
+      "trigger_window": "09:30–11:00 ET",
+      "invalidation": "SPY closes a 5-min bar with close < 735.20 before 11:00 ET",
+      "confidence": 0.55,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "UNTESTED",
+      "actual": "SPY never pulled back to 735.40 zone — held 736+ from open through close",
+      "category": "level",
+      "evidence_timestamp": null,
+      "graded_at": "2026-05-08T16:30:02-04:00"
+    },
+    {
+      "prediction_idx": 2,
+      "claim": "Gap does not fill today — SPY holds above 733.00 for the full RTH session",
+      "trigger_window": "09:30–15:50 ET",
+      "invalidation": "SPY closes a 5-min bar below 733.00 at any point 09:30–15:50 ET",
+      "confidence": 0.70,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "RTH low ~735.05 at first tick; 733.00 was never threatened. Gap held entire session.",
+      "category": "level",
+      "evidence_timestamp": null,
+      "graded_at": "2026-05-08T16:30:02-04:00"
+    },
+    {
+      "prediction_idx": 3,
+      "claim": "VIX drops below 16.50 by 12:00 ET as gap holds and fear unwinds",
+      "trigger_window": "by 12:00 ET",
+      "invalidation": "VIX reads above 16.87 at 12:00 ET",
+      "confidence": 0.45,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "VIX rose to 17.24 by 10:18, pinned at 17.24-17.28 through noon, closed at 17.46",
+      "category": "risk",
+      "evidence_timestamp": "10:18",
+      "graded_at": "2026-05-08T16:30:02-04:00"
+    },
+    {
+      "prediction_idx": 4,
+      "claim": "First 5-min RTH bar (09:30–09:35 ET) closes above 735.00, confirming gap strength into the open",
+      "trigger_window": "09:30–09:35 ET",
+      "invalidation": "09:30–09:35 bar closes below 735.00",
+      "confidence": 0.70,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "spy=735.05 at 09:39 tick confirms opening bar held above 735",
+      "category": "bias",
+      "evidence_timestamp": "09:39",
+      "graded_at": "2026-05-08T16:30:02-04:00"
+    }
+  ],
+  "surprises": [
+    "4× Haiku model timeouts (11:00–11:54 ET) on HTF ticks — 160s wall clock too tight for dual-timeframe tool chains",
+    "VIX plateaued at 17.24-17.28 for 3+ hours — 'VIX flat at threshold' blocks engine indefinitely with no exit condition modeled",
+    "bull=10/11 for 3 consecutive ticks (10:03-10:15) with no tradeable setup — SPY in open air above prior day's high, no level-tied trigger available; reveals missing BREAKOUT_CONTINUATION setup type"
+  ],
+  "lesson": "When premarket high has already exceeded a key resistance level, the 'first-touch rejection' thesis at that level is invalid — revise to 'breakout continuation if level holds' instead",
+  "tomorrow_hint": "MONDAY — 738.10 fresh ceiling | 736.11 first support | 735.40 still unresolved P2 | gap held = continued bid",
+  "predictions_count": 5,
+  "predictions_passed": 2,
+  "predictions_partial": 0,
+  "hit_rate_passing": 0.50,
+  "specificity_weighted_hit_rate": 0.50,
+  "graded_at": "2026-05-08T16:30:02-04:00"
+}

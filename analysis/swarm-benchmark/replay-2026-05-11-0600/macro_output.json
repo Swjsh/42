@@ -1,0 +1,24 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-05-11T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "VIX at 18.19 is in MID regime (15-22) with measured rise of +5.88% (~1 point from prior ~17.17), signaling caution but not panic. Risk_on rotation provides bullish support despite VIX rising — macro backdrop is risk appetite, not risk-off. BULL ribbon structure + flat overnight gap + ZERO events today = no friction to setups. VIX rise is a yellow flag (monitor for further acceleration), but confidence is moderate because we're not in HIGH regime yet (> 22) and the rise is sub-threshold (< 1.5 points rapid-rise trigger). Macro favors bulls with bias caution.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 18.19,
+  "vix_change_pct": 5.88,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": 0.0,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX rising from ~17.17 to 18.19 (+1.02 pts, +5.88%) — measured fear uptick, NOT rapid (threshold 1.5 pts)",
+    "Risk_on rotation confirmed: XLK +2.29%, SPY +0.37% — tech leadership intact despite VIX rise",
+    "MID VIX regime (15-22) means both directions can work; not yet in HIGH zone (> 22) where bearish dominates",
+    "Zero macro events on 2026-05-11 — no hard no-trade windows, no event-driven volatility catalyst",
+    "Flat overnight gap (0.0) provides neutral starting point; price action will dictate direction"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,74 @@
+﻿{
+    "ribbon":  {
+                   "stack":  "BULL",
+                   "fast":  755.3,
+                   "slow":  754.2,
+                   "spread_cents":  110,
+                   "pivot":  754.8
+               },
+    "spy_context":  {
+                        "premarket_low":  753.2,
+                        "prior_session_close":  753.25,
+                        "premarket_high":  754.1,
+                        "current_price":  755.5,
+                        "overnight_gap_dir":  "up",
+                        "overnight_gap_dollars":  2.25
+                    },
+    "fetched_at":  "2026-06-08T15:21:56Z",
+    "sectors":  {
+                    "XLK":  {
+                                "close":  245.3,
+                                "change_pct":  0.45,
+                                "direction":  "up"
+                            },
+                    "XLE":  {
+                                "close":  95.8,
+                                "change_pct":  0.55,
+                                "direction":  "up"
+                            },
+                    "SPY":  {
+                                "close":  755.5,
+                                "change_pct":  0.3,
+                                "direction":  "up"
+                            },
+                    "XLF":  {
+                                "close":  168.5,
+                                "change_pct":  -0.12,
+                                "direction":  "flat"
+                            }
+                },
+    "vix":  {
+                "current":  18.5,
+                "direction":  "rising",
+                "iv_regime":  "MID"
+            },
+    "spy_bars":  [
+                     {
+                         "open":  755.2,
+                         "close":  755.5,
+                         "high":  755.8,
+                         "volume":  1250000,
+                         "low":  754.9,
+                         "time":  "2026-06-08T15:15:00Z"
+                     },
+                     {
+                         "open":  755,
+                         "close":  755.2,
+                         "high":  755.6,
+                         "volume":  1180000,
+                         "low":  754.7,
+                         "time":  "2026-06-08T15:10:00Z"
+                     },
+                     {
+                         "open":  754.5,
+                         "close":  755,
+                         "high":  755.3,
+                         "volume":  1320000,
+                         "low":  754.2,
+                         "time":  "2026-06-08T15:05:00Z"
+                     }
+                 ],
+    "tv_data_available":  true,
+    "rotation_signal":  "risk_on",
+    "alpaca_data_available":  true
+}

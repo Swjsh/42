@@ -1,0 +1,63 @@
+{
+  "date": "2026-02-20",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:04.234248+00:00",
+  "actual": {
+    "open": 682.23,
+    "close": 689.44,
+    "high": 690.06,
+    "low": 681.87,
+    "move_dollars": 7.21,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 60,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 686.13,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "TESTED_MIXED",
+      "battle_level": 686.13,
+      "role": "resistance",
+      "first_touch_time": "2026-02-20T10:00:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 686.13,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "686.13 (prior-day RTH high, Active resistance) will be tested within the first 90 minutes of RTH by ",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 19.50 through 11:00 ET, sustaining the overnight risk-on tailwind and keeping premium favorable for di",
+        "invalidation": "VIX spikes above 19.50 before 11:00 ET without a scheduled macro catalyst, reversing the overnight -6.95% move and repri"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "The MIXED ribbon (12\u00a2 spread) resolves to a definitive BULL or BEAR stack (spread >= 30\u00a2) within the first 60 minutes of",
+        "invalidation": "Ribbon spread remains below 30\u00a2 (MIXED / indecision) through 10:30 ET, meaning the range-chop scenario is playing out wi"
+      }
+    ]
+  },
+  "narrative": "The core tension today is a 2-vs-2 weighted split: technical structure (price 114\u00a2 above all EMAs, 3-bar green close) and macro tailwind (VIX -6.95%, clean calendar) vote bullish and carry the weighted score to 0.65, while level thesis (symmetric sandwich between 686.13 and 681.59, MIXED ribbon) and"
+}

@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-11T10:00:00Z",
+  "bias": "no_trade",
+  "confidence": 0.52,
+  "reasoning": "SPY at 678.12, gapped up overnight (+0.99 to 678.12 from 677.13 close). Price sits at the pivot EMA (middle of BEAR-stacked ribbon: 677.8 fast, 678.12 pivot, 678.86 slow). The immediate IN_PLAY zone has only 1★ reference levels (679.0 resistance, 677.0/676.0 support). The real battle zones are NEARBY: 674.81 (Active 2★ support, 3.31 below) acts as the first defense on any retrace; 683.33 (Active 2★ resistance, 5.21 above) gates the upside. Ribbon is BEAR-structured but spread is wide (106c), indicating weak conviction. VIX at 24.65 falling (-1.04%) conflicts with bear bias. Price at the pivot is tactically neutral — the test will determine direction: hold above 674.81 = bullish to 683.33; break below = bearish to 662.42 Carry. Current positioning offers ambiguous edge.",
+  "battle_level": {
+    "price": 674.81,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 674.81,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 1,
+      "distance_from_price": 3.31
+    },
+    {
+      "price": 683.33,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 5.21
+    },
+    {
+      "price": 679.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 0.88
+    },
+    {
+      "price": 677.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 1.12
+    },
+    {
+      "price": 687.09,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": 8.97
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 674.81 on pullback",
+      "bias": "bullish",
+      "target": 683.33,
+      "entry_trigger": "bounce_at_674.81 + ribbon_pivot_support"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 674.81 with volume",
+      "bias": "bearish",
+      "target": 662.42,
+      "entry_trigger": "level_break + BEAR_ribbon_continuation"
+    },
+    "tertiary": {
+      "condition": "if SPY extends above 679.0 in the early session",
+      "bias": "bullish",
+      "target": 687.09,
+      "entry_trigger": "gap-up_follow_through + overnight_momentum"
+    }
+  },
+  "levels_in_play_count": 5,
+  "key_observations": [
+    "Gap-up overnight (+0.99) into BEAR-stacked ribbon — conflicting signal (bullish entry, bearish structure)",
+    "Price locked at pivot EMA (678.12) — tactically neutral until a direction is declared",
+    "Wide ribbon spread (106 centipennies) suggests low conviction in the BEAR lean; typical strong bear is <50c spread",
+    "All IN_PLAY levels are 1★ reference zones; real decision points are NEARBY (674.81, 683.33) at 2★ Active tier",
+    "VIX falling (24.65, -1.04%) creates bullish undertone despite negative ribbon structure — watch if this lifts price toward 683.33"
+  ],
+  "data_quality": "full"
+}

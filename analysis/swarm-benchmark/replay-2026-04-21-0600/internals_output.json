@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-04-21T06:00:00Z",
+  "bias": "no_trade",
+  "confidence": 0.42,
+  "reasoning": "Premarket sector breadth is mixed with low dispersion. XLF +0.55% (financials) is the only sector moving above threshold, while XLK (tech, ~30% of SPY) is flat at +0.17% and XLE flat at -0.05%. This divergence—financials nudging up while tech remains unmoved—does NOT align with a classic risk-on or risk-off rotation. SPY itself is flat at -0.01%. Single-sector leadership without XLK confirmation, combined with overall <1% dispersion, suggests insufficient sector internals clarity for a directional bias. Market breadth is neutral premarket.",
+  "rotation_signal": "flat",
+  "sector_alignment": {
+    "xlk_change_pct": 0.17,
+    "xlf_change_pct": 0.55,
+    "xle_change_pct": -0.05,
+    "spy_change_pct": -0.01,
+    "xlk_vs_spy": "inline",
+    "breadth": "flat"
+  },
+  "key_observations": [
+    "XLK (tech): +0.17% — flat, no leadership",
+    "XLF (financials): +0.55% — only sector moving, but insufficient to drive rotation signal without XLK confirmation",
+    "XLE (energy): -0.05% — neutral, flat",
+    "Overall rotation: XLF slightly elevated, but tech flat + low overall dispersion = MIXED/FLAT, not a clear risk-on or risk-off signal"
+  ],
+  "data_quality": "full"
+}

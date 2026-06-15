@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Gamma — A Day in the Life</title>
+<style>
+:root {
+  --bg: #0a0e14;
+  --bg-2: #11161e;
+  --bg-3: #1a1f2a;
+  --line: #1f2937;
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+  --text-mute: #545d6e;
+  --gamma: #f5b324;
+  --scout: #5bd1ff;
+  --pilot: #4ade80;
+  --analyst: #c084fc;
+  --chef: #fb7185;
+  --treasurer: #facc15;
+  --coach: #38bdf8;
+  --kill: #ef4444;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif;
+  font-weight: 400;
+  line-height: 1.5;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(245,179,36,0.10), transparent),
+    radial-gradient(ellipse 60% 40% at 50% 110%, rgba(91,209,255,0.08), transparent),
+    var(--bg);
+  min-height: 100vh;
+}
+
+.mono { font-family: "JetBrains Mono", "SF Mono", Menlo, monospace; }
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* HERO */
+header.hero {
+  padding: 88px 0 64px;
+  text-align: center;
+  border-bottom: 1px solid var(--line);
+}
+.hero .tag {
+  display: inline-block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: var(--gamma);
+  text-transform: uppercase;
+  padding: 7px 16px;
+  border: 1px solid rgba(245,179,36,0.3);
+  border-radius: 100px;
+  background: rgba(245,179,36,0.05);
+}
+.hero h1 {
+  font-size: clamp(56px, 8vw, 104px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  margin-top: 28px;
+  line-height: 0.95;
+  background: linear-gradient(180deg, #fff 0%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero .sub {
+  margin-top: 28px;
+  font-size: 20px;
+  color: var(--text-dim);
+  max-width: 660px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.stat-strip {
+  margin-top: 64px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(17,22,30,0.6);
+  backdrop-filter: blur(8px);
+}
+.stat {
+  padding: 28px 20px;
+  text-align: center;
+  border-right: 1px solid var(--line);
+}
+.stat:last-child { border-right: none; }
+.stat .num {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--gamma);
+  line-height: 1;
+}
+.stat .label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-mute);
+  margin-top: 10px;
+}
+
+/* SECTION */
+section {
+  padding: 104px 0;
+  border-bottom: 1px solid var(--line);
+}
+section h2 {
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+  line-height: 1.05;
+}
+section .lead {
+  font-size: 18px;
+  color: var(--text-dim);
+  max-width: 680px;
+  margin-bottom: 56px;
+}
+
+/* PERSONAS */
+.persona-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.persona {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.persona:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.persona .emoji { font-size: 28px; }
+.persona .name {
+  font-weight: 700;
+  margin-top: 14px;
+  font-size: 18px;
+  color: var(--accent);
+}
+.persona .role {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 8px;
+  line-height: 1.55;
+}
+.persona .meta {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+  display: flex;
+  justify-content: space-between;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--text-mute);
+}
+
+/* TIMELINE */
+.timeline {
+  position: relative;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 88px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, var(--line) 10%, var(--line) 90%, transparent);
+}
+.event {
+  position: relative;
+  display: grid;
+  grid-template-columns: 88px 40px 1fr;
+  gap: 16px;
+  padding: 14px 0;
+  align-items: start;
+}
+.event .time {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  text-align: right;
+  padding-top: 18px;
+}
+.event .time .et {
+  display: block;
+  font-size: 10px;
+  color: var(--text-mute);
+  font-weight: 400;
+  margin-top: 2px;
+}
+.event .dot-wrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding-top: 22px;
+}
+.event .dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--accent);
+  position: relative;
+  z-index: 1;
+}
+.event.active .dot::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  opacity: 0;
+  animation: pulse 2.2s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(0.7); opacity: 1; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+.event .body {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+  padding: 16px 20px;
+}
+.event .body .title {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--accent);
+}
+.event .body .desc {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* SWARM */
+.swarm-viz {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 56px 48px;
+}
+.swarm-stage {
+  margin-bottom: 28px;
+}
+.swarm-stage:last-child { margin-bottom: 0; }
+.swarm-stage .stage-label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--text-mute);
+  margin-bottom: 14px;
+  text-align: center;
+}
+.swarm-agent {
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+  text-align: center;
+}
+.swarm-agent .name {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--scout);
+}
+.swarm-agent .role {
+  font-size: 11px;
+  color: var(--text-mute);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+.swarm-agent.solo { max-width: 340px; margin: 0 auto; }
+.swarm-agent.cio { border-color: var(--gamma); }
+.swarm-agent.cio .name { color: var(--gamma); }
+.pool {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.connector {
+  text-align: center;
+  font-size: 24px;
+  color: var(--scout);
+  opacity: 0.5;
+  line-height: 1;
+  margin: 10px 0;
+}
+
+/* HEARTBEAT */
+.heartbeat-viz {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 48px;
+}
+.pulse-row {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 32px 0 24px;
+  justify-content: center;
+}
+.tick {
+  width: 7px;
+  height: 18px;
+  border-radius: 1px;
+  background: var(--pilot);
+  opacity: 0.55;
+  transition: opacity 0.3s;
+}
+.tick.entry {
+  background: var(--gamma);
+  height: 36px;
+  opacity: 1;
+  box-shadow: 0 0 14px rgba(245,179,36,0.7);
+  animation: tickPulse 2s infinite;
+}
+.tick.exit {
+  background: var(--scout);
+  height: 30px;
+  opacity: 1;
+}
+.tick.cool { opacity: 0.18; }
+@keyframes tickPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 14px rgba(245,179,36,0.7); }
+  50% { opacity: 0.7; box-shadow: 0 0 4px rgba(245,179,36,0.3); }
+}
+
+.pulse-axis {
+  display: flex;
+  justify-content: space-between;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--text-mute);
+  margin-top: 4px;
+  padding: 0 8px;
+}
+
+.heartbeat-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-top: 36px;
+}
+.hb-stat {
+  background: var(--bg-3);
+  border-radius: 12px;
+  padding: 18px;
+}
+.hb-stat .label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-mute);
+}
+.hb-stat .value {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--pilot);
+  margin-top: 8px;
+  line-height: 1;
+}
+
+.legend {
+  margin-top: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.legend-dot {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  margin-right: 8px;
+  border-radius: 2px;
+  vertical-align: middle;
+}
+
+/* EOD CASCADE */
+.cascade {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cascade-step {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: grid;
+  grid-template-columns: 80px 1fr 220px;
+  gap: 24px;
+  align-items: center;
+  position: relative;
+}
+.cascade-step::after {
+  content: '';
+  position: absolute;
+  left: 56px;
+  top: 100%;
+  width: 2px;
+  height: 12px;
+  background: var(--line);
+}
+.cascade-step:last-child::after { display: none; }
+.cascade-step .step-time {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.cascade-step .step-detail .name {
+  font-weight: 700;
+  font-size: 16px;
+}
+.cascade-step .step-detail .desc {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  line-height: 1.6;
+}
+.cascade-step .step-out {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--text-mute);
+  text-align: right;
+  word-break: break-all;
+}
+.cascade-step .step-out .file {
+  color: var(--pilot);
+  display: block;
+  margin-top: 2px;
+}
+
+/* SKILLS PIPELINE */
+.pipeline {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 48px;
+}
+.pipeline-flow {
+  display: grid;
+  grid-template-columns: 1fr 40px 1.8fr 40px 1.4fr;
+  gap: 12px;
+  align-items: start;
+}
+.pipeline-col h4 {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--text-mute);
+  margin-bottom: 14px;
+}
+.pipeline-card {
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 13px 16px;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.pipeline-card .file {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--text-mute);
+  margin-top: 4px;
+  display: block;
+}
+.pipeline-arrow {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 22px;
+  color: var(--text-mute);
+  text-align: center;
+  padding-top: 56px;
+}
+.pipeline-note {
+  margin-top: 32px;
+  padding: 20px 24px;
+  background: var(--bg-3);
+  border-radius: 12px;
+  font-size: 14px;
+  color: var(--text-dim);
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* RULES */
+.rules-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.rule {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+.rule .n {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gamma);
+  line-height: 1.4;
+}
+.rule .t {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+
+footer {
+  padding: 80px 0 64px;
+  text-align: center;
+}
+footer .small {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+footer .small-2 {
+  margin-top: 12px;
+  color: var(--text-mute);
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .persona-grid { grid-template-columns: 1fr 1fr; }
+  .pool { grid-template-columns: 1fr 1fr; }
+  .pipeline-flow { grid-template-columns: 1fr; }
+  .pipeline-arrow { padding: 8px 0; transform: rotate(90deg); }
+  .heartbeat-stats { grid-template-columns: 1fr 1fr; }
+  .stat-strip { grid-template-columns: 1fr 1fr; }
+  .stat:nth-child(2) { border-right: none; }
+  .stat:nth-child(1), .stat:nth-child(2) { border-bottom: 1px solid var(--line); }
+  .cascade-step { grid-template-columns: 1fr; gap: 8px; }
+  .cascade-step .step-out { text-align: left; }
+  .rules-grid { grid-template-columns: 1fr; }
+  section h2 { font-size: 36px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<header class="hero">
+  <span class="tag">Project Gamma · 0DTE SPY · Autonomous</span>
+  <h1>A Day in the Life</h1>
+  <p class="sub">An autonomous trading firm running 24/7 — seven AI personas, sixty-five chart-reading validators, zero human inputs during market hours.</p>
+  <div class="stat-strip">
+    <div class="stat"><div class="num">7</div><div class="label">Personas</div></div>
+    <div class="stat"><div class="num">127</div><div class="label">Heartbeats / Day</div></div>
+    <div class="stat"><div class="num">65</div><div class="label">Gym Validators</div></div>
+    <div class="stat"><div class="num">24/7</div><div class="label">Uptime</div></div>
+  </div>
+</header>
+
+<!-- Personas -->
+<section>
+  <h2>The Cast</h2>
+  <p class="lead">Seven personas. Each with a focused scope, hard guardrails, and persistent memory across sessions. They hand off to each other through files on disk.</p>
+  <div class="persona-grid">
+    <div class="persona" style="--accent: var(--gamma)">
+      <div class="emoji">🎩</div>
+      <div class="name">Gamma</div>
+      <div class="role">Conductor. Verifies every phase ran, writes the morning brief, never trades.</div>
+      <div class="meta"><span>17:30 ET</span><span>orchestrator</span></div>
+    </div>
+    <div class="persona" style="--accent: var(--scout)">
+      <div class="emoji">🌍</div>
+      <div class="name">Scout</div>
+      <div class="role">Pre-market macro intel. Scans news, calendar, catalysts. Advisory only.</div>
+      <div class="meta"><span>05:30 ET</span><span>news</span></div>
+    </div>
+    <div class="persona" style="--accent: var(--coach)">
+      <div class="emoji">🏋️</div>
+      <div class="name">Coach</div>
+      <div class="role">Gym supervisor. Audits validators, scheduled tasks, drift trends.</div>
+      <div class="meta"><span>06:00 ET</span><span>health</span></div>
+    </div>
+    <div class="persona" style="--accent: var(--pilot)">
+      <div class="emoji">✈️</div>
+      <div class="name">Pilot</div>
+      <div class="role">Live SPY 0DTE trader. Reads chart, fires orders, manages exits.</div>
+      <div class="meta"><span>09:30 ET</span><span>live</span></div>
+    </div>
+    <div class="persona" style="--accent: var(--analyst)">
+      <div class="emoji">🔬</div>
+      <div class="name">Analyst</div>
+      <div class="role">Post-trade reviewer. Mines patterns, routes findings to inboxes.</div>
+      <div class="meta"><span>16:45 ET</span><span>review</span></div>
+    </div>
+    <div class="persona" style="--accent: var(--chef)">
+      <div class="emoji">👨‍🍳</div>
+      <div class="name">Chef</div>
+      <div class="role">Strategy R&amp;D. Cooks new candidates, ranks by edge × sharpe.</div>
+      <div class="meta"><span>overnight</span><span>research</span></div>
+    </div>
+    <div class="persona" style="--accent: var(--treasurer)">
+      <div class="emoji">💰</div>
+      <div class="name">Treasurer</div>
+      <div class="role">Risk + money auditor. Sizing math, kill switches, account tiers.</div>
+      <div class="meta"><span>Sun 16:00</span><span>weekly</span></div>
+    </div>
+    <div class="persona" style="--accent: #ffffff">
+      <div class="emoji">👤</div>
+      <div class="name" style="color: var(--text)">J</div>
+      <div class="role">Human owner. Reviews briefs, ratifies new doctrine on weekends.</div>
+      <div class="meta"><span>async</span><span>oversight</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Timeline -->
+<section>
+  <h2>The Day</h2>
+  <p class="lead">Every event runs on Windows Task Scheduler, hidden from desktop, with autonomous self-healing. Nothing requires human start-up.</p>
+  <div class="timeline">
+
+    <div class="event active" style="--accent: var(--scout)">
+      <div class="time">05:30<span class="et">ET</span></div>
+      <div class="dot-wrap"><div class="dot"></div></div>
+      <div class="body">
+        <div class="title">🌍 Scout — Pre-Market Intel</div>
+        <div class="desc">Scans overnight news, today's macro calendar, mega-cap earnings, geopolitical headlines. Writes <span class="mono" style="color:var(--pilot)">scout_output.json</span> for Premarket to consume.</div>
+      </div>
+    </div>
+
+    <div class="event" style="--accent: var(--gamma)">
+      <div class="time">08:00<span class="et">ET</span></div>
+      <div class="dot-wrap"><div class="dot"></div></div>
+      <div class="body">
+        <div class="title">📈 LaunchTV</div>
+        <div class="desc">Brings up TradingView Desktop with Chrome DevTools Protocol on port 9222. Required because TV must be live before the swarm's data_fetcher step runs.</div>
+      </div>
+    </div>
+
+    <div class="event active" style="--accent: var(--scout)">
+      <div class="time">08:10<span class="et">ET</span></div>
+      <div class="dot-wrap"><div class="dot"></div></div>
+      <div class="body">
+        <div class="title">🐝 The Swarm — 6 Agents Convene</div>
+        <div class="desc">data_fetcher → Pool(Technical · Macro · Level Thesis · Internals) → Validator → Synthesis CIO. Six specialists debate the day; one calls the bias. See the zoom below.</div>
+      </div>
+    </div>
+
+    <div class="event" style="--accent: var(--gamma)">
+      <div class="time">08:30<span class="et">ET</span></div>
+      <div class="dot-wrap"><div class="dot"></div></div>
+      <div class="body">
+        <div class="title">📝 Premarket — Bias &amp; Hypothesis</div>
+        <div class="desc">Audits key levels, draws trendlines, writes falsifiable predictions to <span class="mono" style="color:var(--pilot)">today-bias.json</span>. Step 1c reads the swarm output. Pins the rule version.</div>
+      </div>
+    </div>
+
+    <div class="event active" style="--accent: var(--pilot)">
+      <div class="time">09:30<span class="et">ET</span></div>
+      <div class="dot-wrap"><div class="dot"></div></div>
+      <div class="body">
+        <div class="title">✈️ Market Open — Heartbeat Begins</div>
+        <div class="desc">Pilot wakes every 3 minutes. Reads the chart via TradingView MCP, applies the v15 rubric, places Alpaca paper orders, manages exits. Up to 127 ticks until close.</div>
+      </div>
+    </div>
+
+    <div class="event" style="--accent: var(--kill)">
+      <div class="time">15:55<span class="et">ET</span></div>
+      <div class="dot-wrap"><div class="dot"></div></div>
+      <div class="body">
+        <div class="title">🛑 EodFlatten — All Flat by Close</div>
+        <div class="desc">Closes any 0DTE position not already exited. Retry-until-zero loop. Theta kills 0DTEs after 15:50.</div>
+      </div>
+    </div>
+
+    <div class="event" style="--accent: var(--analyst)">
+      <div class="time">16:00<span class="et">ET</span></div>
+      <div class="dot-wrap"><div class="dot"></div></div>
+      <div class="body">
+        <div class="title">📊 EodSummary + EodDeepDive</div>
+        <div class="desc">Daily reflection, backtest sync, shadow diff scorecard. Deep-dive runs 13 analysis categories in parallel via multiprocessing.Pool across 4 workers.</div>
+      </div>
+    </div>
+
+    <div class="event" style="--accent: var(--analyst)">
+      <div class="time">16:30<span class="et">ET</span></div>
+      <div class="dot-wrap"><div class="dot"></div></div>
+      <div class="body">
+        <div class="title">🔭 DailyReview — Predictions vs Actual</div>
+        <div class="desc">Grades every prediction from this morning. Builds tomorrow's <span class="mono" style="color:var(--pilot)">key-levels.json</span>.</div>
+      </div>
+    </div>
+
+    <div class="event active" style="--accent: var(--analyst)">
+      <div class="time">16:45<span class="et">ET</span></div>
+      <div class="dot-wrap"><div class="dot"></div></div>
+      <div class="body">
+        <div class="title">🔬 Analyst — Patterns Mined, Routed</div>
+        <div class="desc">Audits every trade against the 10 rules. Classifies findings into 4 buckets and routes to <span class="mono">_chef-inbox/</span>, <span class="mono">_validator-inbox/</span>, <span class="mono">_skill-inbox/</span>, or <span class="mono">_lesson-inbox/</span>.</div>
+      </div>
+    </div>
+
+    <div class="event" style="--accent: var(--coach)">
+      <div class="time">17:00<span class="et">ET</span></div>
+      <div class="dot-wrap"><div class="dot"></div></div>
+      <div class="body">
+        <div class="title">🏋️ Gym Session — Daily Physical</div>
+        <div class="desc">Aggregates 7 chart-reading audits into ONE GREEN / YELLOW / RED scorecard. Re-runs stale audits in-process. RED → auto-queues HIGH task to overnight grinder.</div>
+      </div>
+    </div>
+
+    <div class="event active" style="--accent: var(--gamma)">
+      <div class="time">17:30<span class="et">ET</span></div>
+      <div class="dot-wrap"><div class="dot"></div></div>
+      <div class="body">
+        <div class="title">🎩 Gamma Manager — The Morning Brief</div>
+        <div class="desc">Verifies every persona reported. Verifies every artifact landed. Writes <span class="mono" style="color:var(--pilot)">analysis/daily-brief/{date}.md</span>. J reads it tomorrow morning.</div>
+      </div>
+    </div>
+
+    <div class="event" style="--accent: var(--chef)">
+      <div class="time">00:00–07:00<span class="et">ET</span></div>
+      <div class="dot-wrap"><div class="dot"></div></div>
+      <div class="body">
+        <div class="title">🌙 Overnight Wake Fires</div>
+        <div class="desc">Fresh Claude session every 30 min. Picks up the top-priority inbox item: validators, skills, lessons, strategies. Authors them. Updates STATUS.md. Exits.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Swarm Zoom -->
+<section>
+  <h2>The Swarm</h2>
+  <p class="lead">08:10 ET. Six specialist agents converge on the day's setup. Each runs in parallel, then a validator gates them, then the CIO synthesizes. Pure Python orchestration; ~$0.07 per fire.</p>
+  <div class="swarm-viz">
+
+    <div class="swarm-stage">
+      <div class="stage-label">Stage 1 · Data</div>
+      <div class="swarm-agent solo">
+        <div class="name">📡 data_fetcher</div>
+        <div class="role">SPY+VIX 5m bars · key levels · indicator state · option chain snapshot</div>
+      </div>
+    </div>
+
+    <div class="connector">▼</div>
+
+    <div class="swarm-stage">
+      <div class="stage-label">Stage 2 · Specialists (in parallel)</div>
+      <div class="pool">
+        <div class="swarm-agent"><div class="name">📊 Technical</div><div class="role">EMA stack · RSI · MACD · BB</div></div>
+        <div class="swarm-agent"><div class="name">🌐 Macro</div><div class="role">VIX regime · DXY · yields</div></div>
+        <div class="swarm-agent"><div class="name">🎯 Level Thesis</div><div class="role">PDH/PDL · ★★★ levels</div></div>
+        <div class="swarm-agent"><div class="name">⚡ Internals</div><div class="role">ADD · TICK · VOLD</div></div>
+      </div>
+    </div>
+
+    <div class="connector">▼</div>
+
+    <div class="swarm-stage">
+      <div class="stage-label">Stage 3 · Validator</div>
+      <div class="swarm-agent solo">
+        <div class="name">⚖️ Validator</div>
+        <div class="role">Cross-checks specialist outputs · flags contradictions · enforces structural gates</div>
+      </div>
+    </div>
+
+    <div class="connector">▼</div>
+
+    <div class="swarm-stage">
+      <div class="stage-label">Stage 4 · Synthesis CIO</div>
+      <div class="swarm-agent solo cio">
+        <div class="name">🎯 Synthesis CIO</div>
+        <div class="role">Calls the day · confidence score · writes <span class="mono">swarm_output.json</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Heartbeat zoom -->
+<section>
+  <h2>The Heartbeat</h2>
+  <p class="lead">09:30 to 15:55 ET — every 3 minutes, the Pilot wakes, reads the chart, scores the setup, and decides. Throttled into HOT, BASE, and COOL windows. No mid-session rule changes. Ever.</p>
+  <div class="heartbeat-viz">
+    <div class="pulse-row" id="pulses"></div>
+    <div class="pulse-axis">
+      <span>09:30 — open</span>
+      <span>12:00 — chop</span>
+      <span>15:55 — close</span>
+    </div>
+    <div class="heartbeat-stats">
+      <div class="hb-stat"><div class="label">Tick Cadence</div><div class="value">3 min</div></div>
+      <div class="hb-stat"><div class="label">Max Ticks / Day</div><div class="value">127</div></div>
+      <div class="hb-stat"><div class="label">Entry Window</div><div class="value">09:35–15:00</div></div>
+      <div class="hb-stat"><div class="label">Rules Enforced</div><div class="value">10 / 10</div></div>
+    </div>
+    <div class="legend">
+      <span><span class="legend-dot" style="background:var(--pilot)"></span>idle tick (scan, no setup)</span>
+      <span><span class="legend-dot" style="background:var(--gamma);box-shadow:0 0 8px var(--gamma)"></span>entry signal fired</span>
+      <span><span class="legend-dot" style="background:var(--scout)"></span>exit (TP1 · runner · stop)</span>
+      <span><span class="legend-dot" style="background:rgba(74,222,128,0.18)"></span>cool window</span>
+    </div>
+  </div>
+</section>
+
+<!-- EOD CASCADE -->
+<section>
+  <h2>The EOD Cascade</h2>
+  <p class="lead">16:00 to 17:30 ET. Every component runs sequentially with dependencies, writing files the next step reads. The whole pipeline is dry-run-able offline against any historical day.</p>
+  <div class="cascade">
+
+    <div class="cascade-step" style="--accent: var(--kill); border-left: 3px solid var(--kill)">
+      <div class="step-time">15:55</div>
+      <div class="step-detail">
+        <div class="name">🛑 EodFlatten</div>
+        <div class="desc">All open 0DTE positions closed. Retry-until-zero.</div>
+      </div>
+      <div class="step-out"><span class="file">current-position.json</span></div>
+    </div>
+
+    <div class="cascade-step" style="--accent: var(--analyst); border-left: 3px solid var(--analyst)">
+      <div class="step-time">16:00</div>
+      <div class="step-detail">
+        <div class="name">📊 EodSummary</div>
+        <div class="desc">Daily reflection, backtest sync, shadow diff scorecard.</div>
+      </div>
+      <div class="step-out"><span class="file">journal/{date}.md</span></div>
+    </div>
+
+    <div class="cascade-step" style="--accent: var(--analyst); border-left: 3px solid var(--analyst)">
+      <div class="step-time">16:05</div>
+      <div class="step-detail">
+        <div class="name">🔬 EodDeepDive (13 categories, parallel)</div>
+        <div class="desc">multiprocessing.Pool across 4 workers. Setup quality, exit timing, sizing, regime fit, trigger calibration, etc.</div>
+      </div>
+      <div class="step-out"><span class="file">eod_deep/output/{date}/</span></div>
+    </div>
+
+    <div class="cascade-step" style="--accent: var(--analyst); border-left: 3px solid var(--analyst)">
+      <div class="step-time">16:30</div>
+      <div class="step-detail">
+        <div class="name">🔭 DailyReview</div>
+        <div class="desc">Predictions vs actual. Build tomorrow's key levels.</div>
+      </div>
+      <div class="step-out"><span class="file">key-levels.json</span></div>
+    </div>
+
+    <div class="cascade-step" style="--accent: var(--analyst); border-left: 3px solid var(--analyst)">
+      <div class="step-time">16:45</div>
+      <div class="step-detail">
+        <div class="name">🔬 Analyst — Classification &amp; Routing</div>
+        <div class="desc">Audits trades against 10 rules. Mines recurring patterns. Routes findings to 4 inboxes.</div>
+      </div>
+      <div class="step-out"><span class="file">analysis/eod/{date}.md</span></div>
+    </div>
+
+    <div class="cascade-step" style="--accent: var(--coach); border-left: 3px solid var(--coach)">
+      <div class="step-time">17:00</div>
+      <div class="step-detail">
+        <div class="name">🏋️ Gym Session — Daily Physical</div>
+        <div class="desc">7 chart-reading audits aggregated into one scorecard. RED → auto-queue.</div>
+      </div>
+      <div class="step-out"><span class="file">gym-scorecard-{date}.json</span></div>
+    </div>
+
+    <div class="cascade-step" style="--accent: var(--gamma); border-left: 3px solid var(--gamma)">
+      <div class="step-time">17:30</div>
+      <div class="step-detail">
+        <div class="name">🎩 Gamma Manager — Daily Brief</div>
+        <div class="desc">Verifies every persona reported, every file landed. Writes the morning brief.</div>
+      </div>
+      <div class="step-out"><span class="file">daily-brief/{date}.md</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Skills Pipeline -->
+<section>
+  <h2>The Skills Pipeline</h2>
+  <p class="lead">Every finding from the Analyst lands in one of four inboxes. Overnight, three author personas consume them and ship code, validators, or doctrine. The fourth — Chef — cooks strategies for J's weekend ratification.</p>
+  <div class="pipeline">
+    <div class="pipeline-flow">
+
+      <div class="pipeline-col">
+        <h4>Source</h4>
+        <div class="pipeline-card" style="border-left:3px solid var(--analyst)">
+          <div><strong>🔬 Analyst</strong></div>
+          <span class="file">classifies → routes</span>
+        </div>
+      </div>
+
+      <div class="pipeline-arrow">→</div>
+
+      <div class="pipeline-col">
+        <h4>Inboxes · 16:45 ET</h4>
+        <div class="pipeline-card" style="border-left:3px solid var(--chef)">
+          📋 <strong>_chef-inbox/</strong> · strategy ideas
+        </div>
+        <div class="pipeline-card" style="border-left:3px solid var(--coach)">
+          🧪 <strong>_validator-inbox/</strong> · gym validator from foot-gun
+        </div>
+        <div class="pipeline-card" style="border-left:3px solid var(--scout)">
+          🛠 <strong>_skill-inbox/</strong> · re-usable diagnostic tool
+        </div>
+        <div class="pipeline-card" style="border-left:3px solid var(--gamma)">
+          📓 <strong>_lesson-inbox/</strong> · permanent doctrine
+        </div>
+      </div>
+
+      <div class="pipeline-arrow">→</div>
+
+      <div class="pipeline-col">
+        <h4>Authors · Overnight</h4>
+        <div class="pipeline-card" style="border-left:3px solid var(--chef)">
+          👨‍🍳 <strong>chef</strong>
+          <span class="file">→ strategy/candidates/</span>
+        </div>
+        <div class="pipeline-card" style="border-left:3px solid var(--coach)">
+          🧬 <strong>validator-author</strong>
+          <span class="file">→ crypto/validators/vNN.py</span>
+        </div>
+        <div class="pipeline-card" style="border-left:3px solid var(--scout)">
+          ⚙️ <strong>skill-author</strong>
+          <span class="file">→ .claude/skills/</span>
+        </div>
+        <div class="pipeline-card" style="border-left:3px solid var(--gamma)">
+          📚 <strong>lesson-author</strong>
+          <span class="file">→ LESSONS-LEARNED.md</span>
+        </div>
+      </div>
+    </div>
+    <div class="pipeline-note">
+      <strong style="color:var(--text)">Engine-benefit autonomy:</strong> validator-author, skill-author, and lesson-author auto-merge — they only touch observer surfaces. Chef proposals stay DRAFT until J's weekend ratification (Rule 9).
+    </div>
+  </div>
+</section>
+
+<!-- The Rules -->
+<section>
+  <h2>The Guardrails</h2>
+  <p class="lead">Ten rules that no persona may break. The spine of the operation.</p>
+  <div class="rules-grid">
+    <div class="rule"><div class="n">01</div><div class="t">No setup, no trade. Every trade matches a named playbook pattern.</div></div>
+    <div class="rule"><div class="n">02</div><div class="t">Wait for the trigger. Bias ≠ trigger. No anticipation entries.</div></div>
+    <div class="rule"><div class="n">03</div><div class="t">Defined stop on entry. Mechanical. Stated in journal first.</div></div>
+    <div class="rule"><div class="n">04</div><div class="t">No adding without a NEW confirmed trigger. "Cheaper now" is not a trigger.</div></div>
+    <div class="rule"><div class="n">05</div><div class="t">Daily loss kill switch. Safe −30%, Bold −50%. Isolated per account.</div></div>
+    <div class="rule"><div class="n">06</div><div class="t">Per-trade risk cap. Safe 30%, Bold 50%. Min 3 contracts.</div></div>
+    <div class="rule"><div class="n">07</div><div class="t">PDT awareness. Under $25K = 3 day-trades per rolling 5 business days.</div></div>
+    <div class="rule"><div class="n">08</div><div class="t">Journal every trade in real time. Pre-trade thesis before order.</div></div>
+    <div class="rule"><div class="n">09</div><div class="t">No mid-session rule changes. Weekends only, in writing, with reason.</div></div>
+    <div class="rule"><div class="n">10</div><div class="t">If Gamma flags a violation, the trade does not happen. Even if J insists.</div></div>
+  </div>
+</section>
+
+<footer>
+  <p class="small">Project Gamma · Built on Claude Code · TradingView MCP · Alpaca MCP · Pure Python Orchestration</p>
+  <p class="small-2">2 paper accounts · 65 validators · 21 scheduled tasks · 29 operating principles · ~$100/mo total</p>
+</footer>
+
+</div>
+
+<script>
+const pulses = document.getElementById('pulses');
+if (pulses) {
+  const total = 80;
+  for (let i = 0; i < total; i++) {
+    const t = document.createElement('div');
+    t.className = 'tick';
+    if (i > 32 && i < 50) t.classList.add('cool');
+    if (i === 6 || i === 18 || i === 58) t.classList.add('entry');
+    if (i === 12 || i === 26 || i === 68) t.classList.add('exit');
+    pulses.appendChild(t);
+  }
+}
+</script>
+
+</body>
+</html>

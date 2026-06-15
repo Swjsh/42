@@ -1,0 +1,21 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-03-24T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.58,
+  "reasoning": "CLEAN_BEAR ribbon (105c spread, fast/pivot/slow properly stacked at 654.74/654.95/655.79) is the primary signal. Price above pivot (655.53 vs 654.95) shows short-term momentum, but VIX rising +4.17% into HIGH regime + risk-off sector rotation (XLK/XLF down, energy up) confirm bearish backdrop. Last 3 bars mixed (RED + GREEN + GREEN) but all zero-volume premarket chop with small bodies — no real conviction. Premarket high at 657.47; current at midrange. Bearish lean but confidence tempered by premarket noise and conflicting short-term momentum.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 105,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "CLEAN_BEAR ribbon: 105c spread (fast 654.74, pivot 654.95, slow 655.79) — proper stack structure",
+    "Last 3 bars: RED (05:45) + GREEN (05:50 full-body) + GREEN (05:55 full-body) — 2-of-3 green but all zero-volume premarket noise",
+    "Price 655.53 above pivot by 58c, but trapped below slow EMA 655.79 — short-term false momentum in low-signal regime",
+    "VIX 27.26 rising +4.17% in HIGH IV regime — fear backdrop amplifies BEAR ribbon signal",
+    "Sector rotation: XLE +3.01% (energy), XLK −0.4% (tech), XLF −0.87% (finance) — classic risk-off into commodities",
+    "Premarket range 652.84–657.47 (4.63 pts), current near midpoint — no extreme open bias"
+  ],
+  "data_quality": "partial"
+}

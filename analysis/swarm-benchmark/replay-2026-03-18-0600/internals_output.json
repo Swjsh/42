@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-03-18T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.58,
+  "reasoning": "XLE +0.48% while XLK +0.11% and XLF -0.28% = classic risk-off/defensive rotation. Energy outperforming growth sectors; tech NOT leading on the overnight gap up. SPY -0.24% premarket suggests breadth is weak despite +3.47 overnight gap. This is narrow energy leadership, not broad upside — bearish for SPY continuation.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": 0.11,
+    "xlf_change_pct": -0.28,
+    "xle_change_pct": 0.48,
+    "spy_change_pct": -0.24,
+    "xlk_vs_spy": "inline",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +0.11% — tech flat, NOT participating in overnight gap. No growth leadership.",
+    "XLF: -0.28% — financials slightly negative. Yield curve or banking stress signal.",
+    "XLE: +0.48% — energy only sector with conviction move. Defensive/inflation rotation, not growth.",
+    "Overall rotation: XLE outperforming both SPY and growth sectors = risk-off. Overnight gap (+3.47) not being confirmed by broad sector breadth."
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,336 @@
+{
+  "schema_version": 3,
+  "protocol_version": "strategy/key-levels-protocol.md@2",
+  "as_of": "2026-05-08T18:24:52.276520-04:00",
+  "for_session": "2026-05-09",
+  "spot_at_compute": 737.54,
+  "computed_from": {
+    "prior_date": "2026-05-07",
+    "today_date": "2026-05-08",
+    "prior_rth_bars": 78,
+    "today_rth_bars": 78,
+    "premarket_bars": 0
+  },
+  "levels": [
+    {
+      "price": 738.86,
+      "type": "psychological",
+      "tier": "Reference",
+      "source": "Floor Trader Pivot from 2026-05-07 RTH HLC (736.13/729.75/731.56) + Floor Trader Pivot from 2026-05-07 RTH HLC (736.13/729.75/731.56)",
+      "reasoning": "Floor trader R2 pivot \u2014 resistance.",
+      "verified_at": "2026-05-08T18:24:43.906333-04:00",
+      "expires_at": "2026-06-07T18:24:43.906336-04:00",
+      "color": "#ef4444",
+      "style": "dotted",
+      "entity_id": null,
+      "draw_needed": false,
+      "respect_count": 0,
+      "broken_count": 0,
+      "role": null,
+      "bounce_history": [],
+      "strength": {
+        "stars": 1,
+        "points": 1,
+        "components": {
+          "touch_score": 0,
+          "recency_score": 0,
+          "mtf_score": 1,
+          "volume_score": 0,
+          "confluence_score": 0
+        }
+      },
+      "pivot_label": "R2",
+      "is_pivot_point": true,
+      "touch_count": 0,
+      "held_count": 0,
+      "volume_at_touches": 0.0,
+      "last_touched_at": null,
+      "recency_days": null,
+      "mtf_agreement": 2,
+      "drawn_on_chart": false,
+      "drawn_skip_reason": "low_priority_or_pivot_filtered"
+    },
+    {
+      "price": 738.1,
+      "type": "resistance",
+      "tier": "Active",
+      "source": "2026-05-08 RTH session high",
+      "reasoning": "Today's session high \u2014 fresh resistance for tomorrow's open.",
+      "verified_at": "2026-05-08T18:24:52.064014-04:00",
+      "expires_at": "2026-05-09T18:24:52.064016-04:00",
+      "color": "#ef4444",
+      "style": "solid",
+      "entity_id": "jbUg9Z",
+      "draw_needed": false,
+      "respect_count": 0,
+      "broken_count": 0,
+      "role": null,
+      "bounce_history": [],
+      "strength": {
+        "stars": 1,
+        "points": 2,
+        "components": {
+          "touch_score": 0,
+          "recency_score": 2,
+          "mtf_score": 0,
+          "volume_score": 0,
+          "confluence_score": 0
+        }
+      },
+      "touch_count": 1,
+      "held_count": 1,
+      "volume_at_touches": 90513.0,
+      "last_touched_at": "2026-05-08T14:00:00",
+      "recency_days": 0.0,
+      "mtf_agreement": 1,
+      "drawn_on_chart": true
+    },
+    {
+      "price": 736.13,
+      "type": "resistance",
+      "tier": "Active",
+      "source": "2026-05-07 RTH session high (RTH-only \u2014 premarket spikes excluded) + 5-day rolling RTH high ending 2026-05-08",
+      "reasoning": "Prior-day RTH high acts as resistance until reclaimed.",
+      "verified_at": "2026-05-08T18:24:52.063881-04:00",
+      "expires_at": "2026-05-09T18:24:52.063891-04:00",
+      "color": "#ef4444",
+      "style": "solid",
+      "entity_id": "f4NgW7",
+      "draw_needed": false,
+      "respect_count": 0,
+      "broken_count": 1,
+      "role": null,
+      "bounce_history": [],
+      "strength": {
+        "stars": 3,
+        "points": 5,
+        "components": {
+          "touch_score": 2,
+          "recency_score": 2,
+          "mtf_score": 0,
+          "volume_score": 1,
+          "confluence_score": 0
+        }
+      },
+      "touch_count": 8,
+      "held_count": 7,
+      "volume_at_touches": 1308675.0,
+      "last_touched_at": "2026-05-08T14:55:00",
+      "recency_days": 0.0,
+      "mtf_agreement": 1,
+      "drawn_on_chart": true
+    },
+    {
+      "price": 735.21,
+      "type": "psychological",
+      "tier": "Reference",
+      "source": "Floor Trader Pivot from 2026-05-07 RTH HLC (736.13/729.75/731.56) + Floor Trader Pivot from 2026-05-07 RTH HLC (736.13/729.75/731.56)",
+      "reasoning": "Floor trader R1 pivot \u2014 resistance.",
+      "verified_at": "2026-05-08T18:24:43.906341-04:00",
+      "expires_at": "2026-06-07T18:24:43.906343-04:00",
+      "color": "#ef4444",
+      "style": "dotted",
+      "entity_id": null,
+      "draw_needed": false,
+      "respect_count": 0,
+      "broken_count": 6,
+      "role": null,
+      "bounce_history": [],
+      "strength": {
+        "stars": 2,
+        "points": 6,
+        "components": {
+          "touch_score": 2,
+          "recency_score": 2,
+          "mtf_score": 1,
+          "volume_score": 1,
+          "confluence_score": 0
+        }
+      },
+      "pivot_label": "R1",
+      "is_pivot_point": true,
+      "touch_count": 16,
+      "held_count": 10,
+      "volume_at_touches": 7152508.0,
+      "last_touched_at": "2026-05-08T09:40:00",
+      "recency_days": 0.0,
+      "mtf_agreement": 2,
+      "drawn_on_chart": false,
+      "drawn_skip_reason": "low_priority_or_pivot_filtered"
+    },
+    {
+      "price": 734.58,
+      "type": "support",
+      "tier": "Active",
+      "source": "2026-05-08 RTH session low",
+      "reasoning": "Today's session low \u2014 fresh support for tomorrow's open.",
+      "verified_at": "2026-05-08T18:24:52.064019-04:00",
+      "expires_at": "2026-05-09T18:24:52.064021-04:00",
+      "color": "#22c55e",
+      "style": "solid",
+      "entity_id": "hpfK9w",
+      "draw_needed": false,
+      "respect_count": 0,
+      "broken_count": 3,
+      "role": null,
+      "bounce_history": [],
+      "strength": {
+        "stars": 3,
+        "points": 5,
+        "components": {
+          "touch_score": 2,
+          "recency_score": 2,
+          "mtf_score": 0,
+          "volume_score": 1,
+          "confluence_score": 0
+        }
+      },
+      "touch_count": 17,
+      "held_count": 14,
+      "volume_at_touches": 15884358.0,
+      "last_touched_at": "2026-05-08T09:40:00",
+      "recency_days": 0.0,
+      "mtf_agreement": 1,
+      "drawn_on_chart": true
+    },
+    {
+      "price": 733.55,
+      "type": "support",
+      "tier": "Carry",
+      "source": "2026-05-07 10:20 ET bounce low \u2014 107K vol; broke at ~12:04 ET pre-FOMC.",
+      "verified_at": "2026-05-07T16:30:02-04:00",
+      "expires_at": "2026-05-14T17:30:00-04:00",
+      "reasoning": "Deep structural support. Only relevant if 735.40 gives way on Monday. Carries multi-day session context. Vol-confirmed defense at 10:20 5/7 gives it weight.",
+      "color": "#3b82f6",
+      "style": "dashed",
+      "entity_id": "3k9w8h",
+      "draw_needed": false,
+      "respect_count": 0,
+      "broken_count": 4,
+      "touch_count": 11,
+      "held_count": 7,
+      "volume_at_touches": 7814103.0,
+      "last_touched_at": "2026-05-07T12:35:00",
+      "recency_days": 0.48,
+      "mtf_agreement": 2,
+      "strength": {
+        "stars": 3,
+        "points": 6,
+        "components": {
+          "touch_score": 2,
+          "recency_score": 2,
+          "mtf_score": 1,
+          "volume_score": 1,
+          "confluence_score": 0
+        }
+      },
+      "drawn_on_chart": true
+    },
+    {
+      "price": 725.04,
+      "type": "support",
+      "tier": "Carry",
+      "source": "1D bar 2026-05-05 RTH high. Entity OgC9Tb on chart from 2026-05-05.",
+      "verified_at": "2026-05-05T17:30:00-04:00",
+      "expires_at": "2026-05-14T17:30:00-04:00",
+      "reasoning": "Multi-session carry level. Bear case target only if 729.75 breaks. Not actionable in the current 737 price regime.",
+      "color": "#3b82f6",
+      "style": "dashed",
+      "entity_id": "OBFYc2",
+      "draw_needed": false,
+      "respect_count": 0,
+      "broken_count": 0,
+      "touch_count": 1,
+      "held_count": 1,
+      "volume_at_touches": 401957.0,
+      "last_touched_at": "2026-05-05T15:25:00",
+      "recency_days": 2.36,
+      "mtf_agreement": 2,
+      "strength": {
+        "stars": 2,
+        "points": 3,
+        "components": {
+          "touch_score": 0,
+          "recency_score": 1,
+          "mtf_score": 1,
+          "volume_score": 1,
+          "confluence_score": 0
+        }
+      },
+      "drawn_on_chart": true
+    },
+    {
+      "price": 715.0,
+      "type": "support",
+      "tier": "Carry",
+      "source": "5-day rolling RTH low ending 2026-05-08 + 5-day rolling RTH low ending 2026-05-08",
+      "reasoning": "Multi-day swing low \u2014 deep target if support cascades break.",
+      "verified_at": "2026-05-08T18:24:43.906447-04:00",
+      "expires_at": "2026-05-13T18:24:43.906448-04:00",
+      "color": "#22c55e",
+      "style": "dashed",
+      "entity_id": null,
+      "draw_needed": false,
+      "respect_count": 0,
+      "broken_count": 11,
+      "role": null,
+      "bounce_history": [],
+      "strength": {
+        "stars": 3,
+        "points": 5,
+        "components": {
+          "touch_score": 2,
+          "recency_score": 1,
+          "mtf_score": 1,
+          "volume_score": 1,
+          "confluence_score": 0
+        }
+      },
+      "touch_count": 34,
+      "held_count": 23,
+      "volume_at_touches": 12816452.0,
+      "last_touched_at": "2026-05-04T12:05:00",
+      "recency_days": 3.5,
+      "mtf_agreement": 2,
+      "drawn_on_chart": false,
+      "drawn_skip_reason": "low_priority_or_pivot_filtered"
+    }
+  ],
+  "dropped_for_distance": [
+    {
+      "price": 729.75,
+      "tier": "Active",
+      "source": "2026-05-07 RTH session low (RTH-only)"
+    },
+    {
+      "price": 731.56,
+      "tier": "Active",
+      "source": "2026-05-07 RTH closing price"
+    }
+  ],
+  "summary": {
+    "total_in": 10,
+    "kept": 8,
+    "dropped_distance": 2,
+    "by_stars": {
+      "3star": 4,
+      "2star": 2,
+      "1star": 2
+    },
+    "confluences": 0
+  },
+  "chart_drawing_summary": {
+    "drawn_count": 5,
+    "kept_in_data_only": 3,
+    "drawing_color_legend": {
+      "3star_active_resistance": "#ef4444 solid 3px",
+      "3star_active_support": "#22c55e solid 3px",
+      "3star_carry": "#3b82f6 solid 3px",
+      "2star": "lighter color solid 2px",
+      "2star_carry_far": "#3b82f6 dashed 1px",
+      "1star_active_session_extreme": "lighter color solid 2px",
+      "pivots_skipped": "true",
+      "round_numbers_skipped": "true"
+    }
+  }
+}

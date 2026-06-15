@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-02-10T06:00:00+00:00",
+  "bias": "no_trade",
+  "confidence": 0.42,
+  "reasoning": "SPY at 694.17, flat overnight from 694.0 close. Price is sandwiched between strong Carry resistance 696.95 (★★, 5-day high) and 695.86 (Active ★★) above, and clustered support at 693.0 and nearby Reference levels below. Ribbon is MIXED with no directional alignment (slow 694.61 < fast 694.63 < pivot 694.77). Previous session closed bearish after intraday decline from 695.69. The battle level is 696.95 — if broken upside, signals bullish continuation; if held on first test, risk/reward favors bears toward 688.39. Current setup is a consolidation zone awaiting breakout confirmation at market open (09:30 ET). No directional bias until first hour price action clarifies direction.",
+  "battle_level": {
+    "price": 696.95,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 696.95,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 1,
+      "distance_from_price": 2.78
+    },
+    {
+      "price": 695.86,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 1.69
+    },
+    {
+      "price": 693.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 1.17
+    },
+    {
+      "price": 695.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 0.83
+    },
+    {
+      "price": 688.39,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": 5.78
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks above 696.95 (Carry high) on strong volume",
+      "bias": "bullish",
+      "target": 700.21,
+      "entry_trigger": "level_break + resistance_conversion_to_support"
+    },
+    "secondary": {
+      "condition": "if SPY holds 695.86 and rejects downside from there",
+      "bias": "bearish",
+      "target": 688.39,
+      "entry_trigger": "level_rejection + momentum_reversal"
+    },
+    "tertiary": {
+      "condition": "if SPY range-trades between 693.0 and 695.86 without conviction",
+      "bias": "no_trade",
+      "target": null,
+      "entry_trigger": "breakout_confirmation_required"
+    }
+  },
+  "levels_in_play_count": 6,
+  "key_observations": [
+    "SPY consolidated in a 0.17 overnight gap at 694.17 — flat open sets up for directional resolution at 09:30 ET",
+    "Yesterday's intraday decline from 695.69 to 694.17 suggests bears had control; overnight flat prevents follow-through confirmation",
+    "Carry resistance 696.95 and Active resistance 695.86 form a clustered overhead zone (★★★★) — either both will be tested or price breaks lower without testing",
+    "Ribbon MIXED with no bull/bear alignment — insufficient for directional signal until price action clarifies",
+    "Support shelf at 688.39 (★★ Active) is 5.78 away, not immediate — first defensive level is 693.0 reference (★) at only 1.17 below current"
+  ],
+  "data_quality": "full"
+}

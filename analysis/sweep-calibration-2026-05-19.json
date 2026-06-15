@@ -1,0 +1,176 @@
+{
+  "generated_at": "2026-05-19T23:56:11.739860+00:00",
+  "data_source": "btc_grinder",
+  "bars_analyzed": 211,
+  "levels_generated": 5,
+  "close_back_pct_fixed": 0.05,
+  "clean_prior_fixed": 3,
+  "spy_5_14_canonical_wick_pct": 0.0054,
+  "sweep_threshold_grid": [
+    {
+      "min_wick_pct": 0.003,
+      "hit_count": 1,
+      "up_sweep_count": 1,
+      "down_sweep_count": 0,
+      "wick_excess_pct_stats": {
+        "min": 0.0033,
+        "max": 0.0033,
+        "mean": 0.0033,
+        "median": 0.0033,
+        "stdev": null
+      },
+      "close_back_pct_stats": {
+        "min": 0.1299,
+        "max": 0.1299,
+        "mean": 0.1299
+      },
+      "examples": [
+        {
+          "bar_index": 155,
+          "level_price": 77000.0,
+          "direction": "up",
+          "wick_excess_pct": 0.0033,
+          "close_back_pct": 0.1299,
+          "bar_time": "2026-05-19T19:15:00+00:00"
+        }
+      ]
+    },
+    {
+      "min_wick_pct": 0.005,
+      "hit_count": 0,
+      "up_sweep_count": 0,
+      "down_sweep_count": 0,
+      "wick_excess_pct_stats": {
+        "min": null,
+        "max": null,
+        "mean": null,
+        "median": null,
+        "stdev": null
+      },
+      "close_back_pct_stats": {
+        "min": null,
+        "max": null,
+        "mean": null
+      },
+      "examples": []
+    },
+    {
+      "min_wick_pct": 0.008,
+      "hit_count": 0,
+      "up_sweep_count": 0,
+      "down_sweep_count": 0,
+      "wick_excess_pct_stats": {
+        "min": null,
+        "max": null,
+        "mean": null,
+        "median": null,
+        "stdev": null
+      },
+      "close_back_pct_stats": {
+        "min": null,
+        "max": null,
+        "mean": null
+      },
+      "examples": []
+    },
+    {
+      "min_wick_pct": 0.01,
+      "hit_count": 0,
+      "up_sweep_count": 0,
+      "down_sweep_count": 0,
+      "wick_excess_pct_stats": {
+        "min": null,
+        "max": null,
+        "mean": null,
+        "median": null,
+        "stdev": null
+      },
+      "close_back_pct_stats": {
+        "min": null,
+        "max": null,
+        "mean": null
+      },
+      "examples": []
+    },
+    {
+      "min_wick_pct": 0.02,
+      "hit_count": 0,
+      "up_sweep_count": 0,
+      "down_sweep_count": 0,
+      "wick_excess_pct_stats": {
+        "min": null,
+        "max": null,
+        "mean": null,
+        "median": null,
+        "stdev": null
+      },
+      "close_back_pct_stats": {
+        "min": null,
+        "max": null,
+        "mean": null
+      },
+      "examples": []
+    },
+    {
+      "min_wick_pct": 0.03,
+      "hit_count": 0,
+      "up_sweep_count": 0,
+      "down_sweep_count": 0,
+      "wick_excess_pct_stats": {
+        "min": null,
+        "max": null,
+        "mean": null,
+        "median": null,
+        "stdev": null
+      },
+      "close_back_pct_stats": {
+        "min": null,
+        "max": null,
+        "mean": null
+      },
+      "examples": []
+    },
+    {
+      "min_wick_pct": 0.05,
+      "hit_count": 0,
+      "up_sweep_count": 0,
+      "down_sweep_count": 0,
+      "wick_excess_pct_stats": {
+        "min": null,
+        "max": null,
+        "mean": null,
+        "median": null,
+        "stdev": null
+      },
+      "close_back_pct_stats": {
+        "min": null,
+        "max": null,
+        "mean": null
+      },
+      "examples": []
+    },
+    {
+      "min_wick_pct": 0.08,
+      "hit_count": 0,
+      "up_sweep_count": 0,
+      "down_sweep_count": 0,
+      "wick_excess_pct_stats": {
+        "min": null,
+        "max": null,
+        "mean": null,
+        "median": null,
+        "stdev": null
+      },
+      "close_back_pct_stats": {
+        "min": null,
+        "max": null,
+        "mean": null
+      },
+      "examples": []
+    }
+  ],
+  "elbow_threshold_pct": 0.005,
+  "recommended_min_wick_pct": 0.003,
+  "note": "BTC is priced at ~$77K-$105K; 0.02% = $15-21 minimum wick above level. SPY 5/14 canonical wick = 0.0054% ($0.04 above PMH $745.43). Different instruments need different calibrations \u2014 use per-instrument % of price, not absolute cents.",
+  "passed": true
+}

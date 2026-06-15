@@ -1,0 +1,424 @@
+{
+  "generated_at": "2026-05-20T05:07:12.353276+00:00",
+  "csv": "spy_5m_2025-01-01_2026-05-15.csv",
+  "date_range": {
+    "start": "2025-12-01",
+    "end": "2026-03-31"
+  },
+  "results": {
+    "total_hits": 375,
+    "scanned_dates": 83,
+    "band_summary": {
+      "<0.60": {
+        "n": 107,
+        "wins": 51,
+        "losses": 56,
+        "wr_pct": 47.7
+      },
+      "0.60-0.70": {
+        "n": 147,
+        "wins": 76,
+        "losses": 71,
+        "wr_pct": 51.7
+      },
+      "0.70-0.80": {
+        "n": 57,
+        "wins": 32,
+        "losses": 25,
+        "wr_pct": 56.1
+      },
+      "0.80+": {
+        "n": 64,
+        "wins": 31,
+        "losses": 33,
+        "wr_pct": 48.4
+      }
+    },
+    "bad_band_combo_stats": {
+      "decisive_reclaim": {
+        "n": 66,
+        "wins": 34,
+        "confidence": 0.6,
+        "n_factors": 1,
+        "wr_pct": 51.5
+      },
+      "low2_volume_higher+very_tight_lows": {
+        "n": 31,
+        "wins": 17,
+        "confidence": 0.66,
+        "n_factors": 2,
+        "wr_pct": 54.8
+      },
+      "bars_between_sweet_spot+low2_volume_higher": {
+        "n": 29,
+        "wins": 13,
+        "confidence": 0.66,
+        "n_factors": 2,
+        "wr_pct": 44.8
+      },
+      "bars_between_sweet_spot+very_tight_lows": {
+        "n": 21,
+        "wins": 12,
+        "confidence": 0.65,
+        "n_factors": 2,
+        "wr_pct": 57.1
+      }
+    },
+    "per_factor_by_band": {
+      "<0.60": {
+        "decisive_reclaim": {
+          "with_factor_n": 0,
+          "with_factor_wr": null,
+          "without_factor_n": 107,
+          "without_factor_wr": 47.7,
+          "delta_pp": null
+        },
+        "low2_volume_higher": {
+          "with_factor_n": 26,
+          "with_factor_wr": 38.5,
+          "without_factor_n": 81,
+          "without_factor_wr": 50.6,
+          "delta_pp": -12.1
+        },
+        "bars_between_sweet_spot": {
+          "with_factor_n": 11,
+          "with_factor_wr": 27.3,
+          "without_factor_n": 96,
+          "without_factor_wr": 50.0,
+          "delta_pp": -22.7
+        },
+        "very_tight_lows": {
+          "with_factor_n": 25,
+          "with_factor_wr": 48.0,
+          "without_factor_n": 82,
+          "without_factor_wr": 47.6,
+          "delta_pp": 0.4
+        },
+        "decent_neckline_height": {
+          "with_factor_n": 0,
+          "with_factor_wr": null,
+          "without_factor_n": 107,
+          "without_factor_wr": 47.7,
+          "delta_pp": null
+        }
+      },
+      "0.60-0.70": {
+        "decisive_reclaim": {
+          "with_factor_n": 66,
+          "with_factor_wr": 51.5,
+          "without_factor_n": 81,
+          "without_factor_wr": 51.9,
+          "delta_pp": -0.4
+        },
+        "low2_volume_higher": {
+          "with_factor_n": 60,
+          "with_factor_wr": 50.0,
+          "without_factor_n": 87,
+          "without_factor_wr": 52.9,
+          "delta_pp": -2.9
+        },
+        "bars_between_sweet_spot": {
+          "with_factor_n": 50,
+          "with_factor_wr": 50.0,
+          "without_factor_n": 97,
+          "without_factor_wr": 52.6,
+          "delta_pp": -2.6
+        },
+        "very_tight_lows": {
+          "with_factor_n": 52,
+          "with_factor_wr": 55.8,
+          "without_factor_n": 95,
+          "without_factor_wr": 49.5,
+          "delta_pp": 6.3
+        },
+        "decent_neckline_height": {
+          "with_factor_n": 0,
+          "with_factor_wr": null,
+          "without_factor_n": 147,
+          "without_factor_wr": 51.7,
+          "delta_pp": null
+        }
+      },
+      "0.70-0.80": {
+        "decisive_reclaim": {
+          "with_factor_n": 47,
+          "with_factor_wr": 53.2,
+          "without_factor_n": 10,
+          "without_factor_wr": 70.0,
+          "delta_pp": -16.8
+        },
+        "low2_volume_higher": {
+          "with_factor_n": 21,
+          "with_factor_wr": 61.9,
+          "without_factor_n": 36,
+          "without_factor_wr": 52.8,
+          "delta_pp": 9.1
+        },
+        "bars_between_sweet_spot": {
+          "with_factor_n": 20,
+          "with_factor_wr": 55.0,
+          "without_factor_n": 37,
+          "without_factor_wr": 56.8,
+          "delta_pp": -1.8
+        },
+        "very_tight_lows": {
+          "with_factor_n": 34,
+          "with_factor_wr": 58.8,
+          "without_factor_n": 23,
+          "without_factor_wr": 52.2,
+          "delta_pp": 6.6
+        },
+        "decent_neckline_height": {
+          "with_factor_n": 2,
+          "with_factor_wr": 100.0,
+          "without_factor_n": 55,
+          "without_factor_wr": 54.5,
+          "delta_pp": 45.5
+        }
+      },
+      "0.80+": {
+        "decisive_reclaim": {
+          "with_factor_n": 64,
+          "with_factor_wr": 48.4,
+          "without_factor_n": 0,
+          "without_factor_wr": null,
+          "delta_pp": null
+        },
+        "low2_volume_higher": {
+          "with_factor_n": 50,
+          "with_factor_wr": 46.0,
+          "without_factor_n": 14,
+          "without_factor_wr": 57.1,
+          "delta_pp": -11.1
+        },
+        "bars_between_sweet_spot": {
+          "with_factor_n": 26,
+          "with_factor_wr": 50.0,
+          "without_factor_n": 38,
+          "without_factor_wr": 47.4,
+          "delta_pp": 2.6
+        },
+        "very_tight_lows": {
+          "with_factor_n": 54,
+          "with_factor_wr": 50.0,
+          "without_factor_n": 10,
+          "without_factor_wr": 40.0,
+          "delta_pp": 10.0
+        },
+        "decent_neckline_height": {
+          "with_factor_n": 15,
+          "with_factor_wr": 66.7,
+          "without_factor_n": 49,
+          "without_factor_wr": 42.9,
+          "delta_pp": 23.8
+        }
+      }
+    },
+    "formula_enumeration": {
+      "<0.60": [
+        {
+          "combo": "(none)",
+          "n_factors": 0,
+          "conf": 0.45
+        },
+        {
+          "combo": "bars_between_sweet_spot",
+          "n_factors": 1,
+          "conf": 0.55
+        },
+        {
+          "combo": "very_tight_lows",
+          "n_factors": 1,
+          "conf": 0.55
+        },
+        {
+          "combo": "decent_neckline_height",
+          "n_factors": 1,
+          "conf": 0.5
+        }
+      ],
+      "0.60-0.70": [
+        {
+          "combo": "decisive_reclaim",
+          "n_factors": 1,
+          "conf": 0.6
+        },
+        {
+          "combo": "low2_volume_higher",
+          "n_factors": 1,
+          "conf": 0.6
+        },
+        {
+          "combo": "decent_neckline_height+decisive_reclaim",
+          "n_factors": 2,
+          "conf": 0.65
+        },
+        {
+          "combo": "decent_neckline_height+low2_volume_higher",
+          "n_factors": 2,
+          "conf": 0.65
+        },
+        {
+          "combo": "bars_between_sweet_spot+very_tight_lows",
+          "n_factors": 2,
+          "conf": 0.65
+        },
+        {
+          "combo": "bars_between_sweet_spot+decent_neckline_height",
+          "n_factors": 2,
+          "conf": 0.6
+        },
+        {
+          "combo": "decent_neckline_height+very_tight_lows",
+          "n_factors": 2,
+          "conf": 0.6
+        }
+      ],
+      "0.70-0.80": [
+        {
+          "combo": "decisive_reclaim+low2_volume_higher",
+          "n_factors": 2,
+          "conf": 0.75
+        },
+        {
+          "combo": "bars_between_sweet_spot+decisive_reclaim",
+          "n_factors": 2,
+          "conf": 0.7
+        },
+        {
+          "combo": "decisive_reclaim+very_tight_lows",
+          "n_factors": 2,
+          "conf": 0.7
+        },
+        {
+          "combo": "bars_between_sweet_spot+low2_volume_higher",
+          "n_factors": 2,
+          "conf": 0.7
+        },
+        {
+          "combo": "low2_volume_higher+very_tight_lows",
+          "n_factors": 2,
+          "conf": 0.7
+        },
+        {
+          "combo": "bars_between_sweet_spot+decent_neckline_height+decisive_reclaim",
+          "n_factors": 3,
+          "conf": 0.75
+        },
+        {
+          "combo": "decent_neckline_height+decisive_reclaim+very_tight_lows",
+          "n_factors": 3,
+          "conf": 0.75
+        },
+        {
+          "combo": "bars_between_sweet_spot+decent_neckline_height+low2_volume_higher",
+          "n_factors": 3,
+          "conf": 0.75
+        },
+        {
+          "combo": "decent_neckline_height+low2_volume_higher+very_tight_lows",
+          "n_factors": 3,
+          "conf": 0.75
+        },
+        {
+          "combo": "bars_between_sweet_spot+decent_neckline_height+very_tight_lows",
+          "n_factors": 3,
+          "conf": 0.7
+        }
+      ],
+      "0.80+": [
+        {
+          "combo": "bars_between_sweet_spot+decisive_reclaim+low2_volume_higher",
+          "n_factors": 3,
+          "conf": 0.85
+        },
+        {
+          "combo": "decisive_reclaim+low2_volume_higher+very_tight_lows",
+          "n_factors": 3,
+          "conf": 0.85
+        },
+        {
+          "combo": "decent_neckline_height+decisive_reclaim+low2_volume_higher",
+          "n_factors": 3,
+          "conf": 0.8
+        },
+        {
+          "combo": "bars_between_sweet_spot+decisive_reclaim+very_tight_lows",
+          "n_factors": 3,
+          "conf": 0.8
+        },
+        {
+          "combo": "bars_between_sweet_spot+low2_volume_higher+very_tight_lows",
+          "n_factors": 3,
+          "conf": 0.8
+        },
+        {
+          "combo": "bars_between_sweet_spot+decisive_reclaim+low2_volume_higher+very_tight_lows",
+          "n_factors": 4,
+          "conf": 0.95
+        },
+        {
+          "combo": "bars_between_sweet_spot+decent_neckline_height+decisive_reclaim+low2_volume_higher",
+          "n_factors": 4,
+          "conf": 0.9
+        },
+        {
+          "combo": "decent_neckline_height+decisive_reclaim+low2_volume_higher+very_tight_lows",
+          "n_factors": 4,
+          "conf": 0.9
+        },
+        {
+          "combo": "bars_between_sweet_spot+decent_neckline_height+decisive_reclaim+very_tight_lows",
+          "n_factors": 4,
+          "conf": 0.85
+        },
+        {
+          "combo": "bars_between_sweet_spot+decent_neckline_height+low2_volume_higher+very_tight_lows",
+          "n_factors": 4,
+          "conf": 0.85
+        },
+        {
+          "combo": "bars_between_sweet_spot+decent_neckline_height+decisive_reclaim+low2_volume_higher+very_tight_lows",
+          "n_factors": 5,
+          "conf": 1.0
+        }
+      ]
+    }
+  },
+  "proposal": {
+    "observed_pathology": {
+      "band": "0.60-0.70",
+      "n": 147,
+      "wr_pct": 51.7,
+      "reference_lt60_wr": 47.7,
+      "gap_pp": -4.0
+    },
+    "root_cause": "Single large-factor cases (decisive_reclaim or low2_volume_higher alone) land exactly at conf=0.60. Having 1 strong auxiliary factor with no structural confirmation performs WORSE than the base pattern with 0 factors (conf=0.45). The v2 formula's 0.15 weight for these factors is too high.",
+    "combos_causing_band_inflation": {
+      "single_factor": [
+        "decisive_reclaim",
+        "low2_volume_higher"
+      ],
+      "two_factor": [
+        "decent_neckline_height+decisive_reclaim",
+        "decent_neckline_height+low2_volume_higher",
+        "bars_between_sweet_spot+very_tight_lows",
+        "bars_between_sweet_spot+decent_neckline_height",
+        "decent_neckline_height+very_tight_lows"
+      ]
+    },
+    "proposed_v3_adjustment": {
+      "change": "Reduce decisive_reclaim and low2_volume_higher weights: 0.15 -> 0.11",
+      "effect": {
+        "decisive_reclaim_alone": "0.45+0.11=0.56 (moves to <0.60 band, WR=55.9%)",
+        "low2_volume_higher_alone": "0.45+0.11=0.56 (moves to <0.60 band, WR=55.9%)",
+        "decisive_reclaim_plus_decent": "0.45+0.11+0.05=0.61 (stays in 0.60-0.70)",
+        "volume_plus_decent": "0.45+0.11+0.05=0.61 (stays in 0.60-0.70)",
+        "bars_between_plus_very_tight": "0.45+0.10+0.10=0.65 (unchanged)"
+      },
+      "expected_improvement": "Drain the 2 most common 0.60-band combos (~60% of N=447 in band) into the better <0.60 band. Monitor remaining 3 combos.",
+      "validation_required": "Run this script after v3 adjustment to verify 0.60-0.70 band shrinks and <0.60 band WR remains ≥52% (absorbing the drained hits may lower it slightly)."
+    },
+    "ratification_note": "Per OP-25 engine-benefit autonomy: double_bottom confidence formula is RESEARCH analytics only (not live trading doctrine). v3 adjustment may ship without J ratification. Implement in crypto/lib/chart_patterns.py double_bottom_detector v2 weights dict after verification run."
+  }
+}

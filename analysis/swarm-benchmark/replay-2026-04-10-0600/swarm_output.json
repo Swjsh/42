@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-04-10T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis", "internals"],
+    "bearish": [],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 4,
+    "bearish": 0,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 1.00,
+    "bearish": 0.00
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 82,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Single-sector (XLF-only) narrow-breadth leadership combined with sub-conviction ribbon spread (27¢ < 30¢ floor) — the bull thesis collapses without broad sector participation or a clean PMH break.",
+    "top_invalidation_scenario": "SPY rejects premarket high at 680.50 within first hour of RTH and closes below 679.80 — high probability per validator; would confirm range-bound chop, not breakout momentum."
+  },
+  "battle_level": {
+    "price": 681.16,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 681.16,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 680.5,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 678.91,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 682.76,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 682.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks above PMH 680.50 on volume and reclaims 681.16 (5-day Carry high)",
+      "bias": "bullish",
+      "target": 682.76,
+      "entry_trigger": "close above 681.16 + BULL ribbon confirms"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below PML 678.91 with volume confirmation",
+      "bias": "bearish",
+      "target": 673.77,
+      "entry_trigger": "close below 678.91 + volume confirmation"
+    },
+    "invalidation": {
+      "condition": "SPY rejects premarket high at 680.50 within first hour of RTH and closes below 679.80 (validator high-probability scenario)",
+      "effect": "Bull thesis collapses to range-bound chop between 678.91-680.50; ribbon compression (27¢) confirms insufficient momentum for breakout — stand aside until a directional level break fires."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests the battle level at 681.16 at least once within the first 90 minutes of RTH (before 11:00 ET)",
+      "invalidation": "SPY does not reach 681.00 by 11:00 ET, confirming PMH rejection and range-bound tape",
+      "confidence": 0.62,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 20.00 throughout the RTH session, sustaining the MID volatility-compression regime that supports directional call premium",
+      "invalidation": "VIX spikes above 20.00 within the first 30 minutes of RTH (before 10:00 ET)",
+      "confidence": 0.70,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY holds above the slow EMA at 679.45 on any first-hour pullback, confirming the BULL ribbon stack remains intact",
+      "invalidation": "A 5-minute bar closes below 679.45 before 11:30 ET, signaling ribbon stack inversion and momentum loss",
+      "confidence": 0.65,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "All four specialists unanimously favor bulls for 2026-04-10 — CLEAN_BULL ribbon, falling VIX at 18.99, zero macro events, and XLF-led financials driving the tape. However, the thesis is structurally narrow: ribbon spread of 27¢ falls short of the 30¢ conviction floor, XLK is dormant (+0.22%), and XLE is actively diverging (-1.49%), leaving the entire bull case dependent on single-sector financial leadership. The single most important event at RTH open is whether SPY can clear and hold the premarket high at 680.50 — the validator assigns high probability to a rejection there that would confirm range-bound chop rather than breakout momentum; only a clean close above 680.50 with volume opens the path to the battle level at 681.16 and the 682.76 target beyond.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.85,
+      "one_line": "CLEAN_BULL ribbon (27¢ spread, fast>pivot>slow), price 46¢ above pivot, 3 consecutive green bars with strong conviction — technically aligned but ribbon spread sub-30¢ conviction floor"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "VIX 18.99 falling -2.62% in MID regime with zero macro events today — pure VIX compression tailwind, though ribbon spread flags weak underlying momentum"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.75,
+      "one_line": "Battle level 681.16 (Carry ★★) is $1.03 above current price — price in bull-friendly zone above all EMAs, two-level resistance cluster 680.50-681.16 is the filter for the day"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.60,
+      "one_line": "XLF +0.77% leads but XLK flat at +0.22% and XLE -1.49% diverging — narrow rate-sensitive rotation, not broad risk-on; vulnerable to reversal on energy/tech regime shift"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "PMH rejection at 680.50 within first RTH hour (high probability) — sub-30¢ ribbon + XLF-only breadth makes the bull move fragile to early mean reversion"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

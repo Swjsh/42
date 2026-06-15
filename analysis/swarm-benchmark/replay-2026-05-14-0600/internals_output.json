@@ -1,0 +1,25 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-05-14T10:00:00Z",
+  "bias": "mixed",
+  "confidence": 0.33,
+  "reasoning": "All three core sectors (XLK, XLF, XLE) are moving within ±0.3%, indicating low dispersion and weak sector conviction. XLK (tech, -0.24%) and XLF (financials, -0.29%) are slightly negative while XLE (energy, +0.28%) is slightly positive — a hint of defensive/inflation rotation, but magnitudes too small for directional conviction. SPY is up 0.52% premarket, but this move is NOT confirmed by broad sector participation; tech and financials are lagging. Breadth is narrow (SPY outpacing all three major sectors), suggesting fragile rally. Sector picture offers no clear risk-on or risk-off signal.",
+  "rotation_signal": "flat",
+  "sector_alignment": {
+    "xlk_change_pct": -0.24,
+    "xlf_change_pct": -0.29,
+    "xle_change_pct": 0.28,
+    "spy_change_pct": 0.52,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK (tech): -0.24% — within noise, flat",
+    "XLF (financials): -0.29% — within noise, flat",
+    "XLE (energy): +0.28% — slight positive, but minimal",
+    "SPY: +0.52% premarket — outperforming all sectors, indicating narrow leadership without broad sector confirmation",
+    "Sector rotation: Very weak hint of defensive (energy up, tech/financials down), but magnitudes too small (< 0.3%) for actionable signal",
+    "Breadth: NARROW — SPY leading, sectors lagging. Premarket gap-up not yet confirmed by sector internals."
+  ],
+  "data_quality": "full"
+}

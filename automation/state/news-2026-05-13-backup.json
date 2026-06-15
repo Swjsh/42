@@ -1,0 +1,83 @@
+{
+  "as_of": "2026-05-13T01:08:00-04:00",
+  "for_session": "2026-05-13",
+  "regime": "macro_catalyst_day",
+  "catalyst_summary": "PPI release pre-market + 30-year bond auction PM + Fed chair nomination vote (Powell-to-Warsh transition). Plus CSCO + BABA + AMAT earnings Wednesday. CPI Tuesday already printed hot per 24/7 Wall St headline 'SPY Sinks on Higher Inflation' — yesterday's flush to 731.83 and recovery to 738.18 makes sense in that context.",
+
+  "primary_catalyst": {
+    "type": "macro_data",
+    "description": "April PPI release before market open (08:30 ET). Validates whether yesterday's CPI hot print extends to producer-level pricing pressure. PPI hot = SPY weak, bond yields up, dollar up.",
+    "direction": "ambiguous_pending_print",
+    "confidence": "high_attention",
+    "fragility": "binary_print — fade until print + first reaction bar"
+  },
+
+  "secondary_catalysts": [
+    {
+      "type": "fed_event",
+      "description": "Fed chair nomination vote — Powell-to-Warsh transition. The market has been pricing this through the rally; the actual vote outcome can amplify or unwind that pricing.",
+      "direction": "trajectory_dependent",
+      "confidence": "high",
+      "timing_et": "afternoon"
+    },
+    {
+      "type": "bond_auction",
+      "description": "30-year Treasury bond auction afternoon. Weak auction = yields up = SPY weak via duration sensitivity. Strong auction = yields down = SPY supported.",
+      "direction": "duration_sensitive",
+      "confidence": "moderate",
+      "timing_et": "13:00_ish"
+    },
+    {
+      "type": "earnings",
+      "description": "CSCO (consensus EPS ~$0.92, rev ~$14B), BABA (consensus rev ~$36B), AMAT all report Wednesday. CSCO + AMAT have SPY-cap-weight relevance; BABA more China-trade-narrative.",
+      "direction": "single_name_to_index",
+      "confidence": "moderate"
+    }
+  ],
+
+  "vix_expectation": "elevated entering open. CPI hot yesterday + PPI risk this morning + Fed transition = ALL pointing to wider IV. v14 bear gate (VIX > 17.30 and rising) is more likely to clear; v14 bull gate (VIX < 17.20 and falling) less likely. Bear setups have tailwind today.",
+
+  "key_levels_external": {
+    "spx_bullish_bias_floor": 7401,
+    "spx_resistance_levels": [7344, 7381, 7401, 7432],
+    "spy_translation_approx": "SPY 740-743 area = SPX 7400-7430 zone. Above SPY 738 = bullish bias zone per external source.",
+    "spy_relevant_levels_tomorrow": [
+      {"price": 731.83, "type": "support", "source": "5/12 RTH low (the flush wick recovered from)"},
+      {"price": 733.55, "type": "support", "source": "5/7 carry — multi-day"},
+      {"price": 736.13, "type": "S/R flip", "source": "5/7 RTH high → broken 5/12"},
+      {"price": 737.50, "type": "SMA50 5m", "source": "dynamic"},
+      {"price": 738.18, "type": "pivot", "source": "5/12 RTH close"},
+      {"price": 738.84, "type": "resistance", "source": "5/12 RTH high"},
+      {"price": 740.43, "type": "resistance", "source": "5/11 RTH high"},
+      {"price": 740.79, "type": "resistance", "source": "5/11 ATH"}
+    ]
+  },
+
+  "implication_for_setups": {
+    "bearish_setup": "FAVORED — VIX elevated + macro hot print risk + Fed transition uncertainty. v14 bear gate likely clears. If PPI prints hot pre-market, expect gap-down + bear continuation. Key trigger: 736.13 fail again on volume = clean SNIPER + v14 entry.",
+    "bullish_setup": "DEFENSIVE — only triggers if PPI prints cool AND SPY reclaims 738.84 with ribbon BULL ≥30c. ≥2 triggers required (asymmetric).",
+    "sniper_setup": "PRIMARY pattern to watch. ★★★ levels 736.13 + 733.55 + 740.43 are the candidates. Sniper bypasses 10:00 gate so it can fire during the post-PPI 09:30-10:00 reaction window — exactly where v14 was blind.",
+    "opening_drive_fade_setup": "DRAFT/WATCH-ONLY. PPI day often has reversal patterns — first 30 min sets the extreme, then drift back. Good observation day for ODF watcher."
+  },
+
+  "watch_for_reversal": [
+    "PPI prints HOTTER than consensus (>0.3% headline or core) → SPY gap-down likely → bear setups armed at 736.13 retest",
+    "PPI prints COOLER than consensus → SPY gap-up likely → bull setups need 738.84 reclaim to fire",
+    "30-year auction TAILS by >2bp → yields spike → SPY weakness PM",
+    "Fed nomination unexpected vote outcome (failure, delay) → volatility spike + likely SPY weakness"
+  ],
+
+  "no_trade_windows_added_for_today": [
+    {"start_et": "09:30", "end_et": "09:35", "reason": "PPI reaction noise (first 5 min always)"},
+    {"start_et": "12:55", "end_et": "13:10", "reason": "30-year auction announcement window"},
+    {"start_et": "14:00", "end_et": "15:00", "reason": "v14 standard mid-session chop window"}
+  ],
+
+  "sources": [
+    {"url": "https://www.heygotrade.com/en/news/weekly-economic-outlook-2026-05-11/", "title": "US Market Outlook May 11-15 2026: CPI Is Key"},
+    {"url": "https://spyoptions.substack.com/p/free-wednesday-may-13-2026-spy-spx", "title": "Free Wednesday May 13 2026 SPY SPX ES Actionable Levels"},
+    {"url": "https://247wallst.com/investing/2026/05/12/stock-market-live-may-12-2026-sp-500-spy-sinks-on-higher-inflation/", "title": "Stock Market Live May 12 2026: SPY Sinks on Higher Inflation"}
+  ],
+
+  "next_scheduled_news_check": "premarket fire 08:30 ET 2026-05-13 should re-fetch in case anything changed overnight"
+}

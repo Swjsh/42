@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-05-01T06:00:00Z",
+  "bias": "no_trade",
+  "confidence": 0.40,
+  "reasoning": "Mixed sector rotation: XLE +2.49% and XLF +1.2% while XLK flat at -0.09%. This is NOT a broad risk-on signal (tech should lead). Instead, energy/commodity and financial outperformance with tech lag suggests a rotational day, not a sustained directional move. SPY's modest +0.56% gain appears driven by sectoral outperformance, not breadth. Narrow tech leadership risk — sector internals offer no clear directional edge for SPY.",
+  "rotation_signal": "mixed",
+  "sector_alignment": {
+    "xlk_change_pct": -0.09,
+    "xlf_change_pct": 1.2,
+    "xle_change_pct": 2.49,
+    "spy_change_pct": 0.56,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: -0.09% (flat) — tech showing no strength despite SPY up",
+    "XLF: +1.2% (bullish) — financials showing confidence",
+    "XLE: +2.49% (strong) — energy/commodity inflation rotation; outperforming",
+    "Breadth assessment: energy/financial-led, NOT broad tech + financial. Tech lag is concerning."
+  ],
+  "data_quality": "full"
+}

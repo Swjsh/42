@@ -1,0 +1,114 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-23T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.70,
+  "reasoning": "SPY at 643.28, gap-down -5.23 from prior close. BEAR ribbon stack (slow 645.91 > pivot 644.0 > fast 643.57) inverted; price below all three EMAs. Premarket consolidated 642.25–645.2 (2.95 wide). Battle level is 642.25 (Premarket Low, 2★ Active support) — the gap-floor and first critical test. If held: consolidation likely, but BEAR ribbon holds bulls at bay. If broken: flush to 638.0–640.0 (Reference support zone). Confidence 0.70: BEAR alignment is firm, but early premarket action uncertain; multiple support levels in zone create ambiguity on first bounce/hold vs. break-through.",
+  "battle_level": {
+    "price": 642.25,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 642.25,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 1,
+      "distance_from_price": -1.03
+    },
+    {
+      "price": 644.72,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 1.44
+    },
+    {
+      "price": 645.2,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 1.92
+    },
+    {
+      "price": 643.26,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": -0.02
+    },
+    {
+      "price": 644.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": 0.72
+    },
+    {
+      "price": 638.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 6,
+      "distance_from_price": -5.28
+    },
+    {
+      "price": 656.69,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 7,
+      "distance_from_price": 13.41
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 642.25 on first test",
+      "bias": "bearish",
+      "target": 638.0,
+      "entry_trigger": "support_hold + continuation toward lower reference levels; BEAR ribbon suppresses upside"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 642.25",
+      "bias": "bearish",
+      "target": 638.0,
+      "entry_trigger": "gap-floor violation + momentum to S2 pivot and reference support zone"
+    },
+    "failure": {
+      "condition": "if SPY rallies past 645.2 (PMH)",
+      "bias": "bullish_reversal",
+      "target": 656.69,
+      "entry_trigger": "BEAR ribbon breaks + recovery to prior RTH high (shifts bias to upside)"
+    }
+  },
+  "levels_in_play_count": 8,
+  "key_observations": [
+    "Gap-down open (-5.23) set the day's initial bias. PML 642.25 is the first structural floor.",
+    "BEAR ribbon stack (slow 645.91 > pivot 644.0 > fast 643.57) is inverted and firm. Price at 643.28 is beneath all three EMAs — technically weak.",
+    "Premarket range 642.25–645.2 (2.95 wide) is tight; consolidation is expected. No trending move yet.",
+    "VIX 24.26 HIGH but FALLING (-11.65%). Fear unwinding may spark short-covering bounce at 642.25, but BEAR alignment limits upside."
+  ],
+  "data_quality": "full"
+}

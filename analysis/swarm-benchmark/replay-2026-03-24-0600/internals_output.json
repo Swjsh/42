@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-03-24T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.82,
+  "reasoning": "Clear risk-off sector rotation. XLK -0.40% and XLF -0.87% (growth + financials selling hard) while XLE surges +3.01% — classic flight-to-safety into inflation hedge. Tech and financial weakness dragging SPY -0.41%. VIX rising +4.17% in premarket confirms elevated fear. Breadth is negative: both XLK and XLF underperforming SPY with financial hit worse than broad market. Energy outperformance by 3.41% vs tech signals strong risk-off bias. Bearish breadth picture contradicts equity upside.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -0.40,
+    "xlf_change_pct": -0.87,
+    "xle_change_pct": 3.01,
+    "spy_change_pct": -0.41,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK -0.40%: Tech sector weakness — SPY's largest component under pressure",
+    "XLF -0.87%: Financials hit even harder than SPY — credit/rate concerns",
+    "XLE +3.01%: Energy massive outperformance — inflation fears driving rotation out of growth into defensive",
+    "Overall rotation: Risk-off confirmed. Growth sectors selling, inflation hedge (energy) buying. VIX +4.17% supports elevated fear tone."
+  ],
+  "data_quality": "full"
+}

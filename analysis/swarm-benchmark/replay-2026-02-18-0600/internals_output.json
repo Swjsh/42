@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-02-18T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.78,
+  "reasoning": "XLK +0.61% and XLF +0.73% leading while XLE -1.48% dragging = classic risk-on rotation heading into market open. Tech and financials are outperforming SPY (+0.61%/+0.73% vs +0.4%), confirming growth + financial sector leadership. VIX falling -8.03% to 18.66 reinforces risk-on momentum. Sector breadth is narrow but directionally bullish — 2 of 3 major sectors aligned long. SPY upside supported by this rotation.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 0.61,
+    "xlf_change_pct": 0.73,
+    "xle_change_pct": -1.48,
+    "spy_change_pct": 0.4,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +0.61% — tech leading premarket, outperforming SPY by 21bps",
+    "XLF: +0.73% — financials strongest, outperforming SPY by 33bps",
+    "XLE: -1.48% — energy weakness, classic risk-off defense sector drag",
+    "Overall rotation: strong risk-on (growth + financial leadership, energy rollover). Supports SPY bullish directional trade."
+  ],
+  "data_quality": "full"
+}

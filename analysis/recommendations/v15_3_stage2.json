@@ -1,0 +1,109 @@
+{
+  "candidate": "LIVE_PRICE_FIRST_BAR_TRIGGER (v15.3)",
+  "generated_at": "2026-05-21T03:33:02.626450",
+  "methodology": "Proxy fast-V scan: 09:40 bar with body>10c, range>$0.80, low within $0.75 of PDL/PDH, 09:45 closes above 09:40 open. UPPER BOUND on v15.3 frequency \u2014 actual trigger requires named \u2605\u2605+ level in key-levels.json (not available historically).",
+  "total_trading_days": 343,
+  "fast_v_candidates": 1,
+  "fast_v_pct_of_days": 0.3,
+  "events_per_quarter": 1.0,
+  "quarter_counts": {
+    "2025-Q2": 1
+  },
+  "j_anchor_days_affected": 0,
+  "edge_capture_delta": 0.0,
+  "j_day_detail": [
+    {
+      "date": "2026-04-29",
+      "category": "WINNER",
+      "range_940": 0.33,
+      "body_940": 0.04,
+      "low_940": 709.78,
+      "pdl": 710.11,
+      "near_pdl": true,
+      "v_reversal": true,
+      "is_fast_v_candidate": false
+    },
+    {
+      "date": "2026-05-01",
+      "category": "WINNER",
+      "range_940": 0.22,
+      "body_940": -0.09,
+      "low_940": 722.82,
+      "pdl": 715.82,
+      "near_pdl": false,
+      "v_reversal": true,
+      "is_fast_v_candidate": false
+    },
+    {
+      "date": "2026-05-04",
+      "category": "WINNER",
+      "range_940": 0.46,
+      "body_940": -0.1,
+      "low_940": 717.86,
+      "pdl": 720.47,
+      "near_pdl": false,
+      "v_reversal": true,
+      "is_fast_v_candidate": false
+    },
+    {
+      "date": "2026-05-05",
+      "category": "LOSER",
+      "range_940": 0.17,
+      "body_940": -0.04,
+      "low_940": 723.78,
+      "pdl": 716.83,
+      "near_pdl": false,
+      "v_reversal": true,
+      "is_fast_v_candidate": false
+    },
+    {
+      "date": "2026-05-06",
+      "category": "LOSER",
+      "range_940": 0.36,
+      "body_940": -0.23,
+      "low_940": 731.54,
+      "pdl": 723.27,
+      "near_pdl": false,
+      "v_reversal": true,
+      "is_fast_v_candidate": false
+    },
+    {
+      "date": "2026-05-07",
+      "category": "LOSER",
+      "range_940": 1.01,
+      "body_940": 0.65,
+      "low_940": 730.7,
+      "pdl": 731.54,
+      "near_pdl": false,
+      "v_reversal": false,
+      "is_fast_v_candidate": false
+    }
+  ],
+  "fast_v_events": [
+    {
+      "date": "2025-04-14",
+      "quarter": "2025-Q2",
+      "range_940": 1.11,
+      "body_940": 0.52,
+      "low_940": 536.98,
+      "pdl": 529.0,
+      "pdh": 536.42,
+      "near_pdl": false,
+      "near_pdh": true,
+      "b940_open": 537.5,
+      "b940_close": 536.98,
+      "b945_close": 537.76,
+      "v_reversal": true,
+      "is_j_winner": false,
+      "is_j_loser": false
+    }
+  ],
+  "op20_disclosure": {
+    "account_size": "$1K paper (qty=3, ~$30-60 per trade at ATM option premiums)",
+    "sample_bias": "Proxy scan without named-level archive \u2014 actual v15.3 rate will be lower",
+    "oos_test": "All 16 months used as frequency scan (no train/test split for frequency)",
+    "real_fills": "Not run \u2014 no historical fills available for this specific trigger class",
+    "failure_modes": "v15.3 fires on live in-progress bar \u2014 same risk class as the 5/14 ghost-entry. Narrow scope (09:35-09:45 ET, \u2605\u2605+ only) is the risk mitigation but adds new surface area for misfire. Each quarter expects at most N=1 fires.",
+    "concentration": "Not applicable \u2014 frequency scan, not a P&L backtest"
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "generated_at": "2026-05-18T08:30:06.127079",
+  "yesterday_signals": 0,
+  "yesterday_pnl_by_watcher": {},
+  "week_pnl_by_watcher": {
+    "v14_enhanced_watcher": -153.03,
+    "shotgun_scalper_watcher": -181.5,
+    "bullish_watcher": 27.66,
+    "orb_watcher": 693.76
+  },
+  "month_pnl_by_watcher": {
+    "orb_watcher": 4186.84,
+    "bullish_watcher": -597.57,
+    "v14_enhanced_watcher": -176.25,
+    "shotgun_scalper_watcher": -1411.31
+  },
+  "week_wr_by_watcher": {
+    "v14_enhanced_watcher": {
+      "wins": 8,
+      "total": 18,
+      "rate": 0.444
+    },
+    "shotgun_scalper_watcher": {
+      "wins": 39,
+      "total": 58,
+      "rate": 0.672
+    },
+    "bullish_watcher": {
+      "wins": 2,
+      "total": 2,
+      "rate": 1.0
+    },
+    "orb_watcher": {
+      "wins": 4,
+      "total": 4,
+      "rate": 1.0
+    }
+  },
+  "month_wr_by_watcher": {
+    "orb_watcher": {
+      "wins": 67,
+      "total": 76,
+      "rate": 0.882
+    },
+    "bullish_watcher": {
+      "wins": 13,
+      "total": 36,
+      "rate": 0.361
+    },
+    "v14_enhanced_watcher": {
+      "wins": 69,
+      "total": 115,
+      "rate": 0.6
+    },
+    "shotgun_scalper_watcher": {
+      "wins": 133,
+      "total": 230,
+      "rate": 0.578
+    }
+  },
+  "promotion_readiness": {
+    "bullish_watcher": {
+      "total": 142,
+      "wins": 66,
+      "eligible": true
+    },
+    "orb_watcher": {
+      "total": 264,
+      "wins": 164,
+      "eligible": true
+    },
+    "v14_enhanced_watcher": {
+      "total": 131,
+      "wins": 73,
+      "eligible": true
+    },
+    "shotgun_scalper_watcher": {
+      "total": 250,
+      "wins": 144,
+      "eligible": true
+    }
+  }
+}

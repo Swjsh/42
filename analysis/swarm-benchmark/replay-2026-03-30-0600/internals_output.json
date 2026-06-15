@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-03-30T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.78,
+  "reasoning": "XLK -1.22% + XLF -2.01% (financial stress) while XLE +1.67% = classic risk-off rotation. Growth and financial sectors leading SPY lower, while energy rallies in defensive pivot. SPY -1.31% lags XLF weakness but outperforms worst sector, suggesting measured bearish bias rather than capitulation. Energy strength offers tactical support but does not offset the two-sector selloff.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -1.22,
+    "xlf_change_pct": -2.01,
+    "xle_change_pct": 1.67,
+    "spy_change_pct": -1.31,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK -1.22%: tech weakness but not catastrophic",
+    "XLF -2.01%: financial sector significantly underperforming — rate/credit concerns",
+    "XLE +1.67%: defensive energy rally in response to risk-off",
+    "Overall rotation: risk_off — growth + financials down, energy up"
+  ],
+  "data_quality": "full"
+}

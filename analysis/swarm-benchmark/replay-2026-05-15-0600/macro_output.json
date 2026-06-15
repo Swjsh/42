@@ -1,0 +1,41 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-05-15T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "VIX at 18.7 is in MID regime but rising sharply (+7.84%), a significant bearish signal. Overnight gap of -7.69 down indicates material bearish overnight sentiment. BEAR ribbon structure (269¢ spread) reinforces bearish directional bias. Two medium-severity events today (Empire State 08:30, Industrial Production 09:15) are premarket/early-RTH — they set opening tone but don't hard-block RTH trading. However, conflicting rotation_signal='risk_on' and some sector strength (XLK +1.21%, XLE +0.73%) create moderate uncertainty. Overall macro backdrop is risk-off building, but not extreme (VIX not >22). Bearish bias favored for setups targeting downside; bullish entries need extra confirmation.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 18.7,
+  "event_risk": "low",
+  "events_today": [
+    {
+      "time_et": "08:30",
+      "name": "NY Empire State Manufacturing Index (May 2026)",
+      "severity": "med",
+      "no_trade_window": false,
+      "window_start_et": "08:25",
+      "window_end_et": "08:45"
+    },
+    {
+      "time_et": "09:15",
+      "name": "Industrial Production + Capacity Utilization (April 2026) — G.17",
+      "severity": "med",
+      "no_trade_window": false,
+      "window_start_et": "09:10",
+      "window_end_et": "09:30"
+    }
+  ],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -7.69,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX rising +7.84% (18.7, was ~17.3 yesterday implied) — elevated fear building despite MID regime. Historically this pattern precedes selloff acceleration.",
+    "Overnight gap -7.69 down is material (> 1% move on $748 close). Signals significant overnight risk-off sentiment.",
+    "BEAR ribbon stack with 269-cent spread indicates structural bearish alignment. Fast EMA 740.67 vs Pivot 741.27 vs Slow 743.36 — bears below moving averages.",
+    "Rotation signal 'risk_on' conflicts with physical VIX + gap data. Possible lagging data or inter-market divergence (XLK strength vs broad risk-off).",
+    "Two medium-severity macro events are premarket/early-RTH (08:30, 09:15). Industrial Production at 09:15 creates whipsaw window 09:10-09:30 (right at open), then likely fades by 09:45 per historical pattern."
+  ],
+  "data_quality": "full",
+  "notes": "macro-calendar.json refresh_log shows 'replay_filter' on 2026-05-16, filtered week 2026-05-11..2026-05-17. Calendar fetch failures logged but fallback sources used — calendar is reliable. VIX change +7.84% is measured (current 18.7 vs implied prior ~17.3). Confidence 0.68 reflects strong VIX+gap bearish signals offset by mid-regime level + rotation_signal conflict."
+}

@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-02-25T11:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis", "internals"],
+    "bearish": [],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 4,
+    "bearish": 0,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 1.00,
+    "bearish": 0.00
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 95,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Price 687.03 is 10c BELOW the pivot EMA 687.13 and the 16:00 RTH bar closed -23c with 82% body after a failed probe of 688.33 — if this is a reversal signal rather than a momentum stall, the entire bullish structure collapses.",
+    "top_invalidation_scenario": "SPY opens and trades below 686.86 (slow EMA, bottom of ribbon) within the first 5-10 minutes on normal or elevated volume — ribbon structure broken, fast/pivot EMAs invert relative to slow, bull setup invalidated."
+  },
+  "battle_level": {
+    "price": 688.33,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 688.33,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 690.06,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 689.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 688.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 686.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks 688.33 on the first test with volume and ribbon stays BULL (slow EMA 686.86 holds)",
+      "bias": "bullish",
+      "target": 690.06,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if SPY respects 688.33 as resistance and pulls back into the ribbon zone (686.86-687.15)",
+      "bias": "bearish",
+      "target": 686.0,
+      "entry_trigger": "level_rejection"
+    },
+    "invalidation": {
+      "condition": "SPY opens and prints below 686.86 (slow EMA) within the first 10 minutes on normal or elevated volume",
+      "effect": "Ribbon structure broken; bullish consensus invalidated; price likely accelerates to 686.0 support then 684.0 — flip to bearish bias and watch for ribbon_reclaim confirmation before any bull entry."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests 688.33 (yesterday's RTH high, Active 2-star resistance) within the first 90 minutes of RTH (before 11:00 ET)",
+      "invalidation": "SPY does not print at or above 688.00 before 11:00 ET",
+      "confidence": 0.72,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 19.50 through the entire RTH session, sustaining the risk-on macro backdrop and call premium compression",
+      "invalidation": "VIX prints above 19.50 intraday before 15:00 ET",
+      "confidence": 0.70,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BULL ribbon holds — SPY does not close any 5-minute RTH bar below the slow EMA at 686.86, preserving bull structure through the session",
+      "invalidation": "SPY closes any 5-minute bar below 686.86 during RTH hours",
+      "confidence": 0.62,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "All four specialists are unanimously bullish, anchored to the CLEAN_BULL ribbon (28c spread), falling VIX (-4.55% to 18.66), broad risk-on sector rotation (XLF +1.05%, XLK +0.78%), and a clean macro calendar with zero scheduled events. The consensus is bullish because structural and macro conditions align without a single bearish specialist vote. However, the validator's moderate robustness rating reflects a legitimate tension: price (687.03) is 10c BELOW the pivot EMA and yesterday's 16:00 RTH close was a hard 82% body rejection after a failed probe of 688.33 — consistent with exhaustion, not mere stall. The single most important thing to watch at open is 686.86 (slow EMA): if SPY holds above it and breaks 688.33 with volume, the bull continuation to 690.06 is on; if 686.86 breaks in the first 10 minutes, the ribbon inverts and the entire bullish case is off.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "CLEAN_BULL ribbon 28c spread; price 10c below pivot EMA; EOD bar shows failed-probe weakness at 688.33 — structure intact but momentum stalled"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.78,
+      "one_line": "VIX 18.66 MID regime falling -4.55%; zero macro events today; risk-on sector rotation confirms bullish macro backdrop"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "Battle level 688.33 (Active 2-star resistance, 1.30 away); break targets 690.06 Carry; ribbon zone 686.86-687.15 is the line-in-sand for bull validity"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.82,
+      "one_line": "XLF +1.05% leads, XLK +0.78% inline, XLE flat — classic broad risk-on rotation, no defensive signal"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Price below pivot EMA + hard 82% body rejection at 688.33 EOD is a failed-probe reversal pattern; any sub-686.86 open breaks ribbon and invalidates all four specialist bullish votes"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

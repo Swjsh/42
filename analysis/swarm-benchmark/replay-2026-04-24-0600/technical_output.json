@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-17T14:09:45Z",
+  "bias": "no_trade",
+  "confidence": 0.35,
+  "reasoning": "WEAK_BULL ribbon (13c spread, not CLEAN) offset by price 2c below pivot, 2 of 3 recent bars red with rising bodies (bearish structure), and risk-off macro (VIX +0.95%, XLK/XLF down, sectors weak). Overnight gap flat. The sole bullish signal—BULL stack—lacks conviction due to narrow spread. Premarket zero-volume conditions unsuitable for setup confirmation. Insufficient edge for directional entry; recommend waiting for RTH open confirmation of 710.4 PMH or 708.09 PML tests.",
+  "ribbon_verdict": "WEAK_BULL",
+  "ribbon_spread_cents": 13,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "WEAK_BULL ribbon: fast 708.89, pivot 708.86, slow 708.76 — stack favors bulls but spread only 13c (needs ≥20c for CLEAN conviction)",
+    "Last 3 bars: 1 green (05:55 +0.11 body), 2 red (05:50 −0.21, 05:45 −0.09) — mixed structure with slight bearish lean; bars not aligned with bullish thesis",
+    "Price 708.84 is 2c below pivot 708.86 and below fast EMA 708.89 — no bullish momentum confirmation",
+    "Macro headwinds: VIX rising +0.95% into MID regime, sectors risk-off (XLK −0.59%, XLF −0.54%), overnight gap flat — early-session weakness signature",
+    "Premarket range 708.09–710.40 (231c); price 708.84 well above PML but distant from PMH — no imminent level test visible; zero volume unsuitable for confirmation"
+  ],
+  "data_quality": "full"
+}

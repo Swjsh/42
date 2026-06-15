@@ -1,0 +1,14 @@
+==== CONSOLIDATED TRUTH (from computed JSON dumps) ====
+
+[matrix] configs that reach 4/4 GREEN on the missed week:
+  V0 ATM PLoff -> min stop -50% | week +135.8/c | worst 0.0/c | n=5
+  -> D1 sniper present in winners? False
+  anchor checks: {"V0|0|PLoff|0.5": {"cap_504": 31.2, "totpc": 66.4, "worst_pc": -58.0, "n": 7}}
+
+[_sniper_oos.json] MISSING
+
+[_d1_robustness.json] MISSING
+
+[_stop_pl_candidate.json] MISSING
+
+[_anchor_v0.json] MISSING

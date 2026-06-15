@@ -1,0 +1,31 @@
+{
+  "_doc": "Template for .mcp.json (which is gitignored — it holds real keys). Copy to .mcp.json and fill in real values, or rely on Claude env-var expansion. NEVER commit real keys.",
+  "mcpServers": {
+    "tradingview": {
+      "command": "node",
+      "args": ["C:\\Users\\jackw\\Desktop\\SwjshAlgoKnife\\mcp-servers\\tradingview-mcp\\launcher.cjs"]
+    },
+    "alpaca": {
+      "command": "uvx",
+      "args": ["alpaca-mcp-server"],
+      "env": {
+        "ALPACA_API_KEY": "${ALPACA_API_KEY}",
+        "ALPACA_SECRET_KEY": "${ALPACA_SECRET_KEY}",
+        "ALPACA_PAPER_TRADE": "true",
+        "ALPACA_BASE_URL": "https://paper-api.alpaca.markets",
+        "_account_label": "Gamma-Safe-1 (paper)"
+      }
+    },
+    "alpaca_aggressive": {
+      "command": "uvx",
+      "args": ["alpaca-mcp-server"],
+      "env": {
+        "ALPACA_API_KEY": "${ALPACA_AGGRESSIVE_API_KEY}",
+        "ALPACA_SECRET_KEY": "${ALPACA_AGGRESSIVE_SECRET_KEY}",
+        "ALPACA_PAPER_TRADE": "true",
+        "ALPACA_BASE_URL": "https://paper-api.alpaca.markets",
+        "_account_label": "Gamma-Risky-2 (paper)"
+      }
+    }
+  }
+}

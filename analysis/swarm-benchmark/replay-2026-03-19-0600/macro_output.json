@@ -1,0 +1,24 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-19T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.72,
+  "reasoning": "VIX at 25.87 (HIGH) and rising +5.21% signals elevated fear — strong bearish bias. All sectors down overnight (SPY -1.04%, XLK -0.97%), rotation into risk_off. FOMC was yesterday (2026-03-18), so decision/presser largely priced; no major macro events scheduled for 2026-03-19 itself, reducing acute catalyst risk. Overnight gap flat (+0.02) suggests no overnight conviction, but premarket range 658.58-662.1 (4.5pts) + ribbon BEAR stack confirm intraday bearish setup potential. Fear elevated but not panic-level; without today's events, some risk of stabilization if CPI/NFP data today were positive, but no such events are scheduled.",
+  "vix_regime": "HIGH",
+  "vix_direction": "rising",
+  "vix_current": 25.87,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": 0.02,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX at 25.87, up +5.21% overnight — fear is building, not receding",
+    "All major sectors negative: XLK -0.97%, XLF -0.81%, XLE -0.53% — broad risk-off rotation confirmed",
+    "FOMC decision was 2026-03-18 (yesterday); presser tail risk receding but market may still be repricing expectations",
+    "Zero macro events scheduled for 2026-03-19 — no forced liquidation windows or surprise data catalysts today",
+    "Premarket range 658.58-662.1 (4.5pts) + ribbon BEAR stack indicate intraday volatility and bearish alignment",
+    "Overnight gap negligible (+0.02) — overnight sentiment neutral; all directional pressure from yesterday's FOMC + rate market repricing"
+  ],
+  "data_quality": "full"
+}

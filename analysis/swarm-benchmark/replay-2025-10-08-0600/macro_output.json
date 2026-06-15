@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2025-10-08T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "VIX at 17.05 falling (−1.16%) in MID regime signals receding fear and bullish compression. Overnight gap +$0.87 (moderate bullish). No macro events scheduled for 2025-10-08. Ribbon in BULL stack structure supports upside bias. Sector rotation mixed (XLK weakness is minor headwind). Low event complexity + bullish technicals = ideal backdrop for directional call entries. Confidence moderated by mild VIX directional move (−1.16% is not a strong signal; >2pts would be stronger).",
+  "vix_regime": "MID",
+  "vix_direction": "falling",
+  "vix_current": 17.05,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 0.87,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX 17.05 falling −1.16% in MID regime (15–22): bullish signal, fear receding, premium compression favors call buyers",
+    "Overnight gap +$0.87 UP after yesterday's −0.51% close: moderate bullish rebalancing, recovery bid overnight",
+    "Zero macro events today (0/0 in calendar for 2025-10-08): no FOMC, CPI, NFP, or high-impact releases; zero no-trade windows",
+    "Ribbon BULL stack (spread 46¢): structural alignment with bullish macro backdrop",
+    "Sector rotation mixed: XLK −1.18% (tech weakness), XLF flat, XLE flat; no clear sector leadership but no major headwind"
+  ],
+  "data_quality": "full"
+}

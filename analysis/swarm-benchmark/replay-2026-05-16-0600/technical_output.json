@@ -1,0 +1,22 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-16T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.72,
+  "reasoning": "CLEAN_BEAR ribbon with 78-cent spread (fast 740.22, pivot 740.56, slow 741.0). Price 739.08 is 148 cents below pivot, signaling bearish momentum. Last 3 bars show strong rejection: green recovery (11:45, mod 35% body) followed by massive bearish candle at 11:50 (RED, 91% body, 1.85M volume spike) driving price from 740.25 to 738.81 low, then weak doji recovery at 11:55 (18% body). The dominant RED bar with high volume is the key signal. However, small recovery bar + price exactly at Active support level (738.54, within 54 cents) moderates confidence — this could be a bounce setup at support rather than a continuation down. Overnight gap flat, VIX neutral at 18.22 (MID regime).",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 78,
+  "bar_structure": "strong_bear",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "CLEAN_BEAR ribbon with 78c spread (clean >30c threshold) — all three EMAs properly stacked",
+    "Price 739.08 is 148 cents below 20-EMA pivot (740.56) — clear bearish momentum signal",
+    "11:50 ET bar is the dominant signal: massive RED candle with 91% body, 141-cent drop (740.25→738.81) on 1.85M volume (4.6× typical 400K avg) — textbook bearish rejection",
+    "Recovery attempt at 11:55 ET is weak (doji, 18% body, 14 cents up) — insufficient strength to reverse bias",
+    "Price 739.08 is 54 cents above Active support (738.54, prior RTH low) — at a bounce-candidate zone but ribbon remains bearish",
+    "VIX flat 18.22 (MID regime) — not elevated but not suppressed; volume did spike on red bar suggesting conviction",
+    "Sectors mixed: XLF down −0.43%, XLE up +1.26%, SPY down −0.35% overall"
+  ],
+  "data_quality": "full"
+}

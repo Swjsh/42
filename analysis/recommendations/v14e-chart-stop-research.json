@@ -1,0 +1,1014 @@
+{
+  "generated_at": "2026-05-21T04:16:41.833403",
+  "research_question": "Does -8% premium stop fire before directional bear move on v14e bear stopped entries?",
+  "n_stopped_obs": 100,
+  "n_opra_covered": 86,
+  "n_opra_miss": 14,
+  "prod_exit_distribution": {
+    "EXIT_ALL_PREMIUM_STOP": 81,
+    "EXIT_ALL_LEVEL_STOP": 1,
+    "EXIT_ALL_TIME_STOP": 1,
+    "TP1_THEN_RUNNER_RIBBON": 3
+  },
+  "premium_stop_fires": 81,
+  "premium_stop_pct_of_covered": 94.2,
+  "pnl_comparison": {
+    "n": 86,
+    "prod_pnl": -1669.56,
+    "chart_stop_pnl": -4144.2,
+    "delta": -2474.64,
+    "direction": "prod_better"
+  },
+  "per_score": {
+    "6": {
+      "n": 3,
+      "premium_stops": 3,
+      "pct": 100.0,
+      "avg_entry_premium_at_prem_stop": 0.3
+    },
+    "7": {
+      "n": 7,
+      "premium_stops": 7,
+      "pct": 100.0,
+      "avg_entry_premium_at_prem_stop": 0.253
+    },
+    "8": {
+      "n": 16,
+      "premium_stops": 15,
+      "pct": 93.8,
+      "avg_entry_premium_at_prem_stop": 0.381
+    },
+    "9": {
+      "n": 21,
+      "premium_stops": 20,
+      "pct": 95.2,
+      "avg_entry_premium_at_prem_stop": 0.829
+    },
+    "10": {
+      "n": 39,
+      "premium_stops": 36,
+      "pct": 92.3,
+      "avg_entry_premium_at_prem_stop": 1.167
+    }
+  },
+  "detail": [
+    {
+      "ts": "2026-04-13T09:40:00-04:00",
+      "score": 10,
+      "grader_pnl": -23.0,
+      "prod_exit": "OPRA_MISS",
+      "chart_exit": "OPRA_MISS"
+    },
+    {
+      "ts": "2026-04-21T11:25:00-04:00",
+      "score": 10,
+      "grader_pnl": -51.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -18.239999999999988,
+      "prod_entry_premium": 0.76,
+      "chart_exit": "TP1_THEN_RUNNER_RIBBON",
+      "chart_pnl": 45.600000000000016
+    },
+    {
+      "ts": "2026-04-29T12:10:00-04:00",
+      "score": 8,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_LEVEL_STOP",
+      "prod_pnl": -21.000000000000018,
+      "prod_entry_premium": 1.34,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -21.000000000000018
+    },
+    {
+      "ts": "2026-05-01T13:35:00-04:00",
+      "score": 7,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -5.280000000000001,
+      "prod_entry_premium": 0.22,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -20.999999999999993
+    },
+    {
+      "ts": "2026-05-04T10:05:00-04:00",
+      "score": 10,
+      "grader_pnl": -81.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -13.679999999999993,
+      "prod_entry_premium": 0.5700000000000001,
+      "chart_exit": "EXIT_ALL_RIBBON_FLIP_BACK",
+      "chart_pnl": -93.00000000000001
+    },
+    {
+      "ts": "2026-05-11T15:40:00-04:00",
+      "score": 8,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -1.4399999999999995,
+      "prod_entry_premium": 0.06,
+      "chart_exit": "EXIT_ALL_TIME_STOP",
+      "chart_pnl": -15.0
+    },
+    {
+      "ts": "2026-05-12T11:00:00-04:00",
+      "score": 10,
+      "grader_pnl": -10.5,
+      "prod_exit": "OPRA_MISS",
+      "chart_exit": "OPRA_MISS"
+    },
+    {
+      "ts": "2026-04-21T11:25:00-04:00",
+      "score": 10,
+      "grader_pnl": -51.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -18.239999999999988,
+      "prod_entry_premium": 0.76,
+      "chart_exit": "TP1_THEN_RUNNER_RIBBON",
+      "chart_pnl": 45.600000000000016
+    },
+    {
+      "ts": "2026-05-04T10:05:00-04:00",
+      "score": 10,
+      "grader_pnl": -81.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -13.679999999999993,
+      "prod_entry_premium": 0.5700000000000001,
+      "chart_exit": "EXIT_ALL_RIBBON_FLIP_BACK",
+      "chart_pnl": -93.00000000000001
+    },
+    {
+      "ts": "2026-05-11T15:40:00-04:00",
+      "score": 8,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -1.4399999999999995,
+      "prod_entry_premium": 0.06,
+      "chart_exit": "EXIT_ALL_TIME_STOP",
+      "chart_pnl": -15.0
+    },
+    {
+      "ts": "2026-05-12T11:00:00-04:00",
+      "score": 10,
+      "grader_pnl": -10.5,
+      "prod_exit": "OPRA_MISS",
+      "chart_exit": "OPRA_MISS"
+    },
+    {
+      "ts": "2026-04-21T11:25:00-04:00",
+      "score": 10,
+      "grader_pnl": -51.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -18.239999999999988,
+      "prod_entry_premium": 0.76,
+      "chart_exit": "TP1_THEN_RUNNER_RIBBON",
+      "chart_pnl": 45.600000000000016
+    },
+    {
+      "ts": "2026-05-04T10:05:00-04:00",
+      "score": 10,
+      "grader_pnl": -81.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -13.679999999999993,
+      "prod_entry_premium": 0.5700000000000001,
+      "chart_exit": "EXIT_ALL_RIBBON_FLIP_BACK",
+      "chart_pnl": -93.00000000000001
+    },
+    {
+      "ts": "2026-05-11T15:40:00-04:00",
+      "score": 8,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -1.4399999999999995,
+      "prod_entry_premium": 0.06,
+      "chart_exit": "EXIT_ALL_TIME_STOP",
+      "chart_pnl": -15.0
+    },
+    {
+      "ts": "2026-05-12T11:00:00-04:00",
+      "score": 10,
+      "grader_pnl": -10.5,
+      "prod_exit": "OPRA_MISS",
+      "chart_exit": "OPRA_MISS"
+    },
+    {
+      "ts": "2026-04-21T11:25:00-04:00",
+      "score": 10,
+      "grader_pnl": -51.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -18.239999999999988,
+      "prod_entry_premium": 0.76,
+      "chart_exit": "TP1_THEN_RUNNER_RIBBON",
+      "chart_pnl": 45.600000000000016
+    },
+    {
+      "ts": "2026-04-29T13:40:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -30.959999999999987,
+      "prod_entry_premium": 1.29,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -56.999999999999986
+    },
+    {
+      "ts": "2026-05-04T11:20:00-04:00",
+      "score": 10,
+      "grader_pnl": -91.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -25.680000000000003,
+      "prod_entry_premium": 1.07,
+      "chart_exit": "TP1_THEN_RUNNER_RIBBON",
+      "chart_pnl": 64.20000000000003
+    },
+    {
+      "ts": "2026-05-11T15:40:00-04:00",
+      "score": 8,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -1.4399999999999995,
+      "prod_entry_premium": 0.06,
+      "chart_exit": "EXIT_ALL_TIME_STOP",
+      "chart_pnl": -15.0
+    },
+    {
+      "ts": "2026-05-15T10:25:00-04:00",
+      "score": 10,
+      "grader_pnl": -102.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -23.99999999999999,
+      "prod_entry_premium": 1.0,
+      "chart_exit": "TP1_THEN_RUNNER_RIBBON",
+      "chart_pnl": 60.00000000000001
+    },
+    {
+      "ts": "2026-04-21T11:25:00-04:00",
+      "score": 10,
+      "grader_pnl": -51.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -18.239999999999988,
+      "prod_entry_premium": 0.76,
+      "chart_exit": "TP1_THEN_RUNNER_RIBBON",
+      "chart_pnl": 45.600000000000016
+    },
+    {
+      "ts": "2026-04-29T13:40:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -30.959999999999987,
+      "prod_entry_premium": 1.29,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -56.999999999999986
+    },
+    {
+      "ts": "2026-05-04T10:05:00-04:00",
+      "score": 10,
+      "grader_pnl": -81.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -13.679999999999993,
+      "prod_entry_premium": 0.5700000000000001,
+      "chart_exit": "EXIT_ALL_RIBBON_FLIP_BACK",
+      "chart_pnl": -93.00000000000001
+    },
+    {
+      "ts": "2026-05-11T15:40:00-04:00",
+      "score": 8,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -1.4399999999999995,
+      "prod_entry_premium": 0.06,
+      "chart_exit": "EXIT_ALL_TIME_STOP",
+      "chart_pnl": -15.0
+    },
+    {
+      "ts": "2026-04-21T11:25:00-04:00",
+      "score": 10,
+      "grader_pnl": -51.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -18.239999999999988,
+      "prod_entry_premium": 0.76,
+      "chart_exit": "TP1_THEN_RUNNER_RIBBON",
+      "chart_pnl": 45.600000000000016
+    },
+    {
+      "ts": "2026-04-29T13:40:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -30.959999999999987,
+      "prod_entry_premium": 1.29,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -56.999999999999986
+    },
+    {
+      "ts": "2026-05-04T10:05:00-04:00",
+      "score": 10,
+      "grader_pnl": -81.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -13.679999999999993,
+      "prod_entry_premium": 0.5700000000000001,
+      "chart_exit": "EXIT_ALL_RIBBON_FLIP_BACK",
+      "chart_pnl": -93.00000000000001
+    },
+    {
+      "ts": "2026-05-11T15:40:00-04:00",
+      "score": 8,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -1.4399999999999995,
+      "prod_entry_premium": 0.06,
+      "chart_exit": "EXIT_ALL_TIME_STOP",
+      "chart_pnl": -15.0
+    },
+    {
+      "ts": "2026-04-21T11:25:00-04:00",
+      "score": 10,
+      "grader_pnl": -51.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -18.239999999999988,
+      "prod_entry_premium": 0.76,
+      "chart_exit": "TP1_THEN_RUNNER_RIBBON",
+      "chart_pnl": 45.600000000000016
+    },
+    {
+      "ts": "2026-04-29T13:40:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -30.959999999999987,
+      "prod_entry_premium": 1.29,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -56.999999999999986
+    },
+    {
+      "ts": "2026-05-04T10:05:00-04:00",
+      "score": 10,
+      "grader_pnl": -81.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -13.679999999999993,
+      "prod_entry_premium": 0.5700000000000001,
+      "chart_exit": "EXIT_ALL_RIBBON_FLIP_BACK",
+      "chart_pnl": -93.00000000000001
+    },
+    {
+      "ts": "2026-05-11T15:40:00-04:00",
+      "score": 8,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -1.4399999999999995,
+      "prod_entry_premium": 0.06,
+      "chart_exit": "EXIT_ALL_TIME_STOP",
+      "chart_pnl": -15.0
+    },
+    {
+      "ts": "2025-01-02T15:55:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_TIME_STOP",
+      "prod_pnl": -270.0,
+      "prod_entry_premium": 1.41,
+      "chart_exit": "EXIT_ALL_TIME_STOP",
+      "chart_pnl": -270.0
+    },
+    {
+      "ts": "2025-01-07T10:35:00-04:00",
+      "score": 9,
+      "grader_pnl": -95.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -3.5999999999999948,
+      "prod_entry_premium": 0.15,
+      "chart_exit": "TP1_THEN_RUNNER_RIBBON",
+      "chart_pnl": 9.000000000000002
+    },
+    {
+      "ts": "2025-01-10T10:30:00-04:00",
+      "score": 10,
+      "grader_pnl": -36.5,
+      "prod_exit": "TP1_THEN_RUNNER_RIBBON",
+      "prod_pnl": 39.000000000000014,
+      "prod_entry_premium": 0.65,
+      "chart_exit": "TP1_THEN_RUNNER_RIBBON",
+      "chart_pnl": 39.000000000000014
+    },
+    {
+      "ts": "2025-01-14T13:20:00-04:00",
+      "score": 8,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -40.31999999999996,
+      "prod_entry_premium": 1.68,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": 98.99999999999996
+    },
+    {
+      "ts": "2025-01-29T12:55:00-04:00",
+      "score": 8,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -25.919999999999977,
+      "prod_entry_premium": 1.08,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -75.00000000000003
+    },
+    {
+      "ts": "2025-02-03T11:00:00-04:00",
+      "score": 10,
+      "grader_pnl": -71.0,
+      "prod_exit": "OPRA_MISS",
+      "chart_exit": "OPRA_MISS"
+    },
+    {
+      "ts": "2025-02-24T11:00:00-04:00",
+      "score": 10,
+      "grader_pnl": -88.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -31.679999999999975,
+      "prod_entry_premium": 1.32,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -141.0
+    },
+    {
+      "ts": "2025-02-27T11:00:00-04:00",
+      "score": 10,
+      "grader_pnl": -35.0,
+      "prod_exit": "OPRA_MISS",
+      "chart_exit": "OPRA_MISS"
+    },
+    {
+      "ts": "2025-03-03T13:30:00-04:00",
+      "score": 6,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -3.5999999999999948,
+      "prod_entry_premium": 0.15,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -20.999999999999996
+    },
+    {
+      "ts": "2025-03-11T11:10:00-04:00",
+      "score": 10,
+      "grader_pnl": -28.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -46.56,
+      "prod_entry_premium": 1.94,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -219.0
+    },
+    {
+      "ts": "2025-03-13T09:35:00-04:00",
+      "score": 10,
+      "grader_pnl": -74.5,
+      "prod_exit": "TP1_THEN_RUNNER_RIBBON",
+      "prod_pnl": 115.20000000000002,
+      "prod_entry_premium": 1.92,
+      "chart_exit": "TP1_THEN_RUNNER_RIBBON",
+      "chart_pnl": 115.20000000000002
+    },
+    {
+      "ts": "2025-03-27T09:35:00-04:00",
+      "score": 10,
+      "grader_pnl": -77.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -29.279999999999973,
+      "prod_entry_premium": 1.22,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -150.0
+    },
+    {
+      "ts": "2025-03-28T11:00:00-04:00",
+      "score": 10,
+      "grader_pnl": -40.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -23.99999999999999,
+      "prod_entry_premium": 1.0,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -114.00000000000001
+    },
+    {
+      "ts": "2025-04-07T10:00:00-04:00",
+      "score": 10,
+      "grader_pnl": -174.0,
+      "prod_exit": "OPRA_MISS",
+      "chart_exit": "OPRA_MISS"
+    },
+    {
+      "ts": "2025-04-09T12:20:00-04:00",
+      "score": 7,
+      "grader_pnl": -30.0,
+      "prod_exit": "OPRA_MISS",
+      "chart_exit": "OPRA_MISS"
+    },
+    {
+      "ts": "2025-05-01T15:40:00-04:00",
+      "score": 7,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -7.919999999999994,
+      "prod_entry_premium": 0.33,
+      "chart_exit": "EXIT_ALL_TIME_STOP",
+      "chart_pnl": 44.99999999999999
+    },
+    {
+      "ts": "2025-05-05T11:05:00-04:00",
+      "score": 10,
+      "grader_pnl": -51.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -17.999999999999982,
+      "prod_entry_premium": 0.75,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -132.0
+    },
+    {
+      "ts": "2025-05-06T11:25:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -18.239999999999988,
+      "prod_entry_premium": 0.76,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -27.000000000000025
+    },
+    {
+      "ts": "2025-05-12T11:50:00-04:00",
+      "score": 7,
+      "grader_pnl": -30.0,
+      "prod_exit": "OPRA_MISS",
+      "chart_exit": "OPRA_MISS"
+    },
+    {
+      "ts": "2025-06-05T10:05:00-04:00",
+      "score": 10,
+      "grader_pnl": -79.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -23.519999999999975,
+      "prod_entry_premium": 0.98,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -141.0
+    },
+    {
+      "ts": "2025-06-06T12:00:00-04:00",
+      "score": 7,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -12.479999999999992,
+      "prod_entry_premium": 0.52,
+      "chart_exit": "EXIT_ALL_RIBBON_FLIP_BACK",
+      "chart_pnl": -36.000000000000014
+    },
+    {
+      "ts": "2025-06-17T09:40:00-04:00",
+      "score": 10,
+      "grader_pnl": -66.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -17.520000000000003,
+      "prod_entry_premium": 0.73,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -129.0
+    },
+    {
+      "ts": "2025-06-20T12:25:00-04:00",
+      "score": 8,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -12.719999999999999,
+      "prod_entry_premium": 0.53,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -60.00000000000002
+    },
+    {
+      "ts": "2025-07-18T13:05:00-04:00",
+      "score": 7,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -5.999999999999997,
+      "prod_entry_premium": 0.25,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -20.999999999999993
+    },
+    {
+      "ts": "2025-08-13T11:35:00-04:00",
+      "score": 6,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -7.919999999999994,
+      "prod_entry_premium": 0.33,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -33.00000000000001
+    },
+    {
+      "ts": "2025-08-18T11:15:00-04:00",
+      "score": 8,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -5.759999999999998,
+      "prod_entry_premium": 0.24,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -2.9999999999999942
+    },
+    {
+      "ts": "2025-08-18T11:30:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -6.239999999999996,
+      "prod_entry_premium": 0.26,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -27.0
+    },
+    {
+      "ts": "2025-08-26T10:05:00-04:00",
+      "score": 8,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -9.360000000000001,
+      "prod_entry_premium": 0.39,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -27.000000000000007
+    },
+    {
+      "ts": "2025-08-29T13:15:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -8.399999999999991,
+      "prod_entry_premium": 0.35000000000000003,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -33.00000000000001
+    },
+    {
+      "ts": "2025-09-24T12:30:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -8.399999999999991,
+      "prod_entry_premium": 0.35000000000000003,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -36.00000000000001
+    },
+    {
+      "ts": "2025-10-06T11:35:00-04:00",
+      "score": 7,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -4.3199999999999985,
+      "prod_entry_premium": 0.18,
+      "chart_exit": "EXIT_ALL_RIBBON_FLIP_BACK",
+      "chart_pnl": -24.0
+    },
+    {
+      "ts": "2025-10-09T12:40:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -6.959999999999999,
+      "prod_entry_premium": 0.29000000000000004,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": 5.9999999999999885
+    },
+    {
+      "ts": "2025-10-10T11:05:00-04:00",
+      "score": 10,
+      "grader_pnl": -55.0,
+      "prod_exit": "OPRA_MISS",
+      "chart_exit": "OPRA_MISS"
+    },
+    {
+      "ts": "2025-10-30T11:05:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -24.239999999999995,
+      "prod_entry_premium": 1.01,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -48.00000000000001
+    },
+    {
+      "ts": "2025-10-31T09:40:00-04:00",
+      "score": 10,
+      "grader_pnl": -89.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -25.919999999999977,
+      "prod_entry_premium": 1.08,
+      "chart_exit": "EXIT_ALL_RIBBON_FLIP_BACK",
+      "chart_pnl": -6.000000000000005
+    },
+    {
+      "ts": "2025-11-06T11:00:00-04:00",
+      "score": 10,
+      "grader_pnl": -56.5,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -23.99999999999999,
+      "prod_entry_premium": 1.0,
+      "chart_exit": "TP1_THEN_RUNNER_RIBBON",
+      "chart_pnl": 60.00000000000001
+    },
+    {
+      "ts": "2025-11-07T15:25:00-04:00",
+      "score": 8,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -30.240000000000002,
+      "prod_entry_premium": 1.26,
+      "chart_exit": "EXIT_ALL_RIBBON_FLIP_BACK",
+      "chart_pnl": -219.0
+    },
+    {
+      "ts": "2025-11-10T12:40:00-04:00",
+      "score": 6,
+      "grader_pnl": -30.0,
+      "prod_exit": "OPRA_MISS",
+      "chart_exit": "OPRA_MISS"
+    },
+    {
+      "ts": "2025-11-14T11:00:00-04:00",
+      "score": 10,
+      "grader_pnl": -107.18,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -74.6399999999999,
+      "prod_entry_premium": 3.11,
+      "chart_exit": "EXIT_ALL_RIBBON_FLIP_BACK",
+      "chart_pnl": 9.000000000000075
+    },
+    {
+      "ts": "2025-11-18T11:00:00-04:00",
+      "score": 10,
+      "grader_pnl": -119.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -42.96,
+      "prod_entry_premium": 1.79,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -189.00000000000003
+    },
+    {
+      "ts": "2025-12-08T12:00:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -12.719999999999999,
+      "prod_entry_premium": 0.53,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -27.000000000000007
+    },
+    {
+      "ts": "2025-12-19T10:35:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -41.76,
+      "prod_entry_premium": 1.74,
+      "chart_exit": "EXIT_ALL_RIBBON_FLIP_BACK",
+      "chart_pnl": -162.0
+    },
+    {
+      "ts": "2025-12-29T11:50:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -5.52,
+      "prod_entry_premium": 0.22999999999999998,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -11.999999999999995
+    },
+    {
+      "ts": "2026-01-05T15:40:00-04:00",
+      "score": 7,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -2.879999999999999,
+      "prod_entry_premium": 0.12000000000000001,
+      "chart_exit": "EXIT_ALL_TIME_STOP",
+      "chart_pnl": -15.000000000000005
+    },
+    {
+      "ts": "2026-01-12T13:55:00-04:00",
+      "score": 7,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -3.5999999999999948,
+      "prod_entry_premium": 0.15,
+      "chart_exit": "EXIT_ALL_RIBBON_FLIP_BACK",
+      "chart_pnl": -27.0
+    },
+    {
+      "ts": "2026-01-13T12:00:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -16.079999999999995,
+      "prod_entry_premium": 0.67,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -36.00000000000003
+    },
+    {
+      "ts": "2026-02-17T10:00:00-04:00",
+      "score": 8,
+      "grader_pnl": -30.0,
+      "prod_exit": "OPRA_MISS",
+      "chart_exit": "OPRA_MISS"
+    },
+    {
+      "ts": "2026-02-17T11:05:00-04:00",
+      "score": 10,
+      "grader_pnl": -124.91,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -73.68,
+      "prod_entry_premium": 3.07,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -351.0
+    },
+    {
+      "ts": "2026-02-19T10:35:00-04:00",
+      "score": 10,
+      "grader_pnl": -38.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -50.879999999999995,
+      "prod_entry_premium": 2.12,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -126.00000000000004
+    },
+    {
+      "ts": "2026-02-23T15:25:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -5.52,
+      "prod_entry_premium": 0.22999999999999998,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -14.999999999999988
+    },
+    {
+      "ts": "2026-02-26T13:45:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -39.84000000000001,
+      "prod_entry_premium": 1.66,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -84.00000000000001
+    },
+    {
+      "ts": "2026-03-06T11:05:00-04:00",
+      "score": 10,
+      "grader_pnl": -137.2,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -95.2799999999999,
+      "prod_entry_premium": 3.97,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -465.00000000000006
+    },
+    {
+      "ts": "2026-03-12T13:45:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -14.399999999999979,
+      "prod_entry_premium": 0.6,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -17.999999999999982
+    },
+    {
+      "ts": "2026-03-13T11:00:00-04:00",
+      "score": 10,
+      "grader_pnl": -10.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -32.879999999999974,
+      "prod_entry_premium": 1.37,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -210.00000000000006
+    },
+    {
+      "ts": "2026-03-16T13:15:00-04:00",
+      "score": 6,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -10.07999999999999,
+      "prod_entry_premium": 0.42000000000000004,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -21.000000000000018
+    },
+    {
+      "ts": "2026-03-18T09:40:00-04:00",
+      "score": 10,
+      "grader_pnl": -46.99,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -39.599999999999966,
+      "prod_entry_premium": 1.65,
+      "chart_exit": "TP1_THEN_RUNNER_RIBBON",
+      "chart_pnl": 99.00000000000003
+    },
+    {
+      "ts": "2026-03-20T10:00:00-04:00",
+      "score": 10,
+      "grader_pnl": -30.0,
+      "prod_exit": "TP1_THEN_RUNNER_RIBBON",
+      "prod_pnl": 75.0,
+      "prod_entry_premium": 1.25,
+      "chart_exit": "TP1_THEN_RUNNER_RIBBON",
+      "chart_pnl": 75.0
+    },
+    {
+      "ts": "2026-03-26T09:35:00-04:00",
+      "score": 10,
+      "grader_pnl": -98.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -35.040000000000006,
+      "prod_entry_premium": 1.46,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -221.99999999999997
+    },
+    {
+      "ts": "2026-03-31T12:10:00-04:00",
+      "score": 6,
+      "grader_pnl": -30.0,
+      "prod_exit": "OPRA_MISS",
+      "chart_exit": "OPRA_MISS"
+    },
+    {
+      "ts": "2026-04-07T10:05:00-04:00",
+      "score": 10,
+      "grader_pnl": -83.0,
+      "prod_exit": "OPRA_MISS",
+      "chart_exit": "OPRA_MISS"
+    },
+    {
+      "ts": "2026-04-21T11:25:00-04:00",
+      "score": 10,
+      "grader_pnl": -51.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -18.239999999999988,
+      "prod_entry_premium": 0.76,
+      "chart_exit": "TP1_THEN_RUNNER_RIBBON",
+      "chart_pnl": 45.600000000000016
+    },
+    {
+      "ts": "2026-04-29T13:40:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -30.959999999999987,
+      "prod_entry_premium": 1.29,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -56.999999999999986
+    },
+    {
+      "ts": "2026-05-04T10:05:00-04:00",
+      "score": 10,
+      "grader_pnl": -81.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -13.679999999999993,
+      "prod_entry_premium": 0.5700000000000001,
+      "chart_exit": "EXIT_ALL_RIBBON_FLIP_BACK",
+      "chart_pnl": -93.00000000000001
+    },
+    {
+      "ts": "2026-05-11T15:40:00-04:00",
+      "score": 8,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -1.4399999999999995,
+      "prod_entry_premium": 0.06,
+      "chart_exit": "EXIT_ALL_TIME_STOP",
+      "chart_pnl": -15.0
+    },
+    {
+      "ts": "2026-04-21T11:25:00-04:00",
+      "score": 10,
+      "grader_pnl": -51.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -18.239999999999988,
+      "prod_entry_premium": 0.76,
+      "chart_exit": "TP1_THEN_RUNNER_RIBBON",
+      "chart_pnl": 45.600000000000016
+    },
+    {
+      "ts": "2026-04-29T13:40:00-04:00",
+      "score": 9,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -30.959999999999987,
+      "prod_entry_premium": 1.29,
+      "chart_exit": "EXIT_ALL_LEVEL_STOP",
+      "chart_pnl": -56.999999999999986
+    },
+    {
+      "ts": "2026-05-04T10:05:00-04:00",
+      "score": 10,
+      "grader_pnl": -81.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -13.679999999999993,
+      "prod_entry_premium": 0.5700000000000001,
+      "chart_exit": "EXIT_ALL_RIBBON_FLIP_BACK",
+      "chart_pnl": -93.00000000000001
+    },
+    {
+      "ts": "2026-05-11T15:40:00-04:00",
+      "score": 8,
+      "grader_pnl": -30.0,
+      "prod_exit": "EXIT_ALL_PREMIUM_STOP",
+      "prod_pnl": -1.4399999999999995,
+      "prod_entry_premium": 0.06,
+      "chart_exit": "EXIT_ALL_TIME_STOP",
+      "chart_pnl": -15.0
+    }
+  ]
+}

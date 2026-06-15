@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-24T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": [],
+    "bearish": ["technical", "macro", "level_thesis", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 0,
+    "bearish": 4,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.0,
+    "bearish": 1.0
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 88,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "strong",
+    "weakest_link": "PMH 657.47 is only 2-star strength (breakable ~35% of the time); consensus treats it as near-certain resistance while overnight buyers defended 655.00 constructively despite rising VIX — a breakout to 658.00–659.00 is materially underweighted.",
+    "top_invalidation_scenario": "SPY opens above 657.47 and closes a 5m bar above 658.00 by 09:45 ET with elevated volume, triggering the level_thesis secondary bullish scenario and directly inverting the primary bearish thesis."
+  },
+  "battle_level": {
+    "price": 657.47,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 657.47,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 653.94,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 652.84,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 655.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 658.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY fails at 657.47 PMH on first RTH approach (BEAR ribbon + rising VIX = most probable path)",
+      "bias": "bearish",
+      "target": 653.94,
+      "entry_trigger": "level_rejection"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 657.47 with a 5m close above 658.00 on elevated volume",
+      "bias": "bullish",
+      "target": 659.0,
+      "entry_trigger": "level_break"
+    },
+    "invalidation": {
+      "condition": "SPY opens above 657.47 and closes above 658.00 by 09:45 ET with volume, OR VIX drops below 25.00 within 30 min of RTH open",
+      "effect": "Primary bearish thesis invalidated — risk-off macro backdrop reverses and/or PMH resistance fails; shifts to no_trade or secondary bullish scenario."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests PMH 657.47 within the first 60 min of RTH (by 10:30 ET) and gets rejected — no 5m bar close above 657.47 — pulling back to at least 655.00 by end of session",
+      "invalidation": "SPY prints a 5m bar close above 658.00 on above-average volume before 10:30 ET",
+      "confidence": 0.68,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains above 25.00 throughout the entire RTH session (no intraday flush below 25.00), sustaining the HIGH-regime fear backdrop",
+      "invalidation": "VIX drops below 25.00 within the first 30 min of RTH open, signaling a capitulation flush and reversing the macro bearish thesis",
+      "confidence": 0.65,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BEAR ribbon (105c spread, fast 654.74 / pivot 654.95 / slow 655.79) remains intact through the first 2 hours of RTH — no ribbon flip and no compression below 30c spread by 11:30 ET",
+      "invalidation": "Fast EMA crosses above slow EMA OR ribbon spread compresses below 30c before 11:30 ET, indicating structural bearish momentum breakdown",
+      "confidence": 0.72,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "SPY enters 3/24 with a unanimous 4-of-4 bearish swarm vote — CLEAN_BEAR ribbon (105c spread), VIX 27.26 rising in HIGH regime, risk-off sector rotation (XLK −0.40%, XLF −0.87%, XLE +3.01%), and price sandwiched between PMH 657.47 (1.94 above) and prior RTH low 653.94 (1.59 below) with zero macro events creating a clean fear-driven tape. The key tension is at PMH 657.47: it is only 2-star strength (breakable ~35% of the time) and the validator correctly flags that overnight buyers defended 655.00 constructively despite rising VIX — a breakout to 658.00–659.00 is a real (if secondary) scenario the consensus underweights. The single most important watch at market open: whether the first RTH approach to 657.47 is rejected cleanly (confirming the primary bearish thesis targeting 653.94) or breaks and closes above 658.00 on volume (full thesis invalidation).",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.58,
+      "one_line": "CLEAN_BEAR ribbon 105c spread; last 3 bars mixed (RED+GREEN+GREEN) zero-volume premarket chop; price 655.53 above pivot but trapped 26c below slow EMA 655.79"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.80,
+      "one_line": "VIX 27.26 HIGH regime rising +4.17%; risk-off backdrop confirmed; zero events today = clean tape for fear-driven directional moves"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.70,
+      "one_line": "Battle level PMH 657.47 as first RTH test; BEAR ribbon + elevated VIX bias toward rejection and pullback to support cluster 653.94–652.84"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.82,
+      "one_line": "Clear risk-off rotation: XLK −0.40%, XLF −0.87% dragging SPY; XLE +3.01% flight-to-safety; narrow negative breadth confirms bearish backdrop"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "strong",
+      "top_invalidation": "PMH 657.47 is only 2-star (breakable ~35%); overnight buyers holding 655.00 constructively despite rising VIX is underweighted — a 658.00 open-breakout scenario is credible"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

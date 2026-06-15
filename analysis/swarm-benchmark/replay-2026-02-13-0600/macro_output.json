@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-02-13T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.62,
+  "reasoning": "VIX at 20.33 (MID regime), falling -2.4% = primary bullish macro signal; fear receding into normal compression zone. Zero macro events today = clean environment, no forced no-trade windows. Overnight gap flat (-$0.24) indicates market held support after prior-day 1.87% SPY decline—no panic gap down, suggesting overnight absorbed selling. Per macro framework: VIX falling + no major events + gap not down = BULLISH bias. However, sector rotation remains risk-off (XLK -2.86%, XLF -2.29%, XLE -1.75%) and ribbon bear stack (spread 180¢) signal underlying caution. Macro backdrop is cautious relief, not true risk-on. Confidence 0.62 reflects bullish VIX direction but tempered by persistent risk-off rotation—favor bullish setups but with restraint.",
+  "vix_regime": "MID",
+  "vix_direction": "falling",
+  "vix_current": 20.33,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": -0.24,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX -2.4% falling into normal compression zone (20.33 MID regime); fear receding = tailwind for bullish call setups",
+    "Zero macro events scheduled for 2026-02-13; no 8:30 releases, no FOMC/CPI/NFP; clean price-action environment",
+    "Overnight flat (-$0.24); market absorbed prior-day 1.87% SPY decline without capitulation gap; open is neutral conviction",
+    "Sector rotation risk-off persists: XLK -2.86%, XLF -2.29%, XLE -1.75%; macro backdrop is caution despite VIX relief",
+    "Ribbon bear stack (fast 682.7, pivot 683.21, slow 684.51, spread 180¢) + risk-off rotation indicate bullish setups face structural headwind; VIX falling is mechanical relief, not fundamental shift"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-03-03T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.78,
+  "reasoning": "XLK +1.83% and XLF +1.36% both strongly positive and aligned, while XLE -1.26% — classic risk-on rotation out of defensive/commodity hedges. Tech and financials are leading SPY +1.13%, indicating risk-on bias. However, tech is significantly outperforming (1.83% vs 1.13% SPY), suggesting narrow leadership concentration in growth rather than broad-based buying. Medium-high confidence: sector alignment is clear and directional, but breadth is concentrated in one sector.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 1.83,
+    "xlf_change_pct": 1.36,
+    "xle_change_pct": -1.26,
+    "spy_change_pct": 1.13,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +1.83% (tech leadership, significantly outperforming SPY +1.13%)",
+    "XLF: +1.36% (financials support, also outperforming SPY)",
+    "XLE: -1.26% (defensive rotation — investors exiting commodities in risk-on environment)",
+    "Overall rotation: Risk-on confirmed by tech + financials alignment, but narrow tech concentration warns of single-sector leadership rather than broad SPY support"
+  ],
+  "data_quality": "full"
+}

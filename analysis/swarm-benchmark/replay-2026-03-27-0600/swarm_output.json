@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-27T10:06:00.000000Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": [],
+    "bearish": ["technical", "macro", "level_thesis", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 0,
+    "bearish": 4,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.0,
+    "bearish": 1.0
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 50,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "weak",
+    "weakest_link": "Specialists treat VIX rising TO 30.01 as a bearish continuation signal without asking whether overnight spike to extreme levels already represents capitulation — historically, VIX spiking 6.49% overnight to 30 marks intermediate bottoms, not the start of deeper contagion. Combined with flat XLF (incomplete risk-off confirmation) and a tight 2★ support band at 643.9–644.82 that historically acts as a bounce magnet, the core bearish assumption is fragile.",
+    "top_invalidation_scenario": "SPY holds 643.9 on first RTH test (09:30–09:35 ET) and reverses to 646.0+ within 5 minutes; close above 645.5 by 10:00 ET — would signal capitulation bounce in progress and invalidate the 'path of least resistance is lower' thesis."
+  },
+  "battle_level": {
+    "price": 643.9,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 643.9,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 644.82,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 648.12,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 646.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 654.85,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks below 643.9 on RTH open with follow-through (no immediate reclaim within 2 bars)",
+      "bias": "bearish",
+      "target": 641.67,
+      "entry_trigger": "support_break"
+    },
+    "secondary": {
+      "condition": "if SPY holds 643.9 on first RTH test and BEAR ribbon holds (price stays below 645.15 fast EMA)",
+      "bias": "bearish",
+      "target": 643.9,
+      "entry_trigger": "level_rejection"
+    },
+    "invalidation": {
+      "condition": "SPY holds 643.9 on first RTH contact (09:30–09:35 ET) and closes above 644.82 by 09:40 ET; VIX drops below 28 within first 30 minutes of RTH",
+      "effect": "Overnight VIX spike was a capitulation blow-off — bounce is in progress. Bearish bias invalidated; ribbon recovery toward 645.15 (fast EMA) likely; upside target flips to 648.12 (PMH). Avoid new bearish entries; watch for bullish reclaim trigger above 645.15."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests 643.9 (premarket low / battle level) within the first 30 minutes of RTH — price touches 643.90–644.10 range by 10:00 ET",
+      "invalidation": "SPY does not print below 644.40 before 10:00 ET (price holds above the 644.82 prior RTH low support without testing the battle level)",
+      "confidence": 0.62,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains above 27.00 through 10:30 ET, sustaining the HIGH regime — no intraday capitulation reversal in the first 60 minutes of RTH",
+      "invalidation": "VIX drops below 27.00 before 10:30 ET, signaling the overnight spike to 30.01 was a capitulation overshoot already fully reversing",
+      "confidence": 0.55,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BEAR ribbon (111c spread) holds through the first 30 minutes of RTH — SPY closes below fast EMA 645.15 on the 10:00 ET bar",
+      "invalidation": "SPY closes above 645.15 on any 5-minute bar before 10:00 ET, signaling ribbon recovery and invalidating the bearish structure",
+      "confidence": 0.60,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "All four specialists are unanimously bearish (4/4) on a CLEAN_BEAR ribbon day with VIX spiking to 30.01 and classic risk-off rotation (XLK -1.98%, XLE +1.40%), pointing to a test of and potential break below the 643.9 premarket low. However, the validator flags a critical fragility that cuts the confidence in half: a VIX overnight spike to extreme levels (30) is historically a capitulation signature, not the onset of deeper contagion — and XLF's near-flat reading (-0.12%) confirms the sell-off is sector-specific (tech unwind), not systemic. The single most important thing to watch at market open is whether 643.9 holds or breaks in the first 5-minute RTH bar: a clean break with no reclaim confirms the bearish thesis and sets up a gap-fill to 641.67; a hold with a close back above 644.82 triggers the validator's inversion scenario and signals capitulation bounce toward 648.12.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.88,
+      "one_line": "CLEAN_BEAR ribbon 111c spread, price 79c below pivot, 3 consecutive red bars — strong downtrend with doji pause but no reversal"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.85,
+      "one_line": "VIX 30.01 HIGH regime rising +6.49%, risk-off rotation confirmed, no macro events — clean bearish backdrop with elevated premium"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.70,
+      "one_line": "Battle level 643.9 (PML, 2★ Active support) is the day's floor — break triggers 641.67 gap-fill; hold enables bounce toward 646.0"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "XLK -1.98% leads SPY lower, XLE +1.40% defensive rally = risk-off rotation; XLF flat reduces conviction to medium-high (incomplete confirmation)"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "weak",
+      "top_invalidation": "VIX-at-30 is capitulation not contagion: overnight spike + XLF flat + tight 2★ support band = bounce magnet at 643.9 on first RTH touch"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

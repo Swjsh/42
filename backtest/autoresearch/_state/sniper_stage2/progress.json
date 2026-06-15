@@ -1,0 +1,16 @@
+{
+  "started_at": "2026-06-15T02:29:09.055717",
+  "deadline_at": "2026-06-15T03:59:09.055717",
+  "total_combos": 1458,
+  "completed": 1331,
+  "passed_floors": 301,
+  "rejected": 1030,
+  "keepers": 2,
+  "best_edge_capture": 373.48,
+  "best_wide_pnl": 40656.65,
+  "current_pid": 1788,
+  "workers": 4,
+  "last_update": "2026-06-15T03:59:07.658551",
+  "status": "deadline_reached",
+  "completed_at": "2026-06-15T03:59:11.674861"
+}

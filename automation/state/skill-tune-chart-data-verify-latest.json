@@ -1,0 +1,67 @@
+{
+  "skill": "chart-data-verify",
+  "param": "tolerance",
+  "sweep_range": "0.05,0.30,0.05",
+  "window_days": 5,
+  "started_at": "2026-05-19T00:00:36+00:00",
+  "current_value": null,
+  "recommended_value": null,
+  "rows": [
+    {
+      "param_value": 0.05,
+      "days_green": 0,
+      "days_yellow": 0,
+      "days_red": 0,
+      "days_missing": 5,
+      "false_positive_rate": null,
+      "notes": "skill has no evaluate_at adapter \u2014 see skill_tune.py docstring"
+    },
+    {
+      "param_value": 0.1,
+      "days_green": 0,
+      "days_yellow": 0,
+      "days_red": 0,
+      "days_missing": 5,
+      "false_positive_rate": null,
+      "notes": "skill has no evaluate_at adapter \u2014 see skill_tune.py docstring"
+    },
+    {
+      "param_value": 0.15,
+      "days_green": 0,
+      "days_yellow": 0,
+      "days_red": 0,
+      "days_missing": 5,
+      "false_positive_rate": null,
+      "notes": "skill has no evaluate_at adapter \u2014 see skill_tune.py docstring"
+    },
+    {
+      "param_value": 0.2,
+      "days_green": 0,
+      "days_yellow": 0,
+      "days_red": 0,
+      "days_missing": 5,
+      "false_positive_rate": null,
+      "notes": "skill has no evaluate_at adapter \u2014 see skill_tune.py docstring"
+    },
+    {
+      "param_value": 0.25,
+      "days_green": 0,
+      "days_yellow": 0,
+      "days_red": 0,
+      "days_missing": 5,
+      "false_positive_rate": null,
+      "notes": "skill has no evaluate_at adapter \u2014 see skill_tune.py docstring"
+    },
+    {
+      "param_value": 0.3,
+      "days_green": 0,
+      "days_yellow": 0,
+      "days_red": 0,
+      "days_missing": 5,
+      "false_positive_rate": null,
+      "notes": "skill has no evaluate_at adapter \u2014 see skill_tune.py docstring"
+    }
+  ],
+  "denylist_blocked": false,
+  "inbox_path": null
+}

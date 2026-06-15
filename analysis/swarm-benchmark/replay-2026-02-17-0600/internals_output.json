@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-02-17T11:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.45,
+  "reasoning": "XLE +0.76% leading while XLK flat (0.0%) and XLF +0.19% — classic defensive/risk-off rotation into the session open. Energy outperformance without tech or financial participation signals caution. SPY flat (+0.01%) confirms no broad-based lift. Low absolute magnitudes and narrow breadth (1 sector leading, 2 flat) yield moderate confidence. Premarket is pricing in risk-off bias.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": 0.0,
+    "xlf_change_pct": 0.19,
+    "xle_change_pct": 0.76,
+    "spy_change_pct": 0.01,
+    "xlk_vs_spy": "inline",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLE: +0.76% leading — defensive energy outperformance",
+    "XLK: 0.0% flat — technology showing no strength; largest SPY weighting not participating",
+    "XLF: +0.19% essentially flat — financials not confirming upside, yield-curve concern implied",
+    "Rotation: Risk-off (defensive energy up, growth + financials flat) = bearish setup for SPY"
+  ],
+  "data_quality": "full"
+}

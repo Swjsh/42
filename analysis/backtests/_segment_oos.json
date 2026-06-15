@@ -1,0 +1,199 @@
+{
+  "oos_days": 60,
+  "n_trades": 68,
+  "overall": {
+    "wr": 0.32,
+    "pnl": 1923.0,
+    "pc": 272.3,
+    "pc_per_trade": 4.0
+  },
+  "by_side": {
+    "BEAR_put": {
+      "n": 57,
+      "wr": 0.32,
+      "pnl": 132.0,
+      "pc": 143.9,
+      "pc_per_trade": 2.5
+    },
+    "BULL_call": {
+      "n": 11,
+      "wr": 0.36,
+      "pnl": 1791.0,
+      "pc": 128.4,
+      "pc_per_trade": 11.7
+    }
+  },
+  "by_setup": {
+    "BEARISH_REJECTION_RIDE_THE_RIBBON": {
+      "n": 50,
+      "wr": 0.26,
+      "pnl": -1255.0,
+      "pc": -318.3,
+      "pc_per_trade": -6.4
+    },
+    "BEARISH_REJECTION_RIDE_THE_RIBBON::BS_FALLBACK": {
+      "n": 7,
+      "wr": 0.71,
+      "pnl": 1387.0,
+      "pc": 462.3,
+      "pc_per_trade": 66.0
+    },
+    "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+      "n": 11,
+      "wr": 0.36,
+      "pnl": 1791.0,
+      "pc": 128.4,
+      "pc_per_trade": 11.7
+    }
+  },
+  "by_tod": {
+    "AFTERNOON": {
+      "n": 5,
+      "wr": 0.4,
+      "pnl": -270.0,
+      "pc": 14.1,
+      "pc_per_trade": 2.8
+    },
+    "MIDDAY": {
+      "n": 33,
+      "wr": 0.24,
+      "pnl": -589.0,
+      "pc": -283.1,
+      "pc_per_trade": -8.6
+    },
+    "MORNING": {
+      "n": 8,
+      "wr": 0.5,
+      "pnl": 1673.0,
+      "pc": 160.6,
+      "pc_per_trade": 20.1
+    },
+    "OPEN_DRIVE": {
+      "n": 16,
+      "wr": 0.44,
+      "pnl": 94.0,
+      "pc": 395.7,
+      "pc_per_trade": 24.7
+    },
+    "POWER_HOUR": {
+      "n": 6,
+      "wr": 0.17,
+      "pnl": 1013.0,
+      "pc": -15.0,
+      "pc_per_trade": -2.5
+    }
+  },
+  "by_vix_regime": {
+    "UNK": {
+      "n": 68,
+      "wr": 0.32,
+      "pnl": 1923.0,
+      "pc": 272.3,
+      "pc_per_trade": 4.0
+    }
+  },
+  "by_exit": {
+    "EXIT_ALL_LEVEL_STOP": {
+      "n": 2,
+      "wr": 1.0,
+      "pnl": 650.0,
+      "pc": 65.0,
+      "pc_per_trade": 32.5
+    },
+    "EXIT_ALL_PREMIUM_STOP": {
+      "n": 45,
+      "wr": 0.0,
+      "pnl": -10629.0,
+      "pc": -1076.2,
+      "pc_per_trade": -23.9
+    },
+    "EXIT_ALL_RIBBON_FLIP_BACK": {
+      "n": 6,
+      "wr": 0.83,
+      "pnl": 105.0,
+      "pc": 34.9,
+      "pc_per_trade": 5.8
+    },
+    "EXIT_ALL_TIME_STOP": {
+      "n": 1,
+      "wr": 1.0,
+      "pnl": 2200.0,
+      "pc": 100.0,
+      "pc_per_trade": 100.0
+    },
+    "TP1_THEN_RUNNER_BE_STOP": {
+      "n": 3,
+      "wr": 1.0,
+      "pnl": 319.0,
+      "pc": 106.3,
+      "pc_per_trade": 35.4
+    },
+    "TP1_THEN_RUNNER_RIBBON": {
+      "n": 7,
+      "wr": 1.0,
+      "pnl": 4400.0,
+      "pc": 312.1,
+      "pc_per_trade": 44.6
+    },
+    "TP1_THEN_RUNNER_TARGET": {
+      "n": 2,
+      "wr": 1.0,
+      "pnl": 1310.0,
+      "pc": 436.7,
+      "pc_per_trade": 218.4
+    },
+    "TP1_THEN_RUNNER_TIME": {
+      "n": 2,
+      "wr": 1.0,
+      "pnl": 3568.0,
+      "pc": 293.3,
+      "pc_per_trade": 146.7
+    }
+  },
+  "by_ntriggers": {
+    "1trig": {
+      "n": 43,
+      "wr": 0.28,
+      "pnl": -2774.0,
+      "pc": -227.7,
+      "pc_per_trade": -5.3
+    },
+    "2trig": {
+      "n": 18,
+      "wr": 0.39,
+      "pnl": 3140.0,
+      "pc": 372.2,
+      "pc_per_trade": 20.7
+    },
+    "3trig": {
+      "n": 6,
+      "wr": 0.5,
+      "pnl": 1842.0,
+      "pc": 146.9,
+      "pc_per_trade": 24.5
+    },
+    "4trig": {
+      "n": 1,
+      "wr": 0.0,
+      "pnl": -286.0,
+      "pc": -19.0,
+      "pc_per_trade": -19.0
+    }
+  },
+  "by_confluence": {
+    "has_confluence": {
+      "n": 19,
+      "wr": 0.42,
+      "pnl": 3613.0,
+      "pc": 489.5,
+      "pc_per_trade": 25.8
+    },
+    "no_confluence": {
+      "n": 49,
+      "wr": 0.29,
+      "pnl": -1691.0,
+      "pc": -217.2,
+      "pc_per_trade": -4.4
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-05-16T21:59:00+00:00",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "VIX at 18.09 in MID regime with modest rise (0.56%) — neutral to slightly bearish signal, but muted. Overnight gap +2.07 provides bullish sentiment; BULL ribbon stack with 135¢ spread confirms technical bias. No macro events on calendar for 2026-05-13. CPI and Retail Sales do not hit until 2026-05-14 at 08:30 ET, so today is event-safe. Sector rotation is mixed (Tech -0.54%, Financials +0.78%) — neutral signal. Macro backdrop is risk-on with moderate bullish bias, supported by gap and ribbon. Confidence is tempered by VIX's upward direction and sector uncertainty.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 18.09,
+  "vix_change_24h_pct": 0.56,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 2.07,
+  "overnight_gap_pct": 0.28,
+  "macro_backdrop": "risk_on",
+  "sectors": {
+    "tech": {
+      "symbol": "XLK",
+      "change_pct": -0.54,
+      "direction": "down"
+    },
+    "financials": {
+      "symbol": "XLF",
+      "change_pct": 0.78,
+      "direction": "up"
+    },
+    "energy": {
+      "symbol": "XLE",
+      "change_pct": -0.28,
+      "direction": "flat"
+    }
+  },
+  "rotation_signal": "mixed",
+  "premarket_range": {
+    "high": 740.92,
+    "low": 738.18,
+    "range_dollars": 2.74
+  },
+  "ribbon_status": {
+    "stack": "BULL",
+    "spread_cents": 135,
+    "bias": "bullish"
+  },
+  "key_observations": [
+    "VIX 18.09 in MID regime with 0.56% rise — modest bearish pressure but insufficient to override overnight bullish context",
+    "Overnight gap +2.07 (0.28%) provides moderate bullish sentiment; BULL ribbon stack with 135¢ spread is healthy and confirms continuation bias",
+    "No macro events on calendar for 2026-05-13 — event-safe day. CPI and Retail Sales tomorrow 2026-05-14 at 08:30 ET create tomorrow-only risk",
+    "Sector rotation mixed (Tech weakness offset by Financials strength) signals no clear directional signal — neutral rotation",
+    "Premarket range 740.92-738.18 (2.74¢ span) with current price at 740.26 (upper half) — bullish price positioning"
+  ],
+  "data_quality": "full",
+  "calendar_status": {
+    "events_today": 0,
+    "next_event": "CPI (April 2026) on 2026-05-14 at 08:30 ET",
+    "calendar_freshness": "current"
+  }
+}

@@ -1,0 +1,523 @@
+{
+  "schema_version": "eod-deep-v1",
+  "date": "2026-05-17",
+  "generated_at_et": "2026-05-17T16:05:06",
+  "rule_version_active": "v15.1",
+  "market_session_summary": {
+    "session_high": 744.35,
+    "session_low": 737.96,
+    "session_close": 740.565,
+    "vix_close": 18.05,
+    "vix_dir": "rising",
+    "regime_predicted": "post_macro_drift_day"
+  },
+  "account_equity_start": 1208.0,
+  "account_equity_end": 0,
+  "day_pnl_dollars": -1208.0,
+  "day_pnl_pct": -100.0,
+  "day_trade_count": 0,
+  "daily_loss_budget_used_pct": 0.0,
+  "trades": [],
+  "categories": {
+    "execution": {
+      "score": 50.0,
+      "evidence": {
+        "phase": "stub",
+        "module": "execution"
+      },
+      "narrative": "[STUB] execution module pending Phase 2 implementation. No trades to analyze.",
+      "actions": []
+    },
+    "detection": {
+      "score": 50.0,
+      "evidence": {
+        "phase": "3.0",
+        "verdict": "NO_DATA",
+        "engine_decisions": [],
+        "error": "no RTH bars for 2026-05-17"
+      },
+      "narrative": "Phase 3 replay produced no decisions: no RTH bars for 2026-05-17",
+      "actions": []
+    },
+    "edge": {
+      "score": 50.0,
+      "evidence": {
+        "trade_count": 0,
+        "note": "no trades today"
+      },
+      "narrative": "No trades fired today, so edge analysis is N/A. Engine scored a setup at 10/11 but blocker on filter 11 prevented entry.",
+      "actions": []
+    },
+    "doctrine": {
+      "score": 50.0,
+      "evidence": {
+        "phase": "stub",
+        "module": "doctrine"
+      },
+      "narrative": "[STUB] doctrine module pending Phase 2 implementation. No trades, no doctrine to evaluate.",
+      "actions": []
+    },
+    "risk": {
+      "score": 100.0,
+      "evidence": {
+        "phase": "2.4",
+        "trades": 0,
+        "note": "no trades = no risk taken"
+      },
+      "narrative": "No trades today, no risk taken. Account capital preserved.",
+      "actions": []
+    },
+    "process": {
+      "score": 25.0,
+      "evidence": {
+        "phase": "2.7",
+        "section_count": 0,
+        "trades_csv_rows": 0,
+        "trades_actual": 0,
+        "decisions_count": 0,
+        "decisions_per_trade": null,
+        "grades_count": 0,
+        "premarket_predictions": 4,
+        "grade_coverage_pct": 0.0,
+        "weights": {
+          "journal": 0,
+          "trades_csv": 25,
+          "decisions": 0,
+          "grades": 0
+        },
+        "gaps": [
+          "journal sections 0/6",
+          "decisions.jsonl entries 0 (target \u226515 no-trade days)",
+          "hypothesis grade coverage 0% (0/4 predictions)"
+        ]
+      },
+      "narrative": "Process score 25/100. Journal: 0/6 sections, 0B. Trades.csv: 0 rows for 0 trades. Decisions.jsonl: 0 entries. Hypothesis coverage: 0/4 predictions (0%). Gaps: journal sections 0/6 / decisions.jsonl entries 0 (target \u226515 no-trade days) / hypothesis grade coverage 0% (0/4 predictions)",
+      "actions": []
+    },
+    "macro": {
+      "score": 80.0,
+      "evidence": {
+        "phase": "2.4",
+        "predicted_regime": "post_macro_drift_day",
+        "primary_catalyst_type": "macro_data",
+        "realized_regime": "mixed_drift",
+        "session_high": 744.35,
+        "session_low": 737.96,
+        "session_close": 740.565,
+        "news_freshness": "stale_one_day_or_more",
+        "news_as_of": "2026-05-14T02:15:00-04:00"
+      },
+      "narrative": "Predicted regime: post_macro_drift_day (catalyst: macro_data). Realized: mixed_drift. News freshness: stale_one_day_or_more. Score 80/100.",
+      "actions": [
+        {
+          "type": "alert_stale_news",
+          "priority": "MED",
+          "details": {
+            "as_of": "2026-05-14T02:15:00-04:00",
+            "today": "2026-05-17",
+            "note": "Premarket should re-fetch news.json on next fire."
+          }
+        }
+      ]
+    },
+    "technical": {
+      "score": 42.0,
+      "evidence": {
+        "phase": "2.4",
+        "hypothesis_grades": {
+          "pass": 0,
+          "fail": 0,
+          "total": 0
+        },
+        "levels_held": [
+          {
+            "price": 744.35,
+            "kind": "resistance"
+          },
+          {
+            "price": 745.43,
+            "kind": "resistance"
+          }
+        ],
+        "levels_broken": [
+          {
+            "price": 739.04,
+            "kind": "support"
+          },
+          {
+            "price": 738.86,
+            "kind": "support"
+          },
+          {
+            "price": 738.1,
+            "kind": "support"
+          }
+        ],
+        "ribbon_close_stack": "BULL",
+        "bias_direction_predicted": "bearish",
+        "weights": {
+          "grades": 15,
+          "levels": 12,
+          "ribbon": 15
+        }
+      },
+      "narrative": "Hypothesis grades: 0/0 PASS. Key levels: 2 held / 3 broken. Ribbon close: BULL (bias was: bearish). Score 42/100 (grades=15/40, levels=12/30, ribbon=15/30).",
+      "actions": []
+    },
+    "engine_health": {
+      "score": 45.0,
+      "evidence": {
+        "phase": "2.4",
+        "rule_version_active": "v15.1",
+        "heartbeat_tick_count": 0,
+        "expected_heartbeat_ticks": 127,
+        "watcher_diag_fires": 0,
+        "expected_watcher_fires": 76,
+        "incidents": [
+          "ingest_warning:journal/2026-05-17.md not found"
+        ],
+        "weights": {
+          "pin": 30,
+          "heartbeat": 0,
+          "diag": 0,
+          "silent_failure": 15
+        }
+      },
+      "narrative": "Pin chain: v15.1. Heartbeat ticks: 0/127 (0%). Watcher diag fires: 0/76 (0%). Incidents: ingest_warning:journal/2026-05-17.md not found.",
+      "actions": []
+    },
+    "watcher_fleet": {
+      "score": 0.0,
+      "evidence": {
+        "phase": "2.4",
+        "diag_fires_total": 0,
+        "expected_diag_fires": 76,
+        "fires_with_signals": 0,
+        "observations_by_watcher": {},
+        "unique_watchers_firing_today": 0,
+        "expected_watchers": [
+          "orb_watcher",
+          "bullish_watcher",
+          "v14_enhanced_watcher",
+          "opening_drive_fade_watcher",
+          "vwap_watcher",
+          "premarket_fail_fade_watcher"
+        ],
+        "silent_watchers_today": [
+          "orb_watcher",
+          "bullish_watcher",
+          "v14_enhanced_watcher",
+          "opening_drive_fade_watcher",
+          "vwap_watcher",
+          "premarket_fail_fade_watcher"
+        ],
+        "weights": {
+          "diag": 0,
+          "signal": 0,
+          "unique": 0,
+          "silent": 0
+        }
+      },
+      "narrative": "Diag fires: 0/76 (0% of expected). Fires with signals: 0 (0%). Watchers active: 0/6. Silent watchers: ['orb_watcher', 'bullish_watcher', 'v14_enhanced_watcher', 'opening_drive_fade_watcher', 'vwap_watcher', 'premarket_fail_fade_watcher']. Score 0/100.",
+      "actions": [
+        {
+          "type": "alert_silent_watchers",
+          "priority": "HIGH",
+          "details": {
+            "silent_watchers": [
+              "orb_watcher",
+              "bullish_watcher",
+              "v14_enhanced_watcher",
+              "opening_drive_fade_watcher",
+              "vwap_watcher",
+              "premarket_fail_fade_watcher"
+            ],
+            "expected": [
+              "orb_watcher",
+              "bullish_watcher",
+              "v14_enhanced_watcher",
+              "opening_drive_fade_watcher",
+              "vwap_watcher",
+              "premarket_fail_fade_watcher"
+            ],
+            "by_watcher_today": {},
+            "note": "Run setup/scripts/audit-silent-watcher-days.ps1 for cross-day pattern"
+          }
+        }
+      ]
+    },
+    "lessons": {
+      "score": 100.0,
+      "evidence": {
+        "phase": "2.4",
+        "candidate_count": 1,
+        "lesson_candidates": [
+          {
+            "candidate_l_num": 44,
+            "title": "ingest warning: journal/2026-05-17.md not found",
+            "source": "ingest_warnings",
+            "detail": "journal/2026-05-17.md not found",
+            "duplicate_of_existing": false
+          }
+        ],
+        "next_l_number": 45,
+        "existing_lesson_count": 43
+      },
+      "narrative": "Lesson candidates detected: 1 (rule_breaks=0, ingest_warnings=1, journal_markers=0). All candidates queued \u2014 NEVER auto-written to LESSONS-LEARNED.md. Score 100/100.",
+      "actions": [
+        {
+          "type": "queue_lesson_candidate",
+          "priority": "MED",
+          "details": {
+            "count": 1,
+            "candidates": [
+              {
+                "candidate_l_num": 44,
+                "title": "ingest warning: journal/2026-05-17.md not found",
+                "source": "ingest_warnings",
+                "detail": "journal/2026-05-17.md not found",
+                "duplicate_of_existing": false
+              }
+            ],
+            "destination": "analysis/recommendations/lessons-candidates.jsonl",
+            "note": "OP 24 \u2014 auto-write to LESSONS-LEARNED.md is BANNED. Candidates queued for J ratification."
+          }
+        }
+      ]
+    },
+    "forensics": {
+      "score": 50.0,
+      "evidence": {
+        "phase": "2.3",
+        "trade_count": 0
+      },
+      "narrative": "No trades today. Forensics N/A.",
+      "actions": []
+    },
+    "tomorrow": {
+      "score": 65.0,
+      "evidence": {
+        "phase": "2.4",
+        "next_trading_day": "2026-05-18",
+        "carry_levels": {
+          "today_session_high": 744.35,
+          "today_session_low": 737.96,
+          "today_session_close": 740.565,
+          "key_levels_from_today_bias": {
+            "resistance": [
+              {
+                "price": 744.35,
+                "label": "PMH 5/15 Active R",
+                "tier": "Active",
+                "stars": 2
+              },
+              {
+                "price": 745.43,
+                "label": "PMH 5/14 CPI-gap Active R",
+                "tier": "Active",
+                "stars": 3
+              }
+            ],
+            "support": [
+              {
+                "price": 739.04,
+                "label": "PML 5/15 Active S",
+                "tier": "Active",
+                "stars": 2
+              },
+              {
+                "price": 738.86,
+                "label": "R2 pivot flipped-to-support Reference",
+                "tier": "Reference",
+                "stars": 2
+              },
+              {
+                "price": 738.1,
+                "label": "Carry \u2605\u2605\u2605 5-touch hold (flip level)",
+                "tier": "Carry",
+                "stars": 3
+              }
+            ],
+            "psychological": [
+              {
+                "price": 740.0,
+                "label": "Round number \u2014 immediate overhead (awareness only)",
+                "tier": "Reference"
+              },
+              {
+                "price": 743.0,
+                "label": "Round number (awareness only)",
+                "tier": "Reference"
+              }
+            ],
+            "ema_fast": 739.71,
+            "ema_pivot": 740.42,
+            "ema_slow": 740.89,
+            "sma_50": 740.84
+          },
+          "5d_high": 749.53,
+          "5d_low": 731.83,
+          "5d_dates": [
+            "2026-05-11",
+            "2026-05-12",
+            "2026-05-13",
+            "2026-05-14",
+            "2026-05-15"
+          ]
+        },
+        "scheduled_events_tomorrow": [],
+        "developing_setup_at_close": null
+      },
+      "narrative": "Next trading day: 2026-05-18. Session H/L/C: 744.35 / 737.96 / 740.565. Macro events tomorrow: 0.",
+      "actions": []
+    }
+  },
+  "process_score": 54.9,
+  "edge_capture_pct": 0.0,
+  "research_handoffs": {
+    "fixes_shipped_today": [],
+    "doctrine_candidates_for_grinder": [],
+    "ingest_warnings": [
+      "journal/2026-05-17.md not found"
+    ],
+    "drift_check": {
+      "actual_pnl": -1208.0,
+      "verdict": "DRIFT_HIGH_LEFT",
+      "narrative": "Today's $-1208 is BELOW P10 of recent distribution \u2014 significant negative outlier. Distribution: n=30, P10/P25/P50/P75/P90 = $1057.64/1163.24/1755.01/2196.74/2926.78. Today percentile estimate: P1.",
+      "n_days_in_distribution": 30,
+      "percentiles": {
+        "p10": 1057.64,
+        "p25": 1163.24,
+        "p50": 1755.01,
+        "p75": 2196.74,
+        "p90": 2926.78
+      },
+      "today_percentile_estimate": 1,
+      "cache_age_days": null
+    },
+    "heartbeat_tick_audit": {
+      "headline": null,
+      "counts": {},
+      "live_trading_ticks": 0,
+      "misaligned_critical_count": 0,
+      "misaligned_critical_pct_of_live": 0.0,
+      "audit_files": {},
+      "first_3_critical_ticks": []
+    },
+    "self_heal_skills": {
+      "pin_chain_verify": {
+        "verdict": "GREEN",
+        "reason": "all-pins-match-canonical-v15.1",
+        "canonical": "v15.1",
+        "mismatches": 0
+      },
+      "chart_data_verify": {
+        "verdict": "RED",
+        "reason": "no-csv-data-AND-no-yfinance-data",
+        "bars_checked": 0,
+        "max_divergence": null
+      },
+      "watcher_state_inspector": {
+        "verdict": "YELLOW",
+        "reason": "no-bars-for-target-date-yet (market may not be open or csv stale)",
+        "orb_phase": null,
+        "obs_today": 0
+      },
+      "heartbeat_mcp_self_test_error": "JSONDecodeError: Unexpected UTF-8 BOM (decode using utf-8-sig): line 1 column 1 (char 0)"
+    },
+    "missed_setups_scan": {
+      "date": "2026-05-17",
+      "level_interactions": [],
+      "missed_setup_count": 0,
+      "missed_setup_total_pnl_dollars": 0.0,
+      "engine_trades_today": 0,
+      "engine_pnl_today": 0.0,
+      "edge_capture_pct": 0.0,
+      "scan_warnings": [
+        "no SPY bars found for 2026-05-17"
+      ],
+      "opra_available": true
+    },
+    "missed_setups_markdown": "### Engine Misses Today\n\nNo qualifying missed setups detected on the chart today \u2014 engine took 0 trade(s) with $0.00 P&L.\n\n_(scanner warnings: 1)_",
+    "feedback_dispatch_counts": {
+      "grinder_queue": 0,
+      "lessons": 1,
+      "future_improvements": 0,
+      "duplicates_skipped": 0,
+      "unhandled": 0,
+      "alerts": 0
+    }
+  },
+  "tomorrow_setup": {
+    "phase": "2.4",
+    "next_trading_day": "2026-05-18",
+    "carry_levels": {
+      "today_session_high": 744.35,
+      "today_session_low": 737.96,
+      "today_session_close": 740.565,
+      "key_levels_from_today_bias": {
+        "resistance": [
+          {
+            "price": 744.35,
+            "label": "PMH 5/15 Active R",
+            "tier": "Active",
+            "stars": 2
+          },
+          {
+            "price": 745.43,
+            "label": "PMH 5/14 CPI-gap Active R",
+            "tier": "Active",
+            "stars": 3
+          }
+        ],
+        "support": [
+          {
+            "price": 739.04,
+            "label": "PML 5/15 Active S",
+            "tier": "Active",
+            "stars": 2
+          },
+          {
+            "price": 738.86,
+            "label": "R2 pivot flipped-to-support Reference",
+            "tier": "Reference",
+            "stars": 2
+          },
+          {
+            "price": 738.1,
+            "label": "Carry \u2605\u2605\u2605 5-touch hold (flip level)",
+            "tier": "Carry",
+            "stars": 3
+          }
+        ],
+        "psychological": [
+          {
+            "price": 740.0,
+            "label": "Round number \u2014 immediate overhead (awareness only)",
+            "tier": "Reference"
+          },
+          {
+            "price": 743.0,
+            "label": "Round number (awareness only)",
+            "tier": "Reference"
+          }
+        ],
+        "ema_fast": 739.71,
+        "ema_pivot": 740.42,
+        "ema_slow": 740.89,
+        "sma_50": 740.84
+      },
+      "5d_high": 749.53,
+      "5d_low": 731.83,
+      "5d_dates": [
+        "2026-05-11",
+        "2026-05-12",
+        "2026-05-13",
+        "2026-05-14",
+        "2026-05-15"
+      ]
+    },
+    "scheduled_events_tomorrow": [],
+    "developing_setup_at_close": null
+  }
+}

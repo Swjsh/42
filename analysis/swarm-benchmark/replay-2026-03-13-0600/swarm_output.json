@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-13T11:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["macro"],
+    "bearish": ["technical", "level_thesis", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 1,
+    "bearish": 3,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.30,
+    "bearish": 0.70
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 61,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["macro"],
+    "dissent_reason": "Macro agent flags VIX falling -7.3% from elevated 25.28 and overnight gap +$1.05 as a genuine squeeze tailwind — fear-peak-to-recession dynamics that could neutralize the bear ribbon signal; macro's lone bullish vote carries 0.30 weighted score, highest single dissent weight possible."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Early-morning sector weakness (XLK -1.03%, XLF -0.31%) persisting through session — early rotations commonly reverse intraday when VIX is falling sharply and overnight gap momentum is bullish.",
+    "top_invalidation_scenario": "VIX drops below 23 within first 60 minutes of RTH, confirming institutional buying pressure and neutralizing the bear ribbon signal; SPY likely rallies through fast EMA 667.08."
+  },
+  "battle_level": {
+    "price": 665.91,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 665.91,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 668.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 669.82,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 669.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 671.63,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY tests and holds 665.91 support from above with volume confirmation",
+      "bias": "bullish",
+      "target": 668.0,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if SPY breaks and closes a 5m bar below 665.91",
+      "bias": "bearish",
+      "target": 662.42,
+      "entry_trigger": "level_rejection"
+    },
+    "invalidation": {
+      "condition": "VIX drops below 23 within first 60 min of RTH OR XLK reverses +0.5% in first 2 hours",
+      "effect": "Bear ribbon consensus neutralized; macro bullish squeeze setup becomes primary; SPY targets 668.0-669.82 without requiring 665.91 test first."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests 665.91 (prior-session RTH low, Active 2-star support) within the first 90 minutes of RTH — at or before 11:00 ET",
+      "invalidation": "SPY does not touch 665.91 by 11:00 ET, instead holding above 666.50 through the open",
+      "confidence": 0.62,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX continues falling and closes below 24.00 by 10:30 ET, confirming fear-peak-to-recession dynamic initiated overnight",
+      "invalidation": "VIX remains above 24.50 at 10:30 ET or reverses higher above 26.00 at any point in the first hour of RTH",
+      "confidence": 0.55,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY trades below ribbon pivot 667.32 on a closing 5m bar within the first 30 minutes of RTH (09:35-10:00 ET), confirming CLEAN_BEAR ribbon dominance",
+      "invalidation": "SPY prints a 5m bar close above 667.32 within the first 30 minutes of RTH",
+      "confidence": 0.58,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "Three-to-one bearish consensus (technical CLEAN_BEAR ribbon + level_thesis gap-up into ceiling + internals risk-off rotation) is undermined by macro's lone but high-conviction bullish vote (VIX -7.3% compression + zero event risk), producing a moderate-robustness consensus rather than a strong one. The CLEAN_BEAR ribbon at 100-cent spread is structurally bearish but marginal — price sits only 22 cents below pivot, making any sustained move above 667.32 a live threat to the consensus. The single most important thing at market open: whether 665.91 (prior-session RTH low, Active 2-star) holds or breaks on its first test — a hold + volume confirmation triggers the bullish recovery scenario to 668.0 and validates the macro dissenter; a clean break below confirms bearish continuation toward 662.42 Carry.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.62,
+      "one_line": "CLEAN_BEAR ribbon 100-cent spread (fast 667.08 < pivot 667.32 < slow 668.08), price 22 cents below pivot; mixed bar structure + up-gap contradicts marginal edge"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "VIX falling -7.3% from elevated 25.28 with zero event risk today — fear-peak-to-recession squeeze setup, but still-expensive IV demands entry confirmation"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.65,
+      "one_line": "Gap-up open into 90-cent ceiling at 668.0 Reference; 665.91 Active 2-star support is session arbiter — break targets 662.42 Carry, hold triggers 668.0 recovery"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.70,
+      "one_line": "XLK -1.03% tech weakness + XLE +0.67% defensive outperform = classic narrow risk-off rotation dragging SPY -0.76%; overnight gap surrendering"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "665.91 holds on first test with volume >80k above 666.50 within first 90 min, triggering bullish recovery scenario to 668.0 and validating macro dissenter"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

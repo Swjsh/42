@@ -1,0 +1,148 @@
+{
+  "generated_at": "2026-05-12T17:49:05.139396",
+  "next_action": "wait_for_stage3",
+  "stages": {
+    "stage1": {
+      "stage": "stage1",
+      "state": "completed",
+      "completed": 432,
+      "total": 432,
+      "passed_floors": 120,
+      "rejected": 312,
+      "keepers": 4,
+      "best_edge_capture": 2960.08,
+      "best_wide_pnl": 12105.27,
+      "best_top5_pct": null,
+      "best_positive_quarters": null,
+      "started_at": "2026-05-10T01:11:10.190140",
+      "deadline_at": "2026-05-10T09:11:10.190140",
+      "completed_at": "2026-05-10T07:06:46.227976",
+      "best_edge_combo": {
+        "super_stop": -0.15,
+        "super_tp1": 0.75,
+        "runner_target": 2.0,
+        "level_qty": 25,
+        "level_stop": -0.12,
+        "level_tp1": 0.4,
+        "trendline_stop": -0.06
+      },
+      "best_wide_combo": {
+        "super_stop": -0.15,
+        "super_tp1": 0.75,
+        "runner_target": 2.0,
+        "level_qty": 25,
+        "level_stop": -0.12,
+        "level_tp1": 0.4,
+        "trendline_stop": -0.06
+      }
+    },
+    "stage2": {
+      "stage": "stage2",
+      "state": "deadline_reached",
+      "completed": 236,
+      "total": 324,
+      "passed_floors": 80,
+      "rejected": 156,
+      "keepers": 2,
+      "best_edge_capture": 3056.16,
+      "best_wide_pnl": 12105.27,
+      "best_top5_pct": null,
+      "best_positive_quarters": null,
+      "started_at": "2026-05-10T07:16:00.231270",
+      "deadline_at": "2026-05-10T11:16:00.231270",
+      "completed_at": "2026-05-10T11:19:39.411114",
+      "best_edge_combo": {
+        "super_stop": -0.15,
+        "super_tp1": 0.75,
+        "runner_target": 2.0,
+        "level_qty": 27,
+        "level_stop": -0.12,
+        "level_tp1": 0.4,
+        "trendline_stop": -0.06
+      },
+      "best_wide_combo": {
+        "super_stop": -0.15,
+        "super_tp1": 0.75,
+        "runner_target": 2.0,
+        "level_qty": 25,
+        "level_stop": -0.12,
+        "level_tp1": 0.4,
+        "trendline_stop": -0.06
+      }
+    },
+    "stage3": {
+      "stage": "stage3",
+      "state": "running",
+      "completed": 0,
+      "total": 2592,
+      "passed_floors": 0,
+      "rejected": 0,
+      "keepers": 0,
+      "best_edge_capture": null,
+      "best_wide_pnl": null,
+      "best_top5_pct": null,
+      "best_positive_quarters": null,
+      "started_at": "2026-05-10T23:15:59.514545",
+      "deadline_at": "2026-05-11T05:15:59.514545",
+      "completed_at": null,
+      "best_edge_combo": {
+        "super_stop": -0.15,
+        "super_tp1": 0.75,
+        "runner_target": 2.0,
+        "level_qty": 28,
+        "level_stop": -0.14,
+        "level_tp1": 0.4,
+        "trendline_stop": -0.06
+      },
+      "best_wide_combo": {
+        "super_stop": -0.15,
+        "super_tp1": 0.75,
+        "runner_target": 2.0,
+        "level_qty": 28,
+        "level_stop": -0.14,
+        "level_tp1": 0.4,
+        "trendline_stop": -0.06
+      }
+    },
+    "stage4": {
+      "stage": "stage4",
+      "state": "completed",
+      "completed": 4,
+      "total": 4,
+      "passed_floors": 0,
+      "rejected": 4,
+      "keepers": 0,
+      "best_edge_capture": null,
+      "best_wide_pnl": null,
+      "best_top5_pct": null,
+      "best_positive_quarters": null,
+      "started_at": "2026-05-10T15:42:16.337922",
+      "deadline_at": "2026-05-10T19:42:16.337922",
+      "completed_at": "2026-05-10T15:46:44.608169",
+      "best_edge_combo": null,
+      "best_wide_combo": null
+    },
+    "stage5": {
+      "stage": "stage5",
+      "state": "not_started"
+    },
+    "bullish": {
+      "stage": "bullish",
+      "state": "running",
+      "completed": 48,
+      "total": 81,
+      "passed_floors": 0,
+      "rejected": 48,
+      "keepers": 0,
+      "best_edge_capture": null,
+      "best_wide_pnl": null,
+      "best_top5_pct": null,
+      "best_positive_quarters": null,
+      "started_at": "2026-05-10T15:44:15.288617",
+      "deadline_at": "2026-05-10T19:44:15.288617",
+      "completed_at": null,
+      "best_edge_combo": null,
+      "best_wide_combo": null
+    }
+  }
+}

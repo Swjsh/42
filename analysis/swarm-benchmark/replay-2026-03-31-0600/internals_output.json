@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-03-31T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "XLK (tech) -2.87% leading downside with XLE (energy) -1.85% in support, while XLF (financials) remains flat at +0.27%. Classic risk-off rotation: tech weakness + energy decline with no financial offset = bearish sector breadth. XLK's 2.87% decline is substantial and outweighs SPY's -1.27%, indicating tech-led selling. Two of three key sectors aligned downside (XLK + XLE) confirms risk-off bias with medium-high conviction.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -2.87,
+    "xlf_change_pct": 0.27,
+    "xle_change_pct": -1.85,
+    "spy_change_pct": -1.27,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: -2.87% (tech leadership down sharply; largest SPY weighting dragging market)",
+    "XLF: +0.27% (financials neutral/flat; no yield-curve support offset for risk-off)",
+    "XLE: -1.85% (energy selling in line with risk-off; not defensive rotation)",
+    "Overall rotation: Risk-off confirmed by 2-of-3 sectors down (XLK + XLE); XLF flatness rules out any macro support"
+  ],
+  "data_quality": "full"
+}

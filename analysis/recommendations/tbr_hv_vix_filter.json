@@ -1,0 +1,70 @@
+{
+  "run_date": "2026-05-24",
+  "vix_threshold": 18,
+  "vix_window": 5,
+  "is_unfiltered": {
+    "start": "2025-01-01",
+    "end": "2025-09-30",
+    "n": 332,
+    "wr": 0.5934,
+    "exp": 2.39,
+    "total_pnl": 794.4,
+    "passes": true,
+    "exits": {
+      "TIME_STOP": 81,
+      "CHANDELIER": 179,
+      "STOP": 48,
+      "EOD_FORCED": 11,
+      "TARGET_LEVEL": 13
+    }
+  },
+  "oos_unfiltered": {
+    "start": "2025-10-01",
+    "end": "2026-05-22",
+    "n": 239,
+    "wr": 0.6067,
+    "exp": 2.07,
+    "total_pnl": 495.9,
+    "passes": true,
+    "exits": {
+      "CHANDELIER": 125,
+      "STOP": 46,
+      "TARGET_LEVEL": 11,
+      "TIME_STOP": 46,
+      "EOD_FORCED": 11
+    }
+  },
+  "is_filtered": {
+    "start": "2025-01-01",
+    "end": "2025-09-30",
+    "n": 62,
+    "wr": 0.5645,
+    "exp": 0.85,
+    "total_pnl": 52.95,
+    "passes": true,
+    "exits": {
+      "CHANDELIER": 30,
+      "STOP": 13,
+      "TIME_STOP": 12,
+      "EOD_FORCED": 2,
+      "TARGET_LEVEL": 5
+    }
+  },
+  "oos_filtered": {
+    "start": "2025-10-01",
+    "end": "2026-05-22",
+    "n": 52,
+    "wr": 0.6731,
+    "exp": 10.64,
+    "total_pnl": 553.5,
+    "passes": true,
+    "exits": {
+      "CHANDELIER": 30,
+      "TIME_STOP": 13,
+      "EOD_FORCED": 1,
+      "STOP": 8
+    }
+  },
+  "wf_ratio_unfiltered": 0.8661,
+  "wf_ratio_filtered": 12.5176
+}

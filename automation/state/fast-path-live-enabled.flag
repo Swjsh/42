@@ -1,0 +1,29 @@
+Fast-path live-mode RATIFIED by J on 2026-05-18 evening (paper accounts).
+
+Per /loop continuation chat: "Lets do option A , B, and D" — explicit
+ratification after reviewing:
+  - 18 fast_path_executor unit tests PASS
+  - 16-month chart-reading gym: 357 days, 3804 fast-path decisions, 0 errors
+  - End-to-end latency: 343-904ms (5/5 runs <30s budget)
+  - 9 new live-mode safety-gate tests PASS
+
+Safety gates ACTIVE while this file exists:
+  1. Numeric alert must be high-conviction (≥0.65 + contra-trend + level-proximate)
+  2. RTH gate (09:35-15:00 ET weekdays)
+  3. VIX gate (per account thresholds)
+  4. Setup-allowed gate (per setups_allowed in params_{account}.json)
+  5. First-entry-after-stop lock
+  6. Daily kill-switch (per per_trade_risk_cap_pct)
+  7. Sizing math (qty bounded, ATM/OTM per tier)
+  8. LIVE_DAILY_FIRE_CAP = 3 per account per ET day (hard cap)
+  9. Each placement also triggers existing LLM heartbeat as a verifier
+
+To DISABLE: delete this file. Fast-path reverts to observer-only mode
+(decisions logged to fast-path-decisions.jsonl, no orders placed).
+
+Accounts in scope:
+  - Gamma-Safe-1 (PA3PHRM47D1J, $1K paper, conservative profile)
+  - Gamma-Risky-2 (PA33W2KUAT40, $1.5K paper, aggressive profile) [replaced Risky-1 2026-05-20]
+
+This file is checked at the START of every fast_path_executor live-mode
+attempt. Absence = automatic observer mode regardless of --mode flag.

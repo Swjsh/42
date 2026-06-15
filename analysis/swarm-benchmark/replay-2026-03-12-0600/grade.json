@@ -1,0 +1,66 @@
+{
+  "date": "2026-03-12",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:07.625232+00:00",
+  "actual": {
+    "open": 671.12,
+    "close": 666.05,
+    "high": 671.63,
+    "low": 665.91,
+    "move_dollars": -5.07,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 25,
+    "consensus_strength": "weak",
+    "battle_level": {
+      "price": 673.36,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bearish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 673.36,
+      "role": "support",
+      "rth_range": [
+        665.91,
+        671.63
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 673.36,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "SPY tests 673.36 (prior session RTH low, Active 2-star support) at least once during the RTH session",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains above 25.00 through at least 12:00 ET on 2026-03-12 \u2014 a 10%+ overnight spike without a fundamental catalyst ",
+        "invalidation": "VIX falls below 25.00 before 11:00 ET and sustains below that level for two consecutive 5-minute bars"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "SPY ribbon spread fails to expand beyond 30 cents during the first 2 hours of RTH (09:30-11:30 ET), confirming direction",
+        "invalidation": "SPY ribbon spread (fast EMA minus slow EMA) reaches 30+ cents on any closed 5-minute bar before 11:30 ET"
+      }
+    ]
+  },
+  "narrative": "Today's setup is a genuine tug-of-war: a structurally bullish ribbon (WEAK_BULL, 19c spread) argues against a 10%+ VIX spike and risk-off sector rotation (XLE leading, XLK/XLF lagging) that drove two of four specialists bearish. The bearish consensus is weak (0.40 weighted score, 2-of-4 agreement) \u2014"
+}

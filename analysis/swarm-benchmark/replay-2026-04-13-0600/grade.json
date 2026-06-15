@@ -1,0 +1,66 @@
+{
+  "date": "2026-04-13",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:12.748297+00:00",
+  "actual": {
+    "open": 677.41,
+    "close": 686.01,
+    "high": 686.3,
+    "low": 676.58,
+    "move_dollars": 8.6,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 83,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 675.98,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bearish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 675.98,
+      "role": "resistance",
+      "rth_range": [
+        676.58,
+        686.3
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 675.98,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "SPY tests PMH 675.98 within first 60 min of RTH (by 10:30 ET) and fails to close a 5-min bar above i",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains above 19.50 through 10:30 ET, sustaining the risk-off macro backdrop and confirming no meaningful short-cove",
+        "invalidation": "VIX drops below 18.50 by 09:45 ET, signaling sentiment reversal and collapsing the macro bearish case"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BEAR ribbon (fast below pivot below slow) holds through the first two RTH bars (09:35 and 09:40 ET) \u2014 no full inve",
+        "invalidation": "Fast EMA crosses above pivot EMA on the 09:35 or 09:40 ET bar (requires sustained SPY price above ~676.25)"
+      }
+    ]
+  },
+  "narrative": "SPY enters 4/13 with the swarm's first 4/4 unanimous bearish vote: CLEAN_BEAR ribbon at 138c spread, $3.97 overnight gap down to 675.37, VIX rising +3.98% to 20.1, and a completely clean macro calendar \u2014 every specialist layer aligned. The pivotal tension is the paper-thin 61c gap between current pr"
+}

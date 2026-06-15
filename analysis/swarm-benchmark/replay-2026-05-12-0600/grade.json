@@ -1,0 +1,66 @@
+{
+  "date": "2026-05-12",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:17.106909+00:00",
+  "actual": {
+    "open": 736.87,
+    "close": 738.19,
+    "high": 738.84,
+    "low": 731.83,
+    "move_dollars": 1.32,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 95,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 740.73,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bearish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 740.73,
+      "role": "resistance",
+      "rth_range": [
+        731.83,
+        738.84
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 740.73,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "740.73 Carry resistance is tested within the first 90 minutes of RTH (by 11:00 ET) and fails to brea",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains at or above 18.50 through 11:00 ET, sustaining MID regime without an intraday collapse below 18.00, consiste",
+        "invalidation": "VIX drops below 18.00 by 10:30 ET \u2014 a 4.4% intraday reversal from 18.84 \u2014 signaling fear premium evaporation and elimina"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "SPY ribbon remains in CLEAN_BEAR stack configuration (slow EMA > pivot EMA > fast EMA, spread >= 30 cents) through the f",
+        "invalidation": "SPY closes above the pivot EMA (738.95) and ribbon spread compresses below 20 cents by 10:30 ET \u2014 confirming the overnig"
+      }
+    ]
+  },
+  "narrative": "The swarm votes 3-of-4 bearish with a weighted score of 0.90, anchored by a CLEAN_BEAR ribbon (40c spread), gap-down 0.91 pts, rising VIX (+2.56% to MID 18.84), and the 740.73 Carry gatekeeper framing \u2014 but the validator assigns only moderate robustness because no macro event anchors the overnight g"
+}

@@ -1,0 +1,347 @@
+{
+  "n_days_total": 62,
+  "n_days_tradeable": 52,
+  "n_days_abstain": 10,
+  "overall_accuracy_pct": 61.5,
+  "expected_calibration_error_pct": 24.28,
+  "confidence_inflation": {
+    "max_conf_value": 95,
+    "days_at_max_conf": 10,
+    "pct_days_at_max_conf": 19.2,
+    "interpretation": "mild inflation (<25%)"
+  },
+  "buckets": [
+    {
+      "label": "low (0-39)",
+      "conf_range": [
+        0,
+        39
+      ],
+      "n_days": 11,
+      "n_correct": 5,
+      "accuracy_pct": 45.5,
+      "expected_pct": 19.5,
+      "calibration_gap": 26.0
+    },
+    {
+      "label": "medium (40-59)",
+      "conf_range": [
+        40,
+        59
+      ],
+      "n_days": 4,
+      "n_correct": 4,
+      "accuracy_pct": 100.0,
+      "expected_pct": 49.5,
+      "calibration_gap": 50.5
+    },
+    {
+      "label": "high (60-74)",
+      "conf_range": [
+        60,
+        74
+      ],
+      "n_days": 6,
+      "n_correct": 4,
+      "accuracy_pct": 66.7,
+      "expected_pct": 67.0,
+      "calibration_gap": -0.3
+    },
+    {
+      "label": "very_high (75-89)",
+      "conf_range": [
+        75,
+        89
+      ],
+      "n_days": 21,
+      "n_correct": 12,
+      "accuracy_pct": 57.1,
+      "expected_pct": 82.0,
+      "calibration_gap": -24.9
+    },
+    {
+      "label": "max (90-100)",
+      "conf_range": [
+        90,
+        100
+      ],
+      "n_days": 10,
+      "n_correct": 7,
+      "accuracy_pct": 70.0,
+      "expected_pct": 95.0,
+      "calibration_gap": -25.0
+    }
+  ],
+  "per_conf_value": [
+    {
+      "conf": 14,
+      "n": 1,
+      "correct": 1,
+      "wrong": 0,
+      "accuracy_pct": 100.0,
+      "expected_pct": 14
+    },
+    {
+      "conf": 15,
+      "n": 1,
+      "correct": 0,
+      "wrong": 1,
+      "accuracy_pct": 0.0,
+      "expected_pct": 15
+    },
+    {
+      "conf": 16,
+      "n": 1,
+      "correct": 1,
+      "wrong": 0,
+      "accuracy_pct": 100.0,
+      "expected_pct": 16
+    },
+    {
+      "conf": 25,
+      "n": 5,
+      "correct": 2,
+      "wrong": 3,
+      "accuracy_pct": 40.0,
+      "expected_pct": 25
+    },
+    {
+      "conf": 31,
+      "n": 1,
+      "correct": 0,
+      "wrong": 1,
+      "accuracy_pct": 0.0,
+      "expected_pct": 31
+    },
+    {
+      "conf": 35,
+      "n": 1,
+      "correct": 1,
+      "wrong": 0,
+      "accuracy_pct": 100.0,
+      "expected_pct": 35
+    },
+    {
+      "conf": 36,
+      "n": 1,
+      "correct": 0,
+      "wrong": 1,
+      "accuracy_pct": 0.0,
+      "expected_pct": 36
+    },
+    {
+      "conf": 50,
+      "n": 2,
+      "correct": 2,
+      "wrong": 0,
+      "accuracy_pct": 100.0,
+      "expected_pct": 50
+    },
+    {
+      "conf": 55,
+      "n": 1,
+      "correct": 1,
+      "wrong": 0,
+      "accuracy_pct": 100.0,
+      "expected_pct": 55
+    },
+    {
+      "conf": 57,
+      "n": 1,
+      "correct": 1,
+      "wrong": 0,
+      "accuracy_pct": 100.0,
+      "expected_pct": 57
+    },
+    {
+      "conf": 60,
+      "n": 1,
+      "correct": 1,
+      "wrong": 0,
+      "accuracy_pct": 100.0,
+      "expected_pct": 60
+    },
+    {
+      "conf": 61,
+      "n": 2,
+      "correct": 2,
+      "wrong": 0,
+      "accuracy_pct": 100.0,
+      "expected_pct": 61
+    },
+    {
+      "conf": 65,
+      "n": 1,
+      "correct": 1,
+      "wrong": 0,
+      "accuracy_pct": 100.0,
+      "expected_pct": 65
+    },
+    {
+      "conf": 68,
+      "n": 1,
+      "correct": 0,
+      "wrong": 1,
+      "accuracy_pct": 0.0,
+      "expected_pct": 68
+    },
+    {
+      "conf": 70,
+      "n": 1,
+      "correct": 0,
+      "wrong": 1,
+      "accuracy_pct": 0.0,
+      "expected_pct": 70
+    },
+    {
+      "conf": 75,
+      "n": 1,
+      "correct": 0,
+      "wrong": 1,
+      "accuracy_pct": 0.0,
+      "expected_pct": 75
+    },
+    {
+      "conf": 76,
+      "n": 7,
+      "correct": 5,
+      "wrong": 2,
+      "accuracy_pct": 71.4,
+      "expected_pct": 76
+    },
+    {
+      "conf": 82,
+      "n": 3,
+      "correct": 1,
+      "wrong": 2,
+      "accuracy_pct": 33.3,
+      "expected_pct": 82
+    },
+    {
+      "conf": 83,
+      "n": 2,
+      "correct": 1,
+      "wrong": 1,
+      "accuracy_pct": 50.0,
+      "expected_pct": 83
+    },
+    {
+      "conf": 88,
+      "n": 8,
+      "correct": 5,
+      "wrong": 3,
+      "accuracy_pct": 62.5,
+      "expected_pct": 88
+    },
+    {
+      "conf": 95,
+      "n": 10,
+      "correct": 7,
+      "wrong": 3,
+      "accuracy_pct": 70.0,
+      "expected_pct": 95
+    }
+  ],
+  "direction_bias": {
+    "bullish_days": 29,
+    "bullish_accuracy_pct": 69.0,
+    "bearish_days": 23,
+    "bearish_accuracy_pct": 52.2
+  },
+  "signal_thresholds": [
+    {
+      "conf_threshold": 95,
+      "observed_accuracy_pct": 70.0,
+      "n_qualifying_days": 10,
+      "recommendation": "use_as_strong_signal"
+    }
+  ],
+  "conf_distribution": {
+    "14": 1,
+    "15": 1,
+    "16": 1,
+    "25": 5,
+    "31": 1,
+    "35": 1,
+    "36": 1,
+    "50": 2,
+    "55": 1,
+    "57": 1,
+    "60": 1,
+    "61": 2,
+    "65": 1,
+    "68": 1,
+    "70": 1,
+    "75": 1,
+    "76": 7,
+    "82": 3,
+    "83": 2,
+    "88": 8,
+    "95": 10
+  },
+  "generated_at": "2026-05-17T20:20:56.596720",
+  "source_days": [
+    "2026-02-09",
+    "2026-02-10",
+    "2026-02-11",
+    "2026-02-12",
+    "2026-02-13",
+    "2026-02-17",
+    "2026-02-18",
+    "2026-02-19",
+    "2026-02-20",
+    "2026-02-23",
+    "2026-02-24",
+    "2026-02-25",
+    "2026-02-26",
+    "2026-02-27",
+    "2026-03-02",
+    "2026-03-03",
+    "2026-03-04",
+    "2026-03-05",
+    "2026-03-06",
+    "2026-03-09",
+    "2026-03-10",
+    "2026-03-11",
+    "2026-03-12",
+    "2026-03-13",
+    "2026-03-16",
+    "2026-03-17",
+    "2026-03-18",
+    "2026-03-19",
+    "2026-03-20",
+    "2026-03-23",
+    "2026-03-24",
+    "2026-03-25",
+    "2026-03-26",
+    "2026-03-27",
+    "2026-03-30",
+    "2026-03-31",
+    "2026-04-01",
+    "2026-04-02",
+    "2026-04-06",
+    "2026-04-07",
+    "2026-04-08",
+    "2026-04-09",
+    "2026-04-10",
+    "2026-04-13",
+    "2026-04-14",
+    "2026-04-15",
+    "2026-04-16",
+    "2026-04-17",
+    "2026-04-20",
+    "2026-04-21",
+    "2026-04-22",
+    "2026-04-23",
+    "2026-04-24",
+    "2026-04-27",
+    "2026-04-30",
+    "2026-05-01",
+    "2026-05-04",
+    "2026-05-11",
+    "2026-05-12",
+    "2026-05-13",
+    "2026-05-14",
+    "2026-05-15"
+  ]
+}

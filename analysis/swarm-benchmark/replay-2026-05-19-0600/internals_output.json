@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-05-19T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.58,
+  "reasoning": "XLK down -1.84% while XLE up +2.45% and XLF up +1.43% = classic risk-off/defensive rotation. Tech weakness is the dominant headwind (tech is ~30% of SPY). However, SPY is nearly flat (-0.16%) despite XLK's -1.84% decline, suggesting selective bid in non-tech sectors. This is NOT a clean risk-off collapse, but rather a sector rotation away from growth (tech down, energy/financials up). Bearish bias driven by tech weakness, but medium confidence due to SPY's surprising resilience.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -1.84,
+    "xlf_change_pct": 1.43,
+    "xle_change_pct": 2.45,
+    "spy_change_pct": -0.16,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: -1.84% — Tech leading SPY lower; bearish for index",
+    "XLE: +2.45% — Energy outperforming; classic inflation/defensive hedge",
+    "XLF: +1.43% — Financials up; could be yield-curve benefit or flight-to-quality",
+    "Overall: Risk-off rotation confirmed, but SPY holding -0.16% vs -1.84% XLK suggests some institutional bid in non-tech. Not a decisive directional signal."
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,21 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-02-12T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.82,
+  "reasoning": "CLEAN_BEAR ribbon (23c spread, stack BEAR) with price 88c below pivot (692.69). Last 3 bars show mixed structure (1 green, 2 red) with final 15:55 bar a strong red body (−88c from open 692.69 to close 691.81) on exceptional volume (107,274 vs typical 12-20k), breaking below slow EMA. Overnight gap flat provides no directional bias. VIX rising +6.69%, sector rotation risk-off (XLK −1.07%, XLF −1.73%). Converging signals: clean bearish ribbon + price below pivot + strong bearish bar close on heavy volume + macro weakness.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 23,
+  "bar_structure": "strong_bear",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "CLEAN_BEAR ribbon with 23-cent spread — stack is unambiguous",
+    "Price closed 88 cents below pivot (692.69 pivot vs 691.81 close) — strong momentum into pivot",
+    "Final bar (15:55 EOD) is a strong red candle (−88 points, full body) on 107k volume — 5–6× normal — marks decisive weakness at session end",
+    "2 of 3 recent bars red (15:45 green, 15:50 red doji, 15:55 red strong) — slight bearish bar sequence",
+    "VIX rising +6.69% into close, IV regime MID — fear is rising",
+    "Sector rotation risk-off (XLK −1.07%, XLF −1.73%, energy +1.29%) — macro support for bearish bias"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-17T12:20:35Z",
+  "bias": "bearish",
+  "confidence": 0.58,
+  "reasoning": "CLEAN_BEAR ribbon (106c spread, fast < pivot < slow) is the dominant structural signal. However, overnight +99c gap-up carries bullish momentum that directly challenges the bear structure. Price is AT pivot (678.12 = 678.12), creating a transition/reversal test zone. Last 3 RTH bars were mixed (strong red 15:45 → doji 15:50 → green 15:55), not a committed directional continuation. VIX falling (-1.04%) from HIGH regime. The bearish structure is established, but overnight gap-up + price at pivot suggest intraday potential to flip trend if open holds above 678.12. Confidence is moderate due to conflicting signals.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 106,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "at",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BEAR ribbon 106c spread (fast 677.80, pivot 678.12, slow 678.86) — established downtrend structure",
+    "Overnight gap +99c (677.13 → 678.12) — significant bullish overnight sentiment that conflicts with bear structure",
+    "Price AT pivot (no separation) — transition zone, not committed below pivot",
+    "Last 3 RTH bars mixed: strong red 15:45 (−71c), doji 15:50 (flat), green 15:55 (+39c) — no directional dominance",
+    "VIX 24.65 falling (−1.04%) from HIGH regime — improving volatility backdrop"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,66 @@
+{
+  "date": "2026-04-08",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:12.038119+00:00",
+  "actual": {
+    "open": 676.39,
+    "close": 675.88,
+    "high": 677.08,
+    "low": 671.46,
+    "move_dollars": -0.51,
+    "actual_bias": "no_trade"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 73,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 677.45,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "ABSTAIN_ACTUAL",
+      "consensus": "bullish",
+      "actual": "no_trade"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 677.45,
+      "role": "resistance",
+      "rth_range": [
+        671.46,
+        677.08
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 677.45,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "SPY tests PMH 677.45 at least once within the first 60 minutes of RTH (by 10:30 ET)",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 22.0 through the first 90 minutes of RTH (through 11:00 ET), confirming overnight fear compression hel",
+        "invalidation": "VIX spikes back above 22.0 before 11:00 ET \u2014 overnight compression reverses as a dead-cat bounce"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "SPY opens above the fast EMA (676.23) and CLEAN_BULL ribbon spread holds above 500 cents through the first 30 minutes of",
+        "invalidation": "SPY prints a 5m close below 675.00 before 10:00 ET, collapsing ribbon structure"
+      }
+    ]
+  },
+  "narrative": "All four specialist agents deliver a unanimous strong bullish verdict anchored in the +$17.34 overnight gap, CLEAN_BULL ribbon with 724 cent EMA separation, and VIX compressing nearly 20% to 20.82 with zero macro catalysts on today's calendar. However, the validator correctly identifies that this co"
+}

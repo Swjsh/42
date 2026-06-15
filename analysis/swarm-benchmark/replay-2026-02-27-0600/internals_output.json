@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-02-27T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "XLK down -1.35% is the dominant headwind; tech represents ~30% of SPY and is underperforming. Simultaneously XLE up +1.25% and XLF up +0.83% reveals defensive rotation: growth capital exiting into defensive sectors (energy) and financials. VIX rising +8.48% confirms underlying volatility concern. SPY down -0.57% reflects tech's drag outweighing financial+energy support. Sector breadth is narrow (only defensives participating), confirming classic risk-off setup. Medium-high confidence.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -1.35,
+    "xlf_change_pct": 0.83,
+    "xle_change_pct": 1.25,
+    "spy_change_pct": -0.57,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: -1.35% tech sell-off is the critical headwind driving SPY lower; growth leadership absent.",
+    "XLE: +1.25% energy up on defensive demand — investors rotating from growth into safety.",
+    "XLF: +0.83% financials modest support, but insufficient to overcome tech drag.",
+    "Overall rotation: Risk-off confirmed — growth exiting to defensive, SPY following tech down."
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,15 @@
+{
+  "updated_at": "2026-05-10T14:32:15.427282",
+  "today_count": 1,
+  "today_est_cost_usd": 0.1,
+  "last_hour_count": 1,
+  "last_min_count": 1,
+  "caps": {
+    "daily": 50,
+    "hourly": 15,
+    "per_min": 1
+  },
+  "by_source_today": {
+    "discord-responder": 1
+  }
+}

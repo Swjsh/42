@@ -1,0 +1,172 @@
+{
+  "generated_at": "2025-10-08T10:00:00Z",
+  "swarm_version": "v5",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis"],
+    "bearish": ["internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 3,
+    "bearish": 1,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.90,
+    "bearish": 0.10
+  },
+  "consensus_bias": "no_trade",
+  "consensus_strength": "strong",
+  "swarm_confidence": 0,
+  "no_trade_reason": "low_post_adjustment_confidence",
+  "_confidence_calc": {
+    "base": 54.0,
+    "adj_agreement_3of4": 0,
+    "adj_validator_moderate": 0,
+    "adj_event_risk_none": 5,
+    "adj_battle_grade_UNTESTED": -25,
+    "raw_confidence": 34,
+    "gate": "NO_TRADE_raw_lt_40"
+  },
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["internals"],
+    "dissent_reason": "Internals (bearish, 0.55) flags XLK at -1.18% — tech is ~30% of SPY weighting, representing a direct structural conflict with the 3-agent bullish consensus and classic risk-off rotation (growth underperforming, energy flat)."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Overnight gap (+87¢) and CLEAN_BULL ribbon cannot overcome XLK -1.18% structural weakness — a narrow rally with the largest SPY component lagging is inherently fragile, compounded by premarket momentum weakening (doji close on declining volume) and the 670.58 PMH already tested and rejected once in premarket.",
+    "top_invalidation_scenario": "XLK reversal: if tech sector deteriorates further (XLK < -1.5%) while SPY rallies above 671, narrow mega-cap leadership becomes undeniable and the rally loses structural support (validator probability: high)."
+  },
+  "battle_level": {
+    "price": 670.58,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "battle_grade": "UNTESTED"
+  },
+  "level_priority": [
+    {
+      "price": 670.58,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to",
+      "source": "PMH — premarket high, RTH-untested; already rejected once in premarket at 06:xx ET",
+      "distance_from_spot": 0.28
+    },
+    {
+      "price": 672.50,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to",
+      "source": "5-day RTH high (rolling)",
+      "distance_from_spot": 2.20
+    },
+    {
+      "price": 669.50,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from",
+      "source": "PML — premarket low, first RTH support zone",
+      "distance_from_spot": -0.80
+    },
+    {
+      "price": 667.62,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from",
+      "source": "5-day RTH low (rolling) — structural floor",
+      "distance_from_spot": -2.68
+    },
+    {
+      "price": 668.31,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to",
+      "source": "Classic floor-trader pivot S1 from 2025-10-07 OHLC — awareness only",
+      "distance_from_spot": -1.99
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks and holds above 670.58 on RTH open with expanding volume (>40K bar, not declining)",
+      "bias": "bullish",
+      "target": 672.50,
+      "entry_trigger": "level_reclaim above 670.58 + ribbon_bull_stack confirmed + XLK stabilizes flat or positive"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 670.58 on RTH open and tests 669.50 PML support",
+      "bias": "neutral_to_bearish",
+      "target": 667.62,
+      "entry_trigger": "pml_rejection_at_669.50_fails + ribbon_flatten_or_bear + volume_confirms"
+    },
+    "invalidation": {
+      "condition": "XLK deteriorates further below -1.5% while SPY attempts a rally above 671; OR VIX spikes +1.5 points (to 18.55+) within first 60 min of RTH; OR SPY tests 670.58 multiple times before 11:00 ET and consistently fails to break 670.75",
+      "effect": "Invalidates all bullish thesis components simultaneously — narrow leadership + vol regime flip + bounce-failure pattern all confirm bears. Any of these three triggers alone is sufficient to downgrade to bearish bias."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "670.58 (PMH/battle level) is tested within the first 90 minutes of RTH (by 11:00 ET) — SPY touches this level at least once from below",
+      "invalidation": "SPY does not trade at or above 670.50 before 11:00 ET, remaining pinned in the 668-670 range",
+      "confidence": 0.62,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 18.0 for the full RTH session — event-free day with no macro catalysts sustains the compression regime",
+      "invalidation": "VIX trades above 18.55 (a +1.5 point spike from 17.05) at any point during the first 60 minutes of RTH",
+      "confidence": 0.70,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "Ribbon maintains BULL stack orientation (fast > pivot > slow, spread >= 30¢) through at least the first 30 minutes of RTH (by 10:05 ET close), confirming structural bullish alignment survives the open",
+      "invalidation": "Any 5-minute bar closing below 669.40 (slow EMA level) before 10:10 ET, signaling full ribbon stack inversion to bear or collapse",
+      "confidence": 0.58,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "Three specialists (technical, macro, level_thesis) align on a bullish backdrop — CLEAN_BULL ribbon, falling VIX at 17.05, overnight gap up +87¢, no macro events — but the critical adjustment is that the 670.58 battle level is the PMH set today and UNTESTED in any prior RTH session, a structural condition that carries a -25 confidence penalty under v5. Combined with the internals dissent (XLK -1.18%, classic risk-off rotation in the largest SPY component) and a moderate (not strong) validator assessment, the post-adjustment confidence lands at 34 — below the 40-threshold floor, triggering an epistemic NO_TRADE abstain. The single most important thing to watch at the open is whether 670.58 is decisively cleared on expanding volume with XLK stabilizing; only a clean RTH break through that level with confirming sector internals would flip this into an actionable bullish call entry.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "CLEAN_BULL ribbon (46¢ spread) + price 64¢ above pivot; weakened by mixed 3-bar close (GREEN-RED-GREEN doji) on declining volume and XLK sector headwind"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "VIX 17.05 falling -1.16% in MID regime (risk-on compression); zero macro events today; overnight gap +$0.87; ribbon BULL stack alignment"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.67,
+      "one_line": "Battle level 670.58 (Active 2★ PMH resistance) UNTESTED in RTH; breakout targets 672.50 Carry; support anchor 667.62 gives bulls 2.68 of room below"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.55,
+      "one_line": "XLK -1.18% (risk-off rotation, growth underperforming) directly headwinds broad rally; narrow breadth, no sector leadership offset"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "XLK reversal or further deterioration (< -1.5%) while SPY rallies above 671 exposes narrow mega-cap leadership and makes the rally structurally fragile (validator probability: high)"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

@@ -1,0 +1,63 @@
+{
+  "date": "2026-02-13",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:03.343387+00:00",
+  "actual": {
+    "open": 681.7,
+    "close": 681.61,
+    "high": 686.26,
+    "low": 677.53,
+    "move_dollars": -0.09,
+    "actual_bias": "no_trade"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 75,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 680.4,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "ABSTAIN_ACTUAL",
+      "consensus": "bearish",
+      "actual": "no_trade"
+    },
+    "battle_level": {
+      "grade": "TESTED_MIXED",
+      "battle_level": 680.4,
+      "role": "support",
+      "first_touch_time": "2026-02-13T09:35:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 680.4,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY tests 680.40 Carry support within the first 30 minutes of RTH (before 10:00 ET), touching or bre",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains above 19.00 through end of RTH, failing to compress into the sub-19 zone that would confirm a macro regime s",
+        "invalidation": "VIX drops below 18.50 before 11:00 ET, signaling genuine fear-compression and invalidating the structural bear backdrop"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "SPY closes below 680.40 on the daily bar \u2014 CLEAN_BEAR ribbon (180c spread) persists through RTH with no ribbon tightenin",
+        "invalidation": "Ribbon fast EMA crosses above slow EMA before 13:00 ET OR SPY achieves a daily close above 682.00"
+      }
+    ]
+  },
+  "narrative": "Today's central tension is a CLEAN_BEAR technical structure (ribbon spread 180c, price 226c below pivot, all major sectors down >1.75%) colliding with a falling VIX macro signal (-2.4% into 20.33 MID regime) and an overnight flat gap that hints institutional buyers defended 680.40 overnight rather t"
+}

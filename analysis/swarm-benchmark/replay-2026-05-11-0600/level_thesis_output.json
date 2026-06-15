@@ -1,0 +1,98 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-05-11T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "SPY at 737.54 is perched directly above the BULL ribbon stack (pivot 737.30, fast 737.36) with solid support from the 737.06 slow EMA. The immediate battle level is 737.95 Carry resistance (2★), just 41 cents above — a critical near-term test. If this level holds, upside targets are 740.00 and 741.00 (both Reference tiers). If SPY fails to break 737.95, the next support shelf is yesterday's low at 734.60 (Active, 2★). The structure favors bulls in the short term due to ribbon positioning, but rising VIX (5.88% up to 18.19) introduces volatility uncertainty. Risk/reward asymmetry: limited upside to 740 (just 2.46 above), but 2.94 of downside to yesterday's low — suggests a range-bound day with initial resistance at 737.95 determining the direction.",
+  "battle_level": {
+    "price": 737.95,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 737.95,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.41
+    },
+    {
+      "price": 734.6,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 2.94
+    },
+    {
+      "price": 738.79,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 1.25
+    },
+    {
+      "price": 740.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 4,
+      "distance_from_price": 2.46
+    },
+    {
+      "price": 715.0,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": 22.54
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 737.95 on first approach or reclaims it",
+      "bias": "bullish",
+      "target": 740.0,
+      "entry_trigger": "level_reclaim at 737.95 + ribbon_stack BULL + volume confirmation",
+      "exit_target": "738.79 (pivot R1) then 740.00 (psychological, Carry upside)"
+    },
+    "secondary": {
+      "condition": "if SPY fails to break 737.95 and pulls back to 737.00",
+      "bias": "neutral_range",
+      "target": 737.0,
+      "entry_trigger": "no setup — trapped between 737.95 and 734.6",
+      "exit_target": "consolidation zone 735-738"
+    },
+    "tertiary": {
+      "condition": "if SPY breaks below 734.60 (yesterday's low)",
+      "bias": "bearish",
+      "target": 732.0,
+      "entry_trigger": "level_break down + ribbon inversion (if it occurs)",
+      "exit_target": "715.0 Carry support (5-day low)"
+    }
+  },
+  "levels_in_play_count": 8,
+  "key_observations": [
+    "737.95 Carry (2★) is the critical near-term resistance and the day's battle level — SPY is 41 cents below it, well-positioned for a test during the market open.",
+    "Ribbon is supportive (BULL stack, 30c spread) with the pivot at 737.30; any breakdown below 737.06 (slow EMA) signals ribbon inversion and bearish regime shift.",
+    "VIX rising 5.88% to 18.19 (MID regime) suggests intraday volatility increasing — higher probability of sharp reversals at key levels; favors breakout rather than slow grind.",
+    "Asymmetric setup: upside to 740 is 2.46 (tight), downside to 734.6 is 2.94 (better). Unless bulls have momentum, expect first test of 737.95 to be rejected or stalled.",
+    "The Carry tier support at 715.0 (5-day low) is out of range but the mental anchor; if 734.6 (yesterday's low, Active tier) fails, it becomes the next target quickly."
+  ],
+  "data_quality": "full"
+}

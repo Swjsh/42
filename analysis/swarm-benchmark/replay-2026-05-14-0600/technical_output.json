@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-14T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.85,
+  "reasoning": "CLEAN_BULL ribbon with 54c spread, price 16c above pivot and 66c above slow EMA. Significant gap up +1.75 dollars (2.36%) from prior close 742.32. Last 3 bars: large green body (+45c) from overnight, followed by small green (+3c), then small red (-3c pullback). Net 2 greens vs 1 red. VIX flat at 17.94 supports clean ribbon structure. All three EMAs properly aligned (fast 743.96 > pivot 743.91 > slow 743.41). The overnight sentiment is decidedly bullish with a substantial gap and the ribbon is healthy and wide.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 54,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon with 54c spread (fast 743.96, pivot 743.91, slow 743.41) — structurally sound and bullish",
+    "Significant overnight gap up +1.75 dollars from prior close 742.32 to current 744.07 (2.36% overnight move)",
+    "Price 66c above slow EMA, 16c above pivot — well-positioned within the ribbon, clearly above equilibrium",
+    "Last 3 bars mixed: large green body (+45c) from overnight, small green (+3c), small red (-3c) — net bullish pressure despite end pullback",
+    "VIX flat at 17.94 — low-volatility environment; clean ribbons hold well in low IV"
+  ],
+  "data_quality": "full"
+}

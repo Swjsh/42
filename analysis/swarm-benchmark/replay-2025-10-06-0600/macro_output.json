@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2025-10-06T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "VIX at 16.98 (MID regime) is rising +1.92% (~0.33pt absolute), but not rapidly. Overnight gap up +$1.17 is a strong bullish signal exceeding the +$0.30 threshold. No macro events scheduled today—clear RTH window. Sector rotation is mixed (XLK -0.59%, XLF +0.56%, neutral) and ribbon is MIXED, but the dominant signal is the gap-up strength. VIX rise is mild and does not contradict the bullish overnight bias.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 16.98,
+  "event_risk": "low",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 1.17,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "SPY gapped up +$1.17 overnight (668.84 → 670.01); premarket high 671.63 shows continued strength",
+    "VIX rising +1.92% from prior close, but absolute change ~0.33pt does not meet 'rapid rise' threshold (>1.5pt). MID regime with mild fear tilt.",
+    "Zero macro events today (2025-10-06): no CPI, NFP, FOMC, or other catalysts. Full RTH window with no no-trade blocks.",
+    "Sector rotation mixed: XLK defensive (-0.59%), XLF cyclical (+0.56%), XLE flat (+0.02%). Ribbon MIXED. No unanimous directional tilt.",
+    "Macro backdrop: risk-on overnight strength (gap up) vs. mild risk-off sentiment (VIX rising). Gap-up strength is the dominant signal."
+  ],
+  "data_quality": "full"
+}

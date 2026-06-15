@@ -1,0 +1,65 @@
+{
+  "generated_at": "2026-05-19",
+  "n_days": 65,
+  "weights": {
+    "v5": {
+      "technical": 0.35,
+      "macro": 0.3,
+      "level_thesis": 0.25,
+      "internals": 0.1
+    },
+    "v6": {
+      "technical": 0.4,
+      "macro": 0.4,
+      "level_thesis": 0.1,
+      "internals": 0.1
+    }
+  },
+  "ece_pct": {
+    "v5": 14.9,
+    "v6": 15.5
+  },
+  "winner": "v5",
+  "improvement_pp": -0.6,
+  "abstain_rate_pct": {
+    "v5": 47.7,
+    "v6": 50.8
+  },
+  "wr_by_band": {
+    "v5": {
+      "40_59": {
+        "n": 21,
+        "wr_pct": 66.7
+      },
+      "60_79": {
+        "n": 8,
+        "wr_pct": 75.0
+      },
+      "80_94": {
+        "n": 0,
+        "wr_pct": NaN
+      }
+    },
+    "v6": {
+      "40_59": {
+        "n": 20,
+        "wr_pct": 65.0
+      },
+      "60_79": {
+        "n": 8,
+        "wr_pct": 75.0
+      },
+      "80_94": {
+        "n": 0,
+        "wr_pct": NaN
+      }
+    }
+  },
+  "divergent_days": {
+    "total": 8,
+    "wrong_days": [],
+    "v6_derisked_wrong": 0,
+    "v6_hurt_correct": 7
+  },
+  "recommendation": "KEEP v5: ECE 14.9% is already better than v6 (15.5%). The weight redistribution does not improve calibration on this dataset."
+}

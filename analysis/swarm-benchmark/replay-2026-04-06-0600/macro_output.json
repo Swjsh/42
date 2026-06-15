@@ -1,0 +1,25 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-04-06T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.70,
+  "reasoning": "VIX at 24.21 signals HIGH regime (elevated fear, expensive premium), but direction FLAT (+0.25% change) shows no momentum building into the open. Overnight gap up $1.42 (0.2% of SPY) + bullish ribbon stack (139¢ spread) + risk-on sector rotation (XLK +3.09%, tech leadership) override the VIX caution. No macro events today provides clear trading window. Macro backdrop is RISK_ON; bullish bias warranted but premium expensive — bearish mean-reversion trades should also be watched as volatility spike could fuel quick reversals.",
+  "vix_regime": "HIGH",
+  "vix_direction": "flat",
+  "vix_current": 24.21,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 1.42,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX at 24.21 (HIGH regime >22) indicates elevated fear and expensive premium, not a free-ride bull day",
+    "VIX direction flat with only +0.25% change — no fear accelerating; volatility regime is elevated but not building",
+    "Overnight gap +$1.42 + bullish ribbon (fast 657.91 > pivot 657.72 > slow 656.52, 139¢ spread) + sector rotation risk-on (XLK +3.09%, XLF +1.43%) = cohesive bullish flow",
+    "No macro events blocking trades today; clear window from premarket through close",
+    "Macro backdrop: RISK_ON (tech-led rally overnight, sector rotations support equities). Macro is not fighting the technicals.",
+    "Premium caveat: High VIX will price in more downside protection (skew favors puts). Call risk-reversals are expensive. Bullish entries pay full freight."
+  ],
+  "data_quality": "full",
+  "summary": "Bullish day setup on strong overnight technicals, but respect the HIGH VIX backdrop as a caution layer. No hard macro blocks; risk-on rotation supports the bias."
+}

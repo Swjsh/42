@@ -1,0 +1,100 @@
+{
+  "generated_at": "2026-06-02T02:22:23.886821+00:00",
+  "for_date": "2026-06-01",
+  "overall_verdict": "RED",
+  "audits": [
+    {
+      "name": "crypto-gym (42 validators)",
+      "source_file": "crypto/data/scorecards/latest.json",
+      "verdict": "GREEN",
+      "summary": "78/78 pass",
+      "evidence": {
+        "stages": 78,
+        "passed": 78,
+        "flaky_failed": []
+      }
+    },
+    {
+      "name": "chart-data-verify",
+      "source_file": "automation/state/chart-data-verify-2026-06-01.json",
+      "verdict": "GREEN",
+      "summary": "5 bars checked, max div $0.0000",
+      "evidence": {
+        "max_divergence_usd": 0,
+        "bars_checked": 5
+      }
+    },
+    {
+      "name": "heartbeat-tick-audit",
+      "source_file": "automation/state/heartbeat-tick-audit-2026-06-01.json",
+      "verdict": "GREEN",
+      "summary": "31 live ticks, 0 MISALIGNED-CRITICAL (0.0%)",
+      "evidence": {
+        "by_classification": {
+          "ALIGNED": 11,
+          "MISALIGNED-BENIGN": 20,
+          "MISALIGNED-CRITICAL": 0,
+          "STALE_PAUSED": 0,
+          "NO_DATA": 9,
+          "NO_BAR": 0
+        },
+        "live_ticks": 31,
+        "misaligned_critical": 0,
+        "misaligned_pct": 0.0
+      }
+    },
+    {
+      "name": "pin-chain-verify",
+      "source_file": "automation/state/pin-chain-verify-latest.json",
+      "verdict": "RED",
+      "summary": "rule_version=unknown, drifts=0",
+      "evidence": {
+        "rule_version_canonical": "unknown",
+        "drifts": []
+      }
+    },
+    {
+      "name": "heartbeat-mcp-self-test",
+      "source_file": "automation/state/heartbeat-mcp-self-test-latest.json",
+      "verdict": "GREEN",
+      "summary": "TV CDP listening=True",
+      "evidence": {
+        "tv_cdp_listening": true
+      }
+    },
+    {
+      "name": "heartbeat-pulse-check",
+      "source_file": "automation/state/heartbeat-pulse-check-2026-06-01.json",
+      "verdict": "RED",
+      "summary": "max gap 15.02min",
+      "evidence": {
+        "max_gap_minutes": 15.02
+      }
+    },
+    {
+      "name": "watcher-state-inspector",
+      "source_file": "automation/state/watcher-state-inspector-2026-06-01.json",
+      "verdict": "MISSING",
+      "summary": "watcher-state output not found",
+      "evidence": {}
+    }
+  ],
+  "stale_reruns": {
+    "chart_data_verify": {
+      "exit": 0,
+      "log_tail": "3125, 'yf_close': 759.02001953125, 'divergence': 0.0}\n    {'ts': '2026-06-01 15:45:00', 'csv_close': 758.6599731445312, 'yf_close': 758.6599731445312, 'divergence': 0.0}\n    {'ts': '2026-06-01 15:50:00', 'csv_close': 758.239990234375, 'yf_close': 758.239990234375, 'divergence': 0.0}\n    {'ts': '2026-06-01 15:55:00', 'csv_close': 758.4400024414062, 'yf_close': 758.4400024414062, 'divergence': 0.0}\n  heal: no-op\n  wrote: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\chart-data-verify-2026-06-01.json\n"
+    },
+    "pin_chain_verify": {
+      "exit": 1,
+      "log_tail": "chain-verify ===\nVERDICT: RED\n  reason: 1-pin-mismatch(es)-vs-canonical-v15.3\n  canonical: v15.3\n    params.json: v15.3\n    heartbeat.md: v15.3 (line 16)\n    premarket.md: v15.3 (line 41)\n    aggressive/heartbeat.md: v15.2 (line 9)\n  mismatches:\n    C:\\Users\\jackw\\Desktop\\42\\automation\\prompts\\aggressive\\heartbeat.md: found 'v15.2' expected 'v15.3'\n  heal: NO-AUTO-HEAL-rule-9-production-prompts-need-J-authorization\n  wrote: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\pin-chain-verify-latest.json\n"
+    },
+    "heartbeat_tick_audit": {
+      "exit": 0,
+      "log_tail": "026-06-01 ===\nHeadline: 0 of 31 live-trading ticks (0%) were MISALIGNED-CRITICAL on 2026-06-01\nCounts: {'ALIGNED': 11, 'MISALIGNED-BENIGN': 20, 'MISALIGNED-CRITICAL': 0, 'STALE_PAUSED': 0, 'NO_DATA': 9, 'NO_BAR': 0}\nFiles written:\n  per_tick_csv: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-06-01.csv\n  summary_json: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-06-01.json\n  human_md: C:\\Users\\jackw\\Desktop\\42\\docs\\HEARTBEAT-TICK-AUDIT-2026-06-01.md\n"
+    },
+    "heartbeat_pulse_check": {
+      "exit": 1,
+      "log_tail": "p_min': 15.02}, {'from': '10:18:03', 'to': '10:33:02', 'gap_min': 14.98}, {'from': '10:33:02', 'to': '10:48:02', 'gap_min': 15.0}, {'from': '10:48:02', 'to': '11:00:02', 'gap_min': 12.0}, {'from': '11:03:02', 'to': '11:09:02', 'gap_min': 6.0}, {'from': '11:09:02', 'to': '11:18:02', 'gap_min': 9.0}, {'from': '11:18:02', 'to': '11:27:02', 'gap_min': 9.0}, {'from': '11:27:02', 'to': '11:33:02', 'gap_min': 6.0}]\nWrote: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-pulse-check-2026-06-01.json\n"
+    }
+  }
+}

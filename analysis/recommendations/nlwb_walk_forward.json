@@ -1,0 +1,556 @@
+{
+  "generated_at": "2026-05-21T00:48:58.833061",
+  "purpose": "Walk-forward OOS validation for NLWB (OP-20 disclosure 3)",
+  "train_window": "2025-01-02 to 2025-09-30",
+  "test_window": "2025-10-01 to 2026-05-15",
+  "variants": {
+    "pdl_relaxed": {
+      "description": "PDL, min_wick=8c, vol=1.0x, consol=0 \u2014 the highest-N variant",
+      "train": {
+        "window": "2025-01-02 to 2025-09-30",
+        "n_signals": 70,
+        "wr_overall": 0.757,
+        "wr_near_session_low": {
+          "n": 44,
+          "wins": 34,
+          "wr": 0.773,
+          "description": "Bounce bar low <= prior session_low * 1.002 (session-low-holding bounce)"
+        },
+        "wr_ribbon_favorable": {
+          "n": 19,
+          "wins": 14,
+          "wr": 0.737,
+          "description": "Ribbon MIXED or BULL at bounce bar (HTF confirmation NOT required)"
+        },
+        "wr_by_vix_regime": {
+          "low": {
+            "n": 24,
+            "wins": 17,
+            "wr": 0.708
+          },
+          "medium": {
+            "n": 16,
+            "wins": 16,
+            "wr": 1.0
+          },
+          "high": {
+            "n": 30,
+            "wins": 20,
+            "wr": 0.667
+          }
+        },
+        "monthly_distribution": {
+          "2025-01": {
+            "n": 1,
+            "wins": 1,
+            "wr": 1.0
+          },
+          "2025-02": {
+            "n": 8,
+            "wins": 7,
+            "wr": 0.875
+          },
+          "2025-03": {
+            "n": 15,
+            "wins": 9,
+            "wr": 0.6
+          },
+          "2025-04": {
+            "n": 7,
+            "wins": 7,
+            "wr": 1.0
+          },
+          "2025-05": {
+            "n": 9,
+            "wins": 7,
+            "wr": 0.778
+          },
+          "2025-06": {
+            "n": 9,
+            "wins": 7,
+            "wr": 0.778
+          },
+          "2025-07": {
+            "n": 8,
+            "wins": 5,
+            "wr": 0.625
+          },
+          "2025-08": {
+            "n": 5,
+            "wins": 4,
+            "wr": 0.8
+          },
+          "2025-09": {
+            "n": 8,
+            "wins": 6,
+            "wr": 0.75
+          }
+        },
+        "op16_guard": {
+          "j_winner_days_signals": 0,
+          "j_winner_day_wins": 0,
+          "j_loser_days_signals": 0,
+          "j_loser_day_wins": 0,
+          "j_loser_day_losses": 0,
+          "guard_pass": true,
+          "guard_note": "J loser days (2026-05-07, 2026-05-06, 2026-05-05): 0 scanner fires, 0 would-be wins, 0 would-be losses. GUARD: PASS.",
+          "edge_note": "This is a BULL bounce setup. J's 7 source-of-truth trades are all BEARISH (3 puts + 4 put/call losers). OP-16 edge_capture for a BULL setup is measured differently: does the setup fire correctly (bull) on J's loser days (which were already bear entries)? If BULL bounce fires on 5/05-5/07, those are CONFLICTING trades (SPY was not bouncing on those days). Guard check: does the scanner fire on 5/05, 5/06, 5/07? If yes => CONFLICT flags. If no => COMPLEMENT (does not add risk on loser days). Formal edge_capture for a bull-setup using J's bears is N/A per OP-16 design, but we compute: sum(bull_wins_on_J_winner_days) - sum(bull_losses_on_J_loser_days) as a compatibility score."
+        }
+      },
+      "test": {
+        "window": "2025-10-01 to 2026-05-15",
+        "n_signals": 87,
+        "wr_overall": 0.678,
+        "wr_near_session_low": {
+          "n": 53,
+          "wins": 36,
+          "wr": 0.679,
+          "description": "Bounce bar low <= prior session_low * 1.002 (session-low-holding bounce)"
+        },
+        "wr_ribbon_favorable": {
+          "n": 21,
+          "wins": 13,
+          "wr": 0.619,
+          "description": "Ribbon MIXED or BULL at bounce bar (HTF confirmation NOT required)"
+        },
+        "wr_by_vix_regime": {
+          "low": {
+            "n": 18,
+            "wins": 9,
+            "wr": 0.5
+          },
+          "medium": {
+            "n": 25,
+            "wins": 17,
+            "wr": 0.68
+          },
+          "high": {
+            "n": 44,
+            "wins": 33,
+            "wr": 0.75
+          }
+        },
+        "monthly_distribution": {
+          "2025-10": {
+            "n": 7,
+            "wins": 4,
+            "wr": 0.571
+          },
+          "2025-11": {
+            "n": 4,
+            "wins": 4,
+            "wr": 1.0
+          },
+          "2025-12": {
+            "n": 9,
+            "wins": 6,
+            "wr": 0.667
+          },
+          "2026-01": {
+            "n": 6,
+            "wins": 3,
+            "wr": 0.5
+          },
+          "2026-02": {
+            "n": 24,
+            "wins": 18,
+            "wr": 0.75
+          },
+          "2026-03": {
+            "n": 22,
+            "wins": 15,
+            "wr": 0.682
+          },
+          "2026-04": {
+            "n": 11,
+            "wins": 7,
+            "wr": 0.636
+          },
+          "2026-05": {
+            "n": 4,
+            "wins": 2,
+            "wr": 0.5
+          }
+        },
+        "op16_guard": {
+          "j_winner_days_signals": 5,
+          "j_winner_day_wins": 4,
+          "j_loser_days_signals": 0,
+          "j_loser_day_wins": 0,
+          "j_loser_day_losses": 0,
+          "guard_pass": true,
+          "guard_note": "J loser days (2026-05-07, 2026-05-06, 2026-05-05): 0 scanner fires, 0 would-be wins, 0 would-be losses. GUARD: PASS.",
+          "edge_note": "This is a BULL bounce setup. J's 7 source-of-truth trades are all BEARISH (3 puts + 4 put/call losers). OP-16 edge_capture for a BULL setup is measured differently: does the setup fire correctly (bull) on J's loser days (which were already bear entries)? If BULL bounce fires on 5/05-5/07, those are CONFLICTING trades (SPY was not bouncing on those days). Guard check: does the scanner fire on 5/05, 5/06, 5/07? If yes => CONFLICT flags. If no => COMPLEMENT (does not add risk on loser days). Formal edge_capture for a bull-setup using J's bears is N/A per OP-16 design, but we compute: sum(bull_wins_on_J_winner_days) - sum(bull_losses_on_J_loser_days) as a compatibility score."
+        },
+        "months_below_45pct_wr": []
+      },
+      "comparison": {
+        "train_wr": 0.757,
+        "test_wr": 0.678,
+        "delta_pp": -7.9,
+        "verdict": "STABLE",
+        "test_guard_pass": true,
+        "test_guard_note": "J loser days (2026-05-07, 2026-05-06, 2026-05-05): 0 scanner fires, 0 would-be wins, 0 would-be losses. GUARD: PASS.",
+        "stable_for_promotion": true
+      }
+    },
+    "pdl_calibrated": {
+      "description": "PDL, min_wick=8c, vol=1.2x, consol=1 \u2014 production watcher defaults",
+      "train": {
+        "window": "2025-01-02 to 2025-09-30",
+        "n_signals": 19,
+        "wr_overall": 0.632,
+        "wr_near_session_low": {
+          "n": 12,
+          "wins": 9,
+          "wr": 0.75,
+          "description": "Bounce bar low <= prior session_low * 1.002 (session-low-holding bounce)"
+        },
+        "wr_ribbon_favorable": {
+          "n": 5,
+          "wins": 3,
+          "wr": 0.6,
+          "description": "Ribbon MIXED or BULL at bounce bar (HTF confirmation NOT required)"
+        },
+        "wr_by_vix_regime": {
+          "low": {
+            "n": 6,
+            "wins": 4,
+            "wr": 0.667
+          },
+          "medium": {
+            "n": 4,
+            "wins": 4,
+            "wr": 1.0
+          },
+          "high": {
+            "n": 9,
+            "wins": 4,
+            "wr": 0.444
+          }
+        },
+        "monthly_distribution": {
+          "2025-02": {
+            "n": 2,
+            "wins": 2,
+            "wr": 1.0
+          },
+          "2025-03": {
+            "n": 4,
+            "wins": 2,
+            "wr": 0.5
+          },
+          "2025-04": {
+            "n": 1,
+            "wins": 1,
+            "wr": 1.0
+          },
+          "2025-05": {
+            "n": 3,
+            "wins": 2,
+            "wr": 0.667
+          },
+          "2025-06": {
+            "n": 4,
+            "wins": 2,
+            "wr": 0.5
+          },
+          "2025-07": {
+            "n": 4,
+            "wins": 2,
+            "wr": 0.5
+          },
+          "2025-09": {
+            "n": 1,
+            "wins": 1,
+            "wr": 1.0
+          }
+        },
+        "op16_guard": {
+          "j_winner_days_signals": 0,
+          "j_winner_day_wins": 0,
+          "j_loser_days_signals": 0,
+          "j_loser_day_wins": 0,
+          "j_loser_day_losses": 0,
+          "guard_pass": true,
+          "guard_note": "J loser days (2026-05-07, 2026-05-06, 2026-05-05): 0 scanner fires, 0 would-be wins, 0 would-be losses. GUARD: PASS.",
+          "edge_note": "This is a BULL bounce setup. J's 7 source-of-truth trades are all BEARISH (3 puts + 4 put/call losers). OP-16 edge_capture for a BULL setup is measured differently: does the setup fire correctly (bull) on J's loser days (which were already bear entries)? If BULL bounce fires on 5/05-5/07, those are CONFLICTING trades (SPY was not bouncing on those days). Guard check: does the scanner fire on 5/05, 5/06, 5/07? If yes => CONFLICT flags. If no => COMPLEMENT (does not add risk on loser days). Formal edge_capture for a bull-setup using J's bears is N/A per OP-16 design, but we compute: sum(bull_wins_on_J_winner_days) - sum(bull_losses_on_J_loser_days) as a compatibility score."
+        }
+      },
+      "test": {
+        "window": "2025-10-01 to 2026-05-15",
+        "n_signals": 23,
+        "wr_overall": 0.565,
+        "wr_near_session_low": {
+          "n": 17,
+          "wins": 11,
+          "wr": 0.647,
+          "description": "Bounce bar low <= prior session_low * 1.002 (session-low-holding bounce)"
+        },
+        "wr_ribbon_favorable": {
+          "n": 4,
+          "wins": 0,
+          "wr": 0.0,
+          "description": "Ribbon MIXED or BULL at bounce bar (HTF confirmation NOT required)"
+        },
+        "wr_by_vix_regime": {
+          "low": {
+            "n": 9,
+            "wins": 5,
+            "wr": 0.556
+          },
+          "medium": {
+            "n": 4,
+            "wins": 2,
+            "wr": 0.5
+          },
+          "high": {
+            "n": 10,
+            "wins": 6,
+            "wr": 0.6
+          }
+        },
+        "monthly_distribution": {
+          "2025-10": {
+            "n": 5,
+            "wins": 3,
+            "wr": 0.6
+          },
+          "2025-11": {
+            "n": 1,
+            "wins": 1,
+            "wr": 1.0
+          },
+          "2025-12": {
+            "n": 3,
+            "wins": 1,
+            "wr": 0.333
+          },
+          "2026-01": {
+            "n": 1,
+            "wins": 1,
+            "wr": 1.0
+          },
+          "2026-02": {
+            "n": 4,
+            "wins": 2,
+            "wr": 0.5
+          },
+          "2026-03": {
+            "n": 8,
+            "wins": 5,
+            "wr": 0.625
+          },
+          "2026-04": {
+            "n": 1,
+            "wins": 0,
+            "wr": 0.0
+          }
+        },
+        "op16_guard": {
+          "j_winner_days_signals": 0,
+          "j_winner_day_wins": 0,
+          "j_loser_days_signals": 0,
+          "j_loser_day_wins": 0,
+          "j_loser_day_losses": 0,
+          "guard_pass": true,
+          "guard_note": "J loser days (2026-05-07, 2026-05-06, 2026-05-05): 0 scanner fires, 0 would-be wins, 0 would-be losses. GUARD: PASS.",
+          "edge_note": "This is a BULL bounce setup. J's 7 source-of-truth trades are all BEARISH (3 puts + 4 put/call losers). OP-16 edge_capture for a BULL setup is measured differently: does the setup fire correctly (bull) on J's loser days (which were already bear entries)? If BULL bounce fires on 5/05-5/07, those are CONFLICTING trades (SPY was not bouncing on those days). Guard check: does the scanner fire on 5/05, 5/06, 5/07? If yes => CONFLICT flags. If no => COMPLEMENT (does not add risk on loser days). Formal edge_capture for a bull-setup using J's bears is N/A per OP-16 design, but we compute: sum(bull_wins_on_J_winner_days) - sum(bull_losses_on_J_loser_days) as a compatibility score."
+        },
+        "months_below_45pct_wr": [
+          "2025-12"
+        ]
+      },
+      "comparison": {
+        "train_wr": 0.632,
+        "test_wr": 0.565,
+        "delta_pp": -6.7,
+        "verdict": "STABLE",
+        "test_guard_pass": true,
+        "test_guard_note": "J loser days (2026-05-07, 2026-05-06, 2026-05-05): 0 scanner fires, 0 would-be wins, 0 would-be losses. GUARD: PASS.",
+        "stable_for_promotion": false
+      }
+    },
+    "round5_tight": {
+      "description": "Round-$5, min_wick=10c, vol=1.2x, consol=2 \u2014 round-level variant",
+      "train": {
+        "window": "2025-01-02 to 2025-09-30",
+        "n_signals": 6,
+        "wr_overall": 0.833,
+        "wr_near_session_low": {
+          "n": 3,
+          "wins": 3,
+          "wr": 1.0,
+          "description": "Bounce bar low <= prior session_low * 1.002 (session-low-holding bounce)"
+        },
+        "wr_ribbon_favorable": {
+          "n": 3,
+          "wins": 2,
+          "wr": 0.667,
+          "description": "Ribbon MIXED or BULL at bounce bar (HTF confirmation NOT required)"
+        },
+        "wr_by_vix_regime": {
+          "low": {
+            "n": 2,
+            "wins": 2,
+            "wr": 1.0
+          },
+          "medium": {
+            "n": 2,
+            "wins": 1,
+            "wr": 0.5
+          },
+          "high": {
+            "n": 2,
+            "wins": 2,
+            "wr": 1.0
+          }
+        },
+        "monthly_distribution": {
+          "2025-03": {
+            "n": 1,
+            "wins": 1,
+            "wr": 1.0
+          },
+          "2025-04": {
+            "n": 1,
+            "wins": 1,
+            "wr": 1.0
+          },
+          "2025-06": {
+            "n": 1,
+            "wins": 1,
+            "wr": 1.0
+          },
+          "2025-08": {
+            "n": 2,
+            "wins": 1,
+            "wr": 0.5
+          },
+          "2025-09": {
+            "n": 1,
+            "wins": 1,
+            "wr": 1.0
+          }
+        },
+        "op16_guard": {
+          "j_winner_days_signals": 0,
+          "j_winner_day_wins": 0,
+          "j_loser_days_signals": 0,
+          "j_loser_day_wins": 0,
+          "j_loser_day_losses": 0,
+          "guard_pass": true,
+          "guard_note": "J loser days (2026-05-07, 2026-05-06, 2026-05-05): 0 scanner fires, 0 would-be wins, 0 would-be losses. GUARD: PASS.",
+          "edge_note": "This is a BULL bounce setup. J's 7 source-of-truth trades are all BEARISH (3 puts + 4 put/call losers). OP-16 edge_capture for a BULL setup is measured differently: does the setup fire correctly (bull) on J's loser days (which were already bear entries)? If BULL bounce fires on 5/05-5/07, those are CONFLICTING trades (SPY was not bouncing on those days). Guard check: does the scanner fire on 5/05, 5/06, 5/07? If yes => CONFLICT flags. If no => COMPLEMENT (does not add risk on loser days). Formal edge_capture for a bull-setup using J's bears is N/A per OP-16 design, but we compute: sum(bull_wins_on_J_winner_days) - sum(bull_losses_on_J_loser_days) as a compatibility score."
+        }
+      },
+      "test": {
+        "window": "2025-10-01 to 2026-05-15",
+        "n_signals": 19,
+        "wr_overall": 0.632,
+        "wr_near_session_low": {
+          "n": 9,
+          "wins": 6,
+          "wr": 0.667,
+          "description": "Bounce bar low <= prior session_low * 1.002 (session-low-holding bounce)"
+        },
+        "wr_ribbon_favorable": {
+          "n": 10,
+          "wins": 7,
+          "wr": 0.7,
+          "description": "Ribbon MIXED or BULL at bounce bar (HTF confirmation NOT required)"
+        },
+        "wr_by_vix_regime": {
+          "low": {
+            "n": 6,
+            "wins": 4,
+            "wr": 0.667
+          },
+          "medium": {
+            "n": 7,
+            "wins": 4,
+            "wr": 0.571
+          },
+          "high": {
+            "n": 6,
+            "wins": 4,
+            "wr": 0.667
+          }
+        },
+        "monthly_distribution": {
+          "2025-10": {
+            "n": 2,
+            "wins": 1,
+            "wr": 0.5
+          },
+          "2025-11": {
+            "n": 2,
+            "wins": 2,
+            "wr": 1.0
+          },
+          "2025-12": {
+            "n": 3,
+            "wins": 0,
+            "wr": 0.0
+          },
+          "2026-01": {
+            "n": 3,
+            "wins": 3,
+            "wr": 1.0
+          },
+          "2026-02": {
+            "n": 1,
+            "wins": 1,
+            "wr": 1.0
+          },
+          "2026-03": {
+            "n": 2,
+            "wins": 1,
+            "wr": 0.5
+          },
+          "2026-04": {
+            "n": 4,
+            "wins": 2,
+            "wr": 0.5
+          },
+          "2026-05": {
+            "n": 2,
+            "wins": 2,
+            "wr": 1.0
+          }
+        },
+        "op16_guard": {
+          "j_winner_days_signals": 1,
+          "j_winner_day_wins": 1,
+          "j_loser_days_signals": 0,
+          "j_loser_day_wins": 0,
+          "j_loser_day_losses": 0,
+          "guard_pass": true,
+          "guard_note": "J loser days (2026-05-07, 2026-05-06, 2026-05-05): 0 scanner fires, 0 would-be wins, 0 would-be losses. GUARD: PASS.",
+          "edge_note": "This is a BULL bounce setup. J's 7 source-of-truth trades are all BEARISH (3 puts + 4 put/call losers). OP-16 edge_capture for a BULL setup is measured differently: does the setup fire correctly (bull) on J's loser days (which were already bear entries)? If BULL bounce fires on 5/05-5/07, those are CONFLICTING trades (SPY was not bouncing on those days). Guard check: does the scanner fire on 5/05, 5/06, 5/07? If yes => CONFLICT flags. If no => COMPLEMENT (does not add risk on loser days). Formal edge_capture for a bull-setup using J's bears is N/A per OP-16 design, but we compute: sum(bull_wins_on_J_winner_days) - sum(bull_losses_on_J_loser_days) as a compatibility score."
+        },
+        "months_below_45pct_wr": [
+          "2025-12"
+        ]
+      },
+      "comparison": {
+        "train_wr": 0.833,
+        "test_wr": 0.632,
+        "delta_pp": -20.1,
+        "verdict": "FAILED",
+        "test_guard_pass": true,
+        "test_guard_note": "J loser days (2026-05-07, 2026-05-06, 2026-05-05): 0 scanner fires, 0 would-be wins, 0 would-be losses. GUARD: PASS.",
+        "stable_for_promotion": false
+      }
+    }
+  },
+  "overall": {
+    "all_stable": false,
+    "promotion_path": "BLOCKED \u2014 OOS degradation detected, investigate before promotion",
+    "notes": [
+      "Walk-forward split validates in-sample WR doesn't degrade OOS.",
+      "STABLE = WR delta < 10pp AND loser-day guard PASS AND no month < 45% WR (N>=3).",
+      "After OOS + real-fills: accumulate 3+ live J confirmations before promotion."
+    ]
+  }
+}

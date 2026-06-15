@@ -1,0 +1,93 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-04-27T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "SPY at 713.47, just below the Carry resistance 714.47 (2★, +1.00). Price is in a tight pinch between 712.5 support (−0.97) and 714.47 resistance (+1.00), with bullish ribbon (13¢ BULL stack). The battle level is 714.47 Carry — if it breaks cleanly, target is 715.96 (PMH + $0.90). If it rejects, 712.5 becomes the first support test. Ribbon bias + proximity to PMH suggests flush-through is the base case.",
+  "battle_level": {
+    "price": 714.47,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 714.47,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 1.0
+    },
+    {
+      "price": 715.06,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 1.59
+    },
+    {
+      "price": 712.5,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": -0.97
+    },
+    {
+      "price": 712.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": -1.47
+    },
+    {
+      "price": 711.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": -2.47
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "SPY breaks above 714.47 Carry resistance",
+      "bias": "bullish",
+      "target": 715.96,
+      "entry_trigger": "level_breakout + ribbon_bull_stack_confirmed"
+    },
+    "secondary": {
+      "condition": "SPY fails to break 714.47 and rejects",
+      "bias": "bearish",
+      "target": 712.5,
+      "entry_trigger": "level_rejection_at_resistance"
+    },
+    "tertiary": {
+      "condition": "SPY holds 712.5 and reprices sideways",
+      "bias": "neutral",
+      "target": 713.5,
+      "entry_trigger": "none_until_level_test_resolves"
+    }
+  },
+  "levels_in_play_count": 7,
+  "key_observations": [
+    "Price sandwiched in tight $1.97 zone (712.5 support to 715.06 resistance) with battle level 714.47 Carry at +1.00. The next $1.59 of price action decides the day.",
+    "Bullish ribbon (13¢ BULL stack, fast > pivot > slow) supports test-from-below scenario. Premarket high 715.06 is VERY close (+1.59) — suggests buyers are just ahead.",
+    "If 714.47 breaks, no resistance until 715.96 (PMH, +1.49 away). If it rejects, 712.5 is the immediate support and floor for the short bias."
+  ],
+  "data_quality": "full"
+}

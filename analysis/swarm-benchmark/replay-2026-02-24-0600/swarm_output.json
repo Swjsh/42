@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-02-24T11:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["macro", "level_thesis"],
+    "bearish": ["internals"],
+    "no_trade": ["technical"]
+  },
+  "vote_counts": {
+    "bullish": 2,
+    "bearish": 1,
+    "no_trade": 1
+  },
+  "weighted_scores": {
+    "bullish": 0.55,
+    "bearish": 0.10
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "moderate",
+  "swarm_confidence": 50,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["technical", "internals"],
+    "dissent_reason": "Technical agent calls explicit NO_TRADE due to ribbon CHOP (25c spread, G-R-G bar pattern, no directional consensus); internals agent flags strong risk-off rotation with XLF -2.80% and XLK -1.18% as evidence of institutional de-risking that contradicts the VIX-falling bullish narrative."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The assumption that VIX falling 4.24% during a DOWN overnight session (SPY -0.79%, XLF -2.80%, XLK -1.18%) is a bullish signal — macro agent acknowledged risk_off rotation but dismissed it as mere caution undertone, underweighting concentrated sector breadth failure.",
+    "top_invalidation_scenario": "Ribbon remains MIXED (spread 30c or tighter) through 09:45 ET with no bullish stack clarification — high probability per validator — collapsing entry confidence below 0.40 and validating technical no_trade call."
+  },
+  "battle_level": {
+    "price": 680.38,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 680.38,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 690.06,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 675.79,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 682.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 688.13,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 680.38 on first RTH test with bounce candle and volume confirmation",
+      "bias": "bullish",
+      "target": 690.06,
+      "entry_trigger": "support_hold + bounce_candle"
+    },
+    "secondary": {
+      "condition": "if SPY breaks and sustains below 680.38 with momentum continuation",
+      "bias": "bearish",
+      "target": 675.79,
+      "entry_trigger": "support_break + momentum_confirmation"
+    },
+    "invalidation": {
+      "condition": "ribbon remains MIXED (spread 30c or tighter) through 09:45 ET bar close with no bullish stack clarification",
+      "effect": "Technical no_trade is proven correct; bullish thesis collapses to a conditional level-hold gamble without directional momentum confirmation — no entry justified until ribbon clarifies or 680.38 is definitively tested and held."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests the 680.38 Active support level within the first 90 minutes of RTH (by 11:00 ET) given risk-off sector backdrop and price sitting only $2.29 above this level at the open",
+      "invalidation": "SPY does not reach 680.50 before 11:00 ET, sustaining above the $681.50 zone through that window",
+      "confidence": 0.65,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains in MID regime (below 22.00) through the close, but SPY does NOT rally above 685.00 — falling VIX does not produce a sustained bullish tape because sector weakness (XLF, XLK) dominates the macro compression signal",
+      "invalidation": "SPY closes above 685.00, confirming macro VIX-compression thesis and invalidating the bearish divergence read",
+      "confidence": 0.55,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "Ribbon does NOT clarify to a full BULL stack (fast > pivot > slow with spread 30c or greater) within the first 5 RTH bars (by approximately 10:25 ET); chop persists or ribbon inverts toward bearish configuration, keeping technical NO_TRADE verdict active through the first hour",
+      "invalidation": "Ribbon shows confirmed fast > pivot > slow alignment with spread 30c or greater by 10:25 ET, overriding the CHOP verdict and opening a clean bullish entry signal",
+      "confidence": 0.60,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "SPY enters 2026-02-24 in a chop structure — ribbon MIXED at 25c spread, G-R-G bar pattern, price 682.67 sitting only $2.29 above the critical Active support at 680.38. The moderate bullish consensus (macro + level_thesis, weighted 0.55) rests on VIX falling 4.24%, but this is directly challenged by a bearish divergence: XLF -2.80% and XLK -1.18% signal institutional de-risking, and the technical agent explicit NO_TRADE on ribbon CHOP is the structurally honest read. The single most important thing at the open is the 680.38 Active support test: a confirmed hold with a bounce candle activates the bullish scenario targeting 690.06, while sustained price below 680.38 through the 10:00 ET tape window immediately invalidates all bullish entries and shifts the playbook to puts targeting 675.79.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "no_trade",
+      "confidence": 0.35,
+      "one_line": "Ribbon MIXED (25c spread, slow>fast>pivot, G-R-G bars) — explicit NO_TRADE; wait for ribbon to resolve to BULL or BEAR before any entry"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.70,
+      "one_line": "VIX MID + falling 4.24% is bullish compression; zero macro events today; caution due to risk-off tape (XLF -2.80%) and flat overnight gap"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.65,
+      "one_line": "Battle level 680.38 Active support is the key hold-or-fail test; if held targets 690.06 Carry resistance; if broken extends to 675.79 Carry support"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "XLF -2.80% + XLK -1.18% with flat XLE = concentrated institutional de-risking, no defensive bid, sector breadth confirms selloff pressure"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Ribbon remains MIXED through 09:45 ET (high probability) — technical no_trade verdict holds and bullish entry confidence collapses below 0.40"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

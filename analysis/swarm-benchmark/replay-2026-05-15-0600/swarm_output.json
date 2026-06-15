@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-05-15T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["internals"],
+    "bearish": ["technical", "macro", "level_thesis"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 1,
+    "bearish": 3,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.10,
+    "bearish": 0.90
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 95,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["internals"],
+    "dissent_reason": "Internals agent observed risk-on rotation (XLK +1.21%, XLE +0.73%) as independent bullish evidence not derivable from the overnight gap-down event — narrow breadth caveat (XLF flat) limits its weight but it cannot be dismissed as correlated tape noise."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The bearish thesis conflates reactive tape signals (ribbon, gap, VIX) that all originate from the same overnight event as three independent confirmations — they are correlated, not independent. Level_thesis confidence is only 0.55, the lowest in the group, and its own scenario map explicitly maps a valid bullish path if 739.41 holds.",
+    "top_invalidation_scenario": "VIX drops below 17.0 within 30 minutes of RTH open — historically typical for gap-down fear spikes that mean-revert at the open, which would remove the primary VIX prop from the bearish case and hand control to the bullish relief bounce toward 743.56."
+  },
+  "battle_level": {
+    "price": 739.41,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 739.41,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 743.56,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 741.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "reclaim_attempt"
+    },
+    {
+      "price": 731.83,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 749.53,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks and closes a 5-minute bar below 739.41 PML within first 30 minutes of RTH",
+      "bias": "bearish",
+      "target": 735.0,
+      "entry_trigger": "level_break + momentum_down"
+    },
+    "secondary": {
+      "condition": "if SPY holds 739.41 for 15+ minutes at open and closes a 5-minute bar above 741.00",
+      "bias": "bullish",
+      "target": 743.56,
+      "entry_trigger": "level_reclaim + ribbon_test_above_fast_ema"
+    },
+    "invalidation": {
+      "condition": "VIX drops below 17.0 within 30 minutes of RTH open (fear spike mean-reverts at open)",
+      "effect": "Removes the primary VIX prop from bearish thesis; gap-down capitulation flush narrative takes over and accelerates the relief bounce toward 743.56 — consensus bearish bias weakens significantly and secondary scenario becomes the operative play."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "739.41 PML is tested within the first 30 minutes of RTH (09:30-10:00 ET) and a 5-minute bar closes below it, with SPY trading at or below 737.50 by 10:30 ET",
+      "invalidation": "SPY does not print a close below 739.41 by 10:00 ET, OR price holds above 739.41 for 15+ consecutive minutes before any break attempt",
+      "confidence": 0.55,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains at or above 17.5 at 10:00 ET, confirming MID regime bearish pressure persists through the first 30 minutes of RTH without immediate mean-reversion",
+      "invalidation": "VIX drops to or below 17.0 by 10:00 ET (gap-down overnight fear spike fully mean-reverts at open)",
+      "confidence": 0.52,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "BEAR ribbon (fast EMA 740.67, slow 743.36, spread 269c) remains intact at 10:30 ET with SPY unable to close a 5-minute bar above fast EMA 740.67, confirming continued CLEAN_BEAR structure",
+      "invalidation": "SPY closes a 5-minute bar above fast EMA 740.67 before 10:30 ET, signaling ribbon weakening and potential bias shift to neutral",
+      "confidence": 0.65,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The core tension today is between a textbook CLEAN_BEAR tape setup (CLEAN_BEAR ribbon 269c spread, -$7.69 gap-down, VIX rising +7.84%) that commands 0.90 weighted vote share, and an independent internals signal (XLK +1.21%, XLE +0.73%) plus a valid validator argument that gap-down mornings at premarket lows are structurally ambiguous — they flush as often as they trend. Consensus bias is bearish because 3/4 specialist agents agree and the weighted score leaves little room for debate, but moderate consensus robustness reflects the genuine ambiguity at the 739.41 PML decision point the market will face at open. The single most important watch at open: whether SPY loses 739.41 PML on the first 5-minute bar close below it (confirms bearish continuation toward 735) or consolidates above it for 15+ minutes (flips control to relief bounce toward 743.56).",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.72,
+      "one_line": "CLEAN_BEAR ribbon 269c spread confirmed; price 88c below pivot under all three EMAs following -$7.69 gap-down, doji indecision bars at PML"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "VIX 18.7 rising +7.84% in MID regime; two medium-severity events pre/early-RTH (08:30 Empire State, 09:15 IP); macro_backdrop risk_off"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.55,
+      "one_line": "Battle level 739.41 PML (Active ★★) — break targets 735.00 flush; hold targets 743.56 relief; price sitting 98c above the decision point"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.65,
+      "one_line": "risk_on rotation: XLK +1.21% outperforming SPY, XLE +0.73% participating, XLF +0.04% flat — narrow breadth limits conviction but signal is independent"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "VIX drops below 17.0 at open (high-probability gap-down fear spike mean-reversion removes VIX prop from bearish case)"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

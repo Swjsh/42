@@ -1,0 +1,63 @@
+{
+  "date": "2026-03-09",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:06.852583+00:00",
+  "actual": {
+    "open": 666.38,
+    "close": 678.3,
+    "high": 679.88,
+    "low": 662.42,
+    "move_dollars": 11.92,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 68,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 669.67,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bearish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "BROKE",
+      "battle_level": 669.67,
+      "role": "support",
+      "first_touch_time": "2026-03-09T11:20:00"
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 669.67,
+        "touched_any_time": true,
+        "touched_in_specified_window": false,
+        "claim": "SPY touches Carry support 669.67 within the first 90 minutes of RTH (by 11:00 ET on 2026-03-09)",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains above 29.0 at the 10:00 ET mark (60 minutes post-open), sustaining the HIGH regime and elevated premium envi",
+        "invalidation": "VIX drops to or below 29.0 before 10:00 ET, confirming spike exhaustion and mean-reversion dominant"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "SPY's first completed 5-minute bar after 09:35 ET closes below 672.24 (prior close) with CLEAN_BEAR ribbon maintaining f",
+        "invalidation": "SPY's first 5-minute bar after 09:35 ET closes at or above 673.00, or the ribbon fast EMA (672.42) is reclaimed by price"
+      }
+    ]
+  },
+  "narrative": "All four specialists voted unanimously bearish \u2014 anchored by VIX 30.83 (HIGH regime, +4.47%), a 111-cent CLEAN_BEAR ribbon inversion, price 53 cents below the EMA20 pivot, and the Carry support at 669.67 acting as a magnetic flush target 2.57 below spot. However, the validator rates consensus robust"
+}

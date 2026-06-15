@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-03-27T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "XLK (tech) -1.98% leading SPY lower (-1.07%), while XLE (energy) rallies +1.4% — classic risk-off rotation. Defensive sector outperformance with tech weakness suggests flight from growth. XLF flat (-0.12%) lacks confirmation; otherwise risk-off would be HIGH confidence. Narrow tech-led sell-off with defensive energy support = bearish bias, medium-high confidence.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -1.98,
+    "xlf_change_pct": -0.12,
+    "xle_change_pct": 1.4,
+    "spy_change_pct": -1.07,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: -1.98% (tech sector under heavy pressure, largest SPY component weighting)",
+    "XLF: -0.12% (financials flat, not confirming risk-off strongly — would expect -0.5% to -1.0%)",
+    "XLE: +1.4% (energy defensive rally, typical risk-off trade)",
+    "Overall rotation: Risk-off is evident but incomplete (lack of financial confirmation reduces confidence to medium-high)"
+  ],
+  "data_quality": "full"
+}

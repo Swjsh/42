@@ -1,0 +1,149 @@
+{
+  "generated_at": "2026-05-17T19:37:22.389360",
+  "edge_capture_v151": -345.41999999999996,
+  "edge_capture_v153": -345.41999999999996,
+  "max_edge_capture": 1542,
+  "edge_floor": 771,
+  "gate3_v151_pass": false,
+  "gate3_v153_pass": false,
+  "day_results": [
+    {
+      "date": "2026-04-29",
+      "side": "WINNER",
+      "j_pnl": 342,
+      "v151_pnl": -52.43,
+      "v151_n_trades": 1,
+      "v151_trades": [
+        {
+          "side": "P",
+          "strike": 712,
+          "pnl": -52.43,
+          "exit": "ExitReason.EXIT_ALL_PREMIUM_ST"
+        }
+      ],
+      "v153_trigger_fires": false,
+      "v153_trigger_level": null,
+      "v153_trigger_time": "None",
+      "v153_pnl_est": -52.43,
+      "v153_note": "same as v15.1 (trigger doesn't change existing entry)"
+    },
+    {
+      "date": "2026-05-01",
+      "side": "WINNER",
+      "j_pnl": 470,
+      "v151_pnl": 294.75,
+      "v151_n_trades": 2,
+      "v151_trades": [
+        {
+          "side": "C",
+          "strike": 721,
+          "pnl": 465.87,
+          "exit": "ExitReason.EXIT_ALL_PREMIUM_ST"
+        },
+        {
+          "side": "C",
+          "strike": 721,
+          "pnl": -171.12,
+          "exit": "ExitReason.EXIT_ALL_PREMIUM_ST"
+        }
+      ],
+      "v153_trigger_fires": false,
+      "v153_trigger_level": null,
+      "v153_trigger_time": "None",
+      "v153_pnl_est": 294.75,
+      "v153_note": "same as v15.1 (trigger doesn't change existing entry)"
+    },
+    {
+      "date": "2026-05-04",
+      "side": "WINNER",
+      "j_pnl": 730,
+      "v151_pnl": -404.39,
+      "v151_n_trades": 1,
+      "v151_trades": [
+        {
+          "side": "P",
+          "strike": 720,
+          "pnl": -404.39,
+          "exit": "ExitReason.EXIT_ALL_PREMIUM_ST"
+        }
+      ],
+      "v153_trigger_fires": false,
+      "v153_trigger_level": null,
+      "v153_trigger_time": "None",
+      "v153_pnl_est": -404.39,
+      "v153_note": "same as v15.1 (trigger doesn't change existing entry)"
+    },
+    {
+      "date": "2026-05-05",
+      "side": "LOSER",
+      "j_pnl": -260,
+      "v151_pnl": 0.0,
+      "v151_n_trades": 0,
+      "v151_trades": [],
+      "v153_trigger_fires": true,
+      "v153_trigger_level": 721.97,
+      "v153_trigger_time": "09:35:00",
+      "v153_pnl_est": 0.0,
+      "v153_note": "same as v15.1 (trigger doesn't change existing entry)"
+    },
+    {
+      "date": "2026-05-06",
+      "side": "LOSER",
+      "j_pnl": -300,
+      "v151_pnl": 0.0,
+      "v151_n_trades": 0,
+      "v151_trades": [],
+      "v153_trigger_fires": false,
+      "v153_trigger_level": null,
+      "v153_trigger_time": "None",
+      "v153_pnl_est": 0.0,
+      "v153_note": "same as v15.1 (trigger doesn't change existing entry)"
+    },
+    {
+      "date": "2026-05-07",
+      "side": "LOSER",
+      "j_pnl": -165,
+      "v151_pnl": -183.35,
+      "v151_n_trades": 1,
+      "v151_trades": [
+        {
+          "side": "C",
+          "strike": 733,
+          "pnl": -183.35,
+          "exit": "ExitReason.EXIT_ALL_PREMIUM_ST"
+        }
+      ],
+      "v153_trigger_fires": false,
+      "v153_trigger_level": null,
+      "v153_trigger_time": "None",
+      "v153_pnl_est": -183.35,
+      "v153_note": "same as v15.1 (trigger doesn't change existing entry)"
+    },
+    {
+      "date": "2026-05-15",
+      "side": "LOSS_515",
+      "j_pnl": -770,
+      "v151_pnl": 155.62,
+      "v151_n_trades": 2,
+      "v151_trades": [
+        {
+          "side": "P",
+          "strike": 743,
+          "pnl": -545.26,
+          "exit": "ExitReason.EXIT_ALL_PREMIUM_ST"
+        },
+        {
+          "side": "P",
+          "strike": 742,
+          "pnl": 700.88,
+          "exit": "ExitReason.EXIT_ALL_PREMIUM_ST"
+        }
+      ],
+      "v153_trigger_fires": true,
+      "v153_trigger_level": 738.88,
+      "v153_trigger_time": "09:40:00",
+      "v153_pnl_est": 50.0,
+      "v153_note": "early entry (09:41 ET) before V-reversal, est chandelier exit ~breakeven to +$50"
+    }
+  ]
+}

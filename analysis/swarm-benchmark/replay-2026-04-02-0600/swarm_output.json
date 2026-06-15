@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-04-02T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": [],
+    "bearish": ["technical", "macro", "level_thesis", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 0,
+    "bearish": 4,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.0,
+    "bearish": 1.0
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 88,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The assumption that 645.75 (2★ Active support, zero premarket volume tests) will break cleanly on the first RTH touch — the entire bearish cascade hinges on this untested support failing, but support commonly holds and bounces on first touch.",
+    "top_invalidation_scenario": "SPY opens, touches 645.75, and bounces immediately without breaking (bodies form above the level on first 5m bar); XLK holds +0.6% or improves — directly activating Level Thesis's own primary bullish scenario."
+  },
+  "battle_level": {
+    "price": 645.75,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 645.75,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 649.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 650.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 653.0,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 658.52,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks below 645.75 on first RTH test with confirming volume",
+      "bias": "bearish",
+      "target": 653.0,
+      "entry_trigger": "support_break + continuation"
+    },
+    "secondary": {
+      "condition": "if SPY holds 645.75 on first RTH test (body closes above, no clean break)",
+      "bias": "bullish",
+      "target": 650.0,
+      "entry_trigger": "support_hold + ribbon_flip_toward_bull"
+    },
+    "invalidation": {
+      "condition": "SPY opens, touches 645.75, and bounces immediately — first 5m bar body holds above 645.75; XLK stays +0.6% or better; gap begins to fill toward 651.50",
+      "effect": "Negates the bearish cascade thesis entirely — activates the Level Thesis primary bullish scenario; technical would need to reassess CLEAN_BEAR conviction; macro 'fear front-loaded' narrative takes over."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "645.75 is tested (SPY prints a bar with low at or below 645.75) within the first 90 minutes of RTH (before 11:00 ET)",
+      "invalidation": "SPY does not touch 645.75 at any point before 11:00 ET — opens and trades above 647.00 through the first 90 minutes",
+      "confidence": 0.78,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains at or above 25.50 through 12:00 ET noon — elevated fear regime sustained, not a front-loaded one-day spike that reverses at open",
+      "invalidation": "VIX drops below 25.00 before 12:00 ET noon, signaling fear exhaustion and gap-fill risk-on scenario",
+      "confidence": 0.72,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BEAR ribbon (fast 648.02 < pivot 648.56 < slow 650.85) maintains at least 150c spread through the 10:30 ET bar close — no bull reclaim of the ribbon in the first hour",
+      "invalidation": "Ribbon spread compresses below 150c OR fast EMA crosses above pivot EMA before the 10:30 ET bar close",
+      "confidence": 0.70,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The core tension on 2026-04-02 is whether 645.75 — the premarket low that has never faced real RTH selling pressure — holds or breaks on its first meaningful test. All 4 specialists agree on bearish bias, driven by a CLEAN_BEAR ribbon (284c spread), a $7.36 overnight gap down, and VIX rising to 26.14 in a HIGH regime; the consensus is strong and unanimous. The single most important thing to watch at the open is the first 5-minute bar at 645.75: a clean body break below it with volume confirms the flush-to-653.0 thesis, while a bounce and close above it activates the Level Thesis's own bullish secondary path toward 650.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.78,
+      "one_line": "CLEAN_BEAR ribbon 284c spread; price 74c below pivot 648.56; overnight gap down 7.36 pts; bar structure mixed but ribbon + pivot alignment high-conviction bearish"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.85,
+      "one_line": "VIX HIGH regime rising +6.22% to 26.14; $7.36 gap down risk-off sentiment; zero events today — clean canvas heavily favors bearish setups"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.70,
+      "one_line": "Battle level 645.75 (Active 2★ premarket low) is the pivot — break triggers flush to 653.0; hold triggers bounce to 650; first RTH touch is outcome-determining"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.45,
+      "one_line": "XLF -0.72% + XLE -1.26% signal asymmetric risk-off; XLK +0.59% defensive hold limits conviction — mixed rotation, lowest confidence in swarm"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "645.75 support holds on first RTH test (never faced premarket volume); gap-down reversal + VIX fear front-loaded scenario activates Level Thesis's own bullish primary path"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

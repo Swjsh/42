@@ -1,0 +1,148 @@
+{
+  "generated_at": "2026-05-19T01:54:38.143838+00:00",
+  "purpose": "Find optimal allow_one_blocker_min_spread_cents to fix 4/29 while keeping 5/04",
+  "base_config": "vix_soft_mode=True, allow_one_blocker=True",
+  "op16_floor": 771,
+  "j_max_edge": 1542,
+  "best_min_spread": 27,
+  "best_edge_capture": 1660.94,
+  "op16_passing_min_spreads": [
+    0,
+    10,
+    15,
+    20,
+    25,
+    27,
+    29
+  ],
+  "results": [
+    {
+      "allow_one_blocker_min_spread_cents": 0,
+      "per_day_pnl": {
+        "2026-04-29": -427.06,
+        "2026-05-01": -188.0,
+        "2026-05-04": 1794.24,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": 290.0
+      },
+      "winner_total": 1179.18,
+      "loser_exposure": 0,
+      "edge_capture": 1179.18,
+      "edge_capture_pct_of_max": 76.5,
+      "op16_pass": true
+    },
+    {
+      "allow_one_blocker_min_spread_cents": 10,
+      "per_day_pnl": {
+        "2026-04-29": -427.06,
+        "2026-05-01": -236.0,
+        "2026-05-04": 1794.24,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": 290.0
+      },
+      "winner_total": 1131.18,
+      "loser_exposure": 0,
+      "edge_capture": 1131.18,
+      "edge_capture_pct_of_max": 73.4,
+      "op16_pass": true
+    },
+    {
+      "allow_one_blocker_min_spread_cents": 15,
+      "per_day_pnl": {
+        "2026-04-29": -427.06,
+        "2026-05-01": -236.0,
+        "2026-05-04": 1794.24,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": 290.0
+      },
+      "winner_total": 1131.18,
+      "loser_exposure": 0,
+      "edge_capture": 1131.18,
+      "edge_capture_pct_of_max": 73.4,
+      "op16_pass": true
+    },
+    {
+      "allow_one_blocker_min_spread_cents": 20,
+      "per_day_pnl": {
+        "2026-04-29": -11.7,
+        "2026-05-01": -236.0,
+        "2026-05-04": 1794.24,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": 290.0
+      },
+      "winner_total": 1546.54,
+      "loser_exposure": 0,
+      "edge_capture": 1546.54,
+      "edge_capture_pct_of_max": 100.3,
+      "op16_pass": true
+    },
+    {
+      "allow_one_blocker_min_spread_cents": 25,
+      "per_day_pnl": {
+        "2026-04-29": -11.7,
+        "2026-05-01": -236.0,
+        "2026-05-04": 1794.24,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": 290.0
+      },
+      "winner_total": 1546.54,
+      "loser_exposure": 0,
+      "edge_capture": 1546.54,
+      "edge_capture_pct_of_max": 100.3,
+      "op16_pass": true
+    },
+    {
+      "allow_one_blocker_min_spread_cents": 27,
+      "per_day_pnl": {
+        "2026-04-29": -11.7,
+        "2026-05-01": -121.6,
+        "2026-05-04": 1794.24,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": 290.0
+      },
+      "winner_total": 1660.94,
+      "loser_exposure": 0,
+      "edge_capture": 1660.94,
+      "edge_capture_pct_of_max": 107.7,
+      "op16_pass": true
+    },
+    {
+      "allow_one_blocker_min_spread_cents": 29,
+      "per_day_pnl": {
+        "2026-04-29": -561.6,
+        "2026-05-01": -121.6,
+        "2026-05-04": 1794.24,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": 290.0
+      },
+      "winner_total": 1111.04,
+      "loser_exposure": 0,
+      "edge_capture": 1111.04,
+      "edge_capture_pct_of_max": 72.1,
+      "op16_pass": true
+    },
+    {
+      "allow_one_blocker_min_spread_cents": 30,
+      "per_day_pnl": {
+        "2026-04-29": -258.4,
+        "2026-05-01": -121.6,
+        "2026-05-04": 63.24,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": 290.0
+      },
+      "winner_total": -316.76,
+      "loser_exposure": 0,
+      "edge_capture": -316.76,
+      "edge_capture_pct_of_max": -20.5,
+      "op16_pass": false
+    }
+  ]
+}

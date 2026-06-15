@@ -1,0 +1,66 @@
+{
+  "date": "2026-04-09",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:12.278673+00:00",
+  "actual": {
+    "open": 674.84,
+    "close": 679.87,
+    "high": 681.16,
+    "low": 673.77,
+    "move_dollars": 5.03,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 88,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 672.87,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bearish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 672.87,
+      "role": "support",
+      "rth_range": [
+        673.77,
+        681.16
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 672.87,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "SPY touches PML 672.87 at least once within the first 60 minutes of RTH (by 10:30 ET)",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 22.50 throughout the RTH session \u2014 flat MID regime holds, no fear spike",
+        "invalidation": "VIX spikes above 23.00 within the first 10 minutes of RTH (by 09:40 ET)"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "BEAR ribbon stack (slow > pivot > fast) is maintained through 10:30 ET with spread above 25 cents",
+        "invalidation": "Ribbon spread compresses below 20 cents or flips to BULL stack before 10:00 ET"
+      }
+    ]
+  },
+  "narrative": "All four specialists align bearish on a convergence of CLEAN_BEAR ribbon (36c spread), overnight gap-down -$2.14, and risk-off sector rotation (XLK -1.01%), with SPY at 673.74 sitting just 87 cents above the battle level PML 672.87 \u2014 a test is imminent at open. The critical tension the validator cor"
+}

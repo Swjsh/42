@@ -1,0 +1,42 @@
+==== MISSED-WEEK: ranked (days-green, total/contract) ====
+  2/4     +27.5/c  n=8   ATM stop-8% / V0_baseline   [05-26:-2 05-27:+5 05-28:-10 05-29:+35]
+  2/4     +22.1/c  n=5   ATM stop-8% / V_pullback   [05-26:+21 05-27:+1 05-28:+0 05-29:+0]
+  2/4     +15.0/c  n=5   ITM2 stop-15% / V_pullback   [05-26:+13 05-27:+2 05-28:+0 05-29:+0]
+  2/4      +4.5/c  n=8   ITM2 stop-15% / V0_baseline   [05-26:-1 05-27:+2 05-28:-8 05-29:+11]
+  1/4     +23.0/c  n=3   ATM stop-8% / V_confirm2   [05-26:+0 05-27:-12 05-28:+0 05-29:+35]
+  1/4      +9.4/c  n=2   ATM stop-8% / V_ribbon_prox   [05-26:+0 05-27:+9 05-28:+0 05-29:+0]
+  1/4      +9.4/c  n=2   ATM chart-stop / V_ribbon_prox   [05-26:+0 05-27:+9 05-28:+0 05-29:+0]
+  1/4      +4.2/c  n=8   ITM2 chart-stop / V0_baseline   [05-26:-4 05-27:-3 05-28:+0 05-29:+11]
+  1/4      +3.2/c  n=2   ITM2 stop-15% / V_ribbon_prox   [05-26:+0 05-27:+3 05-28:+0 05-29:+0]
+  1/4      +3.2/c  n=2   ITM2 chart-stop / V_ribbon_prox   [05-26:+0 05-27:+3 05-28:+0 05-29:+0]
+
+==== ANCHOR CROSS-CHECK (parsed from md) ====
+  ## Cross-check: missed-week-winning combos, on the anchor window
+  | profile | variant | anchor days+ | anchor total/c | anchor n |
+  |---|---|---|---|---|
+  | ATM stop-8% | V0_baseline | 1/6 | +21.2 | 3 |
+  | ATM stop-8% | V_pullback | 1/6 | +22.3 | 2 |
+  | ITM2 stop-15% | V_pullback | 1/6 | +11.5 | 2 |
+  | ITM2 stop-15% | V0_baseline | 1/6 | +18.2 | 3 |
+  | ATM stop-8% | V_confirm2 | 0/6 | +0.0 | 0 |
+  | ATM stop-8% | V_ribbon_prox | 0/6 | +0.0 | 0 |
+  
+  **Read:** a combo that wins the missed week AND stays non-negative on the anchor window is a real candidate. One that wins the week but craters the anchors is overfit — reject (OP-16 edge-capture floor).
+
+==== ANCHOR per-variant (V_pullback + V0 rows, parsed) ====
+  | V0_baseline | -1.8 | +5.2 | -10.5 | +34.5 | +27.5 | 2/4 | 8 |
+  | V_pullback | +21.3 | +0.8 | +0.0 | +0.0 | +22.1 | 2/4 | 5 |
+  | V0_baseline | -0.8 | +2.2 | -8.0 | +11.0 | +4.5 | 2/4 | 8 |
+  | V_pullback | +12.7 | +2.4 | +0.0 | +0.0 | +15.0 | 2/4 | 5 |
+  | V0_baseline | -15.0 | -27.6 | +0.0 | +34.5 | -8.1 | 1/4 | 8 |
+  | V_pullback | -30.1 | -32.0 | +0.0 | +0.0 | -62.1 | 0/4 | 5 |
+  | V0_baseline | -4.0 | -2.8 | +0.0 | +11.0 | +4.2 | 1/4 | 8 |
+  | V_pullback | -6.3 | -2.6 | +0.0 | +0.0 | -8.9 | 0/4 | 5 |
+  | V0_baseline | +0.0 | +0.0 | +0.0 | +0.0 | +21.2 | +0.0 | +21.2 | 1/6 | 3 |
+  | V_pullback | +31.2 | +0.0 | +0.0 | +0.0 | -8.9 | +0.0 | +22.3 | 1/6 | 2 |
+  | V0_baseline | +0.0 | +0.0 | +0.0 | +0.0 | +18.2 | +0.0 | +18.2 | 1/6 | 3 |
+  | V_pullback | +18.8 | +0.0 | +0.0 | +0.0 | -7.4 | +0.0 | +11.5 | 1/6 | 2 |
+  | V0_baseline | +0.0 | +0.0 | +0.0 | +0.0 | -27.6 | +0.0 | -27.6 | 0/6 | 3 |
+  | V_pullback | +31.2 | +0.0 | +0.0 | +0.0 | -23.0 | +0.0 | +8.2 | 1/6 | 2 |
+  | V0_baseline | +0.0 | +0.0 | +0.0 | +0.0 | -4.2 | +0.0 | -4.2 | 0/6 | 3 |
+  | V_pullback | +18.8 | +0.0 | +0.0 | +0.0 | -12.0 | +0.0 | +6.8 | 1/6 | 2 |

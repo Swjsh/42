@@ -1,0 +1,63 @@
+{
+  "date": "2026-03-19",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:08.871124+00:00",
+  "actual": {
+    "open": 656.97,
+    "close": 659.72,
+    "high": 662.98,
+    "low": 655.17,
+    "move_dollars": 2.75,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 82,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 661.19,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bearish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "HELD",
+      "battle_level": 661.19,
+      "role": "support",
+      "first_touch_time": "2026-03-19T15:05:00"
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 661.19,
+        "touched_any_time": true,
+        "touched_in_specified_window": false,
+        "claim": "SPY tests the 661.19 Carry support level at least once within the first 90 minutes of RTH (by 11:00 ",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains above 24.50 through the first 60 minutes of RTH (09:30-10:30 ET), sustaining elevated put premium and confir",
+        "invalidation": "VIX drops below 24.00 by 10:30 ET, indicating post-FOMC relief repricing and invalidating the 'fear escalating' macro na"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "SPY fails to close a 5-minute bar above 662.10 PMH within the first 90 minutes of RTH, consistent with the CLEAN_BEAR ri",
+        "invalidation": "SPY prints a 5-minute bar with a close above 662.25 before 11:00 ET, signaling PMH breakout and ribbon compression that "
+      }
+    ]
+  },
+  "narrative": "All four specialist agents (technical, macro, level_thesis, internals) unanimously agree on a bearish bias: CLEAN_BEAR ribbon with 144-cent spread, VIX at 25.87 rising +5.21% into HIGH regime, all sectors red, and a failed premarket breakout at PMH 662.10 point to downside continuation. The critical"
+}

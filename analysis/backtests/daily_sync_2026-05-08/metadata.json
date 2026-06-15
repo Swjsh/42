@@ -1,0 +1,14 @@
+{
+  "label": "daily_sync_2026-05-08",
+  "start": "2026-04-08",
+  "end": "2026-05-08",
+  "disable_filters": [],
+  "result_metadata": {
+    "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "bars_evaluated": 1507,
+    "trades_fired": 18,
+    "start_date": "2026-04-08",
+    "end_date": "2026-05-07"
+  },
+  "run_at": "2026-05-08T16:05:05.879503"
+}

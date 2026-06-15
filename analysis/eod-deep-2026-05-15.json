@@ -1,0 +1,574 @@
+{
+  "schema_version": "eod-deep-v1",
+  "date": "2026-05-15",
+  "generated_at_et": "2026-05-15T16:05:04",
+  "rule_version_active": "v15.1",
+  "market_session_summary": {
+    "session_high": 744.35,
+    "session_low": 737.96,
+    "session_close": 740.565,
+    "vix_close": 18.05,
+    "vix_dir": "rising",
+    "regime_predicted": "post_macro_drift_day"
+  },
+  "account_equity_start": 0,
+  "account_equity_end": -770.0,
+  "day_pnl_dollars": -770.0,
+  "day_pnl_pct": 0,
+  "day_trade_count": 1,
+  "daily_loss_budget_used_pct": 0.0,
+  "trades": [
+    {
+      "id": "trade_csv_1",
+      "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "short",
+      "underlying": "SPY",
+      "expiry_date": "2026-05-15",
+      "strike": 740.0,
+      "option_type": "P",
+      "fills": [
+        {
+          "time_et": "09:46:38",
+          "side": "buy",
+          "qty": 10,
+          "price": 3.14,
+          "source": "engine_heartbeat",
+          "reason": "entry",
+          "order_id": null,
+          "slippage_cents": null
+        },
+        {
+          "time_et": "09:50:32",
+          "side": "sell",
+          "qty": 10,
+          "price": 2.37,
+          "source": "engine_heartbeat",
+          "reason": "tp1_or_runner",
+          "order_id": null,
+          "slippage_cents": null
+        }
+      ],
+      "entry_price": 3.14,
+      "avg_exit_price": 2.37,
+      "qty_entered": 10,
+      "qty_exited": 10,
+      "qty_outstanding": 0,
+      "pnl_dollars_realized": -770.0,
+      "pnl_dollars_unrealized": 0.0,
+      "pnl_pct_on_capital": -24.52,
+      "hold_minutes": 4,
+      "triggers_fired": [],
+      "setup_score": "?/?",
+      "doctrine_compliance_score": 100.0,
+      "rule_breaks": [],
+      "journaled_before_entry": true,
+      "engine_decisions": [],
+      "counterfactuals": [
+        {
+          "name": "perfect_hindsight",
+          "pnl_dollars": 1180.0,
+          "method": "All 10 contracts sold at peak premium $4.32. In reality we scaled out at $2.26, $3.72, $4.32 \u2014 close to ideal.",
+          "delta_vs_actual": -1950.0
+        },
+        {
+          "name": "v14_doctrine",
+          "pnl_dollars": 857.4,
+          "method": "v14: TP1 7\u00d7 @ 4.08 (+30% fixed) + runner 3\u00d7 exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 3.45 not breached)",
+          "delta_vs_actual": -1627.4
+        },
+        {
+          "name": "stepped_pl",
+          "pnl_dollars": -770.0,
+          "method": "HWM $4.01 = +140% gain \u2192 stepped rung 100-150% = 10% trail \u2192 floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.",
+          "delta_vs_actual": 0.0
+        }
+      ]
+    }
+  ],
+  "categories": {
+    "execution": {
+      "score": 95.0,
+      "evidence": {
+        "trade_count": 1,
+        "fill_count": 2,
+        "avg_slippage_cents": 0,
+        "phase": "1-shallow"
+      },
+      "narrative": "1 trades / 2 fills. Avg slippage 0.0c. Phase 1 SHALLOW \u2014 Phase 2 adds fill-timing-vs-trigger and partial-fill analysis.",
+      "actions": []
+    },
+    "detection": {
+      "score": 50.0,
+      "evidence": {
+        "phase": "3.0",
+        "verdict": "NO_DATA",
+        "engine_decisions": [],
+        "error": "no RTH bars for 2026-05-15"
+      },
+      "narrative": "Phase 3 replay produced no decisions: no RTH bars for 2026-05-15",
+      "actions": []
+    },
+    "edge": {
+      "score": 0.0,
+      "evidence": {
+        "edge_capture_pct": 0.0,
+        "total_actual_pnl": -770.0,
+        "total_perfect_hindsight_pnl": 1180.0,
+        "total_v14_counterfactual_pnl": 857.4,
+        "total_stepped_pl_pnl": -770.0,
+        "counterfactuals_by_trade": [
+          {
+            "trade_id": "trade_csv_1",
+            "perfect_hindsight": 1180.0,
+            "v14_doctrine": 857.4,
+            "stepped_pl": -770.0,
+            "actual": -770.0
+          }
+        ]
+      },
+      "narrative": "Captured $-770 of $1,180 perfect-hindsight = 0.0% edge capture.  v14 doctrine would have delivered $857 \u2014 v14 would have won by $1,627.  T75 stepped-PL gives identical outcome on TODAY (+$0 delta) \u2014 differentiation visible on chop/retrace days.",
+      "actions": []
+    },
+    "doctrine": {
+      "score": 100.0,
+      "evidence": {
+        "rule_breaks_count": 0,
+        "trade_count": 1
+      },
+      "narrative": "100% doctrine compliance. 1 trades, 0 rule breaks logged.",
+      "actions": []
+    },
+    "risk": {
+      "score": 80.0,
+      "evidence": {
+        "phase": "2.4",
+        "max_size_pct_of_equity": 0,
+        "day_pnl_pct": -24.52,
+        "largest_loss_pct": -24.52,
+        "largest_loss_dollars": -770.0,
+        "qty_max": 10,
+        "v15_hard_gate_pct": 20.0,
+        "weights": {
+          "size": 30,
+          "budget": 10,
+          "loss": 20,
+          "qty": 20
+        }
+      },
+      "narrative": "Max position 0.00% of equity (v15 gate: 20%). Day P&L -24.5% / max-trade-loss -24.5% / max-qty 10. Score: 80/100 (size=30/30, budget=10/25, loss=20/25, qty=20/20).",
+      "actions": []
+    },
+    "process": {
+      "score": 75.0,
+      "evidence": {
+        "phase": "2.7",
+        "section_count": 4,
+        "trades_csv_rows": 1,
+        "trades_actual": 1,
+        "decisions_count": 10,
+        "decisions_per_trade": 10.0,
+        "grades_count": 0,
+        "premarket_predictions": 4,
+        "grade_coverage_pct": 0.0,
+        "weights": {
+          "journal": 25,
+          "trades_csv": 25,
+          "decisions": 25,
+          "grades": 0
+        },
+        "gaps": [
+          "journal sections 4/6",
+          "hypothesis grade coverage 0% (0/4 predictions)"
+        ]
+      },
+      "narrative": "Process score 75/100. Journal: 4/6 sections, 6010B. Trades.csv: 1 rows for 1 trades. Decisions: 10 (10.0/trade, target \u22658). Hypothesis coverage: 0/4 predictions (0%). Gaps: journal sections 4/6 / hypothesis grade coverage 0% (0/4 predictions)",
+      "actions": []
+    },
+    "macro": {
+      "score": 80.0,
+      "evidence": {
+        "phase": "2.4",
+        "predicted_regime": "post_macro_drift_day",
+        "primary_catalyst_type": "macro_data",
+        "realized_regime": "mixed_drift",
+        "session_high": 744.35,
+        "session_low": 737.96,
+        "session_close": 740.565,
+        "news_freshness": "stale_one_day_or_more",
+        "news_as_of": "2026-05-14T02:15:00-04:00"
+      },
+      "narrative": "Predicted regime: post_macro_drift_day (catalyst: macro_data). Realized: mixed_drift. News freshness: stale_one_day_or_more. Score 80/100.",
+      "actions": [
+        {
+          "type": "alert_stale_news",
+          "priority": "MED",
+          "details": {
+            "as_of": "2026-05-14T02:15:00-04:00",
+            "today": "2026-05-15",
+            "note": "Premarket should re-fetch news.json on next fire."
+          }
+        }
+      ]
+    },
+    "technical": {
+      "score": 42.0,
+      "evidence": {
+        "phase": "2.4",
+        "hypothesis_grades": {
+          "pass": 0,
+          "fail": 0,
+          "total": 0
+        },
+        "levels_held": [
+          {
+            "price": 744.35,
+            "kind": "resistance"
+          },
+          {
+            "price": 745.43,
+            "kind": "resistance"
+          }
+        ],
+        "levels_broken": [
+          {
+            "price": 739.04,
+            "kind": "support"
+          },
+          {
+            "price": 738.86,
+            "kind": "support"
+          },
+          {
+            "price": 738.1,
+            "kind": "support"
+          }
+        ],
+        "ribbon_close_stack": "BULL",
+        "bias_direction_predicted": "bearish",
+        "weights": {
+          "grades": 15,
+          "levels": 12,
+          "ribbon": 15
+        }
+      },
+      "narrative": "Hypothesis grades: 0/0 PASS. Key levels: 2 held / 3 broken. Ribbon close: BULL (bias was: bearish). Score 42/100 (grades=15/40, levels=12/30, ribbon=15/30).",
+      "actions": []
+    },
+    "engine_health": {
+      "score": 50.0,
+      "evidence": {
+        "phase": "2.4",
+        "rule_version_active": "v15.1",
+        "heartbeat_tick_count": 10,
+        "expected_heartbeat_ticks": 127,
+        "watcher_diag_fires": 76,
+        "expected_watcher_fires": 76,
+        "incidents": [],
+        "weights": {
+          "pin": 0,
+          "heartbeat": 5,
+          "diag": 25,
+          "silent_failure": 20
+        }
+      },
+      "narrative": "Pin chain: FAIL. Heartbeat ticks: 10/127 (8%). Watcher diag fires: 76/76 (100%). No silent-failure incidents detected.",
+      "actions": [
+        {
+          "type": "alert_pin_chain_break",
+          "priority": "HIGH",
+          "details": {
+            "observed": "v15.1",
+            "expected": "v15"
+          }
+        }
+      ]
+    },
+    "watcher_fleet": {
+      "score": 46.0,
+      "evidence": {
+        "phase": "2.4",
+        "diag_fires_total": 76,
+        "expected_diag_fires": 76,
+        "fires_with_signals": 1,
+        "observations_by_watcher": {
+          "v14_enhanced_watcher": 1
+        },
+        "unique_watchers_firing_today": 1,
+        "expected_watchers": [
+          "orb_watcher",
+          "bullish_watcher",
+          "v14_enhanced_watcher",
+          "opening_drive_fade_watcher",
+          "vwap_watcher",
+          "premarket_fail_fade_watcher"
+        ],
+        "silent_watchers_today": [
+          "orb_watcher",
+          "bullish_watcher",
+          "opening_drive_fade_watcher",
+          "vwap_watcher",
+          "premarket_fail_fade_watcher"
+        ],
+        "weights": {
+          "diag": 30,
+          "signal": 8,
+          "unique": 8,
+          "silent": 0
+        }
+      },
+      "narrative": "Diag fires: 76/76 (100% of expected). Fires with signals: 1 (1%). Watchers active: 1/6. Silent watchers: ['orb_watcher', 'bullish_watcher', 'opening_drive_fade_watcher', 'vwap_watcher', 'premarket_fail_fade_watcher']. Score 46/100.",
+      "actions": [
+        {
+          "type": "alert_silent_watchers",
+          "priority": "HIGH",
+          "details": {
+            "silent_watchers": [
+              "orb_watcher",
+              "bullish_watcher",
+              "opening_drive_fade_watcher",
+              "vwap_watcher",
+              "premarket_fail_fade_watcher"
+            ],
+            "expected": [
+              "orb_watcher",
+              "bullish_watcher",
+              "v14_enhanced_watcher",
+              "opening_drive_fade_watcher",
+              "vwap_watcher",
+              "premarket_fail_fade_watcher"
+            ],
+            "by_watcher_today": {
+              "v14_enhanced_watcher": 1
+            },
+            "note": "Run setup/scripts/audit-silent-watcher-days.ps1 for cross-day pattern"
+          }
+        }
+      ]
+    },
+    "lessons": {
+      "score": 100.0,
+      "evidence": {
+        "phase": "2.4",
+        "candidate_count": 0,
+        "lesson_candidates": [],
+        "next_l_number": 37,
+        "existing_lesson_count": 36
+      },
+      "narrative": "Lesson candidates detected: 0 (rule_breaks=0, ingest_warnings=0, journal_markers=0). All candidates queued \u2014 NEVER auto-written to LESSONS-LEARNED.md. Score 100/100.",
+      "actions": []
+    },
+    "forensics": {
+      "score": 50.0,
+      "evidence": {
+        "phase": "2.3",
+        "winners_count": 0,
+        "forensics_per_trade": [],
+        "tolerances": {
+          "time_of_day_min": 15,
+          "vol_mult_rel": 0.3,
+          "ribbon_spread_rel": 0.4
+        },
+        "knobs_used": {
+          "qty": 10,
+          "premium_stop_pct_bear": -0.2,
+          "strike_offset_bear": -2,
+          "v15_profit_lock_mode": "trailing",
+          "v15_profit_lock_threshold": 0.05,
+          "v15_profit_lock_offset": 0.1,
+          "v15_profit_lock_trail_pct": 0.2
+        }
+      },
+      "narrative": "Winners analyzed: 0, losers: 1\n\n[Phase 2.3 disclosures]:",
+      "actions": []
+    },
+    "tomorrow": {
+      "score": 65.0,
+      "evidence": {
+        "phase": "2.4",
+        "next_trading_day": "2026-05-18",
+        "carry_levels": {
+          "today_session_high": 744.35,
+          "today_session_low": 737.96,
+          "today_session_close": 740.565,
+          "key_levels_from_today_bias": {
+            "resistance": [
+              {
+                "price": 744.35,
+                "label": "PMH 5/15 Active R",
+                "tier": "Active",
+                "stars": 2
+              },
+              {
+                "price": 745.43,
+                "label": "PMH 5/14 CPI-gap Active R",
+                "tier": "Active",
+                "stars": 3
+              }
+            ],
+            "support": [
+              {
+                "price": 739.04,
+                "label": "PML 5/15 Active S",
+                "tier": "Active",
+                "stars": 2
+              },
+              {
+                "price": 738.86,
+                "label": "R2 pivot flipped-to-support Reference",
+                "tier": "Reference",
+                "stars": 2
+              },
+              {
+                "price": 738.1,
+                "label": "Carry \u2605\u2605\u2605 5-touch hold (flip level)",
+                "tier": "Carry",
+                "stars": 3
+              }
+            ],
+            "psychological": [
+              {
+                "price": 740.0,
+                "label": "Round number \u2014 immediate overhead (awareness only)",
+                "tier": "Reference"
+              },
+              {
+                "price": 743.0,
+                "label": "Round number (awareness only)",
+                "tier": "Reference"
+              }
+            ],
+            "ema_fast": 739.71,
+            "ema_pivot": 740.42,
+            "ema_slow": 740.89,
+            "sma_50": 740.84
+          },
+          "5d_high": 749.53,
+          "5d_low": 731.83,
+          "5d_dates": [
+            "2026-05-08",
+            "2026-05-11",
+            "2026-05-12",
+            "2026-05-13",
+            "2026-05-14"
+          ]
+        },
+        "scheduled_events_tomorrow": [],
+        "developing_setup_at_close": null
+      },
+      "narrative": "Next trading day: 2026-05-18. Session H/L/C: 744.35 / 737.96 / 740.565. Macro events tomorrow: 0.",
+      "actions": []
+    }
+  },
+  "process_score": 63.3,
+  "edge_capture_pct": 0.0,
+  "research_handoffs": {
+    "fixes_shipped_today": [],
+    "doctrine_candidates_for_grinder": [],
+    "ingest_warnings": [],
+    "drift_check": {
+      "actual_pnl": -770.0,
+      "verdict": "DRIFT_HIGH_LEFT",
+      "narrative": "Today's $-770 is BELOW P10 of recent distribution \u2014 significant negative outlier. Distribution: n=30, P10/P25/P50/P75/P90 = $1057.64/1163.24/1755.01/2196.74/2926.78. Today percentile estimate: P1.",
+      "n_days_in_distribution": 30,
+      "percentiles": {
+        "p10": 1057.64,
+        "p25": 1163.24,
+        "p50": 1755.01,
+        "p75": 2196.74,
+        "p90": 2926.78
+      },
+      "today_percentile_estimate": 1,
+      "cache_age_days": null
+    },
+    "heartbeat_tick_audit": {
+      "headline": null,
+      "counts": {},
+      "live_trading_ticks": 0,
+      "misaligned_critical_count": 0,
+      "misaligned_critical_pct_of_live": 0.0,
+      "audit_files": {},
+      "first_3_critical_ticks": []
+    },
+    "knob_round_trip_per_trade": [],
+    "feedback_dispatch_counts": {
+      "grinder_queue": 0,
+      "lessons": 0,
+      "future_improvements": 0,
+      "duplicates_skipped": 0,
+      "unhandled": 0,
+      "alerts": 1
+    }
+  },
+  "tomorrow_setup": {
+    "phase": "2.4",
+    "next_trading_day": "2026-05-18",
+    "carry_levels": {
+      "today_session_high": 744.35,
+      "today_session_low": 737.96,
+      "today_session_close": 740.565,
+      "key_levels_from_today_bias": {
+        "resistance": [
+          {
+            "price": 744.35,
+            "label": "PMH 5/15 Active R",
+            "tier": "Active",
+            "stars": 2
+          },
+          {
+            "price": 745.43,
+            "label": "PMH 5/14 CPI-gap Active R",
+            "tier": "Active",
+            "stars": 3
+          }
+        ],
+        "support": [
+          {
+            "price": 739.04,
+            "label": "PML 5/15 Active S",
+            "tier": "Active",
+            "stars": 2
+          },
+          {
+            "price": 738.86,
+            "label": "R2 pivot flipped-to-support Reference",
+            "tier": "Reference",
+            "stars": 2
+          },
+          {
+            "price": 738.1,
+            "label": "Carry \u2605\u2605\u2605 5-touch hold (flip level)",
+            "tier": "Carry",
+            "stars": 3
+          }
+        ],
+        "psychological": [
+          {
+            "price": 740.0,
+            "label": "Round number \u2014 immediate overhead (awareness only)",
+            "tier": "Reference"
+          },
+          {
+            "price": 743.0,
+            "label": "Round number (awareness only)",
+            "tier": "Reference"
+          }
+        ],
+        "ema_fast": 739.71,
+        "ema_pivot": 740.42,
+        "ema_slow": 740.89,
+        "sma_50": 740.84
+      },
+      "5d_high": 749.53,
+      "5d_low": 731.83,
+      "5d_dates": [
+        "2026-05-08",
+        "2026-05-11",
+        "2026-05-12",
+        "2026-05-13",
+        "2026-05-14"
+      ]
+    },
+    "scheduled_events_tomorrow": [],
+    "developing_setup_at_close": null
+  }
+}

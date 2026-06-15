@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-21T08:57:28Z",
+  "bias": "bearish",
+  "confidence": 0.65,
+  "reasoning": "CLEAN_BULL ribbon (31c spread) but price is 40c below pivot (736.33 vs 736.73) — bearish momentum signal. Last 3 bars mixed (green at 12:50, red at 12:55 and 13:00) with declining closes from 737.07 to 736.33. Overnight gap is significant at +$2.60 up from prior close 733.73, but this gap has been filled as price now trades at 736.33. The 738.10 carry level (key resistance from key-levels) remains above current price. Combined: clean ribbon but bearish price action and momentum below pivot override for conditional bearish bias.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 31,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "Ribbon: CLEAN_BULL stack with 31c spread (fast=736.87 > pivot=736.73 > slow=736.56)",
+    "Price vs pivot: 736.33 is 40c below the 736.73 pivot EMA — bearish momentum",
+    "Last 3 bars: 12:50 green (736.94→737.07), 12:55 red (736.87→736.41), 13:00 red (736.42→736.33) — mixed structure with declining closes",
+    "Overnight gap: +$2.60 up from prior close 733.73, but gap largely filled as current price 736.33",
+    "Key levels context: 738.10 carry resistance above, 735.40 support below — price trapped in middle"
+  ],
+  "data_quality": "full"
+}

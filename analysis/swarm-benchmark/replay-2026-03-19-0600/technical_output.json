@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-03-19T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.62,
+  "reasoning": "CLEAN_BEAR ribbon with 144c spread (fast 660.47 < pivot 660.54 < slow 661.91) is the primary signal. Price at 661.59 sits above pivot but below slow, attempting a rally. Last 3 bars show failed breakout: strong green 05:45 (+1.61 full body), continued green 05:50 (+0.39 partial body), then exhaustion doji 05:55 (−0.01, <5% body). This failed-rally pattern within a bearish ribbon is a classic breakdown setup. Supporting: all sectors red (SPY −1.04%), VIX rising +5.21% in HIGH regime. Neutral: overnight gap flat (+0.02), no directional conviction from close. Moderate confidence due to price still above midline (pivot) and flat overnight gap.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 144,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "CLEAN_BEAR ribbon with 144c spread is the decisive structure—bearish alignment is very strong.",
+    "Last 3 bars pattern: 05:45 bar full green (+1.61 body, 100%), 05:50 bar partial green (+0.39 body, 45%), 05:55 bar exhaustion doji (−0.01 body, <5%). Failed breakout attempt above slow EMA.",
+    "Current price 661.59 just 51c below premarket high 662.1—price trapped between pivot and slow EMA with momentum exhaustion signal.",
+    "Sector rotation is risk-off: all down (XLK −0.97%, XLF −0.81%, XLE −0.53%, SPY −1.04%). VIX 25.87 rising +5.21%, HIGH regime confirms volatility environment.",
+    "Overnight gap +0.02 (flat) provides no additional directional conviction, but wide premarket range 658.58–662.1 (352c) shows intraday volatility."
+  ],
+  "data_quality": "full"
+}

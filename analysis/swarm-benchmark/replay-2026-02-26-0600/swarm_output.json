@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-02-26T06:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis", "internals"],
+    "bearish": [],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 4,
+    "bearish": 0,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 1.00,
+    "bearish": 0.00
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 95,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "VIX rising +8.37% to 19.43 simultaneously with a bullish gap-up is a structural divergence — smart-money hedging signal that could flip the risk-on label to risk-off within the first 30 minutes of RTH if VIX continues accelerating above 21.00.",
+    "top_invalidation_scenario": "XLK reverses mid-morning and closes below yesterday's RTH close by 11:00 ET — tech (30% SPY weight) rolling over exposes the narrow breadth and confirms the gap-up was momentum fade, not fundamental repricing."
+  },
+  "battle_level": {
+    "price": 693.66,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 693.66,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 695.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 695.82,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 690.14,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "reclaim_attempt"
+    },
+    {
+      "price": 694.46,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 693.66 on any first-hour pullback (5m bar close >= 693.60)",
+      "bias": "bullish",
+      "target": 695.82,
+      "entry_trigger": "level_hold + ribbon_bull_stack"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 693.66 (5m bar close < 693.60) on first retest",
+      "bias": "bearish",
+      "target": 690.14,
+      "entry_trigger": "level_break + gap_fade"
+    },
+    "invalidation": {
+      "condition": "VIX breaks above 21.00 within first 30 minutes of RTH (09:35-09:50 ET) while SPY is still elevated",
+      "effect": "Volatility expansion during a price rally is terminal bearish divergence. Macro agent's risk-on backdrop thesis collapses; gap-fade to 690.14 becomes the primary path and no bullish entries should be taken regardless of chart structure."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "693.66 (prior-session RTH high, now battle-level support) will be tested on a first-hour pullback by 10:30 ET, and SPY will close a 5m bar above 693.60 on that test, confirming the gap-up hold.",
+      "invalidation": "SPY closes a 5m bar below 693.60 before 10:30 ET without reclaiming it within 10 minutes, signaling gap-fade reversal.",
+      "confidence": 0.65,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 21.00 through 10:00 ET, confirming that the +8.37% premarket VIX rise is routine gap-morning volatility expansion rather than panic hedging, and the risk-on backdrop remains intact for bullish 0DTE entries.",
+      "invalidation": "VIX trades above 21.00 at any point before 10:00 ET, negating the MID-regime classification and flagging smart-money defensive rotation.",
+      "confidence": 0.58,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BULL ribbon structure (87c spread, fast 693.73 > pivot 693.50 > slow 692.86) holds intact through 11:00 ET — SPY does not close a 5m bar below the fast EMA (693.73) — confirming structural bullish alignment and supporting a push toward 695.82.",
+      "invalidation": "SPY closes a 5m bar below fast EMA (693.73) before 11:00 ET, indicating ribbon deterioration and that the gap-up bar structure has reversed from momentum to rejection.",
+      "confidence": 0.62,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "Four-of-four specialists voted bullish on unanimously aligned signals: CLEAN_BULL ribbon (87c spread), overnight gap +$1.39, zero macro events, and XLK+XLF sector leadership — yielding a strong-consensus, 95-confidence bullish verdict. The single critical tension is VIX rising +8.37% to 19.43 simultaneously with the gap-up, which the validator correctly identifies as smart-money hedging behavior that has historically preceded intraday gap fades; the bullish thesis survives only if VIX stays below 21.00 and the absolute level remains in the MID regime. At the open, watch two datapoints in order: (1) VIX vs. 21.00 in the first 15 minutes, and (2) whether 693.66 holds as support on the first pullback — both confirming is the green-light for a calls position targeting 695.82; either failing flips the bias to gap-fade bearish.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "CLEAN_BULL ribbon (87c spread, proper fast>pivot>slow ordering); price 99c above pivot; overnight gap up; bar structure mixed (EOD consolidation, not reversal)"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.60,
+      "one_line": "VIX MID regime (19.43, rising +8.37% — caution flag); zero events today; overnight gap +1.39 and sector rotation risk-on; moderate confidence due to VIX direction divergence"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "Battle level 693.66 (prior RTH high flipped to support, 83c below price); primary scenario targets 695.82 on hold; secondary gap-fade to 690.14 if broken"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.82,
+      "one_line": "Risk-on rotation confirmed: XLK +1.17%, XLF +1.23% both outperform SPY; narrow breadth (tech+finance only, XLE -0.78%) is the lone caveat"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "XLK reversal mid-morning (before 11:00 ET) below yesterday's RTH close exposes narrow breadth and confirms gap-up was momentum fade, not fundamental repricing"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

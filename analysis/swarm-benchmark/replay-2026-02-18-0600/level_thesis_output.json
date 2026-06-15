@@ -1,0 +1,105 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-02-18T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.70,
+  "reasoning": "SPY at 682.58 is positioned below the prior-session RTH high of 684.92 (Active, 2★), the only 2-star level in play today. Overhead resistance is strong; support below is clustered but weak (all 1★: 682.0, 681.0, 680.0). The Carry-tier 2★ support at 675.79 is $6.79 away—strategic but too distant for morning defense. Ribbon shows mixed stack (pivot 682.97 > fast 682.86 > slow 682.69) with shallow 29¢ spread, yielding no directional edge. The asymmetry is bearish: if 684.92 rejects on test, price flushes through the weak 1★ support cluster toward the Carry level. A hold of 684.92 flips bias bullish to 686+. Battle level is 684.92—today hinges on its test outcome.",
+  "battle_level": {
+    "price": 684.92,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 684.92,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 2.34
+    },
+    {
+      "price": 684.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 1.42
+    },
+    {
+      "price": 682.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 0.58
+    },
+    {
+      "price": 681.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 4,
+      "distance_from_price": 1.58
+    },
+    {
+      "price": 680.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": 2.58
+    },
+    {
+      "price": 675.79,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 6,
+      "distance_from_price": 6.79
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY tests and holds 684.92 on first rally",
+      "bias": "bullish",
+      "target": 686.52,
+      "entry_trigger": "level_hold + ribbon_alignment_breach"
+    },
+    "secondary": {
+      "condition": "if SPY fails to hold 684.92 and breaks below 684.0",
+      "bias": "bearish",
+      "target": 680.0,
+      "entry_trigger": "level_rejection + flush_through_weak_support"
+    },
+    "tertiary": {
+      "condition": "if SPY breaks below 680.0 decisively with volume",
+      "bias": "bearish",
+      "target": 675.79,
+      "entry_trigger": "support_cascade + momentum_exhaustion"
+    }
+  },
+  "levels_in_play_count": 6,
+  "key_observations": [
+    "684.92 (prior session RTH high) is the only 2★ level within $3.00—absolute battle level for today's morning direction",
+    "Support cluster at 682/681/680 is weak (all 1★) and tightly stacked—offers minimal defense if rejected",
+    "Ribbon mixed with 29¢ spread provides no structural directional bias; ribbon alignment may break on either a hold or break of 684.92",
+    "Carry 2★ support at 675.79 is beyond the $3.00 in-play threshold ($6.79 away) but represents the strategic deep target if morning supports fail",
+    "Risk/reward asymmetry favors bearish: strong resistance above, weak supports below"
+  ],
+  "data_quality": "full"
+}

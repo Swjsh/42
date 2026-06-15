@@ -1,0 +1,85 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-04-07T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.76,
+  "reasoning": "SPY at 659.83 in premarket has already gapped up +0.96 and broken above yesterday's RTH high (659.72). Price sits above the BULL-stacked ribbon (fast 659.69, slow 658.81 with 88c spread—tightly condensed). The battle level is 660.37 (today's premarket high)—the immediate ceiling. If price holds above 659.72 and clears 660.37, risk/reward favors bulls targeting $661+ round numbers. First support fallback is 659.0, then 658.0 (near slow EMA). VIX rising (26.45, +9.43%) suggests volatility backdrop supports directional momentum.",
+  "battle_level": {
+    "price": 660.37,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 660.37,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.54
+    },
+    {
+      "price": 659.72,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": -0.11
+    },
+    {
+      "price": 659.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": -0.83
+    },
+    {
+      "price": 658.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": -1.83
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "If SPY breaks above 660.37 on first test",
+      "bias": "bullish",
+      "target": 661.0,
+      "entry_trigger": "PMH break + ribbon_support"
+    },
+    "secondary": {
+      "condition": "If SPY holds above 659.72 but rejects at 660.37",
+      "bias": "no_trade",
+      "target": 659.0,
+      "entry_trigger": "range_consolidation_at_pml_to_pmh"
+    },
+    "tertiary": {
+      "condition": "If SPY breaks below 659.72",
+      "bias": "bearish",
+      "target": 658.0,
+      "entry_trigger": "ribbon_inversion + failed_breakout"
+    }
+  },
+  "levels_in_play_count": 4,
+  "key_observations": [
+    "Price already above yesterday's RTH high (659.72) with +0.96 gap-up overnight; testing PMH (660.37) from below as session begins.",
+    "Ribbon is BULL-stacked but compressed (88c spread)—low pressure system; price slightly above fast EMA.",
+    "VIX rising into HIGH regime (26.45, +9.43% overnight)—volatility support for directional continuation.",
+    "Immediate support ladder: 659.0, then 658.0 (near slow EMA 658.81); hard floor is PML 655.4 if bias fails.",
+    "No multi-timeframe confluence data available in replay; confidence reflects single-timeframe 5m bar structure."
+  ],
+  "data_quality": "full"
+}

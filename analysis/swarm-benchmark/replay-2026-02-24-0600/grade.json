@@ -1,0 +1,63 @@
+{
+  "date": "2026-02-24",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:04.701640+00:00",
+  "actual": {
+    "open": 681.52,
+    "close": 687.37,
+    "high": 688.33,
+    "low": 680.0,
+    "move_dollars": 5.85,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 50,
+    "consensus_strength": "moderate",
+    "battle_level": {
+      "price": 680.38,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "HELD",
+      "battle_level": 680.38,
+      "role": "support",
+      "first_touch_time": "2026-02-24T09:30:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 680.38,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY tests the 680.38 Active support level within the first 90 minutes of RTH (by 11:00 ET) given ris",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains in MID regime (below 22.00) through the close, but SPY does NOT rally above 685.00 \u2014 falling VIX does not pr",
+        "invalidation": "SPY closes above 685.00, confirming macro VIX-compression thesis and invalidating the bearish divergence read"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "Ribbon does NOT clarify to a full BULL stack (fast > pivot > slow with spread 30c or greater) within the first 5 RTH bar",
+        "invalidation": "Ribbon shows confirmed fast > pivot > slow alignment with spread 30c or greater by 10:25 ET, overriding the CHOP verdict"
+      }
+    ]
+  },
+  "narrative": "SPY enters 2026-02-24 in a chop structure \u2014 ribbon MIXED at 25c spread, G-R-G bar pattern, price 682.67 sitting only $2.29 above the critical Active support at 680.38. The moderate bullish consensus (macro + level_thesis, weighted 0.55) rests on VIX falling 4.24%, but this is directly challenged by "
+}

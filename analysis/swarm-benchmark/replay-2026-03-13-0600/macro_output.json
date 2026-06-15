@@ -1,0 +1,25 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-13T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "VIX at 25.28 is elevated (HIGH regime) but falling sharply (-7.3%), indicating fear peaked overnight and is now receding — bullish tailwind for long premium and call spreads. Overnight gap +$1.05 up adds to bullish overnight sentiment. No macro events scheduled for today — clear calendar, zero hard no-trade windows. However, rotation signal is risk-off (XLK -1.03%, XLF -0.31%) with BEAR ribbon stack in play, which tempers conviction. The falling VIX direction dominates, but high absolute level (25.28) means premium is expensive — entries need confirmation. Takeaway: bias bullish on VIX compression, but size and entry selectivity required due to still-elevated IV and tech weakness undertone.",
+  "vix_regime": "HIGH",
+  "vix_direction": "falling",
+  "vix_current": 25.28,
+  "vix_change_pct": -7.3,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 1.05,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX falling -7.3% from elevated open (fear receding) — bullish compression signal for calls, but absolute level 25.28 still expensive",
+    "Zero macro events on calendar for 3/13 — no FOMC, CPI, NFP, or earnings today; clear path for entries without event risk blocks",
+    "Sector rotation risk-off: XLK -1.03%, XLF -0.31%, SPY -0.76% despite gap-up overnight; tech/finance weakness despite positive overnight sentiment",
+    "BEAR ribbon stack (fast 667.08 / pivot 667.32 / slow 668.08, spread 100¢) with current price 667.1 = at or below the stack",
+    "Overnight gap +$1.05 is moderate bullish (gap-up), but undermined by same-session weakness in large-cap tech sectors",
+    "Macro backdrop: risk-off classification suggests institutional positioning defensive; combine with falling VIX to infer fear-driven overnight reversal into potential bounce"
+  ],
+  "data_quality": "full"
+}

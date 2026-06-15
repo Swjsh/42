@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2025-10-02T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.75,
+  "reasoning": "CLEAN_BULL ribbon (65c spread, fast 669.11 > pivot 668.98 > slow 668.46) with price 669.37 solidly above pivot (+39c), overnight gap up $1.26, and 2 of 3 recent bars green (though final bar closes red as potential pullback test). Last 3 bars show: 05:45 small green (doji-like, 20% body), 05:50 moderate green (48% body), 05:55 small red (21% body) — mixed structure but not fully decisive. Ribbon is the dominant signal, ribbon stack is BULL, spread is very clean at 65c, price action respects the pivot, and gap direction is clearly bullish. VIX at 16.19 (MID regime, falling) supports calm entry conditions. Risk: premarket has extended into resistance (current price 669.37 is ~1.2 below PMH at 670.55), last bar close below open may signal hesitation.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 65,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon: Fast EMA 669.11 > Pivot 668.98 > Slow 668.46, spread 65c is very clean and established",
+    "Overnight gap up $1.26 (126c) from prior close 668.11 to current 669.37 signals strong overnight bullish sentiment",
+    "Price 669.37 is +39c above pivot EMA 668.98, showing buyers in clear control of structure",
+    "Last 3 closed bars: 05:45 small green doji (0.14 body, 20%), 05:50 moderate green (0.41 body, 48%), 05:55 small red (0.15 body, 21%) — mixed trend with pullback into final bar but within ribbon structure",
+    "Premarket range 668.76–670.55; current price 669.37 is near midpoint (~1.2 below PMH), room to extend upside or consolidate"
+  ],
+  "data_quality": "full"
+}

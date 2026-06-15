@@ -1,0 +1,19 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-04-06T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.62,
+  "reasoning": "CLEAN_BULL ribbon with 139-cent spread is the dominant signal, but undermined by price 42c below pivot and 2 consecutive red bars (05:50 and 05:55) showing momentum loss. Last 3 bars: green-red-red pattern (1G/2R) shows weakening structure. Overnight gap +$1.42 supports bullish bias. IV regime HIGH. Ribbon verdict outweighs recent bar weakness per framework, but conviction is moderate, not high.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 139,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon (fast 657.91, pivot 657.72, slow 656.52) with 139c spread far exceeds clean threshold",
+    "Price 657.30 is 42 cents below pivot (657.72), contradicting ribbon alignment",
+    "Last 3 bars show momentum loss: doji green (0.02c), then two reds (-0.55c full-body, -0.31c moderate-body), pattern 1G/2R indicates weakening not strength",
+    "Overnight gap +$1.42 bullish, premarket range $654.87–$658.73 wide ($3.86), VIX 24.21 HIGH regime"
+  ],
+  "data_quality": "full"
+}

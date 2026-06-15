@@ -1,0 +1,21 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-03-06T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "CLEAN_BULL ribbon with 96c spread + price 80c above pivot creates a core bullish structure. Last 2 closed bars (15:45, 15:50) are strong green with 50c and 73c full bodies, showing momentum building into yesterday's close. However, overnight gap is DOWN 94c (bearish sentiment) and VIX is rising at 25.83 in HIGH regime, which dampens conviction. Mixed technical strength vs macro headwinds.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 96,
+  "bar_structure": "mixed_building_bullish",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "Ribbon stack BULL with 96c spread (Fast 680.14 > Pivot 679.66 > Slow 679.19) — clean structure",
+    "Price 680.46 is 80c above pivot 679.66 — bullish momentum intact",
+    "Last 3 closed bars: 15:40 RED (7c doji), 15:45 GREEN (50c moderate), 15:50 GREEN (73c full body) — building bullish sequence into close",
+    "Final bar 15:55 ET was 681.40 close on heavy volume (330k) — session ended at pivot+174c, maximum thrust",
+    "Overnight gap DOWN 94c (681.40 → 680.46 premarket) — bearish overnight sentiment",
+    "VIX 25.83 rising +8.76% in HIGH IV regime — risk-off environment favors bearish directional plays"
+  ],
+  "data_quality": "full"
+}

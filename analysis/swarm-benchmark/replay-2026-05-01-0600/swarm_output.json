@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-05-01T10:00:10Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis"],
+    "bearish": [],
+    "no_trade": ["internals"]
+  },
+  "vote_counts": {
+    "bullish": 3,
+    "bearish": 0,
+    "no_trade": 1
+  },
+  "weighted_scores": {
+    "bullish": 0.90,
+    "bearish": 0.00
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 76,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["internals"],
+    "dissent_reason": "Internals agent flagged narrow sector breadth: XLK flat (-0.09%) while SPY is up +0.56%, indicating energy/financial rotation rather than broad-based tech-led strength — the primary risk that this overnight gap does not translate to sustained RTH continuation."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The assumption that thin premarket bullish action (clean ribbon + gap + falling VIX) will translate into sustained RTH strength — premarket is low-liquidity and XLK's flat/negative performance (40% of SPY) is the red flag the three bullish specialists under-weighted.",
+    "top_invalidation_scenario": "SPY opens RTH and fails to break PMH 720.94 on first test, then drifts back below pivot 719.85 within 45 minutes — validator rates this probability as 'high', making it the primary bear trap scenario."
+  },
+  "battle_level": {
+    "price": 720.94,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 720.94,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 719.79,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 719.85,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 718.66,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 708.37,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY rejects PMH 720.94 on first RTH test, pulls back to 719.85 pivot zone, and BULL ribbon holds above fast EMA 719.99",
+      "bias": "bullish",
+      "target": 721.97,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above PMH 720.94 on first RTH test with volume confirmation",
+      "bias": "bullish",
+      "target": 723.0,
+      "entry_trigger": "level_break_above_pma"
+    },
+    "invalidation": {
+      "condition": "SPY fails to break 720.94 on first RTH test and drifts back below pivot 719.85 within 45 minutes of open (validator's highest-probability bear scenario)",
+      "effect": "Confirms premarket high was exhaustion from thin overnight buying; BULL ribbon invalidated if price cannot hold above fast EMA 719.99; sellers seize narrative and target 718.66 PML then 715.00"
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests premarket high 720.94 within the first 90 minutes of RTH (by 11:00 ET)",
+      "invalidation": "SPY does not touch 720.94 before 11:00 ET, trading below 720.50 throughout the morning",
+      "confidence": 0.72,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 17.50 for the full RTH session, sustaining the bullish macro compression backdrop",
+      "invalidation": "VIX spikes above 17.50 within the first 60 minutes of RTH, signaling fear re-entry and regime flip",
+      "confidence": 0.75,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BULL ribbon (fast 719.99 / pivot 719.85 / slow 718.97) remains intact through at least 11:00 ET, with SPY holding above fast EMA 719.99",
+      "invalidation": "SPY closes a 5-minute RTH bar below pivot EMA 719.85 before 11:00 ET, breaking ribbon alignment and confirming the premarket gap was exhaustion",
+      "confidence": 0.70,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "Three specialists (technical, macro, level_thesis) converge on a strong bullish bias anchored by a CLEAN_BULL ribbon with 101c spread, a falling VIX at 16.58, and a clean macro calendar — but internals flagged a critical crack: XLK is flat (-0.09%) while SPY trades up +0.56%, meaning this is an energy/financial rotation day, not broad-based tech-led strength. The battle level is PMH 720.94 — only 77 cents above current price — and the single most important thing to watch at the open is whether SPY can break through 720.94 with conviction and whether XLK participates: a tech-confirmed break targets 721.97–723.00, while a PMH rejection followed by a slide below pivot 719.85 would confirm the validator's highest-probability bear trap and flip the day to range-bound or bearish.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.88,
+      "one_line": "CLEAN_BULL ribbon (101c spread, fast/pivot/slow aligned); last 3 premarket bars all green; overnight gap +1.78 with price 32c above pivot — strong structural bull setup"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.85,
+      "one_line": "VIX MID regime falling 2.07% (fear receding); clean macro calendar (zero events); risk-on sector rotation (XLE +2.49%, XLF +1.2%)"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "Battle level PMH 720.94 is first RTH test (77c away); BULL reclaim scenario targets 721.97; carry support 708.37 is $11.80 below = strong net upside bias"
+    },
+    "internals": {
+      "bias": "no_trade",
+      "confidence": 0.40,
+      "one_line": "Mixed rotation: XLE +2.49%, XLF +1.2% outperform, but XLK flat (-0.09%) — narrow breadth with tech lagging signals rotational day, not sustained directional move"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "SPY fails to break PMH 720.94 on first RTH test and slides below pivot 719.85 within 45 min — validator rates this probability 'high', citing premarket exhaustion and tech lag as structural weaknesses"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

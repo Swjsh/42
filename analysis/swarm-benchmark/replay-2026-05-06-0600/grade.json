@@ -1,0 +1,63 @@
+{
+  "date": "2026-05-06",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:16.376874+00:00",
+  "actual": {
+    "open": 728.16,
+    "close": 733.77,
+    "high": 734.59,
+    "low": 727.82,
+    "move_dollars": 5.61,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 83,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 729.39,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "HELD",
+      "battle_level": 729.39,
+      "role": "resistance",
+      "first_touch_time": "2026-05-06T09:30:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 729.39,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "PMH 729.39 is tested (SPY price touches within 5 cents) within the first 90 minutes of RTH (by 11:00",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 18.50 through the first 60 minutes of RTH (through 10:30 ET), sustaining the MID-regime compression-bu",
+        "invalidation": "VIX spikes above 18.50 before 10:30 ET, reversing the compression narrative and signaling intraday risk-off repricing"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BULL ribbon stack (fast > pivot > slow, spread >120 cents) remains structurally intact through the 10:00 ET bar, c",
+        "invalidation": "Any EMA crosses to invert the fast/pivot/slow stack OR ribbon spread compresses below 80 cents by the 10:00 ET bar close"
+      }
+    ]
+  },
+  "narrative": "SPY enters 2026-05-06 with a unanimous 4-of-4 bullish swarm consensus driven by CLEAN_BULL ribbon (205c spread), a +$5.56 overnight gap, VIX falling in MID regime, and zero macro events today. The single most important tension is that this entire setup is UNTESTED premarket structure \u2014 the battle le"
+}

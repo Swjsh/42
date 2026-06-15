@@ -1,0 +1,63 @@
+{
+  "date": "2026-04-14",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:12.995897+00:00",
+  "actual": {
+    "open": 687.69,
+    "close": 694.4,
+    "high": 694.58,
+    "low": 687.66,
+    "move_dollars": 6.71,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 88,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 688.14,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "BROKE",
+      "battle_level": 688.14,
+      "role": "resistance",
+      "first_touch_time": "2026-04-14T09:30:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 688.14,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY trades at or above 688.14 (premarket high / battle level) at least once within the first 90 minu",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 19.50 for the entire RTH session, sustaining the bullish premium tailwind",
+        "invalidation": "VIX spikes above 19.50 at any point during RTH (09:30\u201316:00 ET)"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BULL ribbon (fast EMA > slow EMA by \u226530 cents) remains intact on each of the first three 5-minute RTH bar closes (",
+        "invalidation": "Fast EMA crosses below or within 10 cents of slow EMA on any of the first three 5m RTH bar closes"
+      }
+    ]
+  },
+  "narrative": "All 4 specialists align bullish on a gap-up open (+$1.22) backed by CLEAN_BULL ribbon (170c spread), falling VIX (18.15 MID regime), and broad sector leadership (XLK/XLF both +2.3%). The critical tension is late premarket distribution: 688.14 peaked at 05:00 ET, then sold off 91 cents to 687.23 by 0"
+}

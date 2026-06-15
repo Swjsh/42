@@ -1,0 +1,19 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-04-21T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.88,
+  "reasoning": "CLEAN_BULL ribbon (86¢ spread, BULL stack) with price 81¢ above pivot (710.90 vs 710.09). Last 3 closed bars all green: bar 5:45 small green (710.28), bar 5:50 moderate green (710.42), bar 5:55 strong full-body green (710.90 — 96% of range). Overnight gap up +$2.21 (708.69 → 710.90). Price currently at premarket high resistance (710.92), having pushed through prior session high (709.91). VIX 19.13 rising but MID regime.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 86,
+  "bar_structure": "strong_bull",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon with 86¢ spread (Fast 710.27, Pivot 710.09, Slow 709.42) — cleanest bullish structure",
+    "Last 3 bars all green, progressively stronger: final bar (5:55) is full-body 710.90 close with 46¢ body",
+    "Price +$2.21 gap up from 708.69 close, now testing premarket high 710.92 — clean breakout structure above prior session high 709.91",
+    "81¢ above pivot equilibrium with rising close — momentum favors UP into NY open"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,25 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-05-12T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.58,
+  "reasoning": "VIX at 18.84 (MID regime) is rising +2.56% — a meaningful upward momentum that typically signals fear building and favors bearish directional setups. Overnight SPY gapped down 0.91 points (-0.12%), and the 5m ribbon is in confirmed BEAR stack (slow 739.21 > pivot 738.95 > fast 738.8, spread 40¢). SPY currently trades 738.29, below the pivot, reinforcing short-term bearish structure. However, this conviction is tempered by sector rotation showing risk_on (XLK +0.98%, XLE +1.62%), suggesting selective buying in defensives and energy. No macro events fire today; CPI + Retail Sales print Thursday 5/14 at 08:30 ET but are outside today's window. Overall: VIX direction is the strongest bearish signal, but the moderate VIX level + risk-on sector flow keeps conviction at MODERATE (not high). Clear day with no event risk.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 18.84,
+  "vix_change_pct": 2.56,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -0.91,
+  "overnight_gap_pct": -0.123,
+  "macro_backdrop": "neutral",
+  "key_observations": [
+    "VIX rising +2.56% to 18.84 (MID regime) — suggests fear accumulation; typically bearish for SPY directional options",
+    "SPY gapped down 0.91 points overnight; ribbon in BEAR stack (slow-pivot-fast) with 40¢ spread; price below pivot at 738.29",
+    "Sector rotation risk_on contradicts bearish price structure — XLK +0.98%, XLE +1.62% suggest selective safety/energy buying, not panic sell-off",
+    "No macro events today; next high-severity events (CPI + Retail Sales) Thursday 5/14 at 08:30 ET, clearing today for clean technical trading",
+    "Overnight context: Prior session close 739.20, current 738.29; ribbon spread 40¢ is moderate (not extreme 50c+)"
+  ],
+  "data_quality": "full"
+}

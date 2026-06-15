@@ -1,0 +1,21 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-04-17T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.82,
+  "reasoning": "CLEAN_BULL ribbon with 85-cent spread (fast 703.16 > pivot 702.98 > slow 702.31) and price 46 cents above pivot. Last 3 premarket bars all green (05:45 703.27→703.30, 05:50 703.29→703.32, 05:55 703.32→703.44) with consistent closes above pivot. Overnight gap up $1.89 (701.55 → 703.52 PMH) with VIX falling −1.12%. All major signals aligned bullish. Small bar bodies indicate premarket consolidation/momentum building rather than aggressive selling. Current price 8 cents below PMH but structurally positioned for bullish continuation at RTH open.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 85,
+  "bar_structure": "strong_bull",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon: 85-cent spread (fast 703.16, pivot 702.98, slow 702.31) indicates strong structural bullish alignment",
+    "Price 703.44 is 46 cents above 20-bar pivot EMA — clear bullish positioning above the mean",
+    "Last 3 closed bars all green with upside closes: 05:45 (703.30), 05:50 (703.32), 05:55 (703.44) — trend intact but bodies narrow (doji/consolidation pattern) suggesting momentum building into open",
+    "Overnight gap up $1.89 from prior close 701.55 to premarket high 703.52 — full gap captured in premarket range (1.86-point range), risk-on sentiment",
+    "VIX falling −1.12% (17.64 current) — declining volatility supports risk-on/bullish regime",
+    "Premarket price 8 cents below PMH 703.52 — no new highs yet but positioned within clean ribbon structure with gap support"
+  ],
+  "data_quality": "full"
+}

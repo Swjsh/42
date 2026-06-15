@@ -1,0 +1,63 @@
+{
+  "date": "2026-04-02",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:11.262692+00:00",
+  "actual": {
+    "open": 646.42,
+    "close": 655.88,
+    "high": 658.2,
+    "low": 645.11,
+    "move_dollars": 9.46,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 88,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 645.75,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bearish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "TESTED_MIXED",
+      "battle_level": 645.75,
+      "role": "support",
+      "first_touch_time": "2026-04-02T09:35:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 645.75,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "645.75 is tested (SPY prints a bar with low at or below 645.75) within the first 90 minutes of RTH (",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains at or above 25.50 through 12:00 ET noon \u2014 elevated fear regime sustained, not a front-loaded one-day spike t",
+        "invalidation": "VIX drops below 25.00 before 12:00 ET noon, signaling fear exhaustion and gap-fill risk-on scenario"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BEAR ribbon (fast 648.02 < pivot 648.56 < slow 650.85) maintains at least 150c spread through the 10:30 ET bar clo",
+        "invalidation": "Ribbon spread compresses below 150c OR fast EMA crosses above pivot EMA before the 10:30 ET bar close"
+      }
+    ]
+  },
+  "narrative": "The core tension on 2026-04-02 is whether 645.75 \u2014 the premarket low that has never faced real RTH selling pressure \u2014 holds or breaks on its first meaningful test. All 4 specialists agree on bearish bias, driven by a CLEAN_BEAR ribbon (284c spread), a $7.36 overnight gap down, and VIX rising to 26.1"
+}

@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-05-07T10:00:05Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis", "internals"],
+    "bearish": [],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 4,
+    "bearish": 0,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 1.0,
+    "bearish": 0.0
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 63,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Consensus assumes pivot reclaim and PMH breakout starting from 17c below pivot with 2 of last 3 bars red — ribbon structure is potential, not current momentum.",
+    "top_invalidation_scenario": "SPY opens RTH below premarket low 733.83 and fails to reclaim pivot 734.63 in first 30 min, proving bar momentum (bearish) over ribbon structure (bullish)."
+  },
+  "battle_level": {
+    "price": 734.59,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 734.59,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 737.91,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 733.83,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 727.82,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 710.45,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds above 734.59 (battle level) and breaks PMH 737.91 on volume",
+      "bias": "bullish",
+      "target": 740.50,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if SPY holds 734.59 but stalls at PMH 737.91 (held as resistance by sellers)",
+      "bias": "bullish",
+      "target": 736.0,
+      "entry_trigger": "level_hold + consolidation range 734-738, entry on intraday ribbon hold"
+    },
+    "invalidation": {
+      "condition": "SPY opens RTH and immediately sells below premarket low 733.83; fails to reclaim pivot 734.63 in first 30 min of RTH",
+      "effect": "Invalidates held-PML support narrative and proves ribbon is decoration without buyer conviction — breakdown mode targets 727.82; consensus trade aborted."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests battle level 734.59 within the first 30 min of RTH (09:35-10:05 ET) and holds it as support on a 5-min bar close, then advances toward PMH 737.91 before 11:30 ET",
+      "invalidation": "SPY's first 5-min closed bar after 09:35 ET prints below 733.83 (PML), confirming level breakdown rather than hold",
+      "confidence": 0.60,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 18.50 throughout the 09:35-13:30 ET trading window, preserving the low-volatility risk-on backdrop and keeping the FOMC no-trade window as the only structural constraint",
+      "invalidation": "VIX rises above 18.50 at any 5-min bar close before 13:30 ET, signaling market makers repricing FOMC downside risk and collapsing the risk-on backdrop",
+      "confidence": 0.62,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY reclaims pivot 734.63 on the first or second 5-min bar close after 09:35 ET open, confirming CLEAN_BULL ribbon structure is translating into RTH momentum; price holds above 734.63 for at least 2 consecutive 5-min bars before 10:15 ET",
+      "invalidation": "SPY's first two 5-min bars after open both close below pivot 734.63, confirming premarket bear momentum (2 red bars + below pivot) prevailed over the ribbon structure",
+      "confidence": 0.58,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "Today is a 4/4 unanimous bullish consensus anchored in CLEAN_BULL ribbon structure (65c spread), overnight gap +$0.69, and risk-on rotation (XLK +1.28%) — but the setup starts from a position of weakness: SPY is currently 17c below the pivot with 2 of the last 3 premarket bars red, and FOMC at 14:00 ET hard-caps the trading window to 09:35-13:30 ET only. The single most important thing to watch at market open is whether SPY immediately reclaims and holds the pivot (734.63) within the first two 5-min bars — that is the go/no-go gate separating the bull scenario (target PMH 737.91 then 740.50) from the validator's invalidation scenario (breakdown below PML 733.83, targets 727.82).",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "CLEAN_BULL ribbon 65c spread (bullish structure) but price 17c below pivot with 2 red premarket bars — momentum lagging structure"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.65,
+      "one_line": "VIX 17.24 flat MID regime; overnight gap +$0.69 risk-on; FOMC 14:00 ET truncates window to 09:35-13:30 ET only"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "Battle level 734.59 (5-day Carry high) just 0.13 above spot; PMH 737.91 is secondary target; PML 733.83 is key invalidation support"
+    },
+    "internals": {
+      "bias": "bullish",
+      "confidence": 0.62,
+      "one_line": "XLK +1.28% risk-on leadership vs XLE -0.51%; XLF flat (-0.15%) = narrow breadth, tech-only conviction"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Recent 2-red-bar premarket action + price below pivot + flat XLF = momentum contradicts structure; FOMC creates event-driven vulnerability if open fails to reclaim 734.63"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

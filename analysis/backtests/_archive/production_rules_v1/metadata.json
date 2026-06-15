@@ -1,0 +1,14 @@
+{
+  "label": "production_rules_v1",
+  "start": "2026-03-15",
+  "end": "2026-05-07",
+  "disable_filters": [],
+  "result_metadata": {
+    "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "bars_evaluated": 2610,
+    "trades_fired": 13,
+    "start_date": "2026-03-16",
+    "end_date": "2026-05-06"
+  },
+  "run_at": "2026-05-07T01:44:26.550292"
+}

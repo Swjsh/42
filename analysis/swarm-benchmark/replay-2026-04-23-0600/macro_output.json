@@ -1,0 +1,30 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-04-23T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "VIX at 19.32 is in MID regime but rising sharply (+3.09%) — a bearish signal. Overnight gap down $3.45 confirms overnight bearish sentiment. Ribbon stack is BEAR (Fast 707.84 < Slow 708.61). No high/med events scheduled for 4/23, so no hard no-trade windows. Sector rotation is mixed (XLK +1.2%, XLF -0.51%), which slightly dampens conviction. Overall macro backdrop is risk-off, but VIX is not in extreme territory (would need >22 for HIGH regime). Bearish setups are favored, but not with overwhelming confidence.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 19.32,
+  "vix_change_pct": 3.09,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -3.45,
+  "overnight_gap_pct": -0.48,
+  "macro_backdrop": "risk_off",
+  "ribbon_status": "bearish",
+  "ribbon_stack": "BEAR",
+  "ribbon_spread_cents": 77,
+  "key_observations": [
+    "VIX rising +3.09% to 19.32 (MID zone); fear building but not extreme",
+    "Overnight gap down $3.45 (~-0.48%) indicates bearish overnight flow",
+    "Ribbon fully bearish: Fast 707.84 < Pivot 708.01 < Slow 708.61, spread 77¢",
+    "Zero macro events today — no early-morning blocks or no-trade windows",
+    "Sector rotation mixed (Tech +1.2%, Financials -0.51%) — no clear conviction signal",
+    "SPY premarket range: 706.49 to 711.21 (testing overnight lows in pre-market)"
+  ],
+  "data_quality": "full",
+  "notes": "Calendar is fresh (refreshed 2026-05-17 for replay window). Next high-impact events are NVDA earnings AMC 5/20 and WMT earnings BMO 5/21 — outside today's window. Macro supports bearish directional bias, suitable for put-side directional setup if technical confluence aligns."
+}

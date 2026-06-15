@@ -1,0 +1,66 @@
+{
+  "date": "2026-02-12",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:03.110197+00:00",
+  "actual": {
+    "open": 694.23,
+    "close": 681.19,
+    "high": 695.34,
+    "low": 680.4,
+    "move_dollars": -13.04,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 95,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 697.08,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bearish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 697.08,
+      "role": "resistance",
+      "rth_range": [
+        680.4,
+        695.34
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 689.22,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY tests Active support 689.22 within the first 90 minutes of RTH (by 11:00 ET), driven by BEAR rib",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains above 17.50 through 10:30 ET, sustaining the risk-off premium backdrop that underpins the bearish thesis.",
+        "invalidation": "VIX prints below 17.50 on any 5-min bar before 10:30 ET \u2014 overnight fear unwind is in progress, macro backstop removed."
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BEAR ribbon holds intact through the first 60 minutes of RTH: no 5-min bar closes above the fast EMA at 692.59 bef",
+        "invalidation": "Any 5-min bar closes above 692.59 (fast EMA) before 10:35 ET \u2014 ribbon has flipped to neutral and the structural bearish "
+      }
+    ]
+  },
+  "narrative": "All 4 specialist agents vote bearish with unanimity (weighted score 1.00), driven by a CLEAN_BEAR ribbon (23c spread), price 88c below pivot on exceptional EOD volume, rising VIX, and unambiguous risk-off sector rotation. The key tension is that this entire thesis is built on overnight data \u2014 yester"
+}

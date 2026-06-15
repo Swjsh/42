@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-02-24T06:00:00Z",
+  "bias": "no_trade",
+  "confidence": 0.35,
+  "reasoning": "MIXED ribbon (slow 682.21 > fast 682.09 > pivot 681.96) with only 25¢ spread is too compressed for clean signal. Price 71¢ above pivot would normally support bullish bias, but bar structure alternates G-R-G (15:45→15:50→15:55), indicating chop despite full bodies (89%, 74%). Sector rotation bearish (XLF −2.8%, XLK −1.18%). Flat overnight gap (+0.28) adds no directional conviction. VIX falling supportive but insufficient with MIXED ribbon. Framework rule: MIXED/tight ribbon without clear stacking = wait-for-clarity. No reliable edge.",
+  "ribbon_verdict": "MIXED",
+  "ribbon_spread_cents": 25,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "Ribbon MIXED (slow 682.21 > fast 682.09 > pivot 681.96) — 25¢ spread too compressed, neither clean bull nor bear stack",
+    "Last 3 RTH bars: 15:45 green close 681.94 (+0.28 on 47% body), 15:50 red close 681.05 (−0.91 on 74% body), 15:55 green close 682.39 (+1.36 on 89% body) = G-R-G pattern indicates chop",
+    "Price 682.67 trades 71¢ above pivot 681.96 — bullish positioning, but contradicted by mixed bar consensus and sector headwind",
+    "Overnight gap +0.28 (682.39→682.67) = flat, no directional bias; market-close bar 15:55 shows recovery strength (201k volume, full body), but stale session-end signal",
+    "VIX 20.12 falling −4.24% (MID regime) slightly supportive for directionality, but XLF −2.8% / XLK −1.18% risk-off rotation argues caution"
+  ],
+  "data_quality": "full"
+}

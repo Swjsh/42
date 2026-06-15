@@ -1,0 +1,93 @@
+{
+  "generated_at": "2026-06-08T21:00:01.840779+00:00",
+  "for_date": "2026-06-08",
+  "overall_verdict": "RED",
+  "audits": [
+    {
+      "name": "crypto-gym (42 validators)",
+      "source_file": "crypto/data/scorecards/latest.json",
+      "verdict": "GREEN",
+      "summary": "77/78 pass (KNOWN_FLAKY excluded: 1)",
+      "evidence": {
+        "stages": 78,
+        "passed": 77,
+        "flaky_failed": [
+          "v02_source_parity"
+        ]
+      }
+    },
+    {
+      "name": "chart-data-verify",
+      "source_file": "automation/state/chart-data-verify-2026-06-08.json",
+      "verdict": "GREEN",
+      "summary": "5 bars checked, max div $0.0000",
+      "evidence": {
+        "max_divergence_usd": 0,
+        "bars_checked": 5
+      }
+    },
+    {
+      "name": "heartbeat-tick-audit",
+      "source_file": "automation/state/heartbeat-tick-audit-2026-06-08.json",
+      "verdict": "GREEN",
+      "summary": "5 live ticks, 0 MISALIGNED-CRITICAL (0.0%)",
+      "evidence": {
+        "by_classification": {
+          "ALIGNED": 1,
+          "MISALIGNED-BENIGN": 4,
+          "MISALIGNED-CRITICAL": 0,
+          "STALE_PAUSED": 0,
+          "NO_DATA": 1,
+          "NO_BAR": 0
+        },
+        "live_ticks": 5,
+        "misaligned_critical": 0,
+        "misaligned_pct": 0.0
+      }
+    },
+    {
+      "name": "pin-chain-verify",
+      "source_file": "automation/state/pin-chain-verify-latest.json",
+      "verdict": "RED",
+      "summary": "rule_version=unknown, drifts=0",
+      "evidence": {
+        "rule_version_canonical": "unknown",
+        "drifts": []
+      }
+    },
+    {
+      "name": "heartbeat-mcp-self-test",
+      "source_file": "automation/state/heartbeat-mcp-self-test-latest.json",
+      "verdict": "GREEN",
+      "summary": "TV CDP listening=True",
+      "evidence": {
+        "tv_cdp_listening": true
+      }
+    },
+    {
+      "name": "heartbeat-pulse-check",
+      "source_file": "automation/state/heartbeat-pulse-check-2026-06-08.json",
+      "verdict": "YELLOW",
+      "summary": "max gap 9.0min",
+      "evidence": {
+        "max_gap_minutes": 9.0
+      }
+    },
+    {
+      "name": "watcher-state-inspector",
+      "source_file": "automation/state/watcher-state-inspector-2026-06-08.json",
+      "verdict": "YELLOW",
+      "summary": "odf_state empty (may be correct if no drive-then-fade pattern)",
+      "evidence": {
+        "obs_today": 0,
+        "reason": "odf_state empty (may be correct if no drive-then-fade pattern)"
+      }
+    }
+  ],
+  "stale_reruns": {
+    "heartbeat_pulse_check": {
+      "exit": 0,
+      "log_tail": "=== heartbeat-pulse-check 2026-06-08 ===\nVerdict: YELLOW\nReason: 1-gaps-6-to-15-min\nMarket fires: 6\nMax gap: 9.0 min\nNotable gaps: [{'from': '15:33:39', 'to': '15:39:00', 'gap_min': 5.35}, {'from': '15:39:00', 'to': '15:48:00', 'gap_min': 9.0}]\nWrote: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-pulse-check-2026-06-08.json\n"
+    }
+  }
+}

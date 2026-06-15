@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-04-20T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": [],
+    "bearish": ["technical", "macro", "level_thesis", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 0,
+    "bearish": 4,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.0,
+    "bearish": 1.0
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 88,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "All agents assume battle-level 706.71 will be tested downward as inevitable, but price has been above 706.71 the entire premarket (only $0.17 away, never tested) — the tight range suggests consolidation and active buyer defense, not downside conviction, meaning the bearish thesis is planned around a scenario that hasn't been confirmed by price action yet.",
+    "top_invalidation_scenario": "If SPY opens at or above 707.13 and holds that level for 15+ minutes into RTH, price would have reclaimed the premarket high resistance, showing buyer control and invalidating the CLEAN_BEAR ribbon narrative."
+  },
+  "battle_level": {
+    "price": 706.71,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 706.71,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 707.13,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 705.76,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 708.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 712.39,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY tests and breaks below 706.71 (premarket low) on RTH open, confirming bear pressure",
+      "bias": "bearish",
+      "target": 705.76,
+      "entry_trigger": "level_rejection"
+    },
+    "secondary": {
+      "condition": "if SPY holds 706.71 on first retest and early buyers defend the gap-down floor",
+      "bias": "bullish",
+      "target": 708.0,
+      "entry_trigger": "level_reclaim"
+    },
+    "invalidation": {
+      "condition": "if SPY opens at or above 707.13 and holds that level for 15+ minutes into RTH",
+      "effect": "Invalidates CLEAN_BEAR ribbon narrative — price would reclaim premarket high resistance, confirming buyer control. Opens door to 708.0 and potentially 712.39 Carry. Entire bearish consensus collapses to no_trade or bullish."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests battle level 706.71 within the first 60 minutes of RTH (by 10:30 ET), with BEAR ribbon and gap-down momentum driving a flush below it toward 705.76",
+      "invalidation": "SPY does not touch 706.71 before 10:30 ET, instead trading above 707.13 and establishing it as new intraday support",
+      "confidence": 0.68,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains elevated at or above 17.50 through noon ET (12:00 ET), sustaining the MID risk-off regime and keeping intraday put premium elevated",
+      "invalidation": "VIX drops below 17.50 by 10:00 ET, indicating overnight fear spike was transient noise rather than a sustained macro regime shift",
+      "confidence": 0.62,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BEAR ribbon (fast 707.79 below pivot 708.26 below slow 709.04, 126c spread) holds intact through the first 2 hours of RTH, with no fast EMA crossing above pivot before 11:30 ET",
+      "invalidation": "Fast EMA crosses above pivot EMA before 11:30 ET, beginning a ribbon compression that invalidates the CLEAN_BEAR structural bias",
+      "confidence": 0.72,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The 4/4 specialist consensus is structurally bearish — CLEAN_BEAR ribbon (126c spread), gap-down -3.17, rising VIX +7.54% to 18.83, and energy-only sector leadership all point the same direction. The key tension is that the critical battle level (706.71, premarket low) has NOT been tested yet, and price has defended a tight $0.42 range for 1+ hour — the validator correctly flags this as active buyer defense rather than capitulation. The single most important event at market open is the first candle's relationship to 706.71: a clean break below confirms the bearish thesis and targets 705.76; a hold above 707.13 for 15+ minutes invalidates the CLEAN_BEAR structure entirely.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.85,
+      "one_line": "CLEAN_BEAR ribbon 126c spread (slow 709.04 > pivot 708.26 > fast 707.79), price 138c below pivot, 3 consecutive red premarket bars with 35-47% bodies"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.72,
+      "one_line": "VIX +7.54% to 18.83 MID regime rising, gap-down -3.17 overnight, no today events, risk-off macro backdrop with no relief catalyst"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.65,
+      "one_line": "battle level 706.71 (Active support ★★) untested but imminent; secondary scenario flush to 705.76 on break; BEAR bias unconfirmed by price action until 706.71 tested"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.40,
+      "one_line": "narrow breadth with XLE +1.12% leading vs XLK +0.19% and XLF +0.11% flat — energy-only bounce, no broad risk-on rotation signal"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "SPY holds 707.13 for 15+ min into RTH, converting PMH to support and nullifying the CLEAN_BEAR structure; gap-and-rip pattern probability is non-trivial given tight premarket range and no intraday macro catalyst"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

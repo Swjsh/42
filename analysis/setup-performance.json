@@ -1,0 +1,102 @@
+{
+  "BEARISH_REJECTION_RIDE_THE_RIBBON": {
+    "n_trades": 4,
+    "n_wins": 3,
+    "hit_rate": 0.75,
+    "avg_return_pct": 36.8,
+    "stdev_return_pct": 43.5,
+    "max_win_pct": 85.9,
+    "max_loss_pct": -24.5,
+    "avg_hold_minutes": 82,
+    "n_correct_setups": 3,
+    "n_excellent_grades": 1,
+    "by_iv_regime": {
+      "LOW": {"n": 0, "wr": null},
+      "MID": {"n": 1, "wr": 0.0, "note": "5/15 paper trade — loss on closed-bar timing lag"},
+      "HIGH": {"n": 0, "wr": null}
+    },
+    "by_tod_bucket": {
+      "OPEN_DRIVE": {"n": 0, "wr": null},
+      "MORNING": {"n": 3, "wr": 1.0},
+      "MIDDAY": {"n": 1, "wr": 1.0},
+      "AFTERNOON": {"n": 0, "wr": null},
+      "POWER_HOUR": {"n": 0, "wr": null}
+    },
+    "by_tape_assistance": {
+      "dry": {"n": 0, "wr": null},
+      "normal": {"n": 0, "wr": null},
+      "favorable": {"n": 0, "wr": null},
+      "exceptional": {"n": 0, "wr": null},
+      "unfavorable": {"n": 1, "wr": 0.0, "note": "5/15 — gap-down bounce trap"}
+    },
+    "by_archetype": {
+      "5/4-like": {"n": 1, "wr": 1.0},
+      "5/1-like": {"n": 1, "wr": 1.0},
+      "drift": {"n": 0, "wr": null},
+      "closed_bar_delay_bounce_trap": {"n": 1, "wr": 0.0}
+    },
+    "by_grade_score": {
+      "5": {"n": 1, "avg_pnl": 730},
+      "4": {"n": 0, "avg_pnl": null},
+      "3": {"n": 1, "avg_pnl": 342},
+      "2": {"n": 0, "avg_pnl": null},
+      "1": {"n": 2, "avg_pnl": -150},
+      "0": {"n": 0, "avg_pnl": null}
+    },
+    "avg_hold_quality_pct": null,
+    "last_updated": "2026-05-15T16:30:02-04:00",
+    "_note": "n=4: 3 pre-rules examples (4/29, 5/1, 5/4) + 1 paper trade (5/15 LOSS). 5/15 loss attributed to closed-bar timing lag on V-bounce at PML — not a setup failure. See daily-review-2026-05-15.json lesson.",
+    "_paper_trades_count": 1,
+    "_paper_wr": 0.0
+  },
+  "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+    "n_trades": 2,
+    "n_wins": 1,
+    "hit_rate": 0.5,
+    "avg_return_pct": 34.0,
+    "stdev_return_pct": null,
+    "max_win_pct": 88.5,
+    "max_loss_pct": -20.5,
+    "avg_hold_minutes": 65,
+    "n_correct_setups": 1,
+    "n_excellent_grades": 1,
+    "by_iv_regime": {
+      "LOW": {"n": 0, "wr": null},
+      "MID": {"n": 2, "wr": 0.5},
+      "HIGH": {"n": 0, "wr": null}
+    },
+    "by_tod_bucket": {
+      "OPEN_DRIVE": {"n": 0, "wr": null},
+      "MORNING": {"n": 1, "wr": 1.0, "note": "5/14 CPI-catalyst WIN"},
+      "MIDDAY": {"n": 1, "wr": 0.0, "note": "5/7 counter-trend chop trap LOSS"},
+      "AFTERNOON": {"n": 0, "wr": null},
+      "POWER_HOUR": {"n": 0, "wr": null}
+    },
+    "by_tape_assistance": {
+      "dry": {"n": 0, "wr": null},
+      "normal": {"n": 0, "wr": null},
+      "favorable": {"n": 0, "wr": null},
+      "exceptional": {"n": 1, "wr": 1.0, "note": "5/14 CPI gap-and-go"},
+      "unfavorable": {"n": 1, "wr": 0.0, "note": "5/7 pre-FOMC counter-trend"}
+    },
+    "by_archetype": {
+      "5/4-like": {"n": 0, "wr": null},
+      "5/1-like": {"n": 0, "wr": null},
+      "drift": {"n": 1, "wr": 0.0, "note": "5/7 counter-trend chop trap"},
+      "bullish_reclaim_runner": {"n": 1, "wr": 1.0, "note": "5/14 level reclaim + ribbon + catalyst"}
+    },
+    "by_grade_score": {
+      "5": {"n": 1, "avg_pnl": 1500},
+      "4": {"n": 0, "avg_pnl": null},
+      "3": {"n": 0, "avg_pnl": null},
+      "2": {"n": 1, "avg_pnl": -45},
+      "1": {"n": 0, "avg_pnl": null},
+      "0": {"n": 0, "avg_pnl": null}
+    },
+    "avg_hold_quality_pct": 48.5,
+    "last_updated": "2026-05-15T16:30:02-04:00",
+    "_note": "n=2: 1 loss (5/7 counter-trend chop trap -$45) + 1 win (5/14 CPI gap-and-go +$1,500 EXCELLENT). Tape-exceptional context = edge; tape-unfavorable counter-trend = no edge. 3 paper-validated observations now exist for the setup; status promotion to CONFIRMED eligible per playbook policy — see analysis/2026-W20.md Section 7.",
+    "_paper_trades_count": 2,
+    "_paper_wr": 0.5
+  }
+}

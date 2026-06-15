@@ -1,0 +1,8616 @@
+{
+  "2026-04-29": {
+    "j_entry": "10:25",
+    "j_pnl": 342,
+    "note": "Gap-down. Rejection at 711.4. J enters 10:25.",
+    "A_baseline": {
+      "total_pnl": -49.68,
+      "trades": [
+        {
+          "direction": "?",
+          "entry_time": "2026-04-29 13:45",
+          "exit_time": "2026-04-29 13:50",
+          "pnl": -49.68,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        }
+      ],
+      "n_decisions": 48,
+      "first_pass_bar": null,
+      "first_10_bars": [
+        {
+          "time": "09:35",
+          "spy": 710.55,
+          "vix": 18.48,
+          "ribbon": "MIXED",
+          "spread_c": 8.3723509950687,
+          "htf": "BEAR",
+          "score": 5,
+          "blockers": [
+            5,
+            6,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:40",
+          "spy": 710.04,
+          "vix": 18.48,
+          "ribbon": "MIXED",
+          "spread_c": 6.477028959341169,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:45",
+          "spy": 709.96,
+          "vix": 18.47,
+          "ribbon": "BEAR",
+          "spread_c": 16.244087193956602,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            6,
+            8
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:50",
+          "spy": 710.63,
+          "vix": 18.47,
+          "ribbon": "BEAR",
+          "spread_c": 18.502882827056055,
+          "htf": "BEAR",
+          "score": 5,
+          "blockers": [
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [
+            "ribbon_flip"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:55",
+          "spy": 710.77,
+          "vix": 18.48,
+          "ribbon": "BEAR",
+          "spread_c": 18.82335901757415,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:00",
+          "spy": 710.72,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 19.53823345759247,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:05",
+          "spy": 710.81,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 19.042958426189216,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:10",
+          "spy": 711.13,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 15.259345859215045,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            7,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:15",
+          "spy": 711.04,
+          "vix": 18.66,
+          "ribbon": "BEAR",
+          "spread_c": 12.978286263114569,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:20",
+          "spy": 711.34,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 7.965498283317629,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        }
+      ],
+      "all_bars_0935_1330": [
+        {
+          "time": "09:35",
+          "spy": 710.55,
+          "vix": 18.48,
+          "ribbon": "MIXED",
+          "spread_c": 8.3723509950687,
+          "htf": "BEAR",
+          "score": 5,
+          "blockers": [
+            5,
+            6,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:40",
+          "spy": 710.04,
+          "vix": 18.48,
+          "ribbon": "MIXED",
+          "spread_c": 6.477028959341169,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:45",
+          "spy": 709.96,
+          "vix": 18.47,
+          "ribbon": "BEAR",
+          "spread_c": 16.244087193956602,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            6,
+            8
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:50",
+          "spy": 710.63,
+          "vix": 18.47,
+          "ribbon": "BEAR",
+          "spread_c": 18.502882827056055,
+          "htf": "BEAR",
+          "score": 5,
+          "blockers": [
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [
+            "ribbon_flip"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:55",
+          "spy": 710.77,
+          "vix": 18.48,
+          "ribbon": "BEAR",
+          "spread_c": 18.82335901757415,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:00",
+          "spy": 710.72,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 19.53823345759247,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:05",
+          "spy": 710.81,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 19.042958426189216,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:10",
+          "spy": 711.13,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 15.259345859215045,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            7,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:15",
+          "spy": 711.04,
+          "vix": 18.66,
+          "ribbon": "BEAR",
+          "spread_c": 12.978286263114569,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:20",
+          "spy": 711.34,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 7.965498283317629,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:25",
+          "spy": 711.48,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 2.3696532298117745,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:30",
+          "spy": 711.9,
+          "vix": 18.77,
+          "ribbon": "BULL",
+          "spread_c": 6.53099230994485,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:35",
+          "spy": 711.85,
+          "vix": 18.5,
+          "ribbon": "BULL",
+          "spread_c": 13.299940295837587,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:40",
+          "spy": 711.84,
+          "vix": 18.86,
+          "ribbon": "BULL",
+          "spread_c": 18.686012875400593,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:45",
+          "spy": 711.48,
+          "vix": 18.75,
+          "ribbon": "BULL",
+          "spread_c": 19.331313423992924,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:50",
+          "spy": 711.62,
+          "vix": 18.5,
+          "ribbon": "BULL",
+          "spread_c": 21.17785394115117,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:55",
+          "spy": 711.44,
+          "vix": 18.5,
+          "ribbon": "BULL",
+          "spread_c": 20.735854969507272,
+          "htf": "BEAR",
+          "score": 5,
+          "blockers": [
+            5,
+            6,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:00",
+          "spy": 711.11,
+          "vix": 18.36,
+          "ribbon": "BULL",
+          "spread_c": 16.88403212870071,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:05",
+          "spy": 710.62,
+          "vix": 18.36,
+          "ribbon": "BULL",
+          "spread_c": 8.618877826427251,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            5,
+            6,
+            8
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:10",
+          "spy": 710.25,
+          "vix": 18.33,
+          "ribbon": "MIXED",
+          "spread_c": 2.9647682851646096,
+          "htf": "BEAR",
+          "score": 5,
+          "blockers": [
+            5,
+            6,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:15",
+          "spy": 710.67,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 6.436995492458664,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            7,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:20",
+          "spy": 710.82,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 8.514785836280225,
+          "htf": "BEAR",
+          "score": 5,
+          "blockers": [
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [
+            "ribbon_flip"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:25",
+          "spy": 710.87,
+          "vix": 18.34,
+          "ribbon": "BEAR",
+          "spread_c": 9.693845775620957,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:30",
+          "spy": 710.85,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 10.780458141266536,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:35",
+          "spy": 710.66,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 13.54851956884886,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "sequence_rejection",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:40",
+          "spy": 710.57,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 16.664565926373598,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:45",
+          "spy": 710.85,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 16.2724581273892,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:50",
+          "spy": 709.55,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 29.119136593067196,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            6,
+            8
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:55",
+          "spy": 710.04,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 34.5126831817538,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:00",
+          "spy": 710.42,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 34.86818662723863,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:05",
+          "spy": 710.46,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 34.54859152409426,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:10",
+          "spy": 710.23,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 36.43174680554466,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:15",
+          "spy": 709.91,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 41.03294776916755,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:20",
+          "spy": 710.22,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 41.46380720918614,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            7,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:25",
+          "spy": 709.75,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 46.32144202495283,
+          "htf": "BEAR",
+          "score": 9,
+          "blockers": [
+            8
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:30",
+          "spy": 709.09,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 56.77950657262727,
+          "htf": "BEAR",
+          "score": 9,
+          "blockers": [
+            8
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:35",
+          "spy": 709.45,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 61.37328633597008,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:40",
+          "spy": 709.76,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 61.62899439869989,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:45",
+          "spy": 709.8,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 61.04141731384516,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:50",
+          "spy": 709.8,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 60.23292739180306,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:55",
+          "spy": 709.67,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 60.492519191200245,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "13:00",
+          "spy": 709.53,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 61.8323867870572,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            8,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:05",
+          "spy": 709.66,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 61.247472564502914,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:10",
+          "spy": 709.66,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 60.45990029308541,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "13:15",
+          "spy": 709.64,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 59.61306673158333,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "13:20",
+          "spy": 709.72,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 57.75336005749523,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            7,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "13:25",
+          "spy": 709.91,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 53.94883368102228,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:30",
+          "spy": 709.99,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 49.68984266066627,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        }
+      ]
+    },
+    "B_vix_soft": {
+      "total_pnl": -35.4,
+      "trades": [
+        {
+          "direction": "?",
+          "entry_time": "2026-04-29 12:30",
+          "exit_time": "2026-04-29 12:35",
+          "pnl": 231.0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "direction": "?",
+          "entry_time": "2026-04-29 14:10",
+          "exit_time": "2026-04-29 14:15",
+          "pnl": -266.4,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        }
+      ],
+      "n_decisions": 43,
+      "first_pass_bar": {
+        "time": "12:25",
+        "spy": 709.75,
+        "vix": 18.36,
+        "ribbon": "BEAR",
+        "spread_c": 46.32144202495283,
+        "htf": "BEAR",
+        "score": 9,
+        "blockers": [],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "passed": true
+      },
+      "first_10_bars": [
+        {
+          "time": "09:35",
+          "spy": 710.55,
+          "vix": 18.48,
+          "ribbon": "MIXED",
+          "spread_c": 8.3723509950687,
+          "htf": "BEAR",
+          "score": 5,
+          "blockers": [
+            5,
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:40",
+          "spy": 710.04,
+          "vix": 18.48,
+          "ribbon": "MIXED",
+          "spread_c": 6.477028959341169,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:45",
+          "spy": 709.96,
+          "vix": 18.47,
+          "ribbon": "BEAR",
+          "spread_c": 16.244087193956602,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            6
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:50",
+          "spy": 710.63,
+          "vix": 18.47,
+          "ribbon": "BEAR",
+          "spread_c": 18.502882827056055,
+          "htf": "BEAR",
+          "score": 5,
+          "blockers": [
+            6,
+            7,
+            9,
+            10
+          ],
+          "triggers": [
+            "ribbon_flip"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:55",
+          "spy": 710.77,
+          "vix": 18.48,
+          "ribbon": "BEAR",
+          "spread_c": 18.82335901757415,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:00",
+          "spy": 710.72,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 19.53823345759247,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:05",
+          "spy": 710.81,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 19.042958426189216,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:10",
+          "spy": 711.13,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 15.259345859215045,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:15",
+          "spy": 711.04,
+          "vix": 18.66,
+          "ribbon": "BEAR",
+          "spread_c": 12.978286263114569,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:20",
+          "spy": 711.34,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 7.965498283317629,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        }
+      ],
+      "all_bars_0935_1330": [
+        {
+          "time": "09:35",
+          "spy": 710.55,
+          "vix": 18.48,
+          "ribbon": "MIXED",
+          "spread_c": 8.3723509950687,
+          "htf": "BEAR",
+          "score": 5,
+          "blockers": [
+            5,
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:40",
+          "spy": 710.04,
+          "vix": 18.48,
+          "ribbon": "MIXED",
+          "spread_c": 6.477028959341169,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:45",
+          "spy": 709.96,
+          "vix": 18.47,
+          "ribbon": "BEAR",
+          "spread_c": 16.244087193956602,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            6
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:50",
+          "spy": 710.63,
+          "vix": 18.47,
+          "ribbon": "BEAR",
+          "spread_c": 18.502882827056055,
+          "htf": "BEAR",
+          "score": 5,
+          "blockers": [
+            6,
+            7,
+            9,
+            10
+          ],
+          "triggers": [
+            "ribbon_flip"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:55",
+          "spy": 710.77,
+          "vix": 18.48,
+          "ribbon": "BEAR",
+          "spread_c": 18.82335901757415,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:00",
+          "spy": 710.72,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 19.53823345759247,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:05",
+          "spy": 710.81,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 19.042958426189216,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:10",
+          "spy": 711.13,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 15.259345859215045,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:15",
+          "spy": 711.04,
+          "vix": 18.66,
+          "ribbon": "BEAR",
+          "spread_c": 12.978286263114569,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:20",
+          "spy": 711.34,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 7.965498283317629,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:25",
+          "spy": 711.48,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 2.3696532298117745,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:30",
+          "spy": 711.9,
+          "vix": 18.77,
+          "ribbon": "BULL",
+          "spread_c": 6.53099230994485,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:35",
+          "spy": 711.85,
+          "vix": 18.5,
+          "ribbon": "BULL",
+          "spread_c": 13.299940295837587,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:40",
+          "spy": 711.84,
+          "vix": 18.86,
+          "ribbon": "BULL",
+          "spread_c": 18.686012875400593,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:45",
+          "spy": 711.48,
+          "vix": 18.75,
+          "ribbon": "BULL",
+          "spread_c": 19.331313423992924,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:50",
+          "spy": 711.62,
+          "vix": 18.5,
+          "ribbon": "BULL",
+          "spread_c": 21.17785394115117,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:55",
+          "spy": 711.44,
+          "vix": 18.5,
+          "ribbon": "BULL",
+          "spread_c": 20.735854969507272,
+          "htf": "BEAR",
+          "score": 5,
+          "blockers": [
+            5,
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:00",
+          "spy": 711.11,
+          "vix": 18.36,
+          "ribbon": "BULL",
+          "spread_c": 16.88403212870071,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:05",
+          "spy": 710.62,
+          "vix": 18.36,
+          "ribbon": "BULL",
+          "spread_c": 8.618877826427251,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            5,
+            6
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:10",
+          "spy": 710.25,
+          "vix": 18.33,
+          "ribbon": "MIXED",
+          "spread_c": 2.9647682851646096,
+          "htf": "BEAR",
+          "score": 5,
+          "blockers": [
+            5,
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:15",
+          "spy": 710.67,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 6.436995492458664,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:20",
+          "spy": 710.82,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 8.514785836280225,
+          "htf": "BEAR",
+          "score": 5,
+          "blockers": [
+            6,
+            7,
+            9,
+            10
+          ],
+          "triggers": [
+            "ribbon_flip"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:25",
+          "spy": 710.87,
+          "vix": 18.34,
+          "ribbon": "BEAR",
+          "spread_c": 9.693845775620957,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:30",
+          "spy": 710.85,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 10.780458141266536,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:35",
+          "spy": 710.66,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 13.54851956884886,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "sequence_rejection",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:40",
+          "spy": 710.57,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 16.664565926373598,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:45",
+          "spy": 710.85,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 16.2724581273892,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:50",
+          "spy": 709.55,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 29.119136593067196,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            6
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:55",
+          "spy": 710.04,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 34.5126831817538,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:00",
+          "spy": 710.42,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 34.86818662723863,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:05",
+          "spy": 710.46,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 34.54859152409426,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:10",
+          "spy": 710.23,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 36.43174680554466,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:15",
+          "spy": 709.91,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 41.03294776916755,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:20",
+          "spy": 710.22,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 41.46380720918614,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:25",
+          "spy": 709.75,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 46.32144202495283,
+          "htf": "BEAR",
+          "score": 9,
+          "blockers": [],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:55",
+          "spy": 709.67,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 60.492519191200245,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "13:00",
+          "spy": 709.53,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 61.8323867870572,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:05",
+          "spy": 709.66,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 61.247472564502914,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:10",
+          "spy": 709.66,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 60.45990029308541,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "13:15",
+          "spy": 709.64,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 59.61306673158333,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "13:20",
+          "spy": 709.72,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 57.75336005749523,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "13:25",
+          "spy": 709.91,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 53.94883368102228,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:30",
+          "spy": 709.99,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 49.68984266066627,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        }
+      ]
+    },
+    "E_soft_allow": {
+      "total_pnl": -427.06,
+      "trades": [
+        {
+          "direction": "?",
+          "entry_time": "2026-04-29 09:50",
+          "exit_time": "2026-04-29 09:55",
+          "pnl": -415.36,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "direction": "?",
+          "entry_time": "2026-04-29 11:55",
+          "exit_time": "2026-04-29 12:00",
+          "pnl": -295.2,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "direction": "?",
+          "entry_time": "2026-04-29 14:05",
+          "exit_time": "2026-04-29 14:10",
+          "pnl": 283.5,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        }
+      ],
+      "n_decisions": 48,
+      "first_pass_bar": {
+        "time": "09:45",
+        "spy": 709.96,
+        "vix": 18.47,
+        "ribbon": "BEAR",
+        "spread_c": 16.244087193956602,
+        "htf": "BEAR",
+        "score": 8,
+        "blockers": [
+          6
+        ],
+        "triggers": [
+          "level_rejection",
+          "ribbon_flip"
+        ],
+        "passed": true
+      },
+      "first_10_bars": [
+        {
+          "time": "09:35",
+          "spy": 710.55,
+          "vix": 18.48,
+          "ribbon": "MIXED",
+          "spread_c": 8.3723509950687,
+          "htf": "BEAR",
+          "score": 5,
+          "blockers": [
+            5,
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:40",
+          "spy": 710.04,
+          "vix": 18.48,
+          "ribbon": "MIXED",
+          "spread_c": 6.477028959341169,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:45",
+          "spy": 709.96,
+          "vix": 18.47,
+          "ribbon": "BEAR",
+          "spread_c": 16.244087193956602,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            6
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip"
+          ],
+          "passed": true
+        },
+        {
+          "time": "10:15",
+          "spy": 711.04,
+          "vix": 18.66,
+          "ribbon": "BEAR",
+          "spread_c": 12.978286263114569,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:20",
+          "spy": 711.34,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 7.965498283317629,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:25",
+          "spy": 711.48,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 2.3696532298117745,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:30",
+          "spy": 711.9,
+          "vix": 18.77,
+          "ribbon": "BULL",
+          "spread_c": 6.53099230994485,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:35",
+          "spy": 711.85,
+          "vix": 18.5,
+          "ribbon": "BULL",
+          "spread_c": 13.299940295837587,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:40",
+          "spy": 711.84,
+          "vix": 18.86,
+          "ribbon": "BULL",
+          "spread_c": 18.686012875400593,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:45",
+          "spy": 711.48,
+          "vix": 18.75,
+          "ribbon": "BULL",
+          "spread_c": 19.331313423992924,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        }
+      ],
+      "all_bars_0935_1330": [
+        {
+          "time": "09:35",
+          "spy": 710.55,
+          "vix": 18.48,
+          "ribbon": "MIXED",
+          "spread_c": 8.3723509950687,
+          "htf": "BEAR",
+          "score": 5,
+          "blockers": [
+            5,
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:40",
+          "spy": 710.04,
+          "vix": 18.48,
+          "ribbon": "MIXED",
+          "spread_c": 6.477028959341169,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:45",
+          "spy": 709.96,
+          "vix": 18.47,
+          "ribbon": "BEAR",
+          "spread_c": 16.244087193956602,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            6
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip"
+          ],
+          "passed": true
+        },
+        {
+          "time": "10:15",
+          "spy": 711.04,
+          "vix": 18.66,
+          "ribbon": "BEAR",
+          "spread_c": 12.978286263114569,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:20",
+          "spy": 711.34,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 7.965498283317629,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:25",
+          "spy": 711.48,
+          "vix": 18.5,
+          "ribbon": "BEAR",
+          "spread_c": 2.3696532298117745,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:30",
+          "spy": 711.9,
+          "vix": 18.77,
+          "ribbon": "BULL",
+          "spread_c": 6.53099230994485,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:35",
+          "spy": 711.85,
+          "vix": 18.5,
+          "ribbon": "BULL",
+          "spread_c": 13.299940295837587,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:40",
+          "spy": 711.84,
+          "vix": 18.86,
+          "ribbon": "BULL",
+          "spread_c": 18.686012875400593,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:45",
+          "spy": 711.48,
+          "vix": 18.75,
+          "ribbon": "BULL",
+          "spread_c": 19.331313423992924,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:50",
+          "spy": 711.62,
+          "vix": 18.5,
+          "ribbon": "BULL",
+          "spread_c": 21.17785394115117,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:55",
+          "spy": 711.44,
+          "vix": 18.5,
+          "ribbon": "BULL",
+          "spread_c": 20.735854969507272,
+          "htf": "BEAR",
+          "score": 5,
+          "blockers": [
+            5,
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:00",
+          "spy": 711.11,
+          "vix": 18.36,
+          "ribbon": "BULL",
+          "spread_c": 16.88403212870071,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:05",
+          "spy": 710.62,
+          "vix": 18.36,
+          "ribbon": "BULL",
+          "spread_c": 8.618877826427251,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            5,
+            6
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:10",
+          "spy": 710.25,
+          "vix": 18.33,
+          "ribbon": "MIXED",
+          "spread_c": 2.9647682851646096,
+          "htf": "BEAR",
+          "score": 5,
+          "blockers": [
+            5,
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:15",
+          "spy": 710.67,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 6.436995492458664,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:20",
+          "spy": 710.82,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 8.514785836280225,
+          "htf": "BEAR",
+          "score": 5,
+          "blockers": [
+            6,
+            7,
+            9,
+            10
+          ],
+          "triggers": [
+            "ribbon_flip"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:25",
+          "spy": 710.87,
+          "vix": 18.34,
+          "ribbon": "BEAR",
+          "spread_c": 9.693845775620957,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:30",
+          "spy": 710.85,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 10.780458141266536,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:35",
+          "spy": 710.66,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 13.54851956884886,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "sequence_rejection",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:40",
+          "spy": 710.57,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 16.664565926373598,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:45",
+          "spy": 710.85,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 16.2724581273892,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            6,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:50",
+          "spy": 709.55,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 29.119136593067196,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            6
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:20",
+          "spy": 710.22,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 41.46380720918614,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:25",
+          "spy": 709.75,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 46.32144202495283,
+          "htf": "BEAR",
+          "score": 9,
+          "blockers": [],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:25",
+          "spy": 709.75,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 46.32144202495283,
+          "htf": "BEAR",
+          "score": 9,
+          "blockers": [],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:30",
+          "spy": 709.09,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 56.77950657262727,
+          "htf": "BEAR",
+          "score": 9,
+          "blockers": [],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:30",
+          "spy": 709.09,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 56.77950657262727,
+          "htf": "BEAR",
+          "score": 9,
+          "blockers": [],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:35",
+          "spy": 709.45,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 61.37328633597008,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:40",
+          "spy": 709.76,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 61.62899439869989,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:40",
+          "spy": 709.76,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 61.62899439869989,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:45",
+          "spy": 709.8,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 61.04141731384516,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:45",
+          "spy": 709.8,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 61.04141731384516,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:50",
+          "spy": 709.8,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 60.23292739180306,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:50",
+          "spy": 709.8,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 60.23292739180306,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:55",
+          "spy": 709.67,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 60.492519191200245,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:55",
+          "spy": 709.67,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 60.492519191200245,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "13:00",
+          "spy": 709.53,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 61.8323867870572,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            10
+          ],
+          "triggers": [],
+          "passed": true
+        },
+        {
+          "time": "13:00",
+          "spy": 709.53,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 61.8323867870572,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            10
+          ],
+          "triggers": [],
+          "passed": true
+        },
+        {
+          "time": "13:05",
+          "spy": 709.66,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 61.247472564502914,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:10",
+          "spy": 709.66,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 60.45990029308541,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "13:10",
+          "spy": 709.66,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 60.45990029308541,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "13:15",
+          "spy": 709.64,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 59.61306673158333,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "13:15",
+          "spy": 709.64,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 59.61306673158333,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "13:20",
+          "spy": 709.72,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 57.75336005749523,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "13:25",
+          "spy": 709.91,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 53.94883368102228,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:30",
+          "spy": 709.99,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 49.68984266066627,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "13:30",
+          "spy": 709.99,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 49.68984266066627,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        }
+      ]
+    }
+  },
+  "2026-05-01": {
+    "j_entry": "13:36",
+    "j_pnl": 470,
+    "note": "Bull ribbon all day. J enters puts at 13:36 trendline test.",
+    "A_baseline": {
+      "total_pnl": -121.6,
+      "trades": [
+        {
+          "direction": "?",
+          "entry_time": "2026-05-01 12:20",
+          "exit_time": "2026-05-01 12:25",
+          "pnl": -72.8,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "direction": "?",
+          "entry_time": "2026-05-01 13:55",
+          "exit_time": "2026-05-01 14:00",
+          "pnl": -48.8,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        }
+      ],
+      "n_decisions": 43,
+      "first_pass_bar": null,
+      "first_10_bars": [
+        {
+          "time": "09:35",
+          "spy": 722.11,
+          "vix": 16.79,
+          "ribbon": "BULL",
+          "spread_c": 219.9412265682099,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:40",
+          "spy": 722.52,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 238.96990777849396,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:45",
+          "spy": 722.18,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 249.75140717091335,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:50",
+          "spy": 722.56,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 261.03682146876963,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:55",
+          "spy": 724.17,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 285.2726203299085,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:00",
+          "spy": 724.35,
+          "vix": 16.92,
+          "ribbon": "BULL",
+          "spread_c": 305.3615603726712,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:05",
+          "spy": 724.05,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 317.0187593540277,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:10",
+          "spy": 724.45,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 328.8125213583385,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:15",
+          "spy": 724.46,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 336.6937167583046,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:20",
+          "spy": 724.59,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 342.485581683286,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        }
+      ],
+      "all_bars_0935_1330": [
+        {
+          "time": "09:35",
+          "spy": 722.11,
+          "vix": 16.79,
+          "ribbon": "BULL",
+          "spread_c": 219.9412265682099,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:40",
+          "spy": 722.52,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 238.96990777849396,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:45",
+          "spy": 722.18,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 249.75140717091335,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:50",
+          "spy": 722.56,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 261.03682146876963,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:55",
+          "spy": 724.17,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 285.2726203299085,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:00",
+          "spy": 724.35,
+          "vix": 16.92,
+          "ribbon": "BULL",
+          "spread_c": 305.3615603726712,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:05",
+          "spy": 724.05,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 317.0187593540277,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:10",
+          "spy": 724.45,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 328.8125213583385,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:15",
+          "spy": 724.46,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 336.6937167583046,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:20",
+          "spy": 724.59,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 342.485581683286,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:25",
+          "spy": 724.26,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 341.9214987676355,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:30",
+          "spy": 723.29,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 329.57819555248307,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:35",
+          "spy": 722.85,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 313.0184974688177,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:40",
+          "spy": 722.96,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 298.7015601480721,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:45",
+          "spy": 723.16,
+          "vix": 16.92,
+          "ribbon": "BULL",
+          "spread_c": 287.2294017131253,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:50",
+          "spy": 722.87,
+          "vix": 16.9,
+          "ribbon": "BULL",
+          "spread_c": 273.16371489743005,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:55",
+          "spy": 722.72,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 258.47585320344706,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:00",
+          "spy": 722.33,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 240.913852181302,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:05",
+          "spy": 722.62,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 228.02933644688892,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:10",
+          "spy": 722.99,
+          "vix": 16.78,
+          "ribbon": "BULL",
+          "spread_c": 219.93314953728031,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:15",
+          "spy": 722.99,
+          "vix": 16.69,
+          "ribbon": "BULL",
+          "spread_c": 211.99440024403202,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:20",
+          "spy": 723.28,
+          "vix": 16.66,
+          "ribbon": "BULL",
+          "spread_c": 207.13989157849255,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:25",
+          "spy": 723.29,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 202.0424260677146,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:30",
+          "spy": 723.26,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 196.36761836453616,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:35",
+          "spy": 723.79,
+          "vix": 16.71,
+          "ribbon": "BULL",
+          "spread_c": 195.9648717376922,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:40",
+          "spy": 724.01,
+          "vix": 16.7,
+          "ribbon": "BULL",
+          "spread_c": 196.73632011009659,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:45",
+          "spy": 724.29,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 199.08024056728664,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:50",
+          "spy": 723.48,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 191.58245887283556,
+          "htf": "BULL",
+          "score": 7,
+          "blockers": [
+            5,
+            8
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:55",
+          "spy": 723.39,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 183.33066860284362,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:00",
+          "spy": 723.36,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 175.2220632309445,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:05",
+          "spy": 722.54,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 159.16638837350092,
+          "htf": "BULL",
+          "score": 7,
+          "blockers": [
+            5,
+            8
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:10",
+          "spy": 722.5,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 144.63007297334798,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:15",
+          "spy": 723.01,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 137.0397904395304,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:45",
+          "spy": 721.69,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 75.21861907190441,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            7,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:50",
+          "spy": 722.15,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 69.7483377412027,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:55",
+          "spy": 721.89,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 63.31489822052845,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "13:00",
+          "spy": 722.15,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 58.900645161861576,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:05",
+          "spy": 722.21,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 55.167366022976694,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:10",
+          "spy": 722.51,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 53.344975655409144,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:15",
+          "spy": 722.68,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 52.48182054342578,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:20",
+          "spy": 722.76,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 51.96420237622306,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "13:25",
+          "spy": 722.98,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 52.51011695803527,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:30",
+          "spy": 722.96,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 52.67114093820737,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        }
+      ]
+    },
+    "B_vix_soft": {
+      "total_pnl": -121.6,
+      "trades": [
+        {
+          "direction": "?",
+          "entry_time": "2026-05-01 12:20",
+          "exit_time": "2026-05-01 12:25",
+          "pnl": -72.8,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "direction": "?",
+          "entry_time": "2026-05-01 13:55",
+          "exit_time": "2026-05-01 14:00",
+          "pnl": -48.8,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        }
+      ],
+      "n_decisions": 43,
+      "first_pass_bar": null,
+      "first_10_bars": [
+        {
+          "time": "09:35",
+          "spy": 722.11,
+          "vix": 16.79,
+          "ribbon": "BULL",
+          "spread_c": 219.9412265682099,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:40",
+          "spy": 722.52,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 238.96990777849396,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:45",
+          "spy": 722.18,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 249.75140717091335,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:50",
+          "spy": 722.56,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 261.03682146876963,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:55",
+          "spy": 724.17,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 285.2726203299085,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:00",
+          "spy": 724.35,
+          "vix": 16.92,
+          "ribbon": "BULL",
+          "spread_c": 305.3615603726712,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:05",
+          "spy": 724.05,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 317.0187593540277,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:10",
+          "spy": 724.45,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 328.8125213583385,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:15",
+          "spy": 724.46,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 336.6937167583046,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:20",
+          "spy": 724.59,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 342.485581683286,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        }
+      ],
+      "all_bars_0935_1330": [
+        {
+          "time": "09:35",
+          "spy": 722.11,
+          "vix": 16.79,
+          "ribbon": "BULL",
+          "spread_c": 219.9412265682099,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:40",
+          "spy": 722.52,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 238.96990777849396,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:45",
+          "spy": 722.18,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 249.75140717091335,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:50",
+          "spy": 722.56,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 261.03682146876963,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:55",
+          "spy": 724.17,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 285.2726203299085,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:00",
+          "spy": 724.35,
+          "vix": 16.92,
+          "ribbon": "BULL",
+          "spread_c": 305.3615603726712,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:05",
+          "spy": 724.05,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 317.0187593540277,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:10",
+          "spy": 724.45,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 328.8125213583385,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:15",
+          "spy": 724.46,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 336.6937167583046,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:20",
+          "spy": 724.59,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 342.485581683286,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:25",
+          "spy": 724.26,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 341.9214987676355,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:30",
+          "spy": 723.29,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 329.57819555248307,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:35",
+          "spy": 722.85,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 313.0184974688177,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:40",
+          "spy": 722.96,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 298.7015601480721,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:45",
+          "spy": 723.16,
+          "vix": 16.92,
+          "ribbon": "BULL",
+          "spread_c": 287.2294017131253,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:50",
+          "spy": 722.87,
+          "vix": 16.9,
+          "ribbon": "BULL",
+          "spread_c": 273.16371489743005,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:55",
+          "spy": 722.72,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 258.47585320344706,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:00",
+          "spy": 722.33,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 240.913852181302,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:05",
+          "spy": 722.62,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 228.02933644688892,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:10",
+          "spy": 722.99,
+          "vix": 16.78,
+          "ribbon": "BULL",
+          "spread_c": 219.93314953728031,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:15",
+          "spy": 722.99,
+          "vix": 16.69,
+          "ribbon": "BULL",
+          "spread_c": 211.99440024403202,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:20",
+          "spy": 723.28,
+          "vix": 16.66,
+          "ribbon": "BULL",
+          "spread_c": 207.13989157849255,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:25",
+          "spy": 723.29,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 202.0424260677146,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:30",
+          "spy": 723.26,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 196.36761836453616,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:35",
+          "spy": 723.79,
+          "vix": 16.71,
+          "ribbon": "BULL",
+          "spread_c": 195.9648717376922,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:40",
+          "spy": 724.01,
+          "vix": 16.7,
+          "ribbon": "BULL",
+          "spread_c": 196.73632011009659,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:45",
+          "spy": 724.29,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 199.08024056728664,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:50",
+          "spy": 723.48,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 191.58245887283556,
+          "htf": "BULL",
+          "score": 7,
+          "blockers": [
+            5
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:55",
+          "spy": 723.39,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 183.33066860284362,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:00",
+          "spy": 723.36,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 175.2220632309445,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:05",
+          "spy": 722.54,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 159.16638837350092,
+          "htf": "BULL",
+          "score": 7,
+          "blockers": [
+            5
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:10",
+          "spy": 722.5,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 144.63007297334798,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:15",
+          "spy": 723.01,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 137.0397904395304,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:45",
+          "spy": 721.69,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 75.21861907190441,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:50",
+          "spy": 722.15,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 69.7483377412027,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:55",
+          "spy": 721.89,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 63.31489822052845,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "13:00",
+          "spy": 722.15,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 58.900645161861576,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:05",
+          "spy": 722.21,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 55.167366022976694,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:10",
+          "spy": 722.51,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 53.344975655409144,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:15",
+          "spy": 722.68,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 52.48182054342578,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:20",
+          "spy": 722.76,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 51.96420237622306,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "13:25",
+          "spy": 722.98,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 52.51011695803527,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:30",
+          "spy": 722.96,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 52.67114093820737,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        }
+      ]
+    },
+    "E_soft_allow": {
+      "total_pnl": -188.0,
+      "trades": [
+        {
+          "direction": "?",
+          "entry_time": "2026-05-01 12:20",
+          "exit_time": "2026-05-01 12:25",
+          "pnl": -72.8,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "direction": "?",
+          "entry_time": "2026-05-01 13:55",
+          "exit_time": "2026-05-01 14:00",
+          "pnl": -48.8,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "direction": "?",
+          "entry_time": "2026-05-01 14:55",
+          "exit_time": "2026-05-01 15:00",
+          "pnl": -114.4,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "direction": "?",
+          "entry_time": "2026-05-01 15:35",
+          "exit_time": "2026-05-01 15:40",
+          "pnl": 48.0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        }
+      ],
+      "n_decisions": 43,
+      "first_pass_bar": null,
+      "first_10_bars": [
+        {
+          "time": "09:35",
+          "spy": 722.11,
+          "vix": 16.79,
+          "ribbon": "BULL",
+          "spread_c": 219.9412265682099,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:40",
+          "spy": 722.52,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 238.96990777849396,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:45",
+          "spy": 722.18,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 249.75140717091335,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:50",
+          "spy": 722.56,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 261.03682146876963,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:55",
+          "spy": 724.17,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 285.2726203299085,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:00",
+          "spy": 724.35,
+          "vix": 16.92,
+          "ribbon": "BULL",
+          "spread_c": 305.3615603726712,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:05",
+          "spy": 724.05,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 317.0187593540277,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:10",
+          "spy": 724.45,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 328.8125213583385,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:15",
+          "spy": 724.46,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 336.6937167583046,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:20",
+          "spy": 724.59,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 342.485581683286,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        }
+      ],
+      "all_bars_0935_1330": [
+        {
+          "time": "09:35",
+          "spy": 722.11,
+          "vix": 16.79,
+          "ribbon": "BULL",
+          "spread_c": 219.9412265682099,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:40",
+          "spy": 722.52,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 238.96990777849396,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:45",
+          "spy": 722.18,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 249.75140717091335,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:50",
+          "spy": 722.56,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 261.03682146876963,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "09:55",
+          "spy": 724.17,
+          "vix": 16.89,
+          "ribbon": "BULL",
+          "spread_c": 285.2726203299085,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:00",
+          "spy": 724.35,
+          "vix": 16.92,
+          "ribbon": "BULL",
+          "spread_c": 305.3615603726712,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:05",
+          "spy": 724.05,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 317.0187593540277,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:10",
+          "spy": 724.45,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 328.8125213583385,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:15",
+          "spy": 724.46,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 336.6937167583046,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:20",
+          "spy": 724.59,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 342.485581683286,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:25",
+          "spy": 724.26,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 341.9214987676355,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:30",
+          "spy": 723.29,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 329.57819555248307,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:35",
+          "spy": 722.85,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 313.0184974688177,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:40",
+          "spy": 722.96,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 298.7015601480721,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:45",
+          "spy": 723.16,
+          "vix": 16.92,
+          "ribbon": "BULL",
+          "spread_c": 287.2294017131253,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:50",
+          "spy": 722.87,
+          "vix": 16.9,
+          "ribbon": "BULL",
+          "spread_c": 273.16371489743005,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:55",
+          "spy": 722.72,
+          "vix": 16.87,
+          "ribbon": "BULL",
+          "spread_c": 258.47585320344706,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:00",
+          "spy": 722.33,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 240.913852181302,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:05",
+          "spy": 722.62,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 228.02933644688892,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:10",
+          "spy": 722.99,
+          "vix": 16.78,
+          "ribbon": "BULL",
+          "spread_c": 219.93314953728031,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:15",
+          "spy": 722.99,
+          "vix": 16.69,
+          "ribbon": "BULL",
+          "spread_c": 211.99440024403202,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:20",
+          "spy": 723.28,
+          "vix": 16.66,
+          "ribbon": "BULL",
+          "spread_c": 207.13989157849255,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:25",
+          "spy": 723.29,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 202.0424260677146,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:30",
+          "spy": 723.26,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 196.36761836453616,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:35",
+          "spy": 723.79,
+          "vix": 16.71,
+          "ribbon": "BULL",
+          "spread_c": 195.9648717376922,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:40",
+          "spy": 724.01,
+          "vix": 16.7,
+          "ribbon": "BULL",
+          "spread_c": 196.73632011009659,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:45",
+          "spy": 724.29,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 199.08024056728664,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:50",
+          "spy": 723.48,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 191.58245887283556,
+          "htf": "BULL",
+          "score": 7,
+          "blockers": [
+            5
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:55",
+          "spy": 723.39,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 183.33066860284362,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:00",
+          "spy": 723.36,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 175.2220632309445,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:05",
+          "spy": 722.54,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 159.16638837350092,
+          "htf": "BULL",
+          "score": 7,
+          "blockers": [
+            5
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:10",
+          "spy": 722.5,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 144.63007297334798,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:15",
+          "spy": 723.01,
+          "vix": 17.0,
+          "ribbon": "BULL",
+          "spread_c": 137.0397904395304,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:45",
+          "spy": 721.69,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 75.21861907190441,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:50",
+          "spy": 722.15,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 69.7483377412027,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:55",
+          "spy": 721.89,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 63.31489822052845,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "13:00",
+          "spy": 722.15,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 58.900645161861576,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:05",
+          "spy": 722.21,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 55.167366022976694,
+          "htf": "BULL",
+          "score": 4,
+          "blockers": [
+            5,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:10",
+          "spy": 722.51,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 53.344975655409144,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:15",
+          "spy": 722.68,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 52.48182054342578,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:20",
+          "spy": 722.76,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 51.96420237622306,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "13:25",
+          "spy": 722.98,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 52.51011695803527,
+          "htf": "BULL",
+          "score": 5,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:30",
+          "spy": 722.96,
+          "vix": 17.0,
+          "ribbon": "MIXED",
+          "spread_c": 52.67114093820737,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        }
+      ]
+    }
+  },
+  "2026-05-04": {
+    "j_entry": "10:27",
+    "j_pnl": 730,
+    "note": "Strong gap-down continuation. J enters 10:27.",
+    "A_baseline": {
+      "total_pnl": -143.2,
+      "trades": [
+        {
+          "direction": "?",
+          "entry_time": "2026-05-04 11:25",
+          "exit_time": "2026-05-04 11:30",
+          "pnl": -143.2,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        }
+      ],
+      "n_decisions": 43,
+      "first_pass_bar": {
+        "time": "11:20",
+        "spy": 717.68,
+        "vix": 18.29,
+        "ribbon": "BEAR",
+        "spread_c": 80.95355397489357,
+        "htf": "MIXED",
+        "score": 10,
+        "blockers": [],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "passed": true
+      },
+      "first_10_bars": [
+        {
+          "time": "09:35",
+          "spy": 719.84,
+          "vix": 18.2,
+          "ribbon": "BEAR",
+          "spread_c": 52.144920953321616,
+          "htf": "BULL",
+          "score": 8,
+          "blockers": [
+            7
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:40",
+          "spy": 719.95,
+          "vix": 18.16,
+          "ribbon": "BEAR",
+          "spread_c": 63.271809271134316,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            7,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:45",
+          "spy": 720.41,
+          "vix": 18.17,
+          "ribbon": "BEAR",
+          "spread_c": 67.35745243682913,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            7,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:50",
+          "spy": 720.45,
+          "vix": 18.15,
+          "ribbon": "BEAR",
+          "spread_c": 69.91517765286517,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:55",
+          "spy": 720.76,
+          "vix": 18.15,
+          "ribbon": "BEAR",
+          "spread_c": 68.44525296306756,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:00",
+          "spy": 720.31,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 71.46510710251732,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:05",
+          "spy": 720.06,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 76.0485852616739,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [
+            8
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:10",
+          "spy": 720.99,
+          "vix": 18.12,
+          "ribbon": "BEAR",
+          "spread_c": 69.88377274016102,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            7,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:15",
+          "spy": 721.42,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 60.020160373449016,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:20",
+          "spy": 721.36,
+          "vix": 18.4,
+          "ribbon": "BEAR",
+          "spread_c": 52.172966341152005,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "trendline_rejection"
+          ],
+          "passed": false
+        }
+      ],
+      "all_bars_0935_1330": [
+        {
+          "time": "09:35",
+          "spy": 719.84,
+          "vix": 18.2,
+          "ribbon": "BEAR",
+          "spread_c": 52.144920953321616,
+          "htf": "BULL",
+          "score": 8,
+          "blockers": [
+            7
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:40",
+          "spy": 719.95,
+          "vix": 18.16,
+          "ribbon": "BEAR",
+          "spread_c": 63.271809271134316,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            7,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:45",
+          "spy": 720.41,
+          "vix": 18.17,
+          "ribbon": "BEAR",
+          "spread_c": 67.35745243682913,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            7,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:50",
+          "spy": 720.45,
+          "vix": 18.15,
+          "ribbon": "BEAR",
+          "spread_c": 69.91517765286517,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:55",
+          "spy": 720.76,
+          "vix": 18.15,
+          "ribbon": "BEAR",
+          "spread_c": 68.44525296306756,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:00",
+          "spy": 720.31,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 71.46510710251732,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:05",
+          "spy": 720.06,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 76.0485852616739,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [
+            8
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:10",
+          "spy": 720.99,
+          "vix": 18.12,
+          "ribbon": "BEAR",
+          "spread_c": 69.88377274016102,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            7,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:15",
+          "spy": 721.42,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 60.020160373449016,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:20",
+          "spy": 721.36,
+          "vix": 18.4,
+          "ribbon": "BEAR",
+          "spread_c": 52.172966341152005,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:25",
+          "spy": 721.24,
+          "vix": 18.34,
+          "ribbon": "BEAR",
+          "spread_c": 46.641561852413815,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:30",
+          "spy": 721.61,
+          "vix": 18.38,
+          "ribbon": "BEAR",
+          "spread_c": 38.04645369007176,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            7,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:35",
+          "spy": 721.79,
+          "vix": 18.42,
+          "ribbon": "BEAR",
+          "spread_c": 28.92141644693993,
+          "htf": "MIXED",
+          "score": 5,
+          "blockers": [
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:40",
+          "spy": 721.91,
+          "vix": 18.51,
+          "ribbon": "MIXED",
+          "spread_c": 21.6498121757013,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:45",
+          "spy": 721.76,
+          "vix": 18.36,
+          "ribbon": "MIXED",
+          "spread_c": 17.966072909234754,
+          "htf": "MIXED",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:50",
+          "spy": 721.93,
+          "vix": 18.49,
+          "ribbon": "MIXED",
+          "spread_c": 13.747049491132657,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:55",
+          "spy": 720.91,
+          "vix": 18.36,
+          "ribbon": "MIXED",
+          "spread_c": 15.610568061038066,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            5,
+            6,
+            8
+          ],
+          "triggers": [
+            "level_rejection",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:00",
+          "spy": 720.96,
+          "vix": 18.18,
+          "ribbon": "MIXED",
+          "spread_c": 16.89473363263687,
+          "htf": "MIXED",
+          "score": 5,
+          "blockers": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:05",
+          "spy": 720.78,
+          "vix": 18.29,
+          "ribbon": "BEAR",
+          "spread_c": 20.32896760570111,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            6,
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:10",
+          "spy": 720.25,
+          "vix": 18.3,
+          "ribbon": "BEAR",
+          "spread_c": 29.37493787733274,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            6,
+            8
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:15",
+          "spy": 718.77,
+          "vix": 18.24,
+          "ribbon": "BEAR",
+          "spread_c": 51.74270866879169,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [
+            8
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:20",
+          "spy": 717.68,
+          "vix": 18.29,
+          "ribbon": "BEAR",
+          "spread_c": 80.95355397489357,
+          "htf": "MIXED",
+          "score": 10,
+          "blockers": [],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "11:50",
+          "spy": 718.04,
+          "vix": 18.33,
+          "ribbon": "BEAR",
+          "spread_c": 151.3026162510414,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:55",
+          "spy": 717.59,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 158.76462556165052,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            7,
+            8
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:00",
+          "spy": 717.26,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 167.3388608290793,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:05",
+          "spy": 716.12,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 185.04529783575663,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [
+            8
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:10",
+          "spy": 715.94,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 200.3604552860338,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [
+            8
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:15",
+          "spy": 717.19,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 199.02854126389684,
+          "htf": "MIXED",
+          "score": 6,
+          "blockers": [
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:20",
+          "spy": 717.44,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 194.22196156485825,
+          "htf": "MIXED",
+          "score": 6,
+          "blockers": [
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:25",
+          "spy": 717.0,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 193.62752759011528,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:30",
+          "spy": 717.56,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 186.29552499204465,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:35",
+          "spy": 716.83,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 186.6299735576149,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:40",
+          "spy": 716.92,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 184.89870293743706,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:45",
+          "spy": 716.92,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 182.39719937835162,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:50",
+          "spy": 716.65,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 182.03170764047627,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:55",
+          "spy": 716.55,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 181.69058836485874,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "13:00",
+          "spy": 717.08,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 174.94225206306737,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:05",
+          "spy": 717.43,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 164.80280631376445,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:10",
+          "spy": 717.47,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 155.09769724777698,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:15",
+          "spy": 718.27,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 138.10151660725296,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "13:20",
+          "spy": 718.47,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 121.23133536747446,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:25",
+          "spy": 718.57,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 105.63372034069971,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            8,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:30",
+          "spy": 718.15,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 96.47962502673408,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        }
+      ]
+    },
+    "B_vix_soft": {
+      "total_pnl": 362.2,
+      "trades": [
+        {
+          "direction": "?",
+          "entry_time": "2026-05-04 10:10",
+          "exit_time": "2026-05-04 10:15",
+          "pnl": -92.0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "direction": "?",
+          "entry_time": "2026-05-04 11:20",
+          "exit_time": "2026-05-04 11:25",
+          "pnl": 456.0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "direction": "?",
+          "entry_time": "2026-05-04 14:45",
+          "exit_time": "2026-05-04 14:50",
+          "pnl": -82.8,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "direction": "?",
+          "entry_time": "2026-05-04 15:45",
+          "exit_time": "2026-05-04 15:50",
+          "pnl": 81.0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        }
+      ],
+      "n_decisions": 40,
+      "first_pass_bar": {
+        "time": "10:05",
+        "spy": 720.06,
+        "vix": 18.36,
+        "ribbon": "BEAR",
+        "spread_c": 76.0485852616739,
+        "htf": "MIXED",
+        "score": 9,
+        "blockers": [],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "passed": true
+      },
+      "first_10_bars": [
+        {
+          "time": "09:35",
+          "spy": 719.84,
+          "vix": 18.2,
+          "ribbon": "BEAR",
+          "spread_c": 52.144920953321616,
+          "htf": "BULL",
+          "score": 8,
+          "blockers": [
+            7
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:40",
+          "spy": 719.95,
+          "vix": 18.16,
+          "ribbon": "BEAR",
+          "spread_c": 63.271809271134316,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:45",
+          "spy": 720.41,
+          "vix": 18.17,
+          "ribbon": "BEAR",
+          "spread_c": 67.35745243682913,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:50",
+          "spy": 720.45,
+          "vix": 18.15,
+          "ribbon": "BEAR",
+          "spread_c": 69.91517765286517,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:55",
+          "spy": 720.76,
+          "vix": 18.15,
+          "ribbon": "BEAR",
+          "spread_c": 68.44525296306756,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:00",
+          "spy": 720.31,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 71.46510710251732,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:05",
+          "spy": 720.06,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 76.0485852616739,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "10:35",
+          "spy": 721.79,
+          "vix": 18.42,
+          "ribbon": "BEAR",
+          "spread_c": 28.92141644693993,
+          "htf": "MIXED",
+          "score": 5,
+          "blockers": [
+            6,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:40",
+          "spy": 721.91,
+          "vix": 18.51,
+          "ribbon": "MIXED",
+          "spread_c": 21.6498121757013,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:45",
+          "spy": 721.76,
+          "vix": 18.36,
+          "ribbon": "MIXED",
+          "spread_c": 17.966072909234754,
+          "htf": "MIXED",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        }
+      ],
+      "all_bars_0935_1330": [
+        {
+          "time": "09:35",
+          "spy": 719.84,
+          "vix": 18.2,
+          "ribbon": "BEAR",
+          "spread_c": 52.144920953321616,
+          "htf": "BULL",
+          "score": 8,
+          "blockers": [
+            7
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:40",
+          "spy": 719.95,
+          "vix": 18.16,
+          "ribbon": "BEAR",
+          "spread_c": 63.271809271134316,
+          "htf": "BULL",
+          "score": 6,
+          "blockers": [
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:45",
+          "spy": 720.41,
+          "vix": 18.17,
+          "ribbon": "BEAR",
+          "spread_c": 67.35745243682913,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:50",
+          "spy": 720.45,
+          "vix": 18.15,
+          "ribbon": "BEAR",
+          "spread_c": 69.91517765286517,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "09:55",
+          "spy": 720.76,
+          "vix": 18.15,
+          "ribbon": "BEAR",
+          "spread_c": 68.44525296306756,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:00",
+          "spy": 720.31,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 71.46510710251732,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:05",
+          "spy": 720.06,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 76.0485852616739,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "10:35",
+          "spy": 721.79,
+          "vix": 18.42,
+          "ribbon": "BEAR",
+          "spread_c": 28.92141644693993,
+          "htf": "MIXED",
+          "score": 5,
+          "blockers": [
+            6,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:40",
+          "spy": 721.91,
+          "vix": 18.51,
+          "ribbon": "MIXED",
+          "spread_c": 21.6498121757013,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:45",
+          "spy": 721.76,
+          "vix": 18.36,
+          "ribbon": "MIXED",
+          "spread_c": 17.966072909234754,
+          "htf": "MIXED",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:50",
+          "spy": 721.93,
+          "vix": 18.49,
+          "ribbon": "MIXED",
+          "spread_c": 13.747049491132657,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:55",
+          "spy": 720.91,
+          "vix": 18.36,
+          "ribbon": "MIXED",
+          "spread_c": 15.610568061038066,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            5,
+            6
+          ],
+          "triggers": [
+            "level_rejection",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:00",
+          "spy": 720.96,
+          "vix": 18.18,
+          "ribbon": "MIXED",
+          "spread_c": 16.89473363263687,
+          "htf": "MIXED",
+          "score": 5,
+          "blockers": [
+            5,
+            6,
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:05",
+          "spy": 720.78,
+          "vix": 18.29,
+          "ribbon": "BEAR",
+          "spread_c": 20.32896760570111,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            6,
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:10",
+          "spy": 720.25,
+          "vix": 18.3,
+          "ribbon": "BEAR",
+          "spread_c": 29.37493787733274,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            6
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:15",
+          "spy": 718.77,
+          "vix": 18.24,
+          "ribbon": "BEAR",
+          "spread_c": 51.74270866879169,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "11:45",
+          "spy": 717.6,
+          "vix": 18.22,
+          "ribbon": "BEAR",
+          "spread_c": 146.74094663298547,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:50",
+          "spy": 718.04,
+          "vix": 18.33,
+          "ribbon": "BEAR",
+          "spread_c": 151.3026162510414,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:55",
+          "spy": 717.59,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 158.76462556165052,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            7
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:00",
+          "spy": 717.26,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 167.3388608290793,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:05",
+          "spy": 716.12,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 185.04529783575663,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:05",
+          "spy": 716.12,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 185.04529783575663,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:10",
+          "spy": 715.94,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 200.3604552860338,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:10",
+          "spy": 715.94,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 200.3604552860338,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:15",
+          "spy": 717.19,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 199.02854126389684,
+          "htf": "MIXED",
+          "score": 6,
+          "blockers": [
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:20",
+          "spy": 717.44,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 194.22196156485825,
+          "htf": "MIXED",
+          "score": 6,
+          "blockers": [
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:25",
+          "spy": 717.0,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 193.62752759011528,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:30",
+          "spy": 717.56,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 186.29552499204465,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:35",
+          "spy": 716.83,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 186.6299735576149,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:40",
+          "spy": 716.92,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 184.89870293743706,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:45",
+          "spy": 716.92,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 182.39719937835162,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:50",
+          "spy": 716.65,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 182.03170764047627,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "12:55",
+          "spy": 716.55,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 181.69058836485874,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "13:00",
+          "spy": 717.08,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 174.94225206306737,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:05",
+          "spy": 717.43,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 164.80280631376445,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:10",
+          "spy": 717.47,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 155.09769724777698,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:15",
+          "spy": 718.27,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 138.10151660725296,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "13:20",
+          "spy": 718.47,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 121.23133536747446,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:25",
+          "spy": 718.57,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 105.63372034069971,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:30",
+          "spy": 718.15,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 96.47962502673408,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        }
+      ]
+    },
+    "E_soft_allow": {
+      "total_pnl": 1794.24,
+      "trades": [
+        {
+          "direction": "?",
+          "entry_time": "2026-05-04 09:40",
+          "exit_time": "2026-05-04 09:45",
+          "pnl": -256.96,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "direction": "?",
+          "entry_time": "2026-05-04 10:10",
+          "exit_time": "2026-05-04 10:15",
+          "pnl": -92.0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "direction": "?",
+          "entry_time": "2026-05-04 11:15",
+          "exit_time": "2026-05-04 11:20",
+          "pnl": 2187.0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "direction": "?",
+          "entry_time": "2026-05-04 12:40",
+          "exit_time": "2026-05-04 12:45",
+          "pnl": -162.0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "direction": "?",
+          "entry_time": "2026-05-04 13:35",
+          "exit_time": "2026-05-04 13:40",
+          "pnl": 120.0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "direction": "?",
+          "entry_time": "2026-05-04 14:45",
+          "exit_time": "2026-05-04 14:50",
+          "pnl": -82.8,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        },
+        {
+          "direction": "?",
+          "entry_time": "2026-05-04 15:45",
+          "exit_time": "2026-05-04 15:50",
+          "pnl": 81.0,
+          "exit_reason": "EXIT_ALL_PREMIUM_STOP"
+        }
+      ],
+      "n_decisions": 35,
+      "first_pass_bar": {
+        "time": "09:35",
+        "spy": 719.84,
+        "vix": 18.2,
+        "ribbon": "BEAR",
+        "spread_c": 52.144920953321616,
+        "htf": "BULL",
+        "score": 8,
+        "blockers": [
+          7
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "passed": true
+      },
+      "first_10_bars": [
+        {
+          "time": "09:35",
+          "spy": 719.84,
+          "vix": 18.2,
+          "ribbon": "BEAR",
+          "spread_c": 52.144920953321616,
+          "htf": "BULL",
+          "score": 8,
+          "blockers": [
+            7
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": true
+        },
+        {
+          "time": "10:05",
+          "spy": 720.06,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 76.0485852616739,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "10:35",
+          "spy": 721.79,
+          "vix": 18.42,
+          "ribbon": "BEAR",
+          "spread_c": 28.92141644693993,
+          "htf": "MIXED",
+          "score": 5,
+          "blockers": [
+            6,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:40",
+          "spy": 721.91,
+          "vix": 18.51,
+          "ribbon": "MIXED",
+          "spread_c": 21.6498121757013,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:45",
+          "spy": 721.76,
+          "vix": 18.36,
+          "ribbon": "MIXED",
+          "spread_c": 17.966072909234754,
+          "htf": "MIXED",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:50",
+          "spy": 721.93,
+          "vix": 18.49,
+          "ribbon": "MIXED",
+          "spread_c": 13.747049491132657,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:55",
+          "spy": 720.91,
+          "vix": 18.36,
+          "ribbon": "MIXED",
+          "spread_c": 15.610568061038066,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            5,
+            6
+          ],
+          "triggers": [
+            "level_rejection",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:00",
+          "spy": 720.96,
+          "vix": 18.18,
+          "ribbon": "MIXED",
+          "spread_c": 16.89473363263687,
+          "htf": "MIXED",
+          "score": 5,
+          "blockers": [
+            5,
+            6,
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:05",
+          "spy": 720.78,
+          "vix": 18.29,
+          "ribbon": "BEAR",
+          "spread_c": 20.32896760570111,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            6,
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:10",
+          "spy": 720.25,
+          "vix": 18.3,
+          "ribbon": "BEAR",
+          "spread_c": 29.37493787733274,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            6
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": true
+        }
+      ],
+      "all_bars_0935_1330": [
+        {
+          "time": "09:35",
+          "spy": 719.84,
+          "vix": 18.2,
+          "ribbon": "BEAR",
+          "spread_c": 52.144920953321616,
+          "htf": "BULL",
+          "score": 8,
+          "blockers": [
+            7
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": true
+        },
+        {
+          "time": "10:05",
+          "spy": 720.06,
+          "vix": 18.36,
+          "ribbon": "BEAR",
+          "spread_c": 76.0485852616739,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "10:35",
+          "spy": 721.79,
+          "vix": 18.42,
+          "ribbon": "BEAR",
+          "spread_c": 28.92141644693993,
+          "htf": "MIXED",
+          "score": 5,
+          "blockers": [
+            6,
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "10:40",
+          "spy": 721.91,
+          "vix": 18.51,
+          "ribbon": "MIXED",
+          "spread_c": 21.6498121757013,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:45",
+          "spy": 721.76,
+          "vix": 18.36,
+          "ribbon": "MIXED",
+          "spread_c": 17.966072909234754,
+          "htf": "MIXED",
+          "score": 6,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:50",
+          "spy": 721.93,
+          "vix": 18.49,
+          "ribbon": "MIXED",
+          "spread_c": 13.747049491132657,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            5,
+            6,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "10:55",
+          "spy": 720.91,
+          "vix": 18.36,
+          "ribbon": "MIXED",
+          "spread_c": 15.610568061038066,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            5,
+            6
+          ],
+          "triggers": [
+            "level_rejection",
+            "trendline_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:00",
+          "spy": 720.96,
+          "vix": 18.18,
+          "ribbon": "MIXED",
+          "spread_c": 16.89473363263687,
+          "htf": "MIXED",
+          "score": 5,
+          "blockers": [
+            5,
+            6,
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:05",
+          "spy": 720.78,
+          "vix": 18.29,
+          "ribbon": "BEAR",
+          "spread_c": 20.32896760570111,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            6,
+            7,
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": false
+        },
+        {
+          "time": "11:10",
+          "spy": 720.25,
+          "vix": 18.3,
+          "ribbon": "BEAR",
+          "spread_c": 29.37493787733274,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            6
+          ],
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "11:40",
+          "spy": 718.32,
+          "vix": 18.29,
+          "ribbon": "BEAR",
+          "spread_c": 134.69079373519435,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "11:40",
+          "spy": 718.32,
+          "vix": 18.29,
+          "ribbon": "BEAR",
+          "spread_c": 134.69079373519435,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "11:45",
+          "spy": 717.6,
+          "vix": 18.22,
+          "ribbon": "BEAR",
+          "spread_c": 146.74094663298547,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": true
+        },
+        {
+          "time": "11:45",
+          "spy": 717.6,
+          "vix": 18.22,
+          "ribbon": "BEAR",
+          "spread_c": 146.74094663298547,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": true
+        },
+        {
+          "time": "11:50",
+          "spy": 718.04,
+          "vix": 18.33,
+          "ribbon": "BEAR",
+          "spread_c": 151.3026162510414,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "11:55",
+          "spy": 717.59,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 158.76462556165052,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            7
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": true
+        },
+        {
+          "time": "11:55",
+          "spy": 717.59,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 158.76462556165052,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            7
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:00",
+          "spy": 717.26,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 167.3388608290793,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:05",
+          "spy": 716.12,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 185.04529783575663,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:05",
+          "spy": 716.12,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 185.04529783575663,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:10",
+          "spy": 715.94,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 200.3604552860338,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:10",
+          "spy": 715.94,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 200.3604552860338,
+          "htf": "MIXED",
+          "score": 9,
+          "blockers": [],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:15",
+          "spy": 717.19,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 199.02854126389684,
+          "htf": "MIXED",
+          "score": 6,
+          "blockers": [
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:20",
+          "spy": 717.44,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 194.22196156485825,
+          "htf": "MIXED",
+          "score": 6,
+          "blockers": [
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:25",
+          "spy": 717.0,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 193.62752759011528,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:25",
+          "spy": 717.0,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 193.62752759011528,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection"
+          ],
+          "passed": true
+        },
+        {
+          "time": "12:30",
+          "spy": 717.56,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 186.29552499204465,
+          "htf": "MIXED",
+          "score": 7,
+          "blockers": [
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "12:35",
+          "spy": 716.83,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 186.6299735576149,
+          "htf": "MIXED",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": true
+        },
+        {
+          "time": "13:05",
+          "spy": 717.43,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 164.80280631376445,
+          "htf": "BEAR",
+          "score": 6,
+          "blockers": [
+            7,
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:10",
+          "spy": 717.47,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 155.09769724777698,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:15",
+          "spy": 718.27,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 138.10151660725296,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "13:15",
+          "spy": 718.27,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 138.10151660725296,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "passed": true
+        },
+        {
+          "time": "13:20",
+          "spy": 718.47,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 121.23133536747446,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:25",
+          "spy": 718.57,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 105.63372034069971,
+          "htf": "BEAR",
+          "score": 7,
+          "blockers": [
+            9,
+            10
+          ],
+          "triggers": [],
+          "passed": false
+        },
+        {
+          "time": "13:30",
+          "spy": 718.15,
+          "vix": 18.18,
+          "ribbon": "BEAR",
+          "spread_c": 96.47962502673408,
+          "htf": "BEAR",
+          "score": 8,
+          "blockers": [
+            9
+          ],
+          "triggers": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "passed": true
+        }
+      ]
+    }
+  }
+}

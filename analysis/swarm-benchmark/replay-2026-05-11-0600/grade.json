@@ -1,0 +1,63 @@
+{
+  "date": "2026-05-11",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:16.859209+00:00",
+  "actual": {
+    "open": 736.52,
+    "close": 739.2,
+    "high": 740.73,
+    "low": 736.52,
+    "move_dollars": 2.68,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 95,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 737.95,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "TESTED_MIXED",
+      "battle_level": 737.95,
+      "role": "resistance",
+      "first_touch_time": "2026-05-11T09:30:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 737.95,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY tests 737.95 Carry resistance (the 5-day RTH high) at least once before 11:00 ET on 2026-05-11, ",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 19.50 through the first 30 minutes of cash open (09:30\u201310:00 ET), confirming MID regime holds and the ",
+        "invalidation": "VIX prints 19.50 or higher before 10:00 ET \u2014 rapid-rise threshold crossed and macro thesis invalidated regardless of cha"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "The first 5-minute RTH bar (09:30\u201309:35 ET) closes at or above 737.30 (the BULL ribbon pivot), confirming overnight CLEA",
+        "invalidation": "The 09:35 ET bar closes below 737.30 \u2014 pivot lost on the first bar signals open-bar sellers and invalidates the 'momentu"
+      }
+    ]
+  },
+  "narrative": "The key tension today is unanimous bullish alignment (4/4 specialists, 1.00 weighted score, CLEAN_BULL ribbon with 30c spread) against an inverted risk/reward at the day's gating level \u2014 only 41c of upside to the Carry resistance at 737.95 versus 294c of downside to Active support at 734.60, with VI"
+}

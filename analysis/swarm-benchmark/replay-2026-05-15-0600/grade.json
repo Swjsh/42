@@ -1,0 +1,63 @@
+{
+  "date": "2026-05-15",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:17.831162+00:00",
+  "actual": {
+    "open": 741.79,
+    "close": 739.08,
+    "high": 743.46,
+    "low": 737.96,
+    "move_dollars": -2.71,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 95,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 739.41,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bearish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "TESTED_MIXED",
+      "battle_level": 739.41,
+      "role": "support",
+      "first_touch_time": "2026-05-15T09:30:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 739.41,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "739.41 PML is tested within the first 30 minutes of RTH (09:30-10:00 ET) and a 5-minute bar closes b",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains at or above 17.5 at 10:00 ET, confirming MID regime bearish pressure persists through the first 30 minutes o",
+        "invalidation": "VIX drops to or below 17.0 by 10:00 ET (gap-down overnight fear spike fully mean-reverts at open)"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "BEAR ribbon (fast EMA 740.67, slow 743.36, spread 269c) remains intact at 10:30 ET with SPY unable to close a 5-minute b",
+        "invalidation": "SPY closes a 5-minute bar above fast EMA 740.67 before 10:30 ET, signaling ribbon weakening and potential bias shift to "
+      }
+    ]
+  },
+  "narrative": "The core tension today is between a textbook CLEAN_BEAR tape setup (CLEAN_BEAR ribbon 269c spread, -$7.69 gap-down, VIX rising +7.84%) that commands 0.90 weighted vote share, and an independent internals signal (XLK +1.21%, XLE +0.73%) plus a valid validator argument that gap-down mornings at premar"
+}

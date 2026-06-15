@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-04-02T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.45,
+  "reasoning": "Financial sector -0.72% and energy sector -1.26% signal risk-off rotation, despite tech +0.59% holding up defensively. XLF weakness is particularly concerning (below -0.5% threshold); XLE is the weakest performer. Tech's marginal outperformance (0.59% vs SPY 0.2%) suggests narrow leadership or defensive positioning, not broad bullish breadth. Combined with overnight gap down -7.36, rising VIX +6.22%, and HIGH IV regime, sector internals lean bearish but divergence limits confidence. Financial stress visible but not unambiguous.",
+  "rotation_signal": "mixed",
+  "sector_alignment": {
+    "xlk_change_pct": 0.59,
+    "xlf_change_pct": -0.72,
+    "xle_change_pct": -1.26,
+    "spy_change_pct": 0.2,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +0.59% — tech holding but only marginally above 0.5% threshold; likely defensive positioning rather than risk-on leadership",
+    "XLF: -0.72% — financial sector weakness, below -0.5% threshold; signals credit/yield stress",
+    "XLE: -1.26% — energy is weakest performer; no commodity support for SPY",
+    "Overall rotation: Asymmetric risk-off (financials + energy down) with tech partially offsetting; not a clean directional call"
+  ],
+  "data_quality": "full"
+}

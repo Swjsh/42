@@ -1,0 +1,63 @@
+{
+  "date": "2026-03-25",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:09.831054+00:00",
+  "actual": {
+    "open": 658.67,
+    "close": 656.74,
+    "high": 660.89,
+    "low": 654.24,
+    "move_dollars": -1.93,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 76,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 660.56,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bullish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "HELD",
+      "battle_level": 660.56,
+      "role": "resistance",
+      "first_touch_time": "2026-03-25T09:35:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 660.56,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY tests the PMH at 660.56 within the first 60 minutes of RTH (by 10:30 ET)",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX continues declining and trades below 25.50 by 10:30 ET, confirming the macro agent's fear-receding thesis",
+        "invalidation": "VIX rebounds above 27.00 within the first 60 minutes of RTH, inverting the 'falling volatility = bullish' narrative"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "BULL ribbon maintains structure (fast > pivot > slow, spread >= 80c) through the first 30 minutes of RTH, confirming pre",
+        "invalidation": "Ribbon inverts (fast crosses below pivot) or spread compresses below 30c by 10:00 ET"
+      }
+    ]
+  },
+  "narrative": "Today's setup is a 3/4 bullish consensus anchored by a clean BULL ribbon (115c spread), a +$5.19 overnight gap, and VIX falling from 26.22 \u2014 but the validator and internals both flag this as a potential bear trap driven by narrow energy leadership with XLK (48% of SPY) conspicuously absent. The crit"
+}

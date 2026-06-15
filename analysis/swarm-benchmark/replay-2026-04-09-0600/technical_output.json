@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-17T13:34:12Z",
+  "bias": "bearish",
+  "confidence": 0.60,
+  "reasoning": "CLEAN_BEAR ribbon with 36-cent spread (slow 673.96 > pivot 673.63 > fast 673.60) is the primary signal. Overnight gap down $2.14 aligns with bearish structure. Last 3 bars show mixed action (GREEN-RED-GREEN with doji reversal) — no follow-through conviction. Price holding 11 cents above pivot (673.74 vs 673.63) indicates buyer interest shorting the structure, creating intrabar tension. Risk-off sector rotation supports bearish tone. Moderate conviction due to choppy bars and price above EMA equilibrium offsetting clean ribbon verdict.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 36,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "CLEAN_BEAR ribbon: spread 36 cents, stack inverted (slow 673.96 > pivot 673.63 > fast 673.60)",
+    "Overnight gap down $2.14 from 675.88 close; supports bearish ribbon structure",
+    "Price 673.74 holding 11 cents above pivot despite bearish structure—buyer support limiting downside in early hours",
+    "Last 3 bars mixed: 05:45 GREEN (moderate body), 05:50 RED (doji, thin commitment), 05:55 GREEN (full body)—no directional follow-through",
+    "Risk-off sector rotation and VIX flat at 20.94 (MID regime)—macro backdrop neutral-to-bearish"
+  ],
+  "data_quality": "full"
+}

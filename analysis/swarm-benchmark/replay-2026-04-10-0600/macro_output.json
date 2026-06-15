@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-04-10T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "VIX at 18.99 in MID regime, falling -2.62% = volatility compression favoring calls. No macro events scheduled for 2026-04-10; FOMC not until 4/29, next NFP in May (first Friday). Overnight gap is flat (+$0.26), providing no directional tailwind, but ribbon is BULL structure despite weak 27-cent spread (below 30¢ conviction threshold). Premarket range 678.91-680.50 shows intraday chop before RTH open. XLF +0.77% (risk-on signal), XLE -1.49% (energy weakness) = mixed but slightly bullish macro backdrop.",
+  "vix_regime": "MID",
+  "vix_direction": "falling",
+  "vix_current": 18.99,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": 0.26,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX falling -2.62% = compression setup; 18.99 is healthy MID regime for direction trading",
+    "Zero macro events 2026-04-10; next FOMC 2026-04-29 (19 days out)",
+    "Overnight gap +0.26 (flat); premarket already traded 678.91-680.50 = 1.59 wide range before 9:30",
+    "Ribbon BULL but 27¢ spread falls short of 30¢ conviction floor; weak technical backdrop vs VIX signal",
+    "Sector rotation bullish: XLF +0.77%, SPY +0.75% overall; XLE -1.49% (energy rotation, not macro fear)"
+  ],
+  "data_quality": "full"
+}

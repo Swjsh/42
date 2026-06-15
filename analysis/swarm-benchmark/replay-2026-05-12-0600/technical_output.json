@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-12T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.62,
+  "reasoning": "CLEAN_BEAR ribbon with 40c spread + price 66c below pivot (738.29 vs 738.95) + gap down 91c from prior close. VIX rising +2.56% adds risk-off confirmation. However, last 3 bars all green (15:45/15:50/15:55 closes) with strong full bodies contradict — likely EOD institutional rebalancing (83.5k volume on close) masking underlying bearish structure. Mixed signals: structure says bearish, momentum says patience.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 40,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "CLEAN_BEAR ribbon: slow 739.21 > pivot 738.95 > fast 738.80, spread 40 cents",
+    "Price 66 cents below pivot EMA (738.29 vs 738.95) — structural bearish spacing",
+    "Gap down 91 cents from prior RTH close 739.20 — bearish overnight sentiment",
+    "Last 3 bars all GREEN with strong bodies (15:45 89% body, 15:50 64%, 15:55 67%) — EOD momentum inversion, driven by 83.5k volume on close (vs 15-30k avg)",
+    "VIX rising +2.56% to 18.84 (MID regime) — light risk-off but not panic"
+  ],
+  "data_quality": "full"
+}

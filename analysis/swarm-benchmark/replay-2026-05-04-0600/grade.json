@@ -1,0 +1,66 @@
+{
+  "date": "2026-05-04",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:15.904797+00:00",
+  "actual": {
+    "open": 719.72,
+    "close": 718.07,
+    "high": 722.12,
+    "low": 715.0,
+    "move_dollars": -1.65,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 25,
+    "consensus_strength": "weak",
+    "battle_level": {
+      "price": 722.41,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bearish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 722.41,
+      "role": "resistance",
+      "rth_range": [
+        715.0,
+        722.12
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 722.41,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "SPY reaches PMH 722.41 at some point within the first 90 min of RTH (by 11:00 ET) and then closes a ",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX trades above 17.00 for the entire first 2 hours of RTH (09:30-11:30 ET), sustaining the MID regime macro backdrop an",
+        "invalidation": "VIX drops below 16.50 by 11:00 ET"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "SPY EMA ribbon spread remains below 30c through the first 60 min of RTH (09:30-10:30 ET), producing a range-bound open b",
+        "invalidation": "Ribbon spread exceeds 30c (BULL or BEAR full alignment) before 10:30 ET"
+      }
+    ]
+  },
+  "narrative": "The 2026-05-04 setup is defined by a coiling tension: the overnight gap-up remains intact (+0.74, price 721.41 holding 51% from PML 720.34) and XLK leadership (+0.92%) argue for continuation, but rising VIX (+2.53% to MID 17.43), broad financial/energy weakness (XLF -0.92%, XLE -0.36%), and a ribbon"
+}

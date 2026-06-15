@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-04-20T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.40,
+  "reasoning": "Sector internals show mixed rotation with narrow breadth: XLE +1.12% leading while XLK +0.19% and XLF +0.11% both remain flat (no conviction). Tech and financials show no risk-on leadership despite premarket green. SPY's rally is driven narrowly by energy/commodity bounce, not broad participation. Overnight gap down (-3.17pts, -0.45%) combined with VIX rising +7.54% confirms underlying cautious tone. Narrow breadth + defensive energy leadership + rising volatility = bearish lean with low-medium confidence.",
+  "rotation_signal": "mixed",
+  "sector_alignment": {
+    "xlk_change_pct": 0.19,
+    "xlf_change_pct": 0.11,
+    "xle_change_pct": 1.12,
+    "spy_change_pct": 0.57,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK +0.19% (flat): Tech showing no conviction — growth leadership absent",
+    "XLF +0.11% (flat): Financials also flat — no risk-on signal from banks/yields",
+    "XLE +1.12% (outperform vs SPY 0.57%): Energy carrying the rally — commodity/defensive bounce, not growth rotation",
+    "Overnight context: gap down -3.17pts, VIX rising +7.54% — premarket green is weak conviction against underlying weakness"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,16 @@
+{
+  "captured_at": "2026-05-07T09:30:00-04:00",
+  "symbol": "BATS:SPY",
+  "timeframe": "5",
+  "last_bar_time_unix": 1778111700,
+  "last_close": 733.00,
+  "live_ribbon_values": {
+    "Fast EMA": 733.00,
+    "Pivot EMA": 733.03,
+    "Slow EMA": 733.09,
+    "Fast Conviction EMA": 733.00,
+    "Slow Conviction EMA": 733.08
+  },
+  "source": "TradingView MCP data_get_study_values, Saty Pivot Ribbon indicator on chart 4HTVHI0m",
+  "_purpose": "Validates that our computed EMAs match the indicator's live output within tolerance. If validation fails, the periods in ribbon_config.json need tuning."
+}

@@ -1,0 +1,12 @@
+{
+  "batch_id": "P0",
+  "seed_range": "200-259",
+  "total": 60,
+  "completed": 60,
+  "current_seed": null,
+  "workers": 4,
+  "started_at": "2026-05-09T16:20:44Z",
+  "finished_at": "2026-05-09T17:14:05Z",
+  "wall_elapsed_seconds": 3201.4,
+  "mode": "parallel"
+}

@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2025-10-06T06:00:00Z",
+  "bias": "no_trade",
+  "confidence": 0.32,
+  "reasoning": "XLK (tech) -0.59% contrasts sharply with XLF (financials) +0.56%. Tech selling while financials bid creates a sector stalemate. The tech weakness is slightly larger in magnitude than financial support, suggesting a mild bearish lean, but the clear contradiction between the two largest SPY drivers (tech and finance) means internals are providing conflicting signals. Breadth is narrow: only 1 of 3 major sectors green. No clear risk-on or risk-off rotation. SPY's -0.12% reflects this internal tug-of-war. Cannot advocate a directional bias when sector leadership is this mixed.",
+  "rotation_signal": "mixed",
+  "sector_alignment": {
+    "xlk_change_pct": -0.59,
+    "xlf_change_pct": 0.56,
+    "xle_change_pct": 0.02,
+    "spy_change_pct": -0.12,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: -0.59% — Tech selling, bearish signal (tech is ~30% SPY weighting)",
+    "XLF: +0.56% — Financials defending, mild bullish signal",
+    "XLE: +0.02% — Energy flat, no contribution to rotation story",
+    "Sector contradiction: XLK down + XLF up = conflicting leadership, net tug-of-war, no clear directional bias"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-18T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "level_thesis"],
+    "bearish": ["macro", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 2,
+    "bearish": 2,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.60,
+    "bearish": 0.40
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "moderate",
+  "swarm_confidence": 15,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["macro", "internals"],
+    "dissent_reason": "Macro flags rising VIX (22.74, HIGH regime) + FOMC at 14:00 ET as a hard risk-off backdrop that contradicts the gap-up; internals confirm with narrow energy-only leadership (XLE +0.48%) while XLK barely moves (+0.11%), indicating growth is not participating in the overnight gap-up."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The overnight gap-up (+$3.47) is assumed to represent institutional bullish conviction, but SPY is already down -0.24% premarket despite the gap — classic early signal of a potential liquidity-trap gap that the cash market liquidates at open, especially with FOMC 8.5 hours away.",
+    "top_invalidation_scenario": "674.43 resistance level breaks decisively on the first RTH 5m bar (09:35-09:40 ET) with volume >2.0M shares — this would confirm institutional follow-through, validate the gap-up, and flip the bearish devil's-advocate thesis."
+  },
+  "battle_level": {
+    "price": 674.43,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 674.43,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 673.50,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 675.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 673.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 676.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds above 674.43 or breaks it decisively on the first RTH test",
+      "bias": "bullish",
+      "target": 675.50,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if SPY opens and immediately sells off, failing to reclaim 674.43 and breaking 673.50",
+      "bias": "bearish",
+      "target": 670.73,
+      "entry_trigger": "level_rejection"
+    },
+    "invalidation": {
+      "condition": "674.43 breaks decisively on first RTH 5m bar (09:35-09:40 ET) with volume >2.0M shares",
+      "effect": "Confirms institutional follow-through — gap-up is durable, not a liquidity trap. Bearish dissent collapses; targets 676.0+ and validates the CLEAN_BULL ribbon as RTH-confirmed."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests 674.43 resistance within the first 35 minutes of RTH (by 10:05 ET)",
+      "invalidation": "SPY does not trade above 674.30 before 10:05 ET",
+      "confidence": 0.68,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains above 22.00 through 11:00 ET as FOMC positioning keeps fear elevated",
+      "invalidation": "VIX drops and holds below 22.00 by 10:00 ET",
+      "confidence": 0.62,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BULL ribbon (108c spread) survives through first 60 minutes of RTH with price holding above premarket low 673.50",
+      "invalidation": "Any 5m RTH bar closes below 673.50 before 10:30 ET",
+      "confidence": 0.58,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "Today's core tension is a structurally valid CLEAN_BULL ribbon (+$3.47 gap-up, 108c spread) running directly into FOMC event risk at 14:00 ET with a split 2-2 specialist vote and rising VIX — the technical picture is bullish but every confirmation mechanism (sector breadth, VIX direction, premarket SPY behavior) is flashing caution. The consensus leans bullish by weighted score (0.60 vs 0.40) primarily because the ribbon and gap structure carry more weight for 0DTE, but swarm confidence is deliberately low (15) given FOMC risk, weak specialist agreement, and the gap-liquidity-trap warning from the validator. The single most important thing to watch at open: whether 674.43 holds as resistance or breaks with volume — that binary outcome resolves the split vote and sets the entire intraday frame.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "CLEAN_BULL ribbon (fast 674.23 > pivot 674.01 > slow 673.15, 108c spread) with gap +$3.47 confirms bullish structure; premarket bars choppy but ribbon dominant"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.58,
+      "one_line": "VIX 22.74 in HIGH regime and rising +1.29%, FOMC 14:00 ET hard no-trade window 13:30-15:00 ET, macro backdrop risk-off despite bullish gap"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.70,
+      "one_line": "Battle level 674.43 (prior RTH high, Active ★★) just $0.23 overhead; BULL ribbon supports reclaim attempt with gap structure, 673.50 is key support floor below"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.58,
+      "one_line": "XLE +0.48% leading while XLK +0.11% flat and XLF -0.28% — narrow defensive rotation, growth not participating in the gap-up, breadth weak"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Gap-up is a liquidity trap: SPY already -0.24% premarket despite +$3.47 gap, growth sectors not participating, VIX rising into FOMC — cash market likely liquidates the gap at open"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

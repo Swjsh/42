@@ -1,0 +1,6345 @@
+{
+  "range_start": "2025-01-02",
+  "range_end": "2026-05-15",
+  "aggregate": {
+    "days_scanned": 357,
+    "total_pattern_hits": 6187,
+    "total_alert_class_hits": 1902,
+    "total_fast_path_decisions": 3804,
+    "enter_decisions": 2202,
+    "skip_decisions": 1602,
+    "errors": 0,
+    "error_samples": [],
+    "p95_fpe_latency_ms_across_days": 0,
+    "max_fpe_latency_ms_across_days": 1,
+    "latency_budget_pass": true
+  },
+  "per_day": [
+    {
+      "date": "2025-01-02",
+      "bars": 66,
+      "hits_total": 18,
+      "alert_class_hits": 6,
+      "fast_path_decisions": 12,
+      "decisions_breakdown": {
+        "ENTER_BULL": 12
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-01-03",
+      "bars": 132,
+      "hits_total": 23,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.043,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-01-06",
+      "bars": 132,
+      "hits_total": 6,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.042,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-01-07",
+      "bars": 132,
+      "hits_total": 21,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "ENTER_BULL": 8,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.042,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-01-08",
+      "bars": 132,
+      "hits_total": 23,
+      "alert_class_hits": 11,
+      "fast_path_decisions": 22,
+      "decisions_breakdown": {
+        "ENTER_BULL": 22
+      },
+      "detector_sec": 0.043,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 1,
+        "max": 1
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-01-09",
+      "bars": 66,
+      "hits": 0,
+      "detector_sec": 0.04,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2025-01-10",
+      "bars": 135,
+      "hits_total": 29,
+      "alert_class_hits": 12,
+      "fast_path_decisions": 24,
+      "decisions_breakdown": {
+        "ENTER_BULL": 4,
+        "SKIP_VIX": 20
+      },
+      "detector_sec": 0.043,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-01-13",
+      "bars": 136,
+      "hits_total": 12,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "ENTER_BULL": 2,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-01-14",
+      "bars": 133,
+      "hits_total": 40,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "ENTER_BULL": 8,
+        "SKIP_VIX": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-01-15",
+      "bars": 134,
+      "hits_total": 7,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-01-16",
+      "bars": 134,
+      "hits_total": 20,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2,
+        "ENTER_BULL": 8
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-01-17",
+      "bars": 132,
+      "hits_total": 2,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.043,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-01-20",
+      "bars": 66,
+      "hits": 0,
+      "detector_sec": 0.041,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2025-01-21",
+      "bars": 133,
+      "hits_total": 4,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-01-22",
+      "bars": 133,
+      "hits_total": 10,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2,
+        "SKIP_SETUP": 4
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-01-23",
+      "bars": 132,
+      "hits_total": 7,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-01-24",
+      "bars": 132,
+      "hits_total": 8,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.043,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-01-27",
+      "bars": 133,
+      "hits_total": 28,
+      "alert_class_hits": 8,
+      "fast_path_decisions": 16,
+      "decisions_breakdown": {
+        "ENTER_BULL": 10,
+        "SKIP_SETUP": 6
+      },
+      "detector_sec": 0.051,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-01-28",
+      "bars": 133,
+      "hits_total": 4,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-01-29",
+      "bars": 132,
+      "hits_total": 21,
+      "alert_class_hits": 13,
+      "fast_path_decisions": 26,
+      "decisions_breakdown": {
+        "ENTER_BULL": 6,
+        "SKIP_SETUP": 16,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-01-30",
+      "bars": 133,
+      "hits_total": 17,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 6,
+        "SKIP_VIX": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-01-31",
+      "bars": 133,
+      "hits_total": 11,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-02-03",
+      "bars": 133,
+      "hits_total": 33,
+      "alert_class_hits": 24,
+      "fast_path_decisions": 48,
+      "decisions_breakdown": {
+        "ENTER_BULL": 48
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 1
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-02-04",
+      "bars": 133,
+      "hits_total": 12,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.05,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-02-05",
+      "bars": 132,
+      "hits_total": 19,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-02-06",
+      "bars": 132,
+      "hits_total": 8,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.042,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-02-07",
+      "bars": 132,
+      "hits_total": 28,
+      "alert_class_hits": 8,
+      "fast_path_decisions": 16,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2,
+        "ENTER_BULL": 12,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-02-10",
+      "bars": 134,
+      "hits_total": 3,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-02-11",
+      "bars": 134,
+      "hits_total": 6,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 6
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-02-12",
+      "bars": 136,
+      "hits_total": 23,
+      "alert_class_hits": 12,
+      "fast_path_decisions": 24,
+      "decisions_breakdown": {
+        "SKIP_VIX": 24
+      },
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-02-13",
+      "bars": 136,
+      "hits_total": 18,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.042,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-02-14",
+      "bars": 132,
+      "hits_total": 1,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.043,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-02-17",
+      "bars": 66,
+      "hits": 0,
+      "detector_sec": 0.044,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2025-02-18",
+      "bars": 132,
+      "hits_total": 6,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-02-19",
+      "bars": 132,
+      "hits_total": 10,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 6
+      },
+      "detector_sec": 0.043,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-02-20",
+      "bars": 132,
+      "hits_total": 5,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-02-21",
+      "bars": 132,
+      "hits_total": 19,
+      "alert_class_hits": 6,
+      "fast_path_decisions": 12,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2,
+        "SKIP_SETUP": 4,
+        "ENTER_BULL": 6
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-02-24",
+      "bars": 132,
+      "hits_total": 26,
+      "alert_class_hits": 9,
+      "fast_path_decisions": 18,
+      "decisions_breakdown": {
+        "ENTER_BULL": 8,
+        "SKIP_SETUP": 2,
+        "SKIP_VIX": 8
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 1
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-02-25",
+      "bars": 132,
+      "hits_total": 7,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-02-26",
+      "bars": 132,
+      "hits_total": 26,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-02-27",
+      "bars": 132,
+      "hits_total": 18,
+      "alert_class_hits": 7,
+      "fast_path_decisions": 14,
+      "decisions_breakdown": {
+        "ENTER_BULL": 10,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-02-28",
+      "bars": 132,
+      "hits_total": 37,
+      "alert_class_hits": 12,
+      "fast_path_decisions": 24,
+      "decisions_breakdown": {
+        "ENTER_BULL": 24
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-03",
+      "bars": 132,
+      "hits_total": 24,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-04",
+      "bars": 133,
+      "hits_total": 26,
+      "alert_class_hits": 15,
+      "fast_path_decisions": 30,
+      "decisions_breakdown": {
+        "ENTER_BULL": 26,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-05",
+      "bars": 133,
+      "hits_total": 46,
+      "alert_class_hits": 19,
+      "fast_path_decisions": 38,
+      "decisions_breakdown": {
+        "ENTER_BULL": 20,
+        "SKIP_SETUP": 6,
+        "SKIP_VIX": 12
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-06",
+      "bars": 132,
+      "hits_total": 43,
+      "alert_class_hits": 17,
+      "fast_path_decisions": 34,
+      "decisions_breakdown": {
+        "ENTER_BULL": 32,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-07",
+      "bars": 132,
+      "hits_total": 46,
+      "alert_class_hits": 15,
+      "fast_path_decisions": 30,
+      "decisions_breakdown": {
+        "ENTER_BULL": 20,
+        "SKIP_VIX": 8,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-10",
+      "bars": 66,
+      "hits": 0,
+      "detector_sec": 0.042,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2025-03-11",
+      "bars": 144,
+      "hits_total": 42,
+      "alert_class_hits": 23,
+      "fast_path_decisions": 46,
+      "decisions_breakdown": {
+        "ENTER_BULL": 36,
+        "SKIP_VIX": 10
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 2
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-12",
+      "bars": 156,
+      "hits_total": 57,
+      "alert_class_hits": 20,
+      "fast_path_decisions": 40,
+      "decisions_breakdown": {
+        "ENTER_BULL": 38,
+        "SKIP_VIX": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-13",
+      "bars": 156,
+      "hits_total": 74,
+      "alert_class_hits": 24,
+      "fast_path_decisions": 48,
+      "decisions_breakdown": {
+        "ENTER_BULL": 44,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-14",
+      "bars": 156,
+      "hits_total": 28,
+      "alert_class_hits": 8,
+      "fast_path_decisions": 16,
+      "decisions_breakdown": {
+        "SKIP_VIX": 16
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-17",
+      "bars": 156,
+      "hits_total": 24,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "SKIP_VIX": 8,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-18",
+      "bars": 156,
+      "hits_total": 21,
+      "alert_class_hits": 6,
+      "fast_path_decisions": 12,
+      "decisions_breakdown": {
+        "ENTER_BULL": 12
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-19",
+      "bars": 156,
+      "hits_total": 21,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "ENTER_BULL": 8
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-20",
+      "bars": 156,
+      "hits_total": 21,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-21",
+      "bars": 156,
+      "hits_total": 32,
+      "alert_class_hits": 6,
+      "fast_path_decisions": 12,
+      "decisions_breakdown": {
+        "ENTER_BULL": 12
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-24",
+      "bars": 156,
+      "hits_total": 26,
+      "alert_class_hits": 9,
+      "fast_path_decisions": 18,
+      "decisions_breakdown": {
+        "SKIP_VIX": 12,
+        "SKIP_SETUP": 6
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-25",
+      "bars": 156,
+      "hits_total": 5,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-26",
+      "bars": 156,
+      "hits_total": 22,
+      "alert_class_hits": 6,
+      "fast_path_decisions": 12,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4,
+        "ENTER_BULL": 8
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-27",
+      "bars": 156,
+      "hits_total": 21,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-28",
+      "bars": 156,
+      "hits_total": 17,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "ENTER_BULL": 8
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-03-31",
+      "bars": 156,
+      "hits_total": 39,
+      "alert_class_hits": 14,
+      "fast_path_decisions": 28,
+      "decisions_breakdown": {
+        "ENTER_BULL": 22,
+        "SKIP_SETUP": 2,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-01",
+      "bars": 156,
+      "hits_total": 50,
+      "alert_class_hits": 25,
+      "fast_path_decisions": 50,
+      "decisions_breakdown": {
+        "SKIP_VIX": 46,
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-02",
+      "bars": 156,
+      "hits_total": 24,
+      "alert_class_hits": 6,
+      "fast_path_decisions": 12,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "ENTER_BULL": 2,
+        "SKIP_VIX": 8
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-03",
+      "bars": 156,
+      "hits_total": 68,
+      "alert_class_hits": 19,
+      "fast_path_decisions": 38,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4,
+        "ENTER_BULL": 34
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-04",
+      "bars": 156,
+      "hits_total": 20,
+      "alert_class_hits": 12,
+      "fast_path_decisions": 24,
+      "decisions_breakdown": {
+        "ENTER_BULL": 16,
+        "SKIP_SETUP": 4,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 1
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-07",
+      "bars": 156,
+      "hits_total": 42,
+      "alert_class_hits": 19,
+      "fast_path_decisions": 38,
+      "decisions_breakdown": {
+        "SKIP_VIX": 14,
+        "ENTER_BULL": 24
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-08",
+      "bars": 156,
+      "hits_total": 53,
+      "alert_class_hits": 7,
+      "fast_path_decisions": 14,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2,
+        "ENTER_BULL": 12
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-09",
+      "bars": 156,
+      "hits_total": 44,
+      "alert_class_hits": 12,
+      "fast_path_decisions": 24,
+      "decisions_breakdown": {
+        "ENTER_BULL": 6,
+        "SKIP_VIX": 18
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-10",
+      "bars": 156,
+      "hits_total": 51,
+      "alert_class_hits": 28,
+      "fast_path_decisions": 56,
+      "decisions_breakdown": {
+        "ENTER_BULL": 30,
+        "SKIP_VIX": 26
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 3
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-11",
+      "bars": 156,
+      "hits_total": 26,
+      "alert_class_hits": 13,
+      "fast_path_decisions": 26,
+      "decisions_breakdown": {
+        "ENTER_BULL": 4,
+        "SKIP_VIX": 22
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-14",
+      "bars": 156,
+      "hits_total": 30,
+      "alert_class_hits": 10,
+      "fast_path_decisions": 20,
+      "decisions_breakdown": {
+        "SKIP_VIX": 14,
+        "ENTER_BULL": 6
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-15",
+      "bars": 156,
+      "hits_total": 40,
+      "alert_class_hits": 15,
+      "fast_path_decisions": 30,
+      "decisions_breakdown": {
+        "SKIP_VIX": 12,
+        "ENTER_BULL": 18
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-16",
+      "bars": 156,
+      "hits_total": 79,
+      "alert_class_hits": 30,
+      "fast_path_decisions": 60,
+      "decisions_breakdown": {
+        "ENTER_BULL": 52,
+        "SKIP_SETUP": 8
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 1
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-17",
+      "bars": 156,
+      "hits_total": 54,
+      "alert_class_hits": 26,
+      "fast_path_decisions": 52,
+      "decisions_breakdown": {
+        "ENTER_BULL": 10,
+        "SKIP_VIX": 42
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-18",
+      "bars": 78,
+      "hits": 0,
+      "detector_sec": 0.042,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2025-04-21",
+      "bars": 156,
+      "hits_total": 37,
+      "alert_class_hits": 8,
+      "fast_path_decisions": 16,
+      "decisions_breakdown": {
+        "ENTER_BULL": 14,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-22",
+      "bars": 156,
+      "hits_total": 32,
+      "alert_class_hits": 11,
+      "fast_path_decisions": 22,
+      "decisions_breakdown": {
+        "SKIP_VIX": 16,
+        "ENTER_BULL": 6
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 1
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-23",
+      "bars": 156,
+      "hits_total": 34,
+      "alert_class_hits": 11,
+      "fast_path_decisions": 22,
+      "decisions_breakdown": {
+        "SKIP_VIX": 10,
+        "SKIP_SETUP": 2,
+        "ENTER_BULL": 10
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-24",
+      "bars": 156,
+      "hits_total": 24,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-25",
+      "bars": 156,
+      "hits_total": 15,
+      "alert_class_hits": 7,
+      "fast_path_decisions": 14,
+      "decisions_breakdown": {
+        "SKIP_VIX": 6,
+        "ENTER_BULL": 8
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-28",
+      "bars": 156,
+      "hits_total": 33,
+      "alert_class_hits": 19,
+      "fast_path_decisions": 38,
+      "decisions_breakdown": {
+        "SKIP_VIX": 6,
+        "ENTER_BULL": 32
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-29",
+      "bars": 156,
+      "hits_total": 13,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_VIX": 6
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-04-30",
+      "bars": 156,
+      "hits_total": 45,
+      "alert_class_hits": 16,
+      "fast_path_decisions": 32,
+      "decisions_breakdown": {
+        "ENTER_BULL": 22,
+        "SKIP_SETUP": 2,
+        "SKIP_VIX": 8
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-01",
+      "bars": 156,
+      "hits_total": 27,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "SKIP_VIX": 10
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-02",
+      "bars": 156,
+      "hits_total": 18,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "SKIP_VIX": 8,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-05",
+      "bars": 156,
+      "hits_total": 20,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "ENTER_BULL": 8
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-06",
+      "bars": 156,
+      "hits_total": 46,
+      "alert_class_hits": 9,
+      "fast_path_decisions": 18,
+      "decisions_breakdown": {
+        "ENTER_BULL": 16,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 1
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-07",
+      "bars": 156,
+      "hits_total": 50,
+      "alert_class_hits": 14,
+      "fast_path_decisions": 28,
+      "decisions_breakdown": {
+        "ENTER_BULL": 20,
+        "SKIP_SETUP": 4,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-08",
+      "bars": 156,
+      "hits_total": 35,
+      "alert_class_hits": 8,
+      "fast_path_decisions": 16,
+      "decisions_breakdown": {
+        "SKIP_VIX": 16
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-09",
+      "bars": 156,
+      "hits_total": 27,
+      "alert_class_hits": 7,
+      "fast_path_decisions": 14,
+      "decisions_breakdown": {
+        "ENTER_BULL": 4,
+        "SKIP_SETUP": 2,
+        "SKIP_VIX": 8
+      },
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-12",
+      "bars": 156,
+      "hits_total": 13,
+      "alert_class_hits": 9,
+      "fast_path_decisions": 18,
+      "decisions_breakdown": {
+        "SKIP_VIX": 16,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-13",
+      "bars": 156,
+      "hits_total": 5,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-14",
+      "bars": 156,
+      "hits_total": 21,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "ENTER_BULL": 6,
+        "SKIP_SETUP": 4
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-15",
+      "bars": 156,
+      "hits_total": 18,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-16",
+      "bars": 156,
+      "hits_total": 9,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-19",
+      "bars": 156,
+      "hits_total": 5,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-20",
+      "bars": 156,
+      "hits_total": 24,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "ENTER_BULL": 6
+      },
+      "detector_sec": 0.054,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-21",
+      "bars": 156,
+      "hits_total": 38,
+      "alert_class_hits": 14,
+      "fast_path_decisions": 28,
+      "decisions_breakdown": {
+        "ENTER_BULL": 26,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-22",
+      "bars": 156,
+      "hits_total": 31,
+      "alert_class_hits": 9,
+      "fast_path_decisions": 18,
+      "decisions_breakdown": {
+        "ENTER_BULL": 18
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-23",
+      "bars": 156,
+      "hits_total": 29,
+      "alert_class_hits": 11,
+      "fast_path_decisions": 22,
+      "decisions_breakdown": {
+        "ENTER_BULL": 14,
+        "SKIP_VIX": 8
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 1
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-26",
+      "bars": 78,
+      "hits": 0,
+      "detector_sec": 0.042,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2025-05-27",
+      "bars": 156,
+      "hits_total": 7,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-28",
+      "bars": 156,
+      "hits_total": 18,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-29",
+      "bars": 156,
+      "hits_total": 21,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "ENTER_BULL": 4,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-05-30",
+      "bars": 156,
+      "hits_total": 31,
+      "alert_class_hits": 12,
+      "fast_path_decisions": 24,
+      "decisions_breakdown": {
+        "ENTER_BULL": 8,
+        "SKIP_VIX": 16
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 1
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-02",
+      "bars": 156,
+      "hits_total": 11,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-03",
+      "bars": 156,
+      "hits_total": 9,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-04",
+      "bars": 156,
+      "hits_total": 3,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-05",
+      "bars": 156,
+      "hits_total": 33,
+      "alert_class_hits": 17,
+      "fast_path_decisions": 34,
+      "decisions_breakdown": {
+        "ENTER_BULL": 34
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-06",
+      "bars": 156,
+      "hits_total": 14,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4,
+        "SKIP_SETUP": 4
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-09",
+      "bars": 156,
+      "hits_total": 6,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-10",
+      "bars": 156,
+      "hits_total": 7,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-11",
+      "bars": 156,
+      "hits_total": 16,
+      "alert_class_hits": 8,
+      "fast_path_decisions": 16,
+      "decisions_breakdown": {
+        "ENTER_BULL": 16
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-12",
+      "bars": 156,
+      "hits_total": 13,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-13",
+      "bars": 156,
+      "hits_total": 30,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.051,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-16",
+      "bars": 156,
+      "hits_total": 7,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-17",
+      "bars": 156,
+      "hits_total": 18,
+      "alert_class_hits": 9,
+      "fast_path_decisions": 18,
+      "decisions_breakdown": {
+        "ENTER_BULL": 18
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-18",
+      "bars": 156,
+      "hits_total": 22,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "ENTER_BULL": 8
+      },
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-19",
+      "bars": 78,
+      "hits": 0,
+      "detector_sec": 0.044,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2025-06-20",
+      "bars": 156,
+      "hits_total": 25,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-23",
+      "bars": 156,
+      "hits_total": 23,
+      "alert_class_hits": 9,
+      "fast_path_decisions": 18,
+      "decisions_breakdown": {
+        "SKIP_VIX": 16,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-24",
+      "bars": 156,
+      "hits_total": 14,
+      "alert_class_hits": 6,
+      "fast_path_decisions": 12,
+      "decisions_breakdown": {
+        "SKIP_VIX": 10,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-25",
+      "bars": 156,
+      "hits_total": 10,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-26",
+      "bars": 156,
+      "hits_total": 13,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-27",
+      "bars": 156,
+      "hits_total": 22,
+      "alert_class_hits": 15,
+      "fast_path_decisions": 30,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "ENTER_BULL": 28
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-06-30",
+      "bars": 156,
+      "hits_total": 11,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-01",
+      "bars": 156,
+      "hits_total": 15,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-02",
+      "bars": 156,
+      "hits_total": 4,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-03",
+      "bars": 124,
+      "hits_total": 5,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-04",
+      "bars": 46,
+      "hits": 0,
+      "detector_sec": 0.045,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2025-07-07",
+      "bars": 124,
+      "hits_total": 12,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-08",
+      "bars": 156,
+      "hits_total": 11,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-09",
+      "bars": 156,
+      "hits_total": 5,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-10",
+      "bars": 156,
+      "hits_total": 1,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-11",
+      "bars": 156,
+      "hits_total": 7,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-14",
+      "bars": 156,
+      "hits_total": 4,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "ENTER_BULL": 2,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-15",
+      "bars": 156,
+      "hits_total": 13,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4,
+        "SKIP_SETUP": 2,
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-16",
+      "bars": 156,
+      "hits_total": 8,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-17",
+      "bars": 156,
+      "hits_total": 4,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-18",
+      "bars": 156,
+      "hits_total": 2,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-21",
+      "bars": 156,
+      "hits_total": 2,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-22",
+      "bars": 156,
+      "hits_total": 8,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-23",
+      "bars": 156,
+      "hits_total": 7,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4,
+        "SKIP_SETUP": 4
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-24",
+      "bars": 156,
+      "hits_total": 4,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-25",
+      "bars": 156,
+      "hits_total": 5,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-28",
+      "bars": 156,
+      "hits_total": 2,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-29",
+      "bars": 156,
+      "hits_total": 6,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-30",
+      "bars": 156,
+      "hits_total": 24,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "SKIP_VIX": 8,
+        "ENTER_BULL": 2
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-07-31",
+      "bars": 156,
+      "hits_total": 6,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-01",
+      "bars": 156,
+      "hits_total": 21,
+      "alert_class_hits": 12,
+      "fast_path_decisions": 24,
+      "decisions_breakdown": {
+        "ENTER_BULL": 20,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-04",
+      "bars": 156,
+      "hits_total": 16,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-05",
+      "bars": 156,
+      "hits_total": 15,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-06",
+      "bars": 156,
+      "hits_total": 11,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-07",
+      "bars": 156,
+      "hits_total": 27,
+      "alert_class_hits": 18,
+      "fast_path_decisions": 36,
+      "decisions_breakdown": {
+        "SKIP_VIX": 36
+      },
+      "detector_sec": 0.051,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-08",
+      "bars": 156,
+      "hits_total": 15,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-11",
+      "bars": 156,
+      "hits_total": 10,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 6,
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-12",
+      "bars": 156,
+      "hits_total": 17,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-13",
+      "bars": 156,
+      "hits_total": 4,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-14",
+      "bars": 156,
+      "hits_total": 6,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-15",
+      "bars": 156,
+      "hits_total": 11,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "ENTER_BULL": 6,
+        "SKIP_SETUP": 4
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-18",
+      "bars": 156,
+      "hits_total": 4,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-19",
+      "bars": 156,
+      "hits_total": 9,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-20",
+      "bars": 156,
+      "hits_total": 33,
+      "alert_class_hits": 27,
+      "fast_path_decisions": 54,
+      "decisions_breakdown": {
+        "ENTER_BULL": 44,
+        "SKIP_VIX": 10
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-21",
+      "bars": 156,
+      "hits_total": 30,
+      "alert_class_hits": 17,
+      "fast_path_decisions": 34,
+      "decisions_breakdown": {
+        "ENTER_BULL": 32,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-22",
+      "bars": 156,
+      "hits_total": 4,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-25",
+      "bars": 156,
+      "hits_total": 6,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-26",
+      "bars": 156,
+      "hits_total": 3,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-27",
+      "bars": 156,
+      "hits_total": 3,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-28",
+      "bars": 156,
+      "hits_total": 13,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-08-29",
+      "bars": 156,
+      "hits_total": 7,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2
+      },
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-01",
+      "bars": 78,
+      "hits": 0,
+      "detector_sec": 0.043,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2025-09-02",
+      "bars": 156,
+      "hits_total": 32,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-03",
+      "bars": 156,
+      "hits_total": 3,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-04",
+      "bars": 156,
+      "hits_total": 9,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-05",
+      "bars": 156,
+      "hits_total": 25,
+      "alert_class_hits": 25,
+      "fast_path_decisions": 50,
+      "decisions_breakdown": {
+        "ENTER_BULL": 48,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 2
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-08",
+      "bars": 156,
+      "hits_total": 9,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-09",
+      "bars": 156,
+      "hits_total": 5,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-10",
+      "bars": 156,
+      "hits_total": 1,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-11",
+      "bars": 156,
+      "hits_total": 7,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-12",
+      "bars": 156,
+      "hits_total": 5,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-15",
+      "bars": 156,
+      "hits_total": 4,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-16",
+      "bars": 156,
+      "hits_total": 5,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-17",
+      "bars": 156,
+      "hits_total": 10,
+      "alert_class_hits": 6,
+      "fast_path_decisions": 12,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4,
+        "ENTER_BULL": 8
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-18",
+      "bars": 156,
+      "hits_total": 20,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-19",
+      "bars": 156,
+      "hits_total": 10,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "SKIP_VIX": 8
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-22",
+      "bars": 156,
+      "hits_total": 4,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-23",
+      "bars": 156,
+      "hits_total": 6,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-24",
+      "bars": 156,
+      "hits_total": 15,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "ENTER_BULL": 8
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-25",
+      "bars": 156,
+      "hits_total": 31,
+      "alert_class_hits": 25,
+      "fast_path_decisions": 50,
+      "decisions_breakdown": {
+        "ENTER_BULL": 46,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-26",
+      "bars": 156,
+      "hits_total": 8,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-29",
+      "bars": 156,
+      "hits_total": 5,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-09-30",
+      "bars": 156,
+      "hits_total": 8,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-01",
+      "bars": 156,
+      "hits_total": 12,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-02",
+      "bars": 156,
+      "hits_total": 4,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-03",
+      "bars": 156,
+      "hits_total": 23,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "ENTER_BULL": 6,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-06",
+      "bars": 156,
+      "hits_total": 9,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "ENTER_BULL": 4,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-07",
+      "bars": 156,
+      "hits_total": 8,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "ENTER_BULL": 2
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-08",
+      "bars": 156,
+      "hits_total": 9,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-09",
+      "bars": 156,
+      "hits_total": 2,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-10",
+      "bars": 156,
+      "hits_total": 29,
+      "alert_class_hits": 7,
+      "fast_path_decisions": 14,
+      "decisions_breakdown": {
+        "ENTER_BULL": 14
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-13",
+      "bars": 156,
+      "hits_total": 16,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-14",
+      "bars": 156,
+      "hits_total": 6,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "ENTER_BULL": 6
+      },
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-15",
+      "bars": 156,
+      "hits_total": 49,
+      "alert_class_hits": 14,
+      "fast_path_decisions": 28,
+      "decisions_breakdown": {
+        "SKIP_VIX": 24,
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-16",
+      "bars": 156,
+      "hits_total": 47,
+      "alert_class_hits": 18,
+      "fast_path_decisions": 36,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2,
+        "ENTER_BULL": 34
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-17",
+      "bars": 156,
+      "hits_total": 50,
+      "alert_class_hits": 12,
+      "fast_path_decisions": 24,
+      "decisions_breakdown": {
+        "ENTER_BULL": 8,
+        "SKIP_VIX": 16
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-20",
+      "bars": 156,
+      "hits_total": 3,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.044,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-21",
+      "bars": 156,
+      "hits_total": 11,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-22",
+      "bars": 156,
+      "hits_total": 21,
+      "alert_class_hits": 9,
+      "fast_path_decisions": 18,
+      "decisions_breakdown": {
+        "ENTER_BULL": 16,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-23",
+      "bars": 156,
+      "hits_total": 11,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-24",
+      "bars": 156,
+      "hits_total": 11,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-27",
+      "bars": 156,
+      "hits_total": 7,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-28",
+      "bars": 156,
+      "hits_total": 6,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-29",
+      "bars": 156,
+      "hits_total": 15,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-30",
+      "bars": 156,
+      "hits_total": 7,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-10-31",
+      "bars": 156,
+      "hits_total": 23,
+      "alert_class_hits": 7,
+      "fast_path_decisions": 14,
+      "decisions_breakdown": {
+        "ENTER_BULL": 12,
+        "SKIP_VIX": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-11-03",
+      "bars": 150,
+      "hits_total": 10,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-11-04",
+      "bars": 145,
+      "hits_total": 26,
+      "alert_class_hits": 17,
+      "fast_path_decisions": 34,
+      "decisions_breakdown": {
+        "ENTER_BULL": 34
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-11-05",
+      "bars": 144,
+      "hits_total": 9,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-11-06",
+      "bars": 138,
+      "hits_total": 16,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "ENTER_BULL": 8
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-11-07",
+      "bars": 137,
+      "hits_total": 27,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "ENTER_BULL": 8
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-11-10",
+      "bars": 141,
+      "hits_total": 2,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-11-11",
+      "bars": 140,
+      "hits_total": 3,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-11-12",
+      "bars": 138,
+      "hits_total": 29,
+      "alert_class_hits": 12,
+      "fast_path_decisions": 24,
+      "decisions_breakdown": {
+        "SKIP_VIX": 22,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-11-13",
+      "bars": 140,
+      "hits_total": 35,
+      "alert_class_hits": 11,
+      "fast_path_decisions": 22,
+      "decisions_breakdown": {
+        "ENTER_BULL": 22
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-11-14",
+      "bars": 146,
+      "hits_total": 56,
+      "alert_class_hits": 23,
+      "fast_path_decisions": 46,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4,
+        "ENTER_BULL": 30,
+        "SKIP_VIX": 12
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-11-17",
+      "bars": 142,
+      "hits_total": 21,
+      "alert_class_hits": 8,
+      "fast_path_decisions": 16,
+      "decisions_breakdown": {
+        "ENTER_BULL": 12,
+        "SKIP_SETUP": 4
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-11-18",
+      "bars": 135,
+      "hits_total": 29,
+      "alert_class_hits": 8,
+      "fast_path_decisions": 16,
+      "decisions_breakdown": {
+        "ENTER_BULL": 4,
+        "SKIP_VIX": 12
+      },
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-11-19",
+      "bars": 138,
+      "hits_total": 12,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2,
+        "ENTER_BULL": 6
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-11-20",
+      "bars": 144,
+      "hits_total": 55,
+      "alert_class_hits": 38,
+      "fast_path_decisions": 76,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "SKIP_VIX": 22,
+        "ENTER_BULL": 52
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-11-21",
+      "bars": 150,
+      "hits_total": 45,
+      "alert_class_hits": 27,
+      "fast_path_decisions": 54,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4,
+        "ENTER_BULL": 12,
+        "SKIP_VIX": 38
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-11-24",
+      "bars": 148,
+      "hits_total": 16,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "SKIP_VIX": 8
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-11-25",
+      "bars": 142,
+      "hits_total": 15,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "ENTER_BULL": 4,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-11-26",
+      "bars": 141,
+      "hits_total": 17,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-11-27",
+      "bars": 71,
+      "hits": 0,
+      "detector_sec": 0.044,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2025-11-28",
+      "bars": 118,
+      "hits_total": 5,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-01",
+      "bars": 121,
+      "hits_total": 16,
+      "alert_class_hits": 13,
+      "fast_path_decisions": 26,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 8,
+        "ENTER_BULL": 16,
+        "SKIP_VIX": 2
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-02",
+      "bars": 144,
+      "hits_total": 12,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-03",
+      "bars": 145,
+      "hits_total": 5,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-04",
+      "bars": 152,
+      "hits_total": 17,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "ENTER_BULL": 2
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-05",
+      "bars": 151,
+      "hits_total": 17,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-08",
+      "bars": 151,
+      "hits_total": 16,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 6,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-09",
+      "bars": 153,
+      "hits_total": 6,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-10",
+      "bars": 146,
+      "hits_total": 18,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-11",
+      "bars": 142,
+      "hits_total": 16,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "ENTER_BULL": 2
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-12",
+      "bars": 143,
+      "hits_total": 31,
+      "alert_class_hits": 13,
+      "fast_path_decisions": 26,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4,
+        "ENTER_BULL": 22
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-15",
+      "bars": 141,
+      "hits_total": 10,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "SKIP_VIX": 8
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-16",
+      "bars": 145,
+      "hits_total": 20,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-17",
+      "bars": 146,
+      "hits_total": 17,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "SKIP_VIX": 8
+      },
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-18",
+      "bars": 144,
+      "hits_total": 16,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4,
+        "ENTER_BULL": 2
+      },
+      "detector_sec": 0.05,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-19",
+      "bars": 146,
+      "hits_total": 9,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-22",
+      "bars": 143,
+      "hits": 0,
+      "detector_sec": 0.047,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2025-12-23",
+      "bars": 140,
+      "hits_total": 6,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-24",
+      "bars": 116,
+      "hits_total": 1,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-25",
+      "bars": 46,
+      "hits": 0,
+      "detector_sec": 0.046,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2025-12-26",
+      "bars": 112,
+      "hits_total": 3,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-29",
+      "bars": 135,
+      "hits_total": 2,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-30",
+      "bars": 136,
+      "hits_total": 4,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2025-12-31",
+      "bars": 135,
+      "hits_total": 10,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-01",
+      "bars": 68,
+      "hits": 0,
+      "detector_sec": 0.047,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2026-01-02",
+      "bars": 135,
+      "hits_total": 18,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "ENTER_BULL": 8
+      },
+      "detector_sec": 0.05,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-05",
+      "bars": 136,
+      "hits_total": 13,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-06",
+      "bars": 137,
+      "hits_total": 2,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-07",
+      "bars": 139,
+      "hits_total": 9,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-08",
+      "bars": 139,
+      "hits_total": 25,
+      "alert_class_hits": 17,
+      "fast_path_decisions": 34,
+      "decisions_breakdown": {
+        "ENTER_BULL": 34
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-09",
+      "bars": 139,
+      "hits_total": 5,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-12",
+      "bars": 140,
+      "hits_total": 7,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 10
+      },
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-13",
+      "bars": 143,
+      "hits_total": 13,
+      "alert_class_hits": 7,
+      "fast_path_decisions": 14,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "ENTER_BULL": 12
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-14",
+      "bars": 146,
+      "hits_total": 16,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "ENTER_BULL": 4,
+        "SKIP_SETUP": 4
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-15",
+      "bars": 143,
+      "hits_total": 4,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-16",
+      "bars": 139,
+      "hits_total": 5,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-19",
+      "bars": 68,
+      "hits": 0,
+      "detector_sec": 0.046,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2026-01-20",
+      "bars": 141,
+      "hits_total": 27,
+      "alert_class_hits": 12,
+      "fast_path_decisions": 24,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 6,
+        "ENTER_BULL": 18
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 1
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-21",
+      "bars": 148,
+      "hits_total": 20,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-22",
+      "bars": 145,
+      "hits_total": 5,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-23",
+      "bars": 139,
+      "hits_total": 5,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-26",
+      "bars": 135,
+      "hits_total": 2,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-27",
+      "bars": 134,
+      "hits_total": 3,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-28",
+      "bars": 137,
+      "hits_total": 11,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4,
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-29",
+      "bars": 137,
+      "hits_total": 18,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4,
+        "ENTER_BULL": 2,
+        "SKIP_SETUP": 4
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-01-30",
+      "bars": 141,
+      "hits_total": 23,
+      "alert_class_hits": 7,
+      "fast_path_decisions": 14,
+      "decisions_breakdown": {
+        "SKIP_VIX": 12,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-02-02",
+      "bars": 146,
+      "hits_total": 8,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.051,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-02-03",
+      "bars": 146,
+      "hits_total": 29,
+      "alert_class_hits": 9,
+      "fast_path_decisions": 18,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 8,
+        "ENTER_BULL": 10
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 1
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-02-04",
+      "bars": 143,
+      "hits_total": 39,
+      "alert_class_hits": 13,
+      "fast_path_decisions": 26,
+      "decisions_breakdown": {
+        "SKIP_VIX": 16,
+        "ENTER_BULL": 10
+      },
+      "detector_sec": 0.05,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 1
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-02-05",
+      "bars": 143,
+      "hits_total": 42,
+      "alert_class_hits": 18,
+      "fast_path_decisions": 36,
+      "decisions_breakdown": {
+        "ENTER_BULL": 30,
+        "SKIP_VIX": 6
+      },
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 1
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-02-06",
+      "bars": 142,
+      "hits_total": 12,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-02-09",
+      "bars": 138,
+      "hits_total": 7,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-02-10",
+      "bars": 142,
+      "hits_total": 11,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-02-11",
+      "bars": 146,
+      "hits_total": 17,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-02-12",
+      "bars": 144,
+      "hits_total": 22,
+      "alert_class_hits": 14,
+      "fast_path_decisions": 28,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4,
+        "ENTER_BULL": 24
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 3
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-02-13",
+      "bars": 144,
+      "hits_total": 22,
+      "alert_class_hits": 8,
+      "fast_path_decisions": 16,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "ENTER_BULL": 14
+      },
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-02-16",
+      "bars": 73,
+      "hits": 0,
+      "detector_sec": 0.046,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2026-02-17",
+      "bars": 147,
+      "hits_total": 40,
+      "alert_class_hits": 13,
+      "fast_path_decisions": 26,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4,
+        "ENTER_BULL": 8,
+        "SKIP_VIX": 14
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-02-18",
+      "bars": 142,
+      "hits_total": 8,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-02-19",
+      "bars": 138,
+      "hits_total": 34,
+      "alert_class_hits": 25,
+      "fast_path_decisions": 50,
+      "decisions_breakdown": {
+        "ENTER_BULL": 50
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-02-20",
+      "bars": 143,
+      "hits_total": 15,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.045,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-02-23",
+      "bars": 141,
+      "hits_total": 24,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "ENTER_BULL": 2
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-02-24",
+      "bars": 140,
+      "hits_total": 6,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-02-25",
+      "bars": 146,
+      "hits_total": 2,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-02-26",
+      "bars": 147,
+      "hits_total": 4,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "ENTER_BULL": 2
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-02-27",
+      "bars": 146,
+      "hits_total": 24,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-02",
+      "bars": 145,
+      "hits_total": 17,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "ENTER_BULL": 4,
+        "SKIP_SETUP": 6
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-03",
+      "bars": 147,
+      "hits_total": 52,
+      "alert_class_hits": 20,
+      "fast_path_decisions": 40,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "ENTER_BULL": 30,
+        "SKIP_VIX": 8
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-04",
+      "bars": 148,
+      "hits_total": 7,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-05",
+      "bars": 147,
+      "hits_total": 11,
+      "alert_class_hits": 8,
+      "fast_path_decisions": 16,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4,
+        "ENTER_BULL": 12
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-06",
+      "bars": 150,
+      "hits_total": 35,
+      "alert_class_hits": 9,
+      "fast_path_decisions": 18,
+      "decisions_breakdown": {
+        "ENTER_BULL": 12,
+        "SKIP_SETUP": 2,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 1
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-09",
+      "bars": 154,
+      "hits_total": 38,
+      "alert_class_hits": 23,
+      "fast_path_decisions": 46,
+      "decisions_breakdown": {
+        "ENTER_BULL": 46
+      },
+      "detector_sec": 0.05,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-10",
+      "bars": 156,
+      "hits_total": 30,
+      "alert_class_hits": 7,
+      "fast_path_decisions": 14,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2,
+        "SKIP_SETUP": 2,
+        "ENTER_BULL": 10
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-11",
+      "bars": 156,
+      "hits_total": 24,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "ENTER_BULL": 4,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-12",
+      "bars": 156,
+      "hits_total": 22,
+      "alert_class_hits": 10,
+      "fast_path_decisions": 20,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4,
+        "ENTER_BULL": 16
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 1
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-13",
+      "bars": 156,
+      "hits_total": 34,
+      "alert_class_hits": 6,
+      "fast_path_decisions": 12,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2,
+        "ENTER_BULL": 10
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 1
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-16",
+      "bars": 156,
+      "hits_total": 21,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "SKIP_VIX": 8
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-17",
+      "bars": 156,
+      "hits_total": 22,
+      "alert_class_hits": 8,
+      "fast_path_decisions": 16,
+      "decisions_breakdown": {
+        "SKIP_VIX": 12,
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-18",
+      "bars": 156,
+      "hits_total": 19,
+      "alert_class_hits": 6,
+      "fast_path_decisions": 12,
+      "decisions_breakdown": {
+        "ENTER_BULL": 12
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-19",
+      "bars": 156,
+      "hits_total": 27,
+      "alert_class_hits": 6,
+      "fast_path_decisions": 12,
+      "decisions_breakdown": {
+        "ENTER_BULL": 12
+      },
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-20",
+      "bars": 156,
+      "hits_total": 29,
+      "alert_class_hits": 11,
+      "fast_path_decisions": 22,
+      "decisions_breakdown": {
+        "ENTER_BULL": 20,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-23",
+      "bars": 156,
+      "hits_total": 29,
+      "alert_class_hits": 9,
+      "fast_path_decisions": 18,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2,
+        "ENTER_BULL": 16
+      },
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-24",
+      "bars": 156,
+      "hits_total": 37,
+      "alert_class_hits": 13,
+      "fast_path_decisions": 26,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 4,
+        "ENTER_BULL": 22
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 1,
+        "max": 3
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-25",
+      "bars": 156,
+      "hits_total": 19,
+      "alert_class_hits": 9,
+      "fast_path_decisions": 18,
+      "decisions_breakdown": {
+        "SKIP_VIX": 18
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-26",
+      "bars": 156,
+      "hits_total": 15,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "ENTER_BULL": 6
+      },
+      "detector_sec": 0.056,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-27",
+      "bars": 156,
+      "hits_total": 24,
+      "alert_class_hits": 6,
+      "fast_path_decisions": 12,
+      "decisions_breakdown": {
+        "ENTER_BULL": 12
+      },
+      "detector_sec": 0.053,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 1
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-30",
+      "bars": 156,
+      "hits_total": 19,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "SKIP_VIX": 6,
+        "ENTER_BULL": 2
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-03-31",
+      "bars": 156,
+      "hits_total": 39,
+      "alert_class_hits": 18,
+      "fast_path_decisions": 36,
+      "decisions_breakdown": {
+        "SKIP_VIX": 36
+      },
+      "detector_sec": 0.05,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-01",
+      "bars": 156,
+      "hits_total": 28,
+      "alert_class_hits": 6,
+      "fast_path_decisions": 12,
+      "decisions_breakdown": {
+        "ENTER_BULL": 12
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-02",
+      "bars": 156,
+      "hits_total": 13,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_VIX": 6
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-03",
+      "bars": 78,
+      "hits": 0,
+      "detector_sec": 0.047,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2026-04-06",
+      "bars": 156,
+      "hits_total": 16,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "SKIP_VIX": 6,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-07",
+      "bars": 156,
+      "hits_total": 19,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-08",
+      "bars": 156,
+      "hits_total": 19,
+      "alert_class_hits": 8,
+      "fast_path_decisions": 16,
+      "decisions_breakdown": {
+        "SKIP_VIX": 10,
+        "SKIP_SETUP": 2,
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.051,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-09",
+      "bars": 156,
+      "hits_total": 19,
+      "alert_class_hits": 7,
+      "fast_path_decisions": 14,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 6,
+        "SKIP_VIX": 8
+      },
+      "detector_sec": 0.051,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-10",
+      "bars": 156,
+      "hits_total": 6,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.05,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-13",
+      "bars": 156,
+      "hits_total": 7,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-14",
+      "bars": 156,
+      "hits_total": 7,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-15",
+      "bars": 156,
+      "hits_total": 10,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_VIX": 2,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-16",
+      "bars": 156,
+      "hits_total": 9,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.051,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-17",
+      "bars": 156,
+      "hits_total": 7,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-20",
+      "bars": 156,
+      "hits_total": 13,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-21",
+      "bars": 156,
+      "hits_total": 24,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "ENTER_BULL": 4,
+        "SKIP_SETUP": 2,
+        "SKIP_VIX": 4
+      },
+      "detector_sec": 0.05,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-22",
+      "bars": 156,
+      "hits_total": 10,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.046,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-23",
+      "bars": 156,
+      "hits_total": 16,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "ENTER_BULL": 10
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-24",
+      "bars": 156,
+      "hits_total": 18,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4,
+        "SKIP_SETUP": 4
+      },
+      "detector_sec": 0.052,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-27",
+      "bars": 156,
+      "hits_total": 7,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-28",
+      "bars": 156,
+      "hits_total": 12,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-29",
+      "bars": 156,
+      "hits_total": 12,
+      "alert_class_hits": 2,
+      "fast_path_decisions": 4,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "ENTER_BULL": 2
+      },
+      "detector_sec": 0.05,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-04-30",
+      "bars": 156,
+      "hits_total": 29,
+      "alert_class_hits": 5,
+      "fast_path_decisions": 10,
+      "decisions_breakdown": {
+        "SKIP_VIX": 8,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-05-01",
+      "bars": 156,
+      "hits_total": 20,
+      "alert_class_hits": 6,
+      "fast_path_decisions": 12,
+      "decisions_breakdown": {
+        "SKIP_VIX": 4,
+        "SKIP_SETUP": 2,
+        "ENTER_BULL": 6
+      },
+      "detector_sec": 0.05,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-05-04",
+      "bars": 156,
+      "hits_total": 29,
+      "alert_class_hits": 13,
+      "fast_path_decisions": 26,
+      "decisions_breakdown": {
+        "ENTER_BULL": 24,
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.052,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-05-05",
+      "bars": 156,
+      "hits_total": 7,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.05,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-05-06",
+      "bars": 156,
+      "hits_total": 17,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "SKIP_VIX": 8
+      },
+      "detector_sec": 0.051,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-05-07",
+      "bars": 156,
+      "hits_total": 7,
+      "alert_class_hits": 3,
+      "fast_path_decisions": 6,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2,
+        "ENTER_BULL": 4
+      },
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-05-08",
+      "bars": 156,
+      "hits_total": 6,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-05-11",
+      "bars": 156,
+      "hits_total": 9,
+      "alert_class_hits": 1,
+      "fast_path_decisions": 2,
+      "decisions_breakdown": {
+        "SKIP_SETUP": 2
+      },
+      "detector_sec": 0.051,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-05-12",
+      "bars": 156,
+      "hits_total": 9,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.049,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-05-13",
+      "bars": 156,
+      "hits_total": 6,
+      "alert_class_hits": 4,
+      "fast_path_decisions": 8,
+      "decisions_breakdown": {
+        "SKIP_VIX": 8
+      },
+      "detector_sec": 0.047,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-05-14",
+      "bars": 156,
+      "hits_total": 4,
+      "alert_class_hits": 0,
+      "fast_path_decisions": 0,
+      "decisions_breakdown": {},
+      "detector_sec": 0.048,
+      "fpe_latency_ms": {
+        "min": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "errors": []
+    },
+    {
+      "date": "2026-05-15",
+      "bars": 156,
+      "hits_total": 39,
+      "alert_class_hits": 9,
+      "fast_path_decisions": 18,
+      "decisions_breakdown": {
+        "ENTER_BULL": 18
+      },
+      "detector_sec": 0.05,
+      "fpe_latency_ms": {
+        "min": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "errors": []
+    }
+  ]
+}

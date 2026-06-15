@@ -1,0 +1,66 @@
+{
+  "date": "2026-02-26",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:05.175021+00:00",
+  "actual": {
+    "open": 693.12,
+    "close": 689.32,
+    "high": 693.17,
+    "low": 684.37,
+    "move_dollars": -3.8,
+    "actual_bias": "bearish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 95,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 693.66,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "WRONG",
+      "consensus": "bullish",
+      "actual": "bearish"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 693.66,
+      "role": "support",
+      "rth_range": [
+        684.37,
+        693.17
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 693.66,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "693.66 (prior-session RTH high, now battle-level support) will be tested on a first-hour pullback by",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 21.00 through 10:00 ET, confirming that the +8.37% premarket VIX rise is routine gap-morning volatilit",
+        "invalidation": "VIX trades above 21.00 at any point before 10:00 ET, negating the MID-regime classification and flagging smart-money def"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BULL ribbon structure (87c spread, fast 693.73 > pivot 693.50 > slow 692.86) holds intact through 11:00 ET \u2014 SPY d",
+        "invalidation": "SPY closes a 5m bar below fast EMA (693.73) before 11:00 ET, indicating ribbon deterioration and that the gap-up bar str"
+      }
+    ]
+  },
+  "narrative": "Four-of-four specialists voted bullish on unanimously aligned signals: CLEAN_BULL ribbon (87c spread), overnight gap +$1.39, zero macro events, and XLK+XLF sector leadership \u2014 yielding a strong-consensus, 95-confidence bullish verdict. The single critical tension is VIX rising +8.37% to 19.43 simult"
+}

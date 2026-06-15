@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-02-26T10:33:17.000000+00:00",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "SPY at 694.49, gapped up $1.39 overnight and trading $0.83 above yesterday's RTH high (693.66). The battle level is 693.66 (Active 2★, prior session high now functioning as support from above). If it holds on any pullback, the gap-up is confirmed and the path north to 695–699 opens; if it breaks below, the downside target is 690.14 gap-fill. Ribbon is BULL stacked (87¢ spread, healthy) and risk-on sector rotation is in place. Premarket bias is bullish, contingent on 693.66 holding as support.",
+  "battle_level": {
+    "price": 693.66,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 693.66,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 1,
+      "distance_from_price": -0.83
+    },
+    {
+      "price": 695.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 0.51
+    },
+    {
+      "price": 695.82,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 1.33
+    },
+    {
+      "price": 690.14,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "reclaim_attempt",
+      "priority_rank": 4,
+      "distance_from_price": -4.35
+    },
+    {
+      "price": 694.46,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": -0.03
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 693.66 on any pullback",
+      "bias": "bullish",
+      "target": 695.82,
+      "entry_trigger": "level_hold + ribbon_bull_stack"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 693.66",
+      "bias": "bearish",
+      "target": 690.14,
+      "entry_trigger": "level_break + gap_fade"
+    },
+    "tertiary": {
+      "condition": "if SPY clears 695.82 on first push",
+      "bias": "bullish_continuation",
+      "target": 699.0,
+      "entry_trigger": "resistance_breakout + momentum"
+    }
+  },
+  "levels_in_play_count": 5,
+  "key_observations": [
+    "Overnight gap-up $1.39 has price above yesterday's RTH high 693.66; gap is holding with price $0.83 above the level.",
+    "Ribbon BULL stacked (fast 693.73 > pivot 693.5 > slow 692.86) with 87¢ healthy spread — strong directional consensus.",
+    "693.66 has flipped from resistance (yesterday's high) to support (today's floor); first pullback test will confirm hold or break.",
+    "Overhead resistance targets: 695.0 (round, +0.51), 695.82 (R2 pivot, +1.33), 699.0 (round, +4.51) in order.",
+    "VIX rising 8.37% to 19.43 (MID regime); elevated but consistent with gap-up morning volatility, not panic levels."
+  ],
+  "data_quality": "full"
+}

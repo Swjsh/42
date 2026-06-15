@@ -1,0 +1,63 @@
+{
+  "date": "2026-04-20",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:13.988974+00:00",
+  "actual": {
+    "open": 708.78,
+    "close": 708.69,
+    "high": 709.91,
+    "low": 706.14,
+    "move_dollars": -0.09,
+    "actual_bias": "no_trade"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 88,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 706.71,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "ABSTAIN_ACTUAL",
+      "consensus": "bearish",
+      "actual": "no_trade"
+    },
+    "battle_level": {
+      "grade": "HELD",
+      "battle_level": 706.71,
+      "role": "support",
+      "first_touch_time": "2026-04-20T10:50:00"
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 706.71,
+        "touched_any_time": true,
+        "touched_in_specified_window": false,
+        "claim": "SPY tests battle level 706.71 within the first 60 minutes of RTH (by 10:30 ET), with BEAR ribbon and",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains elevated at or above 17.50 through noon ET (12:00 ET), sustaining the MID risk-off regime and keeping intrad",
+        "invalidation": "VIX drops below 17.50 by 10:00 ET, indicating overnight fear spike was transient noise rather than a sustained macro reg"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BEAR ribbon (fast 707.79 below pivot 708.26 below slow 709.04, 126c spread) holds intact through the first 2 hours",
+        "invalidation": "Fast EMA crosses above pivot EMA before 11:30 ET, beginning a ribbon compression that invalidates the CLEAN_BEAR structu"
+      }
+    ]
+  },
+  "narrative": "The 4/4 specialist consensus is structurally bearish \u2014 CLEAN_BEAR ribbon (126c spread), gap-down -3.17, rising VIX +7.54% to 18.83, and energy-only sector leadership all point the same direction. The key tension is that the critical battle level (706.71, premarket low) has NOT been tested yet, and p"
+}

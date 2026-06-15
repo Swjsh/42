@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-04-22T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.65,
+  "reasoning": "Premarket sector rotation shows classic risk-off setup: XLE +0.99% while XLF -0.78% and XLK essentially flat (-0.2%). Energy strength paired with tech flatness and financial weakness indicates defensive rotation and inflation concerns, not growth momentum. SPY down -0.87% with no leadership from its largest sector (tech) — breadth is narrow and deteriorating. Risk-off bias with medium confidence.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -0.2,
+    "xlf_change_pct": -0.78,
+    "xle_change_pct": 0.99,
+    "spy_change_pct": -0.87,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: -0.2% flat — tech not participating in any leadership, concerning for SPY",
+    "XLF: -0.78% down — financials in clear weakness, suggests broad selling pressure",
+    "XLE: +0.99% up — energy outperformance in context of equity decline = inflation hedge, not bullish SPY signal",
+    "overall rotation: Risk-off setup. Energy defending while traditional growth sectors (tech/financials) lag. Narrow breadth, bearish bias."
+  ],
+  "data_quality": "full"
+}

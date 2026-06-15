@@ -1,0 +1,85 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-04-24T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "SPY at 708.84 is sandwiched between premarket low 708.09 (support, $0.75 below) and premarket high 710.40 (resistance, $1.56 above). Ribbon is BULL (fast 708.89 > pivot > slow, 13¢ spread), confirming upside bias. The battle level is 710.40 — first resistance on RTH open. If it holds, consolidation; if broken, 5-day high 712.39 (Carry tier, 2★) becomes next target. Price bounced off PML during premarket, supporting bullish continuation.",
+  "battle_level": {
+    "price": 710.40,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 710.40,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 1.56
+    },
+    {
+      "price": 712.39,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 3.55
+    },
+    {
+      "price": 708.09,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 0.75
+    },
+    {
+      "price": 702.28,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 6.56
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 710.40 on first test",
+      "bias": "bullish",
+      "target": 712.39,
+      "entry_trigger": "level_reclaim + ribbon_bull"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 710.40",
+      "bias": "bullish",
+      "target": 712.39,
+      "entry_trigger": "breakout_above_pml"
+    },
+    "tertiary": {
+      "condition": "if SPY pulls back and tests 708.09",
+      "bias": "bullish_if_holds",
+      "target": 710.40,
+      "entry_trigger": "support_hold_reversal"
+    }
+  },
+  "levels_in_play_count": 4,
+  "key_observations": [
+    "Premarket high 710.40 is the immediate battle level — only 1.56 above current price.",
+    "BULL ribbon with 13¢ spread confirms upside bias into RTH open.",
+    "Support floor at 708.09 (PML) is solid 2★; price bounced off it during premarket.",
+    "If 710.40 breaks, 5-day high 712.39 (Carry, 2★) is the next target — $3.55 above current.",
+    "No trade zone if price consolidates between 708.09 and 710.40 — watch for RTH open confirmation."
+  ],
+  "data_quality": "full"
+}

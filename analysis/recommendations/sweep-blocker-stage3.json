@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-05-21T03:30:17",
+  "window": {
+    "start": "2025-01-01",
+    "end": "2026-05-07"
+  },
+  "baseline": {
+    "n_trades": 360,
+    "n_winners": 80,
+    "n_losers": 168,
+    "total_pnl": 6022.44,
+    "avg_pnl": 16.73,
+    "win_rate": 0.2222,
+    "sharpe": 0.663,
+    "max_drawdown": -7251.6,
+    "avg_hold_min": 17.3,
+    "trades_per_day": 1.071
+  },
+  "with_gate": {
+    "n_trades": 358,
+    "n_winners": 80,
+    "n_losers": 167,
+    "total_pnl": 5372.44,
+    "avg_pnl": 15.01,
+    "win_rate": 0.2235,
+    "sharpe": 0.6144,
+    "max_drawdown": -7251.6,
+    "avg_hold_min": 17.4,
+    "trades_per_day": 1.065
+  },
+  "delta": {
+    "n_trades": -2,
+    "total_pnl": -650.0,
+    "win_rate": 0.0013,
+    "sharpe": -0.0486,
+    "max_drawdown": 0.0,
+    "trades_per_day": -0.006
+  },
+  "blocked_trades": [
+    {
+      "date": "2025-03-11",
+      "time": "13:05",
+      "direction": "P",
+      "pnl_blocked": 0.0,
+      "triggers": [
+        "level_rejection"
+      ],
+      "rejection_level": 554.0
+    },
+    {
+      "date": "2025-12-10",
+      "time": "15:20",
+      "direction": "P",
+      "pnl_blocked": -528.0,
+      "triggers": [
+        "level_reclaim",
+        "ribbon_flip"
+      ],
+      "rejection_level": 685.0
+    },
+    {
+      "date": "2025-12-10",
+      "time": "15:50",
+      "direction": "P",
+      "pnl_blocked": 2150.0,
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "rejection_level": 684.5572250120026
+    }
+  ],
+  "j_edge": {
+    "baseline": {
+      "2026-04-29": {
+        "category": "WINNER",
+        "engine_pnl": 0.0,
+        "n_trades": 1
+      },
+      "2026-05-01": {
+        "category": "WINNER",
+        "engine_pnl": -360.0,
+        "n_trades": 2
+      },
+      "2026-05-04": {
+        "category": "WINNER",
+        "engine_pnl": 220.0,
+        "n_trades": 2
+      },
+      "2026-05-05": {
+        "category": "LOSER",
+        "engine_pnl": 0,
+        "n_trades": 0
+      },
+      "2026-05-06": {
+        "category": "LOSER",
+        "engine_pnl": -175.2,
+        "n_trades": 2
+      },
+      "2026-05-07": {
+        "category": "LOSER",
+        "engine_pnl": -156.8,
+        "n_trades": 1
+      }
+    },
+    "gate": {
+      "2026-04-29": {
+        "category": "WINNER",
+        "engine_pnl": 0.0,
+        "n_trades": 1
+      },
+      "2026-05-01": {
+        "category": "WINNER",
+        "engine_pnl": -360.0,
+        "n_trades": 2
+      },
+      "2026-05-04": {
+        "category": "WINNER",
+        "engine_pnl": 220.0,
+        "n_trades": 2
+      },
+      "2026-05-05": {
+        "category": "LOSER",
+        "engine_pnl": 0,
+        "n_trades": 0
+      },
+      "2026-05-06": {
+        "category": "LOSER",
+        "engine_pnl": -175.2,
+        "n_trades": 2
+      },
+      "2026-05-07": {
+        "category": "LOSER",
+        "engine_pnl": -156.8,
+        "n_trades": 1
+      }
+    },
+    "edge_capture_baseline": 220.0,
+    "edge_capture_gate": 220.0,
+    "edge_capture_delta": 0.0,
+    "op16_floor_pass": false
+  },
+  "sensitivity": [],
+  "verdict": {
+    "sharpe_improved": false,
+    "pnl_not_regressed": false,
+    "edge_preserved": false,
+    "recommendation": "REJECT"
+  },
+  "stage3_complete": true
+}

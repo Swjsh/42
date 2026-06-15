@@ -1,0 +1,71 @@
+{
+  "checked_at": "2026-05-10T16:50:57.464039",
+  "monday_ready": true,
+  "fail_count": 0,
+  "gates": {
+    "1_stage5_ratified": {
+      "pass": true,
+      "verdict": "best_through_stage3_only",
+      "chosen_stage": "stage3",
+      "winner_combo": {
+        "super_stop": -0.15,
+        "super_tp1": 0.75,
+        "runner_target": 2.0,
+        "level_qty": 28,
+        "level_stop": -0.14,
+        "level_tp1": 0.4,
+        "trendline_stop": -0.06
+      }
+    },
+    "2_walk_forward_oos_positive": {
+      "pass": true,
+      "test_pnl": 2657.24,
+      "test_train_ratio": null,
+      "test_positive_quarters": 2,
+      "reason": "test_2026 P&L > 0"
+    },
+    "3_scheduled_tasks_enabled": {
+      "pass": true,
+      "missing": [],
+      "disabled": [],
+      "all_states": {
+        "Gamma_AR_Watchdog": 3,
+        "Gamma_DailyReview": 3,
+        "Gamma_DailyStatus": 3,
+        "Gamma_DiscordResponder": 3,
+        "Gamma_DiscordWatchdog": 3,
+        "Gamma_EodFlatten": 3,
+        "Gamma_EodFlatten_Aggressive": 3,
+        "Gamma_EodSummary": 3,
+        "Gamma_GrinderDiscordNotify": 3,
+        "Gamma_GrinderMonitor": 3,
+        "Gamma_Heartbeat": 3,
+        "Gamma_Heartbeat_Aggressive": 3,
+        "Gamma_LaunchTV": 3,
+        "Gamma_MondayReadyCheck": 3,
+        "Gamma_Premarket": 3,
+        "Gamma_SelfAudit": 3,
+        "Gamma_WeeklyReview": 3
+      }
+    },
+    "4_discord_bridge_alive": {
+      "pass": true,
+      "pid": 8520
+    },
+    "5_discord_responder_healthy": {
+      "pass": true,
+      "last_run_min_ago": 3.7
+    },
+    "6_winner_metrics_pass_floors": {
+      "pass": true,
+      "fails": [],
+      "metrics": {
+        "pnl_4_29": 654.58,
+        "pnl_5_04": 2417.83,
+        "losers_added": 0,
+        "top5_pct": 1.198,
+        "positive_quarters": 4
+      }
+    }
+  }
+}

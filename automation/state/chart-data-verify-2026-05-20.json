@@ -1,0 +1,43 @@
+{
+  "skill": "chart-data-verify",
+  "run_at": "2026-05-20T16:05:06",
+  "target_date": "2026-05-20",
+  "verdict": "YELLOW",
+  "reason": "no-csv-data-yet-yfinance-has-bars (CSV stale, EOD appender hasn't run)",
+  "csv_path": "C:\\Users\\jackw\\Desktop\\42\\backtest\\data\\spy_5m_2025-01-01_2026-05-19_merged.csv",
+  "max_divergence_dollars": 0,
+  "rows_compared": 5,
+  "heal_action": "no-op",
+  "rows": [
+    {
+      "ts": "2026-05-20 15:35:00",
+      "csv_close": null,
+      "yf_close": 741.4099731445312,
+      "divergence": null
+    },
+    {
+      "ts": "2026-05-20 15:40:00",
+      "csv_close": null,
+      "yf_close": 741.239990234375,
+      "divergence": null
+    },
+    {
+      "ts": "2026-05-20 15:45:00",
+      "csv_close": null,
+      "yf_close": 741.0850219726562,
+      "divergence": null
+    },
+    {
+      "ts": "2026-05-20 15:50:00",
+      "csv_close": null,
+      "yf_close": 740.97998046875,
+      "divergence": null
+    },
+    {
+      "ts": "2026-05-20 15:55:00",
+      "csv_close": null,
+      "yf_close": 741.2899780273438,
+      "divergence": null
+    }
+  ]
+}

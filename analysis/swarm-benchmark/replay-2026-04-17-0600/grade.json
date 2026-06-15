@@ -1,0 +1,66 @@
+{
+  "date": "2026-04-17",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:13.723242+00:00",
+  "actual": {
+    "open": 706.14,
+    "close": 710.05,
+    "high": 712.39,
+    "low": 705.76,
+    "move_dollars": 3.91,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 76,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 703.52,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 703.52,
+      "role": "resistance",
+      "rth_range": [
+        705.76,
+        712.39
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 703.52,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "PMH 703.52 is tested (SPY trades at or above 703.50) within the first 30 minutes of RTH (by 10:00 ET",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 18.50 for the entire RTH session, confirming the neutral-to-bullish low-IV regime and supporting direc",
+        "invalidation": "VIX trades above 18.50 on any intraday tick before 15:00 ET"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BULL ribbon (fast 703.16 > pivot 702.98 > slow 702.31, spread 85\u00a2) remains intact with fast EMA above pivot on 5-m",
+        "invalidation": "Fast EMA crosses below pivot EMA on any 5-min bar close before 10:00 ET"
+      }
+    ]
+  },
+  "narrative": "The key tension today is whether the CLEAN_BULL ribbon (85\u00a2 spread, $1.89 overnight gap, VIX falling to 17.64) can convert premarket structure into RTH continuation when price is already AT the ceiling \u2014 703.44 vs PMH 703.52, with small consolidation bodies that could equally signal distribution as "
+}

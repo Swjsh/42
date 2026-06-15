@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-04-16T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.85,
+  "reasoning": "CLEAN_BULL ribbon with 80¢ spread, price 18¢ above 700.52 pivot. Last 3 bars show RED-GREEN-GREEN pattern with full bodies; recent momentum is green. Gap up +85¢ overnight from prior close 699.84 to current 700.70, premarket high 701.99 established. All four signals aligned: clean ribbon structure, price above equilibrium, green bar momentum, bullish overnight gap. Strong conviction setup.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 80,
+  "bar_structure": "strong_bull",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon (fast 700.61 / pivot 700.52 / slow 699.82, 80¢ stack spread)",
+    "Price 700.70 trades 18¢ above pivot equilibrium, indicating bullish momentum",
+    "Last 3 bars: 05:45 RED (full 61% body), 05:50 GREEN (full 86% body), 05:55 GREEN (full 73% body) — recent bars strong green",
+    "Overnight gap up 85¢ from prior close 699.84; premarket high 701.99 establishes overhead target",
+    "VIX 18.86 rising (+4.43%), IV regime MID — supportive for directional moves"
+  ],
+  "data_quality": "full"
+}

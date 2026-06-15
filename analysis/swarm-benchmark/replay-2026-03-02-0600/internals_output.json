@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-03-02T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.52,
+  "reasoning": "XLF (financials) down -0.87% while XLK (tech) weak at +0.33% and XLE (energy) strong at +0.50%. SPY up +0.42% but leadership is narrow and driven by energy hedge rather than broad growth. Financial sector weakness contradicts risk-on narrative. Breadth is narrow (XLK underperforming SPY while energy outperforms) — suggests SPY upside fragile. Medium-confidence bearish bias due to financial stress and absence of broad-based tech leadership.",
+  "rotation_signal": "mixed",
+  "sector_alignment": {
+    "xlk_change_pct": 0.33,
+    "xlf_change_pct": -0.87,
+    "xle_change_pct": 0.50,
+    "spy_change_pct": 0.42,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +0.33% — weak tech leadership, lagging SPY (+0.42%)",
+    "XLF: -0.87% — financial sector in decline, primary bearish signal",
+    "XLE: +0.50% — strong energy, suggesting commodity/inflation hedge (defensive tilt, not bullish SPY growth)",
+    "Overall rotation: Mixed signals with financial weakness dominating. Narrow breadth (energy carrying SPY, not growth). Bearish tilt on financial stress."
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-02-24T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "XLK -1.18% and XLF -2.80% confirm risk-off rotation with financials in stress mode, declining nearly 3.5× faster than SPY (-0.79%). XLE flat (+0.2%) while equities fall indicates defensive positioning, not a broad-based strength offsetting the weakness. Tech (SPY's largest ~30% weighting) is underperforming, and financial sector stress compounds the downside signal. Sector breadth is concentrated but unambiguous downward. Bearish bias with medium-high confidence heading into 02-24 session.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -1.18,
+    "xlf_change_pct": -2.80,
+    "xle_change_pct": 0.2,
+    "spy_change_pct": -0.79,
+    "xlk_vs_spy": "underperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK -1.18%: Tech leadership absent; growth underperforming SPY due to sector-level weakness",
+    "XLF -2.80%: Financial sector stress — most severe sector decline, signals de-risking or credit concern",
+    "XLE +0.2%: Energy flat (not participating in weakness); defensive rotation confirmed via non-participation",
+    "Overall rotation: Risk-off with concentrated weakness in growth and financial sectors. XLE's flatness vs equity decline confirms institutional rotation away from risk. SPY -0.79% follows sector stress. Setup favors bearish bias for intraday."
+  ],
+  "data_quality": "full"
+}

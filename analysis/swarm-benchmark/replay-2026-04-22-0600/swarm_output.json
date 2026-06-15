@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-04-22T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis"],
+    "bearish": ["internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 3,
+    "bearish": 1,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.9,
+    "bearish": 0.1
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 76,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["internals"],
+    "dissent_reason": "Internals flags risk-off rotation — XLE +0.99% while XLF -0.78% and XLK -0.2% signals energy/defensive leadership without tech participation; SPY -0.87% on narrow breadth suggests the overnight gap was built without growth sector support and is vulnerable to RTH reversal on real volume."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The bullish case assumes falling VIX + ribbon structure = institutional buying conviction, but actual breadth data (no tech participation, financial weakness, energy as defensive hedge) directly contradicts this narrative — overnight gaps with narrow breadth classically reverse at RTH open.",
+    "top_invalidation_scenario": "Volume on first test of PMH 708.80 comes in flat or declining (< 1.0x 20-bar avg); thin-volume resistance test becomes a short setup rather than a breakout confirmation — probability: high."
+  },
+  "battle_level": {
+    "price": 708.8,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 708.8,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 712.39,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 711.28,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 704.08,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 702.64,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks above PMH 708.80 with body ≥ 10¢ above on ≥ 1.5× volume",
+      "bias": "bullish",
+      "target": 712.39,
+      "entry_trigger": "level_reclaim at PMH 708.80 with ribbon BULL stack intact + volume confirmation"
+    },
+    "secondary": {
+      "condition": "if SPY reverses and breaks below PML 704.08 with conviction",
+      "bias": "bearish",
+      "target": 702.64,
+      "entry_trigger": "level_break below PML 704.08 + ribbon inversion OR volume spike on rejection"
+    },
+    "invalidation": {
+      "condition": "First test of PMH 708.80 occurs on flat or declining volume (< 1.0× premarket avg); price stalls in 708.50-708.70 range without conviction",
+      "effect": "Bullish breakout scenario fails; PMH becomes a short setup; trapped longs from overnight gap-up accelerate any reversal toward 704.08 PML — shift bias to no_trade or cautious bearish."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "PMH 708.80 is tested (price reaches ≥ 708.70) within the first 60 minutes of RTH (by 10:30 ET)",
+      "invalidation": "SPY does not reach 708.50 by 10:30 ET, indicating the gap-up faded immediately at open without testing the premarket ceiling",
+      "confidence": 0.72,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 20.50 through the first 2 hours of RTH (09:30-11:30 ET), keeping premium decay environment intact for directional call exposure",
+      "invalidation": "VIX spikes above 20.50 within the first 2 hours of RTH, signaling a volatility expansion event that raises premium and invalidates low-vol call thesis",
+      "confidence": 0.74,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BULL ribbon structure (fast > pivot > slow) holds with spread ≥ 30¢ through at least 10:30 ET; no ribbon inversion on the first 60 minutes of RTH bars",
+      "invalidation": "Fast EMA crosses below pivot EMA within the first 60 minutes of RTH, signaling ribbon collapse and invalidating the technical bullish structure",
+      "confidence": 0.60,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The central tension on 2026-04-22 is a textbook gap-up bull setup (CLEAN_BULL ribbon, +$3.85 overnight gap, zero macro events) sitting on top of a structural breadth warning: energy is the only sector leading, while tech (30%+ of SPY) is flat and financials are down — the exact fingerprint of a defensive/inflation rotation, not growth momentum. Three specialists vote bullish on premarket structure, but the validator correctly identifies the gap as an untested premarket artifact; real institutional conviction must be confirmed by RTH volume at PMH 708.80. The single most important watch at open: does the first test of PMH 708.80 draw ≥ 1.5× average volume (confirming bulls)? Flat or declining volume at that resistance level converts the battle level from a breakout target to a short catalyst.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.62,
+      "one_line": "CLEAN_BULL ribbon (78¢ spread, fast > pivot > slow) with strong overnight gap-up; last 3 bars show momentum stall (2 red + doji) at 4¢ below pivot — structure intact, conviction moderate"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.78,
+      "one_line": "VIX falling -5.82% to 19.11 (MID regime), zero macro events today, FOMC not until 4/29; risk-on backdrop with overnight gap +$3.85 confirms bullish premarket sentiment"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "Battle level PMH 708.80 is 81¢ overhead — ideal test distance; asymmetric upside (4.40 to 5-day high at 712.39) vs downside (3.91 to PML at 704.08) favors bulls conditionally"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.65,
+      "one_line": "Risk-off rotation: XLE +0.99% outperforming while XLF -0.78% and XLK -0.2% flat — no tech leadership, narrow deteriorating breadth, SPY -0.87%; energy defense not growth momentum"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Overnight gap on weak breadth (no tech participation) is vulnerable to RTH reversal; volume at PMH 708.80 first test is the make-or-break signal — low volume = short setup, not breakout"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

@@ -1,0 +1,17 @@
+{
+  "date": "2026-05-18",
+  "computed_at": "2026-05-18T16:00:02-04:00",
+  "drift_severity": "none",
+  "live_trades_today": 1,
+  "live_pnl_today": -99.0,
+  "backtest_trades_today": null,
+  "backtest_pnl_today": null,
+  "divergence_pct": null,
+  "consecutive_medium_drifts": 0,
+  "investigation_pointers": [
+    "journal/2026-05-18.md ## End-of-day reflection",
+    "automation/state/decisions.jsonl (today's rows)",
+    "automation/state/logs/heartbeat-2026-05-18.log"
+  ],
+  "_note": "BACKTEST_SYNC_SKIPPED: Python subprocess not available in this EOD session. Live Bold trade (BULLISH_RECLAIM 740C) matched expected trigger conditions (bull 11/11, level_reclaim + ribbon_flip). Missed bearish setups (10:35, 11:05) blocked by ribbon-MIXED filter — consistent with documented strategy behavior. Qualitative drift assessment: none. Consecutive medium drifts reset to 0. FIRST LIVE DAY for new $1K dual-account setup."
+}

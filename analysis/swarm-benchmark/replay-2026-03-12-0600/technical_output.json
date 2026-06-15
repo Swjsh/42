@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-03-12T06:00:00Z",
+  "bias": "no_trade",
+  "confidence": 0.48,
+  "reasoning": "WEAK_BULL ribbon (19c spread, below 20c CLEAN threshold) with price at equilibrium (675.62 vs pivot 675.61). Last 3 bars MIXED: RED 676.34→376.31, GREEN 676.31→676.48, DOJI 676.01 (40v, zero body) — no trend consistency. Overnight gap DOWN 72c reflects bearish sentiment. VIX rising 26.66 (+10.07%) in HIGH regime suggests volatility expansion without directional commitment. No clear edge to act on — ambiguous pre-open setup.",
+  "ribbon_verdict": "WEAK_BULL",
+  "ribbon_spread_cents": 19,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "at",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "Ribbon stack BULL but spread only 19 cents (weak, below 20c CLEAN threshold)",
+    "Gap down 72 cents from prior close 676.34 → current 675.62 (significant bearish overnight signal)",
+    "Last 3 bars: RED (3c body), GREEN (17c body), DOJI (0 body, 40 volume) — no trend conviction",
+    "Price 675.62 at pivot 675.61 (essentially equilibrium), 13 cents below fast EMA 675.75",
+    "VIX 26.66 rising +10.07% in HIGH IV regime — volatility expanding, direction unclear"
+  ],
+  "data_quality": "full"
+}

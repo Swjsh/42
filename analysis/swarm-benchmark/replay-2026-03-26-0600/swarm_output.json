@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-26T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": [],
+    "bearish": ["technical", "macro", "level_thesis", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 0,
+    "bearish": 4,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.0,
+    "bearish": 1.0
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 88,
+  "dissent_flag": {
+    "active": false,
+    "dissenting_agents": [],
+    "dissent_reason": null
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "All bearish signals (ribbon, VIX spike, sector rotation, gap) fired on thin premarket volume — overnight panic on zero-volume premarket is a known mean-reversion setup; the ★★ battle level at 650.84 (only 0.96 below current price) is weak defense and a V-bounce has 'high' rated probability at open.",
+    "top_invalidation_scenario": "SPY holds 650.84 on first test and bounces to 653.00+ within 30 minutes — weak ★★ level holds, V-bottom triggered, bearish flush-to-644.72 target refuted."
+  },
+  "battle_level": {
+    "price": 650.84,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 650.84,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 654.85,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 654.24,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 644.72,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 662.98,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks below 650.84 (PML battle level) with volume at or after open",
+      "bias": "bearish",
+      "target": 644.72,
+      "entry_trigger": "level_break_continuation"
+    },
+    "secondary": {
+      "condition": "if SPY holds 650.84 on first test and reclaims pivot 652.42 with bullish bar structure",
+      "bias": "bullish",
+      "target": 654.85,
+      "entry_trigger": "support_hold_and_pivot_reclaim"
+    },
+    "invalidation": {
+      "condition": "SPY opens above 652.50 and holds the first 5-min RTH bar with a bullish candle (close near high)",
+      "effect": "Overwrites overnight panic with real cash-open volume; CLEAN_BEAR ribbon begins compressing toward pivot, ribbon inversion risk activates, entire bearish consensus collapses — switch to no_trade until ribbon re-confirms direction."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "650.84 (PML battle level) is tested — SPY trades at or below 650.90 — within the first 60 minutes of RTH (by 10:30 ET)",
+      "invalidation": "SPY does not trade below 651.00 before 10:30 ET, implying overnight gap is absorbed and buyers defended above the battle level without a test",
+      "confidence": 0.72,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains at or above 25.00 through the first 90 minutes of RTH (through 11:00 ET), sustaining the HIGH fear regime",
+      "invalidation": "VIX drops below 25.00 before 11:00 ET, signaling intraday equity strength deflating overnight fear and undermining the risk-off macro thesis",
+      "confidence": 0.65,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY 5-minute ribbon remains in BEAR configuration (fast EMA < slow EMA, spread >= 30 cents) through the first 45 minutes of RTH (through 10:15 ET)",
+      "invalidation": "Ribbon compresses to spread < 30 cents OR inverts (fast > slow) before 10:15 ET, indicating buyer absorption of the 210-cent premarket bear spread",
+      "confidence": 0.68,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "4-of-4 specialists align bearish: CLEAN_BEAR ribbon with a 210-cent spread, VIX rising to 26.36 (HIGH regime), a $4.94 overnight gap-down, and confirming risk-off sector rotation (tech XLK -0.39%, financials XLF -0.50%) all point to continued downside. The critical tension is at 650.84 — the ★★ PML battle level only 0.96 below current price — where the validator flags a 'high' probability V-bounce because zero macro events today removes forced-selling pressure and thin-volume overnight gaps historically mean-revert hard at cash open. Watch the first 5-min RTH bar: a close below 650.84 with volume confirms continuation toward 644.72 Carry; a strong open above 652.50 activates the invalidation scenario and calls for standing aside until structure re-confirms.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.72,
+      "one_line": "CLEAN_BEAR ribbon (210c spread, fast 651.95 < pivot 652.42 < slow 654.05) + $4.94 overnight gap-down; bar structure mixed (premarket chop on thin volume)"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.82,
+      "one_line": "VIX rising +4.03% to 26.36 (HIGH regime) + zero macro events today = clean risk-off day; SPY near premarket lows with continuation bias"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.70,
+      "one_line": "Battle level 650.84 (PML, ★★) is 0.96 below current price; break targets Carry at 644.72; hold risks V-reversal to PMH 654.85"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "Risk-off rotation confirmed: XLK -0.39% + XLF -0.50% + XLE +0.41%; narrow bearish breadth, growth/cyclicals underperforming defensive/commodity"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "All signals fire on premarket thin-volume; ★★ battle level at 650.84 is weak (high probability of V-bounce at cash open if buyers show up)"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

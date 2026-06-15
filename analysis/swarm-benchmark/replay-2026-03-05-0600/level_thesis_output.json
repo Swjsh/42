@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-05T06:00:00Z",
+  "bias": "no_trade",
+  "confidence": 0.35,
+  "reasoning": "SPY at 685.56, sandwiched tightly between ribbon (MIXED: fast 685.83, pivot 685.97, spread only 14¢) and first overhead resistance at 687.09. Carry-tier resistance at 693.17 (+7.61) is well beyond the IN_PLAY zone; nearest meaningful support is 679.63 (Active, 2★) at −5.93. Ribbon MIXED negates directional bias. VIX rising into tight levels signals volatility expansion coming, but the breakout direction is uncertain. Battle level is 687.09 (test from below), but the zone is a bounce/squeeze waiting for breakout direction — not a directional trade setup. Recommend wait for 687.09 test outcome before taking direction.",
+  "battle_level": {
+    "price": 687.09,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 687.09,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 1.53
+    },
+    {
+      "price": 679.63,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 5.93
+    },
+    {
+      "price": 688.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 2.44
+    },
+    {
+      "price": 685.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 0.56
+    },
+    {
+      "price": 684.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": 1.56
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 687.09 resistance on first test",
+      "bias": "bearish",
+      "target": 679.63,
+      "entry_trigger": "rejection_candlestick + volume_confirm"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 687.09",
+      "bias": "bullish",
+      "target": 693.17,
+      "entry_trigger": "level_break + ribbon_stack_flip"
+    },
+    "tertiary": {
+      "condition": "if SPY tests 685.0 support",
+      "bias": "neutral",
+      "target": "undefined",
+      "entry_trigger": "awaiting_directional_signal"
+    }
+  },
+  "levels_in_play_count": 5,
+  "key_observations": [
+    "Ribbon is MIXED state (only 14¢ spread) — zero directional bias from ribbon alignment.",
+    "Price is compressed between tight reference support (685.0 at −0.56) and active resistance (687.09 at +1.53) — only 2.09 wide range.",
+    "VIX rising into IV regime HIGH while price is in a squeeze — suggests volatility expansion breakout is pending but direction unknown.",
+    "Carry-tier resistance (693.17) is out of IN_PLAY zone; nearest significant support is 679.63 (5.93 below) — slight bullish asymmetry in range, but MIXED ribbon veto's any bullish tilt.",
+    "Premarket is flat (0.43 gap) with no directional context — battle level 687.09 will set the morning direction."
+  ],
+  "data_quality": "full"
+}

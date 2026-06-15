@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-02-20T11:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro"],
+    "bearish": [],
+    "no_trade": ["level_thesis", "internals"]
+  },
+  "vote_counts": {
+    "bullish": 2,
+    "bearish": 0,
+    "no_trade": 2
+  },
+  "weighted_scores": {
+    "bullish": 0.65,
+    "bearish": 0.0
+  },
+  "consensus_bias": "bullish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 60,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["level_thesis", "internals"],
+    "dissent_reason": "level_thesis sees symmetric price risk with SPY sandwiched between 686.13 resistance (+1.63) and 681.59 support (-2.91), MIXED ribbon offering no directional asymmetry; internals shows XLK +0.09% and XLF +0.02% flat with zero breadth confirmation of any bullish momentum."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Bullish agents conflate price above EMAs with bullish ribbon alignment — the MIXED ribbon (12¢ spread) is a warning signal not confirmation, and the 109.6K EOD volume spike occurred in thin-liquidity closing auction flow rather than genuine institutional accumulation.",
+    "top_invalidation_scenario": "SPY tests 686.13 at or before 11:00 ET, closes the test bar red or doji (below 685.50) with volume < 50K — confirming the EOD volume was short-covering flow and the bullish structure is rejected at the battle level."
+  },
+  "battle_level": {
+    "price": 686.13,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 686.13,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 681.59,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 695.34,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 675.79,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 679.53,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks above 686.13 with volume >= 60K on break bar and ribbon shifts BULL",
+      "bias": "bullish",
+      "target": 695.34,
+      "entry_trigger": "level_reclaim"
+    },
+    "secondary": {
+      "condition": "if SPY tests 686.13 and holds below it with a rejection bar",
+      "bias": "bearish",
+      "target": 681.59,
+      "entry_trigger": "level_rejection"
+    },
+    "invalidation": {
+      "condition": "SPY tests 686.13 at or before 11:00 ET, closes test bar red or doji (below 685.50) with volume < 50K while XLK posts back-to-back red 5m bars",
+      "effect": "Bullish thesis collapses; 686.13 resistance holds, ribbon stays MIXED or flips BEAR, intraday target reverts to 681.59 support and potentially 675.79 Carry. No bullish entry valid until 686.13 is cleanly broken on a subsequent attempt with ribbon confirmation."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "686.13 (prior-day RTH high, Active resistance) will be tested within the first 90 minutes of RTH by 11:00 ET as the natural target of the overnight bullish positioning",
+      "invalidation": "SPY does not trade above 685.50 before 11:00 ET, indicating the bullish overnight structure failed to follow through into RTH",
+      "confidence": 0.68,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 19.50 through 11:00 ET, sustaining the overnight risk-on tailwind and keeping premium favorable for directional call entries",
+      "invalidation": "VIX spikes above 19.50 before 11:00 ET without a scheduled macro catalyst, reversing the overnight -6.95% move and repricing call premium unfavorably",
+      "confidence": 0.62,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "The MIXED ribbon (12¢ spread) resolves to a definitive BULL or BEAR stack (spread >= 30¢) within the first 60 minutes of RTH driven by the 686.13 test outcome — a break confirms BULL, a rejection confirms BEAR",
+      "invalidation": "Ribbon spread remains below 30¢ (MIXED / indecision) through 10:30 ET, meaning the range-chop scenario is playing out with no directional edge",
+      "confidence": 0.55,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "The core tension today is a 2-vs-2 weighted split: technical structure (price 114¢ above all EMAs, 3-bar green close) and macro tailwind (VIX -6.95%, clean calendar) vote bullish and carry the weighted score to 0.65, while level thesis (symmetric sandwich between 686.13 and 681.59, MIXED ribbon) and internals (XLK/XLF flat, zero breadth) vote no_trade. The validator correctly flags that the 109.6K EOD volume spike is thin-liquidity closing auction flow rather than conviction accumulation, and the MIXED ribbon directly contradicts the bullish alignment narrative — swarm confidence is held at 60 reflecting this fragility. The single most important thing to watch at open: does the 686.13 test bar close green with volume >= 60K — if yes, ribbon should stack BULL and the 695.34 Carry is in play; if it closes red or doji on thin volume, the no_trade dissent is validated and the day is a range between 681.59 and 686.13.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.55,
+      "one_line": "MIXED ribbon (12¢ spread) but price 114¢ above all EMAs + 3-bar green close + 109.6K EOD volume spike — marginal bullish structure with low conviction"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "VIX 18.87 falling -6.95%, zero macro events today, flat overnight gap — clean risk-on backdrop with no event-risk headwinds"
+    },
+    "level_thesis": {
+      "bias": "no_trade",
+      "confidence": 0.40,
+      "one_line": "Battle level 686.13 resistance sits only +1.63 above price; MIXED ribbon + symmetric sandwich (681.59 below, 686.13 above) = no directional edge pre-test"
+    },
+    "internals": {
+      "bias": "no_trade",
+      "confidence": 0.32,
+      "one_line": "XLK +0.09%, XLF +0.02%, XLE -0.50% — flat breadth with zero sector leadership; mixed rotation with no actionable directional bias"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "EOD 109.6K volume was thin-liquidity closing auction flow (not conviction); MIXED ribbon contradicts bullish alignment claim; XLK flat = absent tech leadership = bear flag on supposed bull move"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

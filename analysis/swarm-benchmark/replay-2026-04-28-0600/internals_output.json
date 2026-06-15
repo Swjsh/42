@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-04-28T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.55,
+  "reasoning": "XLF +0.97% leads bullishly while XLE -0.58% removes inflation concern, suggesting growth-friendly conditions. However, XLK weak at only +0.34% prevents broad risk-on classification. Breadth is narrow — single-sector leadership rather than SPY-wide participation. Moderate confidence: one clear signal (XLF) but lacking XLK confirmation.",
+  "rotation_signal": "mixed",
+  "sector_alignment": {
+    "xlk_change_pct": 0.34,
+    "xlf_change_pct": 0.97,
+    "xle_change_pct": -0.58,
+    "spy_change_pct": 0.28,
+    "xlk_vs_spy": "inline",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLF: +0.97% (strong financial leadership, >0.5% threshold met)",
+    "XLE: -0.58% (energy down removes stagflation risk, growth-friendly)",
+    "XLK: +0.34% (weak tech support, well below 0.5% threshold)",
+    "overall rotation: partial risk-on via XLF, but narrow breadth limits conviction"
+  ],
+  "data_quality": "full"
+}

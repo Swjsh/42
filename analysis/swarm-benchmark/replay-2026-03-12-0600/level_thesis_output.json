@@ -1,0 +1,105 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-12T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.65,
+  "reasoning": "SPY at 675.62, down overnight -0.72 from prior close 676.34. Ribbon is BULL-stacked (fast 675.75 > pivot > slow), price testing just below the fast EMA. The battle level is 673.36 (Active support, 2★) — the prior session RTH low now $2.26 below current price. If price holds 673.36 on first test (test_from_above), bulls control and target 680.06 (prior session high, Active resistance). If 673.36 breaks, bears open a path to 662.42 Carry support (5-day low). Ribbon alignment + recent support proximity favor bullish bias, but VIX is rising (26.66, HIGH regime) and premarket data is thin — moderate confidence.",
+  "battle_level": {
+    "price": 673.36,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 673.36,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": -2.26
+    },
+    {
+      "price": 680.06,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 4.44
+    },
+    {
+      "price": 677.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 1.38
+    },
+    {
+      "price": 675.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": -0.62
+    },
+    {
+      "price": 685.51,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": 9.89
+    },
+    {
+      "price": 662.42,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 6,
+      "distance_from_price": -13.2
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 673.36 on first test (support confirmed)",
+      "bias": "bullish",
+      "target": 680.06,
+      "entry_trigger": "level_hold + ribbon_bull_confirmation"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 673.36 with volume",
+      "bias": "bearish",
+      "target": 662.42,
+      "entry_trigger": "level_break + structure_failure"
+    },
+    "tertiary": {
+      "condition": "if SPY chops between 673.36 and 677.0 without committing",
+      "bias": "no_trade",
+      "target": null,
+      "entry_trigger": "wait_for_breakout + range_detection"
+    }
+  },
+  "levels_in_play_count": 6,
+  "key_observations": [
+    "Ribbon BULL-stacked with fast EMA at 675.75; price 675.62 is just 13 cents below ribbon fast — minor separation suggests bulls have control unless broken decisively.",
+    "673.36 (Active support, 2★) is the pivot: price $2.26 away on test_from_above. First breakdown point for bears; first defense point for bulls.",
+    "VIX rising (10% overnight to 26.66) and HIGH regime indicates elevated fear/chop potential — reduces confidence in smooth directional moves.",
+    "Overnight gap down -0.72 but price stabilized at 675.62, not flushing further — suggests buyers showed up in premarket, bullish micro-signal.",
+    "680.06 (prior session high, Active resistance) is the bull target IF 673.36 holds; it's $4.44 away (outside immediate battle zone but clearly in view)."
+  ],
+  "data_quality": "partial"
+}

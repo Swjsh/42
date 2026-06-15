@@ -1,0 +1,85 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-17T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "SPY at 668.46, having bounced from premarket low 665.7 (+$2.76 recovery) and now grinding at PMH 668.49 (just $0.03 overhead). The battle level is 668.49 — a 2★ Active resistance derived from today's premarket high. Below is a strong support shelf at 667.12 (prior RTH low, 2★ Active) within $1.34. The tape shows steady uptrend from 665.7 over the past hour with consolidation at PMH, suggesting buyers testing overhead. If 668.49 holds, pullback targets 667.12 or 665.7 (support zone). If broken, next resistance is 672.07 (prior day RTH high, 2★ Active). Ribbon is MIXED (24¢ spread, all three lines overlapped 667.77–668.02), which dampens directional confirmation but does not contradict the level-driven bullish lean. High IV regime (VIX 22.19) and falling VIX momentum add volatility context but secondary to level structure.",
+  "battle_level": {
+    "price": 668.49,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 668.49,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.03
+    },
+    {
+      "price": 672.07,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 3.61
+    },
+    {
+      "price": 667.12,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": -1.34
+    },
+    {
+      "price": 665.7,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": -2.76
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks and holds above PMH 668.49 on first or second test",
+      "bias": "bullish",
+      "target": 672.07,
+      "entry_trigger": "level_break + sustained_close_above_668.49"
+    },
+    "secondary": {
+      "condition": "if SPY rejects at or below PMH 668.49 and rolls over",
+      "bias": "bearish",
+      "target": 667.12,
+      "entry_trigger": "rejection_candle_at_668.49 + close_below_prior_bar_low"
+    },
+    "tertiary": {
+      "condition": "if SPY bounces between 667.12 support and 668.49 resistance without breaking either",
+      "bias": "no_trade",
+      "target": null,
+      "entry_trigger": "none_—_range_bound_chop"
+    }
+  },
+  "levels_in_play_count": 9,
+  "key_observations": [
+    "Premarket tape shows $2.76 bounce from low (665.7 → 668.46) with steady uptrend and recent consolidation near PMH, consistent with accumulation ahead of overhead resistance test.",
+    "Ribbon MIXED with 24¢ spread across all three lines (667.77/667.87/668.02) — no directional stack bias, confirms neutral-to-trapped sentiment despite level-driven bullish lean.",
+    "Active tier dominates the near-term battle zone (668.49 PMH, 667.12 prior RTH low, 672.07 next overhead) — Reference tier (round numbers, pivots) are noise below price.",
+    "Zero-volume premarket bars suggest thin early participation; first liquid test will be at open (09:30 ET) when volume enters — expect volatility around PMH and 667.12 shelf.",
+    "VIX 22.19 in HIGH IV regime with -6.33% overnight fall suggests volatility compression + potential relief rally IF levels break, or whipsaw IF 668.49 holds tight."
+  ],
+  "data_quality": "full"
+}

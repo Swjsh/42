@@ -1,0 +1,101 @@
+{
+  "rule_id": "v14_enhanced",
+  "generated_at": "2026-05-13T19:44:18.537440",
+  "winner_combo": {
+    "strike_offset_bear": 0,
+    "min_triggers_bear": 1,
+    "premium_stop_pct_bear": -0.2,
+    "tp1_qty_fraction": 0.5,
+    "no_trade_before": "09:35",
+    "profit_lock_threshold_pct": 0.05,
+    "profit_lock_stop_offset_pct": 0.1,
+    "tp1_premium_pct": 0.3,
+    "runner_target_premium_pct": 2.5
+  },
+  "train_window": "2025-01-01 to 2025-12-31",
+  "train_months": 11.99,
+  "test_window": "2026-01-01 to 2026-05-12",
+  "test_months": 4.34,
+  "train_per_month": 1546.84,
+  "test_per_month": 4127.66,
+  "per_month_ratio": 2.668,
+  "train": {
+    "window_start": "2025-01-01",
+    "window_end": "2025-12-31",
+    "total_pnl": 18549.32,
+    "n_trades": 225,
+    "n_winners": 118,
+    "wr": 0.524,
+    "trading_days": 158,
+    "monthly_pnl": {
+      "2025-01": 457.66,
+      "2025-02": 578.69,
+      "2025-03": 1671.59,
+      "2025-04": 3288.23,
+      "2025-05": -606.74,
+      "2025-06": -1882.1,
+      "2025-07": 2852.36,
+      "2025-08": -773.8,
+      "2025-09": 3940.8,
+      "2025-10": 1054.95,
+      "2025-11": 7288.13,
+      "2025-12": 679.56
+    },
+    "quarter_pnl": {
+      "2025-Q1": 2707.94,
+      "2025-Q2": 799.39,
+      "2025-Q3": 6019.36,
+      "2025-Q4": 9022.64
+    },
+    "positive_quarters": 4,
+    "quarter_count": 4,
+    "max_dd": 2857.1,
+    "top5_pct": 0.655,
+    "real_fills_count": 209,
+    "bs_fallback_count": 16,
+    "bs_fallback_pct": 7.1
+  },
+  "test": {
+    "window_start": "2026-01-01",
+    "window_end": "2026-05-12",
+    "total_pnl": 17900.65,
+    "n_trades": 92,
+    "n_winners": 62,
+    "wr": 0.674,
+    "trading_days": 59,
+    "monthly_pnl": {
+      "2026-01": 8286.92,
+      "2026-02": 3207.87,
+      "2026-03": 2868.86,
+      "2026-04": 1682.54,
+      "2026-05": 1854.46
+    },
+    "quarter_pnl": {
+      "2026-Q1": 14363.65,
+      "2026-Q2": 3537.0
+    },
+    "positive_quarters": 2,
+    "quarter_count": 2,
+    "max_dd": 1234.95,
+    "top5_pct": 0.504,
+    "real_fills_count": 84,
+    "bs_fallback_count": 8,
+    "bs_fallback_pct": 8.7
+  },
+  "verdict": "PASS",
+  "verdict_reason": "TEST positive ($17901) AND per_month_ratio 2.67x >= 0.5x floor.",
+  "monday_ready": true,
+  "caveats": [
+    "TEST window overlaps J anchors (4/29..5/12). These days were used for floor protection in the v14_enhanced grinder, so they are NOT fully out-of-sample. Per OP 20 disclosure 2 (sample bias)."
+  ],
+  "thresholds": {
+    "test_positive_required": true,
+    "test_per_month_min_ratio": 0.5,
+    "policy_reference": "CLAUDE.md OP 20 walk-forward gate"
+  },
+  "provenance": {
+    "t44b_doc": "docs/V14_ENHANCED-REAL-FILLS-2026-05-13.md",
+    "real_fills": true,
+    "profit_lock_in_real_fills": false
+  }
+}

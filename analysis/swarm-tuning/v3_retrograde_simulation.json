@@ -1,0 +1,1134 @@
+{
+  "generated_at": "2026-05-18T00:25Z",
+  "n_days_total": 65,
+  "n_tradeable": 55,
+  "n_missing_replay": 0,
+  "missing_replay_dates": [],
+  "ece": {
+    "v2_pct": 21.67,
+    "v3_pct": 21.66,
+    "improvement_pp": 0.01
+  },
+  "conf_distribution": {
+    "v2_days_at_conf80plus": 24,
+    "v3_days_at_conf80plus": 16,
+    "v2_pct_at_95": 18.2,
+    "v3_pct_at_95": 5.5
+  },
+  "n_days_conf_changed_by_v3": 32,
+  "ece_v2_buckets": {
+    "low": {
+      "n": 11,
+      "accuracy_pct": 45.5,
+      "expected_pct": 24.7,
+      "gap_pp": 20.7
+    },
+    "medium": {
+      "n": 4,
+      "accuracy_pct": 100.0,
+      "expected_pct": 53.0,
+      "gap_pp": 47.0
+    },
+    "high": {
+      "n": 8,
+      "accuracy_pct": 62.5,
+      "expected_pct": 64.9,
+      "gap_pp": -2.4
+    },
+    "very_high": {
+      "n": 22,
+      "accuracy_pct": 59.1,
+      "expected_pct": 82.1,
+      "gap_pp": -23.0
+    },
+    "max": {
+      "n": 10,
+      "accuracy_pct": 70.0,
+      "expected_pct": 95.0,
+      "gap_pp": -25.0
+    }
+  },
+  "ece_v3_buckets": {
+    "low": {
+      "n": 12,
+      "accuracy_pct": 50.0,
+      "expected_pct": 18.9,
+      "gap_pp": 31.1
+    },
+    "medium": {
+      "n": 7,
+      "accuracy_pct": 85.7,
+      "expected_pct": 53.7,
+      "gap_pp": 32.0
+    },
+    "high": {
+      "n": 16,
+      "accuracy_pct": 50.0,
+      "expected_pct": 69.5,
+      "gap_pp": -19.5
+    },
+    "very_high": {
+      "n": 17,
+      "accuracy_pct": 70.6,
+      "expected_pct": 82.2,
+      "gap_pp": -11.6
+    },
+    "max": {
+      "n": 3,
+      "accuracy_pct": 66.7,
+      "expected_pct": 95.0,
+      "gap_pp": -28.3
+    }
+  },
+  "per_day_simulation": [
+    {
+      "date": "2026-02-09",
+      "v2_conf": 65,
+      "v3_conf": 62,
+      "specialist_agreement": 3,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "moderate",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-02-10",
+      "v2_conf": 25,
+      "v3_conf": 10,
+      "specialist_agreement": 2,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "weak",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-02-11",
+      "v2_conf": 95,
+      "v3_conf": 95,
+      "specialist_agreement": 4,
+      "battle_grade": "BROKE",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-02-12",
+      "v2_conf": 95,
+      "v3_conf": 80,
+      "specialist_agreement": 4,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-02-13",
+      "v2_conf": 75,
+      "v3_conf": null,
+      "specialist_agreement": null,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "note": "abstain"
+    },
+    {
+      "date": "2026-02-17",
+      "v2_conf": 95,
+      "v3_conf": 95,
+      "specialist_agreement": 4,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-02-18",
+      "v2_conf": 35,
+      "v3_conf": 35,
+      "specialist_agreement": 2,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "weak",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-02-19",
+      "v2_conf": 95,
+      "v3_conf": null,
+      "specialist_agreement": null,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "note": "abstain"
+    },
+    {
+      "date": "2026-02-20",
+      "v2_conf": 60,
+      "v3_conf": 60,
+      "specialist_agreement": 2,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-02-23",
+      "v2_conf": 75,
+      "v3_conf": 72,
+      "specialist_agreement": 3,
+      "battle_grade": "HELD",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-02-24",
+      "v2_conf": 50,
+      "v3_conf": 50,
+      "specialist_agreement": 2,
+      "battle_grade": "HELD",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "moderate",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-02-25",
+      "v2_conf": 95,
+      "v3_conf": 80,
+      "specialist_agreement": 4,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-02-26",
+      "v2_conf": 95,
+      "v3_conf": 80,
+      "specialist_agreement": 4,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-02-27",
+      "v2_conf": 70,
+      "v3_conf": 67,
+      "specialist_agreement": 3,
+      "battle_grade": "BROKE",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-03-02",
+      "v2_conf": 55,
+      "v3_conf": 55,
+      "specialist_agreement": 2,
+      "battle_grade": "HELD",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "moderate",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-03-03",
+      "v2_conf": 36,
+      "v3_conf": 21,
+      "specialist_agreement": 2,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "moderate",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-03-04",
+      "v2_conf": 82,
+      "v3_conf": 82,
+      "specialist_agreement": 4,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-03-05",
+      "v2_conf": 44,
+      "v3_conf": null,
+      "specialist_agreement": null,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "note": "abstain"
+    },
+    {
+      "date": "2026-03-06",
+      "v2_conf": 35,
+      "v3_conf": null,
+      "specialist_agreement": null,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "note": "abstain"
+    },
+    {
+      "date": "2026-03-09",
+      "v2_conf": 68,
+      "v3_conf": 68,
+      "specialist_agreement": 4,
+      "battle_grade": "BROKE",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-03-10",
+      "v2_conf": 88,
+      "v3_conf": null,
+      "specialist_agreement": null,
+      "battle_grade": "BROKE",
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "note": "abstain"
+    },
+    {
+      "date": "2026-03-11",
+      "v2_conf": 14,
+      "v3_conf": 14,
+      "specialist_agreement": 2,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "moderate",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-03-12",
+      "v2_conf": 25,
+      "v3_conf": 10,
+      "specialist_agreement": 2,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "weak",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-03-13",
+      "v2_conf": 61,
+      "v3_conf": 58,
+      "specialist_agreement": 3,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-03-16",
+      "v2_conf": 20,
+      "v3_conf": null,
+      "specialist_agreement": null,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "note": "abstain"
+    },
+    {
+      "date": "2026-03-17",
+      "v2_conf": 31,
+      "v3_conf": 16,
+      "specialist_agreement": 2,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "moderate",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-03-18",
+      "v2_conf": 15,
+      "v3_conf": 10,
+      "specialist_agreement": 2,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "moderate",
+      "v3_delta": -5
+    },
+    {
+      "date": "2026-03-19",
+      "v2_conf": 82,
+      "v3_conf": 82,
+      "specialist_agreement": 4,
+      "battle_grade": "HELD",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-03-20",
+      "v2_conf": 76,
+      "v3_conf": 73,
+      "specialist_agreement": 3,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-03-23",
+      "v2_conf": 88,
+      "v3_conf": 73,
+      "specialist_agreement": 4,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-03-24",
+      "v2_conf": 88,
+      "v3_conf": 73,
+      "specialist_agreement": 4,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-03-25",
+      "v2_conf": 76,
+      "v3_conf": 73,
+      "specialist_agreement": 3,
+      "battle_grade": "HELD",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-03-26",
+      "v2_conf": 88,
+      "v3_conf": 88,
+      "specialist_agreement": 4,
+      "battle_grade": "HELD",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-03-27",
+      "v2_conf": 50,
+      "v3_conf": 35,
+      "specialist_agreement": 4,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-03-30",
+      "v2_conf": 25,
+      "v3_conf": 25,
+      "specialist_agreement": 2,
+      "battle_grade": "HELD",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "moderate",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-03-31",
+      "v2_conf": 76,
+      "v3_conf": 73,
+      "specialist_agreement": 3,
+      "battle_grade": "BROKE",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-04-01",
+      "v2_conf": 88,
+      "v3_conf": 88,
+      "specialist_agreement": 4,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-04-02",
+      "v2_conf": 88,
+      "v3_conf": 88,
+      "specialist_agreement": 4,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-04-06",
+      "v2_conf": 88,
+      "v3_conf": 88,
+      "specialist_agreement": 4,
+      "battle_grade": "HELD",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-04-07",
+      "v2_conf": 61,
+      "v3_conf": 43,
+      "specialist_agreement": 3,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -18
+    },
+    {
+      "date": "2026-04-08",
+      "v2_conf": 73,
+      "v3_conf": null,
+      "specialist_agreement": null,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "note": "abstain"
+    },
+    {
+      "date": "2026-04-09",
+      "v2_conf": 88,
+      "v3_conf": 73,
+      "specialist_agreement": 4,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-04-10",
+      "v2_conf": 82,
+      "v3_conf": 82,
+      "specialist_agreement": 4,
+      "battle_grade": "HELD",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-04-13",
+      "v2_conf": 83,
+      "v3_conf": 68,
+      "specialist_agreement": 4,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-04-14",
+      "v2_conf": 88,
+      "v3_conf": 88,
+      "specialist_agreement": 4,
+      "battle_grade": "BROKE",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-04-15",
+      "v2_conf": 57,
+      "v3_conf": 54,
+      "specialist_agreement": 3,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-04-16",
+      "v2_conf": 80,
+      "v3_conf": null,
+      "specialist_agreement": null,
+      "battle_grade": "HELD",
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "note": "abstain"
+    },
+    {
+      "date": "2026-04-17",
+      "v2_conf": 76,
+      "v3_conf": 58,
+      "specialist_agreement": 3,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -18
+    },
+    {
+      "date": "2026-04-20",
+      "v2_conf": 88,
+      "v3_conf": null,
+      "specialist_agreement": null,
+      "battle_grade": "HELD",
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "note": "abstain"
+    },
+    {
+      "date": "2026-04-21",
+      "v2_conf": 76,
+      "v3_conf": 58,
+      "specialist_agreement": 3,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": -18
+    },
+    {
+      "date": "2026-04-22",
+      "v2_conf": 76,
+      "v3_conf": 73,
+      "specialist_agreement": 3,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-04-23",
+      "v2_conf": 83,
+      "v3_conf": 83,
+      "specialist_agreement": 4,
+      "battle_grade": "BROKE",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-04-24",
+      "v2_conf": 25,
+      "v3_conf": 25,
+      "specialist_agreement": 2,
+      "battle_grade": "HELD",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "weak",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-04-27",
+      "v2_conf": 16,
+      "v3_conf": 16,
+      "specialist_agreement": 2,
+      "battle_grade": "HELD",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "weak",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-04-30",
+      "v2_conf": 76,
+      "v3_conf": 73,
+      "specialist_agreement": 3,
+      "battle_grade": "HELD",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-05-01",
+      "v2_conf": 76,
+      "v3_conf": null,
+      "specialist_agreement": null,
+      "battle_grade": "BROKE",
+      "direction_grade": "ABSTAIN_ACTUAL",
+      "note": "abstain"
+    },
+    {
+      "date": "2026-05-04",
+      "v2_conf": 25,
+      "v3_conf": 10,
+      "specialist_agreement": 2,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "weak",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-05-05",
+      "v2_conf": 71,
+      "v3_conf": 68,
+      "specialist_agreement": 3,
+      "battle_grade": "BROKE",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-05-06",
+      "v2_conf": 83,
+      "v3_conf": 83,
+      "specialist_agreement": 4,
+      "battle_grade": "HELD",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-05-07",
+      "v2_conf": 63,
+      "v3_conf": 63,
+      "specialist_agreement": 4,
+      "battle_grade": "HELD",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-05-11",
+      "v2_conf": 95,
+      "v3_conf": 95,
+      "specialist_agreement": 4,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": 0
+    },
+    {
+      "date": "2026-05-12",
+      "v2_conf": 95,
+      "v3_conf": 77,
+      "specialist_agreement": 3,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": -18
+    },
+    {
+      "date": "2026-05-13",
+      "v2_conf": 95,
+      "v3_conf": 76,
+      "specialist_agreement": 3,
+      "battle_grade": "BROKE",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -19
+    },
+    {
+      "date": "2026-05-14",
+      "v2_conf": 95,
+      "v3_conf": 76,
+      "specialist_agreement": 3,
+      "battle_grade": "BROKE",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -19
+    },
+    {
+      "date": "2026-05-15",
+      "v2_conf": 95,
+      "v3_conf": 76,
+      "specialist_agreement": 3,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -19
+    }
+  ],
+  "changed_days_detail": [
+    {
+      "date": "2026-02-09",
+      "v2_conf": 65,
+      "v3_conf": 62,
+      "specialist_agreement": 3,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "moderate",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-02-10",
+      "v2_conf": 25,
+      "v3_conf": 10,
+      "specialist_agreement": 2,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "weak",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-02-12",
+      "v2_conf": 95,
+      "v3_conf": 80,
+      "specialist_agreement": 4,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-02-23",
+      "v2_conf": 75,
+      "v3_conf": 72,
+      "specialist_agreement": 3,
+      "battle_grade": "HELD",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-02-25",
+      "v2_conf": 95,
+      "v3_conf": 80,
+      "specialist_agreement": 4,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-02-26",
+      "v2_conf": 95,
+      "v3_conf": 80,
+      "specialist_agreement": 4,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-02-27",
+      "v2_conf": 70,
+      "v3_conf": 67,
+      "specialist_agreement": 3,
+      "battle_grade": "BROKE",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-03-03",
+      "v2_conf": 36,
+      "v3_conf": 21,
+      "specialist_agreement": 2,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "moderate",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-03-12",
+      "v2_conf": 25,
+      "v3_conf": 10,
+      "specialist_agreement": 2,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "weak",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-03-13",
+      "v2_conf": 61,
+      "v3_conf": 58,
+      "specialist_agreement": 3,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-03-17",
+      "v2_conf": 31,
+      "v3_conf": 16,
+      "specialist_agreement": 2,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "moderate",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-03-18",
+      "v2_conf": 15,
+      "v3_conf": 10,
+      "specialist_agreement": 2,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "moderate",
+      "v3_delta": -5
+    },
+    {
+      "date": "2026-03-20",
+      "v2_conf": 76,
+      "v3_conf": 73,
+      "specialist_agreement": 3,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-03-23",
+      "v2_conf": 88,
+      "v3_conf": 73,
+      "specialist_agreement": 4,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-03-24",
+      "v2_conf": 88,
+      "v3_conf": 73,
+      "specialist_agreement": 4,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-03-25",
+      "v2_conf": 76,
+      "v3_conf": 73,
+      "specialist_agreement": 3,
+      "battle_grade": "HELD",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-03-27",
+      "v2_conf": 50,
+      "v3_conf": 35,
+      "specialist_agreement": 4,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-03-31",
+      "v2_conf": 76,
+      "v3_conf": 73,
+      "specialist_agreement": 3,
+      "battle_grade": "BROKE",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-04-07",
+      "v2_conf": 61,
+      "v3_conf": 43,
+      "specialist_agreement": 3,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -18
+    },
+    {
+      "date": "2026-04-09",
+      "v2_conf": 88,
+      "v3_conf": 73,
+      "specialist_agreement": 4,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-04-13",
+      "v2_conf": 83,
+      "v3_conf": 68,
+      "specialist_agreement": 4,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-04-15",
+      "v2_conf": 57,
+      "v3_conf": 54,
+      "specialist_agreement": 3,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-04-17",
+      "v2_conf": 76,
+      "v3_conf": 58,
+      "specialist_agreement": 3,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -18
+    },
+    {
+      "date": "2026-04-21",
+      "v2_conf": 76,
+      "v3_conf": 58,
+      "specialist_agreement": 3,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": -18
+    },
+    {
+      "date": "2026-04-22",
+      "v2_conf": 76,
+      "v3_conf": 73,
+      "specialist_agreement": 3,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-04-30",
+      "v2_conf": 76,
+      "v3_conf": 73,
+      "specialist_agreement": 3,
+      "battle_grade": "HELD",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-05-04",
+      "v2_conf": 25,
+      "v3_conf": 10,
+      "specialist_agreement": 2,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "weak",
+      "v3_delta": -15
+    },
+    {
+      "date": "2026-05-05",
+      "v2_conf": 71,
+      "v3_conf": 68,
+      "specialist_agreement": 3,
+      "battle_grade": "BROKE",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -3
+    },
+    {
+      "date": "2026-05-12",
+      "v2_conf": 95,
+      "v3_conf": 77,
+      "specialist_agreement": 3,
+      "battle_grade": "UNTESTED",
+      "direction_grade": "WRONG",
+      "correct": false,
+      "consensus_strength": "strong",
+      "v3_delta": -18
+    },
+    {
+      "date": "2026-05-13",
+      "v2_conf": 95,
+      "v3_conf": 76,
+      "specialist_agreement": 3,
+      "battle_grade": "BROKE",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -19
+    },
+    {
+      "date": "2026-05-14",
+      "v2_conf": 95,
+      "v3_conf": 76,
+      "specialist_agreement": 3,
+      "battle_grade": "BROKE",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -19
+    },
+    {
+      "date": "2026-05-15",
+      "v2_conf": 95,
+      "v3_conf": 76,
+      "specialist_agreement": 3,
+      "battle_grade": "TESTED_MIXED",
+      "direction_grade": "CORRECT",
+      "correct": true,
+      "consensus_strength": "strong",
+      "v3_delta": -19
+    }
+  ]
+}

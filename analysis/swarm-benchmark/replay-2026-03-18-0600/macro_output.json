@@ -1,0 +1,31 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-18T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.58,
+  "reasoning": "VIX at 22.74 (HIGH regime) and rising +1.29% overnight signals building fear. FOMC decision at 14:00 ET creates hard no-trade window 13:30-15:00 ET. Overnight gap +$3.47 suggests initial bullish sentiment, but elevated VIX + rising direction contradicts it — macro backdrop is risk-off ahead of the event. Technical ribbon is BULL-stacked but macro momentum is bearish. Entries window opens at 09:35 ET with caution; all activity halts 13:30-15:00 ET for FOMC.",
+  "vix_regime": "HIGH",
+  "vix_direction": "rising",
+  "vix_current": 22.74,
+  "event_risk": "high",
+  "events_today": [
+    {
+      "time_et": "14:00",
+      "name": "FOMC Decision & Powell Press Conference",
+      "severity": "high",
+      "no_trade_window": true,
+      "window_start_et": "13:30",
+      "window_end_et": "15:00"
+    }
+  ],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 3.47,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX 22.74 in HIGH regime and rising — fear building despite overnight gap up",
+    "FOMC decision at 14:00 ET is primary catalyst; no-trade enforced 13:30-15:00 ET",
+    "Gap +$3.47 is bullish technicals, but contradicted by rising VIX direction",
+    "Ribbon BULL-stacked (108c spread) but macro momentum bearish — caution for new calls"
+  ],
+  "data_quality": "full"
+}

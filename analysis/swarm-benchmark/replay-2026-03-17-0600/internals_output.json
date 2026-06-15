@@ -1,0 +1,24 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-03-17T06:00:00Z",
+  "bias": "no_trade",
+  "confidence": 0.30,
+  "reasoning": "All major sectors (XLK +0.04%, XLF +0.1%, XLE +0.24%) trading essentially flat at premarket open. No sector shows >0.5% move in either direction. Tech, financials, and energy all moving in line with SPY (+0.1%), indicating no rotation or breadth leadership. Dispersion is minimal — internals not yet giving a directional signal. VIX elevated at 22.19 (falling -6.33%) but sector alignment is neutral. Insufficient breadth data to support bullish or bearish bias.",
+  "rotation_signal": "flat",
+  "sector_alignment": {
+    "xlk_change_pct": 0.04,
+    "xlf_change_pct": 0.1,
+    "xle_change_pct": 0.24,
+    "spy_change_pct": 0.1,
+    "xlk_vs_spy": "inline",
+    "breadth": "flat"
+  },
+  "key_observations": [
+    "XLK (tech): +0.04% — no momentum, flat",
+    "XLF (financials): +0.1% — no momentum, flat",
+    "XLE (energy): +0.24% — slight outperformance but below significance threshold, flat",
+    "All sectors sub-0.3% move — low dispersion, no directional signal",
+    "SPY +0.1% — proportional with all sectors, no leadership or rotation"
+  ],
+  "data_quality": "full"
+}

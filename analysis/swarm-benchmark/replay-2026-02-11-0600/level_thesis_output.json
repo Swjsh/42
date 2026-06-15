@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-02-11T10:59:47+00:00",
+  "bias": "bearish",
+  "confidence": 0.65,
+  "reasoning": "SPY at 692.11, sandwiched tightly between 691.66 Active support (2★, 0.45 below) and weak 1★ psychological resistance at 693.00 (0.89 above). The battle level is 691.66 — the prior-day RTH low, now the first line of defense on any retrace. Ribbon stack is BEAR (spread 72¢, fast 693.04 < pivot 693.23 < slow 693.76). The asymmetry strongly favors downside: immediate support test 45 bps below vs. weak resistance above (all 1★ psychology until Carry 696.53 at +442 bps). If 691.66 fails, gap-fill targets at 690.34 (pivot S1) and 690.00. If it holds, upside target is 696.53 Carry resistance (5-day high, +442 bps).",
+  "battle_level": {
+    "price": 691.66,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 691.66,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": -0.45
+    },
+    {
+      "price": 693.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 0.89
+    },
+    {
+      "price": 696.53,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 4.42
+    },
+    {
+      "price": 690.34,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 4,
+      "distance_from_price": -1.77
+    },
+    {
+      "price": 690.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": -2.11
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY tests and holds 691.66 on first dip",
+      "bias": "bullish",
+      "target": 696.53,
+      "entry_trigger": "support_hold + bounce into ribbon"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 691.66",
+      "bias": "bearish",
+      "target": 690.0,
+      "entry_trigger": "gap_fill + momentum continuation"
+    },
+    "tertiary": {
+      "condition": "if SPY clears 696.53 Carry resistance",
+      "bias": "bullish",
+      "target": 700.0,
+      "entry_trigger": "breakout above multi-session high"
+    }
+  },
+  "levels_in_play_count": 8,
+  "key_observations": [
+    "Narrow congestion zone (0.45 support gap + 0.89 resistance gap = 1.34 total range to first meaningful levels). Imminent directional decision.",
+    "BEAR ribbon (fast < pivot < slow, 72¢ spread) biases downside but spread is sub-100¢ (moderate ribbon confidence).",
+    "No Carry levels in IN_PLAY zone; nearest Carry support (675.81) is 16.30 down (out-of-range). Carry resistance (696.53) at +442 bps. Asymmetry favors the break scenario.",
+    "Prior-day RTH low (691.66) is the ONLY 2★ level in play; all others are 1★ psychology. Single point of strength.",
+    "Overnight gap: flat (no directional signal from premarket action)."
+  ],
+  "data_quality": "full"
+}

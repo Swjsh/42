@@ -1,0 +1,65 @@
+# Secrets
+**/.discord-config.json
+**/.discord-token
+**/.alpaca-keys
+**/.openrouter.key
+.env
+*.env
+
+# Python
+**/__pycache__/
+**/*.pyc
+**/.venv/
+**/.pytest_cache/
+
+# State (large + ephemeral)
+backtest/autoresearch/_state/random_search/batch_*.jsonl
+backtest/autoresearch/_state/**/history.jsonl
+backtest/data/options/
+**/.lastgood/
+
+# Logs
+**/*.log
+automation/state/logs/
+
+# Process artifacts
+**/*.pid
+**/*.lock
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# === Added 2026-06-14 (Stage 0: reversibility & secret hygiene) ===
+# Secrets — live auth stays on disk but is NEVER tracked (use .mcp.json.example as template)
+.mcp.json
+**/.mcp.json
+**/*.key
+*.pem
+
+# Dependency / build trees
+**/node_modules/
+**/.next/
+backtest/.venv/
+
+# Large data + 24/7 hoards (kept on disk, excluded from git)
+crypto/data/
+backtest/data/
+analysis/_wf_tmp/
+**/*.npz
+**/*.npy
+**/*.mat
+
+# Corrupted mangled-path artifacts (literal Windows paths written on a Linux mount)
+C:Users*
+
+# Scratch
+**/*.tmp
+**/*.tmp.*
+
+# Local pre-change backups (not for git; restore source if needed)
+_local_backups_*/

@@ -1,0 +1,88 @@
+{
+  "generated_at": "2026-05-20T00:27:36.446368+00:00",
+  "for_date": "2026-05-19",
+  "overall_verdict": "YELLOW",
+  "audits": [
+    {
+      "name": "crypto-gym (42 validators)",
+      "source_file": "crypto/data/scorecards/latest.json",
+      "verdict": "GREEN",
+      "summary": "53/54 pass (KNOWN_FLAKY excluded: 1)",
+      "evidence": {
+        "stages": 54,
+        "passed": 53,
+        "flaky_failed": [
+          "v15_three_source_parity.live"
+        ]
+      }
+    },
+    {
+      "name": "chart-data-verify",
+      "source_file": "automation/state/chart-data-verify-2026-05-19.json",
+      "verdict": "GREEN",
+      "summary": "5 bars checked, max div $0.0000",
+      "evidence": {
+        "max_divergence_usd": 0,
+        "bars_checked": 5
+      }
+    },
+    {
+      "name": "heartbeat-tick-audit",
+      "source_file": "automation/state/heartbeat-tick-audit-2026-05-19.json",
+      "verdict": "YELLOW",
+      "summary": "16 live ticks, 2 MISALIGNED-CRITICAL (12.5%) [HOLD-only \u2014 no trading impact]",
+      "evidence": {
+        "by_classification": {
+          "ALIGNED": 6,
+          "MISALIGNED-BENIGN": 8,
+          "MISALIGNED-CRITICAL": 2,
+          "STALE_PAUSED": 0,
+          "NO_DATA": 16,
+          "NO_BAR": 0
+        },
+        "live_ticks": 16,
+        "misaligned_critical": 2,
+        "misaligned_pct": 12.5
+      }
+    },
+    {
+      "name": "pin-chain-verify",
+      "source_file": "automation/state/pin-chain-verify-latest.json",
+      "verdict": "GREEN",
+      "summary": "rule_version=unknown, drifts=0",
+      "evidence": {
+        "rule_version_canonical": "unknown",
+        "drifts": []
+      }
+    },
+    {
+      "name": "heartbeat-mcp-self-test",
+      "source_file": "automation/state/heartbeat-mcp-self-test-latest.json",
+      "verdict": "GREEN",
+      "summary": "TV CDP listening=True",
+      "evidence": {
+        "tv_cdp_listening": true
+      }
+    },
+    {
+      "name": "heartbeat-pulse-check",
+      "source_file": "automation/state/heartbeat-pulse-check-2026-05-19.json",
+      "verdict": "YELLOW",
+      "summary": "max gap 15.0min",
+      "evidence": {
+        "max_gap_minutes": 15.0
+      }
+    },
+    {
+      "name": "watcher-state-inspector",
+      "source_file": "automation/state/watcher-state-inspector-2026-05-19.json",
+      "verdict": "YELLOW",
+      "summary": "no-bars-for-target-date-yet (market may not be open or csv stale) (obs_today=52)",
+      "evidence": {
+        "obs_today": 52,
+        "reason": "no-bars-for-target-date-yet (market may not be open or csv stale)"
+      }
+    }
+  ],
+  "stale_reruns": {}
+}

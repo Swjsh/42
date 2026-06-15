@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-25T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "SPY at 658.39 has gapped up +5.19 overnight and is currently mid-premarket-range. The ribbon is BULL (fast/pivot above slow, 115¢ spread). The critical battle level is 660.56 (today's premarket high, Active, 2★) only +2.17 above. This is the overhead ceiling. Support sits at 657.47 (premarket low, Active, 2★) just -0.92 below. Asymmetry favors bulls: room to 660.56 resistance (+2.17) exceeds room to 657.47 support (-0.92). If 660.56 holds, target is the 5-day high at 669.72. If 660.56 breaks, first retest of 657.47 is the floor, with gap-fill target at 653.2 (prior close) much further down. VIX 26.22 HIGH but falling (-2.67%), suggesting volatility may compress as session opens. Ribbon stack alignment (BULL) confirms upside bias. Confidence is moderate because three Active-tier levels (660.56, 657.47, 657.03) have equal strength — clear level structure but price is in the zone, not at a dominant pivot.",
+  "battle_level": {
+    "price": 660.56,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 660.56,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 2.17
+    },
+    {
+      "price": 657.47,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": -0.92
+    },
+    {
+      "price": 657.03,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": -1.36
+    },
+    {
+      "price": 659.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 4,
+      "distance_from_price": 0.61
+    },
+    {
+      "price": 660.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": 1.61
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds and reclaims 660.56 (PMH)",
+      "bias": "bullish",
+      "target": 669.72,
+      "entry_trigger": "level_reclaim + ribbon_bull + close above 660.56"
+    },
+    "secondary": {
+      "condition": "if SPY bounces at 657.47 (PML) on any dip",
+      "bias": "bullish_recovery",
+      "target": 660.56,
+      "entry_trigger": "level_hold_at_657.47 + rebound"
+    },
+    "invalidation": {
+      "condition": "if SPY breaks below 657.47 (PML) with volume",
+      "bias": "bearish",
+      "target": 653.2,
+      "entry_trigger": "level_rejection + gap_fill_down"
+    }
+  },
+  "levels_in_play_count": 5,
+  "key_observations": [
+    "SPY has gap-closed +$5.19 overnight, establishing today's premarket high at 660.56 — the immediate resistance battle level.",
+    "Ribbon stack is cleanly BULL with 115¢ spread (fast 658.3 > pivot 658.17 > slow 657.15), supporting upside bias and confirming gap legitimacy.",
+    "Asymmetry favors upside: +2.17 to resistance (660.56) vs. -0.92 to support (657.47), with much more room beyond PMH if it breaks.",
+    "VIX 26.22 is HIGH but declining (-2.67%), indicating potential volatility compression as RTH opens — bulls may have easier path.",
+    "Three equal-strength Active levels (all 2★) cluster here, creating a well-defined battle zone rather than a single dominant pivot; confidence moderately high but not extreme."
+  ],
+  "data_quality": "full"
+}

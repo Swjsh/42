@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-02-24T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.65,
+  "reasoning": "SPY at 682.67, sandwiched between 680.38 Carry support (2★) below and 690.06 Carry resistance above. Ribbon is mixed (25¢ spread, no clear stack direction). The battle level is 680.38 — if price retraces and holds this support, bulls target the 690.06 Carry high. If 680.38 breaks, pullback extends to 675.79 Carry support below. Risk-off sector tone (XLF -2.80%, XLK -1.18%) and falling VIX suggest muted conviction; range-trading behavior expected until 680.38 is tested.",
+  "battle_level": {
+    "price": 680.38,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 680.38,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": -2.29
+    },
+    {
+      "price": 690.06,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 7.39
+    },
+    {
+      "price": 675.79,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": -6.88
+    },
+    {
+      "price": 682.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": -0.67
+    },
+    {
+      "price": 688.13,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": 5.46
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 680.38 on first test",
+      "bias": "bullish",
+      "target": 690.06,
+      "entry_trigger": "support_hold + bounce_candle"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 680.38",
+      "bias": "bearish",
+      "target": 675.79,
+      "entry_trigger": "support_break + momentum_confirmation"
+    },
+    "tertiary": {
+      "condition": "if ribbon clarifies to BULLISH stack and VIX stabilizes",
+      "bias": "bullish",
+      "target": 693.87,
+      "entry_trigger": "stack_alignment + level_reclaim"
+    }
+  },
+  "levels_in_play_count": 7,
+  "key_observations": [
+    "Overnight gap flat (+0.28) — no directional commitment; price is neutral 682.67 mid-range",
+    "Ribbon MIXED (25¢ spread only) — insufficient momentum bias; waiting for clarification",
+    "Carry support 680.38 is the critical hold point; multi-session floor within 2.5% of current price",
+    "Sector divergence (XLF -2.80% vs XLE +0.20%) suggests selective weakness, not broad risk-off",
+    "VIX falling into MID regime — risk appetite stabilizing but not yet fully recovered"
+  ],
+  "data_quality": "full"
+}

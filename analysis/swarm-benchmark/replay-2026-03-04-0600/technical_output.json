@@ -1,0 +1,21 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-03-04T11:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.65,
+  "reasoning": "CLEAN_BULL ribbon with 81-cent spread and bullish stack structure is the dominant signal. However, current price (680.29) sits 30 cents below the pivot EMA (680.59), indicating weak intraday momentum. Last 3 closed bars show choppy structure (GREEN-RED-GREEN alternation with doji/small bodies), suggesting consolidation rather than directional commitment. Overnight gap was flat (680.29 open = prior close). Sectors show mild risk-on (XLK +0.84%, XLF +1.83%, SPY +0.78%) with energy (XLE -1.52%) lagging. VIX falling (-12.52%, IV regime MID) supports bullish bias. The ribbon structure carries weight, but price positioning and bar action signal caution—technical setup favors a bullish lean pending momentum confirmation via closing above pivot.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 81,
+  "bar_structure": "chop",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "CLEAN_BULL ribbon with 81-cent spread (fast 680.62 / pivot 680.59 / slow 679.80) — strong structural bias",
+    "Price 680.29 trades 30 cents below pivot EMA 680.59 — momentum weakness despite bullish ribbon",
+    "Last 3 closed bars (15:45-15:55 ET) all show doji/small bodies with alternating colors (GREEN-RED-GREEN) — zero directional conviction",
+    "Overnight gap flat (open 680.29 = prior close 680.29) — no sentiment carry from overnight session",
+    "VIX falling 12.52% to 20.61 (MID regime) with positive sector rotation (XLK, XLF, SPY all +0.7-1.8%) — supports bullish environment",
+    "Technical setup: bullish structure, bearish momentum — awaiting close above 680.59 pivot for confirmation"
+  ],
+  "data_quality": "full"
+}

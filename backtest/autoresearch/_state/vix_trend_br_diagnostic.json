@@ -1,0 +1,39 @@
+{
+  "run_at": "2026-05-24T00:24:56.341685",
+  "combo": {
+    "strike_offset_bear": 0,
+    "min_triggers_bear": 1,
+    "premium_stop_pct_bear": -0.2,
+    "tp1_qty_fraction": 0.5,
+    "no_trade_before": "09:35",
+    "profit_lock_threshold_pct": 0.05,
+    "profit_lock_stop_offset_pct": 0.1,
+    "tp1_premium_pct": 0.3,
+    "runner_target_premium_pct": 2.5
+  },
+  "vix_lower": 17.3,
+  "vix_trend_window": 5,
+  "full_window_n": 402,
+  "full_window_pnl": 25877.53,
+  "full_window_wr": 0.647,
+  "by_regime": {
+    "ESCALATING": {
+      "n": 96,
+      "pnl": 8573.4,
+      "wr": 0.76,
+      "sharpe": 9.261
+    },
+    "DECLINING": {
+      "n": 83,
+      "pnl": 5454.1,
+      "wr": 0.663,
+      "sharpe": 5.063
+    },
+    "LOW_VIX": {
+      "n": 223,
+      "pnl": 11850.03,
+      "wr": 0.592,
+      "sharpe": 4.106
+    }
+  }
+}

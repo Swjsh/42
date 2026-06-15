@@ -1,0 +1,66 @@
+{
+  "date": "2026-03-16",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:08.136578+00:00",
+  "actual": {
+    "open": 668.38,
+    "close": 668.96,
+    "high": 672.07,
+    "low": 667.12,
+    "move_dollars": 0.58,
+    "actual_bias": "no_trade"
+  },
+  "swarm": {
+    "consensus_bias": "bearish",
+    "swarm_confidence": 20,
+    "consensus_strength": "weak",
+    "battle_level": {
+      "price": 663.05,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "ABSTAIN_ACTUAL",
+      "consensus": "bearish",
+      "actual": "no_trade"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 663.05,
+      "role": "support",
+      "rth_range": [
+        667.12,
+        672.07
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 663.05,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "663.05 (PML) will be tested \u2014 SPY trades at or below 663.55 \u2014 within the first 90 minutes of RTH (by",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 26.00 through the first 30 minutes of RTH (by 10:00 ET), continuing the overnight compression trend",
+        "invalidation": "VIX prints above 26.00 on any tick before 10:00 ET, reversing the overnight compression and signaling fear re-escalation"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "SPY does not close a 5-minute bar above 666.58 (PMH) before 10:30 ET \u2014 the BULL ribbon with sub-30c spread and doji at p",
+        "invalidation": "SPY closes any 5-minute bar above 666.58 before 10:30 ET on elevated volume"
+      }
+    ]
+  },
+  "narrative": "SPY opened Monday with a +$2.01 overnight gap into a CLEAN_BULL ribbon (25c spread), but by 06:00 ET price had retreated to 664.31 \u2014 21c below the ribbon pivot \u2014 and printed a doji, signaling indecision rather than breakout conviction. The bearish consensus (weighted 0.40 vs bullish 0.25) is driven "
+}

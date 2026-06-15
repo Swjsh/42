@@ -1,0 +1,21 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-02-25T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "CLEAN_BULL ribbon (fast 687.15 > pivot 687.13 > slow 686.86, 28¢ spread exceeds 20¢ threshold) is the dominant structural signal. Price 687.03 sits 10¢ below the pivot EMA, signaling stalled momentum. Last 3 closed bars (15:50, 15:55, 16:00) show 1 green + 2 red — the final bar (16:00) closed with a full 82% body down 23¢, indicating late-session weakness and rejection. Volume spike at 15:55 ET (159,868) followed by pullback from session high 688.33 confirms failed probe of resistance. Sector breadth positive (XLK +0.78%, XLF +1.05%, SPY +0.8%) and VIX falling (−4.55%, MID regime) support risk-on bias. Overnight gap flat (−0.34). Ribbon quality is high, but price momentum and bar weakness temper conviction.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 28,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "CLEAN_BULL ribbon with 28¢ spread (fast 687.15 > pivot 687.13 > slow 686.86) — unambiguous structure",
+    "Price 687.03 is 10¢ below pivot, trading between the fast EMA and pivot equilibrium — momentum stalled",
+    "Last 3 RTH bars: 15:50 strong green (body +32¢, spike to 688.33), followed by 15:55 red (−18¢) and 16:00 hard rejection (−23¢, 82% body) — EOD weakness",
+    "Volume profile: 159,868 contracts at 15:55 ET followed by pullback; session high 688.33 tested but rejected",
+    "Sector strength (XLK, XLF, SPY all green) and falling VIX (18.66, −4.55%) indicate risk-on environment",
+    "Overnight gap flat (−0.34 ≈ yesterday's 687.37 close); no overnight conviction"
+  ],
+  "data_quality": "full"
+}

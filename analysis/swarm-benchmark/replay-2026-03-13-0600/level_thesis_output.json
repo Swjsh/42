@@ -1,0 +1,105 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-13T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.65,
+  "reasoning": "SPY at 667.1, gap up +1.05 into a bearish ribbon BEAR stack (slow 668.08 > pivot 667.32 > fast 667.08). Price is at fast EMA but below pivot and slow, facing immediate resistance at 668.0 (90¢ away). The battle level is 665.91 (prior-session RTH low, Active 2★ support), 1.19 below. VIX falling but IV HIGH; sectors rotating risk-off (XLK −1.03%, XLF −0.31%). Risk/reward favors downside: if 665.91 holds on test, first upside target is 668.0 pivot; if breaks below, gap-fill targets 662.42 Carry support or 665.0 reference level.",
+  "battle_level": {
+    "price": 665.91,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "test_direction": "from_above"
+  },
+  "level_priority": [
+    {
+      "price": 665.91,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 1.19
+    },
+    {
+      "price": 668.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 0.9
+    },
+    {
+      "price": 669.82,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": 2.72
+    },
+    {
+      "price": 669.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 1.9
+    },
+    {
+      "price": 671.63,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": 4.53
+    },
+    {
+      "price": 662.42,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 6,
+      "distance_from_price": 4.68
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY tests and holds 665.91 support from above",
+      "bias": "bullish_recovery",
+      "target": 668.0,
+      "entry_trigger": "support_hold + momentum_confirmation"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 665.91",
+      "bias": "bearish_continuation",
+      "target": 662.42,
+      "entry_trigger": "support_break + gap_fill"
+    },
+    "tertiary": {
+      "condition": "if SPY breaks above 669.82 R1 pivot",
+      "bias": "bullish_breakout",
+      "target": 671.63,
+      "entry_trigger": "pivot_break + momentum"
+    }
+  },
+  "levels_in_play_count": 6,
+  "key_observations": [
+    "Gap-up open (+1.05) into shallow resistance ceiling: 668.0 is only 90¢ away.",
+    "Ribbon BEAR stack dominant; price at fast EMA but below pivot and slow EMA — bearish structure intact.",
+    "665.91 (prior-session low) is the critical first support cliff; likely decision point for session direction.",
+    "Carry-tier levels (662.42 and 683.33) are too far away to be immediate factors; battle is between Active and Reference tiers.",
+    "VIX falling with HIGH IV + risk-off sector rotation (XLK, XLF down) suggests downside bias despite overnight gap."
+  ],
+  "data_quality": "full"
+}

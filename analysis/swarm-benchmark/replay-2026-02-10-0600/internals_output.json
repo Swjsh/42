@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-02-10T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "XLK +1.96% is the dominant internals signal, signaling tech-led risk-on rotation. XLE +0.81% supports upside. However, XLF -0.26% reveals financial sector weakness — banks/yields not confirming the rally. Tech outperforming SPY by 130bps (+1.96% vs +0.66%) indicates NARROW breadth; this is a tech-momentum play, not broad-based buying. Bullish bias with medium confidence: momentum is there, but breadth concerns and financial sector divergence limit conviction.",
+  "rotation_signal": "risk_on",
+  "sector_alignment": {
+    "xlk_change_pct": 1.96,
+    "xlf_change_pct": -0.26,
+    "xle_change_pct": 0.81,
+    "spy_change_pct": 0.66,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +1.96% tech strength, clear growth/momentum leadership — strongest signal of the day",
+    "XLF: -0.26% financial weakness, rate sensitivity or credit concerns — not participating in rally",
+    "XLE: +0.81% energy support, consistent with risk-on, but smaller magnitude than tech",
+    "overall rotation: RISK-ON, but NARROW (tech-led). Financials lagging is a yellow flag for sustainability."
+  ],
+  "data_quality": "full"
+}

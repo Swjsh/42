@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-12T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.76,
+  "reasoning": "VIX at 26.66 (HIGH regime, >22) rising 10.07% overnight — clear bearish signal indicating fear expansion. Overnight gap -0.72 confirms risk-off sentiment. Zero macro events today (calendar clean through 3/12). Conflict: ribbon shows BULL stack (13/20/48 EMA), but fear spike often precedes pullbacks even in bullish setups. No hard no-trade windows. Recommendation: bearish setups have elevated probability today; bullish entries require extreme caution or strong level confirmation given the VIX spike.",
+  "vix_regime": "HIGH",
+  "vix_direction": "rising",
+  "vix_current": 26.66,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -0.72,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX jumped +10.07% overnight to 26.66 — rapid fear expansion, not a measured drift",
+    "Overnight gap down $0.72 — moderate bearish confirmation, markets pricing in weakness pre-open",
+    "Zero scheduled events (FOMC not until 3/18, 6 days away) — no event-driven blocks, but VIX spike may signal positioning shift or macro uncertainty",
+    "Ribbon conflict: BULL stack but rising VIX — typical pattern before corrective dips; need strong level hold for bullish entries",
+    "XLE up 2.43% (energy), XLF down 0.68% (financials) — mixed rotation, no clear sector leadership"
+  ],
+  "data_quality": "full"
+}

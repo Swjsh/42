@@ -1,0 +1,112 @@
+{
+  "generated_at": "2026-05-19T01:36:51.474545+00:00",
+  "purpose": "Sweep VIX filter modes to find which relaxation captures J winner days",
+  "op16_floor": 771,
+  "j_max_edge": 1542,
+  "best_label": "E_soft_allow_blocker",
+  "best_edge_capture": 1179.18,
+  "op16_passing_configs": [
+    "E_soft_allow_blocker"
+  ],
+  "configs": [
+    {
+      "label": "A_baseline",
+      "desc": "Current production: VIX>17.30 AND rising (hard block)",
+      "extra_kwargs": {},
+      "per_day_pnl": {
+        "2026-04-29": -49.68,
+        "2026-05-01": -121.6,
+        "2026-05-04": -143.2,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": -93.52
+      },
+      "winner_total": -314.48,
+      "loser_exposure": 93.52,
+      "edge_capture": -408.0,
+      "edge_capture_pct_of_max": -26.5,
+      "op16_pass": false
+    },
+    {
+      "label": "B_vix_soft",
+      "desc": "vix_soft_mode=True: direction is score demerit only, not hard block",
+      "extra_kwargs": {
+        "vix_soft_mode": "True"
+      },
+      "per_day_pnl": {
+        "2026-04-29": -35.4,
+        "2026-05-01": -121.6,
+        "2026-05-04": 362.2,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": 62.6
+      },
+      "winner_total": 205.2,
+      "loser_exposure": 0,
+      "edge_capture": 205.2,
+      "edge_capture_pct_of_max": 13.3,
+      "op16_pass": false
+    },
+    {
+      "label": "C_disable_f8",
+      "desc": "disable_filters=[8]: F8 entirely removed (VIX not checked at all)",
+      "extra_kwargs": {
+        "disable_filters": "[8]"
+      },
+      "per_day_pnl": {
+        "2026-04-29": -35.4,
+        "2026-05-01": -121.6,
+        "2026-05-04": 362.2,
+        "2026-05-05": 188.0,
+        "2026-05-06": -146.4,
+        "2026-05-07": 62.6
+      },
+      "winner_total": 205.2,
+      "loser_exposure": 146.4,
+      "edge_capture": 58.8,
+      "edge_capture_pct_of_max": 3.8,
+      "op16_pass": false
+    },
+    {
+      "label": "D_disable_f7_f8",
+      "desc": "disable_filters=[7,8]: Remove VIX + volume divergence gates",
+      "extra_kwargs": {
+        "disable_filters": "[7, 8]"
+      },
+      "per_day_pnl": {
+        "2026-04-29": -35.4,
+        "2026-05-01": -121.6,
+        "2026-05-04": 105.24,
+        "2026-05-05": 188.0,
+        "2026-05-06": -146.4,
+        "2026-05-07": 323.0
+      },
+      "winner_total": -51.76,
+      "loser_exposure": 146.4,
+      "edge_capture": -198.16,
+      "edge_capture_pct_of_max": -12.9,
+      "op16_pass": false
+    },
+    {
+      "label": "E_soft_allow_blocker",
+      "desc": "vix_soft + allow_one_blocker: allows 1 hard block besides VIX",
+      "extra_kwargs": {
+        "vix_soft_mode": "True",
+        "allow_one_blocker": "True"
+      },
+      "per_day_pnl": {
+        "2026-04-29": -427.06,
+        "2026-05-01": -188.0,
+        "2026-05-04": 1794.24,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": 290.0
+      },
+      "winner_total": 1179.18,
+      "loser_exposure": 0,
+      "edge_capture": 1179.18,
+      "edge_capture_pct_of_max": 76.5,
+      "op16_pass": true
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "indicator": "Saty Pivot Ribbon",
+  "captured_from_live": "2026-05-07T09:30:00-04:00",
+  "symbol": "BATS:SPY",
+  "timeframe": "5",
+  "tolerance_cents": 5,
+  "all_within_tolerance": true,
+  "matches": {
+    "Fast EMA": {
+      "period": 13,
+      "diff_cents": 0.0,
+      "computed": 733.0,
+      "target": 733.0,
+      "within_tolerance": true
+    },
+    "Pivot EMA": {
+      "period": 20,
+      "diff_cents": 0.05,
+      "computed": 733.0295,
+      "target": 733.03,
+      "within_tolerance": true
+    },
+    "Slow EMA": {
+      "period": 48,
+      "diff_cents": 0.08,
+      "computed": 733.0892,
+      "target": 733.09,
+      "within_tolerance": true
+    },
+    "Fast Conviction EMA": {
+      "period": 13,
+      "diff_cents": 0.0,
+      "computed": 733.0,
+      "target": 733.0,
+      "within_tolerance": true
+    },
+    "Slow Conviction EMA": {
+      "period": 51,
+      "diff_cents": 0.11,
+      "computed": 733.0789,
+      "target": 733.08,
+      "within_tolerance": true
+    }
+  },
+  "periods": {
+    "fast_ema": 13,
+    "pivot_ema": 20,
+    "slow_ema": 48,
+    "fast_conviction_ema": 13,
+    "slow_conviction_ema": 51
+  },
+  "source": "fingerprinted via fingerprint_ribbon.py against TradingView MCP live values",
+  "ema_seed": "sma_then_ema (matches TradingView ta.ema)",
+  "price_source": "close"
+}

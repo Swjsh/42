@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-02-09T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.70,
+  "reasoning": "VIX at 17.28 in MID regime, falling -2.7% overnight (bullish compression signal). Zero macro events today removes event risk. Overnight gap small and down (-$0.57), but all overnight sectors strong (XLK +2.26%, XLF +0.8%, XLE +1.43%) with risk-on rotation signal contradicts the negative gap. Ribbon is healthy BULL stack (129 cent spread). Macro backdrop supports bullish entries, but small overnight retreat and mid-regime VIX keep confidence capped at 0.70 pending confirmed daily structure.",
+  "vix_regime": "MID",
+  "vix_direction": "falling",
+  "vix_current": 17.28,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -0.57,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX falling -2.7% overnight (17.28 current, MID regime) = fear compression bullish bias",
+    "Zero macro events 2026-02-09; calendar refresh complete per replay window [2026-02-09..2026-02-15]",
+    "Overnight gap down -$0.57 (small, <$1 magnitude) contradicted by all-sectors-up overnight (+2.26% XLK, +0.8% XLF, +1.43% XLE)",
+    "Risk-on rotation signal confirmed; SPY sector action +1.34% overnight",
+    "Ribbon: BULL stack healthy (129 cent spread, fast 690.37 > pivot 690.15 > slow 689.09)"
+  ],
+  "data_quality": "full"
+}

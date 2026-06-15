@@ -1,0 +1,38 @@
+{
+  "GAP_AND_GO": {
+    "n": 76,
+    "wr": 0.38,
+    "pc_per_trade": 8.6,
+    "total_pc": 651.0
+  },
+  "CHOP": {
+    "n": 115,
+    "wr": 0.27,
+    "pc_per_trade": 4.5,
+    "total_pc": 513.0
+  },
+  "REVERSAL": {
+    "n": 79,
+    "wr": 0.34,
+    "pc_per_trade": 4.1,
+    "total_pc": 322.0
+  },
+  "TREND_FOLLOW_BULL": {
+    "n": 11,
+    "wr": 0.45,
+    "pc_per_trade": 14.4,
+    "total_pc": 158.0
+  },
+  "TREND_FOLLOW_BEAR": {
+    "n": 4,
+    "wr": 0.0,
+    "pc_per_trade": -20.1,
+    "total_pc": -80.0
+  },
+  "MIXED": {
+    "n": 27,
+    "wr": 0.07,
+    "pc_per_trade": -15.7,
+    "total_pc": -424.0
+  }
+}

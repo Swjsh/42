@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2025-10-07T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "SPY at 672.19, sandwiched between premarket low 672.07 (PML) and Carry resistance 672.5, 31 cents overhead. Ribbon is BULL stack (fast 672.25, spread 28¢) which aligns with bullish bias. The battle level is 672.5 (Carry tier, 2★) — the critical gatekeeper. If it holds on first test from below, risk/reward favors bulls targeting 672.99 (PMH) then 674. Premarket range was only 92 cents (very tight), suggesting choppy open and reactive directionality.",
+  "battle_level": {
+    "price": 672.5,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 672.5,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.31
+    },
+    {
+      "price": 672.99,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 0.80
+    },
+    {
+      "price": 672.07,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": -0.12
+    },
+    {
+      "price": 671.57,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": -0.62
+    },
+    {
+      "price": 661.82,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 5,
+      "distance_from_price": -10.37
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds or bounces at 672.5 (Carry resist) on first test",
+      "bias": "bullish",
+      "target": 674.0,
+      "entry_trigger": "level_reclaim at 672.5 + ribbon_bull_stack + premarket_range_extension"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 672.5 and finds resistance at 672.99 (PMH)",
+      "bias": "bullish",
+      "target": 674.5,
+      "entry_trigger": "sustained_breakout_above_pml_carry_confluence"
+    },
+    "bearish": {
+      "condition": "if SPY breaks below 672.07 (PML) and loses premarket low support",
+      "bias": "bearish",
+      "target": 671.0,
+      "entry_trigger": "failed_bounce_off_pml + ribbon_penetration_south"
+    }
+  },
+  "levels_in_play_count": 4,
+  "key_observations": [
+    "Premarket range ultra-tight at 92 cents (672.07–672.99) — compressed overnight, suggests reactive directional bias today",
+    "Carry resistance 672.5 is the critical gatekeeper, only 31 cents above price, test imminent at open",
+    "Ribbon structure is BULL (fast 672.25 above pivot 672.17 above slow 671.96, 28c spread) — bulls have structural alignment",
+    "Support layering clear: immediate PML at 672.07, secondary at prior RTH 671.57, then Carry support 661.82 far below — multiple bounce floors if needed",
+    "Price sits in the upper half of premarket range, showing overnight strength despite flat SPY technicals"
+  ],
+  "data_quality": "full"
+}

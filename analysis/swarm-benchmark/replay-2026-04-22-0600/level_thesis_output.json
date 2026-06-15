@@ -1,0 +1,116 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-04-22T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "SPY at 707.99 after a +3.85 gap-up open, now resting 81¢ below the premarket high of 708.80. The battle level is PMH 708.80 — the immediate resistance ceiling. Ribbon is BULL (fast 708.24 / pivot 708.03 / slow 707.46, 78¢ spread), providing support for a break attempt. If PMH holds on first test, range-bound intraday (704.08 PML to 708.80 PMH). If PMH breaks with volume, next resistance at 711.28 (prior RTH high) and 712.39 (5-day RTH high). Downside floor is solid at 704.08 (PML); below that exposes 702.64 (prior RTH low) and ultimately 694.2 (5-day Carry support). Asymmetry: more room to run up (4.40 to 5-day high) than down (only 3.91 to PML before gap-fill acceleration). Bias is bullish but conditional on PMH hold/break behavior at market open.",
+  "battle_level": {
+    "price": 708.8,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 708.8,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.81
+    },
+    {
+      "price": 712.39,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 4.4
+    },
+    {
+      "price": 711.28,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 3.29
+    },
+    {
+      "price": 704.08,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": -3.91
+    },
+    {
+      "price": 702.64,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": -5.35
+    },
+    {
+      "price": 709.4,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 6,
+      "distance_from_price": 1.41
+    },
+    {
+      "price": 707.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 7,
+      "distance_from_price": -0.99
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 708.80 PMH on first test during RTH open",
+      "bias": "bullish",
+      "target": 712.39,
+      "entry_trigger": "level_reclaim at PMH + ribbon stack BULL confirmation + volume ≥ 1.5x"
+    },
+    "secondary": {
+      "condition": "if SPY breaks above 708.80 with conviction (body > 10¢ above PMH)",
+      "bias": "bullish_continuation",
+      "target": 712.39,
+      "entry_trigger": "breakout above PMH + ribbon alignment holding"
+    },
+    "tertiary": {
+      "condition": "if SPY reverses and breaks below 704.08 PML",
+      "bias": "bearish_gap_fill",
+      "target": 702.64,
+      "entry_trigger": "level_break below PML + ribbon inversion OR volume spike on rejection"
+    }
+  },
+  "levels_in_play_count": 7,
+  "key_observations": [
+    "Price is 81¢ below PMH, ideal distance for first test without being forced; natural confluence point for early RTH decision",
+    "Ribbon BULL stack with 78¢ spread provides strong support — price is above all three moving averages, momentum intact",
+    "Asymmetric risk/reward: 4.40 to 5-day high (712.39) vs 3.91 to PML (704.08) — bulls have more room to run",
+    "5-day Carry support (694.2) and 5-day Carry resistance (712.39) frame the daily range; today is a test of the 5-day high structure",
+    "Round numbers (707, 706, 705) between current price and PMH provide awareness-only micro-resistance but not hard stops",
+    "VIX falling at 19.11 in MID regime — not a high-volatility environment, favors directional continuation over reversals"
+  ],
+  "data_quality": "full"
+}

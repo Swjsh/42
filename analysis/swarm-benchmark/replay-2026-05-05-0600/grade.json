@@ -1,0 +1,63 @@
+{
+  "date": "2026-05-05",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:16.138503+00:00",
+  "actual": {
+    "open": 721.77,
+    "close": 723.74,
+    "high": 725.04,
+    "low": 721.49,
+    "move_dollars": 1.97,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 71,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 722.12,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": true
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "BROKE",
+      "battle_level": 722.12,
+      "role": "resistance",
+      "first_touch_time": "2026-05-05T09:30:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 722.12,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "SPY tests the 722.12 battle level (prior session RTH high) within the first 90 minutes of RTH (befor",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX holds below 18.00 for the entirety of the first hour of RTH (09:30-10:30 ET), keeping the MID-regime directional bia",
+        "invalidation": "VIX ticks back above 18.00 within the first 30 minutes of RTH (before 10:00 ET)"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "SPY ribbon maintains CLEAN_BULL status (all 3 EMAs stacked bullish: fast > pivot > slow) and price holds above pivot 720",
+        "invalidation": "Any EMA crossover (ribbon inversion) or SPY bar closes below 720.27 before or at the 10:00 ET bar"
+      }
+    ]
+  },
+  "narrative": "Today's core tension is a technically clean bull setup (CLEAN_BULL ribbon 87c spread, overnight gap +$2.55, VIX falling -4.07%) colliding with a sector breadth failure where XLK (-0.41%) and XLF (-0.39%) are selling into the gap \u2014 absent institutional leadership from SPY's two largest sectors. The c"
+}

@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-05-16T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.58,
+  "reasoning": "XLF -0.43% + XLK flat (0.03%) while XLE +1.26% signals classic risk-off rotation: energy (defensive) outperforming while financials and tech lag. SPY -0.35% reflects this internal weakness. The rotation into defensive energy coupled with financial sector softness suggests risk-off sentiment and weaker equity market internals heading into today.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": 0.03,
+    "xlf_change_pct": -0.43,
+    "xle_change_pct": 1.26,
+    "spy_change_pct": -0.35,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK flat (+0.03%): tech not leading, largest SPY weighting providing no support",
+    "XLF down (-0.43%): financial sector weakness suggests financial conditions concern",
+    "XLE up (+1.26%): strong defensive rotation into energy; classic risk-off signal",
+    "Breadth narrow: XLE outperformance vs SPY underperformance = defensive rotation, not broad strength"
+  ],
+  "data_quality": "full"
+}

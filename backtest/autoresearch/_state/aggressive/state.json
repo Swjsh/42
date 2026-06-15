@@ -1,0 +1,81 @@
+{
+  "current_params": {
+    "f9_vol_mult": 0.5,
+    "premium_stop_pct": -0.15,
+    "strike_offset": 0,
+    "min_triggers": 1,
+    "ribbon_spread_min_cents": 20,
+    "vix_bear_threshold": 16.5,
+    "vix_rising_deadband": 0.05,
+    "level_proximity_dollars": 0.75,
+    "confluence_tolerance_dollars": 0.4,
+    "ribbon_flip_lookback_bars": 5,
+    "no_trade_before": "09:45",
+    "no_trade_window_start": "12:30",
+    "no_trade_window_end": null,
+    "min_triggers_bear": 1,
+    "min_triggers_bull": 2,
+    "vix_bear_rising_deadband": 0.05,
+    "vix_bull_max": 22.0,
+    "premium_stop_pct_bear": -0.08,
+    "premium_stop_pct_bull": -0.1,
+    "tp1_premium_pct": 0.3,
+    "tp1_qty_fraction": 0.667,
+    "runner_target_premium_pct": 3.0,
+    "level_stop_buffer_dollars": 0.0,
+    "time_stop_minutes_before_close": 10,
+    "strike_offset_bear": -2,
+    "strike_offset_bull": -2
+  },
+  "baseline_metrics": {
+    "n_trades": 289,
+    "n_winners": 78,
+    "n_losers": 211,
+    "win_rate": 0.2699,
+    "total_pnl": -680.81,
+    "expectancy": -2.36,
+    "avg_winner": 144.45,
+    "avg_loser": -56.62,
+    "wl_ratio": 2.551,
+    "max_drawdown": -2416.24,
+    "sharpe_daily": -0.4363,
+    "n_days_traded": 143
+  },
+  "validate_baseline_metrics": {
+    "n_trades": 93,
+    "n_winners": 33,
+    "n_losers": 60,
+    "win_rate": 0.3548,
+    "total_pnl": 1882.27,
+    "expectancy": 20.24,
+    "avg_winner": 174.72,
+    "avg_loser": -64.72,
+    "wl_ratio": 2.699,
+    "max_drawdown": -805.6,
+    "sharpe_daily": 3.7728,
+    "n_days_traded": 28
+  },
+  "training_window": {
+    "start": "2025-01-01",
+    "end": "2026-02-13"
+  },
+  "validate_window": {
+    "start": "2026-02-14",
+    "end": "2026-05-07"
+  },
+  "iteration": 115,
+  "modifications_kept": 5,
+  "modifications_reverted": 110,
+  "last_param_modified": "strike_offset_bear",
+  "last_modification_at": "2026-05-09T13:06:15",
+  "recently_modified": [
+    "strike_offset_bear",
+    "premium_stop_pct_bull",
+    "strike_offset_bull"
+  ],
+  "created_at": "2026-05-09T01:01:52",
+  "session_id": "ar_aggressive_20260509_010152",
+  "mode": "aggressive",
+  "experiment": "full",
+  "objective": "validate_sharpe"
+}

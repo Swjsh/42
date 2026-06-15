@@ -1,0 +1,56 @@
+{
+  "_smoke_test": "Manually-computed Step 3a output for 2026-05-14 (CPI release day, hypothetical). Demonstrates the producer logic when high-impact events are present. Compare to smoke-news-calendar-today.json for the empty-day case.",
+  "_computed_at": "2026-05-07T00:25:00-04:00",
+  "_target_date": "2026-05-14",
+
+  "_inputs": {
+    "macro_calendar_events_30d_filtered_to_2026_05_14": [
+      {
+        "date": "2026-05-14",
+        "time_et": "08:30",
+        "event": "CPI (April 2026)",
+        "type": "cpi_release",
+        "severity": "high",
+        "notes": "Pre-market only — RTH unaffected directly but bias for the day is set by the print. Watch ES futures pre-open."
+      }
+    ],
+    "rule_applied": "macro-calendar.no_trade_window_rules.cpi_release = { block_starts_minutes_before: 5, block_ends_minutes_after: 30 }"
+  },
+
+  "news_calendar": {
+    "events_today": [
+      {
+        "time_et": "08:30",
+        "event": "CPI (April 2026)",
+        "type": "cpi_release",
+        "severity": "high",
+        "source": "macro-calendar.json"
+      }
+    ],
+    "no_trade_window": [
+      {
+        "start_et": "08:25",
+        "end_et": "09:00",
+        "reason": "CPI (April 2026) — ±5/+30 min per macro-calendar.no_trade_window_rules.cpi_release"
+      }
+    ],
+    "size_modifier_windows": [],
+    "catalyst_narrative": {
+      "_note": "Would carry forward last-known news.json if < 36h old. For this hypothetical date, narrative would come from a hand-written news.json reflecting market positioning into CPI."
+    }
+  },
+
+  "_heartbeat_consumption_walkthrough": {
+    "scenario_1_pre_market_8_25": "Heartbeat doesn't run pre-market (09:35 ET earliest), so the 08:25–08:30 window is informational only.",
+    "scenario_2_first_tick_after_08_30": "First heartbeat tick is 09:35 ET — well after the 09:00 no_trade_window end. Filter 2 passes. Setups can fire normally.",
+    "scenario_3_what_if_release_was_10_30": "If CPI were a 10:30 ET release (hypothetical), no_trade_window would be 10:25–11:00. Heartbeat ticks at 10:24 → filter 2 passes (window starts at :25, current time before). 10:27 tick → SKIP_NEWS (inside window). 11:00 tick → filter 2 passes again. Behaviour: 35-min hard skip around the release.",
+    "scenario_4_FOMC_at_14_00": "FOMC rule says ±30/+60min → window 13:30–15:00. Heartbeat ticks 13:30 onward → SKIP_NEWS. Tick at 15:00 → first eligible. Last viable entry by 15:20 (need 30min for TP1 to fire before 15:50 time stop). FOMC days have a ~20-minute eligibility window post-Powell. Realistic — most FOMC days don't produce a clean post-Powell setup that fast anyway."
+  },
+
+  "_validation": {
+    "every_event_has_5_fields": "✅ time_et, event, type, severity, source",
+    "every_no_trade_window_has_start_lt_end": "✅ 08:25 < 09:00",
+    "rule_lookup_correct": "✅ cpi_release rule found, ±5/+30 applied correctly to 08:30",
+    "interpretation": "On CPI day, heartbeat would receive a populated no_trade_window for the first time (was a silent no-op before). Filter 2 enforces the skip. Journal pre-market block displays the event for context. Catalyst narrative remains awareness-only."
+  }
+}

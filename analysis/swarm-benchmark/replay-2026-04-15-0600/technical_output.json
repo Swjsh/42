@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-04-15T06:00:00Z",
+  "bias": "no_trade",
+  "confidence": 0.35,
+  "reasoning": "MIXED ribbon structure (29c spread, stack MIXED, not CLEAN) with price 20c below EMA20 pivot. Last 3 bars are 2 green + 1 red (mixed momentum). Overnight gap down $0.50 (bearish sentiment), but premarket recovered from low 693.77 to current 693.90 — bounce pattern without structural conviction. VIX falling and rotation risk_on provide some bullish coloring, but ribbon verdict is decisive: CHOP = no_trade. Insufficient structural alignment for entry thesis.",
+  "ribbon_verdict": "MIXED",
+  "ribbon_spread_cents": 29,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "Ribbon is MIXED (fast 694.07 > pivot 694.10 > slow 693.81 but stack status mixed), not CLEAN — disqualifies bullish/bearish entry bias",
+    "Price 693.90 is 20 cents below EMA20 pivot 694.10 — bearish positioning",
+    "Overnight gap down $0.50 (694.40 → 693.90) indicates bearish overnight sentiment, but premarket bounced from low 693.77 creating recovery pattern without confirmation",
+    "Last 3 bars structure: 05:45 green (doji 26% body), 05:50 green (moderate 47% body), 05:55 red (moderate 57% body) — mixed momentum, no strong conviction",
+    "VIX 17.64 falling (technically bullish) and sector rotation risk_on, but these contradict bearish gap and MIXED ribbon — conflicting signals"
+  ],
+  "data_quality": "full"
+}

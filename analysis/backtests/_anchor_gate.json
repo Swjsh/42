@@ -1,0 +1,44 @@
+{
+  "ungated": {
+    "n": 10,
+    "wr": 0.4,
+    "pc": -15.0,
+    "pc_per_trade": -1.5,
+    "cap": {
+      "2026-04-27": 5.0,
+      "2026-04-28": 49.6,
+      "2026-05-01": 1.0,
+      "2026-05-04": 53.6
+    }
+  },
+  "gated": {
+    "n": 7,
+    "wr": 0.29,
+    "pc": 4.0,
+    "pc_per_trade": 0.6,
+    "cap": {
+      "2026-04-28": 49.6,
+      "2026-05-04": 53.6
+    }
+  },
+  "suppressed": [
+    {
+      "date": "2026-04-27",
+      "time": "13:10",
+      "triggers": "trendline_rejection",
+      "pc": 5.0
+    },
+    {
+      "date": "2026-04-29",
+      "time": "12:15",
+      "triggers": "trendline_rejection",
+      "pc": -25.2
+    },
+    {
+      "date": "2026-05-01",
+      "time": "13:40",
+      "triggers": "trendline_rejection",
+      "pc": 1.0
+    }
+  ]
+}

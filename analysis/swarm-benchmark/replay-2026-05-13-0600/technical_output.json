@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-13T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.84,
+  "reasoning": "CLEAN_BULL ribbon (135¢ spread, stack=BULL) with price 45¢ above pivot 739.81. Last 3 bars: RED/GREEN/GREEN — final bar (05:55) closes 740.26 with full 84% body above ribbon, signaling strong early momentum. Gap up +$2.07 from prior close (738.19), premarket high 740.92. All four primary signals aligned: ribbon clean, price above pivot, 2/3 recent bars green, gap direction bullish. VIX rising mildly (18.09, +0.56%) = healthy macro backdrop. XLF outperforming (+0.78%) supports risk-on lean.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 135,
+  "bar_structure": "mixed_bullish",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "CLEAN_BULL ribbon with 135¢ spread (fast 739.99, pivot 739.81, slow 738.63) — textbook bullish structure",
+    "Last bar (05:55 ET) strong green close at 740.26, 84% body, +16¢ above open — aggressive intrabar buying",
+    "Price 45¢ above pivot, well above slow EMA (738.63) — no overhead EMA resistance until 740.8+ range",
+    "Overnight gap +$2.07 sustained into premarket; premarket high 740.92 clipped but pulled back slightly to 740.26 (natural profit-taking, not rejection)",
+    "3-bar sequence shows early chop (RED doji GREEN) but resolved bullish with conviction close — bias forming"
+  ],
+  "data_quality": "full"
+}

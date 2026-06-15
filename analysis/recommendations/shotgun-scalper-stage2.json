@@ -1,0 +1,93 @@
+{
+  "strategy": "SHOTGUN_SCALPER",
+  "stage": 1,
+  "generated_at": "2026-05-16T14:48:01",
+  "run_identity": {
+    "run_id": "2026-05-16_67e97648_8de89a_028a39",
+    "data_hash": "8de89ab06520f297",
+    "code_hash": "67e97648943efe4a",
+    "params_hash": "028a3911c9bfb699",
+    "code_source": "files",
+    "computed_at": "2026-05-16T09:47:53"
+  },
+  "grid_size": 2160,
+  "gates": {
+    "min_sharpe": 0.0,
+    "min_expectancy_per_trade": 0.05,
+    "min_n_trades": 30,
+    "max_drawdown_dollars": 3000.0,
+    "min_edge_capture_pct": 0.2,
+    "min_positive_quarters": 2,
+    "max_top5_pct": 0.6
+  },
+  "anchor_days": {
+    "winners": [
+      {
+        "date": "2026-04-29",
+        "j_pnl": 342,
+        "side": "P",
+        "strike": 710,
+        "note": "711.4 rejection + ribbon flip"
+      },
+      {
+        "date": "2026-05-01",
+        "j_pnl": 470,
+        "side": "P",
+        "strike": 721,
+        "note": "trendline rejection at 13:36 (leg #2 was real trigger)"
+      },
+      {
+        "date": "2026-05-04",
+        "j_pnl": 730,
+        "side": "P",
+        "strike": 721,
+        "note": "premarket level + multi-day trendline + ribbon flip = CONFLUENCE"
+      },
+      {
+        "date": "2026-05-14",
+        "j_pnl": 1208,
+        "side": "C",
+        "strike": 0,
+        "note": "v15 first ENTER_BULL +$913 + manual scaling. Open-drive bull confluence."
+      },
+      {
+        "date": "2026-05-15",
+        "j_pnl": 1400,
+        "side": "P",
+        "strike": 0,
+        "note": "paper if held to wick low; today's PIN_FADE / chop-reversal scalp."
+      }
+    ],
+    "losers": [
+      {
+        "date": "2026-05-05",
+        "j_pnl": -260,
+        "side": "P",
+        "strike": 722,
+        "note": "chop-trap manual entry, no real setup"
+      },
+      {
+        "date": "2026-05-06",
+        "j_pnl": -300,
+        "side": "P",
+        "strike": 730,
+        "note": "held to zero, no stop"
+      },
+      {
+        "date": "2026-05-07",
+        "j_pnl": -120,
+        "side": "C",
+        "strike": 737,
+        "note": "engine BULL into pre-FOMC bear sequence + manual bullish anticipation"
+      }
+    ],
+    "max_edge_possible": 4150
+  },
+  "disclosures": {
+    "account_size_assumption": "qty=3 baseline (~$1K paper). Headline P&L scales linearly with qty.",
+    "sample_bias": "Top-10 selected from 2160-combo grid \u2014 overfit risk. Stage 2-5 required before live.",
+    "validation_status": "STAGE 1 ONLY. Walk-forward + real-fills + Monday-Ready pending.",
+    "wr_caveat": "WR is awareness-only per OP 14. Sharpe + expectancy + max-DD + edge_capture drive selection."
+  },
+  "top10": []
+}

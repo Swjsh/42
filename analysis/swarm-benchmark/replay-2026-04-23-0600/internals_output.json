@@ -1,0 +1,24 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-04-23T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.48,
+  "reasoning": "XLK +1.2% leading market while XLF -0.51% trailing — classic tech/financial divergence. SPY +0.29% underperforms XLK's strength, indicating narrow tech-only leadership. Financial weakness (XLF down) while energy flat suggests risk-off underneath the surface. This narrow leadership pattern typically precedes rotation reversal. Medium-low confidence due to mixed sector signals, but bearish lean from financial weakness dragging SPY despite tech strength.",
+  "rotation_signal": "mixed",
+  "sector_alignment": {
+    "xlk_change_pct": 1.2,
+    "xlf_change_pct": -0.51,
+    "xle_change_pct": 0.32,
+    "spy_change_pct": 0.29,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +1.2% (strong tech leadership, well above 0.5% threshold)",
+    "XLF: -0.51% (financial weakness, below 0.5%, dragging market)",
+    "XLE: +0.32% (energy neutral/flat, not confirming risk-on)",
+    "SPY: +0.29% (barely positive, underperforming XLK's +1.2% — narrow leadership signal)",
+    "Overall rotation: Tech up, financials down = divergence. Narrow leadership pattern often precedes reversal."
+  ],
+  "data_quality": "full"
+}

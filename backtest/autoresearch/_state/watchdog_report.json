@@ -1,0 +1,490 @@
+{
+  "generated_at": "2026-05-09T13:15:26Z",
+  "healthy": false,
+  "overall_iterations": 226,
+  "overall_keeps": 7,
+  "overall_keep_rate": 0.030973451327433628,
+  "issues": [
+    "[strict] 0 KEEPs in last 10 iterations \u2014 possible gate or search-space issue",
+    "[strict] 3 REVERTs had val sharpe > 1.0 and pnl > $200 \u2014 hard gates may be too strict",
+    "[balanced] 0 KEEPs in last 10 iterations \u2014 possible gate or search-space issue",
+    "[balanced] 0 KEEPs across all 41 iterations \u2014 STUCK; review hard gates",
+    "[balanced] 3 REVERTs had val sharpe > 1.0 and pnl > $200 \u2014 hard gates may be too strict",
+    "[aggressive] 0 KEEPs in last 10 iterations \u2014 possible gate or search-space issue",
+    "[aggressive] 3 REVERTs had val sharpe > 1.0 and pnl > $200 \u2014 hard gates may be too strict"
+  ],
+  "modes": [
+    {
+      "mode": "strict",
+      "state_exists": true,
+      "iterations": 70,
+      "keeps": 2,
+      "reverts": 68,
+      "keep_rate": 0.029,
+      "last_batch_keeps": 0,
+      "last_batch_reverts": 10,
+      "train_baseline": {
+        "n_trades": 56,
+        "n_winners": 8,
+        "n_losers": 48,
+        "win_rate": 0.1429,
+        "total_pnl": 12.04,
+        "expectancy": 0.21,
+        "avg_winner": 144.64,
+        "avg_loser": -23.86,
+        "wl_ratio": 6.063,
+        "max_drawdown": -284.1,
+        "sharpe_daily": 0.0568,
+        "n_days_traded": 41
+      },
+      "validate_baseline": {
+        "n_trades": 4,
+        "n_winners": 2,
+        "n_losers": 2,
+        "win_rate": 0.5,
+        "total_pnl": 109.47,
+        "expectancy": 27.37,
+        "avg_winner": 92.85,
+        "avg_loser": -38.12,
+        "wl_ratio": 2.436,
+        "max_drawdown": -76.24,
+        "sharpe_daily": 5.5461,
+        "n_days_traded": 4
+      },
+      "top_keeps": [
+        {
+          "iter": 1,
+          "param": "f9_vol_mult",
+          "old": 1.0,
+          "new": 1.2,
+          "delta_sharpe": 1.1468,
+          "delta_pnl": 307.42,
+          "val_sharpe": 5.5461,
+          "val_pnl": 109.47,
+          "val_wr": 0.5
+        },
+        {
+          "iter": 10,
+          "param": "confluence_tolerance_dollars",
+          "old": 0.2,
+          "new": 0.15,
+          "delta_sharpe": 0.8445,
+          "delta_pnl": 179.74,
+          "val_sharpe": 5.5461,
+          "val_pnl": 109.47,
+          "val_wr": 0.5
+        }
+      ],
+      "notable_rejections": [
+        {
+          "iter": 32,
+          "param": "tp1_qty_fraction+premium_stop_pct_bull",
+          "new": [
+            1.0,
+            -0.08
+          ],
+          "val_pnl": 433.17,
+          "val_sharpe": 5.0202,
+          "val_wr": 0.3,
+          "rejected_because": "hard gate failure: max_dd regression: baseline=-284 candidate=-959 (limit=-497)"
+        },
+        {
+          "iter": 21,
+          "param": "tp1_qty_fraction+level_proximity_dollars",
+          "new": [
+            1.0,
+            0.3
+          ],
+          "val_pnl": 407.76,
+          "val_sharpe": 4.646,
+          "val_wr": 0.3,
+          "rejected_because": "hard gate failure: max_dd regression: baseline=-284 candidate=-1088 (limit=-497)"
+        },
+        {
+          "iter": 25,
+          "param": "tp1_qty_fraction",
+          "new": 1.0,
+          "val_pnl": 407.76,
+          "val_sharpe": 4.646,
+          "val_wr": 0.3,
+          "rejected_because": "hard gate failure: max_dd regression: baseline=-284 candidate=-1088 (limit=-497)"
+        }
+      ],
+      "dead_end_params": [
+        "ribbon_spread_min_cents",
+        "min_triggers_bear",
+        "no_trade_window_end",
+        "premium_stop_pct_bear",
+        "min_triggers_bull",
+        "no_trade_window_start",
+        "premium_stop_pct_bull",
+        "tp1_premium_pct",
+        "tp1_qty_fraction",
+        "runner_target_premium_pct"
+      ],
+      "changed_params": {
+        "f9_vol_mult": {
+          "from": 1.0,
+          "to": 1.2
+        },
+        "premium_stop_pct": {
+          "from": null,
+          "to": -0.06
+        },
+        "strike_offset": {
+          "from": null,
+          "to": -2
+        },
+        "min_triggers": {
+          "from": null,
+          "to": 2
+        },
+        "vix_rising_deadband": {
+          "from": null,
+          "to": 0.08
+        },
+        "level_proximity_dollars": {
+          "from": 0.5,
+          "to": 0.4
+        },
+        "confluence_tolerance_dollars": {
+          "from": 0.3,
+          "to": 0.15
+        },
+        "ribbon_flip_lookback_bars": {
+          "from": 3,
+          "to": 2
+        },
+        "min_triggers_bear": {
+          "from": 2,
+          "to": 1
+        },
+        "min_triggers_bull": {
+          "from": 3,
+          "to": 2
+        },
+        "premium_stop_pct_bear": {
+          "from": -0.06,
+          "to": -0.08
+        },
+        "premium_stop_pct_bull": {
+          "from": -0.08,
+          "to": -0.1
+        },
+        "tp1_premium_pct": {
+          "from": 0.25,
+          "to": 0.3
+        },
+        "runner_target_premium_pct": {
+          "from": 2.0,
+          "to": 3.0
+        }
+      },
+      "issues": [
+        "0 KEEPs in last 10 iterations \u2014 possible gate or search-space issue",
+        "3 REVERTs had val sharpe > 1.0 and pnl > $200 \u2014 hard gates may be too strict"
+      ]
+    },
+    {
+      "mode": "balanced",
+      "state_exists": true,
+      "iterations": 41,
+      "keeps": 0,
+      "reverts": 41,
+      "keep_rate": 0.0,
+      "last_batch_keeps": 0,
+      "last_batch_reverts": 10,
+      "train_baseline": {
+        "n_trades": 171,
+        "n_winners": 26,
+        "n_losers": 145,
+        "win_rate": 0.152,
+        "total_pnl": -320.68,
+        "expectancy": -1.88,
+        "avg_winner": 160.44,
+        "avg_loser": -30.98,
+        "wl_ratio": 5.179,
+        "max_drawdown": -1773.84,
+        "sharpe_daily": -0.4136,
+        "n_days_traded": 98
+      },
+      "validate_baseline": {
+        "n_trades": 59,
+        "n_winners": 14,
+        "n_losers": 45,
+        "win_rate": 0.2373,
+        "total_pnl": -56.71,
+        "expectancy": -0.96,
+        "avg_winner": 107.32,
+        "avg_loser": -34.65,
+        "wl_ratio": 3.097,
+        "max_drawdown": -575.81,
+        "sharpe_daily": -0.2427,
+        "n_days_traded": 23
+      },
+      "top_keeps": [],
+      "notable_rejections": [
+        {
+          "iter": 10,
+          "param": "confluence_tolerance_dollars",
+          "new": 0.4,
+          "val_pnl": 482.29,
+          "val_sharpe": 1.7465,
+          "val_wr": 0.25,
+          "rejected_because": "hard gate failure: win_rate<40% (got 14%)"
+        },
+        {
+          "iter": 14,
+          "param": "confluence_tolerance_dollars",
+          "new": 0.4,
+          "val_pnl": 482.29,
+          "val_sharpe": 1.7465,
+          "val_wr": 0.25,
+          "rejected_because": "hard gate failure: win_rate<40% (got 14%)"
+        },
+        {
+          "iter": 13,
+          "param": "no_trade_before",
+          "new": "09:45",
+          "val_pnl": 314.62,
+          "val_sharpe": 1.2064,
+          "val_wr": 0.2742,
+          "rejected_because": "hard gate failure: win_rate<40% (got 15%)"
+        }
+      ],
+      "dead_end_params": [
+        "f9_vol_mult",
+        "ribbon_spread_min_cents",
+        "level_proximity_dollars"
+      ],
+      "changed_params": {
+        "premium_stop_pct": {
+          "from": null,
+          "to": -0.08
+        },
+        "strike_offset": {
+          "from": null,
+          "to": -2
+        },
+        "min_triggers": {
+          "from": null,
+          "to": 1
+        },
+        "vix_rising_deadband": {
+          "from": null,
+          "to": 0.05
+        }
+      },
+      "issues": [
+        "0 KEEPs in last 10 iterations \u2014 possible gate or search-space issue",
+        "0 KEEPs across all 41 iterations \u2014 STUCK; review hard gates",
+        "3 REVERTs had val sharpe > 1.0 and pnl > $200 \u2014 hard gates may be too strict"
+      ]
+    },
+    {
+      "mode": "aggressive",
+      "state_exists": true,
+      "iterations": 115,
+      "keeps": 5,
+      "reverts": 110,
+      "keep_rate": 0.043,
+      "last_batch_keeps": 0,
+      "last_batch_reverts": 10,
+      "train_baseline": {
+        "n_trades": 289,
+        "n_winners": 78,
+        "n_losers": 211,
+        "win_rate": 0.2699,
+        "total_pnl": -680.81,
+        "expectancy": -2.36,
+        "avg_winner": 144.45,
+        "avg_loser": -56.62,
+        "wl_ratio": 2.551,
+        "max_drawdown": -2416.24,
+        "sharpe_daily": -0.4363,
+        "n_days_traded": 143
+      },
+      "validate_baseline": {
+        "n_trades": 93,
+        "n_winners": 33,
+        "n_losers": 60,
+        "win_rate": 0.3548,
+        "total_pnl": 1882.27,
+        "expectancy": 20.24,
+        "avg_winner": 174.72,
+        "avg_loser": -64.72,
+        "wl_ratio": 2.699,
+        "max_drawdown": -805.6,
+        "sharpe_daily": 3.7728,
+        "n_days_traded": 28
+      },
+      "top_keeps": [
+        {
+          "iter": 17,
+          "param": "no_trade_before",
+          "old": "09:35",
+          "new": "09:45",
+          "delta_sharpe": 0.0473,
+          "delta_pnl": 124.08,
+          "val_sharpe": 3.6106,
+          "val_pnl": 2046.91,
+          "val_wr": 0.3265
+        },
+        {
+          "iter": 21,
+          "param": "vix_bear_threshold",
+          "old": 16.0,
+          "new": 16.5,
+          "delta_sharpe": 0.0337,
+          "delta_pnl": 56.63,
+          "val_sharpe": 3.6106,
+          "val_pnl": 2046.91,
+          "val_wr": 0.3265
+        },
+        {
+          "iter": 22,
+          "param": "vix_rising_deadband",
+          "old": 0.02,
+          "new": 0.05,
+          "delta_sharpe": 0.0154,
+          "delta_pnl": 26.52,
+          "val_sharpe": 3.7728,
+          "val_pnl": 1882.27,
+          "val_wr": 0.3548
+        },
+        {
+          "iter": 16,
+          "param": "no_trade_window_start",
+          "old": null,
+          "new": "12:30",
+          "delta_sharpe": 0.0,
+          "delta_pnl": 0.0,
+          "val_sharpe": 2.7952,
+          "val_pnl": 1551.53,
+          "val_wr": 0.3143
+        },
+        {
+          "iter": 23,
+          "param": "strike_offset",
+          "old": -1,
+          "new": 0,
+          "delta_sharpe": 0.0,
+          "delta_pnl": 0.0,
+          "val_sharpe": 3.7728,
+          "val_pnl": 1882.27,
+          "val_wr": 0.3548
+        }
+      ],
+      "notable_rejections": [
+        {
+          "iter": 20,
+          "param": "ribbon_spread_min_cents",
+          "new": 15,
+          "val_pnl": 2089.06,
+          "val_sharpe": 3.6502,
+          "val_wr": 0.33,
+          "rejected_because": "sharpe did not improve (-0.013)"
+        },
+        {
+          "iter": 19,
+          "param": "strike_offset",
+          "new": -2,
+          "val_pnl": 2046.91,
+          "val_sharpe": 3.6106,
+          "val_wr": 0.3265,
+          "rejected_because": "sharpe did not improve (-0.000)"
+        },
+        {
+          "iter": 24,
+          "param": "ribbon_spread_min_cents",
+          "new": 25,
+          "val_pnl": 2044.83,
+          "val_sharpe": 4.0307,
+          "val_wr": 0.3626,
+          "rejected_because": "sharpe did not improve (-0.612)"
+        }
+      ],
+      "dead_end_params": [
+        "f9_vol_mult",
+        "ribbon_spread_min_cents",
+        "level_proximity_dollars",
+        "confluence_tolerance_dollars",
+        "ribbon_flip_lookback_bars",
+        "no_trade_window_end",
+        "runner_target_premium_pct",
+        "time_stop_minutes_before_close",
+        "strike_offset_bull",
+        "strike_offset_bear",
+        "tp1_qty_fraction",
+        "premium_stop_pct_bull",
+        "min_triggers_bull",
+        "premium_stop_pct_bear",
+        "min_triggers_bear",
+        "tp1_premium_pct",
+        "vix_bear_rising_deadband"
+      ],
+      "changed_params": {
+        "premium_stop_pct": {
+          "from": null,
+          "to": -0.15
+        },
+        "strike_offset": {
+          "from": null,
+          "to": 0
+        },
+        "min_triggers": {
+          "from": null,
+          "to": 1
+        },
+        "vix_bear_threshold": {
+          "from": 16.0,
+          "to": 16.5
+        },
+        "vix_rising_deadband": {
+          "from": null,
+          "to": 0.05
+        },
+        "confluence_tolerance_dollars": {
+          "from": 0.3,
+          "to": 0.4
+        },
+        "ribbon_flip_lookback_bars": {
+          "from": 3,
+          "to": 5
+        },
+        "no_trade_before": {
+          "from": "09:35",
+          "to": "09:45"
+        },
+        "no_trade_window_start": {
+          "from": null,
+          "to": "12:30"
+        },
+        "premium_stop_pct_bear": {
+          "from": -0.15,
+          "to": -0.08
+        },
+        "premium_stop_pct_bull": {
+          "from": -0.2,
+          "to": -0.1
+        },
+        "tp1_premium_pct": {
+          "from": 0.4,
+          "to": 0.3
+        },
+        "tp1_qty_fraction": {
+          "from": 0.333,
+          "to": 0.667
+        },
+        "runner_target_premium_pct": {
+          "from": 5.0,
+          "to": 3.0
+        }
+      },
+      "issues": [
+        "0 KEEPs in last 10 iterations \u2014 possible gate or search-space issue",
+        "3 REVERTs had val sharpe > 1.0 and pnl > $200 \u2014 hard gates may be too strict"
+      ]
+    }
+  ]
+}

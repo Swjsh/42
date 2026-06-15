@@ -1,0 +1,62 @@
+{
+  "run_date": "2026-05-20",
+  "window": "2025-01-01 to 2026-05-15",
+  "total_signals": 286,
+  "by_watcher_confidence": {
+    "DOUBLE_BOTTOM_MORNING__high": 22,
+    "DOUBLE_BOTTOM_BASE_QUIET__low": 127,
+    "DOUBLE_BOTTOM_MORNING__low": 18,
+    "DOUBLE_BOTTOM_MORNING__medium": 72,
+    "MOMENTUM_ACCELERATION_HIGHVOL__medium": 33,
+    "MOMENTUM_ACCELERATION_HIGHVOL__high": 14
+  },
+  "by_watcher_month": {
+    "DOUBLE_BOTTOM_MORNING": {
+      "2025-01": 6,
+      "2025-02": 8,
+      "2025-03": 4,
+      "2025-05": 4,
+      "2025-06": 10,
+      "2025-07": 4,
+      "2025-08": 12,
+      "2025-09": 9,
+      "2025-10": 9,
+      "2025-11": 7,
+      "2025-12": 8,
+      "2026-01": 7,
+      "2026-02": 7,
+      "2026-04": 10,
+      "2026-05": 7
+    },
+    "DOUBLE_BOTTOM_BASE_QUIET": {
+      "2025-01": 10,
+      "2025-02": 14,
+      "2025-03": 4,
+      "2025-05": 8,
+      "2025-06": 12,
+      "2025-07": 4,
+      "2025-08": 10,
+      "2025-09": 9,
+      "2025-10": 6,
+      "2025-11": 10,
+      "2025-12": 8,
+      "2026-01": 7,
+      "2026-02": 8,
+      "2026-04": 9,
+      "2026-05": 8
+    },
+    "MOMENTUM_ACCELERATION_HIGHVOL": {
+      "2025-02": 2,
+      "2025-03": 4,
+      "2025-04": 8,
+      "2025-05": 6,
+      "2025-06": 1,
+      "2025-10": 6,
+      "2025-11": 3,
+      "2026-02": 3,
+      "2026-03": 11,
+      "2026-04": 3
+    }
+  },
+  "notes": "Count-only replay \u2014 does NOT write to watcher-observations.jsonl. NOT_NEAR_NAMED filter skipped (levels_active=[]) \u2014 count is the without-filter upper bound, consistent with real-fills scripts."
+}

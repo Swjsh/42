@@ -1,0 +1,64 @@
+{
+  "date": "2025-10-02",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-20T02:23:46.781020+00:00",
+  "actual": {
+    "open": 668.5,
+    "close": 669.07,
+    "high": 669.71,
+    "low": 668.35,
+    "move_dollars": 0.58,
+    "actual_bias": "no_trade"
+  },
+  "swarm": {
+    "consensus_bias": "no_trade",
+    "swarm_confidence": 0,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 669.37,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "note": "Inferred from key-levels.json (prior session RTH high = current price). level_thesis agent output missing \u2014 battle_grade UNTESTED, no prior RTH test recorded. This level is a first approximation only; Premarket should re-derive battle level with full thesis."
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "no_trade",
+      "actual": "no_trade"
+    },
+    "battle_level": {
+      "grade": "TESTED_MIXED",
+      "battle_level": 669.37,
+      "role": "resistance",
+      "first_touch_time": "2025-10-02T10:05:00"
+    },
+    "predictions": [
+      {
+        "grade": "TOUCHED_IN_WINDOW",
+        "target_price": 669.37,
+        "touched_any_time": true,
+        "touched_in_specified_window": true,
+        "claim": "Prior RTH high 669.37 acts as the pivotal decision level in RTH: SPY either holds above it for 15+ c",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 17.0 through 11:00 ET given MID regime falling trend (-0.55%) and zero scheduled macro events today",
+        "invalidation": "VIX spikes above 17.5 within the first 30 minutes of RTH on an opening down-gap or surprise news headline"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BULL ribbon (65c spread, fast 669.11 > pivot 668.98 > slow 668.46) remains intact through 10:30 ET as long as SPY ",
+        "invalidation": "Ribbon stack inverts to BEAR (fast EMA crosses below pivot) before 10:30 ET, signaling gap-fade continuation rather than"
+      }
+    ]
+  },
+  "narrative": "Three of four specialists voted bullish on a clean CLEAN_BULL ribbon (65c spread), VIX compression, +$1.26 overnight gap, and tech-led risk-on rotation \u2014 but the level_thesis agent output is missing, leaving no defined battle level, no entry trigger thesis, and no profit target. The validator flags "
+}

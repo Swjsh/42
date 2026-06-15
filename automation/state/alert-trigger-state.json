@@ -1,0 +1,14 @@
+{
+  "last_fire_utc": "2026-05-20T13:30:02.590542+00:00",
+  "last_fire_alerts": [
+    {
+      "pattern": "failed_breakdown_wick",
+      "bias": "bullish",
+      "key_price": 732.77
+    }
+  ],
+  "fired_for": [
+    "safe",
+    "bold"
+  ]
+}

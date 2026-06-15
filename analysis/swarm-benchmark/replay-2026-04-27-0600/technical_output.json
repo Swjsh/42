@@ -1,0 +1,21 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-04-27T10:00:00Z",
+  "bias": "no_trade",
+  "confidence": 0.42,
+  "reasoning": "WEAK_BULL ribbon (13c spread, below 20c threshold) with price 2c below pivot = conflicting signals. Last 3 bars show chop (RED-GREEN-RED), no sustained commitment. Overnight gap down 0.51 adds bearish pressure. VIX rising (18.89, +1.34%), IV regime MID. No clear directional edge; structure unstable.",
+  "ribbon_verdict": "WEAK_BULL",
+  "ribbon_spread_cents": 13,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "WEAK_BULL ribbon (spread 13c < 20c threshold) — unstable structure",
+    "Price 713.47 clings 2c below pivot 713.49 — bearish momentum despite bullish ribbon",
+    "Last 3 bars: RED (05:45) → GREEN (05:50, full body) → RED (05:55) — chop, no follow-through",
+    "Overnight gap -0.51 down from prior close 713.98 — bearish overnight sentiment",
+    "VIX rising 18.89 (+1.34%), IV regime MID — risk-off pressure building",
+    "Sector rotation risk-on (XLK +1.13%) but premarket volume thin — not reliable"
+  ],
+  "data_quality": "full"
+}

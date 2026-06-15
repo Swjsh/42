@@ -1,0 +1,66 @@
+{
+  "date": "2026-02-25",
+  "as_of_et": "06:00",
+  "graded_at": "2026-05-17T20:33:04.932487+00:00",
+  "actual": {
+    "open": 690.14,
+    "close": 693.1,
+    "high": 693.66,
+    "low": 690.14,
+    "move_dollars": 2.96,
+    "actual_bias": "bullish"
+  },
+  "swarm": {
+    "consensus_bias": "bullish",
+    "swarm_confidence": 95,
+    "consensus_strength": "strong",
+    "battle_level": {
+      "price": 688.33,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance"
+    },
+    "dissent_active": false
+  },
+  "grades": {
+    "direction": {
+      "grade": "CORRECT",
+      "consensus": "bullish",
+      "actual": "bullish"
+    },
+    "battle_level": {
+      "grade": "UNTESTED",
+      "battle_level": 688.33,
+      "role": "resistance",
+      "rth_range": [
+        690.14,
+        693.66
+      ]
+    },
+    "predictions": [
+      {
+        "grade": "MISSED",
+        "target_price": 688.33,
+        "touched_any_time": false,
+        "touched_in_specified_window": false,
+        "claim": "SPY tests 688.33 (yesterday's RTH high, Active 2-star resistance) within the first 90 minutes of RTH",
+        "domain": "level"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "vix_macro",
+        "reason": "narrative grading needed for vix_macro prediction",
+        "claim": "VIX remains below 19.50 through the entire RTH session, sustaining the risk-on macro backdrop and call premium compressi",
+        "invalidation": "VIX prints above 19.50 intraday before 15:00 ET"
+      },
+      {
+        "grade": "REVIEW_NEEDED",
+        "domain": "technical",
+        "reason": "narrative grading needed for technical prediction",
+        "claim": "CLEAN_BULL ribbon holds \u2014 SPY does not close any 5-minute RTH bar below the slow EMA at 686.86, preserving bull structur",
+        "invalidation": "SPY closes any 5-minute bar below 686.86 during RTH hours"
+      }
+    ]
+  },
+  "narrative": "All four specialists are unanimously bullish, anchored to the CLEAN_BULL ribbon (28c spread), falling VIX (-4.55% to 18.66), broad risk-on sector rotation (XLF +1.05%, XLK +0.78%), and a clean macro calendar with zero scheduled events. The consensus is bullish because structural and macro conditions"
+}

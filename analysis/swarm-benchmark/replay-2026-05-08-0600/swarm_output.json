@@ -1,0 +1,179 @@
+{
+  "generated_at": "2026-05-08T10:00:00Z",
+  "swarm_version": "v5",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["technical", "macro", "level_thesis"],
+    "bearish": ["internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 3,
+    "bearish": 1,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.90,
+    "bearish": 0.10
+  },
+  "consensus_bias": "no_trade",
+  "consensus_strength": "strong",
+  "swarm_confidence": 0,
+  "no_trade_reason": "low_post_adjustment_confidence",
+  "no_trade_detail": "Raw confidence 34/100 (base 54 + very_low_event_risk +5 + UNTESTED_battle_level -25). Despite a 3:1 bullish specialist vote and weighted_score_bullish=0.90, the battle level 734.6 (today's PML) is fresh and UNTESTED in RTH. No prior session defenses, bounce_history empty. Under v5 calibration, UNTESTED battle levels carry 44.4% empirical accuracy — coin-flip territory. Combined with internals divergence (XLK+XLF both selling into the gap), the pre-adjustment confidence falls below the 40-point NO_TRADE gate.",
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["internals"],
+    "dissent_reason": "Internals (weight 0.10) identified classic risk-off rotation: XLK -0.33% + XLF -0.44% selling simultaneously into the +$5.34 gap-up, signaling institutional caution that contradicts genuine risk-on demand; a true bullish gap should pull tech and financials higher, not trigger simultaneous distribution in the SPY composition core."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The assumption that a +$5.34 overnight gap with CLEAN_BULL ribbon guarantees RTH follow-through, while XLK+XLF are both selling simultaneously into the gap and price is already at the PMH ceiling with zero premarket room to run.",
+    "top_invalidation_scenario": "XLK and XLF continue selling into market open (both down >0.5% by 09:35 ET), confirming the gap-up as institutional short-covering rather than genuine demand, and the 734.6 battle level breaks within first 30 minutes of RTH."
+  },
+  "battle_level": {
+    "price": 734.6,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support",
+    "battle_grade": "UNTESTED",
+    "source": "Today 2026-05-08 premarket low (PML)"
+  },
+  "level_priority": [
+    {
+      "price": 734.6,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "hold_from",
+      "source": "PML — gap-down floor or first RTH support",
+      "battle_grade": "UNTESTED",
+      "distance_from_price": -2.04
+    },
+    {
+      "price": 736.66,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from",
+      "source": "PMH — gap-up ceiling or first RTH overhead",
+      "battle_grade": "UNTESTED",
+      "distance_from_price": 0.02
+    },
+    {
+      "price": 732.18,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "targets_on_break",
+      "source": "Prior session (2026-05-07) RTH high — first target on gap-fill reversal",
+      "battle_grade": "UNTESTED",
+      "distance_from_price": -4.46
+    },
+    {
+      "price": 729.75,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "targets_on_break",
+      "source": "Prior session (2026-05-07) RTH low — gap-fill target on bearish breakdown",
+      "battle_grade": "UNTESTED",
+      "distance_from_price": -6.89
+    },
+    {
+      "price": 716.83,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "macro_anchor",
+      "source": "5-day RTH low (rolling) — multi-session cross-session anchor",
+      "battle_grade": "UNTESTED",
+      "distance_from_price": -19.81
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 734.6 on first RTH pullback test (price closes a 5m bar above 734.60)",
+      "bias": "bullish",
+      "target": 739.0,
+      "entry_trigger": "ribbon_intact + gap_hold + level_hold_confirmed"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 734.6 on a 5m bar close with volume confirmation",
+      "bias": "bearish",
+      "target": 732.18,
+      "entry_trigger": "ribbon_break + gap_fail + support_rejection"
+    },
+    "invalidation": {
+      "condition": "XLK and XLF both drop >0.5% by 09:35 ET open AND VIX rises above 17.50 before 10:00 ET",
+      "effect": "The gap-up is confirmed as institutional short-covering rather than genuine demand; even if 734.6 holds initially, the directional follow-through will be absent and the bull thesis collapses on any retest — shift full attention to 732.18 bearish scenario."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "734.6 (PML battle level) is tested at least once within the first 60 minutes of RTH (by 10:30 ET); the outcome of that test — hold vs break — determines the primary session direction",
+      "invalidation": "SPY stays above 735.50 through 10:30 ET without printing a bar that touches or closes below 734.60",
+      "confidence": 0.65,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains below 18.00 through the entire RTH session, keeping option premium dynamics stable and preventing a volatility-driven gap reversal",
+      "invalidation": "VIX rises above 18.00 before 11:00 ET on any 5m bar close",
+      "confidence": 0.72,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "CLEAN_BULL ribbon stack (Fast > Pivot > Slow) remains intact with spread >= 80c through the first 60 minutes of RTH, providing a structural bull floor regardless of short-term price action",
+      "invalidation": "Ribbon spread compresses below 50c OR Fast EMA crosses below Pivot EMA at any point before 11:00 ET",
+      "confidence": 0.68,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "Today's tape presents a classic tension between structure and composition: CLEAN_BULL ribbon (152c spread), +$5.34 overnight gap, and zero event friction argue for a continuation-bull session, but the internals signal — XLK -0.33% and XLF -0.44% selling simultaneously into the gap — suggests the overnight move was institutional short-covering rather than genuine demand, and price is already sitting at the PMH ceiling with no premarket room to run. Under v5 calibration, the UNTESTED battle level 734.6 (today's PML, no prior RTH defenses) is the linchpin: UNTESTED levels carry only 44.4% empirical accuracy, and combined with internals divergence this drops raw confidence to 34/100 — below the NO_TRADE gate. The single most important thing to watch at market open is whether 734.6 holds or fails on first RTH test: a confirmed hold unlocks the bullish primary scenario (target 739.0), while a break below it collapses the gap-hold thesis and opens the bearish path to 732.18.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bullish",
+      "confidence": 0.82,
+      "one_line": "CLEAN_BULL ribbon (152c spread, Fast 734.32 > Pivot 733.58 > Slow 732.80), price 306c above pivot with strong recovery bar pattern; overnight gap +5.34 intact at PMH"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.72,
+      "one_line": "VIX 17.04 MID flat, zero event risk today (FOMC done, NVDA not until 5/20), +$5.34 gap well above $1.00 bullish threshold; premarket sector rotation noise not a directional macro signal"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.68,
+      "one_line": "Battle level 734.6 (PML, 2-star Active) is the binary test: hold = 739.0 target; break = 732.18 target; upside targets (738-740) are all 1-star psychological levels with no structural support overhead"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "Classic risk-off: XLK -0.33% + XLF -0.44% (both core SPY sectors selling into the gap), XLE +0.14% defensive; narrow breadth contradicts the macro 'risk-on' assessment and the overnight gap narrative"
+    },
+    "validator": {
+      "devil_advocate_bias": "bearish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "XLK + XLF continue selling >0.5% into open AND 734.6 breaks within first 30 min RTH, confirming gap-up as short-covering trap with no institutional follow-through"
+    }
+  },
+  "raw_confidence_breakdown": {
+    "base": 54.0,
+    "adj_specialist_agreement_3of4": 0,
+    "adj_validator_robustness_moderate": 0,
+    "adj_event_risk_none": 5,
+    "adj_battle_grade_UNTESTED": -25,
+    "raw_total": 34,
+    "gate_fired": "NO_TRADE_GATE (raw < 40)"
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

@@ -1,0 +1,75 @@
+{
+  "current_params": {
+    "f9_vol_mult": 0.8,
+    "ribbon_spread_min_cents": 35,
+    "ribbon_flip_lookback_bars": 3,
+    "level_proximity_dollars": 1.0,
+    "confluence_tolerance_dollars": 0.5,
+    "no_trade_before": "10:00",
+    "no_trade_window_start": "14:30",
+    "no_trade_window_end": "15:30",
+    "min_triggers_bear": 1,
+    "min_triggers_bull": 3,
+    "vix_bear_threshold": 17.3,
+    "vix_bear_rising_deadband": 0.05,
+    "vix_bull_max": 22.0,
+    "premium_stop_pct_bear": -0.15,
+    "premium_stop_pct_bull": -0.07,
+    "tp1_premium_pct": 0.75,
+    "tp1_qty_fraction": 0.333,
+    "runner_target_premium_pct": 2.5,
+    "level_stop_buffer_dollars": 0.0,
+    "time_stop_minutes_before_close": 30,
+    "strike_offset_bear": -3,
+    "strike_offset_bull": -2
+  },
+  "baseline_metrics": {
+    "n_trades": 39,
+    "n_winners": 5,
+    "n_losers": 34,
+    "win_rate": 0.1282,
+    "total_pnl": 122.95,
+    "expectancy": 3.15,
+    "avg_winner": 393.28,
+    "avg_loser": -54.22,
+    "wl_ratio": 7.254,
+    "max_drawdown": -891.6,
+    "sharpe_daily": 0.2453,
+    "n_days_traded": 36
+  },
+  "validate_baseline_metrics": {
+    "n_trades": 39,
+    "n_winners": 8,
+    "n_losers": 31,
+    "win_rate": 0.2051,
+    "total_pnl": 1513.42,
+    "expectancy": 38.81,
+    "avg_winner": 430.88,
+    "avg_loser": -62.38,
+    "wl_ratio": 6.908,
+    "max_drawdown": -568.04,
+    "sharpe_daily": 3.637,
+    "n_days_traded": 19
+  },
+  "training_window": {
+    "start": "2025-01-01",
+    "end": "2026-02-13"
+  },
+  "validate_window": {
+    "start": "2026-02-14",
+    "end": "2026-05-07"
+  },
+  "iteration": 1,
+  "modifications_kept": 0,
+  "modifications_reverted": 1,
+  "last_param_modified": "f9_vol_mult",
+  "last_modification_at": "2026-05-09T17:21:32",
+  "recently_modified": [
+    "f9_vol_mult"
+  ],
+  "created_at": "2026-05-09T17:14:08",
+  "session_id": "ar_seed23_climb_full_validate_pnl_20260509_171408",
+  "mode": "seed23_climb",
+  "experiment": "full",
+  "objective": "validate_pnl"
+}

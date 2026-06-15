@@ -1,0 +1,23 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-02-20T06:00:00Z",
+  "bias": "no_trade",
+  "confidence": 0.32,
+  "reasoning": "Sector internals show minimal conviction. XLK +0.09% and XLF +0.02% are essentially flat with zero momentum. XLE -0.50% is the only sector with a real move, suggesting slight defensive rotation, but tech and financials are not confirming any breadth breakdown. All major sectors trading in a tight ±0.5% band. No clear risk-on (would need XLK and XLF both >+0.5%) or risk-off (would need broad weakness). Mixed rotation signal with low dispersion = no actionable directional bias from breadth.",
+  "rotation_signal": "mixed",
+  "sector_alignment": {
+    "xlk_change_pct": 0.09,
+    "xlf_change_pct": 0.02,
+    "xle_change_pct": -0.5,
+    "spy_change_pct": 0.09,
+    "xlk_vs_spy": "inline",
+    "breadth": "flat"
+  },
+  "key_observations": [
+    "XLK: +0.09% — tech flat, no momentum or leadership",
+    "XLF: +0.02% — financials essentially unchanged, no conviction",
+    "XLE: -0.50% — only sector with real move, slight defensive lean but isolated",
+    "Overall rotation: very muted, mixed signals, low dispersion → no directional conviction"
+  ],
+  "data_quality": "full"
+}

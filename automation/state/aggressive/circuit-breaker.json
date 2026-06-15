@@ -1,0 +1,11 @@
+{
+  "_doc": "Aggressive account daily P&L circuit breaker. Trips at -60% of start-of-day equity (vs -50% for safe). Managed by aggressive heartbeat (trip) + premarket (arm from live equity).",
+  "tripped": false,
+  "session_id": "2026-06-08",
+  "equity_start_of_day": 1121.66,
+  "equity_current": 1121.66,
+  "loss_pct": 0.0,
+  "trip_reason": null,
+  "tripped_at_et": null,
+  "_note": "Re-armed 2026-06-08 (LATE RUN — actual clock 15:21 ET). Live Alpaca equity $1121.66. daytrade_count=0 — 3 day trades available in rolling 5-day window. NOTE for J: this file says -60% but CLAUDE.md Rule 5 says Bold -50% -- doc drift, left behavior unchanged, flagged for your ruling."
+}

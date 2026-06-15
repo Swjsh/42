@@ -1,0 +1,89 @@
+{
+  "date": "2026-05-18",
+  "morning_thesis": "SPY staged a dramatic premarket reversal. 04:00 ET open: 735.70 (gapped down from Friday 737.26 close). Low: 734.75 at ~07:10 ET on light volume. High-volume catalyst at ~07:35-07:40 ET (13K-31K vol bars vs typical 300-1500 premarket) drove SPY through 738.10 Carry to PMH 741.30 by 08:45 ET. Current premarket: 740.21, which is $3.00 ABOVE Friday close. The 738.10 Carry (5-hold, 0-break) has been reclaimed to the upside — now serves as bull support. Swarm weak-bearish thesis (confidence 10%) largely invalidated. CRITICAL GATE: VIX = 18.51 (MID), ABOVE bull threshold 17.20 — bull entries BLOCKED until VIX drops below 17.20 with falling direction. Watch 741.30 PMH as first resistance. If SPY holds 740 at open and VIX fades below 17.20, BULLISH_RECLAIM_RIDE_THE_RIBBON eligible toward 743-744.35. NVDA earnings tomorrow (5/20) AMC. Falsifiable predictions: [1] 741.30 PMH first-touch resistance (conf 60%), [2] 738.10 Carry holds any RTH pullback (conf 65%), [3] VIX fades below 17.20 by 11:00 ET (conf 50%), [4] Friday close gap does not fill; SPY above 738.50 all session (conf 60%), [5] First confirmed RTH entry is bullish (conf 65%)",
+  "predictions": [
+    {
+      "prediction_idx": 0,
+      "claim": "Today's 741.30 PMH acts as first-touch resistance — no 5m bar closes above 741.60 with volume >= 1.5x 20-bar avg before 10:30 ET",
+      "trigger_window": "09:30-10:30 ET",
+      "invalidation": "A 5m bar closes above 741.60 with volume >= 1.5x 20-bar avg before 10:30 ET",
+      "confidence": 0.60,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "Session high 741.40 tagged/rejected PMH; no 5m close above 741.60 with qualifying volume; SPY reversed and sold off to 735.40 lows by afternoon.",
+      "category": "level",
+      "evidence_timestamp": "09:30",
+      "graded_at": "2026-05-18T16:00:02-04:00"
+    },
+    {
+      "prediction_idx": 1,
+      "claim": "738.10 Carry holds as intraday support on any RTH pullback — any touch of 738.10 bounces within 2 bars (no 5m close below 737.80)",
+      "trigger_window": "09:30-15:00 ET if tested",
+      "invalidation": "A 5m bar closes below 737.80 after SPY tests 738.10 from above",
+      "confidence": 0.65,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "10:35 bar close 737.43 fell below 737.80 invalidation threshold on 2.0x volume. Session low reached 735.405. Carry broken decisively.",
+      "category": "level",
+      "evidence_timestamp": "10:35",
+      "graded_at": "2026-05-18T16:00:02-04:00"
+    },
+    {
+      "prediction_idx": 2,
+      "claim": "VIX fades below 17.20 by 11:00 ET as RTH absorbs the premarket catalyst, unlocking bull entry filter",
+      "trigger_window": "09:35-11:00 ET",
+      "invalidation": "VIX reads above 17.80 at 11:00 ET (5m close)",
+      "confidence": 0.50,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "VIX = 18.64 rising at 11:03 ET per heartbeat log. Ranged 18.34-18.79 all session. Never approached 17.20.",
+      "category": "bias",
+      "evidence_timestamp": "11:03",
+      "graded_at": "2026-05-18T16:00:02-04:00"
+    },
+    {
+      "prediction_idx": 3,
+      "claim": "Friday close gap does not fill today — SPY holds above 738.50 all RTH through 15:00 ET",
+      "trigger_window": "09:30-15:00 ET",
+      "invalidation": "Any 5m bar closes below 738.50 during 09:30-15:00 ET",
+      "confidence": 0.60,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "10:35 bar close 737.43 broke 738.50; session low 735.405; gap filled decisively by mid-morning.",
+      "category": "bias",
+      "evidence_timestamp": "10:35",
+      "graded_at": "2026-05-18T16:00:02-04:00"
+    },
+    {
+      "prediction_idx": 4,
+      "claim": "First confirmed RTH entry (if any) is bullish — bear setup not eligible given above-Carry price and premarket momentum",
+      "trigger_window": "09:35-15:00 ET",
+      "invalidation": "ENTER_BEAR emitted before ENTER_BULL, OR SPY closes below 738.10 on a 5m RTH bar",
+      "confidence": 0.65,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "Bold BULLISH_RECLAIM entered at 09:57 ET was the only trade (SPY 740C × 3 @ $1.84). No ENTER_BEAR preceded it.",
+      "category": "trigger",
+      "evidence_timestamp": "09:57",
+      "graded_at": "2026-05-18T16:00:02-04:00"
+    }
+  ],
+  "surprises": [
+    "Premarket high-volume catalyst at 07:35-07:40 ET (+$6.55 move in 30 min) created a gap-and-fade trap — PMH became the RTH session high within first bar, signaling bear session type that premarket classifier didn't catch.",
+    "Ribbon BULL 132c at 11:33 while SPY was at 735.62 — a 4-6 point lag between ribbon and price during fast directional selloff; quantifies the lagging nature of the EMA indicator.",
+    "Three HOLD_DEV events scoring ≥8/10 bear (10:35, 11:05, 12:57) — all structurally valid bear setups blocked solely by ribbon not yet BEAR-stacked. All 3 would have been profitable."
+  ],
+  "lesson": "When a named level breaks on high volume, the level break IS the trigger — the ribbon EMA confirmation arrives 3-5 bars late and misses 70-80% of the move; add a broken_level_retest path that bypasses ribbon-stack requirement when a ★★+ level has broken and a subsequent retest bar closes back through with body ≥20c and volume ≥1.5x.",
+  "tomorrow_hint": "Bears in control — 738.10 now overhead resistance. Watch 735.40 support; break on volume opens 733. Rally to 738 is a short setup.",
+  "predictions_count": 5,
+  "predictions_passed": 2,
+  "predictions_partial": 0,
+  "hit_rate_passing": 0.40,
+  "specificity_weighted_hit_rate": 0.40,
+  "graded_at": "2026-05-18T16:30:02-04:00"
+}

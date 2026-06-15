@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-03-27T10:05:45.123456Z",
+  "bias": "bearish",
+  "confidence": 0.88,
+  "reasoning": "CLEAN_BEAR ribbon 111c spread with price 79c below pivot = strong bearish structure. Last 3 bars all red (05:45 full-body bear, 05:50 doji, 05:55 moderate bear) = consistent downward pressure. Overnight gap down 55c + premarket low 643.9 + price trading at 644.55 (near lows). VIX 30.01 rising in HIGH regime, XLK -1.98%, risk-off rotation confirms conviction.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 111,
+  "bar_structure": "strong_bear",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "CLEAN_BEAR ribbon: Fast 645.15 / Pivot 645.34 / Slow 646.26 (111c spread) — textbook bearish structure",
+    "Price 644.55 trading 79c below pivot — bearish momentum, well-separated from EMA equilibrium",
+    "3 consecutive red bars: 05:45 (close 644.67, full 87% body), 05:50 (close 644.72, doji 13% body), 05:55 (close 644.55, moderate 31% body) — strong downtrend with doji signaling exhaustion but no reversal yet",
+    "Overnight gap -55c (645.10 → 644.55) + premarket range 643.9-648.12 with price at low end = bears in control, testing support",
+    "VIX 30.01 rising (+6.49%), HIGH regime + XLK -1.98% + risk-off rotation = macro confirmation of bearish bias"
+  ],
+  "data_quality": "full"
+}

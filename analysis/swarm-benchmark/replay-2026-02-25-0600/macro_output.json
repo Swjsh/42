@@ -1,0 +1,22 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-02-25T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.78,
+  "reasoning": "VIX at 18.66 is MID regime and falling sharply (-4.55%), a clear bullish signal as fear recedes and premium compresses. No macro events scheduled for 2026-02-25 eliminates hard no-trade windows. Overnight gap is flat (-$0.34), providing no directional bias, but sector rotation into XLK (+0.78%) and XLF (+1.05%) signals risk-on backdrop. SPY ribbon is BULL-stacked with 28c spread. Macro environment supports bullish directional entries.",
+  "vix_regime": "MID",
+  "vix_direction": "falling",
+  "vix_current": 18.66,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": -0.34,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX falling -4.55% from prior (~19.5) — fear receding, premium compression bullish for calls",
+    "Zero macro events today (no FOMC, CPI, NFP, or earnings pre-market) — clean trading window 09:30-15:50 ET",
+    "Sector rotation risk-on: XLK +0.78%, XLF +1.05%, SPY +0.80% overnight — institutional bid into cyclicals",
+    "Ribbon BULL stack with 28c spread (tight, coherent) — price structure aligns with macro backdrop"
+  ],
+  "data_quality": "full"
+}

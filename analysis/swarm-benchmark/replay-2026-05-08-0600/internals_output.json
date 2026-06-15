@@ -1,0 +1,24 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-05-08T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.68,
+  "reasoning": "Classic risk-off rotation: XLK -0.33% + XLF -0.44% (financials leading weakness) while XLE +0.14%. Both tech and financials selling simultaneously; energy flat-to-slightly-up defensive signal. SPY -0.47% confirms internals weakness. This is a clear bearish sector alignment with medium-high confidence—two of three major sectors down >0.3%, financials showing greater weakness than tech, signaling institutional exit. Ribbon is BULL-stacked and SPY gapped up +0.73% overnight, but sector composition is deteriorating into premarket.",
+  "rotation_signal": "risk_off",
+  "sector_alignment": {
+    "xlk_change_pct": -0.33,
+    "xlf_change_pct": -0.44,
+    "xle_change_pct": 0.14,
+    "spy_change_pct": -0.47,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: -0.33% (tech selling into premarket, but lighter than financials)",
+    "XLF: -0.44% (financials leading the selloff, deeper weakness signals institutional caution)",
+    "XLE: +0.14% (defensive tilt—energy stabilizing while growth/rates-sensitive sectors fall)",
+    "Rotation assessment: Classic risk-off. Both growth (XLK) and rate-sensitive (XLF) sectors down; energy neutral. Contradicts overnight +0.73% SPY gap.",
+    "Breadth: Narrow. Not a broad-based selloff, but tech+finance combo is the SPY composition core."
+  ],
+  "data_quality": "full"
+}

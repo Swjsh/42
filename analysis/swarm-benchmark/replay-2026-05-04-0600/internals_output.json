@@ -1,0 +1,24 @@
+{
+  "agent": "internals",
+  "generated_at": "2026-05-04T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.62,
+  "reasoning": "XLK +0.92% shows strong tech leadership, but XLF -0.92% and XLE -0.36% reveal sharp financial and energy weakness. SPY is essentially flat (-0.08%) despite the premarket gap-up, indicating narrow breadth. This divergence—tech strength without financial support—is a classic unstable pattern. Financials lagging despite morning bullish momentum suggests underlying concern about rate environment or credit. The sector picture does NOT support confident SPY upside continuation; narrow tech leadership is fragile. Medium-confidence bearish lean on breadth deterioration.",
+  "rotation_signal": "mixed",
+  "sector_alignment": {
+    "xlk_change_pct": 0.92,
+    "xlf_change_pct": -0.92,
+    "xle_change_pct": -0.36,
+    "spy_change_pct": -0.08,
+    "xlk_vs_spy": "outperform",
+    "breadth": "narrow"
+  },
+  "key_observations": [
+    "XLK: +0.92% strong tech leadership in premarket",
+    "XLF: -0.92% sharp financial weakness despite gap-up — no support for upside",
+    "XLE: -0.36% additional energy weakness reinforces risk-off undertones",
+    "SPY: essentially flat despite gap-up, weighed down by non-tech sectors",
+    "Overall rotation: MIXED with narrow breadth — tech strength is not backed by broad participation. Fragile pattern."
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,20 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-05-17T13:02:45.123456Z",
+  "bias": "bearish",
+  "confidence": 0.72,
+  "reasoning": "CLEAN_BEAR ribbon (210c spread, fast 651.95 < pivot 652.42 < slow 654.05) with price 62c below pivot. Massive overnight gap down $4.94 from 656.74 close confirms bearish overnight sentiment. VIX rising to 26.36 in HIGH regime. Risk-off sector rotation (XLK/XLF down). Recent 3 bars mixed (red-green-doji) typical premarket chop on zero volume. Ribbon inversion + macro fear + structural price positioning override choppy bar structure.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 210,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "below",
+  "overnight_gap_dir": "down",
+  "key_observations": [
+    "CLEAN_BEAR ribbon (210c spread) + price 62c below pivot — structural bearish alignment",
+    "Large overnight gap down $4.94 (0.75%) from prior 656.74 close — major bearish sentiment",
+    "VIX rising to 26.36 in HIGH regime, +4.03% overnight — fear regime confirmed",
+    "Risk-off sector rotation: XLK -0.39%, XLF -0.5%, XLE +0.41% — classic bearish rotation",
+    "Premarket bars 05:45-05:55 show red-green-doji (mixed, typical for thin overnight volume)"
+  ],
+  "data_quality": "full"
+}

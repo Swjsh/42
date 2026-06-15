@@ -1,0 +1,29 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-04-17T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "VIX at 17.64 and falling (-1.12%) signals fear receding into neutral MID regime — premium compression supports directional entries, especially calls. Overnight gap +$1.89 ($0.27%) is modest bullish sentiment. Critically, zero macro events scheduled today (calendar window empty for 2026-04-17) eliminates hard event risk and opens a clean entry window from 09:35-15:00 ET. Ribbon already BULL-stacked with 85¢ spread, aligns with rising premarket action. Sector rotation mixed (tech +0.68%, energy +1.33%, financials flat) shows no extreme risk-off; morning setup favors bullish directional strategies with light hedging.",
+  "vix_regime": "MID",
+  "vix_direction": "falling",
+  "vix_current": 17.64,
+  "vix_change_pct": -1.12,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 1.89,
+  "overnight_gap_pct": 0.27,
+  "macro_backdrop": "risk_on_light",
+  "ribbon_status": "BULL",
+  "ribbon_spread_cents": 85,
+  "key_observations": [
+    "VIX 17.64 falling (-1.12%) from prior close — fear receding, neutral IV regime favorable for directional call spreads",
+    "Zero macro events today: calendar window empty for 2026-04-17, eliminates hard event risk windows 09:35-15:00 ET clean",
+    "Overnight gap +$1.89 ($0.27% from 701.55 close to premarket open) — modest bullish overnight sentiment, not extreme",
+    "Ribbon BULL-stacked (fast 703.16, pivot 702.98, slow 702.31, spread 85¢) aligns with rising premarket (703.52 high achieved by 05:55 ET)",
+    "Sector rotation mixed: XLK +0.68%, XLE +1.33% (tech/energy up), XLF -0.12% (financials flat) — no extreme risk-off, no extreme risk-on; consumer/duration strength missing"
+  ],
+  "entry_window_recommendation": "Clean — no hard event blocks. 09:35-15:00 ET fully available for bullish directional entries (calls). Theta becomes concern after 14:30 ET.",
+  "data_quality": "full",
+  "notes": "Macro calendar was refreshed 2026-05-17 for historical replay of 2026-04-17; fetch_failures in calendar log are from 2026-05-14 (stale), but calendar itself filtered correctly to week containing target date. No events_30d entries for week of 2026-04-13..2026-04-19; confirmed zero events today."
+}

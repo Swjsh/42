@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-03-05T10:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.65,
+  "reasoning": "VIX at 22.47 (HIGH regime) rising 6.09% from prior session signals accelerating fear and volatility. No macro events scheduled today removes event-driven volatility risk, but the residual VIX elevation favors bearish setups. Contradictory signal: sector rotation is risk-on (Tech +0.95%, Financials +0.33%), suggesting tactical bid despite elevated IV. Overnight gap flat (+$0.43) adds no directional bias. Macro backdrop is neutral-to-mixed — VIX dominates but sector strength creates uncertainty on pure bearish conviction.",
+  "vix_regime": "HIGH",
+  "vix_direction": "rising",
+  "vix_current": 22.47,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": 0.43,
+  "macro_backdrop": "neutral",
+  "key_observations": [
+    "VIX at 22.47 (HIGH, >22) rose 6.09% from prior close — sustained volatility elevation, fear accelerating",
+    "Zero macro events today — no scheduled releases or FOMC-adjacent windows; VIX spike is residual from prior day catalyst",
+    "Sector rotation risk-on: XLK (Tech) +0.95%, XLF (Financials) +0.33%, XLE flat — equities being bought into elevated IV, creating mixed signal",
+    "Ribbon MIXED stack, 14¢ spread — below confluence threshold, no directional support",
+    "Overnight gap +$0.43 (flat zone) — neutral open, no gap-driven directional bias"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "slug": "orb-gate",
+    "pid": 42020,
+    "status": "unknown_pid",
+    "started_at": "2026-05-21T04:48:57.299106+00:00",
+    "log": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\logs\\fleet-orb-gate-2026-05-21.log",
+    "output_file": "C:\\Users\\jackw\\Desktop\\42\\analysis\\backtests\\orb-gate-analysis\\results.json",
+    "est_minutes": 1,
+    "description": "ORB direction + OR-range gate analysis (leaderboard #4/#5)"
+  },
+  {
+    "slug": "v14e-bear",
+    "pid": 42120,
+    "status": "unknown_pid",
+    "started_at": "2026-05-21T04:48:57.302887+00:00",
+    "log": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\logs\\fleet-v14e-bear-2026-05-21.log",
+    "output_file": "C:\\Users\\jackw\\Desktop\\42\\analysis\\backtests\\v14e-bear-gate\\results.json",
+    "est_minutes": 1,
+    "description": "V14E bear-only gate analysis (leaderboard #3)"
+  },
+  {
+    "slug": "sweep-retune",
+    "pid": 40288,
+    "status": "running",
+    "started_at": "2026-05-21T04:48:57.306328+00:00",
+    "log": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\logs\\fleet-sweep-retune-2026-05-21.log",
+    "output_file": "C:\\Users\\jackw\\Desktop\\42\\analysis\\recommendations\\sweep-blocker-stage3.json",
+    "est_minutes": 10,
+    "description": "Sweep blocker stage3 re-run with confluence carve-out (#1)"
+  },
+  {
+    "slug": "f8-vix",
+    "pid": 33628,
+    "status": "running",
+    "started_at": "2026-05-21T04:48:57.310627+00:00",
+    "log": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\logs\\fleet-f8-vix-2026-05-21.log",
+    "output_file": "C:\\Users\\jackw\\Desktop\\42\\analysis\\recommendations\\f8-flat-vix-backtest-2026-05-21.json",
+    "est_minutes": 10,
+    "description": "F8 flat-VIX unblock full engine backtest (leaderboard #6)"
+  },
+  {
+    "slug": "nlwb-walkfwd",
+    "pid": 38424,
+    "status": "unknown_pid",
+    "started_at": "2026-05-21T04:48:57.314556+00:00",
+    "log": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\logs\\fleet-nlwb-walkfwd-2026-05-21.log",
+    "output_file": "C:\\Users\\jackw\\Desktop\\42\\analysis\\backtests\\nlwb-chart-stop\\walk-forward.json",
+    "est_minutes": 5,
+    "description": "NLWB walk-forward validation (leaderboard #8)"
+  },
+  {
+    "slug": "nlwb-fills",
+    "pid": 42416,
+    "status": "unknown_pid",
+    "started_at": "2026-05-21T04:48:57.319192+00:00",
+    "log": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\logs\\fleet-nlwb-fills-2026-05-21.log",
+    "output_file": "C:\\Users\\jackw\\Desktop\\42\\analysis\\backtests\\nlwb-chart-stop\\real-fills.json",
+    "est_minutes": 8,
+    "description": "NLWB full real-fills validation (leaderboard #8)"
+  }
+]

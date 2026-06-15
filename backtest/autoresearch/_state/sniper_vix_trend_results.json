@@ -1,0 +1,102 @@
+{
+  "run_at": "2026-05-23T23:57:37.809818",
+  "combo": {
+    "vol_mult": 1.1,
+    "body_min_cents": 0.02,
+    "min_stars": 2,
+    "strike_offset": 1,
+    "premium_stop_pct": -0.1,
+    "tp1_premium_pct": 0.3,
+    "tp1_qty_fraction": 0.5,
+    "runner_target_pct": 2.0,
+    "profit_lock_threshold_pct": 0.05,
+    "profit_lock_stop_offset_pct": 0.08,
+    "qty": 10,
+    "proximity_dollars": 1.5,
+    "require_break_above_open": true
+  },
+  "vix_lower": 18,
+  "vix_trend_window": 5,
+  "window": {
+    "start": "2025-01-01",
+    "end": "2026-05-22"
+  },
+  "baseline_vix18": {
+    "wide_pnl": 3297.6,
+    "n": 73,
+    "wr": 0.562,
+    "sharpe": 1.527,
+    "pos_q": 4,
+    "q_count": 5,
+    "skipped_low": 190,
+    "skipped_trend": 0,
+    "quarter_pnl": {
+      "2025-Q1": 1785.6,
+      "2025-Q2": 670.0,
+      "2025-Q4": 446.0,
+      "2026-Q1": 732.6,
+      "2026-Q2": -336.6
+    }
+  },
+  "regime_split": {
+    "escalating": {
+      "n": 39,
+      "pnl": 4737.8,
+      "wr": 0.667
+    },
+    "declining": {
+      "n": 34,
+      "pnl": -1440.2,
+      "wr": 0.441
+    }
+  },
+  "joint_filter": {
+    "wide_pnl": 4737.8,
+    "n": 39,
+    "wr": 0.667,
+    "sharpe": 3.761,
+    "pos_q": 5,
+    "q_count": 5,
+    "skipped_low": 190,
+    "skipped_trend": 70,
+    "quarter_pnl": {
+      "2025-Q1": 672.2,
+      "2025-Q2": 1246.2,
+      "2025-Q4": 1474.0,
+      "2026-Q1": 1266.8,
+      "2026-Q2": 78.6
+    }
+  },
+  "is_joint": {
+    "wide_pnl": 3630.0,
+    "n": 19,
+    "wr": 0.789,
+    "sharpe": 5.383,
+    "pos_q": 3,
+    "q_count": 3,
+    "skipped_low": 121,
+    "skipped_trend": 42,
+    "quarter_pnl": {
+      "2025-Q1": 672.2,
+      "2025-Q2": 1246.2,
+      "2025-Q4": 1711.6
+    }
+  },
+  "oos_joint": {
+    "wide_pnl": 1107.8,
+    "n": 20,
+    "wr": 0.55,
+    "sharpe": 1.901,
+    "pos_q": 2,
+    "q_count": 3,
+    "skipped_low": 69,
+    "skipped_trend": 28,
+    "quarter_pnl": {
+      "2025-Q4": -237.6,
+      "2026-Q1": 1266.8,
+      "2026-Q2": 78.6
+    }
+  },
+  "wf_ratio": 0.353,
+  "wf_pass": false
+}

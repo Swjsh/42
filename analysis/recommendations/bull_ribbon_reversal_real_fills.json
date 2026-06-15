@@ -1,0 +1,157 @@
+{
+  "generated_at": "2026-05-19T12:00:24.001676+00:00",
+  "purpose": "Real-fills validation for BEARISH_REVERSAL_AT_LEVEL_ON_BULL_RIBBON (OP-20 disclosure item 4)",
+  "spec_file": "strategy/candidates/2026-05-19-bearish-reversal-at-level-on-bull-ribbon.md",
+  "CRITICAL_SCANNER_BUG": {
+    "description": "bull_ribbon_reversal_scan.py has a timezone bug. The scanner reads SPY timestamps as UTC-aware and calls .time() on them, returning UTC time. SPY bars are stored with -04:00 ET offset, so UTC time = ET + 4h. The '11:00 ET' time gate checks 11:00 UTC = 07:00 ET (pre-market). All 4 signals fire in the opening range (09:35-10:05 ET), NOT after 11:00 ET. The spec's time field shows UTC, not ET.",
+    "implication": "As designed (truly after 11:00 ET): 0 valid historical signals in 342-day scan. The 4 signals validated here are OPENING RANGE signals (first 35 min of RTH). This is a DIFFERENT setup archetype than the spec describes. The spec must be updated or the scanner must be fixed to enforce 11:00 ET correctly.",
+    "verification": {
+      "bar_5970_timestamp_et": "2025-04-23 09:35:00",
+      "bar_5970_close": 541.87,
+      "scan_stated_time": "13:35 (UTC)",
+      "bar_25816_timestamp_et": "2026-03-23 09:40:00",
+      "scan_stated_time_2": "13:40 (UTC)"
+    }
+  },
+  "knobs_used": {
+    "tp1_premium_pct": "+25% (watch-only default from spec)",
+    "runner_target_pct": "+50% i.e. 1.5x (watch-only default from spec)",
+    "premium_stop_pct": "-6% (watch-only default from spec)",
+    "strike": "ATM or nearest cached proxy",
+    "qty": 3
+  },
+  "opra_cache_coverage": {
+    "2025-04-23_P542_ATM": "MISS \u2014 used P540 (OTM-2 proxy)",
+    "2026-03-23_P658_ATM": "HIT \u2014 exact ATM",
+    "2026-03-23_P660_ATM": "HIT \u2014 exact ATM",
+    "2026-03-31_P641_ATM": "MISS \u2014 used P645 (ITM-4 proxy)"
+  },
+  "summary": {
+    "signals_attempted": 4,
+    "ok_results": 4,
+    "full_cache_hits": 2,
+    "partial_cache_proxy": 2,
+    "wins": 0,
+    "losses": 4,
+    "total_pnl_3_contracts": -244.8,
+    "interpretation": "All 4 signals are opening-range (09:35-10:05 ET) level rejections, not the intended post-11:00 ET countertrend fade. Results reflect real fills on those bars. The stop at -6% is hit quickly on these early bars, consistent with opening-range volatility making tight stops unprofitable."
+  },
+  "signals": [
+    {
+      "date": "2025-04-23",
+      "scanner_time_utc": "13:35",
+      "actual_time_et": "09:35",
+      "status": "OK",
+      "cache_note": "PARTIAL_CACHE \u2014 ATM P542 not cached; P540 used (OTM-2 proxy). OTM puts have higher % sensitivity but lower absolute premium. P&L directionally valid; slightly understated vs ATM.",
+      "symbol": "SPY250423P00540000",
+      "strike": 540,
+      "entry_spot": 541.87,
+      "bar_close_from_scan": 541.87,
+      "atm_from_scan": 542,
+      "entry_premium": 3.55,
+      "exit_reason": "EXIT_ALL_PREMIUM_STOP",
+      "tp1_premium": null,
+      "runner_exit_premium": 3.337,
+      "dollar_pnl": -63.9,
+      "pct_return_on_premium": -0.06,
+      "hold_minutes": 10,
+      "bars_held": 2,
+      "max_adverse_premium": 1.85,
+      "max_favorable_premium": 3.55,
+      "qty": 3,
+      "knobs_used": {
+        "tp1_pct": 0.25,
+        "runner_target_pct": 0.5,
+        "stop_pct": -0.06,
+        "strike": 540
+      }
+    },
+    {
+      "date": "2026-03-23",
+      "scanner_time_utc": "13:40",
+      "actual_time_et": "09:40",
+      "status": "OK",
+      "cache_note": "FULL_CACHE_HIT \u2014 ATM P658 cached. Real OPRA fills.",
+      "symbol": "SPY260323P00658000",
+      "strike": 658,
+      "entry_spot": 657.995,
+      "bar_close_from_scan": 657.99,
+      "atm_from_scan": 658,
+      "entry_premium": 2.84,
+      "exit_reason": "EXIT_ALL_PREMIUM_STOP",
+      "tp1_premium": null,
+      "runner_exit_premium": 2.6696,
+      "dollar_pnl": -51.12,
+      "pct_return_on_premium": -0.06,
+      "hold_minutes": 10,
+      "bars_held": 2,
+      "max_adverse_premium": 1.66,
+      "max_favorable_premium": 2.84,
+      "qty": 3,
+      "knobs_used": {
+        "tp1_pct": 0.25,
+        "runner_target_pct": 0.5,
+        "stop_pct": -0.06,
+        "strike": 658
+      }
+    },
+    {
+      "date": "2026-03-23",
+      "scanner_time_utc": "13:50",
+      "actual_time_et": "09:50",
+      "status": "OK",
+      "cache_note": "FULL_CACHE_HIT \u2014 bar_close=659.58 rounds to ATM=660; P660 cached. Real OPRA fills.",
+      "symbol": "SPY260323P00660000",
+      "strike": 660,
+      "entry_spot": 659.58,
+      "bar_close_from_scan": 659.58,
+      "atm_from_scan": 660,
+      "entry_premium": 2.67,
+      "exit_reason": "EXIT_ALL_PREMIUM_STOP",
+      "tp1_premium": null,
+      "runner_exit_premium": 2.5098,
+      "dollar_pnl": -48.06,
+      "pct_return_on_premium": -0.06,
+      "hold_minutes": 10,
+      "bars_held": 2,
+      "max_adverse_premium": 1.94,
+      "max_favorable_premium": 2.8,
+      "qty": 3,
+      "knobs_used": {
+        "tp1_pct": 0.25,
+        "runner_target_pct": 0.5,
+        "stop_pct": -0.06,
+        "strike": 660
+      }
+    },
+    {
+      "date": "2026-03-31",
+      "scanner_time_utc": "14:05",
+      "actual_time_et": "10:05",
+      "status": "OK",
+      "cache_note": "PARTIAL_CACHE \u2014 ATM P641 not cached; P645 used (ITM-4 proxy). ITM puts have higher absolute premium, lower % leverage. P&L directionally valid; slightly overstated vs ATM.",
+      "symbol": "SPY260331P00645000",
+      "strike": 645,
+      "entry_spot": 641.215,
+      "bar_close_from_scan": 641.22,
+      "atm_from_scan": 641,
+      "entry_premium": 4.54,
+      "exit_reason": "EXIT_ALL_PREMIUM_STOP",
+      "tp1_premium": null,
+      "runner_exit_premium": 4.2676,
+      "dollar_pnl": -81.72,
+      "pct_return_on_premium": -0.06,
+      "hold_minutes": 10,
+      "bars_held": 2,
+      "max_adverse_premium": 3.59,
+      "max_favorable_premium": 4.61,
+      "qty": 3,
+      "knobs_used": {
+        "tp1_pct": 0.25,
+        "runner_target_pct": 0.5,
+        "stop_pct": -0.06,
+        "strike": 645
+      }
+    }
+  ]
+}

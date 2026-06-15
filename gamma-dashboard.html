@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Γ Gamma — 0DTE Command Center</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: #07090f;
+      font-family: 'Inter', sans-serif;
+      color: #e2e8f0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Dot-grid atmospheric background */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image: radial-gradient(rgba(99,102,241,0.055) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    body::after {
+      content: '';
+      position: fixed; top: -20%; left: 15%; width: 70%; height: 55%;
+      background: radial-gradient(ellipse, rgba(99,102,241,0.035) 0%, transparent 68%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.28); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(100,116,139,0.45); }
+
+    /* ── GLASS CARD ── */
+    .card {
+      background: rgba(11,17,31,0.78);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      border: 1px solid rgba(255,255,255,0.058);
+      border-radius: 14px;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.22s cubic-bezier(0.4,0,0.2,1);
+    }
+    .card:hover {
+      border-color: rgba(99,102,241,0.2);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(99,102,241,0.07), inset 0 1px 0 rgba(255,255,255,0.04);
+      transform: translateY(-2px);
+    }
+    .card-flat { background: rgba(11,17,31,0.78); border: 1px solid rgba(255,255,255,0.058); border-radius: 14px; }
+
+    /* ── GRADIENT TEXT ── */
+    .tg-indigo  { background: linear-gradient(135deg,#a5b4fc,#6366f1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .tg-emerald { background: linear-gradient(135deg,#6ee7b7,#10b981); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .tg-amber   { background: linear-gradient(135deg,#fde68a,#f59e0b); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .tg-blue    { background: linear-gradient(135deg,#93c5fd,#3b82f6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .tg-violet  { background: linear-gradient(135deg,#c4b5fd,#8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .tg-red     { background: linear-gradient(135deg,#fca5a5,#ef4444); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+    /* ── BADGES ── */
+    .badge { display:inline-flex; align-items:center; gap:4px; padding:2px 9px; border-radius:999px; font-size:11px; font-weight:600; letter-spacing:.04em; white-space:nowrap; }
+    .b-green  { background:rgba(16,185,129,.11); color:#34d399; border:1px solid rgba(16,185,129,.2); }
+    .b-blue   { background:rgba(59,130,246,.11);  color:#60a5fa; border:1px solid rgba(59,130,246,.2); }
+    .b-amber  { background:rgba(245,158,11,.11);  color:#fbbf24; border:1px solid rgba(245,158,11,.2); }
+    .b-red    { background:rgba(239,68,68,.11);   color:#f87171; border:1px solid rgba(239,68,68,.2); }
+    .b-indigo { background:rgba(99,102,241,.11);  color:#a5b4fc; border:1px solid rgba(99,102,241,.2); }
+    .b-gray   { background:rgba(100,116,139,.09); color:#94a3b8; border:1px solid rgba(100,116,139,.2); }
+    .b-violet { background:rgba(139,92,246,.11);  color:#c4b5fd; border:1px solid rgba(139,92,246,.2); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes pulse-glow {
+      0%,100% { box-shadow:0 0 0 0 rgba(16,185,129,.5); opacity:1; }
+      50%      { box-shadow:0 0 0 5px rgba(16,185,129,0); opacity:.75; }
+    }
+    @keyframes pulse-amber {
+      0%,100% { box-shadow:0 0 0 0 rgba(245,158,11,.5); }
+      50%      { box-shadow:0 0 0 5px rgba(245,158,11,0); }
+    }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes slideLeft { from { opacity:0; transform:translateX(-12px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes scanline { 0% { top:-2px; } 100% { top:100%; } }
+
+    .dot-live  { border-radius:50%; animation: pulse-glow  2s infinite; }
+    .dot-amber { border-radius:50%; animation: pulse-amber 2.5s infinite; }
+
+    .anim-up   { animation: fadeUp   0.48s cubic-bezier(.4,0,.2,1) both; }
+    .d1  { animation-delay:.04s; }
+    .d2  { animation-delay:.09s; }
+    .d3  { animation-delay:.14s; }
+    .d4  { animation-delay:.19s; }
+    .d5  { animation-delay:.24s; }
+    .d6  { animation-delay:.29s; }
+    .d7  { animation-delay:.34s; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 214px; min-width: 214px;
+      height: 100vh; position: fixed; left: 0; top: 0; z-index: 100;
+      background: rgba(7,9,15,0.88);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(255,255,255,0.055);
+      display: flex; flex-direction: column;
+    }
+    .nav-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 14px; border-radius: 8px;
+      color: #64748b; font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: all .15s ease;
+      border-left: 2px solid transparent; margin: 0 6px;
+      text-decoration: none;
+    }
+    .nav-link:hover  { color: #e2e8f0; background: rgba(99,102,241,.08); border-left-color: rgba(99,102,241,.3); }
+    .nav-link.active { color: #a5b4fc; background: rgba(99,102,241,.12); border-left-color: #6366f1; }
+
+    /* ── HEADER ── */
+    .top-header {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(7,9,15,.88); backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.055);
+    }
+
+    /* ── MAIN OFFSET ── */
+    .main { margin-left: 214px; }
+    @media(max-width:1024px) { .sidebar { display:none; } .main { margin-left:0; } }
+
+    /* ── FLOW NODES ── */
+    .fnode {
+      background: rgba(11,17,31,.9); border: 1px solid rgba(99,102,241,.18);
+      border-radius: 10px; padding: 9px 12px;
+      transition: all .2s ease;
+    }
+    .fnode:hover { border-color:rgba(99,102,241,.45); box-shadow:0 0 18px rgba(99,102,241,.14); transform:scale(1.03); }
+
+    /* ── PROGRESS ── */
+    .track { background:rgba(30,41,59,.7); border-radius:999px; overflow:hidden; }
+    .fill  { height:100%; border-radius:999px; transition: width 1.4s cubic-bezier(.4,0,.2,1); }
+
+    /* ── LOG FEED ── */
+    .log-scroll { max-height: 348px; overflow-y:auto; }
+
+    /* ── NUMBER ── */
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* ── STATUS INDICATOR ── */
+    .status-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+    /* ── STAT MINI-CARD ── */
+    .mini-stat {
+      background: rgba(7,9,15,.65); border:1px solid rgba(255,255,255,.05);
+      border-radius:10px; padding:10px 12px;
+    }
+
+    /* ── RULE CARD ── */
+    .rule-card {
+      background: rgba(7,9,15,.7); border:1px solid rgba(99,102,241,.09);
+      border-radius:12px; padding:12px;
+      transition: all .2s ease;
+    }
+    .rule-card:hover { border-color:rgba(99,102,241,.25); transform:scale(1.02); }
+
+    /* ── SPARKLINE ── */
+    svg.spark { display:block; width:100%; overflow:visible; }
+  </style>
+</head>
+
+<body class="relative">
+
+<!-- ═══════════════════════════════ SIDEBAR ═══════════════════════════════ -->
+<aside class="sidebar">
+  <!-- Logo -->
+  <div class="px-5 py-5">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+           style="background:linear-gradient(135deg,#6366f1,#4338ca);box-shadow:0 4px 18px rgba(99,102,241,.4);">
+        <span class="text-white font-black text-base leading-none">Γ</span>
+      </div>
+      <div>
+        <div class="font-bold text-sm text-white leading-tight">Gamma</div>
+        <div class="mono text-[10px] text-slate-500 mt-0.5">0DTE · Command Center</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live status pill -->
+  <div class="mx-4 mb-5 px-3 py-2.5 rounded-xl"
+       style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.15);">
+    <div class="flex items-center justify-between mb-1">
+      <div class="flex items-center gap-2">
+        <div class="status-dot bg-emerald-400 dot-live"></div>
+        <span class="text-[11px] font-bold text-emerald-400 tracking-wide">SYSTEMS LIVE</span>
+      </div>
+      <span class="mono text-[10px] text-slate-500" id="clock-mini">--:--</span>
+    </div>
+    <div class="mono text-[10px] text-slate-600">v15.1 · Paper Mode · Dual Acct</div>
+  </div>
+
+  <!-- Nav sections -->
+  <nav class="flex-1 px-2 space-y-0.5 overflow-y-auto">
+    <div class="px-3 pt-1 pb-1.5 text-[10px] font-semibold text-slate-700 uppercase tracking-widest">Overview</div>
+    <a class="nav-link active" onclick="goTo('summary')">
+      <i data-lucide="layout-dashboard" class="w-4 h-4 flex-shrink-0"></i> Dashboard
+    </a>
+    <a class="nav-link" onclick="goTo('arch')">
+      <i data-lucide="workflow" class="w-4 h-4 flex-shrink-0"></i> Architecture
+    </a>
+    <a class="nav-link" onclick="goTo('kpis')">
+      <i data-lucide="bar-chart-2" class="w-4 h-4 flex-shrink-0"></i> Performance
+    </a>
+
+    <div class="px-3 pt-3 pb-1.5 text-[10px] font-semibold text-slate-700 uppercase tracking-widest">Operations</div>
+    <a class="nav-link" onclick="goTo('activity')">
+      <i data-lucide="radio" class="w-4 h-4 flex-shrink-0"></i> Activity Feed
+    </a>
+    <a class="nav-link" onclick="goTo('components')">
+      <i data-lucide="server" class="w-4 h-4 flex-shrink-0"></i> Components
+    </a>
+    <a class="nav-link" onclick="goTo('swarm')">
+      <i data-lucide="brain" class="w-4 h-4 flex-shrink-0"></i> Swarm Engine
+    </a>
+    <a class="nav-link" onclick="goTo('accounts')">
+      <i data-lucide="wallet" class="w-4 h-4 flex-shrink-0"></i> Accounts
+    </a>
+    <a class="nav-link" onclick="goTo('rules')">
+      <i data-lucide="shield" class="w-4 h-4 flex-shrink-0"></i> 10 Rules
+    </a>
+  </nav>
+
+  <!-- Footer meta -->
+  <div class="px-4 py-4 border-t border-white/5">
+    <div class="mono text-[10px] text-slate-700 space-y-0.5">
+      <div>rule <span class="text-indigo-500">v15.1</span></div>
+      <div>build <span class="text-slate-600">2026-05-16</span></div>
+      <div class="text-slate-800 mt-1">© Project Gamma</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════ MAIN ═══════════════════════════════ -->
+<div class="main relative z-10">
+
+  <!-- ── TOP HEADER ── -->
+  <header class="top-header px-6 py-3">
+    <div class="flex items-center justify-between gap-4 flex-wrap">
+
+      <!-- Left: project identity -->
+      <div class="flex items-center gap-3">
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-bold text-[15px] text-white tracking-tight">Project Gamma</span>
+            <span class="badge b-indigo">PAPER TRADING</span>
+            <span class="badge b-green">9/9 TASKS LIVE</span>
+          </div>
+          <div class="mono text-[11px] text-slate-500 mt-0.5">
+            0DTE SPY Directional Options · Rule v15.1 · Autonomous · Dual Account
+          </div>
+        </div>
+      </div>
+
+      <!-- Center: quick metrics (desktop) -->
+      <div class="hidden xl:flex items-center gap-5">
+        <div class="text-center">
+          <div class="text-[10px] text-slate-600 uppercase tracking-wider mb-0.5">Safe Equity</div>
+          <div class="mono font-bold text-sm text-emerald-400">$1,000</div>
+        </div>
+        <div class="w-px h-7 bg-white/[0.06]"></div>
+        <div class="text-center">
+          <div class="text-[10px] text-slate-600 uppercase tracking-wider mb-0.5">Bold Equity</div>
+          <div class="mono font-bold text-sm text-amber-400">$1,000</div>
+        </div>
+        <div class="w-px h-7 bg-white/[0.06]"></div>
+        <div class="text-center">
+          <div class="text-[10px] text-slate-600 uppercase tracking-wider mb-0.5">BT P&amp;L (v14)</div>
+          <div class="mono font-bold text-sm text-emerald-400">+$4,731</div>
+        </div>
+        <div class="w-px h-7 bg-white/[0.06]"></div>
+        <div class="text-center">
+          <div class="text-[10px] text-slate-600 uppercase tracking-wider mb-0.5">Win Rate</div>
+          <div class="mono font-bold text-sm text-indigo-400">49%</div>
+        </div>
+        <div class="w-px h-7 bg-white/[0.06]"></div>
+        <div class="text-center">
+          <div class="text-[10px] text-slate-600 uppercase tracking-wider mb-0.5">Daily Cost</div>
+          <div class="mono font-bold text-sm text-amber-400">~$0.28</div>
+        </div>
+      </div>
+
+      <!-- Right: clock + status -->
+      <div class="flex items-center gap-3">
+        <div class="hidden md:block text-right">
+          <div class="mono text-sm font-bold text-white" id="clock">--:--:--</div>
+          <div class="text-[10px] text-slate-600">ET · NYSE</div>
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
+             style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.15);">
+          <div class="status-dot bg-emerald-400 dot-live" style="width:7px;height:7px;"></div>
+          <span class="text-[11px] text-emerald-400 font-bold">OPERATIONAL</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── SCROLLABLE MAIN ── -->
+  <main class="px-5 py-5 space-y-5">
+
+    <!-- ══════════════════════════════════════════════════
+         ROW 1 — EXECUTIVE SUMMARY + HEALTH
+    ══════════════════════════════════════════════════ -->
+    <div id="summary" class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+
+      <!-- Executive Summary 2/3 -->
+      <div class="xl:col-span-2 card p-5 anim-up d1">
+        <div class="flex items-start justify-between gap-4 mb-4 flex-wrap">
+          <div>
+            <div class="flex items-center gap-2 mb-1.5">
+              <i data-lucide="zap" class="w-4 h-4 text-indigo-400 flex-shrink-0"></i>
+              <span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Executive Summary</span>
+            </div>
+            <h1 class="text-xl font-black text-white tracking-tight">Gamma — Autonomous 0DTE SPY Engine</h1>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <span class="badge b-green">Phase 1 · Live</span>
+            <span class="badge b-indigo">v15.1</span>
+          </div>
+        </div>
+
+        <p class="text-sm text-slate-400 leading-relaxed mb-5">
+          Gamma is a fully autonomous, signal-driven system executing
+          <span class="text-white font-semibold">0DTE SPY directional options</span> on two isolated Alpaca paper accounts.
+          It reads live price action via <span class="text-indigo-300">TradingView MCP</span>, validates setups against a
+          10-rule playbook enforced by the engine, sizes positions from risk parameters in
+          <span class="text-indigo-300">params.json</span>, places bracket orders via
+          <span class="text-indigo-300">Alpaca MCP</span>, and journals every tick decision in real time —
+          without human intervention. A 6-agent <span class="text-violet-300">Swarm</span> generates pre-market
+          hypothesis context daily at 06:00 ET.
+        </p>
+
+        <!-- 3 pillar cards -->
+        <div class="grid grid-cols-3 gap-3 mb-5">
+          <div class="mini-stat">
+            <div class="text-[10px] text-slate-600 uppercase tracking-wider mb-1.5">Instrument</div>
+            <div class="font-bold text-white text-[13px]">SPY 0DTE</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Calls &amp; Puts</div>
+          </div>
+          <div class="mini-stat" style="border-color:rgba(16,185,129,.12);background:rgba(16,185,129,.05);">
+            <div class="text-[10px] text-slate-600 uppercase tracking-wider mb-1.5">Strategy</div>
+            <div class="font-bold text-white text-[13px]">Signal-Driven</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Rejection / Reclaim</div>
+          </div>
+          <div class="mini-stat" style="border-color:rgba(245,158,11,.12);background:rgba(245,158,11,.05);">
+            <div class="text-[10px] text-slate-600 uppercase tracking-wider mb-1.5">Accounts</div>
+            <div class="font-bold text-white text-[13px]">Dual Paper</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Safe + Bold</div>
+          </div>
+        </div>
+
+        <!-- Live deployment progress -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] text-slate-500 font-semibold">Progress to live threshold</span>
+            <span class="mono text-[11px] text-slate-500">0 / 20 trades · WR TBD</span>
+          </div>
+          <div class="track h-1.5">
+            <div class="fill" id="live-progress" style="width:0%;background:linear-gradient(90deg,#6366f1,#818cf8);"></div>
+          </div>
+          <div class="flex justify-between mt-1">
+            <span class="text-[10px] text-slate-700">Seed $1K</span>
+            <span class="text-[10px] text-slate-700">20 trades + WR ≥45% + positive expectancy</span>
+            <span class="text-[10px] text-slate-700">Go live</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Health 1/3 -->
+      <div class="card p-5 anim-up d2">
+        <div class="flex items-center gap-2 mb-4">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+          <span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">System Health</span>
+        </div>
+
+        <div class="text-center mb-5">
+          <div class="text-5xl font-black tg-emerald leading-none mb-1">98%</div>
+          <div class="text-[11px] text-slate-500">Operational Score</div>
+        </div>
+
+        <div class="space-y-3.5">
+          <div>
+            <div class="flex justify-between text-[11px] mb-1">
+              <span class="text-slate-400">Task Scheduler</span>
+              <span class="text-emerald-400 font-semibold">9 / 9</span>
+            </div>
+            <div class="track h-1"><div class="fill bg-emerald-500" style="width:100%;"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-[11px] mb-1">
+              <span class="text-slate-400">MCP Connectivity</span>
+              <span class="text-emerald-400 font-semibold">2 / 2</span>
+            </div>
+            <div class="track h-1"><div class="fill bg-emerald-500" style="width:100%;"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-[11px] mb-1">
+              <span class="text-slate-400">Crypto Validators</span>
+              <span class="text-emerald-400 font-semibold">27 / 27</span>
+            </div>
+            <div class="track h-1"><div class="fill bg-emerald-500" style="width:100%;"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-[11px] mb-1">
+              <span class="text-slate-400">Swarm Engine</span>
+              <span class="text-indigo-400 font-semibold">Deployed</span>
+            </div>
+            <div class="track h-1"><div class="fill" style="width:100%;background:linear-gradient(90deg,#6366f1,#818cf8);"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-[11px] mb-1">
+              <span class="text-slate-400">Rule Version Pin</span>
+              <span class="mono text-indigo-400 font-bold">v15.1 ✓</span>
+            </div>
+            <div class="track h-1"><div class="fill bg-indigo-500" style="width:100%;"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-[11px] mb-1">
+              <span class="text-slate-400">Kill Switches</span>
+              <span class="text-emerald-400 font-semibold">Armed</span>
+            </div>
+            <div class="track h-1"><div class="fill bg-emerald-500" style="width:100%;"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         ROW 2 — KPI MICRO-CARDS
+    ══════════════════════════════════════════════════ -->
+    <div id="kpis" class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+      <!-- KPI 1: Backtest P&L -->
+      <div class="card p-4 anim-up d2">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">BT P&amp;L (v14)</span>
+          <div class="w-7 h-7 rounded-lg flex items-center justify-center"
+               style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.15);">
+            <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-400"></i>
+          </div>
+        </div>
+        <div class="text-3xl font-black tg-emerald mb-0.5">+$4,731</div>
+        <div class="text-[11px] text-slate-500 mb-3">53 days · 4/4 PASS · sub-window stable</div>
+        <svg class="spark" height="30" viewBox="0 0 120 30" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#10b981" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <polyline points="0,28 10,25 20,27 30,21 40,23 50,16 60,18 70,11 80,14 90,8 100,10 110,5 120,3"
+                    fill="none" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <polygon points="0,28 10,25 20,27 30,21 40,23 50,16 60,18 70,11 80,14 90,8 100,10 110,5 120,3 120,30 0,30"
+                   fill="url(#sg1)" stroke="none"/>
+        </svg>
+      </div>
+
+      <!-- KPI 2: Win Rate -->
+      <div class="card p-4 anim-up d3">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Win Rate</span>
+          <div class="w-7 h-7 rounded-lg flex items-center justify-center"
+               style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.15);">
+            <i data-lucide="target" class="w-3.5 h-3.5 text-indigo-400"></i>
+          </div>
+        </div>
+        <div class="text-3xl font-black tg-indigo mb-0.5">49%</div>
+        <div class="text-[11px] text-slate-500 mb-3">W/L 2.93× · Expect. $69/trade</div>
+        <svg class="spark" height="30" viewBox="0 0 120 30">
+          <defs>
+            <linearGradient id="sg2" x1="1" y1="0" x2="0" y2="0">
+              <stop offset="0%" stop-color="#818cf8"/>
+              <stop offset="100%" stop-color="#6366f1"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="14" width="120" height="4" rx="2" fill="rgba(30,41,59,.7)"/>
+          <rect x="0" y="14" width="49" height="4" rx="2" fill="url(#sg2)"/>
+          <!-- Gate marker -->
+          <rect x="54" y="10" width="1" height="12" fill="rgba(245,158,11,.5)"/>
+          <text x="56" y="9" fill="#f59e0b" font-size="6.5" font-family="JetBrains Mono">45% gate</text>
+          <text x="0" y="28" fill="#475569" font-size="6" font-family="JetBrains Mono">0%</text>
+          <text x="107" y="28" fill="#475569" font-size="6" font-family="JetBrains Mono">100%</text>
+        </svg>
+      </div>
+
+      <!-- KPI 3: Daily Cost -->
+      <div class="card p-4 anim-up d4">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Cost / Day</span>
+          <div class="w-7 h-7 rounded-lg flex items-center justify-center"
+               style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.15);">
+            <i data-lucide="coins" class="w-3.5 h-3.5 text-amber-400"></i>
+          </div>
+        </div>
+        <div class="text-3xl font-black tg-amber mb-0.5">~$0.28</div>
+        <div class="text-[11px] text-slate-500 mb-3">Heartbeat + Swarm ($0.065) + EOD</div>
+        <svg class="spark" height="30" viewBox="0 0 120 30" preserveAspectRatio="none">
+          <polyline points="0,18 12,14 24,20 36,13 48,17 60,11 72,15 84,9 96,12 108,8 120,10"
+                    fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/>
+          <text x="2" y="28" fill="#475569" font-size="6" font-family="JetBrains Mono">$0.00</text>
+          <text x="78" y="28" fill="#475569" font-size="6" font-family="JetBrains Mono">Cap: $100/mo</text>
+        </svg>
+      </div>
+
+      <!-- KPI 4: Swarm Confidence -->
+      <div class="card p-4 anim-up d5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Swarm Intel</span>
+          <div class="w-7 h-7 rounded-lg flex items-center justify-center"
+               style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.15);">
+            <i data-lucide="brain" class="w-3.5 h-3.5 text-violet-400"></i>
+          </div>
+        </div>
+        <div class="text-3xl font-black tg-violet mb-0.5">—</div>
+        <div class="text-[11px] text-slate-500 mb-2">Awaiting first trading day run</div>
+        <span class="badge b-violet text-[10px]">Phase 2 unlocks at 20 graded days</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         ROW 3 — ARCHITECTURE & DATA FLOW
+    ══════════════════════════════════════════════════ -->
+    <div id="arch" class="card p-5 anim-up d3">
+      <div class="flex items-center gap-2 mb-5 flex-wrap">
+        <i data-lucide="workflow" class="w-4 h-4 text-indigo-400 flex-shrink-0"></i>
+        <span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Architecture &amp; Data Flow</span>
+        <div class="ml-auto flex items-center gap-2">
+          <span class="badge b-green">Autonomous 24/7</span>
+          <span class="badge b-indigo">9 Scheduled Tasks</span>
+        </div>
+      </div>
+
+      <!-- Daily lifecycle -->
+      <div class="mb-5">
+        <div class="text-[10px] font-bold text-slate-700 uppercase tracking-widest mb-3">Daily Autonomous Lifecycle (Eastern Time)</div>
+        <div class="flex items-stretch gap-1.5 overflow-x-auto pb-2 min-w-0">
+
+          <div class="fnode flex-shrink-0 text-center min-w-[86px]" style="border-color:rgba(139,92,246,.25);background:rgba(139,92,246,.06);">
+            <div class="mono text-[9px] text-slate-600 mb-1.5">06:00</div>
+            <div class="w-6 h-6 rounded-lg mx-auto mb-1.5 flex items-center justify-center" style="background:rgba(139,92,246,.2);">
+              <i data-lucide="brain" class="w-3 h-3 text-violet-400"></i>
+            </div>
+            <div class="text-[10px] font-bold text-violet-300">Swarm</div>
+            <div class="text-[9px] text-slate-600 mt-0.5">6 AI agents</div>
+          </div>
+
+          <div class="flex items-center text-indigo-700 text-sm px-0.5 flex-shrink-0">›</div>
+
+          <div class="fnode flex-shrink-0 text-center min-w-[86px]">
+            <div class="mono text-[9px] text-slate-600 mb-1.5">08:00</div>
+            <div class="w-6 h-6 rounded-lg mx-auto mb-1.5 flex items-center justify-center" style="background:rgba(59,130,246,.2);">
+              <i data-lucide="monitor" class="w-3 h-3 text-blue-400"></i>
+            </div>
+            <div class="text-[10px] font-bold text-slate-300">LaunchTV</div>
+            <div class="text-[9px] text-slate-600 mt-0.5">CDP 9222</div>
+          </div>
+
+          <div class="flex items-center text-indigo-700 text-sm px-0.5 flex-shrink-0">›</div>
+
+          <div class="fnode flex-shrink-0 text-center min-w-[86px]">
+            <div class="mono text-[9px] text-slate-600 mb-1.5">08:30</div>
+            <div class="w-6 h-6 rounded-lg mx-auto mb-1.5 flex items-center justify-center" style="background:rgba(245,158,11,.2);">
+              <i data-lucide="sun" class="w-3 h-3 text-amber-400"></i>
+            </div>
+            <div class="text-[10px] font-bold text-slate-300">Premarket</div>
+            <div class="text-[9px] text-slate-600 mt-0.5">Bias + levels</div>
+          </div>
+
+          <div class="flex items-center text-indigo-700 text-sm px-0.5 flex-shrink-0">›</div>
+
+          <div class="fnode flex-shrink-0 text-center min-w-[100px]"
+               style="border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.06);box-shadow:0 0 16px rgba(16,185,129,.07);">
+            <div class="mono text-[9px] text-slate-600 mb-1.5">09:30 – 15:55</div>
+            <div class="w-6 h-6 rounded-lg mx-auto mb-1.5 flex items-center justify-center" style="background:rgba(16,185,129,.2);">
+              <i data-lucide="activity" class="w-3 h-3 text-emerald-400"></i>
+            </div>
+            <div class="text-[10px] font-bold text-emerald-300">Heartbeat</div>
+            <div class="text-[9px] text-slate-600 mt-0.5">Every 3 min</div>
+          </div>
+
+          <div class="flex items-center text-indigo-700 text-sm px-0.5 flex-shrink-0">›</div>
+
+          <div class="fnode flex-shrink-0 text-center min-w-[86px]" style="border-color:rgba(239,68,68,.18);">
+            <div class="mono text-[9px] text-slate-600 mb-1.5">15:55</div>
+            <div class="w-6 h-6 rounded-lg mx-auto mb-1.5 flex items-center justify-center" style="background:rgba(239,68,68,.2);">
+              <i data-lucide="shield-alert" class="w-3 h-3 text-red-400"></i>
+            </div>
+            <div class="text-[10px] font-bold text-slate-300">Flatten</div>
+            <div class="text-[9px] text-slate-600 mt-0.5">Force flat</div>
+          </div>
+
+          <div class="flex items-center text-indigo-700 text-sm px-0.5 flex-shrink-0">›</div>
+
+          <div class="fnode flex-shrink-0 text-center min-w-[86px]">
+            <div class="mono text-[9px] text-slate-600 mb-1.5">16:00</div>
+            <div class="w-6 h-6 rounded-lg mx-auto mb-1.5 flex items-center justify-center" style="background:rgba(99,102,241,.2);">
+              <i data-lucide="clipboard-list" class="w-3 h-3 text-indigo-400"></i>
+            </div>
+            <div class="text-[10px] font-bold text-slate-300">EOD</div>
+            <div class="text-[9px] text-slate-600 mt-0.5">Reflect + grade</div>
+          </div>
+
+          <div class="flex items-center text-indigo-700 text-sm px-0.5 flex-shrink-0">›</div>
+
+          <div class="fnode flex-shrink-0 text-center min-w-[86px]">
+            <div class="mono text-[9px] text-slate-600 mb-1.5">16:30</div>
+            <div class="w-6 h-6 rounded-lg mx-auto mb-1.5 flex items-center justify-center" style="background:rgba(100,116,139,.2);">
+              <i data-lucide="book-open" class="w-3 h-3 text-slate-400"></i>
+            </div>
+            <div class="text-[10px] font-bold text-slate-300">Review</div>
+            <div class="text-[9px] text-slate-600 mt-0.5">Levels + plan</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Swarm pipeline detail -->
+      <div class="rounded-xl p-4" style="background:rgba(7,9,15,.65);border:1px solid rgba(99,102,241,.1);">
+        <div class="text-[10px] font-bold text-slate-700 uppercase tracking-widest mb-3">
+          Swarm Pre-Market Pipeline — 06:00 ET · multiprocessing.Pool(4)
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+
+          <!-- data_fetcher -->
+          <div class="fnode" style="background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.2);">
+            <div class="text-[10px] font-bold text-blue-400 mb-0.5 mono">data_fetcher</div>
+            <div class="text-[9px] text-slate-500">TV + Alpaca MCP</div>
+            <div class="text-[9px] text-slate-700 mono">→ raw_data.json</div>
+          </div>
+
+          <div class="text-indigo-600 text-lg">›</div>
+
+          <!-- Parallel block -->
+          <div class="rounded-xl p-2.5" style="background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.12);">
+            <div class="text-[9px] text-slate-700 text-center mb-2 font-semibold">Pool(4) parallel</div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <div class="fnode text-center py-1.5 px-2" style="background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.18);">
+                <div class="mono text-[9px] font-bold text-violet-400">technical</div>
+                <div class="text-[8px] text-slate-700">w=0.35</div>
+              </div>
+              <div class="fnode text-center py-1.5 px-2" style="background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.18);">
+                <div class="mono text-[9px] font-bold text-violet-400">macro</div>
+                <div class="text-[8px] text-slate-700">w=0.30</div>
+              </div>
+              <div class="fnode text-center py-1.5 px-2" style="background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.18);">
+                <div class="mono text-[9px] font-bold text-violet-400">level_thesis</div>
+                <div class="text-[8px] text-slate-700">w=0.25</div>
+              </div>
+              <div class="fnode text-center py-1.5 px-2" style="background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.18);">
+                <div class="mono text-[9px] font-bold text-violet-400">internals</div>
+                <div class="text-[8px] text-slate-700">w=0.10</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-indigo-600 text-lg">›</div>
+
+          <div class="fnode" style="background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2);">
+            <div class="mono text-[10px] font-bold text-amber-400 mb-0.5">validator</div>
+            <div class="text-[9px] text-slate-500">Devil's advocate</div>
+            <div class="text-[9px] text-slate-700">Haiku 4.5</div>
+          </div>
+
+          <div class="text-indigo-600 text-lg">›</div>
+
+          <div class="fnode" style="background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.2);">
+            <div class="mono text-[10px] font-bold text-emerald-400 mb-0.5">synthesis CIO</div>
+            <div class="text-[9px] text-slate-500">Weighted vote</div>
+            <div class="text-[9px] text-slate-700">Sonnet 4.6</div>
+          </div>
+
+          <div class="text-indigo-600 text-lg">›</div>
+
+          <div class="fnode" style="background:rgba(99,102,241,.08);border-color:rgba(99,102,241,.25);">
+            <div class="mono text-[10px] font-bold text-indigo-300 mb-1">swarm_output.json</div>
+            <div class="text-[9px] text-slate-500">consensus_bias</div>
+            <div class="text-[9px] text-slate-500">swarm_confidence</div>
+            <div class="text-[9px] text-slate-500">dissent_flag</div>
+            <div class="text-[9px] text-slate-700 mono mt-1">→ premarket Step 1c</div>
+          </div>
+        </div>
+
+        <!-- Data sources callout -->
+        <div class="flex flex-wrap gap-x-6 gap-y-1 mt-3">
+          <div class="text-[10px] text-slate-700 font-semibold">Data sources:</div>
+          <span class="text-[10px] text-blue-500 mono">TradingView MCP (CDP 9222)</span>
+          <span class="text-[10px] text-blue-500 mono">Alpaca MCP (bars XLK/XLF/XLE/SPY)</span>
+          <span class="text-[10px] text-slate-600 mono">key-levels.json</span>
+          <span class="text-[10px] text-slate-600 mono">macro-calendar.json</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         ROW 4 — ACTIVITY FEED + COMPONENT STATUS
+    ══════════════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+      <!-- Activity Feed -->
+      <div id="activity" class="card p-5 anim-up d4">
+        <div class="flex items-center gap-2 mb-4">
+          <i data-lucide="radio" class="w-4 h-4 text-indigo-400"></i>
+          <span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Activity Feed</span>
+          <div class="ml-auto flex items-center gap-1.5">
+            <div class="status-dot bg-emerald-400 dot-live" style="width:6px;height:6px;"></div>
+            <span class="text-[10px] text-emerald-400 font-bold">LIVE</span>
+          </div>
+        </div>
+        <div class="log-scroll space-y-0.5" id="activity-feed"></div>
+      </div>
+
+      <!-- Component Status -->
+      <div id="components" class="card p-5 anim-up d5">
+        <div class="flex items-center gap-2 mb-4">
+          <i data-lucide="server" class="w-4 h-4 text-indigo-400"></i>
+          <span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Component Status</span>
+          <span class="ml-auto badge b-green">9/9 Operational</span>
+        </div>
+        <div class="space-y-1.5" id="component-grid"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         ROW 5 — SWARM ENGINE + ACCOUNTS
+    ══════════════════════════════════════════════════ -->
+    <div id="swarm" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+      <!-- Swarm Status -->
+      <div class="card p-5 anim-up d5">
+        <div class="flex items-center gap-2 mb-4">
+          <i data-lucide="brain" class="w-4 h-4 text-violet-400"></i>
+          <span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Swarm Engine v1</span>
+          <span class="ml-auto badge b-violet">Deployed 05-16</span>
+        </div>
+
+        <div id="agent-list" class="space-y-1.5 mb-4"></div>
+
+        <div class="rounded-xl p-3" style="background:rgba(7,9,15,.65);border:1px solid rgba(255,255,255,.04);">
+          <div class="text-[10px] font-bold text-slate-700 uppercase tracking-widest mb-2">Phase 2 Eligibility</div>
+          <div class="flex justify-between text-[11px] mb-1.5">
+            <span class="text-slate-500">Trading days graded</span>
+            <span class="mono text-slate-400">0 / 20</span>
+          </div>
+          <div class="track h-1.5 mb-2">
+            <div class="fill" style="width:0%;background:linear-gradient(90deg,#8b5cf6,#6366f1);"></div>
+          </div>
+          <div class="text-[10px] text-slate-700">Prompt evolution (ATLAS method) unlocks at 20 graded days</div>
+        </div>
+      </div>
+
+      <!-- Gamma-Safe -->
+      <div id="accounts" class="card p-5 anim-up d5">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="status-dot bg-emerald-400" style="width:8px;height:8px;"></div>
+          <span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Gamma-Safe</span>
+          <span class="ml-auto badge b-green">Conservative</span>
+        </div>
+
+        <div class="text-2xl font-black text-white mb-0.5">$1,000.00</div>
+        <div class="text-[11px] text-slate-500 mb-4">Paper · Alpaca · Reset 2026-05-18</div>
+
+        <div class="grid grid-cols-2 gap-2 mb-4">
+          <div class="mini-stat">
+            <div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">Strike</div>
+            <div class="font-bold text-white text-sm">ATM</div>
+          </div>
+          <div class="mini-stat">
+            <div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">Risk Cap</div>
+            <div class="font-bold text-emerald-400 text-sm">30%</div>
+          </div>
+          <div class="mini-stat">
+            <div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">Kill Switch</div>
+            <div class="font-bold text-amber-400 text-sm">−30%</div>
+          </div>
+          <div class="mini-stat">
+            <div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">TP1 Target</div>
+            <div class="font-bold text-white text-sm">+30%</div>
+          </div>
+          <div class="mini-stat">
+            <div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">Entry Gate</div>
+            <div class="mono font-bold text-white text-sm">10:00 ET</div>
+          </div>
+          <div class="mini-stat">
+            <div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">Exit Cutoff</div>
+            <div class="mono font-bold text-white text-sm">15:00 ET</div>
+          </div>
+        </div>
+        <div class="text-[10px] text-slate-700 leading-relaxed">
+          CONFIRMED setups only · 2-of-3 confluence · Premium stop −8%
+        </div>
+      </div>
+
+      <!-- Gamma-Bold -->
+      <div class="card p-5 anim-up d6">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="status-dot bg-amber-400 dot-amber" style="width:8px;height:8px;"></div>
+          <span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Gamma-Bold</span>
+          <span class="ml-auto badge b-amber">Aggressive</span>
+        </div>
+
+        <div class="text-2xl font-black text-white mb-0.5">$1,000.00</div>
+        <div class="text-[11px] text-slate-500 mb-4">Paper · Alpaca · Seeded 2026-05-18</div>
+
+        <div class="grid grid-cols-2 gap-2 mb-4">
+          <div class="mini-stat" style="border-color:rgba(245,158,11,.14);">
+            <div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">Strike</div>
+            <div class="font-bold text-amber-400 text-sm">ITM-2</div>
+          </div>
+          <div class="mini-stat" style="border-color:rgba(245,158,11,.14);">
+            <div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">Risk Cap</div>
+            <div class="font-bold text-amber-400 text-sm">50%</div>
+          </div>
+          <div class="mini-stat" style="border-color:rgba(239,68,68,.14);">
+            <div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">Kill Switch</div>
+            <div class="font-bold text-red-400 text-sm">−50%</div>
+          </div>
+          <div class="mini-stat" style="border-color:rgba(245,158,11,.14);">
+            <div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">TP1 Target</div>
+            <div class="font-bold text-amber-400 text-sm">+75%</div>
+          </div>
+          <div class="mini-stat" style="border-color:rgba(245,158,11,.14);">
+            <div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">Entry Gate</div>
+            <div class="mono font-bold text-amber-400 text-sm">09:35 ET</div>
+          </div>
+          <div class="mini-stat" style="border-color:rgba(245,158,11,.14);">
+            <div class="text-[9px] text-slate-600 uppercase tracking-wider mb-1">Runner</div>
+            <div class="font-bold text-amber-400 text-sm">5× target</div>
+          </div>
+        </div>
+        <div class="text-[10px] text-slate-700 leading-relaxed">
+          ALL setups · 1-of-3 confluence · Asymmetric stop −20% bear / −8% bull
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         ROW 6 — 10 RULES
+    ══════════════════════════════════════════════════ -->
+    <div id="rules" class="card p-5 anim-up d6">
+      <div class="flex items-center gap-2 mb-4 flex-wrap">
+        <i data-lucide="shield" class="w-4 h-4 text-indigo-400 flex-shrink-0"></i>
+        <span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">The 10 Rules — Immutable Spine</span>
+        <div class="ml-auto flex items-center gap-2">
+          <span class="mono text-[10px] text-slate-700">Rule v15.1 · Enforced by engine</span>
+          <span class="badge b-red text-[10px]">Violation = no trade</span>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2" id="rules-grid"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex items-center justify-between py-2 flex-wrap gap-2">
+      <span class="mono text-[10px] text-slate-800">Γ Gamma Command Center · 2026-05-16 · github: private</span>
+      <span class="mono text-[10px] text-slate-800">Rule v15.1 · Paper Mode · All positions flat by 15:50 ET</span>
+    </div>
+
+  </main>
+</div><!-- /.main -->
+
+<!-- ═══════════════════════════════ JAVASCRIPT ═══════════════════════════════ -->
+<script>
+'use strict';
+
+// ── CLOCK ─────────────────────────────────────────────────────────────────
+function tick() {
+  try {
+    const et = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
+    const d  = new Date(et);
+    const pad = n => String(n).padStart(2,'0');
+    const ts  = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    const mini = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    const el1 = document.getElementById('clock');
+    const el2 = document.getElementById('clock-mini');
+    if (el1) el1.textContent = ts;
+    if (el2) el2.textContent = mini;
+  } catch(e) {}
+}
+setInterval(tick, 1000);
+tick();
+
+// ── ACTIVITY FEED ─────────────────────────────────────────────────────────
+const LOG = [
+  { time:'16:30', lvl:'info',    icon:'book-open',      msg:'DailyReview complete — key-levels.json updated for 2026-05-19. 3 carry levels + 2 active.' },
+  { time:'16:00', lvl:'success', icon:'clipboard-list', msg:'EodSummary: 0 trades today (account seeding day). Swarm grader: NO_DATA (first run pending).' },
+  { time:'15:55', lvl:'info',    icon:'shield-alert',   msg:'EodFlatten: 0 open positions across both accounts. All flat. ✓' },
+  { time:'09:30', lvl:'info',    icon:'activity',       msg:'Heartbeat #1 HOT — bull=0/11 bear=0/10 → HOLD. No setup. VIX: 18.2 (MID, flat).' },
+  { time:'08:30', lvl:'success', icon:'sun',            msg:'Premarket complete. Bias: NEUTRAL. SWARM_CONTEXT_UNAVAILABLE (first day). Rule pin v15.1 ✓' },
+  { time:'08:00', lvl:'info',    icon:'monitor',        msg:'LaunchTV: TradingView CDP live on ws://localhost:9222. SPY/BATS chart loaded.' },
+  { time:'06:03', lvl:'warn',    icon:'brain',          msg:'SwarmPremarket: runner.py started. First production run — establishing scorecard baseline.' },
+  { time:'06:00', lvl:'info',    icon:'clock',          msg:'Gamma_SwarmPremarket fired. Weekday gate ✓. Holiday check ✓. Launching 6-agent pipeline.' },
+  { time:'00:30', lvl:'success', icon:'shield-check',   msg:'CryptoRegression: 27/27 PASS. BTC validators green. 5/14 floor: 46/46 ✓. No regressions.' },
+  { time:'00:00', lvl:'info',    icon:'code',           msg:'Swarm v1 deployed. Gamma_SwarmPremarket task registered. 06:00 ET weekdays. EOD 8d wired.' },
+  { time:'23:55', lvl:'success', icon:'wallet',         msg:'Dual-account seeding confirmed. Gamma-Safe: $1,000 | Gamma-Bold: $1,000. Kill switches isolated.' },
+  { time:'22:30', lvl:'info',    icon:'git-merge',      msg:'premarket.md Step 1c added (swarm intake). eod-summary.md Section 8d wired (swarm_grader.py).' },
+];
+
+const LVL_STYLE = {
+  success: { bg:'rgba(16,185,129,.1)',  text:'#34d399', border:'rgba(16,185,129,.2)' },
+  info:    { bg:'rgba(59,130,246,.1)',  text:'#60a5fa', border:'rgba(59,130,246,.2)' },
+  warn:    { bg:'rgba(245,158,11,.1)', text:'#fbbf24', border:'rgba(245,158,11,.2)' },
+  error:   { bg:'rgba(239,68,68,.1)',  text:'#f87171', border:'rgba(239,68,68,.2)'  },
+};
+
+function renderActivity() {
+  const feed = document.getElementById('activity-feed');
+  if (!feed) return;
+  feed.innerHTML = LOG.map((e, i) => {
+    const s = LVL_STYLE[e.lvl] || LVL_STYLE.info;
+    return `
+      <div class="flex items-start gap-2.5 px-2 py-2 rounded-lg hover:bg-white/[0.025] transition-colors cursor-default"
+           style="animation:fadeUp .4s ease ${i*.04}s both;">
+        <div class="flex-shrink-0 w-6 h-6 rounded-md flex items-center justify-center mt-0.5"
+             style="background:${s.bg};border:1px solid ${s.border};">
+          <i data-lucide="${e.icon}" class="w-3 h-3" style="color:${s.text};"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="mono text-[11px] leading-snug" style="color:#cbd5e1;">${e.msg}</div>
+          <div class="mono text-[10px] mt-0.5" style="color:#475569;">${e.time} ET</div>
+        </div>
+      </div>`;
+  }).join('');
+  lucide.createIcons();
+}
+
+// ── COMPONENTS ─────────────────────────────────────────────────────────────
+const COMPS = [
+  { name:'Gamma_SwarmPremarket',       desc:'06:00 ET · 6-agent swarm pipeline',            icon:'brain',          ok:true  },
+  { name:'Gamma_LaunchTV',             desc:'08:00 ET · TradingView CDP port 9222',          icon:'monitor',        ok:true  },
+  { name:'Gamma_Premarket',            desc:'08:30 ET · Bias + levels + swarm Step 1c',      icon:'sun',            ok:true  },
+  { name:'Gamma_Heartbeat',            desc:'09:30–15:55 ET · Every 3 min · HOT/BASE/COOL',  icon:'activity',       ok:true  },
+  { name:'Gamma_EodFlatten',           desc:'15:55 ET · Force-flat all 0DTE positions',      icon:'shield-alert',   ok:true  },
+  { name:'Gamma_EodSummary',           desc:'16:00 ET · Reflect + grade + swarm_grader.py',  icon:'clipboard-list', ok:true  },
+  { name:'Gamma_DailyReview',          desc:'16:30 ET · Predictions vs actual + levels',     icon:'book-open',      ok:true  },
+  { name:'Gamma_CryptoRegression',     desc:'Every 30 min · 27 validators · 5/14 benchmark', icon:'shield-check',   ok:true  },
+  { name:'Gamma_CryptoGrinderKeepalive',desc:'Every 5 min · Restarts live_grinder.py',       icon:'refresh-cw',     ok:true  },
+];
+
+function renderComponents() {
+  const grid = document.getElementById('component-grid');
+  if (!grid) return;
+  grid.innerHTML = COMPS.map((c, i) => `
+    <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.03] transition-all cursor-default"
+         style="border:1px solid rgba(255,255,255,.04);animation:fadeUp .4s ease ${i*.035}s both;">
+      <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+           style="background:rgba(16,185,129,.09);border:1px solid rgba(16,185,129,.15);">
+        <i data-lucide="${c.icon}" class="w-3.5 h-3.5 text-emerald-400"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="mono text-[11px] font-semibold text-slate-200 truncate">${c.name}</div>
+        <div class="text-[10px] text-slate-600 truncate">${c.desc}</div>
+      </div>
+      <div class="flex items-center gap-1.5 flex-shrink-0">
+        <div class="status-dot bg-emerald-400" style="width:6px;height:6px;${i < 4 ? `animation:pulse-glow 2s infinite ${i*.25}s;` : ''}"></div>
+        <span class="text-[10px] text-emerald-500 font-bold hidden sm:block">OK</span>
+      </div>
+    </div>`).join('');
+  lucide.createIcons();
+}
+
+// ── SWARM AGENTS ───────────────────────────────────────────────────────────
+const AGENTS = [
+  { name:'data_fetcher',  role:'Market data — TV + Alpaca MCP',     model:'claude --print', weight:null,   clr:{ bg:'rgba(59,130,246,.08)',  t:'#60a5fa', bd:'rgba(59,130,246,.2)'  } },
+  { name:'technical',     role:'Chart structure + ribbon verdict',   model:'Haiku 4.5',      weight:'0.35', clr:{ bg:'rgba(139,92,246,.08)', t:'#a78bfa', bd:'rgba(139,92,246,.2)' } },
+  { name:'macro',         role:'VIX regime + macro calendar events', model:'Haiku 4.5',      weight:'0.30', clr:{ bg:'rgba(139,92,246,.08)', t:'#a78bfa', bd:'rgba(139,92,246,.2)' } },
+  { name:'level_thesis',  role:'Key level prioritizer + scenarios',  model:'Haiku 4.5',      weight:'0.25', clr:{ bg:'rgba(139,92,246,.08)', t:'#a78bfa', bd:'rgba(139,92,246,.2)' } },
+  { name:'internals',     role:'Sector rotation XLK/XLF/XLE/SPY',   model:'Haiku 4.5',      weight:'0.10', clr:{ bg:'rgba(139,92,246,.08)', t:'#a78bfa', bd:'rgba(139,92,246,.2)' } },
+  { name:'validator',     role:"Devil's advocate — argues opposite", model:'Haiku 4.5',      weight:null,   clr:{ bg:'rgba(245,158,11,.08)', t:'#fbbf24', bd:'rgba(245,158,11,.2)' } },
+  { name:'synthesis CIO', role:'Weighted vote → swarm_output.json', model:'Sonnet 4.6',     weight:null,   clr:{ bg:'rgba(16,185,129,.08)', t:'#34d399', bd:'rgba(16,185,129,.2)'  } },
+];
+
+function renderAgents() {
+  const el = document.getElementById('agent-list');
+  if (!el) return;
+  el.innerHTML = AGENTS.map(a => `
+    <div class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl hover:scale-[1.015] transition-transform cursor-default"
+         style="background:${a.clr.bg};border:1px solid ${a.clr.bd};">
+      <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:${a.clr.t};"></div>
+      <div class="flex-1 min-w-0">
+        <div class="mono text-[10px] font-bold leading-tight" style="color:${a.clr.t};">${a.name}</div>
+        <div class="text-[9px] text-slate-700 truncate">${a.role}</div>
+      </div>
+      <div class="text-right flex-shrink-0">
+        <div class="mono text-[9px]" style="color:#475569;">${a.model}</div>
+        ${a.weight ? `<div class="mono text-[9px] font-bold" style="color:${a.clr.t};">w=${a.weight}</div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+// ── 10 RULES ───────────────────────────────────────────────────────────────
+const RULES = [
+  { n:1,  title:'No setup, no trade',       desc:'Every trade matches a named playbook pattern. No exceptions.' },
+  { n:2,  title:'Wait for the trigger',     desc:'Bias ≠ trigger. Anticipation entries are forbidden.' },
+  { n:3,  title:'Defined stop on entry',    desc:'Mechanical stop — premium or chart. Stated in journal before order.' },
+  { n:4,  title:'No adding without trigger',desc:'"It\'s cheaper now" is not a trigger. Fresh signal required.' },
+  { n:5,  title:'Daily kill switch',        desc:'Safe −30% · Bold −50% · Isolated per account. Day closed.' },
+  { n:6,  title:'Per-trade risk cap',       desc:'Safe 30% · Bold 50% of account equity. Min 3 contracts.' },
+  { n:7,  title:'PDT awareness',            desc:'<$25K: 3 day-trades per rolling 5 business days.' },
+  { n:8,  title:'Journal every trade',      desc:'Pre-trade thesis before order. Fill + exit logged after.' },
+  { n:9,  title:'No mid-session changes',   desc:'Rules update weekends only, in writing, with documented reason.' },
+  { n:10, title:'Gamma flags = no trade',   desc:'Violation flagged by engine = trade does not happen. Especially if J insists.' },
+];
+
+function renderRules() {
+  const el = document.getElementById('rules-grid');
+  if (!el) return;
+  el.innerHTML = RULES.map((r, i) => `
+    <div class="rule-card" style="animation:fadeUp .4s ease ${i*.03}s both;">
+      <div class="mono text-[9px] font-black text-indigo-500 mb-1.5">RULE ${r.n}</div>
+      <div class="text-[11px] font-bold text-white leading-tight mb-1.5">${r.title}</div>
+      <div class="text-[10px] text-slate-600 leading-relaxed">${r.desc}</div>
+    </div>`).join('');
+}
+
+// ── INIT ALL ───────────────────────────────────────────────────────────────
+function init() {
+  renderActivity();
+  renderComponents();
+  renderAgents();
+  renderRules();
+  lucide.createIcons();
+
+  // Animate progress fills after paint
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      document.querySelectorAll('.fill').forEach(el => {
+        const target = el.dataset.w || el.style.width;
+        if (!target) return;
+        el.style.width = '0%';
+        requestAnimationFrame(() => {
+          setTimeout(() => { el.style.width = target; }, 50);
+        });
+      });
+    }, 300);
+  });
+}
+
+// Nav smooth scroll
+function goTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  event && event.currentTarget && event.currentTarget.classList && event.currentTarget.classList.add('active');
+}
+
+// Re-init icons after dynamic content
+setTimeout(() => lucide.createIcons(), 80);
+setTimeout(() => lucide.createIcons(), 500);
+
+document.addEventListener('DOMContentLoaded', init);
+if (document.readyState !== 'loading') init();
+</script>
+</body>
+</html>

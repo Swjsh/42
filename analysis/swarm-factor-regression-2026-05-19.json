@@ -1,0 +1,334 @@
+{
+  "generated_at": "2026-05-19",
+  "n_records": 65,
+  "swarm_confidence_bands": {
+    "lt50_abstain": {
+      "n": 11,
+      "wr_pct": 45.5,
+      "avg_move_abs": 3.66,
+      "dates": [
+        "2026-02-10",
+        "2026-02-18",
+        "2026-03-03",
+        "2026-03-11",
+        "2026-03-12",
+        "2026-03-17",
+        "2026-03-18",
+        "2026-03-30",
+        "2026-04-24",
+        "2026-04-27",
+        "2026-05-04"
+      ]
+    },
+    "50_60": {
+      "n": 4,
+      "wr_pct": 100.0,
+      "avg_move_abs": 6.62,
+      "dates": [
+        "2026-02-24",
+        "2026-03-02",
+        "2026-03-27",
+        "2026-04-15"
+      ]
+    },
+    "60_70": {
+      "n": 6,
+      "wr_pct": 66.7,
+      "avg_move_abs": 6.12,
+      "dates": [
+        "2026-02-09",
+        "2026-02-20",
+        "2026-03-09",
+        "2026-03-13",
+        "2026-04-07",
+        "2026-05-07"
+      ]
+    },
+    "70_80": {
+      "n": 10,
+      "wr_pct": 60.0,
+      "avg_move_abs": 4.69,
+      "dates": [
+        "2026-02-23",
+        "2026-02-27",
+        "2026-03-20",
+        "2026-03-25",
+        "2026-03-31",
+        "2026-04-17",
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-30",
+        "2026-05-05"
+      ]
+    },
+    "80_90": {
+      "n": 14,
+      "wr_pct": 57.1,
+      "avg_move_abs": 4.32,
+      "dates": [
+        "2026-03-04",
+        "2026-03-19",
+        "2026-03-23",
+        "2026-03-24",
+        "2026-03-26",
+        "2026-04-01",
+        "2026-04-02",
+        "2026-04-06",
+        "2026-04-09",
+        "2026-04-10",
+        "2026-04-13",
+        "2026-04-14",
+        "2026-04-23",
+        "2026-05-06"
+      ]
+    },
+    "ge90": {
+      "n": 10,
+      "wr_pct": 70.0,
+      "avg_move_abs": 4.2,
+      "dates": [
+        "2026-02-11",
+        "2026-02-12",
+        "2026-02-17",
+        "2026-02-25",
+        "2026-02-26",
+        "2026-05-11",
+        "2026-05-12",
+        "2026-05-13",
+        "2026-05-14",
+        "2026-05-15"
+      ]
+    }
+  },
+  "per_factor": [
+    {
+      "factor": "technical",
+      "n": 54,
+      "agreement_rate_pct": 79.6,
+      "wr_when_agreed_pct": 62.8,
+      "wr_when_disagreed_pct": 54.5,
+      "n_disagreed": 11,
+      "conf_outcome_pearson_r": 0.103,
+      "avg_confidence": 0.65,
+      "confidence_bands": {
+        "lt50": {
+          "n": 10,
+          "wr_pct": 60.0,
+          "avg_move": 3.44
+        },
+        "50_60": {
+          "n": 5,
+          "wr_pct": 40.0,
+          "avg_move": 4.34
+        },
+        "60_70": {
+          "n": 12,
+          "wr_pct": 50.0,
+          "avg_move": 3.89
+        },
+        "70_80": {
+          "n": 18,
+          "wr_pct": 72.2,
+          "avg_move": 5.25
+        },
+        "80_90": {
+          "n": 9,
+          "wr_pct": 66.7,
+          "avg_move": 5.66
+        },
+        "ge90": {
+          "n": 0,
+          "wr_pct": NaN,
+          "avg_move": NaN
+        }
+      }
+    },
+    {
+      "factor": "macro",
+      "n": 55,
+      "agreement_rate_pct": 85.5,
+      "wr_when_agreed_pct": 61.7,
+      "wr_when_disagreed_pct": 62.5,
+      "n_disagreed": 8,
+      "conf_outcome_pearson_r": 0.119,
+      "avg_confidence": 0.706,
+      "confidence_bands": {
+        "lt50": {
+          "n": 0,
+          "wr_pct": NaN,
+          "avg_move": NaN
+        },
+        "50_60": {
+          "n": 4,
+          "wr_pct": 25.0,
+          "avg_move": 4.55
+        },
+        "60_70": {
+          "n": 21,
+          "wr_pct": 61.9,
+          "avg_move": 4.52
+        },
+        "70_80": {
+          "n": 24,
+          "wr_pct": 70.8,
+          "avg_move": 4.48
+        },
+        "80_90": {
+          "n": 6,
+          "wr_pct": 50.0,
+          "avg_move": 5.35
+        },
+        "ge90": {
+          "n": 0,
+          "wr_pct": NaN,
+          "avg_move": NaN
+        }
+      }
+    },
+    {
+      "factor": "level_thesis",
+      "n": 55,
+      "agreement_rate_pct": 87.3,
+      "wr_when_agreed_pct": 60.4,
+      "wr_when_disagreed_pct": 71.4,
+      "n_disagreed": 7,
+      "conf_outcome_pearson_r": -0.027,
+      "avg_confidence": 0.684,
+      "confidence_bands": {
+        "lt50": {
+          "n": 2,
+          "wr_pct": 50.0,
+          "avg_move": 5.0
+        },
+        "50_60": {
+          "n": 2,
+          "wr_pct": 100.0,
+          "avg_move": 2.02
+        },
+        "60_70": {
+          "n": 20,
+          "wr_pct": 55.0,
+          "avg_move": 4.72
+        },
+        "70_80": {
+          "n": 31,
+          "wr_pct": 64.5,
+          "avg_move": 4.66
+        },
+        "80_90": {
+          "n": 0,
+          "wr_pct": NaN,
+          "avg_move": NaN
+        },
+        "ge90": {
+          "n": 0,
+          "wr_pct": NaN,
+          "avg_move": NaN
+        }
+      }
+    },
+    {
+      "factor": "internals",
+      "n": 55,
+      "agreement_rate_pct": 65.5,
+      "wr_when_agreed_pct": 61.1,
+      "wr_when_disagreed_pct": 63.2,
+      "n_disagreed": 19,
+      "conf_outcome_pearson_r": 0.081,
+      "avg_confidence": 0.632,
+      "confidence_bands": {
+        "lt50": {
+          "n": 11,
+          "wr_pct": 54.5,
+          "avg_move": 4.81
+        },
+        "50_60": {
+          "n": 7,
+          "wr_pct": 57.1,
+          "avg_move": 5.33
+        },
+        "60_70": {
+          "n": 18,
+          "wr_pct": 66.7,
+          "avg_move": 4.04
+        },
+        "70_80": {
+          "n": 11,
+          "wr_pct": 63.6,
+          "avg_move": 4.61
+        },
+        "80_90": {
+          "n": 8,
+          "wr_pct": 62.5,
+          "avg_move": 4.89
+        },
+        "ge90": {
+          "n": 0,
+          "wr_pct": NaN,
+          "avg_move": NaN
+        }
+      }
+    }
+  ],
+  "wrong_day_dissent_analysis": {
+    "n_wrong_days": 21,
+    "factor_dissent_on_wrong_days": {
+      "technical": {
+        "n_dissented_on_wrong_days": 1,
+        "dissent_rate_pct": 4.8
+      },
+      "macro": {
+        "n_dissented_on_wrong_days": 3,
+        "dissent_rate_pct": 14.3
+      },
+      "level_thesis": {
+        "n_dissented_on_wrong_days": 1,
+        "dissent_rate_pct": 4.8
+      },
+      "internals": {
+        "n_dissented_on_wrong_days": 5,
+        "dissent_rate_pct": 23.8
+      }
+    },
+    "interpretation": "A factor with high dissent-rate-pct on wrong days is a leading counter-signal \u2014 when it disagrees with the swarm, the swarm is more often wrong. This factor should have its weight INCREASED in the synthesis formula."
+  },
+  "findings": [
+    {
+      "id": "F1_OVERCONFIDENCE",
+      "title": "Swarm overconfidence at high end",
+      "observation": "60-70 band WR=66.7% vs \u226590 band WR=70.0% (n=10)",
+      "delta_pp": -3.3,
+      "recommendation": "High-conf tier is working \u2014 no change needed."
+    },
+    {
+      "id": "F2_BEST_PREDICTOR",
+      "title": "Most predictive individual factor by Pearson r",
+      "ranking": [
+        [
+          "macro",
+          0.119
+        ],
+        [
+          "technical",
+          0.103
+        ],
+        [
+          "internals",
+          0.081
+        ],
+        [
+          "level_thesis",
+          -0.027
+        ]
+      ],
+      "recommendation": "Increase synthesis weight for 'macro' (r=0.119). De-emphasize 'level_thesis' (r=-0.027) \u2014 weakest linear signal."
+    },
+    {
+      "id": "F3_INTERNALS_DISSENT",
+      "title": "Internals dissent as early warning on wrong days",
+      "dissent_rate_on_wrong_days_pct": 23.8,
+      "n_wrong": 21,
+      "recommendation": "If internals dissent rate on wrong days > 40%, treat internals no_trade/opposite vote as a veto: reduce swarm_conf by 20 points."
+    }
+  ]
+}

@@ -1,0 +1,440 @@
+{
+  "range_start": "2026-04-21",
+  "range_end": "2026-05-16",
+  "days_with_data": 19,
+  "days_skipped_no_data": 0,
+  "aggregate": {
+    "total_days_scanned": 19,
+    "days_with_hits": 19,
+    "total_hits": 286,
+    "summary_by_detector": {
+      "double_bottom": {
+        "hits": 95,
+        "wins": 51,
+        "losses": 43,
+        "neutral": 1,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 95,
+        "win_rate_pct": 54.3
+      },
+      "double_top": {
+        "hits": 39,
+        "wins": 16,
+        "losses": 23,
+        "neutral": 0,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 39,
+        "win_rate_pct": 41.0
+      },
+      "failed_breakdown_wick": {
+        "hits": 12,
+        "wins": 6,
+        "losses": 6,
+        "neutral": 0,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 12,
+        "win_rate_pct": 50.0
+      },
+      "rejection_at_level_bearish": {
+        "hits": 8,
+        "wins": 4,
+        "losses": 3,
+        "neutral": 1,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 8,
+        "win_rate_pct": 57.1
+      },
+      "momentum_acceleration": {
+        "hits": 20,
+        "wins": 10,
+        "losses": 7,
+        "neutral": 3,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 20,
+        "win_rate_pct": 58.8
+      },
+      "inside_bar_consolidation": {
+        "hits": 62,
+        "wins": 0,
+        "losses": 0,
+        "neutral": 62,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 1,
+        "pattern_only": 61,
+        "win_rate_pct": null
+      },
+      "head_and_shoulders_top": {
+        "hits": 0,
+        "wins": 0,
+        "losses": 0,
+        "neutral": 0,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 0,
+        "win_rate_pct": null
+      },
+      "double_bottom_contra": {
+        "hits": 21,
+        "wins": 11,
+        "losses": 10,
+        "neutral": 0,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 21,
+        "win_rate_pct": 52.4
+      },
+      "double_top_contra": {
+        "hits": 1,
+        "wins": 0,
+        "losses": 1,
+        "neutral": 0,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 1,
+        "win_rate_pct": 0.0
+      },
+      "failed_breakdown_wick_contra": {
+        "hits": 10,
+        "wins": 5,
+        "losses": 5,
+        "neutral": 0,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 10,
+        "win_rate_pct": 50.0
+      },
+      "rejection_at_level_bearish_contra": {
+        "hits": 7,
+        "wins": 4,
+        "losses": 2,
+        "neutral": 1,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 7,
+        "win_rate_pct": 66.7
+      },
+      "momentum_acceleration_contra": {
+        "hits": 6,
+        "wins": 4,
+        "losses": 0,
+        "neutral": 2,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 6,
+        "win_rate_pct": 100.0
+      },
+      "head_and_shoulders_top_contra": {
+        "hits": 0,
+        "wins": 0,
+        "losses": 0,
+        "neutral": 0,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 0,
+        "win_rate_pct": null
+      },
+      "ral_at_PDH": {
+        "hits": 3,
+        "wins": 2,
+        "losses": 1,
+        "neutral": 0,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 3,
+        "win_rate_pct": 66.7
+      },
+      "fbw_at_PDL": {
+        "hits": 2,
+        "wins": 1,
+        "losses": 1,
+        "neutral": 0,
+        "aligned": 0,
+        "diverged": 0,
+        "heartbeat_miss": 0,
+        "pattern_only": 2,
+        "win_rate_pct": 50.0
+      }
+    },
+    "confidence_band_wr": {
+      "<0.60": {
+        "n": 44,
+        "wins": 30,
+        "losses": 14,
+        "wr_pct": 68.2
+      },
+      "0.60-0.70": {
+        "n": 80,
+        "wins": 35,
+        "losses": 45,
+        "wr_pct": 43.8
+      },
+      "0.70-0.80": {
+        "n": 67,
+        "wins": 31,
+        "losses": 36,
+        "wr_pct": 46.3
+      },
+      "0.80+": {
+        "n": 25,
+        "wins": 18,
+        "losses": 7,
+        "wr_pct": 72.0
+      }
+    },
+    "regime_breakdown": {
+      "ral_at_PDH::regime_contrary": {
+        "n": 3,
+        "wins": 2,
+        "losses": 1,
+        "wr_pct": 66.7
+      },
+      "failed_breakdown_wick::regime_contrary": {
+        "n": 10,
+        "wins": 5,
+        "losses": 5,
+        "wr_pct": 50.0
+      },
+      "failed_breakdown_wick_contra::regime_contrary": {
+        "n": 10,
+        "wins": 5,
+        "losses": 5,
+        "wr_pct": 50.0
+      },
+      "double_top::regime_aligned": {
+        "n": 38,
+        "wins": 16,
+        "losses": 22,
+        "wr_pct": 42.1
+      },
+      "rejection_at_level_bearish::regime_contrary": {
+        "n": 6,
+        "wins": 4,
+        "losses": 2,
+        "wr_pct": 66.7
+      },
+      "rejection_at_level_bearish_contra::regime_contrary": {
+        "n": 6,
+        "wins": 4,
+        "losses": 2,
+        "wr_pct": 66.7
+      },
+      "momentum_acceleration::regime_aligned": {
+        "n": 13,
+        "wins": 6,
+        "losses": 7,
+        "wr_pct": 46.2
+      },
+      "double_bottom::regime_aligned": {
+        "n": 73,
+        "wins": 40,
+        "losses": 33,
+        "wr_pct": 54.8
+      },
+      "double_top::regime_contrary": {
+        "n": 1,
+        "wins": 0,
+        "losses": 1,
+        "wr_pct": 0.0
+      },
+      "double_top_contra::regime_contrary": {
+        "n": 1,
+        "wins": 0,
+        "losses": 1,
+        "wr_pct": 0.0
+      },
+      "momentum_acceleration::regime_contrary": {
+        "n": 4,
+        "wins": 4,
+        "losses": 0,
+        "wr_pct": 100.0
+      },
+      "momentum_acceleration_contra::regime_contrary": {
+        "n": 4,
+        "wins": 4,
+        "losses": 0,
+        "wr_pct": 100.0
+      },
+      "fbw_at_PDL::regime_contrary": {
+        "n": 2,
+        "wins": 1,
+        "losses": 1,
+        "wr_pct": 50.0
+      },
+      "failed_breakdown_wick::regime_aligned": {
+        "n": 2,
+        "wins": 1,
+        "losses": 1,
+        "wr_pct": 50.0
+      },
+      "double_bottom::regime_contrary": {
+        "n": 21,
+        "wins": 11,
+        "losses": 10,
+        "wr_pct": 52.4
+      },
+      "double_bottom_contra::regime_contrary": {
+        "n": 21,
+        "wins": 11,
+        "losses": 10,
+        "wr_pct": 52.4
+      },
+      "rejection_at_level_bearish::regime_aligned": {
+        "n": 1,
+        "wins": 0,
+        "losses": 1,
+        "wr_pct": 0.0
+      }
+    },
+    "named_level_breakdown": {
+      "ral_at_PDH::near_named": {
+        "n": 3,
+        "wins": 2,
+        "losses": 1,
+        "wr_pct": 66.7
+      },
+      "failed_breakdown_wick::near_named": {
+        "n": 3,
+        "wins": 2,
+        "losses": 1,
+        "wr_pct": 66.7
+      },
+      "failed_breakdown_wick_contra::near_named": {
+        "n": 2,
+        "wins": 2,
+        "losses": 0,
+        "wr_pct": 100.0
+      },
+      "double_top::no_named": {
+        "n": 34,
+        "wins": 15,
+        "losses": 19,
+        "wr_pct": 44.1
+      },
+      "rejection_at_level_bearish::no_named": {
+        "n": 7,
+        "wins": 4,
+        "losses": 3,
+        "wr_pct": 57.1
+      },
+      "rejection_at_level_bearish_contra::no_named": {
+        "n": 6,
+        "wins": 4,
+        "losses": 2,
+        "wr_pct": 66.7
+      },
+      "momentum_acceleration::no_named": {
+        "n": 12,
+        "wins": 6,
+        "losses": 6,
+        "wr_pct": 50.0
+      },
+      "double_bottom::no_named": {
+        "n": 69,
+        "wins": 38,
+        "losses": 31,
+        "wr_pct": 55.1
+      },
+      "double_bottom::near_named": {
+        "n": 25,
+        "wins": 13,
+        "losses": 12,
+        "wr_pct": 52.0
+      },
+      "momentum_acceleration::near_named": {
+        "n": 5,
+        "wins": 4,
+        "losses": 1,
+        "wr_pct": 80.0
+      },
+      "failed_breakdown_wick::no_named": {
+        "n": 9,
+        "wins": 4,
+        "losses": 5,
+        "wr_pct": 44.4
+      },
+      "failed_breakdown_wick_contra::no_named": {
+        "n": 8,
+        "wins": 3,
+        "losses": 5,
+        "wr_pct": 37.5
+      },
+      "double_top::near_named": {
+        "n": 5,
+        "wins": 1,
+        "losses": 4,
+        "wr_pct": 20.0
+      },
+      "double_top_contra::near_named": {
+        "n": 1,
+        "wins": 0,
+        "losses": 1,
+        "wr_pct": 0.0
+      },
+      "momentum_acceleration_contra::no_named": {
+        "n": 4,
+        "wins": 4,
+        "losses": 0,
+        "wr_pct": 100.0
+      },
+      "fbw_at_PDL::near_named": {
+        "n": 2,
+        "wins": 1,
+        "losses": 1,
+        "wr_pct": 50.0
+      },
+      "double_bottom_contra::near_named": {
+        "n": 7,
+        "wins": 4,
+        "losses": 3,
+        "wr_pct": 57.1
+      },
+      "double_bottom_contra::no_named": {
+        "n": 14,
+        "wins": 7,
+        "losses": 7,
+        "wr_pct": 50.0
+      }
+    },
+    "disambiguated_summary": {
+      "total_disambiguated_hits": 231,
+      "wins": 90,
+      "losses": 81,
+      "neutral": 60,
+      "win_rate_pct": 52.6,
+      "regime_resolved_count": 1,
+      "conflicts_total": 1,
+      "conflicts_resolved": 1,
+      "conflicts_unresolved_flat": 0,
+      "conflict_resolution_n": 1,
+      "conflict_resolution_wr_pct": 100.0
+    },
+    "ab_comparison": {
+      "raw_wr_pct": 52.8,
+      "raw_graded_n": 216,
+      "disambiguated_wr_pct": 52.6,
+      "disambiguated_graded_n": 171,
+      "wr_delta_pp": -0.2,
+      "conflict_only_wr_pct": 100.0,
+      "conflict_only_n": 1
+    }
+  }
+}

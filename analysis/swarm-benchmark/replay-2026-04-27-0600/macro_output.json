@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-04-27T06:00:00Z",
+  "bias": "neutral",
+  "confidence": 0.58,
+  "reasoning": "VIX at 18.89 (MID regime) rising +1.34% signals mild bearish pressure, but the move is weak (< 1.5 pts). No macro events scheduled for today; next major event is FOMC decision 2026-04-29. Overnight gap down $0.51 is negligible—no directional signal. Ribbon showing BULL stack with 13c spread, XLK +1.13%, and rotation_signal = risk_on create a slight bullish undercurrent. Mixed signals: VIX rising (bearish) vs. ribbon + risk_on (bullish). Conclusion: neutral bias, neither direction has strong macro tailwind today.",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 18.89,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -0.51,
+  "macro_backdrop": "neutral",
+  "key_observations": [
+    "VIX rising +1.34% (was ~17.65 yesterday) suggests slight fear uptick, but magnitude is mild (MID regime, not elevated)",
+    "Overnight gap -$0.51 is negligible; no directional overnight sentiment signal",
+    "Zero macro events today; next is FOMC decision 2026-04-29, but no pre-event caution needed until ~14:00 ET 2026-04-29",
+    "Ribbon BULL with 13c spread, XLK +1.13%, rotation_signal=risk_on suggest bullish lean, offsetting VIX rise",
+    "Sector divergence: tech/growth leading (XLK +1.13%), financials lagging (XLF -0.31%)—growth-favoring environment"
+  ],
+  "data_quality": "full"
+}

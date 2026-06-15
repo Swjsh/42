@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-03-12T10:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["level_thesis"],
+    "bearish": ["macro", "internals"],
+    "no_trade": ["technical"]
+  },
+  "vote_counts": {
+    "bullish": 1,
+    "bearish": 2,
+    "no_trade": 1
+  },
+  "weighted_scores": {
+    "bullish": 0.25,
+    "bearish": 0.40
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "weak",
+  "swarm_confidence": 25,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["technical", "level_thesis"],
+    "dissent_reason": "Technical sees a WEAK_BULL ribbon (19c, sub-CLEAN threshold) with a mixed RED/GREEN/DOJI bar structure and calls no directional edge; level_thesis sees price holding $2.26 above key 673.36 support with a bullish ribbon stack as the setup for bullish continuation if that support holds."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "The bearish thesis assumes the 0.72 overnight gap and VIX spike represent sustained downside pressure, but the gap is minor (0.1%), the ribbon is structurally bullish, price has NOT tested 673.36 yet, and VIX spikes without a fundamental catalyst often reverse within the first hour of RTH.",
+    "top_invalidation_scenario": "VIX drops below 25.5 within the first 15 minutes of RTH — the macro fear-expansion anchor collapses, the bullish ribbon structure reasserts, and the entire bearish consensus is invalidated."
+  },
+  "battle_level": {
+    "price": 673.36,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 673.36,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 680.06,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 677.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 675.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 685.51,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks decisively below 673.36 with volume (bears push through prior session RTH low)",
+      "bias": "bearish",
+      "target": 662.42,
+      "entry_trigger": "level_break + structure_failure"
+    },
+    "secondary": {
+      "condition": "if SPY holds 673.36 on first test and ribbon spread expands above 20c with bullish bar close",
+      "bias": "bullish",
+      "target": 680.06,
+      "entry_trigger": "level_hold + ribbon_bull_confirmation"
+    },
+    "invalidation": {
+      "condition": "VIX drops below 25.5 within first 15 minutes of RTH (09:30-09:45 ET) — gap fills and holds above 675.62 open",
+      "effect": "Macro bearish anchor collapses; overnight gap reclassifies as a flush-and-hold (bullish continuation signal); ribbon BULL structure takes over as primary driver; bearish consensus invalidated, no-trade or bullish bias substituted."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests 673.36 (prior session RTH low, Active 2-star support) at least once during the RTH session on 2026-03-12 — current price is $2.26 above and VIX-elevated volatility makes a flush to support likely",
+      "invalidation": "SPY does not touch 674.00 at any point between 09:30 ET and 15:55 ET (level never approached — flush thesis fails)",
+      "confidence": 0.55,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains above 25.00 through at least 12:00 ET on 2026-03-12 — a 10%+ overnight spike without a fundamental catalyst takes multiple hours to unwind, sustaining the elevated fear environment",
+      "invalidation": "VIX falls below 25.00 before 11:00 ET and sustains below that level for two consecutive 5-minute bars",
+      "confidence": 0.58,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY ribbon spread fails to expand beyond 30 cents during the first 2 hours of RTH (09:30-11:30 ET), confirming directionless chop — the WEAK_BULL setup with mixed bar structure and DOJI pre-open points to range-bound indecision, not trend expansion",
+      "invalidation": "SPY ribbon spread (fast EMA minus slow EMA) reaches 30+ cents on any closed 5-minute bar before 11:30 ET",
+      "confidence": 0.50,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "Today's setup is a genuine tug-of-war: a structurally bullish ribbon (WEAK_BULL, 19c spread) argues against a 10%+ VIX spike and risk-off sector rotation (XLE leading, XLK/XLF lagging) that drove two of four specialists bearish. The bearish consensus is weak (0.40 weighted score, 2-of-4 agreement) — this is not a high-conviction bear day but a volatile, directionally ambiguous open where chop is as likely as trend. The single most critical watch at open is VIX: if it reverses below 25.5 in the first 15 minutes, the macro anchor for the bearish case collapses and the bullish ribbon structure reasserts; if VIX holds above 26, bears retain the edge and 673.36 becomes the decisive test that determines the day's direction.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "no_trade",
+      "confidence": 0.48,
+      "one_line": "WEAK_BULL ribbon (19c, sub-20c CLEAN threshold); mixed bar structure (RED/GREEN/DOJI) at equilibrium pivot — no directional edge to act on"
+    },
+    "macro": {
+      "bias": "bearish",
+      "confidence": 0.76,
+      "one_line": "VIX HIGH regime (+10.07% overnight to 26.66, rising) — fear expansion favors bearish setups; zero scheduled events offer no catalyst relief"
+    },
+    "level_thesis": {
+      "bias": "bullish",
+      "confidence": 0.65,
+      "one_line": "673.36 Active 2-star support is the battle level — hold = bull path to 680.06; break = bear path to 662.42 Carry"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.58,
+      "one_line": "Risk-off rotation: XLE +2.43%, XLK -0.11%, XLF -0.68% — narrow energy leadership, no broad SPY sector support"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "VIX drops below 25.5 in first 15 min of RTH; gap fills and ribbon bullish structure reasserts as macro fear anchor collapses"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "partial"
+}

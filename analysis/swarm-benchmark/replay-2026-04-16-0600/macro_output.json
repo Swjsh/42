@@ -1,0 +1,22 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-04-16T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.70,
+  "reasoning": "VIX at 18.86 in MID regime but rising +4.43% creates moderate caution. However, overnight gap up +$0.86, tech sector leading (XLK +1.37%), risk-on rotation signal, and BULL ribbon stack (80-cent spread) provide bullish tailwinds. Zero macro events today — clean entry window. Rising VIX tempers acceleration, suggesting measured positions, but directional bias favors bulls. Next event is NVDA earnings 5/20 (4 days away, no hard blocks today).",
+  "vix_regime": "MID",
+  "vix_direction": "rising",
+  "vix_current": 18.86,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 0.86,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX rising 4.43% to 18.86 (MID regime) — caution flag but not panic; premium is attractive for shorts, calls slightly more expensive",
+    "Overnight gap up +$0.86 with tech leading (XLK +1.37% vs XLF/XLE flat) — risk-on tone, selective strength in mega-cap-adjacent sectors",
+    "Zero macro events today; clean trading window until close; next event is NVDA earnings AMC 5/20 (4 days away, poses no intraday blocks)",
+    "BULL ribbon stack 80 cents spread — constructive structure supports trend-following setups"
+  ],
+  "data_quality": "full"
+}

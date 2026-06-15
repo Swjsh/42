@@ -1,0 +1,95 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2026-03-03T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.65,
+  "reasoning": "SPY at 685.95 is squeezed into a narrow $2.64-range between primary support at 685.00 and primary resistance at 688.59 (Active tier, 2★). The battle level is 688.59 — overhead resistance that caps today's upside. However, below 685.00 lies a 7.92-point void to Carry 678.03, creating asymmetric downside risk. With VIX rising +25% overnight into elevated territory (26.9, IV_REGIME=HIGH) and ribbon stack MIXED (no directional lean), price action bias is BEARISH: more room to drop than rally. Initial test likely hits 685.00 support (from above, on any intraday pullback); a break below triggers a flush toward 678.03.",
+  "battle_level": {
+    "price": 688.59,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 688.59,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 2.64
+    },
+    {
+      "price": 693.66,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 2,
+      "distance_from_price": 7.71
+    },
+    {
+      "price": 685.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 0.95
+    },
+    {
+      "price": 678.03,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": 7.92
+    },
+    {
+      "price": 687.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 5,
+      "distance_from_price": 1.05
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY rallies to 688.59 and holds",
+      "bias": "bullish",
+      "target": 693.66,
+      "entry_trigger": "688.59 resistance hold + volume confirmation + ribbon_alignment"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 685.00 support",
+      "bias": "bearish",
+      "target": 678.03,
+      "entry_trigger": "685.00 break + VIX expansion confirmed + momentum divergence"
+    },
+    "tertiary": {
+      "condition": "if price consolidates 685-688.59 zone without direction",
+      "bias": "no_trade",
+      "target": null,
+      "entry_trigger": "waiting for ribbon stack alignment or macro catalyst"
+    }
+  },
+  "levels_in_play_count": 6,
+  "key_observations": [
+    "688.59 Active resistance is today's ceiling — prior session RTH high, 2★ strength, defines bear-case downside target if broken above triggers rallies to 693.66 Carry.",
+    "Asymmetric downside: 685.00 support is only $0.95 below; loss of this level opens 7.92-point drop to 678.03 Carry. Risk/reward favors bears until 688.59 breached decisively.",
+    "Ribbon MIXED (15¢ spread, pivot 686.27) provides no directional anchor. VIX +25% overnight into HIGH IV regime suggests elevated volatility but no clear momentum vector — expect chop until ribbon stack aligns or Carry levels engage.",
+    "Reference-tier round-number supports (685, 684, 683) between current price and 678.03 Carry will act as micro-support on declines; however, Carry 678.03 is the true floor.",
+    "Carry 693.66 above battle zone is outside immediate play but becomes relevant only if 688.59 gives way — signaling a trending day. Current data does not suggest that conviction."
+  ],
+  "data_quality": "full"
+}

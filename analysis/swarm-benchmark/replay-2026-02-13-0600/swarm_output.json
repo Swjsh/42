@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-02-13T06:00:00Z",
+  "swarm_version": "v1",
+  "status": "ok",
+  "vote_map": {
+    "bullish": ["macro"],
+    "bearish": ["technical", "level_thesis", "internals"],
+    "no_trade": []
+  },
+  "vote_counts": {
+    "bullish": 1,
+    "bearish": 3,
+    "no_trade": 0
+  },
+  "weighted_scores": {
+    "bullish": 0.30,
+    "bearish": 0.70
+  },
+  "consensus_bias": "bearish",
+  "consensus_strength": "strong",
+  "swarm_confidence": 75,
+  "dissent_flag": {
+    "active": true,
+    "dissenting_agents": ["macro"],
+    "dissent_reason": "Macro agent flags VIX falling -2.4% into MID regime (20.33) with zero scheduled events as a bullish macro environment; flat overnight gap after -1.87% prior session interpreted as institutional support defense at 680.40, not continuation selling — creating a mechanically valid but minority countercase."
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Overnight flat gap (-$0.24 after -1.87% decline) is not capitulation — bearish agents treated it as momentum continuation, but a flat gap after a large down-day signals institutional buyer defense at 680 support, meaning the bear thesis could unravel quickly if 680.40 holds on first test.",
+    "top_invalidation_scenario": "VIX drops below 18.5 within first 30 min AND SPY holds 680.40 on first test — macro falling-VIX thesis dominates structural bear, ribbon begins tightening in real-time, bullish reversal from Carry support replaces continuation trade."
+  },
+  "battle_level": {
+    "price": 680.4,
+    "tier": "Carry",
+    "strength_stars": 2,
+    "role": "support"
+  },
+  "level_priority": [
+    {
+      "price": 680.4,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 697.08,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 682.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 683.0,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 675.95,
+      "tier": "Reference",
+      "strength_stars": 1,
+      "role": "support",
+      "priority_rank": 5,
+      "likely_test": "flush_to"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY breaks below 680.40 Carry support with continuation volume",
+      "bias": "bearish",
+      "target": 675.95,
+      "entry_trigger": "level_break"
+    },
+    "secondary": {
+      "condition": "if SPY holds 680.40 on first test with VIX compression below 19.50",
+      "bias": "bullish",
+      "target": 682.0,
+      "entry_trigger": "level_reclaim"
+    },
+    "invalidation": {
+      "condition": "VIX drops below 18.5 within first 30 min AND SPY holds 680.40 on first test (no flush below)",
+      "effect": "Falling-VIX macro thesis dominates; ribbon begins tightening in real-time; structural CLEAN_BEAR call is invalidated — bearish entry must be abandoned and bias flips to tactical bullish reclaim."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY tests 680.40 Carry support within the first 30 minutes of RTH (before 10:00 ET), touching or breaking below intraday",
+      "invalidation": "SPY opens above 682.00 and does not approach within $0.50 of 680.40 in the first 60 minutes of RTH",
+      "confidence": 0.78,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX remains above 19.00 through end of RTH, failing to compress into the sub-19 zone that would confirm a macro regime shift from risk-off to risk-neutral",
+      "invalidation": "VIX drops below 18.50 before 11:00 ET, signaling genuine fear-compression and invalidating the structural bear backdrop",
+      "confidence": 0.62,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "SPY closes below 680.40 on the daily bar — CLEAN_BEAR ribbon (180c spread) persists through RTH with no ribbon tightening below 120c spread",
+      "invalidation": "Ribbon fast EMA crosses above slow EMA before 13:00 ET OR SPY achieves a daily close above 682.00",
+      "confidence": 0.72,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "Today's central tension is a CLEAN_BEAR technical structure (ribbon spread 180c, price 226c below pivot, all major sectors down >1.75%) colliding with a falling VIX macro signal (-2.4% into 20.33 MID regime) and an overnight flat gap that hints institutional buyers defended 680.40 overnight rather than capitulating. The 3-of-4 bearish weighted consensus (0.70) earns a strong classification driven by ribbon structure and sector internals, but confidence is capped at 75 by moderate validator robustness — the macro dissent is mechanically sound. The single most important watch at the open is the 680.40 Carry support: a decisive break below on volume confirms the bear continuation to 675.95; a clean hold with simultaneous VIX compression collapses the structural bear thesis and elevates the tactical bullish reclaim as the live trade.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.87,
+      "one_line": "CLEAN_BEAR ribbon (180c spread, fast 682.7 / pivot 683.2 / slow 684.5); price 226c below pivot with power-sell close (15:55 bar -49c on 5x volume)"
+    },
+    "macro": {
+      "bias": "bullish",
+      "confidence": 0.62,
+      "one_line": "VIX MID regime falling -2.4% to 20.33 with zero macro events; flat overnight gap read as institutional support defense, not momentum continuation"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.68,
+      "one_line": "Battle level 680.40 Carry support sitting $0.55 below price; break targets 675.95, hold enables 682-683 reference resistance — asymmetry favors downside given thin sub-680 support stack"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.82,
+      "one_line": "Broad risk-off rotation confirmed: XLK -2.86%, XLF -2.29%, XLE -1.75% — all sectors down together with tech leading, no sector divergence or safe-haven bid"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "Flat overnight gap + falling VIX = institutional support hold, not capitulation; if 680.40 holds on first test, ribbon tightens in real-time and structural bear thesis collapses within first bar"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
+}

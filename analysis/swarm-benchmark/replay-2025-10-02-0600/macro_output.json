@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2025-10-02T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "VIX at 16.19 (MID regime) falling -0.55% = compression bullish signal. Overnight gap +$1.26 signals risk-on sentiment from overnight session. XLK +1.5% leading, SPY +0.8%, rotation signal risk_on. Zero macro events today — clear trading window all day. Bullish ribbon stack 65c spread. No conflicting event risk; fair conditions for directional setups.",
+  "vix_regime": "MID",
+  "vix_direction": "falling",
+  "vix_current": 16.19,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "up",
+  "overnight_gap_dollars": 1.26,
+  "macro_backdrop": "risk_on",
+  "key_observations": [
+    "VIX compression: 16.19 falling -0.55% in MID regime indicates receding fear, bullish for calls",
+    "Overnight gap +$1.26 with premarket high 670.55 = significant bullish overnight positioning",
+    "Sector strength: XLK +1.5% (tech leading), XLE +0.49%, rotation signal confirmed risk_on vs risk_off",
+    "Zero macro events: no CPI/NFP/FOMC/earnings — clean RTH window 09:30-16:00 ET",
+    "Technical backdrop: BULL ribbon stack (69.11/68.98/68.46) with 65c spread, current price 669.37 above all three EMAs"
+  ],
+  "data_quality": "full"
+}

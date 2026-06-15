@@ -1,0 +1,23 @@
+{
+  "agent": "macro",
+  "generated_at": "2026-02-17T06:00:00Z",
+  "bias": "bearish",
+  "confidence": 0.78,
+  "reasoning": "VIX at 22.03 (HIGH regime) rising sharply +6.84% signals elevated fear and bearish momentum. No major macro events today removes event-risk noise. Overnight gap flat (0.0) — no offsetting bullish sentiment from overnight. Ribbon in BEAR stack configuration aligns with risk-off environment. Sector rotation mixed (only XLE up 0.76%) confirms lack of broad risk-on conviction. Setup favors bearish directional plays; bullish entries face headwind from rising volatility.",
+  "vix_regime": "HIGH",
+  "vix_direction": "rising",
+  "vix_current": 22.03,
+  "event_risk": "none",
+  "events_today": [],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": 0.0,
+  "macro_backdrop": "risk_off",
+  "key_observations": [
+    "VIX rising +6.84% into HIGH regime (22.03) — material fear buildup, premium expensive but rising favors bearish setups",
+    "Zero macro events today — no forced no-trade windows; full trading day available but tone is risk-off",
+    "Overnight gap flat (0.0) — no overnight bullish sentiment; opens neutral, ribbon BEAR suggests downside bias from open",
+    "Sector rotation mixed with only energy (XLE +0.76%) showing strength — defensive/tech (XLK flat, XLF flat) confirms lack of risk-on appetite",
+    "Confidence 0.78: VIX direction + regime are clear bearish signal; event calendar blank removes uncertainty"
+  ],
+  "data_quality": "full"
+}

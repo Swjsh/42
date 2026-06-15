@@ -1,0 +1,4 @@
+{"date":"2026-05-07","rule_breaks_today":0,"trades_today":1,"setups_skipped_correctly":22,"setups_missed":1,"compliance_clean":false,"hypothesis_specificity_avg":0.96}
+{"date":"2026-05-08","rule_breaks_today":0,"trades_today":0,"setups_skipped_correctly":36,"setups_missed":0,"compliance_clean":true,"hypothesis_specificity_avg":1.0}
+{"date":"2026-05-13","rule_breaks_today":0,"trades_today":2,"setups_skipped_correctly":20,"setups_missed":0,"compliance_clean":true,"hypothesis_specificity_avg":1.0}
+{"date":"2026-05-18","rule_breaks_today":1,"trades_today":1,"setups_skipped_correctly":15,"setups_missed":1,"compliance_clean":false,"hypothesis_specificity_avg":1.0,"_note":"FIRST LIVE DAY. 1 rule break: infrastructure Rule 3 near-miss (naked parent order, canceled before fill, LOW severity). 1 missed bearish setup class (ribbon-lag). 2/5 predictions PASS. Bold -99 (9.9% equity). Safe flat."}

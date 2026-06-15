@@ -1,0 +1,85 @@
+{
+  "agent": "level_thesis",
+  "generated_at": "2025-10-08T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.67,
+  "reasoning": "SPY at 670.30, nested in the tight premarket range (669.50-670.58). Current price is right at the PMH 670.58 resistance. The battle level is 670.58 (Active, 2★) — the immediate test point. If held, pullback to 669.50 support is the next test zone; if broken, the Carry resistance at 672.50 becomes the target. Bullish alignment: ribbon is BULL stack (fast 669.86 > pivot > slow), overnight gap up (+0.87), and VIX falling at 17.05 (lower-vol regime). Support anchor at 667.62 (Carry, 2★, 5-day RTH low) is 2.68 below, giving bulls room. Intraday outcome hinges on 670.58 hold or break.",
+  "battle_level": {
+    "price": 670.58,
+    "tier": "Active",
+    "strength_stars": 2,
+    "role": "resistance",
+    "test_direction": "from_below"
+  },
+  "level_priority": [
+    {
+      "price": 670.58,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 1,
+      "distance_from_price": 0.28
+    },
+    {
+      "price": 672.50,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 2.20
+    },
+    {
+      "price": 669.50,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 3,
+      "distance_from_price": -0.80
+    },
+    {
+      "price": 667.62,
+      "tier": "Carry",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "hold_from",
+      "priority_rank": 4,
+      "distance_from_price": -2.68
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY holds 670.58 resistance",
+      "bias": "bullish",
+      "target": 672.50,
+      "entry_trigger": "ribbon_aligned_bull_stack + level_reclaim + lower_vol_regime"
+    },
+    "secondary": {
+      "condition": "if SPY breaks below 670.58 and tests 669.50",
+      "bias": "neutral_to_bullish",
+      "target": 667.62,
+      "entry_trigger": "support_hold_at_pml_669.50_bounce"
+    },
+    "tertiary": {
+      "condition": "if SPY breaks below 669.50",
+      "bias": "bearish",
+      "target": 667.62,
+      "entry_trigger": "pml_break + flush_through_carry_support"
+    }
+  },
+  "levels_in_play_count": 4,
+  "key_observations": [
+    "Price at premarket high (670.58) — immediate test of daily resistance ceiling. This is the battle level.",
+    "Ribbon is BULL stack with 46¢ spread; aligned with overnight gap-up direction and current price location.",
+    "Carry-tier support at 667.62 (5-day RTH low) is 2.68 below, providing a structural floor if intraday weakness develops.",
+    "VIX falling (17.05, MID regime) supports risk-on bias; lower volatility favors breakout over range chop.",
+    "Active-tier support at 669.50 (PML) is the interim fallback — only 80¢ below current price. Range is compressed."
+  ],
+  "data_quality": "full"
+}

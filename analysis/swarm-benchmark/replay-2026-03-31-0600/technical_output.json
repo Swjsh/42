@@ -1,0 +1,21 @@
+{
+  "agent": "technical",
+  "generated_at": "2026-03-31T10:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.72,
+  "reasoning": "CLEAN_BULL ribbon (146c spread, fast 637.35 > pivot 637.0 > slow 635.89) with price 637.1 sitting 10c above pivot = core bullish structure. Massive +$5.1 overnight gap from 632.0 close confirms strong bullish overnight sentiment; premarket high 638.88 well-established. Last 3 bars show mixed action (1 green, 2 red, small bodies 13-31c) — profit-taking chop on the gap-up rather than trend reversal. VIX falling -9.88% to 27.37 supports the bullish continuation. Bias is high-confidence but not maximum; recent red bars warrant some caution pending first RTH bar confirmation.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 146,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "up",
+  "key_observations": [
+    "Clean bull ribbon with 146c spread (fast 637.35, pivot 637.0, slow 635.89)",
+    "Price 637.1 above pivot by 10c — bullish momentum anchored above EMA equilibrium",
+    "Gap-up +$5.1 (0.81%) from prior close 632.0, premarket high 638.88 shows conviction",
+    "Last 3 bars mixed (1 green 05:45, 2 red 05:50/05:55) with small bodies 13-31c — chop/profit-taking, not reversal",
+    "VIX falling -9.88% to 27.37 in HIGH regime — IV compression on bullish conviction",
+    "All bars zero volume (premarket) — typical low-volume chop during overnight session"
+  ],
+  "data_quality": "full"
+}

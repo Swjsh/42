@@ -1,0 +1,18 @@
+2026-05-09 18:13:42,049 [INFO] Stress-testing seed 6 (v15 winner) on 11 event days
+2026-05-09 18:13:45,272 [INFO]   2026-05-07 [FOMC May 2026] n=1 pnl=$-19 wr=0/1
+2026-05-09 18:13:48,390 [INFO]   2026-04-29 [FOMC April 2026] n=0 pnl=$+0 wr=0/0
+2026-05-09 18:13:50,992 [INFO]   2026-03-19 [FOMC March 2026] n=4 pnl=$-295 wr=0/4
+2026-05-09 18:13:53,906 [INFO]   2026-04-10 [CPI March 2026] n=3 pnl=$-89 wr=0/3
+2026-05-09 18:13:56,839 [INFO]   2026-03-12 [CPI February 2026] n=0 pnl=$+0 wr=0/0
+2026-05-09 18:13:58,187 [INFO]   2026-04-04 [NFP March 2026] n=0 pnl=$+0 wr=0/0
+2026-05-09 18:13:59,538 [INFO]   2026-03-07 [NFP February 2026] n=0 pnl=$+0 wr=0/0
+2026-05-09 18:14:02,482 [INFO]   2026-05-01 [J historical winner] n=3 pnl=$-52 wr=0/3
+2026-05-09 18:14:05,478 [INFO]   2026-05-04 [J historical winner] n=4 pnl=$-267 wr=0/4
+2026-05-09 18:14:08,517 [INFO]   2026-05-05 [J chop trap loss] n=0 pnl=$+0 wr=0/0
+2026-05-09 18:14:10,428 [INFO]   2026-05-06 [J held to zero] n=7 pnl=$+307 wr=1/7
+C:\Users\jackw\Desktop\42\backtest\autoresearch\stress_test_seed6.py:129: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "generated_at": dt.datetime.utcnow().isoformat(timespec="seconds") + "Z",
+2026-05-09 18:14:10,431 [INFO] ============================================================
+2026-05-09 18:14:10,431 [INFO] STRESS TEST DONE
+2026-05-09 18:14:10,431 [INFO]   Total event-day P&L: $-415 across 22 trades, WR 5%
+2026-05-09 18:14:10,431 [INFO]   Output: C:\Users\jackw\Desktop\42\analysis\recommendations\v15-stress-test.json

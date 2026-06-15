@@ -1,0 +1,20 @@
+﻿{
+  "agent": "technical",
+  "generated_at": "2026-02-23T06:00:00Z",
+  "bias": "bullish",
+  "confidence": 0.68,
+  "reasoning": "CLEAN_BULL ribbon with 77c spread (fast 688.84 > pivot 688.70 > slow 688.08) is the dominant signal. Price 689.29 sits 59c above pivot — strong bullish momentum. Last 3 bars show mixed structure: GREEN (14c small) + GREEN (58c full, high volume 131k at 15:55) + RED (15c, profit-taking at close) = weakening momentum into close. Risk-on rotation across XLK (+1.21%) and XLF (+0.86%) supports bullish bias. VIX rising +12.53% to 21.47 (MID regime) adds mild caution but not panic-level. Overnight gap flat at -0.15. The CLEAN ribbon and above-pivot positioning dominate, but the red close and rising IV temper conviction from maximum.",
+  "ribbon_verdict": "CLEAN_BULL",
+  "ribbon_spread_cents": 77,
+  "bar_structure": "mixed",
+  "price_vs_pivot": "above",
+  "overnight_gap_dir": "flat",
+  "key_observations": [
+    "CLEAN_BULL ribbon 77c wide (fast 688.84 > pivot 688.70 > slow 688.08) with price 59c above pivot — structural bullish bias intact",
+    "Last 3 bars trend mixed: GREEN small (14c) + GREEN full (58c, 131k volume surge at 15:55 EOD) + RED small (15c, typical profit-taking) — momentum weakening into session close",
+    "VIX rising +12.53% to 21.47 (MID regime) despite bullish price structure — suggests underlying demand to hedge but not panic-level volatility",
+    "Risk-on sector rotation: XLK (+1.21%) and XLF (+0.86%) supporting — tech and financials leading, consistent with bullish bias",
+    "Overnight gap flat at -0.15 (from prior close 689.44) — essentially unchanged open, no gap signal"
+  ],
+  "data_quality": "full"
+}
