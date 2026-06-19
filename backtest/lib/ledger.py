@@ -67,7 +67,30 @@ from pydantic import ValidationError
 
 from .contracts import DecisionRowModel, StateContractError
 
-__all__ = ["append_decision", "serialize_decision"]
+__all__ = ["append_decision", "serialize_decision", "account_id_for_path"]
+
+
+def account_id_for_path(path: Union[str, Path]) -> str:
+    """Map a decision-ledger path to its canonical ``account_id``.
+
+    The dual-account engine keeps two physically separate ledgers:
+      * ``automation/state/decisions.jsonl``            -> Gamma-Safe  -> ``"safe"``
+      * ``automation/state/aggressive/decisions.jsonl`` -> Gamma-Bold  -> ``"bold"``
+
+    The Bold ledger lives under an ``aggressive/`` directory (and the Bold
+    position file is named ``*-bold*``), so ANY path component containing
+    ``aggressive`` or ``bold`` means the Bold account; everything else defaults to
+    Safe. This MUST match the EOD/weekly consumers' "default-by-file" rule
+    (``automation/prompts/eod-summary.md`` step 1 / line ~215): "untagged
+    Safe-ledger rows count as ``safe``, untagged Bold-ledger rows as ``bold``."
+
+    Returning ``"safe"`` for the un-namespaced base ledger is the deliberate,
+    documented default -- it is the Safe account's home file.
+    """
+    needle = str(path).replace("\\", "/").lower()
+    if "aggressive" in needle or "bold" in needle:
+        return "bold"
+    return "safe"
 
 
 def serialize_decision(row: Dict[str, Any]) -> str:
@@ -119,6 +142,13 @@ def append_decision(path: Union[str, Path], row: Dict[str, Any]) -> None:
         ``action`` (str); ``bull_score`` / ``bear_score`` and any diagnostic
         keys are optional and ride along.
 
+        ``account_id`` is STAMPED automatically from the target ``path`` (base
+        ledger -> ``"safe"``, ``aggressive/`` ledger -> ``"bold"``) when the row
+        does not already carry a truthy ``account_id``. An explicit
+        ``account_id`` in ``row`` is always respected. This closes
+        BP-ACCOUNT-ID-ENFORCE: every NEW row carries ``account_id`` so the
+        WATCH_ONLY consumers + shadow/EOD group-by-account never have to guess.
+
     Raises
     ------
     StateContractError:
@@ -127,6 +157,12 @@ def append_decision(path: Union[str, Path], row: Dict[str, Any]) -> None:
         ledger; the producer crashes visibly instead.)
     """
     p = Path(path)
+
+    # Stamp account_id by target file when the producer didn't set it. Build a
+    # NEW dict (never mutate the caller's row -- immutability rule) and only when
+    # a stamp is actually needed, so an explicit account_id is preserved verbatim.
+    if not row.get("account_id"):
+        row = {**row, "account_id": account_id_for_path(p)}
 
     # Validate + serialize BEFORE touching the file. If this raises, nothing is
     # written -- no half-line, no garbage.

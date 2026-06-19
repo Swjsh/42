@@ -36,6 +36,10 @@ from .simulator import simulate_trade, TradeFill
 from .simulator_real import simulate_trade_real
 from .risk_gate import check_order as _risk_check_order
 from .engine import score_bar as _engine_score_bar
+from .engine import (
+    GateContext as _GateContext,
+    evaluate_gates as _engine_evaluate_gates,
+)
 
 import os as _os
 
@@ -53,6 +57,15 @@ _RISK_GATE_ASSERT = _os.environ.get("GAMMA_RISK_GATE_ASSERT", "1") != "0"
 # GAMMA_ENGINE_SCORE_ASSERT=0 to skip the per-bar assertion on perf-sensitive
 # sweeps. Read once at import (cheap, no per-bar env lookups).
 _ENGINE_SCORE_ASSERT = _os.environ.get("GAMMA_ENGINE_SCORE_ASSERT", "1") != "0"
+
+# Engine-gates assert-agree toggle (Phase 2, shared-decision-library migration —
+# docs/SHARED-DECISION-LIBRARY-MIGRATION.md §3 Phase 2). On by default so the 15
+# entry gates now also evaluated via engine.evaluate_gates are continuously proven
+# to fire the SAME first SKIP (or allow) the orchestrator's inline gate cascade
+# does — the same "assert-agree before replace" discipline as the risk gate and
+# the score oracle above. Set GAMMA_ENGINE_GATES_ASSERT=0 to skip the per-bar
+# assertion on perf-sensitive sweeps. Read once at import (no per-bar env lookups).
+_ENGINE_GATES_ASSERT = _os.environ.get("GAMMA_ENGINE_GATES_ASSERT", "1") != "0"
 
 
 # Keys in params_overrides that control lib.filters module-level constants.
@@ -1236,12 +1249,80 @@ def run_backtest(
                     "reason": "blocked by quality lock (downgrade or same-quality after winner)",
                 })
                 continue
+            # ── ENGINE-GATES ASSERT-AGREE (Phase 2, 2026-06-18) ──
+            # The 15 entry gates below are being relocated behind ONE shared
+            # interface, backtest/lib/engine.evaluate_gates (the same surface the
+            # live heartbeat will call via the engine_cli.py shell-out shim in
+            # Phase 3-4). We do NOT yet replace the inline blocks; we run
+            # evaluate_gates on the SAME loop locals as an independent oracle and
+            # assert it fires the SAME first SKIP action (or allow) the inline
+            # cascade does — proving the extraction is faithful with zero
+            # behaviour change before any call site depends on it (mirrors the
+            # risk-gate + engine.score asserts). Opt-out: GAMMA_ENGINE_GATES_ASSERT=0.
+            #
+            # The oracle is captured HERE (before gate 1) because all 15 lifted
+            # gates are pure over these locals and none reads the
+            # setup_quality_taken_today mutation at ~line 1376; the inline cascade
+            # then runs as before. ``_assert_gate(action)`` is called just before
+            # each inline gate's ``continue`` to assert the engine agreed on that
+            # exact SKIP; the entry-reached point asserts the engine returned None.
+            if _ENGINE_GATES_ASSERT:
+                _eng_gate = _engine_evaluate_gates(
+                    _GateContext(
+                        winning_side=winning_side,
+                        winning_triggers=winning_triggers,
+                        quality_tier=quality_tier,
+                        has_level=has_level,
+                        bar=bar,
+                        bar_idx=idx,
+                        bar_time=bar_time,
+                        vix_now=vix_now,
+                        ribbon_spread_cents=ribbon_state.spread_cents,
+                        ribbon_stack=ribbon_state.stack,
+                        spy_df=spy_df,
+                        ribbon_df=ribbon_df,
+                    ),
+                    params={
+                        "block_level_rejection": block_level_rejection,
+                        "trendline_requires_ribbon_flip": trendline_requires_ribbon_flip,
+                        "block_elite_bull": block_elite_bull,
+                        "block_elite_bull_vix_low": block_elite_bull_vix_low,
+                        "block_elite_bull_vix_high": block_elite_bull_vix_high,
+                        "block_bull_ribbon_flip": block_bull_ribbon_flip,
+                        "block_bull_1100_1200": block_bull_1100_1200,
+                        "block_bull_morning_agg": block_bull_morning_agg,
+                        "require_bearish_fill_bar": require_bearish_fill_bar,
+                        "min_ribbon_momentum_cents": min_ribbon_momentum_cents,
+                        "max_ribbon_duration_bars": max_ribbon_duration_bars,
+                        "midday_trendline_gate": midday_trendline_gate,
+                        "midday_trendline_gate_start_minutes": midday_trendline_gate_start_minutes,
+                        "block_conf_lvl_rej_midday_afternoon": block_conf_lvl_rej_midday_afternoon,
+                        "block_conf_lvl_rec_afternoon": block_conf_lvl_rec_afternoon,
+                        "entry_bar_body_pct_min": entry_bar_body_pct_min,
+                        "entry_bar_body_pct_min_bull": entry_bar_body_pct_min_bull,
+                        "vix_bear_hard_cap": vix_bear_hard_cap,
+                    },
+                )
+
+                def _assert_gate(_action: str) -> None:
+                    assert _eng_gate is not None and _eng_gate.action == _action, (
+                        "engine.evaluate_gates disagrees with orchestrator inline "
+                        f"gate at bar {idx} {bar_time}: inline fired {_action!r} but "
+                        f"engine returned {(_eng_gate.action if _eng_gate else None)!r}"
+                    )
+            else:
+                _eng_gate = None
+
+                def _assert_gate(_action: str) -> None:
+                    return None
+
             # LEVEL_REJECTION_GATE: block all BEAR-side LEVEL-tier level_rejection entries.
             # Must come BEFORE quality lock so blocked trades don't consume the day's LEVEL slot.
             # Specifically targets PUT trades with level_rejection trigger (has_level==True for bears);
             # winning_side=="P" guard ensures BULL level_reclaim LEVEL trades are NOT blocked.
             # WF=0.829 (post-hoc), IS +$13,389 (n=22 bear), OOS +$682 (n=3). Anchor OK.
             if block_level_rejection and quality_tier == "LEVEL" and has_level and winning_side == "P":
+                _assert_gate("SKIP_LEVEL_REJECTION_GATE")
                 decisions.append({
                     "bar_idx": idx, "timestamp_et": bar_time,
                     "spy_close": float(bar["close"]), "vix": vix_now,
@@ -1261,6 +1342,7 @@ def run_backtest(
             if trendline_requires_ribbon_flip and quality_tier == "TRENDLINE":
                 _has_rf = "ribbon_flip" in winning_triggers
                 if not _has_rf:
+                    _assert_gate("SKIP_TRENDLINE_NO_RIBBON_FLIP")
                     decisions.append({
                         "bar_idx": idx, "timestamp_et": bar_time,
                         "spy_close": float(bar["close"]), "vix": vix_now,
@@ -1281,6 +1363,7 @@ def run_backtest(
             if (block_elite_bull and quality_tier == "ELITE"
                     and "level_reclaim" in winning_triggers
                     and block_elite_bull_vix_low <= vix_now < block_elite_bull_vix_high):
+                _assert_gate("SKIP_ELITE_BULL_LEVEL_RECLAIM")
                 decisions.append({
                     "bar_idx": idx, "timestamp_et": bar_time,
                     "spy_close": float(bar["close"]), "vix": vix_now,
@@ -1299,6 +1382,7 @@ def run_backtest(
             # ribbon_flip lags the reclaim move — fires after price has already extended.
             if (block_bull_ribbon_flip and winning_side == "C"
                     and "ribbon_flip" in winning_triggers):
+                _assert_gate("SKIP_BULL_RIBBON_FLIP")
                 decisions.append({
                     "bar_idx": idx, "timestamp_et": bar_time,
                     "spy_close": float(bar["close"]), "vix": vix_now,
@@ -1317,6 +1401,7 @@ def run_backtest(
             # OP-22 ratified: IS_delta=+89, OOS_delta=+42, WF=5.22, SW_hurt=1/3, G5 pass.
             if (block_bull_1100_1200 and winning_side == "C"
                     and dt.time(11, 0) <= bar_time_py.time() < dt.time(12, 0)):
+                _assert_gate("SKIP_BULL_1100_1200")
                 decisions.append({
                     "bar_idx": idx, "timestamp_et": bar_time,
                     "spy_close": float(bar["close"]), "vix": vix_now,
@@ -1338,6 +1423,7 @@ def run_backtest(
             if (block_bull_morning_agg and winning_side == "C" and (
                     dt.time(10, 0) <= bar_time_py.time() < dt.time(11, 30)
                     or bar_time_py.time() >= dt.time(14, 0))):
+                _assert_gate("SKIP_BULL_MORNING_AGG")
                 decisions.append({
                     "bar_idx": idx, "timestamp_et": bar_time,
                     "spy_close": float(bar["close"]), "vix": vix_now,
@@ -1360,6 +1446,7 @@ def run_backtest(
                 _fill_bar = spy_df.iloc[_fill_idx]
                 _fill_body = float(_fill_bar["close"]) - float(_fill_bar["open"])
                 if _fill_body >= 0:  # bullish or doji fill bar — skip
+                    _assert_gate("SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY")
                     decisions.append({
                         "bar_idx": idx, "timestamp_et": bar_time,
                         "spy_close": float(bar["close"]), "vix": vix_now,
@@ -1382,6 +1469,7 @@ def run_backtest(
                 if _prev_st is not None:
                     _rmom = ribbon_state.spread_cents - _prev_st.spread_cents
                     if _rmom < min_ribbon_momentum_cents:
+                        _assert_gate("SKIP_RIBBON_MOMENTUM_GATE")
                         decisions.append({
                             "bar_idx": idx, "timestamp_et": bar_time,
                             "spy_close": float(bar["close"]), "vix": vix_now,
@@ -1405,6 +1493,7 @@ def run_backtest(
                         break
                     _rdur += 1
                 if _rdur > max_ribbon_duration_bars:
+                    _assert_gate("SKIP_RIBBON_DURATION_GATE")
                     decisions.append({
                         "bar_idx": idx, "timestamp_et": bar_time,
                         "spy_close": float(bar["close"]), "vix": vix_now,
@@ -1426,6 +1515,7 @@ def run_backtest(
                     len(winning_triggers) == 1 and "trendline_rejection" in winning_triggers
                 )
                 if _is_mid and _is_tl_only:
+                    _assert_gate("SKIP_MIDDAY_TRENDLINE_GATE")
                     decisions.append({
                         "bar_idx": idx, "timestamp_et": bar_time,
                         "spy_close": float(bar["close"]), "vix": vix_now,
@@ -1446,6 +1536,7 @@ def run_backtest(
                     "confluence" in winning_triggers and "level_rejection" in winning_triggers
                 )
                 if _is_midday_or_aft and _is_conf_rej:
+                    _assert_gate("SKIP_CONF_LVL_REJ_MIDDAY_AFTERNOON")
                     decisions.append({
                         "bar_idx": idx, "timestamp_et": bar_time,
                         "spy_close": float(bar["close"]), "vix": vix_now,
@@ -1466,6 +1557,7 @@ def run_backtest(
                     "confluence" in winning_triggers and "level_reclaim" in winning_triggers
                 )
                 if _is_afternoon and _is_conf_rec:
+                    _assert_gate("SKIP_CONF_LVL_REC_AFTERNOON")
                     decisions.append({
                         "bar_idx": idx, "timestamp_et": bar_time,
                         "spy_close": float(bar["close"]), "vix": vix_now,
@@ -1491,6 +1583,7 @@ def run_backtest(
             if entry_bar_body_pct_min > 0.0 and winning_side == "P":
                 _entry_geo = _bar_geometry(bar)
                 if _entry_geo["body_pct"] < entry_bar_body_pct_min:
+                    _assert_gate("SKIP_DOJI_ENTRY_BAR")
                     decisions.append({
                         "bar_idx": idx, "timestamp_et": bar_time,
                         "spy_close": float(bar["close"]), "vix": vix_now,
@@ -1509,6 +1602,7 @@ def run_backtest(
             if entry_bar_body_pct_min_bull > 0.0 and winning_side == "C":
                 _entry_geo_c = _bar_geometry(bar)
                 if _entry_geo_c["body_pct"] < entry_bar_body_pct_min_bull:
+                    _assert_gate("SKIP_DOJI_ENTRY_BAR_BULL")
                     decisions.append({
                         "bar_idx": idx, "timestamp_et": bar_time,
                         "spy_close": float(bar["close"]), "vix": vix_now,
@@ -1525,6 +1619,7 @@ def run_backtest(
 
             # VIX_BEAR_HARD_CAP gate: block BEAR entries when VIX is at or above the cap.
             if vix_bear_hard_cap is not None and winning_side == "P" and vix_now >= vix_bear_hard_cap:
+                _assert_gate("SKIP_VIX_BEAR_HIGH")
                 decisions.append({
                     "bar_idx": idx, "timestamp_et": bar_time,
                     "spy_close": float(bar["close"]), "vix": vix_now,
@@ -1538,6 +1633,20 @@ def run_backtest(
                     "setup": setup_name,
                 })
                 continue
+
+            # ── ENGINE-GATES ASSERT-AGREE: allow side (Phase 2) ──
+            # Reaching here means the inline cascade passed ALL 15 lifted gates.
+            # The engine oracle (captured before gate 1) must therefore have
+            # returned None (allow). The two non-lifted skips that can still fire
+            # below — SKIP_NO_PULLBACK (V_PULLBACK) and downstream sizing skips —
+            # are deliberately NOT part of evaluate_gates' scope, so None here is
+            # the correct, faithful agreement.
+            if _ENGINE_GATES_ASSERT:
+                assert _eng_gate is None, (
+                    "engine.evaluate_gates disagrees with orchestrator inline gates "
+                    f"at bar {idx} {bar_time}: inline ALLOWED (passed all 15 gates) "
+                    f"but engine returned SKIP {_eng_gate.action!r}"
+                )
 
             # V_PULLBACK gate: scan forward for a pullback to the level before entering.
             actual_entry_idx = idx

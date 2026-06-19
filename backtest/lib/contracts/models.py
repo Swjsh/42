@@ -414,12 +414,22 @@ class DecisionRowModel(_StateModel):
     Required = the fields graders/miners index on every row: ``tick_id``,
     ``date``, ``action``. Everything else (scores, prices, reason) is optional
     so older-schema rows in this long-lived append-only ledger still validate.
+
+    ``account_id`` (``"safe"`` / ``"bold"``) is optional ON THE MODEL so the
+    long-lived ledger's pre-enforcement rows (the ~90% audited absent on
+    2026-06-18) still validate, BUT the canonical writer
+    (:func:`backtest.lib.ledger.append_decision`) now STAMPS it on every NEW row
+    by default-from-target-file (base ``decisions.jsonl`` -> ``"safe"``,
+    ``aggressive/`` ledger -> ``"bold"``). So new rows always carry it; the EOD /
+    weekly group-by-account consumers' "default-by-file" fallback only ever has to
+    cover legacy rows. (BP-ACCOUNT-ID-ENFORCE.)
     """
 
     tick_id: int
     date: str
     action: str
 
+    account_id: Optional[str] = None
     time_et: Optional[str] = None
     bull_score: Optional[float] = None
     bear_score: Optional[float] = None

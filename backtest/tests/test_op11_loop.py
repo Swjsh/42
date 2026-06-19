@@ -158,15 +158,27 @@ def test_full_params_applies_v153_gates() -> None:
 def test_shadow_loop_closes_and_is_read_only() -> None:
     spy, vix = _load_window("2026-02-01", "2026-05-07")
     before = hashlib.sha256(PARAMS.read_bytes()).hexdigest()
+    # The shadow override must ACTUALLY diverge the shadow arm from the prod arm
+    # on THIS window, or the read-only invariant below is tested vacuously (a
+    # no-op A/B trivially leaves params.json unchanged). The prod arm runs the
+    # full live params.json, where ``min_ribbon_momentum_cents`` is 0 (gate OFF)
+    # -> 7 trades fire on 2026-02-01..05-07. The old override value (3.0) was a
+    # NO-OP: all 7 of those prod trades already clear a 3c ribbon-momentum bar,
+    # so prod==shadow and the divergence assert silently held with zero delta.
+    # 10.0c is the empirical divergence cliff (filters 3 of the 7 -> 4 trades);
+    # 15.0c sits on the stable 4-trade plateau (10/12/15 all -> 4) for margin.
     res = run_shadow_backtest(
         spy, vix,
         start_date=dt.date(2026, 2, 1), end_date=dt.date(2026, 5, 7),
-        shadow_overrides={"min_ribbon_momentum_cents": 3.0},
-        rule_id="TEST_RMOM", title="loosen rmom",
+        shadow_overrides={"min_ribbon_momentum_cents": 15.0},
+        rule_id="TEST_RMOM", title="tighten rmom",
         spy_path=MASTER_SPY, vix_path=MASTER_VIX,
         use_real_fills=False, check_sub_window=True,
     )
-    # prod (v15.3) and shadow (looser gate) must differ -> A/B is real, not a no-op
+    # prod (gate OFF) and shadow (15c conviction gate) MUST differ -> the A/B is
+    # real, so the byte-identical-params assertion below genuinely proves shadow
+    # mode is read-only (it ran a DIFFERENT engine config and still touched
+    # nothing), not merely that an identical run changed nothing.
     assert (res.prod_metrics.n_trades, res.prod_metrics.total_pnl) != (
         res.shadow_metrics.n_trades, res.shadow_metrics.total_pnl
     )

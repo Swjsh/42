@@ -18,10 +18,13 @@ PHASING (per the spec §3 — this package grows one parity-gated phase at a tim
     relocation behind a narrow interface, proven byte-identical by
     ``backtest/tests/test_engine_score_parity.py`` and an assert-agree oracle
     wired into the orchestrator's scoring point.
-  * Phase 2 (LATER) — ``gates.py``: lift the ~15 inline gate blocks from
-    ``orchestrator.py`` into one ordered ``evaluate_gates()`` + a ``GATE_ORDER``
-    declaration; add ``test_engine_gates_parity.py`` + the prose<->code presence
-    test.
+  * Phase 2 (THIS PHASE) — ``gates.py``: lift the 15 inline gate blocks from
+    ``orchestrator.py`` (~1239-1540) into one ordered ``evaluate_gates(ctx, params)``
+    + a ``GATE_ORDER`` declaration. Proven byte-identical by
+    ``backtest/tests/test_engine_gates_parity.py`` and an assert-agree oracle
+    wired into the orchestrator's gate point (opt-out ``GAMMA_ENGINE_GATES_ASSERT=0``).
+    The prose<->GATE_ORDER presence test (``test_heartbeat_gate_intent_parity``)
+    is Phase 2c.
   * Phase 3 (LATER) — ``engine_cli.py`` (stdin/stdout shim, mirror
     ``pre_order_gate.py``) + shadow-mode the verdict alongside the live prose for
     N>=5 trading days (read-only, cannot touch an order).
@@ -37,6 +40,12 @@ assert-agree oracle). A regression cannot reach live trading.
 
 from __future__ import annotations
 
+from .gates import (
+    GATE_ORDER,
+    GateBlock,
+    GateContext,
+    evaluate_gates,
+)
 from .score import (
     ScoreResult,
     score_bar,
@@ -45,8 +54,14 @@ from .score import (
 )
 
 __all__ = [
+    # Phase 1 — scoring
     "ScoreResult",
     "score_bar",
     "score_bear",
     "score_bull",
+    # Phase 2 — gates
+    "GATE_ORDER",
+    "GateBlock",
+    "GateContext",
+    "evaluate_gates",
 ]

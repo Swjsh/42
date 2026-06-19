@@ -13,10 +13,9 @@
 
 ### Tier 1 — engine correctness / loose ends from tonight (CONTEXT-106..109)
 
-- [ ] BP-ACCOUNT-ID-ENFORCE (HIGH) :: ENFORCE `account_id` on every `decisions.jsonl` write. Audit found it mandated (heartbeat.md:232) but ABSENT on ~90% of rows. Load-bearing now (WATCH_ONLY consumers + shadow group-by-account). Also tracked as cook-queue task (bulletproofing-audit). :: depends:none :: status:pending
-- [ ] BP-SHADOW-RATIFY-CONTRACT (HIGH) :: FIX shadow auto-ratify contract mismatch (latent — shadow disabled, but OP-11 5-of-7 auto-ratify would never advance once enabled). eod-summary 8c reads `decisions.jsonl`+`version`/`would_have_action`; shadow writes `shadow-model-decisions.jsonl`+`real_action`/`shadow_action`. :: depends:none :: status:pending
-- [ ] BP-STRAY-CRYPTO-INIT (LOW) :: Delete stray 0-byte `backtest/crypto/__init__.py` that shadows the real top-level `crypto` package (causes ModuleNotFoundError on `from crypto.lib...`). pattern_backtest self-heals; this is the clean root fix. :: depends:none :: status:pending
-- [ ] STAIRSTEP-REDESIGN (MED) :: STAIRSTEP_CONTINUATION eval-first redesign — currently WATCH_ONLY / DO-NOT-PROMOTE. Defects: (1) docstring + v45 gym fixture use FABRICATED bar values (not the real 5/07 tape); (2) anti-J-edge (5/07 is a J LOSS day; every tested logic fix worsened edge_capture). Needs eval-first / J redesign before any promotion path. :: depends:none :: status:pending
+> The 3 BP-* loose ends are CLOSED (2026-06-19) — see `## Completed`. STAIRSTEP-REDESIGN remains the one open Tier-1 item (genuine eval-first redesign, not a quick fix).
+
+- [ ] STAIRSTEP-REDESIGN (MED) :: STAIRSTEP_CONTINUATION eval-first redesign — currently RETIRED 2026-06-18 (anti-J-edge; detector returns None, v45 gym PASS confirms 0 post-retirement fires). Any future promotion needs eval-first / J redesign: (1) docstring + v45 gym fixture used FABRICATED bar values (not the real 5/07 tape); (2) 5/07 is a J LOSS day; every tested logic fix worsened edge_capture. :: depends:none :: status:pending
 
 ### Tier 2 — J-ratification proposals (DRAFT, awaiting J ruling per Rule 9)
 
@@ -96,6 +95,14 @@ These are exactly the OP-22 "371st untriaged candidate is debt" pattern. The `gy
 ---
 
 ## Completed
+
+### 2026-06-19 — Tier-1 loose-end close-out (verify-first pass)
+
+- [x] BP-ACCOUNT-ID-ENFORCE (HIGH) :: **CLOSED — write-side enforcement added.** Consumer side was already done (eod-summary.md step 1 + line ~215 default-by-file). The gap was the WRITE side: the canonical writer `backtest/lib/ledger.py#append_decision` did NOT stamp `account_id`. Fix: added `account_id_for_path()` (base `decisions.jsonl`->`safe`, `aggressive/` or `*-bold*`->`bold`, matching the consumer's default-by-file rule) and `append_decision` now stamps it on every NEW row unless the producer set it explicitly (immutable copy, no caller-dict mutation). `account_id` added as documented Optional on `DecisionRowModel` (legacy rows still validate). Tests: 4 new in `backtest/tests/test_ledger_writer.py` (path map both slash styles, safe-stamp, bold-stamp, explicit-respected, every-row-carries-it) — `9 passed`. `test_state_contracts.py` still `16 passed`.
+- [x] BP-SHADOW-RATIFY-CONTRACT (HIGH) :: **ALREADY DONE (verified, not re-done).** eod-summary 8c header reads "file+field contract fixed 2026-06-18"; section 8c (lines 379-437) now reads `automation/state/shadow-model-decisions.jsonl` with `real_action`/`shadow_action`/`agree` (verified against producer `setup/scripts/shadow_model_eval.py` ~889-903), NOT the old `decisions.jsonl`+`version`/`would_have_action`. No action needed.
+- [x] BP-STRAY-CRYPTO-INIT (LOW) :: **ALREADY DONE (verified, not re-done).** `backtest/crypto/__init__.py` does not exist (only `backtest/crypto/data/` remains); the de-sprawl wave already removed it. No `backtest.crypto` import surface to break. No action needed.
+- [x] OP11-STALE-TEST (was a known failing test, not a formal queue id) :: **CLOSED.** `backtest/tests/test_op11_loop.py::test_shadow_loop_closes_and_is_read_only` failed `(7, X) != (7, X)`: the shadow override `min_ribbon_momentum_cents: 3.0` was a NO-OP vs the prod arm (prod runs full params.json with rmom=0 / gate OFF -> 7 trades; all 7 already clear a 3c bar). Empirically probed the real shadow path on the test window: 3.0 and 8.0 don't diverge; **10.0c is the divergence cliff** (filters 3 of 7 -> 4 trades, `(4, 3081.61)`); 10/12/15 share the same 4-trade plateau. Fix: override changed to **15.0** (stable plateau, margin off the cliff) so the read-only invariant is now exercised against a GENUINELY divergent A/B (not weakened — still asserts byte-identical params.json after a shadow run). `python -m pytest backtest/tests/test_op11_loop.py -q` -> **11 passed**. Gym `python -m crypto.validators.runner --skip-replay` -> **86/87 overall_pass=True**.
+
 (historical completions preserved verbatim in `automation/overnight/queue-archive-2026-06-19.md`)
 
 ## Blocked

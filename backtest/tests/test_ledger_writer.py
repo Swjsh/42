@@ -26,7 +26,11 @@ from lib.contracts import (  # noqa: E402
     StateContractError,
     load_jsonl_rows,
 )
-from lib.ledger import append_decision, serialize_decision  # noqa: E402
+from lib.ledger import (  # noqa: E402
+    account_id_for_path,
+    append_decision,
+    serialize_decision,
+)
 
 
 def _valid_row() -> dict:
@@ -111,3 +115,65 @@ def test_serialize_is_single_line_even_with_nested_objects():
     # round-trips back through the contract
     rows = DecisionRowModel.model_validate(row)
     assert rows.tick_id == 1
+
+
+# ---------- account_id enforcement (BP-ACCOUNT-ID-ENFORCE) ----------
+
+
+def test_account_id_for_path_defaults_by_file():
+    """The path->account map must match the EOD consumer's default-by-file rule."""
+    # base ledger -> safe
+    assert account_id_for_path("automation/state/decisions.jsonl") == "safe"
+    # aggressive ledger -> bold (forward AND back slashes -- Windows paths)
+    assert account_id_for_path("automation/state/aggressive/decisions.jsonl") == "bold"
+    assert account_id_for_path(r"automation\state\aggressive\decisions.jsonl") == "bold"
+    # a *-bold* named file -> bold
+    assert account_id_for_path("automation/state/decisions-bold.jsonl") == "bold"
+    # Path objects work too
+    assert account_id_for_path(Path("x/decisions.jsonl")) == "safe"
+
+
+def test_append_stamps_account_id_safe_for_base_ledger(tmp_path):
+    """A row written to the base decisions.jsonl is stamped account_id='safe'."""
+    led = tmp_path / "decisions.jsonl"
+    row = _valid_row()
+    assert "account_id" not in row  # producer did NOT set it
+    append_decision(led, row)
+
+    rows = load_jsonl_rows(led, DecisionRowModel)
+    assert rows[0].account_id == "safe"
+    # caller's dict was NOT mutated (immutability invariant)
+    assert "account_id" not in row
+
+
+def test_append_stamps_account_id_bold_for_aggressive_ledger(tmp_path):
+    """A row written under aggressive/ is stamped account_id='bold'."""
+    led = tmp_path / "aggressive" / "decisions.jsonl"
+    append_decision(led, _valid_row())
+
+    rows = load_jsonl_rows(led, DecisionRowModel)
+    assert rows[0].account_id == "bold"
+
+
+def test_explicit_account_id_is_respected(tmp_path):
+    """An explicit account_id in the row is never overridden by the path default."""
+    # base ledger would default to 'safe' -- but the row says 'bold'
+    led = tmp_path / "decisions.jsonl"
+    append_decision(led, {**_valid_row(), "account_id": "bold"})
+
+    rows = load_jsonl_rows(led, DecisionRowModel)
+    assert rows[0].account_id == "bold"
+
+
+def test_every_new_row_carries_account_id(tmp_path):
+    """The core guarantee: no NEW row reaches disk without an account_id."""
+    led = tmp_path / "aggressive" / "decisions.jsonl"
+    for tid in range(1, 6):
+        append_decision(led, {**_valid_row(), "tick_id": tid})
+
+    import json as _json
+
+    for line in led.read_text(encoding="utf-8").splitlines():
+        obj = _json.loads(line)
+        assert obj.get("account_id"), f"row missing account_id: {obj}"
+        assert obj["account_id"] == "bold"
