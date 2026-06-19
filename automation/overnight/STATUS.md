@@ -1,3 +1,15 @@
+## [2026-06-19] CONTEXT-118: PROFIT BREAKTHROUGH — gap-and-go LIVE; found the engine was trading the wrong setup (commits 0210302, 8bb3249, e8a2b55)
+
+J: "WE ARE NOT PROFITABLE YET." Root cause FOUND: regime_book.select_setups is called NOWHERE in the live path (git-verified) -> the live engine traded ONLY BEARISH_REJECTION (marginal/neg on proxy fills) while TWO real-OPRA-fills-validated +EV edges sat INERT, unreachable.
+
+FIXED + SHIPPED: built the LIVE detectors for both (parity-verified vs research over 363 days, gym 87/87), then WIRED gap-and-go into the live heartbeat and FLIPPED IT LIVE (bear-side) for Monday per OP-22 ship criteria (meets all 5: OOS +$68.6/t, WF +1.87 all-cuts-OOS+, 6/6 quarters+, anchor-no-regression, scorecard filed; causality 96/96 PASS, WR 72.6%, +$41.6/t). params.gap_and_go_enabled=true, side=put (bear-only = OP-16-compliant; bull-side calls stay DRAFT pending J set side=both). Revert: enabled=false.
+
+OPEN (J): (a) extend gap-and-go to calls (side=both) - the bigger +EV half. (b) vwap-pullback (+$46-69/t, the STRONGEST edge) is regime-sensitive/bimodal -> regime-gating it now to ship as edge #2.
+
+CONTINUING (not wrapping): vwap-pullback regime-gate, then the 3 ratification candidates (improve the existing book), then audit remaining WATCH setups for more inert edge.
+
+---
+
 ## [2026-06-19] CONTEXT-117: Phase-3 ENGINE SHADOW harness (wired-not-enabled, commit 64809b4)
 
 Last big-ticket weekend engineering item. Built the read-only sidecar that measures whether the decision-LIBRARY (score.py+gates.py, byte-identical to orchestrator in backtests) agrees with the live PROSE on the exact BarContext the LLM produces live — the one validation a synthetic reproducer can't give (earns the Phase-4 right to let code drive). automation/scripts/engine_shadow.py reuses decide_payload in-process, logs paired prose-vs-engine rows to engine-shadow-decisions.jsonl (SEPARATE from the Nemotron model shadow), --scorecard = the Phase-4 gate (overall>=99% + entries==100% over N>=5 days). TWO IRON GUARANTEES: read-only + fail-open (any error->SHADOW_ERROR row, exit 0, never breaks the live tick). 17 tests + DRY-RUN proven end-to-end (happy HOLD path + fail-open on bad payload). docs/ENGINE-SHADOW-HARNESS.md has the EXACT ~2-line propose-only heartbeat edit (engine-3b). WIRED-NOT-ENABLED (Rule 9): touched NO engine/heartbeat/params (git-verified); J flips it on after-hours Monday.
@@ -215,3 +227,12 @@ J directive: "fix all 4 phases... look for any other loose ends like this... whe
 - [2026-06-19 11:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.0% in last 24h (94/100) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
 
 - [2026-06-19 11:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.0% in last 24h (94/100) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-19 12:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.0% in last 24h (94/100) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-19 12:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.12% in last 24h (96/102) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+## Kitchen
+Kitchen: alive, queue 32 pending, last cook 0 min ago, today $0.01, model=nvidia/nemotron-3-super-120b-a12b:free
+
+- [2026-06-19 13:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.12% in last 24h (96/102) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
