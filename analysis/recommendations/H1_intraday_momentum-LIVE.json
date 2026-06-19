@@ -1,0 +1,637 @@
+{
+  "generated_at": "2026-06-19T20:02:07.408224+00:00",
+  "script": "backtest/autoresearch/discovery_chart_stop_reeval.py",
+  "setup": "H1_intraday_momentum",
+  "title": "Intraday momentum standalone afternoon entry (Gao-Han-Li-Zhou)",
+  "regime_fit": "bull_trend / bear_trend",
+  "source_discovery": "analysis/recommendations/infinite-ammo-discovery.json",
+  "purpose": "Re-evaluation of a discovery hypothesis on the LIVE exit config (CHART-STOP-ONLY, premium_stop_pct=-0.99). The source discovery scorecard used the v14 default -8% premium stop (simulate_signals passes no override) \u2014 the exact exit that choked gap-and-go. Both configs are shown side-by-side (like gap-and-go-LIVE.json). The chart-stop-only result is what the live engine would trade; the SURVIVOR verdict is decided on it alone.",
+  "research_detector": "backtest/autoresearch/infinite_ammo_discovery.py",
+  "causality": {
+    "verdict": "PASS (established at discovery time)",
+    "note": "These detectors' trigger logic is UNCHANGED here \u2014 only the EXIT config swaps. Causality (all features at-or-before trigger bar; fill = next bar open) was established in the discovery docstrings + the gap_and_go/vwap causality audits. No re-audit needed (re-audit only if the trigger changes)."
+  },
+  "fills": "lib.simulator_real.simulate_trade_real (real OPRA bars, causal next-bar-open entry, v15 exit stack: chart-level stop + ribbon-flip + chandelier + 15:50 time stop). premium_stop_pct swept: chart_stop_only=-0.99 (live) vs discovery_default=-0.08 (the choking exit).",
+  "data": {
+    "spy": "spy_5m_2025-01-01_2026-06-16.csv",
+    "vix": "vix_5m_2025-01-01_2026-06-16.csv",
+    "days": 363,
+    "date_range": [
+      "2025-01-02",
+      "2026-06-16"
+    ],
+    "oos_cut_date": "2026-01-09"
+  },
+  "signal_count": 183,
+  "side_counts": {
+    "P": 85,
+    "C": 98
+  },
+  "exit_methodology": "Headline/verdict = CHART-STOP-ONLY (premium_stop_pct=-0.99), the doctrinally-correct exit for these first-strike entry classes (L51/L55/C2; live CHART-STOP-PRIMARY doctrine). The source discovery numbers used premium_stop=-0.08. Both reported in tiers.{TIER}.{config}.",
+  "exit_config_delta_ATM": {
+    "chart_stop_exp_dollar": -13.09,
+    "default_-8pct_exp_dollar": -7.05,
+    "exp_dollar_lift": -6.04,
+    "chart_stop_wr": 69.9,
+    "default_-8pct_wr": 17.3,
+    "chart_stop_medWF": -0.883,
+    "default_-8pct_medWF": 0.111
+  },
+  "tiers": {
+    "ATM": {
+      "chart_stop_only": {
+        "n": 173,
+        "wins": 121,
+        "wr_pct": 69.9,
+        "exp_dollar": -13.09,
+        "total_dollar": -2264.71,
+        "exp_pct_return": 0.09671,
+        "is_n": 122,
+        "oos_n": 51,
+        "is_exp_dollar": -29.43,
+        "oos_exp_dollar": 26.0,
+        "is_exp_pct": 0.0691,
+        "oos_exp_pct": 0.16274,
+        "oos_sign_stable": true,
+        "wf_windows": [
+          {
+            "cut_frac": 0.6,
+            "cut_date": "2025-11-14",
+            "is_n": 104,
+            "oos_n": 69,
+            "is_total": -3470.31,
+            "oos_total": 1205.6,
+            "oos_exp": 17.47,
+            "wf_norm": -0.524,
+            "oos_positive": true
+          },
+          {
+            "cut_frac": 0.7,
+            "cut_date": "2026-01-09",
+            "is_n": 122,
+            "oos_n": 51,
+            "is_total": -3590.71,
+            "oos_total": 1326.0,
+            "oos_exp": 26.0,
+            "wf_norm": -0.883,
+            "oos_positive": true
+          },
+          {
+            "cut_frac": 0.8,
+            "cut_date": "2026-03-04",
+            "is_n": 143,
+            "oos_n": 30,
+            "is_total": -3738.31,
+            "oos_total": 1473.6,
+            "oos_exp": 49.12,
+            "wf_norm": -1.879,
+            "oos_positive": true
+          }
+        ],
+        "median_wf_norm": -0.883,
+        "all_cuts_oos_positive": true,
+        "quarters": {
+          "2025Q1": {
+            "n": 30,
+            "exp": -8.31,
+            "total": -249.4
+          },
+          "2025Q2": {
+            "n": 34,
+            "exp": -70.81,
+            "total": -2407.51
+          },
+          "2025Q3": {
+            "n": 21,
+            "exp": 0.71,
+            "total": 15.0
+          },
+          "2025Q4": {
+            "n": 35,
+            "exp": -30.86,
+            "total": -1080.2
+          },
+          "2026Q1": {
+            "n": 34,
+            "exp": 52.0,
+            "total": 1768.0
+          },
+          "2026Q2": {
+            "n": 19,
+            "exp": -16.35,
+            "total": -310.6
+          }
+        },
+        "quarter_positive_fraction": 0.33,
+        "by_side": {
+          "C": {
+            "n": 95,
+            "exp": 1.21,
+            "wr": 72.6,
+            "total": 114.81
+          },
+          "P": {
+            "n": 78,
+            "exp": -30.51,
+            "wr": 66.7,
+            "total": -2379.52
+          }
+        },
+        "both_dirs_positive": false,
+        "drop_top5_mean_dollar": -26.01,
+        "drop_top3_mean_dollar": -21.39,
+        "drop_top1_mean_dollar": -16.25,
+        "top5_winner_share_of_gross_wins": 0.181,
+        "robust_to_outliers": false,
+        "dsr": {
+          "verdict": "PASS",
+          "dsr": 0.43852045825723474,
+          "psr": 0.9724869988802264,
+          "pbo": null,
+          "n_obs": 173,
+          "n_trials": 30,
+          "low_power": false,
+          "notes": [
+            "PSR(vs 0)=0.9725 on n=173 obs (Sharpe=0.112, skew=4.98, kurt=45.02).",
+            "DSR deflated for n_trials=30 (SR_0=0.121) = 0.4385.",
+            "PBO skipped (no performance matrix supplied).",
+            "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+          ]
+        },
+        "dsr_verdict": "PASS",
+        "exit_reason_hist": {
+          "TP1_THEN_RUNNER_TIME": 22,
+          "TP1_THEN_RUNNER_RIBBON": 90,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 30,
+          "EXIT_ALL_TIME_STOP": 29,
+          "EXIT_ALL_PREMIUM_STOP": 2
+        },
+        "coverage": {
+          "signals": 183,
+          "filled": 173,
+          "cache_miss": 10,
+          "fill_rate": 0.945
+        },
+        "premium_stop_pct": -0.99,
+        "survivor_gate": {
+          "oos_positive_dollar": true,
+          "oos_sign_stable_pct": true,
+          "wf_median_ge_0.70": false,
+          "all_cuts_oos_positive": true,
+          "dsr_not_fail": true,
+          "robust_drop_top5": false,
+          "both_dirs_positive": false,
+          "sub_window_stable_q>=0.60": false
+        },
+        "SURVIVOR": false
+      },
+      "discovery_default_-8pct": {
+        "n": 173,
+        "wins": 30,
+        "wr_pct": 17.3,
+        "exp_dollar": -7.05,
+        "total_dollar": -1220.2,
+        "exp_pct_return": 0.06365,
+        "is_n": 122,
+        "oos_n": 51,
+        "is_exp_dollar": -9.56,
+        "oos_exp_dollar": -1.06,
+        "is_exp_pct": 0.08062,
+        "oos_exp_pct": 0.02306,
+        "oos_sign_stable": true,
+        "wf_windows": [
+          {
+            "cut_frac": 0.6,
+            "cut_date": "2025-11-14",
+            "is_n": 104,
+            "oos_n": 69,
+            "is_total": -965.92,
+            "oos_total": -254.28,
+            "oos_exp": -3.69,
+            "wf_norm": 0.397,
+            "oos_positive": false
+          },
+          {
+            "cut_frac": 0.7,
+            "cut_date": "2026-01-09",
+            "is_n": 122,
+            "oos_n": 51,
+            "is_total": -1165.96,
+            "oos_total": -54.24,
+            "oos_exp": -1.06,
+            "wf_norm": 0.111,
+            "oos_positive": false
+          },
+          {
+            "cut_frac": 0.8,
+            "cut_date": "2026-03-04",
+            "is_n": 143,
+            "oos_n": 30,
+            "is_total": -1600.12,
+            "oos_total": 379.92,
+            "oos_exp": 12.66,
+            "wf_norm": -1.132,
+            "oos_positive": true
+          }
+        ],
+        "median_wf_norm": 0.111,
+        "all_cuts_oos_positive": false,
+        "quarters": {
+          "2025Q1": {
+            "n": 30,
+            "exp": -3.59,
+            "total": -107.8
+          },
+          "2025Q2": {
+            "n": 34,
+            "exp": -10.47,
+            "total": -355.92
+          },
+          "2025Q3": {
+            "n": 21,
+            "exp": -16.5,
+            "total": -346.44
+          },
+          "2025Q4": {
+            "n": 35,
+            "exp": -11.99,
+            "total": -419.52
+          },
+          "2026Q1": {
+            "n": 34,
+            "exp": -3.1,
+            "total": -105.44
+          },
+          "2026Q2": {
+            "n": 19,
+            "exp": 6.05,
+            "total": 114.92
+          }
+        },
+        "quarter_positive_fraction": 0.17,
+        "by_side": {
+          "C": {
+            "n": 95,
+            "exp": -8.03,
+            "wr": 18.9,
+            "total": -763.32
+          },
+          "P": {
+            "n": 78,
+            "exp": -5.86,
+            "wr": 15.4,
+            "total": -456.88
+          }
+        },
+        "both_dirs_positive": false,
+        "drop_top5_mean_dollar": -16.17,
+        "drop_top3_mean_dollar": -13.5,
+        "drop_top1_mean_dollar": -9.72,
+        "top5_winner_share_of_gross_wins": 0.473,
+        "robust_to_outliers": false,
+        "dsr": {
+          "verdict": "PASS",
+          "dsr": 0.44208863648029806,
+          "psr": 0.9730547969766148,
+          "pbo": null,
+          "n_obs": 173,
+          "n_trials": 30,
+          "low_power": false,
+          "notes": [
+            "PSR(vs 0)=0.9731 on n=173 obs (Sharpe=0.090, skew=9.23, kurt=99.48).",
+            "DSR deflated for n_trials=30 (SR_0=0.096) = 0.4421.",
+            "PBO skipped (no performance matrix supplied).",
+            "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+          ]
+        },
+        "dsr_verdict": "PASS",
+        "exit_reason_hist": {
+          "EXIT_ALL_PREMIUM_STOP": 143,
+          "TP1_THEN_RUNNER_TIME": 6,
+          "TP1_THEN_RUNNER_RIBBON": 23,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 1
+        },
+        "coverage": {
+          "signals": 183,
+          "filled": 173,
+          "cache_miss": 10,
+          "fill_rate": 0.945
+        },
+        "premium_stop_pct": -0.08
+      }
+    },
+    "ITM1": {
+      "chart_stop_only": {
+        "n": 172,
+        "wins": 116,
+        "wr_pct": 67.4,
+        "exp_dollar": -3.22,
+        "total_dollar": -553.2,
+        "exp_pct_return": 0.10406,
+        "is_n": 121,
+        "oos_n": 51,
+        "is_exp_dollar": -24.6,
+        "oos_exp_dollar": 47.52,
+        "is_exp_pct": 0.06752,
+        "oos_exp_pct": 0.19073,
+        "oos_sign_stable": true,
+        "wf_windows": [
+          {
+            "cut_frac": 0.6,
+            "cut_date": "2025-11-14",
+            "is_n": 103,
+            "oos_n": 69,
+            "is_total": -3601.4,
+            "oos_total": 3048.2,
+            "oos_exp": 44.18,
+            "wf_norm": -1.263,
+            "oos_positive": true
+          },
+          {
+            "cut_frac": 0.7,
+            "cut_date": "2026-01-09",
+            "is_n": 121,
+            "oos_n": 51,
+            "is_total": -2976.6,
+            "oos_total": 2423.4,
+            "oos_exp": 47.52,
+            "wf_norm": -1.932,
+            "oos_positive": true
+          },
+          {
+            "cut_frac": 0.8,
+            "cut_date": "2026-03-04",
+            "is_n": 142,
+            "oos_n": 30,
+            "is_total": -2539.2,
+            "oos_total": 1986.0,
+            "oos_exp": 66.2,
+            "wf_norm": -3.702,
+            "oos_positive": true
+          }
+        ],
+        "median_wf_norm": -1.932,
+        "all_cuts_oos_positive": true,
+        "quarters": {
+          "2025Q1": {
+            "n": 30,
+            "exp": 26.77,
+            "total": 803.0
+          },
+          "2025Q2": {
+            "n": 33,
+            "exp": -106.81,
+            "total": -3524.6
+          },
+          "2025Q3": {
+            "n": 21,
+            "exp": 5.26,
+            "total": 110.4
+          },
+          "2025Q4": {
+            "n": 35,
+            "exp": -18.19,
+            "total": -636.6
+          },
+          "2026Q1": {
+            "n": 34,
+            "exp": 85.98,
+            "total": 2923.2
+          },
+          "2026Q2": {
+            "n": 19,
+            "exp": -12.03,
+            "total": -228.6
+          }
+        },
+        "quarter_positive_fraction": 0.5,
+        "by_side": {
+          "C": {
+            "n": 94,
+            "exp": 14.69,
+            "wr": 70.2,
+            "total": 1381.0
+          },
+          "P": {
+            "n": 78,
+            "exp": -24.8,
+            "wr": 64.1,
+            "total": -1934.2
+          }
+        },
+        "both_dirs_positive": false,
+        "drop_top5_mean_dollar": -16.5,
+        "drop_top3_mean_dollar": -11.64,
+        "drop_top1_mean_dollar": -6.42,
+        "top5_winner_share_of_gross_wins": 0.135,
+        "robust_to_outliers": false,
+        "dsr": {
+          "verdict": "PASS",
+          "dsr": 0.6568005468606035,
+          "psr": 0.9933779867848909,
+          "pbo": null,
+          "n_obs": 172,
+          "n_trials": 30,
+          "low_power": false,
+          "notes": [
+            "PSR(vs 0)=0.9934 on n=172 obs (Sharpe=0.145, skew=4.16, kurt=36.57).",
+            "DSR deflated for n_trials=30 (SR_0=0.121) = 0.6568.",
+            "PBO skipped (no performance matrix supplied).",
+            "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+          ]
+        },
+        "dsr_verdict": "PASS",
+        "exit_reason_hist": {
+          "TP1_THEN_RUNNER_TIME": 30,
+          "TP1_THEN_RUNNER_RIBBON": 77,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 30,
+          "EXIT_ALL_TIME_STOP": 35
+        },
+        "coverage": {
+          "signals": 183,
+          "filled": 172,
+          "cache_miss": 11,
+          "fill_rate": 0.94
+        },
+        "premium_stop_pct": -0.99,
+        "survivor_gate": {
+          "oos_positive_dollar": true,
+          "oos_sign_stable_pct": true,
+          "wf_median_ge_0.70": false,
+          "all_cuts_oos_positive": true,
+          "dsr_not_fail": true,
+          "robust_drop_top5": false,
+          "both_dirs_positive": false,
+          "sub_window_stable_q>=0.60": false
+        },
+        "SURVIVOR": false
+      },
+      "discovery_default_-8pct": {
+        "n": 172,
+        "wins": 31,
+        "wr_pct": 18.0,
+        "exp_dollar": -6.35,
+        "total_dollar": -1091.44,
+        "exp_pct_return": 0.05348,
+        "is_n": 121,
+        "oos_n": 51,
+        "is_exp_dollar": -10.88,
+        "oos_exp_dollar": 4.42,
+        "is_exp_pct": 0.05814,
+        "oos_exp_pct": 0.04243,
+        "oos_sign_stable": true,
+        "wf_windows": [
+          {
+            "cut_frac": 0.6,
+            "cut_date": "2025-11-14",
+            "is_n": 103,
+            "oos_n": 69,
+            "is_total": -973.72,
+            "oos_total": -117.72,
+            "oos_exp": -1.71,
+            "wf_norm": 0.18,
+            "oos_positive": false
+          },
+          {
+            "cut_frac": 0.7,
+            "cut_date": "2026-01-09",
+            "is_n": 121,
+            "oos_n": 51,
+            "is_total": -1316.92,
+            "oos_total": 225.48,
+            "oos_exp": 4.42,
+            "wf_norm": -0.406,
+            "oos_positive": true
+          },
+          {
+            "cut_frac": 0.8,
+            "cut_date": "2026-03-04",
+            "is_n": 142,
+            "oos_n": 30,
+            "is_total": -1946.32,
+            "oos_total": 854.88,
+            "oos_exp": 28.5,
+            "wf_norm": -2.079,
+            "oos_positive": true
+          }
+        ],
+        "median_wf_norm": -0.406,
+        "all_cuts_oos_positive": false,
+        "quarters": {
+          "2025Q1": {
+            "n": 30,
+            "exp": 7.98,
+            "total": 239.44
+          },
+          "2025Q2": {
+            "n": 33,
+            "exp": -20.6,
+            "total": -679.8
+          },
+          "2025Q3": {
+            "n": 21,
+            "exp": -28.93,
+            "total": -607.44
+          },
+          "2025Q4": {
+            "n": 35,
+            "exp": -11.5,
+            "total": -402.44
+          },
+          "2026Q1": {
+            "n": 34,
+            "exp": 8.23,
+            "total": 279.68
+          },
+          "2026Q2": {
+            "n": 19,
+            "exp": 4.16,
+            "total": 79.12
+          }
+        },
+        "quarter_positive_fraction": 0.5,
+        "by_side": {
+          "C": {
+            "n": 94,
+            "exp": -7.78,
+            "wr": 18.1,
+            "total": -731.32
+          },
+          "P": {
+            "n": 78,
+            "exp": -4.62,
+            "wr": 17.9,
+            "total": -360.12
+          }
+        },
+        "both_dirs_positive": false,
+        "drop_top5_mean_dollar": -19.11,
+        "drop_top3_mean_dollar": -14.5,
+        "drop_top1_mean_dollar": -9.57,
+        "top5_winner_share_of_gross_wins": 0.409,
+        "robust_to_outliers": false,
+        "dsr": {
+          "verdict": "PASS",
+          "dsr": 0.47710652483838717,
+          "psr": 0.9780987229384194,
+          "pbo": null,
+          "n_obs": 172,
+          "n_trials": 30,
+          "low_power": false,
+          "notes": [
+            "PSR(vs 0)=0.9781 on n=172 obs (Sharpe=0.095, skew=8.80, kurt=94.97).",
+            "DSR deflated for n_trials=30 (SR_0=0.097) = 0.4771.",
+            "PBO skipped (no performance matrix supplied).",
+            "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+          ]
+        },
+        "dsr_verdict": "PASS",
+        "exit_reason_hist": {
+          "EXIT_ALL_PREMIUM_STOP": 141,
+          "TP1_THEN_RUNNER_TIME": 9,
+          "TP1_THEN_RUNNER_RIBBON": 21,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 1
+        },
+        "coverage": {
+          "signals": 183,
+          "filled": 172,
+          "cache_miss": 11,
+          "fill_rate": 0.94
+        },
+        "premium_stop_pct": -0.08
+      }
+    }
+  },
+  "survivor_bar": {
+    "rule": "OP-22 SURVIVOR (all on chart-stop-only): OOS+ ($ AND %) AND WF_median>=0.70 AND all-cuts-OOS-positive AND DSR not-FAIL AND drop-top5 mean>0 AND both-dirs+ AND sub-window-stable (q>=60%).",
+    "evaluated_on": "ATM chart_stop_only (+ ITM1 as the alternate tier)",
+    "ATM_gate": {
+      "oos_positive_dollar": true,
+      "oos_sign_stable_pct": true,
+      "wf_median_ge_0.70": false,
+      "all_cuts_oos_positive": true,
+      "dsr_not_fail": true,
+      "robust_drop_top5": false,
+      "both_dirs_positive": false,
+      "sub_window_stable_q>=0.60": false
+    },
+    "ITM1_gate": {
+      "oos_positive_dollar": true,
+      "oos_sign_stable_pct": true,
+      "wf_median_ge_0.70": false,
+      "all_cuts_oos_positive": true,
+      "dsr_not_fail": true,
+      "robust_drop_top5": false,
+      "both_dirs_positive": false,
+      "sub_window_stable_q>=0.60": false
+    },
+    "ATM_pass": false,
+    "ITM1_pass": false
+  },
+  "verdict": "DEAD",
+  "verdict_one_line": "DEAD on chart-stop-only: ATM exp $-13.1/WR 69.9%, OOS$ +26.0, medWF -0.883, DSR PASS. Failed gates: ['wf_median_ge_0.70', 'robust_drop_top5', 'both_dirs_positive', 'sub_window_stable_q>=0.60'].",
+  "caveats": [
+    "Proxy strikes (L58): ATM not always cached; nearest-cached strike used in the sim (true offset disclosed per trade). ITM/OTM proxy shifts P&L modestly.",
+    "Standalone single-setup eval \u2014 measured on proxy strikes, not real \u2605\u2605\u2605 levels. A survivor is a candidate worth a real-level re-test + the dormant wiring below; OP-21 live gate (3 live J confirmations) STILL STANDS before any live order path."
+  ]
+}
