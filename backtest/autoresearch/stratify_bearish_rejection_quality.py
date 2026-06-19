@@ -64,6 +64,7 @@ import argparse
 import datetime as dt
 import json
 import sys
+from typing import Optional
 from collections import defaultdict
 from pathlib import Path
 
@@ -171,7 +172,16 @@ def _day_structure(spy_day: pd.DataFrame, entry_idx_in_day: int, entry_close: fl
 # ──────────────────────────────────────────────────────────────────────────────
 # Replay: collect every BEARISH_REJECTION_MORNING fire with condition tags + fills.
 # ──────────────────────────────────────────────────────────────────────────────
-def _collect(start: dt.date, end: dt.date, do_realfills: bool) -> dict:
+def _collect(start: dt.date, end: dt.date, do_realfills: bool,
+             exit_kwargs: Optional[dict] = None) -> dict:
+    """Fire the BRM watcher + (optionally) real-fill each fire ATM + ITM2.
+
+    exit_kwargs (default None) overrides the real-fills exit config. When None, uses the
+    historical scorecard config (chart-stop-only: premium_stop_pct=-0.99, chandelier OFF,
+    simulator default tp1) — so existing callers / the frozen scorecards are unchanged. The
+    LIVE-config re-confirmation (reconfirm_weekend_fixes_live_config) passes the live exits
+    (chandelier ON + tp1 0.50@0.667 + bear stop -0.50) here. entry_vix is threaded per-fire
+    so any regime chandelier map binds (no look-ahead — vix is the as-of entry value)."""
     spy_full, vix_full = vbf._load_data(start, end)
     spy_full["timestamp_et"] = pd.to_datetime(spy_full["timestamp_et"])
     spy_full["date"] = spy_full["timestamp_et"].dt.date
@@ -280,6 +290,13 @@ def _collect(start: dt.date, end: dt.date, do_realfills: bool) -> dict:
         })
 
     # ── Real-fills per fire (ATM + ITM2) ──
+    # Default exit config = the historical scorecard's chart-stop-only run (premium_stop
+    # -0.99, chandelier OFF, simulator default tp1). exit_kwargs overrides it for the
+    # LIVE-config re-confirmation. The defaults below MUST stay byte-identical to the
+    # frozen scorecard config so existing callers are unchanged.
+    _exit_cfg = {"premium_stop_pct": -0.99}
+    if exit_kwargs:
+        _exit_cfg = dict(exit_kwargs)
     rf_window_max = None
     if do_realfills and fires:
         from lib.simulator_real import simulate_trade_real
@@ -293,7 +310,8 @@ def _collect(start: dt.date, end: dt.date, do_realfills: bool) -> dict:
                         entry_bar_idx=f["idx"], entry_bar=f["_bar"], spy_df=rth, ribbon_df=ribbon_df,
                         rejection_level=float(f["_rej"]), triggers_fired=sig.triggers_fired,
                         side="P", qty=3, setup=sig.setup_name,
-                        premium_stop_pct=-0.99, strike_offset=offset)
+                        strike_offset=offset, entry_vix=float(f.get("vix_now") or 0.0),
+                        **_exit_cfg)
                 except Exception as _e:
                     sys.stderr.write(f"rf {label} {f['date']} {f['time']}: {type(_e).__name__}: {_e}\n")
                     fill = None

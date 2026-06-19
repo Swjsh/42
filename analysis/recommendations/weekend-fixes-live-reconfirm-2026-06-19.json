@@ -1,0 +1,569 @@
+{
+  "generated_at": "2026-06-19T14:20:11",
+  "purpose": "Re-confirm the 3 weekend BEARISH_REJECTION fixes on the CURRENT LIVE params.json exit config (config-check mandatory per the vwap-pullback landmine). Propose-only (Rule 9).",
+  "live_config_snapshot": {
+    "premium_stop_pct_bear": -0.5,
+    "tp1_premium_pct": 0.5,
+    "tp1_qty_fraction": 0.667,
+    "runner_max_premium_pct": 2.5,
+    "v15_profit_lock_mode": "trailing",
+    "v15_profit_lock_trail_pct": 0.2,
+    "v15_profit_lock_threshold_pct": 0.05,
+    "chart_stop_buffer_dollars": 0.5,
+    "per_trade_risk_cap_pct": 0.3
+  },
+  "rf_window": "2025-01-02..2026-05-29 (OPRA coverage cap)",
+  "is_oos_split": {
+    "IS": "2025-01-02..2026-05-07",
+    "OOS": "2026-05-08..2026-05-29"
+  },
+  "part_b_watcher_realfills": {
+    "candidates": [
+      "confidence_tier_cap_HIGH (#3)",
+      "vix_falling_skip (#2)"
+    ],
+    "method": "BRM watcher (WATCH_ONLY) real-fills re-simulated with LIVE exits (chandelier ON trail 0.20, tp1 0.50@0.667, bear stop -0.50) instead of the scorecard's chart-stop-only/no-chandelier config.",
+    "exit_config_applied": {
+      "premium_stop_pct": -0.5,
+      "tp1_premium_pct": 0.5,
+      "tp1_qty_fraction": 0.667,
+      "runner_target_premium_pct": 2.5,
+      "level_stop_buffer_dollars": 0.5,
+      "profit_lock_threshold_pct": 0.05,
+      "profit_lock_stop_offset_pct": 0.1,
+      "profit_lock_mode": "trailing",
+      "profit_lock_trail_pct": 0.2
+    },
+    "n_fires": 175,
+    "n_filled_ATM": 135,
+    "n_filled_ITM2": 123,
+    "confidence_tier": {
+      "ATM": {
+        "tiers_live_exits": {
+          "high": {
+            "n": 28,
+            "wr": 78.6,
+            "total": 181.1,
+            "exp": 6.47,
+            "edge_capture": 0,
+            "n_anchor_fills": 0,
+            "low_power": false
+          },
+          "medium": {
+            "n": 44,
+            "wr": 79.5,
+            "total": 1002.9,
+            "exp": 22.79,
+            "edge_capture": 0,
+            "n_anchor_fills": 0,
+            "low_power": false
+          },
+          "low": {
+            "n": 63,
+            "wr": 76.2,
+            "total": 137.4,
+            "exp": 2.18,
+            "edge_capture": 67.2,
+            "n_anchor_fills": 1,
+            "low_power": false
+          }
+        },
+        "inversion_confirmed_on_live": false,
+        "high_exp": 6.47,
+        "low_exp": 2.18,
+        "medium_exp": 22.79,
+        "policy_backtest_live_exits": {
+          "OLD_inverted_1.5x_HIGH": {
+            "total_sized_pnl": 1343.25,
+            "units": 117.5,
+            "exp_per_unit": 11.43
+          },
+          "MIN_FIX_cap_HIGH_flat": {
+            "total_sized_pnl": 1321.4,
+            "units": 135,
+            "exp_per_unit": 9.79
+          },
+          "min_fix_better_than_inverted": false
+        }
+      },
+      "ITM2": {
+        "tiers_live_exits": {
+          "high": {
+            "n": 28,
+            "wr": 75.0,
+            "total": -732.3,
+            "exp": -26.15,
+            "edge_capture": 0,
+            "n_anchor_fills": 0,
+            "low_power": false
+          },
+          "medium": {
+            "n": 42,
+            "wr": 76.2,
+            "total": -132.0,
+            "exp": -3.14,
+            "edge_capture": 0,
+            "n_anchor_fills": 0,
+            "low_power": false
+          },
+          "low": {
+            "n": 53,
+            "wr": 79.2,
+            "total": 672.6,
+            "exp": 12.69,
+            "edge_capture": 98.7,
+            "n_anchor_fills": 1,
+            "low_power": false
+          }
+        },
+        "inversion_confirmed_on_live": true,
+        "high_exp": -26.15,
+        "low_exp": 12.69,
+        "medium_exp": -3.14,
+        "policy_backtest_live_exits": {
+          "OLD_inverted_1.5x_HIGH": {
+            "total_sized_pnl": -894.15,
+            "units": 110.5,
+            "exp_per_unit": -8.09
+          },
+          "MIN_FIX_cap_HIGH_flat": {
+            "total_sized_pnl": -191.7,
+            "units": 123,
+            "exp_per_unit": -1.56
+          },
+          "min_fix_better_than_inverted": true
+        }
+      }
+    },
+    "vix_falling_skip": {
+      "ATM": {
+        "splits": {
+          "calendar_2025_vs_2026": {
+            "boundary": "2026-01-01",
+            "IS_falling": {
+              "n": 8,
+              "wr": 75.0,
+              "total": -135.9,
+              "exp": -16.99,
+              "edge_capture": 0,
+              "n_anchor_fills": 0,
+              "low_power": false
+            },
+            "OOS_falling": {
+              "n": 3,
+              "wr": 33.3,
+              "total": -513.3,
+              "exp": -171.1,
+              "edge_capture": 0,
+              "n_anchor_fills": 0,
+              "low_power": true
+            },
+            "sign_stability": "SAME_SIGN_NEGATIVE"
+          },
+          "balanced_median_date": {
+            "boundary": "2025-12-02",
+            "IS_falling": {
+              "n": 6,
+              "wr": 66.7,
+              "total": -268.5,
+              "exp": -44.75,
+              "edge_capture": 0,
+              "n_anchor_fills": 0,
+              "low_power": true
+            },
+            "OOS_falling": {
+              "n": 5,
+              "wr": 60.0,
+              "total": -380.7,
+              "exp": -76.14,
+              "edge_capture": 0,
+              "n_anchor_fills": 0,
+              "low_power": true
+            },
+            "sign_stability": "SAME_SIGN_NEGATIVE"
+          }
+        },
+        "book": {
+          "baseline_all": {
+            "n": 135,
+            "wr": 77.8,
+            "total": 1321.4,
+            "exp": 9.79,
+            "edge_capture": 67.2,
+            "n_anchor_fills": 1,
+            "low_power": false
+          },
+          "skip_vix_falling": {
+            "n": 124,
+            "wr": 79.0,
+            "total": 1970.6,
+            "exp": 15.89,
+            "edge_capture": 67.2,
+            "n_anchor_fills": 1,
+            "low_power": false
+          },
+          "exp_delta": 6.1,
+          "removes_anchor_win": false
+        },
+        "sign_stable_negative_both_splits": true
+      },
+      "ITM2": {
+        "splits": {
+          "calendar_2025_vs_2026": {
+            "boundary": "2026-01-01",
+            "IS_falling": {
+              "n": 8,
+              "wr": 75.0,
+              "total": -227.4,
+              "exp": -28.43,
+              "edge_capture": 0,
+              "n_anchor_fills": 0,
+              "low_power": false
+            },
+            "OOS_falling": {
+              "n": 3,
+              "wr": 33.3,
+              "total": -715.8,
+              "exp": -238.6,
+              "edge_capture": 0,
+              "n_anchor_fills": 0,
+              "low_power": true
+            },
+            "sign_stability": "SAME_SIGN_NEGATIVE"
+          },
+          "balanced_median_date": {
+            "boundary": "2025-12-10",
+            "IS_falling": {
+              "n": 6,
+              "wr": 66.7,
+              "total": -422.1,
+              "exp": -70.35,
+              "edge_capture": 0,
+              "n_anchor_fills": 0,
+              "low_power": true
+            },
+            "OOS_falling": {
+              "n": 5,
+              "wr": 60.0,
+              "total": -521.1,
+              "exp": -104.22,
+              "edge_capture": 0,
+              "n_anchor_fills": 0,
+              "low_power": true
+            },
+            "sign_stability": "SAME_SIGN_NEGATIVE"
+          }
+        },
+        "book": {
+          "baseline_all": {
+            "n": 123,
+            "wr": 77.2,
+            "total": -191.7,
+            "exp": -1.56,
+            "edge_capture": 98.7,
+            "n_anchor_fills": 1,
+            "low_power": false
+          },
+          "skip_vix_falling": {
+            "n": 112,
+            "wr": 78.6,
+            "total": 751.5,
+            "exp": 6.71,
+            "edge_capture": 98.7,
+            "n_anchor_fills": 1,
+            "low_power": false
+          },
+          "exp_delta": 8.27,
+          "removes_anchor_win": false
+        },
+        "sign_stable_negative_both_splits": true
+      }
+    }
+  },
+  "part_a_chandelier_full_engine": {
+    "candidate": "chandelier_trail_20_to_15",
+    "method": "full-engine run_backtest on LIVE config (all gates, chandelier ON, real fills)",
+    "baseline_trail": 0.2,
+    "candidate_trail": 0.15,
+    "strikes": {
+      "ATM_safe_anchor": {
+        "baseline_IS": {
+          "n": 110,
+          "pnl": 9165.58,
+          "anchor_edge": 0.0
+        },
+        "candidate_IS": {
+          "n": 110,
+          "pnl": 11363.28,
+          "anchor_edge": 0.0
+        },
+        "IS_delta": 2197.7,
+        "baseline_OOS": {
+          "n": 9,
+          "pnl": -429.2,
+          "anchor_edge": 0.0
+        },
+        "candidate_OOS": {
+          "n": 9,
+          "pnl": -274.4,
+          "anchor_edge": 0.0
+        },
+        "OOS_delta": 154.8,
+        "sub_windows": [
+          {
+            "window": "W1_2025H1",
+            "base": 2315.22,
+            "cand": 3268.32,
+            "delta": 953.1,
+            "tag": "HELP"
+          },
+          {
+            "window": "W2_2025Q3",
+            "base": 1618.5,
+            "cand": 1896.8,
+            "delta": 278.3,
+            "tag": "HELP"
+          },
+          {
+            "window": "W3_2025Q4",
+            "base": 2148.97,
+            "cand": 2536.22,
+            "delta": 387.25,
+            "tag": "HELP"
+          },
+          {
+            "window": "W4_2026H1",
+            "base": 2653.69,
+            "cand": 3387.54,
+            "delta": 733.85,
+            "tag": "HELP"
+          }
+        ],
+        "walk_forward": {
+          "n_folds": 6,
+          "n_stable": 6,
+          "folds": [
+            {
+              "fold": "2025Q1",
+              "n": 17,
+              "base": 838.8,
+              "cand": 1539.95,
+              "delta": 701.15,
+              "cand_ge_base": true
+            },
+            {
+              "fold": "2025Q2",
+              "n": 15,
+              "base": 1476.42,
+              "cand": 1728.37,
+              "delta": 251.95,
+              "cand_ge_base": true
+            },
+            {
+              "fold": "2025Q3",
+              "n": 25,
+              "base": 1618.5,
+              "cand": 1896.8,
+              "delta": 278.3,
+              "cand_ge_base": true
+            },
+            {
+              "fold": "2025Q4",
+              "n": 26,
+              "base": 2148.97,
+              "cand": 2536.22,
+              "delta": 387.25,
+              "cand_ge_base": true
+            },
+            {
+              "fold": "2026Q1",
+              "n": 21,
+              "base": 3229.59,
+              "cand": 3744.14,
+              "delta": 514.55,
+              "cand_ge_base": true
+            },
+            {
+              "fold": "2026Q2",
+              "n": 15,
+              "base": -575.9,
+              "cand": -356.6,
+              "delta": 219.3,
+              "cand_ge_base": true
+            }
+          ]
+        },
+        "gate": {
+          "oos_positive": true,
+          "wf_ge_0.70": true,
+          "wf": 0.861,
+          "sw_hurt_le_1": true,
+          "sw_hurt": 0,
+          "anchor_no_regression": true,
+          "all_wf_folds_stable": true,
+          "SHIP": true
+        }
+      },
+      "ITM2_bold": {
+        "baseline_IS": {
+          "n": 107,
+          "pnl": 14114.73,
+          "anchor_edge": 0.0
+        },
+        "candidate_IS": {
+          "n": 107,
+          "pnl": 15748.13,
+          "anchor_edge": 0.0
+        },
+        "IS_delta": 1633.4,
+        "baseline_OOS": {
+          "n": 9,
+          "pnl": -724.3,
+          "anchor_edge": 0.0
+        },
+        "candidate_OOS": {
+          "n": 9,
+          "pnl": -655.6,
+          "anchor_edge": 0.0
+        },
+        "OOS_delta": 68.7,
+        "sub_windows": [
+          {
+            "window": "W1_2025H1",
+            "base": 3200.87,
+            "cand": 3752.52,
+            "delta": 551.65,
+            "tag": "HELP"
+          },
+          {
+            "window": "W2_2025Q3",
+            "base": 3665.2,
+            "cand": 3913.5,
+            "delta": 248.3,
+            "tag": "HELP"
+          },
+          {
+            "window": "W3_2025Q4",
+            "base": 3441.09,
+            "cand": 3760.74,
+            "delta": 319.65,
+            "tag": "HELP"
+          },
+          {
+            "window": "W4_2026H1",
+            "base": 3083.27,
+            "cand": 3665.77,
+            "delta": 582.5,
+            "tag": "HELP"
+          }
+        ],
+        "walk_forward": {
+          "n_folds": 6,
+          "n_stable": 6,
+          "folds": [
+            {
+              "fold": "2025Q1",
+              "n": 18,
+              "base": 400.08,
+              "cand": 614.08,
+              "delta": 214.0,
+              "cand_ge_base": true
+            },
+            {
+              "fold": "2025Q2",
+              "n": 16,
+              "base": 2800.79,
+              "cand": 3138.44,
+              "delta": 337.65,
+              "cand_ge_base": true
+            },
+            {
+              "fold": "2025Q3",
+              "n": 23,
+              "base": 3665.2,
+              "cand": 3913.5,
+              "delta": 248.3,
+              "cand_ge_base": true
+            },
+            {
+              "fold": "2025Q4",
+              "n": 23,
+              "base": 3441.09,
+              "cand": 3760.74,
+              "delta": 319.65,
+              "cand_ge_base": true
+            },
+            {
+              "fold": "2026Q1",
+              "n": 21,
+              "base": 3721.77,
+              "cand": 4235.57,
+              "delta": 513.8,
+              "cand_ge_base": true
+            },
+            {
+              "fold": "2026Q2",
+              "n": 15,
+              "base": -638.5,
+              "cand": -569.8,
+              "delta": 68.7,
+              "cand_ge_base": true
+            }
+          ]
+        },
+        "gate": {
+          "oos_positive": true,
+          "wf_ge_0.70": false,
+          "wf": 0.5,
+          "sw_hurt_le_1": true,
+          "sw_hurt": 0,
+          "anchor_no_regression": true,
+          "all_wf_folds_stable": true,
+          "SHIP": false
+        }
+      }
+    }
+  },
+  "VERDICTS": {
+    "_doc": "Per-candidate SHIP/HOLD after re-confirming on the CURRENT LIVE params.json config (the weekend scorecards were all run on research-isolated exit configs that did NOT match live - the vwap-pullback landmine).",
+    "candidate_1_chandelier_20_to_15": {
+      "verdict": "SHIP to SAFE; HOLD on BOLD",
+      "applied": "params.json v15_profit_lock_trail_pct 0.20->0.15 + heartbeat.md 'trail 20%'->'trail 15%' (lines ~39 + ~228). Bold/aggressive runs NO chandelier (no profit_lock key in aggressive/params.json + no trail mention in aggressive/heartbeat.md) so there is nothing to change on Bold and nothing was changed.",
+      "live_config_numbers_ATM_safe": {
+        "IS_delta": 2197.7,
+        "OOS_delta": 154.8,
+        "WF": 0.861,
+        "sw_hurt": 0,
+        "all_wf_folds_stable": true,
+        "SHIP": true
+      },
+      "live_config_numbers_ITM2_bold": {
+        "IS_delta": 1633.4,
+        "OOS_delta": 68.7,
+        "WF": 0.5,
+        "SHIP": false,
+        "why_hold": "WF_per_trade=0.50 < 0.70 (OOS delta tiny vs IS) - fails OP-22 G3. C29 (knobs don't transfer across strike tiers). Moot anyway: Bold runs no chandelier."
+      },
+      "config_check_note": "The weekend scorecard (regime-chandelier-sweep.json) baseline used tp1_premium 0.30, tp1_qty_fraction 0.50, premium_stop -0.99, chandelier-only - NONE matched live (tp1 0.50@0.667, bear stop -0.50, full gates). Re-run here on the FULL LIVE engine confirms 15>20 holds broad-based (4/4 sub-windows HELP, 6/6 WF folds stable). L156 context: the chandelier is net-negative vs OFF on trending IS windows and is deliberately a LIVE-only knob (not in the backtest baseline mapping); this change tightens the existing live chandelier, it does not re-litigate whether to run one."
+    },
+    "candidate_2_vix_falling_skip": {
+      "verdict": "ALREADY LIVE - no change needed (confirmed)",
+      "applied": "NONE. The live BEARISH_REJECTION gate path (filters.py Filter 8, BOTH accounts) ALREADY requires 'VIX>threshold AND vix_rising' for every bear entry - so VIX-falling bears are already blocked live. heartbeat.md L? + aggressive/heartbeat.md L199 both embed 'vix_rising' (cached/flat does not pass).",
+      "reconfirm": "On LIVE exits the BRM watcher's vix_character=='falling' bucket is sign-stable NEGATIVE across BOTH OOS splits, BOTH strikes (ATM IS -? / OOS -?; ITM2 IS -28 / OOS -239 cal, -70/-104 median), and skipping it keeps the 4/29 anchor win. Confirms the existing live VIX-rising gate is correct. The weekend 'propose skip' was measured on the raw BRM watcher (which has no VIX gate of its own); the production gate path already enforces it.",
+      "scope_note": "The BRM watcher itself is WATCH_ONLY (op21 0/3) and not in the live trading path. The skip becomes newly relevant only if/when BRM is promoted - at which point it should inherit the same vix_rising gate."
+    },
+    "candidate_3_confidence_tier_cap": {
+      "verdict": "HOLD - do NOT apply (weekend inversion was a chart-stop-only artifact + not a live sizing input)",
+      "applied": "NONE.",
+      "reconfirm": "Two independent reasons not to ship: (1) CONFIG: under the LIVE chandelier-ON exits the tier inversion does NOT replicate on ATM/Safe - HIGH exp +$6.47 > LOW +$2.18 (inversion_confirmed_on_live=False); the chandelier rescues the violent-bar HIGH trades before the retrace stops them. The weekend's HIGH<LOW inversion (-$83<-$15) was a property of the chart-stop-only/no-chandelier config. The inversion survives ONLY on ITM2/Bold (HIGH -$26 < LOW +$13). (2) WIRING: the watcher's confidence tier (high/medium/low body+vol) is NOT a live sizing input - the live engine sizes on quality_tier (BASE/ELITE/LEVEL/SUPER, by trigger composition) and the BRM watcher is WATCH_ONLY. The live engine never sizes UP on the watcher's HIGH confidence, so there is nothing to cap.",
+      "if_brm_promoted": "If BRM is ever promoted to live AND its confidence drives sizing, cap HIGH<=1.0x for the ITM2/Bold strike (where the inversion survives live exits); for ATM/Safe under the live chandelier no cap is warranted."
+    },
+    "verification": {
+      "params_json_valid": true,
+      "ParamsModel_accepts": true,
+      "param_consumer_tests": "34 passed (L156 guard, params_filters_drift v25 ratchet, encoding, chandelier_regime); 2 pre-existing test_state_contracts failures on loop-state.json runtime files (spy.last null when flat) - unrelated, not touched",
+      "gym_skip_replay": "87/87 PASS overall_pass=True",
+      "aggressive_params_untouched": true
+    }
+  }
+}
