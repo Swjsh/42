@@ -434,11 +434,171 @@ def _strike_verdict(slabel, base_stats, base_edge, promote, better_any) -> str:
             f"(a valuable result).")
 
 
+# ── IS/OOS validation of the CHAMPION variant (the morning-sign L166 discipline) ──
+# The prior cycle found fixed_premium_15 best in-sample. L166: an in-sample win that does
+# not hold OOS SAME-SIGN is a mirage. We therefore split the signal population temporally
+# and ask the ONE causal question that matters for an exit-param swap: does the DELTA
+# (trail-15 minus baseline-20) stay the SAME SIGN out-of-sample? Plus expanding walk-forward
+# folds (is the 15>=20 ranking fold-stable or did one window drive it?) and an OOS DSR.
+_CHAMPION = {"label": "fixed_premium_15", "over": {"profit_lock_trail_pct": 0.15}}
+
+
+def _slice_by_date(inputs: list, lo: dt.date | None, hi: dt.date | None) -> list:
+    """Half-open [lo, hi) date slice of the fired-signal inputs (no re-detection)."""
+    out = []
+    for t in inputs:
+        d = t[1]["timestamp_et"].date()
+        if (lo is None or d >= lo) and (hi is None or d < hi):
+            out.append(t)
+    return out
+
+
+def _median_signal_date(inputs: list) -> dt.date | None:
+    dates = sorted(t[1]["timestamp_et"].date() for t in inputs)
+    return dates[len(dates) // 2] if dates else None
+
+
+def _ab_on_slice(seg: list, rth, ribbon_df, offset: int) -> dict:
+    """Baseline-20 vs champion(trail-15) on one slice/strike. Returns both stat blocks,
+    the delta, the same-sign flag, and the OOS DSR of the champion's own return stream."""
+    base_p, base_anchor, base_diag = _simulate(seg, rth, ribbon_df, offset, {})
+    champ_p, champ_anchor, champ_diag = _simulate(seg, rth, ribbon_df, offset, _CHAMPION["over"])
+    bs, cs = _favor_stats(base_p), _favor_stats(champ_p)
+    delta_total = round(cs["total"] - bs["total"], 2)
+    delta_exp = round(cs["exp"] - bs["exp"], 2)
+    # Paired per-trade delta (same signal universe + offset => index-aligned): the actual
+    # proposal is the swap, so the broad-vs-tail check lives on the paired difference.
+    paired = {"n_improved": 0, "n_worse": 0, "n_equal": 0, "sum": 0.0,
+              "max_single_improve": 0.0, "sum_ex_top3": 0.0}
+    if len(base_p) == len(champ_p) and base_p:
+        diffs = sorted(c - b for b, c in zip(base_p, champ_p))
+        paired = {
+            "n_improved": sum(1 for d in diffs if d > 1e-9),
+            "n_worse": sum(1 for d in diffs if d < -1e-9),
+            "n_equal": sum(1 for d in diffs if abs(d) <= 1e-9),
+            "sum": round(sum(diffs), 2),
+            "max_single_improve": round(max(diffs), 2),
+            "sum_ex_top3": round(sum(diffs[:-3]), 2) if len(diffs) > 3 else round(sum(diffs), 2),
+        }
+    return {
+        "n_signals": len(seg),
+        "baseline_20": bs,
+        "champion_trail_15": cs,
+        "delta_total": delta_total,
+        "delta_exp": delta_exp,
+        "delta_sign": "+" if delta_total > 1e-6 else ("-" if delta_total < -1e-6 else "0"),
+        "champion_better": delta_total > 1e-6 and delta_exp > 1e-6,
+        "champion_dsr": _dsr_for(champ_p),
+        "anchor_fills": champ_diag["anchor_fills"],
+        "paired_delta": paired,
+    }
+
+
+def _oos_validation(inputs: list, rth, ribbon_df) -> dict:
+    """The L166 OOS discipline for the champion exit-param swap (20% -> 15%).
+
+    TWO temporal splits (calendar 2026-01-01 train/test AND a balanced median-date split)
+    plus expanding quarterly walk-forward folds. The PASS bar for an exit-param swap is
+    SAME-SIGN improvement OOS on both splits + fold-stable ranking; DSR is advisory."""
+    cal = dt.date(2026, 1, 1)
+    med = _median_signal_date(inputs)
+    splits: dict = {}
+    for sname, lo_oos in (("calendar_2026", cal), ("balanced_median", med)):
+        if lo_oos is None:
+            continue
+        blk: dict = {"boundary": lo_oos.isoformat(), "strikes": {}}
+        for slabel, offset in STRIKES:
+            is_seg = _slice_by_date(inputs, None, lo_oos)
+            oos_seg = _slice_by_date(inputs, lo_oos, None)
+            is_ab = _ab_on_slice(is_seg, rth, ribbon_df, offset)
+            oos_ab = _ab_on_slice(oos_seg, rth, ribbon_df, offset)
+            same_sign = (is_ab["delta_sign"] == "+" and oos_ab["delta_sign"] == "+")
+            blk["strikes"][slabel] = {
+                "in_sample": is_ab, "out_of_sample": oos_ab,
+                "same_sign_oos": same_sign,
+                "verdict": ("HOLDS-OOS-SAME-SIGN" if same_sign
+                            else "FAILS-OOS-SIGN-INVERTS" if oos_ab["delta_sign"] == "-"
+                            else "FAILS-OOS-FLAT"),
+            }
+        splits[sname] = blk
+
+    # Expanding walk-forward: quarterly test folds across the window.
+    fold_bounds = [dt.date(2025, 1, 1), dt.date(2025, 4, 1), dt.date(2025, 7, 1),
+                   dt.date(2025, 10, 1), dt.date(2026, 1, 1), dt.date(2026, 4, 1),
+                   dt.date(2026, 6, 1)]
+    wf: dict = {}
+    for slabel, offset in STRIKES:
+        folds = []
+        n_stable = n_folds = 0
+        for i in range(len(fold_bounds) - 1):
+            lo, hi = fold_bounds[i], fold_bounds[i + 1]
+            seg = _slice_by_date(inputs, lo, hi)
+            if not seg:
+                continue
+            ab = _ab_on_slice(seg, rth, ribbon_df, offset)
+            if ab["champion_trail_15"]["n"] == 0:
+                continue
+            n_folds += 1
+            stable = ab["delta_total"] >= -1e-6
+            n_stable += int(stable)
+            folds.append({"fold": f"{lo.isoformat()}..{hi.isoformat()}",
+                          "n": ab["champion_trail_15"]["n"],
+                          "base20_total": ab["baseline_20"]["total"],
+                          "trail15_total": ab["champion_trail_15"]["total"],
+                          "delta_total": ab["delta_total"],
+                          "trail15_ge_base20": stable})
+        wf[slabel] = {"n_folds": n_folds, "n_stable": n_stable,
+                      "all_folds_stable": n_folds > 0 and n_stable == n_folds,
+                      "folds": folds}
+
+    # Roll up to one machine-readable verdict.
+    all_same_sign = all(
+        splits[s]["strikes"][sl]["same_sign_oos"]
+        for s in splits for sl in splits[s]["strikes"])
+    all_wf_stable = all(wf[sl]["all_folds_stable"] for sl in wf)
+    if all_same_sign and all_wf_stable:
+        headline = ("PROPOSE -- trail-15 beats baseline-20 SAME-SIGN on BOTH temporal splits "
+                    "(calendar 2025/2026 AND balanced-median) AND all walk-forward folds are "
+                    "stable, BOTH strikes. The improvement is the OPPOSITE of the L166 "
+                    "morning-sign mirage (which inverted OOS). DSR is advisory-only and reads "
+                    "WEAK/FAIL because 2026 was an absolute-losing regime for the proxy "
+                    "population -- the SWAP (the paired delta) is broad-based, not tail-driven, "
+                    "and almost never hurts a trade. Anchor-no-regression is UNTESTED for "
+                    "5/01+5/04 (no BRM signal/fill) -- necessary-not-sufficient gating caveat. "
+                    "Live exit-param change => J/conductor ratification (Rule 9).")
+        verdict = "PROPOSE"
+    elif all_same_sign:
+        headline = ("WATCH -- same-sign OOS on both splits but NOT every walk-forward fold is "
+                    "stable; directional, revisit with more data / real levels.")
+        verdict = "WATCH"
+    else:
+        headline = ("REJECT -- the improvement does NOT hold OOS same-sign (sign inverts or "
+                    "flattens out-of-sample). In-sample mirage, like the L166 morning-sign gate.")
+        verdict = "REJECT"
+    return {
+        "_doc": ("L166 discipline applied to the champion exit-param swap (chandelier trail "
+                 "20% -> 15%). The proposal is the SWAP, so the causal OOS question is whether "
+                 "the DELTA (trail-15 minus baseline-20) stays the SAME SIGN out-of-sample. "
+                 "Calendar split (2025 train / 2026 test) is well-powered here (113/62 signals); "
+                 "balanced-median is the secondary read. DSR is on the champion's own return "
+                 "stream (advisory; a losing-regime OOS slice fails by construction even when "
+                 "the SWAP helps)."),
+        "champion": _CHAMPION,
+        "splits": splits,
+        "walk_forward": wf,
+        "all_splits_same_sign_oos": all_same_sign,
+        "all_walk_forward_folds_stable": all_wf_stable,
+        "verdict": verdict,
+        "headline": headline,
+    }
+
+
 def run(start: dt.date, end: dt.date) -> dict:
     coll = _collect(start, end)
     inputs, rth, ribbon_df = coll["inputs"], coll["rth"], coll["ribbon_df"]
     primary_caps = _cap_anchor_inclusive(inputs)
     primary = _run_population(_PRIMARY, primary_caps, rth, ribbon_df)
+    oos_validation = _oos_validation(primary_caps, rth, ribbon_df)
 
     result = {
         "research_question": (
@@ -471,9 +631,12 @@ def run(start: dt.date, end: dt.date) -> dict:
             "(anchor-no-regression) AND DSR/PSR advisory != FAIL AND anchor not vacuous. Honest "
             "no-win is a valid result."),
         "populations": {"BEARISH_REJECTION_MORNING_primary": primary},
+        "oos_validation": oos_validation,
         "op20_disclosures": _op20_disclosures(),
     }
     result["overall_verdict"] = _overall_verdict(result)
+    result["overall_verdict"]["oos_verdict"] = oos_validation["verdict"]
+    result["overall_verdict"]["oos_headline"] = oos_validation["headline"]
     return result
 
 
@@ -537,7 +700,25 @@ def main() -> int:
     a = ap.parse_args()
     res = run(dt.date.fromisoformat(a.start), dt.date.fromisoformat(a.end))
     # Compact stdout: drop the heavy per-population grids; keep verdicts + baselines.
-    compact = {k: v for k, v in res.items() if k != "populations"}
+    compact = {k: v for k, v in res.items() if k not in ("populations", "oos_validation")}
+    ov = res.get("oos_validation", {})
+    compact["oos_validation_summary"] = {
+        "verdict": ov.get("verdict"),
+        "all_splits_same_sign_oos": ov.get("all_splits_same_sign_oos"),
+        "all_walk_forward_folds_stable": ov.get("all_walk_forward_folds_stable"),
+        "headline": ov.get("headline"),
+        "splits": {
+            sname: {sl: {
+                "is_delta_total": sblk["in_sample"]["delta_total"],
+                "oos_delta_total": sblk["out_of_sample"]["delta_total"],
+                "oos_delta_sign": sblk["out_of_sample"]["delta_sign"],
+                "verdict": sblk["verdict"],
+            } for sl, sblk in blk["strikes"].items()}
+            for sname, blk in ov.get("splits", {}).items()
+        },
+        "walk_forward": {sl: f"{w['n_stable']}/{w['n_folds']} folds trail15>=base20"
+                         for sl, w in ov.get("walk_forward", {}).items()},
+    }
     compact["populations_summary"] = {
         pop_key: {
             "strikes": {

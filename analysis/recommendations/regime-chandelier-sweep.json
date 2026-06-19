@@ -1,7 +1,7 @@
 {
   "research_question": "Does a REGIME-CONDITIONAL / UNDERLYING-move chandelier (vol-scaled trail \u2014 wider in high vol, tighter in calm; trail the SPY move per Kim-Tse-Wald) beat the FIXED 20%-off-premium-HWM v15 chandelier on BEARISH_REJECTION real-fills, WITHOUT clipping J's anchor-day winners? Tests the named #1 exit leverage on our one confirmed edge.",
   "window": "2025-01-01..2026-05-29",
-  "generated_at": "2026-06-19T07:35:16",
+  "generated_at": "2026-06-19T08:00:38",
   "baseline": "PRODUCTION v15 premium chandelier: profit_lock_mode='trailing', threshold +5%, stop_offset +10%, trail 20% off premium HWM.",
   "variant_grid": {
     "fixed_premium_trail_pct": [
@@ -1172,6 +1172,511 @@
       }
     }
   },
+  "oos_validation": {
+    "_doc": "L166 discipline applied to the champion exit-param swap (chandelier trail 20% -> 15%). The proposal is the SWAP, so the causal OOS question is whether the DELTA (trail-15 minus baseline-20) stays the SAME SIGN out-of-sample. Calendar split (2025 train / 2026 test) is well-powered here (113/62 signals); balanced-median is the secondary read. DSR is on the champion's own return stream (advisory; a losing-regime OOS slice fails by construction even when the SWAP helps).",
+    "champion": {
+      "label": "fixed_premium_15",
+      "over": {
+        "profit_lock_trail_pct": 0.15
+      }
+    },
+    "splits": {
+      "calendar_2026": {
+        "boundary": "2026-01-01",
+        "strikes": {
+          "ATM": {
+            "in_sample": {
+              "n_signals": 113,
+              "baseline_20": {
+                "n": 86,
+                "wr": 83.7,
+                "total": 2329.9,
+                "exp": 27.09,
+                "avg_win": 89.65,
+                "avg_loss": -294.64,
+                "n_win": 72,
+                "n_loss": 14
+              },
+              "champion_trail_15": {
+                "n": 86,
+                "wr": 83.7,
+                "total": 3056.55,
+                "exp": 35.54,
+                "avg_win": 99.74,
+                "avg_loss": -294.64,
+                "n_win": 72,
+                "n_loss": 14
+              },
+              "delta_total": 726.65,
+              "delta_exp": 8.45,
+              "delta_sign": "+",
+              "champion_better": true,
+              "champion_dsr": {
+                "verdict": "PASS",
+                "dsr": 0.6019,
+                "psr": 0.957,
+                "pbo": null,
+                "n_obs": 86,
+                "low_power": false
+              },
+              "anchor_fills": 0,
+              "paired_delta": {
+                "n_improved": 26,
+                "n_worse": 2,
+                "n_equal": 58,
+                "sum": 726.65,
+                "max_single_improve": 79.65,
+                "sum_ex_top3": 504.5
+              }
+            },
+            "out_of_sample": {
+              "n_signals": 62,
+              "baseline_20": {
+                "n": 49,
+                "wr": 71.4,
+                "total": -1258.2,
+                "exp": -25.68,
+                "avg_win": 95.28,
+                "avg_loss": -328.07,
+                "n_win": 35,
+                "n_loss": 14
+              },
+              "champion_trail_15": {
+                "n": 49,
+                "wr": 71.4,
+                "total": -626.1,
+                "exp": -12.78,
+                "avg_win": 113.34,
+                "avg_loss": -328.07,
+                "n_win": 35,
+                "n_loss": 14
+              },
+              "delta_total": 632.1,
+              "delta_exp": 12.9,
+              "delta_sign": "+",
+              "champion_better": true,
+              "champion_dsr": {
+                "verdict": "FAIL",
+                "dsr": 0.0309,
+                "psr": 0.3415,
+                "pbo": null,
+                "n_obs": 49,
+                "low_power": false
+              },
+              "anchor_fills": 1,
+              "paired_delta": {
+                "n_improved": 18,
+                "n_worse": 0,
+                "n_equal": 31,
+                "sum": 632.1,
+                "max_single_improve": 78.0,
+                "sum_ex_top3": 424.95
+              }
+            },
+            "same_sign_oos": true,
+            "verdict": "HOLDS-OOS-SAME-SIGN"
+          },
+          "ITM2": {
+            "in_sample": {
+              "n_signals": 113,
+              "baseline_20": {
+                "n": 75,
+                "wr": 81.3,
+                "total": 1646.4,
+                "exp": 21.95,
+                "avg_win": 118.37,
+                "avg_loss": -398.14,
+                "n_win": 61,
+                "n_loss": 14
+              },
+              "champion_trail_15": {
+                "n": 75,
+                "wr": 81.3,
+                "total": 2218.35,
+                "exp": 29.58,
+                "avg_win": 127.74,
+                "avg_loss": -398.14,
+                "n_win": 61,
+                "n_loss": 14
+              },
+              "delta_total": 571.95,
+              "delta_exp": 7.63,
+              "delta_sign": "+",
+              "champion_better": true,
+              "champion_dsr": {
+                "verdict": "WEAK",
+                "dsr": 0.339,
+                "psr": 0.8517,
+                "pbo": null,
+                "n_obs": 75,
+                "low_power": false
+              },
+              "anchor_fills": 0,
+              "paired_delta": {
+                "n_improved": 13,
+                "n_worse": 2,
+                "n_equal": 60,
+                "sum": 571.95,
+                "max_single_improve": 90.15,
+                "sum_ex_top3": 310.95
+              }
+            },
+            "out_of_sample": {
+              "n_signals": 62,
+              "baseline_20": {
+                "n": 48,
+                "wr": 70.8,
+                "total": -2247.6,
+                "exp": -46.82,
+                "avg_win": 117.6,
+                "avg_loss": -446.14,
+                "n_win": 34,
+                "n_loss": 14
+              },
+              "champion_trail_15": {
+                "n": 48,
+                "wr": 70.8,
+                "total": -1644.0,
+                "exp": -34.25,
+                "avg_win": 135.35,
+                "avg_loss": -446.14,
+                "n_win": 34,
+                "n_loss": 14
+              },
+              "delta_total": 603.6,
+              "delta_exp": 12.57,
+              "delta_sign": "+",
+              "champion_better": true,
+              "champion_dsr": {
+                "verdict": "FAIL",
+                "dsr": 0.0098,
+                "psr": 0.191,
+                "pbo": null,
+                "n_obs": 48,
+                "low_power": false
+              },
+              "anchor_fills": 1,
+              "paired_delta": {
+                "n_improved": 12,
+                "n_worse": 0,
+                "n_equal": 36,
+                "sum": 603.6,
+                "max_single_improve": 97.5,
+                "sum_ex_top3": 335.7
+              }
+            },
+            "same_sign_oos": true,
+            "verdict": "HOLDS-OOS-SAME-SIGN"
+          }
+        }
+      },
+      "balanced_median": {
+        "boundary": "2025-11-21",
+        "strikes": {
+          "ATM": {
+            "in_sample": {
+              "n_signals": 87,
+              "baseline_20": {
+                "n": 60,
+                "wr": 80.0,
+                "total": 969.3,
+                "exp": 16.16,
+                "avg_win": 95.13,
+                "avg_loss": -299.75,
+                "n_win": 48,
+                "n_loss": 12
+              },
+              "champion_trail_15": {
+                "n": 60,
+                "wr": 80.0,
+                "total": 1490.7,
+                "exp": 24.85,
+                "avg_win": 105.99,
+                "avg_loss": -299.75,
+                "n_win": 48,
+                "n_loss": 12
+              },
+              "delta_total": 521.4,
+              "delta_exp": 8.69,
+              "delta_sign": "+",
+              "champion_better": true,
+              "champion_dsr": {
+                "verdict": "WEAK",
+                "dsr": 0.3087,
+                "psr": 0.8314,
+                "pbo": null,
+                "n_obs": 60,
+                "low_power": false
+              },
+              "anchor_fills": 0,
+              "paired_delta": {
+                "n_improved": 19,
+                "n_worse": 1,
+                "n_equal": 40,
+                "sum": 521.4,
+                "max_single_improve": 79.65,
+                "sum_ex_top3": 302.55
+              }
+            },
+            "out_of_sample": {
+              "n_signals": 88,
+              "baseline_20": {
+                "n": 75,
+                "wr": 78.7,
+                "total": 102.4,
+                "exp": 1.37,
+                "avg_win": 88.53,
+                "avg_loss": -320.06,
+                "n_win": 59,
+                "n_loss": 16
+              },
+              "champion_trail_15": {
+                "n": 75,
+                "wr": 78.7,
+                "total": 939.75,
+                "exp": 12.53,
+                "avg_win": 102.72,
+                "avg_loss": -320.06,
+                "n_win": 59,
+                "n_loss": 16
+              },
+              "delta_total": 837.35,
+              "delta_exp": 11.16,
+              "delta_sign": "+",
+              "champion_better": true,
+              "champion_dsr": {
+                "verdict": "WEAK",
+                "dsr": 0.1808,
+                "psr": 0.7077,
+                "pbo": null,
+                "n_obs": 75,
+                "low_power": false
+              },
+              "anchor_fills": 1,
+              "paired_delta": {
+                "n_improved": 25,
+                "n_worse": 1,
+                "n_equal": 49,
+                "sum": 837.35,
+                "max_single_improve": 78.0,
+                "sum_ex_top3": 614.75
+              }
+            },
+            "same_sign_oos": true,
+            "verdict": "HOLDS-OOS-SAME-SIGN"
+          },
+          "ITM2": {
+            "in_sample": {
+              "n_signals": 87,
+              "baseline_20": {
+                "n": 50,
+                "wr": 76.0,
+                "total": 81.3,
+                "exp": 1.63,
+                "avg_win": 128.61,
+                "avg_loss": -400.5,
+                "n_win": 38,
+                "n_loss": 12
+              },
+              "champion_trail_15": {
+                "n": 50,
+                "wr": 76.0,
+                "total": 357.45,
+                "exp": 7.15,
+                "avg_win": 135.88,
+                "avg_loss": -400.5,
+                "n_win": 38,
+                "n_loss": 12
+              },
+              "delta_total": 276.15,
+              "delta_exp": 5.52,
+              "delta_sign": "+",
+              "champion_better": true,
+              "champion_dsr": {
+                "verdict": "WEAK",
+                "dsr": 0.1037,
+                "psr": 0.5787,
+                "pbo": null,
+                "n_obs": 50,
+                "low_power": false
+              },
+              "anchor_fills": 0,
+              "paired_delta": {
+                "n_improved": 8,
+                "n_worse": 2,
+                "n_equal": 40,
+                "sum": 276.15,
+                "max_single_improve": 89.25,
+                "sum_ex_top3": 28.35
+              }
+            },
+            "out_of_sample": {
+              "n_signals": 88,
+              "baseline_20": {
+                "n": 73,
+                "wr": 78.1,
+                "total": -682.5,
+                "exp": -9.35,
+                "avg_win": 111.08,
+                "avg_loss": -438.38,
+                "n_win": 57,
+                "n_loss": 16
+              },
+              "champion_trail_15": {
+                "n": 73,
+                "wr": 78.1,
+                "total": 216.9,
+                "exp": 2.97,
+                "avg_win": 126.86,
+                "avg_loss": -438.38,
+                "n_win": 57,
+                "n_loss": 16
+              },
+              "delta_total": 899.4,
+              "delta_exp": 12.32,
+              "delta_sign": "+",
+              "champion_better": true,
+              "champion_dsr": {
+                "verdict": "WEAK",
+                "dsr": 0.0872,
+                "psr": 0.5403,
+                "pbo": null,
+                "n_obs": 73,
+                "low_power": false
+              },
+              "anchor_fills": 1,
+              "paired_delta": {
+                "n_improved": 17,
+                "n_worse": 0,
+                "n_equal": 56,
+                "sum": 899.4,
+                "max_single_improve": 97.5,
+                "sum_ex_top3": 616.65
+              }
+            },
+            "same_sign_oos": true,
+            "verdict": "HOLDS-OOS-SAME-SIGN"
+          }
+        }
+      }
+    },
+    "walk_forward": {
+      "ATM": {
+        "n_folds": 6,
+        "n_stable": 6,
+        "all_folds_stable": true,
+        "folds": [
+          {
+            "fold": "2025-01-01..2025-04-01",
+            "n": 28,
+            "base20_total": 1208.1,
+            "trail15_total": 1560.6,
+            "delta_total": 352.5,
+            "trail15_ge_base20": true
+          },
+          {
+            "fold": "2025-04-01..2025-07-01",
+            "n": 15,
+            "base20_total": -604.8,
+            "trail15_total": -467.25,
+            "delta_total": 137.55,
+            "trail15_ge_base20": true
+          },
+          {
+            "fold": "2025-07-01..2025-10-01",
+            "n": 8,
+            "base20_total": 408.6,
+            "trail15_total": 463.65,
+            "delta_total": 55.05,
+            "trail15_ge_base20": true
+          },
+          {
+            "fold": "2025-10-01..2026-01-01",
+            "n": 35,
+            "base20_total": 1318.0,
+            "trail15_total": 1499.55,
+            "delta_total": 181.55,
+            "trail15_ge_base20": true
+          },
+          {
+            "fold": "2026-01-01..2026-04-01",
+            "n": 43,
+            "base20_total": -1650.6,
+            "trail15_total": -1051.95,
+            "delta_total": 598.65,
+            "trail15_ge_base20": true
+          },
+          {
+            "fold": "2026-04-01..2026-06-01",
+            "n": 6,
+            "base20_total": 392.4,
+            "trail15_total": 425.85,
+            "delta_total": 33.45,
+            "trail15_ge_base20": true
+          }
+        ]
+      },
+      "ITM2": {
+        "n_folds": 6,
+        "n_stable": 6,
+        "all_folds_stable": true,
+        "folds": [
+          {
+            "fold": "2025-01-01..2025-04-01",
+            "n": 20,
+            "base20_total": 198.0,
+            "trail15_total": 274.95,
+            "delta_total": 76.95,
+            "trail15_ge_base20": true
+          },
+          {
+            "fold": "2025-04-01..2025-07-01",
+            "n": 13,
+            "base20_total": -71.6,
+            "trail15_total": -50.7,
+            "delta_total": 20.9,
+            "trail15_ge_base20": true
+          },
+          {
+            "fold": "2025-07-01..2025-10-01",
+            "n": 7,
+            "base20_total": 419.7,
+            "trail15_total": 474.9,
+            "delta_total": 55.2,
+            "trail15_ge_base20": true
+          },
+          {
+            "fold": "2025-10-01..2026-01-01",
+            "n": 35,
+            "base20_total": 1100.3,
+            "trail15_total": 1519.2,
+            "delta_total": 418.9,
+            "trail15_ge_base20": true
+          },
+          {
+            "fold": "2026-01-01..2026-04-01",
+            "n": 42,
+            "base20_total": -2798.7,
+            "trail15_total": -2248.65,
+            "delta_total": 550.05,
+            "trail15_ge_base20": true
+          },
+          {
+            "fold": "2026-04-01..2026-06-01",
+            "n": 6,
+            "base20_total": 551.1,
+            "trail15_total": 604.65,
+            "delta_total": 53.55,
+            "trail15_ge_base20": true
+          }
+        ]
+      }
+    },
+    "all_splits_same_sign_oos": true,
+    "all_walk_forward_folds_stable": true,
+    "verdict": "PROPOSE",
+    "headline": "PROPOSE -- trail-15 beats baseline-20 SAME-SIGN on BOTH temporal splits (calendar 2025/2026 AND balanced-median) AND all walk-forward folds are stable, BOTH strikes. The improvement is the OPPOSITE of the L166 morning-sign mirage (which inverted OOS). DSR is advisory-only and reads WEAK/FAIL because 2026 was an absolute-losing regime for the proxy population -- the SWAP (the paired delta) is broad-based, not tail-driven, and almost never hurts a trade. Anchor-no-regression is UNTESTED for 5/01+5/04 (no BRM signal/fill) -- necessary-not-sufficient gating caveat. Live exit-param change => J/conductor ratification (Rule 9)."
+  },
   "op20_disclosures": {
     "authority": "Real-fills (lib.simulator_real + OPRA options cache, valid through 2026-05-29) is the only authority used for the verdict (C1). BS-sim / SPY-space grade not used.",
     "anchor_coverage": "THIN. 5/04 (J's biggest winner, +$730) has ZERO option bars in the cache; BRM has an OPRA fill on only 4/29 among the WIN anchor days. The anchor-no-regression gate is necessary-not-sufficient (C24) \u2014 a tie at n=1 anchor fill is weak evidence.",
@@ -1187,6 +1692,8 @@
       "BEARISH_REJECTION_MORNING_primary/ATM": "[ATM] PROMOTE-CANDIDATE \u2014 2 chandelier variant(s) beat the fixed-20% premium chandelier on BOTH total P&L and expectancy AND anchor-no-regression AND DSR!=FAIL. Best: fixed_premium_15 -> total $2430.45 (exp $18.0, WR 79.3%, n=135) vs baseline total $1071.7 (exp $7.94). anchor edge_capture $67.2 vs baseline $67.2. PROXY levels + thin anchors \u2014 ratify on production star-rated levels before wiring (Rule 9).",
       "BEARISH_REJECTION_MORNING_primary/ITM2": "[ITM2] PROMOTE-CANDIDATE \u2014 2 chandelier variant(s) beat the fixed-20% premium chandelier on BOTH total P&L and expectancy AND anchor-no-regression AND DSR!=FAIL. Best: fixed_premium_15 -> total $574.35 (exp $4.67, WR 77.2%, n=123) vs baseline total $-601.2 (exp $-4.89). anchor edge_capture $98.7 vs baseline $98.7. PROXY levels + thin anchors \u2014 ratify on production star-rated levels before wiring (Rule 9)."
     },
-    "summary": "A REGIME-CONDITIONAL / UNDERLYING chandelier beats the fixed-20% premium chandelier on >=1 population/strike (see per-strike PROMOTE-CANDIDATE)."
+    "summary": "A REGIME-CONDITIONAL / UNDERLYING chandelier beats the fixed-20% premium chandelier on >=1 population/strike (see per-strike PROMOTE-CANDIDATE).",
+    "oos_verdict": "PROPOSE",
+    "oos_headline": "PROPOSE -- trail-15 beats baseline-20 SAME-SIGN on BOTH temporal splits (calendar 2025/2026 AND balanced-median) AND all walk-forward folds are stable, BOTH strikes. The improvement is the OPPOSITE of the L166 morning-sign mirage (which inverted OOS). DSR is advisory-only and reads WEAK/FAIL because 2026 was an absolute-losing regime for the proxy population -- the SWAP (the paired delta) is broad-based, not tail-driven, and almost never hurts a trade. Anchor-no-regression is UNTESTED for 5/01+5/04 (no BRM signal/fill) -- necessary-not-sufficient gating caveat. Live exit-param change => J/conductor ratification (Rule 9)."
   }
 }

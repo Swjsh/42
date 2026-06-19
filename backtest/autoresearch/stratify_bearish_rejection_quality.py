@@ -423,6 +423,267 @@ def _highest_signal(strat_atm: dict) -> list[dict]:
     return picks
 
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Validation layer (added 2026-06-19): OOS sign-stability + combined conditioned
+# book + confidence-tier root-cause. Operates on the SAME `fires` rows the
+# stratifier already builds (each carries date / vix_character / tod_bucket / conf
+# / rejection_body_cents / vol_ratio / rf_ATM_pnl / rf_ITM2_pnl / anchor_label), so
+# it can run either inline after a replay or `--analyze-from` an existing artifact
+# (reproducible, no 16-month re-replay needed). Propose-only (Rule 9).
+# ──────────────────────────────────────────────────────────────────────────────
+def _psr_block(pnls: list[float], n_trials: int = 7) -> dict:
+    """PSR(>0) + DSR + one-sided t-test on a per-trade P&L stream. Advisory colour.
+
+    Reuses lib.validation.deflated_sharpe (Bailey & Lopez de Prado). low_power when
+    n < MIN_RELIABLE_OBS (=20). DSR deflates for n_trials independent cuts swept.
+    """
+    import numpy as _np
+    from scipy import stats as _ss
+    from lib.validation.deflated_sharpe import (
+        probabilistic_sharpe_ratio, deflated_sharpe_ratio, MIN_RELIABLE_OBS)
+    a = _np.asarray([p for p in pnls if p is not None], dtype=float)
+    n = int(a.size)
+    if n < 2:
+        return {"n": n, "mean": None, "sharpe": None, "psr_gt0": None,
+                "dsr": None, "t": None, "p_one_sided_gt0": None, "low_power": True}
+    mu = float(a.mean()); sd = float(a.std(ddof=0))
+    sr = mu / sd if sd > 0 else 0.0
+    sk = float(_ss.skew(a, bias=True)); ku = float(_ss.kurtosis(a, fisher=False, bias=True))
+    psr = probabilistic_sharpe_ratio(sharpe=sr, n_obs=n, skew=sk, kurtosis=ku, sharpe_benchmark=0.0)
+    dsr = deflated_sharpe_ratio(a, n_trials=n_trials)
+    t, p = _ss.ttest_1samp(a, 0.0)
+    p1 = (p / 2) if t > 0 else (1 - p / 2)        # P(mean > 0) one-sided
+    return {"n": n, "mean": round(mu, 2), "sharpe": round(sr, 4),
+            "psr_gt0": round(float(psr.psr), 4), "dsr": round(float(dsr.dsr), 4),
+            "t": round(float(t), 3), "p_one_sided_gt0": round(float(p1), 4),
+            "low_power": bool(n < MIN_RELIABLE_OBS)}
+
+
+def _book_stats(rows: list[dict], pnl_key: str) -> dict:
+    """exp/WR/total/edge_capture/n for an arbitrary subset (the 'conditioned book')."""
+    st = _bucket_stats(rows, pnl_key)
+    return {k: st[k] for k in ("n", "wr", "total", "exp", "edge_capture",
+                               "n_anchor_fills", "low_power")}
+
+
+def _oos_split(fires: list[dict], pnl_key: str) -> dict:
+    """Sign-stability of the two proposable rules across IS/OOS, two split methods.
+
+    Split 1: calendar 2025 (IS) vs 2026 (OOS).
+    Split 2: balanced median-fill-date (half the FILLED rows each side).
+    A rule is sign-stable iff its bucket exp keeps the SAME sign in BOTH halves of a split.
+    """
+    filled = sorted([f for f in fires if f.get(pnl_key) is not None],
+                    key=lambda f: (f["date"], f["time"]))
+    if not filled:
+        return {"note": "no real fills under " + pnl_key}
+    dates = [f["date"] for f in filled]
+    median_date = dates[len(dates) // 2]
+
+    splits = {
+        "calendar_2025_vs_2026": {
+            "IS": [f for f in filled if f["date"] < "2026-01-01"],
+            "OOS": [f for f in filled if f["date"] >= "2026-01-01"],
+            "boundary": "2026-01-01",
+        },
+        "balanced_median_date": {
+            "IS": [f for f in filled if f["date"] < median_date],
+            "OOS": [f for f in filled if f["date"] >= median_date],
+            "boundary": median_date,
+        },
+    }
+
+    def _bucket(rows, pred):
+        return _book_stats([f for f in rows if pred(f)], pnl_key)
+
+    rules = {
+        "vix_falling_skip": lambda f: f["vix_character"] == "falling",
+        "vix_rising_take":  lambda f: f["vix_character"] == "rising",
+        "tod_1000_1029":    lambda f: f["tod_bucket"] == "1000-1029",
+        "tod_1030_1055":    lambda f: f["tod_bucket"] == "1030-1055",
+    }
+
+    out = {}
+    for sp_name, sp in splits.items():
+        sp_out = {"boundary": sp["boundary"]}
+        for r_name, pred in rules.items():
+            is_st = _bucket(sp["IS"], pred)
+            oos_st = _bucket(sp["OOS"], pred)
+            # sign agreement on exp (treat exact-0 / empty as non-informative)
+            si, so = is_st["exp"], oos_st["exp"]
+            if is_st["n"] == 0 or oos_st["n"] == 0:
+                stable = "no_data_one_half"
+            elif (si > 0 and so > 0) or (si < 0 and so < 0):
+                stable = "SAME_SIGN"
+            else:
+                stable = "SIGN_FLIP"
+            sp_out[r_name] = {"IS": is_st, "OOS": oos_st, "sign_stability": stable}
+        out[sp_name] = sp_out
+    return out
+
+
+def _combined_book(fires: list[dict], pnl_key: str) -> dict:
+    """Net real-fills book under candidate skip/select rules vs baseline.
+
+    The prize question: does conditioning turn the BEARISH_REJECTION book positive?
+    Each variant reports exp/WR/total/edge_capture/n + PSR/DSR colour. edge_capture
+    here is dominated by the single 4/29 anchor WIN fill (see op20 anchor caveat),
+    so a variant that drops 4/29 shows edge_capture collapse = anchor regression flag.
+    """
+    filled = [f for f in fires if f.get(pnl_key) is not None]
+
+    def book(pred):
+        rows = [f for f in filled if pred(f)]
+        st = _book_stats(rows, pnl_key)
+        st["psr"] = _psr_block([f[pnl_key] for f in rows])
+        return st
+
+    variants = {
+        "baseline_all": book(lambda f: True),
+        "A_skip_vix_falling": book(lambda f: f["vix_character"] != "falling"),
+        "B_skip_tod_1030plus": book(lambda f: f["tod_bucket"] != "1030-1055"),
+        "AB_skip_both": book(lambda f: f["vix_character"] != "falling"
+                                       and f["tod_bucket"] != "1030-1055"),
+        "R_take_only_vix_rising": book(lambda f: f["vix_character"] == "rising"),
+        "R_rising_and_not_late": book(lambda f: f["vix_character"] == "rising"
+                                                 and f["tod_bucket"] != "1030-1055"),
+    }
+    # Anchor-regression flag: does the variant still include the 4/29 WIN anchor fill?
+    for name, st in variants.items():
+        st["keeps_anchor_win_fill"] = st["n_anchor_fills"] >= 1
+    return variants
+
+
+def _confidence_drivers(fires: list[dict], pnl_key: str) -> dict:
+    """Root-cause the confidence-tier surprise: HIGH underperforms LOW on real fills.
+
+    Reports, per tier: stats + median rejection_body / vol_ratio + the regime/time mix.
+    Then a body-magnitude sweep to test whether 'bigger rejection bar = worse entry'
+    (chart-stop sits just above the level, so a large-body bar enters far from the stop —
+    more $ at risk; a normal retrace stops it). Disclosed as a detector-scoring finding.
+    """
+    import statistics as _st
+    filled = [f for f in fires if f.get(pnl_key) is not None]
+
+    tiers = {}
+    for c in ("high", "medium", "low"):
+        rows = [f for f in filled if f["conf"] == c]
+        st = _book_stats(rows, pnl_key)
+        bodies = [f.get("rejection_body_cents") or 0.0 for f in rows]
+        vols = [f.get("vol_ratio") or 0.0 for f in rows]
+        vc, td = defaultdict(int), defaultdict(int)
+        for f in rows:
+            vc[f["vix_character"]] += 1
+            td[f["tod_bucket"]] += 1
+        st["median_rejection_body_cents"] = round(_st.median(bodies), 1) if bodies else 0.0
+        st["median_vol_ratio"] = round(_st.median(vols), 2) if vols else 0.0
+        st["vix_character_mix"] = dict(vc)
+        st["tod_mix"] = dict(td)
+        tiers[c] = st
+
+    body_buckets = {}
+    for lo, hi, lab in ((0, 30, "<30c"), (30, 60, "30-60c"),
+                        (60, 120, "60-120c"), (120, 10**9, "120c+")):
+        rows = [f for f in filled
+                if lo <= (f.get("rejection_body_cents") or 0.0) < hi]
+        body_buckets[lab] = _book_stats(rows, pnl_key)
+
+    # Spearman rank corr between rejection_body_cents and pnl (sign of the bug).
+    corr = None
+    try:
+        from scipy import stats as _ss
+        xs = [f.get("rejection_body_cents") or 0.0 for f in filled]
+        ys = [f[pnl_key] for f in filled]
+        if len(xs) > 5:
+            rho, p = _ss.spearmanr(xs, ys)
+            corr = {"spearman_rho_body_vs_pnl": round(float(rho), 4),
+                    "p": round(float(p), 4), "n": len(xs)}
+    except Exception:
+        corr = None
+
+    return {
+        "tiers": tiers,
+        "body_magnitude_sweep": body_buckets,
+        "body_vs_pnl_correlation": corr,
+        "scoring_rule": ("HIGH := rejection_body>=30c AND vol_ratio>=2.5x AND bear_candle "
+                         "(bearish_rejection_morning_watcher.py L146). The HIGH gate rewards "
+                         "the LARGEST/most-violent rejection bars; on real fills these enter "
+                         "farthest from the chart-stop (stop = level+0.25) so a normal retrace "
+                         "stops them out. The score therefore ANTI-correlates with realized "
+                         "edge (lesson C3: SPY-structure edge != option edge; lesson C13: "
+                         "confidence tiers must track realized P&L)."),
+    }
+
+
+def _validation_layer(fires: list[dict]) -> dict:
+    """Bundle OOS-split + combined-book + confidence-driver for ATM (primary) + ITM2."""
+    out = {}
+    for label, pnl_key in (("ATM", "rf_ATM_pnl"), ("ITM2", "rf_ITM2_pnl")):
+        out[label] = {
+            "oos_sign_stability": _oos_split(fires, pnl_key),
+            "combined_conditioned_book": _combined_book(fires, pnl_key),
+            "confidence_tier_rootcause": _confidence_drivers(fires, pnl_key),
+        }
+    return out
+
+
+def _verdicts() -> dict:
+    """Propose-only verdicts (Rule 9) synthesised from the validation layer.
+
+    Hardcoded prose conclusions are NOT auto-derived — they are written by the analyst
+    after reading the numbers (the script computes the numbers; the analyst owns the
+    PROPOSE/WATCH/REJECT call). Stored here so the scorecard is self-contained.
+    """
+    return {
+        "vix_falling_skip": {
+            "verdict": "PROPOSE (skip / size-to-zero)",
+            "basis": ("VIX-falling is negative in BOTH halves of BOTH splits "
+                      "(ATM: 2025 -$143 / 2026 -$311; medianA -$111 / medianB -$283; "
+                      "ITM2 2025 -$185 / 2026 -$432). PSR(>0)=0.008, t=-3.15. Sign-stable "
+                      "negative and the mirror of the proven VIX-rising-positive gate "
+                      "(lesson C5: VIX character > level). n=11 total is low_power so "
+                      "propose as SKIP, not as a sized rule."),
+            "caveat": ("Skipping falling alone does NOT make the book positive (skip-falling "
+                       "book exp still -$18.9, PSR 0.17). It removes the worst tail, not the "
+                       "negative drift — the VIX-flat majority bucket also bled in OOS."),
+        },
+        "time_tier_1000_1029_full_1030_down": {
+            "verdict": "REJECT (early-window full-size) / WATCH (late-window de-emphasis)",
+            "basis": ("The 10:00-10:29 'take-full' edge SIGN-FLIPS OOS: IS +$112 (N=11) -> "
+                      "OOS -$30 (N=3). The entire positive came from 2025 — textbook L166 "
+                      "single-window artifact. In-sample t=2.05/p=0.03 is a selection mirage "
+                      "(low_power n=14). REJECT it as a full-size rule. The 10:30+ 'bleed' is "
+                      "negative in OOS (-$90, N=43) but was ~flat IS (-$5) so it is not cleanly "
+                      "sign-stable either — WATCH, do not ship."),
+        },
+        "confidence_tier": {
+            "verdict": "FLAG — detector confidence score does NOT track realized edge (mis-ranked)",
+            "basis": ("HIGH-conf real-fills exp -$83 < MEDIUM -$27 < LOW -$15 (ATM): the tier "
+                      "ordering is inverted vs P&L. HIGH is gated on body>=30c AND vol>=2.5x AND "
+                      "bear_candle => median HIGH fire is a 131c-body / 3.4x-vol violent rejection "
+                      "bar. NOTE: body magnitude ALONE is ~uncorrelated with pnl (Spearman rho "
+                      "+0.04, p=0.61) — so it is the CONJUNCTION that mis-ranks, compounded by "
+                      "regime clustering: 82% of HIGH fires land in the worst 10:30+ window and "
+                      "most are VIX-flat. Plausible mechanical contributor: a big-body bar enters "
+                      "farther above the chart-stop (level+0.25), so a normal retrace stops it. "
+                      "Net: the confidence score is not a usable sizing signal as built; a detector "
+                      "fix should re-rank by realized edge (lesson C13) — at minimum, do not size UP "
+                      "on HIGH. Flag only (Rule 9)."),
+        },
+        "overall_book": {
+            "verdict": "BEARISH_REJECTION real-fills book is NEGATIVE and NO conditioning tested "
+                       "makes it cleanly, robustly positive.",
+            "basis": ("Baseline ATM exp -$32.8 (PSR(>0)=0.04, significantly negative). The ONLY "
+                      "variant that crosses zero is take-ONLY-VIX-rising (+$53, WR 83%) but it is "
+                      "(a) not significant (PSR 0.84 < 0.95, DSR 0.35) and (b) drops the 4/29 "
+                      "anchor WIN fill (edge_capture -> 0 = anchor regression, violates OP-16). "
+                      "ITM2 rising-only is only breakeven (-$0.69) — the lean does NOT transfer "
+                      "to the Bold strike tier (lesson C29). Net: refine by SKIPPING VIX-falling "
+                      "as a do-no-harm tail trim; do NOT treat rising-only as a shippable edge."),
+        },
+    }
+
+
 def _op20() -> dict:
     return {
         "authority": ("Real-fills (simulate_trade_real over OPRA bars) is the WR/expectancy "
@@ -485,10 +746,36 @@ def build(start: dt.date, end: dt.date, do_realfills: bool) -> dict:
         "stratification_real_fills_ITM2": strat_itm2,
         "stratification_spy_proxy_full_window": strat_spy,
         "highest_signal_proposals": highest,
+        "validation_layer": _validation_layer(fires),
+        "propose_only_verdicts": _verdicts(),
         "fires": fires,
         "op20_disclosures": _op20(),
     }
     return result
+
+
+def build_validation_scorecard(fires: list[dict], source: str) -> dict:
+    """Self-contained validation scorecard from an existing fires array.
+
+    Used by `--analyze-from <quality-map.json>` so the OOS / combined-book / confidence
+    analysis is reproducible off a frozen artifact without re-running the 16-month replay.
+    """
+    return {
+        "generated_at": dt.datetime.now().isoformat(),
+        "kind": "bearish_rejection_quality_validation",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON (bearish_rejection_morning_watcher)",
+        "source_artifact": source,
+        "purpose": ("OOS sign-stability + combined conditioned-book + confidence-tier "
+                    "root-cause for the two proposable quality rules (VIX-falling-skip, "
+                    "time-tier). Converts the quality map into validated propose/reject "
+                    "edge-refinements. Propose-only (Rule 9)."),
+        "n_fires": len(fires),
+        "n_filled_ATM": sum(1 for f in fires if f.get("rf_ATM_pnl") is not None),
+        "n_filled_ITM2": sum(1 for f in fires if f.get("rf_ITM2_pnl") is not None),
+        "validation_layer": _validation_layer(fires),
+        "propose_only_verdicts": _verdicts(),
+        "op20_disclosures": _op20(),
+    }
 
 
 def main() -> int:
@@ -497,7 +784,27 @@ def main() -> int:
     ap.add_argument("--end", default="2026-06-16")
     ap.add_argument("--realfills", action="store_true")
     ap.add_argument("--out", default=None)
+    ap.add_argument("--analyze-from", default=None,
+                    help="Read fires[] from an existing quality-map JSON and emit ONLY the "
+                         "validation scorecard (OOS-split + combined-book + conf root-cause). "
+                         "Reproducible — no 16-month replay.")
     a = ap.parse_args()
+
+    if a.analyze_from:
+        src = Path(a.analyze_from)
+        if not src.is_absolute():
+            src = (Path.cwd() / src).resolve()
+        fires = json.loads(src.read_text(encoding="utf-8")).get("fires", [])
+        res = build_validation_scorecard(fires, source=str(src))
+        print(json.dumps(res, indent=2, default=str))
+        if a.out:
+            outp = Path(a.out)
+            if not outp.is_absolute():
+                outp = (Path.cwd() / outp).resolve()
+            outp.write_text(json.dumps(res, indent=2, default=str), encoding="utf-8")
+            print("wrote", outp)
+        return 0
+
     res = build(dt.date.fromisoformat(a.start), dt.date.fromisoformat(a.end), a.realfills)
     txt = json.dumps(res, indent=2, default=str)
     # Print a compact human summary to stdout; full JSON goes to --out.
