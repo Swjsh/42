@@ -1,0 +1,314 @@
+{
+  "window": "2025-01-01..2026-05-29",
+  "generated_at": "2026-06-19T01:45:03",
+  "research_question": "Can the anti-J-edge bounce-LONG watcher family be RESCUED by (A) a regime gate that suppresses longs in catching-a-falling-knife conditions (BEAR ribbon + VIX rising + below VWAP), or (B) a short-side inversion that fires WITH J's bearish-continuation edge? Or do we RETIRE the family? Real-fills (OPRA) is the only authority (C1).",
+  "hypotheses": {
+    "A_regime_gate": "Suppress bounce-LONG when ribbon stack==BEAR AND vix_now>vix_prior AND close<session_VWAP. PROMOTE iff this flips edge_capture POSITIVE and real-fills exp>0 and DSR!=FAIL.",
+    "B_short_inversion": "Isolate the SHORT signals (SECOND_TEST lower-high resistance leg + all of CLOSE_CEILING_FADE). PROMOTE iff shorts show edge_capture POSITIVE (fire WITH J on down days) and real-fills exp>0 and DSR!=FAIL."
+  },
+  "fixed_exit": {
+    "premium_stop_pct": -0.99,
+    "strike_offset": 0,
+    "tp1_premium_pct": 0.3,
+    "level_stop_buffer_dollars": 0.5
+  },
+  "gate_definition": "PROMOTE-CANDIDATE iff real-fills exp>0 AND anchor edge_capture>0 (fires WITH J, not against) AND DSR/PBO advisory verdict != FAIL. If neither hypothesis rescues a pattern \u2192 RETIRE-WITH-EVIDENCE (playbook: fail thresholds \u2192 retire, not loosen; OP-22). Honest no-win is a valid result \u2014 do NOT manufacture a win.",
+  "streams": {
+    "FLOOR_HOLD_BOUNCE": {
+      "n_signals_collected": 132,
+      "n_long_signals": 132,
+      "n_short_signals": 0,
+      "baseline_all_signals": {
+        "stats": {
+          "n": 111,
+          "wr": 39.6,
+          "total": -2183.4,
+          "exp": -19.67
+        },
+        "attempted": 132,
+        "filled": 111,
+        "n_long": 132,
+        "n_short": 0,
+        "suppressed_by_regime": 0,
+        "suppressed_by_direction": 0,
+        "anchor_edge_capture": -150.0,
+        "anchor_win_capture": -150.0,
+        "anchor_loss_added": 0.0,
+        "anchor_by_day": {
+          "2026-04-29": -150.0,
+          "2026-05-07": 77.4
+        },
+        "dsr_gate": {
+          "verdict": "FAIL",
+          "dsr": 0.0073,
+          "psr": 0.0559,
+          "pbo": null,
+          "n_obs": 111,
+          "low_power": false
+        },
+        "gate": {
+          "real_fills_positive": false,
+          "edge_capture_positive": false,
+          "dsr_not_fail": false,
+          "verdict": "NEGATIVE"
+        }
+      },
+      "hyp_a_regime_gated_longs": {
+        "stats": {
+          "n": 102,
+          "wr": 40.2,
+          "total": -2172.4,
+          "exp": -21.3
+        },
+        "attempted": 122,
+        "filled": 102,
+        "n_long": 122,
+        "n_short": 0,
+        "suppressed_by_regime": 10,
+        "suppressed_by_direction": 0,
+        "anchor_edge_capture": -150.0,
+        "anchor_win_capture": -150.0,
+        "anchor_loss_added": 0.0,
+        "anchor_by_day": {
+          "2026-04-29": -150.0,
+          "2026-05-07": 77.4
+        },
+        "dsr_gate": {
+          "verdict": "FAIL",
+          "dsr": 0.005,
+          "psr": 0.0424,
+          "pbo": null,
+          "n_obs": 102,
+          "low_power": false
+        },
+        "gate": {
+          "real_fills_positive": false,
+          "edge_capture_positive": false,
+          "dsr_not_fail": false,
+          "verdict": "NEGATIVE"
+        }
+      },
+      "hyp_b_short_inversion": {
+        "skipped": "detector emits no SHORT signals (long-only)"
+      },
+      "pattern_verdict": "RETIRE-WITH-EVIDENCE \u2014 neither hypothesis flips this pattern to real-fills-positive AND edge_capture-positive AND DSR!=FAIL. baseline-long real-fills exp=$-19.67 (n=111), edge_capture=$-150.0 [NEGATIVE]; Hyp A regime-gate: exp=$-21.3 (n=102, suppressed 10 hostile-regime longs), edge_capture=$-150.0 [NEGATIVE]; Hyp B short-inversion: no short mirror exists in this detector (long-only). Per playbook 'setups that fail thresholds get retired, not loosened' + OP-22, this is a clean honest no-win."
+    },
+    "CLOSE_CEILING_FADE": {
+      "n_signals_collected": 155,
+      "n_long_signals": 0,
+      "n_short_signals": 155,
+      "baseline_all_signals": {
+        "stats": {
+          "n": 141,
+          "wr": 29.8,
+          "total": -5723.2,
+          "exp": -40.59
+        },
+        "attempted": 155,
+        "filled": 141,
+        "n_long": 0,
+        "n_short": 155,
+        "suppressed_by_regime": 0,
+        "suppressed_by_direction": 0,
+        "anchor_edge_capture": -69.0,
+        "anchor_win_capture": 0,
+        "anchor_loss_added": 69.0,
+        "anchor_by_day": {
+          "2026-05-05": -69.0,
+          "2026-05-07": -0.0
+        },
+        "dsr_gate": {
+          "verdict": "FAIL",
+          "dsr": 0.0,
+          "psr": 0.0,
+          "pbo": null,
+          "n_obs": 141,
+          "low_power": false
+        },
+        "gate": {
+          "real_fills_positive": false,
+          "edge_capture_positive": false,
+          "dsr_not_fail": false,
+          "verdict": "NEGATIVE"
+        }
+      },
+      "hyp_a_regime_gated_longs": {
+        "skipped": "detector emits no LONG signals"
+      },
+      "hyp_b_short_inversion": {
+        "stats": {
+          "n": 141,
+          "wr": 29.8,
+          "total": -5723.2,
+          "exp": -40.59
+        },
+        "attempted": 155,
+        "filled": 141,
+        "n_long": 0,
+        "n_short": 155,
+        "suppressed_by_regime": 0,
+        "suppressed_by_direction": 0,
+        "anchor_edge_capture": -69.0,
+        "anchor_win_capture": 0,
+        "anchor_loss_added": 69.0,
+        "anchor_by_day": {
+          "2026-05-05": -69.0,
+          "2026-05-07": -0.0
+        },
+        "dsr_gate": {
+          "verdict": "FAIL",
+          "dsr": 0.0,
+          "psr": 0.0,
+          "pbo": null,
+          "n_obs": 141,
+          "low_power": false
+        },
+        "gate": {
+          "real_fills_positive": false,
+          "edge_capture_positive": false,
+          "dsr_not_fail": false,
+          "verdict": "NEGATIVE"
+        }
+      },
+      "pattern_verdict": "RETIRE-WITH-EVIDENCE \u2014 neither hypothesis flips this pattern to real-fills-positive AND edge_capture-positive AND DSR!=FAIL. baseline-long real-fills exp=$-40.59 (n=141), edge_capture=$-69.0 [NEGATIVE]; Hyp A regime-gate: n/a (no long leg); Hyp B short-inversion: exp=$-40.59 (n=141), edge_capture=$-69.0 [NEGATIVE]. Per playbook 'setups that fail thresholds get retired, not loosened' + OP-22, this is a clean honest no-win."
+    },
+    "NAMED_LEVEL_SECOND_TEST": {
+      "n_signals_collected": 1828,
+      "n_long_signals": 244,
+      "n_short_signals": 188,
+      "baseline_all_signals": {
+        "stats": {
+          "n": 361,
+          "wr": 58.4,
+          "total": -7826.6,
+          "exp": -21.68
+        },
+        "attempted": 432,
+        "filled": 361,
+        "n_long": 244,
+        "n_short": 188,
+        "suppressed_by_regime": 0,
+        "suppressed_by_direction": 0,
+        "anchor_edge_capture": -984.6,
+        "anchor_win_capture": -657.6,
+        "anchor_loss_added": 327.0,
+        "anchor_by_day": {
+          "2026-04-29": -472.8,
+          "2026-05-01": -248.4,
+          "2026-05-04": 63.6,
+          "2026-05-05": 289.2,
+          "2026-05-06": 401.4,
+          "2026-05-07": -327.0
+        },
+        "dsr_gate": {
+          "verdict": "FAIL",
+          "dsr": 0.0006,
+          "psr": 0.0089,
+          "pbo": null,
+          "n_obs": 361,
+          "low_power": false
+        },
+        "gate": {
+          "real_fills_positive": false,
+          "edge_capture_positive": false,
+          "dsr_not_fail": false,
+          "verdict": "NEGATIVE"
+        }
+      },
+      "hyp_a_regime_gated_longs": {
+        "stats": {
+          "n": 358,
+          "wr": 58.9,
+          "total": -7586.6,
+          "exp": -21.19
+        },
+        "attempted": 428,
+        "filled": 358,
+        "n_long": 240,
+        "n_short": 188,
+        "suppressed_by_regime": 4,
+        "suppressed_by_direction": 0,
+        "anchor_edge_capture": -888.6,
+        "anchor_win_capture": -561.6,
+        "anchor_loss_added": 327.0,
+        "anchor_by_day": {
+          "2026-04-29": -376.8,
+          "2026-05-01": -248.4,
+          "2026-05-04": 63.6,
+          "2026-05-05": 289.2,
+          "2026-05-06": 401.4,
+          "2026-05-07": -327.0
+        },
+        "dsr_gate": {
+          "verdict": "FAIL",
+          "dsr": 0.0008,
+          "psr": 0.0109,
+          "pbo": null,
+          "n_obs": 358,
+          "low_power": false
+        },
+        "gate": {
+          "real_fills_positive": false,
+          "edge_capture_positive": false,
+          "dsr_not_fail": false,
+          "verdict": "NEGATIVE"
+        }
+      },
+      "hyp_b_short_inversion": {
+        "stats": {
+          "n": 155,
+          "wr": 56.8,
+          "total": -3934.6,
+          "exp": -25.38
+        },
+        "attempted": 188,
+        "filled": 155,
+        "n_long": 0,
+        "n_short": 188,
+        "suppressed_by_regime": 0,
+        "suppressed_by_direction": 244,
+        "anchor_edge_capture": -10.2,
+        "anchor_win_capture": 88.8,
+        "anchor_loss_added": 99.0,
+        "anchor_by_day": {
+          "2026-04-29": -184.8,
+          "2026-05-04": 273.6,
+          "2026-05-07": -99.0
+        },
+        "dsr_gate": {
+          "verdict": "FAIL",
+          "dsr": 0.0031,
+          "psr": 0.0301,
+          "pbo": null,
+          "n_obs": 155,
+          "low_power": false
+        },
+        "gate": {
+          "real_fills_positive": false,
+          "edge_capture_positive": false,
+          "dsr_not_fail": false,
+          "verdict": "NEGATIVE"
+        }
+      },
+      "pattern_verdict": "RETIRE-WITH-EVIDENCE \u2014 neither hypothesis flips this pattern to real-fills-positive AND edge_capture-positive AND DSR!=FAIL. baseline-long real-fills exp=$-21.68 (n=361), edge_capture=$-984.6 [NEGATIVE]; Hyp A regime-gate: exp=$-21.19 (n=358, suppressed 4 hostile-regime longs), edge_capture=$-888.6 [NEGATIVE]; Hyp B short-inversion: exp=$-25.38 (n=155), edge_capture=$-10.2 [NEGATIVE]. Per playbook 'setups that fail thresholds get retired, not loosened' + OP-22, this is a clean honest no-win."
+    }
+  },
+  "op20_disclosures": {
+    "authority": "Real-fills (lib.simulator_real + OPRA options cache, valid through 2026-05-29). BS-sim is ranking-only and is NOT used (C1).",
+    "level_source_caveat": "All 3 watchers read key-levels.json from disk; this run reuses the exit-sweep's monkeypatch forcing each per-day cache to SYNTHETIC PDH/PDL/PDC/PDO proxies (\u2605\u2605/\u2605), NOT production \u2605\u2605\u2605 named levels (no historical archive). Absolute WR is a proxy LOWER-BOUND. The SIGN questions (does the gate flip edge_capture positive? are the shorts WITH J?) are answerable on the proxy because the level set is identical across all arms.",
+    "regime_gate_vix_caveat": "The Hyp-A regime gate needs vix_now AND vix_prior at the signal bar. The watcher signal metadata carries vix_now; vix_prior is taken from metadata when present and falls back to vix_now otherwise (a CONSERVATIVE fallback \u2014 when vix_prior is unavailable the 'VIX rising' clause cannot fire, so the gate suppresses FEWER longs, never more). The dominant hostile clauses (BEAR ribbon + below-VWAP) are computed exactly from rth/ribbon_df at the signal index. Report suppressed_by_regime to see how many longs the gate actually removed.",
+    "anchor_gate": "OP-16 shape on real-fills: edge_capture = sum(pnl on WIN-anchor days) - sum(max(0,-pnl) on LOSS-anchor days). POSITIVE = fires WITH J (makes money on his WIN days, doesn't bleed on his LOSS days). J has 3 WIN (4/29,5/01,5/04) + 3 LOSS (5/05,5/06,5/07) anchor days; these watchers fire on only a subset, so anchor n is tiny \u2014 a clean sign here is necessary, not sufficient (C24).",
+    "dsr_returns": "DSR/PSR on per-trade dollar P&L (constant qty=3 notional). PBO skipped (no CSCV per-slice matrix). Advisory only (gate.py is not a hard gate); n_trials=3 (baseline / regime-gated / short arms).",
+    "premium_stop": "premium_stop_pct=-0.99 (disabled) for ALL arms \u2014 chart/ribbon/time exits only (C1/C2). Exit geometry held at production; the exit-sweep already proved no exit config rescues these (watcher-exit-sweep.json).",
+    "not_a_promotion": "RESEARCH ONLY. No watcher code, params, or doctrine changed. Watchers remain WATCH_ONLY. PROMOTE-CANDIDATE = 'worth a real-fills re-test on production \u2605\u2605\u2605 levels'; RETIRE-WITH-EVIDENCE = 'stop engineering this bounce pattern'."
+  },
+  "overall_verdict": {
+    "promote_candidates": [],
+    "retire_with_evidence": [
+      "FLOOR_HOLD_BOUNCE",
+      "CLOSE_CEILING_FADE",
+      "NAMED_LEVEL_SECOND_TEST"
+    ],
+    "summary": "0/3 patterns rescued to PROMOTE-CANDIDATE. RETIRE-WITH-EVIDENCE (neither regime-gate nor short-inversion clears the real-fills-positive + with-J + DSR gate): FLOOR_HOLD_BOUNCE, CLOSE_CEILING_FADE, NAMED_LEVEL_SECOND_TEST. Watchers remain WATCH_ONLY regardless; a PROMOTE here only means 'worth a real-fills re-test on production \u2605\u2605\u2605 levels', a RETIRE means 'stop spending engineering on this bounce pattern' (closes the watcher-fleet question)."
+  }
+}
