@@ -294,10 +294,19 @@ def _collect_fills(start: dt.date, end: dt.date, streams: list[str]) -> dict:
                                          f"{type(_e).__name__}: {_e}\n")
                     fill = None
                 if fill is not None and getattr(fill, "dollar_pnl", None) is not None:
+                    # Carry the SIGNAL bar's ET time so the gate can be made strictly
+                    # causal: morning_sign is final at the 10:00 ET close, so a gate is
+                    # look-ahead-free only when the entry it gates is at/after 10:00.
+                    # The position actually fills at signal_bar + 5min (see
+                    # simulate_trade_real), so a signal bar that closes at >=10:00 ET
+                    # produces an entry at >=10:05 ET — comfortably after morning_sign.
+                    sig_t = bar["timestamp_et"]
                     rows.append({
                         "date": bds, "pnl": float(fill.dollar_pnl),
                         "morning_sign": morning_signs.get(bds),
                         "anchor_label": anchor_labels.get(bds),
+                        "entry_time_et": sig_t.strftime("%H:%M"),
+                        "causal": bool(sig_t.time() >= _TEN_AM),
                     })
                 else:
                     n_nofill += 1
@@ -317,21 +326,43 @@ def _collect_fills(start: dt.date, end: dt.date, streams: list[str]) -> dict:
     return {"fills": fills, "diag": diag, "morning_signs": morning_signs, "coverage": coverage}
 
 
-def _arm(rows: list[dict], which: str) -> dict:
+def _arm(rows: list[dict], which: str, *, causal_only: bool = False,
+         date_lo: dt.date | None = None, date_hi: dt.date | None = None) -> dict:
     """Build one arm's stats+anchor+DSR from a fill list, filtering by morning_sign.
 
     which: 'ALL' (baseline), 'DOWN' (hypothesis), 'UP' (inverse). FLAT/None-sign days
     are excluded from DOWN and UP arms (and from ALL too, so the three arms partition
     the SAME sign-known universe — a fair comparison). 'ALL' = DOWN ∪ UP.
+
+    causal_only: when True, keep ONLY fills whose entry is at/after 10:00 ET (row
+    ``causal`` flag). This makes the gate strictly look-ahead-free (lesson C6):
+    morning_sign is final at the 10:00 close, so the gate only touches entries it
+    could legitimately have known about. ``ALL`` under causal_only is the matched
+    ungated baseline ON THE SAME causal population — the honest A/B denominator.
+
+    date_lo/date_hi: optional inclusive ISO-date window for IS/OOS sub-window splits.
     """
+    def _keep(r: dict) -> bool:
+        if causal_only and not r.get("causal", False):
+            return False
+        if date_lo is not None or date_hi is not None:
+            d = dt.date.fromisoformat(r["date"])
+            if date_lo is not None and d < date_lo:
+                return False
+            if date_hi is not None and d > date_hi:
+                return False
+        return True
+
+    pool = [r for r in rows if _keep(r)]
     if which == "ALL":
-        sel = [r for r in rows if r["morning_sign"] in ("DOWN", "UP")]
+        sel = [r for r in pool if r["morning_sign"] in ("DOWN", "UP")]
     else:
-        sel = [r for r in rows if r["morning_sign"] == which]
+        sel = [r for r in pool if r["morning_sign"] == which]
     st = _stats([{"pnl": r["pnl"]} for r in sel])
     anchor_rows = [(r["date"], r["anchor_label"], r["pnl"]) for r in sel if r["anchor_label"]]
     return {
         "which": which,
+        "causal_only": causal_only,
         "stats": st,
         "anchor": _anchor_edge(anchor_rows),
         "dsr": _dsr([r["pnl"] for r in sel]),
@@ -378,12 +409,145 @@ def _verdict(base: dict, down: dict, up: dict) -> str:
             f"BOTH real-fills expectancy and anchor edge_capture. {head}")
 
 
-def run(start: dt.date, end: dt.date, streams: list[str]) -> dict:
+def _entry_time_tally(rows: list[dict]) -> dict:
+    """Count fills pre-10:00 (look-ahead-tainted under the as-defined gate) vs causal."""
+    causal = sum(1 for r in rows if r.get("causal"))
+    tainted = sum(1 for r in rows if not r.get("causal"))
+    return {
+        "n_fills": len(rows),
+        "causal_at_or_after_1000": causal,
+        "tainted_before_1000": tainted,
+        "pct_causal": round(causal / len(rows), 3) if rows else None,
+    }
+
+
+def _causal_block(rows: list[dict]) -> dict:
+    """The strictly-causal A/B: baseline/down/up arms restricted to entries >=10:00 ET.
+
+    This is the MAKE-OR-BREAK section. ``baseline`` here is the matched ungated
+    population on the SAME causal entries, so DOWN-vs-baseline isolates the gate
+    with no look-ahead. We also report the look-ahead-removed delta vs the original
+    (tainted) arms so the change is explicit.
+    """
+    base = _arm(rows, "ALL", causal_only=True)
+    down = _arm(rows, "DOWN", causal_only=True)
+    up = _arm(rows, "UP", causal_only=True)
+    return {
+        "_doc": ("Strictly-causal (lesson C6): only entries at/after 10:00 ET, when "
+                 "morning_sign (final at the 10:00 close) is already known. baseline = "
+                 "ungated on this same causal pool; down/up = the gate within it."),
+        "entry_time_tally": _entry_time_tally(rows),
+        "baseline": base, "morning_down": down, "morning_up": up,
+        "verdict": _verdict(base, down, up),
+    }
+
+
+def _median_causal_boundary(rows: list[dict]) -> dt.date | None:
+    """The date that splits the CAUSAL fills (>=10:00 ET) into balanced halves.
+
+    The calendar 2025/2026 split is degenerate here (OPRA fills concentrate in 2025;
+    only a handful of causal fills land in 2026), so a fixed calendar boundary leaves
+    the OOS half with n~2-3 — no power. A median-date boundary gives a genuinely
+    balanced first-half/second-half out-of-sample read.
+    """
+    dates = sorted(dt.date.fromisoformat(r["date"]) for r in rows if r.get("causal"))
+    return dates[len(dates) // 2] if dates else None
+
+
+def _split_at(rows: list[dict], boundary: dt.date) -> dict:
+    """One causal IS/OOS split at ``boundary`` (IS before, OOS at/after)."""
+    def _half(lo, hi):
+        base = _arm(rows, "ALL", causal_only=True, date_lo=lo, date_hi=hi)
+        down = _arm(rows, "DOWN", causal_only=True, date_lo=lo, date_hi=hi)
+        up = _arm(rows, "UP", causal_only=True, date_lo=lo, date_hi=hi)
+        return {
+            "baseline": base, "morning_down": down, "morning_up": up,
+            "down_minus_baseline_exp": round(down["stats"]["exp"] - base["stats"]["exp"], 2),
+            "down_beats_inverse": down["stats"]["exp"] >= up["stats"]["exp"],
+            "verdict": _verdict(base, down, up),
+        }
+    is_hi = boundary - dt.timedelta(days=1)
+    return {
+        "boundary": boundary.isoformat(),
+        "in_sample": {"window": f"..{is_hi}", **_half(None, is_hi)},
+        "out_of_sample": {"window": f"{boundary}..", **_half(boundary, None)},
+    }
+
+
+def _oos_split(rows: list[dict], boundary: dt.date) -> dict:
+    """IS/OOS sub-window split of the CAUSAL gate (entries >=10:00 ET only).
+
+    Reports TWO splits: the requested CALENDAR boundary (e.g. 2025/2026), which is
+    degenerate here, AND a BALANCED median-date split (the honest OOS read). For each
+    half: causal baseline/down/up arms + DOWN-vs-baseline delta + whether DOWN still
+    beats the inverse — i.e. whether the edge AND its signal-confirming cross-check
+    HOLD out-of-sample, or were in-sample fitting.
+    """
+    calendar = _split_at(rows, boundary)
+    med = _median_causal_boundary(rows)
+    balanced = _split_at(rows, med) if med else None
+    return {
+        "_doc": (f"Causal gate IS/OOS. 'calendar' splits at {boundary} (degenerate: tiny "
+                 f"OOS n). 'balanced' splits at the median causal-fill date for a powered "
+                 f"out-of-sample read. Both arms are entries >=10:00 ET only. The key "
+                 f"question: does DOWN-gate still beat baseline AND beat the inverse OOS?"),
+        "calendar": calendar,
+        "balanced_median": balanced,
+        # Back-compat: keep the flat calendar keys at top level too.
+        "boundary": boundary.isoformat(),
+        "in_sample": calendar["in_sample"],
+        "out_of_sample": calendar["out_of_sample"],
+    }
+
+
+def _oos_holds(oos: dict) -> dict:
+    """Machine-readable: does the causal gate's edge HOLD on the balanced OOS half?
+
+    'Holds' requires BOTH out-of-sample on the balanced-median split: DOWN-gate beats
+    baseline (down_minus_baseline_exp > 0) AND DOWN still beats the inverse
+    (down_beats_inverse). If the sign flips OOS (UP becomes the winner), the IS result
+    was fitting, not a stable edge.
+    """
+    bal = oos.get("balanced_median")
+    if not bal:
+        return {"verdict": "NO-OOS-SAMPLE", "holds": None}
+    is_h, oos_h = bal["in_sample"], bal["out_of_sample"]
+    is_helps = is_h["down_minus_baseline_exp"] > 0 and is_h["down_beats_inverse"]
+    oos_helps = oos_h["down_minus_baseline_exp"] > 0 and oos_h["down_beats_inverse"]
+    inverted = (is_h["down_beats_inverse"] and not oos_h["down_beats_inverse"]) or \
+               (oos_h["down_minus_baseline_exp"] < 0 < is_h["down_minus_baseline_exp"])
+    if is_helps and oos_helps:
+        v = "HOLDS-OOS — gate helps + beats inverse in BOTH halves."
+    elif is_helps and inverted:
+        v = ("FAILS-OOS / SIGN-INVERTS — gate helps IS but REVERSES OOS (inverse "
+             "becomes the winner). Classic in-sample fitting; the morning_sign "
+             "relationship is regime-dependent, not stable.")
+    elif not is_helps and not oos_helps:
+        v = "FAILS-BOTH — gate does not help in either half."
+    else:
+        v = "MIXED / UNDERPOWERED — inconsistent across halves."
+    return {
+        "verdict": v,
+        "holds": bool(is_helps and oos_helps),
+        "boundary": bal["boundary"],
+        "is_down_minus_baseline": is_h["down_minus_baseline_exp"],
+        "is_down_beats_inverse": is_h["down_beats_inverse"],
+        "oos_down_minus_baseline": oos_h["down_minus_baseline_exp"],
+        "oos_down_beats_inverse": oos_h["down_beats_inverse"],
+    }
+
+
+def run(start: dt.date, end: dt.date, streams: list[str],
+        oos_boundary: dt.date | None = None) -> dict:
     collected = _collect_fills(start, end, streams)
     fills = collected["fills"]
+    if oos_boundary is None:
+        oos_boundary = dt.date(2026, 1, 1)  # train 2025 / test 2026
 
     arms_by_key: dict[str, dict] = {}
     verdicts: dict[str, str] = {}
+    causal_by_key: dict[str, dict] = {}
+    oos_by_key: dict[str, dict] = {}
     for stream in streams:
         for label, _off in _OFFSETS:
             key = f"{stream}_{label}"
@@ -393,10 +557,15 @@ def run(start: dt.date, end: dt.date, streams: list[str]) -> dict:
             up = _arm(rows, "UP")
             arms_by_key[key] = {"baseline": base, "morning_down": down, "morning_up": up}
             verdicts[key] = _verdict(base, down, up)
+            # NEW: strictly-causal A/B + IS/OOS split (entries >=10:00 ET only).
+            causal_by_key[key] = _causal_block(rows)
+            oos_by_key[key] = _oos_split(rows, oos_boundary)
 
     # Headline focuses on the BASELINE detector's ATM + ITM2 (J's anchor + Bold class).
     headline_keys = [f"{_BASELINE}_ATM", f"{_BASELINE}_ITM2"]
     headline = {k: verdicts.get(k) for k in headline_keys if k in verdicts}
+    causal_headline = {k: causal_by_key[k]["verdict"] for k in headline_keys if k in causal_by_key}
+    oos_holds = {k: _oos_holds(oos_by_key[k]) for k in headline_keys if k in oos_by_key}
 
     return {
         "window": f"{start}..{end}",
@@ -407,18 +576,26 @@ def run(start: dt.date, end: dt.date, streams: list[str]) -> dict:
         "streams_tested": streams,
         "morning_sign_coverage": collected["coverage"],
         "arms": arms_by_key,
+        "causal_arms": causal_by_key,
+        "oos_split": oos_by_key,
         "real_fills_diagnostics": collected["diag"],
         "verdict": verdicts,
+        "verdict_causal": {k: v["verdict"] for k, v in causal_by_key.items()},
+        "oos_holds": oos_holds,
         "headline": headline,
+        "headline_causal": causal_headline,
         "op20_disclosures": {
             "authority": ("Real-fills (simulator_real over OPRA, valid ~through 2026-05-29) is the "
                           "WR/expectancy authority. Arms are PARTITIONS of one fill set (same "
                           "sim), so deltas isolate the gate, not re-simulation noise."),
             "levels": ("Historically-rebuilt ★★ proxies (active+multi_day _detect_from_history), "
                        "NOT production ★★★. Break/ribbon logic uses clean ctx.prior_bars (no look-ahead)."),
-            "morning_sign": ("Derived from the SPY 5m frame itself (open->10:00 ET); causal "
-                             "(known by 10:00, before the bearish-continuation entries it gates, "
-                             "which fire 09:35-12:00). FLAT/None-sign days excluded from all arms."),
+            "morning_sign": ("Derived from the SPY 5m frame itself (open->10:00 ET). Final at the "
+                             "10:00 close. The top-level 'arms' block applies it to ALL entries "
+                             "(09:35-12:00) and is therefore ~19% look-ahead-tainted (entries before "
+                             "10:00). The 'causal_arms' + 'oos_split' blocks restrict to entries "
+                             ">=10:00 ET so the gate is STRICTLY look-ahead-free (lesson C6) — those "
+                             "are the make-or-break numbers. FLAT/None-sign days excluded from all arms."),
             "anchor_metric": ("OP-16 edge_capture computed on REAL fills per arm: sum(P&L on WIN "
                               "anchors) - sum(max(0,-P&L) on LOSS anchors). PRIMARY gate; "
                               "small-n (lesson C24)."),
@@ -435,13 +612,16 @@ def main() -> int:
     ap.add_argument("--end", default="2026-06-16")
     ap.add_argument("--all-streams", action="store_true",
                     help="test the whole bearish-continuation family (default: baseline only)")
+    ap.add_argument("--oos-boundary", default="2026-01-01",
+                    help="IS/OOS split date: IS before, OOS at/after (default 2026-01-01)")
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
     # Default to the confirmed-edge BASELINE only; --all-streams widens.
     streams = list(_STREAMS) if a.all_streams else [_BASELINE]
     # Drop the DEAD_CONTROL (always None) from any run — it produces no fills.
     streams = [s for s in streams if s != vbcf._DEAD_CONTROL]
-    res = run(dt.date.fromisoformat(a.start), dt.date.fromisoformat(a.end), streams)
+    res = run(dt.date.fromisoformat(a.start), dt.date.fromisoformat(a.end), streams,
+              oos_boundary=dt.date.fromisoformat(a.oos_boundary))
     txt = json.dumps(res, indent=2, default=str)
     print(txt)
     if a.out:

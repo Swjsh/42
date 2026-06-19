@@ -1,24 +1,96 @@
 {
-  "_doc": "A/B scorecard — Game Plan 1A (intraday-momentum / morning_sign gate). PROPOSE-ONLY (Rule 9): no live doctrine/params changed. Raw evidence: morning-sign-gate.json (baseline detector) + morning-sign-gate-allstreams.json (family cross-check). Generator: backtest/autoresearch/validate_morning_sign_gate.py.",
+  "_doc": "A/B scorecard — Game Plan 1A (intraday-momentum / morning_sign gate). PROPOSE-ONLY (Rule 9): no live doctrine/params changed. UPDATED 2026-06-19 with the FULLY-CAUSAL re-run + IS/OOS split that decides this lead. Raw evidence: morning-sign-gate.json (baseline detector, now with causal_arms + oos_split blocks). Generator: backtest/autoresearch/validate_morning_sign_gate.py.",
 
   "rule_id": "R-MORNINGSIGN-BEARREJ",
   "title": "Gate BEARISH_REJECTION continuation entries to DOWN-morning days only (morning_sign)",
-  "rationale": "Gao-Han-Li-Zhou (JFE 2018) Market Intraday Momentum: first-30min SPY return predicts last-30min, bearish when morning is red. On real-fills, gating the confirmed BEARISH_REJECTION_MORNING detector to fire only on DOWN-morning days flips ATM expectancy from -$21.58 to +$22.83/contract (WR 63.8%->76.2%); the inverse (UP-morning) arm is sharply NEGATIVE (-$90.66), so the effect is signal, not noise.",
+  "rationale": "Gao-Han-Li-Zhou (JFE 2018) Market Intraday Momentum: first-30min SPY return predicts last-30min, bearish when morning is red. Hypothesis: gating the confirmed BEARISH_REJECTION_MORNING detector to fire only on DOWN-morning days improves real-fills expectancy. The ORIGINAL (look-ahead-tainted) run looked strong (ATM exp -21.58 -> +22.83). The CAUSAL + OOS re-run RETIRES the lead — see verdict.",
   "proposed_at": "2026-06-19",
   "proposed_by": "manual",
+  "revised_at": "2026-06-19",
+  "revision_note": "Chased to a definitive verdict: killed the ~19% look-ahead (restrict gate to entries >=10:00 ET so morning_sign is final before entry) and added a balanced IS/OOS split. Result flips the verdict from 'needs_review/promising' to REJECT. Most of the edge was look-ahead; the residual reverses sign out-of-sample.",
 
-  "_a_b_runs_section": "Both arms are PARTITIONS of ONE real-fills universe (same simulate_trade_real run over the same OPRA contracts + ribbon series), differing ONLY by the morning_sign filter. data_hash therefore identical by construction. old = ungated (all sign-known days), new = DOWN-morning days only.",
+  "verdict": "reject",
+  "_verdict_options": "auto_ratify | needs_review | reject",
+  "verdict_headline": "DEAD-ON-CAUSALITY + OOS-INVERSION. ~$34/contract of the $44 ATM headline edge was look-ahead (morning_sign peeked before entry on ~19% of signals). The strictly-causal residual (+$10 ATM) does NOT survive a balanced out-of-sample split — the morning_sign relationship REVERSES sign in the second half (OOS the UP-morning arm becomes the winner, +$99 vs DOWN -$12 ATM). That is the signature of in-sample fitting / regime-dependence, not a stable edge. DSR also stays far below significance (causal DOWN 0.34 ATM, 0.38 ITM2; << 0.95). RETIRE as a live gate.",
+
+  "_causal_fix_section": "THE MAKE-OR-BREAK. morning_sign is final only at the 10:00 ET close, but BEARISH_REJECTION_MORNING can trigger from 09:35. The fix: restrict the gate to entries at/after 10:00 ET (then morning_sign is strictly known before the entry it gates). Both arms below are real-fills (simulator_real over OPRA, the WR/expectancy AUTHORITY), puts, chart-stop-only, qty=3. 'baseline' under causal = ungated on the SAME causal pool (the honest A/B denominator).",
+  "causal_vs_original_atm": {
+    "_note": "ATM = J's anchor strike class. The headline edge collapses by ~77% once look-ahead is removed.",
+    "original_lookahead_tainted": {
+      "baseline_exp": -21.58, "down_gate_exp": 22.83, "down_minus_baseline": 44.41,
+      "down_wr": 0.762, "down_n": 42, "down_dsr": 0.4432
+    },
+    "strictly_causal_entries_at_or_after_1000": {
+      "baseline_exp": 5.83, "down_gate_exp": 16.17, "down_minus_baseline": 10.34,
+      "down_wr": 0.75, "down_n": 32, "down_dsr": 0.3445,
+      "inverse_up_exp": -12.56
+    },
+    "edge_lost_to_lookahead_per_contract": 34.07,
+    "pct_signals_causally_clean": 0.798,
+    "tainted_signals_removed": 19
+  },
+  "causal_vs_original_itm2": {
+    "_note": "ITM2 = Gamma-Bold strike class. Same story: most of the edge was look-ahead, residual is thin.",
+    "original_lookahead_tainted": {
+      "baseline_exp": -51.40, "down_gate_exp": -1.30, "down_minus_baseline": 50.10,
+      "down_wr": 0.697, "down_n": 33
+    },
+    "strictly_causal_entries_at_or_after_1000": {
+      "baseline_exp": 6.83, "down_gate_exp": 29.70, "down_minus_baseline": 22.87,
+      "down_wr": 0.741, "down_n": 27, "down_dsr": 0.3822,
+      "inverse_up_exp": -24.03
+    },
+    "edge_lost_to_lookahead_per_contract": 27.23,
+    "pct_signals_causally_clean": 0.817,
+    "tainted_signals_removed": 15
+  },
+
+  "_oos_section": "THE DECIDER. Calendar 2025/2026 split is degenerate (OPRA real-fills concentrate in 2025; only n=2-3 causal fills land in 2026 — no OOS power, and all of them DOWN-morning so the gate is a no-op). The honest read is a BALANCED median-date split (boundary 2025-11-18) so each half carries a real sample. The causal gate REVERSES sign out-of-sample.",
+  "oos_balanced_median_atm": {
+    "boundary": "2025-11-18",
+    "in_sample": { "baseline_exp": -11.88, "down_exp": 63.05, "up_exp": -101.80, "down_minus_baseline": 74.93, "down_beats_inverse": true, "n_down": 12 },
+    "out_of_sample": { "baseline_exp": 19.74, "down_exp": -11.96, "up_exp": 99.00, "down_minus_baseline": -31.70, "down_beats_inverse": false, "n_down": 20 },
+    "interpretation": "IS: DOWN-gate crushes (+74.93 vs baseline, beats inverse). OOS: DOWN-gate HURTS (-31.70) and the INVERSE (UP morning) is the winner (+99.00). The relationship flipped — the centerpiece 'inverse confirms signal' cross-check inverts too."
+  },
+  "oos_balanced_median_itm2": {
+    "boundary": "2025-11-18",
+    "in_sample": { "baseline_exp": 0.39, "down_exp": 183.23, "up_exp": -121.50, "down_minus_baseline": 182.84, "down_beats_inverse": true, "n_down": 8 },
+    "out_of_sample": { "baseline_exp": 11.61, "down_exp": -34.95, "up_exp": 122.18, "down_minus_baseline": -46.56, "down_beats_inverse": false, "n_down": 19 },
+    "interpretation": "Identical pattern to ATM: strong IS (+182.84), inverts OOS (-46.56, UP arm wins +122.18). Both strike classes fail OOS the same way — this is regime-dependence, not strike-specific noise."
+  },
+  "oos_calendar_2025_2026_degenerate": {
+    "_note": "Why the calendar split is uninformative: OOS half has almost no fills.",
+    "atm": { "is_n_baseline": 47, "oos_n_baseline": 3, "oos_down_equals_baseline": true, "reason": "all 2026 causal fills are DOWN-morning, so the gate removes nothing OOS (no-op)." },
+    "itm2": { "is_n_baseline": 45, "oos_n_baseline": 2, "oos_down_equals_baseline": true }
+  },
+  "oos_holds_machine_verdict": {
+    "BEARISH_REJECTION_MORNING_ATM": { "holds": false, "verdict": "FAILS-OOS / SIGN-INVERTS" },
+    "BEARISH_REJECTION_MORNING_ITM2": { "holds": false, "verdict": "FAILS-OOS / SIGN-INVERTS" }
+  },
+
+  "_significance_section": "DSR/PSR (lib/validation/deflated_sharpe, n_trials=3) on the CAUSAL BEARISH_REJECTION-scoped population. Honest about n + power.",
+  "significance": {
+    "causal_down_atm": { "dsr": 0.3445, "n_obs": 32, "low_power": false, "note": "in-power on n but DSR 0.34 << 0.95 — not significant." },
+    "causal_down_itm2": { "dsr": 0.3822, "n_obs": 27, "low_power": false, "note": "DSR 0.38 << 0.95 — not significant." },
+    "oos_down_atm": { "dsr": 0.1303, "n_obs": 20, "note": "OOS DOWN arm not significant AND negative-expectancy." },
+    "verdict": "Even the full-window causal DOWN arm is far from the 0.95 significance line; the OOS DOWN arm is both underpowered AND wrong-signed. No significance support for a live gate."
+  },
+
+  "_scope_section": "Scope discipline (lessons C22/C29: gates don't transfer across detectors). The gate was tested ONLY on BEARISH_REJECTION_MORNING (the confirmed setup). It HURT LEVEL_BREAK_FIRST_STRIKE last cycle (opposite sign) — confirmed NOT generalized. Even scoped strictly to the confirmed setup, it fails the causal+OOS test.",
+  "scope_confirmed": "BEARISH_REJECTION_MORNING only. Not applied to LEVEL_BREAK_FIRST_STRIKE (anti-correlated, see morning-sign-gate-allstreams.json). The causal fix does not rescue it even on the in-scope detector.",
+
+  "_a_b_runs_section": "Both arms are PARTITIONS of ONE real-fills universe (same simulate_trade_real run over the same OPRA contracts + ribbon series), differing ONLY by the morning_sign filter and the >=10:00 ET causal restriction. data_hash identical by construction.",
   "old_run": {
-    "run_id": "2026-06-19_morningsign_baseline_ungated",
-    "label": "BEARISH_REJECTION_MORNING_ungated_realfills_chartstop",
+    "run_id": "2026-06-19_morningsign_baseline_ungated_lookahead",
+    "label": "BEARISH_REJECTION_MORNING_ungated_realfills_chartstop (look-ahead-tainted)",
     "params_snapshot_path": "analysis/recommendations/morning-sign-gate.json#arms.BEARISH_REJECTION_MORNING_ATM.baseline",
     "version_label": "baseline"
   },
   "new_run": {
-    "run_id": "2026-06-19_morningsign_DOWN_gated",
-    "label": "BEARISH_REJECTION_MORNING_morningDOWN_realfills_chartstop",
-    "params_snapshot_path": "analysis/recommendations/morning-sign-gate.json#arms.BEARISH_REJECTION_MORNING_ATM.morning_down",
-    "version_label": "morning_down_gate-proposed"
+    "run_id": "2026-06-19_morningsign_DOWN_gated_CAUSAL",
+    "label": "BEARISH_REJECTION_MORNING_morningDOWN_realfills_chartstop_entries>=1000ET",
+    "params_snapshot_path": "analysis/recommendations/morning-sign-gate.json#causal_arms.BEARISH_REJECTION_MORNING_ATM.morning_down",
+    "version_label": "morning_down_gate_causal-REJECTED"
   },
 
   "data_hash_match": true,
@@ -27,92 +99,98 @@
   "window_end": "2026-06-16",
   "trading_days": 320,
 
-  "_metrics_section": "Real-fills (simulator_real over OPRA, the WR/expectancy AUTHORITY), BEARISH_REJECTION_MORNING detector, puts, chart-stop only (premium_stop_pct=-0.99). Headline = ATM (J's anchor strike class). n_trades is RAW fills (pre-dedup). Note n DROPS by design (the gate removes up-morning trades) — 'more_data_better' direction flags that the win comes from fewer-but-better trades, not more.",
+  "_metrics_section": "Headline metrics retained for continuity = the ORIGINAL look-ahead-tainted full-window ATM (what the lead claimed). See causal_vs_original_* for the corrected numbers that decide it.",
   "metrics": {
     "n_trades":   { "old": 69,      "new": 42,    "delta": -27,    "direction": "more_data_better" },
     "hit_rate":   { "old": 0.638,   "new": 0.762, "delta": 0.124,  "direction": "higher_better" },
-    "expectancy": { "old": -21.58,  "new": 22.83, "delta": 44.41,  "direction": "higher_better" },
+    "expectancy": { "old": -21.58,  "new": 22.83, "delta": 44.41,  "direction": "higher_better", "_caveat": "LOOK-AHEAD-TAINTED. Causal value = +16.17 (delta only +10.34 vs causal baseline +5.83)." },
     "total_pnl":  { "old": -1488.8, "new": 959.0, "delta": 2447.8, "direction": "higher_better" },
-    "anchor_edge_capture_realfills": { "old": 134.4, "new": 134.4, "delta": 0.0, "direction": "higher_better" },
-    "dsr":        { "old": 0.047,   "new": 0.4432, "delta": 0.3962, "direction": "higher_better" }
+    "anchor_edge_capture_realfills": { "old": 134.4, "new": 134.4, "delta": 0.0, "direction": "higher_better", "_caveat": "Tie on n=1 (only 4/29 of J's 6 anchors fired this detector on real fills)." },
+    "dsr":        { "old": 0.047,   "new": 0.4432, "delta": 0.3962, "direction": "higher_better", "_caveat": "Tainted. Causal DOWN DSR = 0.3445; OOS DOWN DSR = 0.1303." }
   },
 
   "itm2_metrics": {
-    "_note": "ITM2 = the Gamma-Bold strike class. Same direction, weaker absolute (gate moves it from clearly-negative to ~breakeven).",
+    "_note": "ITM2 = Gamma-Bold strike class. Tainted numbers retained; causal values in causal_vs_original_itm2.",
     "n_trades":   { "old": 62,      "new": 33,    "delta": -29 },
     "hit_rate":   { "old": 0.581,   "new": 0.697, "delta": 0.116 },
-    "expectancy": { "old": -51.40,  "new": -1.30, "delta": 50.10 },
+    "expectancy": { "old": -51.40,  "new": -1.30, "delta": 50.10, "_caveat": "LOOK-AHEAD-TAINTED. Causal value = +29.70 (delta +22.87 vs causal baseline +6.83) — but inverts OOS." },
     "total_pnl":  { "old": -3187.0, "new": -43.0, "delta": 3144.0 },
     "anchor_edge_capture_realfills": { "old": 197.4, "new": 197.4, "delta": 0.0 }
   },
 
-  "_inverse_cross_check_section": "The CRITICAL signal-vs-noise test. If the DOWN gate were base-rate luck, the UP arm would look similar. It does the OPPOSITE — UP-morning bearish entries are the LOSERS — which is exactly the Gao et al. mechanism (down-morning -> down-afternoon continuation).",
-  "inverse_morning_up": {
+  "_inverse_cross_check_section": "The ORIGINAL inverse cross-check (full-window, tainted) looked like clean confirmation: UP-morning bearish entries were the losers (-90.66). BUT the balanced OOS split shows the inverse FLIPS: out-of-sample the UP arm is the WINNER (+99.00 ATM, +122.18 ITM2). So the cross-check that was the centerpiece of the bull case does NOT hold out of sample — it was an in-sample artefact.",
+  "inverse_morning_up_full_window_tainted": {
     "atm":  { "n": 27, "wr": 0.444, "expectancy": -90.66, "total_pnl": -2447.8 },
     "itm2": { "n": 29, "wr": 0.448, "expectancy": -108.41, "total_pnl": -3144.0 }
   },
-
-  "dominates": false,
-  "dominates_reason": "DOWN-gate beats baseline on expectancy, WR, total P&L, and DSR, and ties on anchor edge_capture — but n_trades drops (intended) and the win is NOT statistically significant (DSR 0.44 << 0.95). Real-fills is favorable but the anchor sample is THIN (only 1 of J's 6 anchor days, 4/29, produced a BEARISH_REJECTION_MORNING real-fill; 5/01 & 5/04 winners did not fire this detector at all), so the OP-16 'no-regression' tie is on n=1.",
-  "regressed_metrics": ["n_trades"],
-
-  "_sub_window_stability_section": "Not split into IS/OOS halves in this pass — the gated ATM arm is n=42 over 18 distinct days across the full window, already near the floor for a stable split. The morning_sign coverage (134 DOWN / 174 UP / 12 FLAT days over 320) shows the gate is well-populated, not a rare-regime artefact. A formal IS/OOS split is the recommended next step before any ratification.",
-  "sub_window_stability": {
-    "first_half": { "metrics": { "n_trades": null, "hit_rate": null, "expectancy": null, "thresholds_passed": null }, "passes_4_of_4": null },
-    "second_half": { "metrics": { "n_trades": null, "hit_rate": null, "expectancy": null, "thresholds_passed": null }, "passes_4_of_4": null }
+  "inverse_morning_up_causal": {
+    "atm":  { "n": 18, "wr": 0.556, "expectancy": -12.56, "note": "Causal full-window UP still negative..." },
+    "itm2": { "n": 20, "wr": 0.55,  "expectancy": -24.03 },
+    "_but_oos": "...but OOS (balanced) the UP arm is POSITIVE and the DOWN arm negative — the relationship inverts. Full-window causal UP-negative is dominated by the IS half."
   },
 
-  "_family_scope_section": "Scope discipline (lessons C22/C29: gates don't transfer across detectors). The morning_sign gate is SPECIFIC to the rejection/continuation structure — it does NOT generalize across the bearish family. See morning-sign-gate-allstreams.json.",
+  "dominates": false,
+  "dominates_reason": "After the causal fix and a balanced IS/OOS split, the DOWN gate does NOT dominate: most of the apparent edge was look-ahead, the causal residual is thin and not significant, and it REVERSES sign out-of-sample (the inverse arm wins OOS). Anchor edge_capture ties on n=1. Fails every bar that matters.",
+  "regressed_metrics": ["expectancy_after_causal_fix", "out_of_sample_sign", "inverse_cross_check_oos"],
+
+  "_sub_window_stability_section": "Balanced median-date split (2025-11-18). NOT stable — sign inverts between halves. This is the disqualifying finding.",
+  "sub_window_stability": {
+    "first_half": { "metrics": { "n_trades": 12, "hit_rate": 0.833, "expectancy": 63.05, "down_minus_baseline": 74.93, "down_beats_inverse": true }, "passes_4_of_4": true },
+    "second_half": { "metrics": { "n_trades": 20, "hit_rate": 0.700, "expectancy": -11.96, "down_minus_baseline": -31.70, "down_beats_inverse": false }, "passes_4_of_4": false },
+    "stable": false,
+    "note": "ATM shown; ITM2 identical pattern (IS +182.84 / OOS -46.56). Sign inversion across halves = fail."
+  },
+
+  "_family_scope_section": "Scope discipline (lessons C22/C29). Unchanged from prior pass: the gate is structure-specific and HURTS LEVEL_BREAK_FIRST_STRIKE. See morning-sign-gate-allstreams.json.",
   "family_cross_check": {
-    "BEARISH_REJECTION_MORNING": "HELPS (ATM exp -21.58 -> +22.83; inverse -90.66). The confirmed edge — clean, in-power (n_obs 42, low_power False).",
-    "HEAD_AND_SHOULDERS_BEAR": "DIRECTIONALLY-HELPS-BUT-TINY-N (ITM2 -132.2 -> -47.66, inverse -206.17) — n_obs 7-8, low_power True; advisory only, do not act on alone.",
-    "LEVEL_BREAK_FIRST_STRIKE": "HURTS / CONTRADICTS — DOWN-gate WORSENS it (ATM +1.71 -> -19.49) and the UP arm is the profitable one (+33.49). Its fills cluster in UP-mornings; the gate is the WRONG sign for this detector. This is the counter-example proving morning_sign is structure-specific, not a universal bearish filter.",
+    "BEARISH_REJECTION_MORNING": "REJECTED after causal+OOS fix — most edge was look-ahead; residual inverts OOS. Was 'the confirmed edge' on the tainted run; is NOT a live-gate candidate.",
+    "HEAD_AND_SHOULDERS_BEAR": "DIRECTIONALLY-HELPS-BUT-TINY-N (ITM2 -132.2 -> -47.66) — n_obs 7-8, low_power True; advisory only. Not re-tested causally (too thin to matter).",
+    "LEVEL_BREAK_FIRST_STRIKE": "HURTS / CONTRADICTS — DOWN-gate WORSENS it; the UP arm is the profitable one. The counter-example proving morning_sign is structure-specific, not a universal bearish filter.",
     "BEARISH_REVERSAL_AT_LEVEL": "WASH — countertrend contrast, n_obs 3-4, no signal."
   },
 
-  "_acceptance_section": "Auto-ratification gate. Fails closed. This does NOT auto-ratify: DSR is far below 0.95 (not significant) and the anchor preservation is on n=1. Propose-only deliverable.",
+  "_acceptance_section": "Auto-ratification gate. Fails closed. Multiple disqualifiers.",
   "auto_ratify_conditions": {
     "dominates_or_tied_overall": false,
     "data_hash_matches": true,
-    "real_fills_expectancy_positive_atm": true,
-    "inverse_cross_check_passes": true,
+    "real_fills_expectancy_positive_atm_causal": true,
+    "inverse_cross_check_passes_oos": false,
     "anchor_no_regression": true,
     "dsr_ge_0_95": false,
-    "sub_window_stable": null,
+    "sub_window_stable": false,
+    "oos_holds": false,
     "min_evidence_n_trades": 20,
     "evidence_n_trades_met": true
   },
   "auto_ratify_eligible": false,
-  "verdict": "needs_review",
-  "_verdict_options": "auto_ratify | needs_review | reject",
-  "_verdict_note": "PROMISING / NEEDS-MORE. Real-fills favorable + inverse confirms signal + anchor no-regression, but not statistically significant (DSR 0.44), thin anchor coverage, AND a partial-causality caveat (see causality_caveat). SHIP-WORTHY as evidence/WATCH; NOT ship-worthy as an auto-applied live gate. Recommend: (1) re-define morning_sign at a checkpoint <= the entry bar to make the gate fully causal, then re-run, (2) formal IS/OOS sub-window split, (3) re-test as J accrues more BEARISH_REJECTION live trades, (4) if adopted, scope STRICTLY to BEARISH_REJECTION continuation — NOT LEVEL_BREAK_FIRST_STRIKE (opposite sign).",
+
+  "_verdict_note": "DEAD-ON-CAUSALITY. The lead was a look-ahead mirage plus in-sample fitting. (1) CAUSALITY: removing the ~19% pre-10:00 look-ahead drops the ATM edge from +$44.41 to +$10.34/contract (and the causal baseline itself goes positive +$5.83, so the gate adds little). (2) OOS: on a balanced median split the causal gate REVERSES sign — IS DOWN +63.05 / OOS DOWN -11.96 (ATM), with the inverse UP arm becoming the OOS winner (+99.00). ITM2 identical (IS +183.23 / OOS -34.95). (3) SIGNIFICANCE: causal DOWN DSR 0.34 ATM / 0.38 ITM2, both << 0.95; OOS DOWN DSR 0.13 and negative-signed. RETIRE the lead. No live gate, no WATCH (the OOS sign-inversion means there is nothing directionally reliable to accumulate). The honest engine takeaway is unchanged from the bearish-continuation family scorecard: BEARISH_REJECTION_RIDE_THE_RIBBON is the entry; leverage is in EXIT/REGIME work, not a morning_sign entry gate.",
 
   "causality_caveat": {
-    "_doc": "Honest no-look-ahead audit (lesson C6). morning_sign is final only at the 10:00 ET bar close, but BEARISH_REJECTION_MORNING can trigger as early as 09:35 ET (entry on the next bar).",
+    "_doc": "RESOLVED in this pass — the caveat became the headline. Documented here for the audit trail.",
     "total_brm_signals": 177,
-    "trigger_before_0955_entry_at_or_before_1000": 34,
-    "trigger_at_or_after_0955_entry_after_1000_causally_clean": 143,
     "pct_causally_clean": 0.808,
-    "impact": "For ~19% of signals the gate as-defined peeks slightly ahead (morning_sign not yet final at entry). The headline numbers therefore SLIGHTLY overstate a strictly-causal gate. The effect direction is very likely real (the inverse-arm cross-check + the 81% clean majority both hold), but a fully causal live gate MUST compute morning_sign from a checkpoint at-or-before the entry bar (e.g. open->09:35 for the earliest entries, or simply restrict the gate to entries at/after 10:00 ET). This is a research caveat, not a live change."
+    "resolution": "Re-ran with the gate restricted to entries >=10:00 ET (morning_sign final before entry). The causal numbers are in causal_arms.* of the evidence JSON and causal_vs_original_* here. They do not support a live gate."
   },
 
   "_lifecycle_section": "Track ratification history.",
-  "status": "pending",
-  "decided_at": null,
-  "decided_by": null,
-  "decision_note": null,
+  "status": "rejected",
+  "decided_at": "2026-06-19",
+  "decided_by": "gamma (autonomous research, propose-only per Rule 9)",
+  "decision_note": "Retired after fully-causal re-run + balanced IS/OOS split. Edge was ~77% look-ahead (ATM) and the causal residual inverts sign out-of-sample. Not a real new edge. J/conductor: no action needed; this is a NEGATIVE result (a lead correctly killed). Lesson candidate: 'a peer-reviewed cross-sectional effect (intraday momentum) is not automatically a tradeable 0DTE option gate — verify causality AND OOS sign-stability before believing an inverse-arm cross-check.'",
   "supersedes_recommendation_id": null,
 
   "_provenance_section": "What triggered this proposal.",
   "evidence_count": 1,
   "evidence_window_days": 320,
-  "trigger_observation": "docs/WEEKEND-RESEARCH-GAMEPLANS-2026-06-19.md Game Plan 1: Gao-Han-Li-Zhou (JFE 2018) Market Intraday Momentum. Backtest on SPY 5m through 2026-06-16: morning_sign=DOWN gate on BEARISH_REJECTION_MORNING real-fills flips ATM exp -21.58 -> +22.83/contract; inverse UP arm -90.66 confirms signal.",
+  "trigger_observation": "docs/WEEKEND-RESEARCH-GAMEPLANS-2026-06-19.md Game Plan 1: Gao-Han-Li-Zhou (JFE 2018) Market Intraday Momentum. Original tainted backtest flipped ATM exp -21.58 -> +22.83. Causal + OOS re-run on 2026-06-19 retires it.",
   "related_changelog_entries": [],
   "op20_disclosures": {
     "authority": "Real-fills (simulator_real, OPRA valid ~through 2026-05-29) is the WR/expectancy authority. Arms partition ONE fill set, so deltas isolate the gate (no re-sim noise).",
     "levels": "Historically-rebuilt star-2 proxies (active+multi_day _detect_from_history), NOT production star-3 named levels. No look-ahead (ctx.prior_bars <= current bar).",
-    "morning_sign": "sign(open[first RTH bar] -> close[last bar <=10:00 ET]). Causal: known by 10:00 ET, before the bearish-continuation entries it gates (which fire 09:35-12:00). FLAT/None-sign days excluded from all arms.",
-    "dsr": "Advisory; Deflated Sharpe via lib/validation. n_obs 42 (in-power) but DSR 0.44 < 0.95 significance line — directional, not significant (lesson C24: do not over-read small-sample stats).",
-    "chart_stop": "premium_stop_pct=-0.99 (chart-stop only) per L51/L55. Puts, qty=3, ATM + ITM2."
+    "morning_sign": "sign(open[first RTH bar] -> close[last bar <=10:00 ET]). Causal gate = applied ONLY to entries at/after 10:00 ET (signal bar close >= 10:00, entry at >= 10:05), so morning_sign is strictly known before entry. The top-level 'arms' block (tainted) applies it to all 09:35-12:00 entries.",
+    "dsr": "Deflated Sharpe via lib/validation, n_trials=3. Causal DOWN 0.34 ATM / 0.38 ITM2 < 0.95 significance line. OOS DOWN 0.13. Directional at best, never significant (lesson C24).",
+    "chart_stop": "premium_stop_pct=-0.99 (chart-stop only) per L51/L55. Puts, qty=3, ATM + ITM2.",
+    "oos_method": "Calendar 2025/2026 split is degenerate (OOS n=2-3, all DOWN-morning => gate is a no-op). Reported a BALANCED median-causal-fill-date split (2025-11-18) for a powered out-of-sample read. The gate's sign inverts across that split."
   }
 }

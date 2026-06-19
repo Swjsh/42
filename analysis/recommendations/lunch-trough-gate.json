@@ -1,0 +1,462 @@
+{
+  "rule_id": "R-LUNCH-TROUGH-GATE",
+  "title": "Exclude lunch-trough (12:00-13:30 ET) signal-bar entries on BEARISH_REJECTION",
+  "rationale": "GP1 microstructure (WEEKEND-RESEARCH-GAMEPLANS-2026-06-19): intraday SPY vol is U-shaped with a documented lunch trough. Tested whether excluding entries whose signal bar falls in {11:30-13:00, 12:00-13:30, 11:30-13:30} improves real-fills expectancy on the confirmed BEARISH_REJECTION setup (and the wider bearish-continuation family).",
+  "proposed_at": "2026-06-19",
+  "proposed_by": "manual",
+  "authority": "real_fills",
+  "recommendation": "NO-WIN / DO-NOT-PROPOSE",
+  "status": "RESEARCH_COMPLETE_NO_PROPOSE",
+  "window": "2025-01-01..2026-06-16",
+  "test": "lunch_trough_time_of_day_gate",
+  "setup_under_test": "BEARISH_REJECTION (confirmed = morning watcher; wider = full bearish family)",
+  "candidate_windows": {
+    "exclude_1130_1300": "11:30-13:00",
+    "exclude_1200_1330": "12:00-13:30",
+    "exclude_1130_1330": "11:30-13:30"
+  },
+  "n_trials_for_dsr": 4,
+  "confirmed_setup": {
+    "ATM": {
+      "baseline": {
+        "n": 135,
+        "wr": 62.2,
+        "total": -4421.6,
+        "exp": -32.75,
+        "edge_capture": 134.4,
+        "n_anchor_fills": 1,
+        "dsr": {
+          "dsr": 0.0028,
+          "sharpe": -0.143,
+          "n_obs": 135,
+          "n_trials": 4,
+          "low_power": false,
+          "note": "ok"
+        },
+        "window": "none (current gates)"
+      },
+      "exclude_1130_1300": {
+        "n": 135,
+        "wr": 62.2,
+        "total": -4421.6,
+        "exp": -32.75,
+        "edge_capture": 134.4,
+        "n_anchor_fills": 1,
+        "dsr": {
+          "dsr": 0.0028,
+          "sharpe": -0.143,
+          "n_obs": 135,
+          "n_trials": 4,
+          "low_power": false,
+          "note": "ok"
+        },
+        "window": "11:30-13:00",
+        "n_excluded": 0,
+        "exp_delta_vs_baseline": 0.0,
+        "total_delta_vs_baseline": 0.0,
+        "wr_delta_vs_baseline": 0.0,
+        "edge_capture_delta_vs_baseline": 0.0
+      },
+      "exclude_1200_1330": {
+        "n": 135,
+        "wr": 62.2,
+        "total": -4421.6,
+        "exp": -32.75,
+        "edge_capture": 134.4,
+        "n_anchor_fills": 1,
+        "dsr": {
+          "dsr": 0.0028,
+          "sharpe": -0.143,
+          "n_obs": 135,
+          "n_trials": 4,
+          "low_power": false,
+          "note": "ok"
+        },
+        "window": "12:00-13:30",
+        "n_excluded": 0,
+        "exp_delta_vs_baseline": 0.0,
+        "total_delta_vs_baseline": 0.0,
+        "wr_delta_vs_baseline": 0.0,
+        "edge_capture_delta_vs_baseline": 0.0
+      },
+      "exclude_1130_1330": {
+        "n": 135,
+        "wr": 62.2,
+        "total": -4421.6,
+        "exp": -32.75,
+        "edge_capture": 134.4,
+        "n_anchor_fills": 1,
+        "dsr": {
+          "dsr": 0.0028,
+          "sharpe": -0.143,
+          "n_obs": 135,
+          "n_trials": 4,
+          "low_power": false,
+          "note": "ok"
+        },
+        "window": "11:30-13:30",
+        "n_excluded": 0,
+        "exp_delta_vs_baseline": 0.0,
+        "total_delta_vs_baseline": 0.0,
+        "wr_delta_vs_baseline": 0.0,
+        "edge_capture_delta_vs_baseline": 0.0
+      }
+    },
+    "ITM2": {
+      "baseline": {
+        "n": 123,
+        "wr": 56.9,
+        "total": -7753.6,
+        "exp": -63.04,
+        "edge_capture": 197.4,
+        "n_anchor_fills": 1,
+        "dsr": {
+          "dsr": 0.0005,
+          "sharpe": -0.1986,
+          "n_obs": 123,
+          "n_trials": 4,
+          "low_power": false,
+          "note": "ok"
+        },
+        "window": "none (current gates)"
+      },
+      "exclude_1130_1300": {
+        "n": 123,
+        "wr": 56.9,
+        "total": -7753.6,
+        "exp": -63.04,
+        "edge_capture": 197.4,
+        "n_anchor_fills": 1,
+        "dsr": {
+          "dsr": 0.0005,
+          "sharpe": -0.1986,
+          "n_obs": 123,
+          "n_trials": 4,
+          "low_power": false,
+          "note": "ok"
+        },
+        "window": "11:30-13:00",
+        "n_excluded": 0,
+        "exp_delta_vs_baseline": 0.0,
+        "total_delta_vs_baseline": 0.0,
+        "wr_delta_vs_baseline": 0.0,
+        "edge_capture_delta_vs_baseline": 0.0
+      },
+      "exclude_1200_1330": {
+        "n": 123,
+        "wr": 56.9,
+        "total": -7753.6,
+        "exp": -63.04,
+        "edge_capture": 197.4,
+        "n_anchor_fills": 1,
+        "dsr": {
+          "dsr": 0.0005,
+          "sharpe": -0.1986,
+          "n_obs": 123,
+          "n_trials": 4,
+          "low_power": false,
+          "note": "ok"
+        },
+        "window": "12:00-13:30",
+        "n_excluded": 0,
+        "exp_delta_vs_baseline": 0.0,
+        "total_delta_vs_baseline": 0.0,
+        "wr_delta_vs_baseline": 0.0,
+        "edge_capture_delta_vs_baseline": 0.0
+      },
+      "exclude_1130_1330": {
+        "n": 123,
+        "wr": 56.9,
+        "total": -7753.6,
+        "exp": -63.04,
+        "edge_capture": 197.4,
+        "n_anchor_fills": 1,
+        "dsr": {
+          "dsr": 0.0005,
+          "sharpe": -0.1986,
+          "n_obs": 123,
+          "n_trials": 4,
+          "low_power": false,
+          "note": "ok"
+        },
+        "window": "11:30-13:30",
+        "n_excluded": 0,
+        "exp_delta_vs_baseline": 0.0,
+        "total_delta_vs_baseline": 0.0,
+        "wr_delta_vs_baseline": 0.0,
+        "edge_capture_delta_vs_baseline": 0.0
+      }
+    }
+  },
+  "wider_bearish_family": {
+    "ATM": {
+      "baseline": {
+        "n": 277,
+        "wr": 61.0,
+        "total": -6168.4,
+        "exp": -22.27,
+        "edge_capture": 8.4,
+        "n_anchor_fills": 3,
+        "dsr": {
+          "dsr": 0.0027,
+          "sharpe": -0.1054,
+          "n_obs": 277,
+          "n_trials": 4,
+          "low_power": false,
+          "note": "ok"
+        },
+        "window": "none (current gates)"
+      },
+      "exclude_1130_1300": {
+        "n": 248,
+        "wr": 60.5,
+        "total": -6389.4,
+        "exp": -25.76,
+        "edge_capture": 8.4,
+        "n_anchor_fills": 2,
+        "dsr": {
+          "dsr": 0.0019,
+          "sharpe": -0.119,
+          "n_obs": 248,
+          "n_trials": 4,
+          "low_power": false,
+          "note": "ok"
+        },
+        "window": "11:30-13:00",
+        "n_excluded": 29,
+        "exp_delta_vs_baseline": -3.49,
+        "total_delta_vs_baseline": -221.0,
+        "wr_delta_vs_baseline": -0.5,
+        "edge_capture_delta_vs_baseline": 0.0
+      },
+      "exclude_1200_1330": {
+        "n": 242,
+        "wr": 59.5,
+        "total": -6383.6,
+        "exp": -26.38,
+        "edge_capture": 8.4,
+        "n_anchor_fills": 2,
+        "dsr": {
+          "dsr": 0.002,
+          "sharpe": -0.1194,
+          "n_obs": 242,
+          "n_trials": 4,
+          "low_power": false,
+          "note": "ok"
+        },
+        "window": "12:00-13:30",
+        "n_excluded": 35,
+        "exp_delta_vs_baseline": -4.11,
+        "total_delta_vs_baseline": -215.2,
+        "wr_delta_vs_baseline": -1.5,
+        "edge_capture_delta_vs_baseline": 0.0
+      },
+      "exclude_1130_1330": {
+        "n": 234,
+        "wr": 59.4,
+        "total": -6713.8,
+        "exp": -28.69,
+        "edge_capture": 8.4,
+        "n_anchor_fills": 2,
+        "dsr": {
+          "dsr": 0.0014,
+          "sharpe": -0.1295,
+          "n_obs": 234,
+          "n_trials": 4,
+          "low_power": false,
+          "note": "ok"
+        },
+        "window": "11:30-13:30",
+        "n_excluded": 43,
+        "exp_delta_vs_baseline": -6.42,
+        "total_delta_vs_baseline": -545.4,
+        "wr_delta_vs_baseline": -1.6,
+        "edge_capture_delta_vs_baseline": 0.0
+      }
+    },
+    "ITM2": {
+      "baseline": {
+        "n": 259,
+        "wr": 55.2,
+        "total": -14138.2,
+        "exp": -54.59,
+        "edge_capture": 113.4,
+        "n_anchor_fills": 3,
+        "dsr": {
+          "dsr": 0.0,
+          "sharpe": -0.1915,
+          "n_obs": 259,
+          "n_trials": 4,
+          "low_power": false,
+          "note": "ok"
+        },
+        "window": "none (current gates)"
+      },
+      "exclude_1130_1300": {
+        "n": 228,
+        "wr": 53.5,
+        "total": -15087.6,
+        "exp": -66.17,
+        "edge_capture": 113.4,
+        "n_anchor_fills": 2,
+        "dsr": {
+          "dsr": 0.0,
+          "sharpe": -0.2282,
+          "n_obs": 228,
+          "n_trials": 4,
+          "low_power": false,
+          "note": "ok"
+        },
+        "window": "11:30-13:00",
+        "n_excluded": 31,
+        "exp_delta_vs_baseline": -11.58,
+        "total_delta_vs_baseline": -949.4,
+        "wr_delta_vs_baseline": -1.7,
+        "edge_capture_delta_vs_baseline": 0.0
+      },
+      "exclude_1200_1330": {
+        "n": 222,
+        "wr": 53.2,
+        "total": -15193.8,
+        "exp": -68.44,
+        "edge_capture": 113.4,
+        "n_anchor_fills": 2,
+        "dsr": {
+          "dsr": 0.0,
+          "sharpe": -0.2323,
+          "n_obs": 222,
+          "n_trials": 4,
+          "low_power": false,
+          "note": "ok"
+        },
+        "window": "12:00-13:30",
+        "n_excluded": 37,
+        "exp_delta_vs_baseline": -13.85,
+        "total_delta_vs_baseline": -1055.6,
+        "wr_delta_vs_baseline": -2.0,
+        "edge_capture_delta_vs_baseline": 0.0
+      },
+      "exclude_1130_1330": {
+        "n": 214,
+        "wr": 52.8,
+        "total": -15518.4,
+        "exp": -72.52,
+        "edge_capture": 113.4,
+        "n_anchor_fills": 2,
+        "dsr": {
+          "dsr": 0.0,
+          "sharpe": -0.2455,
+          "n_obs": 214,
+          "n_trials": 4,
+          "low_power": false,
+          "note": "ok"
+        },
+        "window": "11:30-13:30",
+        "n_excluded": 45,
+        "exp_delta_vs_baseline": -17.93,
+        "total_delta_vs_baseline": -1380.2,
+        "wr_delta_vs_baseline": -2.4,
+        "edge_capture_delta_vs_baseline": 0.0
+      }
+    }
+  },
+  "fills_in_lunch_window": {
+    "exclude_1130_1300": {
+      "confirmed_setup_fills_in_window": 0,
+      "wider_family_fills_in_window": 29
+    },
+    "exclude_1200_1330": {
+      "confirmed_setup_fills_in_window": 0,
+      "wider_family_fills_in_window": 35
+    },
+    "exclude_1130_1330": {
+      "confirmed_setup_fills_in_window": 0,
+      "wider_family_fills_in_window": 43
+    }
+  },
+  "time_of_day_histogram_atm": {
+    "09:00-09:59": {
+      "n": 27,
+      "total_pnl": -2062.2
+    },
+    "10:00-10:59": {
+      "n": 146,
+      "total_pnl": -4937.0
+    },
+    "11:00-11:59": {
+      "n": 25,
+      "total_pnl": 1526.2
+    },
+    "12:00-12:59": {
+      "n": 21,
+      "total_pnl": -109.2
+    },
+    "13:00-13:59": {
+      "n": 31,
+      "total_pnl": -412.4
+    },
+    "14:00-14:59": {
+      "n": 25,
+      "total_pnl": -397.4
+    },
+    "15:00-15:59": {
+      "n": 2,
+      "total_pnl": 223.6
+    }
+  },
+  "anchor_no_regression": {
+    "exclude_1130_1300": {
+      "window": "11:30-13:00",
+      "anchor_winners_removed": [],
+      "removes_a_winner": false
+    },
+    "exclude_1200_1330": {
+      "window": "12:00-13:30",
+      "anchor_winners_removed": [
+        {
+          "date": "2026-05-01",
+          "entry_time": "13:09",
+          "label": "WIN",
+          "desc": "721P +470 (MIDDAY 13:09)"
+        }
+      ],
+      "removes_a_winner": true
+    },
+    "exclude_1130_1330": {
+      "window": "11:30-13:30",
+      "anchor_winners_removed": [
+        {
+          "date": "2026-05-01",
+          "entry_time": "13:09",
+          "label": "WIN",
+          "desc": "721P +470 (MIDDAY 13:09)"
+        }
+      ],
+      "removes_a_winner": true
+    }
+  },
+  "verdict": {
+    "recommendation": "NO-WIN / DO-NOT-PROPOSE",
+    "headline": "NO-WIN \u2014 do NOT add a lunch-trough gate. On the only scope where it changes fills (the wider bearish family), excluding the lunch window does not improve real-fills expectancy/edge_capture (and/or removes the 5/01 13:09 anchor winner). CONFIRMED-SETUP NO-OP: the morning watcher (09:35-10:55) fired 0 times in every candidate lunch window \u2014 a lunch-trough gate on BEARISH_REJECTION (the confirmed setup) changes NOTHING. Current time-gating already excludes the lunch trough by construction. The current 09:35 morning gate + existing 11:30-12:00 window already place entries on the right shoulder; extending the lunch exclusion adds a useless (or edge-cutting) constraint.",
+    "confirmed_setup_noop": true,
+    "confirmed_fills_in_lunch_by_window": {
+      "exclude_1130_1300": 0,
+      "exclude_1200_1330": 0,
+      "exclude_1130_1330": 0
+    },
+    "detail": [
+      "[wider_bearish_family/ATM/exclude_1130_1300] excluded 29 fills: exp -22.27->-25.76 (d -3.49), WR 61.0->60.5, edge_cap d +0.0, removes_winner=False => NO-IMPROVE/HURTS",
+      "[wider_bearish_family/ATM/exclude_1200_1330] excluded 35 fills: exp -22.27->-26.38 (d -4.11), WR 61.0->59.5, edge_cap d +0.0, removes_winner=True => REMOVES-WINNER",
+      "[wider_bearish_family/ATM/exclude_1130_1330] excluded 43 fills: exp -22.27->-28.69 (d -6.42), WR 61.0->59.4, edge_cap d +0.0, removes_winner=True => REMOVES-WINNER",
+      "[wider_bearish_family/ITM2/exclude_1130_1300] excluded 31 fills: exp -54.59->-66.17 (d -11.58), WR 55.2->53.5, edge_cap d +0.0, removes_winner=False => NO-IMPROVE/HURTS",
+      "[wider_bearish_family/ITM2/exclude_1200_1330] excluded 37 fills: exp -54.59->-68.44 (d -13.85), WR 55.2->53.2, edge_cap d +0.0, removes_winner=True => REMOVES-WINNER",
+      "[wider_bearish_family/ITM2/exclude_1130_1330] excluded 45 fills: exp -54.59->-72.52 (d -17.93), WR 55.2->52.8, edge_cap d +0.0, removes_winner=True => REMOVES-WINNER"
+    ]
+  },
+  "op20_disclosures": {
+    "authority": "real-fills (simulate_trade_real, chart-stop only premium_stop_pct=-0.99, ATM+ITM2 puts) is the WR/expectancy authority (L51/L55, C1/C3).",
+    "levels": "historically-rebuilt \u2605\u2605 proxies (_detect_from_history as-of each day); no look-ahead (ctx.prior_bars only). NOT production \u2605\u2605\u2605 named set (OP-20).",
+    "dsr": "deflated for n_trials=4 (baseline + 3 lunch windows). n_obs of midday fills is small -> low_power; DSR is directional, not the gate. The gate is exp delta + anchor-no-regression.",
+    "confirmed_vs_wider": "The CONFIRMED setup is the morning watcher (09:35-10:55) which cannot fire midday -> a lunch gate on it is a structural no-op. The wider family (BEARISH_REVERSAL 11:00-14:30 / LBFS / HS) is the only scope where a lunch fill exists; that is where the A/B has teeth."
+  }
+}

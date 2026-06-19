@@ -26,6 +26,7 @@
     "BEARISH_REJECTION_MORNING_ATM": {
       "baseline": {
         "which": "ALL",
+        "causal_only": false,
         "stats": {
           "n": 69,
           "wr": 63.8,
@@ -56,6 +57,7 @@
       },
       "morning_down": {
         "which": "DOWN",
+        "causal_only": false,
         "stats": {
           "n": 42,
           "wr": 76.2,
@@ -86,6 +88,7 @@
       },
       "morning_up": {
         "which": "UP",
+        "causal_only": false,
         "stats": {
           "n": 27,
           "wr": 44.4,
@@ -112,6 +115,7 @@
     "BEARISH_REJECTION_MORNING_ITM2": {
       "baseline": {
         "which": "ALL",
+        "causal_only": false,
         "stats": {
           "n": 62,
           "wr": 58.1,
@@ -142,6 +146,7 @@
       },
       "morning_down": {
         "which": "DOWN",
+        "causal_only": false,
         "stats": {
           "n": 33,
           "wr": 69.7,
@@ -172,6 +177,7 @@
       },
       "morning_up": {
         "which": "UP",
+        "causal_only": false,
         "stats": {
           "n": 29,
           "wr": 44.8,
@@ -196,6 +202,1264 @@
       }
     }
   },
+  "causal_arms": {
+    "BEARISH_REJECTION_MORNING_ATM": {
+      "_doc": "Strictly-causal (lesson C6): only entries at/after 10:00 ET, when morning_sign (final at the 10:00 close) is already known. baseline = ungated on this same causal pool; down/up = the gate within it.",
+      "entry_time_tally": {
+        "n_fills": 94,
+        "causal_at_or_after_1000": 75,
+        "tainted_before_1000": 19,
+        "pct_causal": 0.798
+      },
+      "baseline": {
+        "which": "ALL",
+        "causal_only": true,
+        "stats": {
+          "n": 50,
+          "wr": 68.0,
+          "total": 291.4,
+          "exp": 5.83
+        },
+        "anchor": {
+          "n_anchor_fills": 1,
+          "win_day_pnl": 134.4,
+          "loss_day_loss": 0,
+          "edge_capture_realfills": 134.4,
+          "fills": [
+            {
+              "date": "2026-04-29",
+              "label": "WIN",
+              "pnl": 134.4
+            }
+          ]
+        },
+        "dsr": {
+          "dsr": 0.255,
+          "sharpe": 0.028,
+          "n_obs": 50,
+          "low_power": false,
+          "n_trials": 3
+        },
+        "n_days": 24
+      },
+      "morning_down": {
+        "which": "DOWN",
+        "causal_only": true,
+        "stats": {
+          "n": 32,
+          "wr": 75.0,
+          "total": 517.4,
+          "exp": 16.17
+        },
+        "anchor": {
+          "n_anchor_fills": 1,
+          "win_day_pnl": 134.4,
+          "loss_day_loss": 0,
+          "edge_capture_realfills": 134.4,
+          "fills": [
+            {
+              "date": "2026-04-29",
+              "label": "WIN",
+              "pnl": 134.4
+            }
+          ]
+        },
+        "dsr": {
+          "dsr": 0.3445,
+          "sharpe": 0.085,
+          "n_obs": 32,
+          "low_power": false,
+          "n_trials": 3
+        },
+        "n_days": 15
+      },
+      "morning_up": {
+        "which": "UP",
+        "causal_only": true,
+        "stats": {
+          "n": 18,
+          "wr": 55.6,
+          "total": -226.0,
+          "exp": -12.56
+        },
+        "anchor": {
+          "n_anchor_fills": 0,
+          "win_day_pnl": 0,
+          "loss_day_loss": 0,
+          "edge_capture_realfills": 0,
+          "fills": []
+        },
+        "dsr": {
+          "dsr": 0.1412,
+          "sharpe": -0.053,
+          "n_obs": 18,
+          "low_power": true,
+          "n_trials": 3
+        },
+        "n_days": 9
+      },
+      "verdict": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $16.17 (N=32) vs baseline exp $5.83 (N=50): delta $10.34. Anchor edge_capture DOWN $134.4 vs baseline $134.4: delta $0.0. Inverse(UP) exp $-12.56. "
+    },
+    "BEARISH_REJECTION_MORNING_ITM2": {
+      "_doc": "Strictly-causal (lesson C6): only entries at/after 10:00 ET, when morning_sign (final at the 10:00 close) is already known. baseline = ungated on this same causal pool; down/up = the gate within it.",
+      "entry_time_tally": {
+        "n_fills": 82,
+        "causal_at_or_after_1000": 67,
+        "tainted_before_1000": 15,
+        "pct_causal": 0.817
+      },
+      "baseline": {
+        "which": "ALL",
+        "causal_only": true,
+        "stats": {
+          "n": 47,
+          "wr": 66.0,
+          "total": 321.2,
+          "exp": 6.83
+        },
+        "anchor": {
+          "n_anchor_fills": 1,
+          "win_day_pnl": 197.4,
+          "loss_day_loss": 0,
+          "edge_capture_realfills": 197.4,
+          "fills": [
+            {
+              "date": "2026-04-29",
+              "label": "WIN",
+              "pnl": 197.4
+            }
+          ]
+        },
+        "dsr": {
+          "dsr": 0.2434,
+          "sharpe": 0.023,
+          "n_obs": 47,
+          "low_power": false,
+          "n_trials": 3
+        },
+        "n_days": 25
+      },
+      "morning_down": {
+        "which": "DOWN",
+        "causal_only": true,
+        "stats": {
+          "n": 27,
+          "wr": 74.1,
+          "total": 801.8,
+          "exp": 29.7
+        },
+        "anchor": {
+          "n_anchor_fills": 1,
+          "win_day_pnl": 197.4,
+          "loss_day_loss": 0,
+          "edge_capture_realfills": 197.4,
+          "fills": [
+            {
+              "date": "2026-04-29",
+              "label": "WIN",
+              "pnl": 197.4
+            }
+          ]
+        },
+        "dsr": {
+          "dsr": 0.3822,
+          "sharpe": 0.116,
+          "n_obs": 27,
+          "low_power": false,
+          "n_trials": 3
+        },
+        "n_days": 13
+      },
+      "morning_up": {
+        "which": "UP",
+        "causal_only": true,
+        "stats": {
+          "n": 20,
+          "wr": 55.0,
+          "total": -480.6,
+          "exp": -24.03
+        },
+        "anchor": {
+          "n_anchor_fills": 0,
+          "win_day_pnl": 0,
+          "loss_day_loss": 0,
+          "edge_capture_realfills": 0,
+          "fills": []
+        },
+        "dsr": {
+          "dsr": 0.1209,
+          "sharpe": -0.072,
+          "n_obs": 20,
+          "low_power": false,
+          "n_trials": 3
+        },
+        "n_days": 12
+      },
+      "verdict": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $29.7 (N=27) vs baseline exp $6.83 (N=47): delta $22.87. Anchor edge_capture DOWN $197.4 vs baseline $197.4: delta $0.0. Inverse(UP) exp $-24.03. "
+    }
+  },
+  "oos_split": {
+    "BEARISH_REJECTION_MORNING_ATM": {
+      "_doc": "Causal gate IS/OOS. 'calendar' splits at 2026-01-01 (degenerate: tiny OOS n). 'balanced' splits at the median causal-fill date for a powered out-of-sample read. Both arms are entries >=10:00 ET only. The key question: does DOWN-gate still beat baseline AND beat the inverse OOS?",
+      "calendar": {
+        "boundary": "2026-01-01",
+        "in_sample": {
+          "window": "..2025-12-31",
+          "baseline": {
+            "which": "ALL",
+            "causal_only": true,
+            "stats": {
+              "n": 47,
+              "wr": 66.0,
+              "total": -250.0,
+              "exp": -5.32
+            },
+            "anchor": {
+              "n_anchor_fills": 0,
+              "win_day_pnl": 0,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 0,
+              "fills": []
+            },
+            "dsr": {
+              "dsr": 0.1522,
+              "sharpe": -0.025,
+              "n_obs": 47,
+              "low_power": false,
+              "n_trials": 3
+            },
+            "n_days": 22
+          },
+          "morning_down": {
+            "which": "DOWN",
+            "causal_only": true,
+            "stats": {
+              "n": 29,
+              "wr": 72.4,
+              "total": -24.0,
+              "exp": -0.83
+            },
+            "anchor": {
+              "n_anchor_fills": 0,
+              "win_day_pnl": 0,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 0,
+              "fills": []
+            },
+            "dsr": {
+              "dsr": 0.1906,
+              "sharpe": -0.004,
+              "n_obs": 29,
+              "low_power": false,
+              "n_trials": 3
+            },
+            "n_days": 13
+          },
+          "morning_up": {
+            "which": "UP",
+            "causal_only": true,
+            "stats": {
+              "n": 18,
+              "wr": 55.6,
+              "total": -226.0,
+              "exp": -12.56
+            },
+            "anchor": {
+              "n_anchor_fills": 0,
+              "win_day_pnl": 0,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 0,
+              "fills": []
+            },
+            "dsr": {
+              "dsr": 0.1412,
+              "sharpe": -0.053,
+              "n_obs": 18,
+              "low_power": true,
+              "n_trials": 3
+            },
+            "n_days": 9
+          },
+          "down_minus_baseline_exp": 4.49,
+          "down_beats_inverse": true,
+          "verdict": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $-0.83 (N=29) vs baseline exp $-5.32 (N=47): delta $4.49. Anchor edge_capture DOWN $0 vs baseline $0: delta $0. Inverse(UP) exp $-12.56. "
+        },
+        "out_of_sample": {
+          "window": "2026-01-01..",
+          "baseline": {
+            "which": "ALL",
+            "causal_only": true,
+            "stats": {
+              "n": 3,
+              "wr": 100.0,
+              "total": 541.4,
+              "exp": 180.47
+            },
+            "anchor": {
+              "n_anchor_fills": 1,
+              "win_day_pnl": 134.4,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 134.4,
+              "fills": [
+                {
+                  "date": "2026-04-29",
+                  "label": "WIN",
+                  "pnl": 134.4
+                }
+              ]
+            },
+            "dsr": {
+              "dsr": 1.0,
+              "sharpe": 2.46,
+              "n_obs": 3,
+              "low_power": true,
+              "n_trials": 3
+            },
+            "n_days": 2
+          },
+          "morning_down": {
+            "which": "DOWN",
+            "causal_only": true,
+            "stats": {
+              "n": 3,
+              "wr": 100.0,
+              "total": 541.4,
+              "exp": 180.47
+            },
+            "anchor": {
+              "n_anchor_fills": 1,
+              "win_day_pnl": 134.4,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 134.4,
+              "fills": [
+                {
+                  "date": "2026-04-29",
+                  "label": "WIN",
+                  "pnl": 134.4
+                }
+              ]
+            },
+            "dsr": {
+              "dsr": 1.0,
+              "sharpe": 2.46,
+              "n_obs": 3,
+              "low_power": true,
+              "n_trials": 3
+            },
+            "n_days": 2
+          },
+          "morning_up": {
+            "which": "UP",
+            "causal_only": true,
+            "stats": {
+              "n": 0,
+              "wr": 0.0,
+              "total": 0.0,
+              "exp": 0.0
+            },
+            "anchor": {
+              "n_anchor_fills": 0,
+              "win_day_pnl": 0,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 0,
+              "fills": []
+            },
+            "dsr": {
+              "dsr": null,
+              "n_obs": 0,
+              "low_power": true,
+              "note": "n<2 \u2014 DSR undefined."
+            },
+            "n_days": 0
+          },
+          "down_minus_baseline_exp": 0.0,
+          "down_beats_inverse": true,
+          "verdict": "WASH / INCONCLUSIVE \u2014 mixed or small-sample effect; not a clean win on BOTH real-fills expectancy and anchor edge_capture. DOWN-gate exp $180.47 (N=3) vs baseline exp $180.47 (N=3): delta $0.0. Anchor edge_capture DOWN $134.4 vs baseline $134.4: delta $0.0. Inverse(UP) exp $0.0. "
+        }
+      },
+      "balanced_median": {
+        "boundary": "2025-11-18",
+        "in_sample": {
+          "window": "..2025-11-17",
+          "baseline": {
+            "which": "ALL",
+            "causal_only": true,
+            "stats": {
+              "n": 22,
+              "wr": 63.6,
+              "total": -261.4,
+              "exp": -11.88
+            },
+            "anchor": {
+              "n_anchor_fills": 0,
+              "win_day_pnl": 0,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 0,
+              "fills": []
+            },
+            "dsr": {
+              "dsr": 0.1353,
+              "sharpe": -0.054,
+              "n_obs": 22,
+              "low_power": false,
+              "n_trials": 3
+            },
+            "n_days": 14
+          },
+          "morning_down": {
+            "which": "DOWN",
+            "causal_only": true,
+            "stats": {
+              "n": 12,
+              "wr": 83.3,
+              "total": 756.6,
+              "exp": 63.05
+            },
+            "anchor": {
+              "n_anchor_fills": 0,
+              "win_day_pnl": 0,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 0,
+              "fills": []
+            },
+            "dsr": {
+              "dsr": 0.5433,
+              "sharpe": 0.369,
+              "n_obs": 12,
+              "low_power": true,
+              "n_trials": 3
+            },
+            "n_days": 8
+          },
+          "morning_up": {
+            "which": "UP",
+            "causal_only": true,
+            "stats": {
+              "n": 10,
+              "wr": 40.0,
+              "total": -1018.0,
+              "exp": -101.8
+            },
+            "anchor": {
+              "n_anchor_fills": 0,
+              "win_day_pnl": 0,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 0,
+              "fills": []
+            },
+            "dsr": {
+              "dsr": 0.0212,
+              "sharpe": -0.421,
+              "n_obs": 10,
+              "low_power": true,
+              "n_trials": 3
+            },
+            "n_days": 6
+          },
+          "down_minus_baseline_exp": 74.93,
+          "down_beats_inverse": true,
+          "verdict": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $63.05 (N=12) vs baseline exp $-11.88 (N=22): delta $74.93. Anchor edge_capture DOWN $0 vs baseline $0: delta $0. Inverse(UP) exp $-101.8. "
+        },
+        "out_of_sample": {
+          "window": "2025-11-18..",
+          "baseline": {
+            "which": "ALL",
+            "causal_only": true,
+            "stats": {
+              "n": 28,
+              "wr": 71.4,
+              "total": 552.8,
+              "exp": 19.74
+            },
+            "anchor": {
+              "n_anchor_fills": 1,
+              "win_day_pnl": 134.4,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 134.4,
+              "fills": [
+                {
+                  "date": "2026-04-29",
+                  "label": "WIN",
+                  "pnl": 134.4
+                }
+              ]
+            },
+            "dsr": {
+              "dsr": 0.363,
+              "sharpe": 0.101,
+              "n_obs": 28,
+              "low_power": false,
+              "n_trials": 3
+            },
+            "n_days": 10
+          },
+          "morning_down": {
+            "which": "DOWN",
+            "causal_only": true,
+            "stats": {
+              "n": 20,
+              "wr": 70.0,
+              "total": -239.2,
+              "exp": -11.96
+            },
+            "anchor": {
+              "n_anchor_fills": 1,
+              "win_day_pnl": 134.4,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 134.4,
+              "fills": [
+                {
+                  "date": "2026-04-29",
+                  "label": "WIN",
+                  "pnl": 134.4
+                }
+              ]
+            },
+            "dsr": {
+              "dsr": 0.1303,
+              "sharpe": -0.061,
+              "n_obs": 20,
+              "low_power": false,
+              "n_trials": 3
+            },
+            "n_days": 7
+          },
+          "morning_up": {
+            "which": "UP",
+            "causal_only": true,
+            "stats": {
+              "n": 8,
+              "wr": 75.0,
+              "total": 792.0,
+              "exp": 99.0
+            },
+            "anchor": {
+              "n_anchor_fills": 0,
+              "win_day_pnl": 0,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 0,
+              "fills": []
+            },
+            "dsr": {
+              "dsr": 0.6202,
+              "sharpe": 0.585,
+              "n_obs": 8,
+              "low_power": true,
+              "n_trials": 3
+            },
+            "n_days": 3
+          },
+          "down_minus_baseline_exp": -31.7,
+          "down_beats_inverse": false,
+          "verdict": "WASH / INCONCLUSIVE \u2014 mixed or small-sample effect; not a clean win on BOTH real-fills expectancy and anchor edge_capture. DOWN-gate exp $-11.96 (N=20) vs baseline exp $19.74 (N=28): delta $-31.7. Anchor edge_capture DOWN $134.4 vs baseline $134.4: delta $0.0. Inverse(UP) exp $99.0. "
+        }
+      },
+      "boundary": "2026-01-01",
+      "in_sample": {
+        "window": "..2025-12-31",
+        "baseline": {
+          "which": "ALL",
+          "causal_only": true,
+          "stats": {
+            "n": 47,
+            "wr": 66.0,
+            "total": -250.0,
+            "exp": -5.32
+          },
+          "anchor": {
+            "n_anchor_fills": 0,
+            "win_day_pnl": 0,
+            "loss_day_loss": 0,
+            "edge_capture_realfills": 0,
+            "fills": []
+          },
+          "dsr": {
+            "dsr": 0.1522,
+            "sharpe": -0.025,
+            "n_obs": 47,
+            "low_power": false,
+            "n_trials": 3
+          },
+          "n_days": 22
+        },
+        "morning_down": {
+          "which": "DOWN",
+          "causal_only": true,
+          "stats": {
+            "n": 29,
+            "wr": 72.4,
+            "total": -24.0,
+            "exp": -0.83
+          },
+          "anchor": {
+            "n_anchor_fills": 0,
+            "win_day_pnl": 0,
+            "loss_day_loss": 0,
+            "edge_capture_realfills": 0,
+            "fills": []
+          },
+          "dsr": {
+            "dsr": 0.1906,
+            "sharpe": -0.004,
+            "n_obs": 29,
+            "low_power": false,
+            "n_trials": 3
+          },
+          "n_days": 13
+        },
+        "morning_up": {
+          "which": "UP",
+          "causal_only": true,
+          "stats": {
+            "n": 18,
+            "wr": 55.6,
+            "total": -226.0,
+            "exp": -12.56
+          },
+          "anchor": {
+            "n_anchor_fills": 0,
+            "win_day_pnl": 0,
+            "loss_day_loss": 0,
+            "edge_capture_realfills": 0,
+            "fills": []
+          },
+          "dsr": {
+            "dsr": 0.1412,
+            "sharpe": -0.053,
+            "n_obs": 18,
+            "low_power": true,
+            "n_trials": 3
+          },
+          "n_days": 9
+        },
+        "down_minus_baseline_exp": 4.49,
+        "down_beats_inverse": true,
+        "verdict": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $-0.83 (N=29) vs baseline exp $-5.32 (N=47): delta $4.49. Anchor edge_capture DOWN $0 vs baseline $0: delta $0. Inverse(UP) exp $-12.56. "
+      },
+      "out_of_sample": {
+        "window": "2026-01-01..",
+        "baseline": {
+          "which": "ALL",
+          "causal_only": true,
+          "stats": {
+            "n": 3,
+            "wr": 100.0,
+            "total": 541.4,
+            "exp": 180.47
+          },
+          "anchor": {
+            "n_anchor_fills": 1,
+            "win_day_pnl": 134.4,
+            "loss_day_loss": 0,
+            "edge_capture_realfills": 134.4,
+            "fills": [
+              {
+                "date": "2026-04-29",
+                "label": "WIN",
+                "pnl": 134.4
+              }
+            ]
+          },
+          "dsr": {
+            "dsr": 1.0,
+            "sharpe": 2.46,
+            "n_obs": 3,
+            "low_power": true,
+            "n_trials": 3
+          },
+          "n_days": 2
+        },
+        "morning_down": {
+          "which": "DOWN",
+          "causal_only": true,
+          "stats": {
+            "n": 3,
+            "wr": 100.0,
+            "total": 541.4,
+            "exp": 180.47
+          },
+          "anchor": {
+            "n_anchor_fills": 1,
+            "win_day_pnl": 134.4,
+            "loss_day_loss": 0,
+            "edge_capture_realfills": 134.4,
+            "fills": [
+              {
+                "date": "2026-04-29",
+                "label": "WIN",
+                "pnl": 134.4
+              }
+            ]
+          },
+          "dsr": {
+            "dsr": 1.0,
+            "sharpe": 2.46,
+            "n_obs": 3,
+            "low_power": true,
+            "n_trials": 3
+          },
+          "n_days": 2
+        },
+        "morning_up": {
+          "which": "UP",
+          "causal_only": true,
+          "stats": {
+            "n": 0,
+            "wr": 0.0,
+            "total": 0.0,
+            "exp": 0.0
+          },
+          "anchor": {
+            "n_anchor_fills": 0,
+            "win_day_pnl": 0,
+            "loss_day_loss": 0,
+            "edge_capture_realfills": 0,
+            "fills": []
+          },
+          "dsr": {
+            "dsr": null,
+            "n_obs": 0,
+            "low_power": true,
+            "note": "n<2 \u2014 DSR undefined."
+          },
+          "n_days": 0
+        },
+        "down_minus_baseline_exp": 0.0,
+        "down_beats_inverse": true,
+        "verdict": "WASH / INCONCLUSIVE \u2014 mixed or small-sample effect; not a clean win on BOTH real-fills expectancy and anchor edge_capture. DOWN-gate exp $180.47 (N=3) vs baseline exp $180.47 (N=3): delta $0.0. Anchor edge_capture DOWN $134.4 vs baseline $134.4: delta $0.0. Inverse(UP) exp $0.0. "
+      }
+    },
+    "BEARISH_REJECTION_MORNING_ITM2": {
+      "_doc": "Causal gate IS/OOS. 'calendar' splits at 2026-01-01 (degenerate: tiny OOS n). 'balanced' splits at the median causal-fill date for a powered out-of-sample read. Both arms are entries >=10:00 ET only. The key question: does DOWN-gate still beat baseline AND beat the inverse OOS?",
+      "calendar": {
+        "boundary": "2026-01-01",
+        "in_sample": {
+          "window": "..2025-12-31",
+          "baseline": {
+            "which": "ALL",
+            "causal_only": true,
+            "stats": {
+              "n": 45,
+              "wr": 64.4,
+              "total": -69.4,
+              "exp": -1.54
+            },
+            "anchor": {
+              "n_anchor_fills": 0,
+              "win_day_pnl": 0,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 0,
+              "fills": []
+            },
+            "dsr": {
+              "dsr": 0.1874,
+              "sharpe": -0.005,
+              "n_obs": 45,
+              "low_power": false,
+              "n_trials": 3
+            },
+            "n_days": 23
+          },
+          "morning_down": {
+            "which": "DOWN",
+            "causal_only": true,
+            "stats": {
+              "n": 25,
+              "wr": 72.0,
+              "total": 411.2,
+              "exp": 16.45
+            },
+            "anchor": {
+              "n_anchor_fills": 0,
+              "win_day_pnl": 0,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 0,
+              "fills": []
+            },
+            "dsr": {
+              "dsr": 0.2893,
+              "sharpe": 0.063,
+              "n_obs": 25,
+              "low_power": false,
+              "n_trials": 3
+            },
+            "n_days": 11
+          },
+          "morning_up": {
+            "which": "UP",
+            "causal_only": true,
+            "stats": {
+              "n": 20,
+              "wr": 55.0,
+              "total": -480.6,
+              "exp": -24.03
+            },
+            "anchor": {
+              "n_anchor_fills": 0,
+              "win_day_pnl": 0,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 0,
+              "fills": []
+            },
+            "dsr": {
+              "dsr": 0.1209,
+              "sharpe": -0.072,
+              "n_obs": 20,
+              "low_power": false,
+              "n_trials": 3
+            },
+            "n_days": 12
+          },
+          "down_minus_baseline_exp": 17.99,
+          "down_beats_inverse": true,
+          "verdict": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $16.45 (N=25) vs baseline exp $-1.54 (N=45): delta $17.99. Anchor edge_capture DOWN $0 vs baseline $0: delta $0. Inverse(UP) exp $-24.03. "
+        },
+        "out_of_sample": {
+          "window": "2026-01-01..",
+          "baseline": {
+            "which": "ALL",
+            "causal_only": true,
+            "stats": {
+              "n": 2,
+              "wr": 100.0,
+              "total": 390.6,
+              "exp": 195.3
+            },
+            "anchor": {
+              "n_anchor_fills": 1,
+              "win_day_pnl": 197.4,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 197.4,
+              "fills": [
+                {
+                  "date": "2026-04-29",
+                  "label": "WIN",
+                  "pnl": 197.4
+                }
+              ]
+            },
+            "dsr": {
+              "dsr": 1.0,
+              "sharpe": 93.0,
+              "n_obs": 2,
+              "low_power": true,
+              "n_trials": 3
+            },
+            "n_days": 2
+          },
+          "morning_down": {
+            "which": "DOWN",
+            "causal_only": true,
+            "stats": {
+              "n": 2,
+              "wr": 100.0,
+              "total": 390.6,
+              "exp": 195.3
+            },
+            "anchor": {
+              "n_anchor_fills": 1,
+              "win_day_pnl": 197.4,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 197.4,
+              "fills": [
+                {
+                  "date": "2026-04-29",
+                  "label": "WIN",
+                  "pnl": 197.4
+                }
+              ]
+            },
+            "dsr": {
+              "dsr": 1.0,
+              "sharpe": 93.0,
+              "n_obs": 2,
+              "low_power": true,
+              "n_trials": 3
+            },
+            "n_days": 2
+          },
+          "morning_up": {
+            "which": "UP",
+            "causal_only": true,
+            "stats": {
+              "n": 0,
+              "wr": 0.0,
+              "total": 0.0,
+              "exp": 0.0
+            },
+            "anchor": {
+              "n_anchor_fills": 0,
+              "win_day_pnl": 0,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 0,
+              "fills": []
+            },
+            "dsr": {
+              "dsr": null,
+              "n_obs": 0,
+              "low_power": true,
+              "note": "n<2 \u2014 DSR undefined."
+            },
+            "n_days": 0
+          },
+          "down_minus_baseline_exp": 0.0,
+          "down_beats_inverse": true,
+          "verdict": "WASH / INCONCLUSIVE \u2014 mixed or small-sample effect; not a clean win on BOTH real-fills expectancy and anchor edge_capture. DOWN-gate exp $195.3 (N=2) vs baseline exp $195.3 (N=2): delta $0.0. Anchor edge_capture DOWN $197.4 vs baseline $197.4: delta $0.0. Inverse(UP) exp $0.0. "
+        }
+      },
+      "balanced_median": {
+        "boundary": "2025-11-18",
+        "in_sample": {
+          "window": "..2025-11-17",
+          "baseline": {
+            "which": "ALL",
+            "causal_only": true,
+            "stats": {
+              "n": 20,
+              "wr": 65.0,
+              "total": 7.8,
+              "exp": 0.39
+            },
+            "anchor": {
+              "n_anchor_fills": 0,
+              "win_day_pnl": 0,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 0,
+              "fills": []
+            },
+            "dsr": {
+              "dsr": 0.1984,
+              "sharpe": 0.001,
+              "n_obs": 20,
+              "low_power": false,
+              "n_trials": 3
+            },
+            "n_days": 15
+          },
+          "morning_down": {
+            "which": "DOWN",
+            "causal_only": true,
+            "stats": {
+              "n": 8,
+              "wr": 100.0,
+              "total": 1465.8,
+              "exp": 183.23
+            },
+            "anchor": {
+              "n_anchor_fills": 0,
+              "win_day_pnl": 0,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 0,
+              "fills": []
+            },
+            "dsr": {
+              "dsr": 1.0,
+              "sharpe": 4.115,
+              "n_obs": 8,
+              "low_power": true,
+              "n_trials": 3
+            },
+            "n_days": 6
+          },
+          "morning_up": {
+            "which": "UP",
+            "causal_only": true,
+            "stats": {
+              "n": 12,
+              "wr": 41.7,
+              "total": -1458.0,
+              "exp": -121.5
+            },
+            "anchor": {
+              "n_anchor_fills": 0,
+              "win_day_pnl": 0,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 0,
+              "fills": []
+            },
+            "dsr": {
+              "dsr": 0.0275,
+              "sharpe": -0.346,
+              "n_obs": 12,
+              "low_power": true,
+              "n_trials": 3
+            },
+            "n_days": 9
+          },
+          "down_minus_baseline_exp": 182.84,
+          "down_beats_inverse": true,
+          "verdict": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $183.23 (N=8) vs baseline exp $0.39 (N=20): delta $182.84. Anchor edge_capture DOWN $0 vs baseline $0: delta $0. Inverse(UP) exp $-121.5. "
+        },
+        "out_of_sample": {
+          "window": "2025-11-18..",
+          "baseline": {
+            "which": "ALL",
+            "causal_only": true,
+            "stats": {
+              "n": 27,
+              "wr": 66.7,
+              "total": 313.4,
+              "exp": 11.61
+            },
+            "anchor": {
+              "n_anchor_fills": 1,
+              "win_day_pnl": 197.4,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 197.4,
+              "fills": [
+                {
+                  "date": "2026-04-29",
+                  "label": "WIN",
+                  "pnl": 197.4
+                }
+              ]
+            },
+            "dsr": {
+              "dsr": 0.2602,
+              "sharpe": 0.042,
+              "n_obs": 27,
+              "low_power": false,
+              "n_trials": 3
+            },
+            "n_days": 10
+          },
+          "morning_down": {
+            "which": "DOWN",
+            "causal_only": true,
+            "stats": {
+              "n": 19,
+              "wr": 63.2,
+              "total": -664.0,
+              "exp": -34.95
+            },
+            "anchor": {
+              "n_anchor_fills": 1,
+              "win_day_pnl": 197.4,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 197.4,
+              "fills": [
+                {
+                  "date": "2026-04-29",
+                  "label": "WIN",
+                  "pnl": 197.4
+                }
+              ]
+            },
+            "dsr": {
+              "dsr": 0.0805,
+              "sharpe": -0.124,
+              "n_obs": 19,
+              "low_power": true,
+              "n_trials": 3
+            },
+            "n_days": 7
+          },
+          "morning_up": {
+            "which": "UP",
+            "causal_only": true,
+            "stats": {
+              "n": 8,
+              "wr": 75.0,
+              "total": 977.4,
+              "exp": 122.18
+            },
+            "anchor": {
+              "n_anchor_fills": 0,
+              "win_day_pnl": 0,
+              "loss_day_loss": 0,
+              "edge_capture_realfills": 0,
+              "fills": []
+            },
+            "dsr": {
+              "dsr": 0.5825,
+              "sharpe": 0.521,
+              "n_obs": 8,
+              "low_power": true,
+              "n_trials": 3
+            },
+            "n_days": 3
+          },
+          "down_minus_baseline_exp": -46.56,
+          "down_beats_inverse": false,
+          "verdict": "WASH / INCONCLUSIVE \u2014 mixed or small-sample effect; not a clean win on BOTH real-fills expectancy and anchor edge_capture. DOWN-gate exp $-34.95 (N=19) vs baseline exp $11.61 (N=27): delta $-46.56. Anchor edge_capture DOWN $197.4 vs baseline $197.4: delta $0.0. Inverse(UP) exp $122.18. "
+        }
+      },
+      "boundary": "2026-01-01",
+      "in_sample": {
+        "window": "..2025-12-31",
+        "baseline": {
+          "which": "ALL",
+          "causal_only": true,
+          "stats": {
+            "n": 45,
+            "wr": 64.4,
+            "total": -69.4,
+            "exp": -1.54
+          },
+          "anchor": {
+            "n_anchor_fills": 0,
+            "win_day_pnl": 0,
+            "loss_day_loss": 0,
+            "edge_capture_realfills": 0,
+            "fills": []
+          },
+          "dsr": {
+            "dsr": 0.1874,
+            "sharpe": -0.005,
+            "n_obs": 45,
+            "low_power": false,
+            "n_trials": 3
+          },
+          "n_days": 23
+        },
+        "morning_down": {
+          "which": "DOWN",
+          "causal_only": true,
+          "stats": {
+            "n": 25,
+            "wr": 72.0,
+            "total": 411.2,
+            "exp": 16.45
+          },
+          "anchor": {
+            "n_anchor_fills": 0,
+            "win_day_pnl": 0,
+            "loss_day_loss": 0,
+            "edge_capture_realfills": 0,
+            "fills": []
+          },
+          "dsr": {
+            "dsr": 0.2893,
+            "sharpe": 0.063,
+            "n_obs": 25,
+            "low_power": false,
+            "n_trials": 3
+          },
+          "n_days": 11
+        },
+        "morning_up": {
+          "which": "UP",
+          "causal_only": true,
+          "stats": {
+            "n": 20,
+            "wr": 55.0,
+            "total": -480.6,
+            "exp": -24.03
+          },
+          "anchor": {
+            "n_anchor_fills": 0,
+            "win_day_pnl": 0,
+            "loss_day_loss": 0,
+            "edge_capture_realfills": 0,
+            "fills": []
+          },
+          "dsr": {
+            "dsr": 0.1209,
+            "sharpe": -0.072,
+            "n_obs": 20,
+            "low_power": false,
+            "n_trials": 3
+          },
+          "n_days": 12
+        },
+        "down_minus_baseline_exp": 17.99,
+        "down_beats_inverse": true,
+        "verdict": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $16.45 (N=25) vs baseline exp $-1.54 (N=45): delta $17.99. Anchor edge_capture DOWN $0 vs baseline $0: delta $0. Inverse(UP) exp $-24.03. "
+      },
+      "out_of_sample": {
+        "window": "2026-01-01..",
+        "baseline": {
+          "which": "ALL",
+          "causal_only": true,
+          "stats": {
+            "n": 2,
+            "wr": 100.0,
+            "total": 390.6,
+            "exp": 195.3
+          },
+          "anchor": {
+            "n_anchor_fills": 1,
+            "win_day_pnl": 197.4,
+            "loss_day_loss": 0,
+            "edge_capture_realfills": 197.4,
+            "fills": [
+              {
+                "date": "2026-04-29",
+                "label": "WIN",
+                "pnl": 197.4
+              }
+            ]
+          },
+          "dsr": {
+            "dsr": 1.0,
+            "sharpe": 93.0,
+            "n_obs": 2,
+            "low_power": true,
+            "n_trials": 3
+          },
+          "n_days": 2
+        },
+        "morning_down": {
+          "which": "DOWN",
+          "causal_only": true,
+          "stats": {
+            "n": 2,
+            "wr": 100.0,
+            "total": 390.6,
+            "exp": 195.3
+          },
+          "anchor": {
+            "n_anchor_fills": 1,
+            "win_day_pnl": 197.4,
+            "loss_day_loss": 0,
+            "edge_capture_realfills": 197.4,
+            "fills": [
+              {
+                "date": "2026-04-29",
+                "label": "WIN",
+                "pnl": 197.4
+              }
+            ]
+          },
+          "dsr": {
+            "dsr": 1.0,
+            "sharpe": 93.0,
+            "n_obs": 2,
+            "low_power": true,
+            "n_trials": 3
+          },
+          "n_days": 2
+        },
+        "morning_up": {
+          "which": "UP",
+          "causal_only": true,
+          "stats": {
+            "n": 0,
+            "wr": 0.0,
+            "total": 0.0,
+            "exp": 0.0
+          },
+          "anchor": {
+            "n_anchor_fills": 0,
+            "win_day_pnl": 0,
+            "loss_day_loss": 0,
+            "edge_capture_realfills": 0,
+            "fills": []
+          },
+          "dsr": {
+            "dsr": null,
+            "n_obs": 0,
+            "low_power": true,
+            "note": "n<2 \u2014 DSR undefined."
+          },
+          "n_days": 0
+        },
+        "down_minus_baseline_exp": 0.0,
+        "down_beats_inverse": true,
+        "verdict": "WASH / INCONCLUSIVE \u2014 mixed or small-sample effect; not a clean win on BOTH real-fills expectancy and anchor edge_capture. DOWN-gate exp $195.3 (N=2) vs baseline exp $195.3 (N=2): delta $0.0. Anchor edge_capture DOWN $197.4 vs baseline $197.4: delta $0.0. Inverse(UP) exp $0.0. "
+      }
+    }
+  },
   "real_fills_diagnostics": {
     "BEARISH_REJECTION_MORNING_ATM": {
       "attempted": 121,
@@ -214,14 +1478,42 @@
     "BEARISH_REJECTION_MORNING_ATM": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $22.83 (N=42) vs baseline exp $-21.58 (N=69): delta $44.41. Anchor edge_capture DOWN $134.4 vs baseline $134.4: delta $0.0. Inverse(UP) exp $-90.66. ",
     "BEARISH_REJECTION_MORNING_ITM2": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $-1.3 (N=33) vs baseline exp $-51.4 (N=62): delta $50.1. Anchor edge_capture DOWN $197.4 vs baseline $197.4: delta $0.0. Inverse(UP) exp $-108.41. "
   },
+  "verdict_causal": {
+    "BEARISH_REJECTION_MORNING_ATM": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $16.17 (N=32) vs baseline exp $5.83 (N=50): delta $10.34. Anchor edge_capture DOWN $134.4 vs baseline $134.4: delta $0.0. Inverse(UP) exp $-12.56. ",
+    "BEARISH_REJECTION_MORNING_ITM2": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $29.7 (N=27) vs baseline exp $6.83 (N=47): delta $22.87. Anchor edge_capture DOWN $197.4 vs baseline $197.4: delta $0.0. Inverse(UP) exp $-24.03. "
+  },
+  "oos_holds": {
+    "BEARISH_REJECTION_MORNING_ATM": {
+      "verdict": "FAILS-OOS / SIGN-INVERTS \u2014 gate helps IS but REVERSES OOS (inverse becomes the winner). Classic in-sample fitting; the morning_sign relationship is regime-dependent, not stable.",
+      "holds": false,
+      "boundary": "2025-11-18",
+      "is_down_minus_baseline": 74.93,
+      "is_down_beats_inverse": true,
+      "oos_down_minus_baseline": -31.7,
+      "oos_down_beats_inverse": false
+    },
+    "BEARISH_REJECTION_MORNING_ITM2": {
+      "verdict": "FAILS-OOS / SIGN-INVERTS \u2014 gate helps IS but REVERSES OOS (inverse becomes the winner). Classic in-sample fitting; the morning_sign relationship is regime-dependent, not stable.",
+      "holds": false,
+      "boundary": "2025-11-18",
+      "is_down_minus_baseline": 182.84,
+      "is_down_beats_inverse": true,
+      "oos_down_minus_baseline": -46.56,
+      "oos_down_beats_inverse": false
+    }
+  },
   "headline": {
     "BEARISH_REJECTION_MORNING_ATM": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $22.83 (N=42) vs baseline exp $-21.58 (N=69): delta $44.41. Anchor edge_capture DOWN $134.4 vs baseline $134.4: delta $0.0. Inverse(UP) exp $-90.66. ",
     "BEARISH_REJECTION_MORNING_ITM2": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $-1.3 (N=33) vs baseline exp $-51.4 (N=62): delta $50.1. Anchor edge_capture DOWN $197.4 vs baseline $197.4: delta $0.0. Inverse(UP) exp $-108.41. "
   },
+  "headline_causal": {
+    "BEARISH_REJECTION_MORNING_ATM": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $16.17 (N=32) vs baseline exp $5.83 (N=50): delta $10.34. Anchor edge_capture DOWN $134.4 vs baseline $134.4: delta $0.0. Inverse(UP) exp $-12.56. ",
+    "BEARISH_REJECTION_MORNING_ITM2": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $29.7 (N=27) vs baseline exp $6.83 (N=47): delta $22.87. Anchor edge_capture DOWN $197.4 vs baseline $197.4: delta $0.0. Inverse(UP) exp $-24.03. "
+  },
   "op20_disclosures": {
     "authority": "Real-fills (simulator_real over OPRA, valid ~through 2026-05-29) is the WR/expectancy authority. Arms are PARTITIONS of one fill set (same sim), so deltas isolate the gate, not re-simulation noise.",
     "levels": "Historically-rebuilt \u2605\u2605 proxies (active+multi_day _detect_from_history), NOT production \u2605\u2605\u2605. Break/ribbon logic uses clean ctx.prior_bars (no look-ahead).",
-    "morning_sign": "Derived from the SPY 5m frame itself (open->10:00 ET); causal (known by 10:00, before the bearish-continuation entries it gates, which fire 09:35-12:00). FLAT/None-sign days excluded from all arms.",
+    "morning_sign": "Derived from the SPY 5m frame itself (open->10:00 ET). Final at the 10:00 close. The top-level 'arms' block applies it to ALL entries (09:35-12:00) and is therefore ~19% look-ahead-tainted (entries before 10:00). The 'causal_arms' + 'oos_split' blocks restrict to entries >=10:00 ET so the gate is STRICTLY look-ahead-free (lesson C6) \u2014 those are the make-or-break numbers. FLAT/None-sign days excluded from all arms.",
     "anchor_metric": "OP-16 edge_capture computed on REAL fills per arm: sum(P&L on WIN anchors) - sum(max(0,-P&L) on LOSS anchors). PRIMARY gate; small-n (lesson C24).",
     "dsr": "Advisory only \u2014 n is far below MIN_RELIABLE_OBS=20 on the gated arms (low_power=True). Never a hard gate at this n (lesson C24).",
     "chart_stop": "premium_stop_pct=-0.99 (chart-stop only) per L51/L55. Puts, qty=3, ATM+ITM2."
