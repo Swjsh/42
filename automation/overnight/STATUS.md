@@ -1,3 +1,29 @@
+## [2026-06-18] CONTEXT-109: BLUEPRINT EXECUTED — 4 waves, professional restructuring (commits 5d247c6, effa672, 26775b1 + spec)
+
+J: "I want all of it, make it not over-engineered and professionally structured, work through the entire plan tonight methodically." Executed the GAMMA-AUTONOMY-BLUEPRINT in 4 ordered waves, verification-gated + committed after each. Final gym 88/88 WITH replay. ~30 agents across the night.
+
+**Wave A — foundation + de-sprawl (5d247c6):** engine health beacon (engine-health.json, market-hours aware, Discord RED transition-alerts); Pydantic state contracts (load_validated at every read — caught real decisions.jsonl corruption); watcher registry + reconciliation test (orphan bug now impossible; count 28->25, deleted SNIPER+pinfade); validator/task/params-drift tests (caught 2 undocumented tasks). De-sprawl: archived 215 files / ~2.6MB (candidates 527->348).
+
+**Wave B — risk + efficiency (effa672):** risk_gate.py (ONE pure check_order, fail-closed on unreadable input, never locks out J — proven; 66 tests; orchestrator assert-agree); per-agent model routing (chef/gamma->opus, pilot/analyst/treasurer->sonnet, 5 rote->haiku; was all-Sonnet); promotion rigor (DSR/PBO/CSCV, advisory); canonical ledger writer (append_decision).
+
+**Wave C — autonomy + doctrine (26775b1):** conductor.md (Ralph-loop, opus, 4 safety rails: after-hours/fail-open/one-task/propose-not-auto-apply) + Discord approve/revoke bus — BOTH wired, NOT auto-enabled (J runs install-conductor-task.ps1 / install-discord-responder-task.ps1 to enable). **CHART-STOPS doctrine: validated real-fills A/B -> SHIPPED on Safe** (WR 38%->65%, P&L $8,160->$16,671, edge_capture invariant, DSR PASS; premium stop demoted to -50% catastrophe cap, chart-stop now primary) **-> NO-SHIP on Bold** (regresses; ITM-2+5x economics need the tight stop; unchanged). Heartbeat hygiene: canonical ledger schema, watcher count fix, pre_order_gate delegates to risk_gate.
+
+**Wave D — spec the deep refactor:** docs/SHARED-DECISION-LIBRARY-MIGRATION.md — the one remaining big piece (unify params<->heartbeat<->filters into ONE library both backtest+live use). ~80% of detector->Insight already exists (WatcherSignal+registry); remaining = extract scoring->gates->shadow->cutover, mirroring the risk_gate precedent. Honest 3-4wk estimate (shadow window is calendar-bound). 11 conductor-sized tasks.
+
+### LIVE CHANGE TAKING EFFECT MONDAY 2026-06-22 (review):
+- **Safe chart-stops:** premium_stop_pct -0.08/-0.10 -> -0.50 (catastrophe cap); chart-stop primary. Revert: docs/CHART-STOPS-2026-06-18.md. Bold unchanged.
+
+### To ENABLE when ready (wired, off):
+- Gamma_HealthBeacon (install-engine-health.ps1), Gamma_Conductor (install-conductor-task.ps1), Gamma_DiscordResponder (install-discord-responder-task.ps1).
+
+### Loose ends flagged (non-blocking):
+- Legacy decisions.jsonl data still corrupt (immutable; producers fixed going-forward).
+- params.json has cp1252 mojibake bytes in a _doc field (contracts loader handles via utf-8-sig; plain json.load fails — worth a clean re-save).
+- Per-edit pytest hook runs the >600s graduated-guards suite and false-blocks unrelated edits — split fast/slow guards.
+- Agent frontmatter has unquoted-colon descriptions (latent strict-YAML foot-gun).
+
+---
+
 ## [2026-06-18] CONTEXT-108: DECISION-LEDGER corruption fixed at the PRODUCER level (WRITE side)
 
 The state-contract test surfaced `decisions.jsonl` (56/122 rows corrupt) and `aggressive/decisions.jsonl` (168/427 corrupt). Root cause = multiple competing producers writing INCOMPATIBLE formats into the same append-only file: pretty-printed multi-line `json.dump(...indent=2)` (the `'Field required'` fragments in the safe ledger), concatenated objects on one physical line with no trailing `\n` (the `'Extra data'`/`'Expecting property name'` rows in the aggressive ledger), and schema drift (`bear_score` vs `bearish_score`, `action` vs `decision`, missing `tick_id`/`date`, literal-string `"position_status":"null"`). Existing rows are IMMUTABLE (untouched); this fixes the WRITERS so every NEW row is clean. Complements the earlier kitchen_daemon `errors='replace'` READ-side fix.
@@ -3969,7 +3995,7 @@ v38 (V14E chop zone gate) + v39 (ORB signal reader) both registered and passing.
 - v02 source parity drift RED: crypto harness validator disagreements_above_tolerance. Pre-existing. 69-70/70 stages still PASS. Fix: add 30s pre-bar guard to the v02 fetch.
 
 ## Kitchen
-Kitchen: alive, queue 42 pending, last cook 0 min ago, today $0.00, model=nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 41 pending, last cook 0 min ago, today $0.00, model=nvidia/nemotron-3-super-120b-a12b:free
 
 ### Answer to "are you certain we will never hit rate limit?"
 **HIGH CONFIDENCE, not 100%.** I just audited the rate-limit firewall end-to-end and **found 2 critical bugs in the L3 exemption layer** — heartbeat would have starved AGAIN today if I hadn't checked. Both patched and smoke-tested before 09:30. Full audit details in the INFRASTRUCTURE FIREWALL section below.
@@ -6725,3 +6751,16 @@ Kitchen: alive, queue 26 pending, last cook 0 min ago, today $0.00, model=?
 - [2026-06-18 21:27:16] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.2% in last 24h (65/69) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v25_filter_gates.offline pass rate dropped to 69.57% in last 24h (48/69) :: see crypto/data/scorecards/drift_report.json
 
 - [2026-06-18 21:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.65% in last 24h (59/63) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v25_filter_gates.offline pass rate dropped to 82.54% in last 24h (52/63) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-18 22:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.03% in last 24h (63/67) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v25_filter_gates.offline pass rate dropped to 85.07% in last 24h (57/67) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-18 22:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.03% in last 24h (63/67) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v25_filter_gates.offline pass rate dropped to 86.57% in last 24h (58/67) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-18 23:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.12% in last 24h (64/68) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v25_filter_gates.offline pass rate dropped to 88.24% in last 24h (60/68) :: see crypto/data/scorecards/drift_report.json
+
+### WARN: spend-summary threshold breach
+- ts: 2026-06-19T05:30:16+00:00
+- date_et: 2026-06-19
+- total: $36.47 (threshold $30.00)
+- claude: $36.47  minimax: $0.00
+- claude_sessions: 1
