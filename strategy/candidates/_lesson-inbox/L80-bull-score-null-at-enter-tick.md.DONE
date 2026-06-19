@@ -1,0 +1,25 @@
+---
+lesson_id: L80
+date: 2026-06-15
+theme: C7 (silent success is failure — audit outputs not exit codes)
+symptom: Shadow eval showed ENTER_BULL miss on 6/02 t12 — model output HOLD instead of ENTER
+root_cause: |
+  At ENTER ticks, heartbeat.md's Decisions Ledger schema listed bull_score in the LEAN schema
+  (applied to HOLD_DEV ticks) but the ENTER-specific required fields list (line 672) did NOT
+  include bull_score or bear_score. As a result, the heartbeat sometimes logged bull_score=null
+  at ENTER ticks due to a logging race where the score was computed before the ENTER branch
+  but not explicitly carried into the decisions.jsonl write step.
+  When the shadow eval received bull_score=null, it passed 0 to the model → model had no signal
+  to enter → output HOLD.
+fix: |
+  1. Heartbeat: explicitly require bull_score and bear_score in the ENTER decisions.jsonl row
+     fields. If logging race prevents reading the field at write time, extract from the
+     reason string (which always contains the authoritative score as "bull_score=N" or "N/11").
+  2. Shadow eval v5: null fallback extracts from reason field via regex pattern
+     r'bull_score[=:](\d+)' or r'(\d+)/11'. Defensive workaround only; production should log
+     the score correctly.
+files_changed:
+  - automation/prompts/heartbeat.md (bull_score note added to Decisions ledger)
+  - automation/prompts/aggressive/heartbeat.md (same fix)
+  - setup/scripts/shadow_model_eval.py (v5 null fallback from reason field)
+---

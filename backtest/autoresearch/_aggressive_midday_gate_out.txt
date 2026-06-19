@@ -1,0 +1,19 @@
+Loading data...
+SPY 34324 rows, VIX 22283 rows
+
+=== AGGRESSIVE MIDDAY_TRENDLINE_GATE A/B ===
+  BASE (no gate):  IS n=261 pnl=+9959 | OOS n=28 pnl=+3272
+  CAND (with gate): IS n=147 pnl=+13504 | OOS n=23 pnl=+3328
+  IS:  delta=+3545 (removed=114)
+  OOS: delta=+56 (removed=5)
+  WF_norm=0.147 (gate=0.70)
+
+  IS sub-windows:
+    W1_2025H1: removed=35 delta=-376 -> HURT
+    W2_2025H2: removed=40 delta=+515 -> HELP
+    W3_Q12026: removed=32 delta=+2876 -> HELP
+    W4_Apr26: removed=7 delta=+529 -> HELP
+  SW hurt: 1/4 (gate: <=1)
+
+  VERDICT: IS_positive=True OOS_positive=True SW_ok=True
+  -> CANDIDATE: add midday_trendline_gate to Aggressive

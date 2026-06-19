@@ -58,11 +58,21 @@ def detect_levels_at_bar(
     return _detect_from_history(history, today)
 
 
-def _detect_from_history(history: pd.DataFrame, today: dt.date) -> LevelSet:
+def _detect_from_history(
+    history: pd.DataFrame,
+    today: dt.date,
+    *,
+    exclude_intraday_hl: bool = False,
+) -> LevelSet:
     """Internal: derive levels from a tz-aware bar history through to right now.
 
     Uses FULL bars including premarket if provided — PMH/PML are derived from
     bars timestamped 04:00-09:30 ET on `today`.
+
+    Args:
+        exclude_intraday_hl: When True, skip today's session H/L levels (the
+            ``intraday`` source). Default False = production behavior unchanged.
+            Set via level_flags={} in run_backtest() for A/B testing only.
     """
     history = history.copy()
     history["date"] = history["timestamp_et"].dt.date
@@ -173,8 +183,9 @@ def _detect_from_history(history: pd.DataFrame, today: dt.date) -> LevelSet:
         multi_day.append(rh)
         multi_day.append(rl)
 
-    # Today's session H/L so far (active only)
-    if not today_rth.empty:
+    # Today's session H/L so far (active only).
+    # Gated by exclude_intraday_hl flag for A/B scorecard testing (level_shadow_ab.py).
+    if not today_rth.empty and not exclude_intraday_hl:
         active.append(float(today_rth["high"].max()))
         active.append(float(today_rth["low"].min()))
 

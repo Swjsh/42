@@ -1,0 +1,56 @@
+Loading data...
+SPY 34324 rows, VIX 22283 rows
+
+Running baseline (cap=999=off)...
+BASE: IS n=128 pnl=+12838 | OOS n=21 pnl=+3728
+
+======================================================================
+VIX_HARD_CAP_BEAR SWEEP (low range 20-30)
+======================================================================
+    cap  IS_n  IS_rm  IS_dlt  OOS_dlt      WF verdict
+  ----- ----- ------ ------- -------- ------- ---------------
+     20   124      4   -4432     -205   0.282 REJECT
+     21   126      2   -2667     -205   0.468 REJECT
+     22   127      1    -631     -288   INERT REJECT
+     23   127      1    -631       +0   INERT REJECT
+     24   128      0    +365       +0     N/A CANDIDATE
+     25   128      0      -1       +0     N/A REJECT
+     27   128      0      +0       +0     N/A REJECT
+     30   128      0      +0       +0     N/A REJECT
+
+IS-positive candidates:
+  cap=24: IS+365 OOS+0 n_rm_is=0 n_rm_oos=0
+
+======================================================================
+SUB-WINDOW STABILITY: cap=24 (best IS improvement)
+======================================================================
+  W1_2025H1: n_removed=0 delta=+367 -> HELP
+  W2_2025H2: n_removed=0 delta=+0 -> FLAT
+  W3_Q12026: n_removed=0 delta=-1 -> HURT
+  W4_Apr26: n_removed=0 delta=+0 -> FLAT
+
+  SW hurt: 1/4 (gate: <=1)
+  C22 check: W4_Apr26 contribution = 0% of IS improvement [LOW C22 RISK]
+
+  Rolling OOS:
+  OOS_W1_May8-22: n_removed=0 delta=+0 -> PASS
+  OOS_W2_May23-Jun16: n_removed=0 delta=+0 -> PASS
+  Rolling OOS: 2/2 (100%, gate: >=60%)
+
+  Anchor check (cap=24):
+  04/29: base=+0 cand=+0 delta=+0 [OK]
+  05/01: base=+0 cand=+0 delta=+0 [OK]
+  05/04: base=+0 cand=+0 delta=+0 [OK]
+  05/05: base=+0 cand=+0 delta=+0 [OK]
+  05/06: base=+0 cand=+0 delta=+0 [OK]
+
+======================================================================
+FINAL VERDICT (cap=24):
+  IS delta: +365
+  OOS delta: +0
+  SW: 1/4 HURT (PASS)
+  C22 risk: LOW (0%)
+  Anchor: OK
+  -> CANDIDATE (auto-ratify eligible)
+
+VIX bear cap sweep complete.

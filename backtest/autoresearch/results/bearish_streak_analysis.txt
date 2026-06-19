@@ -1,0 +1,53 @@
+Loading data...
+SPY 34324 rows  VIX 22283 rows
+Building SPY timestamp index...
+Running IS backtest...
+IS total: n=130, BEAR-PUT: n=130
+Running OOS backtest...
+OOS total: n=21, BEAR-PUT: n=21
+
+=== IS BEARISH (PUT) trades (n=130) ===
+
+Streak      N     WR%    Avg P&L    Total P&L  Signal
+------------------------------------------------------------
+     0     77   20.8%        +25        +1928
+     1     23   21.7%       +187        +4302
+     2     12   41.7%       +263        +3160
+     3      8   37.5%       +224        +1790
+     4      5   20.0%       +176         +880
+     5      5   60.0%       +823        +4113
+
+  Gate analysis (require streak >= N):
+          Gate  N_keep  N_skip    PnL_keep    PnL_skip   WR_keep
+  streak>=1           53      77      +14245       +1928     32.1%
+  streak>=2           30     100       +9943       +6230     40.0%
+  streak>=3           18     112       +6783       +9391     38.9%
+
+=== OOS BEARISH (PUT) trades (n=21) ===
+
+Streak      N     WR%    Avg P&L    Total P&L  Signal
+------------------------------------------------------------
+     0     14   50.0%       +456        +6385
+     1      4   50.0%         +3          +11 <-- likely noise
+     2      2   50.0%       -160         -319 <-- likely noise
+     3      1    0.0%       -176         -176 <-- likely noise
+
+  Gate analysis (require streak >= N):
+          Gate  N_keep  N_skip    PnL_keep    PnL_skip   WR_keep
+  streak>=1            7      14        -485       +6385     42.9%
+  streak>=2            3      18        -495       +6395     33.3%
+  streak>=3            1      20        -176       +6076      0.0%
+
+
+=== VOLUME RATIO ANALYSIS (IS BEAR trades) ===
+Volume ratio = entry bar volume / avg volume of prior 30 bars
+  Q1 (lowest vol)     : n= 32  WR=15.6%  avg_P&L=    +11  avg_vol_ratio=0.42
+  Q2                  : n= 32  WR=28.1%  avg_P&L=   +170  avg_vol_ratio=0.81
+  Q3                  : n= 32  WR=25.0%  avg_P&L=   +103  avg_vol_ratio=1.11
+  Q4 (highest vol)    : n= 34  WR=32.4%  avg_P&L=   +209  avg_vol_ratio=2.00
+
+  Volume gate (require vol_ratio >= X):
+    vol>=0.8: keep n= 81 P&L=  +13099 WR=29.6%  |  skip n= 49 P&L=   +3075
+    vol>=1.0: keep n= 59 P&L=  +10786 WR=30.5%  |  skip n= 71 P&L=   +5388
+    vol>=1.2: keep n= 42 P&L=  +10499 WR=33.3%  |  skip n= 88 P&L=   +5675
+    vol>=1.5: keep n= 27 P&L=   +8207 WR=33.3%  |  skip n=103 P&L=   +7967

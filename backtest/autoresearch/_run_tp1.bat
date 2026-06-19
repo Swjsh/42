@@ -1,0 +1,1 @@
+"C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe" -u "C:\Users\jackw\Desktop\42\backtest\autoresearch\tp1_runner_sweep.py" > "C:\Users\jackw\Desktop\42\backtest\autoresearch\_tp1_runner_out.txt" 2> "C:\Users\jackw\Desktop\42\backtest\autoresearch\_tp1_runner_err.txt"

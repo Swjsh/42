@@ -50,6 +50,7 @@ SHARPE_REGRESSION_TOLERANCE = 0.30  # absolute Sharpe drop
 
 @pytest.mark.pressure
 @pytest.mark.r_id(R_ID)
+@pytest.mark.xfail(reason="template placeholder: R0000 is not a real fingerprint; copy file to pending/ and fill in R-NNNN data before running")
 def test_red_loss_reproduces(bars_at_window, production_v14_params):
     """RED phase: confirm the loss reproduces under production v14.
 

@@ -1,0 +1,139 @@
+====================================================================================================
+NEGATIVE ROLLING WF WINDOWS DEEP DIVE
+====================================================================================================
+
+============================================================
+NEGATIVE WINDOWS (non-Liberation-Day losses)
+============================================================
+
+  [OOS-NEG Nov-25 2025-11-03 to 2025-11-28] n=10 pnl=-1089 WR=30%
+    VIX buckets:
+      15-17   : n=  2 pnl=   -463 WR=0%
+      17-20   : n=  5 pnl=   -159 WR=40%
+      20-25   : n=  2 pnl=   +968 WR=50%
+      25-35   : n=  1 pnl=  -1435 WR=0%
+    Quality tiers:
+      SUPER       : n=  1 pnl=   +996 WR=100%
+      ELITE       : n=  2 pnl=   -463 WR=0%
+      LEVEL       : n=  1 pnl=  -1435 WR=0%
+      TRENDLINE   : n=  6 pnl=   -187 WR=33%
+
+  [OOS-NEG Jan-26 2026-01-02 to 2026-01-30] n=24 pnl=-624 WR=25%
+    VIX buckets:
+      <15     : n=  3 pnl=   +223 WR=33%
+      15-17   : n= 18 pnl=  -1741 WR=17%
+      17-20   : n=  3 pnl=   +894 WR=67%
+    Quality tiers:
+      SUPER       : n=  3 pnl=  +1259 WR=67%
+      ELITE       : n= 17 pnl=  -1183 WR=18%
+      LEVEL       : n=  1 pnl=   -482 WR=0%
+      TRENDLINE   : n=  3 pnl=   -218 WR=33%
+
+  [OOS-NEG Mar-26 2026-03-02 to 2026-03-31] n=15 pnl=-3004 WR=40%
+    VIX buckets:
+      20-25   : n=  2 pnl=   +430 WR=50%
+      25-35   : n= 13 pnl=  -3433 WR=38%
+    Quality tiers:
+      SUPER       : n=  2 pnl=  +2644 WR=100%
+      ELITE       : n=  1 pnl=   +669 WR=100%
+      LEVEL       : n=  7 pnl=  -5903 WR=29%
+      TRENDLINE   : n=  5 pnl=   -413 WR=20%
+
+--- POOLED NEGATIVE (3 windows combined) ---
+
+  [ALL 3 NEG WINDOWS POOLED] n=49 pnl=-4716 WR=31%
+    VIX buckets:
+      <15     : n=  3 pnl=   +223 WR=33%
+      15-17   : n= 20 pnl=  -2205 WR=15%
+      17-20   : n=  8 pnl=   +735 WR=50%
+      20-25   : n=  4 pnl=  +1398 WR=50%
+      25-35   : n= 14 pnl=  -4868 WR=36%
+    Quality tiers:
+      SUPER       : n=  6 pnl=  +4899 WR=83%
+      ELITE       : n= 20 pnl=   -977 WR=20%
+      LEVEL       : n=  9 pnl=  -7820 WR=22%
+      TRENDLINE   : n= 14 pnl=   -818 WR=29%
+
+============================================================
+POSITIVE WINDOWS (control group)
+============================================================
+
+  [OOS-POS Jul-25 2025-07-01 to 2025-07-31] n=24 pnl=+594 WR=29%
+    VIX buckets:
+      <15     : n=  1 pnl=   -145 WR=0%
+      15-17   : n= 20 pnl=   +990 WR=30%
+      17-20   : n=  3 pnl=   -251 WR=33%
+    Quality tiers:
+      SUPER       : n=  2 pnl=  +2832 WR=100%
+      ELITE       : n= 16 pnl=  -1964 WR=6%
+      LEVEL       : n=  2 pnl=   -929 WR=0%
+      TRENDLINE   : n=  4 pnl=   +656 WR=100%
+
+  [OOS-POS Sep-25 2025-09-02 to 2025-09-30] n=14 pnl=+1760 WR=21%
+    VIX buckets:
+      <15     : n=  2 pnl=  +1172 WR=50%
+      15-17   : n= 12 pnl=   +588 WR=17%
+    Quality tiers:
+      SUPER       : n=  1 pnl=   -289 WR=0%
+      ELITE       : n=  9 pnl=  +1185 WR=22%
+      LEVEL       : n=  1 pnl=   -477 WR=0%
+      TRENDLINE   : n=  3 pnl=  +1341 WR=33%
+
+  [OOS-POS Feb-26 2026-02-02 to 2026-02-27] n=10 pnl=+3123 WR=40%
+    VIX buckets:
+      17-20   : n=  6 pnl=  +4268 WR=50%
+      20-25   : n=  4 pnl=  -1145 WR=25%
+    Quality tiers:
+      SUPER       : n=  2 pnl=   +552 WR=50%
+      ELITE       : n=  3 pnl=  +3901 WR=67%
+      LEVEL       : n=  1 pnl=  -1175 WR=0%
+      TRENDLINE   : n=  4 pnl=   -156 WR=25%
+
+  [OOS-POS May-26 2026-05-01 to 2026-05-22] n=17 pnl=+3631 WR=53%
+    VIX buckets:
+      15-17   : n=  1 pnl=   +744 WR=100%
+      17-20   : n= 16 pnl=  +2887 WR=50%
+    Quality tiers:
+      SUPER       : n=  4 pnl=  +1413 WR=75%
+      ELITE       : n=  7 pnl=  +1412 WR=29%
+      LEVEL       : n=  4 pnl=   +447 WR=50%
+      TRENDLINE   : n=  2 pnl=   +358 WR=100%
+
+--- POOLED POSITIVE (4 windows combined) ---
+
+  [ALL 4 POS WINDOWS POOLED] n=65 pnl=+9108 WR=35%
+    VIX buckets:
+      <15     : n=  3 pnl=  +1027 WR=33%
+      15-17   : n= 33 pnl=  +2322 WR=27%
+      17-20   : n= 25 pnl=  +6904 WR=48%
+      20-25   : n=  4 pnl=  -1145 WR=25%
+    Quality tiers:
+      SUPER       : n=  9 pnl=  +4508 WR=67%
+      ELITE       : n= 35 pnl=  +4534 WR=20%
+      LEVEL       : n=  8 pnl=  -2134 WR=25%
+      TRENDLINE   : n= 13 pnl=  +2199 WR=62%
+
+====================================================================================================
+CROSS-WINDOW COMPARISON: NEG vs POS VIX BUCKET DISTRIBUTION
+====================================================================================================
+
+  VIX        NEG_n   NEG_WR%   NEG_$/trade  |  POS_n   POS_WR%   POS_$/trade
+  ---------------------------------------------------------------------------
+  <15            3        33%           +74  |      3        33%          +342
+  15-17         20        15%          -110  |     33        27%           +70
+  17-20          8        50%           +92  |     25        48%          +276
+  20-25          4        50%          +349  |      4        25%          -286
+  25-35         14        36%          -348  |      0         0%            +0
+
+====================================================================================================
+CROSS-WINDOW COMPARISON: NEG vs POS QUALITY TIER
+====================================================================================================
+
+  Quality        NEG_n   NEG_WR%   NEG_$/trade  |  POS_n   POS_WR%   POS_$/trade
+  ---------------------------------------------------------------------------
+  SUPER              6        83%          +817  |      9        67%          +501
+  ELITE             20        20%           -49  |     35        20%          +130
+  LEVEL              9        22%          -869  |      8        25%          -267
+  TRENDLINE         14        29%           -58  |     13        62%          +169
+
+ANALYSIS COMPLETE.

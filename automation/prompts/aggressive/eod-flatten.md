@@ -40,9 +40,18 @@ The PowerShell harness has already validated `automation/state/*.json`. If `curr
    - Append `AGG_EOD_FLATTEN` entry to `journal/{today}.md`.
    - Set `automation/state/current-position-bold.json` status to null.
 
-4. Log to `automation/state/logs/eod-flatten-aggressive-{today}.log`.
+4. **Alpaca fill reconciliation — FIX 4 (2026-06-15)**: After flattening (or NOOP), reconcile today's fills so an unrecorded close gets journaled. The 2026-06-15 incident: Bold TP1 +$474 was journaled but the runner's final close (bracket TP-leg) never reached trades.csv because the heartbeat was blinded by rate limits.
+   a. Call `mcp__alpaca_aggressive__get_account_activities_by_type(activity_type="FILL")`. Filter to today's date and options only (symbol contains "C0" or "P0", length >= 15).
+   b. Read `journal/trades.csv`. Find today's BOLD account rows (account_id=aggressive or account_id=bold) and today's entries in `automation/state/aggressive/decisions.jsonl`.
+   c. For each Alpaca SELL fill today on the aggressive account: check if a matching exit row exists in trades.csv (contract symbol + time within 5 min). If NOT found:
+      - Append a RECONCILE row to `journal/trades.csv` with: date, `time_exit={fill_time}`, `contract={symbol}`, `exit_px={fill_price}`, `qty={fill_qty}`, `dollar_pnl={computed or "UNKNOWN"}`, `notes_short="RECONCILE_FILL: EOD-flatten bold account, heartbeat blinded"`, `account_id=aggressive`.
+      - Log `AGG_RECONCILE_FILL_APPENDED symbol={symbol} qty={qty} exit_px={price}`.
+   d. If no unrecorded fills: log `AGG_RECONCILE_NOOP`.
+   e. READ + APPEND only. No order modifications.
 
-5. Update `automation/state/dashboard-dialogue.json` (preserve other keys):
+5. Log to `automation/state/logs/eod-flatten-aggressive-{today}.log`.
+
+6. Update `automation/state/dashboard-dialogue.json` (preserve other keys):
    - `updated_at`: now ISO
    - `agents.eod_aggressive`: `{active: true, speech: "<AGG EOD: FLATTENED|NOOP>", last_active_at: now ISO}`
 

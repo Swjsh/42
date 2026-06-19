@@ -218,9 +218,9 @@ def decide_with_validation(
                     f"validate sharpe regressed too far: {val_sharpe:.3f} < "
                     f"floor {floor:.3f} (baseline {base_val_sharpe:.3f})"
                 ),
-                delta_sharpe=train_decision.delta_sharpe,
-                delta_pnl=train_decision.delta_pnl,
-                delta_winrate=train_decision.delta_winrate,
+                delta_sharpe=train_delta_sharpe,
+                delta_pnl=train_delta_pnl,
+                delta_winrate=train_delta_wr,
                 threshold_failures=[
                     f"validate_sharpe_regression: {val_sharpe:.3f} vs floor {floor:.3f}"
                 ],
@@ -235,9 +235,9 @@ def decide_with_validation(
                     f"validate sharpe degraded: {val_sharpe:.3f} < "
                     f"baseline {base_val_sharpe:.3f}"
                 ),
-                delta_sharpe=train_decision.delta_sharpe,
-                delta_pnl=train_decision.delta_pnl,
-                delta_winrate=train_decision.delta_winrate,
+                delta_sharpe=train_delta_sharpe,
+                delta_pnl=train_delta_pnl,
+                delta_winrate=train_delta_wr,
                 threshold_failures=[
                     f"validate_sharpe_regression: {val_sharpe:.3f} vs {base_val_sharpe:.3f}"
                 ],
@@ -246,11 +246,11 @@ def decide_with_validation(
     return Decision(
         keep=True,
         reason=(
-            f"train sharpe {train_decision.delta_sharpe:+.3f}, "
+            f"train sharpe {train_delta_sharpe:+.3f}, "
             f"validate sharpe delta {delta_val_sharpe:+.3f}"
         ),
-        delta_sharpe=train_decision.delta_sharpe,
-        delta_pnl=train_decision.delta_pnl,
-        delta_winrate=train_decision.delta_winrate,
+        delta_sharpe=train_delta_sharpe,
+        delta_pnl=train_delta_pnl,
+        delta_winrate=train_delta_wr,
         threshold_failures=[],
     )

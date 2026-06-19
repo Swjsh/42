@@ -1,0 +1,103 @@
+{
+  "task": "1b77b722-elite-subtier-sweep",
+  "is_tier_distribution": {
+    "TRENDLINE": {
+      "n": 61,
+      "wr": 0.393,
+      "avg": 53.3,
+      "total": 3250.5
+    },
+    "LEVEL": {
+      "n": 16,
+      "wr": 0.375,
+      "avg": 488.9,
+      "total": 7822.3
+    },
+    "SUPER": {
+      "n": 14,
+      "wr": 0.429,
+      "avg": 650.8,
+      "total": 9111.8
+    },
+    "ELITE": {
+      "n": 22,
+      "wr": 0.364,
+      "avg": 147.4,
+      "total": 3242.0
+    }
+  },
+  "elite_sub_tier": [
+    {
+      "bucket": "conf_only",
+      "n": 22,
+      "wr": 0.364,
+      "avg": 147.4,
+      "total": 3242.0
+    }
+  ],
+  "elite_vix_buckets": [
+    {
+      "bucket": "vix<17",
+      "n": 13,
+      "wr": 0.231,
+      "avg": 55.2,
+      "total": 718.2
+    },
+    {
+      "bucket": "vix_17-20",
+      "n": 4,
+      "wr": 0.75,
+      "avg": 347.3,
+      "total": 1389.0
+    },
+    {
+      "bucket": "vix_20-25",
+      "n": 4,
+      "wr": 0.5,
+      "avg": 388.7,
+      "total": 1554.8
+    },
+    {
+      "bucket": "vix_25+",
+      "n": 1,
+      "wr": 0.0,
+      "avg": -420.0,
+      "total": -420.0
+    }
+  ],
+  "elite_time_buckets": [
+    {
+      "bucket": "afternoon",
+      "n": 1,
+      "wr": 1.0,
+      "avg": 651.0,
+      "total": 651.0
+    },
+    {
+      "bucket": "midday",
+      "n": 10,
+      "wr": 0.3,
+      "avg": 89.7,
+      "total": 897.4
+    },
+    {
+      "bucket": "morning",
+      "n": 11,
+      "wr": 0.364,
+      "avg": 154.0,
+      "total": 1693.6
+    }
+  ],
+  "elite_oos_sub": [
+    {
+      "bucket": "conf_only",
+      "n": 6,
+      "wr": 0.333,
+      "avg": 419.5,
+      "total": 2516.9
+    }
+  ],
+  "gate_candidates": [],
+  "elite_is_total": 3242.0,
+  "elite_oos_total": 2516.9
+}

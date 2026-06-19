@@ -2195,12 +2195,1893 @@ The larger absolute stop ($0.40+ on ITM-2 vs $0.02–$0.05 on ATM at −15%) sur
 
 ---
 
+## L79 — 2026-06-15: Watcher trigger strings carry price suffix — exact-match lookups in shadow eval and analysis tools silently miss them
+
+**Symptom:** Shadow eval (v4 and earlier) showed ENTER_BULL miss on 2026-06-02 tick t8 even though the trigger fired correctly in production. The shadow model output HOLD. The heartbeat had fired and logged an ENTER decision — but the shadow replay reconstructed HOLD.
+
+**Root cause:** Watchers emit trigger strings with a price suffix: `"level_reclaim_758.22"`. The heartbeat writes this raw string to `decisions.jsonl`. When the shadow eval (and any downstream analysis tool) does an exact-match lookup against the canonical valid-trigger list (`["level_reclaim", "level_break", "ribbon_flip", ...]`), the suffixed string fails to match — `trigger=None` in the snapshot. The model receives `trigger=None` → no confirmed trigger → outputs HOLD. Any tool that reads trigger-type from `decisions.jsonl` via exact match inherits this silent defect.
+
+**Fix:**
+1. **Heartbeat (production):** normalize trigger before writing to `decisions.jsonl` — strip the price suffix, log only the base trigger name (`level_reclaim`, `level_break`, `ribbon_flip`, etc.). The price is already captured in the `spy` field; embedding it in the trigger string fragments all downstream grouping and lookup across every unique price point.
+2. **Shadow eval v5 (defensive workaround):** prefix matching in `build_tick_prompt()` — `"level_reclaim_758.22"` matches `"level_reclaim"` via `raw.startswith(valid + "_")`. Defensive-only; production ledger should not produce suffixed triggers.
+
+**Encoded in:** `automation/prompts/heartbeat.md` (trigger normalization note added to Decisions ledger section), `automation/prompts/aggressive/heartbeat.md` (same fix), `setup/scripts/shadow_model_eval.py` (v5 prefix-matching workaround).
+
+**Detection:** Any new shadow eval or analysis pass that reads `trigger` from `decisions.jsonl` must use prefix matching (not exact match) as a defensive layer. A regression test: seed a `decisions.jsonl` row with `trigger="level_reclaim_758.22"` and assert the eval resolves it to `level_reclaim`.
+
+---
+
+## L80 — 2026-06-15: bull_score logged as null at ENTER ticks — shadow model saw 0 and output HOLD
+
+**Symptom:** Shadow eval showed ENTER_BULL miss on 2026-06-02 tick t12. Production heartbeat logged ENTER; shadow replay produced HOLD. The signal was present; the model received no signal.
+
+**Root cause:** `heartbeat.md`'s Decisions Ledger schema listed `bull_score` and `bear_score` in the LEAN schema (applied to HOLD_DEV ticks) but the ENTER-specific required-fields list (line 672) did NOT include them. A logging race in the heartbeat — score computed before the ENTER branch, not explicitly carried into the `decisions.jsonl` write step — caused `bull_score=null` to be written at some ENTER ticks. The shadow eval received `null`, passed `0` to the model, and the model had no signal strength to act on → HOLD.
+
+**Fix:**
+1. **Heartbeat:** explicitly include `bull_score` and `bear_score` in the required fields for the ENTER row in `decisions.jsonl`. If the logging race prevents reading the field at write time, extract the authoritative value from the `reason` string (which always contains `"bull_score=N"` or `"N/11"`).
+2. **Shadow eval v5 (defensive workaround):** null fallback extracts score from the `reason` field via regex `r'bull_score[=:](\d+)'` or `r'(\d+)/11'`. Defensive-only; production should log the score correctly.
+
+**Encoded in:** `automation/prompts/heartbeat.md` (bull_score note added to Decisions Ledger ENTER row spec), `automation/prompts/aggressive/heartbeat.md` (same fix), `setup/scripts/shadow_model_eval.py` (v5 null fallback from reason field).
+
+**Detection:** Any shadow eval replay that shows ENTER in production but HOLD in shadow, where the shadow tick has `bull_score=0` and a non-trivial `reason` string, should trigger a null-score audit before treating the miss as a genuine model disagreement.
+
+---
+
+## L81 — 2026-06-15: Kitchen daemon alive-check used tasklist (PID-only) — OS PID reuse produced false-alive → daemon dead for ~10 hours
+
+**Symptom:** `kitchen-status.json` showed the daemon alive. The keepalive task (`Gamma_KitchenDaemonKeepalive`) fired every 5 minutes and silently exited. No cook tasks completed. The kitchen was dead for approximately 10 hours while appearing healthy in all status surfaces.
+
+**Root cause:** `kitchen_daemon.py`'s `_existing_daemon_alive()` checked liveness with `tasklist /FI "PID eq N"`. `tasklist` checks only PID existence — no CommandLine filter. When the daemon's PID (e.g. 2136) was recycled by Windows for an unrelated process (`svchost.exe`), `tasklist` reported PID 2136 alive. The startup check concluded "another daemon is already alive" and exited silently. Every subsequent keepalive fire and manual restart hit the same false-alive gate. The stale PID file was never deleted.
+
+**Fix:** Replace `tasklist` with a WMIC CommandLine check:
+```
+wmic process where ProcessId=N get CommandLine /value
+```
+Output contains `"kitchen_daemon.py"` ONLY if the process actually running under that PID is the daemon. Also: delete the stale PID file if the CommandLine does not match — prevents indefinite lockout on next restart. This is the same pattern the keepalive PowerShell script already used (`Get-WmiObject + CommandLine -match`). Both the daemon's own check AND any external liveness check MUST use CommandLine matching — PID-only checks are always wrong on Windows due to PID recycling.
+
+**Encoded in:** `setup/scripts/kitchen_daemon.py` (`_existing_daemon_alive()` replaced with WMIC CommandLine check + stale-PID-file cleanup).
+
+**Detection:** Any Windows liveness check that uses only PID existence (via `tasklist`, `Get-Process -Id N`, or similar) without CommandLine verification is a PID-reuse time bomb. Grep for `tasklist /FI "PID` or `Get-Process -Id` in daemon/keepalive scripts and audit each one.
+
+**Related:** L20, L27, L33, L41 (headless Windows spawn / WMI liveness family). The keepalive PS script already used the correct WMI pattern — the daemon's own check was the gap.
+
+---
+
+## L82 — 2026-06-16: FILL_CONFIRMED counted as decision-tick — broker ack is not a trading decision
+
+**Symptom:** Shadow eval scored 5/18 at 66.7% DT (raw). The "miss" at 10:00 was classified as a DT miss: real=FILL_CONFIRMED, shadow=HOLD_RUNNER. This dragged the DT rate from 7/7 to 6/7.
+
+**Root cause:** `is_decision_tick()` only excluded HOLD, HOLD_RUNNER, ERROR_*, PAUSED, TRIPPED. FILL_CONFIRMED is a broker fill-acknowledgment action (the heartbeat ticks once after an order fills to confirm position state is synced) — it is NOT a trading decision. The model correctly outputs HOLD_RUNNER for an open position, which is the right trading action. But FILL_CONFIRMED was counted as a DT, making agreement impossible (model can't know to output "FILL_CONFIRMED" — that's a broker event, not a market decision).
+
+**Fix:** Add FILL_CONFIRMED to `is_decision_tick()` exclusion list. Add agreement rule: FILL_CONFIRMED + shadow HOLD_RUNNER = agree (both indicate position is held, no new order).
+
+**Encoded in:** `setup/scripts/shadow_model_eval.py` v6 (2026-06-16). `is_decision_tick()` and `actions_agree()`.
+
+**Detection pattern:** When auditing a shadow eval miss, always check: is the real action a TRADING decision (entry/exit/setup monitoring), or is it INFRASTRUCTURE (infra failure, broker sync, kill-switch)? Infrastructure actions cannot be reproduced by a market-data model and should be excluded from DT.
+
+**Related:** C7 (audit metric definitions, not just outputs). Action taxonomy: TRADING = HOLD_DEV/ENTER_*/EXIT_*/SKIP_*. INFRA = FILL_CONFIRMED/ERROR_*/PAUSED/TRIPPED.
+
+---
+
+## L83 — 2026-06-16: EXIT_STOP enrichment single-pattern regex — bracket-stop-leg format unmatched
+
+**Symptom:** Shadow eval v5 replayed 5/18 10:06 EXIT_STOP as a DT miss (real=EXIT_STOP, shadow=HOLD). Model saw position_status="closed" (post-action state), no exit_hint, and correctly said HOLD — no open position visible.
+
+**Root cause:** EXIT_STOP enrichment in `build_tick_prompt()` only matched one reason-field format: `premium_stop_breach: {cur} < {stop}`. The 5/18 10:06 EXIT_STOP reason field was a BRACKET STOP LEG format: `exit filled at 1.51 (below entry 1.84, between stop 0.99 and TP1 2.76); bracket stop leg or manual exit`. This format comes from Alpaca bracket orders where the stop leg fills at the GTC stop price — the heartbeat logs the Alpaca fill notification, not a premium-stop breach. The single regex pattern silently missed it.
+
+**Fix:** Multi-pattern regex cascade — try all known formats, fall back to ribbon-flip detection:
+1. `premium_stop_breach: {cur} < {stop}` (v4 original)
+2. `cur={cur} stop={stop}` style
+3. `exit_px={cur} stop={stop}` style  
+4. `exit filled at {cur} ... stop {stop}` (bracket-stop-leg, v6 Pattern 4)
+5. Fallback: if `"ribbon"` in reason → ribbon-flip stop (reconstruct open state + hint without price data)
+
+**Rule:** Any evaluator that reconstructs pre-action state from post-action ledger entries MUST handle ALL reason-field formats from the actual production system. Test the regex against real historical reason strings, not synthetic ones.
+
+**Encoded in:** `setup/scripts/shadow_model_eval.py` v6 (2026-06-16). EXIT_STOP enrichment block.
+
+**Related:** C7 (audit outputs, not just exit codes). L76 (ghost entry from position state not written). Any time EXIT_* ticks log position_status="closed", the pre-action reconstruction must be robust to all trigger formats.
+
+---
+
+## L84 — 2026-06-16: Fill-acknowledgment action variants missed by is_decision_tick() exclusion
+
+**Symptom:** Shadow eval counted `ENTRY_FILLED_HOLD` as a decision-tick miss (real=ENTRY_FILLED_HOLD, shadow=HOLD_RUNNER). Model correctly described the post-fill state but was penalized because the action wasn't in the DT exclusion list.
+
+**Root cause:** The production heartbeat emits multiple fill-acknowledgment action names over time — `FILL_CONFIRMED` was excluded in v6 but `ENTRY_FILLED_HOLD` (a variant from the 5/20 Bold account early-era) was not. Both are state-tracking broker events: "entry fired, now holding". The model correctly outputs HOLD_RUNNER (position open, no new decision needed). Counting these as DT misses inflates the miss rate with non-decision ticks.
+
+**Fix:** Maintain an explicit exclusion list for ALL fill-acknowledgment and state-tracking variants. Currently: `{"HOLD", "HOLD_RUNNER", "FILL_CONFIRMED", "ENTRY_FILLED_HOLD", "PAUSED", "TRIPPED"}`. Add corresponding agree rule: if real is a fill-ack variant and shadow in hold variants → agree.
+
+**Rule:** When adding new action types to the production heartbeat, immediately classify them: "is this a trading decision OR a state-tracking event?" State-tracking events (broker acks, state machine transitions) must be added to the DT exclusion list in the shadow eval. A shadow eval that treats state transitions as decisions will systematically undercount agreement.
+
+**Encoded in:** `setup/scripts/shadow_model_eval.py` v7 (2026-06-16). `is_decision_tick()` + `actions_agree()`.
+
+**Related:** L82 (FILL_CONFIRMED exclusion). C7 (audit outputs, not exit codes).
+
+---
+
+## L85 — 2026-06-16: SKIP_ENTRY_* vs ENTER_* treated as disagree — account constraint ≠ model judgment error
+
+**Symptom:** Shadow eval v6 counted `SKIP_ENTRY_INSUFFICIENT_BUYING_POWER` (real) vs `ENTER_BULL` (shadow) as a DT miss on 5/20. Both the real engine and the shadow model agreed the trade setup was valid — the real system just couldn't execute.
+
+**Root cause:** `actions_agree()` had no rule for SKIP_ENTRY_* vs ENTER_* combinations. The real action is "I see the trade but can't execute (buying power limit)". The shadow action is "I see the trade and would enter". These are the same market judgment — the disagreement is purely about account execution state that the shadow model has no visibility into.
+
+**Fix:** Add agree rule: `if real.startswith("SKIP_ENTRY_") and shadow.startswith("ENTER_"): return True`. The model's market read is correct; the skip is an infrastructure constraint. Similarly, SKIP_* + ENTER_* should not count as a model quality failure in any benchmark.
+
+**Rule:** When evaluating model judgment quality, separate MARKET JUDGMENT (was the setup valid?) from EXECUTION CAPABILITY (could we actually enter?). Shadow eval only measures market judgment. Any skip driven by account constraints (buying power, PDT limits, kill-switch state) should agree with a corresponding enter call from the model.
+
+**Encoded in:** `setup/scripts/shadow_model_eval.py` v7 (2026-06-16). `actions_agree()`.
+
+**Related:** L82 (fill-ack exclusion). C11 (broker is source of truth for execution state).
+
+---
+
+---
+
+## L86 — 2026-06-16: Trigger field null in early-era ledger — trigger extracted from reason ignored
+
+**Symptom:** Shadow eval v7 replayed 5/11 10:25 ENTER_BULL as a DT miss (real=ENTER_BULL, shadow=HOLD_DEV). The model's snapshot showed `trigger: null` so it correctly said "no trigger → HOLD_DEV". But the reason field clearly contained "level_reclaim 738.10 + ribbon_expansion BULL 113c + HTF BULL."
+
+**Root cause:** The production heartbeat at that early date (5/11 was one of the first Bold trading days) had a logging gap: the `trigger` field was not being written to decisions.jsonl at entry time, even though the reason field contained the authoritative trigger text. The shadow eval correctly implemented a `bull_score` fallback from reason, but had no equivalent fallback for `trigger`.
+
+**Fix:** When trigger field is null after the allowlist check, scan the reason string for any valid trigger name using word-boundary regex. Sort valid triggers by length descending (longest-first prevents "level_reject" matching a "level_reclaim" prefix). Only extract first match to avoid injecting multiple triggers.
+
+```python
+if trigger is None and reason_raw:
+    for valid in sorted(_VALID_TRIGGERS, key=len, reverse=True):
+        if re.search(r'\b' + re.escape(valid) + r'\b', reason_raw):
+            trigger = valid
+            break
+```
+
+**Rule:** Any field that has an authoritative text representation in the reason string MUST have a reason-field fallback in the eval. Ledger logging gaps are a known failure mode (L80 covers bull_score; this covers trigger). Audit all snapshot fields after each new eval day to check for null-but-non-null-in-reason cases.
+
+**Encoded in:** `setup/scripts/shadow_model_eval.py` v8 (2026-06-16). Trigger extraction block.
+
+**Related:** L80 (bull_score null fallback). C7 (audit outputs, not exit codes).
+
+---
+
+## L87 — 2026-06-16: HOLD_DEV at bs=0,0 (flat) treated as DT miss — production engine noise
+
+**Symptom:** Shadow eval v7 counted 5/11 09:39 HOLD_DEV as a DT miss (real=HOLD_DEV, shadow=HOLD). The shadow model correctly said HOLD (bull_score=0, bear_score=0, no trigger, ribbon chop, before 10am gate). The production engine logged HOLD_DEV under conditions where HOLD_DEV makes no sense.
+
+**Root cause:** Very early Bold account (5/11 = first day) had a production engine bug where it emitted HOLD_DEV in pre-10am ribbon-chop conditions with 0/0 scores. The rubric clearly requires bull_score>=7 for HOLD_DEV (near-miss monitoring). The shadow eval was correctly applying the rubric; the production engine was not.
+
+**Fix:** Add agreement rule: real=HOLD_DEV + shadow=HOLD + flat_position + bull_score<=1 + bear_score<=1 → agree. Pass bull_score/bear_score to actions_agree() for this check. The condition is tight enough (all three: HOLD_DEV, HOLD, bs=0-1 flat) that it won't accidentally agree on legitimate near-miss HOLD_DEV cases.
+
+**Rule:** When a shadow eval disagrees with the production ledger, check if the PRODUCTION action is consistent with the RUBRIC before classifying as model error. If the production action violates the rubric, the shadow model may be MORE correct — the disagreement is production noise, not model error. This is especially important for early-era ledger data where the production engine was still maturing.
+
+**Encoded in:** `setup/scripts/shadow_model_eval.py` v8 (2026-06-16). `actions_agree()` HOLD_DEV noise rule.
+
+**Related:** L84 (fill-ack exclusion). C7 (audit outputs). C18 (status-format discipline).
+
+---
+
+## L88 — 2026-06-16: Backtest sizing ignored per_trade_risk_cap_pct — orchestrator used fixed quality-tier qty, not capped to account equity
+
+**Symptom:** v42 validator found 16/20 missed_week trades at 100–422% of equity cap. LEVEL-tier (qty=22) trade on 5/26 cost $2,728 notional on $747 equity = 365%.
+
+**Root cause:** `orchestrator.py` assigned `trade_qty` via a fixed quality-tier ladder (SUPER=15/ELITE=10/LEVEL=22/TRENDLINE=3), never checking `initial_equity × per_trade_risk_cap_pct`. Rule 6 (30%/50% cap) only enforced by the live heartbeat, not the backtest.
+
+**Fix:** After each fill, cap qty down linearly when `fill.entry_premium × fill.qty × 100 > initial_equity × per_trade_risk_cap_pct`. Scale `dollar_pnl` by `capped_qty / fill.qty` (linear since exit timing is independent of qty). Recompute `pct_return_on_premium` explicitly. Min floor = 3 contracts (Rule 6 minimum). Wire via `_params_to_kwargs` so `params_safe.json` (0.30) and `params_bold.json` (0.50) auto-route through `params_overrides`.
+
+**Graduated guard:** `test_params_override_binds[per_trade_risk_cap_pct-0.01]` in `backtest/tests/test_graduated_guards.py`.
+
+```python
+# orchestrator.py — after fill returned, before trades.append(fill)
+if fill is not None and initial_equity > 0 and per_trade_risk_cap_pct > 0:
+    max_cost = initial_equity * per_trade_risk_cap_pct
+    fill_cost = fill.entry_premium * fill.qty * 100
+    if fill_cost > max_cost and fill.entry_premium > 0:
+        capped_qty = max(3, int(max_cost / (fill.entry_premium * 100)))  # min 3 (Rule 6)
+        if capped_qty < fill.qty:
+            fill.dollar_pnl = fill.dollar_pnl * (capped_qty / fill.qty)
+            fill.qty = capped_qty
+            fill.pct_return_on_premium = fill.dollar_pnl / (fill.entry_premium * fill.qty * 100)
+```
+
+---
+
+## L89 — 2026-06-16: Profitable profit-lock exit wrongly triggers TRENDLINE_LEG2 re-entry at qty=20
+
+**Symptom:** On 4/29, engine took a second trade at qty=20 after a profitable profit-lock exit (+$94.50 at qty=3), wiping -$508 on the second entry. Net day: -$414. V14E edge_capture stuck at 405 instead of expected ~499.
+
+**Root cause:** `orchestrator.py`'s `stopped_without_tp1` logic marked any `EXIT_ALL_PREMIUM_STOP` without `tp1_time_et` as "stopped," even when `fill.dollar_pnl > 0`. Profit-lock exits use PREMIUM_STOP as the exit reason (exit at the locked-in stop level, which is above entry). Counting a profitable exit as "stopped" enabled TRENDLINE_LEG2 re-entry (qty=20) on the same setup, 90 minutes later.
+
+**Fix:** Add `fill.dollar_pnl <= 0` check to `stopped_without_tp1`. A profitable exit is a timing success, not a stop — it should not enable the leg-2 re-entry pattern.
+
+```python
+# orchestrator.py — stopped_without_tp1 gate
+stopped_without_tp1 = (
+    fill.tp1_time_et is None
+    and (fill.dollar_pnl or 0.0) <= 0.0   # <-- new: profitable exits are NOT stops
+    and (
+        "PREMIUM_STOP" in exit_reason_str
+        or "TIME_STOP" in exit_reason_str
+        or "LEVEL_STOP" in exit_reason_str
+    )
+)
+```
+
+**Impact:** V14E anchor-day edge_capture: 405 → 499.50 (matches original keepers.jsonl 499.64). 4/29 day: -$414 → +$94.50. No anchor-day regressions. Wide 2026-Q1+Q2: $11,104 → $10,037 (TRENDLINE_LEG2 re-entries suppressed where prior was profitable — fewer but safer re-entries).
+
+---
+
+## L90 — 2026-06-16: Date-based staleness gate skips intraday top-up when CSV already has today's partial data
+
+**Symptom:** `watcher_live.py` produced 1 diag entry on 2026-06-15 (first fire at 09:30) and zero entries for all 75 subsequent fires (WATCHER_FLEET 0/100 in EOD deep). Scheduled task ran at 13:55 ET with exit 0 — looked healthy from the outside.
+
+**Root cause:** The yfinance intraday top-up gate was `if latest_csv_date < today`. The master CSV happened to include today's date (it contained a partial session's bars through 10:25 ET). So `latest_csv_date == today` → top-up skipped. The 09:30 fire processed the 10:25 bar (already in CSV). The dedup guard at line 222 (`if last_processed_ts == str(latest_ts): return 0`) then silently returned 0 for all 75 subsequent fires, since no new bar was fetched.
+
+**Fix:** Add an absolute-staleness check: also top-up when the latest bar in the CSV is more than 10 minutes old, regardless of whether `latest_csv_date == today`.
+
+```python
+# watcher_live.py — top-up condition (before this fix, only date was checked)
+try:
+    latest_csv_ts = pd.to_datetime(spy_full["timestamp_et"]).max()
+    if hasattr(latest_csv_ts, "tzinfo") and latest_csv_ts.tzinfo is not None:
+        latest_csv_ts = latest_csv_ts.tz_localize(None)
+    _stale_threshold = dt.timedelta(minutes=10)
+    _csv_is_stale = latest_csv_ts < (dt.datetime.now() - _stale_threshold)
+except Exception:
+    _csv_is_stale = False
+
+if latest_csv_date < today or _csv_is_stale:   # <-- was: if latest_csv_date < today
+    # yfinance top-up
+```
+
+**General pattern:** Any data-freshness gate that uses calendar-date comparison (`date < today`) can silently fail when the data source has a PARTIAL today entry. Always pair with an absolute-timestamp staleness check. Applies to any watcher, validator, or aggregator that does an incremental top-up.
+
+---
+
+## L91 — 2026-06-16: Tick audit reports false-positive MISALIGNED-CRITICAL when backtest CSV is stale
+
+**Symptom:** Heartbeat tick audit for 2026-06-15 reported 8/27 MISALIGNED-CRITICAL (30%), implying the closed-bar fix (v15.1) might be broken. All 8 critical ticks shared `closed_close = 753.540` (the 10:25 bar — the last bar in the backtest CSV) and `claimed_spy = 755.78–756.53` (live TV prices the heartbeat correctly read), yielding a divergence of $2.21–$2.99. All 8 actions were HOLD or HOLD_DEV — no trade taken. The true MISALIGNED-CRITICAL rate was 0.
+
+**Root cause:** `classify_tick()` in `backtest/autoresearch/heartbeat_tick_audit.py` escalated any HOLD tick to CRITICAL when `abs(divergence) > $2.00`, regardless of whether the CSV data source was stale. Because L90 caused `watcher_live.py` to stop topping up after the 10:25 bar, all 27 afternoon ticks showed a $2+ gap between `last_closed_close` (10:25 bar, 753.54) and `claimed_spy` (live TV price 755–756). The audit interpreted this as the heartbeat reading an in-progress bar, but the heartbeat was reading the correct live price; the CSV was simply stale.
+
+**Fix:** Added `csv_lag_minutes` — elapsed minutes since the last bar in the CSV closed. In the divergence branch, HOLD/HOLD_DEV ticks are only escalated to CRITICAL when `csv_lag_minutes < 30`. Decision-changing actions (ENTER, EXIT, ADD) remain CRITICAL unconditionally regardless of CSV staleness.
+
+```python
+# backtest/autoresearch/heartbeat_tick_audit.py — classify_tick()
+DECISION_CHANGING_ACTIONS = {"ENTER_BULL", "ENTER_BEAR", "EXIT_STOP",
+                              "EXIT_TP1", "EXIT_RUNNER", "ADD_LEG"}
+
+csv_is_stale = csv_lag_minutes is not None and csv_lag_minutes > 30
+if action in DECISION_CHANGING_ACTIONS:
+    cls = "MISALIGNED-CRITICAL"           # always escalate on trade actions
+elif abs(div_to_closed) > 2.00 and not csv_is_stale:
+    cls = "MISALIGNED-CRITICAL"           # escalate only if CSV is fresh
+else:
+    cls = "MISALIGNED-BENIGN"
+```
+
+Re-run of 2026-06-15 audit after fix: 0 MISALIGNED-CRITICAL (was 8). `csv_lag_minutes` column also added to CSV output for post-mortem visibility.
+
+**Encoded in:** `backtest/autoresearch/heartbeat_tick_audit.py` (`classify_tick()` function + `csv_lag_minutes` column). Related: L90 (the upstream CSV staleness bug that triggered the false positives); C7 (audit outputs must be accurate, not just non-crashing).
+
+**Detection:** Re-run the tick audit after any watcher_live outage day. If MISALIGNED-CRITICAL count is non-zero, check `csv_lag_minutes` column in the audit CSV — if the critical rows all have `csv_lag_minutes > 30` and actions are HOLD/HOLD_DEV, the audit is working correctly (suppressed). If critical rows have `csv_lag_minutes < 30` and are HOLD ticks, a new regression exists.
+
+---
+
+## L92 — 2026-06-16: IS quality-lock cascade false positive from threshold changes — OOS 2.1× worse despite IS edge_capture tripling
+
+**Symptom:** Filter-6 ribbon spread threshold sweep (30c → 20c) showed IS edge_capture 673 → 2,057 (+$1,384). OOS window (2026-05-08 to 2026-05-22): BASELINE −$709, CANDIDATE −$1,483 — 2.1× WORSE. A result that appeared to be the largest single-sweep gain in the research backlog turned out to be the worst regression in the same OOS window.
+
+**Root cause:** Lowering the spread threshold from 30c to 20c admitted an EARLIER ELITE-tier entry on bars where ribbon spread was between 20c and 30c. This earlier entry:
+1. Stopped out (lost money)
+2. Set `setup_quality_taken_today = ELITE` (3 triggers)
+3. `QUALITY_ESCALATION_LOCK` blocked the profitable LATER entry (LEVEL tier, lower quality — rank cannot escalate when prior entry of same quality level already won)
+
+IS result: The 5/04 11:10 entry (new early entry) happened to hit a much better runner (+$2,491 vs +$322 baseline). This masked the 4/29 trap (−$412) and produced net IS gain of +$1,384. On IS only, it looks like an improvement.
+
+OOS result: Same trap repeats. 13:15 entry (−$244) quality-locks 13:20 entry (+$529). Net OOS worsens by −$774. The IS 5/04 gain is a BS-sim flukey coincidence: 5 minutes earlier entry + marginally better strike + runner hits 2.5× target (vs BE stop on baseline). This does NOT generalize.
+
+**Key mechanism (cascade path):**
+
+| Time | BASELINE | CANDIDATE |
+|---|---|---|
+| 13:10 | no entry (spread=28c, above threshold) | ELITE entry, −$244 (spread=22c, new early) |
+| 13:15 | ELITE entry, +$529 (rank=3 > nothing) | **QUALITY_ESCALATION_LOCK** (rank=3 = prior=3, prior=LOSS... but lock also fires when prior was same tier) |
+| OOS net | +$529 | −$244 |
+
+**Fix:** Before declaring ANY IS improvement that involves admitting new EARLIER entries:
+1. Run OOS and assert `OOS_candidate >= OOS_baseline × 0.90`
+2. Check for quality-lock cascade: does the new early entry set `setup_quality_taken_today` at a tier that blocks a profitable later entry?
+3. Never trust BS-sim runner-target hits as evidence of improvement — they are noisy and regime-dependent (the 5/04 runner to 2.5× was a tariff-crash trending day; OOS fold was post-tariff chop)
+
+**Graduated guard proposal:** `test_threshold_change_does_not_regress_oos` in `backtest/tests/test_graduated_guards.py`. For any candidate with IS edge_capture improvement via new early entries (detected by comparing `n_early_entries_candidate > n_early_entries_baseline`), run OOS window (2026-05-08 to 2026-05-22) and assert `OOS_candidate >= OOS_baseline * 0.90`.
+
+**Encoded in:** `docs/LESSONS-LEARNED.md` L92 + CLAUDE.md OP-25 absorbed-lessons bullet. Graduated guard proposed for `backtest/tests/test_graduated_guards.py`.
+
+**Detection:** Any grinder sweep that produces IS edge_capture improvement of >30% while touching a threshold that controls ENTRY TIMING (not signal quality) should automatically trigger OOS validation before the result is logged as an improvement. A cascade trace for the top-3 IS improvement days should be run: if the improvement days are single-day runner flukes (exit type = RUNNER, hold time < 30min, BS-sim only), the result is likely a false positive.
+
+**Related:** L66 (quality-lock cascade blocking a bigger winner via an intermediate trade), L73 (OOS regime stratification — IS flukes that don't generalize), L85 (agree rules and quality lock cascade logic in shadow eval context).
+
+---
+
+## L93 — 2026-06-16: BEARISH_REVERSAL fires on DECLINING-VIX days — opposite of SNIPER; cross-contaminating SNIPER's VIX-escalating gate collapses EC to 0
+
+**Symptom:** Tested VIX-escalating gate (prior_day_VIX >= prior_5d_avg_VIX, the L73 SNIPER discriminator) as a compound filter on BEARISH_REVERSAL filter-6@20c. Gate blocks ALL 3 J winner days (4/29, 5/01, 5/04 — every anchor day has FLAT/declining VIX at entry time). IS edge_capture collapses from 673 to 0. OOS per-trade expectancy worsens (−$69.8 vs −$44.3 baseline). Verified via `f6_vix_escalating_compound.py` sweep 2026-06-16.
+
+Actual VIX readings for J anchor days confirm the pattern is structural, not coincidental:
+- 4/29: prior=17.81, 5d_avg=18.47 → DECLINING
+- 5/01: prior=16.93, 5d_avg=17.98 → DECLINING
+- 5/04: prior=17.00, 5d_avg=17.65 → DECLINING
+- 5/05 (LOSER day): prior=18.18, 5d_avg=17.66 → ESCALATING
+
+**Root cause:** BEARISH_REVERSAL and SNIPER fire in OPPOSING VIX regimes.
+
+| Setup | VIX regime at best entries | Why |
+|---|---|---|
+| SNIPER (L73) | ESCALATING (prior_day > 5d_avg) | Level breaks work in trending fear — rising VIX = sustained directional flow |
+| BEARISH_REVERSAL | DECLINING (prior_day < 5d_avg) | Ribbon rejection works in fear-mean-reversion — fading the bounce AFTER peak fear |
+
+The tariff-shock period (Apr–May 2026): VIX spiked to 50+ on April 9 (Liberation Day), then began declining. Best BEARISH_REVERSAL anchor days (4/29, 5/01, 5/04) were during this DECLINING phase — VIX still elevated (16–18) but falling from peak. SNIPER's VIX-escalating gate was calibrated on a structurally different regime and is incompatible.
+
+The loser day (5/05) is the single escalating day. This is the inverse of SNIPER's L73 pattern — which means the two regime profiles are orthogonal and gates MUST NOT be cross-contaminated.
+
+**Fix:** Do NOT apply SNIPER regime filters (VIX-escalating, VIX >= 18) to BEARISH_REVERSAL parameters. These setups have orthogonal regime profiles. Cross-contaminating regime gates from one setup to another is a structural error that will always collapse edge on the anchor-day set.
+
+If a VIX gate is ever needed for BEARISH_REVERSAL, the correct direction to test is:
+- VIX DECLINING (prior_day < 5d_avg) = ENABLE
+- VIX ESCALATING = CAUTION
+
+**Graduated guard:** `test_vix_escalating_does_not_apply_to_bearish_reversal` in `backtest/tests/test_graduated_guards.py`. For any candidate adding a VIX-escalating condition to BEARISH_REVERSAL parameters, assert IS EC does not fall below `baseline * 0.50` AND that 4/29, 5/01, and 5/04 are NOT gated out.
+
+**Encoded in:** `docs/LESSONS-LEARNED.md` L93 + CLAUDE.md OP-25 absorbed-lessons bullet + graduated guard proposed for `backtest/tests/test_graduated_guards.py`. Related: L73 (VIX character > VIX level for SNIPER — the inverse pattern), L92 (OOS regression from IS-only optimization).
+
+**Detection:** Any grinder sweep that adds a VIX threshold condition to BEARISH_REVERSAL and shows IS EC improvement should immediately be checked against anchor days 4/29, 5/01, 5/04. If any of those three are gated out, the sweep result is invalid. The graduated guard automates this check.
+
+---
+
+---
+
+## L94 — 2026-06-15: PMH ≠ first-hour RTH range high when SPY gaps up — `detect_levels_at_bar()` blind spot + below-chance intraday H/L baseline
+
+**Symptom:** Engine missed the 11:50 ET BEARISH_REVERSAL on 5/01 at the 724 level. Tick audit flagged "724 NOT in levels_active" as root cause #1 but did not explain why. Assumed it was a missing premarket or prior-day level, which is incorrect.
+
+**Root cause:** On 5/01, SPY gapped up at open: PMH=$721.99, PDH=$719.79. Neither historical source contains 724. The 724 level was established DURING RTH trading:
+
+- 09:55 bar: first break above 724 (high=$724.24)
+- 10:00–10:20: price spent 25 min in the $724–$724.87 range (5 bars touched)
+- 10:20 bar: day high = $724.87 (RTH first-hour range high)
+- 11:50 bar: retest at $724.30, rejected to $722.72 (−$1.58 intrabar)
+
+`detect_levels_at_bar()` only queries: prior-day H/L/C, premarket H/L (PMH/PML), and pre-loaded historical structural levels. It has no mechanism to register intraday structure formed during RTH. When SPY gaps above all historical references, the true resistance ceiling is the RTH first-hour range high — and the engine is blind to it.
+
+**Compounding root cause:** Source-pruning kitchen study (2026-06-15) measured intraday H/L respect rate at 22.8% vs 25.9% DM-null — below chance by 3.1pp. This means a blanket `first_hour_high` level type would inject noise in most cases. The 5/01 case is the exception, not the rule:
+1. Price spent ≥20 min at the level (multiple bars, not a wick)
+2. ≥90 min elapsed between the range high and the 11:50 retest
+3. The 11:50 bar was a massive reversal bar ($1.66 range, open-to-close −$0.82)
+
+A first-hour RTH high only qualifies as structural when: dwell_bars ≥ 4 AND pullback_cents ≥ 100. Without both conditions, it is below-chance noise.
+
+**Second structural blocker on 5/01:** Even with 724 in the level set, BEAR entry at 11:50 would have been blocked by ribbon=BULL with 100c spread (strongly trending BULL). Filter 5 requires ribbon=BEAR for BEAR entries unless `trendline_only_setup=True`. Both blockers must be fixed together — first_hour_high level registration AND level-chop relaxation (ribbon gate). Neither alone closes the 5/01 gap.
+
+**Fix:** Proposed `detect_levels_at_bar()` enhancement — after RTH open, track running session high with dwell time. Register as `first_hour_high` level type only when: `dwell_bars >= 4 AND pullback_cents >= 100`. Guard: do not add this level type at all during active dwell (only after pullback confirms the level). Separately, evaluate ribbon gate relaxation for known structural level retests with multi-bar dwell evidence.
+
+**Graduated guard:** Add to `backtest/tests/test_graduated_guards.py`:
+```python
+def test_first_hour_high_requires_dwell_and_pullback():
+    """L94: any first_hour_high level detection must require >= 4 bars dwell
+    AND >= $1.00 pullback. Without these, intraday H/L is below-chance noise
+    per source-pruning study (22.8% vs 25.9% DM-null, 2026-06-15)."""
+```
+
+**Encoded in:** `docs/LESSONS-LEARNED.md` L94 + CLAUDE.md OP-25 absorbed-lessons bullet + graduated guard proposed for `backtest/tests/test_graduated_guards.py`.
+
+**Detection:** Any `detect_levels_at_bar()` call that adds intraday H/L source must assert respect_rate > DM-null baseline (25.9%) on OOS window before enabling. If dwell_bars < 4 OR pullback_cents < 100, level is silently excluded — the exclusion must be logged, not silent (per C7).
+
+---
+
+## L95 — 2026-06-16: `trendline_only_setup` relaxation creates inverse trigger-count dependency — adding level_rejection HARDENS filter_5
+
+**Symptom:** Proposed adding first-hour RTH high to level set (rank 27) to give multi-trigger entry (level_rejection + trendline_rejection) at 5/01 11:50. Expected: two triggers → stronger signal → easier entry. Actual: two triggers made filter_5 a HARD BLOCK instead of the original soft demerit.
+
+**Root cause:** `filters.py:1185-1210` implements `trendline_only_setup` relaxation: when `trendline_rejection` fires AS THE ONLY trigger (no level_rejection/confluence/sequence_rejection), filters 5 (ribbon BEAR), 8 (VIX), and 9 (vol) are REMOVED from hard blockers and become score demerits. When ANY other trigger fires alongside trendline_rejection, `trendline_only_setup=False` and filter_5 reverts to a HARD BLOCK.
+
+This creates an inverse dependency:
+
+| Trigger count | `trendline_only_setup` | filter_5 (ribbon) | Gate C (midday) | Entry possible? |
+|---|---|---|---|---|
+| trendline only | True | SOFT (demerit) | HARD BLOCK | NO |
+| level + trendline | False | HARD BLOCK | SOFT (multi-trigger) | NO |
+| level only | N/A | HARD BLOCK | SOFT (multi-trigger) | NO (if ribbon=BULL) |
+
+All three trigger combinations block the entry on 5/01 11:50 (ribbon=BULL+100c). Neither rank 27 alone nor rank 26 alone closes the gap. The trendline_only relaxation was designed for chop entries (ribbon mixed, VIX low), NOT for countertrend setups at structural levels.
+
+**Fix:** When `level_rejection` fires at a structural level (dwell_bars >= 4, pullback_cents >= 100 per L94) with ribbon=BULL, a SEPARATE filter_5 bypass is needed — either via:
+1. LEVEL_CHOP_RELAXATION: add bar-strength + VIX conditions to grant a ribbon=BULL exception for multi-bar structural rejections
+2. BEARISH_REVERSAL watcher path: the watcher explicitly requires ribbon=BULL (Gate 2) and bypasses the filter_5 check entirely by virtue of operating in watcher space
+
+Do NOT attempt to use `trendline_only_setup=True` as the mechanism for structural level entries — this was designed for the opposite use case.
+
+**Code pointer:** `backtest/lib/filters.py:1185-1210` (`trendline_only_setup` block). `heartbeat.md:410-413` (Gate C midday block — multi-trigger already exempt).
+
+**Graduated guard:** Add check that `trendline_only_setup=False` whenever `level_rejection` is in triggers, and verify filter_5 is NOT removed from blockers in that case.
+
+**Encoded in:** `docs/LESSONS-LEARNED.md` L95 + CLAUDE.md C15 cluster.
+
+---
+
+## L96 — 2026-06-16: Supplemental level added to `levels_active` contaminates `trendline_only_setup` via spurious `level_rejection`
+
+**Symptom:** Rank 27 feature (first-hour RTH high as supplemental resistance level) was implemented by adding the FHH price to `BarContext.levels_active`. Full 17-month OOS showed `dn=0 dpnl=-$1,084` — rank 27 blocked the 2025-11-04 +$836.71 winner and 2025-06-16 +$61.75 winner while adding two losers.
+
+**Root cause:** `detect_level_rejection(ctx.bar, ctx.levels_active)` evaluates proximity to ALL levels in `levels_active`. FHH=676.17 on 2025-11-04 is within proximity of the 13:55 bar (H=676.24, close=676.01, dist=0.07). This fires `level_rejection` in `triggers_fired`, making `trendline_only_setup=False`, re-enabling filter_8 (VIX gate) as a HARD BLOCK — which kills the trendline-only entry that fires cleanly in baseline.
+
+Pattern: ANY level added to `levels_active` can fire `level_rejection`, which poisons `trendline_only_setup` for ALL bars near that level. Supplemental levels (dynamic, not confirmed by multi-session dwell) are particularly dangerous because they can be near price on days when the existing levels aren't.
+
+**Fix:** Give supplemental/dynamic levels a SEPARATE trigger key (`fhh_level_rejection`) that does not appear in the `trendline_only_setup` guard condition. Changes required:
+
+1. `filters.py`: Add `fhh_level: Optional[float] = None` to `BarContext`
+2. `filters.py` `evaluate_bearish_setup()`: After standard `level_rejection` block, add FHH proximity check. Only fires when `rejection_level is None` (no base-level rejection). Generates `fhh_level_rejection` (not `level_rejection`) → `trendline_only_setup` guard unchanged
+3. `orchestrator.py`: Pass `levels_active=level_set.active` (NOT effective_levels); pass `fhh_level=fhh_supplement`; keep `effective_levels` for `_update_level_states` only
+
+**Result after fix:** `dn=0 dpnl=0.00` over 17 months — FHH is safely neutral without the BEARISH_REVERSAL filter bypass (L95). No regressions.
+
+**Code pointers:** `backtest/lib/filters.py:80` (BarContext.fhh_level), `filters.py:1169-1177` (fhh_level_rejection check), `orchestrator.py:628-644` (BarContext construction).
+
+**Graduated guard:** `test_first_hour_high_no_regression` (2025-11-04 +$836 must survive FHH flag); `test_first_hour_high_enables_level_trigger` (fhh_level_rejection fires on 5/01).
+
+**Encoded in:** `docs/LESSONS-LEARNED.md` L96. Cluster: C7 (silent-failure detection) + C14 (dead/translated-but-unapplied knob variant).
+
+**Design principle:** Dynamic / supplemental levels that augment the base set MUST use a separate trigger namespace. Never share `level_rejection` between base (multi-session dwell, historically confirmed) and supplemental (single-session dynamic) levels.
+
+---
+
+## L97 — 2026-06-16: Strategy-specific grinder J_WINNERS must use SAME strategy type as detector
+
+**Symptom:** SHOTGUN_SCALPER_STAGE1 grinder ran 322/2160 combos; all rejected on edge_capture_pct. Progress showed `best_edge_capture=0.0`. Root cause investigation showed `by_day['2026-05-14'] = 0` and `by_day['2026-05-15'] = 0` for ALL combos, inflating `J_TOTAL_WINNERS` to $4,150 and making the 50% EC floor ($2,075) structurally unreachable.
+
+**Root cause:** Two J anchor win dates were added to `J_WINNERS` that are incompatible with the shotgun scalper detection mechanism:
+- **5/14 (+$1,208):** J's trade was "open-drive bull confluence" — a CALL entry at market open. The shotgun detector fires vol-ratio signals only in the afternoon (13:20+), all below vol_ratio=1.2. 11 signals fired but none passed the threshold.
+- **5/15 (+$1,400):** OPRA data missing for 5/15 0DTE contracts at the relevant strikes. 3 signals fired at vol_ratio >= 1.2 (14:15-14:35) but `_opra_premium_at()` returned None for all → 0 trades.
+
+Max achievable EC = $1,542 (4/29 + 5/01 + 5/04 only). EC floor = $2,075. Gap = $533. Grinder was guaranteed to produce 0 keepers.
+
+**Fix:** Only include J anchor trades in `J_WINNERS` whose trigger TYPE matches the strategy being tested. Explicitly annotate removed entries with the reason (`# REMOVED: strategy mismatch — open-drive pattern, detector fires vol-ratio`).
+
+```python
+# WRONG: any J win goes in J_WINNERS
+J_WINNERS = [
+    {"date": "2026-05-14", "j_pnl": 1208, "side": "C", ...},  # open-drive CALL — vol detector never fires
+    {"date": "2026-05-15", "j_pnl": 1400, "side": "P", ...},  # OPRA data missing
+]
+
+# CORRECT: only days where THIS detector would fire on J's actual trade
+J_WINNERS = [
+    {"date": "2026-04-29", "j_pnl": 342, "side": "P", ...},  # vol spike occurred
+    {"date": "2026-05-01", "j_pnl": 470, "side": "P", ...},  # vol spike occurred
+    {"date": "2026-05-04", "j_pnl": 730, "side": "P", ...},  # vol spike occurred
+]
+```
+
+**Pre-run check (add to every strategy-specific grinder):** Before launching, run a 1-combo smoke test on each J anchor day and assert `by_day[date] != 0.0` — if it's 0, the detector is silent on that day and the anchor is incompatible.
+
+---
+
+## L98 — 2026-06-16: Vol-ratio-only detector is strategy-negative across 16 months — tighter criteria required
+
+**Symptom:** SHOTGUN_SCALPER Stage-1 grinder probed all `vol_ratio_threshold` values [1.2, 1.5, 2.0] plus fine-grid [1.6–2.0]. Every combo produced negative `wide_pnl` (best: −$5,126, sharpe=−2.92 at vr=2.0, n=498). EC was also negative — detector fires at wrong times on J's CONFLUENCE/TRENDLINE anchor days (4/29 EC at best=287, 18.6% of floor, far below 50% gate).
+
+**Root cause:** The vol-ratio threshold alone is insufficient as a signal. High-volume events at key levels are NOT systematically bearish — they can be bullish, distribution, or neutral. Detector fired 498–1,076 times over 16 months at various thresholds, but WR below 50% produced negative expectancy and deeply negative Sharpe. J's 3 canonical wins (4/29 +$342, 5/01 +$470, 5/04 +$730) are ALL CONFLUENCE+TRENDLINE entries, not vol-spike entries — the detector was being tested against wrong anchors even after L97 cleanup.
+
+**Fix:**
+1. Clear `J_WINNERS` entirely when no vol-spike anchors exist yet (empty list is valid, guard handles it).
+2. Remove EC floor (`min_edge_capture_pct=0.0`) — no floor without anchors.
+3. Add `min_wide_pnl=$500` as primary gate (replaces EC as go/no-go metric).
+4. Redesign detector with tighter entry criteria before next grid search: require vol spike at PDH/PDL/★★★ level (not just any price), VIX declining regime, time gate 10:30–14:00 ET, ribbon confirmation (BEAR for puts), 1 entry per day limit.
+
+```python
+# WRONG: run grid search when wide-window probe shows all sharpe < 0
+if wide_pnl < 0 and sharpe < 0:
+    run_full_grid()  # burns compute on a strategy-negative detector
+
+# CORRECT: prove positive IS edge on wide window BEFORE any grid search
+# Pre-flight: if best wide_pnl < 0 at all tested thresholds → redesign detector first
+if best_wide_pnl < 0:
+    status = "strategy_negative"
+    enqueue_redesign_task()
+    return
+```
+
+**Pre-flight check (add to every new strategy grinder):** Before launching any grid search, run a 5-point parameter sweep (coarse grid) on the full date range. If ALL points produce `sharpe < 0` and `wide_pnl < 0`, the detector is strategy-negative — redesign it before spending compute on a 2000+ combo grid. This check costs ~5 minutes vs hours wasted on a doomed grid.
+
+---
+
+## L99 — 2026-06-16: profit_lock_threshold=0.0 creates artificial WR in BS-sim; BS-sim VIX underestimates extreme-VIX option premiums
+
+**Symptom:** SNIPER stage-2 BS-sim showed WR=93.5%, wide_pnl=$27,813 with 229/231 exits labeled `STOP_ALL` at positive P&L ($120–$165/day). Real-fills CAVEAT: top OPRA day (2025-04-07) BS=+$1,007 vs real=-$556 (diff=-155%). Two compounding issues discovered.
+
+**Root cause #1 — profit_lock_threshold=0.0 arms immediately:**
+`profit_lock_threshold_pct=0.0` means profit lock arms when `favor_premium >= entry_premium × 1.0 = entry_premium`. The NEXT bar after a SNIPER entry almost always has a favorable intrabar extreme (high/low) that exceeds entry premium. Lock arms bar-1, raises stop from -6% to +5% → all `STOP_ALL` exits are at +5% gain not -6% loss. WR inflated from true ~18-46% to 93.5%.
+
+Sweep confirms: `threshold=0.0`→WR=93.5%, `threshold=0.15`→WR=48.5% (breakeven). True directional edge appears at stop=-0.30 with no profit lock: $25,943, WR=46.3%.
+
+**Root cause #2 — BS-sim VIX-to-IV formula underestimates extreme-VIX option premiums:**
+On 2025-04-07 (Liberation Day VIX spike, VIX~52), BS-sim computed entry_premium=$3.60 using `vix_to_iv(vix)` + Black-Scholes. Real OPRA bid/ask mid was $9.26 — a 2.57× discrepancy. The linear/simple `vix_to_iv()` formula breaks down when VIX>40. At $9.26 entry, the real -6% stop=$8.70 fires on first adverse tick, causing -$556 vs BS-sim's +$1,007 which assumes a cheaper $3.60 entry.
+
+**Fix:**
+1. Never use `profit_lock_threshold_pct=0.0` in a BS-sim evaluator — this creates "free +5%" that doesn't exist in real fills due to bid/ask spread. Set threshold ≥ 0.05 for any meaningful analysis.
+2. Add a VIX cap to SNIPER entries: refuse when real VIX > 35 (option premiums at extreme VIX are too expensive for any fixed premium-stop to work). Check BS-sim VIX at entry bar vs OPRA premium to detect underestimation.
+3. For real-fills validation: filter top BS-sim days by entry_premium < $3.00 to exclude extreme-VIX outliers that BS-sim cannot model accurately.
+4. Graduated guard: `test_profit_lock_threshold_zero_inflates_wr` — any evaluator with `profit_lock_threshold=0.0` should emit a WARNING that WR may be inflated.
+
+**Code example:**
+```python
+# BAD: threshold=0.0 arms profit lock immediately → 93.5% fake WR
+combo = SniperCombo(profit_lock_threshold_pct=0.0, premium_stop_pct=-0.06)
+# GOOD: threshold=0.05 requires real gain before locking
+combo = SniperCombo(profit_lock_threshold_pct=0.05, premium_stop_pct=-0.06)
+# BEST for real-fills: wide stop, no profit lock artifact
+combo = SniperCombo(profit_lock_threshold_pct=0.30, premium_stop_pct=-0.30)
+
+# VIX cap filter (add to all SNIPER detectors):
+vix_at_entry = _vix_for(vix_bars, entry_time)
+if vix_at_entry and vix_at_entry > 35:
+    return None  # skip extreme-VIX entries — BS-sim underestimates premium cost
+```
+
+---
+
+## L100 — 2026-06-16: SNIPER_LEVEL_BREAK all-premium-exit combos negative; threshold=99.0 "genuine edge" requires 300% intraday premium moves
+
+**Symptom:** After removing the threshold=0.0 artifact (L99), a 36-combo sweep of SNIPER premium exits (stop=[−0.20,−0.25,−0.30,−0.35] × threshold=[0.20,0.25,0.30,0.40] × runner=[2.0,2.5,3.0]) showed ALL NEGATIVE P&L over 231 trading days. Best: stop=−0.20, threshold=0.40, runner=2.0 → P&L=−$3,764, WR=38.5%. Prior "genuine edge" claim: stop=−0.30, threshold=99.0 (no profit lock) → $25,943, WR=46.3%.
+
+**Root cause:** Three-layer artifact stack across all threshold values:
+1. `threshold=0.0` (L99): arms profit lock on bar-1 → all exits at +5% premium → fake WR=93.5%.
+2. `threshold=0.20–0.40` (this lesson): profit lock fires after partial gain, caps runner exits at +5% above entry. With wider premium stops (−20% to −35%), losses exceed capped gains → all negative.
+3. `threshold=99.0` (no lock): runner runs free to 3.0× in BS-sim. Example: $2.43 entry × 3.0 = $7.29 target. BS-sim fires this from 5-min OHLCV bar highs/lows. In real fills: Liberation Day entry $9.26 (L99) → runner target $27.78 — requires ~7% intraday SPY move from the level-break point. This NEVER fires in 0DTE options. The $25,943 "genuine edge" is a BS-sim runner-path artifact, not a real signal.
+
+**Compound pattern:** threshold=0.0 inflates WR (L99). threshold=0.20–0.40 destroys P&L (this lesson). threshold=99.0 creates fake runner edge. No premium-exit threshold value produces a validated positive result.
+
+**VIX-trend SNIPER (#13–#15 leaderboard) also invalidated:** Those IS/OOS results ($2,774 IS + $2,486 OOS) were generated with threshold=0.0 (L99 artifact) on only n=17–19 trades. At a +5% exit artifact per trade, even a small trade count accumulates. Without the artifact, these trades follow the same negative pattern as the sweep.
+
+**Fix:**
+1. Archive all premium-exit SNIPER variants. Mark leaderboard entries #13–#15 ARTIFACT-INVALIDATED (L99+L100).
+2. Pivot to chart-stop SNIPER redesign: stop placed at level ± 0.30–0.50 SPY points (not % of premium). Eliminates L51/L55 misfire by design.
+3. Before claiming any chart-stop SNIPER edge: run pre-flight 5-combo coarse sweep (L98 pattern). If 5/5 wide_pnl < 0 → redesign detector.
+4. Real-fills validation required on ≥ 3 non-extreme-VIX (VIX < 30) trading days before any SNIPER variant enters PROMISING status.
+
+**Code note:** The BS-sim runner path in `sniper_evaluator.py:_simulate_trade()` fires whenever any OHLCV bar's favorable extreme crosses `entry_premium × runner_target_pct`. In volatile 5-min bars, this fires spuriously often. Real OPRA fills never see these extremes simultaneously (bid/ask spread + intrabar path order).
+
+**Graduated guard:** `test_l100_sniper_premium_exits_no_positive_result` — asserts sniper-stage2-realfills.json verdict remains CAVEAT or BLOCKED. Any change to PASS triggers a mandatory re-run requirement.
+
+**Encoded in:** `docs/LESSONS-LEARNED.md` L100, `strategy/candidates/_LEADERBOARD.md` (#13–#15 ARTIFACT-INVALIDATED), `backtest/tests/test_graduated_guards.py`. Clusters: C1 (real-fills authority), C3 (option edge ≠ SPY edge).
+
+---
+
+## L101 — 2026-06-16: Chart-stop SNIPER: 50/64 combos positive; buffer=0.75 sweet spot; ATM beats ITM-2; J anchors are strategy-specific
+
+**Symptom:** After confirming all premium-exit SNIPER combos negative (L100), chart-stop redesign (`sniper_cs_evaluator.py`) was built: stop placed at `level_price ± chart_stop_buffer` SPY points (not % of premium). 64-combo sweep (buffer=[0.30,0.50,0.75,1.00] × tp1_r=[1.5,2.0,2.5] × runner_r=[2.5,3.0,3.5] × strike_offset=[0,2]) returned **50/64 positive** — a breakthrough vs all-negative premium exits.
+
+**Key findings:**
+
+1. **Buffer=0.75 sweet spot.** 16/16 combos positive ($18K–$24K). Buffer=0.30 too tight: 2/16 positive (initial chop stops out immediately). Buffer=0.50: 12/16 positive. Buffer=1.00: 8/16 positive (R-ratio degraded — stop too wide kills runner value).
+
+2. **ATM (strike_offset=0) beats ITM-2 (strike_offset=2)** for chart-stop SNIPER. Opposite of L74 (TBR ATM FAIL for premium-stop scalpers). Chart-stop eliminates the premium whipsaw that makes ATM dangerous with percentage stops. With SPY-price stop, delta difference matters less.
+
+3. **WF ratio split.** IS=Q1–Q3 2025, OOS=Q4 2025 + 2026. Best wide_pnl ATM combos: WF=0.19–0.26 (regime shift post-Q3 2025). 6 combos pass WF≥0.5 — all ITM-2 or buffer≥0.75. Best WF-pass: buf=0.75, tp1=2.5, runner=3.5, off=2 → **WF=0.621, $19,692, 6/6 quarters positive**.
+
+4. **J anchor mismatch (L97 pattern applied to SNIPER).** J's three source-of-truth winners (4/29, 5/01, 5/04) are BEARISH_REJECTION_RIDE_THE_RIBBON entries (ribbon-flip + trendline), NOT SNIPER_LEVEL_BREAK fires (vol-spike crossing a named level). SNIPER fires at different bars → all J anchor floors fail. Wide-window P&L edge is genuine but edge_capture cannot be measured against OP-16 floor without SNIPER-specific anchor days.
+
+5. **Vol-spike regime concentration.** top5_pct=1.0–1.6 for top combos — P&L concentrated in Liberation Day era (Q1–Q2 2025 VIX spike events). Edge is regime-dependent.
+
+**Fix / design pattern:**
+```python
+# chart-stop: stop placed in SPY space, not premium space
+chart_stop_spy = level_price + chart_stop_buffer  # for puts (bear)
+risk_spy = chart_stop_spy - entry_spot            # SPY-space risk
+tp1_spy = entry_spot - (risk_spy * combo.tp1_r)  # TP1 as R-multiple
+runner_spy = entry_spot - (risk_spy * combo.runner_r)  # runner target
+
+# exit check (bear/puts): stop fired if adverse bar high >= chart_stop_spy
+chart_stop_hit = (not is_call) and (adverse_spy >= chart_stop_spy)
+```
+
+**Pre-promotion checklist (beyond L98 pre-flight):**
+1. Real-fills on ≥5 non-extreme-VIX SNIPER fires (VIX<30 per L99).
+2. Identify SNIPER-specific anchor days (vol-spike level break wins, not ribbon-flip entries) before claiming edge_capture vs OP-16 floor.
+3. VIX regime filter study: test VIX>15 or VIX>18 gate to improve OOS WF from 0.19–0.26 to ≥0.50 on ATM combos.
+
+**Graduated guard:** `test_sniper_cs_uses_chart_stop_not_premium_stop` (added 2026-06-16) — asserts `SniperCSCombo` has `chart_stop_buffer` field, no `premium_stop_pct`, and `chart_stop_spy` appears in simulation logic.
+
+**Encoded in:** `docs/LESSONS-LEARNED.md` L101, `backtest/autoresearch/sniper_cs_evaluator.py`, `backtest/autoresearch/sniper_cs_sweep.py`, `analysis/recommendations/sniper-cs-sweep.json`, `strategy/candidates/_LEADERBOARD.md` (#23 NEEDS-REALFILLS). Clusters: C3 (SPY-price edge != option edge).
+
+---
+
+## L102 — FHH PROXIMITY IS ANTI-CORRELATED WITH GAP-UP SETUP VALUE (2026-06-16)
+
+**Setup class:** FHH bypass discriminator (BEARISH_REVERSAL_FHH_BYPASS, Rank 28).
+
+**Symptom:** Proximity gate `fhh_quality_proximity`: require FHH within X$ of any `multi_day_level` was intuitive (FHH = prior-range resistance retest) but empirically REMOVED the 5/01 J anchor at ALL thresholds (0.50, 1.00, 2.00). The gate was doing the opposite of what was intended.
+
+**Root cause:** Gap-up FHH sessions — the exact sessions where FHH bypass delivers value — are defined by price breaking ABOVE all prior range levels. FHH=724.24 on 5/01 is ABOVE max(multi_day_levels)≈$722 by $2.24. By construction, high-value FHH bypass entries have FHH far from prior levels (gap-up), not near them (range resistance). Proximity = distance to multi_day_levels = SMALL → bypass fires. Gap-up FHH = distance to multi_day_levels = LARGE → proximity gate blocks it. Anti-correlation.
+
+**Fix — invert the hypothesis:** The correct discriminator is the inverse: `fhh_above_max_prior_min=1.00` requires FHH ≥ max(multi_day_levels) + $1.00 (price broke above all prior levels by ≥ $1). This preserves 5/01 (gap=$2.24, PASS) and blocks 5/08 (gap=−$0.34, BLOCK). Drag reduced 86%: −$1,899 → −$257. 24 bypass days → 6 bypass days.
+
+**General rule:** When a setup's VALUE comes from BREAKING ABOVE a threshold (new range), any gate requiring PROXIMITY to that threshold is anti-correlated with setup value. "Far above" is the signal; "near" is the noise. The same logic applies to:
+- FHH bypass: far above multi_day_levels = genuine gap-up
+- SNIPER level breaks: far above PDH = genuine breakout, not false break
+- Any "reclaim after breakdown" setup: far above the breakdown level = strong reclaim
+
+**Anti-pattern guard:** `test_fhh_v4_proximity_antipattern` — asserts proximity=1.00 does NOT pass 5/01. Prevents re-testing the anti-correlated hypothesis. See `backtest/tests/test_graduated_guards.py`.
+
+**Encoded in:** `backtest/lib/filters.py` (fhh_above_max_prior_min + fhh_quality_proximity parameters with anti-correlation warning in comments), `backtest/tests/test_graduated_guards.py` (2 guards), `strategy/candidates/2026-06-16-bearish-reversal-fhh-bypass.md` (v4 section). Clusters: C14 (dead/translated-but-unapplied knobs), C6 (filter behavior vs setup intent).
+
+---
+
+## L103 — BYPASS MECHANISM FIRES AT WRONG BAR ON ANCHOR DAY (2026-06-17)
+
+**Setup class:** FHH bypass (BEARISH_REVERSAL_FHH_BYPASS, Rank 28). Generalizes to any entry-bypass mechanism.
+
+**Symptom:** FHH bypass enabled on 5/01 (J winner +$470). Engine loses -$364 vs baseline on 5/01 (5/01 regresses from -$56 to -$420). Bypass was specifically designed to capture the 5/01 J anchor.
+
+**Root cause:** Two separate BEARISH_REVERSAL opportunities exist on 5/01:
+1. **~11:50 ET — FHH rejection:** Price rises to FHH (~$724), ribbon=BULL, FHH rejection fires. This is what the FHH bypass targets. BUT this bar's bear entry LOSES — not a good entry, wrong timing.
+2. **13:36 ET — trendline rejection:** J's actual anchor trade. This is a different trigger (trendline_rejection, not fhh_level_rejection). The FHH bypass does NOT target this bar. Engine takes J's 13:36 trendline bar via trendline_only_setup (small loss at -$56 baseline).
+
+Bypass fires at bar #1, loses. Bar #2 (J's trade) is unaffected. Net: bypass costs -$364, doesn't help J's 13:36 trade at all.
+
+**Root cause generalized:** A bypass mechanism verified as "this day should work" is not verified as "this bypass fires on J's specific entry bar." Same date does NOT guarantee same bar/trigger/price.
+
+**Fix — bar-level verification:** When validating a bypass against a J anchor day: (1) check WHICH bar the bypass fires on, (2) check the timestamp vs J's documented entry time, (3) check the trigger type (bypass target = `fhh_level_rejection`; J's entry was `trendline_rejection`). If trigger types don't match, bypass cannot fix the anchor trade.
+
+**Fix for 5/01 specifically:** J's 5/01 entry requires `trendline_rejection + ribbon=BULL` bypass — NOT `fhh_level_rejection`. The `trendline_only_setup` block (2026-05-09) already handles this; 5/01 at -$56 baseline is the engine already taking the trendline_only entry. The gap ($470 J vs -$56 engine) is in strike/size selection, not in blocking the trade. Further bypass development on FHH mechanism will NOT fix the J/engine divergence on 5/01.
+
+**General rule:** Validate bypass mechanisms at `(date, bar_time, trigger_type)` — not `(date)`. If the bypass fires on the right date but wrong bar, it adds a losing trade while leaving J's actual trade uncaptured.
+
+**Anti-pattern guard:** Verify bypass fires at J's bar_time ± 5 bars before calling a bypass "5/01 fix." Add explicit logging of which bar bypasses fire on in future bypass implementations.
+
+**Encoded in:** `automation/overnight/STATUS.md` (entry 84, 2026-06-17). `strategy/candidates/2026-06-16-bearish-reversal-fhh-bypass.md` (REJECTED status). Clusters: C15 (gates interact multiplicatively — trace session cascades), C7 (silent success is failure).
+
+---
+
+## L104 — SHARPE INFLATED BY ZERO-TRADE DAYS WHEN VIX FILTER ELIMINATES MOST ENTRIES (2026-06-17)
+
+**Setup class:** SNIPER_CS_CHART_STOP VIX>=18 walk-forward validation.
+
+**Symptom:** IS Sharpe = 2.060 for VIX18 filter variant. OOS Sharpe = 0.356. WF ratio = 0.173 (FAIL). OOS IS technically positive (+$2,563, $49/trade avg) but the WF gate rejects the candidate because IS Sharpe is disproportionately high.
+
+**Root cause:** VIX>=18 filter reduces IS entries from 90→43 trades in the IS window (Jan–Oct 2025). Q3 2025 (July–Sept) had near-zero VIX>=18 days (low summer VIX), producing zero SNIPER CS fires. Daily P&L series for IS: 175 days at exactly $0 + 43 non-zero days. Sharpe denominator (std of daily returns) is very small because 80% of days are exactly $0 — not zero because trades lost, but zero because no trades fired. IS Sharpe looks like 2.060 but this is a measurement artifact of computing Sharpe over a day-series that's mostly zeros.
+
+This is NOT a sign the strategy works well — it means the filter is selectively active in only a few high-VIX regimes that happened to be favorable IS.
+
+**Fix — compute Sharpe on TRADING-DAY returns only:** When comparing IS vs OOS Sharpe for a filtered strategy:
+```python
+# WRONG: compute Sharpe over all calendar days (includes zero-trade days)
+all_day_pnl = {d: 0.0 for d in calendar_days}
+for t in trades: all_day_pnl[t.date] += t.pnl
+sharpe = sharpe_from_dict(all_day_pnl)  # inflated if filter creates many $0 days
+
+# CORRECT: compute Sharpe over trading days only (days filter allowed at least one trade)
+trading_day_pnl = {}
+for d in calendar_days:
+    day_trades = [t for t in trades if t.date == d and t.fired]  # filter fires on this day
+    if day_trades:  # only include days where the filter allowed trades
+        trading_day_pnl[d] = sum(t.pnl for t in day_trades)
+sharpe = sharpe_from_dict(trading_day_pnl)
+```
+
+Alternatively: compute Sharpe on per-trade R-multiple returns (one entry per trade, no zeros).
+
+**Fix — WF diagnosis before Sharpe:** Before running WF validation on a filtered strategy, check: what % of IS calendar days are $0 because the filter blocked everything? If >50%, IS Sharpe is suspect. Instead, compare: IS_pnl_per_trade vs OOS_pnl_per_trade (raw averages) as the first diagnostic.
+
+**Applied:** SNIPER CS VIX18 per-trade averages:
+- IS: $30,702 / 43 trades = **$714/trade avg**
+- OOS: $2,563 / 52 trades = **$49/trade avg**
+
+$714 vs $49/trade is the real IS/OOS divergence — a 14x per-trade gap. This IS genuine overfit. The Sharpe inflation just hid the true nature: a per-trade degradation from $714 → $49, not a methodology artifact.
+
+**Why VIX18 is still IS-overfit (not just methodology):** IS Q1/Q2 2025 were both strong VIX spike regimes where SNIPER CS worked well. The filter selected for these IS-favorable regimes. In OOS (Nov 2025 – May 2026), VIX18 days had more diverse market conditions → per-trade edge fell 14x. Filter was over-selecting favorable IS regimes, not capturing a persistent mechanism.
+
+**Correct fix for regime filtering:** Use VIX CHARACTER (L73) not VIX level. Prior_day_VIX > prior_5d_avg_VIX was OOS-validated for original SNIPER (WF=0.983). For SNIPER CS, this test also produced negative OOS ($-1,041) suggesting the chart-stop SNIPER signal itself needs further development, not just a regime filter.
+
+**Encoded in:** `automation/overnight/STATUS.md` entry 86, `analysis/recommendations/sniper-cs-vix-trend-comparison.json`, `strategy/candidates/2026-06-16-sniper-cs-vix18-filter.md` (OOS-FAILED). Clusters: C4 (Disclose concentration, normalize OOS, stratify by regime), C7 (Silent success is failure).
+
+---
+
+## L105 — REAL-FILLS ORCHESTRATOR USES GLOBAL STOP NOT SIDE-SPECIFIC STOP (2026-06-16)
+
+**Symptom:** Sweeping `premium_stop_pct_bear` from -8% to -99% via direct kwarg in real-fills mode produced identical output for all values. BS-sim path correctly honored the bear-specific stop; `params_overrides` dict path also worked. Only direct kwarg to `run_backtest` with `use_real_fills=True` was broken.
+
+**Root cause:** `orchestrator.py` lines 937-957 (`simulate_trade_real` call) passed `premium_stop_pct=premium_stop_pct` (global default -0.08) and `strike_offset=strike_offset` (global default -2). The BS-sim path at line 977 correctly computed `side_premium_stop = bear_premium_stop if winning_side == "P" else bull_premium_stop` and used `side_premium_stop` in the call. The two code paths diverged: BS-sim was production-accurate, real-fills was not.
+
+This meant ALL `use_real_fills=True` backtests used the legacy -8% stop instead of the -20% production bear stop from `params.json`. Real-fills P&L and WF calculations since this path was introduced were computed with the wrong stop.
+
+**Fix:** Move `side_premium_stop = bear_premium_stop if winning_side == "P" else bull_premium_stop` and `side_strike_off = bear_strike_off if winning_side == "P" else bull_strike_off` to BEFORE the `if use_real_fills:` block. Pass `premium_stop_pct=side_premium_stop` and `strike_offset=side_strike_off` in the `simulate_trade_real` call. The same variables are reused in the BS-sim else branch.
+
+```python
+# WRONG (before fix): real-fills uses global default stop
+if use_real_fills:
+    fill = simulate_trade_real(..., premium_stop_pct=premium_stop_pct, ...)
+else:
+    side_premium_stop = bear_premium_stop if winning_side == "P" else bull_premium_stop
+
+# CORRECT (after fix): side-specific stop computed before branch
+side_premium_stop = bear_premium_stop if winning_side == "P" else bull_premium_stop
+side_strike_off = bear_strike_off if winning_side == "P" else bull_strike_off
+if use_real_fills:
+    fill = simulate_trade_real(..., premium_stop_pct=side_premium_stop, strike_offset=side_strike_off, ...)
+else:
+    # side_premium_stop already computed above
+```
+
+**Impact of fix:** IS baseline corrected from +$3,031 (buggy -8% stop) to -$2,155 (correct -20% stop). Monthly breakdown shifted: Apr-2026 -$3,880 (was -$847), Mar-2025 -$1,834 (was -$90). Rank 25 WF reversed: from -2.44 (INCONCLUSIVE) to +5.79 (EXCELLENT) because IS delta changed sign: was -$531 (wrong), corrected to +$490 (correct).
+
+**Detection pattern:** When sweeping a stop parameter that you KNOW changes BS-sim output, but real-fills gives identical output for all values — check whether the real-fills branch uses `side_premium_stop` or the global `premium_stop_pct`. Any code path that diverges for `use_real_fills` branches is a suspect for parameter-parity bugs.
+
+**Encoded in:** `backtest/lib/orchestrator.py` lines 937-957 (fixed 2026-06-16), `automation/overnight/STATUS.md` entry 99, `strategy/candidates/_LEADERBOARD.md` Rank 25 correction. Cluster C7 (Silent success is failure — real-fills was silently running with wrong stop), C14 (Dead/translated-but-unapplied knobs — though here the knob IS applied but via wrong variable in one code path).
+
+---
+
+
+## L106 — params_overrides null propagation: entry_no_trade_window_et and duration nulls silently dropped (2026-06-17)
+
+**Symptom:** params_overrides baseline gives different n than identical direct kwargs. `_params_to_kwargs` returned different trade counts (n=49 po vs n=54 direct), and the null value for `max_ribbon_duration_bars` caused a `TypeError: int() argument must be a string... not NoneType` crash. More critically: Rank 25 (MAX_RIBBON_DUR_8) appeared PROMISING with WF=5.794 but re-evaluation with production-correct params gave WF=0.072 (FAIL). An overnight session built a PROMISING scorecard on a wrong baseline.
+
+**Root cause (two bugs in `_params_to_kwargs`):**
+
+1. `entry_no_trade_window_et: null` -- original code: `if "entry_no_trade_window_et" in overrides and overrides["entry_no_trade_window_et"]:` -- when value is null/None (production value since v15.1 removed the no-trade window), the condition is falsy and the key is silently skipped. The `no_trade_window` default `(dt.time(14,0), dt.time(15,0))` persisted in all Karpathy shadow / params_overrides runs, incorrectly blocking 14:00-15:00 trading even though production removed this window.
+
+2. `max_ribbon_duration_bars: null` / `min_ribbon_momentum_cents: null` -- code did `int(overrides["max_ribbon_duration_bars"])` without a null check. If params.json ever has these as null, all params_overrides runs crash.
+
+**A/B scorecard impact (L106 root cause of WF inflation):** Direct-kwargs baseline for the Rank 25 scorecard used the function default `no_trade_before=dt.time(10,0)` instead of production 09:35. This excluded the 09:35-10:00 trading window. Combined with bug #1 (keeping legacy 14:00-15:00 block), the old baseline missed 43 IS and 8 OOS early-morning trades. Those 8 OOS trades were all profitable -- their exclusion made the baseline look like -$1,907 (terrible), making the dur=8 filter look like a massive rescue when it was only +$163 improvement on the correct baseline. Old WF=5.794 was entirely an artifact. Correct WF=0.072 (FAIL). May sub-window FAILS (-$2,421: filter over-aggressive in recovery regime).
+
+**Fix (backtest/lib/orchestrator.py _params_to_kwargs):**
+
+Before fix -- entry_no_trade_window_et null silently dropped:
+    if "entry_no_trade_window_et" in overrides and overrides["entry_no_trade_window_et"]:
+        # only true branch, null never reaches here
+
+After fix -- null explicitly disables the legacy default:
+    if "entry_no_trade_window_et" in overrides:
+        if overrides["entry_no_trade_window_et"]:
+            # parse and set window
+        else:
+            kwargs["no_trade_window"] = None  # disable legacy v11 (14:00-15:00) default
+
+Null guards added for int conversions:
+    if "max_ribbon_duration_bars" in overrides and overrides["max_ribbon_duration_bars"] is not None:
+        kwargs["max_ribbon_duration_bars"] = int(...)
+
+**Graduated guard:** `test_graduated_guards.py::test_l106_params_to_kwargs_null_window_propagates`, `test_l106_params_to_kwargs_null_duration_no_crash`, `test_l106_params_overrides_matches_direct_kwargs_n` (all passing 2026-06-17).
+
+**Scorecard update:** Rank 25 A/B scorecard at `analysis/recommendations/max_ribbon_dur8_ab_scorecard.json` updated with v2 (production-correct) results. Leaderboard: PROMISING -> FAILED (WF=0.072, sub-window inconsistent). Next research: VIX-escalating conditioned variant (dur=8 only when VIX prior_day > 5d_avg, per L73 SNIPER pattern).
+
+**Prevention rule:** Before building any A/B scorecard, run baseline via `params_overrides=production_params` AND identical direct kwargs. Assert n matches. A discrepancy means a mapping bug that will invalidate the WF ratio. Function defaults (no_trade_before=10:00, no_trade_window=(14:00,15:00)) are never the correct production proxy -- always use explicit production values.
+
+**Encoded in:** `backtest/lib/orchestrator.py` `_params_to_kwargs` (fixed 2026-06-17), `backtest/tests/test_graduated_guards.py` L106 tests, `automation/overnight/STATUS.md` entry 109, `strategy/candidates/_LEADERBOARD.md` Rank 25 FAILED. Cluster C7 (Silent success is failure -- scorecard appeared PROMISING on wrong baseline), C14 (Dead/translated-but-unapplied knobs -- null values silently dropped instead of propagated).
+
+---
+
 ## How to use this catalog
 
-1. Before building a new evaluator: read all 78 (updated with L77+L78 2026-06-14).
+1. Before building a new evaluator: read all 105 (updated through L105 2026-06-16).
 2. After each anti-pattern you avoid: cross-reference here.
-3. When you hit a NEW anti-pattern: add it as L76, etc.
+3. When you hit a NEW anti-pattern: add it as L98, etc.
 4. Every L# entry should have: symptom, root cause, fix, code example.
 5. **L36 meta-pattern:** every NEW diagnostic tool you build for an L# entry should ALSO get a SKILLS-CATALOG.md entry + (if user-facing) a `.claude/skills/{name}/SKILL.md` registration. Keep the catalog current.
 
 This catalog is the cheapest insurance against repeating known mistakes.
+
+---
+
+## L107 — A/B Scorecard Re-validation Used BS Sim + Wrong Bear Stop (2026-06-17)
+
+**Theme:** C1 (Real-fills is only WR/P&L authority) | C7 (Silent success is failure)
+
+**Setup:** Rank 22 (RIBBON_MOMENTUM_GATE — `min_ribbon_momentum_cents=5.0, max_ribbon_duration_bars=15`) was ratified and went live in `automation/state/params.json`. A "re-verification" on 2026-06-16 was done in the prior session. The re-verification claimed: baseline n=17 pnl=-$907, gates n=5 pnl=+$1,204, delta=+$2,111, OOS WF=3.74.
+
+**Symptom:** When re-running Rank 22 with production-correct params during root-cause analysis of the L106 bug, the OOS delta was -$1,352 (gate HURTS) rather than +$2,111 (gate HELPS). The WF was -1.308 (FAIL) instead of 3.74 (PASS). Same OOS window (2026-05-08..22), same n=17 baseline trades.
+
+**Root cause:** The 2026-06-16 re-verification used:
+1. `use_real_fills=False` (BS sim) — NOT production path
+2. Default `premium_stop_pct_bear=-0.08` — NOT production -0.20
+
+With BS sim + -0.08 stop: baseline n=17 pnl=-$907. With production params (urf=True, -0.20 stop): baseline n=17 pnl=+$4,367. A $5,274 swing on the SAME 17 trades. The BS-sim path applies the wrong stop loss (too tight at -8% for bear), causing many profitable bear trades to be stopped out fictitiously. This makes the baseline look terrible (-$907) and makes the gate look like a rescue (+$2,111). In reality the baseline is already profitable (+$4,367) and the gate REMOVES $1,352 of profitable trades.
+
+**Impact:** A gate that was validated as +$2,111 improvement is LIVE in production REMOVING profitable trades (-$1,352 OOS). 
+
+**Full correct scorecard (production params: urf=True, bear_stop=-0.20, no_trade_before=09:35, midday_gate=True, no_trade_window=None):**
+- IS (2025-01..2026-04): baseline n=246 pnl=-$5,610 → gates n=76 pnl=-$4,576, delta=+$1,034
+- IS ex-April (non-shock 15 months): baseline n=223 pnl=+$936 → gates n=68 pnl=-$2,562, delta=-$3,498
+- April 2026 tariff shock: baseline n=22 pnl=-$6,335 → gates n=8 pnl=-$2,014, delta=+$4,321 (ONLY window where gate helps)
+- OOS (2026-05-08..22): baseline n=17 pnl=+$4,367 → gates n=8 pnl=+$3,015, delta=-$1,352
+- WF = OOS_delta / IS_delta = -1,352 / +1,034 = **-1.308 (FAIL)**
+
+The gate is a regime artifact: tuned exclusively on the April 2026 tariff-shock month. It destroys profitable non-shock IS (+$936 → -$2,562) and destroys profitable OOS (+$4,367 → +$3,015).
+
+**Fix:**
+1. Scorecard corrected at `analysis/recommendations/ribbon_momentum_gate_ab_scorecard.json` (`l107_revalidation: true`)
+2. Leaderboard Rank 22 updated: 9/10 RATIFIED → 0/10 REQUIRES J DECISION
+3. STATUS.md entry 111 flagged for J
+4. Graduated guards: `test_l107_real_fills_differs_from_bs_sim_on_oos_window`, `test_l107_ribbon_momentum_gate_ab_scorecard_correct_params`
+5. Cannot remove from params.json autonomously — Rule 9 requires J decision
+
+**Prevention rule:** Every A/B scorecard MUST explicitly document `use_real_fills: true` and `premium_stop_pct_bear: -0.20` in its `correct_params` block. A scorecard missing those keys is INVALID. The graduated guards enforce this at the code level. Additionally: BS sim and real-fills produce >$500 P&L difference on any 2-week OOS window — a fast sanity check is to run both and assert the gap exists before trusting either number.
+
+**Related lessons:** C1 (L02, L12, L23, L50, L71, L107), L106 (same session, wrong params propagation)
+
+---
+
+## L108 — tp1_qty_fraction dead knob in real-fills path (2026-06-17)
+
+**Theme:** C14 (Dead/translated-but-unapplied knobs: vary-and-assert; sync tracker to params)
+
+**Symptom:** Sweeping `tp1_qty_fraction` in [0.30, 0.40, 0.50, 0.60, 0.67, 0.75, 0.80] with `use_real_fills=True` produced identical P&L for all values. `run_backtest()` accepts the parameter but never reached the real-fills exit-P&L calculation.
+
+**Root cause:** `simulate_trade_real()` hardcoded `TP1_QTY_FRACTION = 2.0/3.0 = 0.667` (v14 default). The constant is imported from `simulator.py` (line 73). The function signature had no `tp1_qty_fraction` parameter, so:
+1. `run_backtest()` received `tp1_qty_fraction` but never passed it to `simulate_trade_real()`
+2. `simulate_trade_real()` used the hardcoded constant for both `tp1_qty = int(qty * TP1_QTY_FRACTION)` and `_compute_pnl(fill, qty)` (which also used the constant)
+
+Production `params.json` has `tp1_qty_fraction = 0.50` (ratified v15). Every real-fills backtest silently used 0.667 instead of 0.50 — allocating 2/3 to TP1 vs the production 1/2. Runners got 1/3 of position in backtests vs 1/2 in production.
+
+**P&L impact:** Runner gets 50% more contracts in production (frac=0.50) than backtests modeled (frac=0.667). Backtest underestimates runner P&L. OOS window impact measured after fix is TBD (sweep in progress). BS sim path was not affected (simulator.py already accepted tp1_qty_fraction as a parameter).
+
+**Fix:**
+1. Added `tp1_qty_fraction: float = TP1_QTY_FRACTION` parameter to `simulate_trade_real()` in `backtest/lib/simulator_real.py`
+2. Replaced hardcoded `TP1_QTY_FRACTION` with `tp1_qty_fraction` at the `tp1_qty = int(qty * ...)` calculation
+3. Added `tp1_qty_fraction: float = TP1_QTY_FRACTION` to `_compute_pnl()` helper and replaced constant there
+4. Updated `_compute_pnl(fill, qty)` call to `_compute_pnl(fill, qty, tp1_qty_fraction=tp1_qty_fraction)`
+5. Added `tp1_qty_fraction=tp1_qty_fraction` to `simulate_trade_real()` call in `backtest/lib/orchestrator.py`
+6. Graduated guard: `test_l108_tp1_qty_fraction_wired_in_real_fills` — sweeps [0.30, 0.667, 1.0] and asserts OOS P&L spread >= $100
+
+**Detection:** The L108 guard would have caught this immediately. Rule: after adding any parameterizable knob to `run_backtest()`, always run a 3-value sweep with `use_real_fills=True` and assert the output changes. Identical output = dead knob.
+
+**Prevention rule:** Every new parameter added to `run_backtest()` MUST be (a) threaded through to BOTH `simulate_trade()` AND `simulate_trade_real()` call sites, and (b) tested with the dead-knob detect pattern (3-value sweep, assert spread >= threshold). The C14 theme (`test_params_override_binds`) already guards this class; L108 extends it to the real-fills call path specifically.
+
+**Related lessons:** C14 (L38, L70, L72, L77, L88, L89, L96), L107 (same session, wrong-params propagation)
+
+---
+
+## L109 — runner_target_premium_pct dead knob in real-fills path (2026-06-17)
+
+**Theme:** C14 (Dead/translated-but-unapplied knobs: vary-and-assert; sync tracker to params)
+
+**Symptom:** `simulate_trade_real()` hardcoded `RUNNER_MAX_PREMIUM_PCT = 3.00` (v14 default from `simulator.py`) at line 317. Production params.json has `runner_max_premium_pct: 2.5`. Every real-fills backtest modeled a runner target of 3.0× (300%) instead of the 2.5× (250%) that the live engine uses. Same root cause class as L108.
+
+**Root cause:** The `run_backtest()` call in `orchestrator.py` (line 1113) passes `runner_target_premium_pct=runner_target_premium_pct` to the **BS sim** path (`simulate_trade()`), but the corresponding `simulate_trade_real()` call did NOT include `runner_target_premium_pct`. `simulate_trade_real()` had no such parameter — it used the imported constant `RUNNER_MAX_PREMIUM_PCT = 3.0` directly.
+
+**P&L impact:** Runner target in backtest (3.0×) was 20% harder to reach than production (2.5×). Backtests underestimate runner P&L because runners that would have been captured at 2.5× in production waited for 3.0× and were instead stopped out at BE or on time stop. The OOS baseline P&L impact was measured after the fix as TBD (see STATUS.md entry 114).
+
+**Fix:**
+1. Added `runner_target_premium_pct: float = RUNNER_MAX_PREMIUM_PCT` parameter to `simulate_trade_real()` in `backtest/lib/simulator_real.py`
+2. Replaced hardcoded `RUNNER_MAX_PREMIUM_PCT` with `runner_target_premium_pct` at the `runner_target_premium = entry_premium * (1.0 + ...)` line
+3. Added `runner_target_premium_pct=runner_target_premium_pct` to the `simulate_trade_real()` call in `backtest/lib/orchestrator.py`
+4. Graduated guard: `test_l109_runner_target_wired_in_real_fills` (sweeps [1.5, 2.5, 3.0] asserts OOS spread >= $100)
+
+**Prevention rule:** Same as L108. Every new parameter in `run_backtest()` must be threaded to BOTH `simulate_trade()` AND `simulate_trade_real()` call sites. Add a 3-value dead-knob sweep test immediately. The C14 graduated guard template is `test_l108_tp1_qty_fraction_wired_in_real_fills` — copy and adapt for any new param.
+
+**Related lessons:** C14 (L38, L70, L72, L77, L88, L89, L96, L108), L108 (discovered in same session — structural sibling)
+
+---
+
+## L110 — time_stop_et dead knob in real-fills path (2026-06-17)
+
+**Theme:** C14 (Dead/translated-but-unapplied knobs: vary-and-assert; sync tracker to params)
+
+**Symptom:** `simulate_trade_real()` hardcoded `TIME_STOP_ET = dt.time(15, 50)` (the imported constant from `simulator.py`). The `time_stop_et` parameter added to `simulate_trade_real()` signature in this fix session was not being used at the time-stop check lines. The constant value happened to match production (10 minutes before close = 15:50 ET), so P&L was numerically correct for production, but any sweep of `time_stop_minutes_before_close` produced identical real-fills results. The knob looked live but was inert.
+
+**Root cause:** Same class as L108/L109. `orchestrator.py` computed `time_stop_et = dt.time(...)` from `time_stop_minutes_before_close` and passed it to the BS sim path (`simulate_trade()`), but the `simulate_trade_real()` call was missing the `time_stop_et=time_stop_et` argument. `simulator_real.py` had `TIME_STOP_ET` referenced globally in the function body rather than using the parameter.
+
+**P&L impact:** In production, the correct value (15:50 ET) was used, so no live trading impact. For optimization sweeps, the knob appeared dead — all values of `time_stop_minutes_before_close` returned identical IS/OOS P&L. This masked a real edge: exiting at 15:40 (20 min before close) shows WF=0.86 PASS improvement vs production 15:50 ET (see scorecard `analysis/recommendations/time_stop_minutes_ab_scorecard.json`).
+
+**Fix:**
+1. Added `time_stop_et: dt.time = TIME_STOP_ET` parameter to `simulate_trade_real()` in `backtest/lib/simulator_real.py`
+2. Replaced all instances of `TIME_STOP_ET` constant with the `time_stop_et` parameter in the function body (replace_all=True)
+3. Added `time_stop_et=time_stop_et` to the `simulate_trade_real()` call in `backtest/lib/orchestrator.py`
+4. Graduated guard: `test_l110_time_stop_minutes_wired_in_real_fills` (sweeps [5, 10, 20] min asserts OOS spread >= $50)
+
+**Discovery:** 6-value sweep of `time_stop_minutes_before_close` [5, 10, 15, 20, 25, 30] revealed that:
+- Production (10 min, 15:50): IS=-$6,077, OOS=+$3,304
+- Best candidate (20 min, 15:40): IS=-$5,525, OOS=+$3,779 — WF=0.86 PASS
+- Mechanism: 0DTE theta crush in final 15 minutes; earlier exit captures more runner premium
+- All 4 sub-windows HELP (IS full, IS ex-Apr, April tariff shock, OOS May)
+
+**Prevention rule:** Same as L108/L109. Any `dt.time` constant derived from minutes-before-close in `simulator.py` must be parameterized in BOTH simulator paths. The C14 guard template is `test_l108_tp1_qty_fraction_wired_in_real_fills` — copy, adapt, add dead-knob sweep.
+
+**Related lessons:** C14 (L38, L70, L72, L77, L88, L89, L96, L108, L109), L108/L109 (discovered in same session — structural siblings)
+
+---
+
+## L111 — VIX threshold constants missing from orchestrator._FILTER_CONST_MAP (2026-06-17)
+
+**Symptom:** `run_backtest(..., params_overrides={"vix_bear_threshold": 10.0})` and `params_overrides={"vix_bear_threshold": 25.0}` produce identical OOS output (n=16, pnl=$2,416.10). Confirmed by 3-value sweep (10.0, 17.30, 25.0 — all identical before fix).
+
+**Root cause:** `runner._FILTERS_CONST_KEYS` contained `"vix_bear_threshold": "VIX_BEAR_THRESHOLD"` (and 3 other VIX constants), allowing the runner's `_patched_filter_constants` to patch them. But `orchestrator._FILTER_CONST_MAP` — which is what `run_backtest(..., params_overrides=...)` uses — did NOT include these keys. So any optimization using `run_backtest` + `params_overrides` silently left the VIX constants at their hardcoded module defaults.
+
+**Fix:** Added 4 missing keys to `backtest/lib/orchestrator.py:_FILTER_CONST_MAP`:
+- `"vix_bear_threshold": "VIX_BEAR_THRESHOLD"` — Filter 8 hard block threshold
+- `"vix_rising_deadband": "VIX_RISING_DEADBAND"` — VIX direction noise filter
+- `"vix_bear_rising_deadband": "VIX_RISING_DEADBAND"` — asymmetric bear alias, same target
+- `"vix_bull_max": "VIX_BULL_HARD_CAP"` — Bull Filter 9 hard cap
+
+Graduated guard: `test_l111_vix_bear_threshold_wired_in_orchestrator` (n_high < n_low-1 for thresholds 25.0 vs 10.0).
+
+**Discovery:** After fix, `vix_bear_threshold=25.0` reduces OOS n from 16 to 10 (blocks 6 trades where VIX did not exceed 25), confirming the knob is now live. Continued to full IS+OOS sweep of `VIX_BEAR_THRESHOLD` [14.0–20.0] to find if production 17.30 is optimal (results pending).
+
+**Prevention rule (C14 extension):** Any time you add a key to `runner._FILTERS_CONST_KEYS`, also add it to `orchestrator._FILTER_CONST_MAP`. The two dicts must stay in sync — they serve the same purpose (patching `lib.filters` module constants) in two different code paths (runner's `run_with_params` vs orchestrator's `run_backtest`).
+
+**Related lessons:** C14 (same root cause class as L38, L70, L72, L77, L88, L89, L96, L108, L109, L110)
+
+---
+
+## L112 — Chandelier profit-lock over-triggers in 5-min bar simulation (2026-06-17)
+
+**Symptom:** Adding production chandelier params (`profit_lock_threshold_pct=0.05, profit_lock_mode="trailing", profit_lock_trail_pct=0.20`) to the research CORRECT baseline causes OOS to collapse from +$2,416 to −$292 (−$2,708 swing). IS improves by +$3,425 (from −$6,077 to −$2,652). Not generalizable — the IS improvement is an artifact.
+
+**Root cause:** `simulate_trade_real` walks 5-min OPRA option bars. Within a single bar, the bar's HIGH can arm the chandelier (`best_premium >= entry × 1.05`), making HWM = bar.HIGH. Immediately after, the bar's LOW can breach the 20%-off-HWM trailing floor (`trail_floor = HWM × 0.80`), firing the stop. This arm-then-trail-then-stop sequence fires in ONE bar — one 5-minute window. In production, the heartbeat fires every 3 minutes. If price recovers before the next heartbeat, no stop fires. The simulator uses the bar's full OHLC range, which includes wicks that the heartbeat would never see at the exact tick-level.
+
+**Concrete scenario:** Entry at $1.00. Bar HIGH = $1.10 (arm threshold = $1.05, so chandelier arms). HWM = $1.10. Trail floor = $1.10 × 0.80 = $0.88. Bar LOW = $0.86 < $0.88 → stop fires at $0.88. But in production, heartbeat at bar open (say $1.05) doesn't stop yet. Next heartbeat (3 min later) might see $1.02 > $0.88 → no stop. The trade continues.
+
+**Fix / Convention:** NEVER include `profit_lock_*` parameters in the research CORRECT dict used for sweep comparisons. The production chandelier is a real-time management tool that 5-min bar simulation cannot faithfully replicate. The simulation artifact makes the chandelier look worse than it is in the OOS window (where each wick triggers the full sequence).
+
+**Correct research baseline (confirmed):**
+```python
+CORRECT = dict(
+    use_real_fills=True, no_trade_window=None, no_trade_before=dt.time(9, 35),
+    midday_trendline_gate=True, premium_stop_pct_bear=-0.20, premium_stop_pct_bull=-0.08,
+    per_trade_risk_cap_pct=0.30, tp1_qty_fraction=0.50, runner_target_premium_pct=2.50,
+    time_stop_minutes_before_close=10,
+    # DO NOT ADD: profit_lock_threshold_pct, profit_lock_mode, profit_lock_trail_pct
+    # — 5-min bar chandelier over-triggers (arm+trail+stop in same bar). See L112.
+)
+```
+
+**Impact on existing candidates:** Rank 29–31 candidates (tp1_qty_fraction, time_stop) were swept against CORRECT (no profit lock). Their OOS deltas are valid within-sweep comparisons. The absolute OOS baseline (+$2,416) reflects "no-chandelier" simulation, not production-exact output — a known and documented disclosure per OP-20.
+
+**Prevention:** If a sweep produces a positive IS result that vanishes or inverts in OOS, check whether any management parameter (chandelier, trailing stop) was added to the baseline — this is the tell. Walk-forward ratio < 0 on a management-param sweep is the canonical signal.
+
+**Related lessons:** C3 (stop-misfire in simulation), L71 (real-fills vs BS-sim gap from profit-lock cap), C1 (simulation is ranking-only, not production-exact)
+
+## L113 — level_stop_buffer_dollars C14 dead knob + ribbon-flip-before-level-stop architectural insight (2026-06-17)
+
+**Symptom:** `level_stop_buffer_dollars` parameter was accepted by `simulate_trade_real()` and passed by the orchestrator, but the function body used a hardcoded `LEVEL_STOP_BUFFER = 0.50` constant at the usage site, making the parameter inert. Sweeping [0.10, 0.50, 1.00] returned identical IS P&L across all values ($-4,744.83) — the C14 dead-knob fingerprint (see also L108, L109, L110).
+
+**Root cause (the fix):** `simulator_real.py` had `LEVEL_STOP_BUFFER = 0.50` defined as a local constant inside `simulate_trade_real()` even though the function accepted `level_stop_buffer_dollars: float = 0.50` as a kwarg. The level_breached condition used `LEVEL_STOP_BUFFER` (the constant) instead of `level_stop_buffer_dollars` (the parameter). Fix: removed the local constant, replaced with the parameter. Orchestrator default corrected from 0.0 → 0.50 so existing callers see identical behavior.
+
+**Architectural insight — why P&L spread = $0 even after fix:** After fixing the dead knob, sweeping [0.10, 0.50, 1.00] STILL returns identical P&L. Root cause: `simulate_trade_real()` evaluates the **ribbon flip check before the level stop check**. For a bear trade, when price closes above the rejection level, the ribbon has typically already flipped to BULL (by the nature of bearish entries — the ribbon being bearish is a prerequisite, and once price reclaims above the rejection level, the ribbon typically converts to BULL). So `EXIT_ALL_RIBBON_FLIP_BACK` fires first, consuming the exit slot before the level-stop check runs. The level stop is a rare fallback for the edge case where price spikes past the rejection level on a single bar without the ribbon catching up — uncommon on 5-min data where ribbon lags 3+ bars.
+
+**Impact on guard design:** A P&L-spread guard for `level_stop_buffer_dollars` is not viable — even with the correct implementation, ribbon flip will produce identical P&L across a wide buffer range. The correct guard is a **code inspection guard** verifying: (1) param exists in function signature, (2) hardcoded constant is gone, (3) usage site references the parameter, (4) orchestrator maps `chart_stop_buffer_dollars` → `level_stop_buffer_dollars` in `_params_to_kwargs`. Guard: `test_l113_level_stop_buffer_wired_in_real_fills`.
+
+**Prevention:** When a parameter governs a condition that is almost always pre-empted by an earlier exit condition, never rely on P&L-spread tests to verify the wiring. Use code inspection guards. Check for execution sequence in the simulator: which exit condition fires first? If an earlier condition has nearly 100% coverage, downstream conditions are untestable via aggregate P&L.
+
+**Production wiring:** `chart_stop_buffer_dollars` in params.json → `_params_to_kwargs()` → `level_stop_buffer_dollars` kwarg → `simulate_trade_real()` parameter → `rejection_level + level_stop_buffer_dollars` in level_breached condition. Production value: 0.50.
+
+**Related lessons:** C14 (dead/translated-but-unapplied knobs), L108 (tp1_qty_fraction dead), L109 (runner_target dead), L110 (time_stop dead), L111 (VIX constants missing from _FILTER_CONST_MAP)
+
+---
+
+## L114 — VIX_HARD_CAP_BEAR: correctly wired, empirically inert — Apr-26 losses are NOT from VIX-extreme entries (2026-06-17)
+
+**Symptom:** Hypothesis: block BEAR entries when VIX > 45 to eliminate April 2026 Liberation Day losses (VIX=52) without harming OOS May-26 recovery trades (VIX 20-35). Sweep of VIX_HARD_CAP_BEAR = [999, 50, 45, 40, 35, 30] shows ALL caps from 35 to 999 produce identical IS n=246, pnl=-$4,744.83 and OOS n=17, pnl=$4,747.40. Cap=30 removes exactly one trade — a WINNER, worsening IS by $1,591.
+
+**Root cause (wrong hypothesis):** The hypothesis assumed April 2026 BEARISH_REVERSAL entries occurred when VIX was at panic-extreme levels (40-52). They did not. Sub-window analysis shows 22 April 2026 IS trades lost -$6,189 — but every one of those 22 entry bars had VIX in the 17.30-30 range, not 40-52. The Liberation Day VIX spike (April 2, 2026, VIX=52) either: (a) occurred on bars where `vix_direction=declining` (after the first spike bar) → filter 8 blocked BEAR entry (VIX must be RISING to enter), or (b) VIX rose gradually through the 17-30 range during the trading day, creating entries at VIX 20-28, not at the 52 extreme. Result: VIX_HARD_CAP_BEAR at any value above 30 has zero empirical effect — no entries exist at VIX > 35 in the entire 16-month IS dataset.
+
+**Fix:** No production change. The constant is correctly wired (verified by code inspection guard test_l114). The hypothesis, not the implementation, was wrong.
+
+**Architectural insight — filter 8 auto-blocks extreme VIX scenarios:** Filter 8 requires `vix_now > 17.30 AND vix_direction == "rising"`. After a VIX spike, the direction typically reverses to declining, which blocks BEAR entries (filter 8 FAILS when vix is declining). So the extreme VIX bars (45-52) during Liberation Day are already naturally blocked by the declining-VIX-direction condition, not by the new cap. The cap would only matter if VIX were both > 45 AND still classified as "rising" — a scenario that doesn't appear in the IS data.
+
+**Regime lesson:** April 2026 losses (-$6,189) are NOT filterable by single-bar VIX level. They result from entries at VIX 17-30 where BEARISH_REVERSAL set up correctly on the chart but the tariff-shock macro environment produced directionally wrong outcomes. The real discriminator is multi-day VIX regime character (escalating vs declining, per L73). However, applying VIX-escalating gates to BEARISH_REVERSAL removes Q3-25 and Feb-26 profitable periods (L93). The April 2026 regime is a known limitation of BEARISH_REVERSAL — it performs in VIX-declining recovery regimes (Q3-25, Feb-26, OOS May-26) and fails during VIX-escalating panic.
+
+**Prevention:** Before implementing a VIX-level filter to block specific regime losses, verify that the target trades actually occurred at those VIX levels. Run a per-trade VIX-at-entry distribution check first. The C14 dead-knob smell (sweep of [35-999] all identical) is the diagnostic — if the knob has zero effect at any value, the entry conditions don't create trades in that parameter range.
+
+**Guard:** `test_l114_vix_hard_cap_bear_wired_in_orchestrator` — code inspection guard with 4 checks: (1) VIX_HARD_CAP_BEAR defined in filters.py, (2) VIX_HARD_CAP_BEAR referenced in filter 8 logic, (3) "vix_hard_cap_bear" in orchestrator._FILTER_CONST_MAP, (4) "vix_hard_cap_bear" in runner._FILTERS_CONST_KEYS.
+
+**Related lessons:** C14 (dead/translated knobs), L73 (VIX character > VIX level; VIX escalating vs declining), L93 (VIX-escalating gate anti-correlates with BEARISH_REVERSAL), L113 (ribbon-flip fires before level-stop → code inspection guard)
+
+---
+
+## L115 — VIX multi-day MA crossover INCONCLUSIVE: Apr-26 Liberation Day losses not filterable by lagged MA signal (2026-06-17)
+
+**Symptom:** Two VIX multi-day filter variants were tested to discriminate April 2026 tariff-shock (VIX escalating 17→52) from recovery regimes (Q3-25 BoJ, Feb-26 DeepSeek, OOS May-26). Neither meets the WF≥0.70 ratification gate. VIX_DECLINING_REQUIRED_BEAR stays False (production unchanged).
+
+**Approach 1 — `vix_now > vix_5d_ma` (current bar above 5-day daily-close MA → block BEAR):**
+IS +$2,600 / OOS **−$4,156** (WF=**−1.598** CATASTROPHIC FAIL). Root cause: OOS May-26 recovery trades occur as VIX falls from 35→20. During this descent, VIX bounces briefly above its own 5-day rolling MA (a "dead-cat bounce" within an overall declining trend) — these intratrend bounces are the OOS entry bars. The filter blocks exactly the best 5 OOS trades by confusing temporary bounces within a declining trend with a genuine escalating regime. Diagnostic: this is the L73 pattern (`vix_now > 5d_MA` is a poor discriminator for multi-week trend direction).
+
+**Approach 2 — `vix_5d_ma > vix_20d_ma` (golden/death cross on VIX → block BEAR when 5d_MA is above 20d_MA):**
+IS +$3,487 / OOS $0 delta (WF=**0.000** INCONCLUSIVE). The 5d/20d crossover is more robust — OOS is completely preserved (17 trades, +$4,747 unchanged). However, Apr-26 is also completely unchanged (22 trades, −$6,189 unchanged). Sub-window breakdown: Q1-25 helps (+$3,794), Mar-26 helps (+$2,499), but Feb-26 regresses (−$1,982), Q4-25 regresses (−$1,139). Net IS +$3,487 from removing non-Apr-26 losers, not from removing the target regime.
+
+**Root cause of approach 2 failure on Apr-26:** The Liberation Day VIX spike is violent and fast (April 2, 2026: VIX 20→52 in one session). The BEARISH_REVERSAL engine enters on April 3–7 when VIX is in the 17-30 range (early escalation, not the 52 peak). At that time: the 5d_MA (which averages only the prior 5 daily closes, not the spike day itself) is ~21-24, and the 20d_MA (averaging March 2026, a moderately elevated period) is ~19-22. The crossover may not yet have triggered, or it triggers too slowly. Most Apr-26 BEAR entries fire in the first few days of escalation before any MA-based regime signal is conclusive. The MA crossover is inherently lagged by the construction of the MAs — it detects regime change AFTER the entries have already happened.
+
+**Root cause of Feb-26 regression in approach 2:** February 2026 recovery period had 3 profitable BEAR trades (Feb-26 +$3,135 → +$1,153 with filter True). VIX in February 2026 was in a post-DeepSeek declining phase; the 5d_MA during this period was above the 20d_MA in some sub-windows (VIX declining from 20→15, but the 5d_MA still elevated from the recent spike), blocking those winning entries. The crossover filter is not recovery-regime-aware — it misclassifies early recovery as "escalating" when the recent spike is still in the 5d window.
+
+**Fix:** No production change. VIX_DECLINING_REQUIRED_BEAR=False (default) is backward-compatible and is the correct production setting. The constants and infrastructure (VIX_DECLINING_REQUIRED_BEAR, vix_5d_ma, vix_20d_ma in BarContext, _vix_5d_ma_per_day, _vix_20d_ma_per_day precomputed in orchestrator) remain wired for future research use.
+
+**Regime conclusion:** The April 2026 Liberation Day tariff-shock losses (−$6,189, 22 trades) are NOT filterable by single-bar VIX level (L114), by current-bar-vs-5d-MA comparison (approach 1), or by 5d/20d MA crossover (approach 2). The regime occurs on the FIRST FEW DAYS of a VIX escalation — before any MA-based signal can confirm the new regime. All three approaches fail because they are inherently lagged. The Apr-26 losses are a known limitation: BEARISH_REVERSAL generates edge in VIX-DECLINING recovery regimes (Q3-25, Feb-26, OOS May-26) and fails in the initial phase of VIX-ESCALATING shock events where the direction is ambiguous from any MA perspective.
+
+**Anchor day check:** The VIX_DECLINING_REQUIRED_BEAR=True filter is anchor-neutral — zero delta on 4/29 (+$0), 5/01 (−$24.82, unchanged), 5/04 (+$0 — engine doesn't fire these dates in baseline either), 5/05 (−$1,207.60, unchanged), 5/06 (−$171.60, unchanged). No anchor-day regression from L115.
+
+**Prevention:** Before implementing any VIX-trend filter to remove a specific IS regime, verify that (a) the target trades occur with enough lag for the MA to have confirmed the regime, and (b) the filter doesn't misclassify recovery entries as escalation. The "death cross on VIX" (5d > 20d) is conceptually sound but empirically too slow to catch the Liberation Day pattern. Future approaches: event-driven regime flags (FOMC, tariff announcement, Liberation Day flag in params), or fixed calendar dates as bypass, rather than inferred MA signals.
+
+**Guard:** `test_l115_vix_declining_required_bear_wired` — code inspection guard with 6 assertions: VIX_DECLINING_REQUIRED_BEAR defined in filters.py, used in filter 8, vix_5d_ma in BarContext, _vix_5d_ma_per_day precomputed in orchestrator, key in orchestrator._FILTER_CONST_MAP, key in runner._FILTERS_CONST_KEYS.
+
+**Related lessons:** C5 (VIX character > VIX level; as-of trigger time), L73 (VIX declining vs escalating; 5-day window is natural unit), L93 (VIX-escalating gate anti-correlates with BEARISH_REVERSAL), L114 (VIX hard cap empirically inert — Apr-26 entries at VIX 17-30)
+
+---
+
+## L116 — min_triggers_bear dead knob in params_overrides path: legacy key naming silently bypassed snake_case alias (2026-06-17)
+
+**Symptom:** Sweep of min_triggers_bear = [1, 2, 3] via `params_overrides={'min_triggers_bear': N}` returned identical IS n=246, pnl=-$4,744.83 for ALL values of N — C14 dead-knob signature. Yet the filter 10 min_triggers gate (`if len(triggers) < min_triggers`) is correctly implemented in filters.py (line 1303). The parameter exists, is wired into the orchestrator, and is passed to filters.evaluate_bearish_setup — but the params_overrides path bypassed it entirely.
+
+**Root cause:** `orchestrator._params_to_kwargs` contains a legacy key handler: `if "filter_10_min_triggers_bear" in overrides: kwargs["min_triggers_bear"] = ...`. The function only checked the old legacy naming convention (`filter_10_min_triggers_bear`) that predates the standardized snake_case naming used across all other params_overrides keys. When the sweep called `params_overrides={'min_triggers_bear': N}`, the key `"min_triggers_bear"` was NOT found in the handlers (only `"filter_10_min_triggers_bear"` was), so no override was applied and the default (min_triggers=1) was silently used for all N.
+
+**Fix:** Added two snake_case alias passthrough blocks in `_params_to_kwargs`:
+```python
+if "min_triggers_bear" in overrides:  # L116: raw snake_case alias
+    kwargs["min_triggers_bear"] = overrides["min_triggers_bear"]
+if "min_triggers_bull" in overrides:  # L116: raw snake_case alias
+    kwargs["min_triggers_bull"] = overrides["min_triggers_bull"]
+```
+
+**Verification after fix:** mt=2 correctly removes 7 STANDARD-tier (single-trigger) IS trades from Apr-26 (22 → 16 trades). Full IS sweep:
+- mt=1 (prod): IS n=246, pnl=-$4,744.83 / OOS n=17, pnl=+$4,747.40
+- mt=2: IS n=179, pnl=+$7,647.02 (IS_delta=+$12,391.85) / OOS n=12, pnl=+$1,712.40 (OOS_delta=−$3,035.00) → WF=−0.245 FAIL
+- mt=3: IS n=149, pnl=+$5,519.54 / OOS n=10, pnl=+$2,665.20 (OOS_delta=−$2,082.20) → WF=−0.203 FAIL
+
+**Research outcome: production min_triggers_bear=1 confirmed optimal.** The quality-tier breakdown explains why: STANDARD-tier (n=1 trigger) OOS trades are the BEST OOS performers (5 trades, +$3,035, WR=60%). Removing them via min_triggers=2 destroys OOS. The IS improvement at mt=2 (+$12,392) comes entirely from removing Apr-26 STANDARD entries — but Apr-26 STANDARD entries fail because of the Apr-26 regime, not because they are inherently low-quality. In the OOS May-26 recovery regime, STANDARD trades succeed better than ELITE or SUPER tiers. Quality gating cannot discriminate regimes.
+
+**Quality-tier breakdown:**
+- Apr-26 IS: STANDARD (n=1): 7 trades −$4,015. ELITE (n=2): 10 trades +$1,174. SUPER (n=3): 3 trades −$1,899.
+- OOS May-26: STANDARD (n=1): 5 trades **+$3,035 (WR=60% — best OOS tier)**. ELITE (n=2): 9 trades +$1,103. SUPER (n=3): 3 trades +$609.
+- Conclusion: STANDARD fails in Apr-26 chaos but LEADS in May-26 recovery. Regime determines quality outcome, not trigger count.
+
+**Prevention:** When adding a new params_overrides key, ensure BOTH the snake_case AND any legacy naming variant are handled in `_params_to_kwargs`. The legacy naming block exists because old grinder scripts used the `filter_10_` prefix convention; the snake_case path is the modern standard. Check both paths exist when debugging a dead-knob sweep.
+
+**Guard:** `test_l116_min_triggers_bear_wired_in_params_overrides` — code inspection (both "min_triggers_bear" and "min_triggers_bull" in overrides handled) + functional check (OOS trade count spreads ≥ 3 between mt=1 and mt=2).
+
+**Related lessons:** C14 (dead/translated-but-unapplied knobs: vary-and-assert), L111 (VIX constants in runner._FILTERS_CONST_KEYS missing from orchestrator._FILTER_CONST_MAP — same naming sync failure class)
+
+---
+
+## L117 — Backtest outer loop gate hardcoded >= 15:50, allowing phantom entries at or after time_stop_et (2026-06-17)
+
+**Symptom:** OOS baseline shows n=17, pnl=+$4,747. Manual review of OOS trade list found two entries timestamped 15:45 ET (May 11 -$112, May 15 +$2,200). The 15:45 bar in a 5-minute schema opens at 15:40 — exactly when `time_stop_et` fires. Production heartbeat at 15:40 exits existing positions; it never ENTERS new ones. The +$2,200 May 15 trade (the single largest OOS winner) was a phantom.
+
+**Root cause:** `orchestrator.py` outer loop gate line ~686 used a hardcoded `>= dt.time(15, 50)` for the upper entry boundary, regardless of the `time_stop_et` parameter computed from `time_stop_minutes_before_close`. With `time_stop_minutes_before_close=20`, `time_stop_et = 15:40`. Bars at 15:40 and 15:45 passed the `< 15:50` gate and could trigger new entries. The simulator then processed these from the NEXT bar (idx+2), found `spy_time >= time_stop_et` immediately, and exited. Net result: entry + instant time-stop in a single simulated bar — which production cannot replicate since the 15:40 heartbeat is an EXIT tick, not an ENTRY tick.
+
+**Quantification:**
+- IS: n=9 phantom trades, net +$170 (8 losers -$740, 1 big winner +$910 on 2025-08-26)
+- OOS: n=2 phantom trades, net +$2,088 (May 11 -$112, May 15 +$2,200)
+- **Corrected baseline: IS n=239 pnl=-$3,942.61 / OOS n=15 pnl=+$2,659.00** (was IS=248/-$3,772.83, OOS=17/+$4,747.40)
+
+**Fix:** Changed outer loop gate from hardcoded `>= dt.time(15, 50)` to `>= time_stop_et`:
+```python
+# BEFORE (bug):
+if bar_time_py.time() < dt.time(9, 35) or bar_time_py.time() >= dt.time(15, 50):
+    continue
+# AFTER (fix):
+if bar_time_py.time() < dt.time(9, 35) or bar_time_py.time() >= time_stop_et:
+    continue
+```
+This makes entry gating dynamic: if `time_stop_minutes_before_close=10` (default), `time_stop_et=15:50` (no change from old behavior). If `=20` (production), `time_stop_et=15:40` (blocks phantom entries).
+
+**Prevention:** Any gate that controls WHEN entries are allowed must use the runtime-computed time variables, not hardcoded literals. The time_stop_et is already computed at function start; use it. Hardcoded time literals are C14-class knob drift — they ignore the configured parameter.
+
+**Guard:** `test_l117_no_entry_at_or_after_time_stop_bar` — code inspection (gate uses `time_stop_et` not `dt.time(15, 50)`) + functional liveness check (no OOS fill with entry_time >= 15:40 when time_stop_minutes_before_close=20).
+
+**Related lessons:** C14 (dead/translated-but-unapplied knobs), C7 (silent success is failure — phantom entries produced valid-looking P&L with no error signals)
+
+---
+
+## L118 — GOLDILOCKS VIX-spike-decline regime classifier: prior_5d lookback too narrow, 0 IS trades tagged (2026-06-17)
+
+**Symptom:** Hypothesis: "profitable BEARISH_REVERSAL months share a VIX-declining-from-spike pattern — prior_5d_VIX_max > 30 AND today_VIX < prior_max × 0.65 = goldilocks regime." IS sizing simulation shows **0 GOLDILOCKS trades** across n=244 production IS trades. The classifier fires for exactly 0 individual trade-dates. The OOS window (May 8-22 2026, +$2,659) is also NOT_GOLDILOCKS. Monthly stats tagged April 2025 as GOLDILOCKS using the 15th-of-month representative date (prior_max=52.2, today=30.1), but the 7 individual trades in April 2025 span dates BEFORE the spike peak (April 1-8, prior_max<30) and AFTER VIX recovered to <30 in prior_5d (April 22+, prior_max from Apr 15-21 dropped below 30). The 5-day window is too narrow to catch the entire post-spike recovery period.
+
+**Root cause 1 — window too narrow:** Prior_5d_max > 30 requires the spike to have occurred within the PRIOR 5 TRADING DAYS. After a VIX spike event, market participants resume normal trading within 1-2 weeks. By week 2, the spike is outside the 5-day window and prior_max falls below 30, so GOLDILOCKS no longer fires. The "golden period" of profitable trading in the aftermath of a spike extends well beyond 5 days — often 10-30 days.
+
+**Root cause 2 — monthly representative date bug:** `_monthly_stats()` used the 15th of each month as a representative date for the GOLDILOCKS check. If the 15th is a weekend or holiday (March, November, February), the function returns NO_VIX_TODAY and the month shows as NOT despite possibly having GOLDILOCKS dates in the first/third week. For the sizing simulation this bug is moot (it correctly uses per-trade actual dates), but the monthly table misleads analysis.
+
+**Root cause 3 — hypothesis structurally wrong for IS period:** Profitable IS months (Q3-2025 +$594/$886/$1,760, Feb-2026 +$3,123) are NOT post-spike-recovery windows. Q3-25 VIX was 15-17 (normal). Feb-26 VIX was ~20 (mild correction, no prior >30 spike). The profitable periods are explained by market TREND and regime character, not by VIX spike recovery.
+
+**Root cause 4 — catastrophic months have wrong VIX signature:** April 2026 (-$6,400) had prior_max=21.0 < 30 threshold — it was a FRESH VIX ESCALATION from a low base (~18→52 on Liberation Day April 9). The GOLDILOCKS classifier correctly identifies this as NOT_GOLDILOCKS. But this means no VIX-spike-decline filter can protect against it, because the spike HAD NOT YET HAPPENED on the days leading up to the crash.
+
+**Threshold sweep result:** All 24 combinations (spike_thr 25-40 × decay 0.60-0.75) produce GL_n=0 to 8 IS trades. At the most permissive setting (spike_thr=25, decay=0.75): GL_n=8, GL_pnl=-$2,730 (NEGATIVE). No viable sizing classifier found.
+
+**Fix / Pivot:** The GOLDILOCKS regime hypothesis is REFUTED for the current BEARISH_REVERSAL IS window. Alternative directions:
+1. Rolling-WR-based sizing (if last K trades WR > 55%, size 1.5×) — performance-based rather than macro-regime-based. Currently under test in `backtest/autoresearch/rolling_wr_sizing.py`.
+2. Per-day kill switch + per-trade risk cap are the correct defenses against sudden-shock months. GOLDILOCKS is unnecessary.
+
+**True production IS baseline established:** IS n=244 pnl=-$5,117.81 (with `no_trade_before=dt.time(9,35)` production setting). Prior "corrected baseline" of n=239/-$3,942.61 used the default 10:00 entry gate — 5 pre-10am trades (net -$1,175) were incorrectly excluded.
+
+**Prevention:**
+- When testing a regime classifier, always run the SIZING SIMULATION at per-trade level (not monthly representative dates) before concluding the classifier is viable.
+- A monthly analysis with NO_VIX_TODAY for 4+ months is a data quality signal — use `first_trading_day_of_month()` not the 15th.
+- Before proposing a regime filter, verify that the filter correctly TAGS the profitable periods AND correctly EXCLUDES the catastrophic ones. If the catastrophic period was a fresh escalation (no prior spike), VIX-level filters cannot protect against it.
+
+**Related lessons:** C5 (VIX character > VIX level), L73 (VIX-trend filter: VIX character discriminator), L93 (VIX-escalating gate kills BEARISH_REVERSAL edge)
+
+---
+
+## L119 — 2026-06-17: Rolling-WR sizing classifier is backward for BEARISH_REVERSAL — high WR precedes crashes; classifier has no predictive signal
+
+**Symptom:** Rolling win-rate (last K trades) sizing sweep across 27 combos (k=10/15/20 × high_thr=50-60% × low_thr=25-35%). All 27 FAIL (best WF=0.364, gate 0.70). Best IS+OOS delta combo (+$3,055) still fails WF. IS trades are chronically LOW class (n=190/244 have WR<35%) — the strategy appears always "cold" to the classifier.
+
+**Root cause 1 — classifier is backward:** Monthly progression shows 2025-05 entered with 60% rolling WR (HIGH signal → size 1.5x) and immediately became the worst 5-trade month (-$1,710, WR=20%). The engine's rolling WR PEAKS before catastrophic stretches, then drops as losses accumulate — sizing up DURING the entry into catastrophic months.
+
+**Root cause 2 — zero OOS effect:** OOS May 2026 (profitable recovery, n=15, +$2,659) entered with 30-60% rolling WR (k=15: all MID at entry). Sizing unchanged at 1.0x in OOS. Rolling WR provides no actionable signal in the profitable recovery period.
+
+**Root cause 3 — structural property of BEARISH_REVERSAL:** The strategy enters ~5-20 trades/month. Its WR is chronically 25-42% (true win rate in IS = 28%). A classifier with low_thr=35% assigns nearly all trades to LOW class. Sizing down to 0.5x reduces losses on the catastrophic months but also reduces the profitable trades in recovery months.
+
+**Sweep result (k=15, high=55%, low=35%):**
+- IS LOW class: n=190, WR=28%, sized pnl=-$4,479 (0.5x reduces loss vs 1.0x, but still negative)
+- IS HIGH class: n=0 (rolling WR NEVER exceeded 55% in IS)
+- IS WARMUP class: n=15, WR=33%, pnl=+$1,554 (best class — first 15 trades when history unavailable)
+- OOS: all MID at entry → no sizing change → OOS delta=+$43 (noise)
+
+**Fix:** The per-day kill switch (−30% equity for Safe, −50% for Bold) IS the correct mechanism. It responds to MAGNITUDE of realized loss on the current day, not to historical WR. Rolling WR is backward-looking and cannot detect regime changes before they happen.
+
+**Prevention:**
+- Before testing any sizing classifier for BEARISH_REVERSAL, check the MONTHLY WR PROGRESSION: if IS WR is chronically 25-42%, any low_thr=35% classifier will tag most trades LOW regardless of regime.
+- Verify the classifier correctly identifies the PROFITABLE months as HIGH (not LOW) before running the full sweep. A classifier that assigns 190/244 IS trades to LOW is useless regardless of IS delta.
+- The structural test: does rolling WR PEAK going into catastrophic months? If yes, the classifier is backward.
+
+**Related lessons:** C5, L118 (GOLDILOCKS refuted — same structural failure), L73 (VIX character > VIX level)
+
+---
+
+## L120 — 2026-06-17: Consecutive-stop cooldown fails for BEARISH_REVERSAL — IS protective gate cuts OOS profitable re-entries; per-day kill switch is sufficient
+
+**Symptom:** Post-processing simulation of "block further entries after N consecutive stops on same day." All combos fail OOS. N=1 (block after ANY stop): IS delta=+$5,975 (blocks 68 catastrophic re-entries), OOS delta=-$1,481 (blocks 5 profitable OOS trades), WF=-0.248. N=2: IS delta=+$395, OOS delta=-$518, WF=-1.314.
+
+**Root cause 1 — IS/OOS structural tension:** The same gate that blocks re-entries during catastrophic IS months (April 2026: 3-trade day on 04/10, saved +$1,056) also blocks re-entries during the profitable OOS recovery (May 2026 has multiple-entry days). Blocking after N stops in IS reduces catastrophic-month losses. The SAME rule then blocks the profitable re-entries in OOS.
+
+**Root cause 2 — gate fires on wrong signal:** January 2026: 2026-01-12 has n=3 multi-entry day. N=2 cooldown blocks the 3rd entry which was PROFITABLE (+$631 would have been a winner). Cooldown net: base=+$631 → cool=-$288 (delta=-$919). The gate fires on consecutive STOP EXITS from prior trades, but the next trade's profitability is uncorrelated with whether the previous trade stopped out.
+
+**Root cause 3 — trigger field unavailable:** `t.trigger_type` / `t.setup_type` are not attributes on `TradeResult` — all trades show trigger='unknown'. The `same_trigger` mode is identical to `any_trigger` mode. Cannot differentiate "stopped twice on level_rejection" from "stopped on trendline then level_rejection."
+
+**Fix:** No entry-level cooldown is warranted. The per-day kill switch (daily P&L limit: Safe -30%, Bold -50%) already fires on DOLLAR MAGNITUDE. The right time to halt trading is when TOTAL DAILY LOSS exceeds the threshold — not based on consecutive stop count, which is a much weaker signal.
+
+**If a stop-based gate is reconsidered in future:** The gate must use REAL-TIME daily P&L (not stop-count) as the trigger. A trade that stops out but leaves daily P&L positive should never trigger the cooldown. Only trades that bring daily P&L below a WARNING threshold (e.g., -15%) should trigger a cooldown. This is essentially a tighter kill switch, not a stop-count gate.
+
+**Prevention:** Before building any "protective gate" (cooldown, circuit breaker, stop-count limit), verify that the gate's trigger condition is ANTI-CORRELATED with future trade profitability in the SAME time period. If IS catastrophic months have 3+ stops/day AND OOS recovery months also have 2-3 entries/day (many profitable), the gate will fire in BOTH contexts and provide no net benefit.
+
+**Related lessons:** C15 (gates interact multiplicatively), L118 (GOLDILOCKS), L119 (rolling WR)
+
+---
+
+## L121 — 2026-06-17: VIX-conditional premium stop refuted; WF gate fails for small OOS samples; time-of-day distribution non-discriminatory
+
+**Symptom (primary):** VIX-conditional stop hypothesis — relax bear stop in VIX>30 environments to reduce catastrophic-month losses. Result: only 3 IS days have VIX>30 at 09:35 (2026-03-09, 2026-03-27, 2026-03-30); all 3 are PROFITABLE (n=3, pnl=+$1,836). All IS losses are in VIX<30 bucket (n=241, pnl=-$6,954). No PASS candidates (WF<0.70 for all positive-OOS stops).
+
+**Root cause 1 — wrong bucket:** April 2026 catastrophe entries occurred at daily VIX 15-30 (Liberation Day onset). Once VIX exceeded 30, filter_8 (vix_direction=DECLINING required) blocked further BEAR entries naturally. VIX-conditional stop can't fix the VIX<30 entries.
+
+**Root cause 2 — VIX>30 entries win:** The 3 high-VIX March 2026 days were profitable at production stop. Relaxing stop for these trades provides no benefit — they already won.
+
+**Secondary finding — tighter global stop:**
+- Stop=-0.10: IS_delta=+$8,705, OOS_delta=+$1,802, WF=0.207 (FAIL gate 0.70)
+- Stop=-0.15: IS_delta=+$3,946, OOS_delta=+$901, WF=0.228 (FAIL)
+- Stop=-0.25+: both IS and OOS worsen or split
+
+**WF gate problem (structural):** IS n=244, OOS n=15 (16x ratio). Per-trade delta: IS=+$35.67/trade, OOS=+$120.13/trade — OOS per-trade improvement is 3.4x larger than IS. Standard WF without sample-size normalization systematically rejects improvements when IS>>OOS. Per-trade-normalized WF = 3.37 (would PASS). Prevention: when IS/OOS sample size ratio > 5x, ALWAYS compute per-trade-normalized WF alongside standard WF.
+
+**Time-of-day analysis (concurrent):** Entry time distribution — catastrophic months: morning 33%, midday 51%, afternoon 15% vs normal months: morning 31%, midday 39%, afternoon 30%. No time-of-day window discriminates catastrophic from normal. The 11:30-12:00 bucket is negative in BOTH regimes (CAT -$3,247 WR=0%, n=6; NORM -$1,390 WR=18%, n=11) but sample too small for a gate.
+
+**Fix / Verdict:** VIX-conditional stop REFUTED. Production stop=-0.20 unchanged. The stop=-0.10 tighter stop finding needs a dedicated per-trade-normalized WF analysis before any ratification. Kitchen task enqueued.
+
+**Related lessons:** C22 (backward classifiers anti-correlate with recovery), L114 (VIX hard cap: Apr-26 at VIX 17-30 not 45-52), L115 (VIX MA crossover INCONCLUSIVE), L118 (GOLDILOCKS), L119 (rolling WR), L120 (cooldown)
+
+---
+
+## L122 — 2026-06-17: Quality-tier blocking fails when IS/OOS windows represent different VIX regimes — LEVEL tier shows IS/OOS regime flip
+
+**Symptom:** BEARISH_REVERSAL LEVEL-tier trades (level_rejection or level_reclaim without SUPER/ELITE upgrade) show IS WR=24%, pnl=-$12,867, -$390/trade (n=33). All blocking scenarios fail OOS: blocking all LEVEL gives OOS_delta=-$447, WF=-0.566 (FAIL). VIX-conditioned blocking (VIX≥20/22/25) yields OOS_delta=0 (OOS LEVEL trades are all at VIX 17-20, below any threshold tested).
+
+**Root cause:** The IS/OOS split (IS: Jan-2025 to May-2026, OOS: May-Jun 2026) captures profoundly different VIX regimes for LEVEL entries. IS LEVEL losses concentrate in two sub-regimes: VIX 15-17 (Jan-2026 flat market, 15% WR) and VIX 25-35 (Mar-2026 tariff escalation, 29% WR). OOS LEVEL entries fire in VIX 17-20 (May-2026 post-Liberation-Day declining recovery, WR=50%, +$112/trade). The quality tier label "LEVEL" contains three behaviorally distinct populations — the VIX regime at entry time determines edge, not the setup trigger structure.
+
+**Root cause 2 — VIX filter can't separate the populations:** No single VIX threshold separates IS losers from OOS winners. IS LEVEL losers at VIX 15-17 (flat) AND IS LEVEL losers at VIX 25-35 (escalating) span a wide range. OOS LEVEL winners at VIX 17-20 sit squarely in between. A threshold at VIX≤17 would block the Jan-26 IS losses but miss the Mar-26 IS losses. A threshold at VIX≥22 blocks the Mar-26 IS losses but is irrelevant for OOS (all OOS LEVEL < VIX 22). No single filter can target both IS loss populations without also blocking OOS winners.
+
+**Root cause 3 — sub-window deadband parallel:** vix_rising_deadband=0.15 was rejected by the same structural principle — it blocked a 2025-11-19 entry (VIX=23.9, pnl=+$996) in the W2 Jul-Dec 2025 sub-window. High-VIX slow-rising entries are valid BEARISH_REVERSAL setups; the filter incorrectly classifies them as noise. Quality-tier blocking and VIX-character filters both suffer from the same root cause: the feature being used to classify "bad" trades is regime-conditional, not mechanically predictive.
+
+**Fix:** Do not block LEVEL entries. The correct intervention for high LEVEL losses is stop tightening (L121, confirmed RATIFY: premium_stop_pct_bear -0.20→-0.10 saves $8,705 IS / $1,802 OOS). Smaller loss per LEVEL loser preserves OOS LEVEL winners intact. A per-trade loss limiter (stop tightening) is regime-agnostic; an entry gate (tier blocking) is regime-dependent.
+
+**Prevention:** Before proposing ANY quality-tier block, check the IS/OOS regime split: (1) What VIX environment (level + character) characterized the IS losing trades? (2) What VIX environment characterized the OOS winning trades? (3) Is there a mechanically separable feature that differs between the two? If the IS drag and OOS wins share the same VIX range (e.g., both at VIX 17-20), blocking is infeasible. Always use the WF formula to test — a negative WF on the OOS direction is a definitive veto, not a data-quality question.
+
+**Graduated guard opportunity:** Add assertion to test suite: `if OOS LEVEL pnl > 0 AND OOS n >= 3: assert blocking LEVEL reduces OOS by at least 10%`. This guards against future attempts to block a tier that's profitable in OOS.
+
+**Related lessons:** C4 (stratify by VIX regime), C16 (IS/OOS regime flip), L93 (VIX-escalating gate anti-correlates with BEARISH_REVERSAL), L104 (IS Sharpe inflated when VIX filter creates many zero-trade days), L121 (WF gate fails for small OOS samples)
+
+---
+
+## L123 — 2026-06-17: `block_level_rejection` gate requires `winning_side == "P"` guard — `has_level` is True for BOTH bear rejection AND bull reclaim
+
+**Symptom:** First implementation of LEVEL_REJECTION_GATE (`quality_tier == "LEVEL" and has_level`) blocked 5/08 OOS BULL level_reclaim +$1,130 trade. OOS flipped to −$447, WF=−0.594 FAIL. The gate condition looked correct on paper — `has_level` should fire only when a level trigger is present — but `has_level` is True for BOTH bear (`level_rejection` in triggers) AND bull (`level_reclaim` in triggers) LEVEL trades because the quality-tier logic sets `has_level = "level_rejection" in triggers or "level_reclaim" in triggers` without regard to direction.
+
+**Root cause:** In the BEARISH_REVERSAL engine, the quality tier for a bull/CALL trade is promoted to LEVEL when `level_tied_trig = "level_reclaim"` is in `winning_triggers`. For a bear/PUT trade, `level_tied_trig = "level_rejection"`. Both paths set `has_level = True`. An unguarded `quality_tier == "LEVEL" and has_level` gate blocks BOTH — it cannot distinguish which side the level trigger came from.
+
+**Fix:** Add `winning_side == "P"` guard:
+```python
+if block_level_rejection and quality_tier == "LEVEL" and has_level and winning_side == "P":
+```
+This restricts the gate to PUT (bear) LEVEL trades only. CALL (bull) LEVEL trades (level_reclaim) are unaffected. After fix: OOS +$682, WF=0.842 PASS, RATIFY.
+
+**Prevention rule:** Any engine gate that targets a quality tier or level-trigger must also guard on `winning_side` when the tier can be reached from both sides. Before writing any `quality_tier == "X"` condition in orchestrator.py, ask: "Can both CALL and PUT entries reach this tier? If yes, add `winning_side == 'P'` (or `'C'` for bull-only gates) to prevent cross-side contamination." Graduated guard: `test_l123_level_rejection_gate_bear_only` verifies (1) 5/08 BULL level_reclaim NOT blocked, (2) ≥1 bear SKIP exists, (3) no SKIP on 5/08.
+
+**Related lessons:** C14 (dead/translated knobs), L88 (per_trade_risk_cap_pct side-specific), L95 (trendline_only_setup fires for both multi-trigger paths)
+
+---
+
+## L124 -- 2026-06-17: level_reclaim has positive per-trade OOS expectancy despite 37.5% WR -- blocking removes lottery-ticket edge
+
+**Symptom:** Post-Rank35 OOS analysis (2026-05-08 to 2026-06-16, Safe n=21): level_reclaim trades show W=3/L=5 (37.5% WR), pnl=+2,492 total. Intuition says "37.5% WR is a loser bucket -- block it." Blocking level_reclaim OOS delta: -,344. The engine P&L COLLAPSES if level_reclaim is removed.
+
+**Root cause:** The 3 level_reclaim winners are lottery-ticket entries: +2,044, +1,130, +744 (avg +1,306/trade). The 5 losers are capped by the -10% premium stop: -176, -265, -232, -433, -320 (avg -285/trade). Expected value per trade: 0.375*1306 + 0.625*(-285) = +311/trade POSITIVE. Low WR does not mean negative expectancy when winners are 4.6x larger than losers. The premium stop ASYMMETRICALLY limits downside while the runner mechanism ASYMMETRICALLY amplifies upside.
+
+**Root cause 2 -- Loss perception bias:** The 5 losses are more visible than the 3 wins because losses cluster in time (May 19-28 during declining VIX market reversal). Temporal clustering makes it FEEL like a losing setup. But the 3 wins, when they fire, are 4.6x the loss magnitude -- the batch-of-losses followed by a lottery-win is the correct model.
+
+**Root cause 3 -- Same pattern holds for Aggressive:** level_reclaim Aggressive OOS n=8: W=3/L=5, avg winner=+1306, avg loser=-285, expectancy=+311/trade. Identical numbers across both accounts -- structural property of level_reclaim mechanics, not a Safe-specific artifact.
+
+**Fix:** DO NOT block level_reclaim. The correct filter for level_reclaim losers is stop tightening (L121, already deployed), which limits the -285 average loss further without adding false stops.
+
+**Prevention rule:** Never evaluate a trigger category by WR alone. Compute per-trade expectancy = WR*avg_win + (1-WR)*avg_loss before proposing a block. A 37.5% WR category with 4.6x win/loss ratio has +311/trade expectancy -- blocking it destroys edge. The WR threshold for a block is win/loss_ratio-dependent: for 4x win/loss ratio, the breakeven WR is 20% (0.20*4 + 0.80*(-1) = 0). For 2x ratio, breakeven is 33%. For 1x, breakeven is 50%. Use the expectancy formula, not WR standalone.
+
+**Related lessons:** L121 (WF gate for small OOS samples), L122 (do not block LEVEL entries), L123 (winning_side guard required for level block gates)
+
+---
+
+## L125 -- 2026-06-17: Aggressive midday trendline gate WF=0.147 -- IS fires 23x more often than OOS due to C22 regime
+
+**Symptom:** Aggressive account midday_trendline_gate A/B: IS n=261->147 delta=+3,545, OOS n=28->23 delta=+56, WF_norm=0.147 (gate=0.70). Gate passes OOS_positive and SW_ok (1/4 hurt) but decisively fails WF. The gate blocks 114 IS midday trendline trades but only 5 OOS midday trendline trades (23x IS/OOS ratio for removed trades).
+
+**Root cause:** The midday trendline gate (11:00-14:00 ET) targets intraday noise entries. In the IS period (Jan 2025 to May 2026), the market was range-bound and mean-reverting in the midday window -- trendline entries in 11:00-14:00 were frequent (n=114 removed) and negative. In the OOS period (May-Jun 2026, post-Liberation-Day VIX declining recovery), the market was in a sustained uptrend -- midday entries are fewer AND the ones that fire are higher-quality (VIX 17-20, level triggers). Result: the gate's IS improvement is 23x its OOS improvement per-trade.
+
+**Root cause 2 -- C22 IS/OOS regime asymmetry on Aggressive:** The Safe account midday gate IS in production and was ratified on the Safe IS baseline. The Aggressive account has a broader universe (no midday gate) and its IS trendline distribution is concentrated in the midday window. But the OOS midday trendline distribution is completely different (fewer trades, better quality) because the OOS period is a different regime.
+
+**Root cause 3 -- WF formula exposes the problem correctly:** WF_norm = (oos_delta/n_oos) / (is_delta/n_is) = (56/28) / (3545/261) = 2.0 / 13.6 = 0.147. Per-trade IS improvement is 6.8x OOS. The standard WF gate (>=0.70) is the correct veto here -- the gate generalizes at only 14.7% of its IS rate.
+
+**Fix:** Do not add midday_trendline_gate to Aggressive. The Aggressive account's production configuration is correct (midday gate OFF). Safe has it ON because Safe was validated with it in a prior IS regime.
+
+**Prevention rule:** When testing gates that are already deployed on one account for applicability to another account, the WF gate must pass independently for the new account's IS/OOS baseline. "It works for Safe" is not evidence that it works for Aggressive -- the accounts have different VIX ranges, risk caps, and trade distributions. Always run a fresh A/B on the target account's correct production params.
+
+**Related lessons:** C22 (IS/OOS regime flip), L93 (SNIPER VIX-escalating gate anti-correlates with BEARISH_REVERSAL), L104 (Sharpe inflated by many zero-trade days)
+
+---
+
+## L126 -- 2026-06-17: BULLISH_RECLAIM ribbon_flip is regime-conditional -- blocks value in trending markets
+
+**Symptom:** IS analysis of BULLISH_RECLAIM_RIDE_THE_RIBBON trades (n=45) shows `ribbon_flip` trigger pattern has WR=9-11% vs WR=29% for non-ribbon_flip patterns. Blocking `ribbon_flip` BULLISH_RECLAIM gives IS delta=+$1,823. But OOS delta=-$3,123 and WF=-23.984. Sub-window stability: HELP in Q1-2025 (+$1,972), HURT in Q3-2025 (-$3,708) and OOS-May (-$3,123). SW_hurt=3/5.
+
+**Root cause:** `ribbon_flip` in a BULLISH_RECLAIM context has opposite meaning in different regimes:
+- **Range-bound regime (Q1-2025):** ribbon_flip fires AFTER price has already extended. By the time ribbon turns bull, the reclaim attempt is already failing. Result: lagging entry = 0% WR.
+- **Trending regime (Q3-2025, OOS-May-2026):** ribbon_flip fires during a genuine bull trend acceleration. The ribbon turning bull IS the signal that the reclaim is working. Result: momentum confirmation = good entry.
+
+The IS period's Q1-2025 (range-bound) dominates the IS aggregate, making ribbon_flip look universally bad. But the underlying mechanism is regime-conditional: ribbon_flip quality inverts between range-bound and trending markets. No static filter can solve this.
+
+**Fix:** Do not implement block_bull_ribbon_flip. The gate `block_bull_ribbon_flip` was added to orchestrator.py as a research parameter (default=False) but should never be set True in production. BULLISH_RECLAIM as-is (IS avg=$104/trade, OOS avg=$638/trade in May-2026 recovery) has positive expectancy in aggregate.
+
+**Prevention rule:** Before blocking any trigger pattern based on IS aggregate WR: (1) run sub-window stability across ALL 4+ sub-windows; (2) if SW_hurt >= 3/5, the pattern is regime-conditional and the gate is strictly negative EV; (3) check specifically whether the IS "bad" window is a range-bound period and the OOS/other "good" windows are trending periods -- the directional inversion is the smoking gun.
+
+**Related lessons:** C22 (regime flip IS/OOS), L93 (VIX-escalating gate wrong direction for BEARISH_REVERSAL), L73 (VIX character vs level)
+
+## L127 -- 2026-06-17: "Entry bar" analysis must clarify SIGNAL bar vs FILL bar — BEARISH_REJECTION signal bars are ALWAYS bearish by construction
+
+**Symptom:** `require_bearish_entry_bar` gate added to orchestrator.py checked `bar["close"] < bar["open"]` where `bar = spy_df.iloc[idx]` (the signal bar). Running the full backtest (`entry_bar_direction_gate.py`) showed n_blocked=0 in all windows — WF=nan, dead knob.
+
+**Root cause:** BEARISH_REJECTION_RIDE_THE_RIBBON pattern structurally requires the signal bar to be bearish — the price must REJECT at a level (test above the level) and CLOSE BELOW it in the same bar. This is what the detector's `detect_trendline_rejection_bearish()` and `detect_level_rejection()` check. Therefore `close < open` is a structural invariant for all BEARISH_REJECTION signal bars (bar N). The gate never fires because signal bar N is ALWAYS bearish.
+
+**The actual discriminator:** `entry_bar_pnl_split.py` analyzed `t.entry_time_et` timestamps. In `simulator_real.py` line 387, `fill.entry_time_et` is OVERWRITTEN to `entry_bar_opt.timestamp_et` — the option bar timestamp corresponding to the SPY bar at `idx+1` (the fill bar). So `entry_bar_pnl_split.py` was measuring FILL bar (N+1) direction, not signal bar (N) direction.
+
+**Fill bar (N+1) direction IS discriminatory:** bearish fill bar (N+1) → WR=41.1% avg=+$225 (n=56 IS); bullish fill bar (N+1) → WR=3.4% avg=-$39 (n=29 IS). IS delta=+$1,124, OOS delta=+$424, WF=1.908 post-hoc.
+
+**Key distinction:**
+- Signal bar (N): ALWAYS bearish by construction → zero discriminating power
+- Fill bar (N+1): open is the fill price; close vs open reveals immediate follow-through → strong discriminator
+- Fill bar direction cannot be known at signal time (bar N+1 hasn't closed) → NOT a pre-entry filter without a 5-minute delay
+
+**Production implementation:** A one-bar confirmation delay (enter at bar N+2 open only if bar N+1 was bearish) is the correct production analog. This changes fill prices and requires a dedicated simulator test. `require_bearish_fill_bar=True` in orchestrator is a look-ahead BACKTEST gate for measuring the upper bound of this strategy.
+
+**Prevention rule:** When analyzing "entry bar quality," always specify: (1) is this the SIGNAL bar (N, the bar that fired the watcher) or the FILL bar (N+1, the bar the entry fills in)? (2) Check which timestamp `t.entry_time_et` actually represents in the simulator — it may be overwritten. (3) For BEARISH patterns, the signal bar is almost always bearish by construction; if your gate fires on 0% of bars, check the structural invariant first.
+
+**Related lessons:** L79 (trigger string suffix mismatch), L80 (bull_score null in ENTER ticks), C7 (silent success is failure), C14 (dead/translated-but-unapplied knobs), L113 (level_stop_buffer dead knob)
+
+## L128 -- 2026-06-17: Fill bar direction gate has WF_norm < 0 — IS and OOS deltas opposite-sign means regime inversion, not just weak signal
+
+**Symptom:** `require_bearish_fill_bar=True` backtest: IS delta = -$860 (gate REMOVES IS winners, n=24 blocked), OOS delta = +$1,102 (gate REMOVES OOS losers, n=3 blocked). WF_norm = -7.54.
+
+**Root cause:** In IS (2025, range-bound/choppy), BEARISH_REJECTION entries with a bullish fill bar (N+1) often still succeeded — the brief bounce was reversed immediately. In OOS (May-June 2026, recovery/trending), a bullish fill bar after a bearish signal = momentum continuation bullish = the put entry fights the prevailing trend and fails. The fill bar direction predicts different outcomes in different market regimes.
+
+**The regime inversion signature:** WF_norm < 0 occurs when IS_delta and OOS_delta have opposite signs. This is stronger than WF < 0.70 (marginal generalization). There are two patterns:
+- IS_delta < 0 AND OOS_delta > 0 (L128 case): gate is anti-correlated with IS winners but correlated with OOS losers. Gate works WITH the OOS regime, AGAINST the IS regime.
+- IS_delta > 0 AND OOS_delta < 0: gate overfit to IS (more typical overfitting pattern).
+Both cases: NOT RATIFIABLE. A regime detection layer would be required first.
+
+**Sub-window oscillation:** W1(HELP) / W2(HURT) / W3(HELP) / W4(HURT) — alternating, not monotonic. Confirms the gate is not trending toward any regime; it oscillates in response to each market character shift.
+
+**Prevention rule:** Always compute WF_norm BEFORE concluding "OOS positive = good." If WF_norm < 0, stop immediately — the IS and OOS regimes disagree directionally. The gate is not a universal signal; investigate regime dependency. A gated OOS improvement when IS worsens suggests the OOS period has a different market character, not that the gate generalizes.
+
+**Related lessons:** L73 (VIX character > VIX level — regime-conditional VIX gate), L92 (IS improvement via earlier entry regresses OOS), L104 (VIX filter inflates IS Sharpe on zero-trade days), C4 (stratify by regime before concluding edge), L127 (signal bar vs fill bar confusion in BEARISH_REJECTION)
+
+## L129 -- 2026-06-17: Entry bar body/wick quality gate fails post-Rank35 due to C22 regime inversion — IS best bucket inverts to OOS best bucket
+
+**Symptom:** signal_bar_quality_analysis.py: IS 25-40% body_pct bucket = best (WR=45.5%, avg +$755, n=14). IS 0-25% bucket = worst (WR=14.3%, avg -$102). Gate body>=30% removes IS 0-25% losers (+$590 IS improvement). OOS: 0-25% bucket = BEST (WR=100%, +$1,240 — single largest OOS win). Gate body>=30% removes this winner: OOS delta = -$1,240. WF_norm = -9.6.
+
+**Root cause:** IS period (2025, choppy/range-bound): doji/small-body bars (25-40%) represent indecision followed by reversal — the "rejection" is weak but wins because the market is choppy. IS 0-25% bars (tiny body, mostly wick) often appear on false breaks that reverse. OOS period (May-June 2026, post-tariff trending): large-wick bars represent genuine exhaustion at levels — the single best OOS trade had a tiny body (strong wick rejection). Volatility regime differs 2x: IS median range = $0.53/bar, OOS median range = $1.15/bar.
+
+**The IS/OOS range regime difference:** OOS bars are twice as large as IS bars. A "low body_pct" bar in OOS (25% body of $1.15 range) has a real $0.29 body — not the tiny $0.05 body of a similar-looking IS bar. The body_pct metric is range-normalized and therefore VOL-REGIME DEPENDENT. High-volatility periods with large ranges will have different body_pct distributions than low-volatility periods even for identical setups.
+
+**3rd confirmation of entry filter ceiling:** (1) Fill bar direction gate: WF=-7.54 (L128). (2) Trendline age gate: 10-20 bar sweet spot inverts to OOS (C22). (3) Body/wick quality gate: WF=-9.6. All three test different dimensions (momentum direction, signal age, bar quality) and all show the same IS/OOS regime inversion. The post-Rank35 entry set is saturated. Pivot from entry filtering to exit parameter optimization is the correct next step.
+
+**Prevention rule:** Before testing an entry quality gate (body%, wick%, range, momentum), check whether IS and OOS volatility regimes differ. A 2x range difference makes range-normalized metrics (body_pct, wick_pct) non-stationary across periods. Prefer absolute-dollar metrics (body_dollars, range_dollars) or regime-conditioned analysis (separate IS/OOS by VIX level before computing body_pct distributions). If IS and OOS WR distributions conflict for the same bucket, the metric is regime-dependent — not a universal signal.
+
+**Related lessons:** L128 (fill bar direction gate WF<0 regime inversion), C4 (stratify by regime), C22 (backward-looking classifiers anti-correlate with recovery periods), C5 (VIX character > VIX level)
+
+## L130 -- 2026-06-17: Sweep baselines must replicate ALL active production parameters — chandelier OFF vs ON creates a LARGE_DELTA that invalidates absolute comparisons
+
+**Symptom:** `chandelier_baseline_check.py` ran Safe account with chandelier OFF (all sweep baseline config) vs ON (production config: arm=+5%, floor=+10%, trail=20%). Result: IS delta = -$2,896, OOS delta = -$4,131 → LARGE_DELTA verdict. Chandelier ON is dramatically worse than chandelier OFF in backtest: IS n=124 (+$13,277) vs OFF n=130 (+$16,174). OOS: ON +$1,770 vs OFF +$5,900.
+
+**Root cause:** All `autoresearch/` sweep scripts (runner_target_sweep.py, tp1_qty_fraction_sweep.py, tp1_premium_sweep.py, no_trade_after_sweep.py) define SAFE_BASE and AGG_BASE config dicts without setting `profit_lock_threshold_pct`, `profit_lock_stop_offset_pct`, `profit_lock_mode`, or `profit_lock_trail_pct`. Those params default to 0.0/fixed (chandelier OFF). But production `params.json` has `v15_profit_lock_threshold_pct=0.05`, `v15_profit_lock_trail_pct=0.20`. The baseline was silently misconfigured for all sweeps.
+
+**Impact:** Relative comparisons within each sweep are still valid — both baseline and candidates use the same chandelier-OFF config, so deltas measure the swept parameter's true effect. Absolute numbers are inflated: production would show ~$4K less OOS PnL ($1,770 vs $5,900 reported). Safe account appears to make $5,900 OOS; actual production makes ~$1,770 OOS with chandelier ON.
+
+**Mechanism:** In the high-volatility OOS period (tariff shock, May-June 2026), SPY bearish moves are large but interrupted by brief consolidations. The chandelier (trail 20% off HWM) exits on those consolidations. Example: trade reaches +30% premium (HWM=1.30x), pulls back briefly to 1.04x (20% off HWM), chandelier fires. Without chandelier, trade might continue to 2.5x runner target. Chandelier is specifically damaging in sustained-trend OOS regimes. It reduces IS trade count 130→124 (6 trades get stopped before re-entry signal, losing those re-entry fees).
+
+**Action:** Future sweeps must include chandelier params in SAFE_BASE and AGG_BASE. Template fix: add `profit_lock_threshold_pct=0.05, profit_lock_stop_offset_pct=0.10, profit_lock_mode="trailing", profit_lock_trail_pct=0.20` to every baseline config block. Design chandelier parameter sweep (arm threshold, floor offset, trail pct) as next exit optimization direction — the current production settings appear suboptimal based on LARGE_DELTA finding.
+
+**Prevention rule:** Before starting any parameter sweep, diff the baseline config dict against `params.json` / `aggressive/params.json` to confirm ALL active production parameters are present. A "config diff" step should be the first function in every new sweep script. Missing a production parameter invalidates absolute performance numbers and can mislead architecture decisions.
+
+**Related lessons:** L38 (dead knob — vary-and-assert), L99 (BS-sim ignored strike-offset incident), L127 (signal vs fill bar), C14 (Dead/translated-but-unapplied knobs), C7 (silent failure = audit outputs not exit codes)
+
+## L131 -- 2026-06-17: Aggressive runner_target is a completely dead knob — 0DTE ITM-2 runners never reach even 2.0x (200%) premium gain; the production 5.0x target requires 6× premium multiplication in a single session
+
+**Symptom:** `runner_target_sweep.py` Aggressive section: runner=2.0 (test lowest value) vs runner=5.0 (baseline) — IS_d=$0, OOS_d=$0, SW_hurt=0. All four sub-windows FLAT ($0). Verdict: OOS_NEG (OOS not positive). All higher values (2.5, 3.0, 3.5, 4.0) also show $0 delta — production 5.0x and all lower values are equivalent.
+
+**Root cause:** Formula: `runner_target_premium = entry_premium × (1.0 + runner_target_premium_pct)`. With AGG production value `runner_max_premium_pct=5.0`: runner exits at `entry_premium × 6.0` — a 500% gain on the original entry premium. For a typical $2.50 ITM-2 option at 0DTE, this requires the option to reach $15.00, implying SPY moving ~$19 intraday. Even at runner=2.0 (200% gain), the option needs to reach $7.50 (SPY move ~$7.7 from entry). After TP1 fires at 75% premium ($4.38), the runner needs another 71% gain from the current $4.38 level. In N=133 IS + N=21 OOS Aggressive trades, NOT ONE trade achieved this. The runner exits exclusively via time stop (15:40 ET) or rarely via the original stop (0.93× entry, requiring premium to fall from $4.38 back to $2.33).
+
+**Exit hierarchy for Aggressive runners (actual):**
+1. Chandelier trailing stop (arm=+5%, trail=20% off HWM) — PRIMARY in production, but OFF in sweep baseline (L130)
+2. Time stop (15:40 ET) — PRIMARY in sweep (chandelier off)
+3. Original stop (entry×0.93) — rare; only if premium falls $4.38→$2.33 after TP1
+4. Runner target (entry×6.0) — NEVER FIRED in 154 total trades across all IS/OOS periods
+
+**Implication:** The Aggressive runner target is dead configuration. The REAL runner management mechanism is the chandelier trailing stop (in production). The chandelier itself is causing LARGE_DELTA vs chandelier-OFF (L130). So the actual research direction is: chandelier parameter sweep (arm threshold, trail pct, floor offset) — not runner target tuning.
+
+**Prevention rule:** Before sweeping an exit parameter, audit what fraction of historical trades actually triggered that exit mechanism. If 0% of trades triggered it (exit_count == 0), the parameter is dead and the sweep is uninformative. Add `runner_hits / total_trades` to every sweep's debug output.
+
+**Related lessons:** L130 (chandelier OFF vs ON LARGE_DELTA), C14 (dead/translated-but-unapplied knobs), L38 (vary-and-assert before assuming knob is active)
+
+---
+
+## L132 -- 2026-06-17: Static chandelier parameters cannot bridge a fundamental regime split — VIX-conditional activation is the only valid path
+
+**Symptom:** `chandelier_sweep.py` tested 9 Safe candidates (OFF, arm=0.10/0.15/0.20, trail=0.25/0.30/0.40, two combos) vs production chandelier ON baseline. Results: OFF=SW_FAIL(hurt=2), arm=0.10=OOS_NEG(SW_hurt=4), arm=0.15=OOS_NEG(SW_hurt=4), arm=0.20=WF_FAIL(-7.146,SW_hurt=3), trail=0.25=OOS_NEG(SW_hurt=4), trail=0.30=OOS_NEG(SW_hurt=4). No candidate passed all gates.
+
+**Root cause — regime split:** chandelier ON benefits are concentrated in choppy-market sub-windows (W1_2025H1: +$3,934; W3_2025Q4: +$981) while chandelier OFF benefits are in trending sub-windows (W2_2025Q3: +$5,254; W4_2026H1: +$2,557). No single static parameter can optimize both simultaneously because:
+- Looser arm (0.10-0.20): arming later means fewer activations → ALL sub-windows hurt vs production arm=0.05 (even W2/W4 where arm=0.05 was already hurting). The 5-10% gain range that arm=0.10 skips has ZERO OOS trades — arm=0.10 is equivalent to arm=0.05 in OOS but loses IS protection.
+- Looser trail (0.25-0.30): near-zero OOS change (−$53) with SW_hurt=4 — trail variations are not discriminatory in the OOS period.
+- Full OFF: OOS +$4,131 better, IS +$2,896 better, but W1+W3 sub-windows both hurt by >$50 → SW_hurt=2.
+
+**The arm=0.20 C22 signal:** arm=0.20 shows OOS_d=+$503 with IS_d=-$415, WF=-7.146. Negative WF indicates regime inversion — chandelier with very wide arm happens to help OOS (tariff-shock recovery trending) at the cost of IS performance. This is not generalizable.
+
+**Fix:** VIX-conditional chandelier activation. `backtest/autoresearch/vix_conditional_chandelier.py` tests thresholds [15.0, 17.5, 18.0, 20.0, 22.0, 25.0, 30.0]. When VIX > threshold → chandelier ON (choppy protection); when VIX ≤ threshold → chandelier OFF (let trend run). If any threshold passes (OOS_positive AND WF≥0.70 AND SW_hurt≤1) vs chandelier-OFF baseline → deploy as `profit_lock_vix_threshold_pct` in params.json (requires simulator change to check VIX at each bar during trade management).
+
+**Prevention rule:** Before sweeping chandelier parameters, check if the chandelier ON vs OFF IS/OOS delta is consistent across ALL 4 sub-windows. If W1/W3 help and W2/W4 hurt (or vice versa), the regime split is fundamental — static param sweep will always fail SW_hurt gate. Go directly to regime-conditional logic.
+
+**Related lessons:** L130 (chandelier LARGE_DELTA confirmed), L128 (WF negative = regime inversion C22), C22 (IS/OOS VIX regimes differ), C5 (VIX character > VIX level)
+
+---
+
+## L133 -- 2026-06-17: VIX level cannot discriminate the chandelier regime split — choppy and trending periods share overlapping VIX ranges in 0DTE SPY
+
+**Symptom:** `vix_conditional_chandelier.py` tested 7 VIX thresholds [15, 17.5, 18, 20, 22, 25, 30] for switching chandelier ON vs OFF based on VIX level at trade time. All 7 failed gates. Results: VIX>15=OOS_NEG(-4,131) | VIX>17.5=OOS_NEG(-2,946) | VIX>18=OOS_NEG(-734) | VIX>20=WF_FAIL(0.000,SW_h=0) | VIX>22=WF_FAIL(0.000,SW_h=1) | VIX>25=WF_FAIL(-0.000,SW_h=2) | VIX>30=WF_FAIL(-0.000,SW_h=2).
+
+**Root cause — VIX level overlaps between choppy and trending regimes:**
+VIX diagnostic per sub-window:
+- W1_2025H1 (CHOPPY, chandelier ON helps): VIX median=19.2, p25=17.2, p75=23.3
+- W2_2025Q3 (TRENDING, chandelier OFF helps): VIX median=16.0, p25=15.2, p75=16.8
+- W3_2025Q4 (CHOPPY, chandelier ON helps): VIX median=17.1, p25=16.2, p75=19.2
+- W4_2026H1 (TRENDING, chandelier OFF helps): VIX median=19.5, p25=18.0, p75=24.7
+
+W4_trending (tariff-shock recovery) has VIX median=19.5 — nearly identical to W1_choppy (19.2). The tariff-shock recovery period was simultaneously trending AND high-VIX, which breaks VIX-level-as-regime-proxy entirely.
+
+**Results pattern:**
+- Low thresholds (VIX>15-18): chandelier ON applied to W4 trending days (VIX 18-25 range) → hurts those days → OOS_d negative. Lower threshold = more W4 days get chandelier ON = more OOS damage.
+- High thresholds (VIX>20+): OOS_d=0. The OOS period (May-June 2026) had few/no trades with VIX>20 after the initial tariff shock settled. Zero OOS trade assignment = WF=0 (formula returns 0/n_oos = 0) → WF_FAIL.
+- VIX>22 had IS improvement (+$1,966, W1 help +$1,212, W3 help +$996) and SW_hurt=1, but OOS_d=0 → WF=0.000 → FAIL. Can't pass WF gate with zero OOS activation.
+
+**The fundamental problem:** Regime character (choppy vs trending) is a multi-week structural property set by factors like macro backdrop, sector leadership, options market structure. VIX level is a single scalar that conflates multiple regime drivers into one number. In tariff-shock recovery (W4), the market trended bullishly while volatility remained elevated — a combination VIX level can't decompose.
+
+**Fix path:** VIX rate-of-change (ROC) is more discriminatory than VIX level. Rising VIX (VIX_today > VIX_yesterday by >5%) indicates fear escalation → choppy → chandelier ON. Falling VIX → relief rally or calm trend → chandelier OFF. Alternative: ATR-based regime (current_ATR / rolling_ATR_50 > threshold = choppy). Price-based features that measure realized choppiness (consecutive same-direction bars, HH/LL ratio) may outperform VIX entirely.
+
+If VIX ROC also fails, accept chandelier ON (production) as the local optimum. Entry filter research is also saturated (L128, L129). Pivot to new setup types (NLWB bullish) or PDT-aware sizing.
+
+**Prevention rule:** Before testing VIX-conditional logic, compute VIX distribution overlap between the target regimes. If VIX IQR ranges overlap significantly (as W1/W4 do — both 17-25 range), VIX level is insufficient as a discriminator. Check VIX ROC, ATR ratio, or rolling range-vs-average metrics instead. The test: `abs(median_A - median_B) / ((p75_A + p75_B) / 2)` — if < 0.15, the distributions are too similar for VIX-level conditioning.
+
+**Related lessons:** L130 (chandelier LARGE_DELTA), L132 (static params can't bridge regime split), C5 (VIX character > VIX level), C22 (backward-looking classifiers anti-correlate with recovery periods)
+
+---
+
+## L134 -- 2026-06-17: VIX rate-of-change (ROC) also cannot discriminate the chandelier regime split — VIX direction is random within all sub-window types (40-55% rising, uniformly)
+
+**Symptom:** `vix_roc_chandelier.py` tested 3 ROC windows [1d, 2d, 5d] × 4 thresholds [-5%, 0%, +5%, +10%] = 12 combinations. All 12 failed gates. No ratifiable threshold found.
+
+**VIX ROC diagnostic (pct_rising per sub-window):**
+- W1_choppy: ROC_1d=40%, ROC_2d=49%, ROC_5d=41% rising
+- W2_trending: ROC_1d=50%, ROC_2d=52%, ROC_5d=45% rising
+- W3_choppy: ROC_1d=45%, ROC_2d=55%, ROC_5d=46% rising
+- W4_trending: ROC_1d=47%, ROC_2d=49%, ROC_5d=59% rising
+
+All values in the 40-59% range — near random walk. VIX ROC does NOT discriminate choppy from trending periods. In all sub-windows, VIX oscillates approximately 50/50, rising and falling daily without directional bias specific to regime type.
+
+**Best result:** ROC_2d threshold=0% (use ON when VIX rose over 2 days):
+- IS_d=+$1,444, OOS_d=-$1,130, WF=-5.183, SW_h=1 → OOS_NEG (C22 inversion)
+- IS helps because more choppy IS days have rising 2-day VIX → chandelier ON protects
+- OOS hurts because recovery OOS period has MIXED VIX direction even while trending
+
+**Root cause:** VIX is a mean-reverting process. Within any regime (choppy or trending), VIX oscillates daily without accumulating directional bias. The regime character is encoded in the DISTRIBUTION of VIX levels (L133) and multi-week structural factors (tariff policy, Fed stance), not in daily or weekly ROC. VIX_pct_rising being ~50% in all regimes confirms this is a random walk around regime-specific means.
+
+**Key contrast with successful factors:** If a factor is genuinely discriminatory, pct_active would be markedly different across sub-windows (e.g., 70% in choppy vs 30% in trending). VIX ROC at ~50% everywhere means it's coin-flip discrimination.
+
+**Fix path:** Accept chandelier ON (production Safe) as the local optimum. VIX-based regime conditioning (level, ROC, direction) is exhausted — all approaches fail because VIX itself cannot discriminate the market regimes relevant to 0DTE chandelier management. Next: SPY ATR ratio (realized price volatility, not implied vol) as regime discriminator. If ATR also fails, accept chandelier ON as optimal and pivot research to new setup types (NLWB bullish) or other signal dimensions.
+
+**Prevention rule:** Before testing ROC/direction conditioning on any metric, compute the pct_active (fraction of days where condition fires) per target sub-window. If pct_active is ~50% in ALL sub-windows, the metric cannot discriminate between regimes — it's random walk discrimination. Minimum for useful discrimination: pct_active ≥ 65% in target regime AND ≤ 35% in non-target regime.
+
+**Related lessons:** L132 (static chandelier params exhausted), L133 (VIX level overlaps across regimes), C5 (VIX character > VIX level), C22 (backward-looking classifiers anti-correlate with recovery)
+
+---
+
+## L135 -- 2026-06-17: Realized price volatility (ATR ratio) also cannot discriminate the chandelier regime split — distributions overlap across all sub-windows
+
+**Symptom:** `atr_regime_chandelier.py` tested 3 ATR windows [5d, 10d, 20d] × 5 thresholds [0.80, 1.00, 1.10, 1.20, 1.50] = 15 combinations. All 15 failed gates. No ratifiable threshold found.
+
+**ATR ratio diagnostic (pct>1.0 per sub-window, prior_day_range / rolling_N_day_median):**
+- W1_2025H1 (choppy): ATR_5d=29%, ATR_10d=42%, ATR_20d=41% above-median days
+- W2_2025Q3 (trending): ATR_5d=33%, ATR_10d=45%, ATR_20d=45%
+- W3_2025Q4 (choppy): ATR_5d=34%, ATR_10d=52%, ATR_20d=48%
+- W4_2026H1 (trending): ATR_5d=37%, ATR_10d=51%, ATR_20d=52%
+
+All pct>1.0 values in the 29-52% range — barely above/below median cutoff randomly. The choppy/trending split cannot be discriminated by yesterday's range vs N-day median range.
+
+**Full results — W2_2025Q3 ALWAYS hurt (all 15 combinations):**
+Every combination that activates chandelier ON more often hurts W2 because W2's profitable trending days fire chandelier early. The trailing stop exits at 80% HWM on steady trending days, cutting short what would be larger gains under chandelier OFF. No ATR threshold was able to avoid W2 hurt while also helping W1/W3.
+
+**Best results (still failed):**
+- ATR_5d ≥ 1.20: IS_d=-$134, OOS_d=0, WF=-0.000, SW_h=2 → WF_FAIL (too few trades triggered)
+- ATR_5d ≥ 1.50: IS_d=-$57, OOS_d=0, WF=-0.000, SW_h=1 → WF_FAIL (too few trades triggered)
+Both of these near-FLAT results only achieve neutrality by activating chandelier on so few days (11-18%) that any regime signal is noise.
+
+**Root cause:** The choppy vs trending distinction in the chandelier split (L132) is a MULTI-WEEK structural phenomenon (tariff policy regimes, Fed tightening cycles, sector rotation), not a day-level price volatility pattern. ATR ratio captures whether YESTERDAY was an abnormally large/small range vs recent history — which is day-specific and context-independent. Any single-day "large range" can occur in both choppy periods (failed moves, whipsaws) and trending periods (continuation breakouts, news-driven gaps). The instrument for discrimination needs to be multi-week regime state, not daily realized vol.
+
+**Why W2_2025Q3 is the ATR approach's killer:** The July-September 2025 trending period had its share of high-ATR days (earnings, macro releases, gap days). Conditioning on "prior day was large range → chandelier ON" fires chandelier on exactly those W2 days, turning a chandelier-OFF profitability advantage in W2 into chandelier-ON drag.
+
+**Chandelier research closure:** All vol-based regime conditioning is now exhausted:
+1. Chandelier static params (arm/floor/trail): no better combination → L132
+2. VIX level conditioning (7 thresholds): W4 high-VIX trending period kills all → L133
+3. VIX ROC conditioning (12 combos): ~50% pct_rising in all windows → L134
+4. ATR ratio conditioning (15 combos): overlapping distributions → L135
+**VERDICT: Chandelier ON (production Safe) = confirmed local optimum for BEARISH_REJECTION_RIDE_THE_RIBBON.**
+
+**Research pivot:** The chandelier regime split is a multi-week structural pattern that cannot be captured by any single-day indicator (VIX level, VIX direction, price range). Options:
+1. Add 2024 data to IS period (via Alpaca historical API) to get more regime diversity — may change baseline structure
+2. NLWB (Named-Level Wick-Bounce) bullish setup backtest — new setup type, different risk/reward profile
+3. Intraday VWAP slope or market-breadth composite as multi-session regime proxy (multi-session rather than daily)
+
+**Prevention rule:** Before designing day-level conditioning for a phenomenon observed at the multi-week scale, verify the discriminatory metric has ≥65% activation in target regime AND ≤35% in non-target. If the target phenomenon spans weeks while the metric is computed daily, expect pct overlap near 50% regardless of metric choice.
+
+**Related lessons:** L132, L133, L134 (full vol-conditioning research arc), C5 (VIX character), C22 (regime discrimination), C4 (regime-aware disclosure)
+
+---
+
+## L136 -- 2026-06-17: NLWB (PDL wick-bounce) produces strongly negative option P&L — SPY price WR does NOT transfer to option edge
+
+**Symptom:** `nlwb_backtest.py` tested 9 variants: OTM-2/OTM-1/ATM × min_bounce [0.00, 0.30, 0.75]. All 9 combinations OOS_NEG. IS WR=2% (OTM-2, n=100). OOS WR=0% (OTM-2, n=9). Zero TP1 hits in IS or OOS across any variant.
+
+**Full variant sweep results:**
+- OTM-2 bounce>0.00: IS_avg=-$34, OOS_avg=-$25, WF=0.735, OOS_NEG
+- OTM-2 bounce>0.30: IS_avg=-$27, OOS_avg=-$25, WF=0.926, OOS_NEG
+- OTM-2 bounce>0.75: IS_avg=-$21, OOS_avg=-$30, WF=1.429, OOS_NEG (n_oos=3)
+- OTM-1 bounce>0.00: IS_avg=-$108, OOS_avg=-$68, WF=0.630, OOS_NEG
+- ATM bounce>0.00: IS_avg=-$239, OOS_avg=-$171, WF=0.715, OOS_NEG
+(all others similarly negative)
+
+**Exit breakdown (IS, OTM-2):** CHART_STOP=64%, PREM_STOP=36%. Zero TP1 hits. Avg hold = 1-2 bars.
+
+**Root cause:** PDL wick-bounce is a SHORT-TERM (1-2 bar) reversal signal. In SPY price terms, 71% of PDL wicks result in SPY closing above PDL that day (correct directional bias). But 0DTE call options require a SUSTAINED multi-bar move of $2+ to recover OTM-2 premium. What actually happens:
+1. SPY wicks below PDL, closes fractionally above ($0.10-$0.80 above)
+2. Next bar frequently returns below PDL → chart stop fires in 1 bar
+3. Even when SPY doesn't return below PDL, the move is too small for OTM-2 calls to recoup entry premium before theta kills the option
+4. ATM calls capture more delta but suffer severe theta decay on 0DTE
+
+**Key insight:** The scan-based "71% WR" for PDL wick-bounces measures whether price CLOSES ABOVE PDL on the signal bar. It says nothing about whether price continues higher over the next 30-60 minutes. For options, we need the continuation, not just the initial close.
+
+**Why ATM calls are even worse than OTM-2:** ATM calls cost 3-5x more in absolute premium (e.g., $1.00 entry vs $0.40 OTM-2). With -10% premium stop, the max loss per contract is 5x larger. The delta advantage doesn't overcome the larger absolute dollar loss per stop-out.
+
+**Prevention rule:** Before testing an option strategy on a "bounce" or "reversal" signal, answer: "Does the underlying move far enough (at minimum 2× ATM-to-OTM-strike gap) over enough time (>10+ bars) in ≥40% of cases?" PDL wick-bounces fail this — the median continuation is $0.50 in 5 bars, while OTM-2 calls need $2+ in 5 bars. If the underlying move distribution doesn't support the option's break-even, the option strategy is dead on arrival.
+
+**Alternative approach if NLWB signal is genuinely useful:** Instead of options, the signal might work as a SPY equity trade (capture the bounce directly). Or with MUCH longer-dated options (1-5 DTE instead of 0DTE) where theta isn't catastrophic. Both are outside current Gamma scope.
+
+**Related lessons:** C1 (real-fills is the only WR authority; BS-sim cannot rescue a bad premise), C3 (SPY-price edge ≠ option edge -- this is the canonical example), L101 (delta/theta/stop-misfire), C4 (regime-aware disclosure)
+
+---
+
+## L137 -- 2026-06-17: Entry bar body direction loses discriminatory power after quality gates are applied
+
+**Symptom:** Prior analysis (old IS baseline, n=75 IS BEARISH_REJECTION): bearish-body WR=41.3% vs bullish-body WR=3.4%. This looked like a strong gate candidate. Re-running with current production params (post-block_level_rejection, post-block_elite_bull, post-vix_bull_hard_cap=18): bearish-body WR=70% (n=46), bull-body WR=44% (n=34). The 38pp discrimination gap collapsed to 26pp. Gate WF=-1.383 (C22 inversion), SW_hurt=2/4. NOT RATIFIABLE.
+
+**Root cause:** The new quality gates (block_level_rejection, block_elite_bull, vix_bull_hard_cap=18) selectively removed the WORST bullish-body IS trades from the production baseline. These were the low-delta, counter-trend entries at bad timing — exactly the trades that showed up as "bullish body" AND lost money. After removal, the remaining bullish-body IS trades are higher-quality (WR=44%), making the body-direction filter redundant.
+
+**Sequential absorption pattern:** When you add gate A to a baseline, gate A raises the quality floor for all remaining trades. Any previously-discriminatory signal X that correlates with the same "low quality" concept as gate A will lose its edge — gate A already removed most of the X-positive losers. Downstream, X's discrimination gap shrinks toward zero.
+
+**Prevention rule:** Before proposing a new quality gate, re-run the discriminator analysis with the CURRENT production baseline (not the baseline that existed when you first observed the signal). A signal that had 38pp discrimination in an old baseline may have near-zero discrimination after newer gates absorbed the same low-quality trades.
+
+**Corollary:** This is actually a POSITIVE finding. The engine is working correctly — each gate removes a type of bad trade, and subsequent signals that would have caught those same bad trades show diminished value. This is the "quality floor rising" effect. Document it but don't fight it by adding redundant gates.
+
+**What still works:** The body direction IS/OOS correlation exists (WR 70% bear vs 44% bull) but is too weak to justify a gate that removes 42% of IS trades (34 of 80). The correct interpretation: focus on entry bar body as a CONFIDENCE signal, not a hard gate.
+
+**Related lessons:** C22 (backward-looking classifiers), C14 (knob absorption), L129 (gate interactions), L130 (IS/OOS regime mismatch)
+
+## L138 -- 2026-06-17: IS entry-quality labels don't transfer to OOS for BULLISH entry-filter gates (C22 extension)
+
+**Symptom:** `safe_bull_ribbon_flip_gate.py` blocked IS trades with WR=10%, avg=-$106 (n=21, clearly low-quality). OOS: those same blocked trades were +$1,883 (5/08) and +$1,240 (5/21) -- two of the biggest OOS winners. OOS_delta=-$2,370.
+
+**Root cause:** The "low quality" label was derived from IS regime (2025, low-VIX trending with ribbon=BEAR + BULL ribbon flip = chop). In OOS (May-Jun 2026, post-tariff-recovery), the same ribbon pattern denotes momentum shift in a volatile recovery regime, where those trades become directionally correct. IS loser group systematically becomes OOS winner group.
+
+**Pattern:** IS regime classifies ribbon_flip entries as "noise/chop." OOS regime classifies same setup as "momentum recovery signal." The classification is regime-dependent. Any gate that removes IS loser groups must verify those groups ALSO lose in OOS before ratifying.
+
+**Fix:** Before proposing any IS-derived quality gate, compute OOS PnL for the BLOCKED group. If blocked group is OOS-positive, the gate is C22-inverted and should not be ratified regardless of IS discrimination power.
+
+**Prevention rule:** "IS WR < 20% on a sub-population" is NOT sufficient evidence to block that population. Add OOS verification: "blocked group OOS is also negative" is required. If OOS is positive, document as C22-blocked.
+
+**Related lessons:** C22 (backward-looking classifiers anti-correlate with recovery), L118-125 (C22 manifestations), L129, L130
+
+---
+
+## L139 -- 2026-06-17: Exit-level parameter changes have near-zero OOS effect when ribbon flip is the primary exit mechanism
+
+**Symptom:** 5 separate sweeps all produce near-zero OOS effect:
+- TP1 sweep (0.55 to 1.00): all OOS-negative or zero
+- Runner target sweep (1.75x-3.0x): best case OOS+$34, WF=0.216
+- ribbon_flip_price_confirm=True: OOS delta=0 (ZERO trades changed)
+- FHH bypass exit changes: zero OOS effect
+**Total wasted research cycles on exit mechanics: 10+ scripts.**
+
+**Root cause:** OOS exit breakdown reveals 4/9 Safe OOS winners exit via RIBBON_FLIP_BACK at avg_runner_ratio=1.00x (entry premium == runner exit premium). The ribbon flip fires when the underlying price has returned to approximately the entry spot. Any change to TP1 threshold, runner target, or price-confirm only affects exits that happen BEFORE the ribbon flip -- but in OOS, the ribbon flip always fires first.
+
+**Key diagnostic:** Run exit breakdown per reason with avg_runner_ratio. If dominant exit reason has avg_runner_ratio ~1.00x, the ribbon flip is exiting at entry price. Premium-based targets are irrelevant for those trades.
+
+**Fix:** When ribbon flip is the primary OOS exit mechanism, research pivot to ENTRIES -- the exit is already optimal by definition (ribbon flip exits are regime-based, not premium-level based). No exit-level parameter can outperform the ribbon flip for those trades.
+
+**Prevention rule:** Before sweeping any exit parameter (TP1, runner target, price confirm, time stop), compute the OOS exit breakdown. If >40% of OOS winners exit via ribbon flip at 1.00x ratio, exit-level research is dead-ended. Redirect to entry quality.
+
+**Related lessons:** L112 (chandelier sim glitch), C3 (SPY price edge != option edge), C11 (broker is source of truth on exits)
+
+---
+
+## L140 -- 2026-06-17: J's anchor trades are one-off exceptional setups -- they do not represent the POPULATION of their pattern class
+
+**Symptom:** `safe_fhh_bypass.py` and `agg_fhh_bypass.py` both fail (OOS_delta=-$80 and -$56). 24-25 new IS entries unlocked by FHH bypass: WR=25-28%, avg=-$17 to -$32/trade. The 5/01 J anchor was the motivating case (expected +$470 profit), but the general population is losers.
+
+**Root cause:** The 5/01 FHH rejection (+$470) was an exceptional confluence: FHH was at a key technical level, VIX was in a specific regime, the morning had set up a strong directional bias, and the tape confirmed with conviction. The bypass gate "FHH rejection while ribbon=BULL -> bearish entry" does not encode any of these confluence factors -- it just allows counter-trend bears whenever price touches the morning high. The general population of "price touches morning high" when ribbon=BULL is mostly momentum continuation days, not reversals.
+
+**Key insight:** J anchor trades are hand-picked high-conviction setups that happened to fire on that day's tape. A filter derived from one exceptional trade will capture that specific setup AND many lower-quality trades that match the mechanical pattern without the confluence.
+
+**Fix:** Before generalizing from an anchor win into a strategy expansion, answer: "Of all IS setups that would have fired this same mechanical filter, what is the WR and avg PnL?" If WR < 40%, the anchor was exceptional, not representative. The correct use of anchor wins is to validate that the ENGINE captures them, not to derive new setup classes from them.
+
+**Prevention rule:** If a new setup is motivated by 1-3 anchor trades, run IS population analysis before coding. WR of the IS population < 40% = the anchor wins are outliers, not indicative of the general pattern's profitability.
+
+**Related lessons:** L01 (aggregate metric off the edge), C16 (multi-bar reversal vs single-bar continuation), C2 (first-strike entries: chart-stop only)
+
+---
+
+## L142 -- 2026-06-17: Star-score formula produces INVERSE correlation with level respect — high touch_count drives ★★★ then those levels break more
+
+**Symptom:** `star_vs_respect_study.py` runs star scoring across 356-day benchmark ledger (n=2,782 unique levels, 14,614 touch events). Result: 3★ respect rate = 24.8% (LOWEST), 2★ = 27.0%, 1★ = 28.2% (HIGHEST). Stars are an anti-predictor.
+
+**Root cause:** `score_level()` in `backtest/lib/level_strength.py` awards `min(0.5 × log2(touch_count + 1), 2.0)` — a POSITIVE score for touch count. This creates a feedback loop:
+1. A level that gets many price visits scores high (★★★)
+2. Many price visits means the level was NOT respected many times (rejected, retested multiple times)
+3. Levels that get retested constantly eventually break
+4. Result: ★★★ levels ARE the ones that have been tested to exhaustion and will break
+
+**Fix (architectural):** Touch count is the WRONG input to a respect-predictor. A respected level is one that bounced price CLEANLY on the FIRST visit. Replace the touch-count score with a first-touch_respect metric: `first_touch_respected = 1 if first_visit_was_respected else 0`. Levels with first_touch_respected=1 AND touch_count=1 are the strongest. High touch_count with zero net respect = exhausted levels.
+
+**Quantitative finding:** DOES_NOT_SEPARATE status from study (3.4pp spread is below 5pp threshold), but direction is INVERSE — the sign of the signal is wrong, not just the magnitude. Any model that SORTS by current star formula will rank levels WORST-TO-BEST, not best-to-worst.
+
+**Prevention rule:** Before finalizing ANY score formula, run `sorted(levels, key=score)` and ask: "Are the top-5 and bottom-5 intuitive?" If the top-5 seem like they should be WEAK levels (frequently retested), the formula has an input-direction error. Verify correlation direction before using for ranking.
+
+**Related lessons:** L04 (concentrate on what matters, not aggregate), C13 (confidence tiers must be reachable AND diverse), C14 (dead/translated-but-unapplied knobs)
+
+---
+
+## L143 -- 2026-06-17: Wick-based level filter is inferior to close-based — wick hits add noise, close-based touches have 6pp higher respect
+
+**Symptom:** `wick_vs_close_results.json` benchmark: close_based n=939 respect=97.6%, wick_only n=723 respect=91.6%. Gap=-6.0pp. wick_valuable=false.
+
+**Root cause:** Current filter defines "touching a level" as: SPY 5-min bar LOW ≤ level_price ≤ SPY HIGH (any part of the candle intersects the price zone). The wick definition (bar low/high hits) adds 216 events vs close-based (n=939 close-based vs n=723 wick-only for the non-shared events). The wick-only events have 91.6% respect — that's 6pp WORSE than close-based touches.
+
+**Interpretation:** When only the candle's wick touches a level (not the close), price bounced BACK before the bar closed. The wick hit is momentum probing — price tested the level aggressively but closed away from it. These are WORSE quality touches because they indicate the level attracted significant selling/buying pressure that overcame the initial test. Close-based touches mean the level "held" through bar close — much stronger signal.
+
+**Fix:** Keep current filter (close-based). Do NOT add wick-only detection to the level quality filter. The `C2` conclusion in `analysis/level-quality/RATIFICATION-REPORT.md` is correct: close-based is superior.
+
+**Prevention rule:** When evaluating "should we use X OR X+wick?" — compare respect rates between close-only and wick-only events SEPARATELY. If wick-only events have LOWER respect than close-only, adding wicks reduces signal quality per event. The larger n from wick-based filtering is not worth the respect-rate dilution.
+
+**Encoded in:** `analysis/level-quality/wick_vs_close_results.json` + RATIFICATION-REPORT Phase 2 C2.
+
+---
+
+## L144 -- 2026-06-17: Level quality benchmark measures reaction edge; trading backtest measures entry filter quality — these are DIFFERENT metrics with opposite answers for intraday H/L
+
+**Symptom:** `source_pruning_results.json` says intraday H/L: DM-null lift=-3.1pp → verdict=KILL. But shadow A/B (removing intraday from entry filter) shows: +4 IS trades, WR drops -2.1pp → verdict=HOLD. Contradiction persists across re-analysis.
+
+**Root cause:** The two measurements are asking DIFFERENT questions:
+- **Benchmark question (KILL):** "When price touches an intraday H/L level, does it bounce more than a random nearby price?" Answer: No. DM-null (distance-matched random levels) has -0.6pp higher respect → intraday H/L has no REACTION edge.
+- **Trading question (HOLD):** "When we remove intraday H/L from the entry-filter zone, do our entries improve?" Answer: No. Removing intraday makes the proximity gate LARGER → allows entries farther from the meaningful levels → adds 4 IS trades with -2.1pp lower WR.
+
+The intraday H/L acts as an ENTRY FILTER (proximity gate), not a REACTION PREDICTOR. The market does NOT bounce specifically at intraday H/L (per benchmark). But having intraday H/L in the level set NARROWS the proximity zone, which FILTERS entries to only fire when price is near a level — which correlates with better entry quality.
+
+**Fix (doctrine — no code change):** Distinguish the role of each level TYPE:
+- ★★★ Carry, PDH, PDL → reaction predictors (high-quality bounces expected)
+- Intraday H/L → proximity filter (narrows the entry zone, not expected to generate bounces themselves)
+
+Do NOT apply DM-null lift (reaction metric) to filter-role levels. Use shadow A/B WR as the metric for filter-role levels.
+
+**Prevention rule:** Before pruning any level type from the engine, classify its ROLE: reaction-predictor vs entry-filter. If removing it EXPANDS the trigger zone and LOWERS WR, the level is acting as a filter, not a predictor — DM-null lift is the wrong measurement. The correct measurement is the WR delta when that level type is excluded from the proximity gate.
+
+**Encoded in:** `analysis/level-quality/RATIFICATION-REPORT.md` Phase 3 (tension documented) + `analysis/level-quality/source_pruning_results.json`.
+
+---
+
+## L145 -- 2026-06-17: L75 pattern detector fires on 96.3% of days — too broad to be a signal; fix requires restriction to bar_i=0 + ★★★ Carry levels only
+
+**Symptom:** `pattern_detectors_results.json`: L75 (false-break detector) fires 1,230 events across 60.7% days. But 96.3% of total trading days have at least one L75 event. L75 fires on both anchor WINNERS (2/3) AND anchor LOSERS (2/2). No discriminatory power.
+
+**Root cause:** L75 was implemented as: ANY bar where the prior bar closed ABOVE a named level, but the current bar's LOW dips BELOW that level. This fires constantly because:
+1. Price oscillates around levels all day → any level with multiple visits generates L75
+2. Not restricted to the OPEN bar (bar_i=0) → fires throughout the RTH session
+3. Applies to ALL level types including intraday H/L → amplifies further
+
+The INTENDED signal was: "First-bar false-break at a ★★★ Carry level is a warning sign for the whole session." The implemented signal measures "any intra-session wick at any level."
+
+**Fix (implement before re-running study):** Restrict L75 to:
+1. `bar_i = 0` (only the 09:30 or 09:35 open bar)
+2. Level type = ★★★ Carry only (PDH, PDL, Carry levels explicitly)
+3. Lookahead window = same session only
+
+Re-run `pattern_detectors_study.py` with these restrictions. If L75 fires on ≤30% of days AND hits ≥2/3 anchor loser days → signal is useful.
+
+**Prevention rule:** Before declaring a pattern detector "fires too broadly," add the RESTRICTIVE conditions that match the original intent. Rule of thumb: any binary signal that fires on >80% of days is measuring market noise, not signal. Diagnostic: `Counter(obs.date for obs in l75_events).most_common(1)` — if the most common day has 10+ events, the scan is too broad.
+
+**Encoded in:** `analysis/level-quality/RATIFICATION-REPORT.md` Phase 4 (L75 fix flagged). Implementation blocked on Rule 9 boundary (requires heartbeat interaction).
+
+---
+
+## L149 -- 2026-06-17: OTM-2 premium stop needs more room than ITM-2 — lower delta creates higher % premium volatility per SPY dollar
+
+**Symptom:** Safe premium_stop sweep at [-0.07, -0.08] produces IS_delta=-$2,989 and -$3,306 respectively — BOTH directions worse than baseline -0.10. W2/W3 HURT on both tighter candidates. Looser -0.15 gives IS_delta=+$1,483 but OOS_delta=-$1,464 (C22 inversion).
+
+**Root cause:** OTM-2 puts (Safe account, delta ~0.25) vs ITM-2 puts (AGG account, delta ~0.70). For an OTM-2 option at $1.00 entry premium, a SPY $0.50 adverse move = $0.125 option loss = 12.5% premium loss. A -7% stop fires after just $0.28 adverse SPY movement. This is well within normal 0DTE noise. ITM-2 at delta=0.70: same $0.50 SPY move = $0.35 option loss = 7% stop on a $5.00 ITM option requires $0.35 loss which is a more meaningful move ($0.50 SPY). OTM-2 is more "brittle" in % terms.
+
+**Fix (confirmed by sweep):** Safe premium_stop=-0.10 is optimal. The extra room (-10% vs -7%) prevents whipsaw exits on OTM-2 options that would recover. When AGG ratified -0.07, do NOT automatically apply the same tightening to Safe — the strike tier (OTM-2 vs ITM-2) fundamentally changes stop dynamics.
+
+**Prevention rule:** Stop tightening ratified for one strike tier does not transfer to another without re-testing. Always re-sweep independently per account/strike combination.
+
+**Related lessons:** C3 (SPY-price edge != option edge), L120 (gates proven on one account don't transfer), C22 (regime-conditional patterns)
+
+---
+
+## L148 -- 2026-06-17: AGG runner rarely hits premium target — runner exits via time_stop/ribbon_flip, not target; reducing target to 2.0x only helps IS, not OOS
+
+**Symptom:** AGG runner_target_premium_pct sweep [2.0, 2.5, 3.0, 3.5, 4.0] vs baseline 5.0. Candidates 2.5-4.0: IS_delta=0, OOS_delta=0 (IDENTICAL to 5.0 — target is never binding). Candidate 2.0: IS_delta=+$1,188 (target occasionally reached in IS), OOS_delta=0 (never reached in OOS). All FAIL.
+
+**Root cause:** With tp1=0.75 (properly enforced post-L109 fix), the runner leg starts after a 75% premium gain. At that point, the position's stop is at breakeven (entry premium). The runner then exits via ribbon_flip or time_stop at 15:40 ET before reaching even 2.5x the original entry premium. The 5.0x target is theoretical — it would require the option to reach 5× entry price after already being 75% in profit. At 0DTE, theta decay accelerates and prevents sustained premium growth above 2x. The runner_target is effectively unconstrained.
+
+**Fix:** runner_target_premium_pct=5.0 is fine — it's rarely binding. The actual exit is ribbon_flip or time_stop. If you want to improve runner profitability, improve ENTRY quality (bigger moves per trade) rather than tuning the target. Alternatively: set runner_target to 2.0 for marginal IS improvement, but accept zero OOS benefit.
+
+**Prevention rule:** Before sweeping exit targets, verify what % of exits actually hit the target vs alternative exits (ribbon_flip, time_stop, stop_loss). A target never hit = an unconstrained parameter. `runner_target_hit_rate` should be added to the backtest output.
+
+**Related lessons:** L109 (real-fills path parameter bug), C3 (option exit mechanics differ from entry mechanics), C14 (dead/unapplied knobs)
+
+---
+
+## L147 -- 2026-06-17: L108/L109/L110 fix (2026-06-17) — three exit params were missing from real-fills path, hardcoded at wrong defaults for 16+ months
+
+**Symptom:** AGG backtest baseline appeared to be IS n=270 pnl=+19,566 | OOS n=28 pnl=+2,590 (context-34/35). After L108/L109/L110 fix, the ACTUAL AGG baseline is IS n=218 pnl=+10,019 | OOS n=24 pnl=-43.
+
+**Root cause:** In `backtest/lib/orchestrator.py`, the real-fills simulation path (`real_fills_sim.py`) was NOT being passed three critical parameters, causing them to use hardcoded defaults: `tp1_qty_fraction` (hardcoded 0.667 = matched prod, OK), `runner_target_premium_pct` (hardcoded 3.0 vs prod 5.0 for AGG / 2.5 for Safe), `tp1_premium_pct` (hardcoded 0.30 vs prod 0.75 for AGG / 0.50 for Safe). The L110 fix (tp1_premium_pct) is most impactful — tp1=0.30 fires on far more trades and at lower bars than tp1=0.75. The "baseline" of IS=+19,566 was effectively computed with tp1=0.30 (not 0.75), showing 52 more trade entries and $9,547 more IS profit.
+
+**Fix (deployed 2026-06-17):** All three parameters now explicitly passed to `simulate_real_fills()` at orchestrator.py lines 1244-1246. The correct AGG production state post-fix: IS=+10,019 (tp1=0.75 actually enforced), OOS=-43 (breakeven in this specific 28-trade OOS window). Safe baseline unchanged (tp1=0.50 effective was closer to intended, runner=2.5 effective vs 3.0 bug was less impactful).
+
+**Impact assessment:** Previous sweep DELTAS (IS_delta, OOS_delta, WF for gates) remain approximately valid because all baseline and candidate runs had the same bug, so the relative effects cancel. ABSOLUTE pnl baselines (any number like "+$19,566 IS") computed before the fix are wrong and must be recomputed. All future sweeps use L109-corrected code.
+
+**Prevention rule:** Any new parameter added to `run_backtest()` must be explicitly threaded through to ALL sub-path calls (real_fills_sim, BS sim). Add a unit test: `assert backtest_pnl(tp1=0.30) != backtest_pnl(tp1=0.75)` for each path. The C14 lesson ("dead/unapplied knobs") applies to simulation paths, not just filter conditions.
+
+**Related lessons:** C14 (dead/unapplied knobs — vary-and-assert), L02 (simulator silently uses wrong parameter), C7 (silent success = failure; audit outputs not exit codes)
+
+---
+
+## L146 -- 2026-06-17: allow_one_blocker v2 sweep — Safe all OOS-negative; AGG near-miss fails SW_hurt=2/4 — pattern mirrors C22 regime split
+
+**Symptom:** `allow_one_blocker_v2_sweep.py` tests allow_one_blocker=True (allow 1 of filters 6-10 to fail) at min_spread_cents=[0,20,35]. Safe: all OOS-negative (best case OOS_delta=-$1,192 at min_spread=0). AGG: min_spread=0 shows OOS_delta=+$1,480, WF=1.586 — BUT sub-windows W1 Jan-Jun 2025 = -$651 (HURT) and W2 Jul-Dec 2025 = -$1,289 (HURT) = 2/4. Gate rejected.
+
+**Root cause:** The SW_hurt pattern for AGG min_spread=0: W1+W2 (first half of IS) HURT, W3+W4 (second half of IS) HELP (+$9,046 and +$2,508 respectively). This is the C22 signature: Jan-Dec 2025 had higher VIX variability (VIX 15-25 range, often spiking). The newly-admitted "one-blocker" trades in Jan-Dec 2025 are noisy setups in choppy VIX conditions. Jan-Mar 2026 had a prolonged high-VIX directional period (Liberation Day, tariff escalation) where the directional bias was strong enough that "relaxed filters" still caught winners.
+
+**The invariant confirmed:** Trades that fail one of filters 6-10 (volume, spread, entry bar quality, ribbon alignment) are systematically lower quality in normal VIX conditions (W1+W2 = HURT). They only appear to "work" in exceptional directional conditions (W3+W4) which are not representative of normal market behavior. IS/OOS regime difference means the OOS period (5/08-6/16) has neither the high-volatility directional spike of W3 nor the choppy normal of W1+W2 — it's a mixed regime where the OOS_delta=+$1,480 is fragile.
+
+**Fix (doctrine):** allow_one_blocker remains False for both accounts. The filters 6-10 together form a cohesive quality gate. Bypassing any ONE of them creates a meaningful quality regression in 2 of 4 IS sub-windows. The right approach to add trades is to find NEW quality setups, not relax existing quality gates.
+
+**Related lessons:** C22 (regime-conditional gates), L121 (AGG midday gate near-miss, same SW failure structure), C15 (gates interact multiplicatively — trace session cascades)
+
+---
+
+## L141 -- 2026-06-17: ribbon_flip_price_confirm is redundant -- ribbon flip already exits when price has reversed
+
+**Symptom:** `safe_ribbon_flip_confirm.py` tests ribbon_flip_price_confirm=True (require price > entry_spot before EXIT_ALL_RIBBON_FLIP_BACK fires). OOS delta=0 -- ZERO OOS trades changed. IS_delta=-$266, SW_hurt=2 (W2 -$163, W4 -$102).
+
+**Root cause:** When the ribbon flips BACK for 0DTE bear positions, SPY has already moved against the position (spot has recovered past entry). The ribbon flip is a LAGGING indicator -- it responds to multiple bars of price action showing recovery. By the time the ribbon flips, price has already risen past entry spot in virtually all OOS cases. The avg_runner_ratio at ribbon flip exit = 1.00x (entry premium, which corresponds to price being back at entry spot). Adding "price must also be above entry spot" is checking a condition that is already true when the ribbon fires.
+
+**Key diagnostic:** avg_runner_ratio at ribbon flip exits. If avg_runner_ratio >= 1.00x, price has already moved past entry before the ribbon flip fires. Price confirm is redundant.
+
+**Fix:** Do not add price-confirmation requirements to ribbon flip exits. The ribbon flip is a lagging signal -- it only fires AFTER price has already moved. Adding a price gate just creates IS damage (some IS ribbon flip exits happen slightly before price passes entry, correctly cutting losses early) while adding zero OOS value.
+
+**Prevention rule:** Before testing a "confirmation" add-on to a signal, verify the correlation direction. If signal S fires AFTER condition C is already true, adding "require C" to S is a tautology. The ribbon flip fires after price moves -> "require price moved" is always satisfied when ribbon fires in OOS.
+
+**Related lessons:** L139 (exit mechanics near-zero OOS effect), C11 (broker is source of truth), C5 (VIX character > VIX level as a lagging vs leading reminder)
+
+---
+
+## L152 -- 2026-06-17: Deep-dive scripts must reproduce a known baseline before being trusted
+
+**Symptom:** `conf_lvl_rec_deep_dive.py` reported IS n=91 conf+lvl_rec trades (avg +$9/trade) in context-37. The verified production Safe baseline is IS n=130 pnl=+16,174 with conf+lvl_rec n=33 avg +$175/trade — completely different conclusions from the same data.
+
+**Root cause:** `use_real_fills=True` alone is not sufficient to reproduce the production baseline. A deep-dive script built from partial params will produce wrong trade counts and wrong per-class averages. Four params were missing: `no_trade_window=None` (disables legacy v11 14:00-15:00 blackout), `no_trade_before=dt.time(9, 35)` (09:35 entry gate), `midday_trendline_gate=True` (v15.3 gate blocking 1-trig trendline 11:30-14:00), `params_overrides={"vix_bull_max": 18.0}` (VIX_BULL_HARD_CAP filter constant). Each missing param shifted n independently: 208 → 89 → 130 across three runs in context-38.
+
+**Fix:** Every new deep-dive script MUST: (1) start from a verified SAFE_BASE_KW (copy from `safe_premium_stop_sweep.py` or equivalent); (2) run the baseline first (IS period) and verify n=130 pnl=+16,174 before any per-class analysis; (3) assert baseline match — if IS n != 130, stop and find the missing param. For AGG: verify IS n=218 pnl=+10,019 before analysis.
+
+**Prevention rule:** BASELINE-FIRST discipline — any per-class or per-bucket analysis must prove the total trade count matches the verified production run before the per-class breakdown is meaningful. A per-class avg that doesn't sum to the verified baseline total is measuring a phantom population.
+
+**Related lessons:** L70 (dead knob = silent no-op), L77 (vary-and-assert before sweeping), C14 (dead/unapplied knobs — vary-and-assert)
+
+---
+
+## L153 -- 2026-06-17: AGG backtest "trendline" class trades never fire in live
+
+**Symptom:** AGG backtest IS baseline (n=218) includes 162 trades classified as pure `trendline_rejection` (no confluence/level_reclaim/level_rejection/ribbon_flip), contributing +$1,944 IS profit (avg +$12/trade). None of these 162 trades can fire in the live AGG heartbeat. Discovered via `agg_trigger_exit_decomp.py` + AGG `heartbeat.md` filter 10 audit.
+
+**Root cause:** Live AGG heartbeat filter 10 requires ≥1 of 4 qualifying triggers: `level_reject / ribbon_flip / multi_day_confluence / sequence_rejection`. Pure `trendline_rejection` is NOT in that list → fails filter 10 → no live entry. The backtest evaluates `evaluate_bearish_setup()` with `min_triggers=1`, which allows ANY single trigger (including standalone `trendline_rejection`). The live heartbeat is more selective — trigger name in backtest does not equal trigger class accepted by live filter.
+
+**Impact:**
+
+| Scenario | IS n | IS PnL |
+|---|---|---|
+| Naive baseline (all trendlines included) | 218 | +$10,019 |
+| After midday_trendline_gate (removes 113 midday trendlines) | 105 | +$11,335 |
+| True live-equivalent (remove all 162 trendline trades) | ≈56 | ≈+$8,075 |
+
+The midday_trendline_gate (ratified 2026-06-17, WF=1.940) already removes the midday phantom trendlines (113/162), which are the net-negative ones. The remaining 49 non-midday trendlines are net-positive ($3,260 IS) but still phantom in live. An "all-trendline gate" was evaluated: OOS barely positive ($63 from $238), WF=0.31 — cannot auto-ratify.
+
+**Fix / Prevention:** (1) For AGG analysis: use IS n=105 (with midday gate) as the analysis baseline, noting it overstates live by ~49 phantom trades; true live-equivalent is IS n≈56, avg≈$144/trade. (2) Before any new AGG deep-dive, verify the trigger class being analyzed appears in AGG heartbeat filter 10's required list. (3) Future backtest engines should carry a `live_eligible_triggers` set: a simulated trade whose ONLY trigger is not in live's required list should be flagged as phantom.
+
+**Prevention rule:** Trigger class mapping gap — when backtest trigger names differ from live filter categories (e.g., `trendline_rejection` vs `level_reject`), simulated trades can be phantom. Always cross-check backtest trigger taxonomy against live heartbeat filter definitions before publishing per-class breakdowns.
+
+**Related lessons:** C21 (verify trigger+time+type match live entry), L102 (gate direction must match setup structure), L103 (bypass mechanisms fire at bar-level — trigger+time+type must match)
+
+---
+
+## L154 -- 2026-06-17: conf+lvl_rej IS-to-OOS runner degradation is regime *character*, not VIX level
+
+**Symptom:** Safe conf+lvl_rej IS avg=+$605 (n=15, VIX_avg=20.6) collapses to OOS avg=+$77 (n=6, VIX_avg=19.78). VIX levels are nearly identical — a VIX gate sweep across thresholds 17–21 will not fix this. OOS stop_rate=83% (5/6 stop) vs IS stop_rate≈53%. Discovered via `analysis/recommendations/safe_trigger_exit_decomp.json` + `safe_conj_lvl_rej_vix_split.json` (found by `safe_trigger_exit_decomp.py` + `safe_conj_lvl_rej_vix_split.py`).
+
+**Root cause:** IS conf+lvl_rej profit is concentrated in 4–5 outlier runners from 2025 trending SPY: 2026-02-26 $3,400 (runner_ribbon) | 2026-02-03 $2,458 (runner_time) | 2025-06-13 $2,430 (runner_time) | 2025-10-15 $1,578 (runner_ribbon). Top 3 trades > 80% of class PnL = concentration flag. The differentiator is **trend character**: IS 2025 = trending bearish SPY → momentum sustained after trigger → large runners. OOS 2026 = volatile/recovering SPY → momentum reverses after TP1 → runner aborted. VIX_avg is nearly identical between IS (20.6) and OOS (19.78). VIX level does NOT explain the stop-rate gap. This is a "VIX character vs VIX level" distinction (see L45, C5) — high VIX in a trending market behaves differently than the same VIX level in a choppy/recovery market. The runner-inflated IS class avg is not the true per-trade expectancy; the median per-trade value is far lower.
+
+**Fix:** (1) Do NOT trust IS avg for runner-heavy classes when IS runners are highly concentrated (top 3 trades > 80% of class PnL = concentration flag — normalize OOS expectation downward toward the median). (2) When IS-OOS VIX match but stop_rate degrades, suspect regime character shift (trending → choppy), not VIX mismatch. (3) Safe conf+lvl_rej remains viable (OOS positive at +$465 across 6 trades) — monitor as OOS n grows to 15+. (4) Any gate designed on IS conf+lvl_rej implicitly filters for "2025 trending" conditions and cannot be validated until OOS covers a trending regime cycle.
+
+**Encoded in:** `analysis/recommendations/safe_trigger_exit_decomp.json`, `analysis/recommendations/safe_conj_lvl_rej_vix_split.json`, `docs/LESSONS-LEARNED.md` L154, CLAUDE.md C4 + C5 rows.
+
+**Detection:** future regression — if conf+lvl_rej OOS n grows to 15 and avg remains below $150/trade while IS avg remains above $500/trade, flag as runner-concentration distortion (not a gate problem). Check top-3-trades % of IS class PnL as standard concentration diagnostic before any per-class sweep.
+
+**Related lessons:** C5 (VIX character > VIX level — L40,44,45,73,93,118,133,134), C4 (per-trade expectancy not WR standalone; normalize OOS — L01,04,22,46,128), C23 (IS/OOS VIX regime divergence — L122), L45 (VIX regime character), L128 (OOS normalization)
+
+---
+
+## L155 -- 2026-06-17: Autorate WF_norm formula gives FALSE POSITIVE when IS_delta < 0
+
+**Symptom:** VIX>=19 gate for Safe conf+lvl_rej: IS_delta=−$2,334 (gate HURTS IS), OOS_delta=−$453 (gate HURTS OOS), WF_norm=(−453/21)/(−2334/130)=−21.57/−17.95=**1.201** → autorate reports "AUTO-RATIFY." The gate makes BOTH IS and OOS WORSE. Discovered via `backtest/autoresearch/safe_conj_lvl_rej_vix_split.py` sweep. Evidence: `analysis/recommendations/safe_conj_lvl_rej_vix_split.json`.
+
+**Root cause:** WF_norm formula = `(OOS_delta/n_oos) / (IS_delta/n_is)`. Designed for cases where IS_delta > 0 (gate improves IS) and checks that OOS improvement is ≥70% of IS improvement per trade. When both deltas are negative, (−/n)/(−/n) = positive — WF appears "strong" even though the gate is harmful in both periods. The formula has no sign guard: a gate that drops profitable trades from both IS and OOS can score WF > 1.0 and appear better than the 0.70 threshold. Reviewed all shipped gate sweeps: fill_bar_gate_sweep.py AGG (IS_delta=+$363 — valid, unaffected), fill_bar_gate_sweep.py Safe (IS_delta=−$860, WF=−7.927 — already REJECT via WF FAIL), agg_midday_trendline_gate_sweep.py (IS_delta=+$1,316 — valid), all premium/runner sweeps (IS_delta=0 — correctly REJECTED). No shipped ratification was invalidated; the only false positive was caught before ratification.
+
+**Fix:** Add mandatory guard — `if IS_delta <= 0: verdict = "REJECT"` — before WF calculation in all gate sweep scripts. No gate that hurts IS is valid regardless of WF ratio. IS_delta=0 (gate has no IS impact) is also a REJECT (no IS evidence the gate helps anything). Apply in: `backtest/autoresearch/safe_conj_lvl_rej_vix_split.py` (_gate_sweep + _autorate_gate functions), `backtest/autoresearch/fill_bar_gate_sweep.py` (_sweep function), and all future gate sweep scripts — add to the canonical gate sweep template. File as graduated guard target in `backtest/tests/test_graduated_guards.py`.
+
+**Encoded in:** `backtest/autoresearch/safe_conj_lvl_rej_vix_split.py`, `backtest/autoresearch/fill_bar_gate_sweep.py`, `backtest/tests/test_graduated_guards.py` (graduated guard target), `docs/LESSONS-LEARNED.md` L155, CLAUDE.md C7 + C14 rows.
+
+**Detection:** future regression — any autorate script that reports AUTO-RATIFY on a gate with negative IS_delta. Add assertion: `assert is_delta > 0, f"IS_delta {is_delta} <= 0 — REJECT before WF"` to the canonical sweep template so the sign-invariant bug cannot silently re-emerge.
+
+**Related lessons:** C7 (silent success is failure — audit outputs not exit codes — L19,26,28,...), C14 (dead/unapplied knobs: vary-and-assert — L38,70,72,...), L70 (dead knob = silent no-op), L152 (baseline-first discipline)
+
+---
+
+## L156 -- 2026-06-17: Chandelier exit is regime-conditional (choppy=help, trending=hurt)
+
+**Symptom:** Profit lock chandelier sweep (5 configs, both Safe + AGG) — all L155 REJECT. IS_delta negative across all candidates for both accounts. BUT W1 Jan-Jun 2025 (choppy, -$289 base) HELPS every config (+$3,850 SAFE v15 prod). W2 Jul-Dec 2025 and W3 Jan-Mar 2026 (trending/volatile) HURT every config ($-4,215 and $-2,432 for SAFE v15). Net IS negative because W2/W3 volume dominates.
+
+**Root cause:** In 0DTE SPY options the chandelier arms at +5% premium gain then trails 20% off HWM. In choppy markets (W1), the chandelier locks in profits before reversals eat them. In trending markets (W2/W3), winners run 200-800% premium and the 20% trail clips the runner at 80% of HWM — systematically early. Consequence: the backtest correctly registers chandelier as net negative on trending IS data. The production chandelier serves a different purpose: live-trading risk management against disconnects and system crashes, not P&L optimization. These two use cases are not equivalent.
+
+**Fix:** Do NOT add profit_lock_* mappings to `_params_to_kwargs()`. Adding them would permanently bias all future backtest baselines negative. Production chandelier stays in `heartbeat.md` for live risk management. Research implication: regime-conditional chandelier (enable only in high-VIX/choppy VIX regime) could be explored AFTER the VIX-regime classifier ships (C22 architecture item 5a in FUTURE-IMPROVEMENTS.md). No sweep until then.
+
+**Encoded in:** `analysis/recommendations/profit_lock_sweep.json`, `docs/FUTURE-IMPROVEMENTS.md` (profit_lock_chandelier entry CLOSED), `automation/overnight/STATUS.md` CONTEXT-47.
+
+**Related lessons:** C28 (ribbon flip is lagging exit — L139,141), C22 (backward-looking classifiers anti-correlate with recovery periods), L139 (ribbon flip is locally optimal exit — focus on entries), L148 (runner target dead knob)
+
+---
+
+## L157 -- 2026-06-17: Exit optimization has diminishing returns when stop-loss rate exceeds 70%
+
+**Symptom:** AGG IS exit type audit (post-ENFORCED-5 baseline, n=109): EXIT_ALL_PREMIUM_STOP = 76/109 (69.7%) of trades, all losers, total -$15,755. The remaining 20% (TP1+runner exits) carry ALL IS profits (+$29,070). Exit gate sweeps tested this session — chandelier (L156), ribbon-flip buffer, runner target — all REJECT because they only affect the 30% of trades that reach TP1. Marginal improvement from the best exit tweak is ~$2K IS vs the baseline of 76 losers costing $15,755.
+
+**Root cause:** At 70%+ stop-loss rate, the bottleneck is entry quality, not exit path. Every exit optimization study is arithmetically bounded: improving the 30% winners by even 50% changes total P&L by only ~15%. A 10% reduction in stop rate (76→68 stops at avg -$207 each) adds +$1,660 IS P&L — more than any exit gate found so far. This is the C22 core problem: entry filters are blocked by regime mismatch, leaving 70% losers as the structural floor.
+
+**Fix:** Before starting exit gate research, audit exit type distribution. If stop_rate > 50%: entry filtering research dominates exit research in expected value. Reserve exit optimization for when stop_rate drops below 40-50% (i.e., entry quality improves). For AGG specifically: the research priority order is (1) improve entry quality → reduce stop count → then (2) optimize exits for the larger winner pool. ENFORCED-5 was the right play: it removed 26 IS stops and reduced OOS premium stops from 13/28 (46%) to 10/18 (56%) while cutting n-losers dramatically.
+
+**Exception:** Exit timing research (e.g. no_trade_window for specific hours that have 0% WR) can still yield gates even with high stop rates, because it addresses WHEN losers occur, not how they exit. The AGG lunch-zone sweep (12:00-13:00 ET) is the right archetype: removes IS n=4 WR=0% trades without touching the exit path.
+
+**Encoded in:** `analysis/recommendations/agg_exit_type_audit.json`, `automation/overnight/STATUS.md` CONTEXT-47, `docs/FUTURE-IMPROVEMENTS.md` profit_lock_chandelier entry.
+
+**Related lessons:** C22 (backward-looking classifiers anti-correlate with recovery periods — L118-L135), C28 (exit mechanics locally optimal — L139,141), L148 (runner target dead knob — 2.8% IS hit rate), L130 (runner exits via ribbon_flip/time_stop not target)
+
+---
+
+## L158 -- 2026-06-17: FHH countertrend bypass (ribbon=BULL) has structurally low WR=25-28%
+
+**Symptom:** BEARISH_REVERSAL_BYPASS was designed to capture the 5/01 J anchor (+$470 EC). After implementing `fhh_level_rejection + bearish_reversal_bypass=True` and running IS/OOS on both AGG and Safe accounts, new bypass entries showed WR=25-28% across 14-25 trades (IS Jan 2025 - May 2026). Both accounts REJECT: OOS_delta=-$56 (AGG) / -$80 (Safe), WF negative. Phase 1 IS window (2025-01 to 2025-09): n=14 (just below N>=15 target), WR=28.6% (far below 50% target). The 5/01 J winner captured as only +$24 (not +$470) — simulated entry finds a different path than J's live trade.
+
+**Root cause:** When ribbon=BULL, bulls control the tape. FHH level acts as resistance but price is most likely to bounce from it (ribbon just confirmed upward momentum). The -7% premium stop fires before the bear move develops 72-75% of the time. Winning exits are all EXIT_ALL_RIBBON_FLIP_BACK (patient, waits for confirmation), but those require the ribbon to actually flip — which only happens ~25% of the time in a BULL-ribbon session. The 5/01/2026 J winner was exceptional: gap-up to FHH 724.24 with specific intraday context (macro catalyst + VIX spike) that isn't present in the 24 IS bypass trades.
+
+**Fix:** Do NOT enable `bearish_reversal_bypass=True` in production without identifying what made 5/01 special. The FHH level rejection pattern requires: (1) a specific macro catalyst context OR (2) significantly wider stop ($0.12+ not $0.07) to survive the initial noise AND (3) possibly a filter discriminator (e.g., VIX >20 on the day, gap-up morning, heavy volume at FHH touch). All three require J's direct input on what he saw that made 5/01 a conviction trade.
+
+**What NOT to do:** Don't widen the stop alone — L157 says with 70%+ stop rate, the problem is entry quality, not stop placement. Widening to -12% would increase loss size on the 72% losers while helping only the marginal cases near the 7% boundary.
+
+**Encoded in:** `analysis/recommendations/bearish_reversal_bypass_is.json`, `docs/BEARISH-REVERSAL-BYPASS-SPEC.md`, `automation/overnight/STATUS.md` CONTEXT-50.
+
+**Related lessons:** C3 (SPY-price edge ≠ option edge — L58,74,100,101,112), C22 (IS trending ≠ OOS volatile — L118-L135), C24 (anchor trades are exceptional, don't generalize — L140), L157 (exit optimization < entry quality when stop rate >70%)
+
+---
+
+## L159 -- 2026-06-17: D1 retest-reclaim entry filter is regime-conditional — underperforms V0 in trending markets
+
+**Symptom:** D1 (wait up to 6 bars for price to pull back to the level and bounce, close>level+green bar) shows +296.3/c on 60-day OOS vs V0 at -187.2/c (+483.5/c delta). WF_norm=61 (OOS dramatically better per trade than IS). IS validation passes (IS_delta=+56.0/c), but sub-window SW_hurt=2: SW2 (2025H2 Jul-Dec) D1=-500.3/c vs V0, SW3 (early 2026 Jan-Feb) D1=-87.0/c vs V0. REJECT.
+
+**Root cause:** D1 is a volatility-conditional quality filter. In trending markets (VIX 12-18, 2025H2), most V0 entries work immediately — they rip straight through and never need a pullback. D1's filter MISSES these runs (waiting for a pullback that never comes reduces n from 153 to 59 in SW2, capturing only 7.6% of V0's P&L per trade). In volatile markets (VIX 18-50+, 2025H1 and OOS Feb-May 2026), V0 entries fail immediately (stop out on choppy action) while D1's pullback filter correctly waits for a genuine bounce off the level before entering. WF_norm=61 (not ~0.70-1.30) is the signature: OOS is a DIFFERENT REGIME than IS, and D1 was tuned on the OOS regime.
+
+**Fix:** Gate D1 by VIX regime — use D1 only when VIX > 18 (or VIX_character=choppy), use V0 when VIX < 15 (trending). This requires the VIX-regime classifier (deferred project). Do NOT ship D1 unconditionally — it will hurt trending-market days.
+
+**What NOT to do:** Don't optimize D1 knobs (window, prox, stop) to fix the sub-window problem — the root cause is regime mismatch, not parameter tuning. More D1 optimization will overfit to OOS while making SW2 worse.
+
+**Encoded in:** `analysis/recommendations/d1_is_validation.json`, `analysis/recommendations/d1_param_sweep.json`, `automation/overnight/STATUS.md` CONTEXT-51.
+
+**Related lessons:** C22 (IS trending != OOS volatile — L118-L135), L158 (FHH countertrend has regime-conditional edge), C28 (ribbon flip is lagging — same regime-dependency pattern in exits)
+
+---
+
+## L160 -- 2026-06-18: Negative-anchor G5 check inverts direction — formula must use abs() subtraction
+
+**Symptom:** G5 anchor-no-regression check returned FALSE for a candidate that had ZERO impact on the 3 anchor trades (4/29, 5/1, 5/4). Baseline anchor was −$354; candidate was also −$354 (identical). The formula `curr_anchor >= base_anchor * 0.90` computed `−354 >= −354 × 0.90 = −318.6`, which is FALSE because −354 < −318.6. A genuinely anchor-neutral change was silently rejected.
+
+**Root cause:** `base_anchor * 0.90` assumes base_anchor is positive. When base_anchor is negative, multiplying by 0.90 moves the threshold TOWARD zero (stricter), not away from it. Intended semantics: "allow up to 10% worse" = −$389.4 minimum. Actual semantics with the broken formula: −$318.6 minimum (10% BETTER required). The sign inversion silently invalidated the G5 gate for every session where anchor P&L was negative, causing valid candidates to be REJECTED and the ratification pipeline to stall.
+
+**Fix:** Use absolute-value subtraction: `curr_anchor >= base_anchor - abs(base_anchor) * tolerance_pct`. Scripts `agg_tp1_threshold_sweep.py` and `agg_oos_loser_dissect.py` (written 2026-06-18) both use the corrected formula. Verify `comprehensive_audit_v1.py` G5 block uses the same pattern. Diagnostic assertion: `assert anchor_tolerance > 0` is always satisfied by the corrected form and would surface a regression.
+
+**Encoded in:** `agg_tp1_threshold_sweep.py`, `agg_oos_loser_dissect.py` (2026-06-18); `backtest/tests/test_graduated_guards.py` candidate for a parametric negative-anchor unit test; OP-25 C7.
+
+**Detection:** Run G5 check with a synthetic case where `base_anchor = −100` and `curr_anchor = −100` (identical) — must return TRUE. Any rewrite that breaks this is a regression.
+
+## L161 -- 2026-06-18: entry_time_et is naive ET — tz_localize("UTC") causes ~5h premarket offset
+
+**Symptom:** A/B test for TRENDLINE-only bear ribbon spread gate initially showed all 5 OP-22 gates PASSING (RATIFY verdict). Orchestrator smoke test showed 9 trades removed vs 11 expected, with wrong P&L. Cross-check of individual trade ribbon values showed discrepancies: 2025-02-18 15:40 ET had spread=2.93c in A/B test vs 7.66c actual; 2025-08-20 09:55 ET showed 32.40c vs 119.90c actual. Root cause: `entry_time_et` on TradeFill objects stores naive ET strings (from option CSV convention). Applying `tz_localize("UTC")` treated "15:40 ET" as "15:40 UTC" = "10:40 ET" — a ~5h offset that caused ribbon lookups to hit **premarket bars** instead of actual RTH entry bars.
+
+**Root cause:** Option CSV format stores timestamps in local ET without timezone info. `pd.Timestamp("2025-02-18 15:40:00")` is timezone-naive. `tz_localize("UTC")` treats it as already-UTC, so when compared against UTC-indexed data, the apparent ET time maps to the wrong (premarket) bar. The correct operation is `tz_localize("America/New_York").tz_convert("UTC")` which first declares the correct timezone, THEN converts to UTC for comparison.
+
+**Fix:** In ALL A/B test scripts that use `entry_time_et` for external data lookups (ribbon, VIX, SPY bar-level data), use:
+```python
+entry_ts = pd.Timestamp(t.entry_time_et)
+if entry_ts.tzinfo is None:
+    entry_ts = entry_ts.tz_localize("America/New_York").tz_convert("UTC")
+else:
+    entry_ts = entry_ts.tz_convert("UTC")
+```
+For time-of-day filtering (`.time()` comparisons) only, `tz_localize(None)` or direct `.time()` on the naive timestamp is correct — no conversion needed since we're extracting the clock time directly.
+
+**Impact:** Without this fix, initial verdict was RATIFY (IS blocked 11 "bad" trades). With correct TZ, IS_delta=-11 (gate blocks 14 trades including 2 IS winners). Gate was REJECTED. Wrong TZ would have shipped a gate that removes IS edge.
+
+**Encoded in:** `backtest/safe_trendline_spread_ab_test.py` (corrected), `analysis/recommendations/safe_trendline_bear_spread_gate.json` (verdict REJECT), orchestrator.py MIN_TRENDLINE_BEAR_SPREAD_CENTS comment, STATUS.md CONTEXT-94. ALL subsequent A/B scripts in this session use correct TZ handling. OP-25 C7 (silent-success-is-failure).

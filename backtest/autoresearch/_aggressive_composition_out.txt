@@ -1,0 +1,49 @@
+Loading data...
+SPY 34324 rows, VIX 22283 rows
+
+Running Aggressive baseline (IS + OOS)...
+AGGRESSIVE BASE: IS n=330 pnl=+1,990 | OOS n=31 pnl=+3,366
+
+=== DIRECTION BREAKDOWN ===
+    IS BEAR (PUT): n=330 WR=28% pnl=+1,990 avg=+6
+   OOS BEAR (PUT): n=31 WR=45% pnl=+3,366 avg=+109
+    IS BULL (CALL): n=0
+   OOS BULL (CALL): n=0
+
+=== TRIGGER BREAKDOWN (IS) ===
+  trendline_only: n=190 WR=33% pnl=-5,165 avg=-27
+  conf+lvl_rec: n=114 WR=17% pnl=-723 avg=-6
+  lvl_rec_only: n=11 WR=18% pnl=+378 avg=+34
+  conf+lvl_rej: n=15 WR=60% pnl=+7,500 avg=+500
+
+=== TRIGGER BREAKDOWN (OOS) ===
+  conf+lvl_rej: n=6 WR=67% pnl=+141 avg=+23
+  trendline_only: n=12 WR=42% pnl=+185 avg=+15
+  lvl_rec_only: n=2 WR=50% pnl=+697 avg=+348
+  lvl_rej_only: n=1 WR=100% pnl=+714 avg=+714
+  conf+lvl_rec: n=10 WR=30% pnl=+1,630 avg=+163
+
+=== VIX BUCKET BREAKDOWN (IS) ===
+  VIX<17: n=177 WR=23% pnl=-162 avg=-1
+  VIX 17-20: n=72 WR=29% pnl=+534 avg=+7
+  VIX 20-25: n=47 WR=38% pnl=+1,698 avg=+36
+  VIX 25-30: n=24 WR=25% pnl=-1,284 avg=-53
+  VIX 30+: n=10 WR=70% pnl=+1,204 avg=+120
+
+=== VIX BUCKET BREAKDOWN (OOS) ===
+  VIX<17: n=12 WR=33% pnl=-300 avg=-25
+  VIX 17-20: n=16 WR=44% pnl=+3,053 avg=+191
+  VIX 20-25: n=3 WR=100% pnl=+613 avg=+204
+
+=== TIME BUCKET BREAKDOWN (IS) ===
+  09:35-11:00: n=64 WR=20% pnl=+1,023 avg=+16
+  11:00-13:00: n=134 WR=30% pnl=+2,759 avg=+21
+  13:00-15:40: n=132 WR=30% pnl=-1,792 avg=-14
+
+=== IS SUB-WINDOWS ===
+  W1_2025H1: n=91 WR=34% pnl=+509
+  W2_2025H2: n=152 WR=24% pnl=+3,176
+  W3_Q12026: n=72 WR=25% pnl=-848
+  W4_Apr26: n=15 WR=40% pnl=-847
+
+Aggressive composition complete.

@@ -57,6 +57,7 @@ $position       = Read-JsonSafe (Join-Path $stateDir "current-position.json")
 $circuitBreaker = Read-JsonSafe (Join-Path $stateDir "circuit-breaker.json")
 $shadow         = Read-JsonSafe (Join-Path $stateDir "shadow-version.json")
 $killSwitch     = Test-Path (Join-Path $stateDir "kill-switch")
+$ctxBudget      = Read-JsonSafe (Join-Path $stateDir "context-budget.json")
 
 # ---------------------------------------------------------------------------
 # Last 3 actions from decisions.jsonl
@@ -171,6 +172,7 @@ if ($Markdown) {
 - **Shadow:** $(if ($digest.shadow_enabled) { "ENABLED ($($digest.shadow_version))" } else { "off" })
 - **Last 3 actions:** $(if ($digest.last_3_actions.Count -gt 0) { $digest.last_3_actions -join " | " } else { "(none)" })
 - **First-entry-lock entries:** $($digest.first_entry_lock_count)
+- **Context budget:** $(if ($ctxBudget) { "$($ctxBudget.status) ($($ctxBudget.tokens)/$($ctxBudget.budget) tok, $($ctxBudget.pct)%)" } else { "n/a" })
 
 $(if ($unreadMsgs.Count -gt 0) {
 "## NEW DISCORD MESSAGES FROM J (since last task tick)

@@ -27,10 +27,27 @@ def spy_vix_bars() -> tuple[pd.DataFrame, pd.DataFrame]:
 
     Pressure tests slice this dataframe at the date+time of the loss.
     Loading once at session scope amortises CSV-parse cost.
+
+    Uses the latest available master CSV rather than today's date to avoid
+    fixture failures when no file covers the current date.
     """
+    import re
     start = dt.date(2025, 1, 1)
-    end = dt.date.today()
-    return runner.load_data(start, end)
+    # Find the latest master file end-date available.
+    data_dir = REPO.parent / "backtest" / "data"
+    pattern = re.compile(r"spy_5m_(\d{4}-\d{2}-\d{2})_(\d{4}-\d{2}-\d{2})(?:_merged)?\.csv$")
+    best_end = dt.date(2026, 5, 22)  # known floor — always at least this file
+    for p in data_dir.glob("spy_5m_2025-01-01_*.csv"):
+        m = pattern.match(p.name)
+        if not m:
+            continue
+        try:
+            fe = dt.date.fromisoformat(m.group(2))
+        except ValueError:
+            continue
+        if fe > best_end:
+            best_end = fe
+    return runner.load_data(start, best_end)
 
 
 @pytest.fixture
@@ -43,12 +60,15 @@ def bars_at_window(spy_vix_bars):
             ...
     """
     spy_full, vix_full = spy_vix_bars
+    # Parse timestamp_et to tz-aware datetime once for efficient slicing.
+    spy_ts = pd.to_datetime(spy_full["timestamp_et"], utc=True).dt.tz_convert("US/Eastern")
+    vix_ts = pd.to_datetime(vix_full["timestamp_et"], utc=True).dt.tz_convert("US/Eastern")
 
     def _slice(start_iso: str, end_iso: str) -> tuple[pd.DataFrame, pd.DataFrame]:
         start = pd.to_datetime(start_iso).tz_localize("US/Eastern")
         end = pd.to_datetime(end_iso).tz_localize("US/Eastern")
-        spy = spy_full[(spy_full["timestamp_et"] >= start) & (spy_full["timestamp_et"] <= end)].copy()
-        vix = vix_full[(vix_full["timestamp_et"] >= start) & (vix_full["timestamp_et"] <= end)].copy()
+        spy = spy_full[(spy_ts >= start) & (spy_ts <= end)].copy()
+        vix = vix_full[(vix_ts >= start) & (vix_ts <= end)].copy()
         return spy, vix
 
     return _slice

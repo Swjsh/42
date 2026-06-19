@@ -1,0 +1,64 @@
+---
+title: "L91 — Heartbeat tick audit reports false-positive CRITICAL when backtest CSV is stale"
+date: 2026-06-16
+source: interactive session
+priority: medium
+theme: C7 (silent success is failure — audit outputs, not exit codes)
+---
+
+## Symptom
+
+Heartbeat tick audit for 2026-06-15 reported 8/27 MISALIGNED-CRITICAL (30%), implying the
+closed-bar fix (v15.1) might not be working. All 8 critical ticks had:
+- `closed_close = 753.540` (the 10:25 bar — last bar in the backtest CSV)
+- `claimed_spy = 755.78–756.53` (live TV prices, correctly read by heartbeat)
+- `divergence = $2.21–$2.99`
+- `action = HOLD or HOLD_DEV` (no trade taken)
+
+## Root cause
+
+`classify_tick()` escalated HOLD ticks to CRITICAL when `abs(divergence) > $2.00`, regardless
+of whether the CSV data source was stale. When `watcher_live.py` had the L90 bug (CSV top-up
+skipped partial-today data), the backtest CSV stopped at the 10:25 bar (~10:25 AM). All 27
+afternoon ticks then showed a $2+ gap between:
+- `last_closed_close` (10:25 bar, 753.54) — what the CSV knew
+- `claimed_spy` (live TV price, 755–756) — what the heartbeat correctly read
+
+The audit interpreted this as the heartbeat reading an in-progress bar, but it was actually
+reading live correct prices; the CSV just didn't have today's afternoon bars yet.
+
+## Fix
+
+Added `csv_lag_minutes` = elapsed time since the last CSV bar closed. In the `else` branch
+(not aligned to closed or in-progress bar), only escalate to CRITICAL for non-decision-changing
+actions (HOLD, HOLD_DEV) when `csv_lag_minutes < 30`. Decision-changing actions (ENTER, EXIT,
+ADD) remain CRITICAL unconditionally.
+
+```python
+csv_is_stale = csv_lag_minutes is not None and csv_lag_minutes > 30
+if action in DECISION_CHANGING_ACTIONS:
+    cls = "MISALIGNED-CRITICAL"
+elif abs(div_to_closed) > 2.00 and not csv_is_stale:
+    cls = "MISALIGNED-CRITICAL"
+else:
+    cls = "MISALIGNED-BENIGN"
+```
+
+Re-run of 2026-06-15 audit after fix: 0 MISALIGNED-CRITICAL (was 8).
+
+## File changed
+
+`backtest/autoresearch/heartbeat_tick_audit.py` — `classify_tick()` function + `csv_lag_minutes`
+column added to CSV output.
+
+## Related lessons
+
+- L90: Date-based staleness gate skips intraday top-up when CSV already has today's partial data
+  (the bug that caused the stale CSV in the first place)
+- C7: Silent success is failure — audit outputs must be accurate, not just non-crashing
+
+## Prevention
+
+The L90 fix means this should self-correct going forward: once watcher_live tops up hourly,
+the CSV will always be <30min stale by the time afternoon ticks fire. But the audit fix ensures
+it's robust even if the CSV top-up fails again.

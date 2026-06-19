@@ -1,0 +1,51 @@
+Loading data...
+SPY 34324 rows  VIX 22283 rows
+Building timestamp index...
+Running IS backtest...
+IS total: n=130
+Running OOS backtest...
+OOS total: n=21
+
+=== IS (130 total trades) ===
+  Mapping entry timestamps to signal bars (fill_bar-1 per L127)...
+  Trendline found: 75/130 trades
+  No trendline (level_rejection or missing data): 55
+  Age distribution: min=1, max=39, median=4
+
+       Age Bucket      N     WR%    Avg P&L    Total P&L
+  ------------------------------------------------------------
+        0-10 bars     49   20.4%        +28       +1,391
+       10-20 bars     14   42.9%       +388       +5,436
+       20-30 bars      8   37.5%        +15         +120
+       30-40 bars      4    0.0%        -80         -321
+
+  Gate analysis (require most_recent_age <= THRESHOLD):
+     Threshold   N_keep   N_skip    PnL_keep    PnL_skip   WR_keep
+  age<=10 bars       49       26      +1,391      +5,234     20.4%
+  age<=15 bars       59       16      +6,933        -307     25.4%
+  age<=20 bars       63       12      +6,826        -201     25.4%
+  age<=25 bars       68        7      +6,621          +4     26.5%
+  age<=30 bars       71        4      +6,946        -321     26.8%
+
+=== OOS (21 total trades) ===
+  Mapping entry timestamps to signal bars (fill_bar-1 per L127)...
+  Trendline found: 9/21 trades
+  No trendline (level_rejection or missing data): 12
+  Age distribution: min=1, max=36, median=2
+
+       Age Bucket      N     WR%    Avg P&L    Total P&L
+  ------------------------------------------------------------
+        0-10 bars      6   50.0%        +68         +409
+       10-20 bars      2  100.0%     +1,279       +2,557
+       30-40 bars      1  100.0%     +1,190       +1,190
+
+  Gate analysis (require most_recent_age <= THRESHOLD):
+     Threshold   N_keep   N_skip    PnL_keep    PnL_skip   WR_keep
+  age<=10 bars        7        2        +514      +3,642     57.1%
+  age<=15 bars        7        2        +514      +3,642     57.1%
+  age<=20 bars        8        1      +2,966      +1,190     62.5%
+  age<=25 bars        8        1      +2,966      +1,190     62.5%
+  age<=30 bars        8        1      +2,966      +1,190     62.5%
+
+
+DONE. Interpret: IS gate should keep high P&L, skip losers. OOS must be validated.

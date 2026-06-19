@@ -1,0 +1,81 @@
+Loading data...
+SPY 34324 rows  VIX 22283 rows
+
+ATR-Regime Conditional Chandelier Analysis - Safe account
+Hypothesis: prior_day_ATR_ratio > threshold -> choppy yesterday -> chandelier ON
+            prior_day_ATR_ratio <= threshold -> calm yesterday -> chandelier OFF
+Tested windows: [5, 10, 20] days | Thresholds: [0.8, 1.0, 1.1, 1.2, 1.5]
+Daily RTH range series: 363 trading days
+
+--- ATR range diagnostic per sub-window ---
+
+  W1_2025H1 (2025-01-02 to 2025-06-30):
+    Daily range: median=$6.51  p25=$4.84  p75=$9.33  n=121
+    ATR_5d ratio: median=0.99  p25=0.75  p75=1.12  pct>1.0=29%
+    ATR_10d ratio: median=0.99  p25=0.75  p75=1.21  pct>1.0=42%
+    ATR_20d ratio: median=0.95  p25=0.70  p75=1.31  pct>1.0=41%
+
+  W2_2025Q3 (2025-07-01 to 2025-09-30):
+    Daily range: median=$4.18  p25=$3.30  p75=$5.53  n=64
+    ATR_5d ratio: median=0.97  p25=0.77  p75=1.11  pct>1.0=33%
+    ATR_10d ratio: median=1.00  p25=0.77  p75=1.30  pct>1.0=45%
+    ATR_20d ratio: median=0.97  p25=0.79  p75=1.31  pct>1.0=45%
+
+  W3_2025Q4 (2025-10-01 to 2025-12-31):
+    Daily range: median=$5.36  p25=$4.04  p75=$8.57  n=64
+    ATR_5d ratio: median=1.00  p25=0.71  p75=1.11  pct>1.0=34%
+    ATR_10d ratio: median=1.02  p25=0.70  p75=1.39  pct>1.0=52%
+    ATR_20d ratio: median=1.00  p25=0.70  p75=1.42  pct>1.0=48%
+
+  W4_2026H1 (2026-01-02 to 2026-05-07):
+    Daily range: median=$6.92  p25=$4.54  p75=$9.13  n=87
+    ATR_5d ratio: median=1.00  p25=0.76  p75=1.18  pct>1.0=37%
+    ATR_10d ratio: median=1.00  p25=0.81  p75=1.37  pct>1.0=51%
+    ATR_20d ratio: median=1.01  p25=0.78  p75=1.29  pct>1.0=52%
+
+Running baseline backtests (ON and OFF)...
+Baseline OFF: IS n=106  pnl=$+16,174  |  OOS n=16  pnl=$+5,900
+Baseline ON:  IS n=106  pnl=$+13,277  |  OOS n=16  pnl=$+1,770
+
+ATR-regime conditional: use ON when prior_day_ATR_ratio > threshold, else OFF
+All comparisons vs OFF baseline (best absolute)
+
+  Win    Thr   IS_n      IS_pnl      IS_d  OOS_n     OOS_pnl     OOS_d       WF   ON%  SW_h  VERDICT
+---------------------------------------------------------------------------------------------------------
+    5d   0.80    106     +11,989    -4,185     16        +795    -5,105    8.082   64%     1  OOS_NEG
+       SW: W1_2025H1:HELP(+1,185) | W2_2025Q3:HURT(-6,620) | W3_2025Q4:HELP(+1,250) | W4_2026H1:FLAT(+1)
+    5d   1.00    106     +10,832    -5,342     16      +4,084    -1,816    2.252   27%     4  OOS_NEG
+       SW: W1_2025H1:HURT(-229) | W2_2025Q3:HURT(-4,207) | W3_2025Q4:HURT(-807) | W4_2026H1:HURT(-99)
+    5d   1.10    106     +12,763    -3,411     16      +4,084    -1,816    3.527   24%     2  OOS_NEG
+       SW: W1_2025H1:HURT(-229) | W2_2025Q3:HURT(-4,207) | W3_2025Q4:HELP(+224) | W4_2026H1:HELP(+801)
+    5d   1.20    106     +16,040      -134     16      +5,900        +0   -0.000   18%     2  WF_FAIL(-0.000)
+       SW: W1_2025H1:HURT(-229) | W2_2025Q3:HURT(-930) | W3_2025Q4:HELP(+224) | W4_2026H1:HELP(+801)
+    5d   1.50    106     +16,117       -57     16      +5,900        +0   -0.000   11%     1  WF_FAIL(-0.000)
+       SW: W1_2025H1:FLAT(+0) | W2_2025Q3:HURT(-930) | W3_2025Q4:HELP(+72) | W4_2026H1:HELP(+801)
+   10d   0.80    106     +12,642    -3,532     16        +795    -5,105    9.576   66%     2  OOS_NEG
+       SW: W1_2025H1:HELP(+2,650) | W2_2025Q3:HURT(-7,009) | W3_2025Q4:HELP(+1,250) | W4_2026H1:HURT(-422)
+   10d   1.00    106     +13,928    -2,246     16      +1,925    -3,975   11.728   43%     2  OOS_NEG
+       SW: W1_2025H1:HELP(+3,141) | W2_2025Q3:HURT(-4,942) | W3_2025Q4:HELP(+189) | W4_2026H1:HURT(-634)
+   10d   1.10    106     +12,077    -4,097     16      +1,925    -3,975    6.428   37%     3  OOS_NEG
+       SW: W1_2025H1:HELP(+2,220) | W2_2025Q3:HURT(-4,207) | W3_2025Q4:HURT(-807) | W4_2026H1:HURT(-1,304)
+   10d   1.20    106     +12,073    -4,101     16      +3,216    -2,684    4.336   30%     2  OOS_NEG
+       SW: W1_2025H1:HELP(+945) | W2_2025Q3:HURT(-4,207) | W3_2025Q4:HELP(+224) | W4_2026H1:HURT(-1,063)
+   10d   1.50    106     +13,876    -2,298     16      +3,688    -2,212    6.377   16%     3  OOS_NEG
+       SW: W1_2025H1:HURT(-377) | W2_2025Q3:HURT(-930) | W3_2025Q4:HELP(+72) | W4_2026H1:HURT(-1,063)
+   20d   0.80    106     +14,114    -2,059     16        +795    -5,105   16.422   63%     2  OOS_NEG
+       SW: W1_2025H1:HELP(+3,141) | W2_2025Q3:HURT(-6,114) | W3_2025Q4:HELP(+1,345) | W4_2026H1:HURT(-432)
+   20d   1.00    106     +12,197    -3,977     16      +1,925    -3,975    6.623   39%     2  OOS_NEG
+       SW: W1_2025H1:HELP(+1,410) | W2_2025Q3:HURT(-4,942) | W3_2025Q4:HELP(+189) | W4_2026H1:HURT(-634)
+   20d   1.10    106     +10,454    -5,719     16      +3,216    -2,684    3.109   34%     2  OOS_NEG
+       SW: W1_2025H1:HELP(+1,410) | W2_2025Q3:HURT(-6,015) | W3_2025Q4:HELP(+189) | W4_2026H1:HURT(-1,304)
+   20d   1.20    106     +13,534    -2,640     16      +3,216    -2,684    6.736   28%     2  OOS_NEG
+       SW: W1_2025H1:HELP(+1,410) | W2_2025Q3:HURT(-4,207) | W3_2025Q4:HELP(+1,220) | W4_2026H1:HURT(-1,063)
+   20d   1.50    106     +12,948    -3,226     16      +5,900        +0   -0.000   15%     2  WF_FAIL(-0.000)
+       SW: W1_2025H1:HELP(+1,262) | W2_2025Q3:HURT(-4,272) | W3_2025Q4:HELP(+1,068) | W4_2026H1:HURT(-1,284)
+
+  No ratifiable ATR-regime threshold found.
+  Conclusion: Realized price volatility (ATR) also cannot discriminate chandelier regimes.
+  FINAL: chandelier ON (production Safe) is the confirmed local optimum.
+  Research pivot: NLWB bullish setup or expanded IS period (add 2024 data).
+
+DONE.

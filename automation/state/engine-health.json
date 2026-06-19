@@ -1,0 +1,58 @@
+{
+  "checked_at_et": "2026-06-19 00:11:52",
+  "checked_at_utc": "2026-06-19T04:11:52Z",
+  "verdict": "YELLOW",
+  "market_open": false,
+  "checks": [
+    {
+      "name": "heartbeat_safe",
+      "status": "GREEN",
+      "detail": "last write 563.9m ago; mode=BASE; ticks=16 (market closed -- quiet OK)",
+      "critical": true
+    },
+    {
+      "name": "heartbeat_bold",
+      "status": "GREEN",
+      "detail": "last write 521.8m ago; mode=BASE; ticks=30 (market closed -- quiet OK)",
+      "critical": true
+    },
+    {
+      "name": "watcher_feed",
+      "status": "GREEN",
+      "detail": "newest bar 2026-06-17 (market closed -- quiet OK)",
+      "critical": true
+    },
+    {
+      "name": "tv_chart",
+      "status": "YELLOW",
+      "detail": "watchdog status stale 491.8m (>20m); action=healthy",
+      "critical": false
+    },
+    {
+      "name": "killswitch_safe",
+      "status": "GREEN",
+      "detail": "armed, not tripped",
+      "critical": true
+    },
+    {
+      "name": "killswitch_bold",
+      "status": "GREEN",
+      "detail": "armed, not tripped",
+      "critical": true
+    },
+    {
+      "name": "position_safe",
+      "status": "GREEN",
+      "detail": "flat",
+      "critical": false
+    },
+    {
+      "name": "position_bold",
+      "status": "GREEN",
+      "detail": "flat",
+      "critical": false
+    }
+  ],
+  "reds": [],
+  "alerted": false
+}

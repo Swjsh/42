@@ -1,0 +1,16 @@
+Loading data...
+SPY 34324 rows  VIX 22283 rows
+
+Baseline (tp1_qty_fraction=0.667)...
+  IS  n=265  pnl=+15,340  WR=25.7%
+  OOS n=28  pnl=+2,273  WR=32.1%
+
+  Fraction     IS_pnl   IS_delta    OOS_pnl  OOS_delta      WF  SW_hurt        VERDICT
+------------------------------------------------------------------------------------------
+     0.333      +9,852      -5,488      +1,346        -927    1.599         3  WF_PASS_SW_FAIL
+            SW: W1_202:HURT(-2016) | W2_202:HELP(+660) | W3_202:HURT(-1292) | W4_202:HURT(-2841)
+     0.500     +12,720      -2,620      +1,678        -595    2.150         3  WF_PASS_SW_FAIL
+            SW: W1_202:HURT(-909) | W2_202:HELP(+319) | W3_202:HURT(-553) | W4_202:HURT(-1477)
+     0.667     +15,340          +0      +2,273          +0      nan         0        BASELINE
+     0.800     +16,369      +1,029      +2,319         +46    0.423         1  OOS_POS_WF_FAIL
+            SW: W1_202:HELP(+189) | W2_202:HURT(-238) | W3_202:HELP(+540) | W4_202:HELP(+538)

@@ -34,8 +34,17 @@ The PowerShell harness has already validated state files via `Repair-StateFiles`
    - Append exit row to `journal/trades.csv` with reason "EOD_SAFETY_NET".
    - Append `EOD_FLATTEN` entry to `journal/{today}.md` with fill price + reason.
    - Set current-position.json status to null.
-4. Log to `automation/state/logs/eod-flatten-{today}.log`.
-5. Overwrite `automation/state/dashboard-dialogue.json` (preserve other agent keys):
+4. **Alpaca fill reconciliation — FIX 4 (2026-06-15)**: After flattening (or NOOP), reconcile today's fills so an unrecorded close (e.g. TP-bracket-leg executed while heartbeat was blinded) gets journaled. Steps:
+   a. Call `mcp__alpaca__get_account_activities_by_type(activity_type="FILL")`. Filter results to today's date and options only (symbol contains "C0" or "P0" and length >= 15).
+   b. Read `journal/trades.csv` (last 20 rows sufficient). Identify today's SAFE account entries by date and `account_id=safe` or blank.
+   c. For each Alpaca SELL fill today: check if a corresponding exit row already exists in trades.csv (match on contract symbol + approximate exit time within 5 min). If NOT found:
+      - Append a RECONCILE row to `journal/trades.csv` with: today's date, `time_exit={fill_time}`, `contract={symbol}`, `exit_px={fill_price}`, `qty={fill_qty}`, `dollar_pnl={computed if entry_px known else "UNKNOWN"}`, `notes_short="RECONCILE_FILL: recorded by EOD-flatten because heartbeat was blinded"`, `account_id=safe`, leave other fields empty or "UNKNOWN".
+      - Log `RECONCILE_FILL_APPENDED symbol={symbol} qty={qty} exit_px={price}`.
+   d. If no unrecorded fills: log `RECONCILE_NOOP`.
+   e. This step is READ + APPEND only. Never modifies existing rows, never cancels orders.
+
+5. Log to `automation/state/logs/eod-flatten-{today}.log`.
+6. Overwrite `automation/state/dashboard-dialogue.json` (preserve other agent keys):
    - `updated_at`: now ISO
    - `claude_status`: "FLAT"
    - `claude_reasoning`: "EOD flatten complete — flat into close" (or "EOD flatten NOOP — already flat")

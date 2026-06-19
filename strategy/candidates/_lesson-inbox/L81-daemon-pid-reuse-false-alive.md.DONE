@@ -1,0 +1,25 @@
+---
+lesson_id: L81
+date: 2026-06-15
+theme: C8 (headless Windows spawn = system-pythonw + CREATE_NO_WINDOW + WMI liveness)
+symptom: Kitchen daemon appeared alive in kitchen-status.json but was dead; keepalive silently no-oped
+root_cause: |
+  kitchen_daemon.py's _existing_daemon_alive() used `tasklist /FI "PID eq N"` to check liveness.
+  tasklist only checks PID existence — it has no CommandLine filter. When the daemon's PID (e.g. 2136)
+  was recycled by the OS for an unrelated process (svchost.exe), tasklist reported PID 2136 alive.
+  The daemon startup check concluded "another daemon is already alive" and exited silently.
+  Every subsequent keepalive fire + manual restart hit the same false-alive gate.
+  The kitchen was dead for ~10 hours while appearing healthy.
+fix: |
+  Replace tasklist with WMIC CommandLine check:
+    wmic process where ProcessId=N get CommandLine /value
+  Output contains "kitchen_daemon.py" ONLY if the process running is the actual daemon.
+  This is the same pattern the PowerShell keepalive script uses (Get-WmiObject + CommandLine -match).
+  Also delete stale PID file if CommandLine doesn't match — prevents indefinite lockout.
+additional_note: |
+  The keepalive script (run-kitchen-daemon-keepalive.ps1) correctly uses WMI CommandLine
+  check via PowerShell Get-WmiObject. The daemon's own check was using a weaker tasklist check.
+  Both MUST use CommandLine matching — PID-only checks are always wrong on Windows.
+files_changed:
+  - setup/scripts/kitchen_daemon.py (_existing_daemon_alive() now uses wmic CommandLine check)
+---

@@ -1,0 +1,28 @@
+Loading data...
+SPY 34324 rows, VIX 22283 rows
+
+============================================================
+=== SAFE PREMIUM STOP SWEEP (baseline=-10%) ===
+============================================================
+BASELINE (stop=-10%): IS n=128 pnl=+12,838 | OOS n=21 pnl=+3,728
+
+  STOP     IS_pnl     IS_d    OOS_pnl    OOS_d      WF    SW  n_IS  n_OOS VERDICT
+-------------------------------------------------------------------------------------
+   -6%      8,617   -4,221      3,250     -478   0.691  4/4   128     21 OOS_NEG
+   -7%      9,984   -2,854      3,181     -548   1.170  3/4   128     21 OOS_NEG
+   -8%      9,683   -3,155      3,111     -617   1.192  3/4   128     21 OOS_NEG
+   -9%     10,413   -2,425      3,042     -687   1.726  2/4   128     21 OOS_NEG
+  -10%     12,838       +0      3,728       +0    N/A   0/4   128     21 BASELINE
+  -12%     11,865     -973      3,643      -85   0.532  3/4   128     21 OOS_NEG
+  -15%     13,248     +409      3,516     -212  -3.160  2/4   128     21 OOS_NEG
+  -20%     13,444     +606      3,304     -424  -4.270  2/4   128     21 OOS_NEG
+Traceback (most recent call last):
+  File "C:\Users\jackw\Desktop\42\backtest\autoresearch\premium_stop_sweep.py", line 189, in <module>
+    run()
+    ~~~^^
+  File "C:\Users\jackw\Desktop\42\backtest\autoresearch\premium_stop_sweep.py", line 176, in run
+    safe_results = sweep_account(spy, vix, SAFE_BASE, SAFE_BASELINE_STOP, "SAFE")
+  File "C:\Users\jackw\Desktop\42\backtest\autoresearch\premium_stop_sweep.py", line 158, in sweep_account
+    f"WF={best_oos['wf']:.3f if best_oos['wf'] else 'N/A'}")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: unsupported format string passed to NoneType.__format__

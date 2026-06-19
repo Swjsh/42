@@ -35,12 +35,19 @@ NEWS_FILTER_GRACE_MIN = 15
 RIBBON_SPREAD_MIN_CENTS = 30
 VIX_BEAR_THRESHOLD = 17.30
 VIX_RISING_DEADBAND = 0.05
-BREAKDOWN_VOL_MULT = 1.3
+VIX_HARD_CAP_BEAR = 999.0   # L114: block BEAR entries when VIX > this (panic extremes). Default=999=off.
+VIX_DECLINING_REQUIRED_BEAR = False  # L115: require multi-day VIX declining (vix_now < vix_5d_ma) for BEAR entries.
+                                     # Default=False (backward compatible). Targets Apr-26 tariff-shock (escalating VIX).
+                                     # Test per L93: "if a VIX gate is needed, test DECLINING direction only."
 VOL_BASELINE_BARS = 20
 RANGE_BASELINE_BARS = 20
 RIBBON_FLIP_LOOKBACK_BARS = 3
-LEVEL_PROXIMITY_DOLLARS = 0.50    # bar must be within $0.50 of a known level to "test" it
 CONFLUENCE_TOLERANCE_DOLLARS = 0.30   # multi-day touch within ±$0.30 of today's tested level
+TRENDLINE_LOOKBACK_BARS = 60          # bars to look back for descending pivots (60 × 5 min = 5 hours)
+TRENDLINE_MIN_SWINGS = 3              # minimum descending pivots required (3 = real trendline, not noise)
+WICK_MIN_PCT_OF_RANGE = 0.50         # upper wick must be ≥ 50% of bar range for wick_rejection trigger
+WICK_MIN_DOLLARS = 0.15              # upper wick must be ≥ $0.15 for wick_rejection trigger
+WICK_CLOSE_TOLERANCE = 0.10          # close can be up to $0.10 above level (wick-rejection leniency)
 
 
 @dataclass
@@ -77,6 +84,9 @@ class BarContext:
     multi_day_levels: list[float]     # subset of levels that are multi-day (>= 1 day old)
     htf_15m_stack: Optional[str]      # "BULL" | "BEAR" | "MIXED" | None (insufficient data)
     level_states: dict = field(default_factory=dict)  # price (str) -> LevelState — for sequence_rejection lookup
+    fhh_level: Optional[float] = None   # rank 27: first-hour-high supplement (separate trigger path)
+    vix_5d_ma: float = 0.0              # L115: rolling 5-day VIX daily-close average (prior days only, no look-ahead)
+    vix_20d_ma: float = 0.0             # L115: rolling 20-day VIX daily-close average (prior days only, no look-ahead)
 
 
 @dataclass
@@ -149,18 +159,6 @@ def breakdown_bar_bearish(
         return False  # not red
     if bar["volume"] < vol_mult * vol_baseline:
         return False  # below threshold
-    return True
-
-
-def buyer_pressure_bar(bar: pd.Series, vol_baseline: float) -> bool:
-    """Filter 10 for BULLISH side: green bar with above-average volume.
-
-    Mirror of breakdown_bar_bearish post-relaxation. Used by bullish setup eval.
-    """
-    if bar["close"] <= bar["open"]:
-        return False
-    if bar["volume"] < BREAKDOWN_VOL_MULT * vol_baseline:
-        return False
     return True
 
 
@@ -804,7 +802,7 @@ class BullishSetupResult:
 
 
 VIX_BULL_LOW_THRESHOLD = 17.20    # mirror of VIX_BEAR_THRESHOLD (17.30)
-VIX_BULL_HARD_CAP = 22.0          # filter 9: VIX < 22 hard
+VIX_BULL_HARD_CAP = 18.0          # filter 9: VIX < 18 hard (Rank 35, 2026-06-17)
 
 
 def evaluate_bullish_setup(
@@ -1026,6 +1024,21 @@ def evaluate_bearish_setup(
     sweep_min_close_back_pct: float = 0.0005,
     sweep_block_window_bars: int = 3,
     sweep_clean_prior_bars: int = 3,
+    # --- RANK 28: BEARISH_REVERSAL bypass (2026-06-16) ---
+    # When True, removes filter_5 (ribbon stack) and filter_8 (VIX gate) for setups where
+    # ribbon=BULL + level_rejection (no trendline). The 5/01 11:50 J anchor (+$470 EC).
+    # DEFAULT FALSE — Rule 9 flag. Enable via run_backtest(include_bearish_reversal_bypass=True)
+    # for A/B testing only. Production heartbeat.md edit requires J ratification.
+    bearish_reversal_bypass: bool = False,
+    # V4 quality discriminators (study 2026-06-16). Choose at most one per run.
+    # fhh_quality_proximity: FHH within X$ of any multi_day_level. ANTI-CORRELATED
+    #   with J anchor pattern — removes 5/01 at all thresholds (0.50, 1.00, 2.00).
+    #   Valid research tool for OPPOSITE setups (FHH = prior-range resistance).
+    # fhh_above_max_prior_min: FHH >= X$ above max(multi_day_levels). Gap-up hypothesis:
+    #   5/01 gap-up FHH=724.24 is above PDH~722; 5/08 FHH=736.66 is below PDH~737.
+    #   None = off for both (backward compatible default).
+    fhh_quality_proximity: Optional[float] = None,
+    fhh_above_max_prior_min: Optional[float] = None,
 ) -> SetupResult:
     """Run all 10 bearish filters + trigger checks. Return SetupResult.
 
@@ -1091,11 +1104,23 @@ def evaluate_bearish_setup(
         blockers.append(7)
 
     # Filter 8: VIX > 17.30 AND vix_rising  (added 2026-05-05; pre-rules historical trades skip this)
+    # VIX_HARD_CAP_BEAR: when vix_now > cap, also block (targets panic extremes: Apr 2026 Liberation Day VIX=52).
     # vix_soft_mode: become a score modifier instead of hard blocker.
     vix_soft_demerit = False
     if 8 not in disable:
         vd = vix_direction(ctx.vix_now, ctx.vix_prior)
         vix_pass = ctx.vix_now > VIX_BEAR_THRESHOLD and vd == "rising"
+        if vix_pass and ctx.vix_now > VIX_HARD_CAP_BEAR:
+            vix_pass = False  # panic-extreme VIX: options mis-priced (L99/L100), stop misfires
+        if vix_pass and VIX_DECLINING_REQUIRED_BEAR and ctx.vix_5d_ma > 0.0 and ctx.vix_20d_ma > 0.0:
+            # L115: require multi-day VIX declining for BEAR entries (L93 recommendation).
+            # Uses 5d_MA vs 20d_MA crossover (golden/death cross on VIX):
+            #   5d_MA > 20d_MA = short-term VIX above long-term avg = ESCALATING regime → block
+            #   5d_MA < 20d_MA = short-term VIX below long-term avg = DECLINING regime → allow
+            # This discriminates Liberation Day escalation (Apr 2-30, 5d>20d) from
+            # post-shock recovery (May 8+, 5d<20d as spike fades from the long-term window).
+            if ctx.vix_5d_ma > ctx.vix_20d_ma:
+                vix_pass = False
         if not vix_pass:
             if vix_soft_mode:
                 vix_soft_demerit = True   # -1 score modifier; doesn't block
@@ -1125,7 +1150,9 @@ def evaluate_bearish_setup(
     # Encodes J's 5/1-style setup: rejection of a descending intraday trendline.
     # Verified by tests/test_trendline_trigger.py (3/3 passing).
     trendline_level = detect_trendline_rejection_bearish(
-        ctx.bar, ctx.prior_bars, ctx.bar_idx
+        ctx.bar, ctx.prior_bars, ctx.bar_idx,
+        lookback_bars=TRENDLINE_LOOKBACK_BARS,
+        min_swings=TRENDLINE_MIN_SWINGS,
     )
 
     # NEW 2026-05-10: wick_rejection trigger (CLAUDE.md OP 17 TDD).
@@ -1133,7 +1160,12 @@ def evaluate_bearish_setup(
     # with a significant upper wick, even though close was technically above level.
     # Engine's strict close-below-level missed J's actual entry bar.
     # Verified by tests/test_wick_rejection_trigger.py (4/4 passing).
-    wick_level = detect_wick_rejection_bearish(ctx.bar, ctx.levels_active)
+    wick_level = detect_wick_rejection_bearish(
+        ctx.bar, ctx.levels_active,
+        min_wick_pct_of_range=WICK_MIN_PCT_OF_RANGE,
+        min_wick_dollars=WICK_MIN_DOLLARS,
+        close_tolerance_above_level=WICK_CLOSE_TOLERANCE,
+    )
 
     # Look up level state for sequence_rejection check
     level_state = None
@@ -1167,6 +1199,14 @@ def evaluate_bearish_setup(
         rejection_level = wick_level
         triggers.append("level_rejection")
         wick_only_level_rejection = True
+    # Rank 27 / 2026-06-16: FHH supplemental level check. Only fires when no base level
+    # produced level_rejection. Generates fhh_level_rejection (NOT level_rejection) so
+    # trendline_only_setup logic is unaffected — see L96 inverse-dependency fix.
+    if ctx.fhh_level is not None and rejection_level is None:
+        fhh_rej = detect_level_rejection(ctx.bar, [ctx.fhh_level])
+        if fhh_rej is not None:
+            rejection_level = fhh_rej
+            triggers.append("fhh_level_rejection")
     if ribbon_flipped:
         triggers.append("ribbon_flip")
     if confluence is not None:
@@ -1209,13 +1249,64 @@ def evaluate_bearish_setup(
             blockers.remove(9)
             trendline_chop_demerit += 1
 
+    # BEARISH_REVERSAL bypass (2026-06-16 / Rank 28): When ribbon=BULL and a base-level
+    # or FHH rejection fires WITHOUT a trendline trigger, the setup is a countertrend
+    # reversal entry. Bypass filter_5 (ribbon stack) and filter_8 (VIX gate) only.
+    # This is the 5/01 11:50 J anchor setup (ribbon=BULL, level_rejection, +$470 EC).
+    # Mutually exclusive with trendline_only_setup (trendline_only requires NO level_rejection;
+    # this requires level_rejection|fhh AND NO trendline_rejection). Ribbon=BEAR entries
+    # already pass filter_5 naturally — this bypass only fires when ribbon=BULL blocks it.
+    # Rule 9 flag: gated on bearish_reversal_bypass=True (default False). Production
+    # heartbeat.md edit requires J ratification before enabling.
+    bearish_reversal_setup = False
+    bearish_reversal_demerit = 0
+    if bearish_reversal_bypass:
+        # Restricted to fhh_level_rejection ONLY (not standard level_rejection).
+        # Rationale: FHH is a clean, fresh, session-defined resistance (first hour high).
+        # Standard level_rejection on BULL ribbon is too noisy — fires on any level in
+        # any context. FHH rejection specifically means "price ran up to the morning high
+        # and was rejected there while ribbon stayed BULL" — the 5/01 11:50 J anchor case.
+        # Requires include_first_hour_high=True to be meaningful (fhh_level_rejection never
+        # fires without the FHH feature active). These two features compose together.
+        bearish_reversal_setup = (
+            "fhh_level_rejection" in triggers
+            and "trendline_rejection" not in triggers
+            and ctx.ribbon_now is not None
+            and ctx.ribbon_now.stack == "BULL"
+        )
+        # V4 quality gate — two mutually exclusive discriminators (study 2026-06-16):
+        # 1. fhh_quality_proximity: FHH within X dollars of a multi_day_level (ANTI-CORRELATED
+        #    with J anchor — 5/01 FHH is ABOVE all prior levels, not near them; proximity gate
+        #    removes 5/01 at all thresholds. Do not use for J-anchor-style setups.)
+        # 2. fhh_above_max_prior_min: FHH must be >= X above max(multi_day_levels). Captures
+        #    the gap-up pattern: price punched above prior range and formed a fresh high.
+        #    Hypothesis: 5/01 (FHH=724.24, PDH~722 → gap=~2.24) passes; 5/08 (FHH=736.66,
+        #    PDH~737 → FHH < max_prior) blocked. Empirically tested 2026-06-16.
+        if bearish_reversal_setup and fhh_quality_proximity is not None and ctx.fhh_level is not None:
+            bearish_reversal_setup = any(
+                abs(ctx.fhh_level - ml) <= fhh_quality_proximity
+                for ml in ctx.multi_day_levels
+            )
+        if bearish_reversal_setup and fhh_above_max_prior_min is not None and ctx.fhh_level is not None:
+            if ctx.multi_day_levels:
+                bearish_reversal_setup = (
+                    ctx.fhh_level >= max(ctx.multi_day_levels) + fhh_above_max_prior_min
+                )
+        if bearish_reversal_setup:
+            if 5 in blockers:
+                blockers.remove(5)
+                bearish_reversal_demerit += 1
+            if 8 in blockers:
+                blockers.remove(8)
+                bearish_reversal_demerit += 1
+
     if 10 not in disable and len(triggers) < min_triggers:
         blockers.append(10)
     # Defensive: pure ribbon_flip (lagging EMA reorder with no level context) is the
     # weakest trigger class. Require at least one level-tied trigger to avoid pure-
     # confirmation entries.
     elif 10 not in disable:
-        level_tied = {"level_rejection", "confluence", "sequence_rejection", "trendline_rejection"}
+        level_tied = {"level_rejection", "fhh_level_rejection", "confluence", "sequence_rejection", "trendline_rejection"}
         if not any(t in level_tied for t in triggers):
             blockers.append(10)
 
@@ -1253,6 +1344,9 @@ def evaluate_bearish_setup(
     # so trendline-only setups score lower than full setups -- still tradeable but graded.
     if trendline_chop_demerit:
         bear_score = max(0, bear_score - trendline_chop_demerit)
+    # BEARISH_REVERSAL demerit: countertrend level entries score lower than BEAR-ribbon entries.
+    if bearish_reversal_demerit:
+        bear_score = max(0, bear_score - bearish_reversal_demerit)
 
     # `allow_one_blocker` mode: setup can fire with up to 1 blocker outside
     # the structural-required set (1, 2, 3, 4, 5). Filters 6, 7, 8, 9, 10 are

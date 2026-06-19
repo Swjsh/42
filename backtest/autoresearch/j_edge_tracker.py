@@ -162,10 +162,10 @@ V15_J_EDGE_OVERRIDES = {
     # (Prior values were v15.0 initial doctrine from 2026-05-13; v14_enhanced_grinder
     # param sweep confirmed tp1=0.30 + runner=2.50 is the $26,601 optimum and v15.2
     # heartbeat already runs exactly these values per docs/V15-ACTIVATION-2026-05-13.md.)
-    "tp1_premium_pct": 0.30,           # heartbeat.md: premium >= entry * 1.30 fallback
-    "tp1_qty_fraction": 0.5,           # heartbeat.md: 50% off at TP1 (RATIFIED v15)
-    "runner_target_premium_pct": 2.5,  # heartbeat.md: runner_target_premium_pct = 2.50
-    "premium_stop_pct_bear": -0.20,    # heartbeat.md: -20% bear premium stop
+    "tp1_premium_pct": 0.50,           # heartbeat.md: premium >= entry * 1.50 fallback (Rank-36 2026-06-17)
+    "tp1_qty_fraction": 0.667,          # params.json: 66.7% off at TP1 (synced 2026-06-17)
+    "runner_max_premium_pct": 2.5,     # heartbeat.md: runner_target_premium_pct = 2.50 (params.json key = runner_max_premium_pct)
+    "premium_stop_pct_bear": -0.10,    # params.json: -10% bear premium stop (Rank 33, 2026-06-17)
 }
 
 

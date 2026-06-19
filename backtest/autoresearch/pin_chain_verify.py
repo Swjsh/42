@@ -36,8 +36,8 @@ HEARTBEAT_PATH   = ROOT / "automation" / "prompts" / "heartbeat.md"
 PREMARKET_PATH   = ROOT / "automation" / "prompts" / "premarket.md"
 HB_AGGRESSIVE    = ROOT / "automation" / "prompts" / "aggressive" / "heartbeat.md"
 HB_V14_BACKUP    = ROOT / "automation" / "prompts" / "heartbeat-v14-prod-backup.md"
-HB_V15_DRAFT     = ROOT / "automation" / "prompts" / "heartbeat-v15-draft.md"
-PREMARKET_DRAFT  = ROOT / "automation" / "prompts" / "premarket-v15-draft.md"
+HB_V15_DRAFT     = ROOT / "automation" / "prompts" / "_archive" / "heartbeat-v15-draft.md"
+PREMARKET_DRAFT  = ROOT / "automation" / "prompts" / "_archive" / "premarket-v15-draft.md"
 OUTPUT_DIR       = ROOT / "automation" / "state"
 
 RULE_VERSION_RX = re.compile(r"""RULE_VERSION(?:_EXPECTED)?\s*=\s*["']([^"']+)["']""")
@@ -124,12 +124,20 @@ def main() -> int:
             "note": "aggressive-variant-may-be-intentionally-divergent-confirm-with-J"
         })
 
+    # Aggressive heartbeat divergence = YELLOW (intentional variant, different risk profile)
+    # All other mismatches = RED (doctrine drift, production risk)
+    hard_mismatches = [m for m in mismatches if "aggressive-variant" not in m.get("note", "")]
+    soft_warnings   = [m for m in mismatches if "aggressive-variant" in m.get("note", "")]
+
     if not mismatches:
         verdict = "GREEN"
         reason = f"all-pins-match-canonical-{canonical}"
-    else:
+    elif hard_mismatches:
         verdict = "RED"
-        reason = f"{len(mismatches)}-pin-mismatch(es)-vs-canonical-{canonical}"
+        reason = f"{len(hard_mismatches)}-hard-mismatch(es)-vs-canonical-{canonical}"
+    else:
+        verdict = "YELLOW"
+        reason = f"aggressive-variant-intentionally-divergent-{len(soft_warnings)}-warning(s)"
 
     # ---- HEAL (read-only proposal — NEVER auto-edit per rule 9) ----
     proposed_fix = []

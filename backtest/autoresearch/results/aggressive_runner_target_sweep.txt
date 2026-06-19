@@ -1,0 +1,45 @@
+==============================================================================================================
+AGG RUNNER_TARGET_PREMIUM_PCT SWEEP
+Motivation: OOS runners exit via ribbon flip/time stop, never hitting 5x target.
+==============================================================================================================
+
+[BASELINE at 5.0x]: IS n=264 pnl=+12,200 | OOS n=28 pnl=+2,788
+
+[OOS EXIT REASON BREAKDOWN at 5.0x (baseline)]
+  Exit                                         n      WR       avg      total
+  ---------------------------------------------------------------------------
+  ExitReason.TP1_THEN_RUNNER_RIBBON            5  100.0%      +578      +2888
+  ExitReason.TP1_THEN_RUNNER_TIME              1  100.0%     +2044      +2044
+  ExitReason.EXIT_ALL_RIBBON_FLIP_BACK         4   50.0%       +89       +356
+  ExitReason.TP1_THEN_RUNNER_BE_STOP           4  100.0%       +85       +341
+  ExitReason.EXIT_ALL_PREMIUM_STOP            14    0.0%      -203      -2841
+
+[RUNNER EXIT PREMIUM DISTRIBUTION (OOS winners)]
+  Date            entry   runner_exit   ratio       pnl  exit_reason
+  2026-05-13       2.40          6.43   2.68x     +2044  ExitReason.TP1_THEN_RUNNER_TIME
+  2026-05-08       2.69          2.69   1.00x     +1130  ExitReason.TP1_THEN_RUNNER_RIBBON
+  2026-05-21       2.48          2.48   1.00x      +744  ExitReason.TP1_THEN_RUNNER_RIBBON
+  2026-05-18       2.38          2.38   1.00x      +714  ExitReason.TP1_THEN_RUNNER_RIBBON
+  2026-06-11       1.55          2.91   1.88x      +408  ExitReason.EXIT_ALL_RIBBON_FLIP_BACK
+  2026-05-18       3.17          3.17   1.00x      +190  ExitReason.TP1_THEN_RUNNER_RIBBON
+  2026-05-12       1.83          1.83   1.00x      +110  ExitReason.TP1_THEN_RUNNER_RIBBON
+  2026-06-11       1.76          1.76   1.00x      +105  ExitReason.TP1_THEN_RUNNER_BE_STOP
+  2026-06-10       1.66          1.66   1.00x      +100  ExitReason.TP1_THEN_RUNNER_BE_STOP
+  2026-06-05       1.15          1.15   1.00x       +69  ExitReason.TP1_THEN_RUNNER_BE_STOP
+  2026-06-08       1.12          1.12   1.00x       +67  ExitReason.TP1_THEN_RUNNER_BE_STOP
+  2026-06-16       1.16          1.32   1.14x       +49  ExitReason.EXIT_ALL_RIBBON_FLIP_BACK
+
+[FULL IS/OOS SUMMARY]
+   target   IS_n    IS_pnl  OOS_n    OOS_pnl   IS_delta   OOS_delta       WF   OOS+   anchor
+  ---------------------------------------------------------------------------------------------------------
+     5.0x    264    +12200     28      +2788  (baseline)  (baseline)       --     --       --
+     1.5x    264    +14074     28      +2702      +1874         -86   -0.433     NO     FAIL
+     2.0x    264    +13388     28      +2788      +1188          +0    0.000     NO     FAIL
+     2.5x    264    +12200     28      +2788         +0          +0     INF-     NO     FAIL
+     3.0x    264    +12200     28      +2788         +0          +0     INF-     NO     FAIL
+     3.5x    264    +12200     28      +2788         +0          +0     INF-     NO     FAIL
+     4.0x    264    +12200     28      +2788         +0          +0     INF-     NO     FAIL
+
+  No candidate with OOS positive delta. Baseline 5.0x CONFIRMED OPTIMAL.
+
+ANALYSIS COMPLETE.

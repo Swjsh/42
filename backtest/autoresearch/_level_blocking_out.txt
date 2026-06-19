@@ -1,0 +1,50 @@
+==========================================================================================
+LEVEL ENTRY BLOCKING DIAGNOSTIC SWEEP
+==========================================================================================
+
+[BASELINE]
+  IS n=244 pnl=-5118
+  OOS n=15 pnl=+2659
+
+[IS QUALITY DISTRIBUTION]
+  SUPER       : n= 26 pnl=+4095 WR=42%  (+157/trade)
+  ELITE       : n=123 pnl=+4485 WR=22%  (+36/trade)
+  LEVEL       : n= 33 pnl=-12867 WR=24%  (-390/trade)
+  TRENDLINE   : n= 62 pnl=-830 WR=39%  (-13/trade)
+
+[OOS QUALITY DISTRIBUTION]
+  SUPER       : n=  3 pnl=+609 WR=67%  (+203/trade)
+  ELITE       : n=  7 pnl=+1412 WR=29%  (+202/trade)
+  LEVEL       : n=  4 pnl=+447 WR=50%  (+112/trade)
+  TRENDLINE   : n=  1 pnl=+190 WR=100%  (+190/trade)
+
+[SCENARIO A: Block LEVEL only]
+  IS no-LEVEL : n=211 (-33 removed) pnl=+7749 delta=+12867 WR=29% anchor=OK
+  OOS no-LEVEL: n=11 (-4 removed) pnl=+2212 delta=-447 WR=45% anchor=OK
+  WF_norm: -0.566  FAIL
+
+[SCENARIO B: Block LEVEL + TRENDLINE]
+  IS no-LVL-TL : n=149 (-95 removed) pnl=+8579 delta=+13697 WR=26% anchor=OK
+  OOS no-LVL-TL: n=10 (-5 removed) pnl=+2021 delta=-638 WR=40% anchor=OK
+  WF_norm: -0.757  FAIL
+
+[SCENARIO C: Block LEVEL at VIX >= 22]
+  LEVEL blocked at VIX>=20.0: IS delta=+14276 (-18 trades) OOS delta=+0 (-0 trades) WF=0.000 anchor=OK -> FAIL
+  LEVEL blocked at VIX>=22.0: IS delta=+10215 (-12 trades) OOS delta=+0 (-0 trades) WF=0.000 anchor=OK -> FAIL
+  LEVEL blocked at VIX>=25.0: IS delta=+9416 (-10 trades) OOS delta=+0 (-0 trades) WF=0.000 anchor=OK -> FAIL
+
+[SCENARIO D: Block LEVEL at VIX >= 20 + TRENDLINE at VIX >= 25]
+  Combined: IS delta=+13774 (-26 trades) OOS delta=+0 (-0 trades) WF=0.000 anchor=OK
+
+==========================================================================================
+SUMMARY
+==========================================================================================
+
+  NOTE: This is a DIAGNOSTIC analysis. Scores computed by post-filtering backtest output,
+  NOT by adding a quality_gate parameter to the backtest engine.
+  To productionize a PASS scenario, add quality_min_tier parameter to orchestrator.
+
+  Key finding: LEVEL trades in IS = 33 trades, total pnl = -12867
+  LEVEL trades in OOS = 4 trades, total pnl = +447
+
+ANALYSIS COMPLETE.

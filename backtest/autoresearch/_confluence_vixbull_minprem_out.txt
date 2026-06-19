@@ -1,0 +1,58 @@
+====================================================================================================
+C14 BATCH 8: confluence_tolerance_dollars / vix_bull_max / min_premium_for_level_tiers SWEEP
+====================================================================================================
+
+[0] BASELINE (confluence=0.30, vix_bull_max=22.0, min_prem_level=0.50)...
+  IS n=244 pnl=-5118
+  OOS n=15 pnl=+2659
+
+====================================================================================================
+SWEEP 1: confluence_tolerance_dollars (prod=0.30)
+  Mechanism: how far 'confluence' triggers may be from a named level and still count.
+  Tighter (lower) = stricter entry; wider (higher) = more confluence hits.
+       value   IS_n     IS_pnl   IS_delta  OOS_n    OOS_pnl   OOS_delta   WF_norm  anchor  Verdict
+  ---------------------------------------------------------------------------------------
+       0.100    235      -5315       -198     15        +42       -2617   215.478      OK  FAIL
+       0.150    239      -7413      -2296     15        +55       -2604    18.453      OK  FAIL
+       0.200    240      -5636       -518     15       +451       -2208    69.343      OK  FAIL
+       0.300    244      -5118         +0     15      +2659          +0     0.000      OK  FAIL <-- prod
+       0.400    247      -5417       -299     15      +2659          +0    -0.000      OK  FAIL
+       0.500    250      -5811       -693     15      +2659          +0    -0.000      OK  FAIL
+       0.750    260      -6272      -1154     15      +2336        -323     4.551      OK  FAIL
+
+====================================================================================================
+SWEEP 2: vix_bull_max / VIX_BULL_HARD_CAP (prod=22.0)
+  Mechanism: bull entries blocked when VIX_NOW > vix_bull_max.
+  Lower cap = block bull entries in higher-VIX regimes.
+       value   IS_n     IS_pnl   IS_delta  OOS_n    OOS_pnl   OOS_delta   WF_norm  anchor  Verdict
+  ---------------------------------------------------------------------------------------
+      16.000    173      -1093      +4025      7       -141       -2800   -11.316      OK  FAIL
+      18.000    233      -3865      +1253     14      +2878        +219     2.846      OK  PASS
+      20.000    241      -5159        -42     15      +2659          +0    -0.000      OK  FAIL
+      22.000    244      -5118         +0     15      +2659          +0     0.000      OK  FAIL <-- prod
+      25.000    253      -4387       +731     15      +2659          +0     0.000      OK  FAIL
+      30.000    258      -5079        +39     15      +2659          +0     0.000      OK  FAIL
+
+====================================================================================================
+SWEEP 3: min_premium_for_level_tiers (prod=0.50)
+  Mechanism: LEVEL/ELITE/SUPER entries skipped if entry premium < threshold.
+  Higher = skip cheap sub-$0.50 LEVEL entries (5/07 15:20 loss case).
+       value   IS_n     IS_pnl   IS_delta  OOS_n    OOS_pnl   OOS_delta   WF_norm  anchor  Verdict
+  ---------------------------------------------------------------------------------------
+       0.200    244      -5118         +0     15      +2659          +0     0.000      OK  FAIL
+       0.300    244      -5118         +0     15      +2659          +0     0.000      OK  FAIL
+       0.400    244      -5118         +0     15      +2659          +0     0.000      OK  FAIL
+       0.500    244      -5118         +0     15      +2659          +0     0.000      OK  FAIL <-- prod
+       0.600    244      -5118         +0     15      +2659          +0     0.000      OK  FAIL
+       0.700    244      -5118         +0     15      +2659          +0     0.000      OK  FAIL
+       0.800    244      -5118         +0     15      +2659          +0     0.000      OK  FAIL
+
+====================================================================================================
+SUMMARY
+
+  PASS candidates (1 total):
+    vix_bull_max=18.0: IS_delta=+1253 OOS_delta=+219 WF=2.846
+
+  BEST: vix_bull_max=18.0 (OOS_delta=+219)
+
+ANALYSIS COMPLETE.

@@ -1,0 +1,45 @@
+==========================================================================================
+VIX_BULL_MAX=18.0 SUB-WINDOW STABILITY CHECK
+Baseline=22.0 -> Candidate=18.0
+==========================================================================================
+
+[BASELINE prod=22.0] Full IS + OOS:
+  IS n=244 pnl=-5118
+  OOS n=15 pnl=+2659
+
+[CANDIDATE vix_bull_max=18.0] Full IS + OOS:
+  IS n=233 pnl=-3865
+  OOS n=14 pnl=+2878
+  IS_delta=+1253  OOS_delta=+219
+
+[OOS DETAIL] Trades in baseline not in candidate (removed by vix_bull_max=18.0):
+  REMOVED: 2026-05-13 side=P premium=2.74 pnl=-219 vix=18.3
+
+[ANCHOR DETAIL] J winner days in IS (candidate vs baseline):
+  2026-04-29: base=-2477 cand=-2477 OK
+  2026-05-01: base=+0 cand=+0 OK
+  2026-05-04: base=+804 cand=+804 OK
+
+[SUB-WINDOW ANALYSIS]
+  window                BASE_n   BASE_pnl  CAND_n   CAND_pnl    delta  Result
+  --------------------------------------------------------------------------------
+  W1 Jan-Jun 2025           60      -1759      58      -2132     -372  HURT
+  W2 Jul-Dec 2025          110      +3254     110      +3254       +0  NEUTRAL
+  W3 Jan-Mar 2026           49       -505      48        -99     +406  HELP
+  W4 Apr-May 2026           24      -5217      17      -4208    +1009  HELP
+
+==========================================================================================
+SUMMARY
+
+  Sub-window result: HELP=2, NEUTRAL=1, HURT=1
+  Sub-window stable: NO (has HURT windows)
+
+  GATES:
+  [1] OOS_delta > 0:       PASS (+219)
+  [2] WF_norm >= 0.70:     PASS (from prior sweep: 2.846)
+  [3] Anchor OK:           PASS
+  [4] Sub-window stable:   FAIL
+
+  VERDICT: SUB-WINDOW UNSTABLE — do not ratify
+
+ANALYSIS COMPLETE.

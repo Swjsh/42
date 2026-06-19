@@ -1,0 +1,62 @@
+Loading data...
+SPY 34324 rows  VIX 22283 rows
+
+Running IS...
+  IS trades: 133
+
+Running OOS...
+  OOS trades: 21
+
+Trigger composition sample:
+  ['trendline_rejection']: n=73
+  ['confluence', 'level_reclaim']: n=21
+  ['level_reclaim', 'ribbon_flip']: n=13
+  ['confluence', 'level_rejection']: n=11
+  ['confluence', 'level_reclaim', 'ribbon_flip']: n=10
+  ['confluence', 'level_reclaim', 'sequence_reclaim']: n=7
+  ['confluence', 'level_rejection', 'trendline_rejection']: n=6
+  ['ribbon_flip', 'trendline_rejection']: n=6
+
+============================================================
+  IS — trades WITH named rejection_level
+============================================================
+  Level trades: 60 / 133 total
+  TL-only (no level trigger, excluded): 73
+
+  Bucket                        n      WR    avg_pnl   total_pnl  loss_pct
+  -------------------------  ----  ------  ---------  ----------  --------
+  tight (0-0.50)               47   21.3%       +153      +7,196     78.7%
+  mid (0.50-1.50)              11   45.5%       +466      +5,130     54.5%
+  overshoot (1.50+)             2    0.0%       -376        -752    100.0%
+
+  All level trades: n=60  WR=25.0%  avg=+193  total=+11,574
+  Distance stats: min=0.01  median=0.26  max=1.64  mean=0.35
+
+  Gate proposal: block overshoot (dist>=1.50)
+    overshoot    n=  2  WR=0.0%  total=-752
+    non-overshoot n= 58  WR=25.9%  total=+12,326
+    Blocking overshoot would change total by: +752
+    -> Overshoot DRAGS total. Filter would ADD +752
+
+============================================================
+  OOS — trades WITH named rejection_level
+============================================================
+  Level trades: 15 / 21 total
+  TL-only (no level trigger, excluded): 6
+
+  Bucket                        n      WR    avg_pnl   total_pnl  loss_pct
+  -------------------------  ----  ------  ---------  ----------  --------
+  tight (0-0.50)                3   66.7%       +781      +2,343     33.3%
+  mid (0.50-1.50)               9   55.6%       +361      +3,248     44.4%
+  overshoot (1.50+)             3    0.0%       -243        -729    100.0%
+
+  All level trades: n=15  WR=46.7%  avg=+324  total=+4,863
+  Distance stats: min=0.37  median=0.86  max=2.93  mean=1.16
+
+  Gate proposal: block overshoot (dist>=1.50)
+    overshoot    n=  3  WR=0.0%  total=-729
+    non-overshoot n= 12  WR=58.3%  total=+5,592
+    Blocking overshoot would change total by: +729
+    -> Overshoot DRAGS total. Filter would ADD +729
+
+DONE.

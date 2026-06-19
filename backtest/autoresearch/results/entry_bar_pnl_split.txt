@@ -1,0 +1,76 @@
+Loading data...
+SPY 34324 rows  VIX 22283 rows
+
+=== IS (2025-01-02 to 2026-05-07) ===
+  Total trades: 130  Total P&L: $+16,174
+
+  BEARISH_REJECTION subgroup:
+    Bearish body (gate=KEEP): n=56  P&L=$+12,618  WR=41.1%  avg=$+225
+    Bullish body (gate=BLOCK): n=29  P&L=$-1,124  WR=3.4%  avg=$-39
+    Unknown bar: n=0  P&L=$+0
+
+  *** GATE IMPACT: blocking bullish-body trades removes $-1,124 P&L from total
+      Candidate delta = $+1,124 (negative blocked P&L = improvement)
+
+=== OOS (2026-05-08 to 2026-06-16) ===
+  Total trades: 21  Total P&L: $+5,900
+
+  BEARISH_REJECTION subgroup:
+    Bearish body (gate=KEEP): n=12  P&L=$+2,176  WR=58.3%  avg=$+181
+    Bullish body (gate=BLOCK): n=1  P&L=$-424  WR=0.0%  avg=$-424
+    Unknown bar: n=0  P&L=$+0
+
+  *** GATE IMPACT: blocking bullish-body trades removes $-424 P&L from total
+      Candidate delta = $+424 (negative blocked P&L = improvement)
+
+=== SUB-WINDOW ANALYSIS ===
+
+=== W1_2025H1 (2025-01-02 to 2025-06-30) ===
+  Total trades: 38  Total P&L: $-182
+
+  BEARISH_REJECTION subgroup:
+    Bearish body (gate=KEEP): n=21  P&L=$+4,425  WR=42.9%  avg=$+211
+    Bullish body (gate=BLOCK): n=7  P&L=$-1,275  WR=0.0%  avg=$-182
+    Unknown bar: n=0  P&L=$+0
+
+  *** GATE IMPACT: blocking bullish-body trades removes $-1,275 P&L from total
+      Candidate delta = $+1,275 (negative blocked P&L = improvement)
+
+=== W2_2025Q3 (2025-07-01 to 2025-09-30) ===
+  Total trades: 34  Total P&L: $+8,820
+
+  BEARISH_REJECTION subgroup:
+    Bearish body (gate=KEEP): n=8  P&L=$+3,243  WR=62.5%  avg=$+405
+    Bullish body (gate=BLOCK): n=7  P&L=$-457  WR=0.0%  avg=$-65
+    Unknown bar: n=0  P&L=$+0
+
+  *** GATE IMPACT: blocking bullish-body trades removes $-457 P&L from total
+      Candidate delta = $+457 (negative blocked P&L = improvement)
+
+=== W3_2025Q4 (2025-10-01 to 2025-12-31) ===
+  Total trades: 28  Total P&L: $+1,665
+
+  BEARISH_REJECTION subgroup:
+    Bearish body (gate=KEEP): n=11  P&L=$+2,265  WR=36.4%  avg=$+206
+    Bullish body (gate=BLOCK): n=7  P&L=$-934  WR=0.0%  avg=$-133
+    Unknown bar: n=0  P&L=$+0
+
+  *** GATE IMPACT: blocking bullish-body trades removes $-934 P&L from total
+      Candidate delta = $+934 (negative blocked P&L = improvement)
+
+=== W4_2026H1 (2026-01-02 to 2026-05-07) ===
+  Total trades: 30  Total P&L: $+5,871
+
+  BEARISH_REJECTION subgroup:
+    Bearish body (gate=KEEP): n=16  P&L=$+2,684  WR=31.2%  avg=$+168
+    Bullish body (gate=BLOCK): n=8  P&L=$+1,543  WR=12.5%  avg=$+193
+    Unknown bar: n=0  P&L=$+0
+
+  *** GATE IMPACT: blocking bullish-body trades removes $+1,543 P&L from total
+      Candidate delta = $-1,543 (negative blocked P&L = improvement)
+
+=== SUMMARY ===
+  IS delta (blocking bullish body): $+1,124  n_affected=29
+  OOS delta (blocking bullish body): $+424  n_affected=1
+  WF_norm = 1.908  (gate: >= 0.70)
+  *** GATE CANDIDATE: OOS_positive AND WF >= 0.70 ***

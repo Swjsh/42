@@ -1,0 +1,183 @@
+TRIGGER BREAKDOWN -- IS vs OOS
+IS: 2025-01-02 -> 2026-05-07
+OOS: 2026-05-08 -> 2026-05-22
+
+Running IS backtest...
+Running OOS backtest...
+
+================================================================================
+  IN-SAMPLE: 244 trades, pnl=-5118, avg=-21, WR=28.7%
+================================================================================
+
+  By trigger set:
+  key                                          n        pnl       avg      WR
+  ------------------------------------------------------------------------
+  confluence+level_rejection                  13      +8597      +661   84.6%
+  confluence+level_reclaim+sequence_reclaim     3      +2724      +908   66.7%
+  confluence+level_rejection+trendline_rejection     5      +2569      +514   60.0%
+  ribbon_flip+trendline_rejection              6      +1975      +329   66.7%
+  confluence+level_rejection+ribbon_flip       4       +982      +246   75.0%
+  level_reclaim+ribbon_flip                   10       +732       +73   20.0%
+  level_reclaim+sequence_reclaim               1       -210      -210    0.0%
+  level_reclaim+ribbon_flip+sequence_reclaim     1       -354      -354    0.0%
+  confluence+level_reclaim+ribbon_flip        11       -377       -34   27.3%
+  level_rejection+trendline_rejection          2      -1234      -617    0.0%
+  confluence+level_rejection+ribbon_flip+trendline_rejection     2      -1449      -724    0.0%
+  level_rejection+ribbon_flip                  3      -1493      -498   33.3%
+  trendline_rejection                         56      -2805       -50   35.7%
+  confluence+level_reclaim                   110      -4112       -37   14.5%
+  level_rejection                             17     -10661      -627   29.4%
+
+  By quality tier (derived):
+  key                                          n        pnl       avg      WR
+  ------------------------------------------------------------------------
+  ELITE                                      123      +4485       +36   22.0%
+  SUPER                                       26      +4095      +157   42.3%
+  TRENDLINE                                   62       -830       -13   38.7%
+  LEVEL                                       33     -12867      -390   24.2%
+
+  By VIX bucket at entry:
+  key                                          n        pnl       avg      WR
+  ------------------------------------------------------------------------
+  VIX 17-20                                   56      +4045       +72   39.3%
+  VIX<15                                      23      +1924       +84   26.1%
+  VIX 35+                                      2       +179       +89   50.0%
+  VIX 15-17                                  113      -2569       -23   19.5%
+  VIX 20-25                                   30      -2810       -94   33.3%
+  VIX 25-35                                   20      -5887      -294   45.0%
+
+  By time bucket:
+  key                                          n        pnl       avg      WR
+  ------------------------------------------------------------------------
+  14:xx+                                      61       +553        +9   31.1%
+  12:xx                                       22       +186        +8   31.8%
+  13:xx                                       30       -334       -11   23.3%
+  10:xx                                       46       -815       -18   30.4%
+  09:30-09:59                                 32      -2059       -64   21.9%
+  11:xx                                       53      -2648       -50   30.2%
+
+  Quality x trigger cross-tab (top 20):
+  key                                          n        pnl       avg      WR
+  ------------------------------------------------------------------------
+  ELITE|confluence+level_rejection            13      +8597      +661   84.6%
+  SUPER|confluence+level_reclaim+sequence_reclaim     3      +2724      +908   66.7%
+  SUPER|confluence+level_rejection+trendline_rejection     5      +2569      +514   60.0%
+  TRENDLINE|ribbon_flip+trendline_rejection     6      +1975      +329   66.7%
+  SUPER|confluence+level_rejection+ribbon_flip     4       +982      +246   75.0%
+  LEVEL|level_reclaim+ribbon_flip             10       +732       +73   20.0%
+  LEVEL|level_reclaim+sequence_reclaim         1       -210      -210    0.0%
+  SUPER|level_reclaim+ribbon_flip+sequence_reclaim     1       -354      -354    0.0%
+  SUPER|confluence+level_reclaim+ribbon_flip    11       -377       -34   27.3%
+  LEVEL|level_rejection+trendline_rejection     2      -1234      -617    0.0%
+  SUPER|confluence+level_rejection+ribbon_flip+trendline_rejection     2      -1449      -724    0.0%
+  LEVEL|level_rejection+ribbon_flip            3      -1493      -498   33.3%
+  TRENDLINE|trendline_rejection               56      -2805       -50   35.7%
+  ELITE|confluence+level_reclaim             110      -4112       -37   14.5%
+  LEVEL|level_rejection                       17     -10661      -627   29.4%
+
+================================================================================
+  OUT-OF-SAMPLE: 15 trades, pnl=+2659, avg=+177, WR=46.7%
+================================================================================
+
+  By trigger set:
+  key                                          n        pnl       avg      WR
+  ------------------------------------------------------------------------
+  level_reclaim+ribbon_flip                    1      +1130     +1130  100.0%
+  confluence+level_reclaim                     6       +926      +154   16.7%
+  level_rejection                              2       +756      +378   50.0%
+  confluence+level_reclaim+ribbon_flip         1       +744      +744  100.0%
+  level_rejection+ribbon_flip+sequence_rejection     1       +714      +714  100.0%
+  confluence+level_rejection                   1       +486      +486  100.0%
+  trendline_rejection                          1       +190      +190  100.0%
+  confluence+level_rejection+trendline_rejection     1       -849      -849    0.0%
+  level_rejection+ribbon_flip                  1      -1439     -1439    0.0%
+
+  By quality tier (derived):
+  key                                          n        pnl       avg      WR
+  ------------------------------------------------------------------------
+  ELITE                                        7      +1412      +202   28.6%
+  SUPER                                        3       +609      +203   66.7%
+  LEVEL                                        4       +447      +112   50.0%
+  TRENDLINE                                    1       +190      +190  100.0%
+
+  By VIX bucket at entry:
+  key                                          n        pnl       avg      WR
+  ------------------------------------------------------------------------
+  VIX 17-20                                   14      +1915      +137   42.9%
+  VIX 15-17                                    1       +744      +744  100.0%
+
+  By time bucket:
+  key                                          n        pnl       avg      WR
+  ------------------------------------------------------------------------
+  10:xx                                        5      +1552      +310   60.0%
+  09:30-09:59                                  2       +911      +455   50.0%
+  13:xx                                        1       +744      +744  100.0%
+  14:xx+                                       3       +312      +104   33.3%
+  12:xx                                        1       -232      -232    0.0%
+  11:xx                                        3       -628      -209   33.3%
+
+  Quality x trigger cross-tab (top 20):
+  key                                          n        pnl       avg      WR
+  ------------------------------------------------------------------------
+  LEVEL|level_reclaim+ribbon_flip              1      +1130     +1130  100.0%
+  ELITE|confluence+level_reclaim               6       +926      +154   16.7%
+  LEVEL|level_rejection                        2       +756      +378   50.0%
+  SUPER|confluence+level_reclaim+ribbon_flip     1       +744      +744  100.0%
+  SUPER|level_rejection+ribbon_flip+sequence_rejection     1       +714      +714  100.0%
+  ELITE|confluence+level_rejection             1       +486      +486  100.0%
+  TRENDLINE|trendline_rejection                1       +190      +190  100.0%
+  SUPER|confluence+level_rejection+trendline_rejection     1       -849      -849    0.0%
+  LEVEL|level_rejection+ribbon_flip            1      -1439     -1439    0.0%
+
+
+--- IS vs OOS COMPARISON ---
+
+  Trigger set:
+  key                                       IS_n     IS_pnl   IS_WR  |  OOS_n    OOS_pnl   OOS_WR
+  ----------------------------------------------------------------------------------------
+  confluence+level_reclaim                   110      -4112   14.5%  |     6       +926    16.7%  IS loses, OOS wins!
+  confluence+level_reclaim+ribbon_flip        11       -377   27.3%  |     1       +744   100.0%  IS loses, OOS wins!
+  confluence+level_reclaim+sequence_reclaim     3      +2724   66.7%  |     0         +0     0.0%  IS only
+  confluence+level_rejection                  13      +8597   84.6%  |     1       +486   100.0%  
+  confluence+level_rejection+ribbon_flip       4       +982   75.0%  |     0         +0     0.0%  IS only
+  confluence+level_rejection+ribbon_flip+trendline_rejection     2      -1449    0.0%  |     0         +0     0.0%  IS only
+  confluence+level_rejection+trendline_rejection     5      +2569   60.0%  |     1       -849     0.0%  IS wins, OOS loses
+  level_reclaim+ribbon_flip                   10       +732   20.0%  |     1      +1130   100.0%  
+  level_reclaim+ribbon_flip+sequence_reclaim     1       -354    0.0%  |     0         +0     0.0%  IS only
+  level_reclaim+sequence_reclaim               1       -210    0.0%  |     0         +0     0.0%  IS only
+  level_rejection                             17     -10661   29.4%  |     2       +756    50.0%  IS loses, OOS wins!
+  level_rejection+ribbon_flip                  3      -1493   33.3%  |     1      -1439     0.0%  
+  level_rejection+ribbon_flip+sequence_rejection     0         +0    0.0%  |     1       +714   100.0%  OOS only
+  level_rejection+trendline_rejection          2      -1234    0.0%  |     0         +0     0.0%  IS only
+  ribbon_flip+trendline_rejection              6      +1975   66.7%  |     0         +0     0.0%  IS only
+  trendline_rejection                         56      -2805   35.7%  |     1       +190   100.0%  IS loses, OOS wins!
+
+  Quality tier:
+  key                                       IS_n     IS_pnl   IS_WR  |  OOS_n    OOS_pnl   OOS_WR
+  ----------------------------------------------------------------------------------------
+  ELITE                                      123      +4485   22.0%  |     7      +1412    28.6%  
+  LEVEL                                       33     -12867   24.2%  |     4       +447    50.0%  IS loses, OOS wins!
+  SUPER                                       26      +4095   42.3%  |     3       +609    66.7%  
+  TRENDLINE                                   62       -830   38.7%  |     1       +190   100.0%  IS loses, OOS wins!
+
+  VIX bucket:
+  key                                       IS_n     IS_pnl   IS_WR  |  OOS_n    OOS_pnl   OOS_WR
+  ----------------------------------------------------------------------------------------
+  VIX 15-17                                  113      -2569   19.5%  |     1       +744   100.0%  IS loses, OOS wins!
+  VIX 17-20                                   56      +4045   39.3%  |    14      +1915    42.9%  
+  VIX 20-25                                   30      -2810   33.3%  |     0         +0     0.0%  IS only
+  VIX 25-35                                   20      -5887   45.0%  |     0         +0     0.0%  IS only
+  VIX 35+                                      2       +179   50.0%  |     0         +0     0.0%  IS only
+  VIX<15                                      23      +1924   26.1%  |     0         +0     0.0%  IS only
+
+  Time bucket:
+  key                                       IS_n     IS_pnl   IS_WR  |  OOS_n    OOS_pnl   OOS_WR
+  ----------------------------------------------------------------------------------------
+  09:30-09:59                                 32      -2059   21.9%  |     2       +911    50.0%  IS loses, OOS wins!
+  10:xx                                       46       -815   30.4%  |     5      +1552    60.0%  IS loses, OOS wins!
+  11:xx                                       53      -2648   30.2%  |     3       -628    33.3%  
+  12:xx                                       22       +186   31.8%  |     1       -232     0.0%  IS wins, OOS loses
+  13:xx                                       30       -334   23.3%  |     1       +744   100.0%  IS loses, OOS wins!
+  14:xx+                                      61       +553   31.1%  |     3       +312    33.3%  
+
+ANALYSIS COMPLETE.

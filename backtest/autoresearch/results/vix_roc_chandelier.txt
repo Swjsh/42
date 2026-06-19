@@ -1,0 +1,70 @@
+Loading data...
+SPY 34324 rows  VIX 22283 rows
+
+VIX-ROC Conditional Chandelier Analysis - Safe account
+Hypothesis: rising VIX (VIX_ROC > threshold) -> choppy -> chandelier ON
+            falling VIX (VIX_ROC <= threshold) -> trending -> chandelier OFF
+Tested windows: [1, 2, 5] days | Thresholds: ['-5%', '+0%', '+5%', '+10%']
+VIX daily close series: 373 trading days
+
+--- VIX ROC diagnostic per sub-window ---
+
+  W1_2025H1 (2025-01-02 to 2025-06-30):
+    ROC_1d: median=-0.9%  p25=-4.8%  p75=+3.9%  pct_rising=40%
+    ROC_2d: median=-0.3%  p25=-7.1%  p75=+6.0%  pct_rising=49%
+    ROC_5d: median=-2.8%  p25=-11.4%  p75=+13.3%  pct_rising=41%
+
+  W2_2025Q3 (2025-07-01 to 2025-09-30):
+    ROC_1d: median=+0.1%  p25=-2.8%  p75=+3.9%  pct_rising=50%
+    ROC_2d: median=+0.3%  p25=-4.0%  p75=+4.1%  pct_rising=52%
+    ROC_5d: median=-0.7%  p25=-5.6%  p75=+6.3%  pct_rising=45%
+
+  W3_2025Q4 (2025-10-01 to 2025-12-31):
+    ROC_1d: median=-0.6%  p25=-5.0%  p75=+4.3%  pct_rising=45%
+    ROC_2d: median=+0.9%  p25=-4.9%  p75=+5.6%  pct_rising=55%
+    ROC_5d: median=-1.2%  p25=-8.9%  p75=+8.8%  pct_rising=46%
+
+  W4_2026H1 (2026-01-02 to 2026-05-07):
+    ROC_1d: median=-0.9%  p25=-3.6%  p75=+4.3%  pct_rising=47%
+    ROC_2d: median=-0.0%  p25=-5.0%  p75=+7.4%  pct_rising=49%
+    ROC_5d: median=+1.8%  p25=-7.1%  p75=+9.6%  pct_rising=59%
+
+Running baseline backtests (ON and OFF)...
+Baseline OFF: IS n=106  pnl=$+16,174  |  OOS n=16  pnl=$+5,900
+Baseline ON:  IS n=106  pnl=$+13,277  |  OOS n=16  pnl=$+1,770
+
+VIX-ROC conditional: use ON when VIX_ROC(window) > threshold, else OFF
+All comparisons vs OFF baseline (best absolute)
+
+   Win   Thr%   IS_n      IS_pnl      IS_d  OOS_n     OOS_pnl     OOS_d       WF   ON%  SW_h  VERDICT
+---------------------------------------------------------------------------------------------------------
+     1d    -5%    106     +12,993    -3,181     16      +1,770    -4,131    8.604   84%     3  OOS_NEG
+        SW: W1_2025H1:HELP(+3,934) | W2_2025Q3:HURT(-4,048) | W3_2025Q4:HURT(-969) | W4_2026H1:HURT(-2,098)
+     1d    +0%    106     +14,419    -1,754     16      +5,005      -895    3.381   54%     2  OOS_NEG
+        SW: W1_2025H1:HELP(+1,773) | W2_2025Q3:HURT(-1,836) | W3_2025Q4:HELP(+583) | W4_2026H1:HURT(-2,275)
+     1d    +5%    106     +14,876    -1,298     16      +5,900        +0   -0.000   24%     3  WF_FAIL(-0.000)
+        SW: W1_2025H1:HELP(+651) | W2_2025Q3:HURT(-256) | W3_2025Q4:HURT(-1,031) | W4_2026H1:HURT(-662)
+     1d   +10%    106     +12,631    -3,542     16      +5,900        +0   -0.000   15%     2  WF_FAIL(-0.000)
+        SW: W1_2025H1:HURT(-1,999) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:HURT(-1,543)
+     2d    -5%    106     +15,872      -301     16      +2,638    -3,263   71.732   80%     2  OOS_NEG
+        SW: W1_2025H1:HELP(+4,226) | W2_2025Q3:HURT(-2,921) | W3_2025Q4:HELP(+527) | W4_2026H1:HURT(-2,134)
+     2d    +0%    106     +17,618    +1,444     16      +4,771    -1,130   -5.183   56%     1  OOS_NEG
+        SW: W1_2025H1:HELP(+1,711) | W2_2025Q3:HURT(-1,690) | W3_2025Q4:HELP(+1,250) | W4_2026H1:HELP(+174)
+     2d    +5%    106     +16,416      +242     16      +5,900        +0    0.000   30%     3  WF_FAIL(0.000)
+        SW: W1_2025H1:HURT(-609) | W2_2025Q3:HURT(-634) | W3_2025Q4:HELP(+2,129) | W4_2026H1:HURT(-644)
+     2d   +10%    106     +15,589      -585     16      +5,900        +0   -0.000   14%     1  WF_FAIL(-0.000)
+        SW: W1_2025H1:HURT(-1,678) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:HELP(+1,094)
+     5d    -5%    106     +18,082    +1,908     16        +795    -5,105  -17.725   70%     1  OOS_NEG
+        SW: W1_2025H1:HELP(+2,263) | W2_2025Q3:HURT(-2,348) | W3_2025Q4:HELP(+409) | W4_2026H1:HELP(+1,583)
+     5d    +0%    106     +15,823      -351     16      +2,793    -3,107   58.724   50%     1  OOS_NEG
+        SW: W1_2025H1:HELP(+748) | W2_2025Q3:HURT(-3,097) | W3_2025Q4:FLAT(+37) | W4_2026H1:HELP(+1,961)
+     5d    +5%    106     +13,602    -2,572     16      +5,900        +0   -0.000   35%     3  WF_FAIL(-0.000)
+        SW: W1_2025H1:HURT(-203) | W2_2025Q3:HURT(-1,989) | W3_2025Q4:FLAT(+37) | W4_2026H1:HURT(-418)
+     5d   +10%    106     +13,108    -3,066     16      +5,900        +0   -0.000   25%     2  WF_FAIL(-0.000)
+        SW: W1_2025H1:HURT(-1,478) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+37) | W4_2026H1:HURT(-1,626)
+
+  No ratifiable ROC-conditional threshold found.
+  Conclusion: chandelier regime split not solvable by VIX ROC conditioning either.
+  Next: Accept chandelier ON (production) as local optimum. Pivot to NLWB setup or ATR-based regime.
+
+DONE.

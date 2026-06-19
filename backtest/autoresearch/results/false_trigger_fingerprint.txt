@@ -1,0 +1,75 @@
+Loading data...
+SPY 34324 rows  VIX 22283 rows
+
+Running IS...
+  IS trades: 133
+
+Running OOS...
+  OOS trades: 21
+
+============================================================
+  IS — SUPER-CLASS (3+ triggers)
+============================================================
+  Total 3+ trigger trades: 22
+  WR: 22.7%  Avg P&L: +292
+  Losers: 17
+  Losers with max_favorable <= entry+2%: 6 (35%)
+  Losers with max_favorable < entry+5%:  10 (59%)
+
+  VIX breakdown (no-move losers, max_fav<=entry+2%):
+    VIX 15-18: n=6
+
+  Time-of-day breakdown (no-move losers):
+    09:35-09:59: n=1
+    10:00-10:59: n=1
+    11:00-11:59: n=3
+    13:00+: n=1
+
+  Top trigger combos (losers):
+    ['confluence', 'level_reclaim', 'ribbon_flip']: n=8
+    ['confluence', 'level_reclaim', 'sequence_reclaim']: n=5
+    ['confluence', 'level_rejection', 'trendline_rejection']: n=3
+    ['level_reclaim', 'ribbon_flip', 'sequence_reclaim']: n=1
+
+  False-start fingerprint (hit stop within first 2 bars):
+    6/17 losers never cleared entry+2% -> FALSE TRIGGER fingerprint
+
+============================================================
+  OOS — SUPER-CLASS (3+ triggers)
+============================================================
+  Total 3+ trigger trades: 8
+  WR: 62.5%  Avg P&L: +231
+  Losers: 3
+  Losers with max_favorable <= entry+2%: 2 (67%)
+  Losers with max_favorable < entry+5%:  2 (67%)
+
+  VIX breakdown (no-move losers, max_fav<=entry+2%):
+    VIX 15-18: n=2
+
+  Time-of-day breakdown (no-move losers):
+    10:00-10:59: n=1
+    11:00-11:59: n=1
+
+  Top trigger combos (losers):
+    ['confluence', 'level_rejection', 'trendline_rejection']: n=1
+    ['confluence', 'level_reclaim', 'ribbon_flip', 'sequence_reclaim']: n=1
+    ['confluence', 'level_rejection', 'ribbon_flip']: n=1
+
+  False-start fingerprint (hit stop within first 2 bars):
+    2/3 losers never cleared entry+2% -> FALSE TRIGGER fingerprint
+
+============================================================
+  IS COMPARISON: 3+ triggers vs <3 triggers
+============================================================
+  3+ triggers (SUPER): n=22  WR=22.7%  avg=+292
+    Losers with <5% favorable move: 10 (59% of losers)
+  <3 triggers (STANDARD): n=111  WR=22.5%  avg=+58
+    Losers with <5% favorable move: 43 (50% of losers)
+
+============================================================
+  OVERALL 3+ trigger P&L
+============================================================
+  IS: n=22  total_pnl=+6,431  WR=22.7%
+  OOS: n=8  total_pnl=+1,849  WR=62.5%
+
+DONE.

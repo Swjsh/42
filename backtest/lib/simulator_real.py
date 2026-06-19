@@ -243,6 +243,21 @@ def simulate_trade_real(
     profit_lock_stop_offset_pct: float = 0.0,  # NEW 2026-05-13 T41: where to raise stop when armed (e.g. 0.05 = +5% above entry premium)
     profit_lock_mode: str = "fixed",  # NEW 2026-05-13 T50b: "fixed" | "trailing" | "stepped". Trailing = chandelier-style w/ trail_pct
     profit_lock_trail_pct: float = 0.0,  # NEW T50b: 0.20 = chandelier 20% off HWM (only used when mode='trailing')
+    # --- RIBBON_FLIP_PRICE_CONFIRM 2026-06-16 ---
+    # When True: only exit on ribbon flip-back if SPY has also moved past entry_spot
+    # (for puts: close >= entry_spot; for calls: close <= entry_spot). Prevents premature
+    # exits when ribbon flips to opposite stack during noise but price is still in favor.
+    # Root cause of 5/01 +$3 vs J's +$470: ribbon flipped BULL at 13:45 (10 min in)
+    # while SPY was still below 722.81 entry — engine exited flat, J held to +$470.
+    # Default False = existing behavior (no production impact). Ratify Rule 9 before enabling.
+    ribbon_flip_price_confirm: bool = False,
+    tp1_qty_fraction: float = TP1_QTY_FRACTION,           # L108 2026-06-17: was hardcoded 0.667; prod=0.50
+    runner_target_premium_pct: float = RUNNER_MAX_PREMIUM_PCT,  # L109 2026-06-17: was hardcoded 3.0; prod=2.5
+    tp1_premium_pct: float = TP1_PREMIUM_PCT,             # L110 2026-06-17: was hardcoded 0.30; prod=0.30 (matches, future-proof)
+    time_stop_et: dt.time = TIME_STOP_ET,                  # L110 2026-06-17: was hardcoded 15:50; prod=15:50 (matches, future-proof)
+    # L113 2026-06-17: level-stop chart buffer. Was hardcoded 0.50 (see comment at usage site).
+    # prod=0.50. Now wirable so sweep can verify and test variations.
+    level_stop_buffer_dollars: float = 0.50,
 ) -> Optional[TradeFill]:
     """Simulate a bracket trade with real option fills.
 
@@ -304,8 +319,8 @@ def simulate_trade_real(
     raw_open = entry_bar_opt.open
     entry_premium = raw_open + entry_slippage
     stop_premium = entry_premium * (1.0 + premium_stop_pct)   # configurable premium stop
-    tp1_premium_fallback = entry_premium * (1.0 + TP1_PREMIUM_PCT)     # +30% fallback
-    runner_target_premium = entry_premium * (1.0 + RUNNER_MAX_PREMIUM_PCT)  # +300%
+    tp1_premium_fallback = entry_premium * (1.0 + tp1_premium_pct)     # L110: was TP1_PREMIUM_PCT hardcode
+    runner_target_premium = entry_premium * (1.0 + runner_target_premium_pct)  # L109: was RUNNER_MAX_PREMIUM_PCT hardcode
 
     # Identify the FIRST chart-level past entry (for chart-level TP1)
     levels_active = list(levels_active or [])
@@ -324,6 +339,7 @@ def simulate_trade_real(
         entry_vix=0.0,
         rejection_level=rejection_level,
         triggers_fired=triggers_fired,
+        side=side,
     )
     fill.max_adverse_premium = entry_premium
     fill.max_favorable_premium = entry_premium
@@ -341,7 +357,7 @@ def simulate_trade_real(
     # qty=3:  tp1=2, runner=1 (single conservative)
     # qty=4:  tp1=2, runner=2 (1 conservative + 1 aggressive)
     # qty=10: tp1=6, runner=4 (2 conservative + 2 aggressive)
-    tp1_qty = int(qty * TP1_QTY_FRACTION)
+    tp1_qty = int(qty * tp1_qty_fraction)
     runner_qty = qty - tp1_qty
     if use_tiered_exits and runner_qty >= 2:
         aggressive_remaining = runner_qty // 2
@@ -451,7 +467,7 @@ def simulate_trade_real(
                         runner_stop_premium = stepped
         # ── /profit-lock block ──────────────────────────────────────────────────
 
-        time_stop_now = spy_time.time() >= TIME_STOP_ET
+        time_stop_now = spy_time.time() >= time_stop_et
         vol_baseline = _vol_baseline_at(spy_idx)
 
         # ── Pre-TP1 hard exits (apply to all units before TP1) ──────────
@@ -480,10 +496,20 @@ def simulate_trade_real(
             # taken control with conviction.
             ribbon_state = _ribbon_at(ribbon_df, spy_idx)
             opposite_stack = "BULL" if side == "P" else "BEAR"
+            spy_close_now = float(spy_bar["close"])
+            # Buffer matches LEVEL_STOP_BUFFER (0.50): ribbon flip-back can only fire
+            # once SPY has moved $0.50 past entry — prevents premature exit on
+            # 5/01-style congestion (722.84 vs 722.81 entry, just $0.03 above).
+            RIBBON_FLIP_PRICE_BUFFER = 0.50
+            price_reversal_confirmed = (
+                (side == "P" and spy_close_now >= entry_spot + RIBBON_FLIP_PRICE_BUFFER)
+                or (side == "C" and spy_close_now <= entry_spot - RIBBON_FLIP_PRICE_BUFFER)
+            )
             if (
                 ribbon_state is not None
                 and ribbon_state.stack == opposite_stack
                 and ribbon_state.spread_cents >= 30.0
+                and (not ribbon_flip_price_confirm or price_reversal_confirmed)
             ):
                 fill.runner_exit_time_et = spy_time
                 fill.runner_exit_premium = max(0.01, opt_bar.close - exit_slippage)
@@ -499,13 +525,12 @@ def simulate_trade_real(
             #   - $0.50 + ribbon-condition: too restrictive — fails the J replay test.
             # $0.50 buffer alone is the middle ground. If R-BT-08 (entry timing)
             # closes the bad-entry gap, we can drop this.
-            LEVEL_STOP_BUFFER = 0.50
             # Guard None rejection_level (entry from ribbon_flip-only trigger)
             level_breached = (
                 rejection_level is not None
                 and (
-                    (side == "P" and float(spy_bar["close"]) > rejection_level + LEVEL_STOP_BUFFER)
-                    or (side == "C" and float(spy_bar["close"]) < rejection_level - LEVEL_STOP_BUFFER)
+                    (side == "P" and float(spy_bar["close"]) > rejection_level + level_stop_buffer_dollars)
+                    or (side == "C" and float(spy_bar["close"]) < rejection_level - level_stop_buffer_dollars)
                 )
             )
             if level_breached:
@@ -662,7 +687,7 @@ def simulate_trade_real(
         )
         fill.exit_reason = ExitReason.EXIT_ALL_TIME_STOP
 
-    fill.dollar_pnl = _compute_pnl(fill, qty)
+    fill.dollar_pnl = _compute_pnl(fill, qty, tp1_qty_fraction=tp1_qty_fraction)
     fill.pct_return_on_premium = (
         fill.dollar_pnl / (entry_premium * qty * 100.0) if entry_premium > 0 else 0.0
     )
@@ -679,7 +704,7 @@ def simulate_trade_real(
     return fill
 
 
-def _compute_pnl(fill: TradeFill, qty: int) -> float:
+def _compute_pnl(fill: TradeFill, qty: int, tp1_qty_fraction: float = TP1_QTY_FRACTION) -> float:
     """TP1 partial-out math.
 
     runner_exit_premium is the WEIGHTED AVERAGE across conservative + aggressive
@@ -688,7 +713,7 @@ def _compute_pnl(fill: TradeFill, qty: int) -> float:
     if fill.runner_exit_premium is None:
         return 0.0
     if fill.tp1_filled():
-        tp1_qty = int(qty * TP1_QTY_FRACTION)
+        tp1_qty = int(qty * tp1_qty_fraction)
         runner_qty = qty - tp1_qty
         tp1_pnl = (fill.tp1_premium - fill.entry_premium) * tp1_qty * 100.0
         runner_pnl = (fill.runner_exit_premium - fill.entry_premium) * runner_qty * 100.0

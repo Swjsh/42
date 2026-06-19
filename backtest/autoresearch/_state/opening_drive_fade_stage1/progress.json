@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-06-15T04:03:50.834591",
-  "deadline_at": "2026-06-15T06:03:50.834591",
+  "started_at": "2026-06-17T11:22:54.116724",
+  "deadline_at": "2026-06-17T13:22:54.116724",
   "total_combos": 810,
   "completed": 810,
   "passed_floors": 0,
@@ -8,9 +8,9 @@
   "keepers": 0,
   "best_edge_capture": 0.0,
   "best_wide_pnl": null,
-  "current_pid": 7724,
+  "current_pid": 32500,
   "workers": 4,
-  "last_update": "2026-06-15T04:33:36.351393",
+  "last_update": "2026-06-17T11:54:16.802110",
   "status": "completed",
-  "completed_at": "2026-06-15T04:33:36.364681"
+  "completed_at": "2026-06-17T11:54:16.816380"
 }

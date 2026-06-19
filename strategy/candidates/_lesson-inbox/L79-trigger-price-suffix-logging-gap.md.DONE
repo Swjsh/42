@@ -1,0 +1,24 @@
+---
+lesson_id: L79
+date: 2026-06-15
+theme: C7 (silent success is failure — audit outputs not exit codes)
+symptom: Shadow eval showed ENTER_BULL miss on 6/02 t8 even though the trigger fired correctly
+root_cause: |
+  Watchers emit triggers with price suffixes: "level_reclaim_758.22". The heartbeat writes
+  this raw trigger string to decisions.jsonl. When the shadow eval later does exact-match
+  lookup against the valid trigger list (["level_reclaim", "level_break", ...]), the suffixed
+  string fails to match → trigger=None in the snapshot → model sees no trigger → outputs HOLD.
+  The same defect occurs in any analysis tool that looks up trigger type from the ledger.
+fix: |
+  1. Heartbeat: normalize trigger before writing to decisions.jsonl — strip price suffix,
+     log only the base trigger name (level_reclaim, level_break, ribbon_flip, etc.).
+     The price is already logged in the spy field; having it in the trigger string fragments
+     analysis across every unique price point.
+  2. Shadow eval v5: prefix matching in build_tick_prompt() — "level_reclaim_758.22"
+     matches "level_reclaim" via raw.startswith(valid + "_"). Defensive workaround only;
+     production ledger should not produce suffixed triggers.
+files_changed:
+  - automation/prompts/heartbeat.md (trigger normalization note added to Decisions ledger)
+  - automation/prompts/aggressive/heartbeat.md (same fix)
+  - setup/scripts/shadow_model_eval.py (v5 prefix matching workaround)
+---

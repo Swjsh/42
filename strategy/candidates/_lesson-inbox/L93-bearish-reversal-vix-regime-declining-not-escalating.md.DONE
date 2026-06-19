@@ -1,0 +1,61 @@
+---
+title: "L93 — BEARISH_REVERSAL fires on DECLINING-VIX days, not escalating — opposite of SNIPER"
+date: 2026-06-16
+source: interactive session (f6_vix_escalating_compound.py)
+priority: high
+theme: C5 (VIX character > VIX level; as-of trigger time)
+graduated_guard: yes
+---
+
+## Symptom
+
+Tested VIX-escalating gate (prior_day_VIX >= prior_5d_avg_VIX, L73 SNIPER discriminator) as
+a compound filter with filter-6@20c to discriminate valid entries from traps.
+
+VIX-escalating gate gates out ALL 3 J winner days (4/29, 5/01, 5/04 all have FLAT/declining VIX).
+IS EC collapses from 673 to 0. OOS per-trade expectancy worsens (-$69.8 vs -$44.3 baseline).
+
+## Root Cause
+
+BEARISH_REVERSAL and SNIPER fire in OPPOSING VIX regimes:
+
+| Setup | VIX regime | Why |
+|---|---|---|
+| SNIPER (L73) | VIX ESCALATING (prior_day > 5d_avg) | Level breaks work in trending fear — rising VIX = sustained directional flow |
+| BEARISH_REVERSAL | VIX DECLINING (prior_day < 5d_avg) | Ribbon rejection works in fear-mean-reversion — fading the bounce after peak fear |
+
+The tariff-shock period (Apr-May 2026): VIX spiked to 50+ on April 9 (Liberation Day), then
+began declining. The best BEARISH_REVERSAL days (4/29, 5/01, 5/04) were during this DECLINING
+phase. VIX was still elevated (16-18) but falling from the peak. The SNIPER VIX-escalating
+gate was calibrated on a DIFFERENT regime and is structurally incompatible.
+
+Actual VIX readings for J anchor days:
+- 4/29: prior=17.81, 5d_avg=18.47 → FLAT (declining)
+- 5/01: prior=16.93, 5d_avg=17.98 → FLAT (declining)
+- 5/04: prior=17.00, 5d_avg=17.65 → FLAT (declining)
+- 5/05 (LOSER): prior=18.18, 5d_avg=17.66 → ESCALATING
+
+The loser day is the escalating day. This is the inverse of the SNIPER pattern.
+
+## Fix / Guard
+
+Do NOT apply SNIPER regime filters (VIX-escalating, VIX>=18) to BEARISH_REVERSAL.
+They have orthogonal regime profiles. Cross-contaminating regime gates from one setup to
+another is a structural error.
+
+If a VIX gate is ever needed for BEARISH_REVERSAL, the correct direction to test is:
+  - VIX DECLINING (prior_day < 5d_avg) = ENABLE
+  - VIX ESCALATING = CAUTION (though 5/05 escalating = engine flat = no harm)
+
+## Graduated Guard (propose for test_graduated_guards.py)
+
+Function: `test_vix_escalating_does_not_apply_to_bearish_reversal`
+Methodology: For any candidate that adds a VIX-escalating condition to BEARISH_REVERSAL
+parameters, assert that IS EC does not fall below baseline * 0.50 on J anchor days.
+Specifically verify that 4/29, 5/01, and 5/04 are NOT gated out.
+
+## Related Lessons
+
+- L73: VIX CHARACTER > VIX level; 5d window uniquely optimal for SNIPER
+- L92: IS quality-lock cascade false positive from threshold changes
+- C5: VIX character > VIX level; as-of trigger time

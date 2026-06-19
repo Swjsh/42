@@ -1,0 +1,48 @@
+---
+title: "L92 — IS quality-lock cascade false positive from threshold changes"
+date: 2026-06-16
+source: interactive session
+priority: high
+theme: C4 (Disclose concentration, normalize OOS, stratify by regime), C7 (silent success is failure)
+graduated_guard: yes
+---
+
+## Symptom
+
+Filter-6 ribbon spread threshold sweep (30c → 20c) showed IS edge_capture 673 → 2057 (+$1384).
+Looks like a massive improvement. OOS (2026-05-08 to 2026-05-22): BASELINE -$709, CANDIDATE -$1483 (2.1x WORSE).
+
+## Root Cause
+
+Threshold change opened a lower-quality EARLIER entry at lower spread (e.g., 4/29 11:50 spread=29.1c,
+5/08-5/22 OOS 13:15 spread=just-above-20c). These earlier entries:
+1. Stopped out (lost money)
+2. Set a HIGH quality tier (ELITE=3 triggers) in `setup_quality_taken_today`
+3. Quality lock then BLOCKED the profitable later entry (lower quality tier)
+
+IS result: The 5/04 11:10 entry hit a much better runner (+$2491 vs +$322 baseline). This masked the
+4/29 trap (-$412) and created a net IS gain of +$1384. On IS only, it looks like an improvement.
+
+OOS result: Same trap repeats. 13:15 -$244 blocks 13:20 +$529. Net OOS worsens by -$774.
+
+The IS 5/04 gain is a flukey BS-sim coincidence: 5 minutes earlier entry + better strike + runner hits
+2.5x target (vs BE stop). This doesn't generalize.
+
+## Fix / Guard
+
+Before declaring ANY IS improvement that involves opening EARLIER entries:
+1. Verify OOS that the same pattern holds (early entry must also be profitable OOS)
+2. Check for quality-lock cascade: does the new entry block a later profitable entry?
+3. Never rely on runner-target hits in BS-sim as evidence of improvement — they're noisy
+
+## Graduated Guard (propose for test_graduated_guards.py)
+
+Function: `test_threshold_change_does_not_regress_oos`
+Methodology: For any candidate with IS edge_capture improvement via new early entries, run
+OOS (window: 2026-05-08 to 2026-05-22) and assert `OOS_candidate >= OOS_baseline * 0.90`.
+
+## Related Lessons
+
+- L73: OOS regime stratification
+- L85: is-decision-tick exclusions (agree rules), quality lock cascade logic
+- C4: Disclose concentration, normalize OOS, stratify by regime

@@ -1,0 +1,14 @@
+Loading data...
+SPY 34324 rows  VIX 22283 rows
+
+Baseline (vix_bull_max=30.0)...
+  IS  n=265  pnl=+15,340  WR=25.7%
+  OOS n=28  pnl=+2,273  WR=32.1%
+
+   Cap  IS_n     IS_pnl     IS_d  OOS_n    OOS_pnl    OOS_d      WF  SW_hurt      VERDICT
+----------------------------------------------------------------------------------------
+    18    254     +13,194    -2,146      27      +2,492      +219   -0.961         2  OOS_POS_WF_FAIL
+    20    256     +12,581    -2,759      28      +2,273        +0   -0.000         2  OOS_POS_WF_FAIL
+    22    257     +12,323    -3,016      28      +2,273        +0   -0.000         2  OOS_POS_WF_FAIL
+    25    263     +15,879      +539      28      +2,273        +0    0.000         0  OOS_POS_WF_FAIL
+    30    265     +15,340        +0      28      +2,273        +0      nan         0      BASELINE

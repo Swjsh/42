@@ -1,0 +1,28 @@
+==========================================================================================
+COMPOSITION TEST: tighter_stop + vix_rising_deadband=0.15
+==========================================================================================
+
+[BASELINE] IS n=244 pnl=-5118  OOS n=15 pnl=+2659
+
+[TIGHTER STOP only]  IS delta=+8705  OOS delta=+1802  WF=3.367  anchor=OK
+[DEADBAND=0.15 only]  IS n=239 delta=+689  OOS n=9 delta=+865  WF=20.425  anchor=OK
+[COMBINED]            IS n=240 delta=+7938  OOS delta=+1522  WF=3.120  anchor=OK
+
+[ADDITIVITY CHECK]
+  Expected (additive sum): IS +9394  OOS +2666
+  Actual   (combined):     IS +7938  OOS +1522
+  Overlap (IS loss from non-additivity): +1456
+  Overlap (OOS loss from non-additivity): +1144
+  -> INTERACTION: effects are NOT additive (overlap = +1144)
+
+[COMBINED CANDIDATE VERDICT]
+  OOS positive: True
+  WF >= 0.70: 3.120
+  Anchor OK: True
+  STATUS: PASS — combined candidate is viable
+
+  Deploy both changes together:
+    1. premium_stop_pct_bear = -0.10 (in params.json + aggressive/params.json)
+    2. vix_rising_deadband = 0.15 (in params.json + aggressive/params.json)
+
+ANALYSIS COMPLETE.

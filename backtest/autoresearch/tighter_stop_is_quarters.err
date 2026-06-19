@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "C:\Users\jackw\Desktop\42\backtest\autoresearch\tighter_stop_is_quarters.py", line 100, in <module>
+    d.strftime("%Y-%m")
+    ^
+NameError: name 'd' is not defined

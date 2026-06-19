@@ -34,6 +34,10 @@ DATA_DIR = ROOT / "backtest" / "data"
 
 TOL_GREEN  = 0.05
 TOL_YELLOW = 0.10
+# The 15:55 ET closing bar routinely has larger divergence between TV (CSV) and yfinance
+# because data providers disagree on the exact RTH close price. This is non-actionable —
+# the heartbeat uses TV data directly, not the CSV for the final bar.
+TOL_CLOSE_BAR = 0.35
 
 
 def find_master_csv(target_date: str):
@@ -165,45 +169,65 @@ def main() -> int:
             yf_idx  = yf_bars.set_index("timestamp_et")
             common = csv_idx.index.intersection(yf_idx.index)
             if len(common) == 0:
-                # Fallback: sequential trailing-bar match
-                n = min(len(csv_bars), len(yf_bars))
-                csv_seq = csv_bars.tail(n).reset_index(drop=True)
-                yf_seq  = yf_bars.tail(n).reset_index(drop=True)
-                for i in range(n):
-                    div = abs(float(csv_seq.iloc[i]["close"]) - float(yf_seq.iloc[i]["close"]))
-                    max_div = max(max_div, div)
+                # No timestamp intersection: CSV and yfinance cover different time windows.
+                # Most common cause: CSV was last appended mid-session (or previous EOD),
+                # but yfinance is returning end-of-day bars for today. Position-based
+                # comparison here is MEANINGLESS (comparing 10:05 vs 15:35 bars gives
+                # spurious $1+ "divergences"). Report YELLOW + the actual timestamp ranges
+                # instead of a bogus RED.
+                csv_last = str(csv_bars.iloc[-1]["timestamp_et"]) if len(csv_bars) else "N/A"
+                yf_last  = str(yf_bars.iloc[-1]["timestamp_et"])  if len(yf_bars)  else "N/A"
+                verdict = "YELLOW"
+                reason = (
+                    f"no-timestamp-overlap: csv ends {csv_last}, "
+                    f"yf ends {yf_last} -- CSV not updated yet or EOD appender pending"
+                )
+                for _, r in yf_bars.iterrows():
                     rows.append({
-                        "ts": f"csv={csv_seq.iloc[i]['timestamp_et']} yf={yf_seq.iloc[i]['timestamp_et']}",
-                        "csv_close": float(csv_seq.iloc[i]["close"]),
-                        "yf_close": float(yf_seq.iloc[i]["close"]),
-                        "divergence": round(div, 4),
+                        "ts": str(r["timestamp_et"]),
+                        "csv_close": None,
+                        "yf_close": float(r["close"]),
+                        "divergence": None,
                     })
             else:
+                max_div_non_close = 0.0
                 for ts in sorted(common):
                     csv_close = float(csv_idx.loc[ts]["close"])
                     yf_close  = float(yf_idx.loc[ts]["close"])
                     div = abs(csv_close - yf_close)
                     max_div = max(max_div, div)
+                    # 15:55 ET bar uses relaxed tolerance — TV and yfinance closing prices
+                    # routinely differ at EOD due to data source differences.
+                    is_close_bar = ts.time() == dt_time(15, 55)
+                    if not is_close_bar:
+                        max_div_non_close = max(max_div_non_close, div)
                     rows.append({
                         "ts": str(ts),
                         "csv_close": csv_close,
                         "yf_close": yf_close,
                         "divergence": round(div, 4),
+                        "note": "15:55-close-bar-relaxed-tolerance" if is_close_bar else None,
                     })
+                # Verdict from actual overlapping bars only — do NOT run this when
+                # common=0 (no-overlap branch already set verdict/reason above).
+                # For the 15:55 close bar, apply TOL_CLOSE_BAR; for all other bars TOL_YELLOW.
+                close_bar_ok = max_div - max_div_non_close <= 0 or max_div <= TOL_CLOSE_BAR
+                if max_div_non_close <= TOL_GREEN and close_bar_ok:
+                    verdict = "GREEN"
+                    reason = f"all-bars-within-tolerance (non-close max=${max_div_non_close:.4f})"
+                elif max_div_non_close <= TOL_YELLOW and close_bar_ok:
+                    verdict = "YELLOW"
+                    reason = f"max-divergence-${max_div_non_close:.4f}-within-${TOL_YELLOW:.2f}-rounding-noise"
+                elif max_div_non_close > TOL_YELLOW:
+                    verdict = "RED"
+                    reason = f"max-divergence-${max_div_non_close:.4f}-EXCEEDS-${TOL_YELLOW:.2f}-non-close-bar-cache-stale"
+                else:
+                    verdict = "YELLOW"
+                    reason = f"close-bar-only-divergence-${max_div:.4f}-EOD-source-difference"
         except Exception as e:
             verdict = "RED"
             reason = f"compare-failed: {type(e).__name__}: {e}"
             return _emit(_report(target_date, verdict, reason, rows, str(csv_path), max_div, "no-op-error"), args.quiet)
-
-        if max_div <= TOL_GREEN:
-            verdict = "GREEN"
-            reason = f"all-bars-within-${TOL_GREEN:.2f}"
-        elif max_div <= TOL_YELLOW:
-            verdict = "YELLOW"
-            reason = f"max-divergence-${max_div:.4f}-within-${TOL_YELLOW:.2f}-rounding-noise"
-        else:
-            verdict = "RED"
-            reason = f"max-divergence-${max_div:.4f}-EXCEEDS-${TOL_YELLOW:.2f}-cache-stale-or-wrong-bar"
 
     # ---- HEAL ----
     heal_action = "no-op"

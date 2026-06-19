@@ -1,0 +1,73 @@
+==============================================================================================================
+AGG RIBBON_SPREAD_MIN_CENTS SWEEP
+Motivation: IS trendline_only n=186 avg=+5/trade — does higher spread filter weak entries?
+==============================================================================================================
+
+[BASELINE at 30c]: IS n=264 pnl=+12,200 | OOS n=28 pnl=+2,788
+
+[IS TRIGGER BREAKDOWN at 30c (baseline)]
+  Trigger                     n      WR       avg      total
+  ------------------------------------------------------------
+  conf+lvl_rej               22   45.5%      +259      +5688
+  conf+lvl_rec               42   26.2%       +81      +3396
+  lvl_rec                    14   28.6%      +154      +2153
+  trendline_only            186   29.6%        +5       +962
+
+[OOS TRIGGER BREAKDOWN at 30c (baseline)]
+  conf+lvl_rec                7   28.6%      +225      +1576
+  lvl_rej                     1  100.0%      +714       +714
+  lvl_rec                     2   50.0%      +348       +697
+  trendline_only             10   40.0%       +33       +330
+  conf+lvl_rej                8   50.0%       -66       -528
+
+[FULL IS/OOS SUMMARY]
+  spread   IS_n    IS_pnl  OOS_n    OOS_pnl   IS_delta   OOS_delta       WF   OOS+   anchor
+  ----------------------------------------------------------------------------------------------------
+      30    264    +12200     28      +2788  (baseline)  (baseline)       --     --       --
+      25    285    +12085     28      +2716       -115         -72    5.884     NO     FAIL
+      35    252     +8167     27      +3167      -4032        +379   -0.886    YES     FAIL
+      40    233     +8951     26      +3191      -3249        +402   -1.167    YES     FAIL
+      45    212     +8338     26      +3191      -3862        +402   -0.981    YES     FAIL
+      50    203     +5809     26      +3200      -6391        +411   -0.607    YES     FAIL
+
+[SUB-WINDOW ANALYSIS: spread=50c]
+  Window                BASE_n  CAND_n   BASE_pnl   CAND_pnl    delta   verdict
+  -------------------------------------------------------------------------------------
+  W1 Jan-Jun 2025           81      65      +4372      +2408    -1963      HURT
+  W2 Jul-Dec 2025          107      76      +7755      +2100    -5655      HURT
+  W3 Jan-Mar 2026           60      51      +1122      +2024     +902      HELP
+  W4 Apr-May 2026           16      11      -1049       -723     +326      HELP
+
+[ANCHOR TRACE: spread=50c]
+  2026-04-29    base=     -66  cand=      +0  OK (WINNER)
+  2026-05-01    base=      +3  cand=      +3  OK (WINNER)
+  2026-05-04    base=    -350  cand=     -53  OK (WINNER)
+  2026-05-05    base=      +0  cand=      +0  OK (LOSER)
+  2026-05-06    base=      +0  cand=      +0  OK (LOSER)
+
+[BLOCKED IS TRADES at spread=50c — trigger breakdown]
+  Total blocked: n=84
+  trendline_only          n=  59  WR=30.5%  avg=+46  total=+2725
+  conf+lvl_rec            n=  17  WR=23.5%  avg=+13  total=+220
+  conf+lvl_rej            n=   4  WR=100.0%  avg=+731  total=+2923
+  lvl_rec                 n=   4  WR=50.0%  avg=+388  total=+1550
+
+[BLOCKED OOS TRADES at spread=50c — trigger breakdown]
+  Total blocked: n=4
+  conf+lvl_rej            n=   2  WR=50.0%  avg=-99  total=-198
+    2026-05-21  11:35:00  VIX=17.4  pnl=   -297  exit=ExitReason.EXIT_ALL_PREMIUM_STOP
+    2026-06-10  11:10:00  VIX=21.9  pnl=   +100  exit=ExitReason.TP1_THEN_RUNNER_BE_STOP
+  conf+lvl_rec            n=   1  WR=0.0%  avg=-320  total=-320
+    2026-05-28  10:15:00  VIX=15.4  pnl=   -320  exit=ExitReason.EXIT_ALL_PREMIUM_STOP
+  trendline_only          n=   1  WR=0.0%  avg=-82  total=-82
+    2026-06-02  11:00:00  VIX=16.1  pnl=    -82  exit=ExitReason.EXIT_ALL_RIBBON_FLIP_BACK
+
+[FINAL VERDICT: spread=50c]
+  OOS positive:     True (delta=+411)
+  WF >= 0.70:       False (WF=-0.607)
+  Sub-window stable:False (HURT=2)
+  Anchor OK:        False
+
+  VERDICT: FAIL — reject
+
+ANALYSIS COMPLETE.

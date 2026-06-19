@@ -1,0 +1,64 @@
+Loading data...
+SPY 34324 rows  VIX 22283 rows
+Bar index: 34324 bars
+
+======================================================================
+SAFE Entry Bar Bearish-Body Gate Analysis
+Gate: skip BEARISH_REJECTION if signal bar has bullish body (close >= open)
+======================================================================
+
+Running baseline (all trades)...
+IS  total: n=124  pnl=+13,277
+    BEARISH_REJECTION only: n=80  pnl=+7,188
+OOS total: n=21  pnl=+1,770
+    BEARISH_REJECTION only: n=13  pnl=+622
+
+Classifying entry bar body direction...
+IS BEARISH_REJECTION (80 trades, unknown=0):
+  BEAR_BODY: n=  46  pnl=   +5,376  WR=70%  avg=   +117/t
+  BULL_BODY: n=  34  pnl=   +1,812  WR=44%  avg=    +53/t
+
+OOS BEARISH_REJECTION (13 trades, unknown=0):
+  BEAR_BODY: n=  12  pnl=   +1,046  WR=67%  avg=    +87/t
+  BULL_BODY: n=   1  pnl=     -424  WR=0%  avg=   -424/t
+
+--- Gate impact: skip BULL_BODY entries ---
+  IS  baseline pnl=+13,277  bull_body_pnl=+1,812
+  IS  gated pnl=+11,465  delta=-1,812  (removing 34 bull-body IS trades)
+  OOS baseline pnl=+1,770  bull_body_pnl=-424
+  OOS gated pnl=+2,194  delta=+424  (removing 1 bull-body OOS trades)
+  WF = (oos_d/n_oos)/(is_d/n_is) = -1.383
+
+--- Sub-window analysis ---
+  W1_2025H1: n_bull=11  bull_pnl=+655  gate_d=-655  -> HURT
+  W2_2025Q3: n_bull=7  bull_pnl=-209  gate_d=+209  -> HELP
+  W3_2025Q4: n_bull=6  bull_pnl=-239  gate_d=+239  -> HELP
+  W4_2026H1: n_bull=10  bull_pnl=+1,605  gate_d=-1,605  -> HURT
+
+--- Anchor check ---
+  4/29 (J winner): no IS trade on this date
+  5/01 (J winner): no IS trade on this date
+  5/04 (J winner): no IS trade on this date
+  5/05 (J loser): no IS trade on this date
+  5/06 (J loser): no IS trade on this date
+  5/07 (J loser): pnl=+84  entry_bar=BEAR_BODY  gate -> KEEP
+
+======================================================================
+VERDICT
+======================================================================
+  OOS_pos: True (oos_d=+424)
+  WF: -1.383 (gate: >=0.70): False
+  SW_hurt: 2/4 (gate: <=1): False
+  SW details: W1_2025H1:HURT(-655) | W2_2025Q3:HELP(+209) | W3_2025Q4:HELP(+239) | W4_2026H1:HURT(-1605)
+
+  REJECT: WF_FAIL (-1.383) | SW_FAIL (hurt=2)
+
+--- Bull-body IS trades: entry time distribution ---
+  10:xx: n=8
+  11:xx: n=9
+  12:xx: n=2
+  13:xx: n=3
+  14:xx: n=11
+  15:xx: n=1
+
+DONE.

@@ -1,0 +1,70 @@
+Loading data...
+SPY 34324 rows  VIX 22283 rows
+Running IS backtest...
+IS total: n=130
+Running OOS backtest...
+OOS total: n=21
+
+=== IS (n=130) ===
+  Matched 128/130 trades to signal bars
+  body_pct: median=52.4%, min=1.5%, max=100.0%
+  Winners body_pct median: 54.8%  (n=33)
+  Losers  body_pct median: 50.0%  (n=95)
+  Signal bar bearish (close<open): 74/128 (57.8%)
+  WR bearish body: 28.4%  WR bullish body: 22.2%
+
+       Body%      N     WR%    Avg P&L    Total P&L
+  --------------------------------------------------
+    0- 25%          35   14.3%       -102       -3,586
+   25- 40%          11   45.5%       +755       +8,300
+   40- 55%          23   30.4%       +252       +5,794
+   55- 70%          27   25.9%        +14         +384
+   70-100%          27   22.2%        +98       +2,635
+
+  Gate (require body_pct >= threshold):
+     Threshold   N_keep   N_skip    PnL_keep    PnL_skip   WR_keep
+  body>=30%          91       37     +16,967        -590     29.7%
+  body>=40%          82       46     +11,663      +4,714     28.0%
+  body>=50%          66       62     +12,073      +4,303     28.8%
+  body>=60%          51       77      +7,510      +8,866     29.4%
+  body>=70%          32       96      +5,484     +10,892     28.1%
+
+  Range $: median=0.53, min=0.02, max=2.86
+  range $0.00-$0.30: N=25  WR=28.0%  avg=+122
+  range $0.30-$0.50: N=28  WR=35.7%  avg=+388
+  range $0.50-$0.75: N=32  WR=21.9%  avg=-77
+  range $0.75-$1.00: N=22  WR=9.1%  avg=-67
+  range $1.00-$+: N=21  WR=33.3%  avg=+305
+
+=== OOS (n=21) ===
+  Matched 21/21 trades to signal bars
+  body_pct: median=67.2%, min=12.1%, max=93.1%
+  Winners body_pct median: 68.6%  (n=10)
+  Losers  body_pct median: 64.6%  (n=11)
+  Signal bar bearish (close<open): 9/21 (42.9%)
+  WR bearish body: 55.6%  WR bullish body: 41.7%
+
+       Body%      N     WR%    Avg P&L    Total P&L
+  --------------------------------------------------
+    0- 25%           1  100.0%     +1,240       +1,240
+   25- 40%           1    0.0%        -95          -95
+   40- 55%           4   25.0%        +72         +287
+   55- 70%           6   66.7%       +422       +2,529
+   70-100%           9   44.4%       +215       +1,939
+
+  Gate (require body_pct >= threshold):
+     Threshold   N_keep   N_skip    PnL_keep    PnL_skip   WR_keep
+  body>=30%          20        1      +4,660      +1,240     45.0%
+  body>=40%          19        2      +4,755      +1,145     47.4%
+  body>=50%          16        5      +4,203      +1,697     50.0%
+  body>=60%          15        6      +4,468      +1,432     53.3%
+  body>=70%           9       12      +1,939      +3,961     44.4%
+
+  Range $: median=1.15, min=0.34, max=3.94
+  range $0.30-$0.50: N=3  WR=0.0%  avg=-145
+  range $0.50-$0.75: N=2  WR=50.0%  avg=+1,217
+  range $0.75-$1.00: N=2  WR=100.0%  avg=+972
+  range $1.00-$+: N=14  WR=50.0%  avg=+140
+
+
+DONE. High body_pct = strong momentum signal bar. Check if it predicts wins.

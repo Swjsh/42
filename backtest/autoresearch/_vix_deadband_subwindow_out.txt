@@ -1,0 +1,73 @@
+==========================================================================================
+VIX_RISING_DEADBAND=0.15 SUB-WINDOW STABILITY CHECK
+==========================================================================================
+
+[FULL IS BASELINE]
+  BASELINE: n=244 pnl=-5118
+  CANDIDATE: n=239 pnl=-4429 delta=+689
+  Anchor check: OK
+
+[OOS BASELINE]
+  BASELINE: n=15 pnl=+2659
+  CANDIDATE: n=9 pnl=+3524 delta=+865
+  WF_norm: 20.425
+
+[IS SUB-WINDOW STABILITY]
+  Window                BASE_n  CAND_n   BASE_pnl   CAND_pnl    delta   verdict
+  --------------------------------------------------------------------------------
+  W1 Jan-Jun 2025           60      60      -1759      -1702      +57   NEUTRAL
+  W2 Jul-Dec 2025          110     109      +3254      +2258     -996      HURT
+  W3 Jan-Mar 2026           49      49       -505       -430      +75   NEUTRAL
+  W4 Apr-May 2026           24      20      -5217      -3665    +1553      HELP
+
+  HURT=1 HELP=1 NEUTRAL=2
+  Sub-window gate: FAIL (1 HURT windows)
+
+[BLOCKED IS TRADES DETAIL (trades in baseline NOT in candidate)]
+  2025-01-10 10:30:00-04:00 VIX=19.2 pnl=+396
+  2025-11-19 13:05:00 VIX=23.9 pnl=+996
+  2026-03-19 13:05:00 VIX=25.4 pnl=-1236
+  2026-04-09 11:00:00 VIX=20.7 pnl=-328
+  2026-04-10 09:45:00 VIX=19.0 pnl=-210
+  2026-04-13 09:35:00-04:00 VIX=20.6 pnl=-206
+  2026-04-13 10:05:00 VIX=20.2 pnl=-702
+  2026-04-22 12:35:00 VIX=19.4 pnl=-211
+  2026-04-27 13:30:00 VIX=18.5 pnl=+360
+  2026-04-28 09:55:00 VIX=18.7 pnl=-870
+  Total blocked: 10, avg_pnl=-201/trade
+
+[BLOCKED OOS TRADES DETAIL]
+  2026-05-13 09:45:00 VIX=18.3 pnl=-219
+  2026-05-13 10:55:00 VIX=17.9 pnl=+2044
+  2026-05-19 14:00:00 VIX=18.0 pnl=-176
+  2026-05-20 12:45:00 VIX=17.7 pnl=-232
+  2026-05-20 14:05:00 VIX=17.4 pnl=-226
+  2026-05-21 10:25:00 VIX=17.7 pnl=-1439
+  2026-05-21 11:35:00 VIX=17.4 pnl=-849
+  Total blocked: 7, avg_pnl=-157/trade
+
+[ROLLING OOS CHECK (is deadband=0.15 consistent across rolling windows?)]
+  OOS Window    BASE_n  CAND_n   BASE_pnl   CAND_pnl    delta   WF_norm
+  ---------------------------------------------------------------------------
+  OOS Jul-25        24      24       +594       +594       +0     0.000
+  OOS Sep-25        14      14      +1760      +1760       +0     0.000
+  OOS Nov-25        10       9      -1089      -2085     -996     0.000
+  OOS Jan-26        24      24       -624       -624       +0    -0.000
+  OOS Mar-26        15      15      -3004      -2929      +75    -0.496
+  OOS May-26        17      11      +3631      +4496     +865     6.121
+
+  Rolling OOS+: 2/6 (33%) [gate: >=60%]
+  Rolling gate: FAIL
+
+==========================================================================================
+FINAL VERDICT
+==========================================================================================
+
+  OOS positive: True (delta=+865)
+  WF >= 0.70: True (WF=20.425)
+  Anchor OK: True
+  Sub-window stable: False
+
+  CANDIDATE STATUS: FAIL - reject
+
+ANALYSIS COMPLETE.

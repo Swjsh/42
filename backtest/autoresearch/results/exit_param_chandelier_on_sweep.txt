@@ -1,0 +1,70 @@
+Loading data...
+SPY 34324 rows  VIX 22283 rows
+
+Exit Parameter Sweep - Safe account, chandelier ON baseline (production)
+Gates: OOS_positive AND WF>=0.70 AND SW_hurt<=1
+
+
+================================================================================
+SWEEP: tp1_premium_pct
+================================================================================
+Baseline (tp1_premium_pct=0.5):  IS n=124  pnl=$+13,277  |  OOS n=21  pnl=$+1,770
+
+  Value      IS_n      IS_pnl      IS_d  OOS_n     OOS_pnl     OOS_d       WF  SW_h  VERDICT
+--------------------------------------------------------------------------------------------
+  0.3         124     +12,579      -698     21      +1,770        +0   -0.000     1  OOS_NEG
+         SW: W1_2025H1:HELP(+206) | W2_2025Q3:HURT(-988) | W3_2025Q4:HELP(+84) | W4_2026H1:FLAT(+0)
+  0.4         124     +12,783      -494     21      +1,770        +0   -0.000     1  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:HURT(-494) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+  0.6         124     +12,899      -378     21      +1,770        +0   -0.000     1  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:HURT(-378) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+  0.7         124     +13,167      -110     21      +1,770        +0   -0.000     1  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:HURT(-110) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+  0.8         124     +12,275    -1,002     21      +1,770        +0   -0.000     1  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:HURT(-1,002) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+
+  No ratifiable candidate found. Baseline (tp1_premium_pct=0.5) remains optimal vs chandelier ON baseline.
+
+================================================================================
+SWEEP: tp1_qty_fraction
+================================================================================
+Baseline (tp1_qty_fraction=0.667):  IS n=124  pnl=$+13,277  |  OOS n=21  pnl=$+1,770
+
+  Value      IS_n      IS_pnl      IS_d  OOS_n     OOS_pnl     OOS_d       WF  SW_h  VERDICT
+--------------------------------------------------------------------------------------------
+  0.3         124     +12,676      -601     21      +1,770        +0   -0.000     1  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:HURT(-601) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+  0.4         124     +12,876      -401     21      +1,770        +0   -0.000     1  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:HURT(-401) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+  0.5         124     +12,977      -301     21      +1,770        +0   -0.000     1  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:HURT(-301) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+  0.6         124     +13,177      -100     21      +1,770        +0   -0.000     1  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:HURT(-100) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+  0.7         124     +13,277        +0     21      +1,770        +0      nan     0  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+  0.8         124     +13,478      +200     21      +1,770        +0    0.000     0  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:HELP(+200) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+
+  No ratifiable candidate found. Baseline (tp1_qty_fraction=0.667) remains optimal vs chandelier ON baseline.
+
+================================================================================
+SWEEP: runner_target
+================================================================================
+Baseline (runner_target_premium_pct=2.5):  IS n=124  pnl=$+13,277  |  OOS n=21  pnl=$+1,770
+
+  Value      IS_n      IS_pnl      IS_d  OOS_n     OOS_pnl     OOS_d       WF  SW_h  VERDICT
+--------------------------------------------------------------------------------------------
+  1.5         124     +13,277        +0     21      +1,770        +0      nan     0  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+  2.0         124     +13,277        +0     21      +1,770        +0      nan     0  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+  3.0         124     +13,277        +0     21      +1,770        +0      nan     0  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+  3.5         124     +13,277        +0     21      +1,770        +0      nan     0  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+  4.0         124     +13,277        +0     21      +1,770        +0      nan     0  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+
+  No ratifiable candidate found. Baseline (runner_target_premium_pct=2.5) remains optimal vs chandelier ON baseline.
+
+DONE.

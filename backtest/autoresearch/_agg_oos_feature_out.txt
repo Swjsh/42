@@ -1,0 +1,121 @@
+Loading data...
+SPY 34324 rows, VIX 22283 rows
+
+Running Aggressive baseline (IS + OOS)...
+
+AGGRESSIVE BASELINE: IS n=250 pnl=+9,429 | OOS n=27 pnl=+3,491
+
+OOS W=13 L=14
+
+=== OOS TRADE TABLE ===
+Date         Side  Trigger                 VIX Entry_T        $PnL Exit                            Hold
+--------------------------------------------------------------------------------------------------------------
+2026-05-08   P     level_reclaim          17.0 09:50          1130 TP1_THEN_RUNNER_RIBBON            90
+2026-05-12   P     trendline_only         18.6 12:45           110 TP1_THEN_RUNNER_RIBBON            20
+2026-05-13   P     level_reclaim          17.9 10:55          2044 TP1_THEN_RUNNER_TIME             290
+2026-05-14   P     trendline_only         17.4 14:00           -74 EXIT_ALL_PREMIUM_STOP             20
+2026-05-15   P     trendline_only         18.4 11:45           -80 EXIT_ALL_PREMIUM_STOP             20
+2026-05-18   P     trendline_only         18.4 10:00           190 TP1_THEN_RUNNER_RIBBON            15
+2026-05-18   P     level_rejection        18.6 11:05           486 TP1_THEN_RUNNER_RIBBON            35
+2026-05-18   P     level_rejection        18.7 14:05           714 TP1_THEN_RUNNER_RIBBON            60
+2026-05-19   P     level_reclaim          18.0 14:00          -176 EXIT_ALL_PREMIUM_STOP             20
+2026-05-20   P     level_reclaim          17.6 11:20          -265 EXIT_ALL_PREMIUM_STOP             10
+2026-05-20   P     level_reclaim          17.7 12:45          -232 EXIT_ALL_PREMIUM_STOP             10
+2026-05-21   P     conf_tl_lvl            17.4 11:35          -424 EXIT_ALL_PREMIUM_STOP             10
+2026-05-21   P     level_reclaim          17.0 13:25           744 TP1_THEN_RUNNER_RIBBON            85
+2026-05-22   P     trendline_only         16.5 13:00           -61 EXIT_ALL_PREMIUM_STOP             10
+2026-05-26   P     level_reclaim          15.9 09:45          -433 EXIT_ALL_PREMIUM_STOP             10
+2026-05-28   P     level_reclaim          15.4 10:15          -320 EXIT_ALL_PREMIUM_STOP             10
+2026-06-02   P     trendline_only         16.1 11:00           -82 EXIT_ALL_RIBBON_FLIP_BACK          5
+2026-06-03   P     level_rejection        16.6 09:45          -190 EXIT_ALL_PREMIUM_STOP             15
+2026-06-04   P     trendline_only         15.7 10:30          -176 EXIT_ALL_PREMIUM_STOP             35
+2026-06-05   P     level_rejection        16.3 09:40            69 TP1_THEN_RUNNER_BE_STOP           30
+2026-06-08   P     conf_tl_lvl            18.5 13:30            67 TP1_THEN_RUNNER_BE_STOP           20
+2026-06-09   P     level_rejection        19.8 10:45          -193 EXIT_ALL_PREMIUM_STOP             10
+2026-06-10   P     level_rejection        21.9 11:10           100 TP1_THEN_RUNNER_BE_STOP           10
+2026-06-11   P     trendline_only         21.0 10:05           408 EXIT_ALL_RIBBON_FLIP_BACK          5
+2026-06-11   P     level_rejection        22.3 10:55           105 TP1_THEN_RUNNER_BE_STOP           10
+2026-06-12   P     trendline_only         18.2 14:45           -19 EXIT_ALL_RIBBON_FLIP_BACK          5
+2026-06-16   P     trendline_only         15.9 11:35            49 EXIT_ALL_RIBBON_FLIP_BACK          5
+
+=== DIRECTION ===
+  BEAR (PUT): n=27 W=13 L=14 WR=48% pnl=+3,491 avg=+129
+
+=== TRIGGER CATEGORY ===
+  level_reclaim: n=8 W=3 L=5 WR=38% pnl=+2,492 avg=+311
+  level_rejection: n=7 W=5 L=2 WR=71% pnl=+1,091 avg=+156
+  trendline_only: n=10 W=4 L=6 WR=40% pnl=+266 avg=+27
+  conf_tl_lvl: n=2 W=1 L=1 WR=50% pnl=-357 avg=-179
+
+=== TRIGGER: WINNERS ===
+  level_rejection: n=5 W=5 L=0 WR=100% pnl=+1,474 avg=+295
+  trendline_only: n=4 W=4 L=0 WR=100% pnl=+757 avg=+189
+  level_reclaim: n=3 W=3 L=0 WR=100% pnl=+3,918 avg=+1306
+  conf_tl_lvl: n=1 W=1 L=0 WR=100% pnl=+67 avg=+67
+
+=== TRIGGER: LOSERS ===
+  trendline_only: n=6 W=0 L=6 WR=0% pnl=-491 avg=-82
+  level_reclaim: n=5 W=0 L=5 WR=0% pnl=-1,426 avg=-285
+  level_rejection: n=2 W=0 L=2 WR=0% pnl=-383 avg=-191
+  conf_tl_lvl: n=1 W=0 L=1 WR=0% pnl=-424 avg=-424
+
+=== VIX BUCKET ===
+  VIX 15-17: n=9 W=3 L=6 WR=33% pnl=-400 avg=-44
+  VIX 17-20: n=15 W=7 L=8 WR=47% pnl=+3,279 avg=+219
+  VIX 20-25: n=3 W=3 L=0 WR=100% pnl=+613 avg=+204
+
+=== VIX BUCKET: WINNERS ===
+  VIX 15-17: n=3 W=3 L=0 WR=100% pnl=+862 avg=+287
+  VIX 17-20: n=7 W=7 L=0 WR=100% pnl=+4,741 avg=+677
+  VIX 20-25: n=3 W=3 L=0 WR=100% pnl=+613 avg=+204
+
+=== VIX BUCKET: LOSERS ===
+  VIX 15-17: n=6 W=0 L=6 WR=0% pnl=-1,262 avg=-210
+  VIX 17-20: n=8 W=0 L=8 WR=0% pnl=-1,463 avg=-183
+
+=== TIME OF DAY ===
+  09:35-11:00: n=11 W=6 L=5 WR=55% pnl=+2,634 avg=+239
+  11:00-13:00: n=9 W=4 L=5 WR=44% pnl=-339 avg=-38
+  13:00-15:40: n=7 W=3 L=4 WR=43% pnl=+1,196 avg=+171
+
+=== EXIT REASON ===
+  ExitReason.TP1_THEN_RUNNER_RIBBON: n=6 W=6 L=0 WR=100% pnl=+3,374 avg=+562
+  ExitReason.TP1_THEN_RUNNER_TIME: n=1 W=1 L=0 WR=100% pnl=+2,044 avg=+2044
+  ExitReason.EXIT_ALL_RIBBON_FLIP_BAC: n=4 W=2 L=2 WR=50% pnl=+356 avg=+89
+  ExitReason.TP1_THEN_RUNNER_BE_STOP: n=4 W=4 L=0 WR=100% pnl=+341 avg=+85
+  ExitReason.EXIT_ALL_PREMIUM_STOP: n=12 W=0 L=12 WR=0% pnl=-2,624 avg=-219
+
+=== EXIT REASON: WINNERS ===
+  ExitReason.TP1_THEN_RUNNER_RIBBON: n=6 W=6 L=0 WR=100% pnl=+3,374 avg=+562
+  ExitReason.TP1_THEN_RUNNER_BE_STOP: n=4 W=4 L=0 WR=100% pnl=+341 avg=+85
+  ExitReason.EXIT_ALL_RIBBON_FLIP_BAC: n=2 W=2 L=0 WR=100% pnl=+457 avg=+228
+  ExitReason.TP1_THEN_RUNNER_TIME: n=1 W=1 L=0 WR=100% pnl=+2,044 avg=+2044
+
+=== EXIT REASON: LOSERS ===
+  ExitReason.EXIT_ALL_PREMIUM_STOP: n=12 W=0 L=12 WR=0% pnl=-2,624 avg=-219
+  ExitReason.EXIT_ALL_RIBBON_FLIP_BAC: n=2 W=0 L=2 WR=0% pnl=-101 avg=-50
+
+=== HOLD TIME (MINUTES) ===
+  Winners avg=52m median=20m range=5-290m
+  Losers  avg=14m median=10m range=5-35m
+
+=== LEVEL_RECLAIM vs LEVEL_REJECTION (OOS) ===
+  level_reclaim (any): n=8 W=3 L=5 WR=38% pnl=+2,492 avg=+311
+  level_rejection (any): n=9 W=6 L=3 WR=67% pnl=+734 avg=+82
+    level_reclaim avg_winner=+1306, avg_loser=-285, expectancy=+311/trade
+    level_rejection avg_winner=+257, avg_loser=-269, expectancy=+82/trade
+
+=== IS TRIGGER COMPOSITION (for cross-reference) ===
+  IS level_reclaim: n=45 W=12 L=33 WR=27% pnl=+5,019 avg=+112
+  IS level_rejection: n=16 W=9 L=7 WR=56% pnl=+4,751 avg=+297
+  IS conf_tl_lvl: n=6 W=3 L=3 WR=50% pnl=+3,423 avg=+570
+  IS trendline_only: n=183 W=61 L=122 WR=33% pnl=-3,763 avg=-21
+
+=== ENTRY PREMIUM BUCKET (OOS) ===
+  entry_prem <$1.00: n=2 W=0 L=2 WR=0% pnl=-101 avg=-50
+  entry_prem $1-2: n=10 W=7 L=3 WR=70% pnl=+348 avg=+35
+  entry_prem $2-4: n=15 W=6 L=9 WR=40% pnl=+3,243 avg=+216
+
+=== AGGRESSIVE OOS FEATURE ANALYSIS COMPLETE ===
+OOS: n=27 W=13 L=14 WR=48% pnl=+3,491
+IS:  n=250 pnl=+9,429

@@ -68,6 +68,23 @@ MAX_BARS_AWAIT_RETEST = 8             # 8 × 5min = 40 min wait window for retes
 # Candidate: strategy/candidates/2026-05-21-orb-direction-filter.md
 ORB_DIRECTION_FILTER: Optional[str] = "long"
 
+# Futures mode: all dollar-based thresholds need per-instrument scaling.
+# SPY ≈ $700. MNQ ≈ 21000 (scale ≈ 30x). MES ≈ 5500 (scale ≈ 8x).
+# Set via set_futures_range_scale(approx_price / SPY_REFERENCE).
+# None = SPY mode (production default — never changed by options engine).
+_SPY_REFERENCE: float = 700.0
+_FUTURES_RANGE_SCALE: Optional[float] = None
+
+
+def set_futures_range_scale(scale: Optional[float]) -> None:
+    """Scale all dollar-based ORB thresholds for futures bars.
+
+    scale = current_instrument_price / 700 (SPY reference).
+    Pass None to restore SPY mode (safe to call between instruments in tests).
+    """
+    global _FUTURES_RANGE_SCALE
+    _FUTURES_RANGE_SCALE = scale
+
 # Narrow-OR quality gate (ORB_NARROW_OR_GATE — ratified 2026-05-21):
 # Walk-forward OOS/IS Sharpe ratio=1.149 PASS. Real-fills N=22 OPRA cases WR=81.8%.
 # Narrow (or_range<2.00): N=274, WR=88.1%, P&L=+$4,597. Q2-2026 concentration: 85%→46%.
@@ -101,15 +118,20 @@ def compute_opening_range(day_bars: pd.DataFrame) -> Optional[OpeningRange]:
     high = float(or_bars["high"].max())
     low = float(or_bars["low"].min())
     rng = high - low
+    # Scale dollar gates for futures mode (SPY gate x price/700)
+    scale = _FUTURES_RANGE_SCALE if _FUTURES_RANGE_SCALE is not None else 1.0
+    eff_min = MIN_RANGE_DOLLARS * scale
+    eff_max = MAX_OR_RANGE * scale if MAX_OR_RANGE is not None else None
+    eff_max_raw = MAX_RANGE_DOLLARS * scale
     # Two-tier upper bound:
     #   MAX_OR_RANGE active  → strict less-than gate (or_range < 2.00, so 2.00 is rejected)
     #   MAX_OR_RANGE = None  → original structural limit (or_range > 5.00 = gappy/news day)
     #   The two branches use different operators intentionally — do not unify.
-    if MAX_OR_RANGE is not None:
-        if rng < MIN_RANGE_DOLLARS or rng >= MAX_OR_RANGE:
+    if eff_max is not None:
+        if rng < eff_min or rng >= eff_max:
             return None
     else:
-        if rng < MIN_RANGE_DOLLARS or rng > MAX_RANGE_DOLLARS:
+        if rng < eff_min or rng > eff_max_raw:
             return None
     return OpeningRange(
         high=high, low=low, range=rng,
@@ -213,9 +235,12 @@ def detect_orb_break(
         return None
 
     elif s == "WAITING_RETEST_LONG":
+        scale = _FUTURES_RANGE_SCALE if _FUTURES_RANGE_SCALE is not None else 1.0
+        inval = INVALIDATION_DOLLARS * scale
+        retest = RETEST_TOLERANCE * scale
         state["bars_since_breakout"] += 1
         # Invalidation: bar closes back inside OR by > INVALIDATION_DOLLARS
-        if bar_close < (or_data.high - INVALIDATION_DOLLARS):
+        if bar_close < (or_data.high - inval):
             state["state"] = "NEUTRAL"
             state["direction"] = None
             return None
@@ -225,8 +250,8 @@ def detect_orb_break(
             state["direction"] = None
             return None
         # Retest detected: bar low touches within RETEST_TOLERANCE of ORH from above
-        retest_zone_top = or_data.high + RETEST_TOLERANCE
-        retest_zone_bot = or_data.high - RETEST_TOLERANCE
+        retest_zone_top = or_data.high + retest
+        retest_zone_bot = or_data.high - retest
         if (bar_low <= retest_zone_top) and (bar_low >= retest_zone_bot - 0.10):
             # Held the level (close > ORH still) AND bar is green = RETEST_HELD
             if bar_close >= or_data.high and bar_close > bar_open:
@@ -268,8 +293,11 @@ def detect_orb_break(
         return None
 
     elif s == "WAITING_RETEST_SHORT":
+        scale = _FUTURES_RANGE_SCALE if _FUTURES_RANGE_SCALE is not None else 1.0
+        inval = INVALIDATION_DOLLARS * scale
+        retest = RETEST_TOLERANCE * scale
         state["bars_since_breakout"] += 1
-        if bar_close > (or_data.low + INVALIDATION_DOLLARS):
+        if bar_close > (or_data.low + inval):
             state["state"] = "NEUTRAL"
             state["direction"] = None
             return None
@@ -278,8 +306,8 @@ def detect_orb_break(
             state["direction"] = None
             return None
         # Retest from below: bar high touches within RETEST_TOLERANCE of ORL from below
-        retest_zone_top = or_data.low + RETEST_TOLERANCE
-        retest_zone_bot = or_data.low - RETEST_TOLERANCE
+        retest_zone_top = or_data.low + retest
+        retest_zone_bot = or_data.low - retest
         if (bar_high >= retest_zone_bot) and (bar_high <= retest_zone_top + 0.10):
             if bar_close <= or_data.low and bar_close < bar_open:
                 bearish_bias = sma10 < sma50 if not (pd.isna(sma10) or pd.isna(sma50)) else None

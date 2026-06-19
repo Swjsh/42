@@ -1,0 +1,46 @@
+Loading data...
+SPY 34324 rows  VIX 22283 rows
+
+================================================================================
+ACCOUNT: SAFE  (baseline runner_target=2.5)
+================================================================================
+Baseline (runner=2.5):  IS n=130  pnl=$+16,174  |  OOS n=21  pnl=$+5,900
+
+ Runner    IS_n      IS_pnl      IS_d   OOS_n     OOS_pnl     OOS_d        WF  SW_hurt  VERDICT
+--------------------------------------------------------------------------------------------------------------
+   1.50     130     +16,862      +689      21      +5,814       -86    -0.773        0  OOS_NEG
+         SW: W1_2025H1:FLAT(+19) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:HELP(+669)
+   2.00     130     +15,958      -216      21      +5,900        +0    -0.000        1  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:HURT(-216)
+   2.50     130     +16,174        +0      21      +5,900        +0       nan        0  BASELINE
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+   3.00     130     +15,824      -350      21      +5,900        +0    -0.000        1  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:HURT(-350)
+   3.50     130     +15,824      -350      21      +5,900        +0    -0.000        1  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:HURT(-350)
+   4.00     130     +15,824      -350      21      +5,900        +0    -0.000        1  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:HURT(-350)
+
+  No ratifiable candidate found. Baseline (2.5) remains optimal.
+
+================================================================================
+ACCOUNT: AGGRESSIVE  (baseline runner_target=5.0)
+================================================================================
+Baseline (runner=5.0):  IS n=133  pnl=$+18,036  |  OOS n=21  pnl=$+3,131
+
+ Runner    IS_n      IS_pnl      IS_d   OOS_n     OOS_pnl     OOS_d        WF  SW_hurt  VERDICT
+--------------------------------------------------------------------------------------------------------------
+   2.00     133     +18,036        +0      21      +3,131        +0       nan        0  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+   2.50     133     +18,036        +0      21      +3,131        +0       nan        0  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+   3.00     133     +18,036        +0      21      +3,131        +0       nan        0  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+   3.50     133     +18,036        +0      21      +3,131        +0       nan        0  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+   4.00     133     +18,036        +0      21      +3,131        +0       nan        0  OOS_NEG
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+   5.00     133     +18,036        +0      21      +3,131        +0       nan        0  BASELINE
+         SW: W1_2025H1:FLAT(+0) | W2_2025Q3:FLAT(+0) | W3_2025Q4:FLAT(+0) | W4_2026H1:FLAT(+0)
+
+  No ratifiable candidate found. Baseline (5.0) remains optimal.

@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "C:\Users\jackw\Desktop\42\backtest\autoresearch\tighter_stop_anchor_check.py", line 130, in <module>
+    anchor_ok = all(by_date_10.get(d, (None,None,0.0))[2] >= r[2]*0.90
+                    for d, n, r in [(r[0], r[1], r[2]) for r in rows_20])
+  File "C:\Users\jackw\Desktop\42\backtest\autoresearch\tighter_stop_anchor_check.py", line 130, in <genexpr>
+    anchor_ok = all(by_date_10.get(d, (None,None,0.0))[2] >= r[2]*0.90
+                                                             ~^^^
+TypeError: 'float' object is not subscriptable

@@ -1,0 +1,19 @@
+====================================================================================================
+AGG f9_vol_mult SWEEP (C14-correct baseline)
+Prior sweep on WRONG baseline (tp1=0.30 default, IS pnl=-5118) is INVALID.
+Correct baseline: IS n=270 pnl=+19,566 | OOS n=28 pnl=+2,590
+====================================================================================================
+
+[Baseline: f9_vol_mult=0.7]...
+  BASELINE: IS n=270 pnl=+19,566 | OOS n=28 pnl=+2,590
+
+[Sweep: f9_vol_mult candidates = [0.5, 1.0, 1.3]]
+    f9_vol    IS_n      IS_pnl   OOS_n     OOS_pnl    IS_delta   OOS_delta        WF
+  ------------------------------------------------------------------------------------------
+       0.5     278     +21,622      28      +2,590      +2,056          +0     0.000
+       1.0     252     +19,076      23      +1,302        -489      -1,288    25.379
+       1.3     236     +24,026      22      +1,850      +4,460        -740    -1.600
+
+  No OOS-positive candidate. AGG f9_vol_mult=0.7 CONFIRMED.
+
+ANALYSIS COMPLETE.

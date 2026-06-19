@@ -1,0 +1,56 @@
+====================================================================================================
+C14 FINAL BATCH: ribbon_flip_lookback_bars / vix_rising_deadband / vix_hard_cap_bear
+====================================================================================================
+
+[BASELINE]
+  IS n=244 pnl=-5118
+  OOS n=15 pnl=+2659
+
+====================================================================================================
+SWEEP: ribbon_flip_lookback_bars (production=3)
+  How many bars back a ribbon flip counts as 'recent'. Larger = wider time window to enter after flip.
+         value    IS_n    IS_pnl   IS_delta  OOS_n   OOS_pnl  OOS_delta   WF_norm  anchor  Verdict
+  ------------------------------------------------------------------------------------------------
+             1     233     -3644      +1474     14     +1232      -1427   -15.750    FAIL  FAIL 
+             2     237     -5168        -50     15     +2659         +0    -0.000    FAIL  FAIL 
+             3     244     -5118         +0     15     +2659         +0     0.000      OK  FAIL <-- prod
+             4     248     -4591       +527     15     +2659         +0     0.000      OK  FAIL 
+             5     251     -4540       +578     15     +2659         +0     0.000      OK  FAIL 
+             7     259     -3125      +1992     15     +2659         +0     0.000      OK  FAIL 
+            10     261     -3000      +2118     15     +2659         +0     0.000      OK  FAIL 
+
+====================================================================================================
+SWEEP: vix_rising_deadband (production=0.05)
+  Minimum bar-to-bar VIX change classified as 'rising'. Below deadband = 'flat'. Larger = suppress more VIX micro-noise.
+         value    IS_n    IS_pnl   IS_delta  OOS_n   OOS_pnl  OOS_delta   WF_norm  anchor  Verdict
+  ------------------------------------------------------------------------------------------------
+          0.01     251     -6518      -1400     15     +2558       -101     1.176      OK  FAIL 
+          0.02     249     -6023       -906     15     +2558       -101     1.818      OK  FAIL 
+          0.05     244     -5118         +0     15     +2659         +0     0.000      OK  FAIL <-- prod
+           0.1     241     -4939       +179     11     +1859       -800   -72.763      OK  FAIL 
+          0.15     239     -4429       +689      9     +3524       +865    20.425      OK  PASS 
+           0.2     235     -4402       +716      8     +2077       -582   -13.226      OK  FAIL 
+           0.3     228       -10      +5107      5     +4850      +2191     6.978      OK  PASS 
+
+====================================================================================================
+SWEEP: vix_hard_cap_bear (production=999.0)
+  Block BEAR entries when VIX > cap. Default=999 (off). Tests whether blocking Liberation Day panic (VIX~52) improves performance.
+         value    IS_n    IS_pnl   IS_delta  OOS_n   OOS_pnl  OOS_delta   WF_norm  anchor  Verdict
+  ------------------------------------------------------------------------------------------------
+          30.0     243     -6709      -1591     15     +2659         +0    -0.000      OK  FAIL 
+          35.0     244     -5118         +0     15     +2659         +0     0.000      OK  FAIL 
+          40.0     244     -5118         +0     15     +2659         +0     0.000      OK  FAIL 
+          45.0     244     -5118         +0     15     +2659         +0     0.000      OK  FAIL 
+          50.0     244     -5118         +0     15     +2659         +0     0.000      OK  FAIL 
+          60.0     244     -5118         +0     15     +2659         +0     0.000      OK  FAIL 
+         999.0     244     -5118         +0     15     +2659         +0     0.000      OK  FAIL <-- prod
+
+====================================================================================================
+SUMMARY
+====================================================================================================
+
+  PASS candidates (2 total):
+    vix_rising_deadband=0.15: IS_delta=+689 OOS_delta=+865 WF=20.425
+    vix_rising_deadband=0.3: IS_delta=+5107 OOS_delta=+2191 WF=6.978
+
+ANALYSIS COMPLETE.

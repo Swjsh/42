@@ -1,0 +1,111 @@
+==========================================================================================
+AGGRESSIVE OOS DEEP DIVE: 2026-05-08 to 2026-06-16
+==========================================================================================
+
+OVERALL: n=28  WR=46.4%  total_pnl=+3272  avg=+117/trade
+
+Date          Time      Side  VIX    Triggers                        Hold   Exit               P&L
+----------------------------------------------------------------------------------------------------
+2026-05-08    09:50:00  P     17.0   level_reclaim                   90m    ExitReason.TP1_THEN_RUNNER_RIBBON     +1130
+2026-05-12    12:45:00  P     18.6   TL-only                         20m    ExitReason.TP1_THEN_RUNNER_RIBBON      +110
+2026-05-13    09:45:00  P     18.3   confluence                      10m    ExitReason.EXIT_ALL_PREMIUM_STOP      -219
+2026-05-13    10:55:00  P     17.9   confluence                      290m   ExitReason.TP1_THEN_RUNNER_TIME     +2044
+2026-05-14    14:00:00  P     17.4   TL-only                         20m    ExitReason.EXIT_ALL_PREMIUM_STOP       -74
+2026-05-15    11:45:00  P     18.4   TL-only                         20m    ExitReason.EXIT_ALL_PREMIUM_STOP       -80
+2026-05-18    10:00:00  P     18.4   TL-only                         15m    ExitReason.TP1_THEN_RUNNER_RIBBON      +190
+2026-05-18    11:05:00  P     18.6   confluence                      35m    ExitReason.TP1_THEN_RUNNER_RIBBON      +486
+2026-05-18    14:05:00  P     18.7   level_rejection                 60m    ExitReason.TP1_THEN_RUNNER_RIBBON      +714
+2026-05-19    14:00:00  P     18.0   confluence                      20m    ExitReason.EXIT_ALL_PREMIUM_STOP      -176
+2026-05-20    11:20:00  P     17.6   confluence                      10m    ExitReason.EXIT_ALL_PREMIUM_STOP      -265
+2026-05-20    12:45:00  P     17.7   confluence                      10m    ExitReason.EXIT_ALL_PREMIUM_STOP      -232
+2026-05-21    11:35:00  P     17.4   confluence                      10m    ExitReason.EXIT_ALL_PREMIUM_STOP      -424
+2026-05-21    13:25:00  P     17.0   confluence                      85m    ExitReason.TP1_THEN_RUNNER_RIBBON      +744
+2026-05-22    13:00:00  P     16.5   TL-only                         10m    ExitReason.EXIT_ALL_PREMIUM_STOP       -61
+2026-05-26    09:45:00  P     15.9   level_reclaim                   10m    ExitReason.EXIT_ALL_PREMIUM_STOP      -433
+2026-05-28    10:15:00  P     15.4   confluence                      10m    ExitReason.EXIT_ALL_PREMIUM_STOP      -320
+2026-06-02    11:00:00  P     16.1   TL-only                         5m     ExitReason.EXIT_ALL_RIBBON_FLIP_BACK       -82
+2026-06-03    09:45:00  P     16.6   confluence                      15m    ExitReason.EXIT_ALL_PREMIUM_STOP      -190
+2026-06-04    10:30:00  P     15.7   TL-only                         35m    ExitReason.EXIT_ALL_PREMIUM_STOP      -176
+2026-06-05    09:40:00  P     16.3   confluence                      30m    ExitReason.TP1_THEN_RUNNER_BE_STOP       +69
+2026-06-08    13:30:00  P     18.5   confluence                      20m    ExitReason.TP1_THEN_RUNNER_BE_STOP       +67
+2026-06-09    10:45:00  P     19.8   confluence                      10m    ExitReason.EXIT_ALL_PREMIUM_STOP      -193
+2026-06-10    11:10:00  P     21.9   confluence                      10m    ExitReason.TP1_THEN_RUNNER_BE_STOP      +100
+2026-06-11    10:05:00  P     21.0   TL-only                         5m     ExitReason.EXIT_ALL_RIBBON_FLIP_BACK      +408
+2026-06-11    10:55:00  P     22.3   confluence                      10m    ExitReason.TP1_THEN_RUNNER_BE_STOP      +105
+2026-06-12    14:45:00  P     18.2   TL-only                         5m     ExitReason.EXIT_ALL_RIBBON_FLIP_BACK       -19
+2026-06-16    11:35:00  P     15.9   TL-only                         5m     ExitReason.EXIT_ALL_RIBBON_FLIP_BACK       +49
+
+============================================================
+TOP 3 WINS
+============================================================
+
+  #1: 2026-05-13 10:55:00 | pnl=+2044 | triggers=['level_reclaim', 'confluence']
+     VIX=17.9  side=P  hold=290m  exit=ExitReason.TP1_THEN_RUNNER_TIME
+     entry_premium=2.40  tp1_premium=3.12  runner_premium=6.43
+
+  #2: 2026-05-08 09:50:00 | pnl=+1130 | triggers=['level_reclaim', 'ribbon_flip']
+     VIX=17.0  side=P  hold=90m  exit=ExitReason.TP1_THEN_RUNNER_RIBBON
+     entry_premium=2.69  tp1_premium=3.50  runner_premium=2.69
+
+  #3: 2026-05-21 13:25:00 | pnl=+744 | triggers=['level_reclaim', 'ribbon_flip', 'confluence']
+     VIX=17.0  side=P  hold=85m  exit=ExitReason.TP1_THEN_RUNNER_RIBBON
+     entry_premium=2.48  tp1_premium=3.22  runner_premium=2.48
+
+============================================================
+TOP 3 LOSSES
+============================================================
+
+  #1: 2026-05-26 09:45:00 | pnl=-433 | triggers=['level_reclaim', 'ribbon_flip']
+     VIX=15.9  side=P  hold=10m  exit=ExitReason.EXIT_ALL_PREMIUM_STOP
+     entry_premium=2.46  max_adv=1.89  max_fav=2.71
+
+  #2: 2026-05-21 11:35:00 | pnl=-424 | triggers=['level_rejection', 'confluence', 'trendline_rejection']
+     VIX=17.4  side=P  hold=10m  exit=ExitReason.EXIT_ALL_PREMIUM_STOP
+     entry_premium=2.83  max_adv=1.76  max_fav=2.83
+
+  #3: 2026-05-28 10:15:00 | pnl=-320 | triggers=['level_reclaim', 'ribbon_flip', 'confluence', 'sequence_reclaim']
+     VIX=15.4  side=P  hold=10m  exit=ExitReason.EXIT_ALL_PREMIUM_STOP
+     entry_premium=2.67  max_adv=1.84  max_fav=2.72
+
+============================================================
+TRIGGER COMPOSITION
+============================================================
+  Trigger                              n      WR       avg      total
+  -----------------------------------------------------------------
+  confluence                          15   46.7%      +106      +1596
+  level_rejection                      1  100.0%      +714       +714
+  level_reclaim                        2   50.0%      +348       +697
+  TL-only                             10   40.0%       +27       +266
+
+============================================================
+TIME-OF-DAY BREAKDOWN
+============================================================
+  Bucket                   n      WR       avg      total
+  -------------------------------------------------------
+  09:35-10:30              8   50.0%       +79       +634
+  10:30-11:30              8   50.0%      +252      +2019
+  11:30-14:00              8   50.0%       +22       +173
+  14:00+                   4   25.0%      +111       +446
+
+============================================================
+VIX BUCKET BREAKDOWN
+============================================================
+  VIX            n      WR       avg      total
+  ---------------------------------------------
+  <17            9   33.3%       -44       -400
+  17-20         16   43.8%      +191      +3059
+  20-25          3  100.0%      +204       +613
+  25+            0    0.0%        +0         +0
+
+============================================================
+EXIT REASON BREAKDOWN
+============================================================
+  Exit                     n      WR       avg      total
+  -------------------------------------------------------
+  ExitReason.TP1_THEN_RUNNER_RIBBON     6  100.0%      +562      +3374
+  ExitReason.TP1_THEN_RUNNER_TIME     1  100.0%     +2044      +2044
+  ExitReason.EXIT_ALL_RIBBON_FLIP_BACK     4   50.0%       +89       +356
+  ExitReason.TP1_THEN_RUNNER_BE_STOP     4  100.0%       +85       +341
+  ExitReason.EXIT_ALL_PREMIUM_STOP    13    0.0%      -219      -2843
+
+ANALYSIS COMPLETE.

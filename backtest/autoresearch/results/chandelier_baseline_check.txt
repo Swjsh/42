@@ -1,0 +1,37 @@
+Loading data...
+SPY 34324 rows  VIX 22283 rows
+
+Comparing chandelier OFF (current sweep baselines) vs ON (production config)
+Small IS delta (<$500) + small OOS delta (<$200) = backtest gap is acceptable
+
+================================================================================
+ACCOUNT: SAFE
+================================================================================
+  Config        IS_n  IS_pnl       OOS_n  OOS_pnl
+  Chandelier OFF   130  $   +16,174    21  $    +5,900
+  Chandelier ON    124  $   +13,277    21  $    +1,770
+  Delta (ON-OFF)        $    -2,896        $    -4,131
+
+  VERDICT: LARGE_DELTA — sweeps should be rerun with chandelier ON for production-accurate results
+
+  Sub-window breakdown (chandelier ON vs OFF):
+    W1_2025H1: OFF=$-182  ON=$+3,752  d=$+3,934
+    W2_2025Q3: OFF=$+8,820  ON=$+3,566  d=$-5,254
+    W3_2025Q4: OFF=$+1,665  ON=$+2,646  d=$+981
+    W4_2026H1: OFF=$+5,871  ON=$+3,314  d=$-2,557
+
+================================================================================
+ACCOUNT: AGGRESSIVE
+================================================================================
+  Config        IS_n  IS_pnl       OOS_n  OOS_pnl
+  Chandelier OFF   133  $   +18,036    21  $    +3,131
+  Chandelier ON    124  $   +13,029    21  $    +1,897
+  Delta (ON-OFF)        $    -5,007        $    -1,234
+
+  VERDICT: LARGE_DELTA — sweeps should be rerun with chandelier ON for production-accurate results
+
+  Sub-window breakdown (chandelier ON vs OFF):
+    W1_2025H1: OFF=$+1,651  ON=$+4,002  d=$+2,351
+    W2_2025Q3: OFF=$+8,962  ON=$+2,691  d=$-6,271
+    W3_2025Q4: OFF=$+2,723  ON=$+2,758  d=$+35
+    W4_2026H1: OFF=$+4,700  ON=$+3,577  d=$-1,123

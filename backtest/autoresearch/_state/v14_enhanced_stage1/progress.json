@@ -1,16 +1,15 @@
 {
-  "started_at": "2026-06-15T00:14:55.231374",
-  "deadline_at": "2026-06-15T08:14:55.231374",
+  "started_at": "2026-06-18T21:00:44.765251",
+  "deadline_at": "2026-06-19T05:00:44.765251",
   "total_combos": 540,
-  "completed": 540,
-  "passed_floors": 72,
-  "rejected": 468,
-  "keepers": 1,
-  "best_edge_capture": 45.6,
-  "best_wide_pnl": 26601.2,
-  "current_pid": 22916,
+  "completed": 275,
+  "passed_floors": 28,
+  "rejected": 247,
+  "keepers": 4,
+  "best_edge_capture": 1176.0,
+  "best_wide_pnl": 17798.23,
+  "current_pid": 8504,
   "workers": 4,
-  "last_update": "2026-06-15T02:22:48.119214",
-  "status": "completed",
-  "completed_at": "2026-06-15T02:22:48.135280"
+  "last_update": "2026-06-18T22:12:01.321575",
+  "status": "running"
 }

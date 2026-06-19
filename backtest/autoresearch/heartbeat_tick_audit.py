@@ -188,6 +188,14 @@ def classify_tick(tick: Tick, rth_bars: list[dict]) -> dict:
     last_closed = find_last_closed_bar(tick.fire_at, rth_bars)
     in_prog = find_inprogress_bar(tick.fire_at, rth_bars)
 
+    # How many minutes has elapsed since the last CSV bar closed?
+    # Large lag (>30min) means the CSV itself is stale — the heartbeat read live TV data
+    # that simply isn't in the backtest CSV yet (L90/L91 pattern). A $2+ divergence in
+    # that scenario reflects a data-source gap, not a heartbeat closed-bar bug.
+    csv_lag_minutes: float | None = None
+    if last_closed is not None:
+        csv_lag_minutes = (tick.fire_at - last_closed["close_dt"]).total_seconds() / 60
+
     row = {
         "tick_id": tick.idx,
         "fire_at": tick.fire_at.strftime("%H:%M:%S"),
@@ -203,6 +211,7 @@ def classify_tick(tick: Tick, rth_bars: list[dict]) -> dict:
         "ribbon_cents": tick.ribbon_claim_cents,
         "bear_score": tick.bear_score,
         "bull_score": tick.bull_score,
+        "csv_lag_minutes": round(csv_lag_minutes, 1) if csv_lag_minutes is not None else None,
     }
 
     if tick.spy_claim is None or last_closed is None:
@@ -247,11 +256,14 @@ def classify_tick(tick: Tick, rth_bars: list[dict]) -> dict:
         else:
             # spy= not aligned to either closed bar OR in-progress bar → stale-cache territory.
             # CRITICAL for decision-changing actions always; for HOLD/HOLD_DEV only when the
-            # divergence is large enough to represent a genuine stale-cache read (>$2.00),
-            # not just the normal $0.50–$1.50 range where live-quote vs closed-bar differ.
+            # divergence is large AND the CSV itself is current (<30min lag).
+            # When csv_lag_minutes > 30, the CSV data source is stale (L90/L91 pattern) —
+            # the heartbeat correctly read live TV prices that simply weren't in the CSV yet.
+            # That's a data-source gap, not a closed-bar-read bug. Don't inflate CRITICAL.
+            csv_is_stale = csv_lag_minutes is not None and csv_lag_minutes > 30
             if action in DECISION_CHANGING_ACTIONS:
                 cls = "MISALIGNED-CRITICAL"
-            elif abs(div_to_closed) > 2.00:
+            elif abs(div_to_closed) > 2.00 and not csv_is_stale:
                 cls = "MISALIGNED-CRITICAL"
             else:
                 cls = "MISALIGNED-BENIGN"
@@ -341,7 +353,7 @@ def run_audit(date_str: str, output_dir: Path | None = None) -> dict:
         "tick_id", "fire_at", "decision", "claimed_spy", "claimed_bar_label",
         "last_closed_bar_open", "last_closed_close",
         "in_progress_bar_open", "in_progress_close_so_far", "in_progress_high", "in_progress_low",
-        "divergence_vs_closed", "divergence_dollars",
+        "divergence_vs_closed", "divergence_dollars", "csv_lag_minutes",
         "ribbon_cents", "bear_score", "bull_score", "classification", "notes",
     ]
     with open(out_csv, "w", encoding="utf-8", newline="") as f:

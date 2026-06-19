@@ -170,11 +170,11 @@ def _classify_pin_chain(data: Optional[dict]) -> AuditResult:
     if data is None:
         return AuditResult(name, src, "MISSING", "pin-chain output not found", {})
     v = data.get("verdict", "RED").upper()
-    rv = data.get("rule_version_canonical", "unknown")
-    drifts = data.get("drifts", [])
+    rv = data.get("canonical_rule_version", data.get("rule_version_canonical", "unknown"))
+    drifts = data.get("mismatches", data.get("drifts", []))
     return AuditResult(name, src, v,
-                       f"rule_version={rv}, drifts={len(drifts)}",
-                       {"rule_version_canonical": rv, "drifts": drifts})
+                       f"rule_version={rv}, mismatches={len(drifts)}",
+                       {"canonical_rule_version": rv, "mismatches": drifts})
 
 
 def _classify_mcp_self_test(data: Optional[dict], date_str: str) -> AuditResult:

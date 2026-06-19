@@ -1,0 +1,31 @@
+Loading data...
+SPY 34324 rows, VIX 22283 rows
+
+BASELINE (TP1=+75%): IS n=265 pnl=+15,340 | OOS n=28 pnl=+2,273
+
+   TP1     IS_pnl   IS_delta    OOS_pnl  OOS_delta      WF  SW_hurt VERDICT
+------------------------------------------------------------------------------------------
+   30%      9,959     -5,380      3,272       +999  -1.758        3/4  OOS+_WF-1.76
+       SW: W1_2025H1:+958, W2_2025H2:-2159, W3_Q12026:-4029, W4_Apr26:-150
+   40%      8,636     -6,704      4,339     +2,067  -2.917        4/4  OOS+_WF-2.92
+       SW: W1_2025H1:-2396, W2_2025H2:-859, W3_Q12026:-3155, W4_Apr26:-294
+   50%      9,466     -5,873      5,279     +3,006  -4.845        4/4  OOS+_WF-4.84
+       SW: W1_2025H1:-2315, W2_2025H2:-726, W3_Q12026:-2693, W4_Apr26:-140
+   60%     10,897     -4,443      2,329        +56  -0.119        4/4  OOS+_WF-0.12
+       SW: W1_2025H1:-1538, W2_2025H2:-617, W3_Q12026:-2204, W4_Apr26:-84
+   75%     15,340         +0      2,273         +0    N/A         0/4  BASELINE
+       SW: W1_2025H1:+0, W2_2025H2:+0, W3_Q12026:+0, W4_Apr26:+0
+  100%     14,104     -1,235        115     -2,158  16.531        3/4  OOS_NEG
+       SW: W1_2025H1:-951, W2_2025H2:+865, W3_Q12026:-926, W4_Apr26:-224
+  125%     16,652     +1,312        115     -2,158 -15.561        3/4  OOS_NEG
+       SW: W1_2025H1:-498, W2_2025H2:+2746, W3_Q12026:-712, W4_Apr26:-224
+
+=== SUMMARY ===
+Traceback (most recent call last):
+  File "C:\Users\jackw\Desktop\42\backtest\autoresearch\aggressive_tp1_sweep.py", line 160, in <module>
+    run()
+    ~~~^^
+  File "C:\Users\jackw\Desktop\42\backtest\autoresearch\aggressive_tp1_sweep.py", line 153, in run
+    f"WF={best_oos['wf']:.3f if best_oos['wf'] else 'N/A'}")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Invalid format specifier '.3f if best_oos['wf'] else 'N/A'' for object of type 'float'

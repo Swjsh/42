@@ -1,0 +1,78 @@
+
+NLWB (Named-Level Wick-Bounce) Bullish Setup Backtest — Safe account DRAFT
+Setup: bar.low < PDL AND bar.close > PDL -> buy OTM-2 call
+Entry gate: 09:35-14:30 ET | Stop: -10% prem OR chart | TP1: +50% | Runner: +250% | Time: 15:40 ET
+Strike: OTM-2 calls | Qty: 5 contracts | One per day
+
+
+==============================================================================
+NLWB VARIANT SWEEP: strike_offset x min_bounce_above_pdl
+All comparisons vs OTM-2 bounce>0 baseline
+Variant                      IS_n   IS_pnl  IS_avg OOS_n  OOS_pnl OOS_avg      WF  VERDICT
+------------------------------------------------------------------------------
+  Running OTM-2  bounce>0.00...
+  OTM-2  bounce>0.00          100   -3,410     -34     9     -228     -25   0.735  OOS_NEG
+  Running OTM-2  bounce>0.30...
+  OTM-2  bounce>0.30           81   -2,212     -27     6     -150     -25   0.926  OOS_NEG
+  Running OTM-2  bounce>0.75...
+  OTM-2  bounce>0.75           37     -762     -21     3      -90     -30   1.429  OOS_NEG
+  Running OTM-1  bounce>0.00...
+  OTM-1  bounce>0.00          100  -10,806    -108     9     -608     -68   0.630  OOS_NEG
+  Running OTM-1  bounce>0.30...
+  OTM-1  bounce>0.30           81   -6,585     -81     6     -311     -52   0.642  OOS_NEG
+  Running OTM-1  bounce>0.75...
+  OTM-1  bounce>0.75           37   -2,022     -55     3     -137     -46   0.836  OOS_NEG
+  Running ATM    bounce>0.00...
+  ATM    bounce>0.00          100  -23,916    -239     9   -1,537    -171   0.715  OOS_NEG
+  Running ATM    bounce>0.30...
+  ATM    bounce>0.30           81  -13,994    -173     6     -640    -107   0.618  OOS_NEG
+  Running ATM    bounce>0.75...
+  ATM    bounce>0.75           37   -3,950    -107     3     -200     -67   0.626  OOS_NEG
+
+==============================================================================
+
+DETAIL: OTM-2  bounce>0.00
+IS  (2025-01-02 to 2026-05-07):
+  IS  overall            n=100  pnl=  -3,410  WR=  2.0%  avg=   -34  exits: CHART=64  PREM_STOP=36
+
+OOS (2026-05-08 to 2026-06-16):
+  OOS overall            n=  9  pnl=    -228  WR=  0.0%  avg=   -25  exits: CHART=5  PREM_STOP=4
+
+Sub-windows (IS only):
+    W1_2025H1            n= 35  pnl=    -948  WR=  2.9%  avg=   -27  exits: CHART=23  PREM_STOP=12
+    W2_2025Q3            n= 15  pnl=    -610  WR=  6.7%  avg=   -41  exits: CHART=6  PREM_STOP=9
+    W3_2025Q4            n= 17  pnl=    -456  WR=  0.0%  avg=   -27  exits: CHART=10  PREM_STOP=7
+    W4_2026H1            n= 33  pnl=  -1,397  WR=  0.    W4_2026H1            n= 33  pnl=  -1,397  WR=  0.0%  avg=   -42  exits: CHART=25  PREM_STOP=8
+
+Exit breakdown (IS):
+  CHART           n= 64  (64.0%)
+  PREM_STOP       n= 36  (36.0%)
+
+Entry time distribution (IS):
+  09:xx  n=33
+  10:xx  n=27
+  11:xx  n=16
+  12:xx  n=10
+  13:xx  n=7
+  14:xx  n=7
+
+Daily PnL sample (IS, first 15):
+  2025-01-07  10:00  PDL=593.72  spot=593.72  prem=0.29  pnl=-14  exit=CHART  bars=1
+  2025-01-08  09:50  PDL=586.79  spot=587.19  prem=0.55  pnl=-27  exit=PREM_STOP  bars=1
+  2025-01-13  10:40  PDL=578.57  spot=578.75  prem=0.36  pnl=-18  exit=CHART  bars=2
+  2025-02-07  10:55  PDL=602.63  spot=603.30  prem=0.51  pnl=-140  exit=CHART  bars=1
+  2025-02-11  10:05  PDL=602.74  spot=603.21  prem=0.56  pnl=-28  exit=PREM_STOP  bars=4
+  2025-02-12  10:35  PDL=602.47  spot=602.84  prem=0.42  pnl=-21  exit=CHART  bars=1
+  2025-02-18  14:20  PDL=609.08  spot=609.41  prem=0.16  pnl=-8  exit=PREM_STOP  bars=1
+  2025-02-21  11:10  PDL=607.07  spot=607.07  prem=0.43  pnl=-39  exit=CHART  bars=1
+  2025-02-24  09:50  PDL=599.49  spot=599.64  prem=0.43  pnl=-21  exit=CHART  bars=1
+  2025-02-27  10:05  PDL=591.90  spot=592.12  prem=0.52  pnl=-26  exit=PREM_STOP  bars=2
+  2025-02-28  09:35  PDL=584.65  spot=585.21  prem=0.57  pnl=-86  exit=CHART  bars=1
+  2025-03-04  14:00  PDL=580.87  spot=581.52  prem=0.10  pnl=+14  exit=PREM_STOP  bars=4
+  2025-03-06  12:05  PDL=573.13  spot=573.66  prem=0.22  pnl=-11  exit=CHART  bars=1
+  2025-03-07  10:45  PDL=570.13  spot=571.70  prem=0.33  pnl=-16  exit=CHART  bars=1
+  2025-03-13  11:40  PDL=553.74  spot=554.42  prem=0.39  pnl=-20  exit=CHART  bars=1
+
+DONE.
+
+Results written to C:\Users\jackw\Desktop\42\backtest\autoresearch\results\nlwb_backtest.txt

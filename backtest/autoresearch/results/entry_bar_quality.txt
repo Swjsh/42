@@ -1,0 +1,91 @@
+Loading data...
+SPY 34324 rows  VIX 22283 rows
+Building SPY bar index...
+
+=== IS (2025-01-02 to 2026-05-07) ===
+  Total trades: 130  Missing bars: 0
+
+  Setup: BEARISH_REJECTION_RIDE_THE_RIBBON  n=75
+  === body_pct quartile analysis ===
+    Q1(<25%)        n= 19  WR=15.8%  avg_body=13.7%
+    Q2(25-50%)      n= 19  WR=36.8%  avg_body=32.7%
+    Q3(50-75%)      n= 19  WR=36.8%  avg_body=57.2%
+    Q4(>75%)        n= 18  WR=16.7%  avg_body=84.7%
+    Top-half WR=27.0% vs Bot-half WR=26.3%  lift=+0.7pp  n_top=37
+  === upper_wick_pct quartile analysis ===
+    Q1(<25%)        n= 19  WR=42.1%  avg_body=1.1%
+    Q2(25-50%)      n= 19  WR=31.6%  avg_body=9.5%
+    Q3(50-75%)      n= 19  WR=15.8%  avg_body=29.2%
+    Q4(>75%)        n= 18  WR=16.7%  avg_body=60.5%
+    Top-half WR=16.2% vs Bot-half WR=36.8%  lift=-20.6pp  n_top=37
+  Direction split: 61% bearish body  WR(bearish_body)=41.3% n=46  WR(bullish_body)=3.4% n=29
+
+  Setup: BEARISH_REJECTION_RIDE_THE_RIBBON::BS_FALLBACK  n=10
+  === body_pct quartile analysis ===
+    Q1(<25%)        n=  3  WR=33.3%  avg_body=19.0%
+    Q2(25-50%)      n=  3  WR=66.7%  avg_body=34.6%
+    Q3(50-75%)      n=  2  WR=0.0%  avg_body=52.2%
+    Q4(>75%)        n=  2  WR=50.0%  avg_body=64.2%
+    Top-half WR=25.0% vs Bot-half WR=50.0%  lift=-25.0pp  n_top=4
+  === upper_wick_pct quartile analysis ===
+    Q1(<25%)        n=  3  WR=33.3%  avg_body=11.9%
+    Q2(25-50%)      n=  3  WR=66.7%  avg_body=27.1%
+    Q3(50-75%)      n=  2  WR=50.0%  avg_body=37.3%
+    Q4(>75%)        n=  2  WR=0.0%  avg_body=49.1%
+    Top-half WR=25.0% vs Bot-half WR=50.0%  lift=-25.0pp  n_top=4
+  Direction split: 100% bearish body  WR(bearish_body)=40.0% n=10  WR(bullish_body)=nan% n=0
+
+  Setup: BULLISH_RECLAIM_RIDE_THE_RIBBON  n=45
+  === body_pct quartile analysis ===
+    Q1(<25%)        n= 12  WR=8.3%  avg_body=13.3%
+    Q2(25-50%)      n= 11  WR=36.4%  avg_body=36.3%
+    Q3(50-75%)      n= 11  WR=9.1%  avg_body=63.5%
+    Q4(>75%)        n= 11  WR=27.3%  avg_body=87.2%
+    Top-half WR=18.2% vs Bot-half WR=21.7%  lift=-3.6pp  n_top=22
+  === upper_wick_pct quartile analysis ===
+    Q1(<25%)        n= 12  WR=8.3%  avg_body=1.7%
+    Q2(25-50%)      n= 11  WR=36.4%  avg_body=9.3%
+    Q3(50-75%)      n= 11  WR=27.3%  avg_body=24.9%
+    Q4(>75%)        n= 11  WR=9.1%  avg_body=44.6%
+    Top-half WR=18.2% vs Bot-half WR=21.7%  lift=-3.6pp  n_top=22
+  Direction split: 53% bearish body  WR(bearish_body)=12.5% n=24  WR(bullish_body)=28.6% n=21
+
+=== OOS (2026-05-08 to 2026-06-16) ===
+  Total trades: 21  Missing bars: 0
+
+  Setup: BEARISH_REJECTION_RIDE_THE_RIBBON  n=4
+  === body_pct quartile analysis ===
+    (insufficient sample for quartile analysis)
+  === upper_wick_pct quartile analysis ===
+    (insufficient sample for quartile analysis)
+  Direction split: 75% bearish body  WR(bearish_body)=66.7% n=3  WR(bullish_body)=0.0% n=1
+
+  Setup: BEARISH_REJECTION_RIDE_THE_RIBBON::BS_FALLBACK  n=9
+  === body_pct quartile analysis ===
+    Q1(<25%)        n=  3  WR=33.3%  avg_body=26.8%
+    Q2(25-50%)      n=  2  WR=50.0%  avg_body=67.7%
+    Q3(50-75%)      n=  2  WR=100.0%  avg_body=76.7%
+    Q4(>75%)        n=  2  WR=50.0%  avg_body=82.8%
+    Top-half WR=75.0% vs Bot-half WR=40.0%  lift=+35.0pp  n_top=4
+  === upper_wick_pct quartile analysis ===
+    Q1(<25%)        n=  3  WR=66.7%  avg_body=2.3%
+    Q2(25-50%)      n=  2  WR=50.0%  avg_body=14.7%
+    Q3(50-75%)      n=  2  WR=0.0%  avg_body=21.6%
+    Q4(>75%)        n=  2  WR=100.0%  avg_body=29.9%
+    Top-half WR=50.0% vs Bot-half WR=60.0%  lift=-10.0pp  n_top=4
+  Direction split: 100% bearish body  WR(bearish_body)=55.6% n=9  WR(bullish_body)=nan% n=0
+
+  Setup: BULLISH_RECLAIM_RIDE_THE_RIBBON  n=8
+  === body_pct quartile analysis ===
+    Q1(<25%)        n=  3  WR=33.3%  avg_body=12.8%
+    Q2(25-50%)      n=  2  WR=50.0%  avg_body=22.1%
+    Q3(50-75%)      n=  2  WR=50.0%  avg_body=51.5%
+    Q4(>75%)        n=  1  WR=0.0%  avg_body=68.8%
+    Top-half WR=33.3% vs Bot-half WR=40.0%  lift=-6.7pp  n_top=3
+  === upper_wick_pct quartile analysis ===
+    Q1(<25%)        n=  3  WR=66.7%  avg_body=20.3%
+    Q2(25-50%)      n=  2  WR=0.0%  avg_body=29.7%
+    Q3(50-75%)      n=  2  WR=0.0%  avg_body=40.5%
+    Q4(>75%)        n=  1  WR=100.0%  avg_body=64.6%
+    Top-half WR=33.3% vs Bot-half WR=40.0%  lift=-6.7pp  n_top=3
+  Direction split: 62% bearish body  WR(bearish_body)=40.0% n=5  WR(bullish_body)=33.3% n=3

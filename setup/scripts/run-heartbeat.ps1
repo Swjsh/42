@@ -168,6 +168,22 @@ $tickEffort = if ($model -eq "sonnet") { "medium" } else { "low" }
 # writes) ~10K tokens = $0.05 output. Plus a buffer for retries/reasoning.
 # 0.35 is the sweet spot - holds the kill-switch on truly runaway ticks without
 # choking normal ones.
+# FIX 1 (2026-06-15): Isolated heartbeat API key prevents rate-pool starvation from
+# interactive Claude sessions. Create automation/state/.heartbeat-api-key with a
+# dedicated key from console.anthropic.com → falls back to Max plan key if absent.
+$heartbeatKeyPath = Join-Path $WorkDir "automation\state\.heartbeat-api-key"
+$originalApiKey = $env:ANTHROPIC_API_KEY
+$heartbeatKeyLoaded = $false
+if (Test-Path $heartbeatKeyPath) {
+    $hbKey = (Get-Content $heartbeatKeyPath -Raw -ErrorAction SilentlyContinue).Trim()
+    if ($hbKey -and $hbKey -ne "") {
+        $env:ANTHROPIC_API_KEY = $hbKey
+        $heartbeatKeyLoaded = $true
+        $model = "haiku"  # Hard-lock: isolated key runs Haiku only, no Sonnet escalation
+        Write-TaskLog -TaskName $task -Message "HEARTBEAT_KEY_LOADED: using isolated API key (FIX-1), model hard-locked to haiku"
+    }
+}
+
 $exit = Invoke-Claude `
     -PromptFile (Join-Path $WorkDir "automation\prompts\heartbeat.md") `
     -TaskName $task `
@@ -175,6 +191,9 @@ $exit = Invoke-Claude `
     -Model $model `
     -TimeoutSec $tickTimeout `
     -Effort $tickEffort
+
+# Restore original API key so post-tick scripts use the Max plan key.
+if ($heartbeatKeyLoaded) { $env:ANTHROPIC_API_KEY = $originalApiKey }
 
 # Post-tick safety: atomic-bracket-guard catches mid-MCP-timeout failures (5/18
 # 10:48 naked-order incident class). Runs in <2s, hits Alpaca REST directly,

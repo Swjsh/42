@@ -326,6 +326,25 @@ At 50% per-trade risk cap:
 ### 5.6 Regime sensitivity
 "Worked in regime A (high VIX, post-FOMC). Failed in regime B (summer low-vol). Current regime status: A."
 
+### 5.7 Exit mechanism interaction disclosure (L89 / 5-01 incident)
+
+The engine has **three independent exit mechanisms** that can fire in sequence on the same trade. A single-condition "fix" often just shifts which mechanism fires first:
+
+1. **Ribbon flip-back** (`EXIT_ALL_RIBBON_FLIP_BACK`): fires when ribbon inverts to opposite stack with ≥30 cent spread.
+2. **Regular premium stop** (`PREMIUM_STOP`): fires when option loses `premium_stop_pct` from entry.
+3. **Profit lock chandelier** (`PROFIT_LOCK_STOP`): arms at +5% gain, then trails at HWM × (1 - trail_pct). Once armed, ignores the regular stop entirely — exit fires at the chandelier level even when pnl > 0.
+
+**The cascade pattern** (5/01 incident, L89 root cause):
+- Ribbon flips at 13:45 while SPY is only $0.03 above entry → exit fires at tiny gain
+- Add `ribbon_flip_price_confirm=True` to block it → chandelier fires at 13:50 (option had hit HWM during hold) → still exits early
+- J held through BOTH by reading VWAP congestion as noise → captured +$470 vs engine's +$3
+
+**What this means for backtesting:**
+- When tuning exit parameters, always verify which of the 3 mechanisms produced each exit in `fill.exit_reason`
+- A grinder that only sweeps `premium_stop_pct` cannot fix chandelier-caused exits — wrong lever
+- Profit-lock exits (pnl > 0, no TP1) are NOT the same as stops — do NOT count them as `stopped_without_tp1` (L89 bug: enabled TRENDLINE_LEG2 qty=20 re-entry, −$414 on 4/29)
+- Disclose in any candidate scorecard: "N% of exits came from profit lock (not premium stop)"
+
 ### Banned phrasings
 
 - "Strategy works" → "Strategy works in-sample; OOS verdict pending"
@@ -333,6 +352,7 @@ At 50% per-trade risk cap:
 - "Wide P&L $X" → "$X (16-month aggregate, requires $Y+ account, top-5 concentration Z%)"
 - "Monday ready" → only if checklist gate-pass file is current
 - Any "ready" claim without the 6 disclosures
+- "Fixed the exit" → "Patched mechanism X; mechanism Y and Z still active — verify which fires"
 
 ---
 

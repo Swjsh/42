@@ -1,0 +1,40 @@
+====================================================================================================
+AGG VIX_BEAR_THRESHOLD SWEEP (Aggressive account)
+Motivation: OOS deep dive shows VIX<17 bear entries WR=33% avg=-44 total=-400
+====================================================================================================
+
+[FULL IS/OOS SUMMARY]
+  thresh   IS_n    IS_pnl  OOS_n    OOS_pnl   IS_delta   OOS_delta       WF   OOS+
+  ------------------------------------------------------------------------------------------
+    15.0    261     +9959     28      +3272  (baseline)  (baseline)       --     --
+    16.0    261    +10220     28      +3272       +261          +0    0.000     NO
+    17.0    261     +8004     28      +3312      -1955         +40   -0.191    YES
+    17.3    262     +7875     28      +3312      -2084         +40   -0.179    YES
+    17.5    262     +7875     27      +3736      -2084        +465   -2.078    YES
+    18.0    260     +7074     27      +3736      -2885        +465   -1.501    YES
+
+[SUB-WINDOW ANALYSIS for best candidate: thresh=18.0]
+  Window                BASE_n  CAND_n   BASE_pnl   CAND_pnl    delta   verdict
+  -------------------------------------------------------------------------------------
+  W1 Jan-Jun 2025           81      80      +3401      +1515    -1886      HURT
+  W2 Jul-Dec 2025          106     106      +7018      +6019     -999      HURT
+  W3 Jan-Mar 2026           59      59       +329       +329       +0   NEUTRAL
+  W4 Apr-May 2026           15      15       -788       -788       +0   NEUTRAL
+
+  HURT=2 | sub_stable=FAIL
+
+[ANCHOR TRACE for thresh=18.0]
+  Date           BASE_pnl   CAND_pnl    OK?
+  2026-04-29          -94        -94     OK (WINNER)
+  2026-05-01           +3         +3     OK (WINNER)
+  2026-05-04         -499       -499     OK (WINNER)
+  2026-05-05           +0         +0     OK (LOSER)
+  2026-05-06           +0         +0     OK (LOSER)
+
+[OOS BLOCKED TRADES at thresh=18.0]
+Traceback (most recent call last):
+  File "C:\Users\jackw\Desktop\42\backtest\autoresearch\aggressive_vix_bear_threshold_sweep.py", line 185, in <module>
+    for t in sorted(blocked, key=lambda x: x.entry_time_et):
+             ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "pandas/_libs/tslibs/timestamps.pyx", line 337, in pandas._libs.tslibs.timestamps._Timestamp.__richcmp__
+TypeError: can't compare offset-naive and offset-aware datetimes

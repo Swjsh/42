@@ -1,0 +1,45 @@
+===============================================================================================
+C14 BATCH 9: vol_baseline_bars + vix_declining_required_bear SWEEP
+===============================================================================================
+
+[0] BASELINE (vol_baseline_bars=20, vix_declining_required_bear=False)...
+  IS n=244 pnl=-5118
+  OOS n=15 pnl=+2659
+
+===============================================================================================
+SWEEP 1: vol_baseline_bars (prod=20)
+  Mechanism: SMA window for 'average volume' in Filter 9 (breakdown) + Filter 10 (buyer pressure).
+  Smaller = faster to adapt when volume regime shifts; larger = slower/more stable baseline.
+
+    bars   IS_n     IS_pnl   IS_delta  OOS_n    OOS_pnl   OOS_delta   WF_norm  anchor  Verdict
+  ----------------------------------------------------------------------------------
+       5    242      -4513       +605     15      +3715       +1056    28.404    FAIL  OOS+
+      10    238      -6841      -1723     16      -1310       -3969    37.472      OK  FAIL
+      15    244     -10871      -5753     16      +1409       -1250     3.533      OK  FAIL
+      20    244      -5118         +0     15      +2659          +0     0.000      OK  FAIL <-- prod
+      30    235      -2812      +2305     13      +2706         +47     0.332      OK  OOS+
+      40    240      -5637       -519     13      +2714         +55    -1.725    FAIL  OOS+
+      60    240      -1664      +3454     15      +1302       -1357    -6.391    FAIL  FAIL
+
+===============================================================================================
+SWEEP 2: vix_declining_required_bear (prod=False)
+  Mechanism: if True, BEAR entries only allowed when VIX is falling (vix_now < vix_prior).
+  Per L93: test DECLINING direction only for BEARISH_REVERSAL (not escalating).
+  WARNING: VIX declining means BEAR entries fire in 'calming down' regime -> J anchor days.
+
+      bool   IS_n     IS_pnl   IS_delta  OOS_n    OOS_pnl   OOS_delta   WF_norm  anchor  Verdict
+  -------------------------------------------------------------------------------------
+     False    244      -5118         +0     15      +2659          +0     0.000      OK  FAIL <-- prod
+      True    225      -1275      +3843     15      +2659          +0     0.000      OK  FAIL
+
+===============================================================================================
+SUMMARY
+
+  No PASS candidates. Both production defaults confirmed.
+
+  OOS+ (WF insufficient, informational):
+    vol_baseline_bars=5: IS_delta=+605 OOS_delta=+1056 WF=28.404
+    vol_baseline_bars=40: IS_delta=-519 OOS_delta=+55 WF=-1.725
+    vol_baseline_bars=30: IS_delta=+2305 OOS_delta=+47 WF=0.332
+
+ANALYSIS COMPLETE.

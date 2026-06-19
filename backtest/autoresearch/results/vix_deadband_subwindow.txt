@@ -1,0 +1,63 @@
+==========================================================================================
+VIX_RISING_DEADBAND=0.15 SUB-WINDOW STABILITY CHECK
+==========================================================================================
+
+[FULL IS BASELINE]
+  BASELINE: n=133 pnl=+12867
+  CANDIDATE: n=132 pnl=+12667 delta=-200
+  Anchor check: OK
+
+[OOS BASELINE]
+  BASELINE: n=21 pnl=+4978
+  CANDIDATE: n=18 pnl=+3074 delta=-1904
+  WF_norm: 60.398
+
+[IS SUB-WINDOW STABILITY]
+  Window                BASE_n  CAND_n   BASE_pnl   CAND_pnl    delta   verdict
+  --------------------------------------------------------------------------------
+  W1 Jan-Jun 2025           38      38       +383       -215     -598      HURT
+  W2 Jul-Dec 2025           64      63      +9547      +9945     +398      HELP
+  W3 Jan-Mar 2026           24      24      +3499      +3499       +0   NEUTRAL
+  W4 Apr-May 2026            7       7       -561       -561       +0   NEUTRAL
+
+  HURT=1 HELP=1 NEUTRAL=2
+  Sub-window gate: FAIL (1 HURT windows)
+
+[BLOCKED IS TRADES DETAIL (trades in baseline NOT in candidate)]
+  2025-01-10 10:30:00-04:00 VIX=19.2 pnl=+396
+  2025-11-19 13:05:00 VIX=23.9 pnl=-398
+  Total blocked: 2, avg_pnl=-1/trade
+
+[BLOCKED OOS TRADES DETAIL]
+  2026-05-13 10:55:00 VIX=17.9 pnl=+2452
+  2026-05-19 14:00:00 VIX=18.0 pnl=-176
+  2026-05-20 12:45:00 VIX=17.7 pnl=-232
+  2026-05-21 11:35:00 VIX=17.4 pnl=-340
+  2026-06-08 13:30:00-04:00 VIX=18.5 pnl=+67
+  Total blocked: 5, avg_pnl=+354/trade
+
+[ROLLING OOS CHECK (is deadband=0.15 consistent across rolling windows?)]
+  OOS Window    BASE_n  CAND_n   BASE_pnl   CAND_pnl    delta   WF_norm
+  ---------------------------------------------------------------------------
+  OOS Jul-25        13      13      +2019      +2019       +0    -0.000
+  OOS Sep-25         8       8      +2660      +2660       +0     0.000
+  OOS Nov-25         8       7       +471       +870     +398     0.000
+  OOS Jan-26        10      10      +1239      +1239       +0     0.000
+  OOS Mar-26         8       8       -360       -360       +0     0.000
+  OOS May-26        12       9      +5089      +3101    -1989   -19.136
+
+  Rolling OOS+: 1/6 (17%) [gate: >=60%]
+  Rolling gate: FAIL
+
+==========================================================================================
+FINAL VERDICT
+==========================================================================================
+
+  OOS positive: False (delta=-1904)
+  WF >= 0.70: True (WF=60.398)
+  Anchor OK: True
+  Sub-window stable: False
+
+  CANDIDATE STATUS: FAIL - reject
+
+ANALYSIS COMPLETE.

@@ -102,6 +102,28 @@ if ($secondsUntilBarClose -lt 30) {
 $tickTimeout = if ($model -eq "sonnet") { 180 } else { 220 }
 $tickEffort  = if ($model -eq "sonnet") { "medium" } else { "low" }
 
+# FIX 1 (2026-06-15): Isolated heartbeat API key — same as safe heartbeat.
+# Bold uses a separate key file at automation/state/.heartbeat-api-key-bold
+# (can be same key as safe, just kept separate for future independent rotation).
+# Falls back to Max plan key if file absent.
+$heartbeatKeyPath = Join-Path $WorkDir "automation\state\.heartbeat-api-key-bold"
+$heartbeatKeyPathShared = Join-Path $WorkDir "automation\state\.heartbeat-api-key"
+$originalApiKey = $env:ANTHROPIC_API_KEY
+$heartbeatKeyLoaded = $false
+if (Test-Path $heartbeatKeyPath) {
+    $hbKey = (Get-Content $heartbeatKeyPath -Raw -ErrorAction SilentlyContinue).Trim()
+} elseif (Test-Path $heartbeatKeyPathShared) {
+    $hbKey = (Get-Content $heartbeatKeyPathShared -Raw -ErrorAction SilentlyContinue).Trim()
+} else {
+    $hbKey = ""
+}
+if ($hbKey -and $hbKey -ne "") {
+    $env:ANTHROPIC_API_KEY = $hbKey
+    $heartbeatKeyLoaded = $true
+    $model = "haiku"  # Hard-lock: isolated key runs Haiku only, no Sonnet escalation
+    Write-TaskLog -TaskName $task -Message "HEARTBEAT_KEY_LOADED: using isolated API key (FIX-1), model hard-locked to haiku"
+}
+
 $exit = Invoke-Claude `
     -PromptFile (Join-Path $WorkDir "automation\prompts\aggressive\heartbeat.md") `
     -TaskName $task `
@@ -109,6 +131,9 @@ $exit = Invoke-Claude `
     -Model $model `
     -TimeoutSec $tickTimeout `
     -Effort $tickEffort
+
+# Restore original API key so post-tick scripts use the Max plan key.
+if ($heartbeatKeyLoaded) { $env:ANTHROPIC_API_KEY = $originalApiKey }
 
 # Post-tick safety: atomic-bracket-guard catches mid-MCP-timeout failures
 # (5/18 10:48 Bold naked-SPY-740C incident class). Cancels orphan parent

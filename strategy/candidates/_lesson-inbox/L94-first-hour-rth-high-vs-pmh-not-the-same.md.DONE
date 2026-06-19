@@ -1,0 +1,88 @@
+---
+name: L94-first-hour-rth-high-vs-pmh-not-the-same
+description: When SPY gaps up above PMH on open, the first-hour RTH range high is a new structural level NOT captured by PMH/PDH detection — and intraday H/L levels underperform chance.
+metadata:
+  type: lesson
+---
+
+# L94 — First-Hour RTH High Is NOT PMH When SPY Gaps Up (5/01 Root Cause)
+
+**Theme:** C6 (level detection / look-ahead), C7 (silent failure)  
+**Status:** DRAFT — needs lesson-author agent to process into LESSONS-LEARNED.md  
+
+## Symptom
+
+Engine missed the 11:50 ET BEARISH_REVERSAL on 5/01 at the 724 level. Audit identified
+"724 NOT in levels_active" as root cause #1, but did not specify why — assumed it was
+not a premarket or prior-day level.
+
+## Root Cause
+
+On 5/01, SPY gapped up at open: PMH=**$721.99**, PDH=**$719.79**. Neither historical source
+contains 724. The 724 level was established DURING RTH:
+
+- 09:55 bar: first break above 724 (high=$724.24)
+- 10:00–10:20: price spent 25 min in the $724–$724.87 range
+- 10:20 bar: day high = $724.87 (RTH first-hour range high)
+- 11:50 bar: retest at $724.30, rejected to $722.72 (-$1.58 intrabar)
+
+The level was the **RTH first-hour range high** — a structural level formed within the
+first 50 minutes of trading when SPY gaps up above all historical references.
+
+`detect_levels_at_bar()` only uses: prior-day H/L/C, premarket H/L (PMH/PML), and
+historical structural levels. It cannot add intraday structure in real-time.
+
+## Compounding Lesson
+
+The source-pruning kitchen study (2026-06-15) found intraday H/L levels have a **below-
+chance respect rate**: 22.8% vs 25.9% DM-null (below chance by 3.1pp). Root cause: session
+H/L are the NEWEST levels — price is often still trending through them. This means adding
+a blanket "first_hour_high" level type would introduce NOISE for most cases.
+
+The 5/01 case is different because:
+1. Price spent 25 min at the level (more than a single wick)
+2. 90+ minutes elapsed between range high and the 11:50 retest
+3. The 11:50 bar was a massive reversal bar ($1.66 range, open-to-close -$0.82)
+
+A first-hour RTH high only qualifies as a structural level when price has:
+a) Spent ≥20 min at the level (multiple bars touched)
+b) Pulled back ≥$1.00 from the level
+c) Retested after ≥60 min of consolidation below the level
+
+Without all three, first-hour-high is a noise source, not a signal.
+
+## Fix (requires implementation + OOS validation)
+
+Proposed `detect_levels_at_bar()` enhancement:
+```python
+# After RTH open, track running session high with dwell time
+# If price spent >= N bars at a range high AND pulled back >= $1.00:
+# add as 'first_hour_high' level type
+```
+
+But guard against over-firing: this level type has below-chance baseline.
+Require dwell_bars >= 4 AND pullback_cents >= 100 before registering.
+
+## Second Structural Blocker for 5/01
+
+Even with 724 in the level set, BEAR entry at 11:50 was blocked by:
+- Ribbon=BULL with 100c spread — strongly trending BULL at time of BEARISH_REVERSAL
+- Filter 5: BEAR entries require ribbon=BEAR (unless trendline_only_setup=True)
+
+Both blockers must be fixed together (first_hour_high + level-chop relaxation).
+Neither alone closes the 5/01 gap.
+
+## Graduated Guard
+
+Add to `backtest/tests/test_graduated_guards.py`:
+```python
+def test_first_hour_high_requires_dwell_and_pullback():
+    """L94: any first_hour_high level detection must require >= 4 bars dwell
+    AND >= $1.00 pullback. Without these, intraday H/L is below-chance noise
+    per source-pruning study (22.8% vs 25.9% DM-null)."""
+```
+
+## Why: one line
+
+PMH captures premarket highs, PDH captures prior RTH — neither captures the case where
+SPY gaps up and establishes a new structural range DURING the first hour of RTH trading.

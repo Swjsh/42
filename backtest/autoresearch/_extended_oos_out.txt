@@ -1,0 +1,45 @@
+====================================================================================================
+EXTENDED OOS VALIDATION: May 8 - June 16, 2026
+====================================================================================================
+
+[LOADING DATA] Merging base + extension files...
+  SPY rows: 34324 (original: 31729, extension adds rows)
+  VIX rows: 22283
+
+[IS BASELINE] Jan 2025 - May 7, 2026 (unchanged):
+  n=222 pnl=+3202
+
+[ORIGINAL OOS] May 8-22, 2026:
+  BASELINE: n=15 pnl=+2659
+  TIGHTER : n=15 pnl=+4461 delta=+1802
+
+[EXTENDED OOS] May 8 - June 16, 2026:
+  BASELINE: n=30 pnl=+2306
+  TIGHTER : n=30 pnl=+4107 delta=+1802
+
+  Updated WF (tighter stop, extended OOS): 3.892 (gate 0.70)
+  IS_delta = +3426 over 222 IS trades
+  OOS_delta = +1802 over 30 OOS trades
+
+[WEEKLY BREAKDOWN]
+  Window        BASE_n   BASE_pnl   TIGHT_pnl    delta  BASE_WR%
+  -----------------------------------------------------------------
+  W_May08-16         4      +1639       +2297     +658        50%
+  W_May19-22         8       -370        +774    +1144        25%
+  W_May23-30         5       -693        -693       +0        20%
+  W_Jun02-06         3       -197        -197       +0        33%
+  W_Jun09-13         5       +401        +401       +0        60%
+  W_Jun16            0         +0          +0       +0         0%
+
+====================================================================================================
+SUMMARY
+====================================================================================================
+
+  ORIGINAL OOS (May 8-22): BASELINE n=15 pnl=+$2,659 | TIGHTER n=15 pnl=+$4,461 delta=+$1,802
+  EXTENDED OOS (May 8-Jun 16): BASELINE n=30 pnl=+2306 | TIGHTER n=30 pnl=+4107 delta=+1802
+  Updated WF for tighter stop: 3.892
+
+  KEY QUESTION: Does the strategy remain profitable beyond May 22?
+  New OOS trades (May 23 - Jun 16): n=15 pnl=-353 WR=47%
+
+ANALYSIS COMPLETE.

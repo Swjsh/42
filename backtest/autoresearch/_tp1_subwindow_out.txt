@@ -1,0 +1,40 @@
+==========================================================================================
+TP1_QTY_FRACTION=0.75 SUB-WINDOW STABILITY CHECK
+==========================================================================================
+
+[FULL IS]  PROD n=244 pnl=-5118  CAND n=244 pnl=-5217  delta=-99
+[FULL OOS] PROD n=15 pnl=+2659  CAND n=15 pnl=+3012  delta=+353
+
+[J ANCHOR DAY CHECK]
+  2026-04-29  PROD=-2477  CAND=-2477  delta=+0 OK
+  2026-05-01  PROD=+0  CAND=+0  delta=+0 OK
+  2026-05-04  PROD=+804  CAND=+884  delta=+80 OK
+
+[IS SUB-WINDOWS] (HURT = candidate worse; no HURT -> stable)
+    window    prod_pnl    cand_pnl     delta  status
+  -------------------------------------------------------
+        W1       -1759       -1348      +411  OK
+        W2       +3254       +2832      -422  HURT
+        W3        -505        -997      -493  HURT
+        W4       -5217       -4813      +405  OK
+
+  Sub-window gate: FAIL (2 HURT)
+
+[ROLLING OOS WINDOWS]
+    window    prod_pnl    cand_pnl     delta  status
+  -------------------------------------------------------
+    OOS_W1       +2955       +2785      -170  FAIL
+    OOS_W2        -296        +227      +523  PASS
+
+  OOS rolling gate: 1/2 PASS (50%) — gate requires ≥60%
+
+[SUMMARY]
+  IS delta: -99  (production: -5118)
+  OOS delta: +353  (production: +2659)
+  Sub-windows: 2 HURT (gate: 0)
+  Rolling OOS: 1/2 (50%) (gate: 60%+)
+  J anchors: OK
+
+  CANDIDATE STATUS: FAIL (sub-window or OOS not stable)
+
+ANALYSIS COMPLETE.

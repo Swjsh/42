@@ -1,0 +1,41 @@
+Loading data...
+SPY 34324 rows  VIX 22283 rows
+
+Running IS baseline...
+  IS baseline: n=130  pnl=$+16,174  WR=25.4%
+Running IS gate...
+  IS gate:     n=130  pnl=$+16,174  WR=25.4%
+
+Running OOS baseline...
+  OOS baseline: n=21  pnl=$+5,900  WR=47.6%
+Running OOS gate...
+  OOS gate:     n=21  pnl=$+5,900  WR=47.6%
+
+  IS delta:  $+0  (n_blocked=0)
+  OOS delta: $+0  (n_blocked=0)
+  WF_norm:   nan  (gate: >= 0.70)
+
+  SUB-WINDOW ANALYSIS:
+    W1_2025H1: base=$-182 gate=$-182 delta=$+0 FLAT
+    W2_2025Q3: base=$+8,820 gate=$+8,820 delta=$+0 FLAT
+    W3_2025Q4: base=$+1,665 gate=$+1,665 delta=$+0 FLAT
+    W4_2026H1: base=$+5,871 gate=$+5,871 delta=$+0 FLAT
+
+  SW_hurt = 0/4  (gate: <= 1)
+
+  ANCHOR DAY CHECK:
+    2025-04-29 [W] base=$+0  gate=$+0  delta=$+0
+    2025-05-01 [W] base=$+0  gate=$+0  delta=$+0
+    2025-05-04 [W] base=$+0  gate=$+0  delta=$+0
+    2025-05-05 [L] base=$-596  gate=$-596  delta=$+0
+    2025-05-06 [L] base=$-86  gate=$-86  delta=$+0
+    2025-05-07 [L] base=$+0  gate=$+0  delta=$+0
+  Anchor no-regression: PASS
+
+=== VERDICT ===
+  OOS positive: FAIL
+  WF >= 0.70:   FAIL (nan)
+  SW_hurt <= 1: PASS (0/4)
+  Anchor OK:    PASS
+
+  NOT RATIFIABLE

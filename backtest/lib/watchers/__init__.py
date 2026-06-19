@@ -11,10 +11,15 @@ gets promoted from WATCH-ONLY to LIVE TRADING via explicit J ratification.
 Watchers shipped (production):
   - orb_watcher.py      : ORB GOAT 30-min opening range break (long + short)
   - bullish_watcher.py  : BULLISH_RECLAIM_RIDE_THE_RIBBON (mirror of bear)
-  - pinfade_watcher.py  : PIN-FADE on classified-chop days (premium-sell)
+
+RETIRED / deleted (2026-06-18, watcher-fleet de-sprawl):
+  - sniper_watcher.py   : SNIPER_LEVEL_BREAK — retired 2026-05-14 (J directive: kill
+      redundancy, v14_enhanced covers the level-break + ribbon-flip family with better
+      real-fills). The standalone lib/sniper_detector.py stays in tree (offline diag).
+  - pinfade_watcher.py  : PIN-FADE — deleted 2026-06-18 (16-month verdict 1/53 = 1.9% WR,
+      -$7,900). Flag-disabled since 2026-05-10; needs a ground-up rebuild before any return.
 
 Watchers added 2026-05-13 (WATCH-ONLY, draft):
-  - sniper_watcher.py              : SNIPER_LEVEL_BREAK (Stage 5 candidate)
   - vwap_watcher.py                : VWAP_REJECTION_PRIME (spec defaults)
   - opening_drive_fade_watcher.py  : OPENING_DRIVE_FADE HOD/LOD fade
   - v14_enhanced_watcher.py        : v14 + 09:45 entry + profit-lock variant
@@ -127,7 +132,6 @@ class WatcherSignal:
 # Re-export each watcher's detect_*_setup entry point. Importers can either
 # import these directly from `lib.watchers` or from the individual modules.
 # Imports are deferred-style at the bottom to avoid circular issues.
-from .sniper_watcher import detect_sniper_setup  # noqa: E402
 from .vwap_watcher import detect_vwap_setup  # noqa: E402
 from .opening_drive_fade_watcher import detect_opening_drive_fade_setup  # noqa: E402
 from .v14_enhanced_watcher import detect_v14_enhanced_setup  # noqa: E402
@@ -149,7 +153,6 @@ from .stairstep_continuation_watcher import detect_stairstep_continuation_setup 
 
 __all__ = [
     "WatcherSignal",
-    "detect_sniper_setup",
     "detect_vwap_setup",
     "detect_opening_drive_fade_setup",
     "detect_v14_enhanced_setup",

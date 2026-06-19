@@ -1,0 +1,152 @@
+Loading data...
+SPY 34324 rows, VIX 22283 rows
+
+Running IS backtest (post-Rank35 production baseline)...
+IS complete: n=128
+
+Running OOS backtest...
+OOS complete: n=21
+
+======================================================================
+  IN-SAMPLE (Post-Rank35): n=128 pnl=+12838 avg=+100 WR=32%
+======================================================================
+
+  By side:
+    BEAR (PUT): n=128 pnl=+12838 avg=+100 WR=32%
+
+  By quality tier:
+    ?           : n=128 pnl=+12838 avg=+100 WR=32%
+
+  By trigger set (top 15 by P&L):
+    trigger                                                    n      pnl     avg     WR
+    ------------------------------------------------------- ---- -------- ------- ------
+    confluence+level_rejection                                10    +4643    +464    60%
+    confluence+level_reclaim                                  17    +2608    +153    29%
+    confluence+level_rejection+trendline_rejection             4    +2249    +562    50%
+    confluence+level_reclaim+sequence_reclaim                  7    +2061    +294    29%
+    ribbon_flip+trendline_rejection                            6    +1870    +312    50%
+    confluence+level_rejection+ribbon_flip                     1     +958    +958   100%
+    confluence+level_reclaim+ribbon_flip                       9     +356     +40    33%
+    level_reclaim+ribbon_flip                                 11     +349     +32    18%
+    level_reclaim+ribbon_flip+sequence_reclaim                 1     -354    -354     0%
+    trendline_rejection                                       62    -1900     -31    27%
+
+  By VIX bucket:
+    VIX <15    : n= 23 pnl=+2791 avg=+121 WR=30%
+    VIX 15-17  : n= 46 pnl=+3873 avg=+84 WR=26%
+    VIX 17-18  : n= 14 pnl=+368 avg=+26 WR=36%
+    VIX 18-20  : n= 15 pnl=+2397 avg=+160 WR=40%
+    VIX 20-22  : n= 10 pnl=+3418 avg=+342 WR=50%
+    VIX 22-25  : n=  8 pnl=-346 avg=-43 WR=12%
+    VIX 25-30  : n=  8 pnl=-427 avg=-53 WR=25%
+    VIX 30+    : n=  4 pnl=+764 avg=+191 WR=75%
+
+  By time of day:
+    09:3x: n= 15 pnl=+3230 avg=+215 WR=27%
+    10:xx: n= 28 pnl=+3132 avg=+112 WR=32%
+    11:xx: n= 32 pnl=+131 avg=+4 WR=28%
+    12:xx: n=  6 pnl=+966 avg=+161 WR=33%
+    13:xx: n=  7 pnl=+4145 avg=+592 WR=43%
+    14:xx+: n= 40 pnl=+1234 avg=+31 WR=35%
+
+  By exit type:
+    ExitReason.EXIT_ALL_PREMIUM_STOP: n= 81 pnl=-16260
+    ExitReason.TP1_THEN_RUNNER_RIBBON: n= 20 pnl=+13074
+    ExitReason.TP1_THEN_RUNNER_TIME: n= 11 pnl=+13224
+    ExitReason.EXIT_ALL_RIBBON_FLIP_BACK: n=  7 pnl=-185
+    ExitReason.EXIT_ALL_TIME_STOP: n=  4 pnl=+1855
+    ExitReason.TP1_THEN_RUNNER_TARGET: n=  3 pnl=+1126
+    ExitReason.TP1_THEN_RUNNER_BE_STOP: n=  1 pnl=+77
+    ExitReason.EXIT_ALL_LEVEL_STOP: n=  1 pnl=-72
+
+  Tier x side (bear/bull split):
+
+======================================================================
+  OUT-OF-SAMPLE (Post-Rank35): n=21 pnl=+3728 avg=+178 WR=52%
+======================================================================
+
+  By side:
+    BEAR (PUT): n= 21 pnl=+3728 avg=+178 WR=52%
+
+  By quality tier:
+    ?           : n= 21 pnl=+3728 avg=+178 WR=52%
+
+  By trigger set (top 15 by P&L):
+    trigger                                                    n      pnl     avg     WR
+    ------------------------------------------------------- ---- -------- ------- ------
+    confluence+level_reclaim                                   4    +1371    +343    25%
+    confluence+level_reclaim+ribbon_flip                       1     +744    +744   100%
+    level_rejection+ribbon_flip+sequence_rejection             1     +714    +714   100%
+    level_reclaim+ribbon_flip                                  2     +697    +348    50%
+    confluence+level_rejection                                 1     +486    +486   100%
+    trendline_rejection                                        6     +382     +64    50%
+    confluence+level_rejection+ribbon_flip                     3      +12      +4    67%
+    confluence+level_reclaim+ribbon_flip+sequence_reclaim      1     -320    -320     0%
+    confluence+level_rejection+trendline_rejection             2     -357    -179    50%
+
+  By VIX bucket:
+    VIX 15-17  : n=  6 pnl=-207 avg=-34 WR=33%
+    VIX 17-18  : n=  6 pnl=+2077 avg=+346 WR=33%
+    VIX 18-20  : n=  6 pnl=+1246 avg=+208 WR=67%
+    VIX 20-22  : n=  2 pnl=+507 avg=+254 WR=100%
+    VIX 22-25  : n=  1 pnl=+105 avg=+105 WR=100%
+
+  By time of day:
+    09:3x: n=  2 pnl=+697 avg=+348 WR=50%
+    10:xx: n=  7 pnl=+2058 avg=+294 WR=57%
+    11:xx: n=  6 pnl=-125 avg=-21 WR=50%
+    12:xx: n=  1 pnl=-232 avg=-232 WR=0%
+    13:xx: n=  2 pnl=+811 avg=+406 WR=100%
+    14:xx+: n=  3 pnl=+519 avg=+173 WR=33%
+
+  By exit type:
+    ExitReason.EXIT_ALL_PREMIUM_STOP: n=  8 pnl=-2220
+    ExitReason.TP1_THEN_RUNNER_RIBBON: n=  5 pnl=+3264
+    ExitReason.TP1_THEN_RUNNER_BE_STOP: n=  4 pnl=+333
+    ExitReason.EXIT_ALL_RIBBON_FLIP_BACK: n=  3 pnl=+307
+    ExitReason.TP1_THEN_RUNNER_TIME: n=  1 pnl=+2044
+
+  Tier x side (bear/bull split):
+
+======================================================================
+  IS vs OOS TRIGGER COMPARISON
+======================================================================
+
+  trigger                                             IS_n   IS_pnl  IS_WR  OOS_n  OOS_pnl OOS_WR
+  -------------------------------------------------- ----- -------- ------  ----- -------- ------
+  trendline_rejection                                   62    -1900    27%      6     +382    50%  IS loses, OOS wins! (C22?)
+  confluence+level_reclaim                              17    +2608    29%      4    +1371    25%
+  level_reclaim+ribbon_flip                             11     +349    18%      2     +697    50%
+  confluence+level_rejection                            10    +4643    60%      1     +486   100%
+  confluence+level_reclaim+ribbon_flip                   9     +356    33%      1     +744   100%
+  confluence+level_reclaim+sequence_reclaim              7    +2061    29%      0       +0     0%
+  confluence+level_rejection+trendline_rejection         4    +2249    50%      2     -357    50%  IS wins, OOS loses
+  ribbon_flip+trendline_rejection                        6    +1870    50%      0       +0     0%
+  confluence+level_rejection+ribbon_flip                 1     +958   100%      3      +12    67%
+  level_rejection+ribbon_flip+sequence_rejection         0       +0     0%      1     +714   100%
+  confluence+level_reclaim+ribbon_flip+sequence_reclaim     0       +0     0%      1     -320     0%
+  level_reclaim+ribbon_flip+sequence_reclaim             1     -354     0%      0       +0     0%
+
+======================================================================
+  BEAR TRENDLINE ENTRIES (remaining drag analysis)
+======================================================================
+  IS: n=72 pnl=+2218 avg=+31 WR=31%
+  IS TL by VIX:
+    VIX <15: n=4 pnl=-27 WR=25%
+    VIX 15-17: n=21 pnl=+1329 WR=29%
+    VIX 17-18: n=11 pnl=-90 WR=27%
+    VIX 18-20: n=10 pnl=-636 WR=30%
+    VIX 20-22: n=7 pnl=+1579 WR=43%
+    VIX 22-25: n=8 pnl=-346 WR=12%
+    VIX 25-30: n=7 pnl=-355 WR=29%
+    VIX 30+: n=4 pnl=+764 WR=75%
+  IS TL by time:
+    09:3x: n=1 pnl=-93 WR=0%
+    10:xx: n=15 pnl=-400 WR=20%
+    11:xx: n=18 pnl=-770 WR=28%
+    12:xx: n=3 pnl=+1724 WR=67%
+    13:xx: n=2 pnl=+912 WR=50%
+    14:xx+: n=33 pnl=+845 WR=33%
+  OOS: n=8 pnl=+25
+
+Composition analysis complete.
