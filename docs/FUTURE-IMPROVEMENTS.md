@@ -58,6 +58,12 @@
 
 ## High value, deferred
 
+### 0. RE-RUN level-keyed validations on REAL ★★★ levels once the archive accumulates
+- **Trigger:** when `journal/key-levels-archive/` holds **N>=20-30 trading days** of real production key-levels (currently ~10 as of 2026-06-19; accumulating daily via the inline `Gamma_DailyReview` archiver + the standalone `Gamma_ArchiveKeyLevels` safety-net — `setup/install-archive-key-levels.ps1`, `automation/scripts/archive_key_levels.py`).
+- **Why this matters (the #1 validation data gap):** every level-keyed watcher/backtest run so far fell back to **synthetic ★★ PDH/PDL/PDC proxies** (`pattern_backtest._derive_named_levels`) because no historical archive of J's real ★★★ levels existed. The proxy-based runs produced **RETIRE verdicts** for the level-keyed family (floor_hold, close_ceiling, BEARISH_REJECTION on levels, bounce-family) — see `backtest/autoresearch/validate_level_family.py` op20_disclosures + project memory `project_watcher_engine_2026_06_18`. Those verdicts were rendered on PROXY levels, not real levels.
+- **Scope:** re-run `python -m autoresearch.validate_level_family --start ... --end ... --realfills` (and the relevant `pattern_backtest` level setups) once N>=20-30 real days exist. The archive path is already the primary lookup (`_load_named_levels_from_keyjson` checks `journal/key-levels-archive/` BEFORE the synthetic fallback), so the re-run is automatic once the data is there — no harness change needed. **Compare REAL-level results against the proxy-based RETIRE verdicts: the real ★★★ levels may show edge the synthetic proxies masked, which would REVERSE one or more RETIRE calls.** This is the honest test of our actual level edge.
+- **Estimate:** ~1h once the archive is deep enough (re-run + scorecard + verdict diff).
+
 ### 1. Bullish-side grinder optimization
 - **Trigger:** when J has 3+ live BULLISH winners documented in `journal/trades.csv`
 - **Scope:** mirror the 5-stage bearish pipeline (qty/stop/TP1 per quality tier) for bullish triggers

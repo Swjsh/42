@@ -1,0 +1,156 @@
+{
+  "schema_version": 3,
+  "protocol_version": "strategy/key-levels-protocol.md@2",
+  "as_of": "2026-06-15T08:30:00-04:00",
+  "for_session": "2026-06-15",
+  "spot_at_compute": 751.04,
+  "computed_from": {
+    "prior_date": "2026-06-13",
+    "today_date": "2026-06-15",
+    "prior_rth_bars": 0,
+    "today_rth_bars": 0,
+    "premarket_bars": 55,
+    "tv_unavailable": false,
+    "note": "PREMARKET RUN 08:30 ET 2026-06-15. Friday June 13 RTH bars not in 80-bar pull (total 303 available; next heartbeat should pull 300 to fill Friday history). Prior close estimated ~749-750 based on Monday premarket open at 750.55. All Active-tier June 8 levels expired (24h window). Only ROUND_740 Reference survived audit. 4 fresh levels added from today premarket."
+  },
+  "levels": [
+    {
+      "price": 752.09,
+      "type": "resistance",
+      "role": null,
+      "label": "PMH_2026-06-15",
+      "tier": "Active",
+      "source": "premarket_high_premarket",
+      "verified_at": "2026-06-15T08:30:00-04:00",
+      "expires_at": "2026-06-17T16:00:00-04:00",
+      "reasoning": "Today's premarket high (08:15 ET approx). First ceiling resistance above open. Break + 5m close above = bull trigger candidate. Rejection = bear setup elevated.",
+      "notes": "~$1.05 above current price 751.04. Premarket range was 748.00-752.09.",
+      "entity_id": null,
+      "draw_needed": true
+    },
+    {
+      "price": 750.00,
+      "type": "psychological",
+      "role": null,
+      "label": "ROUND_750",
+      "tier": "Reference",
+      "source": "round_number_near_price",
+      "verified_at": "2026-06-15T08:30:00-04:00",
+      "expires_at": "2026-08-15T16:00:00-04:00",
+      "reasoning": "Round $750 level, $1.04 below current price. Psychological magnet. Also coincides with Monday premarket consolidation base — price bounced from 748 low toward 750+ all premarket. Not a trigger source but a soft support/resistance reference.",
+      "notes": "Heartbeat does not treat as trigger source. Awareness only.",
+      "entity_id": null,
+      "draw_needed": false
+    },
+    {
+      "price": 748.00,
+      "type": "support",
+      "role": null,
+      "label": "PML_2026-06-15",
+      "tier": "Active",
+      "source": "premarket_low_premarket",
+      "verified_at": "2026-06-15T08:30:00-04:00",
+      "expires_at": "2026-06-17T16:00:00-04:00",
+      "reasoning": "Today's premarket low (first 04:00 ET bar low). Key floor. Loss of 748.00 on 5m close = bear setup eligible: BEARISH_REJECTION / ribbon-BEAR. Hold + bounce = bull continuation.",
+      "notes": "~$3.04 below current price. SPY opened premarket at 750.55 with initial spike to 751.30 and low of 748.00.",
+      "entity_id": null,
+      "draw_needed": true
+    },
+    {
+      "price": 745.33,
+      "type": "support",
+      "role": "broken_to_support",
+      "label": "CARRY_SESSION_HIGH_2026-06-08",
+      "tier": "Carry",
+      "source": "prior_session_high_carry",
+      "verified_at": "2026-06-15T08:30:00-04:00",
+      "expires_at": "2026-06-20T16:00:00-04:00",
+      "reasoning": "June 8 session high (prior anchor). SPY has now moved ~$6 above this level. Acts as carry support on any significant retrace — breakdowns below 745.33 would signal bear continuation. Reference on any pullback >$5 from current price.",
+      "notes": "~$5.71 below current. Carry level — engine does not score as active trigger unless price returns to this zone.",
+      "entity_id": null,
+      "draw_needed": false
+    },
+    {
+      "price": 740.00,
+      "type": "psychological",
+      "role": null,
+      "label": "ROUND_740",
+      "tier": "Reference",
+      "source": "round_number_near_close",
+      "verified_at": "2026-06-15T08:30:00-04:00",
+      "expires_at": "2026-08-01T16:00:00-04:00",
+      "reasoning": "Round $740 level. Now ~$11 below current price. Psychological awareness only — deep support on any major selloff. Not a trigger source.",
+      "notes": "Kept from prior session audit — long-lived Reference tier.",
+      "entity_id": null,
+      "draw_needed": false
+    }
+  ],
+  "deprecated_levels": [
+    { "price": 745.33, "label": "SESSION_HIGH_2026-06-08", "reason": "Active tier, expired 2026-06-10 (24h window). Promoted to Carry tier as CARRY_SESSION_HIGH_2026-06-08." },
+    { "price": 744.73, "label": "PMH_2026-06-08", "reason": "Active tier, expired 2026-06-10. Price now $6+ above — no longer proximate resistance." },
+    { "price": 743.31, "label": "RTH_OPEN_2026-06-08", "reason": "Active tier, expired 2026-06-10. Price now $7+ above." },
+    { "price": 740.80, "label": "INTRADAY_BASE_2026-06-08", "reason": "Active tier, expired 2026-06-10. Price now $10+ above." },
+    { "price": 738.91, "label": "SESSION_LOW_2026-06-08", "reason": "Active tier, expired 2026-06-10. Price now $12+ above." },
+    { "price": 735.00, "label": "BEAR_TARGET_2026-06-09", "reason": "Reference tier, expired 2026-06-12. Price has moved $16 above — irrelevant." },
+    { "price": 760.40, "reason": "Carried from prior deprecated set." },
+    { "price": 759.00, "reason": "Carried from prior deprecated set." },
+    { "price": 758.22, "reason": "Carried from prior deprecated set." },
+    { "price": 758.08, "reason": "Carried from prior deprecated set." },
+    { "price": 757.42, "reason": "Carried from prior deprecated set." },
+    { "price": 756.76, "reason": "Carried from prior deprecated set." },
+    { "price": 756.56, "reason": "Carried from prior deprecated set." },
+    { "price": 756.00, "reason": "Carried from prior deprecated set." },
+    { "price": 755.32, "reason": "Carried from prior deprecated set." },
+    { "price": 754.88, "reason": "Carried from prior deprecated set." }
+  ],
+  "rth_high_today": null,
+  "rth_low_today": null,
+  "close_today": null,
+  "prior_session": {
+    "date": "2026-06-13",
+    "rth_high": null,
+    "rth_low": null,
+    "rth_close": null,
+    "rth_close_source": "not_captured_80bar_limit",
+    "ah_last": null,
+    "ah_high": null,
+    "ah_low": null,
+    "ah_time": null,
+    "ah_ribbon": null,
+    "ah_note": "Friday June 13 RTH bars not in the 80-bar pull. Thursday June 12 extended hours close was ~742.36. Monday premarket opened at 750.55 (gap up ~$8-9 from Thursday). Friday close estimated ~749-750. Next heartbeat should pull count=300 to recover Friday session history."
+  },
+  "summary": {
+    "total_in": 7,
+    "kept": 1,
+    "dropped_distance": 0,
+    "dropped_expiry": 6,
+    "dropped_protocol": 0,
+    "added_new": 4,
+    "by_stars": { "3star": 0, "2star": 0, "1star": 0 }
+  },
+  "session_bias": {
+    "direction": "BULLISH",
+    "confidence": "MODERATE",
+    "reasoning": "SPY gapped up ~$9 from Thursday close ~742 to premarket 750+. VIX 16.60 declining from last week's 19.16 (MID regime, fear subsiding). Clean macro day (no events today). Premarket consolidation 748-752 suggests bull continuation setup on PMH 752.09 break. FOMC Wednesday creates medium-term caution but today's tape is constructive."
+  },
+  "audit_log": [
+    {
+      "timestamp": "2026-06-15T08:30:00-04:00",
+      "count_in": 7,
+      "count_pass": 1,
+      "count_dropped": 6,
+      "count_added": 4,
+      "tv_available": true,
+      "note": "PREMARKET AUDIT 2026-06-15 08:30 ET. 6 levels dropped: 5 Active-tier expired (24h window, verified 2026-06-08), 1 Reference expired (2026-06-12). ROUND_740 retained (Reference, expires 2026-08-01). 4 fresh levels added: PMH 752.09, ROUND_750 750.00, PML 748.00, CARRY_SESSION_HIGH 745.33."
+    }
+  ],
+  "chart_cleanup_log": [],
+  "chart_drawing_summary": {
+    "drawn_count": 0,
+    "draw_needed_count": 2,
+    "draw_needed_levels": [752.09, 748.00],
+    "drawn_at_premarket": null,
+    "note": "2 levels need chart draw: PMH 752.09 and PML 748.00."
+  },
+  "date": "2026-06-15"
+}

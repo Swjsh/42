@@ -1,0 +1,252 @@
+{
+  "schema_version": 3,
+  "protocol_version": "strategy/key-levels-protocol.md@2",
+  "as_of": "2026-06-18T08:40:00-04:00",
+  "for_session": "2026-06-18",
+  "spot_at_compute": 745.69,
+  "computed_from": {
+    "prior_date": "2026-06-17",
+    "today_date": "2026-06-18",
+    "prior_rth_bars": 0,
+    "today_rth_bars": 0,
+    "premarket_bars": 47,
+    "tv_unavailable": false,
+    "note": "PREMARKET 2026-06-18 08:40 ET. Post-FOMC day. SPY gapped up to PMH 747.00, pulled back to PML 743.35, recovering to 745.69. Ribbon MIXED 11c (was BEAR 52c). VIX 17.16 flat-to-falling. No events today. Dropped: 756.68 (expired 6/17 EOD). Added: 747.00 PMH today (entity 7f6O7p already on chart). Updated 750.62 type to resistance (price now below)."
+  },
+  "levels": [
+    {
+      "price": 755.39,
+      "type": "resistance",
+      "role": null,
+      "label": "RTH_HIGH_2026-06-16",
+      "tier": "Active",
+      "source": "rth_session_high",
+      "verified_at": "2026-06-18T08:40:00-04:00",
+      "expires_at": "2026-06-18T16:00:00-04:00",
+      "reasoning": "6/16 RTH session high. Post-FOMC sell-off on 6/17 means this is now deep overhead resistance (~$9.70 away). Expires tonight. Reclaim = major bull breakout confirmation.",
+      "notes": "Expires tonight. Far overhead post-FOMC. Entity rCinX8.",
+      "entity_id": "rCinX8",
+      "draw_needed": false
+    },
+    {
+      "price": 752.09,
+      "type": "resistance",
+      "role": "support_flipped_to_resistance",
+      "label": "PMH_2026-06-15_NOW_RESISTANCE",
+      "tier": "Active",
+      "source": "premarket_high_broken",
+      "verified_at": "2026-06-18T08:40:00-04:00",
+      "expires_at": "2026-06-18T16:00:00-04:00",
+      "reasoning": "Confirmed resistance after 6/17 FOMC sell-off broke through all support. Now $6.40 overhead. Expires tonight. Reclaim on 5m close = significant bull catalyst.",
+      "notes": "Expires tonight. Entity Gd0RFh.",
+      "entity_id": "Gd0RFh",
+      "draw_needed": false
+    },
+    {
+      "price": 750.62,
+      "type": "resistance",
+      "role": "support_broken_to_resistance",
+      "label": "RTH_LOW_2026-06-16",
+      "tier": "Active",
+      "source": "rth_session_low",
+      "verified_at": "2026-06-18T08:40:00-04:00",
+      "expires_at": "2026-06-18T16:00:00-04:00",
+      "reasoning": "6/16 RTH session low — was support. Broken on 6/17 FOMC sell-off. Price now $4.93 below. Now overhead resistance. Expires tonight. Reclaim = strong post-FOMC recovery signal.",
+      "notes": "Expires tonight. Was support, now overhead. Entity gMxYxG.",
+      "entity_id": "gMxYxG",
+      "draw_needed": false
+    },
+    {
+      "price": 750.0,
+      "type": "psychological",
+      "role": null,
+      "label": "ROUND_750",
+      "tier": "Reference",
+      "source": "round_number_near_price",
+      "verified_at": "2026-06-16T16:30:00-04:00",
+      "expires_at": "2026-08-15T16:00:00-04:00",
+      "reasoning": "Round $750 level. Magnet — awareness only. NOT a trigger source. $4.31 overhead.",
+      "notes": "Awareness only. Engine does not score as trigger source.",
+      "entity_id": null,
+      "draw_needed": false
+    },
+    {
+      "price": 748.0,
+      "type": "resistance",
+      "role": null,
+      "label": "PML_2026-06-15_CARRY",
+      "tier": "Carry",
+      "source": "premarket_low_promoted_carry",
+      "verified_at": "2026-06-18T08:40:00-04:00",
+      "expires_at": "2026-06-20T16:00:00-04:00",
+      "reasoning": "6/15 PML promoted to Carry. Currently $2.31 overhead. First bull recovery target. Break above on 5m close with ribbon = bull continuation toward 750.62.",
+      "notes": "First meaningful bull target above current price. Entity nyAGrW on chart.",
+      "entity_id": "nyAGrW",
+      "draw_needed": false
+    },
+    {
+      "price": 747.0,
+      "type": "resistance",
+      "role": null,
+      "label": "PMH_2026-06-18",
+      "tier": "Active",
+      "source": "premarket_high",
+      "verified_at": "2026-06-18T08:40:00-04:00",
+      "expires_at": "2026-06-18T16:00:00-04:00",
+      "reasoning": "Today's premarket high. SPY ran to 747.00 at 04:00 ET then sold back to 743.35 PML. Now $1.31 overhead. First RTH cap. Bull break above = expansion toward 748.00. Rejection from below = bear setup eligible.",
+      "notes": "Today's PMH. Entity 7f6O7p already drawn on chart.",
+      "entity_id": "7f6O7p",
+      "draw_needed": false
+    },
+    {
+      "price": 745.33,
+      "type": "support",
+      "role": "broken_to_support",
+      "label": "CARRY_SESSION_HIGH_2026-06-08",
+      "tier": "Carry",
+      "source": "prior_session_high_carry",
+      "verified_at": "2026-06-18T08:40:00-04:00",
+      "expires_at": "2026-06-20T16:00:00-04:00",
+      "reasoning": "Jun-8 session high promoted to Carry. MOST PROXIMATE level — $0.36 below current 745.69. Critical open pivot. Hold above = bull base intact. 5m close below = bear signal toward 743.35 PML.",
+      "notes": "Key open-price pivot for 6/18. Not drawn on chart (no entity_id).",
+      "entity_id": null,
+      "draw_needed": true
+    }
+  ],
+  "deprecated_levels": [
+    {
+      "price": 756.68,
+      "label": "RTH_HIGH_2026-06-15 (Carry, expired)",
+      "reason": "EXPIRED: expires_at 2026-06-17T16:00:00-04:00. Final expiry was 6/17 EOD. 3 entity draws still on chart (8xQNH3, ZwWg0n, fUhJ65) — cannot remove (draw_remove_one broken). Superseded by post-FOMC lower price range."
+    },
+    {
+      "price": 755.35,
+      "label": "PMH_2026-06-16 (resistance)",
+      "reason": "Consolidated into RTH_HIGH_2026-06-16 at 755.39 (2c delta, same zone). Dropped to avoid duplicate draws."
+    },
+    {
+      "price": 751.65,
+      "label": "RTH_LOW_2026-06-15 (support)",
+      "reason": "Superseded by today's lower session low at 750.62. Old level no longer the structural floor."
+    },
+    {
+      "price": 740.0,
+      "label": "ROUND_740 (reference)",
+      "reason": "Too far from current price (~$5 below). Dropped to maintain max-7-level discipline. Restore if SPY approaches."
+    }
+  ],
+  "rth_high_today": null,
+  "rth_low_today": null,
+  "close_today": null,
+  "prior_session": {
+    "date": "2026-06-17",
+    "rth_high": null,
+    "rth_low": null,
+    "rth_close": 742.5,
+    "rth_close_source": "estimated_from_ah_open_742.47_at_18:05_ET",
+    "ah_last": 745.5,
+    "ah_high": 745.5,
+    "ah_low": 742.47,
+    "ah_time": "2026-06-17T23:55:00-04:00",
+    "ah_ribbon": "BEAR (transitioning post-FOMC)",
+    "ah_note": "FOMC day 6/17. Rate decision 14:00 ET, hard block 13:30-15:00. Post-FOMC sell-off from ~752 to ~742. EOD NOOP — no trades. AH recovered to 745.50. VIX 17.16 (essentially flat from 17.17). Today gapped up to PMH 747.00 then pulled back to PML 743.35, recovering to 745.69."
+  },
+  "summary": {
+    "total_in": 7,
+    "kept": 7,
+    "dropped_distance": 0,
+    "dropped_expiry": 1,
+    "dropped_protocol": 0,
+    "added_new": 1,
+    "by_stars": {
+      "3star": 0,
+      "2star": 0,
+      "1star": 0
+    }
+  },
+  "session_bias": {
+    "direction": "CAUTIOUS_BULLISH",
+    "confidence": "LOW",
+    "reasoning": "Post-FOMC. Ribbon MIXED 11c (was BEAR 52c). VIX 17.16 flat — bulls barely eligible (< 17.20), bears blocked (< 17.30). 745.33 Carry $0.36 below. No events. Lean bull but ribbon conviction needed."
+  },
+  "audit_log": [
+    {
+      "timestamp": "2026-06-15T08:30:00-04:00",
+      "count_in": 7, "count_pass": 1, "count_dropped": 6, "count_added": 4,
+      "tv_available": true,
+      "note": "PREMARKET AUDIT 2026-06-15 08:30 ET. 6 levels dropped, 4 added."
+    },
+    {
+      "timestamp": "2026-06-15T10:28:49-04:00",
+      "count_in": 5, "count_pass": 5, "count_dropped": 0, "count_added": 2,
+      "tv_available": true,
+      "note": "MID-SESSION REVIEW 10:28 ET 2026-06-15."
+    },
+    {
+      "timestamp": "2026-06-15T16:30:00-04:00",
+      "count_in": 7, "count_pass": 7, "count_dropped": 0, "count_added": 0,
+      "tv_available": false,
+      "note": "EOD REVIEW 16:30 ET 2026-06-15."
+    },
+    {
+      "timestamp": "2026-06-16T08:02:40-04:00",
+      "count_in": 7, "count_pass": 7, "count_dropped": 0, "count_added": 0,
+      "tv_available": true,
+      "note": "PREMARKET AUDIT 2026-06-16 08:02 ET. All 7 levels pass."
+    },
+    {
+      "timestamp": "2026-06-16T08:30:02-04:00",
+      "count_in": 8, "count_pass": 8, "count_dropped": 0, "count_added": 1,
+      "tv_available": true,
+      "note": "PREMARKET UPDATE 2026-06-16 08:30 ET. Added PMH_2026-06-16 at 755.35."
+    },
+    {
+      "timestamp": "2026-06-16T16:30:00-04:00",
+      "count_in": 8, "count_pass": 7, "count_dropped": 3, "count_added": 2,
+      "tv_available": false,
+      "note": "EOD REVIEW 2026-06-16 16:30 ET. Dropped: PMH 755.35, RTH_LOW 751.65, ROUND_740. Added: RTH_HIGH 755.39, RTH_LOW 750.62."
+    },
+    {
+      "timestamp": "2026-06-17T08:30:00-04:00",
+      "count_in": 7, "count_pass": 7, "count_dropped": 0, "count_added": 0,
+      "tv_available": true,
+      "note": "PREMARKET AUDIT 2026-06-17 08:30 ET. All 7 pass. FOMC day. Hard block 13:30-15:00."
+    },
+    {
+      "timestamp": "2026-06-18T08:40:00-04:00",
+      "count_in": 7, "count_pass": 7, "count_dropped": 1, "count_added": 1,
+      "tv_available": true,
+      "note": "PREMARKET AUDIT 2026-06-18 08:40 ET. Dropped 756.68 (expired 6/17 EOD). Added PMH_2026-06-18 747.00 (entity 7f6O7p already on chart). Updated 750.62 type to resistance (price now below). 745.33 marked draw_needed=true. No events today. Ribbon MIXED 11c. VIX 17.16 flat."
+    }
+  ],
+  "chart_cleanup_log": [
+    {
+      "ran_at": "2026-06-16T16:30:00-04:00",
+      "method": "deferred_to_premarket",
+      "note": "2 new levels queued for premarket draw."
+    },
+    {
+      "ran_at": "2026-06-17T08:30:00-04:00",
+      "method": "draw_shape_horizontal_line",
+      "drew_new_entity_ids": ["rCinX8", "gMxYxG"],
+      "kept_entity_ids": ["8xQNH3", "Gd0RFh", "rCinX8", "gMxYxG"],
+      "note": "Drew 755.39 resistance (rCinX8) and 750.62 support (gMxYxG) at premarket."
+    },
+    {
+      "ran_at": "2026-06-18T08:40:00-04:00",
+      "method": "entity_already_present",
+      "drew_new_entity_ids": [],
+      "kept_entity_ids": ["rCinX8", "Gd0RFh", "gMxYxG", "nyAGrW", "7f6O7p"],
+      "expired_entity_ids": ["8xQNH3", "ZwWg0n", "fUhJ65"],
+      "note": "PMH 747.00 entity 7f6O7p already on chart (J drew overnight). 745.33 draw deferred (draw_needed=true). 756.68 expired — 3 stale lines on chart (draw_remove_one broken)."
+    }
+  ],
+  "chart_drawing_summary": {
+    "drawn_count": 5,
+    "draw_needed_count": 1,
+    "draw_needed_levels": ["745.33 (CARRY_SESSION_HIGH_2026-06-08)"],
+    "drawn_at_premarket": "2026-06-18T08:40:00-04:00",
+    "note": "5 active levels with entity_ids on chart: 755.39 (rCinX8), 752.09 (Gd0RFh), 750.62 (gMxYxG), 748.00 (nyAGrW), 747.00 (7f6O7p). 745.33 needs draw. 756.68 stale lines (8xQNH3, ZwWg0n, fUhJ65) remain on chart — draw_remove_one broken."
+  },
+  "date": "2026-06-18"
+}

@@ -1,14 +1,21 @@
 # run-archive-key-levels.ps1 -- Gamma_ArchiveKeyLevels wrapper
-# Snapshots key-levels.json + today-bias.json into analysis/level-quality/snapshots/{date}/
-# Idempotent: second run logs SKIP_EXISTS and exits 0.
-# Proposed slot: 16:05 ET weekdays (see automation/state/SCHEDULED-TASKS.md).
+# Snapshots key-levels.json (+ today-bias.json) into TWO destinations:
+#   1. analysis/level-quality/snapshots/{date}/        (level-quality gym input)
+#   2. journal/key-levels-archive/key-levels-{date}.json (real-level backtest archive)
+# Independent $0 safety-net for the archive: run-daily-review.ps1 also archives inline
+# but early-exits on holidays + rate-limit failure, so this guarantees daily capture.
+# Idempotent: second run logs SKIP_EXISTS per destination and exits 0.
+# Slot: 16:05 ET weekdays (see automation/state/SCHEDULED-TASKS.md).
 #
 # Per CLAUDE.md: engine-benefit instrumentation, ships without J ratification.
 # Does NOT modify heartbeat.md, params*.json, or key-levels.json. Never places orders.
 
 $ROOT    = "C:\Users\jackw\Desktop\42"
 $SCRIPT  = "$ROOT\automation\scripts\archive_key_levels.py"
-$PYTHON  = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\python.exe"
+# Prefer the project venv interpreter (per project convention); fall back to system Python.
+$VENV_PY = "$ROOT\backtest\.venv\Scripts\python.exe"
+$SYS_PY  = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\python.exe"
+$PYTHON  = if (Test-Path $VENV_PY) { $VENV_PY } else { $SYS_PY }
 $LOG_DIR = "$ROOT\automation\logs"
 $LOG     = "$LOG_DIR\archive-key-levels-$(Get-Date -Format 'yyyyMMdd').log"
 

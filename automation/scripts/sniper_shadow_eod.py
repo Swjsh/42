@@ -25,7 +25,11 @@ journal/sniper-shadow-trades.jsonl  (append-only)
 
 SCHEDULED
 ---------
-Gamma_SniperShadowEOD at 16:05 ET weekdays.
+RETIRED 2026-06-19. The `Gamma_SniperShadowEOD` task was unregistered from Windows
+Task Scheduler (SNIPER strategy never promoted; watcher-fleet de-sprawl). This
+worker is left in place per project convention but is ORPHANED -- no scheduled task
+or PS1 wrapper invokes it. It imports only KEPT modules (lib.sniper_detector et al.),
+so it still runs if invoked manually for ad-hoc SNIPER shadow backfill.
 Each run processes only days not already in the log (idempotent).
 
 CLI

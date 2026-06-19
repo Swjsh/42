@@ -1,0 +1,178 @@
+{
+  "schema_version": 3,
+  "protocol_version": "strategy/key-levels-protocol.md@2",
+  "as_of": "2026-06-15T10:28:49-04:00",
+  "for_session": "2026-06-16",
+  "spot_at_compute": 753.61,
+  "computed_from": {
+    "prior_date": "2026-06-15",
+    "today_date": "2026-06-16",
+    "prior_rth_bars": 19,
+    "today_rth_bars": 0,
+    "premarket_bars": 0,
+    "tv_unavailable": false,
+    "note": "MID-SESSION REVIEW at 10:28 ET 2026-06-15. RTH data provisional — session ongoing. Session high 753.61, session low 751.65, close not yet available. PMH 752.09 was broken at open (first tick 09:39 ET 752.71). Tomorrow level set built from partial session data. All Active-tier levels expire 2026-06-18 (48h window for session-high/low promoted to carry). Round refs expire 2026-08-15."
+  },
+  "levels": [
+    {
+      "price": 753.61,
+      "type": "resistance",
+      "role": null,
+      "label": "RTH_HIGH_2026-06-15_PROVISIONAL",
+      "tier": "Active",
+      "source": "rth_session_high_partial",
+      "verified_at": "2026-06-15T10:28:49-04:00",
+      "expires_at": "2026-06-17T16:00:00-04:00",
+      "reasoning": "Provisional RTH session high at 10:28 ET (09:48 tick). Acts as first resistance on tomorrow's open. Will be updated if session extends higher.",
+      "notes": "PROVISIONAL — session ongoing. Final value may differ.",
+      "entity_id": null,
+      "draw_needed": true
+    },
+    {
+      "price": 752.09,
+      "type": "support",
+      "role": "broken_to_support",
+      "label": "PMH_2026-06-15_NOW_SUPPORT",
+      "tier": "Active",
+      "source": "premarket_high_broken",
+      "verified_at": "2026-06-15T10:28:49-04:00",
+      "expires_at": "2026-06-17T16:00:00-04:00",
+      "reasoning": "Was PMH resistance. Broken on first RTH tick (09:39 ET, SPY 752.71). Now first pullback support. Heartbeat level_reclaim trigger eligible if price returns to 752.09 from above and holds.",
+      "notes": "Role flipped broken_to_support at 09:39 ET open.",
+      "entity_id": null,
+      "draw_needed": true
+    },
+    {
+      "price": 751.65,
+      "type": "support",
+      "role": null,
+      "label": "RTH_LOW_2026-06-15_PROVISIONAL",
+      "tier": "Active",
+      "source": "rth_session_low_partial",
+      "verified_at": "2026-06-15T10:28:49-04:00",
+      "expires_at": "2026-06-17T16:00:00-04:00",
+      "reasoning": "Provisional RTH session low at 10:28 ET (first tick). Losing this on a 5m close would shift intraday structure to neutral. Bull structure intact above this.",
+      "notes": "PROVISIONAL — session ongoing.",
+      "entity_id": null,
+      "draw_needed": false
+    },
+    {
+      "price": 750.00,
+      "type": "psychological",
+      "role": null,
+      "label": "ROUND_750",
+      "tier": "Reference",
+      "source": "round_number_near_price",
+      "verified_at": "2026-06-15T10:28:49-04:00",
+      "expires_at": "2026-08-15T16:00:00-04:00",
+      "reasoning": "Round $750 level. Premarket base. Psychological magnet. Not a trigger source.",
+      "notes": "Awareness only. Heartbeat does not treat as trigger source.",
+      "entity_id": null,
+      "draw_needed": false
+    },
+    {
+      "price": 748.00,
+      "type": "support",
+      "role": null,
+      "label": "PML_2026-06-15_CARRY",
+      "tier": "Carry",
+      "source": "premarket_low_promoted_carry",
+      "verified_at": "2026-06-15T10:28:49-04:00",
+      "expires_at": "2026-06-20T16:00:00-04:00",
+      "reasoning": "Today's PML. Session held above 751.65 all day — 748.00 never tested. Carry level into Tuesday as key structural floor. Break below on 5m close = bear setup eligible.",
+      "notes": "~$5.61 below session high. Carry into W25.",
+      "entity_id": null,
+      "draw_needed": false
+    },
+    {
+      "price": 745.33,
+      "type": "support",
+      "role": "broken_to_support",
+      "label": "CARRY_SESSION_HIGH_2026-06-08",
+      "tier": "Carry",
+      "source": "prior_session_high_carry",
+      "verified_at": "2026-06-15T08:30:00-04:00",
+      "expires_at": "2026-06-20T16:00:00-04:00",
+      "reasoning": "June 8 session high. Deep retrace carry — not in play unless SPY drops ~$8+.",
+      "notes": "Engine does not score as active trigger unless price returns to zone.",
+      "entity_id": null,
+      "draw_needed": false
+    },
+    {
+      "price": 740.00,
+      "type": "psychological",
+      "role": null,
+      "label": "ROUND_740",
+      "tier": "Reference",
+      "source": "round_number_near_close",
+      "verified_at": "2026-06-15T08:30:00-04:00",
+      "expires_at": "2026-08-01T16:00:00-04:00",
+      "reasoning": "Round $740 level. Long-lived reference. Not a trigger source.",
+      "notes": "~$13.61 below session high. Deep support awareness only.",
+      "entity_id": null,
+      "draw_needed": false
+    }
+  ],
+  "deprecated_levels": [
+    { "price": 752.09, "label": "PMH_2026-06-15 (resistance)", "reason": "Broken on first RTH tick 09:39 ET. Promoted to support role above." }
+  ],
+  "rth_high_today": 753.61,
+  "rth_low_today": 751.65,
+  "close_today": null,
+  "prior_session": {
+    "date": "2026-06-15",
+    "rth_high": 753.61,
+    "rth_low": 751.65,
+    "rth_close": null,
+    "rth_close_source": "session_ongoing_at_10:28_ET",
+    "ah_last": null,
+    "ah_high": null,
+    "ah_low": null,
+    "ah_time": null,
+    "ah_ribbon": null,
+    "ah_note": "Partial session data — review fired mid-session at 10:28 ET. BULLISH_RECLAIM developing 8-9/11, no trades executed. Final close to be captured by EOD pipeline."
+  },
+  "summary": {
+    "total_in": 5,
+    "kept": 5,
+    "dropped_distance": 0,
+    "dropped_expiry": 0,
+    "dropped_protocol": 0,
+    "added_new": 2,
+    "by_stars": { "3star": 0, "2star": 0, "1star": 0 }
+  },
+  "session_bias": {
+    "direction": "BULLISH",
+    "confidence": "MODERATE",
+    "reasoning": "SPY broke above PMH 752.09 on open and ran to 753.61 in first 20 min. VIX 16.16 falling. Ribbon BULL 84-117c. No trades — BULLISH_RECLAIM developing blocked by filter_10/filter_11. FOMC Wednesday 14:00 ET creates caution for Tuesday afternoon."
+  },
+  "audit_log": [
+    {
+      "timestamp": "2026-06-15T08:30:00-04:00",
+      "count_in": 7,
+      "count_pass": 1,
+      "count_dropped": 6,
+      "count_added": 4,
+      "tv_available": true,
+      "note": "PREMARKET AUDIT 2026-06-15 08:30 ET. 6 levels dropped (5 Active expired, 1 Reference expired). ROUND_740 retained. 4 fresh levels added."
+    },
+    {
+      "timestamp": "2026-06-15T10:28:49-04:00",
+      "count_in": 5,
+      "count_pass": 5,
+      "count_dropped": 0,
+      "count_added": 2,
+      "tv_available": true,
+      "note": "MID-SESSION REVIEW 10:28 ET. PMH 752.09 role flipped to broken_to_support. RTH high 753.61 added as Active resistance. RTH low 751.65 added as Active support (provisional). PML 748.00 promoted to Carry. All 5 prior levels retained."
+    }
+  ],
+  "chart_cleanup_log": [],
+  "chart_drawing_summary": {
+    "drawn_count": 0,
+    "draw_needed_count": 2,
+    "draw_needed_levels": [753.61, 752.09],
+    "drawn_at_premarket": null,
+    "note": "2 levels need chart draw: RTH_HIGH 753.61 and PMH_SUPPORT 752.09. Chart sync deferred — MCP available but review fired mid-session. Premarket tomorrow will sync."
+  },
+  "date": "2026-06-15"
+}

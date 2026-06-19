@@ -1,0 +1,626 @@
+{
+  "window": "2025-01-01..2026-06-16",
+  "family": "bearish_continuation_structures",
+  "patterns_bootstrapped": true,
+  "streams": {
+    "TBR_HIGH_VOL_BEAR": {
+      "raw": {
+        "n": 555,
+        "wr": 47.9,
+        "total": -1661.9,
+        "exp": -2.99
+      },
+      "deduped": {
+        "n": 226,
+        "wr": 55.3,
+        "total": -1546.21,
+        "exp": -6.84
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 31,
+          "wr": 61.3,
+          "total": -65.0,
+          "exp": -2.1
+        },
+        "2025Q2": {
+          "n": 51,
+          "wr": 47.1,
+          "total": -1345.75,
+          "exp": -26.39
+        },
+        "2025Q3": {
+          "n": 47,
+          "wr": 66.0,
+          "total": 90.25,
+          "exp": 1.92
+        },
+        "2025Q4": {
+          "n": 31,
+          "wr": 45.2,
+          "total": -374.75,
+          "exp": -12.09
+        },
+        "2026Q1": {
+          "n": 33,
+          "wr": 57.6,
+          "total": 12.04,
+          "exp": 0.36
+        },
+        "2026Q2": {
+          "n": 33,
+          "wr": 54.5,
+          "total": 137.0,
+          "exp": 4.15
+        }
+      },
+      "distinct_dates": 198
+    },
+    "MOMENTUM_ACCELERATION_HIGHVOL_BEAR": {
+      "raw": {
+        "n": 31,
+        "wr": 22.6,
+        "total": -310.0,
+        "exp": -10.0
+      },
+      "deduped": {
+        "n": 29,
+        "wr": 24.1,
+        "total": -270.0,
+        "exp": -9.31
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 3,
+          "wr": 0.0,
+          "total": -120.0,
+          "exp": -40.0
+        },
+        "2025Q2": {
+          "n": 8,
+          "wr": 25.0,
+          "total": -120.0,
+          "exp": -15.0
+        },
+        "2025Q4": {
+          "n": 6,
+          "wr": 33.3,
+          "total": 85.0,
+          "exp": 14.17
+        },
+        "2026Q1": {
+          "n": 11,
+          "wr": 27.3,
+          "total": -75.0,
+          "exp": -6.82
+        },
+        "2026Q2": {
+          "n": 1,
+          "wr": 0.0,
+          "total": -40.0,
+          "exp": -40.0
+        }
+      },
+      "distinct_dates": 29
+    },
+    "VWAP_REJECTION_PRIME_BEAR": {
+      "raw": {
+        "n": 11,
+        "wr": 0.0,
+        "total": 0.0,
+        "exp": 0.0
+      },
+      "deduped": {
+        "n": 10,
+        "wr": 0.0,
+        "total": 0.0,
+        "exp": 0.0
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 3,
+          "wr": 0.0,
+          "total": 0.0,
+          "exp": 0.0
+        },
+        "2025Q3": {
+          "n": 2,
+          "wr": 0.0,
+          "total": 0.0,
+          "exp": 0.0
+        },
+        "2025Q4": {
+          "n": 2,
+          "wr": 0.0,
+          "total": 0.0,
+          "exp": 0.0
+        },
+        "2026Q1": {
+          "n": 3,
+          "wr": 0.0,
+          "total": 0.0,
+          "exp": 0.0
+        }
+      },
+      "distinct_dates": 10
+    }
+  },
+  "anchor_days": {
+    "2026-04-29": {
+      "label": "WIN",
+      "TBR_HIGH_VOL_BEAR": {
+        "n": 0,
+        "pnl": 0
+      },
+      "MOMENTUM_ACCELERATION_HIGHVOL_BEAR": {
+        "n": 0,
+        "pnl": 0
+      },
+      "VWAP_REJECTION_PRIME_BEAR": {
+        "n": 0,
+        "pnl": 0
+      }
+    },
+    "2026-05-01": {
+      "label": "WIN",
+      "TBR_HIGH_VOL_BEAR": {
+        "n": 3,
+        "pnl": -42.25
+      },
+      "MOMENTUM_ACCELERATION_HIGHVOL_BEAR": {
+        "n": 0,
+        "pnl": 0
+      },
+      "VWAP_REJECTION_PRIME_BEAR": {
+        "n": 0,
+        "pnl": 0
+      }
+    },
+    "2026-05-04": {
+      "label": "WIN",
+      "TBR_HIGH_VOL_BEAR": {
+        "n": 0,
+        "pnl": 0
+      },
+      "MOMENTUM_ACCELERATION_HIGHVOL_BEAR": {
+        "n": 0,
+        "pnl": 0
+      },
+      "VWAP_REJECTION_PRIME_BEAR": {
+        "n": 0,
+        "pnl": 0
+      }
+    },
+    "2026-05-05": {
+      "label": "LOSS",
+      "TBR_HIGH_VOL_BEAR": {
+        "n": 0,
+        "pnl": 0
+      },
+      "MOMENTUM_ACCELERATION_HIGHVOL_BEAR": {
+        "n": 0,
+        "pnl": 0
+      },
+      "VWAP_REJECTION_PRIME_BEAR": {
+        "n": 0,
+        "pnl": 0
+      }
+    },
+    "2026-05-06": {
+      "label": "LOSS",
+      "TBR_HIGH_VOL_BEAR": {
+        "n": 5,
+        "pnl": 103.5
+      },
+      "MOMENTUM_ACCELERATION_HIGHVOL_BEAR": {
+        "n": 0,
+        "pnl": 0
+      },
+      "VWAP_REJECTION_PRIME_BEAR": {
+        "n": 0,
+        "pnl": 0
+      }
+    },
+    "2026-05-07": {
+      "label": "LOSS",
+      "TBR_HIGH_VOL_BEAR": {
+        "n": 4,
+        "pnl": 128.5
+      },
+      "MOMENTUM_ACCELERATION_HIGHVOL_BEAR": {
+        "n": 0,
+        "pnl": 0
+      },
+      "VWAP_REJECTION_PRIME_BEAR": {
+        "n": 0,
+        "pnl": 0
+      }
+    }
+  },
+  "real_fills_capped": {
+    "TBR_HIGH_VOL_BEAR_ATM": {
+      "n": 118,
+      "wr": 39.0,
+      "total": -2563.0,
+      "exp": -21.72
+    },
+    "TBR_HIGH_VOL_BEAR_ITM2": {
+      "n": 118,
+      "wr": 37.3,
+      "total": -6641.0,
+      "exp": -56.28
+    },
+    "MOMENTUM_ACCELERATION_HIGHVOL_BEAR_ATM": {
+      "n": 20,
+      "wr": 45.0,
+      "total": -1600.8,
+      "exp": -80.04
+    },
+    "MOMENTUM_ACCELERATION_HIGHVOL_BEAR_ITM2": {
+      "n": 21,
+      "wr": 52.4,
+      "total": -648.2,
+      "exp": -30.87
+    },
+    "VWAP_REJECTION_PRIME_BEAR_ATM": {
+      "n": 11,
+      "wr": 18.2,
+      "total": -1486.8,
+      "exp": -135.16
+    },
+    "VWAP_REJECTION_PRIME_BEAR_ITM2": {
+      "n": 8,
+      "wr": 12.5,
+      "total": -1636.8,
+      "exp": -204.6
+    }
+  },
+  "real_fills_diagnostics": {
+    "TBR_HIGH_VOL_BEAR_ATM": {
+      "attempted": 132,
+      "filled": 118,
+      "no_fill_or_no_data": 14,
+      "errored": 0
+    },
+    "TBR_HIGH_VOL_BEAR_ITM2": {
+      "attempted": 132,
+      "filled": 118,
+      "no_fill_or_no_data": 14,
+      "errored": 0
+    },
+    "MOMENTUM_ACCELERATION_HIGHVOL_BEAR_ATM": {
+      "attempted": 31,
+      "filled": 20,
+      "no_fill_or_no_data": 11,
+      "errored": 0
+    },
+    "MOMENTUM_ACCELERATION_HIGHVOL_BEAR_ITM2": {
+      "attempted": 31,
+      "filled": 21,
+      "no_fill_or_no_data": 10,
+      "errored": 0
+    },
+    "VWAP_REJECTION_PRIME_BEAR_ATM": {
+      "attempted": 11,
+      "filled": 11,
+      "no_fill_or_no_data": 0,
+      "errored": 0
+    },
+    "VWAP_REJECTION_PRIME_BEAR_ITM2": {
+      "attempted": 11,
+      "filled": 8,
+      "no_fill_or_no_data": 3,
+      "errored": 0
+    }
+  },
+  "anchor_real_fills": {
+    "TBR_HIGH_VOL_BEAR_ATM": {
+      "n_anchor_fills": 12,
+      "win_day_pnl": -27.0,
+      "loss_day_loss": 621.0,
+      "edge_capture_realfills": -648.0,
+      "fills": [
+        {
+          "date": "2026-05-01",
+          "label": "WIN",
+          "pnl": -75.0
+        },
+        {
+          "date": "2026-05-01",
+          "label": "WIN",
+          "pnl": -78.0
+        },
+        {
+          "date": "2026-05-01",
+          "label": "WIN",
+          "pnl": 126.0
+        },
+        {
+          "date": "2026-05-06",
+          "label": "LOSS",
+          "pnl": -90.0
+        },
+        {
+          "date": "2026-05-06",
+          "label": "LOSS",
+          "pnl": -45.0
+        },
+        {
+          "date": "2026-05-06",
+          "label": "LOSS",
+          "pnl": -129.0
+        },
+        {
+          "date": "2026-05-06",
+          "label": "LOSS",
+          "pnl": -51.0
+        },
+        {
+          "date": "2026-05-06",
+          "label": "LOSS",
+          "pnl": -72.0
+        },
+        {
+          "date": "2026-05-07",
+          "label": "LOSS",
+          "pnl": 58.8
+        },
+        {
+          "date": "2026-05-07",
+          "label": "LOSS",
+          "pnl": -147.0
+        },
+        {
+          "date": "2026-05-07",
+          "label": "LOSS",
+          "pnl": 96.0
+        },
+        {
+          "date": "2026-05-07",
+          "label": "LOSS",
+          "pnl": -87.0
+        }
+      ]
+    },
+    "TBR_HIGH_VOL_BEAR_ITM2": {
+      "n_anchor_fills": 12,
+      "win_day_pnl": -6.0,
+      "loss_day_loss": 984.0,
+      "edge_capture_realfills": -990.0,
+      "fills": [
+        {
+          "date": "2026-05-01",
+          "label": "WIN",
+          "pnl": -105.0
+        },
+        {
+          "date": "2026-05-01",
+          "label": "WIN",
+          "pnl": -90.0
+        },
+        {
+          "date": "2026-05-01",
+          "label": "WIN",
+          "pnl": 189.0
+        },
+        {
+          "date": "2026-05-06",
+          "label": "LOSS",
+          "pnl": -174.0
+        },
+        {
+          "date": "2026-05-06",
+          "label": "LOSS",
+          "pnl": -123.0
+        },
+        {
+          "date": "2026-05-06",
+          "label": "LOSS",
+          "pnl": -261.0
+        },
+        {
+          "date": "2026-05-06",
+          "label": "LOSS",
+          "pnl": -42.0
+        },
+        {
+          "date": "2026-05-06",
+          "label": "LOSS",
+          "pnl": -78.0
+        },
+        {
+          "date": "2026-05-07",
+          "label": "LOSS",
+          "pnl": 129.0
+        },
+        {
+          "date": "2026-05-07",
+          "label": "LOSS",
+          "pnl": -198.0
+        },
+        {
+          "date": "2026-05-07",
+          "label": "LOSS",
+          "pnl": 183.0
+        },
+        {
+          "date": "2026-05-07",
+          "label": "LOSS",
+          "pnl": -108.0
+        }
+      ]
+    },
+    "MOMENTUM_ACCELERATION_HIGHVOL_BEAR_ATM": {
+      "n_anchor_fills": 0,
+      "win_day_pnl": 0,
+      "loss_day_loss": 0,
+      "edge_capture_realfills": 0,
+      "fills": []
+    },
+    "MOMENTUM_ACCELERATION_HIGHVOL_BEAR_ITM2": {
+      "n_anchor_fills": 0,
+      "win_day_pnl": 0,
+      "loss_day_loss": 0,
+      "edge_capture_realfills": 0,
+      "fills": []
+    },
+    "VWAP_REJECTION_PRIME_BEAR_ATM": {
+      "n_anchor_fills": 0,
+      "win_day_pnl": 0,
+      "loss_day_loss": 0,
+      "edge_capture_realfills": 0,
+      "fills": []
+    },
+    "VWAP_REJECTION_PRIME_BEAR_ITM2": {
+      "n_anchor_fills": 0,
+      "win_day_pnl": 0,
+      "loss_day_loss": 0,
+      "edge_capture_realfills": 0,
+      "fills": []
+    }
+  },
+  "dsr_gate": {
+    "TBR_HIGH_VOL_BEAR_ATM": {
+      "verdict": "FAIL",
+      "dsr": 0.0129,
+      "psr": 0.0843,
+      "pbo": null,
+      "n_obs": 118,
+      "low_power": false
+    },
+    "TBR_HIGH_VOL_BEAR_ITM2": {
+      "verdict": "FAIL",
+      "dsr": 0.0001,
+      "psr": 0.0018,
+      "pbo": null,
+      "n_obs": 118,
+      "low_power": false
+    },
+    "MOMENTUM_ACCELERATION_HIGHVOL_BEAR_ATM": {
+      "verdict": "FAIL",
+      "dsr": 0.0048,
+      "psr": 0.0411,
+      "pbo": null,
+      "n_obs": 20,
+      "low_power": false
+    },
+    "MOMENTUM_ACCELERATION_HIGHVOL_BEAR_ITM2": {
+      "verdict": "FAIL",
+      "dsr": 0.076,
+      "psr": 0.281,
+      "pbo": null,
+      "n_obs": 21,
+      "low_power": false
+    },
+    "VWAP_REJECTION_PRIME_BEAR_ATM": {
+      "verdict": "FAIL",
+      "dsr": 0.0015,
+      "psr": 0.017,
+      "pbo": null,
+      "n_obs": 11,
+      "low_power": true
+    },
+    "VWAP_REJECTION_PRIME_BEAR_ITM2": {
+      "verdict": "FAIL",
+      "dsr": 0.0047,
+      "psr": 0.0403,
+      "pbo": null,
+      "n_obs": 8,
+      "low_power": true
+    }
+  },
+  "verdict": {
+    "TBR_HIGH_VOL_BEAR": "DO-NOT-PROMOTE / ANTI-EDGE \u2014 REAL-FILLS anchor edge_capture $-648.0 < 0 (bleeds on / profits against J's days). REAL-FILLS anchor edge_capture: ATM $-648.0 (n_anchor_fills=12), ITM2 $-990.0 (n=12). [SPY-space proxy edge $-42.25.] DSR ATM=FAIL (dsr=0.0129). Full-window real-fills ATM exp $-21.72 (N=118, WR 39.0%). ITM2 exp $-56.28 (N=118, WR 37.3%).",
+    "MOMENTUM_ACCELERATION_HIGHVOL_BEAR": "WATCH-ONLY / NO-ANCHOR-COVERAGE \u2014 fired on 0 of J's anchor days with OPRA fills; cannot confirm it captures J's edge. REAL-FILLS anchor edge_capture: ATM $0 (n_anchor_fills=0), ITM2 $0 (n=0). [SPY-space proxy edge $0.0.] DSR ATM=FAIL (dsr=0.0048). Full-window real-fills ATM exp $-80.04 (N=20, WR 45.0%). ITM2 exp $-30.87 (N=21, WR 52.4%).",
+    "VWAP_REJECTION_PRIME_BEAR": "WATCH-ONLY / NO-ANCHOR-COVERAGE \u2014 fired on 0 of J's anchor days with OPRA fills; cannot confirm it captures J's edge. REAL-FILLS anchor edge_capture: ATM $0 (n_anchor_fills=0), ITM2 $0 (n=0). [SPY-space proxy edge $0.0.] DSR ATM=FAIL (dsr=0.0015). Full-window real-fills ATM exp $-135.16 (N=11, WR 18.2%). ITM2 exp $-204.6 (N=8, WR 12.5%)."
+  },
+  "ranking": [
+    {
+      "pattern": "MOMENTUM_ACCELERATION_HIGHVOL_BEAR",
+      "realfills_anchor_edge_atm": 0,
+      "realfills_anchor_edge_itm2": 0,
+      "realfills_anchor_n": 0,
+      "spy_space_anchor_edge_proxy": 0.0,
+      "spy_space_anti_correlated": false,
+      "spy_n": 29,
+      "spy_wr": 24.1,
+      "spy_exp": -9.31,
+      "realfills_atm_exp": -80.04,
+      "realfills_atm_n": 20,
+      "realfills_atm_wr": 45.0,
+      "realfills_atm_total": -1600.8,
+      "realfills_itm2_exp": -30.87,
+      "realfills_itm2_n": 21,
+      "realfills_itm2_wr": 52.4,
+      "dsr_atm_verdict": "FAIL",
+      "dsr_atm": 0.0048,
+      "note": "Momentum-CONTINUATION (fast expanding-vol bar + ALIGNED ribbon + VIX>=20), BEAR side only. Watcher docstring flags bear side as the drag (curated scan VIX>=25 N=7 WR=42.9% -$435). This confirms/denies on the anchor-aligned full replay with real fills.",
+      "rank": 1
+    },
+    {
+      "pattern": "VWAP_REJECTION_PRIME_BEAR",
+      "realfills_anchor_edge_atm": 0,
+      "realfills_anchor_edge_itm2": 0,
+      "realfills_anchor_n": 0,
+      "spy_space_anchor_edge_proxy": 0.0,
+      "spy_space_anti_correlated": false,
+      "spy_n": 10,
+      "spy_wr": 0.0,
+      "spy_exp": 0.0,
+      "realfills_atm_exp": -135.16,
+      "realfills_atm_n": 11,
+      "realfills_atm_wr": 18.2,
+      "realfills_atm_total": -1486.8,
+      "realfills_itm2_exp": -204.6,
+      "realfills_itm2_n": 8,
+      "realfills_itm2_wr": 12.5,
+      "dsr_atm_verdict": "FAIL",
+      "dsr_atm": 0.0015,
+      "note": "Session-VWAP rejection from below on a down day = continuation. Reference is the dynamic VWAP, not a horizontal key level \u2014 distinct structure. BEAR side only. Spec defaults (strategy/vwap_rejection_prime.md), NOT ratified.",
+      "rank": 2
+    },
+    {
+      "pattern": "TBR_HIGH_VOL_BEAR",
+      "realfills_anchor_edge_atm": -648.0,
+      "realfills_anchor_edge_itm2": -990.0,
+      "realfills_anchor_n": 12,
+      "spy_space_anchor_edge_proxy": -42.25,
+      "spy_space_anti_correlated": true,
+      "spy_n": 226,
+      "spy_wr": 55.3,
+      "spy_exp": -6.84,
+      "realfills_atm_exp": -21.72,
+      "realfills_atm_n": 118,
+      "realfills_atm_wr": 39.0,
+      "realfills_atm_total": -2563.0,
+      "realfills_itm2_exp": -56.28,
+      "realfills_itm2_n": 118,
+      "realfills_itm2_wr": 37.3,
+      "dsr_atm_verdict": "FAIL",
+      "dsr_atm": 0.0129,
+      "note": "TRENDLINE-break-retest, high-vol (>=1.5x). The playbook TRENDLINE_BREAK_VOLUME candidate \u2014 structurally distinct from level rejection. Prior TBR work (tbr_hv_*.json) is SHOTGUN-grader walk-forward only; this is the FIRST anchor-aligned real-fills edge_capture read. Bear side only. Look-ahead key-levels read monkeypatched to historical \u2605\u2605+ levels.",
+      "rank": 3
+    }
+  ],
+  "op20_disclosures": {
+    "authority": "Real-fills (simulate_trade_real over OPRA bars, valid through ~2026-05-29) is the WR/expectancy authority. SPY-space grade_observation is a directional proxy (SPY move x 100), NOT option P&L (C1/C3).",
+    "levels": "Historically-rebuilt \u2605\u2605 proxies (active+multi_day from _detect_from_history as-of each day), NOT production \u2605\u2605\u2605 named levels. No key-levels archive covers the window so a true \u2605\u2605\u2605 historical validation is impossible (OP-20). Break/ribbon/structure logic uses clean ctx.prior_bars (no look-ahead).",
+    "tbr_lookahead_fix": "tbr_high_vol_watcher reads automation/state/key-levels.json (TODAY's levels) via shotgun_scalper_watcher._load_levels \u2014 a look-ahead trap for a 16-month replay. NEUTRALIZED here by monkeypatching _load_levels to historically-detected \u2605\u2605+ levels per bar-date. The detector also auto-derives intraday levels (auto_derive_intraday_levels=True), so the trendline path is exercised regardless of named levels.",
+    "anchor_metric": "OP-16 edge_capture = sum(P&L on WIN anchors 4/29,5/01,5/04) - sum(max(0,-P&L) on LOSS anchors 5/05,5/06,5/07). PRIMARY ranking key, computed on REAL fills (anchor_real_fills block) \u2014 the authority. PROMOTE requires REAL-FILLS anchor edge_capture > 0 AND full-window real-fills ATM exp > 0 AND DSR not FAIL.",
+    "direction_filter": "All three watchers can fire either direction; this harness keeps only direction=='short' (bearish CONTINUATION). The bull-side fires are out of scope (a different, non-bearish question).",
+    "real_fills_model": "simulate_trade_real, side=P (all bearish-continuation = puts), qty=3, chart-stop only (premium_stop_pct=-0.99 per L51/L55), ATM (offset 0) and ITM2 (offset -2). Cap = first 120 signals/stream, ANCHOR-INCLUSIVE (every anchor-day signal always simulated). Real-fills N counts RAW signals (pre-dedup); compare WR/exp, not N, vs the SPY-space deduped N. NOTE: TBR is single-exit in production (no runner); here it is graded with the SAME TP1+runner real-fills model as the rest of the family so edge_capture is apples-to-apples \u2014 the production single-exit P&L will differ.",
+    "dsr_gate": "Advisory DSR/PSR (Bailey & Lopez de Prado) on per-trade $ P&L, n_trials=3 (structures searched). PBO skipped (no CSCV matrix). gate.py is NOT a hard production gate; a DSR FAIL is treated as one PROMOTE condition failing. Small-sample low_power flagged when n_obs<20 (C24).",
+    "prior_research": "Sequel to analysis/recommendations/bearish-continuation-family.json (research #26, level-rejection family). That run found BEARISH_REJECTION_MORNING is the ONLY edge-aligned entry (anchor edge +$134 ATM/+$197 ITM2, full-window exp NEGATIVE -> edge-aligned-but-fragile) and every other level-rejection variant anti-edge / zero-coverage. THIS run extends the question to non-level-rejection STRUCTURES.",
+    "scope": "Three bearish-continuation STRUCTURES only (lean, per task): TBR_HIGH_VOL (trendline-break-retest), MOMENTUM_ACCELERATION_HIGHVOL (momentum continuation), VWAP_REJECTION_PRIME (session-VWAP rejection). No new detectors built."
+  },
+  "headline": {
+    "tested_structures": [
+      "TBR_HIGH_VOL_BEAR",
+      "MOMENTUM_ACCELERATION_HIGHVOL_BEAR",
+      "VWAP_REJECTION_PRIME_BEAR"
+    ],
+    "promote_candidates": [],
+    "edge_aligned_on_real_fills": [],
+    "verdict": "CONCLUSIVE \u2014 NO bearish-continuation STRUCTURE beyond BEARISH_REJECTION is edge-aligned + worth building on. Across the trendline (TBR_HIGH_VOL), momentum (MOMENTUM_ACCELERATION_HIGHVOL) and VWAP (VWAP_REJECTION_PRIME) families, none clears the PROMOTE gate (positive real-fills ATM exp AND positive real-fills anchor edge_capture AND DSR not FAIL). Structures with a POSITIVE real-fills anchor edge (capture J's days) but not broadly profitable: (none). Least-bad / closest: MOMENTUM_ACCELERATION_HIGHVOL_BEAR. This NARROWS THE FIELD: combined with research #26 (level-rejection family), the ONLY entry that captures J's anchor days on real fills remains BEARISH_REJECTION_RIDE_THE_RIBBON. The leverage is EXIT/REGIME work on that one entry, not a new bearish-continuation entry structure. No PROMOTE."
+  }
+}
