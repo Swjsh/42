@@ -1,0 +1,1933 @@
+{
+  "window": "2025-01-01..2026-05-29",
+  "generated_at": "2026-06-19T08:27:25",
+  "research_question": "UNBIASED + REGIME-CONDITIONED fleet re-eval. (H1) Rank every candidate watcher by STANDALONE real-fills expectancy/WR/DSR with NO bearish-anchor gate. (H2) Re-test the bounce/mean-reversion family CONDITIONED on a low-vol/range pin-regime PROXY (long-gamma stand-in; no GEX history). Goal: a regime->setup map for a diversified multi-setup book. Real-fills (OPRA) is the only authority (C1). PROPOSE-ONLY (Rule 9).",
+  "method_contrast": {
+    "weekend_method": "Gated EVERY setup on edge_capture vs 3 BEARISH anchors (4/29,5/01,5/04 down-days) minus 3 LOSS days (5/05-07 up/range-days). Mean-reversion longs that work on range/up days were PENALISED because those are J's anchor LOSS days. => structurally biased to bearish-continuation.",
+    "this_method": "STANDALONE expectancy per setup (no anchor gate) + regime conditioning. edge_capture reported as a SECONDARY diagnostic only, to expose the bias it would impose."
+  },
+  "regime_proxy_definition": {
+    "vix_buckets": "LOW<15.0 / MID / HIGH>=19.0",
+    "pin_proxy_long_gamma": "vix_now<16.0 AND day_range_compression<0.85 AND ribbon_stack==MIXED. Compression = today's range-so-far / trailing 20-day MEDIAN full-RTH range (prior days only, no look-ahead). PROXY for long-gamma/pin \u2014 NO GEX data (OP-20).",
+    "regime_buckets": "bear_trend(BEAR) / bull_trend(BULL) / range_pin(pin_proxy) / high_vol(VIX HIGH) / vix_low / ribbon_mixed"
+  },
+  "h1_standalone_fleet_ranking": [
+    {
+      "setup": "DOUBLE_BOTTOM_MORNING_LOW_VOL",
+      "exp": 20.24,
+      "wr": 65.0,
+      "n": 40,
+      "total": 809.6,
+      "dsr_verdict": "WEAK",
+      "dsr": 0.2074,
+      "oos_sign_stable": true,
+      "edge_capture_diag": 0.0,
+      "positive_standalone": true
+    },
+    {
+      "setup": "BULLISH_RECLAIM",
+      "exp": 10.33,
+      "wr": 54.9,
+      "n": 82,
+      "total": 847.4,
+      "dsr_verdict": "WEAK",
+      "dsr": 0.1877,
+      "oos_sign_stable": false,
+      "edge_capture_diag": 0,
+      "positive_standalone": true
+    },
+    {
+      "setup": "DOUBLE_BOTTOM_BASE_QUIET",
+      "exp": 5.7,
+      "wr": 54.4,
+      "n": 57,
+      "total": 324.8,
+      "dsr_verdict": "WEAK",
+      "dsr": 0.13,
+      "oos_sign_stable": false,
+      "edge_capture_diag": -60.0,
+      "positive_standalone": true
+    },
+    {
+      "setup": "NAMED_LEVEL_SECOND_TEST",
+      "exp": -3.63,
+      "wr": 59.1,
+      "n": 484,
+      "total": -1758.8,
+      "dsr_verdict": "FAIL",
+      "dsr": 0.0304,
+      "oos_sign_stable": false,
+      "edge_capture_diag": -265.8,
+      "positive_standalone": false
+    },
+    {
+      "setup": "FLOOR_HOLD_BOUNCE",
+      "exp": -29.01,
+      "wr": 36.8,
+      "n": 76,
+      "total": -2204.6,
+      "dsr_verdict": "FAIL",
+      "dsr": 0.0003,
+      "oos_sign_stable": true,
+      "edge_capture_diag": -150.0,
+      "positive_standalone": false
+    },
+    {
+      "setup": "BEARISH_REJECTION_MORNING",
+      "exp": -29.52,
+      "wr": 63.6,
+      "n": 44,
+      "total": -1298.8,
+      "dsr_verdict": "FAIL",
+      "dsr": 0.0083,
+      "oos_sign_stable": true,
+      "edge_capture_diag": 134.4,
+      "positive_standalone": false
+    },
+    {
+      "setup": "CLOSE_CEILING_FADE",
+      "exp": -46.63,
+      "wr": 28.9,
+      "n": 90,
+      "total": -4196.8,
+      "dsr_verdict": "FAIL",
+      "dsr": 0.0,
+      "oos_sign_stable": true,
+      "edge_capture_diag": -69.0,
+      "positive_standalone": false
+    }
+  ],
+  "h2_regime_conditioned_meanrev": {
+    "CLOSE_CEILING_FADE": {
+      "exit_used": {
+        "premium_stop_pct": -0.99,
+        "strike_offset": -2,
+        "tp1_premium_pct": 0.3,
+        "level_stop_buffer_dollars": 0.5
+      },
+      "unconditioned": {
+        "exp": -76.03,
+        "wr": 28.9,
+        "n": 90
+      },
+      "in_regime": {
+        "range_pin": {
+          "exp": -88.5,
+          "wr": 25.0,
+          "n": 4,
+          "low_power": true,
+          "revived": false
+        },
+        "vix_low": {
+          "exp": -116.57,
+          "wr": 0.0,
+          "n": 7,
+          "low_power": true,
+          "revived": false
+        },
+        "ribbon_mixed": {
+          "exp": -79.36,
+          "wr": 26.7,
+          "n": 15,
+          "low_power": true,
+          "revived": false
+        }
+      },
+      "revived_in_some_regime": false,
+      "verdict": "DEAD-EVEN-IN-REGIME (no low-vol/range slice flips it positive)"
+    },
+    "DOUBLE_BOTTOM_BASE_QUIET": {
+      "exit_used": {
+        "premium_stop_pct": -0.99,
+        "strike_offset": -2,
+        "tp1_premium_pct": 0.3,
+        "level_stop_buffer_dollars": 0.5
+      },
+      "unconditioned": {
+        "exp": 5.77,
+        "wr": 51.9,
+        "n": 54
+      },
+      "in_regime": {
+        "vix_low": {
+          "exp": -231.0,
+          "wr": 0.0,
+          "n": 1,
+          "low_power": true,
+          "revived": false
+        },
+        "ribbon_mixed": {
+          "exp": 97.65,
+          "wr": 75.0,
+          "n": 4,
+          "low_power": true,
+          "revived": false
+        }
+      },
+      "revived_in_some_regime": false,
+      "verdict": "DEAD-EVEN-IN-REGIME (no low-vol/range slice flips it positive)"
+    },
+    "DOUBLE_BOTTOM_MORNING_LOW_VOL": {
+      "exit_used": {
+        "premium_stop_pct": -0.99,
+        "strike_offset": -2,
+        "tp1_premium_pct": 0.3,
+        "level_stop_buffer_dollars": 0.5
+      },
+      "unconditioned": {
+        "exp": 15.85,
+        "wr": 58.8,
+        "n": 34
+      },
+      "in_regime": {
+        "vix_low": {
+          "exp": -213.0,
+          "wr": 0.0,
+          "n": 1,
+          "low_power": true,
+          "revived": false
+        },
+        "ribbon_mixed": {
+          "exp": -361.0,
+          "wr": 0.0,
+          "n": 3,
+          "low_power": true,
+          "revived": false
+        }
+      },
+      "revived_in_some_regime": false,
+      "verdict": "DEAD-EVEN-IN-REGIME (no low-vol/range slice flips it positive)"
+    },
+    "FLOOR_HOLD_BOUNCE": {
+      "exit_used": {
+        "premium_stop_pct": -0.99,
+        "strike_offset": -2,
+        "tp1_premium_pct": 0.3,
+        "level_stop_buffer_dollars": 0.5
+      },
+      "unconditioned": {
+        "exp": -39.19,
+        "wr": 30.3,
+        "n": 76
+      },
+      "in_regime": {
+        "range_pin": {
+          "exp": 103.7,
+          "wr": 50.0,
+          "n": 2,
+          "low_power": true,
+          "revived": true
+        },
+        "vix_low": {
+          "exp": -15.93,
+          "wr": 44.4,
+          "n": 9,
+          "low_power": true,
+          "revived": false
+        },
+        "ribbon_mixed": {
+          "exp": 36.45,
+          "wr": 45.5,
+          "n": 11,
+          "low_power": true,
+          "revived": true
+        }
+      },
+      "revived_in_some_regime": true,
+      "verdict": "REVIVED-IN-REGIME (dead unconditioned, positive in-regime \u2014 worth a focused real-fills re-test on production \u2605\u2605\u2605 levels)"
+    },
+    "NAMED_LEVEL_SECOND_TEST": {
+      "exit_used": {
+        "premium_stop_pct": -0.99,
+        "strike_offset": -2,
+        "tp1_premium_pct": 0.3,
+        "level_stop_buffer_dollars": 0.5
+      },
+      "unconditioned": {
+        "exp": -27.62,
+        "wr": 53.4,
+        "n": 468
+      },
+      "in_regime": {
+        "range_pin": {
+          "exp": -49.53,
+          "wr": 40.0,
+          "n": 20,
+          "low_power": false,
+          "revived": false
+        },
+        "vix_low": {
+          "exp": -67.68,
+          "wr": 35.9,
+          "n": 39,
+          "low_power": false,
+          "revived": false
+        },
+        "ribbon_mixed": {
+          "exp": -56.43,
+          "wr": 52.2,
+          "n": 92,
+          "low_power": false,
+          "revived": false
+        }
+      },
+      "revived_in_some_regime": false,
+      "verdict": "DEAD-EVEN-IN-REGIME (no low-vol/range slice flips it positive)"
+    }
+  },
+  "diversified_book_regime_map": {
+    "bear_trend": [
+      {
+        "setup": "DOUBLE_BOTTOM_MORNING_LOW_VOL",
+        "exp": 78.67,
+        "wr": 77.8,
+        "n": 9,
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": 0,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "low_power": true
+      },
+      {
+        "setup": "NAMED_LEVEL_SECOND_TEST",
+        "exp": 8.65,
+        "wr": 63.2,
+        "n": 144,
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": 0,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "low_power": false
+      }
+    ],
+    "bull_trend": [
+      {
+        "setup": "DOUBLE_BOTTOM_MORNING_LOW_VOL",
+        "exp": 49.67,
+        "wr": 61.9,
+        "n": 21,
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": -2,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "low_power": false
+      },
+      {
+        "setup": "DOUBLE_BOTTOM_BASE_QUIET",
+        "exp": 31.5,
+        "wr": 50.0,
+        "n": 22,
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": -2,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "low_power": false
+      },
+      {
+        "setup": "BULLISH_RECLAIM",
+        "exp": 10.33,
+        "wr": 54.9,
+        "n": 82,
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": 0,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "low_power": false
+      }
+    ],
+    "range_pin": [],
+    "high_vol": [
+      {
+        "setup": "DOUBLE_BOTTOM_MORNING_LOW_VOL",
+        "exp": 80.88,
+        "wr": 80.0,
+        "n": 5,
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": 0,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "low_power": true
+      },
+      {
+        "setup": "NAMED_LEVEL_SECOND_TEST",
+        "exp": 22.26,
+        "wr": 66.7,
+        "n": 144,
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": 0,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "low_power": false
+      }
+    ],
+    "vix_low": [
+      {
+        "setup": "BULLISH_RECLAIM",
+        "exp": 8.99,
+        "wr": 57.1,
+        "n": 14,
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": 0,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "low_power": true
+      },
+      {
+        "setup": "FLOOR_HOLD_BOUNCE",
+        "exp": 8.6,
+        "wr": 66.7,
+        "n": 9,
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": 0,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "low_power": true
+      }
+    ],
+    "ribbon_mixed": [
+      {
+        "setup": "FLOOR_HOLD_BOUNCE",
+        "exp": 36.45,
+        "wr": 45.5,
+        "n": 11,
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": -2,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "low_power": true
+      },
+      {
+        "setup": "CLOSE_CEILING_FADE",
+        "exp": 7.44,
+        "wr": 50.0,
+        "n": 16,
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": 0,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "low_power": true
+      }
+    ]
+  },
+  "fleet_detail": {
+    "FLOOR_HOLD_BOUNCE": {
+      "n_signals_collected": 132,
+      "standalone_default_exit": {
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": 0,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "n": 76,
+        "wr": 36.8,
+        "total": -2204.6,
+        "exp": -29.01,
+        "dsr_gate": {
+          "verdict": "FAIL",
+          "dsr": 0.0003,
+          "psr": 0.0231,
+          "n_obs": 76,
+          "low_power": false
+        },
+        "oos_median": {
+          "boundary": "2025-08-28",
+          "in_sample": {
+            "exp": -25.28,
+            "wr": 42.1,
+            "n": 38
+          },
+          "out_of_sample": {
+            "exp": -32.73,
+            "wr": 31.6,
+            "n": 38
+          },
+          "sign_stable": true
+        },
+        "edge_capture_diagnostic": {
+          "edge_capture": -150.0,
+          "anchor_days_fired": 2,
+          "note": "SECONDARY DIAGNOSTIC, NOT a gate. Shows what the weekend's bearish-anchor gate would have done to this setup."
+        },
+        "by_regime": {
+          "bear_trend": {
+            "n": 30,
+            "wr": 40.0,
+            "total": -898.8,
+            "exp": -29.96,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0011,
+              "psr": 0.0548,
+              "n_obs": 30,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "bull_trend": {
+            "n": 34,
+            "wr": 35.3,
+            "total": -723.6,
+            "exp": -21.28,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0093,
+              "psr": 0.1851,
+              "n_obs": 34,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "high_vol": {
+            "n": 23,
+            "wr": 21.7,
+            "total": -1924.2,
+            "exp": -83.66,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0,
+              "psr": 0.0017,
+              "n_obs": 23,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "range_pin": {
+            "n": 2,
+            "wr": 50.0,
+            "total": 55.0,
+            "exp": 27.5,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.1082,
+              "psr": 0.5881,
+              "n_obs": 2,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "ribbon_mixed": {
+            "n": 12,
+            "wr": 33.3,
+            "total": -582.2,
+            "exp": -48.52,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0037,
+              "psr": 0.1116,
+              "n_obs": 12,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "vix_low": {
+            "n": 9,
+            "wr": 66.7,
+            "total": 77.4,
+            "exp": 8.6,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.1457,
+              "psr": 0.6569,
+              "n_obs": 9,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "direction_long": {
+            "n": 76,
+            "wr": 36.8,
+            "total": -2204.6,
+            "exp": -29.01,
+            "low_power": false
+          }
+        }
+      },
+      "standalone_meanrev_exit": {
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": -2,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "n": 76,
+        "wr": 30.3,
+        "total": -2978.4,
+        "exp": -39.19,
+        "dsr_gate": {
+          "verdict": "FAIL",
+          "dsr": 0.0006,
+          "psr": 0.0366,
+          "n_obs": 76,
+          "low_power": false
+        },
+        "oos_median": {
+          "boundary": "2025-08-29",
+          "in_sample": {
+            "exp": -36.14,
+            "wr": 31.6,
+            "n": 38
+          },
+          "out_of_sample": {
+            "exp": -42.24,
+            "wr": 28.9,
+            "n": 38
+          },
+          "sign_stable": true
+        },
+        "edge_capture_diagnostic": {
+          "edge_capture": -207.0,
+          "anchor_days_fired": 2,
+          "note": "SECONDARY DIAGNOSTIC, NOT a gate. Shows what the weekend's bearish-anchor gate would have done to this setup."
+        },
+        "by_regime": {
+          "bear_trend": {
+            "n": 29,
+            "wr": 31.0,
+            "total": -1868.4,
+            "exp": -64.43,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0001,
+              "psr": 0.0153,
+              "n_obs": 29,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "bull_trend": {
+            "n": 36,
+            "wr": 25.0,
+            "total": -1511.0,
+            "exp": -41.97,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0044,
+              "psr": 0.1222,
+              "n_obs": 36,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "high_vol": {
+            "n": 23,
+            "wr": 21.7,
+            "total": -2072.8,
+            "exp": -90.12,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0001,
+              "psr": 0.0137,
+              "n_obs": 23,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "range_pin": {
+            "n": 2,
+            "wr": 50.0,
+            "total": 207.4,
+            "exp": 103.7,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.1645,
+              "psr": 0.6855,
+              "n_obs": 2,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "ribbon_mixed": {
+            "n": 11,
+            "wr": 45.5,
+            "total": 401.0,
+            "exp": 36.45,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.2643,
+              "psr": 0.7964,
+              "n_obs": 11,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "vix_low": {
+            "n": 9,
+            "wr": 44.4,
+            "total": -143.4,
+            "exp": -15.93,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0326,
+              "psr": 0.3502,
+              "n_obs": 9,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "direction_long": {
+            "n": 76,
+            "wr": 30.3,
+            "total": -2978.4,
+            "exp": -39.19,
+            "low_power": false
+          }
+        }
+      }
+    },
+    "CLOSE_CEILING_FADE": {
+      "n_signals_collected": 155,
+      "standalone_default_exit": {
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": 0,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "n": 90,
+        "wr": 28.9,
+        "total": -4196.8,
+        "exp": -46.63,
+        "dsr_gate": {
+          "verdict": "FAIL",
+          "dsr": 0.0,
+          "psr": 0.0001,
+          "n_obs": 90,
+          "low_power": false
+        },
+        "oos_median": {
+          "boundary": "2025-10-28",
+          "in_sample": {
+            "exp": -61.92,
+            "wr": 24.4,
+            "n": 45
+          },
+          "out_of_sample": {
+            "exp": -31.35,
+            "wr": 33.3,
+            "n": 45
+          },
+          "sign_stable": true
+        },
+        "edge_capture_diagnostic": {
+          "edge_capture": -69.0,
+          "anchor_days_fired": 2,
+          "note": "SECONDARY DIAGNOSTIC, NOT a gate. Shows what the weekend's bearish-anchor gate would have done to this setup."
+        },
+        "by_regime": {
+          "bear_trend": {
+            "n": 27,
+            "wr": 25.9,
+            "total": -2017.8,
+            "exp": -74.73,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0,
+              "psr": 0.0026,
+              "n_obs": 27,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "bull_trend": {
+            "n": 47,
+            "wr": 23.4,
+            "total": -2298.0,
+            "exp": -48.89,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0,
+              "psr": 0.0,
+              "n_obs": 47,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "high_vol": {
+            "n": 25,
+            "wr": 20.0,
+            "total": -2386.2,
+            "exp": -95.45,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0,
+              "psr": 0.0026,
+              "n_obs": 25,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "range_pin": {
+            "n": 4,
+            "wr": 25.0,
+            "total": -274.2,
+            "exp": -68.55,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0046,
+              "psr": 0.1254,
+              "n_obs": 4,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "ribbon_mixed": {
+            "n": 16,
+            "wr": 50.0,
+            "total": 119.0,
+            "exp": 7.44,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.1065,
+              "psr": 0.5847,
+              "n_obs": 16,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "vix_low": {
+            "n": 7,
+            "wr": 0.0,
+            "total": -576.0,
+            "exp": -82.29,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0,
+              "psr": 0.0004,
+              "n_obs": 7,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "direction_short": {
+            "n": 90,
+            "wr": 28.9,
+            "total": -4196.8,
+            "exp": -46.63,
+            "low_power": false
+          }
+        }
+      },
+      "standalone_meanrev_exit": {
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": -2,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "n": 90,
+        "wr": 28.9,
+        "total": -6842.8,
+        "exp": -76.03,
+        "dsr_gate": {
+          "verdict": "FAIL",
+          "dsr": 0.0,
+          "psr": 0.0,
+          "n_obs": 90,
+          "low_power": false
+        },
+        "oos_median": {
+          "boundary": "2025-10-28",
+          "in_sample": {
+            "exp": -67.26,
+            "wr": 28.9,
+            "n": 45
+          },
+          "out_of_sample": {
+            "exp": -84.8,
+            "wr": 28.9,
+            "n": 45
+          },
+          "sign_stable": true
+        },
+        "edge_capture_diagnostic": {
+          "edge_capture": -105.0,
+          "anchor_days_fired": 1,
+          "note": "SECONDARY DIAGNOSTIC, NOT a gate. Shows what the weekend's bearish-anchor gate would have done to this setup."
+        },
+        "by_regime": {
+          "bear_trend": {
+            "n": 28,
+            "wr": 21.4,
+            "total": -3192.4,
+            "exp": -114.01,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0,
+              "psr": 0.0021,
+              "n_obs": 28,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "bull_trend": {
+            "n": 47,
+            "wr": 34.0,
+            "total": -2460.0,
+            "exp": -52.34,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0,
+              "psr": 0.0024,
+              "n_obs": 47,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "high_vol": {
+            "n": 26,
+            "wr": 19.2,
+            "total": -2984.4,
+            "exp": -114.78,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0,
+              "psr": 0.0036,
+              "n_obs": 26,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "range_pin": {
+            "n": 4,
+            "wr": 25.0,
+            "total": -354.0,
+            "exp": -88.5,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0088,
+              "psr": 0.1806,
+              "n_obs": 4,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "ribbon_mixed": {
+            "n": 15,
+            "wr": 26.7,
+            "total": -1190.4,
+            "exp": -79.36,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0016,
+              "psr": 0.0693,
+              "n_obs": 15,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "vix_low": {
+            "n": 7,
+            "wr": 0.0,
+            "total": -816.0,
+            "exp": -116.57,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0,
+              "psr": 0.0002,
+              "n_obs": 7,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "direction_short": {
+            "n": 90,
+            "wr": 28.9,
+            "total": -6842.8,
+            "exp": -76.03,
+            "low_power": false
+          }
+        }
+      }
+    },
+    "NAMED_LEVEL_SECOND_TEST": {
+      "n_signals_collected": 1828,
+      "standalone_default_exit": {
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": 0,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "n": 484,
+        "wr": 59.1,
+        "total": -1758.8,
+        "exp": -3.63,
+        "dsr_gate": {
+          "verdict": "FAIL",
+          "dsr": 0.0304,
+          "psr": 0.3389,
+          "n_obs": 484,
+          "low_power": false
+        },
+        "oos_median": {
+          "boundary": "2025-09-19",
+          "in_sample": {
+            "exp": -26.93,
+            "wr": 55.2,
+            "n": 241
+          },
+          "out_of_sample": {
+            "exp": 19.47,
+            "wr": 63.0,
+            "n": 243
+          },
+          "sign_stable": false
+        },
+        "edge_capture_diagnostic": {
+          "edge_capture": -265.8,
+          "anchor_days_fired": 6,
+          "note": "SECONDARY DIAGNOSTIC, NOT a gate. Shows what the weekend's bearish-anchor gate would have done to this setup."
+        },
+        "by_regime": {
+          "bear_trend": {
+            "n": 144,
+            "wr": 63.2,
+            "total": 1245.4,
+            "exp": 8.65,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.1783,
+              "psr": 0.7045,
+              "n_obs": 144,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "bull_trend": {
+            "n": 244,
+            "wr": 55.7,
+            "total": -758.0,
+            "exp": -3.11,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0439,
+              "psr": 0.4021,
+              "n_obs": 244,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "high_vol": {
+            "n": 144,
+            "wr": 66.7,
+            "total": 3206.0,
+            "exp": 22.26,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.4019,
+              "psr": 0.887,
+              "n_obs": 144,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "range_pin": {
+            "n": 22,
+            "wr": 45.5,
+            "total": -692.6,
+            "exp": -31.48,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0129,
+              "psr": 0.2208,
+              "n_obs": 22,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "ribbon_mixed": {
+            "n": 96,
+            "wr": 61.5,
+            "total": -2246.2,
+            "exp": -23.4,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0033,
+              "psr": 0.1038,
+              "n_obs": 96,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "vix_low": {
+            "n": 40,
+            "wr": 42.5,
+            "total": -1609.2,
+            "exp": -40.23,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0006,
+              "psr": 0.039,
+              "n_obs": 40,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "direction_long": {
+            "n": 257,
+            "wr": 62.6,
+            "total": 721.4,
+            "exp": 2.81,
+            "low_power": false
+          },
+          "direction_short": {
+            "n": 227,
+            "wr": 55.1,
+            "total": -2480.2,
+            "exp": -10.93,
+            "low_power": false
+          }
+        }
+      },
+      "standalone_meanrev_exit": {
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": -2,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "n": 468,
+        "wr": 53.4,
+        "total": -12926.4,
+        "exp": -27.62,
+        "dsr_gate": {
+          "verdict": "FAIL",
+          "dsr": 0.0002,
+          "psr": 0.0193,
+          "n_obs": 468,
+          "low_power": false
+        },
+        "oos_median": {
+          "boundary": "2025-09-23",
+          "in_sample": {
+            "exp": -35.55,
+            "wr": 52.4,
+            "n": 233
+          },
+          "out_of_sample": {
+            "exp": -19.76,
+            "wr": 54.5,
+            "n": 235
+          },
+          "sign_stable": true
+        },
+        "edge_capture_diagnostic": {
+          "edge_capture": -210.6,
+          "anchor_days_fired": 6,
+          "note": "SECONDARY DIAGNOSTIC, NOT a gate. Shows what the weekend's bearish-anchor gate would have done to this setup."
+        },
+        "by_regime": {
+          "bear_trend": {
+            "n": 142,
+            "wr": 57.7,
+            "total": -2156.0,
+            "exp": -15.18,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0188,
+              "psr": 0.2679,
+              "n_obs": 142,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "bull_trend": {
+            "n": 234,
+            "wr": 51.3,
+            "total": -5578.4,
+            "exp": -23.84,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0032,
+              "psr": 0.1028,
+              "n_obs": 234,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "high_vol": {
+            "n": 140,
+            "wr": 57.1,
+            "total": -2062.8,
+            "exp": -14.73,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0216,
+              "psr": 0.2868,
+              "n_obs": 140,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "range_pin": {
+            "n": 20,
+            "wr": 40.0,
+            "total": -990.6,
+            "exp": -49.53,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0137,
+              "psr": 0.2275,
+              "n_obs": 20,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "ribbon_mixed": {
+            "n": 92,
+            "wr": 52.2,
+            "total": -5192.0,
+            "exp": -56.43,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0004,
+              "psr": 0.0307,
+              "n_obs": 92,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "vix_low": {
+            "n": 39,
+            "wr": 35.9,
+            "total": -2639.4,
+            "exp": -67.68,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0008,
+              "psr": 0.0449,
+              "n_obs": 39,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "direction_long": {
+            "n": 239,
+            "wr": 54.8,
+            "total": -5094.0,
+            "exp": -21.31,
+            "low_power": false
+          },
+          "direction_short": {
+            "n": 229,
+            "wr": 52.0,
+            "total": -7832.4,
+            "exp": -34.2,
+            "low_power": false
+          }
+        }
+      }
+    },
+    "BULLISH_RECLAIM": {
+      "n_signals_collected": 183,
+      "standalone_default_exit": {
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": 0,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "n": 82,
+        "wr": 54.9,
+        "total": 847.4,
+        "exp": 10.33,
+        "dsr_gate": {
+          "verdict": "WEAK",
+          "dsr": 0.1877,
+          "psr": 0.7166,
+          "n_obs": 82,
+          "low_power": false
+        },
+        "oos_median": {
+          "boundary": "2025-10-01",
+          "in_sample": {
+            "exp": -41.23,
+            "wr": 41.5,
+            "n": 41
+          },
+          "out_of_sample": {
+            "exp": 61.9,
+            "wr": 68.3,
+            "n": 41
+          },
+          "sign_stable": false
+        },
+        "edge_capture_diagnostic": {
+          "edge_capture": 0,
+          "anchor_days_fired": 0,
+          "note": "SECONDARY DIAGNOSTIC, NOT a gate. Shows what the weekend's bearish-anchor gate would have done to this setup."
+        },
+        "by_regime": {
+          "bull_trend": {
+            "n": 82,
+            "wr": 54.9,
+            "total": 847.4,
+            "exp": 10.33,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.1877,
+              "psr": 0.7166,
+              "n_obs": 82,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "vix_low": {
+            "n": 14,
+            "wr": 57.1,
+            "total": 125.8,
+            "exp": 8.99,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.1104,
+              "psr": 0.5927,
+              "n_obs": 14,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "direction_long": {
+            "n": 82,
+            "wr": 54.9,
+            "total": 847.4,
+            "exp": 10.33,
+            "low_power": false
+          }
+        }
+      }
+    },
+    "BEARISH_REJECTION_MORNING": {
+      "n_signals_collected": 100,
+      "standalone_default_exit": {
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": 0,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "n": 44,
+        "wr": 63.6,
+        "total": -1298.8,
+        "exp": -29.52,
+        "dsr_gate": {
+          "verdict": "FAIL",
+          "dsr": 0.0083,
+          "psr": 0.1745,
+          "n_obs": 44,
+          "low_power": false
+        },
+        "oos_median": {
+          "boundary": "2025-12-16",
+          "in_sample": {
+            "exp": -18.98,
+            "wr": 63.6,
+            "n": 22
+          },
+          "out_of_sample": {
+            "exp": -40.05,
+            "wr": 63.6,
+            "n": 22
+          },
+          "sign_stable": true
+        },
+        "edge_capture_diagnostic": {
+          "edge_capture": 134.4,
+          "anchor_days_fired": 1,
+          "note": "SECONDARY DIAGNOSTIC, NOT a gate. Shows what the weekend's bearish-anchor gate would have done to this setup."
+        },
+        "by_regime": {
+          "bear_trend": {
+            "n": 44,
+            "wr": 63.6,
+            "total": -1298.8,
+            "exp": -29.52,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0083,
+              "psr": 0.1745,
+              "n_obs": 44,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "high_vol": {
+            "n": 21,
+            "wr": 66.7,
+            "total": -417.0,
+            "exp": -19.86,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.031,
+              "psr": 0.3417,
+              "n_obs": 21,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "vix_low": {
+            "n": 3,
+            "wr": 66.7,
+            "total": -129.0,
+            "exp": -43.0,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0302,
+              "psr": 0.3379,
+              "n_obs": 3,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "direction_short": {
+            "n": 44,
+            "wr": 63.6,
+            "total": -1298.8,
+            "exp": -29.52,
+            "low_power": false
+          }
+        }
+      }
+    },
+    "DOUBLE_BOTTOM_BASE_QUIET": {
+      "n_signals_collected": 89,
+      "standalone_default_exit": {
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": 0,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "n": 57,
+        "wr": 54.4,
+        "total": 324.8,
+        "exp": 5.7,
+        "dsr_gate": {
+          "verdict": "WEAK",
+          "dsr": 0.13,
+          "psr": 0.6304,
+          "n_obs": 57,
+          "low_power": false
+        },
+        "oos_median": {
+          "boundary": "2025-09-18",
+          "in_sample": {
+            "exp": 30.14,
+            "wr": 60.7,
+            "n": 28
+          },
+          "out_of_sample": {
+            "exp": -17.9,
+            "wr": 48.3,
+            "n": 29
+          },
+          "sign_stable": false
+        },
+        "edge_capture_diagnostic": {
+          "edge_capture": -60.0,
+          "anchor_days_fired": 2,
+          "note": "SECONDARY DIAGNOSTIC, NOT a gate. Shows what the weekend's bearish-anchor gate would have done to this setup."
+        },
+        "by_regime": {
+          "bear_trend": {
+            "n": 27,
+            "wr": 44.4,
+            "total": -327.4,
+            "exp": -12.13,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0238,
+              "psr": 0.3007,
+              "n_obs": 27,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "bull_trend": {
+            "n": 24,
+            "wr": 58.3,
+            "total": 238.8,
+            "exp": 9.95,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.1316,
+              "psr": 0.6332,
+              "n_obs": 24,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "high_vol": {
+            "n": 7,
+            "wr": 14.3,
+            "total": -447.0,
+            "exp": -63.86,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0002,
+              "psr": 0.0209,
+              "n_obs": 7,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "ribbon_mixed": {
+            "n": 6,
+            "wr": 83.3,
+            "total": 413.4,
+            "exp": 68.9,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.6699,
+              "psr": 0.9712,
+              "n_obs": 6,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "vix_low": {
+            "n": 2,
+            "wr": 50.0,
+            "total": 158.8,
+            "exp": 79.4,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.131,
+              "psr": 0.6321,
+              "n_obs": 2,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "direction_long": {
+            "n": 57,
+            "wr": 54.4,
+            "total": 324.8,
+            "exp": 5.7,
+            "low_power": false
+          }
+        }
+      },
+      "standalone_meanrev_exit": {
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": -2,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "n": 54,
+        "wr": 51.9,
+        "total": 311.4,
+        "exp": 5.77,
+        "dsr_gate": {
+          "verdict": "WEAK",
+          "dsr": 0.102,
+          "psr": 0.5748,
+          "n_obs": 54,
+          "low_power": false
+        },
+        "oos_median": {
+          "boundary": "2025-09-25",
+          "in_sample": {
+            "exp": 10.45,
+            "wr": 55.6,
+            "n": 27
+          },
+          "out_of_sample": {
+            "exp": 1.08,
+            "wr": 48.1,
+            "n": 27
+          },
+          "sign_stable": true
+        },
+        "edge_capture_diagnostic": {
+          "edge_capture": -60.0,
+          "anchor_days_fired": 2,
+          "note": "SECONDARY DIAGNOSTIC, NOT a gate. Shows what the weekend's bearish-anchor gate would have done to this setup."
+        },
+        "by_regime": {
+          "bear_trend": {
+            "n": 28,
+            "wr": 50.0,
+            "total": -772.2,
+            "exp": -27.58,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0125,
+              "psr": 0.2168,
+              "n_obs": 28,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "bull_trend": {
+            "n": 22,
+            "wr": 50.0,
+            "total": 693.0,
+            "exp": 31.5,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.1814,
+              "psr": 0.7085,
+              "n_obs": 22,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "high_vol": {
+            "n": 8,
+            "wr": 37.5,
+            "total": -684.0,
+            "exp": -85.5,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0002,
+              "psr": 0.0155,
+              "n_obs": 8,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "ribbon_mixed": {
+            "n": 4,
+            "wr": 75.0,
+            "total": 390.6,
+            "exp": 97.65,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.2796,
+              "psr": 0.8092,
+              "n_obs": 4,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "vix_low": {
+            "n": 1,
+            "wr": 0.0,
+            "total": -231.0,
+            "exp": -231.0,
+            "dsr": {
+              "verdict": "FAIL",
+              "reason": "n=1 < 2",
+              "dsr": null,
+              "psr": null,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "direction_long": {
+            "n": 54,
+            "wr": 51.9,
+            "total": 311.4,
+            "exp": 5.77,
+            "low_power": false
+          }
+        }
+      }
+    },
+    "DOUBLE_BOTTOM_MORNING_LOW_VOL": {
+      "n_signals_collected": 58,
+      "standalone_default_exit": {
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": 0,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "n": 40,
+        "wr": 65.0,
+        "total": 809.6,
+        "exp": 20.24,
+        "dsr_gate": {
+          "verdict": "WEAK",
+          "dsr": 0.2074,
+          "psr": 0.7401,
+          "n_obs": 40,
+          "low_power": false
+        },
+        "oos_median": {
+          "boundary": "2025-08-21",
+          "in_sample": {
+            "exp": 24.82,
+            "wr": 65.0,
+            "n": 20
+          },
+          "out_of_sample": {
+            "exp": 15.66,
+            "wr": 65.0,
+            "n": 20
+          },
+          "sign_stable": true
+        },
+        "edge_capture_diagnostic": {
+          "edge_capture": 0.0,
+          "anchor_days_fired": 1,
+          "note": "SECONDARY DIAGNOSTIC, NOT a gate. Shows what the weekend's bearish-anchor gate would have done to this setup."
+        },
+        "by_regime": {
+          "bear_trend": {
+            "n": 9,
+            "wr": 77.8,
+            "total": 708.0,
+            "exp": 78.67,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.6369,
+              "psr": 0.9648,
+              "n_obs": 9,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "bull_trend": {
+            "n": 24,
+            "wr": 66.7,
+            "total": 494.6,
+            "exp": 20.61,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.1656,
+              "psr": 0.687,
+              "n_obs": 24,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "high_vol": {
+            "n": 5,
+            "wr": 80.0,
+            "total": 404.4,
+            "exp": 80.88,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.3961,
+              "psr": 0.8841,
+              "n_obs": 5,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "ribbon_mixed": {
+            "n": 7,
+            "wr": 42.9,
+            "total": -393.0,
+            "exp": -56.14,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0206,
+              "psr": 0.2801,
+              "n_obs": 7,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "vix_low": {
+            "n": 2,
+            "wr": 50.0,
+            "total": 161.8,
+            "exp": 80.9,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.1328,
+              "psr": 0.6353,
+              "n_obs": 2,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "direction_long": {
+            "n": 40,
+            "wr": 65.0,
+            "total": 809.6,
+            "exp": 20.24,
+            "low_power": false
+          }
+        }
+      },
+      "standalone_meanrev_exit": {
+        "exit": {
+          "premium_stop_pct": -0.99,
+          "strike_offset": -2,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "n": 34,
+        "wr": 58.8,
+        "total": 539.0,
+        "exp": 15.85,
+        "dsr_gate": {
+          "verdict": "WEAK",
+          "dsr": 0.1234,
+          "psr": 0.6182,
+          "n_obs": 34,
+          "low_power": false
+        },
+        "oos_median": {
+          "boundary": "2025-08-28",
+          "in_sample": {
+            "exp": -5.38,
+            "wr": 58.8,
+            "n": 17
+          },
+          "out_of_sample": {
+            "exp": 37.08,
+            "wr": 58.8,
+            "n": 17
+          },
+          "sign_stable": false
+        },
+        "edge_capture_diagnostic": {
+          "edge_capture": 0.0,
+          "anchor_days_fired": 1,
+          "note": "SECONDARY DIAGNOSTIC, NOT a gate. Shows what the weekend's bearish-anchor gate would have done to this setup."
+        },
+        "by_regime": {
+          "bear_trend": {
+            "n": 10,
+            "wr": 70.0,
+            "total": 579.0,
+            "exp": 57.9,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.268,
+              "psr": 0.7996,
+              "n_obs": 10,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "bull_trend": {
+            "n": 21,
+            "wr": 61.9,
+            "total": 1043.0,
+            "exp": 49.67,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.21,
+              "psr": 0.743,
+              "n_obs": 21,
+              "low_power": false
+            },
+            "low_power": false
+          },
+          "high_vol": {
+            "n": 4,
+            "wr": 75.0,
+            "total": 49.2,
+            "exp": 12.3,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.0994,
+              "psr": 0.5691,
+              "n_obs": 4,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "ribbon_mixed": {
+            "n": 3,
+            "wr": 0.0,
+            "total": -1083.0,
+            "exp": -361.0,
+            "dsr": {
+              "verdict": "FAIL",
+              "dsr": 0.0,
+              "psr": 0.0,
+              "n_obs": 3,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "vix_low": {
+            "n": 1,
+            "wr": 0.0,
+            "total": -213.0,
+            "exp": -213.0,
+            "dsr": {
+              "verdict": "FAIL",
+              "reason": "n=1 < 2",
+              "dsr": null,
+              "psr": null,
+              "low_power": true
+            },
+            "low_power": true
+          },
+          "direction_long": {
+            "n": 34,
+            "wr": 58.8,
+            "total": 539.0,
+            "exp": 15.85,
+            "low_power": false
+          }
+        }
+      }
+    }
+  },
+  "op20_disclosures": {
+    "authority": "Real-fills (lib.simulator_real + OPRA cache, valid through 2026-05-29). BS-sim NOT used (C1).",
+    "no_anchor_gate": "edge_capture is reported ONLY as a secondary diagnostic to contrast with the weekend method. It is NOT used to filter or rank any setup here. Ranking is by STANDALONE expectancy.",
+    "level_source_caveat": "All level-keyed watchers evaluated on SYNTHETIC PDH/PDL/PDC/PDO proxies (\u2605\u2605/\u2605) via the same monkeypatch the weekend used, NOT production \u2605\u2605\u2605 named levels (no historical archive). Absolute WR is a proxy LOWER-BOUND (PDL-class proxies understate \u2605\u2605\u2605 WR up to ~20pp, L58). The level set is IDENTICAL across every setup AND regime, so the ranking/sign questions are answerable; absolute WR is not the production number.",
+    "regime_proxy_caveat": "NO GEX / dealer-gamma history exists. The long-gamma/pin regime is PROXIED by low-vol (VIX<16) + range compression (today's range-so-far < 0.85x trailing-20d median) + ribbon==MIXED. This is a STAND-IN, not measured dealer gamma. Disclosed per OP-20. Compression + ribbon + VIX are all computed at-or-before the signal bar (no look-ahead).",
+    "exit_geometry": "Two exits reported: DEFAULT (ATM + chart-stop-only, the weekend's uniform exit) and MEANREV (ITM-2 + tight TP) for the mean-reversion family. ATM+chart-stop-only is the WRONG geometry for a high-WR mean-reversion scalp (the win is never banked) \u2014 using it uniformly itself biased the weekend's bounce-family exp downward.",
+    "small_n": "Per-regime buckets can be small; low_power (n<20) is flagged per bucket. DSR/PSR are advisory; never over-read an underpowered bucket (C24).",
+    "j_examples_caveat": "J has documented winning examples ONLY for the bearish-anchor pattern. He has NO logged winners for bullish-reclaim, mean-reversion, or double-bottom setups. Per-setup J winners would sharpen each setup's in-regime validation; their absence is why this stays STANDALONE-statistical, not J-anchored.",
+    "not_a_promotion": "RESEARCH ONLY (Rule 9). No watcher code, params, or doctrine changed. Every setup remains WATCH_ONLY. A positive standalone or in-regime result = 'worth a focused production-\u2605\u2605\u2605 real-fills re-test', NOT 'wire it live'."
+  },
+  "overall_verdict": {
+    "setups_positive_standalone_unconditioned": [
+      "DOUBLE_BOTTOM_MORNING_LOW_VOL",
+      "BULLISH_RECLAIM",
+      "DOUBLE_BOTTOM_BASE_QUIET"
+    ],
+    "meanrev_setups_revived_in_regime": [
+      "FLOOR_HOLD_BOUNCE"
+    ],
+    "diversified_book_candidates_by_regime": {
+      "bear_trend": [
+        "DOUBLE_BOTTOM_MORNING_LOW_VOL",
+        "NAMED_LEVEL_SECOND_TEST"
+      ],
+      "bull_trend": [
+        "DOUBLE_BOTTOM_MORNING_LOW_VOL",
+        "DOUBLE_BOTTOM_BASE_QUIET",
+        "BULLISH_RECLAIM"
+      ],
+      "high_vol": [
+        "DOUBLE_BOTTOM_MORNING_LOW_VOL",
+        "NAMED_LEVEL_SECOND_TEST"
+      ],
+      "vix_low": [
+        "BULLISH_RECLAIM",
+        "FLOOR_HOLD_BOUNCE"
+      ],
+      "ribbon_mixed": [
+        "FLOOR_HOLD_BOUNCE",
+        "CLOSE_CEILING_FADE"
+      ]
+    },
+    "headline": "Unbiased standalone ranking + regime conditioning complete. 3 setup(s) positive standalone (unconditioned). 1 mean-reversion setup(s) revived in a low-vol/range regime (dead-unconditioned -> positive-in-regime). See diversified_book_regime_map for the regime->setup candidates. ALL on \u2605\u2605 proxy levels (OP-20) + WATCH_ONLY by doctrine \u2014 these are candidates worth a production-\u2605\u2605\u2605 real-fills re-test, not promotions."
+  }
+}

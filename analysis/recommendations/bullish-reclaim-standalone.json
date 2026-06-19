@@ -1,0 +1,1314 @@
+{
+  "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+  "evaluation": "STANDALONE (on its own merits \u2014 NOT gated on J bearish-anchor edge_capture)",
+  "generated_at": "2026-06-19T08:37:49",
+  "window": "2025-01-02..2026-06-16",
+  "is_oos_split": {
+    "is": "2025-01-02..2026-05-07",
+    "oos": "2026-05-08..2026-06-16"
+  },
+  "engine": "lib.orchestrator.run_backtest (PRODUCTION engine, not a proxy detector); BULLISH trades isolated by setup string; bull/bear directionally exclusive via ribbon filter 5.",
+  "configs": {
+    "RAW": "vanilla bullish, bull_min_triggers=2 (v12 asymmetric default), no extra gates",
+    "PROD_GATED": "RAW + block_bull_ribbon_flip (2026-06-17) + block_bull_1100_1200 (2026-06-18) \u2014 what trades live"
+  },
+  "framing_correction": "J's 7 OP-16 anchors are ALL down days (puts): {\"2026-04-29\": \"WIN(puts)\", \"2026-05-01\": \"WIN(puts)\", \"2026-05-04\": \"WIN(puts)\", \"2026-05-05\": \"LOSS(puts)\", \"2026-05-06\": \"LOSS(puts)\", \"2026-05-07\": \"LOSS(puts)\"}. A bullish CALLS setup cannot capture a put winner by construction, so the edge_capture-vs-anchors metric ALWAYS rejects a bullish setup. That is selection bias, not absence of bullish edge. This scorecard therefore uses the setup's OWN real-fills expectancy + OOS sign-stability + DSR. edge_capture-vs-bearish-anchors is intentionally NOT a gate here.",
+  "cells_summary": {
+    "RAW_ATM": {
+      "n": 102,
+      "wr": 20.6,
+      "exp": 11.08,
+      "total": 1130.52,
+      "avg_win": 401.53,
+      "avg_loss": -90.14,
+      "payoff": 4.45,
+      "is_exp": 17.31,
+      "oos_exp": -73.43,
+      "oos_sign_stable": false,
+      "dsr": 0.2856
+    },
+    "RAW_ITM2": {
+      "n": 102,
+      "wr": 20.6,
+      "exp": 17.31,
+      "total": 1765.36,
+      "avg_win": 915.83,
+      "avg_loss": -215.64,
+      "payoff": 4.25,
+      "is_exp": -1.22,
+      "oos_exp": 268.71,
+      "oos_sign_stable": false,
+      "dsr": 0.2437
+    },
+    "PROD_GATED_ATM": {
+      "n": 80,
+      "wr": 21.2,
+      "exp": 16.61,
+      "total": 1328.6,
+      "avg_win": 353.66,
+      "avg_loss": -74.34,
+      "payoff": 4.76,
+      "is_exp": 15.48,
+      "oos_exp": 33.52,
+      "oos_sign_stable": true,
+      "dsr": 0.3785
+    },
+    "PROD_GATED_ITM2": {
+      "n": 80,
+      "wr": 17.5,
+      "exp": -23.69,
+      "total": -1895.0,
+      "avg_win": 776.41,
+      "avg_loss": -193.41,
+      "payoff": 4.01,
+      "is_exp": -54.57,
+      "oos_exp": 439.48,
+      "oos_sign_stable": false,
+      "dsr": 0.0618
+    }
+  },
+  "verdict": "WATCH",
+  "verdict_rationale": "verdict=WATCH. PROPOSE requires a production-realistic cell with full-window real-fills exp>0 AND OOS sign-stable AND n>=20 AND DSR>=0.9. OOS-sign-stable+positive cells: ['PROD_GATED_ATM']. Cells clearing DSR>=0.9: NONE. Best DSR observed = 0.3785 (PROD_GATED_ATM) \u2014 far below the 0.95 selection-adjusted significance line, i.e. the observed edge does not beat the expected-best-of-4-trials benchmark. WR is ~17-21% across all cells (structurally low-WR / high-payoff ~4-5x); WR is reported as context, not gated.",
+  "regime_gate_finding": {
+    "hypothesis": "BULLISH_RECLAIM needs genuinely low/falling VIX (mirror-opposite of SNIPER's escalating-VIX need, L73). Tested on real fills, ATM.",
+    "by_vix_bucket_atm": {
+      "vix_14-16": {
+        "atm_exp_by_config": [
+          52.1,
+          59.1
+        ],
+        "consistent_sign": true,
+        "direction": "POSITIVE"
+      },
+      "vix_16-17.2": {
+        "atm_exp_by_config": [
+          -19.2,
+          -44.0
+        ],
+        "consistent_sign": true,
+        "direction": "NEGATIVE"
+      },
+      "vix_17.2-18": {
+        "atm_exp_by_config": [
+          -102.7,
+          -59.9
+        ],
+        "consistent_sign": true,
+        "direction": "NEGATIVE"
+      }
+    },
+    "takeaway": "The low-VIX (14-16) bucket is the consistently POSITIVE slice; the marginal-fear 16-17.2 bucket is consistently NEGATIVE across configs. Production filter 8 (VIX<17.20 OR falling) currently lets the losing 16-17.2 absolute-level branch through whenever VIX is merely below 17.20 but not falling. A tighter low-VIX-or-strictly-falling gate is the most promising refinement IF the setup is pursued \u2014 propose-only, needs its own A/B + OOS before any wiring (do NOT cross-contaminate from bearish, L93)."
+  },
+  "detail": {
+    "RAW": {
+      "ATM": {
+        "full_window": {
+          "overall": {
+            "n": 102,
+            "wr": 20.6,
+            "total": 1130.52,
+            "exp": 11.08,
+            "avg_win": 401.53,
+            "avg_loss": -90.14,
+            "payoff": 4.45
+          },
+          "per_quarter": {
+            "2025Q1": {
+              "n": 14,
+              "wr": 42.9,
+              "total": 1145.4,
+              "exp": 81.81,
+              "avg_win": 328.9,
+              "avg_loss": -103.5,
+              "payoff": 3.18
+            },
+            "2025Q2": {
+              "n": 4,
+              "wr": 25.0,
+              "total": -64.4,
+              "exp": -16.1,
+              "avg_win": 140.4,
+              "avg_loss": -68.27,
+              "payoff": 2.06
+            },
+            "2025Q3": {
+              "n": 34,
+              "wr": 14.7,
+              "total": 1125.8,
+              "exp": 33.11,
+              "avg_win": 620.68,
+              "avg_loss": -68.19,
+              "payoff": 9.1
+            },
+            "2025Q4": {
+              "n": 22,
+              "wr": 13.6,
+              "total": -307.12,
+              "exp": -13.96,
+              "avg_win": 537.47,
+              "avg_loss": -101.03,
+              "payoff": 5.32
+            },
+            "2026Q1": {
+              "n": 20,
+              "wr": 25.0,
+              "total": -104.76,
+              "exp": -5.24,
+              "avg_win": 273.0,
+              "avg_loss": -97.98,
+              "payoff": 2.79
+            },
+            "2026Q2": {
+              "n": 8,
+              "wr": 12.5,
+              "total": -664.4,
+              "exp": -83.05,
+              "avg_win": 237.6,
+              "avg_loss": -128.86,
+              "payoff": 1.84
+            }
+          },
+          "dsr": {
+            "dsr": 0.2856,
+            "sharpe_per_trade": 0.0454,
+            "sharpe_benchmark_sr0": 0.0984,
+            "n_trials": 4,
+            "n_obs": 102,
+            "skew": 2.67,
+            "kurtosis": 10.816,
+            "low_power": false,
+            "interpret": "DSR is P(true Sharpe>selection-adjusted benchmark). >=0.95 = real edge beyond luck-of-N-trials. low_power=True means n<20 so treat as advisory colour only (module CAVEAT)."
+          }
+        },
+        "in_sample_2025-01-02..2026-05-07": {
+          "overall": {
+            "n": 95,
+            "wr": 21.1,
+            "total": 1644.52,
+            "exp": 17.31,
+            "avg_win": 409.73,
+            "avg_loss": -87.33,
+            "payoff": 4.69
+          },
+          "per_quarter": {
+            "2025Q1": {
+              "n": 14,
+              "wr": 42.9,
+              "total": 1145.4,
+              "exp": 81.81,
+              "avg_win": 328.9,
+              "avg_loss": -103.5,
+              "payoff": 3.18
+            },
+            "2025Q2": {
+              "n": 4,
+              "wr": 25.0,
+              "total": -64.4,
+              "exp": -16.1,
+              "avg_win": 140.4,
+              "avg_loss": -68.27,
+              "payoff": 2.06
+            },
+            "2025Q3": {
+              "n": 34,
+              "wr": 14.7,
+              "total": 1125.8,
+              "exp": 33.11,
+              "avg_win": 620.68,
+              "avg_loss": -68.19,
+              "payoff": 9.1
+            },
+            "2025Q4": {
+              "n": 22,
+              "wr": 13.6,
+              "total": -307.12,
+              "exp": -13.96,
+              "avg_win": 537.47,
+              "avg_loss": -101.03,
+              "payoff": 5.32
+            },
+            "2026Q1": {
+              "n": 20,
+              "wr": 25.0,
+              "total": -104.76,
+              "exp": -5.24,
+              "avg_win": 273.0,
+              "avg_loss": -97.98,
+              "payoff": 2.79
+            },
+            "2026Q2": {
+              "n": 1,
+              "wr": 0.0,
+              "total": -150.4,
+              "exp": -150.4,
+              "avg_win": 0.0,
+              "avg_loss": -150.4,
+              "payoff": 0.0
+            }
+          },
+          "dsr": {
+            "dsr": 0.3774,
+            "sharpe_per_trade": 0.0695,
+            "sharpe_benchmark_sr0": 0.0988,
+            "n_trials": 4,
+            "n_obs": 95,
+            "skew": 2.621,
+            "kurtosis": 10.396,
+            "low_power": false,
+            "interpret": "DSR is P(true Sharpe>selection-adjusted benchmark). >=0.95 = real edge beyond luck-of-N-trials. low_power=True means n<20 so treat as advisory colour only (module CAVEAT)."
+          }
+        },
+        "out_of_sample_2026-05-08..2026-06-16": {
+          "overall": {
+            "n": 7,
+            "wr": 14.3,
+            "total": -514.0,
+            "exp": -73.43,
+            "avg_win": 237.6,
+            "avg_loss": -125.27,
+            "payoff": 1.9
+          },
+          "per_quarter": {
+            "2026Q2": {
+              "n": 7,
+              "wr": 14.3,
+              "total": -514.0,
+              "exp": -73.43,
+              "avg_win": 237.6,
+              "avg_loss": -125.27,
+              "payoff": 1.9
+            }
+          },
+          "dsr": {
+            "dsr": 0.025,
+            "sharpe_per_trade": -0.5607,
+            "sharpe_benchmark_sr0": 0.6503,
+            "n_trials": 4,
+            "n_obs": 7,
+            "skew": 1.798,
+            "kurtosis": 4.616,
+            "low_power": true,
+            "interpret": "DSR is P(true Sharpe>selection-adjusted benchmark). >=0.95 = real edge beyond luck-of-N-trials. low_power=True means n<20 so treat as advisory colour only (module CAVEAT)."
+          }
+        },
+        "trigger_breakdown_full": {
+          "confluence+level_reclaim": {
+            "n": 86,
+            "wr": 20.9,
+            "total": 1813.2,
+            "exp": 21.08,
+            "avg_win": 392.29,
+            "avg_loss": -77.18,
+            "payoff": 5.08
+          },
+          "confluence+level_reclaim+ribbon_flip": {
+            "n": 7,
+            "wr": 28.6,
+            "total": -111.6,
+            "exp": -15.94,
+            "avg_win": 297.0,
+            "avg_loss": -141.12,
+            "payoff": 2.1
+          },
+          "confluence+level_reclaim+sequence_reclaim": {
+            "n": 5,
+            "wr": 0.0,
+            "total": -694.8,
+            "exp": -138.96,
+            "avg_win": 0.0,
+            "avg_loss": -138.96,
+            "payoff": 0.0
+          },
+          "level_reclaim+ribbon_flip": {
+            "n": 3,
+            "wr": 33.3,
+            "total": 322.92,
+            "exp": 107.64,
+            "avg_win": 777.0,
+            "avg_loss": -227.04,
+            "payoff": 3.42
+          },
+          "level_reclaim+ribbon_flip+sequence_reclaim": {
+            "n": 1,
+            "wr": 0.0,
+            "total": -199.2,
+            "exp": -199.2,
+            "avg_win": 0.0,
+            "avg_loss": -199.2,
+            "payoff": 0.0
+          }
+        },
+        "vix_breakdown_full": {
+          "vix<14": {
+            "n": 2,
+            "wr": 0.0,
+            "total": -130.4,
+            "exp": -65.2,
+            "avg_win": 0.0,
+            "avg_loss": -65.2,
+            "payoff": 0.0
+          },
+          "vix_14-16": {
+            "n": 54,
+            "wr": 24.1,
+            "total": 2811.6,
+            "exp": 52.07,
+            "avg_win": 455.97,
+            "avg_loss": -76.0,
+            "payoff": 6.0
+          },
+          "vix_16-17.2": {
+            "n": 38,
+            "wr": 18.4,
+            "total": -729.16,
+            "exp": -19.19,
+            "avg_win": 337.74,
+            "avg_loss": -99.79,
+            "payoff": 3.38
+          },
+          "vix_17.2-18": {
+            "n": 8,
+            "wr": 12.5,
+            "total": -821.52,
+            "exp": -102.69,
+            "avg_win": 140.4,
+            "avg_loss": -137.42,
+            "payoff": 1.02
+          }
+        }
+      },
+      "ITM2": {
+        "full_window": {
+          "overall": {
+            "n": 102,
+            "wr": 20.6,
+            "total": 1765.36,
+            "exp": 17.31,
+            "avg_win": 915.83,
+            "avg_loss": -215.64,
+            "payoff": 4.25
+          },
+          "per_quarter": {
+            "2025Q1": {
+              "n": 14,
+              "wr": 21.4,
+              "total": 54.6,
+              "exp": 3.9,
+              "avg_win": 874.6,
+              "avg_loss": -233.56,
+              "payoff": 3.74
+            },
+            "2025Q2": {
+              "n": 5,
+              "wr": 20.0,
+              "total": 262.8,
+              "exp": 52.56,
+              "avg_win": 1123.6,
+              "avg_loss": -215.2,
+              "payoff": 5.22
+            },
+            "2025Q3": {
+              "n": 32,
+              "wr": 15.6,
+              "total": -1787.2,
+              "exp": -55.85,
+              "avg_win": 658.64,
+              "avg_loss": -188.16,
+              "payoff": 3.5
+            },
+            "2025Q4": {
+              "n": 22,
+              "wr": 18.2,
+              "total": 670.2,
+              "exp": 30.46,
+              "avg_win": 1172.85,
+              "avg_loss": -223.4,
+              "payoff": 5.25
+            },
+            "2026Q1": {
+              "n": 21,
+              "wr": 23.8,
+              "total": 936.76,
+              "exp": 44.61,
+              "avg_win": 925.24,
+              "avg_loss": -230.59,
+              "payoff": 4.01
+            },
+            "2026Q2": {
+              "n": 8,
+              "wr": 37.5,
+              "total": 1628.2,
+              "exp": 203.53,
+              "avg_win": 958.07,
+              "avg_loss": -249.2,
+              "payoff": 3.84
+            }
+          },
+          "dsr": {
+            "dsr": 0.2437,
+            "sharpe_per_trade": 0.0344,
+            "sharpe_benchmark_sr0": 0.1011,
+            "n_trials": 4,
+            "n_obs": 102,
+            "skew": 1.999,
+            "kurtosis": 6.041,
+            "low_power": false,
+            "interpret": "DSR is P(true Sharpe>selection-adjusted benchmark). >=0.95 = real edge beyond luck-of-N-trials. low_power=True means n<20 so treat as advisory colour only (module CAVEAT)."
+          }
+        },
+        "in_sample_2025-01-02..2026-05-07": {
+          "overall": {
+            "n": 95,
+            "wr": 18.9,
+            "total": -115.64,
+            "exp": -1.22,
+            "avg_win": 908.79,
+            "avg_loss": -213.95,
+            "payoff": 4.25
+          },
+          "per_quarter": {
+            "2025Q1": {
+              "n": 14,
+              "wr": 21.4,
+              "total": 54.6,
+              "exp": 3.9,
+              "avg_win": 874.6,
+              "avg_loss": -233.56,
+              "payoff": 3.74
+            },
+            "2025Q2": {
+              "n": 5,
+              "wr": 20.0,
+              "total": 262.8,
+              "exp": 52.56,
+              "avg_win": 1123.6,
+              "avg_loss": -215.2,
+              "payoff": 5.22
+            },
+            "2025Q3": {
+              "n": 32,
+              "wr": 15.6,
+              "total": -1787.2,
+              "exp": -55.85,
+              "avg_win": 658.64,
+              "avg_loss": -188.16,
+              "payoff": 3.5
+            },
+            "2025Q4": {
+              "n": 22,
+              "wr": 18.2,
+              "total": 670.2,
+              "exp": 30.46,
+              "avg_win": 1172.85,
+              "avg_loss": -223.4,
+              "payoff": 5.25
+            },
+            "2026Q1": {
+              "n": 21,
+              "wr": 23.8,
+              "total": 936.76,
+              "exp": 44.61,
+              "avg_win": 925.24,
+              "avg_loss": -230.59,
+              "payoff": 4.01
+            },
+            "2026Q2": {
+              "n": 1,
+              "wr": 0.0,
+              "total": -252.8,
+              "exp": -252.8,
+              "avg_win": 0.0,
+              "avg_loss": -252.8,
+              "payoff": 0.0
+            }
+          },
+          "dsr": {
+            "dsr": 0.1408,
+            "sharpe_per_trade": -0.0025,
+            "sharpe_benchmark_sr0": 0.1088,
+            "n_trials": 4,
+            "n_obs": 95,
+            "skew": 2.102,
+            "kurtosis": 6.524,
+            "low_power": false,
+            "interpret": "DSR is P(true Sharpe>selection-adjusted benchmark). >=0.95 = real edge beyond luck-of-N-trials. low_power=True means n<20 so treat as advisory colour only (module CAVEAT)."
+          }
+        },
+        "out_of_sample_2026-05-08..2026-06-16": {
+          "overall": {
+            "n": 7,
+            "wr": 42.9,
+            "total": 1881.0,
+            "exp": 268.71,
+            "avg_win": 958.07,
+            "avg_loss": -248.3,
+            "payoff": 3.86
+          },
+          "per_quarter": {
+            "2026Q2": {
+              "n": 7,
+              "wr": 42.9,
+              "total": 1881.0,
+              "exp": 268.71,
+              "avg_win": 958.07,
+              "avg_loss": -248.3,
+              "payoff": 3.86
+            }
+          },
+          "dsr": {
+            "dsr": 0.5473,
+            "sharpe_per_trade": 0.3918,
+            "sharpe_benchmark_sr0": 0.3521,
+            "n_trials": 4,
+            "n_obs": 7,
+            "skew": 1.002,
+            "kurtosis": 2.678,
+            "low_power": true,
+            "interpret": "DSR is P(true Sharpe>selection-adjusted benchmark). >=0.95 = real edge beyond luck-of-N-trials. low_power=True means n<20 so treat as advisory colour only (module CAVEAT)."
+          }
+        },
+        "trigger_breakdown_full": {
+          "confluence+level_reclaim": {
+            "n": 85,
+            "wr": 18.8,
+            "total": 1352.6,
+            "exp": 15.91,
+            "avg_win": 915.69,
+            "avg_loss": -192.73,
+            "payoff": 4.75
+          },
+          "confluence+level_reclaim+ribbon_flip": {
+            "n": 8,
+            "wr": 37.5,
+            "total": 619.8,
+            "exp": 77.48,
+            "avg_win": 725.0,
+            "avg_loss": -311.04,
+            "payoff": 2.33
+          },
+          "confluence+level_reclaim+sequence_reclaim": {
+            "n": 5,
+            "wr": 20.0,
+            "total": -300.8,
+            "exp": -60.16,
+            "avg_win": 1054.0,
+            "avg_loss": -338.7,
+            "payoff": 3.11
+          },
+          "level_reclaim+ribbon_flip": {
+            "n": 3,
+            "wr": 33.3,
+            "total": 447.76,
+            "exp": 149.25,
+            "avg_win": 1352.4,
+            "avg_loss": -452.32,
+            "payoff": 2.99
+          },
+          "level_reclaim+ribbon_flip+sequence_reclaim": {
+            "n": 1,
+            "wr": 0.0,
+            "total": -354.0,
+            "exp": -354.0,
+            "avg_win": 0.0,
+            "avg_loss": -354.0,
+            "payoff": 0.0
+          }
+        },
+        "vix_breakdown_full": {
+          "vix<14": {
+            "n": 3,
+            "wr": 66.7,
+            "total": 2346.0,
+            "exp": 782.0,
+            "avg_win": 1259.8,
+            "avg_loss": -173.6,
+            "payoff": 7.26
+          },
+          "vix_14-16": {
+            "n": 53,
+            "wr": 22.6,
+            "total": 113.2,
+            "exp": 2.14,
+            "avg_win": 709.67,
+            "avg_loss": -204.95,
+            "payoff": 3.46
+          },
+          "vix_16-17.2": {
+            "n": 39,
+            "wr": 10.3,
+            "total": -4481.64,
+            "exp": -114.91,
+            "avg_win": 870.85,
+            "avg_loss": -227.57,
+            "payoff": 3.83
+          },
+          "vix_17.2-18": {
+            "n": 7,
+            "wr": 42.9,
+            "total": 3787.8,
+            "exp": 541.11,
+            "avg_win": 1571.13,
+            "avg_loss": -231.4,
+            "payoff": 6.79
+          }
+        }
+      }
+    },
+    "PROD_GATED": {
+      "ATM": {
+        "full_window": {
+          "overall": {
+            "n": 80,
+            "wr": 21.2,
+            "total": 1328.6,
+            "exp": 16.61,
+            "avg_win": 353.66,
+            "avg_loss": -74.34,
+            "payoff": 4.76
+          },
+          "per_quarter": {
+            "2025Q1": {
+              "n": 8,
+              "wr": 37.5,
+              "total": 206.8,
+              "exp": 25.85,
+              "avg_win": 186.0,
+              "avg_loss": -70.24,
+              "payoff": 2.65
+            },
+            "2025Q2": {
+              "n": 3,
+              "wr": 33.3,
+              "total": 9.2,
+              "exp": 3.07,
+              "avg_win": 140.4,
+              "avg_loss": -65.6,
+              "payoff": 2.14
+            },
+            "2025Q3": {
+              "n": 32,
+              "wr": 15.6,
+              "total": 1434.2,
+              "exp": 44.82,
+              "avg_win": 620.68,
+              "avg_loss": -61.82,
+              "payoff": 10.04
+            },
+            "2025Q4": {
+              "n": 17,
+              "wr": 17.6,
+              "total": -212.8,
+              "exp": -12.52,
+              "avg_win": 345.6,
+              "avg_loss": -89.26,
+              "payoff": 3.87
+            },
+            "2026Q1": {
+              "n": 14,
+              "wr": 21.4,
+              "total": -126.0,
+              "exp": -9.0,
+              "avg_win": 238.8,
+              "avg_loss": -76.58,
+              "payoff": 3.12
+            },
+            "2026Q2": {
+              "n": 6,
+              "wr": 33.3,
+              "total": 17.2,
+              "exp": 2.87,
+              "avg_win": 228.6,
+              "avg_loss": -110.0,
+              "payoff": 2.08
+            }
+          },
+          "dsr": {
+            "dsr": 0.3785,
+            "sharpe_per_trade": 0.0742,
+            "sharpe_benchmark_sr0": 0.1051,
+            "n_trials": 4,
+            "n_obs": 80,
+            "skew": 3.095,
+            "kurtosis": 14.363,
+            "low_power": false,
+            "interpret": "DSR is P(true Sharpe>selection-adjusted benchmark). >=0.95 = real edge beyond luck-of-N-trials. low_power=True means n<20 so treat as advisory colour only (module CAVEAT)."
+          }
+        },
+        "in_sample_2025-01-02..2026-05-07": {
+          "overall": {
+            "n": 75,
+            "wr": 20.0,
+            "total": 1161.0,
+            "exp": 15.48,
+            "avg_win": 370.33,
+            "avg_loss": -73.23,
+            "payoff": 5.06
+          },
+          "per_quarter": {
+            "2025Q1": {
+              "n": 8,
+              "wr": 37.5,
+              "total": 206.8,
+              "exp": 25.85,
+              "avg_win": 186.0,
+              "avg_loss": -70.24,
+              "payoff": 2.65
+            },
+            "2025Q2": {
+              "n": 3,
+              "wr": 33.3,
+              "total": 9.2,
+              "exp": 3.07,
+              "avg_win": 140.4,
+              "avg_loss": -65.6,
+              "payoff": 2.14
+            },
+            "2025Q3": {
+              "n": 32,
+              "wr": 15.6,
+              "total": 1434.2,
+              "exp": 44.82,
+              "avg_win": 620.68,
+              "avg_loss": -61.82,
+              "payoff": 10.04
+            },
+            "2025Q4": {
+              "n": 17,
+              "wr": 17.6,
+              "total": -212.8,
+              "exp": -12.52,
+              "avg_win": 345.6,
+              "avg_loss": -89.26,
+              "payoff": 3.87
+            },
+            "2026Q1": {
+              "n": 14,
+              "wr": 21.4,
+              "total": -126.0,
+              "exp": -9.0,
+              "avg_win": 238.8,
+              "avg_loss": -76.58,
+              "payoff": 3.12
+            },
+            "2026Q2": {
+              "n": 1,
+              "wr": 0.0,
+              "total": -150.4,
+              "exp": -150.4,
+              "avg_win": 0.0,
+              "avg_loss": -150.4,
+              "payoff": 0.0
+            }
+          },
+          "dsr": {
+            "dsr": 0.3454,
+            "sharpe_per_trade": 0.0681,
+            "sharpe_benchmark_sr0": 0.1095,
+            "n_trials": 4,
+            "n_obs": 75,
+            "skew": 3.149,
+            "kurtosis": 14.427,
+            "low_power": false,
+            "interpret": "DSR is P(true Sharpe>selection-adjusted benchmark). >=0.95 = real edge beyond luck-of-N-trials. low_power=True means n<20 so treat as advisory colour only (module CAVEAT)."
+          }
+        },
+        "out_of_sample_2026-05-08..2026-06-16": {
+          "overall": {
+            "n": 5,
+            "wr": 40.0,
+            "total": 167.6,
+            "exp": 33.52,
+            "avg_win": 228.6,
+            "avg_loss": -96.53,
+            "payoff": 2.37
+          },
+          "per_quarter": {
+            "2026Q2": {
+              "n": 5,
+              "wr": 40.0,
+              "total": 167.6,
+              "exp": 33.52,
+              "avg_win": 228.6,
+              "avg_loss": -96.53,
+              "payoff": 2.37
+            }
+          },
+          "dsr": {
+            "dsr": 0.268,
+            "sharpe_per_trade": 0.2086,
+            "sharpe_benchmark_sr0": 0.5064,
+            "n_trials": 4,
+            "n_obs": 5,
+            "skew": 0.362,
+            "kurtosis": 1.206,
+            "low_power": true,
+            "interpret": "DSR is P(true Sharpe>selection-adjusted benchmark). >=0.95 = real edge beyond luck-of-N-trials. low_power=True means n<20 so treat as advisory colour only (module CAVEAT)."
+          }
+        },
+        "trigger_breakdown_full": {
+          "confluence+level_reclaim": {
+            "n": 75,
+            "wr": 21.3,
+            "total": 1585.4,
+            "exp": 21.14,
+            "avg_win": 356.64,
+            "avg_loss": -69.84,
+            "payoff": 5.11
+          },
+          "confluence+level_reclaim+sequence_reclaim": {
+            "n": 5,
+            "wr": 20.0,
+            "total": -256.8,
+            "exp": -51.36,
+            "avg_win": 306.0,
+            "avg_loss": -140.7,
+            "payoff": 2.17
+          }
+        },
+        "vix_breakdown_full": {
+          "vix<14": {
+            "n": 1,
+            "wr": 0.0,
+            "total": -64.0,
+            "exp": -64.0,
+            "avg_win": 0.0,
+            "avg_loss": -64.0,
+            "payoff": 0.0
+          },
+          "vix_14-16": {
+            "n": 48,
+            "wr": 25.0,
+            "total": 2835.2,
+            "exp": 59.07,
+            "avg_win": 436.97,
+            "avg_loss": -66.9,
+            "payoff": 6.53
+          },
+          "vix_16-17.2": {
+            "n": 26,
+            "wr": 15.4,
+            "total": -1143.0,
+            "exp": -43.96,
+            "avg_win": 157.05,
+            "avg_loss": -80.51,
+            "payoff": 1.95
+          },
+          "vix_17.2-18": {
+            "n": 5,
+            "wr": 20.0,
+            "total": -299.6,
+            "exp": -59.92,
+            "avg_win": 140.4,
+            "avg_loss": -110.0,
+            "payoff": 1.28
+          }
+        }
+      },
+      "ITM2": {
+        "full_window": {
+          "overall": {
+            "n": 80,
+            "wr": 17.5,
+            "total": -1895.0,
+            "exp": -23.69,
+            "avg_win": 776.41,
+            "avg_loss": -193.41,
+            "payoff": 4.01
+          },
+          "per_quarter": {
+            "2025Q1": {
+              "n": 8,
+              "wr": 12.5,
+              "total": -784.2,
+              "exp": -98.02,
+              "avg_win": 473.4,
+              "avg_loss": -179.66,
+              "payoff": 2.63
+            },
+            "2025Q2": {
+              "n": 3,
+              "wr": 33.3,
+              "total": 778.8,
+              "exp": 259.6,
+              "avg_win": 1123.6,
+              "avg_loss": -172.4,
+              "payoff": 6.52
+            },
+            "2025Q3": {
+              "n": 30,
+              "wr": 16.7,
+              "total": -1196.4,
+              "exp": -39.88,
+              "avg_win": 658.64,
+              "avg_loss": -179.58,
+              "payoff": 3.67
+            },
+            "2025Q4": {
+              "n": 18,
+              "wr": 11.1,
+              "total": -1588.0,
+              "exp": -88.22,
+              "avg_win": 925.2,
+              "avg_loss": -214.9,
+              "payoff": 4.31
+            },
+            "2026Q1": {
+              "n": 15,
+              "wr": 13.3,
+              "total": -1049.8,
+              "exp": -69.99,
+              "avg_win": 761.9,
+              "avg_loss": -197.97,
+              "payoff": 3.85
+            },
+            "2026Q2": {
+              "n": 6,
+              "wr": 50.0,
+              "total": 1944.6,
+              "exp": 324.1,
+              "avg_win": 868.47,
+              "avg_loss": -220.27,
+              "payoff": 3.94
+            }
+          },
+          "dsr": {
+            "dsr": 0.0618,
+            "sharpe_per_trade": -0.0586,
+            "sharpe_benchmark_sr0": 0.1264,
+            "n_trials": 4,
+            "n_obs": 80,
+            "skew": 2.31,
+            "kurtosis": 7.567,
+            "low_power": false,
+            "interpret": "DSR is P(true Sharpe>selection-adjusted benchmark). >=0.95 = real edge beyond luck-of-N-trials. low_power=True means n<20 so treat as advisory colour only (module CAVEAT)."
+          }
+        },
+        "in_sample_2025-01-02..2026-05-07": {
+          "overall": {
+            "n": 75,
+            "wr": 14.7,
+            "total": -4092.4,
+            "exp": -54.57,
+            "avg_win": 751.31,
+            "avg_loss": -193.07,
+            "payoff": 3.89
+          },
+          "per_quarter": {
+            "2025Q1": {
+              "n": 8,
+              "wr": 12.5,
+              "total": -784.2,
+              "exp": -98.02,
+              "avg_win": 473.4,
+              "avg_loss": -179.66,
+              "payoff": 2.63
+            },
+            "2025Q2": {
+              "n": 3,
+              "wr": 33.3,
+              "total": 778.8,
+              "exp": 259.6,
+              "avg_win": 1123.6,
+              "avg_loss": -172.4,
+              "payoff": 6.52
+            },
+            "2025Q3": {
+              "n": 30,
+              "wr": 16.7,
+              "total": -1196.4,
+              "exp": -39.88,
+              "avg_win": 658.64,
+              "avg_loss": -179.58,
+              "payoff": 3.67
+            },
+            "2025Q4": {
+              "n": 18,
+              "wr": 11.1,
+              "total": -1588.0,
+              "exp": -88.22,
+              "avg_win": 925.2,
+              "avg_loss": -214.9,
+              "payoff": 4.31
+            },
+            "2026Q1": {
+              "n": 15,
+              "wr": 13.3,
+              "total": -1049.8,
+              "exp": -69.99,
+              "avg_win": 761.9,
+              "avg_loss": -197.97,
+              "payoff": 3.85
+            },
+            "2026Q2": {
+              "n": 1,
+              "wr": 0.0,
+              "total": -252.8,
+              "exp": -252.8,
+              "avg_win": 0.0,
+              "avg_loss": -252.8,
+              "payoff": 0.0
+            }
+          },
+          "dsr": {
+            "dsr": 0.0153,
+            "sharpe_per_trade": -0.1525,
+            "sharpe_benchmark_sr0": 0.1444,
+            "n_trials": 4,
+            "n_obs": 75,
+            "skew": 2.348,
+            "kurtosis": 7.222,
+            "low_power": false,
+            "interpret": "DSR is P(true Sharpe>selection-adjusted benchmark). >=0.95 = real edge beyond luck-of-N-trials. low_power=True means n<20 so treat as advisory colour only (module CAVEAT)."
+          }
+        },
+        "out_of_sample_2026-05-08..2026-06-16": {
+          "overall": {
+            "n": 5,
+            "wr": 60.0,
+            "total": 2197.4,
+            "exp": 439.48,
+            "avg_win": 868.47,
+            "avg_loss": -204.0,
+            "payoff": 4.26
+          },
+          "per_quarter": {
+            "2026Q2": {
+              "n": 5,
+              "wr": 60.0,
+              "total": 2197.4,
+              "exp": 439.48,
+              "avg_win": 868.47,
+              "avg_loss": -204.0,
+              "payoff": 4.26
+            }
+          },
+          "dsr": {
+            "dsr": 0.7209,
+            "sharpe_per_trade": 0.6436,
+            "sharpe_benchmark_sr0": 0.4135,
+            "n_trials": 4,
+            "n_obs": 5,
+            "skew": 0.817,
+            "kurtosis": 2.388,
+            "low_power": true,
+            "interpret": "DSR is P(true Sharpe>selection-adjusted benchmark). >=0.95 = real edge beyond luck-of-N-trials. low_power=True means n<20 so treat as advisory colour only (module CAVEAT)."
+          }
+        },
+        "trigger_breakdown_full": {
+          "confluence+level_reclaim": {
+            "n": 76,
+            "wr": 17.1,
+            "total": -1900.2,
+            "exp": -25.0,
+            "avg_win": 755.06,
+            "avg_loss": -185.97,
+            "payoff": 4.06
+          },
+          "confluence+level_reclaim+sequence_reclaim": {
+            "n": 4,
+            "wr": 25.0,
+            "total": 5.2,
+            "exp": 1.3,
+            "avg_win": 1054.0,
+            "avg_loss": -349.6,
+            "payoff": 3.01
+          }
+        },
+        "vix_breakdown_full": {
+          "vix<14": {
+            "n": 2,
+            "wr": 50.0,
+            "total": 910.0,
+            "exp": 455.0,
+            "avg_win": 1076.4,
+            "avg_loss": -166.4,
+            "payoff": 6.47
+          },
+          "vix_14-16": {
+            "n": 46,
+            "wr": 21.7,
+            "total": -231.8,
+            "exp": -5.04,
+            "avg_win": 653.06,
+            "avg_loss": -187.84,
+            "payoff": 3.48
+          },
+          "vix_16-17.2": {
+            "n": 27,
+            "wr": 3.7,
+            "total": -4700.0,
+            "exp": -174.07,
+            "avg_win": 475.2,
+            "avg_loss": -199.05,
+            "payoff": 2.39
+          },
+          "vix_17.2-18": {
+            "n": 5,
+            "wr": 40.0,
+            "total": 2126.8,
+            "exp": 425.36,
+            "avg_win": 1393.8,
+            "avg_loss": -220.27,
+            "payoff": 6.33
+          }
+        }
+      }
+    }
+  },
+  "candidate_bullish_anchors": [
+    {
+      "date": "2025-09-04",
+      "entry_time_et": "10:35",
+      "entry_spot": 645.11,
+      "strike": 645,
+      "side": "C",
+      "reclaim_level": 645.0,
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "entry_vix": 15.7,
+      "dollar_pnl": 1234.8,
+      "pct_return_on_premium": 1.165,
+      "hold_minutes": 320,
+      "exit_reason": "TP1_THEN_RUNNER_TIME",
+      "status": "NEEDS-J-CONFIRMATION"
+    },
+    {
+      "date": "2025-08-26",
+      "entry_time_et": "15:50",
+      "entry_spot": 644.24,
+      "strike": 644,
+      "side": "C",
+      "reclaim_level": 644.01,
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "entry_vix": 14.8,
+      "dollar_pnl": 780.0,
+      "pct_return_on_premium": 1.857,
+      "hold_minutes": 10,
+      "exit_reason": "EXIT_ALL_TIME_STOP",
+      "status": "NEEDS-J-CONFIRMATION"
+    },
+    {
+      "date": "2025-09-22",
+      "entry_time_et": "12:10",
+      "entry_spot": 665.11,
+      "strike": 665,
+      "side": "C",
+      "reclaim_level": 664.88,
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "entry_vix": 15.9,
+      "dollar_pnl": 681.0,
+      "pct_return_on_premium": 1.048,
+      "hold_minutes": 225,
+      "exit_reason": "TP1_THEN_RUNNER_TIME",
+      "status": "NEEDS-J-CONFIRMATION"
+    },
+    {
+      "date": "2025-12-10",
+      "entry_time_et": "15:30",
+      "entry_spot": 684.02,
+      "strike": 684,
+      "side": "C",
+      "reclaim_level": 683.55,
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "entry_vix": 15.7,
+      "dollar_pnl": 576.0,
+      "pct_return_on_premium": 0.31,
+      "hold_minutes": 15,
+      "exit_reason": "TP1_THEN_RUNNER_RIBBON",
+      "status": "NEEDS-J-CONFIRMATION"
+    },
+    {
+      "date": "2026-01-09",
+      "entry_time_et": "10:35",
+      "entry_spot": 690.93,
+      "strike": 691,
+      "side": "C",
+      "reclaim_level": 690.59,
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "entry_vix": 15.5,
+      "dollar_pnl": 333.0,
+      "pct_return_on_premium": 0.18,
+      "hold_minutes": 15,
+      "exit_reason": "TP1_THEN_RUNNER_RIBBON",
+      "status": "NEEDS-J-CONFIRMATION"
+    },
+    {
+      "date": "2025-12-11",
+      "entry_time_et": "12:40",
+      "entry_spot": 685.64,
+      "strike": 686,
+      "side": "C",
+      "reclaim_level": 685.25,
+      "triggers": [
+        "level_reclaim",
+        "confluence",
+        "sequence_reclaim"
+      ],
+      "entry_vix": 15.8,
+      "dollar_pnl": 306.0,
+      "pct_return_on_premium": 0.2,
+      "hold_minutes": 15,
+      "exit_reason": "TP1_THEN_RUNNER_RIBBON",
+      "status": "NEEDS-J-CONFIRMATION"
+    },
+    {
+      "date": "2025-08-27",
+      "entry_time_et": "15:20",
+      "entry_spot": 646.63,
+      "strike": 647,
+      "side": "C",
+      "reclaim_level": 646.49,
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "entry_vix": 14.9,
+      "dollar_pnl": 290.6,
+      "pct_return_on_premium": 0.3,
+      "hold_minutes": 35,
+      "exit_reason": "TP1_THEN_RUNNER_TIME",
+      "status": "NEEDS-J-CONFIRMATION"
+    },
+    {
+      "date": "2025-02-13",
+      "entry_time_et": "10:55",
+      "entry_spot": 604.34,
+      "strike": 604,
+      "side": "C",
+      "reclaim_level": 604.0,
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "entry_vix": 15.5,
+      "dollar_pnl": 289.8,
+      "pct_return_on_premium": 0.18,
+      "hold_minutes": 15,
+      "exit_reason": "TP1_THEN_RUNNER_RIBBON",
+      "status": "NEEDS-J-CONFIRMATION"
+    }
+  ],
+  "op20_disclosures": {
+    "real_fills_authority": "Real fills via lib.simulator_real + OPRA cache, valid 2025-01-02..2026-05-29. Signals after 2026-05-29 yield no fill and are DROPPED -> the OOS window 2026-05-08..06-16 is effectively 2026-05-08..05-29 on real fills (~3 trading weeks). Real-fills is the only WR authority (theme C1).",
+    "proxy_levels_caveat": "Levels are the engine's auto-detected historical structural levels (PD H/L/C + intraday), i.e. \u2605\u2605 proxies, NOT the production \u2605\u2605\u2605 named levels (key-levels.json has no 16-month archive). Real \u2605\u2605\u2605 levels + J's OWN bullish winners would SHARPEN this materially \u2014 PDL-class proxies historically understate \u2605\u2605\u2605 WR (L58). Treat numbers as a lower bound.",
+    "strike_tiers": "ATM (offset 0) + ITM2 (offset -2) both reported because 0DTE option P&L does not transfer across strike tiers (L149). Chart-stop only (premium_stop_pct_bull=None, L51/L55). Production Safe=OTM-2, Bold=ITM-2.",
+    "min_triggers": "bull_min_triggers=2 (v12 asymmetric, ratified 2026-05-07). level_reclaim alone is 22% WR (a known-weaker 1-trigger variant) \u2014 not evaluated to avoid presenting a strawman.",
+    "dsr_n_trials": "DSR deflated for n_trials=4 (2 configs x 2 strikes). Advisory only at this n (small-sample low_power per module CAVEAT); NOT a hard gate.",
+    "anchors_need_confirmation": "candidate_bullish_anchors are DERIVED from the tape, not provided by J. Each is NEEDS-J-CONFIRMATION. They become an immutable preserve-set only after J ratifies."
+  },
+  "propose_only": "Rule 9 \u2014 DRAFT. No production change. J ratifies/revokes."
+}
