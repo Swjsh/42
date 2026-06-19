@@ -1,3 +1,17 @@
+## [2026-06-19] CONTEXT-112: WEEKEND RESEARCH LOOP — 3 ratification candidates + conclusive negatives (commits c1a5e48..eee84e9)
+
+Autonomous weekend research (continuous loop, ~12 research/validation cycles, propose-only Rule 9). Converged the entry space + deepened the one confirmed edge. Ratification package: docs/WEEKEND-FINDINGS-RATIFICATION-2026-06-19.md.
+
+**READY TO RATIFY (OOS-validated):** (1) chandelier trail 20%->15% (6/6 WF folds, broad-based, pending real-level anchor check); (2) confidence-tier fix - STOP sizing up on HIGH (was sizing up on its WORST trades, ~\$700 worse than flat; corrected VIX-character tier +\$3.2k vs flat, ATM); (3) VIX-falling=SKIP (do-no-harm, sign-stable). All Safe-account; Bold takes conservative halves only (C29).
+
+**CONCLUSIVELY RULED OUT:** bounce family (dead), new entries trendline/momentum/vwap (all anti-edge - BEARISH_REJECTION is the ONLY edge-aligned entry), morning-sign gate (look-ahead mirage L166), lunch gate (L167), theta-cliff exit (C28), vol-scaled chandelier (inverts on 0DTE).
+
+**UNBLOCKED:** ★★★ key-levels archive (the #1 data constraint - now accruing; re-run level validations once N>=20-30 real days bank - proxy RETIRE verdicts + #1's anchor check may change). GEX regime tag built (live going-forward, no historical chain OI to backtest).
+
+**THE WALL + THE TRUTH:** BEARISH_REJECTION is the edge; leverage is exit/regime on it (the 3 wins). The setup is real-fills-NEGATIVE on PROXY levels but J's real winners were on real ★★★ levels the proxies miss -> resolving the level-quality gap (the archive) is the highest-value path. Real validation resumes Monday with live data + accruing archive.
+
+---
+
 ## [2026-06-19] CONTEXT-111: ALL-NIGHT LOOP TERMINUS (reasoned, non-silent) — 15 commits
 
 Phase 3 shim (engine_cli.py) shipped — the decision-lib boundary the heartbeat will consult in Phase 4. That EXHAUSTS the bounded high-value backlog. Everything remaining (forward-backlog-2026-06-19.md) is now DELIBERATE-FUTURE / J-GATED / CALENDAR-BOUND: Phase 3 SHADOW needs >=5 live trading days (market closed through Mon); Phase 4 cutover is J-gated; BEARISH_REJECTION exit/regime research is meaty + blocked by the proxy-levels caveat; key-levels archive only accrues real levels going forward; watcher RETIRE needs J. Per OP-22 (good-enough is a valid terminal state; only SILENT stops are banned) + J's #1 constraint (not over-engineered), force-grinding deliberate-future architecture at 03:30 would be the wrong call. WRAPPING the overnight grind here — loop resumes via the conductor (when J enables it) or Monday's session on the queued forward work. Tonight: 15 commits 5d247c6..<engine_cli>, gym green throughout, live trading untouched bar the validated Safe chart-stops (Monday).
@@ -4015,7 +4029,7 @@ v38 (V14E chop zone gate) + v39 (ORB signal reader) both registered and passing.
 - v02 source parity drift RED: crypto harness validator disagreements_above_tolerance. Pre-existing. 69-70/70 stages still PASS. Fix: add 30s pre-bar guard to the v02 fetch.
 
 ## Kitchen
-Kitchen: alive, queue 40 pending, last cook 0 min ago, today $0.00, model=nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 26 pending, last cook 0 min ago, today $0.01, model=nvidia/nemotron-3-super-120b-a12b:free
 
 ### Answer to "are you certain we will never hit rate limit?"
 **HIGH CONFIDENCE, not 100%.** I just audited the rate-limit firewall end-to-end and **found 2 critical bugs in the L3 exemption layer** — heartbeat would have starved AGAIN today if I hadn't checked. Both patched and smoke-tested before 09:30. Full audit details in the INFRASTRUCTURE FIREWALL section below.
@@ -6800,3 +6814,30 @@ Kitchen: alive, queue 26 pending, last cook 0 min ago, today $0.00, model=?
 - [2026-06-19 02:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.34% in last 24h (69/79) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
 
 - [2026-06-19 03:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.34% in last 24h (69/79) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-19 03:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.5% in last 24h (70/80) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-19 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+- [2026-06-19 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-06-19 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-06-19.md
+
+- [2026-06-19 04:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.5% in last 24h (70/80) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-19 04:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.5% in last 24h (70/80) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-19 05:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.5% in last 24h (70/80) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-19 05:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.65% in last 24h (71/81) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-19 06:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.95% in last 24h (73/83) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-19 06:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 88.51% in last 24h (77/87) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-19 13:07:18] gym-session (2026-06-19) → **RED** :: see `automation\state\gym-scorecard-2026-06-19.json`
+- [2026-06-19 07:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 88.89% in last 24h (80/90) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-19 07:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 90.22% in last 24h (83/92) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-19 14:04:57] gym-session (2026-06-19) → **RED** :: see `automation\state\gym-scorecard-2026-06-19.json`
