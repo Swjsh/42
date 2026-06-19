@@ -27,6 +27,7 @@ sys.path.insert(0, str(ROOT))
 import pandas as pd
 
 from backtest.lib.orchestrator import run_backtest
+from backtest.lib.anchor_check import anchor_no_regression  # L160 sign-correct G5
 
 DATA_DIR = ROOT / "backtest" / "data"
 SPY_FILE = DATA_DIR / "spy_5m_2025-01-01_2026-05-22.csv"
@@ -222,7 +223,13 @@ if __name__ == "__main__":
         base_l = _anchor_pnl(base_trades, J_LOSERS)
         print(f"\n  stop={stop:+.2f}: winners={w_pnl:+.0f} (base={base_w:+.0f}, delta={w_pnl-base_w:+.0f})  "
               f"losers={l_pnl:+.0f} (base={base_l:+.0f}, delta={l_pnl-base_l:+.0f})")
-        anchor_ok = (w_pnl >= base_w * 0.90) and (l_pnl <= base_l * 0.90)
+        # L160: sign-correct anchor-no-regression on BOTH sides. The broken
+        # `base * 0.90` form inverts for negative baselines (losers are negative,
+        # and J-winner anchors can be negative in some regimes). "No regression"
+        # = candidate is at most 10% worse than baseline in absolute dollars, which
+        # reads correctly for winners (don't shrink) and losers (don't deepen).
+        anchor_ok = (anchor_no_regression(base_w, w_pnl, 0.10)
+                     and anchor_no_regression(base_l, l_pnl, 0.10))
         print(f"    Anchor {'OK' if anchor_ok else 'REGRESSION'}")
 
     # ── Summary ───────────────────────────────────────────────────────────────

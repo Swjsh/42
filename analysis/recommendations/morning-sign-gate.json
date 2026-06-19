@@ -1,0 +1,229 @@
+{
+  "window": "2025-01-01..2026-06-16",
+  "research": "Game Plan 1A \u2014 intraday-momentum (morning_sign) gate on bearish-continuation",
+  "feature": "morning_sign = sign(open[first RTH bar] -> close[last bar <=10:00 ET]); arms partition the SAME real-fill universe by that sign.",
+  "baseline_detector": "BEARISH_REJECTION_MORNING",
+  "streams_tested": [
+    "BEARISH_REJECTION_MORNING"
+  ],
+  "morning_sign_coverage": {
+    "trading_days_with_sign": 320,
+    "by_sign": {
+      "UP": 174,
+      "FLAT": 12,
+      "DOWN": 134
+    },
+    "anchor_signs": {
+      "2026-04-29": "DOWN",
+      "2026-05-01": "UP",
+      "2026-05-04": "UP",
+      "2026-05-05": "UP",
+      "2026-05-06": "UP",
+      "2026-05-07": "DOWN"
+    }
+  },
+  "arms": {
+    "BEARISH_REJECTION_MORNING_ATM": {
+      "baseline": {
+        "which": "ALL",
+        "stats": {
+          "n": 69,
+          "wr": 63.8,
+          "total": -1488.8,
+          "exp": -21.58
+        },
+        "anchor": {
+          "n_anchor_fills": 1,
+          "win_day_pnl": 134.4,
+          "loss_day_loss": 0,
+          "edge_capture_realfills": 134.4,
+          "fills": [
+            {
+              "date": "2026-04-29",
+              "label": "WIN",
+              "pnl": 134.4
+            }
+          ]
+        },
+        "dsr": {
+          "dsr": 0.047,
+          "sharpe": -0.097,
+          "n_obs": 69,
+          "low_power": false,
+          "n_trials": 3
+        },
+        "n_days": 31
+      },
+      "morning_down": {
+        "which": "DOWN",
+        "stats": {
+          "n": 42,
+          "wr": 76.2,
+          "total": 959.0,
+          "exp": 22.83
+        },
+        "anchor": {
+          "n_anchor_fills": 1,
+          "win_day_pnl": 134.4,
+          "loss_day_loss": 0,
+          "edge_capture_realfills": 134.4,
+          "fills": [
+            {
+              "date": "2026-04-29",
+              "label": "WIN",
+              "pnl": 134.4
+            }
+          ]
+        },
+        "dsr": {
+          "dsr": 0.4432,
+          "sharpe": 0.118,
+          "n_obs": 42,
+          "low_power": false,
+          "n_trials": 3
+        },
+        "n_days": 18
+      },
+      "morning_up": {
+        "which": "UP",
+        "stats": {
+          "n": 27,
+          "wr": 44.4,
+          "total": -2447.8,
+          "exp": -90.66
+        },
+        "anchor": {
+          "n_anchor_fills": 0,
+          "win_day_pnl": 0,
+          "loss_day_loss": 0,
+          "edge_capture_realfills": 0,
+          "fills": []
+        },
+        "dsr": {
+          "dsr": 0.0035,
+          "sharpe": -0.367,
+          "n_obs": 27,
+          "low_power": false,
+          "n_trials": 3
+        },
+        "n_days": 13
+      }
+    },
+    "BEARISH_REJECTION_MORNING_ITM2": {
+      "baseline": {
+        "which": "ALL",
+        "stats": {
+          "n": 62,
+          "wr": 58.1,
+          "total": -3187.0,
+          "exp": -51.4
+        },
+        "anchor": {
+          "n_anchor_fills": 1,
+          "win_day_pnl": 197.4,
+          "loss_day_loss": 0,
+          "edge_capture_realfills": 197.4,
+          "fills": [
+            {
+              "date": "2026-04-29",
+              "label": "WIN",
+              "pnl": 197.4
+            }
+          ]
+        },
+        "dsr": {
+          "dsr": 0.0143,
+          "sharpe": -0.166,
+          "n_obs": 62,
+          "low_power": false,
+          "n_trials": 3
+        },
+        "n_days": 33
+      },
+      "morning_down": {
+        "which": "DOWN",
+        "stats": {
+          "n": 33,
+          "wr": 69.7,
+          "total": -43.0,
+          "exp": -1.3
+        },
+        "anchor": {
+          "n_anchor_fills": 1,
+          "win_day_pnl": 197.4,
+          "loss_day_loss": 0,
+          "edge_capture_realfills": 197.4,
+          "fills": [
+            {
+              "date": "2026-04-29",
+              "label": "WIN",
+              "pnl": 197.4
+            }
+          ]
+        },
+        "dsr": {
+          "dsr": 0.1895,
+          "sharpe": -0.005,
+          "n_obs": 33,
+          "low_power": false,
+          "n_trials": 3
+        },
+        "n_days": 17
+      },
+      "morning_up": {
+        "which": "UP",
+        "stats": {
+          "n": 29,
+          "wr": 44.8,
+          "total": -3144.0,
+          "exp": -108.41
+        },
+        "anchor": {
+          "n_anchor_fills": 0,
+          "win_day_pnl": 0,
+          "loss_day_loss": 0,
+          "edge_capture_realfills": 0,
+          "fills": []
+        },
+        "dsr": {
+          "dsr": 0.0059,
+          "sharpe": -0.324,
+          "n_obs": 29,
+          "low_power": false,
+          "n_trials": 3
+        },
+        "n_days": 16
+      }
+    }
+  },
+  "real_fills_diagnostics": {
+    "BEARISH_REJECTION_MORNING_ATM": {
+      "attempted": 121,
+      "filled": 94,
+      "no_fill_or_no_data": 27,
+      "errored": 0
+    },
+    "BEARISH_REJECTION_MORNING_ITM2": {
+      "attempted": 121,
+      "filled": 82,
+      "no_fill_or_no_data": 39,
+      "errored": 0
+    }
+  },
+  "verdict": {
+    "BEARISH_REJECTION_MORNING_ATM": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $22.83 (N=42) vs baseline exp $-21.58 (N=69): delta $44.41. Anchor edge_capture DOWN $134.4 vs baseline $134.4: delta $0.0. Inverse(UP) exp $-90.66. ",
+    "BEARISH_REJECTION_MORNING_ITM2": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $-1.3 (N=33) vs baseline exp $-51.4 (N=62): delta $50.1. Anchor edge_capture DOWN $197.4 vs baseline $197.4: delta $0.0. Inverse(UP) exp $-108.41. "
+  },
+  "headline": {
+    "BEARISH_REJECTION_MORNING_ATM": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $22.83 (N=42) vs baseline exp $-21.58 (N=69): delta $44.41. Anchor edge_capture DOWN $134.4 vs baseline $134.4: delta $0.0. Inverse(UP) exp $-90.66. ",
+    "BEARISH_REJECTION_MORNING_ITM2": "HELPS \u2014 DOWN-gating raises full-window real-fills expectancy AND preserves/raises OP-16 anchor edge_capture AND beats the inverse (signal, not noise). DOWN-gate exp $-1.3 (N=33) vs baseline exp $-51.4 (N=62): delta $50.1. Anchor edge_capture DOWN $197.4 vs baseline $197.4: delta $0.0. Inverse(UP) exp $-108.41. "
+  },
+  "op20_disclosures": {
+    "authority": "Real-fills (simulator_real over OPRA, valid ~through 2026-05-29) is the WR/expectancy authority. Arms are PARTITIONS of one fill set (same sim), so deltas isolate the gate, not re-simulation noise.",
+    "levels": "Historically-rebuilt \u2605\u2605 proxies (active+multi_day _detect_from_history), NOT production \u2605\u2605\u2605. Break/ribbon logic uses clean ctx.prior_bars (no look-ahead).",
+    "morning_sign": "Derived from the SPY 5m frame itself (open->10:00 ET); causal (known by 10:00, before the bearish-continuation entries it gates, which fire 09:35-12:00). FLAT/None-sign days excluded from all arms.",
+    "anchor_metric": "OP-16 edge_capture computed on REAL fills per arm: sum(P&L on WIN anchors) - sum(max(0,-P&L) on LOSS anchors). PRIMARY gate; small-n (lesson C24).",
+    "dsr": "Advisory only \u2014 n is far below MIN_RELIABLE_OBS=20 on the gated arms (low_power=True). Never a hard gate at this n (lesson C24).",
+    "chart_stop": "premium_stop_pct=-0.99 (chart-stop only) per L51/L55. Puts, qty=3, ATM+ITM2."
+  }
+}

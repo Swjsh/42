@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT))
 
 import pandas as pd
 from backtest.lib.orchestrator import run_backtest
+from backtest.lib.anchor_check import anchor_no_regression  # L160 sign-correct G5
 
 DATA_DIR = ROOT / "backtest" / "data"
 SPY_FILE = DATA_DIR / "spy_5m_2025-01-01_2026-05-22.csv"
@@ -127,7 +128,9 @@ if __name__ == "__main__":
     n_oos = 15
     wf_std = oos_delta / is_delta
     wf_norm = (oos_delta / n_oos) / (is_delta / len(t20))
-    anchor_ok = all(by_date_10.get(d, (None,None,0.0))[2] >= r[2]*0.90
+    # L160: sign-correct per-date anchor-no-regression (broken `r[2]*0.90` fails for
+    # negative baseline P&L). Canonical helper, see backtest/lib/anchor_check.py.
+    anchor_ok = all(anchor_no_regression(r[2], by_date_10.get(d, (None, None, 0.0))[2], 0.10)
                     for d, n, r in [(r[0], r[1], r[2]) for r in rows_20])
     print(f"  IS delta:          {is_delta:+.0f}  (n: {len(t20)}->{len(t10)})")
     print(f"  OOS delta:         {oos_delta:+.0f}  (n: {n_oos})")

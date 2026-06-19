@@ -7,7 +7,9 @@ Git history is the canonical record.
 grinders, VIX-regime/VIX-trend filter experiments, the stage2/cs sweeps, plus
 `t48_sniper_513_diag.py` and `t48_sniper_watcher_test.py`. The SNIPER strategy
 never promoted (0 `_LEADERBOARD` citations, real-fills validation never landed),
-and its scheduled task `Gamma_SniperShadowEOD` was retired the same day.
+and its scheduled task `Gamma_SniperShadowEOD` was unregistered from Windows Task
+Scheduler on 2026-06-19 (the 06-18 pass archived this cluster + the PS1 wrapper but
+left the live task registered, firing the since-archived wrapper, until removed).
 
 `t48_sniper_watcher_test.py` was **already broken** before archival — it imports
 `lib.watchers.sniper_watcher` (`detect_sniper_setup`), a module that was deleted

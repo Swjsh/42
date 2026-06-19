@@ -1,0 +1,118 @@
+{
+  "_doc": "A/B scorecard — Game Plan 1A (intraday-momentum / morning_sign gate). PROPOSE-ONLY (Rule 9): no live doctrine/params changed. Raw evidence: morning-sign-gate.json (baseline detector) + morning-sign-gate-allstreams.json (family cross-check). Generator: backtest/autoresearch/validate_morning_sign_gate.py.",
+
+  "rule_id": "R-MORNINGSIGN-BEARREJ",
+  "title": "Gate BEARISH_REJECTION continuation entries to DOWN-morning days only (morning_sign)",
+  "rationale": "Gao-Han-Li-Zhou (JFE 2018) Market Intraday Momentum: first-30min SPY return predicts last-30min, bearish when morning is red. On real-fills, gating the confirmed BEARISH_REJECTION_MORNING detector to fire only on DOWN-morning days flips ATM expectancy from -$21.58 to +$22.83/contract (WR 63.8%->76.2%); the inverse (UP-morning) arm is sharply NEGATIVE (-$90.66), so the effect is signal, not noise.",
+  "proposed_at": "2026-06-19",
+  "proposed_by": "manual",
+
+  "_a_b_runs_section": "Both arms are PARTITIONS of ONE real-fills universe (same simulate_trade_real run over the same OPRA contracts + ribbon series), differing ONLY by the morning_sign filter. data_hash therefore identical by construction. old = ungated (all sign-known days), new = DOWN-morning days only.",
+  "old_run": {
+    "run_id": "2026-06-19_morningsign_baseline_ungated",
+    "label": "BEARISH_REJECTION_MORNING_ungated_realfills_chartstop",
+    "params_snapshot_path": "analysis/recommendations/morning-sign-gate.json#arms.BEARISH_REJECTION_MORNING_ATM.baseline",
+    "version_label": "baseline"
+  },
+  "new_run": {
+    "run_id": "2026-06-19_morningsign_DOWN_gated",
+    "label": "BEARISH_REJECTION_MORNING_morningDOWN_realfills_chartstop",
+    "params_snapshot_path": "analysis/recommendations/morning-sign-gate.json#arms.BEARISH_REJECTION_MORNING_ATM.morning_down",
+    "version_label": "morning_down_gate-proposed"
+  },
+
+  "data_hash_match": true,
+  "data_hash": "8fc16baa1aba1280e619de5506b645c45a5b52e75ad897b49b8078c818b14c6e",
+  "window_start": "2025-01-01",
+  "window_end": "2026-06-16",
+  "trading_days": 320,
+
+  "_metrics_section": "Real-fills (simulator_real over OPRA, the WR/expectancy AUTHORITY), BEARISH_REJECTION_MORNING detector, puts, chart-stop only (premium_stop_pct=-0.99). Headline = ATM (J's anchor strike class). n_trades is RAW fills (pre-dedup). Note n DROPS by design (the gate removes up-morning trades) — 'more_data_better' direction flags that the win comes from fewer-but-better trades, not more.",
+  "metrics": {
+    "n_trades":   { "old": 69,      "new": 42,    "delta": -27,    "direction": "more_data_better" },
+    "hit_rate":   { "old": 0.638,   "new": 0.762, "delta": 0.124,  "direction": "higher_better" },
+    "expectancy": { "old": -21.58,  "new": 22.83, "delta": 44.41,  "direction": "higher_better" },
+    "total_pnl":  { "old": -1488.8, "new": 959.0, "delta": 2447.8, "direction": "higher_better" },
+    "anchor_edge_capture_realfills": { "old": 134.4, "new": 134.4, "delta": 0.0, "direction": "higher_better" },
+    "dsr":        { "old": 0.047,   "new": 0.4432, "delta": 0.3962, "direction": "higher_better" }
+  },
+
+  "itm2_metrics": {
+    "_note": "ITM2 = the Gamma-Bold strike class. Same direction, weaker absolute (gate moves it from clearly-negative to ~breakeven).",
+    "n_trades":   { "old": 62,      "new": 33,    "delta": -29 },
+    "hit_rate":   { "old": 0.581,   "new": 0.697, "delta": 0.116 },
+    "expectancy": { "old": -51.40,  "new": -1.30, "delta": 50.10 },
+    "total_pnl":  { "old": -3187.0, "new": -43.0, "delta": 3144.0 },
+    "anchor_edge_capture_realfills": { "old": 197.4, "new": 197.4, "delta": 0.0 }
+  },
+
+  "_inverse_cross_check_section": "The CRITICAL signal-vs-noise test. If the DOWN gate were base-rate luck, the UP arm would look similar. It does the OPPOSITE — UP-morning bearish entries are the LOSERS — which is exactly the Gao et al. mechanism (down-morning -> down-afternoon continuation).",
+  "inverse_morning_up": {
+    "atm":  { "n": 27, "wr": 0.444, "expectancy": -90.66, "total_pnl": -2447.8 },
+    "itm2": { "n": 29, "wr": 0.448, "expectancy": -108.41, "total_pnl": -3144.0 }
+  },
+
+  "dominates": false,
+  "dominates_reason": "DOWN-gate beats baseline on expectancy, WR, total P&L, and DSR, and ties on anchor edge_capture — but n_trades drops (intended) and the win is NOT statistically significant (DSR 0.44 << 0.95). Real-fills is favorable but the anchor sample is THIN (only 1 of J's 6 anchor days, 4/29, produced a BEARISH_REJECTION_MORNING real-fill; 5/01 & 5/04 winners did not fire this detector at all), so the OP-16 'no-regression' tie is on n=1.",
+  "regressed_metrics": ["n_trades"],
+
+  "_sub_window_stability_section": "Not split into IS/OOS halves in this pass — the gated ATM arm is n=42 over 18 distinct days across the full window, already near the floor for a stable split. The morning_sign coverage (134 DOWN / 174 UP / 12 FLAT days over 320) shows the gate is well-populated, not a rare-regime artefact. A formal IS/OOS split is the recommended next step before any ratification.",
+  "sub_window_stability": {
+    "first_half": { "metrics": { "n_trades": null, "hit_rate": null, "expectancy": null, "thresholds_passed": null }, "passes_4_of_4": null },
+    "second_half": { "metrics": { "n_trades": null, "hit_rate": null, "expectancy": null, "thresholds_passed": null }, "passes_4_of_4": null }
+  },
+
+  "_family_scope_section": "Scope discipline (lessons C22/C29: gates don't transfer across detectors). The morning_sign gate is SPECIFIC to the rejection/continuation structure — it does NOT generalize across the bearish family. See morning-sign-gate-allstreams.json.",
+  "family_cross_check": {
+    "BEARISH_REJECTION_MORNING": "HELPS (ATM exp -21.58 -> +22.83; inverse -90.66). The confirmed edge — clean, in-power (n_obs 42, low_power False).",
+    "HEAD_AND_SHOULDERS_BEAR": "DIRECTIONALLY-HELPS-BUT-TINY-N (ITM2 -132.2 -> -47.66, inverse -206.17) — n_obs 7-8, low_power True; advisory only, do not act on alone.",
+    "LEVEL_BREAK_FIRST_STRIKE": "HURTS / CONTRADICTS — DOWN-gate WORSENS it (ATM +1.71 -> -19.49) and the UP arm is the profitable one (+33.49). Its fills cluster in UP-mornings; the gate is the WRONG sign for this detector. This is the counter-example proving morning_sign is structure-specific, not a universal bearish filter.",
+    "BEARISH_REVERSAL_AT_LEVEL": "WASH — countertrend contrast, n_obs 3-4, no signal."
+  },
+
+  "_acceptance_section": "Auto-ratification gate. Fails closed. This does NOT auto-ratify: DSR is far below 0.95 (not significant) and the anchor preservation is on n=1. Propose-only deliverable.",
+  "auto_ratify_conditions": {
+    "dominates_or_tied_overall": false,
+    "data_hash_matches": true,
+    "real_fills_expectancy_positive_atm": true,
+    "inverse_cross_check_passes": true,
+    "anchor_no_regression": true,
+    "dsr_ge_0_95": false,
+    "sub_window_stable": null,
+    "min_evidence_n_trades": 20,
+    "evidence_n_trades_met": true
+  },
+  "auto_ratify_eligible": false,
+  "verdict": "needs_review",
+  "_verdict_options": "auto_ratify | needs_review | reject",
+  "_verdict_note": "PROMISING / NEEDS-MORE. Real-fills favorable + inverse confirms signal + anchor no-regression, but not statistically significant (DSR 0.44), thin anchor coverage, AND a partial-causality caveat (see causality_caveat). SHIP-WORTHY as evidence/WATCH; NOT ship-worthy as an auto-applied live gate. Recommend: (1) re-define morning_sign at a checkpoint <= the entry bar to make the gate fully causal, then re-run, (2) formal IS/OOS sub-window split, (3) re-test as J accrues more BEARISH_REJECTION live trades, (4) if adopted, scope STRICTLY to BEARISH_REJECTION continuation — NOT LEVEL_BREAK_FIRST_STRIKE (opposite sign).",
+
+  "causality_caveat": {
+    "_doc": "Honest no-look-ahead audit (lesson C6). morning_sign is final only at the 10:00 ET bar close, but BEARISH_REJECTION_MORNING can trigger as early as 09:35 ET (entry on the next bar).",
+    "total_brm_signals": 177,
+    "trigger_before_0955_entry_at_or_before_1000": 34,
+    "trigger_at_or_after_0955_entry_after_1000_causally_clean": 143,
+    "pct_causally_clean": 0.808,
+    "impact": "For ~19% of signals the gate as-defined peeks slightly ahead (morning_sign not yet final at entry). The headline numbers therefore SLIGHTLY overstate a strictly-causal gate. The effect direction is very likely real (the inverse-arm cross-check + the 81% clean majority both hold), but a fully causal live gate MUST compute morning_sign from a checkpoint at-or-before the entry bar (e.g. open->09:35 for the earliest entries, or simply restrict the gate to entries at/after 10:00 ET). This is a research caveat, not a live change."
+  },
+
+  "_lifecycle_section": "Track ratification history.",
+  "status": "pending",
+  "decided_at": null,
+  "decided_by": null,
+  "decision_note": null,
+  "supersedes_recommendation_id": null,
+
+  "_provenance_section": "What triggered this proposal.",
+  "evidence_count": 1,
+  "evidence_window_days": 320,
+  "trigger_observation": "docs/WEEKEND-RESEARCH-GAMEPLANS-2026-06-19.md Game Plan 1: Gao-Han-Li-Zhou (JFE 2018) Market Intraday Momentum. Backtest on SPY 5m through 2026-06-16: morning_sign=DOWN gate on BEARISH_REJECTION_MORNING real-fills flips ATM exp -21.58 -> +22.83/contract; inverse UP arm -90.66 confirms signal.",
+  "related_changelog_entries": [],
+  "op20_disclosures": {
+    "authority": "Real-fills (simulator_real, OPRA valid ~through 2026-05-29) is the WR/expectancy authority. Arms partition ONE fill set, so deltas isolate the gate (no re-sim noise).",
+    "levels": "Historically-rebuilt star-2 proxies (active+multi_day _detect_from_history), NOT production star-3 named levels. No look-ahead (ctx.prior_bars <= current bar).",
+    "morning_sign": "sign(open[first RTH bar] -> close[last bar <=10:00 ET]). Causal: known by 10:00 ET, before the bearish-continuation entries it gates (which fire 09:35-12:00). FLAT/None-sign days excluded from all arms.",
+    "dsr": "Advisory; Deflated Sharpe via lib/validation. n_obs 42 (in-power) but DSR 0.44 < 0.95 significance line — directional, not significant (lesson C24: do not over-read small-sample stats).",
+    "chart_stop": "premium_stop_pct=-0.99 (chart-stop only) per L51/L55. Puts, qty=3, ATM + ITM2."
+  }
+}

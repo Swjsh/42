@@ -258,6 +258,23 @@ def simulate_trade_real(
     # L113 2026-06-17: level-stop chart buffer. Was hardcoded 0.50 (see comment at usage site).
     # prod=0.50. Now wirable so sweep can verify and test variations.
     level_stop_buffer_dollars: float = 0.50,
+    # --- TIME-CONDITIONAL EARLY EXIT (Game Plan 2, 2026-06-19) -------------------
+    # Step off the back-loaded 0DTE theta cliff (decay ~2%/hr at open -> >15%/hr after
+    # 14:00, sharp drop ~15:30 ET): force-close any STAGNANT / NON-FAVORED position at
+    # `early_cutoff_et`, while letting positions in strong favor ride to the existing
+    # exits (chandelier / level / ribbon / 15:50 time stop). This is the AQR "let the
+    # winner run, cut the laggard" shape applied to the theta clock — NOT a blanket
+    # earlier guillotine.
+    #
+    # "In favor" at the cutoff = TP1 already filled OR current bar premium >=
+    #   entry_premium * (1 + early_cutoff_min_favor_pct). If neither holds, the position
+    #   is cut at market (bar.close - exit_slippage), reason EXIT_ALL_TIME_STOP.
+    #
+    # Default early_cutoff_et=None => OFF => byte-for-byte identical to prior behavior
+    # (no production impact; opt-in only, mirrors every other knob added above). Rule 9:
+    # research-only until ratified.
+    early_cutoff_et: Optional[dt.time] = None,
+    early_cutoff_min_favor_pct: float = 0.0,
 ) -> Optional[TradeFill]:
     """Simulate a bracket trade with real option fills.
 
@@ -469,6 +486,35 @@ def simulate_trade_real(
 
         time_stop_now = spy_time.time() >= time_stop_et
         vol_baseline = _vol_baseline_at(spy_idx)
+
+        # ── TIME-CONDITIONAL EARLY EXIT (Game Plan 2) ───────────────────
+        # Cut STAGNANT / NON-FAVORED positions at the cutoff to step off the
+        # theta cliff; let in-favor positions ride to the normal exits. OFF when
+        # early_cutoff_et is None (default) — no production impact. Evaluated
+        # BEFORE the 15:50 time stop so a 15:00/15:15/15:30 cutoff binds first;
+        # it never fires AT/after the hard time stop (that path already exits).
+        if early_cutoff_et is not None and not time_stop_now and spy_time.time() >= early_cutoff_et:
+            # In favor = TP1 already banked OR this bar's premium has reached the
+            # favor threshold above entry. best_premium = current bar high (the
+            # generous read — only genuinely stagnant positions get cut).
+            in_favor = tp1_filled or (
+                best_premium >= entry_premium * (1.0 + early_cutoff_min_favor_pct)
+            )
+            if not in_favor:
+                # Force-close everything still open at market. Mirrors the pre/post-TP1
+                # time-stop fill convention (bar.close minus exit slippage).
+                exit_px = max(0.01, opt_bar.close - exit_slippage)
+                if not tp1_filled:
+                    fill.runner_exit_time_et = spy_time
+                    fill.runner_exit_premium = exit_px
+                    fill.exit_reason = ExitReason.EXIT_ALL_TIME_STOP
+                else:
+                    # TP1 already filled means in_favor=True, so this branch is
+                    # unreachable; kept defensive for clarity.
+                    fill.runner_exit_time_et = spy_time
+                    fill.runner_exit_premium = exit_px
+                    fill.exit_reason = ExitReason.TP1_THEN_RUNNER_TIME
+                break
 
         # ── Pre-TP1 hard exits (apply to all units before TP1) ──────────
         if not tp1_filled:

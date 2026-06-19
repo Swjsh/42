@@ -1,14 +1,14 @@
 {
   "strategy": "SHOTGUN_SCALPER",
   "stage": 1,
-  "generated_at": "2026-06-14T16:55:12",
+  "generated_at": "2026-06-19T04:40:20",
   "run_identity": {
-    "run_id": "2026-06-14_9b67344f_0d3b98_b22929",
+    "run_id": "2026-06-19_027bc0e6_0d3b98_6cc97f",
     "data_hash": "0d3b984a703498e4",
-    "code_hash": "9b67344f2ed836fa",
-    "params_hash": "b22929a0aa8b2ac6",
-    "code_source": "files",
-    "computed_at": "2026-06-14T13:54:56"
+    "code_hash": "027bc0e698c69a24",
+    "params_hash": "6cc97f1d778483db",
+    "code_source": "git",
+    "computed_at": "2026-06-19T01:39:51"
   },
   "grid_size": 2160,
   "gates": {
@@ -16,48 +16,12 @@
     "min_expectancy_per_trade": 0.01,
     "min_n_trades": 30,
     "max_drawdown_dollars": 1500.0,
-    "min_edge_capture_pct": 0.5,
+    "min_edge_capture_pct": 0.0,
     "min_positive_quarters": 4,
     "max_top5_pct": 0.5
   },
   "anchor_days": {
-    "winners": [
-      {
-        "date": "2026-04-29",
-        "j_pnl": 342,
-        "side": "P",
-        "strike": 710,
-        "note": "711.4 rejection + ribbon flip"
-      },
-      {
-        "date": "2026-05-01",
-        "j_pnl": 470,
-        "side": "P",
-        "strike": 721,
-        "note": "trendline rejection at 13:36 (leg #2 was real trigger)"
-      },
-      {
-        "date": "2026-05-04",
-        "j_pnl": 730,
-        "side": "P",
-        "strike": 721,
-        "note": "premarket level + multi-day trendline + ribbon flip = CONFLUENCE"
-      },
-      {
-        "date": "2026-05-14",
-        "j_pnl": 1208,
-        "side": "C",
-        "strike": 0,
-        "note": "v15 first ENTER_BULL +$913 + manual scaling. Open-drive bull confluence."
-      },
-      {
-        "date": "2026-05-15",
-        "j_pnl": 1400,
-        "side": "P",
-        "strike": 0,
-        "note": "paper if held to wick low; today's PIN_FADE / chop-reversal scalp."
-      }
-    ],
+    "winners": [],
     "losers": [
       {
         "date": "2026-05-05",
@@ -81,7 +45,7 @@
         "note": "engine BULL into pre-FOMC bear sequence + manual bullish anticipation"
       }
     ],
-    "max_edge_possible": 4150
+    "max_edge_possible": 0
   },
   "disclosures": {
     "account_size_assumption": "qty=3 baseline (~$1K paper). Headline P&L scales linearly with qty.",

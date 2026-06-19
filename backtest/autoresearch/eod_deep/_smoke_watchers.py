@@ -55,7 +55,7 @@ def run_smoke():
     print("="*60)
 
     watchers_to_test = [
-        ("sniper_watcher", "lib.watchers.sniper_watcher", "detect_sniper_setup"),
+        # sniper_watcher removed 2026-06-18 (module deleted in watcher-fleet de-sprawl)
         ("vwap_watcher", "lib.watchers.vwap_watcher", "detect_vwap_setup"),
         ("opening_drive_fade_watcher", "lib.watchers.opening_drive_fade_watcher", "detect_opening_drive_fade_setup"),
         ("premarket_fail_fade_watcher", "lib.watchers.premarket_fail_fade_watcher", "detect_premarket_fail_fade_setup"),
@@ -113,7 +113,7 @@ def run_full_day_scan():
         (df["timestamp_et"].dt.time < pd.Timestamp("16:00").time())
     ].reset_index(drop=True)
 
-    # Need full multi_day_rth for sniper levels
+    # Need full multi_day_rth for ribbon warmup + multi-day context
     full_master_csv = REPO / "backtest" / "data" / "spy_5m_2025-01-01_2026-05-12.csv"
     master = pd.read_csv(full_master_csv)
     master["timestamp_et"] = pd.to_datetime(master["timestamp_et"])
@@ -133,7 +133,7 @@ def run_full_day_scan():
     skip_per_watcher = {}
     error_per_watcher = {}
     watchers = [
-        ("sniper_watcher", "lib.watchers.sniper_watcher", "detect_sniper_setup", False),
+        # sniper_watcher removed 2026-06-18 (module deleted in watcher-fleet de-sprawl)
         ("vwap_watcher", "lib.watchers.vwap_watcher", "detect_vwap_setup", True),
         ("opening_drive_fade_watcher", "lib.watchers.opening_drive_fade_watcher", "detect_opening_drive_fade_setup", False),
         ("premarket_fail_fade_watcher", "lib.watchers.premarket_fail_fade_watcher", "detect_premarket_fail_fade_setup", False),

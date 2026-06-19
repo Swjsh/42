@@ -66,10 +66,16 @@ ALLOWLIST_UNDOCUMENTED: dict[str, str] = {
 # scope (it owns test files only; the registry doc is read-only here) — fixing the doc
 # deletes the entry (the test's `fixed_drift` assertion enforces that removal).
 #
-# RESOLVED 2026-06-18 (Phase 1a/1c autonomy wiring): Gamma_SpendSummary and
-# Gamma_LevelAlertDaemon were added to SCHEDULED-TASKS.md "## Active". With both now
-# documented, this dict is empty again and the ratchet is back to full tightness — a
-# brand-new undocumented Gamma_* task FAILS test_every_installed_task_is_documented.
+# RESOLVED: Gamma_SpendSummary was added to SCHEDULED-TASKS.md "## Active" (it is
+# registered + live — no audit flag). Gamma_LevelAlertDaemon was instead RETIRED
+# 2026-06-19: the live audit flagged it STALE_REGISTRY_ENTRY (doc said Active but it was
+# never registered), it never ran (no logs/output), had no consumer of its live-alerts
+# output, and its pwsh-based installer was broken on a PS-5.1 box. It is now documented
+# in the Reference "removed" section and its install/runner were archived to
+# setup/scripts/_archive/ (still under setup/, so the registration scan still sees the
+# name → it MUST, and does, stay documented). With both names documented, this dict is
+# empty and the ratchet is back to full tightness — a brand-new undocumented Gamma_*
+# task FAILS test_every_installed_task_is_documented.
 KNOWN_DRIFT_UNDOCUMENTED: dict[str, str] = {}
 
 

@@ -1,0 +1,2231 @@
+{
+  "research_question": "Does a TIME-CONDITIONAL early exit (cut stagnant/non-favored 0DTE positions at 15:00/15:15/15:30, let in-favor positions ride to existing exits) beat the 15:50 hard time stop on real-fills, WITHOUT hurting J's anchor-day winners? Game Plan 2 \u2014 exit refinement around the theta cliff.",
+  "window": "2025-01-01..2026-05-29",
+  "generated_at": "2026-06-19T06:46:03",
+  "exit_grid": {
+    "cutoffs_et": [
+      "15:00",
+      "15:15",
+      "15:30"
+    ],
+    "favor_thresholds_pct": [
+      0.0,
+      0.1,
+      0.25
+    ],
+    "strikes": [
+      "ATM",
+      "ITM2"
+    ],
+    "n_trials_for_dsr": 9,
+    "fixed": "premium_stop_pct=-0.99 (chart-stop only); tp1_premium 0.30; tp1_qty_fraction 0.50; runner 2.5; level_stop_buffer 0.50"
+  },
+  "gate_definition": "PROMOTE-CANDIDATE iff vs same-population same-strike 15:50 baseline: total P&L AND expectancy strictly improve AND anchor edge_capture >= baseline (anchor-no-regression) AND DSR/PSR advisory != FAIL AND anchor not vacuous. Honest no-win is a valid result.",
+  "populations": {
+    "BEARISH_REJECTION_MORNING_primary": {
+      "n_signals": 175,
+      "strikes": {
+        "ATM": {
+          "baseline_15_50": {
+            "stats": {
+              "n": 135,
+              "wr": 62.2,
+              "total": -5957.8,
+              "exp": -44.13,
+              "avg_win": 119.25,
+              "avg_loss": -313.24,
+              "n_win": 84,
+              "n_loss": 51
+            },
+            "anchor": {
+              "edge_capture": 67.2,
+              "win_day_pnl": 67.2,
+              "loss_day_loss": 0.0,
+              "by_day": {
+                "2026-04-29": 67.2
+              }
+            },
+            "diag": {
+              "attempted": 175,
+              "filled": 135,
+              "no_fill_or_no_data": 40,
+              "errored": 0,
+              "anchor_fills": 1
+            },
+            "dsr_gate": {
+              "verdict": "FAIL",
+              "dsr": 0.0003,
+              "psr": 0.0253,
+              "pbo": null,
+              "n_obs": 135,
+              "low_power": false
+            }
+          },
+          "n_promote_candidates": 0,
+          "promote_candidates": [],
+          "best_variant": {
+            "config": {
+              "cutoff_et": "15:00",
+              "min_favor_pct": 0.0
+            },
+            "stats": {
+              "n": 135,
+              "wr": 62.2,
+              "total": -5957.8,
+              "exp": -44.13,
+              "avg_win": 119.25,
+              "avg_loss": -313.24,
+              "n_win": 84,
+              "n_loss": 51
+            },
+            "anchor": {
+              "edge_capture": 67.2,
+              "win_day_pnl": 67.2,
+              "loss_day_loss": 0.0,
+              "by_day": {
+                "2026-04-29": 67.2
+              }
+            },
+            "diag": {
+              "attempted": 175,
+              "filled": 135,
+              "no_fill_or_no_data": 40,
+              "errored": 0,
+              "anchor_fills": 1
+            },
+            "dsr_gate": {
+              "verdict": "FAIL",
+              "dsr": 0.0003,
+              "psr": 0.0253,
+              "pbo": null,
+              "n_obs": 135,
+              "low_power": false
+            },
+            "delta_total_vs_baseline": 0.0,
+            "delta_exp_vs_baseline": 0.0,
+            "gate": {
+              "pnl_better": false,
+              "exp_better": false,
+              "anchor_no_regression": true,
+              "anchor_vacuous": false,
+              "dsr_not_fail": false,
+              "verdict": "NOT-BETTER"
+            }
+          },
+          "n_better_any": 0,
+          "grid": [
+            {
+              "config": {
+                "cutoff_et": "15:00",
+                "min_favor_pct": 0.0
+              },
+              "stats": {
+                "n": 135,
+                "wr": 62.2,
+                "total": -5957.8,
+                "exp": -44.13,
+                "avg_win": 119.25,
+                "avg_loss": -313.24,
+                "n_win": 84,
+                "n_loss": 51
+              },
+              "anchor": {
+                "edge_capture": 67.2,
+                "win_day_pnl": 67.2,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 135,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0003,
+                "psr": 0.0253,
+                "pbo": null,
+                "n_obs": 135,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 0.0,
+              "delta_exp_vs_baseline": 0.0,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:00",
+                "min_favor_pct": 0.1
+              },
+              "stats": {
+                "n": 135,
+                "wr": 62.2,
+                "total": -5957.8,
+                "exp": -44.13,
+                "avg_win": 119.25,
+                "avg_loss": -313.24,
+                "n_win": 84,
+                "n_loss": 51
+              },
+              "anchor": {
+                "edge_capture": 67.2,
+                "win_day_pnl": 67.2,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 135,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0003,
+                "psr": 0.0253,
+                "pbo": null,
+                "n_obs": 135,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 0.0,
+              "delta_exp_vs_baseline": 0.0,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:00",
+                "min_favor_pct": 0.25
+              },
+              "stats": {
+                "n": 135,
+                "wr": 62.2,
+                "total": -5957.8,
+                "exp": -44.13,
+                "avg_win": 119.25,
+                "avg_loss": -313.24,
+                "n_win": 84,
+                "n_loss": 51
+              },
+              "anchor": {
+                "edge_capture": 67.2,
+                "win_day_pnl": 67.2,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 135,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0003,
+                "psr": 0.0253,
+                "pbo": null,
+                "n_obs": 135,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 0.0,
+              "delta_exp_vs_baseline": 0.0,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:15",
+                "min_favor_pct": 0.0
+              },
+              "stats": {
+                "n": 135,
+                "wr": 62.2,
+                "total": -5957.8,
+                "exp": -44.13,
+                "avg_win": 119.25,
+                "avg_loss": -313.24,
+                "n_win": 84,
+                "n_loss": 51
+              },
+              "anchor": {
+                "edge_capture": 67.2,
+                "win_day_pnl": 67.2,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 135,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0003,
+                "psr": 0.0253,
+                "pbo": null,
+                "n_obs": 135,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 0.0,
+              "delta_exp_vs_baseline": 0.0,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:15",
+                "min_favor_pct": 0.1
+              },
+              "stats": {
+                "n": 135,
+                "wr": 62.2,
+                "total": -5957.8,
+                "exp": -44.13,
+                "avg_win": 119.25,
+                "avg_loss": -313.24,
+                "n_win": 84,
+                "n_loss": 51
+              },
+              "anchor": {
+                "edge_capture": 67.2,
+                "win_day_pnl": 67.2,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 135,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0003,
+                "psr": 0.0253,
+                "pbo": null,
+                "n_obs": 135,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 0.0,
+              "delta_exp_vs_baseline": 0.0,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:15",
+                "min_favor_pct": 0.25
+              },
+              "stats": {
+                "n": 135,
+                "wr": 62.2,
+                "total": -5957.8,
+                "exp": -44.13,
+                "avg_win": 119.25,
+                "avg_loss": -313.24,
+                "n_win": 84,
+                "n_loss": 51
+              },
+              "anchor": {
+                "edge_capture": 67.2,
+                "win_day_pnl": 67.2,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 135,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0003,
+                "psr": 0.0253,
+                "pbo": null,
+                "n_obs": 135,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 0.0,
+              "delta_exp_vs_baseline": 0.0,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:30",
+                "min_favor_pct": 0.0
+              },
+              "stats": {
+                "n": 135,
+                "wr": 62.2,
+                "total": -5957.8,
+                "exp": -44.13,
+                "avg_win": 119.25,
+                "avg_loss": -313.24,
+                "n_win": 84,
+                "n_loss": 51
+              },
+              "anchor": {
+                "edge_capture": 67.2,
+                "win_day_pnl": 67.2,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 135,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0003,
+                "psr": 0.0253,
+                "pbo": null,
+                "n_obs": 135,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 0.0,
+              "delta_exp_vs_baseline": 0.0,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:30",
+                "min_favor_pct": 0.1
+              },
+              "stats": {
+                "n": 135,
+                "wr": 62.2,
+                "total": -5957.8,
+                "exp": -44.13,
+                "avg_win": 119.25,
+                "avg_loss": -313.24,
+                "n_win": 84,
+                "n_loss": 51
+              },
+              "anchor": {
+                "edge_capture": 67.2,
+                "win_day_pnl": 67.2,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 135,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0003,
+                "psr": 0.0253,
+                "pbo": null,
+                "n_obs": 135,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 0.0,
+              "delta_exp_vs_baseline": 0.0,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:30",
+                "min_favor_pct": 0.25
+              },
+              "stats": {
+                "n": 135,
+                "wr": 62.2,
+                "total": -5957.8,
+                "exp": -44.13,
+                "avg_win": 119.25,
+                "avg_loss": -313.24,
+                "n_win": 84,
+                "n_loss": 51
+              },
+              "anchor": {
+                "edge_capture": 67.2,
+                "win_day_pnl": 67.2,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 135,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0003,
+                "psr": 0.0253,
+                "pbo": null,
+                "n_obs": 135,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 0.0,
+              "delta_exp_vs_baseline": 0.0,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            }
+          ],
+          "verdict": "[ATM] BASELINE-OPTIMAL \u2014 NO time-conditional cutoff beat the 15:50 baseline on both total P&L and expectancy. Cutting non-favored positions earlier does NOT help this population/strike (baseline total $-5957.8, exp $-44.13). 15:50 is already right here \u2014 earlier exits clip late winners / give up theta-rebound. Honest no-win (a valuable result)."
+        },
+        "ITM2": {
+          "baseline_15_50": {
+            "stats": {
+              "n": 123,
+              "wr": 56.9,
+              "total": -14240.3,
+              "exp": -115.77,
+              "avg_win": 111.27,
+              "avg_loss": -415.64,
+              "n_win": 70,
+              "n_loss": 53
+            },
+            "anchor": {
+              "edge_capture": 98.7,
+              "win_day_pnl": 98.7,
+              "loss_day_loss": 0.0,
+              "by_day": {
+                "2026-04-29": 98.7
+              }
+            },
+            "diag": {
+              "attempted": 175,
+              "filled": 123,
+              "no_fill_or_no_data": 52,
+              "errored": 0,
+              "anchor_fills": 1
+            },
+            "dsr_gate": {
+              "verdict": "FAIL",
+              "dsr": 0.0,
+              "psr": 0.0,
+              "pbo": null,
+              "n_obs": 123,
+              "low_power": false
+            }
+          },
+          "n_promote_candidates": 0,
+          "promote_candidates": [],
+          "best_variant": {
+            "config": {
+              "cutoff_et": "15:00",
+              "min_favor_pct": 0.0
+            },
+            "stats": {
+              "n": 123,
+              "wr": 56.9,
+              "total": -14240.3,
+              "exp": -115.77,
+              "avg_win": 111.27,
+              "avg_loss": -415.64,
+              "n_win": 70,
+              "n_loss": 53
+            },
+            "anchor": {
+              "edge_capture": 98.7,
+              "win_day_pnl": 98.7,
+              "loss_day_loss": 0.0,
+              "by_day": {
+                "2026-04-29": 98.7
+              }
+            },
+            "diag": {
+              "attempted": 175,
+              "filled": 123,
+              "no_fill_or_no_data": 52,
+              "errored": 0,
+              "anchor_fills": 1
+            },
+            "dsr_gate": {
+              "verdict": "FAIL",
+              "dsr": 0.0,
+              "psr": 0.0,
+              "pbo": null,
+              "n_obs": 123,
+              "low_power": false
+            },
+            "delta_total_vs_baseline": 0.0,
+            "delta_exp_vs_baseline": 0.0,
+            "gate": {
+              "pnl_better": false,
+              "exp_better": false,
+              "anchor_no_regression": true,
+              "anchor_vacuous": false,
+              "dsr_not_fail": false,
+              "verdict": "NOT-BETTER"
+            }
+          },
+          "n_better_any": 0,
+          "grid": [
+            {
+              "config": {
+                "cutoff_et": "15:00",
+                "min_favor_pct": 0.0
+              },
+              "stats": {
+                "n": 123,
+                "wr": 56.9,
+                "total": -14240.3,
+                "exp": -115.77,
+                "avg_win": 111.27,
+                "avg_loss": -415.64,
+                "n_win": 70,
+                "n_loss": 53
+              },
+              "anchor": {
+                "edge_capture": 98.7,
+                "win_day_pnl": 98.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 123,
+                "no_fill_or_no_data": 52,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0,
+                "psr": 0.0,
+                "pbo": null,
+                "n_obs": 123,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 0.0,
+              "delta_exp_vs_baseline": 0.0,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:00",
+                "min_favor_pct": 0.1
+              },
+              "stats": {
+                "n": 123,
+                "wr": 56.9,
+                "total": -14240.3,
+                "exp": -115.77,
+                "avg_win": 111.27,
+                "avg_loss": -415.64,
+                "n_win": 70,
+                "n_loss": 53
+              },
+              "anchor": {
+                "edge_capture": 98.7,
+                "win_day_pnl": 98.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 123,
+                "no_fill_or_no_data": 52,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0,
+                "psr": 0.0,
+                "pbo": null,
+                "n_obs": 123,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 0.0,
+              "delta_exp_vs_baseline": 0.0,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:00",
+                "min_favor_pct": 0.25
+              },
+              "stats": {
+                "n": 123,
+                "wr": 56.9,
+                "total": -14240.3,
+                "exp": -115.77,
+                "avg_win": 111.27,
+                "avg_loss": -415.64,
+                "n_win": 70,
+                "n_loss": 53
+              },
+              "anchor": {
+                "edge_capture": 98.7,
+                "win_day_pnl": 98.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 123,
+                "no_fill_or_no_data": 52,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0,
+                "psr": 0.0,
+                "pbo": null,
+                "n_obs": 123,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 0.0,
+              "delta_exp_vs_baseline": 0.0,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:15",
+                "min_favor_pct": 0.0
+              },
+              "stats": {
+                "n": 123,
+                "wr": 56.9,
+                "total": -14240.3,
+                "exp": -115.77,
+                "avg_win": 111.27,
+                "avg_loss": -415.64,
+                "n_win": 70,
+                "n_loss": 53
+              },
+              "anchor": {
+                "edge_capture": 98.7,
+                "win_day_pnl": 98.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 123,
+                "no_fill_or_no_data": 52,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0,
+                "psr": 0.0,
+                "pbo": null,
+                "n_obs": 123,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 0.0,
+              "delta_exp_vs_baseline": 0.0,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:15",
+                "min_favor_pct": 0.1
+              },
+              "stats": {
+                "n": 123,
+                "wr": 56.9,
+                "total": -14240.3,
+                "exp": -115.77,
+                "avg_win": 111.27,
+                "avg_loss": -415.64,
+                "n_win": 70,
+                "n_loss": 53
+              },
+              "anchor": {
+                "edge_capture": 98.7,
+                "win_day_pnl": 98.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 123,
+                "no_fill_or_no_data": 52,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0,
+                "psr": 0.0,
+                "pbo": null,
+                "n_obs": 123,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 0.0,
+              "delta_exp_vs_baseline": 0.0,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:15",
+                "min_favor_pct": 0.25
+              },
+              "stats": {
+                "n": 123,
+                "wr": 56.9,
+                "total": -14240.3,
+                "exp": -115.77,
+                "avg_win": 111.27,
+                "avg_loss": -415.64,
+                "n_win": 70,
+                "n_loss": 53
+              },
+              "anchor": {
+                "edge_capture": 98.7,
+                "win_day_pnl": 98.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 123,
+                "no_fill_or_no_data": 52,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0,
+                "psr": 0.0,
+                "pbo": null,
+                "n_obs": 123,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 0.0,
+              "delta_exp_vs_baseline": 0.0,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:30",
+                "min_favor_pct": 0.0
+              },
+              "stats": {
+                "n": 123,
+                "wr": 56.9,
+                "total": -14240.3,
+                "exp": -115.77,
+                "avg_win": 111.27,
+                "avg_loss": -415.64,
+                "n_win": 70,
+                "n_loss": 53
+              },
+              "anchor": {
+                "edge_capture": 98.7,
+                "win_day_pnl": 98.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 123,
+                "no_fill_or_no_data": 52,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0,
+                "psr": 0.0,
+                "pbo": null,
+                "n_obs": 123,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 0.0,
+              "delta_exp_vs_baseline": 0.0,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:30",
+                "min_favor_pct": 0.1
+              },
+              "stats": {
+                "n": 123,
+                "wr": 56.9,
+                "total": -14240.3,
+                "exp": -115.77,
+                "avg_win": 111.27,
+                "avg_loss": -415.64,
+                "n_win": 70,
+                "n_loss": 53
+              },
+              "anchor": {
+                "edge_capture": 98.7,
+                "win_day_pnl": 98.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 123,
+                "no_fill_or_no_data": 52,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0,
+                "psr": 0.0,
+                "pbo": null,
+                "n_obs": 123,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 0.0,
+              "delta_exp_vs_baseline": 0.0,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:30",
+                "min_favor_pct": 0.25
+              },
+              "stats": {
+                "n": 123,
+                "wr": 56.9,
+                "total": -14240.3,
+                "exp": -115.77,
+                "avg_win": 111.27,
+                "avg_loss": -415.64,
+                "n_win": 70,
+                "n_loss": 53
+              },
+              "anchor": {
+                "edge_capture": 98.7,
+                "win_day_pnl": 98.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 123,
+                "no_fill_or_no_data": 52,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0,
+                "psr": 0.0,
+                "pbo": null,
+                "n_obs": 123,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 0.0,
+              "delta_exp_vs_baseline": 0.0,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            }
+          ],
+          "verdict": "[ITM2] BASELINE-OPTIMAL \u2014 NO time-conditional cutoff beat the 15:50 baseline on both total P&L and expectancy. Cutting non-favored positions earlier does NOT help this population/strike (baseline total $-14240.3, exp $-115.77). 15:50 is already right here \u2014 earlier exits clip late winners / give up theta-rebound. Honest no-win (a valuable result)."
+        }
+      }
+    },
+    "BEARISH_CONTINUATION_POOLED_broad": {
+      "n_signals": 203,
+      "strikes": {
+        "ATM": {
+          "baseline_15_50": {
+            "stats": {
+              "n": 163,
+              "wr": 62.6,
+              "total": -3265.8,
+              "exp": -20.04,
+              "avg_win": 122.13,
+              "avg_loss": -257.75,
+              "n_win": 102,
+              "n_loss": 61
+            },
+            "anchor": {
+              "edge_capture": -58.8,
+              "win_day_pnl": -58.8,
+              "loss_day_loss": 0.0,
+              "by_day": {
+                "2026-04-29": 67.2,
+                "2026-05-01": -126.0,
+                "2026-05-07": 43.2
+              }
+            },
+            "diag": {
+              "attempted": 203,
+              "filled": 163,
+              "no_fill_or_no_data": 40,
+              "errored": 0,
+              "anchor_fills": 3
+            },
+            "dsr_gate": {
+              "verdict": "FAIL",
+              "dsr": 0.008,
+              "psr": 0.1875,
+              "pbo": null,
+              "n_obs": 163,
+              "low_power": false
+            }
+          },
+          "n_promote_candidates": 0,
+          "promote_candidates": [],
+          "best_variant": {
+            "config": {
+              "cutoff_et": "15:00",
+              "min_favor_pct": 0.0
+            },
+            "stats": {
+              "n": 163,
+              "wr": 62.6,
+              "total": -2749.8,
+              "exp": -16.87,
+              "avg_win": 122.13,
+              "avg_loss": -249.3,
+              "n_win": 102,
+              "n_loss": 61
+            },
+            "anchor": {
+              "edge_capture": -1.8,
+              "win_day_pnl": -1.8,
+              "loss_day_loss": 0.0,
+              "by_day": {
+                "2026-04-29": 67.2,
+                "2026-05-01": -69.0,
+                "2026-05-07": 43.2
+              }
+            },
+            "diag": {
+              "attempted": 203,
+              "filled": 163,
+              "no_fill_or_no_data": 40,
+              "errored": 0,
+              "anchor_fills": 3
+            },
+            "dsr_gate": {
+              "verdict": "FAIL",
+              "dsr": 0.0112,
+              "psr": 0.223,
+              "pbo": null,
+              "n_obs": 163,
+              "low_power": false
+            },
+            "delta_total_vs_baseline": 516.0,
+            "delta_exp_vs_baseline": 3.17,
+            "gate": {
+              "pnl_better": true,
+              "exp_better": true,
+              "anchor_no_regression": true,
+              "anchor_vacuous": false,
+              "dsr_not_fail": false,
+              "verdict": "BETTER-BUT-DSR-FAIL"
+            }
+          },
+          "n_better_any": 9,
+          "grid": [
+            {
+              "config": {
+                "cutoff_et": "15:00",
+                "min_favor_pct": 0.0
+              },
+              "stats": {
+                "n": 163,
+                "wr": 62.6,
+                "total": -2749.8,
+                "exp": -16.87,
+                "avg_win": 122.13,
+                "avg_loss": -249.3,
+                "n_win": 102,
+                "n_loss": 61
+              },
+              "anchor": {
+                "edge_capture": -1.8,
+                "win_day_pnl": -1.8,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2,
+                  "2026-05-01": -69.0,
+                  "2026-05-07": 43.2
+                }
+              },
+              "diag": {
+                "attempted": 203,
+                "filled": 163,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 3
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0112,
+                "psr": 0.223,
+                "pbo": null,
+                "n_obs": 163,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 516.0,
+              "delta_exp_vs_baseline": 3.17,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "BETTER-BUT-DSR-FAIL"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:00",
+                "min_favor_pct": 0.1
+              },
+              "stats": {
+                "n": 163,
+                "wr": 62.6,
+                "total": -2758.8,
+                "exp": -16.93,
+                "avg_win": 122.13,
+                "avg_loss": -249.44,
+                "n_win": 102,
+                "n_loss": 61
+              },
+              "anchor": {
+                "edge_capture": -1.8,
+                "win_day_pnl": -1.8,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2,
+                  "2026-05-01": -69.0,
+                  "2026-05-07": 43.2
+                }
+              },
+              "diag": {
+                "attempted": 203,
+                "filled": 163,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 3
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0112,
+                "psr": 0.2223,
+                "pbo": null,
+                "n_obs": 163,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 507.0,
+              "delta_exp_vs_baseline": 3.11,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "BETTER-BUT-DSR-FAIL"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:00",
+                "min_favor_pct": 0.25
+              },
+              "stats": {
+                "n": 163,
+                "wr": 62.6,
+                "total": -2758.8,
+                "exp": -16.93,
+                "avg_win": 122.13,
+                "avg_loss": -249.44,
+                "n_win": 102,
+                "n_loss": 61
+              },
+              "anchor": {
+                "edge_capture": -1.8,
+                "win_day_pnl": -1.8,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2,
+                  "2026-05-01": -69.0,
+                  "2026-05-07": 43.2
+                }
+              },
+              "diag": {
+                "attempted": 203,
+                "filled": 163,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 3
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0112,
+                "psr": 0.2223,
+                "pbo": null,
+                "n_obs": 163,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 507.0,
+              "delta_exp_vs_baseline": 3.11,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "BETTER-BUT-DSR-FAIL"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:15",
+                "min_favor_pct": 0.0
+              },
+              "stats": {
+                "n": 163,
+                "wr": 62.6,
+                "total": -2830.8,
+                "exp": -17.37,
+                "avg_win": 122.13,
+                "avg_loss": -250.62,
+                "n_win": 102,
+                "n_loss": 61
+              },
+              "anchor": {
+                "edge_capture": -82.8,
+                "win_day_pnl": -82.8,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2,
+                  "2026-05-01": -150.0,
+                  "2026-05-07": 43.2
+                }
+              },
+              "diag": {
+                "attempted": 203,
+                "filled": 163,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 3
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0106,
+                "psr": 0.2167,
+                "pbo": null,
+                "n_obs": 163,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 435.0,
+              "delta_exp_vs_baseline": 2.67,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": false,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "BETTER-BUT-ANCHOR-REGRESSION"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:15",
+                "min_favor_pct": 0.1
+              },
+              "stats": {
+                "n": 163,
+                "wr": 62.6,
+                "total": -2830.8,
+                "exp": -17.37,
+                "avg_win": 122.13,
+                "avg_loss": -250.62,
+                "n_win": 102,
+                "n_loss": 61
+              },
+              "anchor": {
+                "edge_capture": -82.8,
+                "win_day_pnl": -82.8,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2,
+                  "2026-05-01": -150.0,
+                  "2026-05-07": 43.2
+                }
+              },
+              "diag": {
+                "attempted": 203,
+                "filled": 163,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 3
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0106,
+                "psr": 0.2167,
+                "pbo": null,
+                "n_obs": 163,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 435.0,
+              "delta_exp_vs_baseline": 2.67,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": false,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "BETTER-BUT-ANCHOR-REGRESSION"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:15",
+                "min_favor_pct": 0.25
+              },
+              "stats": {
+                "n": 163,
+                "wr": 62.6,
+                "total": -2830.8,
+                "exp": -17.37,
+                "avg_win": 122.13,
+                "avg_loss": -250.62,
+                "n_win": 102,
+                "n_loss": 61
+              },
+              "anchor": {
+                "edge_capture": -82.8,
+                "win_day_pnl": -82.8,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2,
+                  "2026-05-01": -150.0,
+                  "2026-05-07": 43.2
+                }
+              },
+              "diag": {
+                "attempted": 203,
+                "filled": 163,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 3
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0106,
+                "psr": 0.2167,
+                "pbo": null,
+                "n_obs": 163,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 435.0,
+              "delta_exp_vs_baseline": 2.67,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": false,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "BETTER-BUT-ANCHOR-REGRESSION"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:30",
+                "min_favor_pct": 0.0
+              },
+              "stats": {
+                "n": 163,
+                "wr": 62.6,
+                "total": -3016.8,
+                "exp": -18.51,
+                "avg_win": 122.13,
+                "avg_loss": -253.67,
+                "n_win": 102,
+                "n_loss": 61
+              },
+              "anchor": {
+                "edge_capture": -91.8,
+                "win_day_pnl": -91.8,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2,
+                  "2026-05-01": -159.0,
+                  "2026-05-07": 43.2
+                }
+              },
+              "diag": {
+                "attempted": 203,
+                "filled": 163,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 3
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0094,
+                "psr": 0.2036,
+                "pbo": null,
+                "n_obs": 163,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 249.0,
+              "delta_exp_vs_baseline": 1.53,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": false,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "BETTER-BUT-ANCHOR-REGRESSION"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:30",
+                "min_favor_pct": 0.1
+              },
+              "stats": {
+                "n": 163,
+                "wr": 62.6,
+                "total": -3016.8,
+                "exp": -18.51,
+                "avg_win": 122.13,
+                "avg_loss": -253.67,
+                "n_win": 102,
+                "n_loss": 61
+              },
+              "anchor": {
+                "edge_capture": -91.8,
+                "win_day_pnl": -91.8,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2,
+                  "2026-05-01": -159.0,
+                  "2026-05-07": 43.2
+                }
+              },
+              "diag": {
+                "attempted": 203,
+                "filled": 163,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 3
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0094,
+                "psr": 0.2036,
+                "pbo": null,
+                "n_obs": 163,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 249.0,
+              "delta_exp_vs_baseline": 1.53,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": false,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "BETTER-BUT-ANCHOR-REGRESSION"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:30",
+                "min_favor_pct": 0.25
+              },
+              "stats": {
+                "n": 163,
+                "wr": 62.6,
+                "total": -3016.8,
+                "exp": -18.51,
+                "avg_win": 122.13,
+                "avg_loss": -253.67,
+                "n_win": 102,
+                "n_loss": 61
+              },
+              "anchor": {
+                "edge_capture": -91.8,
+                "win_day_pnl": -91.8,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2,
+                  "2026-05-01": -159.0,
+                  "2026-05-07": 43.2
+                }
+              },
+              "diag": {
+                "attempted": 203,
+                "filled": 163,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 3
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0094,
+                "psr": 0.2036,
+                "pbo": null,
+                "n_obs": 163,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 249.0,
+              "delta_exp_vs_baseline": 1.53,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": false,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "BETTER-BUT-ANCHOR-REGRESSION"
+              }
+            }
+          ],
+          "verdict": "[ATM] BETTER-BUT-GATE-FAILS \u2014 best time-conditional config (cutoff 15:00 / favor +0%) beats baseline on total $-2749.8 vs $-3265.8 but fails the DSR FAIL leg. No clean PROMOTE-CANDIDATE."
+        },
+        "ITM2": {
+          "baseline_15_50": {
+            "stats": {
+              "n": 153,
+              "wr": 56.9,
+              "total": -12830.2,
+              "exp": -83.86,
+              "avg_win": 120.8,
+              "avg_loss": -353.64,
+              "n_win": 87,
+              "n_loss": 66
+            },
+            "anchor": {
+              "edge_capture": 14.7,
+              "win_day_pnl": 14.7,
+              "loss_day_loss": 0.0,
+              "by_day": {
+                "2026-04-29": 98.7,
+                "2026-05-01": -84.0,
+                "2026-05-07": 78.6
+              }
+            },
+            "diag": {
+              "attempted": 203,
+              "filled": 153,
+              "no_fill_or_no_data": 50,
+              "errored": 0,
+              "anchor_fills": 3
+            },
+            "dsr_gate": {
+              "verdict": "FAIL",
+              "dsr": 0.0,
+              "psr": 0.0008,
+              "pbo": null,
+              "n_obs": 153,
+              "low_power": false
+            }
+          },
+          "n_promote_candidates": 0,
+          "promote_candidates": [],
+          "best_variant": {
+            "config": {
+              "cutoff_et": "15:00",
+              "min_favor_pct": 0.25
+            },
+            "stats": {
+              "n": 153,
+              "wr": 56.9,
+              "total": -11455.3,
+              "exp": -74.87,
+              "avg_win": 119.95,
+              "avg_loss": -331.68,
+              "n_win": 87,
+              "n_loss": 66
+            },
+            "anchor": {
+              "edge_capture": 11.7,
+              "win_day_pnl": 11.7,
+              "loss_day_loss": 0.0,
+              "by_day": {
+                "2026-04-29": 98.7,
+                "2026-05-01": -87.0,
+                "2026-05-07": 78.6
+              }
+            },
+            "diag": {
+              "attempted": 203,
+              "filled": 153,
+              "no_fill_or_no_data": 50,
+              "errored": 0,
+              "anchor_fills": 3
+            },
+            "dsr_gate": {
+              "verdict": "FAIL",
+              "dsr": 0.0,
+              "psr": 0.0019,
+              "pbo": null,
+              "n_obs": 153,
+              "low_power": false
+            },
+            "delta_total_vs_baseline": 1374.9,
+            "delta_exp_vs_baseline": 8.99,
+            "gate": {
+              "pnl_better": true,
+              "exp_better": true,
+              "anchor_no_regression": false,
+              "anchor_vacuous": false,
+              "dsr_not_fail": false,
+              "verdict": "BETTER-BUT-ANCHOR-REGRESSION"
+            }
+          },
+          "n_better_any": 9,
+          "grid": [
+            {
+              "config": {
+                "cutoff_et": "15:00",
+                "min_favor_pct": 0.25
+              },
+              "stats": {
+                "n": 153,
+                "wr": 56.9,
+                "total": -11455.3,
+                "exp": -74.87,
+                "avg_win": 119.95,
+                "avg_loss": -331.68,
+                "n_win": 87,
+                "n_loss": 66
+              },
+              "anchor": {
+                "edge_capture": 11.7,
+                "win_day_pnl": 11.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7,
+                  "2026-05-01": -87.0,
+                  "2026-05-07": 78.6
+                }
+              },
+              "diag": {
+                "attempted": 203,
+                "filled": 153,
+                "no_fill_or_no_data": 50,
+                "errored": 0,
+                "anchor_fills": 3
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0,
+                "psr": 0.0019,
+                "pbo": null,
+                "n_obs": 153,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 1374.9,
+              "delta_exp_vs_baseline": 8.99,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": false,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "BETTER-BUT-ANCHOR-REGRESSION"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:00",
+                "min_favor_pct": 0.1
+              },
+              "stats": {
+                "n": 153,
+                "wr": 56.2,
+                "total": -11482.3,
+                "exp": -75.05,
+                "avg_win": 121.28,
+                "avg_loss": -327.04,
+                "n_win": 86,
+                "n_loss": 67
+              },
+              "anchor": {
+                "edge_capture": 11.7,
+                "win_day_pnl": 11.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7,
+                  "2026-05-01": -87.0,
+                  "2026-05-07": 78.6
+                }
+              },
+              "diag": {
+                "attempted": 203,
+                "filled": 153,
+                "no_fill_or_no_data": 50,
+                "errored": 0,
+                "anchor_fills": 3
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0,
+                "psr": 0.0019,
+                "pbo": null,
+                "n_obs": 153,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 1347.9,
+              "delta_exp_vs_baseline": 8.81,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": false,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "BETTER-BUT-ANCHOR-REGRESSION"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:00",
+                "min_favor_pct": 0.0
+              },
+              "stats": {
+                "n": 153,
+                "wr": 56.2,
+                "total": -11872.3,
+                "exp": -77.6,
+                "avg_win": 121.28,
+                "avg_loss": -332.87,
+                "n_win": 86,
+                "n_loss": 67
+              },
+              "anchor": {
+                "edge_capture": -81.3,
+                "win_day_pnl": -81.3,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7,
+                  "2026-05-01": -180.0,
+                  "2026-05-07": 78.6
+                }
+              },
+              "diag": {
+                "attempted": 203,
+                "filled": 153,
+                "no_fill_or_no_data": 50,
+                "errored": 0,
+                "anchor_fills": 3
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0,
+                "psr": 0.0015,
+                "pbo": null,
+                "n_obs": 153,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 957.9,
+              "delta_exp_vs_baseline": 6.26,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": false,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "BETTER-BUT-ANCHOR-REGRESSION"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:15",
+                "min_favor_pct": 0.1
+              },
+              "stats": {
+                "n": 153,
+                "wr": 56.9,
+                "total": -11893.3,
+                "exp": -77.73,
+                "avg_win": 119.92,
+                "avg_loss": -338.27,
+                "n_win": 87,
+                "n_loss": 66
+              },
+              "anchor": {
+                "edge_capture": -192.3,
+                "win_day_pnl": -192.3,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7,
+                  "2026-05-01": -291.0,
+                  "2026-05-07": 78.6
+                }
+              },
+              "diag": {
+                "attempted": 203,
+                "filled": 153,
+                "no_fill_or_no_data": 50,
+                "errored": 0,
+                "anchor_fills": 3
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0,
+                "psr": 0.0015,
+                "pbo": null,
+                "n_obs": 153,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 936.9,
+              "delta_exp_vs_baseline": 6.13,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": false,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "BETTER-BUT-ANCHOR-REGRESSION"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:15",
+                "min_favor_pct": 0.25
+              },
+              "stats": {
+                "n": 153,
+                "wr": 56.9,
+                "total": -11893.3,
+                "exp": -77.73,
+                "avg_win": 119.92,
+                "avg_loss": -338.27,
+                "n_win": 87,
+                "n_loss": 66
+              },
+              "anchor": {
+                "edge_capture": -192.3,
+                "win_day_pnl": -192.3,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7,
+                  "2026-05-01": -291.0,
+                  "2026-05-07": 78.6
+                }
+              },
+              "diag": {
+                "attempted": 203,
+                "filled": 153,
+                "no_fill_or_no_data": 50,
+                "errored": 0,
+                "anchor_fills": 3
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0,
+                "psr": 0.0015,
+                "pbo": null,
+                "n_obs": 153,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 936.9,
+              "delta_exp_vs_baseline": 6.13,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": false,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "BETTER-BUT-ANCHOR-REGRESSION"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:30",
+                "min_favor_pct": 0.1
+              },
+              "stats": {
+                "n": 153,
+                "wr": 56.9,
+                "total": -12050.2,
+                "exp": -78.76,
+                "avg_win": 120.8,
+                "avg_loss": -341.82,
+                "n_win": 87,
+                "n_loss": 66
+              },
+              "anchor": {
+                "edge_capture": -225.3,
+                "win_day_pnl": -225.3,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7,
+                  "2026-05-01": -324.0,
+                  "2026-05-07": 78.6
+                }
+              },
+              "diag": {
+                "attempted": 203,
+                "filled": 153,
+                "no_fill_or_no_data": 50,
+                "errored": 0,
+                "anchor_fills": 3
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0,
+                "psr": 0.0014,
+                "pbo": null,
+                "n_obs": 153,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 780.0,
+              "delta_exp_vs_baseline": 5.1,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": false,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "BETTER-BUT-ANCHOR-REGRESSION"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:30",
+                "min_favor_pct": 0.25
+              },
+              "stats": {
+                "n": 153,
+                "wr": 56.9,
+                "total": -12050.2,
+                "exp": -78.76,
+                "avg_win": 120.8,
+                "avg_loss": -341.82,
+                "n_win": 87,
+                "n_loss": 66
+              },
+              "anchor": {
+                "edge_capture": -225.3,
+                "win_day_pnl": -225.3,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7,
+                  "2026-05-01": -324.0,
+                  "2026-05-07": 78.6
+                }
+              },
+              "diag": {
+                "attempted": 203,
+                "filled": 153,
+                "no_fill_or_no_data": 50,
+                "errored": 0,
+                "anchor_fills": 3
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0,
+                "psr": 0.0014,
+                "pbo": null,
+                "n_obs": 153,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 780.0,
+              "delta_exp_vs_baseline": 5.1,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": false,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "BETTER-BUT-ANCHOR-REGRESSION"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:15",
+                "min_favor_pct": 0.0
+              },
+              "stats": {
+                "n": 153,
+                "wr": 56.2,
+                "total": -12172.3,
+                "exp": -79.56,
+                "avg_win": 121.28,
+                "avg_loss": -337.34,
+                "n_win": 86,
+                "n_loss": 67
+              },
+              "anchor": {
+                "edge_capture": -192.3,
+                "win_day_pnl": -192.3,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7,
+                  "2026-05-01": -291.0,
+                  "2026-05-07": 78.6
+                }
+              },
+              "diag": {
+                "attempted": 203,
+                "filled": 153,
+                "no_fill_or_no_data": 50,
+                "errored": 0,
+                "anchor_fills": 3
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0,
+                "psr": 0.0013,
+                "pbo": null,
+                "n_obs": 153,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 657.9,
+              "delta_exp_vs_baseline": 4.3,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": false,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "BETTER-BUT-ANCHOR-REGRESSION"
+              }
+            },
+            {
+              "config": {
+                "cutoff_et": "15:30",
+                "min_favor_pct": 0.0
+              },
+              "stats": {
+                "n": 153,
+                "wr": 56.9,
+                "total": -12230.2,
+                "exp": -79.94,
+                "avg_win": 120.8,
+                "avg_loss": -344.55,
+                "n_win": 87,
+                "n_loss": 66
+              },
+              "anchor": {
+                "edge_capture": -225.3,
+                "win_day_pnl": -225.3,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7,
+                  "2026-05-01": -324.0,
+                  "2026-05-07": 78.6
+                }
+              },
+              "diag": {
+                "attempted": 203,
+                "filled": 153,
+                "no_fill_or_no_data": 50,
+                "errored": 0,
+                "anchor_fills": 3
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0,
+                "psr": 0.0012,
+                "pbo": null,
+                "n_obs": 153,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 600.0,
+              "delta_exp_vs_baseline": 3.92,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": false,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "BETTER-BUT-ANCHOR-REGRESSION"
+              }
+            }
+          ],
+          "verdict": "[ITM2] BETTER-BUT-GATE-FAILS \u2014 best time-conditional config (cutoff 15:00 / favor +25%) beats baseline on total $-11455.3 vs $-12830.2 but fails the anchor regression leg. No clean PROMOTE-CANDIDATE."
+        }
+      }
+    }
+  },
+  "op20_disclosures": {
+    "authority": "Real-fills (lib.simulator_real + OPRA options cache, valid through 2026-05-29) is the only authority used for the verdict (C1). BS-sim / SPY-space grade not used.",
+    "anchor_coverage": "THIN. 5/04 (J's biggest winner, +$730) has ZERO option bars in the cache, so it cannot be graded on real fills; BRM has an OPRA fill on only 4/29 among the WIN anchor days. The anchor-no-regression gate is necessary-not-sufficient (C24) \u2014 a tie at n=1 anchor fill is weak evidence.",
+    "level_source": "Historically-rebuilt \u2605\u2605 proxies (active+multi_day from _detect_from_history as-of each day), NOT production \u2605\u2605\u2605 named levels (no archive). Absolute WR is a proxy LOWER-BOUND; the EXIT comparison is internally consistent (identical signal population + level set across all variants), so the sign-flip question is answerable.",
+    "favor_test": "'In favor' at the cutoff = TP1 filled OR current-bar premium >= entry*(1+thr). Uses the current bar HIGH as the favorable reference (generous \u2014 only genuinely stagnant positions are cut). Evaluated strictly BEFORE the 15:50 stop.",
+    "knob": "Opt-in lib.simulator_real.simulate_trade_real(early_cutoff_et, early_cutoff_min_favor_pct); defaults early_cutoff_et=None => OFF => byte-for-byte prior behavior (verified: 18 e2e tests + anchor reproduction unchanged). RESEARCH ONLY \u2014 no params/doctrine changed (Rule 9).",
+    "populations": "PRIMARY = BEARISH_REJECTION_MORNING (the codified CONFIRMED setup, the prior bearish-continuation scorecard's clean edge). BROAD = pooled BRM + LEVEL_BREAK_FIRST_STRIKE + HEAD_AND_SHOULDERS_BEAR real-fills (same set that scorecard graded), to see the exit effect across the whole bearish-continuation book.",
+    "dsr_returns": "DSR/PSR on per-trade dollar P&L (constant qty=3 notional -> comparable). PBO skipped (no CSCV matrix). n_trials=9 (grid size). Advisory only (gate.py is not a hard gate)."
+  },
+  "overall_verdict": {
+    "any_promote_candidate": false,
+    "per_strike": {
+      "BEARISH_REJECTION_MORNING_primary/ATM": "[ATM] BASELINE-OPTIMAL \u2014 NO time-conditional cutoff beat the 15:50 baseline on both total P&L and expectancy. Cutting non-favored positions earlier does NOT help this population/strike (baseline total $-5957.8, exp $-44.13). 15:50 is already right here \u2014 earlier exits clip late winners / give up theta-rebound. Honest no-win (a valuable result).",
+      "BEARISH_REJECTION_MORNING_primary/ITM2": "[ITM2] BASELINE-OPTIMAL \u2014 NO time-conditional cutoff beat the 15:50 baseline on both total P&L and expectancy. Cutting non-favored positions earlier does NOT help this population/strike (baseline total $-14240.3, exp $-115.77). 15:50 is already right here \u2014 earlier exits clip late winners / give up theta-rebound. Honest no-win (a valuable result).",
+      "BEARISH_CONTINUATION_POOLED_broad/ATM": "[ATM] BETTER-BUT-GATE-FAILS \u2014 best time-conditional config (cutoff 15:00 / favor +0%) beats baseline on total $-2749.8 vs $-3265.8 but fails the DSR FAIL leg. No clean PROMOTE-CANDIDATE.",
+      "BEARISH_CONTINUATION_POOLED_broad/ITM2": "[ITM2] BETTER-BUT-GATE-FAILS \u2014 best time-conditional config (cutoff 15:00 / favor +25%) beats baseline on total $-11455.3 vs $-12830.2 but fails the anchor regression leg. No clean PROMOTE-CANDIDATE."
+    },
+    "summary": "15:50 BASELINE IS OPTIMAL across all tested populations/strikes \u2014 no earlier time-conditional cutoff beat it on both total P&L and expectancy with anchor-no-regression. Cutting non-favored positions earlier clips late winners / gives up theta-rebound. Honest no-win (a valuable result): do NOT move the time stop earlier on this evidence."
+  }
+}
