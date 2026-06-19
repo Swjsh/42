@@ -1,3 +1,16 @@
+## [2026-06-19] CONTEXT-113: DIVERSIFIED BOOK — bias corrected, regime-aware multi-setup framework built
+
+J: "we need more than just bearish rejection." Correct + my prior "only bearish" was a FRAMEWORK ARTIFACT (everything gated on edge_capture vs 3 BEARISH anchors). Unbiased standalone real-fills re-eval (fleet-standalone-regime.json):
+- BEARISH_REJECTION standalone = -\$29.52/trade (6th of 7); kept ONLY by its bearish-anchor edge_capture.
+- 3 setups POSITIVE standalone: DOUBLE_BOTTOM_MORNING_LOW_VOL +\$20 (OOS-stable, best), BULLISH_RECLAIM +\$10 (up-day #2), DOUBLE_BOTTOM_BASE_QUIET +\$6. Bias had BURIED NAMED_LEVEL_SECOND_TEST long leg (+\$2.81/62%WR/n=257).
+- Regime->setup map: bull_trend->BULLISH_RECLAIM/DOUBLE_BOTTOM; bear_trend->BEARISH_REJECTION+NAMED_LEVEL long; high_vol->NAMED_LEVEL; range_pin->(bounce family may revive on real levels, n too thin now); neutral->abstain.
+
+BUILT (propose-only, INERT): docs/REGIME-AWARE-BOOK.md + backtest/lib/engine/regime_book.py (classify_regime + REGIME_SETUP_MAP data + select_setups; 33 tests) + a promotion lifecycle (WATCH_ONLY -> REGIME_ACTIVE: real ★★★ standalone-positive + OOS + DSR>=0.90 + J per-setup winner + A/B). select_setups returns () for ALL regimes today (entire map WATCH_ONLY) = ships without changing a trade. The framework is wired; setups slot in as they earn it.
+
+THE 2 UNBLOCKS (highest leverage): (1) real ★★★ levels (archive accruing - re-run in-regime eval once ~20-30 days bank; proxy verdicts may flip) + (2) J's own WINNING EXAMPLES per non-bearish setup (we have anchors for bearish only - bullish/double-bottom/reversion winners would let those validate on their merits). All candidates WATCH-level (proxy/weak-DSR) - not tradeable yet. gym 87/87.
+
+---
+
 ## [2026-06-19] CONTEXT-112: WEEKEND RESEARCH LOOP — 3 ratification candidates + conclusive negatives (commits c1a5e48..eee84e9)
 
 Autonomous weekend research (continuous loop, ~12 research/validation cycles, propose-only Rule 9). Converged the entry space + deepened the one confirmed edge. Ratification package: docs/WEEKEND-FINDINGS-RATIFICATION-2026-06-19.md.
@@ -4029,7 +4042,7 @@ v38 (V14E chop zone gate) + v39 (ORB signal reader) both registered and passing.
 - v02 source parity drift RED: crypto harness validator disagreements_above_tolerance. Pre-existing. 69-70/70 stages still PASS. Fix: add 30s pre-bar guard to the v02 fetch.
 
 ## Kitchen
-Kitchen: alive, queue 26 pending, last cook 0 min ago, today $0.01, model=nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 25 pending, last cook 0 min ago, today $0.01, model=nvidia/nemotron-3-super-120b-a12b:free
 
 ### Answer to "are you certain we will never hit rate limit?"
 **HIGH CONFIDENCE, not 100%.** I just audited the rate-limit firewall end-to-end and **found 2 critical bugs in the L3 exemption layer** — heartbeat would have starved AGAIN today if I hadn't checked. Both patched and smoke-tested before 09:30. Full audit details in the INFRASTRUCTURE FIREWALL section below.
@@ -6841,3 +6854,4 @@ Kitchen: alive, queue 26 pending, last cook 0 min ago, today $0.00, model=?
 - [2026-06-19 07:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 90.22% in last 24h (83/92) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
 
 - [2026-06-19 14:04:57] gym-session (2026-06-19) → **RED** :: see `automation\state\gym-scorecard-2026-06-19.json`
+- [2026-06-19 08:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 90.43% in last 24h (85/94) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
