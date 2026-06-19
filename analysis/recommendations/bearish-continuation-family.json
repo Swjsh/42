@@ -1,0 +1,709 @@
+{
+  "window": "2025-01-01..2026-06-16",
+  "family": "bearish_continuation",
+  "patterns_bootstrapped": true,
+  "streams": {
+    "BEARISH_REJECTION_MORNING": {
+      "raw": {
+        "n": 177,
+        "wr": 57.6,
+        "total": 899.01,
+        "exp": 5.08
+      },
+      "deduped": {
+        "n": 131,
+        "wr": 56.5,
+        "total": 373.79,
+        "exp": 2.85
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 26,
+          "wr": 65.4,
+          "total": 885.0,
+          "exp": 34.04
+        },
+        "2025Q2": {
+          "n": 19,
+          "wr": 73.7,
+          "total": 707.5,
+          "exp": 37.24
+        },
+        "2025Q3": {
+          "n": 8,
+          "wr": 75.0,
+          "total": 436.75,
+          "exp": 54.59
+        },
+        "2025Q4": {
+          "n": 28,
+          "wr": 50.0,
+          "total": -679.87,
+          "exp": -24.28
+        },
+        "2026Q1": {
+          "n": 42,
+          "wr": 45.2,
+          "total": -929.59,
+          "exp": -22.13
+        },
+        "2026Q2": {
+          "n": 8,
+          "wr": 50.0,
+          "total": -46.0,
+          "exp": -5.75
+        }
+      },
+      "distinct_dates": 82
+    },
+    "LEVEL_BREAK_FIRST_STRIKE": {
+      "raw": {
+        "n": 121,
+        "wr": 68.6,
+        "total": 4523.0,
+        "exp": 37.38
+      },
+      "deduped": {
+        "n": 84,
+        "wr": 69.0,
+        "total": 3132.0,
+        "exp": 37.29
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 13,
+          "wr": 61.5,
+          "total": 286.0,
+          "exp": 22.0
+        },
+        "2025Q2": {
+          "n": 13,
+          "wr": 76.9,
+          "total": 219.5,
+          "exp": 16.88
+        },
+        "2025Q3": {
+          "n": 16,
+          "wr": 62.5,
+          "total": 539.0,
+          "exp": 33.69
+        },
+        "2025Q4": {
+          "n": 18,
+          "wr": 66.7,
+          "total": 986.5,
+          "exp": 54.81
+        },
+        "2026Q1": {
+          "n": 11,
+          "wr": 90.9,
+          "total": 674.0,
+          "exp": 61.27
+        },
+        "2026Q2": {
+          "n": 13,
+          "wr": 61.5,
+          "total": 427.0,
+          "exp": 32.85
+        }
+      },
+      "distinct_dates": 84
+    },
+    "HEAD_AND_SHOULDERS_BEAR": {
+      "raw": {
+        "n": 29,
+        "wr": 55.2,
+        "total": 252.5,
+        "exp": 8.71
+      },
+      "deduped": {
+        "n": 23,
+        "wr": 52.2,
+        "total": 172.5,
+        "exp": 7.5
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 7,
+          "wr": 71.4,
+          "total": 131.0,
+          "exp": 18.71
+        },
+        "2025Q2": {
+          "n": 6,
+          "wr": 33.3,
+          "total": -60.5,
+          "exp": -10.08
+        },
+        "2025Q3": {
+          "n": 1,
+          "wr": 100.0,
+          "total": 160.0,
+          "exp": 160.0
+        },
+        "2026Q1": {
+          "n": 7,
+          "wr": 28.6,
+          "total": -343.0,
+          "exp": -49.0
+        },
+        "2026Q2": {
+          "n": 2,
+          "wr": 100.0,
+          "total": 285.0,
+          "exp": 142.5
+        }
+      },
+      "distinct_dates": 19
+    },
+    "BEARISH_REVERSAL_AT_LEVEL": {
+      "raw": {
+        "n": 20,
+        "wr": 35.0,
+        "total": -27.37,
+        "exp": -1.37
+      },
+      "deduped": {
+        "n": 19,
+        "wr": 36.8,
+        "total": 39.63,
+        "exp": 2.09
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 1,
+          "wr": 100.0,
+          "total": 50.0,
+          "exp": 50.0
+        },
+        "2025Q2": {
+          "n": 11,
+          "wr": 36.4,
+          "total": 131.14,
+          "exp": 11.92
+        },
+        "2025Q4": {
+          "n": 2,
+          "wr": 50.0,
+          "total": 4.5,
+          "exp": 2.25
+        },
+        "2026Q1": {
+          "n": 1,
+          "wr": 100.0,
+          "total": 175.0,
+          "exp": 175.0
+        },
+        "2026Q2": {
+          "n": 4,
+          "wr": 0.0,
+          "total": -321.01,
+          "exp": -80.25
+        }
+      },
+      "distinct_dates": 17
+    },
+    "STAIRSTEP_CONTINUATION": {
+      "raw": {
+        "n": 0,
+        "wr": 0.0,
+        "total": 0.0,
+        "exp": 0.0
+      },
+      "deduped": {
+        "n": 0,
+        "wr": 0.0,
+        "total": 0.0,
+        "exp": 0.0
+      },
+      "per_quarter_deduped": {},
+      "distinct_dates": 0
+    }
+  },
+  "anchor_days": {
+    "2026-04-29": {
+      "label": "WIN",
+      "BEARISH_REJECTION_MORNING": {
+        "n": 1,
+        "pnl": -80.0
+      },
+      "LEVEL_BREAK_FIRST_STRIKE": {
+        "n": 0,
+        "pnl": 0
+      },
+      "HEAD_AND_SHOULDERS_BEAR": {
+        "n": 0,
+        "pnl": 0
+      },
+      "BEARISH_REVERSAL_AT_LEVEL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "STAIRSTEP_CONTINUATION": {
+        "n": 0,
+        "pnl": 0
+      }
+    },
+    "2026-05-01": {
+      "label": "WIN",
+      "BEARISH_REJECTION_MORNING": {
+        "n": 0,
+        "pnl": 0
+      },
+      "LEVEL_BREAK_FIRST_STRIKE": {
+        "n": 1,
+        "pnl": 0.0
+      },
+      "HEAD_AND_SHOULDERS_BEAR": {
+        "n": 0,
+        "pnl": 0
+      },
+      "BEARISH_REVERSAL_AT_LEVEL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "STAIRSTEP_CONTINUATION": {
+        "n": 0,
+        "pnl": 0
+      }
+    },
+    "2026-05-04": {
+      "label": "WIN",
+      "BEARISH_REJECTION_MORNING": {
+        "n": 0,
+        "pnl": 0
+      },
+      "LEVEL_BREAK_FIRST_STRIKE": {
+        "n": 0,
+        "pnl": 0
+      },
+      "HEAD_AND_SHOULDERS_BEAR": {
+        "n": 0,
+        "pnl": 0
+      },
+      "BEARISH_REVERSAL_AT_LEVEL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "STAIRSTEP_CONTINUATION": {
+        "n": 0,
+        "pnl": 0
+      }
+    },
+    "2026-05-05": {
+      "label": "LOSS",
+      "BEARISH_REJECTION_MORNING": {
+        "n": 0,
+        "pnl": 0
+      },
+      "LEVEL_BREAK_FIRST_STRIKE": {
+        "n": 0,
+        "pnl": 0
+      },
+      "HEAD_AND_SHOULDERS_BEAR": {
+        "n": 0,
+        "pnl": 0
+      },
+      "BEARISH_REVERSAL_AT_LEVEL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "STAIRSTEP_CONTINUATION": {
+        "n": 0,
+        "pnl": 0
+      }
+    },
+    "2026-05-06": {
+      "label": "LOSS",
+      "BEARISH_REJECTION_MORNING": {
+        "n": 0,
+        "pnl": 0
+      },
+      "LEVEL_BREAK_FIRST_STRIKE": {
+        "n": 0,
+        "pnl": 0
+      },
+      "HEAD_AND_SHOULDERS_BEAR": {
+        "n": 0,
+        "pnl": 0
+      },
+      "BEARISH_REVERSAL_AT_LEVEL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "STAIRSTEP_CONTINUATION": {
+        "n": 0,
+        "pnl": 0
+      }
+    },
+    "2026-05-07": {
+      "label": "LOSS",
+      "BEARISH_REJECTION_MORNING": {
+        "n": 0,
+        "pnl": 0
+      },
+      "LEVEL_BREAK_FIRST_STRIKE": {
+        "n": 1,
+        "pnl": 200.0
+      },
+      "HEAD_AND_SHOULDERS_BEAR": {
+        "n": 0,
+        "pnl": 0
+      },
+      "BEARISH_REVERSAL_AT_LEVEL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "STAIRSTEP_CONTINUATION": {
+        "n": 0,
+        "pnl": 0
+      }
+    }
+  },
+  "real_fills_capped": {
+    "BEARISH_REJECTION_MORNING_ATM": {
+      "n": 94,
+      "wr": 67.0,
+      "total": -553.2,
+      "exp": -5.89
+    },
+    "BEARISH_REJECTION_MORNING_ITM2": {
+      "n": 82,
+      "wr": 61.0,
+      "total": -2835.8,
+      "exp": -34.58
+    },
+    "LEVEL_BREAK_FIRST_STRIKE_ATM": {
+      "n": 109,
+      "wr": 66.1,
+      "total": -488.0,
+      "exp": -4.48
+    },
+    "LEVEL_BREAK_FIRST_STRIKE_ITM2": {
+      "n": 102,
+      "wr": 56.9,
+      "total": -3706.8,
+      "exp": -36.34
+    },
+    "HEAD_AND_SHOULDERS_BEAR_ATM": {
+      "n": 19,
+      "wr": 52.6,
+      "total": -637.8,
+      "exp": -33.57
+    },
+    "HEAD_AND_SHOULDERS_BEAR_ITM2": {
+      "n": 18,
+      "wr": 44.4,
+      "total": -1888.8,
+      "exp": -104.93
+    },
+    "BEARISH_REVERSAL_AT_LEVEL_ATM": {
+      "n": 14,
+      "wr": 21.4,
+      "total": -621.0,
+      "exp": -44.36
+    },
+    "BEARISH_REVERSAL_AT_LEVEL_ITM2": {
+      "n": 16,
+      "wr": 43.8,
+      "total": -789.0,
+      "exp": -49.31
+    },
+    "STAIRSTEP_CONTINUATION_ATM": {
+      "n": 0,
+      "wr": 0.0,
+      "total": 0.0,
+      "exp": 0.0
+    },
+    "STAIRSTEP_CONTINUATION_ITM2": {
+      "n": 0,
+      "wr": 0.0,
+      "total": 0.0,
+      "exp": 0.0
+    }
+  },
+  "real_fills_diagnostics": {
+    "BEARISH_REJECTION_MORNING_ATM": {
+      "attempted": 121,
+      "filled": 94,
+      "no_fill_or_no_data": 27,
+      "errored": 0
+    },
+    "BEARISH_REJECTION_MORNING_ITM2": {
+      "attempted": 121,
+      "filled": 82,
+      "no_fill_or_no_data": 39,
+      "errored": 0
+    },
+    "LEVEL_BREAK_FIRST_STRIKE_ATM": {
+      "attempted": 120,
+      "filled": 109,
+      "no_fill_or_no_data": 11,
+      "errored": 0
+    },
+    "LEVEL_BREAK_FIRST_STRIKE_ITM2": {
+      "attempted": 120,
+      "filled": 102,
+      "no_fill_or_no_data": 18,
+      "errored": 0
+    },
+    "HEAD_AND_SHOULDERS_BEAR_ATM": {
+      "attempted": 29,
+      "filled": 19,
+      "no_fill_or_no_data": 10,
+      "errored": 0
+    },
+    "HEAD_AND_SHOULDERS_BEAR_ITM2": {
+      "attempted": 29,
+      "filled": 18,
+      "no_fill_or_no_data": 11,
+      "errored": 0
+    },
+    "BEARISH_REVERSAL_AT_LEVEL_ATM": {
+      "attempted": 20,
+      "filled": 14,
+      "no_fill_or_no_data": 6,
+      "errored": 0
+    },
+    "BEARISH_REVERSAL_AT_LEVEL_ITM2": {
+      "attempted": 20,
+      "filled": 16,
+      "no_fill_or_no_data": 4,
+      "errored": 0
+    },
+    "STAIRSTEP_CONTINUATION_ATM": {
+      "attempted": 0,
+      "filled": 0,
+      "no_fill_or_no_data": 0,
+      "errored": 0
+    },
+    "STAIRSTEP_CONTINUATION_ITM2": {
+      "attempted": 0,
+      "filled": 0,
+      "no_fill_or_no_data": 0,
+      "errored": 0
+    }
+  },
+  "anchor_real_fills": {
+    "BEARISH_REJECTION_MORNING_ATM": {
+      "n_anchor_fills": 1,
+      "win_day_pnl": 134.4,
+      "loss_day_loss": 0,
+      "edge_capture_realfills": 134.4,
+      "fills": [
+        {
+          "date": "2026-04-29",
+          "label": "WIN",
+          "pnl": 134.4
+        }
+      ]
+    },
+    "BEARISH_REJECTION_MORNING_ITM2": {
+      "n_anchor_fills": 1,
+      "win_day_pnl": 197.4,
+      "loss_day_loss": 0,
+      "edge_capture_realfills": 197.4,
+      "fills": [
+        {
+          "date": "2026-04-29",
+          "label": "WIN",
+          "pnl": 197.4
+        }
+      ]
+    },
+    "LEVEL_BREAK_FIRST_STRIKE_ATM": {
+      "n_anchor_fills": 2,
+      "win_day_pnl": -126.0,
+      "loss_day_loss": 0.0,
+      "edge_capture_realfills": -126.0,
+      "fills": [
+        {
+          "date": "2026-05-01",
+          "label": "WIN",
+          "pnl": -126.0
+        },
+        {
+          "date": "2026-05-07",
+          "label": "LOSS",
+          "pnl": 86.4
+        }
+      ]
+    },
+    "LEVEL_BREAK_FIRST_STRIKE_ITM2": {
+      "n_anchor_fills": 2,
+      "win_day_pnl": -84.0,
+      "loss_day_loss": 0.0,
+      "edge_capture_realfills": -84.0,
+      "fills": [
+        {
+          "date": "2026-05-01",
+          "label": "WIN",
+          "pnl": -84.0
+        },
+        {
+          "date": "2026-05-07",
+          "label": "LOSS",
+          "pnl": 157.2
+        }
+      ]
+    },
+    "HEAD_AND_SHOULDERS_BEAR_ATM": {
+      "n_anchor_fills": 0,
+      "win_day_pnl": 0,
+      "loss_day_loss": 0,
+      "edge_capture_realfills": 0,
+      "fills": []
+    },
+    "HEAD_AND_SHOULDERS_BEAR_ITM2": {
+      "n_anchor_fills": 0,
+      "win_day_pnl": 0,
+      "loss_day_loss": 0,
+      "edge_capture_realfills": 0,
+      "fills": []
+    },
+    "BEARISH_REVERSAL_AT_LEVEL_ATM": {
+      "n_anchor_fills": 0,
+      "win_day_pnl": 0,
+      "loss_day_loss": 0,
+      "edge_capture_realfills": 0,
+      "fills": []
+    },
+    "BEARISH_REVERSAL_AT_LEVEL_ITM2": {
+      "n_anchor_fills": 0,
+      "win_day_pnl": 0,
+      "loss_day_loss": 0,
+      "edge_capture_realfills": 0,
+      "fills": []
+    },
+    "STAIRSTEP_CONTINUATION_ATM": {
+      "n_anchor_fills": 0,
+      "win_day_pnl": 0,
+      "loss_day_loss": 0,
+      "edge_capture_realfills": 0,
+      "fills": []
+    },
+    "STAIRSTEP_CONTINUATION_ITM2": {
+      "n_anchor_fills": 0,
+      "win_day_pnl": 0,
+      "loss_day_loss": 0,
+      "edge_capture_realfills": 0,
+      "fills": []
+    }
+  },
+  "verdict": {
+    "BEARISH_REJECTION_MORNING": "WATCH-ONLY / EDGE-ALIGNED-BUT-FRAGILE \u2014 REAL-FILLS anchor edge_capture $134.4 > 0 (captures J's days) BUT full-window real-fills ATM negative/thin (regime-fragile, lessons C24). Full-window real-fills ATM exp $-5.89 (N=94, WR 67.0%). ITM2 exp $-34.58 (N=82, WR 61.0%). REAL-FILLS anchor edge_capture: ATM $134.4 (n_anchor_fills=1), ITM2 $197.4 (n=1). [SPY-space proxy edge $-80.0.]",
+    "LEVEL_BREAK_FIRST_STRIKE": "DO-NOT-PROMOTE / ANTI-EDGE \u2014 REAL-FILLS anchor edge_capture $-126.0 < 0 (bleeds on J's days). REAL-FILLS anchor edge_capture: ATM $-126.0 (n_anchor_fills=2), ITM2 $-84.0 (n=2). [SPY-space proxy edge $0.0.] Full-window real-fills ATM exp $-4.48 (N=109, WR 66.1%). ITM2 exp $-36.34 (N=102, WR 56.9%).",
+    "HEAD_AND_SHOULDERS_BEAR": "WATCH-ONLY / NO-ANCHOR-COVERAGE \u2014 fired on 0 of J's anchor days with OPRA fills; cannot confirm it captures J's edge. REAL-FILLS anchor edge_capture: ATM $0 (n_anchor_fills=0), ITM2 $0 (n=0). [SPY-space proxy edge $0.0.] Full-window real-fills ATM exp $-33.57 (N=19, WR 52.6%). ITM2 exp $-104.93 (N=18, WR 44.4%).",
+    "BEARISH_REVERSAL_AT_LEVEL": "WATCH-ONLY / NO-ANCHOR-COVERAGE \u2014 fired on 0 of J's anchor days with OPRA fills; cannot confirm it captures J's edge. REAL-FILLS anchor edge_capture: ATM $0 (n_anchor_fills=0), ITM2 $0 (n=0). [SPY-space proxy edge $0.0.] Full-window real-fills ATM exp $-44.36 (N=14, WR 21.4%). ITM2 exp $-49.31 (N=16, WR 43.8%).",
+    "STAIRSTEP_CONTINUATION": "DEAD-CONTROL-OK \u2014 retired detector fired 0 times, edge_capture $0 (retirement confirmed; correctly anti-edge and removed)."
+  },
+  "ranking": [
+    {
+      "pattern": "BEARISH_REJECTION_MORNING",
+      "realfills_anchor_edge_atm": 134.4,
+      "realfills_anchor_edge_itm2": 197.4,
+      "realfills_anchor_n": 1,
+      "spy_space_anchor_edge_proxy": -80.0,
+      "spy_space_anti_correlated": true,
+      "spy_n": 131,
+      "spy_wr": 56.5,
+      "spy_exp": 2.85,
+      "realfills_atm_exp": -5.89,
+      "realfills_atm_n": 94,
+      "realfills_atm_wr": 67.0,
+      "realfills_atm_total": -553.2,
+      "realfills_itm2_exp": -34.58,
+      "realfills_itm2_n": 82,
+      "note": "CONFIRMED-setup baseline (BEARISH_REJECTION_RIDE_THE_RIBBON). Anchor coverage: 4/29 +$342 (10:25), 5/04 +$730 (10:27). This is 'what works'.",
+      "rank": 1
+    },
+    {
+      "pattern": "HEAD_AND_SHOULDERS_BEAR",
+      "realfills_anchor_edge_atm": 0,
+      "realfills_anchor_edge_itm2": 0,
+      "realfills_anchor_n": 0,
+      "spy_space_anchor_edge_proxy": 0.0,
+      "spy_space_anti_correlated": false,
+      "spy_n": 23,
+      "spy_wr": 52.2,
+      "spy_exp": 7.5,
+      "realfills_atm_exp": -33.57,
+      "realfills_atm_n": 19,
+      "realfills_atm_wr": 52.6,
+      "realfills_atm_total": -637.8,
+      "realfills_itm2_exp": -104.93,
+      "realfills_itm2_n": 18,
+      "note": "WATCH-ONLY. Prior real-fills N=19: WR 73.7% +$346, strong 09:40-12:00 (hs-bear-real-fills.json). OP-21 live gate 0/3.",
+      "rank": 2
+    },
+    {
+      "pattern": "BEARISH_REVERSAL_AT_LEVEL",
+      "realfills_anchor_edge_atm": 0,
+      "realfills_anchor_edge_itm2": 0,
+      "realfills_anchor_n": 0,
+      "spy_space_anchor_edge_proxy": 0.0,
+      "spy_space_anti_correlated": false,
+      "spy_n": 19,
+      "spy_wr": 36.8,
+      "spy_exp": 2.09,
+      "realfills_atm_exp": -44.36,
+      "realfills_atm_n": 14,
+      "realfills_atm_wr": 21.4,
+      "realfills_atm_total": -621.0,
+      "realfills_itm2_exp": -49.31,
+      "realfills_itm2_n": 16,
+      "note": "CONTRAST (countertrend fade on BULL ribbon, NOT continuation). Historical gate 3/3, live 0/3. Included to compare continuation vs countertrend on the anchor set.",
+      "rank": 3
+    },
+    {
+      "pattern": "LEVEL_BREAK_FIRST_STRIKE",
+      "realfills_anchor_edge_atm": -126.0,
+      "realfills_anchor_edge_itm2": -84.0,
+      "realfills_anchor_n": 2,
+      "spy_space_anchor_edge_proxy": 0.0,
+      "spy_space_anti_correlated": true,
+      "spy_n": 84,
+      "spy_wr": 69.0,
+      "spy_exp": 37.29,
+      "realfills_atm_exp": -4.48,
+      "realfills_atm_n": 109,
+      "realfills_atm_wr": 66.1,
+      "realfills_atm_total": -488.0,
+      "realfills_itm2_exp": -36.34,
+      "realfills_itm2_n": 102,
+      "note": "WATCH-ONLY. Prior real-fills VIX>=20 N=19: ATM WR 58.8% +$763 (lbfs-expanded-real-fills.json). OP-21 live gate 0/3.",
+      "rank": 4
+    }
+  ],
+  "no_detector_candidates": [
+    {
+      "pattern": "TRENDLINE_BREAK_VOLUME",
+      "status": "NO-DETECTOR \u2014 playbook n=2 paper observations (5/08, 5/11), awareness-only. No watcher in the fleet; backtest requires writing a trendline-break detector (backtest/lib/trendlines.py exists but is not wired to a watcher). Bear side = ascending-trendline break on >=2x volume."
+    },
+    {
+      "pattern": "RESISTANCE_OVERSHOOT_REVERSAL",
+      "status": "NO-DETECTOR \u2014 playbook n=1 paper observation (5/07 bull-trap to 736.11). Light-vol break + heavy-vol reversal back below level. No watcher shipped."
+    },
+    {
+      "pattern": "sequence_rejection (trigger, not a standalone watcher)",
+      "status": "NO-STANDALONE-DETECTOR \u2014 sequence_rejection is an engine trigger (filters.py) consumed by the main bear setup, not an isolated watcher. The SHORT/bear continuation of a broken level is what STAIRSTEP_CONTINUATION encoded \u2014 and that is the DEAD CONTROL here (retired, anti-edge). So the bear sequence_rejection structure is already represented (and failed) via STAIRSTEP."
+    }
+  ],
+  "op20_disclosures": {
+    "authority": "Real-fills (simulator_real over OPRA bars, valid through ~2026-05-29) is the WR/expectancy authority. SPY-space grade_observation is a directional proxy (SPY move x 100), NOT option P&L (lessons C1/C3).",
+    "levels": "Historically-rebuilt \u2605\u2605 proxies (active+multi_day from _detect_from_history as-of each day), NOT production \u2605\u2605\u2605 named levels. No key-levels archive covers the window, so a true \u2605\u2605\u2605 historical validation is impossible. Disclosed per OP-20. The break/ribbon/structure logic uses clean ctx.prior_bars (no look-ahead).",
+    "anchor_metric": "OP-16 edge_capture = sum(P&L on WIN anchors 4/29,5/01,5/04) - sum(max(0,-P&L) on LOSS anchors 5/05,5/06,5/07). PRIMARY ranking key. Computed TWO ways: (1) REAL-FILLS (anchor_real_fills block) \u2014 real option P&L per fill on J's days \u2014 THE AUTHORITY; (2) SPY-space proxy (anchor_days block) \u2014 directional-coverage only, weak/thin. PROMOTE requires REAL-FILLS anchor edge_capture > 0 AND full-window real-fills ATM exp > 0.",
+    "anchor_pnl_basis": "CRITICAL: the SPY-space anchor_days P&L is a DIRECTIONAL PROXY and is thin/misleading here \u2014 the watchers fire on few historical \u2605\u2605 proxy-level anchor days and grade_observation returns ~$0 on most. The anchor_real_fills block (real OPRA option P&L on J's days) is the correct read on edge capture and can disagree sharply (e.g. a SPY-space $0 / -$80 maps to a strongly POSITIVE real-fills anchor edge for BEARISH_REJECTION_MORNING). The engine-level j_edge_tracker (full engine + real fills) remains the doctrine gate for any actual params change; THIS scorecard ranks ENTRIES.",
+    "real_fills_model": "simulate_trade_real, side=P (all bearish-continuation = puts), qty=3, chart-stop only (premium_stop_pct=-0.99 per L51/L55), ATM (offset 0) and ITM2 (offset -2). Capped at first 120 signals/stream for runtime BUT the cap is ANCHOR-INCLUSIVE \u2014 every anchor-day (4/29-5/07) signal is always simulated even if it falls beyond signal #120 (else a high-frequency watcher's May-2026 anchor fills would be silently dropped). Real-fills N counts RAW signals (pre-dedup); compare WR/exp, not N, vs SPY-space N.",
+    "scope": "Bearish-CONTINUATION family only (lean, per task). BEARISH_REVERSAL_AT_LEVEL is a countertrend CONTRAST, not continuation. STAIRSTEP is the retired DEAD CONTROL. TRENDLINE_BREAK_VOLUME / RESISTANCE_OVERSHOOT_REVERSAL have no detector (see no_detector_candidates).",
+    "cross_check": "LBFS vs lbfs-expanded-real-fills.json (VIX>=20 N=19 ATM WR 58.8% +$763); HS_BEAR vs hs-bear-real-fills.json (N=19 WR 73.7% +$346). Differences expected: those scans use curated pools / VIX gating; this is a full-window ctx replay with historical-level proxies."
+  },
+  "headline": {
+    "baseline": "BEARISH_REJECTION_MORNING",
+    "promote_candidates": [],
+    "edge_aligned_on_real_fills": [
+      "BEARISH_REJECTION_MORNING"
+    ],
+    "focus_recommendation": "CLEAN RESULT: the CONFIRMED setup BEARISH_REJECTION_RIDE_THE_RIBBON (codified as BEARISH_REJECTION_MORNING) IS the bearish edge \u2014 and it is the ONLY variant that captures J's anchor days on REAL fills. BEARISH_REJECTION_MORNING on J's anchor days (REAL fills): ATM edge_capture $134.4 (1 fills), ITM2 $197.4 (1 fills). On the FULL 16-month window, however, EVERY bearish-continuation variant has NEGATIVE real-fills expectancy under chart-stop-only (the proxy SPY-space looks fine \u2014 classic C1/C3 SPY-edge != option-edge). Variants positive on J's anchor days but not broadly: BEARISH_REJECTION_MORNING. FOCUS ENGINEERING: (1) keep BEARISH_REJECTION_MORNING as THE bearish entry and deepen IT \u2014 its anchor-day real-fills are strongly positive (esp. ITM2, J's Bold strike class); the leverage is in EXIT/REGIME work (when to ride vs cut), not a new entry; (2) the full-window real-fills collapse says the broad bearish population is NOT a clean win \u2014 gate BEARISH_REJECTION_MORNING (and the WATCH-ONLY LBFS VIX>=20 / HS_BEAR 09:40-12:00 sub-pockets that prior scorecards found) by regime rather than promoting any new standalone entry. No PROMOTE beyond the baseline. Baseline verdict: WATCH-ONLY / EDGE-ALIGNED-BUT-FRAGILE \u2014 REAL-FILLS anchor edge_capture $134.4 > 0 (captures J's days) BUT full-window real-fills ATM negative/thin (regime-fragile, lessons C24). Full-window real-fills"
+  }
+}
