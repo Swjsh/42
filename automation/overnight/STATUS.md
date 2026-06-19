@@ -1,3 +1,9 @@
+## [2026-06-19] CONTEXT-116: GEX->premarket wiring spec (propose-only, commit 01d0695)
+
+Closed a partial-visibility gap: gex_capture.py banks gex-regime.json daily but NOTHING consumed it. docs/GEX-PREMARKET-WIRING.md = the exact copy-pasteable premarket.md edit (Reads + new Step 3c intake + today-bias gex_context field) carrying the dealer-gamma regime -> heartbeat -> classify_regime(gex_hint). Consumer interface ALREADY existed + is conservative (reinforce-only: nudges NEUTRAL base, never flips a directional read). Mapping: short_gamma_trend=trend/continuation-friendly (edge regime); long_gamma_pin=pin/fade+size-down+respect walls. VERIFIED end-to-end on live tag (label in vocab; long_gamma_pin+low-VIX->range_pin; strong-BULL+pin stays bull_trend). Additive-only today (book WATCH_ONLY=no trade changes); ready on promotion. NOT applied (Rule 9); apply-gate = >=5 banked days + label sanity check, after-hours. No engine/prompt/params touched.
+
+---
+
 ## [2026-06-19] CONTEXT-115: DATA RULES — 313 real winners journaled -> automation ground truth + principled sizing study (commits a3cda6c, a0cd64e)
 
 J: "data rules ... take the winners, journal properly, turn into automation." Built the full pipeline + answered his 2 open sizing decisions with HIS numbers.
@@ -195,3 +201,5 @@ J directive: "fix all 4 phases... look for any other loose ends like this... whe
 ---
 
 > **Older entries (CONTEXT-104 and earlier) archived** to [STATUS-ARCHIVE.md](STATUS-ARCHIVE.md) on 2026-06-19 (OP-22 consolidation — kept STATUS.md lean so each wake does not load ~160K tokens). This file holds the current arc only.
+
+- [2026-06-19 10:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.0% in last 24h (94/100) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
