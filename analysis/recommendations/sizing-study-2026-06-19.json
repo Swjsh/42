@@ -1,0 +1,308 @@
+{
+  "study": "principled-sizing-from-j-data",
+  "date": "2026-06-19",
+  "status": "PROPOSE-ONLY (Rule 9) - no live change",
+  "source": "analysis/webull-j-trades/j_roundtrips.csv",
+  "n_closed_round_trips": 1182,
+  "empirical_sizing_curve": [
+    {
+      "label": "lot 1-2",
+      "n": 1013,
+      "wins": 472,
+      "losses": 533,
+      "win_rate": 0.4697,
+      "total_pnl": 436.5,
+      "expectancy_per_trade": 0.43,
+      "profit_factor": 1.009
+    },
+    {
+      "label": "lot 3-5",
+      "n": 135,
+      "wins": 31,
+      "losses": 102,
+      "win_rate": 0.2331,
+      "total_pnl": -17321.5,
+      "expectancy_per_trade": -128.31,
+      "profit_factor": 0.151
+    },
+    {
+      "label": "lot 6+",
+      "n": 34,
+      "wins": 8,
+      "losses": 26,
+      "win_rate": 0.2353,
+      "total_pnl": -4663.0,
+      "expectancy_per_trade": -137.15,
+      "profit_factor": 0.164
+    }
+  ],
+  "flat_vs_scaled_untangle": {
+    "1-2|flat": {
+      "label": "1-2 flat",
+      "n": 989,
+      "wins": 469,
+      "losses": 512,
+      "win_rate": 0.4781,
+      "total_pnl": 4293.5,
+      "expectancy_per_trade": 4.34,
+      "profit_factor": 1.093
+    },
+    "1-2|scaled": {
+      "label": "1-2 scaled",
+      "n": 24,
+      "wins": 3,
+      "losses": 21,
+      "win_rate": 0.125,
+      "total_pnl": -3857.0,
+      "expectancy_per_trade": -160.71,
+      "profit_factor": 0.105
+    },
+    "3-5|flat": {
+      "label": "3-5 flat",
+      "n": 92,
+      "wins": 24,
+      "losses": 66,
+      "win_rate": 0.2667,
+      "total_pnl": -6084.5,
+      "expectancy_per_trade": -66.14,
+      "profit_factor": 0.242
+    },
+    "3-5|scaled": {
+      "label": "3-5 scaled",
+      "n": 43,
+      "wins": 7,
+      "losses": 36,
+      "win_rate": 0.1628,
+      "total_pnl": -11237.0,
+      "expectancy_per_trade": -261.33,
+      "profit_factor": 0.093
+    },
+    "6+|flat": {
+      "label": "6+ flat",
+      "n": 26,
+      "wins": 7,
+      "losses": 19,
+      "win_rate": 0.2692,
+      "total_pnl": -845.0,
+      "expectancy_per_trade": -32.5,
+      "profit_factor": 0.491
+    },
+    "6+|scaled": {
+      "label": "6+ scaled",
+      "n": 8,
+      "wins": 1,
+      "losses": 7,
+      "win_rate": 0.125,
+      "total_pnl": -3818.0,
+      "expectancy_per_trade": -477.25,
+      "profit_factor": 0.026
+    },
+    "flat_1_2": {
+      "label": "flat 1-2",
+      "n": 989,
+      "wins": 469,
+      "losses": 512,
+      "win_rate": 0.4781,
+      "total_pnl": 4293.5,
+      "expectancy_per_trade": 4.34,
+      "profit_factor": 1.093
+    },
+    "flat_3plus": {
+      "label": "flat 3+",
+      "n": 118,
+      "wins": 31,
+      "losses": 85,
+      "win_rate": 0.2672,
+      "total_pnl": -6929.5,
+      "expectancy_per_trade": -58.72,
+      "profit_factor": 0.284
+    },
+    "scaled_any": {
+      "label": "scaled-in (any size)",
+      "n": 75,
+      "wins": 11,
+      "losses": 64,
+      "win_rate": 0.1467,
+      "total_pnl": -18912.0,
+      "expectancy_per_trade": -252.16,
+      "profit_factor": 0.083
+    },
+    "single_entry_any": {
+      "label": "single-entry (any size)",
+      "n": 1107,
+      "wins": 500,
+      "losses": 597,
+      "win_rate": 0.4558,
+      "total_pnl": -2636.0,
+      "expectancy_per_trade": -2.38,
+      "profit_factor": 0.953
+    }
+  },
+  "revenge_signal": {
+    "after_same_day_loss": {
+      "n": 492,
+      "avg_qty": 1.722,
+      "pct_qty_ge_3": 0.1545,
+      "pct_scaled_in": 0.061,
+      "total_pnl": -11303.5,
+      "expectancy_per_trade": -22.97,
+      "win_rate": 0.3679
+    },
+    "after_same_day_win": {
+      "n": 414,
+      "avg_qty": 1.679,
+      "pct_qty_ge_3": 0.1111,
+      "pct_scaled_in": 0.0483,
+      "total_pnl": 355.5,
+      "expectancy_per_trade": 0.86,
+      "win_rate": 0.5145
+    },
+    "interpretation": "Size rises after a loss (avg_qty and pct_qty_ge_3 both higher after a same-day loss than after a same-day win) => mild but real revenge-sizing. Trades placed AFTER a same-day loss are net negative."
+  },
+  "flat3_confounders": {
+    "overall": {
+      "label": "flat 3+",
+      "n": 118,
+      "wins": 31,
+      "losses": 85,
+      "win_rate": 0.2672,
+      "total_pnl": -6929.5,
+      "expectancy_per_trade": -58.72,
+      "profit_factor": 0.284
+    },
+    "by_bias": {
+      "bear": {
+        "label": "flat3 bear",
+        "n": 35,
+        "wins": 8,
+        "losses": 27,
+        "win_rate": 0.2286,
+        "total_pnl": -3359.5,
+        "expectancy_per_trade": -95.99,
+        "profit_factor": 0.167
+      },
+      "bull": {
+        "label": "flat3 bull",
+        "n": 83,
+        "wins": 23,
+        "losses": 58,
+        "win_rate": 0.284,
+        "total_pnl": -3570.0,
+        "expectancy_per_trade": -43.01,
+        "profit_factor": 0.368
+      }
+    },
+    "by_0dte": {
+      "False": {
+        "label": "flat3 0dte=False",
+        "n": 50,
+        "wins": 14,
+        "losses": 35,
+        "win_rate": 0.2857,
+        "total_pnl": -869.0,
+        "expectancy_per_trade": -17.38,
+        "profit_factor": 0.571
+      },
+      "True": {
+        "label": "flat3 0dte=True",
+        "n": 68,
+        "wins": 17,
+        "losses": 50,
+        "win_rate": 0.2537,
+        "total_pnl": -6060.5,
+        "expectancy_per_trade": -89.12,
+        "profit_factor": 0.209
+      }
+    }
+  },
+  "fractional_kelly": {
+    "winning_band": "flat 1-2 (single entry, <=2 contracts)",
+    "p_win": 0.4742,
+    "avg_win_per_contract": 101.7,
+    "avg_loss_per_contract": -76.9,
+    "mean_entry_premium": 1.941,
+    "kelly_realized_payoff": {
+      "basis": "j_realized_payoff (loser cut ~42% premium)",
+      "p_win": 0.4742,
+      "payoff_b": 1.3236,
+      "full_kelly_fraction": 0.077,
+      "half_kelly_fraction": 0.0385,
+      "quarter_kelly_fraction": 0.0192
+    },
+    "kelly_conservative_binary": {
+      "basis": "conservative_binary (loss = full premium)",
+      "p_win": 0.4742,
+      "payoff_b": 0.5241,
+      "full_kelly_fraction": -0.5289,
+      "half_kelly_fraction": -0.2645,
+      "quarter_kelly_fraction": -0.1322
+    },
+    "half_kelly_realized_contracts_at_2k": {
+      "0.30": 2.57,
+      "0.40": 1.92,
+      "0.50": 1.54
+    },
+    "interpretation": "On J's realized payoff (b=1.32) full Kelly is 7.7% of bankroll; half-Kelly 3.8%. On the conservative full-premium-at-risk binary (b=0.52) full Kelly is -52.9% \u2014 i.e. NO bet unless the disciplined chart-stop holds. Truth is between: size at the SMALLEST viable lot, <= 1/2 Kelly on the optimistic basis."
+  },
+  "account_math": {
+    "safe_equity": 2000.0,
+    "doctrine_min_contracts": 3,
+    "otm3_premium_table": [
+      {
+        "premium": 0.3,
+        "cost_1_contract": 30.0,
+        "pct_2k_1c": 1.5,
+        "cost_3_contracts": 90.0,
+        "pct_2k_3c": 4.5,
+        "cost_2_contracts": 60.0,
+        "pct_2k_2c": 3.0
+      },
+      {
+        "premium": 0.4,
+        "cost_1_contract": 40.0,
+        "pct_2k_1c": 2.0,
+        "cost_3_contracts": 120.0,
+        "pct_2k_3c": 6.0,
+        "cost_2_contracts": 80.0,
+        "pct_2k_2c": 4.0
+      },
+      {
+        "premium": 0.5,
+        "cost_1_contract": 50.0,
+        "pct_2k_1c": 2.5,
+        "cost_3_contracts": 150.0,
+        "pct_2k_3c": 7.5,
+        "cost_2_contracts": 100.0,
+        "pct_2k_2c": 5.0
+      }
+    ],
+    "half_kelly_pct_realized_basis": 3.9,
+    "min3_vs_half_kelly": "MIN 3 contracts at OTM-3 ~$0.30-0.50 = $90-150 = 4.5-7.5% of $2K, which sits ABOVE half-Kelly (~3.9% = ~$78). The floor forces a slightly-larger-than-Kelly bet. Prudent, but only at the cheap end of the premium band."
+  },
+  "throttle_design": {
+    "name": "POST_LOSS_THROTTLE",
+    "status": "DESIGN ONLY - not implemented in risk_gate.check_order",
+    "rationale": "J's ledger shows size rises after losses (revenge-sizing) and that the larger-lot bands are where the account bleeds. A throttle caps size to the FLOOR while underwater and restores it only after a win or a fresh session, so a losing streak can never be met with a bigger bet.",
+    "new_inputs": {
+      "consecutive_losses_today": "int >=0 \u2014 losing round-trips since last win, this session",
+      "realized_pnl_today": "float \u2014 session realized P&L (negative => underwater)",
+      "equity": "float \u2014 already an input; trajectory vs start_of_day_equity",
+      "start_of_day_equity": "float \u2014 already an input"
+    },
+    "new_params_proposed": {
+      "post_loss_throttle_enabled": "bool, default true",
+      "throttle_after_consecutive_losses": "int, default 1 (cap after the FIRST loss)",
+      "throttle_underwater_pct": "float, default 0.0 (any red day => floor)",
+      "throttle_to_contracts": "int, default = min_contracts (the floor)"
+    },
+    "rule": "Compute qty_ceiling. If post_loss_throttle_enabled AND (consecutive_losses_today >= throttle_after_consecutive_losses OR equity <= start_of_day_equity * (1 - throttle_underwater_pct)), then qty_ceiling = throttle_to_contracts (the floor). Otherwise qty_ceiling = +inf. If proposed_qty > qty_ceiling => Deny(POST_LOSS_THROTTLE) (engine clamps to ceiling instead of denying). Restores automatically next session (counters reset at SoD) and after any win (consecutive_losses_today resets to 0).",
+    "reference_signature": "def post_loss_qty_ceiling(*, equity: float, start_of_day_equity: float, consecutive_losses_today: int, realized_pnl_today: float, min_contracts: int, params: Mapping) -> Optional[int]: ...  # returns the ceiling, or None for 'no throttle'. Pure; no I/O.",
+    "slot_in_point": "backtest/lib/risk_gate.py check_order \u2014 a NEW section between the FIRST_ENTRY_LOCK block and the MIN_CONTRACTS block (evaluate the throttle ceiling, then the existing MIN_CONTRACTS floor). Add code POST_LOSS_THROTTLE to the stable CODE_* set. Fail-closed: if the new inputs are unreadable, deny (same discipline as every other input).",
+    "invariant": "Order-only, fails OPEN on the operator (OP-32 scar): like every other rule it returns a decision and NEVER touches sessions/processes.",
+    "honest_caveat": "J's 3+ data is confounded with revenge-adds, so the ledger cannot cleanly separate 'flat-3 is too big' from 'the adding is the killer'. What it CAN say: (1) scaled-in is catastrophic at every size, and (2) even flat-3+ is a loser across both biases and both DTEs. The throttle attacks BOTH failure modes by holding size at the floor while underwater."
+  },
+  "recommendations": {
+    "decision_a_min3_vs_flat2": "KEEP MIN 3 as the FLOOR, but recognise it is slightly above half-Kelly. The data does NOT support raising the floor; flat-3+ is already a loser. The real fix is a CEILING (the throttle), not a lower floor. Flat-2 would be marginally more Kelly-prudent but breaks the 2-TP+1-runner structure; min-3 at the cheap OTM-3 end (<=$0.40 => <=6% of $2K) is acceptable. Pair min-3 with a hard premium ceiling so 3 contracts never exceeds ~6% of equity.",
+    "decision_b_throttle": "ADD the post-loss throttle (design above). It is the highest-value sizing change available from J's data: it directly neutralises the revenge-sizing the ledger documents and caps the larger-lot bands where the account bleeds. Ship as a pure function gated behind post_loss_throttle_enabled; default-on in the engine as a CLAMP, default-deny in the live gate."
+  }
+}
