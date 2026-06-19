@@ -1,0 +1,15 @@
+# Lesson: `git commit --only <dir>` silently drops UNTRACKED new files
+
+**Date:** 2026-06-19 (overnight restructuring)
+
+**Symptom:** Several Wave B deliverables (`backtest/lib/risk_gate.py`, `ledger.py`, the whole `validation/` package, `test_risk_gate.py`) were reported "committed" by the Wave B commit (`effa672`, "13 files changed, 6102 insertions") but were actually UNTRACKED — never in git. Discovered hours later via a `git ls-files --error-unmatch` spot-check. Hours of work was at risk of silent loss to the background snapshot/restore process.
+
+**Root cause:** `git commit --only <pathspec>` (and `git commit <pathspec>`) commits the working-tree state of *tracked* files matching the pathspec, plus *staged* changes. It does NOT include UNTRACKED new files under the pathspec unless they were `git add`-ed first. New files created by agents (or me) that the background `git add` process didn't happen to stage were silently excluded — the commit succeeded and reported a large diff (from the modified + already-staged files), masking the omission. A silent-failure in the commit process itself — the exact bug class this whole effort targeted.
+
+**Fix / guardrail:**
+1. ALWAYS `git add <explicit new-file paths>` BEFORE `git commit --only`, OR verify post-commit with `git ls-files --error-unmatch <key new files>`.
+2. When an agent creates new files, instruct it to `git add` them itself (staging, not committing) so they can't be dropped.
+3. Consider a commit-time check: after any work commit, assert the session's known-new files are tracked (`git ls-files`). 
+4. Prefer `git status --short | grep '^??'` review before declaring work durable.
+
+**Graduation candidate:** a pre-commit/post-commit helper that takes the intended file list and asserts all are tracked after commit (fail loud if any `??` remain). This is the producer/consumer-contract pattern applied to the commit step.

@@ -14,6 +14,12 @@ Public API:
 
     write_shadow_scorecard(result, output_dir)
         -> Write A/B scorecard JSON per analysis/recommendations/SCORECARD_TEMPLATE.json
+           (carries an ADVISORY-only ``promotion_rigor`` DSR/PSR/PBO field)
+
+    compute_promotion_rigor(trades, n_trials=1, performance_matrix=None)
+        -> Advisory DSR/PSR/PBO verdict dict for a trade list (additive only;
+           never gates auto_ratify). Graceful "not_computed" on tiny/degenerate
+           samples.
 
 Shadow mode is read-only by construction: it never affects the trades the
 production engine fires. The shadow's purpose is data — show what would have
@@ -37,6 +43,67 @@ from .repro import compute_run_id
 REPO = Path(__file__).resolve().parents[2]
 PARAMS_PATH = REPO / "automation" / "state" / "params.json"
 RECOMMENDATIONS_DIR = REPO / "analysis" / "recommendations"
+
+
+def compute_promotion_rigor(
+    trades: list,
+    n_trials: int = 1,
+    performance_matrix=None,
+) -> dict[str, Any]:
+    """Advisory DSR/PSR/PBO verdict for a candidate's trade list (Phase 2c).
+
+    ADVISORY ONLY. This is purely additive colour for the A/B scorecard — it is
+    NOT a hard gate and does NOT feed ``auto_ratify_eligible`` (flipping it into
+    a gate is a Rule-9 doctrine change for J; see ``validation/gate.py``).
+
+    Builds the candidate's per-trade return series from ``trade.dollar_pnl`` and
+    runs ``validation.gate.evaluate_candidate``. Returns the gate's dict
+    (``{verdict, dsr, psr, pbo, n_obs, n_trials, low_power, notes}``) on success,
+    or a ``{"status": "not_computed", "reason": ...}`` placeholder when the
+    series is too small / degenerate to score. Never fabricates data and never
+    raises — a rigor failure must not break scorecard writing.
+
+    Parameters
+    ----------
+    trades:
+        List of trade objects exposing a ``dollar_pnl`` attribute (the shadow
+        candidate's real-fills trades).
+    n_trials:
+        Number of independent configurations searched to surface this candidate
+        (drives DSR deflation). The shadow loop tests ONE candidate at a time,
+        so the honest default is 1 (DSR reduces to PSR vs a zero benchmark).
+        Pass a realistic search count when this candidate came from a sweep.
+    performance_matrix:
+        Optional (T, N) CSCV matrix for PBO. None when unavailable (PBO skipped).
+    """
+    try:
+        # Per-trade dollar P&L is the return series. The gate is scale-invariant
+        # for DSR/PSR (Sharpe = mean/std), so raw dollars are fine — no fabricated
+        # normalisation.
+        returns = [float(getattr(t, "dollar_pnl")) for t in trades]
+    except (AttributeError, TypeError, ValueError) as exc:
+        return {"status": "not_computed", "reason": f"no return series: {exc}"}
+
+    if len(returns) < 2:
+        return {
+            "status": "not_computed",
+            "reason": f"too few trades for DSR/PSR (n={len(returns)} < 2)",
+        }
+
+    try:
+        from .validation.gate import evaluate_candidate
+
+        result = evaluate_candidate(
+            returns,
+            n_trials=max(1, int(n_trials)),
+            performance_matrix=performance_matrix,
+        )
+        return result.to_dict()
+    except ValueError as exc:
+        # e.g. zero-volatility return stream (all trades identical P&L).
+        return {"status": "not_computed", "reason": f"gate ill-posed: {exc}"}
+    except Exception as exc:  # noqa: BLE001 - advisory must never break writing
+        return {"status": "not_computed", "reason": f"unexpected error: {exc}"}
 
 
 @dataclass(frozen=True)
@@ -80,6 +147,11 @@ class ShadowResult:
     dominates: bool
     regressed_metrics: list[str]
     auto_ratify_eligible: bool
+
+    # Advisory-only (Phase 2c): DSR/PSR/PBO promotion-rigor verdict for the
+    # shadow's trade stream. Defaults to None so existing constructors are
+    # unaffected. NEVER feeds auto_ratify_eligible — purely additive colour.
+    promotion_rigor: dict[str, Any] | None = None
 
 
 def apply_overrides(base_params: dict, overrides: dict) -> dict:
@@ -270,6 +342,7 @@ def run_shadow_backtest(
     vix_path: Path,
     use_real_fills: bool = True,
     check_sub_window: bool = True,
+    rigor_n_trials: int = 1,
 ) -> ShadowResult:
     """Run production and shadow backtests on the same data, return diff.
 
@@ -308,6 +381,12 @@ def run_shadow_backtest(
         params_overrides=shadow_params_dict,
     )
     shadow_metrics = _compute_metrics(shadow_result.trades)
+
+    # Advisory-only promotion rigor (DSR/PSR/PBO) on the shadow's trade stream.
+    # Additive colour for the scorecard; does NOT influence auto_ratify below.
+    promotion_rigor = compute_promotion_rigor(
+        shadow_result.trades, n_trials=rigor_n_trials
+    )
 
     # Compute shadow's params hash (canonicalized)
     shadow_canonical = json.dumps(shadow_params_dict, sort_keys=True, separators=(",", ":"))
@@ -357,6 +436,7 @@ def run_shadow_backtest(
         dominates=dominates,
         regressed_metrics=regressed,
         auto_ratify_eligible=auto_ratify,
+        promotion_rigor=promotion_rigor,
     )
 
 
@@ -365,8 +445,17 @@ def write_shadow_scorecard(
     sub_window: dict | None = None,
     rationale: str = "",
     trigger_observation: str = "",
+    promotion_rigor: dict[str, Any] | None = None,
 ) -> Path:
-    """Write A/B scorecard JSON matching SCORECARD_TEMPLATE.json schema."""
+    """Write A/B scorecard JSON matching SCORECARD_TEMPLATE.json schema.
+
+    The scorecard carries an ADVISORY ``promotion_rigor`` field (DSR/PSR/PBO +
+    verdict, Phase 2c). It is sourced from ``promotion_rigor`` if supplied, else
+    from ``result.promotion_rigor`` (set by ``run_shadow_backtest``), else a
+    ``{"status": "not_computed"}`` placeholder. This field is purely additive —
+    it does NOT affect ``auto_ratify_eligible`` / ``verdict`` (those are
+    unchanged). Flipping rigor into a hard gate is a Rule-9 doctrine change for J.
+    """
     RECOMMENDATIONS_DIR.mkdir(parents=True, exist_ok=True)
     output_path = RECOMMENDATIONS_DIR / f"{result.rule_id}.json"
 
@@ -418,6 +507,21 @@ def write_shadow_scorecard(
             "auto_ratify"
             if result.auto_ratify_eligible
             else ("reject" if not result.data_hash_match else "needs_review")
+        ),
+        # ADVISORY ONLY (Phase 2c) — DSR/PSR/PBO promotion-rigor colour. Does NOT
+        # gate auto_ratify_eligible / verdict above; surfaced for the Kitchen
+        # reviewer + J to consult. See validation/gate.py "How to wire in later".
+        "promotion_rigor": (
+            promotion_rigor
+            if promotion_rigor is not None
+            else (
+                result.promotion_rigor
+                if result.promotion_rigor is not None
+                else {
+                    "status": "not_computed",
+                    "reason": "no promotion_rigor supplied or computed",
+                }
+            )
         ),
         "status": "pending",
         "decided_at": None,

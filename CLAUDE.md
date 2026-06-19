@@ -262,8 +262,8 @@ These are non-negotiable, second only to the 10 rules above.
     | C3 | SPY-price edge != option edge (delta/theta/stop-misfire) | L58,74,100,101,112,136,148,149 |
     | C4 | Disclose concentration, normalize OOS, stratify by regime; use per-trade expectancy not WR standalone | L01,04,05,10,11,22,46,48,92,104,122,124,128,129,154 |
     | C5 | VIX *character* > VIX level; as-of trigger time; high-score + 0-trade + declining-VIX = correct abstention | L40,44,45,73,93,118,133,134,154,162 |
-    | C6 | No look-ahead: filter <= current bar, verify bar closed, slice prior_bars | L14,34,57,61,94 |
-    | C7 | Silent success is failure — audit outputs, not exit codes | L19,26,28,32,39,53,62,67,79,80,82,83,84,85,86,87,90,91,92,96,97,98,105,106,117,155,160,161 |
+    | C6 | No look-ahead: filter <= current bar, verify bar closed, slice prior_bars; entry_time_et is naive ET (localize America/New_York, not UTC) | L14,34,57,61,94,161,165 |
+    | C7 | Silent success is failure — audit outputs, not exit codes; verify new files git-tracked (--only drops untracked) | L19,26,28,32,39,53,62,67,79,80,82,83,84,85,86,87,90,91,92,96,97,98,105,106,117,155,160,161,164 |
     | C8 | Headless Windows spawn = system-pythonw + CREATE_NO_WINDOW + WMI liveness | L20,27,33,41,81 |
     | C9 | Anchor paths to __file__; update ALL state consumers; dual-account symmetry | L21,42,49,60 |
     | C10 | Rate-limit pool: separate prod key; never automate operator lockout | L54,62,68,69 |

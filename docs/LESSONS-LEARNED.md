@@ -4113,3 +4113,31 @@ For time-of-day filtering (`.time()` comparisons) only, `tz_localize(None)` or d
 **Detection:** future regression — a gate that scores 0/6 OOS passes in a multi-gate WF run is redundant-or-harmful in the current context regardless of its original solo-ratification scorecard; investigate for C15 supersession before re-adding it. Whenever a new upstream entry filter ships, the WF re-validation of downstream class gates is mandatory, not optional.
 
 **Related lessons:** C15 (gates interact multiplicatively — trace session cascades — L07,08,09,66,95), L47 (broker is truth), L66 (gates cascade), L156 (chandelier is regime-conditional — same "context changes a previously-ratified knob" family).
+
+## L164 -- 2026-06-19: `git commit --only <pathspec>` silently DROPS untracked new files
+
+**Symptom:** Several Wave B deliverables (`backtest/lib/risk_gate.py`, `ledger.py`, the whole `validation/` package, `test_risk_gate.py`) were reported "committed" by the Wave B commit (`effa672`, "13 files changed, 6102 insertions") but were actually UNTRACKED -- never in git at all. Discovered hours later by a `git ls-files --error-unmatch` spot-check. Hours of work was at risk of silent loss to the background snapshot/restore process.
+
+**Root cause:** `git commit --only <pathspec>` (and bare `git commit <pathspec>`) commits the working-tree state of *tracked* files matching the pathspec, plus already-*staged* changes. It does NOT include UNTRACKED new files under the pathspec unless they were `git add`-ed first. New files created by an agent (or me) that the background `git add` never happened to stage were silently excluded -- the commit succeeded and reported a large diff (from the modified + already-staged files), masking the omission. A silent failure in the commit step itself (OP-25 C7).
+
+**Fix / graduation:** A tiny zero-dependency helper `setup/scripts/verify_committed.py` (`is_tracked` / `find_untracked` / `assert_all_tracked`, plus a CLI) that, given a list of intended paths, asserts each is tracked via `git ls-files --error-unmatch` and fails loud listing any that are not. Standing guard `backtest/tests/test_verify_committed.py` exercises it against a throwaway git repo: it (a) confirms a committed file passes, (b) reproduces the exact `git commit --only` drop end-to-end and asserts the helper catches the untracked sibling, and (c) pins that on-disk presence != tracked. Workflow rule unchanged: ALWAYS `git add <explicit new-file paths>` before a `--only` commit, OR run `verify_committed.py` after. When an agent creates new files, have it `git add` them itself (staging, not committing) so they cannot be dropped. This is the producer/consumer contract applied to the commit step.
+
+**Encoded in:** `setup/scripts/verify_committed.py`, `backtest/tests/test_verify_committed.py`, `docs/LESSONS-LEARNED.md` L164, CLAUDE.md C7 row.
+
+**Detection:** future regression -- if a `--only`/pathspec commit ever again reports success while a session's known-new files remain `??` in `git status`, that is this foot-gun; run `verify_committed.py <paths>` (exit 1 = some untracked) before declaring any work durable.
+
+**Related lessons:** C7 (silent success is failure -- audit outputs not exit codes -- L19,26,28,...,160), C9 (update ALL state consumers; producer/consumer contract -- L21,42,49,60), C14 (vary-and-assert -- the same "verify the thing actually happened" discipline).
+
+## L165 -- 2026-06-19: `tz_localize("UTC")` on a naive `entry_time_et` shifts ET->premarket (~5h) -- silently corrupts bar lookups
+
+**Symptom:** A research A/B sibling (`safe_trendline_spread_gate.py`) localized `trade.entry_time_et` (a NAIVE ET timestamp) via `tz_localize("UTC")` to look up ribbon spread against UTC-indexed SPY bars. A "15:40 ET" RTH entry was thereby mislabeled "15:40 UTC" (= 10:40 ET), so every spread lookup hit a bar ~5 hours earlier (premarket-adjacent) instead of the real entry bar. This is the same class as the L161 incident, where the wrong-TZ lookup initially flipped an A/B verdict to a false RATIFY (the gate looked like it blocked 11 bad trades; with correct TZ it removed 2 IS winners and was REJECTED). A wrong-TZ lookup ships a gate that destroys edge.
+
+**Root cause:** Option-CSV convention stores `entry_time_et` as timezone-NAIVE local ET. `tz_localize("UTC")` declares the clock to already be UTC (no shift of the wall-clock digits) -- so when compared against truly-UTC data the apparent ET maps to the wrong instant. The correct operation is `tz_localize("America/New_York").tz_convert("UTC")`: declare the real zone first, THEN convert. For time-of-day (`.time()`) filtering only, `tz_localize(None)` on the naive value is correct (no conversion needed). L161 documented the fix in the scripts written that session, but a sibling script (re-)introduced the bug -- prose failed as a control, so it is now a test.
+
+**Fix / graduation:** Corrected `safe_trendline_spread_gate.py` to the ET->UTC form. Standing guard `backtest/tests/test_tz_localize_entry_time.py`: (a) STATIC scan -- any `*.py` under `backtest/` (incl. `autoresearch/`) that mentions `entry_time_et` and localizes a scalar timestamp as `"UTC"` FAILS, naming file:line (it deliberately ignores `.dt.tz_localize("UTC")` on VIX/SPY data columns, which is legitimate naive-UTC data); (b) BEHAVIORAL -- pins that the correct conversion round-trips to 15:40 ET while the broken one reads 10:40 ET, differing by exactly the 5h EST offset.
+
+**Encoded in:** `backtest/safe_trendline_spread_gate.py` (corrected), `backtest/tests/test_tz_localize_entry_time.py`, `docs/LESSONS-LEARNED.md` L165, CLAUDE.md C6 row.
+
+**Detection:** future regression -- a new or reverted A/B / gate-sweep script that converts `entry_time_et` to UTC via `tz_localize("UTC")` trips the static guard; use `.tz_localize("America/New_York").tz_convert("UTC")` (UTC-data lookups) or `.tz_localize(None)` (clock-time filtering).
+
+**Related lessons:** L161 (same TZ foot-gun, first occurrence -- the prose control that this test now enforces), C6 (no look-ahead / as-of correctness -- a premarket-bar lookup is an as-of error -- L14,34,57,61,94), C7 (silent success is failure).
