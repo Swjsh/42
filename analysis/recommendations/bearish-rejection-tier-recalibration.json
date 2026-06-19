@@ -1,0 +1,961 @@
+{
+  "generated_at": "2026-06-19T08:12:08.476243",
+  "kind": "bearish_rejection_tier_recalibration",
+  "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON (bearish_rejection_morning_watcher)",
+  "source_artifact": "C:\\Users\\jackw\\Desktop\\42\\analysis\\recommendations\\bearish-rejection-quality-map.json",
+  "purpose": "Fix the INVERTED confidence-tier sizing score (detector sizes UP on its worst trades). Root-cause + corrected realized-edge tier + policy back-test (OLD-inverted vs FLAT vs NEW) + OOS sign-stability. Propose-only (Rule 9) \u2014 DOES NOT touch the live detector.",
+  "n_fires": 177,
+  "n_filled_ATM": 135,
+  "n_filled_ITM2": 123,
+  "analysis": {
+    "ATM": {
+      "root_cause": {
+        "high_gate_vs_rest": {
+          "high_gate": {
+            "n": 28,
+            "wr": 57.1,
+            "total": -2328.6,
+            "exp": -83.16,
+            "low_power": false,
+            "edge_capture": 0,
+            "n_anchor_fills": 0
+          },
+          "rest": {
+            "n": 107,
+            "wr": 63.6,
+            "total": -2093.0,
+            "exp": -19.56,
+            "low_power": false,
+            "edge_capture": 134.4,
+            "n_anchor_fills": 1
+          },
+          "exp_gap": -63.6
+        },
+        "a_body_alone": {
+          "full_sample": {
+            "rho": 0.0441,
+            "p": 0.6114,
+            "n": 135
+          },
+          "within_1030plus_only": {
+            "rho": 0.1,
+            "p": 0.3247,
+            "n": 99
+          },
+          "note": "Body magnitude alone is ~uncorrelated with pnl; the bug is NOT 'big body = bad'."
+        },
+        "b_conjunction_vs_marginals": {
+          "body_ge_30_alone": {
+            "label": "body>=30c",
+            "n": 127,
+            "wr": 63.0,
+            "total": -4086.8,
+            "exp": -32.18,
+            "low_power": false
+          },
+          "vol_ge_2p5_alone": {
+            "label": "vol>=2.5x",
+            "n": 58,
+            "wr": 60.3,
+            "total": -2852.4,
+            "exp": -49.18,
+            "low_power": false
+          },
+          "high_gate_conjunction": {
+            "label": "body>=30 AND vol>=2.5 AND bear",
+            "n": 28,
+            "wr": 57.1,
+            "total": -2328.6,
+            "exp": -83.16,
+            "low_power": false
+          },
+          "note": "If the conjunction exp is materially worse than either marginal, the AND-gate (not any single leg) is what concentrates the losers."
+        },
+        "c_regime_clustering": {
+          "pct_high_in_1030plus": 82.1,
+          "high_within_1030plus": {
+            "n": 23,
+            "wr": 56.5,
+            "total": -1956.6,
+            "exp": -85.07,
+            "low_power": false
+          },
+          "high_outside_1030plus": {
+            "n": 5,
+            "wr": 60.0,
+            "total": -372.0,
+            "exp": -74.4,
+            "low_power": true
+          },
+          "rest_within_1030plus": {
+            "n": 76,
+            "wr": 60.5,
+            "total": -2192.0,
+            "exp": -28.84,
+            "low_power": false
+          },
+          "note": "If HIGH-late and rest-late have similar exp, the loss is the WINDOW, not the gate; the gate's damage is over-allocating size INTO that window."
+        },
+        "d_stop_distance_proxy": {
+          "bins": {
+            "<55c (tight)": {
+              "n": 8,
+              "wr": 50.0,
+              "total": -334.8,
+              "exp": -41.85,
+              "low_power": false,
+              "stopout_proxy_pct": 50.0
+            },
+            "55-85c": {
+              "n": 30,
+              "wr": 63.3,
+              "total": -64.8,
+              "exp": -2.16,
+              "low_power": false,
+              "stopout_proxy_pct": 36.7
+            },
+            "85-145c": {
+              "n": 55,
+              "wr": 60.0,
+              "total": -3143.6,
+              "exp": -57.16,
+              "low_power": false,
+              "stopout_proxy_pct": 40.0
+            },
+            "145c+ (wide)": {
+              "n": 42,
+              "wr": 66.7,
+              "total": -878.4,
+              "exp": -20.91,
+              "low_power": false,
+              "stopout_proxy_pct": 33.3
+            }
+          },
+          "note": "Chart stop is FIXED at level+0.25 regardless of body, so a bigger rejection body = entry farther below the level = WIDER stop distance (more premium at risk per contract). Monotone-worse exp across widening stop distance corroborates the R:R mechanism."
+        }
+      },
+      "old_tier_table": {
+        "high": {
+          "n": 28,
+          "wr": 57.1,
+          "total": -2328.6,
+          "exp": -83.16,
+          "low_power": false,
+          "edge_capture": 0,
+          "n_anchor_fills": 0
+        },
+        "medium": {
+          "n": 44,
+          "wr": 63.6,
+          "total": -1172.0,
+          "exp": -26.64,
+          "low_power": false,
+          "edge_capture": 0,
+          "n_anchor_fills": 0
+        },
+        "low": {
+          "n": 63,
+          "wr": 63.5,
+          "total": -921.0,
+          "exp": -14.62,
+          "low_power": false,
+          "edge_capture": 134.4,
+          "n_anchor_fills": 1
+        }
+      },
+      "corrected_tier_table": {
+        "high": {
+          "n": 24,
+          "wr": 83.3,
+          "total": 1275.4,
+          "exp": 53.14,
+          "low_power": false,
+          "edge_capture": 0,
+          "n_anchor_fills": 0
+        },
+        "medium": {
+          "n": 85,
+          "wr": 61.2,
+          "total": -2646.6,
+          "exp": -31.14,
+          "low_power": false,
+          "edge_capture": 134.4,
+          "n_anchor_fills": 1
+        },
+        "low": {
+          "n": 15,
+          "wr": 60.0,
+          "total": -973.8,
+          "exp": -64.92,
+          "low_power": false,
+          "edge_capture": 0,
+          "n_anchor_fills": 0
+        },
+        "zero": {
+          "n": 11,
+          "wr": 27.3,
+          "total": -2076.6,
+          "exp": -188.78,
+          "low_power": false,
+          "edge_capture": 0,
+          "n_anchor_fills": 0
+        }
+      },
+      "policy_backtest": {
+        "OLD_inverted": {
+          "n_traded": 135,
+          "total_sized_pnl": -5125.4,
+          "exp_per_trade": -37.97,
+          "total_units_deployed": 117.5,
+          "exp_per_unit_exposure": -43.62,
+          "kept_anchor_win_fill": true,
+          "psr": {
+            "n": 135,
+            "sharpe": -0.1591,
+            "psr_gt0": 0.0224,
+            "dsr": 0.0003,
+            "t": -1.842,
+            "p_one_sided_gt0": 0.9661,
+            "low_power": false
+          }
+        },
+        "FLAT": {
+          "n_traded": 135,
+          "total_sized_pnl": -4421.6,
+          "exp_per_trade": -32.75,
+          "total_units_deployed": 135.0,
+          "exp_per_unit_exposure": -32.75,
+          "kept_anchor_win_fill": true,
+          "psr": {
+            "n": 135,
+            "sharpe": -0.143,
+            "psr_gt0": 0.0427,
+            "dsr": 0.0009,
+            "t": -1.656,
+            "p_one_sided_gt0": 0.95,
+            "low_power": false
+          }
+        },
+        "NEW_corrected": {
+          "n_traded": 124,
+          "total_sized_pnl": -1220.4,
+          "exp_per_trade": -9.84,
+          "total_units_deployed": 128.5,
+          "exp_per_unit_exposure": -9.5,
+          "kept_anchor_win_fill": true,
+          "psr": {
+            "n": 124,
+            "sharpe": -0.0412,
+            "psr_gt0": 0.3211,
+            "dsr": 0.0321,
+            "t": -0.457,
+            "p_one_sided_gt0": 0.6758,
+            "low_power": false
+          }
+        },
+        "NEW_no_sizeup_only": {
+          "n_traded": 124,
+          "total_sized_pnl": -2345.0,
+          "exp_per_trade": -18.91,
+          "total_units_deployed": 124.0,
+          "exp_per_unit_exposure": -18.91,
+          "kept_anchor_win_fill": true,
+          "psr": {
+            "n": 124,
+            "sharpe": -0.0833,
+            "psr_gt0": 0.1712,
+            "dsr": 0.0097,
+            "t": -0.924,
+            "p_one_sided_gt0": 0.8213,
+            "low_power": false
+          }
+        },
+        "_legend": {
+          "OLD_inverted": "current detector: HIGH=1.5x MED=1.0x LOW=0.5x (sizes UP on HIGH)",
+          "FLAT": "all fills 1.0x \u2014 the do-no-harm baseline",
+          "NEW_corrected": "edge re-rank: vix-rising=1.5x flat=1.0x violent-late=0.5x vix-falling=0x",
+          "NEW_no_sizeup_only": "minimal safety fix \u2014 never size UP, only zero out the sign-stable VIX-falling loser; everything else flat 1.0x"
+        }
+      },
+      "oos_tier_stability": {
+        "calendar_2025_vs_2026": {
+          "boundary": "2026-01-01",
+          "IS_tiers": {
+            "high": {
+              "n": 20,
+              "wr": 80.0,
+              "total": 815.8,
+              "exp": 40.79,
+              "low_power": false,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "medium": {
+              "n": 51,
+              "wr": 62.7,
+              "total": -916.2,
+              "exp": -17.96,
+              "low_power": false,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "low": {
+              "n": 7,
+              "wr": 85.7,
+              "total": 400.2,
+              "exp": 57.17,
+              "low_power": true,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "zero": {
+              "n": 8,
+              "wr": 37.5,
+              "total": -1143.6,
+              "exp": -142.95,
+              "low_power": false,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            }
+          },
+          "OOS_tiers": {
+            "high": {
+              "n": 4,
+              "wr": 100.0,
+              "total": 459.6,
+              "exp": 114.9,
+              "low_power": true,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "medium": {
+              "n": 34,
+              "wr": 58.8,
+              "total": -1730.4,
+              "exp": -50.89,
+              "low_power": false,
+              "edge_capture": 134.4,
+              "n_anchor_fills": 1
+            },
+            "low": {
+              "n": 8,
+              "wr": 37.5,
+              "total": -1374.0,
+              "exp": -171.75,
+              "low_power": false,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "zero": {
+              "n": 3,
+              "wr": 0.0,
+              "total": -933.0,
+              "exp": -311.0,
+              "low_power": true,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            }
+          },
+          "IS_rank_checks": {
+            "high_ge_medium": true,
+            "zero_le_medium": true
+          },
+          "OOS_rank_checks": {
+            "high_ge_medium": true,
+            "zero_le_medium": true
+          },
+          "sign_stability": {
+            "high_ge_medium": "STABLE",
+            "zero_le_medium": "STABLE"
+          }
+        },
+        "balanced_median_date": {
+          "boundary": "2025-12-02",
+          "IS_tiers": {
+            "high": {
+              "n": 19,
+              "wr": 78.9,
+              "total": 741.4,
+              "exp": 39.02,
+              "low_power": false,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "medium": {
+              "n": 37,
+              "wr": 59.5,
+              "total": -577.2,
+              "exp": -15.6,
+              "low_power": false,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "low": {
+              "n": 5,
+              "wr": 80.0,
+              "total": 259.8,
+              "exp": 51.96,
+              "low_power": true,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "zero": {
+              "n": 6,
+              "wr": 50.0,
+              "total": -663.6,
+              "exp": -110.6,
+              "low_power": true,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            }
+          },
+          "OOS_tiers": {
+            "high": {
+              "n": 5,
+              "wr": 100.0,
+              "total": 534.0,
+              "exp": 106.8,
+              "low_power": true,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "medium": {
+              "n": 48,
+              "wr": 62.5,
+              "total": -2069.4,
+              "exp": -43.11,
+              "low_power": false,
+              "edge_capture": 134.4,
+              "n_anchor_fills": 1
+            },
+            "low": {
+              "n": 10,
+              "wr": 50.0,
+              "total": -1233.6,
+              "exp": -123.36,
+              "low_power": false,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "zero": {
+              "n": 5,
+              "wr": 0.0,
+              "total": -1413.0,
+              "exp": -282.6,
+              "low_power": true,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            }
+          },
+          "IS_rank_checks": {
+            "high_ge_medium": true,
+            "zero_le_medium": true
+          },
+          "OOS_rank_checks": {
+            "high_ge_medium": true,
+            "zero_le_medium": true
+          },
+          "sign_stability": {
+            "high_ge_medium": "STABLE",
+            "zero_le_medium": "STABLE"
+          }
+        }
+      }
+    },
+    "ITM2": {
+      "root_cause": {
+        "high_gate_vs_rest": {
+          "high_gate": {
+            "n": 28,
+            "wr": 57.1,
+            "total": -2685.4,
+            "exp": -95.91,
+            "low_power": false,
+            "edge_capture": 0,
+            "n_anchor_fills": 0
+          },
+          "rest": {
+            "n": 95,
+            "wr": 56.8,
+            "total": -5068.2,
+            "exp": -53.35,
+            "low_power": false,
+            "edge_capture": 197.4,
+            "n_anchor_fills": 1
+          },
+          "exp_gap": -42.56
+        },
+        "a_body_alone": {
+          "full_sample": {
+            "rho": 0.1659,
+            "p": 0.0667,
+            "n": 123
+          },
+          "within_1030plus_only": {
+            "rho": 0.1834,
+            "p": 0.0802,
+            "n": 92
+          },
+          "note": "Body magnitude alone is ~uncorrelated with pnl; the bug is NOT 'big body = bad'."
+        },
+        "b_conjunction_vs_marginals": {
+          "body_ge_30_alone": {
+            "label": "body>=30c",
+            "n": 118,
+            "wr": 58.5,
+            "total": -6591.4,
+            "exp": -55.86,
+            "low_power": false
+          },
+          "vol_ge_2p5_alone": {
+            "label": "vol>=2.5x",
+            "n": 53,
+            "wr": 56.6,
+            "total": -4162.0,
+            "exp": -78.53,
+            "low_power": false
+          },
+          "high_gate_conjunction": {
+            "label": "body>=30 AND vol>=2.5 AND bear",
+            "n": 28,
+            "wr": 57.1,
+            "total": -2685.4,
+            "exp": -95.91,
+            "low_power": false
+          },
+          "note": "If the conjunction exp is materially worse than either marginal, the AND-gate (not any single leg) is what concentrates the losers."
+        },
+        "c_regime_clustering": {
+          "pct_high_in_1030plus": 85.7,
+          "high_within_1030plus": {
+            "n": 24,
+            "wr": 58.3,
+            "total": -2033.8,
+            "exp": -84.74,
+            "low_power": false
+          },
+          "high_outside_1030plus": {
+            "n": 4,
+            "wr": 50.0,
+            "total": -651.6,
+            "exp": -162.9,
+            "low_power": true
+          },
+          "rest_within_1030plus": {
+            "n": 68,
+            "wr": 54.4,
+            "total": -4543.2,
+            "exp": -66.81,
+            "low_power": false
+          },
+          "note": "If HIGH-late and rest-late have similar exp, the loss is the WINDOW, not the gate; the gate's damage is over-allocating size INTO that window."
+        },
+        "d_stop_distance_proxy": {
+          "bins": {
+            "<55c (tight)": {
+              "n": 5,
+              "wr": 20.0,
+              "total": -1162.2,
+              "exp": -232.44,
+              "low_power": true,
+              "stopout_proxy_pct": 60.0
+            },
+            "55-85c": {
+              "n": 24,
+              "wr": 50.0,
+              "total": -1641.2,
+              "exp": -68.38,
+              "low_power": false,
+              "stopout_proxy_pct": 45.8
+            },
+            "85-145c": {
+              "n": 50,
+              "wr": 56.0,
+              "total": -4187.2,
+              "exp": -83.74,
+              "low_power": false,
+              "stopout_proxy_pct": 42.0
+            },
+            "145c+ (wide)": {
+              "n": 44,
+              "wr": 65.9,
+              "total": -763.0,
+              "exp": -17.34,
+              "low_power": false,
+              "stopout_proxy_pct": 29.5
+            }
+          },
+          "note": "Chart stop is FIXED at level+0.25 regardless of body, so a bigger rejection body = entry farther below the level = WIDER stop distance (more premium at risk per contract). Monotone-worse exp across widening stop distance corroborates the R:R mechanism."
+        }
+      },
+      "old_tier_table": {
+        "high": {
+          "n": 28,
+          "wr": 57.1,
+          "total": -2685.4,
+          "exp": -95.91,
+          "low_power": false,
+          "edge_capture": 0,
+          "n_anchor_fills": 0
+        },
+        "medium": {
+          "n": 42,
+          "wr": 57.1,
+          "total": -2637.6,
+          "exp": -62.8,
+          "low_power": false,
+          "edge_capture": 0,
+          "n_anchor_fills": 0
+        },
+        "low": {
+          "n": 53,
+          "wr": 56.6,
+          "total": -2430.6,
+          "exp": -45.86,
+          "low_power": false,
+          "edge_capture": 197.4,
+          "n_anchor_fills": 1
+        }
+      },
+      "corrected_tier_table": {
+        "high": {
+          "n": 17,
+          "wr": 70.6,
+          "total": -11.8,
+          "exp": -0.69,
+          "low_power": false,
+          "edge_capture": 0,
+          "n_anchor_fills": 0
+        },
+        "medium": {
+          "n": 80,
+          "wr": 57.5,
+          "total": -4019.6,
+          "exp": -50.24,
+          "low_power": false,
+          "edge_capture": 197.4,
+          "n_anchor_fills": 1
+        },
+        "low": {
+          "n": 15,
+          "wr": 60.0,
+          "total": -942.4,
+          "exp": -62.83,
+          "low_power": false,
+          "edge_capture": 0,
+          "n_anchor_fills": 0
+        },
+        "zero": {
+          "n": 11,
+          "wr": 27.3,
+          "total": -2779.8,
+          "exp": -252.71,
+          "low_power": false,
+          "edge_capture": 0,
+          "n_anchor_fills": 0
+        }
+      },
+      "policy_backtest": {
+        "OLD_inverted": {
+          "n_traded": 123,
+          "total_sized_pnl": -7881.0,
+          "exp_per_trade": -64.07,
+          "total_units_deployed": 110.5,
+          "exp_per_unit_exposure": -71.32,
+          "kept_anchor_win_fill": true,
+          "psr": {
+            "n": 123,
+            "sharpe": -0.19,
+            "psr_gt0": 0.012,
+            "dsr": 0.0001,
+            "t": -2.098,
+            "p_one_sided_gt0": 0.981,
+            "low_power": false
+          }
+        },
+        "FLAT": {
+          "n_traded": 123,
+          "total_sized_pnl": -7753.6,
+          "exp_per_trade": -63.04,
+          "total_units_deployed": 123.0,
+          "exp_per_unit_exposure": -63.04,
+          "kept_anchor_win_fill": true,
+          "psr": {
+            "n": 123,
+            "sharpe": -0.1986,
+            "psr_gt0": 0.0117,
+            "dsr": 0.0001,
+            "t": -2.194,
+            "p_one_sided_gt0": 0.9849,
+            "low_power": false
+          }
+        },
+        "NEW_corrected": {
+          "n_traded": 112,
+          "total_sized_pnl": -4508.5,
+          "exp_per_trade": -40.25,
+          "total_units_deployed": 113.0,
+          "exp_per_unit_exposure": -39.9,
+          "kept_anchor_win_fill": true,
+          "psr": {
+            "n": 112,
+            "sharpe": -0.1226,
+            "psr_gt0": 0.0902,
+            "dsr": 0.0032,
+            "t": -1.292,
+            "p_one_sided_gt0": 0.9005,
+            "low_power": false
+          }
+        },
+        "NEW_no_sizeup_only": {
+          "n_traded": 112,
+          "total_sized_pnl": -4973.8,
+          "exp_per_trade": -44.41,
+          "total_units_deployed": 112.0,
+          "exp_per_unit_exposure": -44.41,
+          "kept_anchor_win_fill": true,
+          "psr": {
+            "n": 112,
+            "sharpe": -0.1408,
+            "psr_gt0": 0.063,
+            "dsr": 0.0018,
+            "t": -1.484,
+            "p_one_sided_gt0": 0.9296,
+            "low_power": false
+          }
+        },
+        "_legend": {
+          "OLD_inverted": "current detector: HIGH=1.5x MED=1.0x LOW=0.5x (sizes UP on HIGH)",
+          "FLAT": "all fills 1.0x \u2014 the do-no-harm baseline",
+          "NEW_corrected": "edge re-rank: vix-rising=1.5x flat=1.0x violent-late=0.5x vix-falling=0x",
+          "NEW_no_sizeup_only": "minimal safety fix \u2014 never size UP, only zero out the sign-stable VIX-falling loser; everything else flat 1.0x"
+        }
+      },
+      "oos_tier_stability": {
+        "calendar_2025_vs_2026": {
+          "boundary": "2026-01-01",
+          "IS_tiers": {
+            "high": {
+              "n": 13,
+              "wr": 61.5,
+              "total": -802.8,
+              "exp": -61.75,
+              "low_power": false,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "medium": {
+              "n": 47,
+              "wr": 59.6,
+              "total": -1335.4,
+              "exp": -28.41,
+              "low_power": false,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "low": {
+              "n": 7,
+              "wr": 85.7,
+              "total": 665.4,
+              "exp": 95.06,
+              "low_power": true,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "zero": {
+              "n": 8,
+              "wr": 37.5,
+              "total": -1483.8,
+              "exp": -185.47,
+              "low_power": false,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            }
+          },
+          "OOS_tiers": {
+            "high": {
+              "n": 4,
+              "wr": 100.0,
+              "total": 791.0,
+              "exp": 197.75,
+              "low_power": true,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "medium": {
+              "n": 33,
+              "wr": 54.5,
+              "total": -2684.2,
+              "exp": -81.34,
+              "low_power": false,
+              "edge_capture": 197.4,
+              "n_anchor_fills": 1
+            },
+            "low": {
+              "n": 8,
+              "wr": 37.5,
+              "total": -1607.8,
+              "exp": -200.97,
+              "low_power": false,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "zero": {
+              "n": 3,
+              "wr": 0.0,
+              "total": -1296.0,
+              "exp": -432.0,
+              "low_power": true,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            }
+          },
+          "IS_rank_checks": {
+            "high_ge_medium": false,
+            "zero_le_medium": true
+          },
+          "OOS_rank_checks": {
+            "high_ge_medium": true,
+            "zero_le_medium": true
+          },
+          "sign_stability": {
+            "high_ge_medium": "FLIP",
+            "zero_le_medium": "STABLE"
+          }
+        },
+        "balanced_median_date": {
+          "boundary": "2025-12-10",
+          "IS_tiers": {
+            "high": {
+              "n": 13,
+              "wr": 61.5,
+              "total": -802.8,
+              "exp": -61.75,
+              "low_power": false,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "medium": {
+              "n": 37,
+              "wr": 51.4,
+              "total": -2406.0,
+              "exp": -65.03,
+              "low_power": false,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "low": {
+              "n": 5,
+              "wr": 80.0,
+              "total": 376.8,
+              "exp": 75.36,
+              "low_power": true,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "zero": {
+              "n": 6,
+              "wr": 50.0,
+              "total": -862.8,
+              "exp": -143.8,
+              "low_power": true,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            }
+          },
+          "OOS_tiers": {
+            "high": {
+              "n": 4,
+              "wr": 100.0,
+              "total": 791.0,
+              "exp": 197.75,
+              "low_power": true,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "medium": {
+              "n": 43,
+              "wr": 62.8,
+              "total": -1613.6,
+              "exp": -37.53,
+              "low_power": false,
+              "edge_capture": 197.4,
+              "n_anchor_fills": 1
+            },
+            "low": {
+              "n": 10,
+              "wr": 50.0,
+              "total": -1319.2,
+              "exp": -131.92,
+              "low_power": false,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            },
+            "zero": {
+              "n": 5,
+              "wr": 0.0,
+              "total": -1917.0,
+              "exp": -383.4,
+              "low_power": true,
+              "edge_capture": 0,
+              "n_anchor_fills": 0
+            }
+          },
+          "IS_rank_checks": {
+            "high_ge_medium": true,
+            "zero_le_medium": true
+          },
+          "OOS_rank_checks": {
+            "high_ge_medium": true,
+            "zero_le_medium": true
+          },
+          "sign_stability": {
+            "high_ge_medium": "STABLE",
+            "zero_le_medium": "STABLE"
+          }
+        }
+      }
+    }
+  },
+  "proposed_mapping": {
+    "corrected_tier_definition": {
+      "high": "vix_character == rising  (the sign-stable real edge; size up OK)",
+      "medium": "vix flat AND not the violent-late cluster  (baseline 1.0x)",
+      "low": "vix flat AND old_HIGH_gate AND tod 10:30-10:55  (worst cluster; size down)",
+      "zero": "vix_character == falling  (sign-stable loser; skip / size to zero)"
+    },
+    "size_multipliers": {
+      "high": 1.5,
+      "medium": 1.0,
+      "low": 0.5,
+      "zero": 0.0
+    },
+    "minimum_safety_fix": "If only ONE change is taken: remove the HIGH=1.5x size-UP rule (set HIGH<=1.0x). The current detector over-allocates to body>=30 & vol>=2.5 & bear fires whose real-fills exp is the WORST tier (-$83 ATM)."
+  },
+  "verdicts": {
+    "inversion_confirmed": {
+      "verdict": "CONFIRMED \u2014 confidence tier is inverted vs realized P&L (a real bug)",
+      "basis": "ATM exp HIGH -$83.16 < MED -$26.64 < LOW -$14.62; ITM2 HIGH -$95.91 < MED -$62.80 < LOW -$45.86. The detector's top sizing tier is its worst real-fills tier on BOTH strike classes. Sizing UP on HIGH (1.5x) amplifies the worst losers (lesson C13 + C30)."
+    },
+    "root_cause": {
+      "verdict": "Body magnitude alone is NOT the driver; it is the GATE-CONJUNCTION over-allocating into the worst regime/structure.",
+      "basis": "(a) Spearman(body, pnl) ~ 0 (full-sample and within-window) \u2014 bigger rejection body is not itself predictive. (b) The body>=30 & vol>=2.5 & bear AND-gate concentrates the violent-exhaustion bars. (c) ~82% of HIGH fires land in the worst 10:30+ window. (d) bigger body = wider FIXED chart-stop distance (stop=level+0.25), so more premium at risk and a normal retrace stops it (lesson C3). The score conflates 'violent bar' with 'high conviction' \u2014 the opposite of realized edge."
+    },
+    "corrected_tier": {
+      "verdict": "PROPOSE \u2014 re-rank by VIX character (the one sign-stable driver); at MINIMUM stop sizing UP on HIGH.",
+      "basis": "VIX-rising is the only cut positive AND sign-stable across both OOS splits (ATM +$53). VIX-falling is negative AND sign-stable (-$189). The corrected tier sizes UP only on rising, zeroes falling, sizes DOWN the violent-late flat cluster. See policy_backtest for the net effect."
+    },
+    "ceiling_honesty": {
+      "verdict": "Re-rank does NOT make the broad setup positive on proxy levels \u2014 but fixing the inversion is a real safety win.",
+      "basis": "Baseline ATM book is real-fills NEGATIVE (-$32.8 exp, PSR 0.04). No tiering tested makes it cleanly, robustly positive (rising-only crosses zero but is not significant and drops the 4/29 anchor \u2014 OP-16 regression). The deliverable is therefore: (1) STOP sizing up on the worst trades, (2) a corrected tier that beats the inverted one, (3) a note that real \u2605\u2605\u2605/Carry-level validation is needed for the full picture \u2014 the levels here are historical PROXIES (OP-20 proxy-data wall)."
+    }
+  },
+  "op20_disclosures": {
+    "authority": "Real-fills (simulate_trade_real over OPRA bars) is the WR/expectancy authority (lessons C1/C3). This script re-uses the FROZEN per-fire real-fills P&L from C:\\Users\\jackw\\Desktop\\42\\analysis\\recommendations\\bearish-rejection-quality-map.json \u2014 no re-sim, fully reproducible.",
+    "levels": "level_tier_proxy in the source is a PROXY (multi_day ~ Carry/3star; round_number; active_only) \u2014 NOT the production star/Carry named set. The broad-setup negativity and the per-tier ranking are therefore proxy-level findings; the INVERSION itself (HIGH < LOW) is robust to that caveat because all tiers share the same proxy-level population.",
+    "realfills_window": "OPRA cache ends ~2026-05-29; real-fills span 2025-01-08..2026-05-19 (135 ATM / 123 ITM2 fills). Fires after the cache are no_fill.",
+    "small_n": "Per-tier n is small; the corrected HIGH tier (vix-rising) has n~24 ATM. Buckets n < 8 flagged low_power. OOS halves are thin \u2014 the OOS check is for SIGN stability, not magnitude precision.",
+    "as_of": "All condition tags computed as-of the entry bar \u2014 no look-ahead (lesson C6).",
+    "scope": "Detector-SCORING recalibration proposal for J / the conductor. NOT a production knob change (Rule 9). The live watcher is untouched."
+  }
+}
