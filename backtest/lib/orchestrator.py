@@ -35,6 +35,7 @@ from .levels import _detect_from_history, LevelSet
 from .simulator import simulate_trade, TradeFill
 from .simulator_real import simulate_trade_real
 from .risk_gate import check_order as _risk_check_order
+from .engine import score_bar as _engine_score_bar
 
 import os as _os
 
@@ -43,6 +44,15 @@ import os as _os
 # GAMMA_RISK_GATE_ASSERT=0 to skip the per-trade assertion on perf-sensitive
 # sweeps. Read once at import (cheap, no per-bar env lookups).
 _RISK_GATE_ASSERT = _os.environ.get("GAMMA_RISK_GATE_ASSERT", "1") != "0"
+
+# Engine-score assert-agree toggle (Phase 1, shared-decision-library migration —
+# docs/SHARED-DECISION-LIBRARY-MIGRATION.md). On by default so the scoring done
+# via the new engine.score interface is continuously proven byte-identical to the
+# orchestrator's direct filters.evaluate_* calls (the "assert-agree before
+# replace" discipline, same move as the risk gate above). Set
+# GAMMA_ENGINE_SCORE_ASSERT=0 to skip the per-bar assertion on perf-sensitive
+# sweeps. Read once at import (cheap, no per-bar env lookups).
+_ENGINE_SCORE_ASSERT = _os.environ.get("GAMMA_ENGINE_SCORE_ASSERT", "1") != "0"
 
 
 # Keys in params_overrides that control lib.filters module-level constants.
@@ -974,6 +984,82 @@ def run_backtest(
                 sweep_block_window_bars=sweep_block_window_bars,
                 sweep_clean_prior_bars=sweep_clean_prior_bars,
             )
+
+        # ── ENGINE-SCORE ASSERT-AGREE (Phase 1, 2026-06-18) ──
+        # The scoring layer is being relocated behind ONE shared interface,
+        # backtest/lib/engine.score_bar (the same surface the live heartbeat will
+        # call via a shell-out shim in Phase 3-4). Here we do NOT yet replace the
+        # evaluate_* calls above; we run engine.score_bar as an independent oracle
+        # on the SAME ctx + the SAME kwargs and assert it returns field-identical
+        # results, proving the extraction is faithful with zero behaviour change
+        # before any call site depends on it (mirrors the risk-gate assert-agree).
+        # Opt-out via GAMMA_ENGINE_SCORE_ASSERT=0 for perf-sensitive sweeps.
+        if _ENGINE_SCORE_ASSERT:
+            _eng = _engine_score_bar(
+                ctx,
+                enable_bullish=enable_bullish,
+                bear_kwargs=dict(
+                    disable_filters=disable_filters,
+                    min_triggers=bear_min_triggers,
+                    vix_soft_mode=vix_soft_mode,
+                    allow_one_blocker=allow_one_blocker,
+                    allow_one_blocker_min_spread_cents=allow_one_blocker_min_spread_cents,
+                    no_trade_before=no_trade_before,
+                    no_trade_window=no_trade_window,
+                    f9_vol_mult=f9_vol_mult,
+                    sweep_blocker_enabled=sweep_blocker_enabled,
+                    sweep_min_wick_pct=sweep_min_wick_pct,
+                    sweep_min_close_back_pct=sweep_min_close_back_pct,
+                    sweep_block_window_bars=sweep_block_window_bars,
+                    sweep_clean_prior_bars=sweep_clean_prior_bars,
+                    bearish_reversal_bypass=include_bearish_reversal_bypass,
+                    fhh_quality_proximity=fhh_quality_proximity,
+                    fhh_above_max_prior_min=fhh_above_max_prior_min,
+                ),
+                bull_kwargs=dict(
+                    disable_filters=disable_filters,
+                    min_triggers=bull_min_triggers,
+                    no_trade_before=no_trade_before,
+                    no_trade_window=no_trade_window,
+                    f10_vol_mult=f9_vol_mult,
+                    sweep_blocker_enabled=sweep_blocker_enabled,
+                    sweep_min_wick_pct=sweep_min_wick_pct,
+                    sweep_min_close_back_pct=sweep_min_close_back_pct,
+                    sweep_block_window_bars=sweep_block_window_bars,
+                    sweep_clean_prior_bars=sweep_clean_prior_bars,
+                ),
+            )
+            assert (
+                _eng.bear.passed == result.passed
+                and _eng.bear.bear_score == result.bear_score
+                and _eng.bear.blockers == result.blockers
+                and _eng.bear.triggers_fired == result.triggers_fired
+                and _eng.bear.rejection_level == result.rejection_level
+            ), (
+                "engine.score_bar disagrees with orchestrator bear scoring at "
+                f"bar {idx} {bar_time}: engine(passed={_eng.bear.passed}, "
+                f"score={_eng.bear.bear_score}, blockers={_eng.bear.blockers}) vs "
+                f"orchestrator(passed={result.passed}, score={result.bear_score}, "
+                f"blockers={result.blockers})"
+            )
+            if bull_result is None:
+                assert _eng.bull is None, (
+                    f"engine.score_bar returned a bull result at bar {idx} "
+                    f"{bar_time} but the orchestrator did not (enable_bullish "
+                    f"mismatch)"
+                )
+            else:
+                assert (
+                    _eng.bull is not None
+                    and _eng.bull.passed == bull_result.passed
+                    and _eng.bull.bull_score == bull_result.bull_score
+                    and _eng.bull.blockers == bull_result.blockers
+                    and _eng.bull.triggers_fired == bull_result.triggers_fired
+                    and _eng.bull.reclaim_level == bull_result.reclaim_level
+                ), (
+                    "engine.score_bar disagrees with orchestrator bull scoring at "
+                    f"bar {idx} {bar_time}"
+                )
 
         # Always log the decision
         decisions.append({
