@@ -1,0 +1,1280 @@
+{
+  "generated_at": "2026-06-19T15:08:01.672176+00:00",
+  "script": "backtest/autoresearch/infinite_ammo_discovery.py",
+  "purpose": "First-principles intraday SPY edge DISCOVERY (infinite-ammo), NOT gated on J anchors. Standalone real-fills (OPRA) validation of 5 microstructure hypotheses. Propose-only (Rule 9); survivors are WATCH-ONLY candidates for the regime-aware book.",
+  "method": {
+    "fills": "lib.simulator_real.simulate_trade_real (real OPRA bars, causal next-bar-open entry, chart/level + premium stops, v15 exit stack)",
+    "strike_tiers": {
+      "ATM": 0,
+      "ITM1": -1
+    },
+    "strike_resolution": "nearest cached strike to target offset (proxy disclosed via strike_off); max_strike_steps=4",
+    "qty": 3,
+    "oos_split": "chronological 70%/30% by day; cut=2026-01-09",
+    "dsr": "lib.validation.gate.evaluate_candidate on % return stream; n_trials=30 (selection-bias correction)",
+    "candidate_gate": "exp_pct>0 AND exp_dollar>0 AND oos_sign_stable AND DSR!=FAIL"
+  },
+  "disclosure_OP20": {
+    "real_fills": true,
+    "opra_window": "options cached through ~2026-05-29; signals after that have no fills and are dropped (counted in coverage.cache_miss).",
+    "proxy_strikes": "ATM not always cached; nearest-cached strike used and the true offset reported per trade (strike_off). ITM/OTM proxy shifts P&L modestly (L58) \u2014 directionally valid.",
+    "no_look_ahead": "all detector features computed at-or-before the trigger bar close; entry is the NEXT bar open (sim-enforced).",
+    "caveat": "standalone single-setup eval on proxy levels \u2014 candidates worth a real-level re-test, NOT ready-to-trade setups."
+  },
+  "data": {
+    "spy": "spy_5m_2025-01-01_2026-06-16.csv",
+    "vix": "vix_5m_2025-01-01_2026-06-16.csv",
+    "days": 363,
+    "date_range": [
+      "2025-01-02",
+      "2026-06-16"
+    ]
+  },
+  "hypotheses": {
+    "H1_intraday_momentum": {
+      "title": "Intraday momentum standalone afternoon entry (Gao-Han-Li-Zhou)",
+      "regime_fit": "bull_trend / bear_trend",
+      "signal_count": 183,
+      "side_counts": {
+        "P": 85,
+        "C": 98
+      },
+      "tiers": {
+        "ATM": {
+          "coverage": {
+            "signals": 183,
+            "filled": 173,
+            "cache_miss": 10,
+            "sim_none": 0,
+            "fill_rate": 0.945
+          },
+          "metrics": {
+            "n": 173,
+            "wins": 30,
+            "win_rate_pct": 17.3,
+            "exp_pct_return": 0.06365,
+            "exp_dollar_per_trade": -7.05,
+            "total_dollar_pnl": -1220.2,
+            "drop_top1_mean_dollar": -9.72,
+            "drop_top3_mean_dollar": -13.5,
+            "drop_top5_mean_dollar": -16.17,
+            "top5_winner_share_of_gross_wins": 0.473,
+            "robust_to_outliers": false,
+            "by_side": {
+              "C": {
+                "n": 95,
+                "exp_dollar": -8.03,
+                "win_rate_pct": 18.9,
+                "total_dollar": -763.32
+              },
+              "P": {
+                "n": 78,
+                "exp_dollar": -5.86,
+                "win_rate_pct": 15.4,
+                "total_dollar": -456.88
+              }
+            },
+            "both_dirs_positive": false,
+            "is_n": 122,
+            "oos_n": 51,
+            "is_exp_pct": 0.08062,
+            "oos_exp_pct": 0.02306,
+            "is_exp_dollar": -9.56,
+            "oos_exp_dollar": -1.06,
+            "oos_sign_stable": true,
+            "quarters": {
+              "2025Q1": {
+                "n": 30,
+                "exp_dollar": -3.59,
+                "total": -107.8
+              },
+              "2025Q2": {
+                "n": 34,
+                "exp_dollar": -10.47,
+                "total": -355.92
+              },
+              "2025Q3": {
+                "n": 21,
+                "exp_dollar": -16.5,
+                "total": -346.44
+              },
+              "2025Q4": {
+                "n": 35,
+                "exp_dollar": -11.99,
+                "total": -419.52
+              },
+              "2026Q1": {
+                "n": 34,
+                "exp_dollar": -3.1,
+                "total": -105.44
+              },
+              "2026Q2": {
+                "n": 19,
+                "exp_dollar": 6.05,
+                "total": 114.92
+              }
+            },
+            "q_positive_frac": 0.17,
+            "dsr": {
+              "verdict": "PASS",
+              "dsr": 0.44208863648029806,
+              "psr": 0.9730547969766148,
+              "pbo": null,
+              "n_obs": 173,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=0.9731 on n=173 obs (Sharpe=0.090, skew=9.23, kurt=99.48).",
+                "DSR deflated for n_trials=30 (SR_0=0.096) = 0.4421.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+              ]
+            },
+            "dsr_verdict": "PASS",
+            "SURVIVOR": false
+          }
+        },
+        "ITM1": {
+          "coverage": {
+            "signals": 183,
+            "filled": 172,
+            "cache_miss": 11,
+            "sim_none": 0,
+            "fill_rate": 0.94
+          },
+          "metrics": {
+            "n": 172,
+            "wins": 31,
+            "win_rate_pct": 18.0,
+            "exp_pct_return": 0.05348,
+            "exp_dollar_per_trade": -6.35,
+            "total_dollar_pnl": -1091.44,
+            "drop_top1_mean_dollar": -9.57,
+            "drop_top3_mean_dollar": -14.5,
+            "drop_top5_mean_dollar": -19.11,
+            "top5_winner_share_of_gross_wins": 0.409,
+            "robust_to_outliers": false,
+            "by_side": {
+              "C": {
+                "n": 94,
+                "exp_dollar": -7.78,
+                "win_rate_pct": 18.1,
+                "total_dollar": -731.32
+              },
+              "P": {
+                "n": 78,
+                "exp_dollar": -4.62,
+                "win_rate_pct": 17.9,
+                "total_dollar": -360.12
+              }
+            },
+            "both_dirs_positive": false,
+            "is_n": 121,
+            "oos_n": 51,
+            "is_exp_pct": 0.05814,
+            "oos_exp_pct": 0.04243,
+            "is_exp_dollar": -10.88,
+            "oos_exp_dollar": 4.42,
+            "oos_sign_stable": true,
+            "quarters": {
+              "2025Q1": {
+                "n": 30,
+                "exp_dollar": 7.98,
+                "total": 239.44
+              },
+              "2025Q2": {
+                "n": 33,
+                "exp_dollar": -20.6,
+                "total": -679.8
+              },
+              "2025Q3": {
+                "n": 21,
+                "exp_dollar": -28.93,
+                "total": -607.44
+              },
+              "2025Q4": {
+                "n": 35,
+                "exp_dollar": -11.5,
+                "total": -402.44
+              },
+              "2026Q1": {
+                "n": 34,
+                "exp_dollar": 8.23,
+                "total": 279.68
+              },
+              "2026Q2": {
+                "n": 19,
+                "exp_dollar": 4.16,
+                "total": 79.12
+              }
+            },
+            "q_positive_frac": 0.5,
+            "dsr": {
+              "verdict": "PASS",
+              "dsr": 0.47710652483838717,
+              "psr": 0.9780987229384194,
+              "pbo": null,
+              "n_obs": 172,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=0.9781 on n=172 obs (Sharpe=0.095, skew=8.80, kurt=94.97).",
+                "DSR deflated for n_trials=30 (SR_0=0.097) = 0.4771.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+              ]
+            },
+            "dsr_verdict": "PASS",
+            "SURVIVOR": false
+          }
+        }
+      }
+    },
+    "H2a_gap_fade": {
+      "title": "Opening-gap fade toward prior close",
+      "regime_fit": "range_pin / neutral",
+      "signal_count": 192,
+      "side_counts": {
+        "P": 110,
+        "C": 82
+      },
+      "tiers": {
+        "ATM": {
+          "coverage": {
+            "signals": 192,
+            "filled": 172,
+            "cache_miss": 20,
+            "sim_none": 0,
+            "fill_rate": 0.896
+          },
+          "metrics": {
+            "n": 172,
+            "wins": 48,
+            "win_rate_pct": 27.9,
+            "exp_pct_return": 0.03599,
+            "exp_dollar_per_trade": 4.24,
+            "total_dollar_pnl": 729.0,
+            "drop_top1_mean_dollar": 1.87,
+            "drop_top3_mean_dollar": -2.8,
+            "drop_top5_mean_dollar": -6.89,
+            "top5_winner_share_of_gross_wins": 0.275,
+            "robust_to_outliers": false,
+            "by_side": {
+              "C": {
+                "n": 73,
+                "exp_dollar": 19.31,
+                "win_rate_pct": 32.9,
+                "total_dollar": 1409.76
+              },
+              "P": {
+                "n": 99,
+                "exp_dollar": -6.88,
+                "win_rate_pct": 24.2,
+                "total_dollar": -680.76
+              }
+            },
+            "both_dirs_positive": false,
+            "is_n": 124,
+            "oos_n": 48,
+            "is_exp_pct": 0.0327,
+            "oos_exp_pct": 0.04448,
+            "is_exp_dollar": 4.12,
+            "oos_exp_dollar": 4.55,
+            "oos_sign_stable": true,
+            "quarters": {
+              "2025Q1": {
+                "n": 32,
+                "exp_dollar": 6.57,
+                "total": 210.08
+              },
+              "2025Q2": {
+                "n": 30,
+                "exp_dollar": -11.55,
+                "total": -346.64
+              },
+              "2025Q3": {
+                "n": 27,
+                "exp_dollar": -7.05,
+                "total": -190.32
+              },
+              "2025Q4": {
+                "n": 33,
+                "exp_dollar": 24.64,
+                "total": 813.24
+              },
+              "2026Q1": {
+                "n": 33,
+                "exp_dollar": 22.83,
+                "total": 753.24
+              },
+              "2026Q2": {
+                "n": 17,
+                "exp_dollar": -30.04,
+                "total": -510.6
+              }
+            },
+            "q_positive_frac": 0.5,
+            "dsr": {
+              "verdict": "PASS",
+              "dsr": 0.6877215610294929,
+              "psr": 0.9948083279552665,
+              "pbo": null,
+              "n_obs": 172,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=0.9948 on n=172 obs (Sharpe=0.161, skew=2.30, kurt=8.30).",
+                "DSR deflated for n_trials=30 (SR_0=0.130) = 0.6877.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+              ]
+            },
+            "dsr_verdict": "PASS",
+            "SURVIVOR": false
+          }
+        },
+        "ITM1": {
+          "coverage": {
+            "signals": 192,
+            "filled": 171,
+            "cache_miss": 21,
+            "sim_none": 0,
+            "fill_rate": 0.891
+          },
+          "metrics": {
+            "n": 171,
+            "wins": 54,
+            "win_rate_pct": 31.6,
+            "exp_pct_return": 0.04003,
+            "exp_dollar_per_trade": 10.34,
+            "total_dollar_pnl": 1767.48,
+            "drop_top1_mean_dollar": 7.7,
+            "drop_top3_mean_dollar": 2.72,
+            "drop_top5_mean_dollar": -1.8,
+            "top5_winner_share_of_gross_wins": 0.236,
+            "robust_to_outliers": false,
+            "by_side": {
+              "C": {
+                "n": 71,
+                "exp_dollar": 24.68,
+                "win_rate_pct": 36.6,
+                "total_dollar": 1752.36
+              },
+              "P": {
+                "n": 100,
+                "exp_dollar": 0.15,
+                "win_rate_pct": 28.0,
+                "total_dollar": 15.12
+              }
+            },
+            "both_dirs_positive": true,
+            "is_n": 123,
+            "oos_n": 48,
+            "is_exp_pct": 0.03724,
+            "oos_exp_pct": 0.04717,
+            "is_exp_dollar": 11.69,
+            "oos_exp_dollar": 6.87,
+            "oos_sign_stable": true,
+            "quarters": {
+              "2025Q1": {
+                "n": 31,
+                "exp_dollar": 24.3,
+                "total": 753.16
+              },
+              "2025Q2": {
+                "n": 30,
+                "exp_dollar": -12.05,
+                "total": -361.48
+              },
+              "2025Q3": {
+                "n": 27,
+                "exp_dollar": -13.44,
+                "total": -363.0
+              },
+              "2025Q4": {
+                "n": 33,
+                "exp_dollar": 41.45,
+                "total": 1367.88
+              },
+              "2026Q1": {
+                "n": 34,
+                "exp_dollar": 22.56,
+                "total": 767.04
+              },
+              "2026Q2": {
+                "n": 16,
+                "exp_dollar": -24.76,
+                "total": -396.12
+              }
+            },
+            "q_positive_frac": 0.5,
+            "dsr": {
+              "verdict": "PASS",
+              "dsr": 0.8244561135993866,
+              "psr": 0.9986759053788266,
+              "pbo": null,
+              "n_obs": 171,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=0.9987 on n=171 obs (Sharpe=0.187, skew=2.17, kurt=7.82).",
+                "DSR deflated for n_trials=30 (SR_0=0.129) = 0.8245.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+              ]
+            },
+            "dsr_verdict": "PASS",
+            "SURVIVOR": false
+          }
+        }
+      }
+    },
+    "H2b_gap_and_go": {
+      "title": "Opening-gap continuation after confirming first bar",
+      "regime_fit": "bull_trend / bear_trend",
+      "signal_count": 96,
+      "side_counts": {
+        "P": 35,
+        "C": 61
+      },
+      "tiers": {
+        "ATM": {
+          "coverage": {
+            "signals": 96,
+            "filled": 84,
+            "cache_miss": 12,
+            "sim_none": 0,
+            "fill_rate": 0.875
+          },
+          "metrics": {
+            "n": 84,
+            "wins": 36,
+            "win_rate_pct": 42.9,
+            "exp_pct_return": 0.07797,
+            "exp_dollar_per_trade": 35.24,
+            "total_dollar_pnl": 2960.08,
+            "drop_top1_mean_dollar": 28.94,
+            "drop_top3_mean_dollar": 18.87,
+            "drop_top5_mean_dollar": 13.47,
+            "top5_winner_share_of_gross_wins": 0.365,
+            "robust_to_outliers": true,
+            "by_side": {
+              "C": {
+                "n": 55,
+                "exp_dollar": 26.52,
+                "win_rate_pct": 38.2,
+                "total_dollar": 1458.68
+              },
+              "P": {
+                "n": 29,
+                "exp_dollar": 51.77,
+                "win_rate_pct": 51.7,
+                "total_dollar": 1501.4
+              }
+            },
+            "both_dirs_positive": true,
+            "is_n": 59,
+            "oos_n": 25,
+            "is_exp_pct": 0.08042,
+            "oos_exp_pct": 0.07219,
+            "is_exp_dollar": 39.25,
+            "oos_exp_dollar": 25.76,
+            "oos_sign_stable": true,
+            "quarters": {
+              "2025Q1": {
+                "n": 14,
+                "exp_dollar": 57.13,
+                "total": 799.84
+              },
+              "2025Q2": {
+                "n": 10,
+                "exp_dollar": 58.85,
+                "total": 588.52
+              },
+              "2025Q3": {
+                "n": 18,
+                "exp_dollar": 21.04,
+                "total": 378.64
+              },
+              "2025Q4": {
+                "n": 16,
+                "exp_dollar": 30.56,
+                "total": 489.0
+              },
+              "2026Q1": {
+                "n": 15,
+                "exp_dollar": 67.79,
+                "total": 1016.92
+              },
+              "2026Q2": {
+                "n": 11,
+                "exp_dollar": -28.44,
+                "total": -312.84
+              }
+            },
+            "q_positive_frac": 0.83,
+            "dsr": {
+              "verdict": "PASS",
+              "dsr": 0.9885303624940915,
+              "psr": 0.9999931256577169,
+              "pbo": null,
+              "n_obs": 84,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=1.0000 on n=84 obs (Sharpe=0.305, skew=3.15, kurt=16.86).",
+                "DSR deflated for n_trials=30 (SR_0=0.145) = 0.9885.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+              ]
+            },
+            "dsr_verdict": "PASS",
+            "SURVIVOR": true
+          }
+        },
+        "ITM1": {
+          "coverage": {
+            "signals": 96,
+            "filled": 85,
+            "cache_miss": 11,
+            "sim_none": 0,
+            "fill_rate": 0.885
+          },
+          "metrics": {
+            "n": 85,
+            "wins": 35,
+            "win_rate_pct": 41.2,
+            "exp_pct_return": 0.08148,
+            "exp_dollar_per_trade": 39.65,
+            "total_dollar_pnl": 3370.4,
+            "drop_top1_mean_dollar": 33.48,
+            "drop_top3_mean_dollar": 22.58,
+            "drop_top5_mean_dollar": 15.35,
+            "top5_winner_share_of_gross_wins": 0.335,
+            "robust_to_outliers": true,
+            "by_side": {
+              "C": {
+                "n": 55,
+                "exp_dollar": 35.93,
+                "win_rate_pct": 38.2,
+                "total_dollar": 1975.88
+              },
+              "P": {
+                "n": 30,
+                "exp_dollar": 46.48,
+                "win_rate_pct": 46.7,
+                "total_dollar": 1394.52
+              }
+            },
+            "both_dirs_positive": true,
+            "is_n": 60,
+            "oos_n": 25,
+            "is_exp_pct": 0.086,
+            "oos_exp_pct": 0.07063,
+            "is_exp_dollar": 45.82,
+            "oos_exp_dollar": 24.86,
+            "oos_sign_stable": true,
+            "quarters": {
+              "2025Q1": {
+                "n": 14,
+                "exp_dollar": 74.3,
+                "total": 1040.16
+              },
+              "2025Q2": {
+                "n": 10,
+                "exp_dollar": 60.78,
+                "total": 607.84
+              },
+              "2025Q3": {
+                "n": 18,
+                "exp_dollar": 37.63,
+                "total": 677.36
+              },
+              "2025Q4": {
+                "n": 17,
+                "exp_dollar": 19.41,
+                "total": 330.0
+              },
+              "2026Q1": {
+                "n": 15,
+                "exp_dollar": 76.08,
+                "total": 1141.16
+              },
+              "2026Q2": {
+                "n": 11,
+                "exp_dollar": -38.74,
+                "total": -426.12
+              }
+            },
+            "q_positive_frac": 0.83,
+            "dsr": {
+              "verdict": "PASS",
+              "dsr": 0.986996696606222,
+              "psr": 0.9999914410149914,
+              "pbo": null,
+              "n_obs": 85,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=1.0000 on n=85 obs (Sharpe=0.308, skew=2.90, kurt=14.65).",
+                "DSR deflated for n_trials=30 (SR_0=0.149) = 0.9870.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+              ]
+            },
+            "dsr_verdict": "PASS",
+            "SURVIVOR": true
+          }
+        }
+      }
+    },
+    "H3_orb_rvol": {
+      "title": "Opening-range breakout on elevated RVOL (Zarattini)",
+      "regime_fit": "high_vol / bull_trend / bear_trend",
+      "signal_count": 123,
+      "side_counts": {
+        "P": 58,
+        "C": 65
+      },
+      "tiers": {
+        "ATM": {
+          "coverage": {
+            "signals": 123,
+            "filled": 106,
+            "cache_miss": 17,
+            "sim_none": 0,
+            "fill_rate": 0.862
+          },
+          "metrics": {
+            "n": 106,
+            "wins": 22,
+            "win_rate_pct": 20.8,
+            "exp_pct_return": 0.02386,
+            "exp_dollar_per_trade": -1.65,
+            "total_dollar_pnl": -174.6,
+            "drop_top1_mean_dollar": -5.9,
+            "drop_top3_mean_dollar": -12.84,
+            "drop_top5_mean_dollar": -17.85,
+            "top5_winner_share_of_gross_wins": 0.526,
+            "robust_to_outliers": false,
+            "by_side": {
+              "C": {
+                "n": 56,
+                "exp_dollar": 4.66,
+                "win_rate_pct": 25.0,
+                "total_dollar": 261.2
+              },
+              "P": {
+                "n": 50,
+                "exp_dollar": -8.72,
+                "win_rate_pct": 16.0,
+                "total_dollar": -435.8
+              }
+            },
+            "both_dirs_positive": false,
+            "is_n": 74,
+            "oos_n": 32,
+            "is_exp_pct": 0.00821,
+            "oos_exp_pct": 0.06005,
+            "is_exp_dollar": -6.58,
+            "oos_exp_dollar": 9.77,
+            "oos_sign_stable": true,
+            "quarters": {
+              "2025Q1": {
+                "n": 20,
+                "exp_dollar": 4.58,
+                "total": 91.56
+              },
+              "2025Q2": {
+                "n": 18,
+                "exp_dollar": -27.1,
+                "total": -487.72
+              },
+              "2025Q3": {
+                "n": 22,
+                "exp_dollar": 4.99,
+                "total": 109.8
+              },
+              "2025Q4": {
+                "n": 11,
+                "exp_dollar": -23.61,
+                "total": -259.68
+              },
+              "2026Q1": {
+                "n": 30,
+                "exp_dollar": 18.8,
+                "total": 563.92
+              },
+              "2026Q2": {
+                "n": 5,
+                "exp_dollar": -38.5,
+                "total": -192.48
+              }
+            },
+            "q_positive_frac": 0.5,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.16195259372971993,
+              "psr": 0.8614656241757848,
+              "pbo": null,
+              "n_obs": 106,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=0.8615 on n=106 obs (Sharpe=0.091, skew=3.09, kurt=12.51).",
+                "DSR deflated for n_trials=30 (SR_0=0.174) = 0.1620.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict WEAK: positive but below the PASS confidence bar (need PSR>=0.95)."
+              ]
+            },
+            "dsr_verdict": "WEAK",
+            "SURVIVOR": false
+          }
+        },
+        "ITM1": {
+          "coverage": {
+            "signals": 123,
+            "filled": 107,
+            "cache_miss": 16,
+            "sim_none": 0,
+            "fill_rate": 0.87
+          },
+          "metrics": {
+            "n": 107,
+            "wins": 25,
+            "win_rate_pct": 23.4,
+            "exp_pct_return": 0.02974,
+            "exp_dollar_per_trade": -0.45,
+            "total_dollar_pnl": -47.68,
+            "drop_top1_mean_dollar": -4.65,
+            "drop_top3_mean_dollar": -12.1,
+            "drop_top5_mean_dollar": -17.96,
+            "top5_winner_share_of_gross_wins": 0.436,
+            "robust_to_outliers": false,
+            "by_side": {
+              "C": {
+                "n": 56,
+                "exp_dollar": 8.2,
+                "win_rate_pct": 26.8,
+                "total_dollar": 459.28
+              },
+              "P": {
+                "n": 51,
+                "exp_dollar": -9.94,
+                "win_rate_pct": 19.6,
+                "total_dollar": -506.96
+              }
+            },
+            "both_dirs_positive": false,
+            "is_n": 75,
+            "oos_n": 32,
+            "is_exp_pct": 0.01484,
+            "oos_exp_pct": 0.06467,
+            "is_exp_dollar": -4.17,
+            "oos_exp_dollar": 8.27,
+            "oos_sign_stable": true,
+            "quarters": {
+              "2025Q1": {
+                "n": 21,
+                "exp_dollar": 12.25,
+                "total": 257.28
+              },
+              "2025Q2": {
+                "n": 18,
+                "exp_dollar": -24.35,
+                "total": -438.36
+              },
+              "2025Q3": {
+                "n": 22,
+                "exp_dollar": 3.51,
+                "total": 77.16
+              },
+              "2025Q4": {
+                "n": 11,
+                "exp_dollar": -27.49,
+                "total": -302.4
+              },
+              "2026Q1": {
+                "n": 30,
+                "exp_dollar": 20.63,
+                "total": 618.8
+              },
+              "2026Q2": {
+                "n": 5,
+                "exp_dollar": -52.03,
+                "total": -260.16
+              }
+            },
+            "q_positive_frac": 0.5,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.257011021395055,
+              "psr": 0.9223131978381683,
+              "pbo": null,
+              "n_obs": 107,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=0.9223 on n=107 obs (Sharpe=0.116, skew=2.86, kurt=10.93).",
+                "DSR deflated for n_trials=30 (SR_0=0.169) = 0.2570.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict WEAK: positive but below the PASS confidence bar (need PSR>=0.95)."
+              ]
+            },
+            "dsr_verdict": "WEAK",
+            "SURVIVOR": false
+          }
+        }
+      }
+    },
+    "H4_vwap_pullback": {
+      "title": "VWAP trend-day pullback in trend direction",
+      "regime_fit": "bull_trend / bear_trend",
+      "signal_count": 98,
+      "side_counts": {
+        "P": 41,
+        "C": 57
+      },
+      "tiers": {
+        "ATM": {
+          "coverage": {
+            "signals": 98,
+            "filled": 92,
+            "cache_miss": 6,
+            "sim_none": 0,
+            "fill_rate": 0.939
+          },
+          "metrics": {
+            "n": 92,
+            "wins": 39,
+            "win_rate_pct": 42.4,
+            "exp_pct_return": 0.23664,
+            "exp_dollar_per_trade": 45.88,
+            "total_dollar_pnl": 4221.36,
+            "drop_top1_mean_dollar": 41.08,
+            "drop_top3_mean_dollar": 32.17,
+            "drop_top5_mean_dollar": 25.43,
+            "top5_winner_share_of_gross_wins": 0.329,
+            "robust_to_outliers": true,
+            "by_side": {
+              "C": {
+                "n": 54,
+                "exp_dollar": 51.79,
+                "win_rate_pct": 46.3,
+                "total_dollar": 2796.72
+              },
+              "P": {
+                "n": 38,
+                "exp_dollar": 37.49,
+                "win_rate_pct": 36.8,
+                "total_dollar": 1424.64
+              }
+            },
+            "both_dirs_positive": true,
+            "is_n": 60,
+            "oos_n": 32,
+            "is_exp_pct": 0.20919,
+            "oos_exp_pct": 0.28813,
+            "is_exp_dollar": 33.44,
+            "oos_exp_dollar": 69.22,
+            "oos_sign_stable": true,
+            "quarters": {
+              "2025Q1": {
+                "n": 11,
+                "exp_dollar": 118.5,
+                "total": 1303.52
+              },
+              "2025Q2": {
+                "n": 14,
+                "exp_dollar": -0.26,
+                "total": -3.64
+              },
+              "2025Q3": {
+                "n": 17,
+                "exp_dollar": -12.06,
+                "total": -204.96
+              },
+              "2025Q4": {
+                "n": 18,
+                "exp_dollar": 50.64,
+                "total": 911.44
+              },
+              "2026Q1": {
+                "n": 18,
+                "exp_dollar": 66.62,
+                "total": 1199.24
+              },
+              "2026Q2": {
+                "n": 14,
+                "exp_dollar": 72.55,
+                "total": 1015.76
+              }
+            },
+            "q_positive_frac": 0.67,
+            "dsr": {
+              "verdict": "PASS",
+              "dsr": 0.9999869261508768,
+              "psr": 0.9999999998285778,
+              "pbo": null,
+              "n_obs": 92,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=1.0000 on n=92 obs (Sharpe=0.262, skew=7.13, kurt=60.82).",
+                "DSR deflated for n_trials=30 (SR_0=0.086) = 1.0000.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+              ]
+            },
+            "dsr_verdict": "PASS",
+            "SURVIVOR": true
+          }
+        },
+        "ITM1": {
+          "coverage": {
+            "signals": 98,
+            "filled": 92,
+            "cache_miss": 6,
+            "sim_none": 0,
+            "fill_rate": 0.939
+          },
+          "metrics": {
+            "n": 92,
+            "wins": 40,
+            "win_rate_pct": 43.5,
+            "exp_pct_return": 0.24829,
+            "exp_dollar_per_trade": 63.31,
+            "total_dollar_pnl": 5824.32,
+            "drop_top1_mean_dollar": 57.84,
+            "drop_top3_mean_dollar": 49.06,
+            "drop_top5_mean_dollar": 40.7,
+            "top5_winner_share_of_gross_wins": 0.274,
+            "robust_to_outliers": true,
+            "by_side": {
+              "C": {
+                "n": 54,
+                "exp_dollar": 76.0,
+                "win_rate_pct": 46.3,
+                "total_dollar": 4103.8
+              },
+              "P": {
+                "n": 38,
+                "exp_dollar": 45.28,
+                "win_rate_pct": 39.5,
+                "total_dollar": 1720.52
+              }
+            },
+            "both_dirs_positive": true,
+            "is_n": 60,
+            "oos_n": 32,
+            "is_exp_pct": 0.22114,
+            "oos_exp_pct": 0.29921,
+            "is_exp_dollar": 42.31,
+            "oos_exp_dollar": 102.67,
+            "oos_sign_stable": true,
+            "quarters": {
+              "2025Q1": {
+                "n": 11,
+                "exp_dollar": 140.11,
+                "total": 1541.16
+              },
+              "2025Q2": {
+                "n": 14,
+                "exp_dollar": -4.07,
+                "total": -57.04
+              },
+              "2025Q3": {
+                "n": 17,
+                "exp_dollar": -23.23,
+                "total": -394.92
+              },
+              "2025Q4": {
+                "n": 18,
+                "exp_dollar": 80.53,
+                "total": 1449.6
+              },
+              "2026Q1": {
+                "n": 18,
+                "exp_dollar": 110.51,
+                "total": 1989.12
+              },
+              "2026Q2": {
+                "n": 14,
+                "exp_dollar": 92.6,
+                "total": 1296.4
+              }
+            },
+            "q_positive_frac": 0.67,
+            "dsr": {
+              "verdict": "PASS",
+              "dsr": 0.999988370190921,
+              "psr": 0.9999999998553895,
+              "pbo": null,
+              "n_obs": 92,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=1.0000 on n=92 obs (Sharpe=0.276, skew=7.20, kurt=61.98).",
+                "DSR deflated for n_trials=30 (SR_0=0.091) = 1.0000.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+              ]
+            },
+            "dsr_verdict": "PASS",
+            "SURVIVOR": true
+          }
+        }
+      }
+    },
+    "H5_power_hour": {
+      "title": "Power-hour continuation (ribbon-corroborated)",
+      "regime_fit": "bull_trend / bear_trend",
+      "signal_count": 190,
+      "side_counts": {
+        "P": 76,
+        "C": 114
+      },
+      "tiers": {
+        "ATM": {
+          "coverage": {
+            "signals": 190,
+            "filled": 182,
+            "cache_miss": 8,
+            "sim_none": 0,
+            "fill_rate": 0.958
+          },
+          "metrics": {
+            "n": 182,
+            "wins": 46,
+            "win_rate_pct": 25.3,
+            "exp_pct_return": 0.01674,
+            "exp_dollar_per_trade": 1.63,
+            "total_dollar_pnl": 296.04,
+            "drop_top1_mean_dollar": -0.55,
+            "drop_top3_mean_dollar": -3.61,
+            "drop_top5_mean_dollar": -5.09,
+            "top5_winner_share_of_gross_wins": 0.404,
+            "robust_to_outliers": false,
+            "by_side": {
+              "C": {
+                "n": 110,
+                "exp_dollar": 2.22,
+                "win_rate_pct": 30.0,
+                "total_dollar": 244.0
+              },
+              "P": {
+                "n": 72,
+                "exp_dollar": 0.72,
+                "win_rate_pct": 18.1,
+                "total_dollar": 52.04
+              }
+            },
+            "both_dirs_positive": true,
+            "is_n": 134,
+            "oos_n": 48,
+            "is_exp_pct": -0.01273,
+            "oos_exp_pct": 0.09899,
+            "is_exp_dollar": -0.39,
+            "oos_exp_dollar": 7.26,
+            "oos_sign_stable": false,
+            "quarters": {
+              "2025Q1": {
+                "n": 38,
+                "exp_dollar": 2.59,
+                "total": 98.44
+              },
+              "2025Q2": {
+                "n": 36,
+                "exp_dollar": 2.91,
+                "total": 104.68
+              },
+              "2025Q3": {
+                "n": 27,
+                "exp_dollar": -6.46,
+                "total": -174.48
+              },
+              "2025Q4": {
+                "n": 32,
+                "exp_dollar": -3.11,
+                "total": -99.56
+              },
+              "2026Q1": {
+                "n": 30,
+                "exp_dollar": 4.65,
+                "total": 139.4
+              },
+              "2026Q2": {
+                "n": 19,
+                "exp_dollar": 11.98,
+                "total": 227.56
+              }
+            },
+            "q_positive_frac": 0.67,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.15607826892261567,
+              "psr": 0.8560375870427945,
+              "pbo": null,
+              "n_obs": 182,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=0.8560 on n=182 obs (Sharpe=0.065, skew=5.92, kurt=54.14).",
+                "DSR deflated for n_trials=30 (SR_0=0.126) = 0.1561.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict WEAK: positive but below the PASS confidence bar (need PSR>=0.95)."
+              ]
+            },
+            "dsr_verdict": "WEAK",
+            "SURVIVOR": false
+          }
+        },
+        "ITM1": {
+          "coverage": {
+            "signals": 190,
+            "filled": 182,
+            "cache_miss": 8,
+            "sim_none": 0,
+            "fill_rate": 0.958
+          },
+          "metrics": {
+            "n": 182,
+            "wins": 47,
+            "win_rate_pct": 25.8,
+            "exp_pct_return": 0.03462,
+            "exp_dollar_per_trade": 2.85,
+            "total_dollar_pnl": 518.04,
+            "drop_top1_mean_dollar": 0.68,
+            "drop_top3_mean_dollar": -3.3,
+            "drop_top5_mean_dollar": -5.84,
+            "top5_winner_share_of_gross_wins": 0.303,
+            "robust_to_outliers": false,
+            "by_side": {
+              "C": {
+                "n": 110,
+                "exp_dollar": 2.18,
+                "win_rate_pct": 28.2,
+                "total_dollar": 239.76
+              },
+              "P": {
+                "n": 72,
+                "exp_dollar": 3.87,
+                "win_rate_pct": 22.2,
+                "total_dollar": 278.28
+              }
+            },
+            "both_dirs_positive": true,
+            "is_n": 134,
+            "oos_n": 48,
+            "is_exp_pct": 0.02285,
+            "oos_exp_pct": 0.06749,
+            "is_exp_dollar": 0.4,
+            "oos_exp_dollar": 9.68,
+            "oos_sign_stable": true,
+            "quarters": {
+              "2025Q1": {
+                "n": 38,
+                "exp_dollar": 11.07,
+                "total": 420.68
+              },
+              "2025Q2": {
+                "n": 36,
+                "exp_dollar": -9.44,
+                "total": -339.92
+              },
+              "2025Q3": {
+                "n": 27,
+                "exp_dollar": 4.52,
+                "total": 121.96
+              },
+              "2025Q4": {
+                "n": 32,
+                "exp_dollar": -6.43,
+                "total": -205.8
+              },
+              "2026Q1": {
+                "n": 30,
+                "exp_dollar": 9.84,
+                "total": 295.08
+              },
+              "2026Q2": {
+                "n": 19,
+                "exp_dollar": 11.9,
+                "total": 226.04
+              }
+            },
+            "q_positive_frac": 0.67,
+            "dsr": {
+              "verdict": "PASS",
+              "dsr": 0.5763145757792199,
+              "psr": 0.9882702182566893,
+              "pbo": null,
+              "n_obs": 182,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=0.9883 on n=182 obs (Sharpe=0.133, skew=3.39, kurt=18.12).",
+                "DSR deflated for n_trials=30 (SR_0=0.122) = 0.5763.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+              ]
+            },
+            "dsr_verdict": "PASS",
+            "SURVIVOR": false
+          }
+        }
+      }
+    }
+  },
+  "survivors": [
+    {
+      "hypothesis": "H2b_gap_and_go",
+      "title": "Opening-gap continuation after confirming first bar",
+      "tier": "ATM",
+      "regime_fit": "bull_trend / bear_trend",
+      "n": 84,
+      "exp_dollar_per_trade": 35.24,
+      "exp_pct_return": 0.07797,
+      "win_rate_pct": 42.9,
+      "oos_sign_stable": true,
+      "dsr_verdict": "PASS"
+    },
+    {
+      "hypothesis": "H2b_gap_and_go",
+      "title": "Opening-gap continuation after confirming first bar",
+      "tier": "ITM1",
+      "regime_fit": "bull_trend / bear_trend",
+      "n": 85,
+      "exp_dollar_per_trade": 39.65,
+      "exp_pct_return": 0.08148,
+      "win_rate_pct": 41.2,
+      "oos_sign_stable": true,
+      "dsr_verdict": "PASS"
+    },
+    {
+      "hypothesis": "H4_vwap_pullback",
+      "title": "VWAP trend-day pullback in trend direction",
+      "tier": "ATM",
+      "regime_fit": "bull_trend / bear_trend",
+      "n": 92,
+      "exp_dollar_per_trade": 45.88,
+      "exp_pct_return": 0.23664,
+      "win_rate_pct": 42.4,
+      "oos_sign_stable": true,
+      "dsr_verdict": "PASS"
+    },
+    {
+      "hypothesis": "H4_vwap_pullback",
+      "title": "VWAP trend-day pullback in trend direction",
+      "tier": "ITM1",
+      "regime_fit": "bull_trend / bear_trend",
+      "n": 92,
+      "exp_dollar_per_trade": 63.31,
+      "exp_pct_return": 0.24829,
+      "win_rate_pct": 43.5,
+      "oos_sign_stable": true,
+      "dsr_verdict": "PASS"
+    }
+  ],
+  "survivor_count": 4
+}
