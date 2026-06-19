@@ -34,6 +34,15 @@ from . import filters as _filters_mod  # dynamic attribute access for runner-pat
 from .levels import _detect_from_history, LevelSet
 from .simulator import simulate_trade, TradeFill
 from .simulator_real import simulate_trade_real
+from .risk_gate import check_order as _risk_check_order
+
+import os as _os
+
+# Risk-gate assert-agree toggle (Phase 0c). On by default so backtest-risk is
+# continuously checked against the single-source-of-truth gate; set
+# GAMMA_RISK_GATE_ASSERT=0 to skip the per-trade assertion on perf-sensitive
+# sweeps. Read once at import (cheap, no per-bar env lookups).
+_RISK_GATE_ASSERT = _os.environ.get("GAMMA_RISK_GATE_ASSERT", "1") != "0"
 
 
 # Keys in params_overrides that control lib.filters module-level constants.
@@ -1670,6 +1679,67 @@ def run_backtest(
                             fill.pct_return_on_premium = (
                                 fill.dollar_pnl / (fill.entry_premium * fill.qty * 100)
                             )
+
+                # ── RISK-GATE ASSERT-AGREE (Phase 0c, 2026-06-18) ──
+                # The canonical pre-order risk logic now lives in ONE place:
+                # backtest/lib/risk_gate.check_order (the same function the live
+                # heartbeat will call). We don't REPLACE the linear qty-scaling
+                # above (scaling is a backtest convenience — live denies rather
+                # than auto-resizes), but we ASSERT the engine's FINAL qty agrees
+                # with the gate's per-trade risk cap so backtest-risk can never
+                # silently diverge from live-risk-intent. The gate is an
+                # independent oracle: feed it the post-scaling order and confirm
+                # it does NOT flag RISK_CAP — unless the documented min-contracts
+                # floor (max(3,...) above) intentionally overrode the pct cap on
+                # a small account, which the gate reports as MIN_CONTRACTS/allows.
+                # Opt-out via GAMMA_RISK_GATE_ASSERT=0 for perf-sensitive sweeps.
+                if fill is not None and _RISK_GATE_ASSERT and per_trade_risk_cap_pct > 0:
+                    _gate_params = {
+                        "per_trade_risk_cap_pct": per_trade_risk_cap_pct,
+                        # Backtest models a single mid-session entry; these gates
+                        # are exercised directly in test_risk_gate.py, so here we
+                        # neutralise them (flat, no kill, no prior stop, no PDT)
+                        # and assert ONLY the sizing agreement, which is what the
+                        # orchestrator itself enforces at this point.
+                        "daily_loss_kill_switch_pct": 0.999,
+                        "min_contracts": 3,
+                        "first_entry_after_stop_blocked": False,
+                    }
+                    # Label is for the gate's message only; infer from the cap
+                    # (Safe 30% / Bold 50%) since the orchestrator isn't told the
+                    # alias directly.
+                    _acct_label = (
+                        "Gamma-Bold" if per_trade_risk_cap_pct >= 0.50 else "Gamma-Safe"
+                    )
+                    _gate_dec = _risk_check_order(
+                        _acct_label,
+                        equity=float(initial_equity),
+                        start_of_day_equity=float(initial_equity),
+                        proposed_qty=int(fill.qty),
+                        premium=float(fill.entry_premium),
+                        setup_name=setup_name,
+                        current_position_status="flat",
+                        day_trades_used_5d=0,
+                        kill_switch_tripped=False,
+                        prior_stops_today=(),
+                        params=_gate_params,
+                    )
+                    # Engine's final qty must NEVER be a risk-cap violation. The
+                    # only way notional can exceed the cap is the min-3 floor on a
+                    # tiny account (premium so high that even 3 contracts breach
+                    # the pct) — that override is intentional and identical in the
+                    # live heartbeat, so we allow it explicitly.
+                    _floor_override = (
+                        int(fill.qty) <= 3
+                        and fill.entry_premium * fill.qty * 100
+                        > float(initial_equity) * per_trade_risk_cap_pct
+                    )
+                    assert _gate_dec.code != "RISK_CAP" or _floor_override, (
+                        "risk_gate disagrees with orchestrator sizing: final qty "
+                        f"{fill.qty} @ ${fill.entry_premium:.2f} on equity "
+                        f"${initial_equity:,.0f} (cap {per_trade_risk_cap_pct:.0%}) "
+                        f"-> gate says {_gate_dec.code}: {_gate_dec.reason}"
+                    )
 
             if fill is not None:
                 trades.append(fill)

@@ -3,7 +3,7 @@ name: scout
 description: Pre-market macro intelligence officer for Project Gamma. Scans news, macro calendar, catalysts, and world events; writes structured context for the Premarket persona to consume. Advisory only — does NOT trade, does NOT modify production doctrine. Use when J asks "what's going on in the world", "what's today's catalyst", or as the first persona in the daily-loop chain (05:30 ET).
 tools: Read, Edit, Write, Bash, Grep, Glob, WebFetch, WebSearch, TodoWrite
 disallowedTools: mcp__alpaca__place_option_order, mcp__alpaca__place_stock_order, mcp__alpaca__place_crypto_order, mcp__alpaca_aggressive__place_option_order, mcp__alpaca_aggressive__place_stock_order, mcp__alpaca_aggressive__place_crypto_order
-model: sonnet
+model: haiku  # HAIKU: web-scan + summarize into a fixed JSON schema (read-tabulate-write). No trade decisions, no synthesis of strategy — it gathers headlines/calendar and fills a template. Advisory-only output; downstream Premarket (Sonnet path) makes the bias call. Re-promote to sonnet if regime-call quality slips.
 permissionMode: default
 memory: project
 color: blue

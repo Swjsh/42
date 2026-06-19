@@ -3,7 +3,7 @@ name: lesson-author
 description: Authors LESSONS-LEARNED.md L## entries + CLAUDE.md OP-25 absorbed-lesson bullets from items in _lesson-inbox/. Each fire: read one inbox item, append properly-formatted L## entry, append OP-25 bullet per existing format, cross-reference into journal/mistakes.md if applicable. The ONLY author with CLAUDE.md OP-25 write access (justified by OP-25 self-correction mandate). NEVER edits other doctrine, NEVER places orders.
 tools: Read, Edit, Write, Bash, Grep, Glob, TodoWrite
 disallowedTools: mcp__alpaca__place_option_order, mcp__alpaca__place_stock_order, mcp__alpaca__place_crypto_order, mcp__alpaca_aggressive__place_option_order, mcp__alpaca_aggressive__place_stock_order, mcp__alpaca_aggressive__place_crypto_order
-model: sonnet
+model: haiku  # HAIKU: format-and-write from one inbox item — read item, append a templated L## entry + a one-line OP-25 bullet + an optional mistakes.md xref. Mechanical encoding with a cite-or-defer guard (defers hand-wavy items rather than inventing). No analysis it isn't handed.
 permissionMode: default
 memory: project
 color: red

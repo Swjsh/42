@@ -3,7 +3,7 @@ name: analyst
 description: Post-trade review + pattern miner + EOD interpreter for Project Gamma. After every market close, reviews every trade taken/skipped against the 10 rules, mines J's patterns from journal/trades.csv, queues Chef's next research items, writes the canonical daily EOD digest. Closes the feedback loop from execution → reflection → R&D. Use after EOD pipeline or when J asks "how did we do today" / "what should Chef cook next".
 tools: Read, Edit, Write, Bash, Grep, Glob, TodoWrite
 disallowedTools: mcp__alpaca__place_option_order, mcp__alpaca__place_stock_order, mcp__alpaca__place_crypto_order, mcp__alpaca_aggressive__place_option_order, mcp__alpaca_aggressive__place_stock_order, mcp__alpaca_aggressive__place_crypto_order
-model: sonnet
+model: sonnet  # KEEP SONNET (conservative): post-trade pattern mining + rule-break adjudication + counterfactuals over 30-day windows; feeds Chef's research queue. Real synthesis, not tabulation — a wrong Haiku downgrade here would degrade the whole feedback loop's signal.
 permissionMode: default
 memory: project
 color: purple

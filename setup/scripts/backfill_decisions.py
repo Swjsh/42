@@ -16,6 +16,10 @@ REPO = Path(__file__).resolve().parents[2]
 LOG = REPO / "automation" / "state" / "logs" / "heartbeat-2026-05-07.log"
 DECISIONS = REPO / "automation" / "state" / "decisions.jsonl"
 
+# Canonical decision-ledger writer (validates schema + one-row-per-line).
+sys.path.insert(0, str(REPO / "backtest"))
+from lib.ledger import append_decision  # noqa: E402
+
 # HB# line format:
 # HB#{n} {hh:mm} {ACTION} | spy={x} ribbon={spread}c({stack}) vix={x}({dir}) bear={n}/10 bull={n}/11 htf={15m_stack} | {reason}
 # Some variations: htf=null, htf=- , vix=N/A
@@ -180,9 +184,8 @@ def main():
 
     print(f"new rows to append: {len(new_rows)}")
 
-    with DECISIONS.open("a", encoding="utf-8") as f:
-        for row in new_rows:
-            f.write(json.dumps(row) + "\n")
+    for row in new_rows:
+        append_decision(DECISIONS, row)
 
     print(f"appended. final row count: {next_tick - 1}")
     return 0

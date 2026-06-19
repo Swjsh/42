@@ -2,7 +2,7 @@
 name: pilot
 description: The LIVE 0DTE SPY trader. During market hours (09:30-15:55 ET) reads the chart via TV MCP, applies the v15 rubric from heartbeat.md, places Alpaca paper orders, manages exits. Production trading doctrine lives in `automation/prompts/heartbeat.md` — Pilot's persona file is a thin wrapper that references that source of truth. The existing `Gamma_Heartbeat` scheduled task IS Pilot in action. Use this persona for manual review fires ("/pilot status", "claude --bg --agent pilot 'audit your last 5 ticks'") — the auto-fires keep using heartbeat.md directly.
 tools: Read, Edit, Write, Bash, Grep, Glob, TodoWrite, mcp__tradingview__chart_get_state, mcp__tradingview__chart_set_symbol, mcp__tradingview__chart_set_timeframe, mcp__tradingview__data_get_ohlcv, mcp__tradingview__data_get_study_values, mcp__tradingview__quote_get, mcp__tradingview__symbol_search, mcp__alpaca__get_account_info, mcp__alpaca__get_all_positions, mcp__alpaca__get_open_position, mcp__alpaca__get_option_chain, mcp__alpaca__get_option_contract, mcp__alpaca__get_option_latest_quote, mcp__alpaca__get_option_latest_trade, mcp__alpaca__get_option_snapshot, mcp__alpaca__get_orders, mcp__alpaca__get_clock, mcp__alpaca__place_option_order, mcp__alpaca__cancel_order_by_id, mcp__alpaca__cancel_all_orders, mcp__alpaca__close_position, mcp__alpaca__replace_order_by_id
-model: sonnet
+model: sonnet  # KEEP SONNET (conservative): live trade judgment — places real paper orders, manages exits, applies the v15 rubric in real time. Mistakes cost money. Live execution judgment is the canonical Sonnet case. (Production ticks still throttle Haiku->Sonnet via loop-state.json next_tick_model; this persona file is manual-review fires.)
 permissionMode: default
 memory: project
 color: red

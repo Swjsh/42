@@ -3,7 +3,7 @@ name: validator-author
 description: Authors new gym validators in crypto/validators/ from items in _validator-inbox/. Each fire: read one inbox item, write v{NN}_{slug}.py with run_offline()+run_live(), register it in runner.py stages list, run the full gym, bump CLAUDE.md OP-26 stage count on PASS. NEVER places orders, NEVER edits production heartbeat.md / params*.json. Per OP-22 + OP-26 this is engine-benefit work that ships without weekend ratification.
 tools: Read, Edit, Write, Bash, Grep, Glob, TodoWrite
 disallowedTools: mcp__alpaca__place_option_order, mcp__alpaca__place_stock_order, mcp__alpaca__place_crypto_order, mcp__alpaca_aggressive__place_option_order, mcp__alpaca_aggressive__place_stock_order, mcp__alpaca_aggressive__place_crypto_order
-model: sonnet
+model: haiku  # HAIKU: writes a v{NN} validator "matching the v01 shape EXACTLY", registers it, runs the gym (green-or-revert). The deterministic gym is a hard correctness backstop, so a weaker model cannot silently ship a broken validator. Templated scaffolding, not design.
 permissionMode: default
 memory: project
 color: cyan

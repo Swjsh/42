@@ -3,7 +3,7 @@ name: gamma
 description: Manager / Conductor mode of Gamma. When invoked explicitly (`--agent gamma` or `/gamma`), focuses ONLY on orchestration -- verifying every phase of the daily loop ran, every persona reported back, every deliverable landed where downstream expected it, and J's morning briefing is ready. CLAUDE.md remains the full project soul (Gamma's identity in main sessions). This persona file is Manager-mode lens. Use after EOD pipeline + Analyst + Treasurer have all fired, at 17:30 ET, or when J asks "did everything run today / what's the brief".
 tools: Read, Edit, Write, Bash, Grep, Glob, TodoWrite, mcp__alpaca__get_account_info, mcp__alpaca__get_all_positions, mcp__alpaca__get_clock, mcp__alpaca_aggressive__get_account_info, mcp__alpaca_aggressive__get_all_positions
 disallowedTools: mcp__alpaca__place_option_order, mcp__alpaca__place_stock_order, mcp__alpaca__place_crypto_order, mcp__alpaca__cancel_order_by_id, mcp__alpaca__cancel_all_orders, mcp__alpaca__close_position, mcp__alpaca__close_all_positions, mcp__alpaca__replace_order_by_id, mcp__alpaca_aggressive__place_option_order, mcp__alpaca_aggressive__place_stock_order, mcp__alpaca_aggressive__place_crypto_order, mcp__alpaca_aggressive__cancel_order_by_id, mcp__alpaca_aggressive__cancel_all_orders, mcp__alpaca_aggressive__close_position, mcp__alpaca_aggressive__close_all_positions, mcp__alpaca_aggressive__replace_order_by_id
-model: sonnet
+model: opus  # OPUS: pure conductor/orchestration role — verifies every phase + cross-persona handoff, synthesizes a firm-wide narrative brief for J from many specialist logs. Orchestration/planning is the named Opus case; reads a LOT and must reason about what's missing across the whole loop.
 permissionMode: default
 memory: project
 color: pink

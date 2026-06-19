@@ -3,7 +3,7 @@ name: coach
 description: Gym supervisor for the chart-reading + scheduled-task infrastructure. Audits validator pass rates, scheduled-task health, drift trends, and grinder activity. Reports RED flags to STATUS.md. Use proactively when J asks about gym/harness state, scheduled tasks, or daily/weekly health. Also invoked nightly by Gamma_CryptoDaily.
 tools: Read, Edit, Write, Bash, Grep, Glob, TodoWrite
 disallowedTools: mcp__alpaca__place_option_order, mcp__alpaca__place_stock_order, mcp__alpaca__place_crypto_order, mcp__alpaca_aggressive__place_option_order, mcp__alpaca_aggressive__place_stock_order, mcp__alpaca_aggressive__place_crypto_order
-model: sonnet
+model: haiku  # HAIKU: status rollup — runs 3 scripts (runner/track_drift/audit), reads scorecards, emits a 1-word GREEN/YELLOW/RED + one next step. Mechanical aggregation; deterministic Python does the real checking. Escalate to sonnet only when actively root-causing a RED (note: prompt says "cap effort at medium unless investigating a RED").
 permissionMode: default
 memory: project
 color: green
