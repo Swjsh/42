@@ -96,6 +96,24 @@ STEPPED_RUNGS: list[tuple[float, float]] = [
 ]
 
 
+def _regime_trail_pct(entry_vix: float, vix_map: Optional[dict], scalar_fallback: float) -> float:
+    """Resolve a regime-conditional trail % from a {vix_ceiling: trail_pct} map.
+
+    Ascending ceilings; the first ceiling >= entry_vix wins (so the map reads as
+    "VIX up to X -> use this trail"). Falls through to `scalar_fallback` when the map
+    is None/empty, when entry_vix <= 0 (VIX unknown), or when entry_vix exceeds every
+    ceiling. Vol-scaled exit (Kim-Tse-Wald): wider trail in high vol, tighter in calm.
+    """
+    if not vix_map or entry_vix <= 0:
+        return scalar_fallback
+    # Tolerant of int/float/str keys.
+    pairs = sorted((float(k), float(v)) for k, v in vix_map.items())
+    for ceiling, trail in pairs:
+        if entry_vix <= ceiling:
+            return trail
+    return scalar_fallback
+
+
 def _stepped_floor(entry_premium: float, hwm: float) -> Optional[float]:
     """Return the highest applicable stepped floor, or None if HWM hasn't reached
     the first rung. Assumes STEPPED_RUNGS is ascending."""
@@ -243,6 +261,29 @@ def simulate_trade_real(
     profit_lock_stop_offset_pct: float = 0.0,  # NEW 2026-05-13 T41: where to raise stop when armed (e.g. 0.05 = +5% above entry premium)
     profit_lock_mode: str = "fixed",  # NEW 2026-05-13 T50b: "fixed" | "trailing" | "stepped". Trailing = chandelier-style w/ trail_pct
     profit_lock_trail_pct: float = 0.0,  # NEW T50b: 0.20 = chandelier 20% off HWM (only used when mode='trailing')
+    # --- REGIME-CONDITIONAL / UNDERLYING CHANDELIER (2026-06-19, vol-scaled exit) -------
+    # Kim-Tse-Wald (JFE): trend-following's edge is volatility-SCALED risk management — the
+    # trailing stop should WIDEN in high vol and TIGHTEN in calm so it does not choke a winner
+    # during the volatile final leg. Two opt-in extensions to the v15 chandelier, BOTH default
+    # OFF (byte-for-byte identical to prior behavior when unset):
+    #
+    #  (1) profit_lock_trail_basis: "premium" (current v15 — trail off option-premium HWM) OR
+    #      "underlying" (the research's prescription — trail off the UNDERLYING SPY move; for a
+    #      put the favorable extreme is the session LOW, exit when SPY rallies trail-distance
+    #      back up off that low). Underlying trail is a separate all-units profit-lock exit that
+    #      shares the SAME arming gate as the premium chandelier.
+    #  (2) profit_lock_trail_pct_by_vix / profit_lock_trail_underlying_pct_by_vix: regime maps
+    #      {vix_ceiling: trail_pct} evaluated against entry_vix (ascending ceilings; first
+    #      ceiling >= entry_vix wins; falls through to the scalar trail_pct / underlying_pct).
+    #      This makes the trail WIDER when entry VIX is high, TIGHTER when calm.
+    #
+    # entry_vix must be supplied for the regime maps to bind (the real-fills path otherwise
+    # logs VIX post-hoc). When entry_vix<=0 and a map is given, the scalar fallback is used.
+    profit_lock_trail_basis: str = "premium",
+    profit_lock_trail_underlying_pct: float = 0.0,   # underlying trail as fraction of entry_spot, e.g. 0.004 = 0.4% of SPY
+    profit_lock_trail_pct_by_vix: Optional[dict] = None,            # {vix_ceiling(float)->trail_pct(float)}
+    profit_lock_trail_underlying_pct_by_vix: Optional[dict] = None,  # {vix_ceiling(float)->underlying_pct(float)}
+    entry_vix: float = 0.0,
     # --- RIBBON_FLIP_PRICE_CONFIRM 2026-06-16 ---
     # When True: only exit on ribbon flip-back if SPY has also moved past entry_spot
     # (for puts: close >= entry_spot; for calls: close <= entry_spot). Prevents premature
@@ -370,6 +411,21 @@ def simulate_trade_real(
     profit_lock_armed = False
     profit_lock_arm_floor: Optional[float] = None  # T50b: only set when armed; trailing mode reads as min-anchor
 
+    # Vol-scaled (regime-conditional) chandelier resolution — done once at entry (2026-06-19).
+    # entry_vix is the regime key; maps fall through to the scalar knobs when unset / VIX unknown.
+    eff_trail_pct = _regime_trail_pct(entry_vix, profit_lock_trail_pct_by_vix, profit_lock_trail_pct)
+    eff_underlying_pct = _regime_trail_pct(
+        entry_vix, profit_lock_trail_underlying_pct_by_vix, profit_lock_trail_underlying_pct)
+    use_underlying_trail = (
+        profit_lock_trail_basis == "underlying"
+        and profit_lock_mode == "trailing"
+        and eff_underlying_pct > 0
+    )
+    # Underlying favorable-extreme tracker (puts: lowest low; calls: highest high) and the
+    # absolute SPY trail distance ($ off entry_spot * pct). Only meaningful when armed.
+    underlying_extreme: Optional[float] = None
+    underlying_trail_dist = entry_spot * eff_underlying_pct
+
     # Tier the runner allocation per CLAUDE.md operating principle 11.
     # qty=3:  tp1=2, runner=1 (single conservative)
     # qty=4:  tp1=2, runner=2 (1 conservative + 1 aggressive)
@@ -438,6 +494,17 @@ def simulate_trade_real(
         worst_premium = opt_bar.low
         best_premium = opt_bar.high
 
+        # Underlying favorable-extreme tracker (puts: lowest SPY low; calls: highest SPY
+        # high). Updated every bar so the underlying chandelier (if enabled) trails the
+        # SPY move per Kim-Tse-Wald. No-op for the default premium basis.
+        if use_underlying_trail:
+            if side == "P":
+                lo = float(spy_bar["low"])
+                underlying_extreme = lo if underlying_extreme is None else min(underlying_extreme, lo)
+            else:
+                hi = float(spy_bar["high"])
+                underlying_extreme = hi if underlying_extreme is None else max(underlying_extreme, hi)
+
         # ── Profit-lock block (T41 fixed mode + T50b trailing/stepped modes) ──
         # T50 verdict 2026-05-13: trailing mode w/ trail_pct=0.20 wins on aggregate
         # AND captures more big-day upside vs fixed +5%/+10% (which caps ride-the-
@@ -455,8 +522,8 @@ def simulate_trade_real(
             if profit_lock_armed:
                 if profit_lock_mode == "fixed":
                     pass  # arm_floor already applied above; no further movement
-                elif profit_lock_mode == "trailing":
-                    trail_floor = hwm * (1.0 - profit_lock_trail_pct)
+                elif profit_lock_mode == "trailing" and not use_underlying_trail:
+                    trail_floor = hwm * (1.0 - eff_trail_pct)
                     candidate = max(profit_lock_arm_floor or 0.0, trail_floor)
                     if candidate > runner_stop_premium:
                         runner_stop_premium = candidate
@@ -473,8 +540,8 @@ def simulate_trade_real(
                 profit_lock_armed = True
                 profit_lock_arm_floor = entry_premium  # BE anchor
             if profit_lock_armed:
-                if profit_lock_mode == "trailing":
-                    trail_floor = hwm * (1.0 - profit_lock_trail_pct)
+                if profit_lock_mode == "trailing" and not use_underlying_trail:
+                    trail_floor = hwm * (1.0 - eff_trail_pct)
                     candidate = max(profit_lock_arm_floor or 0.0, trail_floor)
                     if candidate > runner_stop_premium:
                         runner_stop_premium = candidate
@@ -483,6 +550,29 @@ def simulate_trade_real(
                     if stepped is not None and stepped > runner_stop_premium:
                         runner_stop_premium = stepped
         # ── /profit-lock block ──────────────────────────────────────────────────
+
+        # ── UNDERLYING CHANDELIER exit (2026-06-19, vol-scaled per Kim-Tse-Wald) ──
+        # When trail_basis="underlying", trail the SPY MOVE not the option premium: once
+        # the profit-lock is armed, exit ALL remaining units when SPY retraces
+        # `underlying_trail_dist` ($ = entry_spot * eff_underlying_pct) off the favorable
+        # extreme (puts: rally back up off the session low; calls: drop off the high).
+        # OFF unless use_underlying_trail (basis='underlying' + mode='trailing' + pct>0) —
+        # no production impact. Evaluated before the premium/time/level/ribbon exits below
+        # so the underlying trail is the governing profit-lock when enabled.
+        if use_underlying_trail and profit_lock_armed and underlying_extreme is not None:
+            if side == "P":
+                trail_trigger = underlying_extreme + underlying_trail_dist
+                underlying_retraced = float(spy_bar["high"]) >= trail_trigger
+            else:
+                trail_trigger = underlying_extreme - underlying_trail_dist
+                underlying_retraced = float(spy_bar["low"]) <= trail_trigger
+            if underlying_retraced:
+                exit_px = max(0.01, opt_bar.close - exit_slippage)
+                fill.runner_exit_time_et = spy_time
+                fill.runner_exit_premium = exit_px
+                fill.exit_reason = (ExitReason.TP1_THEN_RUNNER_TIME if tp1_filled
+                                    else ExitReason.EXIT_ALL_PREMIUM_STOP)
+                break
 
         time_stop_now = spy_time.time() >= time_stop_et
         vol_baseline = _vol_baseline_at(spy_idx)

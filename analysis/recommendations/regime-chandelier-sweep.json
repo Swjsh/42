@@ -1,0 +1,1192 @@
+{
+  "research_question": "Does a REGIME-CONDITIONAL / UNDERLYING-move chandelier (vol-scaled trail \u2014 wider in high vol, tighter in calm; trail the SPY move per Kim-Tse-Wald) beat the FIXED 20%-off-premium-HWM v15 chandelier on BEARISH_REJECTION real-fills, WITHOUT clipping J's anchor-day winners? Tests the named #1 exit leverage on our one confirmed edge.",
+  "window": "2025-01-01..2026-05-29",
+  "generated_at": "2026-06-19T07:35:16",
+  "baseline": "PRODUCTION v15 premium chandelier: profit_lock_mode='trailing', threshold +5%, stop_offset +10%, trail 20% off premium HWM.",
+  "variant_grid": {
+    "fixed_premium_trail_pct": [
+      0.15,
+      0.25,
+      0.3
+    ],
+    "regime_premium_maps": {
+      "WIDE_HIVOL": {
+        "16": 0.15,
+        "22": 0.25,
+        "999": 0.35
+      },
+      "GENTLE": {
+        "18": 0.18,
+        "999": 0.28
+      }
+    },
+    "underlying_fixed_pct_of_spy": [
+      0.003,
+      0.005
+    ],
+    "underlying_regime_map": {
+      "16": 0.003,
+      "22": 0.0045,
+      "999": 0.0065
+    },
+    "strikes": [
+      "ATM",
+      "ITM2"
+    ],
+    "n_trials_for_dsr": 8,
+    "fixed_other": "premium_stop_pct=-0.99 (catastrophe cap so chandelier governs); tp1_premium 0.30; tp1_qty_fraction 0.50; runner 2.5; level_stop_buffer 0.50"
+  },
+  "gate_definition": "PROMOTE-CANDIDATE iff vs same-population same-strike PRODUCTION-CHANDELIER baseline: total P&L AND expectancy strictly improve AND anchor edge_capture >= baseline (anchor-no-regression) AND DSR/PSR advisory != FAIL AND anchor not vacuous. Honest no-win is a valid result.",
+  "populations": {
+    "BEARISH_REJECTION_MORNING_primary": {
+      "n_signals": 175,
+      "strikes": {
+        "ATM": {
+          "baseline_premium_chandelier_20": {
+            "stats": {
+              "n": 135,
+              "wr": 79.3,
+              "total": 1071.7,
+              "exp": 7.94,
+              "avg_win": 91.49,
+              "avg_loss": -311.36,
+              "n_win": 107,
+              "n_loss": 28
+            },
+            "anchor": {
+              "edge_capture": 67.2,
+              "win_day_pnl": 67.2,
+              "loss_day_loss": 0.0,
+              "by_day": {
+                "2026-04-29": 67.2
+              }
+            },
+            "diag": {
+              "attempted": 175,
+              "filled": 135,
+              "no_fill_or_no_data": 40,
+              "errored": 0,
+              "anchor_fills": 1
+            },
+            "dsr_gate": {
+              "verdict": "WEAK",
+              "dsr": 0.1682,
+              "psr": 0.6907,
+              "pbo": null,
+              "n_obs": 135,
+              "low_power": false
+            }
+          },
+          "n_promote_candidates": 2,
+          "promote_candidates": [
+            {
+              "label": "fixed_premium_15",
+              "config": {
+                "profit_lock_trail_pct": 0.15
+              },
+              "stats": {
+                "n": 135,
+                "wr": 79.3,
+                "total": 2430.45,
+                "exp": 18.0,
+                "avg_win": 104.19,
+                "avg_loss": -311.36,
+                "n_win": 107,
+                "n_loss": 28
+              },
+              "anchor": {
+                "edge_capture": 67.2,
+                "win_day_pnl": 67.2,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2
+                }
+              },
+              "delta_total_vs_baseline": 1358.75,
+              "dsr_verdict": "WEAK"
+            },
+            {
+              "label": "underlying_fixed_0.30pct",
+              "config": {
+                "profit_lock_trail_basis": "underlying",
+                "profit_lock_trail_underlying_pct": 0.003
+              },
+              "stats": {
+                "n": 135,
+                "wr": 76.3,
+                "total": 2426.3,
+                "exp": 17.97,
+                "avg_win": 110.91,
+                "avg_loss": -281.16,
+                "n_win": 103,
+                "n_loss": 32
+              },
+              "anchor": {
+                "edge_capture": 67.2,
+                "win_day_pnl": 67.2,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2
+                }
+              },
+              "delta_total_vs_baseline": 1354.6,
+              "dsr_verdict": "WEAK"
+            }
+          ],
+          "best_variant": {
+            "label": "fixed_premium_15",
+            "family": "fixed_premium",
+            "config": {
+              "profit_lock_trail_pct": 0.15
+            },
+            "stats": {
+              "n": 135,
+              "wr": 79.3,
+              "total": 2430.45,
+              "exp": 18.0,
+              "avg_win": 104.19,
+              "avg_loss": -311.36,
+              "n_win": 107,
+              "n_loss": 28
+            },
+            "anchor": {
+              "edge_capture": 67.2,
+              "win_day_pnl": 67.2,
+              "loss_day_loss": 0.0,
+              "by_day": {
+                "2026-04-29": 67.2
+              }
+            },
+            "diag": {
+              "attempted": 175,
+              "filled": 135,
+              "no_fill_or_no_data": 40,
+              "errored": 0,
+              "anchor_fills": 1
+            },
+            "dsr_gate": {
+              "verdict": "WEAK",
+              "dsr": 0.3426,
+              "psr": 0.854,
+              "pbo": null,
+              "n_obs": 135,
+              "low_power": false
+            },
+            "delta_total_vs_baseline": 1358.75,
+            "delta_exp_vs_baseline": 10.06,
+            "gate": {
+              "pnl_better": true,
+              "exp_better": true,
+              "anchor_no_regression": true,
+              "anchor_vacuous": false,
+              "dsr_not_fail": true,
+              "verdict": "PROMOTE-CANDIDATE"
+            }
+          },
+          "n_better_any": 2,
+          "grid": [
+            {
+              "label": "fixed_premium_15",
+              "family": "fixed_premium",
+              "config": {
+                "profit_lock_trail_pct": 0.15
+              },
+              "stats": {
+                "n": 135,
+                "wr": 79.3,
+                "total": 2430.45,
+                "exp": 18.0,
+                "avg_win": 104.19,
+                "avg_loss": -311.36,
+                "n_win": 107,
+                "n_loss": 28
+              },
+              "anchor": {
+                "edge_capture": 67.2,
+                "win_day_pnl": 67.2,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 135,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "WEAK",
+                "dsr": 0.3426,
+                "psr": 0.854,
+                "pbo": null,
+                "n_obs": 135,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 1358.75,
+              "delta_exp_vs_baseline": 10.06,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": true,
+                "verdict": "PROMOTE-CANDIDATE"
+              }
+            },
+            {
+              "label": "underlying_fixed_0.30pct",
+              "family": "underlying_fixed",
+              "config": {
+                "profit_lock_trail_basis": "underlying",
+                "profit_lock_trail_underlying_pct": 0.003
+              },
+              "stats": {
+                "n": 135,
+                "wr": 76.3,
+                "total": 2426.3,
+                "exp": 17.97,
+                "avg_win": 110.91,
+                "avg_loss": -281.16,
+                "n_win": 103,
+                "n_loss": 32
+              },
+              "anchor": {
+                "edge_capture": 67.2,
+                "win_day_pnl": 67.2,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 135,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "WEAK",
+                "dsr": 0.3088,
+                "psr": 0.8314,
+                "pbo": null,
+                "n_obs": 135,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 1354.6,
+              "delta_exp_vs_baseline": 10.03,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": true,
+                "verdict": "PROMOTE-CANDIDATE"
+              }
+            },
+            {
+              "label": "regime_premium_GENTLE",
+              "family": "regime_premium",
+              "config": {
+                "profit_lock_trail_pct": 0.2,
+                "profit_lock_trail_pct_by_vix": {
+                  "18": 0.18,
+                  "999": 0.28
+                }
+              },
+              "stats": {
+                "n": 135,
+                "wr": 79.3,
+                "total": 843.32,
+                "exp": 6.25,
+                "avg_win": 89.36,
+                "avg_loss": -311.36,
+                "n_win": 107,
+                "n_loss": 28
+              },
+              "anchor": {
+                "edge_capture": 67.2,
+                "win_day_pnl": 67.2,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 135,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "WEAK",
+                "dsr": 0.1437,
+                "psr": 0.6537,
+                "pbo": null,
+                "n_obs": 135,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": -228.38,
+              "delta_exp_vs_baseline": -1.69,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": true,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "label": "fixed_premium_25",
+              "family": "fixed_premium",
+              "config": {
+                "profit_lock_trail_pct": 0.25
+              },
+              "stats": {
+                "n": 135,
+                "wr": 79.3,
+                "total": 715.5,
+                "exp": 5.3,
+                "avg_win": 88.16,
+                "avg_loss": -311.36,
+                "n_win": 107,
+                "n_loss": 28
+              },
+              "anchor": {
+                "edge_capture": 67.2,
+                "win_day_pnl": 67.2,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 135,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "WEAK",
+                "dsr": 0.1304,
+                "psr": 0.631,
+                "pbo": null,
+                "n_obs": 135,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": -356.2,
+              "delta_exp_vs_baseline": -2.64,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": true,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "label": "fixed_premium_30",
+              "family": "fixed_premium",
+              "config": {
+                "profit_lock_trail_pct": 0.3
+              },
+              "stats": {
+                "n": 135,
+                "wr": 79.3,
+                "total": 532.6,
+                "exp": 3.95,
+                "avg_win": 86.45,
+                "avg_loss": -311.36,
+                "n_win": 107,
+                "n_loss": 28
+              },
+              "anchor": {
+                "edge_capture": 67.2,
+                "win_day_pnl": 67.2,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 135,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "WEAK",
+                "dsr": 0.1132,
+                "psr": 0.5985,
+                "pbo": null,
+                "n_obs": 135,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": -539.1,
+              "delta_exp_vs_baseline": -3.99,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": true,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "label": "underlying_regime",
+              "family": "underlying_regime",
+              "config": {
+                "profit_lock_trail_basis": "underlying",
+                "profit_lock_trail_underlying_pct": 0.0045,
+                "profit_lock_trail_underlying_pct_by_vix": {
+                  "16": 0.003,
+                  "22": 0.0045,
+                  "999": 0.0065
+                }
+              },
+              "stats": {
+                "n": 135,
+                "wr": 79.3,
+                "total": 474.9,
+                "exp": 3.52,
+                "avg_win": 85.91,
+                "avg_loss": -311.36,
+                "n_win": 107,
+                "n_loss": 28
+              },
+              "anchor": {
+                "edge_capture": 67.2,
+                "win_day_pnl": 67.2,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 135,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "WEAK",
+                "dsr": 0.1069,
+                "psr": 0.5855,
+                "pbo": null,
+                "n_obs": 135,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": -596.8,
+              "delta_exp_vs_baseline": -4.42,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": true,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "label": "regime_premium_WIDE_HIVOL",
+              "family": "regime_premium",
+              "config": {
+                "profit_lock_trail_pct": 0.2,
+                "profit_lock_trail_pct_by_vix": {
+                  "16": 0.15,
+                  "22": 0.25,
+                  "999": 0.35
+                }
+              },
+              "stats": {
+                "n": 135,
+                "wr": 79.3,
+                "total": 466.95,
+                "exp": 3.46,
+                "avg_win": 85.84,
+                "avg_loss": -311.36,
+                "n_win": 107,
+                "n_loss": 28
+              },
+              "anchor": {
+                "edge_capture": 67.2,
+                "win_day_pnl": 67.2,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 135,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "WEAK",
+                "dsr": 0.1083,
+                "psr": 0.5885,
+                "pbo": null,
+                "n_obs": 135,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": -604.75,
+              "delta_exp_vs_baseline": -4.48,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": true,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "label": "underlying_fixed_0.50pct",
+              "family": "underlying_fixed",
+              "config": {
+                "profit_lock_trail_basis": "underlying",
+                "profit_lock_trail_underlying_pct": 0.005
+              },
+              "stats": {
+                "n": 135,
+                "wr": 79.3,
+                "total": 445.5,
+                "exp": 3.3,
+                "avg_win": 85.64,
+                "avg_loss": -311.36,
+                "n_win": 107,
+                "n_loss": 28
+              },
+              "anchor": {
+                "edge_capture": 67.2,
+                "win_day_pnl": 67.2,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 67.2
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 135,
+                "no_fill_or_no_data": 40,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "WEAK",
+                "dsr": 0.1045,
+                "psr": 0.5803,
+                "pbo": null,
+                "n_obs": 135,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": -626.2,
+              "delta_exp_vs_baseline": -4.64,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": true,
+                "verdict": "NOT-BETTER"
+              }
+            }
+          ],
+          "verdict": "[ATM] PROMOTE-CANDIDATE \u2014 2 chandelier variant(s) beat the fixed-20% premium chandelier on BOTH total P&L and expectancy AND anchor-no-regression AND DSR!=FAIL. Best: fixed_premium_15 -> total $2430.45 (exp $18.0, WR 79.3%, n=135) vs baseline total $1071.7 (exp $7.94). anchor edge_capture $67.2 vs baseline $67.2. PROXY levels + thin anchors \u2014 ratify on production star-rated levels before wiring (Rule 9)."
+        },
+        "ITM2": {
+          "baseline_premium_chandelier_20": {
+            "stats": {
+              "n": 123,
+              "wr": 77.2,
+              "total": -601.2,
+              "exp": -4.89,
+              "avg_win": 118.09,
+              "avg_loss": -422.14,
+              "n_win": 95,
+              "n_loss": 28
+            },
+            "anchor": {
+              "edge_capture": 98.7,
+              "win_day_pnl": 98.7,
+              "loss_day_loss": 0.0,
+              "by_day": {
+                "2026-04-29": 98.7
+              }
+            },
+            "diag": {
+              "attempted": 175,
+              "filled": 123,
+              "no_fill_or_no_data": 52,
+              "errored": 0,
+              "anchor_fills": 1
+            },
+            "dsr_gate": {
+              "verdict": "FAIL",
+              "dsr": 0.0458,
+              "psr": 0.4099,
+              "pbo": null,
+              "n_obs": 123,
+              "low_power": false
+            }
+          },
+          "n_promote_candidates": 2,
+          "promote_candidates": [
+            {
+              "label": "fixed_premium_15",
+              "config": {
+                "profit_lock_trail_pct": 0.15
+              },
+              "stats": {
+                "n": 123,
+                "wr": 77.2,
+                "total": 574.35,
+                "exp": 4.67,
+                "avg_win": 130.47,
+                "avg_loss": -422.14,
+                "n_win": 95,
+                "n_loss": 28
+              },
+              "anchor": {
+                "edge_capture": 98.7,
+                "win_day_pnl": 98.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7
+                }
+              },
+              "delta_total_vs_baseline": 1175.55,
+              "dsr_verdict": "WEAK"
+            },
+            {
+              "label": "underlying_fixed_0.30pct",
+              "config": {
+                "profit_lock_trail_basis": "underlying",
+                "profit_lock_trail_underlying_pct": 0.003
+              },
+              "stats": {
+                "n": 123,
+                "wr": 74.0,
+                "total": 197.4,
+                "exp": 1.6,
+                "avg_win": 136.28,
+                "avg_loss": -381.38,
+                "n_win": 91,
+                "n_loss": 32
+              },
+              "anchor": {
+                "edge_capture": 98.7,
+                "win_day_pnl": 98.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7
+                }
+              },
+              "delta_total_vs_baseline": 798.6,
+              "dsr_verdict": "WEAK"
+            }
+          ],
+          "best_variant": {
+            "label": "fixed_premium_15",
+            "family": "fixed_premium",
+            "config": {
+              "profit_lock_trail_pct": 0.15
+            },
+            "stats": {
+              "n": 123,
+              "wr": 77.2,
+              "total": 574.35,
+              "exp": 4.67,
+              "avg_win": 130.47,
+              "avg_loss": -422.14,
+              "n_win": 95,
+              "n_loss": 28
+            },
+            "anchor": {
+              "edge_capture": 98.7,
+              "win_day_pnl": 98.7,
+              "loss_day_loss": 0.0,
+              "by_day": {
+                "2026-04-29": 98.7
+              }
+            },
+            "diag": {
+              "attempted": 175,
+              "filled": 123,
+              "no_fill_or_no_data": 52,
+              "errored": 0,
+              "anchor_fills": 1
+            },
+            "dsr_gate": {
+              "verdict": "WEAK",
+              "dsr": 0.1051,
+              "psr": 0.5816,
+              "pbo": null,
+              "n_obs": 123,
+              "low_power": false
+            },
+            "delta_total_vs_baseline": 1175.55,
+            "delta_exp_vs_baseline": 9.56,
+            "gate": {
+              "pnl_better": true,
+              "exp_better": true,
+              "anchor_no_regression": true,
+              "anchor_vacuous": false,
+              "dsr_not_fail": true,
+              "verdict": "PROMOTE-CANDIDATE"
+            }
+          },
+          "n_better_any": 2,
+          "grid": [
+            {
+              "label": "fixed_premium_15",
+              "family": "fixed_premium",
+              "config": {
+                "profit_lock_trail_pct": 0.15
+              },
+              "stats": {
+                "n": 123,
+                "wr": 77.2,
+                "total": 574.35,
+                "exp": 4.67,
+                "avg_win": 130.47,
+                "avg_loss": -422.14,
+                "n_win": 95,
+                "n_loss": 28
+              },
+              "anchor": {
+                "edge_capture": 98.7,
+                "win_day_pnl": 98.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 123,
+                "no_fill_or_no_data": 52,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "WEAK",
+                "dsr": 0.1051,
+                "psr": 0.5816,
+                "pbo": null,
+                "n_obs": 123,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 1175.55,
+              "delta_exp_vs_baseline": 9.56,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": true,
+                "verdict": "PROMOTE-CANDIDATE"
+              }
+            },
+            {
+              "label": "underlying_fixed_0.30pct",
+              "family": "underlying_fixed",
+              "config": {
+                "profit_lock_trail_basis": "underlying",
+                "profit_lock_trail_underlying_pct": 0.003
+              },
+              "stats": {
+                "n": 123,
+                "wr": 74.0,
+                "total": 197.4,
+                "exp": 1.6,
+                "avg_win": 136.28,
+                "avg_loss": -381.38,
+                "n_win": 91,
+                "n_loss": 32
+              },
+              "anchor": {
+                "edge_capture": 98.7,
+                "win_day_pnl": 98.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 123,
+                "no_fill_or_no_data": 52,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "WEAK",
+                "dsr": 0.0817,
+                "psr": 0.5261,
+                "pbo": null,
+                "n_obs": 123,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": 798.6,
+              "delta_exp_vs_baseline": 6.49,
+              "gate": {
+                "pnl_better": true,
+                "exp_better": true,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": true,
+                "verdict": "PROMOTE-CANDIDATE"
+              }
+            },
+            {
+              "label": "regime_premium_GENTLE",
+              "family": "regime_premium",
+              "config": {
+                "profit_lock_trail_pct": 0.2,
+                "profit_lock_trail_pct_by_vix": {
+                  "18": 0.18,
+                  "999": 0.28
+                }
+              },
+              "stats": {
+                "n": 123,
+                "wr": 77.2,
+                "total": -790.86,
+                "exp": -6.43,
+                "avg_win": 116.1,
+                "avg_loss": -422.14,
+                "n_win": 95,
+                "n_loss": 28
+              },
+              "anchor": {
+                "edge_capture": 98.7,
+                "win_day_pnl": 98.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 123,
+                "no_fill_or_no_data": 52,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0393,
+                "psr": 0.3821,
+                "pbo": null,
+                "n_obs": 123,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": -189.66,
+              "delta_exp_vs_baseline": -1.54,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "label": "regime_premium_WIDE_HIVOL",
+              "family": "regime_premium",
+              "config": {
+                "profit_lock_trail_pct": 0.2,
+                "profit_lock_trail_pct_by_vix": {
+                  "16": 0.15,
+                  "22": 0.25,
+                  "999": 0.35
+                }
+              },
+              "stats": {
+                "n": 123,
+                "wr": 77.2,
+                "total": -1090.15,
+                "exp": -8.86,
+                "avg_win": 112.95,
+                "avg_loss": -422.14,
+                "n_win": 95,
+                "n_loss": 28
+              },
+              "anchor": {
+                "edge_capture": 98.7,
+                "win_day_pnl": 98.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 123,
+                "no_fill_or_no_data": 52,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0298,
+                "psr": 0.3355,
+                "pbo": null,
+                "n_obs": 123,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": -488.95,
+              "delta_exp_vs_baseline": -3.97,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "label": "fixed_premium_25",
+              "family": "fixed_premium",
+              "config": {
+                "profit_lock_trail_pct": 0.25
+              },
+              "stats": {
+                "n": 123,
+                "wr": 77.2,
+                "total": -1138.35,
+                "exp": -9.25,
+                "avg_win": 112.44,
+                "avg_loss": -422.14,
+                "n_win": 95,
+                "n_loss": 28
+              },
+              "anchor": {
+                "edge_capture": 98.7,
+                "win_day_pnl": 98.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 123,
+                "no_fill_or_no_data": 52,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0286,
+                "psr": 0.3292,
+                "pbo": null,
+                "n_obs": 123,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": -537.15,
+              "delta_exp_vs_baseline": -4.36,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "label": "fixed_premium_30",
+              "family": "fixed_premium",
+              "config": {
+                "profit_lock_trail_pct": 0.3
+              },
+              "stats": {
+                "n": 123,
+                "wr": 77.2,
+                "total": -1262.0,
+                "exp": -10.26,
+                "avg_win": 111.14,
+                "avg_loss": -422.14,
+                "n_win": 95,
+                "n_loss": 28
+              },
+              "anchor": {
+                "edge_capture": 98.7,
+                "win_day_pnl": 98.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 123,
+                "no_fill_or_no_data": 52,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0256,
+                "psr": 0.3116,
+                "pbo": null,
+                "n_obs": 123,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": -660.8,
+              "delta_exp_vs_baseline": -5.37,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "label": "underlying_fixed_0.50pct",
+              "family": "underlying_fixed",
+              "config": {
+                "profit_lock_trail_basis": "underlying",
+                "profit_lock_trail_underlying_pct": 0.005
+              },
+              "stats": {
+                "n": 123,
+                "wr": 76.4,
+                "total": -2265.9,
+                "exp": -18.42,
+                "avg_win": 104.22,
+                "avg_loss": -415.97,
+                "n_win": 94,
+                "n_loss": 29
+              },
+              "anchor": {
+                "edge_capture": 98.7,
+                "win_day_pnl": 98.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 123,
+                "no_fill_or_no_data": 52,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0088,
+                "psr": 0.1796,
+                "pbo": null,
+                "n_obs": 123,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": -1664.7,
+              "delta_exp_vs_baseline": -13.53,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            },
+            {
+              "label": "underlying_regime",
+              "family": "underlying_regime",
+              "config": {
+                "profit_lock_trail_basis": "underlying",
+                "profit_lock_trail_underlying_pct": 0.0045,
+                "profit_lock_trail_underlying_pct_by_vix": {
+                  "16": 0.003,
+                  "22": 0.0045,
+                  "999": 0.0065
+                }
+              },
+              "stats": {
+                "n": 123,
+                "wr": 76.4,
+                "total": -2495.4,
+                "exp": -20.29,
+                "avg_win": 101.78,
+                "avg_loss": -415.97,
+                "n_win": 94,
+                "n_loss": 29
+              },
+              "anchor": {
+                "edge_capture": 98.7,
+                "win_day_pnl": 98.7,
+                "loss_day_loss": 0.0,
+                "by_day": {
+                  "2026-04-29": 98.7
+                }
+              },
+              "diag": {
+                "attempted": 175,
+                "filled": 123,
+                "no_fill_or_no_data": 52,
+                "errored": 0,
+                "anchor_fills": 1
+              },
+              "dsr_gate": {
+                "verdict": "FAIL",
+                "dsr": 0.0063,
+                "psr": 0.1507,
+                "pbo": null,
+                "n_obs": 123,
+                "low_power": false
+              },
+              "delta_total_vs_baseline": -1894.2,
+              "delta_exp_vs_baseline": -15.4,
+              "gate": {
+                "pnl_better": false,
+                "exp_better": false,
+                "anchor_no_regression": true,
+                "anchor_vacuous": false,
+                "dsr_not_fail": false,
+                "verdict": "NOT-BETTER"
+              }
+            }
+          ],
+          "verdict": "[ITM2] PROMOTE-CANDIDATE \u2014 2 chandelier variant(s) beat the fixed-20% premium chandelier on BOTH total P&L and expectancy AND anchor-no-regression AND DSR!=FAIL. Best: fixed_premium_15 -> total $574.35 (exp $4.67, WR 77.2%, n=123) vs baseline total $-601.2 (exp $-4.89). anchor edge_capture $98.7 vs baseline $98.7. PROXY levels + thin anchors \u2014 ratify on production star-rated levels before wiring (Rule 9)."
+        }
+      }
+    }
+  },
+  "op20_disclosures": {
+    "authority": "Real-fills (lib.simulator_real + OPRA options cache, valid through 2026-05-29) is the only authority used for the verdict (C1). BS-sim / SPY-space grade not used.",
+    "anchor_coverage": "THIN. 5/04 (J's biggest winner, +$730) has ZERO option bars in the cache; BRM has an OPRA fill on only 4/29 among the WIN anchor days. The anchor-no-regression gate is necessary-not-sufficient (C24) \u2014 a tie at n=1 anchor fill is weak evidence.",
+    "level_source": "Historically-rebuilt star-rated proxies (active+multi_day from _detect_from_history as-of each day), NOT production named levels. Absolute WR is a proxy LOWER-BOUND; the EXIT comparison is internally consistent (identical signal population + level set across all variants), so the beat-the-fixed-20% question is answerable.",
+    "regime_key": "entry_VIX for the regime maps = the as-of VIX at the firing bar from _align_vix_to_spy (no look-ahead). Maps are {vix_ceiling: trail}; first ceiling >= entry_VIX wins; falls through to the scalar trail when VIX unknown or above all ceilings.",
+    "underlying_trail": "Opt-in profit_lock_trail_basis='underlying': a separate all-units profit-lock exit sharing the SAME +5% arming gate as the premium chandelier; trails the SPY favorable extreme (put: session low) and exits when SPY retraces underlying_pct*entry_spot off it.",
+    "knobs": "Opt-in lib.simulator_real.simulate_trade_real(profit_lock_trail_basis, profit_lock_trail_underlying_pct, profit_lock_trail_pct_by_vix, profit_lock_trail_underlying_pct_by_vix, entry_vix); ALL default to the v15 premium-chandelier behavior (verified: 6 e2e tests + default-equivalence). RESEARCH ONLY \u2014 no params/doctrine changed (Rule 9).",
+    "dsr_returns": "DSR/PSR on per-trade dollar P&L (constant qty=3 notional -> comparable). PBO skipped (no CSCV matrix). n_trials=8 (grid size). Advisory only (gate.py is not a hard gate)."
+  },
+  "overall_verdict": {
+    "any_promote_candidate": true,
+    "per_strike": {
+      "BEARISH_REJECTION_MORNING_primary/ATM": "[ATM] PROMOTE-CANDIDATE \u2014 2 chandelier variant(s) beat the fixed-20% premium chandelier on BOTH total P&L and expectancy AND anchor-no-regression AND DSR!=FAIL. Best: fixed_premium_15 -> total $2430.45 (exp $18.0, WR 79.3%, n=135) vs baseline total $1071.7 (exp $7.94). anchor edge_capture $67.2 vs baseline $67.2. PROXY levels + thin anchors \u2014 ratify on production star-rated levels before wiring (Rule 9).",
+      "BEARISH_REJECTION_MORNING_primary/ITM2": "[ITM2] PROMOTE-CANDIDATE \u2014 2 chandelier variant(s) beat the fixed-20% premium chandelier on BOTH total P&L and expectancy AND anchor-no-regression AND DSR!=FAIL. Best: fixed_premium_15 -> total $574.35 (exp $4.67, WR 77.2%, n=123) vs baseline total $-601.2 (exp $-4.89). anchor edge_capture $98.7 vs baseline $98.7. PROXY levels + thin anchors \u2014 ratify on production star-rated levels before wiring (Rule 9)."
+    },
+    "summary": "A REGIME-CONDITIONAL / UNDERLYING chandelier beats the fixed-20% premium chandelier on >=1 population/strike (see per-strike PROMOTE-CANDIDATE)."
+  }
+}
