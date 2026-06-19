@@ -24,19 +24,30 @@ PROPOSE-ONLY (Rule 9) — NOT WIRED LIVE
 --------------------------------------
 * No heartbeat / params / order path imports this module. It is scaffolding.
 * The ENTIRE seed :data:`REGIME_SETUP_MAP` is ``WATCH_ONLY`` (no setup has cleared
-  the real-★★★ promotion bar yet), so :func:`select_setups` returns an **empty
-  roster for every regime today**. The book is wired-up but INERT — the propose-only
-  posture made structural. A setup becomes selectable only when promoted to
-  ``REGIME_ACTIVE`` (a one-line data edit, after it meets the bar in ``§6`` of the
-  design doc).
+  the full real-★★★ + anchor-no-regression promotion bar yet — even the two
+  DSR-PASS data-discovered survivors are proxy-STRIKE real-fills, not promoted), so
+  :func:`select_setups` returns an **empty roster for every regime today**. The book
+  is wired-up but INERT — the propose-only posture made structural. A setup becomes
+  selectable only when promoted to ``REGIME_ACTIVE`` (a one-line data edit, after it
+  meets the bar in ``§6`` of the design doc).
 
 HONEST PROVENANCE
 -----------------
-The seed map's numbers come from ``analysis/recommendations/fleet-standalone-regime.json``
-(the corrected, UNBIASED standalone real-fills eval) — but on **proxy ★★ levels**,
-mostly DSR-WEAK, some low-power. They are *candidates worth a real-★★★ re-test*, NOT
-ready-to-trade setups. Each slot carries its :class:`Evidence` verbatim so the map is
-self-documenting and the promotion gate is checkable in code.
+The seed map's numbers come from TWO scorecards, both carried verbatim per slot so
+the map is self-documenting and the promotion gate is checkable in code:
+
+* ``analysis/recommendations/fleet-standalone-regime.json`` (the corrected, UNBIASED
+  standalone real-fills eval) — on **proxy ★★ levels**, mostly DSR-WEAK, some
+  low-power. Candidates worth a real-★★★ re-test, NOT ready-to-trade setups.
+* ``analysis/recommendations/infinite-ammo-discovery.json`` (a first-principles
+  DISCOVERY eval NOT gated on J anchors) — two survivors, ``VWAP_TREND_PULLBACK``
+  (H4) and ``GAP_AND_GO`` (H2b), that cleared standalone real-fills + OOS
+  sign-stable + **DSR PASS** + drop-top-5 robustness, both directions positive.
+  These are the first DATA-DISCOVERED (not anchor-derived) candidates in the book —
+  stronger statistically than the fleet rows, but still proxy-STRIKE real-fills on
+  the wider population (L58), so WATCH_ONLY like everything else.
+
+They are all *candidates*, not ready-to-trade setups.
 
 PURITY
 ------
@@ -386,12 +397,15 @@ def signals_from_bar_context(ctx, *, gex_hint: Optional[str] = None) -> RegimeSi
 # ─────────────────────────────────────────────────────────────────────────────
 # THE BOOK (DATA) — the seed regime->setup routing table.
 #
-# PROVISIONAL + ENTIRELY WATCH_ONLY. Numbers from
-# analysis/recommendations/fleet-standalone-regime.json (unbiased standalone
-# real-fills) on PROXY ★★ levels — candidates worth a real-★★★ re-test, NOT
-# ready to trade. select_setups(regime) returns () for every regime until a slot is
-# promoted to REGIME_ACTIVE (a one-line edit here, after it meets the design-doc §6
-# bar). Each slot carries its Evidence verbatim so the map is self-documenting.
+# PROVISIONAL + ENTIRELY WATCH_ONLY. Numbers from TWO scorecards (see HONEST
+# PROVENANCE in the module docstring): the unbiased standalone fleet eval (_FLEET,
+# proxy ★★ levels, mostly DSR-WEAK) AND the first-principles discovery eval
+# (_DISCOVERY) whose two survivors — VWAP_TREND_PULLBACK (H4) and GAP_AND_GO (H2b) —
+# are DSR-PASS, OOS sign-stable, both-direction-positive, but still proxy-STRIKE
+# real-fills. All candidates worth a real-★★★ re-test, NOT ready to trade.
+# select_setups(regime) returns () for every regime until a slot is promoted to
+# REGIME_ACTIVE (a one-line edit here, after it meets the design-doc §6 bar). Each
+# slot carries its Evidence verbatim so the map is self-documenting.
 #
 # range_pin is DELIBERATELY EMPTY: the bounce family REVIVED in-regime but on n=2-11
 # (low_power) and only under the mean-reversion exit, not the engine default — wiring
@@ -399,6 +413,14 @@ def signals_from_bar_context(ctx, *, gex_hint: Optional[str] = None) -> RegimeSi
 # named target for the next real-fills re-test, recorded in the design doc.
 # ─────────────────────────────────────────────────────────────────────────────
 _FLEET = "analysis/recommendations/fleet-standalone-regime.json"
+# Second provenance source: the infinite-ammo first-principles DISCOVERY eval
+# (NOT gated on J anchors). Two survivors cleared standalone real-fills + OOS
+# sign-stable + DSR PASS + drop-top-5 robustness — the first DATA-DISCOVERED
+# (not anchor-derived) candidates in the book. Still proxy-strike real-fills on
+# the wider population, hence WATCH_ONLY like everything else (L58 caveat). Each
+# slot below records the ATM tier (the disclosed default; ITM1 was modestly
+# better — noted per slot) so the map does not overstate the edge.
+_DISCOVERY = "analysis/recommendations/infinite-ammo-discovery.json"
 
 REGIME_SETUP_MAP: dict[Regime, tuple[SetupSlot, ...]] = {
     Regime.BEAR_TREND: (
@@ -424,6 +446,34 @@ REGIME_SETUP_MAP: dict[Regime, tuple[SetupSlot, ...]] = {
                 on_real_levels=False, source=_FLEET,
             ),
             note="Long, in bear_trend. DSR WEAK on proxy levels.",
+        ),
+        SetupSlot(
+            setup="VWAP_TREND_PULLBACK",
+            status=PromotionStatus.WATCH_ONLY,
+            sizing_tier="base",
+            evidence=Evidence(
+                exp=45.88, wr=42.4, n=92, dsr_verdict="PASS",
+                oos_sign_stable=True, low_power=False,
+                on_real_levels=False, source=_DISCOVERY,
+            ),
+            note="H4 — pullback to session VWAP in the trend direction (here the "
+                 "bear/put side). Data-discovered survivor: standalone real-fills "
+                 "PASS, OOS sign-stable, DSR PASS, robust to drop-top-5, both "
+                 "directions positive. ATM exp shown; ITM1 +$63/trade. Proxy levels.",
+        ),
+        SetupSlot(
+            setup="GAP_AND_GO",
+            status=PromotionStatus.WATCH_ONLY,
+            sizing_tier="base",
+            evidence=Evidence(
+                exp=35.24, wr=42.9, n=84, dsr_verdict="PASS",
+                oos_sign_stable=True, low_power=False,
+                on_real_levels=False, source=_DISCOVERY,
+            ),
+            note="H2b — opening-gap continuation after a confirming first bar (bear/put "
+                 "side). Data-discovered survivor: 5/6 quarters positive, OOS sign-stable, "
+                 "DSR PASS, both directions positive. ATM exp shown; ITM1 +$40/trade. "
+                 "Proxy levels.",
         ),
     ),
     Regime.BULL_TREND: (
@@ -461,6 +511,35 @@ REGIME_SETUP_MAP: dict[Regime, tuple[SetupSlot, ...]] = {
             ),
             note="Positive slice is low-VIX (14-16) only; needs a low-VIX-or-falling "
                  "gate + J's own logged bullish winners before promotion.",
+        ),
+        SetupSlot(
+            setup="VWAP_TREND_PULLBACK",
+            status=PromotionStatus.WATCH_ONLY,
+            sizing_tier="base",
+            evidence=Evidence(
+                exp=45.88, wr=42.4, n=92, dsr_verdict="PASS",
+                oos_sign_stable=True, low_power=False,
+                on_real_levels=False, source=_DISCOVERY,
+            ),
+            note="H4 — pullback to session VWAP in the trend direction (here the "
+                 "bull/call side). Data-discovered survivor: standalone real-fills "
+                 "PASS, OOS sign-stable, DSR PASS, robust to drop-top-5, both "
+                 "directions positive. ATM exp shown (both-side blend); ITM1 "
+                 "+$63/trade. Proxy levels.",
+        ),
+        SetupSlot(
+            setup="GAP_AND_GO",
+            status=PromotionStatus.WATCH_ONLY,
+            sizing_tier="base",
+            evidence=Evidence(
+                exp=35.24, wr=42.9, n=84, dsr_verdict="PASS",
+                oos_sign_stable=True, low_power=False,
+                on_real_levels=False, source=_DISCOVERY,
+            ),
+            note="H2b — opening-gap continuation after a confirming first bar (bull/call "
+                 "side). Data-discovered survivor: 5/6 quarters positive, OOS sign-stable, "
+                 "DSR PASS, both directions positive. ATM exp shown (both-side blend); "
+                 "ITM1 +$40/trade. Proxy levels.",
         ),
     ),
     Regime.HIGH_VOL: (

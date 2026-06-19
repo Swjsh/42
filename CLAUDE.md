@@ -253,7 +253,7 @@ These are non-negotiable, second only to the 10 rules above.
 
     **Silent failure is the only true failure.** Every fire either ships work OR ships a flagged failure to STATUS.md `## Known broken` section. Never silent. J always wakes up to a SIGNAL.
 
-    **Lessons index** (full prose + symptom/root-cause/fix in [docs/LESSONS-LEARNED.md](docs/LESSONS-LEARNED.md) — through L167 as of 2026-06-19). Themed canonical set; when you hit a NEW anti-pattern, add prose to LESSONS-LEARNED.md and fold the L# into a row here. A lesson that gets re-violated is a missing guardrail — graduate it to a code assertion (see `backtest/tests/test_graduated_guards.py`).
+    **Lessons index** (full prose + symptom/root-cause/fix in [docs/LESSONS-LEARNED.md](docs/LESSONS-LEARNED.md) — through L168 as of 2026-06-19). Themed canonical set; when you hit a NEW anti-pattern, add prose to LESSONS-LEARNED.md and fold the L# into a row here. A lesson that gets re-violated is a missing guardrail — graduate it to a code assertion (see `backtest/tests/test_graduated_guards.py`).
 
     | # | Theme | Lessons |
     |---|---|---|
@@ -287,6 +287,7 @@ These are non-negotiable, second only to the 10 rules above.
     | C28 | Ribbon flip is a lagging exit; exit mechanics are locally optimal; focus research on ENTRIES — exit tuning has diminishing returns once stop-rate > 70% | L139,141,156,157 |
     | C29 | Exit target/stop knobs ratified on one strike tier (ITM-2) don't transfer to another (OTM-2) — verify independently per account/strike | L149 |
     | C30 | Unconstrained exit targets (runner never hits 5x in 0DTE) = dead knob; audit what % of exits actually hit the target before sweeping it | L148 |
+    | C31 | J's 667 real trades: 1-2 lots +$4,576 / 3+ lots -$17,461 / scaled-in -$327/trade — the killer is sizing-UP/adding behavior (Rule 6 + Rule 4 + no-add-after-loss), not flat count per se; min-3-vs-J's-losing-band is an OPEN question for J (his 3+ sample is all scaled-in, no clean flat-3); risk_gate has no post-loss size throttle | L168 |
 
     
     <details><summary>Full chronological one-liner log (pre-consolidation)</summary>

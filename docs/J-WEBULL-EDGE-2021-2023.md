@@ -195,6 +195,28 @@ expectancy). 10 anomalies (sell-without-open / overflow) logged, not counted as 
 > Premium roughly doubled→tripled — these are clean directional reads held minutes,
 > not hours.
 
+### 📌 ANCHOR SET REGISTRATION (canonical pointer — future ground-truth)
+
+**These 10 small-lot winners are hereby REGISTERED as J's NEW candidate anchor set**
+for validating the regime-aware diversified book (`backtest/lib/engine/regime_book.py`)
+on J's *real* edge. They are a balanced **5 bull / 5 bear** set spanning 2022-2023 and
+cover BOTH winning archetypes (trend-continuation/pullback-resumption ≈ RIDE_THE_RIBBON,
+and reversal-off-extreme ≈ BEARISH_REJECTION) — richer and more balanced than the 3
+bearish source-of-truth trades currently in `j_edge_tracker` (CLAUDE.md OP-16).
+
+**Status: NOT yet wired into `j_edge_tracker` — by design.** These are **SPX 2021-23**
+fills (a different instrument scale and a different volatility era than the SPY-now
+engine, cf. lesson C22). They become the validation anchor set **once real ★★★ levels
+bank** on the live SPY engine and the regime book has REGIME_ACTIVE slots to test —
+they are *future* ground-truth, recorded here so the path is explicit. Do not treat
+them as immutable engine targets the way the OP-16 SPY trades are; validate any derived
+rule on the full IS population first (C24 — anchor winners can be one-off exceptions).
+
+Provenance for re-loading: rows above + `analysis/webull-j-trades/j_roundtrips.csv`
+(filter to the listed dates/symbols); archetype/VWAP overlay in
+`analysis/webull-j-trades/winner_setups.json`. See L168 for the sizing-discipline
+finding mined from the same ledger.
+
 ## Top 10 losers (SPX/SPY family, full detail)
 
 | Date | Symbol | Bias | Qty | Entry→Exit ET | Hold | Premium | P&L |

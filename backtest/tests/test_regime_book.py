@@ -185,10 +185,34 @@ def test_select_returns_empty_for_every_regime_today():
 
 
 def test_include_watch_exposes_watch_slots():
-    # Research view sees the candidates; bear_trend has 2 seeded.
+    # Research view sees the candidates; bear_trend has 4 seeded (2 fleet rows +
+    # the 2 data-discovered survivors VWAP_TREND_PULLBACK / GAP_AND_GO).
     bear = select_setups(Regime.BEAR_TREND, include_watch=True)
-    assert len(bear) == 2
+    assert len(bear) == 4
     assert any(s.setup == "BEARISH_REJECTION_RIDE_THE_RIBBON" for s in bear)
+
+
+def test_data_discovered_survivors_seeded_in_both_trends_watch_only_and_inert():
+    # The 2 infinite-ammo survivors must appear in BOTH trend cells, carry
+    # DSR=PASS + OOS-stable + the _DISCOVERY provenance, and stay WATCH_ONLY so
+    # they are NOT live-eligible (select_setups default still returns ()).
+    discovered = {"VWAP_TREND_PULLBACK", "GAP_AND_GO"}
+    for regime in (Regime.BULL_TREND, Regime.BEAR_TREND):
+        watch = select_setups(regime, include_watch=True)
+        present = {s.setup for s in watch} & discovered
+        assert present == discovered, f"{regime} missing a discovered survivor: {present}"
+        for slot in watch:
+            if slot.setup in discovered:
+                assert slot.status is PromotionStatus.WATCH_ONLY
+                assert slot.is_live_eligible() is False
+                assert slot.evidence is not None
+                assert slot.evidence.dsr_verdict == "PASS"
+                assert slot.evidence.oos_sign_stable is True
+                assert slot.evidence.on_real_levels is False  # proxy strikes (L58)
+                assert "infinite-ammo-discovery" in slot.evidence.source
+                assert slot.evidence.n > 0 and slot.evidence.exp > 0
+        # default (live) selection still excludes them — propose-only intact.
+        assert select_setups(regime) == ()
 
 
 def test_range_pin_is_empty_by_design():

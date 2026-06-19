@@ -1,3 +1,21 @@
+## [2026-06-19] CONTEXT-114: DIVERSIFICATION — the edge family is PULLBACK/TREND-CONTINUATION (both directions)
+
+Answering J's "more than bearish rejection." Mined J's real Webull history + discovered edges from candles. CONVERGENT finding across BOTH: the transferable 0DTE edge is the PULLBACK / TREND-CONTINUATION family, BOTH directions — while reversal-fades + mean-reversion-bounces consistently DIE (C3: 0DTE theta destroys mechanical fades).
+
+**3 data-discovered WATCH candidates now in regime_book.py (inert, WATCH_ONLY):**
+- VWAP_TREND_PULLBACK (H4): +$45-63/trade, both dirs, DSR PASS, OOS-stable, survives drop-top5.
+- GAP_AND_GO (H2b): +$35-40/trade, 5/6 quarters +, both dirs.
+- MA_PULLBACK_RESUMPTION (A2, ITM1): +$11.81, all 6 quarters +, both dirs (fires ~100% days = trend overlay, C27).
+All proxy-level, need real ★★★ + promotion-gate before live.
+
+**J's real edge (Webull 2021-23, 667 trades):** pullback/reversal trader, better long, winners cluster midday, every winner correct side of VWAP. #1 finding = SIZING (1-2 lots +$4,576 / 3+ lots -$17,461; sizes UP into worst trades) -> L168.
+
+**2 DECISIONS FOR J (Rule 9, surfaced not resolved):** (a) doctrine min-3 contracts vs J's 3+ losing band - is flat-3 ok (the killer is sizing-UP/adding, not flat-3)? (b) add a post-loss size throttle to risk_gate (currently only static per-trade cap, no equity-trajectory throttle)?
+
+**Conclusive negatives:** reversal-off-VWAP-extreme (loser both dirs), midday-mechanical-overlay (not actionable - J's time edge was discretionary), intraday-momentum standalone, ORB+RVOL. Edge = pullback/continuation, not reversal/mean-reversion.
+
+---
+
 ## [2026-06-19] CONTEXT-113: DIVERSIFIED BOOK — bias corrected, regime-aware multi-setup framework built
 
 J: "we need more than just bearish rejection." Correct + my prior "only bearish" was a FRAMEWORK ARTIFACT (everything gated on edge_capture vs 3 BEARISH anchors). Unbiased standalone real-fills re-eval (fleet-standalone-regime.json):
@@ -6855,3 +6873,5 @@ Kitchen: alive, queue 26 pending, last cook 0 min ago, today $0.00, model=?
 
 - [2026-06-19 14:04:57] gym-session (2026-06-19) → **RED** :: see `automation\state\gym-scorecard-2026-06-19.json`
 - [2026-06-19 08:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 90.43% in last 24h (85/94) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-19 08:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 90.62% in last 24h (87/96) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
