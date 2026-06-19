@@ -321,6 +321,31 @@ For each candidate setup (BEARISH_REJECTION_RIDE_THE_RIBBON or BULLISH_RECLAIM_R
 
 This rule lives in `risk-rules.md` doctrine but was NOT enforced by the heartbeat until 2026-05-08 — operating principle 4 enforcement gap closed. Re-entering a setup that just stopped out is laddering down: when a setup pattern fails once on a given day, the day's regime is wrong for that setup.
 
+### GAP_AND_GO open-bar setup (NEW 2026-06-19 — H2b; FLAG-GATED, default OFF = inert)
+
+> Once-per-day opening-gap continuation. Validated on real OPRA fills, chart-stop-only: exp +$41.6/trade, WR 72.6%, n=84, DSR PASS, WF median +1.87 (all OOS+), 6/6 quarters +, both directions +, causality 96/96 PASS. Scorecard: `analysis/recommendations/gap-and-go-LIVE.json`. Detector (validated, parity-tested vs research over 363 days): `backtest/lib/watchers/gap_and_go_watcher.py`. Wiring rationale: `docs/GAP-AND-GO-HEARTBEAT-WIRING-PROPOSAL.md`. Carries its own independent first-entry lock key `GAP_AND_GO` (per the setup-isolation guarantee above).
+
+Read `params.json#gap_and_go_enabled` (default `false`) and `params.json#gap_and_go_side` (default `"put"`). **If `gap_and_go_enabled != true`, SKIP this entire block** and fall through to `### Scoring` unchanged (this is the default → zero behavior change). When enabled, evaluate ONLY when ALL of:
+- the last closed 5m bar is the day's FIRST RTH bar (start == 09:30 ET) — i.e. the 09:35 ET tick acting on the just-closed 09:30 bar. Skip on every other tick.
+- `current-position.status == null` (flat) AND flat-verified vs Alpaca (the existing 09:30 reconcile applies).
+- filters 2 (news clear), 3 (budget > risk), 4 (day-trades ≥ 1) PASS; MACRO BIAS hard-veto NOT active.
+
+Compute:
+- `prior_rth_close` = prior trading day's RTH close (`today-bias.json#prior_close`).
+- `gap = first_bar.open / prior_rth_close - 1`.
+- Gap-UP (`gap >= +0.0025`) AND first bar GREEN (`close > open`) → **CALLS**, but ONLY if `gap_and_go_side ∈ {"both","call"}` (else SKIP — the bull side is OP-16-gated and OFF by default).
+- Gap-DOWN (`gap <= -0.0025`) AND first bar RED (`close < open`) → **PUTS**, if `gap_and_go_side ∈ {"both","put"}`.
+- SKIP if `|gap| > 0.015` (runaway/news), `|gap| < 0.0025` (no real gap), or the first bar did not confirm the gap direction (that is a fade, not a go).
+
+If a side fires:
+- **strike**: the account's normal per-tier (v15 `strike_offset_per_tier`); ATM is the validated default, OTM proxy is directionally valid (L58).
+- **stop = CHART STOP ONLY** = the first RTH bar's OPPOSITE extreme (calls: first-bar LOW; puts: first-bar HIGH). Premium stop = the standard −50% catastrophe cap only. DO NOT set a tight premium stop — the −8% premium stop is exactly what choked this setup (WR 42.9% → 72.6% on chart-stop).
+- **sizing**: min 3 (`min_contracts`), premium ceiling ~6% equity (`docs/SIZING-STUDY-2026-06-19.md`); `risk_gate.check_order` is the authority.
+- **TP / runner / time stop**: the standard v15 stack (TP1 chart-level OR +50% premium fallback, `tp1_qty_fraction`; runner 2.5×; 15:50 ET hard time stop). Route through the SAME `### Pre-execution gate sequence` + `### Execution steps` as a normal entry. Log `decisions.jsonl` with `setup: "GAP_AND_GO"`, `trigger: "gap_and_go_open"`. Journal the pre-trade thesis BEFORE the order (Rule 8).
+- **One per day**: after a gap-and-go entry (or explicit skip), do not re-evaluate this block today.
+
+If no side fires, fall through to the normal `### Scoring` section unchanged (a non-gap or unconfirmed-gap day just trades the normal book).
+
 ### Scoring
 
 Score both setups against the LAST CLOSED 5m bar. UNKNOWN field = FAIL.

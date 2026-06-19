@@ -65,6 +65,9 @@
   "vix_dir_deadband": 0.05,
   "_sizing_section": "v13b quality-tiered. ELITE = trigger set includes confluence OR sequence_rejection/reclaim. BASE = otherwise. $0-$2k tier skips quality scaling (capital constraint).",
   "min_contracts": 3,
+  "gap_and_go_enabled": false,
+  "gap_and_go_side": "put",
+  "_gap_and_go_doc": "H2b opening-gap continuation, WATCH->LIVE candidate. enabled=false => the heartbeat GAP_AND_GO block is inert (zero behavior change). Flip enabled=true to go live; side defaults to 'put' (bear-only = OP-16-compliant, no bull-side scope expansion). Set side='both' to also trade gap-up calls (J's bull-side extend per OP-16). When live: first-RTH-bar gap>=0.25% + confirming bar (green->calls / red->puts), entry next bar, CHART-STOP-ONLY (first-bar opposite extreme), min-3 + ~6% premium ceiling, standard v15 TP/runner/time-stop. Validated real-fills chart-stop-only: exp +$41.6/WR 72.6%/n=84, DSR PASS, WF median +1.87 all-OOS+, 6/6 quarters +, both dirs +, causality 96/96 PASS. Detector: backtest/lib/watchers/gap_and_go_watcher.py. Scorecard: analysis/recommendations/gap-and-go-LIVE.json. Revert: set enabled=false.",
   "position_sizing_tiers": [
     {
       "equity_min": 0,
