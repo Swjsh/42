@@ -631,5 +631,606 @@
     "WF_norm > 1.0 (OOS per-trade > IS) is real here, driven by strong 2026-Q1 gap days; absolute OOS dollars are substantial (70% cut OOS +$1,715 / n=25), not a small-denominator artifact.",
     "OP-21 live gate STILL STANDS: 3 live J confirmations before any live order path. This is a propose-and-ship of the heartbeat WIRING; J holds REVOKE."
   ],
-  "verdict": "SHIP-LIVE"
+  "verdict": "SHIP-LIVE",
+  "call_side_standalone": {
+    "generated_at": "2026-06-19T20:10:48.488790+00:00",
+    "script": "backtest/autoresearch/gap_and_go_call_side_standalone.py",
+    "question": "Does the gap-and-go CALL side ALONE clear the full OP-22 bar on the LIVE config (chart-stop-only)? Decides flip to side='both' vs hold bear-only.",
+    "live_state": "params.gap_and_go_side='put' (calls OFF, OP-16 bull-DRAFT).",
+    "signal_set": "CALL-ONLY (gap-UP + green first bar; side=='C'), filtered from detect_gap_and_go's full 96-signal set.",
+    "call_signal_count": 61,
+    "put_signal_count_for_context": 35,
+    "ship_gate_definition": {
+      "rule": "SHIP-CALLS iff ALL hold on the call side ALONE (chart-stop-only): OOS+ ($ AND %) AND WF_median>=0.70 AND all-cuts-OOS-positive AND DSR not-FAIL AND drop-top5 mean>0 AND >=5/6 quarters positive.",
+      "both_dirs_excluded": "both_dirs_positive is N/A for a single-side test and is deliberately NOT applied (it would auto-fail a call-only set).",
+      "extra_scrutiny": "Quarter rule is the stricter >=5/6 count (not just >=60%) per OP-16 bull-side extra scrutiny.",
+      "evaluated_on": "ATM chart_stop_only ONLY (the LIVE strike tier). ITM1 is reported as context, NOT a ship path \u2014 the flip is params.gap_and_go_side while the live engine trades ATM, so ITM1 passing cannot ship calls if the LIVE (ATM) config fails (OP-16 anti-landmine)."
+    },
+    "tiers": {
+      "ATM": {
+        "chart_stop_only": {
+          "n": 55,
+          "wins": 36,
+          "wr_pct": 65.5,
+          "exp_dollar": 27.69,
+          "total_dollar": 1523.0,
+          "exp_pct_return": 0.09839,
+          "is_n": 40,
+          "oos_n": 15,
+          "is_exp_dollar": 8.19,
+          "oos_exp_dollar": 79.68,
+          "is_exp_pct": 0.05246,
+          "oos_exp_pct": 0.22087,
+          "oos_sign_stable": true,
+          "wf_windows": [
+            {
+              "cut_frac": 0.6,
+              "cut_date": "2025-11-14",
+              "is_n": 35,
+              "oos_n": 20,
+              "is_total": 354.2,
+              "oos_total": 1168.8,
+              "oos_exp": 58.44,
+              "wf_norm": 5.775,
+              "oos_positive": true
+            },
+            {
+              "cut_frac": 0.7,
+              "cut_date": "2026-01-09",
+              "is_n": 40,
+              "oos_n": 15,
+              "is_total": 327.8,
+              "oos_total": 1195.2,
+              "oos_exp": 79.68,
+              "wf_norm": 9.723,
+              "oos_positive": true
+            },
+            {
+              "cut_frac": 0.8,
+              "cut_date": "2026-03-04",
+              "is_n": 44,
+              "oos_n": 11,
+              "is_total": 1092.0,
+              "oos_total": 431.0,
+              "oos_exp": 39.18,
+              "wf_norm": 1.579,
+              "oos_positive": true
+            }
+          ],
+          "median_wf_norm": 5.775,
+          "all_cuts_oos_positive": true,
+          "quarters": {
+            "2025Q1": {
+              "n": 9,
+              "exp": 16.4,
+              "total": 147.6
+            },
+            "2025Q2": {
+              "n": 8,
+              "exp": -14.35,
+              "total": -114.8
+            },
+            "2025Q3": {
+              "n": 12,
+              "exp": 4.6,
+              "total": 55.2
+            },
+            "2025Q4": {
+              "n": 10,
+              "exp": 17.98,
+              "total": 179.8
+            },
+            "2026Q1": {
+              "n": 9,
+              "exp": 52.51,
+              "total": 472.6
+            },
+            "2026Q2": {
+              "n": 7,
+              "exp": 111.8,
+              "total": 782.6
+            }
+          },
+          "quarter_positive_fraction": 0.83,
+          "by_side": {
+            "C": {
+              "n": 55,
+              "exp": 27.69,
+              "wr": 65.5,
+              "total": 1523.0
+            }
+          },
+          "both_dirs_positive": false,
+          "drop_top5_mean_dollar": -9.75,
+          "drop_top3_mean_dollar": 2.73,
+          "top5_winner_share_of_gross_wins": 0.37,
+          "robust_to_outliers": false,
+          "dsr": {
+            "verdict": "PASS",
+            "dsr": 0.366989086028917,
+            "psr": 0.9585013610598164,
+            "pbo": null,
+            "n_obs": 55,
+            "n_trials": 30,
+            "low_power": false,
+            "notes": [
+              "PSR(vs 0)=0.9585 on n=55 obs (Sharpe=0.226, skew=0.56, kurt=4.30).",
+              "DSR deflated for n_trials=30 (SR_0=0.270) = 0.3670.",
+              "PBO skipped (no performance matrix supplied).",
+              "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+            ]
+          },
+          "dsr_verdict": "PASS",
+          "exit_reason_hist": {
+            "TP1_THEN_RUNNER_RIBBON": 27,
+            "EXIT_ALL_LEVEL_STOP": 15,
+            "EXIT_ALL_RIBBON_FLIP_BACK": 4,
+            "TP1_THEN_RUNNER_TIME": 8,
+            "EXIT_ALL_TIME_STOP": 1
+          },
+          "coverage": {
+            "filled": 55,
+            "cache_miss": 6
+          },
+          "premium_stop_pct": -0.99,
+          "note_single_side": "CALL-ONLY signal set; both_dirs_positive N/A by construction.",
+          "_top5_sum_dollar": 2010.4,
+          "ship_gate_call_side": {
+            "oos_positive_dollar": true,
+            "oos_sign_stable_pct": true,
+            "wf_median_ge_0.70": true,
+            "all_cuts_oos_positive": true,
+            "dsr_not_fail": true,
+            "robust_drop_top5": false,
+            "quarters_pos_count": 5,
+            "quarters_total": 6,
+            "quarters_ge_5_of_6": true
+          },
+          "ship_call_side_pass": false
+        },
+        "discovery_default_-8pct": {
+          "n": 55,
+          "wins": 21,
+          "wr_pct": 38.2,
+          "exp_dollar": 26.52,
+          "total_dollar": 1458.68,
+          "exp_pct_return": 0.07135,
+          "is_n": 40,
+          "oos_n": 15,
+          "is_exp_dollar": 16.39,
+          "oos_exp_dollar": 53.53,
+          "is_exp_pct": 0.04699,
+          "oos_exp_pct": 0.13631,
+          "oos_sign_stable": true,
+          "wf_windows": [
+            {
+              "cut_frac": 0.6,
+              "cut_date": "2025-11-14",
+              "is_n": 35,
+              "oos_n": 20,
+              "is_total": 566.2,
+              "oos_total": 892.48,
+              "oos_exp": 44.62,
+              "wf_norm": 2.758,
+              "oos_positive": true
+            },
+            {
+              "cut_frac": 0.7,
+              "cut_date": "2026-01-09",
+              "is_n": 40,
+              "oos_n": 15,
+              "is_total": 655.72,
+              "oos_total": 802.96,
+              "oos_exp": 53.53,
+              "wf_norm": 3.265,
+              "oos_positive": true
+            },
+            {
+              "cut_frac": 0.8,
+              "cut_date": "2026-03-04",
+              "is_n": 44,
+              "oos_n": 11,
+              "is_total": 1470.56,
+              "oos_total": -11.88,
+              "oos_exp": -1.08,
+              "wf_norm": -0.032,
+              "oos_positive": false
+            }
+          ],
+          "median_wf_norm": 2.758,
+          "all_cuts_oos_positive": false,
+          "quarters": {
+            "2025Q1": {
+              "n": 9,
+              "exp": 35.69,
+              "total": 321.24
+            },
+            "2025Q2": {
+              "n": 8,
+              "exp": 12.69,
+              "total": 101.52
+            },
+            "2025Q3": {
+              "n": 12,
+              "exp": 15.78,
+              "total": 189.4
+            },
+            "2025Q4": {
+              "n": 10,
+              "exp": -1.64,
+              "total": -16.44
+            },
+            "2026Q1": {
+              "n": 9,
+              "exp": 126.84,
+              "total": 1141.6
+            },
+            "2026Q2": {
+              "n": 7,
+              "exp": -39.81,
+              "total": -278.64
+            }
+          },
+          "quarter_positive_fraction": 0.67,
+          "by_side": {
+            "C": {
+              "n": 55,
+              "exp": 26.52,
+              "wr": 38.2,
+              "total": 1458.68
+            }
+          },
+          "both_dirs_positive": false,
+          "drop_top5_mean_dollar": -0.99,
+          "drop_top3_mean_dollar": 6.41,
+          "top5_winner_share_of_gross_wins": 0.527,
+          "robust_to_outliers": false,
+          "dsr": {
+            "verdict": "PASS",
+            "dsr": 0.8164621306261507,
+            "psr": 0.9985367601887445,
+            "pbo": null,
+            "n_obs": 55,
+            "n_trials": 30,
+            "low_power": false,
+            "notes": [
+              "PSR(vs 0)=0.9985 on n=55 obs (Sharpe=0.257, skew=3.38, kurt=17.39).",
+              "DSR deflated for n_trials=30 (SR_0=0.179) = 0.8165.",
+              "PBO skipped (no performance matrix supplied).",
+              "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+            ]
+          },
+          "dsr_verdict": "PASS",
+          "exit_reason_hist": {
+            "TP1_THEN_RUNNER_RIBBON": 18,
+            "EXIT_ALL_PREMIUM_STOP": 34,
+            "TP1_THEN_RUNNER_TIME": 3
+          },
+          "coverage": {
+            "filled": 55,
+            "cache_miss": 6
+          },
+          "premium_stop_pct": -0.08,
+          "note_single_side": "CALL-ONLY signal set; both_dirs_positive N/A by construction.",
+          "_top5_sum_dollar": 1508.0
+        }
+      },
+      "ITM1": {
+        "chart_stop_only": {
+          "n": 55,
+          "wins": 36,
+          "wr_pct": 65.5,
+          "exp_dollar": 46.74,
+          "total_dollar": 2570.8,
+          "exp_pct_return": 0.112,
+          "is_n": 40,
+          "oos_n": 15,
+          "is_exp_dollar": 24.96,
+          "oos_exp_dollar": 104.83,
+          "is_exp_pct": 0.0681,
+          "oos_exp_pct": 0.22907,
+          "oos_sign_stable": true,
+          "wf_windows": [
+            {
+              "cut_frac": 0.6,
+              "cut_date": "2025-11-14",
+              "is_n": 35,
+              "oos_n": 20,
+              "is_total": 966.6,
+              "oos_total": 1604.2,
+              "oos_exp": 80.21,
+              "wf_norm": 2.904,
+              "oos_positive": true
+            },
+            {
+              "cut_frac": 0.7,
+              "cut_date": "2026-01-09",
+              "is_n": 40,
+              "oos_n": 15,
+              "is_total": 998.4,
+              "oos_total": 1572.4,
+              "oos_exp": 104.83,
+              "wf_norm": 4.2,
+              "oos_positive": true
+            },
+            {
+              "cut_frac": 0.8,
+              "cut_date": "2026-03-04",
+              "is_n": 44,
+              "oos_n": 11,
+              "is_total": 1874.0,
+              "oos_total": 696.8,
+              "oos_exp": 63.35,
+              "wf_norm": 1.487,
+              "oos_positive": true
+            }
+          ],
+          "median_wf_norm": 2.904,
+          "all_cuts_oos_positive": true,
+          "quarters": {
+            "2025Q1": {
+              "n": 9,
+              "exp": 57.58,
+              "total": 518.2
+            },
+            "2025Q2": {
+              "n": 8,
+              "exp": 1.82,
+              "total": 14.6
+            },
+            "2025Q3": {
+              "n": 12,
+              "exp": 2.0,
+              "total": 24.0
+            },
+            "2025Q4": {
+              "n": 10,
+              "exp": 34.8,
+              "total": 348.0
+            },
+            "2026Q1": {
+              "n": 9,
+              "exp": 58.56,
+              "total": 527.0
+            },
+            "2026Q2": {
+              "n": 7,
+              "exp": 162.71,
+              "total": 1139.0
+            }
+          },
+          "quarter_positive_fraction": 1.0,
+          "by_side": {
+            "C": {
+              "n": 55,
+              "exp": 46.74,
+              "wr": 65.5,
+              "total": 2570.8
+            }
+          },
+          "both_dirs_positive": false,
+          "drop_top5_mean_dollar": 5.04,
+          "drop_top3_mean_dollar": 19.93,
+          "top5_winner_share_of_gross_wins": 0.323,
+          "robust_to_outliers": true,
+          "dsr": {
+            "verdict": "PASS",
+            "dsr": 0.517621438546462,
+            "psr": 0.9828945493724852,
+            "pbo": null,
+            "n_obs": 55,
+            "n_trials": 30,
+            "low_power": false,
+            "notes": [
+              "PSR(vs 0)=0.9829 on n=55 obs (Sharpe=0.274, skew=0.60, kurt=4.61).",
+              "DSR deflated for n_trials=30 (SR_0=0.268) = 0.5176.",
+              "PBO skipped (no performance matrix supplied).",
+              "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+            ]
+          },
+          "dsr_verdict": "PASS",
+          "exit_reason_hist": {
+            "TP1_THEN_RUNNER_RIBBON": 25,
+            "EXIT_ALL_LEVEL_STOP": 15,
+            "EXIT_ALL_RIBBON_FLIP_BACK": 4,
+            "TP1_THEN_RUNNER_TIME": 10,
+            "EXIT_ALL_TIME_STOP": 1
+          },
+          "coverage": {
+            "filled": 55,
+            "cache_miss": 6
+          },
+          "premium_stop_pct": -0.99,
+          "note_single_side": "CALL-ONLY signal set; both_dirs_positive N/A by construction.",
+          "_top5_sum_dollar": 2319.0,
+          "ship_gate_call_side": {
+            "oos_positive_dollar": true,
+            "oos_sign_stable_pct": true,
+            "wf_median_ge_0.70": true,
+            "all_cuts_oos_positive": true,
+            "dsr_not_fail": true,
+            "robust_drop_top5": true,
+            "quarters_pos_count": 6,
+            "quarters_total": 6,
+            "quarters_ge_5_of_6": true
+          },
+          "ship_call_side_pass": true
+        },
+        "discovery_default_-8pct": {
+          "n": 55,
+          "wins": 21,
+          "wr_pct": 38.2,
+          "exp_dollar": 35.93,
+          "total_dollar": 1975.88,
+          "exp_pct_return": 0.08293,
+          "is_n": 40,
+          "oos_n": 15,
+          "is_exp_dollar": 29.08,
+          "oos_exp_dollar": 54.19,
+          "is_exp_pct": 0.06389,
+          "oos_exp_pct": 0.13371,
+          "oos_sign_stable": true,
+          "wf_windows": [
+            {
+              "cut_frac": 0.6,
+              "cut_date": "2025-11-14",
+              "is_n": 35,
+              "oos_n": 20,
+              "is_total": 1010.16,
+              "oos_total": 965.72,
+              "oos_exp": 48.29,
+              "wf_norm": 1.673,
+              "oos_positive": true
+            },
+            {
+              "cut_frac": 0.7,
+              "cut_date": "2026-01-09",
+              "is_n": 40,
+              "oos_n": 15,
+              "is_total": 1163.04,
+              "oos_total": 812.84,
+              "oos_exp": 54.19,
+              "wf_norm": 1.864,
+              "oos_positive": true
+            },
+            {
+              "cut_frac": 0.8,
+              "cut_date": "2026-03-04",
+              "is_n": 44,
+              "oos_n": 11,
+              "is_total": 2084.6,
+              "oos_total": -108.72,
+              "oos_exp": -9.88,
+              "wf_norm": -0.209,
+              "oos_positive": false
+            }
+          ],
+          "median_wf_norm": 1.673,
+          "all_cuts_oos_positive": false,
+          "quarters": {
+            "2025Q1": {
+              "n": 9,
+              "exp": 71.7,
+              "total": 645.28
+            },
+            "2025Q2": {
+              "n": 8,
+              "exp": 16.48,
+              "total": 131.88
+            },
+            "2025Q3": {
+              "n": 12,
+              "exp": 35.09,
+              "total": 421.04
+            },
+            "2025Q4": {
+              "n": 10,
+              "exp": -12.88,
+              "total": -128.76
+            },
+            "2026Q1": {
+              "n": 9,
+              "exp": 143.06,
+              "total": 1287.56
+            },
+            "2026Q2": {
+              "n": 7,
+              "exp": -54.45,
+              "total": -381.12
+            }
+          },
+          "quarter_positive_fraction": 0.67,
+          "by_side": {
+            "C": {
+              "n": 55,
+              "exp": 35.93,
+              "wr": 38.2,
+              "total": 1975.88
+            }
+          },
+          "both_dirs_positive": false,
+          "drop_top5_mean_dollar": 2.84,
+          "drop_top3_mean_dollar": 13.34,
+          "top5_winner_share_of_gross_wins": 0.475,
+          "robust_to_outliers": true,
+          "dsr": {
+            "verdict": "PASS",
+            "dsr": 0.882482042379185,
+            "psr": 0.9994446618178879,
+            "pbo": null,
+            "n_obs": 55,
+            "n_trials": 30,
+            "low_power": false,
+            "notes": [
+              "PSR(vs 0)=0.9994 on n=55 obs (Sharpe=0.286, skew=3.00, kurt=14.46).",
+              "DSR deflated for n_trials=30 (SR_0=0.182) = 0.8825.",
+              "PBO skipped (no performance matrix supplied).",
+              "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+            ]
+          },
+          "dsr_verdict": "PASS",
+          "exit_reason_hist": {
+            "TP1_THEN_RUNNER_RIBBON": 16,
+            "EXIT_ALL_PREMIUM_STOP": 34,
+            "TP1_THEN_RUNNER_TIME": 4,
+            "EXIT_ALL_TIME_STOP": 1
+          },
+          "coverage": {
+            "filled": 55,
+            "cache_miss": 6
+          },
+          "premium_stop_pct": -0.08,
+          "note_single_side": "CALL-ONLY signal set; both_dirs_positive N/A by construction.",
+          "_top5_sum_dollar": 1834.0
+        }
+      }
+    },
+    "result": {
+      "decided_on": "ATM chart_stop_only (the LIVE strike tier).",
+      "ATM_chart_stop_only_gate": {
+        "oos_positive_dollar": true,
+        "oos_sign_stable_pct": true,
+        "wf_median_ge_0.70": true,
+        "all_cuts_oos_positive": true,
+        "dsr_not_fail": true,
+        "robust_drop_top5": false,
+        "quarters_pos_count": 5,
+        "quarters_total": 6,
+        "quarters_ge_5_of_6": true
+      },
+      "ITM1_chart_stop_only_gate": {
+        "oos_positive_dollar": true,
+        "oos_sign_stable_pct": true,
+        "wf_median_ge_0.70": true,
+        "all_cuts_oos_positive": true,
+        "dsr_not_fail": true,
+        "robust_drop_top5": true,
+        "quarters_pos_count": 6,
+        "quarters_total": 6,
+        "quarters_ge_5_of_6": true
+      },
+      "ATM_pass": false,
+      "ITM1_pass_context_only": true
+    },
+    "deciding_axis": [
+      "robust_drop_top5"
+    ],
+    "outlier_fragility": {
+      "atm_drop_top5_mean_dollar": -9.75,
+      "atm_top5_winner_share_of_gross_wins": 0.37,
+      "note": "ATM call side: drop-top5 mean is NEGATIVE (remove the 5 best winners and the average call trade LOSES). 4 of the 6 'positive' quarters flip negative when a SINGLE trade is removed (per-quarter drop-top1: 2025Q2 -$51.7, 2025Q3 -$26.3, 2025Q4 -$14.3, 2026Q1 -$10.0; only 2026Q2 +$49.8 is broad). ITM1 is genuinely broader (drop-top5 +$5.04, 6/6 quarters) but is not the live tier."
+    },
+    "wf_artifact_warning": {
+      "atm_median_wf_norm": 5.775,
+      "note": "ATM call-side WF (5.775) is a SMALL-DENOMINATOR ARTIFACT, not robustness: IS per-trade at the 70-cut is only +$8.2 (near breakeven), so the OOS/IS ratio explodes. The IS half barely makes money; OOS strength rests on a few 2026 winners. WF passing the >=0.70 gate is technically true but misleading here \u2014 the drop-top5 axis is the honest robustness read."
+    },
+    "verdict": "KEEP-PUT-ONLY",
+    "verdict_one_line": "KEEP-PUT-ONLY: call side ALONE fails ['robust_drop_top5'] on ATM chart-stop-only (the LIVE tier) \u2014 exp $+27.7/WR 65.5%, OOS$ +79.7, medWF +5.775, DSR PASS. (ITM1 PASSES, but ITM1 is not the live tier.)",
+    "caveats": [
+      "Modest call sample (n~55 ATM fills / 17 months). No single window is high-power; DSR + drop-top5 + by-quarter carry the standalone weight \u2014 and drop-top5 is where the ATM call side fails.",
+      "Proxy strikes (L58): ATM not always cached; nearest-cached strike used. ITM/OTM proxy shifts P&L modestly.",
+      "The ATM call side leans on a few outliers (top-5 winners = $2010 of $1523 gross total) and only 2 of 6 quarters are broad-based \u2014 drop-top5 + per-quarter drop-top1 are the tells. This is exactly the OP-16 landmine the bull side ships under: aggregate-positive but NOT broad-based on the LIVE tier.",
+      "OP-16 bull-DRAFT + OP-21 live gate STILL STAND: J makes the params flip decision; this script only files the evidence."
+    ]
+  }
 }
