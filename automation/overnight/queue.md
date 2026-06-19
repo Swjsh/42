@@ -107,3 +107,6 @@ These are exactly the OP-22 "371st untriaged candidate is debt" pattern. The `gy
 
 ## Blocked
 (none active — Rule-9 J-ruling items live in Active Tier 2, which are decisions not blocks)
+
+## Forward backlog (deliberate-future)
+See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-loop forward work (Tier 0 BEARISH_REJECTION exit/regime; Tier 1 decision-lib P3/P4; Tier 2 key-levels archive + watcher RETIRE).

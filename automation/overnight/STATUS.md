@@ -1,3 +1,17 @@
+## [2026-06-19] CONTEXT-110: ALL-NIGHT AUTONOMOUS LOOP COMPLETE (16 commits 5d247c6..22988b0)
+
+J: "work all night, find things, fix, improve, Gamma fully autonomous professional trader learning + improving." Ran the conductor loop manually: maintained a tracked backlog, worked the highest-value bounded task each cycle, verified (gym green) + committed each, paced through a peak-load 529 window. 6 cycles after the blueprint Waves A-D.
+
+**Completed + committed (backlog #16-26):** queue triage (172 stale CRITICALs archived); CONTEXT-109 loose ends (params mojibake, slow-test hook split, frontmatter YAML); decision-lib Phase 1 (engine/score.py) + Phase 2 (engine/gates.py) extracted + parity-locked (assert-agree, backtest byte-identical); lessons->guards (L164/L165 + verify_committed/tz-localize/profit-lock guards; CAUGHT+FIXED a live tz bug in safe_trendline_spread_gate.py); promotion-rigor (DSR/PBO) wired into scorecards; Gamma operator persona (gamma.md coherent identity, 310->159 lines); account_id stamped at the ledger writer; op11 stale test fixed.
+
+**Strategic findings (the research payoff):** (1) the mean-reversion BOUNCE family (floor_hold, close_ceiling, named_level_second_test) is DEAD/anti-edge under every tested exit/regime/short-inversion (watcher-exit-sweep.json, bounce-family-rescue.json) -> RETIRE. (2) BEARISH_REJECTION is THE edge — the only entry firing WITH J on real fills (bearish-continuation-family.json). (3) The leverage is EXIT/REGIME refinement of the confirmed setup, NOT new entries. Focus engineering there.
+
+**Durability lesson (L164):** `git commit --only` silently drops UNTRACKED new files — several Wave B deliverables (risk_gate.py etc.) were never committed until caught + fixed (bd52457). Now guarded by setup/scripts/verify_committed.py. Always `git add` new files before --only.
+
+**Forward backlog (deliberate-future, NOT 2am-grind):** automation/overnight/forward-backlog-2026-06-19.md — Tier 0: BEARISH_REJECTION exit/regime refinement. Tier 1: decision-lib Phase 3 (engine_cli shim + shadow) + Phase 4 (cutover, J-gated). Tier 2: production key-levels archive; watcher-fleet RETIRE (J approves).
+
+---
+
 ## [2026-06-18] CONTEXT-109: BLUEPRINT EXECUTED — 4 waves, professional restructuring (commits 5d247c6, effa672, 26775b1 + spec)
 
 J: "I want all of it, make it not over-engineered and professionally structured, work through the entire plan tonight methodically." Executed the GAMMA-AUTONOMY-BLUEPRINT in 4 ordered waves, verification-gated + committed after each. Final gym 88/88 WITH replay. ~30 agents across the night.
@@ -3995,7 +4009,7 @@ v38 (V14E chop zone gate) + v39 (ORB signal reader) both registered and passing.
 - v02 source parity drift RED: crypto harness validator disagreements_above_tolerance. Pre-existing. 69-70/70 stages still PASS. Fix: add 30s pre-bar guard to the v02 fetch.
 
 ## Kitchen
-Kitchen: alive, queue 40 pending, last cook 0 min ago, today $0.00, model=grinder-python
+Kitchen: alive, queue 40 pending, last cook 0 min ago, today $0.00, model=nvidia/nemotron-3-super-120b-a12b:free
 
 ### Answer to "are you certain we will never hit rate limit?"
 **HIGH CONFIDENCE, not 100%.** I just audited the rate-limit firewall end-to-end and **found 2 critical bugs in the L3 exemption layer** — heartbeat would have starved AGAIN today if I hadn't checked. Both patched and smoke-tested before 09:30. Full audit details in the INFRASTRUCTURE FIREWALL section below.
@@ -6766,3 +6780,11 @@ Kitchen: alive, queue 26 pending, last cook 0 min ago, today $0.00, model=?
 - claude_sessions: 1
 
 - [2026-06-18 23:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.29% in last 24h (66/70) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v25_filter_gates.offline pass rate dropped to 90.0% in last 24h (63/70) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-19 00:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.59% in last 24h (70/74) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v25_filter_gates.offline pass rate dropped to 91.89% in last 24h (68/74) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-19 00:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.59% in last 24h (70/74) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v25_filter_gates.offline pass rate dropped to 93.24% in last 24h (69/74) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-19 01:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.74% in last 24h (72/76) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v25_filter_gates.offline pass rate dropped to 94.74% in last 24h (72/76) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-19 01:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.42% in last 24h (71/76) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
