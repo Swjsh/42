@@ -1,3 +1,11 @@
+## [2026-06-19] CONTEXT-117: Phase-3 ENGINE SHADOW harness (wired-not-enabled, commit 64809b4)
+
+Last big-ticket weekend engineering item. Built the read-only sidecar that measures whether the decision-LIBRARY (score.py+gates.py, byte-identical to orchestrator in backtests) agrees with the live PROSE on the exact BarContext the LLM produces live — the one validation a synthetic reproducer can't give (earns the Phase-4 right to let code drive). automation/scripts/engine_shadow.py reuses decide_payload in-process, logs paired prose-vs-engine rows to engine-shadow-decisions.jsonl (SEPARATE from the Nemotron model shadow), --scorecard = the Phase-4 gate (overall>=99% + entries==100% over N>=5 days). TWO IRON GUARANTEES: read-only + fail-open (any error->SHADOW_ERROR row, exit 0, never breaks the live tick). 17 tests + DRY-RUN proven end-to-end (happy HOLD path + fail-open on bad payload). docs/ENGINE-SHADOW-HARNESS.md has the EXACT ~2-line propose-only heartbeat edit (engine-3b). WIRED-NOT-ENABLED (Rule 9): touched NO engine/heartbeat/params (git-verified); J flips it on after-hours Monday.
+
+**Weekend engineering queue now EXHAUSTED** — everything left needs Monday live data + accruing ★★★/GEX/shadow archives. Loop -> long cadence (max 1h), research/health-check mode. 7 commits this session (a3cda6c,a0cd64e,f05bb75,01d0695,STATUS,64809b4).
+
+---
+
 ## [2026-06-19] CONTEXT-116: GEX->premarket wiring spec (propose-only, commit 01d0695)
 
 Closed a partial-visibility gap: gex_capture.py banks gex-regime.json daily but NOTHING consumed it. docs/GEX-PREMARKET-WIRING.md = the exact copy-pasteable premarket.md edit (Reads + new Step 3c intake + today-bias gex_context field) carrying the dealer-gamma regime -> heartbeat -> classify_regime(gex_hint). Consumer interface ALREADY existed + is conservative (reinforce-only: nudges NEUTRAL base, never flips a directional read). Mapping: short_gamma_trend=trend/continuation-friendly (edge regime); long_gamma_pin=pin/fade+size-down+respect walls. VERIFIED end-to-end on live tag (label in vocab; long_gamma_pin+low-VIX->range_pin; strong-BULL+pin stays bull_trend). Additive-only today (book WATCH_ONLY=no trade changes); ready on promotion. NOT applied (Rule 9); apply-gate = >=5 banked days + label sanity check, after-hours. No engine/prompt/params touched.
@@ -203,3 +211,7 @@ J directive: "fix all 4 phases... look for any other loose ends like this... whe
 > **Older entries (CONTEXT-104 and earlier) archived** to [STATUS-ARCHIVE.md](STATUS-ARCHIVE.md) on 2026-06-19 (OP-22 consolidation — kept STATUS.md lean so each wake does not load ~160K tokens). This file holds the current arc only.
 
 - [2026-06-19 10:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.0% in last 24h (94/100) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-19 11:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.0% in last 24h (94/100) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-19 11:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.0% in last 24h (94/100) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
