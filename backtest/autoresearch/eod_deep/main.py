@@ -338,15 +338,24 @@ def _extract_setup_score(data: ingest_mod.IngestedData) -> str:
 
 
 def _extract_engine_decisions(data: ingest_mod.IngestedData) -> list[schema.EngineDecision]:
-    """Pull notable decisions from decisions.jsonl + loop-state's reason history."""
+    """Pull notable decisions from decisions.jsonl + loop-state's reason history.
+
+    The producer (heartbeat.md) writes the decision under the field `action`
+    (e.g. ENTER_BULL / EXIT_TP1 / SKIP_* / WATCH_ONLY). Older rows may use
+    `decision`. Read `action` first, fall back to `decision`, so non-HOLD rows
+    (including watcher WATCH_ONLY / *_WOULD_ENTER fires) are not silently dropped.
+    """
     decisions = []
     for d in data.decisions_today:
-        if d.get("decision") in (None, "HOLD"):
+        act = d.get("action") or d.get("decision")
+        if act in (None, "HOLD"):
             continue  # only material decisions
+        # row time: rows carry `time_et` (HH:MM); legacy rows used `timestamp_et` ISO
+        time_et = d.get("time_et") or d.get("timestamp_et", "")[11:19]
         decisions.append(schema.EngineDecision(
-            time_et=d.get("timestamp_et", "")[11:19],
+            time_et=time_et,
             tick_or_fire_id=d.get("tick_id", -1),
-            decision=d.get("decision", "?"),
+            decision=act,
             reasoning=d.get("reason", ""),
         ))
     return decisions

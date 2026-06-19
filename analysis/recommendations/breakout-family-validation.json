@@ -1,0 +1,791 @@
+{
+  "window": "2025-01-01..2026-06-16",
+  "patterns_bootstrapped": true,
+  "streams": {
+    "ORB_RETEST_LONG": {
+      "raw": {
+        "n": 65,
+        "wr": 63.1,
+        "total": 606.08,
+        "exp": 9.32
+      },
+      "deduped": {
+        "n": 65,
+        "wr": 63.1,
+        "total": 606.08,
+        "exp": 9.32
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 1,
+          "wr": 0.0,
+          "total": -42.5,
+          "exp": -42.5
+        },
+        "2025Q2": {
+          "n": 14,
+          "wr": 71.4,
+          "total": 335.88,
+          "exp": 23.99
+        },
+        "2025Q3": {
+          "n": 24,
+          "wr": 58.3,
+          "total": 344.5,
+          "exp": 14.35
+        },
+        "2025Q4": {
+          "n": 6,
+          "wr": 33.3,
+          "total": -114.38,
+          "exp": -19.06
+        },
+        "2026Q1": {
+          "n": 10,
+          "wr": 70.0,
+          "total": 5.5,
+          "exp": 0.55
+        },
+        "2026Q2": {
+          "n": 10,
+          "wr": 80.0,
+          "total": 77.08,
+          "exp": 7.71
+        }
+      },
+      "distinct_dates": 65
+    },
+    "DOUBLE_BOTTOM_BASE_QUIET": {
+      "raw": {
+        "n": 44,
+        "wr": 47.7,
+        "total": 338.5,
+        "exp": 7.69
+      },
+      "deduped": {
+        "n": 34,
+        "wr": 47.1,
+        "total": 302.5,
+        "exp": 8.9
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 7,
+          "wr": 57.1,
+          "total": 244.0,
+          "exp": 34.86
+        },
+        "2025Q2": {
+          "n": 4,
+          "wr": 25.0,
+          "total": -50.0,
+          "exp": -12.5
+        },
+        "2025Q3": {
+          "n": 4,
+          "wr": 75.0,
+          "total": 170.0,
+          "exp": 42.5
+        },
+        "2025Q4": {
+          "n": 11,
+          "wr": 45.5,
+          "total": -28.0,
+          "exp": -2.55
+        },
+        "2026Q1": {
+          "n": 5,
+          "wr": 20.0,
+          "total": -72.5,
+          "exp": -14.5
+        },
+        "2026Q2": {
+          "n": 3,
+          "wr": 66.7,
+          "total": 39.0,
+          "exp": 13.0
+        }
+      },
+      "distinct_dates": 34
+    },
+    "DOUBLE_BOTTOM_MORNING_LOW_VOL": {
+      "raw": {
+        "n": 24,
+        "wr": 70.8,
+        "total": 408.0,
+        "exp": 17.0
+      },
+      "deduped": {
+        "n": 19,
+        "wr": 73.7,
+        "total": 553.0,
+        "exp": 29.11
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 2,
+          "wr": 100.0,
+          "total": 170.0,
+          "exp": 85.0
+        },
+        "2025Q2": {
+          "n": 3,
+          "wr": 66.7,
+          "total": 95.0,
+          "exp": 31.67
+        },
+        "2025Q3": {
+          "n": 6,
+          "wr": 83.3,
+          "total": 534.0,
+          "exp": 89.0
+        },
+        "2025Q4": {
+          "n": 2,
+          "wr": 100.0,
+          "total": 70.0,
+          "exp": 35.0
+        },
+        "2026Q1": {
+          "n": 4,
+          "wr": 25.0,
+          "total": -486.0,
+          "exp": -121.5
+        },
+        "2026Q2": {
+          "n": 2,
+          "wr": 100.0,
+          "total": 170.0,
+          "exp": 85.0
+        }
+      },
+      "distinct_dates": 18
+    },
+    "MOMENTUM_ACCELERATION_HIGHVOL": {
+      "raw": {
+        "n": 48,
+        "wr": 22.9,
+        "total": -130.0,
+        "exp": -2.71
+      },
+      "deduped": {
+        "n": 44,
+        "wr": 25.0,
+        "total": -50.0,
+        "exp": -1.14
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 4,
+          "wr": 0.0,
+          "total": -160.0,
+          "exp": -40.0
+        },
+        "2025Q2": {
+          "n": 14,
+          "wr": 21.4,
+          "total": -115.0,
+          "exp": -8.21
+        },
+        "2025Q4": {
+          "n": 8,
+          "wr": 25.0,
+          "total": 5.0,
+          "exp": 0.62
+        },
+        "2026Q1": {
+          "n": 15,
+          "wr": 40.0,
+          "total": 340.0,
+          "exp": 22.67
+        },
+        "2026Q2": {
+          "n": 3,
+          "wr": 0.0,
+          "total": -120.0,
+          "exp": -40.0
+        }
+      },
+      "distinct_dates": 43
+    },
+    "RSI_DIVERGENCE_BULL": {
+      "raw": {
+        "n": 250,
+        "wr": 39.2,
+        "total": -297.5,
+        "exp": -1.19
+      },
+      "deduped": {
+        "n": 185,
+        "wr": 39.5,
+        "total": -72.5,
+        "exp": -0.39
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 36,
+          "wr": 36.1,
+          "total": -102.5,
+          "exp": -2.85
+        },
+        "2025Q2": {
+          "n": 26,
+          "wr": 38.5,
+          "total": -30.0,
+          "exp": -1.15
+        },
+        "2025Q3": {
+          "n": 23,
+          "wr": 43.5,
+          "total": -202.5,
+          "exp": -8.8
+        },
+        "2025Q4": {
+          "n": 35,
+          "wr": 40.0,
+          "total": 270.0,
+          "exp": 7.71
+        },
+        "2026Q1": {
+          "n": 40,
+          "wr": 32.5,
+          "total": -160.0,
+          "exp": -4.0
+        },
+        "2026Q2": {
+          "n": 25,
+          "wr": 52.0,
+          "total": 152.5,
+          "exp": 6.1
+        }
+      },
+      "distinct_dates": 152
+    },
+    "STAIRSTEP_CONTINUATION": {
+      "raw": {
+        "n": 1863,
+        "wr": 69.1,
+        "total": 10796.39,
+        "exp": 5.8
+      },
+      "deduped": {
+        "n": 669,
+        "wr": 66.7,
+        "total": 936.06,
+        "exp": 1.4
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 97,
+          "wr": 70.1,
+          "total": -740.25,
+          "exp": -7.63
+        },
+        "2025Q2": {
+          "n": 102,
+          "wr": 62.7,
+          "total": 989.25,
+          "exp": 9.7
+        },
+        "2025Q3": {
+          "n": 128,
+          "wr": 71.9,
+          "total": 910.5,
+          "exp": 7.11
+        },
+        "2025Q4": {
+          "n": 121,
+          "wr": 71.1,
+          "total": 1040.75,
+          "exp": 8.6
+        },
+        "2026Q1": {
+          "n": 106,
+          "wr": 57.5,
+          "total": -1082.5,
+          "exp": -10.21
+        },
+        "2026Q2": {
+          "n": 115,
+          "wr": 65.2,
+          "total": -181.69,
+          "exp": -1.58
+        }
+      },
+      "distinct_dates": 335
+    },
+    "SHOTGUN_SCALPER": {
+      "raw_fire_count": 12667,
+      "distinct_dates": 361,
+      "by_tier": {
+        "3": 8593,
+        "2": 3967,
+        "1": 107
+      },
+      "note": "NEEDS-DEDICATED-GRADER: single-exit doctrine (12-min time stop + chandelier, no runner). grade_observation's TP1+runner model does not fit; fire counts only."
+    }
+  },
+  "anchor_days": {
+    "2026-04-29": {
+      "label": "WIN",
+      "ORB_RETEST_LONG": {
+        "n": 1,
+        "pnl": 23.75
+      },
+      "DOUBLE_BOTTOM_BASE_QUIET": {
+        "n": 0,
+        "pnl": 0
+      },
+      "DOUBLE_BOTTOM_MORNING_LOW_VOL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "MOMENTUM_ACCELERATION_HIGHVOL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "RSI_DIVERGENCE_BULL": {
+        "n": 1,
+        "pnl": 12.5
+      },
+      "STAIRSTEP_CONTINUATION": {
+        "n": 8,
+        "pnl": -168.3
+      },
+      "SHOTGUN_SCALPER": {
+        "n": 45
+      }
+    },
+    "2026-05-01": {
+      "label": "WIN",
+      "ORB_RETEST_LONG": {
+        "n": 0,
+        "pnl": 0
+      },
+      "DOUBLE_BOTTOM_BASE_QUIET": {
+        "n": 0,
+        "pnl": 0
+      },
+      "DOUBLE_BOTTOM_MORNING_LOW_VOL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "MOMENTUM_ACCELERATION_HIGHVOL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "RSI_DIVERGENCE_BULL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "STAIRSTEP_CONTINUATION": {
+        "n": 4,
+        "pnl": -46.5
+      },
+      "SHOTGUN_SCALPER": {
+        "n": 46
+      }
+    },
+    "2026-05-04": {
+      "label": "WIN",
+      "ORB_RETEST_LONG": {
+        "n": 1,
+        "pnl": 7.75
+      },
+      "DOUBLE_BOTTOM_BASE_QUIET": {
+        "n": 1,
+        "pnl": 35.0
+      },
+      "DOUBLE_BOTTOM_MORNING_LOW_VOL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "MOMENTUM_ACCELERATION_HIGHVOL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "RSI_DIVERGENCE_BULL": {
+        "n": 1,
+        "pnl": -30.0
+      },
+      "STAIRSTEP_CONTINUATION": {
+        "n": 4,
+        "pnl": -130.5
+      },
+      "SHOTGUN_SCALPER": {
+        "n": 14
+      }
+    },
+    "2026-05-05": {
+      "label": "LOSS",
+      "ORB_RETEST_LONG": {
+        "n": 1,
+        "pnl": 24.88
+      },
+      "DOUBLE_BOTTOM_BASE_QUIET": {
+        "n": 0,
+        "pnl": 0
+      },
+      "DOUBLE_BOTTOM_MORNING_LOW_VOL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "MOMENTUM_ACCELERATION_HIGHVOL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "RSI_DIVERGENCE_BULL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "STAIRSTEP_CONTINUATION": {
+        "n": 7,
+        "pnl": 494.01
+      },
+      "SHOTGUN_SCALPER": {
+        "n": 47
+      }
+    },
+    "2026-05-06": {
+      "label": "LOSS",
+      "ORB_RETEST_LONG": {
+        "n": 1,
+        "pnl": 103.5
+      },
+      "DOUBLE_BOTTOM_BASE_QUIET": {
+        "n": 0,
+        "pnl": 0
+      },
+      "DOUBLE_BOTTOM_MORNING_LOW_VOL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "MOMENTUM_ACCELERATION_HIGHVOL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "RSI_DIVERGENCE_BULL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "STAIRSTEP_CONTINUATION": {
+        "n": 11,
+        "pnl": 1051.75
+      },
+      "SHOTGUN_SCALPER": {
+        "n": 30
+      }
+    },
+    "2026-05-07": {
+      "label": "LOSS",
+      "ORB_RETEST_LONG": {
+        "n": 1,
+        "pnl": 31.0
+      },
+      "DOUBLE_BOTTOM_BASE_QUIET": {
+        "n": 0,
+        "pnl": 0
+      },
+      "DOUBLE_BOTTOM_MORNING_LOW_VOL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "MOMENTUM_ACCELERATION_HIGHVOL": {
+        "n": 0,
+        "pnl": 0
+      },
+      "RSI_DIVERGENCE_BULL": {
+        "n": 2,
+        "pnl": 87.5
+      },
+      "STAIRSTEP_CONTINUATION": {
+        "n": 4,
+        "pnl": -19.5
+      },
+      "SHOTGUN_SCALPER": {
+        "n": 57
+      }
+    }
+  },
+  "real_fills_capped": {
+    "ORB_RETEST_LONG_ATM": {
+      "n": 62,
+      "wr": 58.1,
+      "total": -53.6,
+      "exp": -0.86
+    },
+    "DOUBLE_BOTTOM_BASE_QUIET_ATM": {
+      "n": 41,
+      "wr": 43.9,
+      "total": -610.0,
+      "exp": -14.88
+    },
+    "DOUBLE_BOTTOM_MORNING_LOW_VOL_ATM": {
+      "n": 22,
+      "wr": 54.5,
+      "total": -82.2,
+      "exp": -3.74
+    },
+    "MOMENTUM_ACCELERATION_HIGHVOL_ATM": {
+      "n": 34,
+      "wr": 41.2,
+      "total": -2048.6,
+      "exp": -60.25
+    },
+    "MOMENTUM_ACCELERATION_HIGHVOL_ITM2": {
+      "n": 32,
+      "wr": 43.8,
+      "total": -2392.6,
+      "exp": -74.77
+    },
+    "RSI_DIVERGENCE_BULL_ATM": {
+      "n": 101,
+      "wr": 41.6,
+      "total": -297.6,
+      "exp": -2.95
+    },
+    "STAIRSTEP_CONTINUATION_ATM": {
+      "n": 113,
+      "wr": 68.1,
+      "total": 464.2,
+      "exp": 4.11
+    },
+    "STAIRSTEP_CONTINUATION_ITM2": {
+      "n": 111,
+      "wr": 59.5,
+      "total": -1233.6,
+      "exp": -11.11
+    }
+  },
+  "real_fills_diagnostics": {
+    "ORB_RETEST_LONG_ATM": {
+      "attempted": 65,
+      "filled": 62,
+      "no_fill_or_no_data": 3,
+      "errored": 0
+    },
+    "DOUBLE_BOTTOM_BASE_QUIET_ATM": {
+      "attempted": 44,
+      "filled": 41,
+      "no_fill_or_no_data": 3,
+      "errored": 0
+    },
+    "DOUBLE_BOTTOM_MORNING_LOW_VOL_ATM": {
+      "attempted": 24,
+      "filled": 22,
+      "no_fill_or_no_data": 2,
+      "errored": 0
+    },
+    "MOMENTUM_ACCELERATION_HIGHVOL_ATM": {
+      "attempted": 48,
+      "filled": 34,
+      "no_fill_or_no_data": 14,
+      "errored": 0
+    },
+    "MOMENTUM_ACCELERATION_HIGHVOL_ITM2": {
+      "attempted": 48,
+      "filled": 32,
+      "no_fill_or_no_data": 16,
+      "errored": 0
+    },
+    "RSI_DIVERGENCE_BULL_ATM": {
+      "attempted": 120,
+      "filled": 101,
+      "no_fill_or_no_data": 19,
+      "errored": 0
+    },
+    "STAIRSTEP_CONTINUATION_ATM": {
+      "attempted": 120,
+      "filled": 113,
+      "no_fill_or_no_data": 7,
+      "errored": 0
+    },
+    "STAIRSTEP_CONTINUATION_ITM2": {
+      "attempted": 120,
+      "filled": 111,
+      "no_fill_or_no_data": 9,
+      "errored": 0
+    }
+  },
+  "verdict": {
+    "ORB_RETEST_LONG": "FAILS-REAL-FILLS \u2014 SPY-space WR 63.1% exp $9.32 (N=65) but real-fills negative/thin. Real-fills ATM exp $-0.86 (N=62, WR 58.1%). OP-16 anchor: WIN-day P&L $31.5, LOSS-day loss $0.0, edge_capture $31.5. ANTI-CORRELATED with J's edge (loses on WIN days / profits on LOSS days).",
+    "DOUBLE_BOTTOM_BASE_QUIET": "FAILS-REAL-FILLS \u2014 SPY-space WR 47.1% exp $8.9 (N=34) but real-fills negative/thin. Real-fills ATM exp $-14.88 (N=41, WR 43.9%). OP-16 anchor: WIN-day P&L $35.0, LOSS-day loss $0.0, edge_capture $35.0.",
+    "DOUBLE_BOTTOM_MORNING_LOW_VOL": "WATCH-ONLY \u2014 SPY-space N=19 (<20 gate). Real-fills ATM exp $-3.74 (N=22, WR 54.5%). OP-16 anchor: WIN-day P&L $0.0, LOSS-day loss $0.0, edge_capture $0.0.",
+    "MOMENTUM_ACCELERATION_HIGHVOL": "WATCH-ONLY / DO-NOT-PROMOTE \u2014 SPY-space WR 25.0% exp $-1.14 (N=44). Real-fills ATM exp $-60.25 (N=34, WR 41.2%). OP-16 anchor: WIN-day P&L $0.0, LOSS-day loss $0.0, edge_capture $0.0.",
+    "RSI_DIVERGENCE_BULL": "WATCH-ONLY / DO-NOT-PROMOTE \u2014 SPY-space WR 39.5% exp $-0.39 (N=185). Real-fills ATM exp $-2.95 (N=101, WR 41.6%). OP-16 anchor: WIN-day P&L $-17.5, LOSS-day loss $0.0, edge_capture $-17.5. ANTI-CORRELATED with J's edge (loses on WIN days / profits on LOSS days).",
+    "STAIRSTEP_CONTINUATION": "WATCH-ONLY / ANCHOR-REGRESSION \u2014 SPY-space WR 66.7% exp $1.4 (N=669) and real-fills positive, BUT fails OP-16 anchor gate. Real-fills ATM exp $4.11 (N=113, WR 68.1%). OP-16 anchor: WIN-day P&L $-345.3, LOSS-day loss $19.5, edge_capture $-364.8. ANTI-CORRELATED with J's edge (loses on WIN days / profits on LOSS days). Mechanical gates pass; edge-alignment fails \u2014 DO NOT promote.",
+    "SHOTGUN_SCALPER": "NEEDS-DEDICATED-GRADER \u2014 single-exit doctrine (12-min time stop + chandelier, no runner); grade_observation's TP1+runner model does not fit. Over-fires ~35x/day."
+  },
+  "cross_check_findings": {
+    "MOMENTUM_ACCELERATION_HIGHVOL": {
+      "existing_scorecard": "momentum-accel-highvol-real-fills.json",
+      "existing_real_wr_pct": 42.9,
+      "existing_exp": -20.94,
+      "mine_real_wr_pct": 41.2,
+      "mine_exp": -60.25,
+      "agreement": "AGREE \u2014 both DEGRADED (real WR ~41-43%, negative expectancy). My exp is harsher (full ctx pipeline + 120-cap)."
+    },
+    "DOUBLE_BOTTOM_BASE_QUIET": {
+      "existing_scorecard": "db-base-quiet-real-fills.json",
+      "existing_real_wr_pct": 63.9,
+      "existing_exp": 14.39,
+      "mine_real_wr_pct": 43.9,
+      "mine_exp": -14.88,
+      "agreement": "DISAGREE \u2014 existing FAVORABLE (+$14/trade, WR 63.9%) OMITS the NOT_NEAR_NAMED proximity filter (N=122); my full-pipeline replay APPLIES it and flips NEGATIVE (-$14.88, WR 43.9%, N=41). The proximity filter is doing real work \u2014 the simplified scan overstated edge."
+    },
+    "DOUBLE_BOTTOM_MORNING_LOW_VOL": {
+      "existing_scorecard": "db-morning-lowvol-real-fills.json",
+      "existing_real_wr_pct": 67.9,
+      "existing_exp": 7.59,
+      "mine_real_wr_pct": 54.5,
+      "mine_exp": -3.74,
+      "agreement": "PARTIAL \u2014 existing FAVORABLE (+$7.6/trade, WR 67.9%, N=109, NOT_NEAR_NAMED omitted). My full-pipeline real-fills WR 54.5% but exp -$3.74 (N=22). SPY-space stays strong (WR 73.7%); real-fills slips with the proximity filter + small N. WATCH_FRAGILE (walk-forward already DEGRADED -15.2pp)."
+    },
+    "ORB_RETEST_LONG": {
+      "existing_scorecard": "orb_real_fills.json",
+      "existing_watcher_proxy_wr_oos_pct": 79.8,
+      "existing_verdict": "FAIL",
+      "mine_real_wr_pct": 58.1,
+      "mine_exp": -0.86,
+      "agreement": "CONSISTENT DIRECTION \u2014 existing v2 chart-stop FAIL (<50% gate in some variants); my full-window real-fills ATM is ~breakeven (exp -$0.86, WR 58.1%, N=62). Both say ORB long is NOT a clean real-fills win. My SPY-space proxy (63.1%) is lower than their 79.8% OOS proxy because I run the full state machine over ALL days incl. narrow-OR gate."
+    }
+  },
+  "promotion_priority": [
+    {
+      "pattern": "STAIRSTEP_CONTINUATION",
+      "spy_n": 669,
+      "spy_wr": 66.7,
+      "spy_exp": 1.4,
+      "realfills_atm_exp": 4.11,
+      "realfills_atm_n": 113,
+      "anchor_edge_capture": -364.8,
+      "anchor_anti_correlated": true,
+      "gates": {
+        "n>=20": true,
+        "wr>=45": true,
+        "spy_exp>0": true,
+        "realfills_exp>0": true,
+        "anchor_no_regression": false
+      },
+      "gates_passed": 4,
+      "rank": 1
+    },
+    {
+      "pattern": "DOUBLE_BOTTOM_BASE_QUIET",
+      "spy_n": 34,
+      "spy_wr": 47.1,
+      "spy_exp": 8.9,
+      "realfills_atm_exp": -14.88,
+      "realfills_atm_n": 41,
+      "anchor_edge_capture": 35.0,
+      "anchor_anti_correlated": false,
+      "gates": {
+        "n>=20": true,
+        "wr>=45": true,
+        "spy_exp>0": true,
+        "realfills_exp>0": false,
+        "anchor_no_regression": true
+      },
+      "gates_passed": 4,
+      "rank": 2
+    },
+    {
+      "pattern": "ORB_RETEST_LONG",
+      "spy_n": 65,
+      "spy_wr": 63.1,
+      "spy_exp": 9.32,
+      "realfills_atm_exp": -0.86,
+      "realfills_atm_n": 62,
+      "anchor_edge_capture": 31.5,
+      "anchor_anti_correlated": true,
+      "gates": {
+        "n>=20": true,
+        "wr>=45": true,
+        "spy_exp>0": true,
+        "realfills_exp>0": false,
+        "anchor_no_regression": false
+      },
+      "gates_passed": 3,
+      "rank": 3
+    },
+    {
+      "pattern": "DOUBLE_BOTTOM_MORNING_LOW_VOL",
+      "spy_n": 19,
+      "spy_wr": 73.7,
+      "spy_exp": 29.11,
+      "realfills_atm_exp": -3.74,
+      "realfills_atm_n": 22,
+      "anchor_edge_capture": 0.0,
+      "anchor_anti_correlated": false,
+      "gates": {
+        "n>=20": false,
+        "wr>=45": true,
+        "spy_exp>0": true,
+        "realfills_exp>0": false,
+        "anchor_no_regression": true
+      },
+      "gates_passed": 3,
+      "rank": 4
+    },
+    {
+      "pattern": "MOMENTUM_ACCELERATION_HIGHVOL",
+      "spy_n": 44,
+      "spy_wr": 25.0,
+      "spy_exp": -1.14,
+      "realfills_atm_exp": -60.25,
+      "realfills_atm_n": 34,
+      "anchor_edge_capture": 0.0,
+      "anchor_anti_correlated": false,
+      "gates": {
+        "n>=20": true,
+        "wr>=45": false,
+        "spy_exp>0": false,
+        "realfills_exp>0": false,
+        "anchor_no_regression": true
+      },
+      "gates_passed": 2,
+      "rank": 5
+    },
+    {
+      "pattern": "RSI_DIVERGENCE_BULL",
+      "spy_n": 185,
+      "spy_wr": 39.5,
+      "spy_exp": -0.39,
+      "realfills_atm_exp": -2.95,
+      "realfills_atm_n": 101,
+      "anchor_edge_capture": -17.5,
+      "anchor_anti_correlated": true,
+      "gates": {
+        "n>=20": true,
+        "wr>=45": false,
+        "spy_exp>0": false,
+        "realfills_exp>0": false,
+        "anchor_no_regression": false
+      },
+      "gates_passed": 1,
+      "rank": 6
+    },
+    {
+      "pattern": "SHOTGUN_SCALPER",
+      "rank": "n/a",
+      "note": "NEEDS-DEDICATED-GRADER \u2014 not rankable until single-exit grader exists. Fires ~35x/day (12,667 over 361 days) \u2014 over-firing, matches WATCH_FRAGILE -$1.63/obs."
+    }
+  ],
+  "op20_disclosures": {
+    "data_source_per_watcher": {
+      "ORB_RETEST_LONG": "Price structure only (opening range H/L + SMA10/50 from day_bars). No disk-state look-ahead. Long-only via ORB_DIRECTION_FILTER; MAX_OR_RANGE=2.00 narrow-OR gate active.",
+      "DOUBLE_BOTTOM_BASE_QUIET": "ctx.prior_bars sliding window (double_bottom_detector) + VIX<20 + conf<0.60 + NOT_NEAR_NAMED via ctx.levels_active (historical levels). No disk look-ahead.",
+      "DOUBLE_BOTTOM_MORNING_LOW_VOL": "Same as BASE_QUIET + MORNING 09:35-11:30 window. No disk look-ahead.",
+      "MOMENTUM_ACCELERATION_HIGHVOL": "ctx.prior_bars (momentum_acceleration) + ribbon ALIGNED + VIX>=20. No disk look-ahead.",
+      "RSI_DIVERGENCE_BULL": "RSI(14) computed from ctx.prior_bars closes each bar; stateless except cooldown. No disk look-ahead.",
+      "STAIRSTEP_CONTINUATION": "LOOK-AHEAD TRAP in production: reads automation/state/key-levels.json (TODAY's live levels). FIXED HERE by monkeypatching _load_named_levels to historical \u2605\u2605+ levels per bar-date (_detect_from_history). Roles (broken_to_*) unavailable historically -> runs on intraday-break fallback path only; role-confirmed 'high' confidence is unreachable in this replay. CAVEAT: the historical level set is computed once at each day's FIRST RTH bar, so today's session-H/L levels are as-of day-open, not as-of-bar (a minor staleness, conservative \u2014 fewer levels). The intraday-break detection itself uses clean ctx.prior_bars (no look-ahead).",
+      "SHOTGUN_SCALPER": "Reads key-levels.json AND auto-derives intraday levels from the bar window (auto_derive_intraday_levels=True). Partially self-sufficient. Single-exit doctrine -> not graded here."
+    },
+    "look_ahead_audit": "ORB / double_bottom / momentum / rsi confirmed free of disk-state look-ahead (all read ctx.prior_bars <= current bar + historically-rebuilt levels). STAIRSTEP's production key-levels.json read is a genuine look-ahead trap, neutralized here via historical-level monkeypatch. SHOTGUN's key-levels read not exercised for grading.",
+    "grading_model": "grade_observation: 50% qty TP1 + 50% runner-to-BE, same-day future bars to 15:50 ET, $ per 1 SPY contract (SPY move * 100). SPY-space proxy WR != real option P&L (see real_fills).",
+    "real_fills_model": "simulator_real.simulate_trade_real over OPRA bars (valid through 2026-05-29; later signals yield no fill and are dropped). chart-stop only (premium_stop_pct=-0.99 per L51/L55). qty=3. ATM (strike_offset=0) reported for all; ITM2 (strike_offset=-2) for streams that can take either side. Capped at first 120 signals/stream for runtime. NOTE: real-fills N counts RAW signals (pre-dedup, OPRA-available), so it can exceed the SPY-space DEDUPED N (which collapses same-date/dir/conf). Compare WR/exp, not N directly.",
+    "anchor_gate": "OP-16: positive capture on WIN anchors (4/29, 5/01, 5/04), no/low loss on LOSS anchors (5/05, 5/06, 5/07). See anchor_days block.",
+    "cross_check": "ORB cross-checked vs analysis/recommendations/orb_real_fills.json; double-bottom variants vs db-base-quiet-real-fills.json / db-morning-lowvol-real-fills.json; momentum vs momentum-accel-highvol-real-fills.json. Differences expected because those scans use simplified filters (e.g. NOT_NEAR_NAMED omitted) and curated test pools; this is a full ctx-pipeline replay.",
+    "concentration_caveat": "Per-quarter breakdown discloses regime concentration; a stream whose positive expectancy is one-quarter-driven is regime-fragile (cf. ORB 2026-Q2 concentration in orb_real_fills.json)."
+  }
+}

@@ -77,6 +77,86 @@ def _save_last_bar_state(state: dict) -> None:
     LIVE_STATE.write_text(json.dumps(state, default=str), encoding="utf-8")
 
 
+def _write_skip_diag(reason: str, bar_ts: str = "", now: "dt.datetime | None" = None,
+                     extra: "dict | None" = None) -> None:
+    """Write a minimal diag entry on every early-return path so watcher fires are visible
+    even when no bar is processed. Differentiates 'ran but skipped' from 'never ran'.
+
+    `extra` merges additional context (e.g. exception text) into the row."""
+    if now is None:
+        now = dt.datetime.now()
+    try:
+        diag_file = STATE_DIR / "watcher-live-diag.jsonl"
+        row = {"fire_at": now.isoformat(), "skip_reason": reason, "bar_ts_at_skip": bar_ts}
+        if extra:
+            row.update(extra)
+        with diag_file.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(row, default=str) + "\n")
+    except Exception:
+        pass
+
+
+def _load_history_only_fallback() -> "tuple[pd.DataFrame, pd.DataFrame]":
+    """Load the MOST RECENT available spy_5m / vix_5m CSV pair regardless of whether
+    it covers today's window.
+
+    This is the rescue path for the pre-14:00 ET window: the rolling CSV that
+    covers [today-7d, today] is not created until the ~14:00 daily-append job runs,
+    so ``ar_runner.load_data(today-7d, today)`` raises FileNotFoundError and the
+    watcher historically wrote {"skip_reason":"no_csv_data"} and produced ZERO
+    observations all morning — leaving the unified heartbeat watcher layer INERT.
+
+    Returning a history-only frame (which may END days ago) lets the yfinance
+    intraday top-up graft today's live bars on top, so the ribbon SMA50 warmup
+    still has 60+ trailing bars and the watcher fleet can fire on today's tape.
+
+    Returns ([spy_df, vix_df]); each may be EMPTY if no CSV exists at all (the
+    caller then relies entirely on the yfinance top-up).
+    """
+    empty = pd.DataFrame(columns=["timestamp_et", "open", "high", "low", "close", "volume"])
+    data_dir = ar_runner.DATA
+    try:
+        import re
+        pattern = re.compile(r"spy_5m_(\d{4}-\d{2}-\d{2})_(\d{4}-\d{2}-\d{2})(?:_merged)?\.csv$")
+        cands: list[tuple[dt.date, "Path"]] = []
+        for p in data_dir.glob("spy_5m_*.csv"):
+            m = pattern.match(p.name)
+            if not m:
+                continue
+            try:
+                fe = dt.date.fromisoformat(m.group(2))
+            except ValueError:
+                continue
+            cands.append((fe, p))
+        if not cands:
+            return empty.copy(), empty.copy()
+        # Most-recent end-date first.
+        cands.sort(key=lambda x: x[0], reverse=True)
+        for _fe, spy_path in cands:
+            vix_path = data_dir / spy_path.name.replace("spy_5m_", "vix_5m_")
+            if not vix_path.exists():
+                vix_path = data_dir / vix_path.name.replace(".csv", "_merged.csv")
+            try:
+                spy = ar_runner._dedupe_by_timestamp(pd.read_csv(spy_path))
+            except Exception:
+                continue
+            if vix_path.exists():
+                try:
+                    vix = ar_runner._dedupe_by_timestamp(pd.read_csv(vix_path))
+                except Exception:
+                    vix = empty.copy()
+            else:
+                vix = empty.copy()
+            sys.stderr.write(
+                f"watcher_live: load_data fallback using history-only CSV {spy_path.name} "
+                f"(ends {_fe}); relying on yfinance top-up for today\n"
+            )
+            return spy, vix
+    except Exception as e:
+        sys.stderr.write(f"watcher_live history-only fallback failed: {e}\n")
+    return empty.copy(), empty.copy()
+
+
 def main() -> int:
     today = dt.date.today()
     now = dt.datetime.now()
@@ -92,12 +172,32 @@ def main() -> int:
 
     # Load latest bars (today + lookback for ribbon warmup)
     lookback_start = today - dt.timedelta(days=7)  # need 60+ bars for SMA50 warmup
+    # PRE-14:00 RESCUE (2026-06-18 fix): the rolling CSV covering [today-7d, today]
+    # is not written until the ~14:00 ET append job runs, so load_data raises
+    # FileNotFoundError every morning. Historically this wrote skip_reason=no_csv_data
+    # and produced ZERO observations all morning, leaving the unified heartbeat
+    # watcher layer INERT. Instead of returning, fall back to the most-recent
+    # history-only CSV and let the yfinance intraday top-up (below) graft today's
+    # live bars on top. The top-up block now runs UNCONDITIONALLY when today's
+    # bars are missing — it is no longer gated behind load_data success.
+    _used_csv_fallback = False
     try:
         spy_full, vix_full = ar_runner.load_data(lookback_start, today)
     except FileNotFoundError:
-        # No data available yet — skip silently
-        return 0
-    spy_full["timestamp_et"] = pd.to_datetime(spy_full["timestamp_et"])
+        spy_full, vix_full = _load_history_only_fallback()
+        _used_csv_fallback = True
+        _write_skip_diag(
+            "load_data_fallback_history_only",
+            now=now,
+            extra={"history_rows": int(len(spy_full)), "note": "rolling CSV absent; using yfinance top-up for today"},
+        )
+    # If even the fallback found nothing, keep going with an empty frame — the
+    # yfinance top-up may still produce today's bars. Only the post-top-up
+    # 'no bars at all' check below is allowed to bail (and it writes a diag).
+    if "timestamp_et" not in spy_full.columns:
+        spy_full = pd.DataFrame(columns=["timestamp_et", "open", "high", "low", "close", "volume"])
+    spy_full["timestamp_et"] = pd.to_datetime(spy_full["timestamp_et"], errors="coerce")
+    spy_full = spy_full.dropna(subset=["timestamp_et"])
     spy_full["date"] = spy_full["timestamp_et"].dt.date
     # Normalize vix_full timestamp_et too (load_data returns string-typed col).
     # Pass utc=True to silence "mixed timezones" FutureWarning when CSV mixes
@@ -110,14 +210,47 @@ def main() -> int:
     # from yfinance and append in-memory. Critical for watcher live observation
     # during market hours (encoded after 2026-05-13 wake-fire foot-gun where
     # watchers silently no-op'd all day because of `latest_date != today` gate).
-    latest_csv_date = spy_full["date"].max()
+    _csv_is_empty = spy_full.empty
+    latest_csv_date = spy_full["date"].max() if not _csv_is_empty else None
     # Normalize latest_csv_date to a dt.date for comparison (CSV column may be
-    # str, Timestamp, or date depending on pandas read).
-    if isinstance(latest_csv_date, str):
+    # str, Timestamp, or date depending on pandas read). May be None/NaT when the
+    # history-only fallback found nothing.
+    if latest_csv_date is None or (isinstance(latest_csv_date, float) and pd.isna(latest_csv_date)) or pd.isna(latest_csv_date):
+        latest_csv_date = None
+    elif isinstance(latest_csv_date, str):
         latest_csv_date = dt.date.fromisoformat(latest_csv_date)
     elif hasattr(latest_csv_date, "date") and not isinstance(latest_csv_date, dt.date):
         latest_csv_date = latest_csv_date.date()
-    if latest_csv_date < today:
+    # Top-up condition: also top-up when the CSV has today's date but the latest
+    # bar is stale (> 10 min behind now). Without this, the watcher silently
+    # deduplicates all intraday fires after the first one because the CSV already
+    # has "today" in it (from a prior partial-day append) but doesn't have the
+    # current 5-min bar. The dedup guard returns 0 every subsequent
+    # fire, producing zero diag entries for the rest of the session.
+    # Root cause of WATCHER_FLEET 0/100 on 2026-06-15.
+    try:
+        latest_csv_ts = pd.to_datetime(spy_full["timestamp_et"]).max() if not _csv_is_empty else None
+        if latest_csv_ts is not None and not pd.isna(latest_csv_ts):
+            if hasattr(latest_csv_ts, "tzinfo") and latest_csv_ts.tzinfo is not None:
+                latest_csv_ts = latest_csv_ts.tz_localize(None)
+            _stale_threshold = dt.timedelta(minutes=10)
+            _csv_is_stale = latest_csv_ts < (dt.datetime.now() - _stale_threshold)
+        else:
+            _csv_is_stale = True
+    except Exception:
+        _csv_is_stale = False
+
+    # Force the yfinance top-up whenever the CSV is empty, doesn't reach today, is
+    # stale, or we fell back to a history-only file. This is the load-bearing
+    # reorder: the top-up must run even when load_data threw FileNotFoundError.
+    _need_topup = (
+        _csv_is_empty
+        or _used_csv_fallback
+        or latest_csv_date is None
+        or latest_csv_date < today
+        or _csv_is_stale
+    )
+    if _need_topup:
         try:
             import yfinance as yf
             import pytz as _pytz
@@ -185,6 +318,24 @@ def main() -> int:
             import traceback
             sys.stderr.write(f"watcher_live yfinance top-up failed: {e}\n")
             sys.stderr.write(traceback.format_exc())
+            _write_skip_diag(
+                f"yfinance_topup_failed:{type(e).__name__}",
+                now=now,
+                extra={"exc": str(e)[:300]},
+            )
+
+    # If the CSV had no usable history AND the top-up produced no bars at all, we
+    # have nothing to run on — bail LOUDLY (no silent return). This is distinct
+    # from rth_empty below, which can also be hit by the volume filter dropping
+    # every bar; this one specifically flags "data acquisition produced zero rows".
+    if spy_full.empty:
+        _write_skip_diag(
+            "no_bars_after_topup",
+            now=now,
+            extra={"used_csv_fallback": _used_csv_fallback,
+                   "note": "history-only CSV empty AND yfinance returned no bars (weekend/after-close or fetch failure)"},
+        )
+        return 0
 
     rth = spy_full[
         (spy_full["timestamp_et"].dt.time >= dt.time(9, 30)) &
@@ -208,6 +359,7 @@ def main() -> int:
         )
 
     if rth.empty:
+        _write_skip_diag("rth_empty", now=now)
         return 0
 
     # Find the latest bar
@@ -216,24 +368,68 @@ def main() -> int:
     latest_ts = latest_bar["timestamp_et"]
     latest_date = latest_ts.date()
 
-    # Skip if we've already processed this bar
+    # Skip if we've already processed this bar.
+    #
+    # STALE-STATE GUARD (2026-06-18 fix): the dup check compares against
+    # .watcher-live-state.json, which can FREEZE (the whole reason the feed went
+    # dark — ~20 fires after 14:00 on 2026-06-15 wrote neither obs nor diag because
+    # a stale state file kept matching). Two hardenings:
+    #   (a) Only honour the dup-skip when the latest bar is genuinely from TODAY.
+    #       A new today-bar must NEVER be suppressed by yesterday's frozen state.
+    #   (b) Only honour it when the stored ts ALSO parses to today — a stale ts
+    #       from a prior session can't gate out today's first real bar.
     state = _read_last_bar_state()
     last_processed_ts = state.get("last_bar_ts")
-    if last_processed_ts and last_processed_ts == str(latest_ts):
+    _stored_is_today = False
+    if last_processed_ts:
+        try:
+            _stored_is_today = pd.to_datetime(last_processed_ts).date() == today
+        except Exception:
+            _stored_is_today = False
+    if (
+        last_processed_ts
+        and last_processed_ts == str(latest_ts)
+        and latest_date == today
+        and _stored_is_today
+    ):
+        # Genuinely already processed THIS today-bar — write a low-noise skip entry
+        # every 6th fire (~30 min) so we can confirm the task is running without
+        # flooding the diag log.
+        try:
+            _skip_count = state.get("_dup_skip_count", 0) + 1
+            state["_dup_skip_count"] = _skip_count
+            _save_last_bar_state(state)
+            if _skip_count % 6 == 1:
+                _write_skip_diag(f"dup_bar:{latest_ts}", bar_ts=str(latest_ts), now=now)
+        except Exception:
+            pass
         return 0
 
     # Skip if latest bar is not from today (data feed hasn't caught up)
     if latest_date != today:
-        # not an error — data appender hasn't run intraday yet
+        _write_skip_diag(f"stale_csv_date:{latest_date}!={today}", bar_ts=str(latest_ts), now=now)
         return 0
 
     # Build context for the latest bar
     if latest_idx < 60:
+        _write_skip_diag(f"not_enough_bars:{latest_idx}", bar_ts=str(latest_ts), now=now)
         return 0
 
-    ribbon_df = compute_ribbon(rth["close"])
-    vix_aligned = _align_vix_to_spy(rth, vix_full)
-    htf_stacks = _precompute_htf_15m_stacks(rth)
+    # Ribbon / VIX-alignment / HTF precompute — any of these can throw on a
+    # malformed frame. Previously a bare `except: return 0` swallowed the failure
+    # SILENTLY (lesson C7). Now every exception path writes a diag with the
+    # exception text + stderr traceback so a broken ribbon is never invisible.
+    try:
+        ribbon_df = compute_ribbon(rth["close"])
+        vix_aligned = _align_vix_to_spy(rth, vix_full)
+        htf_stacks = _precompute_htf_15m_stacks(rth)
+    except Exception as _e_pre:
+        import traceback
+        sys.stderr.write(f"watcher_live ribbon/vix precompute failed: {_e_pre}\n")
+        sys.stderr.write(traceback.format_exc())
+        _write_skip_diag("ribbon_exception", bar_ts=str(latest_ts), now=now,
+                         extra={"stage": "precompute", "exc": f"{type(_e_pre).__name__}: {_e_pre}"})
+        return 0
 
     try:
         r = ribbon_df.iloc[latest_idx]
@@ -244,7 +440,13 @@ def main() -> int:
             stack=str(r["stack"]),
             spread_cents=float(r["spread_cents"]),
         )
-    except Exception:
+    except Exception as _e_ribbon:
+        import traceback
+        sys.stderr.write(f"watcher_live ribbon_state build failed: {_e_ribbon}\n")
+        sys.stderr.write(traceback.format_exc())
+        _write_skip_diag("ribbon_exception", bar_ts=str(latest_ts), now=now,
+                         extra={"stage": "ribbon_state", "latest_idx": int(latest_idx),
+                                "exc": f"{type(_e_ribbon).__name__}: {_e_ribbon}"})
         return 0
 
     # Build short ribbon history
@@ -355,16 +557,26 @@ def main() -> int:
         except Exception as _e_t82:
             sys.stderr.write(f"T82 warmup module-import failed: {type(_e_t82).__name__}: {_e_t82}\n")
 
-    signals = run_all_watchers(
-        latest_bar,
-        today_bars,
-        bar_idx_in_day,
-        vol_baseline,
-        ctx,
-        vix_now,
-        multi_day_rth=rth,
-        ribbon_state_dict=ribbon_state_dict,
-    )
+    try:
+        signals = run_all_watchers(
+            latest_bar,
+            today_bars,
+            bar_idx_in_day,
+            vol_baseline,
+            ctx,
+            vix_now,
+            multi_day_rth=rth,
+            ribbon_state_dict=ribbon_state_dict,
+        )
+    except Exception as _e_run:
+        # The watcher fleet itself blew up — this is the load-bearing operation,
+        # so a crash here must be LOUD (lesson C7), not a stack-trace to nowhere.
+        import traceback
+        sys.stderr.write(f"watcher_live run_all_watchers failed: {_e_run}\n")
+        sys.stderr.write(traceback.format_exc())
+        _write_skip_diag("watcher_run_exception", bar_ts=str(latest_ts), now=now,
+                         extra={"exc": f"{type(_e_run).__name__}: {_e_run}"})
+        return 0
 
     for s in signals:
         log_observation(s, latest_ts)

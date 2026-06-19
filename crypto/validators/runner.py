@@ -45,6 +45,11 @@ from crypto.validators import (
     v38_v14e_chop_zone_gate,
     v39_orb_signal_reader,
     v40_bearish_rejection_morning_gate,
+    v41_midday_trendline_gate,
+    v42_sizing_risk_cap_guard,
+    v43_ghost_entry_dual_account,
+    v44_named_level_second_test_gate,
+    v45_stairstep_continuation_gate,
 )
 
 
@@ -173,6 +178,16 @@ def main(argv=None) -> int:
         ("v39_orb_signal_reader.live", v39_orb_signal_reader.run_live, [], {}),
         ("v40_bearish_rejection_morning_gate.offline", v40_bearish_rejection_morning_gate.run_offline, [], {}),
         ("v40_bearish_rejection_morning_gate.live", v40_bearish_rejection_morning_gate.run_live, [], {}),
+        ("v41_midday_trendline_gate.offline", v41_midday_trendline_gate.run_offline, [], {}),
+        ("v41_midday_trendline_gate.live", v41_midday_trendline_gate.run_live, [], {}),
+        ("v42_sizing_risk_cap_guard.offline", v42_sizing_risk_cap_guard.run_offline, [], {}),
+        ("v42_sizing_risk_cap_guard.live", v42_sizing_risk_cap_guard.run_live, [], {}),
+        ("v43_ghost_entry_dual_account.offline", v43_ghost_entry_dual_account.run_offline, [], {}),
+        ("v43_ghost_entry_dual_account.live", v43_ghost_entry_dual_account.run_live, [], {}),
+        ("v44_named_level_second_test_gate.offline", v44_named_level_second_test_gate.run_offline, [], {}),
+        ("v44_named_level_second_test_gate.live", v44_named_level_second_test_gate.run_live, [], {}),
+        ("v45_stairstep_continuation_gate.offline", v45_stairstep_continuation_gate.run_offline, [], {}),
+        ("v45_stairstep_continuation_gate.live", v45_stairstep_continuation_gate.run_live, [], {}),
     ]
     if not args.skip_replay:
         stages.append((

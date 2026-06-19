@@ -74,6 +74,13 @@ Refresh = `chart_set_symbol("TVC:VIX")` → `quote_get` → validate `descriptio
 
 `data_get_study_values` for Saty Pivot Ribbon. Validate ribbon ±2% of price; if not, ERROR_TV.
 
+**Ribbon stack computation (EXPLICIT — model must follow exactly, do not infer):**
+- Extract Fast_EMA, Pivot_EMA, Slow_EMA from study values.
+- `spread_cents = abs(Fast_EMA - Slow_EMA) * 100` (round to int).
+- Stack: if `Fast < Pivot < Slow` → **BEAR** (fastest EMA is lowest = price trending down). If `Fast > Pivot > Slow` → **BULL** (fastest EMA is highest = price trending up). If neither → **MIXED**.
+- Example: Fast=754.07, Pivot=754.39, Slow=754.47 → 754.07 < 754.39 < 754.47 → **BEAR**, spread=40¢. Do NOT call this BULL.
+- Write `loop-state.ribbon = { fast, pivot, slow, spread_cents, stack }` before scoring.
+
 ## SPY 15m HTF (only on tickIndex % 5 == 1)
 
 On these ticks: `chart_set_timeframe("15")` → `data_get_ohlcv(count=2, summary=true)` → `data_get_study_values` → `chart_set_timeframe("5")`. Update `loop-state.htf_15m`.
@@ -87,16 +94,18 @@ ELSE: read cached `loop-state.htf_15m`. If absent or `now - last_close_time > 16
 If pending_fill: `mcp__alpaca_aggressive__get_order_by_id` on `bracket_ids.parent`. If filled → update status="open", filled_avg_price, slippage_cents. If canceled/rejected → clear position, emit ERROR_ALPACA. If pending >2 ticks → cancel parent, clear position, emit ERROR_ALPACA.
 
 If open: apply stops per **v14-aggressive doctrine**:
-- **premium stop = entry × 0.85** (-15% — wider than safe's -8% to let trades breathe)
+- **premium stop = entry × 0.90** (-10% — TIGHTER_STOP 2026-06-17, aligned with safe account)
 - **chart stop = close > rejection_level + $0.50 buffer** (no ribbon condition required)
 - **ribbon flip back exit = opposite stack (BULL for puts) AND spread ≥ 30c**
-- time stop 15:50 ET hard
-- **TP1 = chart-level (next Active/Carry tier level past entry, $1.50 min distance, NO round numbers) OR premium ≥ entry × 1.50 fallback** (+50% vs safe's +30%)
+- time stop 15:40 ET hard (Rank-31 2026-06-16 — exit before final-10-min theta crush; EodFlatten safety net at 15:55 ET unchanged)
+- **TP1 = chart-level (next Active/Carry tier level past entry, $1.50 min distance, NO round numbers) OR premium ≥ entry × 1.50 fallback** (+50% vs safe's +30%). **TP1 qty_fraction = 0.667** (Rank-31 2026-06-16: 2/3 at TP1, 1/3 runner)
 - **runner exit (tiered)**: conservative (hammer/shooting_star + 1.5× vol + at any Active/Carry level) OR aggressive (same + 2.0× vol + Carry-tier level only). Single runner uses conservative rules. Premium ceiling = entry × 5.0 (vs safe's 3.0).
 
 Strike selection: **ITM-1** (strike $1 above spot for puts, $1 below for calls — slightly less deep ITM than safe's ITM-2, more leverage).
 
 **POSITION SIZING (aggressive — flat quality tiers, larger base):**
+
+**Account-equity source (field-name fix 2026-06-18):** read `today-bias.json#bold_equity` (primary), fall back to `automation/state/aggressive/circuit-breaker.json#equity_start_of_day`. *(Do NOT read `account_equity` / `start_equity` — no producer writes those keys; premarket writes `bold_equity`, the aggressive breaker writes `equity_start_of_day`.)* Live `mcp__alpaca_aggressive__get_account_info.equity` is authoritative when available; the state keys are the BOD fallback when the live snapshot is $0/unsettled.
 
 Per-tier qty by account equity (no ELITE/BASE split — every setup gets full size):
 | Equity | qty |
@@ -149,6 +158,19 @@ ONE action max per tick. Update `automation/state/current-position-bold.json` on
    - Emit `STATE_DRIFT_BLOCKED_ENTRY` to `aggressive/decisions.jsonl` with the Alpaca symbol(s) found.
    - Exit the tick — ONE position at a time; never enter while any position is open.
 3. If empty → confirmed flat → proceed.
+
+### Fill bar pending confirmation check (Gate AGG-3 Part A)
+
+Read `automation/state/aggressive/params.json#require_bearish_fill_bar`. If `false`, skip to First-entry-after-stop check.
+
+If `true`: read `loop-state.pending_bear_fill_confirmation` (object `{"signal_bar_time_et": "HH:MM"}`, absent/null = no pending).
+- **If no pending:** continue to First-entry-after-stop check.
+- **If pending exists:**
+  - Compute `ticks_since = floor((now_et_minutes - signal_bar_time_minutes) / 5)`.
+  - If `ticks_since > 2`: emit `BEAR_FILL_BAR_EXPIRED` to `aggressive/decisions.jsonl`. Set `loop-state.pending_bear_fill_confirmation = null`. Exit tick as `HOLD_DEV`.
+  - Else read `Latest` (last closed 5m bar, already fetched in SPY 5m section above):
+    - `Latest.close < Latest.open` (BEARISH close): set `loop-state.pending_bear_fill_confirmation = null`. **Proceed directly to Execution with ENTER_BEAR.** Skip First-entry check, scoring, and time-class gates — signal was validated last tick.
+    - `Latest.close >= Latest.open` (BULLISH/doji close): emit `BEAR_FILL_BAR_SKIP` to decisions.jsonl. Set `loop-state.pending_bear_fill_confirmation = null`. Exit tick as `HOLD_DEV`.
 
 ### First-entry-after-stop check
 
@@ -211,6 +233,12 @@ Read `today-bias.news_calendar.events_today[]`. For each event with `severity ==
 
 Always write `macro_pre_event_bias` to aggressive loop-state.
 
+**Regime label (2026-06-16, mirrors safe):** On every loop-state write, compute and write `regime_label`:
+- `"FOMC_EVE_SUPPRESSION"` — FOMC tomorrow AND `vix_cache.dir == "falling"` AND `ribbon.stack == "BEAR"`
+- `"FOMC_DAY_HARD_VETO"` — FOMC today AND `macro_pre_event_bias == "hard_no_counter_trend"`
+- `"FOMC_DAY_SOFT"` — FOMC today AND `macro_pre_event_bias == "soft_caution"`
+- `null` — all other conditions
+
 **Decision:** both pass + triggers → side with more triggers (tied = neither). One passes → execute. Neither → HOLD (or HOLD_DEV if score ≥9/11 or ≥8/10).
 
 **Near-miss alert:** if bear≥8 OR bull≥9 with no entry firing, write `dashboard-dialogue.claude_status: "ALERT"` with AGG prefix in reasoning.
@@ -229,9 +257,59 @@ Every tick not plain HOLD appends ONE row to `automation/state/aggressive/decisi
  "bull_score": 0, "bear_score": 0,
  "spy": 0.0, "vix": 0.0, "vix_dir": "rising|falling|flat|cached",
  "ribbon_stack": "BULL|BEAR|MIXED", "ribbon_spread_cents": 0,
- "htf_15m_stack": "BULL|BEAR|MIXED|null", "reason": "",
+ "htf_15m_stack": "BULL|BEAR|MIXED|null",
+ "setup_name": "<BEARISH_REJECTION_RIDE_THE_RIBBON|BULLISH_RECLAIM_RIDE_THE_RIBBON|null>",
+ "trigger": "<NORMALIZED trigger base name, no price suffix>",
+ "trigger_fired_this_tick": false,
+ "reason": "",
  "account": "aggressive"}
 ```
+
+**Trigger normalization (FIX 2026-06-15):** Watchers emit triggers with price suffixes (e.g., `"level_reclaim_758.22"`). Before writing to the ledger, strip the price suffix and log only the base trigger name: `level_reclaim, level_break, ribbon_flip, vwap_reclaim, sequence_reclaim, sequence_rejection, multi_day_confluence`. Log verbatim if not in this list.
+
+**bull_score/bear_score at ENTER (FIX 2026-06-15):** These MUST be written even on ENTER ticks. Use the score computed in the current tick's filter evaluation. Do not leave null — extract from reason string if needed.
+
+## Time-class gates (run on ENTER only — before execution)
+
+If the decision is ENTER_BULL or ENTER_BEAR, check these gates BEFORE placing any order. If any fires, emit SKIP, append a row to `automation/state/aggressive/decisions.jsonl` with the skip code, and DO NOT proceed to the bracket order.
+
+**Gate AGG-1 — Afternoon conf+lvl_rec block (AUTO-RATIFIED 2026-06-17, IS+$468 OOS+$176 WF=2.194):**
+Read `automation/state/aggressive/params.json#block_conf_lvl_rec_afternoon`.
+- If `true` AND `14:00 ET <= now_et <= 15:00 ET` AND triggers include BOTH `confluence` AND `level_reclaim`:
+  -> `SKIP_CONF_LVL_REC_AFTERNOON` (afternoon conf+lvl_rec = 100% stop IS n=5 avg=-$94; OOS n=1 avg=-$176. Scorecard: `analysis/recommendations/agg_time_class_gate.json`).
+- All other cases: PASS. Other trigger classes in afternoon remain eligible.
+
+**Gate AGG-2 — Midday+afternoon conf+lvl_rej block (AUTO-RATIFIED 2026-06-17, IS+$566 OOS+$230 WF=2.368):**
+Read `automation/state/aggressive/params.json#block_conf_lvl_rej_midday_afternoon`.
+- If `true` AND `11:30 ET <= now_et <= 15:00 ET` AND triggers include BOTH `confluence` AND `level_rejection`:
+  -> `SKIP_CONF_LVL_REJ_MIDDAY_AFTERNOON` (midday+aft conf+lvl_rej IS n=11 all stops; OOS n=2 both stops pnl=-$230. Scorecard: `analysis/recommendations/agg_time_class_gate.json`).
+- Morning (09:30-11:30 ET) conf+lvl_rej remains eligible — the morning runners live here (IS avg=$982).
+- All other cases: PASS.
+
+**Revert:** set `aggressive/params.json#block_conf_lvl_rec_afternoon: false, block_conf_lvl_rej_midday_afternoon: false`.
+
+**Gate AGG-4 — block_bull_morning_agg (PORTED from `backtest/lib/orchestrator.py`:1229-1231, 2026-06-18):**
+Read `automation/state/aggressive/params.json#block_bull_morning_agg` (currently `true`). BLOCK gate — removes losing BULL entries; fail-safe direction. Param-gated (no-op when `false`).
+- If `true` AND decision is `ENTER_BULL` (call / `winning_side == "C"`) AND the signal-bar ET time is in `10:00 ≤ t < 11:30` OR `t >= 14:00` (orchestrator: `dt.time(10,0) <= bar_time < dt.time(11,30) or bar_time >= dt.time(14,0)` — a SPLIT window covering morning + afternoon + power hour, NOT one contiguous range):
+  → emit `SKIP_BULL_MORNING_AGG`, append a row to `automation/state/aggressive/decisions.jsonl` (blocker `BLOCK_BULL_MORNING_AGG`), DO NOT place the order.
+- Aggressive account only. MORNING IS n=47 WR=14.9% (−$222); AFTERNOON IS n=6 WR=0% (−$82); POWER_HOUR IS n=3 WR=33% (−$45). IS_delta=+$384, OOS_delta=+$82, WF=2.837. Scorecard: `analysis/recommendations/agg_block_bull_morning_afternoon.json`. **Revert:** set `block_bull_morning_agg: false`.
+
+**Gate AGG-5 — block_elite_bull (PORTED from `backtest/lib/orchestrator.py`:1172-1174, aggressive VIX band, 2026-06-18):**
+Read `automation/state/aggressive/params.json#block_elite_bull` (`true`), `block_elite_bull_vix_low` (`15.0`), `block_elite_bull_vix_high` (`18.0`). BLOCK gate; param-gated (no-op when `false`).
+- If `block_elite_bull` is `true` AND decision is `ENTER_BULL` (call) AND the entry is ELITE with `level_reclaim` present (orchestrator: `quality_tier == "ELITE" and "level_reclaim" in winning_triggers` — an ELITE confluence+`level_reclaim` bull) AND `block_elite_bull_vix_low <= vix_now < block_elite_bull_vix_high` (the AGGRESSIVE band `[15.0, 18.0)`, distinct from Safe's `[0, 25)`):
+  → emit `SKIP_ELITE_BULL_LEVEL_RECLAIM`, append a row to `automation/state/aggressive/decisions.jsonl` (blocker `BLOCK_ELITE_BULL`), DO NOT place the order.
+- Blocks ELITE+confluence bull entries in the 15–18 VIX band (OOS losers cluster at VIX 17.5–18.0). Scorecard: `analysis/recommendations/block_elite_bull_vix_high_18.json`. **Revert:** set `block_elite_bull: false` (or narrow the VIX band).
+
+> **Order note:** evaluate AGG-4 and AGG-5 (BULL blocks) BEFORE AGG-3 — this matches the orchestrator, where the BULL blocks (lines 1172/1229) precede the `require_bearish_fill_bar` check (line 1249). They only affect `ENTER_BULL`; AGG-3 only defers `ENTER_BEAR`, so there is no interaction, but keep this order for parity.
+
+**Gate AGG-3 — One-bar bearish fill bar confirmation (J-RATIFIED 2026-06-17, IS+$363 OOS+$1,153 WF=18.522):**
+Read `automation/state/aggressive/params.json#require_bearish_fill_bar`.
+- If `true` AND decision is `ENTER_BEAR` AND `loop-state.pending_bear_fill_confirmation` is absent/null:
+  - Set `loop-state.pending_bear_fill_confirmation = {"signal_bar_time_et": "<now_et HH:MM>"}`.
+  - Emit `BEAR_SIGNAL_PENDING_FILL_BAR` to `aggressive/decisions.jsonl` (include setup_name, trigger, spy, vix, ribbon_stack, bear_score in reason field).
+  - DO NOT place an order. Exit tick as `HOLD_DEV`.
+- If `false` OR decision is `ENTER_BULL`: PASS through to Execution unchanged.
+- Evidence: AGG IS n=105→79 (-26 stops removed), IS_delta=+$363; OOS n=18→15 (+$1,153 net, +$238→+$1,391). WF=18.522. SW_hurt=1/4. ANCHOR=PASS. Safe: REJECT (IS_delta=-$860, anchor FAIL). Scorecard: `analysis/recommendations/fill-bar-gate-sweep.json`. **Revert:** set `require_bearish_fill_bar: false`.
 
 ## Execution (only on ENTER_BULL or ENTER_BEAR)
 
@@ -239,13 +317,26 @@ Per aggressive risk rules: 75% per-trade cap, min 5 contracts.
 
 1. **Strike**: pull chain → ITM-1 strike (1 strike ITM) with mid in $0.50–$5.00.
 2. **Liquidity gate (HARD)**: `mcp__alpaca_aggressive__get_option_snapshot` on candidate. Reject if `spread > max(0.12, mid×0.12)` OR `|delta| < 0.25 or > 0.60` OR `OI < 300` OR `bid<=0 or ask<=0`. Try 1 strike toward ATM, max 2 retries. Still failing → emit `SKIP_LIQUIDITY`.
-3. **Sizing**: validate qty against 75% rule. Reduce qty before rejecting.
+3. **Sizing + CODE GATE (FIX 5a 2026-06-15 — ROOT CAUSE: today 5×$2.06=$1,030 = 92% of $1,122)**: validate qty against 75% rule. Reduce qty before rejecting. Then **CALL THE CODE GATE — MANDATORY**:
+   ```
+   python automation/scripts/pre_order_gate.py --equity {current_equity} --qty {qty_after} --premium {premium_mid} --account bold
+   ```
+   If output starts with **"BLOCK"**: emit `SKIP_GATE_G6b_CODE: {gate_output}`, append `SKIP_GATE` row to `automation/state/aggressive/decisions.jsonl`, **STOP — DO NOT PLACE THE ORDER.** The code gate is authoritative and overrides all prompt-level math.
+   If output starts with **"PASS"**: proceed.
+
 4. **Pre-trade thesis to journal**: hypothesis, strike, delta, IV, mid, spread, qty, stop, TP1, runner condition. Mark `[AGG]` prefix in journal entry.
-5. **Bracket order**: `mcp__alpaca_aggressive__place_option_order` with `order_class="bracket"`, parent limit at mid, take_profit at TP1, stop_loss at chart-stop. Fall back to `oto` if rejected.
-6. **Record + emit** (TWO writes required):
-   - Write `automation/state/current-position-bold.json` with `status=pending_fill`, strike/delta/iv/mid/qty/bracket_ids.
+
+5. **Compute broker stop price (FIX 2 2026-06-15 — MANDATORY, NEVER null)**:
+   - BEAR (put): `stop_loss_price = round(premium_mid × 0.90, 2)` — broker disaster stop at −10% (TIGHTER_STOP 2026-06-17)
+   - BULL (call): `stop_loss_price = round(premium_mid × 0.95, 2)` — broker disaster stop at −5%
+   This is the broker-side safety net. The 2026-06-15 runner drifted unmanaged for 2h because stop_loss was null in the bracket — this cannot happen again.
+
+6. **Bracket order**: `mcp__alpaca_aggressive__place_option_order` with `order_class="bracket"`, parent limit at `premium_mid`, take_profit at `tp1_price`, `stop_loss=stop_loss_price` (from step 5). **NEVER set stop_loss to null or omit it.** Fall back to `order_class="oto"` only if API rejects bracket — log `broker_stop_leg=false` in position JSON.
+
+7. **Record + emit** (TWO writes required):
+   - Write `automation/state/current-position-bold.json` with `status=pending_fill`, strike/delta/iv/mid/qty/bracket_ids, `stop_loss_price`, `broker_stop_leg=true`.
    - **APPEND one row to `automation/state/aggressive/decisions.jsonl`** with `action=ENTER_BULL|ENTER_BEAR`, fields: tick_id, date, time_et, action, position_status, setup_name, symbol, direction, trigger, spy, vix, vix_dir, ribbon_stack, ribbon_spread_cents, entry_px, qty, stop_px, tp1_px, tp1_qty, runner_target_px, order_id, fill_confirmed, filled_qty, filled_avg_price, premium_paid, pct_equity, rule_version, account_id="bold". *(T49 parity fix 2026-05-16.)*
-7. **Entry screenshot**: `mcp__tradingview__capture_screenshot(region: "chart")`. Save to `journal/replays/{today}-{HHMM}-ENTRY-AGG-{setup_short}.png`. Skip silently on failure.
+8. **Entry screenshot**: `mcp__tradingview__capture_screenshot(region: "chart")`. Save to `journal/replays/{today}-{HHMM}-ENTRY-AGG-{setup_short}.png`. Skip silently on failure.
 
 NEVER tell J to fill manually.
 
@@ -284,7 +375,8 @@ Schema (same as safe loop-state, schema_version 3):
   "developing_setup": null,
   "first_entry_lock": [],
   "next_tick_model": "haiku",
-  "macro_pre_event_bias": null
+  "macro_pre_event_bias": null,
+  "regime_label": null
 }
 ```
 
@@ -292,7 +384,7 @@ Schema (same as safe loop-state, schema_version 3):
 
 - One action per tick.
 - Runtime <60s for HOLD ticks.
-- 15:50 ET = hard time stop.
+- 15:40 ET = hard time stop (Rank-31 2026-06-16).
 - Spread <30¢ = chop, no entry.
 - 3 consecutive TV failures → create `automation/state/kill-switch` file (shared — halts both strategies).
 - Position state mismatch (aggressive current-position vs `mcp__alpaca_aggressive__`) → kill-switch.

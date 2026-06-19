@@ -144,6 +144,8 @@ from .floor_hold_bounce_watcher import detect_floor_hold_bounce_setup  # noqa: E
 from .rsi_divergence_watcher import detect_rsi_divergence_bull  # noqa: E402
 from .orb15_watcher import detect_orb15_break  # noqa: E402
 from .erl_irl_watcher import detect_erl_irl_setup  # noqa: E402
+from .named_level_second_test_watcher import detect_named_level_second_test_setup  # noqa: E402
+from .stairstep_continuation_watcher import detect_stairstep_continuation_setup  # noqa: E402
 
 __all__ = [
     "WatcherSignal",
@@ -164,4 +166,6 @@ __all__ = [
     "detect_rsi_divergence_bull",
     "detect_orb15_break",
     "detect_erl_irl_setup",
+    "detect_named_level_second_test_setup",
+    "detect_stairstep_continuation_setup",
 ]

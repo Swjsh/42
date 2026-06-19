@@ -32,13 +32,13 @@ This constant is verified daily at premarket Step 1a against `automation/state/p
 >    - $2K-$10K: `strike_offset = -2` (OTM-2)
 >    - $10K-$25K: `strike_offset = -1` (OTM-1 / ATM)
 >    - $25K+: `strike_offset = +2` (ITM-2 — v14 default, capital available)
-> 3. **Premium stop bear-side:** `-20%` (was `-8%` in v14). Wider to absorb real-fills entry slippage; trailing profit-lock prevents winners going negative.
+> 3. **Premium stop bear-side:** `-10%` (was `-20%` in v15.0, was `-8%` in v14). TIGHTER_STOP ratified 2026-06-17: IS +$8,705 / OOS +$1,802, per-trade WF=3.37 PASS. Cuts catastrophic losses by 50% while saving all profitable trades. Profit-lock still prevents winners going negative.
 > 4. **Profit-lock trailing chandelier (NEW — was static breakeven-after-TP1 in v14):**
 >    - Arm at `favor_premium ≥ entry × (1 + 0.05)` (+5% favor)
 >    - Initial floor on arm: `entry × (1 + 0.10)` (+10%)
 >    - Then trail 20% off the high-water mark of `favor_premium`
 >    - Stop never lowers below original premium-stop
-> 5. **TP1 split:** `tp1_qty_fraction = 0.50` (was `0.667` in v14). 50% off at TP1, 50% rides the runner.
+> 5. **TP1 split:** `tp1_qty_fraction = 0.667` (Rank-31 2026-06-16, WF=1.08, OOS+44% — was 0.50 in v15, reverted to v14 value). 2/3 at TP1, 1/3 runner.
 > 6. **Runner target:** `runner_target_premium_pct = 2.50` (was `3.0` ceiling in v14 — now an active target, not just a ceiling).
 > 7. **Per-tier max-premium hard gate (NEW):** before order placement, if `qty × premium × 100 > account_equity × max_pct_for_tier`, REDUCE qty until it fits. Tiers: $0-$2K→40%, $2K-$10K→30%, $10K-$25K→25%, $25K+→20%. Prevents 315%-leverage scenarios on small accounts.
 >
@@ -117,27 +117,19 @@ Standard tick. No change to scoring or output.
 - Do NOT enter trades you would not have entered without the alert. Alert is corroboration, not authorization.
 - Do NOT modify alert.jsonl (it's append-only by numeric_pulse).
 
-## Step 0b — dual-account MCP self-test (dual-account mode only)
+## Step 0b — Safe MCP self-test (SAFE account only)
 
-**Run once per session on the first tick (tick_index == 0 or loop-state missing).** Determines whether `alpaca_aggressive` MCP server is available or requires REST fallback.
+> **Scope corrected 2026-06-18:** this prompt is SAFE-ONLY. The Bold MCP self-test and `bold_mcp_mode` logic were removed — Bold is owned by the separate `Gamma_Heartbeat_Aggressive` task. NEVER call `mcp__alpaca_aggressive__*` from this prompt.
 
-```
-SAFE MCP:  mcp__alpaca__get_account_info          → always available
-BOLD MCP:  mcp__alpaca_aggressive__get_account_info → may or may not be available
-```
+**Run once per session on the first tick (tick_index == 0 or loop-state missing).**
 
 **Self-test procedure:**
 1. Call `mcp__alpaca__get_account_info` — if it fails, emit `ERROR_ALPACA` and exit.
-2. Attempt `mcp__alpaca_aggressive__get_account_info`:
-   - **Success** → set `loop-state.bold_mcp_mode = "mcp"`. Use `mcp__alpaca_aggressive__*` tools for all Bold account operations this session.
-   - **Failure / tool not found** → set `loop-state.bold_mcp_mode = "rest"`. Use direct REST API calls for Bold account operations (see REST reference below).
-3. Log result: `MCP_SELF_TEST safe=ok bold={mcp|rest}` as the first line of `automation/state/logs/heartbeat-{today}.log`.
+2. Log result: `MCP_SELF_TEST safe=ok` as the first line of `automation/state/logs/heartbeat-{today}.log`.
 
-**This check runs ONCE per session.** After tick 0, read `loop-state.bold_mcp_mode` to determine Bold's call path for the rest of the session.
+## Alpaca tool reference — SAFE account only (`mcp__alpaca__*`)
 
-## Alpaca tool reference — both accounts
-
-### Safe account — always via MCP (`mcp__alpaca__*`)
+> **Scope corrected 2026-06-18:** Bold MCP + REST reference removed. This prompt NEVER calls `mcp__alpaca_aggressive__*` or any Bold REST endpoint. Bold execution is owned by `Gamma_Heartbeat_Aggressive`.
 
 | Operation | Tool |
 |---|---|
@@ -152,40 +144,16 @@ BOLD MCP:  mcp__alpaca_aggressive__get_account_info → may or may not be availa
 | Get option chain | `mcp__alpaca__get_option_chain` |
 | Close position | `mcp__alpaca__close_position` |
 
-### Bold account — MCP preferred (`mcp__alpaca_aggressive__*`), REST fallback
+## Step 0c — BTC cross-signal (SOFT-ADOPT 2026-06-16, FORENSIC ONLY — zero gate authority)
 
-When `loop-state.bold_mcp_mode == "mcp"`:
+Read the last line of `automation/state/crypto/ribbon-log.jsonl`. If file missing, empty, or `now_utc - row.time > 20 min` (stale) → `btc_ribbon = null`. Otherwise `btc_ribbon = row.ribbon` (`"BULL"` | `"BEAR"`).
 
-| Operation | Tool |
-|---|---|
-| Get account info / equity | `mcp__alpaca_aggressive__get_account_info` |
-| Get open position | `mcp__alpaca_aggressive__get_open_position` |
-| Get all positions | `mcp__alpaca_aggressive__get_all_positions` |
-| Place option order | `mcp__alpaca_aggressive__place_option_order` |
-| Get order by ID | `mcp__alpaca_aggressive__get_order_by_id` |
-| Cancel order | `mcp__alpaca_aggressive__cancel_order_by_id` |
-| Replace order | `mcp__alpaca_aggressive__replace_order_by_id` |
-| Get option snapshot | `mcp__alpaca_aggressive__get_option_snapshot` |
-| Get option chain | `mcp__alpaca_aggressive__get_option_chain` |
-| Close position | `mcp__alpaca_aggressive__close_position` |
+**Hard constraints — no exceptions:**
+- NEVER block an entry. NEVER boost scores. NEVER change action. NEVER appear in the gate sequence.
+- Append `btc={btc_ribbon}` to the one-line output.
+- Add `"btc_ribbon": "BULL"|"BEAR"|null` to the decisions.jsonl row.
 
-When `loop-state.bold_mcp_mode == "rest"` — use `fetch` or Bash REST calls:
-
-```
-Base URL:   https://paper-api.alpaca.markets
-Headers:    APCA-API-KEY-ID: <BOLD_KEY — load from ~/.claude/.mcp.json or $ALPACA_AGGRESSIVE_API_KEY; never hardcode>
-            APCA-API-SECRET-KEY: <BOLD_SECRET — load from env/.mcp.json; never hardcode>
-
-GET  /v2/account                           → equity, buying_power, cash
-GET  /v2/positions/{symbol}                → open position
-GET  /v2/orders/{order_id}                 → order status
-POST /v2/orders                            → place order (body: JSON order spec)
-DELETE /v2/orders/{order_id}               → cancel order
-PATCH /v2/orders/{order_id}                → replace order
-GET  /v2/options/snapshots?symbols={sym}   → option snapshot
-```
-
-The REST path produces identical behavior to the MCP path — same data, same writes, same position state updates. The session's `bold_mcp_mode` flag is the only difference in call path.
+**Why:** BTC/SPY macro correlation is real but untested at 5-minute heartbeat resolution. After 40+ heartbeat entries with `btc_ribbon` tagged, run `WR_aligned vs WR_misaligned`. If aligned WR exceeds misaligned by ≥8pp with N≥20 per bucket → file A/B scorecard at `analysis/recommendations/btc-ribbon-spy-cross.json` and promote to ATTENTION tier (Step 0a adjacent).
 
 # Output — ONE LINE ONLY
 
@@ -195,40 +163,27 @@ Print exactly one line to stdout. Nothing else. No preamble, no analysis, no mar
 HB#{n} {hh:mm} {ACTION} | spy={x} ribbon={spread}c({stack}) vix={x}({dir}) bear={n}/10 bull={n}/11 htf={15m_stack} | {one_clause_reason}
 ```
 
-ACTIONs: HOLD HOLD_DEV ENTER_BULL ENTER_BEAR EXIT_TP1 EXIT_RUNNER EXIT_STOP EXIT_TIME SKIP_STALE SKIP_LIQUIDITY SKIP_NEWS PAUSED TRIPPED ERROR_TV ERROR_ALPACA
+ACTIONs: HOLD HOLD_DEV ENTER_BULL ENTER_BEAR EXIT_TP1 EXIT_RUNNER EXIT_STOP EXIT_TIME SKIP_STALE SKIP_LIQUIDITY SKIP_NEWS PAUSED TRIPPED ERROR_TV ERROR_ALPACA WATCH_ONLY ORB_WOULD_ENTER FBW_WOULD_ENTER SKIP_WATCH_TRIPPED SKIP_WATCH_PDT
 
-# Dual-account mode (effective 2026-05-18)
+# Account scope — SAFE ONLY (architecture corrected 2026-06-18)
 
-**Read `automation/state/params_safe.json` and `automation/state/params_bold.json` once per tick IF both files exist.** If either file is missing, fall back to single-account mode using `automation/state/params.json` and `automation/state/current-position.json`.
+**This prompt is the SAFE account ONLY.** It runs under the `Gamma_Heartbeat` scheduled task. The Bold account is owned by a SEPARATE task (`Gamma_Heartbeat_Aggressive`) running `automation/prompts/aggressive/heartbeat.md`. **NEVER place a Bold order from this prompt** — it has no Bold credentials, no Bold position state, and no business touching the Bold account.
 
-When dual-account mode is active:
-- Process **both accounts on every tick** — Safe first, then Bold.
-- Each account has its own param overlay (loaded on top of base params.json), its own position state file, and its own Alpaca credentials.
-- **Kill switches are fully isolated.** Safe hitting its −30% daily loss limit emits `SAFE_TRIPPED` and skips Safe processing for the rest of the day — Bold continues unaffected.
-- **Overlap (same setup fires for both):** Execute both entries on the same tick. Safe uses ATM strike and 30% TP1. Bold uses ITM-2 and 75% TP1. Both placed as bracket orders to respective Alpaca accounts.
-- **Output line:** Emit one line per account when actions differ, or one combined line when both HOLD.
+**Params source of truth: `automation/state/params.json` (Safe, `rule_version: v15.3`).** This is the canonical Safe config. Read it on every tick for all rule values (stops, TP1, VIX thresholds, sizing tiers, and every gate-param key referenced below). Do NOT read any `params_safe.json` / `params_bold.json` overlay — those frozen 2026-05-14 v1.0 files are RETIRED (renamed to `*.retired-2026-06-18`); reading them would apply stale parameters (e.g. −15% stop vs the real −7%/−10%, 0.333 TP1 vs the real 0.667). If a `params.json` value you need is genuinely absent, use the documented default in this prompt — never fall back to a retired overlay.
 
-Combined HOLD format:
-```
-HB#{n} {hh:mm} HOLD[safe+bold] | spy={x} ribbon={spread}c({stack}) vix={x}({dir}) bear={n}/10 bull={n}/11 | {reason}
-```
+- **Kill switch (Safe, isolated):** Safe hitting its −30% daily loss limit emits `TRIPPED` and skips Safe processing for the rest of the day. The Bold task's kill switch is independent and unaffected (it lives in `automation/state/aggressive/circuit-breaker.json`).
+- **Output line:** single Safe line per tick, per the `HB#{n}` format above.
 
-Split action format (when accounts differ):
-```
-HB#{n} {hh:mm} SAFE:{ACTION} BOLD:{ACTION} | spy={x} ribbon={spread}c({stack}) vix={x}({dir}) | {reason}
-```
+**decisions.jsonl entries:** append Safe rows to `automation/state/decisions.jsonl`. Each row may carry `account_id: "safe"` for forensic clarity; this prompt never writes a Bold row.
 
-**Per-account decisions.jsonl entries:** append one row per account per tick (or a combined row with `account_id: "both"` on identical HOLD ticks). Each row must include `account_id: "safe"|"bold"`.
-
-# Reads (7 files in dual-account mode, 5 in single-account mode)
+# Reads (6 files — Safe account)
 
 1. `automation/state/loop-state.json`
 2. `automation/state/today-bias.json`
 3. `automation/state/circuit-breaker.json`
-4. `automation/state/current-position-safe.json` *(or `current-position.json` in single-account fallback)*
-5. `automation/state/current-position-bold.json` *(dual-account mode only)*
-6. `automation/state/key-levels.json`
-7. `automation/state/params_safe.json` + `automation/state/params_bold.json` *(dual-account mode only; overlays on base params.json)*
+4. `automation/state/current-position.json` *(Safe position state; `current-position-safe.json` accepted as alias if present)*
+5. `automation/state/key-levels.json`
+6. `automation/state/params.json` *(Safe source of truth, `rule_version: v15.3`)*
 
 DO NOT read CLAUDE.md, playbook, decision-log, or any *.md doctrine file. Doctrine is below.
 
@@ -236,6 +191,7 @@ DO NOT read CLAUDE.md, playbook, decision-log, or any *.md doctrine file. Doctri
 
 1. `automation/state/kill-switch` exists → emit `PAUSED`, exit. No state write.
 2. `circuit-breaker.json#tripped == true` → emit `TRIPPED`, exit. No state write.
+2b. **SAFE BOD EQUITY OVERRIDE (new account BOD race guard — 2026-06-16):** After calling `mcp__alpaca__get_account_info` for Safe, if `circuit_breaker.SAFE_EQUITY_BOD_PENDING == true` AND `live_equity_safe == 0` (Alpaca BOD snapshot not yet settled) → use `circuit_breaker.starting_equity_today` as `current_equity_safe` for ALL sizing math this tick (G6, G6b, strike tier, filter 3). Do NOT trip circuit breaker or emit SAFE_TRIPPED based on $0 live equity. Append `"safe_bod_pending": true` note to decisions.jsonl row. Once `live_equity_safe > 0` → write `circuit_breaker.SAFE_EQUITY_BOD_PENDING = false`. This guard auto-expires the first tick it sees non-zero equity.
 3. `data_get_ohlcv(count=3, summary=true)` → CRITICAL CLOSED-BAR FILTER (R1 v15.1 fix 2026-05-14): TV returns the in-progress bar at index [-1] which is NOT yet closed. Compute `now_et = current ET time`. For each bar, compute `bar_close_et = bar.time + 5min`. Filter to bars where `bar_close_et <= now_et`. The LAST surviving bar = "last closed bar" — use this for `time` + `volume` comparison below. The unfiltered bar[-1] (in-progress) MUST NOT be used here. If `last_closed_bar.time == loop-state.last_bar_timestamp` AND `last_closed_bar.volume - prior_volume < 30%`, emit `SKIP_STALE`, exit. No state write.
 
 # Tick body
@@ -244,7 +200,7 @@ DO NOT read CLAUDE.md, playbook, decision-log, or any *.md doctrine file. Doctri
 
 `loop-state.vix_cache = { value, prior_value, dir, fetched_at }`.
 
-Refresh ONLY if: no cache OR `now - fetched_at > 10min` OR position OPEN AND `>4min` OR cache `value` within ±0.20 of any threshold (17.20 / 17.30 / 22.00). Otherwise REUSE — set `dir = "cached"` for this tick's emit.
+Refresh ONLY if: no cache OR `now - fetched_at > 10min` OR position OPEN AND `>4min` OR cache `value` within ±0.20 of any threshold (17.20 / 17.30 / 18.00). Otherwise REUSE — set `dir = "cached"` for this tick's emit.
 
 Refresh = `chart_set_symbol("TVC:VIX")` → `quote_get` → validate `description` matches /VIX|VOLATILITY/i AND `last` in [5, 100]. Restore `chart_set_symbol("BATS:SPY")`. Then compute `dir`: `rising` if value > prior+0.05, `falling` if value < prior-0.05, else `flat`. `cached`/`flat` does NOT pass filter 8.
 
@@ -267,16 +223,16 @@ ELSE: read cached `loop-state.htf_15m`. If absent or `now - last_close_time > 16
 If pending_fill: `get_order_by_id` on `bracket_ids.parent`. If filled, update status="open", filled_avg_price, slippage_cents. If canceled/rejected, clear position, emit ERROR_ALPACA. If pending >2 ticks, cancel parent, clear position, emit ERROR_ALPACA.
 
 If open: apply stops per **v15 RATIFIED doctrine** (was v11/v14 — see "v15 ratification" section above for full diff):
-- **premium stop (BEAR-side puts) = entry × 0.80** (RATIFIED v15 2026-05-13 evening: was × 0.92 / -8% in v14. Wider stop to absorb real-fills entry slippage; T44b 3/3 OP-20 PASS on this stop. **BULL-side calls remain entry × 0.92 / -8%** — bull mirror not yet specced under v15.)
+- **premium stop (BEAR-side puts) = entry × 0.90** (TIGHTER_STOP ratified 2026-06-17: was × 0.80 / -20% in v15.0, was × 0.92 / -8% in v14. Tighter cuts catastrophic losses by 50% while profit-lock prevents winners going negative. IS +$8,705 / OOS +$1,802, WF=3.37 PASS. **BULL-side calls remain entry × 0.92 / -8%** — bull mirror not yet specced under v15.)
 - **chart stop = close > rejection_level + $0.50 buffer** (no ribbon condition required; RATIFIED v11)
 - **ribbon flip back exit = opposite stack (BULL for puts) AND spread ≥ 30c** (NOT just MIXED transition — chop zones are not invalidations)
-- time stop 15:50 ET hard
-- **TP1 (BEAR-side) = chart-level (next Active/Carry tier level past entry, $1.50 min distance, NO round numbers) OR premium ≥ entry × 1.30 fallback** (RATIFIED v11). **TP1 qty_fraction = 0.50** (RATIFIED v15: was 0.667 in v14. 50% off at TP1, 50% rides the runner with profit-lock.)
+- time stop 15:40 ET hard (Rank-31 2026-06-16 — exit before final-10-min theta crush; EodFlatten safety net at 15:55 ET unchanged)
+- **TP1 (BEAR-side) = chart-level (next Active/Carry tier level past entry, $1.50 min distance, NO round numbers) OR premium ≥ entry × 1.50 fallback** (RATIFIED v11, updated Rank-36 2026-06-17: was 1.30). **TP1 qty_fraction = 0.667** (Rank-31 2026-06-16: 2/3 at TP1, 1/3 runner; WF=1.08 OOS+44%. Was 0.50 in v15.)
 - **runner target (BEAR-side) = entry × 2.50 active target** (RATIFIED v15: was 3.0 hard ceiling in v14 — now active, not just a ceiling).
-- **profit-lock trailing chandelier (NEW v15, BEAR-side):** once `favor_premium ≥ entry × 1.05` (+5% favor), arm. On arm: stop floor moves to `entry × 1.10` (+10%). Then trail 20% off the high-water mark of `favor_premium`. Stop floor never lowers below original `entry × 0.80` premium stop. **A winning trade can no longer go negative.** (Source: T50 trailing-PL test 2026-05-13 22:16 ET — B1 trailing 20% wins aggregate $36,621 vs fixed $36,450, lower concentration top5 32% vs 37%.)
+- **profit-lock trailing chandelier (NEW v15, BEAR-side):** once `favor_premium ≥ entry × 1.05` (+5% favor), arm. On arm: stop floor moves to `entry × 1.10` (+10%). Then trail 20% off the high-water mark of `favor_premium`. Stop floor never lowers below original `entry × 0.90` premium stop (TIGHTER_STOP 2026-06-17). **A winning trade can no longer go negative.** (Source: T50 trailing-PL test 2026-05-13 22:16 ET — B1 trailing 20% wins aggregate $36,621 vs fixed $36,450, lower concentration top5 32% vs 37%.)
 - **runner exit (tiered, secondary signals)**: conservative (hammer/shooting_star + 1.5× vol + at any Active/Carry level) OR aggressive (same + 2.0× vol + Carry-tier level only). Single runner uses conservative rules. Profit-lock chandelier supersedes if armed and tighter.
 
-Strike selection: **per account-equity tier (RATIFIED v15 2026-05-13 evening — was uniform ITM-2 in v14).** Read `today-bias.json#account_equity` (or fall back to most recent `circuit-breaker.json#start_equity`). Apply the per-tier strike_offset BELOW. Strike formula (BEAR puts): `strike = round(spot) + strike_offset` (positive offset = ITM, negative = OTM). For BULL calls: `strike = round(spot) - strike_offset` (mirror).
+Strike selection: **per account-equity tier (RATIFIED v15 2026-05-13 evening — was uniform ITM-2 in v14).** Read `today-bias.json#safe_equity_confirmed` (or fall back to most recent `circuit-breaker.json#starting_equity_today`). *(Field-name fix 2026-06-18: `account_equity` / `start_equity` were never written by any producer — premarket writes `safe_equity_confirmed`; the circuit-breaker writes `starting_equity_today`.)* Apply the per-tier strike_offset BELOW. Strike formula (BEAR puts): `strike = round(spot) + strike_offset` (positive offset = ITM, negative = OTM). For BULL calls: `strike = round(spot) - strike_offset` (mirror).
 
 | Account equity | strike_offset | label | rationale |
 |---|---|---|---|
@@ -356,6 +312,8 @@ Before scoring, read `loop-state.first_entry_lock[]` (array, init `[]` if missin
 
 For each candidate setup (BEARISH_REJECTION_RIDE_THE_RIBBON or BULLISH_RECLAIM_RIDE_THE_RIBBON):
 
+> **Setup isolation guarantee:** This lock check is keyed STRICTLY to `setup_name`. A BULLISH_RECLAIM_RIDE_THE_RIBBON stop-out does NOT block BEARISH_REJECTION_RIDE_THE_RIBBON, and vice versa. If/when additional setup classes are added to the heartbeat (e.g., FLOOR_HOLD_BOUNCE, NAMED_LEVEL_SECOND_TEST, ORB_RETEST_LONG), each will carry its own independent lock key. Never extrapolate one setup's stop-out to block a differently-named setup — the risk hypothesis is different and the day's regime failure on one pattern does NOT invalidate a structurally distinct pattern.
+
 1. Filter `first_entry_lock[]` to today's session_id rows where `setup_name == candidate`. Since individual lock entries don't carry a `session_id` field, filtering is done by the OUTER `loop_state.session_id`: if it equals today → full array applies; if not → array treated as empty (session guard above).
 2. If any row has `exit_reason in {"premium_stop","chart_stop","ribbon_flip_back","stop_market"}` (any stop-out): **block the candidate entirely for the rest of the day**. Emit `SKIP_FIRST_ENTRY_RULE` and append one row to `journal/skipped-setups.csv` with `reason: "first_entry_after_stop_blocked"` + the prior entry's exit time.
 3. If the prior row has `exit_reason in {"tp1","take_profit","runner_target"}` (winning exit): allow re-entry but with reduced size — `qty = max(min_contracts, prior_qty - params.first_entry_after_tp_size_reduction)`. Note in the entry thesis: `re-entry after TP win, size reduced from {prior_qty} to {new_qty}`.
@@ -369,6 +327,7 @@ Score both setups against the LAST CLOSED 5m bar. UNKNOWN field = FAIL.
 
 **BEARISH (10) — RATIFIED v15 2026-05-13 evening (was v11; v14_enhanced 3/3 OP-20 + 8/8 Monday-Ready + walk-forward 2.67x):**
 1. **time IN [09:35 ET, 15:00 ET)** — continuous entry window (RATIFIED v15.1 2026-05-14 evening per J: "any time between 9:35 - and 3pm is fair game for ENTRIES. theta will kill us after 3."). v11→v15 had 14:00-15:00 mid-day blackout — REMOVED in v15.1. Tightened entry cutoff from 15:50→15:00 ET so theta doesn't kill us. Existing positions still flatten by 15:50 ET hard time stop (UNCHANGED).
+   - **EXCEPTION: 11:30-12:00 ET no-trade window (ENFORCED-4, auto-ratified 2026-06-17)** — skip any setup where the *signal bar* falls in 11:30-12:00 ET. Entry happens at next bar open (11:35-12:05); the gate is on the signal bar time. Early lunch zone: morning momentum exhausted, theta not yet accelerating, low volume. Both IS and OOS are negative (IS avg=-$112 stop=88.9%; OOS avg=-$424 n=1) — NOT C22 inverted, both regimes agree. IS_delta=+$10, OOS_delta=+$424, WF=247.3, SW_hurt=0, ANCHOR=PASS. Configured via `entry_no_trade_window_et: ["11:30", "12:00"]` in `params.json`.
 2. news clear (now NOT inside `today-bias.news_calendar.no_trade_window[]`)
 3. budget>risk
 4. day-trades≥1
@@ -412,7 +371,56 @@ where `ribbon_spread_3bars_ago` = |Fast_EMA − Slow_EMA| from the bar 3 closed 
   → `SKIP_MIDDAY_TRENDLINE` (single-trigger trendline entries in midday = −8.6/trade OOS, 307 trades).
 - All other cases: PASS. Multi-trigger midday entries remain eligible. Non-midday trendline entries unaffected.
 
-**Revert:** set `params.json#midday_trendline_gate: false, min_ribbon_momentum_cents: 0, max_ribbon_duration_bars: 999` — gates become no-ops without touching this file.
+**Gate D — Afternoon conf+lvl_rec block (AUTO-RATIFIED 2026-06-17, IS+$412 OOS+$176 WF=2.644):**
+Read `params.json#block_conf_lvl_rec_afternoon`.
+- If `true` AND `14:00 ET ≤ now_et ≤ 15:00 ET` AND triggers include BOTH `confluence` AND `level_reclaim`:
+  → `SKIP_CONF_LVL_REC_AFTERNOON` (afternoon conf+lvl_rec = 100% stop IS n=5 avg=-$82; OOS n=1 avg=-$176. Scorecard: `analysis/recommendations/safe_time_class_gate.json`).
+- All other cases: PASS. Other trigger classes in the afternoon remain eligible.
+
+**Revert:** set `params.json#midday_trendline_gate: false, min_ribbon_momentum_cents: 0, max_ribbon_duration_bars: 999, block_conf_lvl_rec_afternoon: false` — gates become no-ops without touching this file.
+
+---
+
+**PORTED BACKTEST GATES (Gates E–I) — ported from `backtest/lib/orchestrator.py` to live 2026-06-18.**
+
+> These five BLOCK gates exist in `params.json` + the backtest orchestrator but were never wired into this live prompt — a live/backtest parity gap. All five are SKIP gates (they remove losing trades; fail-safe direction). Each reads its `params.json` key (so it is gated by config, not a hardcoded constant) and is set to a no-op when the key is `false`/`0`/`null`. Evaluate AFTER scoring passes and AFTER Gates A–D, BEFORE the pre-execution gate sequence (G5/G7/G1/...). Cross-checked against the cited orchestrator line. **Tier mapping (live ⇄ orchestrator):** the orchestrator's internal `quality_tier == "LEVEL"` ≡ a BEAR (put) entry whose firing trigger is `level_rejection`/`level_reject` against a named level (`has_level`); `quality_tier == "ELITE"` ≡ an entry whose trigger set includes `confluence` OR `sequence_*` (the live v13b ELITE definition). Use the live-equivalent condition stated per gate.
+
+**Gate E — vix_bear_hard_cap (orchestrator.py:1418):**
+Read `params.json#vix_bear_hard_cap` (currently `23.0`).
+- If the key is non-null AND side == BEAR (put / `winning_side == "P"`) AND `vix_now >= params.vix_bear_hard_cap`:
+  → emit `SKIP_VIX_BEAR_HIGH`, log to `decisions.jsonl` (blocker `VIX_BEAR_HARD_CAP`), do NOT enter.
+- Rationale: VIX ≥ 23 = high-fear regime → put premium expensive → the −10% stop fires on tiny adverse moves (C3/L149). IS n=9 blocked WR=0% (+$790); OOS n=6 WR=17% (+$420); WF=0.797. Scorecard: `analysis/recommendations/safe_vix_bear_hard_cap.json`.
+- **Revert:** set `vix_bear_hard_cap: null` (or `0`).
+
+**Gate F — block_level_rejection (orchestrator.py:1135):**
+Read `params.json#block_level_rejection` (currently `true`).
+- If `true` AND side == BEAR (put) AND the entry is a LEVEL-tier `level_rejection` (orchestrator: `quality_tier == "LEVEL" and has_level and winning_side == "P"` — i.e. the only/primary qualifying trigger is `level_reject` against a named resistance/transition/broken_to_resistance level, NOT confluence/sequence/ribbon_flip):
+  → emit `SKIP_LEVEL_REJECTION_GATE`, log to `decisions.jsonl` (blocker `LEVEL_REJECTION_GATE`), do NOT enter.
+- This is the largest claimed edge: IS +$13,181 / OOS +$682 / WF=0.842, 0 hurt sub-windows, anchor OK (+$1,478 on 4/29). BULL `level_reclaim` entries are NOT blocked (the `winning_side == "P"` guard). Scorecard: `analysis/recommendations/level-rejection-gate-01.json`.
+- **Revert:** set `block_level_rejection: false`.
+
+**Gate G — entry_bar_body_pct_min (orchestrator.py:1382-1384):**
+Read `params.json#entry_bar_body_pct_min` (currently `0.20`).
+- If the key `> 0.0` AND side == BEAR (put) AND the entry bar's `body_pct < params.entry_bar_body_pct_min`, where `body_pct = abs(close − open) / (high − low)` of the last closed (entry) bar (a doji / wick-dominant bar = no directional conviction):
+  → emit `SKIP_DOJI_ENTRY_BAR`, log to `decisions.jsonl` (blocker `ENTRY_BAR_BODY_PCT_GATE`), do NOT enter.
+- IS n=113→98 (−15, WR=31.2% avg=−$29) IS_delta=+$295; OOS n=24→20 (−4, WR=0%) OOS_delta=+$566; WF=7.193. Scorecard: `analysis/recommendations/safe_entry_body_gate.json`. (BEAR-side only — there is a separate `entry_bar_body_pct_min_bull` knob in the orchestrator, default 0/disabled; not active for Safe.)
+- **Revert:** set `entry_bar_body_pct_min: 0.0`.
+
+**Gate H — block_bull_1100_1200 (orchestrator.py:1209-1210):**
+Read `params.json#block_bull_1100_1200` (currently `true`).
+- If `true` AND side == BULL (call / `winning_side == "C"`) AND `11:00 ET ≤ now_et < 12:00 ET` (orchestrator: `dt.time(11,0) <= bar_time < dt.time(12,0)` on the signal bar):
+  → emit `SKIP_BULL_1100_1200`, log to `decisions.jsonl` (blocker `BLOCK_BULL_1100_1200`), do NOT enter.
+- Worst TOD bucket: IS n=11 WR=9.1% (10/11 losers, −$89); OOS n=1 (−$42); WF=5.22. Scorecard: `analysis/recommendations/safe_bull_1100_1200_gate.json`.
+- **Revert:** set `block_bull_1100_1200: false`.
+
+**Gate I — block_elite_bull (orchestrator.py:1172-1174):**
+Read `params.json#block_elite_bull` (`true`), `params.json#block_elite_bull_vix_low` (`0.0`), `params.json#block_elite_bull_vix_high` (`25.0`).
+- If `block_elite_bull` is `true` AND side == BULL (call) AND the entry is ELITE with `level_reclaim` present (orchestrator: `quality_tier == "ELITE" and "level_reclaim" in winning_triggers` — i.e. an ELITE conf+`level_reclaim` bull) AND `block_elite_bull_vix_low <= vix_now < block_elite_bull_vix_high`:
+  → emit `SKIP_ELITE_BULL_LEVEL_RECLAIM`, log to `decisions.jsonl` (blocker `BLOCK_ELITE_BULL`), do NOT enter.
+- All IS conf+lvl_rec bulls fire at VIX<17.5 and lose; the [0,25) band also removes the OOS losers at VIX 17.8–18.0. IS_delta=+$113; OOS_delta=+$63; WF=3.890. Scorecard: `analysis/recommendations/safe_block_elite_bull_all_vix.json`.
+- **Revert:** set `block_elite_bull: false` (or narrow `block_elite_bull_vix_low`/`_high`).
+
+Apply Gates E–I in order; the FIRST one that fires SKIPs the entry for this tick (one action per tick). If none fire, proceed to the pre-execution gate sequence.
 
 ---
 
@@ -425,7 +433,7 @@ where `ribbon_spread_3bars_ago` = |Fast_EMA − Slow_EMA| from the bar 3 closed 
 6. spread≥30¢
 7. NOT volume_divergence
 8. VIX<17.20 OR `vix_falling`
-9. VIX<22 (HARD)
+9. VIX<18 (HARD) — lowered from 22.0 (Rank 35, 2026-06-17: IS+$221/n=4, OOS+$219/n=1, WF=5.946. SAFE only.)
 10. last closed bar shows buyer pressure — close>open AND vol≥**0.7×** 20-bar avg. (RATIFIED v11: was 1.3×.)
 11. htf_15m_stack != "BEAR" → +1. htf_15m_stack == "BEAR" → -1 score-modifier (NOT a hard block). REQUIRE **≥2** of 4 triggers (RATIFIED v12 asymmetric: bull needs higher confluence than bear because level_reclaim alone is only 22% WR; level_reclaim+confluence = 50% WR). Triggers: level_reclaim / ribbon_flip / multi-day_confluence / **sequence_reclaim**. **Defensive level-tied requirement still applies**: need at least one of {level_reclaim, confluence, sequence_reclaim} (no pure ribbon_flip-only entries).
 
@@ -453,6 +461,14 @@ This is what the 2026-05-07 12:30 BULL trade looks like under v2:
 
 Always write `macro_pre_event_bias` to loop-state on every loop-state write so the dashboard shows it.
 
+**Regime label (2026-06-16):** On every loop-state write, compute `regime_label`:
+- `"FOMC_EVE_SUPPRESSION"` — FOMC decision scheduled tomorrow (events_today has no FOMC today but today-bias shows one within next 24h) AND `vix_cache.dir == "falling"` AND `ribbon.stack == "BEAR"`
+- `"FOMC_DAY_HARD_VETO"` — FOMC fires today AND `macro_pre_event_bias == "hard_no_counter_trend"`
+- `"FOMC_DAY_SOFT"` — FOMC fires today AND `macro_pre_event_bias == "soft_caution"`
+- `null` — all other conditions (omit the key when null)
+
+Write `regime_label` alongside `macro_pre_event_bias`. J reads it for EOD context — it explains WHY we held all day without implying the engine failed.
+
 Wick ≠ flip — EMA lines must reorder.
 
 **Decision:** both pass + triggers → side with more triggers (tied = neither, log conflict). One passes → execute. Neither → HOLD (or HOLD_DEV if score ≥9/11 or ≥8/10).
@@ -465,138 +481,106 @@ If `bull_score≥9` OR `bear_score≥8` AND no entry fires, append ONE row to `j
 
 Do NOT write a row if score < threshold. Silence is the signal.
 
-## ORB branch (WATCH-ONLY — log only, no orders until J ratifies)
+## Watcher signal layer (WATCH-ONLY — all 28 watchers, log only, no orders)
 
-> **Status 2026-05-24: WATCH-ONLY.** OP-21 live gate: 0/3 live J wins on ORB_RETEST_LONG.
-> This block reads watcher-observations.jsonl and logs ORB_WOULD_ENTER to decisions.jsonl
-> but does NOT place orders. Activation: uncomment execution block + J ratification (Rule 9).
-> Evidence: 16-month deduped N=32 WR=81.2% P&L=+$976 (5/6 quarters). Real-fills N=22 WR=81.8%.
-> Leaderboard: #4 ORB_NARROW_OR_GATE. Spec: `strategy/candidates/_analysis/2026-05-24-orb-heartbeat-integration-spec.md`.
+> **Status 2026-06-18: replaces the per-watcher ORB + FBW branches.** Those two bespoke blocks
+> each read `watcher-observations.jsonl` for ONE setup. This unified block generalizes the SAME
+> pattern across the WHOLE Gamma_WatcherLive fleet (orb, fbw, floor_hold_bounce,
+> named_level_wick_bounce, erl_irl, double_bottom_base_quiet, close_ceiling_fade, rsi_divergence,
+> head_and_shoulders, momentum_acceleration, and the rest — 28 total). It reads the feed
+> Gamma_WatcherLive writes (5-min cadence) and logs `WATCH_ONLY` rows to decisions.jsonl so the
+> live ledger SEES every watcher, not just 2.
+>
+> **This is WATCH-ONLY. It NEVER places an order.** OP-21 live gate STANDS: every setup needs
+> 3 live J wins before ANY live execution path is wired. This block only observes + logs.
+> Activating execution for any watcher is a Rule 9 change requiring J ratification.
+>
+> **Revert path:** `git checkout d0c8ac0 -- automation/prompts/heartbeat.md` restores the two
+> prior ORB + FBW branches (or `git show d0c8ac0:automation/prompts/heartbeat.md` to copy them
+> back by hand). The prior branch text is preserved in git history as of the 2026-06-15 evening
+> snapshot commit.
+>
+> **Cost:** ~0. One extra file read per tick (already on disk, written by another process) plus a
+> few extra decisions.jsonl rows on ticks where watchers fired. No new MCP calls, no Python, no
+> chart reads. Reading + filtering ~40 JSONL lines is negligible.
 
-**Only run when:** position flat AND neither BEARISH nor BULLISH entry fired this tick.
+**Only run when:** THIS account's position is flat AND neither BEARISH nor BULLISH entry fired this
+tick for THIS account. ("This account" = the account this invocation is scoped to — `safe` for
+`Gamma_Heartbeat`, `bold` for `Gamma_Heartbeat_Aggressive`; in single-invocation dual-account mode,
+run the block once per account using that account's own position/entry state.) This block is NOT
+"the action" — it is observability logging, so it does not consume the ONE-action-per-tick budget.
+It MUST NEVER call `place_option_order` or any order/close/cancel tool.
 
-**Signal read:** Read last 30 lines of `automation/state/watcher-observations.jsonl`. For each line newest-first:
-- Skip if `row.watcher_name != "orb_watcher"`
-- Skip if `row.setup_name != "ORB_RETEST_LONG"`
-- Skip if `row.confidence != "medium"`
-- Skip if `row.bar_timestamp_et.date != today_et`
-- Skip if `(now_et - row.bar_timestamp_et) > 10 min` (signal stale — retest window closed)
-- Otherwise: `orb_signal = row; break` (use most recent match only)
+**Account stamping (load-bearing — fixes cross-account mis-attribution):** `watcher-observations.jsonl`
+rows are account-AGNOSTIC (the watcher fleet emits pure chart signals with NO account field). Stamp
+`account_id` = THIS invocation's account (`safe` or `bold`). The SAME watcher signal is expected to
+log once under EACH account it is evaluated for — that is correct, not a duplicate. Do NOT let one
+account's row suppress the other's (see dedup scoping in filter 4).
 
-If no `orb_signal` found: skip this block entirely.
+**External-feed model (settled — do NOT call Python or build a BarContext):** the watcher fleet
+runs in a separate process (Gamma_WatcherLive). This block only CONSUMES its output file.
 
-If `orb_signal` found, apply gate sequence:
+**Signal read:** Read the last ~40 lines of `automation/state/watcher-observations.jsonl`,
+newest-first. The file is APPEND-ONLY and contains historical replay rows from months ago, so the
+filters below are load-bearing — do not drop any of them. For each row, apply IN ORDER:
 
-| Gate | Check |
-|---|---|
-| G5 | `circuit_breaker.tripped` → `SKIP_ORB_TRIPPED` |
-| G7 | PDT: `day_trades_used_5d >= 3 AND equity < 25000` → `SKIP_ORB_PDT` |
-| G1 | "ORB_RETEST_LONG" NOT in playbook.md `### Setup name:` headings → `SKIP_ORB_G1` |
-| G10 | heartbeat log has ORB BLOCK/SKIP within last 15 min → skip |
+1. **Date match:** skip unless `date(row.bar_timestamp_et) == today_et`. (`bar_timestamp_et` is ISO
+   with an ET offset, e.g. `2026-06-18T13:20:00-04:00` — compare its date to today in ET.)
+2. **Freshness:** skip unless `(now_et - row.bar_timestamp_et) <= 10 minutes`. Stale signals are
+   dropped — the live retest/trigger window has closed.
+3. **Confidence floor:** skip unless `row.confidence in {"medium", "high"}`. Low-confidence watcher
+   noise stays OUT of the ledger.
+4. **Dedup (per-session, per-account, by setup+direction):** before emitting, scan the last 15
+   minutes of TODAY's `decisions.jsonl` rows for an existing `WATCH_ONLY` row (OR the back-compat
+   `ORB_WOULD_ENTER` / `FBW_WOULD_ENTER` rows, see below) with the SAME `account_id` AND the SAME
+   `setup_name` AND `direction`. If one is found, skip — do not double-log a signal already
+   recorded this session for THIS account. The (account_id, setup_name, direction) triple is the
+   dedup key. **Account scoping is load-bearing:** a `safe` WATCH_ONLY row MUST NOT suppress the
+   `bold` row for the same signal (and vice-versa) — they are independent ledgers. A row whose
+   `account_id` differs from this invocation's account is NOT a dedup match.
 
-**EXECUTION BLOCK (COMMENTED OUT — activate only after J ratification per Rule 9):**
+A single watcher row that survives all four filters is one signal to log. Multiple DISTINCT
+(setup_name, direction) pairs can each produce a row on the same tick.
 
-```
-# Stop = orb_signal.stop_price   (chart stop: min(retest_bar_low - $0.05, ORH - $0.05))
-# TP1  = orb_signal.tp1_price    (ORH + 50% × or_range — 0.5R projection)
-# Run  = orb_signal.runner_price  (ORH + 100% × or_range — 1.0R projection)
-# Direction = "long"  →  ENTER_BULL (SPY call)
-# Strike selection: per-tier table, same as BULLISH branch
-# Qty: BASE tier (ORB triggers never include confluence/sequence_reclaim)
-# premium_stop_pct = -0.99  (chart-stop-only per L64)
-# G6 + G6b sizing gates apply unchanged
-# Write current-position.json with setup_name = "ORB_RETEST_LONG"
-# Emit ENTER_BULL
-```
+**Gates (lightweight — this is only logging):** evaluate per surviving signal, in order:
 
-**Watch-only log (ALWAYS ACTIVE — append to decisions.jsonl, no order placed):**
-
-If all gates above pass, append to `automation/state/decisions.jsonl`:
-```json
-{"action": "ORB_WOULD_ENTER", "setup_name": "ORB_RETEST_LONG", "confidence": "medium",
- "entry_price": <orb_signal.entry_price>, "stop_price": <orb_signal.stop_price>,
- "tp1_price": <orb_signal.tp1_price>, "runner_price": <orb_signal.runner_price>,
- "or_high": <orb_signal.metadata.or_high>, "or_range": <orb_signal.metadata.or_range>,
- "bars_to_retest": <orb_signal.metadata.bars_to_retest>,
- "bar_timestamp_et": <orb_signal.bar_timestamp_et>}
-```
-
-**ORB position management (for when execution block is uncommented — Rule A2):**
-
-When an ORB position is open (`current-position.setup_name == "ORB_RETEST_LONG"`), use these exit rules INSTEAD of the standard BEARISH position rules:
-
-| Exit type | Rule |
-|---|---|
-| Chart stop | SPY close < ORH − $0.05 (price re-enters opening range) |
-| Premium stop | −0.99 safety net only (chart stop is primary) |
-| TP1 | `orb_signal.tp1_price` (ORH + 50% × or_range). qty_fraction = 0.50 |
-| Runner | `orb_signal.runner_price` (ORH + 100% × or_range). BE stop moves after TP1 |
-| Profit-lock | v15 chandelier applies (arm at +5% favor, trail 20% off HWM) |
-| Ribbon flip | NOT USED (ORB retest ribbon may be MIXED — chart stop is invalidation, not ribbon) |
-| Time stop | 15:50 ET hard |
-
-## FBW branch (WATCH-ONLY — log only, no orders until J ratifies)
-
-> **Status 2026-05-24: WATCH-ONLY.** OP-21 live gate: 0/3 live J wins on FBW_MORNING_MID.
-> This block reads watcher-observations.jsonl and logs FBW_WOULD_ENTER to decisions.jsonl
-> each time a qualifying FBW signal is detected. No orders are placed.
-> Uncommenting the execution block below is a Rule 9 change — requires J weekend ratification.
-> Leaderboard: #19 FBW_MORNING_MID. Spec: `strategy/candidates/2026-05-20-fbw-morning-mid-watcher.md`.
-
-**Signal read:** Read last 30 lines of `automation/state/watcher-observations.jsonl`. For each line newest-first:
-
-- Skip if `row.watcher_name != "fbw_morning_mid_watcher"` OR `row.setup_name != "FBW_MORNING_MID"`
-- Skip if `row.bar_timestamp_et` is NOT within the last 10 minutes (stale signal)
-- Skip if `row.confidence != "medium"` (MID conf band [0.65, 0.80) — the proven slice)
-- **This is a BULL setup** (buy calls). Skip if current account is in aggressive-bear mode.
-- If a valid signal remains, treat it as a candidate for a BULLISH entry. Gate checks:
-
-| Gate | Condition | Skip code |
+| Gate | Check | On trip |
 |---|---|---|
-| G5 | `circuit_breaker.tripped` → skip | `SKIP_FBW_TRIPPED` |
-| G7 | PDT: `day_trades_used_5d >= 3 AND equity < 25000` → skip | `SKIP_FBW_PDT` |
-| G1 | "FBW_MORNING_MID" NOT in playbook.md `### Setup name:` headings → skip | `SKIP_FBW_G1` |
-| G10 | heartbeat log has FBW BLOCK/SKIP within last 15 min → skip | |
+| G5 | `circuit_breaker.tripped == true` | emit `SKIP_WATCH_TRIPPED`, log ONE SKIP row, skip the rest of this block |
+| G7 | PDT: `circuit_breaker.day_trades_used_5d >= 3 AND current_equity < 25000` | emit `SKIP_WATCH_PDT`, log ONE SKIP row, skip the rest of this block |
 
-**If all gates pass (WATCH-ONLY block — uncomment to execute after J ratification):**
+(G5/G7 mirror what the old ORB/FBW branches honored. There is no G1/G10 here — those guarded an
+execution path that no longer exists in this WATCH-ONLY block.)
 
-```markdown
-<!-- EXECUTION BLOCK — UNCOMMENT ONLY AFTER J RULE 9 RATIFICATION -->
-<!--
-# FBW_MORNING_MID entry (BULL — buy calls)
-# Strike: ATM (OTM-1 only if equity >= $10K per v15 tier)
-# Qty: BASE tier (FBW triggers never include confluence/sequence_reclaim)
-# Stop: chart-stop-only (premium_stop_pct=-0.99 disabled per L55 analog)
-# Chart stop: if SPY closes BELOW the support level that was broken + recovered
-# TP1: fbw_signal.tp1_price (bar_close + $1.00 proxy). qty_fraction = 0.50
-# Runner: fbw_signal.runner_price (bar_close + $2.50 proxy)
-# Write current-position.json with setup_name = "FBW_MORNING_MID"
--->
-```
-
-**WATCH-ONLY logging (active now):**
+**Output:** for each fresh, un-deduped, gate-passing watcher signal, append ONE row to
+`automation/state/decisions.jsonl`:
 
 ```json
-{"action": "FBW_WOULD_ENTER", "setup_name": "FBW_MORNING_MID", "confidence": "medium",
- "entry_price": <fbw_signal.entry_price>, "stop_price": <fbw_signal.stop_price>,
- "tp1_price": <fbw_signal.tp1_price>, "direction": "long",
- "reason": <fbw_signal.reason>, "would_be_qty": <base_qty>,
- "op21_live_gate": "0/3 live J wins"}
+{"action": "WATCH_ONLY", "account_id": "<safe|bold>", "watcher_name": <row.watcher_name>,
+ "setup_name": <row.setup_name>, "direction": <row.direction>, "confidence": <row.confidence>,
+ "entry_price": <row.entry_price>, "stop_price": <row.stop_price>,
+ "tp1_price": <row.tp1_price>, "runner_price": <row.runner_price>,
+ "triggers_fired": <row.triggers_fired>, "reason": <row.reason>,
+ "spy": <this tick's spy>, "vix": <this tick's vix>,
+ "ribbon_stack": <this tick's ribbon_stack>, "bar_timestamp_et": <row.bar_timestamp_et>,
+ "op21_status": "WATCH_ONLY — needs 3 live J wins before live execution"}
 ```
 
-**FBW position management (for when execution block is uncommented — Rule A2):**
+Source `spy` / `vix` / `ribbon_stack` from the current tick's computed values (the watcher row
+does not carry them as top-level fields). If unavailable this tick, fall back to
+`row.metadata.vix_now` for vix and `row.metadata.ribbon_spread_cents` for ribbon, else null.
 
-When an FBW position is open (`current-position.setup_name == "FBW_MORNING_MID"`), use these exit rules:
+**Backward-compat (PRESERVE — EOD analysis greps these exact strings):** two setups keep their
+legacy action string INSTEAD of `WATCH_ONLY` so existing greps keep matching. Choice: emit ONE row
+per signal, using the legacy action string for these two (do not double-emit):
 
-| Exit type | Rule |
-|---|---|
-| Chart stop | SPY bar CLOSES below the support level that was swept (wick low level) |
-| Premium stop | −0.99 safety net only (chart stop is primary, L55 analog) |
-| TP1 | `fbw_signal.tp1_price` (entry + $1.00 proxy). qty_fraction = 0.50 |
-| Runner | `fbw_signal.runner_price` (entry + $2.50 proxy). BE stop moves after TP1 |
-| Profit-lock | v15 chandelier applies (arm at +5% favor, trail 20% off HWM) |
-| Ribbon flip | If ribbon flips to BEAR before TP1 → exit runner (trend invalidated) |
-| Time stop | 15:50 ET hard |
+- `setup_name == "ORB_RETEST_LONG"` → set `"action": "ORB_WOULD_ENTER"` (keep `or_high`,
+  `or_range`, `bars_to_retest` from `row.metadata` in the row, plus all the standard fields above).
+- `setup_name == "FBW_MORNING_MID"` → set `"action": "FBW_WOULD_ENTER"` (keep `would_be_qty` =
+  BASE tier qty and `op21_live_gate` note, plus all the standard fields above).
+
+All OTHER 26 watchers use `"action": "WATCH_ONLY"`. The dedup scan in filter 4 treats these legacy
+action strings as equivalent to a `WATCH_ONLY` row for the same (setup_name, direction).
 
 ## Decisions ledger (every meaningful tick — restored 2026-05-07)
 
@@ -608,8 +592,27 @@ Every tick that emits anything OTHER than a plain `HOLD` (with no developing set
  "bull_score": <int>, "bear_score": <int>,
  "spy": <float>, "vix": <float>, "vix_dir": "rising|falling|flat|cached",
  "ribbon_stack": "BULL|BEAR|MIXED", "ribbon_spread_cents": <int>,
- "htf_15m_stack": "BULL|BEAR|MIXED|null", "reason": "<one_clause>"}
+ "htf_15m_stack": "BULL|BEAR|MIXED|null",
+ "setup_name": "<BEARISH_REJECTION_RIDE_THE_RIBBON|BULLISH_RECLAIM_RIDE_THE_RIBBON|null>",
+ "trigger": "<NORMALIZED trigger base name, no price suffix — see note>",
+ "trigger_fired_this_tick": <bool>,
+ "reason": "<one_clause>"}
 ```
+
+**Trigger normalization (FIX 2026-06-15):** Watchers emit triggers with price suffixes (e.g., `"level_reclaim_758.22"`). Before writing to the ledger, strip the price suffix: log only the base trigger name from this list: `level_reclaim, level_break, ribbon_flip, vwap_reclaim, sequence_reclaim, sequence_rejection, multi_day_confluence`. E.g., `"level_reclaim_758.22"` → log `"level_reclaim"`. The price itself is in `spy` field and the journal. Keeping the suffix in the ledger makes trigger-type analysis impossible (every unique price creates a new unique trigger name). If the watcher name is not in this list, log it verbatim.
+
+**bull_score/bear_score at ENTER (FIX 2026-06-15):** These MUST be written even on ENTER ticks where the scoring loop ran before the order was placed. Use the score computed in the current tick's filter evaluation. Do not leave null. If a logging race prevents reading the score at write time, extract from the reason field before writing.
+
+**near_miss_trace (Rank-25, 2026-06-16 — add to HOLD_DEV rows ONLY when bear_score≥8 OR bull_score≥9):**
+```json
+"near_miss_trace": {
+  "primary_blocker": "filter_N",
+  "secondary_blockers": ["filter_M"],
+  "trigger_name": "<normalized base name per L79 — no price suffix>",
+  "confidence_tier": "HIGH|MEDIUM|LOW"
+}
+```
+Where: `primary_blocker` = lowest-numbered failing filter from the gate sequence above; `secondary_blockers` = all other failing filters; `trigger_name` = trigger that fired this tick (null if none); `confidence_tier` = HIGH (9-10/10 or 10-11/11), MEDIUM (8/10 or 9/11), LOW (7/10 or 8/11). Omit this field on non-HOLD_DEV ticks.
 
 Write only when action ∈ {ENTER_*, EXIT_*, HOLD_DEV, SKIP_LIQUIDITY, SKIP_NEWS, SKIP_STALE, ERROR_*, PAUSED, TRIPPED} OR `position_status == "open"` OR a trigger fired this tick.
 
@@ -628,7 +631,7 @@ Before ANY `mcp__alpaca__place_option_order` call, evaluate these gates IN ORDER
 | # | Gate | Check | BLOCK condition |
 |---|---|---|---|
 | G5 | Daily kill-switch | `circuit_breaker.tripped` from state digest | `true` |
-| G7 | PDT awareness | `circuit_breaker.day_trades_used_5d` from state digest | `>= 3 AND start_equity < 25000` |
+| G7 | PDT awareness | `circuit_breaker.day_trades_used_5d` from state digest | `>= 3 AND starting_equity_today < 25000` |
 | G1 | Setup in playbook | `developing_setup.name` matches a `## Setup:` heading in `strategy/playbook.md` | name not found |
 | G2 | Trigger on closed bar | `developing_setup.score == score_max` AND triggers_fired references the LAST CLOSED bar (not the live bar) | score below max OR trigger from live bar |
 | G10 | Recent BLOCK cooldown | scan last 5 min of heartbeat-{today}.log for `BLOCK setup={developing_setup.name}` | found within 15 min |
@@ -652,14 +655,26 @@ If Iron Law fails after fill: DO NOT write trades.csv ENTRY row. Re-poll once af
    - `$0.13 ≤ spread ≤ $0.18`: `qty_multiplier = 0.33`, log same
    - `spread > $0.18`: emit `SKIP_LIQUIDITY` with `reason: spread_swamps_edge spread=${spread:.2f}`
    Floor: `qty_after = max(3, round(qty_base × qty_multiplier))`. Below 3 contracts the TP1+runner structure breaks, so abort.
-4. **Sizing**: validate `qty_after × premium × 100 ≤ 50% of equity` (G6 per-trade risk cap). Reduce qty further if over. **THEN apply v15 G6b per-tier max-premium hard gate** (NEW 2026-05-13): `qty_after × premium × 100 ≤ current_equity × max_pct_for_tier` where max_pct_for_tier is 0.40 ($0-$2K), 0.30 ($2K-$10K), 0.25 ($10K-$25K), 0.20 ($25K+). If over: reduce qty until fits OR move strike one further OTM and re-quote (max 1 retry). Floor: `qty_after = max(min_contracts, ...)`. If still over after qty floor: BLOCK with `SKIP_GATE_G6b` reason `v15_max_premium_pct_exceeded equity=${equity} cost=${qty_after * premium * 100} cap=${equity * max_pct}`.
+4. **Sizing + CODE GATE (FIX 5a 2026-06-15)**: validate `qty_after × premium × 100 ≤ 50% of equity` (G6 per-trade risk cap). Reduce qty further if over. THEN apply G6b per-tier max-premium gate. Floor: `qty_after = max(min_contracts, ...)`. If over after reductions, **CALL THE CODE GATE** — this is MANDATORY:
+   ```
+   python automation/scripts/pre_order_gate.py --equity {current_equity} --qty {qty_after} --premium {premium_mid} --account safe
+   ```
+   If the output starts with **"BLOCK"**: emit `SKIP_GATE_G6b_CODE: {gate_output}`, append a `SKIP_GATE` row to `automation/state/decisions.jsonl` with `action=SKIP_GATE, gate=G6b_code, reason={gate_output}`, and **STOP. DO NOT PLACE THE ORDER.** The code gate is the authoritative check — it overrides any prompt-level arithmetic.
+   If output starts with **"PASS"**: proceed to step 5.
+
 5. **Pre-trade thesis to journal**: hypothesis, strike, delta, IV, mid, spread, qty, stop, TP1, runner condition. Include `liquidity_downsized: true|false` flag derived from step 3.
-6. **Bracket order**: `mcp__alpaca__place_option_order` with `order_class="bracket"`, parent limit at mid, take_profit at TP1, stop_loss at chart-stop. Fall back to `oto` if rejected.
-7. **Record + emit** (THREE writes — all required before emitting):
+
+6. **Compute broker stop price (FIX 2 2026-06-15 — MANDATORY, NEVER null)**:
+   - BEAR (put): `stop_loss_price = round(premium_mid × 0.90, 2)` — broker disaster stop at −10% (TIGHTER_STOP 2026-06-17)
+   - BULL (call): `stop_loss_price = round(premium_mid × 0.92, 2)` — broker disaster stop at −8%
+   This is NOT the chart stop (managed per-tick). This is the broker-side safety net for blinded-heartbeat cases (rate limit, process crash). Setting `stop_loss=null` is a critical bug — the 2026-06-15 runner was unmanaged for 2h because the stop was absent.
+
+7. **Bracket order**: `mcp__alpaca__place_option_order` with `order_class="bracket"`, parent limit at `premium_mid`, take_profit at `tp1_price`, `stop_loss=stop_loss_price` (from step 6). **NEVER set stop_loss to null or omit it.** Fall back to `order_class="oto"` only if bracket is rejected by the API — in that case log `broker_stop_leg=false, note="oto_fallback_no_disaster_stop"` in position JSON so the next tick knows stop management is entirely heartbeat-owned.
+8. **Record + emit** (THREE writes — all required before emitting):
    - Write `current-position.json` with `status=pending_fill`, strike/delta/iv/mid/qty/bracket_ids/liquidity_downsized.
    - **APPEND one row to `automation/state/decisions.jsonl`** with `action=ENTER_BULL|ENTER_BEAR` per Decisions Ledger schema (§ below). Required fields: tick_id, date, time_et, action, position_status, setup_name, symbol, direction, trigger, spy, vix, vix_dir, ribbon_stack, ribbon_spread_cents, entry_px, qty, stop_px, tp1_px, tp1_qty, runner_target_px, chandelier_armed_px, order_id, fill_confirmed, filled_qty, filled_avg_price, premium_paid, pct_equity, rule_version. *(T49 fix 2026-05-16: EXIT explicitly wrote to decisions.jsonl but ENTER relied only on the general §Decisions Ledger rule. Made explicit here to prevent omission.)*
    - Emit ENTER_BULL or ENTER_BEAR (write `loop-state.last_action`).
-8. **Capture entry screenshot** (NEW 2026-05-07): call `mcp__tradingview__capture_screenshot(region: "chart")`. Save to `journal/replays/{today}-{HHMM}-ENTRY-{setup_short}.png` where setup_short is `BR` (BEARISH_REJECTION) or `BU` (BULLISH_RECLAIM). Cost: 1 tool call ≈ 5 sec, $0.005. Skip silently on failure — screenshot is supplemental to the canonical order.
+9. **Capture entry screenshot** (NEW 2026-05-07): call `mcp__tradingview__capture_screenshot(region: "chart")`. Save to `journal/replays/{today}-{HHMM}-ENTRY-{setup_short}.png` where setup_short is `BR` (BEARISH_REJECTION) or `BU` (BULLISH_RECLAIM). Cost: 1 tool call ≈ 5 sec, $0.005. Skip silently on failure — screenshot is supplemental to the canonical order.
 
 NEVER tell J to fill manually. Heartbeat owns paper execution.
 
@@ -703,6 +718,7 @@ When writing — LEAN SCHEMA:
   },
   "developing_setup": { "name", "trigger", "score", "score_max", "blockers" } | null,
   "first_entry_lock": [ {"setup_name", "entered_at_et", "exited_at_et", "exit_reason", "qty", "pnl_dollars"} ],
+  "regime_label": "<string> | null",
   "next_tick_model": "haiku|sonnet"
 }
 ```

@@ -79,11 +79,10 @@ Research sources:
 from __future__ import annotations
 
 import datetime as dt
-import json
-from pathlib import Path
 from typing import Optional
 
 from . import WatcherSignal
+from .level_source import load_named_levels
 from ..filters import BarContext
 
 
@@ -113,11 +112,20 @@ _COOLDOWN_MINUTES: int = 45
 # Named-level gate: only fire at levels with strength.stars >= 2
 _MIN_STARS: int = 2
 
-# Roles that qualify as support from below (bullish defense)
+# Roles that qualify as support from below (bullish defense).
+# NOTE: key-levels.json `role` values are structural (e.g. "broken_to_support") or
+# null; the tier ("Carry") lives in a separate field. The shared loader matches on
+# BOTH role and type, so support-typed levels (type=="support") and broken-to-support
+# roles both qualify. "carry"/"support" kept for back-compat with any role= usage.
 _SUPPORT_ROLES: frozenset[str] = frozenset({
     "support",
     "carry",
+    "broken_to_support",
 })
+
+# Level `type` values that qualify as support (the schema-v3 field the live file
+# actually populates). The 2026-06-18 PML carries type=="support", role=null.
+_SUPPORT_TYPES: frozenset[str] = frozenset({"support"})
 
 
 # ── Exit knobs (conservative OP-21 watch-only defaults) ─────────────────────
@@ -133,46 +141,38 @@ _TP1_SPY_RISE: float = 0.70    # TP1: first reversal back above floor
 _RUNNER_SPY_RISE: float = 2.50  # runner: extended move above zone
 
 
-# ── Key-levels.json cache (refreshed per day) ────────────────────────────────
-
-# Path from this file: backtest/lib/watchers/ → up 3 levels → repo root → automation/state
-_KEY_LEVELS_PATH: Path = (
-    Path(__file__).resolve().parents[3] / "automation" / "state" / "key-levels.json"
-)
-
+# ── Key-levels.json level loading (shared helper, 2026-06-18 schema fix) ──────
+#
+# Levels are loaded via backtest.lib.watchers.level_source.load_named_levels, which
+# derives ★-strength from the schema-v3 `tier` field (Active=2/Carry=3/Reference=2)
+# when the planned `strength.stars` object is absent (it is, in the live file) and
+# caps psychological / round-number levels at ★ so they never clear the >=2 gate.
+# Before this fix the bespoke loader read `strength.stars` directly → always 0 →
+# empty list → this watcher fired on NOTHING live.
+#
+# Test-injection override: gym validators (v34) set module globals _cached_levels +
+# _cached_levels_date to bypass file I/O. When _cached_levels_date matches today_str,
+# we honour that injected list verbatim. Otherwise we delegate to the shared loader.
 _cached_levels: list[float] = []
 _cached_levels_date: Optional[str] = None
 
 
 def _load_support_levels(today_str: str) -> list[float]:
-    """Load ★★+ support/carry levels from key-levels.json.
+    """Load support levels (★★+) for today from key-levels.json via the shared loader.
 
-    Results are cached per calendar day (key-levels.json changes daily but is
-    stable within a session). If the file is missing or unreadable, returns []
-    — watcher returns None gracefully without crashing the live loop.
+    Honours the v34 test-injection override (_cached_levels / _cached_levels_date).
+    Returns sorted unique support/carry prices; [] if the file is missing/corrupt
+    (watcher then returns None gracefully).
     """
-    global _cached_levels, _cached_levels_date
-
     if _cached_levels_date == today_str:
         return _cached_levels
 
-    levels: list[float] = []
-    try:
-        data = json.loads(_KEY_LEVELS_PATH.read_text(encoding="utf-8-sig"))
-        for entry in data.get("levels", []):
-            price = entry.get("price", 0.0)
-            role = entry.get("role", "")
-            stars = entry.get("strength", {}).get("stars", 0)
-            if price > 0 and role in _SUPPORT_ROLES and stars >= _MIN_STARS:
-                levels.append(float(price))
-    except Exception:
-        # File missing, corrupt JSON, unexpected schema — silently return empty.
-        # Watcher will return None; the next bar will re-attempt the load.
-        pass
-
-    _cached_levels = sorted(set(levels))  # deduplicate + sort ascending
-    _cached_levels_date = today_str
-    return _cached_levels
+    return load_named_levels(
+        today_str,
+        roles=_SUPPORT_ROLES,
+        types=_SUPPORT_TYPES,
+        min_stars=_MIN_STARS,
+    )
 
 
 # ── Pattern detector (pure, no imports) ──────────────────────────────────────

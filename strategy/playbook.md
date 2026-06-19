@@ -333,6 +333,47 @@ Per playbook policy (line 14): "Setup needs at least 3 confirming real-trade exa
 
 ---
 
+### CANDIDATE — `NAMED_LEVEL_SECOND_TEST` (CALLS on support / PUTS on resistance)
+
+**Status:** WATCH-ONLY 2026-06-18 — Case study #1 confirmed live. NOT YET TRADABLE until 3+ observations with tracked outcomes.
+
+**Origin / sample:**
+| Date | Time | Dir | Level | Test #1 | Test #2 low | Result | Notes |
+|---|---|---|---|---|---|---|---|
+| 2026-06-18 | 11:45 ET | BULL | PML 743.35 | 09:45: L:743.86, bounced $1.34 | 11:45: L:744.36 (+$0.50 higher low) | 11:50: H:746.40, +$2.04 move | Bold BULLISH_RECLAIM stopped out 11:04 — this was a SEPARATE setup, independent lock |
+
+**Hypothesis:** When SPY tests a named ★★+ support (PML, PDL, Carry, Active) and bounces, then re-tests the same level forming a **higher low** (second wick > first wick by ≥ $0.30), the second test is institutional absorption — dark pool buy wall absorbed two waves of selling. A green reversal bar on the second test + volume spike on the next bar = entry.
+
+**What makes this DISTINCT from BULLISH_RECLAIM:**
+- No ribbon flip required (ribbon may be BEAR/MIXED)
+- No multiple-trigger requirement (level + higher low is the complete thesis)
+- Entry is the second test's reversal bar close, not a ribbon transition
+- Stop is tight and mechanical: second wick low − $0.10
+
+**Trigger conditions (ALL 3 required):**
+1. A named ★★+ support was tested earlier today — SPY wicked to within $0.75 of the level and bounced ≥ $0.50 (first test confirmed)
+2. Second test reaches within $0.75 of the level AND the wick low is ≥ $0.30 above the first test's low (higher low = structure holds)
+3. Second test bar closes green (close > open) AND volume on the NEXT bar exceeds the surrounding 5-bar average by ≥ 20%
+
+**Entry / stop / target:**
+- Entry: second test bar close or next bar open
+- Stop: second test wick low − $0.10 (mechanical, tight — typically $0.20–$0.50 SPY risk)
+- TP1: $0.70 SPY above entry OR next named resistance level (whichever is closer)
+- Runner: PMH / next major resistance if TP1 hit first
+
+**Critical distinction from first_entry_lock:**
+This setup carries the name `NAMED_LEVEL_SECOND_TEST` — entirely separate from `BULLISH_RECLAIM_RIDE_THE_RIBBON`. A BULLISH_RECLAIM stop-out does NOT block this setup. The heartbeat's isolation guarantee (see heartbeat.md First-entry-after-stop section) ensures per-setup-name independence. These are distinct risk hypotheses: ribbon-flip trend-following vs. level-accumulation mean-reversion.
+
+**Watcher link:** `backtest/lib/watchers/floor_hold_bounce_watcher.py` (WATCH_ONLY) is the existing code that detects this class of setup. Today's 11:45 case study should be logged there as observation #1.
+
+**Path to confirmation:**
+- Need 3 paper-validated observations (current: 1 — 2026-06-18)
+- Backtest: scan 16-month historical data for "named support tested twice same session, second test forms higher low ≥ $0.30" — check hit rate and P&L
+- Must clear: WR ≥ 50%, W/L ≥ 2.0 (tight stop amplifies R:R)
+- FLOOR_HOLD_BOUNCE watcher replay backtest = primary validation path
+
+---
+
 ### CANDIDATE — `RESISTANCE_OVERSHOOT_REVERSAL` (PUTS) / `SUPPORT_UNDERSHOOT_REVERSAL` (CALLS)
 
 **Status:** OBSERVED 2026-05-07 — bull trap to 736.11 before reversal. n=1, NOT YET TRADABLE.

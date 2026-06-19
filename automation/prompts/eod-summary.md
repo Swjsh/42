@@ -190,6 +190,33 @@ Used by weekly review to compute "filter saved you $X / forgone $Y."
 
 Update each row's `decision_grade` field in-place (read jsonl → modify → re-write). After 200 graded decisions, weekly review can compute Gamma's decision-precision rate independent of trade hit rate.
 
+7h1. **Watcher fleet observations today (NEW 2026-06-18 — closes the watcher-blind-void gap).**
+
+**Why this exists:** the unified watcher layer (28 watchers) logs `WATCH_ONLY` rows (plus legacy `ORB_WOULD_ENTER` / `FBW_WOULD_ENTER`) to `decisions.jsonl` for every fresh, gate-passing chart signal — but until tonight NOTHING in the reporting layer consumed them, so every watcher fire was invisible. This section makes the fleet's activity visible in the EOD digest so the OP-21 promotion path (a watched setup must accumulate 3 J-confirmed live wins before it earns live execution) can actually be tracked. **Skip condition:** if `decisions.jsonl` is missing/unrecoverable, write `WATCHER_FLEET_SKIPPED: decisions.jsonl unrecoverable` to the section and continue.
+
+**Steps:**
+
+1. Read today's rows from `automation/state/decisions.jsonl` (filter `date == {today}`). Keep only rows where `action ∈ {WATCH_ONLY, ORB_WOULD_ENTER, FBW_WOULD_ENTER}` (the three watcher-fire action strings — the legacy two are emitted in place of WATCH_ONLY for `ORB_RETEST_LONG` / `FBW_MORNING_MID`, so treat all three as watcher fires).
+
+2. **Group by `setup_name`** (fall back to `watcher_name` if `setup_name` absent). For each group, report a row in the table below. If zero watcher rows today, write the single line `No watcher fires logged today.` and skip the rest of this section (silence is the signal — do not pad).
+
+3. **Emit the table** under the heading `### Watcher fleet observations today`:
+
+   | setup_name | count | direction | confidence | account(s) | sample reason |
+   |---|---|---|---|---|---|
+   | LEVEL_REJECT_LIVE | 3 | short | high | safe, bold | "Bearish reject at ROLLING_30MIN_HIGH@743.05; lower-high, red close, vol 2.12x…" |
+
+   - `count` = number of fires for that setup today (across both accounts; the SAME signal logs once per account it was evaluated for — that is expected per account-stamping, not a duplicate).
+   - `direction` / `confidence` = the dominant value in the group (note if mixed).
+   - `account(s)` = distinct `account_id` values present (`safe`, `bold`, or both).
+   - `sample reason` = the `reason` field from the highest-confidence / most-recent fire, truncated to ~100 chars.
+
+4. **Cross-reference would-be P&L (if graded).** Read today's rows from `automation/state/watcher-observations.jsonl` (filter `date(bar_timestamp_et) == {today}`). These rows carry `would_be_outcome` and `would_be_pnl_dollars` when the gym grader has run over them. For each `setup_name` group, if matching graded observation rows exist, append a one-line summary beneath the table: `{setup_name}: {n} graded, would-be P&L ${sum}, {n_win} would-win / {n_loss} would-lose.` If no graded rows exist yet (grader hasn't run), write `(observations ungraded — would-be P&L pending grader).`
+
+5. **OP-21 promotion signal.** For any setup whose cumulative WATCH_ONLY fire count (read from prior digests is NOT required — this is today's count only) looks materially active (≥ 3 fires today, OR confidence `high`), add a one-line note: `OP-21 watch: {setup_name} active ({count} fires today) — counts toward live-promotion evidence; needs 3 J-confirmed live wins before live execution.` This is the hook that makes the promotion path visible; it does NOT promote anything (promotion stays a manual J-gated decision).
+
+**Cost:** ~$0 (reading + grouping ~40 JSONL rows; no LLM-heavy work, no tool calls beyond file reads). Fits operating principle 3.
+
 7i. **Per-loss chart-walk (NEW 2026-05-09 — Karpathy "look at the data" principle).**
 
 For every closed trade in today's trades.csv with `dollar_pnl < 0` (any losing trade, no minimum threshold — every loss gets the treatment), generate a structured loss-walk file at `journal/losses/{date}-{HHMM}-{setup_short}.md` using this template:

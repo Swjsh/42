@@ -95,6 +95,20 @@ except Exception as _e_opra:  # pragma: no cover — defensive
     OPRA_AVAILABLE = False
     logger.warning("option_pricing_real import failed: %s", _e_opra)
 
+# Shared schema-v3 star derivation (2026-06-18 fix). The live key-levels.json
+# (and even the daily archive snapshots) carry `tier` but NOT `strength.stars`
+# — every level's `strength.stars` is null. The old local _level_stars() read
+# that null and returned 0, so EVERY named level fell below MIN_STAR_RATING and
+# this scanner operated on ZERO named levels. level_stars() derives stars from
+# `tier` (Active=2/Carry=3/Reference=2) when `strength.stars` is absent and caps
+# psychological/round-number levels at ★1.  Lesson C7 (silent zero-coverage).
+try:
+    from lib.watchers.level_source import level_stars as _level_source_stars  # type: ignore
+    _LEVEL_SOURCE_AVAILABLE = True
+except Exception as _e_lvlsrc:  # pragma: no cover — defensive
+    _LEVEL_SOURCE_AVAILABLE = False
+    logger.warning("level_source import failed: %s", _e_lvlsrc)
+
 
 # --- Constants ------------------------------------------------------------
 
@@ -430,13 +444,39 @@ def _level_label(lv: dict[str, Any]) -> str:
 
 
 def _level_stars(lv: dict[str, Any]) -> int:
+    """Effective ★ rating for a level entry.
+
+    2026-06-18 fix: delegate to the shared ``level_source.level_stars`` so that
+    schema-v3 levels (which carry ``tier`` but a NULL ``strength.stars``) derive
+    a real rating from tier (Active=2/Carry=3/Reference=2), with psychological /
+    round-number levels capped at ★1. The previous body read ``strength.stars``
+    directly and returned 0 for every live/archive level → zero named levels.
+
+    Precedence (handled inside level_source.level_stars):
+      1. ``strength.stars`` when present and > 0 (forward-compat).
+      2. else tier→stars.
+    Falls back to an explicit top-level ``stars`` key (used by this module's
+    auto-derived PDH/PDL/PMH/PML levels) only if level_source is unavailable.
+    """
+    if _LEVEL_SOURCE_AVAILABLE:
+        try:
+            return int(_level_source_stars(lv))
+        except (TypeError, ValueError):
+            pass
+    # Defensive fallback (level_source import failed): honour an explicit
+    # strength.stars, then a top-level stars key, else 0.
     strength = lv.get("strength")
     if isinstance(strength, dict):
         try:
-            return int(strength.get("stars") or 0)
+            s = int(strength.get("stars") or 0)
+            if s > 0:
+                return s
         except (TypeError, ValueError):
-            return 0
-    return 0
+            pass
+    try:
+        return int(lv.get("stars") or 0)
+    except (TypeError, ValueError):
+        return 0
 
 
 # --- Interaction classification ------------------------------------------

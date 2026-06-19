@@ -46,11 +46,62 @@ from datetime import date as Date, datetime, time, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-# Make crypto + autoresearch importable
+# Make crypto + autoresearch importable.
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-for p in (PROJECT_ROOT, PROJECT_ROOT / "backtest"):
+_BACKTEST = PROJECT_ROOT / "backtest"
+for p in (PROJECT_ROOT, _BACKTEST):
     if str(p) not in sys.path:
         sys.path.insert(0, str(p))
+
+
+def _bind_real_crypto_namespace() -> None:
+    """Force the top-level ``crypto`` import to bind to the REAL namespace package
+    at ``<repo>/crypto`` (which has ``lib/``), not the stray ``backtest/crypto``.
+
+    Root cause (2026-06-18): ``backtest/crypto/`` is an untracked, 0-byte-__init__
+    REGULAR package that only holds scorecard ``data/`` dumps — it has no ``lib``
+    submodule. Python's import machinery PREFERS a regular package over a namespace
+    package regardless of ``sys.path`` ORDER, so whenever ``backtest/`` is anywhere
+    on the path (it always is here, and is also cwd under ``python -m`` from
+    backtest/), ``import crypto`` binds to ``backtest/crypto`` and the very next
+    ``from crypto.lib.bar import Bar`` dies with ``ModuleNotFoundError: No module
+    named 'crypto.lib'``. That silently crashed the ENTIRE pattern-gym overnight job
+    (lesson C7 — silent success/failure is the only true failure).
+
+    Fix: build a namespace-package spec for ``<repo>/crypto`` explicitly and register
+    it in ``sys.modules`` BEFORE any ``from crypto...`` import runs. This is robust
+    even if the stray ``backtest/crypto/__init__.py`` reappears. No-op if ``crypto``
+    is already correctly bound to the repo-root namespace package.
+    """
+    import types as _types
+    from importlib.machinery import ModuleSpec as _ModuleSpec
+
+    real_crypto_dir = PROJECT_ROOT / "crypto"
+    if not (real_crypto_dir / "lib").is_dir():
+        return  # repo layout unexpected; let the normal import attempt surface it
+
+    existing = sys.modules.get("crypto")
+    if existing is not None:
+        paths = list(getattr(existing, "__path__", []) or [])
+        if any(Path(p).resolve() == real_crypto_dir.resolve() for p in paths):
+            return  # already bound to the real namespace package
+        # Bound to the wrong (stray) package — drop it and its submodules so the
+        # corrected binding takes effect.
+        for mod_name in [m for m in sys.modules if m == "crypto" or m.startswith("crypto.")]:
+            del sys.modules[mod_name]
+
+    # Build a bare namespace-package module (loader=None, __path__ set explicitly).
+    # This mirrors what Python creates for a PEP-420 namespace package and lets
+    # subsequent `from crypto.lib...` walk into <repo>/crypto/lib.
+    module = _types.ModuleType("crypto")
+    module.__path__ = [str(real_crypto_dir)]  # type: ignore[attr-defined]
+    spec = _ModuleSpec("crypto", loader=None, is_package=True)
+    spec.submodule_search_locations = [str(real_crypto_dir)]
+    module.__spec__ = spec  # type: ignore[attr-defined]
+    sys.modules["crypto"] = module
+
+
+_bind_real_crypto_namespace()
 
 from crypto.lib.bar import Bar  # noqa: E402
 from crypto.lib.chart_patterns import (  # noqa: E402
@@ -66,6 +117,14 @@ from crypto.lib.chart_patterns import (  # noqa: E402
     contra_regime_only,
     enrich_hit_with_proximity,
 )
+
+# Shared schema-v3 star derivation (2026-06-18 fix). The live key-levels.json
+# never populates `strength.stars` — it carries `tier` (Active/Carry/Reference).
+# A raw `lvl.get("strength",{}).get("stars",0)` read therefore returns 0 for
+# every live level, so this backtest saw ZERO named levels. level_stars() prefers
+# strength.stars when present (forward-compat for archive files that may carry it)
+# and otherwise derives stars from tier, capping psychological/round levels at ★1.
+from lib.watchers.level_source import level_stars as _level_stars  # noqa: E402
 
 
 # Map detector name -> bound callable taking only bars. Each detector's signature
@@ -234,7 +293,10 @@ def _load_named_levels_from_keyjson(target_date: Date) -> list[dict] | None:
             return None
         levels: list[dict] = []
         for lvl in kl.get("levels", []):
-            stars = lvl.get("strength", {}).get("stars", 0)
+            # Route through the shared schema-v3 helper: derives stars from `tier`
+            # when `strength.stars` is absent (always, in the live file), and caps
+            # psychological/round-number levels at ★1 so they fall below this gate.
+            stars = _level_stars(lvl)
             if stars < 2:
                 continue
             price = lvl.get("price")

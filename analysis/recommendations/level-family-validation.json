@@ -1,0 +1,529 @@
+{
+  "window": "2025-01-01..2026-06-16",
+  "generated_at": "2026-06-18T17:56:04",
+  "level_source_correctness": {
+    "ctx_levels_active_streams": [
+      "ERL_IRL",
+      "NLWB"
+    ],
+    "disk_read_streams": [
+      "CLOSE_CEILING_FADE",
+      "FLOOR_HOLD_BOUNCE",
+      "NAMED_LEVEL_SECOND_TEST"
+    ],
+    "disk_read_fix": "Disk-read watchers (floor_hold, close_ceiling, named_level_second_test) ignore ctx.levels_active and read automation/state/key-levels.json from disk. Without a fix that is a look-ahead bug (today's levels on all historical bars). This run MONKEYPATCHES each disk-reader's per-day cache to synthetic PDH/PDL/PDC/PDO proxies (mirror of pattern_backtest._derive_named_levels) so the backtest is VALID. CAVEAT: proxies are \u2605\u2605 structural levels, NOT production \u2605\u2605\u2605 named levels \u2014 production key-levels.json is not archived historically (9 archive days only, none on J anchors).",
+    "synthetic_level_basis": "PDH(resistance \u2605\u2605) / PDL(support \u2605\u2605) / PDC(both \u2605) / PDO(both \u2605)"
+  },
+  "streams": {
+    "FLOOR_HOLD_BOUNCE": {
+      "raw": {
+        "n": 138,
+        "wr": 76.8,
+        "total": 13015.7,
+        "exp": 94.32
+      },
+      "deduped": {
+        "n": 95,
+        "wr": 74.7,
+        "total": 7480.0,
+        "exp": 78.74
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 15,
+          "wr": 73.3,
+          "total": 2035.5,
+          "exp": 135.7
+        },
+        "2025Q2": {
+          "n": 17,
+          "wr": 94.1,
+          "total": 919.5,
+          "exp": 54.09
+        },
+        "2025Q3": {
+          "n": 21,
+          "wr": 47.6,
+          "total": 612.0,
+          "exp": 29.14
+        },
+        "2025Q4": {
+          "n": 13,
+          "wr": 76.9,
+          "total": 522.0,
+          "exp": 40.15
+        },
+        "2026Q1": {
+          "n": 14,
+          "wr": 78.6,
+          "total": 1943.5,
+          "exp": 138.82
+        },
+        "2026Q2": {
+          "n": 15,
+          "wr": 86.7,
+          "total": 1447.5,
+          "exp": 96.5
+        }
+      },
+      "distinct_dates": 95
+    },
+    "NLWB": {
+      "raw": {
+        "n": 302,
+        "wr": 46.4,
+        "total": 2964.67,
+        "exp": 9.82
+      },
+      "deduped": {
+        "n": 169,
+        "wr": 45.6,
+        "total": 1274.68,
+        "exp": 7.54
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 29,
+          "wr": 55.2,
+          "total": 606.0,
+          "exp": 20.9
+        },
+        "2025Q2": {
+          "n": 26,
+          "wr": 53.8,
+          "total": 618.0,
+          "exp": 23.77
+        },
+        "2025Q3": {
+          "n": 27,
+          "wr": 29.6,
+          "total": -110.0,
+          "exp": -4.07
+        },
+        "2025Q4": {
+          "n": 32,
+          "wr": 34.4,
+          "total": -471.0,
+          "exp": -14.72
+        },
+        "2026Q1": {
+          "n": 31,
+          "wr": 45.2,
+          "total": -71.0,
+          "exp": -2.29
+        },
+        "2026Q2": {
+          "n": 24,
+          "wr": 58.3,
+          "total": 702.68,
+          "exp": 29.28
+        }
+      },
+      "distinct_dates": 169
+    },
+    "NAMED_LEVEL_SECOND_TEST": {
+      "raw": {
+        "n": 1882,
+        "wr": 46.5,
+        "total": -3386.11,
+        "exp": -1.8
+      },
+      "deduped": {
+        "n": 588,
+        "wr": 51.0,
+        "total": 1616.11,
+        "exp": 2.75
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 94,
+          "wr": 46.8,
+          "total": -976.0,
+          "exp": -10.38
+        },
+        "2025Q2": {
+          "n": 105,
+          "wr": 61.0,
+          "total": 275.5,
+          "exp": 2.62
+        },
+        "2025Q3": {
+          "n": 103,
+          "wr": 43.7,
+          "total": -260.25,
+          "exp": -2.53
+        },
+        "2025Q4": {
+          "n": 109,
+          "wr": 53.2,
+          "total": 1918.0,
+          "exp": 17.6
+        },
+        "2026Q1": {
+          "n": 96,
+          "wr": 42.7,
+          "total": 562.01,
+          "exp": 5.85
+        },
+        "2026Q2": {
+          "n": 81,
+          "wr": 59.3,
+          "total": 96.85,
+          "exp": 1.2
+        }
+      },
+      "distinct_dates": 355
+    },
+    "CLOSE_CEILING_FADE": {
+      "raw": {
+        "n": 161,
+        "wr": 64.0,
+        "total": 11063.51,
+        "exp": 68.72
+      },
+      "deduped": {
+        "n": 106,
+        "wr": 54.7,
+        "total": 6025.51,
+        "exp": 56.84
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 9,
+          "wr": 66.7,
+          "total": 481.5,
+          "exp": 53.5
+        },
+        "2025Q2": {
+          "n": 19,
+          "wr": 47.4,
+          "total": 465.5,
+          "exp": 24.5
+        },
+        "2025Q3": {
+          "n": 17,
+          "wr": 35.3,
+          "total": 501.0,
+          "exp": 29.47
+        },
+        "2025Q4": {
+          "n": 28,
+          "wr": 67.9,
+          "total": 1095.5,
+          "exp": 39.12
+        },
+        "2026Q1": {
+          "n": 17,
+          "wr": 52.9,
+          "total": 1132.5,
+          "exp": 66.62
+        },
+        "2026Q2": {
+          "n": 16,
+          "wr": 56.2,
+          "total": 2349.51,
+          "exp": 146.84
+        }
+      },
+      "distinct_dates": 106
+    },
+    "ERL_IRL": {
+      "raw": {
+        "n": 1339,
+        "wr": 53.2,
+        "total": -3556.22,
+        "exp": -2.66
+      },
+      "deduped": {
+        "n": 449,
+        "wr": 58.4,
+        "total": -930.34,
+        "exp": -2.07
+      },
+      "per_quarter_deduped": {
+        "2025Q1": {
+          "n": 71,
+          "wr": 69.0,
+          "total": 2484.75,
+          "exp": 35.0
+        },
+        "2025Q2": {
+          "n": 80,
+          "wr": 48.8,
+          "total": -2552.75,
+          "exp": -31.91
+        },
+        "2025Q3": {
+          "n": 75,
+          "wr": 54.7,
+          "total": -1008.75,
+          "exp": -13.45
+        },
+        "2025Q4": {
+          "n": 77,
+          "wr": 58.4,
+          "total": 653.5,
+          "exp": 8.49
+        },
+        "2026Q1": {
+          "n": 77,
+          "wr": 58.4,
+          "total": 147.0,
+          "exp": 1.91
+        },
+        "2026Q2": {
+          "n": 69,
+          "wr": 62.3,
+          "total": -654.09,
+          "exp": -9.48
+        }
+      },
+      "distinct_dates": 312
+    }
+  },
+  "anchor_days": {
+    "2026-04-29": {
+      "label": "WIN",
+      "FLOOR_HOLD_BOUNCE": {
+        "n": 1,
+        "pnl": 8.0
+      },
+      "NLWB": {
+        "n": 0,
+        "pnl": 0.0
+      },
+      "NAMED_LEVEL_SECOND_TEST": {
+        "n": 7,
+        "pnl": 60.95
+      },
+      "CLOSE_CEILING_FADE": {
+        "n": 0,
+        "pnl": 0.0
+      },
+      "ERL_IRL": {
+        "n": 5,
+        "pnl": -89.0
+      }
+    },
+    "2026-05-01": {
+      "label": "WIN",
+      "FLOOR_HOLD_BOUNCE": {
+        "n": 0,
+        "pnl": 0.0
+      },
+      "NLWB": {
+        "n": 0,
+        "pnl": 0.0
+      },
+      "NAMED_LEVEL_SECOND_TEST": {
+        "n": 7,
+        "pnl": -109.25
+      },
+      "CLOSE_CEILING_FADE": {
+        "n": 0,
+        "pnl": 0.0
+      },
+      "ERL_IRL": {
+        "n": 1,
+        "pnl": 50.0
+      }
+    },
+    "2026-05-04": {
+      "label": "WIN",
+      "FLOOR_HOLD_BOUNCE": {
+        "n": 0,
+        "pnl": 0.0
+      },
+      "NLWB": {
+        "n": 0,
+        "pnl": 0.0
+      },
+      "NAMED_LEVEL_SECOND_TEST": {
+        "n": 6,
+        "pnl": -64.5
+      },
+      "CLOSE_CEILING_FADE": {
+        "n": 0,
+        "pnl": 0.0
+      },
+      "ERL_IRL": {
+        "n": 0,
+        "pnl": 0.0
+      }
+    },
+    "2026-05-05": {
+      "label": "LOSS",
+      "FLOOR_HOLD_BOUNCE": {
+        "n": 0,
+        "pnl": 0.0
+      },
+      "NLWB": {
+        "n": 0,
+        "pnl": 0.0
+      },
+      "NAMED_LEVEL_SECOND_TEST": {
+        "n": 4,
+        "pnl": 140.01
+      },
+      "CLOSE_CEILING_FADE": {
+        "n": 1,
+        "pnl": 379.0
+      },
+      "ERL_IRL": {
+        "n": 2,
+        "pnl": 100.0
+      }
+    },
+    "2026-05-06": {
+      "label": "LOSS",
+      "FLOOR_HOLD_BOUNCE": {
+        "n": 0,
+        "pnl": 0.0
+      },
+      "NLWB": {
+        "n": 0,
+        "pnl": 0.0
+      },
+      "NAMED_LEVEL_SECOND_TEST": {
+        "n": 1,
+        "pnl": 160.0
+      },
+      "CLOSE_CEILING_FADE": {
+        "n": 0,
+        "pnl": 0.0
+      },
+      "ERL_IRL": {
+        "n": 2,
+        "pnl": 350.0
+      }
+    },
+    "2026-05-07": {
+      "label": "LOSS",
+      "FLOOR_HOLD_BOUNCE": {
+        "n": 1,
+        "pnl": 35.0
+      },
+      "NLWB": {
+        "n": 0,
+        "pnl": 0.0
+      },
+      "NAMED_LEVEL_SECOND_TEST": {
+        "n": 7,
+        "pnl": 49.0
+      },
+      "CLOSE_CEILING_FADE": {
+        "n": 1,
+        "pnl": -20.0
+      },
+      "ERL_IRL": {
+        "n": 3,
+        "pnl": -79.5
+      }
+    }
+  },
+  "real_fills_capped": {
+    "FLOOR_HOLD_BOUNCE_ATM": {
+      "n": 99,
+      "wr": 39.4,
+      "total": -2383.0,
+      "exp": -24.07
+    },
+    "FLOOR_HOLD_BOUNCE_ITM2": {
+      "n": 99,
+      "wr": 30.3,
+      "total": -4950.8,
+      "exp": -50.01
+    },
+    "NLWB_ATM": {
+      "n": 108,
+      "wr": 48.1,
+      "total": -4016.6,
+      "exp": -37.19
+    },
+    "NLWB_ITM2": {
+      "n": 103,
+      "wr": 41.7,
+      "total": -5019.6,
+      "exp": -48.73
+    },
+    "NAMED_LEVEL_SECOND_TEST_ATM": {
+      "n": 111,
+      "wr": 61.3,
+      "total": 565.8,
+      "exp": 5.1
+    },
+    "NAMED_LEVEL_SECOND_TEST_ITM2": {
+      "n": 111,
+      "wr": 57.7,
+      "total": 541.6,
+      "exp": 4.88
+    },
+    "CLOSE_CEILING_FADE_ATM": {
+      "n": 110,
+      "wr": 29.1,
+      "total": -4435.6,
+      "exp": -40.32
+    },
+    "CLOSE_CEILING_FADE_ITM2": {
+      "n": 111,
+      "wr": 27.9,
+      "total": -7111.8,
+      "exp": -64.07
+    },
+    "ERL_IRL_ATM": {
+      "n": 117,
+      "wr": 59.0,
+      "total": -2513.6,
+      "exp": -21.48
+    },
+    "ERL_IRL_ITM2": {
+      "n": 112,
+      "wr": 58.0,
+      "total": -2248.0,
+      "exp": -20.07
+    }
+  },
+  "verdict": {
+    "FLOOR_HOLD_BOUNCE": {
+      "verdict": "FAILS-REAL-FILLS",
+      "why": "SPY-space passes (n=95, WR=74.7%, exp=$78.74) but real-fills negative (ATM exp=$-24.07, ITM2 exp=$-50.01). R:R/theta mismatch.",
+      "historical_validity": "VALID_ON_PROXY_VIA_MONKEYPATCH",
+      "level_source": "disk-read (monkeypatched to per-day proxy)"
+    },
+    "NLWB": {
+      "verdict": "FAILS-REAL-FILLS",
+      "why": "SPY-space passes (n=169, WR=45.6%, exp=$7.54) but real-fills negative (ATM exp=$-37.19, ITM2 exp=$-48.73). R:R/theta mismatch.",
+      "historical_validity": "VALID_ON_PROXY",
+      "level_source": "ctx.levels_active"
+    },
+    "NAMED_LEVEL_SECOND_TEST": {
+      "verdict": "WATCH-ONLY",
+      "why": "SPY-space passes (n=588, WR=51.0%) but anchor regression (WIN-day pnl=$-112.8, LOSS-day pnl=$349.01).",
+      "historical_validity": "VALID_ON_PROXY_VIA_MONKEYPATCH",
+      "level_source": "disk-read (monkeypatched to per-day proxy)"
+    },
+    "CLOSE_CEILING_FADE": {
+      "verdict": "FAILS-REAL-FILLS",
+      "why": "SPY-space passes (n=106, WR=54.7%, exp=$56.84) but real-fills negative (ATM exp=$-40.32, ITM2 exp=$-64.07). R:R/theta mismatch.",
+      "historical_validity": "VALID_ON_PROXY_VIA_MONKEYPATCH",
+      "level_source": "disk-read (monkeypatched to per-day proxy)"
+    },
+    "ERL_IRL": {
+      "verdict": "WATCH-ONLY",
+      "why": "SPY-space gate FAIL (n=449, WR=58.4%, exp=$-2.07). No edge even under generous PDH/PDL/PDC proxies.",
+      "historical_validity": "VALID_ON_PROXY",
+      "level_source": "ctx.levels_active"
+    },
+    "gate": "Gates: deduped n>=20 AND WR>=45% AND exp>0 AND real-fills exp>0 AND anchor-no-regression. All level-keyed watchers remain WATCH-ONLY in production (OP-21) until live J confirmations. NOTE: every verdict is on \u2605\u2605 PDH/PDL/PDC PROXIES \u2014 production \u2605\u2605\u2605 levels are not historically archived. The honest production-validity status for the 3 disk-readers is NOT-VALIDATABLE on real \u2605\u2605\u2605 levels (no archive); the numbers above are the best obtainable proxy lower-bound."
+  },
+  "op20_disclosures": {
+    "account_size_assumption": "Per-contract P&L, qty=3 (SPY price * 100). No account-equity sizing applied.",
+    "simulator": "SPY-price grader (lib.watchers.runner.grade_observation, TP1+runner partials). Real-fills via lib.simulator_real.simulate_trade_real + OPRA cache (valid through 2026-05-29).",
+    "oos_sample_size": "16-month window 2025-01-01..2026-06-16; see per-stream distinct_dates + per_quarter_deduped.",
+    "concentration": "Inspect per_quarter_deduped for single-quarter clustering; deduped to 1 signal/(date,dir).",
+    "worst_case": "Real-fills total_pnl is the realized worst-case dollar figure per stream (premium_stop=-0.99, chart-stop only).",
+    "synthetic_levels_caveat": "ALL FIVE streams are validated against SYNTHETIC PDH/PDL/PDC/PDO (\u2605\u2605/\u2605 proxies), NOT the production \u2605\u2605\u2605 named levels in key-levels.json. The 3 disk-reading watchers were monkeypatched to consume these proxies (otherwise look-ahead). NLWB + ERL_IRL read ctx.levels_active natively (also proxies here). Production key-levels.json has no historical archive beyond 9 recent days (none on J anchor days), so a true \u2605\u2605\u2605 historical validation is impossible. Numbers here are a LOWER-BOUND proxy: PDL-class proxies historically understate \u2605\u2605\u2605 WR by up to ~20pp (see NLWB docstring / L58).",
+    "live_schema_caveat": "SEPARATE BUG (another agent owns it): the LIVE key-levels.json uses `tier` (Active/Carry/Reference) and has NO `strength.stars` field, while these watchers filter on strength.stars>=2. So floor_hold / close_ceiling / named_level_second_test currently fire on NOTHING live. This validation bypasses that by injecting synthetic levels with explicit support/resistance roles; it does not fix the live schema.",
+    "grading_caveat": "SPY-price grade uses +$ proxy targets; it systematically overstates 0DTE call/put P&L in low-VIX (theta drag). Real-fills is the only WR authority (theme C1). Trust real_fills_capped over SPY-space."
+  }
+}

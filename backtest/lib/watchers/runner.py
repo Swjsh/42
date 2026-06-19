@@ -64,6 +64,8 @@ from .rsi_divergence_watcher import detect_rsi_divergence_bull
 from .bearish_rejection_morning_watcher import detect_bearish_rejection_morning
 from .orb15_watcher import detect_orb15_break  # Reddit ORB-15 adoption 2026-06-14
 from .erl_irl_watcher import detect_erl_irl_setup  # Reddit ERL->IRL adoption 2026-06-14
+from .named_level_second_test_watcher import detect_named_level_second_test_setup  # 2026-06-18
+from .stairstep_continuation_watcher import detect_stairstep_continuation_setup  # 2026-06-18
 from ..filters import BarContext
 
 REPO = Path(__file__).resolve().parents[2]
@@ -274,6 +276,35 @@ def run_all_watchers(
             raw_signals.append(fhb)
     except Exception as _e_fhb:
         sys.stderr.write(f"floor_hold_bounce_watcher exception: {type(_e_fhb).__name__}: {_e_fhb}\n")
+
+    # NAMED_LEVEL_SECOND_TEST added 2026-06-18 (WATCH-ONLY, OP-21 live-accumulation only).
+    # HIGHER-LOW (support → long) / LOWER-HIGH (resistance → short) SECOND test of a named
+    # ★★+ level: a first test bounced earlier in the session, then a second test forms a
+    # higher low / lower high. DISTINCT from NLWB (single-bar wick reclaim) — this is a
+    # two-touch structural sequence. Reads today's key-levels.json (role OR type, stars>=2).
+    # Entry 09:45-14:30 ET, cooldown 30m. chart-stop only (L51/L55). high conf w/ vol>=1.1x.
+    # Motivating case: 2026-06-18 PML 743.35 (09:45 test#1 → 11:45 +$0.50 higher low → 746.40).
+    # Promotion: N>=20 obs WR>=50% → real-fills → 3 live J wins.
+    try:
+        nlst = detect_named_level_second_test_setup(ctx)
+        if nlst is not None:
+            raw_signals.append(nlst)
+    except Exception as _e_nlst:
+        sys.stderr.write(f"named_level_second_test_watcher exception: {type(_e_nlst).__name__}: {_e_nlst}\n")
+
+    # STAIRSTEP_CONTINUATION added 2026-06-18 (WATCH-ONLY, OP-21 n=1 paper observation).
+    # Broken named ★★+ level with >=3 strict retests forming LOWER HIGHS (descending → short)
+    # or HIGHER LOWS (ascending → long), confirming bar closes on the broken side + correct
+    # color. Detects break via role (broken_to_resistance/_support) OR intraday close past the
+    # level. Entry 09:45-15:00 ET, cooldown 30m. chart-stop only (L51/L55).
+    # Motivating case: 2026-05-07 LH-LH-LH at 735.40 (736.12→735.61→735.41) → -$5.65.
+    # Promotion: N>=20 obs WR>=50% → real-fills → 3 live J wins.
+    try:
+        stair = detect_stairstep_continuation_setup(ctx)
+        if stair is not None:
+            raw_signals.append(stair)
+    except Exception as _e_stair:
+        sys.stderr.write(f"stairstep_continuation_watcher exception: {type(_e_stair).__name__}: {_e_stair}\n")
 
     # RSI_DIVERGENCE_BULL added 2026-05-21 (WATCH-ONLY, Stage-1 scan N=42 WR=81%).
     # Bullish RSI divergence: price LL while RSI makes HL → momentum exhaustion signal.

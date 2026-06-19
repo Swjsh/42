@@ -251,10 +251,14 @@ This is Gamma's decision-making rate — independent of trade hit rate. A trade 
 | EXIT_TP1 | … | … | … | … | … |
 | EXIT_RUNNER | … | … | … | … | … |
 | EXIT_STOP | … | … | … | … | … |
+| EXIT_TIME | … | … | … | … | … |
 | HOLD_DEV | … | … | … | … | … |
 | SKIP_LIQUIDITY | … | … | … | … | … |
 | SKIP_NEWS | … | … | … | … | … |
-| HOLD_STALE_HTF | … | … | … | … | … |
+| SKIP_STALE | … | … | … | … | … |
+| WATCH_ONLY | … | … | … | … | … |
+
+> The action strings above are the canonical set the heartbeat producer emits to `decisions.jsonl` (ACTIONs enum in `automation/prompts/heartbeat.md` ~line 166). `WATCH_ONLY` is the unified watcher-fleet fire — the legacy `ORB_WOULD_ENTER` / `FBW_WOULD_ENTER` rows (emitted in place of `WATCH_ONLY` for two watchers) count as `WATCH_ONLY` here; fold them into that row. Watcher fires are observability-only (no order placed), so grade them as `correct`/`wrong` by whether the would-be entry was directionally right over the next 30 min, not by realized P&L. Do NOT enumerate `HOLD_STALE_HTF` or `SKIP_VIX` — the producer never emits those strings, so any row keyed on them is always empty (dead matcher).
 
 A precision < 0.55 on any ACTION with n ≥ 10 → surface in recommendations as a candidate filter / threshold tuning.
 
@@ -430,7 +434,7 @@ Each recommendation flows into section 0 with urgency/evidence-weight.
 
 ### Section 8.1 — Near-miss auto-tuning (NEW 2026-05-09 — closes original audit gap 5)
 
-**Why this exists:** heartbeat near-miss alerts (`bear ≥ 8/10` OR `bull ≥ 9/11` blocked by a single filter) write to dashboard and skipped-setups.csv but never feed back into filter tuning. Same `SKIP_VIX` fires 12 times in 2 weeks; threshold doesn't move. This sub-section closes the loop by computing per-filter near-miss costs and emitting auto-tune recommendations.
+**Why this exists:** heartbeat near-miss alerts (`bear ≥ 8/10` OR `bull ≥ 9/11` blocked by a single filter) write to dashboard and skipped-setups.csv but never feed back into filter tuning. The same VIX-filter near-miss (a high-score entry vetoed by the VIX gate, logged in `skipped-setups.csv#blocked_filters` as the `vix` filter_id) fires 12 times in 2 weeks; threshold doesn't move. This sub-section closes the loop by computing per-filter near-miss costs and emitting auto-tune recommendations. (Note: the VIX gate is a filter veto inside the entry branch — it surfaces as a `HOLD_DEV` / `SKIP_*` action plus a `skipped-setups.csv` near-miss row, NOT as a standalone `SKIP_VIX` decision-action; this loop reads the near-miss rows by `blocked_filters`, not by action string.)
 
 **Steps:**
 
@@ -460,7 +464,7 @@ Each recommendation flows into section 0 with urgency/evidence-weight.
 5. **Surface in Section 0.** Format:
    ```
    ### R-NNNN — [HIGH · n=14 near-misses 4w, conf=0.72] Loosen vix_entry_thresholds.bear_min from 17.30 → 17.20
-   14 SKIP_VIX events on bear ≥ 8 in 4w; 9 would have won (+$540 forgone, $180 saved, net -$360).
+   14 VIX-filter near-misses on bear ≥ 8 in 4w (skipped-setups.csv blocked_filters=vix); 9 would have won (+$540 forgone, $180 saved, net -$360).
    A/B: analysis/recommendations/R-NNNN.json — verdict: auto_ratify (dominates 7/8, sub-window stable, +$320 P&L on 53d retest)
    Action: params.json#vix_entry_thresholds.bear_min_exclusive_and_rising 17.30 → 17.20 (auto-applied; revoke by editing params.json back)
    ```
