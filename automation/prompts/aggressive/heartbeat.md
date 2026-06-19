@@ -249,20 +249,16 @@ If `bull_score≥9` OR `bear_score≥8` AND no entry fires: append ONE row to `j
 
 ## Decisions ledger (every meaningful tick)
 
-Every tick not plain HOLD appends ONE row to `automation/state/aggressive/decisions.jsonl`:
+Every tick not plain HOLD appends ONE row to `automation/state/aggressive/decisions.jsonl`. **CANONICAL schema (CONTEXT-108, pinned): `action` (NOT `decision`); `bull_score`/`bear_score` (NOT `bearish_score`); required `tick_id`+`date`+`action`.**
+
+**WRITE CONTRACT — JSONL, one compact line per row (the prompt is the primary corruptor of this file; obey EXACTLY):**
+- Emit **EXACTLY ONE** JSON object **on ONE physical line**, then a single trailing newline — `json.dumps(obj)`-equivalent: **no pretty-printing, no embedded newlines, no indentation.**
+- **APPEND only** — never rewrite the file, never concatenate two objects on one line, never emit two objects without a newline between them. One tick → at most one appended line.
+- `position_status` is a **real JSON value**: bare `null` when flat (NOT the string `"null"`); `"open"` / `"pending_fill"` quoted only for those two. `htf_15m_stack` / `setup_name` use bare `null` when absent. Numbers and `trigger_fired_this_tick` are bare (never quoted).
+- Canonical row (shown wrapped for readability; the real write is ONE line):
 
 ```json
-{"tick_id": 0, "date": "YYYY-MM-DD", "time_et": "HH:MM",
- "action": "", "position_status": "open|null|pending_fill",
- "bull_score": 0, "bear_score": 0,
- "spy": 0.0, "vix": 0.0, "vix_dir": "rising|falling|flat|cached",
- "ribbon_stack": "BULL|BEAR|MIXED", "ribbon_spread_cents": 0,
- "htf_15m_stack": "BULL|BEAR|MIXED|null",
- "setup_name": "<BEARISH_REJECTION_RIDE_THE_RIBBON|BULLISH_RECLAIM_RIDE_THE_RIBBON|null>",
- "trigger": "<NORMALIZED trigger base name, no price suffix>",
- "trigger_fired_this_tick": false,
- "reason": "",
- "account": "aggressive"}
+{"tick_id": <int>, "date": "YYYY-MM-DD", "time_et": "HH:MM", "action": "<ACTION>", "position_status": "open"|"pending_fill"|null, "bull_score": <int>, "bear_score": <int>, "spy": <float>, "vix": <float>, "vix_dir": "rising|falling|flat|cached", "ribbon_stack": "BULL|BEAR|MIXED", "ribbon_spread_cents": <int>, "htf_15m_stack": "BULL"|"BEAR"|"MIXED"|null, "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON"|"BULLISH_RECLAIM_RIDE_THE_RIBBON"|null, "trigger": "<NORMALIZED base name, no price suffix>"|null, "trigger_fired_this_tick": true|false, "reason": "<one_clause>", "account": "aggressive"}
 ```
 
 **Trigger normalization (FIX 2026-06-15):** Watchers emit triggers with price suffixes (e.g., `"level_reclaim_758.22"`). Before writing to the ledger, strip the price suffix and log only the base trigger name: `level_reclaim, level_break, ribbon_flip, vwap_reclaim, sequence_reclaim, sequence_rejection, multi_day_confluence`. Log verbatim if not in this list.

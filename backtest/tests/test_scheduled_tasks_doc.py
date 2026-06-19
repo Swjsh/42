@@ -58,25 +58,19 @@ ALLOWLIST_UNDOCUMENTED: dict[str, str] = {
     "Gamma_FreshnessWatchdog": "registered by one-shot setup-all.ps1 bootstrap, not a registry task",
 }
 
-# KNOWN DRIFT — REAL findings this test surfaced on 2026-06-18 (Phase 0b). Each is a
-# live-capable install script (its run-*.ps1 exists) for a task that is documented
-# NOWHERE in SCHEDULED-TASKS.md. They are recorded here (not in the clean allowlist
-# above) so: (a) the suite stays green for unrelated work, (b) the drift is a durable,
-# visible record at the point of detection, and (c) the ratchet still FAILS for any
-# NEW undocumented task. Resolution is out of this test's scope (it owns test files
-# only; the registry doc is read-only here) — fixing the doc should delete the entry.
-KNOWN_DRIFT_UNDOCUMENTED: dict[str, str] = {
-    "Gamma_SpendSummary": (
-        "install-spend-summary.ps1 registers a 23:30 ET daily spend summary "
-        "(run-spend-summary.ps1 exists; name appears in live scheduled-tasks-audit.json) "
-        "but it is absent from SCHEDULED-TASKS.md. DOC DRIFT — add to registry or retire."
-    ),
-    "Gamma_LevelAlertDaemon": (
-        "setup/scripts/install-level-alert-daemon-task.ps1 registers a 09:25 ET level-alert "
-        "daemon (run-level-alert-daemon.ps1 exists) but it is absent from SCHEDULED-TASKS.md. "
-        "DOC DRIFT — add to registry (likely Reference/experimental) or retire the script."
-    ),
-}
+# KNOWN DRIFT — REAL findings this test surfaced on 2026-06-18 (Phase 0b). Each was a
+# live-capable install script (its run-*.ps1 exists) for a task documented NOWHERE in
+# SCHEDULED-TASKS.md. Recorded here so: (a) the suite stayed green for unrelated work,
+# (b) the drift was a durable visible record at the point of detection, and (c) the
+# ratchet still FAILS for any NEW undocumented task. Resolution is out of this test's
+# scope (it owns test files only; the registry doc is read-only here) — fixing the doc
+# deletes the entry (the test's `fixed_drift` assertion enforces that removal).
+#
+# RESOLVED 2026-06-18 (Phase 1a/1c autonomy wiring): Gamma_SpendSummary and
+# Gamma_LevelAlertDaemon were added to SCHEDULED-TASKS.md "## Active". With both now
+# documented, this dict is empty again and the ratchet is back to full tightness — a
+# brand-new undocumented Gamma_* task FAILS test_every_installed_task_is_documented.
+KNOWN_DRIFT_UNDOCUMENTED: dict[str, str] = {}
 
 
 # ── Registry parsing (mirrors audit_scheduled_tasks.py for the Active set) ────

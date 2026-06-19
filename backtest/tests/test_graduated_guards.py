@@ -673,8 +673,18 @@ def test_sniper_cs_uses_chart_stop_not_premium_stop():
     3. _simulate_cs_trade function exists (not the old _simulate_trade)
     4. "chart_stop" appears in the simulation logic
     """
+    # The SNIPER cluster was ARCHIVED 2026-06-18 (de-sprawl, blueprint Phase 0/3) —
+    # the dead premium-exit path moved to autoresearch/_archive/sniper/. The guard's
+    # intent (SNIPER must use chart-stops, never premium-stops) is unchanged: accept
+    # the evaluator in its live location OR the archive. If it is resurrected into
+    # autoresearch/ with a premium_stop_pct field, the assertions below still fail.
     cs_path = BACKTEST / "autoresearch" / "sniper_cs_evaluator.py"
-    assert cs_path.exists(), "sniper_cs_evaluator.py must exist — chart-stop SNIPER evaluator"
+    if not cs_path.exists():
+        cs_path = BACKTEST / "autoresearch" / "_archive" / "sniper" / "sniper_cs_evaluator.py"
+    assert cs_path.exists(), (
+        "sniper_cs_evaluator.py must exist (live in autoresearch/ or in "
+        "autoresearch/_archive/sniper/) — chart-stop SNIPER evaluator"
+    )
 
     source = cs_path.read_text(encoding="utf-8")
     tree = ast.parse(source)

@@ -1,0 +1,65 @@
+{
+  "task": "chart-stops-as-default — demote premium stop to a wide catastrophe cap; chart/ribbon/profit-lock primary",
+  "generated_at": "2026-06-18",
+  "decision": "SHIP_B2",
+  "ship_config": {
+    "label": "both premium stops widened to -50% catastrophe cap (chart-stop primary)",
+    "premium_stop_pct_bear": -0.50,
+    "premium_stop_pct_bull": -0.50,
+    "rationale": "blueprint + C2/C3 + missed_week: fixed-% premium stops whipsaw 0DTE options out of eventual winners. At a wide -50% cap the premium stop becomes a catastrophe backstop only; chart-level stop + ribbon-flip-back + profit-lock chandelier + time-stop are the primary invalidation."
+  },
+  "method": "single-variable A/B, real OPRA option fills (use_real_fills=True), via autoresearch.runner.run_with_params (the params-driven path that reaches the engine — NOT raw run.py, which uses orchestrator defaults). Anchor scored via j_edge_tracker.score_candidate. DSR/PSR via lib.validation.gate.evaluate_candidate.",
+  "windows": {
+    "full_history_real_fills": ["2025-01-01", "2026-05-29"],
+    "full_history_note": "bounded by real OPRA option coverage (option CSVs end ~2026-05-29). 26 trades / 17 bear / 9 bull.",
+    "j_anchor": ["2026-04-29", "2026-05-07"],
+    "oos_subwindow_first_run": ["2026-03-01", "2026-05-29"]
+  },
+  "headline_full_history": {
+    "A_current_live_bear-10_bull-8": {"n": 26, "wr": 0.38, "total_pnl": 8160, "edge_capture": 1340, "dsr_verdict": "PASS", "psr": 0.993},
+    "B1_bear_only_-50_bull-8":       {"n": 26, "wr": 0.50, "total_pnl": 10553, "edge_capture": 1340, "dsr_verdict": "PASS", "psr": 0.998},
+    "B2_both_-50_SHIP":              {"n": 26, "wr": 0.65, "total_pnl": 16671, "edge_capture": 1340, "dsr_verdict": "PASS", "psr": 0.998}
+  },
+  "bear_stop_sweep_full_history": {
+    "_note": "n=17 bear trades. premstops = # bear trades exiting via EXIT_ALL_PREMIUM_STOP. Demonstrates tight stops whipsaw; the live -10% already sits past the cliff; widening further is flat-to-better.",
+    "-0.05": {"bear_premstops": 15, "bear_wr": 0.118, "total_pnl": 4473, "bear_pnl": 823},
+    "-0.08": {"bear_premstops": 14, "bear_wr": 0.176, "total_pnl": 4136, "bear_pnl": 486},
+    "-0.10_live": {"bear_premstops": 10, "bear_wr": 0.412, "total_pnl": 8160, "bear_pnl": 4510},
+    "-0.15_empirical_peak": {"bear_premstops": 8, "bear_wr": 0.529, "total_pnl": 11016, "bear_pnl": 7366},
+    "-0.20": {"bear_premstops": 8, "bear_wr": 0.529, "total_pnl": 10775, "bear_pnl": 7125},
+    "-0.35": {"bear_premstops": 6, "bear_wr": 0.529, "total_pnl": 10371, "bear_pnl": 6720},
+    "-0.50_ship_cap": {"bear_premstops": 5, "bear_wr": 0.588, "total_pnl": 10553, "bear_pnl": 6903}
+  },
+  "bull_stop_sweep_full_history": {
+    "_note": "n=9 bull trades. BULLISH_RECLAIM is DRAFT per OP-16; the wide cap only prevents catastrophic whipsaw, it does NOT authorize the bull setup. Pattern matches bear: tight stop whipsaws, wide cap rides winners.",
+    "-0.08_live": {"bull_premstops": 6, "bull_wr": 0.333, "bull_pnl": 3650, "total_pnl": 8160},
+    "-0.10": {"bull_premstops": 6, "bull_wr": 0.333, "bull_pnl": 3126, "total_pnl": 7636},
+    "-0.15": {"bull_premstops": 6, "bull_wr": 0.333, "bull_pnl": 1817, "total_pnl": 6327},
+    "-0.20": {"bull_premstops": 4, "bull_wr": 0.556, "bull_pnl": 6887, "total_pnl": 11397},
+    "-0.50_ship_cap": {"bull_premstops": 0, "bull_wr": 0.778, "bull_pnl": 9768, "total_pnl": 14278}
+  },
+  "decision_gate": {
+    "edge_capture_no_regression": {"pass": true, "A": 1340, "B2": 1340, "note": "invariant at every stop width -10..-50 — bear stop never touches the J-anchor outcomes (winners ride to TP1/ribbon/time; losers skipped/flat)."},
+    "anchor_no_regression": {"pass": true, "note": "J winners (4/29,5/01,5/04) captured identically; J loser days 5/05,5/06 not taken (losers_added=$0), 5/07 = +$378 regardless of stop."},
+    "oos_pnl_not_materially_worse": {"pass": true, "note": "B2 total +$16,671 vs A +$8,160 — better, not worse, by +$8,511 (+104%)."},
+    "dsr_advisory": {"pass": true, "A": "PASS/0.993", "B2": "PASS/0.998", "note": "B widens the winning margin; -15% is the single strongest (DSR 0.962) but -50% wide-cap is more robust/regime-agnostic and is the blueprint's stated design."}
+  },
+  "knob_liveness_proof": "verified premium_stop_pct_bear is a LIVE knob (not dead): at -2% both bear trades hit the premium stop (bear_pnl -$71); at -10%+ zero bear trades hit it (bear_pnl +$1,188). Rules out the BS-sim-ignored-strike-offset incident class (OP-16 sim-accuracy gate).",
+  "why_-50_not_-15": "the empirical peak is -15% (total $11,016) but that is a narrow optimum on n=17 bear trades and risks overfitting; a wide -50% cap is the blueprint's explicit 'catastrophe cap' design — regime-agnostic, within 4% of peak, and lets the chart/ribbon/profit-lock be primary. J may tighten to -15..-20% later; documented here.",
+  "aggressive_account_NO_SHIP": {
+    "decision": "NO_SHIP on aggressive — chart-stop-primary REGRESSES the Bold account. Per-account verdict (C29/L149: exit knobs don't transfer across accounts/strikes).",
+    "full_history_real_fills": {
+      "A_current_agg_bear-7_bull-5": {"n": 206, "wr": 0.24, "total_pnl": 7970},
+      "B1_bear-50_bull-5":            {"n": 183, "wr": 0.46, "total_pnl": 365},
+      "B2_both-50":                   {"n": 183, "wr": 0.50, "total_pnl": 4420}
+    },
+    "agg_bear_stop_sweep": {
+      "-0.05": 320, "-0.07_live_peak": 7970, "-0.10": 2604, "-0.15": 1562,
+      "-0.20": -9026, "-0.35": -4988, "-0.50": 365,
+      "_note": "total_pnl by bear stop. Current -7% is a sharp local optimum; widening is catastrophic at -20..-35% and only recovers to $365 at -50% vs $7,970 at -7%. Jagged surface, opposite of Safe's smooth plateau."
+    },
+    "why_different": "Bold uses ITM-2 strikes (higher delta, premium moves more $/contract), 5.0x runner target, looser entry gates (min_triggers=1, require_bearish_fill_bar) -> n=206 trades. With ITM + high frequency the tight premium stop is load-bearing: it cuts many small losers before they run. Widening converts small stop-losses into large ones (WR rises but total P&L collapses). Safe (OTM, selective, n=26) has the opposite economics.",
+    "action": "aggressive/params.json + aggressive/heartbeat.md LEFT UNCHANGED. Bold keeps bear -7% / bull -5%."
+  },
+  "revert_path": "SAFE ONLY changed. params.json: restore premium_stop_pct -0.08, premium_stop_pct_bear -0.10, premium_stop_multiplier 0.92; restore heartbeat.md exit-hierarchy text (premium-stop-primary) + filters.py PREMIUM_STOP_PCT_BEAR_DEFAULT. Backups: heartbeat-v14-prod-backup.md (further). aggressive/* was never changed."
+}

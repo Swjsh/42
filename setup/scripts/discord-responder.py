@@ -1,16 +1,35 @@
-"""Discord responder — polls inbox for new user messages, invokes claude --print, replies via outbox.
+"""Discord responder -- the async approve/revoke bus + away-from-keyboard Q&A.
 
-Runs every 5 minutes via Gamma_DiscordResponder scheduled task.
+Runs after-hours via Gamma_DiscordResponder (wire-don't-auto-enable). Two jobs:
 
-Flow:
-  1. Read discord-inbox.jsonl, find messages newer than last-processed watermark
-  2. For each new message from J (filter by author_id), build a context prompt
-  3. Invoke `claude --print` with the prompt, capture stdout
-  4. Queue the response to discord-outbox.jsonl (bridge sends it)
-  5. Update watermark
+  1. APPROVE/REVOKE BUS (primary):
+     The Conductor (Gamma_Conductor) stages doctrine/params/order proposals it is
+     NOT allowed to auto-apply (reward-hacking guard) as rows in
+     `automation/state/conductor-proposals.jsonl` and pings J via the outbox.
+     J replies "ship <proposal_id>" / "shelve <proposal_id>" (or thumbs-up/down +
+     the id) from his phone. This responder consumes those inbox replies, flips the
+     proposal row status -> approved / shelved, appends an audit row to
+     `automation/state/conductor-approvals.jsonl`, and acks J in one line.
+     It does NOT itself edit params/heartbeat/CLAUDE.md or place orders -- approval
+     is recorded; applying the trading-surface change stays a J-gated step. The
+     responder is the *bus*, not the actuator.
 
-Per CLAUDE.md OP 18 (truly autonomous research mode): J can message me Discord
-while away, I respond without him needing to open Claude Code.
+  2. FREE-FORM Q&A (secondary): a non-approval message from J gets a concise
+     `claude --print` reply (Haiku, cheap) so J can ask "status?" while away.
+
+Flow each tick:
+  - AFTER-HOURS GATE first (L54): if market is open (weekday 09:30-15:55 ET) we do
+    NOT spawn any Claude model -- a market-hours responder fan-out competes with
+    Gamma_Heartbeat on the shared Max rate-limit pool. Approval parsing is pure
+    Python ($0) so we STILL process ship/shelve commands during RTH; only the
+    LLM-backed free-form Q&A is deferred until after-hours.
+  - Read discord-inbox.jsonl, find messages newer than the watermark, from J.
+  - For each: try to parse an approve/revoke command (pure Python). If it matches a
+    pending proposal, resolve it. Otherwise (after-hours only) answer via Haiku.
+  - Update the watermark.
+
+Per CLAUDE.md OP-18 / OP-25 (autonomous, async-approver model) + L54 (rate-limit
+pool discipline). FAIL-OPEN: this responder never blocks or kills J's session.
 """
 
 from __future__ import annotations
@@ -18,8 +37,10 @@ from __future__ import annotations
 import datetime as dt
 import json
 import logging
+import re
 import subprocess
 import sys
+from datetime import timedelta, timezone
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -30,6 +51,8 @@ WATERMARK = STATE_DIR / ".discord-responder-watermark.json"
 LOGFILE = STATE_DIR / "logs" / "discord-responder.log"
 QUEUE = STATE_DIR / "research-queue.json"
 CFG = STATE_DIR / ".discord-config.json"
+PROPOSALS = STATE_DIR / "conductor-proposals.jsonl"
+APPROVALS = STATE_DIR / "conductor-approvals.jsonl"
 
 LOGFILE.parent.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(
@@ -38,6 +61,53 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
 )
 
+
+# ---------------------------------------------------------------------------
+# ET / market-hours gate (copied from engine_health.py convention -- system
+# Python on this host lacks tzdata, so we compute the US offset by hand). L54:
+# never spawn a market-hours LLM that starves Gamma_Heartbeat.
+# ---------------------------------------------------------------------------
+
+def _et_offset_hours(dt_utc: dt.datetime) -> int:
+    """EDT (UTC-4) 2nd Sun Mar 02:00 .. 1st Sun Nov 02:00 local; EST (UTC-5) else."""
+    y = dt_utc.year
+    march = dt.datetime(y, 3, 1, tzinfo=timezone.utc)
+    days_to_sun = (6 - march.weekday()) % 7
+    dst_start = (march + timedelta(days=days_to_sun + 7)).replace(hour=7)
+    nov = dt.datetime(y, 11, 1, tzinfo=timezone.utc)
+    days_to_sun = (6 - nov.weekday()) % 7
+    dst_end = (nov + timedelta(days=days_to_sun)).replace(hour=6)
+    return -4 if (dst_start <= dt_utc < dst_end) else -5
+
+
+def _et_now() -> dt.datetime:
+    now_utc = dt.datetime.now(timezone.utc)
+    return (now_utc + timedelta(hours=_et_offset_hours(now_utc))).replace(tzinfo=None)
+
+
+def _load_holidays() -> set:
+    cal = STATE_DIR / "calendar.json"
+    try:
+        data = json.loads(cal.read_text(encoding="utf-8"))
+        return {str(d) for d in data.get("holidays", [])}
+    except Exception:
+        return set()
+
+
+def market_is_open(et: dt.datetime | None = None) -> bool:
+    """True during RTH: Mon-Fri, 09:30 <= ET < 15:55, not a known holiday."""
+    et = et or _et_now()
+    if et.weekday() >= 5:
+        return False
+    if et.strftime("%Y-%m-%d") in _load_holidays():
+        return False
+    hhmm = et.hour * 100 + et.minute
+    return 930 <= hhmm < 1555
+
+
+# ---------------------------------------------------------------------------
+# Watermark / config / inbox / outbox
+# ---------------------------------------------------------------------------
 
 def _load_watermark() -> str:
     if not WATERMARK.exists():
@@ -84,8 +154,155 @@ def _queue_outbox(content: str, mention_user_id: str) -> None:
         f.write(json.dumps(row) + "\n")
 
 
+# ---------------------------------------------------------------------------
+# Approve / revoke protocol (pure Python -- $0, runs even during RTH)
+# ---------------------------------------------------------------------------
+
+# A proposal id looks like "gp-2026-06-18-001" (conductor-issued). We accept any
+# token of the shape <letters>-<digits/-dashes> so the conductor can evolve the
+# scheme; the id MUST match a pending row to act.
+_PROPOSAL_ID_RE = re.compile(r"\b([a-zA-Z]{1,6}-[0-9][0-9A-Za-z\-]{4,})\b")
+
+# Intent vocab. Two flavors:
+#  * WORD verbs matched on WORD BOUNDARIES (\b...\b) so they don't collide with
+#    characters inside a proposal id or a date (the "-1 inside gp-...-18-001" bug).
+#  * REACTION tokens (emoji / :shortcode: / +1 / -1) matched literally, but ONLY
+#    AFTER any recognized proposal id has been stripped from the text, so "+1"/"-1"
+#    can't false-match digits inside an id.
+_SHIP_WORDS = ("ship", "approve", "approved", "go", "yes", "ok", "okay", "yep")
+_SHELVE_WORDS = ("shelve", "shelf", "reject", "rejected", "drop", "skip", "kill", "nope")
+# Reactions are matched literally on the id-stripped text. We deliberately do NOT
+# include bare "+1"/"-1" (they collide with digits/dashes inside ids and dates);
+# the unicode thumbs + :shortcode: forms cover Discord reactions unambiguously.
+_SHIP_REACTIONS = ("\U0001F44D", ":thumbsup:", ":+1:")
+_SHELVE_REACTIONS = ("\U0001F44E", ":thumbsdown:", ":-1:")
+_WORD_RE = re.compile(r"[a-z][a-z']*")
+
+
+def _read_proposals() -> list[dict]:
+    if not PROPOSALS.exists():
+        return []
+    rows = []
+    for line in PROPOSALS.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            try:
+                rows.append(json.loads(line))
+            except Exception:
+                pass
+    return rows
+
+
+def _rewrite_proposals(rows: list[dict]) -> None:
+    """Atomic rewrite of the proposals ledger (status flips are in-place edits)."""
+    tmp = PROPOSALS.with_suffix(PROPOSALS.suffix + ".tmp")
+    with tmp.open("w", encoding="utf-8") as f:
+        for r in rows:
+            f.write(json.dumps(r) + "\n")
+    tmp.replace(PROPOSALS)
+
+
+def _append_approval(row: dict) -> None:
+    with APPROVALS.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(row) + "\n")
+
+
+def _pending_by_id(rows: list[dict]) -> dict[str, dict]:
+    return {r.get("proposal_id"): r for r in rows if r.get("status") == "pending"}
+
+
+def _classify_command(text: str) -> str | None:
+    """Return 'ship' | 'shelve' | None for the intent in a message (case-insensitive).
+
+    Robust against proposal-id collisions: any recognized proposal id (e.g.
+    gp-2026-06-18-001) is stripped BEFORE matching, and word-verbs are matched on
+    word boundaries -- so "ship gp-2026-06-18-001" is unambiguously 'ship' even
+    though the id contains the substring "-1". Returns None on ambiguity (both
+    intents present) or no intent.
+    """
+    low = text.lower()
+    stripped = _PROPOSAL_ID_RE.sub(" ", low)  # remove ids so reactions can't false-match
+    words = set(_WORD_RE.findall(stripped))
+    has_ship = bool(words & set(_SHIP_WORDS)) or any(r in stripped for r in _SHIP_REACTIONS)
+    has_shelve = bool(words & set(_SHELVE_WORDS)) or any(r in stripped for r in _SHELVE_REACTIONS)
+    if has_ship and not has_shelve:
+        return "ship"
+    if has_shelve and not has_ship:
+        return "shelve"
+    # Ambiguous or neither -> not a command.
+    return None
+
+
+def _try_resolve_proposal(content: str, user_id: str) -> bool:
+    """If `content` is an approve/revoke command targeting a pending proposal,
+    resolve it (flip status, append audit row, ack J) and return True. Else False.
+
+    Resolution rules (conservative -- never act on ambiguity):
+      * The message must contain a proposal id that matches a PENDING row, AND a
+        clear ship/shelve intent. A bare "ship" with no id, or an id with no clear
+        verb, is NOT acted on (we don't guess which proposal).
+      * Exactly one pending proposal + a bare ship/shelve verb -> act on that one
+        (common case: J replies "ship" to the only open ask).
+    """
+    rows = _read_proposals()
+    pending = _pending_by_id(rows)
+    if not pending:
+        return False
+
+    intent = _classify_command(content)
+    if intent is None:
+        return False
+
+    # Find a referenced id that matches a pending proposal.
+    target_id = None
+    for m in _PROPOSAL_ID_RE.finditer(content):
+        cand = m.group(1)
+        if cand in pending:
+            target_id = cand
+            break
+    # Bare verb + exactly one open proposal -> unambiguous.
+    if target_id is None and len(pending) == 1:
+        target_id = next(iter(pending))
+    if target_id is None:
+        return False  # verb but ambiguous id -> let it fall through to Q&A/no-op
+
+    new_status = "approved" if intent == "ship" else "shelved"
+    for r in rows:
+        if r.get("proposal_id") == target_id and r.get("status") == "pending":
+            r["status"] = new_status
+            r["resolved_at"] = dt.datetime.utcnow().isoformat(timespec="seconds") + "Z"
+            r["resolved_by"] = user_id or "j"
+            break
+    _rewrite_proposals(rows)
+
+    target = pending[target_id]
+    _append_approval({
+        "resolved_at": dt.datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        "proposal_id": target_id,
+        "decision": new_status,
+        "title": target.get("title", ""),
+        "kind": target.get("kind", ""),
+        "draft_path": target.get("draft_path", ""),
+        "by": user_id or "j",
+    })
+    logging.info("proposal %s -> %s", target_id, new_status)
+
+    if new_status == "approved":
+        ack = (
+            f"{target_id} approved \U0001F7E2 ({target.get('title','')}). "
+            f"Marked for apply -- the param/doctrine edit stays J-gated; "
+            f"draft at {target.get('draft_path','(see proposal)')}. Next conductor fire picks it up."
+        )
+    else:
+        ack = f"{target_id} shelved. ({target.get('title','')}). Dropped, no change. Next."
+    _queue_outbox(ack, user_id)
+    return True
+
+
+# ---------------------------------------------------------------------------
+# Free-form Q&A (LLM-backed; after-hours only)
+# ---------------------------------------------------------------------------
+
 def _build_prompt(user_msg: str) -> str:
-    """Build a context-rich prompt for claude --print."""
     queue_blob = ""
     if QUEUE.exists():
         try:
@@ -93,49 +310,42 @@ def _build_prompt(user_msg: str) -> str:
             queue_blob = json.dumps({
                 "next_action": q.get("next_action"),
                 "stages": {k: {"state": v.get("state"), "completed": v.get("completed"),
-                               "total": v.get("total"), "keepers": v.get("keepers"),
-                               "best_edge_capture": v.get("best_edge_capture"),
-                               "best_wide_pnl": v.get("best_wide_pnl"),
-                               "best_top5_pct": v.get("best_top5_pct"),
-                               "best_positive_quarters": v.get("best_positive_quarters")}
+                               "total": v.get("total"), "keepers": v.get("keepers")}
                            for k, v in q.get("stages", {}).items()},
             }, indent=2)
         except Exception:
             queue_blob = "(research-queue.json unreadable)"
 
-    return f"""You are Gamma, the user's autonomous trading research partner. He is messaging you via Discord while away from his computer.
+    # Surface any pending proposals so a "status?" answer mentions what's awaiting J.
+    pending = [r for r in _read_proposals() if r.get("status") == "pending"]
+    pending_blob = json.dumps(
+        [{"id": r.get("proposal_id"), "title": r.get("title")} for r in pending], indent=2
+    ) if pending else "(none)"
 
-Read CLAUDE.md operating principles first (especially OP 18 + OP 19 — truly autonomous research mode and self-healing pipeline).
+    return f"""You are Gamma, the user's autonomous 0DTE trading research partner, replying to J on Discord while he is away. Voice = sharp operator (see automation/presence/SOUL.md): terse, confident, signal over noise, no chatbot filler.
 
-Current grinder pipeline state:
+Current grinder/research state:
 {queue_blob}
 
-The user just sent this Discord message:
+Pending proposals awaiting J's ship/shelve:
+{pending_blob}
+
+J just sent:
 "{user_msg}"
 
-Respond CONCISELY (under 1500 chars — Discord limit). Include:
-1. Direct answer to his question/request
-2. What you ARE doing about it (or already did) — not "should I"
-3. When the next status update will fire and what triggers it
-
-If the message asks for status, report the grinder pipeline state above + next event timing.
-If the message asks you to do something, do it (write code, launch a stage, edit doctrine), then report what you did.
-If the message is conversational, acknowledge concisely.
-
-DO NOT use chatbot phrases ("let me know if", "your call", "want me to also..." — see OP 18). End every reply with what you're doing next."""
+Reply CONCISELY (under 1200 chars -- Discord). Direct answer, then what you ARE doing (not "should I"). If he is asking status, summarize state + any pending proposals (he resolves a proposal by replying "ship <id>" or "shelve <id>"). End with the next concrete step. Per OP-18: no "let me know if", no "your call", no hedging."""
 
 
 def _invoke_claude(prompt: str) -> str:
-    """Run claude --print with the prompt. Returns stdout, or error string."""
+    """Run claude --print on Haiku (cheap). Returns stdout, or an error string."""
     try:
-        # CREATE_NO_WINDOW = 0x08000000 — OP-27 L41.
-        _flags = 0x08000000 if sys.platform == "win32" else 0
+        _flags = 0x08000000 if sys.platform == "win32" else 0  # CREATE_NO_WINDOW (L41)
         result = subprocess.run(
             [
                 "claude", "--print",
-                "--model", "sonnet",
-                "--max-budget-usd", "0.50",
-                "--effort", "medium",
+                "--model", "haiku",
+                "--max-budget-usd", "0.15",
+                "--effort", "low",
                 "--output-format", "text",
                 "--permission-mode", "bypassPermissions",
                 prompt,
@@ -155,17 +365,20 @@ def _invoke_claude(prompt: str) -> str:
         return f"[invoke error: {exc}]"
 
 
+# ---------------------------------------------------------------------------
+# Main tick
+# ---------------------------------------------------------------------------
+
 def main() -> int:
     user_id = _load_user_id()
     last_id = _load_watermark()
     inbox = _read_inbox()
 
-    # Find unprocessed messages from J (skip messages older than watermark)
+    # Find unprocessed messages from J (skip messages older than watermark).
     new_msgs = []
     if not last_id:
-        # First run: only process the LATEST message (don't reply to history)
         if inbox:
-            new_msgs = [inbox[-1]]
+            new_msgs = [inbox[-1]]  # first run: only the latest, don't reply to history
     else:
         seen = False
         for row in inbox:
@@ -179,66 +392,76 @@ def main() -> int:
         logging.info("no new messages")
         return 0
 
-    # Filter to messages from J (his author_id from config)
     if user_id:
         new_msgs = [m for m in new_msgs if m.get("author_id") == user_id]
-
     if not new_msgs:
         logging.info("new messages but none from J")
-        # Still bump watermark to last seen
         if inbox:
             _save_watermark(inbox[-1].get("discord_msg_id", ""))
         return 0
 
-    # Wire usage cap (CLAUDE.md OP 3): refuse claude --print if over cap
+    mkt_open = market_is_open()
+
+    # Usage cap (OP-3): gate the LLM path only. Approval parsing is free.
     sys.path.insert(0, str(REPO / "backtest"))
     try:
         from autoresearch.usage_tracker import check_and_record, get_snapshot
     except Exception as e:
         check_and_record = None
+        get_snapshot = None
         logging.error(f"usage_tracker import failed: {e}")
 
     for msg in new_msgs:
         content = msg.get("content", "").strip()
         if not content:
+            _save_watermark(msg.get("discord_msg_id", ""))
             continue
-        logging.info(f"processing: {content[:80]}")
+        logging.info("processing: %s", content[:80])
+
+        # 1) APPROVE/REVOKE first -- pure Python, $0, works even during RTH.
+        try:
+            if _try_resolve_proposal(content, user_id):
+                _save_watermark(msg["discord_msg_id"])
+                continue
+        except Exception as e:
+            logging.exception("approve/revoke parse error: %s", e)
+            # fall through -- never let a parse bug eat the message silently
+
+        # 2) FREE-FORM Q&A -- LLM-backed, AFTER-HOURS ONLY (L54).
+        if mkt_open:
+            # Don't spawn a market-hours model (would starve heartbeat). Defer:
+            # do NOT advance the watermark so this message is answered after close.
+            logging.info("market open -- deferring LLM reply for: %s", content[:60])
+            # Ack once so J isn't left hanging, but cheaply (no model).
+            _queue_outbox(
+                "Got it -- market's open so I'm staying off the shared rate-limit pool "
+                "(heartbeat priority). I'll answer right after the close. "
+                "(Approve/revoke commands like 'ship <id>' work now.)",
+                user_id,
+            )
+            _save_watermark(msg["discord_msg_id"])
+            continue
 
         if check_and_record is not None:
             allowed, reason = check_and_record("discord-responder", reason=content[:60])
             if not allowed:
-                snap = get_snapshot()
-                bypass_reply = (
-                    f"⚠️ usage cap hit: {reason}\n"
-                    f"today: {snap.get('today_count', '?')} invocations, "
-                    f"~${snap.get('today_est_cost_usd', 0):.2f}\n"
-                    f"will resume when within cap. message preserved in inbox."
+                snap = get_snapshot() if get_snapshot else {}
+                _queue_outbox(
+                    f"usage cap hit: {reason}. today ~${snap.get('today_est_cost_usd', 0):.2f}. "
+                    f"will resume when within cap. (ship/shelve still work.)",
+                    user_id,
                 )
-                _queue_outbox(bypass_reply, user_id)
-                logging.warning(f"REFUSED: {reason}")
-                # DO NOT update watermark — message will be retried next tick when cap clears
-                # But to prevent infinite retry of same message, mark as "rate_limited" in a side file
-                rate_limited_file = STATE_DIR / ".discord-responder-rate-limited.json"
-                rl = {}
-                if rate_limited_file.exists():
-                    try:
-                        rl = json.loads(rate_limited_file.read_text(encoding="utf-8"))
-                    except Exception:
-                        rl = {}
-                rl[msg["discord_msg_id"]] = dt.datetime.utcnow().isoformat()
-                rate_limited_file.write_text(json.dumps(rl), encoding="utf-8")
-                # bump watermark anyway so we don't reprocess on next tick
+                logging.warning("REFUSED (cap): %s", reason)
                 _save_watermark(msg["discord_msg_id"])
                 continue
 
         prompt = _build_prompt(content)
         response = _invoke_claude(prompt)
-        # Truncate to Discord limit (2000 char hard, leave room for mention)
         if len(response) > 1900:
             response = response[:1850] + "\n... (truncated)"
         _queue_outbox(response, user_id)
         _save_watermark(msg["discord_msg_id"])
-        logging.info(f"queued response ({len(response)} chars)")
+        logging.info("queued response (%d chars)", len(response))
 
     return 0
 

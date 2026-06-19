@@ -8,7 +8,7 @@
 
 ## Active tasks (current production)
 
-34 registered: 8 trading + 1 health-beacon + 2 watcher + 3 premarket-intel + 8 EOD/review + 1 context-guard + 1 mcp-audit + 1 discord-presence + 3 crypto-gym + 3 kitchen + 3 futures (1 disabled). _Crypto TRADING heartbeat + 6 one-off Gamma_Sweep_* tasks retired 2026-06-17; see Reference._ _Gamma_HealthBeacon added 2026-06-18 (Phase 0a) — install via `setup/install-engine-health.ps1` (J/installer registers the live task)._ _Gamma_SniperShadowEOD retired 2026-06-18 (de-sprawl) — dead SNIPER autoresearch cluster archived; see Reference._
+36 registered: 8 trading + 1 health-beacon + 2 watcher + 3 premarket-intel + 8 EOD/review + 1 context-guard + 1 mcp-audit + 1 discord-presence + 3 crypto-gym + 3 kitchen + 3 futures (1 disabled) + 1 spend-summary + 1 level-alert-daemon. _Crypto TRADING heartbeat + 6 one-off Gamma_Sweep_* tasks retired 2026-06-17; see Reference._ _Gamma_HealthBeacon added 2026-06-18 (Phase 0a) — install via `setup/install-engine-health.ps1` (J/installer registers the live task)._ _Gamma_SniperShadowEOD retired 2026-06-18 (de-sprawl) — dead SNIPER autoresearch cluster archived; see Reference._ _Gamma_SpendSummary + Gamma_LevelAlertDaemon documented 2026-06-18 (the reconciliation test caught them registered-but-undocumented)._ _Gamma_Conductor + Gamma_DiscordResponder WIRED but NOT enabled — see the dedicated section below; they are intentionally absent from this Active table._
 
 | Task | Cadence | Cost/fire | Why it exists |
 |---|---|---|---|
@@ -46,8 +46,19 @@
 | `Gamma_FuturesHeartbeat` | every 3 min, 09:30-15:55 ET weekdays | **DISABLED** — shares Max plan rate-limit pool with interactive sessions. Re-enable when shadow loop validates a free-tier model OR a dedicated API key is added. |
 | `Gamma_FuturesPremarket` | 08:30 ET weekdays | ~$0.30 | MNQ key levels, VIX gate, bias, journal seed. Registered 2026-06-17. |
 | `Gamma_FuturesEod` | 16:05 ET weekdays | ~$0.30 | Daily review: replay vs heartbeat, trades.csv update, running WR/expectancy. Registered 2026-06-17. |
+| `Gamma_SpendSummary` | 23:30 ET daily | $0 | OP-3 cost discipline: walks Claude Code session JSONL + MiniMax telemetry -> `automation/state/spend-{date}.json` + `spend-daily.jsonl`; STATUS.md WARN if >$50/day. Pure Python. Install: `setup/install-spend-summary.ps1`. Documented 2026-06-18. |
+| `Gamma_LevelAlertDaemon` | 09:25 ET weekdays (daemon runs to 16:05 ET) | $0 | Local SPY level-alert daemon: polls yfinance, writes `automation/state/live-alerts.jsonl`. No Claude cost. Install: `setup/scripts/install-level-alert-daemon-task.ps1`. Documented 2026-06-18 (experimental; uses `pwsh.exe` wrapper, not the canonical hidden chain). |
 
 **Est. added daily cost from the 2026-06-01 re-add: ~$2.75/day LLM** (Scout $0.30 + Swarm $0.25 + EodSummary $0.50 + DailyReview $0.10 + Analyst $0.40 + Manager $0.50 + weekend Treasurer/WeeklyReview amortized). Within the $100/mo Max-5x budget (OP-3).
+
+## Wired — NOT yet enabled (install script authored; J enables deliberately)
+
+> These tasks have a complete install script + wrapper + prompt but are intentionally NOT registered as live tasks (same pattern as the health beacon: J runs the installer when ready). They are documented here so the registry is honest and the doc↔script reconciliation test stays green. To enable: run the named install script. To verify after: `python setup/scripts/audit_scheduled_tasks.py`.
+
+| Task | Intended cadence | Install script | Why it exists |
+|---|---|---|---|
+| `Gamma_Conductor` | hourly 18:00–07:00 ET (after-hours ONLY) | `setup/install-conductor-task.ps1` | **The "Gamma drives" engine (Phase 1a).** Operationalizes `automation/overnight/wake-protocol.md`. Each fire = ONE bounded task: read `engine-health.json` + STATUS + the prioritized queue, pick the single highest-value ready item, fan out the right specialist persona via the Agent tool, validate (gym/tests), SHIP only if it clears the auto-ratify gate ELSE propose-and-ping-J. Prompt: `automation/prompts/conductor.md` (opus, `--agent gamma`). **Safety rails (baked into prompt + wrapper):** after-hours ONLY (never 09:30–15:55 ET — L54, don't starve the heartbeat), FAIL-OPEN (never blocks J — OP-32 scar), one-task-per-fire (no runaway), doctrine/params/orders are PROPOSE-only (reward-hacking guard). ~$1.50/fire. |
+| `Gamma_DiscordResponder` | every 15 min 16:00–09:30 ET (after-hours) | `setup/install-discord-responder-task.ps1` | **The async approve/revoke bus (Phase 1c).** Consumes J's `ship <id>` / `shelve <id>` Discord replies (and 👍/👎 + id) -> resolves Conductor proposals in `conductor-proposals.jsonl`, appends audit to `conductor-approvals.jsonl` (pure Python, $0, works anytime). Free-form J Q&A via `claude --print` on **Haiku** (cheap), **after-hours only** — self-gates RTH per L54 so it never competes with `Gamma_Heartbeat` on the shared Max pool. Script: `setup/scripts/discord-responder.py`. Needs `Gamma_DiscordBridge` (inbound `poll_inbox`) alive. Fail-open. Was previously listed under Reference as "never enabled"; now wired. |
 
 ## Proposed (not yet registered — install when J approves)
 
@@ -87,7 +98,7 @@ _None currently registered in Disabled state._
 **Already-superseded (pre-reset):**
 - `Gamma_AR_Watchdog`, `Gamma_GrinderMonitor`, `Gamma_GrinderDiscordNotify` (grinder watchdogs — superseded by in-launcher PID tracking)
 - `Gamma_DailyStatus`, `Gamma_MondayReadyCheck` (superseded by EOD/weekly pipelines)
-- `Gamma_DiscordResponder` (2-way Discord, never enabled)
+- `Gamma_DiscordResponder` — _superseded note 2026-06-18: NO LONGER "never enabled". Now WIRED (see "## Wired — NOT yet enabled" above): install via `setup/install-discord-responder-task.ps1`._
 
 ## Conventions (enforced by `audit_scheduled_tasks.py`)
 

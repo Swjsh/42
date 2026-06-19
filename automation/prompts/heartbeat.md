@@ -32,7 +32,7 @@ This constant is verified daily at premarket Step 1a against `automation/state/p
 >    - $2K-$10K: `strike_offset = -2` (OTM-2)
 >    - $10K-$25K: `strike_offset = -1` (OTM-1 / ATM)
 >    - $25K+: `strike_offset = +2` (ITM-2 — v14 default, capital available)
-> 3. **Premium stop bear-side:** `-10%` (was `-20%` in v15.0, was `-8%` in v14). TIGHTER_STOP ratified 2026-06-17: IS +$8,705 / OOS +$1,802, per-trade WF=3.37 PASS. Cuts catastrophic losses by 50% while saving all profitable trades. Profit-lock still prevents winners going negative.
+> 3. **Premium stop bear-side:** SUPERSEDED 2026-06-18 by CHART-STOP-PRIMARY (premium stop now a wide −50% catastrophe cap; chart/ribbon/profit-lock are primary — see the Position-branch exit hierarchy + the chart-stops change note). History: was `-8%` (v14) → `-20%` (v15.0) → `-10%` (TIGHTER_STOP 2026-06-17, IS +$8,705 / OOS +$1,802) → `-50%` cap (2026-06-18, real-fills A/B: total $8,160 → $16,671, edge_capture invariant +$1,340). Profit-lock still prevents winners going negative.
 > 4. **Profit-lock trailing chandelier (NEW — was static breakeven-after-TP1 in v14):**
 >    - Arm at `favor_premium ≥ entry × (1 + 0.05)` (+5% favor)
 >    - Initial floor on arm: `entry × (1 + 0.10)` (+10%)
@@ -222,14 +222,14 @@ ELSE: read cached `loop-state.htf_15m`. If absent or `now - last_close_time > 16
 
 If pending_fill: `get_order_by_id` on `bracket_ids.parent`. If filled, update status="open", filled_avg_price, slippage_cents. If canceled/rejected, clear position, emit ERROR_ALPACA. If pending >2 ticks, cancel parent, clear position, emit ERROR_ALPACA.
 
-If open: apply stops per **v15 RATIFIED doctrine** (was v11/v14 — see "v15 ratification" section above for full diff):
-- **premium stop (BEAR-side puts) = entry × 0.90** (TIGHTER_STOP ratified 2026-06-17: was × 0.80 / -20% in v15.0, was × 0.92 / -8% in v14. Tighter cuts catastrophic losses by 50% while profit-lock prevents winners going negative. IS +$8,705 / OOS +$1,802, WF=3.37 PASS. **BULL-side calls remain entry × 0.92 / -8%** — bull mirror not yet specced under v15.)
-- **chart stop = close > rejection_level + $0.50 buffer** (no ribbon condition required; RATIFIED v11)
-- **ribbon flip back exit = opposite stack (BULL for puts) AND spread ≥ 30c** (NOT just MIXED transition — chop zones are not invalidations)
-- time stop 15:40 ET hard (Rank-31 2026-06-16 — exit before final-10-min theta crush; EodFlatten safety net at 15:55 ET unchanged)
-- **TP1 (BEAR-side) = chart-level (next Active/Carry tier level past entry, $1.50 min distance, NO round numbers) OR premium ≥ entry × 1.50 fallback** (RATIFIED v11, updated Rank-36 2026-06-17: was 1.30). **TP1 qty_fraction = 0.667** (Rank-31 2026-06-16: 2/3 at TP1, 1/3 runner; WF=1.08 OOS+44%. Was 0.50 in v15.)
+If open: apply stops per **CHART-STOP-PRIMARY doctrine (2026-06-18 — was premium-stop-primary; see chart-stops change below)**. The exit hierarchy below is ORDERED: the chart-level stop, ribbon-flip-back, and profit-lock chandelier are the PRIMARY invalidation; the premium stop is a WIDE catastrophe cap that only fires on a gap. Read all values from `params.json` each tick.
+- **PRIMARY — chart stop = close > rejection_level + `chart_stop_buffer_dollars` ($0.50) buffer** (BEAR-side; no ribbon condition required; RATIFIED v11). This is the FIRST invalidation: the thesis was "price rejected this level"; a close back above it (plus buffer) means the thesis is wrong. For BULL, mirror: close < reclaim_level − buffer.
+- **PRIMARY — ribbon flip back exit = opposite stack (BULL for puts) AND spread ≥ 30c** (NOT just MIXED transition — chop zones are not invalidations).
+- **PRIMARY — profit-lock trailing chandelier (BEAR-side):** once `favor_premium ≥ entry × 1.05` (+5% favor), arm. On arm: stop floor moves to `entry × 1.10` (+10%). Then trail 20% off the high-water mark of `favor_premium`. **A winning trade can no longer go negative.** (Source: T50 trailing-PL test 2026-05-13 — B1 trailing 20% wins aggregate $36,621 vs fixed $36,450, lower top5 concentration 32% vs 37%.)
+- **PRIMARY — time stop 15:40 ET hard** (Rank-31 2026-06-16 — exit before final-10-min theta crush; EodFlatten safety net at 15:55 ET unchanged).
+- **BACKSTOP — premium catastrophe cap = entry × (1 + `premium_stop_pct_bear`) = entry × 0.50 (−50%)** (CHART-STOP-PRIMARY 2026-06-18: demoted from the primary −10% stop to a wide catastrophe cap. **BULL-side calls = entry × (1 + `premium_stop_pct`) = entry × 0.50 (−50%)** — symmetric cap; BULLISH_RECLAIM remains DRAFT per OP-16, the cap only prevents catastrophic whipsaw and does NOT authorize the bull setup). The premium cap fires ONLY when the premium gaps past −50% before any chart/ribbon/profit-lock exit triggers — i.e. a genuine catastrophe. Rationale: fixed-% premium stops whipsaw 0DTE options out of eventual winners (C2/C3, missed_week). Real-fills evidence (2025-01..2026-05-29, n=26): primary −10%/−8% → total $8,160 WR 38%; −50% cap → total $16,671 WR 65%; edge_capture INVARIANT +$1,340. Scorecard: `analysis/recommendations/chart-stops-ab-2026-06-18.json`. **Revert to premium-primary:** set `params.json#premium_stop_pct_bear: -0.10`, `premium_stop_pct: -0.08` and restore this block's `entry × 0.90` / `entry × 0.92` wording.
+- **TP1 (BEAR-side) = chart-level (next Active/Carry tier level past entry, $1.50 min distance, NO round numbers) OR premium ≥ entry × 1.50 fallback** (RATIFIED v11, updated Rank-36 2026-06-17: was 1.30). **TP1 qty_fraction = 0.667** (Rank-31 2026-06-16: 2/3 at TP1, 1/3 runner; WF=1.08 OOS+44%).
 - **runner target (BEAR-side) = entry × 2.50 active target** (RATIFIED v15: was 3.0 hard ceiling in v14 — now active, not just a ceiling).
-- **profit-lock trailing chandelier (NEW v15, BEAR-side):** once `favor_premium ≥ entry × 1.05` (+5% favor), arm. On arm: stop floor moves to `entry × 1.10` (+10%). Then trail 20% off the high-water mark of `favor_premium`. Stop floor never lowers below original `entry × 0.90` premium stop (TIGHTER_STOP 2026-06-17). **A winning trade can no longer go negative.** (Source: T50 trailing-PL test 2026-05-13 22:16 ET — B1 trailing 20% wins aggregate $36,621 vs fixed $36,450, lower concentration top5 32% vs 37%.)
 - **runner exit (tiered, secondary signals)**: conservative (hammer/shooting_star + 1.5× vol + at any Active/Carry level) OR aggressive (same + 2.0× vol + Carry-tier level only). Single runner uses conservative rules. Profit-lock chandelier supersedes if armed and tighter.
 
 Strike selection: **per account-equity tier (RATIFIED v15 2026-05-13 evening — was uniform ITM-2 in v14).** Read `today-bias.json#safe_equity_confirmed` (or fall back to most recent `circuit-breaker.json#starting_equity_today`). *(Field-name fix 2026-06-18: `account_equity` / `start_equity` were never written by any producer — premarket writes `safe_equity_confirmed`; the circuit-breaker writes `starting_equity_today`.)* Apply the per-tier strike_offset BELOW. Strike formula (BEAR puts): `strike = round(spot) + strike_offset` (positive offset = ITM, negative = OTM). For BULL calls: `strike = round(spot) - strike_offset` (mirror).
@@ -389,7 +389,7 @@ Read `params.json#block_conf_lvl_rec_afternoon`.
 Read `params.json#vix_bear_hard_cap` (currently `23.0`).
 - If the key is non-null AND side == BEAR (put / `winning_side == "P"`) AND `vix_now >= params.vix_bear_hard_cap`:
   → emit `SKIP_VIX_BEAR_HIGH`, log to `decisions.jsonl` (blocker `VIX_BEAR_HARD_CAP`), do NOT enter.
-- Rationale: VIX ≥ 23 = high-fear regime → put premium expensive → the −10% stop fires on tiny adverse moves (C3/L149). IS n=9 blocked WR=0% (+$790); OOS n=6 WR=17% (+$420); WF=0.797. Scorecard: `analysis/recommendations/safe_vix_bear_hard_cap.json`.
+- Rationale: VIX ≥ 23 = high-fear regime → put premium expensive → adverse moves hurt (the gate was ratified when the bear stop was −10%, which fired on tiny adverse moves; C3/L149). IS n=9 blocked WR=0% (+$790); OOS n=6 WR=17% (+$420); WF=0.797. Scorecard: `analysis/recommendations/safe_vix_bear_hard_cap.json`. *(NB: bear stop is now a −50% catastrophe cap per CHART-STOP-PRIMARY 2026-06-18; this gate's edge persists by avoiding the expensive-premium high-fear regime regardless of stop width.)*
 - **Revert:** set `vix_bear_hard_cap: null` (or `0`).
 
 **Gate F — block_level_rejection (orchestrator.py:1135):**
@@ -481,15 +481,16 @@ If `bull_score≥9` OR `bear_score≥8` AND no entry fires, append ONE row to `j
 
 Do NOT write a row if score < threshold. Silence is the signal.
 
-## Watcher signal layer (WATCH-ONLY — all 28 watchers, log only, no orders)
+## Watcher signal layer (WATCH-ONLY — all registered watchers, log only, no orders)
 
 > **Status 2026-06-18: replaces the per-watcher ORB + FBW branches.** Those two bespoke blocks
 > each read `watcher-observations.jsonl` for ONE setup. This unified block generalizes the SAME
 > pattern across the WHOLE Gamma_WatcherLive fleet (orb, fbw, floor_hold_bounce,
 > named_level_wick_bounce, erl_irl, double_bottom_base_quiet, close_ceiling_fade, rsi_divergence,
-> head_and_shoulders, momentum_acceleration, and the rest — 28 total). It reads the feed
-> Gamma_WatcherLive writes (5-min cadence) and logs `WATCH_ONLY` rows to decisions.jsonl so the
-> live ledger SEES every watcher, not just 2.
+> head_and_shoulders, momentum_acceleration, and the rest — **all watchers registered in the
+> watcher registry** (`backtest/lib/watchers/runner.py#WATCHERS`, currently 25; do not hardcode —
+> the registry is the single source of truth). It reads the feed Gamma_WatcherLive writes (5-min
+> cadence) and logs `WATCH_ONLY` rows to decisions.jsonl so the live ledger SEES every watcher, not just 2.
 >
 > **This is WATCH-ONLY. It NEVER places an order.** OP-21 live gate STANDS: every setup needs
 > 3 live J wins before ANY live execution path is wired. This block only observes + logs.
@@ -587,24 +588,22 @@ per signal, using the legacy action string for these two (do not double-emit):
 - `setup_name == "FBW_MORNING_MID"` → set `"action": "FBW_WOULD_ENTER"` (keep `would_be_qty` =
   BASE tier qty and `op21_live_gate` note, plus all the standard fields above).
 
-All OTHER 26 watchers use `"action": "WATCH_ONLY"`. The dedup scan in filter 4 treats these legacy
+All OTHER registered watchers (every watcher in the registry except those two legacy ones) use `"action": "WATCH_ONLY"`. The dedup scan in filter 4 treats these legacy
 action strings as equivalent to a `WATCH_ONLY` row for the same (setup_name, direction).
 
 ## Decisions ledger (every meaningful tick — restored 2026-05-07)
 
-Every tick that emits anything OTHER than a plain `HOLD` (with no developing setup) appends ONE row to `automation/state/decisions.jsonl` (create if missing). LEAN schema — only the fields needed for EOD grading + weekly review aggregation:
+Every tick that emits anything OTHER than a plain `HOLD` (with no developing setup) appends ONE row to `automation/state/decisions.jsonl` (create if missing). LEAN schema — only the fields needed for EOD grading + weekly review aggregation. **CANONICAL schema (CONTEXT-108, pinned): `action` (NOT `decision`); `bull_score`/`bear_score` (NOT `bearish_score`); required `tick_id`+`date`+`action`.**
+
+**WRITE CONTRACT — JSONL, one compact line per row (the prompt is the primary corruptor of this file; obey EXACTLY):**
+- Emit **EXACTLY ONE** JSON object **on ONE physical line**, then a single trailing newline. The object MUST be `json.dumps(obj)`-equivalent: **no pretty-printing, no embedded newlines, no indentation inside the object.**
+- **APPEND only** — never rewrite the file, never concatenate two objects on one line, never emit two objects without a newline between them. One tick → at most one appended line (exits may add their own one line; never merge them).
+- `position_status` is a **real JSON value**, not a quoted word: write `null` (bare, unquoted) when flat — NOT the string `"null"`. Write `"open"` / `"pending_fill"` (quoted) only for those two.
+- `htf_15m_stack` and `setup_name` use bare `null` when absent (not `"null"`). Numbers (`tick_id`, scores, `spy`, `vix`, `ribbon_spread_cents`) are bare numerics, never strings. `trigger_fired_this_tick` is bare `true`/`false`.
+- The canonical row is exactly the field set below — emit it as a single line (shown wrapped here ONLY for readability; the real write is one line):
 
 ```json
-{"tick_id": <int>, "date": "YYYY-MM-DD", "time_et": "HH:MM",
- "action": "<ACTION>", "position_status": "open|null|pending_fill",
- "bull_score": <int>, "bear_score": <int>,
- "spy": <float>, "vix": <float>, "vix_dir": "rising|falling|flat|cached",
- "ribbon_stack": "BULL|BEAR|MIXED", "ribbon_spread_cents": <int>,
- "htf_15m_stack": "BULL|BEAR|MIXED|null",
- "setup_name": "<BEARISH_REJECTION_RIDE_THE_RIBBON|BULLISH_RECLAIM_RIDE_THE_RIBBON|null>",
- "trigger": "<NORMALIZED trigger base name, no price suffix — see note>",
- "trigger_fired_this_tick": <bool>,
- "reason": "<one_clause>"}
+{"tick_id": <int>, "date": "YYYY-MM-DD", "time_et": "HH:MM", "action": "<ACTION>", "position_status": "open"|"pending_fill"|null, "bull_score": <int>, "bear_score": <int>, "spy": <float>, "vix": <float>, "vix_dir": "rising|falling|flat|cached", "ribbon_stack": "BULL|BEAR|MIXED", "ribbon_spread_cents": <int>, "htf_15m_stack": "BULL"|"BEAR"|"MIXED"|null, "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON"|"BULLISH_RECLAIM_RIDE_THE_RIBBON"|null, "trigger": "<NORMALIZED base name, no price suffix — see note>"|null, "trigger_fired_this_tick": true|false, "reason": "<one_clause>"}
 ```
 
 **Trigger normalization (FIX 2026-06-15):** Watchers emit triggers with price suffixes (e.g., `"level_reclaim_758.22"`). Before writing to the ledger, strip the price suffix: log only the base trigger name from this list: `level_reclaim, level_break, ribbon_flip, vwap_reclaim, sequence_reclaim, sequence_rejection, multi_day_confluence`. E.g., `"level_reclaim_758.22"` → log `"level_reclaim"`. The price itself is in `spy` field and the journal. Keeping the suffix in the ledger makes trigger-type analysis impossible (every unique price creates a new unique trigger name). If the watcher name is not in this list, log it verbatim.
@@ -667,15 +666,15 @@ If Iron Law fails after fill: DO NOT write trades.csv ENTRY row. Re-poll once af
    ```
    python automation/scripts/pre_order_gate.py --equity {current_equity} --qty {qty_after} --premium {premium_mid} --account safe
    ```
-   If the output starts with **"BLOCK"**: emit `SKIP_GATE_G6b_CODE: {gate_output}`, append a `SKIP_GATE` row to `automation/state/decisions.jsonl` with `action=SKIP_GATE, gate=G6b_code, reason={gate_output}`, and **STOP. DO NOT PLACE THE ORDER.** The code gate is the authoritative check — it overrides any prompt-level arithmetic.
+   If the output starts with **"BLOCK"**: emit `SKIP_GATE_G6b_CODE: {gate_output}`, append a `SKIP_GATE` row to `automation/state/decisions.jsonl` with `action=SKIP_GATE, gate=G6b_code, reason={gate_output}`, and **STOP. DO NOT PLACE THE ORDER.** The code gate is the authoritative check — it overrides any prompt-level arithmetic. *(Consolidation 2026-06-18: `pre_order_gate.py` now delegates to `backtest/lib/risk_gate.check_order` — the SINGLE risk-rule implementation shared by backtest + live. The BLOCK reason carries a stable code, e.g. `[RISK_CAP]` / `[MAX_PREMIUM_TIER]` / `[MIN_CONTRACTS]`.)*
    If output starts with **"PASS"**: proceed to step 5.
 
 5. **Pre-trade thesis to journal**: hypothesis, strike, delta, IV, mid, spread, qty, stop, TP1, runner condition. Include `liquidity_downsized: true|false` flag derived from step 3.
 
 6. **Compute broker stop price (FIX 2 2026-06-15 — MANDATORY, NEVER null)**:
-   - BEAR (put): `stop_loss_price = round(premium_mid × 0.90, 2)` — broker disaster stop at −10% (TIGHTER_STOP 2026-06-17)
-   - BULL (call): `stop_loss_price = round(premium_mid × 0.92, 2)` — broker disaster stop at −8%
-   This is NOT the chart stop (managed per-tick). This is the broker-side safety net for blinded-heartbeat cases (rate limit, process crash). Setting `stop_loss=null` is a critical bug — the 2026-06-15 runner was unmanaged for 2h because the stop was absent.
+   - BEAR (put): `stop_loss_price = round(premium_mid × (1 + params.premium_stop_pct_bear), 2)` = `× 0.50` (−50% catastrophe cap, CHART-STOP-PRIMARY 2026-06-18; was × 0.90 / −10%)
+   - BULL (call): `stop_loss_price = round(premium_mid × (1 + params.premium_stop_pct), 2)` = `× 0.50` (−50% catastrophe cap; was × 0.92 / −8%)
+   This is the broker-side CATASTROPHE backstop (a wide bracket leg), NOT the chart stop. The chart stop, ribbon-flip-back, and profit-lock chandelier are managed per-tick and are the PRIMARY exits (they will almost always fire before this −50% leg). This wide leg exists only for blinded-heartbeat cases (rate limit, process crash) so a runaway loss is still capped. Setting `stop_loss=null` is a critical bug — the 2026-06-15 runner was unmanaged for 2h because the stop was absent. **Revert:** restore × 0.90 / × 0.92 when `params.json` stops revert to −10%/−8%.
 
 7. **Bracket order**: `mcp__alpaca__place_option_order` with `order_class="bracket"`, parent limit at `premium_mid`, take_profit at `tp1_price`, `stop_loss=stop_loss_price` (from step 6). **NEVER set stop_loss to null or omit it.** Fall back to `order_class="oto"` only if bracket is rejected by the API — in that case log `broker_stop_leg=false, note="oto_fallback_no_disaster_stop"` in position JSON so the next tick knows stop management is entirely heartbeat-owned.
 8. **Record + emit** (THREE writes — all required before emitting):
