@@ -1,30 +1,27 @@
 {
-  "_doc": "AGGRESSIVE STRATEGY — second paper account (alpaca_aggressive MCP). Higher risk, wider stops, relaxed time gates. Safe strategy params: automation/state/params.json. Rule mismatch between this file and automation/prompts/aggressive/heartbeat.md embedded constants is a kill-switch event.",
-
+  "_doc": "AGGRESSIVE STRATEGY - second paper account (alpaca_aggressive MCP). Higher risk, wider stops, relaxed time gates. Safe strategy params: automation/state/params.json. Rule mismatch between this file and automation/prompts/aggressive/heartbeat.md embedded constants is a kill-switch event.",
   "schema_version": 3,
   "rule_version": "v15.2",
   "rule_version_ratified_at": "2026-05-18",
-  "rule_version_notes": "Bumped from v14-aggressive to v15.1 on 2026-05-14 evening. Intentional aggressive differences preserved: -15% stop, +50% TP1, 75% risk cap, 09:40 entry gate, ITM-1 strike, VIX hard cap 30, 15:50 time stop on open positions. v15.1 additions applied: (a) closed-bar filter R1 — TV in-progress bar discarded via bar_close_et = bar.time+5min <= now_et; (b) entry cutoff 15:00 ET (entries blocked after 15:00, open positions still held to 15:50).",
-
+  "rule_version_notes": "Bumped from v14-aggressive to v15.1 on 2026-05-14 evening. Intentional aggressive differences preserved: -15% stop, +50% TP1, 75% risk cap, 09:40 entry gate, ITM-1 strike, VIX hard cap 30, 15:50 time stop on open positions. v15.1 additions applied: (a) closed-bar filter R1 - TV in-progress bar discarded via bar_close_et = bar.time+5min <= now_et; (b) entry cutoff 15:00 ET (entries blocked after 15:00, open positions still held to 15:50).",
   "heartbeat_interval_minutes": 3,
-
-  "_exits_section": "v15.1 Bold-aligned 2026-05-17 (weekend update per rule 9, OP-4 drift fix). Synced to params_bold.json per CLAUDE.md account-context table (Bold = 50% risk, +75% TP1, ITM-2). Asymmetric stop: bear -15% (wide), bull -5% (tight). TP1 +75% taking 1/3 off, runner to 5x.",
-  "premium_stop_pct": -0.15,
-  "premium_stop_multiplier": 0.85,
-  "premium_stop_pct_bear": -0.15,
+  "_exits_section": "v15.1 Bold-aligned 2026-05-17 + Rank-31 2026-06-16 + TIGHTER_STOP 2026-06-17 + TIGHTER_STOP_2 2026-06-17. Asymmetric stop: bear -7% (TIGHTER_STOP_2: -0.10->-0.07, WF=0.725, scorecard: analysis/recommendations/agg-premium-stop-07.json), bull -5% (tight). TP1 +75% taking 2/3 off (66.7% at TP1, 1/3 runner). Time stop 15:40 ET (L110). Runner target 5x. Rank 31 J authorized 2026-06-16.",
+  "premium_stop_pct": -0.07,
+  "premium_stop_multiplier": 0.93,
+  "premium_stop_pct_bear": -0.07,
   "premium_stop_pct_bull": -0.05,
   "tp1_premium_pct": 0.75,
   "tp1_premium_multiplier": 1.75,
-  "tp1_qty_fraction": 0.333,
+  "tp1_qty_fraction": 0.667,
   "runner_be_stop_after_tp1": true,
   "exit_all_on_runner_signal_if_tp1_unfired": true,
   "runner_max_premium_pct": 5.0,
-  "chart_stop_buffer_dollars": 0.50,
+  "chart_stop_buffer_dollars": 0.5,
   "ribbon_flip_back_requires_opposite_stack": true,
   "ribbon_flip_back_min_spread_cents": 30,
-  "time_stop_et": "15:50",
-
-  "_entry_section": "v15.1 entry window [09:35, 15:00) ET continuous, aligned with Safe per params_bold.json. No mid-day blackout. Bull trigger bar lowered to ≥1 (vs ≥2 safe). Defensive level-tied still required.",
+  "time_stop_et": "15:40",
+  "time_stop_minutes_before_close": 20,
+  "_entry_section": "v15.1 entry window [09:35, 15:00) ET continuous, aligned with Safe per params_bold.json. No mid-day blackout. Bull trigger bar lowered to >=1 (vs >=2 safe). Defensive level-tied still required.",
   "entry_no_trade_before_et": "09:35",
   "entry_no_trade_after_et": "15:00",
   "entry_no_trade_window_et": [],
@@ -34,52 +31,90 @@
   "filter_10_level_tied_required": true,
   "ribbon_min_spread_cents": 30,
   "strike_offset_itm": 2,
-  "max_premium_per_contract": 5.00,
-
-  "_vix_section": "Wider VIX bands — trade in higher volatility. Bear can enter at lower VIX (15.00 vs 17.30). Bull hard cap raised to 30 (vs 22).",
+  "max_premium_per_contract": 5.0,
+  "_vix_section": "Wider VIX bands - trade in higher volatility. Bear can enter at lower VIX (15.00 vs 17.30). Bull hard cap raised to 30 (vs 22).",
   "vix_iv_regime_bands": {
-    "low": { "max_exclusive": 15, "label": "LOW" },
-    "mid": { "min_inclusive": 15, "max_inclusive": 25, "label": "MID" },
-    "high": { "min_exclusive": 25, "label": "HIGH" }
+    "low": {
+      "max_exclusive": 15,
+      "label": "LOW"
+    },
+    "mid": {
+      "min_inclusive": 15,
+      "max_inclusive": 25,
+      "label": "MID"
+    },
+    "high": {
+      "min_exclusive": 25,
+      "label": "HIGH"
+    }
   },
   "vix_entry_thresholds": {
-    "bull_max_exclusive_or_falling": 20.00,
-    "bear_min_exclusive_and_rising": 15.00,
-    "bull_hard_cap": 30.00
+    "bull_max_exclusive_or_falling": 20.0,
+    "bear_min_exclusive_and_rising": 15.0,
+    "bull_hard_cap": 30.0
   },
   "vix_dir_deadband": 0.05,
-
-  "_sizing_section": "Larger base sizing across all tiers. No quality scaling distinction — every setup gets full size.",
+  "_sizing_section": "Larger base sizing across all tiers. No quality scaling distinction - every setup gets full size.",
   "min_contracts": 5,
   "position_sizing_tiers": [
-    { "equity_min": 0,     "equity_max": 2000,      "base_qty": 5,  "elite_qty": 5,  "structure": "3 TP1 + 1 conservative + 1 aggressive runner" },
-    { "equity_min": 2000,  "equity_max": 10000,     "base_qty": 8,  "elite_qty": 12, "structure": "5 TP1 + 2 conservative + 1 aggressive runner" },
-    { "equity_min": 10000, "equity_max": 999999999, "base_qty": 15, "elite_qty": 20, "structure": "9 TP1 + 3 conservative + 3 aggressive runners" }
+    {
+      "equity_min": 0,
+      "equity_max": 2000,
+      "base_qty": 5,
+      "elite_qty": 5,
+      "structure": "3 TP1 + 1 conservative + 1 aggressive runner"
+    },
+    {
+      "equity_min": 2000,
+      "equity_max": 10000,
+      "base_qty": 8,
+      "elite_qty": 12,
+      "structure": "5 TP1 + 2 conservative + 1 aggressive runner"
+    },
+    {
+      "equity_min": 10000,
+      "equity_max": 999999999,
+      "base_qty": 15,
+      "elite_qty": 20,
+      "structure": "9 TP1 + 3 conservative + 3 aggressive runners"
+    }
   ],
-
   "_risk_section": "v15.1 Bold-aligned 2026-05-17: per_trade=50%, kill=50% (synced from params_bold.json per CLAUDE.md account-context table). Behavioral lock: one max-loss = day done.",
-  "per_trade_risk_cap_pct": 0.50,
-  "daily_loss_kill_switch_pct": 0.50,
-
-  "_first_entry_rule_section": "Same re-entry rules as safe — stops block re-entry on same setup.",
+  "per_trade_risk_cap_pct": 0.5,
+  "daily_loss_kill_switch_pct": 0.5,
+  "_first_entry_rule_section": "Same re-entry rules as safe - stops block re-entry on same setup.",
   "first_entry_after_stop_blocked": true,
   "first_entry_after_tp_size_reduction": 1,
-
-  "_macro_section": "Same macro hard veto windows as safe — no trading into FOMC/CPI/NFP.",
+  "_macro_section": "Same macro hard veto windows as safe - no trading into FOMC/CPI/NFP.",
   "macro_hard_veto_minutes": 120,
   "macro_soft_modifier_minutes": 240,
   "macro_soft_bull_threshold": 10,
   "macro_soft_bear_threshold": 7,
-
   "_liquidity_gate_section": "Slightly looser spread tolerance for higher-premium options.",
   "bid_ask_spread_max_cents": 12,
   "bid_ask_spread_max_pct_of_mid": 0.12,
   "delta_min_abs": 0.25,
-  "delta_max_abs": 0.60,
+  "delta_max_abs": 0.6,
   "open_interest_min": 300,
   "liquidity_strike_retries_max": 2,
-
   "_session_timing_section": "Same EOD/review timing as safe strategy.",
   "eod_flatten_et": "15:55",
-  "eod_summary_et": "16:00"
+  "eod_summary_et": "16:00",
+  "block_level_rejection": false,
+  "_block_level_rejection_doc": "REMOVED 2026-06-18: require_bearish_fill_bar superseded this gate. WF 1/6 OOS stable (fold5=-249, fold6=-500). 4-way A/B in 5-gate context: IS+45 n_chg=0 (gate blocking 0 IS trades), OOS+500 n_chg=+1 (+$500 level_rejection bear now wins). All OP-22 gates pass: G1 PASS(+45), G2 PASS(+500), G3=n/a(n_is=0), G4 PASS(1/3 hurt), G5 PASS(anchors unchanged). C15: fill_bar already filters weak level_rejection bears; survivors are winners. Scorecard: analysis/recommendations/agg_wf_gate_removal_2026_06_18.json. Revert: set true.",
+  "block_elite_bull": true,
+  "block_elite_bull_vix_low": 15.0,
+  "block_elite_bull_vix_high": 18.0,
+  "_block_elite_bull_doc": "BLOCK_ELITE_BULL_VIX15_18.0 (2026-06-18): extended from 17.5->18.0. Block ELITE+confluence (BULL) entries when 15 <= VIX < 18.0. Prior 17.5 ratified 2026-06-17 (IS +$5,355, OOS +$165, 4 blocked OOS losers). Extension 17.5->18.0: IS delta=0 (no IS trades in 17.5-18.0 range), OOS delta=+$744 (4 ELITE C losers blocked + 1 TRENDLINE P winner unlocked via cascade). SW_hurt=0, anchor unchanged. G3/WF=N/A structural (no IS trades in bucket). Ratified per J standing directive + BLOCK_ELITE_BULL precedent. Revert: set block_elite_bull_vix_high=17.5. Scorecard: analysis/recommendations/block_elite_bull_vix_high_18.json.",
+  "_tighter_stop_doc": "TIGHTER_STOP ratified 2026-06-17: -0.15 -> -0.10 (aligned with safe account). Consistent direction with IS+OOS improvement on safe (-0.20->-0.10). Scorecard: analysis/recommendations/tighter-stop-01.json. Auto-ratified per OP-22. Revert: set -0.15 and multiplier 0.85.",
+  "midday_trendline_gate": false,
+  "_midday_trendline_gate_doc": "REMOVED 2026-06-18: require_bearish_fill_bar supersedes this gate. 6-fold WF showed gate harmful in every 2-month OOS window (0/6). 4-way A/B: IS +4552 (+80 trades), OOS +81 (+5 trades), WR 55.6%->65.2%, SW_hurt=0/3. C15 interaction: fill_bar already filters the weak trendline entries this gate targeted; survivors are winners. Scorecard: analysis/recommendations/agg_wf_gate_removal_2026_06_18.json. Revert: set true.",
+  "block_conf_lvl_rec_afternoon": true,
+  "_block_conf_lvl_rec_afternoon_doc": "KEPT but DEAD (0 impact in all contexts): $0 delta in all 6 WF folds and 4-way A/B - gate is fully superseded by block_conf_lvl_rej_midday_afternoon (which blocks the superset). Harmless to keep. Original ratification 2026-06-17: IS_delta=+$468, OOS_delta=+$176. Revert: n/a (zero impact).",
+  "block_conf_lvl_rej_midday_afternoon": false,
+  "_block_conf_lvl_rej_midday_afternoon_doc": "REMOVED 2026-06-18: never helped OOS when it fired. WF 0/6 (fold2=-495, fold6=-67, all others=0). 4-way A/B: IS +1020 (+6 trades), OOS +67 (+1 trade), SW_hurt=0/3. require_bearish_fill_bar changed trade composition - conf+lvl_rej trades that pass fill_bar are now quality trades this gate was blocking. Scorecard: analysis/recommendations/agg_wf_gate_removal_2026_06_18.json. Revert: set true.",
+  "require_bearish_fill_bar": true,
+  "_require_bearish_fill_bar_doc": "ENFORCED-5 RULE-9-1 J-RATIFIED 2026-06-17 (J: 'i apprve to ad d this'): one-bar bearish fill bar confirmation gate. After BEAR signal fires (all gates pass), wait one tick. If fill bar N+1 closes BEARISH -> enter. If BULLISH/doji close -> BEAR_FILL_BAR_SKIP. If >2 ticks elapsed -> BEAR_FILL_BAR_EXPIRED. IS n=105->79 (-26 stops removed), IS_delta=+$363; OOS n=18->15, OOS_delta=+$1,153 (+$238->+$1,391). WF=18.522. SW_hurt=1/4. ANCHOR=PASS. Safe: REJECT (IS_delta=-$860, anchor FAIL). Scorecard: analysis/recommendations/fill-bar-gate-sweep.json. Revert: set false.",
+  "block_bull_morning_agg": true,
+  "_block_bull_morning_agg_doc": "BLOCK_BULL_MORNING_AGG (2026-06-18, extended 2026-06-18): block ALL BULL (C) entries in 10:00-11:30 ET AND >=14:00 ET (AFTERNOON + POWER_HOUR). Aggressive account only. MORNING IS: n=47, WR=14.9%, total=-$222. AFTERNOON IS: n=6, WR=0%, total=-$82. POWER_HOUR IS: n=3, WR=33%, total=-$45 (aligns backtest with live entry_no_trade_after_et=15:00). 4-way A/B cascade-adjusted: IS n=169->129 (-40 net), IS_delta=+$384; OOS n=21->18 (-3), OOS_delta=+$82 (MORNING: 2026-05-26 +$0, 2026-05-28 -$40; POWER_HOUR: 2026-05-27 -$42). OP-22: G1=PASS(+384), G2=PASS(+82), G3=WF=2.837 PASS, G4=SW_hurt=1/3 PASS (SW1 -$126 cascade), G5=PASS (all anchors bear-only, unchanged). OOS WR 47.6%->55.6% (above 45% live threshold). Candidate: IS n=129 pnl=+$4,346, OOS n=18 pnl=+$1,210. Auto-ratified 2026-06-18 per OP-22 + J directive. Scorecard: analysis/recommendations/agg_block_bull_morning_afternoon.json. Revert: set false."
 }

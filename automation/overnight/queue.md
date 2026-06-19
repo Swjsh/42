@@ -60,6 +60,37 @@ Budget: ~$50 (no cap). Spawn 3-5 subagents per fire when justified. Sonnet defau
 - [x] T-2026-05-21-SWARM-DATA-FETCHER-TIMING (MED) DONE 2026-05-20T23:05 :: Gamma_SwarmPremarket moved 08:10→08:15 ET via Set-ScheduledTask. SCHEDULED-TASKS.md registry updated. runner.py comment updated with data_fetcher timeout explanation. Next fire: 2026-05-21 08:15 ET — first live test of fix + first live test of 13-agent Stage 2 pool. :: status:done
 
 ## CRITICAL
+- [ ] HARVEST-REGFAIL-20260618-100011 (CRIT) :: regression RED at 2026-06-17T10:27:15.945920+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-17T10:27:15.945920+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100012 (CRIT) :: regression RED at 2026-06-17T10:57:15.917733+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-17T10:57:15.917733+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100013 (CRIT) :: regression RED at 2026-06-17T12:57:15.954824+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-17T12:57:15.954824+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100014 (CRIT) :: regression RED at 2026-06-18T02:57:16.706566+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T02:57:16.706566+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100015 (CRIT) :: regression RED at 2026-06-18T03:27:16.161321+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T03:27:16.161321+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100016 (CRIT) :: regression RED at 2026-06-18T03:33:22.853172+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T03:33:22.853172+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100017 (CRIT) :: regression RED at 2026-06-18T03:34:11.118820+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T03:34:11.118820+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100018 (CRIT) :: regression RED at 2026-06-18T03:34:28.919293+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T03:34:28.919293+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100019 (CRIT) :: regression RED at 2026-06-18T03:34:30.751906+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T03:34:30.751906+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100020 (CRIT) :: regression RED at 2026-06-18T03:34:56.652859+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T03:34:56.652859+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100021 (CRIT) :: regression RED at 2026-06-18T03:35:13.391851+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T03:35:13.391851+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100022 (CRIT) :: regression RED at 2026-06-18T03:35:33.564442+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T03:35:33.564442+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100023 (CRIT) :: regression RED at 2026-06-18T03:39:17.299811+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T03:39:17.299811+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100024 (CRIT) :: regression RED at 2026-06-18T03:39:39.330339+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T03:39:39.330339+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100025 (CRIT) :: regression RED at 2026-06-18T03:57:16.073757+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T03:57:16.073757+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100026 (CRIT) :: regression RED at 2026-06-18T04:27:16.028509+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T04:27:16.028509+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100027 (CRIT) :: regression RED at 2026-06-18T04:57:16.086236+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T04:57:16.086236+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100028 (CRIT) :: regression RED at 2026-06-18T05:27:16.007935+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T05:27:16.007935+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100029 (CRIT) :: regression RED at 2026-06-18T05:57:16.022091+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T05:57:16.022091+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100030 (CRIT) :: regression RED at 2026-06-18T06:27:16.020803+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T06:27:16.020803+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100031 (CRIT) :: regression RED at 2026-06-18T06:57:16.028531+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T06:57:16.028531+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100032 (CRIT) :: regression RED at 2026-06-18T07:27:16.041631+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T07:27:16.041631+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100033 (CRIT) :: regression RED at 2026-06-18T07:57:16.046296+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T07:57:16.046296+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100034 (CRIT) :: regression RED at 2026-06-18T08:27:16.053784+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T08:27:16.053784+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100035 (CRIT) :: regression RED at 2026-06-18T08:57:16.043776+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T08:57:16.043776+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260618-100036 (CRIT) :: regression RED at 2026-06-18T09:27:16.103479+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-18T09:27:16.103479+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260617-100026 (CRIT) :: regression RED at 2026-06-17T09:57:16.918412+00:00 | failed stages: v25_filter_gates.offline | passed=83/84 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-17T09:57:16.918412+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260616-100020 (CRIT) :: regression RED at 2026-06-16T00:33:31.759043+00:00 | failed stages: v41_midday_trendline_gate.live | passed=78/79 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-16T00:33:31.759043+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260616-100021 (CRIT) :: regression RED at 2026-06-16T00:46:29.251553+00:00 | failed stages: v42_sizing_risk_cap_guard.offline | passed=80/81 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-16T00:46:29.251553+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260616-100022 (CRIT) :: regression RED at 2026-06-16T00:51:26.159602+00:00 | failed stages: v43_ghost_entry_dual_account.offline | passed=82/83 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-16T00:51:26.159602+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGFAIL-20260616-100023 (CRIT) :: regression RED at 2026-06-16T00:51:55.110700+00:00 | failed stages: v43_ghost_entry_dual_account.offline | passed=82/83 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-06-16T00:51:55.110700+00:00 :: depends:none :: status:queued
 - [ ] HARVEST-REGFAIL-20260601-100019 (CRIT) :: regression RED at 2026-05-31T10:27:16.654951+00:00 | failed stages: v01_closed_bar.live,v02_source_parity,v03_indicators.live,v04_candlesticks.live,v05_levels.live,v06_trendlines.live,v07_volume.live,v08_ribbon.live,v09_regime.live,v10_divergence.live,v11_breakout.live,v12_multi_timeframe.live,v14_sweep.live,v15_three_source_parity.live | passed=64/78 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-05-31T10:27:16.654951+00:00 :: depends:none :: status:queued
 - [ ] HARVEST-REGFAIL-20260601-100020 (CRIT) :: regression RED at 2026-05-31T10:57:16.689448+00:00 | failed stages: v01_closed_bar.live,v02_source_parity,v03_indicators.live,v04_candlesticks.live,v05_levels.live,v06_trendlines.live,v07_volume.live,v08_ribbon.live,v09_regime.live,v10_divergence.live,v11_breakout.live,v12_multi_timeframe.live,v14_sweep.live,v15_three_source_parity.live | passed=64/78 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-05-31T10:57:16.689448+00:00 :: depends:none :: status:queued
 - [ ] HARVEST-REGFAIL-20260601-100021 (CRIT) :: regression RED at 2026-05-31T11:27:16.661192+00:00 | failed stages: v01_closed_bar.live,v02_source_parity,v03_indicators.live,v04_candlesticks.live,v05_levels.live,v06_trendlines.live,v07_volume.live,v08_ribbon.live,v09_regime.live,v10_divergence.live,v11_breakout.live,v12_multi_timeframe.live,v14_sweep.live,v15_three_source_parity.live | passed=64/78 — CRITICAL gate breach :: key=EDGE_REGRESSION_FAIL:2026-05-31T11:27:16.661192+00:00 :: depends:none :: status:queued
@@ -296,6 +327,48 @@ Budget: ~$50 (no cap). Spawn 3-5 subagents per fire when justified. Sonnet defau
 
 ## HARVESTED-FROM-GYM (auto-queued by crypto/benchmarks/gym_harvester.py)
 
+- [ ] HARVEST-REGIMEEXT-20260618-100037 (LOW) :: v09_regime TREND_DOWN dominant: 58/80 bars (72%) | last_regime=TREND_DOWN atr_14=103 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-17T10:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260618-100038 (LOW) :: v09_regime TREND_DOWN dominant: 57/80 bars (71%) | last_regime=TREND_DOWN atr_14=89 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-17T11:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260618-100039 (LOW) :: v09_regime TREND_DOWN dominant: 65/81 bars (80%) | last_regime=TREND_UP atr_14=86 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-17T12:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260618-100040 (LOW) :: v09_regime TREND_DOWN dominant: 60/80 bars (75%) | last_regime=TREND_UP atr_14=105 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-17T13:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260618-100041 (LOW) :: v09_regime TREND_DOWN dominant: 56/80 bars (70%) | last_regime=TREND_UP atr_14=123 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-17T14:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260618-100042 (LOW) :: v09_regime TREND_UP dominant: 56/80 bars (70%) | last_regime=TREND_UP atr_14=177 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-17T16:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260618-100043 (LOW) :: v09_regime TREND_UP dominant: 57/80 bars (71%) | last_regime=TREND_UP atr_14=173 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-17T17:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260618-100044 (LOW) :: v09_regime TREND_UP dominant: 65/81 bars (80%) | last_regime=TREND_UP atr_14=150 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-17T18:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-FOOTGUN-20260618-100045 (MED) :: v01_live foot-gun caught at bar_open=2026-06-17T18:00:00+00:00 | bars_rejected=1 secs_until_close=152.59347 close_drift_naive_vs_filtered=-521.55 [EXCEEDS 500c threshold — investigate] :: key=EDGE_FOOT_GUN_CAUGHT:2026-06-17T18:00:00+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260618-100046 (LOW) :: v09_regime TREND_UP dominant: 64/81 bars (79%) | last_regime=TREND_DOWN atr_14=254 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-17T19:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-BRKCLUSTER-20260618-100047 (MED) :: v11_breakout 3 breaks in 99-bar window (up=1 down=2) across 0 levels — high-activity price action cluster :: key=EDGE_BREAKOUT_CLUSTER:2026-06-17T22:00:00+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-BRKCLUSTER-20260618-100048 (MED) :: v11_breakout 3 breaks in 100-bar window (up=1 down=2) across 0 levels — high-activity price action cluster :: key=EDGE_BREAKOUT_CLUSTER:2026-06-17T23:00:00+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260618-100049 (MED) :: BTC v03_indicators rsi_14=18.98 (oversold) at last_close=63910.3 bin=2026-06-18T04:15:00+00:00 :: key=EDGE_RSI_EXTREME:2026-06-18T04:15:00+00:00:oversold :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260618-100050 (MED) :: BTC v03_indicators rsi_14=17.04 (oversold) at last_close=63828.94 bin=2026-06-18T04:20:00+00:00 :: key=EDGE_RSI_EXTREME:2026-06-18T04:20:00+00:00:oversold :: depends:none :: status:queued
+- [ ] HARVEST-SWEEP-20260618-100051 (MED) :: v14_sweep liquidity-grab at level=65000 dir=down bar_idx=9 | wick_excess=0.3779% close_back=0.6368% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-06-18T09:57:16.081900+00:00:65000:down:9 :: depends:none :: status:queued
+- [ ] HARVEST-SWEEP-20260618-100052 (MED) :: v14_sweep liquidity-grab at level=64000 dir=down bar_idx=30 | wick_excess=0.0234% close_back=0.1702% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-06-18T09:57:16.081900+00:00:64000:down:30 :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260617-100027 (LOW) :: v09_regime TREND_UP dominant: 61/81 bars (75%) | last_regime=TREND_DOWN atr_14=98 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-16T11:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260617-100028 (LOW) :: v09_regime TREND_DOWN dominant: 57/80 bars (71%) | last_regime=TREND_DOWN atr_14=139 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-16T16:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260617-100029 (LOW) :: v09_regime TREND_DOWN dominant: 61/81 bars (75%) | last_regime=TREND_DOWN atr_14=117 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-16T17:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260617-100030 (LOW) :: v09_regime TREND_DOWN dominant: 57/81 bars (70%) | last_regime=TREND_DOWN atr_14=115 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-16T19:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260617-100031 (LOW) :: v09_regime TREND_DOWN dominant: 58/81 bars (72%) | last_regime=TREND_DOWN atr_14=110 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-16T20:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260617-100032 (LOW) :: v09_regime TREND_DOWN dominant: 57/80 bars (71%) | last_regime=TREND_DOWN atr_14=103 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-17T09:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-RIBBONFLIP-20260617-100033 (MED) :: v08_ribbon flip MIXED -> BEAR | spread=360.74>100 | recent dist BULL=30 BEAR=76 MIXED=93 :: key=EDGE_RIBBON_FLIP:2026-06-17T09:00:00+00:00:BEAR :: depends:none :: status:queued
+- [ ] HARVEST-SWEEP-20260617-100034 (MED) :: v14_sweep liquidity-grab at level=66000 dir=down bar_idx=11 | wick_excess=0.0718% close_back=0.0612% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-06-17T09:57:16.918412+00:00:66000:down:11 :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260616-100024 (MED) :: BTC v03_indicators rsi_14=80.16 (overbought) at last_close=66270.8 bin=2026-06-15T11:25:00+00:00 :: key=EDGE_RSI_EXTREME:2026-06-15T11:25:00+00:00:overbought :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260616-100025 (MED) :: BTC v03_indicators rsi_14=81.34 (overbought) at last_close=66780.57 bin=2026-06-15T13:20:00+00:00 :: key=EDGE_RSI_EXTREME:2026-06-15T13:20:00+00:00:overbought :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260616-100026 (MED) :: BTC v03_indicators rsi_14=83.14 (overbought) at last_close=66864.0 bin=2026-06-15T13:25:00+00:00 :: key=EDGE_RSI_EXTREME:2026-06-15T13:25:00+00:00:overbought :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260616-100027 (LOW) :: v09_regime TREND_UP dominant: 58/80 bars (72%) | last_regime=TREND_UP atr_14=118 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-15T15:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260616-100028 (LOW) :: v09_regime TREND_UP dominant: 63/81 bars (78%) | last_regime=TREND_UP atr_14=136 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-15T16:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260616-100029 (LOW) :: v09_regime TREND_UP dominant: 68/81 bars (84%) | last_regime=TREND_UP atr_14=123 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-15T17:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-BRKCLUSTER-20260616-100030 (MED) :: v11_breakout 3 breaks in 99-bar window (up=2 down=1) across 0 levels — high-activity price action cluster :: key=EDGE_BREAKOUT_CLUSTER:2026-06-15T17:00:00+00:00 :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260616-100031 (LOW) :: v09_regime TREND_UP dominant: 62/81 bars (77%) | last_regime=TREND_DOWN atr_14=124 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-15T18:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260616-100032 (LOW) :: v09_regime TREND_DOWN dominant: 56/80 bars (70%) | last_regime=TREND_DOWN atr_14=101 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-15T23:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260616-100033 (LOW) :: v09_regime TREND_DOWN dominant: 59/81 bars (73%) | last_regime=TREND_UP atr_14=92 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-16T00:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260616-100034 (LOW) :: v09_regime TREND_DOWN dominant: 56/80 bars (70%) | last_regime=TREND_UP atr_14=87 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-16T01:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260616-100035 (LOW) :: v09_regime TREND_DOWN dominant: 58/81 bars (72%) | last_regime=TREND_DOWN atr_14=75 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-16T02:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260616-100036 (MED) :: BTC v03_indicators rsi_14=19.82 (oversold) at last_close=65730.12 bin=2026-06-16T02:30:00+00:00 :: key=EDGE_RSI_EXTREME:2026-06-16T02:30:00+00:00:oversold :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260616-100037 (LOW) :: v09_regime TREND_DOWN dominant: 57/81 bars (70%) | last_regime=TREND_DOWN atr_14=99 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-16T03:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260616-100038 (LOW) :: v09_regime TREND_UP dominant: 56/80 bars (70%) | last_regime=TREND_UP atr_14=112 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-16T08:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260616-100039 (LOW) :: v09_regime TREND_UP dominant: 57/81 bars (70%) | last_regime=TREND_UP atr_14=112 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-16T09:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260616-100040 (LOW) :: v09_regime TREND_UP dominant: 62/81 bars (77%) | last_regime=TREND_DOWN atr_14=116 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-16T10:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-RIBBONFLIP-20260616-100041 (MED) :: v08_ribbon flip MIXED -> BULL | spread=163.51>100 | recent dist BULL=43 BEAR=60 MIXED=97 :: key=EDGE_RIBBON_FLIP:2026-06-16T09:00:00+00:00:BULL :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260615-100018 (LOW) :: v09_regime TREND_DOWN dominant: 63/80 bars (79%) | last_regime=CHOP atr_14=53 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-14T19:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260615-100019 (LOW) :: v09_regime TREND_DOWN dominant: 63/81 bars (78%) | last_regime=CHOP atr_14=51 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-06-14T20:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
 - [ ] HARVEST-RSIEXTREME-20260615-100020 (MED) :: BTC v03_indicators rsi_14=90.49 (overbought) at last_close=64705.23 bin=2026-06-14T21:20:00+00:00 :: key=EDGE_RSI_EXTREME:2026-06-14T21:20:00+00:00:overbought :: depends:none :: status:queued
@@ -962,5 +1035,130 @@ Context: J ratified MiniMax M2 integration tonight. M2 default, $5/day cap, "sti
 
 **Audits failing:**
 - pin-chain-verify (RED): rule_version=unknown, drifts=0
+
+**Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.
+
+### T-GYM-20260615 HIGH gym-session RED for 2026-06-15
+
+**Audits failing:**
+- heartbeat-tick-audit (MISSING): tick-audit output not found
+- pin-chain-verify (RED): rule_version=unknown, drifts=0
+- watcher-state-inspector (MISSING): watcher-state output not found
+
+**Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.
+
+### T-GYM-20260615 HIGH gym-session RED for 2026-06-15
+
+**Audits failing:**
+- chart-data-verify (RED): 5 bars checked, max div $1.4000
+- pin-chain-verify (RED): rule_version=unknown, drifts=0
+
+**Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.
+
+### T-GYM-20260615 HIGH gym-session RED for 2026-06-15
+
+**Audits failing:**
+- pin-chain-verify (RED): rule_version=unknown, drifts=0
+
+**Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.
+
+### T-GYM-20260615 HIGH gym-session RED for 2026-06-15
+
+**Audits failing:**
+- pin-chain-verify (RED): rule_version=unknown, drifts=0
+
+**Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.
+
+### T-GYM-20260615 HIGH gym-session RED for 2026-06-15
+
+**Audits failing:**
+- pin-chain-verify (RED): rule_version=unknown, drifts=0
+
+**Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.
+
+### T-GYM-20260615 HIGH gym-session RED for 2026-06-15
+
+**Audits failing:**
+- pin-chain-verify (RED): rule_version=unknown, drifts=0
+
+**Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.
+
+### T-GYM-20260615 HIGH gym-session RED for 2026-06-15
+
+**Audits failing:**
+- pin-chain-verify (RED): rule_version=unknown, drifts=0
+
+**Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.
+
+### T-GYM-20260615 HIGH gym-session RED for 2026-06-15
+
+**Audits failing:**
+- pin-chain-verify (RED): rule_version=unknown, drifts=0
+
+**Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.
+
+### T-GYM-20260615 HIGH gym-session RED for 2026-06-15
+
+**Audits failing:**
+- pin-chain-verify (RED): rule_version=unknown, drifts=0
+
+**Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.
+
+### T-GYM-20260615 HIGH gym-session RED for 2026-06-15
+
+**Audits failing:**
+- pin-chain-verify (RED): rule_version=unknown, drifts=0
+
+**Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.
+
+### T-GYM-20260616 HIGH gym-session RED for 2026-06-16
+
+**Audits failing:**
+- chart-data-verify (RED): 0 bars checked, max div $0.0000
+- heartbeat-tick-audit (MISSING): tick-audit output not found
+- pin-chain-verify (RED): rule_version=v15.3, mismatches=1
+- watcher-state-inspector (MISSING): watcher-state output not found
+
+**Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.
+
+### T-GYM-20260616 HIGH gym-session RED for 2026-06-16
+
+**Audits failing:**
+- chart-data-verify (RED): 0 bars checked, max div $0.0000
+- heartbeat-tick-audit (MISSING): tick-audit output not found
+- pin-chain-verify (RED): rule_version=v15.3, mismatches=1
+- watcher-state-inspector (MISSING): watcher-state output not found
+
+**Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.
+
+### T-GYM-20260616 HIGH gym-session RED for 2026-06-16
+
+**Audits failing:**
+- chart-data-verify (RED): 0 bars checked, max div $0.0000
+- heartbeat-tick-audit (MISSING): tick-audit output not found
+- pin-chain-verify (RED): rule_version=v15.3, mismatches=1
+- watcher-state-inspector (MISSING): watcher-state output not found
+
+**Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.
+
+### T-GYM-20260616 HIGH gym-session RED for 2026-06-16
+
+**Audits failing:**
+- chart-data-verify (RED): 5 bars checked, max div $0.2700
+- pin-chain-verify (RED): rule_version=v15.3, mismatches=1
+
+**Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.
+
+### T-GYM-20260617 HIGH gym-session RED for 2026-06-17
+
+**Audits failing:**
+- heartbeat-pulse-check (RED): max gap 15.02min
+
+**Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.
+
+### T-GYM-20260618 HIGH gym-session RED for 2026-06-18
+
+**Audits failing:**
+- heartbeat-pulse-check (RED): max gap 15.02min
 
 **Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.

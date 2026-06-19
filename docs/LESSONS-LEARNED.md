@@ -4085,3 +4085,31 @@ For time-of-day filtering (`.time()` comparisons) only, `tz_localize(None)` or d
 **Impact:** Without this fix, initial verdict was RATIFY (IS blocked 11 "bad" trades). With correct TZ, IS_delta=-11 (gate blocks 14 trades including 2 IS winners). Gate was REJECTED. Wrong TZ would have shipped a gate that removes IS edge.
 
 **Encoded in:** `backtest/safe_trendline_spread_ab_test.py` (corrected), `analysis/recommendations/safe_trendline_bear_spread_gate.json` (verdict REJECT), orchestrator.py MIN_TRENDLINE_BEAR_SPREAD_CENTS comment, STATUS.md CONTEXT-94. ALL subsequent A/B scripts in this session use correct TZ handling. OP-25 C7 (silent-success-is-failure).
+
+## L162 -- 2026-06-16: FOMC-eve VIX suppression — a high-bear-score / 0-trade / declining-VIX day is correct abstention, NOT a miss
+
+**Symptom:** 2026-06-16 (FOMC Day-1): bear score 8-9/10 sustained 10:33-15:00 ET, SPY fell ~$4.77 from session high to low, engine took 0 trades. Without context this reads as a missed bear day worth flagging to Chef as a coverage gap.
+
+**Root cause:** FOMC Day-1 sessions trigger institutional hedge-stripping — dealers long volatility (puts, VIX calls) unwind the day before a binary event they expect to be benign. This mechanically suppresses VIX even as the underlying drifts lower, producing "price down / VIX down" — the inverse of the normal SPY/VIX correlation. Filter_8 (VIX >= 17.30 AND rising) correctly blocked every bear entry: VIX was 15.82-16.16 all session (~140bps below gate). A bear put bought into a compressing-IV tape suffers further IV compression dragging against the position, absent fear premium, and theta running against it in both directions — exactly the low-premium / high-theta-drag environment filter_8 exists to refuse. The day looks like a miss only if you grade on SPY-price direction (L136/C3) instead of option-edge.
+
+**Fix:** No parameter change — doctrine encoding. (1) When reviewing EOD digests / pattern mining, a day with high bear scores + 0 trades + **VIX declining** is NOT a missed opportunity; it is correct abstention from a low-premium, high-theta-drag regime — do not queue it as a Chef coverage gap. (2) Hypothesis grading: track `FOMC_EVE_VIX_SUPPRESSION` ("0 trades is correct on FOMC Day-1 + VIX declining") across FOMC cycles. (3) This is a calendar-driven instance of the VIX-character-vs-level distinction (L73, C5): the gate is reading character correctly even though raw level alone wouldn't tell the whole story.
+
+**Encoded in:** `analysis/eod/2026-06-16.md` (Pattern observations), `journal/2026-06-16.md` (EOD reflection), `docs/LESSONS-LEARNED.md` L162, CLAUDE.md C5 row.
+
+**Detection:** future regression — if an EOD reviewer or Analyst flags a high-bear-score / 0-trade / declining-VIX session as a "missed bear day," that is a grading error (SPY-price edge mistaken for option edge). Cross-check VIX direction before classifying any 0-trade high-score day as a miss.
+
+**Related lessons:** C5 (VIX character > VIX level — L40,44,45,73,93,118,133,134,154), C3 (SPY-price edge != option edge — L58,74,100,136,148,149), L93 (BEARISH_REVERSAL fires in declining VIX for mean-reversion; bear *continuation* in declining VIX is a weaker, different setup).
+
+## L163 -- 2026-06-18: A dominant upstream quality filter supersedes downstream class-based blockers — re-validate ALL gates when a new entry filter joins the same trade pool
+
+**Symptom:** 6-fold walk-forward validation of AGG production gates revealed 3 gates each consistently hurting OOS (0/6 OOS passes): `midday_trendline_gate`, `block_conf_lvl_rej_midday_afternoon`, `block_level_rejection`. All three had been individually ratified via OP-22 with strong IS *and* OOS deltas at the time. After 4-way A/B confirmation all three were removed; combined effect AGG OOS WR 55.6% -> 68.0%, OOS P&L +$1,205 -> +$1,853 (+$648, +53.7%).
+
+**Root cause:** `require_bearish_fill_bar` (the dominant bear quality filter, ratified 2026-06-17) changed the *composition* of trades reaching the gate layer. Pre-fill-bar, the blocked classes (midday trendline bears, level_rejection bears, conf+lvl_rej midday/afternoon) were genuinely weak/stop-heavy, so blocking them was profitable. Post-fill-bar, every one of those classes must first pass the N+1 bar bearish confirmation, so the survivors are already high quality — and the downstream class-based blockers then remove exactly those quality-filtered winners. The C15 interaction is asymmetric: the fill_bar gate runs once at entry and can only pass/block; the class-based gates have no way to know fill_bar already verified quality, so they block unconditionally by class. The independent-ratification assumption fails whenever filters share the same trade pool.
+
+**Fix:** Removed `midday_trendline_gate`, `block_conf_lvl_rej_midday_afternoon`, `block_level_rejection` from AGG; retained `require_bearish_fill_bar` as the sole AGG bear quality filter. **Structural rule:** when adding a strong quality gate (entry confirmation, fill-quality check, momentum filter), immediately re-run 6-fold WF validation on ALL existing class-based gates in the same trade pool — any showing 0/6 OOS passes (consistently hurting across every window) are removal candidates via 4-way A/B. Do not wait for the full IS/OOS split to accumulate; the rolling WF surfaces this faster. **SAFE exception:** supersession is tied to which accounts share the upstream filter — `require_bearish_fill_bar` is AGG-only, so SAFE `midday_trendline_gate` remains STABLE (4/6) and stays.
+
+**Encoded in:** `analysis/recommendations/agg_wf_gate_removal_2026_06_18.json`, AGG `params.json` (3 gates removed), `docs/LESSONS-LEARNED.md` L163, CLAUDE.md C15 row.
+
+**Detection:** future regression — a gate that scores 0/6 OOS passes in a multi-gate WF run is redundant-or-harmful in the current context regardless of its original solo-ratification scorecard; investigate for C15 supersession before re-adding it. Whenever a new upstream entry filter ships, the WF re-validation of downstream class gates is mandatory, not optional.
+
+**Related lessons:** C15 (gates interact multiplicatively — trace session cascades — L07,08,09,66,95), L47 (broker is truth), L66 (gates cascade), L156 (chandelier is regime-conditional — same "context changes a previously-ratified knob" family).

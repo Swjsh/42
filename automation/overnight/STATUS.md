@@ -3995,7 +3995,7 @@ v38 (V14E chop zone gate) + v39 (ORB signal reader) both registered and passing.
 - v02 source parity drift RED: crypto harness validator disagreements_above_tolerance. Pre-existing. 69-70/70 stages still PASS. Fix: add 30s pre-bar guard to the v02 fetch.
 
 ## Kitchen
-Kitchen: alive, queue 41 pending, last cook 0 min ago, today $0.00, model=nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 40 pending, last cook 0 min ago, today $0.00, model=grinder-python
 
 ### Answer to "are you certain we will never hit rate limit?"
 **HIGH CONFIDENCE, not 100%.** I just audited the rate-limit firewall end-to-end and **found 2 critical bugs in the L3 exemption layer** — heartbeat would have starved AGAIN today if I hadn't checked. Both patched and smoke-tested before 09:30. Full audit details in the INFRASTRUCTURE FIREWALL section below.
@@ -6764,3 +6764,5 @@ Kitchen: alive, queue 26 pending, last cook 0 min ago, today $0.00, model=?
 - total: $36.47 (threshold $30.00)
 - claude: $36.47  minimax: $0.00
 - claude_sessions: 1
+
+- [2026-06-18 23:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.29% in last 24h (66/70) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v25_filter_gates.offline pass rate dropped to 90.0% in last 24h (63/70) :: see crypto/data/scorecards/drift_report.json

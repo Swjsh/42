@@ -156,7 +156,23 @@ MASTER_SPY = DATA / "spy_5m_2025-01-01_2026-05-22.csv"
 MASTER_VIX = DATA / "vix_5m_2025-01-01_2026-05-22.csv"
 PARAMS = REPO / "automation" / "state" / "params.json"
 _HAS_DATA = MASTER_SPY.exists() and MASTER_VIX.exists()
-_needs_data = pytest.mark.skipif(not _HAS_DATA, reason="master SPY/VIX CSV not present")
+
+
+def _needs_data(fn):
+    """Decorator for guards that load the master SPY/VIX CSV and run a full backtest.
+
+    These are the SLOW guards (each runs one or more end-to-end backtests; the full
+    file is data-heavy and exceeds the 600s per-edit hook budget). It bundles two
+    markers so a per-edit hook can run only the fast logic guards via `-m "not slow"`:
+      * skipif when the master CSV is absent, and
+      * pytest.mark.slow (so the nightly/manual run keeps exercising them).
+
+    Backtest-running guards that gate on an internal pytest.skip (rather than this
+    decorator) are tagged directly with @pytest.mark.slow.
+    """
+    fn = pytest.mark.slow(fn)
+    fn = pytest.mark.skipif(not _HAS_DATA, reason="master SPY/VIX CSV not present")(fn)
+    return fn
 
 
 def _load(start: str, end: str):
@@ -945,6 +961,7 @@ def test_l106_params_to_kwargs_null_duration_no_crash() -> None:
     )
 
 
+@pytest.mark.slow
 def test_l106_params_overrides_matches_direct_kwargs_n() -> None:
     """L106 (2026-06-17): params_overrides baseline must give same n as identical direct kwargs.
 
@@ -1016,6 +1033,7 @@ def test_l106_params_overrides_matches_direct_kwargs_n() -> None:
 # Guards below prevent re-use of the wrong scoring method.
 # ---------------------------------------------------------------------------
 
+@pytest.mark.slow
 def test_l107_real_fills_differs_from_bs_sim_on_oos_window() -> None:
     """L107 (2026-06-17): BS sim and real-fills produce materially different OOS P&L.
 
@@ -1096,6 +1114,7 @@ def test_l107_ribbon_momentum_gate_ab_scorecard_correct_params() -> None:
     )
 
 
+@pytest.mark.slow
 def test_l108_tp1_qty_fraction_wired_in_real_fills() -> None:
     """L108 (2026-06-17): tp1_qty_fraction must be live in simulate_trade_real.
 
@@ -1143,6 +1162,7 @@ def test_l108_tp1_qty_fraction_wired_in_real_fills() -> None:
     )
 
 
+@pytest.mark.slow
 def test_l109_runner_target_wired_in_real_fills() -> None:
     """L109 (2026-06-17): runner_target_premium_pct must be live in simulate_trade_real.
 
@@ -1190,6 +1210,7 @@ def test_l109_runner_target_wired_in_real_fills() -> None:
     )
 
 
+@pytest.mark.slow
 def test_l110_time_stop_minutes_wired_in_real_fills() -> None:
     """L110 (2026-06-17): time_stop_minutes_before_close must be live in simulate_trade_real.
 
@@ -1775,6 +1796,7 @@ def test_l115_vix_declining_required_bear_wired() -> None:
     )
 
 
+@pytest.mark.slow
 def test_l116_min_triggers_bear_wired_in_params_overrides() -> None:
     """L116 (2026-06-17): min_triggers_bear raw snake_case must be handled in _params_to_kwargs.
 
@@ -1839,6 +1861,7 @@ def test_l116_min_triggers_bear_wired_in_params_overrides() -> None:
     )
 
 
+@pytest.mark.slow
 def test_l117_no_entry_at_or_after_time_stop_bar() -> None:
     """L117 (2026-06-17): backtest must not allow new entries at or after time_stop_et.
 
@@ -1981,6 +2004,7 @@ def test_l122_level_oos_profitable_before_blocking():
     )
 
 
+@pytest.mark.slow
 def test_l123_level_rejection_gate_bear_only() -> None:
     """L123: block_level_rejection gate must include winning_side=='P' guard.
 
@@ -2360,3 +2384,115 @@ def test_l155_autorate_rejects_negative_is_delta():
     )
 
 
+# ---------------------------------------------------------------------------
+# L160 (2026-06-18): G5 anchor-no-regression must be sign-correct for NEGATIVE
+# baselines. The broken form `curr_anchor >= base_anchor * 0.90` demands the
+# candidate be 10% BETTER when base_anchor < 0 (multiplying a negative by 0.9
+# moves the threshold toward zero), silently REJECTING genuinely anchor-neutral
+# changes and stalling the ratification pipeline. L160 was fixed in two scripts
+# but the broken pattern kept reappearing in new sweep scripts -- prose failed as
+# a control, so it is graduated here. Root-cause fix: single canonical helper
+# backtest/lib/anchor_check.py::anchor_no_regression(). Three guards below:
+#   1. unit-test the helper against the exact L160 case + sign matrix
+#   2. tree-scan: FAIL if any live (non-test) script still uses `* 0.9` anchor form
+#   3. confirm the formerly-broken scripts now import/use the canonical helper
+# ---------------------------------------------------------------------------
+
+def test_l160_anchor_no_regression_helper_sign_correct() -> None:
+    """L160: the canonical anchor_no_regression() helper must read correctly for
+    both signs. The exact bug case (base==curr==-354) MUST pass; a candidate 10%
+    worse must pass at the boundary; >10% worse must fail; positive baselines
+    behave symmetrically."""
+    from lib.anchor_check import anchor_no_regression
+
+    # The EXACT L160 incident: baseline anchor -$354, candidate identical -$354.
+    # Broken formula computed -354 >= -354*0.9 = -318.6 -> FALSE (false reject).
+    assert anchor_no_regression(-354.0, -354.0, 0.10) is True, (
+        "L160 GUARD: an anchor-NEUTRAL change (curr == base) on a NEGATIVE baseline "
+        "must PASS the no-regression gate. The broken `base*0.9` form rejects it."
+    )
+
+    # Negative baseline, candidate exactly 10% worse (-389.4) -> boundary PASS.
+    assert anchor_no_regression(-354.0, -354.0 - 35.4, 0.10) is True
+    # Negative baseline, candidate >10% worse -> FAIL.
+    assert anchor_no_regression(-354.0, -500.0, 0.10) is False
+    # Negative baseline, candidate BETTER (less negative) -> PASS.
+    assert anchor_no_regression(-354.0, -100.0, 0.10) is True
+
+    # Positive baseline behaves symmetrically: 5% worse PASS, 20% worse FAIL.
+    assert anchor_no_regression(1000.0, 950.0, 0.10) is True
+    assert anchor_no_regression(1000.0, 800.0, 0.10) is False
+    # Zero baseline: any non-negative candidate passes, negative fails.
+    assert anchor_no_regression(0.0, 0.0, 0.10) is True
+    assert anchor_no_regression(0.0, -1.0, 0.10) is False
+
+    # Demonstrate the helper FIXES what the broken form got wrong, on the L160 case.
+    base, curr = -354.0, -354.0
+    broken_verdict = curr >= base * 0.90          # the bug: -354 >= -318.6 -> False
+    correct_verdict = anchor_no_regression(base, curr, 0.10)
+    assert broken_verdict is False and correct_verdict is True, (
+        "L160 GUARD: helper must invert the broken form's false-reject on negative anchors."
+    )
+
+
+def test_l160_no_broken_anchor_multiply_in_live_scripts() -> None:
+    """L160: tree-scan guard. No live (non-test, non-venv) backtest script may use
+    the broken `<baseline> * 0.9[0]` anchor-regression form. New sweep scripts must
+    call backtest/lib/anchor_check.py::anchor_no_regression() instead. This catches
+    re-violation across the whole sweep-script fleet, not just the known offenders.
+
+    The check is deliberately narrow: it flags `*0.9` ONLY when the left operand is
+    an anchor/winner/loser baseline identifier (base_anchor, base_w, base_l, r[2],
+    etc.), so unrelated `* 0.9` arithmetic elsewhere is not falsely flagged."""
+    anchor_base = r"(?:base_anchor|base_w|base_l|base_anc_pnl|base_win|base_lose)"
+    tuple_form = r"r\[\d+\]"
+    broken_re = re.compile(rf"(?:{anchor_base}|{tuple_form})\s*\*\s*0\.9\d*\b")
+
+    offenders: list[str] = []
+    for py in BACKTEST.rglob("*.py"):
+        parts = set(py.parts)
+        if ".venv" in parts or "site-packages" in parts:
+            continue
+        if py.name.startswith("test_") or py.parent.name == "tests":
+            continue
+        if py.name == "anchor_check.py":
+            continue  # the helper's docstring quotes the broken form as an example
+        try:
+            text = py.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        for i, line in enumerate(text.splitlines(), start=1):
+            if line.lstrip().startswith("#"):
+                continue  # don't flag the pattern inside an explanatory comment
+            if broken_re.search(line):
+                offenders.append(f"{py.relative_to(REPO)}:{i}: {line.strip()}")
+
+    assert not offenders, (
+        "L160 GUARD FAILED: broken anchor-no-regression form `<baseline> * 0.9` found. "
+        "On a NEGATIVE baseline this demands the candidate be 10% BETTER and silently "
+        "rejects anchor-neutral changes. Replace with "
+        "backtest.lib.anchor_check.anchor_no_regression(base, curr, tol). Offenders:\n  "
+        + "\n  ".join(offenders)
+    )
+
+
+def test_l160_formerly_broken_scripts_use_canonical_helper() -> None:
+    """L160: the three scripts that carried the broken form (fixed 2026-06-18) must
+    keep importing the canonical helper, so a future edit that re-inlines the
+    formula is caught. Pins the root-cause fix in place."""
+    expected = [
+        BACKTEST / "tools" / "agg_runner_target_sweep.py",
+        BACKTEST / "autoresearch" / "tighter_stop_anchor_check.py",
+        BACKTEST / "autoresearch" / "vix_regime_stop_sweep.py",
+    ]
+    missing: list[str] = []
+    for py in expected:
+        assert py.exists(), f"expected anchor-check consumer missing: {py}"
+        text = py.read_text(encoding="utf-8", errors="ignore")
+        if "anchor_no_regression" not in text:
+            missing.append(str(py.relative_to(REPO)))
+    assert not missing, (
+        "L160 GUARD: these scripts were fixed to use anchor_no_regression() but the "
+        "call/import is gone (formula likely re-inlined). Re-route to the helper:\n  "
+        + "\n  ".join(missing)
+    )
