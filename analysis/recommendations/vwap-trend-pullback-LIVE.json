@@ -1,0 +1,597 @@
+{
+  "generated_at": "2026-06-19T18:34:55.534263+00:00",
+  "script": "backtest/autoresearch/vwap_pullback_ratify.py",
+  "setup": "VWAP_TREND_PULLBACK (H4_vwap_pullback)",
+  "source_discovery": "analysis/recommendations/infinite-ammo-discovery.json",
+  "data": {
+    "spy": "spy_5m_2025-01-01_2026-06-16.csv",
+    "vix": "vix_5m_2025-01-01_2026-06-16.csv",
+    "days": 363,
+    "oos_cut_date": "2026-01-09"
+  },
+  "method": {
+    "fills": "lib.simulator_real.simulate_trade_real (real OPRA, causal next-bar-open entry, v15 exit stack). Detector reused verbatim from infinite_ammo_discovery.detect_vwap_pullback.",
+    "qty": 3,
+    "strike_tiers": {
+      "ATM": 0,
+      "ITM1": -1
+    },
+    "n_trials_dsr": 30,
+    "wf_gate": 0.7
+  },
+  "causality": {
+    "future_poison": {
+      "test": "future_poison (mutate all bars strictly AFTER each day's earliest trigger x10+noise; rebuild day-ctx+ribbon; require identical signals)",
+      "n_signals_baseline": 98,
+      "n_signals_poisoned": 98,
+      "signals_identical": true,
+      "verdict": "PASS",
+      "diff_example": null
+    },
+    "entry_next_bar": {
+      "test": "entry == next-bar-open (simulator_real.py L368-372 invariant)",
+      "trigger_times_on_5min_grid": true,
+      "note": "Fill = trigger_close + 5min next-bar open + slippage; option walk starts at entry_idx_opt+1. Causal by construction.",
+      "verdict": "PASS"
+    },
+    "verdict": "PASS"
+  },
+  "metrics": {
+    "ATM": {
+      "n": 92,
+      "wins": 39,
+      "win_rate_pct": 42.4,
+      "exp_pct_return": 0.23664,
+      "exp_dollar_per_trade": 45.88,
+      "total_dollar_pnl": 4221.36,
+      "drop_top1_mean_dollar": 41.08,
+      "drop_top3_mean_dollar": 32.17,
+      "drop_top5_mean_dollar": 25.43,
+      "top5_winner_share_of_gross_wins": 0.329,
+      "robust_to_outliers": true,
+      "by_side": {
+        "C": {
+          "n": 54,
+          "exp_dollar": 51.79,
+          "win_rate_pct": 46.3,
+          "total_dollar": 2796.72
+        },
+        "P": {
+          "n": 38,
+          "exp_dollar": 37.49,
+          "win_rate_pct": 36.8,
+          "total_dollar": 1424.64
+        }
+      },
+      "both_dirs_positive": true,
+      "is_n": 60,
+      "oos_n": 32,
+      "is_exp_pct": 0.20919,
+      "oos_exp_pct": 0.28813,
+      "is_exp_dollar": 33.44,
+      "oos_exp_dollar": 69.22,
+      "oos_sign_stable": true,
+      "quarters": {
+        "2025Q1": {
+          "n": 11,
+          "exp_dollar": 118.5,
+          "total": 1303.52
+        },
+        "2025Q2": {
+          "n": 14,
+          "exp_dollar": -0.26,
+          "total": -3.64
+        },
+        "2025Q3": {
+          "n": 17,
+          "exp_dollar": -12.06,
+          "total": -204.96
+        },
+        "2025Q4": {
+          "n": 18,
+          "exp_dollar": 50.64,
+          "total": 911.44
+        },
+        "2026Q1": {
+          "n": 18,
+          "exp_dollar": 66.62,
+          "total": 1199.24
+        },
+        "2026Q2": {
+          "n": 14,
+          "exp_dollar": 72.55,
+          "total": 1015.76
+        }
+      },
+      "q_positive_frac": 0.67,
+      "dsr": {
+        "verdict": "PASS",
+        "dsr": 0.9999869261508768,
+        "psr": 0.9999999998285778,
+        "pbo": null,
+        "n_obs": 92,
+        "n_trials": 30,
+        "low_power": false,
+        "notes": [
+          "PSR(vs 0)=1.0000 on n=92 obs (Sharpe=0.262, skew=7.13, kurt=60.82).",
+          "DSR deflated for n_trials=30 (SR_0=0.086) = 1.0000.",
+          "PBO skipped (no performance matrix supplied).",
+          "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+        ]
+      },
+      "dsr_verdict": "PASS",
+      "SURVIVOR": true
+    },
+    "ITM1": {
+      "n": 92,
+      "wins": 40,
+      "win_rate_pct": 43.5,
+      "exp_pct_return": 0.24829,
+      "exp_dollar_per_trade": 63.31,
+      "total_dollar_pnl": 5824.32,
+      "drop_top1_mean_dollar": 57.84,
+      "drop_top3_mean_dollar": 49.06,
+      "drop_top5_mean_dollar": 40.7,
+      "top5_winner_share_of_gross_wins": 0.274,
+      "robust_to_outliers": true,
+      "by_side": {
+        "C": {
+          "n": 54,
+          "exp_dollar": 76.0,
+          "win_rate_pct": 46.3,
+          "total_dollar": 4103.8
+        },
+        "P": {
+          "n": 38,
+          "exp_dollar": 45.28,
+          "win_rate_pct": 39.5,
+          "total_dollar": 1720.52
+        }
+      },
+      "both_dirs_positive": true,
+      "is_n": 60,
+      "oos_n": 32,
+      "is_exp_pct": 0.22114,
+      "oos_exp_pct": 0.29921,
+      "is_exp_dollar": 42.31,
+      "oos_exp_dollar": 102.67,
+      "oos_sign_stable": true,
+      "quarters": {
+        "2025Q1": {
+          "n": 11,
+          "exp_dollar": 140.11,
+          "total": 1541.16
+        },
+        "2025Q2": {
+          "n": 14,
+          "exp_dollar": -4.07,
+          "total": -57.04
+        },
+        "2025Q3": {
+          "n": 17,
+          "exp_dollar": -23.23,
+          "total": -394.92
+        },
+        "2025Q4": {
+          "n": 18,
+          "exp_dollar": 80.53,
+          "total": 1449.6
+        },
+        "2026Q1": {
+          "n": 18,
+          "exp_dollar": 110.51,
+          "total": 1989.12
+        },
+        "2026Q2": {
+          "n": 14,
+          "exp_dollar": 92.6,
+          "total": 1296.4
+        }
+      },
+      "q_positive_frac": 0.67,
+      "dsr": {
+        "verdict": "PASS",
+        "dsr": 0.999988370190921,
+        "psr": 0.9999999998553895,
+        "pbo": null,
+        "n_obs": 92,
+        "n_trials": 30,
+        "low_power": false,
+        "notes": [
+          "PSR(vs 0)=1.0000 on n=92 obs (Sharpe=0.276, skew=7.20, kurt=61.98).",
+          "DSR deflated for n_trials=30 (SR_0=0.091) = 1.0000.",
+          "PBO skipped (no performance matrix supplied).",
+          "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+        ]
+      },
+      "dsr_verdict": "PASS",
+      "SURVIVOR": true
+    }
+  },
+  "walk_forward": {
+    "ATM": {
+      "_caveat": "BIMODAL/regime-sensitive: 4 negative OOS month(s) (['2025-07', '2025-08', '2025-09', '2025-10']) then 7 consecutive positive trailing month(s). Median WF 1.679 and the recent run clear the gate, but the edge demonstrably bled in the early-OOS regime \u2014 ship at BASE size and let the live archive accrue; do NOT size up on the recent streak.",
+      "trailing_positive_oos_months": 7,
+      "negative_oos_months": [
+        "2025-07",
+        "2025-08",
+        "2025-09",
+        "2025-10"
+      ],
+      "positive_oos_months": [
+        "2025-11",
+        "2025-12",
+        "2026-01",
+        "2026-02",
+        "2026-03",
+        "2026-04",
+        "2026-05"
+      ],
+      "method": "expanding-IS / rolling-1-month-OOS, per-trade normalized wf=(oos$/n_oos)/(is$/n_is); gate wf>=0.70 (rolling_walk_forward.py).",
+      "n_windows": 11,
+      "median_wf_norm": 1.679,
+      "oos_positive_frac": 0.64,
+      "wf_pass_frac": 0.64,
+      "windows": [
+        {
+          "oos_month": "2025-07",
+          "n_is": 25,
+          "is_pnl": 1299.88,
+          "n_oos": 6,
+          "oos_pnl": -90.24,
+          "oos_exp": -15.04,
+          "wf_norm": -0.289,
+          "oos_positive": false,
+          "wf_pass": false
+        },
+        {
+          "oos_month": "2025-08",
+          "n_is": 31,
+          "is_pnl": 1209.64,
+          "n_oos": 7,
+          "oos_pnl": -27.12,
+          "oos_exp": -3.87,
+          "wf_norm": -0.099,
+          "oos_positive": false,
+          "wf_pass": false
+        },
+        {
+          "oos_month": "2025-09",
+          "n_is": 38,
+          "is_pnl": 1182.52,
+          "n_oos": 4,
+          "oos_pnl": -87.6,
+          "oos_exp": -21.9,
+          "wf_norm": -0.704,
+          "oos_positive": false,
+          "wf_pass": false
+        },
+        {
+          "oos_month": "2025-10",
+          "n_is": 42,
+          "is_pnl": 1094.92,
+          "n_oos": 8,
+          "oos_pnl": -170.64,
+          "oos_exp": -21.33,
+          "wf_norm": -0.818,
+          "oos_positive": false,
+          "wf_pass": false
+        },
+        {
+          "oos_month": "2025-11",
+          "n_is": 50,
+          "is_pnl": 924.28,
+          "n_oos": 5,
+          "oos_pnl": 688.8,
+          "oos_exp": 137.76,
+          "wf_norm": 7.452,
+          "oos_positive": true,
+          "wf_pass": true
+        },
+        {
+          "oos_month": "2025-12",
+          "n_is": 55,
+          "is_pnl": 1613.08,
+          "n_oos": 5,
+          "oos_pnl": 393.28,
+          "oos_exp": 78.66,
+          "wf_norm": 2.682,
+          "oos_positive": true,
+          "wf_pass": true
+        },
+        {
+          "oos_month": "2026-01",
+          "n_is": 60,
+          "is_pnl": 2006.36,
+          "n_oos": 4,
+          "oos_pnl": 292.52,
+          "oos_exp": 73.13,
+          "wf_norm": 2.187,
+          "oos_positive": true,
+          "wf_pass": true
+        },
+        {
+          "oos_month": "2026-02",
+          "n_is": 64,
+          "is_pnl": 2298.88,
+          "n_oos": 6,
+          "oos_pnl": 662.16,
+          "oos_exp": 110.36,
+          "wf_norm": 3.072,
+          "oos_positive": true,
+          "wf_pass": true
+        },
+        {
+          "oos_month": "2026-03",
+          "n_is": 70,
+          "is_pnl": 2961.04,
+          "n_oos": 8,
+          "oos_pnl": 244.56,
+          "oos_exp": 30.57,
+          "wf_norm": 0.723,
+          "oos_positive": true,
+          "wf_pass": true
+        },
+        {
+          "oos_month": "2026-04",
+          "n_is": 78,
+          "is_pnl": 3205.6,
+          "n_oos": 5,
+          "oos_pnl": 365.52,
+          "oos_exp": 73.1,
+          "wf_norm": 1.779,
+          "oos_positive": true,
+          "wf_pass": true
+        },
+        {
+          "oos_month": "2026-05",
+          "n_is": 83,
+          "is_pnl": 3571.12,
+          "n_oos": 9,
+          "oos_pnl": 650.24,
+          "oos_exp": 72.25,
+          "wf_norm": 1.679,
+          "oos_positive": true,
+          "wf_pass": true
+        }
+      ],
+      "verdict": "PASS"
+    },
+    "ITM1": {
+      "_caveat": "BIMODAL/regime-sensitive: 4 negative OOS month(s) (['2025-07', '2025-08', '2025-09', '2025-10']) then 7 consecutive positive trailing month(s). Median WF 1.447 and the recent run clear the gate, but the edge demonstrably bled in the early-OOS regime \u2014 ship at BASE size and let the live archive accrue; do NOT size up on the recent streak.",
+      "trailing_positive_oos_months": 7,
+      "negative_oos_months": [
+        "2025-07",
+        "2025-08",
+        "2025-09",
+        "2025-10"
+      ],
+      "positive_oos_months": [
+        "2025-11",
+        "2025-12",
+        "2026-01",
+        "2026-02",
+        "2026-03",
+        "2026-04",
+        "2026-05"
+      ],
+      "method": "expanding-IS / rolling-1-month-OOS, per-trade normalized wf=(oos$/n_oos)/(is$/n_is); gate wf>=0.70 (rolling_walk_forward.py).",
+      "n_windows": 11,
+      "median_wf_norm": 1.447,
+      "oos_positive_frac": 0.64,
+      "wf_pass_frac": 0.55,
+      "windows": [
+        {
+          "oos_month": "2025-07",
+          "n_is": 25,
+          "is_pnl": 1484.12,
+          "n_oos": 6,
+          "oos_pnl": -125.16,
+          "oos_exp": -20.86,
+          "wf_norm": -0.351,
+          "oos_positive": false,
+          "wf_pass": false
+        },
+        {
+          "oos_month": "2025-08",
+          "n_is": 31,
+          "is_pnl": 1358.96,
+          "n_oos": 7,
+          "oos_pnl": -129.36,
+          "oos_exp": -18.48,
+          "wf_norm": -0.422,
+          "oos_positive": false,
+          "wf_pass": false
+        },
+        {
+          "oos_month": "2025-09",
+          "n_is": 38,
+          "is_pnl": 1229.6,
+          "n_oos": 4,
+          "oos_pnl": -140.4,
+          "oos_exp": -35.1,
+          "wf_norm": -1.085,
+          "oos_positive": false,
+          "wf_pass": false
+        },
+        {
+          "oos_month": "2025-10",
+          "n_is": 42,
+          "is_pnl": 1089.2,
+          "n_oos": 8,
+          "oos_pnl": -222.6,
+          "oos_exp": -27.83,
+          "wf_norm": -1.073,
+          "oos_positive": false,
+          "wf_pass": false
+        },
+        {
+          "oos_month": "2025-11",
+          "n_is": 50,
+          "is_pnl": 866.6,
+          "n_oos": 5,
+          "oos_pnl": 792.0,
+          "oos_exp": 158.4,
+          "wf_norm": 9.139,
+          "oos_positive": true,
+          "wf_pass": true
+        },
+        {
+          "oos_month": "2025-12",
+          "n_is": 55,
+          "is_pnl": 1658.6,
+          "n_oos": 5,
+          "oos_pnl": 880.2,
+          "oos_exp": 176.04,
+          "wf_norm": 5.838,
+          "oos_positive": true,
+          "wf_pass": true
+        },
+        {
+          "oos_month": "2026-01",
+          "n_is": 60,
+          "is_pnl": 2538.8,
+          "n_oos": 4,
+          "oos_pnl": 467.32,
+          "oos_exp": 116.83,
+          "wf_norm": 2.761,
+          "oos_positive": true,
+          "wf_pass": true
+        },
+        {
+          "oos_month": "2026-02",
+          "n_is": 64,
+          "is_pnl": 3006.12,
+          "n_oos": 6,
+          "oos_pnl": 1228.0,
+          "oos_exp": 204.67,
+          "wf_norm": 4.357,
+          "oos_positive": true,
+          "wf_pass": true
+        },
+        {
+          "oos_month": "2026-03",
+          "n_is": 70,
+          "is_pnl": 4234.12,
+          "n_oos": 8,
+          "oos_pnl": 293.8,
+          "oos_exp": 36.73,
+          "wf_norm": 0.607,
+          "oos_positive": true,
+          "wf_pass": false
+        },
+        {
+          "oos_month": "2026-04",
+          "n_is": 78,
+          "is_pnl": 4527.92,
+          "n_oos": 5,
+          "oos_pnl": 419.96,
+          "oos_exp": 83.99,
+          "wf_norm": 1.447,
+          "oos_positive": true,
+          "wf_pass": true
+        },
+        {
+          "oos_month": "2026-05",
+          "n_is": 83,
+          "is_pnl": 4947.88,
+          "n_oos": 9,
+          "oos_pnl": 876.44,
+          "oos_exp": 97.38,
+          "wf_norm": 1.634,
+          "oos_positive": true,
+          "wf_pass": true
+        }
+      ],
+      "verdict": "PASS"
+    }
+  },
+  "sub_window_stability": {
+    "ATM": {
+      "method": "4 contiguous chronological sub-windows; hurt = mean P&L < 0.",
+      "sub_windows": [
+        {
+          "window": 1,
+          "n": 23,
+          "mean_pnl": 58.96,
+          "total_pnl": 1356.04
+        },
+        {
+          "window": 2,
+          "n": 23,
+          "mean_pnl": -12.47,
+          "total_pnl": -286.8
+        },
+        {
+          "window": 3,
+          "n": 23,
+          "mean_pnl": 83.25,
+          "total_pnl": 1914.84
+        },
+        {
+          "window": 4,
+          "n": 23,
+          "mean_pnl": 53.79,
+          "total_pnl": 1237.28
+        }
+      ],
+      "n_hurt": 1,
+      "verdict": "PASS"
+    }
+  },
+  "by_side_ATM": {
+    "C": {
+      "n": 54,
+      "exp_dollar": 51.79,
+      "win_rate_pct": 46.3,
+      "total_dollar": 2796.72
+    },
+    "P": {
+      "n": 38,
+      "exp_dollar": 37.49,
+      "win_rate_pct": 36.8,
+      "total_dollar": 1424.64
+    }
+  },
+  "regime": "bull_trend / bear_trend (trend-day continuation)",
+  "gates": {
+    "causality_no_lookahead": true,
+    "oos_sign_stable": true,
+    "walk_forward_ge_0.70": true,
+    "sub_window_stable": true,
+    "dsr_not_fail": true,
+    "robust_drop_top5": true,
+    "both_directions_positive": true
+  },
+  "blockers": [],
+  "live_detector": {
+    "status": "BUILT + parity-verified + gym-green",
+    "module": "backtest/lib/watchers/vwap_trend_pullback_watcher.py",
+    "setup_name": "VWAP_TREND_PULLBACK",
+    "registered_in": "backtest/lib/watchers/runner.py (WATCHERS) as vwap_trend_pullback_watcher",
+    "promotion_status": "WATCH_ONLY (OP-21 \u2014 3 live J wins before order path)",
+    "parity_test": "backtest/tests/test_vwap_trend_pullback_watcher.py::test_parity_with_batch_detector \u2014 live streaming detector fires IDENTICAL (bar_idx, side, chart-stop) to the validated batch detector on real historical days. PASS.",
+    "gym": "crypto.validators.runner --skip-replay 87/87 PASS (no regression).",
+    "gap_before": "Pre-existing live path traded only BEARISH_REJECTION + BULLISH_RECLAIM; regime_book is INERT (WATCH_ONLY, never imported by heartbeat); the old vwap_watcher emits a DIFFERENT setup (VWAP_REJECTION_PRIME, a fade) not H4's trend pullback. No live code fired this edge \u2014 that was THE gap. Now closed at the detector layer; heartbeat wiring is the propose-only step below (touches live prose -> J REVOKE gate)."
+  },
+  "heartbeat_wiring_proposal": "See report / docs \u2014 exact heartbeat.md addition is propose-only (Rule 9), ready to ship after-hours per OP-16/OP-22 (all gates PASS + scorecard filed).",
+  "go_live_params": {
+    "setup_name": "VWAP_TREND_PULLBACK",
+    "tier_recommended": "ATM",
+    "entry": "first in-trend session-VWAP tag after a 6-bar one-sided-VWAP open (uptrend: bar low within 0.08% of VWAP AND close>VWAP -> CALL; downtrend: bar high within 0.08% of VWAP AND close<VWAP -> PUT). One/day.",
+    "trend_bars": 6,
+    "touch_tol_pct": 0.0008,
+    "direction": "both (C uptrend / P downtrend)",
+    "strike_tier": "OTM-3 at $1K / OTM-2 at $2-10K (v15 per-tier table) \u2014 ATM/ITM1 validated here; map to account tier at wiring time",
+    "stop": "chart/structural: session extreme against the trade as of the entry bar (uptrend: min low to date; downtrend: max high to date). Chart-stop ONLY (premium_stop disabled per L51/L55/C2).",
+    "sizing": "min-3 floor + per-trade premium ceiling ~6% equity (docs/SIZING-STUDY-2026-06-19.md).",
+    "exit_stack": "v15 \u2014 TP1 +30% premium fallback OR next chart level; runner BE; chandelier profit-lock; 15:50 ET hard time stop."
+  },
+  "disclosure_OP20": {
+    "real_fills": true,
+    "proxy_strikes": "nearest-cached strike (L58) \u2014 directionally valid, $ modestly off.",
+    "on_real_levels": false,
+    "caveat": "n=92 over 17 months is MODEST. Edge measured on proxy strikes, not real \u2605\u2605\u2605 levels. WF/sub-window/causality all computed on real fills."
+  },
+  "verdict": "SHIP-LIVE (WATCH_ONLY -> heartbeat wiring, BASE size, regime-sensitive)"
+}

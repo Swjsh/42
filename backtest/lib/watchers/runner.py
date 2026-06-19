@@ -65,6 +65,8 @@ from .orb15_watcher import detect_orb15_break  # Reddit ORB-15 adoption 2026-06-
 from .erl_irl_watcher import detect_erl_irl_setup  # Reddit ERL->IRL adoption 2026-06-14
 from .named_level_second_test_watcher import detect_named_level_second_test_setup  # 2026-06-18
 from .stairstep_continuation_watcher import detect_stairstep_continuation_setup  # 2026-06-18
+from .vwap_trend_pullback_watcher import detect_vwap_trend_pullback_setup  # 2026-06-19 H4
+from .gap_and_go_watcher import detect_gap_and_go_setup  # 2026-06-19 H2b (open-bar; needs prior_close)
 from ..filters import BarContext
 
 REPO = Path(__file__).resolve().parents[2]
@@ -196,6 +198,17 @@ def _pff_invoke(d: "_WatcherDeps") -> Optional[WatcherSignal]:
     return detect_premarket_fail_fade_setup(d.bar, d.bar_idx_full, d.multi_day_rth)
 
 
+def _gap_and_go_invoke(d: "_WatcherDeps") -> Optional[WatcherSignal]:
+    # GAP_AND_GO (H2b) — once-per-day OPEN-bar setup. The wrapper fires only on the
+    # 09:30 ET first RTH bar and needs the PRIOR trading day's RTH close. It derives
+    # that from ctx.prior_bars when the frame spans >1 day; in single-day replay it
+    # no-ops (returns None) — like odf/vwap/pff when multi_day_rth is absent. The live
+    # Gamma_WatcherLive feed + the proposed heartbeat open-block pass the prior close.
+    # Resolve the global at call time so a monkeypatch of runner.detect_gap_and_go_setup
+    # is honored (registry convention).
+    return globals()["detect_gap_and_go_setup"](d.ctx)
+
+
 def _ctx_spec(name: str, attr: str, fn: Callable[[BarContext], Optional[WatcherSignal]]) -> WatcherSpec:
     """Build a spec for a plain ctx-only watcher: detect_fn(ctx).
 
@@ -230,6 +243,19 @@ WATCHERS: list[WatcherSpec] = [
     _ctx_spec("bearish_rejection_morning_watcher", "detect_bearish_rejection_morning", detect_bearish_rejection_morning),
     _ctx_spec("erl_irl_watcher", "detect_erl_irl_setup", detect_erl_irl_setup),
     _ctx_spec("fbw_morning_mid_watcher", "detect_fbw_morning_mid_setup", detect_fbw_morning_mid_setup),
+    # H4 data-discovered survivor (2026-06-19). Ratified: analysis/recommendations/
+    # vwap-trend-pullback-LIVE.json (OOS+, WF median 1.679, causality PASS, DSR PASS).
+    # WATCH_ONLY per OP-21 until 3 live J wins; ctx-only (needs full session history
+    # in prior_bars for the as-of session-VWAP + 6-bar trend window).
+    _ctx_spec("vwap_trend_pullback_watcher", "detect_vwap_trend_pullback_setup", detect_vwap_trend_pullback_setup),
+    # H2b data-discovered survivor (2026-06-19). Ratified: analysis/recommendations/
+    # gap-and-go-LIVE.json (chart-stop-only: exp +$41.6/WR 72.6%, DSR PASS, WF_PASS
+    # all cuts, causality 96/96 PASS, both dirs +). Once-per-day OPEN-bar setup: fires
+    # ONLY on the 09:30 ET first RTH bar and needs the PRIOR day's RTH close. In
+    # single-day replay (prior_bars = today only) it no-ops by design — like odf/vwap/
+    # pff when multi_day_rth is absent. Live (Gamma_WatcherLive) + the proposed
+    # heartbeat open-block supply the prior close. WATCH_ONLY per OP-21 until 3 live J wins.
+    WatcherSpec("gap_and_go_watcher", "detect_gap_and_go_setup", _gap_and_go_invoke),
     WatcherSpec("shotgun_scalper_watcher", "detect_shotgun_scalper_setup", _shotgun_invoke),
     WatcherSpec("tbr_high_vol_watcher", "detect_tbr_high_vol_setup", _tbr_invoke),
     WatcherSpec("opening_drive_fade_watcher", "detect_opening_drive_fade_setup", _odf_invoke),

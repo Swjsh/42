@@ -150,6 +150,7 @@ from .orb15_watcher import detect_orb15_break  # noqa: E402
 from .erl_irl_watcher import detect_erl_irl_setup  # noqa: E402
 from .named_level_second_test_watcher import detect_named_level_second_test_setup  # noqa: E402
 from .stairstep_continuation_watcher import detect_stairstep_continuation_setup  # noqa: E402
+from .vwap_trend_pullback_watcher import detect_vwap_trend_pullback_setup  # noqa: E402
 
 __all__ = [
     "WatcherSignal",
@@ -171,4 +172,5 @@ __all__ = [
     "detect_erl_irl_setup",
     "detect_named_level_second_test_setup",
     "detect_stairstep_continuation_setup",
+    "detect_vwap_trend_pullback_setup",
 ]
