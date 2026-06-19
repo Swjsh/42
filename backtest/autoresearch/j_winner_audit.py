@@ -13,7 +13,7 @@ OP-16 floor = $771 (50% of max $1542).  Candidates below floor are REJECTED.
 
 Usage:
   python backtest/autoresearch/j_winner_audit.py                         # current params.json
-  python backtest/autoresearch/j_winner_audit.py --params automation/state/params_safe.json
+  python backtest/autoresearch/j_winner_audit.py --params automation/state/params.json
   python backtest/autoresearch/j_winner_audit.py --slug v15.2-safe
 
 Output:

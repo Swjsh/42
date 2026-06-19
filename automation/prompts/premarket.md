@@ -163,7 +163,7 @@ RULE_VERSION_EXPECTED = "v15.3"
    - Only include if `severity in {"high", "med"}` per the maintenance.rules note (low-severity events don't block).
    - Output: array of `{ start_et: "HH:MM", end_et: "HH:MM", event: "...", type: "...", severity: "..." }` objects.
 
-5. **Catalyst narrative.** If `automation/state/news.json` exists and is < 7 days old, lift its narrative into `today-bias.news_calendar.catalyst_narrative`. Otherwise: `{ stale: true, last_updated: "<news.json updated_at if any>" }`.
+5. **Catalyst narrative.** If `automation/state/news.json` exists and is < 7 days old, lift its narrative into `today-bias.news_calendar.catalyst_narrative`. Otherwise: `{ stale: true, last_updated: "<news.json#as_of if any>" }`.
 
 6. **Size modifier windows.** Read `automation/state/params.json#enable_size_modifier_windows`. If false (default): output `size_modifier_windows: []`. If true: build per-event soft-modifier windows (placeholder for future tuning — currently zero events would qualify under the existing rules).
 
@@ -226,6 +226,8 @@ Required fields (object):
 - `news_calendar`: **populated from Step 1b output** — `{ events_today, no_trade_window, size_modifier_windows, catalyst_narrative, stale, calendar_freshness_days }`. Heartbeat filter 2 reads `no_trade_window[]` directly. Staleness > params.macro_calendar_max_staleness_days surfaces as a journal warning + sets `stale: true`.
 - `daily_loss_budget_dollars` (from circuit-breaker)
 - `day_trades_remaining` (from Alpaca)
+- `safe_equity_confirmed` — the **live Safe account equity** from the Step 1 `mcp__alpaca__get_account_info` call (the same LIVE `equity` value used for circuit-breaker `starting_equity_today`; when `SAFE_EQUITY_BOD_PENDING` is true, write the preserved prior value, matching what Step 1 wrote to `starting_equity_today`). **LOAD-BEARING — DO NOT TRIM:** the Safe heartbeat (`heartbeat.md` ~line 235) reads this as the PRIMARY input for strike-tier selection + max-premium gate, falling back to `circuit-breaker.json#starting_equity_today` only if absent. Dropping it silently degrades the heartbeat to BOD-snapshot equity (stale on a new-account BOD-race morning → wrong strike tier).
+- `bold_equity` — the **live Bold (aggressive) account equity** from the Step 1 `mcp__alpaca_aggressive__get_account_info` call (the same LIVE `equity` value used for aggressive `circuit-breaker.json#equity_start_of_day`). **LOAD-BEARING — DO NOT TRIM:** the Bold heartbeat (`aggressive/heartbeat.md` ~line 108) reads this as the PRIMARY input for strike-tier selection + max-premium gate, falling back to `aggressive/circuit-breaker.json#equity_start_of_day` only if absent. Dropping it silently degrades the Bold heartbeat to BOD-snapshot equity.
 - `prior_day_review_hint` (lifted from dashboard-dialogue.ticker_speech, optional)
 - `updated_at`
 

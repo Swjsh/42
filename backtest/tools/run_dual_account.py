@@ -57,11 +57,18 @@ def _load_params() -> dict:
     return json.loads((STATE / "params.json").read_text(encoding="utf-8"))
 
 
-def _account_overrides(base: dict, overlay_file: str) -> dict:
-    """Merge params.json + an account overlay, then resolve the strike-selection
-    conflict in favour of the account's DOCUMENTED static offset (strip the
-    per-tier table so _params_to_kwargs uses strike_offset_itm)."""
-    overlay = json.loads((STATE / overlay_file).read_text(encoding="utf-8"))
+def _account_overrides(base: dict, overlay_path: Path) -> dict:
+    """Merge params.json (base) + an account params file, then resolve the
+    strike-selection conflict in favour of the account's DOCUMENTED static
+    offset (strip the per-tier table so _params_to_kwargs uses strike_offset_itm).
+
+    NOTE (2026-06-18): the old flat overlays params_safe.json / params_bold.json
+    were retired (*.retired-2026-06-18). Live sources are params.json (Safe) and
+    aggressive/params.json (Bold). Bold's file is now a FULL params file rather
+    than a thin overlay, but the merge (base.update(overlay non-_ keys)) is
+    overlay-wins, so passing the full file as the overlay yields the Bold config
+    correctly."""
+    overlay = json.loads(overlay_path.read_text(encoding="utf-8"))
     merged = copy.deepcopy(base)
     merged.update({k: v for k, v in overlay.items() if not k.startswith("_")})
     # Honour the account's static ATM/ITM intent over the inherited per-tier table.
@@ -171,8 +178,10 @@ def main(argv=None) -> int:
     spy = spy[(spy["timestamp_et"] >= args.start) & (spy["timestamp_et"] < f"{args.end}T23:59:59")].reset_index(drop=True)
     vix = vix[(vix["timestamp_et"] >= args.start) & (vix["timestamp_et"] < f"{args.end}T23:59:59")].reset_index(drop=True)
 
-    safe_ov = _account_overrides(base, "params_safe.json")
-    bold_ov = _account_overrides(base, "params_bold.json")
+    # Live param sources (the flat params_safe/params_bold overlays were retired
+    # 2026-06-18): Safe = params.json, Bold = aggressive/params.json.
+    safe_ov = _account_overrides(base, STATE / "params.json")
+    bold_ov = _account_overrides(base, STATE / "aggressive" / "params.json")
 
     print(f"Dual-account run {args.start}..{args.end}  (SPY {len(spy)} / VIX {len(vix)} bars)")
     print(f"  Safe: ATM(off={safe_ov.get('strike_offset_itm')}) TP1 {safe_ov.get('tp1_premium_pct')} "

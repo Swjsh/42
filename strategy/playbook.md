@@ -261,25 +261,26 @@ Per playbook policy (line 14): "Setup needs at least 3 confirming real-trade exa
 
 ---
 
-### CANDIDATE — `STAIRSTEP_CONTINUATION` (PUTS or CALLS)
+### RETIRED — `STAIRSTEP_CONTINUATION` (PUTS or CALLS)
 
-**Status:** OBSERVED 2026-05-07 — pattern named after the missed 735.40 sequence. n=1 paper observation, 0 real-money. NOT YET TRADABLE.
+**Status:** **RETIRED 2026-06-18 — structurally anti-J-edge.** Retired, not loosened (rule 5 above). The watcher (`backtest/lib/watchers/stairstep_continuation_watcher.py`) now always returns None; the v45 gym validator (`crypto/validators/v45_stairstep_continuation_gate.py`) asserts the non-firing. Never traded; 0 real-money.
 
-**Origin / sample:**
-| Date | Pattern | Result | Notes |
-|---|---|---|---|
-| 2026-05-07 | LH-LH-LH at broken 735.40 (736.12 → 735.61 → 735.41) → SPY -$5.65 to 729.75 | Not traded | System bought calls at 12:30 instead of puts (counter-trend trap). J's eye saw the pattern; system didn't. |
+**Why retired (eval-first, decided with data):**
 
-**Hypothesis:** When a key level breaks AND each subsequent retest from the broken side prints a progressively lower high (or higher low for support flip), the level has rotated from defending to capping. Once 3+ rejections form a strict sequence, continuation in the broken direction is the high-edge trade.
+1. **The motivating case was fabricated.** The original entry cited a 5/07 sequence "736.12 → 735.61 → 735.41" pressing 735.40. Those bars do **not** exist in the real 2026-05-07 SPY 5m tape (`backtest/data/spy_5m_2025-01-01_2026-06-16.csv`). The **REAL** descending highs pressing 735.40 (RTH) are **735.59 → 735.55 → 735.50 → 735.39** at 11:30-11:45 ET; price then continued to 729.75 (-$5.65). The 736.10 print is the 10:55-11:00 session-high area, not part of the staircase.
 
-**Trigger conditions (need ≥ 2 of 3):**
-1. **Sequence count:** `bounce_history.length ≥ 3` at a level with `role: "broken_to_resistance"` (or `_to_support`).
-2. **Strict monotonic highs:** all `high_reached` values are strictly decreasing (or low_reached strictly increasing for support flip).
-3. **Confirming bar:** last closed 5m bar's close is on the broken side AND red (for bear) / green (for bull).
+2. **The detector couldn't detect its own pattern.** The shipped `_collect_descending_retests` required each retest high to be a strict *local maximum* (`h > prev`), which a clean consecutive descending staircase can never satisfy — so on the real anchor it fired 0 times.
 
-**Why this matters:** This is the pattern J's intuitive eye reads. The codified rules track it now via `bounce_history[]` in `key-levels.json` and the `sequence_rejection` / `sequence_reclaim` triggers in heartbeat filter 10. Once 3+ paper observations confirm, promote to CONFIRMED setup.
+3. **It is anti-correlated with J's edge (the fatal flaw).** 2026-05-07 is a **J LOSS day**. A descending-stairstep short fires on exactly the chop-into-a-broken-level structure that marks J's LOSS days, and loses on his clean-trend WIN days. Measured over the OP-16 anchor set (`validate_breakout_family` STAIRSTEP stream, look-ahead-neutralized historical levels + `j_edge_tracker` J_WINNERS/J_LOSERS):
 
-**Path to confirmation:** Need 3 paper-validated observations of this exact pattern firing AND working. Each gets logged like the 4/29-5/1-5/4 reconstruction.
+| Variant | edge_capture | anti-corr? | WIN-day P&L (4/29,5/01,5/04) | Real-fills exp (16mo) |
+|---|---|---|---|---|
+| As-shipped (local-max) | **−$364.80** | YES | −$345 (loses on all 3) | — |
+| Corrected (collect-all, no local-max) | **−$509.57** | YES | −$412 (loses on all 3) | ATM −$27.57 / ITM2 −$42.54 |
+
+Fixing defect #2 makes it fire **more** and become **more** anti-edge (−510 vs −365); SPY-space proxy looks positive (WR 69.2%, exp +$1.39, N=990) but **real-fills expectancy is negative** on both ATM and ITM2 — a textbook SPY-price-≠-option-edge trap (lessons C3). Both variants profit on J's loss days (5/05 +$647). **No variant clears the OP-16 anchor gate**, so per rule 5 the setup is retired rather than loosened.
+
+**Reproduce:** `python -m crypto.validators.v45_stairstep_continuation_gate --mode both` (retirement gate). Anchor numbers via `backtest/autoresearch/validate_breakout_family.py` STAIRSTEP_CONTINUATION stream with the collectors' local-max filter removed.
 
 ---
 

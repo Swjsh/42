@@ -308,11 +308,24 @@ def _prompt_analyst(date_str: str) -> tuple[str, list[str]]:
         "4. **Pattern observations** -- 1-3 patterns you saw in today's tape (e.g., morning chop, "
         "afternoon trend, ribbon flips). Tie back to the morning bias if there's a match/miss.\n"
         "5. **One thing to fix tomorrow** -- ONE concrete observation. Not a strategy proposal.\n\n"
-        "Keep it under 800 words. Use bullet points liberally. No emojis. No tool calls. "
-        "Do NOT propose strategy changes -- this is observation only."
+        "6. **Chef R&D queue (MACHINE-READABLE)** -- After the prose above, emit 1 to 3 lines that "
+        "each begin with the literal token `COOK:` (uppercase, followed by a colon and a space). Each "
+        "`COOK:` line is a SINGLE concrete, self-contained R&D / investigation task for the Chef R&D "
+        "loop to act on cold (it has no memory of today). Derive them from what you observed: a knob to "
+        "sweep, a hypothesis to backtest, a recurring miss to investigate, the 'fix tomorrow' item "
+        "rephrased as an actionable research task. Write the FULL task on ONE physical line (no internal "
+        "newlines), 15-40 words, naming the relevant file/pattern/level where you can. Example:\n"
+        "COOK: Backtest whether requiring a 2nd confirming trigger before BULLISH_RECLAIM_RIDE_THE_RIBBON "
+        "entries improves real-fills expectancy vs single-trigger entries; use the level-family harness.\n"
+        "If you genuinely have nothing worth cooking, emit exactly one line `COOK: none`.\n\n"
+        "Keep the prose sections under 800 words. Use bullet points liberally. No emojis. No tool calls. "
+        "Do NOT propose strategy changes in prose -- observation only; the `COOK:` lines are the ONLY "
+        "place you queue forward work."
     )
+    # Chef routing is now WIRED on the free-tier path via a deterministic Python
+    # append to cook-queue.jsonl (see _route_analyst_cook_tasks). The remaining
+    # items below still require a Write tool and stay skipped on this path.
     omitted = [
-        "_chef-inbox routing (no Write tool)",
         "mistakes.md append (no Write tool)",
         "_analyst-log.jsonl entry (no Write tool)",
         "patterns/{slug}.md updates (no Write tool)",
@@ -507,6 +520,297 @@ def _write_eod_summary(content: str, date_str: str, *, model: str, cost_usd: flo
 
 
 # ────────────────────────────────────────────────────────────────────────────
+# Analyst -> Chef R&D routing (deterministic Python append; no Write tool)
+#
+# THE BUG THIS FIXES: on the free-tier ladder the analyst has no Write tool, so
+# _chef-inbox routing was hard-skipped -- reflection never reached R&D. Even the
+# Claude path wrote to _chef-inbox/ which kitchen_daemon.py never reads (it only
+# polls cook-queue.jsonl). Here we parse the digest the model just produced and
+# append proper `create` rows to cook-queue.jsonl -- the SAME format + file the
+# daemon consumes via kitchen_daemon._load_queue(). Plain file append: works on
+# every path, no model tool-calling required.
+# ────────────────────────────────────────────────────────────────────────────
+
+
+COOK_QUEUE_FILE = STATE_DIR / "cook-queue.jsonl"
+_MAX_COOK_TASKS_PER_RUN = 3          # cap: never flood the queue from one digest
+_MIN_COOK_TASK_CHARS = 25            # below this a "task" is too thin to be useful
+_MAX_COOK_TASK_CHARS = 600          # clamp pathological model output
+
+
+def _sanitize_task_text(text: str) -> str:
+    """Collapse whitespace and strip to a clean single-line, JSONL/daemon-safe string.
+
+    The daemon's _load_queue() reads cook-queue.jsonl as strict UTF-8 with NO
+    errors= fallback, so a single stray cp1252 byte (e.g. a Word em-dash 0x97)
+    aborts the whole read. We normalise smart punctuation to ASCII and drop any
+    remaining non-printable/non-ASCII bytes so a row we write can never be the
+    thing that bricks the consumer.
+    """
+    if not text:
+        return ""
+    # Normalise the common cp1252 / unicode punctuation the free-tier models emit.
+    replacements = {
+        "‘": "'", "’": "'", "“": '"', "”": '"',
+        "–": "-", "—": "--", "−": "-", "…": "...",
+        " ": " ", "→": "->", "•": "-", "·": "-",
+        "‑": "-", "‒": "-", "―": "--",  # nbhyphen / figure-dash / horizontal-bar
+        "\x97": "--", "\x96": "-", "\x91": "'", "\x92": "'",
+        "\x93": '"', "\x94": '"', "\x85": "...",
+    }
+    for bad, good in replacements.items():
+        text = text.replace(bad, good)
+    # Strip markdown emphasis markers that add noise to a task description.
+    text = text.replace("**", "").replace("`", "")
+    # Collapse all whitespace (including newlines) to single spaces.
+    text = " ".join(text.split())
+    # Drop any remaining non-ASCII byte so the row is pure-ASCII UTF-8.
+    text = text.encode("ascii", "ignore").decode("ascii")
+    return text.strip()
+
+
+def _slugify_task(text: str, max_len: int = 60) -> str:
+    """Stable slug from task text: lowercase alnum, hyphen-separated, length-capped.
+
+    Deterministic for a given input so re-running the same digest yields the same
+    task_id (-> dedupe works across runs)."""
+    out_chars = []
+    prev_hyphen = False
+    for ch in text.lower():
+        if ch.isalnum():
+            out_chars.append(ch)
+            prev_hyphen = False
+        elif not prev_hyphen:
+            out_chars.append("-")
+            prev_hyphen = True
+    slug = "".join(out_chars).strip("-")
+    if len(slug) > max_len:
+        slug = slug[:max_len].rstrip("-")
+    return slug or "analyst-cook"
+
+
+def _extract_cook_tasks(digest: str) -> tuple[list[str], str]:
+    """Parse the analyst digest for forward R&D tasks.
+
+    Returns (tasks, source_label). Primary source: explicit `COOK:` marker lines
+    (machine-readable, requested by the prompt). Fallback: the prose
+    "One thing to fix tomorrow" section, turned into a single task -- this keeps
+    routing alive even if a model ignores the COOK: instruction.
+    """
+    if not digest:
+        return [], "empty_digest"
+
+    # ── Primary: COOK: marker lines ──────────────────────────────────────────
+    cook_tasks: list[str] = []
+    for raw_line in digest.splitlines():
+        line = raw_line.strip()
+        # Tolerate leading markdown bullets / emphasis: "- **COOK:** ...", "* COOK: ..."
+        probe = line.lstrip("-*> ").lstrip()
+        if probe.upper().startswith("COOK:"):
+            payload = probe[len("COOK:"):].strip()
+            payload = _sanitize_task_text(payload)
+            if payload and payload.lower() != "none":
+                cook_tasks.append(payload)
+    if cook_tasks:
+        return cook_tasks, "cook_marker"
+
+    # ── Fallback: "One thing to fix tomorrow" prose section ──────────────────
+    # Find a header line that contains the phrase, then take the following
+    # non-empty prose up to the next header / horizontal rule.
+    lines = digest.splitlines()
+    fix_idx = None
+    for i, line in enumerate(lines):
+        norm = line.lower()
+        if line.lstrip().startswith("#") and "fix tomorrow" in norm:
+            fix_idx = i
+            break
+        # also tolerate a bold inline header like "**One thing to fix tomorrow**"
+        if "fix tomorrow" in norm and ("**" in line or line.strip().endswith(":")):
+            fix_idx = i
+            break
+    if fix_idx is not None:
+        collected: list[str] = []
+        for line in lines[fix_idx + 1:]:
+            s = line.strip()
+            if not s:
+                if collected:
+                    break          # blank line ends the section once we have text
+                continue
+            if s.startswith("#") or set(s) <= {"-", "*", "_"} and len(s) >= 3:
+                break              # next header or horizontal rule
+            collected.append(s)
+        prose = _sanitize_task_text(" ".join(collected))
+        # Strip a leading "**One thing...**" echo if the model repeated the header.
+        if prose:
+            task = f"Analyst EOD fix-it: {prose}"
+            return [task], "fix_tomorrow_section"
+
+    return [], "no_recommendation_found"
+
+
+def _repair_queue_encoding_if_needed() -> Optional[str]:
+    """Idempotently repair a non-UTF-8 byte in cook-queue.jsonl, in place.
+
+    The daemon's _load_queue() reads the queue as strict UTF-8 (no errors=), so a
+    single stray cp1252 byte anywhere in the file aborts the read and the daemon
+    never reaches rows appended at EOF -- which would silently defeat this whole
+    fix. We only touch the file when a decode actually fails, re-decoding the
+    bytes with a cp1252 fallback (lossless for the real content) and re-writing
+    pure UTF-8. Returns a short note if a repair happened, else None.
+
+    This is data hygiene on a JSONL state file (a plain append target), not a
+    change to the read-only daemon code.
+    """
+    try:
+        raw = COOK_QUEUE_FILE.read_bytes()
+    except OSError:
+        return None
+    try:
+        raw.decode("utf-8")
+        return None  # already clean -- no-op
+    except UnicodeDecodeError as exc:
+        bad_pos = exc.start
+    # Re-decode tolerantly: utf-8 where valid, cp1252 for stray legacy bytes.
+    try:
+        text = raw.decode("utf-8", errors="replace")
+        # Replace U+FFFD (the replacement char) back to ASCII '--' so we don't
+        # leave non-ASCII in the file; cp1252 0x97/0x96 were almost always dashes.
+        text = text.replace("�", "--")
+        backup = COOK_QUEUE_FILE.with_suffix(".jsonl.precp1252.bak")
+        try:
+            if not backup.exists():
+                backup.write_bytes(raw)
+        except OSError:
+            pass
+        tmp = COOK_QUEUE_FILE.with_suffix(".jsonl.tmp")
+        tmp.write_text(text, encoding="utf-8")
+        tmp.replace(COOK_QUEUE_FILE)
+        return f"repaired non-utf8 byte at pos {bad_pos} (backup .precp1252.bak)"
+    except OSError as exc:
+        return f"WARN repair failed: {exc}"
+
+
+def _load_existing_task_ids() -> set[str]:
+    """Read all `create` task_ids already in the queue (defensive read for dedupe)."""
+    ids: set[str] = set()
+    if not COOK_QUEUE_FILE.exists():
+        return ids
+    try:
+        # errors="replace": never crash on a legacy byte while reading for dedupe.
+        with open(COOK_QUEUE_FILE, encoding="utf-8", errors="replace") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    ev = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if isinstance(ev, dict) and ev.get("event") == "create":
+                    tid = ev.get("task_id")
+                    if tid:
+                        ids.add(str(tid))
+    except OSError as exc:
+        print(f"[eod-analytics] WARN dedupe read failed: {exc}", file=sys.stderr)
+    return ids
+
+
+def _route_analyst_cook_tasks(digest: str, date_str: str) -> dict:
+    """Parse the analyst digest and append deduped R&D tasks to cook-queue.jsonl.
+
+    Returns a summary dict: {parsed, source, appended:[task_id...], skipped_dupe, note}.
+    Never raises -- routing failure must not fail the analyst run.
+    """
+    summary = {
+        "parsed": 0,
+        "source": None,
+        "appended": [],
+        "skipped_dupe": 0,
+        "note": "",
+    }
+    try:
+        tasks, source = _extract_cook_tasks(digest)
+        summary["source"] = source
+        # Filter to substantive tasks and clamp length.
+        clean: list[str] = []
+        for t in tasks:
+            t = _sanitize_task_text(t)
+            if len(t) < _MIN_COOK_TASK_CHARS:
+                continue
+            if len(t) > _MAX_COOK_TASK_CHARS:
+                t = t[:_MAX_COOK_TASK_CHARS].rstrip()
+            clean.append(t)
+        # De-dupe within this run (by slug) and cap.
+        seen_slugs: set[str] = set()
+        deduped: list[str] = []
+        for t in clean:
+            slug = _slugify_task(t)
+            if slug in seen_slugs:
+                continue
+            seen_slugs.add(slug)
+            deduped.append(t)
+        deduped = deduped[:_MAX_COOK_TASKS_PER_RUN]
+        summary["parsed"] = len(deduped)
+
+        if not deduped:
+            summary["note"] = (
+                f"no cook tasks extracted (source={source}); appended nothing. "
+                "Digest had no COOK: lines and no parseable fix-it section."
+            )
+            print(f"[eod-analytics] analyst-cook-routing: {summary['note']}",
+                  file=sys.stderr)
+            return summary
+
+        # Repair the queue's encoding first so the daemon can actually read what
+        # we append (a stray cp1252 byte aborts its strict-UTF-8 read at EOF).
+        repair_note = _repair_queue_encoding_if_needed()
+        if repair_note:
+            print(f"[eod-analytics] analyst-cook-routing: {repair_note}", file=sys.stderr)
+
+        existing_ids = _load_existing_task_ids()
+        ts = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        rows_to_write: list[str] = []
+        for t in deduped:
+            task_id = f"{_slugify_task(t)}-{date_str}"
+            if task_id in existing_ids:
+                summary["skipped_dupe"] += 1
+                continue
+            existing_ids.add(task_id)  # guard against intra-run id collisions too
+            row = {
+                "event": "create",
+                "task_id": task_id,
+                "task": t,
+                "priority": "medium",
+                "source": "analyst-eod-auto",
+                "ts": ts,
+            }
+            rows_to_write.append(json.dumps(row, separators=(",", ":")))
+            summary["appended"].append(task_id)
+
+        if rows_to_write:
+            try:
+                COOK_QUEUE_FILE.parent.mkdir(parents=True, exist_ok=True)
+                with open(COOK_QUEUE_FILE, "a", encoding="utf-8") as f:
+                    f.write("\n".join(rows_to_write) + "\n")
+            except OSError as exc:
+                summary["note"] = f"WARN append failed: {exc}"
+                print(f"[eod-analytics] analyst-cook-routing: {summary['note']}",
+                      file=sys.stderr)
+                return summary
+
+        summary["note"] = (
+            f"routed {len(summary['appended'])} cook task(s) (source={source}, "
+            f"{summary['skipped_dupe']} dupe-skipped)"
+        )
+        print(f"[eod-analytics] analyst-cook-routing: {summary['note']} "
+              f"ids={summary['appended']}")
+    except Exception as exc:  # noqa: BLE001 -- routing must never fail the run
+        summary["note"] = f"WARN routing exception: {type(exc).__name__}: {exc}"
+        print(f"[eod-analytics] analyst-cook-routing: {summary['note']}", file=sys.stderr)
+    return summary
+
+
+# ────────────────────────────────────────────────────────────────────────────
 # Main dispatcher
 # ────────────────────────────────────────────────────────────────────────────
 
@@ -593,6 +897,14 @@ def main() -> int:
                       omitted=omitted, primary=args.primary)
     print(f"[eod-analytics] OK task={args.task} route={tag} wrote={target} "
           f"cost=${cost_usd:.4f} model={model_used}")
+
+    # Analyst -> Chef R&D routing: parse the digest we just wrote and append
+    # deduped tasks to cook-queue.jsonl so reflection actually reaches the
+    # Kitchen R&D loop (works on the free-tier path -- plain file append, no
+    # Write tool / model tool-calling needed).
+    if args.task == "analyst":
+        _route_analyst_cook_tasks(content, date_str)
+
     _append_status_warn(args.task, date_str, ok=True, error=None, cost_usd=cost_usd,
                         primary=args.primary)
     return 0

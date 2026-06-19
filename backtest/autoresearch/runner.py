@@ -35,12 +35,27 @@ _FILTERS_CONST_KEYS = {
     "ribbon_spread_min_cents": "RIBBON_SPREAD_MIN_CENTS",
     "vix_bear_threshold": "VIX_BEAR_THRESHOLD",
     "vix_rising_deadband": "VIX_RISING_DEADBAND",
-    "level_proximity_dollars": "LEVEL_PROXIMITY_DOLLARS",
     "confluence_tolerance_dollars": "CONFLUENCE_TOLERANCE_DOLLARS",
     "ribbon_flip_lookback_bars": "RIBBON_FLIP_LOOKBACK_BARS",
     # Asymmetric (NEW 2026-05-09)
     "vix_bear_rising_deadband": "VIX_RISING_DEADBAND",   # bear-only override
     "vix_bull_max": "VIX_BULL_HARD_CAP",
+    # Trendline detection knobs (2026-06-17)
+    "trendline_lookback_bars": "TRENDLINE_LOOKBACK_BARS",
+    "trendline_min_swings": "TRENDLINE_MIN_SWINGS",
+    # Bull VIX gate (2026-06-17)
+    "vix_bull_low_threshold": "VIX_BULL_LOW_THRESHOLD",
+    # Wick rejection thresholds (2026-06-17: C14 fix — were hardcoded function defaults)
+    "wick_min_pct_of_range": "WICK_MIN_PCT_OF_RANGE",
+    "wick_min_dollars": "WICK_MIN_DOLLARS",
+    "wick_close_tolerance": "WICK_CLOSE_TOLERANCE",
+    # Volume baseline window (2026-06-17: C14 fix — live: vol_baseline_20bar at orchestrator:665).
+    # range_baseline_bars excluded: ctx.range_baseline_20 is never read by any filter (dead field).
+    "vol_baseline_bars": "VOL_BASELINE_BARS",
+    # L114 (2026-06-17): panic-extreme VIX cap for BEAR entries
+    "vix_hard_cap_bear": "VIX_HARD_CAP_BEAR",
+    # L115 (2026-06-17): require multi-day VIX declining for BEAR entries (L93 recommendation)
+    "vix_declining_required_bear": "VIX_DECLINING_REQUIRED_BEAR",
 }
 
 
@@ -197,6 +212,25 @@ def run_with_params(
         # v14_enhanced profit-lock (NEW 2026-05-13)
         "profit_lock_threshold_pct",
         "profit_lock_stop_offset_pct",
+        # Ribbon entry gates (confirmed live knobs, missing caused dead-knob false positive 2026-06-16)
+        "min_ribbon_momentum_cents",
+        "max_ribbon_duration_bars",
+        # Sizing
+        "per_trade_risk_cap_pct",
+        "midday_trendline_gate",
+        # Six ratified entry gates (2026-06-18 bugfix): without these the walk-forward /
+        # params-path could not see the gates through the params dict, so any A/B or WF
+        # that loaded them from params ran WITHOUT them (C14 dead-knob class). The
+        # orchestrator translates+assigns all six from params_overrides; this allowlist
+        # is the parallel path used by runner.run_with_params -> run_backtest kwargs.
+        "vix_bear_hard_cap",
+        "block_level_rejection",
+        "entry_bar_body_pct_min",
+        "block_bull_1100_1200",
+        "block_elite_bull",
+        "block_elite_bull_vix_low",
+        "block_elite_bull_vix_high",
+        "block_bull_morning_agg",
     )
     for k in direct_passthrough:
         if k in params:

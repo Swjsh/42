@@ -1,55 +1,50 @@
-"""STAIRSTEP_CONTINUATION watcher (WATCH-ONLY per OP-21).
+"""STAIRSTEP_CONTINUATION watcher — RETIRED 2026-06-18 (structurally anti-J-edge).
 
-Detects a continuation setup at a BROKEN named level where successive retests from
-the broken side form a STRICT monotonic stairstep — progressively LOWER highs
-(descending → short / puts) or progressively HIGHER lows (ascending → long / calls).
+>>> detect_stairstep_continuation_setup() now ALWAYS returns None. <<<
+The detector is retired, not loosened (playbook rule 5). It is kept importable so the
+watcher fleet, validate_breakout_family stream, and v45 gym validator continue to load;
+it simply never fires. The original detection logic and exit knobs are preserved below
+for the record but are dead code.
 
-Pattern named after the missed 2026-05-07 735.40 sequence (playbook CANDIDATE
-STAIRSTEP_CONTINUATION):
-  - 735.40 broke to the downside, then three retests printed strictly lower highs:
-      736.12 → 735.61 → 735.41  (LH-LH-LH)
-  - SPY then continued -$5.65 to 729.75.
-  - The system bought calls at 12:30 (counter-trend trap) — J's eye saw the stairstep
-    the engine missed.
+────────────────────────────────────────────────────────────────────────────────────
+WHY RETIRED — three compounding defects, the third fatal:
 
-Hypothesis (playbook): when a key level breaks AND each subsequent retest from the
-broken side prints a progressively lower high (or higher low for a support flip),
-the level has rotated from defending to capping. Once 3+ rejections form a strict
-sequence, continuation in the broken direction is the high-edge trade.
+1. FABRICATED MOTIVATING CASE. The original docstring + the v45 fixture cited a 5/07
+   sequence "736.12 → 735.61 → 735.41" pressing 735.40. Those bars do NOT exist in the
+   real 2026-05-07 SPY 5m tape. The REAL descending highs pressing 735.40 (RTH) are:
+       11:30 H 735.59 → 11:35 H 735.55 → 11:40 H 735.50 → 11:45 H 735.39
+   (the 736.10 print is the 10:55-11:00 session-high area, not part of the staircase).
+   On the REAL anchor the as-shipped detector fired 0 times.
 
-Detection (this watcher):
-  1. BROKEN LEVEL — a named level qualifies as "broken to resistance" if its
-     key-levels.json role is broken_to_resistance / support_flipped_to_resistance /
-     support_broken_to_resistance, OR (fallback) price clearly broke a named level
-     earlier today and is now trading on the broken side (a 5m close past it by
-     >= BREAK_CLOSE_DOLLARS, and the current bar is on the broken side). Mirror for
-     "broken to support".
-  2. STAIRSTEP — collect the per-retest extreme of every bar that came within
-     RETEST_TOLERANCE of the level FROM THE BROKEN SIDE. Require >= MIN_RETESTS
-     such extremes forming a STRICT monotonic sequence (each strictly lower high
-     for descending; each strictly higher low for ascending).
-  3. CONFIRMING BAR — the last closed bar (the current bar) closes on the broken
-     side AND is the right color (red for short / green for long).
+2. LOCAL-MAXIMUM CONTRADICTION. _collect_descending_retests required each retest high to
+   be a strict LOCAL MAXIMUM (h > prev AND h >= next). A clean consecutive descending
+   staircase (each high lower than the last) can NEVER satisfy h > prev, so the real
+   stairstep highs were filtered out — the detector could not detect the very pattern it
+   was named for. (Verified: on the real 735.59→735.55→735.50→735.39 bars the collector
+   returned [].)
 
-Exit logic (L51/L55 — chart-stop only, premium stop disabled):
-  - Entry  = current bar close (SPY price).
-  - Stop   = most-recent retest HIGH + STOP_BUFFER (short) / most-recent retest LOW
-             - STOP_BUFFER (long). If the stairstep is intact, price should not
-             revisit the prior retest extreme.
-  - TP1    = entry -/+ TP1_SPY_MOVE OR the next named level beyond entry in the
-             continuation direction, WHICHEVER IS CLOSER.
-  - Runner = the next major named level beyond TP1, else entry -/+ RUNNER_SPY_MOVE.
+3. ANTI-J-EDGE (the fatal one). 2026-05-07 is a J LOSS day. A descending-stairstep
+   short detector profits on exactly the chop-into-a-broken-level structure that marks
+   J's LOSS days, and loses on his clean-trend WIN days. Measured over the OP-16 anchor
+   set (validate_breakout_family, look-ahead-neutralized historical levels):
 
-Time gate: 09:45 - 15:00 ET. Cooldown: 30 minutes.
+       variant                         edge_capture   anti?   WIN-day P&L   LOSS-day
+       CURRENT  (local-max, shipped)     -$364.80      YES     -$345        +$1546
+       CORRECTED(collect-all, no l-max)  -$509.57      YES     -$412        profits
 
-OP-21 promotion gate (NOT YET PASSED — n=1 paper observation per playbook):
-  - Live gate: N >= 20 obs WR >= 50% → real-fills → 3 live J wins.
-  - DO NOT wire into production heartbeat.md until live gate passes.
+   Fixing defect #2 makes it FIRE MORE and become MORE anti-edge (-510 vs -365), and its
+   deduped expectancy flips negative (-$8.52). Both variants lose on ALL THREE of J's
+   winning days (4/29, 5/01, 5/04) and profit on his losing days (5/05). This reproduces
+   the prior adversarial finding (edge_capture -647 / -365). No corrected variant clears
+   the OP-16 anchor gate (positive edge_capture, no profit-on-J-loss-days), so per
+   "setups that fail thresholds get retired, not loosened" the detector is retired.
 
-Sources:
-  strategy/playbook.md — CANDIDATE STAIRSTEP_CONTINUATION (the 5/07 735.40 case)
-  strategy/key-levels-protocol.md §8 — role + bounce_history (stairstep memory)
-  backtest/lib/watchers/floor_hold_bounce_watcher.py — structural template
+DECISION: RETIRE. edge_capture < 0 and anti-correlated with J's edge on every variant
+tried. This is the correct outcome — a structurally anti-edge detector should not ship.
+
+Evidence: anchor edge_capture via autoresearch.j_edge_tracker J_WINNERS/J_LOSERS +
+autoresearch.validate_breakout_family STAIRSTEP_CONTINUATION stream (16mo, real-fills).
+────────────────────────────────────────────────────────────────────────────────────
 """
 
 from __future__ import annotations
@@ -294,17 +289,38 @@ def _longest_strict_monotonic_tail(seq: list[float], *, decreasing: bool) -> lis
 _last_signal_time: Optional[dt.datetime] = None
 
 
-# ── Public detector ───────────────────────────────────────────────────────────
+# ── Public detector — RETIRED 2026-06-18, always returns None ─────────────────
 
 def detect_stairstep_continuation_setup(ctx: BarContext) -> Optional[WatcherSignal]:
-    """Detect STAIRSTEP_CONTINUATION at a broken named level.
+    """RETIRED 2026-06-18 — ALWAYS returns None. See module docstring for the why.
+
+    Retired (not loosened, per playbook rule 5) because the setup is structurally
+    anti-J-edge: over the OP-16 anchor set every variant — including the corrected
+    collect-all-near-level logic — has NEGATIVE edge_capture (-$365 shipped / -$510
+    corrected) AND is anti-correlated with J's edge (loses on his WIN days 4/29-5/04,
+    profits on his LOSS days 5/05-5/07). The corrected variant's real-fills expectancy
+    is also negative (ATM -$27.57, ITM2 -$42.54 over 16mo). No variant clears the gate.
+
+    The original implementation is preserved as _retired_detect_impl below for the
+    record, but is never called. This stub keeps the watcher importable (fleet runner,
+    validate_breakout_family, v45 gym) while ensuring it never fires.
+    """
+    return None
+
+
+def _retired_detect_impl(ctx: BarContext) -> Optional[WatcherSignal]:  # pragma: no cover - dead code, kept for the record
+    """ORIGINAL (retired) detection logic — NOT CALLED. Preserved for transparency.
 
     direction="short" for a DESCENDING stairstep (lower highs) at a broken-to-
         resistance level — continuation down (buy puts).
     direction="long"  for an ASCENDING stairstep (higher lows) at a broken-to-
         support level — continuation up (buy calls).
 
-    Returns None if any gate fails. Confidence scales with the retest count.
+    NOTE: the _collect_descending_retests local-maximum filter below is the very bug
+    (defect #2) that prevented this from detecting a clean descending staircase. It is
+    left UNFIXED here on purpose — fixing it only makes the detector more anti-J-edge
+    (see module docstring). This function is dead; do not resurrect without a fresh
+    OP-16 anchor A/B that clears positive edge_capture.
     """
     global _last_signal_time
 
@@ -510,7 +526,7 @@ def detect_stairstep_continuation_setup(ctx: BarContext) -> Optional[WatcherSign
     )
 
 
-# ── Self-test ─────────────────────────────────────────────────────────────────
+# ── Self-test ─ RETIRED: asserts the detector NEVER fires (real-tape, no fabrication) ─
 
 if __name__ == "__main__":
     import sys as _sys
@@ -556,100 +572,49 @@ if __name__ == "__main__":
     LEVEL = 735.40
     results: list[tuple[str, bool]] = []
 
-    # ── FIXTURE A — SHOULD FIRE: 5/07 descending stairstep at broken 735.40 ──
-    # Level breaks down (close 734.90 < 735.40 - 0.10), then 3 retests with strict
-    # lower highs 736.12 → 735.61 → 735.41, confirming bar closes red below.
+    # ── REAL 2026-05-07 tape (RTH 11:25-11:55 ET), the genuine descending staircase
+    # pressing the broken 735.40 level: H 735.59 → 735.55 → 735.50 → 735.39, price
+    # then continued to 729.75 (-$5.65). NO fabricated 736.12/735.61/735.41 values.
+    # The retired detector MUST return None on this real, picture-perfect stairstep.
     _reset()
-    rows_a = []
-    # break bar: closes below the level
-    rows_a.append(dict(timestamp_et=_ts(11, 35), open=735.5, high=735.6, low=734.7, close=734.90, volume=1500))
-    # retest #1 — high 736.12 (within 0.75 of 735.40? 736.12-735.40=0.72 ✓), closes below
-    rows_a.append(dict(timestamp_et=_ts(11, 40), open=734.9, high=736.12, low=734.8, close=735.10, volume=1200))
-    # drift below
-    rows_a.append(dict(timestamp_et=_ts(11, 45), open=735.0, high=735.2, low=734.5, close=734.7, volume=900))
-    # retest #2 — high 735.61 (lower high), closes below
-    rows_a.append(dict(timestamp_et=_ts(11, 50), open=734.7, high=735.61, low=734.6, close=735.00, volume=1100))
-    rows_a.append(dict(timestamp_et=_ts(11, 55), open=735.0, high=735.1, low=734.3, close=734.5, volume=850))
-    # retest #3 — high 735.41 (lower high again), closes below
-    rows_a.append(dict(timestamp_et=_ts(12, 0), open=734.5, high=735.41, low=734.4, close=734.80, volume=1000))
-    # confirming bar — closes red below the level (continuation)
-    rows_a.append(dict(timestamp_et=_ts(12, 5), open=734.8, high=734.9, low=734.0, close=734.20, volume=1300))
-    ctx_a = _mk_ctx(rows_a, vix=18.0)
+    real_rows = [
+        dict(timestamp_et=_ts(11, 25), open=735.04, high=735.24, low=734.34, close=734.82, volume=12186),
+        dict(timestamp_et=_ts(11, 30), open=734.87, high=735.59, low=734.87, close=735.55, volume=8113),
+        dict(timestamp_et=_ts(11, 35), open=735.51, high=735.55, low=735.24, close=735.24, volume=6813),
+        dict(timestamp_et=_ts(11, 40), open=735.24, high=735.50, low=735.07, close=735.32, volume=5439),
+        dict(timestamp_et=_ts(11, 45), open=735.29, high=735.39, low=734.82, close=734.82, volume=4928),
+        dict(timestamp_et=_ts(11, 50), open=734.83, high=734.96, low=734.55, close=734.88, volume=8612),
+        dict(timestamp_et=_ts(11, 55), open=734.88, high=734.88, low=733.82, close=734.00, volume=10699),
+    ]
+    ctx_real = _mk_ctx(real_rows, vix=18.0)
     _force_levels([LEVEL, 729.75, 732.0], [LEVEL], [], DAY)
-    sig_a = detect_stairstep_continuation_setup(ctx_a)
-    fired_a = sig_a is not None and sig_a.direction == "short"
-    results.append(("A: 5/07 descending stairstep SHOULD fire (short)", fired_a))
-    if sig_a is not None:
-        print(f"[A] FIRED dir={sig_a.direction} conf={sig_a.confidence} "
-              f"entry={sig_a.entry_price:.2f} stop={sig_a.stop_price:.2f} "
-              f"tp1={sig_a.tp1_price:.2f} runner={sig_a.runner_price:.2f} "
-              f"seq={sig_a.metadata['retest_sequence']}")
-    else:
-        print("[A] no signal")
+    sig_real = detect_stairstep_continuation_setup(ctx_real)
+    results.append(("REAL 5/07 735.40 stairstep -> retired -> None (no fire)", sig_real is None))
+    print(f"[REAL] {'no signal (retired, correct)' if sig_real is None else 'FIRED (wrong! detector not retired)'}")
 
-    # ── FIXTURE B — SHOULD NOT FIRE: non-monotonic retests (no stairstep) ────
-    # Highs go 735.61 → 736.12 → 735.41 (middle one HIGHER → breaks strict descent).
-    _reset()
-    rows_b = []
-    rows_b.append(dict(timestamp_et=_ts(11, 35), open=735.5, high=735.6, low=734.7, close=734.90, volume=1500))
-    rows_b.append(dict(timestamp_et=_ts(11, 40), open=734.9, high=735.61, low=734.8, close=735.10, volume=1200))
-    rows_b.append(dict(timestamp_et=_ts(11, 45), open=735.0, high=735.2, low=734.5, close=734.7, volume=900))
-    rows_b.append(dict(timestamp_et=_ts(11, 50), open=734.7, high=736.12, low=734.6, close=735.00, volume=1100))  # HIGHER
-    rows_b.append(dict(timestamp_et=_ts(11, 55), open=735.0, high=735.1, low=734.3, close=734.5, volume=850))
-    rows_b.append(dict(timestamp_et=_ts(12, 0), open=734.5, high=735.41, low=734.4, close=734.80, volume=1000))
-    rows_b.append(dict(timestamp_et=_ts(12, 5), open=734.8, high=734.9, low=734.0, close=734.20, volume=1300))
-    ctx_b = _mk_ctx(rows_b, vix=18.0)
-    _force_levels([LEVEL, 729.75, 732.0], [LEVEL], [], DAY)
-    sig_b = detect_stairstep_continuation_setup(ctx_b)
-    # Note: the tail-walk finds the longest monotonic run ENDING at last retest
-    # (735.41). Going back: 735.41 < 736.12 (ok), 736.12 vs 735.61 -> 735.61 < 736.12
-    # so the strict-decreasing-backward run from 735.41 is [736.12, 735.41] = len 2
-    # (735.61 cannot extend since 735.61 < 736.12 going further back breaks it).
-    # len 2 < MIN_RETESTS=3 -> no fire.
-    results.append(("B: non-monotonic retests should NOT fire", sig_b is None))
-    print(f"[B] {'no signal (correct)' if sig_b is None else 'FIRED (wrong!)'}")
-
-    # ── FIXTURE C — SHOULD NOT FIRE: confirming bar is GREEN (no continuation) ─
-    _reset()
-    rows_c = list(rows_a[:-1])
-    rows_c.append(dict(timestamp_et=_ts(12, 5), open=734.2, high=735.0, low=734.1, close=734.90, volume=1300))  # green
-    ctx_c = _mk_ctx(rows_c, vix=18.0)
-    _force_levels([LEVEL, 729.75, 732.0], [LEVEL], [], DAY)
-    sig_c = detect_stairstep_continuation_setup(ctx_c)
-    results.append(("C: green confirming bar should NOT fire", sig_c is None))
-    print(f"[C] {'no signal (correct)' if sig_c is None else 'FIRED (wrong!)'}")
-
-    # ── FIXTURE D — SHOULD FIRE: ascending stairstep at broken-to-support ────
-    # Level 740.00 breaks UP, retest lows 739.40 → 739.70 → 739.95 (higher lows),
-    # confirming bar closes green above.
+    # ── Ascending real-support shape: also must NOT fire (retired = never fires).
     _reset()
     SLEVEL = 740.00
-    rows_d = []
-    rows_d.append(dict(timestamp_et=_ts(10, 0), open=739.8, high=740.6, low=739.7, close=740.30, volume=1500))  # break up
-    rows_d.append(dict(timestamp_et=_ts(10, 5), open=740.3, high=740.5, low=739.40, close=740.10, volume=1200))  # retest1 low 739.40
-    rows_d.append(dict(timestamp_et=_ts(10, 10), open=740.1, high=740.7, low=740.0, close=740.5, volume=900))
-    rows_d.append(dict(timestamp_et=_ts(10, 15), open=740.5, high=740.8, low=739.70, close=740.20, volume=1100))  # retest2 low 739.70
-    rows_d.append(dict(timestamp_et=_ts(10, 20), open=740.2, high=740.9, low=740.1, close=740.6, volume=850))
-    rows_d.append(dict(timestamp_et=_ts(10, 25), open=740.6, high=741.0, low=739.95, close=740.40, volume=1000))  # retest3 low 739.95
-    rows_d.append(dict(timestamp_et=_ts(10, 30), open=740.4, high=741.3, low=740.35, close=741.20, volume=1300))  # confirm green above
-    ctx_d = _mk_ctx(rows_d, vix=18.0)
+    asc_rows = [
+        dict(timestamp_et=_ts(10, 0), open=739.8, high=740.6, low=739.7, close=740.30, volume=1500),
+        dict(timestamp_et=_ts(10, 5), open=740.3, high=740.5, low=739.40, close=740.10, volume=1200),
+        dict(timestamp_et=_ts(10, 10), open=740.1, high=740.7, low=740.0, close=740.5, volume=900),
+        dict(timestamp_et=_ts(10, 15), open=740.5, high=740.8, low=739.70, close=740.20, volume=1100),
+        dict(timestamp_et=_ts(10, 20), open=740.2, high=740.9, low=740.1, close=740.6, volume=850),
+        dict(timestamp_et=_ts(10, 25), open=740.6, high=741.0, low=739.95, close=740.40, volume=1000),
+        dict(timestamp_et=_ts(10, 30), open=740.4, high=741.3, low=740.35, close=741.20, volume=1300),
+    ]
+    ctx_asc = _mk_ctx(asc_rows, vix=18.0)
     _force_levels([SLEVEL, 743.0, 745.0], [], [SLEVEL], DAY)
-    sig_d = detect_stairstep_continuation_setup(ctx_d)
-    fired_d = sig_d is not None and sig_d.direction == "long"
-    results.append(("D: ascending stairstep SHOULD fire (long)", fired_d))
-    if sig_d is not None:
-        print(f"[D] FIRED dir={sig_d.direction} conf={sig_d.confidence} "
-              f"entry={sig_d.entry_price:.2f} stop={sig_d.stop_price:.2f} "
-              f"tp1={sig_d.tp1_price:.2f} runner={sig_d.runner_price:.2f} "
-              f"seq={sig_d.metadata['retest_sequence']}")
-    else:
-        print("[D] no signal")
+    sig_asc = detect_stairstep_continuation_setup(ctx_asc)
+    results.append(("ascending support shape -> retired -> None (no fire)", sig_asc is None))
+    print(f"[ASC]  {'no signal (retired, correct)' if sig_asc is None else 'FIRED (wrong!)'}")
 
-    # ── Summary ──────────────────────────────────────────────────────────────
-    print("\n=== STAIRSTEP_CONTINUATION self-test ===")
+    # ── Summary
+    print("\n=== STAIRSTEP_CONTINUATION self-test (RETIRED: must never fire) ===")
     all_pass = True
     for name, ok in results:
         print(f"  [{'PASS' if ok else 'FAIL'}] {name}")
         all_pass = all_pass and ok
-    print(f"=== {'ALL PASS' if all_pass else 'SOME FAILED'} ===")
+    print(f"=== {'ALL PASS (detector correctly retired)' if all_pass else 'SOME FAILED'} ===")
     _sys.exit(0 if all_pass else 1)

@@ -16,7 +16,7 @@ The PowerShell harness has already validated state files via `Repair-StateFiles`
 
 1. `automation/state/hypothesis-grades.jsonl` — append-only ledger; one row per *prediction* per day (S4.1)
 2. `automation/state/rule-breaks.jsonl` — append-only ledger; cost-tagged per S2.1
-3. `automation/state/decisions.jsonl` — per-tick decision events with grades (S3.1)
+3. `automation/state/decisions.jsonl` (Safe ledger) + `automation/state/aggressive/decisions.jsonl` (Bold ledger) — per-tick decision events with grades (S3.1). Untagged rows default to the owning file's account (`safe` / `bold`) per the rule in Section 4.5.
 4. `automation/state/process-compliance.jsonl` — daily compliance rows (S5.5)
 5. `automation/state/daily-review-{date}.json` — one per trading day in the just-finished week
 6. `analysis/setup-performance.json` — per-setup running stats from EOD aggregator
@@ -234,11 +234,13 @@ If any single `(setup, reason)` has `net_$ < -200` over ≥ 10 skips → surface
 
 ## Section 4.5 — Decision quality (S3.1, S3.5)
 
-Read `decisions.jsonl` filtered to this week. Compute:
+Read BOTH `automation/state/decisions.jsonl` (Safe ledger) AND `automation/state/aggressive/decisions.jsonl` (Bold ledger), filtered to this week. Compute:
 
 - `decisions_total` (typically 50–200/week)
 - `decisions_correct`, `decisions_wrong`, `decisions_ambiguous`
 - `decision_precision = correct / (correct + wrong)` (excludes ambiguous from denominator)
+
+> **`account_id` default-by-file rule (NEW 2026-06-18 — consumer robustness):** `account_id` is mandated on decision rows but ABSENT on ~90% of them in practice. Whenever you attribute or split decisions by account (the per-account precision cut below, and any account-keyed metric), DEFAULT an untagged row to its owning file: rows from `automation/state/decisions.jsonl` → `"safe"`; rows from `automation/state/aggressive/decisions.jsonl` → `"bold"`. A row that carries an explicit `account_id` keeps its stamped value (it overrides the file default). Apply this at read time, before grouping.
 
 This is Gamma's decision-making rate — independent of trade hit rate. A trade can win with sloppy decisions if the market handed it to us; a trade can lose with disciplined decisions if the regime didn't cooperate.
 
@@ -259,6 +261,8 @@ This is Gamma's decision-making rate — independent of trade hit rate. A trade 
 | WATCH_ONLY | … | … | … | … | … |
 
 > The action strings above are the canonical set the heartbeat producer emits to `decisions.jsonl` (ACTIONs enum in `automation/prompts/heartbeat.md` ~line 166). `WATCH_ONLY` is the unified watcher-fleet fire — the legacy `ORB_WOULD_ENTER` / `FBW_WOULD_ENTER` rows (emitted in place of `WATCH_ONLY` for two watchers) count as `WATCH_ONLY` here; fold them into that row. Watcher fires are observability-only (no order placed), so grade them as `correct`/`wrong` by whether the would-be entry was directionally right over the next 30 min, not by realized P&L. Do NOT enumerate `HOLD_STALE_HTF` or `SKIP_VIX` — the producer never emits those strings, so any row keyed on them is always empty (dead matcher).
+
+The table above pools both accounts. Also render a per-account split (`account = safe` vs `account = bold`) using the `account_id` default-by-file rule stated at the top of this section — untagged Safe-ledger rows count as `safe`, untagged Bold-ledger rows as `bold`. A Safe-vs-Bold precision gap on the same ACTION is a signal the two engines diverge on that decision class.
 
 A precision < 0.55 on any ACTION with n ≥ 10 → surface in recommendations as a candidate filter / threshold tuning.
 

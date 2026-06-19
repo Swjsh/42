@@ -524,6 +524,14 @@ runs in a separate process (Gamma_WatcherLive). This block only CONSUMES its out
 newest-first. The file is APPEND-ONLY and contains historical replay rows from months ago, so the
 filters below are load-bearing — do not drop any of them. For each row, apply IN ORDER:
 
+0. **Schema guard (FIRST — runs before any other filter):** `watcher-observations.jsonl` carries
+   HETEROGENEOUS schemas — alongside normal SPY watcher rows it holds malformed/foreign rows (e.g.
+   stale futures/MNQ rows that have a NAIVE `bar_timestamp_et` with no offset and carry
+   `watcher_signals:[]` instead of `watcher_name`/`confidence`). Guard each row: if it lacks
+   `watcher_name` or `confidence`, OR its `bar_timestamp_et` can't be parsed to a tz-aware ET
+   datetime (missing/naive offset, unparseable, or absent), skip that row silently and continue to
+   the next row. A malformed/foreign row must NEVER raise or abort the watcher scan — it is dropped,
+   the block keeps processing the remaining rows.
 1. **Date match:** skip unless `date(row.bar_timestamp_et) == today_et`. (`bar_timestamp_et` is ISO
    with an ET offset, e.g. `2026-06-18T13:20:00-04:00` — compare its date to today in ET.)
 2. **Freshness:** skip unless `(now_et - row.bar_timestamp_et) <= 10 minutes`. Stale signals are
@@ -539,8 +547,8 @@ filters below are load-bearing — do not drop any of them. For each row, apply 
    `bold` row for the same signal (and vice-versa) — they are independent ledgers. A row whose
    `account_id` differs from this invocation's account is NOT a dedup match.
 
-A single watcher row that survives all four filters is one signal to log. Multiple DISTINCT
-(setup_name, direction) pairs can each produce a row on the same tick.
+A single watcher row that passes the schema guard and survives all four filters is one signal to
+log. Multiple DISTINCT (setup_name, direction) pairs can each produce a row on the same tick.
 
 **Gates (lightweight — this is only logging):** evaluate per surviving signal, in order:
 

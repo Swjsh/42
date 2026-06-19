@@ -20,16 +20,18 @@ The PowerShell harness has already validated state files via `Repair-StateFiles`
 6. `automation/state/current-position-bold.json` (must be null after EOD-flatten)
 7. `journal/trades.csv` (today's rows, filtered by date — includes `account_id` column)
 8. `automation/state/today-bias.json` — needed for the morning hypothesis to grade against
-9. `automation/state/params_safe.json` + `automation/state/params_bold.json` — for per-account kill-switch thresholds
+9. `automation/state/params.json` (Safe) + `automation/state/aggressive/params.json` (Bold) — for per-account kill-switch thresholds (field `daily_loss_kill_switch_pct`: Safe 0.3 = -30%, Bold 0.5 = -50%)
 
 *(Fallback: if `current-position-safe.json` / `current-position-bold.json` are missing, check `current-position.json` for legacy single-account mode.)*
 
 # Dual-account P&L reporting (effective 2026-05-18)
 
-When both `params_safe.json` and `params_bold.json` exist, compute and report metrics separately for each account:
+When both `automation/state/params.json` (Safe) and `automation/state/aggressive/params.json` (Bold) exist, compute and report metrics separately for each account:
 
 **Safe account metrics:** filter `trades.csv` rows where `account_id == "safe"` for today.
 **Bold account metrics:** filter `trades.csv` rows where `account_id == "bold"` for today.
+
+> **`account_id` default-by-file rule (applies to every account-split in this prompt, including Section 7h decision grading and Section 7h1 watcher fleet):** `account_id` is mandated but absent on ~90% of `decisions.jsonl` rows. Whenever you read decisions by account, DEFAULT an untagged row to its owning file: `automation/state/decisions.jsonl` → `"safe"`; `automation/state/aggressive/decisions.jsonl` → `"bold"`. An explicit `account_id` on the row overrides the file default. (`trades.csv` rows above are reliably stamped, so this default is a no-op there — it exists for the decisions ledgers.)
 
 Report the following summary block in the EOD journal entry:
 
@@ -196,7 +198,9 @@ Update each row's `decision_grade` field in-place (read jsonl → modify → re-
 
 **Steps:**
 
-1. Read today's rows from `automation/state/decisions.jsonl` (filter `date == {today}`). Keep only rows where `action ∈ {WATCH_ONLY, ORB_WOULD_ENTER, FBW_WOULD_ENTER}` (the three watcher-fire action strings — the legacy two are emitted in place of WATCH_ONLY for `ORB_RETEST_LONG` / `FBW_MORNING_MID`, so treat all three as watcher fires).
+1. Read today's rows from BOTH `automation/state/decisions.jsonl` (Safe ledger) AND `automation/state/aggressive/decisions.jsonl` (Bold ledger), filter `date == {today}`. Keep only rows where `action ∈ {WATCH_ONLY, ORB_WOULD_ENTER, FBW_WOULD_ENTER}` (the three watcher-fire action strings — the legacy two are emitted in place of WATCH_ONLY for `ORB_RETEST_LONG` / `FBW_MORNING_MID`, so treat all three as watcher fires).
+
+   **`account_id` default-by-file rule (NEW 2026-06-18 — consumer robustness):** `account_id` is mandated on each row but is ABSENT on ~90% of rows in practice (the heartbeat does not reliably stamp it). DEFAULT any row missing `account_id` to the account that OWNS the file it came from: rows read from `automation/state/decisions.jsonl` → `"safe"`; rows read from `automation/state/aggressive/decisions.jsonl` → `"bold"`. Apply this default at read time, before any grouping or `account(s)` reporting below. A row that DOES carry an explicit `account_id` keeps its stamped value (it overrides the file default).
 
 2. **Group by `setup_name`** (fall back to `watcher_name` if `setup_name` absent). For each group, report a row in the table below. If zero watcher rows today, write the single line `No watcher fires logged today.` and skip the rest of this section (silence is the signal — do not pad).
 
@@ -208,7 +212,7 @@ Update each row's `decision_grade` field in-place (read jsonl → modify → re-
 
    - `count` = number of fires for that setup today (across both accounts; the SAME signal logs once per account it was evaluated for — that is expected per account-stamping, not a duplicate).
    - `direction` / `confidence` = the dominant value in the group (note if mixed).
-   - `account(s)` = distinct `account_id` values present (`safe`, `bold`, or both).
+   - `account(s)` = distinct `account_id` values present (`safe`, `bold`, or both), AFTER applying the default-by-file rule from step 1 (untagged Safe-ledger rows count as `safe`, untagged Bold-ledger rows as `bold`).
    - `sample reason` = the `reason` field from the highest-confidence / most-recent fire, truncated to ~100 chars.
 
 4. **Cross-reference would-be P&L (if graded).** Read today's rows from `automation/state/watcher-observations.jsonl` (filter `date(bar_timestamp_et) == {today}`). These rows carry `would_be_outcome` and `would_be_pnl_dollars` when the gym grader has run over them. For each `setup_name` group, if matching graded observation rows exist, append a one-line summary beneath the table: `{setup_name}: {n} graded, would-be P&L ${sum}, {n_win} would-win / {n_loss} would-lose.` If no graded rows exist yet (grader hasn't run), write `(observations ungraded — would-be P&L pending grader).`
@@ -372,47 +376,65 @@ Example: `BU|MID|FLAT|favorable|chart_stop|vix_falling_required`
 
 This is the leading-indicator-on-engine-correctness loop. If the backtest stops matching live, something has drifted — find it before the next session.
 
-## 8c. Shadow-mode daily scorecard (NEW 2026-05-09 — Karpathy method principle 4)
+## 8c. Shadow-mode daily scorecard (NEW 2026-05-09 — Karpathy method principle 4; file+field contract fixed 2026-06-18)
 
-**Why this exists:** if `automation/state/shadow-version.json#enabled == true`, every heartbeat tick today logged TWO decisions to `decisions.jsonl` — one for production v14, one for the candidate version. This step diffs them and accumulates a daily verdict toward auto-ratification.
+**Why this exists:** a shadow model (`setup/scripts/shadow_model_eval.py`, Nemotron free-tier) replays every heartbeat tick and emits its own decision alongside the production engine's logged action. This step diffs production-vs-shadow per tick and accumulates a daily verdict toward auto-ratification (OP-11 5-of-7 outer loop).
 
-**Skip condition:** if `shadow-version.json#enabled == false`, write a one-line NOOP log and skip this section. No cost when shadow is off.
+**CONTRACT (read this — the old version was wrong):** the shadow producer does NOT write `version` / `would_have_action` rows into `decisions.jsonl`. It writes a SEPARATE append-only file `automation/state/shadow-model-decisions.jsonl`, where each row is ALREADY a paired production-vs-shadow comparison. The real schema (verified against the producer at `setup/scripts/shadow_model_eval.py` ~lines 889-903) is:
+```json
+{"date":"2026-06-01","time_et":"12:48","account":"bold","tick_id":15,
+ "real_action":"HOLD_DEV","shadow_action":"HOLD_DEV","agree":false,
+ "real_scores":[10,2],"shadow_scores":[10,2],
+ "model":"nvidia/nemotron-3-super-120b-a12b:free","latency_ms":6993,
+ "shadow_reason":"...","is_decision_tick":true}
+```
+- `real_action` = the action the production heartbeat actually logged that tick (this IS production — there is no `version` field to filter on).
+- `shadow_action` = the candidate (shadow) model's action for the same tick snapshot.
+- `agree` (bool) = the producer's own agreement verdict (already accounts for HOLD/HOLD_DEV/HOLD_RUNNER equivalence on open positions, SKIP-vs-SKIP, infra-vs-HOLD, etc. — do NOT recompute agreement yourself; trust this field).
+- `is_decision_tick` (bool) = true only for ticks that required a real trading decision (ENTER_*/EXIT_*/HOLD_DEV/SKIP_*/STATE_DRIFT_*). Plain HOLD/HOLD_RUNNER and infra/fill-ack actions are `false`. Disagreements on decision ticks are the only ones that carry P&L signal.
+- `account` = `"safe"` or `"bold"` (always stamped by the producer).
+
+**Skip condition:** if `automation/state/shadow-model-decisions.jsonl` is missing OR has zero rows whose `date == {today}`, write a one-line NOOP log (`SHADOW_SCORECARD_NOOP: no shadow-model-decisions rows for {today}`) and skip this section. No cost when the shadow eval did not run.
 
 **Steps:**
 
-1. Read `automation/state/shadow-version.json`. Capture `version`, `rule_id`, `started_at`, `expires_at`, `overrides`.
+1. Read `automation/state/shadow-model-decisions.jsonl`. Keep only rows where `date == {today}`. (Optional context: read `automation/state/shadow-version.json` for `version`/`rule_id` to label the scorecard; if `version` is null, label the scorecard `shadow_version: "nemotron-shadow"` and leave `rule_id: null` — the model-agreement shadow has no params override, so absence of a rule_id is expected and NOT an error.)
 
-2. Read today's `decisions.jsonl` rows. Group by `tick_id`. For each tick, identify the production row (`version: "v14"` or `"both"`) and the shadow row (`version: "<shadow_version>"` or `"both"`).
+2. **Per-tick diff classification.** Each row is already one production-vs-shadow pair — no `tick_id` grouping needed. Bucket each row by comparing `real_action` vs `shadow_action`:
+   - `agree`: row's `agree == true`. No interesting signal. (Authoritative — use the field, do not re-derive.)
+   - `shadow_more_aggressive`: `agree == false` AND `shadow_action` starts with `ENTER_` AND `real_action` does NOT (production held/skipped, shadow would have entered — shadow saw a setup prod missed).
+   - `shadow_less_aggressive`: `agree == false` AND `real_action` starts with `ENTER_` AND `shadow_action` does NOT (production entered, shadow would have held/skipped — shadow filtered a setup prod took).
+   - `shadow_different_direction`: one action is `ENTER_BULL` and the other is `ENTER_BEAR` (material doctrine disagreement).
+   - `other_disagreement`: `agree == false` but none of the above (e.g. exit-timing mismatch). Count but do not P&L-score.
 
-3. **Per-tick diff classification.** For each tick:
-   - `agree`: both versions emit the same action. No interesting signal.
-   - `shadow_more_aggressive`: production HOLD, shadow ENTER. Shadow saw a setup prod missed.
-   - `shadow_less_aggressive`: production ENTER, shadow HOLD. Shadow filtered out a setup prod took.
-   - `shadow_different_direction`: prod ENTER_BULL, shadow ENTER_BEAR (or vice versa). Material doctrine disagreement.
+3. **Counterfactual P&L for shadow-only entries.** For each `shadow_more_aggressive` row, walk the chart 30-60 min forward from that row's `time_et` (on `date`) using `data_get_ohlcv` and estimate what a 3-contract ATM 0DTE entry in the `shadow_action` direction would have made/lost. (Use the same logic as Section 7g `cf_30min_pnl_estimate`.) Tag each as `cf_outcome: win|loss|flat`. Symmetrically, for each `shadow_less_aggressive` row, the shadow AVOIDED prod's entry — credit the shadow with the NEGATIVE of prod's realized P&L on that trade if it lost (shadow's "saved" P&L), else $0.
 
-4. **Counterfactual P&L for shadow-only entries.** For each `shadow_more_aggressive` tick, walk the chart 30-60 min forward from that timestamp using `data_get_ohlcv` and estimate what a 3-contract ATM 0DTE entry would have made/lost. (Use the same logic as Section 7g `cf_30min_pnl_estimate`.) Tag each shadow-only would-have entry as `cf_outcome: win|loss|flat`.
+4. **Compute today's would-be P&L diff.** `shadow_simulated_pnl_today = prod_actual_pnl_today + sum(shadow_only_cf_pnl) + sum(shadow_saved_pnl)` where `prod_actual_pnl_today` is today's realized account P&L (Safe + Bold combined, the same figure computed in the Dual-Account Summary). `shadow_dominates_today = shadow_simulated_pnl_today > prod_actual_pnl_today` (shadow's would-be book beat production today).
 
 5. **Append daily row to `analysis/shadow-scorecards/{date}.jsonl`** (create directory if missing):
    ```json
-   {"date": "YYYY-MM-DD", "shadow_version": "<version>", "rule_id": "<R-NNNN>",
-    "n_ticks_total": <int>, "n_agree": <int>, "n_shadow_more_aggressive": <int>,
-    "n_shadow_less_aggressive": <int>, "n_shadow_different_direction": <int>,
-    "shadow_only_cf_pnl_total": <float>, "shadow_only_cf_wins": <int>,
+   {"date": "YYYY-MM-DD", "shadow_version": "<version|nemotron-shadow>", "rule_id": "<R-NNNN|null>",
+    "model": "<model string from the shadow rows>",
+    "n_ticks_total": <int — today's shadow rows>, "n_decision_ticks": <int — rows with is_decision_tick==true>,
+    "n_agree": <int — rows with agree==true>, "n_decision_agree": <int — decision-tick rows with agree==true>,
+    "n_shadow_more_aggressive": <int>, "n_shadow_less_aggressive": <int>,
+    "n_shadow_different_direction": <int>, "n_other_disagreement": <int>,
+    "shadow_only_cf_pnl_total": <float>, "shadow_only_cf_wins": <int>, "shadow_saved_pnl_total": <float>,
     "prod_actual_pnl_today": <float>, "shadow_simulated_pnl_today": <float>,
     "shadow_dominates_today": <bool>, "logged_at": "<ISO>"}
    ```
 
-6. **Rolling window verdict.** Read the last 7 days from the shadow-scorecards directory. If shadow has dominated AT LEAST 5 of 7 trading days AND `shadow_simulated_pnl_total_7d > prod_actual_pnl_total_7d × 1.10` (10% margin) AND no day showed `n_shadow_different_direction > 1`:
-   - Generate the auto-promotion A/B scorecard at `analysis/recommendations/{rule_id}.json` per the Section 0 / S6.4 schema.
+6. **Rolling window verdict.** Read the last 7 days from the shadow-scorecards directory. If shadow has dominated AT LEAST 5 of 7 trading days (`shadow_dominates_today == true`) AND `sum(shadow_simulated_pnl_today)_7d > sum(prod_actual_pnl_today)_7d × 1.10` (10% margin) AND no day showed `n_shadow_different_direction > 1`:
+   - Generate the auto-promotion A/B scorecard at `analysis/recommendations/{rule_id}.json` per the Section 0 / S6.4 schema. (If `rule_id` is null because this is the model-agreement shadow with no params override, the 5-of-7 dominance is a MODEL-swap signal, not a params change: write the verdict to `analysis/recommendations/shadow-model-swap.json` and note it surfaces the Nemotron-can-replace-Haiku decision for J — do NOT auto-bump params.json, since there is no param delta to apply.)
    - Set `verdict: "auto_ratify"`, `decided_by: "shadow_mode_5_of_7"`, `decided_at: <today_ISO>`.
    - Append to `analysis/recommendations-log.jsonl` with `status: "auto_ratified_shadow"`.
-   - Tomorrow's premarket Step 1a sees the new ratified scorecard, applies the override to `params.json`, bumps `RULE_VERSION` (e.g., v14 → v14.1), and verifies the pin matches.
+   - For a params-override shadow (non-null `rule_id`): tomorrow's premarket Step 1a sees the new ratified scorecard, applies the override to `params.json`, bumps `RULE_VERSION` (e.g., v14 → v14.1), and verifies the pin matches.
 
-7. **Expiry handling.** If `today >= shadow-version.expires_at`, write final scorecard with verdict (`auto_ratify` if criteria met, `needs_review` otherwise) and set `shadow-version.json#enabled = false`. Append a NOTE to journal: `SHADOW_EXPIRED: {version} ran {N} days, verdict: {verdict}. See analysis/recommendations/{rule_id}.json.`
+7. **Expiry handling.** If `shadow-version.json#expires_at` is set AND `today >= expires_at`, write a final scorecard with verdict (`auto_ratify` if criteria met, `needs_review` otherwise) and set `shadow-version.json#enabled = false`. Append a NOTE to journal: `SHADOW_EXPIRED: {version} ran {N} days, verdict: {verdict}. See analysis/recommendations/{rule_id}.json.` (Skip this step if `expires_at` is null — the model-agreement shadow has no fixed window.)
 
 **Cost:** ~$0.05/day Sonnet for the diff + counterfactual reasoning. Fits operating principle 3.
 
-**Failure mode:** if shadow rows are missing from decisions.jsonl (heartbeat skipped them despite `enabled: true`), log `SHADOW_LOG_GAP: {N} ticks missing shadow rows` and DO NOT advance the rolling-window verdict. The shadow needs continuous data; gaps invalidate the comparison.
+**Failure mode:** if `shadow-model-decisions.jsonl` exists but has FEWER rows for today than today's heartbeat tick count (shadow eval was rate-limited or partial), log `SHADOW_LOG_GAP: {N} of {M} ticks have shadow rows` and DO NOT advance the rolling-window verdict for today (set `shadow_dominates_today: null`). The shadow needs continuous data; gaps invalidate the comparison.
 
 ## 8d. Swarm grader — grade today's swarm consensus vs actual (NEW 2026-05-16)
 

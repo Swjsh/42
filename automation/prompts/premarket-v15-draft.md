@@ -117,7 +117,7 @@ RULE_VERSION_EXPECTED = "v14"
    - Only include if `severity in {"high", "med"}` per the maintenance.rules note (low-severity events don't block).
    - Output: array of `{ start_et: "HH:MM", end_et: "HH:MM", event: "...", type: "...", severity: "..." }` objects.
 
-5. **Catalyst narrative.** If `automation/state/news.json` exists and is < 7 days old, lift its narrative into `today-bias.news_calendar.catalyst_narrative`. Otherwise: `{ stale: true, last_updated: "<news.json updated_at if any>" }`.
+5. **Catalyst narrative.** If `automation/state/news.json` exists and is < 7 days old, lift its narrative into `today-bias.news_calendar.catalyst_narrative`. Otherwise: `{ stale: true, last_updated: "<news.json#as_of if any>" }`.
 
 6. **Size modifier windows.** Read `automation/state/params.json#enable_size_modifier_windows`. If false (default): output `size_modifier_windows: []`. If true: build per-event soft-modifier windows (placeholder for future tuning — currently zero events would qualify under the existing rules).
 

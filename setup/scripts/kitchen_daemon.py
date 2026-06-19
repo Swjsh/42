@@ -308,15 +308,23 @@ def _load_queue() -> dict[str, dict]:
     out: dict[str, dict] = {}
     if not QUEUE_FILE.exists():
         return out
+    bad_lines = 0
     try:
-        with open(QUEUE_FILE, encoding="utf-8") as f:
-            for line in f:
+        # errors="replace": a single stray non-UTF-8 byte (e.g. a cp1252 0x97
+        # em-dash) degrades to one replacement char instead of raising
+        # UnicodeDecodeError mid-file and truncating the whole queue read.
+        with open(QUEUE_FILE, encoding="utf-8", errors="replace") as f:
+            for lineno, line in enumerate(f, 1):
                 line = line.strip()
                 if not line:
                     continue
                 try:
                     ev = json.loads(line)
                 except json.JSONDecodeError:
+                    # Skip THIS malformed line only; never abort the whole read.
+                    bad_lines += 1
+                    if bad_lines <= 5:
+                        _log(f"WARN load_queue: skipping malformed line {lineno}")
                     continue
                 tid = ev.get("task_id")
                 if not tid:
@@ -363,6 +371,8 @@ def _load_queue() -> dict[str, dict]:
                 out[tid] = state
     except OSError as exc:
         _log(f"WARN load_queue: {exc}")
+    if bad_lines:
+        _log(f"WARN load_queue: skipped {bad_lines} malformed line(s) total")
     return out
 
 
@@ -912,15 +922,18 @@ def _existing_daemon_alive() -> bool:
             return False
         # cross-platform liveness probe via WMI (Windows) or os.kill (POSIX)
         # Avoid os.kill on Windows — WinError 6 + CPython SystemError on stale handles
+        # Use WMIC CommandLine check, NOT tasklist — tasklist only checks PID existence
+        # and would match any process (e.g. svchost.exe) that reused a dead daemon's PID.
         if sys.platform == "win32":
             try:
                 import subprocess as _sp
                 out = _sp.run(
-                    ["tasklist", "/FI", f"PID eq {other_pid}", "/NH", "/FO", "CSV"],
+                    ["wmic", "process", "where", f"ProcessId={other_pid}",
+                     "get", "CommandLine", "/value"],
                     capture_output=True, text=True, timeout=5,
                     creationflags=_CREATE_NO_WINDOW,
                 )
-                return str(other_pid) in out.stdout
+                return "kitchen_daemon.py" in out.stdout
             except Exception:
                 return False
         else:
