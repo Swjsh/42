@@ -1,0 +1,4634 @@
+{
+  "window": "2025-01-01..2026-05-29",
+  "generated_at": "2026-06-19T01:37:58",
+  "research_question": "Can an EXIT REDESIGN (sweep strike_offset x tp1_premium_pct x chart-stop-buffer) flip the strong-SPY-edge WATCH_ONLY watchers to real-fills-POSITIVE while staying anchor-clean? Real-fills (OPRA) is the only authority (C1).",
+  "exit_grid": {
+    "strike_offsets": [
+      0,
+      -1,
+      -2
+    ],
+    "tp1_premium_pcts": [
+      0.3,
+      0.5,
+      0.7,
+      1.0
+    ],
+    "level_stop_buffer_dollars": [
+      0.3,
+      0.5,
+      0.8
+    ],
+    "n_trials": 36,
+    "fixed": "premium_stop_pct=-0.99 (chart-stop only); tp1_qty_fraction=0.50; runner=2.5"
+  },
+  "gate_definition": "PROMOTE-CANDIDATE iff real-fills exp>0 AND anchor_edge_capture >= baseline AND DSR/PBO advisory verdict != FAIL. Baseline = current production exit (ATM, tp1=0.30, stop_buffer=0.50). Honest no-win is a valid result.",
+  "streams": {
+    "FLOOR_HOLD_BOUNCE": {
+      "n_signals_collected": 132,
+      "baseline_current_exit": {
+        "config": {
+          "strike_offset": 0,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "stats": {
+          "n": 111,
+          "wr": 39.6,
+          "total": -2183.4,
+          "exp": -19.67
+        },
+        "anchor_edge_capture": -150.0,
+        "anchor_attempted": 2,
+        "anchor_filled": 2,
+        "anchor_by_day": {
+          "2026-04-29": -150.0,
+          "2026-05-07": 77.4
+        },
+        "dsr_gate": {
+          "verdict": "FAIL",
+          "dsr": 0.0001,
+          "psr": 0.0559,
+          "pbo": null,
+          "n_obs": 111,
+          "low_power": false
+        }
+      },
+      "best_config": {
+        "config": {
+          "strike_offset": -1,
+          "tp1_premium_pct": 1.0,
+          "level_stop_buffer_dollars": 0.3
+        },
+        "stats": {
+          "n": 112,
+          "wr": 33.0,
+          "total": 61.0,
+          "exp": 0.54
+        },
+        "anchor_edge_capture": -162.0,
+        "anchor_attempted": 2,
+        "anchor_filled": 2,
+        "anchor_by_day": {
+          "2026-04-29": -12.0,
+          "2026-05-07": -150.0
+        },
+        "dsr_gate": {
+          "verdict": "WEAK",
+          "dsr": 0.0168,
+          "psr": 0.5095,
+          "pbo": null,
+          "n_obs": 112,
+          "low_power": false
+        },
+        "gate": {
+          "real_fills_positive": true,
+          "anchor_no_regression": false,
+          "anchor_vacuous": false,
+          "dsr_not_fail": true,
+          "verdict": "POSITIVE-BUT-ANCHOR-REGRESSION"
+        }
+      },
+      "n_promote_candidates": 0,
+      "promote_candidates": [],
+      "n_anchor_vacuous_positive": 0,
+      "anchor_vacuous_positive": [],
+      "best_positive_exp_config": {
+        "config": {
+          "strike_offset": -1,
+          "tp1_premium_pct": 1.0,
+          "level_stop_buffer_dollars": 0.3
+        },
+        "exp": 0.54,
+        "wr": 33.0,
+        "n": 112,
+        "anchor_edge_capture": -162.0,
+        "anchor_filled": 2,
+        "anchor_ok": false,
+        "dsr_verdict": "WEAK"
+      },
+      "full_grid": [
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 112,
+            "wr": 33.0,
+            "total": 61.0,
+            "exp": 0.54
+          },
+          "attempted": 132,
+          "filled": 112,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -162.0,
+          "anchor_win_capture": -12.0,
+          "anchor_loss_added": 150.0,
+          "anchor_by_day": {
+            "2026-04-29": -12.0,
+            "2026-05-07": -150.0
+          },
+          "dsr_gate": {
+            "verdict": "WEAK",
+            "dsr": 0.0168,
+            "psr": 0.5095,
+            "pbo": null,
+            "n_obs": 112,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": true,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": true,
+            "verdict": "POSITIVE-BUT-ANCHOR-REGRESSION"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 112,
+            "wr": 34.8,
+            "total": -292.2,
+            "exp": -2.61
+          },
+          "attempted": 132,
+          "filled": 112,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -12.0,
+          "anchor_win_capture": -12.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -12.0,
+            "2026-05-07": 260.4
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0115,
+            "psr": 0.4498,
+            "pbo": null,
+            "n_obs": 112,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 111,
+            "wr": 28.8,
+            "total": -1242.0,
+            "exp": -11.19
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -153.0,
+          "anchor_win_capture": -12.0,
+          "anchor_loss_added": 141.0,
+          "anchor_by_day": {
+            "2026-04-29": -12.0,
+            "2026-05-07": -141.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0048,
+            "psr": 0.3302,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 112,
+            "wr": 38.4,
+            "total": -1367.0,
+            "exp": -12.21
+          },
+          "attempted": 132,
+          "filled": 112,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -12.0,
+          "anchor_win_capture": -12.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -12.0,
+            "2026-05-07": 111.6
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0021,
+            "psr": 0.2371,
+            "pbo": null,
+            "n_obs": 112,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 112,
+            "wr": 35.7,
+            "total": -1517.0,
+            "exp": -13.54
+          },
+          "attempted": 132,
+          "filled": 112,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -12.0,
+          "anchor_win_capture": -12.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -12.0,
+            "2026-05-07": 186.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0022,
+            "psr": 0.2403,
+            "pbo": null,
+            "n_obs": 112,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 112,
+            "wr": 27.7,
+            "total": -1594.4,
+            "exp": -14.24
+          },
+          "attempted": 132,
+          "filled": 112,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -168.0,
+          "anchor_win_capture": -168.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -168.0,
+            "2026-05-07": 260.4
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0027,
+            "psr": 0.2609,
+            "pbo": null,
+            "n_obs": 112,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 111,
+            "wr": 28.8,
+            "total": -1583.0,
+            "exp": -14.26
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -153.0,
+          "anchor_win_capture": -12.0,
+          "anchor_loss_added": 141.0,
+          "anchor_by_day": {
+            "2026-04-29": -12.0,
+            "2026-05-07": -141.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0014,
+            "psr": 0.1999,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 112,
+            "wr": 24.1,
+            "total": -1841.0,
+            "exp": -16.44
+          },
+          "attempted": 132,
+          "filled": 112,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -414.0,
+          "anchor_win_capture": -168.0,
+          "anchor_loss_added": 246.0,
+          "anchor_by_day": {
+            "2026-04-29": -168.0,
+            "2026-05-07": -246.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0026,
+            "psr": 0.2571,
+            "pbo": null,
+            "n_obs": 112,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 111,
+            "wr": 31.5,
+            "total": -1908.8,
+            "exp": -17.2
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -12.0,
+          "anchor_win_capture": -12.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -12.0,
+            "2026-05-07": 180.6
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0005,
+            "psr": 0.1242,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 111,
+            "wr": 38.7,
+            "total": -2029.8,
+            "exp": -18.29
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -12.0,
+          "anchor_win_capture": -12.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -12.0,
+            "2026-05-07": 77.4
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0001,
+            "psr": 0.0634,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 112,
+            "wr": 35.7,
+            "total": -2104.4,
+            "exp": -18.79
+          },
+          "attempted": 132,
+          "filled": 112,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -168.0,
+          "anchor_win_capture": -168.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -168.0,
+            "2026-05-07": 111.6
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0007,
+            "psr": 0.1472,
+            "pbo": null,
+            "n_obs": 112,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 111,
+            "wr": 39.6,
+            "total": -2183.4,
+            "exp": -19.67
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -150.0,
+          "anchor_win_capture": -150.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -150.0,
+            "2026-05-07": 77.4
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0001,
+            "psr": 0.0559,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 111,
+            "wr": 33.3,
+            "total": -2257.0,
+            "exp": -20.33
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -12.0,
+          "anchor_win_capture": -12.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -12.0,
+            "2026-05-07": 129.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0001,
+            "psr": 0.0664,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 111,
+            "wr": 28.8,
+            "total": -2286.6,
+            "exp": -20.6
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -153.0,
+          "anchor_win_capture": -12.0,
+          "anchor_loss_added": 141.0,
+          "anchor_by_day": {
+            "2026-04-29": -12.0,
+            "2026-05-07": -141.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0012,
+            "psr": 0.1868,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 111,
+            "wr": 44.1,
+            "total": -2476.2,
+            "exp": -22.31
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -150.0,
+          "anchor_win_capture": -150.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -150.0,
+            "2026-05-07": 77.4
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0001,
+            "psr": 0.0434,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 112,
+            "wr": 41.1,
+            "total": -2627.0,
+            "exp": -23.46
+          },
+          "attempted": 132,
+          "filled": 112,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -168.0,
+          "anchor_win_capture": -168.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -168.0,
+            "2026-05-07": 111.6
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0004,
+            "psr": 0.1092,
+            "pbo": null,
+            "n_obs": 112,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 111,
+            "wr": 30.6,
+            "total": -2649.0,
+            "exp": -23.86
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -12.0,
+          "anchor_win_capture": -12.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -12.0,
+            "2026-05-07": 253.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0005,
+            "psr": 0.1281,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 111,
+            "wr": 24.3,
+            "total": -2675.0,
+            "exp": -24.1
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -357.0,
+          "anchor_win_capture": -150.0,
+          "anchor_loss_added": 207.0,
+          "anchor_by_day": {
+            "2026-04-29": -150.0,
+            "2026-05-07": -207.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0003,
+            "psr": 0.0933,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 112,
+            "wr": 29.5,
+            "total": -2702.0,
+            "exp": -24.12
+          },
+          "attempted": 132,
+          "filled": 112,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -168.0,
+          "anchor_win_capture": -168.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -168.0,
+            "2026-05-07": 186.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0005,
+            "psr": 0.1212,
+            "pbo": null,
+            "n_obs": 112,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 111,
+            "wr": 27.0,
+            "total": -3044.6,
+            "exp": -27.43
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -150.0,
+          "anchor_win_capture": -150.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -150.0,
+            "2026-05-07": 180.6
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0001,
+            "psr": 0.0431,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 111,
+            "wr": 30.6,
+            "total": -3122.0,
+            "exp": -28.13
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -150.0,
+          "anchor_win_capture": -150.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -150.0,
+            "2026-05-07": 129.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.025,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 111,
+            "wr": 23.4,
+            "total": -3285.0,
+            "exp": -29.59
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -483.0,
+          "anchor_win_capture": -207.0,
+          "anchor_loss_added": 276.0,
+          "anchor_by_day": {
+            "2026-04-29": -207.0,
+            "2026-05-07": -276.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0006,
+            "psr": 0.1424,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 111,
+            "wr": 33.3,
+            "total": -3341.4,
+            "exp": -30.1
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -12.0,
+          "anchor_win_capture": -12.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -12.0,
+            "2026-05-07": 151.8
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0001,
+            "psr": 0.0482,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 112,
+            "wr": 29.5,
+            "total": -3413.8,
+            "exp": -30.48
+          },
+          "attempted": 132,
+          "filled": 112,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -168.0,
+          "anchor_win_capture": -168.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -168.0,
+            "2026-05-07": 260.4
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0004,
+            "psr": 0.1094,
+            "pbo": null,
+            "n_obs": 112,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 111,
+            "wr": 35.1,
+            "total": -3451.0,
+            "exp": -31.09
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -150.0,
+          "anchor_win_capture": -150.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -150.0,
+            "2026-05-07": 129.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0208,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 112,
+            "wr": 33.0,
+            "total": -3643.0,
+            "exp": -32.53
+          },
+          "attempted": 132,
+          "filled": 112,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -168.0,
+          "anchor_win_capture": -168.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -168.0,
+            "2026-05-07": 186.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0002,
+            "psr": 0.0725,
+            "pbo": null,
+            "n_obs": 112,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 112,
+            "wr": 25.9,
+            "total": -3691.0,
+            "exp": -32.96
+          },
+          "attempted": 132,
+          "filled": 112,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -414.0,
+          "anchor_win_capture": -168.0,
+          "anchor_loss_added": 246.0,
+          "anchor_by_day": {
+            "2026-04-29": -168.0,
+            "2026-05-07": -246.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0005,
+            "psr": 0.1206,
+            "pbo": null,
+            "n_obs": 112,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 111,
+            "wr": 26.1,
+            "total": -4033.0,
+            "exp": -36.33
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -207.0,
+          "anchor_win_capture": -207.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -207.0,
+            "2026-05-07": 253.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0001,
+            "psr": 0.0524,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 111,
+            "wr": 28.8,
+            "total": -4065.2,
+            "exp": -36.62
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -150.0,
+          "anchor_win_capture": -150.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -150.0,
+            "2026-05-07": 180.6
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0177,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 111,
+            "wr": 25.2,
+            "total": -4072.0,
+            "exp": -36.68
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -357.0,
+          "anchor_win_capture": -150.0,
+          "anchor_loss_added": 207.0,
+          "anchor_by_day": {
+            "2026-04-29": -150.0,
+            "2026-05-07": -207.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.034,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 111,
+            "wr": 23.4,
+            "total": -4329.6,
+            "exp": -39.01
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -483.0,
+          "anchor_win_capture": -207.0,
+          "anchor_loss_added": 276.0,
+          "anchor_by_day": {
+            "2026-04-29": -207.0,
+            "2026-05-07": -276.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0001,
+            "psr": 0.0603,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 111,
+            "wr": 31.5,
+            "total": -4478.4,
+            "exp": -40.35
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -207.0,
+          "anchor_win_capture": -207.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -207.0,
+            "2026-05-07": 151.8
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0172,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 111,
+            "wr": 36.9,
+            "total": -4775.2,
+            "exp": -43.02
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -207.0,
+          "anchor_win_capture": -207.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -207.0,
+            "2026-05-07": 151.8
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0183,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 111,
+            "wr": 25.2,
+            "total": -4930.0,
+            "exp": -44.41
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -483.0,
+          "anchor_win_capture": -207.0,
+          "anchor_loss_added": 276.0,
+          "anchor_by_day": {
+            "2026-04-29": -207.0,
+            "2026-05-07": -276.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0002,
+            "psr": 0.0748,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 111,
+            "wr": 28.8,
+            "total": -5807.0,
+            "exp": -52.32
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -207.0,
+          "anchor_win_capture": -207.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -207.0,
+            "2026-05-07": 253.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0179,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 111,
+            "wr": 25.2,
+            "total": -6136.6,
+            "exp": -55.28
+          },
+          "attempted": 132,
+          "filled": 111,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -483.0,
+          "anchor_win_capture": -207.0,
+          "anchor_loss_added": 276.0,
+          "anchor_by_day": {
+            "2026-04-29": -207.0,
+            "2026-05-07": -276.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0241,
+            "pbo": null,
+            "n_obs": 111,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        }
+      ],
+      "pattern_verdict": "DEAD-UNDER-TESTED-EXITS \u2014 best exit ({'strike_offset': -1, 'tp1_premium_pct': 1.0, 'level_stop_buffer_dollars': 0.3}) reaches positive real-fills exp=$0.54 but fails the anchor regression leg of the gate. No PROMOTE-CANDIDATE config."
+    },
+    "CLOSE_CEILING_FADE": {
+      "n_signals_collected": 155,
+      "baseline_current_exit": {
+        "config": {
+          "strike_offset": 0,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "stats": {
+          "n": 141,
+          "wr": 29.8,
+          "total": -5723.2,
+          "exp": -40.59
+        },
+        "anchor_edge_capture": -69.0,
+        "anchor_attempted": 2,
+        "anchor_filled": 2,
+        "anchor_by_day": {
+          "2026-05-05": -69.0,
+          "2026-05-07": -0.0
+        },
+        "dsr_gate": {
+          "verdict": "FAIL",
+          "dsr": 0.0,
+          "psr": 0.0,
+          "pbo": null,
+          "n_obs": 141,
+          "low_power": false
+        }
+      },
+      "best_config": {
+        "config": {
+          "strike_offset": 0,
+          "tp1_premium_pct": 1.0,
+          "level_stop_buffer_dollars": 0.3
+        },
+        "stats": {
+          "n": 141,
+          "wr": 23.4,
+          "total": -5162.0,
+          "exp": -36.61
+        },
+        "anchor_edge_capture": -69.0,
+        "anchor_attempted": 2,
+        "anchor_filled": 2,
+        "anchor_by_day": {
+          "2026-05-05": -69.0,
+          "2026-05-07": -0.0
+        },
+        "dsr_gate": {
+          "verdict": "FAIL",
+          "dsr": 0.0,
+          "psr": 0.0044,
+          "pbo": null,
+          "n_obs": 141,
+          "low_power": false
+        },
+        "gate": {
+          "real_fills_positive": false,
+          "anchor_no_regression": true,
+          "anchor_vacuous": false,
+          "dsr_not_fail": false,
+          "verdict": "NEGATIVE"
+        }
+      },
+      "n_promote_candidates": 0,
+      "promote_candidates": [],
+      "n_anchor_vacuous_positive": 0,
+      "anchor_vacuous_positive": [],
+      "best_positive_exp_config": null,
+      "full_grid": [
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 141,
+            "wr": 23.4,
+            "total": -5162.0,
+            "exp": -36.61
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -69.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 69.0,
+          "anchor_by_day": {
+            "2026-05-05": -69.0,
+            "2026-05-07": -0.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0044,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 141,
+            "wr": 22.7,
+            "total": -5631.0,
+            "exp": -39.94
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -69.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 69.0,
+          "anchor_by_day": {
+            "2026-05-05": -69.0,
+            "2026-05-07": -0.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0038,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 141,
+            "wr": 29.8,
+            "total": -5723.2,
+            "exp": -40.59
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -69.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 69.0,
+          "anchor_by_day": {
+            "2026-05-05": -69.0,
+            "2026-05-07": -0.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 141,
+            "wr": 24.1,
+            "total": -5811.0,
+            "exp": -41.21
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -69.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 69.0,
+          "anchor_by_day": {
+            "2026-05-05": -69.0,
+            "2026-05-07": -0.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0038,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 141,
+            "wr": 23.4,
+            "total": -6012.6,
+            "exp": -42.64
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -69.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 69.0,
+          "anchor_by_day": {
+            "2026-05-05": -69.0,
+            "2026-05-07": -0.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0001,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 141,
+            "wr": 27.0,
+            "total": -6059.8,
+            "exp": -42.98
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -69.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 69.0,
+          "anchor_by_day": {
+            "2026-05-05": -69.0,
+            "2026-05-07": -0.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 141,
+            "wr": 31.2,
+            "total": -6189.4,
+            "exp": -43.9
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -69.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 69.0,
+          "anchor_by_day": {
+            "2026-05-05": -69.0,
+            "2026-05-07": -0.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 141,
+            "wr": 23.4,
+            "total": -6403.0,
+            "exp": -45.41
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -69.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 69.0,
+          "anchor_by_day": {
+            "2026-05-05": -69.0,
+            "2026-05-07": -0.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0001,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 141,
+            "wr": 25.5,
+            "total": -6411.4,
+            "exp": -45.47
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -69.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 69.0,
+          "anchor_by_day": {
+            "2026-05-05": -69.0,
+            "2026-05-07": -0.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0002,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 141,
+            "wr": 23.4,
+            "total": -6551.0,
+            "exp": -46.46
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -69.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 69.0,
+          "anchor_by_day": {
+            "2026-05-05": -69.0,
+            "2026-05-07": -0.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 141,
+            "wr": 24.1,
+            "total": -6813.0,
+            "exp": -48.32
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -69.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 69.0,
+          "anchor_by_day": {
+            "2026-05-05": -69.0,
+            "2026-05-07": -0.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 145,
+            "wr": 24.8,
+            "total": -7071.6,
+            "exp": -48.77
+          },
+          "attempted": 155,
+          "filled": 145,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -84.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 84.0,
+          "anchor_by_day": {
+            "2026-05-05": -84.0,
+            "2026-05-07": 9.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0004,
+            "pbo": null,
+            "n_obs": 145,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 141,
+            "wr": 26.2,
+            "total": -7027.0,
+            "exp": -49.84
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -69.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 69.0,
+          "anchor_by_day": {
+            "2026-05-05": -69.0,
+            "2026-05-07": -0.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 145,
+            "wr": 24.8,
+            "total": -7555.6,
+            "exp": -52.11
+          },
+          "attempted": 155,
+          "filled": 145,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -84.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 84.0,
+          "anchor_by_day": {
+            "2026-05-05": -84.0,
+            "2026-05-07": 9.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0003,
+            "pbo": null,
+            "n_obs": 145,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 145,
+            "wr": 26.9,
+            "total": -7565.6,
+            "exp": -52.18
+          },
+          "attempted": 155,
+          "filled": 145,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -84.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 84.0,
+          "anchor_by_day": {
+            "2026-05-05": -84.0,
+            "2026-05-07": 9.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0006,
+            "pbo": null,
+            "n_obs": 145,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 145,
+            "wr": 29.0,
+            "total": -7567.8,
+            "exp": -52.19
+          },
+          "attempted": 155,
+          "filled": 145,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -84.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 84.0,
+          "anchor_by_day": {
+            "2026-05-05": -84.0,
+            "2026-05-07": 9.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0,
+            "pbo": null,
+            "n_obs": 145,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 145,
+            "wr": 26.9,
+            "total": -7680.0,
+            "exp": -52.97
+          },
+          "attempted": 155,
+          "filled": 145,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -84.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 84.0,
+          "anchor_by_day": {
+            "2026-05-05": -84.0,
+            "2026-05-07": 9.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0,
+            "pbo": null,
+            "n_obs": 145,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 145,
+            "wr": 23.4,
+            "total": -7709.0,
+            "exp": -53.17
+          },
+          "attempted": 155,
+          "filled": 145,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -84.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 84.0,
+          "anchor_by_day": {
+            "2026-05-05": -84.0,
+            "2026-05-07": 9.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0001,
+            "pbo": null,
+            "n_obs": 145,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 145,
+            "wr": 24.8,
+            "total": -7888.0,
+            "exp": -54.4
+          },
+          "attempted": 155,
+          "filled": 145,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -84.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 84.0,
+          "anchor_by_day": {
+            "2026-05-05": -84.0,
+            "2026-05-07": 9.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0,
+            "pbo": null,
+            "n_obs": 145,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 145,
+            "wr": 25.5,
+            "total": -8205.0,
+            "exp": -56.59
+          },
+          "attempted": 155,
+          "filled": 145,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -84.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 84.0,
+          "anchor_by_day": {
+            "2026-05-05": -84.0,
+            "2026-05-07": 9.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0,
+            "pbo": null,
+            "n_obs": 145,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 145,
+            "wr": 31.0,
+            "total": -8212.2,
+            "exp": -56.64
+          },
+          "attempted": 155,
+          "filled": 145,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -84.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 84.0,
+          "anchor_by_day": {
+            "2026-05-05": -84.0,
+            "2026-05-07": 9.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0,
+            "pbo": null,
+            "n_obs": 145,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 141,
+            "wr": 25.5,
+            "total": -8085.6,
+            "exp": -57.34
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 1,
+          "anchor_edge_capture": -105.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 105.0,
+          "anchor_by_day": {
+            "2026-05-05": -105.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0004,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 145,
+            "wr": 22.8,
+            "total": -8379.0,
+            "exp": -57.79
+          },
+          "attempted": 155,
+          "filled": 145,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -84.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 84.0,
+          "anchor_by_day": {
+            "2026-05-05": -84.0,
+            "2026-05-07": 9.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0002,
+            "pbo": null,
+            "n_obs": 145,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 145,
+            "wr": 27.6,
+            "total": -8594.0,
+            "exp": -59.27
+          },
+          "attempted": 155,
+          "filled": 145,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -84.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 84.0,
+          "anchor_by_day": {
+            "2026-05-05": -84.0,
+            "2026-05-07": 9.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0,
+            "pbo": null,
+            "n_obs": 145,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 145,
+            "wr": 24.1,
+            "total": -8784.0,
+            "exp": -60.58
+          },
+          "attempted": 155,
+          "filled": 145,
+          "anchor_attempted": 2,
+          "anchor_filled": 2,
+          "anchor_edge_capture": -84.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 84.0,
+          "anchor_by_day": {
+            "2026-05-05": -84.0,
+            "2026-05-07": 9.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0002,
+            "pbo": null,
+            "n_obs": 145,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 141,
+            "wr": 25.5,
+            "total": -8626.0,
+            "exp": -61.18
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 1,
+          "anchor_edge_capture": -105.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 105.0,
+          "anchor_by_day": {
+            "2026-05-05": -105.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 141,
+            "wr": 24.8,
+            "total": -8877.8,
+            "exp": -62.96
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 1,
+          "anchor_edge_capture": -105.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 105.0,
+          "anchor_by_day": {
+            "2026-05-05": -105.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0003,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 141,
+            "wr": 26.2,
+            "total": -9223.0,
+            "exp": -65.41
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 1,
+          "anchor_edge_capture": -105.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 105.0,
+          "anchor_by_day": {
+            "2026-05-05": -105.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 141,
+            "wr": 26.2,
+            "total": -9227.8,
+            "exp": -65.45
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 1,
+          "anchor_edge_capture": -105.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 105.0,
+          "anchor_by_day": {
+            "2026-05-05": -105.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0004,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 141,
+            "wr": 25.5,
+            "total": -9299.0,
+            "exp": -65.95
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 1,
+          "anchor_edge_capture": -105.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 105.0,
+          "anchor_by_day": {
+            "2026-05-05": -105.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 141,
+            "wr": 23.4,
+            "total": -9417.0,
+            "exp": -66.79
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 1,
+          "anchor_edge_capture": -105.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 105.0,
+          "anchor_by_day": {
+            "2026-05-05": -105.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 141,
+            "wr": 27.7,
+            "total": -9443.0,
+            "exp": -66.97
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 1,
+          "anchor_edge_capture": -105.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 105.0,
+          "anchor_by_day": {
+            "2026-05-05": -105.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 141,
+            "wr": 27.0,
+            "total": -9811.6,
+            "exp": -69.59
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 1,
+          "anchor_edge_capture": -105.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 105.0,
+          "anchor_by_day": {
+            "2026-05-05": -105.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 141,
+            "wr": 22.7,
+            "total": -10112.0,
+            "exp": -71.72
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 1,
+          "anchor_edge_capture": -105.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 105.0,
+          "anchor_by_day": {
+            "2026-05-05": -105.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0001,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 141,
+            "wr": 24.1,
+            "total": -10360.0,
+            "exp": -73.48
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 1,
+          "anchor_edge_capture": -105.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 105.0,
+          "anchor_by_day": {
+            "2026-05-05": -105.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0003,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 141,
+            "wr": 29.1,
+            "total": -10460.2,
+            "exp": -74.19
+          },
+          "attempted": 155,
+          "filled": 141,
+          "anchor_attempted": 2,
+          "anchor_filled": 1,
+          "anchor_edge_capture": -105.0,
+          "anchor_win_capture": 0,
+          "anchor_loss_added": 105.0,
+          "anchor_by_day": {
+            "2026-05-05": -105.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0,
+            "pbo": null,
+            "n_obs": 141,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        }
+      ],
+      "pattern_verdict": "DEAD-UNDER-ALL-TESTED-EXITS \u2014 NO exit config in the swept grid produced positive real-fills expectancy. Confirmed real-fills-unprofitable across strike_offset x tp1 x stop-buffer. Honest no-win."
+    },
+    "NAMED_LEVEL_SECOND_TEST": {
+      "n_signals_collected": 1828,
+      "baseline_current_exit": {
+        "config": {
+          "strike_offset": 0,
+          "tp1_premium_pct": 0.3,
+          "level_stop_buffer_dollars": 0.5
+        },
+        "stats": {
+          "n": 361,
+          "wr": 58.4,
+          "total": -7826.6,
+          "exp": -21.68
+        },
+        "anchor_edge_capture": -984.6,
+        "anchor_attempted": 32,
+        "anchor_filled": 32,
+        "anchor_by_day": {
+          "2026-04-29": -472.8,
+          "2026-05-01": -248.4,
+          "2026-05-04": 63.6,
+          "2026-05-05": 289.2,
+          "2026-05-06": 401.4,
+          "2026-05-07": -327.0
+        },
+        "dsr_gate": {
+          "verdict": "FAIL",
+          "dsr": 0.0,
+          "psr": 0.0089,
+          "pbo": null,
+          "n_obs": 361,
+          "low_power": false
+        }
+      },
+      "best_config": {
+        "config": {
+          "strike_offset": -1,
+          "tp1_premium_pct": 0.7,
+          "level_stop_buffer_dollars": 0.3
+        },
+        "stats": {
+          "n": 366,
+          "wr": 43.7,
+          "total": -2961.2,
+          "exp": -8.09
+        },
+        "anchor_edge_capture": -2584.2,
+        "anchor_attempted": 32,
+        "anchor_filled": 32,
+        "anchor_by_day": {
+          "2026-04-29": -1392.0,
+          "2026-05-01": -1707.6,
+          "2026-05-04": 572.6,
+          "2026-05-05": 764.6,
+          "2026-05-06": 610.8,
+          "2026-05-07": -57.2
+        },
+        "dsr_gate": {
+          "verdict": "FAIL",
+          "dsr": 0.0042,
+          "psr": 0.314,
+          "pbo": null,
+          "n_obs": 366,
+          "low_power": false
+        },
+        "gate": {
+          "real_fills_positive": false,
+          "anchor_no_regression": false,
+          "anchor_vacuous": false,
+          "dsr_not_fail": false,
+          "verdict": "NEGATIVE"
+        }
+      },
+      "n_promote_candidates": 0,
+      "promote_candidates": [],
+      "n_anchor_vacuous_positive": 0,
+      "anchor_vacuous_positive": [],
+      "best_positive_exp_config": null,
+      "full_grid": [
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 366,
+            "wr": 43.7,
+            "total": -2961.2,
+            "exp": -8.09
+          },
+          "attempted": 432,
+          "filled": 366,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -2584.2,
+          "anchor_win_capture": -2527.0,
+          "anchor_loss_added": 57.2,
+          "anchor_by_day": {
+            "2026-04-29": -1392.0,
+            "2026-05-01": -1707.6,
+            "2026-05-04": 572.6,
+            "2026-05-05": 764.6,
+            "2026-05-06": 610.8,
+            "2026-05-07": -57.2
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0042,
+            "psr": 0.314,
+            "pbo": null,
+            "n_obs": 366,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 366,
+            "wr": 44.3,
+            "total": -3726.6,
+            "exp": -10.18
+          },
+          "attempted": 432,
+          "filled": 366,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -2881.2,
+          "anchor_win_capture": -2719.0,
+          "anchor_loss_added": 162.2,
+          "anchor_by_day": {
+            "2026-04-29": -1515.0,
+            "2026-05-01": -1707.6,
+            "2026-05-04": 503.6,
+            "2026-05-05": 764.6,
+            "2026-05-06": 610.8,
+            "2026-05-07": -162.2
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.003,
+            "psr": 0.2739,
+            "pbo": null,
+            "n_obs": 366,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 361,
+            "wr": 43.5,
+            "total": -5146.2,
+            "exp": -14.26
+          },
+          "attempted": 432,
+          "filled": 361,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -1829.6,
+          "anchor_win_capture": -1829.6,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -1332.0,
+            "2026-05-01": -870.0,
+            "2026-05-04": 372.4,
+            "2026-05-05": 398.0,
+            "2026-05-06": 488.6,
+            "2026-05-07": 62.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0006,
+            "psr": 0.1423,
+            "pbo": null,
+            "n_obs": 361,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 366,
+            "wr": 48.9,
+            "total": -5732.0,
+            "exp": -15.66
+          },
+          "attempted": 432,
+          "filled": 366,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -1031.0,
+          "anchor_win_capture": -1002.0,
+          "anchor_loss_added": 29.0,
+          "anchor_by_day": {
+            "2026-04-29": -564.0,
+            "2026-05-01": -805.0,
+            "2026-05-04": 367.0,
+            "2026-05-05": 803.0,
+            "2026-05-06": 544.0,
+            "2026-05-07": -29.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0007,
+            "psr": 0.1429,
+            "pbo": null,
+            "n_obs": 366,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 361,
+            "wr": 44.0,
+            "total": -5811.8,
+            "exp": -16.1
+          },
+          "attempted": 432,
+          "filled": 361,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -1958.6,
+          "anchor_win_capture": -1958.6,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -1425.0,
+            "2026-05-01": -870.0,
+            "2026-05-04": 336.4,
+            "2026-05-05": 398.0,
+            "2026-05-06": 488.6,
+            "2026-05-07": 41.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0004,
+            "psr": 0.1168,
+            "pbo": null,
+            "n_obs": 361,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 366,
+            "wr": 38.5,
+            "total": -6190.0,
+            "exp": -16.91
+          },
+          "attempted": 432,
+          "filled": 366,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -3176.0,
+          "anchor_win_capture": -3029.0,
+          "anchor_loss_added": 147.0,
+          "anchor_by_day": {
+            "2026-04-29": -1392.0,
+            "2026-05-01": -1614.0,
+            "2026-05-04": -23.0,
+            "2026-05-05": 108.0,
+            "2026-05-06": 711.0,
+            "2026-05-07": -147.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0012,
+            "psr": 0.1862,
+            "pbo": null,
+            "n_obs": 366,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 366,
+            "wr": 57.9,
+            "total": -6229.0,
+            "exp": -17.02
+          },
+          "attempted": 432,
+          "filled": 366,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -935.4,
+          "anchor_win_capture": -634.8,
+          "anchor_loss_added": 300.6,
+          "anchor_by_day": {
+            "2026-04-29": -370.2,
+            "2026-05-01": -426.0,
+            "2026-05-04": 161.4,
+            "2026-05-05": 448.8,
+            "2026-05-06": 477.2,
+            "2026-05-07": -300.6
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0001,
+            "psr": 0.0708,
+            "pbo": null,
+            "n_obs": 366,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 366,
+            "wr": 44.3,
+            "total": -6390.66,
+            "exp": -17.46
+          },
+          "attempted": 432,
+          "filled": 366,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -2977.2,
+          "anchor_win_capture": -2815.0,
+          "anchor_loss_added": 162.2,
+          "anchor_by_day": {
+            "2026-04-29": -1611.0,
+            "2026-05-01": -1707.6,
+            "2026-05-04": 503.6,
+            "2026-05-05": 764.6,
+            "2026-05-06": 610.8,
+            "2026-05-07": -162.2
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0008,
+            "psr": 0.1577,
+            "pbo": null,
+            "n_obs": 366,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 366,
+            "wr": 58.7,
+            "total": -6447.8,
+            "exp": -17.62
+          },
+          "attempted": 432,
+          "filled": 366,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -1166.4,
+          "anchor_win_capture": -826.8,
+          "anchor_loss_added": 339.6,
+          "anchor_by_day": {
+            "2026-04-29": -493.2,
+            "2026-05-01": -426.0,
+            "2026-05-04": 92.4,
+            "2026-05-05": 448.8,
+            "2026-05-06": 477.2,
+            "2026-05-07": -339.6
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0001,
+            "psr": 0.0664,
+            "pbo": null,
+            "n_obs": 366,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 366,
+            "wr": 49.5,
+            "total": -6507.0,
+            "exp": -17.78
+          },
+          "attempted": 432,
+          "filled": 366,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -1262.0,
+          "anchor_win_capture": -1194.0,
+          "anchor_loss_added": 68.0,
+          "anchor_by_day": {
+            "2026-04-29": -687.0,
+            "2026-05-01": -805.0,
+            "2026-05-04": 298.0,
+            "2026-05-05": 803.0,
+            "2026-05-06": 544.0,
+            "2026-05-07": -68.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0004,
+            "psr": 0.1163,
+            "pbo": null,
+            "n_obs": 366,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 361,
+            "wr": 49.0,
+            "total": -6691.0,
+            "exp": -18.53
+          },
+          "attempted": 432,
+          "filled": 361,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -530.0,
+          "anchor_win_capture": -408.0,
+          "anchor_loss_added": 122.0,
+          "anchor_by_day": {
+            "2026-04-29": -558.0,
+            "2026-05-01": -86.0,
+            "2026-05-04": 236.0,
+            "2026-05-05": 482.0,
+            "2026-05-06": 445.0,
+            "2026-05-07": -122.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0001,
+            "psr": 0.0555,
+            "pbo": null,
+            "n_obs": 361,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 366,
+            "wr": 39.1,
+            "total": -7398.0,
+            "exp": -20.21
+          },
+          "attempted": 432,
+          "filled": 366,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -3569.0,
+          "anchor_win_capture": -3221.0,
+          "anchor_loss_added": 348.0,
+          "anchor_by_day": {
+            "2026-04-29": -1515.0,
+            "2026-05-01": -1614.0,
+            "2026-05-04": -92.0,
+            "2026-05-05": 108.0,
+            "2026-05-06": 711.0,
+            "2026-05-07": -348.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0007,
+            "psr": 0.1472,
+            "pbo": null,
+            "n_obs": 366,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 361,
+            "wr": 49.6,
+            "total": -7320.0,
+            "exp": -20.28
+          },
+          "attempted": 432,
+          "filled": 361,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -680.0,
+          "anchor_win_capture": -537.0,
+          "anchor_loss_added": 143.0,
+          "anchor_by_day": {
+            "2026-04-29": -651.0,
+            "2026-05-01": -86.0,
+            "2026-05-04": 200.0,
+            "2026-05-05": 482.0,
+            "2026-05-06": 445.0,
+            "2026-05-07": -143.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0001,
+            "psr": 0.0428,
+            "pbo": null,
+            "n_obs": 361,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 361,
+            "wr": 57.6,
+            "total": -7611.0,
+            "exp": -21.08
+          },
+          "attempted": 432,
+          "filled": 361,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -834.6,
+          "anchor_win_capture": -528.6,
+          "anchor_loss_added": 306.0,
+          "anchor_by_day": {
+            "2026-04-29": -379.8,
+            "2026-05-01": -248.4,
+            "2026-05-04": 99.6,
+            "2026-05-05": 289.2,
+            "2026-05-06": 401.4,
+            "2026-05-07": -306.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0098,
+            "pbo": null,
+            "n_obs": 361,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 361,
+            "wr": 58.4,
+            "total": -7826.6,
+            "exp": -21.68
+          },
+          "attempted": 432,
+          "filled": 361,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -984.6,
+          "anchor_win_capture": -657.6,
+          "anchor_loss_added": 327.0,
+          "anchor_by_day": {
+            "2026-04-29": -472.8,
+            "2026-05-01": -248.4,
+            "2026-05-04": 63.6,
+            "2026-05-05": 289.2,
+            "2026-05-06": 401.4,
+            "2026-05-07": -327.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0089,
+            "pbo": null,
+            "n_obs": 361,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 361,
+            "wr": 44.0,
+            "total": -8003.48,
+            "exp": -22.17
+          },
+          "attempted": 432,
+          "filled": 361,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -2042.6,
+          "anchor_win_capture": -2042.6,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -1509.0,
+            "2026-05-01": -870.0,
+            "2026-05-04": 336.4,
+            "2026-05-05": 398.0,
+            "2026-05-06": 488.6,
+            "2026-05-07": 41.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0001,
+            "psr": 0.0552,
+            "pbo": null,
+            "n_obs": 361,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 361,
+            "wr": 36.0,
+            "total": -8167.0,
+            "exp": -22.62
+          },
+          "attempted": 432,
+          "filled": 361,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -3137.0,
+          "anchor_win_capture": -2811.0,
+          "anchor_loss_added": 326.0,
+          "anchor_by_day": {
+            "2026-04-29": -1332.0,
+            "2026-05-01": -1091.0,
+            "2026-05-04": -388.0,
+            "2026-05-05": 71.0,
+            "2026-05-06": 554.0,
+            "2026-05-07": -326.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0002,
+            "psr": 0.072,
+            "pbo": null,
+            "n_obs": 361,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 366,
+            "wr": 58.7,
+            "total": -8499.86,
+            "exp": -23.22
+          },
+          "attempted": 432,
+          "filled": 366,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -1262.4,
+          "anchor_win_capture": -922.8,
+          "anchor_loss_added": 339.6,
+          "anchor_by_day": {
+            "2026-04-29": -589.2,
+            "2026-05-01": -426.0,
+            "2026-05-04": 92.4,
+            "2026-05-05": 448.8,
+            "2026-05-06": 477.2,
+            "2026-05-07": -339.6
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0269,
+            "pbo": null,
+            "n_obs": 366,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 366,
+            "wr": 49.5,
+            "total": -9090.06,
+            "exp": -24.84
+          },
+          "attempted": 432,
+          "filled": 366,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -1358.0,
+          "anchor_win_capture": -1290.0,
+          "anchor_loss_added": 68.0,
+          "anchor_by_day": {
+            "2026-04-29": -783.0,
+            "2026-05-01": -805.0,
+            "2026-05-04": 298.0,
+            "2026-05-05": 803.0,
+            "2026-05-06": 544.0,
+            "2026-05-07": -68.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0001,
+            "psr": 0.0524,
+            "pbo": null,
+            "n_obs": 366,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 361,
+            "wr": 36.6,
+            "total": -9108.0,
+            "exp": -25.23
+          },
+          "attempted": 432,
+          "filled": 361,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -3392.0,
+          "anchor_win_capture": -2940.0,
+          "anchor_loss_added": 452.0,
+          "anchor_by_day": {
+            "2026-04-29": -1425.0,
+            "2026-05-01": -1091.0,
+            "2026-05-04": -424.0,
+            "2026-05-05": 71.0,
+            "2026-05-06": 554.0,
+            "2026-05-07": -452.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0001,
+            "psr": 0.0544,
+            "pbo": null,
+            "n_obs": 361,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 361,
+            "wr": 49.6,
+            "total": -9460.68,
+            "exp": -26.21
+          },
+          "attempted": 432,
+          "filled": 361,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -764.0,
+          "anchor_win_capture": -621.0,
+          "anchor_loss_added": 143.0,
+          "anchor_by_day": {
+            "2026-04-29": -735.0,
+            "2026-05-01": -86.0,
+            "2026-05-04": 200.0,
+            "2026-05-05": 482.0,
+            "2026-05-06": 445.0,
+            "2026-05-07": -143.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0155,
+            "pbo": null,
+            "n_obs": 361,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 361,
+            "wr": 58.4,
+            "total": -9541.28,
+            "exp": -26.43
+          },
+          "attempted": 432,
+          "filled": 361,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -1068.6,
+          "anchor_win_capture": -741.6,
+          "anchor_loss_added": 327.0,
+          "anchor_by_day": {
+            "2026-04-29": -556.8,
+            "2026-05-01": -248.4,
+            "2026-05-04": 63.6,
+            "2026-05-05": 289.2,
+            "2026-05-06": 401.4,
+            "2026-05-07": -327.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0025,
+            "pbo": null,
+            "n_obs": 361,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -1,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 366,
+            "wr": 39.1,
+            "total": -10200.06,
+            "exp": -27.87
+          },
+          "attempted": 432,
+          "filled": 366,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -3665.0,
+          "anchor_win_capture": -3317.0,
+          "anchor_loss_added": 348.0,
+          "anchor_by_day": {
+            "2026-04-29": -1611.0,
+            "2026-05-01": -1614.0,
+            "2026-05-04": -92.0,
+            "2026-05-05": 108.0,
+            "2026-05-06": 711.0,
+            "2026-05-07": -348.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0002,
+            "psr": 0.0793,
+            "pbo": null,
+            "n_obs": 366,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 348,
+            "wr": 54.0,
+            "total": -9959.2,
+            "exp": -28.62
+          },
+          "attempted": 432,
+          "filled": 348,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -841.2,
+          "anchor_win_capture": -561.0,
+          "anchor_loss_added": 280.2,
+          "anchor_by_day": {
+            "2026-04-29": -335.4,
+            "2026-05-01": -504.6,
+            "2026-05-04": 279.0,
+            "2026-05-05": 756.8,
+            "2026-05-06": 555.4,
+            "2026-05-07": -280.2
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0245,
+            "pbo": null,
+            "n_obs": 348,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": true,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 348,
+            "wr": 54.9,
+            "total": -10249.0,
+            "exp": -29.45
+          },
+          "attempted": 432,
+          "filled": 348,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -1177.2,
+          "anchor_win_capture": -831.0,
+          "anchor_loss_added": 346.2,
+          "anchor_by_day": {
+            "2026-04-29": -482.4,
+            "2026-05-01": -504.6,
+            "2026-05-04": 156.0,
+            "2026-05-05": 756.8,
+            "2026-05-06": 555.4,
+            "2026-05-07": -346.2
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0232,
+            "pbo": null,
+            "n_obs": 348,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": 0,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 361,
+            "wr": 36.6,
+            "total": -11404.68,
+            "exp": -31.59
+          },
+          "attempted": 432,
+          "filled": 361,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -3476.0,
+          "anchor_win_capture": -3024.0,
+          "anchor_loss_added": 452.0,
+          "anchor_by_day": {
+            "2026-04-29": -1509.0,
+            "2026-05-01": -1091.0,
+            "2026-05-04": -424.0,
+            "2026-05-05": 71.0,
+            "2026-05-06": 554.0,
+            "2026-05-07": -452.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0252,
+            "pbo": null,
+            "n_obs": 361,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.3,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 348,
+            "wr": 55.2,
+            "total": -12383.8,
+            "exp": -35.59
+          },
+          "attempted": 432,
+          "filled": 348,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -1288.2,
+          "anchor_win_capture": -942.0,
+          "anchor_loss_added": 346.2,
+          "anchor_by_day": {
+            "2026-04-29": -593.4,
+            "2026-05-01": -504.6,
+            "2026-05-04": 156.0,
+            "2026-05-05": 756.8,
+            "2026-05-06": 555.4,
+            "2026-05-07": -346.2
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0097,
+            "pbo": null,
+            "n_obs": 348,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 348,
+            "wr": 44.5,
+            "total": -12809.0,
+            "exp": -36.81
+          },
+          "attempted": 432,
+          "filled": 348,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -1697.0,
+          "anchor_win_capture": -1697.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -539.0,
+            "2026-05-01": -1731.0,
+            "2026-05-04": 573.0,
+            "2026-05-05": 880.0,
+            "2026-05-06": 649.0,
+            "2026-05-07": 105.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0195,
+            "pbo": null,
+            "n_obs": 348,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 348,
+            "wr": 45.1,
+            "total": -13579.0,
+            "exp": -39.02
+          },
+          "attempted": 432,
+          "filled": 348,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -1967.0,
+          "anchor_win_capture": -1967.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -686.0,
+            "2026-05-01": -1731.0,
+            "2026-05-04": 450.0,
+            "2026-05-05": 880.0,
+            "2026-05-06": 649.0,
+            "2026-05-07": 39.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0158,
+            "pbo": null,
+            "n_obs": 348,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 348,
+            "wr": 40.2,
+            "total": -13599.6,
+            "exp": -39.08
+          },
+          "attempted": 432,
+          "filled": 348,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -3169.8,
+          "anchor_win_capture": -2854.8,
+          "anchor_loss_added": 315.0,
+          "anchor_by_day": {
+            "2026-04-29": -1473.0,
+            "2026-05-01": -2077.4,
+            "2026-05-04": 695.6,
+            "2026-05-05": 581.8,
+            "2026-05-06": 742.6,
+            "2026-05-07": -315.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0264,
+            "pbo": null,
+            "n_obs": 348,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 348,
+            "wr": 40.8,
+            "total": -15087.8,
+            "exp": -43.36
+          },
+          "attempted": 432,
+          "filled": 348,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -3736.8,
+          "anchor_win_capture": -3124.8,
+          "anchor_loss_added": 612.0,
+          "anchor_by_day": {
+            "2026-04-29": -1620.0,
+            "2026-05-01": -2077.4,
+            "2026-05-04": 572.6,
+            "2026-05-05": 581.8,
+            "2026-05-06": 742.6,
+            "2026-05-07": -612.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0177,
+            "pbo": null,
+            "n_obs": 348,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.5,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 348,
+            "wr": 45.1,
+            "total": -16894.0,
+            "exp": -48.55
+          },
+          "attempted": 432,
+          "filled": 348,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -2078.0,
+          "anchor_win_capture": -2078.0,
+          "anchor_loss_added": 0.0,
+          "anchor_by_day": {
+            "2026-04-29": -797.0,
+            "2026-05-01": -1731.0,
+            "2026-05-04": 450.0,
+            "2026-05-05": 880.0,
+            "2026-05-06": 649.0,
+            "2026-05-07": 39.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0047,
+            "pbo": null,
+            "n_obs": 348,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 0.7,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 348,
+            "wr": 40.8,
+            "total": -18603.8,
+            "exp": -53.46
+          },
+          "attempted": 432,
+          "filled": 348,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -3847.8,
+          "anchor_win_capture": -3235.8,
+          "anchor_loss_added": 612.0,
+          "anchor_by_day": {
+            "2026-04-29": -1731.0,
+            "2026-05-01": -2077.4,
+            "2026-05-04": 572.6,
+            "2026-05-05": 581.8,
+            "2026-05-06": 742.6,
+            "2026-05-07": -612.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0058,
+            "pbo": null,
+            "n_obs": 348,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.3
+          },
+          "stats": {
+            "n": 348,
+            "wr": 35.9,
+            "total": -23251.0,
+            "exp": -66.81
+          },
+          "attempted": 432,
+          "filled": 348,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -4547.0,
+          "anchor_win_capture": -4278.0,
+          "anchor_loss_added": 269.0,
+          "anchor_by_day": {
+            "2026-04-29": -1473.0,
+            "2026-05-01": -2853.0,
+            "2026-05-04": 48.0,
+            "2026-05-05": 342.0,
+            "2026-05-06": 883.0,
+            "2026-05-07": -269.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0011,
+            "pbo": null,
+            "n_obs": 348,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.5
+          },
+          "stats": {
+            "n": 348,
+            "wr": 36.5,
+            "total": -24811.0,
+            "exp": -71.3
+          },
+          "attempted": 432,
+          "filled": 348,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -5114.0,
+          "anchor_win_capture": -4548.0,
+          "anchor_loss_added": 566.0,
+          "anchor_by_day": {
+            "2026-04-29": -1620.0,
+            "2026-05-01": -2853.0,
+            "2026-05-04": -75.0,
+            "2026-05-05": 342.0,
+            "2026-05-06": 883.0,
+            "2026-05-07": -566.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0007,
+            "pbo": null,
+            "n_obs": 348,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        },
+        {
+          "config": {
+            "strike_offset": -2,
+            "tp1_premium_pct": 1.0,
+            "level_stop_buffer_dollars": 0.8
+          },
+          "stats": {
+            "n": 348,
+            "wr": 36.5,
+            "total": -28327.0,
+            "exp": -81.4
+          },
+          "attempted": 432,
+          "filled": 348,
+          "anchor_attempted": 32,
+          "anchor_filled": 32,
+          "anchor_edge_capture": -5225.0,
+          "anchor_win_capture": -4659.0,
+          "anchor_loss_added": 566.0,
+          "anchor_by_day": {
+            "2026-04-29": -1731.0,
+            "2026-05-01": -2853.0,
+            "2026-05-04": -75.0,
+            "2026-05-05": 342.0,
+            "2026-05-06": 883.0,
+            "2026-05-07": -566.0
+          },
+          "dsr_gate": {
+            "verdict": "FAIL",
+            "dsr": 0.0,
+            "psr": 0.0002,
+            "pbo": null,
+            "n_obs": 348,
+            "low_power": false
+          },
+          "gate": {
+            "real_fills_positive": false,
+            "anchor_no_regression": false,
+            "anchor_vacuous": false,
+            "dsr_not_fail": false,
+            "verdict": "NEGATIVE"
+          }
+        }
+      ],
+      "pattern_verdict": "DEAD-UNDER-ALL-TESTED-EXITS \u2014 NO exit config in the swept grid produced positive real-fills expectancy. Confirmed real-fills-unprofitable across strike_offset x tp1 x stop-buffer. Honest no-win."
+    }
+  },
+  "op20_disclosures": {
+    "authority": "Real-fills (lib.simulator_real + OPRA options cache, valid through 2026-05-29). BS-sim is ranking-only and is NOT used here (C1). SPY-price grade omitted \u2014 the prior level-family-validation.json already established SPY-space edge; this run tests ONLY whether real-fills can be flipped by exit geometry.",
+    "level_source_caveat": "All 3 watchers read key-levels.json from disk; this run monkeypatches each per-day cache to SYNTHETIC PDH/PDL/PDC/PDO proxies (\u2605\u2605/\u2605), NOT production \u2605\u2605\u2605 named levels (no historical archive). Absolute WR is a proxy LOWER-BOUND (PDL-class proxies understate \u2605\u2605\u2605 WR up to ~20pp per L58). The EXIT comparison is internally consistent (identical level set across all configs), so 'does any exit flip the sign?' is answerable on the proxy.",
+    "concentration": "Per-config n is the real-fills fill count (OPRA-available, capped at 400/stream). Small per-config n \u2192 DSR capped at WEAK on low_power (n<20). Treat single-config wins with the per-quarter concentration caveat from the parent level-family-validation.json.",
+    "anchor_gate": "OP-16 shape on real-fills: anchor_edge_capture = sum(pnl on WIN-anchor days) - sum(max(0,-pnl) on LOSS-anchor days). 'no regression' = config's edge_capture >= the current-production-exit baseline's. NOTE: anchor n is tiny (J has 3 WIN + 3 LOSS days, and these watchers fire on only a subset) \u2014 a clean anchor here is necessary, not sufficient (lesson C24: absence of regression at small-n is weak evidence).",
+    "premium_stop": "premium_stop_pct=-0.99 (disabled) for ALL configs \u2014 chart/ribbon/time exits only (C1/C2). This sweep isolates chart-exit geometry; it does NOT re-test premium stops.",
+    "dsr_returns": "DSR/PSR computed on per-trade dollar P&L (constant qty=3 notional \u2192 comparable). PBO skipped (no CSCV per-slice matrix). Advisory only (gate.py is not a hard gate).",
+    "not_a_promotion": "RESEARCH ONLY. No watcher code, params, or doctrine changed. Watchers remain WATCH_ONLY. A PROMOTE-CANDIDATE here means 'worth a real-fills re-test on production \u2605\u2605\u2605 levels', not 'wire it live'."
+  },
+  "overall_verdict": {
+    "promote_candidates": [],
+    "positive_but_anchor_untestable": [],
+    "dead_under_tested_exits": [
+      "FLOOR_HOLD_BOUNCE",
+      "CLOSE_CEILING_FADE",
+      "NAMED_LEVEL_SECOND_TEST"
+    ],
+    "summary": "0/3 patterns have >=1 clean PROMOTE-CANDIDATE exit config. Confirmed dead under all tested exits: FLOOR_HOLD_BOUNCE, CLOSE_CEILING_FADE, NAMED_LEVEL_SECOND_TEST."
+  }
+}
