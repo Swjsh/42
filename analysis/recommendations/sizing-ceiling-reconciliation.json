@@ -1,0 +1,164 @@
+{
+  "title": "Sizing-ceiling reconciliation \u2014 real min-3 SPY 0DTE cost on $2K vs the 6% ceiling",
+  "item": "Item 2 / master-plan B6",
+  "generated_at": "2026-06-20T17:16:00",
+  "status": "ANALYSIS + PROPOSE-ONLY (Rule 9 / risk doctrine = J's call). NOTHING live changed.",
+  "method": "Real OPRA 0DTE SPY put entry premiums (next-bar-open ASK = bar.open + $0.02 slippage, identical to simulator_real) at ATM/OTM-1/OTM-2 for the 09:35 ET entry on every cached trading day 2025-01-02..2026-05-29. Exact strike, no nearest-strike fallback. Mapped against the $2K risk rails + the sizing-study 6% ceiling.",
+  "account_equity": 2000.0,
+  "underlying_window": {
+    "spy_median": 653.36,
+    "spy_min": 498.97,
+    "spy_max": 756.9,
+    "n_days": 351
+  },
+  "real_min3_cost_by_strike": {
+    "ATM": {
+      "n_days_priced": 303,
+      "premium": {
+        "n": 303,
+        "median": 1.41,
+        "mean": 1.56,
+        "p10": 0.93,
+        "p90": 2.298,
+        "min": 0.53,
+        "max": 4.97
+      },
+      "min3_cost": {
+        "n": 303,
+        "median": 423.0,
+        "mean": 467.901,
+        "p10": 279.0,
+        "p90": 689.4,
+        "min": 159.0,
+        "max": 1491.0
+      },
+      "min3_cost_pct_of_2k_median": 21.1,
+      "min3_cost_pct_of_2k_p90": 34.5,
+      "days_min3_fits_6pct_ceiling": 0,
+      "pct_days_fits_6pct": 0.0,
+      "days_min3_fits_live_40pct": 290,
+      "pct_days_fits_live_40pct": 95.7,
+      "days_min3_fits_rule6_30pct": 243,
+      "pct_days_fits_rule6_30pct": 80.2
+    },
+    "OTM-1": {
+      "n_days_priced": 302,
+      "premium": {
+        "n": 302,
+        "median": 1.005,
+        "mean": 1.156,
+        "p10": 0.57,
+        "p90": 1.868,
+        "min": 0.26,
+        "max": 4.41
+      },
+      "min3_cost": {
+        "n": 302,
+        "median": 301.5,
+        "mean": 346.808,
+        "p10": 171.0,
+        "p90": 560.4,
+        "min": 78.0,
+        "max": 1323.0
+      },
+      "min3_cost_pct_of_2k_median": 15.1,
+      "min3_cost_pct_of_2k_p90": 28.0,
+      "days_min3_fits_6pct_ceiling": 6,
+      "pct_days_fits_6pct": 2.0,
+      "days_min3_fits_live_40pct": 296,
+      "pct_days_fits_live_40pct": 98.0,
+      "days_min3_fits_rule6_30pct": 280,
+      "pct_days_fits_rule6_30pct": 92.7
+    },
+    "OTM-2": {
+      "n_days_priced": 280,
+      "premium": {
+        "n": 280,
+        "median": 0.72,
+        "mean": 0.854,
+        "p10": 0.36,
+        "p90": 1.481,
+        "min": 0.15,
+        "max": 3.95
+      },
+      "min3_cost": {
+        "n": 280,
+        "median": 216.0,
+        "mean": 256.243,
+        "p10": 108.0,
+        "p90": 444.3,
+        "min": 45.0,
+        "max": 1185.0
+      },
+      "min3_cost_pct_of_2k_median": 10.8,
+      "min3_cost_pct_of_2k_p90": 22.2,
+      "days_min3_fits_6pct_ceiling": 38,
+      "pct_days_fits_6pct": 13.6,
+      "days_min3_fits_live_40pct": 279,
+      "pct_days_fits_live_40pct": 99.6,
+      "days_min3_fits_rule6_30pct": 273,
+      "pct_days_fits_rule6_30pct": 97.5
+    }
+  },
+  "reconciliation": {
+    "the_contradiction": {
+      "sizing_study_ceiling_pct": 0.06,
+      "sizing_study_ceiling_usd": 120.0,
+      "derivation": "6% was derived from J's CHEAP OTM-3 SPX/SPY style: mean entry premium ~$1.94, half-Kelly=3.9% of equity, min-3 at $0.40=$120=6%. It is a $-RISK budget expressed as a gross-premium % for a $0.40 contract.",
+      "why_infeasible_on_spy_0dte": "SPY 0DTE puts on a ~$600 underlying cost ~$2-3 ATM, so min-3 = $550-840 = 27-42% of $2K. The 6% ceiling ($120) implies max ~$0.40/contract for min-3 \u2014 unreachable at any strike with a validated gap-and-go / book edge.",
+      "real_min3_cost_atm_median": 423.0,
+      "real_min3_cost_atm_pct_of_2k": 21.1
+    },
+    "risk_rails_map": {
+      "min_contracts_structural": 3,
+      "rule6_safe_per_trade_cap_pct": 0.3,
+      "rule6_safe_per_trade_cap_usd": 600.0,
+      "kill_switch_pct": 0.3,
+      "kill_switch_usd": 600.0,
+      "live_params_ceiling_pct": 0.4,
+      "live_params_ceiling_usd": 800.0,
+      "half_kelly_pct": 0.039,
+      "half_kelly_usd": 78.0
+    },
+    "dollar_at_risk_reframe": {
+      "insight": "The 6% number conflates GROSS PREMIUM with $-AT-RISK. With chart-stops (the live primary exit), the realistic loss per trade is premium x stop-distance, NOT the whole premium. half-Kelly (~$78) is a $-at-risk budget.",
+      "atm_min3_gross_cost_median": 423.0,
+      "atm_risk_at_chart_stop_30pct": 126.9,
+      "atm_risk_at_catastrophe_cap_50pct": 211.5,
+      "note": "ATM min-3 GROSS is ~30-40% of $2K, but its $-at-risk-to-the-chart-stop (~30% premium move before the chart/ribbon/profit-lock exit) is ~$200, and a catastrophe -50% stop caps it ~$340 \u2014 both well inside the -30% kill-switch ($600) and the Rule-6 per-trade cap ($600). The gross premium is the NOTIONAL deployed, not the loss exposure."
+    }
+  },
+  "proposed_reconciled_rule": {
+    "headline": "Replace the 6% GROSS-PREMIUM ceiling for SPY 0DTE with a TWO-PART rule that lets min-3 fit at a feasible strike while respecting the real risk rails.",
+    "part_1_notional_cap": {
+      "rule": "Per-trade GROSS premium (min-3 cost) <= Rule-6 per-trade cap (Safe 30% of equity).",
+      "at_2k": "$600",
+      "rationale": "This is the EXISTING Rule 6 cap \u2014 it already bounds notional. It is the correct binding gate, not a new 6% premium ceiling. The live params 40% tier is LOOSER than Rule 6; tighten the $0-2K params tier to 30% to MATCH Rule 6 (removes the 40%-vs-30% inconsistency)."
+    },
+    "part_2_dollar_at_risk_cap": {
+      "rule": "Per-trade $-AT-RISK-to-the-chart-stop <= half-Kelly band (~4% of equity). $-at-risk = min3_gross_cost x stop_distance_fraction (use the chart/ribbon stop distance, ~0.30; cap the catastrophe stop so worst-case stays < kill-switch).",
+      "at_2k_half_kelly": "$78",
+      "rationale": "This restores the sizing-study's ACTUAL intent (half-Kelly $-at-risk) without the OTM-3-specific gross-premium proxy. ATM min-3's $-at-risk to the chart stop (~$200) is above strict half-Kelly ($78); accept it as the structural floor (min-3 is mandatory) OR step OTM to reduce gross + $-risk."
+    },
+    "feasible_optimal_strike_2k": {
+      "primary": "ATM",
+      "fallback_high_premium_open": "OTM-1",
+      "do_not_use_blanket": "ITM-1 (busts the live ceiling >half the days; reserve for $10k+ tier)",
+      "rationale": "Matches the D1/B1 finding: ATM has the best verified edge on the days it fits and already-LIVE scorecard; OTM-1 is the 100%-fit fallback on high-IV opens; ITM-1's +42% edge is a $10k+ lever, infeasible as a $2K default."
+    },
+    "core_insight_preserved": "J's 1-2-lot lesson (L168) was about ADDING / scaling-UP and post-loss revenge-sizing, NOT the base trade. min-3 as a FLAT, atomic, chart-stopped bracket is structurally different. Keep min-3 + the no-add rule + the post-loss throttle; the base-trade notional is bounded by Rule 6, not by a 6% premium proxy.",
+    "J_DECISION_REQUIRED": "RISK DOCTRINE \u2014 J's call. This proposes: (a) DROP the 6% gross-premium ceiling for SPY 0DTE (it is an SPX-OTM3 artifact, infeasible on $600 SPY); (b) bind per-trade size by the EXISTING Rule-6 30% notional cap + a $-at-risk-to-stop half-Kelly check; (c) tighten the live params $0-2K tier 40%->30% to match Rule 6. NOTHING changed live. Needs J sign-off."
+  },
+  "source_docs": [
+    "markdown/research/SIZING-STUDY-2026-06-19.md (the 6% derivation)",
+    "docs/J-DAILY-TRADING-BOOK.md (B1 feasibility; the 27-40% finding)",
+    "automation/state/params.json (live ceilings + Rule 6 cap)"
+  ],
+  "caveats": [
+    "Real OPRA cache ends ~2026-05-29 (coverage bound).",
+    "Exact-strike pricing (no nearest-strike fallback) => a few cache-missing days drop out per strike.",
+    "Premiums are the 09:35 ET entry fill (next bar after 09:30); intraday entries on rejection setups can be cheaper or pricier \u2014 this is the open-fill reference distribution.",
+    "$-at-risk-to-chart-stop uses a ~30% premium-move proxy for the chart/ribbon stop distance; the exact per-trade stop distance varies (the catastrophe -50% cap is the worst case).",
+    "PROPOSE-ONLY: risk doctrine (min_contracts, premium caps, the ceiling) is J's sign-off."
+  ]
+}

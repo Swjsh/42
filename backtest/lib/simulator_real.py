@@ -299,6 +299,14 @@ def simulate_trade_real(
     # L113 2026-06-17: level-stop chart buffer. Was hardcoded 0.50 (see comment at usage site).
     # prod=0.50. Now wirable so sweep can verify and test variations.
     level_stop_buffer_dollars: float = 0.50,
+    # --- RIBBON_FLIP_BACK MIN SPREAD (B4b 2026-06-20) ---
+    # The opposite-stack spread (cents) required before the ribbon-flip-back exit fires.
+    # Was hardcoded 30.0 at both the pre-TP1 (line ~647) and post-TP1 (line ~724) exit
+    # sites — the LIVE binding stop (params.json ribbon_flip_back_min_spread_cents=30,
+    # ribbon_flip_back_requires_opposite_stack=true). Raising it (40/50/60) means HOLD
+    # through weaker opposite stacks (only flip out on a STRONGER reversal). prod=30.0;
+    # default matches production so existing callers are byte-for-byte identical.
+    ribbon_flip_back_min_spread_cents: float = 30.0,
     # --- TIME-CONDITIONAL EARLY EXIT (Game Plan 2, 2026-06-19) -------------------
     # Step off the back-loaded 0DTE theta cliff (decay ~2%/hr at open -> >15%/hr after
     # 14:00, sharp drop ~15:30 ET): force-close any STAGNANT / NON-FAVORED position at
@@ -644,7 +652,7 @@ def simulate_trade_real(
             if (
                 ribbon_state is not None
                 and ribbon_state.stack == opposite_stack
-                and ribbon_state.spread_cents >= 30.0
+                and ribbon_state.spread_cents >= ribbon_flip_back_min_spread_cents
                 and (not ribbon_flip_price_confirm or price_reversal_confirmed)
             ):
                 fill.runner_exit_time_et = spy_time
@@ -721,7 +729,7 @@ def simulate_trade_real(
         ribbon_invalidated = (
             ribbon_state is not None
             and ribbon_state.stack == opposite_stack
-            and ribbon_state.spread_cents >= 30.0
+            and ribbon_state.spread_cents >= ribbon_flip_back_min_spread_cents
         )
 
         # Conservative runner exit triggers (priority order):

@@ -417,6 +417,10 @@ def _params_to_kwargs(overrides: dict, account_equity: Optional[float] = None) -
     # prod=0.50 (was hardcoded 0.50 in simulator_real.py; now wirable).
     if "chart_stop_buffer_dollars" in overrides:
         kwargs["level_stop_buffer_dollars"] = float(overrides["chart_stop_buffer_dollars"])
+    # B4b 2026-06-20: ribbon_flip_back_min_spread_cents in params.json → same-named kwarg.
+    # prod=30.0 (was hardcoded 30.0 in simulator_real.py; now wirable for the B4b sweep).
+    if "ribbon_flip_back_min_spread_cents" in overrides:
+        kwargs["ribbon_flip_back_min_spread_cents"] = float(overrides["ribbon_flip_back_min_spread_cents"])
     # LEVEL_REJECTION_GATE 2026-06-17: block LEVEL-tier level_rejection entries.
     if "block_level_rejection" in overrides:
         kwargs["block_level_rejection"] = bool(overrides["block_level_rejection"])
@@ -539,6 +543,11 @@ def run_backtest(
     # Default False = existing behavior. True = require price reversal past entry_spot
     # before EXIT_ALL_RIBBON_FLIP_BACK fires. Needs J Rule 9 ratification to enable.
     ribbon_flip_price_confirm: bool = False,
+    # --- RIBBON_FLIP_BACK MIN SPREAD 2026-06-20 B4b (threads to simulator_real) ---
+    # Opposite-stack spread (cents) required before the ribbon-flip-back exit fires.
+    # prod=30.0 (params.json ribbon_flip_back_min_spread_cents). Raising it = HOLD through
+    # weaker pokes. Default 30.0 matches production — existing callers see identical behaviour.
+    ribbon_flip_back_min_spread_cents: float = 30.0,
     # --- LEVEL FLAGS: A/B testing of level-set changes (level_shadow_ab.py) ---
     # Dict of kwargs forwarded to _detect_from_history(). Default None = no change.
     # Example: {"exclude_intraday_hl": True} removes today's session H/L levels.
@@ -1700,6 +1709,8 @@ def run_backtest(
                     profit_lock_mode=profit_lock_mode,                       # NEW T50b 2026-05-13: trailing/stepped support
                     profit_lock_trail_pct=profit_lock_trail_pct,             # NEW T50b 2026-05-13
                     ribbon_flip_price_confirm=ribbon_flip_price_confirm,     # NEW 2026-06-16: price gate before flip-back exit
+                    ribbon_flip_back_min_spread_cents=ribbon_flip_back_min_spread_cents,  # B4b 2026-06-20: was hardcoded 30.0 (the LIVE binding stop)
+                    level_stop_buffer_dollars=level_stop_buffer_dollars,     # B4b 2026-06-20: was missing in real-fills path, hardcoded 0.50; thread the live chart buffer
                     tp1_qty_fraction=tp1_qty_fraction,                       # L108 2026-06-17: was missing, hardcoded 0.667 in real-fills path
                     runner_target_premium_pct=runner_target_premium_pct,     # L109 2026-06-17: was missing, hardcoded 3.0 in real-fills path (prod=2.5)
                     tp1_premium_pct=tp1_premium_pct,                         # L110 2026-06-17: was missing, hardcoded 0.30 in real-fills path (effective_tp1 is BS-sim-only quality override)
