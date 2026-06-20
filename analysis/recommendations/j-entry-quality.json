@@ -1,0 +1,307 @@
+{
+  "_generated": "2026-06-20T16:12:59",
+  "_what": "PART C \u2014 J's better-ENTRY rules validated on OUR 2025-26 SPY real-fills",
+  "_method": "Orchestrator IS/OOS/SW/anchor A/B vs production Safe baseline (which already includes the live bear confirmed-close gate). Gate: OOS+ AND WF>=0.70 AND SW_hurt<=1 AND anchor-no-regression.",
+  "_summary": {
+    "his_data": {
+      "n_trades": 655,
+      "span": "2021-07..2023-09",
+      "good_thesis_pct": 58.5,
+      "good_thesis_WR": 71.5,
+      "bad_thesis_WR": 14.3,
+      "top_discriminator": "confirmed_close (entry 5m bar closes his way): TAKE 56.6% WR / +$8.7 avg vs AVOID 33.2% WR / -$65 avg (+23.4pp)",
+      "second": "vwap_aligned: 52.4% WR / -$8.8 vs counter-VWAP 36.6% / -$44 (+15.8pp)",
+      "poke_finding": "BAD-thesis median MAE 0.91 SPY pts (~-20% premium EST) vs GOOD-thesis 0.31 pts (~-8% EST) in first 20min \u2014 a wrong read pokes ~3x harder immediately",
+      "timing_within_right_thesis": "unconfirmed entries poke 0.325 vs 0.292 pts (+11%) even when read is right; confirmed_close works mostly via SELECTION (61.3% good-thesis vs 53.8%)",
+      "rejected_on_his_data": "don-t-chase-extension INVERTED (his stretched entries won MORE, 54% vs 45%) \u2014 he is a momentum trader; not a usable AVOID filter"
+    },
+    "rule_set": [
+      {
+        "rule": "confirmed_close BEAR (entry_bar_body_pct_min=0.20)",
+        "type": "TIMING",
+        "status": "SHIP-ALREADY-LIVE",
+        "our_data": "RATIFIED 2026-06-18 (Safe): IS +$295, OOS +$566, WF=7.19, 5/5 gates",
+        "ref": "safe_entry_body_gate.json"
+      },
+      {
+        "rule": "confirmed_close BULL (entry_bar_body_pct_min_bull=0.20)",
+        "type": "TIMING",
+        "status": "WATCH",
+        "our_data": "IS +$2683 (10 removed, +$268/ea), 2/3 SW up, anchor-safe; OOS -$1240 on n=1 removed trade that won \u2014 fails OOS on noise",
+        "ref": "this file C1"
+      },
+      {
+        "rule": "trade-with-VWAP / drop counter-VWAP reclaim",
+        "type": "TAKE/AVOID",
+        "status": "SHIP-ALREADY-LIVE",
+        "our_data": "served by live vwap_trend_pullback detector",
+        "ref": "vwap-trend-pullback-LIVE.json"
+      },
+      {
+        "rule": "do-not-chase-extension",
+        "type": "AVOID",
+        "status": "REJECTED",
+        "our_data": "failed on his data (inverted); not carried forward",
+        "ref": null
+      },
+      {
+        "rule": "enter-at-level-not-midair",
+        "type": "TAKE",
+        "status": "INCONCLUSIVE",
+        "our_data": "metric degenerate (round-dollar always near); needs named-level feed",
+        "ref": null
+      }
+    ],
+    "caveat_L29": "aggressive/Bold ITM book REJECTED the entry-body gate (agg_entry_body_gate.json) \u2014 confirmed-close is a Safe-book rule; do not assume cross-tier transfer"
+  },
+  "_data": {
+    "spy": "spy_5m_2025-01-01_2026-06-16.csv",
+    "is": [
+      "2025-01-02",
+      "2026-05-07"
+    ],
+    "oos": [
+      "2026-05-08",
+      "2026-06-16"
+    ]
+  },
+  "_cross_reference": {
+    "bear_confirmed_close_ALREADY_LIVE": "analysis/recommendations/safe_entry_body_gate.json (RATIFY 2026-06-18, WF=7.19) \u2014 J's #1 entry discriminator, already shipped on Safe.",
+    "aggressive_entry_body_REJECTED": "analysis/recommendations/agg_entry_body_gate.json (REJECT, IS delta negative) \u2014 does NOT transfer to the Bold/ITM book (L29).",
+    "j_source_analysis": "analysis/webull-j-trades/entry_quality.json"
+  },
+  "candidates": [
+    {
+      "name": "C1_bull_confirmed_close",
+      "description": "Extend J's confirmed-close timing rule to the BULL side (entry_bar_body_pct_min_bull=0.20). Bear side already live & ratified.",
+      "overrides": {
+        "entry_bar_body_pct_min_bull": 0.2
+      },
+      "is_baseline": {
+        "n": 113,
+        "pnl": 16747.0,
+        "wr": 0.2655
+      },
+      "is_candidate": {
+        "n": 103,
+        "pnl": 19430.0,
+        "wr": 0.2913
+      },
+      "is_n_removed": 10,
+      "is_delta": 2683.0,
+      "oos_baseline": {
+        "n": 20,
+        "pnl": 6076.0,
+        "wr": 0.5
+      },
+      "oos_candidate": {
+        "n": 19,
+        "pnl": 4836.0,
+        "wr": 0.4737
+      },
+      "oos_n_removed": 1,
+      "oos_delta": -1240.0,
+      "wf_per_removed_trade": -4.622,
+      "sw_rows": [
+        {
+          "window": "SW1_2025H1",
+          "base": -354.0,
+          "cand": -32.0,
+          "delta": 322.0,
+          "hurt": false
+        },
+        {
+          "window": "SW2_2025H2",
+          "base": 10940.0,
+          "cand": 13300.0,
+          "delta": 2360.0,
+          "hurt": false
+        },
+        {
+          "window": "SW3_early26",
+          "base": 6161.0,
+          "cand": 6161.0,
+          "delta": 0.0,
+          "hurt": false
+        }
+      ],
+      "sw_hurt": 0,
+      "anchor_rows": [
+        {
+          "date": "2025-04-29",
+          "kind": "W",
+          "base": 0.0,
+          "cand": 0.0,
+          "delta": 0.0,
+          "regression": false
+        },
+        {
+          "date": "2025-05-01",
+          "kind": "W",
+          "base": 0.0,
+          "cand": 0.0,
+          "delta": 0.0,
+          "regression": false
+        },
+        {
+          "date": "2025-05-04",
+          "kind": "W",
+          "base": 0.0,
+          "cand": 0.0,
+          "delta": 0.0,
+          "regression": false
+        },
+        {
+          "date": "2025-05-05",
+          "kind": "L",
+          "base": -604.0,
+          "cand": -604.0,
+          "delta": 0.0,
+          "regression": false
+        },
+        {
+          "date": "2025-05-06",
+          "kind": "L",
+          "base": -86.0,
+          "cand": -86.0,
+          "delta": 0.0,
+          "regression": false
+        },
+        {
+          "date": "2025-05-07",
+          "kind": "L",
+          "base": 0.0,
+          "cand": 0.0,
+          "delta": 0.0,
+          "regression": false
+        }
+      ],
+      "anchor_ok": true,
+      "gates": {
+        "G1_is_pos": true,
+        "G2_oos_pos": false,
+        "G3_wf_ge_0.70": false,
+        "G4_sw_hurt_le_1": true,
+        "G5_anchor_ok": true,
+        "all_pass": false
+      },
+      "verdict": "WATCH"
+    },
+    {
+      "name": "C2_both_sides_confirmed_close",
+      "description": "J's confirmed-close on BOTH sides at once (bear 0.20 already live + bull 0.20).",
+      "overrides": {
+        "entry_bar_body_pct_min_bull": 0.2
+      },
+      "is_baseline": {
+        "n": 113,
+        "pnl": 16747.0,
+        "wr": 0.2655
+      },
+      "is_candidate": {
+        "n": 103,
+        "pnl": 19430.0,
+        "wr": 0.2913
+      },
+      "is_n_removed": 10,
+      "is_delta": 2683.0,
+      "oos_baseline": {
+        "n": 20,
+        "pnl": 6076.0,
+        "wr": 0.5
+      },
+      "oos_candidate": {
+        "n": 19,
+        "pnl": 4836.0,
+        "wr": 0.4737
+      },
+      "oos_n_removed": 1,
+      "oos_delta": -1240.0,
+      "wf_per_removed_trade": -4.622,
+      "sw_rows": [
+        {
+          "window": "SW1_2025H1",
+          "base": -354.0,
+          "cand": -32.0,
+          "delta": 322.0,
+          "hurt": false
+        },
+        {
+          "window": "SW2_2025H2",
+          "base": 10940.0,
+          "cand": 13300.0,
+          "delta": 2360.0,
+          "hurt": false
+        },
+        {
+          "window": "SW3_early26",
+          "base": 6161.0,
+          "cand": 6161.0,
+          "delta": 0.0,
+          "hurt": false
+        }
+      ],
+      "sw_hurt": 0,
+      "anchor_rows": [
+        {
+          "date": "2025-04-29",
+          "kind": "W",
+          "base": 0.0,
+          "cand": 0.0,
+          "delta": 0.0,
+          "regression": false
+        },
+        {
+          "date": "2025-05-01",
+          "kind": "W",
+          "base": 0.0,
+          "cand": 0.0,
+          "delta": 0.0,
+          "regression": false
+        },
+        {
+          "date": "2025-05-04",
+          "kind": "W",
+          "base": 0.0,
+          "cand": 0.0,
+          "delta": 0.0,
+          "regression": false
+        },
+        {
+          "date": "2025-05-05",
+          "kind": "L",
+          "base": -604.0,
+          "cand": -604.0,
+          "delta": 0.0,
+          "regression": false
+        },
+        {
+          "date": "2025-05-06",
+          "kind": "L",
+          "base": -86.0,
+          "cand": -86.0,
+          "delta": 0.0,
+          "regression": false
+        },
+        {
+          "date": "2025-05-07",
+          "kind": "L",
+          "base": 0.0,
+          "cand": 0.0,
+          "delta": 0.0,
+          "regression": false
+        }
+      ],
+      "anchor_ok": true,
+      "gates": {
+        "G1_is_pos": true,
+        "G2_oos_pos": false,
+        "G3_wf_ge_0.70": false,
+        "G4_sw_hurt_le_1": true,
+        "G5_anchor_ok": true,
+        "all_pass": false
+      },
+      "verdict": "WATCH"
+    }
+  ]
+}
