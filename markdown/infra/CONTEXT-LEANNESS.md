@@ -10,8 +10,10 @@ Every token in `CLAUDE.md` is cache-written then **cache-read on EVERY Claude
 Code turn**. Token forensics (`analysis/token-forensics/`) showed cache reads
 dominate the bill (billions of tokens over days), so the always-loaded prefix is
 the single most-multiplied cost lever in the system. On 2026-06-16 CLAUDE.md was
-trimmed 17,813 -> ~7.4K tokens by moving reference-only blocks to `docs/`; this
-loop keeps it lean automatically so it cannot silently re-bloat.
+trimmed 17,813 -> ~7.4K tokens by moving reference-only blocks out of CLAUDE.md
+into the `markdown/` tree; this loop keeps it lean automatically so it cannot
+silently re-bloat. (Relocation target is `markdown/<topic>/`, never the tombstoned
+legacy `docs/`.)
 
 ## Benchmarks / guard scores
 
@@ -38,7 +40,7 @@ Status keys off token thresholds, not rounded percent.
 | `automation/state/context-budget.json` | Latest score/state. Read by the session-start digest. |
 | `setup/scripts/session-start-digest.ps1` | Emits a `Context budget:` line every wake (in-context alert). |
 | `markdown/doctrine/LESSONS-CHRONOLOGICAL-LOG.md`, `markdown/infra/KITCHEN-SPEC.md` | Reference blocks relocated out of CLAUDE.md (verbatim). |
-| `docs/archive/CLAUDE-md-pre-trim-2026-06-16.md` | Verbatim backup of the pre-trim soul file. |
+| `automation/state/claude-md-backups/` (gitignored) | Verbatim pre-trim backups of the soul file (git already versions CLAUDE.md). |
 
 ## The closed loop
 
@@ -53,7 +55,7 @@ Gamma_ContextGuard (16:10 ET) --> check-context-budget.ps1 -AutoFix
         |                                 | yes
         +------- Invoke-ClaudeWithRetry --+  (harness: lock/disk/retry/hidden)
                                 |
-            Claude loads SKILL.md -> measure > back up > relocate to docs/ >
+            Claude loads SKILL.md -> measure > back up > relocate to markdown/ >
             dedupe > VERIFY > log > re-check -> GREEN
 ```
 

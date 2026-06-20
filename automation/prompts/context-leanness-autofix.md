@@ -11,8 +11,8 @@ bring CLAUDE.md back to GREEN (<= 8000 tokens) WITHOUT changing any rule semanti
 Non-negotiable (the skill spells these out in full):
 - Do NOT alter rules 1-10, account numbers/params, kill-switch values, the
   "Current rule version" pin, or the refusals. Their MEANING must be preserved.
-- Back up CLAUDE.md to `docs/archive/CLAUDE-md-pre-trim-{date}.md` FIRST.
-- Relocate only reference-only blocks to `docs/` and leave a pointer; dedupe wording.
+- Back up CLAUDE.md to `automation/state/claude-md-backups/CLAUDE-md-pre-trim-{date}.md` FIRST (gitignored; git already versions CLAUDE.md). NEVER back up into `docs/`.
+- Relocate only reference-only blocks into the appropriate `markdown/<topic>/` file and leave a pointer; dedupe wording. NEVER write to the tombstoned legacy `docs/`, `doctrine/`, or `workflow/`.
 - Run `python setup/scripts/context_audit.py verify` -- if ANY check fails,
   RESTORE from the backup and abort, flagging it in STATUS.md `## Known broken`.
 - On success: log to CHANGELOG.md and re-run the guard to clear the alert.
