@@ -84,6 +84,20 @@ ENTRY_CUTOFF: dt.time = dt.time(10, 30)   # J's morning edge band (<= 10:30 ET)
 SHALLOW_DIP_TOL: float = 0.0010           # within 0.10% of VWAP = with-trend pullback tag
 VIX_SLOPE_LOOKBACK: int = 5               # as-of 5-bar VIX slope for the put-gate (C5)
 
+# Realized-vol FLOOR (GOAL 1, 2026-06-20) — DORMANT default-off instrumentation.
+#   Skip the entry when the session's as-of realized vol is below this floor (the
+#   "dead quiet-tape" signature C1 found bleeds). Default 0.0 = OFF = byte-for-byte
+#   identical to prior behavior (the rvol is still LOGGED in metadata at every trigger
+#   so live N can accrue toward the >=35 promotion bar). Verdict on the LIVE chart-stop
+#   config is WATCH, NOT ship — see scorecard analysis/recommendations/vwap-cont-rvol-floor.json:
+#   on chart-stop NO floor reaches 7/7 OP-22 (the 2026-Q2 recent-quarter OOS slice stays
+#   negative at every threshold AND chart-stop rolling-WF median is structurally <0.70).
+#   The floor IS clean on the -8% premium-stop config (7/7 + own-OOS generalizes) — but
+#   the live watcher trades chart-stop, and exit knobs don't transfer (C29/L149). So this
+#   is wired DORMANT only; J flips j_vwap_cont_realized_vol_floor_bps (and j_vwap_cont_enabled)
+#   once live N>=35 confirms it holds on the live config.
+DEFAULT_REALIZED_VOL_FLOOR_BPS: float = 0.0   # 0 = OFF (inert); C1 candidate value = 9.0
+
 # RTH session window (ET). Mirrors discovery's session bounds.
 RTH_OPEN: dt.time = dt.time(9, 30)
 RTH_CLOSE: dt.time = dt.time(16, 0)
@@ -155,6 +169,25 @@ def vix_slope(vix_series, look: int = VIX_SLOPE_LOOKBACK,
     if len(arr) <= look:
         return float(fallback_1bar) if fallback_1bar is not None else 0.0
     return float(arr[-1] - arr[-1 - look])
+
+
+def realized_vol_bps(closes) -> float:
+    """As-of session realized vol = stdev (ddof=1) of 5m close-to-close LOG returns, in bps.
+
+    BYTE-FOR-BYTE the same definition as the validation harness
+    (``autoresearch.vwap_cont_rvol_floor.realized_vol_bps`` and the shared
+    ``j_regime_forward_validate._realized_vol_bps``): ``std(diff(log(closes)), ddof=1) * 1e4``.
+    Causal — ``closes`` is the session's RTH closes from open through the current (trigger)
+    bar, so it reads only bars[0..trigger]. Live-computable from the 5m closes the heartbeat
+    already caches. Returns 0.0 on too-short history (< 3 closes -> < 2 returns).
+    """
+    c = np.asarray(closes, dtype=float)
+    if c.size < 3:
+        return 0.0
+    rets = np.diff(np.log(c))
+    if rets.size < 2:
+        return 0.0
+    return float(np.std(rets, ddof=1) * 1e4)
 
 
 def detect_vwap_continuation_core(
@@ -279,6 +312,7 @@ def detect_vwap_continuation_setup(
     *,
     breakout_only: bool = False,
     put_needs_rising_vix: bool = False,
+    realized_vol_floor_bps: float = DEFAULT_REALIZED_VOL_FLOOR_BPS,
 ) -> Optional[WatcherSignal]:
     """Detect VWAP_CONTINUATION (J_VWAP_CONT) on the current bar (WATCH-ONLY).
 
@@ -294,6 +328,14 @@ def detect_vwap_continuation_setup(
     (J_VWAP_BREAKOUT / J_VWAP_CONT_VIXGATE). The wiring default is the full pattern
     (both triggers) with the VIX gate OFF, matching the headline J_VWAP_CONT/ATM cell;
     the heartbeat can opt into the VIX-gated cell via a param.
+
+    ``realized_vol_floor_bps`` (GOAL 1, DORMANT default 0.0 = OFF): when > 0, skip the
+    entry if the session's as-of realized vol (stdev of 5m close-to-close log-returns to
+    the trigger, in bps) is below the floor — C1's "skip the dead quiet tape" lever. The
+    as-of rvol is ALWAYS recorded in ``metadata['realized_vol_bps']`` (even when the floor
+    is off) so live N can accrue toward the >=35 promotion bar. Verdict on the live
+    chart-stop config is WATCH (no floor reaches 7/7 OP-22; the 2026-Q2 OOS slice stays
+    negative + chart-stop WF<0.70). Inert at the 0.0 default — see vwap-cont-rvol-floor.json.
     """
     global _fired_today, _vix_hist, _evaluated_bars
 
@@ -355,6 +397,15 @@ def detect_vwap_continuation_setup(
             and vix_slope(_vix_hist, fallback_1bar=_vix_1bar) < 0):
         return None
 
+    # As-of realized vol (GOAL 1). Computed once for both the (dormant) floor gate and the
+    # always-on metadata log. Same definition as the validation harness (causal: session
+    # RTH closes through the trigger bar). Checked BEFORE marking fired so a sub-floor bar
+    # does NOT consume the day's single entry — byte-for-byte matches the harness (which
+    # just drops sub-floor signals; the day yields no trade). Inert when floor <= 0.
+    rvol_bps = realized_vol_bps(closes)
+    if realized_vol_floor_bps > 0 and rvol_bps < realized_vol_floor_bps:
+        return None
+
     # ── Entry — emit signal, mark fired ───────────────────────────────────────
     _fired_today = True
     entry = res.entry
@@ -410,6 +461,10 @@ def detect_vwap_continuation_setup(
             "vix_now": vix_now,
             "vix_5bar_slope": round(slope, 4),
             "put_vix_gate_applied": bool(put_needs_rising_vix),
+            # GOAL 1: as-of realized vol (always logged for live N-accrual) + the dormant floor
+            "realized_vol_bps": round(rvol_bps, 3),
+            "realized_vol_floor_bps": float(realized_vol_floor_bps),
+            "realized_vol_floor_applied": bool(realized_vol_floor_bps > 0),
             "chart_stop": round(stop, 2),
             "premium_stop_pct": DEFAULT_PREMIUM_STOP_PCT,    # -0.99 = disabled
             "strike_offset": DEFAULT_STRIKE_OFFSET,           # 0 = ATM (validated tier)

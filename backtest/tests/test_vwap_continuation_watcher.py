@@ -30,11 +30,13 @@ import pytest
 from lib.watchers.vwap_continuation_watcher import (
     detect_vwap_continuation_core,
     detect_vwap_continuation_setup,
+    realized_vol_bps,
     trend_side,
     vix_slope,
     _reset_day,
     TREND_BARS,
     ENTRY_CUTOFF,
+    DEFAULT_REALIZED_VOL_FLOOR_BPS,
 )
 from lib.filters import BarContext
 
@@ -357,3 +359,59 @@ def test_parity_vix_gated():
         f"only_research={sorted(set(research) - set(live))[:5]} "
         f"only_live={sorted(set(live) - set(research))[:5]}"
     )
+
+
+# ── GOAL 1: realized-vol FLOOR (dormant default-off instrumentation) ───────────
+
+def test_rvol_helper_matches_harness_formula():
+    """realized_vol_bps == std(diff(log(closes)), ddof=1) * 1e4 (the harness definition)."""
+    closes = [600.0, 600.5, 601.1, 601.7, 602.5]
+    expect = float(np.std(np.diff(np.log(np.asarray(closes, float))), ddof=1) * 1e4)
+    assert realized_vol_bps(closes) == pytest.approx(expect)
+    assert realized_vol_bps([600.0]) == 0.0          # < 3 closes -> 0.0
+    assert realized_vol_bps([600.0, 600.5]) == 0.0   # < 2 returns -> 0.0
+
+
+def test_rvol_floor_default_is_off_and_inert():
+    """Default floor (0.0) = OFF: the standard breakout day still fires (byte-for-byte prior)."""
+    assert DEFAULT_REALIZED_VOL_FLOOR_BPS == 0.0
+    rows = [
+        _bar(9, 30, 600.0, 600.6, 599.9, 600.5),
+        _bar(9, 35, 600.5, 601.2, 600.4, 601.1),
+        _bar(9, 40, 601.1, 601.8, 601.0, 601.7),
+        _bar(9, 45, 601.7, 602.6, 601.6, 602.5),
+    ]
+    sig = _run_day(rows)                       # uses the default floor (off)
+    assert sig is not None and sig.direction == "long"
+    # rvol is ALWAYS logged (even with the floor off) so live N can accrue
+    assert "realized_vol_bps" in sig.metadata
+    assert sig.metadata["realized_vol_bps"] > 0
+    assert sig.metadata["realized_vol_floor_applied"] is False
+
+
+def test_rvol_floor_blocks_below_floor():
+    """A floor above the day's rvol blocks the entry without consuming the day."""
+    rows = [
+        _bar(9, 30, 600.0, 600.6, 599.9, 600.5),
+        _bar(9, 35, 600.5, 601.2, 600.4, 601.1),
+        _bar(9, 40, 601.1, 601.8, 601.0, 601.7),
+        _bar(9, 45, 601.7, 602.6, 601.6, 602.5),
+    ]
+    # the day's rvol is small (single-digit bps) -> an enormous floor must block
+    sig = _run_day(rows, realized_vol_floor_bps=10_000.0)
+    assert sig is None
+
+
+def test_rvol_floor_allows_at_or_above_floor():
+    """A floor at/below the day's rvol still fires (and records the applied flag)."""
+    rows = [
+        _bar(9, 30, 600.0, 600.6, 599.9, 600.5),
+        _bar(9, 35, 600.5, 601.2, 600.4, 601.1),
+        _bar(9, 40, 601.1, 601.8, 601.0, 601.7),
+        _bar(9, 45, 601.7, 602.6, 601.6, 602.5),
+    ]
+    # tiny positive floor (< the day's realized vol) -> fires, flag set
+    sig = _run_day(rows, realized_vol_floor_bps=0.5)
+    assert sig is not None and sig.direction == "long"
+    assert sig.metadata["realized_vol_floor_applied"] is True
+    assert sig.metadata["realized_vol_floor_bps"] == 0.5

@@ -121,3 +121,56 @@ His data is **overwhelmingly one macro regime** (2022 bear) — so it **cannot e
 1. **The shippable thread is a volatility floor, not a VIX gate.** `rvol ≥ 9 bps` on VWAP-continuation is the bimodality-killer the prior VIX sweep couldn't find — clean own-OOS, all-sub-positive on the scorecard config. Held back to **WATCH** only by n=31, exit-config sensitivity, and the need for a new live rvol feature.
 2. **VIX level is DEAD** for this fix; **day-type is DEAD** as a live gate (real as J-behavior).
 3. **Transfer-risk is a soft flag**, not a kill: J's history is one regime and leans bullish — a small caution on our bear-only gap-and-go, a corroboration of VWAP-continuation's bull tilt.
+
+---
+
+## C1-RESOLVED — the rvol floor on the LIVE chart-stop config + the bull-side verdict (2026-06-20)
+
+> Script: [`backtest/autoresearch/vwap_cont_rvol_floor.py`](../backtest/autoresearch/vwap_cont_rvol_floor.py) · Scorecard: [`analysis/recommendations/vwap-cont-rvol-floor.json`](../analysis/recommendations/vwap-cont-rvol-floor.json) · Live wiring (dormant): [`backtest/lib/watchers/vwap_continuation_watcher.py`](../backtest/lib/watchers/vwap_continuation_watcher.py) `realized_vol_floor_bps` (default 0.0 = OFF).
+
+### Detector correction (load-bearing — read this first)
+The original C1 row above measured `rvol ≥ 9` on **`detect_vwap_pullback`** (the H4 VWAP-*pullback* survivor), NOT on the **`detect_j_vwap_continuation`** detector the dormant `vwap_continuation_watcher` actually trades. They are different setups (pullback = first in-trend VWAP-tag after a 6-bar one-sided open, any time of day; continuation = J's morning ≤10:30 breakout-OR-pullback, trend set by the first 3 RTH bars). So the C1 result did **not** transfer by assertion — it had to be re-measured on the continuation detector. This section is that re-measurement.
+
+### `realized_vol_bps` — the causal, live-computable definition (GOAL 1a)
+```
+realized_vol_bps = std( diff( log( session_5m_closes[open .. trigger] ) ), ddof=1 ) * 1e4   # bps/bar
+```
+Reads only bars[0..trigger] of the session → causal. Identical definition already shipped causally in `j_regime_forward_validate._realized_vol_bps`; now also `vwap_continuation_watcher.realized_vol_bps`. **Cross-checked byte-for-byte identical** between the harness and the live watcher over 40 real signals (0 mismatches) — so the live floor reproduces the validated numbers exactly. Live-computable from the 5m closes the heartbeat already caches.
+
+### GOAL 1 verdict — **WATCH** (no floor reaches 7/7 on the live chart-stop config)
+J_VWAP_CONT, real OPRA fills, ATM, **chart-stop-only (premium_stop −0.99 = the live watcher config)**, floor swept over {0,5,6,7,8,9,10} bps:
+
+| floor bps | n | exp $/t | WR | q+ | sub 4/4 | WF med | all-cuts-OOS+ | OP-22 |
+|---|---|---|---|---|---|---|---|---|
+| 0 (off) | 153 | +38.3 | 76.5% | 67% | 4/4 | +0.55 | **F** | 5/7 |
+| 7 | 61 | +65.4 | 85.2% | 83% | 4/4 | +0.43 | **F** | 5/7 |
+| 9 | 46 | +66.1 | 84.8% | 83% | 4/4 | +0.27 | **F** | 5/7 |
+
+The floor genuinely **improves** exp/WR and fixes quarter-positivity (67%→83%) and sub-windows — but it does **NOT** reach 7/7 at any threshold. Two persistent blockers:
+1. **`all_cuts_oos_positive` = FALSE at every floor.** The lone failing window is the **0.80 cut = 2026-Q2** (the most-recent OOS slice), which is negative pre- AND post-floor and gets *worse* as the floor tightens (−$61 → −$140 → −$219). It is a recent-quarter **directional drawdown**, not a low-vol artifact, so a vol floor cannot fix it.
+2. **`wf_median ≥ 0.70` = FALSE.** Chart-stop rolling-WF is structurally weak (max +0.55 ungated); the floor never lifts it past 0.70. Same C29/L149 stop-config pattern that kept H4 pullback dormant.
+
+**own-OOS (anti-curve-fit):** IS-only pick = floor 9 bps (IS exp +$83.11), applied UNSEEN to OOS → +$22.78 (generalizes, sign-stable) — but the full series at that floor is **still not** all-cuts-OOS-positive. So the floor is not curve-fit; it's just insufficient on this exit config.
+
+**The floor IS clean on the −8% premium-stop config** (baseline 7/7; floor 7 also 7/7; own-OOS picks floor 7, generalizes +$82, full-series 7/7) — exactly reproducing the original C1 finding. But the live watcher trades chart-stop, and **exit knobs don't transfer (C29/L149)** — which is precisely why the live verdict is WATCH.
+
+**Exact remaining blocker (for the WATCH ticket):** to flip, either (a) the live exit config must change to −8% premium-stop for this setup AND be re-ratified, OR (b) the 2026-Q2 OOS slice must turn positive as live N accrues. The rvol floor alone does not clear chart-stop.
+
+**Action taken (dormant, zero behavior change):** wired `realized_vol_floor_bps` into `vwap_continuation_watcher` (default **0.0 = OFF = inert**; gym 87/87 green, all parity tests pass). The as-of `realized_vol_bps` is now **logged in metadata at every trigger** so live N accrues toward the ≥35 promotion bar. **NOT flipped, NOT proposed for flip** (J decides). C1 candidate value if ever flipped = 9.0.
+
+### GOAL 2 verdict — **bull-side DOES transfer (corroborated), and is the stronger half**
+On the continuation detector, live chart-stop, baseline (no floor):
+
+| side | ATM exp $/t | n | WR | ITM1 exp $/t |
+|---|---|---|---|---|
+| **C (calls)** | **+25.99** | 84 | 77.4% | +45.21 |
+| P (puts) | +53.28 | 69 | 75.4% | +42.62 |
+
+- The call side is **positive, broad-based (n=84, drop-top5 robust), on every config and tier** — genuinely different from gap-and-go calls (which failed standalone as 5 lottery winners). This **corroborates J's historical bull-tilt on OUR 2025-26 fills.** His bull-tilt **transfers** to the continuation detector.
+- With the rvol floor the **call side improves MORE than the put side** (chart-stop ATM C +$25.99 → +$74.38 at floor 9; P +$53.28 → +$56.99). With a confirmed-close cut (breakout = real up-bar) the call side stays strong: floor-9 + confirmed = C +$86.04/n=19/WR 89.5%.
+- **The 2026-Q2 softness is NOT bull-specific** — it's a recent-quarter drawdown hitting both sides (2026Q2: ATM total −$64.91 across C+P). So the recent bull weakness in the *put-heavy regime* narrative is over-stated for THIS detector: the continuation **call side is the cleaner, more floor-responsive half**, it just shares the generic recent-Q drag that also blocks the put side.
+- **Honest caveat:** the put side carries higher raw exp at baseline (the legacy put-heavy regime), but it degrades under the floor while the call side strengthens — consistent with J's "bull > bear every year." There IS a shippable-quality bull edge here; it is gated to WATCH by the same chart-stop/recent-Q blockers as the whole setup, not by any bull-specific failure.
+
+### Bottom line (C1-RESOLVED)
+- **rvol floor on the LIVE config: WATCH** (not 7/7). Blocker = chart-stop WF<0.70 **and** the 2026-Q2 OOS slice (a directional drawdown a vol floor can't fix). Clean on −8%, doesn't transfer to chart-stop (C29/L149). Wired dormant (default-off) + now logging live rvol for N-accrual.
+- **Bull side: TRANSFERS / shippable-quality** on the continuation detector (broad-based, floor-responsive, drop-top5 robust) — corroborates J's bull-tilt; held to WATCH only by the shared chart-stop/recent-Q gate, not a bull failure.
