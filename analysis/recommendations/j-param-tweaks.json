@@ -1,0 +1,108 @@
+{
+  "generated_at_utc": "2026-06-20",
+  "campaign": "J-DATA PROFITABILITY — B1/B2/B3 parameter tweaks (docs/J-DATA-RESEARCH-MASTER-PLAN.md)",
+  "mandate": "J: 'there has to be something profitable if we just tweak certain parameters.' Find his optimal strike/hold/TP, validate forward on OUR data.",
+  "method": {
+    "part_A_defines": "His Webull winners (analysis/webull-j-trades/) DEFINE each candidate param value. B1 from moneyness-at-entry buckets; B2/B3 from option-premium path reconstructed along the cached underlier with per-trade IV inverted from his real entry fill.",
+    "part_B_validates": "OUR 2025-26 SPY real OPRA fills (lib.simulator_real.simulate_trade_real, causal, chart-stop-only) VALIDATE each value forward on the two live edges (gap_and_go LIVE, j_vwap_continuation flip-ready). Each sweep isolates ONE knob vs the live baseline.",
+    "anti_overfit_rule": "A value 'optimal on his data' with NO OUR-data OOS lift is DEAD (overfit), not a win.",
+    "scripts": [
+      "backtest/autoresearch/j_param_tweaks_partA.py",
+      "backtest/autoresearch/j_param_tweaks_partB.py"
+    ],
+    "raw_outputs": [
+      "analysis/recommendations/_j_param_partA.json",
+      "analysis/recommendations/_j_param_partB.json"
+    ],
+    "data": {
+      "his": "313 SPX-family winners (284 0DTE) with bar caches; full roundtrips for by-bucket stats",
+      "ours": "spy_5m_2025-01-01_2026-06-16.csv, 363 trading days, real OPRA fills (cache ends ~2026-05-29)"
+    },
+    "scale_verified": "His bar cache + entry_close are SPY-scale; SPX strikes /10 (median ratio 10.03), SPY strikes x1 (1.00). Moneyness computed on the common SPY scale."
+  },
+
+  "B1_strike": {
+    "tag": "SHIP",
+    "his_data_optimal": {
+      "value": "OTM-1 / OTM-2 (strike $1-2 SPY-equiv beyond spot)",
+      "evidence_spx_0dte": {
+        "OTM1": {"n": 60, "mean_multiple": 1.19, "mean_pnl_per_contract": 38.66, "wr_pct": 75.0},
+        "OTM2": {"n": 73, "mean_multiple": 1.186, "mean_pnl_per_contract": 43.46, "wr_pct": 60.3},
+        "OTM3plus": {"n": 323, "mean_multiple": 1.136, "mean_pnl_per_contract": 26.26, "wr_pct": 57.3},
+        "ATM": {"n": 6, "mean_multiple": 0.902, "note": "tiny n, worse"},
+        "ITM1": {"n": 2, "mean_multiple": 0.804, "note": "tiny n, worse"}
+      },
+      "read": "His sharpest risk/reward was modest-OTM (OTM-1/OTM-2), NOT ATM, ITM, or deep-OTM lottery tickets."
+    },
+    "our_data_validation": {
+      "headline": "His OTM preference does NOT transfer to OUR option edge (C29/C3 lesson). The forward-optimal strike on gap-and-go is ITM-1; OTM-1 is flat, OTM-2 is DEAD (-$29/trade OOS).",
+      "winner": "ITM-1 on gap_and_go",
+      "gap_and_go_at_true_live_settings": {
+        "config": "tp1_pct=0.50 (live), tp1_qty=0.667 (live), time_stop=15:40 (live), chart-stop-only",
+        "ATM_baseline": {"n": 84, "exp_dollar": 63.0, "oos_exp_dollar": 83.8, "oos_n": 25, "total_dollar": 5292, "wr_pct": 66.7, "all_cuts_oos_positive": true, "both_dirs_positive": true, "dsr": "PASS", "drop_top5": 33.4},
+        "ITM1_candidate": {"n": 85, "exp_dollar": 81.7, "oos_exp_dollar": 119.1, "oos_n": 25, "total_dollar": 6947, "wr_pct": 64.7, "all_cuts_oos_positive": true, "both_dirs_positive": true, "dsr": "PASS", "drop_top5": 49.9},
+        "oos_lift": "+$35.3/trade (+42%), +$1,655 total; all structural gates PASS; WR -2pp (deeper-delta tradeoff: higher delta / less theta = bigger $-capture on the gap continuation)."
+      },
+      "j_vwap_continuation": {"itm1_verdict": "WATCH (+$11/trade OOS, but baseline fails all-cuts-OOS+ so no candidate can SHIP); OTM1/OTM2 DEAD"},
+      "combined_strike_x_tp_grid_gap_and_go_oos_exp": {
+        "ITM1": {"tp0.15": 63, "tp0.30": 74, "tp0.50": 110},
+        "ATM": {"tp0.15": 56, "tp0.30": 54, "tp0.50": 79},
+        "OTM1": {"tp0.15": 53, "tp0.30": 55, "tp0.50": 76},
+        "note": "ITM-1 dominates ATM/OTM-1 at EVERY TP level — robust, not an artifact."
+      }
+    },
+    "exact_param_change": {
+      "file": "backtest/lib/watchers/gap_and_go_watcher.py",
+      "change": "DEFAULT_STRIKE_OFFSET: int = 0  ->  -1   (line ~76; also the 'strike_offset' in the go-live params dict ~line 261)",
+      "effect": "gap-and-go enters ITM-1 (strike $1 in-the-money) instead of ATM.",
+      "guard": "Ships under OP-22 (ship-validated-wins): OOS+ AND WF>=0.70 AND all-cuts-OOS+ AND DSR-PASS AND both-dirs+ AND drop-top5-robust — all PASS. gap_and_go_enabled is still false in params.json (detector inert until J flips live); this change tunes the strike the detector WILL use. OP-21 live-gate (3 live J confirmations) still stands. J holds REVOKE.",
+      "scope_note": "Account-tier strikes (Safe OTM-2 / Bold ITM-2 in v15_strike_offset_per_tier) govern the general signal-driven book; THIS is a per-setup override for gap-and-go specifically (analogous to its per-setup chart-stop-only override). Bold's ITM-2 tier is already deeper than ITM-1, consistent with the direction of this finding."
+    }
+  },
+
+  "B2_hold_time": {
+    "tag": "DEAD",
+    "his_data_optimal": {
+      "value": "peak hold-ceiling band ~30-60 min from entry",
+      "evidence": {"median_minutes_to_peak": 29.4, "pct_peaked_by_30min": 50.8, "by_60min": 69.9, "by_120min": 84.2, "his_actual_hold_median_min": 14.3},
+      "read": "Half his winners peaked within 30 min; he typically EXITED even earlier (median 14 min). Suggests cutting the long tail might help."
+    },
+    "our_data_validation": {
+      "headline": "No early time-stop produced a robust OOS lift over the live 15:40 on either detector. The few SHIP-tagged cells (gap-and-go 11:00 +$3.9, 13:00 +$0.4) have NEGLIGIBLE lift and no monotone structure; mid-day stops (11:30/12:00) were DEAD (cut winners). On j_vwap_continuation early stops were WATCH-only (baseline already fails all-cuts-OOS+).",
+      "gap_and_go_timestop_oos_lift_vs_1540": {"11:00": 3.9, "11:30": -6.0, "12:00": -13.8, "13:00": 0.4, "15:50": 7.2},
+      "interpretation": "His-data 'peak ~30 min' describes WINNERS; on OUR full tape (winners+losers) an early hard time-stop clips the runners that pay for losers. The v15 chandelier trailing-stop already captures the 'lock in before the fade' behavior dynamically and better than a static clock. C28: exit tuning has diminishing returns once the dynamic trail is in place."
+    },
+    "exact_param_change": "NONE — keep time_stop_et = 15:40 (live). Early time-stop is overfit to his winner-peak distribution; no forward edge."
+  },
+
+  "B3_tp_target": {
+    "tag": "WATCH",
+    "subtag": "CONFIRMS-CURRENT (live tp1_pct=0.50 is already OOS-optimal; his low-TP is DEAD)",
+    "his_data_optimal": {
+      "value": "low TP — his winners' median peak gain was only ~15%",
+      "evidence": {"median_peak_gain_pct": 14.6, "pct_reaching_+20pct": 44.4, "+30pct": 29.3, "+50pct": 18.4},
+      "read": "Most of his winners peaked at a MODEST premium gain; a low TP1 (~15%) would bank more of his winners before the fade."
+    },
+    "our_data_validation": {
+      "headline": "His low-TP optimum is DEAD/INVERTED forward. On OUR full tape a LOW TP1 (0.10/0.20) HURT OOS expectancy (-$20 to -$25 on gap-and-go); the OOS-optimal among {0.10,0.15,0.20,0.30,0.50} is tp1_pct=0.50 — which is ALREADY the live Safe value.",
+      "gap_and_go_tp1_oos_lift_vs_0.30default": {"0.10": -20.6, "0.15": 1.9, "0.20": -25.4, "0.50": 24.7},
+      "j_vwap_continuation_best": "0.50 (+$29.6 OOS, WATCH)",
+      "critical_correction": "The Part-B sweep baseline used tp1_pct=0.30 (the simulator DEFAULT), but the LIVE value is already 0.50 (Safe params.json) / 0.75 (Bold). So the '+$24.7 lift' is vs a non-live default; against reality there is NO change to ship — the sweep independently RE-CONFIRMS the current 0.50 setting is optimal. (L110-class: always verify a sweep baseline against prod values.)",
+      "reconciliation": "His ~15% describes where HIS winners PEAKED (a winner-only statistic). On OUR tape (winners+losers) banking half at +15% caps the winners that must offset the losers -> a higher TP1 wins forward. Different questions; not a contradiction. His-data-derived value (low TP) = DEAD; the live high TP stands."
+    },
+    "exact_param_change": "NONE — keep tp1_premium_pct = 0.50 (Safe, already live & re-validated optimal) / 0.75 (Bold, above sweep grid; not contradicted). His low-TP candidate is rejected as overfit."
+  },
+
+  "summary": {
+    "SHIP": ["B1 strike: gap-and-go ATM -> ITM-1 (DEFAULT_STRIKE_OFFSET 0 -> -1), +$35/trade (+42%) OOS, all gates PASS"],
+    "WATCH": ["B3 TP: live tp1_pct=0.50 RE-CONFIRMED OOS-optimal (no change); his low-TP rejected. j_vwap_continuation ITM-1 +$11 OOS (blocked only by baseline all-cuts-OOS gate)"],
+    "DEAD": ["B2 hold: no early time-stop beats live 15:40 robustly (his winner-peak band doesn't transfer; v15 chandelier already captures it)", "B1/B3 his OTM-strike & low-TP preferences: do NOT transfer to OUR option edge (C29/C3)"],
+    "headline": "ONE ship-grade tweak found: gap-and-go strike ATM->ITM-1 (+42% OOS expectancy, all robustness gates pass). His other two param preferences (strike-OTM, TP-low) are overfit to his SPX-winner distribution and DIE forward — exactly what the anti-overfit method is for. The TP sweep also caught a baseline-vs-live discrepancy and RE-CONFIRMED the current live 0.50."
+  },
+  "caveats": [
+    "Proxy strikes (L58): nearest-cached real-OPRA strike used; ITM-1 had n=85 vs ATM n=84 (one extra cache hit) — immaterial, both >80.",
+    "B2/B3 his-data peak path uses IV inverted from his own entry fill (no 2021-23 VIX); self-calibrating per trade and more honest than a flat VIX proxy, but it holds IV constant intrabar (ignores vol-of-vol on the path).",
+    "j_vwap_continuation baseline fails strict all-cuts-OOS+ (most-recent OOS window, partial OPRA coverage) — same WATCH_ONLY class as the shipped H4; no candidate there can reach SHIP regardless of knob.",
+    "Propose-only (Rule 9). gap_and_go_enabled=false in params.json — the ITM-1 change tunes the dormant detector; flip + 3 live J confirmations (OP-21) before any live order. J holds REVOKE."
+  ]
+}

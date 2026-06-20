@@ -1,0 +1,114 @@
+{
+  "generated_at": "2026-06-20",
+  "campaign": "J-DATA-RESEARCH-MASTER-PLAN.md angles C1 (VIX regime), C2 (trend/range day), C3 (year/regime transfer)",
+  "scripts": [
+    "backtest/autoresearch/j_regime_split.py (his data DEFINES the regime split)",
+    "backtest/autoresearch/j_regime_forward_validate.py (OUR 2025-26 OPRA fills VALIDATE the gate forward)"
+  ],
+  "inputs": {
+    "j_data": "analysis/webull-j-trades/j_roundtrips.json (668 SPX-family round-trips, 2021-23)",
+    "j_vix_daily": "analysis/webull-j-trades/vix_daily_2021_2023.json (^VIX daily via yfinance; open=causal 09:30 proxy, change_1d=overnight)",
+    "j_bars": "winner_bar_cache.json + loser_bar_cache.json (SPY 5m, 214/222 days) for day-type",
+    "our_data": "backtest/data/spy_5m_2025-01-01_2026-06-16.csv + vix_5m (363 days)",
+    "fills": "lib.simulator_real.simulate_trade_real (real OPRA, causal next-bar-open entry, v15 exit stack); VWAP-continuation detector reused verbatim from infinite_ammo_discovery.detect_vwap_pullback"
+  },
+  "method_anti_overfit": "His data DEFINES each regime hypothesis + the threshold to try. OUR fills VALIDATE forward: chronological IS/OOS (cut 2026-02-02), 4 contiguous sub-windows (all-positive = bimodality killed), each candidate gate's OWN OOS (threshold derived IS-only, applied unseen OOS), DSR (n_trials=30), drop-top5 robustness, both-sides-positive. A gate tuned on a known-bad window with no clean own-OOS is DEAD.",
+  "honesty_note": "J's raw SPX-family book is net NEGATIVE (-$12,885, WR 46.9%, PF 0.75). We locate WHERE the edge is least-bad / positive, NOT claim his book is profitable. Day-type labels on his trades are post-hoc descriptive (where his edge appeared); the forward gate uses only look-ahead-safe features.",
+
+  "C1_vix_regime": {
+    "verdict": "WATCH",
+    "headline": "A VIX *level* gate does NOT discriminate J's winners from losers (winner mean VIX 24.65 vs loser 25.01 — identical) and does NOT fix VWAP-continuation forward (every VIX band stays bimodal). BUT the inverse of a naive low-VIX gate DOES: a realized-VOLATILITY FLOOR (rvol >= 9 bps) lifts VWAP-continuation to all-sub-windows-positive with a clean own-OOS on the scorecard exit config. WATCH (not SHIP) on n=31 sample-thinness + exit-config sensitivity + needs a new live feature.",
+    "j_data_finding": {
+      "by_vix_band_at_day_open": {
+        "low_lt16":  {"n": 63,  "exp_per_trade": -64.14, "profit_factor": 0.487, "note": "WORST per-trade"},
+        "mid_16_19": {"n": 37,  "exp_per_trade": 44.54,  "profit_factor": 2.205, "note": "ONLY positive band — but thin + 2023-confounded"},
+        "high_ge19": {"n": 568, "exp_per_trade": -18.47, "profit_factor": 0.748, "note": "85% of his book (2022 bear); bleeds"}
+      },
+      "vix_level_winners_vs_losers": {"winner_mean_vix": 24.65, "loser_mean_vix": 25.01, "winner_mean_change1d": 0.311, "loser_mean_change1d": 0.344, "interpretation": "VIX level barely separates outcomes; the band signal is driven by sample mix not a per-trade VIX edge (L154/L167 — a level anomaly != a per-trade option edge)."},
+      "best_band_x_character_cell": {"cell": "mid/falling", "n": 11, "exp_per_trade": 148.36, "wilson_lcb": 0.4343, "note": "tantalizing but tiny-N — advisory only"}
+    },
+    "forward_validation_on_our_vwap_continuation": {
+      "question": "Does a VIX gate lift VWAP-continuation 6/7 -> 7/7 (all sub-windows OOS-positive) on our OPRA fills, with the gate's OWN OOS clean?",
+      "vix_gate_answer": "NO. Prior sweep (vwap-trend-pullback-regime-gate.json) already found 0 winners across one-sided vix_lt_X / vix_falling / ADX / range_ratio / rvol-ceiling. The bad months (2025-07..10) were LOW-VIX (median 16.7) / low-realized-vol (6.1bps) / low-morning-move — the OPPOSITE of a low-VIX gate. Confirmed here: every two-sided VIX band (16-19,15-20,16-22,14-19) stays all_sub_windows_positive=False.",
+      "realized_vol_floor_answer": "YES on the scorecard exit config. rvol >= 9 bps:",
+      "rvol_ge_9_scorecard_minus8pct": {
+        "n": 31, "retention": 0.337, "exp_dollar": 70.1, "wr_pct": 51.6,
+        "is_exp_dollar": 57.53, "oos_exp_dollar": 96.5, "oos_sign_stable": true,
+        "sub_window_means": [104.26, 24.75, 81.85, 73.83], "all_sub_windows_positive": true,
+        "both_dirs_positive": true, "drop_top5_mean_dollar": 23.44, "robust_to_outliers": true,
+        "dsr_verdict": "PASS", "oos_months_positive": "3/3",
+        "own_oos": {"is_picked_threshold": 9, "oos_exp_dollar_at_is_threshold": 96.5, "oos_generalizes": true, "full_series_all_sub_windows_positive": true, "verdict": "generalizes — threshold derived IS-only, applied unseen OOS, still all-sub-positive"}
+      },
+      "rvol_ge_9_live_chart_stop_only_minus99": {
+        "n": 31, "exp_dollar": 65.59, "oos_exp_dollar": 132.12, "oos_sign_stable": true,
+        "sub_window_means": [182.63, -134.45, 110.47, 118.35], "all_sub_windows_positive": false,
+        "n_sub_hurt": 1, "dsr_verdict": "PASS", "robust_to_outliers": true,
+        "note": "On the LIVE chart-stop config one sub-window is negative (config-sensitivity, C29/L149: exit knobs don't transfer across stop configs). Combo rvol_ge_6_and_vix_lt_22 IS all-sub-positive on chart-stop (n=43) but has one side slightly negative."
+      },
+      "mechanism": "The rvol>=9 floor removes 88% of the dead-summer (2025-07..10) bad-month trades (their median rvol was 6.2 vs floor 9). It is filtering the structural quiet-tape feature the bad months shared — NOT curve-fit to dates. Surviving 31 trades median +$41.4 (not outlier-driven)."
+    },
+    "exact_param_if_shippable": {
+      "param": "vwap_continuation_realized_vol_floor_bps",
+      "value": 9.0,
+      "definition": "stdev of session 5m close-to-close log-returns from open to current bar, in bps; require >= 9.0 at trigger to take the VWAP-continuation entry",
+      "ship_blockers": ["n=31 < project winner bar of 35 (clears advisory evidence_n>=15, not the stricter 35)", "all-sub-positive holds on -8pct exit config but NOT on the live chart-stop config", "realized-vol is NOT currently computed live (no rvol in loop-state / vwap watcher) — needs a small new live feature before it can gate the live engine"],
+      "recommendation": "WATCH: wire dormant (default-off param) + start logging realized_vol_bps at each VWAP-continuation trigger live; promote to SHIP once N>=35 accumulates live AND it holds on the chart-stop config J actually trades."
+    }
+  },
+
+  "C2_trend_vs_range_day": {
+    "verdict": "WATCH",
+    "headline": "STRONGEST, most robust J finding: his edge is monotonic in day-type — TREND days breakeven (-$1.38/t WR 51.7%), CHOP/range days catastrophic (-$56.43/t WR 43.5%). His one genuinely-positive decent-N cell is bull/trend (+$13.28/t, PF 1.30, n=116). BUT the day-type/trend-strength signal does NOT transfer to our VWAP-continuation forward (ADX gates are among the WORST: adx_ge_20 = -$13.99). Day-type is real on J's data, un-validated as a live gate on ours.",
+    "j_data_finding": {
+      "classifier": "data-driven range_ratio terciles over reliable days (>=60 cached RTH 5m bars): trend = low path/net tercile (rr<=6.07, efficient move), range = high tercile (rr>=12.45, chop), mixed = middle.",
+      "by_day_type": {
+        "trend": {"n": 211, "exp_per_trade": -1.38, "wr": 0.517, "note": "essentially breakeven — his best day-type"},
+        "mixed": {"n": 188, "exp_per_trade": -15.46, "wr": 0.447},
+        "range": {"n": 209, "exp_per_trade": -56.43, "wr": 0.435, "note": "catastrophic — chop is death"}
+      },
+      "side_x_day_type": {
+        "bull/trend": {"n": 116, "exp_per_trade": 13.28, "profit_factor": 1.297, "wr": 0.526, "wilson_lcb": 0.4356, "note": "his ONE positive, decent-N cell"},
+        "bull/range": {"n": 100, "exp_per_trade": -32.5, "profit_factor": 0.597},
+        "bear/range": {"n": 109, "exp_per_trade": -78.39, "profit_factor": 0.347, "note": "worst cell in the entire book"}
+      }
+    },
+    "forward_validation_on_our_data": {
+      "question": "Does a trend-day / not-chop gate lift VWAP-continuation forward?",
+      "answer": "NO. ADX/trend-strength and range-ratio gates were swept (vwap-trend-pullback-regime-gate.json) and are among the worst: adx_ge_20 exp -$13.99, adx_ge_25 -$20.70; range_ratio_le_2.0 oos_sign_stable=False. None make all sub-windows positive. The best trend-family proxy (morning_move_ge_0.003) reaches +$120 OOS but stays bimodal.",
+      "interpretation": "VWAP-continuation already selects for a directional pullback context; the bad period was a low-VOLATILITY artifact, not a chop-vs-trend artifact. The volatility FLOOR (C1) captures the live-tradeable version of 'avoid dead days'; ADX does not."
+    },
+    "router_recommendation": "WATCH as a J-behavioral insight (his chop-day losses are the bleed; a 'skip chop' discipline would have helped HIM). Do NOT build a day-type router for our engine off this — it does not validate forward on our setup. The volatility floor (C1) is the live-actionable cousin."
+  },
+
+  "C3_year_regime_transfer": {
+    "verdict": "WATCH (transfer-risk flag, not a kill)",
+    "headline": "J's book is 85% concentrated in 2022 (the bear year) by trade count, so his data is overwhelmingly ONE macro regime — limited cross-regime evidence. The one stable cross-year pattern: his BULL side is consistently less-bad than his BEAR side in EVERY year. This is a mild transfer-risk flag for our gap-and-go (LIVE PUT-only/bearish): J's own history corroborates a BULLISH lean, not a bearish edge.",
+    "j_data_finding": {
+      "by_year": {
+        "2021": {"n": 20, "exp_per_trade": -13.4, "wr": 0.45, "note": "tiny sample"},
+        "2022": {"n": 556, "exp_per_trade": -17.37, "wr": 0.457, "note": "85% of his book — the bear year"},
+        "2023": {"n": 92, "exp_per_trade": -32.17, "wr": 0.544, "note": "higher WR but worse exp (bigger losses)"}
+      },
+      "by_year_x_side": {
+        "2022_bull": {"n": 272, "exp_per_trade": -4.01, "profit_factor": 0.934},
+        "2022_bear": {"n": 284, "exp_per_trade": -30.17, "profit_factor": 0.643},
+        "2023_bull": {"n": 59, "exp_per_trade": -9.58, "profit_factor": 0.886},
+        "2023_bear": {"n": 33, "exp_per_trade": -72.58, "profit_factor": 0.496}
+      },
+      "cross_year_pattern": "bull-side less-bad than bear-side in ALL years (2022: -4 vs -30; 2023: -9.6 vs -72.6). VIX-high band negative in all 3 years (sign-stable bleed). VIX-mid positive only in 2023 (not transferable)."
+    },
+    "transfer_risk_verdict_on_our_book": {
+      "gap_and_go_LIVE_put_only": "MILD FLAG. Validated on OUR fills independently (that stands), but J's own multi-year history does NOT corroborate a bearish edge — his bear side is his worst cross-regime. Treat gap-and-go's bear edge as our-data-specific, not J-corroborated. Keep BASE size; do not scale on the assumption J's history backs it.",
+      "vwap_continuation": "CORROBORATED on side asymmetry. J's bull-side > bear-side matches our forward finding (VWAP-cont C-side +$51.79 > P-side +$37.49 in vwap-trend-pullback-LIVE.json). The bull lean is the cross-regime-stable read.",
+      "general": "J's data cannot validate cross-regime robustness (it is ~1 regime). Our 2025-26 forward tests remain the authority for regime-transfer; J's data is a directional-bias corroborator only."
+    }
+  },
+
+  "campaign_summary": {
+    "highest_value_result": "A realized-volatility FLOOR (rvol >= 9 bps) — motivated by J's C1 (dead-tail bleed) + the VWAP bad-month diagnosis (low-vol summer) — lifts VWAP-continuation to all-sub-windows-positive with a clean own-OOS on the scorecard exit config (the bimodality-killer the prior VIX sweep could not find). WATCH-grade: n=31, config-sensitive, needs a new live rvol feature.",
+    "vix_level_gate": "DEAD for fixing VWAP-continuation (level does not discriminate; confirmed bimodal across all bands).",
+    "day_type_router": "DEAD as a live gate on our data (does not transfer); real as a J-behavioral bleed insight (chop-day losses).",
+    "transfer_risk": "J's data is ~1 regime (85% 2022 bear); usable only as a bull-lean corroborator. Mild flag on gap-and-go's bear-only stance.",
+    "next_step_if_pursued": "Wire vwap_continuation_realized_vol_floor_bps dormant (default-off) + log realized_vol_bps at every live VWAP-continuation trigger; revisit for SHIP once N>=35 live and it holds on the chart-stop config."
+  }
+}

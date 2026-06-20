@@ -137,3 +137,88 @@ backtest/.venv/Scripts/python.exe backtest/autoresearch/j_entry_quality_validate
 ```
 
 Both reuse the existing bar caches (`winner_bar_cache.json` + `loser_bar_cache.json`, 214/214 dates covered) and the canonical look-ahead-free entry-read extractor (`webull_daily_pattern_miner.extract_features`). No engine code touched — pure analysis + propose-only.
+
+---
+
+# A5 / A8 / A9 — Entry SPECIFICITY (sharpest window / trigger / side)
+
+> **Added:** 2026-06-20 · campaign batch (docs/J-DATA-RESEARCH-MASTER-PLAN.md). **Numbers:** [`analysis/recommendations/j-entry-specificity.json`](../analysis/recommendations/j-entry-specificity.json). **Script:** [`backtest/autoresearch/j_entry_specificity.py`](../backtest/autoresearch/j_entry_specificity.py) (pure, $0, py_compile clean). **Method:** his 655 round-trips DEFINE the sharpest cell per angle; OUR 2025-26 SPY real-OPRA fills VALIDATE forward through the SAME OP-22 `_full_metrics` scorecard as gap-and-go / j-daily-pattern, via a parameterized clone of `detect_j_vwap_continuation` (configurable entry-window + side-filter). A restriction SHIPS only if it clears the edge gate, fires ≥2/wk, **and LIFTS OOS expectancy vs the unrestricted morning baseline.**
+>
+> **Anti-confound (load-bearing):** J's raw $pnl is SIZE-contaminated (afternoon book smaller, morning 0DTE size larger). The per-cell HEADLINE here is **WR** and **size-neutral `pct_move`** (return on premium per contract). Raw $ is reported but flagged.
+
+## A5.0 The verdicts at a glance
+
+| Sub-angle | His sharpest cell (his data) | OUR-data forward result | OOS lift vs baseline | Verdict |
+|---|---|---|---|---|
+| **A5 time-of-day** | 11:00–11:30 (53% WR, **+17.2% pct_move**); afternoon > morning | Tightening morning→10:00-10:30 is OOS-flat; extending→13:00 is OOS-flat | +$0.6 / +$0.0 | **DEAD** (no tradeable window-tighten of the morning detector) |
+| **A8 trigger × condition** | **pullback & aligned & confirmed** (62.4% WR, **+22.2% pct_move**); reclaim is the trap (36.8% WR) | breakout-ONLY restriction **destroys** OOS (drops the pullback half) | **−$26.3** | **DEAD** (the baseline already captures the right cell; restricting hurts) |
+| **A9 call vs put** | calls & puts ≈ equal overall, but **counter-VWAP puts collapse** (29% WR, −13.4% pct) | **CALL-only LIFTS most-recent OOS +$16.4** (dodges the 2026-Q2 put collapse); PUT-only is OOS-flat & owns the Q2 drag | call **+$16.4** / put +$1.7 | **A9 WATCH** (call-side recency tilt) · **put = regime caveat** |
+
+**One-line headline:** the only angle with a real forward edge is **A9** — and it is a *recency/regime* finding, not a clean per-side ship: **the put side is the entire source of the 2026-Q2 drawdown; the call side carried Q2.** But calls and puts are **anti-correlated across quarters** (puts owned 2025-Q2/Q3 when calls bled), so the combined two-sided book is the most robust config (q⁺=67% both-dirs). Dropping a side trades robustness for recency.
+
+## A5.1 — TIME-OF-DAY: his afternoon edge does NOT transfer to the morning detector → DEAD
+
+His data, size-neutral, n≥15 per cell (ranked by `pct_move`):
+
+| Window (ET) | n | WR | pct_move | raw $ (confounded) |
+|---|---|---|---|---|
+| **11:00–11:30** | 62 | 53.2% | **+17.2%** | +29 |
+| 13:00+ | 123 | 48.8% | +5.3% | −17 |
+| 10:30–11:00 | 82 | 45.1% | +3.8% | −11 |
+| 10:00–10:30 | 133 | 48.1% | +2.8% | −28 |
+| 09:35–10:00 | 136 | 52.9% | +0.8% | −34 |
+| 11:30–13:00 | 92 | 37.0% | −0.1% | −30 (lunch dead-zone) |
+
+His sharp cells are **late-morning / early-afternoon** (11:00, 13:00). But the live VWAP-continuation detector is structurally a **morning trend-established continuation** — it can't simply be window-shifted to 11:00 without changing what it is. So the *tradeable* A5 lever is tightening **within** the morning. On OUR data:
+- **Tighten to 10:00–10:30** (his least-negative morning sub-band): OOS +$24.7 vs baseline +$24.1 → **+$0.6 lift**, and frequency drops 2.11→1.85/wk. Net: pay frequency for ~nothing. **DEAD/marginal.**
+- **Extend the window to 13:00** (chase his 11:00/13:00 cells): adds only 4 signals (the morning trend-side is usually resolved by 10:30) → **+$0.0 lift**. **DEAD.**
+
+**Takeaway:** J's afternoon edge is a *different setup* (afternoon mean-reversion / power-hour), not a window-tighten of the morning continuation. It belongs to a future afternoon-detector angle, not A5-as-a-tweak. The morning detector's window is already at its sweet spot.
+
+## A8 — TRIGGER × CONDITION: the sharp axis is the CONDITION (aligned & confirmed), not the trigger → restricting trigger is DEAD
+
+His data, the cross (size-neutral):
+
+| Cell | n | WR | pct_move |
+|---|---|---|---|
+| **pullback & aligned & confirmed** | 141 | **62.4%** | **+22.2%** |
+| breakout & aligned & confirmed | 182 | 57.1% | +8.6% |
+| pullback (all) | 229 | 50.7% | +9.1% |
+| breakout (all) | 254 | 52.8% | +3.5% |
+| **reclaim (all)** | 171 | **36.8%** | **−3.7%** (the trap) |
+
+Two facts dominate: (1) the **condition** `aligned & confirmed` lifts *every* trigger by ~+10pp WR and 2–3× `pct_move` — it is the real axis; (2) **reclaim** (a counter-VWAP entry) is his worst trigger and it **never** co-occurs with `aligned & confirmed` (n=0). His single best cell is **pullback**, not breakout.
+
+The live detector **already** trades only the two good triggers (breakout + shallow-VWAP-dip pullback, both requiring a close on the trend side of VWAP) and **structurally excludes reclaim** (a counter-VWAP reclaim can never satisfy "closes on trend side"). The baseline signal mix is **103 breakout / 63 pullback** — both halves present. So:
+- **Restricting to breakout-only** (the obvious "his highest-WR trigger" guess) **drops the pullback half — which is his *sharpest* cell** — and on OUR data **OOS craters −$26.3 (WF −0.05).** **DEAD**, and a clean cross-dataset corroboration: throwing away the aligned pullbacks throws away the edge on both his data and ours.
+- The genuinely sharp condition (`confirmed_close`) is the **A4 angle, already shipped** (bear-side live; bull-side WATCH, OOS-thin) — see §3 above. A8 adds no net-new tradeable lever beyond what A4 already owns.
+
+## A9 — CALL vs PUT: the only forward edge, but it's a RECENCY/REGIME tilt not a clean per-side ship
+
+His data: calls and puts are near-equal overall (CALL 48.1% WR / +5.2% pct; PUT 47.5% / +1.6%). The asymmetry is in the **counter-VWAP** sub-population: counter-VWAP **puts collapse** (29.3% WR, **−13.4% pct**) far worse than counter-VWAP calls (44.6%, +4.3%). His put weakness = **counter-trend puts** specifically.
+
+OUR-data forward (morning VWAP-continuation, per side, ATM, chart-stop):
+
+| Variant | n | exp $ | WR | freq/wk | OOS exp $ | medWF | the quarters |
+|---|---|---|---|---|---|---|---|
+| baseline (both) | 153 | +38.3 | 76.5% | 2.11 | +24.1 | +0.55 | 2026Q2 = **−$65** (the drag) |
+| **A9 CALL-only** | 84 | +26.0 | 77.4% | 1.16 | **+40.5** | **+2.08** | 2026Q2 = **+$8** (survived); but 2025-Q2/Q3 negative |
+| A9 PUT-only | 69 | +53.3 | 75.4% | 0.95 | +1.7 | +0.02 | 2026Q2 = **−$154** (owns the collapse); 2025 quarters strong |
+
+The decisive read is the **quarter table**: the **put side is the entire source of the 2026-Q2 drawdown** (−$154/trade), while the **call side dodged it** (+$8). That is why CALL-only **lifts the most-recent OOS by +$16.4** (OOS exp +$40.5, WF 2.08). **A9-call = WATCH** — a real, sign-stable, DSR-PASS, OOS-lifting recency tilt.
+
+But it is **not** a clean ship, for an honest reason: calls and puts are **anti-correlated across quarters** — puts were the strong side in 2025-Q2/Q3 (+$117/+$56) exactly when calls bled (−$92/−$25). Dropping either side fails strict all-cuts-OOS-positive and halves frequency (to ~1/wk). The combined book is the most robust precisely *because* the two sides cover different regimes (q⁺=67%, both-dirs-positive).
+
+**Actionable A9 conclusion (propose-only):**
+- **Do NOT hard-drop the put side** — it is +EV across the full sample and carries the quarters calls can't. PUT-only standalone is **DEAD**.
+- **The put side has a live regime fragility** (2026-Q2 collapse mirrors J's own counter-trend-put bleed). The right wiring is a **put-side regime gate** (the existing `vwap-trend-pullback-regime-gate` / VIX-character work, C1/C5), **not** a side ban. This A9 result is corroborating evidence that the recent-quarter softness flagged on the VWAP-continuation edge (A2) is **concentrated on the put side** — which sharpens where C1's VIX/regime gate should bind.
+- **A9-call WATCH:** if a future quarter again shows a put-side regime that the C1 gate can't catch, the call-only morning book is the validated fallback (OOS +$40.5, WF 2.08). Keep it as a documented regime-fallback, not a live flip.
+
+## A5/A8/A9 reproduce
+
+```bash
+backtest/.venv/Scripts/python.exe backtest/autoresearch/j_entry_specificity.py
+# writes analysis/recommendations/j-entry-specificity.json (PART A his cells + PART B forward A/B + verdicts)
+```
+
+Reuses `infinite_ammo_discovery` (load_spy / align_vix / build_day_contexts / session_vwap_asof), `simulator_real` (real OPRA fills), `validation.gate` (DSR), and the `_full_metrics` OP-22 scorecard shape. No live/engine code touched. Propose-only (Rule 9); any flip is J's.
