@@ -1,0 +1,6630 @@
+{
+  "meta": {
+    "covered_dates": 142,
+    "span_days": 804,
+    "weeks": 114.9,
+    "date_range": [
+      "2021-07-07",
+      "2023-09-18"
+    ]
+  },
+  "rules": [
+    {
+      "side": "C",
+      "axes": [
+        "day_type"
+      ],
+      "bindings": {
+        "day_type": "range"
+      },
+      "n_trades": 179,
+      "wins": 112,
+      "win_rate_pct": 62.6,
+      "avg_pnl": 39.95,
+      "total_pnl": 7151.0,
+      "fire_days": 92,
+      "trades_per_week": 1.56,
+      "fire_days_per_week": 0.8,
+      "daily_rule_score": 31.96
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "day_type": "range"
+      },
+      "n_trades": 128,
+      "wins": 85,
+      "win_rate_pct": 66.4,
+      "avg_pnl": 48.66,
+      "total_pnl": 6228.0,
+      "fire_days": 69,
+      "trades_per_week": 1.11,
+      "fire_days_per_week": 0.6,
+      "daily_rule_score": 29.2
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side"
+      ],
+      "bindings": {
+        "vwap_side": "above"
+      },
+      "n_trades": 186,
+      "wins": 118,
+      "win_rate_pct": 63.4,
+      "avg_pnl": 36.16,
+      "total_pnl": 6725.0,
+      "fire_days": 82,
+      "trades_per_week": 1.62,
+      "fire_days_per_week": 0.71,
+      "daily_rule_score": 25.67
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "11:00",
+        "day_type": "range"
+      },
+      "n_trades": 26,
+      "wins": 16,
+      "win_rate_pct": 61.5,
+      "avg_pnl": 119.5,
+      "total_pnl": 3107.0,
+      "fire_days": 20,
+      "trades_per_week": 0.23,
+      "fire_days_per_week": 0.17,
+      "daily_rule_score": 20.32
+    },
+    {
+      "side": "C",
+      "axes": [
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "trigger": "pullback",
+        "day_type": "range"
+      },
+      "n_trades": 62,
+      "wins": 42,
+      "win_rate_pct": 67.7,
+      "avg_pnl": 54.15,
+      "total_pnl": 3357.0,
+      "fire_days": 39,
+      "trades_per_week": 0.54,
+      "fire_days_per_week": 0.34,
+      "daily_rule_score": 18.41
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "trigger": "pullback",
+        "day_type": "range"
+      },
+      "n_trades": 62,
+      "wins": 42,
+      "win_rate_pct": 67.7,
+      "avg_pnl": 54.15,
+      "total_pnl": 3357.0,
+      "fire_days": 39,
+      "trades_per_week": 0.54,
+      "fire_days_per_week": 0.34,
+      "daily_rule_score": 18.41
+    },
+    {
+      "side": "C",
+      "axes": [
+        "trigger"
+      ],
+      "bindings": {
+        "trigger": "pullback"
+      },
+      "n_trades": 103,
+      "wins": 64,
+      "win_rate_pct": 62.1,
+      "avg_pnl": 33.01,
+      "total_pnl": 3400.0,
+      "fire_days": 59,
+      "trades_per_week": 0.9,
+      "fire_days_per_week": 0.51,
+      "daily_rule_score": 16.84
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "trigger": "pullback"
+      },
+      "n_trades": 103,
+      "wins": 64,
+      "win_rate_pct": 62.1,
+      "avg_pnl": 33.01,
+      "total_pnl": 3400.0,
+      "fire_days": 59,
+      "trades_per_week": 0.9,
+      "fire_days_per_week": 0.51,
+      "daily_rule_score": 16.84
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "trigger": "breakout"
+      },
+      "n_trades": 83,
+      "wins": 54,
+      "win_rate_pct": 65.1,
+      "avg_pnl": 40.06,
+      "total_pnl": 3325.0,
+      "fire_days": 48,
+      "trades_per_week": 0.72,
+      "fire_days_per_week": 0.42,
+      "daily_rule_score": 16.83
+    },
+    {
+      "side": "C",
+      "axes": [
+        "trigger"
+      ],
+      "bindings": {
+        "trigger": "breakout"
+      },
+      "n_trades": 88,
+      "wins": 56,
+      "win_rate_pct": 63.6,
+      "avg_pnl": 36.5,
+      "total_pnl": 3212.0,
+      "fire_days": 53,
+      "trades_per_week": 0.77,
+      "fire_days_per_week": 0.46,
+      "daily_rule_score": 16.79
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "day_type": "range"
+      },
+      "n_trades": 149,
+      "wins": 97,
+      "win_rate_pct": 65.1,
+      "avg_pnl": 27.21,
+      "total_pnl": 4055.0,
+      "fire_days": 68,
+      "trades_per_week": 1.3,
+      "fire_days_per_week": 0.59,
+      "daily_rule_score": 16.05
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down",
+        "day_type": "range"
+      },
+      "n_trades": 47,
+      "wins": 29,
+      "win_rate_pct": 61.7,
+      "avg_pnl": 63.47,
+      "total_pnl": 2983.0,
+      "fire_days": 29,
+      "trades_per_week": 0.41,
+      "fire_days_per_week": 0.25,
+      "daily_rule_score": 15.87
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "11:00",
+        "vwap_side": "below",
+        "day_type": "range"
+      },
+      "n_trades": 21,
+      "wins": 14,
+      "win_rate_pct": 66.7,
+      "avg_pnl": 117.71,
+      "total_pnl": 2472.0,
+      "fire_days": 15,
+      "trades_per_week": 0.18,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": 15.3
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "trigger": "breakout",
+        "day_type": "range"
+      },
+      "n_trades": 66,
+      "wins": 43,
+      "win_rate_pct": 65.2,
+      "avg_pnl": 43.5,
+      "total_pnl": 2871.0,
+      "fire_days": 39,
+      "trades_per_week": 0.57,
+      "fire_days_per_week": 0.34,
+      "daily_rule_score": 14.79
+    },
+    {
+      "side": "C",
+      "axes": [
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "trigger": "breakout",
+        "day_type": "range"
+      },
+      "n_trades": 71,
+      "wins": 45,
+      "win_rate_pct": 63.4,
+      "avg_pnl": 38.85,
+      "total_pnl": 2758.0,
+      "fire_days": 44,
+      "trades_per_week": 0.62,
+      "fire_days_per_week": 0.38,
+      "daily_rule_score": 14.76
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "11:00"
+      },
+      "n_trades": 38,
+      "wins": 23,
+      "win_rate_pct": 60.5,
+      "avg_pnl": 57.63,
+      "total_pnl": 2190.0,
+      "fire_days": 28,
+      "trades_per_week": 0.33,
+      "fire_days_per_week": 0.24,
+      "daily_rule_score": 13.83
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "vwap_side": "above"
+      },
+      "n_trades": 44,
+      "wins": 30,
+      "win_rate_pct": 68.2,
+      "avg_pnl": 45.07,
+      "total_pnl": 1983.0,
+      "fire_days": 34,
+      "trades_per_week": 0.38,
+      "fire_days_per_week": 0.3,
+      "daily_rule_score": 13.52
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "vwap_side": "above",
+        "day_type": "range"
+      },
+      "n_trades": 44,
+      "wins": 30,
+      "win_rate_pct": 68.2,
+      "avg_pnl": 45.07,
+      "total_pnl": 1983.0,
+      "fire_days": 34,
+      "trades_per_week": 0.38,
+      "fire_days_per_week": 0.3,
+      "daily_rule_score": 13.52
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "10:00"
+      },
+      "n_trades": 55,
+      "wins": 35,
+      "win_rate_pct": 63.6,
+      "avg_pnl": 36.42,
+      "total_pnl": 2003.0,
+      "fire_days": 43,
+      "trades_per_week": 0.48,
+      "fire_days_per_week": 0.37,
+      "daily_rule_score": 13.48
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "day_type": "range"
+      },
+      "n_trades": 55,
+      "wins": 35,
+      "win_rate_pct": 63.6,
+      "avg_pnl": 36.42,
+      "total_pnl": 2003.0,
+      "fire_days": 43,
+      "trades_per_week": 0.48,
+      "fire_days_per_week": 0.37,
+      "daily_rule_score": 13.48
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "down",
+        "day_type": "range"
+      },
+      "n_trades": 33,
+      "wins": 21,
+      "win_rate_pct": 63.6,
+      "avg_pnl": 78.73,
+      "total_pnl": 2598.0,
+      "fire_days": 20,
+      "trades_per_week": 0.29,
+      "fire_days_per_week": 0.17,
+      "daily_rule_score": 13.38
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:30",
+        "vwap_side": "above",
+        "day_type": "range"
+      },
+      "n_trades": 25,
+      "wins": 18,
+      "win_rate_pct": 72.0,
+      "avg_pnl": 84.12,
+      "total_pnl": 2103.0,
+      "fire_days": 17,
+      "trades_per_week": 0.22,
+      "fire_days_per_week": 0.15,
+      "daily_rule_score": 12.62
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side"
+      ],
+      "bindings": {
+        "time_bucket": "10:30",
+        "vwap_side": "above"
+      },
+      "n_trades": 28,
+      "wins": 19,
+      "win_rate_pct": 67.9,
+      "avg_pnl": 72.96,
+      "total_pnl": 2043.0,
+      "fire_days": 19,
+      "trades_per_week": 0.24,
+      "fire_days_per_week": 0.17,
+      "daily_rule_score": 12.4
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "trigger": "breakout",
+        "day_type": "range"
+      },
+      "n_trades": 87,
+      "wins": 58,
+      "win_rate_pct": 66.7,
+      "avg_pnl": 28.3,
+      "total_pnl": 2462.0,
+      "fire_days": 48,
+      "trades_per_week": 0.76,
+      "fire_days_per_week": 0.42,
+      "daily_rule_score": 11.89
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "10:30"
+      },
+      "n_trades": 37,
+      "wins": 22,
+      "win_rate_pct": 59.5,
+      "avg_pnl": 49.14,
+      "total_pnl": 1818.0,
+      "fire_days": 28,
+      "trades_per_week": 0.32,
+      "fire_days_per_week": 0.24,
+      "daily_rule_score": 11.79
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "down"
+      },
+      "n_trades": 48,
+      "wins": 30,
+      "win_rate_pct": 62.5,
+      "avg_pnl": 55.1,
+      "total_pnl": 2645.0,
+      "fire_days": 24,
+      "trades_per_week": 0.42,
+      "fire_days_per_week": 0.21,
+      "daily_rule_score": 11.57
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:30",
+        "day_type": "range"
+      },
+      "n_trades": 33,
+      "wins": 20,
+      "win_rate_pct": 60.6,
+      "avg_pnl": 52.55,
+      "total_pnl": 1734.0,
+      "fire_days": 25,
+      "trades_per_week": 0.29,
+      "fire_days_per_week": 0.22,
+      "daily_rule_score": 11.56
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down"
+      },
+      "n_trades": 69,
+      "wins": 41,
+      "win_rate_pct": 59.4,
+      "avg_pnl": 39.49,
+      "total_pnl": 2725.0,
+      "fire_days": 33,
+      "trades_per_week": 0.6,
+      "fire_days_per_week": 0.29,
+      "daily_rule_score": 11.45
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side"
+      ],
+      "bindings": {
+        "vwap_side": "below"
+      },
+      "n_trades": 186,
+      "wins": 119,
+      "win_rate_pct": 64.0,
+      "avg_pnl": 16.32,
+      "total_pnl": 3035.0,
+      "fire_days": 79,
+      "trades_per_week": 1.62,
+      "fire_days_per_week": 0.69,
+      "daily_rule_score": 11.26
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "trigger": "breakout"
+      },
+      "n_trades": 24,
+      "wins": 19,
+      "win_rate_pct": 79.2,
+      "avg_pnl": 68.92,
+      "total_pnl": 1654.0,
+      "fire_days": 18,
+      "trades_per_week": 0.21,
+      "fire_days_per_week": 0.16,
+      "daily_rule_score": 11.03
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "trigger": "breakout",
+        "day_type": "range"
+      },
+      "n_trades": 24,
+      "wins": 19,
+      "win_rate_pct": 79.2,
+      "avg_pnl": 68.92,
+      "total_pnl": 1654.0,
+      "fire_days": 18,
+      "trades_per_week": 0.21,
+      "fire_days_per_week": 0.16,
+      "daily_rule_score": 11.03
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "trigger": "breakout"
+      },
+      "n_trades": 102,
+      "wins": 69,
+      "win_rate_pct": 67.6,
+      "avg_pnl": 22.53,
+      "total_pnl": 2298.0,
+      "fire_days": 55,
+      "trades_per_week": 0.89,
+      "fire_days_per_week": 0.48,
+      "daily_rule_score": 10.81
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "10:30",
+        "trigger": "pullback"
+      },
+      "n_trades": 16,
+      "wins": 12,
+      "win_rate_pct": 75.0,
+      "avg_pnl": 98.0,
+      "total_pnl": 1568.0,
+      "fire_days": 13,
+      "trades_per_week": 0.14,
+      "fire_days_per_week": 0.11,
+      "daily_rule_score": 10.78
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "10:30",
+        "vwap_side": "above",
+        "trigger": "pullback"
+      },
+      "n_trades": 16,
+      "wins": 12,
+      "win_rate_pct": 75.0,
+      "avg_pnl": 98.0,
+      "total_pnl": 1568.0,
+      "fire_days": 13,
+      "trades_per_week": 0.14,
+      "fire_days_per_week": 0.11,
+      "daily_rule_score": 10.78
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "11:00",
+        "trigger": "pullback",
+        "day_type": "range"
+      },
+      "n_trades": 13,
+      "wins": 10,
+      "win_rate_pct": 76.9,
+      "avg_pnl": 132.69,
+      "total_pnl": 1725.0,
+      "fire_days": 9,
+      "trades_per_week": 0.11,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": 10.62
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "vwap_side": "above",
+        "trigger": "breakout"
+      },
+      "n_trades": 20,
+      "wins": 17,
+      "win_rate_pct": 85.0,
+      "avg_pnl": 88.15,
+      "total_pnl": 1763.0,
+      "fire_days": 14,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.12,
+      "daily_rule_score": 10.58
+    },
+    {
+      "side": "P",
+      "axes": [
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "trigger": "breakout",
+        "day_type": "range"
+      },
+      "n_trades": 97,
+      "wins": 63,
+      "win_rate_pct": 64.9,
+      "avg_pnl": 22.25,
+      "total_pnl": 2158.0,
+      "fire_days": 54,
+      "trades_per_week": 0.84,
+      "fire_days_per_week": 0.47,
+      "daily_rule_score": 10.46
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "vwap_side": "above"
+      },
+      "n_trades": 28,
+      "wins": 22,
+      "win_rate_pct": 78.6,
+      "avg_pnl": 59.04,
+      "total_pnl": 1653.0,
+      "fire_days": 19,
+      "trades_per_week": 0.24,
+      "fire_days_per_week": 0.17,
+      "daily_rule_score": 10.04
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "vwap_side": "above",
+        "day_type": "range"
+      },
+      "n_trades": 28,
+      "wins": 22,
+      "win_rate_pct": 78.6,
+      "avg_pnl": 59.04,
+      "total_pnl": 1653.0,
+      "fire_days": 19,
+      "trades_per_week": 0.24,
+      "fire_days_per_week": 0.17,
+      "daily_rule_score": 10.04
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "09:30"
+      },
+      "n_trades": 45,
+      "wins": 32,
+      "win_rate_pct": 71.1,
+      "avg_pnl": 34.6,
+      "total_pnl": 1557.0,
+      "fire_days": 32,
+      "trades_per_week": 0.39,
+      "fire_days_per_week": 0.28,
+      "daily_rule_score": 9.69
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "day_type": "range"
+      },
+      "n_trades": 45,
+      "wins": 32,
+      "win_rate_pct": 71.1,
+      "avg_pnl": 34.6,
+      "total_pnl": 1557.0,
+      "fire_days": 32,
+      "trades_per_week": 0.39,
+      "fire_days_per_week": 0.28,
+      "daily_rule_score": 9.69
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:30",
+        "trigger": "pullback",
+        "day_type": "range"
+      },
+      "n_trades": 15,
+      "wins": 11,
+      "win_rate_pct": 73.3,
+      "avg_pnl": 95.2,
+      "total_pnl": 1428.0,
+      "fire_days": 12,
+      "trades_per_week": 0.13,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 9.52
+    },
+    {
+      "side": "P",
+      "axes": [
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "trigger": "pullback",
+        "day_type": "range"
+      },
+      "n_trades": 62,
+      "wins": 39,
+      "win_rate_pct": 62.9,
+      "avg_pnl": 25.69,
+      "total_pnl": 1593.0,
+      "fire_days": 43,
+      "trades_per_week": 0.54,
+      "fire_days_per_week": 0.37,
+      "daily_rule_score": 9.51
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "trigger": "pullback",
+        "day_type": "range"
+      },
+      "n_trades": 62,
+      "wins": 39,
+      "win_rate_pct": 62.9,
+      "avg_pnl": 25.69,
+      "total_pnl": 1593.0,
+      "fire_days": 43,
+      "trades_per_week": 0.54,
+      "fire_days_per_week": 0.37,
+      "daily_rule_score": 9.51
+    },
+    {
+      "side": "P",
+      "axes": [
+        "trigger"
+      ],
+      "bindings": {
+        "trigger": "breakout"
+      },
+      "n_trades": 112,
+      "wins": 74,
+      "win_rate_pct": 66.1,
+      "avg_pnl": 17.8,
+      "total_pnl": 1994.0,
+      "fire_days": 61,
+      "trades_per_week": 0.98,
+      "fire_days_per_week": 0.53,
+      "daily_rule_score": 9.43
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "11:00",
+        "open_drive_bucket": "flat"
+      },
+      "n_trades": 16,
+      "wins": 11,
+      "win_rate_pct": 68.8,
+      "avg_pnl": 94.25,
+      "total_pnl": 1508.0,
+      "fire_days": 11,
+      "trades_per_week": 0.14,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 9.43
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "flat",
+        "trigger": "pullback",
+        "day_type": "range"
+      },
+      "n_trades": 14,
+      "wins": 9,
+      "win_rate_pct": 64.3,
+      "avg_pnl": 115.57,
+      "total_pnl": 1618.0,
+      "fire_days": 9,
+      "trades_per_week": 0.12,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": 9.25
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side"
+      ],
+      "bindings": {
+        "time_bucket": "11:00",
+        "vwap_side": "below"
+      },
+      "n_trades": 31,
+      "wins": 20,
+      "win_rate_pct": 64.5,
+      "avg_pnl": 50.58,
+      "total_pnl": 1568.0,
+      "fire_days": 21,
+      "trades_per_week": 0.27,
+      "fire_days_per_week": 0.18,
+      "daily_rule_score": 9.1
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "flat",
+        "trigger": "pullback"
+      },
+      "n_trades": 19,
+      "wins": 13,
+      "win_rate_pct": 68.4,
+      "avg_pnl": 89.74,
+      "total_pnl": 1705.0,
+      "fire_days": 12,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 8.97
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "flat",
+        "trigger": "pullback"
+      },
+      "n_trades": 19,
+      "wins": 13,
+      "win_rate_pct": 68.4,
+      "avg_pnl": 89.74,
+      "total_pnl": 1705.0,
+      "fire_days": 12,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 8.97
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "up"
+      },
+      "n_trades": 49,
+      "wins": 32,
+      "win_rate_pct": 65.3,
+      "avg_pnl": 49.43,
+      "total_pnl": 2422.0,
+      "fire_days": 21,
+      "trades_per_week": 0.43,
+      "fire_days_per_week": 0.18,
+      "daily_rule_score": 8.9
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "up",
+        "day_type": "range"
+      },
+      "n_trades": 33,
+      "wins": 25,
+      "win_rate_pct": 75.8,
+      "avg_pnl": 68.21,
+      "total_pnl": 2251.0,
+      "fire_days": 15,
+      "trades_per_week": 0.29,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": 8.87
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "11:00",
+        "vwap_side": "below",
+        "open_drive_bucket": "flat"
+      },
+      "n_trades": 13,
+      "wins": 10,
+      "win_rate_pct": 76.9,
+      "avg_pnl": 126.62,
+      "total_pnl": 1646.0,
+      "fire_days": 8,
+      "trades_per_week": 0.11,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 8.86
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "trigger": "pullback"
+      },
+      "n_trades": 19,
+      "wins": 15,
+      "win_rate_pct": 78.9,
+      "avg_pnl": 73.05,
+      "total_pnl": 1388.0,
+      "fire_days": 14,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.12,
+      "daily_rule_score": 8.77
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "vwap_side": "above",
+        "trigger": "pullback"
+      },
+      "n_trades": 19,
+      "wins": 15,
+      "win_rate_pct": 78.9,
+      "avg_pnl": 73.05,
+      "total_pnl": 1388.0,
+      "fire_days": 14,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.12,
+      "daily_rule_score": 8.77
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "trigger": "pullback",
+        "day_type": "range"
+      },
+      "n_trades": 19,
+      "wins": 15,
+      "win_rate_pct": 78.9,
+      "avg_pnl": 73.05,
+      "total_pnl": 1388.0,
+      "fire_days": 14,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.12,
+      "daily_rule_score": 8.77
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up",
+        "day_type": "range"
+      },
+      "n_trades": 45,
+      "wins": 31,
+      "win_rate_pct": 68.9,
+      "avg_pnl": 48.58,
+      "total_pnl": 2186.0,
+      "fire_days": 21,
+      "trades_per_week": 0.39,
+      "fire_days_per_week": 0.18,
+      "daily_rule_score": 8.74
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "up",
+        "day_type": "range"
+      },
+      "n_trades": 32,
+      "wins": 24,
+      "win_rate_pct": 75.0,
+      "avg_pnl": 54.06,
+      "total_pnl": 1730.0,
+      "fire_days": 18,
+      "trades_per_week": 0.28,
+      "fire_days_per_week": 0.16,
+      "daily_rule_score": 8.65
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "11:00",
+        "trigger": "pullback"
+      },
+      "n_trades": 20,
+      "wins": 15,
+      "win_rate_pct": 75.0,
+      "avg_pnl": 70.5,
+      "total_pnl": 1410.0,
+      "fire_days": 14,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.12,
+      "daily_rule_score": 8.46
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "11:00",
+        "vwap_side": "below",
+        "trigger": "pullback"
+      },
+      "n_trades": 20,
+      "wins": 15,
+      "win_rate_pct": 75.0,
+      "avg_pnl": 70.5,
+      "total_pnl": 1410.0,
+      "fire_days": 14,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.12,
+      "daily_rule_score": 8.46
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down",
+        "trigger": "pullback",
+        "day_type": "range"
+      },
+      "n_trades": 15,
+      "wins": 11,
+      "win_rate_pct": 73.3,
+      "avg_pnl": 84.0,
+      "total_pnl": 1260.0,
+      "fire_days": 11,
+      "trades_per_week": 0.13,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 8.4
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down",
+        "trigger": "pullback"
+      },
+      "n_trades": 27,
+      "wins": 19,
+      "win_rate_pct": 70.4,
+      "avg_pnl": 55.15,
+      "total_pnl": 1489.0,
+      "fire_days": 17,
+      "trades_per_week": 0.24,
+      "fire_days_per_week": 0.15,
+      "daily_rule_score": 8.27
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "down",
+        "trigger": "pullback"
+      },
+      "n_trades": 27,
+      "wins": 19,
+      "win_rate_pct": 70.4,
+      "avg_pnl": 55.15,
+      "total_pnl": 1489.0,
+      "fire_days": 17,
+      "trades_per_week": 0.24,
+      "fire_days_per_week": 0.15,
+      "daily_rule_score": 8.27
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "vwap_side": "above",
+        "open_drive_bucket": "down"
+      },
+      "n_trades": 16,
+      "wins": 12,
+      "win_rate_pct": 75.0,
+      "avg_pnl": 81.88,
+      "total_pnl": 1310.0,
+      "fire_days": 12,
+      "trades_per_week": 0.14,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 8.19
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up",
+        "trigger": "pullback",
+        "day_type": "range"
+      },
+      "n_trades": 15,
+      "wins": 11,
+      "win_rate_pct": 73.3,
+      "avg_pnl": 87.2,
+      "total_pnl": 1308.0,
+      "fire_days": 10,
+      "trades_per_week": 0.13,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 7.85
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "down",
+        "trigger": "breakout"
+      },
+      "n_trades": 21,
+      "wins": 11,
+      "win_rate_pct": 52.4,
+      "avg_pnl": 55.05,
+      "total_pnl": 1156.0,
+      "fire_days": 16,
+      "trades_per_week": 0.18,
+      "fire_days_per_week": 0.14,
+      "daily_rule_score": 7.71
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down",
+        "trigger": "breakout",
+        "day_type": "range"
+      },
+      "n_trades": 20,
+      "wins": 10,
+      "win_rate_pct": 50.0,
+      "avg_pnl": 58.7,
+      "total_pnl": 1174.0,
+      "fire_days": 15,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": 7.63
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "open_drive_bucket": "flat"
+      },
+      "n_trades": 69,
+      "wins": 45,
+      "win_rate_pct": 65.2,
+      "avg_pnl": 31.77,
+      "total_pnl": 2192.0,
+      "fire_days": 28,
+      "trades_per_week": 0.6,
+      "fire_days_per_week": 0.24,
+      "daily_rule_score": 7.62
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "open_drive_bucket": "down"
+      },
+      "n_trades": 22,
+      "wins": 14,
+      "win_rate_pct": 63.6,
+      "avg_pnl": 50.45,
+      "total_pnl": 1110.0,
+      "fire_days": 17,
+      "trades_per_week": 0.19,
+      "fire_days_per_week": 0.15,
+      "daily_rule_score": 7.57
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "open_drive_bucket": "down",
+        "day_type": "range"
+      },
+      "n_trades": 22,
+      "wins": 14,
+      "win_rate_pct": 63.6,
+      "avg_pnl": 50.45,
+      "total_pnl": 1110.0,
+      "fire_days": 17,
+      "trades_per_week": 0.19,
+      "fire_days_per_week": 0.15,
+      "daily_rule_score": 7.57
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "13:00"
+      },
+      "n_trades": 13,
+      "wins": 12,
+      "win_rate_pct": 92.3,
+      "avg_pnl": 74.69,
+      "total_pnl": 971.0,
+      "fire_days": 11,
+      "trades_per_week": 0.11,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 7.47
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down",
+        "trigger": "breakout"
+      },
+      "n_trades": 23,
+      "wins": 11,
+      "win_rate_pct": 47.8,
+      "avg_pnl": 43.13,
+      "total_pnl": 992.0,
+      "fire_days": 18,
+      "trades_per_week": 0.2,
+      "fire_days_per_week": 0.16,
+      "daily_rule_score": 6.9
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "flat",
+        "day_type": "trend"
+      },
+      "n_trades": 20,
+      "wins": 14,
+      "win_rate_pct": 70.0,
+      "avg_pnl": 62.05,
+      "total_pnl": 1241.0,
+      "fire_days": 13,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.11,
+      "daily_rule_score": 6.83
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up",
+        "trigger": "pullback"
+      },
+      "n_trades": 25,
+      "wins": 14,
+      "win_rate_pct": 56.0,
+      "avg_pnl": 48.64,
+      "total_pnl": 1216.0,
+      "fire_days": 16,
+      "trades_per_week": 0.22,
+      "fire_days_per_week": 0.14,
+      "daily_rule_score": 6.81
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "up",
+        "trigger": "pullback"
+      },
+      "n_trades": 25,
+      "wins": 14,
+      "win_rate_pct": 56.0,
+      "avg_pnl": 48.64,
+      "total_pnl": 1216.0,
+      "fire_days": 16,
+      "trades_per_week": 0.22,
+      "fire_days_per_week": 0.14,
+      "daily_rule_score": 6.81
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "open_drive_bucket": "up"
+      },
+      "n_trades": 14,
+      "wins": 11,
+      "win_rate_pct": 78.6,
+      "avg_pnl": 73.79,
+      "total_pnl": 1033.0,
+      "fire_days": 10,
+      "trades_per_week": 0.12,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 6.64
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "open_drive_bucket": "up",
+        "day_type": "range"
+      },
+      "n_trades": 14,
+      "wins": 11,
+      "win_rate_pct": 78.6,
+      "avg_pnl": 73.79,
+      "total_pnl": 1033.0,
+      "fire_days": 10,
+      "trades_per_week": 0.12,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 6.64
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up"
+      },
+      "n_trades": 70,
+      "wins": 42,
+      "win_rate_pct": 60.0,
+      "avg_pnl": 26.01,
+      "total_pnl": 1821.0,
+      "fire_days": 29,
+      "trades_per_week": 0.61,
+      "fire_days_per_week": 0.25,
+      "daily_rule_score": 6.5
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "up"
+      },
+      "n_trades": 39,
+      "wins": 27,
+      "win_rate_pct": 69.2,
+      "avg_pnl": 37.82,
+      "total_pnl": 1475.0,
+      "fire_days": 19,
+      "trades_per_week": 0.34,
+      "fire_days_per_week": 0.17,
+      "daily_rule_score": 6.43
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up_big",
+        "day_type": "range"
+      },
+      "n_trades": 28,
+      "wins": 19,
+      "win_rate_pct": 67.9,
+      "avg_pnl": 64.14,
+      "total_pnl": 1796.0,
+      "fire_days": 12,
+      "trades_per_week": 0.24,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 6.41
+    },
+    {
+      "side": "C",
+      "axes": [
+        "trigger"
+      ],
+      "bindings": {
+        "trigger": "reclaim"
+      },
+      "n_trades": 72,
+      "wins": 39,
+      "win_rate_pct": 54.2,
+      "avg_pnl": 14.25,
+      "total_pnl": 1026.0,
+      "fire_days": 50,
+      "trades_per_week": 0.63,
+      "fire_days_per_week": 0.44,
+      "daily_rule_score": 6.27
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "trigger": "reclaim"
+      },
+      "n_trades": 72,
+      "wins": 39,
+      "win_rate_pct": 54.2,
+      "avg_pnl": 14.25,
+      "total_pnl": 1026.0,
+      "fire_days": 50,
+      "trades_per_week": 0.63,
+      "fire_days_per_week": 0.44,
+      "daily_rule_score": 6.27
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "open_drive_bucket": "flat"
+      },
+      "n_trades": 15,
+      "wins": 13,
+      "win_rate_pct": 86.7,
+      "avg_pnl": 69.27,
+      "total_pnl": 1039.0,
+      "fire_days": 10,
+      "trades_per_week": 0.13,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 6.23
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "open_drive_bucket": "flat",
+        "day_type": "range"
+      },
+      "n_trades": 15,
+      "wins": 13,
+      "win_rate_pct": 86.7,
+      "avg_pnl": 69.27,
+      "total_pnl": 1039.0,
+      "fire_days": 10,
+      "trades_per_week": 0.13,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 6.23
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "flat"
+      },
+      "n_trades": 24,
+      "wins": 14,
+      "win_rate_pct": 58.3,
+      "avg_pnl": 41.38,
+      "total_pnl": 993.0,
+      "fire_days": 17,
+      "trades_per_week": 0.21,
+      "fire_days_per_week": 0.15,
+      "daily_rule_score": 6.21
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "down",
+        "trigger": "breakout"
+      },
+      "n_trades": 38,
+      "wins": 24,
+      "win_rate_pct": 63.2,
+      "avg_pnl": 38.74,
+      "total_pnl": 1472.0,
+      "fire_days": 18,
+      "trades_per_week": 0.33,
+      "fire_days_per_week": 0.16,
+      "daily_rule_score": 6.2
+    },
+    {
+      "side": "C",
+      "axes": [
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "trigger": "reclaim",
+        "day_type": "range"
+      },
+      "n_trades": 46,
+      "wins": 25,
+      "win_rate_pct": 54.3,
+      "avg_pnl": 22.52,
+      "total_pnl": 1036.0,
+      "fire_days": 31,
+      "trades_per_week": 0.4,
+      "fire_days_per_week": 0.27,
+      "daily_rule_score": 6.08
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "trigger": "reclaim",
+        "day_type": "range"
+      },
+      "n_trades": 46,
+      "wins": 25,
+      "win_rate_pct": 54.3,
+      "avg_pnl": 22.52,
+      "total_pnl": 1036.0,
+      "fire_days": 31,
+      "trades_per_week": 0.4,
+      "fire_days_per_week": 0.27,
+      "daily_rule_score": 6.08
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "flat",
+        "trigger": "reclaim"
+      },
+      "n_trades": 23,
+      "wins": 13,
+      "win_rate_pct": 56.5,
+      "avg_pnl": 43.13,
+      "total_pnl": 992.0,
+      "fire_days": 16,
+      "trades_per_week": 0.2,
+      "fire_days_per_week": 0.14,
+      "daily_rule_score": 6.04
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "flat",
+        "trigger": "reclaim"
+      },
+      "n_trades": 23,
+      "wins": 13,
+      "win_rate_pct": 56.5,
+      "avg_pnl": 43.13,
+      "total_pnl": 992.0,
+      "fire_days": 16,
+      "trades_per_week": 0.2,
+      "fire_days_per_week": 0.14,
+      "daily_rule_score": 6.04
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "12:00"
+      },
+      "n_trades": 14,
+      "wins": 9,
+      "win_rate_pct": 64.3,
+      "avg_pnl": 58.0,
+      "total_pnl": 812.0,
+      "fire_days": 11,
+      "trades_per_week": 0.12,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 5.8
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up",
+        "trigger": "pullback",
+        "day_type": "range"
+      },
+      "n_trades": 20,
+      "wins": 15,
+      "win_rate_pct": 75.0,
+      "avg_pnl": 44.3,
+      "total_pnl": 886.0,
+      "fire_days": 15,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": 5.76
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "up_big",
+        "day_type": "range"
+      },
+      "n_trades": 21,
+      "wins": 15,
+      "win_rate_pct": 71.4,
+      "avg_pnl": 56.19,
+      "total_pnl": 1180.0,
+      "fire_days": 11,
+      "trades_per_week": 0.18,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 5.62
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up",
+        "trigger": "breakout"
+      },
+      "n_trades": 24,
+      "wins": 18,
+      "win_rate_pct": 75.0,
+      "avg_pnl": 50.25,
+      "total_pnl": 1206.0,
+      "fire_days": 13,
+      "trades_per_week": 0.21,
+      "fire_days_per_week": 0.11,
+      "daily_rule_score": 5.53
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "up",
+        "trigger": "breakout"
+      },
+      "n_trades": 24,
+      "wins": 18,
+      "win_rate_pct": 75.0,
+      "avg_pnl": 50.25,
+      "total_pnl": 1206.0,
+      "fire_days": 13,
+      "trades_per_week": 0.21,
+      "fire_days_per_week": 0.11,
+      "daily_rule_score": 5.53
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side"
+      ],
+      "bindings": {
+        "vwap_side": "below"
+      },
+      "n_trades": 77,
+      "wins": 41,
+      "win_rate_pct": 53.2,
+      "avg_pnl": 11.86,
+      "total_pnl": 913.0,
+      "fire_days": 53,
+      "trades_per_week": 0.67,
+      "fire_days_per_week": 0.46,
+      "daily_rule_score": 5.46
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "day_type": "range"
+      },
+      "n_trades": 51,
+      "wins": 27,
+      "win_rate_pct": 52.9,
+      "avg_pnl": 18.1,
+      "total_pnl": 923.0,
+      "fire_days": 35,
+      "trades_per_week": 0.44,
+      "fire_days_per_week": 0.3,
+      "daily_rule_score": 5.43
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up_big"
+      },
+      "n_trades": 41,
+      "wins": 27,
+      "win_rate_pct": 65.9,
+      "avg_pnl": 47.8,
+      "total_pnl": 1960.0,
+      "fire_days": 13,
+      "trades_per_week": 0.36,
+      "fire_days_per_week": 0.11,
+      "daily_rule_score": 5.26
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "open_drive_bucket": "up"
+      },
+      "n_trades": 12,
+      "wins": 10,
+      "win_rate_pct": 83.3,
+      "avg_pnl": 75.0,
+      "total_pnl": 900.0,
+      "fire_days": 8,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 5.25
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "open_drive_bucket": "up",
+        "day_type": "range"
+      },
+      "n_trades": 12,
+      "wins": 10,
+      "win_rate_pct": 83.3,
+      "avg_pnl": 75.0,
+      "total_pnl": 900.0,
+      "fire_days": 8,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 5.25
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down",
+        "trigger": "breakout"
+      },
+      "n_trades": 39,
+      "wins": 24,
+      "win_rate_pct": 61.5,
+      "avg_pnl": 30.05,
+      "total_pnl": 1172.0,
+      "fire_days": 19,
+      "trades_per_week": 0.34,
+      "fire_days_per_week": 0.17,
+      "daily_rule_score": 5.11
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "open_drive_bucket": "flat"
+      },
+      "n_trades": 59,
+      "wins": 39,
+      "win_rate_pct": 66.1,
+      "avg_pnl": 20.93,
+      "total_pnl": 1235.0,
+      "fire_days": 26,
+      "trades_per_week": 0.51,
+      "fire_days_per_week": 0.23,
+      "daily_rule_score": 4.81
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "flat"
+      },
+      "n_trades": 45,
+      "wins": 31,
+      "win_rate_pct": 68.9,
+      "avg_pnl": 28.27,
+      "total_pnl": 1272.0,
+      "fire_days": 20,
+      "trades_per_week": 0.39,
+      "fire_days_per_week": 0.17,
+      "daily_rule_score": 4.81
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "13:00",
+        "day_type": "trend"
+      },
+      "n_trades": 9,
+      "wins": 8,
+      "win_rate_pct": 88.9,
+      "avg_pnl": 67.89,
+      "total_pnl": 611.0,
+      "fire_days": 8,
+      "trades_per_week": 0.08,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 4.75
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down",
+        "trigger": "reclaim",
+        "day_type": "range"
+      },
+      "n_trades": 12,
+      "wins": 8,
+      "win_rate_pct": 66.7,
+      "avg_pnl": 45.75,
+      "total_pnl": 549.0,
+      "fire_days": 11,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 4.58
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "flat"
+      },
+      "n_trades": 45,
+      "wins": 31,
+      "win_rate_pct": 68.9,
+      "avg_pnl": 26.64,
+      "total_pnl": 1199.0,
+      "fire_days": 19,
+      "trades_per_week": 0.39,
+      "fire_days_per_week": 0.17,
+      "daily_rule_score": 4.53
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "flat",
+        "day_type": "range"
+      },
+      "n_trades": 32,
+      "wins": 20,
+      "win_rate_pct": 62.5,
+      "avg_pnl": 32.03,
+      "total_pnl": 1025.0,
+      "fire_days": 16,
+      "trades_per_week": 0.28,
+      "fire_days_per_week": 0.14,
+      "daily_rule_score": 4.48
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down",
+        "trigger": "breakout",
+        "day_type": "range"
+      },
+      "n_trades": 36,
+      "wins": 22,
+      "win_rate_pct": 61.1,
+      "avg_pnl": 31.67,
+      "total_pnl": 1140.0,
+      "fire_days": 16,
+      "trades_per_week": 0.31,
+      "fire_days_per_week": 0.14,
+      "daily_rule_score": 4.43
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "vwap_side": "below",
+        "trigger": "breakout"
+      },
+      "n_trades": 40,
+      "wins": 31,
+      "win_rate_pct": 77.5,
+      "avg_pnl": 19.8,
+      "total_pnl": 792.0,
+      "fire_days": 25,
+      "trades_per_week": 0.35,
+      "fire_days_per_week": 0.22,
+      "daily_rule_score": 4.36
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "vwap_side": "below"
+      },
+      "n_trades": 49,
+      "wins": 37,
+      "win_rate_pct": 75.5,
+      "avg_pnl": 15.65,
+      "total_pnl": 767.0,
+      "fire_days": 31,
+      "trades_per_week": 0.43,
+      "fire_days_per_week": 0.27,
+      "daily_rule_score": 4.23
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "vwap_side": "below",
+        "day_type": "range"
+      },
+      "n_trades": 49,
+      "wins": 37,
+      "win_rate_pct": 75.5,
+      "avg_pnl": 15.65,
+      "total_pnl": 767.0,
+      "fire_days": 31,
+      "trades_per_week": 0.43,
+      "fire_days_per_week": 0.27,
+      "daily_rule_score": 4.23
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up",
+        "trigger": "breakout",
+        "day_type": "range"
+      },
+      "n_trades": 18,
+      "wins": 14,
+      "win_rate_pct": 77.8,
+      "avg_pnl": 52.39,
+      "total_pnl": 943.0,
+      "fire_days": 9,
+      "trades_per_week": 0.16,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": 4.19
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "trigger": "breakout"
+      },
+      "n_trades": 25,
+      "wins": 15,
+      "win_rate_pct": 60.0,
+      "avg_pnl": 23.8,
+      "total_pnl": 595.0,
+      "fire_days": 20,
+      "trades_per_week": 0.22,
+      "fire_days_per_week": 0.17,
+      "daily_rule_score": 4.05
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "vwap_side": "above",
+        "trigger": "breakout"
+      },
+      "n_trades": 25,
+      "wins": 15,
+      "win_rate_pct": 60.0,
+      "avg_pnl": 23.8,
+      "total_pnl": 595.0,
+      "fire_days": 20,
+      "trades_per_week": 0.22,
+      "fire_days_per_week": 0.17,
+      "daily_rule_score": 4.05
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "trigger": "breakout",
+        "day_type": "range"
+      },
+      "n_trades": 25,
+      "wins": 15,
+      "win_rate_pct": 60.0,
+      "avg_pnl": 23.8,
+      "total_pnl": 595.0,
+      "fire_days": 20,
+      "trades_per_week": 0.22,
+      "fire_days_per_week": 0.17,
+      "daily_rule_score": 4.05
+    },
+    {
+      "side": "P",
+      "axes": [
+        "trigger"
+      ],
+      "bindings": {
+        "trigger": "pullback"
+      },
+      "n_trades": 84,
+      "wins": 50,
+      "win_rate_pct": 59.5,
+      "avg_pnl": 8.77,
+      "total_pnl": 737.0,
+      "fire_days": 52,
+      "trades_per_week": 0.73,
+      "fire_days_per_week": 0.45,
+      "daily_rule_score": 3.95
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "trigger": "pullback"
+      },
+      "n_trades": 84,
+      "wins": 50,
+      "win_rate_pct": 59.5,
+      "avg_pnl": 8.77,
+      "total_pnl": 737.0,
+      "fire_days": 52,
+      "trades_per_week": 0.73,
+      "fire_days_per_week": 0.45,
+      "daily_rule_score": 3.95
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "flat",
+        "day_type": "trend"
+      },
+      "n_trades": 12,
+      "wins": 9,
+      "win_rate_pct": 75.0,
+      "avg_pnl": 49.17,
+      "total_pnl": 590.0,
+      "fire_days": 9,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": 3.93
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "14:30",
+        "day_type": "trend"
+      },
+      "n_trades": 14,
+      "wins": 10,
+      "win_rate_pct": 71.4,
+      "avg_pnl": 55.93,
+      "total_pnl": 783.0,
+      "fire_days": 8,
+      "trades_per_week": 0.12,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 3.92
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up_big",
+        "trigger": "breakout",
+        "day_type": "range"
+      },
+      "n_trades": 14,
+      "wins": 11,
+      "win_rate_pct": 78.6,
+      "avg_pnl": 55.36,
+      "total_pnl": 775.0,
+      "fire_days": 8,
+      "trades_per_week": 0.12,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 3.88
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "up",
+        "trigger": "breakout"
+      },
+      "n_trades": 15,
+      "wins": 11,
+      "win_rate_pct": 73.3,
+      "avg_pnl": 55.2,
+      "total_pnl": 828.0,
+      "fire_days": 8,
+      "trades_per_week": 0.13,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 3.86
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up",
+        "trigger": "breakout"
+      },
+      "n_trades": 16,
+      "wins": 12,
+      "win_rate_pct": 75.0,
+      "avg_pnl": 54.06,
+      "total_pnl": 865.0,
+      "fire_days": 8,
+      "trades_per_week": 0.14,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 3.78
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up",
+        "trigger": "pullback"
+      },
+      "n_trades": 24,
+      "wins": 16,
+      "win_rate_pct": 66.7,
+      "avg_pnl": 26.96,
+      "total_pnl": 647.0,
+      "fire_days": 16,
+      "trades_per_week": 0.21,
+      "fire_days_per_week": 0.14,
+      "daily_rule_score": 3.77
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "up",
+        "trigger": "pullback"
+      },
+      "n_trades": 24,
+      "wins": 16,
+      "win_rate_pct": 66.7,
+      "avg_pnl": 26.96,
+      "total_pnl": 647.0,
+      "fire_days": 16,
+      "trades_per_week": 0.21,
+      "fire_days_per_week": 0.14,
+      "daily_rule_score": 3.77
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "down",
+        "day_type": "range"
+      },
+      "n_trades": 50,
+      "wins": 30,
+      "win_rate_pct": 60.0,
+      "avg_pnl": 23.58,
+      "total_pnl": 1179.0,
+      "fire_days": 18,
+      "trades_per_week": 0.44,
+      "fire_days_per_week": 0.16,
+      "daily_rule_score": 3.77
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "11:00",
+        "day_type": "range"
+      },
+      "n_trades": 13,
+      "wins": 8,
+      "win_rate_pct": 61.5,
+      "avg_pnl": 46.62,
+      "total_pnl": 606.0,
+      "fire_days": 9,
+      "trades_per_week": 0.11,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": 3.73
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "flat",
+        "trigger": "breakout"
+      },
+      "n_trades": 17,
+      "wins": 12,
+      "win_rate_pct": 70.6,
+      "avg_pnl": 41.12,
+      "total_pnl": 699.0,
+      "fire_days": 10,
+      "trades_per_week": 0.15,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 3.7
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "flat",
+        "day_type": "range"
+      },
+      "n_trades": 49,
+      "wins": 31,
+      "win_rate_pct": 63.3,
+      "avg_pnl": 19.41,
+      "total_pnl": 951.0,
+      "fire_days": 22,
+      "trades_per_week": 0.43,
+      "fire_days_per_week": 0.19,
+      "daily_rule_score": 3.69
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "up_big"
+      },
+      "n_trades": 32,
+      "wins": 21,
+      "win_rate_pct": 65.6,
+      "avg_pnl": 36.38,
+      "total_pnl": 1164.0,
+      "fire_days": 12,
+      "trades_per_week": 0.28,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 3.64
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "trigger": "breakout"
+      },
+      "n_trades": 18,
+      "wins": 13,
+      "win_rate_pct": 72.2,
+      "avg_pnl": 32.83,
+      "total_pnl": 591.0,
+      "fire_days": 13,
+      "trades_per_week": 0.16,
+      "fire_days_per_week": 0.11,
+      "daily_rule_score": 3.61
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "vwap_side": "below",
+        "trigger": "breakout"
+      },
+      "n_trades": 18,
+      "wins": 13,
+      "win_rate_pct": 72.2,
+      "avg_pnl": 32.83,
+      "total_pnl": 591.0,
+      "fire_days": 13,
+      "trades_per_week": 0.16,
+      "fire_days_per_week": 0.11,
+      "daily_rule_score": 3.61
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "trigger": "breakout",
+        "day_type": "range"
+      },
+      "n_trades": 18,
+      "wins": 13,
+      "win_rate_pct": 72.2,
+      "avg_pnl": 32.83,
+      "total_pnl": 591.0,
+      "fire_days": 13,
+      "trades_per_week": 0.16,
+      "fire_days_per_week": 0.11,
+      "daily_rule_score": 3.61
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "14:00"
+      },
+      "n_trades": 15,
+      "wins": 9,
+      "win_rate_pct": 60.0,
+      "avg_pnl": 36.0,
+      "total_pnl": 540.0,
+      "fire_days": 12,
+      "trades_per_week": 0.13,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 3.6
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "open_drive_bucket": "up"
+      },
+      "n_trades": 10,
+      "wins": 8,
+      "win_rate_pct": 80.0,
+      "avg_pnl": 51.3,
+      "total_pnl": 513.0,
+      "fire_days": 8,
+      "trades_per_week": 0.09,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 3.59
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "open_drive_bucket": "up",
+        "day_type": "range"
+      },
+      "n_trades": 10,
+      "wins": 8,
+      "win_rate_pct": 80.0,
+      "avg_pnl": 51.3,
+      "total_pnl": 513.0,
+      "fire_days": 8,
+      "trades_per_week": 0.09,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 3.59
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "flat",
+        "trigger": "breakout"
+      },
+      "n_trades": 16,
+      "wins": 11,
+      "win_rate_pct": 68.8,
+      "avg_pnl": 43.62,
+      "total_pnl": 698.0,
+      "fire_days": 9,
+      "trades_per_week": 0.14,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": 3.49
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "14:30"
+      },
+      "n_trades": 16,
+      "wins": 11,
+      "win_rate_pct": 68.8,
+      "avg_pnl": 43.31,
+      "total_pnl": 693.0,
+      "fire_days": 9,
+      "trades_per_week": 0.14,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": 3.46
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side"
+      ],
+      "bindings": {
+        "time_bucket": "14:00",
+        "vwap_side": "above"
+      },
+      "n_trades": 13,
+      "wins": 8,
+      "win_rate_pct": 61.5,
+      "avg_pnl": 38.31,
+      "total_pnl": 498.0,
+      "fire_days": 10,
+      "trades_per_week": 0.11,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 3.45
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "flat",
+        "day_type": "range"
+      },
+      "n_trades": 44,
+      "wins": 26,
+      "win_rate_pct": 59.1,
+      "avg_pnl": 18.09,
+      "total_pnl": 796.0,
+      "fire_days": 22,
+      "trades_per_week": 0.38,
+      "fire_days_per_week": 0.19,
+      "daily_rule_score": 3.44
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up",
+        "day_type": "range"
+      },
+      "n_trades": 48,
+      "wins": 29,
+      "win_rate_pct": 60.4,
+      "avg_pnl": 16.67,
+      "total_pnl": 800.0,
+      "fire_days": 23,
+      "trades_per_week": 0.42,
+      "fire_days_per_week": 0.2,
+      "daily_rule_score": 3.33
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "11:00"
+      },
+      "n_trades": 16,
+      "wins": 10,
+      "win_rate_pct": 62.5,
+      "avg_pnl": 33.19,
+      "total_pnl": 531.0,
+      "fire_days": 12,
+      "trades_per_week": 0.14,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 3.32
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up_big",
+        "trigger": "breakout"
+      },
+      "n_trades": 19,
+      "wins": 15,
+      "win_rate_pct": 78.9,
+      "avg_pnl": 43.42,
+      "total_pnl": 825.0,
+      "fire_days": 8,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 3.04
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "trigger": "breakout"
+      },
+      "n_trades": 50,
+      "wins": 36,
+      "win_rate_pct": 72.0,
+      "avg_pnl": 9.76,
+      "total_pnl": 488.0,
+      "fire_days": 34,
+      "trades_per_week": 0.44,
+      "fire_days_per_week": 0.3,
+      "daily_rule_score": 2.93
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "trigger": "breakout",
+        "day_type": "range"
+      },
+      "n_trades": 50,
+      "wins": 36,
+      "win_rate_pct": 72.0,
+      "avg_pnl": 9.76,
+      "total_pnl": 488.0,
+      "fire_days": 34,
+      "trades_per_week": 0.44,
+      "fire_days_per_week": 0.3,
+      "daily_rule_score": 2.93
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "down"
+      },
+      "n_trades": 59,
+      "wins": 36,
+      "win_rate_pct": 61.0,
+      "avg_pnl": 14.36,
+      "total_pnl": 847.0,
+      "fire_days": 23,
+      "trades_per_week": 0.51,
+      "fire_days_per_week": 0.2,
+      "daily_rule_score": 2.87
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "11:00",
+        "open_drive_bucket": "down"
+      },
+      "n_trades": 10,
+      "wins": 6,
+      "win_rate_pct": 60.0,
+      "avg_pnl": 40.0,
+      "total_pnl": 400.0,
+      "fire_days": 8,
+      "trades_per_week": 0.09,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 2.8
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "flat",
+        "day_type": "range"
+      },
+      "n_trades": 33,
+      "wins": 22,
+      "win_rate_pct": 66.7,
+      "avg_pnl": 18.45,
+      "total_pnl": 609.0,
+      "fire_days": 17,
+      "trades_per_week": 0.29,
+      "fire_days_per_week": 0.15,
+      "daily_rule_score": 2.77
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "down",
+        "day_type": "range"
+      },
+      "n_trades": 14,
+      "wins": 8,
+      "win_rate_pct": 57.1,
+      "avg_pnl": 27.5,
+      "total_pnl": 385.0,
+      "fire_days": 12,
+      "trades_per_week": 0.12,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 2.75
+    },
+    {
+      "side": "C",
+      "axes": [
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "trigger": "breakout",
+        "day_type": "trend"
+      },
+      "n_trades": 17,
+      "wins": 11,
+      "win_rate_pct": 64.7,
+      "avg_pnl": 26.71,
+      "total_pnl": 454.0,
+      "fire_days": 11,
+      "trades_per_week": 0.15,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 2.67
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "trigger": "breakout",
+        "day_type": "trend"
+      },
+      "n_trades": 17,
+      "wins": 11,
+      "win_rate_pct": 64.7,
+      "avg_pnl": 26.71,
+      "total_pnl": 454.0,
+      "fire_days": 11,
+      "trades_per_week": 0.15,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 2.67
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "14:00",
+        "trigger": "pullback"
+      },
+      "n_trades": 10,
+      "wins": 6,
+      "win_rate_pct": 60.0,
+      "avg_pnl": 38.0,
+      "total_pnl": 380.0,
+      "fire_days": 8,
+      "trades_per_week": 0.09,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 2.66
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "14:00",
+        "vwap_side": "above",
+        "trigger": "pullback"
+      },
+      "n_trades": 10,
+      "wins": 6,
+      "win_rate_pct": 60.0,
+      "avg_pnl": 38.0,
+      "total_pnl": 380.0,
+      "fire_days": 8,
+      "trades_per_week": 0.09,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 2.66
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "11:30"
+      },
+      "n_trades": 18,
+      "wins": 8,
+      "win_rate_pct": 44.4,
+      "avg_pnl": 18.22,
+      "total_pnl": 328.0,
+      "fire_days": 16,
+      "trades_per_week": 0.16,
+      "fire_days_per_week": 0.14,
+      "daily_rule_score": 2.55
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "open_drive_bucket": "down_big",
+        "trigger": "breakout"
+      },
+      "n_trades": 16,
+      "wins": 13,
+      "win_rate_pct": 81.2,
+      "avg_pnl": 36.25,
+      "total_pnl": 580.0,
+      "fire_days": 8,
+      "trades_per_week": 0.14,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 2.54
+    },
+    {
+      "side": "C",
+      "axes": [
+        "day_type"
+      ],
+      "bindings": {
+        "day_type": "trend"
+      },
+      "n_trades": 84,
+      "wins": 47,
+      "win_rate_pct": 56.0,
+      "avg_pnl": 5.8,
+      "total_pnl": 487.0,
+      "fire_days": 49,
+      "trades_per_week": 0.73,
+      "fire_days_per_week": 0.43,
+      "daily_rule_score": 2.49
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "day_type": "trend"
+      },
+      "n_trades": 58,
+      "wins": 33,
+      "win_rate_pct": 56.9,
+      "avg_pnl": 8.57,
+      "total_pnl": 497.0,
+      "fire_days": 33,
+      "trades_per_week": 0.5,
+      "fire_days_per_week": 0.29,
+      "daily_rule_score": 2.49
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "flat",
+        "day_type": "trend"
+      },
+      "n_trades": 15,
+      "wins": 13,
+      "win_rate_pct": 86.7,
+      "avg_pnl": 29.27,
+      "total_pnl": 439.0,
+      "fire_days": 9,
+      "trades_per_week": 0.13,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": 2.34
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down_big",
+        "trigger": "breakout"
+      },
+      "n_trades": 17,
+      "wins": 13,
+      "win_rate_pct": 76.5,
+      "avg_pnl": 33.0,
+      "total_pnl": 561.0,
+      "fire_days": 8,
+      "trades_per_week": 0.15,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 2.31
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "down_big",
+        "trigger": "breakout"
+      },
+      "n_trades": 17,
+      "wins": 13,
+      "win_rate_pct": 76.5,
+      "avg_pnl": 33.0,
+      "total_pnl": 561.0,
+      "fire_days": 8,
+      "trades_per_week": 0.15,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 2.31
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down_big",
+        "trigger": "breakout",
+        "day_type": "range"
+      },
+      "n_trades": 17,
+      "wins": 13,
+      "win_rate_pct": 76.5,
+      "avg_pnl": 33.0,
+      "total_pnl": 561.0,
+      "fire_days": 8,
+      "trades_per_week": 0.15,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 2.31
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "open_drive_bucket": "up_big"
+      },
+      "n_trades": 9,
+      "wins": 6,
+      "win_rate_pct": 66.7,
+      "avg_pnl": 32.78,
+      "total_pnl": 295.0,
+      "fire_days": 8,
+      "trades_per_week": 0.08,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 2.29
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "open_drive_bucket": "up_big",
+        "day_type": "range"
+      },
+      "n_trades": 9,
+      "wins": 6,
+      "win_rate_pct": 66.7,
+      "avg_pnl": 32.78,
+      "total_pnl": 295.0,
+      "fire_days": 8,
+      "trades_per_week": 0.08,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 2.29
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "flat",
+        "trigger": "pullback"
+      },
+      "n_trades": 29,
+      "wins": 20,
+      "win_rate_pct": 69.0,
+      "avg_pnl": 17.28,
+      "total_pnl": 501.0,
+      "fire_days": 15,
+      "trades_per_week": 0.25,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": 2.25
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "flat",
+        "trigger": "pullback"
+      },
+      "n_trades": 29,
+      "wins": 20,
+      "win_rate_pct": 69.0,
+      "avg_pnl": 17.28,
+      "total_pnl": 501.0,
+      "fire_days": 15,
+      "trades_per_week": 0.25,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": 2.25
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up_big",
+        "trigger": "pullback"
+      },
+      "n_trades": 14,
+      "wins": 7,
+      "win_rate_pct": 50.0,
+      "avg_pnl": 31.0,
+      "total_pnl": 434.0,
+      "fire_days": 8,
+      "trades_per_week": 0.12,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 2.17
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "up_big",
+        "trigger": "pullback"
+      },
+      "n_trades": 14,
+      "wins": 7,
+      "win_rate_pct": 50.0,
+      "avg_pnl": 31.0,
+      "total_pnl": 434.0,
+      "fire_days": 8,
+      "trades_per_week": 0.12,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 2.17
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "vwap_side": "below",
+        "open_drive_bucket": "down_big"
+      },
+      "n_trades": 19,
+      "wins": 14,
+      "win_rate_pct": 73.7,
+      "avg_pnl": 25.53,
+      "total_pnl": 485.0,
+      "fire_days": 9,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": 2.04
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "flat",
+        "day_type": "range"
+      },
+      "n_trades": 16,
+      "wins": 9,
+      "win_rate_pct": 56.2,
+      "avg_pnl": 21.38,
+      "total_pnl": 342.0,
+      "fire_days": 10,
+      "trades_per_week": 0.14,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 1.92
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "11:30",
+        "day_type": "range"
+      },
+      "n_trades": 11,
+      "wins": 5,
+      "win_rate_pct": 45.5,
+      "avg_pnl": 21.27,
+      "total_pnl": 234.0,
+      "fire_days": 10,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 1.91
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "flat",
+        "trigger": "breakout",
+        "day_type": "range"
+      },
+      "n_trades": 14,
+      "wins": 10,
+      "win_rate_pct": 71.4,
+      "avg_pnl": 26.86,
+      "total_pnl": 376.0,
+      "fire_days": 8,
+      "trades_per_week": 0.12,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 1.88
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "flat",
+        "trigger": "reclaim",
+        "day_type": "range"
+      },
+      "n_trades": 15,
+      "wins": 8,
+      "win_rate_pct": 53.3,
+      "avg_pnl": 22.73,
+      "total_pnl": 341.0,
+      "fire_days": 9,
+      "trades_per_week": 0.13,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": 1.82
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "vwap_side": "below",
+        "open_drive_bucket": "down"
+      },
+      "n_trades": 16,
+      "wins": 12,
+      "win_rate_pct": 75.0,
+      "avg_pnl": 20.0,
+      "total_pnl": 320.0,
+      "fire_days": 10,
+      "trades_per_week": 0.14,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 1.8
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down",
+        "trigger": "reclaim"
+      },
+      "n_trades": 19,
+      "wins": 11,
+      "win_rate_pct": 57.9,
+      "avg_pnl": 12.84,
+      "total_pnl": 244.0,
+      "fire_days": 15,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": 1.67
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "down",
+        "trigger": "reclaim"
+      },
+      "n_trades": 19,
+      "wins": 11,
+      "win_rate_pct": 57.9,
+      "avg_pnl": 12.84,
+      "total_pnl": 244.0,
+      "fire_days": 15,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": 1.67
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "open_drive_bucket": "up"
+      },
+      "n_trades": 11,
+      "wins": 8,
+      "win_rate_pct": 72.7,
+      "avg_pnl": 19.73,
+      "total_pnl": 217.0,
+      "fire_days": 9,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": 1.58
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "open_drive_bucket": "up",
+        "day_type": "range"
+      },
+      "n_trades": 11,
+      "wins": 8,
+      "win_rate_pct": 72.7,
+      "avg_pnl": 19.73,
+      "total_pnl": 217.0,
+      "fire_days": 9,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": 1.58
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down",
+        "trigger": "pullback",
+        "day_type": "trend"
+      },
+      "n_trades": 12,
+      "wins": 8,
+      "win_rate_pct": 66.7,
+      "avg_pnl": 19.08,
+      "total_pnl": 229.0,
+      "fire_days": 9,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": 1.53
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "10:30",
+        "trigger": "pullback"
+      },
+      "n_trades": 12,
+      "wins": 7,
+      "win_rate_pct": 58.3,
+      "avg_pnl": 15.83,
+      "total_pnl": 190.0,
+      "fire_days": 10,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 1.42
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "10:30",
+        "vwap_side": "below",
+        "trigger": "pullback"
+      },
+      "n_trades": 12,
+      "wins": 7,
+      "win_rate_pct": 58.3,
+      "avg_pnl": 15.83,
+      "total_pnl": 190.0,
+      "fire_days": 10,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 1.42
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:30",
+        "trigger": "pullback",
+        "day_type": "range"
+      },
+      "n_trades": 12,
+      "wins": 7,
+      "win_rate_pct": 58.3,
+      "avg_pnl": 15.83,
+      "total_pnl": 190.0,
+      "fire_days": 10,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 1.42
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "flat",
+        "day_type": "trend"
+      },
+      "n_trades": 13,
+      "wins": 11,
+      "win_rate_pct": 84.6,
+      "avg_pnl": 19.0,
+      "total_pnl": 247.0,
+      "fire_days": 8,
+      "trades_per_week": 0.11,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 1.33
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "12:00"
+      },
+      "n_trades": 15,
+      "wins": 8,
+      "win_rate_pct": 53.3,
+      "avg_pnl": 11.67,
+      "total_pnl": 175.0,
+      "fire_days": 11,
+      "trades_per_week": 0.13,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 1.17
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "11:00",
+        "trigger": "breakout"
+      },
+      "n_trades": 11,
+      "wins": 5,
+      "win_rate_pct": 45.5,
+      "avg_pnl": 14.36,
+      "total_pnl": 158.0,
+      "fire_days": 9,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": 1.15
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "11:00",
+        "vwap_side": "below",
+        "trigger": "breakout"
+      },
+      "n_trades": 11,
+      "wins": 5,
+      "win_rate_pct": 45.5,
+      "avg_pnl": 14.36,
+      "total_pnl": 158.0,
+      "fire_days": 9,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": 1.15
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "flat",
+        "trigger": "pullback",
+        "day_type": "range"
+      },
+      "n_trades": 20,
+      "wins": 13,
+      "win_rate_pct": 65.0,
+      "avg_pnl": 11.7,
+      "total_pnl": 234.0,
+      "fire_days": 10,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 1.05
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side"
+      ],
+      "bindings": {
+        "time_bucket": "13:30",
+        "vwap_side": "above"
+      },
+      "n_trades": 12,
+      "wins": 5,
+      "win_rate_pct": 41.7,
+      "avg_pnl": 10.0,
+      "total_pnl": 120.0,
+      "fire_days": 11,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 1.0
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "vwap_side": "below"
+      },
+      "n_trades": 37,
+      "wins": 24,
+      "win_rate_pct": 64.9,
+      "avg_pnl": 4.22,
+      "total_pnl": 156.0,
+      "fire_days": 24,
+      "trades_per_week": 0.32,
+      "fire_days_per_week": 0.21,
+      "daily_rule_score": 0.89
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "vwap_side": "below",
+        "day_type": "range"
+      },
+      "n_trades": 37,
+      "wins": 24,
+      "win_rate_pct": 64.9,
+      "avg_pnl": 4.22,
+      "total_pnl": 156.0,
+      "fire_days": 24,
+      "trades_per_week": 0.32,
+      "fire_days_per_week": 0.21,
+      "daily_rule_score": 0.89
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side"
+      ],
+      "bindings": {
+        "time_bucket": "10:30",
+        "vwap_side": "below"
+      },
+      "n_trades": 24,
+      "wins": 13,
+      "win_rate_pct": 54.2,
+      "avg_pnl": 6.29,
+      "total_pnl": 151.0,
+      "fire_days": 16,
+      "trades_per_week": 0.21,
+      "fire_days_per_week": 0.14,
+      "daily_rule_score": 0.88
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:30",
+        "open_drive_bucket": "up",
+        "day_type": "range"
+      },
+      "n_trades": 9,
+      "wins": 4,
+      "win_rate_pct": 44.4,
+      "avg_pnl": 12.22,
+      "total_pnl": 110.0,
+      "fire_days": 8,
+      "trades_per_week": 0.08,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": 0.86
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "up",
+        "day_type": "trend"
+      },
+      "n_trades": 16,
+      "wins": 7,
+      "win_rate_pct": 43.8,
+      "avg_pnl": 10.69,
+      "total_pnl": 171.0,
+      "fire_days": 9,
+      "trades_per_week": 0.14,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": 0.86
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:30",
+        "vwap_side": "below",
+        "day_type": "range"
+      },
+      "n_trades": 23,
+      "wins": 12,
+      "win_rate_pct": 52.2,
+      "avg_pnl": 6.39,
+      "total_pnl": 147.0,
+      "fire_days": 15,
+      "trades_per_week": 0.2,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": 0.83
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up"
+      },
+      "n_trades": 64,
+      "wins": 34,
+      "win_rate_pct": 53.1,
+      "avg_pnl": 3.33,
+      "total_pnl": 213.0,
+      "fire_days": 27,
+      "trades_per_week": 0.56,
+      "fire_days_per_week": 0.24,
+      "daily_rule_score": 0.8
+    },
+    {
+      "side": "P",
+      "axes": [
+        "day_type"
+      ],
+      "bindings": {
+        "day_type": "range"
+      },
+      "n_trades": 204,
+      "wins": 116,
+      "win_rate_pct": 56.9,
+      "avg_pnl": 1.0,
+      "total_pnl": 205.0,
+      "fire_days": 91,
+      "trades_per_week": 1.78,
+      "fire_days_per_week": 0.79,
+      "daily_rule_score": 0.79
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "down"
+      },
+      "n_trades": 21,
+      "wins": 11,
+      "win_rate_pct": 52.4,
+      "avg_pnl": 3.81,
+      "total_pnl": 80.0,
+      "fire_days": 16,
+      "trades_per_week": 0.18,
+      "fire_days_per_week": 0.14,
+      "daily_rule_score": 0.53
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side"
+      ],
+      "bindings": {
+        "time_bucket": "11:30",
+        "vwap_side": "above"
+      },
+      "n_trades": 13,
+      "wins": 5,
+      "win_rate_pct": 38.5,
+      "avg_pnl": 3.85,
+      "total_pnl": 50.0,
+      "fire_days": 11,
+      "trades_per_week": 0.11,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 0.39
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "down_big",
+        "day_type": "range"
+      },
+      "n_trades": 25,
+      "wins": 17,
+      "win_rate_pct": 68.0,
+      "avg_pnl": 4.04,
+      "total_pnl": 101.0,
+      "fire_days": 10,
+      "trades_per_week": 0.22,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 0.36
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "day_type": "trend"
+      },
+      "n_trades": 19,
+      "wins": 9,
+      "win_rate_pct": 47.4,
+      "avg_pnl": 2.37,
+      "total_pnl": 45.0,
+      "fire_days": 15,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": 0.31
+    },
+    {
+      "side": "P",
+      "axes": [
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "trigger": "reclaim",
+        "day_type": "trend"
+      },
+      "n_trades": 19,
+      "wins": 9,
+      "win_rate_pct": 47.4,
+      "avg_pnl": 2.37,
+      "total_pnl": 45.0,
+      "fire_days": 15,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": 0.31
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "down",
+        "day_type": "trend"
+      },
+      "n_trades": 15,
+      "wins": 9,
+      "win_rate_pct": 60.0,
+      "avg_pnl": 3.13,
+      "total_pnl": 47.0,
+      "fire_days": 11,
+      "trades_per_week": 0.13,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 0.31
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "trigger": "reclaim",
+        "day_type": "trend"
+      },
+      "n_trades": 19,
+      "wins": 9,
+      "win_rate_pct": 47.4,
+      "avg_pnl": 2.37,
+      "total_pnl": 45.0,
+      "fire_days": 15,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": 0.31
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "open_drive_bucket": "flat"
+      },
+      "n_trades": 14,
+      "wins": 10,
+      "win_rate_pct": 71.4,
+      "avg_pnl": 2.5,
+      "total_pnl": 35.0,
+      "fire_days": 11,
+      "trades_per_week": 0.12,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 0.25
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "open_drive_bucket": "flat",
+        "trigger": "breakout"
+      },
+      "n_trades": 14,
+      "wins": 10,
+      "win_rate_pct": 71.4,
+      "avg_pnl": 2.5,
+      "total_pnl": 35.0,
+      "fire_days": 11,
+      "trades_per_week": 0.12,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 0.25
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "open_drive_bucket": "flat",
+        "day_type": "range"
+      },
+      "n_trades": 14,
+      "wins": 10,
+      "win_rate_pct": 71.4,
+      "avg_pnl": 2.5,
+      "total_pnl": 35.0,
+      "fire_days": 11,
+      "trades_per_week": 0.12,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 0.25
+    },
+    {
+      "side": "C",
+      "axes": [
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "trigger": "pullback",
+        "day_type": "trend"
+      },
+      "n_trades": 41,
+      "wins": 22,
+      "win_rate_pct": 53.7,
+      "avg_pnl": 1.05,
+      "total_pnl": 43.0,
+      "fire_days": 26,
+      "trades_per_week": 0.36,
+      "fire_days_per_week": 0.23,
+      "daily_rule_score": 0.24
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "trigger": "pullback",
+        "day_type": "trend"
+      },
+      "n_trades": 41,
+      "wins": 22,
+      "win_rate_pct": 53.7,
+      "avg_pnl": 1.05,
+      "total_pnl": 43.0,
+      "fire_days": 26,
+      "trades_per_week": 0.36,
+      "fire_days_per_week": 0.23,
+      "daily_rule_score": 0.24
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "vwap_side": "below"
+      },
+      "n_trades": 11,
+      "wins": 5,
+      "win_rate_pct": 45.5,
+      "avg_pnl": 1.82,
+      "total_pnl": 20.0,
+      "fire_days": 10,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 0.16
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "10:30",
+        "open_drive_bucket": "up"
+      },
+      "n_trades": 10,
+      "wins": 4,
+      "win_rate_pct": 40.0,
+      "avg_pnl": 2.0,
+      "total_pnl": 20.0,
+      "fire_days": 9,
+      "trades_per_week": 0.09,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": 0.16
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "trigger": "reclaim"
+      },
+      "n_trades": 11,
+      "wins": 5,
+      "win_rate_pct": 45.5,
+      "avg_pnl": 1.82,
+      "total_pnl": 20.0,
+      "fire_days": 10,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 0.16
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "vwap_side": "below",
+        "trigger": "reclaim"
+      },
+      "n_trades": 11,
+      "wins": 5,
+      "win_rate_pct": 45.5,
+      "avg_pnl": 1.82,
+      "total_pnl": 20.0,
+      "fire_days": 10,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 0.16
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "vwap_side": "below",
+        "day_type": "range"
+      },
+      "n_trades": 11,
+      "wins": 5,
+      "win_rate_pct": 45.5,
+      "avg_pnl": 1.82,
+      "total_pnl": 20.0,
+      "fire_days": 10,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 0.16
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "trigger": "reclaim",
+        "day_type": "range"
+      },
+      "n_trades": 11,
+      "wins": 5,
+      "win_rate_pct": 45.5,
+      "avg_pnl": 1.82,
+      "total_pnl": 20.0,
+      "fire_days": 10,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 0.16
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "13:30",
+        "vwap_side": "above",
+        "day_type": "trend"
+      },
+      "n_trades": 11,
+      "wins": 4,
+      "win_rate_pct": 36.4,
+      "avg_pnl": 1.36,
+      "total_pnl": 15.0,
+      "fire_days": 10,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": 0.12
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "trigger": "reclaim"
+      },
+      "n_trades": 13,
+      "wins": 8,
+      "win_rate_pct": 61.5,
+      "avg_pnl": 1.0,
+      "total_pnl": 13.0,
+      "fire_days": 11,
+      "trades_per_week": 0.11,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 0.1
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "vwap_side": "below",
+        "trigger": "reclaim"
+      },
+      "n_trades": 13,
+      "wins": 8,
+      "win_rate_pct": 61.5,
+      "avg_pnl": 1.0,
+      "total_pnl": 13.0,
+      "fire_days": 11,
+      "trades_per_week": 0.11,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 0.1
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "trigger": "reclaim",
+        "day_type": "range"
+      },
+      "n_trades": 13,
+      "wins": 8,
+      "win_rate_pct": 61.5,
+      "avg_pnl": 1.0,
+      "total_pnl": 13.0,
+      "fire_days": 11,
+      "trades_per_week": 0.11,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": 0.1
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "open_drive_bucket": "down"
+      },
+      "n_trades": 22,
+      "wins": 15,
+      "win_rate_pct": 68.2,
+      "avg_pnl": 0.23,
+      "total_pnl": 5.0,
+      "fire_days": 14,
+      "trades_per_week": 0.19,
+      "fire_days_per_week": 0.12,
+      "daily_rule_score": 0.03
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "open_drive_bucket": "down",
+        "day_type": "range"
+      },
+      "n_trades": 22,
+      "wins": 15,
+      "win_rate_pct": 68.2,
+      "avg_pnl": 0.23,
+      "total_pnl": 5.0,
+      "fire_days": 14,
+      "trades_per_week": 0.19,
+      "fire_days_per_week": 0.12,
+      "daily_rule_score": 0.03
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "13:30",
+        "trigger": "pullback"
+      },
+      "n_trades": 10,
+      "wins": 4,
+      "win_rate_pct": 40.0,
+      "avg_pnl": 0.2,
+      "total_pnl": 2.0,
+      "fire_days": 9,
+      "trades_per_week": 0.09,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": 0.02
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "13:30",
+        "vwap_side": "above",
+        "trigger": "pullback"
+      },
+      "n_trades": 10,
+      "wins": 4,
+      "win_rate_pct": 40.0,
+      "avg_pnl": 0.2,
+      "total_pnl": 2.0,
+      "fire_days": 9,
+      "trades_per_week": 0.09,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": 0.02
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "day_type": "trend"
+      },
+      "n_trades": 26,
+      "wins": 14,
+      "win_rate_pct": 53.8,
+      "avg_pnl": -0.38,
+      "total_pnl": -10.0,
+      "fire_days": 23,
+      "trades_per_week": 0.23,
+      "fire_days_per_week": 0.2,
+      "daily_rule_score": -0.08
+    },
+    {
+      "side": "C",
+      "axes": [
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "trigger": "reclaim",
+        "day_type": "trend"
+      },
+      "n_trades": 26,
+      "wins": 14,
+      "win_rate_pct": 53.8,
+      "avg_pnl": -0.38,
+      "total_pnl": -10.0,
+      "fire_days": 23,
+      "trades_per_week": 0.23,
+      "fire_days_per_week": 0.2,
+      "daily_rule_score": -0.08
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "trigger": "reclaim",
+        "day_type": "trend"
+      },
+      "n_trades": 26,
+      "wins": 14,
+      "win_rate_pct": 53.8,
+      "avg_pnl": -0.38,
+      "total_pnl": -10.0,
+      "fire_days": 23,
+      "trades_per_week": 0.23,
+      "fire_days_per_week": 0.2,
+      "daily_rule_score": -0.08
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "14:00",
+        "day_type": "trend"
+      },
+      "n_trades": 11,
+      "wins": 7,
+      "win_rate_pct": 63.6,
+      "avg_pnl": -1.18,
+      "total_pnl": -13.0,
+      "fire_days": 9,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": -0.09
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "flat"
+      },
+      "n_trades": 14,
+      "wins": 8,
+      "win_rate_pct": 57.1,
+      "avg_pnl": -2.64,
+      "total_pnl": -37.0,
+      "fire_days": 12,
+      "trades_per_week": 0.12,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": -0.26
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "up",
+        "day_type": "range"
+      },
+      "n_trades": 12,
+      "wins": 6,
+      "win_rate_pct": 50.0,
+      "avg_pnl": -5.42,
+      "total_pnl": -65.0,
+      "fire_days": 8,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": -0.38
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up",
+        "trigger": "reclaim",
+        "day_type": "range"
+      },
+      "n_trades": 12,
+      "wins": 6,
+      "win_rate_pct": 50.0,
+      "avg_pnl": -5.42,
+      "total_pnl": -65.0,
+      "fire_days": 8,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": -0.38
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "open_drive_bucket": "down",
+        "trigger": "breakout"
+      },
+      "n_trades": 15,
+      "wins": 10,
+      "win_rate_pct": 66.7,
+      "avg_pnl": -5.0,
+      "total_pnl": -75.0,
+      "fire_days": 10,
+      "trades_per_week": 0.13,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": -0.45
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down",
+        "day_type": "range"
+      },
+      "n_trades": 68,
+      "wins": 34,
+      "win_rate_pct": 50.0,
+      "avg_pnl": -2.07,
+      "total_pnl": -141.0,
+      "fire_days": 27,
+      "trades_per_week": 0.59,
+      "fire_days_per_week": 0.24,
+      "daily_rule_score": -0.5
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "down_big"
+      },
+      "n_trades": 29,
+      "wins": 18,
+      "win_rate_pct": 62.1,
+      "avg_pnl": -6.0,
+      "total_pnl": -174.0,
+      "fire_days": 10,
+      "trades_per_week": 0.25,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": -0.54
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down",
+        "day_type": "trend"
+      },
+      "n_trades": 12,
+      "wins": 8,
+      "win_rate_pct": 66.7,
+      "avg_pnl": -7.67,
+      "total_pnl": -92.0,
+      "fire_days": 9,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": -0.61
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "vwap_side": "below"
+      },
+      "n_trades": 17,
+      "wins": 10,
+      "win_rate_pct": 58.8,
+      "avg_pnl": -5.65,
+      "total_pnl": -96.0,
+      "fire_days": 14,
+      "trades_per_week": 0.15,
+      "fire_days_per_week": 0.12,
+      "daily_rule_score": -0.68
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "vwap_side": "below",
+        "day_type": "range"
+      },
+      "n_trades": 17,
+      "wins": 10,
+      "win_rate_pct": 58.8,
+      "avg_pnl": -5.65,
+      "total_pnl": -96.0,
+      "fire_days": 14,
+      "trades_per_week": 0.15,
+      "fire_days_per_week": 0.12,
+      "daily_rule_score": -0.68
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "13:30",
+        "trigger": "pullback",
+        "day_type": "trend"
+      },
+      "n_trades": 9,
+      "wins": 3,
+      "win_rate_pct": 33.3,
+      "avg_pnl": -11.44,
+      "total_pnl": -103.0,
+      "fire_days": 8,
+      "trades_per_week": 0.08,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": -0.8
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down"
+      },
+      "n_trades": 80,
+      "wins": 42,
+      "win_rate_pct": 52.5,
+      "avg_pnl": -2.91,
+      "total_pnl": -233.0,
+      "fire_days": 32,
+      "trades_per_week": 0.7,
+      "fire_days_per_week": 0.28,
+      "daily_rule_score": -0.81
+    },
+    {
+      "side": "P",
+      "axes": [
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "trigger": "breakout",
+        "day_type": "trend"
+      },
+      "n_trades": 15,
+      "wins": 11,
+      "win_rate_pct": 73.3,
+      "avg_pnl": -10.93,
+      "total_pnl": -164.0,
+      "fire_days": 11,
+      "trades_per_week": 0.13,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": -1.09
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "trigger": "breakout",
+        "day_type": "trend"
+      },
+      "n_trades": 15,
+      "wins": 11,
+      "win_rate_pct": 73.3,
+      "avg_pnl": -10.93,
+      "total_pnl": -164.0,
+      "fire_days": 11,
+      "trades_per_week": 0.13,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": -1.09
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "flat",
+        "trigger": "reclaim"
+      },
+      "n_trades": 9,
+      "wins": 5,
+      "win_rate_pct": 55.6,
+      "avg_pnl": -14.11,
+      "total_pnl": -127.0,
+      "fire_days": 9,
+      "trades_per_week": 0.08,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": -1.13
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "flat",
+        "trigger": "reclaim"
+      },
+      "n_trades": 9,
+      "wins": 5,
+      "win_rate_pct": 55.6,
+      "avg_pnl": -14.11,
+      "total_pnl": -127.0,
+      "fire_days": 9,
+      "trades_per_week": 0.08,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": -1.13
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down",
+        "trigger": "pullback",
+        "day_type": "range"
+      },
+      "n_trades": 15,
+      "wins": 8,
+      "win_rate_pct": 53.3,
+      "avg_pnl": -17.4,
+      "total_pnl": -261.0,
+      "fire_days": 8,
+      "trades_per_week": 0.13,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": -1.22
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up_big",
+        "day_type": "range"
+      },
+      "n_trades": 15,
+      "wins": 8,
+      "win_rate_pct": 53.3,
+      "avg_pnl": -16.07,
+      "total_pnl": -241.0,
+      "fire_days": 9,
+      "trades_per_week": 0.13,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": -1.29
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down",
+        "day_type": "trend"
+      },
+      "n_trades": 22,
+      "wins": 12,
+      "win_rate_pct": 54.5,
+      "avg_pnl": -11.73,
+      "total_pnl": -258.0,
+      "fire_days": 14,
+      "trades_per_week": 0.19,
+      "fire_days_per_week": 0.12,
+      "daily_rule_score": -1.41
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "flat",
+        "trigger": "breakout"
+      },
+      "n_trades": 31,
+      "wins": 21,
+      "win_rate_pct": 67.7,
+      "avg_pnl": -11.06,
+      "total_pnl": -343.0,
+      "fire_days": 20,
+      "trades_per_week": 0.27,
+      "fire_days_per_week": 0.17,
+      "daily_rule_score": -1.88
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:30",
+        "day_type": "range"
+      },
+      "n_trades": 29,
+      "wins": 14,
+      "win_rate_pct": 48.3,
+      "avg_pnl": -10.48,
+      "total_pnl": -304.0,
+      "fire_days": 21,
+      "trades_per_week": 0.25,
+      "fire_days_per_week": 0.18,
+      "daily_rule_score": -1.89
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "10:30"
+      },
+      "n_trades": 30,
+      "wins": 15,
+      "win_rate_pct": 50.0,
+      "avg_pnl": -10.0,
+      "total_pnl": -300.0,
+      "fire_days": 22,
+      "trades_per_week": 0.26,
+      "fire_days_per_week": 0.19,
+      "daily_rule_score": -1.9
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "flat",
+        "day_type": "range"
+      },
+      "n_trades": 12,
+      "wins": 6,
+      "win_rate_pct": 50.0,
+      "avg_pnl": -19.08,
+      "total_pnl": -229.0,
+      "fire_days": 11,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": -1.91
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "10:30",
+        "trigger": "reclaim"
+      },
+      "n_trades": 8,
+      "wins": 3,
+      "win_rate_pct": 37.5,
+      "avg_pnl": -27.62,
+      "total_pnl": -221.0,
+      "fire_days": 8,
+      "trades_per_week": 0.07,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": -1.93
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "10:30",
+        "vwap_side": "below",
+        "trigger": "reclaim"
+      },
+      "n_trades": 8,
+      "wins": 3,
+      "win_rate_pct": 37.5,
+      "avg_pnl": -27.62,
+      "total_pnl": -221.0,
+      "fire_days": 8,
+      "trades_per_week": 0.07,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": -1.93
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side"
+      ],
+      "bindings": {
+        "time_bucket": "10:30",
+        "vwap_side": "below"
+      },
+      "n_trades": 9,
+      "wins": 3,
+      "win_rate_pct": 33.3,
+      "avg_pnl": -25.0,
+      "total_pnl": -225.0,
+      "fire_days": 9,
+      "trades_per_week": 0.08,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": -2.0
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up",
+        "day_type": "trend"
+      },
+      "n_trades": 25,
+      "wins": 11,
+      "win_rate_pct": 44.0,
+      "avg_pnl": -14.6,
+      "total_pnl": -365.0,
+      "fire_days": 17,
+      "trades_per_week": 0.22,
+      "fire_days_per_week": 0.15,
+      "daily_rule_score": -2.19
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "up_big"
+      },
+      "n_trades": 10,
+      "wins": 5,
+      "win_rate_pct": 50.0,
+      "avg_pnl": -31.6,
+      "total_pnl": -316.0,
+      "fire_days": 8,
+      "trades_per_week": 0.09,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": -2.21
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side"
+      ],
+      "bindings": {
+        "time_bucket": "11:30",
+        "vwap_side": "below"
+      },
+      "n_trades": 11,
+      "wins": 3,
+      "win_rate_pct": 27.3,
+      "avg_pnl": -28.82,
+      "total_pnl": -317.0,
+      "fire_days": 9,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": -2.31
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "trigger": "breakout"
+      },
+      "n_trades": 10,
+      "wins": 5,
+      "win_rate_pct": 50.0,
+      "avg_pnl": -30.4,
+      "total_pnl": -304.0,
+      "fire_days": 9,
+      "trades_per_week": 0.09,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": -2.43
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "vwap_side": "above",
+        "trigger": "breakout"
+      },
+      "n_trades": 10,
+      "wins": 5,
+      "win_rate_pct": 50.0,
+      "avg_pnl": -30.4,
+      "total_pnl": -304.0,
+      "fire_days": 9,
+      "trades_per_week": 0.09,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": -2.43
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "trigger": "breakout",
+        "day_type": "range"
+      },
+      "n_trades": 10,
+      "wins": 5,
+      "win_rate_pct": 50.0,
+      "avg_pnl": -30.4,
+      "total_pnl": -304.0,
+      "fire_days": 9,
+      "trades_per_week": 0.09,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": -2.43
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "flat",
+        "trigger": "breakout"
+      },
+      "n_trades": 26,
+      "wins": 18,
+      "win_rate_pct": 69.2,
+      "avg_pnl": -16.65,
+      "total_pnl": -433.0,
+      "fire_days": 17,
+      "trades_per_week": 0.23,
+      "fire_days_per_week": 0.15,
+      "daily_rule_score": -2.5
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up_big"
+      },
+      "n_trades": 24,
+      "wins": 12,
+      "win_rate_pct": 50.0,
+      "avg_pnl": -29.21,
+      "total_pnl": -701.0,
+      "fire_days": 11,
+      "trades_per_week": 0.21,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": -2.92
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "trigger": "pullback"
+      },
+      "n_trades": 19,
+      "wins": 11,
+      "win_rate_pct": 57.9,
+      "avg_pnl": -22.89,
+      "total_pnl": -435.0,
+      "fire_days": 15,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": -2.98
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down",
+        "trigger": "pullback"
+      },
+      "n_trades": 21,
+      "wins": 12,
+      "win_rate_pct": 57.1,
+      "avg_pnl": -29.76,
+      "total_pnl": -625.0,
+      "fire_days": 12,
+      "trades_per_week": 0.18,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": -2.98
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "vwap_side": "below",
+        "trigger": "pullback"
+      },
+      "n_trades": 19,
+      "wins": 11,
+      "win_rate_pct": 57.9,
+      "avg_pnl": -22.89,
+      "total_pnl": -435.0,
+      "fire_days": 15,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": -2.98
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "trigger": "pullback",
+        "day_type": "range"
+      },
+      "n_trades": 19,
+      "wins": 11,
+      "win_rate_pct": 57.9,
+      "avg_pnl": -22.89,
+      "total_pnl": -435.0,
+      "fire_days": 15,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": -2.98
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "down",
+        "trigger": "pullback"
+      },
+      "n_trades": 21,
+      "wins": 12,
+      "win_rate_pct": 57.1,
+      "avg_pnl": -29.76,
+      "total_pnl": -625.0,
+      "fire_days": 12,
+      "trades_per_week": 0.18,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": -2.98
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side"
+      ],
+      "bindings": {
+        "time_bucket": "11:00",
+        "vwap_side": "above"
+      },
+      "n_trades": 9,
+      "wins": 4,
+      "win_rate_pct": 44.4,
+      "avg_pnl": -42.67,
+      "total_pnl": -384.0,
+      "fire_days": 8,
+      "trades_per_week": 0.08,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": -2.99
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down_big",
+        "day_type": "range"
+      },
+      "n_trades": 29,
+      "wins": 19,
+      "win_rate_pct": 65.5,
+      "avg_pnl": -34.79,
+      "total_pnl": -1009.0,
+      "fire_days": 10,
+      "trades_per_week": 0.25,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": -3.13
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:30",
+        "vwap_side": "below",
+        "day_type": "range"
+      },
+      "n_trades": 8,
+      "wins": 2,
+      "win_rate_pct": 25.0,
+      "avg_pnl": -46.12,
+      "total_pnl": -369.0,
+      "fire_days": 8,
+      "trades_per_week": 0.07,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": -3.23
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "flat",
+        "trigger": "breakout",
+        "day_type": "range"
+      },
+      "n_trades": 23,
+      "wins": 14,
+      "win_rate_pct": 60.9,
+      "avg_pnl": -21.87,
+      "total_pnl": -503.0,
+      "fire_days": 17,
+      "trades_per_week": 0.2,
+      "fire_days_per_week": 0.15,
+      "daily_rule_score": -3.28
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "up"
+      },
+      "n_trades": 21,
+      "wins": 10,
+      "win_rate_pct": 47.6,
+      "avg_pnl": -28.62,
+      "total_pnl": -601.0,
+      "fire_days": 14,
+      "trades_per_week": 0.18,
+      "fire_days_per_week": 0.12,
+      "daily_rule_score": -3.43
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up",
+        "trigger": "reclaim"
+      },
+      "n_trades": 21,
+      "wins": 10,
+      "win_rate_pct": 47.6,
+      "avg_pnl": -28.62,
+      "total_pnl": -601.0,
+      "fire_days": 14,
+      "trades_per_week": 0.18,
+      "fire_days_per_week": 0.12,
+      "daily_rule_score": -3.43
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "up",
+        "trigger": "reclaim"
+      },
+      "n_trades": 21,
+      "wins": 10,
+      "win_rate_pct": 47.6,
+      "avg_pnl": -28.62,
+      "total_pnl": -601.0,
+      "fire_days": 14,
+      "trades_per_week": 0.18,
+      "fire_days_per_week": 0.12,
+      "daily_rule_score": -3.43
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down_big"
+      },
+      "n_trades": 33,
+      "wins": 20,
+      "win_rate_pct": 60.6,
+      "avg_pnl": -38.91,
+      "total_pnl": -1284.0,
+      "fire_days": 10,
+      "trades_per_week": 0.29,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": -3.5
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "open_drive_bucket": "down_big"
+      },
+      "n_trades": 20,
+      "wins": 14,
+      "win_rate_pct": 70.0,
+      "avg_pnl": -44.75,
+      "total_pnl": -895.0,
+      "fire_days": 9,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": -3.58
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "open_drive_bucket": "down_big",
+        "day_type": "range"
+      },
+      "n_trades": 20,
+      "wins": 14,
+      "win_rate_pct": 70.0,
+      "avg_pnl": -44.75,
+      "total_pnl": -895.0,
+      "fire_days": 9,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": -3.58
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up",
+        "day_type": "trend"
+      },
+      "n_trades": 16,
+      "wins": 5,
+      "win_rate_pct": 31.2,
+      "avg_pnl": -36.69,
+      "total_pnl": -587.0,
+      "fire_days": 11,
+      "trades_per_week": 0.14,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": -3.67
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "13:30"
+      },
+      "n_trades": 19,
+      "wins": 7,
+      "win_rate_pct": 36.8,
+      "avg_pnl": -34.74,
+      "total_pnl": -660.0,
+      "fire_days": 15,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": -4.52
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "14:00"
+      },
+      "n_trades": 11,
+      "wins": 4,
+      "win_rate_pct": 36.4,
+      "avg_pnl": -57.18,
+      "total_pnl": -629.0,
+      "fire_days": 9,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": -4.57
+    },
+    {
+      "side": "C",
+      "axes": [
+        "time_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "13:30",
+        "day_type": "trend"
+      },
+      "n_trades": 15,
+      "wins": 5,
+      "win_rate_pct": 33.3,
+      "avg_pnl": -43.0,
+      "total_pnl": -645.0,
+      "fire_days": 13,
+      "trades_per_week": 0.13,
+      "fire_days_per_week": 0.11,
+      "daily_rule_score": -4.73
+    },
+    {
+      "side": "C",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "open_drive_bucket": "up",
+        "day_type": "trend"
+      },
+      "n_trades": 9,
+      "wins": 4,
+      "win_rate_pct": 44.4,
+      "avg_pnl": -59.56,
+      "total_pnl": -536.0,
+      "fire_days": 9,
+      "trades_per_week": 0.08,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": -4.76
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up",
+        "trigger": "reclaim",
+        "day_type": "trend"
+      },
+      "n_trades": 9,
+      "wins": 4,
+      "win_rate_pct": 44.4,
+      "avg_pnl": -59.56,
+      "total_pnl": -536.0,
+      "fire_days": 9,
+      "trades_per_week": 0.08,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": -4.76
+    },
+    {
+      "side": "P",
+      "axes": [
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "trigger": "pullback",
+        "day_type": "trend"
+      },
+      "n_trades": 22,
+      "wins": 11,
+      "win_rate_pct": 50.0,
+      "avg_pnl": -38.91,
+      "total_pnl": -856.0,
+      "fire_days": 15,
+      "trades_per_week": 0.19,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": -5.06
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "trigger": "pullback",
+        "day_type": "trend"
+      },
+      "n_trades": 22,
+      "wins": 11,
+      "win_rate_pct": 50.0,
+      "avg_pnl": -38.91,
+      "total_pnl": -856.0,
+      "fire_days": 15,
+      "trades_per_week": 0.19,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": -5.06
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down",
+        "trigger": "reclaim"
+      },
+      "n_trades": 20,
+      "wins": 6,
+      "win_rate_pct": 30.0,
+      "avg_pnl": -39.0,
+      "total_pnl": -780.0,
+      "fire_days": 15,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": -5.07
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "down",
+        "trigger": "reclaim"
+      },
+      "n_trades": 20,
+      "wins": 6,
+      "win_rate_pct": 30.0,
+      "avg_pnl": -39.0,
+      "total_pnl": -780.0,
+      "fire_days": 15,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": -5.07
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "up",
+        "day_type": "range"
+      },
+      "n_trades": 16,
+      "wins": 5,
+      "win_rate_pct": 31.2,
+      "avg_pnl": -58.12,
+      "total_pnl": -930.0,
+      "fire_days": 10,
+      "trades_per_week": 0.14,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": -5.23
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "11:30"
+      },
+      "n_trades": 20,
+      "wins": 6,
+      "win_rate_pct": 30.0,
+      "avg_pnl": -37.85,
+      "total_pnl": -757.0,
+      "fire_days": 16,
+      "trades_per_week": 0.17,
+      "fire_days_per_week": 0.14,
+      "daily_rule_score": -5.3
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down_big"
+      },
+      "n_trades": 14,
+      "wins": 4,
+      "win_rate_pct": 28.6,
+      "avg_pnl": -75.71,
+      "total_pnl": -1060.0,
+      "fire_days": 8,
+      "trades_per_week": 0.12,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": -5.3
+    },
+    {
+      "side": "C",
+      "axes": [
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down_big",
+        "day_type": "range"
+      },
+      "n_trades": 10,
+      "wins": 2,
+      "win_rate_pct": 20.0,
+      "avg_pnl": -76.5,
+      "total_pnl": -765.0,
+      "fire_days": 8,
+      "trades_per_week": 0.09,
+      "fire_days_per_week": 0.07,
+      "daily_rule_score": -5.36
+    },
+    {
+      "side": "P",
+      "axes": [
+        "day_type"
+      ],
+      "bindings": {
+        "day_type": "trend"
+      },
+      "n_trades": 56,
+      "wins": 31,
+      "win_rate_pct": 55.4,
+      "avg_pnl": -17.41,
+      "total_pnl": -975.0,
+      "fire_days": 36,
+      "trades_per_week": 0.49,
+      "fire_days_per_week": 0.31,
+      "daily_rule_score": -5.4
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "09:30"
+      },
+      "n_trades": 71,
+      "wins": 48,
+      "win_rate_pct": 67.6,
+      "avg_pnl": -13.44,
+      "total_pnl": -954.0,
+      "fire_days": 47,
+      "trades_per_week": 0.62,
+      "fire_days_per_week": 0.41,
+      "daily_rule_score": -5.51
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "day_type": "range"
+      },
+      "n_trades": 71,
+      "wins": 48,
+      "win_rate_pct": 67.6,
+      "avg_pnl": -13.44,
+      "total_pnl": -954.0,
+      "fire_days": 47,
+      "trades_per_week": 0.62,
+      "fire_days_per_week": 0.41,
+      "daily_rule_score": -5.51
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "below",
+        "day_type": "trend"
+      },
+      "n_trades": 37,
+      "wins": 22,
+      "win_rate_pct": 59.5,
+      "avg_pnl": -27.57,
+      "total_pnl": -1020.0,
+      "fire_days": 24,
+      "trades_per_week": 0.32,
+      "fire_days_per_week": 0.21,
+      "daily_rule_score": -5.79
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up",
+        "trigger": "reclaim",
+        "day_type": "range"
+      },
+      "n_trades": 15,
+      "wins": 4,
+      "win_rate_pct": 26.7,
+      "avg_pnl": -64.47,
+      "total_pnl": -967.0,
+      "fire_days": 10,
+      "trades_per_week": 0.13,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": -5.8
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "11:00",
+        "day_type": "trend"
+      },
+      "n_trades": 12,
+      "wins": 7,
+      "win_rate_pct": 58.3,
+      "avg_pnl": -76.42,
+      "total_pnl": -917.0,
+      "fire_days": 9,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.08,
+      "daily_rule_score": -6.11
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "11:30",
+        "day_type": "range"
+      },
+      "n_trades": 12,
+      "wins": 1,
+      "win_rate_pct": 8.3,
+      "avg_pnl": -68.08,
+      "total_pnl": -817.0,
+      "fire_days": 10,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": -6.13
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "up"
+      },
+      "n_trades": 25,
+      "wins": 7,
+      "win_rate_pct": 28.0,
+      "avg_pnl": -50.48,
+      "total_pnl": -1262.0,
+      "fire_days": 15,
+      "trades_per_week": 0.22,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": -6.56
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "open_drive_bucket": "down",
+        "trigger": "reclaim",
+        "day_type": "range"
+      },
+      "n_trades": 17,
+      "wins": 4,
+      "win_rate_pct": 23.5,
+      "avg_pnl": -60.0,
+      "total_pnl": -1020.0,
+      "fire_days": 13,
+      "trades_per_week": 0.15,
+      "fire_days_per_week": 0.11,
+      "daily_rule_score": -6.6
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "10:00"
+      },
+      "n_trades": 47,
+      "wins": 26,
+      "win_rate_pct": 55.3,
+      "avg_pnl": -22.3,
+      "total_pnl": -1048.0,
+      "fire_days": 34,
+      "trades_per_week": 0.41,
+      "fire_days_per_week": 0.3,
+      "daily_rule_score": -6.69
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "day_type": "range"
+      },
+      "n_trades": 47,
+      "wins": 26,
+      "win_rate_pct": 55.3,
+      "avg_pnl": -22.3,
+      "total_pnl": -1048.0,
+      "fire_days": 34,
+      "trades_per_week": 0.41,
+      "fire_days_per_week": 0.3,
+      "daily_rule_score": -6.69
+    },
+    {
+      "side": "P",
+      "axes": [
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "open_drive_bucket": "up",
+        "trigger": "reclaim"
+      },
+      "n_trades": 24,
+      "wins": 6,
+      "win_rate_pct": 25.0,
+      "avg_pnl": -54.12,
+      "total_pnl": -1299.0,
+      "fire_days": 15,
+      "trades_per_week": 0.21,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": -7.04
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "up",
+        "trigger": "reclaim"
+      },
+      "n_trades": 24,
+      "wins": 6,
+      "win_rate_pct": 25.0,
+      "avg_pnl": -54.12,
+      "total_pnl": -1299.0,
+      "fire_days": 15,
+      "trades_per_week": 0.21,
+      "fire_days_per_week": 0.13,
+      "daily_rule_score": -7.04
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "open_drive_bucket": "down"
+      },
+      "n_trades": 14,
+      "wins": 5,
+      "win_rate_pct": 35.7,
+      "avg_pnl": -71.43,
+      "total_pnl": -1000.0,
+      "fire_days": 12,
+      "trades_per_week": 0.12,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": -7.14
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "open_drive_bucket": "down",
+        "day_type": "range"
+      },
+      "n_trades": 14,
+      "wins": 5,
+      "win_rate_pct": 35.7,
+      "avg_pnl": -71.43,
+      "total_pnl": -1000.0,
+      "fire_days": 12,
+      "trades_per_week": 0.12,
+      "fire_days_per_week": 0.1,
+      "daily_rule_score": -7.14
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "down"
+      },
+      "n_trades": 21,
+      "wins": 6,
+      "win_rate_pct": 28.6,
+      "avg_pnl": -51.43,
+      "total_pnl": -1080.0,
+      "fire_days": 16,
+      "trades_per_week": 0.18,
+      "fire_days_per_week": 0.14,
+      "daily_rule_score": -7.2
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "open_drive_bucket",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "open_drive_bucket": "down",
+        "day_type": "range"
+      },
+      "n_trades": 18,
+      "wins": 4,
+      "win_rate_pct": 22.2,
+      "avg_pnl": -73.33,
+      "total_pnl": -1320.0,
+      "fire_days": 14,
+      "trades_per_week": 0.16,
+      "fire_days_per_week": 0.12,
+      "daily_rule_score": -8.8
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "trigger": "reclaim"
+      },
+      "n_trades": 12,
+      "wins": 6,
+      "win_rate_pct": 50.0,
+      "avg_pnl": -118.08,
+      "total_pnl": -1417.0,
+      "fire_days": 10,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": -10.63
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "vwap_side": "above",
+        "trigger": "reclaim"
+      },
+      "n_trades": 12,
+      "wins": 6,
+      "win_rate_pct": 50.0,
+      "avg_pnl": -118.08,
+      "total_pnl": -1417.0,
+      "fire_days": 10,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": -10.63
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "trigger": "reclaim",
+        "day_type": "range"
+      },
+      "n_trades": 12,
+      "wins": 6,
+      "win_rate_pct": 50.0,
+      "avg_pnl": -118.08,
+      "total_pnl": -1417.0,
+      "fire_days": 10,
+      "trades_per_week": 0.1,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": -10.63
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "vwap_side": "above"
+      },
+      "n_trades": 10,
+      "wins": 2,
+      "win_rate_pct": 20.0,
+      "avg_pnl": -120.4,
+      "total_pnl": -1204.0,
+      "fire_days": 10,
+      "trades_per_week": 0.09,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": -10.84
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "trigger": "reclaim"
+      },
+      "n_trades": 10,
+      "wins": 2,
+      "win_rate_pct": 20.0,
+      "avg_pnl": -120.4,
+      "total_pnl": -1204.0,
+      "fire_days": 10,
+      "trades_per_week": 0.09,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": -10.84
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "vwap_side": "above",
+        "trigger": "reclaim"
+      },
+      "n_trades": 10,
+      "wins": 2,
+      "win_rate_pct": 20.0,
+      "avg_pnl": -120.4,
+      "total_pnl": -1204.0,
+      "fire_days": 10,
+      "trades_per_week": 0.09,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": -10.84
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "vwap_side": "above",
+        "day_type": "range"
+      },
+      "n_trades": 10,
+      "wins": 2,
+      "win_rate_pct": 20.0,
+      "avg_pnl": -120.4,
+      "total_pnl": -1204.0,
+      "fire_days": 10,
+      "trades_per_week": 0.09,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": -10.84
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "10:00",
+        "trigger": "reclaim",
+        "day_type": "range"
+      },
+      "n_trades": 10,
+      "wins": 2,
+      "win_rate_pct": 20.0,
+      "avg_pnl": -120.4,
+      "total_pnl": -1204.0,
+      "fire_days": 10,
+      "trades_per_week": 0.09,
+      "fire_days_per_week": 0.09,
+      "daily_rule_score": -10.84
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "vwap_side": "above"
+      },
+      "n_trades": 22,
+      "wins": 11,
+      "win_rate_pct": 50.0,
+      "avg_pnl": -78.23,
+      "total_pnl": -1721.0,
+      "fire_days": 19,
+      "trades_per_week": 0.19,
+      "fire_days_per_week": 0.17,
+      "daily_rule_score": -13.3
+    },
+    {
+      "side": "P",
+      "axes": [
+        "time_bucket",
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "time_bucket": "09:30",
+        "vwap_side": "above",
+        "day_type": "range"
+      },
+      "n_trades": 22,
+      "wins": 11,
+      "win_rate_pct": 50.0,
+      "avg_pnl": -78.23,
+      "total_pnl": -1721.0,
+      "fire_days": 19,
+      "trades_per_week": 0.19,
+      "fire_days_per_week": 0.17,
+      "daily_rule_score": -13.3
+    },
+    {
+      "side": "P",
+      "axes": [
+        "trigger"
+      ],
+      "bindings": {
+        "trigger": "reclaim"
+      },
+      "n_trades": 64,
+      "wins": 23,
+      "win_rate_pct": 35.9,
+      "avg_pnl": -54.7,
+      "total_pnl": -3501.0,
+      "fire_days": 46,
+      "trades_per_week": 0.56,
+      "fire_days_per_week": 0.4,
+      "daily_rule_score": -21.88
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "trigger"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "trigger": "reclaim"
+      },
+      "n_trades": 64,
+      "wins": 23,
+      "win_rate_pct": 35.9,
+      "avg_pnl": -54.7,
+      "total_pnl": -3501.0,
+      "fire_days": 46,
+      "trades_per_week": 0.56,
+      "fire_days_per_week": 0.4,
+      "daily_rule_score": -21.88
+    },
+    {
+      "side": "P",
+      "axes": [
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "trigger": "reclaim",
+        "day_type": "range"
+      },
+      "n_trades": 45,
+      "wins": 14,
+      "win_rate_pct": 31.1,
+      "avg_pnl": -78.8,
+      "total_pnl": -3546.0,
+      "fire_days": 34,
+      "trades_per_week": 0.39,
+      "fire_days_per_week": 0.3,
+      "daily_rule_score": -23.64
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "trigger",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "trigger": "reclaim",
+        "day_type": "range"
+      },
+      "n_trades": 45,
+      "wins": 14,
+      "win_rate_pct": 31.1,
+      "avg_pnl": -78.8,
+      "total_pnl": -3546.0,
+      "fire_days": 34,
+      "trades_per_week": 0.39,
+      "fire_days_per_week": 0.3,
+      "daily_rule_score": -23.64
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side"
+      ],
+      "bindings": {
+        "vwap_side": "above"
+      },
+      "n_trades": 74,
+      "wins": 28,
+      "win_rate_pct": 37.8,
+      "avg_pnl": -51.42,
+      "total_pnl": -3805.0,
+      "fire_days": 53,
+      "trades_per_week": 0.64,
+      "fire_days_per_week": 0.46,
+      "daily_rule_score": -23.65
+    },
+    {
+      "side": "P",
+      "axes": [
+        "vwap_side",
+        "day_type"
+      ],
+      "bindings": {
+        "vwap_side": "above",
+        "day_type": "range"
+      },
+      "n_trades": 55,
+      "wins": 19,
+      "win_rate_pct": 34.5,
+      "avg_pnl": -70.0,
+      "total_pnl": -3850.0,
+      "fire_days": 42,
+      "trades_per_week": 0.48,
+      "fire_days_per_week": 0.37,
+      "daily_rule_score": -25.9
+    }
+  ],
+  "winner_axis_tallies": {
+    "time_bucket": {
+      "10:00": 61,
+      "11:00": 33,
+      "09:30": 80,
+      "10:30": 37,
+      "14:30": 17,
+      "11:30": 14,
+      "12:00": 17,
+      "13:30": 12,
+      "15:00": 1,
+      "13:00": 16,
+      "14:00": 13,
+      "12:30": 3,
+      "16:00": 1,
+      "15:30": 1
+    },
+    "vwap_side": {
+      "below": 160,
+      "above": 146
+    },
+    "open_drive_bucket": {
+      "up": 76,
+      "flat": 84,
+      "down": 83,
+      "up_big": 39,
+      "down_big": 24
+    },
+    "trigger": {
+      "pullback": 114,
+      "reclaim": 62,
+      "breakout": 130
+    },
+    "day_type": {
+      "range": 228,
+      "trend": 78
+    },
+    "archetype": {
+      "trend_continuation_midrange": 45,
+      "bearish_reversal_off_high": 18,
+      "momentum_breakout_continuation": 123,
+      "bullish_reversal_off_low": 30,
+      "bearish_pullback_resumption": 37,
+      "bullish_pullback_resumption": 42,
+      "counter_trend_fade": 11
+    }
+  }
+}
