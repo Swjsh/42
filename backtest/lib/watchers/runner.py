@@ -67,6 +67,7 @@ from .named_level_second_test_watcher import detect_named_level_second_test_setu
 from .stairstep_continuation_watcher import detect_stairstep_continuation_setup  # 2026-06-18
 from .vwap_trend_pullback_watcher import detect_vwap_trend_pullback_setup  # 2026-06-19 H4
 from .gap_and_go_watcher import detect_gap_and_go_setup  # 2026-06-19 H2b (open-bar; needs prior_close)
+from .vwap_continuation_watcher import detect_vwap_continuation_setup  # 2026-06-20 J_VWAP_CONT (J's daily edge)
 from ..filters import BarContext
 
 REPO = Path(__file__).resolve().parents[2]
@@ -248,6 +249,17 @@ WATCHERS: list[WatcherSpec] = [
     # WATCH_ONLY per OP-21 until 3 live J wins; ctx-only (needs full session history
     # in prior_bars for the as-of session-VWAP + 6-bar trend window).
     _ctx_spec("vwap_trend_pullback_watcher", "detect_vwap_trend_pullback_setup", detect_vwap_trend_pullback_setup),
+    # J_VWAP_CONT — J's near-daily VWAP-aligned morning-continuation edge, mined from his
+    # 313 real Webull winners and re-validated on our SPY 2025-26 real OPRA fills (2026-06-20).
+    # Scorecard: analysis/recommendations/j-daily-pattern-LIVE.json (n=153, exp +$38.3/trade,
+    # WR 76.5%, fires 42% of days = ~2.1/wk near-daily, both dirs +, DSR PASS, drop-top5
+    # +$24.45; NEAR-SURVIVOR 6/7 OP-22 — misses all-cuts-OOS+ on the recent-Q soft window).
+    # Parity-tested vs j_daily_pattern_ratify.detect_j_vwap_continuation over 363 days
+    # (test_vwap_continuation_watcher.py). ctx-only (needs today's full RTH history in
+    # prior_bars for the as-of session-VWAP + 3-bar trend window); the wiring default is the
+    # full pattern, no VIX gate (the headline J_VWAP_CONT/ATM cell). WATCH_ONLY per OP-21
+    # until 3 live J wins; DORMANT heartbeat wiring is gated on params.j_vwap_cont_enabled.
+    _ctx_spec("vwap_continuation_watcher", "detect_vwap_continuation_setup", detect_vwap_continuation_setup),
     # H2b data-discovered survivor (2026-06-19). Ratified: analysis/recommendations/
     # gap-and-go-LIVE.json (chart-stop-only: exp +$41.6/WR 72.6%, DSR PASS, WF_PASS
     # all cuts, causality 96/96 PASS, both dirs +). Once-per-day OPEN-bar setup: fires

@@ -346,6 +346,31 @@ If a side fires:
 
 If no side fires, fall through to the normal `### Scoring` section unchanged (a non-gap or unconfirmed-gap day just trades the normal book).
 
+### VWAP_CONTINUATION morning setup (NEW 2026-06-20 — J_VWAP_CONT; FLAG-GATED, default OFF = inert)
+
+> J's near-daily VWAP-aligned MORNING CONTINUATION edge — mined from his 313 real Webull winners and re-validated on our SPY 2025-26 real OPRA fills. Validated J_VWAP_CONT/ATM chart-stop-only: exp +$38.3/trade, WR 76.5%, n=153, fires **42% of days (~2.1/wk = near-daily)**, both directions + (C +$26.0/77.4% / P +$53.3/75.4%), drop-top5 +$24.45, DSR PASS, OOS sign-stable +$24.12. VIX-gated/ITM1 is the strongest cell (exp +$50.5/WR 77.6%, WF +0.962, q+ 5/6). **HONEST: 6-of-7 OP-22 NEAR-SURVIVOR** — clears OOS+, WF≥0.70 (ITM1/VIXGATE), q≥60%, DSR PASS, both-dirs+, drop-top5-robust; MISSES strict all-cuts-OOS-positive (only the recent 2026-Q2 OOS window — partial OPRA coverage + a put-side bear-chop patch — is negative; not a structural break). Ships DORMANT/flip-ready like gap-and-go + vwap-trend-pullback. Scorecard: `analysis/recommendations/j-daily-pattern-LIVE.json`. Detector (parity-tested vs research over 363 days): `backtest/lib/watchers/vwap_continuation_watcher.py`. Doc: `docs/VWAP-CONTINUATION-WIRING.md`. Carries its own independent first-entry lock key `VWAP_CONTINUATION` (per the setup-isolation guarantee above).
+
+Read `params.json#j_vwap_cont_enabled` (default `false`), `params.json#j_vwap_cont_side` (default `"both"`), and `params.json#j_vwap_cont_put_vix_gate` (default `false`). **If `j_vwap_cont_enabled != true`, SKIP this entire block** and fall through to `### Scoring` unchanged (this is the default → zero behavior change). When enabled, evaluate ONLY when ALL of:
+- the last closed 5m bar's time is **<= 10:30 ET** (J's morning edge band) AND it is at-or-after the 4th RTH bar (the first 3 RTH bars set the trend side; need >= TREND_BARS+1 bars). Skip outside this window.
+- `current-position.status == null` (flat) AND flat-verified vs Alpaca (the existing 09:30 reconcile applies).
+- filters 2 (news clear), 3 (budget > risk), 4 (day-trades ≥ 1) PASS; MACRO BIAS hard-veto NOT active.
+- the `VWAP_CONTINUATION` first-entry lock is clear today (no prior stop-out on this setup today).
+
+Compute (all causal, from today's RTH bars only — as-of session VWAP = cumulative (H+L+C)/3 × volume):
+- **trend side** = the first 3 RTH closes ALL on the same side of their as-of session VWAP → above = **CALLS**, below = **PUTS**. If mixed (no clean one-sided open) → no setup today; fall through.
+- **continuation trigger** on the last closed bar (must still close on the trend side of VWAP): **breakout** = a fresh in-trend session extreme (calls: new session high; puts: new session low); OR **pullback** = a shallow VWAP-ward dip then a with-trend close (calls: bar low within 0.10% of VWAP and close > VWAP; puts: bar high within 0.10% of VWAP and close < VWAP). No trigger → keep scanning later morning bars (up to the 10:30 cutoff).
+- **direction gating (OP-16):** CALLS only if `j_vwap_cont_side ∈ {"both","call"}`; PUTS only if `j_vwap_cont_side ∈ {"both","put"}`. (`"both"` is the validated default — both sides cleared the bar — but OP-16 keeps bull-side new entries DRAFT until J has 3 live wins; flipping to `"both"` live is J's call. `"put"` = OP-16-conservative bear-only first step.)
+- **VIX put-gate (C5, optional):** if `j_vwap_cont_put_vix_gate == true`, a PUT fires only when the as-of VIX 5-bar slope ≥ 0 (rising/flat vol). If a put fails this, keep scanning later morning bars. (Off by default = the headline J_VWAP_CONT cell; on = the stronger VIX-gated cell.)
+
+If a side fires:
+- **strike**: the account's normal per-tier (v15 `strike_offset_per_tier`); ATM is the validated default (ITM-1 tested stronger), OTM proxy directionally valid (L58). **Dual-account note (C29):** these exit/strike numbers were validated at ATM/ITM-1; the OTM-2 Safe tier and the Bold ITM tier inherit the SETUP but each account's exit knobs/strike stay its own — re-confirm per account, do not assume transfer.
+- **stop = CHART STOP ONLY** = the session extreme against the trade as of the entry bar (calls: session LOW to date; puts: session HIGH to date). Premium stop = the standard −50% catastrophe cap only. DO NOT set a tight premium stop (chart-stop-only is the validated exit, L51/L55).
+- **sizing**: min 3 (`min_contracts`), premium ceiling ~6% equity (`docs/SIZING-STUDY-2026-06-19.md`); `risk_gate.check_order` is the authority.
+- **TP / runner / time stop**: the standard v15 stack (TP1 chart-level OR +30% premium fallback, `tp1_qty_fraction`; runner 2.5×; 15:50 ET hard time stop). Route through the SAME `### Pre-execution gate sequence` + `### Execution steps` as a normal entry. Log `decisions.jsonl` with `setup: "VWAP_CONTINUATION"`, `trigger: "vwap_cont_breakout"` or `"vwap_cont_pullback"`. Journal the pre-trade thesis BEFORE the order (Rule 8).
+- **One per day**: after a VWAP_CONTINUATION entry (or explicit skip), do not re-evaluate this block today.
+
+If no side fires, fall through to the normal `### Scoring` section unchanged (a non-trend or no-continuation morning just trades the normal book).
+
 ### Scoring
 
 Score both setups against the LAST CLOSED 5m bar. UNKNOWN field = FAIL.
