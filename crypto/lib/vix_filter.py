@@ -2,7 +2,7 @@
 
 Two-fold purpose:
   1. Wrap `vix_direction(now, prior)` with a configurable deadband.
-  2. Provide a 3-bar (15-minute) lookback variant per T81 (see docs/T81-BULL-VIX-GATE.md)
+  2. Provide a 3-bar (15-minute) lookback variant per T81 (see markdown/research/T81-BULL-VIX-GATE.md)
      that catches "slow-drift" VIX trends single-bar deadband-locking misses.
 
 Production source-of-truth (`automation/state/params.json`):

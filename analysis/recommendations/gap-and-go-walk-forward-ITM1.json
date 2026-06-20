@@ -1,0 +1,117 @@
+{
+  "generated_at": "2026-06-19T18:28:55.278992+00:00",
+  "setup": "H2b_gap_and_go",
+  "tier": "ITM1",
+  "data": {
+    "spy": "spy_5m_2025-01-01_2026-06-16.csv",
+    "days": 363,
+    "date_range": [
+      "2025-01-02",
+      "2026-06-16"
+    ]
+  },
+  "method": {
+    "detector": "autoresearch.infinite_ammo_discovery.detect_gap_and_go",
+    "fills": "lib.simulator_real (real OPRA, next-bar-open, v15 exit stack)",
+    "wf": "expanding-anchor at cut fracs [0.6, 0.7, 0.8]; WF_norm=(oos$/n_oos)/(is$/n_is)",
+    "gates": "every cut OOS$>0 AND median WF_norm>=0.7 AND quarter-positive-frac>=0.6"
+  },
+  "coverage": {
+    "signals": 96,
+    "filled": 85,
+    "cache_miss": 11,
+    "sim_none": 0,
+    "fill_rate": 0.885
+  },
+  "wf_windows": [
+    {
+      "cut_frac": 0.6,
+      "cut_date": "2025-11-14",
+      "is_n": 53,
+      "oos_n": 32,
+      "is_total_dollar": 2751.12,
+      "oos_total_dollar": 619.28,
+      "is_exp_dollar": 51.91,
+      "oos_exp_dollar": 19.35,
+      "wf_norm": 0.373,
+      "oos_positive": true,
+      "oos_C_exp": 48.29,
+      "oos_C_n": 20,
+      "oos_P_exp": -28.87,
+      "oos_P_n": 12,
+      "wf_pass": false
+    },
+    {
+      "cut_frac": 0.7,
+      "cut_date": "2026-01-09",
+      "is_n": 60,
+      "oos_n": 25,
+      "is_total_dollar": 2748.96,
+      "oos_total_dollar": 621.44,
+      "is_exp_dollar": 45.82,
+      "oos_exp_dollar": 24.86,
+      "wf_norm": 0.543,
+      "oos_positive": true,
+      "oos_C_exp": 54.19,
+      "oos_C_n": 15,
+      "oos_P_exp": -19.14,
+      "oos_P_n": 10,
+      "wf_pass": false
+    },
+    {
+      "cut_frac": 0.8,
+      "cut_date": "2026-03-04",
+      "is_n": 64,
+      "oos_n": 21,
+      "is_total_dollar": 3670.52,
+      "oos_total_dollar": -300.12,
+      "is_exp_dollar": 57.35,
+      "oos_exp_dollar": -14.29,
+      "wf_norm": -0.249,
+      "oos_positive": false,
+      "oos_C_exp": -9.88,
+      "oos_C_n": 11,
+      "oos_P_exp": -19.14,
+      "oos_P_n": 10,
+      "wf_pass": false
+    }
+  ],
+  "median_wf_norm": 0.373,
+  "all_cuts_oos_positive": false,
+  "quarters": {
+    "2025Q1": {
+      "n": 14,
+      "exp_dollar": 74.3,
+      "total": 1040.16
+    },
+    "2025Q2": {
+      "n": 10,
+      "exp_dollar": 60.78,
+      "total": 607.84
+    },
+    "2025Q3": {
+      "n": 18,
+      "exp_dollar": 37.63,
+      "total": 677.36
+    },
+    "2025Q4": {
+      "n": 17,
+      "exp_dollar": 19.41,
+      "total": 330.0
+    },
+    "2026Q1": {
+      "n": 15,
+      "exp_dollar": 76.08,
+      "total": 1141.16
+    },
+    "2026Q2": {
+      "n": 11,
+      "exp_dollar": -38.74,
+      "total": -426.12
+    }
+  },
+  "quarter_positive_fraction": 0.83,
+  "n_total_fills": 85,
+  "caveat": "Gap-and-go fires only on gap days (~5 fills/month). Per-cut OOS samples are modest (n~17-34); WF_norm is a directional generalization check, not a high-power estimate. Read with the DSR PASS + drop-top-5 robustness from the discovery scorecard, not alone.",
+  "verdict": "WF_FAIL"
+}

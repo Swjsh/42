@@ -54,6 +54,13 @@ If any check fails, WRITE the failure to STATUS.md FIRST, then attempt recovery.
    **If all 3 GREEN or file-not-found (market was closed) → proceed to STAGE 1 normally.**
    **If any RED → fix or flag FIRST, then pick task.**
 
+8. **Refresh the morning backtest shortlist (once per night, ~$0 — pure Python):**
+   Ranks the candidate matrix per OP-16 (edge × sharpe), regression-gates each variant vs its same-strike baseline, and writes J's morning REVOKE surface. Skip if `analysis/overnight-shortlist-$(date +%Y-%m-%d).md` already exists this date (another fire did it).
+   ```
+   cd C:\Users\jackw\Desktop\42\backtest && python -m autoresearch.overnight_swarm --top 10
+   ```
+   Read the printed `ratify_ready` count. If > 0 → note it in STATUS.md so J sees the shortlist in the morning brief (signal, not silence — OP-25). Nothing auto-deploys (OP-16: J's REVOKE surface only). Use `--run` instead only on a weekend fire when a fresh full matrix is wanted (slower).
+
 ---
 
 ## STAGE 1 — PICK TASK
@@ -63,12 +70,12 @@ If any check fails, WRITE the failure to STATUS.md FIRST, then attempt recovery.
 1. **STATUS.md `### BROKEN:` flags** — repair infrastructure FIRST. CRITICAL before anything else.
 2. **`automation/overnight/queue.md` priority HIGH** — explicit high-priority backlog items.
 3. **`strategy/candidates/_validator-inbox/`** (oldest first, README excluded) — invoke **validator-author** via `Skill(skill=validator-author)` or `claude --print --agent validator-author`. Authors new gym validator, runs `python crypto/validators/runner.py`, bumps CLAUDE.md OP-26 count on PASS. Per OP-22 ENGINE-BENEFIT AUTONOMY this is auto-merge — no J ratification.
-4. **`strategy/candidates/_skill-inbox/`** (oldest first, README excluded) — invoke **skill-author**. Authors new `.claude/skills/{slug}/SKILL.md` + `backtest/autoresearch/{slug}.py` module + appends `docs/SKILLS-CATALOG.md` row. Smoke-tests the module. If item has `kind: tune`, routes to `skill_tune.py` against the named target (denylist check: refuses to tune live-doctrine paths).
-5. **`strategy/candidates/_lesson-inbox/`** (oldest first, README excluded) — invoke **lesson-author**. Appends L## entry to `docs/LESSONS-LEARNED.md` AND OP-25 absorbed-lessons bullet to `CLAUDE.md`. The ONLY author with OP-25 write access. Refuses vague items (defers as `_chef-inbox/` clarification).
+4. **`strategy/candidates/_skill-inbox/`** (oldest first, README excluded) — invoke **skill-author**. Authors new `.claude/skills/{slug}/SKILL.md` + `backtest/autoresearch/{slug}.py` module + appends `markdown/infra/SKILLS-CATALOG.md` row. Smoke-tests the module. If item has `kind: tune`, routes to `skill_tune.py` against the named target (denylist check: refuses to tune live-doctrine paths).
+5. **`strategy/candidates/_lesson-inbox/`** (oldest first, README excluded) — invoke **lesson-author**. Appends L## entry to `markdown/doctrine/LESSONS-LEARNED.md` AND OP-25 absorbed-lessons bullet to `CLAUDE.md`. The ONLY author with OP-25 write access. Refuses vague items (defers as `_chef-inbox/` clarification).
 6. **`strategy/candidates/_chef-inbox/`** (oldest first, README excluded) — invoke **chef**. Strategy R&D candidates → `strategy/candidates/{date}-{HHMMSS}-{slug}.md` DRAFT + `_LEADERBOARD.md` row + `_chef-log.jsonl` entry.
 7. **`automation/overnight/queue.md` priority MED** — non-urgent infrastructure / refactor tasks.
 8. **`automation/overnight/queue.md` priority LOW** — nice-to-haves.
-9. **BRAINSTORM** — if all above empty, read `docs/FUTURE-IMPROVEMENTS.md`, `docs/LESSONS-LEARNED.md`, `journal/mistakes.md`. Propose 3 new tasks. Add to queue. Never go idle.
+9. **BRAINSTORM** — if all above empty, read `markdown/planning/FUTURE-IMPROVEMENTS.md`, `markdown/doctrine/LESSONS-LEARNED.md`, `journal/mistakes.md`. Propose 3 new tasks. Add to queue. Never go idle.
 
 **Skip if:**
 - Dependencies (`depends:`) include any task NOT in COMPLETED section
@@ -100,7 +107,7 @@ Then either invoke via Skill tool (`Skill(skill=$AGENT)`) or background `claude 
 **Stale-item cleanup:** Manager's daily-verify fire (17:30 ET) renames inbox items older than 7 days to `{date}-{slug}.STALE.md`. STALE items are NOT picked up by authors — they require manual triage or re-queueing as fresh items.
 
 **If all queues empty:**
-- BRAINSTORM. Read `docs/FUTURE-IMPROVEMENTS.md`, `docs/LESSONS-LEARNED.md`, `journal/mistakes.md`. Propose 3 new tasks. Add to queue.
+- BRAINSTORM. Read `markdown/planning/FUTURE-IMPROVEMENTS.md`, `markdown/doctrine/LESSONS-LEARNED.md`, `journal/mistakes.md`. Propose 3 new tasks. Add to queue.
 - Don't go idle — every wake should ship something.
 
 ---

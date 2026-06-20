@@ -16,7 +16,7 @@ Output:
     automation/state/watcher-promotion-snapshot.json  (always written)
 
 Claude Code skill: /watcher-promotion-gates
-Registered in docs/SKILLS-CATALOG.md
+Registered in markdown/infra/SKILLS-CATALOG.md
 """
 
 from __future__ import annotations

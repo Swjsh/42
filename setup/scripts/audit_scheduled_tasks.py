@@ -3,7 +3,8 @@
 Runs daily via Gamma_CryptoDaily. Flags:
   - ORPHAN_TASK            : registered but not in registry
   - STALE_REGISTRY_ENTRY   : in registry but not registered
-  - VISIBLE_WINDOW         : action not hidden (wscript or powershell -WindowStyle Hidden)
+  - VISIBLE_WINDOW         : action not on the wscript->pythonw hidden chain (a DIRECT
+                             powershell.exe -WindowStyle Hidden FLASHES OpenConsole on Win11)
   - SILENT_TASK            : active task hasn't fired in (cadence x 3) window
   - PYTHON_NOT_PYTHONW     : long-running python.exe launch (should use pythonw.exe)
   - CANDIDATE_FOR_REMOVAL  : disabled > 30 days
@@ -86,13 +87,18 @@ def _is_hidden(execute: str, arguments: str) -> bool:
        CREATE_NO_WINDOW flag. Required for tasks where Windows 11 default-
        terminal would otherwise grab the child console.
 
-    Also approved: `powershell.exe -WindowStyle Hidden ...` for one-off scripts.
+    NOT hidden: a DIRECT `powershell.exe -WindowStyle Hidden` action. Task Scheduler
+    allocates the console (OpenConsole.exe -Embedding on Win11) and SHOWS it before
+    PowerShell applies -WindowStyle Hidden ~200ms later -> a visible black flash on EVERY
+    fire (root-caused 2026-06-20 via Gamma_CryptoGrinderKeepalive, every 5 min = ~288
+    flashes/day). Convert such tasks with setup/fix-powershell-task-flash.ps1. A direct
+    GUI-subsystem `pythonw.exe` action is also fine (no console is ever allocated).
     """
     e = (execute or "").lower()
     a = (arguments or "").lower()
     if "wscript" in e and ("run_hidden.vbs" in a or "run_exe_hidden.vbs" in a):
         return True
-    if "powershell" in e and "-windowstyle hidden" in a:
+    if e.endswith("pythonw.exe"):
         return True
     return False
 

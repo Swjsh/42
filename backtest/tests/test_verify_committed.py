@@ -1,6 +1,6 @@
 """Guard: `git commit --only` silently drops UNTRACKED new files.
 
-Graduates the 2026-06-19 foot-gun (docs/LESSONS-LEARNED.md "git commit --only
+Graduates the 2026-06-19 foot-gun (markdown/doctrine/LESSONS-LEARNED.md "git commit --only
 drops untracked"; OP-25 C7 silent-success-is-failure). Wave B deliverables were
 reported "committed" by a `--only` commit but were actually never tracked -- the
 commit reported a big diff from the modified/staged files and the omission of the

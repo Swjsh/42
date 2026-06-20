@@ -6,7 +6,7 @@ Mirrors `automation/state/params.json` (v15.1):
   entry_no_trade_window_et: null (mid-day blackout REMOVED v15.1)
 
 Plus the R2 closed-bar guard from
-`docs/HEARTBEAT-CHART-DATA-AUDIT-2026-05-14.md`: a trigger bar must be closed
+`markdown/audits/HEARTBEAT-CHART-DATA-AUDIT-2026-05-14.md`: a trigger bar must be closed
 (bar_open + 5min <= now) before its trigger is acted on.
 
 Offline tests (T1-T12):

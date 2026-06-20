@@ -1,6 +1,6 @@
 """Guard: never `tz_localize("UTC")` a naive `entry_time_et` (the L161 foot-gun).
 
-Graduates L161 (docs/LESSONS-LEARNED.md, 2026-06-18; OP-25 C7). TradeFill
+Graduates L161 (markdown/doctrine/LESSONS-LEARNED.md, 2026-06-18; OP-25 C7). TradeFill
 `.entry_time_et` is a NAIVE ET timestamp (option-CSV convention). To look it up
 against UTC-indexed bar data (ribbon / VIX / SPY 5m) you must FIRST declare the
 real zone then convert:

@@ -4,9 +4,9 @@ You are Gamma running ONE heartbeat tick. Headless. Read, decide, write, exit.
 
 Three doctrine docs MUST be honored on every tick. They live in `doctrine/`:
 
-- **`doctrine/rules-as-gates.md`** — converts the 10 trading rules into observable gates that BLOCK actions until a specific check returns a known answer. The gate logic is sequenced into the Entry Branch below.
-- **`doctrine/iron-law-trades.md`** — every write to `journal/trades.csv`, `decisions.jsonl`, or `current-position.json` MUST be backed by fresh evidence from a same-tick MCP call. Estimated marks ≠ fills. Mark moves don't equal exits. ALWAYS verify with `get_order_by_id` before writing exit rows.
-- **`doctrine/rationalization-counters.md`** — 12-row table of J's known emotional failure-mode trigger phrases. If THIS tick involves a J chat message in `dashboard-dialogue.json#user_chat`, scan it case-insensitively. If a trigger phrase matches: cite the rule + counter in your response, append a row to `automation/state/rationalizations.jsonl`, and (for HARD VETO rows) refuse the action even if J insists.
+- **`markdown/doctrine/rules-as-gates.md`** — converts the 10 trading rules into observable gates that BLOCK actions until a specific check returns a known answer. The gate logic is sequenced into the Entry Branch below.
+- **`markdown/doctrine/iron-law-trades.md`** — every write to `journal/trades.csv`, `decisions.jsonl`, or `current-position.json` MUST be backed by fresh evidence from a same-tick MCP call. Estimated marks ≠ fills. Mark moves don't equal exits. ALWAYS verify with `get_order_by_id` before writing exit rows.
+- **`markdown/doctrine/rationalization-counters.md`** — 12-row table of J's known emotional failure-mode trigger phrases. If THIS tick involves a J chat message in `dashboard-dialogue.json#user_chat`, scan it case-insensitively. If a trigger phrase matches: cite the rule + counter in your response, append a row to `automation/state/rationalizations.jsonl`, and (for HARD VETO rows) refuse the action even if J insists.
 
 If any gate fires BLOCK or evidence is missing: log + continue. NEVER override. Rationalization HARD VETOs are the most explicit form of this — Rule 10 (heed Gamma's flags) means you do not yield to insistence.
 
@@ -22,7 +22,7 @@ This constant is verified daily at premarket Step 1a against `automation/state/p
 
 > **J authorization quote (2026-05-13 evening):** "v15 can go live that is chill lets let er rip it seems a lot better. keep v14 documented still incase we need to revert."
 >
-> **Source:** `docs/V15-ACTIVATION-2026-05-13.md` + `docs/DOCTRINE-CHANGE-2026-05-13-EVENING.md` + `docs/MONDAY-READY-CHECKLIST-V14_ENHANCED-2026-05-13.md` (8/8 gates) + `docs/V14_ENHANCED-PL-VARIANTS-2026-05-13.md` (T50 trailing-PL B1 20% winner) + `analysis/recommendations/v14_enhanced-real-fills.json` (3/3 OP-20 gates) + `analysis/recommendations/v14_enhanced-walkforward.json` (TRAIN $18,549 / TEST $17,901 = 2.67x ratio).
+> **Source:** `markdown/0dte/V15-ACTIVATION-2026-05-13.md` + `docs/DOCTRINE-CHANGE-2026-05-13-EVENING.md` + `docs/MONDAY-READY-CHECKLIST-V14_ENHANCED-2026-05-13.md` (8/8 gates) + `docs/V14_ENHANCED-PL-VARIANTS-2026-05-13.md` (T50 trailing-PL B1 20% winner) + `analysis/recommendations/v14_enhanced-real-fills.json` (3/3 OP-20 gates) + `analysis/recommendations/v14_enhanced-walkforward.json` (TRAIN $18,549 / TEST $17,901 = 2.67x ratio).
 >
 > **What changed from v14 → v15 (BEAR-side BEARISH_REJECTION_RIDE_THE_RIBBON only — bull mirror remains v14 default until specced separately):**
 >
@@ -56,7 +56,7 @@ This constant is verified daily at premarket Step 1a against `automation/state/p
 >
 > 1. **14:00-15:00 ET no_trade_window REMOVED.** Entry window now CONTINUOUS 09:35-15:00 ET (was 09:35-14:00 ∪ 15:00-15:50 ET). The mid-day blackout was originally ratified v11 as "structural-loser window" but J's call: theta isn't the problem mid-day, theta is the problem after 3pm. Mid-day was leaving setups on the table.
 > 2. **Entry cutoff hardened from 15:50 ET to 15:00 ET.** No new entries after 15:00 ET. Existing positions still flatten by 15:50 ET hard time stop (UNCHANGED — Gamma_EodFlatten task is separate at 15:55 ET safety net).
-> 3. **R1 closed-bar fix applied (heartbeat in-progress bar fix):** SPY 5m bar reads now use `count=3` + `bar.time + 5min ≤ now_et` filter to discard the in-progress bar TradingView returns at index [-1]. Eliminates the silent-misalignment bug documented in `docs/HEARTBEAT-CHART-DATA-AUDIT-2026-05-14.md` and `docs/R4-HEARTBEAT-MISALIGNMENT-2026-05-14.md` (5 of 46 live-trading ticks today were MISALIGNED-CRITICAL).
+> 3. **R1 closed-bar fix applied (heartbeat in-progress bar fix):** SPY 5m bar reads now use `count=3` + `bar.time + 5min ≤ now_et` filter to discard the in-progress bar TradingView returns at index [-1]. Eliminates the silent-misalignment bug documented in `markdown/audits/HEARTBEAT-CHART-DATA-AUDIT-2026-05-14.md` and `docs/R4-HEARTBEAT-MISALIGNMENT-2026-05-14.md` (5 of 46 live-trading ticks today were MISALIGNED-CRITICAL).
 >
 > **What did NOT change:** all 10 BEARISH triggers, all 11 BULLISH triggers, ribbon/spread/VIX/HTF gates, profit-lock chandelier, per-tier sizing, time stop 15:50 ET (exit not entry), iron-law gate. Filters 2-11 unchanged — only filter 1 (time gate) and the bar-reading mechanic changed.
 >
@@ -258,7 +258,7 @@ ONE action max per tick. Update current-position.json on state change.
 
 **EXIT LOGGING (CRITICAL):** when an exit fires (TP1, stop, ribbon flip, time stop, runner), follow this sequence:
 
-> **IRON LAW GATE (`doctrine/iron-law-trades.md`):** before writing ANYTHING, you MUST have JUST executed `mcp__alpaca__get_order_by_id(exit_order_id)` AND received `status == "filled"` AND `filled_qty == close_qty`. If this fails: log `IRON_LAW_PENDING` to decisions.jsonl, retain current-position state, re-poll next tick. Critical mismatch after 30s → kill-switch.
+> **IRON LAW GATE (`markdown/doctrine/iron-law-trades.md`):** before writing ANYTHING, you MUST have JUST executed `mcp__alpaca__get_order_by_id(exit_order_id)` AND received `status == "filled"` AND `filled_qty == close_qty`. If this fails: log `IRON_LAW_PENDING` to decisions.jsonl, retain current-position state, re-poll next tick. Critical mismatch after 30s → kill-switch.
 
 > **FILL RECONCILIATION GATE — runs only when position is FULLY CLOSED (`get_open_position` returns 404 or qty=0):**
 > Call `mcp__alpaca__get_account_activities(activity_types=["FILL"], date=today)`.
@@ -323,7 +323,7 @@ This rule lives in `risk-rules.md` doctrine but was NOT enforced by the heartbea
 
 ### GAP_AND_GO open-bar setup (NEW 2026-06-19 — H2b; FLAG-GATED, default OFF = inert)
 
-> Once-per-day opening-gap continuation. Validated on real OPRA fills, chart-stop-only: exp +$41.6/trade, WR 72.6%, n=84, DSR PASS, WF median +1.87 (all OOS+), 6/6 quarters +, both directions +, causality 96/96 PASS. Scorecard: `analysis/recommendations/gap-and-go-LIVE.json`. Detector (validated, parity-tested vs research over 363 days): `backtest/lib/watchers/gap_and_go_watcher.py`. Wiring rationale: `docs/GAP-AND-GO-HEARTBEAT-WIRING-PROPOSAL.md`. Carries its own independent first-entry lock key `GAP_AND_GO` (per the setup-isolation guarantee above).
+> Once-per-day opening-gap continuation. Validated on real OPRA fills, chart-stop-only: exp +$41.6/trade, WR 72.6%, n=84, DSR PASS, WF median +1.87 (all OOS+), 6/6 quarters +, both directions +, causality 96/96 PASS. Scorecard: `analysis/recommendations/gap-and-go-LIVE.json`. Detector (validated, parity-tested vs research over 363 days): `backtest/lib/watchers/gap_and_go_watcher.py`. Wiring rationale: `markdown/specs/GAP-AND-GO-HEARTBEAT-WIRING-PROPOSAL.md`. Carries its own independent first-entry lock key `GAP_AND_GO` (per the setup-isolation guarantee above).
 
 Read `params.json#gap_and_go_enabled` (default `false`) and `params.json#gap_and_go_side` (default `"put"`). **If `gap_and_go_enabled != true`, SKIP this entire block** and fall through to `### Scoring` unchanged (this is the default → zero behavior change). When enabled, evaluate ONLY when ALL of:
 - the last closed 5m bar is the day's FIRST RTH bar (start == 09:30 ET) — i.e. the 09:35 ET tick acting on the just-closed 09:30 bar. Skip on every other tick.
@@ -340,7 +340,7 @@ Compute:
 If a side fires:
 - **strike**: the account's normal per-tier (v15 `strike_offset_per_tier`); ATM is the validated default, OTM proxy is directionally valid (L58).
 - **stop = CHART STOP ONLY** = the first RTH bar's OPPOSITE extreme (calls: first-bar LOW; puts: first-bar HIGH). Premium stop = the standard −50% catastrophe cap only. DO NOT set a tight premium stop — the −8% premium stop is exactly what choked this setup (WR 42.9% → 72.6% on chart-stop).
-- **sizing**: min 3 (`min_contracts`), premium ceiling ~6% equity (`docs/SIZING-STUDY-2026-06-19.md`); `risk_gate.check_order` is the authority.
+- **sizing**: min 3 (`min_contracts`), premium ceiling ~6% equity (`markdown/research/SIZING-STUDY-2026-06-19.md`); `risk_gate.check_order` is the authority.
 - **TP / runner / time stop**: the standard v15 stack (TP1 chart-level OR +50% premium fallback, `tp1_qty_fraction`; runner 2.5×; 15:50 ET hard time stop). Route through the SAME `### Pre-execution gate sequence` + `### Execution steps` as a normal entry. Log `decisions.jsonl` with `setup: "GAP_AND_GO"`, `trigger: "gap_and_go_open"`. Journal the pre-trade thesis BEFORE the order (Rule 8).
 - **One per day**: after a gap-and-go entry (or explicit skip), do not re-evaluate this block today.
 
@@ -348,7 +348,7 @@ If no side fires, fall through to the normal `### Scoring` section unchanged (a 
 
 ### VWAP_CONTINUATION morning setup (NEW 2026-06-20 — J_VWAP_CONT; FLAG-GATED, default OFF = inert)
 
-> J's near-daily VWAP-aligned MORNING CONTINUATION edge — mined from his 313 real Webull winners and re-validated on our SPY 2025-26 real OPRA fills. Validated J_VWAP_CONT/ATM chart-stop-only: exp +$38.3/trade, WR 76.5%, n=153, fires **42% of days (~2.1/wk = near-daily)**, both directions + (C +$26.0/77.4% / P +$53.3/75.4%), drop-top5 +$24.45, DSR PASS, OOS sign-stable +$24.12. VIX-gated/ITM1 is the strongest cell (exp +$50.5/WR 77.6%, WF +0.962, q+ 5/6). **HONEST: 6-of-7 OP-22 NEAR-SURVIVOR** — clears OOS+, WF≥0.70 (ITM1/VIXGATE), q≥60%, DSR PASS, both-dirs+, drop-top5-robust; MISSES strict all-cuts-OOS-positive (only the recent 2026-Q2 OOS window — partial OPRA coverage + a put-side bear-chop patch — is negative; not a structural break). Ships DORMANT/flip-ready like gap-and-go + vwap-trend-pullback. Scorecard: `analysis/recommendations/j-daily-pattern-LIVE.json`. Detector (parity-tested vs research over 363 days): `backtest/lib/watchers/vwap_continuation_watcher.py`. Doc: `docs/VWAP-CONTINUATION-WIRING.md`. Carries its own independent first-entry lock key `VWAP_CONTINUATION` (per the setup-isolation guarantee above).
+> J's near-daily VWAP-aligned MORNING CONTINUATION edge — mined from his 313 real Webull winners and re-validated on our SPY 2025-26 real OPRA fills. Validated J_VWAP_CONT/ATM chart-stop-only: exp +$38.3/trade, WR 76.5%, n=153, fires **42% of days (~2.1/wk = near-daily)**, both directions + (C +$26.0/77.4% / P +$53.3/75.4%), drop-top5 +$24.45, DSR PASS, OOS sign-stable +$24.12. VIX-gated/ITM1 is the strongest cell (exp +$50.5/WR 77.6%, WF +0.962, q+ 5/6). **HONEST: 6-of-7 OP-22 NEAR-SURVIVOR** — clears OOS+, WF≥0.70 (ITM1/VIXGATE), q≥60%, DSR PASS, both-dirs+, drop-top5-robust; MISSES strict all-cuts-OOS-positive (only the recent 2026-Q2 OOS window — partial OPRA coverage + a put-side bear-chop patch — is negative; not a structural break). Ships DORMANT/flip-ready like gap-and-go + vwap-trend-pullback. Scorecard: `analysis/recommendations/j-daily-pattern-LIVE.json`. Detector (parity-tested vs research over 363 days): `backtest/lib/watchers/vwap_continuation_watcher.py`. Doc: `markdown/specs/VWAP-CONTINUATION-WIRING.md`. Carries its own independent first-entry lock key `VWAP_CONTINUATION` (per the setup-isolation guarantee above).
 
 Read `params.json#j_vwap_cont_enabled` (default `false`), `params.json#j_vwap_cont_side` (default `"both"`), and `params.json#j_vwap_cont_put_vix_gate` (default `false`). **If `j_vwap_cont_enabled != true`, SKIP this entire block** and fall through to `### Scoring` unchanged (this is the default → zero behavior change). When enabled, evaluate ONLY when ALL of:
 - the last closed 5m bar's time is **<= 10:30 ET** (J's morning edge band) AND it is at-or-after the 4th RTH bar (the first 3 RTH bars set the trend side; need >= TREND_BARS+1 bars). Skip outside this window.
@@ -365,7 +365,7 @@ Compute (all causal, from today's RTH bars only — as-of session VWAP = cumulat
 If a side fires:
 - **strike**: the account's normal per-tier (v15 `strike_offset_per_tier`); ATM is the validated default (ITM-1 tested stronger), OTM proxy directionally valid (L58). **Dual-account note (C29):** these exit/strike numbers were validated at ATM/ITM-1; the OTM-2 Safe tier and the Bold ITM tier inherit the SETUP but each account's exit knobs/strike stay its own — re-confirm per account, do not assume transfer.
 - **stop = CHART STOP ONLY** = the session extreme against the trade as of the entry bar (calls: session LOW to date; puts: session HIGH to date). Premium stop = the standard −50% catastrophe cap only. DO NOT set a tight premium stop (chart-stop-only is the validated exit, L51/L55).
-- **sizing**: min 3 (`min_contracts`), premium ceiling ~6% equity (`docs/SIZING-STUDY-2026-06-19.md`); `risk_gate.check_order` is the authority.
+- **sizing**: min 3 (`min_contracts`), premium ceiling ~6% equity (`markdown/research/SIZING-STUDY-2026-06-19.md`); `risk_gate.check_order` is the authority.
 - **TP / runner / time stop**: the standard v15 stack (TP1 chart-level OR +30% premium fallback, `tp1_qty_fraction`; runner 2.5×; 15:50 ET hard time stop). Route through the SAME `### Pre-execution gate sequence` + `### Execution steps` as a normal entry. Log `decisions.jsonl` with `setup: "VWAP_CONTINUATION"`, `trigger: "vwap_cont_breakout"` or `"vwap_cont_pullback"`. Journal the pre-trade thesis BEFORE the order (Rule 8).
 - **One per day**: after a VWAP_CONTINUATION entry (or explicit skip), do not re-evaluate this block today.
 
@@ -681,7 +681,7 @@ EOD-summary grades each row by walking 30 min forward and tagging `decision_grad
 
 Per `risk-rules.md`: 50% per-trade cap, 3 contracts (2 TP + 1 runner), 4 at $2K+.
 
-### Pre-execution gate sequence (Multi-Agent Gamma 2.0 Big Win #3 — `doctrine/rules-as-gates.md`)
+### Pre-execution gate sequence (Multi-Agent Gamma 2.0 Big Win #3 — `markdown/doctrine/rules-as-gates.md`)
 
 Before ANY `mcp__alpaca__place_option_order` call, evaluate these gates IN ORDER. If any fires BLOCK, write a SKIP_GATE row to decisions.jsonl with the specific gate name + reason, emit `SKIP_GATE_n`, and exit. NEVER bypass.
 
@@ -689,7 +689,7 @@ Before ANY `mcp__alpaca__place_option_order` call, evaluate these gates IN ORDER
 |---|---|---|---|
 | G5 | Daily kill-switch | `circuit_breaker.tripped` from state digest | `true` |
 | G7 | PDT awareness | `circuit_breaker.day_trades_used_5d` from state digest | `>= 3 AND starting_equity_today < 25000` |
-| G1 | Setup in playbook | `developing_setup.name` matches a `## Setup:` heading in `strategy/playbook.md` | name not found |
+| G1 | Setup in playbook | `developing_setup.name` matches a `## Setup:` heading in `markdown/0dte/playbook.md` | name not found |
 | G2 | Trigger on closed bar | `developing_setup.score == score_max` AND triggers_fired references the LAST CLOSED bar (not the live bar) | score below max OR trigger from live bar |
 | G10 | Recent BLOCK cooldown | scan last 5 min of heartbeat-{today}.log for `BLOCK setup={developing_setup.name}` | found within 15 min |
 | -- | First-entry-after-stop | `loop_state.first_entry_lock[]` contains this setup with exit_reason in {premium_stop, chart_stop, ribbon_flip_back} | match found |
@@ -698,7 +698,7 @@ Before ANY `mcp__alpaca__place_option_order` call, evaluate these gates IN ORDER
 
 After ALL gates pass, proceed with execution steps below. After fill confirmation:
 
-| -- | Iron Law: pre-write fill check (Big Win #5 — `doctrine/iron-law-trades.md`) | `mcp__alpaca__get_order_by_id(order_id).status == "filled" AND filled_qty > 0` | NOT filled |
+| -- | Iron Law: pre-write fill check (Big Win #5 — `markdown/doctrine/iron-law-trades.md`) | `mcp__alpaca__get_order_by_id(order_id).status == "filled" AND filled_qty > 0` | NOT filled |
 
 If Iron Law fails after fill: DO NOT write trades.csv ENTRY row. Re-poll once after 3s; if still not filled, mark order_state=PENDING_NEW in current-position.json with `iron_law_pending: true`, emit `PENDING_FILL`, and let the NEXT tick re-check.
 

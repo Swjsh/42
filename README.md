@@ -5,10 +5,10 @@ A disciplined, journaled, rules-based SPY options trading project.
 ## Quick start
 
 1. Read `CLAUDE.md` first. It is the source of truth.
-2. Install MCPs per `setup/mcp-install.md`.
-3. Verify with `setup/verification.md`.
-4. Read `strategy/risk-rules.md` until you've memorized the position sizing math.
-5. The playbook (`strategy/playbook.md`) is empty until we journal the trades that worked. Fill it from real evidence, not theory.
+2. Install MCPs per `markdown/infra/mcp-install.md`.
+3. Verify with `markdown/infra/verification.md`.
+4. Read `markdown/0dte/risk-rules.md` until you've memorized the position sizing math.
+5. The playbook (`markdown/0dte/playbook.md`) is empty until we journal the trades that worked. Fill it from real evidence, not theory.
 6. Every trading day starts with a new file in `journal/YYYY-MM-DD.md`.
 
 ## Directory layout

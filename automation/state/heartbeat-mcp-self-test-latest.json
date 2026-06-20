@@ -3,10 +3,10 @@
     "alpaca_heal_action":  "no-op",
     "verdict":  "GREEN",
     "tv_heal_action":  "no-op",
-    "alpaca_proc_count":  6,
+    "alpaca_proc_count":  8,
     "retried":  false,
     "tv_cdp_listening":  true,
     "reason":  "tv-and-alpaca-mcp-reachable",
-    "run_at":  "2026-05-14T22:16:19",
+    "run_at":  "2026-06-18T13:33:49",
     "skill":  "heartbeat-mcp-self-test"
 }

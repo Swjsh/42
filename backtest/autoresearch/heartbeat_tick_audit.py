@@ -4,7 +4,7 @@ Generalized from `analysis/r4_heartbeat_misalignment_analysis.py` (one-shot for
 2026-05-14) into a daily-runnable tool that any wake fire / EOD pipeline / J's
 ad-hoc shell can invoke on any date.
 
-Per docs/HEARTBEAT-CHART-DATA-AUDIT-2026-05-14.md (R3 spec, "diagnostic JSONL
+Per markdown/audits/HEARTBEAT-CHART-DATA-AUDIT-2026-05-14.md (R3 spec, "diagnostic JSONL
 trail"). The R1 closed-bar fix shipped in heartbeat.md v15.1 removes the
 in-progress bar at the source; this audit verifies the fix held overnight by
 classifying every tick on a given day.
@@ -290,7 +290,7 @@ def run_audit(date_str: str, output_dir: Path | None = None) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
     out_csv = out_dir / f"heartbeat-tick-audit-{date_str}.csv"
     out_json = out_dir / f"heartbeat-tick-audit-{date_str}.json"
-    out_md = ROOT / "docs" / f"HEARTBEAT-TICK-AUDIT-{date_str}.md"
+    out_md = ROOT / "markdown" / "audits" / f"HEARTBEAT-TICK-AUDIT-{date_str}.md"
 
     bars = parse_csv_bars(csv_path, date_str)
     rth_bars = [

@@ -24,8 +24,8 @@ The PowerShell harness has already validated state files via `Repair-StateFiles`
 8. `journal/trades.csv` — every closed trade ever (filter to this week's range for week-specific metrics)
 9. `journal/skipped-setups.csv` — missed-signal ledger with `cf_30min_*` cost columns
 10. `journal/mistakes.md` — narrative entries + auto-flag sections
-11. `strategy/playbook.md` — current setup statuses (DRAFT vs CONFIRMED vs LIVE-ELIGIBLE) — read-only
-12. `strategy/risk-rules.md` — live-deployment thresholds — read-only
+11. `markdown/0dte/playbook.md` — current setup statuses (DRAFT vs CONFIRMED vs LIVE-ELIGIBLE) — read-only
+12. `markdown/0dte/risk-rules.md` — live-deployment thresholds — read-only
 
 # Week boundary
 
@@ -382,7 +382,7 @@ For each setup in `analysis/setup-performance.json`:
 
 **Auto-edit procedure (operating principle 9 satisfied 2026-05-09):**
 
-1. Read `strategy/playbook.md` and locate the setup section by name.
+1. Read `markdown/0dte/playbook.md` and locate the setup section by name.
 2. Find the `**Status:**` line (e.g., `**Status:** **CONFIRMED (3 of 3 examples successful) → paper-testing phase**`).
 3. Edit in place. Append a provenance comment AFTER the Status line:
    ```

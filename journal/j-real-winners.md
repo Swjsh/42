@@ -383,4 +383,4 @@
 
 - These journaled winners are the **real-fill ground-truth anchor set** for validating the diversified/regime book on J's actual edge — richer than the 3 bearish OP-16 source-of-truth trades.
 - The 1-2 lot subset is the canonical replication target; the 3+ lot rows are retained for completeness but excluded from any edge-capture target (per L168 sizing finding).
-- Cross-reference `docs/J-WEBULL-EDGE-2021-2023.md` for the full style analytics (time-of-day, sizing, call/put expectancy).
+- Cross-reference `markdown/0dte/J-WEBULL-EDGE-2021-2023.md` for the full style analytics (time-of-day, sizing, call/put expectancy).

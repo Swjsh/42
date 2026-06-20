@@ -20,7 +20,7 @@ WATCH-ONLY. Promotion to live orders requires:
   - positive expectancy over the 16-month backfill
   - J's explicit ratification
 
-See `strategy/premarket_fail_fade.md` for the full spec.
+See `markdown/0dte/premarket_fail_fade.md` for the full spec.
 """
 
 from __future__ import annotations

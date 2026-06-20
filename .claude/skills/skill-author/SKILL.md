@@ -1,6 +1,6 @@
 ---
 name: skill-author
-description: Invoke skill-author — converts Analyst's recurring-diagnostic-pattern findings into re-usable Claude Code skills. Reads one item from `_skill-inbox/`, writes `.claude/skills/{slug}/SKILL.md` + `backtest/autoresearch/{slug}.py` + appends `docs/SKILLS-CATALOG.md` row + symptom→diagnostic table row. If item has `kind: tune`, routes to `skill_tune.py` for fine-tuning. NEVER edits live doctrine. Per OP-22 engine-benefit work — ships without ratification.
+description: Invoke skill-author — converts Analyst's recurring-diagnostic-pattern findings into re-usable Claude Code skills. Reads one item from `_skill-inbox/`, writes `.claude/skills/{slug}/SKILL.md` + `backtest/autoresearch/{slug}.py` + appends `markdown/infra/SKILLS-CATALOG.md` row + symptom→diagnostic table row. If item has `kind: tune`, routes to `skill_tune.py` for fine-tuning. NEVER edits live doctrine. Per OP-22 engine-benefit work — ships without ratification.
 context: fork
 agent: skill-author
 allowed-tools: Bash Read Grep Glob Write Edit

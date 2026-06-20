@@ -1,6 +1,6 @@
 """REGIME_SWITCHER classifier — lookahead-safe regime assignment.
 
-Implements the decision tree from strategy/regime_switcher.md Section 3.
+Implements the decision tree from markdown/0dte/regime_switcher.md Section 3.
 Runs ONCE at 09:30:00 ET and assigns the day to one of:
 
     MACRO_VETO   (skip the day entirely)

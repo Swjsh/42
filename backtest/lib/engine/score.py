@@ -1,6 +1,6 @@
 """engine.score — the ONE scoring entry point (Phase 1 of the shared library).
 
-Spec: ``docs/SHARED-DECISION-LIBRARY-MIGRATION.md`` §3 "Phase 1 — Extract
+Spec: ``markdown/specs/SHARED-DECISION-LIBRARY-MIGRATION.md`` §3 "Phase 1 — Extract
 scoring into ``engine/score.py``, backtest calls it (assert-agree)".
 
 WHAT THIS WRAPS

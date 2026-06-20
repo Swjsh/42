@@ -170,7 +170,7 @@ The OR level hold (chart stop) is the correct invalidation signal, not ribbon di
 
 ### Change B — playbook.md: add ORB_RETEST_LONG to live setups
 
-**File:** `strategy/playbook.md`  
+**File:** `markdown/0dte/playbook.md`  
 **Where:** After the two live setup blocks (BEARISH_REJECTION and BULLISH_RECLAIM), before the
 "Setup ideas / candidates" section.  
 **Rule 9 status:** Adding to the live section would allow Gate G1 to pass. This is part of

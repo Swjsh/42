@@ -1,6 +1,6 @@
 """Gamma decision engine — the shared decision library (Phase 1: scoring).
 
-Spec: ``docs/SHARED-DECISION-LIBRARY-MIGRATION.md``. This package is the
+Spec: ``markdown/specs/SHARED-DECISION-LIBRARY-MIGRATION.md``. This package is the
 deterministic decision core that — over Phases 1-4 — both the BACKTEST
 (``orchestrator.py`` / ``filters.py``) and the LIVE path (``heartbeat.md`` via a
 thin shell-out shim, exactly like ``automation/scripts/pre_order_gate.py`` does

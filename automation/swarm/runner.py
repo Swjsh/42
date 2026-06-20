@@ -328,6 +328,10 @@ def main() -> int:
         status = "OK" if r["ok"] else f"FAIL(rc={r['returncode']})"
         cost_str = f" ${r.get('cost_usd', 0):.4f}" if "cost_usd" in r else ""
         _log(f"  {r['agent']}: {status} {r['elapsed_s']}s{cost_str}")
+        if not r["ok"]:
+            snip = (r.get("stderr_snippet") or "")[:300]
+            if snip:
+                _log(f"    stderr: {snip}")
 
     # Check how many specialist agents produced FRESH output files this run.
     # Pass run_start_wall so stale files from prior runs don't mask failures.

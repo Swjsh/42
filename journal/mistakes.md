@@ -22,6 +22,17 @@
 
 ## Entries
 
+## 2026-06-15 — Bold Rule 6 sizing violation (5 contracts vs 2 allowed at $1,122 equity)
+
+**Rule broken:** Rule 6 — per-trade risk cap 50% of Bold equity
+**What happened:** Engine entered 5 × $2.06 = $1,030 cost = 91.8% of $1,122. Bold cap is 50% = $561 max = floor($561/$206) = **2 contracts**. Entered 3 excess contracts.
+**Why it happened:** Code gate FIX-5a was not yet active at time of entry — the contract count was not enforced at the order-placement step. Engine used available-equity sizing logic without capping at the 50% rule.
+**Outcome:** +$552 (got lucky — violation worked in our favor this time). Per-contract P&L was exceptional (+$110.40/contract vs J-anchor benchmarks of $23–$73/contract).
+**Pattern?** First Rule 6 breach on Bold account. 6/2 ghost entry (mistakes.md) was Rule 4. Sizing discipline has not been tested under adverse conditions — the danger is a 91.8%-exposure entry on a losing day would trigger the kill switch on a single bad trade.
+**Fix:** FIX-5a code gate now active (committed 2026-06-15). Add a unit test asserting `position_cost <= 0.50 × account_equity` before any Bold ENTER_BULL/BEAR tick fires. Verify gate is running before next trading day open.
+
+---
+
 ## 2026-06-02 — Bold double-entry → orphaned GHOST position (state drift)
 
 **Rule broken:** Rule 4 (one position at a time / no second entry without closing the first) + Rule 8 (process — engine lost track of a live position).
@@ -38,9 +49,9 @@
 **Rule broken:** Rule 2 — "Wait for the trigger." Bear entry placed on a false break of a ★★★ Carry level at the 09:35 open bar. The bar recovered above the level by 09:40; premarket framework had no branch for single-bar recovery at a maximum-hold level.
 **What happened:** 09:35 bar printed low 737.53 (−$0.57 below ★★★ Carry 738.10, 9 touches 7 holds). Bear entry taken. By 09:40 bar SPY had recovered above 738.10, creating a trapped-short squeeze. Session closed +$4 in bull direction.
 **Outcome:** −$204.
-**Fix:** Add FALSE_BREAK_LAUNCHPAD check to premarket: if open bar low > $0.25 below ★★★ level AND close above level → suspend bear entries for 30 min, log FALSE_BREAK_DETECTED, watch for bull ribbon trigger. See L75 in docs/LESSONS-LEARNED.md for the full encoding.
+**Fix:** Add FALSE_BREAK_LAUNCHPAD check to premarket: if open bar low > $0.25 below ★★★ level AND close above level → suspend bear entries for 30 min, log FALSE_BREAK_DETECTED, watch for bull ribbon trigger. See L75 in markdown/doctrine/LESSONS-LEARNED.md for the full encoding.
 
-- See [L75 in docs/LESSONS-LEARNED.md](../docs/LESSONS-LEARNED.md#L75) for the full encoding.
+- See [L75 in markdown/doctrine/LESSONS-LEARNED.md](../markdown/doctrine/LESSONS-LEARNED.md#L75) for the full encoding.
 
 ---
 
@@ -246,7 +257,7 @@ The system saw "5m ribbon BULL + bounce off 733.55 + HTF BULL + bull 10/11" → 
 **Queued for after-4pm work block tonight:**
 1. **Atomic-bracket guard** — if parent submits but TP1/stop fail (timeout/kill/Alpaca rejection), IMMEDIATELY cancel parent. Heartbeat prompt wraps order placement in try/finally that cancels on partial failure, OR post-tick reconciler checks within 1 tick of any pending_fill whether brackets exist + cancels if not.
 2. **VIX threshold drift audit** — Bold loop-state reported `vix_above_threshold_18_43_>_17_20_required` but `aggressive/params.json#vix_entry_thresholds.bull_max_exclusive_or_falling` = 20.00. Verify if `aggressive/heartbeat.md` hardcodes 17.20. If drift confirmed, sync via gamma-sync.
-3. **L## entry to `docs/LESSONS-LEARNED.md`:** "Heartbeat timeout during multi-step bracket placement leaves naked parent. Rule 3 violation by infrastructure. Mitigation: wider entry-tick timeout + atomic-bracket guard + orphan-order reconciler."
+3. **L## entry to `markdown/doctrine/LESSONS-LEARNED.md`:** "Heartbeat timeout during multi-step bracket placement leaves naked parent. Rule 3 violation by infrastructure. Mitigation: wider entry-tick timeout + atomic-bracket guard + orphan-order reconciler."
 4. **Wrapper post-kill hook** — log "parent order submitted before kill" to `orphan-orders-{date}.jsonl` so next-tick reconciler picks up immediately rather than discover-by-poll.
 
 **Logging gap:** Wrapper logged TIMEOUT_KILL + killed PIDs but did NOT log "parent order submitted before kill — manual reconciliation may be required." Next tick discovered the pending_fill by Alpaca polling 70s later.

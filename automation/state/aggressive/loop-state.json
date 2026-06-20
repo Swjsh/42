@@ -1,41 +1,19 @@
 {
   "schema_version": 3,
-  "session_id": "2026-06-08",
-  "last_change_at": "2026-06-08T19:48:01Z",
-  "last_change_reason": "new_5m_bar_closed_time_gate_blocks_entry",
-  "last_bar_timestamp": 1780947600,
+  "session_id": "2026-06-19",
+  "last_change_at": "2026-06-19T08:30:32-04:00",
+  "last_change_reason": "session_init_holiday",
+  "last_bar_timestamp": 0,
   "current_mode": "BASE",
-  "writes_today": 4,
-  "ticks_today": 4,
-  "spy": {
-    "last": 739.60,
-    "session_high": 739.69,
-    "session_low": 738.93
-  },
-  "vix_cache": {
-    "value": 19.16,
-    "prior_value": 18.98,
-    "dir": "rising",
-    "fetched_at": "2026-06-08T15:21:40-04:00",
-    "cache_age_minutes": 27
-  },
-  "ribbon": {
-    "fast": 739.56,
-    "pivot": 740.28,
-    "slow": 740.76,
-    "spread_cents": 120,
-    "stack": "BULL"
-  },
+  "writes_today": 0,
+  "ticks_today": 0,
+  "spy": { "last": null, "session_high": null, "session_low": null },
+  "vix_cache": { "value": null, "prior_value": null, "dir": null, "fetched_at": null },
+  "ribbon": null,
   "htf_15m": null,
-  "last_filter_score": {
-    "bear": 0,
-    "bear_blockers": ["TIME_CUTOFF_AFTER_15:00"],
-    "bull": 0,
-    "bull_blockers": ["TIME_CUTOFF_AFTER_15:00"],
-    "scored_at_et": "15:48:01"
-  },
+  "last_filter_score": { "bear": 0, "bear_blockers": [], "bull": 0, "bull_blockers": [] },
   "developing_setup": null,
   "first_entry_lock": [],
   "next_tick_model": "haiku",
-  "macro_pre_event_bias": null
+  "_note": "JUNETEENTH HOLIDAY 2026-06-19. Market closed. No heartbeat ticks expected. first_entry_lock cleared from yesterday's BULLISH_RECLAIM stop-out."
 }

@@ -70,7 +70,7 @@ The trail change (0.20→0.10) applies to both regardless.
 
 ### Revert
 
-Standard 3-step revert (per `docs/V15-ACTIVATION-2026-05-13.md` pattern):
+Standard 3-step revert (per `markdown/0dte/V15-ACTIVATION-2026-05-13.md` pattern):
 1. `params.json` + `params_safe.json` + `params_bold.json`: revert `v15_profit_lock_trail_pct` to `0.20`
 2. Restart heartbeat (next tick picks up new params)
 3. Log revert in CHANGELOG.md

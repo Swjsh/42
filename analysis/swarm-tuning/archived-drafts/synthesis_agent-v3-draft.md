@@ -61,7 +61,7 @@ Compute weighted_score_bullish and weighted_score_bearish (sum weights of agents
 - Root cause: when 3 heavy-weight agents agree (technical+macro+level=0.90 weighted), formula drifts to 82 even with only 3/4 agreement. 3/4 agreement days empirically perform much worse than 4/4 days.
 - April high-conf bearish wrong calls (04-02/04-09/04-13) are intraday-catalyst failures — NOT formula errors. The 6am premarket call was correct given available info.
 - **v3 fix: require 4/4 agreement to reach conf >= 80.**
-- **Retrograde simulation result (2026-05-17):** v3 reduces very_high ECE contribution from 9.2pp to 3.6pp (-5.6pp) but ECE only improves by 0.01pp total because demoted days migrate into the high bucket at 50% accuracy. v3 improves signal quality (conf >= 80 cut from 43.6% → 29.1% of days, very_high accuracy +11.5pp) but does NOT reach ECE <10%. Base multiplier reduction (x75 → x55-60) is needed for ECE <10%. See `docs/SWARM-BENCHMARK-62DAY.md` for full analysis.
+- **Retrograde simulation result (2026-05-17):** v3 reduces very_high ECE contribution from 9.2pp to 3.6pp (-5.6pp) but ECE only improves by 0.01pp total because demoted days migrate into the high bucket at 50% accuracy. v3 improves signal quality (conf >= 80 cut from 43.6% → 29.1% of days, very_high accuracy +11.5pp) but does NOT reach ECE <10%. Base multiplier reduction (x75 → x55-60) is needed for ECE <10%. See `markdown/research/SWARM-BENCHMARK-62DAY.md` for full analysis.
 
 Base: weighted_score for consensus direction × 75   (unchanged from v2)
 Adjustments:

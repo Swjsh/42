@@ -1,7 +1,8 @@
 {
-  "audited_at": "2026-06-15T10:00:17.150680+00:00",
+  "audited_at": "2026-06-20T20:45:30.515857+00:00",
   "health": "GREEN",
   "ps1_bare_python_count": 0,
   "py_subprocess_no_creationflags_count": 0,
+  "mcp_unwrapped_launcher_count": 0,
   "flags": []
 }

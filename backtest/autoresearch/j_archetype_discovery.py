@@ -3,7 +3,7 @@
 Round 1 (``infinite_ammo_discovery.py``) created edge from first principles and
 found 2 survivors: VWAP trend-day pullback (H4) and gap-and-go (H2b). Round 2
 converts the ARCHETYPES revealed by J's *actual* winning trades
-(``docs/J-WEBULL-EDGE-2021-2023.md``) into detectors and standalone-backtests
+(``markdown/0dte/J-WEBULL-EDGE-2021-2023.md``) into detectors and standalone-backtests
 them with the SAME rigor (real OPRA fills, ATM+ITM1, chronological OOS split,
 DSR via lib.validation, drop-top-5 outlier kill).
 
@@ -99,7 +99,7 @@ from lib.ribbon import compute_ribbon                # noqa: E402
 # A detector reads (spy_df, ribbon_df, vix, day_contexts) and returns Signals.
 Detector = Callable[[pd.DataFrame, pd.DataFrame, pd.Series, list[DayCtx]], list[Signal]]
 
-# J's documented edge window (docs/J-WEBULL-EDGE-2021-2023.md "edge axis"):
+# J's documented edge window (markdown/0dte/J-WEBULL-EDGE-2021-2023.md "edge axis"):
 # 11:00, 12:00, 13:00, 14:30 are his positive-expectancy buckets; the open and
 # late-afternoon bleed. We use the contiguous core 11:00-13:30 as the overlay
 # window (captures 11:00/12:00/13:00 hours; excludes the 13:30 dead bucket and
@@ -421,7 +421,7 @@ def main() -> None:
         "round": 2,
         "purpose": (
             "ROUND 2 strategy discovery: convert J's REAL-winner archetypes "
-            "(docs/J-WEBULL-EDGE-2021-2023.md) into standalone detectors and "
+            "(markdown/0dte/J-WEBULL-EDGE-2021-2023.md) into standalone detectors and "
             "real-fills-backtest them with round-1 rigor. Reversal-off-VWAP-extreme "
             "+ MA-touch pullback-resumption (the archetypes round 1 did not cover), "
             "plus a midday (11:00-13:30 ET) time-of-day overlay on these and the two "

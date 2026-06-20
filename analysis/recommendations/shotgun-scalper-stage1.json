@@ -1,14 +1,14 @@
 {
   "strategy": "SHOTGUN_SCALPER",
   "stage": 1,
-  "generated_at": "2026-06-19T04:40:20",
+  "generated_at": "2026-06-20T06:08:33",
   "run_identity": {
-    "run_id": "2026-06-19_027bc0e6_0d3b98_6cc97f",
+    "run_id": "2026-06-20_865dd5a5_0d3b98_89ce16",
     "data_hash": "0d3b984a703498e4",
-    "code_hash": "027bc0e698c69a24",
-    "params_hash": "6cc97f1d778483db",
+    "code_hash": "865dd5a546b1fab6",
+    "params_hash": "89ce1651be4a725c",
     "code_source": "git",
-    "computed_at": "2026-06-19T01:39:51"
+    "computed_at": "2026-06-20T03:07:33"
   },
   "grid_size": 2160,
   "gates": {

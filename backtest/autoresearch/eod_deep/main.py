@@ -500,7 +500,7 @@ def run(date_str: str,
     # day-over-day. Classifies each tick ALIGNED / MISALIGNED-BENIGN /
     # MISALIGNED-CRITICAL / STALE_PAUSED / NO_DATA. Result feeds J's
     # morning brief + auto-flags days where heartbeat reverted to in-progress
-    # bar reads (silent failure mode). See `docs/HEARTBEAT-CHART-DATA-AUDIT-2026-05-14.md`.
+    # bar reads (silent failure mode). See `markdown/audits/HEARTBEAT-CHART-DATA-AUDIT-2026-05-14.md`.
     try:
         from autoresearch.heartbeat_tick_audit import run_audit as _hb_audit
         _hb_summary = _hb_audit(date_str)
@@ -724,7 +724,7 @@ def run(date_str: str,
     # with the heartbeat decision for the same tick, then grades both against next-bar
     # actual SPY close from the master 5m CSV. Writes analysis/vision-vs-heartbeat-{date}.json.
     # No-op (NO_DATA verdict) until the chart_vision_observer task is registered.
-    # See docs/VISION-OBSERVER-PROTOCOL.md.
+    # See markdown/specs/VISION-OBSERVER-PROTOCOL.md.
     try:
         from autoresearch.vision_observer_grader import run_grader as _vog_run
         _vog_out = _vog_run(date_str, write_output=True)

@@ -71,6 +71,22 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/jackw/Desktop/42/setup/hook-pytest-on-engine-edit.ps1"
+          }
+        ]
+      }
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "tradingview",
+    "alpaca",
+    "alpaca_aggressive"
+  ]
 }

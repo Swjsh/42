@@ -2,7 +2,7 @@
 
 Runs daily at 08:30 ET via Gamma_WatcherMorningReport (or on demand via CLI).
 Output:
-  docs/WATCHER-REPORT.md        — human-readable
+  markdown/audits/WATCHER-REPORT.md        — human-readable
   automation/state/watcher-report.json — machine-readable
 
 Sections:
@@ -25,7 +25,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 ROOT = REPO.parent
 OBS_LOG = ROOT / "automation" / "state" / "watcher-observations.jsonl"
-OUT_MD = ROOT / "docs" / "WATCHER-REPORT.md"
+OUT_MD = ROOT / "markdown" / "audits" / "WATCHER-REPORT.md"
 OUT_JSON = ROOT / "automation" / "state" / "watcher-report.json"
 
 

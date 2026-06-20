@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """engine_shadow — read-only Phase-3 ENGINE shadow harness (wired-not-enabled).
 
-Spec: ``docs/SHARED-DECISION-LIBRARY-MIGRATION.md`` §3 "Phase 3 — Shadow-mode the
-engine verdict alongside the live prose for N days", and ``docs/ENGINE-SHADOW-HARNESS.md``.
+Spec: ``markdown/specs/SHARED-DECISION-LIBRARY-MIGRATION.md`` §3 "Phase 3 — Shadow-mode the
+engine verdict alongside the live prose for N days", and ``markdown/specs/ENGINE-SHADOW-HARNESS.md``.
 
 WHAT THIS IS
 ------------

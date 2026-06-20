@@ -1,7 +1,7 @@
 """
 BEARISH_REVERSAL_BYPASS Phase 1: IS validation 2025-01 to 2025-09.
 
-Cook queue task e670b8f0. Spec: docs/BEARISH-REVERSAL-BYPASS-SPEC.md
+Cook queue task e670b8f0. Spec: markdown/specs/BEARISH-REVERSAL-BYPASS-SPEC.md
 
 Tests whether include_first_hour_high=True + bearish_reversal_bypass=True
 generates at least N>=15 new bypass entries with WR>=0.50 in the clean
@@ -165,7 +165,7 @@ if __name__ == "__main__":
     out_path = ROOT / "analysis" / "recommendations" / "bearish_reversal_bypass_is.json"
     result = {
         "task_id": "e670b8f0",
-        "spec": "docs/BEARISH-REVERSAL-BYPASS-SPEC.md",
+        "spec": "markdown/specs/BEARISH-REVERSAL-BYPASS-SPEC.md",
         "is_start": str(IS_START),
         "is_end": str(IS_END),
         "account": "AGG (params from agg_fhh_bypass.py baseline)",

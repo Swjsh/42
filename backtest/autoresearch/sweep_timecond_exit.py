@@ -1,6 +1,6 @@
 """GAME PLAN 2 — Time-conditional exit A/B around the 0DTE theta cliff (real-fills).
 
-THE FINDING (triple-corroborated, docs/WEEKEND-RESEARCH-GAMEPLANS-2026-06-19.md GP2):
+THE FINDING (triple-corroborated, markdown/planning/WEEKEND-RESEARCH-GAMEPLANS-2026-06-19.md GP2):
   0DTE theta decay is BACK-LOADED — ~2%/hr at the open climbing past ~15%/hr after
   14:00, with a sharp cliff ~15:30 ET. Our hard time stop is 15:50 — slightly LATE
   for a long-premium holder. Hypothesis: a TIME-CONDITIONAL exit (let positions in

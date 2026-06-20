@@ -50,7 +50,7 @@ import os as _os
 _RISK_GATE_ASSERT = _os.environ.get("GAMMA_RISK_GATE_ASSERT", "1") != "0"
 
 # Engine-score assert-agree toggle (Phase 1, shared-decision-library migration —
-# docs/SHARED-DECISION-LIBRARY-MIGRATION.md). On by default so the scoring done
+# markdown/specs/SHARED-DECISION-LIBRARY-MIGRATION.md). On by default so the scoring done
 # via the new engine.score interface is continuously proven byte-identical to the
 # orchestrator's direct filters.evaluate_* calls (the "assert-agree before
 # replace" discipline, same move as the risk gate above). Set
@@ -59,7 +59,7 @@ _RISK_GATE_ASSERT = _os.environ.get("GAMMA_RISK_GATE_ASSERT", "1") != "0"
 _ENGINE_SCORE_ASSERT = _os.environ.get("GAMMA_ENGINE_SCORE_ASSERT", "1") != "0"
 
 # Engine-gates assert-agree toggle (Phase 2, shared-decision-library migration —
-# docs/SHARED-DECISION-LIBRARY-MIGRATION.md §3 Phase 2). On by default so the 15
+# markdown/specs/SHARED-DECISION-LIBRARY-MIGRATION.md §3 Phase 2). On by default so the 15
 # entry gates now also evaluated via engine.evaluate_gates are continuously proven
 # to fire the SAME first SKIP (or allow) the orchestrator's inline gate cascade
 # does — the same "assert-agree before replace" discipline as the risk gate and

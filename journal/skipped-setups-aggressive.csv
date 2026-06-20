@@ -1,2 +1,3 @@
 date,time_et,setup,reason,bull_score,bear_score,account,rule_version
 2026-06-02,13:24,DUAL_NEAR_MISS,bull_10/11_filter10_RED_bar+bear_8/10_vix_rising,10,8,aggressive,v15.2
+2026-06-18,12:48,BULLISH_RECLAIM_NEAR_MISS,bull_9/11_gate10_fail_bearish_bar_746.98_lt_open_747.18+blocked_by_first_entry_lock_premium_stop_11:04,9,3,aggressive,v15.2

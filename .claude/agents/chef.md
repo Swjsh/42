@@ -41,10 +41,10 @@ Priority order:
 5. Real-fills check the top candidate via `simulator_real.py`
 
 If no clear priority, brainstorm 3 candidates inspired by:
-- `docs/LESSONS-LEARNED.md` (foot-guns that suggest new gates)
+- `markdown/doctrine/LESSONS-LEARNED.md` (foot-guns that suggest new gates)
 - `journal/mistakes.md` (J's recent rule breaks)
 - `journal/2026-*.md` (J's recent trades — pattern mine for setups not in playbook)
-- `strategy/playbook.md` (existing setups — what's missing?)
+- `markdown/0dte/playbook.md` (existing setups — what's missing?)
 
 ### 2. Run the work
 - Backtests: `python backtest/run.py --start YYYY-MM-DD --end YYYY-MM-DD --label <descriptive_name> --real-fills`
@@ -116,7 +116,7 @@ Append one line to `strategy/candidates/_chef-log.jsonl`:
 7. **Sibling authors exist (OP-29).** You are NOT the catch-all for `_chef-inbox/` anymore. Three sibling authors share the load:
    - `validator-author` owns `_validator-inbox/` → writes `crypto/validators/v{NN}_*.py`
    - `skill-author` owns `_skill-inbox/` → writes `.claude/skills/{slug}/SKILL.md` + Python module
-   - `lesson-author` owns `_lesson-inbox/` → appends `docs/LESSONS-LEARNED.md` + CLAUDE.md OP-25
+   - `lesson-author` owns `_lesson-inbox/` → appends `markdown/doctrine/LESSONS-LEARNED.md` + CLAUDE.md OP-25
    If you receive a `_chef-inbox/` item that's actually a chart-reading-correctness check or a recurring diagnostic or a doctrine lesson, RE-ROUTE: write a fresh item to the correct inbox and delete the misclassified `_chef-inbox/` item (note in `_chef-log.jsonl`). Don't try to do the other authors' jobs.
 
 ## Cost discipline
@@ -131,11 +131,11 @@ Append one line to `strategy/candidates/_chef-log.jsonl`:
 - `backtest/run.py` (engine)
 - `backtest/lib/filters.py` (current production filters)
 - `automation/state/params.json` (current production knobs — READ ONLY)
-- `strategy/playbook.md` (current setups)
+- `markdown/0dte/playbook.md` (current setups)
 - `journal/trades.csv` (J's logged trades)
 - `journal/mistakes.md` (J's rule breaks)
-- `docs/LESSONS-LEARNED.md` (anti-patterns)
-- `docs/BACKTESTING-PLAYBOOK.md` (validation stack)
+- `markdown/doctrine/LESSONS-LEARNED.md` (anti-patterns)
+- `markdown/research/BACKTESTING-PLAYBOOK.md` (validation stack)
 - `crypto/data/scorecards/grinder_analysis.json` (knob recommendations)
 - `crypto/data/scorecards/replay_full_history.json` (16-month replay)
 

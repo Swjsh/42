@@ -5,7 +5,7 @@ Production source-of-truth (per `automation/state/params.json`):
   - entry_no_trade_after_et:  "15:00"   (v15.1 — tightened from 15:50 to protect against theta)
   - entry_no_trade_window_et: null      (v15.1 REMOVED the 14:00-15:00 mid-day blackout)
 
-R2 closed-bar guard (per docs/HEARTBEAT-CHART-DATA-AUDIT-2026-05-14.md):
+R2 closed-bar guard (per markdown/audits/HEARTBEAT-CHART-DATA-AUDIT-2026-05-14.md):
   A trigger bar must be CLOSED before its trigger is consumed for entry.
   `bar_close_et = bar_open_et + 5min`; entry is permitted only when `bar_close_et <= now_et`.
 

@@ -1,66 +1,46 @@
 {
-  "audited_at": "2026-06-15T10:00:14.421012+00:00",
-  "total_registered": 27,
-  "active_registered": 27,
-  "disabled_registered": 0,
-  "registry_active": 27,
+  "audited_at": "2026-06-20T22:08:37.045864+00:00",
+  "total_registered": 35,
+  "active_registered": 32,
+  "disabled_registered": 3,
+  "registry_active": 36,
   "registry_disabled": 0,
-  "flags_count": 11,
+  "flags_count": 7,
   "flags": [
     {
-      "flag": "SILENT_TASK",
-      "task": "Gamma_AnalystEodReview",
-      "note": "last ran 157.3h ago \u2014 expected within 26h"
-    },
-    {
-      "flag": "SILENT_TASK",
-      "task": "Gamma_DailyReview",
-      "note": "last ran 157.5h ago \u2014 expected within 26h"
-    },
-    {
-      "flag": "SILENT_TASK",
-      "task": "Gamma_EodDeepDive",
-      "note": "last ran 157.5h ago \u2014 expected within 26h"
+      "flag": "STALE_REGISTRY_ENTRY",
+      "task": "Gamma_HealthBeacon",
+      "note": "registry says active but task not registered"
     },
     {
       "flag": "SILENT_TASK",
       "task": "Gamma_EodSummary",
-      "note": "last ran 158.0h ago \u2014 expected within 26h"
+      "note": "last ran 26.1h ago \u2014 expected within 26h"
     },
     {
       "flag": "SILENT_TASK",
-      "task": "Gamma_GymSession",
-      "note": "last ran 157.0h ago \u2014 expected within 26h"
+      "task": "Gamma_GhostOrderReconciler",
+      "note": "last ran 26.2h ago \u2014 expected within 26h"
     },
     {
       "flag": "SILENT_TASK",
-      "task": "Gamma_LaunchTV",
-      "note": "last ran 158.6h ago \u2014 expected within 26h"
-    },
-    {
-      "flag": "SILENT_TASK",
-      "task": "Gamma_ManagerDailyVerify",
-      "note": "last ran 156.5h ago \u2014 expected within 26h"
-    },
-    {
-      "flag": "SILENT_TASK",
-      "task": "Gamma_Premarket",
-      "note": "last ran 158.6h ago \u2014 expected within 26h"
-    },
-    {
-      "flag": "SILENT_TASK",
-      "task": "Gamma_SniperShadowEOD",
-      "note": "last ran 157.9h ago \u2014 expected within 26h"
+      "task": "Gamma_ScoutPremarket",
+      "note": "last ran 36.6h ago \u2014 expected within 26h"
     },
     {
       "flag": "SILENT_TASK",
       "task": "Gamma_SwarmPremarket",
-      "note": "last ran 158.6h ago \u2014 expected within 26h"
+      "note": "last ran 31.9h ago \u2014 expected within 26h"
     },
     {
       "flag": "SILENT_TASK",
-      "task": "Gamma_WatcherGrader",
-      "note": "last ran 156.8h ago \u2014 expected within 26h"
+      "task": "Gamma_TvWatchdog",
+      "note": "last ran 26.1h ago \u2014 expected within 26h"
+    },
+    {
+      "flag": "SILENT_TASK",
+      "task": "Gamma_WatcherLive",
+      "note": "last ran 26.2h ago \u2014 expected within 26h"
     }
   ],
   "health": "RED"

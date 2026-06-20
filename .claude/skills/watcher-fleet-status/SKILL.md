@@ -2,7 +2,7 @@
 
 Audit the 8 production watchers (orb / bull / v14e / sniper / vwap / odf / pff / pinfade) for silent-failure patterns. Returns per-watcher observation count over the last N days + flags any watcher silent for ≥3 consecutive days during market hours.
 
-> Per `docs/T80-ORB-BULL-REGRESSION.md` — silent zero-observation across N days = silent failure (the only true failure mode per OP-25). Pre-T82 fix, 4-of-8 watchers were silent for 4+ days without anyone noticing because everything reported "success."
+> Per `markdown/research/T80-ORB-BULL-REGRESSION.md` — silent zero-observation across N days = silent failure (the only true failure mode per OP-25). Pre-T82 fix, 4-of-8 watchers were silent for 4+ days without anyone noticing because everything reported "success."
 
 ---
 
@@ -90,13 +90,13 @@ Per T82 + T82b audits:
 
 - `automation/state/watcher-observations.jsonl` — append-only log of every fired observation (since 2026-04-23)
 - `automation/state/watcher-live-diag.jsonl` — per-fire diag trail (signals_emitted + bar values + sniper_5d_high), shipped Fire #20 2026-05-14
-- `docs/T80-ORB-BULL-REGRESSION.md` — root-cause doc for the stateful-watcher silent-failure pattern
+- `markdown/research/T80-ORB-BULL-REGRESSION.md` — root-cause doc for the stateful-watcher silent-failure pattern
 
 ---
 
 ## Cross-references
 
-- **T80 root cause doc:** `docs/T80-ORB-BULL-REGRESSION.md`
+- **T80 root cause doc:** `markdown/research/T80-ORB-BULL-REGRESSION.md`
 - **T82 fix doc:** mentioned in CLAUDE.md OP-25 lessons absorbed 2026-05-14 evening
 - **Direct watcher tests:** `backtest/autoresearch/_smoke_watchers.py` + `_smoke_vwap_diag.py`
 - **CLAUDE.md OP-25 lesson:** "Stateful watchers + per-tick fresh-process scheduled tasks = silent zero observations"

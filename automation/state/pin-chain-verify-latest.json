@@ -1,8 +1,8 @@
 {
   "skill": "pin-chain-verify",
-  "run_at": "2026-06-08T16:30:13",
-  "verdict": "RED",
-  "reason": "1-pin-mismatch(es)-vs-canonical-v15.3",
+  "run_at": "2026-06-19T14:30:05",
+  "verdict": "YELLOW",
+  "reason": "aggressive-variant-intentionally-divergent-1-warning(s)",
   "canonical_rule_version": "v15.3",
   "rule_version_ratified_at": "2026-06-01",
   "production_pin_chain": {
@@ -19,7 +19,7 @@
     "premarket.md": {
       "version": "v15.3",
       "path": "C:\\Users\\jackw\\Desktop\\42\\automation\\prompts\\premarket.md",
-      "line": 41
+      "line": 43
     },
     "aggressive/heartbeat.md": {
       "version": "v15.2",
@@ -35,12 +35,12 @@
     },
     "heartbeat-v15-draft.md": {
       "version": "v15",
-      "path": "C:\\Users\\jackw\\Desktop\\42\\automation\\prompts\\heartbeat-v15-draft.md",
+      "path": "C:\\Users\\jackw\\Desktop\\42\\automation\\prompts\\_archive\\heartbeat-v15-draft.md",
       "line": 18
     },
     "premarket-v15-draft.md": {
       "version": "v14",
-      "path": "C:\\Users\\jackw\\Desktop\\42\\automation\\prompts\\premarket-v15-draft.md",
+      "path": "C:\\Users\\jackw\\Desktop\\42\\automation\\prompts\\_archive\\premarket-v15-draft.md",
       "line": 40
     }
   },

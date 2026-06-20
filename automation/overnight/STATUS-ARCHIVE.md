@@ -87,7 +87,7 @@ Post-hoc: IS MORNING bulls (WR=14.9%, n=47, -$222) + IS AFTERNOON bulls (WR=0%, 
 Cascade adds +$35 vs post-hoc (+$339 actual vs +$304 post-hoc) because some replacement trades are profitable.
 OOS WR 47.6%→52.6% — now well above 45% live threshold.
 
-Also: L161 (TZ bug lesson) written to docs/LESSONS-LEARNED.md this session.
+Also: L161 (TZ bug lesson) written to markdown/doctrine/LESSONS-LEARNED.md this session.
 
 ---
 
@@ -480,7 +480,7 @@ Root cause: FHH rejection fires correctly, but (a) AGG ITM-2 puts on those bars 
 
 Cook-queue task `e670b8f0` CLOSED.
 
-**Spec:** `docs/BEARISH-REVERSAL-BYPASS-SPEC.md`
+**Spec:** `markdown/specs/BEARISH-REVERSAL-BYPASS-SPEC.md`
 **A/B scorecard:** `analysis/recommendations/bearish_reversal_bypass_ab.json`
 **IS results:** `analysis/recommendations/bearish_reversal_bypass_is.json`
 
@@ -970,7 +970,7 @@ The IS morning conf+lvl_rec signal does NOT hold OOS. Classic IS overfit candida
 
 **Artifacts:**
 - Scorecard: `analysis/recommendations/d1_vix_gated.json`
-- Implementation spec: `docs/D1-VIX-GATED-IMPLEMENTATION-SPEC.md` (state machine design, checklist, risk quantification)
+- Implementation spec: `markdown/specs/D1-VIX-GATED-IMPLEMENTATION-SPEC.md` (state machine design, checklist, risk quantification)
 
 ---
 
@@ -1021,7 +1021,7 @@ The IS morning conf+lvl_rec signal does NOT hold OOS. Classic IS overfit candida
 - 1 new OOS entry: 2026-05-08, loss=-$80. OOS_delta=-$80. WF=-0.859. REJECT.
 
 **Root cause (filed as L158):** FHH countertrend entry has structurally low WR=25-28% because ribbon=BULL means bulls control the tape. The FHH acts as resistance but price is likely to bounce. The -7% premium stop fires before the bear move develops in 72-75% of cases. Entry quality is the problem, not exit path.
-- Spec archived: `docs/BEARISH-REVERSAL-BYPASS-SPEC.md` (for future reference if J identifies what made 5/01 special)
+- Spec archived: `markdown/specs/BEARISH-REVERSAL-BYPASS-SPEC.md` (for future reference if J identifies what made 5/01 special)
 - Cook queue task e670b8f0: CLOSED.
 
 ## [2026-06-17] CONTEXT-49: RIBBON_JUST_FLIPPED A/B SPLIT — COMPLETE (C22 INVERSION)
@@ -1228,7 +1228,7 @@ C22 (Jan-Dec 2025 bull vs Jan-May 2026 volatile regime split) is the BINDING CON
 **Enforcement chain:**
 - `automation/state/aggressive/params.json`: `require_bearish_fill_bar: true` ✅
 - `automation/prompts/aggressive/heartbeat.md`: Gate AGG-3 Part A (pending check after flat verification) + Part B (set pending in Time-class gates) ✅
-- `docs/FUTURE-IMPROVEMENTS.md`: ENFORCED-5 section added; RULE-9-1 cleared from HIGH VALUE ✅
+- `markdown/planning/FUTURE-IMPROVEMENTS.md`: ENFORCED-5 section added; RULE-9-1 cleared from HIGH VALUE ✅
 
 ---
 
@@ -2785,7 +2785,7 @@ o_trade_before=09:35 (production setting). Those 5 extra trades are net -,175 lo
 120. **L111: VIX threshold constants wired into orchestrator (C14 fix).** `VIX_BEAR_THRESHOLD`, `VIX_RISING_DEADBAND`, `VIX_RISING_DEADBAND` (bear alias), `VIX_BULL_HARD_CAP` were in `runner._FILTERS_CONST_KEYS` but NOT in `orchestrator._FILTER_CONST_MAP`. Dead-knob confirmed: 3-value sweep (10.0/17.30/25.0) identical before fix. After fix: threshold=25.0 blocks 6 fewer OOS trades (n: 16→10, pnl: +$2,416→+$1,181) confirming the knob is live.
     - Added 4 keys to `backtest/lib/orchestrator.py:_FILTER_CONST_MAP`
     - Graduated guard: `test_l111_vix_bear_threshold_wired_in_orchestrator` PASS
-    - L111 appended to `docs/LESSONS-LEARNED.md` and `CLAUDE.md` C14 row
+    - L111 appended to `markdown/doctrine/LESSONS-LEARNED.md` and `CLAUDE.md` C14 row
     - **Guard suite now 36 PASS / 0 XFAIL.** (was 35/0 before this fix)
     - **Additional negative sweeps (in the same compound session):**
       - `confluence_tolerance_dollars`: production $0.30 is OOS-optimal. Tighter values hurt (0.10: OOS -$57, 0.20: +$352). Wider values (0.50–1.00) tie production at OOS +$2,416. No candidate.
@@ -3142,7 +3142,7 @@ Root causes: (1) IS Sharpe inflated by zero-trade Q3 2025 (low VIX summer = 80% 
 
 **harness_health: GREEN**
 
-79. **L100 documented — prior "genuine edge" invalidated:** 36-combo exit-param sweep (stop=[-0.20,-0.25,-0.30,-0.35] × threshold=[0.20,0.25,0.30,0.40] × runner=[2.0,2.5,3.0]) shows ALL NEGATIVE P&L. Best: stop=-0.20, threshold=0.40, runner=2.0 → P&L=-$3,764. Corrects entry 78: the "genuine edge" at threshold=99.0 ($25,943, WR=46.3%) is a BS-sim runner artifact — requires 300% intraday premium moves (real OPRA entry $9.26 → runner target $27.78, needs ~7% SPY intraday move, impossible on 0DTE). Three-layer artifact stack: threshold=0.0 (L99 WR=93.5%), threshold=0.20-0.40 (all negative), threshold=99.0 (runner artifact). VIX-trend SNIPER leaderboard entries (#13/#14/#15) also contaminated by L99 artifact (n=17-19 trades). All marked ARTIFACT-INVALIDATED in `_LEADERBOARD.md`. L100 in `docs/LESSONS-LEARNED.md`. CLAUDE.md: C1+C3 clusters updated (L100 added), lesson count updated to 100. `test_l100_sniper_premium_exits_no_positive_result` graduated guard added. **21/21 guards PASS** (was 20/20). Kitchen tasks already queued: `snip2-chart-stop-01` (chart-stop redesign — the only unvalidated SNIPER path), `snip3-genuine-edge-01` (now superseded by this sweep — all those combos verified negative). Next: design SNIPER chart-stop detector.
+79. **L100 documented — prior "genuine edge" invalidated:** 36-combo exit-param sweep (stop=[-0.20,-0.25,-0.30,-0.35] × threshold=[0.20,0.25,0.30,0.40] × runner=[2.0,2.5,3.0]) shows ALL NEGATIVE P&L. Best: stop=-0.20, threshold=0.40, runner=2.0 → P&L=-$3,764. Corrects entry 78: the "genuine edge" at threshold=99.0 ($25,943, WR=46.3%) is a BS-sim runner artifact — requires 300% intraday premium moves (real OPRA entry $9.26 → runner target $27.78, needs ~7% SPY intraday move, impossible on 0DTE). Three-layer artifact stack: threshold=0.0 (L99 WR=93.5%), threshold=0.20-0.40 (all negative), threshold=99.0 (runner artifact). VIX-trend SNIPER leaderboard entries (#13/#14/#15) also contaminated by L99 artifact (n=17-19 trades). All marked ARTIFACT-INVALIDATED in `_LEADERBOARD.md`. L100 in `markdown/doctrine/LESSONS-LEARNED.md`. CLAUDE.md: C1+C3 clusters updated (L100 added), lesson count updated to 100. `test_l100_sniper_premium_exits_no_positive_result` graduated guard added. **21/21 guards PASS** (was 20/20). Kitchen tasks already queued: `snip2-chart-stop-01` (chart-stop redesign — the only unvalidated SNIPER path), `snip3-genuine-edge-01` (now superseded by this sweep — all those combos verified negative). Next: design SNIPER chart-stop detector.
 
 ---
 
@@ -3150,11 +3150,11 @@ Root causes: (1) IS Sharpe inflated by zero-trade Q3 2025 (low VIX summer = 80% 
 
 **harness_health: GREEN**
 
-78. **L99 documented + graduated guard 20/20 PASS:** SNIPER stage-2 WR=93.5% is entirely an artifact of `profit_lock_threshold_pct=0.0` (arms bar-1 → all stops exit at +5%, not -6%). True WR sweeps: threshold=0.05 → WR=75%, threshold=0.15 → WR=48%. BS-sim VIX-to-IV formula underestimates extreme-VIX premiums (BS=$3.60 vs OPRA=$9.26 on Liberation Day). GENUINE EDGE CONFIRMED: stop=-0.30 no profit lock → BS-sim $25,943, WR=46.3%, 231 days — directional alpha is real, just not 93.5%. `test_l99_profit_lock_threshold_not_zero` guards against promoting zero-threshold combos. L99 in `docs/LESSONS-LEARNED.md`. Kitchen tasks enqueued: `snip2-chart-stop-01` + `snip2-vix-cap-01` for stage-3 redesign.
+78. **L99 documented + graduated guard 20/20 PASS:** SNIPER stage-2 WR=93.5% is entirely an artifact of `profit_lock_threshold_pct=0.0` (arms bar-1 → all stops exit at +5%, not -6%). True WR sweeps: threshold=0.05 → WR=75%, threshold=0.15 → WR=48%. BS-sim VIX-to-IV formula underestimates extreme-VIX premiums (BS=$3.60 vs OPRA=$9.26 on Liberation Day). GENUINE EDGE CONFIRMED: stop=-0.30 no profit lock → BS-sim $25,943, WR=46.3%, 231 days — directional alpha is real, just not 93.5%. `test_l99_profit_lock_threshold_not_zero` guards against promoting zero-threshold combos. L99 in `markdown/doctrine/LESSONS-LEARNED.md`. Kitchen tasks enqueued: `snip2-chart-stop-01` + `snip2-vix-cap-01` for stage-3 redesign.
 
 77. **sniper_stage2 real-fills CAVEAT:** Stage-2 top combo (stop=-0.06, runner=3.0) CAVEAT. OPRA coverage sparse: only 1/3 top-BS days had data. That day: 2025-04-07 BS=$1,007 vs REAL=-$556 (diff=-155%). Root cause: entry_premium=$9.26 on Liberation Day VIX spike; -6% stop = $0.55 threshold fires in first bar (L51/L55 confirmed for SNIPER). Do NOT promote to leaderboard. Kitchen task enqueued: `snip2-chart-stop-01` — redesign SNIPER without premium stop (chart stop or VIX-premium-size gate). Script: `backtest/autoresearch/sniper_stage2_realfills.py`, report: `analysis/recommendations/sniper-stage2-realfills.json`.
 
-76. **L98 documented:** `docs/LESSONS-LEARNED.md` #98 added (vol-ratio-only detector strategy-negative on 16-month sweep; run coarse pre-flight probe before any grid search; if all sharpe<0 redesign first). CLAUDE.md OP-25 C7 cluster updated (L98 appended). `analysis/recommendations/shotgun-scalper-stage1.json` updated to reflect STRATEGY_NEGATIVE verdict with L97/L98 cross-references.
+76. **L98 documented:** `markdown/doctrine/LESSONS-LEARNED.md` #98 added (vol-ratio-only detector strategy-negative on 16-month sweep; run coarse pre-flight probe before any grid search; if all sharpe<0 redesign first). CLAUDE.md OP-25 C7 cluster updated (L98 appended). `analysis/recommendations/shotgun-scalper-stage1.json` updated to reflect STRATEGY_NEGATIVE verdict with L97/L98 cross-references.
 
 75. **sniper_stage2 top candidate strong:** BS-sim off=2 vol=1.1 stop=-0.06 tp1=0.4 runner=3.0 tp1_frac=0.667 → wide_pnl=$40,657 quarterly_sharpe=8.42 exp/trade=$173.75 n=234 6/6 quarters positive max_dd=$249 top5_pct=3.3%. Real-fills NOT YET VALIDATED (real_fills_grinder only tested stop=-0.10/-0.15, both negative). Kitchen task enqueued (snip2-rf-val-01, high priority) to run real_fills.py for stop=-0.06. Do NOT promote to leaderboard until real-fills pass. BS-sim vs real-fills gap for SNIPER historically large (L51/L55 premium-stop misfire risk with tight stops).
 
@@ -3170,7 +3170,7 @@ Root causes: (1) IS Sharpe inflated by zero-trade Q3 2025 (low VIX summer = 80% 
 
 66. **Grinder state reset:** Archived stale `rejections.jsonl` as `.pre-fix-20260616`. Reset `progress.json` to `pending_reset` status. `results.jsonl` and `keepers.jsonl` cleared. Ready for `--reset` run.
 
-67. **L97 documented:** `docs/LESSONS-LEARNED.md` #97 added (strategy-specific grinder J_WINNERS must use SAME strategy type as detector). CLAUDE.md OP-25 C7 cluster updated (L97 appended). Pre-run smoke test rule encoded: assert `by_day[date] != 0.0` for every J anchor day before launching full grid.
+67. **L97 documented:** `markdown/doctrine/LESSONS-LEARNED.md` #97 added (strategy-specific grinder J_WINNERS must use SAME strategy type as detector). CLAUDE.md OP-25 C7 cluster updated (L97 appended). Pre-run smoke test rule encoded: assert `by_day[date] != 0.0` for every J anchor day before launching full grid.
 
 68. **Probe complete (4 combos × 16 months):** With vol_ratio_threshold=2.0 + strike_offset=1 (ITM-1), EC=465 (30.2%) — above 0, below 50% floor. 4/29 captures +$273 bearish (signals at 2.014 fire correctly). 5/04 = 0 (bearish signals at 1.7-1.8 are BELOW 2.0 threshold). The grid's 3 vol thresholds (1.2/1.5/2.0) can't cleanly separate 4/29 bullish noise (1.903) from 5/04 bearish signal (1.7-1.8). Kitchen tasked: probe 1.8/1.9/1.95 thresholds to find the sweet spot.
 
@@ -3219,7 +3219,7 @@ Root causes: (1) IS Sharpe inflated by zero-trade Q3 2025 (low VIX summer = 80% 
     - 17-month OOS after fix: `dn=0 dpnl=0.00` — rank 27 safely neutral (ready for BEARISH_REVERSAL bypass)
     - Files changed: `backtest/lib/filters.py` (BarContext + evaluate_bearish_setup), `backtest/lib/orchestrator.py` (BarContext construction)
     - **16/16 graduated guards pass** (added `test_first_hour_high_no_regression` as L96 guard)
-    - L96 written in `docs/LESSONS-LEARNED.md`
+    - L96 written in `markdown/doctrine/LESSONS-LEARNED.md`
 
 61. **Design principle encoded (L96):** Dynamic/supplemental levels MUST use a SEPARATE trigger namespace from base (multi-session confirmed) levels. Sharing `level_rejection` between base and supplemental levels causes silent P&L regressions.
 
@@ -3423,7 +3423,7 @@ Root causes: (1) IS Sharpe inflated by zero-trade Q3 2025 (low VIX summer = 80% 
     - falsebreak-closeceiling.md: L75 fires on 96% of days (5.62/day), no anchor discrimination — too broad
     - regime-levels.md: low_spike VIX regime has WF=9.0 (IS+3.5pp → OOS+31.5pp); mid_trending worst (-4.1pp)
 
-33. **L94 encoded** — "PMH != first-hour RTH range high when SPY gaps up." lesson-author appended L94 to `docs/LESSONS-LEARNED.md`, one-liner to CLAUDE.md, C6 row updated (L14,34,57,61,94), count 93→94. Inbox renamed .DONE. Theme: C6 — level detection blind spot when SPY gaps up above all historical references; intraday H/L below-chance noise unless 4-bar dwell + $1 pullback.
+33. **L94 encoded** — "PMH != first-hour RTH range high when SPY gaps up." lesson-author appended L94 to `markdown/doctrine/LESSONS-LEARNED.md`, one-liner to CLAUDE.md, C6 row updated (L14,34,57,61,94), count 93→94. Inbox renamed .DONE. Theme: C6 — level detection blind spot when SPY gaps up above all historical references; intraday H/L below-chance noise unless 4-bar dwell + $1 pullback.
 
 34. **Graduated guards 13/13 PASS** — All 13 guards clean after L92/L93/L94 additions. Suite takes 67s.
 
@@ -3452,7 +3452,7 @@ Root causes: (1) IS Sharpe inflated by zero-trade Q3 2025 (low VIX summer = 80% 
 
 **Session work (autonomous, continued):**
 
-21. **L92 encoded** — "IS quality-lock cascade false positive from threshold changes." lesson-author agent wrote full L92 entry to `docs/LESSONS-LEARNED.md`, one-liner to CLAUDE.md chronological log, C4+C7 theme rows updated. Count now 92. Inbox item renamed .DONE.
+21. **L92 encoded** — "IS quality-lock cascade false positive from threshold changes." lesson-author agent wrote full L92 entry to `markdown/doctrine/LESSONS-LEARNED.md`, one-liner to CLAUDE.md chronological log, C4+C7 theme rows updated. Count now 92. Inbox item renamed .DONE.
 
 22. **Leaderboard rank 24 added** — `ENTER_DECISION_LOGGING_GAP_FIX` (kitchen candidate `d44d479e`) promoted to `strategy/candidates/_LEADERBOARD.md` as rank 24. Status: NEEDS-J-RATIFICATION (pure heartbeat.md logging change, Rule 9). Zero P&L impact, closes shadow-eval ENTER traceability gap (L80/L84). Confidence 9/10.
 
@@ -3468,7 +3468,7 @@ Root causes: (1) IS Sharpe inflated by zero-trade Q3 2025 (low VIX summer = 80% 
 
 **EC gap summary**: 673 current → 771 floor → gap 98 remains. Filter-6 direction exhausted. Primary closure path: level-chop relaxation (kitchen task `3f0b80df`) + possibly ribbon-spread momentum discriminator.
 
-25. **L93 encoded** — "BEARISH_REVERSAL fires on DECLINING-VIX days — VIX-escalating kills all winners." lesson-author agent appended L93 to `docs/LESSONS-LEARNED.md`, C5 theme row updated, count now 93. Inbox item renamed .DONE.
+25. **L93 encoded** — "BEARISH_REVERSAL fires on DECLINING-VIX days — VIX-escalating kills all winners." lesson-author agent appended L93 to `markdown/doctrine/LESSONS-LEARNED.md`, C5 theme row updated, count now 93. Inbox item renamed .DONE.
 
 26. **Graduated guards 13/13 PASS** — Added `test_ribbon_spread_min_not_below_oos_floor` (L92: don't lower below 30c without OOS pass) + `test_winner_days_have_declining_vix` (L93: winner days have declining VIX, VIX-escalating kills them). Full suite: 13/13 PASS. `backtest/tests/test_graduated_guards.py`.
 
@@ -3696,7 +3696,7 @@ Root causes: (1) IS Sharpe inflated by zero-trade Q3 2025 (low VIX summer = 80% 
 
 2. **Shadow eval 5/18 launched (22 ticks, in progress)** — 5/18 is the actual 4th DT data point (has ENTER_BULL at 09:57, pre-PDT-limit day). Results pending background run.
 
-3. **Lessons L79/L80/L81 authored** — lesson-author agent encoded all 3 inbox items into `docs/LESSONS-LEARNED.md` + CLAUDE.md OP-25 bullets. C7/C8 rows updated. Lesson count: 78 → 81.
+3. **Lessons L79/L80/L81 authored** — lesson-author agent encoded all 3 inbox items into `markdown/doctrine/LESSONS-LEARNED.md` + CLAUDE.md OP-25 bullets. C7/C8 rows updated. Lesson count: 78 → 81.
 
 4. **MIDDAY_TRENDLINE_GATE A vs B scorecard written** — grinder sweep gate cleared by formalizing the existing 307-OOS-trade numbers into `analysis/recommendations/midday_trendline_gate_ab_scorecard.json`. Winner: Option A surgical (+393/c delta vs baseline, keeps 71% of trades). Leaderboard rank 21 updated to "RATIFICATION_READY — grinder COMPLETE". Remaining gates: gym validators + J Rule 9 weekend ratification.
 
@@ -3874,7 +3874,7 @@ v38 (V14E chop zone gate) + v39 (ORB signal reader) both registered and passing.
 
 ### Reset summary
 - Nuked 33 of 42 tasks → 9 keepers (6 trading + 3 Kitchen). See `docs/RESET-2026-05-23.md`.
-- CLAUDE.md slimmed: 10 rules + 6 OPs. 27 OPs archived to `docs/DOCTRINE-ARCHIVE.md`.
+- CLAUDE.md slimmed: 10 rules + 6 OPs. 27 OPs archived to `markdown/doctrine/DOCTRINE-ARCHIVE.md`.
 - Kitchen daemon restarted (PID 24340, system pythonw, no window leaks).
 - D1/D3/D4 shipped: 10 grinders, reviewer auto-promote, per-tier 429 smart sleep.
 - OP-32 (SessionGuard/CircuitBreaker) removed — locked J out on 2026-05-22. Self-discipline is the guard now.
@@ -3942,7 +3942,7 @@ See the **OVERNIGHT WORK QUEUE** section at end of file. Wake fire scheduled for
 
 - **L64:** ORB entries require chart-stop-only — premium stops fire during retest pullback before continuation (L51/L55 analog). `premium_stop_pct = -0.99` required.
 - **L65:** n_triggers is a poor confidence discriminator when watcher architecture guarantees fixed minimum trigger count. Pre-shipping gate: `obs_df.groupby('n_triggers').size()` before any tier. Both encoded in LESSONS-LEARNED.md + CLAUDE.md OP-25.
-- **L66 (ENCODED ~06:00 ET):** Quality-lock cascade foot-gun. Blocking a low-quality trade via a gate can elevate prior_quality, enabling an intermediate winner, which then QUALITY_ESCALATION_LOCK-s the biggest winner at the same rank. True gate P&L requires session-level cascade trace, not per-trade audit. Pre-shipping gate: replay all subsequent same-session decisions for any gate that blocks a trade. Encoded in `docs/LESSONS-LEARNED.md#L66` + CLAUDE.md OP-25.
+- **L66 (ENCODED ~06:00 ET):** Quality-lock cascade foot-gun. Blocking a low-quality trade via a gate can elevate prior_quality, enabling an intermediate winner, which then QUALITY_ESCALATION_LOCK-s the biggest winner at the same rank. True gate P&L requires session-level cascade trace, not per-trade audit. Pre-shipping gate: replay all subsequent same-session decisions for any gate that blocks a trade. Encoded in `markdown/doctrine/LESSONS-LEARNED.md#L66` + CLAUDE.md OP-25.
 
 ---
 

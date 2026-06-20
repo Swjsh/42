@@ -1,0 +1,5922 @@
+{
+  "generated_at": "2026-06-19T19:54:22.962297+00:00",
+  "script": "backtest/autoresearch/vwap_pullback_regime_gate.py",
+  "purpose": "Diagnose H4 VWAP-pullback bimodality and test CAUSAL regime gates to separate the good periods from the bad (kill the 2025-07..10 OOS bleed) without curve-fitting to the known bad months. Propose-only (Rule 9).",
+  "data": {
+    "spy": "spy_5m_2025-01-01_2026-06-16.csv",
+    "vix": "vix_5m_2025-01-01_2026-06-16.csv",
+    "days": 363,
+    "date_range": [
+      "2025-01-02",
+      "2026-06-16"
+    ],
+    "oos_cut_date": "2026-01-09"
+  },
+  "method": {
+    "detector": "infinite_ammo_discovery.detect_vwap_pullback (verbatim survivor)",
+    "fills": "lib.simulator_real.simulate_trade_real, ATM, qty=3; TWO exit configs reported (see exit_config_note).",
+    "causality": "every regime feature read from bars[0..trigger]; VIX at trigger idx; ribbon = EMA of closes to trigger. No post-trigger bar read.",
+    "winner_gate_def": "all_sub_windows_positive (kills bimodality) AND oos_sign_stable AND n_kept>=35 AND retention>=0.40 AND DSR!=FAIL AND both_dirs+ AND robust_drop_top5. Threshold-own-OOS checked separately for any winner.",
+    "gex_excluded": "GEX regime tag is NOT backtestable on our data (no historical full-chain OI+gamma archive \u2014 gex_regime.assess_backtest_feasibility). Live-going-forward corroborator only; every gate here uses SPY+VIX features we have historically AND compute live."
+  },
+  "exit_config_note": "FINDING (C29/L149): the ratify scorecard vwap-trend-pullback-LIVE.json headline (+$45.88/42.4% + the 2025-07..10 WF bleed) was computed with premium_stop=-0.08 (discovery simulate_signals passes no override). The LIVE watcher (vwap_trend_pullback_watcher.DEFAULT_PREMIUM_STOP_PCT=-0.99) trades CHART-STOP-ONLY. Both configs are evaluated here; the live verdict uses 'chart_stop_only'.",
+  "live_exit_config": "chart_stop_only",
+  "by_exit_config": {
+    "chart_stop_only": {
+      "premium_stop_pct": -0.99,
+      "n_trades": 92,
+      "baseline_no_gate": {
+        "n": 92,
+        "wins": 65,
+        "wr_pct": 70.7,
+        "exp_dollar": 14.03,
+        "total_dollar": 1291.2,
+        "exp_pct": 0.18113,
+        "is_n": 60,
+        "oos_n": 32,
+        "is_exp_dollar": -2.63,
+        "oos_exp_dollar": 45.27,
+        "is_exp_pct": 0.15074,
+        "oos_exp_pct": 0.23812,
+        "oos_sign_stable": true,
+        "sub_windows": [
+          {
+            "window": 1,
+            "n": 23,
+            "mean_pnl": -19.1,
+            "total_pnl": -439.2
+          },
+          {
+            "window": 2,
+            "n": 23,
+            "mean_pnl": -3.84,
+            "total_pnl": -88.4
+          },
+          {
+            "window": 3,
+            "n": 23,
+            "mean_pnl": 71.82,
+            "total_pnl": 1651.8
+          },
+          {
+            "window": 4,
+            "n": 23,
+            "mean_pnl": 7.26,
+            "total_pnl": 167.0
+          }
+        ],
+        "n_sub_hurt": 2,
+        "all_sub_windows_positive": false,
+        "oos_months_positive": 4,
+        "oos_months_total": 5,
+        "oos_months_all_positive": false,
+        "oos_months": {
+          "2026-01": {
+            "n": 4,
+            "exp": 149.15,
+            "total": 596.6,
+            "positive": true
+          },
+          "2026-02": {
+            "n": 6,
+            "exp": 123.8,
+            "total": 742.8,
+            "positive": true
+          },
+          "2026-03": {
+            "n": 8,
+            "exp": -52.87,
+            "total": -423.0,
+            "positive": false
+          },
+          "2026-04": {
+            "n": 5,
+            "exp": 99.96,
+            "total": 499.8,
+            "positive": true
+          },
+          "2026-05": {
+            "n": 9,
+            "exp": 3.62,
+            "total": 32.6,
+            "positive": true
+          }
+        },
+        "by_side": {
+          "C": {
+            "n": 54,
+            "exp": 14.7,
+            "wr": 74.1,
+            "total": 793.8
+          },
+          "P": {
+            "n": 38,
+            "exp": 13.09,
+            "wr": 65.8,
+            "total": 497.4
+          }
+        },
+        "both_dirs_positive": true,
+        "drop_top5_mean_dollar": -9.65,
+        "robust_to_outliers": false,
+        "dsr": {
+          "verdict": "PASS",
+          "dsr": 0.7964144753226794,
+          "psr": 0.9981476814167451,
+          "pbo": null,
+          "n_obs": 92,
+          "n_trials": 30,
+          "low_power": false,
+          "notes": [
+            "PSR(vs 0)=0.9981 on n=92 obs (Sharpe=0.184, skew=5.45, kurt=44.26).",
+            "DSR deflated for n_trials=30 (SR_0=0.131) = 0.7964.",
+            "PBO skipped (no performance matrix supplied).",
+            "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+          ]
+        },
+        "dsr_verdict": "PASS",
+        "exit_reason_hist": {
+          "EXIT_ALL_RIBBON_FLIP_BACK": 22,
+          "TP1_THEN_RUNNER_TIME": 13,
+          "TP1_THEN_RUNNER_RIBBON": 46,
+          "EXIT_ALL_TIME_STOP": 5,
+          "EXIT_ALL_LEVEL_STOP": 6
+        }
+      },
+      "baseline_rolling_month_wf": {
+        "n_windows": 11,
+        "median_wf_norm": 0.239,
+        "oos_positive_frac": 0.64,
+        "negative_oos_months": [
+          "2025-07",
+          "2025-09",
+          "2025-10",
+          "2026-03"
+        ],
+        "trailing_positive_oos_months": 2,
+        "windows": [
+          {
+            "oos_month": "2025-07",
+            "n_oos": 6,
+            "oos_pnl": -274.2,
+            "oos_exp": -45.7,
+            "wf_norm": 1.454,
+            "oos_positive": false
+          },
+          {
+            "oos_month": "2025-08",
+            "n_oos": 7,
+            "oos_pnl": 205.2,
+            "oos_exp": 29.31,
+            "wf_norm": -0.857,
+            "oos_positive": true
+          },
+          {
+            "oos_month": "2025-09",
+            "n_oos": 4,
+            "oos_pnl": -94.2,
+            "oos_exp": -23.55,
+            "wf_norm": 1.047,
+            "oos_positive": false
+          },
+          {
+            "oos_month": "2025-10",
+            "n_oos": 8,
+            "oos_pnl": -364.4,
+            "oos_exp": -45.55,
+            "wf_norm": 2.015,
+            "oos_positive": false
+          },
+          {
+            "oos_month": "2025-11",
+            "n_oos": 5,
+            "oos_pnl": 688.8,
+            "oos_exp": 137.76,
+            "wf_norm": -5.244,
+            "oos_positive": true
+          },
+          {
+            "oos_month": "2025-12",
+            "n_oos": 5,
+            "oos_pnl": 467.2,
+            "oos_exp": 93.44,
+            "wf_norm": -8.225,
+            "oos_positive": true
+          },
+          {
+            "oos_month": "2026-01",
+            "n_oos": 4,
+            "oos_pnl": 596.6,
+            "oos_exp": 149.15,
+            "wf_norm": -56.783,
+            "oos_positive": true
+          },
+          {
+            "oos_month": "2026-02",
+            "n_oos": 6,
+            "oos_pnl": 742.8,
+            "oos_exp": 123.8,
+            "wf_norm": 18.048,
+            "oos_positive": true
+          },
+          {
+            "oos_month": "2026-03",
+            "n_oos": 8,
+            "oos_pnl": -423.0,
+            "oos_exp": -52.88,
+            "wf_norm": -3.132,
+            "oos_positive": false
+          },
+          {
+            "oos_month": "2026-04",
+            "n_oos": 5,
+            "oos_pnl": 499.8,
+            "oos_exp": 99.96,
+            "wf_norm": 10.275,
+            "oos_positive": true
+          },
+          {
+            "oos_month": "2026-05",
+            "n_oos": 9,
+            "oos_pnl": 32.6,
+            "oos_exp": 3.62,
+            "wf_norm": 0.239,
+            "oos_positive": true
+          }
+        ],
+        "verdict": "WEAK"
+      },
+      "diagnosis": {
+        "losing_months_def": [
+          "2025-07",
+          "2025-08",
+          "2025-09",
+          "2025-10"
+        ],
+        "n_losing_month_trades": 25,
+        "n_winning_month_trades": 67,
+        "losing_months_mean_pnl": -21.1,
+        "winning_months_mean_pnl": 27.15,
+        "feature_contrast": {
+          "vix": {
+            "losing_months": {
+              "n": 25,
+              "mean": 16.6784,
+              "median": 16.6,
+              "p25": 16.12,
+              "p75": 16.93
+            },
+            "winning_months": {
+              "n": 67,
+              "mean": 19.843,
+              "median": 18.3,
+              "p25": 17.1,
+              "p75": 21.97
+            }
+          },
+          "realized_vol_bps": {
+            "losing_months": {
+              "n": 25,
+              "mean": 6.1436,
+              "median": 6.17,
+              "p25": 4.58,
+              "p75": 7.11
+            },
+            "winning_months": {
+              "n": 67,
+              "mean": 8.8666,
+              "median": 8.09,
+              "p25": 5.695,
+              "p75": 11.17
+            }
+          },
+          "morning_move_pct": {
+            "losing_months": {
+              "n": 25,
+              "mean": 0.0027,
+              "median": 0.0024,
+              "p25": 0.0016,
+              "p75": 0.0032
+            },
+            "winning_months": {
+              "n": 67,
+              "mean": 0.004,
+              "median": 0.0033,
+              "p25": 0.002,
+              "p75": 0.0055
+            }
+          },
+          "trend_strength_adx": {
+            "losing_months": {
+              "n": 25,
+              "mean": 58.4048,
+              "median": 57.42,
+              "p25": 44.44,
+              "p75": 77.25
+            },
+            "winning_months": {
+              "n": 67,
+              "mean": 49.8718,
+              "median": 51.78,
+              "p25": 22.735,
+              "p75": 72.275
+            }
+          },
+          "range_ratio": {
+            "losing_months": {
+              "n": 25,
+              "mean": 1.6049,
+              "median": 1.338,
+              "p25": 1.055,
+              "p75": 1.635
+            },
+            "winning_months": {
+              "n": 67,
+              "mean": 1.7513,
+              "median": 1.474,
+              "p25": 1.022,
+              "p75": 2.143
+            }
+          },
+          "vwap_dist_pct": {
+            "losing_months": {
+              "n": 25,
+              "mean": 0.0004,
+              "median": 0.0004,
+              "p25": 0.0002,
+              "p75": 0.0006
+            },
+            "winning_months": {
+              "n": 67,
+              "mean": 0.0006,
+              "median": 0.0005,
+              "p25": 0.0002,
+              "p75": 0.0007
+            }
+          },
+          "regime_cell": {
+            "losing_months": {
+              "Regime.BULL_TREND": {
+                "n": 11,
+                "pct": 44.0
+              },
+              "Regime.NEUTRAL": {
+                "n": 9,
+                "pct": 36.0
+              },
+              "Regime.BEAR_TREND": {
+                "n": 3,
+                "pct": 12.0
+              },
+              "Regime.HIGH_VOL": {
+                "n": 1,
+                "pct": 4.0
+              },
+              "Regime.RANGE_PIN": {
+                "n": 1,
+                "pct": 4.0
+              }
+            },
+            "winning_months": {
+              "Regime.HIGH_VOL": {
+                "n": 27,
+                "pct": 40.3
+              },
+              "Regime.BULL_TREND": {
+                "n": 16,
+                "pct": 23.9
+              },
+              "Regime.NEUTRAL": {
+                "n": 15,
+                "pct": 22.4
+              },
+              "Regime.BEAR_TREND": {
+                "n": 9,
+                "pct": 13.4
+              }
+            }
+          },
+          "ribbon_stack": {
+            "losing_months": {
+              "BULL": {
+                "n": 16,
+                "pct": 64.0
+              },
+              "MIXED": {
+                "n": 5,
+                "pct": 20.0
+              },
+              "BEAR": {
+                "n": 4,
+                "pct": 16.0
+              }
+            },
+            "winning_months": {
+              "BULL": {
+                "n": 35,
+                "pct": 52.2
+              },
+              "BEAR": {
+                "n": 21,
+                "pct": 31.3
+              },
+              "MIXED": {
+                "n": 11,
+                "pct": 16.4
+              }
+            }
+          },
+          "vix_rising": {
+            "losing_months_pct_rising": 20.0,
+            "winning_months_pct_rising": 13.4
+          }
+        },
+        "monthly_exp": {
+          "2025-01": {
+            "n": 2,
+            "exp": 178.5,
+            "total": 357.0
+          },
+          "2025-02": {
+            "n": 3,
+            "exp": 200.0,
+            "total": 600.0
+          },
+          "2025-03": {
+            "n": 6,
+            "exp": 133.57,
+            "total": 801.4
+          },
+          "2025-04": {
+            "n": 6,
+            "exp": -241.97,
+            "total": -1451.8
+          },
+          "2025-05": {
+            "n": 4,
+            "exp": 21.3,
+            "total": 85.2
+          },
+          "2025-06": {
+            "n": 4,
+            "exp": -294.45,
+            "total": -1177.8
+          },
+          "2025-07": {
+            "n": 6,
+            "exp": -45.7,
+            "total": -274.2
+          },
+          "2025-08": {
+            "n": 7,
+            "exp": 29.31,
+            "total": 205.2
+          },
+          "2025-09": {
+            "n": 4,
+            "exp": -23.55,
+            "total": -94.2
+          },
+          "2025-10": {
+            "n": 8,
+            "exp": -45.55,
+            "total": -364.4
+          },
+          "2025-11": {
+            "n": 5,
+            "exp": 137.76,
+            "total": 688.8
+          },
+          "2025-12": {
+            "n": 5,
+            "exp": 93.44,
+            "total": 467.2
+          },
+          "2026-01": {
+            "n": 4,
+            "exp": 149.15,
+            "total": 596.6
+          },
+          "2026-02": {
+            "n": 6,
+            "exp": 123.8,
+            "total": 742.8
+          },
+          "2026-03": {
+            "n": 8,
+            "exp": -52.87,
+            "total": -423.0
+          },
+          "2026-04": {
+            "n": 5,
+            "exp": 99.96,
+            "total": 499.8
+          },
+          "2026-05": {
+            "n": 9,
+            "exp": 3.62,
+            "total": 32.6
+          }
+        }
+      },
+      "gate_sweep": [
+        {
+          "gate": "vix_lt_15",
+          "family": "vix_band",
+          "desc": "VIX < 15 (swept band)",
+          "live_compute": "VIX last value at trigger bar \u2014 loop-state.vix_cache.",
+          "n_kept": 5,
+          "retention": 0.054,
+          "exp_dollar": 48.0,
+          "wr_pct": 100.0,
+          "is_exp_dollar": 48.0,
+          "oos_exp_dollar": 0.0,
+          "oos_sign_stable": false,
+          "n_sub_hurt": 0,
+          "all_sub_windows_positive": true,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 1,
+              "mean_pnl": 33.0,
+              "total_pnl": 33.0
+            },
+            {
+              "window": 2,
+              "n": 1,
+              "mean_pnl": 36.6,
+              "total_pnl": 36.6
+            },
+            {
+              "window": 3,
+              "n": 2,
+              "mean_pnl": 65.7,
+              "total_pnl": 131.4
+            },
+            {
+              "window": 4,
+              "n": 1,
+              "mean_pnl": 39.0,
+              "total_pnl": 39.0
+            }
+          ],
+          "oos_months_positive": 0,
+          "oos_months_total": 0,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "WEAK",
+          "drop_top5_mean_dollar": null,
+          "robust_to_outliers": false,
+          "IS_WINNER": false,
+          "_full_metrics": {
+            "n": 5,
+            "wins": 5,
+            "wr_pct": 100.0,
+            "exp_dollar": 48.0,
+            "total_dollar": 240.0,
+            "exp_pct": 0.18268,
+            "is_n": 5,
+            "oos_n": 0,
+            "is_exp_dollar": 48.0,
+            "oos_exp_dollar": 0.0,
+            "is_exp_pct": 0.18268,
+            "oos_exp_pct": 0.0,
+            "oos_sign_stable": false,
+            "sub_windows": [
+              {
+                "window": 1,
+                "n": 1,
+                "mean_pnl": 33.0,
+                "total_pnl": 33.0
+              },
+              {
+                "window": 2,
+                "n": 1,
+                "mean_pnl": 36.6,
+                "total_pnl": 36.6
+              },
+              {
+                "window": 3,
+                "n": 2,
+                "mean_pnl": 65.7,
+                "total_pnl": 131.4
+              },
+              {
+                "window": 4,
+                "n": 1,
+                "mean_pnl": 39.0,
+                "total_pnl": 39.0
+              }
+            ],
+            "n_sub_hurt": 0,
+            "all_sub_windows_positive": true,
+            "oos_months_positive": 0,
+            "oos_months_total": 0,
+            "oos_months_all_positive": false,
+            "oos_months": {},
+            "by_side": {
+              "C": {
+                "n": 4,
+                "exp": 44.7,
+                "wr": 100.0,
+                "total": 178.8
+              },
+              "P": {
+                "n": 1,
+                "exp": 61.2,
+                "wr": 100.0,
+                "total": 61.2
+              }
+            },
+            "both_dirs_positive": true,
+            "drop_top5_mean_dollar": null,
+            "robust_to_outliers": false,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.5219805698408659,
+              "psr": 0.9833528927457221,
+              "pbo": null,
+              "n_obs": 5,
+              "n_trials": 30,
+              "low_power": true,
+              "notes": [
+                "PSR(vs 0)=0.9834 on n=5 obs (Sharpe=5.274, skew=-1.50, kurt=3.25).",
+                "DSR deflated for n_trials=30 (SR_0=5.137) = 0.5220.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict WEAK: sample too small (n=5 < MIN_RELIABLE_OBS=20); metrics lack power \u2014 advisory only (lesson C24)."
+              ]
+            },
+            "dsr_verdict": "WEAK",
+            "exit_reason_hist": {
+              "EXIT_ALL_RIBBON_FLIP_BACK": 1,
+              "TP1_THEN_RUNNER_RIBBON": 4
+            }
+          },
+          "rolling_month_wf": {
+            "verdict": "INSUFFICIENT_WINDOWS",
+            "windows": []
+          }
+        },
+        {
+          "gate": "vix_falling",
+          "family": "vix_character",
+          "desc": "VIX falling at entry (risk-on)",
+          "live_compute": "VIX last vs prior bar \u2014 loop-state.vix_cache.dir.",
+          "n_kept": 24,
+          "retention": 0.261,
+          "exp_dollar": 62.28,
+          "wr_pct": 79.2,
+          "is_exp_dollar": 11.44,
+          "oos_exp_dollar": 163.97,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 6,
+              "mean_pnl": -62.37,
+              "total_pnl": -374.2
+            },
+            {
+              "window": 2,
+              "n": 6,
+              "mean_pnl": 36.9,
+              "total_pnl": 221.4
+            },
+            {
+              "window": 3,
+              "n": 6,
+              "mean_pnl": 97.6,
+              "total_pnl": 585.6
+            },
+            {
+              "window": 4,
+              "n": 6,
+              "mean_pnl": 177.0,
+              "total_pnl": 1062.0
+            }
+          ],
+          "oos_months_positive": 5,
+          "oos_months_total": 5,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -11.08,
+          "robust_to_outliers": false,
+          "IS_WINNER": false,
+          "_full_metrics": {
+            "n": 24,
+            "wins": 19,
+            "wr_pct": 79.2,
+            "exp_dollar": 62.28,
+            "total_dollar": 1494.8,
+            "exp_pct": 0.30781,
+            "is_n": 16,
+            "oos_n": 8,
+            "is_exp_dollar": 11.44,
+            "oos_exp_dollar": 163.97,
+            "is_exp_pct": 0.15495,
+            "oos_exp_pct": 0.61352,
+            "oos_sign_stable": true,
+            "sub_windows": [
+              {
+                "window": 1,
+                "n": 6,
+                "mean_pnl": -62.37,
+                "total_pnl": -374.2
+              },
+              {
+                "window": 2,
+                "n": 6,
+                "mean_pnl": 36.9,
+                "total_pnl": 221.4
+              },
+              {
+                "window": 3,
+                "n": 6,
+                "mean_pnl": 97.6,
+                "total_pnl": 585.6
+              },
+              {
+                "window": 4,
+                "n": 6,
+                "mean_pnl": 177.0,
+                "total_pnl": 1062.0
+              }
+            ],
+            "n_sub_hurt": 1,
+            "all_sub_windows_positive": false,
+            "oos_months_positive": 5,
+            "oos_months_total": 5,
+            "oos_months_all_positive": true,
+            "oos_months": {
+              "2026-01": {
+                "n": 3,
+                "exp": 126.47,
+                "total": 379.4,
+                "positive": true
+              },
+              "2026-02": {
+                "n": 1,
+                "exp": 41.4,
+                "total": 41.4,
+                "positive": true
+              },
+              "2026-03": {
+                "n": 1,
+                "exp": 200.4,
+                "total": 200.4,
+                "positive": true
+              },
+              "2026-04": {
+                "n": 1,
+                "exp": 151.8,
+                "total": 151.8,
+                "positive": true
+              },
+              "2026-05": {
+                "n": 2,
+                "exp": 269.4,
+                "total": 538.8,
+                "positive": true
+              }
+            },
+            "by_side": {
+              "C": {
+                "n": 16,
+                "exp": 85.4,
+                "wr": 87.5,
+                "total": 1366.4
+              },
+              "P": {
+                "n": 8,
+                "exp": 16.05,
+                "wr": 62.5,
+                "total": 128.4
+              }
+            },
+            "both_dirs_positive": true,
+            "drop_top5_mean_dollar": -11.08,
+            "robust_to_outliers": false,
+            "dsr": {
+              "verdict": "PASS",
+              "dsr": 0.9080365688589429,
+              "psr": 0.9996657142808959,
+              "pbo": null,
+              "n_obs": 24,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=0.9997 on n=24 obs (Sharpe=0.635, skew=0.71, kurt=3.53).",
+                "DSR deflated for n_trials=30 (SR_0=0.387) = 0.9080.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+              ]
+            },
+            "dsr_verdict": "PASS",
+            "exit_reason_hist": {
+              "EXIT_ALL_RIBBON_FLIP_BACK": 6,
+              "TP1_THEN_RUNNER_TIME": 6,
+              "EXIT_ALL_LEVEL_STOP": 1,
+              "TP1_THEN_RUNNER_RIBBON": 11
+            }
+          },
+          "rolling_month_wf": {
+            "n_windows": 8,
+            "median_wf_norm": 3.934,
+            "oos_positive_frac": 1.0,
+            "negative_oos_months": [],
+            "trailing_positive_oos_months": 8,
+            "windows": [
+              {
+                "oos_month": "2025-09",
+                "n_oos": 1,
+                "oos_pnl": 52.2,
+                "oos_exp": 52.2,
+                "wf_norm": -2.006,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2025-10",
+                "n_oos": 4,
+                "oos_pnl": 353.2,
+                "oos_exp": 88.3,
+                "wf_norm": -4.67,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2025-12",
+                "n_oos": 1,
+                "oos_pnl": 37.8,
+                "oos_exp": 37.8,
+                "wf_norm": 3.905,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-01",
+                "n_oos": 3,
+                "oos_pnl": 379.4,
+                "oos_exp": 126.47,
+                "wf_norm": 11.057,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-02",
+                "n_oos": 1,
+                "oos_pnl": 41.4,
+                "oos_exp": 41.4,
+                "wf_norm": 1.399,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-03",
+                "n_oos": 1,
+                "oos_pnl": 200.4,
+                "oos_exp": 200.4,
+                "wf_norm": 6.638,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-04",
+                "n_oos": 1,
+                "oos_pnl": 151.8,
+                "oos_exp": 151.8,
+                "wf_norm": 3.964,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-05",
+                "n_oos": 2,
+                "oos_pnl": 538.8,
+                "oos_exp": 269.4,
+                "wf_norm": 6.2,
+                "oos_positive": true
+              }
+            ],
+            "verdict": "PASS"
+          }
+        },
+        {
+          "gate": "morning_move_ge_0.005",
+          "family": "trend_strength",
+          "desc": "|open->trigger| move >= 0.5% (strong directional day)",
+          "live_compute": "session open vs trigger close \u2014 pure SPY bars, causal.",
+          "n_kept": 24,
+          "retention": 0.261,
+          "exp_dollar": -5.91,
+          "wr_pct": 75.0,
+          "is_exp_dollar": -95.13,
+          "oos_exp_dollar": 142.8,
+          "oos_sign_stable": false,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 6,
+              "mean_pnl": 69.97,
+              "total_pnl": 419.8
+            },
+            {
+              "window": 2,
+              "n": 6,
+              "mean_pnl": -298.3,
+              "total_pnl": -1789.8
+            },
+            {
+              "window": 3,
+              "n": 6,
+              "mean_pnl": 112.2,
+              "total_pnl": 673.2
+            },
+            {
+              "window": 4,
+              "n": 6,
+              "mean_pnl": 92.5,
+              "total_pnl": 555.0
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 4,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": false,
+          "dsr_verdict": "WEAK",
+          "drop_top5_mean_dollar": -70.88,
+          "robust_to_outliers": false,
+          "IS_WINNER": false,
+          "_full_metrics": {
+            "n": 24,
+            "wins": 18,
+            "wr_pct": 75.0,
+            "exp_dollar": -5.91,
+            "total_dollar": -141.8,
+            "exp_pct": 0.09736,
+            "is_n": 15,
+            "oos_n": 9,
+            "is_exp_dollar": -95.13,
+            "oos_exp_dollar": 142.8,
+            "is_exp_pct": -0.18109,
+            "oos_exp_pct": 0.56144,
+            "oos_sign_stable": false,
+            "sub_windows": [
+              {
+                "window": 1,
+                "n": 6,
+                "mean_pnl": 69.97,
+                "total_pnl": 419.8
+              },
+              {
+                "window": 2,
+                "n": 6,
+                "mean_pnl": -298.3,
+                "total_pnl": -1789.8
+              },
+              {
+                "window": 3,
+                "n": 6,
+                "mean_pnl": 112.2,
+                "total_pnl": 673.2
+              },
+              {
+                "window": 4,
+                "n": 6,
+                "mean_pnl": 92.5,
+                "total_pnl": 555.0
+              }
+            ],
+            "n_sub_hurt": 1,
+            "all_sub_windows_positive": false,
+            "oos_months_positive": 4,
+            "oos_months_total": 4,
+            "oos_months_all_positive": true,
+            "oos_months": {
+              "2026-01": {
+                "n": 1,
+                "exp": 217.2,
+                "total": 217.2,
+                "positive": true
+              },
+              "2026-02": {
+                "n": 5,
+                "exp": 132.0,
+                "total": 660.0,
+                "positive": true
+              },
+              "2026-03": {
+                "n": 2,
+                "exp": 175.5,
+                "total": 351.0,
+                "positive": true
+              },
+              "2026-04": {
+                "n": 1,
+                "exp": 57.0,
+                "total": 57.0,
+                "positive": true
+              }
+            },
+            "by_side": {
+              "C": {
+                "n": 13,
+                "exp": 4.51,
+                "wr": 76.9,
+                "total": 58.6
+              },
+              "P": {
+                "n": 11,
+                "exp": -18.22,
+                "wr": 72.7,
+                "total": -200.4
+              }
+            },
+            "both_dirs_positive": false,
+            "drop_top5_mean_dollar": -70.88,
+            "robust_to_outliers": false,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.0889635074185689,
+              "psr": 0.7661502043943218,
+              "pbo": null,
+              "n_obs": 24,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=0.7662 on n=24 obs (Sharpe=0.150, skew=0.21, kurt=3.27).",
+                "DSR deflated for n_trials=30 (SR_0=0.428) = 0.0890.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict WEAK: positive but below the PASS confidence bar (need PSR>=0.95)."
+              ]
+            },
+            "dsr_verdict": "WEAK",
+            "exit_reason_hist": {
+              "TP1_THEN_RUNNER_RIBBON": 15,
+              "EXIT_ALL_TIME_STOP": 3,
+              "EXIT_ALL_LEVEL_STOP": 1,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 2,
+              "TP1_THEN_RUNNER_TIME": 3
+            }
+          },
+          "rolling_month_wf": {
+            "n_windows": 6,
+            "median_wf_norm": -2.014,
+            "oos_positive_frac": 1.0,
+            "negative_oos_months": [],
+            "trailing_positive_oos_months": 6,
+            "windows": [
+              {
+                "oos_month": "2025-11",
+                "n_oos": 1,
+                "oos_pnl": 148.2,
+                "oos_exp": 148.2,
+                "wf_norm": -1.183,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2025-12",
+                "n_oos": 1,
+                "oos_pnl": 52.8,
+                "oos_exp": 52.8,
+                "wf_norm": -0.5,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-01",
+                "n_oos": 1,
+                "oos_pnl": 217.2,
+                "oos_exp": 217.2,
+                "wf_norm": -2.283,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-02",
+                "n_oos": 5,
+                "oos_pnl": 660.0,
+                "oos_exp": 132.0,
+                "wf_norm": -1.746,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-03",
+                "n_oos": 2,
+                "oos_pnl": 351.0,
+                "oos_exp": 175.5,
+                "wf_norm": -6.703,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-04",
+                "n_oos": 1,
+                "oos_pnl": 57.0,
+                "oos_exp": 57.0,
+                "wf_norm": -6.595,
+                "oos_positive": true
+              }
+            ],
+            "verdict": "WEAK"
+          }
+        },
+        {
+          "gate": "morning_move_ge_0.003",
+          "family": "trend_strength",
+          "desc": "|open->trigger| move >= 0.3% (strong directional day)",
+          "live_compute": "session open vs trigger close \u2014 pure SPY bars, causal.",
+          "n_kept": 44,
+          "retention": 0.478,
+          "exp_dollar": 20.78,
+          "wr_pct": 75.0,
+          "is_exp_dollar": -25.89,
+          "oos_exp_dollar": 120.79,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 2,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 11,
+              "mean_pnl": -31.93,
+              "total_pnl": -351.2
+            },
+            {
+              "window": 2,
+              "n": 11,
+              "mean_pnl": -82.15,
+              "total_pnl": -903.6
+            },
+            {
+              "window": 3,
+              "n": 11,
+              "mean_pnl": 100.98,
+              "total_pnl": 1110.8
+            },
+            {
+              "window": 4,
+              "n": 11,
+              "mean_pnl": 96.22,
+              "total_pnl": 1058.4
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 4,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -22.73,
+          "robust_to_outliers": false,
+          "IS_WINNER": false,
+          "_full_metrics": {
+            "n": 44,
+            "wins": 33,
+            "wr_pct": 75.0,
+            "exp_dollar": 20.78,
+            "total_dollar": 914.4,
+            "exp_pct": 0.32805,
+            "is_n": 30,
+            "oos_n": 14,
+            "is_exp_dollar": -25.89,
+            "oos_exp_dollar": 120.79,
+            "is_exp_pct": 0.25058,
+            "oos_exp_pct": 0.49406,
+            "oos_sign_stable": true,
+            "sub_windows": [
+              {
+                "window": 1,
+                "n": 11,
+                "mean_pnl": -31.93,
+                "total_pnl": -351.2
+              },
+              {
+                "window": 2,
+                "n": 11,
+                "mean_pnl": -82.15,
+                "total_pnl": -903.6
+              },
+              {
+                "window": 3,
+                "n": 11,
+                "mean_pnl": 100.98,
+                "total_pnl": 1110.8
+              },
+              {
+                "window": 4,
+                "n": 11,
+                "mean_pnl": 96.22,
+                "total_pnl": 1058.4
+              }
+            ],
+            "n_sub_hurt": 2,
+            "all_sub_windows_positive": false,
+            "oos_months_positive": 4,
+            "oos_months_total": 4,
+            "oos_months_all_positive": true,
+            "oos_months": {
+              "2026-01": {
+                "n": 2,
+                "exp": 223.0,
+                "total": 446.0,
+                "positive": true
+              },
+              "2026-02": {
+                "n": 5,
+                "exp": 132.0,
+                "total": 660.0,
+                "positive": true
+              },
+              "2026-03": {
+                "n": 4,
+                "exp": 66.3,
+                "total": 265.2,
+                "positive": true
+              },
+              "2026-04": {
+                "n": 3,
+                "exp": 106.6,
+                "total": 319.8,
+                "positive": true
+              }
+            },
+            "by_side": {
+              "C": {
+                "n": 23,
+                "exp": 26.92,
+                "wr": 78.3,
+                "total": 619.2
+              },
+              "P": {
+                "n": 21,
+                "exp": 14.06,
+                "wr": 71.4,
+                "total": 295.2
+              }
+            },
+            "both_dirs_positive": true,
+            "drop_top5_mean_dollar": -22.73,
+            "robust_to_outliers": false,
+            "dsr": {
+              "verdict": "PASS",
+              "dsr": 0.8468875777277267,
+              "psr": 0.9990211248080169,
+              "pbo": null,
+              "n_obs": 44,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=0.9990 on n=44 obs (Sharpe=0.249, skew=4.52, kurt=26.98).",
+                "DSR deflated for n_trials=30 (SR_0=0.167) = 0.8469.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+              ]
+            },
+            "dsr_verdict": "PASS",
+            "exit_reason_hist": {
+              "EXIT_ALL_RIBBON_FLIP_BACK": 9,
+              "TP1_THEN_RUNNER_TIME": 6,
+              "TP1_THEN_RUNNER_RIBBON": 25,
+              "EXIT_ALL_TIME_STOP": 3,
+              "EXIT_ALL_LEVEL_STOP": 1
+            }
+          },
+          "rolling_month_wf": {
+            "n_windows": 9,
+            "median_wf_norm": -0.545,
+            "oos_positive_frac": 0.89,
+            "negative_oos_months": [
+              "2025-10"
+            ],
+            "trailing_positive_oos_months": 6,
+            "windows": [
+              {
+                "oos_month": "2025-07",
+                "n_oos": 2,
+                "oos_pnl": 82.2,
+                "oos_exp": 41.1,
+                "wf_norm": -0.545,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2025-08",
+                "n_oos": 4,
+                "oos_pnl": 37.2,
+                "oos_exp": 9.3,
+                "wf_norm": -0.147,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2025-10",
+                "n_oos": 1,
+                "oos_pnl": -354.0,
+                "oos_exp": -354.0,
+                "wf_norm": 7.008,
+                "oos_positive": false
+              },
+              {
+                "oos_month": "2025-11",
+                "n_oos": 4,
+                "oos_pnl": 640.8,
+                "oos_exp": 160.2,
+                "wf_norm": -2.536,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2025-12",
+                "n_oos": 2,
+                "oos_pnl": 98.4,
+                "oos_exp": 49.2,
+                "wf_norm": -1.574,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-01",
+                "n_oos": 2,
+                "oos_pnl": 446.0,
+                "oos_exp": 223.0,
+                "wf_norm": -8.614,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-02",
+                "n_oos": 5,
+                "oos_pnl": 660.0,
+                "oos_exp": 132.0,
+                "wf_norm": -12.777,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-03",
+                "n_oos": 4,
+                "oos_pnl": 265.2,
+                "oos_exp": 66.3,
+                "wf_norm": 7.447,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-04",
+                "n_oos": 3,
+                "oos_pnl": 319.8,
+                "oos_exp": 106.6,
+                "wf_norm": 7.35,
+                "oos_positive": true
+              }
+            ],
+            "verdict": "WEAK"
+          }
+        },
+        {
+          "gate": "morning_move_ge_0.004",
+          "family": "trend_strength",
+          "desc": "|open->trigger| move >= 0.4% (strong directional day)",
+          "live_compute": "session open vs trigger close \u2014 pure SPY bars, causal.",
+          "n_kept": 32,
+          "retention": 0.348,
+          "exp_dollar": -9.06,
+          "wr_pct": 71.9,
+          "is_exp_dollar": -60.96,
+          "oos_exp_dollar": 105.12,
+          "oos_sign_stable": false,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 8,
+              "mean_pnl": 57.35,
+              "total_pnl": 458.8
+            },
+            {
+              "window": 2,
+              "n": 8,
+              "mean_pnl": -242.25,
+              "total_pnl": -1938.0
+            },
+            {
+              "window": 3,
+              "n": 8,
+              "mean_pnl": 67.72,
+              "total_pnl": 541.8
+            },
+            {
+              "window": 4,
+              "n": 8,
+              "mean_pnl": 80.92,
+              "total_pnl": 647.4
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 4,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": false,
+          "dsr_verdict": "WEAK",
+          "drop_top5_mean_dollar": -60.46,
+          "robust_to_outliers": false,
+          "IS_WINNER": false,
+          "_full_metrics": {
+            "n": 32,
+            "wins": 23,
+            "wr_pct": 71.9,
+            "exp_dollar": -9.06,
+            "total_dollar": -290.0,
+            "exp_pct": 0.10664,
+            "is_n": 22,
+            "oos_n": 10,
+            "is_exp_dollar": -60.96,
+            "oos_exp_dollar": 105.12,
+            "is_exp_pct": -0.0598,
+            "oos_exp_pct": 0.47279,
+            "oos_sign_stable": false,
+            "sub_windows": [
+              {
+                "window": 1,
+                "n": 8,
+                "mean_pnl": 57.35,
+                "total_pnl": 458.8
+              },
+              {
+                "window": 2,
+                "n": 8,
+                "mean_pnl": -242.25,
+                "total_pnl": -1938.0
+              },
+              {
+                "window": 3,
+                "n": 8,
+                "mean_pnl": 67.72,
+                "total_pnl": 541.8
+              },
+              {
+                "window": 4,
+                "n": 8,
+                "mean_pnl": 80.92,
+                "total_pnl": 647.4
+              }
+            ],
+            "n_sub_hurt": 1,
+            "all_sub_windows_positive": false,
+            "oos_months_positive": 4,
+            "oos_months_total": 4,
+            "oos_months_all_positive": true,
+            "oos_months": {
+              "2026-01": {
+                "n": 1,
+                "exp": 217.2,
+                "total": 217.2,
+                "positive": true
+              },
+              "2026-02": {
+                "n": 5,
+                "exp": 132.0,
+                "total": 660.0,
+                "positive": true
+              },
+              "2026-03": {
+                "n": 3,
+                "exp": 39.0,
+                "total": 117.0,
+                "positive": true
+              },
+              "2026-04": {
+                "n": 1,
+                "exp": 57.0,
+                "total": 57.0,
+                "positive": true
+              }
+            },
+            "by_side": {
+              "C": {
+                "n": 17,
+                "exp": -0.12,
+                "wr": 76.5,
+                "total": -2.0
+              },
+              "P": {
+                "n": 15,
+                "exp": -19.2,
+                "wr": 66.7,
+                "total": -288.0
+              }
+            },
+            "both_dirs_positive": false,
+            "drop_top5_mean_dollar": -60.46,
+            "robust_to_outliers": false,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.13425423400291564,
+              "psr": 0.8332000837637084,
+              "pbo": null,
+              "n_obs": 32,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=0.8332 on n=32 obs (Sharpe=0.172, skew=0.19, kurt=3.33).",
+                "DSR deflated for n_trials=30 (SR_0=0.370) = 0.1343.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict WEAK: positive but below the PASS confidence bar (need PSR>=0.95)."
+              ]
+            },
+            "dsr_verdict": "WEAK",
+            "exit_reason_hist": {
+              "EXIT_ALL_RIBBON_FLIP_BACK": 6,
+              "TP1_THEN_RUNNER_RIBBON": 18,
+              "EXIT_ALL_TIME_STOP": 3,
+              "EXIT_ALL_LEVEL_STOP": 1,
+              "TP1_THEN_RUNNER_TIME": 4
+            }
+          },
+          "rolling_month_wf": {
+            "n_windows": 7,
+            "median_wf_norm": -2.353,
+            "oos_positive_frac": 1.0,
+            "negative_oos_months": [],
+            "trailing_positive_oos_months": 7,
+            "windows": [
+              {
+                "oos_month": "2025-08",
+                "n_oos": 4,
+                "oos_pnl": 37.2,
+                "oos_exp": 9.3,
+                "wf_norm": -0.077,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2025-11",
+                "n_oos": 2,
+                "oos_pnl": 204.6,
+                "oos_exp": 102.3,
+                "wf_norm": -1.12,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2025-12",
+                "n_oos": 2,
+                "oos_pnl": 98.4,
+                "oos_exp": 49.2,
+                "wf_norm": -0.684,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-01",
+                "n_oos": 1,
+                "oos_pnl": 217.2,
+                "oos_exp": 217.2,
+                "wf_norm": -3.563,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-02",
+                "n_oos": 5,
+                "oos_pnl": 660.0,
+                "oos_exp": 132.0,
+                "wf_norm": -2.701,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-03",
+                "n_oos": 3,
+                "oos_pnl": 117.0,
+                "oos_exp": 39.0,
+                "wf_norm": -2.353,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-04",
+                "n_oos": 1,
+                "oos_pnl": 57.0,
+                "oos_exp": 57.0,
+                "wf_norm": -5.092,
+                "oos_positive": true
+              }
+            ],
+            "verdict": "WEAK"
+          }
+        },
+        {
+          "gate": "range_ratio_le_1.5",
+          "family": "range_expansion",
+          "desc": "trigger-bar range <= 1.5x trailing-20 median (no vol spike)",
+          "live_compute": "bar range / trailing-20-bar median range \u2014 pure SPY bars, causal.",
+          "n_kept": 50,
+          "retention": 0.543,
+          "exp_dollar": 16.36,
+          "wr_pct": 70.0,
+          "is_exp_dollar": -19.82,
+          "oos_exp_dollar": 93.22,
+          "oos_sign_stable": false,
+          "n_sub_hurt": 2,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 12,
+              "mean_pnl": -75.08,
+              "total_pnl": -901.0
+            },
+            {
+              "window": 2,
+              "n": 13,
+              "mean_pnl": -5.46,
+              "total_pnl": -71.0
+            },
+            {
+              "window": 3,
+              "n": 13,
+              "mean_pnl": 89.08,
+              "total_pnl": 1158.0
+            },
+            {
+              "window": 4,
+              "n": 12,
+              "mean_pnl": 52.65,
+              "total_pnl": 631.8
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": false,
+          "dsr_verdict": "WEAK",
+          "drop_top5_mean_dollar": -21.63,
+          "robust_to_outliers": false,
+          "IS_WINNER": false,
+          "_full_metrics": {
+            "n": 50,
+            "wins": 35,
+            "wr_pct": 70.0,
+            "exp_dollar": 16.36,
+            "total_dollar": 817.8,
+            "exp_pct": 0.09762,
+            "is_n": 34,
+            "oos_n": 16,
+            "is_exp_dollar": -19.82,
+            "oos_exp_dollar": 93.22,
+            "is_exp_pct": -0.03399,
+            "oos_exp_pct": 0.37728,
+            "oos_sign_stable": false,
+            "sub_windows": [
+              {
+                "window": 1,
+                "n": 12,
+                "mean_pnl": -75.08,
+                "total_pnl": -901.0
+              },
+              {
+                "window": 2,
+                "n": 13,
+                "mean_pnl": -5.46,
+                "total_pnl": -71.0
+              },
+              {
+                "window": 3,
+                "n": 13,
+                "mean_pnl": 89.08,
+                "total_pnl": 1158.0
+              },
+              {
+                "window": 4,
+                "n": 12,
+                "mean_pnl": 52.65,
+                "total_pnl": 631.8
+              }
+            ],
+            "n_sub_hurt": 2,
+            "all_sub_windows_positive": false,
+            "oos_months_positive": 4,
+            "oos_months_total": 5,
+            "oos_months_all_positive": false,
+            "oos_months": {
+              "2026-01": {
+                "n": 2,
+                "exp": 173.4,
+                "total": 346.8,
+                "positive": true
+              },
+              "2026-02": {
+                "n": 4,
+                "exp": 163.35,
+                "total": 653.4,
+                "positive": true
+              },
+              "2026-03": {
+                "n": 4,
+                "exp": -53.4,
+                "total": -213.6,
+                "positive": false
+              },
+              "2026-04": {
+                "n": 1,
+                "exp": 315.0,
+                "total": 315.0,
+                "positive": true
+              },
+              "2026-05": {
+                "n": 5,
+                "exp": 78.0,
+                "total": 390.0,
+                "positive": true
+              }
+            },
+            "by_side": {
+              "C": {
+                "n": 34,
+                "exp": 31.85,
+                "wr": 76.5,
+                "total": 1083.0
+              },
+              "P": {
+                "n": 16,
+                "exp": -16.58,
+                "wr": 56.2,
+                "total": -265.2
+              }
+            },
+            "both_dirs_positive": false,
+            "drop_top5_mean_dollar": -21.63,
+            "robust_to_outliers": false,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.19964802882331423,
+              "psr": 0.8907475060081969,
+              "pbo": null,
+              "n_obs": 50,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=0.8907 on n=50 obs (Sharpe=0.176, skew=0.10, kurt=3.70).",
+                "DSR deflated for n_trials=30 (SR_0=0.297) = 0.1996.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict WEAK: positive but below the PASS confidence bar (need PSR>=0.95)."
+              ]
+            },
+            "dsr_verdict": "WEAK",
+            "exit_reason_hist": {
+              "EXIT_ALL_RIBBON_FLIP_BACK": 11,
+              "TP1_THEN_RUNNER_RIBBON": 25,
+              "EXIT_ALL_LEVEL_STOP": 4,
+              "EXIT_ALL_TIME_STOP": 3,
+              "TP1_THEN_RUNNER_TIME": 7
+            }
+          },
+          "rolling_month_wf": {
+            "n_windows": 10,
+            "median_wf_norm": -0.964,
+            "oos_positive_frac": 0.7,
+            "negative_oos_months": [
+              "2025-09",
+              "2025-10",
+              "2026-03"
+            ],
+            "trailing_positive_oos_months": 2,
+            "windows": [
+              {
+                "oos_month": "2025-08",
+                "n_oos": 5,
+                "oos_pnl": 51.0,
+                "oos_exp": 10.2,
+                "wf_norm": -0.143,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2025-09",
+                "n_oos": 2,
+                "oos_pnl": -189.6,
+                "oos_exp": -94.8,
+                "wf_norm": 1.832,
+                "oos_positive": false
+              },
+              {
+                "oos_month": "2025-10",
+                "n_oos": 5,
+                "oos_pnl": -128.0,
+                "oos_exp": -25.6,
+                "wf_norm": 0.461,
+                "oos_positive": false
+              },
+              {
+                "oos_month": "2025-11",
+                "n_oos": 4,
+                "oos_pnl": 645.6,
+                "oos_exp": 161.4,
+                "wf_norm": -3.219,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2025-12",
+                "n_oos": 2,
+                "oos_pnl": 84.6,
+                "oos_exp": 42.3,
+                "wf_norm": -1.785,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-01",
+                "n_oos": 2,
+                "oos_pnl": 346.8,
+                "oos_exp": 173.4,
+                "wf_norm": -8.75,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-02",
+                "n_oos": 4,
+                "oos_pnl": 653.4,
+                "oos_exp": 163.35,
+                "wf_norm": -17.983,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-03",
+                "n_oos": 4,
+                "oos_pnl": -213.6,
+                "oos_exp": -53.4,
+                "wf_norm": -6.544,
+                "oos_positive": false
+              },
+              {
+                "oos_month": "2026-04",
+                "n_oos": 1,
+                "oos_pnl": 315.0,
+                "oos_exp": 315.0,
+                "wf_norm": 122.872,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-05",
+                "n_oos": 5,
+                "oos_pnl": 390.0,
+                "oos_exp": 78.0,
+                "wf_norm": 8.205,
+                "oos_positive": true
+              }
+            ],
+            "verdict": "WEAK"
+          }
+        },
+        {
+          "gate": "vix_lt_high_floor_19",
+          "family": "vix_band",
+          "desc": "VIX < 19.0 (not high-vol; regime_book VIX_HIGH_VOL_FLOOR)",
+          "live_compute": "VIX last value at trigger bar \u2014 loop-state.vix_cache.",
+          "n_kept": 64,
+          "retention": 0.696,
+          "exp_dollar": 25.91,
+          "wr_pct": 73.4,
+          "is_exp_dollar": -4.18,
+          "oos_exp_dollar": 87.53,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 16,
+              "mean_pnl": -27.94,
+              "total_pnl": -447.0
+            },
+            {
+              "window": 2,
+              "n": 16,
+              "mean_pnl": 12.21,
+              "total_pnl": 195.4
+            },
+            {
+              "window": 3,
+              "n": 16,
+              "mean_pnl": 53.44,
+              "total_pnl": 855.0
+            },
+            {
+              "window": 4,
+              "n": 16,
+              "mean_pnl": 65.94,
+              "total_pnl": 1055.0
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 4,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -4.62,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "vix_lt_22",
+          "family": "vix_band",
+          "desc": "VIX < 22 (swept band)",
+          "live_compute": "VIX last value at trigger bar \u2014 loop-state.vix_cache.",
+          "n_kept": 75,
+          "retention": 0.815,
+          "exp_dollar": 33.39,
+          "wr_pct": 74.7,
+          "is_exp_dollar": 10.65,
+          "oos_exp_dollar": 81.72,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 19,
+              "mean_pnl": -7.19,
+              "total_pnl": -136.6
+            },
+            {
+              "window": 2,
+              "n": 19,
+              "mean_pnl": 24.12,
+              "total_pnl": 458.2
+            },
+            {
+              "window": 3,
+              "n": 18,
+              "mean_pnl": 55.83,
+              "total_pnl": 1005.0
+            },
+            {
+              "window": 4,
+              "n": 19,
+              "mean_pnl": 62.0,
+              "total_pnl": 1178.0
+            }
+          ],
+          "oos_months_positive": 5,
+          "oos_months_total": 5,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 7.08,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "morning_move_ge_0.002",
+          "family": "trend_strength",
+          "desc": "|open->trigger| move >= 0.2% (strong directional day)",
+          "live_compute": "session open vs trigger close \u2014 pure SPY bars, causal.",
+          "n_kept": 67,
+          "retention": 0.728,
+          "exp_dollar": 18.14,
+          "wr_pct": 74.6,
+          "is_exp_dollar": -8.05,
+          "oos_exp_dollar": 79.69,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 17,
+              "mean_pnl": 8.68,
+              "total_pnl": 147.6
+            },
+            {
+              "window": 2,
+              "n": 17,
+              "mean_pnl": -82.48,
+              "total_pnl": -1402.2
+            },
+            {
+              "window": 3,
+              "n": 16,
+              "mean_pnl": 90.75,
+              "total_pnl": 1452.0
+            },
+            {
+              "window": 4,
+              "n": 17,
+              "mean_pnl": 59.89,
+              "total_pnl": 1018.2
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -12.21,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "vix_lt_18",
+          "family": "vix_band",
+          "desc": "VIX < 18 (swept band)",
+          "live_compute": "VIX last value at trigger bar \u2014 loop-state.vix_cache.",
+          "n_kept": 47,
+          "retention": 0.511,
+          "exp_dollar": 5.16,
+          "wr_pct": 70.2,
+          "is_exp_dollar": -26.22,
+          "oos_exp_dollar": 79.14,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 2,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 12,
+              "mean_pnl": -50.75,
+              "total_pnl": -609.0
+            },
+            {
+              "window": 2,
+              "n": 12,
+              "mean_pnl": 5.2,
+              "total_pnl": 62.4
+            },
+            {
+              "window": 3,
+              "n": 11,
+              "mean_pnl": -6.27,
+              "total_pnl": -69.0
+            },
+            {
+              "window": 4,
+              "n": 12,
+              "mean_pnl": 71.52,
+              "total_pnl": 858.2
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 4,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -35.89,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "vix_lt_20",
+          "family": "vix_band",
+          "desc": "VIX < 20 (swept band)",
+          "live_compute": "VIX last value at trigger bar \u2014 loop-state.vix_cache.",
+          "n_kept": 70,
+          "retention": 0.761,
+          "exp_dollar": 19.92,
+          "wr_pct": 72.9,
+          "is_exp_dollar": -7.8,
+          "oos_exp_dollar": 76.56,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 18,
+              "mean_pnl": -33.73,
+              "total_pnl": -607.2
+            },
+            {
+              "window": 2,
+              "n": 17,
+              "mean_pnl": 24.24,
+              "total_pnl": 412.0
+            },
+            {
+              "window": 3,
+              "n": 17,
+              "mean_pnl": 36.0,
+              "total_pnl": 612.0
+            },
+            {
+              "window": 4,
+              "n": 18,
+              "mean_pnl": 54.31,
+              "total_pnl": 977.6
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 4,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -8.25,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "range_ratio_le_2.0",
+          "family": "range_expansion",
+          "desc": "trigger-bar range <= 2.0x trailing-20 median (no vol spike)",
+          "live_compute": "bar range / trailing-20-bar median range \u2014 pure SPY bars, causal.",
+          "n_kept": 70,
+          "retention": 0.761,
+          "exp_dollar": 11.87,
+          "wr_pct": 71.4,
+          "is_exp_dollar": -10.21,
+          "oos_exp_dollar": 51.62,
+          "oos_sign_stable": false,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 18,
+              "mean_pnl": -46.38,
+              "total_pnl": -834.8
+            },
+            {
+              "window": 2,
+              "n": 17,
+              "mean_pnl": 8.53,
+              "total_pnl": 145.0
+            },
+            {
+              "window": 3,
+              "n": 17,
+              "mean_pnl": 73.62,
+              "total_pnl": 1251.6
+            },
+            {
+              "window": 4,
+              "n": 18,
+              "mean_pnl": 14.97,
+              "total_pnl": 269.4
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": false,
+          "dsr_verdict": "WEAK",
+          "drop_top5_mean_dollar": -14.77,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "regime_not_high_vol",
+          "family": "regime_cell",
+          "desc": "classify_regime != high_vol",
+          "live_compute": "regime_book.classify_regime \u2014 live.",
+          "n_kept": 92,
+          "retention": 1.0,
+          "exp_dollar": 14.03,
+          "wr_pct": 70.7,
+          "is_exp_dollar": -2.63,
+          "oos_exp_dollar": 45.27,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 2,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 23,
+              "mean_pnl": -19.1,
+              "total_pnl": -439.2
+            },
+            {
+              "window": 2,
+              "n": 23,
+              "mean_pnl": -3.84,
+              "total_pnl": -88.4
+            },
+            {
+              "window": 3,
+              "n": 23,
+              "mean_pnl": 71.82,
+              "total_pnl": 1651.8
+            },
+            {
+              "window": 4,
+              "n": 23,
+              "mean_pnl": 7.26,
+              "total_pnl": 167.0
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -9.65,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "regime_not_pin",
+          "family": "regime_cell",
+          "desc": "classify_regime != range_pin",
+          "live_compute": "regime_book.classify_regime \u2014 live.",
+          "n_kept": 92,
+          "retention": 1.0,
+          "exp_dollar": 14.03,
+          "wr_pct": 70.7,
+          "is_exp_dollar": -2.63,
+          "oos_exp_dollar": 45.27,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 2,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 23,
+              "mean_pnl": -19.1,
+              "total_pnl": -439.2
+            },
+            {
+              "window": 2,
+              "n": 23,
+              "mean_pnl": -3.84,
+              "total_pnl": -88.4
+            },
+            {
+              "window": 3,
+              "n": 23,
+              "mean_pnl": 71.82,
+              "total_pnl": 1651.8
+            },
+            {
+              "window": 4,
+              "n": 23,
+              "mean_pnl": 7.26,
+              "total_pnl": 167.0
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -9.65,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "rvol_le_20bps",
+          "family": "realized_vol",
+          "desc": "intraday realized vol <= 20 bps/bar (orderly, not whippy)",
+          "live_compute": "stdev of session 5m log-returns to date \u2014 pure SPY bars, causal.",
+          "n_kept": 91,
+          "retention": 0.989,
+          "exp_dollar": 14.22,
+          "wr_pct": 71.4,
+          "is_exp_dollar": -2.62,
+          "oos_exp_dollar": 45.27,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 23,
+              "mean_pnl": -36.44,
+              "total_pnl": -838.2
+            },
+            {
+              "window": 2,
+              "n": 23,
+              "mean_pnl": 3.07,
+              "total_pnl": 70.6
+            },
+            {
+              "window": 3,
+              "n": 22,
+              "mean_pnl": 86.13,
+              "total_pnl": 1894.8
+            },
+            {
+              "window": 4,
+              "n": 23,
+              "mean_pnl": 7.26,
+              "total_pnl": 167.0
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -9.73,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "range_ratio_le_2.5",
+          "family": "range_expansion",
+          "desc": "trigger-bar range <= 2.5x trailing-20 median (no vol spike)",
+          "live_compute": "bar range / trailing-20-bar median range \u2014 pure SPY bars, causal.",
+          "n_kept": 76,
+          "retention": 0.826,
+          "exp_dollar": 10.7,
+          "wr_pct": 71.1,
+          "is_exp_dollar": -8.31,
+          "oos_exp_dollar": 43.29,
+          "oos_sign_stable": false,
+          "n_sub_hurt": 2,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 19,
+              "mean_pnl": -39.11,
+              "total_pnl": -743.0
+            },
+            {
+              "window": 2,
+              "n": 19,
+              "mean_pnl": 2.89,
+              "total_pnl": 55.0
+            },
+            {
+              "window": 3,
+              "n": 19,
+              "mean_pnl": 79.29,
+              "total_pnl": 1506.6
+            },
+            {
+              "window": 4,
+              "n": 19,
+              "mean_pnl": -0.27,
+              "total_pnl": -5.2
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "WEAK",
+          "drop_top5_mean_dollar": -13.77,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "rvol_le_15bps",
+          "family": "realized_vol",
+          "desc": "intraday realized vol <= 15 bps/bar (orderly, not whippy)",
+          "live_compute": "stdev of session 5m log-returns to date \u2014 pure SPY bars, causal.",
+          "n_kept": 86,
+          "retention": 0.935,
+          "exp_dollar": 14.59,
+          "wr_pct": 70.9,
+          "is_exp_dollar": -0.84,
+          "oos_exp_dollar": 41.95,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 22,
+              "mean_pnl": -39.74,
+              "total_pnl": -874.2
+            },
+            {
+              "window": 2,
+              "n": 21,
+              "mean_pnl": 9.96,
+              "total_pnl": 209.2
+            },
+            {
+              "window": 3,
+              "n": 21,
+              "mean_pnl": 90.51,
+              "total_pnl": 1900.8
+            },
+            {
+              "window": 4,
+              "n": 22,
+              "mean_pnl": 0.85,
+              "total_pnl": 18.8
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -9.31,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "vix_not_rising",
+          "family": "vix_character",
+          "desc": "VIX not rising at entry (flat/falling \u2014 calm tape)",
+          "live_compute": "VIX last vs prior bar \u2014 loop-state.vix_cache.dir.",
+          "n_kept": 78,
+          "retention": 0.848,
+          "exp_dollar": 5.47,
+          "wr_pct": 70.5,
+          "is_exp_dollar": -15.53,
+          "oos_exp_dollar": 40.96,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 3,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 20,
+              "mean_pnl": -67.66,
+              "total_pnl": -1353.2
+            },
+            {
+              "window": 2,
+              "n": 19,
+              "mean_pnl": -3.77,
+              "total_pnl": -71.6
+            },
+            {
+              "window": 3,
+              "n": 19,
+              "mean_pnl": 102.39,
+              "total_pnl": 1945.4
+            },
+            {
+              "window": 4,
+              "n": 20,
+              "mean_pnl": -4.7,
+              "total_pnl": -94.0
+            }
+          ],
+          "oos_months_positive": 3,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "WEAK",
+          "drop_top5_mean_dollar": -21.17,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "adx_ge_30",
+          "family": "trend_strength",
+          "desc": "intraday ADX-like trend strength >= 30 (trend-day, not chop)",
+          "live_compute": "ADX-like index over session 5m bars to date \u2014 pure SPY bars, causal.",
+          "n_kept": 67,
+          "retention": 0.728,
+          "exp_dollar": -11.34,
+          "wr_pct": 67.2,
+          "is_exp_dollar": -32.72,
+          "oos_exp_dollar": 38.92,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 17,
+              "mean_pnl": -93.31,
+              "total_pnl": -1586.2
+            },
+            {
+              "window": 2,
+              "n": 17,
+              "mean_pnl": 1.79,
+              "total_pnl": 30.4
+            },
+            {
+              "window": 3,
+              "n": 16,
+              "mean_pnl": 24.83,
+              "total_pnl": 397.2
+            },
+            {
+              "window": 4,
+              "n": 17,
+              "mean_pnl": 23.47,
+              "total_pnl": 399.0
+            }
+          ],
+          "oos_months_positive": 3,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": false,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -39.48,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "adx_ge_10",
+          "family": "trend_strength",
+          "desc": "intraday ADX-like trend strength >= 10 (trend-day, not chop)",
+          "live_compute": "ADX-like index over session 5m bars to date \u2014 pure SPY bars, causal.",
+          "n_kept": 83,
+          "retention": 0.902,
+          "exp_dollar": 2.95,
+          "wr_pct": 68.7,
+          "is_exp_dollar": -13.47,
+          "oos_exp_dollar": 37.01,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 3,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 21,
+              "mean_pnl": -24.72,
+              "total_pnl": -519.2
+            },
+            {
+              "window": 2,
+              "n": 21,
+              "mean_pnl": -30.75,
+              "total_pnl": -645.8
+            },
+            {
+              "window": 3,
+              "n": 20,
+              "mean_pnl": 76.02,
+              "total_pnl": 1520.4
+            },
+            {
+              "window": 4,
+              "n": 21,
+              "mean_pnl": -5.25,
+              "total_pnl": -110.2
+            }
+          ],
+          "oos_months_positive": 3,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": false,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -20.46,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "adx_ge_15",
+          "family": "trend_strength",
+          "desc": "intraday ADX-like trend strength >= 15 (trend-day, not chop)",
+          "live_compute": "ADX-like index over session 5m bars to date \u2014 pure SPY bars, causal.",
+          "n_kept": 79,
+          "retention": 0.859,
+          "exp_dollar": -3.87,
+          "wr_pct": 67.1,
+          "is_exp_dollar": -25.1,
+          "oos_exp_dollar": 37.01,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 3,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 20,
+              "mean_pnl": -50.32,
+              "total_pnl": -1006.4
+            },
+            {
+              "window": 2,
+              "n": 20,
+              "mean_pnl": -11.83,
+              "total_pnl": -236.6
+            },
+            {
+              "window": 3,
+              "n": 19,
+              "mean_pnl": 57.66,
+              "total_pnl": 1095.6
+            },
+            {
+              "window": 4,
+              "n": 20,
+              "mean_pnl": -7.91,
+              "total_pnl": -158.2
+            }
+          ],
+          "oos_months_positive": 3,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": false,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -27.65,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "rvol_le_12bps",
+          "family": "realized_vol",
+          "desc": "intraday realized vol <= 12 bps/bar (orderly, not whippy)",
+          "live_compute": "stdev of session 5m log-returns to date \u2014 pure SPY bars, causal.",
+          "n_kept": 77,
+          "retention": 0.837,
+          "exp_dollar": 7.67,
+          "wr_pct": 68.8,
+          "is_exp_dollar": -4.61,
+          "oos_exp_dollar": 31.75,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 2,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 19,
+              "mean_pnl": -35.27,
+              "total_pnl": -670.2
+            },
+            {
+              "window": 2,
+              "n": 19,
+              "mean_pnl": 24.12,
+              "total_pnl": 458.2
+            },
+            {
+              "window": 3,
+              "n": 20,
+              "mean_pnl": 57.63,
+              "total_pnl": 1152.6
+            },
+            {
+              "window": 4,
+              "n": 19,
+              "mean_pnl": -18.43,
+              "total_pnl": -350.2
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": false,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -18.17,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "adx_ge_20",
+          "family": "trend_strength",
+          "desc": "intraday ADX-like trend strength >= 20 (trend-day, not chop)",
+          "live_compute": "ADX-like index over session 5m bars to date \u2014 pure SPY bars, causal.",
+          "n_kept": 75,
+          "retention": 0.815,
+          "exp_dollar": -13.99,
+          "wr_pct": 65.3,
+          "is_exp_dollar": -31.48,
+          "oos_exp_dollar": 20.99,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 2,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 19,
+              "mean_pnl": -88.28,
+              "total_pnl": -1677.4
+            },
+            {
+              "window": 2,
+              "n": 19,
+              "mean_pnl": 8.71,
+              "total_pnl": 165.4
+            },
+            {
+              "window": 3,
+              "n": 18,
+              "mean_pnl": 42.73,
+              "total_pnl": 769.2
+            },
+            {
+              "window": 4,
+              "n": 19,
+              "mean_pnl": -16.13,
+              "total_pnl": -306.4
+            }
+          ],
+          "oos_months_positive": 3,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": false,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -39.11,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "adx_ge_25",
+          "family": "trend_strength",
+          "desc": "intraday ADX-like trend strength >= 25 (trend-day, not chop)",
+          "live_compute": "ADX-like index over session 5m bars to date \u2014 pure SPY bars, causal.",
+          "n_kept": 69,
+          "retention": 0.75,
+          "exp_dollar": -20.7,
+          "wr_pct": 65.2,
+          "is_exp_dollar": -37.85,
+          "oos_exp_dollar": 18.5,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 3,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 17,
+              "mean_pnl": -112.96,
+              "total_pnl": -1920.4
+            },
+            {
+              "window": 2,
+              "n": 17,
+              "mean_pnl": -8.15,
+              "total_pnl": -138.6
+            },
+            {
+              "window": 3,
+              "n": 18,
+              "mean_pnl": 46.59,
+              "total_pnl": 838.6
+            },
+            {
+              "window": 4,
+              "n": 17,
+              "mean_pnl": -12.25,
+              "total_pnl": -208.2
+            }
+          ],
+          "oos_months_positive": 3,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": false,
+          "dsr_verdict": "WEAK",
+          "drop_top5_mean_dollar": -48.7,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "rvol_le_8bps",
+          "family": "realized_vol",
+          "desc": "intraday realized vol <= 8 bps/bar (orderly, not whippy)",
+          "live_compute": "stdev of session 5m log-returns to date \u2014 pure SPY bars, causal.",
+          "n_kept": 54,
+          "retention": 0.587,
+          "exp_dollar": -0.96,
+          "wr_pct": 64.8,
+          "is_exp_dollar": -10.09,
+          "oos_exp_dollar": 17.32,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 2,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 14,
+              "mean_pnl": -56.49,
+              "total_pnl": -790.8
+            },
+            {
+              "window": 2,
+              "n": 13,
+              "mean_pnl": 26.85,
+              "total_pnl": 349.0
+            },
+            {
+              "window": 3,
+              "n": 13,
+              "mean_pnl": 41.58,
+              "total_pnl": 540.6
+            },
+            {
+              "window": 4,
+              "n": 14,
+              "mean_pnl": -10.74,
+              "total_pnl": -150.4
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": false,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -38.52,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "rvol_le_10bps",
+          "family": "realized_vol",
+          "desc": "intraday realized vol <= 10 bps/bar (orderly, not whippy)",
+          "live_compute": "stdev of session 5m log-returns to date \u2014 pure SPY bars, causal.",
+          "n_kept": 70,
+          "retention": 0.761,
+          "exp_dollar": -5.94,
+          "wr_pct": 65.7,
+          "is_exp_dollar": -15.71,
+          "oos_exp_dollar": 14.03,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 2,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 18,
+              "mean_pnl": -60.23,
+              "total_pnl": -1084.2
+            },
+            {
+              "window": 2,
+              "n": 17,
+              "mean_pnl": 24.24,
+              "total_pnl": 412.0
+            },
+            {
+              "window": 3,
+              "n": 17,
+              "mean_pnl": 48.6,
+              "total_pnl": 826.2
+            },
+            {
+              "window": 4,
+              "n": 18,
+              "mean_pnl": -31.66,
+              "total_pnl": -569.8
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": false,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -35.61,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "vix_lt_low_ceil_16",
+          "family": "vix_band",
+          "desc": "VIX < 16.0 (low-vol regime; regime_book VIX_LOW_CEIL)",
+          "live_compute": "VIX last value at trigger bar \u2014 already in loop-state.vix_cache.",
+          "n_kept": 12,
+          "retention": 0.13,
+          "exp_dollar": 24.47,
+          "wr_pct": 83.3,
+          "is_exp_dollar": 37.53,
+          "oos_exp_dollar": -14.73,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 2,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 3,
+              "mean_pnl": -4.8,
+              "total_pnl": -14.4
+            },
+            {
+              "window": 2,
+              "n": 3,
+              "mean_pnl": 74.8,
+              "total_pnl": 224.4
+            },
+            {
+              "window": 3,
+              "n": 3,
+              "mean_pnl": 42.6,
+              "total_pnl": 127.8
+            },
+            {
+              "window": 4,
+              "n": 3,
+              "mean_pnl": -14.73,
+              "total_pnl": -44.2
+            }
+          ],
+          "oos_months_positive": 1,
+          "oos_months_total": 2,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "WEAK",
+          "drop_top5_mean_dollar": -29.31,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "vix_lt_16",
+          "family": "vix_band",
+          "desc": "VIX < 16 (swept band)",
+          "live_compute": "VIX last value at trigger bar \u2014 loop-state.vix_cache.",
+          "n_kept": 12,
+          "retention": 0.13,
+          "exp_dollar": 24.47,
+          "wr_pct": 83.3,
+          "is_exp_dollar": 37.53,
+          "oos_exp_dollar": -14.73,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 2,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 3,
+              "mean_pnl": -4.8,
+              "total_pnl": -14.4
+            },
+            {
+              "window": 2,
+              "n": 3,
+              "mean_pnl": 74.8,
+              "total_pnl": 224.4
+            },
+            {
+              "window": 3,
+              "n": 3,
+              "mean_pnl": 42.6,
+              "total_pnl": 127.8
+            },
+            {
+              "window": 4,
+              "n": 3,
+              "mean_pnl": -14.73,
+              "total_pnl": -44.2
+            }
+          ],
+          "oos_months_positive": 1,
+          "oos_months_total": 2,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "WEAK",
+          "drop_top5_mean_dollar": -29.31,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "vix_lt_17",
+          "family": "vix_band",
+          "desc": "VIX < 17 (swept band)",
+          "live_compute": "VIX last value at trigger bar \u2014 loop-state.vix_cache.",
+          "n_kept": 34,
+          "retention": 0.37,
+          "exp_dollar": -3.3,
+          "wr_pct": 70.6,
+          "is_exp_dollar": 4.04,
+          "oos_exp_dollar": -37.57,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 3,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 8,
+              "mean_pnl": 54.75,
+              "total_pnl": 438.0
+            },
+            {
+              "window": 2,
+              "n": 9,
+              "mean_pnl": -13.73,
+              "total_pnl": -123.6
+            },
+            {
+              "window": 3,
+              "n": 9,
+              "mean_pnl": -31.76,
+              "total_pnl": -285.8
+            },
+            {
+              "window": 4,
+              "n": 8,
+              "mean_pnl": -17.6,
+              "total_pnl": -140.8
+            }
+          ],
+          "oos_months_positive": 1,
+          "oos_months_total": 2,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": false,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -46.16,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "regime_is_trend",
+          "family": "regime_cell",
+          "desc": "classify_regime in {bull_trend, bear_trend} (the trend-day cells)",
+          "live_compute": "regime_book.classify_regime(VIX+ribbon+range) \u2014 all live at tick.",
+          "n_kept": 0,
+          "retention": 0.0,
+          "exp_dollar": null,
+          "wr_pct": null,
+          "is_exp_dollar": null,
+          "oos_exp_dollar": null,
+          "oos_sign_stable": null,
+          "n_sub_hurt": null,
+          "all_sub_windows_positive": null,
+          "sub_windows": null,
+          "oos_months_positive": null,
+          "oos_months_total": null,
+          "oos_months_all_positive": null,
+          "both_dirs_positive": null,
+          "dsr_verdict": null,
+          "drop_top5_mean_dollar": null,
+          "robust_to_outliers": null,
+          "IS_WINNER": false
+        }
+      ],
+      "winners": [],
+      "winner_count": 0
+    },
+    "scorecard_default_-8pct": {
+      "premium_stop_pct": -0.08,
+      "n_trades": 92,
+      "baseline_no_gate": {
+        "n": 92,
+        "wins": 39,
+        "wr_pct": 42.4,
+        "exp_dollar": 45.88,
+        "total_dollar": 4221.36,
+        "exp_pct": 0.23664,
+        "is_n": 60,
+        "oos_n": 32,
+        "is_exp_dollar": 33.44,
+        "oos_exp_dollar": 69.22,
+        "is_exp_pct": 0.20919,
+        "oos_exp_pct": 0.28813,
+        "oos_sign_stable": true,
+        "sub_windows": [
+          {
+            "window": 1,
+            "n": 23,
+            "mean_pnl": 58.96,
+            "total_pnl": 1356.04
+          },
+          {
+            "window": 2,
+            "n": 23,
+            "mean_pnl": -12.47,
+            "total_pnl": -286.8
+          },
+          {
+            "window": 3,
+            "n": 23,
+            "mean_pnl": 83.25,
+            "total_pnl": 1914.84
+          },
+          {
+            "window": 4,
+            "n": 23,
+            "mean_pnl": 53.79,
+            "total_pnl": 1237.28
+          }
+        ],
+        "n_sub_hurt": 1,
+        "all_sub_windows_positive": false,
+        "oos_months_positive": 5,
+        "oos_months_total": 5,
+        "oos_months_all_positive": true,
+        "oos_months": {
+          "2026-01": {
+            "n": 4,
+            "exp": 73.13,
+            "total": 292.52,
+            "positive": true
+          },
+          "2026-02": {
+            "n": 6,
+            "exp": 110.36,
+            "total": 662.16,
+            "positive": true
+          },
+          "2026-03": {
+            "n": 8,
+            "exp": 30.57,
+            "total": 244.56,
+            "positive": true
+          },
+          "2026-04": {
+            "n": 5,
+            "exp": 73.1,
+            "total": 365.52,
+            "positive": true
+          },
+          "2026-05": {
+            "n": 9,
+            "exp": 72.25,
+            "total": 650.24,
+            "positive": true
+          }
+        },
+        "by_side": {
+          "C": {
+            "n": 54,
+            "exp": 51.79,
+            "wr": 46.3,
+            "total": 2796.72
+          },
+          "P": {
+            "n": 38,
+            "exp": 37.49,
+            "wr": 36.8,
+            "total": 1424.64
+          }
+        },
+        "both_dirs_positive": true,
+        "drop_top5_mean_dollar": 25.43,
+        "robust_to_outliers": true,
+        "dsr": {
+          "verdict": "PASS",
+          "dsr": 0.9999869261508768,
+          "psr": 0.9999999998285778,
+          "pbo": null,
+          "n_obs": 92,
+          "n_trials": 30,
+          "low_power": false,
+          "notes": [
+            "PSR(vs 0)=1.0000 on n=92 obs (Sharpe=0.262, skew=7.13, kurt=60.82).",
+            "DSR deflated for n_trials=30 (SR_0=0.086) = 1.0000.",
+            "PBO skipped (no performance matrix supplied).",
+            "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+          ]
+        },
+        "dsr_verdict": "PASS",
+        "exit_reason_hist": {
+          "EXIT_ALL_RIBBON_FLIP_BACK": 8,
+          "TP1_THEN_RUNNER_TIME": 11,
+          "EXIT_ALL_PREMIUM_STOP": 51,
+          "TP1_THEN_RUNNER_RIBBON": 22
+        }
+      },
+      "baseline_rolling_month_wf": {
+        "n_windows": 11,
+        "median_wf_norm": 1.679,
+        "oos_positive_frac": 0.64,
+        "negative_oos_months": [
+          "2025-07",
+          "2025-08",
+          "2025-09",
+          "2025-10"
+        ],
+        "trailing_positive_oos_months": 7,
+        "windows": [
+          {
+            "oos_month": "2025-07",
+            "n_oos": 6,
+            "oos_pnl": -90.24,
+            "oos_exp": -15.04,
+            "wf_norm": -0.289,
+            "oos_positive": false
+          },
+          {
+            "oos_month": "2025-08",
+            "n_oos": 7,
+            "oos_pnl": -27.12,
+            "oos_exp": -3.87,
+            "wf_norm": -0.099,
+            "oos_positive": false
+          },
+          {
+            "oos_month": "2025-09",
+            "n_oos": 4,
+            "oos_pnl": -87.6,
+            "oos_exp": -21.9,
+            "wf_norm": -0.704,
+            "oos_positive": false
+          },
+          {
+            "oos_month": "2025-10",
+            "n_oos": 8,
+            "oos_pnl": -170.64,
+            "oos_exp": -21.33,
+            "wf_norm": -0.818,
+            "oos_positive": false
+          },
+          {
+            "oos_month": "2025-11",
+            "n_oos": 5,
+            "oos_pnl": 688.8,
+            "oos_exp": 137.76,
+            "wf_norm": 7.452,
+            "oos_positive": true
+          },
+          {
+            "oos_month": "2025-12",
+            "n_oos": 5,
+            "oos_pnl": 393.28,
+            "oos_exp": 78.66,
+            "wf_norm": 2.682,
+            "oos_positive": true
+          },
+          {
+            "oos_month": "2026-01",
+            "n_oos": 4,
+            "oos_pnl": 292.52,
+            "oos_exp": 73.13,
+            "wf_norm": 2.187,
+            "oos_positive": true
+          },
+          {
+            "oos_month": "2026-02",
+            "n_oos": 6,
+            "oos_pnl": 662.16,
+            "oos_exp": 110.36,
+            "wf_norm": 3.072,
+            "oos_positive": true
+          },
+          {
+            "oos_month": "2026-03",
+            "n_oos": 8,
+            "oos_pnl": 244.56,
+            "oos_exp": 30.57,
+            "wf_norm": 0.723,
+            "oos_positive": true
+          },
+          {
+            "oos_month": "2026-04",
+            "n_oos": 5,
+            "oos_pnl": 365.52,
+            "oos_exp": 73.1,
+            "wf_norm": 1.779,
+            "oos_positive": true
+          },
+          {
+            "oos_month": "2026-05",
+            "n_oos": 9,
+            "oos_pnl": 650.24,
+            "oos_exp": 72.25,
+            "wf_norm": 1.679,
+            "oos_positive": true
+          }
+        ],
+        "verdict": "PASS"
+      },
+      "diagnosis": {
+        "losing_months_def": [
+          "2025-07",
+          "2025-08",
+          "2025-09",
+          "2025-10"
+        ],
+        "n_losing_month_trades": 25,
+        "n_winning_month_trades": 67,
+        "losing_months_mean_pnl": -15.02,
+        "winning_months_mean_pnl": 68.61,
+        "feature_contrast": {
+          "vix": {
+            "losing_months": {
+              "n": 25,
+              "mean": 16.6784,
+              "median": 16.6,
+              "p25": 16.12,
+              "p75": 16.93
+            },
+            "winning_months": {
+              "n": 67,
+              "mean": 19.843,
+              "median": 18.3,
+              "p25": 17.1,
+              "p75": 21.97
+            }
+          },
+          "realized_vol_bps": {
+            "losing_months": {
+              "n": 25,
+              "mean": 6.1436,
+              "median": 6.17,
+              "p25": 4.58,
+              "p75": 7.11
+            },
+            "winning_months": {
+              "n": 67,
+              "mean": 8.8666,
+              "median": 8.09,
+              "p25": 5.695,
+              "p75": 11.17
+            }
+          },
+          "morning_move_pct": {
+            "losing_months": {
+              "n": 25,
+              "mean": 0.0027,
+              "median": 0.0024,
+              "p25": 0.0016,
+              "p75": 0.0032
+            },
+            "winning_months": {
+              "n": 67,
+              "mean": 0.004,
+              "median": 0.0033,
+              "p25": 0.002,
+              "p75": 0.0055
+            }
+          },
+          "trend_strength_adx": {
+            "losing_months": {
+              "n": 25,
+              "mean": 58.4048,
+              "median": 57.42,
+              "p25": 44.44,
+              "p75": 77.25
+            },
+            "winning_months": {
+              "n": 67,
+              "mean": 49.8718,
+              "median": 51.78,
+              "p25": 22.735,
+              "p75": 72.275
+            }
+          },
+          "range_ratio": {
+            "losing_months": {
+              "n": 25,
+              "mean": 1.6049,
+              "median": 1.338,
+              "p25": 1.055,
+              "p75": 1.635
+            },
+            "winning_months": {
+              "n": 67,
+              "mean": 1.7513,
+              "median": 1.474,
+              "p25": 1.022,
+              "p75": 2.143
+            }
+          },
+          "vwap_dist_pct": {
+            "losing_months": {
+              "n": 25,
+              "mean": 0.0004,
+              "median": 0.0004,
+              "p25": 0.0002,
+              "p75": 0.0006
+            },
+            "winning_months": {
+              "n": 67,
+              "mean": 0.0006,
+              "median": 0.0005,
+              "p25": 0.0002,
+              "p75": 0.0007
+            }
+          },
+          "regime_cell": {
+            "losing_months": {
+              "Regime.BULL_TREND": {
+                "n": 11,
+                "pct": 44.0
+              },
+              "Regime.NEUTRAL": {
+                "n": 9,
+                "pct": 36.0
+              },
+              "Regime.BEAR_TREND": {
+                "n": 3,
+                "pct": 12.0
+              },
+              "Regime.HIGH_VOL": {
+                "n": 1,
+                "pct": 4.0
+              },
+              "Regime.RANGE_PIN": {
+                "n": 1,
+                "pct": 4.0
+              }
+            },
+            "winning_months": {
+              "Regime.HIGH_VOL": {
+                "n": 27,
+                "pct": 40.3
+              },
+              "Regime.BULL_TREND": {
+                "n": 16,
+                "pct": 23.9
+              },
+              "Regime.NEUTRAL": {
+                "n": 15,
+                "pct": 22.4
+              },
+              "Regime.BEAR_TREND": {
+                "n": 9,
+                "pct": 13.4
+              }
+            }
+          },
+          "ribbon_stack": {
+            "losing_months": {
+              "BULL": {
+                "n": 16,
+                "pct": 64.0
+              },
+              "MIXED": {
+                "n": 5,
+                "pct": 20.0
+              },
+              "BEAR": {
+                "n": 4,
+                "pct": 16.0
+              }
+            },
+            "winning_months": {
+              "BULL": {
+                "n": 35,
+                "pct": 52.2
+              },
+              "BEAR": {
+                "n": 21,
+                "pct": 31.3
+              },
+              "MIXED": {
+                "n": 11,
+                "pct": 16.4
+              }
+            }
+          },
+          "vix_rising": {
+            "losing_months_pct_rising": 20.0,
+            "winning_months_pct_rising": 13.4
+          }
+        },
+        "monthly_exp": {
+          "2025-01": {
+            "n": 2,
+            "exp": 178.5,
+            "total": 357.0
+          },
+          "2025-02": {
+            "n": 3,
+            "exp": 184.6,
+            "total": 553.8
+          },
+          "2025-03": {
+            "n": 6,
+            "exp": 65.45,
+            "total": 392.72
+          },
+          "2025-04": {
+            "n": 6,
+            "exp": 0.67,
+            "total": 4.04
+          },
+          "2025-05": {
+            "n": 4,
+            "exp": 30.9,
+            "total": 123.6
+          },
+          "2025-06": {
+            "n": 4,
+            "exp": -32.82,
+            "total": -131.28
+          },
+          "2025-07": {
+            "n": 6,
+            "exp": -15.04,
+            "total": -90.24
+          },
+          "2025-08": {
+            "n": 7,
+            "exp": -3.87,
+            "total": -27.12
+          },
+          "2025-09": {
+            "n": 4,
+            "exp": -21.9,
+            "total": -87.6
+          },
+          "2025-10": {
+            "n": 8,
+            "exp": -21.33,
+            "total": -170.64
+          },
+          "2025-11": {
+            "n": 5,
+            "exp": 137.76,
+            "total": 688.8
+          },
+          "2025-12": {
+            "n": 5,
+            "exp": 78.66,
+            "total": 393.28
+          },
+          "2026-01": {
+            "n": 4,
+            "exp": 73.13,
+            "total": 292.52
+          },
+          "2026-02": {
+            "n": 6,
+            "exp": 110.36,
+            "total": 662.16
+          },
+          "2026-03": {
+            "n": 8,
+            "exp": 30.57,
+            "total": 244.56
+          },
+          "2026-04": {
+            "n": 5,
+            "exp": 73.1,
+            "total": 365.52
+          },
+          "2026-05": {
+            "n": 9,
+            "exp": 72.25,
+            "total": 650.24
+          }
+        }
+      },
+      "gate_sweep": [
+        {
+          "gate": "vix_lt_18",
+          "family": "vix_band",
+          "desc": "VIX < 18 (swept band)",
+          "live_compute": "VIX last value at trigger bar \u2014 loop-state.vix_cache.",
+          "n_kept": 47,
+          "retention": 0.511,
+          "exp_dollar": 44.42,
+          "wr_pct": 42.6,
+          "is_exp_dollar": 19.34,
+          "oos_exp_dollar": 103.55,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 0,
+          "all_sub_windows_positive": true,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 12,
+              "mean_pnl": 28.94,
+              "total_pnl": 347.28
+            },
+            {
+              "window": 2,
+              "n": 12,
+              "mean_pnl": 3.54,
+              "total_pnl": 42.48
+            },
+            {
+              "window": 3,
+              "n": 11,
+              "mean_pnl": 45.28,
+              "total_pnl": 498.12
+            },
+            {
+              "window": 4,
+              "n": 12,
+              "mean_pnl": 99.99,
+              "total_pnl": 1199.84
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 4,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 8.05,
+          "robust_to_outliers": true,
+          "IS_WINNER": true,
+          "_full_metrics": {
+            "n": 47,
+            "wins": 20,
+            "wr_pct": 42.6,
+            "exp_dollar": 44.42,
+            "total_dollar": 2087.72,
+            "exp_pct": 0.32215,
+            "is_n": 33,
+            "oos_n": 14,
+            "is_exp_dollar": 19.34,
+            "oos_exp_dollar": 103.55,
+            "is_exp_pct": 0.27322,
+            "oos_exp_pct": 0.43749,
+            "oos_sign_stable": true,
+            "sub_windows": [
+              {
+                "window": 1,
+                "n": 12,
+                "mean_pnl": 28.94,
+                "total_pnl": 347.28
+              },
+              {
+                "window": 2,
+                "n": 12,
+                "mean_pnl": 3.54,
+                "total_pnl": 42.48
+              },
+              {
+                "window": 3,
+                "n": 11,
+                "mean_pnl": 45.28,
+                "total_pnl": 498.12
+              },
+              {
+                "window": 4,
+                "n": 12,
+                "mean_pnl": 99.99,
+                "total_pnl": 1199.84
+              }
+            ],
+            "n_sub_hurt": 0,
+            "all_sub_windows_positive": true,
+            "oos_months_positive": 4,
+            "oos_months_total": 4,
+            "oos_months_all_positive": true,
+            "oos_months": {
+              "2026-01": {
+                "n": 3,
+                "exp": 126.47,
+                "total": 379.4,
+                "positive": true
+              },
+              "2026-02": {
+                "n": 2,
+                "exp": 117.3,
+                "total": 234.6,
+                "positive": true
+              },
+              "2026-04": {
+                "n": 2,
+                "exp": 64.5,
+                "total": 129.0,
+                "positive": true
+              },
+              "2026-05": {
+                "n": 7,
+                "exp": 100.95,
+                "total": 706.64,
+                "positive": true
+              }
+            },
+            "by_side": {
+              "C": {
+                "n": 26,
+                "exp": 38.92,
+                "wr": 46.2,
+                "total": 1011.8
+              },
+              "P": {
+                "n": 21,
+                "exp": 51.23,
+                "wr": 38.1,
+                "total": 1075.92
+              }
+            },
+            "both_dirs_positive": true,
+            "drop_top5_mean_dollar": 8.05,
+            "robust_to_outliers": true,
+            "dsr": {
+              "verdict": "PASS",
+              "dsr": 0.9985071726543269,
+              "psr": 0.999999770379712,
+              "pbo": null,
+              "n_obs": 47,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=1.0000 on n=47 obs (Sharpe=0.266, skew=5.55, kurt=35.19).",
+                "DSR deflated for n_trials=30 (SR_0=0.109) = 0.9985.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+              ]
+            },
+            "dsr_verdict": "PASS",
+            "exit_reason_hist": {
+              "EXIT_ALL_RIBBON_FLIP_BACK": 4,
+              "TP1_THEN_RUNNER_TIME": 8,
+              "EXIT_ALL_PREMIUM_STOP": 26,
+              "TP1_THEN_RUNNER_RIBBON": 9
+            }
+          },
+          "rolling_month_wf": {
+            "n_windows": 7,
+            "median_wf_norm": 2.924,
+            "oos_positive_frac": 0.71,
+            "negative_oos_months": [
+              "2025-09",
+              "2025-10"
+            ],
+            "trailing_positive_oos_months": 5,
+            "windows": [
+              {
+                "oos_month": "2025-09",
+                "n_oos": 4,
+                "oos_pnl": -87.6,
+                "oos_exp": -21.9,
+                "wf_norm": -0.902,
+                "oos_positive": false
+              },
+              {
+                "oos_month": "2025-10",
+                "n_oos": 6,
+                "oos_pnl": -104.64,
+                "oos_exp": -17.44,
+                "wf_norm": -1.098,
+                "oos_positive": false
+              },
+              {
+                "oos_month": "2025-12",
+                "n_oos": 5,
+                "oos_pnl": 393.28,
+                "oos_exp": 78.66,
+                "wf_norm": 8.997,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-01",
+                "n_oos": 3,
+                "oos_pnl": 379.4,
+                "oos_exp": 126.47,
+                "wf_norm": 6.541,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-02",
+                "n_oos": 2,
+                "oos_pnl": 234.6,
+                "oos_exp": 117.3,
+                "wf_norm": 4.15,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-04",
+                "n_oos": 2,
+                "oos_pnl": 129.0,
+                "oos_exp": 64.5,
+                "wf_norm": 1.958,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-05",
+                "n_oos": 7,
+                "oos_pnl": 706.64,
+                "oos_exp": 100.95,
+                "wf_norm": 2.924,
+                "oos_positive": true
+              }
+            ],
+            "verdict": "PASS"
+          }
+        },
+        {
+          "gate": "vix_lt_low_ceil_16",
+          "family": "vix_band",
+          "desc": "VIX < 16.0 (low-vol regime; regime_book VIX_LOW_CEIL)",
+          "live_compute": "VIX last value at trigger bar \u2014 already in loop-state.vix_cache.",
+          "n_kept": 12,
+          "retention": 0.13,
+          "exp_dollar": 31.38,
+          "wr_pct": 58.3,
+          "is_exp_dollar": 17.15,
+          "oos_exp_dollar": 74.07,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 0,
+          "all_sub_windows_positive": true,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 3,
+              "mean_pnl": 15.52,
+              "total_pnl": 46.56
+            },
+            {
+              "window": 2,
+              "n": 3,
+              "mean_pnl": 13.48,
+              "total_pnl": 40.44
+            },
+            {
+              "window": 3,
+              "n": 3,
+              "mean_pnl": 22.44,
+              "total_pnl": 67.32
+            },
+            {
+              "window": 4,
+              "n": 3,
+              "mean_pnl": 74.07,
+              "total_pnl": 222.2
+            }
+          ],
+          "oos_months_positive": 1,
+          "oos_months_total": 2,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "WEAK",
+          "drop_top5_mean_dollar": -9.5,
+          "robust_to_outliers": false,
+          "IS_WINNER": false,
+          "_full_metrics": {
+            "n": 12,
+            "wins": 7,
+            "wr_pct": 58.3,
+            "exp_dollar": 31.38,
+            "total_dollar": 376.52,
+            "exp_pct": 0.18649,
+            "is_n": 9,
+            "oos_n": 3,
+            "is_exp_dollar": 17.15,
+            "oos_exp_dollar": 74.07,
+            "is_exp_pct": 0.07387,
+            "oos_exp_pct": 0.52437,
+            "oos_sign_stable": true,
+            "sub_windows": [
+              {
+                "window": 1,
+                "n": 3,
+                "mean_pnl": 15.52,
+                "total_pnl": 46.56
+              },
+              {
+                "window": 2,
+                "n": 3,
+                "mean_pnl": 13.48,
+                "total_pnl": 40.44
+              },
+              {
+                "window": 3,
+                "n": 3,
+                "mean_pnl": 22.44,
+                "total_pnl": 67.32
+              },
+              {
+                "window": 4,
+                "n": 3,
+                "mean_pnl": 74.07,
+                "total_pnl": 222.2
+              }
+            ],
+            "n_sub_hurt": 0,
+            "all_sub_windows_positive": true,
+            "oos_months_positive": 1,
+            "oos_months_total": 2,
+            "oos_months_all_positive": false,
+            "oos_months": {
+              "2026-01": {
+                "n": 2,
+                "exp": 124.9,
+                "total": 249.8,
+                "positive": true
+              },
+              "2026-05": {
+                "n": 1,
+                "exp": -27.6,
+                "total": -27.6,
+                "positive": false
+              }
+            },
+            "by_side": {
+              "C": {
+                "n": 8,
+                "exp": 38.76,
+                "wr": 62.5,
+                "total": 310.04
+              },
+              "P": {
+                "n": 4,
+                "exp": 16.62,
+                "wr": 50.0,
+                "total": 66.48
+              }
+            },
+            "both_dirs_positive": true,
+            "drop_top5_mean_dollar": -9.5,
+            "robust_to_outliers": false,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.7606454003605926,
+              "psr": 0.9972968537255612,
+              "pbo": null,
+              "n_obs": 12,
+              "n_trials": 30,
+              "low_power": true,
+              "notes": [
+                "PSR(vs 0)=0.9973 on n=12 obs (Sharpe=0.421, skew=2.56, kurt=8.46).",
+                "DSR deflated for n_trials=30 (SR_0=0.314) = 0.7606.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict WEAK: sample too small (n=12 < MIN_RELIABLE_OBS=20); metrics lack power \u2014 advisory only (lesson C24)."
+              ]
+            },
+            "dsr_verdict": "WEAK",
+            "exit_reason_hist": {
+              "EXIT_ALL_RIBBON_FLIP_BACK": 2,
+              "EXIT_ALL_PREMIUM_STOP": 5,
+              "TP1_THEN_RUNNER_RIBBON": 3,
+              "TP1_THEN_RUNNER_TIME": 2
+            }
+          },
+          "rolling_month_wf": {
+            "n_windows": 1,
+            "median_wf_norm": -0.751,
+            "oos_positive_frac": 0.0,
+            "negative_oos_months": [
+              "2026-05"
+            ],
+            "trailing_positive_oos_months": 0,
+            "windows": [
+              {
+                "oos_month": "2026-05",
+                "n_oos": 1,
+                "oos_pnl": -27.6,
+                "oos_exp": -27.6,
+                "wf_norm": -0.751,
+                "oos_positive": false
+              }
+            ],
+            "verdict": "WEAK"
+          }
+        },
+        {
+          "gate": "vix_lt_16",
+          "family": "vix_band",
+          "desc": "VIX < 16 (swept band)",
+          "live_compute": "VIX last value at trigger bar \u2014 loop-state.vix_cache.",
+          "n_kept": 12,
+          "retention": 0.13,
+          "exp_dollar": 31.38,
+          "wr_pct": 58.3,
+          "is_exp_dollar": 17.15,
+          "oos_exp_dollar": 74.07,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 0,
+          "all_sub_windows_positive": true,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 3,
+              "mean_pnl": 15.52,
+              "total_pnl": 46.56
+            },
+            {
+              "window": 2,
+              "n": 3,
+              "mean_pnl": 13.48,
+              "total_pnl": 40.44
+            },
+            {
+              "window": 3,
+              "n": 3,
+              "mean_pnl": 22.44,
+              "total_pnl": 67.32
+            },
+            {
+              "window": 4,
+              "n": 3,
+              "mean_pnl": 74.07,
+              "total_pnl": 222.2
+            }
+          ],
+          "oos_months_positive": 1,
+          "oos_months_total": 2,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "WEAK",
+          "drop_top5_mean_dollar": -9.5,
+          "robust_to_outliers": false,
+          "IS_WINNER": false,
+          "_full_metrics": {
+            "n": 12,
+            "wins": 7,
+            "wr_pct": 58.3,
+            "exp_dollar": 31.38,
+            "total_dollar": 376.52,
+            "exp_pct": 0.18649,
+            "is_n": 9,
+            "oos_n": 3,
+            "is_exp_dollar": 17.15,
+            "oos_exp_dollar": 74.07,
+            "is_exp_pct": 0.07387,
+            "oos_exp_pct": 0.52437,
+            "oos_sign_stable": true,
+            "sub_windows": [
+              {
+                "window": 1,
+                "n": 3,
+                "mean_pnl": 15.52,
+                "total_pnl": 46.56
+              },
+              {
+                "window": 2,
+                "n": 3,
+                "mean_pnl": 13.48,
+                "total_pnl": 40.44
+              },
+              {
+                "window": 3,
+                "n": 3,
+                "mean_pnl": 22.44,
+                "total_pnl": 67.32
+              },
+              {
+                "window": 4,
+                "n": 3,
+                "mean_pnl": 74.07,
+                "total_pnl": 222.2
+              }
+            ],
+            "n_sub_hurt": 0,
+            "all_sub_windows_positive": true,
+            "oos_months_positive": 1,
+            "oos_months_total": 2,
+            "oos_months_all_positive": false,
+            "oos_months": {
+              "2026-01": {
+                "n": 2,
+                "exp": 124.9,
+                "total": 249.8,
+                "positive": true
+              },
+              "2026-05": {
+                "n": 1,
+                "exp": -27.6,
+                "total": -27.6,
+                "positive": false
+              }
+            },
+            "by_side": {
+              "C": {
+                "n": 8,
+                "exp": 38.76,
+                "wr": 62.5,
+                "total": 310.04
+              },
+              "P": {
+                "n": 4,
+                "exp": 16.62,
+                "wr": 50.0,
+                "total": 66.48
+              }
+            },
+            "both_dirs_positive": true,
+            "drop_top5_mean_dollar": -9.5,
+            "robust_to_outliers": false,
+            "dsr": {
+              "verdict": "WEAK",
+              "dsr": 0.7606454003605926,
+              "psr": 0.9972968537255612,
+              "pbo": null,
+              "n_obs": 12,
+              "n_trials": 30,
+              "low_power": true,
+              "notes": [
+                "PSR(vs 0)=0.9973 on n=12 obs (Sharpe=0.421, skew=2.56, kurt=8.46).",
+                "DSR deflated for n_trials=30 (SR_0=0.314) = 0.7606.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict WEAK: sample too small (n=12 < MIN_RELIABLE_OBS=20); metrics lack power \u2014 advisory only (lesson C24)."
+              ]
+            },
+            "dsr_verdict": "WEAK",
+            "exit_reason_hist": {
+              "EXIT_ALL_RIBBON_FLIP_BACK": 2,
+              "EXIT_ALL_PREMIUM_STOP": 5,
+              "TP1_THEN_RUNNER_RIBBON": 3,
+              "TP1_THEN_RUNNER_TIME": 2
+            }
+          },
+          "rolling_month_wf": {
+            "n_windows": 1,
+            "median_wf_norm": -0.751,
+            "oos_positive_frac": 0.0,
+            "negative_oos_months": [
+              "2026-05"
+            ],
+            "trailing_positive_oos_months": 0,
+            "windows": [
+              {
+                "oos_month": "2026-05",
+                "n_oos": 1,
+                "oos_pnl": -27.6,
+                "oos_exp": -27.6,
+                "wf_norm": -0.751,
+                "oos_positive": false
+              }
+            ],
+            "verdict": "WEAK"
+          }
+        },
+        {
+          "gate": "vix_lt_17",
+          "family": "vix_band",
+          "desc": "VIX < 17 (swept band)",
+          "live_compute": "VIX last value at trigger bar \u2014 loop-state.vix_cache.",
+          "n_kept": 34,
+          "retention": 0.37,
+          "exp_dollar": 35.22,
+          "wr_pct": 44.1,
+          "is_exp_dollar": 28.57,
+          "oos_exp_dollar": 66.27,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 0,
+          "all_sub_windows_positive": true,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 8,
+              "mean_pnl": 60.21,
+              "total_pnl": 481.68
+            },
+            {
+              "window": 2,
+              "n": 9,
+              "mean_pnl": 3.28,
+              "total_pnl": 29.52
+            },
+            {
+              "window": 3,
+              "n": 9,
+              "mean_pnl": 22.67,
+              "total_pnl": 204.04
+            },
+            {
+              "window": 4,
+              "n": 8,
+              "mean_pnl": 60.28,
+              "total_pnl": 482.24
+            }
+          ],
+          "oos_months_positive": 2,
+          "oos_months_total": 2,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -1.0,
+          "robust_to_outliers": false,
+          "IS_WINNER": false,
+          "_full_metrics": {
+            "n": 34,
+            "wins": 15,
+            "wr_pct": 44.1,
+            "exp_dollar": 35.22,
+            "total_dollar": 1197.48,
+            "exp_pct": 0.34758,
+            "is_n": 28,
+            "oos_n": 6,
+            "is_exp_dollar": 28.57,
+            "oos_exp_dollar": 66.27,
+            "is_exp_pct": 0.33629,
+            "oos_exp_pct": 0.40022,
+            "oos_sign_stable": true,
+            "sub_windows": [
+              {
+                "window": 1,
+                "n": 8,
+                "mean_pnl": 60.21,
+                "total_pnl": 481.68
+              },
+              {
+                "window": 2,
+                "n": 9,
+                "mean_pnl": 3.28,
+                "total_pnl": 29.52
+              },
+              {
+                "window": 3,
+                "n": 9,
+                "mean_pnl": 22.67,
+                "total_pnl": 204.04
+              },
+              {
+                "window": 4,
+                "n": 8,
+                "mean_pnl": 60.28,
+                "total_pnl": 482.24
+              }
+            ],
+            "n_sub_hurt": 0,
+            "all_sub_windows_positive": true,
+            "oos_months_positive": 2,
+            "oos_months_total": 2,
+            "oos_months_all_positive": true,
+            "oos_months": {
+              "2026-01": {
+                "n": 3,
+                "exp": 126.47,
+                "total": 379.4,
+                "positive": true
+              },
+              "2026-05": {
+                "n": 3,
+                "exp": 6.08,
+                "total": 18.24,
+                "positive": true
+              }
+            },
+            "by_side": {
+              "C": {
+                "n": 20,
+                "exp": 22.84,
+                "wr": 50.0,
+                "total": 456.8
+              },
+              "P": {
+                "n": 14,
+                "exp": 52.91,
+                "wr": 35.7,
+                "total": 740.68
+              }
+            },
+            "both_dirs_positive": true,
+            "drop_top5_mean_dollar": -1.0,
+            "robust_to_outliers": false,
+            "dsr": {
+              "verdict": "PASS",
+              "dsr": 0.9474225082019778,
+              "psr": 0.999889515442254,
+              "pbo": null,
+              "n_obs": 34,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=0.9999 on n=34 obs (Sharpe=0.251, skew=5.09, kurt=28.33).",
+                "DSR deflated for n_trials=30 (SR_0=0.141) = 0.9474.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+              ]
+            },
+            "dsr_verdict": "PASS",
+            "exit_reason_hist": {
+              "EXIT_ALL_RIBBON_FLIP_BACK": 4,
+              "TP1_THEN_RUNNER_TIME": 5,
+              "EXIT_ALL_PREMIUM_STOP": 18,
+              "TP1_THEN_RUNNER_RIBBON": 7
+            }
+          },
+          "rolling_month_wf": {
+            "n_windows": 4,
+            "median_wf_norm": 2.293,
+            "oos_positive_frac": 0.75,
+            "negative_oos_months": [
+              "2025-10"
+            ],
+            "trailing_positive_oos_months": 3,
+            "windows": [
+              {
+                "oos_month": "2025-10",
+                "n_oos": 6,
+                "oos_pnl": -104.64,
+                "oos_exp": -17.44,
+                "wf_norm": -0.58,
+                "oos_positive": false
+              },
+              {
+                "oos_month": "2025-12",
+                "n_oos": 5,
+                "oos_pnl": 393.28,
+                "oos_exp": 78.66,
+                "wf_norm": 4.45,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-01",
+                "n_oos": 3,
+                "oos_pnl": 379.4,
+                "oos_exp": 126.47,
+                "wf_norm": 4.427,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-05",
+                "n_oos": 3,
+                "oos_pnl": 18.24,
+                "oos_exp": 6.08,
+                "wf_norm": 0.16,
+                "oos_positive": true
+              }
+            ],
+            "verdict": "PASS"
+          }
+        },
+        {
+          "gate": "vix_falling",
+          "family": "vix_character",
+          "desc": "VIX falling at entry (risk-on)",
+          "live_compute": "VIX last vs prior bar \u2014 loop-state.vix_cache.dir.",
+          "n_kept": 24,
+          "retention": 0.261,
+          "exp_dollar": 43.0,
+          "wr_pct": 37.5,
+          "is_exp_dollar": -12.55,
+          "oos_exp_dollar": 154.1,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 2,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 6,
+              "mean_pnl": -3.56,
+              "total_pnl": -21.36
+            },
+            {
+              "window": 2,
+              "n": 6,
+              "mean_pnl": -24.2,
+              "total_pnl": -145.2
+            },
+            {
+              "window": 3,
+              "n": 6,
+              "mean_pnl": 35.93,
+              "total_pnl": 215.6
+            },
+            {
+              "window": 4,
+              "n": 6,
+              "mean_pnl": 163.84,
+              "total_pnl": 983.04
+            }
+          ],
+          "oos_months_positive": 5,
+          "oos_months_total": 5,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": -18.7,
+          "robust_to_outliers": false,
+          "IS_WINNER": false,
+          "_full_metrics": {
+            "n": 24,
+            "wins": 9,
+            "wr_pct": 37.5,
+            "exp_dollar": 43.0,
+            "total_dollar": 1032.08,
+            "exp_pct": 0.20397,
+            "is_n": 16,
+            "oos_n": 8,
+            "is_exp_dollar": -12.55,
+            "oos_exp_dollar": 154.1,
+            "is_exp_pct": 0.0167,
+            "oos_exp_pct": 0.57852,
+            "oos_sign_stable": true,
+            "sub_windows": [
+              {
+                "window": 1,
+                "n": 6,
+                "mean_pnl": -3.56,
+                "total_pnl": -21.36
+              },
+              {
+                "window": 2,
+                "n": 6,
+                "mean_pnl": -24.2,
+                "total_pnl": -145.2
+              },
+              {
+                "window": 3,
+                "n": 6,
+                "mean_pnl": 35.93,
+                "total_pnl": 215.6
+              },
+              {
+                "window": 4,
+                "n": 6,
+                "mean_pnl": 163.84,
+                "total_pnl": 983.04
+              }
+            ],
+            "n_sub_hurt": 2,
+            "all_sub_windows_positive": false,
+            "oos_months_positive": 5,
+            "oos_months_total": 5,
+            "oos_months_all_positive": true,
+            "oos_months": {
+              "2026-01": {
+                "n": 3,
+                "exp": 126.47,
+                "total": 379.4,
+                "positive": true
+              },
+              "2026-02": {
+                "n": 1,
+                "exp": 41.4,
+                "total": 41.4,
+                "positive": true
+              },
+              "2026-03": {
+                "n": 1,
+                "exp": 200.4,
+                "total": 200.4,
+                "positive": true
+              },
+              "2026-04": {
+                "n": 1,
+                "exp": 151.8,
+                "total": 151.8,
+                "positive": true
+              },
+              "2026-05": {
+                "n": 2,
+                "exp": 229.92,
+                "total": 459.84,
+                "positive": true
+              }
+            },
+            "by_side": {
+              "C": {
+                "n": 16,
+                "exp": 61.56,
+                "wr": 43.8,
+                "total": 985.04
+              },
+              "P": {
+                "n": 8,
+                "exp": 5.88,
+                "wr": 25.0,
+                "total": 47.04
+              }
+            },
+            "both_dirs_positive": true,
+            "drop_top5_mean_dollar": -18.7,
+            "robust_to_outliers": false,
+            "dsr": {
+              "verdict": "PASS",
+              "dsr": 0.8342644586881672,
+              "psr": 0.9988348462389519,
+              "pbo": null,
+              "n_obs": 24,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=0.9988 on n=24 obs (Sharpe=0.430, skew=1.62, kurt=4.34).",
+                "DSR deflated for n_trials=30 (SR_0=0.293) = 0.8343.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+              ]
+            },
+            "dsr_verdict": "PASS",
+            "exit_reason_hist": {
+              "EXIT_ALL_RIBBON_FLIP_BACK": 3,
+              "EXIT_ALL_PREMIUM_STOP": 14,
+              "TP1_THEN_RUNNER_RIBBON": 3,
+              "TP1_THEN_RUNNER_TIME": 4
+            }
+          },
+          "rolling_month_wf": {
+            "n_windows": 8,
+            "median_wf_norm": 3.097,
+            "oos_positive_frac": 0.75,
+            "negative_oos_months": [
+              "2025-09",
+              "2025-10"
+            ],
+            "trailing_positive_oos_months": 6,
+            "windows": [
+              {
+                "oos_month": "2025-09",
+                "n_oos": 1,
+                "oos_pnl": -20.88,
+                "oos_exp": -20.88,
+                "wf_norm": 1.689,
+                "oos_positive": false
+              },
+              {
+                "oos_month": "2025-10",
+                "n_oos": 4,
+                "oos_pnl": -94.08,
+                "oos_exp": -23.52,
+                "wf_norm": 1.791,
+                "oos_positive": false
+              },
+              {
+                "oos_month": "2025-12",
+                "n_oos": 1,
+                "oos_pnl": 37.8,
+                "oos_exp": 37.8,
+                "wf_norm": -2.377,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-01",
+                "n_oos": 3,
+                "oos_pnl": 379.4,
+                "oos_exp": 126.47,
+                "wf_norm": -10.079,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-02",
+                "n_oos": 1,
+                "oos_pnl": 41.4,
+                "oos_exp": 41.4,
+                "wf_norm": 4.403,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-03",
+                "n_oos": 1,
+                "oos_pnl": 200.4,
+                "oos_exp": 200.4,
+                "wf_norm": 18.215,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-04",
+                "n_oos": 1,
+                "oos_pnl": 151.8,
+                "oos_exp": 151.8,
+                "wf_norm": 7.582,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-05",
+                "n_oos": 2,
+                "oos_pnl": 459.84,
+                "oos_exp": 229.92,
+                "wf_norm": 8.839,
+                "oos_positive": true
+              }
+            ],
+            "verdict": "PASS"
+          }
+        },
+        {
+          "gate": "vix_lt_high_floor_19",
+          "family": "vix_band",
+          "desc": "VIX < 19.0 (not high-vol; regime_book VIX_HIGH_VOL_FLOOR)",
+          "live_compute": "VIX last value at trigger bar \u2014 loop-state.vix_cache.",
+          "n_kept": 64,
+          "retention": 0.696,
+          "exp_dollar": 48.23,
+          "wr_pct": 45.3,
+          "is_exp_dollar": 23.6,
+          "oos_exp_dollar": 98.66,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 16,
+              "mean_pnl": 41.95,
+              "total_pnl": 671.16
+            },
+            {
+              "window": 2,
+              "n": 16,
+              "mean_pnl": -5.52,
+              "total_pnl": -88.32
+            },
+            {
+              "window": 3,
+              "n": 16,
+              "mean_pnl": 56.94,
+              "total_pnl": 911.04
+            },
+            {
+              "window": 4,
+              "n": 16,
+              "mean_pnl": 99.55,
+              "total_pnl": 1592.84
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 4,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 19.59,
+          "robust_to_outliers": true,
+          "IS_WINNER": false,
+          "_full_metrics": {
+            "n": 64,
+            "wins": 29,
+            "wr_pct": 45.3,
+            "exp_dollar": 48.23,
+            "total_dollar": 3086.72,
+            "exp_pct": 0.30128,
+            "is_n": 43,
+            "oos_n": 21,
+            "is_exp_dollar": 23.6,
+            "oos_exp_dollar": 98.66,
+            "is_exp_pct": 0.24942,
+            "oos_exp_pct": 0.40749,
+            "oos_sign_stable": true,
+            "sub_windows": [
+              {
+                "window": 1,
+                "n": 16,
+                "mean_pnl": 41.95,
+                "total_pnl": 671.16
+              },
+              {
+                "window": 2,
+                "n": 16,
+                "mean_pnl": -5.52,
+                "total_pnl": -88.32
+              },
+              {
+                "window": 3,
+                "n": 16,
+                "mean_pnl": 56.94,
+                "total_pnl": 911.04
+              },
+              {
+                "window": 4,
+                "n": 16,
+                "mean_pnl": 99.55,
+                "total_pnl": 1592.84
+              }
+            ],
+            "n_sub_hurt": 1,
+            "all_sub_windows_positive": false,
+            "oos_months_positive": 4,
+            "oos_months_total": 4,
+            "oos_months_all_positive": true,
+            "oos_months": {
+              "2026-01": {
+                "n": 4,
+                "exp": 73.13,
+                "total": 292.52,
+                "positive": true
+              },
+              "2026-02": {
+                "n": 5,
+                "exp": 137.04,
+                "total": 685.2,
+                "positive": true
+              },
+              "2026-04": {
+                "n": 3,
+                "exp": 148.0,
+                "total": 444.0,
+                "positive": true
+              },
+              "2026-05": {
+                "n": 9,
+                "exp": 72.25,
+                "total": 650.24,
+                "positive": true
+              }
+            },
+            "by_side": {
+              "C": {
+                "n": 39,
+                "exp": 52.1,
+                "wr": 48.7,
+                "total": 2031.92
+              },
+              "P": {
+                "n": 25,
+                "exp": 42.19,
+                "wr": 40.0,
+                "total": 1054.8
+              }
+            },
+            "both_dirs_positive": true,
+            "drop_top5_mean_dollar": 19.59,
+            "robust_to_outliers": true,
+            "dsr": {
+              "verdict": "PASS",
+              "dsr": 0.9999778397232448,
+              "psr": 0.9999999996295819,
+              "pbo": null,
+              "n_obs": 64,
+              "n_trials": 30,
+              "low_power": false,
+              "notes": [
+                "PSR(vs 0)=1.0000 on n=64 obs (Sharpe=0.283, skew=6.11, kurt=44.11).",
+                "DSR deflated for n_trials=30 (SR_0=0.095) = 1.0000.",
+                "PBO skipped (no performance matrix supplied).",
+                "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+              ]
+            },
+            "dsr_verdict": "PASS",
+            "exit_reason_hist": {
+              "EXIT_ALL_RIBBON_FLIP_BACK": 5,
+              "TP1_THEN_RUNNER_TIME": 10,
+              "TP1_THEN_RUNNER_RIBBON": 15,
+              "EXIT_ALL_PREMIUM_STOP": 34
+            }
+          },
+          "rolling_month_wf": {
+            "n_windows": 9,
+            "median_wf_norm": 3.099,
+            "oos_positive_frac": 0.78,
+            "negative_oos_months": [
+              "2025-09",
+              "2025-10"
+            ],
+            "trailing_positive_oos_months": 6,
+            "windows": [
+              {
+                "oos_month": "2025-08",
+                "n_oos": 6,
+                "oos_pnl": 24.96,
+                "oos_exp": 4.16,
+                "wf_norm": 0.1,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2025-09",
+                "n_oos": 4,
+                "oos_pnl": -87.6,
+                "oos_exp": -21.9,
+                "wf_norm": -0.688,
+                "oos_positive": false
+              },
+              {
+                "oos_month": "2025-10",
+                "n_oos": 8,
+                "oos_pnl": -170.64,
+                "oos_exp": -21.33,
+                "wf_norm": -0.894,
+                "oos_positive": false
+              },
+              {
+                "oos_month": "2025-11",
+                "n_oos": 3,
+                "oos_pnl": 147.6,
+                "oos_exp": 49.2,
+                "wf_norm": 3.634,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2025-12",
+                "n_oos": 5,
+                "oos_pnl": 393.28,
+                "oos_exp": 78.66,
+                "wf_norm": 4.809,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-01",
+                "n_oos": 4,
+                "oos_pnl": 292.52,
+                "oos_exp": 73.13,
+                "wf_norm": 3.099,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-02",
+                "n_oos": 5,
+                "oos_pnl": 685.2,
+                "oos_exp": 137.04,
+                "wf_norm": 4.927,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-04",
+                "n_oos": 3,
+                "oos_pnl": 444.0,
+                "oos_exp": 148.0,
+                "wf_norm": 3.863,
+                "oos_positive": true
+              },
+              {
+                "oos_month": "2026-05",
+                "n_oos": 9,
+                "oos_pnl": 650.24,
+                "oos_exp": 72.25,
+                "wf_norm": 1.631,
+                "oos_positive": true
+              }
+            ],
+            "verdict": "PASS"
+          }
+        },
+        {
+          "gate": "vix_lt_22",
+          "family": "vix_band",
+          "desc": "VIX < 22 (swept band)",
+          "live_compute": "VIX last value at trigger bar \u2014 loop-state.vix_cache.",
+          "n_kept": 75,
+          "retention": 0.815,
+          "exp_dollar": 52.92,
+          "wr_pct": 45.3,
+          "is_exp_dollar": 34.39,
+          "oos_exp_dollar": 92.3,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 19,
+              "mean_pnl": 60.48,
+              "total_pnl": 1149.08
+            },
+            {
+              "window": 2,
+              "n": 19,
+              "mean_pnl": -9.69,
+              "total_pnl": -184.08
+            },
+            {
+              "window": 3,
+              "n": 18,
+              "mean_pnl": 70.45,
+              "total_pnl": 1268.04
+            },
+            {
+              "window": 4,
+              "n": 19,
+              "mean_pnl": 91.37,
+              "total_pnl": 1736.12
+            }
+          ],
+          "oos_months_positive": 5,
+          "oos_months_total": 5,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 28.01,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "morning_move_ge_0.005",
+          "family": "trend_strength",
+          "desc": "|open->trigger| move >= 0.5% (strong directional day)",
+          "live_compute": "session open vs trigger close \u2014 pure SPY bars, causal.",
+          "n_kept": 24,
+          "retention": 0.261,
+          "exp_dollar": 52.12,
+          "wr_pct": 45.8,
+          "is_exp_dollar": 28.68,
+          "oos_exp_dollar": 91.19,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 6,
+              "mean_pnl": 104.69,
+              "total_pnl": 628.12
+            },
+            {
+              "window": 2,
+              "n": 6,
+              "mean_pnl": -50.28,
+              "total_pnl": -301.68
+            },
+            {
+              "window": 3,
+              "n": 6,
+              "mean_pnl": 88.32,
+              "total_pnl": 529.92
+            },
+            {
+              "window": 4,
+              "n": 6,
+              "mean_pnl": 65.76,
+              "total_pnl": 394.56
+            }
+          ],
+          "oos_months_positive": 2,
+          "oos_months_total": 4,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 4.11,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "morning_move_ge_0.003",
+          "family": "trend_strength",
+          "desc": "|open->trigger| move >= 0.3% (strong directional day)",
+          "live_compute": "session open vs trigger close \u2014 pure SPY bars, causal.",
+          "n_kept": 44,
+          "retention": 0.478,
+          "exp_dollar": 65.36,
+          "wr_pct": 50.0,
+          "is_exp_dollar": 54.28,
+          "oos_exp_dollar": 89.11,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 11,
+              "mean_pnl": 112.87,
+              "total_pnl": 1241.56
+            },
+            {
+              "window": 2,
+              "n": 11,
+              "mean_pnl": -29.43,
+              "total_pnl": -323.76
+            },
+            {
+              "window": 3,
+              "n": 11,
+              "mean_pnl": 94.46,
+              "total_pnl": 1039.04
+            },
+            {
+              "window": 4,
+              "n": 11,
+              "mean_pnl": 83.54,
+              "total_pnl": 918.96
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 4,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 27.56,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "vix_lt_20",
+          "family": "vix_band",
+          "desc": "VIX < 20 (swept band)",
+          "live_compute": "VIX last value at trigger bar \u2014 loop-state.vix_cache.",
+          "n_kept": 70,
+          "retention": 0.761,
+          "exp_dollar": 43.45,
+          "wr_pct": 42.9,
+          "is_exp_dollar": 21.84,
+          "oos_exp_dollar": 87.6,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 18,
+              "mean_pnl": 41.08,
+              "total_pnl": 739.44
+            },
+            {
+              "window": 2,
+              "n": 17,
+              "mean_pnl": -6.41,
+              "total_pnl": -108.96
+            },
+            {
+              "window": 3,
+              "n": 17,
+              "mean_pnl": 51.47,
+              "total_pnl": 875.04
+            },
+            {
+              "window": 4,
+              "n": 18,
+              "mean_pnl": 85.32,
+              "total_pnl": 1535.72
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 4,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 17.08,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "range_ratio_le_1.5",
+          "family": "range_expansion",
+          "desc": "trigger-bar range <= 1.5x trailing-20 median (no vol spike)",
+          "live_compute": "bar range / trailing-20-bar median range \u2014 pure SPY bars, causal.",
+          "n_kept": 50,
+          "retention": 0.543,
+          "exp_dollar": 45.81,
+          "wr_pct": 42.0,
+          "is_exp_dollar": 26.42,
+          "oos_exp_dollar": 87.01,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 12,
+              "mean_pnl": 43.77,
+              "total_pnl": 525.2
+            },
+            {
+              "window": 2,
+              "n": 13,
+              "mean_pnl": -19.98,
+              "total_pnl": -259.8
+            },
+            {
+              "window": 3,
+              "n": 13,
+              "mean_pnl": 91.44,
+              "total_pnl": 1188.72
+            },
+            {
+              "window": 4,
+              "n": 12,
+              "mean_pnl": 69.7,
+              "total_pnl": 836.4
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 11.1,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "rvol_le_12bps",
+          "family": "realized_vol",
+          "desc": "intraday realized vol <= 12 bps/bar (orderly, not whippy)",
+          "live_compute": "stdev of session 5m log-returns to date \u2014 pure SPY bars, causal.",
+          "n_kept": 77,
+          "retention": 0.837,
+          "exp_dollar": 41.88,
+          "wr_pct": 41.6,
+          "is_exp_dollar": 21.43,
+          "oos_exp_dollar": 81.99,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 19,
+              "mean_pnl": 38.58,
+              "total_pnl": 733.08
+            },
+            {
+              "window": 2,
+              "n": 19,
+              "mean_pnl": -9.69,
+              "total_pnl": -184.08
+            },
+            {
+              "window": 3,
+              "n": 20,
+              "mean_pnl": 85.99,
+              "total_pnl": 1719.72
+            },
+            {
+              "window": 4,
+              "n": 19,
+              "mean_pnl": 50.32,
+              "total_pnl": 956.12
+            }
+          ],
+          "oos_months_positive": 5,
+          "oos_months_total": 5,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 18.42,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "morning_move_ge_0.002",
+          "family": "trend_strength",
+          "desc": "|open->trigger| move >= 0.2% (strong directional day)",
+          "live_compute": "session open vs trigger close \u2014 pure SPY bars, causal.",
+          "n_kept": 67,
+          "retention": 0.728,
+          "exp_dollar": 48.11,
+          "wr_pct": 44.8,
+          "is_exp_dollar": 35.09,
+          "oos_exp_dollar": 78.71,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 17,
+              "mean_pnl": 71.57,
+              "total_pnl": 1216.72
+            },
+            {
+              "window": 2,
+              "n": 17,
+              "mean_pnl": -18.02,
+              "total_pnl": -306.36
+            },
+            {
+              "window": 3,
+              "n": 16,
+              "mean_pnl": 63.14,
+              "total_pnl": 1010.24
+            },
+            {
+              "window": 4,
+              "n": 17,
+              "mean_pnl": 76.63,
+              "total_pnl": 1302.72
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 22.29,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "morning_move_ge_0.004",
+          "family": "trend_strength",
+          "desc": "|open->trigger| move >= 0.4% (strong directional day)",
+          "live_compute": "session open vs trigger close \u2014 pure SPY bars, causal.",
+          "n_kept": 32,
+          "retention": 0.348,
+          "exp_dollar": 49.97,
+          "wr_pct": 46.9,
+          "is_exp_dollar": 38.0,
+          "oos_exp_dollar": 76.31,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 8,
+              "mean_pnl": 114.47,
+              "total_pnl": 915.76
+            },
+            {
+              "window": 2,
+              "n": 8,
+              "mean_pnl": -47.31,
+              "total_pnl": -378.48
+            },
+            {
+              "window": 3,
+              "n": 8,
+              "mean_pnl": 49.81,
+              "total_pnl": 398.52
+            },
+            {
+              "window": 4,
+              "n": 8,
+              "mean_pnl": 82.92,
+              "total_pnl": 663.36
+            }
+          ],
+          "oos_months_positive": 2,
+          "oos_months_total": 4,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 10.64,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "rvol_le_10bps",
+          "family": "realized_vol",
+          "desc": "intraday realized vol <= 10 bps/bar (orderly, not whippy)",
+          "live_compute": "stdev of session 5m log-returns to date \u2014 pure SPY bars, causal.",
+          "n_kept": 70,
+          "retention": 0.761,
+          "exp_dollar": 34.3,
+          "wr_pct": 37.1,
+          "is_exp_dollar": 16.43,
+          "oos_exp_dollar": 70.82,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 18,
+              "mean_pnl": 21.11,
+              "total_pnl": 380.04
+            },
+            {
+              "window": 2,
+              "n": 17,
+              "mean_pnl": -6.41,
+              "total_pnl": -108.96
+            },
+            {
+              "window": 3,
+              "n": 17,
+              "mean_pnl": 81.96,
+              "total_pnl": 1393.32
+            },
+            {
+              "window": 4,
+              "n": 18,
+              "mean_pnl": 40.92,
+              "total_pnl": 736.52
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 7.72,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "regime_not_high_vol",
+          "family": "regime_cell",
+          "desc": "classify_regime != high_vol",
+          "live_compute": "regime_book.classify_regime \u2014 live.",
+          "n_kept": 92,
+          "retention": 1.0,
+          "exp_dollar": 45.88,
+          "wr_pct": 42.4,
+          "is_exp_dollar": 33.44,
+          "oos_exp_dollar": 69.22,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 23,
+              "mean_pnl": 58.96,
+              "total_pnl": 1356.04
+            },
+            {
+              "window": 2,
+              "n": 23,
+              "mean_pnl": -12.47,
+              "total_pnl": -286.8
+            },
+            {
+              "window": 3,
+              "n": 23,
+              "mean_pnl": 83.25,
+              "total_pnl": 1914.84
+            },
+            {
+              "window": 4,
+              "n": 23,
+              "mean_pnl": 53.79,
+              "total_pnl": 1237.28
+            }
+          ],
+          "oos_months_positive": 5,
+          "oos_months_total": 5,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 25.43,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "regime_not_pin",
+          "family": "regime_cell",
+          "desc": "classify_regime != range_pin",
+          "live_compute": "regime_book.classify_regime \u2014 live.",
+          "n_kept": 92,
+          "retention": 1.0,
+          "exp_dollar": 45.88,
+          "wr_pct": 42.4,
+          "is_exp_dollar": 33.44,
+          "oos_exp_dollar": 69.22,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 23,
+              "mean_pnl": 58.96,
+              "total_pnl": 1356.04
+            },
+            {
+              "window": 2,
+              "n": 23,
+              "mean_pnl": -12.47,
+              "total_pnl": -286.8
+            },
+            {
+              "window": 3,
+              "n": 23,
+              "mean_pnl": 83.25,
+              "total_pnl": 1914.84
+            },
+            {
+              "window": 4,
+              "n": 23,
+              "mean_pnl": 53.79,
+              "total_pnl": 1237.28
+            }
+          ],
+          "oos_months_positive": 5,
+          "oos_months_total": 5,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 25.43,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "rvol_le_20bps",
+          "family": "realized_vol",
+          "desc": "intraday realized vol <= 20 bps/bar (orderly, not whippy)",
+          "live_compute": "stdev of session 5m log-returns to date \u2014 pure SPY bars, causal.",
+          "n_kept": 91,
+          "retention": 0.989,
+          "exp_dollar": 46.42,
+          "wr_pct": 42.9,
+          "is_exp_dollar": 34.06,
+          "oos_exp_dollar": 69.22,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 23,
+              "mean_pnl": 57.61,
+              "total_pnl": 1324.96
+            },
+            {
+              "window": 2,
+              "n": 23,
+              "mean_pnl": -12.55,
+              "total_pnl": -288.72
+            },
+            {
+              "window": 3,
+              "n": 22,
+              "mean_pnl": 88.67,
+              "total_pnl": 1950.84
+            },
+            {
+              "window": 4,
+              "n": 23,
+              "mean_pnl": 53.79,
+              "total_pnl": 1237.28
+            }
+          ],
+          "oos_months_positive": 5,
+          "oos_months_total": 5,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 25.76,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "rvol_le_8bps",
+          "family": "realized_vol",
+          "desc": "intraday realized vol <= 8 bps/bar (orderly, not whippy)",
+          "live_compute": "stdev of session 5m log-returns to date \u2014 pure SPY bars, causal.",
+          "n_kept": 54,
+          "retention": 0.587,
+          "exp_dollar": 34.6,
+          "wr_pct": 37.0,
+          "is_exp_dollar": 17.71,
+          "oos_exp_dollar": 68.4,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 14,
+              "mean_pnl": 10.59,
+              "total_pnl": 148.32
+            },
+            {
+              "window": 2,
+              "n": 13,
+              "mean_pnl": -1.79,
+              "total_pnl": -23.28
+            },
+            {
+              "window": 3,
+              "n": 13,
+              "mean_pnl": 74.97,
+              "total_pnl": 974.64
+            },
+            {
+              "window": 4,
+              "n": 14,
+              "mean_pnl": 54.92,
+              "total_pnl": 768.92
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 0.67,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "vix_not_rising",
+          "family": "vix_character",
+          "desc": "VIX not rising at entry (flat/falling \u2014 calm tape)",
+          "live_compute": "VIX last vs prior bar \u2014 loop-state.vix_cache.dir.",
+          "n_kept": 78,
+          "retention": 0.848,
+          "exp_dollar": 34.82,
+          "wr_pct": 39.7,
+          "is_exp_dollar": 15.29,
+          "oos_exp_dollar": 67.81,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 20,
+              "mean_pnl": 22.1,
+              "total_pnl": 442.04
+            },
+            {
+              "window": 2,
+              "n": 19,
+              "mean_pnl": -15.71,
+              "total_pnl": -298.44
+            },
+            {
+              "window": 3,
+              "n": 19,
+              "mean_pnl": 83.34,
+              "total_pnl": 1583.48
+            },
+            {
+              "window": 4,
+              "n": 20,
+              "mean_pnl": 49.44,
+              "total_pnl": 988.76
+            }
+          ],
+          "oos_months_positive": 5,
+          "oos_months_total": 5,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 12.54,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "rvol_le_15bps",
+          "family": "realized_vol",
+          "desc": "intraday realized vol <= 15 bps/bar (orderly, not whippy)",
+          "live_compute": "stdev of session 5m log-returns to date \u2014 pure SPY bars, causal.",
+          "n_kept": 86,
+          "retention": 0.935,
+          "exp_dollar": 44.25,
+          "wr_pct": 41.9,
+          "is_exp_dollar": 31.62,
+          "oos_exp_dollar": 66.67,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 22,
+              "mean_pnl": 44.82,
+              "total_pnl": 986.04
+            },
+            {
+              "window": 2,
+              "n": 21,
+              "mean_pnl": -10.77,
+              "total_pnl": -226.08
+            },
+            {
+              "window": 3,
+              "n": 21,
+              "mean_pnl": 93.18,
+              "total_pnl": 1956.84
+            },
+            {
+              "window": 4,
+              "n": 22,
+              "mean_pnl": 49.5,
+              "total_pnl": 1089.08
+            }
+          ],
+          "oos_months_positive": 5,
+          "oos_months_total": 5,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 22.19,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "range_ratio_le_2.5",
+          "family": "range_expansion",
+          "desc": "trigger-bar range <= 2.5x trailing-20 median (no vol spike)",
+          "live_compute": "bar range / trailing-20-bar median range \u2014 pure SPY bars, causal.",
+          "n_kept": 76,
+          "retention": 0.826,
+          "exp_dollar": 38.45,
+          "wr_pct": 40.8,
+          "is_exp_dollar": 23.34,
+          "oos_exp_dollar": 64.36,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 19,
+              "mean_pnl": 40.29,
+              "total_pnl": 765.52
+            },
+            {
+              "window": 2,
+              "n": 19,
+              "mean_pnl": -15.51,
+              "total_pnl": -294.6
+            },
+            {
+              "window": 3,
+              "n": 19,
+              "mean_pnl": 78.0,
+              "total_pnl": 1482.0
+            },
+            {
+              "window": 4,
+              "n": 19,
+              "mean_pnl": 51.02,
+              "total_pnl": 969.32
+            }
+          ],
+          "oos_months_positive": 5,
+          "oos_months_total": 5,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 15.93,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "adx_ge_10",
+          "family": "trend_strength",
+          "desc": "intraday ADX-like trend strength >= 10 (trend-day, not chop)",
+          "live_compute": "ADX-like index over session 5m bars to date \u2014 pure SPY bars, causal.",
+          "n_kept": 83,
+          "retention": 0.902,
+          "exp_dollar": 45.08,
+          "wr_pct": 42.2,
+          "is_exp_dollar": 36.94,
+          "oos_exp_dollar": 61.97,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 21,
+              "mean_pnl": 68.86,
+              "total_pnl": 1446.04
+            },
+            {
+              "window": 2,
+              "n": 21,
+              "mean_pnl": -11.61,
+              "total_pnl": -243.84
+            },
+            {
+              "window": 3,
+              "n": 20,
+              "mean_pnl": 83.59,
+              "total_pnl": 1671.72
+            },
+            {
+              "window": 4,
+              "n": 21,
+              "mean_pnl": 41.32,
+              "total_pnl": 867.8
+            }
+          ],
+          "oos_months_positive": 5,
+          "oos_months_total": 5,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 24.36,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "adx_ge_15",
+          "family": "trend_strength",
+          "desc": "intraday ADX-like trend strength >= 15 (trend-day, not chop)",
+          "live_compute": "ADX-like index over session 5m bars to date \u2014 pure SPY bars, causal.",
+          "n_kept": 79,
+          "retention": 0.859,
+          "exp_dollar": 41.95,
+          "wr_pct": 40.5,
+          "is_exp_dollar": 31.56,
+          "oos_exp_dollar": 61.97,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 20,
+              "mean_pnl": 70.74,
+              "total_pnl": 1414.72
+            },
+            {
+              "window": 2,
+              "n": 20,
+              "mean_pnl": -13.94,
+              "total_pnl": -278.76
+            },
+            {
+              "window": 3,
+              "n": 19,
+              "mean_pnl": 71.51,
+              "total_pnl": 1358.64
+            },
+            {
+              "window": 4,
+              "n": 20,
+              "mean_pnl": 40.99,
+              "total_pnl": 819.8
+            }
+          ],
+          "oos_months_positive": 5,
+          "oos_months_total": 5,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 21.27,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "range_ratio_le_2.0",
+          "family": "range_expansion",
+          "desc": "trigger-bar range <= 2.0x trailing-20 median (no vol spike)",
+          "live_compute": "bar range / trailing-20-bar median range \u2014 pure SPY bars, causal.",
+          "n_kept": 70,
+          "retention": 0.761,
+          "exp_dollar": 39.24,
+          "wr_pct": 41.4,
+          "is_exp_dollar": 27.18,
+          "oos_exp_dollar": 60.95,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 18,
+              "mean_pnl": 45.78,
+              "total_pnl": 824.08
+            },
+            {
+              "window": 2,
+              "n": 17,
+              "mean_pnl": -15.62,
+              "total_pnl": -265.56
+            },
+            {
+              "window": 3,
+              "n": 17,
+              "mean_pnl": 76.52,
+              "total_pnl": 1300.92
+            },
+            {
+              "window": 4,
+              "n": 18,
+              "mean_pnl": 49.29,
+              "total_pnl": 887.28
+            }
+          ],
+          "oos_months_positive": 5,
+          "oos_months_total": 5,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 14.7,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "adx_ge_30",
+          "family": "trend_strength",
+          "desc": "intraday ADX-like trend strength >= 30 (trend-day, not chop)",
+          "live_compute": "ADX-like index over session 5m bars to date \u2014 pure SPY bars, causal.",
+          "n_kept": 67,
+          "retention": 0.728,
+          "exp_dollar": 33.37,
+          "wr_pct": 38.8,
+          "is_exp_dollar": 24.54,
+          "oos_exp_dollar": 54.12,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 17,
+              "mean_pnl": 51.24,
+              "total_pnl": 871.04
+            },
+            {
+              "window": 2,
+              "n": 17,
+              "mean_pnl": -11.22,
+              "total_pnl": -190.68
+            },
+            {
+              "window": 3,
+              "n": 16,
+              "mean_pnl": 53.29,
+              "total_pnl": 852.6
+            },
+            {
+              "window": 4,
+              "n": 17,
+              "mean_pnl": 41.36,
+              "total_pnl": 703.08
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 8.83,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "adx_ge_25",
+          "family": "trend_strength",
+          "desc": "intraday ADX-like trend strength >= 25 (trend-day, not chop)",
+          "live_compute": "ADX-like index over session 5m bars to date \u2014 pure SPY bars, causal.",
+          "n_kept": 69,
+          "retention": 0.75,
+          "exp_dollar": 31.57,
+          "wr_pct": 37.7,
+          "is_exp_dollar": 23.52,
+          "oos_exp_dollar": 49.96,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 17,
+              "mean_pnl": 51.1,
+              "total_pnl": 868.64
+            },
+            {
+              "window": 2,
+              "n": 17,
+              "mean_pnl": -10.51,
+              "total_pnl": -178.68
+            },
+            {
+              "window": 3,
+              "n": 18,
+              "mean_pnl": 40.65,
+              "total_pnl": 731.64
+            },
+            {
+              "window": 4,
+              "n": 17,
+              "mean_pnl": 44.51,
+              "total_pnl": 756.6
+            }
+          ],
+          "oos_months_positive": 4,
+          "oos_months_total": 5,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 7.65,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "adx_ge_20",
+          "family": "trend_strength",
+          "desc": "intraday ADX-like trend strength >= 20 (trend-day, not chop)",
+          "live_compute": "ADX-like index over session 5m bars to date \u2014 pure SPY bars, causal.",
+          "n_kept": 75,
+          "retention": 0.815,
+          "exp_dollar": 34.28,
+          "wr_pct": 37.3,
+          "is_exp_dollar": 27.44,
+          "oos_exp_dollar": 47.95,
+          "oos_sign_stable": true,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 19,
+              "mean_pnl": 58.51,
+              "total_pnl": 1111.64
+            },
+            {
+              "window": 2,
+              "n": 19,
+              "mean_pnl": -12.88,
+              "total_pnl": -244.68
+            },
+            {
+              "window": 3,
+              "n": 18,
+              "mean_pnl": 57.35,
+              "total_pnl": 1032.24
+            },
+            {
+              "window": 4,
+              "n": 19,
+              "mean_pnl": 35.35,
+              "total_pnl": 671.6
+            }
+          ],
+          "oos_months_positive": 5,
+          "oos_months_total": 5,
+          "oos_months_all_positive": true,
+          "both_dirs_positive": true,
+          "dsr_verdict": "PASS",
+          "drop_top5_mean_dollar": 12.61,
+          "robust_to_outliers": true,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "vix_lt_15",
+          "family": "vix_band",
+          "desc": "VIX < 15 (swept band)",
+          "live_compute": "VIX last value at trigger bar \u2014 loop-state.vix_cache.",
+          "n_kept": 5,
+          "retention": 0.054,
+          "exp_dollar": 11.21,
+          "wr_pct": 60.0,
+          "is_exp_dollar": 11.21,
+          "oos_exp_dollar": 0.0,
+          "oos_sign_stable": false,
+          "n_sub_hurt": 1,
+          "all_sub_windows_positive": false,
+          "sub_windows": [
+            {
+              "window": 1,
+              "n": 1,
+              "mean_pnl": 33.0,
+              "total_pnl": 33.0
+            },
+            {
+              "window": 2,
+              "n": 1,
+              "mean_pnl": 36.6,
+              "total_pnl": 36.6
+            },
+            {
+              "window": 3,
+              "n": 2,
+              "mean_pnl": -26.28,
+              "total_pnl": -52.56
+            },
+            {
+              "window": 4,
+              "n": 1,
+              "mean_pnl": 39.0,
+              "total_pnl": 39.0
+            }
+          ],
+          "oos_months_positive": 0,
+          "oos_months_total": 0,
+          "oos_months_all_positive": false,
+          "both_dirs_positive": false,
+          "dsr_verdict": "WEAK",
+          "drop_top5_mean_dollar": null,
+          "robust_to_outliers": false,
+          "IS_WINNER": false
+        },
+        {
+          "gate": "regime_is_trend",
+          "family": "regime_cell",
+          "desc": "classify_regime in {bull_trend, bear_trend} (the trend-day cells)",
+          "live_compute": "regime_book.classify_regime(VIX+ribbon+range) \u2014 all live at tick.",
+          "n_kept": 0,
+          "retention": 0.0,
+          "exp_dollar": null,
+          "wr_pct": null,
+          "is_exp_dollar": null,
+          "oos_exp_dollar": null,
+          "oos_sign_stable": null,
+          "n_sub_hurt": null,
+          "all_sub_windows_positive": null,
+          "sub_windows": null,
+          "oos_months_positive": null,
+          "oos_months_total": null,
+          "oos_months_all_positive": null,
+          "both_dirs_positive": null,
+          "dsr_verdict": null,
+          "drop_top5_mean_dollar": null,
+          "robust_to_outliers": null,
+          "IS_WINNER": false
+        }
+      ],
+      "winners": [
+        "vix_lt_18"
+      ],
+      "winner_count": 1
+    }
+  },
+  "live_winners": [],
+  "live_winner_count": 0,
+  "verdict": {
+    "ship_verdict": "BASE-SIZE / KEEP-DORMANT \u2014 no clean causal regime gate on the live exit config",
+    "one_line": "NONE clean. On chart-stop-only (what the live watcher trades) NO gate makes the gated subset pass OP-22 (all-sub+ AND both-dirs+ AND drop-top5-robust AND reasonable n AND own-OOS). The one gate that passes (vix_lt_18) does so ONLY on the -8% premium-stop config the live detector does NOT trade, and even there the IS-optimal VIX cut is ~22 (barely a filter) \u2014 i.e. an OOS-selected grid artifact, not a generalizing separator. The bimodality is a regime-ERA split (calm low-VIX trend days bled; higher-VIX periods worked) that does not map cleanly onto a single causal feature without curve-fitting.",
+    "clean_gate_on_live_config": false,
+    "live_config_winners": [],
+    "non_live_config_winners": {
+      "scorecard_default_-8pct": [
+        "vix_lt_18"
+      ]
+    },
+    "exit_config_finding": "C29/L149: the ratify scorecard's headline edge (+$45.88/t, the bimodal WF) used premium_stop=-0.08; the LIVE watcher trades chart-stop-only (-0.99), where the ungated edge is only +$14/t and median rolling-month WF=0.239 (FAILS >=0.70). The 'strongest edge' framing rests on an exit the engine would not trade.",
+    "recommendation": "Keep VWAP_TREND_PULLBACK WATCH_ONLY / dormant. Do NOT wire a regime-gate param (it would encode a non-edge). Two honest forward paths, both J's call: (1) re-validate the LIVE chart-stop-only config head-on (it needs its own WF/OOS pass before any live order regardless of regime) or adopt the -8% exit for this setup specifically and re-ratify; (2) let the live WATCH archive accrue and revisit a gate with more data. A false 2nd edge is worse than none."
+  }
+}

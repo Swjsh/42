@@ -4,7 +4,7 @@
   Install Gamma_NumericPulse1m scheduled task -- every 1 min during RTH.
 
 .DESCRIPTION
-  Runs numeric_pulse.py every 1 minute. Per docs/2-MIN-CADENCE-ARCHITECTURE.md
+  Runs numeric_pulse.py every 1 minute. Per markdown/specs/2-MIN-CADENCE-ARCHITECTURE.md
   Option 1: pure-Python pattern detection is FREE and gives Gamma 1-min
   numeric coverage without busting the LLM budget.
 
@@ -59,7 +59,7 @@ Register-ScheduledTask `
     -Action $action `
     -Trigger $trigger `
     -Settings $settings `
-    -Description "Every-1-min pure-Python pattern detector pass during RTH. Per OP-25 ENGINE-EYES + docs/2-MIN-CADENCE-ARCHITECTURE.md Option 1. Zero LLM cost. Wrapper enforces RTH/weekday gate." | Out-Null
+    -Description "Every-1-min pure-Python pattern detector pass during RTH. Per OP-25 ENGINE-EYES + markdown/specs/2-MIN-CADENCE-ARCHITECTURE.md Option 1. Zero LLM cost. Wrapper enforces RTH/weekday gate." | Out-Null
 
 # Add 1-minute repetition for 6h25m duration
 $task = Get-ScheduledTask -TaskName $TaskName

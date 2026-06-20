@@ -3,215 +3,99 @@
   "end": "2026-05-29",
   "safe": {
     "label": "missed_week_safe",
-    "n": 8,
-    "winners": 2,
-    "total": -557.09,
+    "n": 3,
+    "winners": 0,
+    "total": -110.16,
     "per_day": {
-      "2026-05-20": 7.369322707978654,
-      "2026-05-21": -221.8607449150909,
-      "2026-05-22": -64.76063186079841,
-      "2026-05-26": -218.2399999999999,
-      "2026-05-27": -139.99999999999991,
-      "2026-05-28": -157.20000000000002,
-      "2026-05-29": 237.60000000000008
+      "2026-05-21": -78.71999999999993,
+      "2026-05-28": -31.440000000000005
     },
     "rows": [
       {
-        "date": "2026-05-20",
-        "entry": "13:00",
-        "strike": 739,
-        "qty": 3,
-        "entry_px": 0.91,
-        "pnl": 7.0,
-        "exit": "EXIT_ALL_RIBBON_FLIP_BACK"
-      },
-      {
         "date": "2026-05-21",
-        "entry": "10:20",
+        "entry": "10:25",
         "strike": 738,
         "qty": 3,
-        "entry_px": 1.38,
-        "pnl": -93.0,
-        "exit": "EXIT_ALL_LEVEL_STOP"
-      },
-      {
-        "date": "2026-05-21",
-        "entry": "11:30",
-        "strike": 738,
-        "qty": 3,
-        "entry_px": 1.16,
-        "pnl": -129.0,
-        "exit": "EXIT_ALL_LEVEL_STOP"
-      },
-      {
-        "date": "2026-05-22",
-        "entry": "12:55",
-        "strike": 747,
-        "qty": 3,
-        "entry_px": 0.78,
-        "pnl": -65.0,
-        "exit": "EXIT_ALL_RIBBON_FLIP_BACK"
-      },
-      {
-        "date": "2026-05-26",
-        "entry": "09:45",
-        "strike": 751,
-        "qty": 22,
-        "entry_px": 1.24,
-        "pnl": -218.0,
+        "entry_px": 2.08,
+        "pnl": -50.0,
         "exit": "EXIT_ALL_PREMIUM_STOP"
       },
       {
-        "date": "2026-05-27",
-        "entry": "10:00",
-        "strike": 750,
-        "qty": 10,
-        "entry_px": 1.75,
-        "pnl": -140.0,
+        "date": "2026-05-21",
+        "entry": "13:25",
+        "strike": 742,
+        "qty": 3,
+        "entry_px": 1.2,
+        "pnl": -29.0,
         "exit": "EXIT_ALL_PREMIUM_STOP"
       },
       {
         "date": "2026-05-28",
         "entry": "10:15",
         "strike": 753,
-        "qty": 15,
+        "qty": 3,
         "entry_px": 1.31,
-        "pnl": -157.0,
+        "pnl": -31.0,
         "exit": "EXIT_ALL_PREMIUM_STOP"
-      },
-      {
-        "date": "2026-05-29",
-        "entry": "10:55",
-        "strike": 756,
-        "qty": 10,
-        "entry_px": 1.32,
-        "pnl": 238.0,
-        "exit": "TP1_THEN_RUNNER_RIBBON"
       }
     ],
     "out_dir": "C:\\Users\\jackw\\Desktop\\42\\analysis\\backtests\\missed_week_safe"
   },
   "bold": {
     "label": "missed_week_bold",
-    "n": 12,
-    "winners": 3,
-    "total": -3141.1,
+    "n": 5,
+    "winners": 2,
+    "total": -133.1,
     "per_day": {
-      "2026-05-20": 7.369322707978654,
-      "2026-05-21": -221.8607449150909,
-      "2026-05-22": -64.76063186079841,
-      "2026-05-26": -2138.4000000000005,
-      "2026-05-27": -1659.8999999999999,
-      "2026-05-28": -600.7500000000001,
-      "2026-05-29": 1537.2
+      "2026-05-20": -160.64999999999995,
+      "2026-05-21": 1.650000000000034,
+      "2026-05-28": -120.15000000000003,
+      "2026-05-29": 146.04545454545453
     },
     "rows": [
       {
         "date": "2026-05-20",
-        "entry": "13:00",
-        "strike": 739,
-        "qty": 3,
-        "entry_px": 0.91,
-        "pnl": 7.0,
-        "exit": "EXIT_ALL_RIBBON_FLIP_BACK"
-      },
-      {
-        "date": "2026-05-21",
         "entry": "10:20",
-        "strike": 738,
+        "strike": 735,
         "qty": 3,
-        "entry_px": 1.38,
-        "pnl": -93.0,
-        "exit": "EXIT_ALL_LEVEL_STOP"
+        "entry_px": 3.57,
+        "pnl": -161.0,
+        "exit": "EXIT_ALL_PREMIUM_STOP"
       },
       {
         "date": "2026-05-21",
-        "entry": "11:30",
-        "strike": 738,
+        "entry": "10:25",
+        "strike": 740,
         "qty": 3,
-        "entry_px": 1.16,
-        "pnl": -129.0,
-        "exit": "EXIT_ALL_LEVEL_STOP"
+        "entry_px": 3.27,
+        "pnl": -147.0,
+        "exit": "EXIT_ALL_PREMIUM_STOP"
       },
       {
-        "date": "2026-05-22",
-        "entry": "12:55",
-        "strike": 747,
+        "date": "2026-05-21",
+        "entry": "13:25",
+        "strike": 740,
         "qty": 3,
-        "entry_px": 0.78,
-        "pnl": -65.0,
-        "exit": "EXIT_ALL_RIBBON_FLIP_BACK"
-      },
-      {
-        "date": "2026-05-26",
-        "entry": "09:45",
-        "strike": 749,
-        "qty": 22,
-        "entry_px": 2.46,
-        "pnl": -812.0,
-        "exit": "EXIT_ALL_PREMIUM_STOP"
-      },
-      {
-        "date": "2026-05-26",
-        "entry": "10:40",
-        "strike": 750,
-        "qty": 22,
-        "entry_px": 2.35,
-        "pnl": -776.0,
-        "exit": "EXIT_ALL_PREMIUM_STOP"
-      },
-      {
-        "date": "2026-05-26",
-        "entry": "15:50",
-        "strike": 749,
-        "qty": 22,
-        "entry_px": 1.67,
-        "pnl": -551.0,
-        "exit": "EXIT_ALL_PREMIUM_STOP"
-      },
-      {
-        "date": "2026-05-27",
-        "entry": "09:55",
-        "strike": 748,
-        "qty": 22,
-        "entry_px": 2.95,
-        "pnl": -973.0,
-        "exit": "EXIT_ALL_PREMIUM_STOP"
-      },
-      {
-        "date": "2026-05-27",
-        "entry": "15:05",
-        "strike": 749,
-        "qty": 22,
-        "entry_px": 2.08,
-        "pnl": -686.0,
-        "exit": "EXIT_ALL_PREMIUM_STOP"
+        "entry_px": 2.48,
+        "pnl": 149.0,
+        "exit": "TP1_THEN_RUNNER_RIBBON"
       },
       {
         "date": "2026-05-28",
         "entry": "10:15",
         "strike": 751,
-        "qty": 15,
+        "qty": 3,
         "entry_px": 2.67,
-        "pnl": -601.0,
+        "pnl": -120.0,
         "exit": "EXIT_ALL_PREMIUM_STOP"
       },
       {
         "date": "2026-05-29",
         "entry": "09:40",
         "strike": 755,
-        "qty": 22,
+        "qty": 3,
         "entry_px": 2.55,
-        "pnl": 1071.0,
-        "exit": "TP1_THEN_RUNNER_RIBBON"
-      },
-      {
-        "date": "2026-05-29",
-        "entry": "10:55",
-        "strike": 754,
-        "qty": 10,
-        "entry_px": 2.59,
-        "pnl": 466.0,
+        "pnl": 146.0,
         "exit": "TP1_THEN_RUNNER_RIBBON"
       }
     ],

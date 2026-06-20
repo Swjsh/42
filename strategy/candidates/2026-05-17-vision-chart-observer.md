@@ -239,7 +239,7 @@ of task registration to start collecting first 20 trading days of data.**
 
 1. **Review the scaffold.** Files shipped (paths and LOC at bottom of this section).
 2. **Authorize task registration.** When ready, run the 4-step install command per
-   `docs/VISION-OBSERVER-PROTOCOL.md` §8.1. The `setup/install-chart-vision-observer.ps1`
+   `markdown/specs/VISION-OBSERVER-PROTOCOL.md` §8.1. The `setup/install-chart-vision-observer.ps1`
    task-registration script is Stage 2 work (NOT shipped tonight per scaffold-only mandate).
 3. **Pick observation cadence.** Q-A in §9 of the protocol doc. Recommend half-cadence to
    start (every 2nd heartbeat tick, $3.20/day, comfortably under OP-3 budget).
@@ -260,7 +260,7 @@ of task registration to start collecting first 20 trading days of data.**
 | `setup/scripts/run-chart-vision-observer.ps1` | ~125 | Wrapper PS1 (gating + idempotency + heartbeat-yield + invoke) |
 | `backtest/autoresearch/vision_observer_grader.py` | ~370 | EOD grader (pairs vision vs heartbeat vs next-bar truth) |
 | `backtest/autoresearch/eod_deep/main.py` | +30 (Stage 4a.7) | EOD pipeline wiring (calls the grader nightly) |
-| `docs/VISION-OBSERVER-PROTOCOL.md` | ~290 | Design doc (why, architecture, promotion path, J install steps) |
+| `markdown/specs/VISION-OBSERVER-PROTOCOL.md` | ~290 | Design doc (why, architecture, promotion path, J install steps) |
 | `strategy/candidates/2026-05-17-vision-chart-observer.md` | ~250 | This candidate spec |
 | `strategy/candidates/_LEADERBOARD.md` | +1 row | Leaderboard entry (row #3, NEEDS-MORE-DATA) |
 
@@ -272,5 +272,5 @@ state files modified. Zero scheduled tasks registered.
 _Vision prompt: `automation/prompts/chart_vision_observer.md`._
 _Wrapper: `setup/scripts/run-chart-vision-observer.ps1`._
 _Grader: `backtest/autoresearch/vision_observer_grader.py`._
-_Design doc: `docs/VISION-OBSERVER-PROTOCOL.md`._
+_Design doc: `markdown/specs/VISION-OBSERVER-PROTOCOL.md`._
 _Doctrine basis: CLAUDE.md OP-3 / OP-11 / OP-20 / OP-21 / OP-22 / OP-26 / OP-27._

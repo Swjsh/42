@@ -1,2 +1,7 @@
 date,time_et,setup,bull_score,bear_score,blocked_filters,spy,vix,vix_dir,ribbon_stack,ribbon_spread_cents,htf_15m_stack,reason
 2026-06-03,13:35,BULLISH_RECLAIM,10,6,"11",754.65,16.29,rising,BULL,65,BULL,"bull_score_10/11_near_miss: filter_11_no_triggers (0/4, need>=2 confluence|level_reclaim|ribbon_flip|sequence_reclaim)"
+2026-06-15,11:54,BULLISH_RECLAIM,10,4,"6,11",755.99,16.31,flat,BULL,143,null,"spread_wide_exceeds_100c_limit; filter_11_insufficient_triggers_<2_level_reclaim_only"
+2026-06-15,12:33,BULLISH_RECLAIM,10,4,"6",756.49,16.31,flat,BULL,148,BULL,"spread_148c_exceeds_30c_filter_limit; structure_textbook_buyer_pressure_confirmed"
+2026-06-15,12:39,BULLISH_RECLAIM,9,4,"10",755.88,16.06,falling,BULL,140,BULL,"RED_bar_close_755.88_open_756.18_vol_20k_need_green",,,,
+2026-06-18,12:30,BULLISH_RECLAIM_RIDE_THE_RIBBON,10,0,"11,first_entry_after_stop",746.65,16.96,falling,BULL,32,null,"first_entry_after_stop_blocked_prior_11:04_premium_stop",,,,
+2026-06-18,13:03,BULLISH_RECLAIM_RIDE_THE_RIBBON,9,4,"6,11",747.09,16.96,falling,BULL,47,null,"spread_47c_exceeds_30c_filter_6_plus_no_triggers_filter_11_plus_first_entry_lock_blocks",,,,

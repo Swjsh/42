@@ -13,7 +13,7 @@ Why this is an independent task and not just the run-daily-review.ps1 archiver:
   holidays (Test-HolidayFromAlpaca) and on a rate-limit-retry failure — so on
   those days the archive silently misses a day. This standalone $0 capture is the
   safety-net so the archive accumulates toward the N>=20-30 days needed to re-run
-  the level validations (see docs/FUTURE-IMPROVEMENTS.md).
+  the level validations (see markdown/planning/FUTURE-IMPROVEMENTS.md).
 
 Idempotent: if a destination already has the snapshot for that date, logs
 SKIP_EXISTS and leaves the existing file untouched.

@@ -232,7 +232,7 @@ no explanation. Each element is an object with these fields exactly:
 
 Good task examples:
   * "Re-rank leaderboard candidates #3 (V14E_BEAR_ONLY_GATE) and #5 (ORB_DIRECTION_FILTER) by walk-forward stability across 2026 Q1 quarterly windows; identify which is more regime-robust."
-  * "Mine docs/LESSONS-LEARNED.md L40-L55 for the top 3 foot-guns that have NOT been encoded as gym validators yet; propose validator specs."
+  * "Mine markdown/doctrine/LESSONS-LEARNED.md L40-L55 for the top 3 foot-guns that have NOT been encoded as gym validators yet; propose validator specs."
   * "Explore: is there an edge in entering BEARISH_REJECTION 2 bars later (post-confirmation) vs immediate? Quantify trade count and avg P&L impact across J's 7 anchor days."
   * "Brainstorm a NEW SETUP class inspired by J's 5/15 manual trades that the current playbook does not cover."
 
@@ -260,14 +260,14 @@ def _build_seeder_prompt(n_tasks: int) -> str:
     sections = [
         _block("strategy/candidates/_LEADERBOARD.md",
                _read_safe(REPO / "strategy" / "candidates" / "_LEADERBOARD.md", 35_000)),
-        _block("docs/LESSONS-LEARNED.md (tail 25K bytes)",
-               _read_safe_tail(REPO / "docs" / "LESSONS-LEARNED.md", 25_000)),
+        _block("markdown/doctrine/LESSONS-LEARNED.md (tail 25K bytes)",
+               _read_safe_tail(REPO / "markdown" / "doctrine" / "LESSONS-LEARNED.md", 25_000)),
         _block("journal/mistakes.md (tail 12K bytes)",
                _read_safe_tail(REPO / "journal" / "mistakes.md", 12_000)),
         _block(f"journal/{_et_now().strftime('%Y-%m-%d')}.md (today)",
                _read_safe(_today_journal_path(), 25_000)),
-        _block("strategy/playbook.md",
-               _read_safe(REPO / "strategy" / "playbook.md", 15_000)),
+        _block("markdown/0dte/playbook.md",
+               _read_safe(REPO / "markdown" / "0dte" / "playbook.md", 15_000)),
         _block("Recent chef outputs (for dedup signal):",
                _recent_chef_outputs(15)),
     ]

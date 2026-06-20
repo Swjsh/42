@@ -244,7 +244,7 @@ If OP-21 gates pass (N≥15 VIX≥20 across ≥2 regimes + 3 live J-confirmed):
   - Result: 0/4 WR with −8% stop; 1/4 WR with chart-stop-only (+$373 total)
   - Script: `backtest/autoresearch/lbfs_real_fills_validate.py`
   - Output: `analysis/recommendations/lbfs-v4-real-fills.json`
-  - Lesson encoded: L50 (`docs/LESSONS-LEARNED.md#L50`)
+  - Lesson encoded: L50 (`markdown/doctrine/LESSONS-LEARNED.md#L50`)
 - [x] **Stop mechanism redesign**: COMPLETED 2026-05-19 — −30% backstop tested (0/4, −$783). Root cause: violent initial bounce −59.5% in first bar makes ANY premium stop incompatible with genuine breaks. Pure chart stop (−99% backstop + level stop) is the only viable mechanism: 1/4 WR +$373. L51 encoded.
   - Discriminating filter hypothesis: vol ≥ 5× AND break ≥ 100c → signal 1 only (1/1) but N=1 not ratiifiable. Track vol_mult + break_distance in live watcher logs.
   - Next step: when N≥15, test whether vol≥5× AND break≥100c subgroup shows positive expectancy with chart-stop-only mechanism.

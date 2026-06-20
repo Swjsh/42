@@ -34,7 +34,7 @@
 | `Gamma_ManagerDailyVerify` | 17:30 ET weekdays | ~$0.50 | OP-28 Manager verifies the daily loop, writes J's brief. Re-added 2026-06-01. |
 | `Gamma_TreasurerWeekly` | Sun 16:00 ET | ~$0.20 | OP-28 risk + sizing audit, both accounts. Re-added 2026-06-01. |
 | `Gamma_WeeklyReview` | Sun 18:00 ET | ~$0.50 | Weekly metrics + recommendations. Re-added 2026-06-01. |
-| `Gamma_ContextGuard` | 16:10 ET daily | $0 (~$0.10 on RED) | Keeps CLAUDE.md <= 8K tokens (cache-read prefix); auto-trips `context-leanness` skill on RED, after-hours only. Spec: `docs/CONTEXT-LEANNESS.md`. Promoted from Proposed 2026-06-17 (was already registered). |
+| `Gamma_ContextGuard` | 16:10 ET daily | $0 (~$0.10 on RED) | Keeps CLAUDE.md <= 8K tokens (cache-read prefix); auto-trips `context-leanness` skill on RED, after-hours only. Spec: `markdown/infra/CONTEXT-LEANNESS.md`. Promoted from Proposed 2026-06-17 (was already registered). |
 | `Gamma_McpWeeklyAudit` | Sun 18:30 ET | ~$0.10 | Weekly MCP round-trip health check (Alpaca Safe+Bold + TradingView tools) -- catches a hung-but-alive bridge the CDP port check misses. Added 2026-06-17. |
 | `Gamma_DiscordBridge` | every 5 min, 24/7 | $0 | Keepalive for the Discord presence layer: bridge (outbox->Discord + inbox<-Discord) + trade-watcher (ENTER/EXIT/kill-switch -> Sharp-voice pings per automation/presence/SOUL.md). Idempotent. Added 2026-06-17. |
 | `Gamma_CryptoDaily` | 06:00 ET daily | $0 | OP-26 harness health + **runs the task-registry + leak audit** + grinder rotation. |
@@ -108,7 +108,7 @@ _None currently registered in Disabled state._
 
 ## Conventions (enforced by `audit_scheduled_tasks.py`)
 
-1. **Window hidden.** `Execute=wscript.exe` (+ `run_hidden.vbs`/`run_exe_hidden.vbs`) OR `powershell.exe -WindowStyle Hidden`. Else → VISIBLE_WINDOW.
+1. **Window hidden.** `Execute=wscript.exe` (+ `run_hidden.vbs`/`run_exe_hidden.vbs` → pythonw → `run_ps1_hidden.py`) OR a direct GUI-subsystem `pythonw.exe`. Else → VISIBLE_WINDOW. **NOT** a direct `powershell.exe -WindowStyle Hidden` action: Task Scheduler shows the console (OpenConsole.exe `-Embedding` on Win11) BEFORE `-WindowStyle Hidden` applies (~200ms) → a black flash every fire (root-caused 2026-06-20 — `Gamma_CryptoGrinderKeepalive` @ 5 min = ~288 flashes/day; fix: `setup/fix-powershell-task-flash.ps1`).
 2. **Long-running Python uses `pythonw.exe`.** Else → PYTHON_NOT_PYTHONW.
 3. **Every "## Active" entry must match a registered task** (STALE_REGISTRY_ENTRY) and **vice-versa** (ORPHAN_TASK).
 4. **Silent > 26h → SILENT_TASK** (weekend false-positives expected for weekday-only tasks on Monday).

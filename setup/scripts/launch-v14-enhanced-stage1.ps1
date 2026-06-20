@@ -7,7 +7,7 @@
 # trace vanishes. With redirection, even pythonw writes a final traceback to
 # the stderr file before being OOM-killed (best effort; OOM may also lose the
 # trailing bytes, but we get MUCH more than before).
-# See docs/T39-V14E-GRINDER-SILENT-DEATH-2026-05-14.md
+# See markdown/audits/T39-V14E-GRINDER-SILENT-DEATH-2026-05-14.md
 
 $ErrorActionPreference = 'Stop'
 

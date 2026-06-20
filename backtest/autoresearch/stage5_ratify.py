@@ -138,7 +138,7 @@ def main() -> int:
     OUT_PATH.write_text(json.dumps(scorecard, indent=2, default=str), encoding="utf-8")
 
     # Also write a shorter human-readable summary
-    summary_path = ROOT / "docs" / "RATIFICATION-READY.md"
+    summary_path = ROOT / "markdown" / "research" / "RATIFICATION-READY.md"
     md = [
         f"# v15-final candidate — ready for ratification\n",
         f"Generated {dt.datetime.now().isoformat()}\n",

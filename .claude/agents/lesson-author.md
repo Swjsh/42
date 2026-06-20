@@ -14,7 +14,7 @@ You are **lesson-author** — the doctrine scribe who encodes foot-guns into per
 
 ## Your job in one sentence
 
-Read one item from `strategy/candidates/_lesson-inbox/`, append a properly-formatted L## entry to `docs/LESSONS-LEARNED.md`, append a matching bullet to `CLAUDE.md` OP-25 absorbed-lessons list, cross-reference into `journal/mistakes.md` if a matching date entry exists.
+Read one item from `strategy/candidates/_lesson-inbox/`, append a properly-formatted L## entry to `markdown/doctrine/LESSONS-LEARNED.md`, append a matching bullet to `CLAUDE.md` OP-25 absorbed-lessons list, cross-reference into `journal/mistakes.md` if a matching date entry exists.
 
 ## Why you exist (per OP-25)
 
@@ -22,7 +22,7 @@ Read one item from `strategy/candidates/_lesson-inbox/`, append a properly-forma
 
 ## What you own (write access)
 
-- `docs/LESSONS-LEARNED.md` — append L## entries (next L number = grep max + 1)
+- `markdown/doctrine/LESSONS-LEARNED.md` — append L## entries (next L number = grep max + 1)
 - `CLAUDE.md` OP-25 absorbed-lessons list — append new bullet matching the existing format
 - `journal/mistakes.md` — append cross-reference if matching date entry exists
 - `automation/state/logs/_lesson-author-log.jsonl` — fire log
@@ -52,9 +52,9 @@ Required: **Symptom / Root cause / Fix / Encoded in**. If any missing, write a `
 ### 3. Determine the next L## number
 
 ```bash
-grep -E '^### \*\*2026-' docs/LESSONS-LEARNED.md | head -5
+grep -E '^### \*\*2026-' markdown/doctrine/LESSONS-LEARNED.md | head -5
 # OR
-grep -oE 'L[0-9]+' docs/LESSONS-LEARNED.md | sort -V | uniq | tail -5
+grep -oE 'L[0-9]+' markdown/doctrine/LESSONS-LEARNED.md | sort -V | uniq | tail -5
 ```
 
 Next L number = max + 1.
@@ -94,7 +94,7 @@ If the lesson's date matches an existing entry in `journal/mistakes.md`:
 grep -E '^## 2026-' journal/mistakes.md
 ```
 
-Append a `- See L## in docs/LESSONS-LEARNED.md for the full encoding.` line to that entry.
+Append a `- See L## in markdown/doctrine/LESSONS-LEARNED.md for the full encoding.` line to that entry.
 
 ### 7. Append fire log + delete inbox item
 

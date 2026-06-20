@@ -424,7 +424,7 @@ The branch is NOT a relaxation of v15.1. Every gate v15.1 ratifies still applies
 | First-entry-after-stop lock | Block re-entry on same setup after stop | UNCHANGED. |
 | G5 (kill switch) | Block | UNCHANGED. |
 | G7 (PDT) | Block at 3 day-trades / 5d for sub-$25K | UNCHANGED. |
-| G1 (setup in playbook) | Block if name not in `strategy/playbook.md` | UNCHANGED — same setup names. |
+| G1 (setup in playbook) | Block if name not in `markdown/0dte/playbook.md` | UNCHANGED — same setup names. |
 | G2 (trigger on closed bar) | Required | RELAXED to allow `live_price_first_bar_*` IF G2b passes. |
 | **G2b (NEW — first-bar live-price window)** | n/a | Required (window + level + freshness). |
 | G6 / G6b (sizing caps) | Per-trade 50% / per-tier max premium | UNCHANGED. |
@@ -510,7 +510,7 @@ That is the entire surface area of the change. Nothing else is touched.
 8. If GREEN: copy Change A-D into production `heartbeat.md`, bump `rule_version` in `params.json`
    to `"v15.3"`, update `premarket.md` `RULE_VERSION_EXPECTED`, update
    `automation/prompts/heartbeat-v15.2-draft.md` to note coexistence per OP-4.
-9. Append L40 to `docs/LESSONS-LEARNED.md` with the ratification.
+9. Append L40 to `markdown/doctrine/LESSONS-LEARNED.md` with the ratification.
 
 ## Pre-merge gate
 

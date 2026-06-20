@@ -11,7 +11,7 @@
 > This heartbeat MIRRORS `automation/prompts/heartbeat.md` — same tick structure,
 > same signal logic, same journaling. Only what changes: symbol, P&L math, broker.
 >
-> FUTURES MENTALITY ([`docs/futures/README.md`](../../docs/futures/README.md)): P&L is LINEAR and point-based — no
+> FUTURES MENTALITY ([`markdown/futures/README.md`](../../markdown/futures/README.md)): P&L is LINEAR and point-based — no
 > theta, no premium decay. Stops/targets in POINTS, never premium %. pnl_usd =
 > points × point_value × qty (MNQ $2/pt, MES $5/pt). Cash-settled, NO assignment risk.
 > Flat-by-close is risk management (avoid overnight margin), NOT expiry defense.

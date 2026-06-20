@@ -149,7 +149,7 @@ def _load_api_key() -> str:
         raise FileNotFoundError(
             f"OpenRouter key missing at {KEY_FILE}. "
             "Paste your key (single line, no quotes) into this file. "
-            "See docs/MINIMAX-INTEGRATION.md."
+            "See markdown/infra/MINIMAX-INTEGRATION.md."
         )
     key = KEY_FILE.read_text(encoding="utf-8").strip().splitlines()[0].strip()
     if not key:

@@ -270,7 +270,7 @@ Banned per OP-18: hedging language, "should I...?".
 - Alpaca account info + positions + portfolio history (both accounts)
 - `analysis/eod/{recent}.md` (Analyst's recent digests)
 - `analysis/treasury/{previous}.md` (your own prior audits)
-- `strategy/dual-account-design.md` (account architecture)
+- `markdown/0dte/dual-account-design.md` (account architecture)
 
 ## Files you write to
 

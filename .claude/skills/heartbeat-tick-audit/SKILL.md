@@ -2,7 +2,7 @@
 
 Verify the heartbeat read the correct CLOSED 5m bar (not the in-progress one) for every tick on a given day. Quantify how many decisions today would have differed under correct closed-bar reading.
 
-> Per `docs/HEARTBEAT-CHART-DATA-AUDIT-2026-05-14.md` + `docs/R4-HEARTBEAT-MISALIGNMENT-2026-05-14.md`. R1 closed-bar fix shipped in heartbeat.md v15.1 — this skill verifies the fix held day-over-day.
+> Per `markdown/audits/HEARTBEAT-CHART-DATA-AUDIT-2026-05-14.md` + `docs/R4-HEARTBEAT-MISALIGNMENT-2026-05-14.md`. R1 closed-bar fix shipped in heartbeat.md v15.1 — this skill verifies the fix held day-over-day.
 
 ---
 
@@ -76,6 +76,6 @@ Import-Csv "automation\state\heartbeat-tick-audit-YYYY-MM-DD.csv" | Where-Object
 
 - **Audit tool source:** `backtest/autoresearch/heartbeat_tick_audit.py`
 - **R1 fix shipped in:** `automation/prompts/heartbeat.md` (RULE_VERSION v15.1)
-- **Original audit doc:** `docs/HEARTBEAT-CHART-DATA-AUDIT-2026-05-14.md`
+- **Original audit doc:** `markdown/audits/HEARTBEAT-CHART-DATA-AUDIT-2026-05-14.md`
 - **Bug discovery doc:** `docs/R4-HEARTBEAT-MISALIGNMENT-2026-05-14.md`
 - **CLAUDE.md OP-25 lesson absorbed:** "TradingView `data_get_ohlcv` returns the LIVE IN-PROGRESS bar at index [-1]" (2026-05-14 evening entry)

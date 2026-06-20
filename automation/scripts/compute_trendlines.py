@@ -211,7 +211,7 @@ def compute(spot: float | None, lookback_sessions: int) -> dict:
         "doctrine_note": (
             "Trendlines are CONTEXT data — heartbeat does NOT score them as entry triggers "
             "until a backtest demonstrates positive expectancy uplift over v14 baseline. "
-            "See operating principle 6 + strategy/playbook.md TRENDLINE_BREAK_RETEST (DRAFT)."
+            "See operating principle 6 + markdown/0dte/playbook.md TRENDLINE_BREAK_RETEST (DRAFT)."
         ),
     }
 

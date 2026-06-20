@@ -576,7 +576,7 @@
       "realfills_itm2_wr": 12.5,
       "dsr_atm_verdict": "FAIL",
       "dsr_atm": 0.0015,
-      "note": "Session-VWAP rejection from below on a down day = continuation. Reference is the dynamic VWAP, not a horizontal key level \u2014 distinct structure. BEAR side only. Spec defaults (strategy/vwap_rejection_prime.md), NOT ratified.",
+      "note": "Session-VWAP rejection from below on a down day = continuation. Reference is the dynamic VWAP, not a horizontal key level \u2014 distinct structure. BEAR side only. Spec defaults (markdown/0dte/vwap_rejection_prime.md), NOT ratified.",
       "rank": 2
     },
     {

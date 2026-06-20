@@ -218,13 +218,13 @@ def main() -> int:
          f"combo={winner['combo']}")
 
     write_morning_brief(winner, stage2_count=len(s2_rows), stage3_count=len(s3), stage4_count=len(s4))
-    _log("Morning brief written: docs/SNIPER-MORNING-BRIEF.md")
+    _log("Morning brief written: markdown/research/SNIPER-MORNING-BRIEF.md")
     return 0
 
 
 def write_morning_brief(winner: dict, stage2_count: int, stage3_count: int, stage4_count: int) -> None:
     """Human-readable summary J can read first thing tomorrow."""
-    brief_path = REPO.parent / "docs" / "SNIPER-MORNING-BRIEF.md"
+    brief_path = REPO.parent / "markdown" / "research" / "SNIPER-MORNING-BRIEF.md"
     brief_path.parent.mkdir(parents=True, exist_ok=True)
     qp = winner.get("quarter_pnl", {})
     by_day = winner.get("by_day", {})

@@ -1,6 +1,6 @@
 """Guard: profit_lock_* must NOT be mapped by `_params_to_kwargs` (L156).
 
-Graduates L156 (docs/LESSONS-LEARNED.md, 2026-06-17). The production chandelier
+Graduates L156 (markdown/doctrine/LESSONS-LEARNED.md, 2026-06-17). The production chandelier
 profit-lock lives in heartbeat.md for LIVE risk management (protect against
 disconnects/crashes). In the BACKTEST it is net-NEGATIVE on the dominant
 trending sub-windows: the 20% trail clips runners at 80% of HWM in trends where

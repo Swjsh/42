@@ -19,7 +19,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 ROOT = REPO.parent
 STATE_DIR = ROOT / "automation" / "state"
-DOCS_DIR = ROOT / "docs"
+DOCS_DIR = ROOT / "markdown"
 STATE_DIR.mkdir(parents=True, exist_ok=True)
 DOCS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -173,11 +173,11 @@ def main() -> int:
         md.append(f"- ACTION FOR J: review top candidates above, ratify or reject.")
     md.append("")
 
-    report_path = DOCS_DIR / f"STATUS-{today.isoformat()}.md"
+    report_path = DOCS_DIR / "audits" / f"STATUS-{today.isoformat()}.md"
     report_path.write_text("\n".join(md), encoding="utf-8")
 
     # Also overwrite the latest STATUS.md so dashboard can always read it
-    latest = DOCS_DIR / "STATUS.md"
+    latest = DOCS_DIR / "audits" / "STATUS.md"
     latest.write_text("\n".join(md), encoding="utf-8")
 
     return 0

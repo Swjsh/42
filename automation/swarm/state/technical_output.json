@@ -1,20 +1,21 @@
 {
   "agent": "technical",
-  "generated_at": "2026-05-21T08:57:28Z",
+  "generated_at": "2026-06-19T14:17:13Z",
   "bias": "bearish",
   "confidence": 0.65,
-  "reasoning": "CLEAN_BULL ribbon (31c spread) but price is 40c below pivot (736.33 vs 736.73) — bearish momentum signal. Last 3 bars mixed (green at 12:50, red at 12:55 and 13:00) with declining closes from 737.07 to 736.33. Overnight gap is significant at +$2.60 up from prior close 733.73, but this gap has been filled as price now trades at 736.33. The 738.10 carry level (key resistance from key-levels) remains above current price. Combined: clean ribbon but bearish price action and momentum below pivot override for conditional bearish bias.",
-  "ribbon_verdict": "CLEAN_BULL",
-  "ribbon_spread_cents": 31,
+  "reasoning": "CLEAN_BEAR ribbon with 13c spread, price 5c below pivot at 746.92 vs 746.97. Last 3 closed bars show mixed structure: 10:40 bar green (746.60->746.68), 10:45 doji (746.501), 10:50 green (746.56->746.60). Overnight gap up $5.96 but price has faded from premarket highs. VIX flat at 16.41 MID regime. Bearish bias on ribbon conviction but mixed bar structure and gap up create some confusion.",
+  "ribbon_verdict": "CLEAN_BEAR",
+  "ribbon_spread_cents": 13,
   "bar_structure": "mixed",
   "price_vs_pivot": "below",
   "overnight_gap_dir": "up",
   "key_observations": [
-    "Ribbon: CLEAN_BULL stack with 31c spread (fast=736.87 > pivot=736.73 > slow=736.56)",
-    "Price vs pivot: 736.33 is 40c below the 736.73 pivot EMA — bearish momentum",
-    "Last 3 bars: 12:50 green (736.94→737.07), 12:55 red (736.87→736.41), 13:00 red (736.42→736.33) — mixed structure with declining closes",
-    "Overnight gap: +$2.60 up from prior close 733.73, but gap largely filled as current price 736.33",
-    "Key levels context: 738.10 carry resistance above, 735.40 support below — price trapped in middle"
+    "Ribbon stack BEAR with 13c spread between fast (746.92) and slow (747.05) EMAs",
+    "Current price 746.92 is 5c below pivot 746.97 - bearish momentum",
+    "Last 3 bars: green (10:40), doji (10:45), green (10:50) - mixed structure",
+    "Overnight gap up $5.96 from prior close 740.96 to premarket 747.95",
+    "Price has declined from premarket high 748.17 to current 746.92",
+    "VIX flat at 16.41 in MID regime - no extreme fear or complacency"
   ],
   "data_quality": "full"
 }

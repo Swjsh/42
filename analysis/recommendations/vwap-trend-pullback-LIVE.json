@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-19T18:34:55.534263+00:00",
+  "generated_at": "2026-06-19T19:55:40.236588+00:00",
   "script": "backtest/autoresearch/vwap_pullback_ratify.py",
   "setup": "VWAP_TREND_PULLBACK (H4_vwap_pullback)",
   "source_discovery": "analysis/recommendations/infinite-ammo-discovery.json",
@@ -584,14 +584,16 @@
     "direction": "both (C uptrend / P downtrend)",
     "strike_tier": "OTM-3 at $1K / OTM-2 at $2-10K (v15 per-tier table) \u2014 ATM/ITM1 validated here; map to account tier at wiring time",
     "stop": "chart/structural: session extreme against the trade as of the entry bar (uptrend: min low to date; downtrend: max high to date). Chart-stop ONLY (premium_stop disabled per L51/L55/C2).",
-    "sizing": "min-3 floor + per-trade premium ceiling ~6% equity (docs/SIZING-STUDY-2026-06-19.md).",
+    "sizing": "min-3 floor + per-trade premium ceiling ~6% equity (markdown/research/SIZING-STUDY-2026-06-19.md).",
     "exit_stack": "v15 \u2014 TP1 +30% premium fallback OR next chart level; runner BE; chandelier profit-lock; 15:50 ET hard time stop."
   },
   "disclosure_OP20": {
     "real_fills": true,
     "proxy_strikes": "nearest-cached strike (L58) \u2014 directionally valid, $ modestly off.",
     "on_real_levels": false,
-    "caveat": "n=92 over 17 months is MODEST. Edge measured on proxy strikes, not real \u2605\u2605\u2605 levels. WF/sub-window/causality all computed on real fills."
+    "caveat": "n=92 over 17 months is MODEST. Edge measured on proxy strikes, not real \u2605\u2605\u2605 levels. WF/sub-window/causality all computed on real fills.",
+    "EXIT_CONFIG_CAVEAT": "LOAD-BEARING (C29/L149, added 2026-06-19): the headline metrics above use premium_stop=-0.08 (this harness's simulate_signals passes NO override -> simulator default -0.08). The LIVE watcher trades CHART-STOP-ONLY (vwap_trend_pullback_watcher.DEFAULT_PREMIUM_STOP_PCT=-0.99, L51/L55/C2). On chart-stop-only the ungated edge is only +$14/t (WR 70.7%) and rolling-month WF median=0.239 (FAILS >=0.70). Before any live order the chart-stop-only config needs its OWN WF/OOS pass, OR adopt -0.08 for this setup + re-ratify.",
+    "REGIME_GATE_VERDICT": "2026-06-19: regime-gate research (backtest/autoresearch/vwap_pullback_regime_gate.py + vwap_pullback_gate_own_oos.py; scorecards vwap-trend-pullback-regime-gate.json / -gate-own-oos.json) found NO clean causal gate that makes H4 meet OP-22 on the live chart-stop-only config. The bimodality is a regime-ERA split (calm low-VIX trend days bled; higher-VIX worked \u2014 INVERTED from the trend-day prior). Stays WATCH_ONLY/dormant. Doc: markdown/research/VWAP-TREND-PULLBACK-REGIME-GATE-2026-06-19.md."
   },
   "verdict": "SHIP-LIVE (WATCH_ONLY -> heartbeat wiring, BASE size, regime-sensitive)"
 }

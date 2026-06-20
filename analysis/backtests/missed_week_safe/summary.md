@@ -3,43 +3,43 @@
 **Window:** 2026-05-19 to 2026-05-29
 **Setup:** BEARISH_REJECTION_RIDE_THE_RIBBON
 **Filters disabled:** none (full production rules)
-**Run at:** 2026-05-31T10:00:58
+**Run at:** 2026-06-15T19:39:51
 
 ## Top-line numbers
 
 | Metric | Value |
 |---|---|
 | Trading days in window | 8 |
-| Bars evaluated | 538 |
-| High-score bars (≥7/10) | 104 |
-| **Trades fired** | **8** |
-| Winners | 2 (25%) |
-| Losers | 6 |
-| Total P&L (3 contracts each) | **$-557** |
-| Avg P&L / trade | $-70 |
-| Avg winner | $122 |
-| Avg loser | $-134 |
-| Avg return on premium | -11.3% |
-| Avg hold | 13 min |
-| Max drawdown (sequential) | $-802 |
-| Win/loss ratio | 0.92x |
-| Expectancy per trade | $-70 |
+| Bars evaluated | 553 |
+| High-score bars (≥7/10) | 107 |
+| **Trades fired** | **3** |
+| Winners | 0 (0%) |
+| Losers | 3 |
+| Total P&L (3 contracts each) | **$-110** |
+| Avg P&L / trade | $-37 |
+| Avg winner | $0 |
+| Avg loser | $-37 |
+| Avg return on premium | -8.0% |
+| Avg hold | 10 min |
+| Max drawdown (sequential) | $-110 |
+| Win/loss ratio | 0.00x |
+| Expectancy per trade | $-37 |
 
 ## By IV regime
 
 | Regime | Trades |
 |---|---|
 | LOW | 0 |
-| MID | 8 |
+| MID | 3 |
 | HIGH | 0 |
 
 ## By time-of-day bucket
 
 | Bucket | Trades |
 |---|---|
-| OPEN_DRIVE | 2 |
-| MORNING | 3 |
-| MIDDAY | 3 |
+| OPEN_DRIVE | 0 |
+| MORNING | 2 |
+| MIDDAY | 1 |
 | AFTERNOON | 0 |
 | POWER_HOUR | 0 |
 
@@ -48,18 +48,15 @@
 | Reason | Count |
 |---|---|
 | EXIT_ALL_PREMIUM_STOP | 3 |
-| EXIT_ALL_RIBBON_FLIP_BACK | 2 |
-| EXIT_ALL_LEVEL_STOP | 2 |
-| TP1_THEN_RUNNER_RIBBON | 1 |
 
 ## Live deployment threshold check
 
 | Threshold | Required | Actual | Status |
 |---|---|---|---|
-| Logged trades | ≥ 20 | 8 | FAIL |
-| Win rate | ≥ 45% | 25% | FAIL |
-| Avg W/L ratio | ≥ 1.5x | 0.92x | FAIL |
-| Expectancy / trade | > 0 | $-70 | FAIL |
+| Logged trades | ≥ 20 | 3 | FAIL |
+| Win rate | ≥ 45% | 0% | FAIL |
+| Avg W/L ratio | ≥ 1.5x | 0.00x | FAIL |
+| Expectancy / trade | > 0 | $-37 | FAIL |
 
 ## Caveats
 

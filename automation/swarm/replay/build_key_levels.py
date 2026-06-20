@@ -187,14 +187,14 @@ def _build_level_candidates(spy_df: pd.DataFrame, target_date: str, as_of: datet
         candidates.append(LevelCandidate(
             price=h5, type="resistance", tier="Carry",
             source="5-day RTH high (rolling)",
-            reasoning="Multi-session high — carries cross-session significance per strategy/key-levels-protocol.md.",
+            reasoning="Multi-session high — carries cross-session significance per markdown/0dte/key-levels-protocol.md.",
             stars=2,
         ))
     if l5 is not None and l5 < current_price:
         candidates.append(LevelCandidate(
             price=l5, type="support", tier="Carry",
             source="5-day RTH low (rolling)",
-            reasoning="Multi-session low — carries cross-session significance per strategy/key-levels-protocol.md.",
+            reasoning="Multi-session low — carries cross-session significance per markdown/0dte/key-levels-protocol.md.",
             stars=2,
         ))
 
@@ -288,7 +288,7 @@ def build_key_levels(date_et: str, as_of_hhmm: str,
 
     key_levels = {
         "schema_version": 3,
-        "protocol_version": "strategy/key-levels-protocol.md@2 (replay-mode algorithmic)",
+        "protocol_version": "markdown/0dte/key-levels-protocol.md@2 (replay-mode algorithmic)",
         "as_of": f"{date_et}T{as_of_hhmm}:00-04:00",
         "for_session": date_et,
         "spot_at_compute": round(current_price, 2) if current_price else None,

@@ -1,6 +1,6 @@
 """Parity: engine.evaluate_gates == orchestrator inline gate cascade.
 
-Spec: ``docs/SHARED-DECISION-LIBRARY-MIGRATION.md`` §3 "Phase 2 — Extract Gates
+Spec: ``markdown/specs/SHARED-DECISION-LIBRARY-MIGRATION.md`` §3 "Phase 2 — Extract Gates
 A-I into ``engine/gates.py`` + add the executable parity test".
 
 This is the "assert-agree before replace" proof for the GATE layer (mirroring

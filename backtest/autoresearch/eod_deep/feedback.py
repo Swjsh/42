@@ -1,7 +1,7 @@
 """Feedback writer — auto-queues doctrine candidates, lesson candidates, etc.
 
 ALL writes are APPEND-ONLY to JSONL ledgers under analysis/recommendations/.
-NEVER writes to docs/LESSONS-LEARNED.md, docs/FUTURE-IMPROVEMENTS.md, or
+NEVER writes to markdown/doctrine/LESSONS-LEARNED.md, markdown/planning/FUTURE-IMPROVEMENTS.md, or
 docs/CHANGELOG.md directly (OP 24 — those require J ratification).
 """
 from __future__ import annotations

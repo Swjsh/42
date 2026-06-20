@@ -265,7 +265,7 @@ def main() -> int:
             "stop": "CHART STOP = first RTH bar opposite extreme (calls: first-bar low; "
                     "puts: first-bar high). Premium stop DISABLED (chart-stop only).",
             "sizing": "min 3 contracts (2 TP + 1 runner) per risk-rules; premium ceiling "
-                      "~6% equity per docs/SIZING-STUDY-2026-06-19.md; risk_gate.check_order authority.",
+                      "~6% equity per markdown/research/SIZING-STUDY-2026-06-19.md; risk_gate.check_order authority.",
             "tp": "v15 stack: TP1 +30% premium fallback OR chart level, 0.50 qty; runner 2.5x.",
             "time_stop": "15:50 ET hard (all flat by EOD).",
             "one_per_day": True,

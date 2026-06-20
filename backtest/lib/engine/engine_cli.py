@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """engine_cli — the stdin/stdout BOUNDARY over the shared decision core (Phase 3).
 
-Spec: ``docs/SHARED-DECISION-LIBRARY-MIGRATION.md`` §3 "Phase 3 — Shadow-mode the
+Spec: ``markdown/specs/SHARED-DECISION-LIBRARY-MIGRATION.md`` §3 "Phase 3 — Shadow-mode the
 engine verdict alongside the live prose for N days". This is the thin shell-out
 shim the live heartbeat will call (Phase 4, J-gated), modelled EXACTLY on
 ``automation/scripts/pre_order_gate.py`` — which already does this for the RISK

@@ -39,5 +39,5 @@ If set, skill-author routes to skill_tune.py instead of authoring new — used f
 ## Output
 - `.claude/skills/{slug}/SKILL.md`
 - `backtest/autoresearch/{slug}.py`
-- `docs/SKILLS-CATALOG.md` row added under right category + tool-selection-guide row
+- `markdown/infra/SKILLS-CATALOG.md` row added under right category + tool-selection-guide row
 - Inbox item DELETED on success, or renamed `*.STALE.md` after 7 days by Manager.

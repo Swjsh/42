@@ -1,6 +1,6 @@
 """REGIME_SWITCHER per-combo evaluator.
 
-Per spec strategy/regime_switcher.md Section 10:
+Per spec markdown/0dte/regime_switcher.md Section 10:
   - For each switcher combo: classify each day's regime, look up the active
     strategy's pre-computed daily P&L, aggregate into the standard scorecard.
   - Each combo is O(N_days) lookups (~5 seconds).

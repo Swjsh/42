@@ -356,7 +356,7 @@ def _derive_named_levels(bars: list[Bar], first_target_idx: int) -> list[dict]:
         - PDO (target-day RTH open) — ★ Reference (computed at bar 0)
 
     These are the deterministic levels J's strategy already keys off (see
-    strategy/key-levels-protocol.md). Sufficient as a proxy for backtest
+    markdown/0dte/key-levels-protocol.md). Sufficient as a proxy for backtest
     enrichment.
 
     Returns list of {price, name, tier, stars, source}.

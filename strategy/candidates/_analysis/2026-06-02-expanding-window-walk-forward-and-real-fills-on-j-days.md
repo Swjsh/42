@@ -17,7 +17,7 @@ We are testing the core BEARISH_REJECTION_RIDE_THE_RIBBON strategy's ability to 
 ## Mechanism
 
 For each J day (4/29, 5/01, 5/04):
-1. **Expanding window walk-forward:** Train the engine on all SPY 5m data strictly prior to the J day (using current strategy parameters and rules from `automation/state/params.json` and `strategy/playbook.md`). Simulate engine decisions on the J day only, recording all trades and P&L.
+1. **Expanding window walk-forward:** Train the engine on all SPY 5m data strictly prior to the J day (using current strategy parameters and rules from `automation/state/params.json` and `markdown/0dte/playbook.md`). Simulate engine decisions on the J day only, recording all trades and P&L.
 2. **Real-fills simulation:** Re-run the engine's J day decisions using realistic OPRA fills (cached real bid/ask, slippage model) to compute actual P&L that would have been realized in live trading.
 3. Compare engine P&L from both simulations to the anchor P&L (source-of-truth trade) for each day.
 

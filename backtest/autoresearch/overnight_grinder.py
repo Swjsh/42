@@ -8,7 +8,7 @@ exploration overnight, scored by:
     TERTIARY:  win_rate (informational only; not a gate)
 
 Knob ranges constrained to PRESERVE the 4/29 + 5/04 wins (see
-doctrine/edge-master-doctrine.md). Anything that breaks either floor is
+markdown/doctrine/edge-master-doctrine.md). Anything that breaks either floor is
 auto-rejected and never logged as a candidate.
 
 OUTPUT (under autoresearch/_state/overnight_grinder/):
@@ -109,7 +109,7 @@ def _write_progress(state: dict) -> None:
 def _build_param_grid() -> list[dict]:
     """Generate parameter combinations within preserve-the-edge ranges.
 
-    All ranges sourced from doctrine/edge-master-doctrine.md "Knob ranges
+    All ranges sourced from markdown/doctrine/edge-master-doctrine.md "Knob ranges
     that PRESERVE 4/29" and "PRESERVE 5/04" sections. We DO NOT step outside
     these ranges -- known to break the floors.
     """

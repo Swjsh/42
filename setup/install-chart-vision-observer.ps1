@@ -20,7 +20,7 @@
   Wrapper script: setup\scripts\run-chart-vision-observer.ps1
   Prompt:         automation\prompts\chart_vision_observer.md
   Grader:         backtest\autoresearch\vision_observer_grader.py (wired into eod_deep stage 4a.7)
-  Protocol doc:   docs\VISION-OBSERVER-PROTOCOL.md
+  Protocol doc:   markdown\specs\VISION-OBSERVER-PROTOCOL.md
   Candidate:      strategy\candidates\2026-05-17-vision-chart-observer.md
   Cost ceiling:   $80/mo (auto-disable not yet wired -- Stage 2 deliverable)
   Revert:         Run with -Uninstall switch

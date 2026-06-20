@@ -462,7 +462,7 @@ Both diffs are RUNTIME knobs in the heartbeat / simulator, not premarket-compute
 
 **Source-of-truth flow:**
 
-1. **Premarket fire (this prompt)** writes the `watcher_inputs` block with `source: "default_pending_stage1"` defaults from the watcher specs (`strategy/sniper_level_break.md`, `strategy/vwap_rejection_prime.md`, `strategy/opening_drive_fade.md`, `strategy/v14_enhanced.md`). These are the WATCH-ONLY observation knobs.
+1. **Premarket fire (this prompt)** writes the `watcher_inputs` block with `source: "default_pending_stage1"` defaults from the watcher specs (`strategy/sniper_level_break.md`, `markdown/0dte/vwap_rejection_prime.md`, `markdown/0dte/opening_drive_fade.md`, `markdown/0dte/v14_enhanced.md`). These are the WATCH-ONLY observation knobs.
 
 2. **Morning brief fire (~05:00-08:00 ET)** reads Stage 1 scorecards from `backtest/autoresearch/_state/<strategy>_stage1/scorecard.json`. If a winner combo is identified, UPDATES the corresponding `watcher_inputs.<strategy>` block IN-PLACE with the winner knobs and sets `source: "stage1_winner_<seed>"`. If a strategy fails to produce a passing combo (none clear OP 16/19/20 floors), leaves source as `"default_pending_stage1"` — watcher continues observing with defaults.
 

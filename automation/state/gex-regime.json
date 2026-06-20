@@ -1,0 +1,23 @@
+{
+  "status": "ok",
+  "underlying": "SPY",
+  "session_date": "2026-06-19",
+  "captured_at": "2026-06-19T09:26:31",
+  "source": "alpaca:v1beta1/options/snapshots/SPY",
+  "raw_archive": "C:\\Users\\jackw\\Desktop\\42\\journal\\gex-archive\\2026-06-19.json",
+  "usable_contracts": 3319,
+  "net_gex": -2388748838.92,
+  "net_gex_sign": "short",
+  "regime": "short_gamma_trend",
+  "zero_gamma_flip": null,
+  "call_wall": {
+    "strike": 750.0,
+    "gex_notional": 1076508796.08
+  },
+  "put_wall": {
+    "strike": 750.0,
+    "gex_notional": 997172223.68
+  },
+  "spot": 748.46,
+  "n_contracts": 3319
+}

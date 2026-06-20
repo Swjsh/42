@@ -1,6 +1,6 @@
 """numeric_pulse -- every-1-min pure-Python pattern detector pass.
 
-Per docs/2-MIN-CADENCE-ARCHITECTURE.md Option 1: J asked for chart reads every
+Per markdown/specs/2-MIN-CADENCE-ARCHITECTURE.md Option 1: J asked for chart reads every
 2 min instead of 6 min. Vision-LLM at 2-min would be over-budget; pure-Python
 numeric detection is FREE and can fire every 1 min.
 
@@ -55,7 +55,7 @@ ET_TZ = timezone(timedelta(hours=-4))  # EDT in May/June; toggled by season else
 MIN_CONF_HIGH = 0.65
 LEVEL_PROXIMITY_DOLLARS = 0.50  # within $0.50 of a named ★+ level
 
-# Event-driven heartbeat trigger (per docs/2-MIN-CADENCE-ARCHITECTURE.md)
+# Event-driven heartbeat trigger (per markdown/specs/2-MIN-CADENCE-ARCHITECTURE.md)
 HEARTBEAT_COOLDOWN_SEC = 60  # don't fire ad-hoc heartbeat more than 1x per 60s
 TRIGGER_STATE_FILE = PROJECT_ROOT / "automation" / "state" / "alert-trigger-state.json"
 CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
@@ -332,7 +332,7 @@ def run_pulse(probe_only: bool = False) -> dict:
     result["trigger"] = trigger_result
 
     # PARALLEL: pure-Python fast-path executor (OBSERVER MODE).
-    # Per docs/2-MIN-CADENCE-ARCHITECTURE.md + J's <30s directive.
+    # Per markdown/specs/2-MIN-CADENCE-ARCHITECTURE.md + J's <30s directive.
     # Runs in-process so we can share the VIX fetch (saves ~1.1s).
     # Decisions written to fast-path-decisions.jsonl. Does NOT place orders
     # until --mode live + sentinel file (J ratification).

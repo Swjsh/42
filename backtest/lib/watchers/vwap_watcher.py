@@ -1,9 +1,9 @@
 """VWAP_REJECTION_PRIME watcher — wraps detect_vwap_rejection() for live obs.
 
-Per CLAUDE.md OP 21 + strategy/vwap_rejection_prime.md this setup starts
+Per CLAUDE.md OP 21 + markdown/0dte/vwap_rejection_prime.md this setup starts
 WATCH-ONLY. Detects VWAP test + rejection with volume + ribbon alignment.
 
-Default knobs come from strategy/vwap_rejection_prime.md section 6+9
+Default knobs come from markdown/0dte/vwap_rejection_prime.md section 6+9
 (spec defaults; numbers NOT yet ratified — Stage 1 sweep pending).
 
 The wrapper is a thin adapter:
@@ -32,7 +32,7 @@ from ..vwap_rejection_detector import (
 )
 
 
-# Default knobs from strategy/vwap_rejection_prime.md sections 3+6+9.
+# Default knobs from markdown/0dte/vwap_rejection_prime.md sections 3+6+9.
 # DRAFT — these are SPEC defaults, NOT ratified Stage-5 winners. Stage 1
 # sweep pending. Treat as conservative starting values.
 DEFAULT_VOL_MULT = 1.3
@@ -169,7 +169,7 @@ def detect_vwap_setup(
             "default_runner_target_pct": DEFAULT_RUNNER_TARGET_PCT,
             "profit_lock_threshold_pct": DEFAULT_PROFIT_LOCK_THRESHOLD_PCT,
             "profit_lock_stop_offset_pct": DEFAULT_PROFIT_LOCK_STOP_OFFSET_PCT,
-            "winner_combo_source": "strategy/vwap_rejection_prime.md#6+9 (DRAFT, not ratified)",
+            "winner_combo_source": "markdown/0dte/vwap_rejection_prime.md#6+9 (DRAFT, not ratified)",
             "promotion_status": "WATCH_ONLY",
         },
     )

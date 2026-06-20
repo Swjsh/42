@@ -4,7 +4,7 @@
 > **Purpose:** Establish key levels, bias, and risk budget before the first heartbeat tick.
 > **Outputs:** `automation/state/futures/key-levels.json`, `journal/futures/YYYY-MM-DD.md` (bias section)
 >
-> **Futures mentality (read once):** [`docs/futures/README.md`](../../docs/futures/README.md). Futures are NOT 0DTE options — linear point-based P&L, no daily expiry, leverage via margin, cash-settled (no assignment). Stops are in POINTS not premium %. Levels are in index points (MNQ ~21,000–30,000 range).
+> **Futures mentality (read once):** [`markdown/futures/README.md`](../../markdown/futures/README.md). Futures are NOT 0DTE options — linear point-based P&L, no daily expiry, leverage via margin, cash-settled (no assignment). Stops are in POINTS not premium %. Levels are in index points (MNQ ~21,000–30,000 range).
 
 ---
 
@@ -101,7 +101,7 @@ Open `journal/futures/YYYY-MM-DD.md`:
 
 ## 4b. Rollover-week awareness check
 
-Equity index futures roll quarterly: 3rd Friday of **Mar (H) / Jun (M) / Sep (U) / Dec (Z)**. Liquidity migrates to the next month ~8 days early ("Rollover Thursday" = 2nd Thursday before the 3rd Friday). See [`docs/futures/SESSIONS-ROLLOVER-TAX.md`](../../docs/futures/SESSIONS-ROLLOVER-TAX.md).
+Equity index futures roll quarterly: 3rd Friday of **Mar (H) / Jun (M) / Sep (U) / Dec (Z)**. Liquidity migrates to the next month ~8 days early ("Rollover Thursday" = 2nd Thursday before the 3rd Friday). See [`markdown/futures/SESSIONS-ROLLOVER-TAX.md`](../../markdown/futures/SESSIONS-ROLLOVER-TAX.md).
 
 - Compute days-to-3rd-Friday for the current quarter month.
 - If within **10 days of expiry** OR past Rollover Thursday: append `ROLLOVER_WEEK: front month {code} expires {date}; volume migrating to {next code}` to the journal bias section. Levels from the expiring contract may be thinning — treat with lower confidence; the `MNQ1!` chart auto-rolls but verify the heartbeat's broker orders route to the active month.
@@ -112,8 +112,8 @@ Equity index futures roll quarterly: 3rd Friday of **Mar (H) / Jun (M) / Sep (U)
 - Start-of-day equity from `account.json`
 - Kill-switch floor: equity − daily_loss_limit (from account.json). Current sandbox: $2K start, floor $1,600, daily limit −$200.
 - Number of allowed trades today: conservative = 3 (1 per signal tier)
-- **PDT status: N/A for futures** — the Pattern Day Trader rule does NOT apply to futures (it's an equities/options rule). Unlimited intraday round-trips. (See [`docs/futures/README.md`](../../docs/futures/README.md).)
-- **Position sizing rule:** size so `stop_distance_points × point_value × qty ≤ per-trade $ risk cap`. MNQ point_value=$2, MES=$5. Size by what the STOP allows, never by what margin allows. See [`docs/futures/MARGIN-LEVERAGE-RISK.md`](../../docs/futures/MARGIN-LEVERAGE-RISK.md).
+- **PDT status: N/A for futures** — the Pattern Day Trader rule does NOT apply to futures (it's an equities/options rule). Unlimited intraday round-trips. (See [`markdown/futures/README.md`](../../markdown/futures/README.md).)
+- **Position sizing rule:** size so `stop_distance_points × point_value × qty ≤ per-trade $ risk cap`. MNQ point_value=$2, MES=$5. Size by what the STOP allows, never by what margin allows. See [`markdown/futures/MARGIN-LEVERAGE-RISK.md`](../../markdown/futures/MARGIN-LEVERAGE-RISK.md).
 
 ---
 

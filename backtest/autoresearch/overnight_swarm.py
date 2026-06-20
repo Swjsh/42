@@ -182,7 +182,8 @@ def main() -> int:
     if args.run:
         try:
             subprocess.run([sys.executable, "tools/run_all_sniper.py"],
-                           cwd=str(REPO), timeout=1800, check=False)
+                           cwd=str(REPO), timeout=1800, check=False,
+                           creationflags=(0x08000000 if sys.platform == "win32" else 0))
         except Exception as exc:  # never crash the orchestrator on a sub-run failure
             print(f"WARN: matrix re-run failed ({exc}); using existing results", file=sys.stderr)
 

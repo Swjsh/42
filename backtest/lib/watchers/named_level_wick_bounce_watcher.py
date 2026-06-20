@@ -84,7 +84,7 @@ Parameter sweep results (2026-05-20):
   ROOT CAUSE OF ALL FAILURES: PDL is the weakest named-level type (ephemeral,
   single-session). PDL scan proxy WR=71% → real-fills WR=44% (-27pp degradation).
   The production watcher fires on ★★★ levels (multi-session tested, cluster-defended).
-  Both rescue paths CLOSED. See L58 in docs/LESSONS-LEARNED.md.
+  Both rescue paths CLOSED. See L58 in markdown/doctrine/LESSONS-LEARNED.md.
 
   PDL is a proxy — real-fills WR on PDL may understate production WR on ★★★
   levels by up to 20pp. DO NOT attempt further parameter sweeps on PDL-proxy

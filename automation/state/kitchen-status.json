@@ -1,113 +1,113 @@
 {
-  "updated_at_et": "2026-06-15T06:34:50",
-  "daemon_pid": 2136,
+  "updated_at_et": "2026-06-20T16:15:01",
+  "daemon_pid": 19436,
   "daemon_alive": true,
   "idle": false,
-  "current_task_id": "7efe40bb-6c8e-4cbb-8d18-90faf84f60e8",
+  "current_task_id": "8788a887-416e-4c13-b0e2-96e8b4bcf583",
   "queue_summary": {
     "by_status": {
-      "completed": 591,
-      "pending": 33,
-      "failed_permanent": 48
+      "completed": 857,
+      "pending": 29,
+      "failed_permanent": 62
     },
     "by_priority_pending": {
-      "low": 16,
-      "medium": 17
+      "low": 20,
+      "medium": 9
     },
-    "total": 672
+    "total": 948
   },
   "today_cost_usd_paid_tier": 0.0,
   "today_cost_cap_usd": 3.0,
   "recent_completed_top_10": [
     {
-      "task_id": "694b16bd",
-      "task": "Run opening_drive_fade_grinder parameter sweep: Opening drive fade sweep \u2014 09:30-10:00 exhaustion reversal knobs. Find k",
-      "completed_at": "2026-06-15T10:33:50+00:00",
-      "cost_usd": 0.0,
-      "model": "grinder-python",
-      "tier": -1,
-      "output_path": "strategy\\candidates\\2026-06-15-chef-nemo-grinder-opening-drive-fade-grinder-20260615-0633.md"
-    },
-    {
-      "task_id": "21e54725",
-      "task": "Interpret sniper_stage2_grinder grinder output: 5 keepers found. Top: wide_pnl=40656.65, edge_capture=373.48, WR=0.932. ",
-      "completed_at": "2026-06-15T10:02:50+00:00",
-      "cost_usd": 0.0,
-      "model": "nvidia/nemotron-3-super-120b-a12b:free",
-      "tier": 0,
-      "output_path": "strategy\\candidates\\2026-06-15-chef-nemo-sniper-level-break-stage2-topkeeper.md"
-    },
-    {
-      "task_id": "793e3890",
-      "task": "Run sniper_stage2_grinder parameter sweep: SNIPER_LEVEL_BREAK Stage-2 refinement \u2014 refines top-5 keepers from stage1. Fi",
-      "completed_at": "2026-06-15T09:59:38+00:00",
-      "cost_usd": 0.0,
-      "model": "grinder-python",
-      "tier": -1,
-      "output_path": "strategy\\candidates\\2026-06-15-chef-nemo-grinder-sniper-stage2-grinder-20260615-0559.md"
-    },
-    {
-      "task_id": "d0e10136",
-      "task": "Interpret v14_enhanced_grinder grinder output: 5 keepers found. Top: wide_pnl=26601.2, edge_capture=499.64, WR=0.649. Or",
-      "completed_at": "2026-06-15T08:28:08+00:00",
-      "cost_usd": 0.0,
-      "model": "nvidia/nemotron-3-super-120b-a12b:free",
-      "tier": 0,
-      "output_path": "strategy\\candidates\\2026-06-15-chef-nemo-v14e-param-sweep-keeper-top1.md"
-    },
-    {
-      "task_id": "b2e5d831",
+      "task_id": "0376608a",
       "task": "Run v14_enhanced_grinder parameter sweep: V14E variant sweep \u2014 includes 5/12 anchor day + SNIPER-style profit-lock knobs",
-      "completed_at": "2026-06-15T08:22:54+00:00",
+      "completed_at": "2026-06-20T16:53:39+00:00",
       "cost_usd": 0.0,
       "model": "grinder-python",
       "tier": -1,
-      "output_path": "strategy\\candidates\\2026-06-15-chef-nemo-grinder-v14-enhanced-grinder-20260615-0422.md"
+      "output_path": "strategy\\candidates\\2026-06-20-chef-nemo-grinder-v14-enhanced-grinder-20260620-1253.md"
     },
     {
-      "task_id": "ed945277",
-      "task": "Interpret overnight_grinder grinder output: 5 keepers found. Top: wide_pnl=1005.13, edge_capture=1094.85, WR=0.161. Orig",
-      "completed_at": "2026-06-15T06:13:54+00:00",
+      "task_id": "140b91ad",
+      "task": "Run regime_switcher_grinder parameter sweep: Regime-switching parameter sweep \u2014 VIX-regime-based filter knobs. Find keep",
+      "completed_at": "2026-06-20T14:16:38+00:00",
       "cost_usd": 0.0,
-      "model": "nvidia/nemotron-3-super-120b-a12b:free",
-      "tier": 0,
-      "output_path": "strategy\\candidates\\2026-06-15-chef-nemo-overnight-grinder-v14v15-exit-sweep-top.md"
+      "model": "grinder-python",
+      "tier": -1,
+      "output_path": "strategy\\candidates\\2026-06-20-chef-nemo-grinder-regime-switcher-grinder-20260620-1016.md"
     },
     {
-      "task_id": "da923e61",
+      "task_id": "e6709400",
+      "task": "Run vwap_overnight_grinder parameter sweep: VWAP anchored entry sweep \u2014 VWAP reclaim / rejection combos. Find keepers wi",
+      "completed_at": "2026-06-20T14:11:51+00:00",
+      "cost_usd": 0.0,
+      "model": "grinder-python",
+      "tier": -1,
+      "output_path": "strategy\\candidates\\2026-06-20-chef-nemo-grinder-vwap-overnight-grinder-20260620-1011.md"
+    },
+    {
+      "task_id": "c63d75e4",
+      "task": "Run opening_drive_fade_grinder parameter sweep: Opening drive fade sweep \u2014 09:30-10:00 exhaustion reversal knobs. Find k",
+      "completed_at": "2026-06-20T12:45:20+00:00",
+      "cost_usd": 0.0,
+      "model": "grinder-python",
+      "tier": -1,
+      "output_path": "strategy\\candidates\\2026-06-20-chef-nemo-grinder-opening-drive-fade-grinder-20260620-0845.md"
+    },
+    {
+      "task_id": "baa84939",
+      "task": "Run sniper_overnight_grinder parameter sweep: SNIPER_LEVEL_BREAK parameter sweep \u2014 \u2605\u2605+ level break triggers. Find keeper",
+      "completed_at": "2026-06-20T12:10:33+00:00",
+      "cost_usd": 0.0,
+      "model": "grinder-python",
+      "tier": -1,
+      "output_path": "strategy\\candidates\\2026-06-20-chef-nemo-grinder-sniper-overnight-grinder-20260620-0810.md"
+    },
+    {
+      "task_id": "359a9bdb",
+      "task": "Run shotgun_scalper_grinder parameter sweep: SHOTGUN_SCALPER Stage-1 sweep \u2014 2160-combo grid, strict keeper gates. Find ",
+      "completed_at": "2026-06-20T12:09:03+00:00",
+      "cost_usd": 0.0,
+      "model": "grinder-python",
+      "tier": -1,
+      "output_path": "strategy\\candidates\\2026-06-20-chef-nemo-grinder-shotgun-scalper-grinder-20260620-0809.md"
+    },
+    {
+      "task_id": "377ce457",
+      "task": "Run bullish_grinder parameter sweep: BULLISH_RECLAIM_RIDE_THE_RIBBON parameter sweep. Find keepers with improved edge_ca",
+      "completed_at": "2026-06-20T09:06:33+00:00",
+      "cost_usd": 0.0,
+      "model": "grinder-python",
+      "tier": -1,
+      "output_path": "strategy\\candidates\\2026-06-20-chef-nemo-grinder-bullish-grinder-20260620-0506.md"
+    },
+    {
+      "task_id": "d8cf9222",
       "task": "Run overnight_grinder parameter sweep: General v14/v15 parameter sweep \u2014 432 combos, wide_pnl differentiator. Find keepe",
-      "completed_at": "2026-06-15T06:09:14+00:00",
+      "completed_at": "2026-06-20T08:21:45+00:00",
       "cost_usd": 0.0,
       "model": "grinder-python",
       "tier": -1,
-      "output_path": "strategy\\candidates\\2026-06-15-chef-nemo-grinder-overnight-grinder-20260615-0209.md"
+      "output_path": "strategy\\candidates\\2026-06-20-chef-nemo-grinder-overnight-grinder-20260620-0421.md"
     },
     {
-      "task_id": "244ee43d",
-      "task": "Interpret sniper_real_fills_grinder grinder output: 5 keepers found. Top: wide_pnl=-90.8, edge_capture=-126.0, WR=0.5. O",
-      "completed_at": "2026-06-15T04:24:47+00:00",
-      "cost_usd": 0.0,
-      "model": "nvidia/nemotron-3-super-120b-a12b:free",
-      "tier": 0,
-      "output_path": "strategy\\candidates\\_analysis\\2026-06-15-sniper-real-fills-grinder-interpretation.md"
-    },
-    {
-      "task_id": "4fd7b309",
-      "task": "Run sniper_real_fills_grinder parameter sweep: SNIPER_LEVEL_BREAK real-fills validation grinder \u2014 OPRA fills vs BS-sim c",
-      "completed_at": "2026-06-15T04:19:48+00:00",
+      "task_id": "10860de2",
+      "task": "Run sniper_stage2_grinder parameter sweep: SNIPER_LEVEL_BREAK Stage-2 refinement \u2014 refines top-5 keepers from stage1. Fi",
+      "completed_at": "2026-06-20T06:11:57+00:00",
       "cost_usd": 0.0,
       "model": "grinder-python",
       "tier": -1,
-      "output_path": "strategy\\candidates\\2026-06-15-chef-nemo-grinder-sniper-real-fills-grinder-20260615-0019.md"
+      "output_path": "strategy\\candidates\\2026-06-20-chef-nemo-grinder-sniper-stage2-grinder-20260620-0211.md"
     },
     {
-      "task_id": "4c429228",
-      "task": "Collect three live-fire instances of LIVE_PRICE_FIRST_BAR_TRIGGER from heartbeat logs and execute real-fills validation ",
-      "completed_at": "2026-06-15T03:48:48+00:00",
+      "task_id": "74d890f1",
+      "task": "Run vwap_overnight_grinder parameter sweep: VWAP anchored entry sweep \u2014 VWAP reclaim / rejection combos. Find keepers wi",
+      "completed_at": "2026-06-20T06:07:09+00:00",
       "cost_usd": 0.0,
-      "model": "nvidia/nemotron-3-super-120b-a12b:free",
-      "tier": 0,
-      "output_path": "strategy\\candidates\\_analysis\\2026-06-14-live-price-first-bar-trigger-real-fills-validation-for-op-21.md"
+      "model": "grinder-python",
+      "tier": -1,
+      "output_path": "strategy\\candidates\\2026-06-20-chef-nemo-grinder-vwap-overnight-grinder-20260620-0207.md"
     }
   ],
   "model_ladder": [

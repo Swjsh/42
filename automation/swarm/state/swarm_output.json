@@ -1,13 +1,174 @@
 {
-  "generated_at": "2026-06-08T19:22:57.591734+00:00",
-  "swarm_version": "v1",
-  "status": "failed",
-  "failure_reason": "all_specialist_agents_failed",
+  "generated_at": "2026-06-19T14:18:30Z",
+  "swarm_version": "v5.2",
+  "status": "ok",
+  "vote_map": {
+    "bullish": [
+      "sentiment_analyst",
+      "session_timer"
+    ],
+    "bearish": [
+      "technical",
+      "level_thesis",
+      "internals",
+      "momentum_analyst",
+      "regime_classifier",
+      "premarket_analyst",
+      "correlation_analyst"
+    ],
+    "no_trade": [
+      "macro",
+      "volume_analyst",
+      "pattern_scout",
+      "catalyst_analyst"
+    ]
+  },
+  "vote_counts": {
+    "bullish": 2,
+    "bearish": 7,
+    "no_trade": 4
+  },
+  "core_vote_counts": {
+    "bullish": 0,
+    "bearish": 3,
+    "no_trade": 1,
+    "note": "4 core agents only (technical/macro/level_thesis/internals) — calibrated formula"
+  },
+  "supplemental_vote_counts": {
+    "bullish": 2,
+    "bearish": 4,
+    "no_trade": 3,
+    "supplemental_modifier": 0,
+    "note": "8 supplemental agents — bounded ±5 modifier"
+  },
+  "weighted_scores": {
+    "bullish": 0.0,
+    "bearish": 0.5975
+  },
   "consensus_bias": "no_trade",
+  "consensus_strength": "moderate",
   "swarm_confidence": 0,
+  "size_recommendation": "skip",
   "dissent_flag": {
-    "active": false,
-    "dissenting_agents": [],
-    "dissent_reason": null
-  }
+    "active": true,
+    "dissenting_agents": [
+      "macro",
+      "sentiment_analyst",
+      "session_timer"
+    ],
+    "dissent_reason": "Macro neutral due to conflicting gap-up vs risk-off signals; sentiment and session timer bullish on overnight gap and morning window quality"
+  },
+  "validator_assessment": {
+    "consensus_robustness": "moderate",
+    "weakest_link": "Overnight gap-up $5.96 (0.80%) dismissed as 'fading' by bearish agents — largest directional signal in dataset",
+    "top_invalidation_scenario": "SPY breaks above 748.0 resistance level and holds for 15+ minutes, inverting the entire bearish thesis"
+  },
+  "risk_assessment": {
+    "risk_level": "medium",
+    "top_risk": "Quarterly expiry Friday creates extreme pin risk toward 748.0 and 745.33 levels regardless of directional bias",
+    "recommendation": "SKIP"
+  },
+  "battle_level": {
+    "price": 748.0,
+    "tier": "Carry",
+    "strength_stars": 3,
+    "role": "resistance"
+  },
+  "level_priority": [
+    {
+      "price": 748.0,
+      "tier": "Carry",
+      "strength_stars": 3,
+      "role": "resistance",
+      "priority_rank": 1,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 745.33,
+      "tier": "Carry",
+      "strength_stars": 3,
+      "role": "support",
+      "priority_rank": 2,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 750.0,
+      "tier": "Reference",
+      "strength_stars": 0,
+      "role": null,
+      "priority_rank": 3,
+      "likely_test": "hold_from"
+    }
+  ],
+  "scenario_map": {
+    "primary": {
+      "condition": "if SPY fails at 748.0 resistance",
+      "bias": "bearish",
+      "target": 745.33,
+      "entry_trigger": "level_rejection + ribbon_bear"
+    },
+    "secondary": {
+      "condition": "if SPY holds 745.33 support",
+      "bias": "bullish",
+      "target": 748.0,
+      "entry_trigger": "bounce_confirmation"
+    },
+    "invalidation": {
+      "condition": "SPY breaks above 748.0 resistance level and holds for 15+ minutes",
+      "effect": "The level_thesis primary bearish scenario inverts. Short-covering would likely trigger as 748.0 was identified as the battle level with 3-star strength. Ribbon would need to flip to confirm new bullish structure."
+    }
+  },
+  "swarm_predictions": [
+    {
+      "claim": "SPY will test 748.0 resistance within first 90 minutes of RTH and fail to break above",
+      "invalidation": "SPY breaks and holds above 748.0 for 15+ minutes",
+      "confidence": 0.65,
+      "champion_agent": "level_thesis",
+      "domain": "level"
+    },
+    {
+      "claim": "VIX will remain in MID regime (16-20) and stay flat to slightly higher given risk-off rotation",
+      "invalidation": "VIX drops below 15.0 within first 60 minutes",
+      "confidence": 0.55,
+      "champion_agent": "macro",
+      "domain": "vix_macro"
+    },
+    {
+      "claim": "Ribbon will maintain CLEAN_BEAR structure with fast EMA staying below slow EMA",
+      "invalidation": "Ribbon flips to MIXED or BULL as fast EMA crosses above slow EMA",
+      "confidence": 0.6,
+      "champion_agent": "technical",
+      "domain": "technical"
+    }
+  ],
+  "synthesis_narrative": "Bearish consensus (8/12 agents) conflicts with massive overnight gap-up signal ($5.96, 0.80%) that most bearish agents dismissed as 'fading.' The 748.0 resistance level is the battleground - bears expect failure here, but gap-up suggests potential reclaim. XLK underperforming SPY by 0.33% confirms risk-off rotation, but extremely low volume (0.15x) contradicts strong bearish conviction. Quarterly expiry creates pin risk toward key levels regardless of direction.",
+  "agent_summaries": {
+    "technical": {
+      "bias": "bearish",
+      "confidence": 0.65,
+      "one_line": "CLEAN_BEAR ribbon with 13c spread, price 5c below pivot, mixed bar structure but bearish momentum"
+    },
+    "macro": {
+      "bias": "neutral",
+      "confidence": 0.55,
+      "one_line": "VIX MID regime at 16.41 flat, no events today, gap-up conflicts with risk-off rotation signal"
+    },
+    "level_thesis": {
+      "bias": "bearish",
+      "confidence": 0.65,
+      "one_line": "748.0 resistance battle level, expect failure and continuation to 745.33 support"
+    },
+    "internals": {
+      "bias": "bearish",
+      "confidence": 0.65,
+      "one_line": "Risk-off rotation with XLK -1.7% leading SPY decline, all sectors negative"
+    },
+    "validator": {
+      "devil_advocate_bias": "bullish",
+      "consensus_robustness": "moderate",
+      "top_invalidation": "SPY breaks above 748.0 resistance and holds, invalidating bearish thesis"
+    }
+  },
+  "cost_usd": 0.065,
+  "data_quality": "full"
 }

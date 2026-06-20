@@ -1,6 +1,6 @@
 ---
 name: lesson-author
-description: Invoke lesson-author — encodes one-off foot-guns into permanent doctrine. Reads one item from `_lesson-inbox/`, appends a properly-formatted L## entry to `docs/LESSONS-LEARNED.md` AND a matching bullet to `CLAUDE.md` OP-25 absorbed-lessons list (the only author with OP-25 write access — justified by OP-25 self-correction mandate). NEVER edits other doctrine. Per OP-22 engine-benefit work.
+description: Invoke lesson-author — encodes one-off foot-guns into permanent doctrine. Reads one item from `_lesson-inbox/`, appends a properly-formatted L## entry to `markdown/doctrine/LESSONS-LEARNED.md` AND a matching bullet to `CLAUDE.md` OP-25 absorbed-lessons list (the only author with OP-25 write access — justified by OP-25 self-correction mandate). NEVER edits other doctrine. Per OP-22 engine-benefit work.
 context: fork
 agent: lesson-author
 allowed-tools: Bash Read Grep Glob Write Edit

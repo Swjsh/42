@@ -64,7 +64,7 @@ Compute weighted_score_bullish and weighted_score_bearish (sum weights of agents
   Remaining ECE (11.57%) from low-bucket underconfidence (low-conf days perform at chance, not worse).
 - April high-conf bearish wrong calls (04-02/04-09/04-13) are intraday-catalyst failures — NOT formula
   errors. The 6am premarket call was correct given available info.
-- Full analysis: `docs/SWARM-BENCHMARK-62DAY.md`, simulations: `analysis/swarm-tuning/v4_base_scale_simulation.json`
+- Full analysis: `markdown/research/SWARM-BENCHMARK-62DAY.md`, simulations: `analysis/swarm-tuning/v4_base_scale_simulation.json`
 
 Base: weighted_score for consensus direction × 60   ← CHANGED from 75 (key v4 change)
 Adjustments:

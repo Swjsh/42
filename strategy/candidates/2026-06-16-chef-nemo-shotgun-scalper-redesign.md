@@ -57,7 +57,7 @@ Exit logic mirrors BEARISH_REJECTION_RIDE_THE_RIBBON:
 
 ## Pre-merge gate
 
-- Gym validators PASS (all strategy/playbook.md rules)
+- Gym validators PASS (all markdown/0dte/playbook.md rules)
 - Stage-1 SPY 5m backtest showing edge_capture ≥ 771
 - Walk-forward OOS test with Sharpe ratio ≥ 0.5 and profit factor > 1.0
 - Real-fills validation on top 3 J days showing < ±20% diff vs BS sim

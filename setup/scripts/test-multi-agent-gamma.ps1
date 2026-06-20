@@ -113,9 +113,9 @@ Write-Output "[3/8] Doctrine + prompt files exist + non-empty"
 # ---------------------------------------------------------------------------
 $expectedFiles = @(
     "docs\plans\multi-agent-gamma.md",
-    "doctrine\rules-as-gates.md",
-    "doctrine\iron-law-trades.md",
-    "doctrine\rationalization-counters.md",
+    "markdown\doctrine\rules-as-gates.md",
+    "markdown\doctrine\iron-law-trades.md",
+    "markdown\doctrine\rationalization-counters.md",
     "automation\prompts\eod-orchestrator.md",
     "automation\prompts\eod-workers\01-metrics-and-grading.md",
     "automation\prompts\eod-workers\02-predictions-and-audit.md",
@@ -201,7 +201,7 @@ if ($SkipLive) {
     Write-Output "  SKIP (--SkipLive flag set; saves ~`$0.01)"
 } else {
     Test-Check -Name "Invoke-Claude end-to-end (smoke-prompt)" -Block {
-        $smokePrompt = Join-Path $WorkDir "setup\scripts\smoke-prompt.md"
+        $smokePrompt = Join-Path $WorkDir "markdown\infra\smoke-prompt.md"
         if (-not (Test-Path $smokePrompt)) {
             "# Smoke`n`nOutput one line: SMOKE_OK et={runtime ET time}`nThen exit. No tools." |
                 Out-File -FilePath $smokePrompt -Encoding utf8

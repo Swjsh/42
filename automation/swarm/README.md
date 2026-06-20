@@ -170,6 +170,6 @@ See `prompts/synthesis_agent.md` for the canonical schema. Key fields:
 
 ## See also
 
-- [`docs/SWARM-REPLAY-PLAYBOOK.md`](../../docs/SWARM-REPLAY-PLAYBOOK.md) — how to replay any historical day
-- [`docs/SWARM-BENCHMARK-WEEK-1.md`](../../docs/SWARM-BENCHMARK-WEEK-1.md) — current scorecard
+- [`markdown/research/SWARM-REPLAY-PLAYBOOK.md`](../../markdown/research/SWARM-REPLAY-PLAYBOOK.md) — how to replay any historical day
+- [`markdown/research/SWARM-BENCHMARK-WEEK-1.md`](../../markdown/research/SWARM-BENCHMARK-WEEK-1.md) — current scorecard
 - [`CLAUDE.md` OP-28](../../CLAUDE.md) — doctrine governing swarm role + evolution gates

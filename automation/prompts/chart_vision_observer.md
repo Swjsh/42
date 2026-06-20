@@ -90,7 +90,7 @@ Apply this exact 6-step procedure on EVERY fire. Do not skip steps. Do not inver
 
 6. **Ground against OHLCV (optional but encouraged).** After your vision read is fixed, call `mcp__tradingview__data_get_ohlcv(count=3, summary=true)`. If the closed-bar OHLC contradicts your vision read by more than $0.25 on close, downgrade your confidence by 2 and note the discrepancy in `q6_what_would_change_my_call`. Set `grounded_against_ohlcv: true`.
 
-   **Important:** TV's `data_get_ohlcv` returns the in-progress bar at index [-1] — discard it via `bar.time + 5min ≤ now_et` before comparison. (Same R1 fix the production heartbeat uses — see `docs/HEARTBEAT-CHART-DATA-AUDIT-2026-05-14.md`.)
+   **Important:** TV's `data_get_ohlcv` returns the in-progress bar at index [-1] — discard it via `bar.time + 5min ≤ now_et` before comparison. (Same R1 fix the production heartbeat uses — see `markdown/audits/HEARTBEAT-CHART-DATA-AUDIT-2026-05-14.md`.)
 
 # Sample output
 

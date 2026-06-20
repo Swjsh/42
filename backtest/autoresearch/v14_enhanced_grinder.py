@@ -221,7 +221,7 @@ def evaluate_v14_enhanced_combo(combo: dict) -> dict:
         # swept knobs). So this floor is cheap degenerate-case insurance, NOT the
         # primary discriminator: the concentration + per-quarter gates below do the
         # real anti-overfit work. Tightening those is the lever for stronger overfit
-        # control (see PROGRESS-2026-06-14.md "OP-16").
+        # control (see OP-16 in CLAUDE.md / git history).
         EDGE_CAPTURE_FLOOR = 0.0  # was BS-era 771 (unreachable under real fills); now reject only combos that NET-DESTROY J-anchor edge
         regressions = []
         if edge_capture < EDGE_CAPTURE_FLOOR:
@@ -327,7 +327,7 @@ def main() -> int:
     # ~150MB). Combined with pythonw GUI subsystem on Windows, prior runs hit
     # silent OOM kill ~50 combos in. Cost: ~5% throughput hit from worker startup
     # overhead. Benefit: predictable memory ceiling.
-    # See docs/T39-V14E-GRINDER-SILENT-DEATH-2026-05-14.md
+    # See markdown/audits/T39-V14E-GRINDER-SILENT-DEATH-2026-05-14.md
     with mp.Pool(workers, maxtasksperchild=10) as pool:
         for result in pool.imap_unordered(evaluate_v14_enhanced_combo, grid, chunksize=1):
             completed += 1

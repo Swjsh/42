@@ -181,7 +181,7 @@ $($unreadMsgs -join "`n")
 
 If any of these change your decision (e.g. J says ``stop`` or ``halt``), honour it.
 For routine chat, queue a reply via ``setup\scripts\gamma-notify.ps1 -Message ...`` if a response is warranted (don't reply to every msg -- only when J asked something or when status changed).
-Match against ``doctrine/rationalization-counters.md`` -- if matched, cite the rule + counter and append to ``automation/state/rationalizations.jsonl``.
+Match against ``markdown/doctrine/rationalization-counters.md`` -- if matched, cite the rule + counter and append to ``automation/state/rationalizations.jsonl``.
 "
 } else {
 "_(no new Discord messages from J since last tick)_"

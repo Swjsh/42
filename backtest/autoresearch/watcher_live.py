@@ -521,7 +521,7 @@ def main() -> int:
     # watcher_live as a FRESH PROCESS every 5min via Gamma_WatcherLive — module
     # state is reset on every fire, so the breakout bar registers in process A
     # and the entry signal never fires from process B. Per
-    # docs/T80-ORB-BULL-REGRESSION.md (PROD-MIMIC test reproduced 0 fires/day).
+    # markdown/research/T80-ORB-BULL-REGRESSION.md (PROD-MIMIC test reproduced 0 fires/day).
     #
     # Fix: walk today's RTH bars sequentially calling stateful detectors directly
     # (no logging, no Discord ping) BEFORE the main run_all_watchers call below.

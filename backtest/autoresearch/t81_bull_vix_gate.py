@@ -8,7 +8,7 @@ Usage:
     python -m autoresearch.t81_bull_vix_gate [--date YYYY-MM-DD]
 
 Output:
-    docs/T81-BULL-VIX-GATE.md
+    markdown/research/T81-BULL-VIX-GATE.md
 """
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ from datetime import datetime
 
 REPO = pathlib.Path(__file__).resolve().parents[2]
 DIAG_FILE = REPO / "automation" / "state" / "watcher-live-diag.jsonl"
-OUT_MD = REPO / "docs" / "T81-BULL-VIX-GATE.md"
+OUT_MD = REPO / "markdown" / "research" / "T81-BULL-VIX-GATE.md"
 
 VIX_BULL_LOW_THRESHOLD = 17.20  # mirror production filters.py
 VIX_RISING_DEADBAND = 0.05       # same

@@ -10,7 +10,7 @@ Per CLAUDE.md OP 21 (Watch-First Promotion Path) this setup starts WATCH-ONLY.
 Promotion to live orders requires 3+ historical wins via watcher_grader.py +
 3+ live wins observed by J + positive expectancy over the 16-month backfill.
 
-Strategy spec: strategy/vwap_rejection_prime.md
+Strategy spec: markdown/0dte/vwap_rejection_prime.md
 Pattern mirrors lib/sniper_detector.py (frozen dataclass params, pure detect).
 """
 
@@ -119,7 +119,7 @@ def detect_vwap_rejection(
 ) -> Optional[VwapSignal]:
     """Detect a VWAP_REJECTION_PRIME trigger on the current closed bar.
 
-    All conditions from strategy/vwap_rejection_prime.md section 3 are checked:
+    All conditions from markdown/0dte/vwap_rejection_prime.md section 3 are checked:
       - Bar time in trading gate
       - VWAP proximity (|close - vwap| <= proximity_dollars)
       - Rejection footprint on prior 1..lookback_bars bars

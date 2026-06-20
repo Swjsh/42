@@ -1,6 +1,6 @@
 """v18_vix_filter — verify the 3-bar VIX lookback (T81 fix).
 
-Per docs/T81-BULL-VIX-GATE.md: single-bar VIX gating with a 0.05 deadband misses
+Per markdown/research/T81-BULL-VIX-GATE.md: single-bar VIX gating with a 0.05 deadband misses
 slow-drift trends (e.g. 5/14 had VIX trending -0.49 over the session but each
 5m delta was 0.02-0.04 — sub-deadband). Production now uses a 3-bar lookback
 which catches aggregated drift of 0.06-0.12.

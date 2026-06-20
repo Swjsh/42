@@ -720,7 +720,7 @@ def _write_md(rows: list[dict[str, str]], n_recon: int, n_unavail: int) -> None:
     lines.append("- The 1-2 lot subset is the canonical replication target; the 3+ lot "
                  "rows are retained for completeness but excluded from any edge-capture "
                  "target (per L168 sizing finding).")
-    lines.append("- Cross-reference `docs/J-WEBULL-EDGE-2021-2023.md` for the full "
+    lines.append("- Cross-reference `markdown/0dte/J-WEBULL-EDGE-2021-2023.md` for the full "
                  "style analytics (time-of-day, sizing, call/put expectancy).")
     OUT_MD.write_text("\n".join(lines) + "\n", encoding="utf-8")
 

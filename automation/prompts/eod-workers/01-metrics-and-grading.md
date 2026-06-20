@@ -15,7 +15,7 @@
 - `automation/state/circuit-breaker.json` summary (start_equity, current_equity)
 - `journal/trades.csv` (today's trades only)
 - `automation/state/decisions.jsonl` (today's last 200 decisions)
-- `strategy/playbook.md` (for archetype matching)
+- `markdown/0dte/playbook.md` (for archetype matching)
 
 ---
 

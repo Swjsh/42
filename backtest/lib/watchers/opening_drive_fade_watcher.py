@@ -1,10 +1,10 @@
 """OPENING_DRIVE_FADE watcher — wraps detect_opening_drive_fade().
 
-Per CLAUDE.md OP 21 + strategy/opening_drive_fade.md this setup starts
+Per CLAUDE.md OP 21 + markdown/0dte/opening_drive_fade.md this setup starts
 WATCH-ONLY. Detects HOD/LOD thrust then stall on declining volume,
 fades the drive direction.
 
-Default knobs from strategy/opening_drive_fade.md sections 5+6+8
+Default knobs from markdown/0dte/opening_drive_fade.md sections 5+6+8
 (spec defaults; Stage 1 sweep pending — NOT ratified).
 
 The wrapper is a thin adapter:
@@ -37,7 +37,7 @@ from ..opening_drive_fade_detector import (
 )
 
 
-# Default knobs from strategy/opening_drive_fade.md sections 5+6+8 (DRAFT).
+# Default knobs from markdown/0dte/opening_drive_fade.md sections 5+6+8 (DRAFT).
 DEFAULT_THRUST_BAR_MIN_DOLLARS = 0.40
 DEFAULT_STALL_BARS_REQUIRED = 2
 DEFAULT_STALL_PROXIMITY_DOLLARS = 0.20
@@ -177,7 +177,7 @@ def detect_opening_drive_fade_setup(
             "default_runner_target_pct": DEFAULT_RUNNER_TARGET_PCT,
             "profit_lock_threshold_pct": DEFAULT_PROFIT_LOCK_THRESHOLD_PCT,
             "profit_lock_stop_offset_pct": DEFAULT_PROFIT_LOCK_STOP_OFFSET_PCT,
-            "winner_combo_source": "strategy/opening_drive_fade.md#5+6 (DRAFT, not ratified)",
+            "winner_combo_source": "markdown/0dte/opening_drive_fade.md#5+6 (DRAFT, not ratified)",
             "promotion_status": "WATCH_ONLY",
         },
     )

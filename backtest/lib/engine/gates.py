@@ -1,6 +1,6 @@
 """engine.gates — the ONE entry-gate evaluation point (Phase 2 of the shared library).
 
-Spec: ``docs/SHARED-DECISION-LIBRARY-MIGRATION.md`` §3 "Phase 2 — Extract Gates
+Spec: ``markdown/specs/SHARED-DECISION-LIBRARY-MIGRATION.md`` §3 "Phase 2 — Extract Gates
 A-I into ``engine/gates.py`` + add the executable parity test".
 
 WHAT THIS LIFTS

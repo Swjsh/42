@@ -6,7 +6,7 @@ WHY THIS MODULE EXISTS (the 2026-06-18 schema-mismatch fix)
 Live `automation/state/key-levels.json` (schema_version 3) describes each level
 with a `tier` field ("Active" | "Carry" | "Reference"), a `type`
 ("support" | "resistance" | "psychological" | "transition"), and a `role`. It does
-NOT carry the `strength.stars` object that strategy/key-levels-protocol.md §6
+NOT carry the `strength.stars` object that markdown/0dte/key-levels-protocol.md §6
 *planned* (added to the protocol doc 2026-05-08 v3) but which never actually
 shipped into the J-curated state file — `summary.by_stars` in the live file is
 {3star:0, 2star:0, 1star:0}.

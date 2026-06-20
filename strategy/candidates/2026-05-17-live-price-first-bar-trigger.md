@@ -251,7 +251,7 @@ before ratification review.**
    edge_capture must stay ≥ 1542.
 6. **If GREEN:** copy Changes A-D into production `heartbeat.md`, bump `rule_version` in
    `params.json` to `"v15.3"`, update `premarket.md` `RULE_VERSION_EXPECTED`, append L40 to
-   `docs/LESSONS-LEARNED.md`.
+   `markdown/doctrine/LESSONS-LEARNED.md`.
 7. **If RED on any J-edge day:** REJECT the candidate. The 5/15 trade was a $770 loss and we
    move on — we don't break edge-capture to fix one trade.
 

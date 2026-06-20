@@ -50,7 +50,7 @@ You pick **ONE.** Priority order (first ready, eligible item wins):
 3. **Author inboxes** (oldest non-README first): `_validator-inbox` → validator-author, `_skill-inbox` → skill-author, `_lesson-inbox` → lesson-author, `_chef-inbox` → chef. These are **engine-benefit, observer/authoring-only** — they ship without J ratification (OP-22/OP-26), because they do NOT touch live doctrine.
 4. **Kitchen promotions** — a cook output worth promoting (you are the only writer to `_LEADERBOARD.md`).
 5. **`queue.md` priority MED → LOW.**
-6. **BRAINSTORM** — if all empty, read `docs/FUTURE-IMPROVEMENTS.md`, `docs/LESSONS-LEARNED.md`, `journal/mistakes.md`, latest `automation/state/news.json`, the most recent J trades. Add 3+ bounded candidate tasks to the queue. Never go idle (OP-25), but adding tasks IS the bounded work for this fire — do not then also execute one.
+6. **BRAINSTORM** — if all empty, read `markdown/planning/FUTURE-IMPROVEMENTS.md`, `markdown/doctrine/LESSONS-LEARNED.md`, `journal/mistakes.md`, latest `automation/state/news.json`, the most recent J trades. Add 3+ bounded candidate tasks to the queue. Never go idle (OP-25), but adding tasks IS the bounded work for this fire — do not then also execute one.
 
 **Skip an item if:** its `depends:` references an incomplete task; its `status` is `in_progress` (another fire owns it); OR completing it would require touching a doctrine/params/order surface as anything other than a DRAFT proposal (rail 4) — in that case the *eligible* task is "write the DRAFT + ping J", not "apply the change".
 
@@ -114,7 +114,7 @@ Also append the proposal to `automation/state/conductor-proposals.jsonl` (one ro
 
 If anything surprised you this fire — a producer/consumer mismatch, a dead/un-applied knob, a silent failure, a doctrine ambiguity, a regression — **turn it into a guard so it cannot recur** (OP-25 self-correction mandate). Do NOT just note it in prose and move on; prose that gets re-violated is a missing guardrail.
 
-- **One-off worth recording:** drop an item in `strategy/candidates/_lesson-inbox/` for `lesson-author` to encode as an `L##` in `docs/LESSONS-LEARNED.md` + the CLAUDE.md OP-25 index.
+- **One-off worth recording:** drop an item in `strategy/candidates/_lesson-inbox/` for `lesson-author` to encode as an `L##` in `markdown/doctrine/LESSONS-LEARNED.md` + the CLAUDE.md OP-25 index.
 - **Re-violated lesson → graduate to a code assertion** (a contract in `backtest/lib/contracts/models.py`, a registry/reconciliation test, a presence/drift ratchet like `crypto/validators/v25_filter_gates.py`). A re-violated lesson MUST become a test. This is the same authoring class as any engine-benefit work — it ships per the auto-ratify gate.
 
 This is the closing step of Gamma's cycle (gamma.md step 6): the engine gets better not by remembering, but by encoding.

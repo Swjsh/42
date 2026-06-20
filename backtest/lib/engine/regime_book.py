@@ -1,6 +1,6 @@
 """regime_book — the Regime-Aware Multi-Setup Book scaffold (DESIGN, propose-only).
 
-Spec: ``docs/REGIME-AWARE-BOOK.md``. This is the LEAN skeleton of the architecture
+Spec: ``markdown/research/REGIME-AWARE-BOOK.md``. This is the LEAN skeleton of the architecture
 that ends the **one-setup fragility** by routing each bar to the setup(s) that have
 edge in the *current regime*, instead of always trading the single
 ``BEARISH_REJECTION_RIDE_THE_RIBBON`` edge regardless of market state.
@@ -459,7 +459,18 @@ REGIME_SETUP_MAP: dict[Regime, tuple[SetupSlot, ...]] = {
             note="H4 — pullback to session VWAP in the trend direction (here the "
                  "bear/put side). Data-discovered survivor: standalone real-fills "
                  "PASS, OOS sign-stable, DSR PASS, robust to drop-top-5, both "
-                 "directions positive. ATM exp shown; ITM1 +$63/trade. Proxy levels.",
+                 "directions positive. ATM exp shown; ITM1 +$63/trade. Proxy levels. "
+                 "2026-06-19: LIVE detector built + parity-verified "
+                 "(lib/watchers/vwap_trend_pullback_watcher.py); ratify scorecard "
+                 "analysis/recommendations/vwap-trend-pullback-LIVE.json (causality "
+                 "PASS, WF median 1.679, sub-window stable). Stays WATCH_ONLY here: "
+                 "execution gated on heartbeat wiring (propose-only) + OP-21 live wins; "
+                 "regime-sensitive (bled 2025-Q2/Q3, 7 positive OOS months since). "
+                 "2026-06-19 regime-gate research (docs/VWAP-TREND-PULLBACK-REGIME-GATE-"
+                 "2026-06-19.md): NO clean causal gate kills the bimodality on the LIVE "
+                 "chart-stop-only exit; ALSO the scorecard's +$45.88 used premium_stop=-0.08 "
+                 "while the live watcher trades chart-stop-only (+$14/t, WF 0.239). Keep "
+                 "dormant; fix the exit config before a 2nd-edge claim.",
         ),
         SetupSlot(
             setup="GAP_AND_GO",
@@ -525,7 +536,10 @@ REGIME_SETUP_MAP: dict[Regime, tuple[SetupSlot, ...]] = {
                  "bull/call side). Data-discovered survivor: standalone real-fills "
                  "PASS, OOS sign-stable, DSR PASS, robust to drop-top-5, both "
                  "directions positive. ATM exp shown (both-side blend); ITM1 "
-                 "+$63/trade. Proxy levels.",
+                 "+$63/trade. Proxy levels. 2026-06-19 regime-gate research: NO clean "
+                 "causal gate (markdown/research/VWAP-TREND-PULLBACK-REGIME-GATE-2026-06-19.md); "
+                 "exit-config caveat (scorecard -0.08 vs live chart-stop-only +$14/t). "
+                 "Stays dormant.",
         ),
         SetupSlot(
             setup="GAP_AND_GO",

@@ -1,6 +1,6 @@
 """PART A — mine J's SPECIFIC repeatable DAILY winning pattern (not broad archetypes).
 
-The prior analysis (docs/J-WEBULL-EDGE-2021-2023.md) hand-coded archetypes for only
+The prior analysis (markdown/0dte/J-WEBULL-EDGE-2021-2023.md) hand-coded archetypes for only
 the top ~9 winners (n=9, coarse). This module computes the FULL look-ahead-free feature
 set for ALL 313 SPX/SPY-family closed WINNERS (and the 536 covered closed trades for
 contrast), then discretises each winner into a rule-grammar token and ranks candidate

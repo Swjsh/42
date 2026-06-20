@@ -1,6 +1,6 @@
 """Parity: engine.score == filters.evaluate_* (Phase 1 of the shared library).
 
-Spec: ``docs/SHARED-DECISION-LIBRARY-MIGRATION.md`` §3 "Phase 1 ... Parity gate".
+Spec: ``markdown/specs/SHARED-DECISION-LIBRARY-MIGRATION.md`` §3 "Phase 1 ... Parity gate".
 
 The shared decision library's first phase relocates scoring behind a stable
 ``backtest/lib/engine/score.py`` interface that THINLY WRAPS the existing

@@ -15,7 +15,7 @@ Production-safe: reads files only, calls detect functions directly, does NOT
 modify runner.py or watcher_live.py.
 
 Output:
-    docs/T80-ORB-BULL-REGRESSION.md
+    markdown/research/T80-ORB-BULL-REGRESSION.md
 """
 from __future__ import annotations
 

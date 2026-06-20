@@ -15,7 +15,7 @@ THEN:
   5. strategy/candidates/_lesson-inbox/ -> invoke lesson-author
   6. strategy/candidates/_chef-inbox/ -> invoke chef
   7. queue.md MED, then LOW
-  8. BRAINSTORM 3 new tasks from docs/FUTURE-IMPROVEMENTS.md / LESSONS-LEARNED.md / journal/mistakes.md
+  8. BRAINSTORM 3 new tasks from markdown/planning/FUTURE-IMPROVEMENTS.md / LESSONS-LEARNED.md / journal/mistakes.md
 - For inbox items: pick OLDEST non-README .md in the highest-priority inbox, invoke the matching author Skill. Each author handles its own item deletion + STATUS.md append + fire log.
 - Engine-benefit autonomy (OP-22 + OP-29): validator-author / skill-author / lesson-author AUTO-MERGE their outputs (incl. CLAUDE.md OP-25 lessons + OP-26 stage count) WITHOUT J ratification. Chef proposals stay DRAFT per Rule 9.
 - Execute the task. Use any tools you need. Time budget for this fire: 10-15 min of work, ~$0.30-0.50 of model usage.

@@ -1,6 +1,6 @@
 """REGIME_SWITCHER pre-pass cache builder.
 
-Per spec strategy/regime_switcher.md Section 10:
+Per spec markdown/0dte/regime_switcher.md Section 10:
   - The switcher's combo grid (1,296 combos) varies ONLY the regime
     classifier knobs. Sub-strategy internal knobs are locked.
   - So the per-strategy daily P&L is independent of the switcher combo.

@@ -41,7 +41,7 @@ NO-OPS in real-fills mode. This means:
 
 == OUTPUT ==
   backtest/autoresearch/_state/v14e_realfills_26k_results.json
-  docs/V14E-REALFILLS-26K-2026-05-23.md
+  markdown/research/V14E-REALFILLS-26K-2026-05-23.md
   Console report with per-anchor + per-quarter breakdown
 
 CLI:
@@ -81,7 +81,7 @@ WIDE_END = dt.date(2026, 5, 22)  # matches OOS validation window
 
 OUT_DIR = REPO / "autoresearch" / "_state"
 OUT_JSON = OUT_DIR / "v14e_realfills_26k_results.json"
-OUT_DOC = REPO.parent / "docs" / "V14E-REALFILLS-26K-2026-05-23.md"
+OUT_DOC = REPO.parent / "markdown" / "research" / "V14E-REALFILLS-26K-2026-05-23.md"
 
 # The $26,601 winning combo
 BEST_COMBO: dict[str, Any] = {

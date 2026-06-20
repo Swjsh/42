@@ -1,6 +1,6 @@
 """PREMARKET_FAIL_FADE watcher — wraps detect_premarket_fail_fade().
 
-Per CLAUDE.md OP 21 + strategy/premarket_fail_fade.md this setup starts
+Per CLAUDE.md OP 21 + markdown/0dte/premarket_fail_fade.md this setup starts
 WATCH-ONLY. Detects first-3-bars failure-to-test of a major premarket
 resistance level + committed red body → fades short.
 
@@ -14,7 +14,7 @@ missed this setup because:
   - PIN_FADE is disabled.
   - BULLISH/v14_ENHANCED filtered by ribbon spread; opening bar ribbon has no signal.
 
-Default knobs come from strategy/premarket_fail_fade.md sections 3+5
+Default knobs come from markdown/0dte/premarket_fail_fade.md sections 3+5
 (spec defaults; Stage 1 sweep pending — NOT ratified).
 
 The wrapper is a thin adapter:
@@ -45,7 +45,7 @@ from ..premarket_fail_fade_detector import (
 )
 
 
-# Default knobs from strategy/premarket_fail_fade.md section 3 (DRAFT).
+# Default knobs from markdown/0dte/premarket_fail_fade.md section 3 (DRAFT).
 DEFAULT_PROXIMITY_TO_LEVEL_DOLLARS = 0.50
 DEFAULT_BODY_MIN_CENTS = 0.20
 DEFAULT_VOL_MULT = 1.0  # baseline — no volume gate

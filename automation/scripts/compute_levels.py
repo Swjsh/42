@@ -655,7 +655,7 @@ def compute(target_date: dt.date | None, spot: float | None) -> dict:
 
     return {
         "schema_version": 3,
-        "protocol_version": "strategy/key-levels-protocol.md@2",
+        "protocol_version": "markdown/0dte/key-levels-protocol.md@2",
         "as_of": dt.datetime.now(ET).isoformat(),
         "for_session": target_date.isoformat(),
         "spot_at_compute": round(spot, 2),

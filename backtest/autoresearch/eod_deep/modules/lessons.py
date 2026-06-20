@@ -17,7 +17,7 @@ from ..schema import CategoryScore
 from ..ingest import IngestedData
 
 REPO = Path(__file__).resolve().parent.parent.parent.parent.parent
-LESSONS_FILE = REPO / "docs" / "LESSONS-LEARNED.md"
+LESSONS_FILE = REPO / "markdown" / "doctrine" / "LESSONS-LEARNED.md"
 
 
 def _existing_lesson_titles() -> set[str]:

@@ -16,7 +16,7 @@ False breaks above the Carry level (20-period EMA) on light volume that recover 
 
 ## Mechanism
 
-- **Carry level:** 20-period EMA (standard definition in strategy/playbook.md context filters)
+- **Carry level:** 20-period EMA (standard definition in markdown/0dte/playbook.md context filters)
 - **Entry trigger (bar t+1 close):**
   - Bar t: Close > Carry_t AND volume_t < 1.3 × 20-bar average volume (light-volume break above)
   - Bar t+1: Close < Carry_t AND volume_{t+1} ≥ 1.3 × 20-bar average volume (heavy-volume recovery below)

@@ -56,6 +56,20 @@ def rth_only(df: pd.DataFrame) -> pd.DataFrame:
     return df[(t >= RTH_START) & (t < RTH_END)].reset_index(drop=True)
 
 
+def resample_5m(df_1m: pd.DataFrame) -> pd.DataFrame:
+    """Resample 1-min RTH bars to 5-min. Bar label = bar OPEN time."""
+    df = df_1m.set_index("timestamp_et").sort_index()
+    r = df.resample("5min", label="left", closed="left").agg({
+        "open":   "first",
+        "high":   "max",
+        "low":    "min",
+        "close":  "last",
+        "volume": "sum",
+    }).dropna(subset=["open", "high", "low", "close"]).reset_index()
+    t = r["timestamp_et"].dt.time
+    return r[(t >= RTH_START) & (t < RTH_END)].reset_index(drop=True)
+
+
 def pull_yfinance(symbol: str = "NQ=F", interval: str = "5m", period: str = "60d") -> pd.DataFrame:
     """Sanity-only recent bars (yfinance limits: 1m<=7d, 5m<=60d). Not for multi-month."""
     import yfinance as yf

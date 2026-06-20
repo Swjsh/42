@@ -1,7 +1,7 @@
 """verify_committed -- assert a list of intended paths are TRACKED in git.
 
 The producer/consumer contract applied to the *commit step*. Graduates the
-2026-06-19 foot-gun (see docs/LESSONS-LEARNED.md "git commit --only drops
+2026-06-19 foot-gun (see markdown/doctrine/LESSONS-LEARNED.md "git commit --only drops
 untracked"): `git commit --only <pathspec>` (and bare `git commit <pathspec>`)
 commits only the working-tree state of TRACKED files plus already-STAGED changes.
 It silently EXCLUDES untracked new files under the pathspec. New files an agent
@@ -30,6 +30,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Windows: spawn git without allocating a console window (this helper is sometimes
+# imported/run under a console-less pythonw parent, where a bare git subprocess flashes
+# a conhost window). CLAUDE.md L41 / C8.
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
+
 
 class UntrackedFilesError(RuntimeError):
     """Raised when one or more intended paths are not tracked by git."""
@@ -43,6 +48,7 @@ def _git_root(start: Path | None = None) -> Path:
         cwd=str(start.parent if start.is_file() else start),
         capture_output=True,
         text=True,
+        creationflags=_CREATE_NO_WINDOW,
     )
     if out.returncode != 0:
         raise RuntimeError(f"not a git repo (git rev-parse failed): {out.stderr.strip()}")
@@ -61,6 +67,7 @@ def is_tracked(path: str, repo_root: Path | None = None) -> bool:
         cwd=str(repo_root),
         capture_output=True,
         text=True,
+        creationflags=_CREATE_NO_WINDOW,
     )
     return res.returncode == 0
 

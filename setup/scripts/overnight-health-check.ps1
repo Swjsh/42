@@ -82,7 +82,7 @@ if (Test-Path $pipeLog) {
 Write-Output ""
 Write-Output "[5/6] Final outputs"
 $scorecard = Join-Path $repo 'analysis\recommendations\sniper-v1.json'
-$morningBrief = Join-Path $repo 'docs\SNIPER-MORNING-BRIEF.md'
+$morningBrief = Join-Path $repo 'markdown\research\SNIPER-MORNING-BRIEF.md'
 $consolidated = Join-Path $repo 'docs\MORNING-BRIEF-2026-05-13.md'
 if (Test-Path $scorecard) {
     Write-Output "  [OK]   sniper-v1.json EXISTS"
@@ -97,9 +97,9 @@ if (Test-Path $scorecard) {
     Write-Output "  [???]  sniper-v1.json missing"
 }
 if (Test-Path $morningBrief) {
-    Write-Output "  [OK]   docs\SNIPER-MORNING-BRIEF.md EXISTS"
+    Write-Output "  [OK]   markdown\research\SNIPER-MORNING-BRIEF.md EXISTS"
 } else {
-    Write-Output "  [???]  docs\SNIPER-MORNING-BRIEF.md missing"
+    Write-Output "  [???]  markdown\research\SNIPER-MORNING-BRIEF.md missing"
 }
 if (Test-Path $consolidated) {
     Write-Output "  [OK]   docs\MORNING-BRIEF-2026-05-13.md EXISTS"
@@ -162,7 +162,7 @@ Write-Output "  KEY FILES TO READ:"
 Write-Output "    1. automation\overnight\STATUS.md       (current health)"
 Write-Output "    2. automation\overnight\queue.md        (what's done/pending)"
 Write-Output "    3. automation\overnight\log.md          (wake-by-wake history)"
-Write-Output "    4. docs\SNIPER-MORNING-BRIEF.md         (sniper results)"
+Write-Output "    4. markdown\research\SNIPER-MORNING-BRIEF.md         (sniper results)"
 Write-Output "    5. analysis\recommendations\sniper-v1.json  (scorecard)"
 Write-Output "    6. docs\MORNING-BRIEF-2026-05-13.md     (consolidated brief)"
 Write-Output "================================================================"

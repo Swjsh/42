@@ -161,7 +161,7 @@ V15_J_EDGE_OVERRIDES = {
     # Exit knobs — updated 2026-05-23 to match ACTUAL v15.2 production heartbeat.md.
     # (Prior values were v15.0 initial doctrine from 2026-05-13; v14_enhanced_grinder
     # param sweep confirmed tp1=0.30 + runner=2.50 is the $26,601 optimum and v15.2
-    # heartbeat already runs exactly these values per docs/V15-ACTIVATION-2026-05-13.md.)
+    # heartbeat already runs exactly these values per markdown/0dte/V15-ACTIVATION-2026-05-13.md.)
     "tp1_premium_pct": 0.50,           # heartbeat.md: premium >= entry * 1.50 fallback (Rank-36 2026-06-17)
     "tp1_qty_fraction": 0.667,          # params.json: 66.7% off at TP1 (synced 2026-06-17)
     "runner_max_premium_pct": 2.5,     # heartbeat.md: runner_target_premium_pct = 2.50 (params.json key = runner_max_premium_pct)

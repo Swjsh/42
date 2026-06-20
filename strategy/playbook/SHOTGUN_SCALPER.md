@@ -7,7 +7,7 @@
 **Rule version target:** v15.x (post-ratification)
 **Authoring date:** 2026-05-15 (evening, after live observation)
 **Last validated:** 2026-05-16 morning — 3 detector bugs fixed, full historical replay graded.
-**Parent doctrine:** [`strategy/playbook.md`](../playbook.md), [`doctrine/seed10095-exit-doctrine.md`](../../doctrine/seed10095-exit-doctrine.md)
+**Parent doctrine:** [`markdown/0dte/playbook.md`](../playbook.md), [`markdown/doctrine/seed10095-exit-doctrine.md`](../../markdown/markdown/doctrine/seed10095-exit-doctrine.md)
 **Operating principles invoked:** OP 14, 16, 17, 20, 21, 22
 
 ---
@@ -561,9 +561,9 @@ They are complementary: SNIPER catches the regime CHANGE, SHOTGUN catches the re
 
 ## Cross-references
 
-- [`strategy/playbook.md`](../playbook.md) — parent playbook, setup template, all existing setups
-- [`doctrine/seed10095-exit-doctrine.md`](../../doctrine/seed10095-exit-doctrine.md) — exit knob lock for ride-the-ribbon (this setup uses DIFFERENT exits — do not conflate)
+- [`markdown/0dte/playbook.md`](../playbook.md) — parent playbook, setup template, all existing setups
+- [`markdown/doctrine/seed10095-exit-doctrine.md`](../../markdown/markdown/doctrine/seed10095-exit-doctrine.md) — exit knob lock for ride-the-ribbon (this setup uses DIFFERENT exits — do not conflate)
 - [`automation/prompts/heartbeat.md`](../../automation/prompts/heartbeat.md) — current heartbeat filter logic (will need SHOTGUN_SCALPER branch added in v15.x)
 - [`automation/state/params.json`](../../automation/state/params.json) — canonical knobs (SHOTGUN section to be added post-grinder)
 - CLAUDE.md OP 14 (WR is not primary), OP 16 (J-edge gates), OP 17 (3-of-3 standard), OP 20 (non-theatre validation), OP 21 (watch-first promotion), OP 22 (don't stop cooking)
-- L34 (closed-bar misalignment lesson — informs WHY SHOTGUN runs on live tick) — `docs/LESSONS-LEARNED.md`
+- L34 (closed-bar misalignment lesson — informs WHY SHOTGUN runs on live tick) — `markdown/doctrine/LESSONS-LEARNED.md`

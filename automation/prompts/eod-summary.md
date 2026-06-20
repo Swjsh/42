@@ -148,7 +148,7 @@ Score 5 = `EXCELLENT`, 4 = `GOOD`, 2–3 = `OKAY`, 0–1 = `POOR`. Write both `t
 
 Write both to the trade's row. These are NOT used to second-guess actual exits — they're learning data for weekly-review's exit-timing pattern detection.
 
-7c. **Archetype similarity (S1.3).** For each closed trade, compute similarity against the historical canonical examples in `strategy/playbook.md` (4/29, 5/1, 5/4 for BEARISH_REJECTION; 5/5 paper-validated example for BULLISH_RECLAIM). Features compared: trigger type, ribbon spread at entry, vol on trigger bar, hold duration, TP1-vs-runner outcome, MAE shape.
+7c. **Archetype similarity (S1.3).** For each closed trade, compute similarity against the historical canonical examples in `markdown/0dte/playbook.md` (4/29, 5/1, 5/4 for BEARISH_REJECTION; 5/5 paper-validated example for BULLISH_RECLAIM). Features compared: trigger type, ribbon spread at entry, vol on trigger bar, hold duration, TP1-vs-runner outcome, MAE shape.
 
 Output JSON written to trades.csv `archetype_match_json` column:
 ```

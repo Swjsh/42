@@ -4,7 +4,7 @@ NON-INTERACTIVE invocation by Task Scheduler at 16:30 ET. No context.
 
 # Purpose
 
-Strategic post-session review per `workflow/daily-review.md`:
+Strategic post-session review per `markdown/planning/daily-review.md`:
 - Pre-market thesis (what we predicted)
 - What actually played out
 - Where predictions held / missed
@@ -18,14 +18,14 @@ The PowerShell harness has already validated state files via `Repair-StateFiles`
 
 # Required reads
 
-1. `workflow/daily-review.md` — template
+1. `markdown/planning/daily-review.md` — template
 2. `journal/{today}.md` — pre-market section + EOD reflection
 3. `automation/state/today-bias.json` — the morning prediction (graded as written, no goalpost moves)
 4. `automation/state/loop-state.json` — final filter scores, mode transitions
 5. `automation/state/key-levels.json` — yesterday's levels for comparison
 6. `automation/state/logs/heartbeat-{today}.log` — tick log
-7. `strategy/key-levels-protocol.md` — for the level checklist
-8. `strategy/playbook.md` — for setup status updates
+7. `markdown/0dte/key-levels-protocol.md` — for the level checklist
+8. `markdown/0dte/playbook.md` — for setup status updates
 
 # Steps
 

@@ -104,4 +104,4 @@ When J adds a new anchor trade to OP-16 (CLAUDE.md OP-16 source-of-truth section
 - **OP-16 source:** `CLAUDE.md` section "J's edge is the source of truth" (OP-16)
 - **Formula in production:** `backtest/autoresearch/vix_soft_walk_forward.py` `op16_stats()`
 - **Reference one-shot:** `backtest/autoresearch/audit_j_winners.py` (original, hard-coded)
-- **Skills catalog:** `docs/SKILLS-CATALOG.md` (j-winner-audit entry)
+- **Skills catalog:** `markdown/infra/SKILLS-CATALOG.md` (j-winner-audit entry)

@@ -105,7 +105,7 @@ Then a watch-only `erl_irl_watcher.py` composes the existing pieces:
 
 ## 4. Validation plan (gates BEFORE anything approaches `params.json`)
 
-Follows `docs/BACKTESTING-PLAYBOOK.md` 5-stage grinder + the OP-16/OP-20/OP-21 stack.
+Follows `markdown/research/BACKTESTING-PLAYBOOK.md` 5-stage grinder + the OP-16/OP-20/OP-21 stack.
 
 1. **Stage 1 (price-space scan):** Backfill both setups over the 16-month SPY 5m archive. ORB-15 vs ORB-30 head-to-head; ERL→IRL frequency + price-space WR.
 2. **Stage 2–3 (real-fills, MANDATORY):** Re-price every signal through `option_pricing_real.py` / `simulator_real.py` (NOT BS-sim — L71). ATM **and** ITM-2 variants for ERL→IRL. Gate: WR and expectancy positive on real fills, not price.

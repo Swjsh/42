@@ -1,6 +1,6 @@
 """BEARISH_REJECTION_RIDE_THE_RIBBON — 10-filter setup checklist.
 
-Numerical definitions are sourced from `strategy/chart-anatomy.md` Numerical definitions
+Numerical definitions are sourced from `markdown/0dte/chart-anatomy.md` Numerical definitions
 section. Every soft adjective is bound to a number.
 
 Filters (per `automation/prompts/heartbeat.md`):

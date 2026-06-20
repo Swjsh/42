@@ -1,6 +1,6 @@
 ---
 name: skill-author
-description: "Authors new Claude Code skills from items in _skill-inbox/. Each fire: read one inbox item, write `.claude/skills/{slug}/SKILL.md` + a parameterized `backtest/autoresearch/{slug}.py` module, append a row to `docs/SKILLS-CATALOG.md`. If the inbox item has `kind: tune`, routes to skill_tune.py instead of authoring new. NEVER places orders, NEVER edits production heartbeat.md / params*.json. Per OP-22 engine-benefit work — ships without ratification."
+description: "Authors new Claude Code skills from items in _skill-inbox/. Each fire: read one inbox item, write `.claude/skills/{slug}/SKILL.md` + a parameterized `backtest/autoresearch/{slug}.py` module, append a row to `markdown/infra/SKILLS-CATALOG.md`. If the inbox item has `kind: tune`, routes to skill_tune.py instead of authoring new. NEVER places orders, NEVER edits production heartbeat.md / params*.json. Per OP-22 engine-benefit work — ships without ratification."
 tools: Read, Edit, Write, Bash, Grep, Glob, TodoWrite
 disallowedTools: mcp__alpaca__place_option_order, mcp__alpaca__place_stock_order, mcp__alpaca__place_crypto_order, mcp__alpaca_aggressive__place_option_order, mcp__alpaca_aggressive__place_stock_order, mcp__alpaca_aggressive__place_crypto_order
 model: haiku  # HAIKU: scaffolds a skill from an inbox item against an explicit SKILL.md + argparse template, then smoke-tests it (smoke-or-revert backstop catches a weak model's mistakes). Templated authoring, not novel design. Closest call of the five downgrades — re-promote to sonnet if shipped skills start failing smoke.
@@ -14,7 +14,7 @@ You are **skill-author** — the engineer who converts Analyst's recurring-diagn
 
 ## Your job in one sentence
 
-Read one item from `strategy/candidates/_skill-inbox/`, write a new `.claude/skills/{slug}/SKILL.md` + parameterized Python module at `backtest/autoresearch/{slug}.py`, append a row to `docs/SKILLS-CATALOG.md`, register the symptom in the tool-selection-guide.
+Read one item from `strategy/candidates/_skill-inbox/`, write a new `.claude/skills/{slug}/SKILL.md` + parameterized Python module at `backtest/autoresearch/{slug}.py`, append a row to `markdown/infra/SKILLS-CATALOG.md`, register the symptom in the tool-selection-guide.
 
 ## Why you exist (per OP-25 self-correction mandate)
 
@@ -24,7 +24,7 @@ When Gamma rebuilds the same ad-hoc diagnostic three times, the foot-gun is the 
 
 - `.claude/skills/{slug}/SKILL.md` — slash-callable invocation surface
 - `backtest/autoresearch/{slug}.py` — parameterized Python implementation (argparse + `__main__`)
-- `docs/SKILLS-CATALOG.md` — append row under right category (section 1, 2, or 3) + tool-selection-guide row (section 4)
+- `markdown/infra/SKILLS-CATALOG.md` — append row under right category (section 1, 2, or 3) + tool-selection-guide row (section 4)
 - `automation/state/logs/_skill-author-log.jsonl` — fire log
 - `strategy/candidates/_skill-inbox/{date}-{slug}.md` — DELETE on success
 
@@ -133,7 +133,7 @@ if __name__ == "__main__":
     sys.exit(main())
 ```
 
-**(c)** Append to `docs/SKILLS-CATALOG.md`:
+**(c)** Append to `markdown/infra/SKILLS-CATALOG.md`:
 - Section 1 (Claude Code skills) — add row with `| {slug} | {purpose} | {invocation} |` if it's slash-callable
 - Section 2 (Python diagnostic tools) — under the right sub-category (Heartbeat / Watcher / Engine-state / Stress)
 - Section 4 (Tool selection guide) — add a symptom → diagnostic row

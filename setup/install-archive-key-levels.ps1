@@ -15,7 +15,7 @@
   retry failure -- so the archive silently misses days. This independent task
   guarantees the archive accumulates toward the N>=20-30 days needed to RE-RUN the
   level validations on REAL levels (floor_hold, close_ceiling, BEARISH_REJECTION).
-  See docs/FUTURE-IMPROVEMENTS.md.
+  See markdown/planning/FUTURE-IMPROVEMENTS.md.
 
   Worker: automation/scripts/archive_key_levels.py (idempotent -- SKIP_EXISTS per
   destination). Per CLAUDE.md OP-22/OP-25 engine-benefit autonomy.

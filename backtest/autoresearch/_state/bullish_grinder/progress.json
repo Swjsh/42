@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-06-18T23:23:33.943756",
-  "deadline_at": "2026-06-19T01:23:33.943756",
+  "started_at": "2026-06-20T02:26:03.889200",
+  "deadline_at": "2026-06-20T04:26:03.889200",
   "total_combos": 81,
   "completed": 81,
   "passed_floors": 0,
@@ -8,10 +8,10 @@
   "keepers": 0,
   "best_bull_pnl": null,
   "best_bidir_pnl": null,
-  "current_pid": 26172,
+  "current_pid": 23820,
   "workers": 4,
-  "last_update": "2026-06-18T23:58:37.312704",
+  "last_update": "2026-06-20T03:06:16.376255",
   "status": "completed",
   "stage": "bullish",
-  "completed_at": "2026-06-18T23:58:37.328523"
+  "completed_at": "2026-06-20T03:06:16.390283"
 }

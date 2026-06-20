@@ -12,10 +12,10 @@
 
 ## Note on Input Files
 
-The task references `docs/FUTURE-IMPROVEMENTS.md` and `strategy/candidates/_analysis/2026-05-21-missing-future-improvementsmd.md` but these were not provided in the inlined inputs. This analysis is derived from:
+The task references `markdown/planning/FUTURE-IMPROVEMENTS.md` and `strategy/candidates/_analysis/2026-05-21-missing-future-improvementsmd.md` but these were not provided in the inlined inputs. This analysis is derived from:
 - `strategy/candidates/_LEADERBOARD.md` (to identify what's already proposed)
-- `strategy/playbook.md` (candidate setups section)
-- `docs/LESSONS-LEARNED.md` (anti-patterns that could become watchers)
+- `markdown/0dte/playbook.md` (candidate setups section)
+- `markdown/doctrine/LESSONS-LEARNED.md` (anti-patterns that could become watchers)
 
 ## Watcher Fleet (from leaderboard + lessons)
 

@@ -35,7 +35,7 @@ At 09:45 ET, the heartbeat computes OR range using the last three 5m SPY bars (0
 ## OP-20 disclosures
 
 1. **Account-size assumption:** qty=28 requires $25K+ account; $1K paper account ~= 14% headline P&L (50% risk cap limits deployment to 3 contracts at $1.00 entry premium).
-2. **Sample bias:** Deduped sample N=32 unique bars (2025-Q1 to 2026-Q2). Selection method: ORB signals from strategy/playbook.md with OR-range filter applied. Overfit risk: Moderate (Q2-2026 concentration 16% deduped; walk-forward OOS/IS=0.667 shows stability).
+2. **Sample bias:** Deduped sample N=32 unique bars (2025-Q1 to 2026-Q2). Selection method: ORB signals from markdown/0dte/playbook.md with OR-range filter applied. Overfit risk: Moderate (Q2-2026 concentration 16% deduped; walk-forward OOS/IS=0.667 shows stability).
 3. **Out-of-sample:** OOS/IS=0.667 (deduped N=21 IS, N=11 OOS) -- PASS (gate ≥0.50).
 4. **Real-fills:** N=22 OPRA cases, WR=81.8% -- PASS (J-anchor + independent 2025 samples).
 5. **Failure modes:** Worst day: 5/06 (or=1.98, still narrow) -- no loss; max drawdown scenario: persistent wide-OR regime (e.g., Q3 2025) causing skipped winners; blow-up: none (gate only suppresses entries).

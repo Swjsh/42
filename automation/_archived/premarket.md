@@ -8,7 +8,7 @@
 > - Original spec referenced the 3-min ribbon timeframe — superseded by 5-min throughout.
 > - Original `today-bias.json` shape is missing falsifiable_predictions[] (added 2026-05-05), iv_regime/iv_source/iv_value (added 2026-05-07), prior_day_review_hint (added 2026-05-05).
 >
-> **Read instead:** [`automation/prompts/premarket.md`](../prompts/premarket.md) for the live routine. Key levels protocol: [`strategy/key-levels-protocol.md`](../../strategy/key-levels-protocol.md). Numeric values: [`automation/state/params.json`](../state/params.json).
+> **Read instead:** [`automation/prompts/premarket.md`](../prompts/premarket.md) for the live routine. Key levels protocol: [`markdown/0dte/key-levels-protocol.md`](../../markdown/0dte/key-levels-protocol.md). Numeric values: [`automation/state/params.json`](../state/params.json).
 
 ---
 
@@ -36,7 +36,7 @@ Pull from TradingView MCP:
 
 ### 3. Identify today's key levels — read carry-over, then add fresh
 
-> **HARD PREREQUISITE: every level created/modified in this section must pass `strategy/key-levels-protocol.md`. Five mandatory fields per level (source, tier, verification, reasoning, type), three tier classifications, and a drawing checklist that must clear before any `draw_shape` call. No level enters the system without passing the protocol.**
+> **HARD PREREQUISITE: every level created/modified in this section must pass `markdown/0dte/key-levels-protocol.md`. Five mandatory fields per level (source, tier, verification, reasoning, type), three tier classifications, and a drawing checklist that must clear before any `draw_shape` call. No level enters the system without passing the protocol.**
 
 **Step 3a — Read yesterday's `automation/state/key-levels.json`.** This is the carry-over from yesterday's EOD. It contains:
 - Yesterday's session high/low/close
@@ -57,7 +57,7 @@ Pull from TradingView MCP:
 - Multi-day ascending trendline value (for future bullish setup).
 - **For multi-day swing levels: switch chart to 1D temporarily, read the actual swing high/low values, then switch back to 5-min.** Do NOT trust inherited swing-low values from old state files — verify against the daily chart every premarket.
 
-**Step 3d — Draw the levels on the chart.** Use `mcp__tradingview__draw_shape` with horizontal_line for each level. Color convention from `workflow/daily-review.md`:
+**Step 3d — Draw the levels on the chart.** Use `mcp__tradingview__draw_shape` with horizontal_line for each level. Color convention from `markdown/planning/daily-review.md`:
 - Red solid → fresh resistance
 - Green solid → confirmed support
 - Yellow dashed → transition (broken yesterday, weak today)

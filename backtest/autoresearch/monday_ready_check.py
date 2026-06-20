@@ -3,7 +3,7 @@
 Per CLAUDE.md OP 20 (non-theatre validation): no candidate ratifies for live
 trading until EVERY gate below passes. Writes:
 
-  docs/MONDAY-READY-CHECKLIST.md     — human-readable PASS/FAIL
+  markdown/planning/MONDAY-READY-CHECKLIST.md     — human-readable PASS/FAIL
   automation/state/monday-ready.json  — machine-readable for dashboard
 
 Gates:
@@ -40,7 +40,7 @@ sys.path.insert(0, str(REPO))
 V15_FINAL = ROOT / "analysis" / "recommendations" / "v15-final.json"
 WALK_FWD = ROOT / "analysis" / "recommendations" / "walk-forward-results.json"
 OUT_JSON = ROOT / "automation" / "state" / "monday-ready.json"
-OUT_MD = ROOT / "docs" / "MONDAY-READY-CHECKLIST.md"
+OUT_MD = ROOT / "markdown" / "planning" / "MONDAY-READY-CHECKLIST.md"
 DISCORD_RESPONDER_LOG = ROOT / "automation" / "state" / "logs" / "discord-responder.log"
 
 REQUIRED_TASKS = [

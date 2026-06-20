@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "protocol_version": "strategy/key-levels-protocol.md@2",
+  "protocol_version": "markdown/0dte/key-levels-protocol.md@2",
   "as_of": "2026-06-15T10:28:49-04:00",
   "for_session": "2026-06-16",
   "spot_at_compute": 753.61,

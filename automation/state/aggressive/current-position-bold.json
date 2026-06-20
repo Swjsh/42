@@ -1,4 +1,20 @@
 {
   "status": null,
-  "_note": "Cleared 2026-06-03 12:03 ET — stale 06-02 expired contract. Alpaca confirmed flat."
+  "symbol": null,
+  "direction": null,
+  "entry_price": null,
+  "current_price": null,
+  "qty": null,
+  "entry_time_et": null,
+  "setup_name": null,
+  "tp1_exited": false,
+  "tp1_exit_price": null,
+  "tp1_qty": null,
+  "tp1_pnl": null,
+  "open_pnl": null,
+  "pnl_pct": null,
+  "runner_target": null,
+  "runner_stop": null,
+  "_reconciled_at": "2026-06-15T20:49:00-04:00",
+  "_reconcile_note": "Alpaca confirmed flat (position_market_value=0, equity=$1673.46). Previous state showed status=open exit_pending from 15:49 time-stop. Cleared to prevent entry block on 2026-06-16."
 }

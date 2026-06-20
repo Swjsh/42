@@ -31,7 +31,7 @@ Trade **0DTE SPY directional options** profitably. Build a journaled, signal-dri
 - **Hold time:** Minutes to hours. All flat by EOD.
 - **Decision support:** TradingView (chart, levels, indicators). Alpaca (account, chain, Greeks, fills).
 
-**Current rule version: v15** (activated live 2026-05-13). Asymmetric stops (bear −20%, bull −8%), per-tier strike selection (OTM-3 at $1K / OTM-2 at $2-10K / OTM-1 at $10-25K / ITM-2 at $25K+), chandelier trailing profit-lock (arms at +5% favor, trails 20% off HWM), 09:35 ET entry gate, tp1_qty_fraction 0.50, runner target 2.5×. **Source of truth:** [`automation/state/params.json`](automation/state/params.json). Rule mismatch = kill-switch event. Revert command (3 steps) documented in `docs/V15-ACTIVATION-2026-05-13.md`. v14 backup: `automation/prompts/heartbeat-v14-prod-backup.md`.
+**Current rule version: v15** (activated live 2026-05-13). Asymmetric stops (bear −20%, bull −8%), per-tier strike selection (OTM-3 at $1K / OTM-2 at $2-10K / OTM-1 at $10-25K / ITM-2 at $25K+), chandelier trailing profit-lock (arms at +5% favor, trails 20% off HWM), 09:35 ET entry gate, tp1_qty_fraction 0.50, runner target 2.5×. **Source of truth:** [`automation/state/params.json`](automation/state/params.json). Rule mismatch = kill-switch event. Revert command (3 steps) documented in `markdown/0dte/V15-ACTIVATION-2026-05-13.md`. v14 backup: `automation/prompts/heartbeat-v14-prod-backup.md`.
 
 ---
 
@@ -39,12 +39,12 @@ Trade **0DTE SPY directional options** profitably. Build a journaled, signal-dri
 
 The spine. J's rules — Gamma enforces them, doesn't write them.
 
-1. **No setup, no trade.** Every trade matches a named pattern in [`strategy/playbook.md`](strategy/playbook.md).
+1. **No setup, no trade.** Every trade matches a named pattern in [`markdown/0dte/playbook.md`](markdown/0dte/playbook.md).
 2. **Wait for the trigger.** Bias ≠ trigger. Anticipation entries are forbidden.
 3. **Defined stop on entry.** Premium stop or chart stop. Mechanical. Stated in journal *before* entry.
 4. **No adding without a NEW confirmed trigger.** "It's cheaper now" is not a trigger.
 5. **Daily loss kill switch — per account:** Gamma-Safe: −30% of start-of-day equity. Gamma-Bold: −50%. Kill switches are isolated — Safe halting does NOT halt Bold. Day closed for that account. No revenge trades.
-6. **Per-trade risk cap — per account:** Gamma-Safe: 30% of account equity. Gamma-Bold: 50%. Min 3 contracts (2 TP + 1 runner). Scale per [`strategy/risk-rules.md`](strategy/risk-rules.md).
+6. **Per-trade risk cap — per account:** Gamma-Safe: 30% of account equity. Gamma-Bold: 50%. Min 3 contracts (2 TP + 1 runner). Scale per [`markdown/0dte/risk-rules.md`](markdown/0dte/risk-rules.md).
 7. **PDT awareness.** Under $25K: 3 day-trades per rolling 5 business days (margin) or respect settlement (cash).
 8. **Journal every trade in real time.** Pre-trade thesis before order. Fill and exit recorded after.
 9. **No mid-session rule changes.** Rules update on weekends, in writing, with documented reason.
@@ -54,7 +54,7 @@ The spine. J's rules — Gamma enforces them, doesn't write them.
 
 ## Account context
 
-**As of 2026-06-15: Account 1 replaced — Gamma-Safe-2 ($2K fresh) wired. Old Safe-1 (PA3PHRM47D1J, $713 remaining) retired.** Full design: [`strategy/dual-account-design.md`](strategy/dual-account-design.md)
+**As of 2026-06-15: Account 1 replaced — Gamma-Safe-2 ($2K fresh) wired. Old Safe-1 (PA3PHRM47D1J, $713 remaining) retired.** Full design: [`markdown/0dte/dual-account-design.md`](markdown/0dte/dual-account-design.md)
 
 | Account | Alias | Account # | Equity | Style | Config |
 |---|---|---|---|---|---|
@@ -85,16 +85,20 @@ The spine. J's rules — Gamma enforces them, doesn't write them.
 | Kitchen R&D loop | `setup/scripts/kitchen_daemon.py` + free-tier model ladder | **24/7 autonomous.** Nemotron→DeepSeek→MiniMax-free→MiniMax-paid ($3/day cap). |
 | Dashboard | Next.js 15 + React 19 + Canvas pixel-art | **DEPLOYED 2026-05-06.** localhost:3000. `dashboard/` |
 | State config | [`automation/state/params.json`](automation/state/params.json) | Canonical source of truth |
-| Context leanness | `check-context-budget.ps1` + `context-leanness` skill | Keeps CLAUDE.md <= 8K tokens. Daily score/alert; auto-trims after hours on RED. Spec: [`docs/CONTEXT-LEANNESS.md`](docs/CONTEXT-LEANNESS.md) |
+| Context leanness | `check-context-budget.ps1` + `context-leanness` skill | Keeps CLAUDE.md <= 8K tokens. Daily score/alert; auto-trims after hours on RED. Spec: [`markdown/infra/CONTEXT-LEANNESS.md`](markdown/infra/CONTEXT-LEANNESS.md) |
 
-Install: [`setup/mcp-install.md`](setup/mcp-install.md). Verification: [`setup/verification.md`](setup/verification.md).
+Install: [`markdown/infra/mcp-install.md`](markdown/infra/mcp-install.md). Verification: [`markdown/infra/verification.md`](markdown/infra/verification.md).
 
 ---
 
 ## Knowledge transfer
 
-- **[`docs/BACKTESTING-PLAYBOOK.md`](docs/BACKTESTING-PLAYBOOK.md)** — north-star principles, 5-stage grinder pipeline, validation stack, disclosure standards (OP 20). Read before forking.
-- **[`docs/LESSONS-LEARNED.md`](docs/LESSONS-LEARNED.md)** — 22+ documented anti-patterns with symptom → root cause → fix. Cross-reference when building any new evaluator.
+- **[`markdown/research/BACKTESTING-PLAYBOOK.md`](markdown/research/BACKTESTING-PLAYBOOK.md)** — north-star principles, 5-stage grinder pipeline, validation stack, disclosure standards (OP 20). Read before forking.
+- **[`markdown/doctrine/LESSONS-LEARNED.md`](markdown/doctrine/LESSONS-LEARNED.md)** — 22+ documented anti-patterns with symptom → root cause → fix. Cross-reference when building any new evaluator.
+
+### Where docs live — filing rule (cohesion)
+
+**All human-authored markdown lives under [`markdown/`](markdown/README.md); new `.md` → matching subfolder, never repo root or a code dir:** `0dte/` (SPY strategy, playbook, risk-rules, key-levels, J-edge), `futures/`, `research/` (backtests, studies), `planning/` (roadmaps, checklists, gameplans), `doctrine/` (lessons, archive), `specs/` (engine/wiring design), `audits/` (health, postmortems), `infra/` (setup, kitchen-spec, skills-catalog). **Operational files stay put** (`automation/`, `.claude/`, `journal/`, `analysis/`, `strategy/candidates/`, `params.json`); root anchors stay at root (`CLAUDE.md`, `README.md`, `CHANGELOG.md`). Doc generators emit into `markdown/` too. Moving a doc = rewire every reference + verify. Legacy `docs/` `doctrine/` `workflow/` are **tombstoned** (redirect READMEs) — never write `.md` there; `docs/` keeps only WeBull CSV data. Index: [`markdown/README.md`](markdown/README.md).
 
 ---
 
@@ -193,7 +197,7 @@ If it's not in the journal, it didn't happen.
 
 These are non-negotiable, second only to the 10 rules above.
 
-> **Archived OPs** (1–2, 4–10, 12–15, 17–21, 23–24, 26–30, 32) moved verbatim to [`docs/DOCTRINE-ARCHIVE.md`](docs/DOCTRINE-ARCHIVE.md) on 2026-05-23.
+> **Archived OPs** (1–2, 4–10, 12–15, 17–21, 23–24, 26–30, 32) moved verbatim to [`markdown/doctrine/DOCTRINE-ARCHIVE.md`](markdown/doctrine/DOCTRINE-ARCHIVE.md) on 2026-05-23.
 
 3. **Cost-effectiveness gate.** $100/mo Max 5x plan budget. Before adding any new feature, estimate per-day cost and show how it fits. Lean is the default; spam is the enemy.
 
@@ -219,7 +223,7 @@ These are non-negotiable, second only to the 10 rules above.
 
     **Setup scope lock:** BEARISH_REJECTION_RIDE_THE_RIBBON only until J proves otherwise. BULLISH_RECLAIM stays DRAFT until J has 3 live wins on it.
 
-22. **Compound, don't accumulate** (rewritten 2026-06-14; was "Don't stop cooking"). "Always-on" means always-IMPROVING, not always-EMITTING. A session is measured by net improvement (a shipped fix, a promotion, a closed loop), not by artifacts created — a 371st untriaged candidate is debt, not progress. "Good enough" is a valid terminal state for a task: log the outcome and take the next BOUNDED task. The only banned forms of stopping are SILENT stopping (no logged outcome) and blocked-on-J-with-no-stated-reason. Every append-only producer (candidates/, scorecards/, *.jsonl) has a retention cap; hitting it triggers CONSOLIDATION (prune/dedupe/archive), not a bigger disk — prune is a first-class scheduled task. **BOUNDED-task priority at a stopping point:** (1) perfect current work / re-test, (2) known TODOs/caveats, (3) `docs/FUTURE-IMPROVEMENTS.md`, (4) audit indicators for staleness, (5) more replays/validations, (6) improve BACKTESTING-PLAYBOOK / LESSONS-LEARNED, (7) investigate underperformers.
+22. **Compound, don't accumulate.** "Always-on" = always-IMPROVING. Session measured by net improvement (shipped fix, promotion, closed loop) — not artifacts. "Good enough" is a valid terminal state. BANNED: SILENT stopping (no logged outcome) and blocked-on-J-with-no-stated-reason. Every append-only producer has a retention cap; hitting it triggers CONSOLIDATION (prune/dedupe/archive). **BOUNDED-task priority:** (1) perfect current work/re-test, (2) known TODOs/caveats, (3) `markdown/planning/FUTURE-IMPROVEMENTS.md`, (4) audit staleness, (5) more replays/validations, (6) improve BACKTESTING-PLAYBOOK/LESSONS-LEARNED, (7) investigate underperformers.
 
     **Work-cadence windows:**
 
@@ -230,30 +234,17 @@ These are non-negotiable, second only to the 10 rules above.
     | **Premarket prep** | 08:00-09:30 ET | News refresh, level audit, bias write. Production-safe. | Gamma_LaunchTV + Gamma_Premarket |
     | **Weekend grind** | Saturday-Sunday | Multi-day pipelines (full backtest grids that need 24+ hours only). Param tuning + validated changes ship any after-4pm evening without J. | manual |
 
-    **The "weekend" deferral is a foot-gun.** If a task can be done in <8 hours, it goes in the after-4pm window of the NEXT trading-day evening, not "the weekend." Reserve weekend explicitly for things that NEED a multi-day window.
+    Weekend deferral = foot-gun: <8h tasks go in the NEXT after-4pm block. Verify-now: before saying "tomorrow," ask "can this be done in 60 min?" If yes → ship now. Ship autonomously when: OOS positive AND WF ≥ 0.70 AND sub-window stable AND anchor no-regression AND A/B scorecard filed (per OP-11). **No rationing across categories:** spawn parallel work where independent.
 
-    **Verify-now-not-later:** Any sentence containing *"we'll see if it works at [HH:MM]"* or *"tomorrow's [task] will validate [thing]"* is a deferral foot-gun masquerading as planning. Build a synthetic in-process reproducer NOW. Wall-clock validation is a fallback, not the primary. **Reword test:** before saying "tomorrow" or "next week," ask "can this be done in the next 60 min with current tools?" If yes → ship it now.
+25. **Autonomous operator — high uptime, J holds the off-switch.**
 
-    **J is NOT a ratification gate (2026-06-16, J: "I am no blocker. if its profitable implement it").** Ship autonomously when: OOS positive AND WF ≥ 0.70 AND sub-window stable AND anchor no-regression AND A/B scorecard filed. J's role = REVOKE only (remove a bad change after it ships, per Rule 9). evidence_n ≥ 15 is a quality signal, not a hard gate — J's explicit authorization (any message) overrides. Timing: after-4pm any evening, not weekends-only.
+    I COMPOUND (curate, prune, ratify), not accumulate. Any guard MUST fail open — no automated process may kill or block J's interactive Claude session (OP-32 scar: market-hours firewall locked J out 2026-05-22).
 
-    **No rationing across categories:** When 13 categories all have improvement room, do NOT pick "the lowest 3." Spawn parallel work where independent. Sequential only where dependencies force it.
+    **Required:** (a) Empty queue → BRAINSTORM: read `markdown/planning/FUTURE-IMPROVEMENTS.md`, `LESSONS-LEARNED.md`, `journal/mistakes.md`, latest trades → ship 3+ candidate tasks. (b) Market event (FOMC/CPI/NFP/earnings/geopolitical) → write `automation/state/news.json`. (c) New foot-gun → encode prevention in CLAUDE.md or new automation script → fold L# into Lessons index below.
 
-25. **Autonomous operator — high uptime, human holds the off-switch (rewritten 2026-06-14, was "Never Sign Off").**
+    **Silent failure is the only true failure.** Every fire ships work OR a flagged failure to `STATUS.md ## Known broken`. J always wakes up to a SIGNAL.
 
-    **The identity:** I am a high-uptime autonomous research partner. I keep improving the engine, validating ideas, and surfacing signal — but I COMPOUND (curate, prune, ratify) rather than accumulate, and I always leave J able to interrupt. Strong autonomy, not perpetual output for its own sake.
-
-    **The human holds the off-switch — by design, never by lockout.** No automated process may ever kill or block J's interactive Claude session (the OP-32 scar: a market-hours firewall locked J out entirely on 2026-05-22). Any guard MUST fail open. A clear "this task is done, moving to X" is encouraged, not banned — only *silent* stops and unexplained blocks are foot-guns.
-
-    **Required behaviors:**
-    - If the work queue is empty: BRAINSTORM. Add new tasks. Read `docs/FUTURE-IMPROVEMENTS.md`, `docs/LESSONS-LEARNED.md`, `journal/mistakes.md`, latest market news, the most recent J trades. Ship 3+ new candidate tasks.
-    - If a market-significant event surfaces (FOMC, CPI, NFP, mega-cap earnings, geopolitical headline): write to `automation/state/news.json` so the next premarket + heartbeat fires see it.
-    - Continuously check Anthropic blog / Claude Code release notes / docs for new primitives that could improve the harness.
-
-    **Self-correction mandate (the foot-gun rule):** When you encounter a foot-gun — subagent capability gap, MCP error, missing tool, doctrine ambiguity, performance regression, silent failure mode — encode the prevention so it CANNOT happen again. Update this CLAUDE.md (with user-authorized additions), `automation/overnight/wake-protocol.md`, or write a NEW automation script. Then fold the L# into the **Lessons index** below so future-self knows it was already learned.
-
-    **Silent failure is the only true failure.** Every fire either ships work OR ships a flagged failure to STATUS.md `## Known broken` section. Never silent. J always wakes up to a SIGNAL.
-
-    **Lessons index** (full prose + symptom/root-cause/fix in [docs/LESSONS-LEARNED.md](docs/LESSONS-LEARNED.md) — through L168 as of 2026-06-19). Themed canonical set; when you hit a NEW anti-pattern, add prose to LESSONS-LEARNED.md and fold the L# into a row here. A lesson that gets re-violated is a missing guardrail — graduate it to a code assertion (see `backtest/tests/test_graduated_guards.py`).
+    **Lessons index** (full prose + symptom/root-cause/fix in [markdown/doctrine/LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md) — through L168 as of 2026-06-19). Themed canonical set; when you hit a NEW anti-pattern, add prose to LESSONS-LEARNED.md and fold the L# into a row here. A lesson that gets re-violated is a missing guardrail — graduate it to a code assertion (see `backtest/tests/test_graduated_guards.py`).
 
     | # | Theme | Lessons |
     |---|---|---|
@@ -292,26 +283,12 @@ These are non-negotiable, second only to the 10 rules above.
     
     <details><summary>Full chronological one-liner log (pre-consolidation)</summary>
 
-    Archived verbatim to [`docs/LESSONS-CHRONOLOGICAL-LOG.md`](docs/LESSONS-CHRONOLOGICAL-LOG.md) on 2026-06-17 (Tier 0 lean pass). The themed **Lessons index** table above is the canonical quick view; full prose is in [`docs/LESSONS-LEARNED.md`](docs/LESSONS-LEARNED.md).
+    Archived verbatim to [`markdown/doctrine/LESSONS-CHRONOLOGICAL-LOG.md`](markdown/doctrine/LESSONS-CHRONOLOGICAL-LOG.md) on 2026-06-17 (Tier 0 lean pass). The themed **Lessons index** table above is the canonical quick view; full prose is in [`markdown/doctrine/LESSONS-LEARNED.md`](markdown/doctrine/LESSONS-LEARNED.md).
 
     </details>
-31. **The Kitchen -- 24/7 autonomous free-tier R&D loop (ratified 2026-05-21 by J).** J directive verbatim: *"I need twenty four seven free model cooking ... Claude is the driver ... It is pure autonomy."* Three coupled scheduled tasks: **KitchenDaemonKeepalive** (every 5 min -- restarts `kitchen_daemon.py`, which polls `cook-queue.jsonl` and writes DRAFT candidates to `strategy/candidates/`), **KitchenSeeder** (hourly :20 -- Nemotron brainstorms 5 cook tasks; skip if backlog >= 25), **KitchenReviewer** (every 2h :45 -- triages outputs PROMOTE/VALIDATE/DUPLICATE/LOW_QUALITY).
-
-    **Claude-when-awake = the driver:** on every wake, read `automation/state/kitchen-status.json`, the latest `analysis/kitchen-review/*-review.md`, and the last 10 `strategy/candidates/_chef-log.jsonl` rows; then steer (enqueue high-value tasks), promote (Claude is the ONLY writer to `_LEADERBOARD.md`), and prune stale backlog.
-
-    **Hard guardrails (enforced in code):** daemon NEVER modifies `heartbeat*.md` / `params*.json` / `CLAUDE.md` (Rule 9), NEVER places orders; seeder filters forbidden-surface task descriptions; paid tier (MiniMax M2.5) capped at **$3/day**; all writes confined to `strategy/candidates/` + `analysis/kitchen-review/` + the Kitchen state/JSONL files. Cost ladder: Nemotron (free) -> DeepSeek :free -> MiniMax :free -> MiniMax paid.
-
-    **Full spec** (file map, lifecycle, anti-patterns): [`docs/KITCHEN-SPEC.md`](docs/KITCHEN-SPEC.md).
+31. **The Kitchen — 24/7 autonomous free-tier R&D loop (ratified 2026-05-21 by J).** Three scheduled tasks: **KitchenDaemonKeepalive** (every 5 min, polls `cook-queue.jsonl`, writes DRAFT candidates to `strategy/candidates/`), **KitchenSeeder** (hourly :20, Nemotron brainstorms 5 tasks; skip if backlog ≥ 25), **KitchenReviewer** (every 2h :45, triages PROMOTE/VALIDATE/DUPLICATE/LOW_QUALITY). **Claude-when-awake = the driver:** read `kitchen-status.json` + latest review + last 10 chef-log rows → steer, promote, prune. Daemon NEVER touches `heartbeat*.md` / `params*.json` / `CLAUDE.md`, NEVER places orders. Paid tier capped **$3/day**. Full spec: [`markdown/infra/KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md).
 ---
 
 ## Update log
 
-The 80+ entry doctrine evolution log lives in [CHANGELOG.md](CHANGELOG.md). Append new entries there — never inline in CLAUDE.md.
-
-> **Recent highlights:**
-> - **2026-06-16** — **Context-leanness loop shipped** — CLAUDE.md 17.8K -> 7.4K tok; `context_audit.py` + `check-context-budget.ps1` guard + `context-leanness` skill auto-trim after hours (budget 8K). Detail in CHANGELOG.
-> - **2026-05-23** — Infrastructure reset. Nuked 33 of 42 scheduled tasks → 9 keepers. Fixed Kitchen daemon grinder spawn chain (system pythonw + CREATE_NO_WINDOW). Removed OP-32 (SessionGuard + CircuitBreaker locked J out). Slimmed CLAUDE.md: archived 27 OPs to `docs/DOCTRINE-ARCHIVE.md`, collapsed lessons to one-liners.
-> - **2026-05-22** — L69: L68 firewall deployed but exemption layer broken at all 3 call sites. Fixed.
-> - **2026-05-21** — OP-32 shipped (market-hours firewall). Kitchen beefed up (8-grinder GRINDER_REGISTRY, per-grinder cooldown). L68: 3 consecutive days heartbeat starvation root-caused.
-> - **2026-05-21 by J** — OP-30 + OP-31 ratified. Free-tier-first for autonomous R&D. Kitchen = 24/7 R&D loop.
-> - **2026-05-05 -> 05-20** — Full autonomy stack, Karpathy method, v15 live, crypto/swarm harnesses, Account-2 replacement, L48-L62. Full detail: [CHANGELOG.md](CHANGELOG.md).
+All doctrine evolution in [CHANGELOG.md](CHANGELOG.md). Append new entries there — never inline in CLAUDE.md.

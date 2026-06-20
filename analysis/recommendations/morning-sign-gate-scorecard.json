@@ -183,7 +183,7 @@
   "_provenance_section": "What triggered this proposal.",
   "evidence_count": 1,
   "evidence_window_days": 320,
-  "trigger_observation": "docs/WEEKEND-RESEARCH-GAMEPLANS-2026-06-19.md Game Plan 1: Gao-Han-Li-Zhou (JFE 2018) Market Intraday Momentum. Original tainted backtest flipped ATM exp -21.58 -> +22.83. Causal + OOS re-run on 2026-06-19 retires it.",
+  "trigger_observation": "markdown/planning/WEEKEND-RESEARCH-GAMEPLANS-2026-06-19.md Game Plan 1: Gao-Han-Li-Zhou (JFE 2018) Market Intraday Momentum. Original tainted backtest flipped ATM exp -21.58 -> +22.83. Causal + OOS re-run on 2026-06-19 retires it.",
   "related_changelog_entries": [],
   "op20_disclosures": {
     "authority": "Real-fills (simulator_real, OPRA valid ~through 2026-05-29) is the WR/expectancy authority. Arms partition ONE fill set, so deltas isolate the gate (no re-sim noise).",

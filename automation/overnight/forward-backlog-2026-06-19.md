@@ -8,7 +8,7 @@
 
 ## Tier 1 — finish the decision-library migration (the architectural north star)
 
-- [ ] **Decision-lib Phase 3** (MED). engine/score.py (P1) + engine/gates.py (P2) are extracted + parity-locked. Next: build `engine_cli.py` (stdin/stdout shim so the live heartbeat can call the engine) + start the N>=5-trading-day READ-ONLY shadow (reuse shadow-version.json controller). The shim is bounded/safe now; the shadow window is calendar-bound. Per docs/SHARED-DECISION-LIBRARY-MIGRATION.md.
+- [ ] **Decision-lib Phase 3** (MED). engine/score.py (P1) + engine/gates.py (P2) are extracted + parity-locked. Next: build `engine_cli.py` (stdin/stdout shim so the live heartbeat can call the engine) + start the N>=5-trading-day READ-ONLY shadow (reuse shadow-version.json controller). The shim is bounded/safe now; the shadow window is calendar-bound. Per markdown/specs/SHARED-DECISION-LIBRARY-MIGRATION.md.
 - [ ] **Decision-lib Phase 4** (J-GATED). Live cutover: heartbeat consults engine verdict via the shim; prose collapses to a thin wrapper; codegen retires gamma-sync. ONLY after Phase 3 shadow agrees >=99% (100% on ENTER ticks). Rule 9 / J revoke.
 
 ## Tier 2 — unblock + decide
@@ -18,5 +18,5 @@
 
 ## J-ratification queue (Rule 9 — surface in the next brief)
 - Bold kill-switch threshold: aggressive breaker -60% vs Rule-5/params -50% — which is canonical?
-- Safe chart-stops change goes LIVE Monday (premium -0.50 catastrophe cap, chart-stop primary) — review docs/CHART-STOPS-2026-06-18.md.
+- Safe chart-stops change goes LIVE Monday (premium -0.50 catastrophe cap, chart-stop primary) — review markdown/research/CHART-STOPS-2026-06-18.md.
 - Enable (when ready): Gamma_HealthBeacon, Gamma_Conductor, Gamma_DiscordResponder (install scripts wired, not auto-enabled).

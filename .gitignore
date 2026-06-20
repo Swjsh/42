@@ -1,8 +1,11 @@
 # Secrets
+.env.tastytrade
 **/.discord-config.json
 **/.discord-token
 **/.alpaca-keys
 **/.openrouter.key
+**/.heartbeat-api-key
+**/.heartbeat-api-key-bold
 .env
 *.env
 
@@ -63,3 +66,14 @@ C:Users*
 
 # Local pre-change backups (not for git; restore source if needed)
 _local_backups_*/
+
+# === Added 2026-06-20: fleet secrets + mcp backup hygiene ===
+# Champion/challenger fleet per-account API secrets — NEVER tracked
+automation/state/fleet/secrets.json
+**/fleet-secrets.json
+# Fleet runtime decision logs (ephemeral)
+automation/state/fleet/decisions/
+# Backup copies of mcp config carry plaintext secrets — never track them
+.mcp.json.bak*
+**/*.bak-winfix-*
+**/*.bak

@@ -305,7 +305,7 @@ def test_end_to_end_pipeline_artifacts_present() -> None:
         project_root / "setup" / "scripts" / "run-chart-vision-observer.ps1",
         project_root / "backtest" / "autoresearch" / "vision_observer_grader.py",
         project_root / "setup" / "install-chart-vision-observer.ps1",
-        project_root / "docs" / "VISION-OBSERVER-PROTOCOL.md",
+        project_root / "markdown" / "specs" / "VISION-OBSERVER-PROTOCOL.md",
         project_root / "strategy" / "candidates" / "2026-05-17-vision-chart-observer.md",
     ]
     missing = [p for p in must_exist if not p.exists()]

@@ -32,7 +32,7 @@ if (Test-Path $prevPath) {
         if ($now.monday_ready -and -not $wasReady) {
             $msg = @{
                 queued_at = (Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ');
-                content = "<@207983230618435584> 🟢 **MONDAY READY** — all 6 gates passed. v15-final.json exists, walk-forward OOS net+, all tasks enabled, bridge alive, floors held. Per rule 9, your YES bumps params.json. See docs/MONDAY-READY-CHECKLIST.md."
+                content = "<@207983230618435584> 🟢 **MONDAY READY** — all 6 gates passed. v15-final.json exists, walk-forward OOS net+, all tasks enabled, bridge alive, floors held. Per rule 9, your YES bumps params.json. See markdown/planning/MONDAY-READY-CHECKLIST.md."
             } | ConvertTo-Json -Compress
             Add-Content -Path (Join-Path $repoRoot 'automation\state\discord-outbox.jsonl') -Value $msg -Encoding UTF8
         }

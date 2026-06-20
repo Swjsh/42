@@ -1,7 +1,7 @@
 """Lunch-trough time-of-day gate A/B — does excluding the documented midday volatility
 trough (~12:00-13:30 ET) improve real-fills expectancy on the BEARISH_REJECTION setup?
 
-THE FINDING UNDER TEST (docs/WEEKEND-RESEARCH-GAMEPLANS-2026-06-19.md, GP1 microstructure):
+THE FINDING UNDER TEST (markdown/planning/WEEKEND-RESEARCH-GAMEPLANS-2026-06-19.md, GP1 microstructure):
 Intraday SPY volatility is U-shaped — high at open, trough at lunch, rising into the close.
 The lunch lull is genuinely thinner/choppier. Hypothesis: gating out entries whose SIGNAL
 BAR falls in the lunch trough avoids low-conviction chop and improves real-fills expectancy.

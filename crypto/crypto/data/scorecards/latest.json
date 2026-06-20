@@ -1,11 +1,11 @@
 {
   "summary": {
-    "started_at": "2026-05-24T16:02:49.082407+00:00",
-    "finished_at": "2026-05-24T16:02:55.278166+00:00",
+    "started_at": "2026-06-19T14:31:25.954498+00:00",
+    "finished_at": "2026-06-19T14:31:41.428916+00:00",
     "symbol": "BTC-USD",
     "granularity_seconds": 300,
-    "stages": 73,
-    "passed": 73,
+    "stages": 87,
+    "passed": 87,
     "failed": 0,
     "flaky_failed": [],
     "overall_pass": true,
@@ -82,7 +82,21 @@
       "v37_tbr_high_vol_gate.offline": true,
       "v37_tbr_high_vol_gate.live": true,
       "v38_v14e_chop_zone_gate.offline": true,
-      "v38_v14e_chop_zone_gate.live": true
+      "v38_v14e_chop_zone_gate.live": true,
+      "v39_orb_signal_reader.offline": true,
+      "v39_orb_signal_reader.live": true,
+      "v40_bearish_rejection_morning_gate.offline": true,
+      "v40_bearish_rejection_morning_gate.live": true,
+      "v41_midday_trendline_gate.offline": true,
+      "v41_midday_trendline_gate.live": true,
+      "v42_sizing_risk_cap_guard.offline": true,
+      "v42_sizing_risk_cap_guard.live": true,
+      "v43_ghost_entry_dual_account.offline": true,
+      "v43_ghost_entry_dual_account.live": true,
+      "v44_named_level_second_test_gate.offline": true,
+      "v44_named_level_second_test_gate.live": true,
+      "v45_stairstep_continuation_gate.offline": true,
+      "v45_stairstep_continuation_gate.live": true
     }
   },
   "runs": [
@@ -166,17 +180,23 @@
         "source": "coinbase",
         "symbol": "BTC-USD",
         "granularity_seconds": 300,
-        "fetched_at": "2026-05-24T16:02:49.082548+00:00",
+        "fetched_at": "2026-06-19T14:31:25.954693+00:00",
         "bars_count": 20,
         "verdict": "ok",
-        "naive_last_bar_in_progress": false,
-        "naive_last_bar_open": "2026-05-24T15:55:00+00:00",
-        "naive_last_bar_seconds_until_close": -169.082548,
-        "filtered_last_closed_open": "2026-05-24T15:55:00+00:00",
-        "filtered_last_closed_age_seconds": 169.082548,
-        "bars_rejected_as_in_progress": 0,
-        "foot_gun_caught_this_fetch": false,
-        "ohlc_delta_naive_minus_filtered": null,
+        "naive_last_bar_in_progress": true,
+        "naive_last_bar_open": "2026-06-19T14:30:00+00:00",
+        "naive_last_bar_seconds_until_close": 214.045307,
+        "filtered_last_closed_open": "2026-06-19T14:25:00+00:00",
+        "filtered_last_closed_age_seconds": 85.954693,
+        "bars_rejected_as_in_progress": 1,
+        "foot_gun_caught_this_fetch": true,
+        "ohlc_delta_naive_minus_filtered": {
+          "open": 172.36000000000058,
+          "high": 8.180000000000291,
+          "low": 172.0,
+          "close": -3.6899999999950523,
+          "volume": -22.34014083
+        },
         "pass": true
       }
     },
@@ -184,10 +204,10 @@
       "name": "v02_source_parity",
       "ok": true,
       "result": {
-        "checked_at": "2026-05-24T16:02:49.305343+00:00",
+        "checked_at": "2026-06-19T14:31:26.228266+00:00",
         "symbol": "BTC-USD",
         "granularity_seconds": 300,
-        "coinbase_closed_bars": 20,
+        "coinbase_closed_bars": 19,
         "yfinance_closed_bars": 19,
         "shared_bars": 18,
         "disagreements_above_tolerance": 0,
@@ -250,14 +270,14 @@
         "mode": "live",
         "symbol": "BTC-USD",
         "granularity_seconds": 300,
-        "closed_bars": 200,
-        "last_close": 76262.69,
-        "rsi_14_last": 33.71377553406033,
-        "ema_20_last": 76409.42269858634,
-        "atr_14_last": 90.47561167680597,
-        "vwap_last": 76746.01544507111,
-        "high_max": 77412.32,
-        "low_min": 76100.0,
+        "closed_bars": 199,
+        "last_close": 63205.06,
+        "rsi_14_last": 66.76021429581311,
+        "ema_20_last": 62941.31440462813,
+        "atr_14_last": 131.95196890005602,
+        "vwap_last": 62699.42226932581,
+        "high_max": 63341.21,
+        "low_min": 62246.24,
         "checks": {
           "rsi_bounded_0_100": true,
           "rsi_no_nan_after_warmup": true,
@@ -331,67 +351,67 @@
         "mode": "live",
         "symbol": "BTC-USD",
         "granularity_seconds": 300,
-        "closed_bars": 200,
-        "total_hits": 123,
+        "closed_bars": 199,
+        "total_hits": 106,
         "hits_by_pattern": {
           "inside_bar": {
-            "count": 43,
+            "count": 33,
             "open_times": [
-              "2026-05-24T14:55:00+00:00",
-              "2026-05-24T15:05:00+00:00",
-              "2026-05-24T15:10:00+00:00",
-              "2026-05-24T15:25:00+00:00",
-              "2026-05-24T15:40:00+00:00"
-            ]
-          },
-          "doji": {
-            "count": 21,
-            "open_times": [
-              "2026-05-24T11:10:00+00:00",
-              "2026-05-24T11:40:00+00:00",
-              "2026-05-24T12:25:00+00:00",
-              "2026-05-24T13:05:00+00:00",
-              "2026-05-24T14:35:00+00:00"
-            ]
-          },
-          "bearish_engulfing": {
-            "count": 18,
-            "open_times": [
-              "2026-05-24T11:45:00+00:00",
-              "2026-05-24T14:00:00+00:00",
-              "2026-05-24T14:10:00+00:00",
-              "2026-05-24T15:15:00+00:00",
-              "2026-05-24T15:50:00+00:00"
-            ]
-          },
-          "bullish_engulfing": {
-            "count": 24,
-            "open_times": [
-              "2026-05-24T13:15:00+00:00",
-              "2026-05-24T13:40:00+00:00",
-              "2026-05-24T14:50:00+00:00",
-              "2026-05-24T15:00:00+00:00",
-              "2026-05-24T15:35:00+00:00"
+              "2026-06-19T12:25:00+00:00",
+              "2026-06-19T12:55:00+00:00",
+              "2026-06-19T13:20:00+00:00",
+              "2026-06-19T13:50:00+00:00",
+              "2026-06-19T14:15:00+00:00"
             ]
           },
           "shooting_star": {
             "count": 6,
             "open_times": [
-              "2026-05-24T08:30:00+00:00",
-              "2026-05-24T10:05:00+00:00",
-              "2026-05-24T11:20:00+00:00",
-              "2026-05-24T11:45:00+00:00",
-              "2026-05-24T15:30:00+00:00"
+              "2026-06-18T23:55:00+00:00",
+              "2026-06-19T01:20:00+00:00",
+              "2026-06-19T01:35:00+00:00",
+              "2026-06-19T08:30:00+00:00",
+              "2026-06-19T10:20:00+00:00"
+            ]
+          },
+          "bearish_engulfing": {
+            "count": 18,
+            "open_times": [
+              "2026-06-19T09:40:00+00:00",
+              "2026-06-19T10:15:00+00:00",
+              "2026-06-19T11:05:00+00:00",
+              "2026-06-19T12:30:00+00:00",
+              "2026-06-19T14:05:00+00:00"
+            ]
+          },
+          "doji": {
+            "count": 19,
+            "open_times": [
+              "2026-06-19T09:55:00+00:00",
+              "2026-06-19T11:25:00+00:00",
+              "2026-06-19T11:30:00+00:00",
+              "2026-06-19T12:05:00+00:00",
+              "2026-06-19T13:05:00+00:00"
+            ]
+          },
+          "bullish_engulfing": {
+            "count": 21,
+            "open_times": [
+              "2026-06-19T12:00:00+00:00",
+              "2026-06-19T12:25:00+00:00",
+              "2026-06-19T12:35:00+00:00",
+              "2026-06-19T14:00:00+00:00",
+              "2026-06-19T14:20:00+00:00"
             ]
           },
           "hammer": {
-            "count": 11,
+            "count": 9,
             "open_times": [
-              "2026-05-24T07:55:00+00:00",
-              "2026-05-24T10:30:00+00:00",
-              "2026-05-24T10:35:00+00:00",
-              "2026-05-24T11:15:00+00:00",
-              "2026-05-24T13:55:00+00:00"
+              "2026-06-19T04:20:00+00:00",
+              "2026-06-19T08:15:00+00:00",
+              "2026-06-19T08:55:00+00:00",
+              "2026-06-19T11:35:00+00:00",
+              "2026-06-19T12:05:00+00:00"
             ]
           }
         },
@@ -467,46 +487,46 @@
         "mode": "live",
         "symbol": "BTC-USD",
         "granularity_seconds": 300,
-        "closed_bars": 200,
-        "last_close": 76262.69,
+        "closed_bars": 199,
+        "last_close": 63205.06,
         "nearest_5_levels": [
           {
-            "price": 76100.0,
-            "kind": "prior_period_low",
-            "strength": 2,
-            "label": "Prior-96-bar L"
-          },
-          {
-            "price": 76000,
-            "kind": "round_number",
-            "strength": 1,
-            "label": "Round 76000"
-          },
-          {
-            "price": 77000,
-            "kind": "round_number",
-            "strength": 1,
-            "label": "Round 77000"
-          },
-          {
-            "price": 77412.32,
+            "price": 63341.21,
             "kind": "prior_period_high",
             "strength": 2,
             "label": "Prior-96-bar H"
           },
           {
-            "price": 75000,
+            "price": 63000,
             "kind": "round_number",
             "strength": 1,
-            "label": "Round 75000"
+            "label": "Round 63000"
+          },
+          {
+            "price": 64000,
+            "kind": "round_number",
+            "strength": 1,
+            "label": "Round 64000"
+          },
+          {
+            "price": 62246.24,
+            "kind": "prior_period_low",
+            "strength": 2,
+            "label": "Prior-96-bar L"
+          },
+          {
+            "price": 62000,
+            "kind": "round_number",
+            "strength": 1,
+            "label": "Round 62000"
           }
         ],
         "event_counts": {
-          "round_number:reclaim": 1,
-          "prior_period_high:reject": 1,
+          "round_number:hold": 8,
           "round_number:reject": 3,
-          "round_number:hold": 11,
-          "prior_period_low:reject": 1
+          "prior_period_low:reject": 1,
+          "round_number:reclaim": 1,
+          "prior_period_high:reject": 1
         },
         "pass": true
       }
@@ -553,16 +573,16 @@
       "ok": true,
       "result": {
         "mode": "live",
-        "closed_bars": 200,
-        "swing_highs": 19,
-        "swing_lows": 18,
-        "resistance_slope_per_hr": 15.716099146214882,
-        "resistance_projected_at_last_bar": 77041.53285057098,
-        "resistance_touches": 59,
-        "support_slope_per_hr": -10.57158766145409,
-        "support_projected_at_last_bar": 76527.90313698724,
-        "support_touches": 66,
-        "last_close": 76262.69,
+        "closed_bars": 199,
+        "swing_highs": 21,
+        "swing_lows": 22,
+        "resistance_slope_per_hr": -14.75058192533721,
+        "resistance_projected_at_last_bar": 62681.50021862239,
+        "resistance_touches": 51,
+        "support_slope_per_hr": -29.604567954997012,
+        "support_projected_at_last_bar": 62263.35277167708,
+        "support_touches": 56,
+        "last_close": 63205.06,
         "pass": true
       }
     },
@@ -613,13 +633,13 @@
       "ok": true,
       "result": {
         "mode": "live",
-        "closed_bars": 200,
-        "ratios_valid": 180,
-        "ratio_min": 0.1252769977009185,
-        "ratio_max": 8.98042764119793,
-        "ratio_mean": 1.0496427740621492,
-        "bars_above_1_5x": 30,
-        "bars_above_2x": 12,
+        "closed_bars": 199,
+        "ratios_valid": 179,
+        "ratio_min": 0.18712680991093442,
+        "ratio_max": 11.763657811916836,
+        "ratio_mean": 1.0799449389067342,
+        "bars_above_1_5x": 23,
+        "bars_above_2x": 18,
         "bars_above_3x": 8,
         "pass": true
       }
@@ -666,18 +686,18 @@
       "ok": true,
       "result": {
         "mode": "live",
-        "closed_bars": 200,
+        "closed_bars": 199,
         "last": {
-          "fast": 76340.58725753013,
-          "pivot": 76416.84044101897,
-          "slow": 76613.56547577669,
-          "spread": 272.97821824655693,
-          "status": "BEAR"
+          "fast": 63062.2575874745,
+          "pivot": 62931.55648710604,
+          "slow": 62742.38349351098,
+          "spread": 319.8740939635245,
+          "status": "BULL"
         },
         "status_distribution": {
-          "BULL": 52,
-          "BEAR": 42,
-          "MIXED": 106
+          "BULL": 36,
+          "BEAR": 79,
+          "MIXED": 84
         },
         "pass": true
       }
@@ -719,15 +739,15 @@
       "ok": true,
       "result": {
         "mode": "live",
-        "closed_bars": 200,
-        "last_regime": "TREND_DOWN",
-        "atr_14": 90.47561167680597,
-        "median_atr_50": 81.28362531380208,
+        "closed_bars": 199,
+        "last_regime": "TREND_UP",
+        "atr_14": 131.95196890005602,
+        "median_atr_50": 92.25793637603606,
         "regime_distribution": {
-          "TREND_UP": 81,
-          "CHOP": 9,
-          "TREND_DOWN": 78,
-          "BREAKOUT": 13
+          "TREND_UP": 80,
+          "TREND_DOWN": 85,
+          "BREAKOUT": 2,
+          "CHOP": 13
         },
         "pass": true
       }
@@ -764,29 +784,38 @@
       "ok": true,
       "result": {
         "mode": "live",
-        "closed_bars": 200,
-        "divergences_count": 2,
+        "closed_bars": 199,
+        "divergences_count": 3,
         "by_kind": {
-          "bearish_regular": 2
+          "bearish_regular": 3
         },
         "examples": [
           {
             "kind": "bearish_regular",
-            "first_idx": 17,
-            "second_idx": 26,
-            "price_first": 76818.0,
-            "price_second": 76833.35,
-            "rsi_first": 70.1139096001332,
-            "rsi_second": 68.29099633697828
+            "first_idx": 34,
+            "second_idx": 40,
+            "price_first": 63021.53,
+            "price_second": 63030.55,
+            "rsi_first": 62.366013244425965,
+            "rsi_second": 56.19517996515774
           },
           {
             "kind": "bearish_regular",
-            "first_idx": 26,
-            "second_idx": 36,
-            "price_first": 76833.35,
-            "price_second": 76858.58,
-            "rsi_first": 68.29099633697828,
-            "rsi_second": 42.268951953277366
+            "first_idx": 40,
+            "second_idx": 50,
+            "price_first": 63030.55,
+            "price_second": 63045.2,
+            "rsi_first": 56.19517996515774,
+            "rsi_second": 55.797719738517884
+          },
+          {
+            "kind": "bearish_regular",
+            "first_idx": 103,
+            "second_idx": 109,
+            "price_first": 62819.48,
+            "price_second": 62856.47,
+            "rsi_first": 58.140206368814155,
+            "rsi_second": 55.93225612016005
           }
         ],
         "pass": true
@@ -829,7 +858,7 @@
       "ok": true,
       "result": {
         "mode": "live",
-        "closed_bars": 200,
+        "closed_bars": 199,
         "levels_count": 7,
         "breakout_hits": 1,
         "by_direction": {
@@ -838,12 +867,12 @@
         },
         "examples": [
           {
-            "bar": 133,
-            "level": 77000,
-            "close": 77131.59,
+            "bar": 189,
+            "level": 63000,
+            "close": 63035.0,
             "direction": "up",
-            "margin_pct": 0.17089610389609936,
-            "vol_ratio": 8.98042764119793
+            "margin_pct": 0.05555555555555555,
+            "vol_ratio": 2.537864578309022
           }
         ],
         "pass": true
@@ -897,12 +926,12 @@
       "result": {
         "mode": "live",
         "symbol": "BTC-USD",
-        "checked_at": "2026-05-24T16:02:51.975464+00:00",
+        "checked_at": "2026-06-19T14:31:35.236088+00:00",
         "1m_closed_bars": 200,
-        "5m_closed_bars": 60,
-        "15m_closed_bars": 29,
+        "5m_closed_bars": 59,
+        "15m_closed_bars": 30,
         "agg_1m_to_5m_vs_native_5m": {
-          "shared": 39,
+          "shared": 38,
           "price_disagreements": [],
           "price_disagreements_count": 0,
           "vol_disagreements": [],
@@ -910,7 +939,7 @@
           "pass": true
         },
         "agg_5m_to_15m_vs_native_15m": {
-          "shared": 19,
+          "shared": 18,
           "price_disagreements": [],
           "price_disagreements_count": 0,
           "vol_disagreements": [],
@@ -989,20 +1018,27 @@
       "ok": true,
       "result": {
         "mode": "live",
-        "closed_bars": 200,
+        "closed_bars": 199,
         "levels": 5,
-        "sweep_hits": 1,
+        "sweep_hits": 2,
         "by_direction": {
-          "up": 1,
+          "up": 2,
           "down": 0
         },
         "examples": [
           {
-            "bar_idx": 158,
-            "level": 77000,
+            "bar_idx": 38,
+            "level": 63000,
             "dir": "up",
-            "wick_excess_pct": 0.029571428571433862,
-            "close_back_pct": 0.05035064935065464
+            "wick_excess_pct": 0.027047619047620434,
+            "close_back_pct": 0.16999999999999768
+          },
+          {
+            "bar_idx": 41,
+            "level": 63000,
+            "dir": "up",
+            "wick_excess_pct": 0.03490476190475867,
+            "close_back_pct": 0.08065079365078996
           }
         ],
         "pass": true
@@ -1012,15 +1048,15 @@
       "name": "v15_three_source_parity.live",
       "ok": true,
       "result": {
-        "checked_at": "2026-05-24T16:02:52.909564+00:00",
+        "checked_at": "2026-06-19T14:31:36.256292+00:00",
         "symbol": "BTC-USD",
         "granularity_seconds": 300,
         "three_way_shared_bars": 27,
-        "coinbase_closed_bars": 28,
+        "coinbase_closed_bars": 27,
         "yfinance_closed_bars": 27,
         "alpaca_closed_bars": 27,
-        "spreads_bp_mean": 1.33,
-        "spreads_bp_max": 4.75,
+        "spreads_bp_mean": 1.322,
+        "spreads_bp_max": 3.033,
         "inner_pair_tolerance_pct": 0.05,
         "tolerance_pct": 0.07,
         "single_outlier_bars": 0,
@@ -1184,11 +1220,11 @@
       "ok": true,
       "result": {
         "mode": "live",
-        "now_et": "2026-05-24T12:02:54.666116",
+        "now_et": "2026-06-19T10:31:40.738102",
         "decision": {
           "passed": true,
           "reason": "ok",
-          "now_et_time": "12:02:54.666116"
+          "now_et_time": "10:31:40.738102"
         },
         "pass": true
       }
@@ -1260,20 +1296,20 @@
       "ok": true,
       "result": {
         "mode": "live",
-        "fetched_at": "2026-05-24T16:02:54.897849+00:00",
-        "bars_count": 312,
-        "vix_now": 16.700000762939453,
+        "fetched_at": "2026-06-19T14:31:40.915452+00:00",
+        "bars_count": 241,
+        "vix_now": 16.889999389648438,
         "vix_hist_last3": [
-          16.809999465942383,
-          16.770000457763672,
-          16.739999771118164
+          16.8700008392334,
+          16.8700008392334,
+          16.860000610351562
         ],
         "single_bar_direction": "flat",
-        "three_bar_direction": "falling",
-        "three_bar_prior_used": 16.809999465942383,
+        "three_bar_direction": "flat",
+        "three_bar_prior_used": 16.8700008392334,
         "filter_8_bull_passes": true,
         "filter_8_bear_passes": false,
-        "single_vs_three_bar_differ": true,
+        "single_vs_three_bar_differ": false,
         "pass": true
       }
     },
@@ -1702,7 +1738,7 @@
           {
             "name": "T4_warmup_overhead_under_1000ms",
             "pass": true,
-            "note": "elapsed=0.9ms (11 bars)"
+            "note": "elapsed=0.8ms (11 bars)"
           },
           {
             "name": "T5_invalidation_resets_state_no_signal",
@@ -1784,82 +1820,82 @@
           {
             "name": "B1b_F1_time_gate_BLOCK_at_0934",
             "pass": true,
-            "note": "09:34 bar \u2192 blockers=[1]"
+            "note": "09:34 bar -> blockers=[1]"
           },
           {
             "name": "B5a_F5_ribbon_BEAR_stack_PASS",
             "pass": true,
-            "note": "BEAR ribbon \u2192 passed=True"
+            "note": "BEAR ribbon -> passed=True"
           },
           {
             "name": "B5b_F5_ribbon_MIXED_stack_BLOCK",
             "pass": true,
-            "note": "MIXED ribbon \u2192 blockers=[5]"
+            "note": "MIXED ribbon -> blockers=[5]"
           },
           {
             "name": "B6a_F6_spread_30c_PASS",
             "pass": true,
-            "note": "30c spread \u2192 passed=True"
+            "note": "30c spread -> passed=True"
           },
           {
             "name": "B6b_F6_spread_29c_BLOCK",
             "pass": true,
-            "note": "29c spread \u2192 blockers=[6]"
+            "note": "29c spread -> blockers=[6]"
           },
           {
             "name": "B8a_F8_vix_1735_rising_PASS",
             "pass": true,
-            "note": "VIX=17.35 rising \u2192 passed=True"
+            "note": "VIX=17.35 rising -> passed=True"
           },
           {
             "name": "B8b_F8_vix_1725_BLOCK",
             "pass": true,
-            "note": "VIX=17.25 \u2192 blockers=[8]"
+            "note": "VIX=17.25 -> blockers=[8]"
           },
           {
             "name": "B8c_F8_vix_flat_BLOCK",
             "pass": true,
-            "note": "VIX=17.35 flat (diff<0.05) \u2192 blockers=[8]"
+            "note": "VIX=17.35 flat (diff<0.05) -> blockers=[8]"
           },
           {
             "name": "B8d_F8_vix_soft_mode_no_hard_block",
             "pass": true,
-            "note": "vix_soft_mode=True \u2192 blockers=[] passed=True"
+            "note": "vix_soft_mode=True -> blockers=[] passed=True"
           },
           {
             "name": "B9a_F9_red_bar_vol_07x_PASS",
             "pass": true,
-            "note": "red bar vol=750k baseline=1000k (0.75x) \u2192 passed=True"
+            "note": "red bar vol=750k baseline=1000k (0.75x) -> passed=True"
           },
           {
             "name": "B9b_F9_green_bar_BLOCK",
             "pass": true,
-            "note": "green bar \u2192 blockers=[9, 10]"
+            "note": "green bar -> blockers=[9, 10]"
           },
           {
             "name": "U1a_bull_F8_vix_below_1720_PASS",
             "pass": true,
-            "note": "VIX=17.10 \u2192 passed=True"
+            "note": "VIX=17.10 -> passed=True"
           },
           {
             "name": "U1b_bull_F8_vix_1725_rising_BLOCK",
             "pass": true,
-            "note": "VIX=17.25 rising \u2192 blockers=[8]"
+            "note": "VIX=17.25 rising -> blockers=[8]"
           },
           {
             "name": "U1c_bull_F8_vix_1750_falling_PASS",
             "pass": true,
-            "note": "VIX=17.50 falling \u2192 passed=True"
+            "note": "VIX=17.50 falling -> passed=True"
           },
           {
-            "name": "U2a_bull_F9_hard_cap_vix_219_PASS",
+            "name": "U2a_bull_F9_hard_cap_vix_179_PASS",
             "pass": true,
-            "note": "VIX=21.9 \u2192 passed=True"
+            "note": "VIX=17.9 -> passed=True"
           },
           {
-            "name": "U2b_bull_F9_hard_cap_vix_220_BLOCK",
+            "name": "U2b_bull_F9_hard_cap_vix_180_BLOCK",
             "pass": true,
-            "note": "VIX=22.0 \u2192 blockers=[9]"
+            "note": "VIX=18.0 -> blockers=[9]"
           },
           {
             "name": "P1_parity_ribbon_spread_min_cents",
@@ -1879,16 +1915,141 @@
           {
             "name": "P4_parity_vix_bull_hard_cap",
             "pass": true,
-            "note": "filters=22.0 params=22.0"
+            "note": "filters=18.0 params=18.0"
           },
           {
             "name": "P5_parity_vix_dir_deadband",
             "pass": true,
             "note": "filters=0.05 params=0.05"
+          },
+          {
+            "name": "PAGG1_parity_ribbon_spread_min_cents",
+            "pass": true,
+            "note": "filters=30 agg_params=30"
+          },
+          {
+            "name": "PAGG2_parity_vix_dir_deadband",
+            "pass": true,
+            "note": "filters=0.05 agg_params=0.05"
+          },
+          {
+            "name": "PAGG3_agg_vix_threshold_bull_max_exclusive_or_falling_present",
+            "pass": true,
+            "note": "agg vix_entry_thresholds.bull_max_exclusive_or_falling=20.0"
+          },
+          {
+            "name": "PAGG3_agg_vix_threshold_bear_min_exclusive_and_rising_present",
+            "pass": true,
+            "note": "agg vix_entry_thresholds.bear_min_exclusive_and_rising=15.0"
+          },
+          {
+            "name": "PAGG3_agg_vix_threshold_bull_hard_cap_present",
+            "pass": true,
+            "note": "agg vix_entry_thresholds.bull_hard_cap=30.0"
+          },
+          {
+            "name": "P6_parity_filter_9_vol_multiplier",
+            "pass": true,
+            "note": "filters_default=0.7 params=0.7"
+          },
+          {
+            "name": "P7_parity_filter_10_min_triggers_bear",
+            "pass": true,
+            "note": "filters_default=1 params=1"
+          },
+          {
+            "name": "P8_parity_filter_10_min_triggers_bull",
+            "pass": true,
+            "note": "orch_resolved_default=2 params=2"
+          },
+          {
+            "name": "P9_orchestrator_consumes_filter_9_vol_multiplier",
+            "pass": true,
+            "note": "'filter_9_vol_multiplier' found in orchestrator.py override wiring"
+          },
+          {
+            "name": "P9_orchestrator_consumes_filter_10_min_triggers_bear",
+            "pass": true,
+            "note": "'filter_10_min_triggers_bear' found in orchestrator.py override wiring"
+          },
+          {
+            "name": "P9_orchestrator_consumes_filter_10_min_triggers_bull",
+            "pass": true,
+            "note": "'filter_10_min_triggers_bull' found in orchestrator.py override wiring"
+          },
+          {
+            "name": "P10_agg_has_filter_9_vol_multiplier",
+            "pass": true,
+            "note": "agg_params.filter_9_vol_multiplier=0.7"
+          },
+          {
+            "name": "P10_agg_has_filter_10_min_triggers_bear",
+            "pass": true,
+            "note": "agg_params.filter_10_min_triggers_bear=1"
+          },
+          {
+            "name": "P10_agg_has_filter_10_min_triggers_bull",
+            "pass": true,
+            "note": "agg_params.filter_10_min_triggers_bull=1"
+          },
+          {
+            "name": "PRES_safe_vix_bear_hard_cap_live_referenced",
+            "pass": true,
+            "note": "ACTIVE gate 'vix_bear_hard_cap'=23.0 is referenced in safe heartbeat"
+          },
+          {
+            "name": "PRES_safe_midday_trendline_gate_live_referenced",
+            "pass": true,
+            "note": "ACTIVE gate 'midday_trendline_gate'=True is referenced in safe heartbeat"
+          },
+          {
+            "name": "PRES_safe_block_level_rejection_live_referenced",
+            "pass": true,
+            "note": "ACTIVE gate 'block_level_rejection'=True is referenced in safe heartbeat"
+          },
+          {
+            "name": "PRES_safe_block_elite_bull_live_referenced",
+            "pass": true,
+            "note": "ACTIVE gate 'block_elite_bull'=True is referenced in safe heartbeat"
+          },
+          {
+            "name": "PRES_safe_entry_bar_body_pct_min_live_referenced",
+            "pass": true,
+            "note": "ACTIVE gate 'entry_bar_body_pct_min'=0.2 is referenced in safe heartbeat"
+          },
+          {
+            "name": "PRES_safe_block_bull_1100_1200_live_referenced",
+            "pass": true,
+            "note": "ACTIVE gate 'block_bull_1100_1200'=True is referenced in safe heartbeat"
+          },
+          {
+            "name": "PRES_safe_meta_active_gates_checked",
+            "pass": true,
+            "note": "6 active gate knob(s) presence-checked against safe heartbeat"
+          },
+          {
+            "name": "PRES_agg_block_elite_bull_live_referenced",
+            "pass": true,
+            "note": "ACTIVE gate 'block_elite_bull'=True is referenced in agg heartbeat"
+          },
+          {
+            "name": "PRES_agg_block_conf_lvl_rec_afternoon_live_referenced",
+            "pass": true,
+            "note": "ACTIVE gate 'block_conf_lvl_rec_afternoon'=True is referenced in agg heartbeat"
+          },
+          {
+            "name": "PRES_agg_block_bull_morning_agg_live_referenced",
+            "pass": true,
+            "note": "ACTIVE gate 'block_bull_morning_agg'=True is referenced in agg heartbeat"
+          },
+          {
+            "name": "PRES_agg_meta_active_gates_checked",
+            "pass": true,
+            "note": "3 active gate knob(s) presence-checked against agg heartbeat"
           }
         ],
-        "passed": 22,
-        "total": 22,
+        "passed": 47,
+        "total": 47,
         "all_pass": true
       }
     },
@@ -1961,10 +2122,30 @@
             "name": "T11_modeA_ghost_not_modeB_false_positive",
             "pass": true,
             "note": "failures=0 expected=0 (no-symbol entries skip ModeB)"
+          },
+          {
+            "name": "T12_zero_ticks_with_enter_flagged",
+            "pass": true,
+            "note": "ticks_today=0 + valid ENTER -> discrepancy=True (5/21 pattern)"
+          },
+          {
+            "name": "T13_normal_ticks_not_flagged",
+            "pass": true,
+            "note": "ticks_today=5 + valid ENTER -> discrepancy=False (normal session)"
+          },
+          {
+            "name": "T14_zero_ticks_no_enter_not_flagged",
+            "pass": true,
+            "note": "ticks_today=0 + no ENTER -> discrepancy=False (flat day is valid)"
+          },
+          {
+            "name": "T15_none_loop_state_no_crash",
+            "pass": true,
+            "note": "loop_state=None -> False (no data, no crash)"
           }
         ],
-        "passed": 11,
-        "total": 11,
+        "passed": 15,
+        "total": 15,
         "all_pass": true
       }
     },
@@ -1974,14 +2155,22 @@
       "result": {
         "mode": "live",
         "pass": true,
-        "verdict": "GREEN",
-        "total_decisions": 19,
+        "verdict": "YELLOW",
+        "total_decisions": 77,
         "enter_count": 1,
         "ghost_count": 0,
         "state_write_failure_count": 0,
-        "issues": [],
-        "parse_errors": 52,
-        "note": "Scanned 19 decisions (1 ENTER records). ModeA ghosts=0 (symbol=None/empty). ModeB state-write-failures=0 (order filled, no EXIT, position null). Verdict=GREEN. pass=True (audit mode)."
+        "loop_state_discrepancy": true,
+        "issues": [
+          {
+            "kind": "mode_c_loop_state_discrepancy",
+            "ticks_today": 0,
+            "enter_count": 1,
+            "note": "loop-state.json ticks_today=0 but 1 ENTER record(s) exist \u2014 state write loop failed partway through ENTER tick (5/21 pattern)"
+          }
+        ],
+        "parse_errors": 46,
+        "note": "Scanned 77 decisions (1 ENTER records). ModeA ghosts=0 (symbol=None/empty). ModeB state-write-failures=0 (order filled, no EXIT, position null). ModeC loop-state-discrepancy=True (ticks_today=0 with ENTER present \u2014 not masked by EOD flatten). Verdict=YELLOW. pass=True (audit mode)."
       }
     },
     {
@@ -2047,20 +2236,12 @@
       "result": {
         "mode": "live",
         "pass": true,
-        "verdict": "YELLOW",
-        "audit_file": "heartbeat-tick-audit-2026-05-21.csv",
-        "total_rows": 15,
-        "stale_count": 1,
-        "stale_ticks": [
-          {
-            "tick_id": "116",
-            "fire_at": "15:18:02",
-            "claimed_spy": "738.87",
-            "divergence_dollars": "-3.6401",
-            "classification": "MISALIGNED-CRITICAL"
-          }
-        ],
-        "note": "Today's audit not found; using heartbeat-tick-audit-2026-05-21.csv. Scanned 15 ticks. Stale-cache ticks (|divergence|>$1.00 + MISALIGNED-CRITICAL): 1 (verdict=YELLOW). pass=True in audit mode."
+        "verdict": "GREEN",
+        "audit_file": "heartbeat-tick-audit-2026-06-18.csv",
+        "total_rows": 53,
+        "stale_count": 0,
+        "stale_ticks": [],
+        "note": "Today's audit not found; using heartbeat-tick-audit-2026-06-18.csv. Scanned 53 ticks. Stale-cache ticks (|divergence|>$1.00 + MISALIGNED-CRITICAL): 0 (verdict=GREEN). pass=True in audit mode."
       }
     },
     {
@@ -2112,7 +2293,7 @@
       "result": {
         "mode": "live",
         "source": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\watcher-observations.jsonl",
-        "date": "2026-05-24",
+        "date": "2026-06-19",
         "lines_read_today": 0,
         "co_fires_nlwb_lbfs": [],
         "co_fire_count": 0,
@@ -2169,7 +2350,7 @@
       "result": {
         "mode": "live",
         "source": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\watcher-observations.jsonl",
-        "total_lines_scanned": 4913,
+        "total_lines_scanned": 4914,
         "db_base_quiet_obs": 4,
         "gate_bypasses": 0,
         "bypass_details": [],
@@ -2233,7 +2414,7 @@
       "result": {
         "mode": "live",
         "source": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\watcher-observations.jsonl",
-        "total_lines_scanned": 4913,
+        "total_lines_scanned": 4914,
         "db_morning_low_vol_obs": 5,
         "time_gate_bypasses": 0,
         "vix_gate_bypasses": 0,
@@ -2298,7 +2479,7 @@
       "result": {
         "mode": "live",
         "source": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\watcher-observations.jsonl",
-        "total_lines_scanned": 4913,
+        "total_lines_scanned": 4914,
         "momentum_accel_highvol_obs": 17,
         "vix_gate_bypasses": 0,
         "bypass_details": [],
@@ -2358,7 +2539,7 @@
       "result": {
         "mode": "live",
         "source": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\watcher-observations.jsonl",
-        "total_lines_scanned": 4913,
+        "total_lines_scanned": 4914,
         "db_base_quiet_obs": 4,
         "vix_gate_bypasses": 0,
         "conf_ceiling_bypasses": 0,
@@ -2430,7 +2611,7 @@
       "result": {
         "mode": "live",
         "source": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\watcher-observations.jsonl",
-        "total_lines_scanned": 4913,
+        "total_lines_scanned": 4914,
         "malformed_lines": 0,
         "close_ceiling_obs": 1,
         "floor_hold_obs": 0,
@@ -2529,7 +2710,7 @@
       "result": {
         "mode": "live",
         "source": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\watcher-observations.jsonl",
-        "total_lines_scanned": 4913,
+        "total_lines_scanned": 4914,
         "ccf_observations": 1,
         "fhb_observations": 0,
         "streak_gate_bypasses": 0,
@@ -2810,6 +2991,846 @@
         "chop_fires": 62,
         "chop_high_quality": 9,
         "chop_low_quality": 53
+      }
+    },
+    {
+      "name": "v39_orb_signal_reader.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "pass": true,
+        "passed": 8,
+        "total": 8,
+        "tests": [
+          {
+            "test": "T1",
+            "pass": true,
+            "desc": "valid medium-conf ORB 5 min old -> returned",
+            "detail": "sig=present conf=medium"
+          },
+          {
+            "test": "T2",
+            "pass": true,
+            "desc": "ORB signal confidence=high -> excluded (consensus trap)",
+            "detail": "sig=None"
+          },
+          {
+            "test": "T3",
+            "pass": true,
+            "desc": "ORB signal confidence=low -> excluded (no edge at low tier)",
+            "detail": "sig=None"
+          },
+          {
+            "test": "T4",
+            "pass": true,
+            "desc": "ORB signal 15 min stale -> excluded (retest window closed)",
+            "detail": "sig=None"
+          },
+          {
+            "test": "T5",
+            "pass": true,
+            "desc": "ORB signal from yesterday -> excluded (stale from prior session)",
+            "detail": "sig=None"
+          },
+          {
+            "test": "T6",
+            "pass": true,
+            "desc": "watcher_name=v14_enhanced -> excluded (wrong watcher)",
+            "detail": "sig=None"
+          },
+          {
+            "test": "T7",
+            "pass": true,
+            "desc": "two valid signals -> newest entry_price=560.80 returned",
+            "detail": "entry_price=560.8 (expected 560.80)"
+          },
+          {
+            "test": "T8",
+            "pass": true,
+            "desc": "no ORB signals in observations -> returns None",
+            "detail": "sig=None"
+          }
+        ]
+      }
+    },
+    {
+      "name": "v39_orb_signal_reader.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "pass": true,
+        "note": "audit only \u2014 pass=True regardless",
+        "orb_total": 285,
+        "by_confidence": {
+          "medium": 285
+        },
+        "by_week": {
+          "2025-W12": 3,
+          "2025-W13": 9,
+          "2025-W17": 3,
+          "2025-W18": 3,
+          "2025-W19": 6,
+          "2025-W20": 3,
+          "2025-W21": 9,
+          "2025-W22": 3,
+          "2025-W23": 3,
+          "2025-W24": 6,
+          "2025-W26": 6,
+          "2025-W27": 3,
+          "2025-W28": 3,
+          "2025-W29": 6,
+          "2025-W30": 3,
+          "2025-W31": 3,
+          "2025-W32": 9,
+          "2025-W33": 6,
+          "2025-W34": 3,
+          "2025-W35": 6,
+          "2025-W36": 9,
+          "2025-W37": 3,
+          "2025-W39": 3,
+          "2025-W40": 3,
+          "2025-W42": 3,
+          "2025-W43": 6,
+          "2025-W44": 3,
+          "2025-W51": 3,
+          "2026-W04": 6,
+          "2026-W07": 4,
+          "2026-W09": 4,
+          "2026-W13": 3,
+          "2026-W16": 30,
+          "2026-W17": 27,
+          "2026-W18": 27,
+          "2026-W19": 42,
+          "2026-W20": 12,
+          "2025-W46": 1
+        },
+        "staleness_3min": 0,
+        "staleness_3_10min": 0,
+        "staleness_too_stale": 285,
+        "medium_count": 285,
+        "live_medium_count": 0,
+        "hist_medium_count": 285,
+        "live_rate_per_week": 0.0,
+        "op21_weeks_projected": 7.3
+      }
+    },
+    {
+      "name": "v40_bearish_rejection_morning_gate.offline",
+      "ok": true,
+      "result": {
+        "passed": 10,
+        "total": 10,
+        "all_pass": true,
+        "results": [
+          {
+            "label": "T01 all-conds-medium",
+            "passed": true,
+            "got_signal": true,
+            "got_conf": "medium",
+            "expected_conf": "medium"
+          },
+          {
+            "label": "T02 high-conf",
+            "passed": true,
+            "got_signal": true,
+            "got_conf": "high",
+            "expected_conf": "high"
+          },
+          {
+            "label": "T03 low-conf-doji",
+            "passed": true,
+            "got_signal": true,
+            "got_conf": "low",
+            "expected_conf": "low"
+          },
+          {
+            "label": "T04 time-too-early",
+            "passed": true,
+            "got_signal": false,
+            "got_conf": null,
+            "expected_conf": null
+          },
+          {
+            "label": "T05 time-too-late",
+            "passed": true,
+            "got_signal": false,
+            "got_conf": null,
+            "expected_conf": null
+          },
+          {
+            "label": "T06 ribbon-bull-blocked",
+            "passed": true,
+            "got_signal": false,
+            "got_conf": null,
+            "expected_conf": null
+          },
+          {
+            "label": "T07 no-level-proximity",
+            "passed": true,
+            "got_signal": false,
+            "got_conf": null,
+            "expected_conf": null
+          },
+          {
+            "label": "T08 close-above-level",
+            "passed": true,
+            "got_signal": false,
+            "got_conf": null,
+            "expected_conf": null
+          },
+          {
+            "label": "T09 vol-too-low",
+            "passed": true,
+            "got_signal": false,
+            "got_conf": null,
+            "expected_conf": null
+          },
+          {
+            "label": "T10 doji-downgrade-to-low",
+            "passed": true,
+            "got_signal": true,
+            "got_conf": "low",
+            "expected_conf": "low"
+          }
+        ]
+      }
+    },
+    {
+      "name": "v40_bearish_rejection_morning_gate.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "all_pass": true,
+        "total_obs": 0,
+        "conf_high": 0,
+        "conf_medium": 0,
+        "conf_low": 0,
+        "graded_n": 0,
+        "wr_pct": 0,
+        "promotion_status": "WATCH_ONLY \u2014 needs 3+ J live confirmations"
+      }
+    },
+    {
+      "name": "v41_midday_trendline_gate.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "label": "T1",
+            "time_et": "12:00:00",
+            "triggers": [
+              "trendline_rejection"
+            ],
+            "expect_blocked": true,
+            "got_blocked": true,
+            "passed": true
+          },
+          {
+            "label": "T2",
+            "time_et": "12:00:00",
+            "triggers": [
+              "trendline_rejection",
+              "level_rejection"
+            ],
+            "expect_blocked": false,
+            "got_blocked": false,
+            "passed": true
+          },
+          {
+            "label": "T3",
+            "time_et": "12:00:00",
+            "triggers": [
+              "level_rejection"
+            ],
+            "expect_blocked": false,
+            "got_blocked": false,
+            "passed": true
+          },
+          {
+            "label": "T4",
+            "time_et": "10:00:00",
+            "triggers": [
+              "trendline_rejection"
+            ],
+            "expect_blocked": false,
+            "got_blocked": false,
+            "passed": true
+          },
+          {
+            "label": "T5",
+            "time_et": "14:00:00",
+            "triggers": [
+              "trendline_rejection"
+            ],
+            "expect_blocked": false,
+            "got_blocked": false,
+            "passed": true
+          },
+          {
+            "label": "T6",
+            "time_et": "13:59:00",
+            "triggers": [
+              "trendline_rejection"
+            ],
+            "expect_blocked": true,
+            "got_blocked": true,
+            "passed": true
+          },
+          {
+            "label": "T7",
+            "time_et": "11:30:00",
+            "triggers": [
+              "trendline_rejection"
+            ],
+            "expect_blocked": true,
+            "got_blocked": true,
+            "passed": true
+          },
+          {
+            "label": "T8",
+            "time_et": "09:40:00",
+            "triggers": [
+              "trendline_rejection"
+            ],
+            "expect_blocked": false,
+            "got_blocked": false,
+            "passed": true
+          },
+          {
+            "label": "T9",
+            "time_et": "15:00:00",
+            "triggers": [
+              "trendline_rejection"
+            ],
+            "expect_blocked": false,
+            "got_blocked": false,
+            "passed": true
+          },
+          {
+            "label": "T10",
+            "time_et": "12:30:00",
+            "triggers": [],
+            "expect_blocked": false,
+            "got_blocked": false,
+            "passed": true
+          }
+        ],
+        "passed": 10,
+        "total": 10,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v41_midday_trendline_gate.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "all_pass": true,
+        "total_bear_entries": 0,
+        "midday_trendline_only_count": 0,
+        "pct_of_all_bear": 0.0,
+        "examples": [],
+        "note": "informational audit \u2014 pass=True always"
+      }
+    },
+    {
+      "name": "v42_sizing_risk_cap_guard.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "label": "T01",
+            "qty": 3,
+            "entry_px": 1.0,
+            "equity": 1000.0,
+            "cap_pct": 30.0,
+            "notional": 300.0,
+            "notional_pct_of_equity": 30.0,
+            "cap_toleranced": 303.0,
+            "expect_breach": false,
+            "got_breach": false,
+            "passed": true
+          },
+          {
+            "label": "T02",
+            "qty": 3,
+            "entry_px": 1.1,
+            "equity": 1000.0,
+            "cap_pct": 30.0,
+            "notional": 330.0,
+            "notional_pct_of_equity": 33.0,
+            "cap_toleranced": 303.0,
+            "expect_breach": true,
+            "got_breach": true,
+            "passed": true
+          },
+          {
+            "label": "T03",
+            "qty": 3,
+            "entry_px": 0.91,
+            "equity": 747.0,
+            "cap_pct": 30.0,
+            "notional": 273.0,
+            "notional_pct_of_equity": 36.5,
+            "cap_toleranced": 226.34,
+            "expect_breach": true,
+            "got_breach": true,
+            "passed": true
+          },
+          {
+            "label": "T04",
+            "qty": 3,
+            "entry_px": 0.5,
+            "equity": 747.0,
+            "cap_pct": 30.0,
+            "notional": 150.0,
+            "notional_pct_of_equity": 20.1,
+            "cap_toleranced": 226.34,
+            "expect_breach": false,
+            "got_breach": false,
+            "passed": true
+          },
+          {
+            "label": "T05",
+            "qty": 22,
+            "entry_px": 1.24,
+            "equity": 747.0,
+            "cap_pct": 30.0,
+            "notional": 2728.0,
+            "notional_pct_of_equity": 365.2,
+            "cap_toleranced": 226.34,
+            "expect_breach": true,
+            "got_breach": true,
+            "passed": true
+          },
+          {
+            "label": "T06",
+            "qty": 5,
+            "entry_px": 1.2,
+            "equity": 2000.0,
+            "cap_pct": 30.0,
+            "notional": 600.0,
+            "notional_pct_of_equity": 30.0,
+            "cap_toleranced": 606.0,
+            "expect_breach": false,
+            "got_breach": false,
+            "passed": true
+          },
+          {
+            "label": "T07",
+            "qty": 3,
+            "entry_px": 0.91,
+            "equity": 1535.0,
+            "cap_pct": 50.0,
+            "notional": 273.0,
+            "notional_pct_of_equity": 17.8,
+            "cap_toleranced": 775.17,
+            "expect_breach": false,
+            "got_breach": false,
+            "passed": true
+          },
+          {
+            "label": "T08",
+            "qty": 8,
+            "entry_px": 1.0,
+            "equity": 1535.0,
+            "cap_pct": 50.0,
+            "notional": 800.0,
+            "notional_pct_of_equity": 52.1,
+            "cap_toleranced": 775.17,
+            "expect_breach": true,
+            "got_breach": true,
+            "passed": true
+          },
+          {
+            "label": "T09",
+            "qty": 7,
+            "entry_px": 1.15,
+            "equity": 1535.0,
+            "cap_pct": 50.0,
+            "notional": 805.0,
+            "notional_pct_of_equity": 52.4,
+            "cap_toleranced": 775.17,
+            "expect_breach": true,
+            "got_breach": true,
+            "passed": true
+          },
+          {
+            "label": "T10",
+            "qty": 7,
+            "entry_px": 1.09,
+            "equity": 1535.0,
+            "cap_pct": 50.0,
+            "notional": 763.0,
+            "notional_pct_of_equity": 49.7,
+            "cap_toleranced": 775.17,
+            "expect_breach": false,
+            "got_breach": false,
+            "passed": true
+          },
+          {
+            "label": "T11",
+            "qty": 3,
+            "entry_px": 0.83,
+            "equity": 500.0,
+            "cap_pct": 50.0,
+            "notional": 249.0,
+            "notional_pct_of_equity": 49.8,
+            "cap_toleranced": 252.5,
+            "expect_breach": false,
+            "got_breach": false,
+            "passed": true
+          },
+          {
+            "label": "T12",
+            "qty": 4,
+            "entry_px": 0.85,
+            "equity": 500.0,
+            "cap_pct": 50.0,
+            "notional": 340.0,
+            "notional_pct_of_equity": 68.0,
+            "cap_toleranced": 252.5,
+            "expect_breach": true,
+            "got_breach": true,
+            "passed": true
+          }
+        ],
+        "passed": 12,
+        "total": 12,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v42_sizing_risk_cap_guard.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "all_pass": true,
+        "safe": {
+          "label": "missed_week_safe",
+          "found": true,
+          "initial_equity": 747.11,
+          "cap_fraction": 0.3,
+          "cap_dollars": 224.13,
+          "total_trades": 3,
+          "breach_count": 3,
+          "worst_pct_of_equity": 83.5,
+          "examples": [
+            {
+              "date": "2026-05-21",
+              "time_entry": "10:25:00",
+              "qty": 3.0,
+              "entry_px": 2.08,
+              "notional": 624.0,
+              "pct_of_equity": 83.5,
+              "cap_pct": 30.0
+            },
+            {
+              "date": "2026-05-21",
+              "time_entry": "13:25:00",
+              "qty": 3.0,
+              "entry_px": 1.2,
+              "notional": 360.0,
+              "pct_of_equity": 48.2,
+              "cap_pct": 30.0
+            },
+            {
+              "date": "2026-05-28",
+              "time_entry": "10:15:00",
+              "qty": 3.0,
+              "entry_px": 1.31,
+              "notional": 393.0,
+              "pct_of_equity": 52.6,
+              "cap_pct": 30.0
+            }
+          ]
+        },
+        "bold": {
+          "label": "missed_week_bold",
+          "found": true,
+          "initial_equity": 1535.83,
+          "cap_fraction": 0.5,
+          "cap_dollars": 767.91,
+          "total_trades": 5,
+          "breach_count": 3,
+          "worst_pct_of_equity": 69.7,
+          "examples": [
+            {
+              "date": "2026-05-20",
+              "time_entry": "10:20:00",
+              "qty": 3.0,
+              "entry_px": 3.57,
+              "notional": 1071.0,
+              "pct_of_equity": 69.7,
+              "cap_pct": 50.0
+            },
+            {
+              "date": "2026-05-21",
+              "time_entry": "10:25:00",
+              "qty": 3.0,
+              "entry_px": 3.27,
+              "notional": 981.0,
+              "pct_of_equity": 63.9,
+              "cap_pct": 50.0
+            },
+            {
+              "date": "2026-05-28",
+              "time_entry": "10:15:00",
+              "qty": 3.0,
+              "entry_px": 2.67,
+              "notional": 801.0,
+              "pct_of_equity": 52.2,
+              "cap_pct": 50.0
+            }
+          ]
+        },
+        "total_trades": 8,
+        "total_breaches": 6,
+        "note": "informational audit \u2014 pass=True always; breaches indicate live<->backtest sizing drift"
+      }
+    },
+    {
+      "name": "v43_ghost_entry_dual_account.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "tests": [
+          {
+            "name": "T01_exact_ENTER_qualifies",
+            "passed": true,
+            "note": "action=ENTER -> is_enter_star=True"
+          },
+          {
+            "name": "T02_ENTER_BEAR_qualifies",
+            "passed": true,
+            "note": "action=ENTER_BEAR -> is_enter_star=True"
+          },
+          {
+            "name": "T03_ENTER_BULL_qualifies",
+            "passed": true,
+            "note": "action=ENTER_BULL -> is_enter_star=True"
+          },
+          {
+            "name": "T04_ENTER_LEG2_qualifies",
+            "passed": true,
+            "note": "action=ENTER_LEG2 -> is_enter_star=True"
+          },
+          {
+            "name": "T05_HOLD_does_not_qualify",
+            "passed": true,
+            "note": "action=HOLD -> is_enter_star=False"
+          },
+          {
+            "name": "T06_EXIT_STOP_does_not_qualify",
+            "passed": true,
+            "note": "action=EXIT_STOP -> is_enter_star=False"
+          },
+          {
+            "name": "T07_enter_star_no_exit_pos_null_flagged",
+            "passed": true,
+            "note": "ENTER_BEAR + pos_null + no EXIT -> state_write_failures=1 (expected 1)"
+          },
+          {
+            "name": "T08_enter_star_position_open_not_flagged",
+            "passed": true,
+            "note": "ENTER_BULL + pos_open -> state_write_failures=0 (expected 0)"
+          },
+          {
+            "name": "T09_enter_with_exit_not_flagged",
+            "passed": true,
+            "note": "ENTER + EXIT_TP1 -> state_write_failures=0 (expected 0; properly closed)"
+          },
+          {
+            "name": "T10_empty_decisions_no_crash",
+            "passed": true,
+            "note": "empty decisions -> enter_star_count=0 ghost_candidates=0 (both 0)"
+          }
+        ],
+        "passed": 10,
+        "total": 10,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v43_ghost_entry_dual_account.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "all_pass": true,
+        "verdict": "RED",
+        "safe": {
+          "label": "safe",
+          "found": true,
+          "total_decisions": 77,
+          "parse_errors": 46,
+          "enter_star_count": 1,
+          "symbol_ghost_count": 0,
+          "state_write_failure_count": 0,
+          "total_ghost_candidates": 0,
+          "position_status": null,
+          "details": []
+        },
+        "aggressive": {
+          "label": "aggressive",
+          "found": true,
+          "total_decisions": 261,
+          "parse_errors": 163,
+          "enter_star_count": 5,
+          "symbol_ghost_count": 2,
+          "state_write_failure_count": 2,
+          "total_ghost_candidates": 4,
+          "position_status": null,
+          "details": [
+            {
+              "kind": "mode_a_no_symbol",
+              "action": "ENTER_BULL",
+              "tick": null,
+              "timestamp": null
+            },
+            {
+              "kind": "mode_a_no_symbol",
+              "action": "ENTER_BULL",
+              "tick": null,
+              "timestamp": null
+            },
+            {
+              "kind": "mode_b_state_write",
+              "action": "ENTER_BULL",
+              "symbol": "SPY260602C00758000",
+              "tick": null,
+              "timestamp": null
+            },
+            {
+              "kind": "mode_b_state_write",
+              "action": "ENTER_BULL",
+              "symbol": "SPY260602C00759000",
+              "tick": null,
+              "timestamp": null
+            }
+          ]
+        },
+        "total_enter_star_count": 6,
+        "total_ghost_candidates": 4,
+        "note": "Dual-account ENTER_* ghost audit. safe_ghosts=0 agg_ghosts=4 verdict=RED. all_pass=True (audit-only)."
+      }
+    },
+    {
+      "name": "v44_named_level_second_test_gate.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "evidence_basis": "2026-06-18 PML 743.35 double test (09:45 \u2192 11:45 +$0.50 higher low \u2192 11:50 746.40). T5 guards the 2026-06-18 level-schema fix: tier\u2192stars derivation when strength.stars is absent; psychological/round-number levels capped at \u2605.",
+        "constants_verified": {
+          "ENTRY_TIME_START": "09:45:00",
+          "ENTRY_TIME_END": "14:30:00",
+          "MIN_HIGHER_LOW_DOLLARS": 0.3,
+          "MIN_STARS": 2
+        },
+        "tests": [
+          {
+            "name": "T1_higher_low_fires_long",
+            "pass": true,
+            "note": "dir=long level=743.35 conf=high"
+          },
+          {
+            "name": "T2_lower_low_no_fire",
+            "pass": true,
+            "note": "None (PASS)"
+          },
+          {
+            "name": "T3_single_touch_no_fire",
+            "pass": true,
+            "note": "None (PASS)"
+          },
+          {
+            "name": "T4_lower_high_fires_short",
+            "pass": true,
+            "note": "dir=short level=750.62 conf=high"
+          },
+          {
+            "name": "T5_tier_to_stars_loading",
+            "pass": true,
+            "note": "supports=[743.35] (want [743.35]) resistances=[748.0, 750.62] (want [748.0, 750.62]) round_750_excluded=True"
+          },
+          {
+            "name": "T6_empty_cache_no_fire",
+            "pass": true,
+            "note": "None (PASS)"
+          }
+        ],
+        "passed": 6,
+        "total": 6,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v44_named_level_second_test_gate.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "all_pass": true,
+        "total_obs": 0,
+        "conf_high": 0,
+        "conf_medium": 0,
+        "conf_low": 0,
+        "margin_gate_bypasses": 0,
+        "graded_n": 0,
+        "wr_pct": 0.0,
+        "promotion_status": "WATCH_ONLY \u2014 needs 3+ J live confirmations"
+      }
+    },
+    {
+      "name": "v45_stairstep_continuation_gate.offline",
+      "ok": true,
+      "result": {
+        "mode": "offline",
+        "retired_on": "2026-06-18",
+        "retirement_reason": "Structurally anti-J-edge. Over the OP-16 anchor set every variant has NEGATIVE edge_capture (shipped -$364.80 / corrected -$509.57) and is anti-correlated with J's edge (loses on WIN days 4/29-5/04, profits on LOSS days 5/05-5/07). Corrected real-fills exp ATM -$27.57 / ITM2 -$42.54 over 16mo. No variant clears; retired per playbook rule 5 (fail thresholds -> retire, not loosen).",
+        "real_tape_note": "Fixtures use the REAL 2026-05-07 SPY 5m tape (descending highs 735.59 -> 735.55 -> 735.50 -> 735.39 at 11:30-11:45 ET pressing 735.40 -> 729.75). The fabricated 736.12/735.61/735.41 values from the original gate are GONE.",
+        "constants_verified": {
+          "ENTRY_TIME_START": "09:45:00",
+          "ENTRY_TIME_END": "15:00:00",
+          "MIN_RETESTS": 3,
+          "MIN_STARS": 2
+        },
+        "tests": [
+          {
+            "name": "T1_real_descending_does_not_fire",
+            "pass": true,
+            "note": "None (retired, PASS)"
+          },
+          {
+            "name": "T2_real_ascending_does_not_fire",
+            "pass": true,
+            "note": "None (retired, PASS)"
+          },
+          {
+            "name": "T3_retirement_holds_with_levels_present",
+            "pass": true,
+            "note": "None (retired, PASS)"
+          },
+          {
+            "name": "T4_empty_cache_no_fire",
+            "pass": true,
+            "note": "None (PASS)"
+          }
+        ],
+        "passed": 4,
+        "total": 4,
+        "all_pass": true
+      }
+    },
+    {
+      "name": "v45_stairstep_continuation_gate.live",
+      "ok": true,
+      "result": {
+        "mode": "live",
+        "all_pass": true,
+        "total_obs": 0,
+        "post_retirement_fires": 0,
+        "status": "RETIRED 2026-06-18 \u2014 anti-J-edge"
       }
     }
   ]

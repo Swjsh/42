@@ -125,7 +125,7 @@ _VARIANT_NOTES = {
            "This confirms/denies on the anchor-aligned full replay with real fills."),
     _VWAP: ("Session-VWAP rejection from below on a down day = continuation. Reference is the dynamic "
             "VWAP, not a horizontal key level — distinct structure. BEAR side only. Spec defaults "
-            "(strategy/vwap_rejection_prime.md), NOT ratified."),
+            "(markdown/0dte/vwap_rejection_prime.md), NOT ratified."),
 }
 
 

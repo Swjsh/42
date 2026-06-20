@@ -104,7 +104,7 @@ real-fills which shows even stronger OOS concentration (see below).
 ## Real-Fills Validation (PASS — 2026-05-23 23:10 ET)
 
 Script: `autoresearch/_realfills_v14e_26k.py`  
-Results: `autoresearch/_state/v14e_realfills_26k_results.json` + `docs/V14E-REALFILLS-26K-2026-05-23.md`
+Results: `autoresearch/_state/v14e_realfills_26k_results.json` + `markdown/research/V14E-REALFILLS-26K-2026-05-23.md`
 
 | Metric | BS-Sim | Real-Fills | Note |
 |---|---:|---:|---|
@@ -165,7 +165,7 @@ Real edge confirmed with OPRA-level pricing. Ready for J ratification.
 
 4. **Real-fills validation:** PASS (2026-05-23 23:10 ET). Real-fills wide_pnl=$42,102 (>BS-sim  
    $26,601). Winner anchors all positive. No losses on J's loser days. 9.3% BS fallback rate.  
-   See full results at `docs/V14E-REALFILLS-26K-2026-05-23.md`.
+   See full results at `markdown/research/V14E-REALFILLS-26K-2026-05-23.md`.
 
 5. **Edge capture vs standard gate:** edge_capture=$499 (v14e 4-winner scale: J_total=$1,942).  
    Against standard 3-winner scale ($1,542 total), uncalibrated — score may be different.  

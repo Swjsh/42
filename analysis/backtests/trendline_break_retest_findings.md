@@ -106,7 +106,7 @@ But the W/L ratio is striking. If the auto-detector were tuned to find more setu
 
 ---
 
-## Promotion gate scorecard (per playbook strategy/playbook.md TRENDLINE_BREAK_RETEST)
+## Promotion gate scorecard (per playbook markdown/0dte/playbook.md TRENDLINE_BREAK_RETEST)
 
 | Gate | Threshold | Result | Status |
 |---|---|---|---|

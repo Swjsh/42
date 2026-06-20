@@ -28,7 +28,7 @@
 ### Bug found and fixed (2026-05-16 afternoon)
 1. **UTC double-conversion in `_compute_htf_stacks_for_day`** (would have caused HTF gate to see only 30/78 bars). Fixed in `shotgun_scalper_stage4.py`.
 2. **OPRA data gap: 5/13-5/15 options not cached.** Fixed: fetched 22+22+22 = 66 new contracts via `tools/fetch_opra_5_14_15.py`. Now 5/14 and 5/15 anchor days have real-fills coverage.
-3. **`vol_ratio_threshold` dead knob.** The parameter was in `ShotgunCombo` and the grid but never compared in `run_shotgun_day`. Fixed: added `if signal.get("vol_ratio",1.0) < combo.vol_ratio_threshold: continue` gate in grinder.py. Documented as L38 in `docs/LESSONS-LEARNED.md`.
+3. **`vol_ratio_threshold` dead knob.** The parameter was in `ShotgunCombo` and the grid but never compared in `run_shotgun_day`. Fixed: added `if signal.get("vol_ratio",1.0) < combo.vol_ratio_threshold: continue` gate in grinder.py. Documented as L38 in `markdown/doctrine/LESSONS-LEARNED.md`.
 
 ### Stage 4 (Vol-ratio + directional — 288 combos, 4 workers)
 - **Started:** 16:53 ET, deadline 22:53 ET (6h). **Data:** 5/15 master (includes 5/14+5/15 OPRA). **Run ID:** `2026-05-16_67e97648_68c2c0_028a39`
@@ -243,7 +243,7 @@ This is the **only** stage whose output gates live promotion. Per OP 20, every c
 5. **Failure-mode enumeration** — worst day, max drawdown, blow-up scenario.
 6. **Concentration disclosure** — top-5 days as % of total P&L.
 
-### Monday-Ready Checklist (`docs/MONDAY-READY-CHECKLIST.md`)
+### Monday-Ready Checklist (`markdown/planning/MONDAY-READY-CHECKLIST.md`)
 
 After Stage 5 produces a winner candidate, run the existing `monday_ready_check.py` against it. The checklist is binary — pass all OR the candidate stays watch-only.
 

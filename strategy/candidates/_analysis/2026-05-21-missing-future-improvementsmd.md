@@ -12,11 +12,11 @@
 
 ## Hypothesis
 
-The task requires comparing the items listed in `docs/FUTURE-IMPROVEMENTS.md` against the existing watcher implementations in `backtest/lib/watchers/*.py` to produce a gap table. Without the source file, the analysis cannot be completed.
+The task requires comparing the items listed in `markdown/planning/FUTURE-IMPROVEMENTS.md` against the existing watcher implementations in `backtest/lib/watchers/*.py` to produce a gap table. Without the source file, the analysis cannot be completed.
 
 ## Mechanism
 
-Attempt to locate `docs/FUTURE-IMPROVEMENTS.md` in the provided context. The file was not included in the inputs, so no direct comparison can be made. The watcher fleet can be enumerated from the leaderboard and other docs, but the target list of future improvements is unknown.
+Attempt to locate `markdown/planning/FUTURE-IMPROVEMENTS.md` in the provided context. The file was not included in the inputs, so no direct comparison can be made. The watcher fleet can be enumerated from the leaderboard and other docs, but the target list of future improvements is unknown.
 
 ## Expected impact on OP-16 anchors
 
@@ -41,7 +41,7 @@ Attempt to locate `docs/FUTURE-IMPROVEMENTS.md` in the provided context. The fil
 
 ## Pre-merge gate
 
-Obtain `docs/FUTURE-IMPROVEMENTS.md` from the repository, then run a script to compare its items against the watcher files in `backtest/lib/watchers/*.py` and generate the gap table.
+Obtain `markdown/planning/FUTURE-IMPROVEMENTS.md` from the repository, then run a script to compare its items against the watcher files in `backtest/lib/watchers/*.py` and generate the gap table.
 
 ## Confidence
 

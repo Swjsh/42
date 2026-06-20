@@ -12,7 +12,7 @@ Git history is the canonical record of how these evolved.
 
 NOTE: the live `heartbeat-v14-prod-backup.md` is **NOT** here — it is the documented
 v15→v14 revert path and stays in `../` (referenced by `heartbeat.md`, `pin_chain_verify.py`,
-`docs/V15-ACTIVATION-2026-05-13.md`).
+`markdown/0dte/V15-ACTIVATION-2026-05-13.md`).
 
 `backtest/autoresearch/pin_chain_verify.py` was updated to read the two v15 drafts from
 this archive path so it still reports their versions for situational awareness.

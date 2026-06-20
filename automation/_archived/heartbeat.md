@@ -25,7 +25,7 @@ Cron invokes `claude --print` (Claude Code's non-interactive mode) with the hear
 **The fixed prompt:**
 
 ```
-You are Gamma. Read CLAUDE.md, strategy/risk-rules.md, strategy/playbook.md.
+You are Gamma. Read CLAUDE.md, markdown/0dte/risk-rules.md, markdown/0dte/playbook.md.
 Then read automation/state/. Run one heartbeat cycle per automation/heartbeat.md.
 Take exactly one action (or no action). Update state files. Append to journal/{today}.md.
 Exit.

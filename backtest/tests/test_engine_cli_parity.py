@@ -1,6 +1,6 @@
 """Parity: engine_cli verdict == direct score_bar + evaluate_gates.
 
-Spec: ``docs/SHARED-DECISION-LIBRARY-MIGRATION.md`` §3 "Phase 3 — ... a thin CLI
+Spec: ``markdown/specs/SHARED-DECISION-LIBRARY-MIGRATION.md`` §3 "Phase 3 — ... a thin CLI
 ``backtest/lib/engine/engine_cli.py`` ... reads a BarContext-equivalent JSON on
 stdin ... calls ``decide()`` ... prints the EngineVerdict as JSON".
 

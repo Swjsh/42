@@ -3,12 +3,12 @@
 <!-- Per CLAUDE.md OP-22 + OP-25 + OP-30 (effort/concurrency discipline). -->
 <!-- NOT YET RATIFIED -- J review required per Rule 9 before any production change. -->
 
-We are to mine docs/LESSONS-LEARNED.md lines 40-55 for the top 3 foot-guns that have NOT yet been encoded as gym validators.
+We are to mine markdown/doctrine/LESSONS-LEARNED.md lines 40-55 for the top 3 foot-guns that have NOT yet been encoded as gym validators.
  We need to extract the relevant lines from the provided input.
 
- The input for docs/LESSONS-LEARNED.md (head 30K bytes) is provided, but we are only interested in lines 40-55.
+ The input for markdown/doctrine/LESSONS-LEARNED.md (head 30K bytes) is provided, but we are only interested in lines 40-55.
 
- Let's look at the provided text for docs/LESSONS-LEARNED.md:
+ Let's look at the provided text for markdown/doctrine/LESSONS-LEARNED.md:
 
  We see the beginning of the file:
 

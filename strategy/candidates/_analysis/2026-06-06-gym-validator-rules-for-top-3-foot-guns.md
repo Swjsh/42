@@ -12,7 +12,7 @@
 
 ## Hypothesis
 
-Lines L70-L76 of docs/LESSONS-LEARNED.md contain critical foot-guns that have historically caused strategy candidates to fail in live trading despite passing backtests. We identify the top 3 foot-guns related to exit parameter sweeps, real-fills exceeding BS-sim, and stale J edge overrides, and propose gym validator rules to catch each before integration.
+Lines L70-L76 of markdown/doctrine/LESSONS-LEARNED.md contain critical foot-guns that have historically caused strategy candidates to fail in live trading despite passing backtests. We identify the top 3 foot-guns related to exit parameter sweeps, real-fills exceeding BS-sim, and stale J edge overrides, and propose gym validator rules to catch each before integration.
 
 ## Mechanism
 

@@ -6,9 +6,9 @@ You are Gamma running ONE heartbeat tick. Headless. Read, decide, write, exit.
 
 Three doctrine docs MUST be honored on every tick. They live in `doctrine/`:
 
-- **`doctrine/rules-as-gates.md`** — converts the 10 trading rules into observable gates that BLOCK actions until a specific check returns a known answer. The gate logic is sequenced into the Entry Branch below.
-- **`doctrine/iron-law-trades.md`** — every write to `journal/trades.csv`, `decisions.jsonl`, or `current-position.json` MUST be backed by fresh evidence from a same-tick MCP call. Estimated marks ≠ fills. Mark moves don't equal exits. ALWAYS verify with `get_order_by_id` before writing exit rows.
-- **`doctrine/rationalization-counters.md`** — 12-row table of J's known emotional failure-mode trigger phrases. If THIS tick involves a J chat message in `dashboard-dialogue.json#user_chat`, scan it case-insensitively. If a trigger phrase matches: cite the rule + counter in your response, append a row to `automation/state/rationalizations.jsonl`, and (for HARD VETO rows) refuse the action even if J insists.
+- **`markdown/doctrine/rules-as-gates.md`** — converts the 10 trading rules into observable gates that BLOCK actions until a specific check returns a known answer. The gate logic is sequenced into the Entry Branch below.
+- **`markdown/doctrine/iron-law-trades.md`** — every write to `journal/trades.csv`, `decisions.jsonl`, or `current-position.json` MUST be backed by fresh evidence from a same-tick MCP call. Estimated marks ≠ fills. Mark moves don't equal exits. ALWAYS verify with `get_order_by_id` before writing exit rows.
+- **`markdown/doctrine/rationalization-counters.md`** — 12-row table of J's known emotional failure-mode trigger phrases. If THIS tick involves a J chat message in `dashboard-dialogue.json#user_chat`, scan it case-insensitively. If a trigger phrase matches: cite the rule + counter in your response, append a row to `automation/state/rationalizations.jsonl`, and (for HARD VETO rows) refuse the action even if J insists.
 
 If any gate fires BLOCK or evidence is missing: log + continue. NEVER override. Rationalization HARD VETOs are the most explicit form of this — Rule 10 (heed Gamma's flags) means you do not yield to insistence.
 
@@ -135,7 +135,7 @@ ONE action max per tick. Update current-position.json on state change.
 
 **EXIT LOGGING (CRITICAL — was broken on 2026-05-07 12:30 trade, fix below):** when an exit fires (TP1, stop, ribbon flip, time stop, runner), in addition to updating current-position.json:
 
-> **IRON LAW GATE (Multi-Agent Gamma 2.0 Big Win #5 — `doctrine/iron-law-trades.md`):** before writing ANY of the rows below, you MUST have JUST executed `mcp__alpaca__get_order_by_id(exit_order_id)` AND received `status == "filled"` AND `filled_qty == close_qty`. AND `mcp__alpaca__get_open_position(symbol)` returns 404 OR `qty == 0`. If EITHER check fails: do NOT write trades.csv exit row, do NOT mark position closed in current-position.json. Instead: log `IRON_LAW_PENDING exit_reason={...} order_status={...} alpaca_qty_remaining={...}` to decisions.jsonl, retain current-position state, and let the NEXT tick re-poll. Critical mismatch (status==filled but Alpaca still shows position open after 30s) → kill-switch + alert. Mark moves do NOT count as exits. Only filled orders.
+> **IRON LAW GATE (Multi-Agent Gamma 2.0 Big Win #5 — `markdown/doctrine/iron-law-trades.md`):** before writing ANY of the rows below, you MUST have JUST executed `mcp__alpaca__get_order_by_id(exit_order_id)` AND received `status == "filled"` AND `filled_qty == close_qty`. AND `mcp__alpaca__get_open_position(symbol)` returns 404 OR `qty == 0`. If EITHER check fails: do NOT write trades.csv exit row, do NOT mark position closed in current-position.json. Instead: log `IRON_LAW_PENDING exit_reason={...} order_status={...} alpaca_qty_remaining={...}` to decisions.jsonl, retain current-position state, and let the NEXT tick re-poll. Critical mismatch (status==filled but Alpaca still shows position open after 30s) → kill-switch + alert. Mark moves do NOT count as exits. Only filled orders.
 
 1. **APPEND ONE ROW to `journal/trades.csv`** with the FULL schema (all 41 columns). Required at minimum: date, time_entry, time_exit, setup, contract, dte, strike, c_or_p, qty, entry_px, exit_px, premium_paid, premium_received, dollar_pnl, exit_reason (use stop_px field), hold_minutes, slippage_cents, exit_slippage_cents, tod_bucket, account_equity_pre, followed_rules=Y, gamma_recommended=Y. Leave EOD-enrichment fields blank (cf_*, archetype_match_json, tape_assistance, hold_quality_pct, trade_grade — EOD-summary populates these via S1.x/S3.x logic). The 2026-05-07 12:30 BULL trade exited at 12:42 but NEVER got a row in trades.csv — the data was reconstructed from current-position.json after-the-fact. NEVER repeat this gap. **dollar_pnl MUST come from filled_avg_price arithmetic, NOT from current_quote.**
 2. **APPEND ONE ROW to `automation/state/decisions.jsonl`** with the EXIT_* action (per the Decisions Ledger schema below).
@@ -269,7 +269,7 @@ EOD-summary grades each row by walking 30 min forward and tagging `decision_grad
 
 Per `risk-rules.md`: 50% per-trade cap, 3 contracts (2 TP + 1 runner), 4 at $2K+.
 
-### Pre-execution gate sequence (Multi-Agent Gamma 2.0 Big Win #3 — `doctrine/rules-as-gates.md`)
+### Pre-execution gate sequence (Multi-Agent Gamma 2.0 Big Win #3 — `markdown/doctrine/rules-as-gates.md`)
 
 Before ANY `mcp__alpaca__place_option_order` call, evaluate these gates IN ORDER. If any fires BLOCK, write a SKIP_GATE row to decisions.jsonl with the specific gate name + reason, emit `SKIP_GATE_n`, and exit. NEVER bypass.
 
@@ -277,7 +277,7 @@ Before ANY `mcp__alpaca__place_option_order` call, evaluate these gates IN ORDER
 |---|---|---|---|
 | G5 | Daily kill-switch | `circuit_breaker.tripped` from state digest | `true` |
 | G7 | PDT awareness | `circuit_breaker.day_trades_used_5d` from state digest | `>= 3 AND start_equity < 25000` |
-| G1 | Setup in playbook | `developing_setup.name` matches a `## Setup:` heading in `strategy/playbook.md` | name not found |
+| G1 | Setup in playbook | `developing_setup.name` matches a `## Setup:` heading in `markdown/0dte/playbook.md` | name not found |
 | G2 | Trigger on closed bar | `developing_setup.score == score_max` AND triggers_fired references the LAST CLOSED bar (not the live bar) | score below max OR trigger from live bar |
 | G10 | Recent BLOCK cooldown | scan last 5 min of heartbeat-{today}.log for `BLOCK setup={developing_setup.name}` | found within 15 min |
 | -- | First-entry-after-stop | `loop_state.first_entry_lock[]` contains this setup with exit_reason in {premium_stop, chart_stop, ribbon_flip_back} | match found |
@@ -285,7 +285,7 @@ Before ANY `mcp__alpaca__place_option_order` call, evaluate these gates IN ORDER
 
 After ALL gates pass, proceed with execution steps below. After fill confirmation:
 
-| -- | Iron Law: pre-write fill check (Big Win #5 — `doctrine/iron-law-trades.md`) | `mcp__alpaca__get_order_by_id(order_id).status == "filled" AND filled_qty > 0` | NOT filled |
+| -- | Iron Law: pre-write fill check (Big Win #5 — `markdown/doctrine/iron-law-trades.md`) | `mcp__alpaca__get_order_by_id(order_id).status == "filled" AND filled_qty > 0` | NOT filled |
 
 If Iron Law fails after fill: DO NOT write trades.csv ENTRY row. Re-poll once after 3s; if still not filled, mark order_state=PENDING_NEW in current-position.json with `iron_law_pending: true`, emit `PENDING_FILL`, and let the NEXT tick re-check.
 
@@ -454,7 +454,7 @@ If you generated more than 3 lines of output before reaching the final HB# line,
 
 ---
 
-## 2.B VWAP_REJECTION_PRIME (per `strategy/vwap_rejection_prime.md`)
+## 2.B VWAP_REJECTION_PRIME (per `markdown/0dte/vwap_rejection_prime.md`)
 
 **Trigger condition summary:**
 - SPY close within `proximity_dollars` (default $0.10) of session VWAP.
@@ -499,7 +499,7 @@ If you generated more than 3 lines of output before reaching the final HB# line,
 
 ---
 
-## 2.C OPENING_DRIVE_FADE (per `strategy/opening_drive_fade.md`)
+## 2.C OPENING_DRIVE_FADE (per `markdown/0dte/opening_drive_fade.md`)
 
 **Trigger condition summary:**
 - Thrust bar in `[09:35 ET, 10:30 ET]` established session HOD (or LOD) with body magnitude ≥ `thrust_bar_min_dollars` (default $0.40).
@@ -544,7 +544,7 @@ If you generated more than 3 lines of output before reaching the final HB# line,
 
 ---
 
-## 2.D v14_ENHANCED (per `strategy/v14_enhanced.md`)
+## 2.D v14_ENHANCED (per `markdown/0dte/v14_enhanced.md`)
 
 **Trigger condition summary (early-entry + profit-lock variant of v14 BEARISH_REJECTION):**
 - ALL v14 BEARISH_REJECTION_RIDE_THE_RIBBON filters apply UNCHANGED (filters 2-10: news, budget, day-trades, ribbon BEAR-stack, spread ≥30¢, no vol divergence, VIX > 17.30 rising, seller-pressure body, asymmetric ≥1 trigger, HTF modifier).

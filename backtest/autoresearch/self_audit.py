@@ -12,7 +12,7 @@ Checks:
 
 Writes:
   automation/state/self-audit.json     — machine-readable
-  docs/HEALTH.md                       — human-readable
+  markdown/audits/HEALTH.md                       — human-readable
 
 If anything is RED (dead component / cap exceeded / pipeline stalled),
 queues a Discord ping. Otherwise silent — no spam.
@@ -36,7 +36,7 @@ DOCS.mkdir(parents=True, exist_ok=True)
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
 AUDIT_JSON = STATE_DIR / "self-audit.json"
-HEALTH_MD = DOCS / "HEALTH.md"
+HEALTH_MD = ROOT / "markdown" / "audits" / "HEALTH.md"
 OUTBOX = STATE_DIR / "discord-outbox.jsonl"
 CFG = STATE_DIR / ".discord-config.json"
 

@@ -1,6 +1,6 @@
 """fast_path_executor -- pure-Python sub-30s alert-to-decision pipeline.
 
-Per docs/2-MIN-CADENCE-ARCHITECTURE.md + J's directive "under 30s end-to-end".
+Per markdown/specs/2-MIN-CADENCE-ARCHITECTURE.md + J's directive "under 30s end-to-end".
 
 The LLM heartbeat takes 60-90s per tick (MCP roundtrips + Haiku inference).
 For high-conviction numeric alerts, this script bypasses the LLM and makes a

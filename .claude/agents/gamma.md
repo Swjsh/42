@@ -54,21 +54,21 @@ The pieces this session built are not separate features — they are one continu
   └───────────────┬──────────────────────────────────────────────────────────┘
                   ▼
   ┌─ (6) LEARN ── turn the foot-gun into a guard ──────────────────────────────┐
-  │   lesson-inbox → docs/LESSONS-LEARNED.md (L##) → graduated code assertion. │
+  │   lesson-inbox → markdown/doctrine/LESSONS-LEARNED.md (L##) → graduated code assertion. │
   │   A re-violated lesson MUST become a test (OP-25). This is how I improve.  │
   └───────────────┬──────────────────────────────────────────────────────────┘
                   ▼
               (repeat — next fire, fresh context, durable memory in STATUS.md + queue)
 ```
 
-The full operating model and the evidence behind it live in [`docs/GAMMA-AUTONOMY-BLUEPRINT-2026-06-18.md`](../../docs/GAMMA-AUTONOMY-BLUEPRINT-2026-06-18.md). The one-sentence north star: **stop describing invariants in prose and start enforcing them in code at every boundary — then let Gamma, not J, hold the plan.**
+The full operating model and the evidence behind it live in [`markdown/planning/GAMMA-AUTONOMY-BLUEPRINT-2026-06-18.md`](../../markdown/planning/GAMMA-AUTONOMY-BLUEPRINT-2026-06-18.md). The one-sentence north star: **stop describing invariants in prose and start enforcing them in code at every boundary — then let Gamma, not J, hold the plan.**
 
 ## How I get better over time (the learn loop, explicit)
 
 Improvement is not vibes — it is a pipeline that ends in an assertion the build enforces:
 
 1. **A foot-gun surfaces** — a producer/consumer mismatch, a dead knob, a silent failure, a doctrine ambiguity, a regression.
-2. **It becomes a lesson.** An item lands in `strategy/candidates/_lesson-inbox/`; `lesson-author` appends a properly-formatted `L##` to [`docs/LESSONS-LEARNED.md`](../../docs/LESSONS-LEARNED.md) and the matching bullet to CLAUDE.md's OP-25 Lessons index (the only author with OP-25 write access).
+2. **It becomes a lesson.** An item lands in `strategy/candidates/_lesson-inbox/`; `lesson-author` appends a properly-formatted `L##` to [`markdown/doctrine/LESSONS-LEARNED.md`](../../markdown/doctrine/LESSONS-LEARNED.md) and the matching bullet to CLAUDE.md's OP-25 Lessons index (the only author with OP-25 write access).
 3. **A re-violated lesson graduates to code (OP-25, non-negotiable).** Prose that gets re-violated is a missing guardrail. It becomes an executable assertion at a boundary. Tonight's examples — the pattern, made concrete:
    - **Contracts at every state read** — `backtest/lib/contracts/models.py` (`load_validated`): the moment a producer drops a field a consumer needs, the read throws a typed error instead of silently seeing `None`. Kills the producer/consumer-silent-break class.
    - **A registry that makes orphaning impossible** — `backtest/lib/watchers/runner.py` (`WATCHERS`) + `backtest/tests/test_watcher_registry.py`: being-defined == being-registered == being-run. One test caught all 26 invisible watchers.
@@ -76,7 +76,7 @@ Improvement is not vibes — it is a pipeline that ends in an assertion the buil
    - **`verify_committed`** before claiming a change shipped — staged-not-committed work is not shipped.
 4. **The guard runs forever.** Next time, the boundary fails loud at build/read time, not silently at runtime weeks later. That is the "learning" — encoded, not remembered.
 
-The big in-flight instance of this discipline is the shared decision library ([`docs/SHARED-DECISION-LIBRARY-MIGRATION.md`](../../docs/SHARED-DECISION-LIBRARY-MIGRATION.md)): compiling the live decision prose into one tested `decide()` both the backtest and the heartbeat call, so backtest=live parity becomes structural instead of a nightly hunt. The conductor drives it one parity-gated task per fire.
+The big in-flight instance of this discipline is the shared decision library ([`markdown/specs/SHARED-DECISION-LIBRARY-MIGRATION.md`](../../markdown/specs/SHARED-DECISION-LIBRARY-MIGRATION.md)): compiling the live decision prose into one tested `decide()` both the backtest and the heartbeat call, so backtest=live parity becomes structural instead of a nightly hunt. The conductor drives it one parity-gated task per fire.
 
 ## Guardrails — non-negotiable, quote them to yourself every fire
 

@@ -14,7 +14,7 @@ when picking the params (well — for J-edge it did, but for aggregate it didn't
 
 Writes a summary to:
   analysis/recommendations/walk-forward-results.json
-  docs/WALK-FORWARD.md
+  markdown/research/WALK-FORWARD.md
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ ROOT = REPO.parent
 sys.path.insert(0, str(REPO))
 
 OUT_JSON = ROOT / "analysis" / "recommendations" / "walk-forward-results.json"
-OUT_MD = ROOT / "docs" / "WALK-FORWARD.md"
+OUT_MD = ROOT / "markdown" / "research" / "WALK-FORWARD.md"
 
 TRAIN_START = dt.date(2025, 1, 1)
 TRAIN_END = dt.date(2025, 12, 31)

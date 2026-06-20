@@ -9,7 +9,7 @@ Answers J's two open sizing decisions with his own numbers, not generic theory:
 This is a PROPOSE-ONLY analysis (CLAUDE.md Rule 9). It reads the ledger, prints
 the report, and writes a machine-readable scorecard. It changes NO live config,
 NO params, NO risk_gate behaviour. The throttle is DESIGNED here (reference
-signature + slot-in point) and documented in docs/SIZING-STUDY-2026-06-19.md;
+signature + slot-in point) and documented in markdown/research/SIZING-STUDY-2026-06-19.md;
 it is NOT wired into check_order.
 
 DATA

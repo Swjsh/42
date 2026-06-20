@@ -126,5 +126,5 @@ JSON schema:
 - **Tool source:** `backtest/autoresearch/watcher_state_inspector.py`
 - **Companion skills:** `watcher-fleet-status` (per-watcher day counts), `chart-data-verify` (bar-level data integrity)
 - **Production warmup code:** `backtest/autoresearch/watcher_live.py` lines 309-349 (T82 + T82b)
-- **Root-cause docs:** `docs/T80-ORB-BULL-REGRESSION.md`
+- **Root-cause docs:** `markdown/research/T80-ORB-BULL-REGRESSION.md`
 - **CLAUDE.md OP-25 lesson:** "Stateful watchers + per-tick fresh-process scheduled tasks = silent zero observations" (T80/T82 absorption)
