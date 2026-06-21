@@ -1,3 +1,15 @@
+## [2026-06-20] CONTEXT-120: J-DATA CAMPAIGN COMPLETE (capstone docs/J-DATA-CAMPAIGN-FINAL.md, commits c58faeb..9091d08)
+
+Every angle tested (A1-A10/B1-B6/C1-C4/D1-D2), each forward-validated on OUR 2025-26 real fills. ~15 honest negatives (no overfit), 2 live-or-ready edges, 1 reconciled blocker. B4b ribbon-buffer = KEEP-30 (knob doesn't bind). The profit = SETUPS + FREQUENCY + the sizing fix, NOT param micro-tweaks.
+
+LIVE: gap-and-go (bear) + everyday book (chart-stop, chandelier-15%). FLIP-READY: VWAP-continuation (j_vwap_cont_enabled=false). 
+
+3 DECISIONS FOR J: (a) flip VWAP-continuation live (daily unlock, 56% of days, 6/7); (b) sign off sizing-ceiling reconciliation (6% ceiling fits 0 days on $600 SPY -> gross<=30% + $-at-risk<=4%, OTM-2 fits 97.5%; unblocks $2K trading); (c) ribbon-buffer RESOLVED KEEP-30.
+
+Autonomous campaign work EXHAUSTED -> loop lightened to health-check-and-wait. Remaining is J-gated (the 3) + Monday live data (real ★★★/GEX/shadow archives resume).
+
+---
+
 ## [2026-06-20] CONTEXT-119: J-DATA CAMPAIGN — every angle tested; the profit is SETUPS + FREQUENCY + a sizing fix, NOT param micro-tweaks
 
 J (going out): "cover every angle, test extensively, leave no plan untested, there has to be something profitable if we tweak parameters, keep working." Ran the full master plan (docs/J-DATA-RESEARCH-MASTER-PLAN.md) — A1-A10, B1-B6, C1-C4, D1-D2 — his data defines hypotheses, OUR 2025-26 real fills validate forward (commits c58faeb, f14ce6d, 89fa4ba).
@@ -246,7 +258,7 @@ J directive: "fix all 4 phases... look for any other loose ends like this... whe
 - [2026-06-19 12:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.12% in last 24h (96/102) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
 
 ## Kitchen
-Kitchen: alive, queue 29 pending, last cook 0 min ago, today $0.00, model=grinder-python
+Kitchen: alive, queue 28 pending, last cook 0 min ago, today $0.00, model=nvidia/nemotron-3-super-120b-a12b:free
 
 - [2026-06-19 13:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.12% in last 24h (96/102) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
 
@@ -478,3 +490,5 @@ Kitchen: alive, queue 29 pending, last cook 0 min ago, today $0.00, model=grinde
 - [2026-06-20 16:57:15] crypto-harness drift RED :: stage v01_closed_bar.live pass rate dropped to 22.64% in last 24h (12/53) | stage v02_source_parity pass rate dropped to 22.64% in last 24h (12/53) | stage v03_indicators.live pass rate dropped to 22.64% in last 24h (12/53) | stage v04_candlesticks.live pass rate dropped to 22.64% in last 24h (12/53) | stage v05_levels.live pass rate dropped to 22.64% in last 24h (12/53) | stage v06_trendlines.live pass rate dropped to 22.64% in last 24h (12/53) | stage v07_volume.live pass rate dropped to 22.64% in last 24h (12/53) | stage v08_ribbon.live pass rate dropped to 22.64% in last 24h (12/53) | stage v09_regime.live pass rate dropped to 22.64% in last 24h (12/53) | stage v10_divergence.live pass rate dropped to 22.64% in last 24h (12/53) | stage v11_breakout.live pass rate dropped to 22.64% in last 24h (12/53) | stage v12_multi_timeframe.live pass rate dropped to 22.64% in last 24h (12/53) | stage v14_sweep.live pass rate dropped to 22.64% in last 24h (12/53) | stage v15_three_source_parity.live pass rate dropped to 22.64% in last 24h (12/53) :: see crypto/data/scorecards/drift_report.json
 
 - [2026-06-20 17:27:15] crypto-harness drift RED :: stage v01_closed_bar.live pass rate dropped to 24.53% in last 24h (13/53) | stage v02_source_parity pass rate dropped to 24.53% in last 24h (13/53) | stage v03_indicators.live pass rate dropped to 24.53% in last 24h (13/53) | stage v04_candlesticks.live pass rate dropped to 24.53% in last 24h (13/53) | stage v05_levels.live pass rate dropped to 24.53% in last 24h (13/53) | stage v06_trendlines.live pass rate dropped to 24.53% in last 24h (13/53) | stage v07_volume.live pass rate dropped to 24.53% in last 24h (13/53) | stage v08_ribbon.live pass rate dropped to 24.53% in last 24h (13/53) | stage v09_regime.live pass rate dropped to 24.53% in last 24h (13/53) | stage v10_divergence.live pass rate dropped to 24.53% in last 24h (13/53) | stage v11_breakout.live pass rate dropped to 24.53% in last 24h (13/53) | stage v12_multi_timeframe.live pass rate dropped to 24.53% in last 24h (13/53) | stage v14_sweep.live pass rate dropped to 24.53% in last 24h (13/53) | stage v15_three_source_parity.live pass rate dropped to 24.53% in last 24h (13/53) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-20 17:57:15] crypto-harness drift RED :: stage v01_closed_bar.live pass rate dropped to 30.36% in last 24h (17/56) | stage v02_source_parity pass rate dropped to 30.36% in last 24h (17/56) | stage v03_indicators.live pass rate dropped to 30.36% in last 24h (17/56) | stage v04_candlesticks.live pass rate dropped to 30.36% in last 24h (17/56) | stage v05_levels.live pass rate dropped to 30.36% in last 24h (17/56) | stage v06_trendlines.live pass rate dropped to 30.36% in last 24h (17/56) | stage v07_volume.live pass rate dropped to 30.36% in last 24h (17/56) | stage v08_ribbon.live pass rate dropped to 30.36% in last 24h (17/56) | stage v09_regime.live pass rate dropped to 30.36% in last 24h (17/56) | stage v10_divergence.live pass rate dropped to 30.36% in last 24h (17/56) | stage v11_breakout.live pass rate dropped to 30.36% in last 24h (17/56) | stage v12_multi_timeframe.live pass rate dropped to 30.36% in last 24h (17/56) | stage v14_sweep.live pass rate dropped to 30.36% in last 24h (17/56) | stage v15_three_source_parity.live pass rate dropped to 30.36% in last 24h (17/56) :: see crypto/data/scorecards/drift_report.json
