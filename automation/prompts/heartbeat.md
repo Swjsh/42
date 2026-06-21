@@ -127,6 +127,13 @@ Standard tick. No change to scoring or output.
 1. Call `mcp__alpaca__get_account_info` — if it fails, emit `ERROR_ALPACA` and exit.
 2. Log result: `MCP_SELF_TEST safe=ok` as the first line of `automation/state/logs/heartbeat-{today}.log`.
 
+**Functional connectivity gate (head-to-toe — canonical protocol = the `connectivity-gate` skill).** The once-per-session test above is the cheap LAYER-1 substrate. On EVERY tick that might ENTER, verify these functional nodes BEFORE placing any order. Rule: **fail-CLOSED for trading, fail-OPEN for the human** — a RED node SKIPs the *entry* and logs the node, but NEVER blocks managing/exiting an open position and NEVER halts the session.
+- `TV_DATA_LIVE` — the SPY 5m OHLCV from Step 3 has ≥2 bars AND the latest CLOSED bar timestamp is within ~10 min of now ET. A feed that is listening but frozen (stale bars) is the silent-failure case `data_get_ohlcv` success cannot see (C7) → emit `SKIP_TV_DATA_STALE`, no entry this tick.
+- `MARKET_OPEN` — `mcp__alpaca__get_clock` `is_open` true (RTH). Closed = clean no-trade, not an error.
+- `ACCOUNT_REACHABLE` — `get_account_info` returned numeric equity this session (alive-but-401 is caught here, not by "process up").
+- `FLAT_VERIFIED` — before a NEW entry, `mcp__alpaca__get_all_positions` confirms no open SPY 0DTE (broker = source of truth, L47/C11).
+- Any HARD node RED → log `CONNECTIVITY_RED node=<X>` to the heartbeat log + SKIP the entry. Exits/management proceed regardless. See the `connectivity-gate` skill for the full node list + heal hints; read the chart per the `tradingview-ops` skill.
+
 ## Alpaca tool reference — SAFE account only (`mcp__alpaca__*`)
 
 > **Scope corrected 2026-06-18:** Bold MCP + REST reference removed. This prompt NEVER calls `mcp__alpaca_aggressive__*` or any Bold REST endpoint. Bold execution is owned by `Gamma_Heartbeat_Aggressive`.
