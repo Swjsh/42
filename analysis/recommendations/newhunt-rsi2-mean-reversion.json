@@ -1,0 +1,997 @@
+{
+  "run_date": "2026-06-20",
+  "strategy": "rsi2_mean_reversion",
+  "hypothesis": "Connors RSI(2) intraday mean-reversion: RSI(2)<thr in uptrend -> CALL; RSI(2)>thr in downtrend -> PUT. Engine has RSI DIVERGENCE, not RSI(2) threshold mean-reversion.",
+  "window": "2025-01-01..2026-05-15",
+  "sourced_rules": {
+    "trend_filter": "200-period MA; long only price>200MA, short only price<200MA (Connors)",
+    "long_entry": "RSI(2) < 10 primary; <5 'higher returns' (more oversold). Both swept.",
+    "short_entry": "RSI(2) > 90 primary; >95 'higher returns' (more overbought). Both swept.",
+    "original_exit": "close back above/below 5-period SMA (1-3 day swing) \u2014 N/A for 0DTE; substituted v15 intraday exits (TP1 +30%/chart-level, BE runner, 15:50 stop)",
+    "stops": "Connors does NOT advocate fixed stops -> truest cell premium_stop=-0.99 (chart-only)",
+    "published_edge": "equity-swing ~WR>75%, 1-3 day holds \u2014 NOT a 0DTE option edge (C3/L58); this run tests whether ANY survives the 5m-intraday->0DTE translation"
+  },
+  "sources": [
+    "https://chartschool.stockcharts.com/table-of-contents/trading-strategies-and-models/trading-strategies/rsi-2",
+    "https://www.quantifiedstrategies.com/rsi-2-strategy/",
+    "https://optionstradingiq.com/2-period-rsi-strategy/"
+  ],
+  "adaptation": {
+    "instrument": "SPY 0DTE single-leg directional (long->CALL, short->PUT)",
+    "rsi_period": 2,
+    "smoothing": "Wilder (RMA)",
+    "timeframe": "5min RTH continuous",
+    "sma_trend_period": 200,
+    "swing_lookback_bars": 12,
+    "rejection_level": "CALL->trailing swing LOW (support); PUT->trailing swing HIGH (resistance)",
+    "cooldown_min": 45,
+    "entry_gate": "09:35:00-15:45:00",
+    "qty": 3,
+    "exits": "v15 defaults (causal, no look-ahead C6)"
+  },
+  "grid": {
+    "strike_offset": [
+      -2,
+      -1,
+      0,
+      1,
+      2
+    ],
+    "premium_stop_pct": [
+      -0.08,
+      -0.2,
+      -0.5,
+      -0.99
+    ],
+    "threshold_variants": [
+      {
+        "tag": "5_95",
+        "long": 5.0,
+        "short": 95.0
+      },
+      {
+        "tag": "10_90",
+        "long": 10.0,
+        "short": 90.0
+      }
+    ]
+  },
+  "self_verify_gate": {
+    "oos_per_trade": 0.0,
+    "positive_quarters_min": 4,
+    "top5_max_pct": 200.0,
+    "n_min": 20,
+    "drop_top5_per_trade_min": 0.0
+  },
+  "variants": {
+    "5_95": {
+      "long_threshold": 5.0,
+      "short_threshold": 95.0,
+      "n_signals": 583,
+      "n_long_call": 328,
+      "n_short_put": 255,
+      "cells": [
+        {
+          "strike_offset": 2,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 514,
+            "wr": 15.0,
+            "total_pnl": -926.0,
+            "per_trade": -1.8,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 69
+        },
+        {
+          "strike_offset": 0,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 537,
+            "wr": 20.1,
+            "total_pnl": -1090.0,
+            "per_trade": -2.03,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 46
+        },
+        {
+          "strike_offset": -1,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 536,
+            "wr": 20.5,
+            "total_pnl": -1804.0,
+            "per_trade": -3.37,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 47
+        },
+        {
+          "strike_offset": 1,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 529,
+            "wr": 17.8,
+            "total_pnl": -1812.0,
+            "per_trade": -3.43,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 54
+        },
+        {
+          "strike_offset": -2,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 528,
+            "wr": 21.8,
+            "total_pnl": -2062.0,
+            "per_trade": -3.91,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 55
+        },
+        {
+          "strike_offset": 2,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 514,
+            "wr": 22.4,
+            "total_pnl": -4012.0,
+            "per_trade": -7.81,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 69
+        },
+        {
+          "strike_offset": 2,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 514,
+            "wr": 40.7,
+            "total_pnl": -6104.0,
+            "per_trade": -11.88,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 69
+        },
+        {
+          "strike_offset": 2,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 514,
+            "wr": 47.1,
+            "total_pnl": -7023.0,
+            "per_trade": -13.66,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 69
+        },
+        {
+          "strike_offset": 1,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 529,
+            "wr": 27.0,
+            "total_pnl": -7375.0,
+            "per_trade": -13.94,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 54
+        },
+        {
+          "strike_offset": 0,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 537,
+            "wr": 31.3,
+            "total_pnl": -8968.0,
+            "per_trade": -16.7,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 46
+        },
+        {
+          "strike_offset": 1,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 529,
+            "wr": 47.3,
+            "total_pnl": -9517.0,
+            "per_trade": -17.99,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 54
+        },
+        {
+          "strike_offset": 1,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 529,
+            "wr": 52.0,
+            "total_pnl": -10426.0,
+            "per_trade": -19.71,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 54
+        },
+        {
+          "strike_offset": 0,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 537,
+            "wr": 50.7,
+            "total_pnl": -11867.0,
+            "per_trade": -22.1,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 46
+        },
+        {
+          "strike_offset": -1,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 536,
+            "wr": 33.6,
+            "total_pnl": -12568.0,
+            "per_trade": -23.45,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 47
+        },
+        {
+          "strike_offset": 0,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 537,
+            "wr": 53.3,
+            "total_pnl": -13017.0,
+            "per_trade": -24.24,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 46
+        },
+        {
+          "strike_offset": -2,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 528,
+            "wr": 36.4,
+            "total_pnl": -12919.0,
+            "per_trade": -24.47,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 55
+        },
+        {
+          "strike_offset": -1,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 536,
+            "wr": 49.8,
+            "total_pnl": -17631.0,
+            "per_trade": -32.89,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 47
+        },
+        {
+          "strike_offset": -1,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 536,
+            "wr": 48.3,
+            "total_pnl": -18808.0,
+            "per_trade": -35.09,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 47
+        },
+        {
+          "strike_offset": -2,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 528,
+            "wr": 47.9,
+            "total_pnl": -19158.0,
+            "per_trade": -36.28,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 55
+        },
+        {
+          "strike_offset": -2,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 528,
+            "wr": 47.2,
+            "total_pnl": -20110.0,
+            "per_trade": -38.09,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 55
+        }
+      ]
+    },
+    "10_90": {
+      "long_threshold": 10.0,
+      "short_threshold": 90.0,
+      "n_signals": 1037,
+      "n_long_call": 607,
+      "n_short_put": 430,
+      "cells": [
+        {
+          "strike_offset": -1,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 952,
+            "wr": 26.1,
+            "total_pnl": 5815.0,
+            "per_trade": 6.11,
+            "top5_day_pct": 54.0
+          },
+          "n_no_opra_data": 85
+        },
+        {
+          "strike_offset": -2,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 933,
+            "wr": 24.8,
+            "total_pnl": 2981.0,
+            "per_trade": 3.2,
+            "top5_day_pct": 123.0
+          },
+          "n_no_opra_data": 104
+        },
+        {
+          "strike_offset": 0,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 957,
+            "wr": 23.5,
+            "total_pnl": 2616.0,
+            "per_trade": 2.73,
+            "top5_day_pct": 100.0
+          },
+          "n_no_opra_data": 80
+        },
+        {
+          "strike_offset": 1,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 945,
+            "wr": 20.8,
+            "total_pnl": 720.0,
+            "per_trade": 0.76,
+            "top5_day_pct": 302.0
+          },
+          "n_no_opra_data": 92
+        },
+        {
+          "strike_offset": 2,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 918,
+            "wr": 15.5,
+            "total_pnl": 181.0,
+            "per_trade": 0.2,
+            "top5_day_pct": 1395.0
+          },
+          "n_no_opra_data": 119
+        },
+        {
+          "strike_offset": 2,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 918,
+            "wr": 23.4,
+            "total_pnl": -3599.0,
+            "per_trade": -3.92,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 119
+        },
+        {
+          "strike_offset": 2,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 918,
+            "wr": 44.8,
+            "total_pnl": -5580.0,
+            "per_trade": -6.08,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 119
+        },
+        {
+          "strike_offset": 0,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 957,
+            "wr": 36.7,
+            "total_pnl": -6422.0,
+            "per_trade": -6.71,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 80
+        },
+        {
+          "strike_offset": 1,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 945,
+            "wr": 31.6,
+            "total_pnl": -6665.0,
+            "per_trade": -7.05,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 92
+        },
+        {
+          "strike_offset": 2,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 918,
+            "wr": 52.2,
+            "total_pnl": -6886.0,
+            "per_trade": -7.5,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 119
+        },
+        {
+          "strike_offset": -1,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 952,
+            "wr": 39.3,
+            "total_pnl": -7494.0,
+            "per_trade": -7.87,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 85
+        },
+        {
+          "strike_offset": 1,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 945,
+            "wr": 52.8,
+            "total_pnl": -7955.0,
+            "per_trade": -8.42,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 92
+        },
+        {
+          "strike_offset": 1,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 945,
+            "wr": 58.2,
+            "total_pnl": -10030.0,
+            "per_trade": -10.61,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 92
+        },
+        {
+          "strike_offset": 0,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 957,
+            "wr": 55.2,
+            "total_pnl": -13202.0,
+            "per_trade": -13.8,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 80
+        },
+        {
+          "strike_offset": -2,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 933,
+            "wr": 38.9,
+            "total_pnl": -14528.0,
+            "per_trade": -15.57,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 104
+        },
+        {
+          "strike_offset": 0,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 957,
+            "wr": 58.2,
+            "total_pnl": -16144.0,
+            "per_trade": -16.87,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 80
+        },
+        {
+          "strike_offset": -1,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 952,
+            "wr": 55.3,
+            "total_pnl": -21199.0,
+            "per_trade": -22.27,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 85
+        },
+        {
+          "strike_offset": -1,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 952,
+            "wr": 53.5,
+            "total_pnl": -21353.0,
+            "per_trade": -22.43,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 85
+        },
+        {
+          "strike_offset": -2,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 933,
+            "wr": 50.5,
+            "total_pnl": -32219.0,
+            "per_trade": -34.53,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 104
+        },
+        {
+          "strike_offset": -2,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 933,
+            "wr": 51.6,
+            "total_pnl": -32343.0,
+            "per_trade": -34.67,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 104
+        }
+      ]
+    }
+  },
+  "best_cell": {
+    "variant": "10_90",
+    "strike_offset": -1,
+    "premium_stop_pct": -0.08,
+    "per_trade": 6.11,
+    "verify": {
+      "overall": {
+        "n": 952,
+        "wr": 26.1,
+        "total_pnl": 5815.0,
+        "per_trade": 6.11,
+        "top5_day_pct": 54.0
+      },
+      "by_sample": {
+        "IS_2025": {
+          "n": 699,
+          "wr": 25.9,
+          "total_pnl": 4134.0,
+          "per_trade": 5.91,
+          "top5_day_pct": 70.0
+        },
+        "OOS_2026": {
+          "n": 253,
+          "wr": 26.5,
+          "total_pnl": 1681.0,
+          "per_trade": 6.65,
+          "top5_day_pct": 141.0
+        }
+      },
+      "by_quarter": {
+        "2025Q1": {
+          "n": 158,
+          "wr": 21.5,
+          "total_pnl": -886.0,
+          "per_trade": -5.61,
+          "top5_day_pct": null
+        },
+        "2025Q2": {
+          "n": 170,
+          "wr": 30.6,
+          "total_pnl": 2241.0,
+          "per_trade": 13.18,
+          "top5_day_pct": 76.0
+        },
+        "2025Q3": {
+          "n": 198,
+          "wr": 26.8,
+          "total_pnl": 1772.0,
+          "per_trade": 8.95,
+          "top5_day_pct": 142.0
+        },
+        "2025Q4": {
+          "n": 173,
+          "wr": 24.3,
+          "total_pnl": 1007.0,
+          "per_trade": 5.82,
+          "top5_day_pct": 193.0
+        },
+        "2026Q1": {
+          "n": 155,
+          "wr": 27.1,
+          "total_pnl": 725.0,
+          "per_trade": 4.68,
+          "top5_day_pct": 232.0
+        },
+        "2026Q2": {
+          "n": 98,
+          "wr": 25.5,
+          "total_pnl": 956.0,
+          "per_trade": 9.75,
+          "top5_day_pct": 209.0
+        }
+      },
+      "positive_quarters": "5/6",
+      "positive_quarters_n": 5,
+      "n_quarters": 6,
+      "oos_per_trade": 6.65,
+      "drop_top5_per_trade": 2.87,
+      "drop_top5_n": 938,
+      "dropped_top5_pnl": 3119.0,
+      "top5_day_pct": 54.0,
+      "clears_bar": true
+    },
+    "random_entry_null": {
+      "seeds": 10,
+      "per_trade_mean": 2.66,
+      "per_trade_min": -5.73,
+      "per_trade_max": 8.1,
+      "edge_over_null_per_trade": 3.45,
+      "best_beats_null_max": false,
+      "drop_top5_beats_null_mean": true
+    },
+    "sample_rows": [
+      {
+        "date": "2025-01-07",
+        "time": "11:00",
+        "side": "C",
+        "rsi2": 3.34,
+        "vix": 17.7,
+        "strike": 593,
+        "entry_premium": 2.07,
+        "pnl": -49.68,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-07",
+        "time": "14:05",
+        "side": "P",
+        "rsi2": 94.97,
+        "vix": 17.6,
+        "strike": 593,
+        "entry_premium": 1.79,
+        "pnl": -42.96,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-08",
+        "time": "11:50",
+        "side": "P",
+        "rsi2": 93.08,
+        "vix": 17.9,
+        "strike": 589,
+        "entry_premium": 2.04,
+        "pnl": -48.96,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-08",
+        "time": "12:35",
+        "side": "P",
+        "rsi2": 93.49,
+        "vix": 18.5,
+        "strike": 590,
+        "entry_premium": 1.67,
+        "pnl": -40.08,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-08",
+        "time": "14:00",
+        "side": "P",
+        "rsi2": 95.13,
+        "vix": 17.6,
+        "strike": 589,
+        "entry_premium": 1.72,
+        "pnl": -41.28,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-10",
+        "time": "11:30",
+        "side": "P",
+        "rsi2": 92.89,
+        "vix": 19.8,
+        "strike": 583,
+        "entry_premium": 2.3,
+        "pnl": -55.2,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-10",
+        "time": "13:35",
+        "side": "P",
+        "rsi2": 91.32,
+        "vix": 18.5,
+        "strike": 582,
+        "entry_premium": 2.14,
+        "pnl": -51.36,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-10",
+        "time": "14:20",
+        "side": "P",
+        "rsi2": 97.74,
+        "vix": 18.8,
+        "strike": 584,
+        "entry_premium": 1.52,
+        "pnl": -36.48,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-13",
+        "time": "11:40",
+        "side": "P",
+        "rsi2": 91.55,
+        "vix": 20.6,
+        "strike": 580,
+        "entry_premium": 2.36,
+        "pnl": -56.64,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-13",
+        "time": "12:40",
+        "side": "P",
+        "rsi2": 90.16,
+        "vix": 19.5,
+        "strike": 579,
+        "entry_premium": 1.91,
+        "pnl": 114.6,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "TP1_THEN_RUNNER_RIBBON"
+      },
+      {
+        "date": "2025-01-13",
+        "time": "13:25",
+        "side": "P",
+        "rsi2": 94.29,
+        "vix": 19.3,
+        "strike": 579,
+        "entry_premium": 1.72,
+        "pnl": -41.28,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-13",
+        "time": "14:30",
+        "side": "P",
+        "rsi2": 91.23,
+        "vix": 19.3,
+        "strike": 581,
+        "entry_premium": 1.6,
+        "pnl": -38.4,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-13",
+        "time": "15:40",
+        "side": "P",
+        "rsi2": 90.97,
+        "vix": 19.2,
+        "strike": 582,
+        "entry_premium": 1.62,
+        "pnl": 198.0,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_TIME_STOP"
+      },
+      {
+        "date": "2025-01-14",
+        "time": "11:30",
+        "side": "C",
+        "rsi2": 7.03,
+        "vix": 19.5,
+        "strike": 582,
+        "entry_premium": 2.07,
+        "pnl": -49.68,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-14",
+        "time": "14:00",
+        "side": "P",
+        "rsi2": 93.11,
+        "vix": 19.2,
+        "strike": 582,
+        "entry_premium": 1.84,
+        "pnl": -44.16,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-15",
+        "time": "11:35",
+        "side": "C",
+        "rsi2": 8.78,
+        "vix": 16.9,
+        "strike": 591,
+        "entry_premium": 1.9,
+        "pnl": -45.6,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-15",
+        "time": "12:30",
+        "side": "C",
+        "rsi2": 5.43,
+        "vix": 16.7,
+        "strike": 589,
+        "entry_premium": 1.9,
+        "pnl": -45.6,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-15",
+        "time": "13:55",
+        "side": "C",
+        "rsi2": 6.77,
+        "vix": 16.4,
+        "strike": 590,
+        "entry_premium": 1.67,
+        "pnl": 283.2,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "TP1_THEN_RUNNER_TIME"
+      },
+      {
+        "date": "2025-01-16",
+        "time": "10:45",
+        "side": "C",
+        "rsi2": 9.22,
+        "vix": 15.8,
+        "strike": 591,
+        "entry_premium": 2.64,
+        "pnl": -63.36,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-16",
+        "time": "12:35",
+        "side": "C",
+        "rsi2": 8.37,
+        "vix": 16.0,
+        "strike": 592,
+        "entry_premium": 1.6,
+        "pnl": -38.4,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-16",
+        "time": "13:50",
+        "side": "C",
+        "rsi2": 8.39,
+        "vix": 16.3,
+        "strike": 592,
+        "entry_premium": 1.59,
+        "pnl": -38.16,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-16",
+        "time": "14:35",
+        "side": "C",
+        "rsi2": 3.12,
+        "vix": 16.0,
+        "strike": 591,
+        "entry_premium": 1.45,
+        "pnl": -34.8,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-17",
+        "time": "13:00",
+        "side": "C",
+        "rsi2": 4.7,
+        "vix": 16.0,
+        "strike": 597,
+        "entry_premium": 1.66,
+        "pnl": 99.6,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "TP1_THEN_RUNNER_RIBBON"
+      },
+      {
+        "date": "2025-01-17",
+        "time": "14:30",
+        "side": "C",
+        "rsi2": 7.1,
+        "vix": 15.9,
+        "strike": 598,
+        "entry_premium": 1.26,
+        "pnl": -30.24,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-21",
+        "time": "14:45",
+        "side": "C",
+        "rsi2": 4.64,
+        "vix": 15.1,
+        "strike": 601,
+        "entry_premium": 1.54,
+        "pnl": -36.96,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      }
+    ]
+  },
+  "clears_bar": false,
+  "verdict": "NOT A CANDIDATE (no cherry-pick): even the per-trade-best cell fails \u2014 per_trade=6.11 does NOT beat random-null MAX 8.1 (edge_over_null_mean=3.45) => 'edge' is the asymmetric exit STRUCTURE, not RSI(2) (C3/L58)",
+  "DISCLOSURE": {
+    "authority": "real OPRA fills (C1) \u2014 the only WR/expectancy authority",
+    "per_trade": "per-trade EXPECTANCY reported, not WR alone (OP-14)",
+    "is_oos": "IS=2025, OOS=2026 split shown for the best cell",
+    "concentration": "top5_day_pct + drop-top-5-days per-trade shown (OP-20 #5; anti-pattern 2.10)",
+    "no_cherry_pick": "verdict uses the per-trade-BEST cell; if it is thin-N/high-concentration/OOS-negative we say so and clears_bar=false",
+    "spy_vs_option": "C3/L58 \u2014 a SPY-price/equity edge is NOT an option edge; theta+delta+stop-misfire routinely erase a directional-underlying edge in 0DTE",
+    "random_entry_null": "best cell compared to a coin-flip null (random RTH entries, same count/side-mix/stop/strike). If random entries reproduce the per-trade, the 'edge' is the asymmetric exit STRUCTURE (tight stop + +30% TP1 + runner), not the RSI(2) signal \u2014 this is the decisive C3/L58 test."
+  }
+}

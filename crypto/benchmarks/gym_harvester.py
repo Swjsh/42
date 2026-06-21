@@ -41,9 +41,21 @@ STATE_PATH = SCORECARDS_DIR / "harvester-state.json"
 SEEN_KEYS_PATH = SCORECARDS_DIR / "harvester-seen-keys.json"
 HARVESTER_LOG_PATH = SCORECARDS_DIR / "harvester-log.jsonl"
 QUEUE_PATH = PROJECT_ROOT / "automation" / "overnight" / "queue.md"
+# Overflow rows pruned from the HARVESTED-FROM-GYM section land here verbatim
+# (append-only audit trail). Keeps the ACTIVE queue.md section bounded.
+QUEUE_HARVEST_ARCHIVE_PATH = PROJECT_ROOT / "automation" / "overnight" / "queue-harvest-archive.md"
 
 # Cap on seen-keys persistence (FIFO).
 SEEN_KEYS_CAP = 10_000
+
+# Retention cap on the informational HARVESTED-FROM-GYM catalogue section.
+# These EDGE_REGIME_EXTREME / EDGE_BREAKOUT_CLUSTER / EDGE_RSI_EXTREME / etc. rows
+# are data-flywheel exhaust (OP-22 "the 371st untriaged candidate is debt") — they
+# accumulate with no consumer draining them. We keep the newest N HARVEST-* rows in
+# the live section and archive the overflow verbatim. The deterministic
+# EDGE_REGRESSION_FAIL (CRIT) class lives in the `## CRITICAL` section and is NEVER
+# touched by this cap — those are real engine-correctness gates (see L169 guard).
+HARVESTED_SECTION_CAP = 15
 
 # Sections in queue.md where harvested rows are inserted. CRITICAL is reserved
 # for EDGE_REGRESSION_FAIL; everything else goes under HARVESTED-FROM-GYM.
@@ -91,6 +103,7 @@ class HarvestStats:
     candidates_appended_to_queue: int = 0
     candidates_skipped_dup: int = 0
     candidates_skipped_already_in_queue: int = 0
+    candidates_archived: int = 0  # catalogue rows pruned over HARVESTED_SECTION_CAP
     by_rule: dict = field(default_factory=dict)
     errors: list = field(default_factory=list)
 
@@ -477,13 +490,51 @@ def _detect_breakout_cluster(rec: dict) -> Candidate | None:
     )
 
 
+# Stages whose failure is environmental (live-data-source dependent), never a
+# deterministic code regression. A `.live` stage fails when the data feed is
+# unreachable (network blip / rate-limit) — every `.live` stage fails at once and
+# self-heals on the next run. v02_source_parity / v15_three_source_parity.live are
+# the named KNOWN_FLAKY_LIVE_SOURCE carve-outs (already excluded from overall_pass
+# in runner.py). Only an `.offline` / `.fixture` failure is a reproducible engine
+# break worth a CRITICAL queue item.
+KNOWN_FLAKY_LIVE_STAGES = frozenset({
+    "v02_source_parity",
+    "v15_three_source_parity.live",
+})
+
+
+def _is_deterministic_stage(name: str) -> bool:
+    """True iff a failure of this stage is a reproducible code regression.
+
+    Live/source-dependent stages are environmental: a transient data-feed outage
+    fails them all simultaneously and self-heals, so they must NOT raise a CRITICAL
+    (harvester false-CRITICAL flood — see L-index C7 / OP-22).
+    """
+    if name in KNOWN_FLAKY_LIVE_STAGES:
+        return False
+    return not name.endswith(".live")
+
+
 def _detect_regression_fail(rec: dict) -> Candidate | None:
-    """EDGE_REGRESSION_FAIL — history.jsonl overall_pass=false. CRITICAL priority."""
+    """EDGE_REGRESSION_FAIL — history.jsonl overall_pass=false. CRITICAL priority.
+
+    Guard (OP-25): suppress when the failure is purely environmental — i.e. every
+    failed stage is a `.live`/known-flaky source-dependent stage. Those are transient
+    data-feed outages that self-heal, not engine regressions, and previously flooded
+    the queue's `## CRITICAL` section with un-drainable phantom items. A CRITICAL only
+    fires when at least one DETERMINISTIC (`.offline`/`.fixture`) stage fails, OR when
+    no per_stage breakdown is available to classify (conservative: still flag).
+    """
     if rec.get("overall_pass") is not False:
         return None
     failed_stages = [
         name for name, ok in (rec.get("per_stage") or {}).items() if not ok
     ]
+    deterministic_failures = [s for s in failed_stages if _is_deterministic_stage(s)]
+    if failed_stages and not deterministic_failures:
+        # All failed stages are live-source/environmental — transient outage that
+        # self-heals next run. Not a code regression; do not emit a CRITICAL.
+        return None
     started = rec.get("started_at", "")
     key = f"EDGE_REGRESSION_FAIL:{started}"
     failed_summary = ",".join(failed_stages) if failed_stages else "unknown"
@@ -636,6 +687,64 @@ def _ensure_critical_section(queue_text: str) -> tuple[str, int]:
     return queue_text, after
 
 
+# -- Retention cap (OP-22 compound-don't-accumulate) --------------------------
+def _prune_harvested_section(
+    queue_text: str, cap: int,
+) -> tuple[str, list[str]]:
+    """Trim the HARVESTED-FROM-GYM section to the newest `cap` HARVEST-* rows.
+
+    Rows are inserted newest-first directly under the section header, so in
+    document order the FIRST `cap` HARVEST rows are the newest — we keep those and
+    return the overflow (oldest) rows for verbatim archival. Only lines matching
+    HARVEST_ROW_RE are considered: free-text `### T-GYM-*` sub-blocks, blank lines,
+    and the deterministic CRITICAL section (a separate section) are left untouched.
+
+    Returns (new_text, archived_rows). No-op (archived_rows == []) when the section
+    is absent or already at/under the cap.
+    """
+    if cap < 0 or SECTION_HARVESTED_HDR not in queue_text:
+        return queue_text, []
+    start = queue_text.index(SECTION_HARVESTED_HDR)
+    after_hdr = queue_text.index("\n", start) + 1
+    next_section = queue_text.find("\n## ", after_hdr)
+    end = len(queue_text) if next_section == -1 else next_section + 1
+    section = queue_text[after_hdr:end]
+    lines = section.split("\n")
+
+    harvest_idxs = [i for i, ln in enumerate(lines) if HARVEST_ROW_RE.match(ln)]
+    if len(harvest_idxs) <= cap:
+        return queue_text, []
+
+    archive_idxs = set(harvest_idxs[cap:])  # oldest beyond the cap
+    archived_rows = [lines[i] for i in harvest_idxs[cap:]]
+    new_lines = [ln for i, ln in enumerate(lines) if i not in archive_idxs]
+    new_section = "\n".join(new_lines)
+    new_text = queue_text[:after_hdr] + new_section + queue_text[end:]
+    return new_text, archived_rows
+
+
+def _append_harvest_archive(rows: list[str], ts_now: datetime) -> None:
+    """Append pruned catalogue rows verbatim to the harvest archive (audit trail)."""
+    if not rows:
+        return
+    if QUEUE_HARVEST_ARCHIVE_PATH.exists():
+        existing = QUEUE_HARVEST_ARCHIVE_PATH.read_text(encoding="utf-8")
+    else:
+        existing = (
+            "# Harvested-from-gym catalogue archive\n\n"
+            "> Overflow rows pruned from `queue.md` `## HARVESTED-FROM-GYM` by the "
+            "`gym_harvester` retention cap (OP-22 compound-don't-accumulate). "
+            "Verbatim, append-only audit trail. The deterministic "
+            "`EDGE_REGRESSION_FAIL` (CRITICAL) class is never pruned here.\n"
+        )
+    header = (
+        f"\n## Archived {ts_now.strftime('%Y-%m-%d %H:%M:%SZ')} — "
+        f"{len(rows)} catalogue row(s) over cap ({HARVESTED_SECTION_CAP})\n\n"
+    )
+    body = "\n".join(rows) + "\n"
+    QUEUE_HARVEST_ARCHIVE_PATH.write_text(existing + header + body, encoding="utf-8")
+
+
 # -- Main orchestration -------------------------------------------------------
 def harvest(hours: int = 24, dry_run: bool = False) -> HarvestStats:
     """Run one harvest pass. Returns stats; appends to queue.md unless dry_run."""
@@ -695,6 +804,7 @@ def harvest(hours: int = 24, dry_run: bool = False) -> HarvestStats:
     # Dedup phase 2: existing queue.md rows (catches the case where seen-keys
     # file was wiped but queue still has the rows).
     queue_text = QUEUE_PATH.read_text(encoding="utf-8") if QUEUE_PATH.exists() else ""
+    original_queue_text = queue_text
     existing_queue_keys = _extract_existing_keys_from_queue(queue_text)
 
     new_candidates: list[Candidate] = []
@@ -757,6 +867,15 @@ def harvest(hours: int = 24, dry_run: bool = False) -> HarvestStats:
             for c in other_cands:
                 seen_keys_list.append(c.key)
 
+    # Enforce the retention cap on the informational catalogue section every run
+    # (self-heals an already-overflowing section even when 0 new candidates were
+    # appended this fire). The CRITICAL section is a separate section and untouched.
+    queue_text, archived_rows = _prune_harvested_section(queue_text, HARVESTED_SECTION_CAP)
+    if archived_rows:
+        _append_harvest_archive(archived_rows, datetime.now(timezone.utc))
+        stats.candidates_archived = len(archived_rows)
+
+    if queue_text != original_queue_text:
         QUEUE_PATH.write_text(queue_text, encoding="utf-8")
 
     _save_seen_keys(seen_keys_list)
@@ -771,6 +890,7 @@ def harvest(hours: int = 24, dry_run: bool = False) -> HarvestStats:
         "candidates_appended_to_queue": stats.candidates_appended_to_queue,
         "candidates_skipped_dup": stats.candidates_skipped_dup,
         "candidates_skipped_already_in_queue": stats.candidates_skipped_already_in_queue,
+        "candidates_archived": stats.candidates_archived,
         "by_rule": stats.by_rule,
     }
     _save_state(state)
@@ -784,6 +904,7 @@ def harvest(hours: int = 24, dry_run: bool = False) -> HarvestStats:
         "candidates_appended_to_queue": stats.candidates_appended_to_queue,
         "candidates_skipped_dup": stats.candidates_skipped_dup,
         "candidates_skipped_already_in_queue": stats.candidates_skipped_already_in_queue,
+        "candidates_archived": stats.candidates_archived,
         "by_rule": stats.by_rule,
         "errors": stats.errors,
     }
@@ -822,6 +943,7 @@ def main(argv: list[str] | None = None) -> int:
         "candidates_appended_to_queue": stats.candidates_appended_to_queue,
         "candidates_skipped_dup": stats.candidates_skipped_dup,
         "candidates_skipped_already_in_queue": stats.candidates_skipped_already_in_queue,
+        "candidates_archived": stats.candidates_archived,
         "by_rule": stats.by_rule,
         "errors": stats.errors,
     }, indent=2))

@@ -28,6 +28,7 @@ def isolated_paths(tmp_path, monkeypatch):
     seen = tmp_path / "harvester-seen-keys.json"
     log = tmp_path / "harvester-log.jsonl"
     queue = tmp_path / "queue.md"
+    harvest_archive = tmp_path / "queue-harvest-archive.md"
 
     # Seed queue.md with the same skeleton the real file uses so the inserters
     # have the SWARM-BACKFILL anchor to target.
@@ -56,6 +57,7 @@ def isolated_paths(tmp_path, monkeypatch):
     monkeypatch.setattr(gh, "SEEN_KEYS_PATH", seen)
     monkeypatch.setattr(gh, "HARVESTER_LOG_PATH", log)
     monkeypatch.setattr(gh, "QUEUE_PATH", queue)
+    monkeypatch.setattr(gh, "QUEUE_HARVEST_ARCHIVE_PATH", harvest_archive)
 
     return {
         "grinder": grinder,
@@ -65,6 +67,7 @@ def isolated_paths(tmp_path, monkeypatch):
         "seen": seen,
         "log": log,
         "queue": queue,
+        "harvest_archive": harvest_archive,
     }
 
 
@@ -296,6 +299,7 @@ def test_sweep_detected_rule_appends_row(isolated_paths):
 
 
 def test_regression_fail_rule_appends_critical_row(isolated_paths):
+    # A DETERMINISTIC (.offline) stage failed → genuine reproducible regression → CRITICAL.
     rec = {
         "started_at": _now_iso(-30),
         "overall_pass": False,
@@ -303,7 +307,7 @@ def test_regression_fail_rule_appends_critical_row(isolated_paths):
         "stages": 30,
         "per_stage": {
             "v01_closed_bar.live": True,
-            "v02_source_parity": False,
+            "v03_indicators.offline": False,
             "v15_three_source_parity.live": False,
         },
     }
@@ -319,6 +323,52 @@ def test_regression_fail_rule_appends_critical_row(isolated_paths):
     crit_idx = text.index("HARVEST-REGFAIL-")
     swarm_idx = text.index("## SWARM-BACKFILL")
     assert crit_idx < swarm_idx
+
+
+def test_regression_fail_suppressed_when_only_live_stages_fail(isolated_paths):
+    # GUARD (OP-25): a live-data-source outage fails every `.live` + flaky stage at
+    # once and self-heals — environmental, NOT a code regression. Must NOT emit a
+    # CRITICAL (this is the harvester false-CRITICAL flood foot-gun).
+    rec = {
+        "started_at": _now_iso(-30),
+        "overall_pass": False,
+        "passed": 74,
+        "stages": 88,
+        "per_stage": {
+            "v01_closed_bar.offline": True,
+            "v01_closed_bar.live": False,
+            "v02_source_parity": False,
+            "v03_indicators.live": False,
+            "v05_levels.live": False,
+            "v15_three_source_parity.live": False,
+        },
+    }
+    isolated_paths["history"].write_text(json.dumps(rec) + "\n", encoding="utf-8")
+
+    stats = gh.harvest(hours=24)
+
+    assert stats.by_rule.get("EDGE_REGRESSION_FAIL") is None
+    assert stats.candidates_appended_to_queue == 0
+    text = isolated_paths["queue"].read_text(encoding="utf-8")
+    assert "HARVEST-REGFAIL-" not in text
+
+
+def test_regression_fail_emits_when_per_stage_missing(isolated_paths):
+    # Conservative: an unexplained overall_pass=false with no per_stage breakdown
+    # cannot be classified as environmental → still flag CRITICAL.
+    rec = {
+        "started_at": _now_iso(-30),
+        "overall_pass": False,
+        "passed": 0,
+        "stages": 0,
+    }
+    isolated_paths["history"].write_text(json.dumps(rec) + "\n", encoding="utf-8")
+
+    stats = gh.harvest(hours=24)
+
+    assert stats.by_rule.get("EDGE_REGRESSION_FAIL") == 1
+    text = isolated_paths["queue"].read_text(encoding="utf-8")
+    assert "HARVEST-REGFAIL-" in text
 
 
 def test_dedup_blocks_second_identical_run(isolated_paths):
@@ -375,3 +425,95 @@ def test_existing_queue_row_blocks_dup_even_if_seen_keys_wiped(isolated_paths):
     assert stats.candidates_appended_to_queue == 0
     assert stats.candidates_skipped_already_in_queue == 1
     assert isolated_paths["queue"].read_text(encoding="utf-8").count("HARVEST-FOOTGUN-") == 1
+
+
+# -- Retention-cap tests (OP-22 compound-don't-accumulate) --------------------
+def _harvest_row(short: str, ts_id: str, pri: str = "LOW") -> str:
+    return (
+        f"- [ ] HARVEST-{short}-{ts_id} ({pri}) :: synthetic catalogue row :: "
+        f"key=EDGE_X:{ts_id} :: depends:none :: status:queued"
+    )
+
+
+def _queue_with_harvest_rows(n: int, extra_tail: str = "") -> str:
+    rows = "\n".join(
+        _harvest_row("REGIMEEXT", f"20260620-{100000 + i:06d}") for i in range(n)
+    )
+    return (
+        "# OVERNIGHT TASK QUEUE\n\n---\n\n"
+        "## CRITICAL\n(empty)\n\n"
+        f"{gh.SECTION_HARVESTED_HDR}\n\n"
+        f"{rows}\n{extra_tail}"
+    )
+
+
+def test_prune_harvested_section_noop_under_cap():
+    text = _queue_with_harvest_rows(3)
+    new_text, archived = gh._prune_harvested_section(text, cap=15)
+    assert archived == []
+    assert new_text == text
+
+
+def test_prune_harvested_section_keeps_newest_archives_oldest():
+    # Rows are inserted newest-first, so the FIRST `cap` rows are kept.
+    text = _queue_with_harvest_rows(20)
+    new_text, archived = gh._prune_harvested_section(text, cap=15)
+    assert len(archived) == 5
+    # The 5 oldest (last in document order) are archived.
+    assert all("HARVEST-REGIMEEXT-20260620-1000" in r for r in archived)
+    kept = [ln for ln in new_text.splitlines() if ln.startswith("- [ ] HARVEST-")]
+    assert len(kept) == 15
+    # The newest (index 0) is kept; the oldest (index 19) is gone.
+    assert "20260620-100000" in new_text  # newest kept
+    assert "20260620-100019" not in new_text  # oldest pruned
+    assert "20260620-100019" in archived[-1]
+
+
+def test_prune_preserves_non_harvest_lines():
+    tail = (
+        "\n### T-GYM-20260619 HIGH gym-session RED for 2026-06-19\n\n"
+        "**Audits failing:**\n- chart-data-verify (RED): 0 bars checked\n"
+    )
+    text = _queue_with_harvest_rows(20, extra_tail=tail)
+    new_text, archived = gh._prune_harvested_section(text, cap=15)
+    assert len(archived) == 5
+    # The free-text T-GYM block must survive untouched.
+    assert "### T-GYM-20260619 HIGH gym-session RED" in new_text
+    assert "chart-data-verify (RED): 0 bars checked" in new_text
+
+
+def test_harvest_enforces_cap_and_writes_archive(isolated_paths, monkeypatch):
+    # Pre-seed a queue already over a small cap, with NO new candidates this fire.
+    monkeypatch.setattr(gh, "HARVESTED_SECTION_CAP", 2)
+    isolated_paths["queue"].write_text(_queue_with_harvest_rows(5), encoding="utf-8")
+
+    stats = gh.harvest(hours=24)
+
+    assert stats.candidates_archived == 3
+    text = isolated_paths["queue"].read_text(encoding="utf-8")
+    kept = [ln for ln in text.splitlines() if ln.startswith("- [ ] HARVEST-")]
+    assert len(kept) == 2
+    # Archive file written with the 3 overflow rows verbatim.
+    arch = isolated_paths["harvest_archive"].read_text(encoding="utf-8")
+    assert arch.count("- [ ] HARVEST-REGIMEEXT-") == 3
+    assert "over cap (2)" in arch
+
+
+def test_cap_never_prunes_critical_regfail(isolated_paths, monkeypatch):
+    # A deterministic .offline regression fires a CRITICAL row; even with the cap
+    # set to 0 the CRITICAL section (separate from HARVESTED-FROM-GYM) is untouched.
+    monkeypatch.setattr(gh, "HARVESTED_SECTION_CAP", 0)
+    rec = {
+        "started_at": _now_iso(-30),
+        "overall_pass": False,
+        "passed": 28,
+        "stages": 30,
+        "per_stage": {"v03_indicators.offline": False},
+    }
+    isolated_paths["history"].write_text(json.dumps(rec) + "\n", encoding="utf-8")
+
+    gh.harvest(hours=24)
+
+    text = isolated_paths["queue"].read_text(encoding="utf-8")
+    assert "HARVEST-REGFAIL-" in text  # CRITICAL row survives the cap
+    assert "(CRIT)" in text
