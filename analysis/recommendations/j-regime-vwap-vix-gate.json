@@ -1,0 +1,2042 @@
+{
+  "_generated": "2026-06-20T22:30:58.251307+00:00",
+  "_script": "backtest/autoresearch/j_regime_forward_validate.py",
+  "_purpose": "Forward-validate J's C1(mid-VIX)+C2(trend/vol) regime hypotheses on OUR VWAP-continuation real OPRA fills. Test the gate families NOT isolated by vwap_pullback_regime_gate.py: two-sided mid-VIX band, realized-vol floor, morning-move floor, and the C1\u2229C2 combo. Bimodality-killer winner bar + each winner's OWN OOS.",
+  "_prior_result": "vwap_pullback_regime_gate.json found 0 winners across one-sided VIX / vix_falling / ADX / range_ratio / rvol gates (none make all 4 sub-windows OOS-positive). Bad months were LOW-vix/low-rvol (opposite of low-VIX gate).",
+  "_causality": "reuses build_gated_trades verbatim (features from bars[0..trigger]; VIX at trigger). chronological shared IS/OOS cut. PROPOSE-ONLY (Rule 9).",
+  "data": {
+    "spy": "spy_5m_2025-01-01_2026-06-16.csv",
+    "vix": "vix_5m_2025-01-01_2026-06-16.csv",
+    "days": 363
+  },
+  "by_exit_config": {
+    "chart_stop_only": {
+      "premium_stop_pct": -0.99,
+      "n_trades": 92,
+      "oos_cut_date": "2026-02-02",
+      "baseline_no_gate": {
+        "n": 92,
+        "wins": 65,
+        "wr_pct": 70.7,
+        "exp_dollar": 14.03,
+        "total_dollar": 1291.2,
+        "is_n": 64,
+        "oos_n": 28,
+        "is_exp_dollar": 6.86,
+        "oos_exp_dollar": 30.44,
+        "oos_sign_stable": true,
+        "oos_positive": true,
+        "sub_window_means": [
+          -19.1,
+          -3.84,
+          71.82,
+          7.26
+        ],
+        "all_sub_windows_positive": false,
+        "n_sub_hurt": 2,
+        "both_dirs_positive": true,
+        "drop_top5_mean_dollar": -9.65,
+        "robust_to_outliers": false,
+        "dsr_verdict": "PASS",
+        "n_bad_month_trades_kept": 25,
+        "oos_months": {
+          "2026-02": {
+            "n": 6,
+            "exp": 123.8,
+            "positive": true
+          },
+          "2026-03": {
+            "n": 8,
+            "exp": -52.87,
+            "positive": false
+          },
+          "2026-04": {
+            "n": 5,
+            "exp": 99.96,
+            "positive": true
+          },
+          "2026-05": {
+            "n": 9,
+            "exp": 3.62,
+            "positive": true
+          }
+        }
+      },
+      "gate_sweep": [
+        {
+          "n": 24,
+          "wins": 18,
+          "wr_pct": 75.0,
+          "exp_dollar": -5.91,
+          "total_dollar": -141.8,
+          "is_n": 16,
+          "oos_n": 8,
+          "is_exp_dollar": -75.61,
+          "oos_exp_dollar": 133.5,
+          "oos_sign_stable": false,
+          "oos_positive": true,
+          "sub_window_means": [
+            69.97,
+            -298.3,
+            112.2,
+            92.5
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": false,
+          "drop_top5_mean_dollar": -70.88,
+          "robust_to_outliers": false,
+          "dsr_verdict": "WEAK",
+          "n_bad_month_trades_kept": 3,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 132.0,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 2,
+              "exp": 175.5,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 1,
+              "exp": 57.0,
+              "positive": true
+            }
+          },
+          "gate": "mmove_ge_0.005",
+          "desc": "morning-move floor >= 0.005 (|open->trigger|) \u2014 trend-day floor; live: |session open -> current close|",
+          "retention": 0.261,
+          "IS_WINNER": false,
+          "winner_fail_reason": "n_kept<35"
+        },
+        {
+          "n": 31,
+          "wins": 26,
+          "wr_pct": 83.9,
+          "exp_dollar": 65.59,
+          "total_dollar": 2033.4,
+          "is_n": 21,
+          "oos_n": 10,
+          "is_exp_dollar": 33.91,
+          "oos_exp_dollar": 132.12,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            182.63,
+            -134.45,
+            110.47,
+            118.35
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 10.37,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 3,
+          "oos_months": {
+            "2026-02": {
+              "n": 4,
+              "exp": 118.35,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 4,
+              "exp": 146.25,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 2,
+              "exp": 131.4,
+              "positive": true
+            }
+          },
+          "gate": "rvol_ge_9",
+          "desc": "realized-vol floor >= 9bps \u2014 skip quiet-tape (bad-month signature); live: stdev of session 5m log-rets to date",
+          "retention": 0.337,
+          "IS_WINNER": false,
+          "winner_fail_reason": "n_kept<35"
+        },
+        {
+          "n": 22,
+          "wins": 19,
+          "wr_pct": 86.4,
+          "exp_dollar": 77.59,
+          "total_dollar": 1707.0,
+          "is_n": 14,
+          "oos_n": 8,
+          "is_exp_dollar": 57.0,
+          "oos_exp_dollar": 113.62,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            214.4,
+            -154.57,
+            148.56,
+            136.6
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 1.39,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 1,
+          "oos_months": {
+            "2026-02": {
+              "n": 3,
+              "exp": 49.0,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 3,
+              "exp": 166.4,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 2,
+              "exp": 131.4,
+              "positive": true
+            }
+          },
+          "gate": "rvol_ge_10",
+          "desc": "realized-vol floor >= 10bps \u2014 skip quiet-tape (bad-month signature); live: stdev of session 5m log-rets to date",
+          "retention": 0.239,
+          "IS_WINNER": false,
+          "winner_fail_reason": "n_kept<35"
+        },
+        {
+          "n": 44,
+          "wins": 33,
+          "wr_pct": 75.0,
+          "exp_dollar": 20.78,
+          "total_dollar": 914.4,
+          "is_n": 32,
+          "oos_n": 12,
+          "is_exp_dollar": -10.33,
+          "oos_exp_dollar": 103.75,
+          "oos_sign_stable": false,
+          "oos_positive": true,
+          "sub_window_means": [
+            -31.93,
+            -82.15,
+            100.98,
+            96.22
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 2,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": -22.73,
+          "robust_to_outliers": false,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 7,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 132.0,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 4,
+              "exp": 66.3,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 3,
+              "exp": 106.6,
+              "positive": true
+            }
+          },
+          "gate": "mmove_ge_0.003",
+          "desc": "morning-move floor >= 0.003 (|open->trigger|) \u2014 trend-day floor; live: |session open -> current close|",
+          "retention": 0.478,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        },
+        {
+          "n": 52,
+          "wins": 37,
+          "wr_pct": 71.2,
+          "exp_dollar": 26.25,
+          "total_dollar": 1364.8,
+          "is_n": 36,
+          "oos_n": 16,
+          "is_exp_dollar": -4.74,
+          "oos_exp_dollar": 95.97,
+          "oos_sign_stable": false,
+          "oos_positive": true,
+          "sub_window_means": [
+            -35.58,
+            -3.71,
+            69.31,
+            74.97
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 2,
+          "both_dirs_positive": false,
+          "drop_top5_mean_dollar": -12.04,
+          "robust_to_outliers": false,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 18,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 137.04,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 3,
+              "exp": 174.6,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 8,
+              "exp": 40.82,
+              "positive": true
+            }
+          },
+          "gate": "vix_band_16_19",
+          "desc": "two-sided VIX band [16, 19) \u2014 J mid-band; live: vix_cache at trigger",
+          "retention": 0.565,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        },
+        {
+          "n": 32,
+          "wins": 23,
+          "wr_pct": 71.9,
+          "exp_dollar": -9.06,
+          "total_dollar": -290.0,
+          "is_n": 23,
+          "oos_n": 9,
+          "is_exp_dollar": -48.87,
+          "oos_exp_dollar": 92.67,
+          "oos_sign_stable": false,
+          "oos_positive": true,
+          "sub_window_means": [
+            57.35,
+            -242.25,
+            67.72,
+            80.92
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": false,
+          "drop_top5_mean_dollar": -60.46,
+          "robust_to_outliers": false,
+          "dsr_verdict": "WEAK",
+          "n_bad_month_trades_kept": 4,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 132.0,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 3,
+              "exp": 39.0,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 1,
+              "exp": 57.0,
+              "positive": true
+            }
+          },
+          "gate": "mmove_ge_0.004",
+          "desc": "morning-move floor >= 0.004 (|open->trigger|) \u2014 trend-day floor; live: |session open -> current close|",
+          "retention": 0.348,
+          "IS_WINNER": false,
+          "winner_fail_reason": "n_kept<35"
+        },
+        {
+          "n": 63,
+          "wins": 46,
+          "wr_pct": 73.0,
+          "exp_dollar": 35.1,
+          "total_dollar": 2211.0,
+          "is_n": 44,
+          "oos_n": 19,
+          "is_exp_dollar": 12.55,
+          "oos_exp_dollar": 87.29,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            -1.67,
+            5.84,
+            65.31,
+            68.6
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 3.49,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 19,
+          "oos_months": {
+            "2026-02": {
+              "n": 6,
+              "exp": 123.8,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 1,
+              "exp": 200.4,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 4,
+              "exp": 97.2,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 8,
+              "exp": 40.82,
+              "positive": true
+            }
+          },
+          "gate": "vix_band_16_22",
+          "desc": "two-sided VIX band [16, 22) \u2014 J mid-band; live: vix_cache at trigger",
+          "retention": 0.685,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        },
+        {
+          "n": 31,
+          "wins": 26,
+          "wr_pct": 83.9,
+          "exp_dollar": 47.52,
+          "total_dollar": 1473.2,
+          "is_n": 23,
+          "oos_n": 8,
+          "is_exp_dollar": 37.0,
+          "oos_exp_dollar": 77.78,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            144.11,
+            -87.23,
+            67.5,
+            77.78
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": -2.38,
+          "robust_to_outliers": false,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 8,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 132.0,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 1,
+              "exp": 200.4,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 1,
+              "exp": 151.8,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 1,
+              "exp": -390.0,
+              "positive": false
+            }
+          },
+          "gate": "rvol_ge_7_and_vix_lt_22",
+          "desc": "rvol>=7bps AND vix<22 (calm-but-participating); live: both computable",
+          "retention": 0.337,
+          "IS_WINNER": false,
+          "winner_fail_reason": "n_kept<35"
+        },
+        {
+          "n": 63,
+          "wins": 46,
+          "wr_pct": 73.0,
+          "exp_dollar": 25.7,
+          "total_dollar": 1619.4,
+          "is_n": 46,
+          "oos_n": 17,
+          "is_exp_dollar": 8.21,
+          "oos_exp_dollar": 73.04,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            -34.24,
+            31.56,
+            35.81,
+            65.94
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": -5.37,
+          "robust_to_outliers": false,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 24,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 137.04,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 3,
+              "exp": 174.6,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 9,
+              "exp": 3.62,
+              "positive": true
+            }
+          },
+          "gate": "vix_band_14_19",
+          "desc": "two-sided VIX band [14, 19) \u2014 J mid-band; live: vix_cache at trigger",
+          "retention": 0.685,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        },
+        {
+          "n": 38,
+          "wins": 30,
+          "wr_pct": 78.9,
+          "exp_dollar": 35.34,
+          "total_dollar": 1342.8,
+          "is_n": 25,
+          "oos_n": 13,
+          "is_exp_dollar": 16.92,
+          "oos_exp_dollar": 70.75,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            182.2,
+            -201.18,
+            150.67,
+            35.88
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": -12.76,
+          "robust_to_outliers": false,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 4,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 132.0,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 5,
+              "exp": 77.4,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 2,
+              "exp": 131.4,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 1,
+              "exp": -390.0,
+              "positive": false
+            }
+          },
+          "gate": "rvol_ge_8",
+          "desc": "realized-vol floor >= 8bps \u2014 skip quiet-tape (bad-month signature); live: stdev of session 5m log-rets to date",
+          "retention": 0.413,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        },
+        {
+          "n": 65,
+          "wins": 46,
+          "wr_pct": 70.8,
+          "exp_dollar": 17.76,
+          "total_dollar": 1154.4,
+          "is_n": 46,
+          "oos_n": 19,
+          "is_exp_dollar": -0.21,
+          "oos_exp_dollar": 61.27,
+          "oos_sign_stable": false,
+          "oos_positive": true,
+          "sub_window_means": [
+            -34.76,
+            -5.19,
+            71.4,
+            38.31
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 2,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": -12.94,
+          "robust_to_outliers": false,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 21,
+          "oos_months": {
+            "2026-02": {
+              "n": 6,
+              "exp": 123.8,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 4,
+              "exp": 97.2,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 9,
+              "exp": 3.62,
+              "positive": true
+            }
+          },
+          "gate": "vix_band_15_20",
+          "desc": "two-sided VIX band [15, 20) \u2014 J mid-band; live: vix_cache at trigger",
+          "retention": 0.707,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        },
+        {
+          "n": 67,
+          "wins": 50,
+          "wr_pct": 74.6,
+          "exp_dollar": 18.14,
+          "total_dollar": 1215.6,
+          "is_n": 50,
+          "oos_n": 17,
+          "is_exp_dollar": 3.95,
+          "oos_exp_dollar": 59.89,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            17.85,
+            -93.85,
+            88.66,
+            59.89
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": -12.21,
+          "robust_to_outliers": false,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 17,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 132.0,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 5,
+              "exp": 70.2,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 4,
+              "exp": 158.7,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 3,
+              "exp": -209.2,
+              "positive": false
+            }
+          },
+          "gate": "mmove_ge_0.002",
+          "desc": "morning-move floor >= 0.002 (|open->trigger|) \u2014 trend-day floor; live: |session open -> current close|",
+          "retention": 0.728,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        },
+        {
+          "n": 43,
+          "wins": 36,
+          "wr_pct": 83.7,
+          "exp_dollar": 38.03,
+          "total_dollar": 1635.2,
+          "is_n": 32,
+          "oos_n": 11,
+          "is_exp_dollar": 37.07,
+          "oos_exp_dollar": 40.8,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            49.4,
+            0.82,
+            62.13,
+            40.8
+          ],
+          "all_sub_windows_positive": true,
+          "n_sub_hurt": 0,
+          "both_dirs_positive": false,
+          "drop_top5_mean_dollar": 2.64,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 13,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 132.0,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 1,
+              "exp": 200.4,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 1,
+              "exp": 151.8,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 4,
+              "exp": -140.85,
+              "positive": false
+            }
+          },
+          "gate": "rvol_ge_6_and_vix_lt_22",
+          "desc": "rvol>=6bps AND vix<22 (calm-but-participating); live: both computable",
+          "retention": 0.467,
+          "IS_WINNER": false,
+          "winner_fail_reason": "one_side_negative"
+        },
+        {
+          "n": 34,
+          "wins": 27,
+          "wr_pct": 79.4,
+          "exp_dollar": 7.41,
+          "total_dollar": 252.0,
+          "is_n": 25,
+          "oos_n": 9,
+          "is_exp_dollar": 2.45,
+          "oos_exp_dollar": 21.2,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            -45.15,
+            30.47,
+            18.52,
+            21.2
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": false,
+          "drop_top5_mean_dollar": -32.9,
+          "robust_to_outliers": false,
+          "dsr_verdict": "WEAK",
+          "n_bad_month_trades_kept": 12,
+          "oos_months": {
+            "2026-02": {
+              "n": 4,
+              "exp": 150.6,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 1,
+              "exp": 151.8,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 4,
+              "exp": -140.85,
+              "positive": false
+            }
+          },
+          "gate": "rvol_ge_6_and_vix_lt_19",
+          "desc": "rvol>=6bps AND vix<19 (calm-but-participating); live: both computable",
+          "retention": 0.37,
+          "IS_WINNER": false,
+          "winner_fail_reason": "n_kept<35"
+        },
+        {
+          "n": 48,
+          "wins": 35,
+          "wr_pct": 72.9,
+          "exp_dollar": 5.41,
+          "total_dollar": 259.8,
+          "is_n": 32,
+          "oos_n": 16,
+          "is_exp_dollar": 4.69,
+          "oos_exp_dollar": 6.86,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            66.4,
+            -106.05,
+            102.35,
+            -41.05
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 2,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": -34.98,
+          "robust_to_outliers": false,
+          "dsr_verdict": "WEAK",
+          "n_bad_month_trades_kept": 8,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 132.0,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 8,
+              "exp": -52.87,
+              "positive": false
+            },
+            "2026-04": {
+              "n": 2,
+              "exp": 131.4,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 1,
+              "exp": -390.0,
+              "positive": false
+            }
+          },
+          "gate": "rvol_ge_7",
+          "desc": "realized-vol floor >= 7bps \u2014 skip quiet-tape (bad-month signature); live: stdev of session 5m log-rets to date",
+          "retention": 0.522,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        },
+        {
+          "n": 72,
+          "wins": 51,
+          "wr_pct": 70.8,
+          "exp_dollar": 4.77,
+          "total_dollar": 343.2,
+          "is_n": 50,
+          "oos_n": 22,
+          "is_exp_dollar": 6.58,
+          "oos_exp_dollar": 0.65,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            -11.8,
+            -37.5,
+            101.03,
+            -32.67
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 3,
+          "both_dirs_positive": false,
+          "drop_top5_mean_dollar": -21.81,
+          "robust_to_outliers": false,
+          "dsr_verdict": "WEAK",
+          "n_bad_month_trades_kept": 18,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 132.0,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 8,
+              "exp": -52.87,
+              "positive": false
+            },
+            "2026-04": {
+              "n": 4,
+              "exp": 158.7,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 5,
+              "exp": -171.48,
+              "positive": false
+            }
+          },
+          "gate": "rvol_ge_5",
+          "desc": "realized-vol floor >= 5bps \u2014 skip quiet-tape (bad-month signature); live: stdev of session 5m log-rets to date",
+          "retention": 0.783,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        },
+        {
+          "n": 60,
+          "wins": 45,
+          "wr_pct": 75.0,
+          "exp_dollar": 7.03,
+          "total_dollar": 421.8,
+          "is_n": 41,
+          "oos_n": 19,
+          "is_exp_dollar": 11.84,
+          "oos_exp_dollar": -3.35,
+          "oos_sign_stable": false,
+          "oos_positive": false,
+          "sub_window_means": [
+            10.64,
+            -29.56,
+            91.44,
+            -44.4
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 2,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": -24.4,
+          "robust_to_outliers": false,
+          "dsr_verdict": "WEAK",
+          "n_bad_month_trades_kept": 13,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 132.0,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 8,
+              "exp": -52.87,
+              "positive": false
+            },
+            "2026-04": {
+              "n": 2,
+              "exp": 131.4,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 4,
+              "exp": -140.85,
+              "positive": false
+            }
+          },
+          "gate": "rvol_ge_6",
+          "desc": "realized-vol floor >= 6bps \u2014 skip quiet-tape (bad-month signature); live: stdev of session 5m log-rets to date",
+          "retention": 0.652,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        }
+      ],
+      "winners": [],
+      "winner_count": 0,
+      "own_oos": {
+        "rvol_floor": {
+          "feature": "realized_vol_bps",
+          "direction": ">=",
+          "is_grid": [
+            {
+              "thr": 5,
+              "is_n": 50,
+              "is_exp": 6.58
+            },
+            {
+              "thr": 6,
+              "is_n": 41,
+              "is_exp": 11.84
+            },
+            {
+              "thr": 7,
+              "is_n": 32,
+              "is_exp": 4.69
+            },
+            {
+              "thr": 8,
+              "is_n": 25,
+              "is_exp": 16.92
+            },
+            {
+              "thr": 9,
+              "is_n": 21,
+              "is_exp": 33.91
+            },
+            {
+              "thr": 10,
+              "is_n": 14,
+              "is_exp": null,
+              "skipped": "n<15"
+            }
+          ],
+          "is_picked_threshold": 9,
+          "is_n": 21,
+          "is_exp_dollar": 33.91,
+          "oos_n_at_is_threshold": 10,
+          "oos_exp_dollar_at_is_threshold": 132.12,
+          "oos_generalizes": true,
+          "full_series_at_is_threshold": {
+            "n": 31,
+            "exp_dollar": 65.59,
+            "sub_window_means": [
+              182.63,
+              -134.45,
+              110.47,
+              118.35
+            ],
+            "all_sub_windows_positive": false,
+            "n_sub_hurt": 1
+          }
+        },
+        "mmove_floor": {
+          "feature": "morning_move_pct",
+          "direction": ">=",
+          "is_grid": [
+            {
+              "thr": 0.002,
+              "is_n": 50,
+              "is_exp": 3.95
+            },
+            {
+              "thr": 0.003,
+              "is_n": 32,
+              "is_exp": -10.33
+            },
+            {
+              "thr": 0.004,
+              "is_n": 23,
+              "is_exp": -48.87
+            },
+            {
+              "thr": 0.005,
+              "is_n": 16,
+              "is_exp": -75.61
+            }
+          ],
+          "is_picked_threshold": 0.002,
+          "is_n": 50,
+          "is_exp_dollar": 3.95,
+          "oos_n_at_is_threshold": 17,
+          "oos_exp_dollar_at_is_threshold": 59.89,
+          "oos_generalizes": true,
+          "full_series_at_is_threshold": {
+            "n": 67,
+            "exp_dollar": 18.14,
+            "sub_window_means": [
+              17.85,
+              -93.85,
+              88.66,
+              59.89
+            ],
+            "all_sub_windows_positive": false,
+            "n_sub_hurt": 1
+          }
+        }
+      }
+    },
+    "scorecard_default_-8pct": {
+      "premium_stop_pct": -0.08,
+      "n_trades": 92,
+      "oos_cut_date": "2026-02-02",
+      "baseline_no_gate": {
+        "n": 92,
+        "wins": 39,
+        "wr_pct": 42.4,
+        "exp_dollar": 45.88,
+        "total_dollar": 4221.4,
+        "is_n": 64,
+        "oos_n": 28,
+        "is_exp_dollar": 35.92,
+        "oos_exp_dollar": 68.66,
+        "oos_sign_stable": true,
+        "oos_positive": true,
+        "sub_window_means": [
+          58.96,
+          -12.47,
+          83.25,
+          53.79
+        ],
+        "all_sub_windows_positive": false,
+        "n_sub_hurt": 1,
+        "both_dirs_positive": true,
+        "drop_top5_mean_dollar": 25.43,
+        "robust_to_outliers": true,
+        "dsr_verdict": "PASS",
+        "n_bad_month_trades_kept": 25,
+        "oos_months": {
+          "2026-02": {
+            "n": 6,
+            "exp": 110.36,
+            "positive": true
+          },
+          "2026-03": {
+            "n": 8,
+            "exp": 30.57,
+            "positive": true
+          },
+          "2026-04": {
+            "n": 5,
+            "exp": 73.1,
+            "positive": true
+          },
+          "2026-05": {
+            "n": 9,
+            "exp": 72.25,
+            "positive": true
+          }
+        }
+      },
+      "gate_sweep": [
+        {
+          "n": 24,
+          "wins": 11,
+          "wr_pct": 45.8,
+          "exp_dollar": 52.12,
+          "total_dollar": 1250.9,
+          "is_n": 16,
+          "oos_n": 8,
+          "is_exp_dollar": 21.46,
+          "oos_exp_dollar": 113.44,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            104.69,
+            -50.28,
+            88.32,
+            65.76
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 4.11,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 3,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 115.87,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 2,
+              "exp": 175.5,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 1,
+              "exp": -22.8,
+              "positive": false
+            }
+          },
+          "gate": "mmove_ge_0.005",
+          "desc": "morning-move floor >= 0.005 (|open->trigger|) \u2014 trend-day floor; live: |session open -> current close|",
+          "retention": 0.261,
+          "IS_WINNER": false,
+          "winner_fail_reason": "n_kept<35"
+        },
+        {
+          "n": 52,
+          "wins": 22,
+          "wr_pct": 42.3,
+          "exp_dollar": 52.12,
+          "total_dollar": 2710.2,
+          "is_n": 36,
+          "oos_n": 16,
+          "is_exp_dollar": 25.09,
+          "oos_exp_dollar": 112.94,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            52.91,
+            -13.9,
+            73.62,
+            95.85
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 16.58,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 18,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 137.04,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 3,
+              "exp": 148.0,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 8,
+              "exp": 84.73,
+              "positive": true
+            }
+          },
+          "gate": "vix_band_16_19",
+          "desc": "two-sided VIX band [16, 19) \u2014 J mid-band; live: vix_cache at trigger",
+          "retention": 0.565,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        },
+        {
+          "n": 31,
+          "wins": 16,
+          "wr_pct": 51.6,
+          "exp_dollar": 63.3,
+          "total_dollar": 1962.4,
+          "is_n": 23,
+          "oos_n": 8,
+          "is_exp_dollar": 46.27,
+          "oos_exp_dollar": 112.28,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            137.51,
+            -31.86,
+            44.57,
+            112.28
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 17.09,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 8,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 115.87,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 1,
+              "exp": 200.4,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 1,
+              "exp": 151.8,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 1,
+              "exp": -33.36,
+              "positive": false
+            }
+          },
+          "gate": "rvol_ge_7_and_vix_lt_22",
+          "desc": "rvol>=7bps AND vix<22 (calm-but-participating); live: both computable",
+          "retention": 0.337,
+          "IS_WINNER": false,
+          "winner_fail_reason": "n_kept<35"
+        },
+        {
+          "n": 63,
+          "wins": 28,
+          "wr_pct": 44.4,
+          "exp_dollar": 48.38,
+          "total_dollar": 3047.7,
+          "is_n": 46,
+          "oos_n": 17,
+          "is_exp_dollar": 27.57,
+          "oos_exp_dollar": 104.67,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            46.52,
+            -4.93,
+            52.25,
+            99.55
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 19.26,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 24,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 137.04,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 3,
+              "exp": 148.0,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 9,
+              "exp": 72.25,
+              "positive": true
+            }
+          },
+          "gate": "vix_band_14_19",
+          "desc": "two-sided VIX band [14, 19) \u2014 J mid-band; live: vix_cache at trigger",
+          "retention": 0.685,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        },
+        {
+          "n": 63,
+          "wins": 27,
+          "wr_pct": 42.9,
+          "exp_dollar": 57.03,
+          "total_dollar": 3592.6,
+          "is_n": 44,
+          "oos_n": 19,
+          "is_exp_dollar": 37.33,
+          "oos_exp_dollar": 102.65,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            78.98,
+            -18.09,
+            81.75,
+            86.83
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 27.31,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 19,
+          "oos_months": {
+            "2026-02": {
+              "n": 6,
+              "exp": 110.36,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 1,
+              "exp": 200.4,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 4,
+              "exp": 102.48,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 8,
+              "exp": 84.73,
+              "positive": true
+            }
+          },
+          "gate": "vix_band_16_22",
+          "desc": "two-sided VIX band [16, 22) \u2014 J mid-band; live: vix_cache at trigger",
+          "retention": 0.685,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        },
+        {
+          "n": 31,
+          "wins": 16,
+          "wr_pct": 51.6,
+          "exp_dollar": 70.1,
+          "total_dollar": 2173.2,
+          "is_n": 21,
+          "oos_n": 10,
+          "is_exp_dollar": 57.53,
+          "oos_exp_dollar": 96.5,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            104.26,
+            24.75,
+            81.85,
+            73.83
+          ],
+          "all_sub_windows_positive": true,
+          "n_sub_hurt": 0,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 23.44,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 3,
+          "oos_months": {
+            "2026-02": {
+              "n": 4,
+              "exp": 98.19,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 4,
+              "exp": 116.22,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 2,
+              "exp": 53.7,
+              "positive": true
+            }
+          },
+          "gate": "rvol_ge_9",
+          "desc": "realized-vol floor >= 9bps \u2014 skip quiet-tape (bad-month signature); live: stdev of session 5m log-rets to date",
+          "retention": 0.337,
+          "IS_WINNER": false,
+          "winner_fail_reason": "n_kept<35"
+        },
+        {
+          "n": 32,
+          "wins": 15,
+          "wr_pct": 46.9,
+          "exp_dollar": 49.97,
+          "total_dollar": 1599.2,
+          "is_n": 23,
+          "oos_n": 9,
+          "is_exp_dollar": 32.57,
+          "oos_exp_dollar": 94.44,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            114.47,
+            -47.31,
+            49.81,
+            82.92
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 10.64,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 4,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 115.87,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 3,
+              "exp": 97.8,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 1,
+              "exp": -22.8,
+              "positive": false
+            }
+          },
+          "gate": "mmove_ge_0.004",
+          "desc": "morning-move floor >= 0.004 (|open->trigger|) \u2014 trend-day floor; live: |session open -> current close|",
+          "retention": 0.348,
+          "IS_WINNER": false,
+          "winner_fail_reason": "n_kept<35"
+        },
+        {
+          "n": 44,
+          "wins": 22,
+          "wr_pct": 50.0,
+          "exp_dollar": 65.36,
+          "total_dollar": 2875.8,
+          "is_n": 32,
+          "oos_n": 12,
+          "is_exp_dollar": 55.32,
+          "oos_exp_dollar": 92.13,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            112.87,
+            -29.43,
+            94.46,
+            83.54
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 27.56,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 7,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 115.87,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 4,
+              "exp": 110.4,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 3,
+              "exp": 28.2,
+              "positive": true
+            }
+          },
+          "gate": "mmove_ge_0.003",
+          "desc": "morning-move floor >= 0.003 (|open->trigger|) \u2014 trend-day floor; live: |session open -> current close|",
+          "retention": 0.478,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        },
+        {
+          "n": 65,
+          "wins": 27,
+          "wr_pct": 41.5,
+          "exp_dollar": 45.93,
+          "total_dollar": 2985.2,
+          "is_n": 46,
+          "oos_n": 19,
+          "is_exp_dollar": 27.45,
+          "oos_exp_dollar": 90.65,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            45.59,
+            -9.5,
+            74.9,
+            71.14
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 17.57,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 21,
+          "oos_months": {
+            "2026-02": {
+              "n": 6,
+              "exp": 110.36,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 4,
+              "exp": 102.48,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 9,
+              "exp": 72.25,
+              "positive": true
+            }
+          },
+          "gate": "vix_band_15_20",
+          "desc": "two-sided VIX band [15, 20) \u2014 J mid-band; live: vix_cache at trigger",
+          "retention": 0.707,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        },
+        {
+          "n": 22,
+          "wins": 13,
+          "wr_pct": 59.1,
+          "exp_dollar": 82.75,
+          "total_dollar": 1820.4,
+          "is_n": 14,
+          "oos_n": 8,
+          "is_exp_dollar": 81.96,
+          "oos_exp_dollar": 84.12,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            104.68,
+            45.79,
+            87.74,
+            97.26
+          ],
+          "all_sub_windows_positive": true,
+          "n_sub_hurt": 0,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 22.51,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 1,
+          "oos_months": {
+            "2026-02": {
+              "n": 3,
+              "exp": 22.12,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 3,
+              "exp": 166.4,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 2,
+              "exp": 53.7,
+              "positive": true
+            }
+          },
+          "gate": "rvol_ge_10",
+          "desc": "realized-vol floor >= 10bps \u2014 skip quiet-tape (bad-month signature); live: stdev of session 5m log-rets to date",
+          "retention": 0.239,
+          "IS_WINNER": false,
+          "winner_fail_reason": "n_kept<35"
+        },
+        {
+          "n": 43,
+          "wins": 21,
+          "wr_pct": 48.8,
+          "exp_dollar": 47.73,
+          "total_dollar": 2052.2,
+          "is_n": 32,
+          "oos_n": 11,
+          "is_exp_dollar": 35.35,
+          "oos_exp_dollar": 83.73,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            81.12,
+            -16.35,
+            45.45,
+            83.73
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 14.05,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 13,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 115.87,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 1,
+              "exp": 200.4,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 1,
+              "exp": 151.8,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 4,
+              "exp": -2.64,
+              "positive": false
+            }
+          },
+          "gate": "rvol_ge_6_and_vix_lt_22",
+          "desc": "rvol>=6bps AND vix<22 (calm-but-participating); live: both computable",
+          "retention": 0.467,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        },
+        {
+          "n": 34,
+          "wins": 16,
+          "wr_pct": 47.1,
+          "exp_dollar": 32.4,
+          "total_dollar": 1101.6,
+          "is_n": 25,
+          "oos_n": 9,
+          "is_exp_dollar": 14.32,
+          "oos_exp_dollar": 82.63,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            37.52,
+            -2.07,
+            9.56,
+            82.63
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 0.68,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 12,
+          "oos_months": {
+            "2026-02": {
+              "n": 4,
+              "exp": 150.6,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 1,
+              "exp": 151.8,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 4,
+              "exp": -2.64,
+              "positive": false
+            }
+          },
+          "gate": "rvol_ge_6_and_vix_lt_19",
+          "desc": "rvol>=6bps AND vix<19 (calm-but-participating); live: both computable",
+          "retention": 0.37,
+          "IS_WINNER": false,
+          "winner_fail_reason": "n_kept<35"
+        },
+        {
+          "n": 38,
+          "wins": 19,
+          "wr_pct": 50.0,
+          "exp_dollar": 61.91,
+          "total_dollar": 2352.8,
+          "is_n": 25,
+          "oos_n": 13,
+          "is_exp_dollar": 51.28,
+          "oos_exp_dollar": 82.37,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            121.24,
+            -16.57,
+            101.95,
+            50.98
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 23.91,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 4,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 115.87,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 5,
+              "exp": 83.47,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 2,
+              "exp": 53.7,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 1,
+              "exp": -33.36,
+              "positive": false
+            }
+          },
+          "gate": "rvol_ge_8",
+          "desc": "realized-vol floor >= 8bps \u2014 skip quiet-tape (bad-month signature); live: stdev of session 5m log-rets to date",
+          "retention": 0.413,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        },
+        {
+          "n": 67,
+          "wins": 30,
+          "wr_pct": 44.8,
+          "exp_dollar": 48.11,
+          "total_dollar": 3223.3,
+          "is_n": 50,
+          "oos_n": 17,
+          "is_exp_dollar": 38.41,
+          "oos_exp_dollar": 76.63,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            80.71,
+            -21.11,
+            58.13,
+            76.63
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 22.29,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 17,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 115.87,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 5,
+              "exp": 81.46,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 4,
+              "exp": 99.9,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 3,
+              "exp": -27.84,
+              "positive": false
+            }
+          },
+          "gate": "mmove_ge_0.002",
+          "desc": "morning-move floor >= 0.002 (|open->trigger|) \u2014 trend-day floor; live: |session open -> current close|",
+          "retention": 0.728,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        },
+        {
+          "n": 48,
+          "wins": 21,
+          "wr_pct": 43.8,
+          "exp_dollar": 46.14,
+          "total_dollar": 2214.6,
+          "is_n": 32,
+          "oos_n": 16,
+          "is_exp_dollar": 41.15,
+          "oos_exp_dollar": 56.12,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            83.82,
+            -10.96,
+            87.06,
+            24.63
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 15.14,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 8,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 115.87,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 8,
+              "exp": 30.57,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 2,
+              "exp": 53.7,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 1,
+              "exp": -33.36,
+              "positive": false
+            }
+          },
+          "gate": "rvol_ge_7",
+          "desc": "realized-vol floor >= 7bps \u2014 skip quiet-tape (bad-month signature); live: stdev of session 5m log-rets to date",
+          "retention": 0.522,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        },
+        {
+          "n": 72,
+          "wins": 28,
+          "wr_pct": 38.9,
+          "exp_dollar": 36.14,
+          "total_dollar": 2601.7,
+          "is_n": 50,
+          "oos_n": 22,
+          "is_exp_dollar": 28.33,
+          "oos_exp_dollar": 53.88,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            52.8,
+            -17.14,
+            76.49,
+            32.39
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 14.46,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 18,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 115.87,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 8,
+              "exp": 30.57,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 4,
+              "exp": 99.9,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 5,
+              "exp": -7.63,
+              "positive": false
+            }
+          },
+          "gate": "rvol_ge_5",
+          "desc": "realized-vol floor >= 5bps \u2014 skip quiet-tape (bad-month signature); live: stdev of session 5m log-rets to date",
+          "retention": 0.783,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        },
+        {
+          "n": 60,
+          "wins": 26,
+          "wr_pct": 43.3,
+          "exp_dollar": 38.41,
+          "total_dollar": 2304.4,
+          "is_n": 41,
+          "oos_n": 19,
+          "is_exp_dollar": 33.75,
+          "oos_exp_dollar": 48.46,
+          "oos_sign_stable": true,
+          "oos_positive": true,
+          "sub_window_means": [
+            71.12,
+            -17.93,
+            79.21,
+            21.22
+          ],
+          "all_sub_windows_positive": false,
+          "n_sub_hurt": 1,
+          "both_dirs_positive": true,
+          "drop_top5_mean_dollar": 13.47,
+          "robust_to_outliers": true,
+          "dsr_verdict": "PASS",
+          "n_bad_month_trades_kept": 13,
+          "oos_months": {
+            "2026-02": {
+              "n": 5,
+              "exp": 115.87,
+              "positive": true
+            },
+            "2026-03": {
+              "n": 8,
+              "exp": 30.57,
+              "positive": true
+            },
+            "2026-04": {
+              "n": 2,
+              "exp": 53.7,
+              "positive": true
+            },
+            "2026-05": {
+              "n": 4,
+              "exp": -2.64,
+              "positive": false
+            }
+          },
+          "gate": "rvol_ge_6",
+          "desc": "realized-vol floor >= 6bps \u2014 skip quiet-tape (bad-month signature); live: stdev of session 5m log-rets to date",
+          "retention": 0.652,
+          "IS_WINNER": false,
+          "winner_fail_reason": "bimodal(sub-window<=0)"
+        }
+      ],
+      "winners": [],
+      "winner_count": 0,
+      "own_oos": {
+        "rvol_floor": {
+          "feature": "realized_vol_bps",
+          "direction": ">=",
+          "is_grid": [
+            {
+              "thr": 5,
+              "is_n": 50,
+              "is_exp": 28.33
+            },
+            {
+              "thr": 6,
+              "is_n": 41,
+              "is_exp": 33.75
+            },
+            {
+              "thr": 7,
+              "is_n": 32,
+              "is_exp": 41.15
+            },
+            {
+              "thr": 8,
+              "is_n": 25,
+              "is_exp": 51.28
+            },
+            {
+              "thr": 9,
+              "is_n": 21,
+              "is_exp": 57.53
+            },
+            {
+              "thr": 10,
+              "is_n": 14,
+              "is_exp": null,
+              "skipped": "n<15"
+            }
+          ],
+          "is_picked_threshold": 9,
+          "is_n": 21,
+          "is_exp_dollar": 57.53,
+          "oos_n_at_is_threshold": 10,
+          "oos_exp_dollar_at_is_threshold": 96.5,
+          "oos_generalizes": true,
+          "full_series_at_is_threshold": {
+            "n": 31,
+            "exp_dollar": 70.1,
+            "sub_window_means": [
+              104.26,
+              24.75,
+              81.85,
+              73.83
+            ],
+            "all_sub_windows_positive": true,
+            "n_sub_hurt": 0
+          }
+        },
+        "mmove_floor": {
+          "feature": "morning_move_pct",
+          "direction": ">=",
+          "is_grid": [
+            {
+              "thr": 0.002,
+              "is_n": 50,
+              "is_exp": 38.41
+            },
+            {
+              "thr": 0.003,
+              "is_n": 32,
+              "is_exp": 55.32
+            },
+            {
+              "thr": 0.004,
+              "is_n": 23,
+              "is_exp": 32.57
+            },
+            {
+              "thr": 0.005,
+              "is_n": 16,
+              "is_exp": 21.46
+            }
+          ],
+          "is_picked_threshold": 0.003,
+          "is_n": 32,
+          "is_exp_dollar": 55.32,
+          "oos_n_at_is_threshold": 12,
+          "oos_exp_dollar_at_is_threshold": 92.13,
+          "oos_generalizes": true,
+          "full_series_at_is_threshold": {
+            "n": 44,
+            "exp_dollar": 65.36,
+            "sub_window_means": [
+              112.87,
+              -29.43,
+              94.46,
+              83.54
+            ],
+            "all_sub_windows_positive": false,
+            "n_sub_hurt": 1
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,326 @@
+{
+  "generated_at": "2026-06-20T22:25:33.631916+00:00",
+  "purpose": "PART A \u2014 J's-data optimal STRIKE (B1) / HOLD (B2) / TP (B3). Defines candidate param values; PART B validates forward on OUR SPY data.",
+  "scale_note": "Bar cache + entry_close = SPY-scale; SPX strikes /10, SPY strikes x1 (verified median ratio SPX 10.03 / SPY 1.00).",
+  "data_sources": {
+    "roundtrips": "analysis\\webull-j-trades\\j_roundtrips.csv",
+    "winner_features": "analysis\\webull-j-trades\\j_winner_features.json",
+    "winner_bar_cache": "analysis\\webull-j-trades\\winner_bar_cache.json"
+  },
+  "B1_strike": {
+    "method": "moneyness bucket = directional strike-from-spot distance ($, SPY scale) at entry. WINNER rows only (only those carry a cached spot). Per bucket: count, mean realized multiple (exit/entry), mean $/contract pnl, mean hold. SHARPEST = highest mean multiple & $/contract.",
+    "caveat": "j_roundtrips losers carry no cached underlier spot, so moneyness buckets are computed on his WINNERS (win_rate ~100% by construction is NOT the signal \u2014 the MULTIPLE and $/contract BY BUCKET is). The forward OOS sweep in PART B is what actually tests the strike on our unbiased tape with both winners and losers.",
+    "spx_all_dte": {
+      "ITM1": {
+        "n": 2,
+        "win_rate_pct": 50.0,
+        "mean_dist_spy_$": -0.94,
+        "mean_multiple": 0.804,
+        "median_multiple": 0.804,
+        "mean_pnl_per_contract": -29.5,
+        "median_pnl_per_contract": -29.5,
+        "mean_hold_min": 23.0
+      },
+      "ATM": {
+        "n": 8,
+        "win_rate_pct": 37.5,
+        "mean_dist_spy_$": 0.19,
+        "mean_multiple": 0.88,
+        "median_multiple": 0.813,
+        "mean_pnl_per_contract": -3.98,
+        "median_pnl_per_contract": -29.0,
+        "mean_hold_min": 14.6
+      },
+      "OTM1": {
+        "n": 61,
+        "win_rate_pct": 75.4,
+        "mean_dist_spy_$": 1.07,
+        "mean_multiple": 1.198,
+        "median_multiple": 1.282,
+        "mean_pnl_per_contract": 39.44,
+        "median_pnl_per_contract": 50.0,
+        "mean_hold_min": 31.9
+      },
+      "OTM2": {
+        "n": 76,
+        "win_rate_pct": 57.9,
+        "mean_dist_spy_$": 2.03,
+        "mean_multiple": 1.169,
+        "median_multiple": 1.111,
+        "mean_pnl_per_contract": 40.21,
+        "median_pnl_per_contract": 11.0,
+        "mean_hold_min": 23.0
+      },
+      "OTM3+": {
+        "n": 380,
+        "win_rate_pct": 55.8,
+        "mean_dist_spy_$": 5.89,
+        "mean_multiple": 1.133,
+        "median_multiple": 1.146,
+        "mean_pnl_per_contract": 26.62,
+        "median_pnl_per_contract": 13.0,
+        "mean_hold_min": 50.7
+      }
+    },
+    "spx_0dte": {
+      "ITM1": {
+        "n": 2,
+        "win_rate_pct": 50.0,
+        "mean_dist_spy_$": -0.94,
+        "mean_multiple": 0.804,
+        "median_multiple": 0.804,
+        "mean_pnl_per_contract": -29.5,
+        "median_pnl_per_contract": -29.5,
+        "mean_hold_min": 23.0
+      },
+      "ATM": {
+        "n": 6,
+        "win_rate_pct": 50.0,
+        "mean_dist_spy_$": 0.35,
+        "mean_multiple": 0.902,
+        "median_multiple": 0.849,
+        "mean_pnl_per_contract": 4.37,
+        "median_pnl_per_contract": -39.4,
+        "mean_hold_min": 11.6
+      },
+      "OTM1": {
+        "n": 60,
+        "win_rate_pct": 75.0,
+        "mean_dist_spy_$": 1.08,
+        "mean_multiple": 1.19,
+        "median_multiple": 1.282,
+        "mean_pnl_per_contract": 38.66,
+        "median_pnl_per_contract": 50.0,
+        "mean_hold_min": 32.0
+      },
+      "OTM2": {
+        "n": 73,
+        "win_rate_pct": 60.3,
+        "mean_dist_spy_$": 2.05,
+        "mean_multiple": 1.186,
+        "median_multiple": 1.12,
+        "mean_pnl_per_contract": 43.46,
+        "median_pnl_per_contract": 14.0,
+        "mean_hold_min": 23.4
+      },
+      "OTM3+": {
+        "n": 323,
+        "win_rate_pct": 57.3,
+        "mean_dist_spy_$": 5.28,
+        "mean_multiple": 1.136,
+        "median_multiple": 1.167,
+        "mean_pnl_per_contract": 26.26,
+        "median_pnl_per_contract": 24.0,
+        "mean_hold_min": 48.7
+      }
+    }
+  },
+  "B2_hold_time": {
+    "method": "0DTE SPX winners; option premium repriced along cached underlier path with per-trade IV inverted from J's entry fill; minutes-from-entry to PEAK premium.",
+    "n": 266,
+    "minutes_to_peak_dist": {
+      "n": 266,
+      "mean": 72.35,
+      "median": 29.35,
+      "p25": 11.2,
+      "p75": 71.8,
+      "p90": 215.0,
+      "min": 1.0,
+      "max": 439.5
+    },
+    "cumulative_pct_peaked_by": {
+      "<= 15 min": 29.7,
+      "<= 30 min": 50.8,
+      "<= 45 min": 62.4,
+      "<= 60 min": 69.9,
+      "<= 90 min": 78.2,
+      "<= 120 min": 84.2,
+      "<= 180 min": 87.6,
+      "<= 240 min": 89.8
+    },
+    "his_actual_hold_dist_min": {
+      "n": 266,
+      "mean": 24.97,
+      "median": 14.3,
+      "p25": 6.3,
+      "p75": 29.8,
+      "p90": 48.1,
+      "min": 0.8,
+      "max": 1109.0
+    },
+    "note": "his ACTUAL holds are typically SHORTER than minutes-to-peak (he exits before the modeled peak) -> headroom for a hold ceiling AT the peak band."
+  },
+  "B3_tp_target": {
+    "method": "0DTE SPX winners; peak %-gain over entry premium = peak/entry - 1.",
+    "n": 266,
+    "peak_gain_pct_dist": {
+      "n": 266,
+      "mean": 38.55,
+      "median": 14.55,
+      "p25": 5.4,
+      "p75": 36.3,
+      "p90": 94.6,
+      "min": -37.9,
+      "max": 803.2
+    },
+    "cumulative_pct_reaching_gain": {
+      ">= 10%": 58.3,
+      ">= 20%": 44.4,
+      ">= 30%": 29.3,
+      ">= 50%": 18.4,
+      ">= 75%": 11.7,
+      ">= 100%": 9.4,
+      ">= 150%": 5.3,
+      ">= 200%": 3.0
+    },
+    "his_realized_multiple_dist": {
+      "n": 266,
+      "mean": 1.52,
+      "median": 1.39,
+      "p25": 1.25,
+      "p75": 1.6,
+      "p90": 2.08,
+      "min": 1.03,
+      "max": 4.5
+    }
+  },
+  "B1xB2xB3_by_bucket": {
+    "ATM": {
+      "n": 3,
+      "median_min_to_peak": 14.3,
+      "median_peak_gain_pct": 0.8,
+      "mean_peak_gain_pct": 6.9
+    },
+    "OTM1": {
+      "n": 45,
+      "median_min_to_peak": 27.3,
+      "median_peak_gain_pct": 6.9,
+      "mean_peak_gain_pct": 49.3
+    },
+    "OTM2": {
+      "n": 40,
+      "median_min_to_peak": 42.0,
+      "median_peak_gain_pct": 12.4,
+      "mean_peak_gain_pct": 28.5
+    },
+    "OTM3+": {
+      "n": 178,
+      "median_min_to_peak": 29.8,
+      "median_peak_gain_pct": 19.4,
+      "mean_peak_gain_pct": 38.6
+    }
+  },
+  "coverage": {
+    "used": 266,
+    "iv_unsolvable": 3,
+    "no_feat_or_bars": 6,
+    "short_path": 9
+  },
+  "peak_rows_sample": [
+    {
+      "date": "2021-07-07",
+      "symbol": "SPY210707P00432000",
+      "side": "P",
+      "entry_px": 0.21,
+      "iv": 0.164,
+      "minutes_to_peak": 22.7,
+      "peak_gain_pct": 306.0,
+      "realized_mult": 1.476,
+      "his_hold_min": 6.0,
+      "dist_spy_$": 1.45,
+      "bucket": "OTM1"
+    },
+    {
+      "date": "2021-07-12",
+      "symbol": "SPY210712P00436000",
+      "side": "P",
+      "entry_px": 0.33,
+      "iv": 0.126,
+      "minutes_to_peak": 11.4,
+      "peak_gain_pct": 19.1,
+      "realized_mult": 1.188,
+      "his_hold_min": 5.0,
+      "dist_spy_$": 0.37,
+      "bucket": "ATM"
+    },
+    {
+      "date": "2021-07-21",
+      "symbol": "SPY210721C00434000",
+      "side": "C",
+      "entry_px": 0.56,
+      "iv": 0.191,
+      "minutes_to_peak": 428.4,
+      "peak_gain_pct": 78.6,
+      "realized_mult": 1.25,
+      "his_hold_min": 4.5,
+      "dist_spy_$": 0.73,
+      "bucket": "OTM1"
+    },
+    {
+      "date": "2021-07-23",
+      "symbol": "SPY210723P00436000",
+      "side": "P",
+      "entry_px": 0.32,
+      "iv": 0.178,
+      "minutes_to_peak": 25.9,
+      "peak_gain_pct": 29.7,
+      "realized_mult": 1.281,
+      "his_hold_min": 23.3,
+      "dist_spy_$": 1.38,
+      "bucket": "OTM1"
+    },
+    {
+      "date": "2021-08-04",
+      "symbol": "SPY210804C00441000",
+      "side": "C",
+      "entry_px": 0.31,
+      "iv": 0.175,
+      "minutes_to_peak": 17.8,
+      "peak_gain_pct": 65.3,
+      "realized_mult": 1.032,
+      "his_hold_min": 10.2,
+      "dist_spy_$": 1.36,
+      "bucket": "OTM1"
+    },
+    {
+      "date": "2021-11-22",
+      "symbol": "SPY211122C00474000",
+      "side": "C",
+      "entry_px": 0.1,
+      "iv": 0.207,
+      "minutes_to_peak": 107.8,
+      "peak_gain_pct": 551.2,
+      "realized_mult": 2.0,
+      "his_hold_min": 18.5,
+      "dist_spy_$": 3.67,
+      "bucket": "OTM3+"
+    },
+    {
+      "date": "2021-12-03",
+      "symbol": "SPY211203P00449000",
+      "side": "P",
+      "entry_px": 0.97,
+      "iv": 0.664,
+      "minutes_to_peak": 113.1,
+      "peak_gain_pct": 60.2,
+      "realized_mult": 1.526,
+      "his_hold_min": 50.4,
+      "dist_spy_$": 5.04,
+      "bucket": "OTM3+"
+    },
+    {
+      "date": "2022-01-10",
+      "symbol": "SPY220110C00460000",
+      "side": "C",
+      "entry_px": 0.63,
+      "iv": 0.204,
+      "minutes_to_peak": 385.9,
+      "peak_gain_pct": 803.2,
+      "realized_mult": 1.571,
+      "his_hold_min": 19.1,
+      "dist_spy_$": 0.6,
+      "bucket": "OTM1"
+    }
+  ],
+  "n_peak_rows": 266
+}

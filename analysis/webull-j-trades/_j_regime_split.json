@@ -1,0 +1,790 @@
+{
+  "_generated": "2026-06-20T22:27:03.745206Z",
+  "_what": "C1/C2/C3 regime split on J's 668 SPX-family Webull round-trips (2021-23). His data DEFINES the hypotheses; forward-validation is separate.",
+  "_causality": "VIX band from DAY OPEN (causal 09:30 proxy); VIX character from open-minus-prior-close (overnight, causal). Day-type is a post-hoc full-day label (descriptive of WHERE his edge appeared, not a live gate).",
+  "_doctrine_bands": {
+    "VIX_LOW_CEIL": 16.0,
+    "VIX_HIGH_VOL_FLOOR": 19.0,
+    "vix_char_deadband_pts": 0.3
+  },
+  "_honesty": "J's SPX-family book is net NEGATIVE (-$12,885, WR 46.9%, PF 0.75). We are locating WHERE within it the edge is least-bad / positive, NOT claiming his raw book is profitable. Small-N cells carry Wilson LCB.",
+  "C1_vix": {
+    "overall": {
+      "n": 668,
+      "wins": 313,
+      "wr": 0.4686,
+      "wr_wilson_lcb": 0.431,
+      "total_pnl": -12885.0,
+      "exp_per_trade": -19.29,
+      "avg_win": 121.32,
+      "avg_loss": -143.26,
+      "profit_factor": 0.747
+    },
+    "by_vix_band": {
+      "low": {
+        "n": 63,
+        "wins": 35,
+        "wr": 0.5556,
+        "wr_wilson_lcb": 0.4332,
+        "total_pnl": -4041.0,
+        "exp_per_trade": -64.14,
+        "avg_win": 109.63,
+        "avg_loss": -281.36,
+        "profit_factor": 0.487
+      },
+      "mid": {
+        "n": 37,
+        "wins": 19,
+        "wr": 0.5135,
+        "wr_wilson_lcb": 0.3589,
+        "total_pnl": 1648.0,
+        "exp_per_trade": 44.54,
+        "avg_win": 158.74,
+        "avg_loss": -76.0,
+        "profit_factor": 2.205
+      },
+      "high": {
+        "n": 568,
+        "wins": 259,
+        "wr": 0.456,
+        "wr_wilson_lcb": 0.4155,
+        "total_pnl": -10492.0,
+        "exp_per_trade": -18.47,
+        "avg_win": 120.16,
+        "avg_loss": -134.67,
+        "profit_factor": 0.748
+      }
+    },
+    "by_vix_band_close_robustness": {
+      "low": {
+        "n": 68,
+        "wins": 39,
+        "wr": 0.5735,
+        "wr_wilson_lcb": 0.4552,
+        "total_pnl": -2656.0,
+        "exp_per_trade": -39.06,
+        "avg_win": 134.15,
+        "avg_loss": -272.0,
+        "profit_factor": 0.663
+      },
+      "mid": {
+        "n": 33,
+        "wins": 17,
+        "wr": 0.5152,
+        "wr_wilson_lcb": 0.3522,
+        "total_pnl": 126.0,
+        "exp_per_trade": 3.82,
+        "avg_win": 91.35,
+        "avg_loss": -89.19,
+        "profit_factor": 1.088
+      },
+      "high": {
+        "n": 567,
+        "wins": 257,
+        "wr": 0.4533,
+        "wr_wilson_lcb": 0.4127,
+        "total_pnl": -10355.0,
+        "exp_per_trade": -18.26,
+        "avg_win": 121.36,
+        "avg_loss": -134.01,
+        "profit_factor": 0.751
+      }
+    },
+    "by_vix_character": {
+      "rising": {
+        "n": 263,
+        "wins": 119,
+        "wr": 0.4525,
+        "wr_wilson_lcb": 0.3934,
+        "total_pnl": -7994.0,
+        "exp_per_trade": -30.4,
+        "avg_win": 112.19,
+        "avg_loss": -148.23,
+        "profit_factor": 0.625
+      },
+      "flat": {
+        "n": 304,
+        "wins": 146,
+        "wr": 0.4803,
+        "wr_wilson_lcb": 0.4247,
+        "total_pnl": -2996.0,
+        "exp_per_trade": -9.86,
+        "avg_win": 124.2,
+        "avg_loss": -133.73,
+        "profit_factor": 0.858
+      },
+      "falling": {
+        "n": 101,
+        "wins": 48,
+        "wr": 0.4752,
+        "wr_wilson_lcb": 0.3806,
+        "total_pnl": -1895.0,
+        "exp_per_trade": -18.76,
+        "avg_win": 135.21,
+        "avg_loss": -158.21,
+        "profit_factor": 0.774
+      }
+    },
+    "band_x_character": {
+      "low/rising": {
+        "n": 14,
+        "wins": 5,
+        "wr": 0.3571,
+        "wr_wilson_lcb": 0.1634,
+        "total_pnl": -2103.0,
+        "exp_per_trade": -150.21,
+        "avg_win": 74.0,
+        "avg_loss": -274.78,
+        "profit_factor": 0.15
+      },
+      "low/flat": {
+        "n": 49,
+        "wins": 30,
+        "wr": 0.6122,
+        "wr_wilson_lcb": 0.4725,
+        "total_pnl": -1938.0,
+        "exp_per_trade": -39.55,
+        "avg_win": 115.57,
+        "avg_loss": -284.47,
+        "profit_factor": 0.641
+      },
+      "mid/rising": {
+        "n": 9,
+        "wins": 6,
+        "wr": 0.6667,
+        "wr_wilson_lcb": 0.3542,
+        "total_pnl": 691.0,
+        "exp_per_trade": 76.78,
+        "avg_win": 125.67,
+        "avg_loss": -21.0,
+        "profit_factor": 11.968
+      },
+      "mid/flat": {
+        "n": 17,
+        "wins": 5,
+        "wr": 0.2941,
+        "wr_wilson_lcb": 0.1328,
+        "total_pnl": -675.0,
+        "exp_per_trade": -39.71,
+        "avg_win": 39.0,
+        "avg_loss": -72.5,
+        "profit_factor": 0.224
+      },
+      "mid/falling": {
+        "n": 11,
+        "wins": 8,
+        "wr": 0.7273,
+        "wr_wilson_lcb": 0.4343,
+        "total_pnl": 1632.0,
+        "exp_per_trade": 148.36,
+        "avg_win": 258.38,
+        "avg_loss": -145.0,
+        "profit_factor": 4.752
+      },
+      "high/rising": {
+        "n": 240,
+        "wins": 108,
+        "wr": 0.45,
+        "wr_wilson_lcb": 0.3883,
+        "total_pnl": -6582.0,
+        "exp_per_trade": -27.43,
+        "avg_win": 113.21,
+        "avg_loss": -142.49,
+        "profit_factor": 0.65
+      },
+      "high/flat": {
+        "n": 238,
+        "wins": 111,
+        "wr": 0.4664,
+        "wr_wilson_lcb": 0.404,
+        "total_pnl": -383.0,
+        "exp_per_trade": -1.61,
+        "avg_win": 130.37,
+        "avg_loss": -116.96,
+        "profit_factor": 0.974
+      },
+      "high/falling": {
+        "n": 90,
+        "wins": 40,
+        "wr": 0.4444,
+        "wr_wilson_lcb": 0.3462,
+        "total_pnl": -3527.0,
+        "exp_per_trade": -39.19,
+        "avg_win": 110.58,
+        "avg_loss": -159.0,
+        "profit_factor": 0.556
+      }
+    },
+    "by_side_x_band": {
+      "bull/low": {
+        "n": 44,
+        "wins": 27,
+        "wr": 0.6136,
+        "wr_wilson_lcb": 0.4662,
+        "total_pnl": -1247.0,
+        "exp_per_trade": -28.34,
+        "avg_win": 98.78,
+        "avg_loss": -230.24,
+        "profit_factor": 0.681
+      },
+      "bull/mid": {
+        "n": 19,
+        "wins": 6,
+        "wr": 0.3158,
+        "wr_wilson_lcb": 0.1536,
+        "total_pnl": 581.0,
+        "exp_per_trade": 30.58,
+        "avg_win": 241.0,
+        "avg_loss": -66.54,
+        "profit_factor": 1.672
+      },
+      "bull/high": {
+        "n": 282,
+        "wins": 128,
+        "wr": 0.4539,
+        "wr_wilson_lcb": 0.3968,
+        "total_pnl": -1404.0,
+        "exp_per_trade": -4.98,
+        "avg_win": 123.73,
+        "avg_loss": -111.95,
+        "profit_factor": 0.919
+      },
+      "bear/low": {
+        "n": 19,
+        "wins": 8,
+        "wr": 0.4211,
+        "wr_wilson_lcb": 0.2314,
+        "total_pnl": -2794.0,
+        "exp_per_trade": -147.05,
+        "avg_win": 146.25,
+        "avg_loss": -360.36,
+        "profit_factor": 0.295
+      },
+      "bear/mid": {
+        "n": 18,
+        "wins": 13,
+        "wr": 0.7222,
+        "wr_wilson_lcb": 0.4913,
+        "total_pnl": 1067.0,
+        "exp_per_trade": 59.28,
+        "avg_win": 120.77,
+        "avg_loss": -100.6,
+        "profit_factor": 3.121
+      },
+      "bear/high": {
+        "n": 286,
+        "wins": 131,
+        "wr": 0.458,
+        "wr_wilson_lcb": 0.4012,
+        "total_pnl": -9088.0,
+        "exp_per_trade": -31.78,
+        "avg_win": 116.67,
+        "avg_loss": -157.24,
+        "profit_factor": 0.627
+      }
+    },
+    "vix_level_winners_vs_losers": {
+      "winner_mean_vix": 24.65,
+      "loser_mean_vix": 25.01,
+      "winner_median_vix": 25.46,
+      "loser_median_vix": 25.37,
+      "winner_mean_change1d": 0.311,
+      "loser_mean_change1d": 0.344
+    }
+  },
+  "C2_day_type": {
+    "classifier": {
+      "method": "data-driven range_ratio terciles over reliable days (>=60 RTH 5m bars)",
+      "range_ratio_tercile_low_trend_lt": 6.07,
+      "range_ratio_tercile_high_range_gt": 12.45,
+      "n_reliable_days": 205
+    },
+    "coverage": {
+      "n_spx": 668,
+      "n_with_day_type": 608,
+      "n_reliable_day_type": 608,
+      "note": "reliable = >=60 cached RTH bars; thin days excluded from headline. trend=low range_ratio tercile (efficient move); range=high tercile (chop); mixed=middle tercile."
+    },
+    "by_day_type": {
+      "trend": {
+        "n": 211,
+        "wins": 109,
+        "wr": 0.5166,
+        "wr_wilson_lcb": 0.4495,
+        "total_pnl": -291.0,
+        "exp_per_trade": -1.38,
+        "avg_win": 108.18,
+        "avg_loss": -118.46,
+        "profit_factor": 0.976
+      },
+      "mixed": {
+        "n": 188,
+        "wins": 84,
+        "wr": 0.4468,
+        "wr_wilson_lcb": 0.3775,
+        "total_pnl": -2907.0,
+        "exp_per_trade": -15.46,
+        "avg_win": 110.95,
+        "avg_loss": -117.57,
+        "profit_factor": 0.762
+      },
+      "range": {
+        "n": 209,
+        "wins": 91,
+        "wr": 0.4354,
+        "wr_wilson_lcb": 0.37,
+        "total_pnl": -11794.0,
+        "exp_per_trade": -56.43,
+        "avg_win": 102.69,
+        "avg_loss": -179.14,
+        "profit_factor": 0.442
+      }
+    },
+    "side_x_day_type": {
+      "bull/trend": {
+        "n": 116,
+        "wins": 61,
+        "wr": 0.5259,
+        "wr_wilson_lcb": 0.4356,
+        "total_pnl": 1541.0,
+        "exp_per_trade": 13.28,
+        "avg_win": 110.3,
+        "avg_loss": -94.31,
+        "profit_factor": 1.297
+      },
+      "bull/mixed": {
+        "n": 99,
+        "wins": 43,
+        "wr": 0.4343,
+        "wr_wilson_lcb": 0.341,
+        "total_pnl": -2012.0,
+        "exp_per_trade": -20.32,
+        "avg_win": 109.53,
+        "avg_loss": -120.04,
+        "profit_factor": 0.701
+      },
+      "bull/range": {
+        "n": 100,
+        "wins": 42,
+        "wr": 0.42,
+        "wr_wilson_lcb": 0.328,
+        "total_pnl": -3250.0,
+        "exp_per_trade": -32.5,
+        "avg_win": 114.45,
+        "avg_loss": -138.91,
+        "profit_factor": 0.597
+      },
+      "bear/trend": {
+        "n": 95,
+        "wins": 48,
+        "wr": 0.5053,
+        "wr_wilson_lcb": 0.4065,
+        "total_pnl": -1832.0,
+        "exp_per_trade": -19.28,
+        "avg_win": 105.5,
+        "avg_loss": -146.72,
+        "profit_factor": 0.734
+      },
+      "bear/mixed": {
+        "n": 89,
+        "wins": 41,
+        "wr": 0.4607,
+        "wr_wilson_lcb": 0.3609,
+        "total_pnl": -895.0,
+        "exp_per_trade": -10.06,
+        "avg_win": 112.44,
+        "avg_loss": -114.69,
+        "profit_factor": 0.837
+      },
+      "bear/range": {
+        "n": 109,
+        "wins": 49,
+        "wr": 0.4495,
+        "wr_wilson_lcb": 0.3595,
+        "total_pnl": -8544.0,
+        "exp_per_trade": -78.39,
+        "avg_win": 92.61,
+        "avg_loss": -218.03,
+        "profit_factor": 0.347
+      }
+    },
+    "day_type_x_vix_band": {
+      "trend/low": {
+        "n": 17,
+        "wins": 10,
+        "wr": 0.5882,
+        "wr_wilson_lcb": 0.3601,
+        "total_pnl": -927.0,
+        "exp_per_trade": -54.53,
+        "avg_win": 108.3,
+        "avg_loss": -287.14,
+        "profit_factor": 0.539
+      },
+      "trend/mid": {
+        "n": 7,
+        "wins": 4,
+        "wr": 0.5714,
+        "wr_wilson_lcb": 0.2505,
+        "total_pnl": 110.0,
+        "exp_per_trade": 15.71,
+        "avg_win": 62.0,
+        "avg_loss": -46.0,
+        "profit_factor": 1.797
+      },
+      "trend/high": {
+        "n": 187,
+        "wins": 95,
+        "wr": 0.508,
+        "wr_wilson_lcb": 0.4369,
+        "total_pnl": 526.0,
+        "exp_per_trade": 2.81,
+        "avg_win": 110.12,
+        "avg_loss": -107.99,
+        "profit_factor": 1.053
+      },
+      "mixed/low": {
+        "n": 13,
+        "wins": 9,
+        "wr": 0.6923,
+        "wr_wilson_lcb": 0.4237,
+        "total_pnl": -350.0,
+        "exp_per_trade": -26.92,
+        "avg_win": 118.89,
+        "avg_loss": -355.0,
+        "profit_factor": 0.754
+      },
+      "mixed/mid": {
+        "n": 11,
+        "wins": 3,
+        "wr": 0.2727,
+        "wr_wilson_lcb": 0.0975,
+        "total_pnl": -249.0,
+        "exp_per_trade": -22.64,
+        "avg_win": 57.0,
+        "avg_loss": -52.5,
+        "profit_factor": 0.407
+      },
+      "mixed/high": {
+        "n": 164,
+        "wins": 72,
+        "wr": 0.439,
+        "wr_wilson_lcb": 0.3653,
+        "total_pnl": -2308.0,
+        "exp_per_trade": -14.07,
+        "avg_win": 112.21,
+        "avg_loss": -112.9,
+        "profit_factor": 0.778
+      },
+      "range/low": {
+        "n": 22,
+        "wins": 11,
+        "wr": 0.5,
+        "wr_wilson_lcb": 0.3072,
+        "total_pnl": -2909.0,
+        "exp_per_trade": -132.23,
+        "avg_win": 76.27,
+        "avg_loss": -340.73,
+        "profit_factor": 0.224
+      },
+      "range/mid": {
+        "n": 7,
+        "wins": 5,
+        "wr": 0.7143,
+        "wr_wilson_lcb": 0.3589,
+        "total_pnl": 330.0,
+        "exp_per_trade": 47.14,
+        "avg_win": 124.0,
+        "avg_loss": -145.0,
+        "profit_factor": 2.138
+      },
+      "range/high": {
+        "n": 180,
+        "wins": 75,
+        "wr": 0.4167,
+        "wr_wilson_lcb": 0.3471,
+        "total_pnl": -9215.0,
+        "exp_per_trade": -51.19,
+        "avg_win": 105.15,
+        "avg_loss": -162.87,
+        "profit_factor": 0.461
+      }
+    }
+  },
+  "C3_year_transfer": {
+    "by_year": {
+      "2021": {
+        "n": 20,
+        "wins": 9,
+        "wr": 0.45,
+        "wr_wilson_lcb": 0.2582,
+        "total_pnl": -268.0,
+        "exp_per_trade": -13.4,
+        "avg_win": 39.0,
+        "avg_loss": -56.27,
+        "profit_factor": 0.567
+      },
+      "2022": {
+        "n": 556,
+        "wins": 254,
+        "wr": 0.4568,
+        "wr_wilson_lcb": 0.4159,
+        "total_pnl": -9657.0,
+        "exp_per_trade": -17.37,
+        "avg_win": 121.56,
+        "avg_loss": -134.21,
+        "profit_factor": 0.762
+      },
+      "2023": {
+        "n": 92,
+        "wins": 50,
+        "wr": 0.5435,
+        "wr_wilson_lcb": 0.442,
+        "total_pnl": -2960.0,
+        "exp_per_trade": -32.17,
+        "avg_win": 134.96,
+        "avg_loss": -231.14,
+        "profit_factor": 0.695
+      }
+    },
+    "by_year_x_side": {
+      "2021/bull": {
+        "n": 14,
+        "wins": 5,
+        "wr": 0.3571,
+        "wr_wilson_lcb": 0.1634,
+        "total_pnl": -415.0,
+        "exp_per_trade": -29.64,
+        "avg_win": 25.6,
+        "avg_loss": -60.33,
+        "profit_factor": 0.236
+      },
+      "2021/bear": {
+        "n": 6,
+        "wins": 4,
+        "wr": 0.6667,
+        "wr_wilson_lcb": 0.3,
+        "total_pnl": 147.0,
+        "exp_per_trade": 24.5,
+        "avg_win": 55.75,
+        "avg_loss": -38.0,
+        "profit_factor": 2.934
+      },
+      "2022/bull": {
+        "n": 272,
+        "wins": 122,
+        "wr": 0.4485,
+        "wr_wilson_lcb": 0.3905,
+        "total_pnl": -1090.0,
+        "exp_per_trade": -4.01,
+        "avg_win": 126.48,
+        "avg_loss": -110.13,
+        "profit_factor": 0.934
+      },
+      "2022/bear": {
+        "n": 284,
+        "wins": 132,
+        "wr": 0.4648,
+        "wr_wilson_lcb": 0.4076,
+        "total_pnl": -8567.0,
+        "exp_per_trade": -30.17,
+        "avg_win": 117.01,
+        "avg_loss": -157.97,
+        "profit_factor": 0.643
+      },
+      "2023/bull": {
+        "n": 59,
+        "wins": 34,
+        "wr": 0.5763,
+        "wr_wilson_lcb": 0.4493,
+        "total_pnl": -565.0,
+        "exp_per_trade": -9.58,
+        "avg_win": 129.18,
+        "avg_loss": -198.28,
+        "profit_factor": 0.886
+      },
+      "2023/bear": {
+        "n": 33,
+        "wins": 16,
+        "wr": 0.4848,
+        "wr_wilson_lcb": 0.325,
+        "total_pnl": -2395.0,
+        "exp_per_trade": -72.58,
+        "avg_win": 147.25,
+        "avg_loss": -279.47,
+        "profit_factor": 0.496
+      }
+    },
+    "by_year_x_vix_band": {
+      "2021/mid": {
+        "n": 13,
+        "wins": 5,
+        "wr": 0.3846,
+        "wr_wilson_lcb": 0.1771,
+        "total_pnl": -207.0,
+        "exp_per_trade": -15.92,
+        "avg_win": 44.6,
+        "avg_loss": -53.75,
+        "profit_factor": 0.519
+      },
+      "2021/high": {
+        "n": 7,
+        "wins": 4,
+        "wr": 0.5714,
+        "wr_wilson_lcb": 0.2505,
+        "total_pnl": -61.0,
+        "exp_per_trade": -8.71,
+        "avg_win": 32.0,
+        "avg_loss": -63.0,
+        "profit_factor": 0.677
+      },
+      "2022/mid": {
+        "n": 6,
+        "wins": 2,
+        "wr": 0.3333,
+        "wr_wilson_lcb": 0.0968,
+        "total_pnl": 1.0,
+        "exp_per_trade": 0.17,
+        "avg_win": 106.0,
+        "avg_loss": -52.75,
+        "profit_factor": 1.005
+      },
+      "2022/high": {
+        "n": 550,
+        "wins": 252,
+        "wr": 0.4582,
+        "wr_wilson_lcb": 0.417,
+        "total_pnl": -9658.0,
+        "exp_per_trade": -17.56,
+        "avg_win": 121.68,
+        "avg_loss": -135.31,
+        "profit_factor": 0.76
+      },
+      "2023/low": {
+        "n": 63,
+        "wins": 35,
+        "wr": 0.5556,
+        "wr_wilson_lcb": 0.4332,
+        "total_pnl": -4041.0,
+        "exp_per_trade": -64.14,
+        "avg_win": 109.63,
+        "avg_loss": -281.36,
+        "profit_factor": 0.487
+      },
+      "2023/mid": {
+        "n": 18,
+        "wins": 12,
+        "wr": 0.6667,
+        "wr_wilson_lcb": 0.4375,
+        "total_pnl": 1854.0,
+        "exp_per_trade": 103.0,
+        "avg_win": 215.08,
+        "avg_loss": -121.17,
+        "profit_factor": 3.55
+      },
+      "2023/high": {
+        "n": 11,
+        "wins": 3,
+        "wr": 0.2727,
+        "wr_wilson_lcb": 0.0975,
+        "total_pnl": -773.0,
+        "exp_per_trade": -70.27,
+        "avg_win": 110.0,
+        "avg_loss": -137.88,
+        "profit_factor": 0.299
+      }
+    },
+    "vix_band_edge_sign_across_years": {
+      "low": {
+        "per_year": {
+          "2021": {
+            "n": 0,
+            "exp": null
+          },
+          "2022": {
+            "n": 0,
+            "exp": null
+          },
+          "2023": {
+            "n": 63,
+            "exp": -64.14
+          }
+        },
+        "n_years_ge10": 1,
+        "all_same_sign": true
+      },
+      "mid": {
+        "per_year": {
+          "2021": {
+            "n": 13,
+            "exp": -15.92
+          },
+          "2022": {
+            "n": 6,
+            "exp": 0.17
+          },
+          "2023": {
+            "n": 18,
+            "exp": 103.0
+          }
+        },
+        "n_years_ge10": 2,
+        "all_same_sign": false
+      },
+      "high": {
+        "per_year": {
+          "2021": {
+            "n": 7,
+            "exp": -8.71
+          },
+          "2022": {
+            "n": 550,
+            "exp": -17.56
+          },
+          "2023": {
+            "n": 11,
+            "exp": -70.27
+          }
+        },
+        "n_years_ge10": 2,
+        "all_same_sign": true
+      }
+    }
+  },
+  "_day_type_meta_sample": {
+    "2023-06-23": {
+      "range_ratio": 39.56,
+      "oc_over_range": 0.125,
+      "net_move_pts": -0.32,
+      "day_range_pts": 2.55,
+      "n_bars": 81
+    },
+    "2022-03-11": {
+      "range_ratio": 3.68,
+      "oc_over_range": 0.918,
+      "net_move_pts": -8.84,
+      "day_range_pts": 9.63,
+      "n_bars": 90
+    },
+    "2022-03-16": {
+      "range_ratio": 6.84,
+      "oc_over_range": 0.52,
+      "net_move_pts": 6.35,
+      "day_range_pts": 12.2,
+      "n_bars": 87
+    },
+    "2022-05-17": {
+      "range_ratio": 13.36,
+      "oc_over_range": 0.395,
+      "net_move_pts": 2.4,
+      "day_range_pts": 6.08,
+      "n_bars": 90
+    },
+    "2022-04-26": {
+      "range_ratio": 3.41,
+      "oc_over_range": 0.968,
+      "net_move_pts": -13.08,
+      "day_range_pts": 13.51,
+      "n_bars": 94
+    }
+  }
+}

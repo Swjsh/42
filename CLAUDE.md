@@ -95,6 +95,7 @@ Install: [`markdown/infra/mcp-install.md`](markdown/infra/mcp-install.md). Verif
 
 - **[`markdown/research/BACKTESTING-PLAYBOOK.md`](markdown/research/BACKTESTING-PLAYBOOK.md)** — north-star principles, 5-stage grinder pipeline, validation stack, disclosure standards (OP 20). Read before forking.
 - **[`markdown/doctrine/LESSONS-LEARNED.md`](markdown/doctrine/LESSONS-LEARNED.md)** — 22+ documented anti-patterns with symptom → root cause → fix. Cross-reference when building any new evaluator.
+- **[`markdown/specs/ARCHITECTURE.md`](markdown/specs/ARCHITECTURE.md)** — cold-start "how the whole rig is wired today" snapshot. Read first if you're new to the system. Keep current when wiring changes.
 
 ### Where docs live — filing rule (cohesion)
 

@@ -1,114 +1,69 @@
 # Architecture Overview — Project Gamma
 
-> Living document. Snapshot of how the rig is wired today, written for an agent who's just walked in cold.
-> When components or wiring change, update this file in the same commit.
+> Living cold-start doc: how the rig is wired **today**, for an agent who just walked in. When wiring changes, update this in the same commit. Canonical doc index: [`markdown/README.md`](../README.md). Soul file: [`CLAUDE.md`](../../CLAUDE.md).
+>
+> **Last refreshed: 2026-06-20.** (Prior content was a 2026-05-09 snapshot — superseded.)
 
 ---
 
 ## 1. Project Structure
 
 ```
-C:\Users\jackw\Desktop\42\                  # repo root (not a git repo — local workspace)
-├── CLAUDE.md                               # Soul file. Mission, 10 rules, 11 operating principles. Read first.
-├── CHANGELOG.md                            # 80+ doctrine evolution entries. The "why" behind every rule.
-├── markdown/specs/ARCHITECTURE.md                         # This file.
+C:\Users\jackw\Desktop\42\                  # repo root — IS a git repo (branch: main)
+├── CLAUDE.md                               # Soul file. Mission, 10 rules, operating principles. Read first.
+├── CHANGELOG.md                            # Doctrine evolution log (append-only history).
 ├── README.md                               # Quick-start orientation.
 │
+├── markdown/                               # ALL human-authored docs (consolidated 2026-06-20)
+│   ├── README.md                           #   folder index / filing rule
+│   ├── 0dte/                               #   SPY strategy: playbook, risk-rules, key-levels, J-edge, patterns
+│   ├── futures/                            #   MNQ/MES specs, margin, sessions
+│   ├── research/                           #   backtests, studies, swarm benchmarks, R&D findings
+│   ├── planning/                           #   roadmaps, checklists, gameplans, daily-review
+│   ├── doctrine/                           #   LESSONS-LEARNED, doctrine archive, edge doctrine
+│   ├── specs/                              #   engine + wiring specs (THIS file lives here)
+│   ├── audits/                             #   point-in-time health checks, postmortems
+│   └── infra/                              #   setup, MCP install, KITCHEN-SPEC, SKILLS-CATALOG
+│
 ├── automation/                             # The autonomous engine
-│   ├── prompts/                            # Markdown prompts invoked by scheduled tasks
-│   │   ├── premarket.md                    # 08:30 ET — level audit, bias, hypothesis, drift checks
-│   │   ├── heartbeat.md                    # 09:30–15:50 ET, every 3min — per-tick decisioning
-│   │   ├── eod-flatten.md                  # 15:55 ET — safety-net position close
-│   │   ├── eod-summary.md                  # 16:00 ET — trade grades, drift sync, hypothesis grades
-│   │   ├── daily-review.md                 # 16:30 ET — strategic reflection, tomorrow's levels
-│   │   └── weekly-review.md                # Sunday 18:00 ET — rollup + ratification proposal
-│   ├── state/                              # Runtime state (JSON + JSONL)
-│   │   ├── params.json                     # CANONICAL config — rule_version, stops, sizing, gates
-│   │   ├── mode.json                       # live-paper | dry-run | paused
-│   │   ├── current-position.json           # Open position state (null = flat)
-│   │   ├── today-bias.json                 # Day's bias + key levels + falsifiable hypothesis
-│   │   ├── key-levels.json                 # Schema v3: support/resistance with strength scoring
-│   │   ├── circuit-breaker.json            # Daily-loss kill switch flag
-│   │   ├── loop-state.json                 # session_id, vix_cache, ribbon, htf, mode (HOT/BASE/COOL)
-│   │   ├── news.json                       # Macro calendar (FOMC/CPI/NFP)
-│   │   ├── shadow-version.json             # A/B test candidate rule version
-│   │   ├── decisions.jsonl                 # Per-tick decision log (post-hoc graded EOD)
-│   │   ├── hypothesis-grades.jsonl         # Per-prediction grading (PASS/FAIL/PARTIAL_*)
-│   │   ├── rule-breaks.jsonl               # Cost-tagged rule violations
-│   │   ├── process-compliance.jsonl        # Daily clean/dirty flag + leading indicators
-│   │   ├── backtest-drift.json             # EOD drift severity → next premarket gate
-│   │   ├── .lastgood/                      # Atomic recovery backups (validated JSON snapshots)
-│   │   └── logs/                           # Per-task per-day text logs
-│   ├── morning-kickoff.md                  # Doctrine for autonomous startup
-│   ├── loop-v2.md                          # Heartbeat protocol notes
-│   ├── loop-state.json                     # Mode persistence between ticks
-│   └── decision-log.md                     # Architecture-decision log
+│   ├── prompts/                            #   markdown prompts run by scheduled tasks
+│   │   ├── premarket.md                    #     08:30 ET — level audit, bias, hypothesis, drift gate
+│   │   ├── heartbeat.md                    #     09:30–15:55 ET — per-tick decisioning (Safe)
+│   │   ├── aggressive/heartbeat.md         #     same, Bold account
+│   │   ├── conductor.md                    #     the "Gamma drives" after-hours autonomy loop
+│   │   ├── eod-*.md / weekly-review.md     #     post-market grading, drift sync, rollups
+│   │   └── heartbeat-v14-prod-backup.md    #     revert target
+│   ├── state/                              #   runtime state (JSON + JSONL) — canonical interchange
+│   │   ├── params.json                     #     CANONICAL config (Safe); aggressive/params.json (Bold)
+│   │   ├── current-position.json, loop-state.json, circuit-breaker.json, today-bias.json, news.json …
+│   │   ├── decisions.jsonl, hypothesis-grades.jsonl, rule-breaks.jsonl …
+│   │   ├── SCHEDULED-TASKS.md              #     canonical scheduled-task registry
+│   │   ├── claude-md-backups/              #     gitignored CLAUDE.md pre-trim backups
+│   │   └── .lastgood/                      #     atomic JSON recovery snapshots
+│   └── overnight/STATUS.md                 #   the LIVE status file (Known-broken board)
 │
-├── backtest/                               # Python research engine (mirrors live engine)
-│   ├── run.py                              # Main CLI: `python run.py --start ... --end ... [--label ...]`
-│   ├── lib/                                # Engine internals (must stay in sync with heartbeat.md)
-│   │   ├── orchestrator.py                 # Wires data → ribbon → filters → pricing → simulator
-│   │   ├── filters.py                      # 10 bearish + bullish filters, asymmetric triggers
-│   │   ├── ribbon.py                       # Saty Pivot Ribbon (Fast/Pivot/Slow EMA)
-│   │   ├── simulator.py                    # Synthetic-fill bracket simulator (Black-Scholes)
-│   │   ├── simulator_real.py               # OPRA real-fill simulator (bid/ask/H/L)
-│   │   ├── pricing.py                      # Black-Scholes ATM 0DTE
-│   │   ├── levels.py + level_strength.py   # Level detection + retest history scoring
-│   │   ├── trendlines.py                   # Multi-day confluence (±$0.30 tolerance)
-│   │   ├── shadow.py                       # Live vs backtest parity checker
-│   │   └── repro.py                        # Karpathy-style content-hash reproducibility
-│   ├── autoresearch/                       # Autonomous parameter optimization
-│   │   ├── loop.py                         # Iteration driver (proposer → backtest → decider)
-│   │   ├── config.py                       # SEARCH_SPACE (23 knobs) + tiers + KEEP_THRESHOLDS
-│   │   ├── proposer.py                     # Single/multi-knob mutator
-│   │   ├── decider.py                      # KEEP/REVERT logic (sharpe-driven + hard gates)
-│   │   ├── watchdog_report.py              # Health monitor + dead-end detection
-│   │   ├── state.py                        # Per-mode state persistence + history append
-│   │   └── _state/                         # {strict,balanced,aggressive}/{state.json,history.jsonl}
-│   ├── data/                               # Historical bars
-│   │   ├── spy_5m_2025-01-01_2026-05-07.csv  # 30,389 SPY 5m bars (master)
-│   │   ├── vix_5m_*.csv                      # VIX 5m bars (matched range)
-│   │   └── options/                          # OPRA cache, per-ticker-date-strike-type
-│   ├── tests/                              # 117+ pytest tests, 2417 LOC
-│   └── .venv/                              # Python 3.13 virtualenv
+├── backtest/                               # Python research engine (mirrors live logic — OP-4)
+│   ├── run.py                              #   main CLI
+│   ├── lib/                                #   orchestrator, filters, ribbon, simulator(_real), pricing,
+│   │                                       #   levels, risk_gate, shadow, repro, engine/gex_regime, watchers/
+│   ├── autoresearch/                       #   grinders, evaluators, eod_deep pipeline, daily_status, audits
+│   │   └── _state/                         #   resumable optimization runs
+│   ├── tests/                              #   pytest suite + graduated guards (fast/slow split)
+│   └── .venv/                              #   Python 3.13 venv (pandas/pytest live HERE, not system python)
 │
-├── dashboard/                              # Live "Trade House" pixel-art UI (Next.js 15)
-│   ├── app/                                # App Router: page.tsx, /api/state, /api/autoresearch, /api/snapshot
-│   ├── components/                         # TradingFloor, AutoresearchPanel, TopBar, Left/RightPanel
-│   ├── public/                             # trade-floor.png + sprite assets
-│   └── package.json                        # next 15 + react 19 + swr + tailwind
+├── strategy/
+│   └── candidates/                         #   The Kitchen's DRAFT output (machine-generated, ~900 files)
 │
-├── setup/                                  # OS-level integration (PowerShell)
-│   ├── _shared.ps1                         # Repair-StateFiles, Invoke-Claude, reaper, time/disk helpers
-│   ├── launch_tv_debug.ps1                 # MSIX-bypass TradingView launcher with CDP
-│   ├── install-tasks.ps1                   # Register all Gamma_* Windows scheduled tasks
-│   ├── uninstall-tasks.ps1                 # Reverse of above
-│   ├── run-modes-sweep.ps1                 # Manual autoresearch driver
-│   └── scripts/                            # Per-task wrappers (run-premarket.ps1, run-heartbeat.ps1, …)
+├── analysis/                               # research outputs: backtests/, recommendations/, eod/, gym/, daily-brief/
+├── journal/                                # system of record: YYYY-MM-DD.md, trades.csv, mistakes.md, losses/
+├── crypto/                                 # gym-only chart-reading validation harness (NOT traded)
+├── dashboard/                              # Trade House pixel-art UI (Next.js 15 / React 19, localhost:3000)
+├── setup/                                  # PowerShell orchestration (_shared.ps1, launchers, install-*.ps1, scripts/)
 │
-├── strategy/                               # Doctrine — the playbook
-│   ├── playbook.md                         # Named setup patterns (rejection, reclaim, sequence)
-│   ├── risk-rules.md                       # Sizing tiers, kill switches, PDT awareness
-│   ├── chart-anatomy.md                    # Candlestick patterns (awareness-only)
-│   ├── scale-out-math.md                   # TP1/runner exit math
-│   └── checklists.md                       # Pre-trade checklist
+├── .claude/                               # Claude Code config — agents/ + skills/ loaded BY PATH (don't move)
 │
-├── analysis/                               # Research outputs
-│   ├── backtests/{label}/                  # Per-run trades.csv + decisions.csv + summary.md + metadata.json
-│   ├── weekly-reviews/                     # YYYY-Www.md
-│   └── shadow-scorecards/                  # Per-day A/B test scorecards
-│
-├── journal/                                # System of record
-│   ├── YYYY-MM-DD.md                       # Daily journal — pre-market, every trade, EOD reflection
-│   ├── trades.csv                          # 41-column structured trade log
-│   ├── mistakes.md                         # Rule-break archive (read every Monday)
-│   └── losses/                             # Per-loss post-mortems with filter audit
-│
-├── workflow/                               # Process docs (some outdated)
-│   ├── architecture.md                     # Earlier phased view (Phase 1/2/3, all now shipped)
-│   └── daily-review.md
-│
-└── setup/.claude/                          # Project-scoped Claude Code config (settings, hooks)
+└── docs/  doctrine/  workflow/             # TOMBSTONED legacy dirs — redirect READMEs only; never write docs here
+                                            # (docs/ also retains WeBull History/*.csv trade data, read by code)
 ```
 
 ---
@@ -116,286 +71,136 @@ C:\Users\jackw\Desktop\42\                  # repo root (not a git repo — loca
 ## 2. High-Level System Diagram
 
 ```
-                                       ┌──────────────────────────────────────┐
-                                       │   J (operator, browser, dashboard)   │
-                                       └─────────────┬────────────────────────┘
-                                                     │ visual checks, ratification
-                                                     ▼
-   ┌────────────────────────┐    polls 3-5s    ┌─────────────────────────┐
-   │  Dashboard (Next.js)   │ ◄────────────────│  automation/state/*.json │
-   │  localhost:3000        │                  │  (canonical runtime)     │
-   └────────────────────────┘                  └────────────▲─────────────┘
-                                                            │ atomic write + .lastgood/ mirror
-                                                            │
-   ┌────────────────────────────────────────────────────────┴───────────────────────────┐
-   │ Windows Task Scheduler (9 tasks)                                                   │
-   │   08:00 LaunchTV  ─►  setup/launch_tv_debug.ps1                                    │
-   │   08:30 Premarket ─►  setup/scripts/run-premarket.ps1                              │
-   │   09:30 Heartbeat ─►  setup/scripts/run-heartbeat.ps1   (3min cadence, 6h25m)      │
-   │   15:55 EodFlatten                                                                 │
-   │   16:00 EodSummary                                                                 │
-   │   16:30 DailyReview                                                                │
-   │   Sun 18:00 WeeklyReview                                                           │
-   │   (parallel set: *_Aggressive tasks for second paper account)                      │
-   └────────────────────────┬───────────────────────────────────────────────────────────┘
-                            │ Each task: setup/_shared.ps1 → Repair-StateFiles → Invoke-Claude
-                            ▼
-   ┌────────────────────────────────────────────┐    spawns      ┌──────────────────────────┐
-   │ claude --print --prompt-file <prompt.md>   │───────────────►│ Claude Opus/Sonnet/Haiku │
-   │ (the Gamma persona, CLAUDE.md loaded)      │                │ (inference, tool use)    │
-   └────────┬─────────────────┬─────────────────┘                └──────────────────────────┘
-            │                 │
-   reads chart        places paper orders
-            │                 │
-            ▼                 ▼
-   ┌────────────────┐  ┌─────────────────┐         ┌─────────────────────────────────────┐
-   │ TradingView    │  │ Alpaca MCP      │ ───────►│ Alpaca Paper API (orders, fills,    │
-   │ MCP (CDP 9222) │  │ (paper)         │         │  account, P&L)                       │
-   └────────────────┘  └─────────────────┘         └─────────────────────────────────────┘
+                         ┌─────────────────────────────────────────────┐
+                         │  J (operator) — Dashboard + Discord (approve/revoke) │
+                         └───────────────┬─────────────────────────────┘
+                                         │ visual checks; REVOKE-only on shipped edges
+                                         ▼
+   ┌────────────────────┐  polls 3-5s  ┌──────────────────────────┐
+   │ Dashboard (Next.js)│ ◄────────────│ automation/state/*.json   │  atomic write + .lastgood/ mirror
+   │ localhost:3000     │              │ (canonical runtime state) │ ◄──────────────────────────┐
+   └────────────────────┘              └──────────────────────────┘                            │
+                                                                                                │
+   ┌─────────────────────────────────────────────────────────────────────────────────────┐    │
+   │ Windows Task Scheduler  (~27 active Gamma_* tasks; canonical list: SCHEDULED-TASKS.md) │    │
+   │  08:00 LaunchTV · 08:30 Premarket · 09:30–15:55 Heartbeat + Heartbeat_Aggressive       │    │
+   │  15:55 EodFlatten (x2) · EOD/weekly pipelines · 18:00–07:00 Conductor (after-hours)     │    │
+   │  24/7 KitchenDaemonKeepalive · hourly KitchenSeeder · 2h KitchenReviewer · guards/audits │   │
+   └───────────────┬─────────────────────────────────────────────────────────────────────────┘  │
+                   │ each task: setup/_shared.ps1 → Repair-StateFiles → claude --print (Max sub)  │
+                   ▼                                                                               │
+   ┌───────────────────────────────┐   reads chart        places paper orders                     │
+   │ Claude (Opus/Sonnet/Haiku)    │──────────┬──────────────────┬──────────────────────────────┘
+   │ Gamma persona, CLAUDE.md      │          ▼                  ▼
+   └───────────────────────────────┘  ┌──────────────┐  ┌─────────────────────────────────────────┐
+                                       │ TradingView  │  │ Alpaca MCP  ── alpaca → Safe-2          │
+                                       │ MCP (CDP 9222)│  │  ── alpaca_aggressive → Risky-2 (paper) │
+                                       └──────────────┘  └─────────────────────────────────────────┘
 
-   ┌─────────────────────────────────────────────────────────────────────────────┐
-   │ Research path (offline, no live MCP):                                       │
-   │                                                                             │
-   │   backtest/run.py ─► lib/orchestrator → filters → pricing → simulator       │
-   │                  ─► analysis/backtests/{label}/ (trades, decisions, summary)│
-   │                                                                             │
-   │   backtest/autoresearch/loop.py ─► proposer → run.py → decider              │
-   │                                ─► autoresearch/_state/{mode}/ + watchdog    │
-   └─────────────────────────────────────────────────────────────────────────────┘
+   Research / autonomy paths (offline, $0 or free-tier):
+     backtest/run.py ─► lib/orchestrator → filters → pricing → simulator(_real) ─► analysis/backtests/{label}/
+     The Kitchen ─► free-tier model ladder (Nemotron→DeepSeek→MiniMax) ─► strategy/candidates/ (DRAFTs)
+     Conductor ─► reads health+queue, fans out ONE specialist persona/fire, ships only if auto-ratify gate clears
+     Fleet executor ─► one perception/tick → N frozen configs across paper accounts (champion/challenger)
 ```
 
-**Key boundaries:**
-- **Live engine** (`automation/prompts/heartbeat.md`) and **research engine** (`backtest/lib/`) implement the same logic in two languages. **Operating Principle 4** mandates they update together; daily backtest sync (eod-summary 8b) detects drift.
-- **State files** are the universal interchange format. Prompts read state in, write decisions out. Dashboard reads the same files. Backtest reads `params.json` for canonical config.
-- **No Claude → Claude direct calls.** Each scheduled task is an independent Claude invocation with fresh context.
+**Key boundaries**
+- **Live engine** (`automation/prompts/heartbeat.md`) and **research engine** (`backtest/lib/`) implement the same logic; **OP-4** mandates they move together (gamma-sync skill + pytest catch drift).
+- **State files are the universal interchange.** Prompts read state in, write decisions out; dashboard reads the same files; backtest reads `params.json`.
+- **No Claude→Claude direct calls in production ticks** — each scheduled task is an independent invocation with fresh context. (The Conductor *does* fan out specialist sub-agents during after-hours work.)
+- **Heartbeat runs on the Max subscription (shared rate-limit pool).** A market-hours interactive session can starve ticks → **discipline: no interactive sessions 09:30–15:55 ET** is the only guard.
 
 ---
 
 ## 3. Core Components
 
-### 3.1. Frontend — Trade House Dashboard
+### 3.1 Frontend — Trade House Dashboard
+Next.js 15 (App Router) · React 19 · SWR (3-5s polling) · Tailwind · Canvas pixel-art. Read-only monitor of position, levels, ribbon, agent activity. File-based reads from `automation/state/`. `npm run dev` on :3000, single-user.
 
-- **Name:** Dashboard (Trade House pixel-art monitor)
-- **Description:** Live read-only monitor showing position, key levels, ribbon state, agent activity, and autoresearch progress. Canvas pixel-art "trading floor" overlay with text panels. V1 = production layout (sidebar 420px + 3D canvas), V2 = alt layout (untested).
-- **Technologies:** Next.js 15 (App Router) · React 19 · SWR (3-5s polling, no websocket) · TailwindCSS · Canvas 2D · TypeScript
-- **Deployment:** Local dev server (`npm run dev` on port 3000). No production build / hosting. Single-user (J).
-- **Data sources:** All file-based reads from `C:\Users\jackw\Desktop\42\automation\state\` and `backtest\autoresearch\_state\`.
+### 3.2 Backend — Autonomous Trading Engine
+- **Heartbeat (live, x2 accounts):** every ~3 min in RTH, reads chart via TV MCP, applies the v15 setup rubric + `risk_gate`, manages exits (chart-stop primary on Safe). Cadence-throttled HOT/BASE/COOL (up to 127 ticks/day). Self-heal: `Repair-StateFiles`, wall-clock timeout + tree-kill, stale-process reaper, disk pre-flight.
+- **Premarket / EOD / Review prompts:** level audit, bias + falsifiable hypothesis, EOD grading, hypothesis grading, rule-break tagging, daily backtest drift sync, weekly rollup + auto-ratify scorecards (OP-11 Karpathy loop).
+- **Backtest engine:** replays SPY 5m bars through the same logic; synthetic (Black-Scholes) + OPRA real-fill simulators; content-hash reproducibility (`repro.py`). **Real-fills is the only WR authority; BS-sim is ranking-only.**
+- **The Kitchen (24/7 R&D):** `kitchen_daemon.py` + free-tier model ladder writes DRAFT candidates to `strategy/candidates/`; seeder brainstorms, reviewer triages. $3/day paid cap. Never touches live doctrine/orders.
+- **Conductor ("Gamma drives"):** after-hours hourly loop (`conductor.md`); each fire picks ONE highest-value ready task, fans out the right specialist persona, validates (gym/tests), SHIPS only if the auto-ratify gate clears, else proposes. Fail-open, propose-only on doctrine/params/orders.
+- **Fleet executor (champion/challenger):** one perception per tick → deterministic fan-out of N frozen configs across validated paper accounts; same `risk_gate.check_order` decides.
+- **Watcher fleet:** ~28 detectors read each tick (WATCH_ONLY) via the unified heartbeat layer; promotion-gated before any go live.
 
-### 3.2. Backend — Autonomous Trading Engine
+### 3.3 Agents & Skills (`.claude/`, loaded by path)
+Personas: `gamma` (conductor), `pilot` (live trader), `scout`, `analyst`, `chef`, `treasurer`, `coach`, `lesson-author`, `skill-author`, `validator-author`. Skills: gym-session, preflight-gate/connectivity-gate, context-leanness, heartbeat/-tick-audit, gamma-sync, log-trade, etc. (catalog: `markdown/infra/SKILLS-CATALOG.md`).
 
-#### 3.2.1. Heartbeat Engine (live)
-
-- **Name:** Heartbeat (per-tick decisioner)
-- **Description:** Every 3 min during 09:30–15:50 ET, reads chart via TradingView MCP, applies 10-filter setup detection (asymmetric bear/bull triggers), manages open position via mechanical stops/TP/runner exits. Cadence-throttled HOT/BASE/COOL based on developing-setup signal. Emits one-line action log per tick.
-- **Technologies:** PowerShell wrapper (`setup/scripts/run-heartbeat.ps1`) · Claude Code CLI (`claude --print`) · Markdown prompt (`automation/prompts/heartbeat.md`) · TradingView MCP · Alpaca MCP
-- **Deployment:** Windows Task Scheduler `Gamma_Heartbeat` (3-min repeat over 6h25m window)
-- **Self-heal:** Pre-/post-tick `Repair-StateFiles`, 160s wall-clock timeout + tree-kill, stale-process reaper, disk-space pre-flight (≥100MB).
-
-#### 3.2.2. Premarket / EOD / Review Prompts
-
-- **Name:** Premarket (08:30), EodFlatten (15:55), EodSummary (16:00), DailyReview (16:30), WeeklyReview (Sun 18:00)
-- **Description:** Pre/post-market non-tick prompts — level audit, bias seed, falsifiable hypothesis, EOD trade grading, hypothesis grading, rule-break tagging, drift detection (Step 8b daily backtest sync), weekly metrics rollup.
-- **Technologies:** Same stack as heartbeat. Each prompt is a single markdown file.
-- **Deployment:** Per-prompt Windows Scheduled Task. WakeToRun enabled.
-
-#### 3.2.3. Backtest Engine
-
-- **Name:** Backtest (research)
-- **Description:** Replays historical SPY 5m bars through the same logic as the live heartbeat. Two simulators: synthetic Black-Scholes fills (fast) and OPRA real-fill (accurate). Outputs trades.csv, decisions.csv, summary.md, metadata.json (with content-hash reproducibility). ~3.5 min for a 16-month run.
-- **Technologies:** Python 3.13 · pandas · numpy · pytest (117+ tests)
-- **Deployment:** Local CLI. Driven manually or by autoresearch loop.
-
-#### 3.2.4. Autoresearch Loop
-
-- **Name:** Autoresearch (autonomous parameter optimization)
-- **Description:** Mutates one knob (or N for multi-knob experiments) → runs train+validate backtest → KEEP if train sharpe improves and validate doesn't regress >20% AND hard gates pass (min 10 trades, WR ≥10%, W/L ≥0.80, expectancy ≥-$10). Three modes: STRICT / BALANCED / AGGRESSIVE, each with their own starting params. Five experiment scopes: lean / entries / exits / full / kitchen_sink.
-- **Technologies:** Python 3.13 · same `backtest/lib/` engine.
-- **Deployment:** Manual via `setup/run-modes-sweep.ps1`, or planned `Gamma_WeekendResearch` recurring task.
-
-### 3.3. MCP Servers (Tool Layer)
-
-#### 3.3.1. TradingView MCP
-- **Read:** chart state, OHLCV, study values, levels, indicators, drawing primitives
-- **Write:** chart symbol/timeframe, indicators, drawings (via `ui_evaluate` workarounds for CRUD)
-- **Wire:** TradingView Desktop launched with `--remote-debugging-port=9222` (MSIX bypass via direct process creation in `launch_tv_debug.ps1`)
-
-#### 3.3.2. Alpaca MCP (paper)
-- **Read:** account info, positions, P&L, option chain, Greeks, fills, calendar, day-trade count
-- **Write:** place_option_order, cancel_order, close_position (paper account only — `mode.json` gates this)
-- **Wire:** `uvx alpaca-mcp-server` v2.0.1, paper API keys in `~/.claude.json` (per-project MCP config)
+### 3.4 MCP Servers (tool layer)
+- **TradingView MCP** — chart/OHLCV/study/levels read; chart control + drawings write. TradingView Desktop launched with `--remote-debugging-port=9222` (MSIX bypass in `launch_tv_debug.ps1`).
+- **Alpaca MCP (paper)** — two servers: `alpaca` → Gamma-Safe-2, `alpaca_aggressive` → Gamma-Risky-2. Account/chain/Greeks/fills read; place/cancel/close write (paper only).
+- **Discord** — proactive presence + approve/revoke bus.
+- **Free-tier OpenRouter** — Kitchen ladder + `swarm_consult.py` adversarial review ($0).
 
 ---
 
-## 4. Data Stores
+## 4. Data Stores (all filesystem on NTFS — observable, git-diffable, atomically restorable)
 
-### 4.1. Runtime State (canonical)
-
-- **Name:** `automation/state/`
-- **Type:** Filesystem (JSON + JSONL on NTFS)
-- **Purpose:** Single source of truth for runtime values consumed by every prompt and the dashboard. Chosen over a database because (a) trivially observable, (b) atomically restorable from `.lastgood/`, (c) git-diffable for postmortem.
-- **Key files:**
-  - `params.json` — canonical rule_version + stops + sizing + gates (drift = kill-switch)
-  - `mode.json` — live-paper | dry-run | paused
-  - `current-position.json` — open position state (null = flat)
-  - `today-bias.json` — bias + levels + falsifiable hypothesis
-  - `key-levels.json` — schema v3 strength-scored levels
-  - `circuit-breaker.json` — daily-loss flag
-  - `loop-state.json` — heartbeat-tick context (session, vix, ribbon, htf)
-  - `news.json` — macro calendar
-  - `shadow-version.json` — A/B test candidate
-  - `decisions.jsonl` — per-tick decision log (graded post-hoc)
-  - `hypothesis-grades.jsonl` — per-prediction grades
-  - `rule-breaks.jsonl` — cost-tagged violations
-  - `process-compliance.jsonl` — daily clean/dirty + leading indicators
-  - `backtest-drift.json` — EOD drift severity flag
-- **Backups:** `automation/state/.lastgood/` mirrors every `*.json` after each successful validate. Restored automatically by `Repair-StateFiles` on parse failure.
-
-### 4.2. Historical Market Data (research)
-
-- **Name:** `backtest/data/`
-- **Type:** Filesystem (CSV on NTFS)
-- **Purpose:** Bar data for offline replay and parameter optimization.
-- **Files:** `spy_5m_2025-01-01_2026-05-07.csv` (master, 30,389 bars), matching VIX bars, `options/` OPRA cache (per ticker-date-strike-type).
-
-### 4.3. Trade Journal (system of record)
-
-- **Name:** `journal/`
-- **Type:** Filesystem (Markdown + CSV on NTFS)
-- **Purpose:** Human-readable system of record per **Rule 8** ("If it's not in the journal, it didn't happen").
-- **Files:**
-  - `YYYY-MM-DD.md` — daily entries (pre-market, every trade, EOD)
-  - `trades.csv` — 41-column structured trade log
-  - `mistakes.md` — rule-break archive (read every Monday)
-  - `losses/` — per-loss post-mortems with filter-audit checklist
-
-### 4.4. Research Outputs
-
-- **Name:** `analysis/`
-- **Type:** Filesystem (CSV + Markdown + JSON)
-- **Purpose:** Backtest results, weekly reviews, shadow-mode scorecards.
-- **Files:** `backtests/{label}/{trades.csv, decisions.csv, summary.md, metadata.json}` · `weekly-reviews/YYYY-Www.md` · `shadow-scorecards/{date}.jsonl`
-
-### 4.5. Autoresearch State
-
-- **Name:** `backtest/autoresearch/_state/`
-- **Type:** Filesystem (JSON + JSONL)
-- **Purpose:** Resumable optimization runs across modes.
-- **Files:** `{strict,balanced,aggressive}/state.json` (current params + baselines + iter count) · `{mode}/history.jsonl` (one record per iteration) · `watchdog_report.{md,json}`
+| Store | Purpose |
+|---|---|
+| `automation/state/` | Canonical runtime: `params.json` (Safe) + `aggressive/params.json` (Bold), position, loop, circuit-breaker, ledgers (`decisions.jsonl` …). `.lastgood/` auto-restore. |
+| `journal/` | System of record (Rule 8): daily MD, `trades.csv` (41 cols), `mistakes.md`, `losses/`. |
+| `backtest/data/` | Historical SPY/VIX 5m bars + OPRA option cache. |
+| `analysis/` | Backtest runs, `recommendations/{rule_id}.json` A/B scorecards, EOD digests, gym scorecards, daily briefs. |
+| `strategy/candidates/` | Kitchen DRAFT output (machine-generated). |
+| `markdown/` | All human docs (this consolidation). |
 
 ---
 
-## 5. External Integrations / APIs
+## 5. External Integrations
 
-| Service | Purpose | Integration |
+| Service | Purpose | Wire |
 |---|---|---|
-| **TradingView Desktop** | Read chart state, levels, indicators, candles | Chrome DevTools Protocol on port 9222, accessed via TradingView MCP |
-| **Alpaca Paper API** | Account state, option chain, Greeks, place/cancel/close paper orders | REST via `alpaca-mcp-server` (v2.0.1) |
-| **Macro calendar source** | FOMC / CPI / NFP scheduling for hard-veto windows | Daily WebFetch in premarket Step 1b (alpaca.markets/calendar + manual refresh) |
-| **Anthropic API** | Claude inference (Opus/Sonnet/Haiku) | `claude --print` via Claude Code CLI |
+| TradingView Desktop | chart/levels/indicators read | CDP :9222 via TV MCP |
+| Alpaca Paper API (x2) | account/chain/orders, both accounts | `alpaca-mcp-server`, keys in `~/.claude.json` |
+| Anthropic (Max sub) | Claude inference, all tasks | `claude --print` (shared pool — see discipline note) |
+| OpenRouter free tier | Kitchen ladder + swarm review | $0 |
+| Discord | presence + approve/revoke | discord MCP + bridge daemons |
 
 ---
 
 ## 6. Deployment & Infrastructure
+- **Host:** single Windows 11 machine (J's desktop). No cloud, no CI.
+- **Runtimes:** Claude Code CLI · Python 3.13 (`backtest/.venv` — pandas/pytest live there, NOT system python) · Node 18+ (dashboard) · PowerShell 5.1 (target 5.1 syntax).
+- **Scheduler:** Windows Task Scheduler, ~27 active `Gamma_*` tasks (WakeToRun). Canonical registry: `automation/state/SCHEDULED-TASKS.md`. Rig is **Mountain time** — tasks scheduled at ET-converted-to-local.
+- **Headless spawn pattern:** wscript → `run_exe_hidden.vbs` → `pythonw` (CREATE_NO_WINDOW) to avoid console flashes.
+- **Self-heal:** `_shared.ps1#Repair-StateFiles` validates state JSON pre/post each fire; restores from `.lastgood/`.
 
-- **Cloud Provider:** None (single-machine local deployment)
-- **Host:** Windows 11 Home (J's desktop), 24H2
-- **Runtime:** Claude Code CLI (host) · Python 3.13 (backtest) · Node 18+ (dashboard) · PowerShell 5.1 (orchestration)
-- **Scheduler:** Windows Task Scheduler (9 `Gamma_*` tasks). WakeToRun enabled — machine wakes from sleep to fire.
-- **CI/CD:** None. Changes are made, tested locally via `pytest backtest/tests/`, daily backtest sync detects live/research drift.
-- **Monitoring & Logging:**
-  - Per-task plain-text logs at `automation/state/logs/<task>-YYYY-MM-DD.log`
-  - Dashboard polls state files every 3-5s
-  - Per-tick decisions written to `decisions.jsonl` (graded post-hoc EOD)
-  - Watchdog report regenerated on every autoresearch iteration
+## 7. Security & Safety
+- **Paper-only.** Alpaca keys in `~/.claude.json` (gitignored); a fleet `secrets.json` is gitignored. Real-money keys not provisioned. (Open hygiene item: a hardcoded paper key in a few `setup/scripts/*.py` to migrate to the secrets mechanism.)
+- **Kill switches (per-account, isolated):** Safe −30% / Bold −50% of SOD equity → entries blocked for that account only. `params.json#rule_version` drift vs prompt = kill-switch. `backtest-drift severity:high` = premarket gate.
+- **Guards FAIL OPEN** — no automated process may lock out J's interactive session (OP-32 scar).
 
----
+## 8. Development & Testing
+- `pytest backtest/tests/` + **graduated guards** (fast per-edit hook + nightly `-m slow`). Gym: 42+ validators + chart-reading replay ($0).
+- Live↔research parity: daily backtest sync + `gamma-sync` skill on any rule change.
+- Ratify autonomously when: OOS positive AND WF ≥ 0.70 AND sub-window stable AND anchor no-regression AND A/B scorecard filed (OP-11/OP-22). J's role = REVOKE, not approve.
 
-## 7. Security Considerations
-
-- **Authentication:** Alpaca paper API keys stored in `~/.claude.json` (per-project MCP config), not in repo. Real-money keys not provisioned (paper-only mode).
-- **Authorization:** Single-user system. `mode.json` gates live order placement (`live-paper` | `dry-run` | `paused`). `dry-run` blocks all `place_option_order` calls.
-- **Data Encryption:** TLS for Alpaca API calls. State files unencrypted at rest (single-user local machine).
-- **Kill switches (multi-layer):**
-  - `circuit-breaker.json` — daily loss ≥50% of SOD equity → all entries blocked
-  - `mode.json paused` — manual emergency pause
-  - `params.json#rule_version` drift vs prompt's `RULE_VERSION_EXPECTED` → kill-switch (premarket Step 1a)
-  - `backtest-drift.json severity:high` → kill-switch (premarket Step 1d)
-- **Operational safety:**
-  - `Repair-StateFiles` validates JSON pre/post every prompt
-  - 160s wall-clock timeout per heartbeat tick + tree-kill on overrun
-  - Disk-space pre-flight (<100MB free → abort)
-  - First-entry-after-stop blocked by `params.json` flag (no second entry on same setup that already lost today)
-
----
-
-## 8. Development & Testing Environment
-
-- **Local Setup:**
-  - Clone repo to `C:\Users\jackw\Desktop\42`
-  - `cd backtest && python -m venv .venv && .\.venv\Scripts\Activate.ps1 && pip install -r requirements.txt`
-  - `cd dashboard && npm install && npm run dev`
-  - `setup\install-tasks.ps1` registers Windows scheduled tasks
-  - Configure MCPs in `~/.claude.json` (TradingView + Alpaca paper keys)
-- **Testing:**
-  - `pytest backtest/tests/ -v` (117+ tests, ~2417 LOC)
-  - `pytest -m unit` / `-m integration` for filtered runs
-  - **Live verification:** daily backtest sync (eod-summary 8b) compares live `decisions.jsonl` vs simulator output on same bars; >30% divergence → kill-switch next morning
-- **Code Quality:**
-  - Python: ruff + black + isort (per `~/.claude/rules/python/`)
-  - TypeScript: dashboard inherits Next.js + ESLint defaults
-  - PowerShell: no formal linter (intentional — surface area is small, hand-reviewed)
-
----
-
-## 9. Future Considerations / Roadmap
-
-- **Self-healing gaps to close** (from 2026-05-09 audit):
-  1. **Slippage feedback loop** — track marked-price vs actual-fill divergence; surface trades where bid-ask slip ate >X% of edge.
-  2. **Macro-regime tagging in predictions** — segment hypothesis-grades by VIX band / event proximity for cross-day pattern mining.
-  3. **Automated filter-effectiveness mining** — Section 7i loss-walk template exists, but aggregation over weeks is manual.
-- **Live deployment** — paper → real-money transition gated on (a) ≥20 trades, (b) WR ≥45%, (c) positive expectancy, (d) ≤2 rule breaks (per CLAUDE.md account-context block).
-- **Optimization-target diversification** — current loop optimizes train sharpe; weekend research will add `--objective {sharpe_validate, pnl_validate, expectancy_validate}` to find robust winners.
-- **Out-of-sample 2024 holdout** — extend `data/` back to 2024 for walk-forward overfit detection.
-- **Webhook-driven setup detection** — TradingView alerts → local server → Claude session (Phase 3 in `markdown/specs/workflow-architecture.md`). Not yet built; current 3-min cadence is sufficient.
-- **Dashboard upgrades** for weekend research:
-  - `/api/equity-curve` endpoint
-  - `/api/sweep-progress` real-time progress bar
-  - Parameter-genealogy view (which iteration drifted which knob)
-
----
+## 9. Roadmap (current)
+- Fleet executor M2 (live REST placement + heartbeat shared-signal emit + MES arm).
+- Shared-decision-library refactor (unify `params ↔ heartbeat ↔ filters`) — spec in `markdown/specs/SHARED-DECISION-LIBRARY-MIGRATION.md`.
+- Conductor phases (model routing Haiku/Opus; Discord approve/revoke bus).
+- Wire GEX regime tag into premarket/heartbeat (capture is live; consumption is a separate proposal).
 
 ## 10. Project Identification
+- **Project:** Project Gamma (call sign "Gamma"). **Operator:** J (jack.watergun@gmail.com), single user.
+- **Instruments:** 0DTE SPY options (primary) + futures MNQ/MES (TT sandbox, heartbeat disabled for cost). Crypto = gym-only, never traded.
+- **Accounts (paper):** Gamma-Safe-2 `PA3S2PYAS2WQ` (~$2K, conservative) · Gamma-Risky-2 `PA33W2KUAT40` (~$1.67K, aggressive).
+- **Strategy:** rule version **v15** (live 2026-05-13); chart-stops-primary on Safe (2026-06-18); per-tier strikes (OTM-3 $1K / OTM-2 $2-10K / OTM-1 $10-25K / ITM-2 $25K+); chandelier trailing; 09:35 ET entry gate.
+- **Date of Last Update:** 2026-06-20.
 
-- **Project Name:** Project Gamma (call sign "Gamma")
-- **Repository:** Local workspace at `C:\Users\jackw\Desktop\42` (not version-controlled — local-only by design)
-- **Primary Contact:** J (jack.watergun@gmail.com), single operator
-- **Mission:** Autonomous 0DTE SPY directional options trading. Paper account first; real-money after gating thresholds clear.
-- **Date of Last Update:** 2026-05-09
-
----
-
-## 11. Glossary / Acronyms
-
-- **0DTE** — Zero Days to Expiration. Options expiring same day.
-- **CDP** — Chrome DevTools Protocol. Used to drive TradingView Desktop.
-- **CORE / SECONDARY / NOISE_PRONE** — Autoresearch knob tiers (config.py).
-- **EOD** — End of Day.
-- **ET** — US Eastern Time. All trading hours expressed in ET.
-- **HOT / BASE / COOL** — Heartbeat cadence modes (every tick / every 3rd / every 4th).
-- **HTF** — Higher Time Frame (15-min vs 5-min primary).
-- **ITM-2** — In-The-Money by 2 strikes (current default strike offset).
-- **JANUS / Darwin** — Built-but-unwired regime/filter feedback subsystems (referenced in audit; not in active flow yet).
-- **KEEP / REVERT** — Autoresearch decisions on a parameter mutation.
-- **MCP** — Model Context Protocol. Wires Claude to external tools (TradingView, Alpaca).
-- **MSIX** — Microsoft Store package format. Why TradingView normal launch strips CDP flag.
-- **OPRA** — Options Price Reporting Authority. Source of real option bars in `simulator_real.py`.
-- **PDH / PDL** — Prior Day High / Low.
-- **PDT** — Pattern Day Trader. SEC rule limiting day trades on accounts <$25K.
-- **RTH** — Regular Trading Hours (09:30–16:00 ET).
-- **Saty Pivot Ribbon** — Custom EMA-based trend indicator (Fast/Pivot/Slow).
-- **Shadow mode** — A/B test where candidate rule version emits parallel decisions, scored EOD.
-- **SOD** — Start of Day equity (snapshot at 09:30 ET for daily-loss kill switch math).
-- **Sub-window stability** — A backtest is "sub-window stable" if both halves of the validation window pass independent thresholds (4-of-4 PASS).
-- **TP1** — Take Profit 1. First scale-out target.
-- **VWAP / AVWAP** — (Anchored) Volume Weighted Average Price.
-- **v14** — Current ratified rule version (premium stop -8%, ITM-2, asymmetric trigger bear≥1 / bull≥2, 10:00 ET entry gate, 14:00–15:00 ET no-trade window, quality-tiered sizing).
+## 11. Glossary
+- **0DTE** — zero days to expiration. **ET / RTH** — Eastern time / regular hours (09:30–16:00).
+- **v15** — current ratified rule version (asymmetric stops, per-tier strikes, chandelier trailing, 09:35 gate).
+- **Chart-stop-primary** — chart-level/ribbon-flip/chandelier are primary invalidation; premium stop demoted to a −50% catastrophe cap (Safe; Bold keeps tight stop).
+- **The Kitchen** — 24/7 free-tier R&D loop producing DRAFT candidates.
+- **Conductor** — the after-hours "Gamma drives" autonomy loop (one bounded task per fire).
+- **Fleet (champion/challenger)** — N frozen configs run in parallel across paper accounts off one perception.
+- **risk_gate** — single risk-rule implementation (`backtest/lib/risk_gate.check_order`) used live + backtest.
+- **OP-4 / OP-11 / OP-16 / OP-22 / OP-25** — operating principles: live/backtest parity · Karpathy eval-first loop · J-edge primacy · always-improving cadence · self-correcting lessons.
+- **edge_capture / J-edge** — score of engine P&L on J's source-of-truth winning/losing days.
+- **Saty Pivot Ribbon** — EMA trend indicator (Fast/Pivot/Slow). **OPRA** — real option bar source. **CDP** — Chrome DevTools Protocol (drives TV). **MCP** — Model Context Protocol.
+- **HOT/BASE/COOL** — heartbeat cadence modes. **PDT** — pattern-day-trader rule (<$25K).
