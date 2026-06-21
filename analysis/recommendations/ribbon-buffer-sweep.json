@@ -1,0 +1,385 @@
+{
+  "title": "B4b \u2014 ribbon-flip-back buffer sweep (the binding stop)",
+  "item": "master-plan B4b",
+  "generated_at": "2026-06-20T18:10:50",
+  "status": "PROPOSE-ONLY (Rule 9). Engine knob wired (default-preserving); params.json NOT changed.",
+  "method": "Sweep ribbon_flip_back_min_spread_cents in {30,40,50,60} on real OPRA fills, LIVE chart-stop config (params.json as-is). Single-variable A/B + OOS split + all-cuts sub-windows + J-anchor no-regression + DSR + mechanistic diagnostic.",
+  "live_config": {
+    "premium_stop_pct_bear": -0.5,
+    "chart_stop_buffer_dollars": 0.5,
+    "prod_ribbon_flip_back_min_spread_cents": 30,
+    "ribbon_flip_back_requires_opposite_stack": true
+  },
+  "full_window": {
+    "window": [
+      "2025-01-02",
+      "2026-05-29"
+    ],
+    "by_threshold": {
+      "30.0": {
+        "n": 26,
+        "wr": 0.5,
+        "total": 10553.34,
+        "avg": 405.9,
+        "by_exit": {
+          "TP1_THEN_RUNNER_TARGET": 1,
+          "EXIT_ALL_PREMIUM_STOP": 11,
+          "EXIT_ALL_TIME_STOP": 4,
+          "TP1_THEN_RUNNER_TIME": 5,
+          "TP1_THEN_RUNNER_RIBBON": 5
+        }
+      },
+      "40.0": {
+        "n": 26,
+        "wr": 0.5,
+        "total": 10553.34,
+        "avg": 405.9,
+        "by_exit": {
+          "TP1_THEN_RUNNER_TARGET": 1,
+          "EXIT_ALL_PREMIUM_STOP": 11,
+          "EXIT_ALL_TIME_STOP": 4,
+          "TP1_THEN_RUNNER_TIME": 5,
+          "TP1_THEN_RUNNER_RIBBON": 5
+        }
+      },
+      "50.0": {
+        "n": 26,
+        "wr": 0.5,
+        "total": 10553.34,
+        "avg": 405.9,
+        "by_exit": {
+          "TP1_THEN_RUNNER_TARGET": 1,
+          "EXIT_ALL_PREMIUM_STOP": 11,
+          "EXIT_ALL_TIME_STOP": 4,
+          "TP1_THEN_RUNNER_TIME": 5,
+          "TP1_THEN_RUNNER_RIBBON": 5
+        }
+      },
+      "60.0": {
+        "n": 26,
+        "wr": 0.5,
+        "total": 10553.34,
+        "avg": 405.9,
+        "by_exit": {
+          "TP1_THEN_RUNNER_TARGET": 1,
+          "EXIT_ALL_PREMIUM_STOP": 11,
+          "EXIT_ALL_TIME_STOP": 4,
+          "TP1_THEN_RUNNER_TIME": 5,
+          "TP1_THEN_RUNNER_RIBBON": 5
+        }
+      }
+    },
+    "knob_binds": false,
+    "base_total_at_30": 10553.34
+  },
+  "oos_split": {
+    "IS": [
+      "2025-01-02",
+      "2025-12-31"
+    ],
+    "OOS": [
+      "2026-01-01",
+      "2026-05-29"
+    ],
+    "by_threshold": {
+      "30.0": {
+        "IS": {
+          "n": 14,
+          "wr": 0.3571,
+          "total": 1486.18,
+          "avg": 106.16,
+          "by_exit": {
+            "TP1_THEN_RUNNER_TARGET": 1,
+            "EXIT_ALL_PREMIUM_STOP": 8,
+            "EXIT_ALL_TIME_STOP": 2,
+            "TP1_THEN_RUNNER_TIME": 2,
+            "TP1_THEN_RUNNER_RIBBON": 1
+          }
+        },
+        "OOS": {
+          "n": 12,
+          "wr": 0.6667,
+          "total": 9067.16,
+          "avg": 755.6,
+          "by_exit": {
+            "EXIT_ALL_PREMIUM_STOP": 3,
+            "EXIT_ALL_TIME_STOP": 2,
+            "TP1_THEN_RUNNER_TIME": 3,
+            "TP1_THEN_RUNNER_RIBBON": 4
+          }
+        }
+      },
+      "40.0": {
+        "IS": {
+          "n": 14,
+          "wr": 0.3571,
+          "total": 1486.18,
+          "avg": 106.16,
+          "by_exit": {
+            "TP1_THEN_RUNNER_TARGET": 1,
+            "EXIT_ALL_PREMIUM_STOP": 8,
+            "EXIT_ALL_TIME_STOP": 2,
+            "TP1_THEN_RUNNER_TIME": 2,
+            "TP1_THEN_RUNNER_RIBBON": 1
+          }
+        },
+        "OOS": {
+          "n": 12,
+          "wr": 0.6667,
+          "total": 9067.16,
+          "avg": 755.6,
+          "by_exit": {
+            "EXIT_ALL_PREMIUM_STOP": 3,
+            "EXIT_ALL_TIME_STOP": 2,
+            "TP1_THEN_RUNNER_TIME": 3,
+            "TP1_THEN_RUNNER_RIBBON": 4
+          }
+        }
+      },
+      "50.0": {
+        "IS": {
+          "n": 14,
+          "wr": 0.3571,
+          "total": 1486.18,
+          "avg": 106.16,
+          "by_exit": {
+            "TP1_THEN_RUNNER_TARGET": 1,
+            "EXIT_ALL_PREMIUM_STOP": 8,
+            "EXIT_ALL_TIME_STOP": 2,
+            "TP1_THEN_RUNNER_TIME": 2,
+            "TP1_THEN_RUNNER_RIBBON": 1
+          }
+        },
+        "OOS": {
+          "n": 12,
+          "wr": 0.6667,
+          "total": 9067.16,
+          "avg": 755.6,
+          "by_exit": {
+            "EXIT_ALL_PREMIUM_STOP": 3,
+            "EXIT_ALL_TIME_STOP": 2,
+            "TP1_THEN_RUNNER_TIME": 3,
+            "TP1_THEN_RUNNER_RIBBON": 4
+          }
+        }
+      },
+      "60.0": {
+        "IS": {
+          "n": 14,
+          "wr": 0.3571,
+          "total": 1486.18,
+          "avg": 106.16,
+          "by_exit": {
+            "TP1_THEN_RUNNER_TARGET": 1,
+            "EXIT_ALL_PREMIUM_STOP": 8,
+            "EXIT_ALL_TIME_STOP": 2,
+            "TP1_THEN_RUNNER_TIME": 2,
+            "TP1_THEN_RUNNER_RIBBON": 1
+          }
+        },
+        "OOS": {
+          "n": 12,
+          "wr": 0.6667,
+          "total": 9067.16,
+          "avg": 755.6,
+          "by_exit": {
+            "EXIT_ALL_PREMIUM_STOP": 3,
+            "EXIT_ALL_TIME_STOP": 2,
+            "TP1_THEN_RUNNER_TIME": 3,
+            "TP1_THEN_RUNNER_RIBBON": 4
+          }
+        }
+      }
+    }
+  },
+  "all_cuts_subwindows": {
+    "30.0": {
+      "2025H1": {
+        "n": 7,
+        "total": 614.05
+      },
+      "2025H2": {
+        "n": 7,
+        "total": 872.13
+      },
+      "2026Q1": {
+        "n": 8,
+        "total": 6959.56
+      },
+      "2026Q2": {
+        "n": 4,
+        "total": 2107.6
+      }
+    },
+    "40.0": {
+      "2025H1": {
+        "n": 7,
+        "total": 614.05
+      },
+      "2025H2": {
+        "n": 7,
+        "total": 872.13
+      },
+      "2026Q1": {
+        "n": 8,
+        "total": 6959.56
+      },
+      "2026Q2": {
+        "n": 4,
+        "total": 2107.6
+      }
+    },
+    "50.0": {
+      "2025H1": {
+        "n": 7,
+        "total": 614.05
+      },
+      "2025H2": {
+        "n": 7,
+        "total": 872.13
+      },
+      "2026Q1": {
+        "n": 8,
+        "total": 6959.56
+      },
+      "2026Q2": {
+        "n": 4,
+        "total": 2107.6
+      }
+    },
+    "60.0": {
+      "2025H1": {
+        "n": 7,
+        "total": 614.05
+      },
+      "2025H2": {
+        "n": 7,
+        "total": 872.13
+      },
+      "2026Q1": {
+        "n": 8,
+        "total": 6959.56
+      },
+      "2026Q2": {
+        "n": 4,
+        "total": 2107.6
+      }
+    }
+  },
+  "anchor_no_regression": {
+    "anchor_window": [
+      "2026-04-29",
+      "2026-05-07"
+    ],
+    "by_threshold": {
+      "30.0": {
+        "edge_capture": 1340.0,
+        "winners_capture": 1340.0,
+        "losers_added": 0.0,
+        "anchor_no_regression_vs_30": true
+      },
+      "40.0": {
+        "edge_capture": 1340.0,
+        "winners_capture": 1340.0,
+        "losers_added": 0.0,
+        "anchor_no_regression_vs_30": true
+      },
+      "50.0": {
+        "edge_capture": 1340.0,
+        "winners_capture": 1340.0,
+        "losers_added": 0.0,
+        "anchor_no_regression_vs_30": true
+      },
+      "60.0": {
+        "edge_capture": 1340.0,
+        "winners_capture": 1340.0,
+        "losers_added": 0.0,
+        "anchor_no_regression_vs_30": true
+      }
+    }
+  },
+  "dsr_advisory": {
+    "30.0": {
+      "verdict": "PASS",
+      "dsr": 0.9637893230727249,
+      "psr": 0.9978042804524775,
+      "pbo": null,
+      "n_obs": 26,
+      "n_trials": 4,
+      "low_power": false,
+      "notes": [
+        "PSR(vs 0)=0.9978 on n=26 obs (Sharpe=0.459, skew=0.95, kurt=2.61).",
+        "DSR deflated for n_trials=4 (SR_0=0.170) = 0.9638.",
+        "PBO skipped (no performance matrix supplied).",
+        "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+      ]
+    },
+    "40.0": {
+      "verdict": "PASS",
+      "dsr": 0.9637893230727249,
+      "psr": 0.9978042804524775,
+      "pbo": null,
+      "n_obs": 26,
+      "n_trials": 4,
+      "low_power": false,
+      "notes": [
+        "PSR(vs 0)=0.9978 on n=26 obs (Sharpe=0.459, skew=0.95, kurt=2.61).",
+        "DSR deflated for n_trials=4 (SR_0=0.170) = 0.9638.",
+        "PBO skipped (no performance matrix supplied).",
+        "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+      ]
+    },
+    "50.0": {
+      "verdict": "PASS",
+      "dsr": 0.9637893230727249,
+      "psr": 0.9978042804524775,
+      "pbo": null,
+      "n_obs": 26,
+      "n_trials": 4,
+      "low_power": false,
+      "notes": [
+        "PSR(vs 0)=0.9978 on n=26 obs (Sharpe=0.459, skew=0.95, kurt=2.61).",
+        "DSR deflated for n_trials=4 (SR_0=0.170) = 0.9638.",
+        "PBO skipped (no performance matrix supplied).",
+        "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+      ]
+    },
+    "60.0": {
+      "verdict": "PASS",
+      "dsr": 0.9637893230727249,
+      "psr": 0.9978042804524775,
+      "pbo": null,
+      "n_obs": 26,
+      "n_trials": 4,
+      "low_power": false,
+      "notes": [
+        "PSR(vs 0)=0.9978 on n=26 obs (Sharpe=0.459, skew=0.95, kurt=2.61).",
+        "DSR deflated for n_trials=4 (SR_0=0.170) = 0.9638.",
+        "PBO skipped (no performance matrix supplied).",
+        "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+      ]
+    }
+  },
+  "mechanistic_diagnostic": {
+    "pre_tp1_exit_all_ribbon_flip_back_count_at_30c": 0,
+    "opposite_stack_spread_during_holds": {
+      "opposite_stack_bars_seen": 83,
+      "spread_cents_median": 93.7,
+      "spread_cents_p25": 53.6,
+      "spread_cents_p75": 114.6,
+      "pct_below_30c": 8.4,
+      "pct_30_to_60c": 18.1,
+      "pct_at_or_above_60c": 73.5
+    },
+    "interpretation": "The flip-back threshold can only matter on bars where a FULL opposite stack exists with spread in [thr_lo, thr_hi). Those bars are rare and the spread is usually already wide, so the threshold never binds on the live config."
+  },
+  "verdict": "DEAD_VALID_NEGATIVE",
+  "recommendation": "KEEP ribbon_flip_back_min_spread_cents=30. VALID NEGATIVE: on the LIVE chart-stop config the ribbon-flip-back is NOT clipping the engine early \u2014 pre-TP1 EXIT_ALL_RIBBON_FLIP_BACK fires 0 times over the full window, and when an opposite stack DOES form its spread is already wide (median ~94c, >=60c on ~73% of bars), so raising the threshold 30->40/50/60 changes ZERO trades and ZERO P&L. The binding stops are the premium catastrophe cap + time stop + post-TP1 BE/signal exits, not the flip-back spread threshold. J's shake-out concern is real but the engine already addresses it via the wide -50% bear cap + the $0.50 chart/ribbon price buffer (ribbon_flip_price_confirm remains the lever for the residual case).",
+  "proposed_param_change": null,
+  "caveats": [
+    "Real OPRA coverage ends ~2026-05-29 (window bound).",
+    "Low trade count (n=26 full window) \u2014 the everyday bearish book is rare/sharp; this is the production setup population, not a synthetic high-frequency book.",
+    "TP1_THEN_RUNNER_RIBBON in the exit histogram is also the post-TP1 fallthrough label, so it OVERCOUNTS true ribbon flips; the pre-TP1 EXIT_ALL_RIBBON_FLIP_BACK count (=0) is the clean measure of the flip-back as a binding stop.",
+    "PROPOSE-ONLY: no params.json change; the engine knob defaults to 30.0 (byte-identical to prod)."
+  ]
+}
