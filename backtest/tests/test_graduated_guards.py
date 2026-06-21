@@ -128,6 +128,16 @@ regression instead of a human re-discovering it walks later.
                                                              L155 guard: reject BEFORE WF check when IS_delta<=0.
                                                              Real case: Safe conf+lvl_rej VIX>=19 gate produced
                                                              IS_delta=-$2,334, OOS_delta=-$453, WF_raw=1.201)
+  test_l173_oos_drop_top5_*                            -> L173/C4 (2026-06-21: OOS-ALONE drop-top5 graduated from
+                                                             per-harness into the STANDARD verify path
+                                                             (autoresearch.fraud_gates.oos_drop_top5_gate, wired in
+                                                             verify_edgehunt_candidates). full-sample drop-top5>0 is
+                                                             necessary-but-NOT-sufficient: the OOS-window-only per-trade
+                                                             must ALSO stay >0 after dropping the 5 best OOS days.
+                                                             Caught edge#3 (2026-bull regime artifact: passed
+                                                             full-sample drop-top5 at B5, failed OOS-alone at B6
+                                                             -$16->-$23, top5-day-OOS 120-228%). ADDITIVE; small-n<=5
+                                                             unevaluable=skip; missing value fails OPEN, never blesses)
 
 Run:  cd backtest && python -m pytest tests/test_graduated_guards.py -v
 """
@@ -867,19 +877,44 @@ def test_l105_real_fills_stop_uses_side_specific() -> None:
     'if use_real_fills:' branch so both paths receive the correct side-specific stop.
 
     Source check (data-free): verify the fix pattern is present in orchestrator.py.
-    Two assertions:
-    1. simulate_trade_real call uses premium_stop_pct=side_premium_stop (not global)
-    2. side_premium_stop assignment appears before the if use_real_fills: branch
 
-    If either fails: real-fills path was reverted to global stop → invalidates all real-fills backtests.
+    UPDATED 2026-06-21 (WP-0): the real-fills stop is now routed through the pure
+    resolver risk_gate.select_exit_params(setup, side, params, side_premium_stop). The
+    resolver returns side_premium_stop UNCHANGED whenever no per-setup flag is on
+    (byte-identical to the old direct pass), and overrides it with a setup's VALIDATED
+    isolated stop only when that setup's flag is ON. The L105 property is UNCHANGED:
+    the real-fills stop must still DERIVE FROM side_premium_stop, never the bare global
+    premium_stop_pct. We therefore assert the resolver is fed side_premium_stop and the
+    call consumes the resolved value.
+
+    Three assertions:
+    1. real-fills call passes premium_stop_pct=resolved_premium_stop (the resolved value)
+    2. resolved_premium_stop is produced by select_exit_params(..., side_premium_stop)
+       (so the global fallback IS side_premium_stop, not the bare global premium_stop_pct)
+    3. side_premium_stop assignment appears before the if use_real_fills: branch
+
+    If any fails: real-fills path was reverted to the global stop → invalidates all
+    real-fills backtests (the original L105 bug) OR the resolver was fed the wrong global.
     """
     source = (BACKTEST / "lib" / "orchestrator.py").read_text(encoding="utf-8")
 
-    assert "premium_stop_pct=side_premium_stop" in source, (
-        "L105 regression: simulate_trade_real no longer uses side_premium_stop. "
-        "Real-fills path must pass side_premium_stop (bear=-0.20, bull=-0.08) not the global "
-        "premium_stop_pct (-0.08). Before fix, all real-fills backtests used -8% stop regardless "
-        "of params.json premium_stop_pct_bear=-0.20. See orchestrator.py lines ~937-957."
+    assert "premium_stop_pct=resolved_premium_stop" in source, (
+        "L105/WP-0 regression: real-fills call no longer consumes the resolved stop. "
+        "simulate_trade_real must receive premium_stop_pct=resolved_premium_stop (the "
+        "output of risk_gate.select_exit_params), not the bare global premium_stop_pct."
+    )
+
+    assert "select_exit_params(" in source and "side_premium_stop\n" in source, (
+        "L105/WP-0 regression: select_exit_params must be wired in orchestrator.py."
+    )
+
+    # The resolver MUST be fed side_premium_stop as the global fallback — that is the
+    # L105 property (derive the real-fills stop from the side-specific stop). Match the
+    # call's final argument.
+    assert "winning_side, params_overrides, side_premium_stop" in source, (
+        "L105/WP-0 regression: select_exit_params must be fed side_premium_stop as the "
+        "global fallback. If the global fallback is the bare premium_stop_pct, the "
+        "real-fills path reverts to the original L105 bug (all real-fills used -8%)."
     )
 
     # Verify the assignment precedes the if use_real_fills: branch (not buried in the else-only path).
@@ -2496,3 +2531,195 @@ def test_l160_formerly_broken_scripts_use_canonical_helper() -> None:
         "call/import is gone (formula likely re-inlined). Re-route to the helper:\n  "
         + "\n  ".join(missing)
     )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# L173 — OOS-ALONE drop-top5 graduated into the standard real-fills verify path.
+#
+#   full-sample drop-top5 > 0 (the existing GATE_FRAUD null + the family grids'
+#   own top5_day_pct < 200% gate) is NECESSARY-BUT-NOT-SUFFICIENT. The candidate
+#   must ALSO keep its OOS-window-only per-trade positive after the 5 best OOS days
+#   are dropped. Caught edge #3 (a 2026-bull-regime artifact that passed full-sample
+#   drop-top5 at B5 but failed OOS-alone at B6: OOS-alone drop-top5 -$16 -> -$23,
+#   top5-day-OOS 120-228%). C4/L173. ADDITIVE — never relaxes any existing gate.
+#
+# Mirrors the known-fake/known-real structure of test_fraud_gates.py. Pure-logic
+# (no master CSV / no OPRA) so it runs in the fast guard set.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def test_l173_oos_drop_top5_gate_rejects_oos_concentrated_fake() -> None:
+    """L173 pure gate: an OOS-concentrated fake (full-sample drop-top5 positive but
+    OOS-alone drop-top5 NEGATIVE) is REJECTED. The edge lives in a few OOS days."""
+    from autoresearch.fraud_gates import oos_drop_top5_gate
+
+    # edge#3 shape: removing the 5 best OOS days takes OOS-only per-trade negative.
+    g = oos_drop_top5_gate(oos_drop_top5_per_trade=-23.0, oos_n=30)
+    assert g["evaluable"] is True
+    assert g["oos_drop_top5_pass"] is False, (
+        "L173 regression: a negative OOS-alone drop-top5 must FAIL the gate — the "
+        "edge is OOS-day concentration, not a per-trade option edge (C4)."
+    )
+
+
+def test_l173_oos_drop_top5_gate_passes_broad_based_clean() -> None:
+    """L173 pure gate: a clean candidate (positive OOS-alone drop-top5 over enough
+    OOS days) PASSES — the edge survives removing its 5 best OOS days."""
+    from autoresearch.fraud_gates import oos_drop_top5_gate
+
+    g = oos_drop_top5_gate(oos_drop_top5_per_trade=25.91, oos_n=42)
+    assert g["evaluable"] is True
+    assert g["oos_drop_top5_pass"] is True, (
+        "L173 regression: a broad-based candidate whose OOS-alone drop-top5 stays "
+        "positive must PASS — this gate is ADDITIVE, never a false reject."
+    )
+
+
+def test_l173_oos_drop_top5_gate_small_n_is_unevaluable_not_crash() -> None:
+    """L173 small-n convention (matches _b10_exit_audit.oos_drop_top5): with <=5 OOS
+    observations the 5-best cannot be dropped leaving a non-empty remainder, so the
+    gate is UNEVALUABLE (skip), never a crash and never a silent pass."""
+    from autoresearch.fraud_gates import oos_drop_top5_gate
+
+    for n in (0, 3, 5):
+        g = oos_drop_top5_gate(oos_drop_top5_per_trade=10.0, oos_n=n)
+        assert g["evaluable"] is False, f"OOS_n={n} must be unevaluable (<=5)"
+        assert g["oos_drop_top5_pass"] is False  # unevaluable never auto-passes
+    # 6 > 5 -> the gate becomes evaluable again.
+    assert oos_drop_top5_gate(oos_drop_top5_per_trade=10.0, oos_n=6)["evaluable"] is True
+
+
+def test_l173_oos_drop_top5_gate_fails_open_when_value_missing() -> None:
+    """L173 fail-open: a missing OOS-alone drop-top5 cannot DISPROVE concentration,
+    so the gate is unevaluable (the harness records a caveat, the outer gates still
+    govern) — it never silently blesses, mirroring the truncation/null fail-open."""
+    from autoresearch.fraud_gates import oos_drop_top5_gate
+
+    g = oos_drop_top5_gate(oos_drop_top5_per_trade=None, oos_n=42)
+    assert g["evaluable"] is False
+    assert g["oos_drop_top5_pass"] is False
+
+
+def test_l173_harness_rejects_oos_concentrated_candidate() -> None:
+    """L173 WIRING: through verify_edgehunt_candidates, a candidate that records a
+    NEGATIVE OOS-alone drop-top5 carries the OOS_DROP_TOP5<=0 fail and is REJECTED,
+    while the SAME candidate with a positive OOS-alone drop-top5 clears the gate.
+    Synthetic candidate (no master CSV / no OPRA) so this is a fast pure-logic guard."""
+    from autoresearch.verify_edgehunt_candidates import _extract, _gate
+
+    # A minimal candidate that clears every OTHER gate (so the OOS-conc gate is the
+    # only thing that can differ between the fake and the clean variant).
+    base = {
+        "config": "off-2_stop-0.08",
+        "strike_offset": -2,
+        "premium_stop_pct": -0.08,
+        "metrics": {
+            "exp_dollar": 70.0, "oos_exp": 60.0, "oos_n": 30, "n": 90,
+            "positive_quarters": "6/6", "top5_day_pct": 25.0, "oos_top5_day_pct": 120.0,
+            # full-sample drop-top5 is fine; the artifact is OOS-ALONE concentration.
+            "drop_top5_per_trade": 20.0,
+        },
+        # pin the upstream fraud gates to PASS so they don't mask the L173 fail.
+        "is_truncation_artifact": False,
+        "null_pass": True,
+        "null": {"per_trade_mean": 2.0, "per_trade_max": 5.0},
+        "drop_top5_per_trade": 20.0,
+        "clears_bar_robust": True,
+        "anchor_no_regression": True,
+        "true_edge": True,
+    }
+
+    # FAKE: OOS-alone drop-top5 goes NEGATIVE -> must be rejected by the new gate.
+    fake = dict(base); fake["oos_exp_drop_top5"] = -23.0
+    ex_fake = _extract("synthetic", fake)
+    fails_fake, _ = _gate("synthetic", ex_fake)
+    assert ex_fake["oos_drop_top5"]["evaluable"] is True
+    assert ex_fake["oos_drop_top5"]["oos_drop_top5_pass"] is False
+    assert any("OOS_DROP_TOP5" in f for f in fails_fake), (
+        f"L173 regression: OOS-concentrated candidate not rejected. fails={fails_fake}"
+    )
+
+    # CLEAN: same candidate, positive OOS-alone drop-top5 -> the L173 gate must NOT fire.
+    clean = dict(base); clean["oos_exp_drop_top5"] = 25.91
+    ex_clean = _extract("synthetic", clean)
+    fails_clean, _ = _gate("synthetic", ex_clean)
+    assert ex_clean["oos_drop_top5"]["oos_drop_top5_pass"] is True
+    assert not any("OOS_DROP_TOP5" in f for f in fails_clean), (
+        f"L173 regression: clean candidate falsely rejected by the OOS-conc gate. "
+        f"fails={fails_clean}"
+    )
+
+
+def test_l177_premium_selling_eligibility_filter_shared() -> None:
+    """L177 / OP-16 sim-accuracy gate: the per-day strike-universe band pre-filter MUST
+    be byte-identical across production run_variant() and EVERY premium-selling null,
+    by construction (one shared helper), not by three independent legs_in_band(half_width=5)
+    literals that can silently diverge. Divergence is exactly what inflated the IC LEAD's
+    apparent percentile (94.8th vs the true ~76th) and flipped the verdict on the RNG seed.
+
+    Guard: (1) the shared piv.eligible() exists and uses BAND_HALF_WIDTH; (2) the null and
+    the IC-validate per-day fills call piv.eligible (not a private literal); (3) behavioral
+    parity -- the same legs/spot get the same eligibility decision through every path."""
+    import inspect
+    import sys as _sys, pathlib as _pl
+    _ar = str(_pl.Path(__file__).resolve().parents[1] / "autoresearch")
+    if _ar not in _sys.path:
+        _sys.path.insert(0, _ar)
+    import _pivot_premium_selling as piv
+    import _pivot_premium_selling_null as nul
+    import _pivot_premium_ic_validate as icv
+
+    assert callable(piv.eligible), "shared eligible() helper missing"
+    assert piv.BAND_HALF_WIDTH == 5, "production band half-width drifted from 5"
+
+    # (2) regression guard: both nulls must route through the shared helper, and must NOT
+    # re-introduce a private `legs_in_band(..., half_width=...)` literal that can diverge.
+    def _code_only(fn):
+        # strip comment lines so the guard checks real CALLS, not our own docstring/comment.
+        lines = inspect.getsource(fn).splitlines()
+        return chr(10).join(l for l in lines if not l.strip().startswith("#"))
+    for name, src in (("null", _code_only(nul._one_day_fill)),
+                      ("ic_validate", _code_only(icv.fill_for_day))):
+        assert "piv.eligible(" in src, f"{name} no longer calls the shared piv.eligible()"
+        assert "half_width" not in src, (
+            f"{name} re-introduced a private band literal -- L177 divergence risk; "
+            "route through piv.eligible() instead"
+        )
+        assert "legs_in_band(" not in src, (
+            f"{name} calls legs_in_band() directly -- route through piv.eligible() (L177)"
+        )
+
+    # (3) behavioral parity: an out-of-band condor is rejected, an in-band one accepted,
+    # identically (the helper IS the single decision, so any caller agrees by construction).
+    spot = 600.0
+    in_band = piv.build_legs(spot, "IC", short_offset=2, wing_width=2)
+    out_band = piv.build_legs(spot, "IC", short_offset=20, wing_width=2)  # shorts $20 OTM
+    assert piv.eligible(in_band, spot) is True, "in-band IC wrongly rejected"
+    assert piv.eligible(out_band, spot) is False, "out-of-band IC wrongly accepted"
+
+
+def test_l177_null_verdict_knife_edge_inconclusive() -> None:
+    """L177: a premium-selling cell whose actual lands in the [p90,p99) knife-edge must be
+    INCONCLUSIVE, never PASS -- that band is where an eligibility-parity / RNG-seed bug can
+    flip the call (the 94.8th-pctile artifact was here). PASS needs >=p99 on EVERY seed;
+    FAIL needs <p90 on every seed; <MIN_ITERS or <MIN_SEEDS or a straddle -> INCONCLUSIVE."""
+    import sys as _sys, pathlib as _pl
+    _ar = str(_pl.Path(__file__).resolve().parents[1] / "autoresearch")
+    if _ar not in _sys.path:
+        _sys.path.insert(0, _ar)
+    import _pivot_premium_selling_null as nul
+    nv = nul.null_verdict
+
+    # the exact L177 foot-gun value (~94.8th pctile) must NOT be a PASS.
+    assert nv([0.948, 0.96], 300, 2)[0] == "INCONCLUSIVE"
+    # clearly above the noise on every seed -> PASS.
+    assert nv([0.995, 0.992], 300, 2)[0] == "PASS"
+    # genuinely inside the noise -> FAIL (the post-parity-fix ~76th-pctile reality).
+    assert nv([0.76, 0.70], 300, 2)[0] == "FAIL"
+    # too few seeds / iters -> never a PASS even when the lone rank clears p99.
+    assert nv([0.995], 300, 1)[0] == "INCONCLUSIVE"
+    assert nv([0.995, 0.992], 100, 2)[0] == "INCONCLUSIVE"
+    # seed-unstable (one seed PASS-side, one FAIL-side) -> INCONCLUSIVE, not a coin-flip PASS.
+    assert nv([0.995, 0.50], 300, 2)[0] == "INCONCLUSIVE"
+    # boundary: exactly p99 on both seeds is a PASS; exactly p90 is the knife-edge floor.
+    assert nv([0.99, 0.99], 300, 2)[0] == "PASS"
+    assert nv([0.90, 0.90], 300, 2)[0] == "INCONCLUSIVE"
