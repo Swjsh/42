@@ -1,0 +1,1201 @@
+{
+  "campaign": "B9-CAP \u2014 cap-aware re-score of the 3-edge VWAP portfolio (realizable book)",
+  "run_date": "2026-06-22",
+  "window": "2025-01-01..2026-05-15",
+  "trading_days": 342,
+  "fills_authority": "real OPRA via lib.simulator_real (C1); cap via lib.cap_admission (risk_gate.check_order)",
+  "oos_split": "IS=2025 / OOS=2026",
+  "config": {
+    "premium_stop_pct": -0.08,
+    "exits": "v15 default",
+    "vix_regime_config": {
+      "slope_rule": "not_rising",
+      "low_margin": 0.25,
+      "source": "b5 robust_clearing_cell"
+    },
+    "tiers_tested": {
+      "OTM-2": 2,
+      "OTM-1": 1,
+      "ATM": 0,
+      "ITM-2": -2
+    },
+    "accounts": {
+      "Safe-2": {
+        "equity": 2000.0,
+        "qty": 3,
+        "edges": [
+          "e1",
+          "e2",
+          "e4"
+        ]
+      },
+      "Bold": {
+        "equity": 1648.0,
+        "qty": 5,
+        "edges": [
+          "e1",
+          "e2"
+        ]
+      }
+    }
+  },
+  "capblind_headlines_being_rescored": {
+    "Safe-2_ATM_1+2+4": 14608.16,
+    "Bold_ITM-2_1+2": 33013.7,
+    "diversification_daily_corr_e2_e4": 0.076
+  },
+  "results": {
+    "Safe-2": {
+      "equity": 2000.0,
+      "qty": 3,
+      "min_contracts": 3,
+      "risk_cap_dollar": 600.0,
+      "tier_cap_dollar": 600.0,
+      "effective_cap_dollar": 600.0,
+      "max_premium_per_contract": 2.0,
+      "tiers": {
+        "OTM-2": {
+          "strike_offset": 2,
+          "median_entry_premium_all_edges": 0.63,
+          "median_order_notional": 189.0,
+          "median_order_fits_cap": true,
+          "standalone_capblind": {
+            "e1": {
+              "n": 147,
+              "n_blocked": 0,
+              "days": 147,
+              "wr_pct": 40.8,
+              "exp_dollar": 21.12,
+              "total_dollar": 3105.36,
+              "oos_n": 40,
+              "oos_exp": 23.21,
+              "oos_total": 928.48,
+              "median_entry_premium": 0.62
+            },
+            "e2": {
+              "n": 75,
+              "n_blocked": 0,
+              "days": 75,
+              "wr_pct": 40.0,
+              "exp_dollar": 23.25,
+              "total_dollar": 1744.08,
+              "oos_n": 18,
+              "oos_exp": 5.53,
+              "oos_total": 99.48,
+              "median_entry_premium": 0.63
+            },
+            "e4": {
+              "n": 75,
+              "n_blocked": 0,
+              "days": 75,
+              "wr_pct": 41.3,
+              "exp_dollar": 18.21,
+              "total_dollar": 1365.84,
+              "oos_n": 20,
+              "oos_exp": 29.01,
+              "oos_total": 580.28,
+              "median_entry_premium": 0.69
+            }
+          },
+          "standalone_capaware": {
+            "e1": {
+              "n": 136,
+              "n_blocked": 11,
+              "days": 136,
+              "wr_pct": 41.9,
+              "exp_dollar": 22.39,
+              "total_dollar": 3045.12,
+              "oos_n": 38,
+              "oos_exp": 23.25,
+              "oos_total": 883.36,
+              "median_entry_premium": 0.585,
+              "block_rate": 0.0748,
+              "block_codes": {
+                "RISK_CAP": 11
+              }
+            },
+            "e2": {
+              "n": 70,
+              "n_blocked": 5,
+              "days": 70,
+              "wr_pct": 41.4,
+              "exp_dollar": 26.42,
+              "total_dollar": 1849.2,
+              "oos_n": 17,
+              "oos_exp": 10.55,
+              "oos_total": 179.4,
+              "median_entry_premium": 0.57,
+              "block_rate": 0.0667,
+              "block_codes": {
+                "RISK_CAP": 5
+              }
+            },
+            "e4": {
+              "n": 69,
+              "n_blocked": 6,
+              "days": 69,
+              "wr_pct": 42.0,
+              "exp_dollar": 20.13,
+              "total_dollar": 1388.88,
+              "oos_n": 19,
+              "oos_exp": 23.66,
+              "oos_total": 449.48,
+              "median_entry_premium": 0.59,
+              "block_rate": 0.08,
+              "block_codes": {
+                "RISK_CAP": 6
+              }
+            }
+          },
+          "portfolio_capblind": {
+            "total_dollar": 6215.28,
+            "days_in_market": 147,
+            "n_trading_days": 342,
+            "pct_days_in_market": 43.0,
+            "daily_mean_all_days": 18.17,
+            "daily_mean_in_market": 42.28,
+            "daily_std_all_days": 94.96,
+            "annualized_sharpe": 3.04,
+            "max_drawdown": -579.36,
+            "worst_day": -423.36,
+            "best_day": 590.6,
+            "win_days": 66,
+            "loss_days": 81,
+            "day_win_pct": 44.9
+          },
+          "portfolio_capaware": {
+            "total_dollar": 6283.2,
+            "days_in_market": 136,
+            "n_trading_days": 342,
+            "pct_days_in_market": 39.8,
+            "daily_mean_all_days": 18.37,
+            "daily_mean_in_market": 46.2,
+            "daily_std_all_days": 80.54,
+            "annualized_sharpe": 3.62,
+            "max_drawdown": -585.12,
+            "worst_day": -107.76,
+            "best_day": 590.6,
+            "win_days": 63,
+            "loss_days": 73,
+            "day_win_pct": 46.3
+          },
+          "corr_capblind": {
+            "jaccard": {
+              "e1__e2": 0.51,
+              "e1__e4": 0.51,
+              "e2__e4": 0.376
+            },
+            "daily_pnl_corr": {
+              "e1__e2": 0.418,
+              "e1__e4": 0.508,
+              "e2__e4": 0.067
+            },
+            "fire_day_counts": {
+              "e1": 147,
+              "e2": 75,
+              "e4": 75
+            }
+          },
+          "corr_capaware": {
+            "jaccard": {
+              "e1__e2": 0.515,
+              "e1__e4": 0.507,
+              "e2__e4": 0.376
+            },
+            "daily_pnl_corr": {
+              "e1__e2": 0.321,
+              "e1__e4": 0.554,
+              "e2__e4": 0.014
+            },
+            "fire_day_counts": {
+              "e1": 136,
+              "e2": 70,
+              "e4": 69
+            }
+          }
+        },
+        "OTM-1": {
+          "strike_offset": 1,
+          "median_entry_premium_all_edges": 0.94,
+          "median_order_notional": 282.0,
+          "median_order_fits_cap": true,
+          "standalone_capblind": {
+            "e1": {
+              "n": 147,
+              "n_blocked": 0,
+              "days": 147,
+              "wr_pct": 49.0,
+              "exp_dollar": 33.0,
+              "total_dollar": 4850.28,
+              "oos_n": 41,
+              "oos_exp": 36.69,
+              "oos_total": 1504.16,
+              "median_entry_premium": 0.92
+            },
+            "e2": {
+              "n": 76,
+              "n_blocked": 0,
+              "days": 76,
+              "wr_pct": 50.0,
+              "exp_dollar": 39.51,
+              "total_dollar": 3003.04,
+              "oos_n": 18,
+              "oos_exp": 16.59,
+              "oos_total": 298.64,
+              "median_entry_premium": 0.915
+            },
+            "e4": {
+              "n": 76,
+              "n_blocked": 0,
+              "days": 76,
+              "wr_pct": 47.4,
+              "exp_dollar": 29.24,
+              "total_dollar": 2222.48,
+              "oos_n": 21,
+              "oos_exp": 40.03,
+              "oos_total": 840.72,
+              "median_entry_premium": 1.02
+            }
+          },
+          "standalone_capaware": {
+            "e1": {
+              "n": 129,
+              "n_blocked": 18,
+              "days": 129,
+              "wr_pct": 51.2,
+              "exp_dollar": 35.14,
+              "total_dollar": 4532.48,
+              "oos_n": 34,
+              "oos_exp": 41.86,
+              "oos_total": 1423.4,
+              "median_entry_premium": 0.85,
+              "block_rate": 0.1224,
+              "block_codes": {
+                "RISK_CAP": 18
+              }
+            },
+            "e2": {
+              "n": 67,
+              "n_blocked": 9,
+              "days": 67,
+              "wr_pct": 49.3,
+              "exp_dollar": 36.55,
+              "total_dollar": 2448.76,
+              "oos_n": 15,
+              "oos_exp": 8.0,
+              "oos_total": 119.96,
+              "median_entry_premium": 0.89,
+              "block_rate": 0.1184,
+              "block_codes": {
+                "RISK_CAP": 9
+              }
+            },
+            "e4": {
+              "n": 65,
+              "n_blocked": 11,
+              "days": 65,
+              "wr_pct": 50.8,
+              "exp_dollar": 36.17,
+              "total_dollar": 2351.24,
+              "oos_n": 17,
+              "oos_exp": 45.09,
+              "oos_total": 766.56,
+              "median_entry_premium": 0.89,
+              "block_rate": 0.1447,
+              "block_codes": {
+                "RISK_CAP": 11
+              }
+            }
+          },
+          "portfolio_capblind": {
+            "total_dollar": 10075.8,
+            "days_in_market": 150,
+            "n_trading_days": 342,
+            "pct_days_in_market": 43.9,
+            "daily_mean_all_days": 29.46,
+            "daily_mean_in_market": 67.17,
+            "daily_std_all_days": 120.57,
+            "annualized_sharpe": 3.88,
+            "max_drawdown": -618.0,
+            "worst_day": -423.36,
+            "best_day": 794.0,
+            "win_days": 81,
+            "loss_days": 69,
+            "day_win_pct": 54.0
+          },
+          "portfolio_capaware": {
+            "total_dollar": 9332.48,
+            "days_in_market": 131,
+            "n_trading_days": 342,
+            "pct_days_in_market": 38.3,
+            "daily_mean_all_days": 27.29,
+            "daily_mean_in_market": 71.24,
+            "daily_std_all_days": 102.32,
+            "annualized_sharpe": 4.23,
+            "max_drawdown": -467.56,
+            "worst_day": -133.68,
+            "best_day": 794.0,
+            "win_days": 74,
+            "loss_days": 57,
+            "day_win_pct": 56.5
+          },
+          "corr_capblind": {
+            "jaccard": {
+              "e1__e2": 0.507,
+              "e1__e4": 0.497,
+              "e2__e4": 0.369
+            },
+            "daily_pnl_corr": {
+              "e1__e2": 0.366,
+              "e1__e4": 0.47,
+              "e2__e4": 0.109
+            },
+            "fire_day_counts": {
+              "e1": 147,
+              "e2": 76,
+              "e4": 76
+            }
+          },
+          "corr_capaware": {
+            "jaccard": {
+              "e1__e2": 0.508,
+              "e1__e4": 0.492,
+              "e2__e4": 0.361
+            },
+            "daily_pnl_corr": {
+              "e1__e2": 0.341,
+              "e1__e4": 0.535,
+              "e2__e4": 0.109
+            },
+            "fire_day_counts": {
+              "e1": 129,
+              "e2": 67,
+              "e4": 65
+            }
+          }
+        },
+        "ATM": {
+          "strike_offset": 0,
+          "median_entry_premium_all_edges": 1.38,
+          "median_order_notional": 414.0,
+          "median_order_fits_cap": true,
+          "standalone_capblind": {
+            "e1": {
+              "n": 149,
+              "n_blocked": 0,
+              "days": 149,
+              "wr_pct": 51.7,
+              "exp_dollar": 48.33,
+              "total_dollar": 7200.6,
+              "oos_n": 42,
+              "oos_exp": 59.81,
+              "oos_total": 2511.92,
+              "median_entry_premium": 1.35
+            },
+            "e2": {
+              "n": 76,
+              "n_blocked": 0,
+              "days": 76,
+              "wr_pct": 55.3,
+              "exp_dollar": 53.28,
+              "total_dollar": 4049.0,
+              "oos_n": 18,
+              "oos_exp": 28.39,
+              "oos_total": 511.08,
+              "median_entry_premium": 1.395
+            },
+            "e4": {
+              "n": 76,
+              "n_blocked": 0,
+              "days": 76,
+              "wr_pct": 51.3,
+              "exp_dollar": 44.19,
+              "total_dollar": 3358.56,
+              "oos_n": 21,
+              "oos_exp": 79.49,
+              "oos_total": 1669.24,
+              "median_entry_premium": 1.43
+            }
+          },
+          "standalone_capaware": {
+            "e1": {
+              "n": 117,
+              "n_blocked": 32,
+              "days": 117,
+              "wr_pct": 56.4,
+              "exp_dollar": 58.33,
+              "total_dollar": 6824.36,
+              "oos_n": 31,
+              "oos_exp": 74.11,
+              "oos_total": 2297.36,
+              "median_entry_premium": 1.21,
+              "block_rate": 0.2148,
+              "block_codes": {
+                "RISK_CAP": 32
+              }
+            },
+            "e2": {
+              "n": 59,
+              "n_blocked": 17,
+              "days": 59,
+              "wr_pct": 57.6,
+              "exp_dollar": 50.21,
+              "total_dollar": 2962.44,
+              "oos_n": 13,
+              "oos_exp": 30.27,
+              "oos_total": 393.48,
+              "median_entry_premium": 1.22,
+              "block_rate": 0.2237,
+              "block_codes": {
+                "RISK_CAP": 17
+              }
+            },
+            "e4": {
+              "n": 56,
+              "n_blocked": 20,
+              "days": 56,
+              "wr_pct": 55.4,
+              "exp_dollar": 55.95,
+              "total_dollar": 3132.92,
+              "oos_n": 15,
+              "oos_exp": 86.19,
+              "oos_total": 1292.8,
+              "median_entry_premium": 1.205,
+              "block_rate": 0.2632,
+              "block_codes": {
+                "RISK_CAP": 20
+              }
+            }
+          },
+          "portfolio_capblind": {
+            "total_dollar": 14608.16,
+            "days_in_market": 149,
+            "n_trading_days": 342,
+            "pct_days_in_market": 43.6,
+            "daily_mean_all_days": 42.71,
+            "daily_mean_in_market": 98.04,
+            "daily_std_all_days": 149.72,
+            "annualized_sharpe": 4.53,
+            "max_drawdown": -836.4,
+            "worst_day": -423.36,
+            "best_day": 1045.2,
+            "win_days": 85,
+            "loss_days": 64,
+            "day_win_pct": 57.0
+          },
+          "portfolio_capaware": {
+            "total_dollar": 12919.72,
+            "days_in_market": 119,
+            "n_trading_days": 342,
+            "pct_days_in_market": 34.8,
+            "daily_mean_all_days": 37.78,
+            "daily_mean_in_market": 108.57,
+            "daily_std_all_days": 125.3,
+            "annualized_sharpe": 4.79,
+            "max_drawdown": -401.04,
+            "worst_day": -114.72,
+            "best_day": 1045.2,
+            "win_days": 73,
+            "loss_days": 46,
+            "day_win_pct": 61.3
+          },
+          "corr_capblind": {
+            "jaccard": {
+              "e1__e2": 0.51,
+              "e1__e4": 0.51,
+              "e2__e4": 0.382
+            },
+            "daily_pnl_corr": {
+              "e1__e2": 0.313,
+              "e1__e4": 0.54,
+              "e2__e4": 0.076
+            },
+            "fire_day_counts": {
+              "e1": 149,
+              "e2": 76,
+              "e4": 76
+            }
+          },
+          "corr_capaware": {
+            "jaccard": {
+              "e1__e2": 0.492,
+              "e1__e4": 0.466,
+              "e2__e4": 0.322
+            },
+            "daily_pnl_corr": {
+              "e1__e2": 0.353,
+              "e1__e4": 0.551,
+              "e2__e4": 0.108
+            },
+            "fire_day_counts": {
+              "e1": 117,
+              "e2": 59,
+              "e4": 56
+            }
+          }
+        },
+        "ITM-2": {
+          "strike_offset": -2,
+          "median_entry_premium_all_edges": 2.57,
+          "median_order_notional": 771.0,
+          "median_order_fits_cap": false,
+          "standalone_capblind": {
+            "e1": {
+              "n": 149,
+              "n_blocked": 0,
+              "days": 149,
+              "wr_pct": 51.7,
+              "exp_dollar": 78.29,
+              "total_dollar": 11665.56,
+              "oos_n": 42,
+              "oos_exp": 105.62,
+              "oos_total": 4436.16,
+              "median_entry_premium": 2.5
+            },
+            "e2": {
+              "n": 76,
+              "n_blocked": 0,
+              "days": 76,
+              "wr_pct": 53.9,
+              "exp_dollar": 93.67,
+              "total_dollar": 7118.76,
+              "oos_n": 18,
+              "oos_exp": 72.11,
+              "oos_total": 1297.96,
+              "median_entry_premium": 2.595
+            },
+            "e4": {
+              "n": 76,
+              "n_blocked": 0,
+              "days": 76,
+              "wr_pct": 48.7,
+              "exp_dollar": 69.62,
+              "total_dollar": 5290.76,
+              "oos_n": 21,
+              "oos_exp": 130.19,
+              "oos_total": 2733.92,
+              "median_entry_premium": 2.57
+            }
+          },
+          "standalone_capaware": {
+            "e1": {
+              "n": 34,
+              "n_blocked": 115,
+              "days": 34,
+              "wr_pct": 88.2,
+              "exp_dollar": 205.04,
+              "total_dollar": 6971.2,
+              "oos_n": 14,
+              "oos_exp": 241.4,
+              "oos_total": 3379.6,
+              "median_entry_premium": 1.725,
+              "block_rate": 0.7718,
+              "block_codes": {
+                "RISK_CAP": 115
+              }
+            },
+            "e2": {
+              "n": 13,
+              "n_blocked": 63,
+              "days": 13,
+              "wr_pct": 84.6,
+              "exp_dollar": 195.17,
+              "total_dollar": 2537.2,
+              "oos_n": 4,
+              "oos_exp": 166.8,
+              "oos_total": 667.2,
+              "median_entry_premium": 1.58,
+              "block_rate": 0.8289,
+              "block_codes": {
+                "RISK_CAP": 63
+              }
+            },
+            "e4": {
+              "n": 15,
+              "n_blocked": 61,
+              "days": 15,
+              "wr_pct": 93.3,
+              "exp_dollar": 219.37,
+              "total_dollar": 3290.52,
+              "oos_n": 6,
+              "oos_exp": 311.1,
+              "oos_total": 1866.6,
+              "median_entry_premium": 1.75,
+              "block_rate": 0.8026,
+              "block_codes": {
+                "RISK_CAP": 61
+              }
+            }
+          },
+          "portfolio_capblind": {
+            "total_dollar": 24075.08,
+            "days_in_market": 149,
+            "n_trading_days": 342,
+            "pct_days_in_market": 43.6,
+            "daily_mean_all_days": 70.39,
+            "daily_mean_in_market": 161.58,
+            "daily_std_all_days": 238.61,
+            "annualized_sharpe": 4.68,
+            "max_drawdown": -1136.16,
+            "worst_day": -447.36,
+            "best_day": 1400.6,
+            "win_days": 84,
+            "loss_days": 65,
+            "day_win_pct": 56.4
+          },
+          "portfolio_capaware": {
+            "total_dollar": 12798.92,
+            "days_in_market": 34,
+            "n_trading_days": 342,
+            "pct_days_in_market": 9.9,
+            "daily_mean_all_days": 37.42,
+            "daily_mean_in_market": 376.44,
+            "daily_std_all_days": 152.93,
+            "annualized_sharpe": 3.88,
+            "max_drawdown": -87.84,
+            "worst_day": -87.84,
+            "best_day": 1293.8,
+            "win_days": 30,
+            "loss_days": 4,
+            "day_win_pct": 88.2
+          },
+          "corr_capblind": {
+            "jaccard": {
+              "e1__e2": 0.51,
+              "e1__e4": 0.51,
+              "e2__e4": 0.382
+            },
+            "daily_pnl_corr": {
+              "e1__e2": 0.439,
+              "e1__e4": 0.555,
+              "e2__e4": 0.213
+            },
+            "fire_day_counts": {
+              "e1": 149,
+              "e2": 76,
+              "e4": 76
+            }
+          },
+          "corr_capaware": {
+            "jaccard": {
+              "e1__e2": 0.382,
+              "e1__e4": 0.441,
+              "e2__e4": 0.217
+            },
+            "daily_pnl_corr": {
+              "e1__e2": 0.504,
+              "e1__e4": 0.436,
+              "e2__e4": -0.009
+            },
+            "fire_day_counts": {
+              "e1": 34,
+              "e2": 13,
+              "e4": 15
+            }
+          }
+        }
+      },
+      "affordable_tier": "ATM"
+    },
+    "Bold": {
+      "equity": 1648.0,
+      "qty": 5,
+      "min_contracts": 5,
+      "risk_cap_dollar": 824.0,
+      "tier_cap_dollar": 824.0,
+      "effective_cap_dollar": 824.0,
+      "max_premium_per_contract": 1.648,
+      "tiers": {
+        "OTM-2": {
+          "strike_offset": 2,
+          "median_entry_premium_all_edges": 0.625,
+          "median_order_notional": 312.5,
+          "median_order_fits_cap": true,
+          "standalone_capblind": {
+            "e1": {
+              "n": 147,
+              "n_blocked": 0,
+              "days": 147,
+              "wr_pct": 40.8,
+              "exp_dollar": 43.18,
+              "total_dollar": 6348.1,
+              "oos_n": 40,
+              "oos_exp": 54.61,
+              "oos_total": 2184.3,
+              "median_entry_premium": 0.62
+            },
+            "e2": {
+              "n": 75,
+              "n_blocked": 0,
+              "days": 75,
+              "wr_pct": 40.0,
+              "exp_dollar": 36.99,
+              "total_dollar": 2774.6,
+              "oos_n": 18,
+              "oos_exp": 6.41,
+              "oos_total": 115.4,
+              "median_entry_premium": 0.63
+            }
+          },
+          "standalone_capaware": {
+            "e1": {
+              "n": 128,
+              "n_blocked": 19,
+              "days": 128,
+              "wr_pct": 38.3,
+              "exp_dollar": 34.16,
+              "total_dollar": 4372.0,
+              "oos_n": 35,
+              "oos_exp": 47.77,
+              "oos_total": 1672.0,
+              "median_entry_premium": 0.56,
+              "block_rate": 0.1293,
+              "block_codes": {
+                "RISK_CAP": 19
+              }
+            },
+            "e2": {
+              "n": 63,
+              "n_blocked": 12,
+              "days": 63,
+              "wr_pct": 34.9,
+              "exp_dollar": 21.79,
+              "total_dollar": 1372.8,
+              "oos_n": 14,
+              "oos_exp": -15.02,
+              "oos_total": -210.3,
+              "median_entry_premium": 0.55,
+              "block_rate": 0.16,
+              "block_codes": {
+                "RISK_CAP": 12
+              }
+            }
+          },
+          "portfolio_capblind": {
+            "total_dollar": 9122.7,
+            "days_in_market": 147,
+            "n_trading_days": 342,
+            "pct_days_in_market": 43.0,
+            "daily_mean_all_days": 26.67,
+            "daily_mean_in_market": 62.06,
+            "daily_std_all_days": 140.53,
+            "annualized_sharpe": 3.01,
+            "max_drawdown": -847.2,
+            "worst_day": -705.6,
+            "best_day": 1038.6,
+            "win_days": 65,
+            "loss_days": 82,
+            "day_win_pct": 44.2
+          },
+          "portfolio_capaware": {
+            "total_dollar": 5744.8,
+            "days_in_market": 128,
+            "n_trading_days": 342,
+            "pct_days_in_market": 37.4,
+            "daily_mean_all_days": 16.8,
+            "daily_mean_in_market": 44.88,
+            "daily_std_all_days": 88.91,
+            "annualized_sharpe": 3.0,
+            "max_drawdown": -448.6,
+            "worst_day": -127.6,
+            "best_day": 560.0,
+            "win_days": 54,
+            "loss_days": 74,
+            "day_win_pct": 42.2
+          },
+          "corr_capblind": {
+            "jaccard": {
+              "e1__e2": 0.51
+            },
+            "daily_pnl_corr": {
+              "e1__e2": 0.327
+            },
+            "fire_day_counts": {
+              "e1": 147,
+              "e2": 75
+            }
+          },
+          "corr_capaware": {
+            "jaccard": {
+              "e1__e2": 0.492
+            },
+            "daily_pnl_corr": {
+              "e1__e2": 0.1
+            },
+            "fire_day_counts": {
+              "e1": 128,
+              "e2": 63
+            }
+          }
+        },
+        "OTM-1": {
+          "strike_offset": 1,
+          "median_entry_premium_all_edges": 0.92,
+          "median_order_notional": 460.0,
+          "median_order_fits_cap": true,
+          "standalone_capblind": {
+            "e1": {
+              "n": 147,
+              "n_blocked": 0,
+              "days": 147,
+              "wr_pct": 49.0,
+              "exp_dollar": 58.3,
+              "total_dollar": 8569.8,
+              "oos_n": 41,
+              "oos_exp": 70.23,
+              "oos_total": 2879.6,
+              "median_entry_premium": 0.92
+            },
+            "e2": {
+              "n": 76,
+              "n_blocked": 0,
+              "days": 76,
+              "wr_pct": 50.0,
+              "exp_dollar": 64.9,
+              "total_dollar": 4932.4,
+              "oos_n": 18,
+              "oos_exp": 33.28,
+              "oos_total": 599.0,
+              "median_entry_premium": 0.915
+            }
+          },
+          "standalone_capaware": {
+            "e1": {
+              "n": 114,
+              "n_blocked": 33,
+              "days": 114,
+              "wr_pct": 50.0,
+              "exp_dollar": 57.3,
+              "total_dollar": 6532.7,
+              "oos_n": 29,
+              "oos_exp": 86.02,
+              "oos_total": 2494.5,
+              "median_entry_premium": 0.82,
+              "block_rate": 0.2245,
+              "block_codes": {
+                "RISK_CAP": 33
+              }
+            },
+            "e2": {
+              "n": 59,
+              "n_blocked": 17,
+              "days": 59,
+              "wr_pct": 47.5,
+              "exp_dollar": 53.04,
+              "total_dollar": 3129.6,
+              "oos_n": 13,
+              "oos_exp": 22.1,
+              "oos_total": 287.3,
+              "median_entry_premium": 0.82,
+              "block_rate": 0.2237,
+              "block_codes": {
+                "RISK_CAP": 17
+              }
+            }
+          },
+          "portfolio_capblind": {
+            "total_dollar": 13502.2,
+            "days_in_market": 148,
+            "n_trading_days": 342,
+            "pct_days_in_market": 43.3,
+            "daily_mean_all_days": 39.48,
+            "daily_mean_in_market": 91.23,
+            "daily_std_all_days": 171.88,
+            "annualized_sharpe": 3.65,
+            "max_drawdown": -889.6,
+            "worst_day": -705.6,
+            "best_day": 1348.6,
+            "win_days": 78,
+            "loss_days": 70,
+            "day_win_pct": 52.7
+          },
+          "portfolio_capaware": {
+            "total_dollar": 9662.3,
+            "days_in_market": 116,
+            "n_trading_days": 342,
+            "pct_days_in_market": 33.9,
+            "daily_mean_all_days": 28.25,
+            "daily_mean_in_market": 83.3,
+            "daily_std_all_days": 120.02,
+            "annualized_sharpe": 3.74,
+            "max_drawdown": -330.9,
+            "worst_day": -127.6,
+            "best_day": 881.0,
+            "win_days": 62,
+            "loss_days": 54,
+            "day_win_pct": 53.4
+          },
+          "corr_capblind": {
+            "jaccard": {
+              "e1__e2": 0.507
+            },
+            "daily_pnl_corr": {
+              "e1__e2": 0.321
+            },
+            "fire_day_counts": {
+              "e1": 147,
+              "e2": 76
+            }
+          },
+          "corr_capaware": {
+            "jaccard": {
+              "e1__e2": 0.491
+            },
+            "daily_pnl_corr": {
+              "e1__e2": 0.289
+            },
+            "fire_day_counts": {
+              "e1": 114,
+              "e2": 59
+            }
+          }
+        },
+        "ATM": {
+          "strike_offset": 0,
+          "median_entry_premium_all_edges": 1.36,
+          "median_order_notional": 680.0,
+          "median_order_fits_cap": true,
+          "standalone_capblind": {
+            "e1": {
+              "n": 149,
+              "n_blocked": 0,
+              "days": 149,
+              "wr_pct": 51.7,
+              "exp_dollar": 83.9,
+              "total_dollar": 12500.7,
+              "oos_n": 42,
+              "oos_exp": 111.54,
+              "oos_total": 4684.5,
+              "median_entry_premium": 1.35
+            },
+            "e2": {
+              "n": 76,
+              "n_blocked": 0,
+              "days": 76,
+              "wr_pct": 55.3,
+              "exp_dollar": 88.16,
+              "total_dollar": 6700.5,
+              "oos_n": 18,
+              "oos_exp": 58.47,
+              "oos_total": 1052.4,
+              "median_entry_premium": 1.395
+            }
+          },
+          "standalone_capaware": {
+            "e1": {
+              "n": 96,
+              "n_blocked": 53,
+              "days": 96,
+              "wr_pct": 57.3,
+              "exp_dollar": 98.0,
+              "total_dollar": 9407.8,
+              "oos_n": 25,
+              "oos_exp": 133.63,
+              "oos_total": 3340.7,
+              "median_entry_premium": 1.12,
+              "block_rate": 0.3557,
+              "block_codes": {
+                "RISK_CAP": 53
+              }
+            },
+            "e2": {
+              "n": 46,
+              "n_blocked": 30,
+              "days": 46,
+              "wr_pct": 58.7,
+              "exp_dollar": 73.21,
+              "total_dollar": 3367.8,
+              "oos_n": 10,
+              "oos_exp": 92.7,
+              "oos_total": 927.0,
+              "median_entry_premium": 1.145,
+              "block_rate": 0.3947,
+              "block_codes": {
+                "RISK_CAP": 30
+              }
+            }
+          },
+          "portfolio_capblind": {
+            "total_dollar": 19201.2,
+            "days_in_market": 149,
+            "n_trading_days": 342,
+            "pct_days_in_market": 43.6,
+            "daily_mean_all_days": 56.14,
+            "daily_mean_in_market": 128.87,
+            "daily_std_all_days": 207.2,
+            "annualized_sharpe": 4.3,
+            "max_drawdown": -1056.4,
+            "worst_day": -705.6,
+            "best_day": 1348.6,
+            "win_days": 84,
+            "loss_days": 65,
+            "day_win_pct": 56.4
+          },
+          "portfolio_capaware": {
+            "total_dollar": 12775.6,
+            "days_in_market": 97,
+            "n_trading_days": 342,
+            "pct_days_in_market": 28.4,
+            "daily_mean_all_days": 37.36,
+            "daily_mean_in_market": 131.71,
+            "daily_std_all_days": 141.86,
+            "annualized_sharpe": 4.18,
+            "max_drawdown": -454.0,
+            "worst_day": -128.4,
+            "best_day": 1273.2,
+            "win_days": 59,
+            "loss_days": 38,
+            "day_win_pct": 60.8
+          },
+          "corr_capblind": {
+            "jaccard": {
+              "e1__e2": 0.51
+            },
+            "daily_pnl_corr": {
+              "e1__e2": 0.295
+            },
+            "fire_day_counts": {
+              "e1": 149,
+              "e2": 76
+            }
+          },
+          "corr_capaware": {
+            "jaccard": {
+              "e1__e2": 0.464
+            },
+            "daily_pnl_corr": {
+              "e1__e2": 0.412
+            },
+            "fire_day_counts": {
+              "e1": 96,
+              "e2": 46
+            }
+          }
+        },
+        "ITM-2": {
+          "strike_offset": -2,
+          "median_entry_premium_all_edges": 2.57,
+          "median_order_notional": 1285.0,
+          "median_order_fits_cap": false,
+          "standalone_capblind": {
+            "e1": {
+              "n": 149,
+              "n_blocked": 0,
+              "days": 149,
+              "wr_pct": 51.7,
+              "exp_dollar": 140.14,
+              "total_dollar": 20880.7,
+              "oos_n": 42,
+              "oos_exp": 199.52,
+              "oos_total": 8379.9,
+              "median_entry_premium": 2.5
+            },
+            "e2": {
+              "n": 76,
+              "n_blocked": 0,
+              "days": 76,
+              "wr_pct": 53.9,
+              "exp_dollar": 159.64,
+              "total_dollar": 12133.0,
+              "oos_n": 18,
+              "oos_exp": 129.42,
+              "oos_total": 2329.5,
+              "median_entry_premium": 2.595
+            }
+          },
+          "standalone_capaware": {
+            "e1": {
+              "n": 14,
+              "n_blocked": 135,
+              "days": 14,
+              "wr_pct": 85.7,
+              "exp_dollar": 389.13,
+              "total_dollar": 5447.8,
+              "oos_n": 5,
+              "oos_exp": 538.52,
+              "oos_total": 2692.6,
+              "median_entry_premium": 1.275,
+              "block_rate": 0.906,
+              "block_codes": {
+                "RISK_CAP": 135
+              }
+            },
+            "e2": {
+              "n": 7,
+              "n_blocked": 69,
+              "days": 7,
+              "wr_pct": 85.7,
+              "exp_dollar": 277.09,
+              "total_dollar": 1939.6,
+              "oos_n": 3,
+              "oos_exp": 451.73,
+              "oos_total": 1355.2,
+              "median_entry_premium": 1.16,
+              "block_rate": 0.9079,
+              "block_codes": {
+                "RISK_CAP": 69
+              }
+            }
+          },
+          "portfolio_capblind": {
+            "total_dollar": 33013.7,
+            "days_in_market": 149,
+            "n_trading_days": 342,
+            "pct_days_in_market": 43.6,
+            "daily_mean_all_days": 96.53,
+            "daily_mean_in_market": 221.57,
+            "daily_std_all_days": 331.78,
+            "annualized_sharpe": 4.62,
+            "max_drawdown": -1413.0,
+            "worst_day": -745.6,
+            "best_day": 1818.2,
+            "win_days": 84,
+            "loss_days": 65,
+            "day_win_pct": 56.4
+          },
+          "portfolio_capaware": {
+            "total_dollar": 7387.4,
+            "days_in_market": 15,
+            "n_trading_days": 342,
+            "pct_days_in_market": 4.4,
+            "daily_mean_all_days": 21.6,
+            "daily_mean_in_market": 492.49,
+            "daily_std_all_days": 131.08,
+            "annualized_sharpe": 2.62,
+            "max_drawdown": -65.2,
+            "worst_day": -65.2,
+            "best_day": 1619.8,
+            "win_days": 13,
+            "loss_days": 2,
+            "day_win_pct": 86.7
+          },
+          "corr_capblind": {
+            "jaccard": {
+              "e1__e2": 0.51
+            },
+            "daily_pnl_corr": {
+              "e1__e2": 0.423
+            },
+            "fire_day_counts": {
+              "e1": 149,
+              "e2": 76
+            }
+          },
+          "corr_capaware": {
+            "jaccard": {
+              "e1__e2": 0.4
+            },
+            "daily_pnl_corr": {
+              "e1__e2": 0.065
+            },
+            "fire_day_counts": {
+              "e1": 14,
+              "e2": 7
+            }
+          }
+        }
+      },
+      "affordable_tier": "ATM"
+    }
+  }
+}
