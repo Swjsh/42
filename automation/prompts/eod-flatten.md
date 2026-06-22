@@ -4,17 +4,19 @@ NON-INTERACTIVE invocation by Task Scheduler at 15:55 ET. No context. No tools b
 
 # Purpose
 
-Safety net for any 0DTE position not closed by the heartbeat's 15:50 time stop. Per CLAUDE.md hard rule: flat by EOD.
+Safety net for any open SPY option position not closed by the heartbeat's 15:50 time stop. Per CLAUDE.md hard rule: flat by EOD.
+
+**EXPIRY-AGNOSTIC (load-bearing — WP-8 1DTE safety gate 3):** this flatten closes ANY open SPY option position regardless of its expiry date — 0DTE AND 1DTE (T+1). The vwap_continuation WP-8 deployment can trade a 1DTE contract; the live engine holds NO position overnight, so a 1DTE position opened today is flattened today at 15:55 exactly like a 0DTE one. Do NOT filter the Alpaca position scan by expiry date — the source of truth is "is there an open SPY option position", not "does it expire today". (The retry-until-zero loop in Step 3 already reads `get_all_positions` and closes whatever option qty is open, so it is expiry-agnostic by construction; this note makes that explicit so no future edit re-introduces a same-day-expiry filter that would strand a 1DTE position overnight.)
 
 # Step 0 — pre-flight (harness contract)
 
-The PowerShell harness has already validated state files via `Repair-StateFiles`. If `current-position.json` is empty/missing/malformed despite that, treat as `null`/no-position. **Then run Step 1.5 below** as the unconditional Alpaca cross-check (so a corrupted state file doesn't strand a real Alpaca position past 15:55 ET).
+The PowerShell harness has already validated state files via `Repair-StateFiles`. If `current-position.json` is empty/missing/malformed despite that, treat as `null`/no-position. **Then run Step 1.5 below** as the unconditional Alpaca cross-check (so a corrupted state file doesn't strand a real Alpaca position past 15:55 ET). The cross-check and the Step 3 close loop are EXPIRY-AGNOSTIC (see Purpose above) — they flatten a 1DTE position exactly like a 0DTE one.
 
 # Steps
 
 1. Read `automation/state/current-position.json`.
 
-1.5. **Unconditional Alpaca cross-check.** Call `mcp__alpaca__get_all_positions` filtered to options. If Alpaca shows a 0DTE SPY position that current-position.json does NOT reflect (corruption case), treat that Alpaca position as the source of truth and proceed to Step 3 to flatten it. Log `STATE_DRIFT_RECOVERED: closed N contracts from Alpaca, current-position.json was {null|stale}`.
+1.5. **Unconditional Alpaca cross-check.** Call `mcp__alpaca__get_all_positions` filtered to options. If Alpaca shows ANY open SPY option position (any expiry — 0DTE OR 1DTE; do NOT filter by expiry date) that current-position.json does NOT reflect (corruption case), treat that Alpaca position as the source of truth and proceed to Step 3 to flatten it. Log `STATE_DRIFT_RECOVERED: closed N contracts from Alpaca, current-position.json was {null|stale}`.
 
 2. If status is null/empty AND Alpaca cross-check found nothing → log "EOD_FLATTEN_NOOP", exit.
 3. If position open (from state OR from Alpaca cross-check):

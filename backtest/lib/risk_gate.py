@@ -430,6 +430,195 @@ def check_order(
     )
 
 
+# --- WP-0: per-setup exit-param dispatch (the order-bracket stop resolver) ----
+#
+# The order path historically applied ONE global premium stop to EVERY entry. Two
+# setups have VALIDATED isolated stops living in `filters.py`
+# (vwap_reclaim_failed_break_premium_stop_pct, vix_dayside_premium_stop_pct, both
+# -0.08) but NOTHING read them at order-build time — a dead-knob (L38/L72, C14).
+#
+# `select_exit_params` is the SINGLE pure dispatch that closes that gap WITHOUT
+# changing today's behavior while the per-setup flags are off:
+#
+#   * setup is one of the per-setup-stop setups AND its params flag is ON
+#       -> return that setup's ISOLATED filters.py accessor value (single source of
+#          truth — we call the accessor, we never re-type the -0.08 literal here).
+#   * otherwise (flag off, unknown setup, blank, or None params)
+#       -> return `global_stop` UNCHANGED — byte-for-byte today's behavior.
+#
+# The caller passes the exact global it would otherwise have used (e.g. the
+# orchestrator's side_premium_stop) as `global_stop`, so the flags-off path is
+# provably identical: the resolver returns its own input. This is the load-bearing
+# parity property tested in test_engine_order_bracket_parity.py — any drift with
+# every flag off is a KILL.
+#
+# Pure: no I/O, no mutation. The filters import is function-local because filters.py
+# is a heavy module and risk_gate.py is otherwise import-light; keeping it local also
+# documents that the dependency is one-way (risk_gate -> filters, never back).
+
+# Registry of per-setup stop overrides, keyed by the EXACT setup_name the watchers
+# emit (single source of truth: *_watcher.py setup_name= fields). Each entry maps to
+# the (enabled-flag accessor, isolated-stop accessor) pair in filters.py — both read
+# the same params keys the live heartbeat reads (gamma-sync, no drift).
+_PER_SETUP_STOP_OVERRIDES = {
+    "VWAP_RECLAIM_FAILED_BREAK": (
+        "vwap_reclaim_failed_break_enabled",
+        "vwap_reclaim_failed_break_premium_stop_pct",
+    ),
+    "VIX_REGIME_DAYSIDE": (
+        "vix_dayside_enabled",
+        "vix_dayside_premium_stop_pct",
+    ),
+}
+
+
+def select_exit_params(
+    setup_name: Any,
+    side: Any,
+    params: Optional[Mapping[str, Any]],
+    global_stop: float,
+) -> float:
+    """Resolve the premium stop % for ONE order's bracket.
+
+    Pure dispatch. Returns the setup's ISOLATED stop ONLY when the setup has a
+    per-setup stop override AND that setup's params flag is ON; otherwise returns
+    `global_stop` unchanged (today's exact behavior).
+
+    Args:
+        setup_name: the named playbook setup driving this entry (e.g.
+            "VWAP_RECLAIM_FAILED_BREAK"). Unknown / blank / non-str -> global.
+        side: "P"/"C" — accepted for signature stability (the current isolated
+            stops are side-agnostic; kept so a future side-specific override needs
+            no caller change). Unused today.
+        params: the account's params.json mapping (or None for an older snapshot).
+            None / non-mapping -> global (no flag can be on).
+        global_stop: the stop the order path would otherwise apply — returned
+            verbatim on every non-overridden path (the byte-identity guarantee).
+
+    Returns:
+        The premium stop % (negative float) to use for this bracket.
+    """
+    del side  # side-agnostic today; accepted for forward-compatible signature.
+    if params is None or not isinstance(params, Mapping):
+        return global_stop
+    if not isinstance(setup_name, str):
+        return global_stop
+    override = _PER_SETUP_STOP_OVERRIDES.get(setup_name)
+    if override is None:
+        return global_stop
+    enabled_fn_name, stop_fn_name = override
+    # Function-local import: one-way dependency (risk_gate -> filters), avoids any
+    # module-top circular-import risk and keeps risk_gate import-light.
+    from . import filters as _filters
+    enabled = getattr(_filters, enabled_fn_name)(params)
+    if not enabled:
+        return global_stop
+    # Single source of truth: the validated isolated accessor (-0.08 lives ONLY in
+    # filters.py; we never duplicate the literal here).
+    return float(getattr(_filters, stop_fn_name)(params))
+
+
+# --- WP-5: per-setup STRIKE dispatch (the order-builder strike resolver) -------
+#
+# The order path historically picked the strike from the GENERIC v15 per-tier ladder
+# (`v15_strike_offset_per_tier`) for EVERY setup. The ONE live edge — vwap_continuation
+# (`j_vwap_cont_enabled=true`, Safe-2) — fires the generic OTM-2 tier, the WEAKEST of
+# four cells, but is VALIDATED at ATM (Safe) / ITM-2 (Bold). Every live OTM-2 fill
+# leaks ~$30/tr (Safe) vs its validated ATM cell (WP5-STRIKE-AB-SCORECARD.md).
+#
+# `select_strike_offset` is the SINGLE pure dispatch that fixes THIS one setup's strike
+# WITHOUT changing today's behavior while the per-setup strike-override flag is off —
+# the exact mirror of `select_exit_params` above (C29: per-setup ONLY, NOT a blanket
+# v15-tier change; the generic ladder stays correct for every OTHER setup):
+#
+#   * setup is one of the per-setup-strike setups AND its params flag is ON
+#       -> return that setup's VALIDATED strike, sourced from the filters.py accessor
+#          (single source of truth — the offset lives ONLY in filters.py / params; we
+#          never re-type it here), TRANSLATED to the simulator convention (see below).
+#   * otherwise (flag off, unknown setup — incl. the orchestrator's RIDE_THE_RIBBON
+#     setups today — blank, or None params)
+#       -> return `current_strike_offset` UNCHANGED — byte-for-byte today's behavior.
+#
+# The caller passes the exact generic-tier offset it would otherwise have used (the
+# orchestrator's `side_strike_off`, already in the simulator convention) as
+# `current_strike_offset`, so the flags-off path is provably identical: the resolver
+# returns its own input. This is the load-bearing parity property tested in
+# test_engine_strike_parity.py — any drift with the flag off is a KILL.
+#
+# CONVENTION (load-bearing — sim-accuracy gate, OP-16): TWO INVERSE conventions exist.
+#   * simulator_real / `current_strike_offset` here: NEGATIVE=ITM (ATM=0, ITM-2=-2).
+#   * filters.py / live params accessor: NEGATIVE=OTM (ATM=0, ITM-2=+2) — the INVERSE.
+# So the validated live-params offset from the accessor is NEGATED to the simulator
+# convention before returning — EXACTLY as the orchestrator's generic per-tier path
+# does (`kwargs["strike_offset"] = -tier.strike_offset`). The literals live ONLY in
+# filters.py / params; risk_gate just dispatches + applies the documented sign flip.
+#
+# Pure: no I/O, no mutation. The filters import is function-local for the same reason
+# as select_exit_params (one-way risk_gate -> filters dependency, import-light).
+
+# Registry of per-setup STRIKE overrides, keyed by the EXACT setup_name the watchers
+# emit (single source of truth: *_watcher.py setup_name= fields). Each entry maps to
+# the (enabled-flag accessor, validated-offset accessor) pair in filters.py — both read
+# the same params keys the live heartbeat reads (gamma-sync, no drift).
+_PER_SETUP_STRIKE_OVERRIDES = {
+    "VWAP_CONTINUATION": (
+        "vwap_cont_strike_override_enabled",
+        "vwap_cont_strike_offset",
+    ),
+}
+
+
+def select_strike_offset(
+    setup_name: Any,
+    side: Any,
+    params: Optional[Mapping[str, Any]],
+    current_strike_offset: int,
+) -> int:
+    """Resolve the strike offset (simulator convention) for ONE order.
+
+    Pure dispatch. Returns the setup's VALIDATED strike ONLY when the setup has a
+    per-setup strike override AND that setup's params flag is ON; otherwise returns
+    `current_strike_offset` unchanged (today's exact generic v15-tier behavior).
+
+    Args:
+        setup_name: the named playbook setup driving this entry (e.g.
+            "VWAP_CONTINUATION"). Unknown / blank / non-str -> current offset.
+        side: "P"/"C" — accepted for signature stability (the current strike
+            override is side-agnostic; kept so a future side-specific override needs
+            no caller change). Unused today.
+        params: the account's params.json mapping (or None for an older snapshot).
+            None / non-mapping -> current (no flag can be on). The per-account
+            validated offset is carried IN params (Safe vs Bold key), so the accessor
+            is account-aware via the params file itself.
+        current_strike_offset: the strike offset the order path would otherwise apply
+            (the generic v15 tier, in the simulator convention) — returned verbatim
+            on every non-overridden path (the byte-identity guarantee).
+
+    Returns:
+        The strike offset (simulator convention: NEGATIVE=ITM) to use for this order.
+    """
+    del side  # side-agnostic today; accepted for forward-compatible signature.
+    if params is None or not isinstance(params, Mapping):
+        return current_strike_offset
+    if not isinstance(setup_name, str):
+        return current_strike_offset
+    override = _PER_SETUP_STRIKE_OVERRIDES.get(setup_name)
+    if override is None:
+        return current_strike_offset
+    enabled_fn_name, offset_fn_name = override
+    # Function-local import: one-way dependency (risk_gate -> filters), avoids any
+    # module-top circular-import risk and keeps risk_gate import-light.
+    from . import filters as _filters
+    enabled = getattr(_filters, enabled_fn_name)(params)
+    if not enabled:
+        return current_strike_offset
+    # Single source of truth: the validated offset lives ONLY in filters.py / params
+    # (live-params convention, NEGATIVE=OTM). NEGATE to the simulator convention
+    # (NEGATIVE=ITM) — the same sign flip the generic per-tier path applies.
+    live_params_offset = int(getattr(_filters, offset_fn_name)(params))
+    return -live_params_offset
+
+
 # --- small pure helpers ------------------------------------------------------
 
 _FLAT_TOKENS = frozenset({"flat", "none", "no_position", "closed", "", "null"})

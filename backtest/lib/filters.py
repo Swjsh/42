@@ -1385,3 +1385,321 @@ def evaluate_bearish_setup(
         ribbon_just_flipped_bearish=ribbon_flipped,
         confluence_match=confluence,
     )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GAMMA-SYNC seam — VWAP_RECLAIM_FAILED_BREAK (J_VWAP_RECLAIM_FB, edge #2, DORMANT).
+#
+# OP-4 / "no code drift between live and backtest": the backtest engine must make the
+# SAME entry decision as the live heartbeat for this setup. We guarantee that by SINGLE
+# SOURCE OF TRUTH — both call the one validated detector
+# (lib.watchers.vwap_reclaim_failed_break_watcher.detect_vwap_reclaim_failed_break_setup),
+# which is itself a byte-for-byte port of the research detector
+# (autoresearch._sub_struct_vwap_reclaim_failed_break.detect_signals). filters.py exposes
+# the thin delegators below so any backtest caller that reaches for "the filters library"
+# detection gets EXACTLY the live watcher's logic — there is no second copy to drift.
+#
+# The import is FUNCTION-LOCAL on purpose: the watcher module imports BarContext FROM this
+# file, so a module-top import here would be circular. Deferring it to call time breaks the
+# cycle while keeping the single-source guarantee.
+#
+# DORMANT: the detector is pure/read-only and never places an order. Whether the backtest
+# engine HONORS the entry is gated by params.j_vwap_reclaim_fb_enabled (default FALSE),
+# exactly mirroring the heartbeat's flag check — so backtest==live in the inert default too.
+# ─────────────────────────────────────────────────────────────────────────────
+def detect_vwap_reclaim_failed_break(ctx: "BarContext"):
+    """Backtest-engine entry point for VWAP_RECLAIM_FAILED_BREAK (edge #2).
+
+    Delegates byte-for-byte to the live watcher detector (single source of truth, no
+    drift). Returns the watcher's ``WatcherSignal`` (side/entry/chart-stop) or ``None``.
+    Pure/causal: reads only ``ctx.prior_bars`` (today's RTH through the trigger bar).
+    """
+    from .watchers.vwap_reclaim_failed_break_watcher import (
+        detect_vwap_reclaim_failed_break_setup,
+    )
+    return detect_vwap_reclaim_failed_break_setup(ctx)
+
+
+def vwap_reclaim_failed_break_enabled(params: Optional[dict]) -> bool:
+    """The DORMANT flag the backtest engine checks before HONORING an edge-#2 entry.
+
+    Mirrors the heartbeat's ``params.json#j_vwap_reclaim_fb_enabled`` gate (default
+    FALSE = inert). Keeping the flag read here means backtest and live share one gate
+    semantics: detection always runs (so observation/parity holds), but the entry is
+    acted on only when the flag is true.
+    """
+    if not params:
+        return False
+    return bool(params.get("j_vwap_reclaim_fb_enabled", False))
+
+
+def vwap_reclaim_failed_break_side(params: Optional[dict]) -> str:
+    """The configured side filter for edge #2 (default 'put', OP-16-conservative).
+
+    Mirrors ``params.json#j_vwap_reclaim_fb_side``. 'put' | 'call' | 'both'.
+    """
+    if not params:
+        return "put"
+    return str(params.get("j_vwap_reclaim_fb_side", "put"))
+
+
+# ── ISOLATED exit knobs (HIGH-1/HIGH-2/LOW-2 gamma-sync) ──────────────────────
+# The backtest engine MUST honor the SAME isolated stop/tp1/buffer the live heartbeat
+# reads — NOT the global premium_stop_pct (-0.50 catastrophe cap) / tp1_premium_pct
+# (0.50) / chart_stop_buffer_dollars (0.50), which are the WRONG values for this cell.
+# These three readers are the single source of truth for "what exit does edge #2 use",
+# shared by backtest and (by the matching keys) the heartbeat prose. Fallback to the
+# validated Safe-2 ATM ship-cell defaults when the key is absent (e.g. an older params
+# snapshot) so the engine never silently falls back to the catastrophe cap.
+_RECLAIM_FB_DEFAULT_PREMIUM_STOP_PCT = -0.08   # Safe-2 ATM ship cell
+_RECLAIM_FB_DEFAULT_TP1_PCT = 0.30             # Safe-2 ATM ship cell
+_RECLAIM_FB_DEFAULT_STOP_BUFFER = 0.25         # Safe-2 ATM ship cell
+
+
+def vwap_reclaim_failed_break_premium_stop_pct(params: Optional[dict]) -> float:
+    """Isolated premium stop for edge #2 — ``params#j_vwap_reclaim_fb_premium_stop_pct``.
+
+    Default -0.08 (the validated cell stop). NEVER the global ``premium_stop_pct``.
+    """
+    if not params:
+        return _RECLAIM_FB_DEFAULT_PREMIUM_STOP_PCT
+    return float(params.get("j_vwap_reclaim_fb_premium_stop_pct",
+                            _RECLAIM_FB_DEFAULT_PREMIUM_STOP_PCT))
+
+
+def vwap_reclaim_failed_break_tp1_pct(params: Optional[dict]) -> float:
+    """Isolated TP1 premium % for edge #2 — ``params#j_vwap_reclaim_fb_tp1_pct``.
+
+    Default 0.30 (Safe-2 ATM cell). Bold/aggressive params sets 0.75. NEVER the global
+    ``tp1_premium_pct``.
+    """
+    if not params:
+        return _RECLAIM_FB_DEFAULT_TP1_PCT
+    return float(params.get("j_vwap_reclaim_fb_tp1_pct", _RECLAIM_FB_DEFAULT_TP1_PCT))
+
+
+def vwap_reclaim_failed_break_stop_buffer(params: Optional[dict]) -> float:
+    """Isolated chart-stop buffer ($) for edge #2 — ``params#j_vwap_reclaim_fb_stop_buffer``.
+
+    Default 0.25 (Safe-2 ATM cell). Bold sets 0.50. NEVER the global
+    ``chart_stop_buffer_dollars``.
+    """
+    if not params:
+        return _RECLAIM_FB_DEFAULT_STOP_BUFFER
+    return float(params.get("j_vwap_reclaim_fb_stop_buffer", _RECLAIM_FB_DEFAULT_STOP_BUFFER))
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GAMMA-SYNC seam — VIX_REGIME_DAYSIDE (J_VIX_DAYSIDE, edge #4, DORMANT).
+#
+# OP-4 / "no code drift between live and backtest": the backtest engine must make the
+# SAME entry decision as the live heartbeat for this setup. We guarantee that by SINGLE
+# SOURCE OF TRUTH — both call the one validated detector
+# (lib.watchers.vix_regime_dayside_watcher.detect_vix_regime_dayside_setup), which is itself
+# a byte-for-byte port of the research detector
+# (autoresearch._b5_vix_regime_dayside.detect_opt_signals / favorable_regime / trend_side).
+# The import is FUNCTION-LOCAL (the watcher imports BarContext FROM this file -> a module-top
+# import would be circular). DORMANT: detection is pure/read-only; whether the engine HONORS
+# the entry is gated by params.j_vix_dayside_enabled (default FALSE), mirroring the heartbeat.
+# ─────────────────────────────────────────────────────────────────────────────
+def detect_vix_regime_dayside(ctx: "BarContext"):
+    """Backtest-engine entry point for VIX_REGIME_DAYSIDE (edge #4).
+
+    Delegates byte-for-byte to the live watcher detector (single source of truth, no drift).
+    Returns the watcher's ``WatcherSignal`` (side/entry/chart-stop) or ``None``. Pure/causal:
+    reads only ``ctx.prior_bars`` (today's RTH through the trigger bar) + the optional
+    ``ctx.vix_intraday`` series for the regime; absent the VIX series it returns None (SKIP).
+    """
+    from .watchers.vix_regime_dayside_watcher import detect_vix_regime_dayside_setup
+    return detect_vix_regime_dayside_setup(ctx)
+
+
+def vix_dayside_enabled(params: Optional[dict]) -> bool:
+    """The DORMANT flag the backtest engine checks before HONORING an edge-#4 entry.
+
+    Mirrors the heartbeat's ``params.json#j_vix_dayside_enabled`` gate (default FALSE = inert).
+    Detection always runs (so observation/parity holds), but the entry is acted on only when
+    the flag is true.
+    """
+    if not params:
+        return False
+    return bool(params.get("j_vix_dayside_enabled", False))
+
+
+def vix_dayside_side(params: Optional[dict]) -> str:
+    """The configured side filter for edge #4 (default 'both' — BOTH sides validated POSITIVE
+    @ ATM: C +$47.37/52.1% / P +$38.74/50.0%). Mirrors ``params.json#j_vix_dayside_side``.
+    'put' | 'call' | 'both'. OP-16 keeps bull-side new entries DRAFT until 3 live wins, so a
+    'both' flip is J's call; 'put' is the OP-16-conservative bear-only first step.
+    """
+    if not params:
+        return "both"
+    return str(params.get("j_vix_dayside_side", "both"))
+
+
+# ── ISOLATED exit knobs (HIGH-1 gamma-sync) ───────────────────────────────────
+# The backtest engine MUST honor the SAME isolated stop/tp1 the live heartbeat reads — NOT
+# the global premium_stop_pct (-0.50 catastrophe cap) / tp1_premium_pct (0.50), which are the
+# WRONG values for this cell. These readers are the single source of truth for "what exit
+# does edge #4 use", shared by backtest and (by the matching keys) the heartbeat prose.
+# Fallback to the validated ATM ship-cell defaults when the key is absent (older params
+# snapshot) so the engine never silently falls back to the catastrophe cap.
+_VIX_DAYSIDE_DEFAULT_PREMIUM_STOP_PCT = -0.08   # validated ATM cell stop (the -8% that clears all 8 gates)
+_VIX_DAYSIDE_DEFAULT_TP1_PCT = 0.30             # Safe-2 v15 TP1
+
+
+def vix_dayside_premium_stop_pct(params: Optional[dict]) -> float:
+    """Isolated premium stop for edge #4 — ``params#j_vix_dayside_premium_stop_pct``.
+
+    Default -0.08 (the validated cell stop). NEVER the global ``premium_stop_pct`` (-0.50).
+    """
+    if not params:
+        return _VIX_DAYSIDE_DEFAULT_PREMIUM_STOP_PCT
+    return float(params.get("j_vix_dayside_premium_stop_pct",
+                            _VIX_DAYSIDE_DEFAULT_PREMIUM_STOP_PCT))
+
+
+def vix_dayside_tp1_pct(params: Optional[dict]) -> float:
+    """Isolated TP1 premium % for edge #4 — ``params#j_vix_dayside_tp1_pct``.
+
+    Default 0.30 (Safe-2 ATM cell). NEVER the global ``tp1_premium_pct`` (0.50).
+    """
+    if not params:
+        return _VIX_DAYSIDE_DEFAULT_TP1_PCT
+    return float(params.get("j_vix_dayside_tp1_pct", _VIX_DAYSIDE_DEFAULT_TP1_PCT))
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# WP-5: per-setup STRIKE override for vwap_continuation (the live edge is at the
+#        WRONG strike). SINGLE SOURCE OF TRUTH for "what strike does
+#        vwap_continuation use", shared by backtest and (by the matching keys)
+#        the heartbeat prose — mirrors the WP-0 isolated-exit-accessor pattern.
+#
+# THE LEAK (analysis/recommendations/WP5-STRIKE-AB-SCORECARD.md): the ONE live
+# edge (vwap_continuation, j_vwap_cont_enabled=true on Safe-2) fires the GENERIC
+# v15 OTM-2 tier — the WEAKEST of four cells. Validated cell per account (C29 —
+# strikes do NOT transfer across accounts): Safe-2 → ATM, Bold → ITM-2.
+#
+# CONVENTION (load-bearing — sim-accuracy gate, OP-16): these accessors return the
+# offset in the LIVE-PARAMS convention (NEGATIVE=OTM, POSITIVE=ITM, the same
+# convention as v15_strike_offset_per_tier): ATM=0, ITM-2=+2, OTM-2=-2. The
+# orchestrator/risk_gate translates to the INVERSE simulator_real convention
+# (NEGATIVE=ITM) by NEGATING, exactly as the existing per-tier path does
+# (orchestrator `kwargs["strike_offset"] = -tier.strike_offset`). The literals
+# live ONLY here (single source of truth); risk_gate never re-types them.
+#
+# ACCOUNT-AWARENESS: params.json IS per-account, so the per-account validated
+# offset is carried IN the params file — Safe's params sets
+# j_vwap_cont_strike_offset_safe, Bold's sets j_vwap_cont_strike_offset_bold. The
+# accessor returns whichever account-specific key is present (Safe key preferred
+# when both exist — defensive; in production exactly one is set per file), falling
+# back to the validated Safe-2 ATM ship-cell default when neither key is present
+# (older snapshot) so the engine never silently picks a wrong strike.
+#
+# DORMANT: vwap_cont_strike_override_enabled mirrors params.json
+# #j_vwap_cont_strike_override_enabled (default FALSE = inert). While FALSE the
+# dispatch returns the generic v15 tier UNCHANGED → byte-identical behavior.
+# ─────────────────────────────────────────────────────────────────────────────
+_VWAP_CONT_STRIKE_OFFSET_DEFAULT = 0   # Safe-2 ATM ship cell (live-params convention)
+
+
+def vwap_cont_strike_override_enabled(params: Optional[dict]) -> bool:
+    """The DORMANT flag gating the WP-5 vwap_continuation per-setup STRIKE override.
+
+    Mirrors ``params.json#j_vwap_cont_strike_override_enabled`` (default FALSE = inert
+    → the generic v15 tier strike is used, byte-identical to today). Flip true (in
+    daylight, per account) to re-strike vwap_continuation to its validated cell.
+    """
+    if not params:
+        return False
+    return bool(params.get("j_vwap_cont_strike_override_enabled", False))
+
+
+def vwap_cont_strike_offset(params: Optional[dict]) -> int:
+    """The validated vwap_continuation strike offset for THIS account (live-params convention).
+
+    LIVE-PARAMS convention (NEGATIVE=OTM, POSITIVE=ITM): ATM=0, ITM-2=+2, OTM-2=-2.
+    The caller (risk_gate.select_strike_offset) NEGATES this to the inverse
+    simulator_real convention. Reads the account-specific key carried in the params
+    file — Safe sets ``j_vwap_cont_strike_offset_safe`` (=0, ATM), Bold sets
+    ``j_vwap_cont_strike_offset_bold`` (=2, ITM-2). Safe key preferred when both are
+    present (defensive); falls back to the Safe-2 ATM ship-cell default (0) when
+    neither is present so an older snapshot never silently picks a wrong strike.
+    """
+    if not params:
+        return _VWAP_CONT_STRIKE_OFFSET_DEFAULT
+    if "j_vwap_cont_strike_offset_safe" in params:
+        return int(params["j_vwap_cont_strike_offset_safe"])
+    if "j_vwap_cont_strike_offset_bold" in params:
+        return int(params["j_vwap_cont_strike_offset_bold"])
+    return _VWAP_CONT_STRIKE_OFFSET_DEFAULT
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# WP-8: per-setup 1DTE EXPIRY + DOLLAR-ANCHORED STOP override for vwap_continuation
+#        (THE DOUBLING). SINGLE SOURCE OF TRUTH for "what expiry / what stop does
+#        vwap_continuation use", shared by backtest and (by the matching keys) the
+#        heartbeat prose — the exact mirror of the WP-5 strike accessor pattern above.
+#
+# THE DOUBLING (validated CLEAN-WIN both tiers, OOS ~2x, maxDD flat/better, Sortino
+# +80-123%, 11-gate incl L173): the live edge currently trades a 0DTE contract with a
+# -8% PERCENT premium stop. Validated config trades a 1DTE (T+1 expiry) contract with a
+# per-account DOLLAR-ANCHORED stop (Safe-2 ATM=$35.88, Bold ITM-2=$67.68) replacing the
+# -8% percent stop. These are TWO independent flags (a deployment may flip expiry and
+# stop separately) — each defaults FALSE = inert = byte-identical to today.
+#
+# CONVENTION: the dollar stop is a POSITIVE dollar amount of per-contract premium loss
+# tolerated. The accessor just returns the validated per-account magnitude; the resolver
+# constructs the bracket. Per-account validated value carried IN the params file (Safe vs
+# Bold key), exactly like the strike accessor — Safe sets j_vwap_cont_dollar_stop_safe,
+# Bold sets j_vwap_cont_dollar_stop_bold. Safe key preferred when both present (defensive;
+# in production exactly one is set per file), falling back to the Safe-2 ATM ship-cell
+# default so an older snapshot never silently picks a wrong stop.
+#
+# DORMANT: both flags mirror params.json (default FALSE = inert). While FALSE the
+# resolver returns 0DTE + the -8% percent stop UNCHANGED → byte-identical behavior.
+# ─────────────────────────────────────────────────────────────────────────────
+_VWAP_CONT_DOLLAR_STOP_DEFAULT = 35.88   # Safe-2 ATM ship cell ($ per-contract premium)
+
+
+def vwap_cont_1dte_enabled(params: Optional[dict]) -> bool:
+    """The DORMANT flag gating the WP-8 vwap_continuation 1DTE-expiry override.
+
+    Mirrors ``params.json#j_vwap_cont_1dte_enabled`` (default FALSE = inert → the order
+    path uses the current 0DTE expiry, byte-identical to today). Flip true (in daylight,
+    per account) to trade the validated 1DTE contract.
+    """
+    if not params:
+        return False
+    return bool(params.get("j_vwap_cont_1dte_enabled", False))
+
+
+def vwap_cont_dollar_stop_enabled(params: Optional[dict]) -> bool:
+    """The DORMANT flag gating the WP-8 vwap_continuation dollar-anchored-stop override.
+
+    Mirrors ``params.json#j_vwap_cont_dollar_stop_enabled`` (default FALSE = inert → the
+    order path uses the current -8% percent stop via select_exit_params, byte-identical to
+    today). Flip true (in daylight, per account) to use the validated $-anchored stop.
+    """
+    if not params:
+        return False
+    return bool(params.get("j_vwap_cont_dollar_stop_enabled", False))
+
+
+def vwap_cont_dollar_stop(params: Optional[dict]) -> float:
+    """The validated vwap_continuation dollar-anchored stop for THIS account.
+
+    Returns a POSITIVE dollar magnitude (per-contract premium loss tolerated). Reads the
+    account-specific key carried in the params file — Safe sets
+    ``j_vwap_cont_dollar_stop_safe`` (=35.88, ATM), Bold sets
+    ``j_vwap_cont_dollar_stop_bold`` (=67.68, ITM-2). Safe key preferred when both are
+    present (defensive); falls back to the Safe-2 ATM ship-cell default when neither is
+    present so an older snapshot never silently picks a wrong stop.
+    """
+    if not params:
+        return _VWAP_CONT_DOLLAR_STOP_DEFAULT
+    if "j_vwap_cont_dollar_stop_safe" in params:
+        return float(params["j_vwap_cont_dollar_stop_safe"])
+    if "j_vwap_cont_dollar_stop_bold" in params:
+        return float(params["j_vwap_cont_dollar_stop_bold"])
+    return _VWAP_CONT_DOLLAR_STOP_DEFAULT

@@ -1,0 +1,24 @@
+# Lesson candidate: a dollar-anchored stop fixes RISK (maxDD/Sortino), NOT signal-breadth (L173-concentration)
+
+> Queued by Gamma (dead-library dollar-stop retest) 2026-06-21. lesson-author picks up at next wake fire.
+
+## Symptom
+The 1DTE + DOLLAR-anchored-stop lever cleanly DOUBLED #1 vwap_continuation (the deployed win). Hypothesis: it would also RESURRECT the dead-library families (momentum_morning/orb_continuation/power_hour) that flip 0DTE-dead -> 1DTE OOS-positive but fail L173 (oos_drop_top5 negative), by trimming the fat-tail losers that drive drop-top5 down. Re-tested all 3 at 1DTE with their per-family/tier-rederived dollar-stops (C29: $59.28 / $61.44 / $52.08). RESULT: 0/3 cleanly resurrected. The dollar-stop fixed the RISK on every one — maxDD momentum −$4,432→−$2,252, orb −$4,329→−$1,686, power_hour −$16,535→−$5,202; worst-days capped at the $ threshold; Sortino flipped from negative to positive; OOS exp/tr ROSE (trimmed losers, kept winners) — but oos_drop_top5 (L173) stayed NEGATIVE on all 3 (momentum −22.66→−1.25, orb −32.91→−20.84, power_hour −74.54→−20.89). None crossed zero -> none clears the 11-gate bar.
+
+## Root cause
+A stop construction acts on the LOSS DISTRIBUTION (it caps/shapes how much each trade loses). L173-concentration (oos_drop_top5 < 0) is a property of the WIN distribution / signal breadth — the OOS profit is concentrated in a few days because the signal fires on too many low-quality days and only a handful pay. The dollar-stop trims the fat-tail LOSERS (fixing maxDD/Sortino/worst-day) but cannot manufacture WIN breadth across more days. #1 was a clean win precisely because its signal was ALREADY L173-positive (broad-based) — the dollar-stop only needed to fix its maxDD. A family whose signal is concentrated needs a better ENTRY FILTER (raise win-day breadth), not a better stop. Sibling to L173 (OOS-concentration), L175 (mean-lift needs risk-adjusted gate), L174 (no-regression).
+
+## Fix
+- Doctrine rule encoded in the direction backlog + scorecard: when an edge fails L173 (oos_drop_top5 < 0), the lever is the ENTRY (signal breadth/selectivity), NOT the stop/exit. A stop change that lifts OOS-mean + fixes maxDD but leaves oos_drop_top5 < 0 is RISK-fixed-but-still-fragile (IMPROVED_STILL_FRAGILE), not shippable.
+- Practical corollary: the dollar-anchored stop is the right RISK construction universally (it fixed risk on all 3 dead families + the live #1) and is independently worth adopting wherever maxDD scales with premium — but it is necessary-not-sufficient; the 11-gate L173 still gates ship.
+- momentum_morning is a near-miss (oos_drop_top5 −$1.25 with the dollar-stop's risk profile already in hand) -> a CAUSAL, no-overfit entry-breadth filter that lifts it +$1.25 would resurrect it; but causal de-concentration has a poor track record (edge #3, regime gates) and a $1.25 gap on ~59 OOS trades overfits trivially — pursue only with strict OOS/no-regression/beats-null discipline.
+
+## Encoded in
+`analysis/recommendations/DTE-LIBRARY-DOLLARSTOP-RETEST.md` + the per-family JSONs; STRATEGY-DIRECTION-BACKLOG.md. Pending: fold into LESSONS-LEARNED.md.
+
+## L## (optional)
+Suggested **L176** (confirm via grep for max; L173/L174/L175 pending write-up). Theme: the "metric-that-looks-fixable-but-isn't, on a dimension the lever doesn't touch" family (C4 concentration / C28 exit-knob limits).
+
+
+---
+**DONE 2026-06-21T20:00 ET (conductor):** Encoded as **L178** in `markdown/doctrine/LESSONS-LEARNED.md` (full Symptom/Root-cause/Fix/Generalizable-principle/Watch-out/Detection/Related structure). Theme: a risk lever (stop/sizing) moves the LOSS distribution, never the WIN/signal-breadth distribution that L173 oos_drop_top5 measures -> the lever for an oos_drop_top5<0 edge is the ENTRY filter, not the exit. Suggested L176 was already taken (max was L177) -> assigned L178. Evidence verified before authoring (DTE-LIBRARY-DOLLARSTOP-RETEST.md + dte-stop-construction-*.json oos_drop_top5/book_maxDD numbers match). CLAUDE.md OP-25 fold staged as proposal cd-2026-06-21-005 (rail 4). lesson-inbox now empty.

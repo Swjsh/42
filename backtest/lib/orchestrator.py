@@ -35,6 +35,8 @@ from .levels import _detect_from_history, LevelSet
 from .simulator import simulate_trade, TradeFill
 from .simulator_real import simulate_trade_real
 from .risk_gate import check_order as _risk_check_order
+from .risk_gate import select_exit_params as _select_exit_params
+from .risk_gate import select_strike_offset as _select_strike_offset
 from .engine import score_bar as _engine_score_bar
 from .engine import (
     GateContext as _GateContext,
@@ -1690,6 +1692,27 @@ def run_backtest(
                 actual_entry_bar = spy_df.iloc[_pb_found]
 
             if use_real_fills:
+                # WP-0 (2026-06-21): per-setup exit-param dispatch. A matched + ENABLED
+                # setup (VWAP_RECLAIM_FAILED_BREAK / VIX_REGIME_DAYSIDE) overrides the
+                # global stop with its VALIDATED isolated filters.py stop; otherwise the
+                # resolver returns side_premium_stop UNCHANGED (byte-identical to prior
+                # behavior while the per-setup flags are off). Single source of truth =
+                # the filters.py accessors (no literal duplication). See
+                # risk_gate.select_exit_params + test_engine_order_bracket_parity.py.
+                resolved_premium_stop = _select_exit_params(
+                    setup_name, winning_side, params_overrides, side_premium_stop
+                )
+                # WP-5 (2026-06-21): per-setup STRIKE dispatch. A matched + ENABLED
+                # setup (VWAP_CONTINUATION) overrides the generic v15-tier strike with
+                # its VALIDATED per-account cell (Safe ATM / Bold ITM-2, sourced from the
+                # filters.py accessor, single source of truth); otherwise the resolver
+                # returns side_strike_off UNCHANGED (byte-identical to the generic
+                # v15-tier behavior while the per-setup strike-override flag is off).
+                # Per-setup ONLY (C29) — NOT a blanket v15_strike_offset_per_tier change.
+                # See risk_gate.select_strike_offset + test_engine_strike_parity.py.
+                resolved_strike_offset = _select_strike_offset(
+                    setup_name, winning_side, params_overrides, side_strike_off
+                )
                 fill = simulate_trade_real(
                     entry_bar_idx=actual_entry_idx,
                     entry_bar=actual_entry_bar,
@@ -1701,8 +1724,8 @@ def run_backtest(
                     setup=setup_name,
                     levels_active=level_set.active,
                     levels_carry=level_set.multi_day,
-                    premium_stop_pct=side_premium_stop,
-                    strike_offset=side_strike_off,
+                    premium_stop_pct=resolved_premium_stop,
+                    strike_offset=resolved_strike_offset,
                     qty=trade_qty,   # NEW v13 — quality-tiered sizing
                     profit_lock_threshold_pct=profit_lock_threshold_pct,    # NEW T41 2026-05-13: parity with BS path
                     profit_lock_stop_offset_pct=profit_lock_stop_offset_pct,  # NEW T41 2026-05-13: parity with BS path

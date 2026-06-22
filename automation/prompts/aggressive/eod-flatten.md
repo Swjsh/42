@@ -6,7 +6,9 @@ All Alpaca tool calls use `mcp__alpaca_aggressive__`. Position state is in `auto
 
 # Purpose
 
-Safety net for any 0DTE position in the AGGRESSIVE account not closed by the heartbeat's 15:50 time stop. Flat by EOD, no exceptions.
+Safety net for any open SPY option position in the AGGRESSIVE account not closed by the heartbeat's 15:50 time stop. Flat by EOD, no exceptions.
+
+**EXPIRY-AGNOSTIC (load-bearing — WP-8 1DTE safety gate 3):** this flatten closes ANY open SPY option position regardless of expiry — 0DTE AND 1DTE (T+1). The Bold vwap_continuation WP-8 deployment can trade a 1DTE contract; the engine holds NO position overnight, so a 1DTE opened today is flattened today at 15:55. Do NOT filter the Alpaca position scan by expiry date — the source of truth is "is there an open SPY option position", not "does it expire today". The Step 3 retry-until-zero loop reads `get_all_positions` and closes whatever option qty is open, so it is expiry-agnostic by construction; never re-introduce a same-day-expiry filter that would strand a 1DTE position overnight.
 
 # Step 0 — pre-flight (harness contract)
 
@@ -18,7 +20,7 @@ The PowerShell harness has already validated `automation/state/*.json`. If `curr
 
 1. Read `automation/state/current-position-bold.json` (Bold account position state — dual-account mode path).
 
-1.5. **Unconditional Alpaca cross-check.** Call `mcp__alpaca_aggressive__get_all_positions` filtered to options. If Alpaca shows a 0DTE SPY position that `current-position-bold.json` does NOT reflect (corruption case), treat Alpaca as source of truth and proceed to Step 3. Log `STATE_DRIFT_RECOVERED: closed N contracts from aggressive Alpaca, current-position-bold.json was {null|stale}`.
+1.5. **Unconditional Alpaca cross-check.** Call `mcp__alpaca_aggressive__get_all_positions` filtered to options. If Alpaca shows ANY open SPY option position (any expiry — 0DTE OR 1DTE; do NOT filter by expiry date) that `current-position-bold.json` does NOT reflect (corruption case), treat Alpaca as source of truth and proceed to Step 3. Log `STATE_DRIFT_RECOVERED: closed N contracts from aggressive Alpaca, current-position-bold.json was {null|stale}`.
 
 2. If status is null/empty AND Alpaca cross-check found nothing → log "AGG_EOD_FLATTEN_NOOP", exit.
 
