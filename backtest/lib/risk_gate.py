@@ -430,6 +430,118 @@ def check_order(
     )
 
 
+# --- WP-10: cap-aware affordability (the single source of truth for "would the
+#            LIVE order gate place this?", reused by the real-fills simulator) ----
+#
+# L180 / C11 / C14: `simulator_real.simulate_trade_real` historically filled the
+# caller-supplied `qty` cap-BLIND — so a real-fills sweep could report a glowing
+# expectancy on orders that `check_order` denies live (e.g. the WP-8 1DTE-ATM
+# "doubler": qty3 notional $748 > Safe $2K cap $600 -> BLOCK[RISK_CAP]; qty2 ->
+# BLOCK[MIN_CONTRACTS], no auto-reduce). The lever that lifts per-trade premium
+# (DTE / ITM-depth / wider stop) pushes notional THROUGH a FIXED per-trade $-cap.
+#
+# These two pure helpers expose EXACTLY the per-order sizing math `check_order`
+# uses (notional = premium*qty*100 vs the tighter of RISK_CAP and the v15 tier
+# gate, plus the min_contracts floor) so a consumer never re-types the cap
+# literals (the C14 dead-knob/divergence trap). `test_risk_gate` cross-checks
+# `order_affordable` against `check_order` over a grid so the two implementations
+# can NEVER silently diverge. Both FAIL CLOSED: any unreadable input or an equity
+# outside every premium tier -> "not affordable" (skip), matching check_order's
+# deny-on-uncertainty stance.
+
+
+def _effective_per_trade_cap_dollars(
+    equity: float, params: Mapping[str, Any]
+) -> Optional[float]:
+    """The binding per-trade dollar cap = tighter of RISK_CAP and the v15 tier gate.
+
+    Returns None on any unreadable input or an equity not covered by the premium
+    tier table (uncertainty about a hard gate -> caller must treat as unaffordable).
+    """
+    if params is None or not isinstance(params, Mapping):
+        return None
+    if _is_bad_number(equity):
+        return None
+    equity_f = _as_float(equity)
+    if equity_f <= 0:
+        return None
+    risk_cap_raw = params.get("per_trade_risk_cap_pct")
+    if _is_bad_number(risk_cap_raw):
+        return None
+    cap = equity_f * _as_float(risk_cap_raw)
+    if "v15_max_premium_pct_of_account" in params:
+        tier_pct = _max_premium_pct_for_equity(
+            params.get("v15_max_premium_pct_of_account"), equity_f
+        )
+        if tier_pct is None:  # table present but no tier covers equity -> uncertainty
+            return None
+        cap = min(cap, equity_f * tier_pct)
+    return cap
+
+
+def order_affordable(
+    *, equity: Any, premium: Any, qty: Any, params: Optional[Mapping[str, Any]]
+) -> bool:
+    """True iff an order of `qty` contracts at `premium` clears the per-order sizing
+    gates (MIN_CONTRACTS + RISK_CAP + MAX_PREMIUM_TIER) that check_order enforces live.
+
+    Fail-closed: any unreadable input -> False (treat as not placeable). This is the
+    SAME cap math as check_order (L180 single source of truth); the qty is also held
+    to the params `min_contracts` floor, so qty below the minimum is unaffordable even
+    when the notional would fit (mirrors live BLOCK[MIN_CONTRACTS]).
+    """
+    if params is None or not isinstance(params, Mapping):
+        return False
+    if _is_bad_number(premium) or _is_bad_number(qty):
+        return False
+    premium_f = _as_float(premium)
+    qty_f = _as_float(qty)
+    if premium_f <= 0 or qty_f <= 0 or qty_f != int(qty_f):
+        return False
+    qty_i = int(qty_f)
+    min_contracts_raw = params.get("min_contracts")
+    if _is_bad_number(min_contracts_raw):
+        return False
+    if qty_i < int(_as_float(min_contracts_raw)):
+        return False
+    cap = _effective_per_trade_cap_dollars(equity, params)
+    if cap is None:
+        return False
+    notional = premium_f * qty_i * 100.0
+    return notional <= cap
+
+
+def max_affordable_qty(
+    *, equity: Any, premium: Any, params: Optional[Mapping[str, Any]]
+) -> int:
+    """Largest contract qty that `order_affordable` accepts (>= min_contracts), or 0
+    when even the min_contracts floor is unaffordable / inputs are unreadable.
+
+    For cap-aware SIZING. Note the live gate does NOT auto-reduce (it denies the
+    proposed qty outright), so a consumer that must mirror live should compare the
+    PROPOSED qty against this and skip when it exceeds the affordable max.
+    """
+    if params is None or not isinstance(params, Mapping):
+        return 0
+    if _is_bad_number(premium):
+        return 0
+    premium_f = _as_float(premium)
+    if premium_f <= 0:
+        return 0
+    min_contracts_raw = params.get("min_contracts")
+    if _is_bad_number(min_contracts_raw):
+        return 0
+    min_contracts = int(_as_float(min_contracts_raw))
+    cap = _effective_per_trade_cap_dollars(equity, params)
+    if cap is None:
+        return 0
+    per_contract = premium_f * 100.0
+    max_qty = int(cap // per_contract)
+    if max_qty < min_contracts:
+        return 0
+    return max_qty
+
+
 # --- WP-0: per-setup exit-param dispatch (the order-bracket stop resolver) ----
 #
 # The order path historically applied ONE global premium stop to EVERY entry. Two

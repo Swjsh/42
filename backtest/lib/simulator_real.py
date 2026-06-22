@@ -324,6 +324,18 @@ def simulate_trade_real(
     # research-only until ratified.
     early_cutoff_et: Optional[dt.time] = None,
     early_cutoff_min_favor_pct: float = 0.0,
+    # --- WP-10: LIVE per-trade cap awareness (L180 / C11 / C14) ------------------
+    # The real-fills sweep historically filled `qty` cap-BLIND, so a sweep could
+    # report an expectancy on orders the LIVE risk gate denies (e.g. a 1DTE-ATM
+    # "doubler" whose qty3 notional exceeds the Safe $2K per-trade $-cap). When
+    # `cap_equity` AND `cap_params` are supplied, this order is filled ONLY if it
+    # would clear `risk_gate.order_affordable` (MIN_CONTRACTS + RISK_CAP + v15 tier)
+    # at that equity — otherwise the trade returns None (skip + report, the same
+    # path as an uncached contract). Default None = OFF = byte-for-byte identical to
+    # every existing caller; the cap math lives in ONE place (risk_gate), never
+    # re-typed here.
+    cap_equity: Optional[float] = None,
+    cap_params: Optional[dict] = None,
 ) -> Optional[TradeFill]:
     """Simulate a bracket trade with real option fills.
 
@@ -384,6 +396,18 @@ def simulate_trade_real(
     # Real broker fills the BUY at ASK. We approximate ASK as bar.open + half-spread.
     raw_open = entry_bar_opt.open
     entry_premium = raw_open + entry_slippage
+
+    # WP-10 (L180 / C11 / C14): when a LIVE per-trade cap context is supplied, only
+    # fill orders the real risk gate would actually place at that equity. The cap
+    # math is risk_gate's (single source of truth) — we never re-type the literals.
+    # OFF by default (cap_equity is None) -> identical to every existing caller.
+    if cap_equity is not None and cap_params is not None:
+        from .risk_gate import order_affordable
+        if not order_affordable(
+            equity=cap_equity, premium=entry_premium, qty=qty, params=cap_params
+        ):
+            return None  # live gate would deny (RISK_CAP / MAX_PREMIUM_TIER / MIN_CONTRACTS)
+
     stop_premium = entry_premium * (1.0 + premium_stop_pct)   # configurable premium stop
     tp1_premium_fallback = entry_premium * (1.0 + tp1_premium_pct)     # L110: was TP1_PREMIUM_PCT hardcode
     runner_target_premium = entry_premium * (1.0 + runner_target_premium_pct)  # L109: was RUNNER_MAX_PREMIUM_PCT hardcode

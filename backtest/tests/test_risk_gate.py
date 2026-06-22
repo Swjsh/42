@@ -31,6 +31,8 @@ from lib.risk_gate import (  # noqa: E402
     Deny,
     RiskDecision,
     check_order,
+    order_affordable,
+    max_affordable_qty,
     CODE_ALLOW,
     CODE_KILL_SWITCH,
     CODE_RISK_CAP,
@@ -479,3 +481,133 @@ def test_source_has_no_process_control_calls():
             f"risk_gate.py contains '{needle}' — order control must never reach "
             "for process/session control (OP-32 scar)."
         )
+
+
+# =============================================================================
+# WP-10 — cap-aware affordability helpers (L180 / C11 / C14).
+#
+# order_affordable / max_affordable_qty expose the SAME per-order sizing math as
+# check_order so the real-fills simulator can decline orders the live gate would
+# deny. The load-bearing test is the GRID CROSS-CHECK: the two implementations
+# must agree on every cell so they can never silently diverge (the dead-knob /
+# divergence trap C14). Plus fail-closed on unreadable input.
+# =============================================================================
+
+# Sizing-gate-relevant fields only (premium-cap helpers ignore kill/PDT/flat etc).
+_GRID_PARAMS = [SAFE_PARAMS, BOLD_PARAMS]
+_GRID_EQUITY = [1000.0, 2000.0, 5000.0, 12000.0, 30000.0]
+_GRID_PREMIUM = [0.20, 0.50, 1.00, 2.49, 4.00, 8.00]
+_GRID_QTY = [3, 5, 10, 20]
+
+
+def _sizing_only_check(*, equity, premium, qty, params):
+    """check_order with every NON-sizing gate forced clean, so the only thing that
+    can deny is MIN_CONTRACTS / RISK_CAP / MAX_PREMIUM_TIER — the exact subset the
+    affordability helpers model."""
+    return check_order(
+        "Grid",
+        equity=equity,
+        start_of_day_equity=equity,   # no drawdown -> kill switch inert
+        proposed_qty=qty,
+        premium=premium,
+        setup_name=SETUP,
+        current_position_status="flat",
+        day_trades_used_5d=0,
+        kill_switch_tripped=False,
+        prior_stops_today=[],
+        params=params,
+    )
+
+
+def test_order_affordable_matches_check_order_on_grid():
+    """order_affordable(...) is True IFF check_order (sizing gates only) Allows —
+    on every (params, equity, premium, qty) cell. Binds the two cap implementations
+    so they cannot diverge."""
+    checked = 0
+    for params in _GRID_PARAMS:
+        for equity in _GRID_EQUITY:
+            for premium in _GRID_PREMIUM:
+                for qty in _GRID_QTY:
+                    gate = _sizing_only_check(
+                        equity=equity, premium=premium, qty=qty, params=params
+                    )
+                    afford = order_affordable(
+                        equity=equity, premium=premium, qty=qty, params=params
+                    )
+                    assert afford == isinstance(gate, Allow), (
+                        f"divergence at params.min={params['min_contracts']} "
+                        f"eq={equity} prem={premium} qty={qty}: "
+                        f"order_affordable={afford} but check_order={gate.code}"
+                    )
+                    checked += 1
+    assert checked == len(_GRID_PARAMS) * len(_GRID_EQUITY) * len(_GRID_PREMIUM) * len(_GRID_QTY)
+
+
+def test_max_affordable_qty_is_the_largest_allowed_qty():
+    """max_affordable_qty is the boundary: that qty is affordable and qty+1 is not
+    (when >0); when 0, even min_contracts is unaffordable."""
+    for params in _GRID_PARAMS:
+        for equity in _GRID_EQUITY:
+            for premium in _GRID_PREMIUM:
+                m = max_affordable_qty(equity=equity, premium=premium, params=params)
+                if m == 0:
+                    # min_contracts itself must be unaffordable per check_order.
+                    gate = _sizing_only_check(
+                        equity=equity,
+                        premium=premium,
+                        qty=params["min_contracts"],
+                        params=params,
+                    )
+                    assert isinstance(gate, Deny)
+                    assert gate.code in (CODE_RISK_CAP, CODE_MAX_PREMIUM_TIER)
+                else:
+                    assert m >= params["min_contracts"]
+                    assert order_affordable(
+                        equity=equity, premium=premium, qty=m, params=params
+                    )
+                    assert not order_affordable(
+                        equity=equity, premium=premium, qty=m + 1, params=params
+                    )
+
+
+def test_l180_wp8_doubler_is_correctly_blocked_at_safe_2k():
+    """The exact L180 near-miss: a 1DTE-ATM 'doubler' at qty3 whose per-contract
+    premium puts notional over Safe's $600 cap MUST be unaffordable, and qty2 must
+    fail the min-contracts floor too (no auto-reduce)."""
+    # $2.49 * 3 * 100 = $747 > $600 (30% of $2,000) -> blocked.
+    assert not order_affordable(equity=2000.0, premium=2.49, qty=3, params=SAFE_PARAMS)
+    # qty2 is below min_contracts (3) -> unaffordable regardless of notional.
+    assert not order_affordable(equity=2000.0, premium=2.49, qty=2, params=SAFE_PARAMS)
+    # No affordable qty exists at this premium/equity.
+    assert max_affordable_qty(equity=2000.0, premium=2.49, params=SAFE_PARAMS) == 0
+    # A cheap ATM 0DTE at qty3 ($1.35*3*100=$405 < $600) IS affordable -> the lever,
+    # not the setup, is what blocked the doubler.
+    assert order_affordable(equity=2000.0, premium=1.35, qty=3, params=SAFE_PARAMS)
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        dict(equity=None, premium=1.0, qty=3, params=SAFE_PARAMS),
+        dict(equity=float("nan"), premium=1.0, qty=3, params=SAFE_PARAMS),
+        dict(equity=-100.0, premium=1.0, qty=3, params=SAFE_PARAMS),
+        dict(equity=2000.0, premium=None, qty=3, params=SAFE_PARAMS),
+        dict(equity=2000.0, premium=0.0, qty=3, params=SAFE_PARAMS),
+        dict(equity=2000.0, premium=1.0, qty=3.5, params=SAFE_PARAMS),
+        dict(equity=2000.0, premium=1.0, qty=3, params=None),
+        dict(equity=2000.0, premium=1.0, qty=3, params={"per_trade_risk_cap_pct": 0.3}),  # no min_contracts
+    ],
+)
+def test_order_affordable_fails_closed(kwargs):
+    """Any unreadable input -> not affordable (never a silent True)."""
+    assert order_affordable(**kwargs) is False
+
+
+def test_affordability_fails_closed_when_equity_outside_every_tier():
+    """SAFE_PARAMS tier table tops out at $999,999,999; an equity above it is not
+    covered -> uncertainty about a hard gate -> unaffordable (mirrors check_order's
+    deny on an unresolvable tier)."""
+    assert max_affordable_qty(equity=2_000_000_000.0, premium=1.0, params=SAFE_PARAMS) == 0
+    assert not order_affordable(
+        equity=2_000_000_000.0, premium=1.0, qty=3, params=SAFE_PARAMS
+    )
