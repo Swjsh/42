@@ -1,0 +1,149 @@
+{
+  "_doc": "Champion/challenger fleet registry. One perception -> N frozen policy arms. See markdown/specs/FLEET-DESIGN.md. NEVER store API secrets here (git-tracked) -- secrets live in the GITIGNORED automation/state/fleet/secrets.json; key_ref points to the entry there. All account#/equity below confirmed against the live broker 2026-06-20 via validate_keys.py. Baseline to beat: analysis/HONEST-PNL-BASELINE-2026-06-20.md.",
+  "schema": "fleet-v1",
+  "created": "2026-06-20",
+  "shared_signal_path": "automation/state/fleet/shared-signal.json",
+  "hypothesis_assignments_status": "LIVE 2026-06-22: safe-3 + risky-1 flipped live by J directive (he created them). risky-3 held = 1DTE/vertical structure not implemented in fleet_live._place_live.",
+  "arms": [
+    {
+      "id": "safe-1",
+      "status": "active",
+      "execution": "mcp_heartbeat",
+      "fidelity": "real_fills",
+      "broker": "alpaca",
+      "account_number": "PA3S2PYAS2WQ",
+      "key_ref": "automation/state/fleet/secrets.json :: accounts.safe-1",
+      "instrument": "SPY_0DTE_OPTION",
+      "config_source": "automation/state/params.json",
+      "starting_equity": 2000.0,
+      "frozen_at": "2026-06-20",
+      "hypothesis": "CONTROL \u2014 current v15 Safe doctrine (OTM-2, 30% risk, CONFIRMED setups only)"
+    },
+    {
+      "id": "bold-2",
+      "status": "active",
+      "execution": "mcp_heartbeat",
+      "fidelity": "real_fills",
+      "broker": "alpaca_aggressive",
+      "account_number": "PA33W2KUAT40",
+      "key_ref": "automation/state/fleet/secrets.json :: accounts.bold-2",
+      "instrument": "SPY_0DTE_OPTION",
+      "config_source": "automation/state/aggressive/params.json",
+      "starting_equity": 1648.75,
+      "frozen_at": "2026-06-20",
+      "hypothesis": "CONTROL \u2014 current v15 Bold doctrine (ITM-2, 50% risk, ALL setups)"
+    },
+    {
+      "id": "safe-3",
+      "status": "active",
+      "execution": "fleet_rest",
+      "live": true,
+      "fidelity": "real_fills",
+      "broker": "alpaca",
+      "account_number": "PA32RD49OB0Q",
+      "key_ref": "automation/state/fleet/secrets.json :: accounts.safe-3",
+      "instrument": "SPY_0DTE_OPTION",
+      "config_source": "inherit safe + gate_override",
+      "gate_override": {
+        "min_confidence": 0.65,
+        "min_setup_quality": "EXCELLENT",
+        "min_triggers": 2,
+        "require_confluence_or_sequence": true,
+        "catalyst_aware": true
+      },
+      "starting_equity": 2000.0,
+      "frozen_at": "2026-06-20",
+      "hypothesis": "[DRAFT] FREQUENCY IS THE ENEMY \u2014 only the 0.65+/EXCELLENT band has edge (W24 calibration: 0.65-0.84 hits 83%, 0.55-0.64 hits 25%). Same instrument as safe-1, far fewer/higher-quality trades."
+    },
+    {
+      "id": "risky-1",
+      "status": "active",
+      "execution": "fleet_rest",
+      "live": true,
+      "fidelity": "real_fills",
+      "broker": "custom_rest",
+      "account_number": "PA3W17FD8G19",
+      "key_ref": "automation/state/fleet/secrets.json :: accounts.risky-1",
+      "instrument": "SPY_0DTE_OPTION",
+      "config_source": "inherit bold + direction_lock",
+      "direction_lock": "PUT_ONLY",
+      "starting_equity": 2000.0,
+      "frozen_at": "2026-06-20",
+      "hypothesis": "[DRAFT] THE BULL SIDE DRAGS WR \u2014 puts-only / BEARISH_REJECTION scope lock (OP-16). All 3 anchor winners are puts; BULLISH_RECLAIM is 25% WR DRAFT. Tests whether removing the bull side lifts expectancy."
+    },
+    {
+      "id": "risky-3",
+      "status": "active",
+      "execution": "fleet_rest",
+      "live": false,
+      "live_blocked_reason": "1DTE/vertical structure not implemented in executor -- held WATCH-only until built (else it would trade a plain 0DTE single = contaminated experiment).",
+      "fidelity": "real_fills",
+      "broker": "custom_rest",
+      "account_number": "PA31WIU8X15Q",
+      "key_ref": "automation/state/fleet/secrets.json :: accounts.risky-3",
+      "instrument": "SPY_OPTION_LESS_THETA",
+      "config_source": "inherit bold + structure_override",
+      "structure_override": {
+        "expiry": "1DTE_or_0DTE_vertical",
+        "note": "the Alpaca-tradeable version of the option-tax hypothesis (MES is separate)"
+      },
+      "starting_equity": 2000.0,
+      "frozen_at": "2026-06-20",
+      "hypothesis": "[DRAFT] THETA IS THE TAX \u2014 express the same signal with less theta (1-DTE or a debit vertical) to keep upside while cutting the decay bleed that eats 0DTE naked longs."
+    },
+    {
+      "id": "mes-linear-sim",
+      "status": "pending_build",
+      "fidelity": "bs_sim_ranking_only",
+      "broker": "futures_sandbox_TT",
+      "account_number": "5WW73759",
+      "key_ref": "docs/futures/ (TT sandbox wiring)",
+      "instrument": "MES_FUTURES",
+      "stop_model": "point_based",
+      "config_source": "same signals as champions, linear expression",
+      "frozen_at": null,
+      "hypothesis": "THE OPTION TAX IS THE KILLER, NOT THE READ \u2014 same directional signal on a linear instrument; if MES captures the move the edge is real and the fix is the instrument."
+    },
+    {
+      "id": "mes-mnq-div-futures",
+      "status": "dormant",
+      "fidelity": "point_pnl_validated",
+      "broker": "futures_sandbox_TT",
+      "account_number": "5WW73759",
+      "key_ref": "docs/futures/ (TT sandbox wiring)",
+      "instrument": "MNQ_FUTURES",
+      "stop_model": "atr_trail_eod_flat",
+      "config_source": "automation/state/fleet/edge3_mesmnq_div.py :: FROZEN_CONFIG",
+      "frozen_config": {
+        "edge_id": "edge3_mesmnq_div",
+        "leader": "MES",
+        "laggard": "MNQ",
+        "threshold": 0.0015,
+        "min_persistence_bars": 2,
+        "qty_micros": 1,
+        "exit_mode": "atr_trail",
+        "entry_cutoff_et": "13:00:00"
+      },
+      "frozen_at": "2026-06-21",
+      "enabled": false,
+      "source_recommendation": "analysis/recommendations/b5-mesmnq-div-rescue.json",
+      "validated_oos_per_trade": 71.46,
+      "hypothesis": "EDGE #3 \u2014 MES leads -> trade MNQ laggard on a >=2-consecutive-bar divergence (concentration fix). VALIDATED: OOS +$71.46/tr, n=41 OOS / 118 total, drop-top5 +$3.65, 8/8 gates. REGISTERED DORMANT (enabled=false) \u2014 frozen knobs live in edge3_mesmnq_div.py; signal_for_tick honors min_persistence_bars; no live order path until a human flips enabled. Reproduction: backtest/.venv/Scripts/python.exe automation/state/fleet/edge3_mesmnq_div.py"
+    }
+  ],
+  "promotion_gate": {
+    "oos_positive": true,
+    "wf_min": 0.7,
+    "sub_window_stable": true,
+    "anchor_no_regression": true,
+    "min_clean_trades": 30,
+    "beat_baseline_margin_note": "must beat frozen baseline by a margin surviving multiple-comparison correction across the 5 active arms"
+  },
+  "next_steps": [
+    "J: confirm/reassign the [DRAFT] hypotheses for safe-3 / risky-1 / risky-3.",
+    "BUILD: fleet executor (pure Python) \u2014 reads shared-signal.json, applies each active arm's gate+sizing+direction+structure, routes orders via REST per key_ref.",
+    "BUILD: heartbeat writes shared-signal.json once per tick (one perception, additive, no behavior change).",
+    "DOCTRINE (J): CLAUDE.md account table still lists only 2 accounts \u2014 update to the 5-arm fleet when hypotheses are blessed.",
+    "WIRE: mes-linear-sim to the TT futures sandbox harness (docs/futures/)."
+  ]
+}

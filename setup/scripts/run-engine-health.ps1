@@ -21,6 +21,12 @@ $ErrorActionPreference = "Continue"
 
 Set-Location $WorkDir
 
+# ACT before WATCH (2026-06-22): auto-heal a stalled engine BEFORE assessing/pinging.
+# heal-engine.ps1 is RTH-gated + throttled + defensive; off-hours it no-ops immediately.
+# It re-fires a stalled heartbeat and stamps a grace window that engine_health.py honors,
+# so J is pinged ONLY if the heal fails. Closes the notify-only "cry wolf" gap.
+try { & "$PSScriptRoot\heal-engine.ps1" } catch { }
+
 $null = Invoke-PythonHidden -ScriptPath "setup\scripts\engine_health.py" `
     -ArgList @() `
     -TaskName "engine-health" -TimeoutSec 45

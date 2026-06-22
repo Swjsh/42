@@ -156,7 +156,12 @@ if ($secondsUntilBarClose -lt 30) {
 # switch + state writes). 160s gives a 20s buffer before next 3-min tick
 # boundary; if a tick truly needs >160s we have a structural problem (prompt too
 # heavy for the model) — kill is correct.
-$tickTimeout = if ($model -eq "sonnet") { 180 } else { 220 }
+# 2026-06-22: widened 180/220 -> 280 both branches. Heavy ticks (developing setup
+# score>=7 + 15m HTF refresh) were measured at ~224s and timing out (exit 124) =
+# no loop-state persist during active markets (the worst time). 280s lets them
+# complete; a tick overlapping the 180s cadence just LOCK_BUSY-skips the next.
+# Band-aid for the oversized 97KB heartbeat.md prompt -- durable fix = trim it (after-hours).
+$tickTimeout = if ($model -eq "sonnet") { 280 } else { 280 }
 $tickEffort = if ($model -eq "sonnet") { "medium" } else { "low" }
 
 # 2026-05-07 update: budget 0.20 -> 0.35. Live heartbeat ticks were exiting at
@@ -168,21 +173,14 @@ $tickEffort = if ($model -eq "sonnet") { "medium" } else { "low" }
 # writes) ~10K tokens = $0.05 output. Plus a buffer for retries/reasoning.
 # 0.35 is the sweet spot - holds the kill-switch on truly runaway ticks without
 # choking normal ones.
-# FIX 1 (2026-06-15): Isolated heartbeat API key prevents rate-pool starvation from
-# interactive Claude sessions. Create automation/state/.heartbeat-api-key with a
-# dedicated key from console.anthropic.com → falls back to Max plan key if absent.
-$heartbeatKeyPath = Join-Path $WorkDir "automation\state\.heartbeat-api-key"
-$originalApiKey = $env:ANTHROPIC_API_KEY
-$heartbeatKeyLoaded = $false
-if (Test-Path $heartbeatKeyPath) {
-    $hbKey = (Get-Content $heartbeatKeyPath -Raw -ErrorAction SilentlyContinue).Trim()
-    if ($hbKey -and $hbKey -ne "") {
-        $env:ANTHROPIC_API_KEY = $hbKey
-        $heartbeatKeyLoaded = $true
-        $model = "haiku"  # Hard-lock: isolated key runs Haiku only, no Sonnet escalation
-        Write-TaskLog -TaskName $task -Message "HEARTBEAT_KEY_LOADED: using isolated API key (FIX-1), model hard-locked to haiku"
-    }
-}
+# AUTH (2026-06-21): the heartbeat runs on J's Claude subscription (Max 20x / $200 plan),
+# NOT a dedicated ANTHROPIC_API_KEY. The isolated-API-key path (FIX-1, 2026-06-15) was
+# retired 2026-06-17 after it burned ~$30 and hit a credit-cliff mid-FOMC; the branch is
+# removed here so a stray automation/state/.heartbeat-api-key file can never silently
+# re-route the heartbeat off the subscription (and silently hard-lock it to Haiku).
+# Invoke-Claude inherits the logged-in subscription auth when $env:ANTHROPIC_API_KEY is
+# unset. Sonnet escalation stays available via loop-state next_tick_model. See L54 +
+# the "Heartbeat on Max subscription" memory.
 
 $exit = Invoke-Claude `
     -PromptFile (Join-Path $WorkDir "automation\prompts\heartbeat.md") `
@@ -191,9 +189,6 @@ $exit = Invoke-Claude `
     -Model $model `
     -TimeoutSec $tickTimeout `
     -Effort $tickEffort
-
-# Restore original API key so post-tick scripts use the Max plan key.
-if ($heartbeatKeyLoaded) { $env:ANTHROPIC_API_KEY = $originalApiKey }
 
 # Post-tick safety: atomic-bracket-guard catches mid-MCP-timeout failures (5/18
 # 10:48 naked-order incident class). Runs in <2s, hits Alpaca REST directly,
@@ -207,6 +202,20 @@ try {
         -TimeoutSec 15 | Out-Null
 } catch {
     Write-TaskLog -TaskName $task -Message "atomic-bracket-guard failed: $_"
+}
+
+# Post-tick safety: mechanical daily-loss kill switch (Rule 5). Computes day P&L vs
+# start-of-day equity via Alpaca REST and flips circuit-breaker.json#tripped at -30%
+# (Safe). The next tick reads tripped=true at gate G5 and halts; HealthBeacon RED-pings.
+# Fail-safe: never trips on a fetch error or a stale (un-armed) SoD. Added 2026-06-21
+# (readiness audit C2/P0-3 — Rule 5's daily-loss switch was previously never enforced).
+try {
+    Invoke-PythonHidden -ScriptPath "setup\scripts\daily_loss_guard.py" `
+        -ArgList @("--account", "safe", "--silent") `
+        -TaskName "daily-loss-guard-safe" `
+        -TimeoutSec 15 | Out-Null
+} catch {
+    Write-TaskLog -TaskName $task -Message "daily-loss-guard failed: $_"
 }
 
 exit $exit

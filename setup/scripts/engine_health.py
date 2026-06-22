@@ -208,10 +208,21 @@ def check_watcher_feed(market_open: bool, et: datetime) -> dict:
         return _chk("watcher_feed", "GREEN", f"newest bar {newest_date} (market closed -- quiet OK)", critical=True)
     if newest_date == today:
         return _chk("watcher_feed", "GREEN", f"producing TODAY's rows (newest bar {newest})", critical=True)
+    # critical=False (2026-06-22): the watcher fleet is WATCH_ONLY (it NEVER places
+    # orders) and BOTH heartbeats score their primary book via TV-direct reads, so a
+    # dark producer DEGRADES (loses the supplementary 28-watcher signal layer) but does
+    # NOT block trading. Keep RED-status so it stays loud + visible in reds[], but
+    # non-critical so it no longer gates the engine to trade-halt RED -- otherwise it
+    # cry-wolf-REDs every market open while the producer rebuild is in flight (the
+    # watcher_live.py morning no-op = naive-local-time gate [rig is MT, not ET] + the
+    # yfinance top-up / stale_csv_date stack -- C6/L161). RE-ARM to critical=True the
+    # moment watcher_live.py reliably emits today's rows again.
+    # See STATUS.md "Known broken 2026-06-22" + the queued watcher-producer rebuild task.
     return _chk(
         "watcher_feed", "RED",
-        f"PRODUCER DARK: newest bar {newest_date} != today {today} -- feed not writing during RTH",
-        critical=True,
+        f"PRODUCER DARK: newest bar {newest_date} != today {today} -- feed not writing during RTH "
+        f"(WATCH_ONLY layer: degraded supplementary signal, NOT trade-blocking)",
+        critical=False,
     )
 
 
@@ -313,6 +324,17 @@ def _prior_verdict() -> Optional[str]:
     return data.get("verdict") if data else None
 
 
+def _heal_grace_active(now_utc: datetime) -> bool:
+    """True if heal-engine.ps1 just attempted an auto-heal (grace window still open).
+    Suppresses the J-ping until the re-fired heartbeat tick has had time to land -- the
+    ACT-before-WATCH contract (2026-06-22): J is pinged only if the heal FAILS."""
+    data, _ = _read_json(STATE / "engine-heal-state.json")
+    if not data:
+        return False
+    gu = _parse_ts(data.get("grace_until"))
+    return gu is not None and now_utc < gu
+
+
 def _mention_prefix() -> str:
     """Match the existing outbox convention: prefix with the user mention so the
     ping pushes to J's device, mirroring discord_watchdog.py's alert format."""
@@ -322,6 +344,11 @@ def _mention_prefix() -> str:
 def maybe_alert(report: dict, prior: Optional[str]) -> bool:
     """Append ONE SOUL-voice line to the outbox only on a *transition into RED*."""
     if report["verdict"] != "RED" or prior == "RED":
+        return False
+    # ACT-before-WATCH (2026-06-22): if the auto-healer just re-fired the stalled heartbeat,
+    # hold the ping until the grace window expires -- the tick lands in ~60-90s. J hears
+    # about it ONLY if the heal failed (still RED after grace). RED is still written + shown.
+    if _heal_grace_active(_now_utc()):
         return False
     reds = report["reds"]
     head = reds[0] if reds else "engine health critical"

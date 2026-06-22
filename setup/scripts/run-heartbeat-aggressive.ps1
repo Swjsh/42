@@ -99,30 +99,17 @@ if ($secondsUntilBarClose -lt 30) {
     Start-Sleep -Seconds 30
 }
 
-$tickTimeout = if ($model -eq "sonnet") { 180 } else { 220 }
+# 2026-06-22: widened 180/220 -> 280 both branches (see run-heartbeat.ps1 note).
+# Heavy developing-setup + HTF ticks were timing out at ~224s and not persisting.
+$tickTimeout = if ($model -eq "sonnet") { 280 } else { 280 }
 $tickEffort  = if ($model -eq "sonnet") { "medium" } else { "low" }
 
-# FIX 1 (2026-06-15): Isolated heartbeat API key — same as safe heartbeat.
-# Bold uses a separate key file at automation/state/.heartbeat-api-key-bold
-# (can be same key as safe, just kept separate for future independent rotation).
-# Falls back to Max plan key if file absent.
-$heartbeatKeyPath = Join-Path $WorkDir "automation\state\.heartbeat-api-key-bold"
-$heartbeatKeyPathShared = Join-Path $WorkDir "automation\state\.heartbeat-api-key"
-$originalApiKey = $env:ANTHROPIC_API_KEY
-$heartbeatKeyLoaded = $false
-if (Test-Path $heartbeatKeyPath) {
-    $hbKey = (Get-Content $heartbeatKeyPath -Raw -ErrorAction SilentlyContinue).Trim()
-} elseif (Test-Path $heartbeatKeyPathShared) {
-    $hbKey = (Get-Content $heartbeatKeyPathShared -Raw -ErrorAction SilentlyContinue).Trim()
-} else {
-    $hbKey = ""
-}
-if ($hbKey -and $hbKey -ne "") {
-    $env:ANTHROPIC_API_KEY = $hbKey
-    $heartbeatKeyLoaded = $true
-    $model = "haiku"  # Hard-lock: isolated key runs Haiku only, no Sonnet escalation
-    Write-TaskLog -TaskName $task -Message "HEARTBEAT_KEY_LOADED: using isolated API key (FIX-1), model hard-locked to haiku"
-}
+# AUTH (2026-06-21): runs on J's Claude subscription (Max 20x / $200 plan), NOT a
+# dedicated ANTHROPIC_API_KEY. The isolated-API-key path (FIX-1, 2026-06-15) was retired
+# 2026-06-17 (burned ~$30, credit-cliff mid-FOMC); the branch is removed so a stray
+# .heartbeat-api-key[-bold] file can never silently re-route off the subscription or
+# hard-lock to Haiku. Invoke-Claude inherits subscription auth when ANTHROPIC_API_KEY is
+# unset; Sonnet escalation stays available. Mirrors run-heartbeat.ps1 (gamma-sync OP-4).
 
 $exit = Invoke-Claude `
     -PromptFile (Join-Path $WorkDir "automation\prompts\aggressive\heartbeat.md") `
@@ -131,9 +118,6 @@ $exit = Invoke-Claude `
     -Model $model `
     -TimeoutSec $tickTimeout `
     -Effort $tickEffort
-
-# Restore original API key so post-tick scripts use the Max plan key.
-if ($heartbeatKeyLoaded) { $env:ANTHROPIC_API_KEY = $originalApiKey }
 
 # Post-tick safety: atomic-bracket-guard catches mid-MCP-timeout failures
 # (5/18 10:48 Bold naked-SPY-740C incident class). Cancels orphan parent
@@ -146,6 +130,20 @@ try {
         -TimeoutSec 15 | Out-Null
 } catch {
     Write-TaskLog -TaskName $task -Message "atomic-bracket-guard failed: $_"
+}
+
+# Post-tick safety: mechanical daily-loss kill switch (Rule 5). Computes day P&L vs
+# start-of-day equity via Alpaca REST and flips aggressive/circuit-breaker.json#tripped
+# at -50% (Bold). The next tick reads tripped=true and halts; HealthBeacon RED-pings.
+# Fail-safe: never trips on a fetch error or a stale (un-armed) SoD. Added 2026-06-21
+# (readiness audit C2/P0-3 — Rule 5's daily-loss switch was previously never enforced).
+try {
+    Invoke-PythonHidden -ScriptPath "setup\scripts\daily_loss_guard.py" `
+        -ArgList @("--account", "bold", "--silent") `
+        -TaskName "daily-loss-guard-bold" `
+        -TimeoutSec 15 | Out-Null
+} catch {
+    Write-TaskLog -TaskName $task -Message "daily-loss-guard failed: $_"
 }
 
 exit $exit
