@@ -1,0 +1,58 @@
+---
+proposed_lesson: conductor must read STATUS.md HEAD (newest entries) when the full read fails on size
+theme: C7 (silent success/process discipline) + OP-22 (compound, don't accumulate / don't redo solved work)
+severity: low-medium
+filed_by: conductor
+filed_at: 2026-06-22T02:15:00-05:00
+---
+
+# Foot-gun: skipping STATUS.md when it's too big to read whole → redoing already-solved work
+
+## Symptom
+The 2026-06-22 conductor fire picked the L180 follow-up "graduate the live per-trade
+cap into the simulator" and shipped affordability primitives + a sim opt-in cap. But
+the **headline** problem (real-fills sweeps reporting cap-blind expectancy) had ALREADY
+been solved the prior day by the book-layer `backtest/lib/cap_admission.py`
+(`enforce_cap=True` default, calling the live `risk_gate.check_order`). The fire
+partially re-did solved work and had to add an "HONEST SCOPE NOTE" correcting its own
+framing in STATUS.
+
+## Root cause
+STAGE 0.3 says "Read STATUS.md (full)". STATUS.md is now ~290KB and the Read tool
+refuses files >256KB. The fire proceeded to task selection WITHOUT reading any of
+STATUS — so it missed the most recent entry (which is at the TOP of the file and
+documented `cap_admission.py` as the shipped durable fix). The L180 *lesson note* in
+the queue said "graduate the cap into simulator_real (WP-10, weekday block)" — written
+BEFORE the team chose the book-layer approach instead — and the fire trusted that stale
+breadcrumb over the newest STATUS state.
+
+## Fix (proposed)
+1. **Doctrine/process:** when STATUS.md (or any state file) is too large to read whole,
+   the conductor MUST read its HEAD (this repo prepends newest entries to the top, so
+   `Read(limit=~60)` captures the last several fires) BEFORE STAGE 1 task selection.
+   Never proceed to task-pick with zero STATUS context.
+2. **Cross-check the breadcrumb against the newest STATUS entry:** a queue/lesson note
+   that names a specific implementation path ("graduate into simulator_real") is a claim
+   frozen at write-time; verify the work isn't already done at a different/better layer
+   before re-implementing.
+3. Consider a STATUS.md retention cap / roll-off (it's 290KB and the full-read contract
+   is already broken) — an append-only producer past its cap triggers CONSOLIDATION
+   (OP-22). The newest N entries stay; older roll to `STATUS-archive-YYYY-MM.md`.
+
+## Generalizable principle
+A breadcrumb that names a file/approach is only valid at write-time. The conductor's
+external memory (STATUS head) is the source of truth for "what already shipped" — read
+it first, even when the full file won't load. Trusting a stale note over current state
+is how you redo solved work (OP-22 anti-pattern).
+
+## Watch-out / self-consistency
+The committed work this fire is NOT harmful (default-off, tested, and it unblocked a RED
+safety gate) — but the *narrative* had to be corrected mid-fire, which is the tell. If a
+fire finds itself writing "actually this was already done" in STATUS, the STAGE-0 read
+was skipped.
+
+## Related
+- OP-22 (compound, don't accumulate; verify-now)
+- C7 (silent success is failure — audit state, not assumptions)
+- L180 / C11 / C14 (the cap class this fire was working in)
+- cap_admission.py (the canonical book-layer cap; do not double-apply at the per-fill layer)
