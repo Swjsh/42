@@ -1,3 +1,15 @@
+## [2026-06-21] 🟡 BOLD #1 ACTIVATION KILLED (qty-floor) — Safe-2 stays armed; Bold stays INERT (wiring now built+dormant). NOT the doubling — ONE account trades #1 Monday, not two.
+
+> Attempted to ACTIVATE #1 `vwap_continuation` on the BOLD account at its validated cell (ITM-2/1DTE/$67.68/qty3) by closing B1 finding #1's two coupled gaps. **BUILD done, FLIP killed.**
+> - **BUILT (dormant):** the A5 VWAP_CONTINUATION block is now ported byte-for-byte into `automation/prompts/aggressive/heartbeat.md` (invokes `live_order_params(...,"Gamma-Risky-2",...)`), and `j_vwap_cont_enabled` now EXISTS in `automation/state/aggressive/params.json` (set **FALSE**). B1's two structural gaps are CLOSED — but the activation flip is held.
+> - **KILL REASON (Safety Gate 5 FAIL — qty floor):** the validated Bold cell is **qty 3**, but Bold's `min_contracts=5` (aggressive/params.json + the hardcoded pre_order_gate.py BOLD dict) → the heartbeat Execution code-gate returns `BLOCK [MIN_CONTRACTS] proposed_qty 3 < minimum 5` on every signal → `SKIP_GATE_G6b_CODE` → NO order. Clamping up to qty 5 breaches the 50% per-trade cap (5×ITM-2-1DTE ≈ $1,750 ≈ 106% of ~$1.65K → RISK_CAP block) AND deviates from qty-3-validated economics. LIVE-PATH-WORKPACKAGE line 409 already computes Bold worst-day "@ LIVE qty=5" — a known sim-qty3-vs-live-qty5 divergence never reconciled. Either floor breaks the validated cell. **Reverted `j_vwap_cont_enabled` → false. Bold byte-identical to today (PARITY PASS); zero Monday Bold mis-trade risk.**
+> - **VERIFICATION (C7):** resolver resolved the Bold cell exactly (`-2 / 1DTE / $67.68 / qty3` both P+C sides); flags-OFF byte-identical parity confirmed inline; resolver-parity 34/34 + graduated_guards green (combined 100 passed, 14m28s).
+> - **MONDAY EXPECTATION (corrected — NOT the doubling):** **only Safe-2 trades #1 Monday** at its validated cell (ATM / 1DTE / $35.88 stop / qty3). **Bold trades nothing new** — `j_vwap_cont_enabled=false`. The "both accounts armed = ~2× expectancy" framing is FALSE until the qty floor is reconciled.
+> - **REVOKE/keep-dormant:** Bold `j_vwap_cont_enabled=false` (current state). Safe-2 revoke unchanged (its per-flag REVOKE in the 2026-06-21 WP-5/WP-8 CHANGELOG entry).
+> - **NEXT DIRECTION (the real unblock — `J-RULING-BOLD-QTY-FLOOR`, daylight + J-aware, NOT a flag-flip):** EITHER (i) re-validate the Bold #1 cell at **qty 5** with the 50%-cap interaction modeled, OR (ii) add a **per-setup min_contracts override** (qty-3 floor for VWAP_CONTINUATION) in `risk_gate` + `pre_order_gate`, THEN re-flip. Until then: monitor Monday's **Safe-2** #1 fills (the one live account) for first-fill correctness (ATM+1DTE+$35.88 construct; put-entry count vs baseline).
+
+---
+
 ## [2026-06-21] 🟢 MONDAY_READY — vwap_continuation 1DTE deploy HARDENED (SAFE/read-only, $0). #1's armed config trades cleanly Monday — verified deterministic + safe head-to-toe.
 
 > SAFE pre-live hardening of Sunday's WP-5/WP-8 deploy (the live money-maker). 5/5 checks pass for the in-scope **Safe-2 live** cell (ATM/1DTE/$35.88/qty3, both dirs). Report: `analysis/recommendations/DEPLOYMENT-HARDENING.md`. Harness: `backtest/_vwap_harden_verify.py`.
@@ -8,6 +20,18 @@
 > - **(5) Sizing/recency PASS:** qty=3 base on every day; resolver has NO scaling logic (passes current_qty verbatim) — recency-RED → no size-up by construction.
 > - **ONE ISSUE, NOT a Monday must-fix:** Bold is **inert by design** — `j_vwap_cont_enabled` is absent from Bold params AND the aggressive heartbeat has no VWAP_CONTINUATION block, so the block never runs → **zero Bold mis-trade risk** Monday (already in Known broken as B1; the brief's "Bold ITM-2" is research, not live wiring). Activating Bold later needs BOTH: add the master key + port the A5 block into `automation/prompts/aggressive/heartbeat.md` (daylight, J-aware). No edits made (SAFE pass). No commit.
 > - **NEXT DIRECTION:** Monday premarket — the one remaining live-feed check (TV+Alpaca round-trip the resolver/heartbeat against a real chain) via connectivity-gate before 09:30. Then on J's word, the coupled Bold activation (params key + aggressive-heartbeat A5 block) re-verified against the 166-day determinism proof.
+
+---
+
+## [2026-06-21 eve] 🟢 AUTONOMY LAST-MILE SHIPPED — the approval→apply→commit→revert actuator is LIVE (Phases 1-4 of [GAMMA-AUTONOMY-NEXT-LEVEL-2026-06-21.md](../../markdown/planning/GAMMA-AUTONOMY-NEXT-LEVEL-2026-06-21.md)).
+
+> Built + tested + registered (J: "make it truly autonomous, build it all"). 38 new tests green; fast safety gate green (2s); `Gamma_AutoApply` registered (Ready). Don't rebuild — see [[project_autonomy_actuator_loop]] / `automation/state` memory.
+> - **THE UNBLOCK:** the actuator is exactly what frees `CLAUDE-INDEX-FOLD-BATCH` (the 18 L## folds below). Conductor is rail-4 (can't edit CLAUDE.md) — but it can now emit each fold as a proposal carrying structured **`apply_ops`** (exact find/replace), ping J, and once J replies `ship <id>`, **`Gamma_AutoApply` applies + gate-checks + commits it** (after-hours, $0). No more hand-edit. **NEXT FIRE direction:** re-emit the 18 index folds as ONE batched proposal WITH `apply_ops` (or a few), so J can clear the whole CLAUDE.md-fold debt with a single approve — the first real exercise of the actuator loop.
+> - **Phase 2 gate:** `backtest/tests/run_safety_gate.py` (fast 5-suite, ~2s) now gates every commit (pre-commit hook installed) + every actuator apply. Heavy guards (graduated_guards >180s, state_contracts live-state) are CI/`--full`/GuardsNightly only.
+> - **Phase 3:** `setup/scripts/task_scorer.py` — STAGE 1 now picks by ROI; idle BRAINSTORM now EXECUTES the top candidate (no more add-and-stop).
+> - **Phase 4:** `conductor_outcome.py` → `autonomy-metric.json` (record this each fire, STAGE 5); `lesson_regression_audit.py` files LESSON-REGRESSION items.
+> - **Pre-existing finding (flag, not mine):** `test_state_contracts.py` fails on live `loop-state.json` (`spy.last`/`ribbon` transient runtime shape) — kept OUT of the commit gate; worth a look whether the schema or the writer drifted.
+> - Work shipped UNCOMMITTED (awaiting J's call to commit the baseline).
 
 ---
 
@@ -800,7 +824,7 @@ J directive: "fix all 4 phases... look for any other loose ends like this... whe
 - [2026-06-19 12:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.12% in last 24h (96/102) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
 
 ## Kitchen
-Kitchen: alive, queue 86 pending, last cook 0 min ago, today $0.00, model=grinder-python
+Kitchen: alive, queue 84 pending, last cook 0 min ago, today $0.00, model=nvidia/nemotron-3-super-120b-a12b:free
 
 - [2026-06-19 13:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 94.12% in last 24h (96/102) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
 
@@ -1129,3 +1153,9 @@ Kitchen: alive, queue 86 pending, last cook 0 min ago, today $0.00, model=grinde
 - [2026-06-21 20:27:16] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 90.74% in last 24h (49/54) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
 
 - [2026-06-21 20:57:16] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.27% in last 24h (48/55) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-21 21:27:16] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.5% in last 24h (49/56) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-21 21:57:16] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.72% in last 24h (50/57) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-22 00:05 ET] conductor: OK — LESSON-ENCODE-L179-CROSS-PERSONA-HANDSHAKE — drained the one open _lesson-inbox item; encoded L179 (two-persona authoring handshake silently drops its gated second half; reconcile-with-ratchet doctrine) in LESSONS-LEARNED.md; added 179 to KNOWN_UNINDEXED_BASELINE so the reconciliation ratchet stays honest+green (18/18 tests pass); inbox→.DONE (lesson-inbox now empty); CLAUDE.md C7 fold staged as proposal cd-2026-06-22-001 (rail 4). Engine YELLOW (benign: TV watchdog stale + known crypto single-provider drift artifact, gym overall_pass=True). Next fire: lesson-inbox empty → next ready item is Tier-3 research (RIBBON-SPREAD-PER-TIER-DESIGN / SAFE-VIX-CONDITIONAL-SIZING) or score the backlog via task_scorer.py.
