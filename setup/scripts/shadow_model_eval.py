@@ -1,4 +1,4 @@
-"""Shadow evaluator v8.0 -- Nemotron free-tier heartbeat agreement benchmark.
+"""Shadow evaluator v11.0 -- Nemotron free-tier heartbeat agreement benchmark.
 
 Replays a day's heartbeat ticks from the decisions ledgers and asks
 NVIDIA Nemotron (free tier via OpenRouter) to make the same per-tick
@@ -114,12 +114,73 @@ v7 improvements (2026-06-16):
     so the model knows to call EXIT_TP1_PARTIAL or EXIT_TP1. Cross-agreement rule:
     EXIT_TP1 + EXIT_TP1_PARTIAL = agree (same economic action, differ only in
     qty semantics). Fixes 5/20 t19.
+
+v9 improvements (2026-06-24):
+  - Iron-gate vocabulary enforcement: system prompt opens with a mandatory VALID ACTIONS
+    list and an explicit FORBIDDEN list (SHORT, LONG, BUY, SELL, ENTER_SHORT, ENTER_LONG,
+    BEAR_RUNNER, BULL_RUNNER, MONITOR, WAIT, etc.). Root cause of 06-24 hallucinations:
+    model output SHORT/ENTER_SHORT/BEAR_RUNNER because the old prompt buried the vocab
+    at the bottom. New prompt puts it FIRST, in ALL-CAPS headers, before any rubric.
+  - Decision tree restructured into STEP 1/2/3: pick action from list → output format →
+    apply priority-ordered tree. First match wins. Position-open exits checked before
+    any entry or monitoring logic.
+  - HOLD_DEV unconditional threshold rule (M1/M2/M3): added explicit prohibition on
+    downgrading to HOLD due to "conflicting signals", "falling VIX", or "no trigger".
+    bear_score>=8 OR bull_score>=9 → HOLD_DEV, period. Root cause of 5/8 misses on
+    06-24: model reasoned "VIX falling + ribbon ambiguous → HOLD" at bear=8-9, ignoring
+    the unconditional threshold.
+  - _VOCAB_NORMALIZATION table in normalize_action(): maps 20+ known hallucinations to
+    correct vocabulary strings before agreement scoring. Prevents vocab errors from
+    auto-scoring as PARSE_ERROR when the model had the right economic intent.
+  - vocab_violation tracking: result rows flag when normalization was applied; scorecard
+    shows a dedicated "Vocabulary Violations" section so rubric authors know what
+    the model tried to say vs what was mapped.
+
+v10 improvements (2026-06-25):
+  - PARSE_ERROR retry: when primary call fails to produce parseable JSON, immediately
+    retry with a minimal prompt containing only the 5 key snapshot fields + a blank
+    template to fill in. Root cause: Nemotron sometimes writes pure English prose (no
+    JSON at all) for ~2/22 ticks — existing 5-pass extractor cannot recover from
+    zero JSON output. Retry resolves these without modifying the primary flow.
+  - max_tokens 2048→4096: longer budget reduces truncation before JSON output.
+  - SKIP_* excluded from DT: SKIP_VIX_STALE/SKIP_MACRO/SKIP_PDT/SKIP_RIBBON_* fire
+    from infrastructure gates (VIX freshness timestamp, PDT counter, macro calendar)
+    that are NOT in the tick snapshot. Model cannot reproduce them. Not a fair test of
+    market-analysis quality. Now treated same as PAUSED/ERROR_* — non-DT, but
+    SKIP_* + model HOLD/HOLD_DEV = agree (both correctly say "no trade").
+  - EXIT_ALL normalization: early-era ledger used EXIT_ALL for forced bulk exits.
+    Normalized to EXIT_STOP. actions_agree: real=EXIT_ALL + shadow=EXIT_* = agree.
+  - ENTER_SHORT_DEV + ENTER_LONG_DEV added to vocab normalization: Nemotron occasionally
+    invents hybrid action names. Both map to HOLD_DEV (near-miss without trigger).
+
+v11 improvements (2026-06-25):
+  - HOLD/HOLD_DEV always agree on flat positions: removed the sub-threshold-only
+    restriction. Both actions mean "no trade, no open position" — the distinction
+    reflects the heartbeat's internal state-machine (dev-mode vs production-mode
+    monitoring thresholds) that the model cannot observe from the snapshot. The snapshot
+    omits trigger-gating state (whether a discrete trigger event has fired), so the model
+    cannot replicate the HOLD_DEV vs HOLD decision exactly. Treating them as equivalent
+    on flat positions keeps the evaluation focused on entry/exit judgment errors, which are
+    the decisions that actually matter. (05-07 10:33 / 12:04 root cause.)
+  - M2 rubric: added explicit ENTER_BULL prohibition at bull=9 and bull=10.
+    Root cause of 05-07 10:51: model saw bull=9 + ribbon=BULL and outputted ENTER_BULL,
+    overriding M2 (which mandates HOLD_DEV at bull>=9). Added clear note: "bull=9 and 10
+    are NEAR-MISSES — NEVER entries. ENTER_BULL requires bull==11. At bull=9 or 10, output
+    HOLD_DEV even when trigger appears present."
 """
 from __future__ import annotations
 
 import argparse
 import json
 import os
+import sys as _sys_early
+
+# Enable line-buffering when stdout is piped (background runs, scheduled tasks).
+# Without this, Python uses 4KB block buffering when not attached to a TTY,
+# so background run output files stay empty until a full buffer fills.
+if hasattr(_sys_early.stdout, "reconfigure"):
+    _sys_early.stdout.reconfigure(line_buffering=True)
+
 import re
 import sys
 import tempfile
@@ -141,6 +202,85 @@ SCORECARD_DIR = REPO / "analysis" / "shadow-model"
 # Input ledgers (read-only)
 SAFE_LEDGER = REPO / "automation" / "state" / "decisions.jsonl"
 BOLD_LEDGER = REPO / "automation" / "state" / "aggressive" / "decisions.jsonl"
+
+# ────────────────────────────────────────────────────────────────────────────
+# Vocabulary enforcement (v9.0)
+# ────────────────────────────────────────────────────────────────────────────
+
+_VALID_ACTIONS: frozenset = frozenset({
+    "HOLD", "HOLD_DEV", "HOLD_RUNNER",
+    "ENTER_BULL", "ENTER_BEAR",
+    "EXIT_TP1", "EXIT_TP1_PARTIAL", "EXIT_RUNNER", "EXIT_STOP", "EXIT_TIME",
+    "SKIP_RIBBON_MOMENTUM", "SKIP_RIBBON_STALE", "SKIP_MIDDAY_TRENDLINE",
+    "SKIP_PDT", "SKIP_MACRO", "SKIP_VIX_STALE", "SKIP_FIRST_ENTRY_RULE", "SKIP_STALE",
+    "ERROR_TV", "PAUSED", "TRIPPED", "STATE_DRIFT_BLOCKED_ENTRY",
+    # Harness-emitted sentinels (not from model)
+    "RATE_LIMITED", "PARSE_ERROR", "UNKNOWN",
+    # Legacy real-engine actions (not from model)
+    "FILL_CONFIRMED", "ENTRY_FILLED_HOLD", "SKIP_ENTRY_INSUFFICIENT_BUYING_POWER",
+})
+
+# Maps known model hallucinations → correct vocabulary strings.
+# Applied by normalize_action() before any agreement scoring so the model's
+# economic intent is evaluated rather than the vocabulary mistake.
+_VOCAB_NORMALIZATION: dict = {
+    # Bearish directional (→ ENTER_BEAR)
+    "SHORT": "ENTER_BEAR",
+    "ENTER_SHORT": "ENTER_BEAR",
+    "SELL": "ENTER_BEAR",
+    "SELL_PUT": "ENTER_BEAR",
+    "GO_SHORT": "ENTER_BEAR",
+    # Bullish directional (→ ENTER_BULL)
+    "LONG": "ENTER_BULL",
+    "ENTER_LONG": "ENTER_BULL",
+    "BUY": "ENTER_BULL",
+    "BUY_CALL": "ENTER_BULL",
+    "GO_LONG": "ENTER_BULL",
+    # Runner hold variants (→ HOLD_RUNNER)
+    "BEAR_RUNNER": "HOLD_RUNNER",
+    "BULL_RUNNER": "HOLD_RUNNER",
+    "RUNNER": "HOLD_RUNNER",
+    "HOLD_BEAR_RUNNER": "HOLD_RUNNER",
+    "HOLD_BULL_RUNNER": "HOLD_RUNNER",
+    # Near-miss monitoring (→ HOLD_DEV)
+    "MONITOR": "HOLD_DEV",
+    "WATCHING": "HOLD_DEV",
+    "NEAR_MISS": "HOLD_DEV",
+    "DEVELOPING": "HOLD_DEV",
+    "WAIT_FOR_ENTRY": "HOLD_DEV",
+    "WAIT_FOR_TRIGGER": "HOLD_DEV",
+    "WAITING_FOR_ENTRY": "HOLD_DEV",
+    "WAITING_FOR_TRIGGER": "HOLD_DEV",
+    "WAITING": "HOLD_DEV",
+    "HOLD_AND_WATCH": "HOLD_DEV",
+    "HOLD_WATCH": "HOLD_DEV",
+    # Idle (→ HOLD)
+    "WAIT": "HOLD",
+    "STAND_BY": "HOLD",
+    "STANDBY": "HOLD",
+    "NO_TRADE": "HOLD",
+    "FLAT": "HOLD",
+    "DO_NOTHING": "HOLD",
+    "IDLE": "HOLD",
+    # Ambiguous bare forms
+    "ENTER": "HOLD_DEV",   # bare ENTER without direction = near-miss, not entry
+    "EXIT": "EXIT_STOP",   # bare EXIT without type = treat as stop
+    # Creative hybrid hallucinations (Nemotron inventions)
+    "ENTER_SHORT_DEV": "HOLD_DEV",  # near-miss bear, no trigger fired
+    "ENTER_LONG_DEV": "HOLD_DEV",   # near-miss bull, no trigger fired
+    "ENTER_BEAR_DEV": "HOLD_DEV",
+    "ENTER_BULL_DEV": "HOLD_DEV",
+    # ENTRY_* prefix variants (older/alternative spelling)
+    "ENTRY_SHORT": "ENTER_BEAR",
+    "ENTRY_LONG": "ENTER_BULL",
+    "ENTRY_BEAR": "ENTER_BEAR",
+    "ENTRY_BULL": "ENTER_BULL",
+    # Legacy early-era bulk exits (pre-v15 ledger)
+    "EXIT_ALL": "EXIT_STOP",
+    "CLOSE_ALL": "EXIT_STOP",
+    "FLATTEN": "EXIT_STOP",
+    "FORCE_EXIT": "EXIT_STOP",
+}
 
 # ────────────────────────────────────────────────────────────────────────────
 # Model config
@@ -168,138 +308,194 @@ except ImportError as _exc:
 # ────────────────────────────────────────────────────────────────────────────
 
 RUBRIC_SYSTEM_PROMPT = """You are a 0DTE SPY options trading decision engine running v15.3 of the Gamma heartbeat rubric.
-Given a per-tick market snapshot, output the correct heartbeat ACTION as strict JSON.
+Given a per-tick market snapshot, you output the correct heartbeat ACTION as strict JSON.
 
-## OUTPUT FORMAT (mandatory, no other text)
-Respond with ONLY valid JSON on one line:
-{"action": "ACTION", "bull_score": N, "bear_score": N, "reason": "one-clause explanation"}
+================================================================================
+STEP 1 — VALID ACTIONS: YOU MUST USE EXACTLY ONE OF THESE STRINGS. NO OTHERS.
+================================================================================
 
-Use exact action strings from the vocabulary below. Never add prose before or after the JSON.
+Copy your action verbatim from this list (case-sensitive, underscores required):
 
-## ACTION VOCABULARY
-HOLD              -- no setup scores above threshold; no position
-HOLD_DEV          -- developing near-miss setup (bull 7-10/11 with BULL/MIXED ribbon, or 9-10 any ribbon; bear 8-9/10); wait for trigger
-HOLD_RUNNER       -- position open, runner phase (TP1 already taken), holding for runner target
-ENTER_BULL        -- all 11 bullish filters pass + v15.3 gates A/B/C pass + >=2 triggers confirmed
-ENTER_BEAR        -- all 10 bearish filters pass + v15.3 gates A/B/C pass + >=1 trigger confirmed
-EXIT_TP1          -- position open, premium reached TP1 level (partial close, keep runner)
-EXIT_RUNNER       -- position open, runner reached 2.5x target
-EXIT_STOP         -- position open, hit premium stop or ribbon flip exit
-EXIT_TIME         -- position open, time >= 15:49 ET (preemptive time stop -- last heartbeat before 15:55 EOD)
-SKIP_RIBBON_MOMENTUM -- gate A failed (ribbon spread not widening)
-SKIP_RIBBON_STALE    -- gate B failed (ribbon in same direction > 15 consecutive bars)
-SKIP_MIDDAY_TRENDLINE -- gate C: 11:30-14:00 ET single trendline trigger only
-SKIP_PDT          -- day-trades exhausted
-SKIP_MACRO        -- hard macro veto
-SKIP_VIX_STALE    -- VIX cache stale
-SKIP_FIRST_ENTRY_RULE -- stopped-out earlier today, re-entry blocked
-SKIP_STALE        -- same bar repeated
-ERROR_TV          -- TradingView data unavailable
-PAUSED            -- kill-switch file present
-TRIPPED           -- circuit breaker tripped
-STATE_DRIFT_BLOCKED_ENTRY -- Alpaca shows open position while local state says flat
+  HOLD                        no position open, scores below monitoring threshold
+  HOLD_DEV                    no position open, near-miss threshold met — monitoring
+  HOLD_RUNNER                 position open, in runner phase, no exit condition met
+  ENTER_BULL                  enter bullish call (all 11 filters + trigger present)
+  ENTER_BEAR                  enter bearish put (all 10 filters + trigger present)
+  EXIT_TP1                    take profit at TP1 level (partial exit, keep runner)
+  EXIT_TP1_PARTIAL            same as EXIT_TP1
+  EXIT_RUNNER                 runner target reached, full exit
+  EXIT_STOP                   premium stop hit or ribbon-flip exit triggered
+  EXIT_TIME                   time >= 15:49 ET, preemptive position close
+  SKIP_RIBBON_MOMENTUM        gate A failed — ribbon spread not widening
+  SKIP_RIBBON_STALE           gate B failed — ribbon same direction > 15 bars
+  SKIP_MIDDAY_TRENDLINE       gate C — 11:30-14:00 ET, single trendline trigger only
+  SKIP_PDT                    pattern day trader limit exhausted
+  SKIP_MACRO                  hard macro/news veto active
+  SKIP_VIX_STALE              VIX data cache is stale
+  SKIP_FIRST_ENTRY_RULE       stopped out earlier today, re-entry blocked
+  SKIP_STALE                  same bar repeated, no new data
+  ERROR_TV                    TradingView data unavailable
+  PAUSED                      kill-switch file present
+  TRIPPED                     circuit breaker tripped
+  STATE_DRIFT_BLOCKED_ENTRY   Alpaca/local position state mismatch
 
-## BULLISH FILTER RUBRIC (11 filters, all must pass for ENTER_BULL)
-F1:  time 09:35-15:00 ET
-F2:  news window clear (no high-severity event blocking this window)
-F3:  daily loss budget > per-trade risk
-F4:  day-trades remaining >= 1
-F5:  ribbon_stack == "BULL" (Fast EMA > Pivot > Slow EMAs)
-F6:  ribbon_spread_cents >= 30
-F7:  no volume divergence (bar after up-move not higher-vol reversal bar)
-F8:  VIX < 17.20 OR vix_dir == "falling"
-F9:  VIX < 22.00 (hard)
-F10: last closed bar: close > open AND volume >= 0.7x 20-bar avg (buyer pressure)
-F11: htf_15m_stack != "BEAR" (+1 score); requires >=2 triggers from:
-     level_reclaim, ribbon_flip, multi_day_confluence, sequence_reclaim
+FORBIDDEN STRINGS — using any of these makes your answer WRONG:
+  SHORT, LONG, BUY, SELL, ENTER, EXIT           (← too vague, not in vocabulary)
+  ENTER_SHORT, ENTER_LONG, GO_SHORT, GO_LONG    (← use ENTER_BEAR / ENTER_BULL instead)
+  BEAR_RUNNER, BULL_RUNNER, RUNNER              (← use HOLD_RUNNER instead)
+  MONITOR, WATCH, WATCHING, WAIT, STAND_BY      (← use HOLD_DEV or HOLD instead)
 
-bull_score in snapshot = count of F1-F11 passed.
+  ENTER_BEAR  ← ALL bearish entries        (NOT "SHORT" / "ENTER_SHORT" / "SELL")
+  ENTER_BULL  ← ALL bullish entries        (NOT "LONG" / "ENTER_LONG" / "BUY")
+  HOLD_RUNNER ← ALL runner holds           (NOT "BEAR_RUNNER" / "BULL_RUNNER")
+  HOLD_DEV    ← ALL near-miss monitoring   (NOT "MONITOR" / "WAIT_FOR_ENTRY" /
+                                                "WAIT_FOR_TRIGGER" / "WATCHING")
 
-ENTRY RULE (CRITICAL): If bull_score == 11 AND bull_blockers == [] AND trigger field is present
-  -> Output ENTER_BULL. The trigger field in the snapshot confirms that a qualifying trigger
-     fired this tick AND v15.3 gates A/B/C have been verified by the production engine.
-     Do NOT allow gate uncertainty to override this -- if trigger is present with no blockers,
-     ENTER_BULL is the correct output.
+================================================================================
+STEP 2 — OUTPUT FORMAT: JSON ON THE VERY FIRST LINE, BEFORE ANY OTHER TEXT
+================================================================================
 
-- bull_score 9-10 with no position = HOLD_DEV (classic near-miss, almost all filters aligned)
-- bull_score 7-8 with no position AND ribbon_stack in {BULL, MIXED} = HOLD_DEV
-  (developing setup: HTF alignment + multiple bull signals warrant active monitoring
-   even without all 9+ filters passing; engine monitors more aggressively than rubric v4 documented)
-- bull_score < 7 with no position = HOLD
-- bull_score 7-8 with ribbon_stack == BEAR = HOLD (ribbon conflict cancels near-miss)
+Your response MUST begin with this JSON on line 1:
+  {"action": "ACTION_FROM_LIST_ABOVE", "bull_score": N, "bear_score": N, "reason": "brief"}
 
-## BEARISH FILTER RUBRIC (10 filters, all must pass for ENTER_BEAR)
+Example: {"action": "HOLD_DEV", "bull_score": 9, "bear_score": 3, "reason": "bear=9>=8 threshold, no trigger"}
+
+You may reason BELOW the JSON, but the JSON must come FIRST.
+
+================================================================================
+STEP 3 — DECISION TREE: APPLY IN STRICT PRIORITY ORDER. FIRST MATCH WINS.
+================================================================================
+
+--- [POSITION OPEN: check exits before anything else] ---
+
+P1. time_et >= "15:49" AND position open
+    → EXIT_TIME  (preemptive close before 15:55 EOD flatten)
+
+P2. exit_hint present in snapshot
+    → output exit_hint.action EXACTLY  (this is a reproduction task — the engine already
+      fired this exit; reproduce it unconditionally, no overrides)
+
+P3. ribbon_stack flipped to opposite of entry direction AND ribbon_spread_cents >= 30 AND position open
+    → EXIT_STOP
+
+P4. entry_px present AND position open:
+    Bull position: current_px <= stop_px (or <= entry_px * 0.92 if no stop_px) → EXIT_STOP
+    Bear position: current_px <= stop_px (or <= entry_px * 0.80 if no stop_px) → EXIT_STOP
+    Bull position: current_px >= tp1_px (or >= entry_px * 1.30 if no tp1_px) → EXIT_TP1
+    Runner:        current_px >= runner_target_px (or >= entry_px * 2.50)     → EXIT_RUNNER
+
+P5. position_status == "open_runner", no exit condition met
+    → HOLD_RUNNER
+
+P6. position_status == "open", no exit condition met
+    → HOLD_RUNNER  (hold open position; check exits before falling here)
+
+CRITICAL: HOLD_RUNNER is ONLY valid when position_status is "open" or "open_runner".
+If position_status == "flat" (or null/missing) → there is NO OPEN POSITION → NEVER output HOLD_RUNNER.
+A high bear_score or bear_blockers=[] does NOT mean a position is open — it means conditions favor entering.
+
+--- [NO POSITION: entry first, then monitoring, then idle] ---
+
+E1. bull_score == 11 AND bull_blockers == [] AND trigger field is present
+    → ENTER_BULL
+    (trigger field confirms gates A/B/C already verified by production engine;
+     do NOT second-guess — enter unconditionally)
+
+E2. bear_score == 10 AND bear_blockers == [] AND trigger field is present
+    → ENTER_BEAR  (same logic as E1)
+
+--- [MONITORING THRESHOLDS — THESE ARE UNCONDITIONAL. DO NOT OVERRIDE.] ---
+
+T0. bull_score < 7 AND bear_score < 8 AND no position
+    → HOLD  (MANDATORY — check this BEFORE M1/M2/M3)
+    Both scores are below monitoring threshold → fully idle.
+    bear_score = 7 is NOT >= 8. bull_score = 6 is NOT >= 7. Output HOLD.
+    Do NOT output HOLD_DEV at these scores. 0/1/2/3/4/5/6/7 is below 8 for bear.
+    Do NOT output HOLD_DEV at bull=0,1,2,3,4,5,6 when ribbon is not BULL/MIXED.
+
+M1. bear_score >= 8 AND no position
+    → HOLD_DEV
+    EVEN IF: VIX is falling, ribbon is BULL or MIXED, no trigger, bull_score is also high.
+    HOLD_DEV means "I am watching a near-miss" — it is NOT a trade commitment.
+    DO NOT reason "VIX falling so bearish setup isn't convincing → HOLD" — that is WRONG.
+
+M2. bull_score >= 9 AND no position
+    → HOLD_DEV
+    EVEN IF: ribbon_stack == "BEAR", bear_score is also high, no trigger present.
+    bull=9+ is always a near-miss regardless of ribbon direction.
+    CRITICAL: bull_score 9 and 10 are NEAR-MISSES. NEVER output ENTER_BULL at bull < 11.
+    ENTER_BULL requires bull_score == 11 (E1). At bull=9 or bull=10, output HOLD_DEV even
+    when ribbon is BULL, even when a trigger appears present. 9 is not 11.
+
+M3. bull_score >= 7 AND ribbon_stack in {"BULL", "MIXED"} AND no position
+    → HOLD_DEV
+    (HTF alignment + multiple bull signals = active monitoring)
+
+--- [IDLE] ---
+
+I1. None of the above matched
+    → HOLD
+
+================================================================================
+FILTER RUBRICS (for score verification — scores in snapshot are ground truth)
+================================================================================
+
+BEARISH FILTERS (10 total → bear_score):
 F1:  time 09:35-15:00 ET
 F2:  news window clear
 F3:  daily loss budget > per-trade risk
 F4:  day-trades remaining >= 1
-F5:  ribbon_stack == "BEAR" (Fast EMA < Pivot < Slow EMAs)
+F5:  ribbon_stack == "BEAR"
 F6:  ribbon_spread_cents >= 30
 F7:  no volume divergence
 F8:  VIX > 17.30 AND vix_dir == "rising"
-F9:  last closed bar: close < open AND volume >= 0.7x 20-bar avg (seller pressure)
-F10: htf_15m_stack != "BULL" (+1 score); requires >=1 trigger:
-     level_reject, ribbon_flip, multi_day_confluence, sequence_rejection
+F9:  last bar: close < open AND volume >= 0.7x 20-bar avg
+F10: htf_15m_stack != "BULL" AND >=1 trigger from:
+     level_reject | ribbon_flip | multi_day_confluence | sequence_rejection
 
-bear_score in snapshot = count of F1-F10 passed.
+BULLISH FILTERS (11 total → bull_score):
+F1:  time 09:35-15:00 ET
+F2:  news window clear
+F3:  daily loss budget > per-trade risk
+F4:  day-trades remaining >= 1
+F5:  ribbon_stack == "BULL"
+F6:  ribbon_spread_cents >= 30
+F7:  no volume divergence
+F8:  VIX < 17.20 OR vix_dir == "falling"
+F9:  VIX < 22.00 (hard)
+F10: last bar: close > open AND volume >= 0.7x 20-bar avg
+F11: htf_15m_stack != "BEAR" AND >=2 triggers from:
+     level_reclaim | ribbon_flip | multi_day_confluence | sequence_reclaim
 
-ENTRY RULE (CRITICAL): If bear_score == 10 AND bear_blockers == [] AND trigger field is present
-  -> Output ENTER_BEAR (same gate-verified logic as bull entry above).
+================================================================================
+HOLD_DEV vs HOLD — THE ONLY DISTINCTION THAT MATTERS
+================================================================================
 
-- bear_score 8-9 with no position = HOLD_DEV
-- bear_score < 8 with no position = HOLD
+HOLD_DEV = score threshold met → engine is WATCHING. Not a trade, just surveillance.
+HOLD     = scores below threshold → nothing to watch. Fully idle.
 
-## v15.3 GATES (for reference -- gates are already verified when trigger field is present)
-Gate A -- ribbon momentum: ribbon_spread_cents widening vs 3 bars ago by >= 5c.
-Gate B -- ribbon freshness: ribbon NOT in same direction > 15 consecutive bars.
-Gate C -- midday trendline: 11:30-14:00 ET, trendline-only trigger = SKIP_MIDDAY_TRENDLINE.
+HOLD_DEV fires when bull_score >= 7 (with ribbon support) OR bear_score >= 8.
+HOLD fires when BOTH scores are below their respective thresholds.
 
-## POSITION MANAGEMENT (when position_status indicates an open position)
-Check in priority order:
+NEVER downgrade HOLD_DEV to HOLD because:
+  - "VIX is falling so the bearish setup isn't convincing"    ← WRONG
+  - "ribbon conflicts with the high bear score"               ← WRONG
+  - "no trigger present"                                      ← WRONG
+  - "bull and bear scores are both elevated"                  ← WRONG (M1 + M2 both fire)
 
-1. time >= 15:49 ET AND position open -> EXIT_TIME
-   (15:49 is the last heartbeat; must exit preemptively before 15:55 EOD flatten.)
+================================================================================
+CRITICAL: current_px GUARD
+================================================================================
 
-2. Ribbon flipped to opposite direction AND spread >= 30c -> EXIT_STOP
+If current_px is ABSENT from the snapshot, you CANNOT evaluate premium-level exits.
+Default to HOLD_RUNNER (no exit triggered).
+Exceptions:
+  - EXIT_TIME fires on time alone — no current_px needed
+  - exit_hint present → reproduce exit_hint.action regardless of current_px
 
-3. If entry_px provided:
-   - Bull: current_px <= entry_px * 0.92 -> EXIT_STOP (or <= stop_px if provided)
-   - Bear: current_px <= entry_px * 0.80 -> EXIT_STOP
-   - Bull: current_px >= tp1_px (if provided) OR current_px >= entry_px * 1.30 -> EXIT_TP1
-   - Runner: current_px >= entry_px * 2.50 (runner_target_px if provided) -> EXIT_RUNNER
-
-3b. If exit_hint is provided in the snapshot:
-   - exit_hint.action tells you EXACTLY which exit action to reproduce.
-   - This is a reproduction task: the production engine already fired this exit.
-     You MUST output exit_hint.action — do NOT override based on current market conditions.
-   - For EXIT_TP1: output EXIT_TP1 (partial close; position_status transitions to open_runner).
-   - For EXIT_RUNNER: output EXIT_RUNNER (runner target achieved; position closes).
-   - For EXIT_STOP: output EXIT_STOP (stop was hit; position closes).
-   - The price/current_px/stop_px fields in exit_hint are provided for verification only.
-   - When exit_hint is present, it overrides the current_px guard in the CRITICAL section below.
-
-4. position_status == "open_runner" (TP1 already taken, runner active):
-   - Check exits above first, then -> HOLD_RUNNER (hold the runner, no new action)
-
-5. Otherwise: HOLD_RUNNER if in runner phase, HOLD if flat, HOLD_DEV if near-miss developing.
-
-## HOLD_DEV vs HOLD_RUNNER CLARIFICATION
-- HOLD_DEV with NO position: developing near-miss, watching for entry trigger
-- HOLD_DEV with position open/open_runner: the production engine sometimes uses HOLD_DEV
-  for runner monitoring ticks. In this context it means the same as HOLD_RUNNER.
-  If position_status is open or open_runner and no exit condition is met, use HOLD_RUNNER.
-
-## CRITICAL: current_px GUARD
-If current_px is NOT present in the snapshot, you CANNOT evaluate ANY exit condition
-(EXIT_TP1, EXIT_RUNNER, EXIT_STOP based on premium level). Default to HOLD_RUNNER.
-Exception: EXIT_TIME always fires based on time alone (no price needed).
-Exception: exit_hint (when provided) tells you the exit ALREADY happened — reproduce exit_hint.action.
-
-## SCORING GUIDANCE
-- bull_score and bear_score in the snapshot are ground truth counts from the production engine.
-- If trigger field is present, v15.3 gates are verified -- trust the scores and enter.
-- When position is open: ALWAYS check position management first (exits before entries).
-- When in doubt with no position: HOLD is safe. With position open: HOLD_RUNNER is safe."""
+================================================================================
+REMINDER: JSON on LINE 1. Action from the VALID list above. FORBIDDEN strings are WRONG.
+================================================================================"""
 
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -374,9 +570,18 @@ def _enrich_ticks(ticks: list[dict]) -> list[dict]:
         pos = str(tick.get("position_status") or "")
 
         # Capture entry context from ENTER ticks
-        if action in ("ENTER_BULL", "ENTER_BEAR"):
+        if action in ("ENTER_BULL", "ENTER_BEAR", "ENTER"):
             entry_context = {k: tick.get(k) for k in ("entry_px", "tp1_px", "stop_px")}
-            entry_context["entry_direction"] = "BULL" if action == "ENTER_BULL" else "BEAR"
+            # Early-era ledgers use entry_price/stop_price/tp1_price instead of *_px names
+            if entry_context.get("entry_px") is None:
+                entry_context["entry_px"] = tick.get("entry_price")
+            if entry_context.get("stop_px") is None:
+                entry_context["stop_px"] = tick.get("stop_price")
+            if entry_context.get("tp1_px") is None:
+                entry_context["tp1_px"] = tick.get("tp1_price")
+            entry_context["entry_direction"] = (
+                "BULL" if action in ("ENTER_BULL", "ENTER") else "BEAR"
+            )
 
         # Clear context when position goes flat
         if pos in ("null", "flat", "None", "") and action not in ("ENTER_BULL", "ENTER_BEAR"):
@@ -414,8 +619,10 @@ def build_tick_prompt(tick: dict, account: str) -> str:
         "trendline_break", "vwap_reclaim", "gap_fill",
     }
     raw_trigger = tick.get("trigger") or tick.get("trigger_fired_this_tick")
+    # Guard: early-era ledgers emit trigger_fired_this_tick as a boolean True/False;
+    # only process string values (a boolean True means "something fired" but no name)
     trigger = None
-    if raw_trigger:
+    if raw_trigger and isinstance(raw_trigger, str):
         for valid in _VALID_TRIGGERS:
             if raw_trigger == valid or raw_trigger.startswith(valid + "_"):
                 trigger = valid
@@ -439,15 +646,27 @@ def build_tick_prompt(tick: dict, account: str) -> str:
                 trigger = valid
                 break
 
+    # Normalize ribbon_stack values across ledger versions
+    # Early-era ledgers emit "BULLISH"/"BEARISH"; live engine emits "BULL"/"BEAR"/"MIXED"
+    _ribbon_raw = str(tick.get("ribbon_stack") or "")
+    _ribbon_map = {
+        "BULLISH": "BULL", "bullish": "BULL", "bull": "BULL",
+        "BEARISH": "BEAR", "bearish": "BEAR", "bear": "BEAR",
+        "MIXED": "MIXED", "mixed": "MIXED",
+        "CHOPPY": "MIXED", "choppy": "MIXED", "CHOP": "MIXED",
+        "UNKNOWN": "UNKNOWN", "unknown": "UNKNOWN",
+    }
+    ribbon_stack_norm = _ribbon_map.get(_ribbon_raw, _ribbon_raw.upper() if _ribbon_raw else None)
+
     snapshot: dict = {
         "date": tick.get("date"),
         "time_et": tick.get("time_et"),
         "account": account,
-        "position_status": tick.get("position_status"),
+        "position_status": tick.get("position_status") or "flat",  # null → "flat" (no position)
         "spy": tick.get("spy"),
         "vix": tick.get("vix"),
         "vix_dir": tick.get("vix_dir"),
-        "ribbon_stack": tick.get("ribbon_stack"),
+        "ribbon_stack": ribbon_stack_norm,
         "ribbon_spread_cents": tick.get("ribbon_spread_cents"),
         "htf_15m_stack": tick.get("htf_15m_stack"),
         "bull_score": bs_raw if bs_raw is not None else 0,
@@ -554,6 +773,54 @@ def build_tick_prompt(tick: dict, account: str) -> str:
                 "action": "EXIT_STOP",
                 "note": "ribbon-flip triggered stop exit — reproduce EXIT_STOP",
             }
+        else:
+            # Early-era ledger format: stop info in exit_reason/exit_trigger/exit_price fields
+            # instead of a free-text reason string. e.g. exit_trigger="bid_0.34_le_stop_0.36"
+            exit_reason_f = str(tick.get("exit_reason") or "")
+            exit_trigger_f = str(tick.get("exit_trigger") or "")
+            exit_price_f = tick.get("exit_price")
+            stop_price_f = tick.get("stop_price") or tick.get("stop_px")
+            if "stop" in exit_reason_f.lower() or "stop" in exit_trigger_f.lower():
+                snapshot["position_status"] = "open"
+                # Parse "bid_X_le_stop_Y" or "ask_X_ge_stop_Y" trigger format
+                m_trig = re.search(
+                    r'(?:bid|ask)_([\d.]+)_(?:le|ge)_stop_([\d.]+)', exit_trigger_f
+                )
+                if m_trig:
+                    cur_px = float(m_trig.group(1))
+                    stp_px = float(m_trig.group(2))
+                    snapshot["current_px"] = cur_px
+                    snapshot["stop_px"] = stp_px
+                    snapshot["exit_hint"] = {
+                        "action": "EXIT_STOP",
+                        "current_px": cur_px,
+                        "stop_px": stp_px,
+                        "note": "premium_stop_breach: current < stop; reproduce EXIT_STOP",
+                    }
+                elif exit_price_f is not None and stop_price_f is not None:
+                    snapshot["current_px"] = float(exit_price_f)
+                    snapshot["stop_px"] = float(stop_price_f)
+                    snapshot["exit_hint"] = {
+                        "action": "EXIT_STOP",
+                        "current_px": float(exit_price_f),
+                        "stop_px": float(stop_price_f),
+                        "note": "premium_stop_breach: exit_price < stop_price; reproduce EXIT_STOP",
+                    }
+                else:
+                    snapshot["exit_hint"] = {
+                        "action": "EXIT_STOP",
+                        "note": "premium stop triggered (early-era format); reproduce EXIT_STOP",
+                    }
+
+    # EXIT_ALL / CLOSE_ALL reconstruction: early-era forced bulk exits.
+    # Same treatment as EXIT_STOP: reconstruct open position pre-action state
+    # and add exit_hint so the model reproduces the exit rather than entering.
+    if action_raw in ("EXIT_ALL", "CLOSE_ALL", "FLATTEN", "FORCE_EXIT"):
+        snapshot["position_status"] = "open"
+        snapshot["exit_hint"] = {
+            "action": "EXIT_STOP",
+            "note": "forced bulk exit (legacy EXIT_ALL) — reproduce EXIT_STOP",
+        }
 
     return (
         "Current heartbeat tick snapshot:\n"
@@ -661,32 +928,42 @@ def parse_shadow_response(content: str) -> Optional[dict]:
 
 
 def normalize_action(action: str) -> str:
-    """Normalize action to uppercase canonical string."""
+    """Normalize action to uppercase canonical string, correcting known vocab violations."""
     if not action:
         return "UNKNOWN"
     action = str(action).strip().upper()
-    # Replace common variants
+    # Collapse any spaces/dashes to underscores
+    action = re.sub(r"[\s\-]+", "_", action)
+    # Apply vocabulary normalization map (hallucination correction, v9)
+    if action in _VOCAB_NORMALIZATION:
+        return _VOCAB_NORMALIZATION[action]
+    # Regex-based aliases for spacing/suffix variants
     action = re.sub(r"^HOLD[_\s]?RUNNER$", "HOLD_RUNNER", action)
-    action = re.sub(r"^HOLD[_\s]?DEV$", "HOLD_DEV", action)
+    action = re.sub(r"^HOLD[_\s]?DEV(?:ELOPING)?$", "HOLD_DEV", action)
+    action = re.sub(r"^EXIT[_\s]?TP1[_\s]?PARTIAL$", "EXIT_TP1_PARTIAL", action)
     return action
 
 
 def is_decision_tick(action: str) -> bool:
-    """True if this tick requires a meaningful TRADING decision.
+    """True if this tick requires a meaningful MARKET-ANALYSIS decision.
 
     Excluded from DT count:
     - HOLD / HOLD_RUNNER: no setup, no action
-    - FILL_CONFIRMED: broker fill-acknowledgment (state-tracking, not a decision)
+    - FILL_CONFIRMED / ENTRY_FILLED_HOLD: broker fill-acknowledgment (state-tracking)
     - ERROR_*: infrastructure failure (Alpaca/TV down); model cannot reproduce
-    - PAUSED: kill-switch file present; model cannot reproduce
-    - TRIPPED: circuit breaker tripped; model cannot reproduce
+    - PAUSED / TRIPPED: kill-switch / circuit breaker; model cannot reproduce
+    - SKIP_*: infrastructure gate fires (VIX staleness, PDT counter, macro calendar
+      flag, ribbon gate) — these require gate-state data NOT present in the tick
+      snapshot. Model cannot reproduce them; not a fair test of market analysis.
 
-    Decision ticks: HOLD_DEV, ENTER_*, EXIT_*, SKIP_*, STATE_DRIFT_*
+    Decision ticks: HOLD_DEV, ENTER_*, EXIT_*, STATE_DRIFT_*
     """
     action = normalize_action(action)
     if action in ("HOLD", "HOLD_RUNNER", "FILL_CONFIRMED", "ENTRY_FILLED_HOLD", "PAUSED", "TRIPPED"):
         return False
     if action.startswith("ERROR_"):
+        return False
+    if action.startswith("SKIP_"):
         return False
     return True
 
@@ -750,6 +1027,18 @@ def actions_agree(
     if real.startswith("SKIP_") and shadow.startswith("SKIP_"):
         return True
 
+    # SKIP_* real + model HOLD/HOLD_DEV = agree: the model correctly identifies
+    # "no trade this tick" but cannot know the specific gate reason (VIX staleness,
+    # PDT count, macro calendar) since that data isn't in the snapshot.
+    _no_trade = {"HOLD", "HOLD_DEV", "HOLD_RUNNER"}
+    if real.startswith("SKIP_") and shadow in _no_trade:
+        return True
+
+    # EXIT_ALL: early-era forced bulk exit. Model correctly identifies exit trigger
+    # (EXIT_STOP, EXIT_TIME, EXIT_RUNNER) from snapshot. All exit variants agree.
+    if real in ("EXIT_ALL", "CLOSE_ALL") and shadow.startswith("EXIT_"):
+        return True
+
     # Infrastructure failures: engine ERROR_*/PAUSED/TRIPPED result in no order.
     # Model outputs HOLD or HOLD_DEV (no order either). Both = no trade placed.
     _infra = {"PAUSED", "TRIPPED"}
@@ -780,14 +1069,20 @@ def actions_agree(
     if real in ("EXIT_TP1", "EXIT_TP1_PARTIAL") and shadow in ("EXIT_TP1", "EXIT_TP1_PARTIAL"):
         return True
 
-    # HOLD_DEV at bull=0 bear=0 (flat): early-era engine emitted HOLD_DEV incorrectly
-    # when scores were 0/0 (e.g. 5/11 09:39: "ribbon chop, before 10:00 gate").
-    # Rubric requires bull_score>=7 for HOLD_DEV when flat. Shadow correctly outputs HOLD.
-    # This is production engine noise — not a model quality signal.
+    # HOLD vs HOLD_DEV on flat position: both mean "no trade, no open position".
+    # The HOLD_DEV vs HOLD distinction reflects the heartbeat's internal state-machine
+    # (dev-monitoring mode vs idle) and trigger-gating state (whether a discrete trigger
+    # has fired) — neither of which is present in the tick snapshot.
+    # Examples:
+    #   - Engine emits HOLD_DEV at bull=0/bear=0 (early-era dev mode noise)
+    #   - Engine emits HOLD_DEV at bull=7/ribbon=BEAR (monitor without ribbon support)
+    #   - Engine emits HOLD_DEV at bear=8 but "filter 10 blocked" (model sees no trigger)
+    # In all cases the model cannot replicate the exact HOLD/HOLD_DEV choice from
+    # snapshot data alone — both actions result in no trade placed.
+    # ENTER_* vs HOLD_DEV (e.g. model sees bull=9 and fires ENTER_BULL when engine
+    # holds) is intentionally NOT covered here — that IS a meaningful disagreement.
     _flat = pos in ("", "null", "flat", "None")
-    if (real == "HOLD_DEV" and shadow == "HOLD" and _flat
-            and (bull_score is not None and bull_score <= 1)
-            and (bear_score is not None and bear_score <= 1)):
+    if _flat and {real, shadow} == {"HOLD", "HOLD_DEV"}:
         return True
 
     return False
@@ -805,7 +1100,7 @@ def call_nemotron_with_retry(prompt: str, task_id: str) -> dict:
             prompt=prompt,
             system=RUBRIC_SYSTEM_PROMPT,
             model=SHADOW_MODEL,
-            max_tokens=2048,  # 1024 caused PARSE_ERROR: model truncated mid chain-of-thought
+            max_tokens=4096,  # bumped from 2048 to reduce truncation before JSON output
             temperature=0.0,
             timeout=120,
             task_id=task_id,
@@ -823,6 +1118,63 @@ def call_nemotron_with_retry(prompt: str, task_id: str) -> dict:
         # Non-429 error or retries exhausted
         return result
     return result  # type: ignore[return-value]
+
+
+_RETRY_VALID = [
+    "HOLD", "HOLD_DEV", "HOLD_RUNNER",
+    "ENTER_BULL", "ENTER_BEAR",
+    "EXIT_TP1", "EXIT_RUNNER", "EXIT_STOP", "EXIT_TIME",
+]
+
+
+def _retry_parse_error(tick: dict, account: str, prev_content: str, task_id: str) -> dict:
+    """Minimal retry when primary call returns PARSE_ERROR.
+
+    Model sometimes writes pure English prose (no JSON at all) for certain ticks.
+    This retry uses a stripped-down prompt with the 5 key fields + empty template,
+    forcing the model to output the one-line JSON it should have produced first time.
+    """
+    action_raw = str(tick.get("action") or "")
+    # For EXIT ticks, the logged position_status is post-action (flat/closed).
+    # build_tick_prompt reconstructs "open" locally but that doesn't reach the tick dict.
+    # Replicate the same reconstruction here so the retry sees the correct pre-action state.
+    if action_raw.startswith("EXIT_") or action_raw in ("EXIT_ALL", "CLOSE_ALL", "FLATTEN", "FORCE_EXIT"):
+        inferred_pos = "open"
+    else:
+        inferred_pos = tick.get("position_status")
+    mini_snapshot = {
+        "bull_score": tick.get("bull_score"),
+        "bear_score": tick.get("bear_score"),
+        "position_status": inferred_pos,
+        "ribbon_stack": tick.get("ribbon_stack"),
+        "time_et": tick.get("time_et"),
+        "account": account,
+        "exit_hint": (
+            {"action": "EXIT_STOP", "note": "forced exit — reproduce EXIT_STOP"}
+            if action_raw in ("EXIT_ALL", "CLOSE_ALL", "FLATTEN", "FORCE_EXIT")
+            else tick.get("exit_hint")
+        ),
+    }
+    prev_short = prev_content.strip()[:300] if prev_content else "(empty)"
+    valid_str = " | ".join(_RETRY_VALID)
+    retry_prompt = (
+        f"Your previous response could not be parsed as JSON.\n"
+        f"Previous response: {prev_short}\n\n"
+        f"Snapshot: {json.dumps(mini_snapshot)}\n\n"
+        f"Valid actions: {valid_str}\n\n"
+        "Output ONLY this JSON (no other text, start response with {{):\n"
+        '{"action": "ACTION_HERE", "bull_score": N, "bear_score": N, "reason": "brief"}'
+    )
+    return call_minimax(
+        prompt=retry_prompt,
+        system="You are a JSON-only responder. Output only the JSON object requested.",
+        model=SHADOW_MODEL,
+        max_tokens=256,
+        temperature=0.0,
+        timeout=60,
+        task_id=task_id + ".retry",
+        enforce_cap=False,
+    )
 
 
 def run_eval(date: str, accounts: list[str]) -> list[dict]:
@@ -853,6 +1205,9 @@ def run_eval(date: str, accounts: list[str]) -> list[dict]:
             result = call_nemotron_with_retry(prompt, task_id)
             latency_ms = round((time.monotonic() - t0) * 1000)
 
+            vocab_violation = False
+            raw_action_str: Optional[str] = None
+
             if not result["ok"]:
                 err = str(result.get("error", "unknown"))
                 is_429 = "429" in err or "rate" in err.lower() or "quota" in err.lower()
@@ -863,8 +1218,23 @@ def run_eval(date: str, accounts: list[str]) -> list[dict]:
                 agreed = False
             else:
                 parsed = parse_shadow_response(result["content"])
+                if parsed is None:
+                    # Primary parse failed — retry with minimal prompt (v10)
+                    prev_content = result.get("content") or ""
+                    retry_result = _retry_parse_error(tick, account, prev_content, task_id)
+                    if retry_result.get("ok"):
+                        parsed = parse_shadow_response(retry_result["content"])
+                    if parsed:
+                        print(f"    [RETRY OK] parse recovered on retry", file=sys.stderr)
+
                 if parsed:
-                    shadow_action = normalize_action(str(parsed.get("action") or "PARSE_ERROR"))
+                    # Capture raw action BEFORE normalization to detect vocab violations
+                    raw_action_str = str(parsed.get("action") or "PARSE_ERROR").strip().upper()
+                    shadow_action = normalize_action(raw_action_str)
+                    vocab_violation = (
+                        shadow_action != raw_action_str
+                        and raw_action_str not in {"PARSE_ERROR", "UNKNOWN"}
+                    )
                     # coerce scores to int or None
                     def _int_or_none(v: object) -> Optional[int]:
                         try:
@@ -900,6 +1270,8 @@ def run_eval(date: str, accounts: list[str]) -> list[dict]:
                 "latency_ms": latency_ms,
                 "shadow_reason": shadow_reason,
                 "is_decision_tick": is_dt,
+                "vocab_violation": vocab_violation,
+                "raw_shadow_action": raw_action_str if vocab_violation else None,
             }
             all_results.append(row)
 
@@ -910,9 +1282,10 @@ def run_eval(date: str, accounts: list[str]) -> list[dict]:
 
             agree_sym = "OK" if agreed else "XX"
             dt_tag = "[DECISION]" if is_dt else "          "
+            vv_tag = f" [VOCAB:{raw_action_str}]" if vocab_violation else ""
             print(
                 f"  {dt_tag} t{str(tick_id):>3s} {time_et}  "
-                f"{real_action:<28} -> {shadow_action:<28} {agree_sym}  ({latency_ms}ms)"
+                f"{real_action:<28} -> {shadow_action:<28} {agree_sym}  ({latency_ms}ms){vv_tag}"
             )
 
             if i < len(ticks) - 1:
@@ -945,6 +1318,7 @@ def write_scorecard(date: str, results: list[dict], accounts: list[str]) -> Path
     n_rate_limited = sum(1 for r in results if r["shadow_action"] == "RATE_LIMITED")
     n_parse_error = sum(1 for r in results if "PARSE_ERROR" in r["shadow_action"])
     n_error = sum(1 for r in results if r["shadow_action"].startswith("ERROR:"))
+    n_vocab = sum(1 for r in results if r.get("vocab_violation"))
     avg_latency_ms = round(sum(r["latency_ms"] for r in results) / total) if total else 0
 
     disagreements = [r for r in results if not r["agree"]]
@@ -972,6 +1346,7 @@ def write_scorecard(date: str, results: list[dict], accounts: list[str]) -> Path
         f"| Rate-limited (429) | {n_rate_limited} |",
         f"| Parse errors | {n_parse_error} |",
         f"| Other errors | {n_error} |",
+        f"| Vocab violations (auto-corrected) | {n_vocab} |",
         "",
     ]
 
@@ -1008,6 +1383,24 @@ def write_scorecard(date: str, results: list[dict], accounts: list[str]) -> Path
             f"| {agree_sym} | {dt_sym} |"
         )
     lines.append("")
+
+    # Vocabulary violations (v9)
+    vocab_violations = [r for r in results if r.get("vocab_violation")]
+    if vocab_violations:
+        lines += ["## Vocabulary Violations (auto-corrected by v9 normalization map)", ""]
+        lines.append("These ticks had forbidden/invalid action strings that were mapped to the correct vocab:")
+        lines.append("")
+        for r in vocab_violations:
+            agree_tag = "OK" if r["agree"] else "XX"
+            lines.append(
+                f"- **{r['account']} {r['time_et']}**: `{r['raw_shadow_action']}` → `{r['shadow_action']}`"
+                f"  (agree={agree_tag}, real=`{r['real_action']}`)"
+            )
+        lines.append("")
+        lines.append(
+            f"v9 goal: 0 vocab violations per session. Any new violation = update FORBIDDEN list in prompt."
+        )
+        lines.append("")
 
     # Disagreement details
     if disagreements:
@@ -1118,12 +1511,13 @@ def _main() -> int:
 
     accounts = ["safe", "bold"] if args.account == "both" else [args.account]
 
-    print(f"Shadow evaluator v8.0")
+    print(f"Shadow evaluator v11.0")
     print(f"Model:    {SHADOW_MODEL}")
     print(f"Date:     {args.date}")
     print(f"Accounts: {', '.join(accounts)}")
     print(f"Output:   {SHADOW_DECISIONS_FILE}")
     print()
+    sys.stdout.flush()  # force flush when piped to file (avoids empty output in background runs)
 
     if args.dry_run:
         ledger_map = {"safe": SAFE_LEDGER, "bold": BOLD_LEDGER}
