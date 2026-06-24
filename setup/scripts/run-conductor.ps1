@@ -43,6 +43,19 @@ if ((Test-WeekDay -Et $et) -and (Test-MarketHours -Et $et -StartHour 9 -StartMin
 
 Write-TaskLog -TaskName $task -Message ("conductor: START (" + $et.ToString("yyyy-MM-dd HH:mm") + " ET)")
 
+# --- L181 RETENTION AUTOWIRE (self-executing, after-hours only) -----------------
+# STATUS.md silently regrows past the ~25K-token Read cap between fires -- the
+# 06-22 + 06-24 manual trims each regrew within hours (commit a795fc3 BUILT the
+# durable guard; this call makes it run without a fire having to NOTICE + run it).
+# status_retention.py is idempotent (no-op when under budget), fail-open (never
+# throws), and atomic-write -- safe to call on every after-hours conductor wake.
+# Runs AFTER the rail-1 gate (after-hours only) and BEFORE the claude launch so
+# THIS fire reads a freshly-trimmed STATUS. CREATE_NO_WINDOW (no flash, OP-27 L42).
+try {
+    $null = Invoke-PythonHidden -ScriptPath "setup\scripts\status_retention.py" `
+        -ArgList @() -TaskName "status-retention" -TimeoutSec 30
+} catch { }
+
 $promptFile = Join-Path $projectRoot "automation\prompts\conductor.md"
 if (-not (Test-Path $promptFile)) {
     Write-TaskLog -TaskName $task -Message "conductor: ERROR conductor.md missing at $promptFile"
@@ -50,12 +63,21 @@ if (-not (Test-Path $promptFile)) {
 }
 
 # Opus -- the conductor's job is hard reasoning (single highest-leverage item +
-# is it safe to ship). One bounded fire; ~$1.50 budget cap. AgentName=gamma loads
-# Manager-mode persona context. Retry wrapper handles rate-limit skip-ahead.
+# is it safe to ship). AgentName=gamma loads Manager-mode persona context. Retry
+# wrapper handles rate-limit skip-ahead.
+# BUDGET (2026-06-20): raised 1.50 -> 10.00. The FIRST live fire aborted at t+1s
+# with "Exceeded USD budget (1.5)" having done ZERO work -- same failure class as
+# run-heartbeat.ps1:163. --max-budget-usd counts CUMULATIVE input tokens (cache
+# reads + every tool result becomes next-turn input), and an opus + high-effort
+# fire that loads CLAUDE.md + conductor.md + the gamma agent's full MCP tool
+# surface (alpaca + alpaca_aggressive + tradingview + discord) AND fans out
+# specialist sub-agents (whose tokens roll up into this session) blows past 1.50
+# immediately. 10.00 lets one bounded fan-out fire + validation actually COMPLETE;
+# the real runaway guard is -TimeoutSec 600 below, not the dollar cap.
 $exitCode = Invoke-ClaudeWithRetry `
     -PromptFile $promptFile `
     -TaskName $task `
-    -MaxBudgetUsd 1.50 `
+    -MaxBudgetUsd 10.00 `
     -Model "opus" `
     -Effort "high" `
     -AgentName "gamma" `

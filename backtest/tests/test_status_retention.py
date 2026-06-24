@@ -134,5 +134,23 @@ def test_check_mode_exit_codes(tmp_path):
     assert within == 0
 
 
+def test_retention_is_autowired_into_conductor_wrapper():
+    """L181 last-mile (2026-06-24): the durable guard is useless if it requires a
+    fire to NOTICE + run it -- STATUS.md regrew past budget within hours of both
+    manual trims. The conductor wrapper must invoke the tool every after-hours wake
+    so consolidation is self-executing. This pins the autowire so it cannot silently
+    regress (a deleted call = the foot-gun returns)."""
+    wrapper = os.path.join(REPO_ROOT, "setup", "scripts", "run-conductor.ps1")
+    assert os.path.exists(wrapper), wrapper
+    with open(wrapper, encoding="utf-8") as fh:
+        src = fh.read()
+    assert "status_retention.py" in src, \
+        "conductor wrapper no longer invokes status_retention.py -- L181 autowire regressed"
+    # Must be guarded fail-open (try/catch) so a retention hiccup never blocks the
+    # fire. The actual invocation is the LAST mention (earlier ones are the comment).
+    idx = src.rindex("status_retention.py")
+    assert "try {" in src[:idx], "retention call must be wrapped fail-open (rail 2)"
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-q"]))
