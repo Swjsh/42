@@ -157,17 +157,33 @@ def _load_history_only_fallback() -> "tuple[pd.DataFrame, pd.DataFrame]":
     return empty.copy(), empty.copy()
 
 
+def _rth_gate_ok(now_et: "dt.datetime") -> bool:
+    """True iff now_et is inside the Mon-Fri 09:30-15:55 ET trading window.
+
+    Pure + deterministic so the RTH gate can be unit-tested without a live clock.
+    `now_et` MUST already be expressed in Eastern time (tz-aware or ET-naive).
+    """
+    if now_et.weekday() >= 5:
+        return False
+    t = now_et.time()
+    return dt.time(9, 30) <= t <= dt.time(15, 55)
+
+
 def main() -> int:
-    today = dt.date.today()
-    now = dt.datetime.now()
+    # RTH gate MUST be evaluated in EASTERN time, not the host's naive local
+    # clock. The rig runs on Mountain time, so the prior `dt.datetime.now()` gate
+    # evaluated "09:30-15:55" as MOUNTAIN -> the watcher fleet was blind every
+    # morning 09:30-11:30 ET (07:30-09:30 MT failed `t < 09:30`) and only began
+    # producing at 11:30 ET. C6 / L161 (naive-ET) re-violation -- fixed 2026-06-24;
+    # guarded by backtest/tests/test_watcher_live_rth_gate.py.
+    import pytz as _pytz
+    _ET = _pytz.timezone("America/New_York")
+    now_et = dt.datetime.now(_ET)
+    today = now_et.date()
+    now = dt.datetime.now()  # naive LOCAL retained for CSV-staleness + diag fire_at
 
-    # Skip outside market hours (09:30-15:55 ET)
-    t = now.time()
-    if t < dt.time(9, 30) or t > dt.time(15, 55):
-        return 0
-
-    # Skip weekends
-    if now.weekday() >= 5:
+    # Skip outside the Mon-Fri 09:30-15:55 ET trading window (evaluated in ET)
+    if not _rth_gate_ok(now_et):
         return 0
 
     # Load latest bars (today + lookback for ribbon warmup)
