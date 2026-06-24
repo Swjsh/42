@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -41,9 +42,23 @@ OUT_FILE = STATE / "engine-health.json"
 OUTBOX = STATE / "discord-outbox.jsonl"
 SOUL_FILE = REPO / "automation" / "presence" / "SOUL.md"
 
-# Staleness budget during RTH: a heartbeat that has not written in this many
-# minutes is RED (heartbeat cadence is 3 min, so >10 min means ~3 missed ticks).
+# Liveness budget during RTH: a heartbeat whose LOG has not produced an activity
+# line in this many minutes is RED. Cadence is ~2-3 min; a tick can run up to the
+# 280s (~4.7m) timeout, so 8 min covers one full slow tick + cadence + slack.
+# NOTE: liveness is read from the LOG, NOT loop-state.last_change_at -- the loop
+# legitimately leaves loop-state untouched on quiet/holding ticks (SKIP
+# hash_unchanged + write-only-on-material-change), so loop-state mtime goes stale
+# while the engine is alive and holding correctly (false-RED bug, 2026-06-22).
+# 10m, not 8: worst-case log gap = 280s tick-timeout + ~3min cadence = ~7.67m, so
+# 10m leaves ~2.3m slack vs ~20s at 8m (avoids false-RED under scheduler/IO jitter,
+# which would re-introduce the very crying-wolf this rewrite removed). A real death
+# (no log line) still REDs within 10m = ~3 missed ticks = unambiguously dead.
 HEARTBEAT_STALE_MIN = 10
+# Map each heartbeat check to its log basename stem (date is appended per-day).
+HEARTBEAT_LOG_STEM = {
+    "heartbeat_safe": "heartbeat",
+    "heartbeat_bold": "heartbeat_aggressive",
+}
 # TV watchdog writes ~every 5 min; flag if its own timestamp is older than this.
 TV_STALE_MIN = 20
 
@@ -155,18 +170,73 @@ def _chk(name: str, status: str, detail: str, critical: bool = False) -> dict:
 # Individual checks
 # ---------------------------------------------------------------------------
 
+# Line-start activity stamp: "YYYY-MM-DD HH:MM:SS ET <MARKER...>". Every loop
+# event (=== START/END tick, FIRE, SKIP, REAPED, POST_RECOVERY, LOCK_BUSY,
+# TIMEOUT, BAR) writes one of these, so ANY such line proves the loop was alive
+# at that wall-clock minute -- including quiet SKIP-hash-unchanged holds.
+_LOG_TS_RE = re.compile(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) ET\b")
+
+
+def _newest_log_activity_et(stem: str, et: datetime) -> tuple[Optional[datetime], Optional[str]]:
+    """Return (newest_activity_as_naive_ET, error). Reads automation/state/logs/
+    {stem}-{today}.log, tail-scans for the freshest line that starts with the ET
+    timestamp pattern. The log timestamps are naive ET wall-clock (no offset)."""
+    path = STATE / "logs" / f"{stem}-{et.strftime('%Y-%m-%d')}.log"
+    if not path.exists():
+        return None, "log missing"
+    try:
+        with path.open("rb") as f:
+            f.seek(0, os.SEEK_END)
+            size = f.tell()
+            block = min(size, 131072)  # tail 128KB -- many lines, cheap
+            f.seek(size - block)
+            tail = f.read().decode("utf-8", errors="replace").splitlines()
+    except Exception as e:  # noqa: BLE001 -- never crash the beacon
+        return None, f"log read error ({type(e).__name__})"
+    for raw in reversed(tail):
+        m = _LOG_TS_RE.match(raw.lstrip("﻿").strip())
+        if m:
+            try:
+                # Naive ET wall-clock -- compare against _et_now() (also naive ET).
+                return datetime.strptime(m.group(1), "%Y-%m-%d %H:%M:%S"), None
+            except ValueError:
+                continue
+    return None, "no activity line in tail"
+
+
 def check_heartbeat(name: str, path: Path, market_open: bool, now_utc: datetime) -> dict:
+    """Liveness from the LOG (freshest activity line); CONTENT (mode/ticks) from
+    loop-state. The two are decoupled because the loop intentionally leaves
+    loop-state unchanged on quiet holding ticks -- so loop-state staleness is NOT
+    death (2026-06-22 false-RED root cause)."""
+    et = _et_now(now_utc)
+
+    # --- CONTENT (mode / ticks) from loop-state; non-fatal if absent ---
     data, err = _read_json(path)
-    if data is None:
-        return _chk(name, "YELLOW", f"loop-state {err}", critical=False)
-    age = _age_min(_parse_ts(data.get("last_change_at")), now_utc)
-    if age is None:
-        return _chk(name, "YELLOW", "no last_change_at", critical=False)
-    detail = f"last write {age:.1f}m ago; mode={data.get('current_mode')}; ticks={data.get('ticks_today')}"
+    if data is not None:
+        content = f"mode={data.get('current_mode')}; ticks={data.get('ticks_today')}"
+    else:
+        content = f"loop-state {err}"
+
+    # --- LIVENESS from the heartbeat log ---
+    stem = HEARTBEAT_LOG_STEM.get(name, "heartbeat")
+    last_act, log_err = _newest_log_activity_et(stem, et)
+
+    if last_act is None:
+        # No log evidence. After close this is fine (quiet); during RTH it is a
+        # YELLOW (can't prove liveness, but don't trade-halt on a missing log
+        # alone -- loop-state content may still be valid). A missing log during
+        # RTH with no other signal is worth surfacing but not crit-RED.
+        if not market_open:
+            return _chk(name, "GREEN", f"{content} ({log_err}; market closed -- quiet OK)", critical=True)
+        return _chk(name, "YELLOW", f"liveness unknown ({log_err}) during RTH -- {content}", critical=False)
+
+    age = (et - last_act).total_seconds() / 60.0
+    detail = f"log activity {age:.1f}m ago; {content}"
     if not market_open:
         return _chk(name, "GREEN", f"{detail} (market closed -- quiet OK)", critical=True)
     if age > HEARTBEAT_STALE_MIN:
-        return _chk(name, "RED", f"STALE {age:.1f}m (>{HEARTBEAT_STALE_MIN}m) during RTH -- {detail}", critical=True)
+        return _chk(name, "RED", f"NO LOG ACTIVITY {age:.1f}m (>{HEARTBEAT_STALE_MIN}m) during RTH -- {detail}", critical=True)
     return _chk(name, "GREEN", detail, critical=True)
 
 
@@ -208,21 +278,24 @@ def check_watcher_feed(market_open: bool, et: datetime) -> dict:
         return _chk("watcher_feed", "GREEN", f"newest bar {newest_date} (market closed -- quiet OK)", critical=True)
     if newest_date == today:
         return _chk("watcher_feed", "GREEN", f"producing TODAY's rows (newest bar {newest})", critical=True)
-    # critical=False (2026-06-22): the watcher fleet is WATCH_ONLY (it NEVER places
-    # orders) and BOTH heartbeats score their primary book via TV-direct reads, so a
-    # dark producer DEGRADES (loses the supplementary 28-watcher signal layer) but does
-    # NOT block trading. Keep RED-status so it stays loud + visible in reds[], but
-    # non-critical so it no longer gates the engine to trade-halt RED -- otherwise it
-    # cry-wolf-REDs every market open while the producer rebuild is in flight (the
-    # watcher_live.py morning no-op = naive-local-time gate [rig is MT, not ET] + the
-    # yfinance top-up / stale_csv_date stack -- C6/L161). RE-ARM to critical=True the
-    # moment watcher_live.py reliably emits today's rows again.
-    # See STATUS.md "Known broken 2026-06-22" + the queued watcher-producer rebuild task.
+    # critical=True (RE-ARMED 2026-06-24): the 2026-06-22 downgrade to critical=False
+    # was a DELIBERATE TEMPORARY measure to stop cry-wolf overall-REDs every market open
+    # while the watcher_live.py producer rebuild was in flight (the morning no-op =
+    # naive-local-time gate [rig is MT, not ET] + the yfinance top-up / stale_csv_date
+    # stack -- C6/L161). That rebuild is now COMPLETE + CONFIRMED: ET-gate fix (3e8ed79),
+    # load_data total-darkness fix (57cef40), end-to-end integration guard (2eceac1).
+    # 2026-06-24 RTH produced FULL 09:30-15:55 ET coverage (154 diag + 78 obs rows, every
+    # ET hour 09..15, ZERO crash/darkness signals) -- the exact re-arm condition the old
+    # comment named. NOTE: engine-health.json is NOT consumed by the heartbeat (verified
+    # 2026-06-24: only the conductor STAGE-0 backpressure, the alerter, the healer, and
+    # gym_session.py read it), so critical=True does NOT trade-halt the engine -- it only
+    # drives the overall verdict RED so a genuine producer-dark gates feature-build
+    # backpressure + stays loud, exactly as intended for THE producer-dark canary.
+    # See STATUS.md "WATCHER-FEED-REARM-CONFIRM" + L161/C6.
     return _chk(
         "watcher_feed", "RED",
-        f"PRODUCER DARK: newest bar {newest_date} != today {today} -- feed not writing during RTH "
-        f"(WATCH_ONLY layer: degraded supplementary signal, NOT trade-blocking)",
-        critical=False,
+        f"PRODUCER DARK: newest bar {newest_date} != today {today} -- feed not writing during RTH",
+        critical=True,
     )
 
 
@@ -305,6 +378,7 @@ def build_report() -> dict:
         check_position("position_bold", STATE / "current-position-bold.json"),
     ]
     verdict, reds = fuse(checks)
+    red_checks = sorted(c["name"] for c in checks if c["status"] == "RED")
     return {
         "checked_at_et": et.strftime("%Y-%m-%d %H:%M:%S"),
         "checked_at_utc": now_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -312,6 +386,10 @@ def build_report() -> dict:
         "market_open": mkt,
         "checks": checks,
         "reds": reds,
+        # Idempotency key for the alerter: the SET of RED check-names. We alert
+        # when a NEW red check appears (transition), not on every run while it
+        # persists -- so a 3-day producer-dark pings once, not 800 times.
+        "red_checks": red_checks,
     }
 
 
@@ -319,9 +397,13 @@ def build_report() -> dict:
 # Discord transition-only alert (reuse existing outbox; no new path)
 # ---------------------------------------------------------------------------
 
-def _prior_verdict() -> Optional[str]:
+def _prior_state() -> tuple[Optional[str], set]:
+    """Prior (verdict, set-of-red-check-names) from the last written report.
+    Used to detect a *transition* (new red appearing) for idempotent alerting."""
     data, _ = _read_json(OUT_FILE)
-    return data.get("verdict") if data else None
+    if not data:
+        return None, set()
+    return data.get("verdict"), set(data.get("red_checks") or [])
 
 
 def _heal_grace_active(now_utc: datetime) -> bool:
@@ -341,20 +423,38 @@ def _mention_prefix() -> str:
     return "<@207983230618435584> "
 
 
-def maybe_alert(report: dict, prior: Optional[str]) -> bool:
-    """Append ONE SOUL-voice line to the outbox only on a *transition into RED*."""
-    if report["verdict"] != "RED" or prior == "RED":
+def maybe_alert(report: dict, prior_verdict: Optional[str], prior_reds: set) -> bool:
+    """Append ONE SOUL-voice line to the outbox on a *transition* -- i.e. when a
+    RED check that was NOT red on the previous run appears now. This fires for:
+      - a CRITICAL red (verdict=RED, e.g. dead heartbeat / tripped kill-switch), and
+      - a sustained NON-critical red (verdict=YELLOW, e.g. watcher producer-dark)
+        that previously went un-alerted for 3 days (2026-06-22 root cause).
+    Idempotent: keyed on the SET of red check-names, so it pings once on the
+    transition, never re-spams while the same red persists."""
+    now_reds = set(report.get("red_checks") or [])
+    if not now_reds:
+        return False
+    # Only the NEWLY-red checks are an alertable transition. If the same red set
+    # carried over from the prior run, stay silent (already pinged).
+    new_reds = now_reds - prior_reds
+    if not new_reds:
         return False
     # ACT-before-WATCH (2026-06-22): if the auto-healer just re-fired the stalled heartbeat,
     # hold the ping until the grace window expires -- the tick lands in ~60-90s. J hears
     # about it ONLY if the heal failed (still RED after grace). RED is still written + shown.
-    if _heal_grace_active(_now_utc()):
+    # (Only suppress for heartbeat liveness reds -- the heal-loop only re-fires the
+    # heartbeat, so a watcher/kill-switch red must still ping during grace.)
+    if new_reds <= {"heartbeat_safe", "heartbeat_bold"} and _heal_grace_active(_now_utc()):
         return False
+    # Build the alert from the reds that triggered this transition.
     reds = report["reds"]
-    head = reds[0] if reds else "engine health critical"
-    extra = f" (+{len(reds) - 1} more)" if len(reds) > 1 else ""
+    triggered = [r for r in reds if r.split(":", 1)[0] in new_reds] or reds
+    head = triggered[0] if triggered else "engine health critical"
+    extra = f" (+{len(triggered) - 1} more)" if len(triggered) > 1 else ""
+    # Marker reflects severity: critical-red -> verdict RED; non-critical -> degraded.
+    marker = "🔴 Engine RED" if report["verdict"] == "RED" else "🟠 Engine DEGRADED (red check)"
     # SOUL voice: terse, one safety marker, no hedging.
-    content = f"{_mention_prefix()}🔴 Engine RED: {head}{extra}. Fail-loud beacon. Check the fleet."
+    content = f"{_mention_prefix()}{marker}: {head}{extra}. Fail-loud beacon. Check the fleet."
     if len(content) > 1900:
         content = content[:1880] + "...[truncated]"
     row = {"queued_at": report["checked_at_utc"], "content": content}
@@ -374,9 +474,9 @@ def _atomic_write(path: Path, payload: dict) -> None:
 
 
 def main() -> int:
-    prior = _prior_verdict()
+    prior_verdict, prior_reds = _prior_state()
     report = build_report()
-    alerted = maybe_alert(report, prior)
+    alerted = maybe_alert(report, prior_verdict, prior_reds)
     report["alerted"] = alerted
     _atomic_write(OUT_FILE, report)
     print(json.dumps(report, indent=2))
