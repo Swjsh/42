@@ -17,18 +17,24 @@ Writes:
     analysis/gym/{YYYY-MM-DD}.md                 (narrative)
     analysis/gym/_gym-log.jsonl                  (append-only fire log)
 
-Verdict logic:
-    overall_pass = ALL of the following pass (or are KNOWN_FLAKY-excluded):
-        crypto gym overall_pass == True
-        chart-data-verify verdict in {GREEN, YELLOW}     # YELLOW is heal-pending, not failure
-        heartbeat-tick-audit no MISALIGNED-CRITICAL ticks
-        pin-chain-verify verdict == GREEN
-        heartbeat-mcp-self-test verdict in {GREEN, not_applicable}  # not_applicable if market closed
-        heartbeat-pulse-check verdict in {GREEN, not_applicable}    # not_applicable on weekends
-        watcher-state-inspector verdict in {GREEN, not_applicable}
+Verdict logic (see `_aggregate_verdict`):
+    The verdict is ANCHORED on the chart-reading harness (crypto-gym), because that is
+    what STAGE-0 backpressure means by "is it safe to touch detectors". Only RED_CAPABLE
+    audits — crypto-gym (the harness), chart-data-verify (detector INPUT integrity), and
+    heartbeat-tick-audit (a real in-progress-bar ENTER/EXIT) — can drive the overall
+    verdict to RED. crypto-gym MISSING is also RED (detector health unknown → fail-closed).
+    Every OTHER audit (pin-chain / mcp-self-test / pulse-check / watcher-state) is
+    OPERATIONAL engine-health already owned by automation/state/engine-health.json; a RED
+    or MISSING there SURFACES as YELLOW, never RED. This is the fix for the chronic
+    false-RED (gym RED 6-of-7 days while crypto-gym was GREEN 7-of-7) that permanently
+    tripped the conductor's STAGE-0 "don't touch detectors" gate.
 
-If overall_pass == False, appends a HIGH task to automation/overnight/queue.md so the
-next wake fire surfaces it.
+    `detector_verdict` is written alongside `overall_verdict` as the unambiguous
+    chart-reading-harness signal (== the crypto-gym audit verdict) for any consumer that
+    wants ONLY the harness health without the operational roll-up.
+
+If overall RED, appends a HIGH task to automation/overnight/queue.md so the next wake fire
+surfaces it.
 
 CLI:
     python -m autoresearch.gym_session [--date YYYY-MM-DD] [--stale-hours N] [--rerun-all]
@@ -268,14 +274,46 @@ def _maybe_rerun_stale(stale_hours: float, rerun_all: bool, date_str: str) -> di
     return reruns
 
 
+# The chart-reading harness — the audit whose verdict STAGE-0 backpressure actually means
+# when it says "don't touch detectors". Its absence (MISSING) means detector health is
+# unknown → fail-closed RED.
+_DETECTOR_HARNESS = "crypto-gym (42 validators)"
+
+# Audits whose RED genuinely reflects chart-reading / trading correctness — only these
+# escalate the overall verdict to RED:
+#   crypto-gym          — the detector harness itself (also RED on MISSING, see above)
+#   chart-data-verify   — a real CSV/yfinance divergence corrupts detector INPUT
+#   heartbeat-tick-audit — RED only ever means a real ENTER/EXIT on an in-progress bar
+# Every OTHER audit (pin-chain / mcp-self-test / pulse-check / watcher-state) is OPERATIONAL
+# engine-health that is ALREADY owned — with its own critical alerter — by
+# automation/state/engine-health.json. An operational RED or MISSING here SURFACES as YELLOW,
+# never RED, so it cannot cry-wolf the chart-reading scorecard. This kills the chronic
+# false-RED (gym RED 6-of-7 days while crypto-gym was GREEN 7-of-7) that permanently tripped
+# the conductor's STAGE-0 "don't touch detectors" gate on signals unrelated to detector
+# health: absent peripheral producers, the L39 pulse max-gap artifact, the intentional Bold
+# v15.2 pin "mismatch", and watcher-obs producer noise.
+_RED_CAPABLE = frozenset({
+    _DETECTOR_HARNESS,
+    "chart-data-verify",
+    "heartbeat-tick-audit",
+})
+
+
 def _aggregate_verdict(results: list[AuditResult]) -> str:
-    """RED if any RED. YELLOW if any YELLOW (but no RED). GREEN if all GREEN/NOT_APPLICABLE."""
-    reds = [r for r in results if r.verdict == "RED"]
-    yellows = [r for r in results if r.verdict == "YELLOW"]
-    missings = [r for r in results if r.verdict == "MISSING"]
-    if reds or missings:
+    """Anchor the verdict on the chart-reading harness; cap operational audits at YELLOW.
+
+    RED   iff a RED_CAPABLE audit is RED, or the detector harness is MISSING.
+    YELLOW if any audit is otherwise degraded (operational RED/MISSING, or any YELLOW).
+    GREEN  if every audit is GREEN/NOT_APPLICABLE.
+    """
+    reds = [r for r in results if r.verdict == "RED" and r.name in _RED_CAPABLE]
+    harness_missing = [
+        r for r in results if r.verdict == "MISSING" and r.name == _DETECTOR_HARNESS
+    ]
+    if reds or harness_missing:
         return "RED"
-    if yellows:
+    degraded = [r for r in results if r.verdict in ("RED", "YELLOW", "MISSING")]
+    if degraded:
         return "YELLOW"
     return "GREEN"
 
@@ -371,6 +409,7 @@ def run(date: str, stale_hours: float = 2.0, rerun_all: bool = False) -> dict:
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "for_date": date,
         "overall_verdict": overall,
+        "detector_verdict": crypto_gym.verdict,  # the chart-reading harness, unambiguous
         "audits": [asdict(r) for r in results],
         "stale_reruns": reruns,
     }
