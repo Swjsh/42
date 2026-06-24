@@ -157,6 +157,59 @@ def _load_history_only_fallback() -> "tuple[pd.DataFrame, pd.DataFrame]":
     return empty.copy(), empty.copy()
 
 
+def _load_with_fallback(load_fn, fallback_fn, lookback_start, today, now,
+                        diag_fn) -> "tuple[pd.DataFrame, pd.DataFrame, bool]":
+    """Load [lookback_start, today] bars, degrading to the history-only path on
+    ANY load failure -- not just FileNotFoundError.
+
+    Returns ``(spy_df, vix_df, used_fallback)``.
+
+    ROOT CAUSE (2026-06-23 TOTAL-DARKNESS): main() wrapped ``load_data`` in a
+    NARROW ``except FileNotFoundError``. FileNotFoundError is only raised when no
+    CSV covers the window (the routine morning case). But ``load_data`` also calls
+    ``pd.read_csv`` + ``_dedupe_by_timestamp`` on a MATCHING file -- a corrupt /
+    truncated / empty rolling CSV (a half-finished daily-append) raises
+    ``pd.errors.ParserError`` / ``EmptyDataError`` / ``KeyError`` instead. Those
+    escaped the narrow except, propagated out of main(), and crashed the producer
+    with ZERO diag rows -- an invisible total-darkness day (NumberOfMissedRuns=0,
+    no obs, no diag). Every OTHER early-return in main() writes a diag for
+    observability; this one path defeated it. C7 (silent failure -- a too-narrow
+    except is the inverse of a too-broad one: both lose the signal).
+
+    FIX: any load failure now degrades to ``fallback_fn()`` (history-only CSV; the
+    yfinance top-up then grafts today's bars) AND writes a diag. FileNotFoundError
+    keeps the routine ``load_data_fallback_history_only`` reason; anything else gets
+    the alarming ``load_data_unexpected_error:{ExcType}`` reason so a corrupt CSV is
+    LOUD, never invisible. Pure + dependency-injected so it is $0-unit-testable
+    without a live clock, network, or filesystem.
+    """
+    try:
+        spy_full, vix_full = load_fn(lookback_start, today)
+        return spy_full, vix_full, False
+    except FileNotFoundError:
+        spy_full, vix_full = fallback_fn()
+        diag_fn(
+            "load_data_fallback_history_only",
+            now=now,
+            extra={"history_rows": int(len(spy_full)),
+                   "note": "rolling CSV absent; using yfinance top-up for today"},
+        )
+        return spy_full, vix_full, True
+    except Exception as e:  # corrupt/malformed CSV etc. -- must NOT crash the producer
+        import traceback
+        sys.stderr.write(f"watcher_live load_data unexpected error: {e}\n")
+        sys.stderr.write(traceback.format_exc())
+        spy_full, vix_full = fallback_fn()
+        diag_fn(
+            f"load_data_unexpected_error:{type(e).__name__}",
+            now=now,
+            extra={"history_rows": int(len(spy_full)), "exc": str(e)[:300],
+                   "note": "load_data raised non-FileNotFoundError (corrupt/malformed CSV?); "
+                           "degraded to history-only + yfinance top-up instead of crashing"},
+        )
+        return spy_full, vix_full, True
+
+
 def _rth_gate_ok(now_et: "dt.datetime") -> bool:
     """True iff now_et is inside the Mon-Fri 09:30-15:55 ET trading window.
 
@@ -196,17 +249,13 @@ def main() -> int:
     # history-only CSV and let the yfinance intraday top-up (below) graft today's
     # live bars on top. The top-up block now runs UNCONDITIONALLY when today's
     # bars are missing — it is no longer gated behind load_data success.
-    _used_csv_fallback = False
-    try:
-        spy_full, vix_full = ar_runner.load_data(lookback_start, today)
-    except FileNotFoundError:
-        spy_full, vix_full = _load_history_only_fallback()
-        _used_csv_fallback = True
-        _write_skip_diag(
-            "load_data_fallback_history_only",
-            now=now,
-            extra={"history_rows": int(len(spy_full)), "note": "rolling CSV absent; using yfinance top-up for today"},
-        )
+    # Degrade to history-only on ANY load failure (corrupt/malformed CSV raises
+    # non-FileNotFoundError -> previously crashed the producer with zero diag =
+    # total-darkness; see _load_with_fallback docstring, 2026-06-23 anomaly fix).
+    spy_full, vix_full, _used_csv_fallback = _load_with_fallback(
+        ar_runner.load_data, _load_history_only_fallback,
+        lookback_start, today, now, _write_skip_diag,
+    )
     # If even the fallback found nothing, keep going with an empty frame — the
     # yfinance top-up may still produce today's bars. Only the post-top-up
     # 'no bars at all' check below is allowed to bail (and it writes a diag).
