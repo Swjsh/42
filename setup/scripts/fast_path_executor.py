@@ -48,18 +48,28 @@ sys.path.insert(0, str(PROJECT_ROOT))
 ET_TZ = timezone(timedelta(hours=-4))
 CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
-# Hard-coded paper Alpaca keys (mirror of .mcp.json)
-ACCOUNT_KEYS: dict[str, tuple[str, str]] = {
-    "safe": (
-        "PKGZIUWDJIMDG5QYDGCPFJDGHJ",
-        "9EzmHpix6GShFRHH5dUmVJb6V9VPvZppPGmtjdM3WEYs",
-    ),
-    "bold": (
-        # Rotated 2026-05-22 09:35 ET — account PA33W2KUAT40 (Gamma-Risky-2)
-        "PKQMQD2NNWII7PYGSTGIDXZU3T",
-        "ELWu7QjbQDkGZawg8yM7QfpHPjB7kFQcMdERSEPirUsV",
-    ),
-}
+# Keys are loaded at runtime from .mcp.json (gitignored) — never hardcode here.
+_MCP_JSON = PROJECT_ROOT / ".mcp.json"
+_SERVER_MAP = {"safe": "alpaca", "bold": "alpaca_aggressive"}
+
+
+def _load_account_keys() -> dict[str, tuple[str, str]]:
+    """Read Alpaca key/secret pairs from the gitignored .mcp.json."""
+    try:
+        mcp = json.loads(_MCP_JSON.read_text(encoding="utf-8"))
+        out: dict[str, tuple[str, str]] = {}
+        for alias, server in _SERVER_MAP.items():
+            env = mcp["mcpServers"][server]["env"]
+            out[alias] = (env["ALPACA_API_KEY"], env["ALPACA_SECRET_KEY"])
+        return out
+    except Exception as exc:
+        raise RuntimeError(
+            f"Cannot load Alpaca keys from {_MCP_JSON}: {exc}\n"
+            "Copy .mcp.json.example → .mcp.json and fill in your credentials."
+        ) from exc
+
+
+ACCOUNT_KEYS: dict[str, tuple[str, str]] = _load_account_keys()
 ALPACA_BASE = "https://paper-api.alpaca.markets/v2"
 
 DecisionT = Literal[

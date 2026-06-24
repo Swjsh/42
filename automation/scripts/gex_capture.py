@@ -64,9 +64,19 @@ for _p in (str(BACKTEST), str(REPO)):
 ARCHIVE_DIR = REPO / "journal" / "gex-archive"          # backtestable history (accrues)
 REGIME_TAG = REPO / "automation" / "state" / "gex-regime.json"  # live tag for readers
 
-# ── Alpaca data API (same key/host the repo's other fetchers use) ──────────────
-ALPACA_KEY = "PK33J2RV4PNIY6TCOLUG3WYGRX"
-ALPACA_SECRET = "FxbJshSbhJ8Rn7KPENssS4eWsLpxCyYeyxavxywV9Bbs"
+# ── Alpaca data API — keys loaded from .mcp.json (gitignored), never hardcoded ─
+def _load_alpaca_key() -> tuple[str, str]:
+    mcp_path = REPO / ".mcp.json"
+    try:
+        env = json.loads(mcp_path.read_text(encoding="utf-8"))["mcpServers"]["alpaca"]["env"]
+        return env["ALPACA_API_KEY"], env["ALPACA_SECRET_KEY"]
+    except Exception as exc:
+        raise RuntimeError(
+            f"Cannot load Alpaca key from {mcp_path}: {exc}. "
+            "Copy .mcp.json.example → .mcp.json and fill credentials."
+        ) from exc
+
+ALPACA_KEY, ALPACA_SECRET = _load_alpaca_key()
 OPTIONS_SNAPSHOT_URL = "https://data.alpaca.markets/v1beta1/options/snapshots/SPY"
 STOCK_SNAPSHOT_URL = "https://data.alpaca.markets/v2/stocks/SPY/snapshot"
 # Open interest is NOT on the snapshot (market-data) feed — it lives on the trading API

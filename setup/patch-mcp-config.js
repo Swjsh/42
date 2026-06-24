@@ -20,8 +20,10 @@ c.projects[projectKey].mcpServers = {
     command: 'uvx',
     args: ['alpaca-mcp-server'],
     env: {
-      ALPACA_API_KEY: 'PK33J2RV4PNIY6TCOLUG3WYGRX',
-      ALPACA_SECRET_KEY: 'FxbJshSbhJ8Rn7KPENssS4eWsLpxCyYeyxavxywV9Bbs',
+      // Keys must come from .mcp.json (gitignored) — never commit real values here.
+      // See .mcp.json.example for the expected structure.
+      ALPACA_API_KEY: process.env.ALPACA_API_KEY || '<YOUR_ALPACA_API_KEY>',
+      ALPACA_SECRET_KEY: process.env.ALPACA_SECRET_KEY || '<YOUR_ALPACA_SECRET_KEY>',
       ALPACA_PAPER_TRADE: 'true',
       ALPACA_BASE_URL: 'https://paper-api.alpaca.markets'
     }

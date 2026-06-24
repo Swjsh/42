@@ -31,7 +31,7 @@ Trade **0DTE SPY directional options** profitably. Build a journaled, signal-dri
 - **Hold time:** Minutes to hours. All flat by EOD.
 - **Decision support:** TradingView (chart, levels, indicators). Alpaca (account, chain, Greeks, fills).
 
-**Current rule version: v15** (activated live 2026-05-13). Asymmetric stops (bear −20%, bull −8%), per-tier strike selection (OTM-3 at $1K / OTM-2 at $2-10K / OTM-1 at $10-25K / ITM-2 at $25K+), chandelier trailing profit-lock (arms at +5% favor, trails 20% off HWM), 09:35 ET entry gate, tp1_qty_fraction 0.50, runner target 2.5×. **Source of truth:** [`automation/state/params.json`](automation/state/params.json). Rule mismatch = kill-switch event. Revert command (3 steps) documented in `markdown/0dte/V15-ACTIVATION-2026-05-13.md`. v14 backup: `automation/prompts/heartbeat-v14-prod-backup.md`.
+**Current rule version: v15.3** (Safe; ratified live 2026-06-01 · Bold on v15.2). **Chart-stop-primary** (2026-06-18): chart-level / ribbon-flip-back / chandelier profit-lock are the primary invalidation; premium stops are now −50% catastrophe caps both sides (was bear −20% / bull −8%). Per-tier strike selection (OTM-3 at $1K / OTM-2 at $2-10K / OTM-1 at $10-25K / ITM-2 at $25K+), chandelier trailing profit-lock (arms at +5% favor, trails 15% off HWM), 09:35 ET entry gate, tp1_qty_fraction 0.667, runner target 2.5×. **Source of truth:** [`automation/state/params.json`](automation/state/params.json). Rule mismatch = kill-switch event. Revert command (3 steps) documented in `markdown/0dte/V15-ACTIVATION-2026-05-13.md`. v14 backup: `automation/prompts/heartbeat-v14-prod-backup.md`.
 
 ---
 
@@ -59,7 +59,7 @@ The spine. J's rules — Gamma enforces them, doesn't write them.
 | Account | Alias | Account # | Equity | Style | Config |
 |---|---|---|---|---|---|
 | **Account 1** | Gamma-Safe-2 | `PA3S2PYAS2WQ` | $2,000 (replaced 2026-06-15, key PK7WRO5T…) | Conservative — OTM-2, 30% risk, +30% TP1, CONFIRMED setups only | `automation/state/params.json` |
-| **Account 2** | Gamma-Risky-2 | `PA33W2KUAT40` | $1,673 (as of 2026-06-15, +$552 today) | Aggressive — ITM-2, 50% risk, +75% TP1, ALL setups | `automation/state/aggressive/params.json` |
+| **Account 2** | Gamma-Risky-2 | `PA33W2KUAT40` | ~$1,649 (as of 2026-06-21) | Aggressive — ITM-2, 50% risk, +75% TP1, ALL setups | `automation/state/aggressive/params.json` |
 
 - **Goal:** Both accounts grow → $5K → $10K → $25K+. Dual-account experiment answers which risk profile compounds better at each tier.
 - **Live threshold (per account independently):** ≥ 20 trades, WR ≥ 45%, positive expectancy, ≤ 2 rule breaks.
@@ -78,14 +78,15 @@ The spine. J's rules — Gamma enforces them, doesn't write them.
 | Layer | Tool | Status |
 |---|---|---|
 | Chart/levels/indicators | TradingView MCP (`tradesdontlie/tradingview-mcp`) | CDP on port 9222. Launch via `setup\launch_tv_debug.ps1` |
-| Account/chain/fills/orders (Gamma-Safe) | Alpaca MCP — `alpaca` server | `uvx alpaca-mcp-server` v2.0.1, key `PK33J2RV4PNI…` in `~/.claude/.mcp.json`. Tools: `mcp__alpaca__*` |
-| Account/chain/fills/orders (Gamma-Bold) | Alpaca MCP — `alpaca_aggressive` server | Same binary, key `PKANCBMIY…` in `~/.claude/.mcp.json`. Tools: `mcp__alpaca_aggressive__*`. REST fallback if MCP not connected. |
+| Account/chain/fills/orders (Gamma-Safe) | Alpaca MCP — `alpaca` server | `uvx alpaca-mcp-server` via pythonw hidden-shim, key `PK7WRO5T…` (Safe-2) in project-root `.mcp.json` (mirrored in `~/.claude.json`). Tools: `mcp__alpaca__*` |
+| Account/chain/fills/orders (Gamma-Bold) | Alpaca MCP — `alpaca_aggressive` server | Same binary, key `PKQMQD2N…` (Risky-2) in project-root `.mcp.json`. Tools: `mcp__alpaca_aggressive__*`. REST fallback if MCP not connected. |
 | Host | Claude Code | Active |
-| Heartbeat scheduler | Windows Task Scheduler + `claude --print` | **27 active (as of 2026-06-01); +`Gamma_ContextGuard` proposed. Canonical registry: [`automation/state/SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md)** |
+| Heartbeat scheduler | Windows Task Scheduler + `claude --print` | **35 active / 38 registered (3 disabled), as of 2026-06-21. Canonical registry: [`automation/state/SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md)** |
 | Kitchen R&D loop | `setup/scripts/kitchen_daemon.py` + free-tier model ladder | **24/7 autonomous.** Nemotron→DeepSeek→MiniMax-free→MiniMax-paid ($3/day cap). |
 | Dashboard | Next.js 15 + React 19 + Canvas pixel-art | **DEPLOYED 2026-05-06.** localhost:3000. `dashboard/` |
 | State config | [`automation/state/params.json`](automation/state/params.json) | Canonical source of truth |
 | Context leanness | `check-context-budget.ps1` + `context-leanness` skill | Keeps CLAUDE.md <= 8K tokens. Daily score/alert; auto-trims after hours on RED. Spec: [`markdown/infra/CONTEXT-LEANNESS.md`](markdown/infra/CONTEXT-LEANNESS.md) |
+| Source control | GitHub — `https://github.com/Swjsh/42` | **PUBLIC repo.** `gh` CLI authenticated as Swjsh. Remote `origin` wired 2026-06-24. Branch: `main`. |
 
 Install: [`markdown/infra/mcp-install.md`](markdown/infra/mcp-install.md). Verification: [`markdown/infra/verification.md`](markdown/infra/verification.md).
 
@@ -180,6 +181,30 @@ If it's not in the journal, it didn't happen.
 
 ---
 
+## GitHub
+
+**Remote:** `https://github.com/Swjsh/42` — **PUBLIC repo.** Treat everything committed as visible to the world.
+
+**CLI:** `gh` v2.88.1, authenticated as Swjsh (keyring). Use `gh` for all GitHub ops — PRs, issues, repo queries. Never use the browser when `gh` can do it.
+
+**Secrets rule (non-negotiable):** API keys, Alpaca credentials, Discord tokens, OpenRouter keys MUST NEVER appear in tracked files. Canonical secret locations (all gitignored):
+- `.mcp.json` — MCP server credentials (Alpaca keys, TradingView paths)
+- `automation/state/fleet/secrets.json` — fleet per-account keys
+- `**/.discord-config.json`, `**/.alpaca-keys`, `**/.openrouter.key`, `**/.heartbeat-api-key*` — per-service secrets
+
+If a script needs Alpaca keys at runtime, load from `.mcp.json` (see `setup/scripts/fast_path_executor.py` for the pattern). Never hardcode.
+
+**Push discipline:** Never push during 09:30–15:55 ET — shares the same Max pool as the heartbeat. After-hours only.
+
+**Common operations:**
+```
+gh repo view Swjsh/42          # repo overview
+gh pr list                      # open PRs
+gh issue list                   # open issues
+gh pr create                    # new PR from current branch
+git push origin main            # push to GitHub
+```
+
 ## PowerShell Compatibility
 
 - Target PowerShell 5.1 syntax — no em-dashes, no PS 7+ only features — in all scripts and one-liners.
@@ -200,7 +225,7 @@ These are non-negotiable, second only to the 10 rules above.
 
 > **Archived OPs** (1–2, 4–10, 12–15, 17–21, 23–24, 26–30, 32) moved verbatim to [`markdown/doctrine/DOCTRINE-ARCHIVE.md`](markdown/doctrine/DOCTRINE-ARCHIVE.md) on 2026-05-23.
 
-3. **Cost-effectiveness gate.** $100/mo Max 5x plan budget. Before adding any new feature, estimate per-day cost and show how it fits. Lean is the default; spam is the enemy.
+3. **Cost-effectiveness gate.** $200/mo Max 20x plan budget (upgraded from $100/5x 2026-06-24). Before adding any new feature, estimate per-day cost and show how it fits. Lean is the default; spam is the enemy.
 
 11. **Karpathy method — eval-first, data flywheel, shadow mode, reproducibility.**
     - **INNER loop:** heartbeat fires production AND shadow version in parallel; shadow is read-only. Controller: `automation/state/shadow-version.json`.
@@ -245,25 +270,25 @@ These are non-negotiable, second only to the 10 rules above.
 
     **Silent failure is the only true failure.** Every fire ships work OR a flagged failure to `STATUS.md ## Known broken`. J always wakes up to a SIGNAL.
 
-    **Lessons index** (full prose + symptom/root-cause/fix in [markdown/doctrine/LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md) — through L168 as of 2026-06-19). Themed canonical set; when you hit a NEW anti-pattern, add prose to LESSONS-LEARNED.md and fold the L# into a row here. A lesson that gets re-violated is a missing guardrail — graduate it to a code assertion (see `backtest/tests/test_graduated_guards.py`).
+    **Lessons index** (full prose + symptom/root-cause/fix in [markdown/doctrine/LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md) — through L180 as of 2026-06-21). Themed canonical set; when you hit a NEW anti-pattern, add prose to LESSONS-LEARNED.md and fold the L# into a row here. A lesson that gets re-violated is a missing guardrail — graduate it to a code assertion (see `backtest/tests/test_graduated_guards.py`).
 
     | # | Theme | Lessons |
     |---|---|---|
     | C1 | Real-fills is the only WR authority; BS-sim is ranking-only | L02,12,23,50,71,99,100,107 |
-    | C2 | First-strike entries: chart-stop only, premium-stop disabled | L51,55,64 |
-    | C3 | SPY-price edge != option edge (delta/theta/stop-misfire) | L58,74,100,101,112,136,148,149 |
-    | C4 | Disclose concentration, normalize OOS, stratify by regime; use per-trade expectancy not WR standalone; a published cross-sectional anomaly != a per-trade option edge | L01,04,05,10,11,22,46,48,92,104,122,124,128,129,154,166,167 |
+    | C2 | First-strike entries: chart-stop only, premium-stop disabled | L51,55,64,171 |
+    | C3 | SPY-price edge != option edge (delta/theta/stop-misfire); a structural-gate pass that a random-entry null reproduces is an exit-structure artifact, not signal alpha -- beat the null MAX | L58,74,100,101,112,136,148,149,172 |
+    | C4 | Disclose concentration, normalize OOS, stratify by regime; use per-trade expectancy not WR standalone; a published cross-sectional anomaly != a per-trade option edge | L01,04,05,10,11,22,46,48,92,104,122,124,128,129,154,166,167,175 |
     | C5 | VIX *character* > VIX level; as-of trigger time; high-score + 0-trade + declining-VIX = correct abstention; validate seasonality/time-gates against OUR per-hour P&L histogram, never folklore | L40,44,45,73,93,118,133,134,154,162,167 |
     | C6 | No look-ahead: filter <= current bar, verify bar closed, slice prior_bars; entry_time_et is naive ET (localize America/New_York, not UTC); verify causality AND OOS sign-stability before trusting an "inverse arm confirms it" cross-check | L14,34,57,61,94,161,165,166 |
     | C7 | Silent success is failure — audit outputs, not exit codes; verify new files git-tracked (--only drops untracked) | L19,26,28,32,39,53,62,67,79,80,82,83,84,85,86,87,90,91,92,96,97,98,105,106,117,155,160,161,164 |
     | C8 | Headless Windows spawn = system-pythonw + CREATE_NO_WINDOW + WMI liveness | L20,27,33,41,81 |
     | C9 | Anchor paths to __file__; update ALL state consumers; dual-account symmetry | L21,42,49,60 |
     | C10 | Rate-limit pool: separate prod key; never automate operator lockout | L54,62,68,69 |
-    | C11 | Broker is source of truth: verify flat before entry; atomic brackets | L47,76 |
+    | C11 | Broker is source of truth: verify flat before entry; atomic brackets; the sim must filter the SAME opportunity set the live order gate (risk_gate.check_order notional-cap + min_contracts) permits — "validated at qty N" is meaningless until qty N actually places at the target equity | L47,76,180 |
     | C12 | Stateful detectors need warmup / persisted state | L30,35 |
     | C13 | Confidence tiers must be reachable AND diverse over N>=20 | L63,65 |
-    | C14 | Dead/translated-but-unapplied knobs: vary-and-assert; sync tracker to params | L38,70,72,77,88,89,96,99,106,108,109,110,111,113,114,115,116,117,123,127,130,131,147,152,155 |
-    | C15 | Gates interact multiplicatively — trace session cascades; a dominant upstream quality filter supersedes downstream class blockers (re-validate the shared pool when one is added) | L07,08,09,66,95,163 |
+    | C14 | Dead/translated-but-unapplied knobs: vary-and-assert; sync tracker to params; a knob validated in sim that the live gate neutralizes (e.g. a high-premium config the notional cap blocks at the target equity) = a dead knob | L38,70,72,77,88,89,96,99,106,108,109,110,111,113,114,115,116,117,123,127,130,131,147,152,155,176,180 |
+    | C15 | Gates interact multiplicatively — trace session cascades; a dominant upstream quality filter supersedes downstream class blockers (re-validate the shared pool when one is added); any lever that raises per-contract premium (DTE / ITM-depth / wider stop) × a fixed per-trade $-cap shrinks how many signals place | L07,08,09,66,95,163,180 |
     | C16 | Multi-bar reversal vs single-bar continuation discriminator | L52,59,75 |
     | C17 | Build reusable skills + crypto validation, not one-shots | L36,37 |
     | C18 | Status-format discipline; surface signal, don't sign off silently | L06,15,17,18 |
@@ -276,9 +301,9 @@ These are non-negotiable, second only to the 10 rules above.
     | C25 | Level score formula must be validated for direction: high touch_count drives both stars AND eventual breaks (inverse correlation); verify sign before ranking | L142 |
     | C26 | Level ROLE determines correct metric: reaction-predictor → DM-null lift; entry-filter → WR delta when removed. Intraday H/L is a filter, not a predictor | L143,L144 |
     | C27 | Pattern detectors firing >80% of days measure noise not signal; restrict to bar_i=0 + specific level types before publishing any binary detector | L145 |
-    | C28 | Ribbon flip is a lagging exit; exit mechanics are locally optimal; focus research on ENTRIES — exit tuning has diminishing returns once stop-rate > 70% | L139,141,156,157 |
+    | C28 | Ribbon flip is a lagging exit; exit mechanics are locally optimal; focus research on ENTRIES — exit tuning has diminishing returns once stop-rate > 70% | L139,141,156,157,175 |
     | C29 | Exit target/stop knobs ratified on one strike tier (ITM-2) don't transfer to another (OTM-2) — verify independently per account/strike | L149 |
-    | C30 | Unconstrained exit targets (runner never hits 5x in 0DTE) = dead knob; audit what % of exits actually hit the target before sweeping it | L148 |
+    | C30 | Unconstrained exit targets (runner never hits 5x in 0DTE) = dead knob; audit what % of exits actually hit the target before sweeping it | L148,176 |
     | C31 | J's 667 real trades: 1-2 lots +$4,576 / 3+ lots -$17,461 / scaled-in -$327/trade — the killer is sizing-UP/adding behavior (Rule 6 + Rule 4 + no-add-after-loss), not flat count per se; min-3-vs-J's-losing-band is an OPEN question for J (his 3+ sample is all scaled-in, no clean flat-3); risk_gate has no post-loss size throttle | L168 |
 
     
