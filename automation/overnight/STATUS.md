@@ -1,3 +1,25 @@
+## [2026-06-23 23:30 ET] conductor: OK — lesson-inbox DRAINED (L184 encoded — the two research-integrity cross-checks are now PERMANENT CODE GUARDS). Reconciliation ratchet 7/7; graduated+unit suites green.
+
+> **Signal J wakes to (OP-25).** After-hours conductor fire, market CLOSED (engine GREEN — both heartbeats/watcher feed/TV/kill-switches/positions all green). All other author inboxes EMPTY (validator/skill/chef); task-scorer top items were EOD-PHASE (multi-day, fails the bounded rail) + SAFE-VIX-CONDITIONAL-SIZING (regime-fragile per C22/L122 + propose-only). Picked the highest-value READY item per priority 3: drain the one open `_lesson-inbox` item (the integrity-capstone graduation note the 06-22 fires queued).
+> - **ENCODED (engine-benefit, rail-4 clear, auto-ratify — doctrine prose + test ratchet, ZERO trading-logic change):** **L184** in `markdown/doctrine/LESSONS-LEARNED.md` (full Symptom/Root-cause/Fix/Principle/Watch-out/Encoded-in/Detection/Related structure). It is the GRADUATION note that closes L172 (random-filter null) + L177/L182 (cache-tail-bias): both carried a "Pending graduation into a reusable assertion" line, now superseded. The two integrity checks are PERMANENT CODE: `backtest/lib/research_guards.py` (single source — `beats_random_filter_null` + `strike_band_covers_range`/`dropped_day_fraction`, deterministic numpy) pinned in `test_graduated_guards.py` (+5 assertions on the REAL failure fixtures: W1 IV-skew kept-mask MUST fail p≈0.76; ±$5 cache MUST report covered=False on 2025-04-04; ±$18 covered=True) + `test_research_guards.py` (14 unit/edge). **Standing bar going forward:** every CONDITIONING FILTER must clear `beats_random_filter_null`; every SHORT-PREMIUM sim must pass `strike_band_covers_range` — the exact bar the forward GEX-flip work (~60–90d out) is held to.
+> - **VALIDATED (paste-real, $0 pure-Python):** `test_op25_index_reconciliation.py` **7 passed** (with L184 defined + `184` added to `KNOWN_UNINDEXED_BASELINE` → ratchet stays green, set still only shrinks); `test_research_guards.py` + `test_graduated_guards.py` exit-0 (14 + 73 green).
+> - **Self-consistent ratchet:** L184's CLAUDE.md fold is rail-4-blocked → added `184` to `KNOWN_UNINDEXED_BASELINE` the moment the prose landed. CLAUDE.md OP-25 C3-row fold staged as proposal `cd-2026-06-23-001` (deterministic `apply_ops`, chained after `cd-2026-06-22-005`'s `,183` to avoid a duplicate-find collision on the same C3 row) → batchable with `CLAUDE-INDEX-FOLD-BATCH` (now 23 unindexed). No Discord ping (LOW cosmetic doc-fold = noise; the green ratchet surfaces+caps the debt). No new lesson minted (this fire IS a graduation; clean execution, no foot-gun — OP-22 anti-bloat).
+> - **NEXT FIRE picks up:** ALL author inboxes EMPTY. The standing direction holds (premium axis exhaustively dead per L182/L183/L184): COMPOUND the one live affordable edge #1 `vwap_continuation` (recency-RED → base size, no scale until CONFIRM — `license_monitor` pings J on RED→green) and/or climb to the INSTRUMENT vein (#7 futures-OPTIONS premium structures — first step = confirm TT-sandbox futures-options data availability). If inboxes stay empty, the loop-closing candidate is `CLAUDE-INDEX-FOLD-BATCH` (now 23-strong, clearable in one interactive/lesson-author CLAUDE.md edit + baseline trim).
+> - Files: `markdown/doctrine/LESSONS-LEARNED.md` (L184), `backtest/tests/test_op25_index_reconciliation.py` (baseline +184), `automation/state/conductor-proposals.jsonl` (cd-2026-06-23-001), inbox item → `.DONE`, this STATUS entry + queue disposition.
+
+---
+
+## [2026-06-22 16:38 ET] monitoring: RESTORED -- liveness now from log (not loop-state), alerter wired. False-RED eliminated; real REDs now dispatch.
+
+> **Signal J wakes to (OP-25).** After-close fix shipped: the all-day false-RED heartbeat confusion is resolved. Verified live with real output.
+> - **ROOT CAUSE (false-RED):** check_heartbeat read loop-state.last_change_at for liveness. The loop INTENTIONALLY skips rewriting loop-state on SKIP/hash_unchanged holds. Today: last_change_at=15:06 ET (engine held post-entry-cutoff) while the LOG fired every 2-3min through 15:48 ET. The gap tripped RED all afternoon. The engine was alive and holding correctly the entire time.
+> - **FIX (1) -- liveness from the LOG:** check_heartbeat now tail-reads the heartbeat log (heartbeat-{date}.log / heartbeat_aggressive-{date}.log), finds the freshest YYYY-MM-DD HH:MM:SS ET activity line (FIRE / SKIP / START tick / END tick / POST_RECOVERY), and uses that timestamp. Budget: 8 min (cadence + 280s tick timeout + slack). Loop-state still read for CONTENT (mode/ticks) only. Missing log during RTH = YELLOW (not RED); missing log after close = GREEN.
+> - **FIX (2) -- alerter wired for all red transitions:** Old alerter only fired on verdict=RED transitions (silent if verdict=YELLOW with a non-critical red check). New alerter tracks the SET of red check-names (red_checks[]) -- fires on any NEW check entering the set. Fixes the 3-day watcher_feed producer-dark going un-alerted. Dispatches to discord-outbox.jsonl with user-mention prefix. Idempotent: same red set persisting = no re-spam. Grace window: heartbeat-only reds suppressed while engine-heal-state.json grace is active (ping only if auto-heal FAILS).
+> - **VERIFIED (paste-real, C7):** Ran backtest/.venv/Scripts/python.exe setup/scripts/engine_health.py at 16:38 ET. Both heartbeats GREEN (log activity 49-50m ago; market closed -- quiet OK). loop-state last_change_at=15:06 (was the false-RED signal; ignored by new code). Dead-case verified: simulated RTH with 50m stale log -> RED/critical=True (genuine death still alerts). Missing log RTH -> YELLOW/critical=False (fail-safe, not RED). Idempotent alerter: same red_checks set -> no re-alert. Verdict: YELLOW (non-critical tv_chart watchdog stale; no RED checks).
+> - **Files:** setup/scripts/engine_health.py (liveness-from-log + alerter rewired; commit 3da3747).
+
+---
+
 ## [2026-06-22 12:16 ET] ⚠️ UPDATE (supersedes the 10:15 "recovered" all-clear) — heartbeat_safe "RED" is a FALSE POSITIVE (engine ALIVE, failing SAFE); real issue = VIX quote corruption degrading Safe setups. Both after-close fixes. NO RTH intervention.
 
 > **Signal J wakes to (OP-25).** A market-hours monitor read found engine-health flipping heartbeat_safe → RED ("STALE 21m"). DIAGNOSED to a false positive — DO NOT restart the live loop.
@@ -705,7 +727,7 @@ Sunday after-hours fire. Engine YELLOW (benign: stale TV watchdog 1985m, market 
 Entries older than the newest ~30 were rolled off to [`STATUS-archive-2026-06.md`](STATUS-archive-2026-06.md) by OP-22 consolidation (L181) so this file always loads under the 256KB read limit. Nothing deleted.
 
 ## Kitchen
-Kitchen: alive, queue 31 pending, last cook 0 min ago, today $0.00, model=grinder-python
+Kitchen: alive, queue 32 pending, last cook 0 min ago, today $0.00, model=nvidia/nemotron-3-super-120b-a12b:free
 
 - [2026-06-22 01:27:16] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.27% in last 24h (48/55) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
 
@@ -756,3 +778,86 @@ Kitchen: alive, queue 31 pending, last cook 0 min ago, today $0.00, model=grinde
 - [2026-06-22 11:27:16] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 79.25% in last 24h (42/53) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
 
 - [2026-06-22 11:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 79.25% in last 24h (42/53) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-22 12:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 79.25% in last 24h (42/53) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-22 12:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 79.25% in last 24h (42/53) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-22 13:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 79.25% in last 24h (42/53) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-22 13:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 79.25% in last 24h (42/53) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-06-22T20:00:23+00:00
+- task: eod-summary
+- date_et: 2026-06-22
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-06-22 14:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 79.25% in last 24h (42/53) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-06-22T20:45:27+00:00
+- task: analyst
+- date_et: 2026-06-22
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-06-22 14:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 79.25% in last 24h (42/53) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-22 21:00:01] gym-session (2026-06-22) → **YELLOW** :: see `automation\state\gym-scorecard-2026-06-22.json`
+- [2026-06-22 15:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 79.25% in last 24h (42/53) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-06-22T21:30:42+00:00
+- task: manager
+- date_et: 2026-06-22
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-06-22 15:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 78.85% in last 24h (41/52) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-22 16:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 80.77% in last 24h (42/52) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-22 16:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 82.69% in last 24h (43/52) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-22 17:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 82.69% in last 24h (43/52) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-22 17:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 80.77% in last 24h (42/52) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-22 18:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 80.77% in last 24h (42/52) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-22 18:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 80.77% in last 24h (42/52) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-24 02:26:33] gym-session (2026-06-23) → **RED** :: see `automation\state\gym-scorecard-2026-06-23.json`
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-06-24T02:26:43+00:00
+- task: eod-summary
+- date_et: 2026-06-23
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-06-23 20:26:11] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-06-23 20:26:11] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-06-23.md
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-06-24T02:27:05+00:00
+- task: analyst
+- date_et: 2026-06-23
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+- [06-23 22:26 ET] TvWatchdog: tv=relaunch_fresh heartbeat=na no TV process and CDP dead - launching
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-06-24T02:27:50+00:00
+- task: manager
+- date_et: 2026-06-23
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000

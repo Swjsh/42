@@ -1,0 +1,36 @@
+# Lesson candidate: the two research-integrity cross-checks (random-filter null + strike-band coverage) are now PERMANENT CODE GUARDS — every future CONDITIONING FILTER must call beats_random_filter_null and every future SHORT-PREMIUM sim must call strike_band_covers_range, from ONE shared library
+
+> Queued by Gamma (integrity capstone) 2026-06-22. lesson-author picks up at next wake fire. This is the GRADUATION note for the two already-written lessons L172 (random-filter null) and L177/L182 (cache-tail-bias) — both flagged "pending graduation into a reusable assertion" in their own inbox items. Per OP-25/OP-22 ("a re-violated lesson is a missing guardrail — graduate it to a code assertion").
+
+## Symptom
+Two integrity checks recurred often enough — and were violated AFTER being written as prose — that they had to become code, not memory:
+
+1. **No-selection CONDITIONING FILTERS kept looking like edges.** Three deaths on the SAME bar: W1 IV-skew confirmer on the vwap_continuation edge (kept exp **$45.66 vs random-drop null mean $48.30 / p95 $54.30 → one-sided p=0.76, FAIL**), the VIX-level gate (**p=0.355, FAIL**), touch-and-go (selective-only). Each "filter" merely shrank n without selecting the right tail; a coin-flip drop of the same fraction did as well or better.
+2. **Short-premium sims overstated magnitude off a too-narrow cache.** The event iron-condor looked **+$32.15/tr on the ±$5 cache**; the ±$18 wide-band de-bias INVERTED it to **−$11.38/tr** (worst trade −$640/lot) on the same 2025-04-04-class big-move days — the narrow cache silently dropped the violent loser strikes as `missing_cache`, truncating the loss tail.
+
+## Root cause
+Both checks lived as inline copies / prose, so they could be skipped or drift. The null logic existed inline in `backtest/autoresearch/_iv_skew_confirmer.py` (`random_filter_null` + `null_p_for`) and in the `_event_iv_crush` harness; the band check lived as scattered `legs_in_band(half_width=5)` literals. Prose-as-control failed (the lessons were re-violated after being written). The fix is a single-source library plus regression assertions on the REAL failure fixtures.
+
+## Fix
+- **`backtest/lib/research_guards.py`** — the single source of truth, pure functions, deterministic (fixed-seed RNG), numpy-only:
+  - `beats_random_filter_null(base_pnl, kept_mask, n_seeds=2000, seed_base, sig_level=0.05) -> FilterNullResult{passed, applicable, p_value, filt_mean, null_mean, null_p95, ...}`. `passed` iff `filt_mean > null_p95` (one-sided p<0.05). DEGENERATE point-null (kept==0 or ==N) → `applicable=False`, NOT blessed (the event-long-vega trap where pool==sample size).
+  - `strike_band_covers_range(day_low, day_high, atm, cache_min_strike, cache_max_strike) -> StrikeBandResult{covered, dropped_side, slack, ...}` + `dropped_day_fraction(day_results)` to aggregate a sim's day set.
+- **Graduated into `backtest/tests/test_graduated_guards.py`** (the canonical gym) as PERMANENT regression assertions pinned to the real failure cases — suite now **73 passed** (was 68; +5):
+  - `test_l172_iv_skew_filter_fails_random_null` — the REAL W1 IV-skew kept-mask (artifact `analysis/recommendations/web-vwap_cont_iv_skew_confirmer.json`, variant `W1b_put_side_first_strict25d`) MUST return `passed=False` (reproduces p≈0.76). Asserts the artifact still records the gate as failing (fixture-drift guard).
+  - `test_l172_genuine_filter_passes_random_null` — a top-quartile filter MUST pass (proves the guard is not always-False).
+  - `test_l172_degenerate_point_null_flagged_not_blessed` — keep-all / keep-none → `applicable=False`, `passed=False`.
+  - `test_l177_event_condor_narrow_cache_fails_band_coverage` — the REAL ±$5 cache `backtest/data/options` MUST report `covered=False` on 2025-04-04 (`dropped_side="high"`, slack<0).
+  - `test_l177_event_condor_wide_cache_covers_band` — the REAL ±$18 cache `backtest/data/options_event_wide` MUST report `covered=True`.
+- Full unit + edge coverage also in `backtest/tests/test_research_guards.py` (14 passed).
+
+## Doctrine (the standing bar, going forward)
+- **Any future CONDITIONING FILTER on an existing edge MUST call `beats_random_filter_null` and clear it before it can be presented as an improvement.** Cite the 3 deaths: W1 IV-skew (p=0.76), VIX-level gate (p=0.355), touch-and-go (selective-only). A filter that only shrinks n is not an edge.
+- **Any future SHORT-PREMIUM / credit / defined-risk sim MUST call `strike_band_covers_range` (and disclose `dropped_day_fraction`) before its expectancy is trusted.** Cite the event-condor cache-tail-bias: +$32/tr on ±$5 vs −$751-tail on ±$18, same day.
+- **These are the exact bar the GEX-flip filter test (forward, ~60–90 days out) will be held to.** A GEX-flip conditioning filter on vwap_continuation that does not beat the random-filter null is not promotable; a GEX-driven short-premium structure whose sim does not cover the realized band is magnitude-biased and not trustworthy.
+- Reuse the ONE library implementation — do NOT re-inline null/band logic. `cap_admission` is a separate concern (notional cap), already graduated, not touched here.
+
+## Encoded in
+`backtest/lib/research_guards.py` (single source) + `backtest/tests/test_graduated_guards.py` (5 graduated regression assertions, suite 73 green) + `backtest/tests/test_research_guards.py` (14 unit/edge). Supersedes the "pending graduation into a reusable assertion" line in the L177/L182 cache-tail-bias inbox item and closes the loop on the L172 random-filter null.
+
+## L## (optional)
+Suggested **L184** — "Two research-integrity cross-checks graduated to code guards: every conditioning filter must beat beats_random_filter_null, every short-premium sim must pass strike_band_covers_range, from the one shared lib (research_guards.py). The forward GEX-flip filter is held to this bar." Fold into CLAUDE.md OP-25 index (theme C3/C7/C30) alongside the existing L172/L177/L182 rows.
