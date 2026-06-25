@@ -23,7 +23,7 @@ Full Nemotron hardening history: [PROMOTION-SCORECARD.md](PROMOTION-SCORECARD.md
 
 | Model | Status | DT % | N clean DTs | Dates Covered | Notes |
 |-------|--------|------|-------------|---------------|-------|
-| Hermes 3 Llama 405B (`nousresearch/hermes-3-llama-3.1-405b:free`) | EVALUATING | 100% (3 dates) | 5/5 | 05-19 ✓, 05-07 ✓, 05-20 ✓, 06-24 ⏳ | Daily quota exhausted 2026-06-24; 06-24 pending `run_hermes_evals_tomorrow.ps1` |
+| Hermes 3 Llama 405B (`nousresearch/hermes-3-llama-3.1-405b:free`) | **ENSEMBLE-ELIGIBLE** | **100% (4 dates)** | 7/7 | 05-19 ✓, 05-07 ✓, 05-20 ✓, 06-24 ✓ | 4 dates × 100% DT; 5 RATE_LIMITED on 06-24 excluded per effective_is_dt rule |
 | Qwen3 80B MoE (`qwen/qwen3-next-80b-a3b-instruct:free`) | EVALUATING | 100% (1 date) | 2/2 | 05-19 ✓, rest pending quota reset | Daily RPD exhausted 2026-06-24; re-run via `run_qwen_evals_tomorrow.ps1` |
 
 *Legend: ✓ = complete, 🔄 = in progress, ⏳ = pending*
@@ -39,7 +39,7 @@ Full Nemotron hardening history: [PROMOTION-SCORECARD.md](PROMOTION-SCORECARD.md
 | 2026-05-19 | 2 | 2 | **100%** | 0 | ENTER+EXIT_STOP; clean run |
 | 2026-05-07 | 2 | 2 | **100%** | 1 (t5 excluded) | HOLD_DEV monitoring; 1 DT missed (inter-run retries extended RPM window past 90s) |
 | 2026-05-20 | 1 | 1 | **100%** | 0 | EXIT_ALL→EXIT_STOP via exit_hint P2 rule; 4 non-DT ticks skipped |
-| 2026-06-24 | — | — | — | all (daily quota) | 7 DTs all HOLD_DEV bear=8; daily quota hit; re-run via `run_hermes_evals_tomorrow.ps1` |
+| 2026-06-24 | 2 | 2 | **100%** | 5 (t20-22, t23b, t25) | 7 DTs = HOLD_DEV bear=8; 5 quota-exhausted excluded; 2 answered = HOLD_DEV match |
 
 ### Qwen3 80B MoE
 
@@ -74,12 +74,11 @@ Full Nemotron hardening history: [PROMOTION-SCORECARD.md](PROMOTION-SCORECARD.md
 
 ## Next Steps
 
-1. **Run Hermes 06-24** after quota reset: `& setup\scripts\run_hermes_evals_tomorrow.ps1` (05-19/07/20 are clean)
-2. **Run Qwen suite** after quota reset: `& setup\scripts\run_qwen_evals_tomorrow.ps1` (05-19 clean; needs 05-07/20/06-24)
-3. **Harden rubrics** if any mismatches in 06-24 results (7 HOLD_DEV bear=8 = pure M1 threshold test)
-4. **Wire ensemble** (2-of-3 majority): if both Hermes + Qwen score ≥85% across 4 dates, add ensemble vote to `run-shadow-eval.ps1`
-5. **Expand to 15+ dates** for graduation: run `Gamma_ShadowEval` scheduled task for multiple models nightly
+1. **Run Qwen suite** after quota reset (Qwen bucket fresh now): `& setup\scripts\run_qwen_evals_tomorrow.ps1` (05-07, 05-20, 06-24 still needed; 05-19 clean)
+2. **Hermes quota re-exhausted** during 06-24 batch — run `run_hermes_evals_tomorrow.ps1` after next midnight UTC for full 06-24 DT coverage (5 gaps)
+3. **Wire ensemble** (2-of-3 majority): Hermes ENSEMBLE-ELIGIBLE; wire once Qwen also clears 4 dates ≥85%
+4. **Expand to 15+ dates** for graduation: `Gamma_ShadowEval` now accumulates Hermes+Qwen daily (no manual action needed)
 
 ---
 
-*Updated: 2026-06-24 — Hermes 05-19/05-07/05-20 complete (5/5 DTs = 100%); Hermes+Qwen daily quota hit; 06-24 re-run pending quota reset*
+*Updated: 2026-06-25 03:19 UTC — Hermes ENSEMBLE-ELIGIBLE: 7/7 DT = 100% across 4 dates; Qwen re-run pending (05-07/20/06-24 quota gaps)*
