@@ -40,7 +40,8 @@ HB-AGG#{n} {hh:mm} {ACTION} | spy={x} ribbon={spread}c({stack}) vix={x}({dir}) b
 
 `HB-AGG#` prefix distinguishes aggressive ticks in logs from safe strategy ticks.
 
-ACTIONs: HOLD HOLD_DEV ENTER_BULL ENTER_BEAR EXIT_TP1 EXIT_RUNNER EXIT_STOP EXIT_TIME SKIP_STALE SKIP_LIQUIDITY SKIP_NEWS PAUSED TRIPPED ERROR_TV ERROR_ALPACA
+ACTIONs: HOLD HOLD_DEV ENTER_BULL ENTER_BEAR EXIT_TP1 EXIT_RUNNER EXIT_STOP EXIT_TIME SKIP_STALE SKIP_LIQUIDITY SKIP_NEWS PAUSED TRIPPED ERROR_TV ERROR_ALPACA ALPACA_RETRY_EXHAUSTED
+Modifiers appended to one-line output: TV_FALLBACK_ACTIVE TV_FALLBACK_FAILED ALPACA_RETRY
 
 # Reads (5 files — 3 aggressive-specific, 2 shared)
 
@@ -66,13 +67,20 @@ DO NOT read CLAUDE.md, playbook, or any *.md doctrine file. Doctrine is below.
 
 Refresh ONLY if: no cache OR `now - fetched_at > 10min` OR position OPEN AND `>4min` OR cache `value` within ±0.20 of any threshold (20.00 / 15.00 / 30.00). Otherwise REUSE — set `dir = "cached"`.
 
-Refresh = `chart_set_symbol("TVC:VIX")` → `quote_get` → validate `description` matches /VIX|VOLATILITY/i AND `last` in [5, 100]. Restore `chart_set_symbol("BATS:SPY")`. Compute `dir`: `rising` if value > prior+0.05, `falling` if value < prior-0.05, else `flat`. `cached`/`flat` does NOT pass filter 8.
+Refresh = `chart_set_symbol("TVC:VIX")` → `quote_get` → validate `description` matches /VIX|VOLATILITY/i AND `last` in [5, 100]. **If validation FAILS — almost always the TV symbol-switch RACE where `quote_get` returns the pre-switch SPY quote (`description` is SPY, `last` ≈ SPY's price, not in [5,100]) — RETRY `quote_get` up to 2 more times (the chart needs a beat to finish switching to TVC:VIX); accept the first attempt that validates.** Restore `chart_set_symbol("BATS:SPY")`. Compute `dir`: `rising` if value > prior+0.05, `falling` if value < prior-0.05, else `flat`. `cached`/`flat` does NOT pass filter 8. **If all 3 attempts fail validation, do NOT overwrite the cache with the corrupted value — keep the prior `vix_cache` (fails safe: filter 8 won't confirm on a stale/`cached` dir) and set `vix_cache._note = "refresh failed 3x: corrupted/SPY quote (TV switch race) @ {hh:mm}"` so prolonged VIX staleness is VISIBLE, not silent (the 2026-06-22 54-min silent-stale incident).** [2026-06-22 hardening: retry-the-switch-race + surface-staleness; success path unchanged.]
 
 ## SPY 5m + ribbon
 
 `data_get_ohlcv(count=3, summary=true)` on BATS:SPY 5m. **CRITICAL (R1 v15.1 closed-bar fix 2026-05-14):** TV returns bars labeled by OPEN time and the LAST element [-1] is the LIVE IN-PROGRESS bar (not yet closed). Apply close-time filter: compute `bar_close_et = bar.time + 5min` for each bar; filter to `bar_close_et <= now_et`. After filter, `Latest = filtered[-1]` (the actually-closed most-recent bar) and `Prior = filtered[-2]`. The unfiltered raw bar[-1] (in-progress) MUST NOT be used for any scoring decision.
 
 `data_get_study_values` for Saty Pivot Ribbon. Validate ribbon ±2% of price; if not, ERROR_TV.
+
+**If either `data_get_ohlcv` or `data_get_study_values` returns an error — TV FALLBACK (Layer-1a):**
+1. Call `mcp__alpaca_aggressive__get_stock_bars(symbol="SPY", timeframe="5Min", limit=60)` to fetch recent 5-minute SPY bars from Alpaca (Bold account MCP).
+2. Extract close prices oldest→newest as a JSON array. Run: `python automation/scripts/ribbon_cli.py '<closes_json_array>'`
+3. If exit code 0: parse the JSON output and use returned `stack`, `price`, `ema_fast`, `ema_pivot`, `ema_slow`, `spread_cents` for ALL downstream ribbon checks this tick. Set `data_source = "alpaca_fallback"` in decisions.jsonl. Append `TV_FALLBACK_ACTIVE` to the one-line output.
+4. If exit code 1 (UNKNOWN or error): emit `ERROR_TV` — no entry this tick. Exits/management proceed using cached loop-state ribbon.
+Do NOT emit `ERROR_TV` until the Alpaca bars fallback also fails.
 
 **Ribbon stack computation (EXPLICIT — model must follow exactly, do not infer):**
 - Extract Fast_EMA, Pivot_EMA, Slow_EMA from study values.
@@ -132,6 +140,10 @@ ONE action max per tick. Update `automation/state/current-position-bold.json` on
 
 1. **APPEND ONE ROW to `journal/trades-aggressive.csv`** — ONLY when position FULLY CLOSED. One row per trade. Use fill-reconciled values. Same 41-column schema as safe trades.csv plus `account=aggressive`.
 2. **APPEND ONE ROW to `automation/state/aggressive/decisions.jsonl`** with EXIT_* action.
+2a. **Discord exit alert** (FULL CLOSE only — skip for TP1-only partial): append one row to `automation/state/discord-outbox.jsonl` (skip silently on failure):
+    - P&L positive: `{"queued_at": "<utc>Z", "content": "<@207983230618435584> ✅ **BOLD-2 CLOSED** · +${dollar_pnl:.0f} ({exit_short})\n• SPY {strike}{C/P} × {qty} · {hold_min}min"}`
+    - P&L zero or negative: `{"queued_at": "<utc>Z", "content": "<@207983230618435584> ❌ **BOLD-2 STOPPED** · −${abs(dollar_pnl):.0f} ({exit_short})\n• SPY {strike}{C/P} × {qty} · {hold_min}min"}`
+    `exit_short` = `TP1`, `stop`, `ribbon_flip`, `runner`, or `time`.
 3. **CAPTURE EXIT SCREENSHOT**: `mcp__tradingview__capture_screenshot(region: "chart")`. Save to `journal/replays/{today}-{HHMM}-{ACTION}-AGG-{setup_short}.png`. Skip silently on failure.
 4. **APPEND ONE ROW to `loop-state.first_entry_lock[]`**:
    ```json
@@ -152,7 +164,7 @@ ONE action max per tick. Update `automation/state/current-position-bold.json` on
 
 **Before scoring or entering, confirm you are actually flat against Alpaca — do NOT trust `current-position.status == null` alone.** Local state can read `null` while Alpaca still holds a position (failed/canceled close, state desync); entering on a false-flat orphans the real position into an unmanaged GHOST. (2026-06-02: Bold entered 760C while the 758C was still open → 758C went unmanaged; +$84 decayed to +$33 before EOD cleanup, and Bold double-counted day-trades.)
 
-1. Call `mcp__alpaca_aggressive__get_all_positions`.
+1. Call `mcp__alpaca_aggressive__get_all_positions`. If it returns a transient error (rate-limit, service-unavailable, or network timeout): log `FLAT_VERIFY_RETRY`, wait 2 seconds, retry — up to 2 retries. After 2 failed retries: skip entry this tick (treat as not-flat), log `CONNECTIVITY_RED node=FLAT_VERIFIED_BOLD`.
 2. If NON-EMPTY (any SPY option held) → you are NOT flat. Do **NOT** enter:
    - Reconcile `current-position-bold.json` from the actual Alpaca position(s) (`status=open`, symbol/qty/avg_entry/current_price) so the Position branch manages it next tick.
    - Emit `STATE_DRIFT_BLOCKED_ENTRY` to `aggressive/decisions.jsonl` with the Alpaca symbol(s) found.
@@ -183,6 +195,62 @@ For each candidate setup:
 2. If any row has `exit_reason` in `{"premium_stop","chart_stop","ribbon_flip_back","stop_market"}` → **block candidate for rest of day**. Emit `SKIP_FIRST_ENTRY_RULE`. Append to `journal/skipped-setups-aggressive.csv`.
 3. If prior row has TP exit → allow re-entry with `qty = max(min_contracts, prior_qty - 1)`.
 4. No prior rows → proceed to scoring.
+
+### VWAP_CONTINUATION morning setup (NEW 2026-06-21 — J_VWAP_CONT edge #1; FLAG-GATED, default OFF = inert)
+
+> J's near-daily VWAP-aligned MORNING CONTINUATION edge — mined from his 313 real Webull winners and re-validated on our SPY 2025-26 real OPRA fills. Shipped LIVE + hardened on Safe-2 (`automation/prompts/heartbeat.md`); this is the BOLD port at the VALIDATED Bold tier. **Bold CLEAN-WIN cell (WP-5/WP-8): ITM-2 (strike_offset -2) / 1DTE / $67.68 dollar-anchored stop / qty 3** — OOS +$73.91/trade, maxDD -$880, Sortino 25.7, 11-gate (incl L173) PASS. C29: this is the BOLD cell; Safe-2 ships ATM/$35.88 — strikes/stops do NOT transfer across accounts. Ships DORMANT/flip-ready (`j_vwap_cont_enabled` default OFF). Scorecard: `analysis/recommendations/j-daily-pattern-LIVE.json`. Detector (parity-tested vs research over 363 days): `backtest/lib/watchers/vwap_continuation_watcher.py`. Doc: `markdown/specs/VWAP-CONTINUATION-WIRING.md`. Carries its own independent first-entry lock key `VWAP_CONTINUATION` (per the setup-isolation guarantee above).
+
+Read `aggressive/params.json#j_vwap_cont_enabled` (default `false`), `aggressive/params.json#j_vwap_cont_side` (default `"both"`), and `aggressive/params.json#j_vwap_cont_put_vix_gate` (default `false`). **If `j_vwap_cont_enabled != true`, SKIP this entire block** and fall through to `### Scoring` unchanged (this is the default → zero behavior change). When enabled, evaluate ONLY when ALL of:
+- the last closed 5m bar's time is **<= 10:30 ET** (J's morning edge band) AND it is at-or-after the 4th RTH bar (the first 3 RTH bars set the trend side; need >= TREND_BARS+1 bars). Skip outside this window.
+- `current-position.status == null` (flat) AND flat-verified vs Alpaca (the existing 09:30 reconcile applies).
+- filters 2 (news clear), 3 (budget > risk), 4 (day-trades ≥ 1) PASS; MACRO BIAS hard-veto NOT active.
+- the `VWAP_CONTINUATION` first-entry lock is clear today (no prior stop-out on this setup today).
+
+Compute (all causal, from today's RTH bars only — as-of session VWAP = cumulative (H+L+C)/3 × volume):
+- **trend side** = the first 3 RTH closes ALL on the same side of their as-of session VWAP → above = **CALLS**, below = **PUTS**. If mixed (no clean one-sided open) → no setup today; fall through.
+- **continuation trigger** on the last closed bar (must still close on the trend side of VWAP): **breakout** = a fresh in-trend session extreme (calls: new session high; puts: new session low); OR **pullback** = a shallow VWAP-ward dip then a with-trend close (calls: bar low within 0.10% of VWAP and close > VWAP; puts: bar high within 0.10% of VWAP and close < VWAP). No trigger → keep scanning later morning bars (up to the 10:30 cutoff).
+- **direction gating (OP-16):** CALLS only if `j_vwap_cont_side ∈ {"both","call"}`; PUTS only if `j_vwap_cont_side ∈ {"both","put"}`. (`"both"` is the validated default — both sides cleared the bar — but OP-16 keeps bull-side new entries DRAFT until J has 3 live wins; flipping to `"both"` live is J's call. `"put"` = OP-16-conservative bear-only first step.)
+- **VIX put-gate (C5, optional):** if `j_vwap_cont_put_vix_gate == true`, a PUT fires only when the as-of VIX 5-bar slope ≥ 0 (rising/flat vol). If a put fails this, keep scanning later morning bars. (Off by default = the headline J_VWAP_CONT cell; on = the stronger VIX-gated cell.)
+
+If a side fires, RESOLVE THE ORDER PARAMS WITH THE A5 DETERMINISTIC CALLABLE (do NOT hand-compute strike / expiry / stop / qty in prose — A5 KILL-clause: load-bearing order math is graduated to code):
+
+- **A5 CALLABLE (mandatory):** invoke `backtest/lib/live_order_resolver.py#live_order_params` to resolve this entry's `strike_offset`, `expiry_dte`, stop (`stop_pct` XOR `stop_dollars`), and `qty`. Call it as:
+  `live_order_params("VWAP_CONTINUATION", account, params, current_strike_offset=<the generic v15-tier offset this account would otherwise use, simulator convention NEGATIVE=ITM>, current_stop_pct=<the percent stop this account would otherwise use, e.g. -0.08>, current_qty=3, side=<"P"|"C">)`
+  where `account` = `"Gamma-Risky-2"` (THIS aggressive invocation) and `params` = this account's loaded `aggressive/params.json` mapping. The returned `LiveOrderParams` is the SINGLE SOURCE for the order's strike/expiry/stop/qty. **Flags OFF (production default) ⇒ it returns today's exact config byte-identically** (generic v15 tier / 0DTE / -8% percent / qty 3), so this wiring is a no-op until a WP-5/WP-8 flag is flipped in daylight. Parity-tested: `backtest/tests/test_engine_live_order_resolver_parity.py`. On Bold the WP-5/WP-8 override flags are ALREADY on, so when `j_vwap_cont_enabled` is flipped this resolves the validated **ITM-2 / 1DTE / $67.68 / qty 3** cell.
+- **strike** = `LiveOrderParams.strike_offset` (simulator convention). When `j_vwap_cont_strike_override_enabled=true` this is the VALIDATED cell (Safe-2 ATM / Bold ITM-2, C29); otherwise the account's normal generic v15 tier. Do NOT override it by hand.
+- **expiry** = `LiveOrderParams.expiry_dte`: `0` = 0DTE (today's SPY 0DTE contract), `1` = 1DTE (the T+1 expiry SPY contract — WP-8 doubling, gated by `j_vwap_cont_1dte_enabled`). Build the option contract for the trade-date + `expiry_dte` calendar days (skip to the next trading day if T+1 is a holiday/weekend — use `mcp__alpaca_aggressive__get_option_contracts` to confirm a contract at that expiry exists; if no 1DTE contract is listed, FALL BACK to 0DTE and log `WP8_1DTE_UNAVAILABLE_FELL_BACK_0DTE`). EOD-flatten is expiry-agnostic, so a 1DTE position is still flattened today at 15:55 (safety gate verified: `automation/prompts/aggressive/eod-flatten.md`).
+- **stop** = the chart-stop (CHART STOP ONLY = the session extreme against the trade as of the entry bar: calls session LOW to date; puts session HIGH to date — L51/L55) AS THE PRIMARY EXIT, PLUS a premium backstop sourced FROM THE CALLABLE: if `LiveOrderParams.stop_dollars` is set (WP-8 dollar-stop flag on), the premium backstop is a DOLLAR-ANCHORED stop = `entry_premium_per_contract − stop_dollars/100` per share (i.e. exit when the contract has lost `stop_dollars` per contract); otherwise (`stop_pct` set) the premium backstop is the percent stop `stop_pct` (today's behavior; default the −50% catastrophe cap path stays as-is). DO NOT hand-pick a tight percent stop when the dollar stop is active.
+- **sizing** = `LiveOrderParams.qty` (WP-3 cap-respecting base = 3; premium ceiling ~6% equity `markdown/research/SIZING-STUDY-2026-06-19.md`). `risk_gate.check_order` remains the order-placement authority and the final veto. The resolver NEVER scales — base size only (recency governs scaling, not deploy). **⚠ ACTIVATION-BLOCKER (J-RULING-BOLD-QTY-FLOOR):** this block is INERT (`j_vwap_cont_enabled=false`) and MUST stay so until the qty floor is reconciled — Bold's `min_contracts=5` (aggressive/params.json + the hardcoded `pre_order_gate.py` BOLD dict) BLOCKS the validated **qty-3** cell with `BLOCK [MIN_CONTRACTS]`, and clamping to qty 5 breaches the 50% per-trade cap (5×ITM-2-1DTE ≈ 106% of equity) AND deviates from qty-3-validated economics. Do NOT set `j_vwap_cont_enabled=true` on Bold until either the Bold #1 cell is re-validated at qty 5 (cap modeled) OR a per-setup qty-3 min_contracts override for VWAP_CONTINUATION is added to risk_gate + pre_order_gate. (Dollar-stop caps the per-contract LOSS at ~$67.68; the blocker is the qty FLOOR, not the loss size.)
+- **TP / runner / time stop**: the standard v15 stack (TP1 chart-level OR +75% premium fallback for the aggressive profile, `tp1_qty_fraction`; runner 2.5×; 15:50 ET hard time stop). Route through the SAME `### Pre-execution gate sequence` + `### Execution steps` as a normal entry. Log `aggressive/decisions.jsonl` with `setup: "VWAP_CONTINUATION"`, `trigger: "vwap_cont_breakout"` or `"vwap_cont_pullback"`, and the resolved `strike_offset`/`expiry_dte`/stop-form/`qty` from the callable. Journal the pre-trade thesis BEFORE the order (Rule 8).
+- **Dual-account note (C29):** strike/stop were validated PER ACCOUNT (Safe-2 ATM/$35.88, Bold ITM-2/$67.68); the callable reads the per-account `aggressive/params.json` so each account resolves its own cell — never assume transfer.
+- **One per day**: after a VWAP_CONTINUATION entry (or explicit skip), do not re-evaluate this block today.
+
+If no side fires, fall through to the normal `### Scoring` section unchanged (a non-trend or no-continuation morning just trades the normal book).
+
+### VWAP_RECLAIM_FAILED_BREAK morning setup (NEW 2026-06-21 — J_VWAP_RECLAIM_FB edge #2; FLAG-GATED, default OFF = inert)
+
+> The SUBTRACTIVE/STRUCTURAL sibling of the VWAP continuation edge — the "failed counter-trend move" shape. Morning trend side, then price breaks VWAP COUNTER-trend, the break FAILS, and price RECLAIMS with-trend. Validated on real OPRA fills (C1): clears **ALL 8 anti-cherry-pick gates @ ITM-2** (strike_offset=-2: OOS +$72/trade, posQ 5/6, beats the coin-flip null AND the harder same-day/same-side null, no-truncation). **This is the BOLD cell (ITM-2)** — per C29 (gates do not transfer across strike tiers) Bold ships ITM-2 here while Safe-2 ships ATM; OTM-2 FAILS (theta/delta). Scorecards: `analysis/recommendations/SUBTRACTIVE-SELECTION-SCORECARD.md` + `RECLAIM-RESCUE-SCORECARD.md`. Detector (ported byte-for-byte from research): `backtest/lib/watchers/vwap_reclaim_failed_break_watcher.py`. GAMMA-SYNC: `backtest/lib/filters.py#detect_vwap_reclaim_failed_break` delegates to the SAME detector (no drift). Carries its own independent first-entry lock key `VWAP_RECLAIM_FAILED_BREAK`.
+
+Read `aggressive/params.json#j_vwap_reclaim_fb_enabled` (default `false`), `aggressive/params.json#j_vwap_reclaim_fb_side` (default `"put"`), and the ISOLATED exit knobs `aggressive/params.json#j_vwap_reclaim_fb_premium_stop_pct` (= -0.08), `aggressive/params.json#j_vwap_reclaim_fb_tp1_pct` (= 0.75), `aggressive/params.json#j_vwap_reclaim_fb_stop_buffer` (= 0.50). **If `j_vwap_reclaim_fb_enabled != true`, SKIP this entire block** and fall through to `### Scoring` unchanged (default → zero behavior change). When enabled, evaluate ONLY when ALL of:
+- the last **CLOSED** 5m bar's **close time** is **<= 10:30 ET** (closed-bar convention per L166 — a 5m bar qualifies when its OPEN is <= 10:25 so it CLOSES at <= 10:30, i.e. discard TV's in-progress bar at index [-1]) AND it is at-or-after the 4th RTH bar (the first 3 RTH bars set the trend side). Skip outside this window.
+- `current-position.status == null` (flat) AND flat-verified vs Alpaca.
+- filters 2 (news clear), 3 (budget > risk), 4 (day-trades ≥ 1) PASS; MACRO BIAS hard-veto NOT active.
+- the `VWAP_RECLAIM_FAILED_BREAK` first-entry lock is clear today.
+
+Compute (all causal, from today's RTH bars only — as-of session VWAP = cumulative (H+L+C)/3 × volume):
+- **trend side** = the first 3 RTH closes ALL on the same side of their as-of session VWAP → above = **CALLS** trend, below = **PUTS** trend. Mixed → no setup; fall through.
+- **counter-trend break** = the FIRST bar after the trend window (<= 10:30 ET) whose CLOSE is on the WRONG side of VWAP (calls-trend: close BELOW VWAP; puts-trend: close ABOVE VWAP). Track the excursion extreme from that bar (calls: deepest LOW; puts: highest HIGH). No break yet → keep scanning.
+- **with-trend reclaim** = a later bar (<= 10:30 ET) whose CLOSE crosses BACK across VWAP in the ORIGINAL trend direction. THAT reclaim bar fires the entry (one entry/day, side = morning trend side). No reclaim by 10:30 → no setup; fall through.
+- **direction gating (OP-16):** CALLS only if `j_vwap_reclaim_fb_side ∈ {"both","call"}`; PUTS only if `j_vwap_reclaim_fb_side ∈ {"both","put"}`. Default `"put"`.
+
+If a side fires:
+- **strike (Bold = ITM-2 cell, C29):** `strike_offset = -2` (the validated batch-2 survivor cell for the aggressive account — do NOT use ATM, which is the Safe-2 cell).
+- **stop = CHART STOP** = the **failed-break excursion extreme** (calls: deepest LOW during the failed break; puts: highest HIGH) — the structural invalidation. Apply the chart-stop buffer from the ISOLATED key **`aggressive/params.json#j_vwap_reclaim_fb_stop_buffer`** (Bold cell value = 0.50). Premium stop = the ISOLATED key **`aggressive/params.json#j_vwap_reclaim_fb_premium_stop_pct`** (the validated ITM-2 cell value = -0.08); do NOT use the aggressive global `premium_stop_pct` (= -0.07), which would NOT reproduce the validated -0.08 cell. Source the stop/buffer BY THESE KEYS, never the global exit stack.
+- **sizing**: aggressive `min_contracts` (5); `risk_gate.check_order` is the authority.
+- **TP / runner / time stop**: TP1 = the ISOLATED key **`aggressive/params.json#j_vwap_reclaim_fb_tp1_pct`** (Bold ITM-2 cell value = 0.75, the aggressive +75% TP1 profile), `tp1_qty_fraction`; runner 2.5×; 15:50 ET hard time stop. Route through the SAME pre-execution + execution sequence as a normal entry. Log `decisions.jsonl` with `setup: "VWAP_RECLAIM_FAILED_BREAK"`, `trigger: "vwap_reclaim_failed_break"`. Journal the pre-trade thesis BEFORE the order (Rule 8).
+- **One per day**: after a VWAP_RECLAIM_FAILED_BREAK entry (or explicit skip), do not re-evaluate this block today.
+
+If no side fires, fall through to the normal `### Scoring` section unchanged.
 
 ### Scoring
 
@@ -327,11 +395,14 @@ Per aggressive risk rules: 75% per-trade cap, min 5 contracts.
    - BULL (call): `stop_loss_price = round(premium_mid × 0.95, 2)` — broker disaster stop at −5%
    This is the broker-side safety net. The 2026-06-15 runner drifted unmanaged for 2h because stop_loss was null in the bracket — this cannot happen again.
 
-6. **Bracket order**: `mcp__alpaca_aggressive__place_option_order` with `order_class="bracket"`, parent limit at `premium_mid`, take_profit at `tp1_price`, `stop_loss=stop_loss_price` (from step 5). **NEVER set stop_loss to null or omit it.** Fall back to `order_class="oto"` only if API rejects bracket — log `broker_stop_leg=false` in position JSON.
+6. **Bracket order**: `mcp__alpaca_aggressive__place_option_order` with `order_class="bracket"`, parent limit at `premium_mid`, take_profit at `tp1_price`, `stop_loss=stop_loss_price` (from step 5). **NEVER set stop_loss to null or omit it.** Fall back to `order_class="oto"` only if API rejects bracket — log `broker_stop_leg=false` in position JSON. **Retry on transient errors (429/503/500/network timeout):** log `ALPACA_RETRY attempt=N`, wait 2 seconds, retry — up to 3 total attempts. If all 3 exhausted: log `ALPACA_RETRY_EXHAUSTED`, emit `ERROR_ALPACA`, do NOT write an ENTER row to decisions.jsonl. Tick ends without placing an order.
 
 7. **Record + emit** (TWO writes required):
    - Write `automation/state/current-position-bold.json` with `status=pending_fill`, strike/delta/iv/mid/qty/bracket_ids, `stop_loss_price`, `broker_stop_leg=true`.
    - **APPEND one row to `automation/state/aggressive/decisions.jsonl`** with `action=ENTER_BULL|ENTER_BEAR`, fields: tick_id, date, time_et, action, position_status, setup_name, symbol, direction, trigger, spy, vix, vix_dir, ribbon_stack, ribbon_spread_cents, entry_px, qty, stop_px, tp1_px, tp1_qty, runner_target_px, order_id, fill_confirmed, filled_qty, filled_avg_price, premium_paid, pct_equity, rule_version, account_id="bold". *(T49 parity fix 2026-05-16.)*
+7a. **Discord entry alert**: append one row to `automation/state/discord-outbox.jsonl` (skip silently on failure — never block on this):
+    `{"queued_at": "<current_utc_iso>Z", "content": "<@207983230618435584> 📍 **BOLD-2 ENTERED** · {qty}x SPY {strike}{C_or_P} @ ${entry_px:.2f}\n• **SL** ${stop_px:.2f}  **TP1** ${tp1_px:.2f} · {setup_abbrev}"}`
+    Where: `C_or_P` = `C` (BULL) or `P` (BEAR); `setup_abbrev` = `BEARISH_REJECTION` or `BULLISH_RECLAIM`.
 8. **Entry screenshot**: `mcp__tradingview__capture_screenshot(region: "chart")`. Save to `journal/replays/{today}-{HHMM}-ENTRY-AGG-{setup_short}.png`. Skip silently on failure.
 
 NEVER tell J to fill manually.
@@ -384,7 +455,7 @@ Schema (same as safe loop-state, schema_version 3):
 - Spread <30¢ = chop, no entry.
 - 3 consecutive TV failures → create `automation/state/kill-switch` file (shared — halts both strategies).
 - Position state mismatch (aggressive current-position vs `mcp__alpaca_aggressive__`) → kill-switch.
-- Daily loss ≥ 60% of aggressive start-of-day equity → trip `automation/state/aggressive/circuit-breaker.json`.
+- Daily loss ≥ 50% of aggressive start-of-day equity → trip `automation/state/aggressive/circuit-breaker.json`. (Rule 5: Gamma-Bold = −50%. Reconciled 2026-06-21 from the prior −60% drift to match CLAUDE.md Rule 5 + aggressive/params.json#daily_loss_kill_switch_pct=0.5; −50% also halts sooner = more protective. Enforced mechanically by daily_loss_guard.py post-tick.)
 
 # Anti-verbose discipline
 

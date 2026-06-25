@@ -36,7 +36,7 @@ This constant is verified daily at premarket Step 1a against `automation/state/p
 > 4. **Profit-lock trailing chandelier (NEW — was static breakeven-after-TP1 in v14):**
 >    - Arm at `favor_premium ≥ entry × (1 + 0.05)` (+5% favor)
 >    - Initial floor on arm: `entry × (1 + 0.10)` (+10%)
->    - Then trail 15% off the high-water mark of `favor_premium` (CHANDELIER_TRAIL_20_TO_15 2026-06-19: tightened 20%->15%, Safe-only; re-confirmed on live config full-engine, ATM IS +$2,198 / OOS +$155 / WF 0.861, all 5 OP-22 gates PASS; scorecard analysis/recommendations/weekend-fixes-live-reconfirm-2026-06-19.json. Revert: 15%->20% + params v15_profit_lock_trail_pct 0.15->0.2)
+>    - Then trail 12.5% off the high-water mark of `favor_premium` (WP-6 CHANDELIER_TRAIL_15_TO_125 2026-06-21: tightened 15%->12.5%, Safe-only; validated real-fills, FULL L175 clears vs live 0.15 — exp +$10.00/tr, OOS +$14.97/tr, Sortino 11.83->13.80, maxDD equal -$315.12, posQ 6/6; scorecard analysis/recommendations/SUNDAY-WEB-LEARN-SCORECARD.md. Prior step was 20%->15% on 2026-06-19. Revert: 12.5%->15% + params v15_profit_lock_trail_pct 0.125->0.15)
 >    - Stop never lowers below original premium-stop
 > 5. **TP1 split:** `tp1_qty_fraction = 0.667` (Rank-31 2026-06-16, WF=1.08, OOS+44% — was 0.50 in v15, reverted to v14 value). 2/3 at TP1, 1/3 runner.
 > 6. **Runner target:** `runner_target_premium_pct = 2.50` (was `3.0` ceiling in v14 — now an active target, not just a ceiling).
@@ -46,7 +46,7 @@ This constant is verified daily at premarket Step 1a against `automation/state/p
 >
 > **Revert path:** if v15 misbehaves, restore v14 by: (1) `cp automation/prompts/heartbeat-v14-prod-backup.md automation/prompts/heartbeat.md`, (2) edit `automation/state/params.json#rule_version` back to `"v14"`, (3) edit `automation/prompts/premarket.md` line 38 `RULE_VERSION_EXPECTED = "v14"`. Premarket Step 1a re-verifies pin on next 08:30 ET fire.
 >
-> **Risk note (CPI day = high-vol regime):** v14_enhanced ratification was tested on 16-month real-fills + walk-forward 2.67x out-performance. The profit-lock trailing chandelier (CURRENT trail = **15%**, tightened from 20% on 2026-06-19 — see Step 4) provides asymmetric upside on big winners (the original T50 B1 trailing-20% test: lower top-5 concentration 32% vs 37%, equal aggregate P&L; the 2026-06-19 tighten to 15% added +$2,198 IS / +$155 OOS on the live config). The asymmetric trade-off is favorable for high-vol days.
+> **Risk note (CPI day = high-vol regime):** v14_enhanced ratification was tested on 16-month real-fills + walk-forward 2.67x out-performance. The profit-lock trailing chandelier (CURRENT trail = **12.5%**, tightened from 15% on 2026-06-21 per WP-6 — see Step 4) provides asymmetric upside on big winners (the original T50 B1 trailing-20% test: lower top-5 concentration 32% vs 37%, equal aggregate P&L; the 2026-06-19 tighten 20%->15% added +$2,198 IS / +$155 OOS on the live config; the 2026-06-21 WP-6 tighten 15%->12.5% adds +$10.00/tr exp / +$14.97/tr OOS at equal maxDD, full L175 clear). The asymmetric trade-off is favorable for high-vol days.
 
 # v15.1 ratification (LIVE 2026-05-14 evening)
 
@@ -124,14 +124,20 @@ Standard tick. No change to scoring or output.
 **Run once per session on the first tick (tick_index == 0 or loop-state missing).**
 
 **Self-test procedure:**
-1. Call `mcp__alpaca__get_account_info` — if it fails, emit `ERROR_ALPACA` and exit.
+1. Call `mcp__alpaca__get_account_info`. If it fails with a transient error (rate-limit, service-unavailable, or network timeout): log `ALPACA_RETRY attempt=N`, wait 2 seconds, retry — up to 3 total attempts. If all 3 fail, emit `ERROR_ALPACA` and exit.
 2. Log result: `MCP_SELF_TEST safe=ok` as the first line of `automation/state/logs/heartbeat-{today}.log`.
 
 **Functional connectivity gate (head-to-toe — canonical protocol = the `connectivity-gate` skill).** The once-per-session test above is the cheap LAYER-1 substrate. On EVERY tick that might ENTER, verify these functional nodes BEFORE placing any order. Rule: **fail-CLOSED for trading, fail-OPEN for the human** — a RED node SKIPs the *entry* and logs the node, but NEVER blocks managing/exiting an open position and NEVER halts the session.
-- `TV_DATA_LIVE` — the SPY 5m OHLCV from Step 3 has ≥2 bars AND the latest CLOSED bar timestamp is within ~10 min of now ET. A feed that is listening but frozen (stale bars) is the silent-failure case `data_get_ohlcv` success cannot see (C7) → emit `SKIP_TV_DATA_STALE`, no entry this tick.
+- `TV_DATA_LIVE` — the SPY 5m OHLCV from the "SPY 5m + ribbon" section has ≥2 bars AND the latest CLOSED bar timestamp is within ~10 min of now ET. A feed that is listening but frozen (stale bars) is the silent-failure case `data_get_ohlcv` success cannot see (C7).
+  **TV FALLBACK (Layer-1a — OPEN-BLINDNESS fix 2026-06-24):** If `data_get_ohlcv` returns an error OR bars are stale (less than 2 usable closed bars, or latest closed bar > 10 min old):
+  1. Call `mcp__alpaca__get_stock_bars(symbol="SPY", timeframe="5Min", limit=60)` to fetch recent 5-minute SPY bars from Alpaca.
+  2. Extract close prices oldest→newest as a JSON array. Run: `python automation/scripts/ribbon_cli.py '<closes_json_array>'` where `<closes_json_array>` is that JSON array string.
+  3. If exit code 0: parse the JSON output and use returned `stack`, `price`, `ema_fast`, `ema_pivot`, `ema_slow`, `spread_cents` for ALL downstream ribbon checks this tick. Set `data_source = "alpaca_fallback"` in decisions.jsonl. Append `TV_FALLBACK_ACTIVE` to the one-line output.
+  4. If exit code 1 (UNKNOWN stack or error): emit `SKIP_TV_DATA_STALE` and log `TV_FALLBACK_FAILED` — no entry this tick. Exits/management proceed using cached loop-state ribbon.
+  Only emit `SKIP_TV_DATA_STALE` if this Alpaca fallback also fails.
 - `MARKET_OPEN` — `mcp__alpaca__get_clock` `is_open` true (RTH). Closed = clean no-trade, not an error.
 - `ACCOUNT_REACHABLE` — `get_account_info` returned numeric equity this session (alive-but-401 is caught here, not by "process up").
-- `FLAT_VERIFIED` — before a NEW entry, `mcp__alpaca__get_all_positions` confirms no open SPY 0DTE (broker = source of truth, L47/C11).
+- `FLAT_VERIFIED` — before a NEW entry, `mcp__alpaca__get_all_positions` confirms no open SPY 0DTE (broker = source of truth, L47/C11). If `get_all_positions` returns a transient error: log `FLAT_VERIFY_RETRY`, wait 2 seconds, retry — up to 2 retries. After 2 failed retries: treat gate as CONNECTIVITY_RED (skip entry, log `CONNECTIVITY_RED node=FLAT_VERIFIED`).
 - Any HARD node RED → log `CONNECTIVITY_RED node=<X>` to the heartbeat log + SKIP the entry. Exits/management proceed regardless. See the `connectivity-gate` skill for the full node list + heal hints; read the chart per the `tradingview-ops` skill.
 
 ## Alpaca tool reference — SAFE account only (`mcp__alpaca__*`)
@@ -170,7 +176,8 @@ Print exactly one line to stdout. Nothing else. No preamble, no analysis, no mar
 HB#{n} {hh:mm} {ACTION} | spy={x} ribbon={spread}c({stack}) vix={x}({dir}) bear={n}/10 bull={n}/11 htf={15m_stack} | {one_clause_reason}
 ```
 
-ACTIONs: HOLD HOLD_DEV ENTER_BULL ENTER_BEAR EXIT_TP1 EXIT_RUNNER EXIT_STOP EXIT_TIME SKIP_STALE SKIP_LIQUIDITY SKIP_NEWS PAUSED TRIPPED ERROR_TV ERROR_ALPACA WATCH_ONLY ORB_WOULD_ENTER FBW_WOULD_ENTER SKIP_WATCH_TRIPPED SKIP_WATCH_PDT
+ACTIONs: HOLD HOLD_DEV ENTER_BULL ENTER_BEAR EXIT_TP1 EXIT_RUNNER EXIT_STOP EXIT_TIME SKIP_STALE SKIP_LIQUIDITY SKIP_NEWS PAUSED TRIPPED ERROR_TV ERROR_ALPACA ALPACA_RETRY_EXHAUSTED WATCH_ONLY ORB_WOULD_ENTER FBW_WOULD_ENTER SKIP_WATCH_TRIPPED SKIP_WATCH_PDT
+Modifiers appended to one-line output: TV_FALLBACK_ACTIVE TV_FALLBACK_FAILED ALPACA_RETRY
 
 # Account scope — SAFE ONLY (architecture corrected 2026-06-18)
 
@@ -209,13 +216,15 @@ DO NOT read CLAUDE.md, playbook, decision-log, or any *.md doctrine file. Doctri
 
 Refresh ONLY if: no cache OR `now - fetched_at > 10min` OR position OPEN AND `>4min` OR cache `value` within ±0.20 of any threshold (17.20 / 17.30 / 18.00). Otherwise REUSE — set `dir = "cached"` for this tick's emit.
 
-Refresh = `chart_set_symbol("TVC:VIX")` → `quote_get` → validate `description` matches /VIX|VOLATILITY/i AND `last` in [5, 100]. Restore `chart_set_symbol("BATS:SPY")`. Then compute `dir`: `rising` if value > prior+0.05, `falling` if value < prior-0.05, else `flat`. `cached`/`flat` does NOT pass filter 8.
+Refresh = `chart_set_symbol("TVC:VIX")` → `quote_get` → validate `description` matches /VIX|VOLATILITY/i AND `last` in [5, 100]. **If validation FAILS — almost always the TV symbol-switch RACE where `quote_get` returns the pre-switch SPY quote (`description` is SPY, `last` ≈ SPY's price, not in [5,100]) — RETRY `quote_get` up to 2 more times (the chart needs a beat to finish switching to TVC:VIX); accept the first attempt that validates.** Restore `chart_set_symbol("BATS:SPY")`. Then compute `dir`: `rising` if value > prior+0.05, `falling` if value < prior-0.05, else `flat`. `cached`/`flat` does NOT pass filter 8. **If all 3 attempts fail validation, do NOT overwrite the cache with the corrupted value — keep the prior `vix_cache` (fails safe: filter 8 won't confirm on a stale/`cached` dir) and set `vix_cache._note = "refresh failed 3x: corrupted/SPY quote (TV switch race) @ {hh:mm}"` so prolonged VIX staleness is VISIBLE in loop-state, not silent (the 2026-06-22 54-min silent-stale incident).** [2026-06-22 hardening: retry-the-switch-race + surface-staleness; success path unchanged.]
 
 ## SPY 5m + ribbon
 
 `data_get_ohlcv(count=3, summary=true)` on BATS:SPY 5m. **CRITICAL (R1 v15.1 closed-bar fix 2026-05-14):** TV returns bars labeled by OPEN time and the LAST element [-1] is the LIVE IN-PROGRESS bar (not yet closed). Apply close-time filter: compute `bar_close_et = bar.time + 5min` for each bar; filter to `bar_close_et <= now_et`. After filter, `Latest = filtered[-1]` (the actually-closed-most-recent bar) and `Prior = filtered[-2]`. The unfiltered raw bar[-1] (in-progress) MUST NOT be used for any scoring decision. Today's 09:58 ENTER fired on a transient mid-bar high (745.35) when actual closed 09:50 bar was 745.02 PMH rejection — exact bug this fix prevents.
 
 `data_get_study_values` for Saty Pivot Ribbon. Validate ribbon ±2% of price; if not, ERROR_TV.
+
+**If either `data_get_ohlcv` or `data_get_study_values` returns an error:** trigger the TV FALLBACK procedure defined in Step 0b's `TV_DATA_LIVE` gate. Do NOT emit `ERROR_TV` until the Alpaca bars fallback also fails. If fallback succeeds, continue the tick using fallback ribbon values — treat `ERROR_TV` as suppressed for this tick.
 
 ## SPY 15m HTF (only on tickIndex % 5 == 1)
 
@@ -232,7 +241,7 @@ If pending_fill: `get_order_by_id` on `bracket_ids.parent`. If filled, update st
 If open: apply stops per **CHART-STOP-PRIMARY doctrine (2026-06-18 — was premium-stop-primary; see chart-stops change below)**. The exit hierarchy below is ORDERED: the chart-level stop, ribbon-flip-back, and profit-lock chandelier are the PRIMARY invalidation; the premium stop is a WIDE catastrophe cap that only fires on a gap. Read all values from `params.json` each tick.
 - **PRIMARY — chart stop = close > rejection_level + `chart_stop_buffer_dollars` ($0.50) buffer** (BEAR-side; no ribbon condition required; RATIFIED v11). This is the FIRST invalidation: the thesis was "price rejected this level"; a close back above it (plus buffer) means the thesis is wrong. For BULL, mirror: close < reclaim_level − buffer.
 - **PRIMARY — ribbon flip back exit = opposite stack (BULL for puts) AND spread ≥ 30c** (NOT just MIXED transition — chop zones are not invalidations).
-- **PRIMARY — profit-lock trailing chandelier (BEAR-side):** once `favor_premium ≥ entry × 1.05` (+5% favor), arm. On arm: stop floor moves to `entry × 1.10` (+10%). Then trail **15%** off the high-water mark of `favor_premium`. **A winning trade can no longer go negative.** (Source: T50 trailing-PL test 2026-05-13 established the trailing chandelier; CHANDELIER_TRAIL_20_TO_15 2026-06-19 tightened the trail 20%->15% — Safe-only, re-confirmed on the live config full-engine A/B: ATM IS +$2,198 / OOS +$155 / WF 0.861 / sub-windows 4/4 HELP / WF 6/6 stable / all 5 OP-22 gates PASS. ITM2 did NOT transfer per C29. Scorecard: analysis/recommendations/weekend-fixes-live-reconfirm-2026-06-19.json. params: v15_profit_lock_trail_pct=0.15.)
+- **PRIMARY — profit-lock trailing chandelier (BEAR-side):** once `favor_premium ≥ entry × 1.05` (+5% favor), arm. On arm: stop floor moves to `entry × 1.10` (+10%). Then trail **12.5%** off the high-water mark of `favor_premium`. **A winning trade can no longer go negative.** (Source: T50 trailing-PL test 2026-05-13 established the trailing chandelier; CHANDELIER_TRAIL_20_TO_15 2026-06-19 tightened 20%->15%; WP-6 CHANDELIER_TRAIL_15_TO_125 2026-06-21 tightened 15%->12.5% — both Safe-only. WP-6 validated real-fills, FULL L175 clears vs live 0.15: exp +$10.00/tr, OOS +$14.97/tr, Sortino 11.83->13.80, maxDD equal -$315.12, posQ 6/6. ITM2 did NOT transfer per C29. Scorecards: analysis/recommendations/SUNDAY-WEB-LEARN-SCORECARD.md (WP-6) + weekend-fixes-live-reconfirm-2026-06-19.json (prior step). params: v15_profit_lock_trail_pct=0.125.)
 - **PRIMARY — time stop 15:40 ET hard** (Rank-31 2026-06-16 — exit before final-10-min theta crush; EodFlatten safety net at 15:55 ET unchanged).
 - **BACKSTOP — premium catastrophe cap = entry × (1 + `premium_stop_pct_bear`) = entry × 0.50 (−50%)** (CHART-STOP-PRIMARY 2026-06-18: demoted from the primary −10% stop to a wide catastrophe cap. **BULL-side calls = entry × (1 + `premium_stop_pct`) = entry × 0.50 (−50%)** — symmetric cap; BULLISH_RECLAIM remains DRAFT per OP-16, the cap only prevents catastrophic whipsaw and does NOT authorize the bull setup). The premium cap fires ONLY when the premium gaps past −50% before any chart/ribbon/profit-lock exit triggers — i.e. a genuine catastrophe. Rationale: fixed-% premium stops whipsaw 0DTE options out of eventual winners (C2/C3, missed_week). Real-fills evidence (2025-01..2026-05-29, n=26): primary −10%/−8% → total $8,160 WR 38%; −50% cap → total $16,671 WR 65%; edge_capture INVARIANT +$1,340. Scorecard: `analysis/recommendations/chart-stops-ab-2026-06-18.json`. **Revert to premium-primary:** set `params.json#premium_stop_pct_bear: -0.10`, `premium_stop_pct: -0.08` and restore this block's `entry × 0.90` / `entry × 0.92` wording.
 - **TP1 (BEAR-side) = chart-level (next Active/Carry tier level past entry, $1.50 min distance, NO round numbers) OR premium ≥ entry × 1.50 fallback** (RATIFIED v11, updated Rank-36 2026-06-17: was 1.30). **TP1 qty_fraction = 0.667** (Rank-31 2026-06-16: 2/3 at TP1, 1/3 runner; WF=1.08 OOS+44%).
@@ -281,6 +290,10 @@ ONE action max per tick. Update current-position.json on state change.
 
 1. **APPEND ONE ROW to `journal/trades.csv`** — ONLY when position is FULLY CLOSED. One row per trade, not one row per exit event. Use fill-reconciled values from the FILL RECONCILIATION GATE above. Required fields: date, time_entry, time_exit, setup, contract, dte, strike, c_or_p, qty (total entered), entry_px (weighted avg), exit_px (weighted avg across all legs), premium_paid, premium_received, dollar_pnl (sum of all legs), exit_reason, hold_minutes, slippage_cents, exit_slippage_cents, tod_bucket, account_equity_pre, followed_rules, gamma_recommended. Leave EOD-enrichment fields blank (cf_*, archetype_match_json, tape_assistance, hold_quality_pct, trade_grade — EOD-summary fills these).
 2. **APPEND ONE ROW to `automation/state/decisions.jsonl`** with the EXIT_* action (per the Decisions Ledger schema below).
+2a. **Discord exit alert** (FULL CLOSE only — skip for TP1-only partial): append one row to `automation/state/discord-outbox.jsonl` (skip silently on failure):
+    - P&L positive: `{"queued_at": "<utc>Z", "content": "<@207983230618435584> ✅ **SAFE-2 CLOSED** · +${dollar_pnl:.0f} ({exit_short})\n• SPY {strike}{C/P} × {qty} · {hold_min}min"}`
+    - P&L zero or negative: `{"queued_at": "<utc>Z", "content": "<@207983230618435584> ❌ **SAFE-2 STOPPED** · −${abs(dollar_pnl):.0f} ({exit_short})\n• SPY {strike}{C/P} × {qty} · {hold_min}min"}`
+    `exit_short` = `TP1`, `stop`, `ribbon_flip`, `runner`, or `time`.
 3. **CAPTURE EXIT SCREENSHOT**: call `mcp__tradingview__capture_screenshot(region: "chart")`. Save to `journal/replays/{today}-{HHMM}-{ACTION}-{setup_short}.png` where ACTION is the emitted exit type (EXIT_TP1 / EXIT_STOP / EXIT_RUNNER / EXIT_TIME). Cost: 1 tool call ≈ 5 sec, $0.005. Skip silently on failure.
 4. **APPEND ONE ROW to `loop-state.first_entry_lock[]`** (NEW 2026-05-08, enforces risk-rules.md re-entry rule):
    ```json
@@ -790,12 +803,15 @@ If Iron Law fails after fill: DO NOT write trades.csv ENTRY row. Re-poll once af
    - BULL (call): `stop_loss_price = round(premium_mid × (1 + params.premium_stop_pct), 2)` = `× 0.50` (−50% catastrophe cap; was × 0.92 / −8%)
    This is the broker-side CATASTROPHE backstop (a wide bracket leg), NOT the chart stop. The chart stop, ribbon-flip-back, and profit-lock chandelier are managed per-tick and are the PRIMARY exits (they will almost always fire before this −50% leg). This wide leg exists only for blinded-heartbeat cases (rate limit, process crash) so a runaway loss is still capped. Setting `stop_loss=null` is a critical bug — the 2026-06-15 runner was unmanaged for 2h because the stop was absent. **Revert:** restore × 0.90 / × 0.92 when `params.json` stops revert to −10%/−8%.
 
-7. **Bracket order**: `mcp__alpaca__place_option_order` with `order_class="bracket"`, parent limit at `premium_mid`, take_profit at `tp1_price`, `stop_loss=stop_loss_price` (from step 6). **NEVER set stop_loss to null or omit it.** Fall back to `order_class="oto"` only if bracket is rejected by the API — in that case log `broker_stop_leg=false, note="oto_fallback_no_disaster_stop"` in position JSON so the next tick knows stop management is entirely heartbeat-owned.
+7. **Bracket order**: `mcp__alpaca__place_option_order` with `order_class="bracket"`, parent limit at `premium_mid`, take_profit at `tp1_price`, `stop_loss=stop_loss_price` (from step 6). **NEVER set stop_loss to null or omit it.** Fall back to `order_class="oto"` only if bracket is rejected by the API — in that case log `broker_stop_leg=false, note="oto_fallback_no_disaster_stop"` in position JSON so the next tick knows stop management is entirely heartbeat-owned. **Retry on transient errors (429/503/500/network timeout):** log `ALPACA_RETRY attempt=N`, wait 2 seconds, retry — up to 3 total attempts. If all 3 exhausted: log `ALPACA_RETRY_EXHAUSTED`, emit `ERROR_ALPACA`, do NOT write an ENTER row to decisions.jsonl (no phantom orders). Tick ends without placing an order.
 8. **Record + emit** (THREE writes — all required before emitting):
    - Write `current-position.json` with `status=pending_fill`, strike/delta/iv/mid/qty/bracket_ids/liquidity_downsized.
    - **APPEND one row to `automation/state/decisions.jsonl`** with `action=ENTER_BULL|ENTER_BEAR` per Decisions Ledger schema (§ below). Required fields: tick_id, date, time_et, action, position_status, setup_name, symbol, direction, trigger, spy, vix, vix_dir, ribbon_stack, ribbon_spread_cents, entry_px, qty, stop_px, tp1_px, tp1_qty, runner_target_px, chandelier_armed_px, order_id, fill_confirmed, filled_qty, filled_avg_price, premium_paid, pct_equity, rule_version. *(T49 fix 2026-05-16: EXIT explicitly wrote to decisions.jsonl but ENTER relied only on the general §Decisions Ledger rule. Made explicit here to prevent omission.)*
    - Emit ENTER_BULL or ENTER_BEAR (write `loop-state.last_action`).
-9. **Capture entry screenshot** (NEW 2026-05-07): call `mcp__tradingview__capture_screenshot(region: "chart")`. Save to `journal/replays/{today}-{HHMM}-ENTRY-{setup_short}.png` where setup_short is `BR` (BEARISH_REJECTION) or `BU` (BULLISH_RECLAIM). Cost: 1 tool call ≈ 5 sec, $0.005. Skip silently on failure — screenshot is supplemental to the canonical order.
+9. **Discord entry alert**: append one row to `automation/state/discord-outbox.jsonl` (skip silently on failure — never block on this):
+   `{"queued_at": "<current_utc_iso>Z", "content": "<@207983230618435584> 📍 **SAFE-2 ENTERED** · {qty}x SPY {strike}{C_or_P} @ ${entry_px:.2f}\n• **SL** ${stop_px:.2f}  **TP1** ${tp1_px:.2f} · {setup_abbrev}"}`
+   Where: `C_or_P` = `C` (BULL) or `P` (BEAR); `setup_abbrev` = `BEARISH_REJECTION` or `BULLISH_RECLAIM`.
+10. **Capture entry screenshot** (NEW 2026-05-07): call `mcp__tradingview__capture_screenshot(region: "chart")`. Save to `journal/replays/{today}-{HHMM}-ENTRY-{setup_short}.png` where setup_short is `BR` (BEARISH_REJECTION) or `BU` (BULLISH_RECLAIM). Cost: 1 tool call ≈ 5 sec, $0.005. Skip silently on failure — screenshot is supplemental to the canonical order.
 
 NEVER tell J to fill manually. Heartbeat owns paper execution.
 
