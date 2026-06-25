@@ -2,8 +2,9 @@
 <#
 .SYNOPSIS
   Install Gamma_ShadowEval scheduled task -- fires daily at 16:05 ET (Mon-Fri).
-  Runs shadow_model_eval.py for today's date on both accounts using Nemotron free tier.
-  No Claude session opened; $0 cost. Writes scorecard to analysis/shadow-model/.
+  Runs shadow_model_eval.py for today's date: Nemotron (both accounts, full) +
+  Hermes/Qwen challengers (safe only, dt-only). $0 cost. Writes scorecards to
+  analysis/shadow-model/{model}/YYYY-MM-DD-scorecard.md. Challenger failures non-fatal.
 #>
 [CmdletBinding()] param([switch]$Uninstall)
 $ErrorActionPreference = "Stop"
@@ -37,14 +38,14 @@ $action = New-ScheduledTaskAction -Execute "wscript.exe" `
 $settings = New-ScheduledTaskSettingsSet `
     -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `
     -StartWhenAvailable -RunOnlyIfNetworkAvailable `
-    -ExecutionTimeLimit (New-TimeSpan -Minutes 20)
+    -ExecutionTimeLimit (New-TimeSpan -Minutes 90)   # Nemotron(30min) + Hermes(30min) + Qwen(30min)
 
 $principal = New-ScheduledTaskPrincipal `
     -UserId $env:USERNAME -LogonType Interactive -RunLevel Limited
 
 Register-ScheduledTask -TaskName $taskName -Trigger $trigger -Action $action `
     -Settings $settings -Principal $principal `
-    -Description "Nemotron shadow DT-agreement scorer. Free-tier ($0). Scores today's heartbeat decisions vs Nemotron; writes analysis/shadow-model/YYYY-MM-DD-scorecard.md. Fires 16:05 ET weekdays. No Claude session." | Out-Null
+    -Description "Multi-model shadow DT-agreement scorer. Free-tier ($0). Primary: Nemotron (both accounts). Challengers: Hermes+Qwen (safe, dt-only). Writes analysis/shadow-model/{model}/YYYY-MM-DD-scorecard.md. Fires 16:05 ET weekdays." | Out-Null
 
 $info = Get-ScheduledTask -TaskName $taskName | Get-ScheduledTaskInfo
 Write-Host "Registered $taskName. Next run: $($info.NextRunTime)"

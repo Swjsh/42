@@ -413,7 +413,7 @@ def test_parity_gate_values_present_in_params() -> None:
     assert p["entry_bar_body_pct_min"] == 0.20
     assert p["block_bull_1100_1200"] is True
     assert p["block_elite_bull"] is True
-    assert a["block_bull_morning_agg"] is True
+    assert isinstance(a["block_bull_morning_agg"], bool)  # J disabled to False 2026-06-24; value tested in test_heartbeat_param_annotation_drift.py
 
 
 # =========================================================================== #

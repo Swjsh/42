@@ -81,7 +81,8 @@ The spine. J's rules — Gamma enforces them, doesn't write them.
 | Account/chain/fills/orders (Gamma-Safe) | Alpaca MCP — `alpaca` server | `uvx alpaca-mcp-server` via pythonw hidden-shim, key `PK7WRO5T…` (Safe-2) in project-root `.mcp.json` (mirrored in `~/.claude.json`). Tools: `mcp__alpaca__*` |
 | Account/chain/fills/orders (Gamma-Bold) | Alpaca MCP — `alpaca_aggressive` server | Same binary, key `PKQMQD2N…` (Risky-2) in project-root `.mcp.json`. Tools: `mcp__alpaca_aggressive__*`. REST fallback if MCP not connected. |
 | Host | Claude Code | Active |
-| Heartbeat scheduler | Windows Task Scheduler + `claude --print` | **35 active / 38 registered (3 disabled), as of 2026-06-21. Canonical registry: [`automation/state/SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md)** |
+| Heartbeat scheduler | Windows Task Scheduler + `claude --print` | **44 registered (41 active, 3 disabled), as of 2026-06-25. Canonical registry: [`automation/state/SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md)** |
+| Nemotron shadow eval | `setup/scripts/shadow_model_eval.py` + `Gamma_ShadowEval` (16:05 ET weekdays) | **$0. Scores each trading day's decisions.jsonl against Nemotron free tier; writes `analysis/shadow-model/YYYY-MM-DD-scorecard.md`. Promoted 2026-06-25: 27/27 DTs = 100% across 4 days. Graduation bar (flip heartbeat to Nemotron): ≥85% DT across ≥15 real trading days with diverse conditions. Scorecard: [`analysis/shadow-model/PROMOTION-SCORECARD.md`](analysis/shadow-model/PROMOTION-SCORECARD.md).** |
 | Kitchen R&D loop | `setup/scripts/kitchen_daemon.py` + free-tier model ladder | **24/7 autonomous.** Nemotron→DeepSeek→MiniMax-free→MiniMax-paid ($3/day cap). |
 | Dashboard | Next.js 15 + React 19 + Canvas pixel-art | **DEPLOYED 2026-05-06.** localhost:3000. `dashboard/` |
 | State config | [`automation/state/params.json`](automation/state/params.json) | Canonical source of truth |
@@ -274,13 +275,13 @@ These are non-negotiable, second only to the 10 rules above.
 
     | # | Theme | Lessons |
     |---|---|---|
-    | C1 | Real-fills is the only WR authority; BS-sim is ranking-only | L02,12,23,50,71,99,100,107 |
+    | C1 | Real-fills is the only WR authority; BS-sim is ranking-only | L02,12,23,50,71,99,100,107,182 |
     | C2 | First-strike entries: chart-stop only, premium-stop disabled | L51,55,64,171 |
-    | C3 | SPY-price edge != option edge (delta/theta/stop-misfire); a structural-gate pass that a random-entry null reproduces is an exit-structure artifact, not signal alpha -- beat the null MAX | L58,74,100,101,112,136,148,149,172 |
-    | C4 | Disclose concentration, normalize OOS, stratify by regime; use per-trade expectancy not WR standalone; a published cross-sectional anomaly != a per-trade option edge | L01,04,05,10,11,22,46,48,92,104,122,124,128,129,154,166,167,175 |
+    | C3 | SPY-price edge != option edge (delta/theta/stop-misfire); a structural-gate pass that a random-entry null reproduces is an exit-structure artifact, not signal alpha -- beat the null MAX | L58,74,100,101,112,136,148,149,172,177,183,184 |
+    | C4 | Disclose concentration, normalize OOS, stratify by regime; use per-trade expectancy not WR standalone; a published cross-sectional anomaly != a per-trade option edge | L01,04,05,10,11,22,46,48,92,104,122,124,128,129,154,166,167,175,174,178 |
     | C5 | VIX *character* > VIX level; as-of trigger time; high-score + 0-trade + declining-VIX = correct abstention; validate seasonality/time-gates against OUR per-hour P&L histogram, never folklore | L40,44,45,73,93,118,133,134,154,162,167 |
     | C6 | No look-ahead: filter <= current bar, verify bar closed, slice prior_bars; entry_time_et is naive ET (localize America/New_York, not UTC); verify causality AND OOS sign-stability before trusting an "inverse arm confirms it" cross-check | L14,34,57,61,94,161,165,166 |
-    | C7 | Silent success is failure — audit outputs, not exit codes; verify new files git-tracked (--only drops untracked) | L19,26,28,32,39,53,62,67,79,80,82,83,84,85,86,87,90,91,92,96,97,98,105,106,117,155,160,161,164 |
+    | C7 | Silent success is failure — audit outputs, not exit codes; verify new files git-tracked (--only drops untracked) | L19,26,28,32,39,53,62,67,79,80,82,83,84,85,86,87,90,91,92,96,97,98,105,106,117,155,160,161,164,169,170,173,179,181,185,186,187 |
     | C8 | Headless Windows spawn = system-pythonw + CREATE_NO_WINDOW + WMI liveness | L20,27,33,41,81 |
     | C9 | Anchor paths to __file__; update ALL state consumers; dual-account symmetry | L21,42,49,60 |
     | C10 | Rate-limit pool: separate prod key; never automate operator lockout | L54,62,68,69 |

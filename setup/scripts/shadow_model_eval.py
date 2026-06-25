@@ -1,9 +1,10 @@
-"""Shadow evaluator v11.0 -- Nemotron free-tier heartbeat agreement benchmark.
+"""Shadow evaluator v12.0 -- Multi-model free-tier heartbeat agreement benchmark.
 
-Replays a day's heartbeat ticks from the decisions ledgers and asks
-NVIDIA Nemotron (free tier via OpenRouter) to make the same per-tick
-trading decision. Logs agreement scores so J can decide whether Nemotron
-can safely replace Claude Haiku for rate-pool isolation at $0.
+Replays a day's heartbeat ticks from the decisions ledgers and asks a
+free-tier OpenRouter model to make the same per-tick trading decision.
+Supports Nemotron, Qwen, and DeepSeek-R1 via --model flag.
+Logs agreement scores so J can decide which free model can safely replace
+Claude Haiku for rate-pool isolation at $0.
 
 HARD GUARDRAILS (enforced by code, not just convention):
   - NEVER imports or calls any Alpaca tool or order function.
@@ -17,9 +18,23 @@ HARD GUARDRAILS (enforced by code, not just convention):
 
 Usage:
   python setup/scripts/shadow_model_eval.py --date 2026-06-15 --account both
-  python setup/scripts/shadow_model_eval.py --date 2026-06-15 --account safe
-  python setup/scripts/shadow_model_eval.py --date 2026-06-15 --account bold
+  python setup/scripts/shadow_model_eval.py --date 2026-06-15 --account safe --model qwen
+  python setup/scripts/shadow_model_eval.py --date 2026-06-15 --account bold --model deepseek-r1
   python setup/scripts/shadow_model_eval.py --date 2026-06-15 --dry-run
+
+v12 improvements (2026-06-24):
+  - Multi-model support: --model {nemotron,qwen,deepseek-r1} flag selects the model.
+    Default is nemotron (backward compatible). Each model has its own:
+    * Rubric file in setup/rubrics/{model}.md (iron-gate prompt, externalized)
+    * Decisions output: automation/state/shadow-{model}-decisions.jsonl
+    * Scorecard dir: analysis/shadow-model/{model}/YYYY-MM-DD-scorecard.md
+  - External rubric files: RUBRIC_SYSTEM_PROMPT moved out of Python into
+    setup/rubrics/nemotron.md. Loaded at runtime via load_rubric(). Edit the
+    rubric without touching Python — the iron gate lives in the markdown file.
+  - DeepSeek-R1 think-tag stripping: R1 outputs <think>...</think> before JSON.
+    parse_shadow_response() now strips think blocks and looks for JSON after </think>.
+    strip_think_tags=True in model config enables this path.
+  - Per-model scorecard directories and decisions files — no cross-model pollution.
 
 v2 improvements (2026-06-15):
   - Added `trigger` field to snapshot (was using trigger_fired_this_tick=null instead)
@@ -286,10 +301,69 @@ _VOCAB_NORMALIZATION: dict = {
 # Model config
 # ────────────────────────────────────────────────────────────────────────────
 
-SHADOW_MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
-SLEEP_BETWEEN_CALLS_S = 2.5   # free-tier rate-limit courtesy
-MAX_RETRIES_ON_429 = 2         # retry twice with back-off before logging RATE_LIMITED
-RETRY_BACKOFF_S = 15.0         # back-off on 429
+SLEEP_BETWEEN_CALLS_S = 2.5
+MAX_RETRIES_ON_429 = 2
+RETRY_BACKOFF_S = 15.0
+
+RUBRICS_DIR = REPO / "setup" / "rubrics"
+
+MODELS: dict = {
+    "nemotron": {
+        "id": "nvidia/nemotron-3-super-120b-a12b:free",
+        "rubric_file": RUBRICS_DIR / "nemotron.md",
+        "temperature": 0.0,
+        "max_tokens": 4096,
+        "strip_think_tags": False,
+        "decisions_file": REPO / "automation" / "state" / "shadow-nemotron-decisions.jsonl",
+        "scorecard_subdir": "nemotron",
+    },
+    "qwen": {
+        "id": "qwen/qwen3-next-80b-a3b-instruct:free",  # 80B MoE, 262K ctx, instruction-tuned
+        "rubric_file": RUBRICS_DIR / "qwen.md",
+        "temperature": 0.0,
+        "max_tokens": 4096,
+        "strip_think_tags": False,
+        "sleep_s": 90.0,  # free tier: ~1 RPM per model; 90s safely clears 60s_window + 30s_retry_buffer
+        "decisions_file": REPO / "automation" / "state" / "shadow-qwen-decisions.jsonl",
+        "scorecard_subdir": "qwen",
+    },
+    "hermes": {
+        "id": "nousresearch/hermes-3-llama-3.1-405b:free",  # 405B, agentic, structured output
+        "rubric_file": RUBRICS_DIR / "hermes.md",
+        "temperature": 0.0,
+        "max_tokens": 4096,
+        "strip_think_tags": False,
+        "sleep_s": 90.0,  # free tier: ~1 RPM per model; 90s safely clears 60s_window + 30s_retry_buffer
+        "decisions_file": REPO / "automation" / "state" / "shadow-hermes-decisions.jsonl",
+        "scorecard_subdir": "hermes",
+    },
+    # Bonus: nemotron-ultra is the 550B upgrade to nemotron-super; try when evaluating model ceiling
+    "nemotron-ultra": {
+        "id": "nvidia/nemotron-3-ultra-550b-a55b:free",  # 550B vs current 120B, same rubric
+        "rubric_file": RUBRICS_DIR / "nemotron.md",
+        "temperature": 0.0,
+        "max_tokens": 4096,
+        "strip_think_tags": False,
+        "sleep_s": 15.0,
+        "decisions_file": REPO / "automation" / "state" / "shadow-nemotron-ultra-decisions.jsonl",
+        "scorecard_subdir": "nemotron-ultra",
+    },
+}
+
+DEFAULT_MODEL = "nemotron"
+
+
+def load_rubric(rubric_file: Path) -> str:
+    """Load rubric system prompt from external markdown file in setup/rubrics/."""
+    if not rubric_file.exists():
+        raise FileNotFoundError(
+            f"Rubric file not found: {rubric_file}\n"
+            f"Expected files: {RUBRICS_DIR}/{{nemotron,qwen,deepseek-r1}}.md"
+        )
+    content = rubric_file.read_text(encoding="utf-8").strip()
+    # Strip HTML comments (<!-- ... -->) that are documentation-only
+    content = re.sub(r'<!--.*?-->', '', content, flags=re.DOTALL).strip()
+    return content
 
 # ────────────────────────────────────────────────────────────────────────────
 # Import call_minimax (the only external dependency besides stdlib)
@@ -304,10 +378,18 @@ except ImportError as _exc:
     sys.exit(1)
 
 # ────────────────────────────────────────────────────────────────────────────
-# Rubric system prompt (v15.3 heartbeat filters, condensed)
+# Rubric system prompt — loaded at runtime from setup/rubrics/{model}.md
 # ────────────────────────────────────────────────────────────────────────────
 
-RUBRIC_SYSTEM_PROMPT = """You are a 0DTE SPY options trading decision engine running v15.3 of the Gamma heartbeat rubric.
+# Kept as a module-level alias so dry-run and legacy callers still work.
+# Populated by _main() after --model is resolved; defaults to nemotron.
+RUBRIC_SYSTEM_PROMPT: str = ""  # set at startup
+
+# ────────────────────────────────────────────────────────────────────────────
+# LEGACY INLINE RUBRIC (reference copy — not used at runtime; canonical in setup/rubrics/nemotron.md)
+# ────────────────────────────────────────────────────────────────────────────
+
+_LEGACY_RUBRIC_INLINE = """You are a 0DTE SPY options trading decision engine running v15.3 of the Gamma heartbeat rubric.
 Given a per-tick market snapshot, you output the correct heartbeat ACTION as strict JSON.
 
 ================================================================================
@@ -496,6 +578,7 @@ Exceptions:
 ================================================================================
 REMINDER: JSON on LINE 1. Action from the VALID list above. FORBIDDEN strings are WRONG.
 ================================================================================"""
+# End of legacy inline rubric — canonical version is setup/rubrics/nemotron.md
 
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -844,15 +927,33 @@ _VALID_ACTION_PREFIXES = (
 )
 
 
-def parse_shadow_response(content: str) -> Optional[dict]:
+def _strip_think_tags(content: str) -> str:
+    """Remove DeepSeek-R1 <think>...</think> blocks, return content after them.
+
+    R1 emits all its chain-of-thought inside <think> tags before the JSON.
+    The JSON is always immediately after the closing </think> tag.
+    """
+    # Find the last </think> tag and take everything after it
+    end_idx = content.rfind("</think>")
+    if end_idx != -1:
+        return content[end_idx + len("</think>"):].strip()
+    # No think tag found — return as-is (fallback)
+    return content
+
+
+def parse_shadow_response(content: str, strip_think: bool = False) -> Optional[dict]:
     """Extract JSON action object from model response.
 
     Handles: direct JSON on first line, fenced code blocks, JSON embedded
     in reasoning text, and partial JSON with just an action string.
     The model is instructed to put JSON on the first line, so we check there first.
+
+    strip_think=True: strip DeepSeek-R1 <think>...</think> blocks before parsing.
     """
     if not content:
         return None
+    if strip_think:
+        content = _strip_think_tags(content)
     stripped = content.strip()
 
     # 0. Check FIRST LINE — model is instructed to put JSON there
@@ -1093,15 +1194,15 @@ def actions_agree(
 # ────────────────────────────────────────────────────────────────────────────
 
 
-def call_nemotron_with_retry(prompt: str, task_id: str) -> dict:
-    """Call Nemotron with retry on 429. Never falls back to paid tier."""
+def call_model_with_retry(model_cfg: dict, rubric: str, prompt: str, task_id: str) -> dict:
+    """Call the configured free-tier model with retry on 429. Never falls back to paid tier."""
     for attempt in range(MAX_RETRIES_ON_429 + 1):
         result = call_minimax(
             prompt=prompt,
-            system=RUBRIC_SYSTEM_PROMPT,
-            model=SHADOW_MODEL,
-            max_tokens=4096,  # bumped from 2048 to reduce truncation before JSON output
-            temperature=0.0,
+            system=rubric,
+            model=model_cfg["id"],
+            max_tokens=model_cfg["max_tokens"],
+            temperature=model_cfg["temperature"],
             timeout=120,
             task_id=task_id,
             enforce_cap=False,
@@ -1115,9 +1216,15 @@ def call_nemotron_with_retry(prompt: str, task_id: str) -> dict:
             print(f"    [429] retry {attempt+1}/{MAX_RETRIES_ON_429} after {wait_s}s...", file=sys.stderr)
             time.sleep(wait_s)
             continue
-        # Non-429 error or retries exhausted
         return result
     return result  # type: ignore[return-value]
+
+
+# Backward-compat alias used by dry-run path
+def call_nemotron_with_retry(prompt: str, task_id: str) -> dict:
+    cfg = MODELS["nemotron"]
+    rubric = load_rubric(cfg["rubric_file"])
+    return call_model_with_retry(cfg, rubric, prompt, task_id)
 
 
 _RETRY_VALID = [
@@ -1127,7 +1234,7 @@ _RETRY_VALID = [
 ]
 
 
-def _retry_parse_error(tick: dict, account: str, prev_content: str, task_id: str) -> dict:
+def _retry_parse_error(model_cfg: dict, tick: dict, account: str, prev_content: str, task_id: str) -> dict:
     """Minimal retry when primary call returns PARSE_ERROR.
 
     Model sometimes writes pure English prose (no JSON at all) for certain ticks.
@@ -1135,9 +1242,6 @@ def _retry_parse_error(tick: dict, account: str, prev_content: str, task_id: str
     forcing the model to output the one-line JSON it should have produced first time.
     """
     action_raw = str(tick.get("action") or "")
-    # For EXIT ticks, the logged position_status is post-action (flat/closed).
-    # build_tick_prompt reconstructs "open" locally but that doesn't reach the tick dict.
-    # Replicate the same reconstruction here so the retry sees the correct pre-action state.
     if action_raw.startswith("EXIT_") or action_raw in ("EXIT_ALL", "CLOSE_ALL", "FLATTEN", "FORCE_EXIT"):
         inferred_pos = "open"
     else:
@@ -1162,13 +1266,13 @@ def _retry_parse_error(tick: dict, account: str, prev_content: str, task_id: str
         f"Previous response: {prev_short}\n\n"
         f"Snapshot: {json.dumps(mini_snapshot)}\n\n"
         f"Valid actions: {valid_str}\n\n"
-        "Output ONLY this JSON (no other text, start response with {{):\n"
+        "Output ONLY this JSON (no other text, start response with {):\n"
         '{"action": "ACTION_HERE", "bull_score": N, "bear_score": N, "reason": "brief"}'
     )
     return call_minimax(
         prompt=retry_prompt,
-        system="You are a JSON-only responder. Output only the JSON object requested.",
-        model=SHADOW_MODEL,
+        system="You are a JSON-only responder. Output only the JSON object requested. No <think> tags.",
+        model=model_cfg["id"],
         max_tokens=256,
         temperature=0.0,
         timeout=60,
@@ -1177,10 +1281,14 @@ def _retry_parse_error(tick: dict, account: str, prev_content: str, task_id: str
     )
 
 
-def run_eval(date: str, accounts: list[str]) -> list[dict]:
+def run_eval(date: str, accounts: list[str], model_cfg: dict) -> list[dict]:
     """Run evaluation for the given date + accounts. Returns all result rows."""
     all_results: list[dict] = []
     ledger_map = {"safe": SAFE_LEDGER, "bold": BOLD_LEDGER}
+    decisions_file: Path = model_cfg["decisions_file"]
+    strip_think: bool = model_cfg.get("strip_think_tags", False)
+    rubric: str = load_rubric(model_cfg["rubric_file"])
+    sleep_s: float = model_cfg.get("sleep_s", SLEEP_BETWEEN_CALLS_S)
 
     for account in accounts:
         ledger = ledger_map[account]
@@ -1192,21 +1300,64 @@ def run_eval(date: str, accounts: list[str]) -> list[dict]:
         print(f"[{account}] {len(ticks)} ticks for {date}")
         print()
 
+        dt_only = model_cfg.get("dt_only", False)
+
         for i, tick in enumerate(ticks):
             real_action = str(tick.get("action") or "HOLD")
             tick_id = tick.get("tick_id", i)
             time_et = str(tick.get("time_et") or "??:??")
             is_dt = is_decision_tick(real_action)
 
-            prompt = build_tick_prompt(tick, account)
-            task_id = f"shadow_eval.{account}.{date}.t{tick_id}"
-
-            t0 = time.monotonic()
-            result = call_nemotron_with_retry(prompt, task_id)
-            latency_ms = round((time.monotonic() - t0) * 1000)
-
             vocab_violation = False
             raw_action_str: Optional[str] = None
+
+            # --dt-only: skip API call for non-DT ticks, emit trivial agreement locally.
+            # Non-DT ticks (HOLD, HOLD_RUNNER, ERROR_*, SKIP_*, PAUSED, TRIPPED) never
+            # contribute to DT%. Calling the model on them burns free-tier quota for nothing.
+            if dt_only and not is_dt:
+                shadow_action = real_action
+                shadow_bull = tick.get("bull_score")
+                shadow_bear = tick.get("bear_score")
+                shadow_reason = "SKIPPED_NON_DT"
+                agreed = True
+                latency_ms = 0
+                effective_is_dt = False
+                row: dict = {
+                    "date": date,
+                    "time_et": time_et,
+                    "account": account,
+                    "tick_id": tick_id,
+                    "real_action": real_action,
+                    "shadow_action": shadow_action,
+                    "agree": agreed,
+                    "real_scores": [tick.get("bull_score", 0), tick.get("bear_score", 0)],
+                    "shadow_scores": [shadow_bull, shadow_bear],
+                    "model": model_cfg["id"],
+                    "model_slug": model_cfg["scorecard_subdir"],
+                    "latency_ms": latency_ms,
+                    "shadow_reason": shadow_reason,
+                    "is_decision_tick": False,
+                    "is_real_decision_tick": False,
+                    "vocab_violation": False,
+                    "raw_shadow_action": None,
+                    "skipped_non_dt": True,
+                }
+                all_results.append(row)
+                decisions_file.parent.mkdir(parents=True, exist_ok=True)
+                with open(decisions_file, "a", encoding="utf-8") as fh:
+                    fh.write(json.dumps(row, separators=(",", ":"), ensure_ascii=False) + "\n")
+                print(
+                    f"           t{str(tick_id):>3s} {time_et}  "
+                    f"{real_action:<28} -> {'SKIPPED_NON_DT':<28} OK  (dt-only)"
+                )
+                continue
+
+            prompt = build_tick_prompt(tick, account)
+            task_id = f"shadow_eval.{model_cfg['scorecard_subdir']}.{account}.{date}.t{tick_id}"
+
+            t0 = time.monotonic()
+            result = call_model_with_retry(model_cfg, rubric, prompt, task_id)
+            latency_ms = round((time.monotonic() - t0) * 1000)
 
             if not result["ok"]:
                 err = str(result.get("error", "unknown"))
@@ -1217,25 +1368,23 @@ def run_eval(date: str, accounts: list[str]) -> list[dict]:
                 shadow_reason = err[:200]
                 agreed = False
             else:
-                parsed = parse_shadow_response(result["content"])
+                parsed = parse_shadow_response(result["content"], strip_think=strip_think)
                 if parsed is None:
-                    # Primary parse failed — retry with minimal prompt (v10)
                     prev_content = result.get("content") or ""
-                    retry_result = _retry_parse_error(tick, account, prev_content, task_id)
+                    retry_result = _retry_parse_error(model_cfg, tick, account, prev_content, task_id)
                     if retry_result.get("ok"):
-                        parsed = parse_shadow_response(retry_result["content"])
+                        parsed = parse_shadow_response(retry_result["content"], strip_think=strip_think)
                     if parsed:
                         print(f"    [RETRY OK] parse recovered on retry", file=sys.stderr)
 
                 if parsed:
-                    # Capture raw action BEFORE normalization to detect vocab violations
                     raw_action_str = str(parsed.get("action") or "PARSE_ERROR").strip().upper()
                     shadow_action = normalize_action(raw_action_str)
                     vocab_violation = (
                         shadow_action != raw_action_str
                         and raw_action_str not in {"PARSE_ERROR", "UNKNOWN"}
                     )
-                    # coerce scores to int or None
+
                     def _int_or_none(v: object) -> Optional[int]:
                         try:
                             return int(v) if v is not None else None
@@ -1256,6 +1405,12 @@ def run_eval(date: str, accounts: list[str]) -> list[dict]:
                     bear_score=tick.get("bear_score"),
                 )
 
+            # RATE_LIMITED / PARSE_ERROR on shadow side = infrastructure failure, not model error.
+            # Exclude from DT denominator (same logic as ERROR_TV on real side).
+            # is_dt refers to the REAL action being a decision tick; shadow infra failure
+            # means we can't fairly score this tick — mark it non-DT for scoring purposes.
+            effective_is_dt = is_dt and shadow_action not in ("RATE_LIMITED", "PARSE_ERROR") and not shadow_action.startswith("ERROR:")
+
             row: dict = {
                 "date": date,
                 "time_et": time_et,
@@ -1266,18 +1421,19 @@ def run_eval(date: str, accounts: list[str]) -> list[dict]:
                 "agree": agreed,
                 "real_scores": [tick.get("bull_score", 0), tick.get("bear_score", 0)],
                 "shadow_scores": [shadow_bull, shadow_bear],
-                "model": SHADOW_MODEL,
+                "model": model_cfg["id"],
+                "model_slug": model_cfg["scorecard_subdir"],
                 "latency_ms": latency_ms,
                 "shadow_reason": shadow_reason,
-                "is_decision_tick": is_dt,
+                "is_decision_tick": effective_is_dt,
+                "is_real_decision_tick": is_dt,  # original classification, before shadow infra filter
                 "vocab_violation": vocab_violation,
                 "raw_shadow_action": raw_action_str if vocab_violation else None,
             }
             all_results.append(row)
 
-            # Immediate append to JSONL (fault-tolerant — never overwrites, only appends)
-            SHADOW_DECISIONS_FILE.parent.mkdir(parents=True, exist_ok=True)
-            with open(SHADOW_DECISIONS_FILE, "a", encoding="utf-8") as fh:
+            decisions_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(decisions_file, "a", encoding="utf-8") as fh:
                 fh.write(json.dumps(row, separators=(",", ":"), ensure_ascii=False) + "\n")
 
             agree_sym = "OK" if agreed else "XX"
@@ -1289,7 +1445,7 @@ def run_eval(date: str, accounts: list[str]) -> list[dict]:
             )
 
             if i < len(ticks) - 1:
-                time.sleep(SLEEP_BETWEEN_CALLS_S)
+                time.sleep(sleep_s)
 
         print()
 
@@ -1301,10 +1457,13 @@ def run_eval(date: str, accounts: list[str]) -> list[dict]:
 # ────────────────────────────────────────────────────────────────────────────
 
 
-def write_scorecard(date: str, results: list[dict], accounts: list[str]) -> Path:
-    """Write agreement scorecard to analysis/shadow-model/{date}-scorecard.md."""
-    SCORECARD_DIR.mkdir(parents=True, exist_ok=True)
-    out_path = SCORECARD_DIR / f"{date}-scorecard.md"
+def write_scorecard(date: str, results: list[dict], accounts: list[str], model_cfg: dict) -> Path:
+    """Write agreement scorecard to analysis/shadow-model/{model}/{date}-scorecard.md."""
+    model_slug = model_cfg["scorecard_subdir"]
+    model_id = model_cfg["id"]
+    scorecard_dir = SCORECARD_DIR / model_slug
+    scorecard_dir.mkdir(parents=True, exist_ok=True)
+    out_path = scorecard_dir / f"{date}-scorecard.md"
 
     total = len(results)
     n_agree = sum(1 for r in results if r["agree"])
@@ -1319,6 +1478,7 @@ def write_scorecard(date: str, results: list[dict], accounts: list[str]) -> Path
     n_parse_error = sum(1 for r in results if "PARSE_ERROR" in r["shadow_action"])
     n_error = sum(1 for r in results if r["shadow_action"].startswith("ERROR:"))
     n_vocab = sum(1 for r in results if r.get("vocab_violation"))
+    n_skipped = sum(1 for r in results if r.get("skipped_non_dt"))
     avg_latency_ms = round(sum(r["latency_ms"] for r in results) / total) if total else 0
 
     disagreements = [r for r in results if not r["agree"]]
@@ -1328,9 +1488,9 @@ def write_scorecard(date: str, results: list[dict], accounts: list[str]) -> Path
         return f"{n}/{total_} = **{round(100*n/total_, 1) if total_ else 0}%**"
 
     lines: list[str] = [
-        f"# Nemotron Shadow Model Scorecard — {date}",
+        f"# {model_slug} Shadow Model Scorecard — {date}",
         "",
-        f"**Model:** `{SHADOW_MODEL}`  ",
+        f"**Model:** `{model_id}`  ",
         f"**Evaluation date:** {date}  ",
         f"**Generated:** {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}  ",
         f"**Accounts:** {', '.join(accounts)}",
@@ -1347,6 +1507,7 @@ def write_scorecard(date: str, results: list[dict], accounts: list[str]) -> Path
         f"| Parse errors | {n_parse_error} |",
         f"| Other errors | {n_error} |",
         f"| Vocab violations (auto-corrected) | {n_vocab} |",
+        f"| Non-DT ticks skipped (--dt-only) | {n_skipped} |",
         "",
     ]
 
@@ -1434,29 +1595,29 @@ def write_scorecard(date: str, results: list[dict], accounts: list[str]) -> Path
     elif n_rate_limited > n_dt * 0.2:
         verdict = (
             f"**INCONCLUSIVE — rate-limited ({n_rate_limited}/{total} ticks).**  \n"
-            f"Too many RATE_LIMITED responses to assess Nemotron's capability. "
-            f"Try off-peak hours or add longer delays between calls."
+            f"Too many RATE_LIMITED responses to assess `{model_slug}`'s capability. "
+            f"Re-run with `--dt-only` to skip non-DT quota burns, or wait for rate-limit reset."
         )
     elif dt_pct >= 85:
         verdict = (
             f"**CANDIDATE TO PROMOTE.**  \n"
-            f"Nemotron matched Haiku on **{dt_pct}%** of decision ticks "
+            f"`{model_slug}` matched Haiku on **{dt_pct}%** of decision ticks "
             f"(entries, exits, near-misses, skips). Agreement is high enough to consider "
-            f"running Nemotron as the live heartbeat for rate-pool isolation at $0/mo.  \n"
+            f"running this model as the live heartbeat for rate-pool isolation at $0/mo.  \n"
             f"Next steps: (1) run 3+ more trading days, (2) inspect the {len(dt_disagreements)} "
             f"decision-tick mismatches for systematic patterns, (3) J ratification before promoting."
         )
     elif dt_pct >= 70:
         verdict = (
             f"**BORDERLINE — do not promote yet.**  \n"
-            f"Nemotron matched **{dt_pct}%** of decision ticks. Moderate but not "
+            f"`{model_slug}` matched **{dt_pct}%** of decision ticks. Moderate but not "
             f"sufficient for live order trust. Missed decisions: "
             f"{', '.join(list(set(r['real_action'] for r in dt_disagreements))[:5])}.  \n"
             f"Action: investigate the disagreement patterns, then re-test."
         )
     else:
         verdict = (
-            f"**KEEP HAIKU — Nemotron not ready.**  \n"
+            f"**KEEP HAIKU — `{model_slug}` not ready.**  \n"
             f"Only **{dt_pct}%** decision-tick agreement. The decisions that matter "
             f"(entries, exits, near-misses) diverge from Claude Haiku too often for live use.  \n"
             f"Mismatches: {', '.join(list(set(r['real_action'] for r in dt_disagreements))[:5])}.  \n"
@@ -1483,7 +1644,7 @@ def write_scorecard(date: str, results: list[dict], accounts: list[str]) -> Path
 
 def _main() -> int:
     p = argparse.ArgumentParser(
-        description="Shadow model evaluator — measures Nemotron vs Haiku agreement on heartbeat ticks."
+        description="Shadow model evaluator — measures free-tier model vs Haiku agreement on heartbeat ticks."
     )
     p.add_argument("--date", required=True, help="Target date YYYY-MM-DD")
     p.add_argument(
@@ -1491,6 +1652,13 @@ def _main() -> int:
         choices=["safe", "bold", "both"],
         default="both",
         help="Which account ledger(s) to replay (default: both)",
+    )
+    model_choices = list(MODELS.keys())
+    p.add_argument(
+        "--model",
+        choices=model_choices,
+        default=DEFAULT_MODEL,
+        help=f"Model to evaluate (default: {DEFAULT_MODEL}). Options: {', '.join(model_choices)}",
     )
     p.add_argument(
         "--dry-run",
@@ -1505,19 +1673,31 @@ def _main() -> int:
     p.add_argument(
         "--clear",
         action="store_true",
-        help="Remove existing entries for this date from shadow-model-decisions.jsonl before running",
+        help="Remove existing entries for this date from the model's decisions JSONL before running",
+    )
+    p.add_argument(
+        "--dt-only",
+        action="store_true",
+        help="Skip API calls for non-decision ticks (trivially agree locally). Saves 60-70%% of quota.",
     )
     args = p.parse_args()
 
+    model_cfg = MODELS[args.model]
+    decisions_file: Path = model_cfg["decisions_file"]
     accounts = ["safe", "bold"] if args.account == "both" else [args.account]
 
-    print(f"Shadow evaluator v11.0")
-    print(f"Model:    {SHADOW_MODEL}")
+    # Populate module-level alias (used by dry-run path)
+    global RUBRIC_SYSTEM_PROMPT
+    RUBRIC_SYSTEM_PROMPT = load_rubric(model_cfg["rubric_file"])
+
+    print(f"Shadow evaluator v12.0")
+    print(f"Model:    {model_cfg['id']} (--model {args.model})")
     print(f"Date:     {args.date}")
     print(f"Accounts: {', '.join(accounts)}")
-    print(f"Output:   {SHADOW_DECISIONS_FILE}")
+    print(f"Rubric:   {model_cfg['rubric_file']}")
+    print(f"Output:   {decisions_file}")
     print()
-    sys.stdout.flush()  # force flush when piped to file (avoids empty output in background runs)
+    sys.stdout.flush()
 
     if args.dry_run:
         ledger_map = {"safe": SAFE_LEDGER, "bold": BOLD_LEDGER}
@@ -1534,15 +1714,16 @@ def _main() -> int:
                 print(f"({len(ticks)} ticks total for {args.date})")
         return 0
 
-    global SLEEP_BETWEEN_CALLS_S
-    if args.no_sleep:
-        SLEEP_BETWEEN_CALLS_S = 0.0
+    if args.no_sleep or args.dt_only:
+        model_cfg = dict(model_cfg)  # shallow copy to avoid mutating MODELS
+        if args.no_sleep:
+            model_cfg["sleep_s"] = 0.0
+        if args.dt_only:
+            model_cfg["dt_only"] = True
 
-    if args.clear and SHADOW_DECISIONS_FILE.exists():
-        # Remove rows for this date only, keep others.
-        # Atomic rewrite: write to temp file then rename to avoid data loss on crash.
+    if args.clear and decisions_file.exists():
         kept: list[str] = []
-        with open(SHADOW_DECISIONS_FILE, encoding="utf-8") as fh:
+        with open(decisions_file, encoding="utf-8") as fh:
             for ln in fh:
                 ln = ln.strip()
                 if not ln:
@@ -1554,30 +1735,29 @@ def _main() -> int:
                 except Exception:
                     pass
                 kept.append(ln)
-        # Atomic write: temp file in same directory, then os.replace (atomic on same filesystem)
         tmp_fd, tmp_path = tempfile.mkstemp(
-            dir=SHADOW_DECISIONS_FILE.parent, suffix=".tmp", prefix="shadow-decisions-"
+            dir=decisions_file.parent, suffix=".tmp", prefix="shadow-decisions-"
         )
         try:
             with os.fdopen(tmp_fd, "w", encoding="utf-8") as fh:
                 for ln in kept:
                     fh.write(ln + "\n")
-            os.replace(tmp_path, SHADOW_DECISIONS_FILE)
+            os.replace(tmp_path, decisions_file)
         except Exception:
             try:
                 os.unlink(tmp_path)
             except OSError:
                 pass
             raise
-        print(f"  [--clear] Removed {args.date} entries from {SHADOW_DECISIONS_FILE.name}")
+        print(f"  [--clear] Removed {args.date} entries from {decisions_file.name}")
 
-    results = run_eval(args.date, accounts)
+    results = run_eval(args.date, accounts, model_cfg)
 
     if not results:
         print("No results — nothing to score.")
         return 1
 
-    scorecard_path = write_scorecard(args.date, results, accounts)
+    scorecard_path = write_scorecard(args.date, results, accounts, model_cfg)
 
     total = len(results)
     n_agree = sum(1 for r in results if r["agree"])
@@ -1586,7 +1766,7 @@ def _main() -> int:
     n_dt_agree = sum(1 for r in dt_results if r["agree"])
 
     print("=" * 60)
-    print(f"RESULTS: {args.date}")
+    print(f"RESULTS: {args.date} [{args.model}]")
     print(f"  Overall agreement:       {n_agree}/{total} = {round(100*n_agree/total, 1) if total else 0}%")
     print(f"  Decision-tick agreement: {n_dt_agree}/{n_dt} = {round(100*n_dt_agree/n_dt, 1) if n_dt else 0}%")
     print(f"  Scorecard: {scorecard_path}")

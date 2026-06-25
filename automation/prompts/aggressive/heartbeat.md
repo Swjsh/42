@@ -353,7 +353,7 @@ Read `automation/state/aggressive/params.json#block_conf_lvl_rej_midday_afternoo
 **Revert:** set `aggressive/params.json#block_conf_lvl_rec_afternoon: false, block_conf_lvl_rej_midday_afternoon: false`.
 
 **Gate AGG-4 — block_bull_morning_agg (PORTED from `backtest/lib/orchestrator.py`:1229-1231, 2026-06-18):**
-Read `automation/state/aggressive/params.json#block_bull_morning_agg` (currently `true`). BLOCK gate — removes losing BULL entries; fail-safe direction. Param-gated (no-op when `false`).
+Read `automation/state/aggressive/params.json#block_bull_morning_agg` (currently `false`). BLOCK gate — removes losing BULL entries; J disabled 2026-06-24 after it vetoed an 11/11 A+ reclaim. Param-gated (no-op when `false`).
 - If `true` AND decision is `ENTER_BULL` (call / `winning_side == "C"`) AND the signal-bar ET time is in `10:00 ≤ t < 11:30` OR `t >= 14:00` (orchestrator: `dt.time(10,0) <= bar_time < dt.time(11,30) or bar_time >= dt.time(14,0)` — a SPLIT window covering morning + afternoon + power hour, NOT one contiguous range):
   → emit `SKIP_BULL_MORNING_AGG`, append a row to `automation/state/aggressive/decisions.jsonl` (blocker `BLOCK_BULL_MORNING_AGG`), DO NOT place the order.
 - Aggressive account only. MORNING IS n=47 WR=14.9% (−$222); AFTERNOON IS n=6 WR=0% (−$82); POWER_HOUR IS n=3 WR=33% (−$45). IS_delta=+$384, OOS_delta=+$82, WF=2.837. Scorecard: `analysis/recommendations/agg_block_bull_morning_afternoon.json`. **Revert:** set `block_bull_morning_agg: false`.

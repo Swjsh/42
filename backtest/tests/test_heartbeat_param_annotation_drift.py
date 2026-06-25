@@ -59,10 +59,7 @@ from crypto.validators.v25_filter_gates import (  # noqa: E402
 #
 # key = (heartbeat label, param name); value = the proposal / rationale ref.
 KNOWN_STALE: dict[tuple[str, str], str] = {
-    ("aggressive", "block_bull_morning_agg"):
-        "proposal gp-2026-06-24-001 (conductor-proposals.jsonl) - J disabled this gate mid-session 2026-06-24 "
-        "(params=false, a no-op); the prompt annotation still reads `true`. Pending the "
-        "rail-4 heartbeat.md edit. Remove this entry once the annotation reads `false`.",
+    # gp-2026-06-24-001 applied 2026-06-24 (interactive session): annotation updated to `false`
 }
 
 # ``Read `...#<param>` (currently `<value>`)`` — capture the param key and annotated value.
@@ -166,9 +163,10 @@ def test_known_stale_entries_are_still_stale():
     assert not fixed, "KNOWN_STALE has FIXED (dead) entries — tighten the ratchet:\n" + "\n".join(fixed)
 
 
-def test_the_known_morning_block_drift_is_detected():
-    """Pins the concrete drift this guard was born from (2026-06-24): the Bold prompt
-    still annotates `block_bull_morning_agg` as `true` while params reads `false`."""
+def test_the_known_morning_block_drift_is_fixed():
+    """Verifies gp-2026-06-24-001 was applied: annotation updated `true`→`false` 2026-06-24.
+    Drift between params (false) and annotation (true) existed until the interactive
+    session resolved it; this test now confirms the annotation matches params."""
     params = _load(_PARAMS_AGG_PATH)
     assert params["block_bull_morning_agg"] is False, (
         "block_bull_morning_agg is no longer false — J's mid-session disable was reverted; "
@@ -176,6 +174,7 @@ def test_the_known_morning_block_drift_is_detected():
     )
     annotated = dict(_annotations(_HEARTBEAT_AGG_PATH)).get("block_bull_morning_agg")
     assert annotated is not None, "the morning-block annotation vanished from the Bold heartbeat."
-    # While the fix is pending it reads stale `true`; after J applies it reads `false`
-    # and test_known_stale_entries_are_still_stale forces the allowlist entry's removal.
-    assert annotated.strip().strip("`").lower() in ("true", "false")
+    assert annotated.strip().strip("`").lower() == "false", (
+        f"annotation reads {annotated!r} but params is False — drift re-introduced; "
+        "re-add to KNOWN_STALE or apply the fix."
+    )
