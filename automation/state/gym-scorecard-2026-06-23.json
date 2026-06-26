@@ -1,0 +1,112 @@
+{
+  "generated_at": "2026-06-24T04:35:28.059282+00:00",
+  "for_date": "2026-06-23",
+  "overall_verdict": "YELLOW",
+  "detector_verdict": "GREEN",
+  "audits": [
+    {
+      "name": "crypto-gym (42 validators)",
+      "source_file": "crypto/data/scorecards/latest.json",
+      "verdict": "GREEN",
+      "summary": "98/98 pass",
+      "evidence": {
+        "stages": 98,
+        "passed": 98,
+        "flaky_failed": []
+      }
+    },
+    {
+      "name": "chart-data-verify",
+      "source_file": "automation/state/chart-data-verify-2026-06-24.json",
+      "verdict": "GREEN",
+      "summary": "5 bars checked, max div $0.0000",
+      "evidence": {
+        "max_divergence_usd": 0,
+        "bars_checked": 5
+      }
+    },
+    {
+      "name": "heartbeat-tick-audit",
+      "source_file": "automation/state/heartbeat-tick-audit-2026-06-24.json",
+      "verdict": "GREEN",
+      "summary": "0 live ticks, 0 MISALIGNED-CRITICAL (0.0%)",
+      "evidence": {
+        "by_classification": {
+          "ALIGNED": 0,
+          "MISALIGNED-BENIGN": 0,
+          "MISALIGNED-CRITICAL": 0,
+          "STALE_PAUSED": 0,
+          "NO_DATA": 0,
+          "NO_BAR": 0
+        },
+        "live_ticks": 0,
+        "misaligned_critical": 0,
+        "misaligned_pct": 0.0
+      }
+    },
+    {
+      "name": "pin-chain-verify",
+      "source_file": "automation/state/pin-chain-verify-latest.json",
+      "verdict": "YELLOW",
+      "summary": "rule_version=v15.3, mismatches=1",
+      "evidence": {
+        "canonical_rule_version": "v15.3",
+        "mismatches": [
+          {
+            "file": "C:\\Users\\jackw\\Desktop\\42\\automation\\prompts\\aggressive\\heartbeat.md",
+            "line": 9,
+            "found": "v15.2",
+            "expected": "v15.3",
+            "note": "aggressive-variant-may-be-intentionally-divergent-confirm-with-J"
+          }
+        ]
+      }
+    },
+    {
+      "name": "heartbeat-mcp-self-test",
+      "source_file": "automation/state/heartbeat-mcp-self-test-latest.json",
+      "verdict": "GREEN",
+      "summary": "TV CDP listening=True",
+      "evidence": {
+        "tv_cdp_listening": true
+      }
+    },
+    {
+      "name": "heartbeat-pulse-check",
+      "source_file": "automation/state/heartbeat-pulse-check-2026-06-23.json",
+      "verdict": "NOT_APPLICABLE",
+      "summary": "max gap 0.0min",
+      "evidence": {
+        "max_gap_minutes": 0.0
+      }
+    },
+    {
+      "name": "watcher-state-inspector",
+      "source_file": "automation/state/watcher-state-inspector-2026-06-23.json",
+      "verdict": "RED",
+      "summary": "could-not-load-bars-for-date",
+      "evidence": {
+        "obs_today": 0,
+        "reason": "could-not-load-bars-for-date"
+      }
+    }
+  ],
+  "stale_reruns": {
+    "chart_data_verify": {
+      "exit": 0,
+      "log_tail": "-23 15:45:00', 'csv_close': 734.7100219726562, 'yf_close': 734.7100219726562, 'divergence': 0.0, 'note': None}\n    {'ts': '2026-06-23 15:50:00', 'csv_close': 735.510009765625, 'yf_close': 735.510009765625, 'divergence': 0.0, 'note': None}\n    {'ts': '2026-06-23 15:55:00', 'csv_close': 733.6699829101562, 'yf_close': 733.6699829101562, 'divergence': 0.0, 'note': '15:55-close-bar-relaxed-tolerance'}\n  heal: no-op\n  wrote: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\chart-data-verify-2026-06-23.json\n"
+    },
+    "pin_chain_verify": {
+      "exit": 0,
+      "log_tail": "ICT: YELLOW\n  reason: aggressive-variant-intentionally-divergent-1-warning(s)\n  canonical: v15.3\n    params.json: v15.3\n    heartbeat.md: v15.3 (line 16)\n    premarket.md: v15.3 (line 43)\n    aggressive/heartbeat.md: v15.2 (line 9)\n  mismatches:\n    C:\\Users\\jackw\\Desktop\\42\\automation\\prompts\\aggressive\\heartbeat.md: found 'v15.2' expected 'v15.3'\n  heal: NO-AUTO-HEAL-rule-9-production-prompts-need-J-authorization\n  wrote: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\pin-chain-verify-latest.json\n"
+    },
+    "heartbeat_tick_audit": {
+      "exit": 0,
+      "log_tail": "3 ===\nHeadline: 0 of 0 live-trading ticks (0%) were MISALIGNED-CRITICAL on 2026-06-23\nCounts: {'ALIGNED': 0, 'MISALIGNED-BENIGN': 0, 'MISALIGNED-CRITICAL': 0, 'STALE_PAUSED': 0, 'NO_DATA': 0, 'NO_BAR': 0}\nFiles written:\n  per_tick_csv: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-06-23.csv\n  summary_json: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-06-23.json\n  human_md: C:\\Users\\jackw\\Desktop\\42\\markdown\\audits\\HEARTBEAT-TICK-AUDIT-2026-06-23.md\n"
+    },
+    "heartbeat_pulse_check": {
+      "exit": 0,
+      "log_tail": "=== heartbeat-pulse-check 2026-06-23 ===\nVerdict: NOT_APPLICABLE\nReason: no-heartbeat-log-found:heartbeat-2026-06-23.log\nMarket fires: 0\nMax gap: 0.0 min\nWrote: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-pulse-check-2026-06-23.json\n"
+    }
+  }
+}

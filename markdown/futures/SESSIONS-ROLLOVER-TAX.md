@@ -1,6 +1,6 @@
 # Sessions, Rollover & Tax — Futures
 
-> Sources: CME Group (hours, expiration), tastytrade (hours), NinjaTrader/Aeromir (rollover), Schwab/Green Trader Tax (Section 1256). See [SOURCES.md](markdown/futures/SOURCES.md).
+> Sources: CME Group (hours, expiration), tastytrade (hours), NinjaTrader/Aeromir (rollover), Schwab/Green Trader Tax (Section 1256). See [SOURCES.md](SOURCES.md).
 
 ---
 

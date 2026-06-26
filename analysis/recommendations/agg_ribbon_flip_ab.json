@@ -1,0 +1,229 @@
+{
+  "task": "2207a18a-ribbon-flip-ab",
+  "is_date_range": [
+    "2025-01-02",
+    "2026-02-26"
+  ],
+  "oos_date_range": [
+    "2026-02-27",
+    "2026-05-22"
+  ],
+  "is_bearish_total": 159,
+  "oos_bearish_total": 31,
+  "is_ribbon_flip_pct": 0.17,
+  "oos_ribbon_flip_pct": 0.129,
+  "is_ab": {
+    "flip_true": {
+      "n": 27,
+      "wr": 0.259,
+      "avg_pnl": 426.8,
+      "total_pnl": 11523.7
+    },
+    "flip_false": {
+      "n": 132,
+      "wr": 0.288,
+      "avg_pnl": 125.9,
+      "total_pnl": 16620.1
+    }
+  },
+  "oos_ab": {
+    "flip_true": {
+      "n": 4,
+      "wr": 0.5,
+      "avg_pnl": 626.3,
+      "total_pnl": 2505.3
+    },
+    "flip_false": {
+      "n": 27,
+      "wr": 0.148,
+      "avg_pnl": 103.1,
+      "total_pnl": 2782.4
+    }
+  },
+  "is_hs_ab": {
+    "flip_true": {
+      "n": 1,
+      "wr": 0.0,
+      "avg_pnl": -65.5,
+      "total_pnl": -65.5
+    },
+    "flip_false": {
+      "n": 26,
+      "wr": 0.269,
+      "avg_pnl": 7.7,
+      "total_pnl": 201.0
+    }
+  },
+  "oos_hs_ab": {
+    "flip_true": {
+      "n": 2,
+      "wr": 0.5,
+      "avg_pnl": 470.6,
+      "total_pnl": 941.2
+    },
+    "flip_false": {
+      "n": 11,
+      "wr": 0.091,
+      "avg_pnl": -68.8,
+      "total_pnl": -757.0
+    }
+  },
+  "gate_hypotheses": [
+    {
+      "hypothesis": "H1_flip_only (block bearish without ribbon_flip)",
+      "verdict": "REJECT",
+      "is_delta": -16620.1,
+      "oos_delta": -2782.4,
+      "n_removed_is": 132,
+      "n_removed_oos": 27,
+      "wf_norm": null,
+      "sw_hurt": 3,
+      "sw_details": [
+        {
+          "name": "SW1_2025H1",
+          "delta": -2340.8,
+          "hurt": true
+        },
+        {
+          "name": "SW2_2025H2",
+          "delta": -7102.2,
+          "hurt": true
+        },
+        {
+          "name": "SW3_early26",
+          "delta": -7177.1,
+          "hurt": true
+        }
+      ],
+      "anchor_blocked": [
+        {
+          "date": "2026-05-01",
+          "pnl": -297.0
+        },
+        {
+          "date": "2026-05-01",
+          "pnl": -259.6
+        },
+        {
+          "date": "2026-05-01",
+          "pnl": 247.5
+        },
+        {
+          "date": "2026-05-04",
+          "pnl": -44.52
+        }
+      ],
+      "gates": {
+        "is_pos": false,
+        "oos_pos": false,
+        "wf": false,
+        "sw": false,
+        "anchor": false
+      }
+    },
+    {
+      "hypothesis": "H2_hs_flip_only (score>=8 AND ribbon_flip)",
+      "verdict": "REJECT",
+      "is_delta": -201.0,
+      "oos_delta": 757.0,
+      "n_removed_is": 26,
+      "n_removed_oos": 11,
+      "wf_norm": null,
+      "sw_hurt": 2,
+      "sw_details": [
+        {
+          "name": "SW1_2025H1",
+          "delta": -9.7,
+          "hurt": true
+        },
+        {
+          "name": "SW2_2025H2",
+          "delta": -315.4,
+          "hurt": true
+        },
+        {
+          "name": "SW3_early26",
+          "delta": 124.1,
+          "hurt": false
+        }
+      ],
+      "anchor_blocked": [
+        {
+          "date": "2026-05-04",
+          "pnl": -44.52
+        }
+      ],
+      "gates": {
+        "is_pos": false,
+        "oos_pos": true,
+        "wf": false,
+        "sw": false,
+        "anchor": false
+      }
+    },
+    {
+      "hypothesis": "H3_require_lvl_rej_if_no_flip",
+      "verdict": "REJECT",
+      "is_delta": -15081.3,
+      "oos_delta": -3043.7,
+      "n_removed_is": 130,
+      "n_removed_oos": 25,
+      "wf_norm": null,
+      "sw_hurt": 3,
+      "sw_details": [
+        {
+          "name": "SW1_2025H1",
+          "delta": -1848.0,
+          "hurt": true
+        },
+        {
+          "name": "SW2_2025H2",
+          "delta": -7102.2,
+          "hurt": true
+        },
+        {
+          "name": "SW3_early26",
+          "delta": -6131.1,
+          "hurt": true
+        }
+      ],
+      "anchor_blocked": [
+        {
+          "date": "2026-05-01",
+          "pnl": -297.0
+        },
+        {
+          "date": "2026-05-01",
+          "pnl": -259.6
+        },
+        {
+          "date": "2026-05-01",
+          "pnl": 247.5
+        },
+        {
+          "date": "2026-05-04",
+          "pnl": -44.52
+        }
+      ],
+      "gates": {
+        "is_pos": false,
+        "oos_pos": false,
+        "wf": false,
+        "sw": false,
+        "anchor": false
+      }
+    }
+  ],
+  "auto_ratified": [],
+  "elite_bonus_eligible": false,
+  "elite_bonus_criteria": {
+    "is_flip_wr": 0.259,
+    "is_flip_avg": 426.8,
+    "is_noflip_avg": 125.9,
+    "oos_flip_wr": 0.5,
+    "oos_flip_avg": 626.3,
+    "is_wr_ge_055": false,
+    "is_avg_gt_noflip": true,
+    "oos_confirms": true
+  }
+}

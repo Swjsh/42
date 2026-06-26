@@ -1,0 +1,97 @@
+{
+  "date": "2026-06-25",
+  "total_ticks": 73,
+  "live_trading_ticks": 32,
+  "counts": {
+    "ALIGNED": 10,
+    "MISALIGNED-BENIGN": 14,
+    "MISALIGNED-CRITICAL": 8,
+    "STALE_PAUSED": 9,
+    "NO_DATA": 32,
+    "NO_BAR": 0
+  },
+  "misaligned_critical_count": 8,
+  "misaligned_critical_pct_of_live": 25.0,
+  "headline": "8 of 32 live-trading ticks (25%) were MISALIGNED-CRITICAL on 2026-06-25",
+  "critical_ticks": [
+    {
+      "tick_id": 12,
+      "fire_at": "2026-06-25T10:06:02",
+      "decision": "SKIP_TV_DATA_STALE",
+      "claimed_spy": 737.33,
+      "closed_close": 733.239990234375,
+      "divergence": 4.09,
+      "reason": "spy=737.33 ribbon=unknown vix=17.88(falling) bear=0/10 bull=0/11 htf=null | TV_FALLBACK_FAILED: ribboncli returned UNKNOWN stack after premarket 3 self-heal retries"
+    },
+    {
+      "tick_id": 13,
+      "fire_at": "2026-06-25T10:09:01",
+      "decision": "SKIP_TV_DATA_STALE",
+      "claimed_spy": 737.33,
+      "closed_close": 733.239990234375,
+      "divergence": 4.09,
+      "reason": "spy=737.33 ribbon=UNAVAIL vix=17.88(falling_stale) bear=0/10 bull=0/11 htf=null | TV down 40min + Safe MCP 401; no-trade-bias"
+    },
+    {
+      "tick_id": 35,
+      "fire_at": "2026-06-25T11:15:01",
+      "decision": "SKIP_TV_DATA_STALE",
+      "claimed_spy": 737.33,
+      "closed_close": 732.969970703125,
+      "divergence": 4.36,
+      "reason": "spy=737.33 ribbon=null vix=17.88(falling) bear=0/10 bull=0/11 htf=null | TV_MCP_unavailable_Safe_401 TV_FALLBACK_FAILED"
+    },
+    {
+      "tick_id": 36,
+      "fire_at": "2026-06-25T11:18:01",
+      "decision": "SKIP_TV_DATA_STALE",
+      "claimed_spy": 737.33,
+      "closed_close": 732.969970703125,
+      "divergence": 4.36,
+      "reason": "spy=737.33 ribbon=?c(?) vix=17.88(falling) bear=0/10 bull=0/11 htf=? | Alpaca bars 3d stale (2026-06-22), TV down 140min \u0393\u00c7\u00f6 no chart fallback"
+    },
+    {
+      "tick_id": 41,
+      "fire_at": "2026-06-25T11:33:01",
+      "decision": "SKIP_TV_DATA_STALE",
+      "claimed_spy": 737.33,
+      "closed_close": 734.2899780273438,
+      "divergence": 3.04,
+      "reason": "spy=737.33 ribbon=null vix=17.88(falling) bear=0/10 bull=0/11 htf=null | TV_MCP_reconnect_needed_approaching_1130_window"
+    },
+    {
+      "tick_id": 46,
+      "fire_at": "2026-06-25T11:48:02",
+      "decision": "HOLD",
+      "claimed_spy": 737.33,
+      "closed_close": 734.77001953125,
+      "divergence": 2.56,
+      "reason": "spy=737.33 ribbon=null vix=17.88(falling) bear=0/10 bull=0/11 htf=null | inside_no_trade_window_11:30-12:00_et_enforced4_alpaca_ok_flat_vix_stale"
+    },
+    {
+      "tick_id": 58,
+      "fire_at": "2026-06-25T12:25:02",
+      "decision": "SKIP_TV_DATA_STALE",
+      "claimed_spy": 737.3,
+      "closed_close": 734.4401245117188,
+      "divergence": 2.8599,
+      "reason": "spy=737.3 ribbon=1.8c(BEAR) vix=17.88(cached) bear=5/10 bull=4/11 htf=null | TV+Alpaca+Beacon all stale/down, spread 1.8c critical (min 30c), no entry viable today"
+    },
+    {
+      "tick_id": 69,
+      "fire_at": "2026-06-25T12:59:52",
+      "decision": "HOLD",
+      "claimed_spy": 735.7,
+      "closed_close": 732.7000122070312,
+      "divergence": 3.0,
+      "reason": "spy=735.7 ribbon=5.3c(BEAR) vix=17.88(falling) bear=5/10 bull=4/11 htf=null | ribbon_spread_5.3c_blocks_entry"
+    }
+  ],
+  "log_path": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\logs\\heartbeat-2026-06-25.log",
+  "csv_path": "C:\\Users\\jackw\\Desktop\\42\\backtest\\data\\spy_5m_2026-05-19_2026-06-25.csv",
+  "audit_files": {
+    "per_tick_csv": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-06-25.csv",
+    "summary_json": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-06-25.json",
+    "human_md": "C:\\Users\\jackw\\Desktop\\42\\markdown\\audits\\HEARTBEAT-TICK-AUDIT-2026-06-25.md"
+  }
+}

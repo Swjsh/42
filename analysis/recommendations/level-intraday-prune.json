@@ -1,0 +1,285 @@
+{
+  "rule_id": "level-intraday-prune",
+  "title": "Exclude intraday session H/L from level set (source pruning Phase 3)",
+  "candidate": "exclude_intraday_hl=True in _detect_from_history()",
+  "baseline": "exclude_intraday_hl=False (production default)",
+  "generated": "2026-06-15T22:57",
+  "strike_offset_parity_check": {
+    "strike_offset_bear_used": 0,
+    "source": "V15_J_EDGE_OVERRIDES (Config 1 \u2014 fires on all 3 J winner anchors)",
+    "parity_ok": true
+  },
+  "analytical_prior": "source_pruning_study (analytical) showed intraday source: DM-lift=-3.1pp, touch_rate_delta=+0.3pp, anchor_regression=SAFE (no J winner anchors used intraday H/L).",
+  "anchor_days": {
+    "baseline": {
+      "edge_capture": 664.2,
+      "winners_capture": 731.4,
+      "losers_added": 67.2,
+      "by_day": [
+        {
+          "date": "2026-04-29",
+          "n_trades": 1,
+          "total_pnl": -75.6,
+          "trades": [
+            {
+              "side": "P",
+              "strike": 712,
+              "pnl": -75.6
+            }
+          ],
+          "j_pnl": 342,
+          "edge_kind": "WIN",
+          "capture_pct": -0.221
+        },
+        {
+          "date": "2026-05-01",
+          "n_trades": 1,
+          "total_pnl": 3.0,
+          "trades": [
+            {
+              "side": "P",
+              "strike": 725,
+              "pnl": 3.0
+            }
+          ],
+          "j_pnl": 470,
+          "edge_kind": "WIN",
+          "capture_pct": 0.006
+        },
+        {
+          "date": "2026-05-04",
+          "n_trades": 1,
+          "total_pnl": 804.0,
+          "trades": [
+            {
+              "side": "P",
+              "strike": 721,
+              "pnl": 804.0
+            }
+          ],
+          "j_pnl": 730,
+          "edge_kind": "WIN",
+          "capture_pct": 1.101
+        },
+        {
+          "date": "2026-05-05",
+          "n_trades": 0,
+          "total_pnl": 0,
+          "trades": [],
+          "j_pnl": -260,
+          "edge_kind": "LOSS",
+          "engine_did_skip": true
+        },
+        {
+          "date": "2026-05-06",
+          "n_trades": 0,
+          "total_pnl": 0,
+          "trades": [],
+          "j_pnl": -300,
+          "edge_kind": "LOSS",
+          "engine_did_skip": true
+        },
+        {
+          "date": "2026-05-07",
+          "n_trades": 1,
+          "total_pnl": -67.2,
+          "trades": [
+            {
+              "side": "P",
+              "strike": 735,
+              "pnl": -67.2
+            }
+          ],
+          "j_pnl": -165,
+          "edge_kind": "LOSS",
+          "engine_did_skip": false
+        }
+      ]
+    },
+    "candidate": {
+      "edge_capture": 664.2,
+      "winners_capture": 731.4,
+      "losers_added": 67.2,
+      "by_day": [
+        {
+          "date": "2026-04-29",
+          "n_trades": 1,
+          "total_pnl": -75.6,
+          "trades": [
+            {
+              "side": "P",
+              "strike": 712,
+              "pnl": -75.6
+            }
+          ],
+          "j_pnl": 342,
+          "edge_kind": "WIN",
+          "capture_pct": -0.221
+        },
+        {
+          "date": "2026-05-01",
+          "n_trades": 1,
+          "total_pnl": 3.0,
+          "trades": [
+            {
+              "side": "P",
+              "strike": 725,
+              "pnl": 3.0
+            }
+          ],
+          "j_pnl": 470,
+          "edge_kind": "WIN",
+          "capture_pct": 0.006
+        },
+        {
+          "date": "2026-05-04",
+          "n_trades": 1,
+          "total_pnl": 804.0,
+          "trades": [
+            {
+              "side": "P",
+              "strike": 721,
+              "pnl": 804.0
+            }
+          ],
+          "j_pnl": 730,
+          "edge_kind": "WIN",
+          "capture_pct": 1.101
+        },
+        {
+          "date": "2026-05-05",
+          "n_trades": 0,
+          "total_pnl": 0,
+          "trades": [],
+          "j_pnl": -260,
+          "edge_kind": "LOSS",
+          "engine_did_skip": true
+        },
+        {
+          "date": "2026-05-06",
+          "n_trades": 0,
+          "total_pnl": 0,
+          "trades": [],
+          "j_pnl": -300,
+          "edge_kind": "LOSS",
+          "engine_did_skip": true
+        },
+        {
+          "date": "2026-05-07",
+          "n_trades": 1,
+          "total_pnl": -67.2,
+          "trades": [
+            {
+              "side": "P",
+              "strike": 735,
+              "pnl": -67.2
+            }
+          ],
+          "j_pnl": -165,
+          "edge_kind": "LOSS",
+          "engine_did_skip": false
+        }
+      ]
+    },
+    "anchor_no_regression": true
+  },
+  "is_window": {
+    "start": "2026-03-03",
+    "end": "2026-04-14",
+    "baseline": {
+      "n_trades": 32,
+      "hit_rate": 0.1875,
+      "expectancy": -74.69,
+      "total_pnl": -2390.19,
+      "wl_ratio": 2.678,
+      "max_drawdown": -2807.19,
+      "thresholds": {
+        "trades_ge_20": true,
+        "wr_ge_45": false,
+        "wl_ge_15x": true,
+        "expectancy_gt_0": false
+      },
+      "thresholds_passed": 2
+    },
+    "candidate": {
+      "n_trades": 36,
+      "hit_rate": 0.1667,
+      "expectancy": -84.58,
+      "total_pnl": -3044.79,
+      "wl_ratio": 2.798,
+      "max_drawdown": -3461.79,
+      "thresholds": {
+        "trades_ge_20": true,
+        "wr_ge_45": false,
+        "wl_ge_15x": true,
+        "expectancy_gt_0": false
+      },
+      "thresholds_passed": 2
+    }
+  },
+  "oos_window": {
+    "start": "2026-04-15",
+    "end": "2026-05-07",
+    "baseline": {
+      "n_trades": 16,
+      "hit_rate": 0.375,
+      "expectancy": -17.64,
+      "total_pnl": -282.2,
+      "wl_ratio": 1.462,
+      "max_drawdown": -1178.16,
+      "thresholds": {
+        "trades_ge_20": false,
+        "wr_ge_45": false,
+        "wl_ge_15x": false,
+        "expectancy_gt_0": false
+      },
+      "thresholds_passed": 0
+    },
+    "candidate": {
+      "n_trades": 15,
+      "hit_rate": 0.4,
+      "expectancy": 3.81,
+      "total_pnl": 57.16,
+      "wl_ratio": 1.553,
+      "max_drawdown": -1178.16,
+      "thresholds": {
+        "trades_ge_20": false,
+        "wr_ge_45": false,
+        "wl_ge_15x": true,
+        "expectancy_gt_0": true
+      },
+      "thresholds_passed": 2
+    }
+  },
+  "wf_ratios": {
+    "baseline_wf": -0.4,
+    "candidate_wf": -0.3
+  },
+  "op11_gates": {
+    "dominates": false,
+    "dominates_on": [
+      "wl_ratio",
+      "max_drawdown"
+    ],
+    "data_hash_match": true,
+    "thresholds_4_of_4": false,
+    "thresholds_detail": {
+      "trades_ge_20": true,
+      "wr_ge_45": false,
+      "wl_ge_15x": true,
+      "expectancy_gt_0": false
+    },
+    "sub_window_stable": false,
+    "evidence_n": 51,
+    "evidence_ok": true,
+    "anchor_no_regression": true
+  },
+  "auto_ratify_eligible": false,
+  "verdict": "HOLD: some OP-11 gates pending \u2014 see op11_gates detail",
+  "known_limitations": [
+    "Level set change affects ENTRY conditions (must be near a level to trigger); effect on P&L depends on how many new/lost triggers result.",
+    "Intraday H/L levels form during RTH \u2014 they are already 'stalish' by the time they are used (same-session H/L are dynamic). Removing them reduces same-session level density.",
+    "Analytical prior (source_pruning_study) used full-window 219 days. This harness uses a 60-day window for speed.",
+    "Real-fills enabled (L50/L71) \u2014 option P&L authority is broker fills, not BS-sim."
+  ]
+}

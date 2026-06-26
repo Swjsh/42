@@ -72,6 +72,15 @@ from chef_nemotron import (  # noqa: E402
     _gather_common_inputs,
 )
 
+# Free lane-pool client (Groq/Cerebras/Gemini/OpenRouter + local Ollama floor).
+# Optional: cooks route through this first; if it is unavailable or fails, _run_task
+# falls back to the OpenRouter-only ladder below. This is what stops the 24/7 kitchen
+# going dark on OpenRouter 429s — it spreads cooks across independent free providers.
+try:
+    import swarm_client as _swarm  # noqa: E402
+except Exception:  # noqa: BLE001
+    _swarm = None
+
 
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
@@ -359,15 +368,25 @@ def _load_queue() -> dict[str, dict]:
                     state["model"] = ev.get("model")
                     state["tier"] = ev.get("tier")
                 elif kind == "fail":
-                    state["retry_count"] = state.get("retry_count", 0) + 1
-                    state["last_error"] = ev.get("error", "")
-                    if state["retry_count"] >= MAX_RETRY_PER_TASK:
+                    err_text = ev.get("error", "") or ""
+                    # Transient infra errors don't burn a permanent-failure slot
+                    _transient = (
+                        "APIConnectionError" in err_text
+                        or "Connection error." in err_text
+                        or "connection error" in err_text.lower()
+                    )
+                    if not _transient:
+                        state["retry_count"] = state.get("retry_count", 0) + 1
+                    state["last_error"] = err_text
+                    if state.get("retry_count", 0) >= MAX_RETRY_PER_TASK:
                         state["status"] = "failed_permanent"
                     else:
                         state["status"] = "pending"  # requeue
                 elif kind == "requeue":
                     state["status"] = "pending"
                     state["requeued_reason"] = ev.get("reason", "")
+                    if ev.get("reset_retries"):
+                        state["retry_count"] = 0
                 out[tid] = state
     except OSError as exc:
         _log(f"WARN load_queue: {exc}")
@@ -519,15 +538,38 @@ def _today_paid_spend(queue: dict[str, dict]) -> float:
 
 
 def _pick_next_task(queue: dict[str, dict]) -> Optional[dict]:
-    """Pick the next pending task: highest priority, then oldest."""
+    """Pick the next pending task: highest priority, then oldest.
+
+    LIVELOCK FIX (2026-06-21): a grinder_sweep is SKIPPED for selection while
+    GRINDER_MIN_FREE_BEFORE_SKIP or more high/critical LLM tasks are pending.
+    Without this, a high-priority grinder (often the oldest pending) deterministically
+    out-sorts the LLM backlog it is meant to yield to -- the dispatch deferral guard
+    requeues it, but _pick_next_task re-selects the SAME grinder next loop, so it
+    thrashes claim->defer->requeue->sleep forever (task 698a156d burned ~1,000 events
+    over 17h, blocking 11 LLM tasks). Deciding the deferral HERE, before the claim,
+    removes the thrash entirely. No starvation: when the LLM backlog clears the grinder
+    is picked normally, and a queue of ONLY grinders still falls through to run them.
+    """
     pendings = [s for s in queue.values() if s.get("status") == "pending"]
     if not pendings:
         return None
-    pendings.sort(key=lambda s: (
+    high_prio_llm = sum(
+        1 for s in pendings
+        if s.get("task_type", "llm_cook") != "grinder_sweep"
+        and PRIORITY_ORDER.get(s.get("priority", "medium"), 99)
+        <= PRIORITY_ORDER["high"]
+    )
+    eligible = pendings
+    if high_prio_llm >= GRINDER_MIN_FREE_BEFORE_SKIP:
+        non_grinder = [s for s in pendings
+                       if s.get("task_type", "llm_cook") != "grinder_sweep"]
+        if non_grinder:  # only suppress grinders if something else can run
+            eligible = non_grinder
+    eligible.sort(key=lambda s: (
         PRIORITY_ORDER.get(s.get("priority", "medium"), 99),
         s.get("created_at") or "",
     ))
-    return pendings[0]
+    return eligible[0]
 
 
 def _reap_stale_claims(queue: dict[str, dict]) -> int:
@@ -571,12 +613,53 @@ def _build_prompt_for_task(task_desc: str) -> str:
     )
 
 
+def _strip_code_fence(content: str) -> str:
+    """Strip a leading/trailing ``` fence if the model wrapped its output."""
+    if content.startswith("```"):
+        first_nl = content.find("\n")
+        if first_nl > 0:
+            content = content[first_nl + 1:]
+        if content.rstrip().endswith("```"):
+            content = content.rsplit("```", 1)[0].rstrip()
+    return content
+
+
 def _run_task(task_state: dict, *, paid_tier_blocked: bool) -> dict:
     """Execute one cook. Returns a result dict with ok/cost/output_path/tier/model."""
     task_desc = task_state.get("task", "")
     if not task_desc:
         return {"ok": False, "error": "empty_task_description"}
 
+    prompt = _build_prompt_for_task(task_desc)
+    slug = _slugify(task_desc[:80])
+    cook_task_id = f"kitchen.cook.{slug[:30]}"
+
+    # FREE POOL FIRST: route cooks through the lane pool (chef role -> Groq-70B /
+    # OpenRouter-Nemotron / Groq-gpt-oss — all no-train, big-ctx for ~31K-token cook
+    # prompts). Spreads load across independent providers so the kitchen stops going
+    # dark on OpenRouter 429s. On any failure it falls through to the ladder below.
+    if _swarm is not None:
+        try:
+            env = _swarm.call_role(
+                "chef", prompt, system=CHEF_SYSTEM_PROMPT,
+                max_tokens=MAX_TOKENS_PER_COOK, temperature=0.6,
+                timeout=120, remote_timeout=110, task_id=cook_task_id,
+            )
+            if env.get("ok") and (env.get("content") or "").strip():
+                content = _strip_code_fence((env.get("content") or "").strip())
+                target = _write_candidate(content, slug, model=env.get("lane", "pool"),
+                                          cost_usd=0.0, ladder_used=-2)
+                _log(f"COOK via pool lane={env.get('lane')} elapsed={env.get('elapsed_s')}s "
+                     f"-> {target.relative_to(REPO)}")
+                return {"ok": True, "output_path": str(target.relative_to(REPO)),
+                        "tier": -2, "model": env.get("lane", "pool"), "cost_usd": 0.0}
+            _log(f"COOK pool path empty/failed (lane={env.get('lane')} "
+                 f"err={str(env.get('error'))[:80]}); falling back to ladder")
+        except Exception as exc:  # noqa: BLE001
+            _log(f"COOK pool path exception {type(exc).__name__}: {str(exc)[:120]}; "
+                 "falling back to ladder")
+
+    # FALLBACK: original OpenRouter-only ladder (proven path).
     # D4: build effective ladder — skips paid tiers (if cap hit) AND per-tier 429 cooldowns.
     effective = _build_effective_ladder(paid_blocked=paid_tier_blocked)
     if not effective:
@@ -585,12 +668,10 @@ def _run_task(task_state: dict, *, paid_tier_blocked: bool) -> dict:
     saved_ladder = list(MODEL_LADDER)
     MODEL_LADDER = effective
     try:
-        prompt = _build_prompt_for_task(task_desc)
-        slug = _slugify(task_desc[:80])
         result = _call_with_ladder(
             prompt,
             max_tokens=MAX_TOKENS_PER_COOK,
-            task_id=f"kitchen.cook.{slug[:30]}",
+            task_id=cook_task_id,
         )
     finally:
         MODEL_LADDER = saved_ladder

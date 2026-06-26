@@ -1,0 +1,577 @@
+{
+  "generated_at": "2026-06-18T03:32:19.871839+00:00",
+  "purpose": "Volume-compensated (B1-B6) and morning-window (F1-F5) gate relaxation sweep. Tests whether bear_score < 10 entries with extra vol/time confirmation improve edge_capture on J's winning days without hurt on losing days.",
+  "op16_floor": 771,
+  "max_possible": 1542,
+  "base_params": {
+    "premium_stop_pct_bear": -0.1,
+    "premium_stop_pct_bull": -0.08,
+    "tp1_premium_pct": 0.5,
+    "tp1_qty_fraction": 0.667,
+    "runner_target_premium_pct": 2.5,
+    "f9_vol_mult": 0.7,
+    "profit_lock_mode": "trailing",
+    "profit_lock_threshold_pct": 0.05,
+    "profit_lock_trail_pct": 0.2
+  },
+  "baseline_10_10": {
+    "id": "baseline_10_10",
+    "name": "production 10/10 all-filters-must-pass",
+    "edge_capture": -475.2,
+    "edge_pct_of_max": -30.8,
+    "winner_pnl": -475.2,
+    "loser_exposure": 0.0,
+    "per_day_pnl": {
+      "2026-04-29": 0.0,
+      "2026-05-01": -475.2,
+      "2026-05-04": 0.0,
+      "2026-05-05": 0,
+      "2026-05-06": 0.0,
+      "2026-05-07": 0.0
+    },
+    "op16": "fail"
+  },
+  "scenarios": [
+    {
+      "id": "B1",
+      "name": "bear_score>=9 + vol>=2x",
+      "gate": "bear_score>=9 + b1_conditions",
+      "n_trades": 2,
+      "wr": 0.0,
+      "total_pnl": -789.5,
+      "edge_capture": -789.5,
+      "edge_pct_of_max": -51.2,
+      "op16": "fail",
+      "winner_pnl": -789.5,
+      "loser_exposure": 0.0,
+      "per_day_pnl": {
+        "2026-04-29": -499.5,
+        "2026-05-01": 0,
+        "2026-05-04": -290.0,
+        "2026-05-05": 0,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "marginal_trades": [
+        {
+          "date": "2026-04-29",
+          "entry_time": "14:05",
+          "side": "P",
+          "pnl": -499.49999999999955,
+          "bear_score": 9,
+          "vol_ratio": 2.01,
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "quality_tier": "SUPER"
+        },
+        {
+          "date": "2026-05-04",
+          "entry_time": "11:20",
+          "side": "P",
+          "pnl": -290.00000000000006,
+          "bear_score": 9,
+          "vol_ratio": 4.1,
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "quality_tier": "ELITE"
+        }
+      ],
+      "marginal_n": 2,
+      "marginal_pnl": -789.5,
+      "marginal_wr": 0.0,
+      "verdict": "REJECT",
+      "baseline_edge": -475.2,
+      "delta_vs_baseline": -314.3
+    },
+    {
+      "id": "B2",
+      "name": "bear_score>=8 + vol>=2x",
+      "gate": "bear_score>=8 + b2_conditions",
+      "n_trades": 2,
+      "wr": 0.5,
+      "total_pnl": -263.0,
+      "edge_capture": -263.0,
+      "edge_pct_of_max": -17.1,
+      "op16": "fail",
+      "winner_pnl": -263.0,
+      "loser_exposure": 0.0,
+      "per_day_pnl": {
+        "2026-04-29": 27.0,
+        "2026-05-01": 0,
+        "2026-05-04": -290.0,
+        "2026-05-05": 0,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "marginal_trades": [
+        {
+          "date": "2026-04-29",
+          "entry_time": "14:00",
+          "side": "P",
+          "pnl": 26.99999999999969,
+          "bear_score": 8,
+          "vol_ratio": 2.64,
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip",
+            "trendline_rejection"
+          ],
+          "quality_tier": "SUPER"
+        },
+        {
+          "date": "2026-05-04",
+          "entry_time": "11:20",
+          "side": "P",
+          "pnl": -290.00000000000006,
+          "bear_score": 9,
+          "vol_ratio": 4.1,
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "quality_tier": "ELITE"
+        }
+      ],
+      "marginal_n": 2,
+      "marginal_pnl": -263.0,
+      "marginal_wr": 0.5,
+      "verdict": "REJECT",
+      "baseline_edge": -475.2,
+      "delta_vs_baseline": 212.2
+    },
+    {
+      "id": "B3",
+      "name": "bear_score>=7 + vol>=4x (panic)",
+      "gate": "bear_score>=7 + b3_conditions",
+      "n_trades": 1,
+      "wr": 0.0,
+      "total_pnl": -290.0,
+      "edge_capture": -290.0,
+      "edge_pct_of_max": -18.8,
+      "op16": "fail",
+      "winner_pnl": -290.0,
+      "loser_exposure": 0.0,
+      "per_day_pnl": {
+        "2026-04-29": 0,
+        "2026-05-01": 0,
+        "2026-05-04": -290.0,
+        "2026-05-05": 0,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "marginal_trades": [
+        {
+          "date": "2026-05-04",
+          "entry_time": "11:20",
+          "side": "P",
+          "pnl": -290.00000000000006,
+          "bear_score": 9,
+          "vol_ratio": 4.1,
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "quality_tier": "ELITE"
+        }
+      ],
+      "marginal_n": 1,
+      "marginal_pnl": -290.0,
+      "marginal_wr": 0.0,
+      "verdict": "REJECT",
+      "baseline_edge": -475.2,
+      "delta_vs_baseline": 185.2
+    },
+    {
+      "id": "B4",
+      "name": "bear_score>=8 + vol>=2x + AM-window",
+      "gate": "bear_score>=8 + b4_conditions",
+      "n_trades": 0,
+      "wr": 0.0,
+      "total_pnl": 0,
+      "edge_capture": 0.0,
+      "edge_pct_of_max": 0.0,
+      "op16": "fail",
+      "winner_pnl": 0.0,
+      "loser_exposure": 0.0,
+      "per_day_pnl": {
+        "2026-04-29": 0,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 0,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "marginal_trades": [],
+      "marginal_n": 0,
+      "marginal_pnl": 0,
+      "marginal_wr": 0.0,
+      "verdict": "VALIDATE",
+      "baseline_edge": -475.2,
+      "delta_vs_baseline": 475.2
+    },
+    {
+      "id": "B5",
+      "name": "bear_score>=8 + vol>=3x + spread>=60c",
+      "gate": "bear_score>=8 + b5_conditions",
+      "n_trades": 1,
+      "wr": 0.0,
+      "total_pnl": -290.0,
+      "edge_capture": -290.0,
+      "edge_pct_of_max": -18.8,
+      "op16": "fail",
+      "winner_pnl": -290.0,
+      "loser_exposure": 0.0,
+      "per_day_pnl": {
+        "2026-04-29": 0,
+        "2026-05-01": 0,
+        "2026-05-04": -290.0,
+        "2026-05-05": 0,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "marginal_trades": [
+        {
+          "date": "2026-05-04",
+          "entry_time": "11:20",
+          "side": "P",
+          "pnl": -290.00000000000006,
+          "bear_score": 9,
+          "vol_ratio": 4.1,
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "quality_tier": "ELITE"
+        }
+      ],
+      "marginal_n": 1,
+      "marginal_pnl": -290.0,
+      "marginal_wr": 0.0,
+      "verdict": "REJECT",
+      "baseline_edge": -475.2,
+      "delta_vs_baseline": 185.2
+    },
+    {
+      "id": "B6",
+      "name": "bull_score>=9 + vol>=2x",
+      "gate": "bull_score>=9 + b6_conditions",
+      "n_trades": 1,
+      "wr": 0.0,
+      "total_pnl": -496.32,
+      "edge_capture": -496.32,
+      "edge_pct_of_max": -32.2,
+      "op16": "fail",
+      "winner_pnl": -496.32,
+      "loser_exposure": 0.0,
+      "per_day_pnl": {
+        "2026-04-29": 0,
+        "2026-05-01": -496.32,
+        "2026-05-04": 0,
+        "2026-05-05": 0,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "marginal_trades": [
+        {
+          "date": "2026-05-01",
+          "entry_time": "11:50",
+          "side": "C",
+          "pnl": -496.32000000000005,
+          "bear_score": 9,
+          "vol_ratio": 2.46,
+          "triggers": [
+            "level_reclaim"
+          ],
+          "quality_tier": "LEVEL"
+        }
+      ],
+      "marginal_n": 1,
+      "marginal_pnl": -496.32,
+      "marginal_wr": 0.0,
+      "verdict": "REJECT",
+      "baseline_edge": -475.2,
+      "delta_vs_baseline": -21.12
+    },
+    {
+      "id": "F1",
+      "name": "bear_score>=8 + AM 09:35-10:00",
+      "gate": "bear_score>=8 + f1_conditions",
+      "n_trades": 3,
+      "wr": 0.0,
+      "total_pnl": -1197.4,
+      "edge_capture": -1197.4,
+      "edge_pct_of_max": -77.7,
+      "op16": "fail",
+      "winner_pnl": -961.4,
+      "loser_exposure": 236.0,
+      "per_day_pnl": {
+        "2026-04-29": -752.4,
+        "2026-05-01": 0,
+        "2026-05-04": -209.0,
+        "2026-05-05": -236.0,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "marginal_trades": [
+        {
+          "date": "2026-04-29",
+          "entry_time": "09:45",
+          "side": "P",
+          "pnl": -752.4000000000002,
+          "bear_score": 8,
+          "vol_ratio": 0.85,
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip"
+          ],
+          "quality_tier": "LEVEL"
+        },
+        {
+          "date": "2026-05-04",
+          "entry_time": "09:50",
+          "side": "P",
+          "pnl": -208.99999999999986,
+          "bear_score": 8,
+          "vol_ratio": 0.79,
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "quality_tier": "ELITE"
+        },
+        {
+          "date": "2026-05-05",
+          "entry_time": "09:35",
+          "side": "P",
+          "pnl": -235.99999999999977,
+          "bear_score": 8,
+          "vol_ratio": 0.73,
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "quality_tier": "ELITE"
+        }
+      ],
+      "marginal_n": 3,
+      "marginal_pnl": -1197.4,
+      "marginal_wr": 0.0,
+      "verdict": "REJECT",
+      "baseline_edge": -475.2,
+      "delta_vs_baseline": -722.2
+    },
+    {
+      "id": "F2",
+      "name": "bear_score>=7 + AM + near_level $0.30",
+      "gate": "bear_score>=7 + f2_conditions",
+      "n_trades": 6,
+      "wr": 0.0,
+      "total_pnl": -2678.0,
+      "edge_capture": -2678.0,
+      "edge_pct_of_max": -173.7,
+      "op16": "fail",
+      "winner_pnl": -1878.8,
+      "loser_exposure": 799.2,
+      "per_day_pnl": {
+        "2026-04-29": -1082.4,
+        "2026-05-01": 0,
+        "2026-05-04": -796.4,
+        "2026-05-05": -236.0,
+        "2026-05-06": -563.2,
+        "2026-05-07": 0
+      },
+      "marginal_trades": [
+        {
+          "date": "2026-04-29",
+          "entry_time": "09:45",
+          "side": "P",
+          "pnl": -752.4000000000002,
+          "bear_score": 8,
+          "vol_ratio": 0.85,
+          "triggers": [
+            "level_rejection",
+            "ribbon_flip"
+          ],
+          "quality_tier": "LEVEL"
+        },
+        {
+          "date": "2026-04-29",
+          "entry_time": "10:15",
+          "side": "P",
+          "pnl": -330.00000000000006,
+          "bear_score": 7,
+          "vol_ratio": 0.33,
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "quality_tier": "ELITE"
+        },
+        {
+          "date": "2026-05-04",
+          "entry_time": "09:35",
+          "side": "P",
+          "pnl": -587.3999999999997,
+          "bear_score": 7,
+          "vol_ratio": 0.8,
+          "triggers": [
+            "level_rejection"
+          ],
+          "quality_tier": "LEVEL"
+        },
+        {
+          "date": "2026-05-04",
+          "entry_time": "09:50",
+          "side": "P",
+          "pnl": -208.99999999999986,
+          "bear_score": 8,
+          "vol_ratio": 0.79,
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "quality_tier": "ELITE"
+        },
+        {
+          "date": "2026-05-05",
+          "entry_time": "09:35",
+          "side": "P",
+          "pnl": -235.99999999999977,
+          "bear_score": 8,
+          "vol_ratio": 0.73,
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "quality_tier": "ELITE"
+        },
+        {
+          "date": "2026-05-06",
+          "entry_time": "09:35",
+          "side": "P",
+          "pnl": -563.1999999999995,
+          "bear_score": 7,
+          "vol_ratio": 0.83,
+          "triggers": [
+            "level_rejection"
+          ],
+          "quality_tier": "LEVEL"
+        }
+      ],
+      "marginal_n": 6,
+      "marginal_pnl": -2678.0,
+      "marginal_wr": 0.0,
+      "verdict": "REJECT",
+      "baseline_edge": -475.2,
+      "delta_vs_baseline": -2202.8
+    },
+    {
+      "id": "F3",
+      "name": "bear_score>=7 + AM + gap >$0.30",
+      "gate": "bear_score>=7 + f3_conditions",
+      "n_trades": 0,
+      "wr": 0.0,
+      "total_pnl": 0,
+      "edge_capture": 0.0,
+      "edge_pct_of_max": 0.0,
+      "op16": "fail",
+      "winner_pnl": 0.0,
+      "loser_exposure": 0.0,
+      "per_day_pnl": {
+        "2026-04-29": 0,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 0,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "marginal_trades": [],
+      "marginal_n": 0,
+      "marginal_pnl": 0,
+      "marginal_wr": 0.0,
+      "verdict": "VALIDATE",
+      "baseline_edge": -475.2,
+      "delta_vs_baseline": 475.2
+    },
+    {
+      "id": "F4",
+      "name": "bear_score>=6 + 09:35-09:55 + vol4x + level $0.40",
+      "gate": "bear_score>=6 + f4_conditions",
+      "n_trades": 0,
+      "wr": 0.0,
+      "total_pnl": 0,
+      "edge_capture": 0.0,
+      "edge_pct_of_max": 0.0,
+      "op16": "fail",
+      "winner_pnl": 0.0,
+      "loser_exposure": 0.0,
+      "per_day_pnl": {
+        "2026-04-29": 0,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 0,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "marginal_trades": [],
+      "marginal_n": 0,
+      "marginal_pnl": 0,
+      "marginal_wr": 0.0,
+      "verdict": "VALIDATE",
+      "baseline_edge": -475.2,
+      "delta_vs_baseline": 475.2
+    },
+    {
+      "id": "F5",
+      "name": "bear_score>=7 + AM + vol>=2x",
+      "gate": "bear_score>=7 + f5_conditions",
+      "n_trades": 0,
+      "wr": 0.0,
+      "total_pnl": 0,
+      "edge_capture": 0.0,
+      "edge_pct_of_max": 0.0,
+      "op16": "fail",
+      "winner_pnl": 0.0,
+      "loser_exposure": 0.0,
+      "per_day_pnl": {
+        "2026-04-29": 0,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 0,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "marginal_trades": [],
+      "marginal_n": 0,
+      "marginal_pnl": 0,
+      "marginal_wr": 0.0,
+      "verdict": "VALIDATE",
+      "baseline_edge": -475.2,
+      "delta_vs_baseline": 475.2
+    }
+  ],
+  "verdict_summary": {
+    "PROMOTE": [],
+    "VALIDATE": [
+      "B4",
+      "F3",
+      "F4",
+      "F5"
+    ],
+    "REJECT": [
+      "B1",
+      "B2",
+      "B3",
+      "B5",
+      "B6",
+      "F1",
+      "F2"
+    ]
+  }
+}

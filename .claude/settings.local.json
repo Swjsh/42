@@ -57,9 +57,16 @@
       "Bash(Head-50)",
       "PowerShell(Head *)",
       "PowerShell($content = Get-Content \"C:\\\\Users\\\\jackw\\\\Desktop\\\\42\\\\CLAUDE.md\" -Raw; \"Chars: $\\($content.Length\\)\"; \"Lines: $\\(\\(Get-Content 'C:\\\\Users\\\\jackw\\\\Desktop\\\\42\\\\CLAUDE.md'\\).Count\\)\")",
-      "Bash(Get-Date *)"
+      "Bash(Get-Date *)",
+      "PowerShell(Write-Output \"=== NODE PROCESSES ===\"; Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" | Select-Object ProcessId, CommandLine | Format-List; Write-Output \"=== PORT 4317 ===\"; Get-NetTCPConnection -LocalPort 4317 -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,State,OwningProcess | Format-Table; Write-Output \"=== LOCAL 4317 HTTP ===\"; try { \\(Invoke-WebRequest -Uri \"http://127.0.0.1:4317/api/state\" -TimeoutSec 5 -UseBasicParsing\\).StatusCode } catch { \"FAIL: $\\($_.Exception.Message\\)\" })",
+      "PowerShell($ts = \"C:\\\\Program Files\\\\Tailscale\\\\tailscale.exe\"; if \\(-not \\(Test-Path $ts\\)\\) { $ts = \\(Get-Command tailscale.exe -ErrorAction SilentlyContinue\\).Source }; Write-Output \"TS path: $ts\"; if \\($ts\\) { Write-Output \"=== STATUS ===\"; & $ts status 2>&1 | Select-Object -First 8; Write-Output \"=== SERVE STATUS ===\"; & $ts serve status 2>&1; Write-Output \"=== FUNNEL STATUS ===\"; & $ts funnel status 2>&1 })"
     ]
   },
+  "enabledMcpjsonServers": [
+    "tradingview",
+    "alpaca",
+    "alpaca_aggressive"
+  ],
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -68,6 +75,10 @@
           {
             "type": "command",
             "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/jackw/Desktop/42/setup/hook-autoresearch-status.ps1"
+          },
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/jackw/Desktop/42/setup/hook-detect-correction.ps1"
           }
         ]
       }
@@ -83,10 +94,5 @@
         ]
       }
     ]
-  },
-  "enabledMcpjsonServers": [
-    "tradingview",
-    "alpaca",
-    "alpaca_aggressive"
-  ]
+  }
 }

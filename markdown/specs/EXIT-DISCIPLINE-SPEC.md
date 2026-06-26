@@ -1,9 +1,9 @@
 # Exit-Discipline Spec — "The Engine Becomes The Hold"
 
 > **Generated:** 2026-06-20 · **Author:** Gamma (autonomous research) · **Status:** validation + propose-only
-> **Numbers:** [`analysis/recommendations/exit-discipline-vs-j-losers.json`](../analysis/recommendations/exit-discipline-vs-j-losers.json)
-> **Script:** [`backtest/autoresearch/exit_discipline_vs_j_losers.py`](../backtest/autoresearch/exit_discipline_vs_j_losers.py) (pure Python, $0, py_compile clean)
-> **Companion evidence:** [`analysis/recommendations/chart-stops-ab-2026-06-18.json`](../analysis/recommendations/chart-stops-ab-2026-06-18.json) (live-book premium-stop OOS)
+> **Numbers:** [`analysis/recommendations/exit-discipline-vs-j-losers.json`](../../analysis/recommendations/exit-discipline-vs-j-losers.json)
+> **Script:** [`backtest/autoresearch/exit_discipline_vs_j_losers.py`](../../backtest/autoresearch/exit_discipline_vs_j_losers.py) (pure Python, $0, py_compile clean)
+> **Companion evidence:** [`analysis/recommendations/chart-stops-ab-2026-06-18.json`](../../analysis/recommendations/chart-stops-ab-2026-06-18.json) (live-book premium-stop OOS)
 
 ---
 

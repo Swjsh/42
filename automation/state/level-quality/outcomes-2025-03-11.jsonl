@@ -1,0 +1,14 @@
+{"date": "2025-03-11", "price": 560.0, "source": "round", "touched": true, "outcome": "BREAK", "reaction_dollars": 3.65, "false_break": true}
+{"date": "2025-03-11", "price": 560.07, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 3.72, "false_break": true}
+{"date": "2025-03-11", "price": 561.0, "source": "round", "touched": true, "outcome": "BREAK", "reaction_dollars": 4.65, "false_break": true}
+{"date": "2025-03-11", "price": 561.22, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 4.87, "false_break": true}
+{"date": "2025-03-11", "price": 565.665, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-11", "price": 570.6216663238376, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-11", "price": 571.0, "source": "round", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-11", "price": 571.2315830370532, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-11", "price": 571.6175187243281, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-11", "price": 575.07, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-11", "price": 576.1552420432828, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-11", "price": 577.285, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-11", "price": 588.22, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-11", "price": 597.325, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}

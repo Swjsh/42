@@ -1,0 +1,29 @@
+{
+  "date_et": "2026-06-25",
+  "total_cost_usd": 291.5056,
+  "claude_cost_usd": 291.5056,
+  "minimax_cost_usd": 0.0,
+  "claude_sessions": 4,
+  "claude_by_tier": {
+    "opus": {
+      "tier": "opus",
+      "messages": 224,
+      "input_tokens": 28095,
+      "output_tokens": 564551,
+      "cache_creation_input_tokens": 5911832,
+      "cache_read_input_tokens": 91862483,
+      "estimated_cost_usd": 291.4033
+    },
+    "sonnet": {
+      "tier": "sonnet",
+      "messages": 2,
+      "input_tokens": 6,
+      "output_tokens": 914,
+      "cache_creation_input_tokens": 2960,
+      "cache_read_input_tokens": 258132,
+      "estimated_cost_usd": 0.1023
+    }
+  },
+  "minimax_calls": 0,
+  "minimax_by_task": {}
+}

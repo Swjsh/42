@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "ts_utc": "2026-06-26T20:15:01+00:00",
+  "ts_et": "2026-06-26T16:15:01-04:00",
+  "time_et": "16:15",
+  "age_s": 0,
+  "spy": 730.75,
+  "ribbon_stack": "BEAR",
+  "ema_fast": 731.9056,
+  "ema_pivot": 732.23,
+  "ema_slow": 732.8719,
+  "sma_50": 733.4118,
+  "spread_cents": 96.6,
+  "bars_used": 300,
+  "n_bars": 300,
+  "last_bar": "2026-06-26T20:05:00Z",
+  "data_source": "alpaca_rest_iex",
+  "fetch_note": "ok_300bars",
+  "_doc": "NEVER-BLIND beacon. Heartbeat Layer-1b fallback reads this when TV MCP + Alpaca MCP both fail. Trust only if age_s < 180. Built by sight_beacon.py (pure REST/yfinance, no MCP/CDP/pool)."
+}

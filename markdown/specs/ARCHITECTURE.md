@@ -2,7 +2,7 @@
 
 > Living cold-start doc: how the rig is wired **today**, for an agent who just walked in. When wiring changes, update this in the same commit. Canonical doc index: [`markdown/README.md`](../README.md). Soul file: [`CLAUDE.md`](../../CLAUDE.md).
 >
-> **Last refreshed: 2026-06-20.** (Prior content was a 2026-05-09 snapshot — superseded.)
+> **Last refreshed: 2026-06-25.** Major change this day: the LLM heartbeat was **retired** in favour of a never-blind **sight beacon** + a **deterministic Python decision core** (see §3.2). Prior content was a 2026-06-20 snapshot.
 
 ---
 
@@ -82,8 +82,9 @@ C:\Users\jackw\Desktop\42\                  # repo root — IS a git repo (branc
    └────────────────────┘              └──────────────────────────┘                            │
                                                                                                 │
    ┌─────────────────────────────────────────────────────────────────────────────────────┐    │
-   │ Windows Task Scheduler  (~27 active Gamma_* tasks; canonical list: SCHEDULED-TASKS.md) │    │
-   │  08:00 LaunchTV · 08:30 Premarket · 09:30–15:55 Heartbeat + Heartbeat_Aggressive       │    │
+   │ Windows Task Scheduler  (~35 active Gamma_* tasks, 38 registered/3 disabled; SCHEDULED-TASKS.md) │ │
+   │  08:00 LaunchTV · 08:30 Premarket · 09:30–15:55 SightBeacon(1m) + HeartbeatCore(1m,disarmed)  │ │
+   │  [LLM Heartbeat + Heartbeat_Aggressive RETIRED 2026-06-25 — disabled, kept as fallback]      │    │
    │  15:55 EodFlatten (x2) · EOD/weekly pipelines · 18:00–07:00 Conductor (after-hours)     │    │
    │  24/7 KitchenDaemonKeepalive · hourly KitchenSeeder · 2h KitchenReviewer · guards/audits │   │
    └───────────────┬─────────────────────────────────────────────────────────────────────────┘  │
@@ -97,6 +98,11 @@ C:\Users\jackw\Desktop\42\                  # repo root — IS a git repo (branc
                                        │ MCP (CDP 9222)│  │  ── alpaca_aggressive → Risky-2 (paper) │
                                        └──────────────┘  └─────────────────────────────────────────┘
 
+   Never-blind sight + deterministic trade path (NEW 2026-06-25):
+     Sight beacon ─► direct Alpaca REST + yfinance (no MCP/CDP) ─► sight-beacon.json
+       ─► heartbeat_core (pure Python: engine_cli score+gates → 2 free-model veto → risk_gate → REST bracket; DISARMED)
+       ─► fleet shared-signal.json ─► fleet executor (live)
+
    Research / autonomy paths (offline, $0 or free-tier):
      backtest/run.py ─► lib/orchestrator → filters → pricing → simulator(_real) ─► analysis/backtests/{label}/
      The Kitchen ─► free-tier model ladder (Nemotron→DeepSeek→MiniMax) ─► strategy/candidates/ (DRAFTs)
@@ -105,7 +111,7 @@ C:\Users\jackw\Desktop\42\                  # repo root — IS a git repo (branc
 ```
 
 **Key boundaries**
-- **Live engine** (`automation/prompts/heartbeat.md`) and **research engine** (`backtest/lib/`) implement the same logic; **OP-4** mandates they move together (gamma-sync skill + pytest catch drift).
+- **Live engine and research engine now share ONE codebase.** The deterministic core (`heartbeat_core.py`) calls the backtest's own `engine_cli` (`score_bar` + 15 gates) directly, so live and backtest decisions are byte-identical *by construction* (101 parity tests) — the prose-vs-code drift that OP-4's gamma-sync discipline guarded against (for the retired `heartbeat.md`) is now structurally impossible on the decision path.
 - **State files are the universal interchange.** Prompts read state in, write decisions out; dashboard reads the same files; backtest reads `params.json`.
 - **No Claude→Claude direct calls in production ticks** — each scheduled task is an independent invocation with fresh context. (The Conductor *does* fan out specialist sub-agents during after-hours work.)
 - **Heartbeat runs on the Max subscription (shared rate-limit pool).** A market-hours interactive session can starve ticks → **discipline: no interactive sessions 09:30–15:55 ET** is the only guard.
@@ -118,16 +124,19 @@ C:\Users\jackw\Desktop\42\                  # repo root — IS a git repo (branc
 Next.js 15 (App Router) · React 19 · SWR (3-5s polling) · Tailwind · Canvas pixel-art. Read-only monitor of position, levels, ribbon, agent activity. File-based reads from `automation/state/`. `npm run dev` on :3000, single-user.
 
 ### 3.2 Backend — Autonomous Trading Engine
-- **Heartbeat (live, x2 accounts):** every ~3 min in RTH, reads chart via TV MCP, applies the v15 setup rubric + `risk_gate`, manages exits (chart-stop primary on Safe). Cadence-throttled HOT/BASE/COOL (up to 127 ticks/day). Self-heal: `Repair-StateFiles`, wall-clock timeout + tree-kill, stale-process reaper, disk pre-flight.
+- **Sight beacon (never-blind eye, NEW 2026-06-25):** `setup/scripts/sight_beacon.py` (`Gamma_SightBeacon`, every 1 min RTH) reads SPY 5m bars via DIRECT Alpaca REST + yfinance — **no MCP, no CDP, no Max pool**, so it cannot be blocked or starved. Computes the ribbon (`backtest/lib/ribbon.py`), writes `automation/state/sight-beacon.json`, and drives the fleet `shared-signal.json`. This is the eye every other engine reads when TV/Alpaca MCP fail (heartbeat Layer-1b + fleet fallback). Why it exists: TV-over-CDP and the uvx Alpaca MCP could die together in-process and leave the engine blind ~daily.
+- **Deterministic decision core (NEW 2026-06-25, replacing the LLM heartbeat):** `setup/scripts/heartbeat_core.py` (`Gamma_HeartbeatCore`, every 1 min RTH) is pure Python — reads the beacon, marshals the market state to `backtest/lib/engine/engine_cli.py` (the SAME `score_bar` + 15 entry gates the backtest uses, proven byte-identical by 101 parity tests), gets a veto from 2 free models (`swarm_client`), sizes via `risk_gate`, places brackets via direct Alpaca REST (`fleet_broker`). No LLM / MCP / CDP on the hot path → cannot crash the way the LLM heartbeat did. **Status: DISARMED** (`GAMMA_CORE_ARMED=0`, shadow / log-only to `core-decisions.jsonl`) until the historical replay (`backtest/replay_heartbeat_core.py`) shows ≥95% score parity vs the backtest — currently inputs 100% (ribbon/spread/VIX), score 57%; residual gap = trigger-state machinery (fhh / level_states / vix-MA) still defaulted.
+- **LLM heartbeat (RETIRED 2026-06-25):** `Gamma_Heartbeat` + `Gamma_Heartbeat_Aggressive` (`automation/prompts/heartbeat.md`, Haiku reading TV MCP, ~3 min cadence) are **disabled** — they ran see→decide→act on the fragile LLM + MCP + CDP + 97 KB-prompt substrate and crashed ~daily (confabulated 401s from stale flags, skipped ledger writes). Kept on disk as a fallback; not scheduled. The beacon's Layer-1b fallback + beacon-aware kill-switch were retro-fitted into `heartbeat.md` before retirement.
 - **Premarket / EOD / Review prompts:** level audit, bias + falsifiable hypothesis, EOD grading, hypothesis grading, rule-break tagging, daily backtest drift sync, weekly rollup + auto-ratify scorecards (OP-11 Karpathy loop).
 - **Backtest engine:** replays SPY 5m bars through the same logic; synthetic (Black-Scholes) + OPRA real-fill simulators; content-hash reproducibility (`repro.py`). **Real-fills is the only WR authority; BS-sim is ranking-only.**
 - **The Kitchen (24/7 R&D):** `kitchen_daemon.py` + free-tier model ladder writes DRAFT candidates to `strategy/candidates/`; seeder brainstorms, reviewer triages. $3/day paid cap. Never touches live doctrine/orders.
 - **Conductor ("Gamma drives"):** after-hours hourly loop (`conductor.md`); each fire picks ONE highest-value ready task, fans out the right specialist persona, validates (gym/tests), SHIPS only if the auto-ratify gate clears, else proposes. Fail-open, propose-only on doctrine/params/orders.
 - **Fleet executor (champion/challenger):** one perception per tick → deterministic fan-out of N frozen configs across validated paper accounts; same `risk_gate.check_order` decides.
-- **Watcher fleet:** ~28 detectors read each tick (WATCH_ONLY) via the unified heartbeat layer; promotion-gated before any go live.
+- **Watcher fleet:** ~31 detectors read each tick (WATCH_ONLY) via the unified heartbeat layer; promotion-gated before any go live.
+- **Market-structure trend layer:** `crypto/lib/market_structure.py` + `market_structure_watcher` reads trend from price structure (swing HH/HL/LH/LL sequence + BOS/CHoCH), the layer the engine previously lacked (it read trend off the ribbon only).
 
 ### 3.3 Agents & Skills (`.claude/`, loaded by path)
-Personas: `gamma` (conductor), `pilot` (live trader), `scout`, `analyst`, `chef`, `treasurer`, `coach`, `lesson-author`, `skill-author`, `validator-author`. Skills: gym-session, preflight-gate/connectivity-gate, context-leanness, heartbeat/-tick-audit, gamma-sync, log-trade, etc. (catalog: `markdown/infra/SKILLS-CATALOG.md`).
+Personas: `gamma` (conductor), `pilot` (live trader), `scout`, `analyst`, `chef`, `treasurer`, `coach`, `lesson-author`, `skill-author`, `validator-author`. Skills: gym-session, preflight-gate/connectivity-gate, chart-read (market-structure + pattern + level fused read, connectivity-gated), context-leanness, heartbeat/-tick-audit, gamma-sync, log-trade, etc. (catalog: `markdown/infra/SKILLS-CATALOG.md`).
 
 ### 3.4 MCP Servers (tool layer)
 - **TradingView MCP** — chart/OHLCV/study/levels read; chart control + drawings write. TradingView Desktop launched with `--remote-debugging-port=9222` (MSIX bypass in `launch_tv_debug.ps1`).
@@ -165,7 +174,7 @@ Personas: `gamma` (conductor), `pilot` (live trader), `scout`, `analyst`, `chef`
 ## 6. Deployment & Infrastructure
 - **Host:** single Windows 11 machine (J's desktop). No cloud, no CI.
 - **Runtimes:** Claude Code CLI · Python 3.13 (`backtest/.venv` — pandas/pytest live there, NOT system python) · Node 18+ (dashboard) · PowerShell 5.1 (target 5.1 syntax).
-- **Scheduler:** Windows Task Scheduler, ~27 active `Gamma_*` tasks (WakeToRun). Canonical registry: `automation/state/SCHEDULED-TASKS.md`. Rig is **Mountain time** — tasks scheduled at ET-converted-to-local.
+- **Scheduler:** Windows Task Scheduler, ~35 active `Gamma_*` tasks (38 registered, 3 disabled; WakeToRun). Canonical registry: `automation/state/SCHEDULED-TASKS.md`. Rig is **Mountain time** — tasks scheduled at ET-converted-to-local.
 - **Headless spawn pattern:** wscript → `run_exe_hidden.vbs` → `pythonw` (CREATE_NO_WINDOW) to avoid console flashes.
 - **Self-heal:** `_shared.ps1#Repair-StateFiles` validates state JSON pre/post each fire; restores from `.lastgood/`.
 
@@ -175,11 +184,12 @@ Personas: `gamma` (conductor), `pilot` (live trader), `scout`, `analyst`, `chef`
 - **Guards FAIL OPEN** — no automated process may lock out J's interactive session (OP-32 scar).
 
 ## 8. Development & Testing
-- `pytest backtest/tests/` + **graduated guards** (fast per-edit hook + nightly `-m slow`). Gym: 42+ validators + chart-reading replay ($0).
+- `pytest backtest/tests/` + **graduated guards** (fast per-edit hook + nightly `-m slow`). Gym: 50 validators + chart-reading replay ($0).
 - Live↔research parity: daily backtest sync + `gamma-sync` skill on any rule change.
 - Ratify autonomously when: OOS positive AND WF ≥ 0.70 AND sub-window stable AND anchor no-regression AND A/B scorecard filed (OP-11/OP-22). J's role = REVOKE, not approve.
 
 ## 9. Roadmap (current)
+- **Gamma companion (desktop presence):** `gamma-companion/` zero-dep Node app — little-robot UI reading REAL state + an Approve/Reject loop (`companion-decisions.jsonl`), launched via `LAUNCH-COMPANION.vbs` → localhost:4317. v0 shipped 2026-06-20; next: Electron always-on-top + wire real approvals into the J approve/revoke bus.
 - Fleet executor M2 (live REST placement + heartbeat shared-signal emit + MES arm).
 - Shared-decision-library refactor (unify `params ↔ heartbeat ↔ filters`) — spec in `markdown/specs/SHARED-DECISION-LIBRARY-MIGRATION.md`.
 - Conductor phases (model routing Haiku/Opus; Discord approve/revoke bus).

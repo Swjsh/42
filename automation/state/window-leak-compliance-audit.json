@@ -1,8 +1,79 @@
 {
-  "audited_at": "2026-06-20T20:45:30.515857+00:00",
-  "health": "GREEN",
+  "audited_at": "2026-06-26T10:00:29.534745+00:00",
+  "health": "RED",
   "ps1_bare_python_count": 0,
-  "py_subprocess_no_creationflags_count": 0,
+  "py_subprocess_no_creationflags_count": 10,
   "mcp_unwrapped_launcher_count": 0,
-  "flags": []
+  "flags": [
+    {
+      "file": "setup\\scripts\\autonomy_actuator.py",
+      "line": 133,
+      "flag": "PY_SUBPROCESS_NO_CREATIONFLAGS",
+      "detail": "return subprocess.run([_GIT, *args], cwd=str(REPO), capture_output=True, text=True)",
+      "fix": "Add creationflags=0x08000000 (CREATE_NO_WINDOW) on win32. Define `_CREATE_NO_WINDOW = 0x08000000 if sys.platform == 'win32' else 0` at module top."
+    },
+    {
+      "file": "setup\\scripts\\autonomy_actuator.py",
+      "line": 215,
+      "flag": "PY_SUBPROCESS_NO_CREATIONFLAGS",
+      "detail": "proc = subprocess.run([py, str(GATE)], cwd=str(REPO), capture_output=True, text=True)",
+      "fix": "Add creationflags=0x08000000 (CREATE_NO_WINDOW) on win32. Define `_CREATE_NO_WINDOW = 0x08000000 if sys.platform == 'win32' else 0` at module top."
+    },
+    {
+      "file": "setup\\scripts\\discord-responder.py",
+      "line": 335,
+      "flag": "PY_SUBPROCESS_NO_CREATIONFLAGS",
+      "detail": "res = subprocess.run(",
+      "fix": "Add creationflags=0x08000000 (CREATE_NO_WINDOW) on win32. Define `_CREATE_NO_WINDOW = 0x08000000 if sys.platform == 'win32' else 0` at module top."
+    },
+    {
+      "file": "setup\\scripts\\gamma_manager.py",
+      "line": 236,
+      "flag": "PY_SUBPROCESS_NO_CREATIONFLAGS",
+      "detail": "proc = subprocess.run(cmd, capture_output=True, text=True, timeout=240,",
+      "fix": "Add creationflags=0x08000000 (CREATE_NO_WINDOW) on win32. Define `_CREATE_NO_WINDOW = 0x08000000 if sys.platform == 'win32' else 0` at module top."
+    },
+    {
+      "file": "setup\\scripts\\github_audit.py",
+      "line": 116,
+      "flag": "PY_SUBPROCESS_NO_CREATIONFLAGS",
+      "detail": "result = subprocess.run(",
+      "fix": "Add creationflags=0x08000000 (CREATE_NO_WINDOW) on win32. Define `_CREATE_NO_WINDOW = 0x08000000 if sys.platform == 'win32' else 0` at module top."
+    },
+    {
+      "file": "setup\\scripts\\heartbeat_core.py",
+      "line": 383,
+      "flag": "PY_SUBPROCESS_NO_CREATIONFLAGS",
+      "detail": "proc = subprocess.run([sys.executable, \"-m\", \"backtest.lib.engine.engine_cli\"],",
+      "fix": "Add creationflags=0x08000000 (CREATE_NO_WINDOW) on win32. Define `_CREATE_NO_WINDOW = 0x08000000 if sys.platform == 'win32' else 0` at module top."
+    },
+    {
+      "file": "setup\\scripts\\lesson_regression_audit.py",
+      "line": 51,
+      "flag": "PY_SUBPROCESS_NO_CREATIONFLAGS",
+      "detail": "proc = subprocess.run([py, \"-m\", \"pytest\", \"-q\", \"--tb=line\", \"-p\", \"no:cacheprovider\", *targets],",
+      "fix": "Add creationflags=0x08000000 (CREATE_NO_WINDOW) on win32. Define `_CREATE_NO_WINDOW = 0x08000000 if sys.platform == 'win32' else 0` at module top."
+    },
+    {
+      "file": "setup\\scripts\\manager_overseer.py",
+      "line": 117,
+      "flag": "PY_SUBPROCESS_NO_CREATIONFLAGS",
+      "detail": "proc = subprocess.run(f'\"{exe}\" --print --model {SONNET} < \"{tf}\"',",
+      "fix": "Add creationflags=0x08000000 (CREATE_NO_WINDOW) on win32. Define `_CREATE_NO_WINDOW = 0x08000000 if sys.platform == 'win32' else 0` at module top."
+    },
+    {
+      "file": "setup\\scripts\\run_cold_evals.py",
+      "line": 60,
+      "flag": "PY_SUBPROCESS_NO_CREATIONFLAGS",
+      "detail": "result = subprocess.run(cmd, capture_output=False)",
+      "fix": "Add creationflags=0x08000000 (CREATE_NO_WINDOW) on win32. Define `_CREATE_NO_WINDOW = 0x08000000 if sys.platform == 'win32' else 0` at module top."
+    },
+    {
+      "file": "backtest\\autoresearch\\license_monitor.py",
+      "line": 175,
+      "flag": "PY_SUBPROCESS_NO_CREATIONFLAGS",
+      "detail": "subprocess.run([sys.executable, str(RECENCY_PY)], cwd=str(ROOT),",
+      "fix": "Add creationflags=0x08000000 (CREATE_NO_WINDOW) on win32. Define `_CREATE_NO_WINDOW = 0x08000000 if sys.platform == 'win32' else 0` at module top."
+    }
+  ]
 }

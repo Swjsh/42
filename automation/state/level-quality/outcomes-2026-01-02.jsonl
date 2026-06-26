@@ -1,0 +1,11 @@
+{"date": "2026-01-02", "price": 684.04, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.47, "false_break": false}
+{"date": "2026-01-02", "price": 684.125, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.385, "false_break": false}
+{"date": "2026-01-02", "price": 684.5, "source": "swept", "touched": true, "outcome": "RESPECT", "reaction_dollars": 2.37, "false_break": false}
+{"date": "2026-01-02", "price": 684.8655038686932, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 2.004, "false_break": true}
+{"date": "2026-01-02", "price": 685.0, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.87, "false_break": true}
+{"date": "2026-01-02", "price": 685.77, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.595, "false_break": false}
+{"date": "2026-01-02", "price": 686.0, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.825, "false_break": false}
+{"date": "2026-01-02", "price": 687.54, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-01-02", "price": 688.23, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-01-02", "price": 690.16, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-01-02", "price": 691.615, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}

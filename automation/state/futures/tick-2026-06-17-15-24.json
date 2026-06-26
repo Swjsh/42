@@ -1,0 +1,39 @@
+{
+  "tick_time": "2026-06-17T15:24:02",
+  "instrument": "MNQ",
+  "status": "IMPLEMENTATION_PENDING",
+  "summary": "Futures heartbeat framework documented; live execution code not yet implemented",
+  "position": {
+    "side": "flat",
+    "qty": 0
+  },
+  "account": {
+    "equity": 25000.0,
+    "daily_pnl": 0.0,
+    "floor": 24000.0
+  },
+  "kill_switch": {
+    "triggered": false,
+    "daily_loss_limit": 500.0
+  },
+  "blockers": [
+    "futures-premarket.py not implemented - key levels empty",
+    "futures-heartbeat.py not implemented - only spec doc exists",
+    "TradingView MCP MNQ chart integration pending",
+    "Tastytrade broker connection module pending"
+  ],
+  "action": "HOLD_FLAT",
+  "reason": "No key levels populated. Futures heartbeat execution requires: (1) futures-premarket script to populate levels at 08:30 ET, (2) futures-heartbeat.py to apply watcher logic, (3) TradingView MCP charting for MNQ/MES symbols, (4) Tastytrade Python SDK integration for paper orders.",
+  "next_steps": [
+    "Implement futures-premarket.py (read TV chart, populate key-levels.json)",
+    "Implement futures-heartbeat.py (apply watcher fleet logic from spec)",
+    "Wire TradingView MCP for MNQ/MES symbols",
+    "Wire Tastytrade broker connection (uvx tastytrade or direct SDK)",
+    "After 20+ watch-only trades with positive expectancy → enable paper live",
+    "After 3+ paper live wins → ratify for real money"
+  ],
+  "time_to_eod": "26 minutes (15:50 ET hardstop)",
+  "watch_mode": "ENABLED - no orders placed",
+  "infrastructure_status": "GREEN - state files and directories ready",
+  "context_budget": "GREEN (7348/8000 tok)"
+}

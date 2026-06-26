@@ -1,0 +1,237 @@
+{
+ "_doc": "Champion/challenger fleet registry. One perception -> N frozen policy arms. See markdown/specs/FLEET-DESIGN.md. NEVER store API secrets here (git-tracked) -- secrets live in the GITIGNORED automation/state/fleet/secrets.json; key_ref points to the entry there. All account#/equity below confirmed against the live broker 2026-06-20 via validate_keys.py. Baseline to beat: analysis/HONEST-PNL-BASELINE-2026-06-20.md.",
+ "schema": "fleet-v1",
+ "created": "2026-06-20",
+ "updated": "2026-06-24",
+ "update_note": "6 DISTINCT Alpaca accounts confirmed + wired 2026-06-24 (J supplied keys; validate_keys broker-verified, SAFE-2 GAP CLOSED). SAFE: safe-1=PA3DHPT7KIQE (loose, fleet_rest, NEW account) / safe-2=PA3S2PYAS2WQ (control, mcp_heartbeat = the production Gamma-Safe-2 account, traded by the live heartbeat NOT fleet_rest, so no double-trade) / safe-3=PA32RD49OB0Q (A+ tight, fleet_rest). BOLD: bold-2=control / risky-1=medium PUT_ONLY / risky-3=loose. `id` = secrets/routing key (load_creds + _params_for/_tiers_for_arm key off id-prefix safe/risky). WATCH-SAFE: every config INERT while build_shared_signal.build() emits passed=false; the live-order change is the SEPARATE flagged producer flip (SCORING_PEAK_LIVE).",
+ "shared_signal_path": "automation/state/fleet/shared-signal.json",
+ "hypothesis_assignments_status": "6 distinct accounts live-validated 2026-06-24. safe-3 + risky-1 live:true (fleet_rest). safe-1(loose)+risky-3(loose) status:active live:false until the producer flip + a Monday-RTH validation order. safe-2 + bold-2 are mcp_heartbeat controls (traded by the production heartbeats, read by the fleet as baselines).",
+ "arms": [
+  {
+   "id": "safe-2",
+   "role": "safe-2-control",
+   "looseness": "control",
+   "status": "active",
+   "execution": "mcp_heartbeat",
+   "fidelity": "real_fills",
+   "broker": "alpaca",
+   "account_number": "PA3S2PYAS2WQ",
+   "key_ref": "automation/state/fleet/secrets.json :: accounts.safe-2",
+   "instrument": "SPY_0DTE_OPTION",
+   "config_source": "automation/state/params.json",
+   "starting_equity": 2000.0,
+   "frozen_at": "2026-06-20",
+   "gate_override": {},
+   "params_patch": {},
+   "hypothesis": "CONTROL (frozen) -- current v15 Safe doctrine exactly as production runs it: SAFE strike table (ATM under $10K), qty from safe position_sizing_tiers (5 base / 8 elite at $2K), 30% risk cap, CONFIRMED setups only. ZERO gate_override. Trades via Gamma_Heartbeat MCP (execution=mcp_heartbeat), NOT fleet_rest -- the untouched baseline everything else is measured against. Not driven by the looser scoring-peak producer, so the producer flip cannot raise its trade count."
+  },
+  {
+   "id": "safe-3",
+   "role": "safe-3-aplus-tight",
+   "looseness": "tight",
+   "status": "active",
+   "execution": "fleet_rest",
+   "live": true,
+   "fidelity": "real_fills",
+   "broker": "alpaca",
+   "account_number": "PA32RD49OB0Q",
+   "key_ref": "automation/state/fleet/secrets.json :: accounts.safe-3",
+   "instrument": "SPY_0DTE_OPTION",
+   "config_source": "inherit safe + gate_override",
+   "gate_override": {
+    "min_confidence": 0.65,
+    "min_setup_quality": "EXCELLENT",
+    "min_triggers": 2,
+    "require_confluence_or_sequence": true,
+    "catalyst_aware": true
+   },
+   "params_patch": {},
+   "starting_equity": 2000.0,
+   "frozen_at": "2026-06-20",
+   "hypothesis": "[DRAFT] A+ TIGHT -- FREQUENCY IS THE ENEMY. Only the 0.65+/EXCELLENT band has edge (W24 calibration: 0.65-0.84 hits 83%, 0.55-0.64 hits 25%). Honored gate_override only: min_confidence 0.65, min_setup_quality EXCELLENT, min_triggers 2, require_confluence_or_sequence true. (catalyst_aware is a documented DEAD KNOB -- not honored by plan_entry, never fires; harmless.) The four honored keys ONLY add selectivity. On the confidence-less signal min_confidence/min_setup_quality DENY-on-missing -> lowest trade count of the 3 safe arms BY DESIGN. Same SAFE strike table + qty5/8 as safe-1 so when it DOES fire it places (ATM qty5 ~$350 < $600 cap)."
+  },
+  {
+   "id": "safe-1",
+   "role": "safe-1-loose",
+   "looseness": "loose",
+   "status": "active",
+   "execution": "fleet_rest",
+   "live": true,
+   "fidelity": "real_fills",
+   "broker": "alpaca",
+   "account_number": "PA3DHPT7KIQE",
+   "key_ref": "automation/state/fleet/secrets.json :: accounts.safe-1",
+   "instrument": "SPY_0DTE_OPTION",
+   "config_source": "inherit safe + gate_override + params_patch",
+   "gate_override": {
+    "min_triggers": 1
+   },
+   "params_patch": {
+    "strike_tier_table": "bold",
+    "position_sizing_tiers": [
+     {
+      "equity_min": 0,
+      "equity_max": 2000,
+      "base_qty": 5,
+      "elite_qty": 5
+     },
+     {
+      "equity_min": 2000,
+      "equity_max": 10000,
+      "base_qty": 6,
+      "elite_qty": 8
+     },
+     {
+      "equity_min": 10000,
+      "equity_max": 999999999,
+      "base_qty": 10,
+      "elite_qty": 15
+     }
+    ]
+   },
+   "starting_equity": 2000.0,
+   "frozen_at": "2026-06-24",
+   "hypothesis": "[DRAFT] SAFE-LOOSE -- thinnest safe quality gate (min_triggers:1, no confidence/EXCELLENT gate), forced OTM-2 via strike_tier_table='bold' + a qty-raising params_patch so notional stays small (OTM-2 ~$0.30 x qty6 x100 = $180 < $600 cap) but contract count is higher and cheaper than safe-2's ATM qty5 (control). Tests whether broad CONFIRMED participation at small size beats the tight A+ band on the SAFE side. Hard floors untouched (one-position, first_entry_after_stop_blocked, -30% kill-switch, min_contracts, EOD flatten). Consumes the looser scoring-peak passes once the producer flips.",
+   "live_flipped": "2026-06-25 by J directive (all paper arms live for the DATA)"
+  },
+  {
+   "id": "bold-2",
+   "role": "bold-2-control",
+   "looseness": "control",
+   "status": "active",
+   "execution": "mcp_heartbeat",
+   "fidelity": "real_fills",
+   "broker": "alpaca_aggressive",
+   "account_number": "PA33W2KUAT40",
+   "key_ref": "automation/state/fleet/secrets.json :: accounts.bold-2",
+   "instrument": "SPY_0DTE_OPTION",
+   "config_source": "automation/state/aggressive/params.json",
+   "starting_equity": 1648.75,
+   "frozen_at": "2026-06-20",
+   "gate_override": {},
+   "params_patch": {},
+   "hypothesis": "CONTROL (frozen champion) -- current v15 Bold doctrine exactly: BOLD strike table (OTM-2 in the [2000,10000) tier at $2K), qty from bold tiers (8 base / 12 elite at $2K), 50% risk cap, ALL setups both directions, NO gate_override, NO direction_lock. Stays on the MCP heartbeat path (execution=mcp_heartbeat) -- NOT moved to fleet_rest -- so it stays the untouched champion. Consumes production action (not the looser producer); the producer flip does not raise its count. At $2K with the BOLD OTM table it lands OTM-2 qty8 (~$0.30 x 8 x100=$240 < $1000 cap) -> places."
+  },
+  {
+   "id": "risky-1",
+   "role": "risky-1-medium",
+   "looseness": "medium",
+   "status": "active",
+   "execution": "fleet_rest",
+   "live": true,
+   "fidelity": "real_fills",
+   "broker": "custom_rest",
+   "account_number": "PA3W17FD8G19",
+   "key_ref": "automation/state/fleet/secrets.json :: accounts.risky-1",
+   "instrument": "SPY_0DTE_OPTION",
+   "config_source": "inherit bold + direction_lock + gate_override",
+   "direction_lock": "PUT_ONLY",
+   "gate_override": {
+    "min_triggers": 2,
+    "require_confluence_or_sequence": true
+   },
+   "params_patch": {},
+   "starting_equity": 2000.0,
+   "frozen_at": "2026-06-20",
+   "hypothesis": "[DRAFT] BOLD MEDIUM (re-cast risky-1) -- quality-gated middle of the bold side. KEEPS risky-1's PUT_ONLY direction_lock (all 3 anchor winners are puts; BULLISH_RECLAIM is 25% WR DRAFT) AND adds a moderate honored quality gate (min_triggers:2, require_confluence_or_sequence:true) so it sits BETWEEN bold-2 (no gate) and bold-loose (thinnest). min_confidence intentionally OMITTED so it is NOT silently frozen by the confidence-less signal the way safe-3 is -- it can still fire off triggers+confluence. PUT_ONLY makes it structurally distinct from every other arm. Sizing: bold OTM table, qty8 ~$240 < $1000 -> places."
+  },
+  {
+   "id": "risky-3",
+   "role": "bold-loose-atm",
+   "looseness": "loose",
+   "status": "active",
+   "execution": "fleet_rest",
+   "live": true,
+   "fidelity": "real_fills",
+   "broker": "custom_rest",
+   "account_number": "PA31WIU8X15Q",
+   "key_ref": "automation/state/fleet/secrets.json :: accounts.risky-3",
+   "instrument": "SPY_0DTE_OPTION",
+   "config_source": "inherit bold + gate_override + params_patch",
+   "gate_override": {
+    "min_triggers": 1
+   },
+   "params_patch": {
+    "strike_tier_table": "safe",
+    "position_sizing_tiers": [
+     {
+      "equity_min": 0,
+      "equity_max": 2000,
+      "base_qty": 5,
+      "elite_qty": 5
+     },
+     {
+      "equity_min": 2000,
+      "equity_max": 10000,
+      "base_qty": 8,
+      "elite_qty": 10
+     },
+     {
+      "equity_min": 10000,
+      "equity_max": 999999999,
+      "base_qty": 12,
+      "elite_qty": 15
+     }
+    ]
+   },
+   "consumes_scoring_peak": true,
+   "starting_equity": 2000.0,
+   "frozen_at": "2026-06-20",
+   "hypothesis": "[DRAFT] BOLD LOOSE -- the thinnest gate of all 6: ALL setups, BOTH directions, no quality filter (min_triggers:1 only), sized cheap via the SAFE/ATM strike table so it actually places at $2K (ATM qty8 ~$0.70 x8 x100=$560 < $1000 cap), AND it CONSUMES the looser SCORING-PEAK producer so it SEES (and takes) the A+ signals the tight gates blocked -- including a gated reclaim once a real ENTRY_TRIGGER fires. Highest frequency of the 6 and the ONLY arm exposed to the producer flip -> the one to watch for overtrade, BUT every hard floor still binds (one-position, first_entry_after_stop_blocked, -50% kill-switch armed from live SoD, EOD flatten 15:55). min_triggers:1 keeps it Rule-2 legal (a real fired trigger, never anticipation).",
+   "live_flipped": "2026-06-25 by J directive (all paper arms live for the DATA)"
+  },
+  {
+   "id": "mes-linear-sim",
+   "status": "pending_build",
+   "fidelity": "bs_sim_ranking_only",
+   "broker": "futures_sandbox_TT",
+   "account_number": "5WW73759",
+   "key_ref": "docs/futures/ (TT sandbox wiring)",
+   "instrument": "MES_FUTURES",
+   "stop_model": "point_based",
+   "config_source": "same signals as champions, linear expression",
+   "frozen_at": null,
+   "hypothesis": "THE OPTION TAX IS THE KILLER, NOT THE READ -- same directional signal on a linear instrument; if MES captures the move the edge is real and the fix is the instrument."
+  },
+  {
+   "id": "mes-mnq-div-futures",
+   "status": "dormant",
+   "fidelity": "point_pnl_validated",
+   "broker": "futures_sandbox_TT",
+   "account_number": "5WW73759",
+   "key_ref": "docs/futures/ (TT sandbox wiring)",
+   "instrument": "MNQ_FUTURES",
+   "stop_model": "atr_trail_eod_flat",
+   "config_source": "automation/state/fleet/edge3_mesmnq_div.py :: FROZEN_CONFIG",
+   "frozen_config": {
+    "edge_id": "edge3_mesmnq_div",
+    "leader": "MES",
+    "laggard": "MNQ",
+    "threshold": 0.0015,
+    "min_persistence_bars": 2,
+    "qty_micros": 1,
+    "exit_mode": "atr_trail",
+    "entry_cutoff_et": "13:00:00"
+   },
+   "frozen_at": "2026-06-21",
+   "enabled": false,
+   "source_recommendation": "analysis/recommendations/b5-mesmnq-div-rescue.json",
+   "validated_oos_per_trade": 71.46,
+   "hypothesis": "EDGE #3 -- MES leads -> trade MNQ laggard on a >=2-consecutive-bar divergence (concentration fix). VALIDATED: OOS +$71.46/tr, n=41 OOS / 118 total, drop-top5 +$3.65, 8/8 gates. REGISTERED DORMANT (enabled=false) -- frozen knobs live in edge3_mesmnq_div.py; signal_for_tick honors min_persistence_bars; no live order path until a human flips enabled. Reproduction: backtest/.venv/Scripts/python.exe automation/state/fleet/edge3_mesmnq_div.py"
+  }
+ ],
+ "promotion_gate": {
+  "oos_positive": true,
+  "wf_min": 0.7,
+  "sub_window_stable": true,
+  "anchor_no_regression": true,
+  "min_clean_trades": 30,
+  "beat_baseline_margin_note": "must beat frozen baseline by a margin surviving multiple-comparison correction across the active arms"
+ },
+ "next_steps": [
+  "DEPLOY (after-close, flagged): fix safe-3 sizing (qty8>cap) + flip build_shared_signal SCORING_PEAK_LIVE on so bold-loose/safe-loose consume scoring-peak passes (see live_flip_checklist). Gate on tests 22/22 + a fleet_live --quiet WATCH eyeball.",
+  "FEED BACK: once the gate-sweetspot backtest (workflow) ranks the looseness levels, set each fleet_rest arm's gate_override to the recommended sweet spot.",
+  "DOCTRINE (J): CLAUDE.md production account table (Safe-2/Risky-2) is still accurate for production; the 6-arm fleet is documented here + markdown/planning/PLAN-4-FLEET-GOLIVE.md.",
+  "WIRE: mes-linear-sim to the TT futures sandbox harness (docs/futures/)."
+ ]
+}

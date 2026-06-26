@@ -2,11 +2,13 @@
 
 > The numbers J committed to. Gamma enforces them; doesn't soften them, doesn't tighten them mid-session.
 >
-> **Canonical numeric values live in [`automation/state/params.json`](../automation/state/params.json).** This file describes the WHY and the boundaries; params.json holds the WHAT (current value). Drift between the two is detected at premarket Step 1a and produces a kill-switch.
+> **Canonical numeric values live in [`automation/state/params.json`](../../automation/state/params.json) (Safe) and [`automation/state/aggressive/params.json`](../../automation/state/aggressive/params.json) (Bold).** This file describes the WHY and the boundaries; params.json holds the WHAT (current value). Drift between the two is detected at premarket Step 1a and produces a kill-switch.
 
 **Version:** 2.1 (2026-05-08) — replaces v2.0; numeric values now reference params.json instead of restating them.
-**Rule version (canonical):** v14 — see [`automation/state/params.json#rule_version`](../automation/state/params.json).
-**Account context:** Paper start, $1,000. Live deployment $500–$1,000 once paper consistency is established.
+**Rule version (canonical):** v15.3 (Safe) / v15.2 (Bold) — see [`automation/state/params.json#rule_version`](../../automation/state/params.json).
+**Account context:** Dual-account ($2K Safe-2 + ~$1.65K Bold-2). The single-account "The numbers" tables below are **LEGACY** ($1K-era); see "Dual-Account Rules" below + params.json for current values.
+
+> **⚠️ LEGACY BANNER:** The single-account "The numbers" / "$1K math" / position-sizing-schedule tables in the next several sections are the **original $1,000-paper-account doctrine** and are kept for the WHY/derivation only. They are **NOT current authority** — for live values (rule version, stops, TP1, sizing tiers, kill switches per account) **[`automation/state/params.json`](../../automation/state/params.json) + [`automation/state/aggressive/params.json`](../../automation/state/aggressive/params.json) are authoritative**, and the "Dual-Account Rules" section is the current account model.
 
 ---
 
@@ -172,7 +174,7 @@ When all clear: deploy $500–$1,000 of real money. Start with **3-contract mini
 
 ## Dual-Account Rules (effective 2026-05-18)
 
-As of 5/18, Gamma trades **two paper accounts simultaneously** off the same heartbeat. See [`markdown/0dte/dual-account-design.md`](markdown/0dte/dual-account-design.md) for the full design. Risk rules summary:
+As of 5/18, Gamma trades **two paper accounts simultaneously** off the same heartbeat. See [`dual-account-design.md`](dual-account-design.md) for the full design. Risk rules summary:
 
 ### Per-account kill switches (fully isolated)
 
@@ -180,8 +182,7 @@ As of 5/18, Gamma trades **two paper accounts simultaneously** off the same hear
 |---|---|---|
 | Max risk per trade | **30% of equity** | **50% of equity** |
 | Daily loss kill switch | **−30% of start-of-day equity** | **−50% of start-of-day equity** |
-| Premium stop (bear) | **−8%** | **−15%** |
-| Premium stop (bull) | **−8%** | **−5%** |
+| Premium stop | **−50% (catastrophe cap; chart-stop is primary, C2)** | **−7% bear / −5% bull** |
 
 **Kill switches are fully isolated.** Safe hitting its −30% daily limit does NOT halt Bold. Bold blowing up does NOT halt Safe. Each account fails and recovers independently.
 
@@ -197,7 +198,7 @@ As of 5/18, Gamma trades **two paper accounts simultaneously** off the same hear
 
 ### Overlap: when both accounts see the same setup
 
-Both execute on the same tick with different params (see [`dual-account-design.md`](markdown/0dte/dual-account-design.md#overlap-resolution) for full table). Safe takes ATM strike + 30% TP1. Bold takes ITM-2 + 75% TP1. Kill switches and position state tracked independently.
+Both execute on the same tick with different params (see [`dual-account-design.md`](dual-account-design.md#overlap-resolution) for full table). Safe takes OTM-2 strike + 50% TP1 (per-tier; params.json). Bold takes ITM-2 + 75% TP1. Kill switches and position state tracked independently.
 
 ### Journal tagging (mandatory)
 
@@ -220,9 +221,9 @@ Before any entry, expect this kind of explicit math:
 > "OK, paper account $1,000. Daily P&L so far: $0. Daily budget remaining: $500.
 > Setup is BEARISH_REJECTION_RIDE_THE_RIBBON, trigger fired at 13:36 (rejection candle close + ribbon flip).
 > Proposed contract: SPY 723P 0DTE (ITM-2) at $1.20 mid (delta ~0.7).
-> 3 contracts × $1.20 × 100 = $360 deployed. v14 premium stop at −8% (params.json#premium_stop_pct) = $1.10, so risk = $30 on stop.
-> $30 / $1,000 = 3% account risk. Within the 50% per-trade cap. ✅
-> TP1 at +30% = $1.56 for 2 of 3 contracts (or first chart-level past entry, whichever first). Runner moves to BE after TP1.
+> 3 contracts × $1.20 × 100 = $360 deployed. Chart stop is the primary invalidation (rejected level + $0.50 buffer); premium catastrophe cap at −50% (params.json#premium_stop_pct) = $0.60 backstop.
+> Chart-stop risk to invalidation ≈ $30. $30 / $1,000 = 3% account risk. Within the per-trade cap. ✅
+> TP1 at +50% = $1.80 for 2 of 3 contracts (qty_fraction 0.667), or first chart-level past entry, whichever first. Runner moves to BE after TP1.
 > Placing bracket order via Alpaca paper. Thesis logged."
 
 That kind of explicit, math-first dialogue is what these rules are for. If the math doesn't fit, the trade resizes or doesn't happen.

@@ -1,0 +1,269 @@
+{
+  "run_date": "2026-06-20",
+  "hypothesis": "multi_signal_agreement: >=N independent watchers same direction within a short window -> real-fills 0DTE edge (SELECTION/CONFLUENCE thesis)",
+  "window": "2025-01-01..2026-05-15",
+  "survivor_structure": {
+    "strike_offset": -2,
+    "premium_stop_pct": -0.08,
+    "qty": 3,
+    "exits": "v15 chandelier mode=trailing arm=+0.05 trail=0.15, tp1 0.50@+0.30, runner 2.5x (simulator defaults)"
+  },
+  "gate_definitions": {
+    "n_ge_20": "n >= 20",
+    "oos_per_trade_pos": "OOS(2026) per-trade expectancy > 0",
+    "is_per_trade_pos": "IN-SAMPLE(2025) per-trade expectancy > 0 (no single-regime artifact)",
+    "pos_quarters_ge_4": "positive quarters >= 4 of 6",
+    "top5_under_200": "top-5-day concentration < 200%",
+    "drop_top5_pos": "P&L after dropping top-5 days still > 0",
+    "beats_random_null": "OOS per-trade > mean of 20-seed random-entry null",
+    "no_sign_inversion_chartstop": "OOS sign does NOT invert at premium_stop=-0.99 (no-truncation)"
+  },
+  "configs": [
+    {
+      "config": "agree_ge2",
+      "threshold_distinct_watchers": 2,
+      "window_min": 15,
+      "cooldown_min": 45,
+      "n_signals": 333,
+      "signals_is": 227,
+      "signals_oos": 106,
+      "coverage": {
+        "signals": 333,
+        "filled": 279,
+        "no_bar": 2,
+        "sim_none": 52,
+        "fill_rate": 0.838
+      },
+      "metrics": {
+        "n": 279,
+        "wr_pct": 25.1,
+        "exp_dollar": 2.13,
+        "total_dollar": 593.42,
+        "is_n": 198,
+        "is_exp": -0.24,
+        "is_total": -48.31,
+        "oos_n": 81,
+        "oos_exp": 7.92,
+        "oos_total": 641.73,
+        "quarters": {
+          "2025Q1": {
+            "n": 39,
+            "exp": -13.28,
+            "total": -517.79
+          },
+          "2025Q2": {
+            "n": 35,
+            "exp": 4.7,
+            "total": 164.63
+          },
+          "2025Q3": {
+            "n": 73,
+            "exp": 3.74,
+            "total": 273.32
+          },
+          "2025Q4": {
+            "n": 51,
+            "exp": 0.62,
+            "total": 31.53
+          },
+          "2026Q1": {
+            "n": 41,
+            "exp": 15.81,
+            "total": 648.03
+          },
+          "2026Q2": {
+            "n": 40,
+            "exp": -0.16,
+            "total": -6.3
+          }
+        },
+        "positive_quarters": "4/6",
+        "positive_quarters_n": 4,
+        "n_quarters": 6,
+        "top5_day_pct": 399.1,
+        "drop_top5_days_total": -1774.68,
+        "drop_top5_days_per_trade": -6.52,
+        "by_side": {
+          "C": {
+            "n": 202,
+            "exp": -6.09,
+            "wr": 23.3,
+            "total": -1231.05
+          },
+          "P": {
+            "n": 77,
+            "exp": 23.69,
+            "wr": 29.9,
+            "total": 1824.47
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_PREMIUM_STOP": 269,
+          "EXIT_ALL_TIME_STOP": 2,
+          "TP1_THEN_RUNNER_RIBBON": 8
+        }
+      },
+      "metrics_chartstop_only": {
+        "n": 279,
+        "exp_dollar": -34.63,
+        "oos_exp": -38.36,
+        "is_exp": -33.11,
+        "total_dollar": -9662.65
+      },
+      "metrics_no_cooldown": {
+        "n": 674,
+        "exp_dollar": 3.44,
+        "oos_exp": 9.76,
+        "is_exp": -3.93,
+        "positive_quarters": "3/6",
+        "top5_day_pct": 389.7
+      },
+      "random_null": {
+        "seeds": 20,
+        "null_oos_exp_mean": 10.06,
+        "null_oos_exp_std": 7.28,
+        "null_is_exp_mean": 0.62,
+        "null_full_exp_mean": 3.54
+      },
+      "gates": {
+        "n_ge_20": true,
+        "oos_per_trade_pos": true,
+        "is_per_trade_pos": false,
+        "pos_quarters_ge_4": true,
+        "top5_under_200": false,
+        "drop_top5_pos": false,
+        "beats_random_null": false,
+        "no_sign_inversion_chartstop": false
+      },
+      "clears_all_gates": false
+    },
+    {
+      "config": "agree_ge3",
+      "threshold_distinct_watchers": 3,
+      "window_min": 15,
+      "cooldown_min": 45,
+      "n_signals": 57,
+      "signals_is": 34,
+      "signals_oos": 23,
+      "coverage": {
+        "signals": 57,
+        "filled": 50,
+        "no_bar": 0,
+        "sim_none": 7,
+        "fill_rate": 0.877
+      },
+      "metrics": {
+        "n": 50,
+        "wr_pct": 14.0,
+        "exp_dollar": -18.29,
+        "total_dollar": -914.71,
+        "is_n": 30,
+        "is_exp": -23.94,
+        "is_total": -718.07,
+        "oos_n": 20,
+        "oos_exp": -9.83,
+        "oos_total": -196.64,
+        "quarters": {
+          "2025Q1": {
+            "n": 9,
+            "exp": -45.87,
+            "total": -412.8
+          },
+          "2025Q2": {
+            "n": 3,
+            "exp": -40.64,
+            "total": -121.92
+          },
+          "2025Q3": {
+            "n": 10,
+            "exp": 9.53,
+            "total": 95.32
+          },
+          "2025Q4": {
+            "n": 8,
+            "exp": -34.83,
+            "total": -278.67
+          },
+          "2026Q1": {
+            "n": 13,
+            "exp": -17.87,
+            "total": -232.29
+          },
+          "2026Q2": {
+            "n": 7,
+            "exp": 5.09,
+            "total": 35.65
+          }
+        },
+        "positive_quarters": "2/6",
+        "positive_quarters_n": 2,
+        "n_quarters": 6,
+        "top5_day_pct": null,
+        "drop_top5_days_total": -1744.11,
+        "drop_top5_days_per_trade": null,
+        "by_side": {
+          "C": {
+            "n": 45,
+            "exp": -14.71,
+            "wr": 13.3,
+            "total": -661.75
+          },
+          "P": {
+            "n": 5,
+            "exp": -50.59,
+            "wr": 20.0,
+            "total": -252.96
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_PREMIUM_STOP": 47,
+          "TP1_THEN_RUNNER_RIBBON": 3
+        }
+      },
+      "metrics_chartstop_only": {
+        "n": 50,
+        "exp_dollar": -78.03,
+        "oos_exp": -73.41,
+        "is_exp": -81.11,
+        "total_dollar": -3901.3
+      },
+      "metrics_no_cooldown": {
+        "n": 121,
+        "exp_dollar": -11.4,
+        "oos_exp": -0.84,
+        "is_exp": -28.04,
+        "positive_quarters": "1/6",
+        "top5_day_pct": null
+      },
+      "random_null": {
+        "seeds": 20,
+        "null_oos_exp_mean": 1.03,
+        "null_oos_exp_std": 15.94,
+        "null_is_exp_mean": 11.67,
+        "null_full_exp_mean": 7.19
+      },
+      "gates": {
+        "n_ge_20": true,
+        "oos_per_trade_pos": false,
+        "is_per_trade_pos": false,
+        "pos_quarters_ge_4": false,
+        "top5_under_200": false,
+        "drop_top5_pos": false,
+        "beats_random_null": false,
+        "no_sign_inversion_chartstop": false
+      },
+      "clears_all_gates": false
+    }
+  ],
+  "best_config": "agree_ge2",
+  "any_config_clears_all_gates": false,
+  "DISCLOSURE": {
+    "authority": "real OPRA fills (C1) -- the only WR authority",
+    "spy_vs_option": "SPY-direction != option edge; this is the option-edge test (C3/L58)",
+    "per_trade": "per-trade expectancy reported, not WR alone (OP-14/C4)",
+    "concentration": "top5_day_pct + drop-top-5-days shown (OP-20 #5)",
+    "independence_caveat": "watchers are NOT fully independent (e.g. v14_enhanced + bearish_reversal_at_level both detect bearish rejections); DISTINCT watcher_name is the proxy for 'independent detector'.",
+    "causality": "agreement counted with causal lookback only; entry on the bar agreement is reached; null jitters entry within the SAME day (C6 no look-ahead).",
+    "no_grid_search": "agreement threshold swept {2,3} only (the hypothesis's stated knob); no hidden parameter mining."
+  }
+}

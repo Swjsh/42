@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+    <meta name="theme-color" content="#0b1120" />
+    <title>Gamma</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <style>
+      :root { color-scheme: dark; --accent: #34e0a1; --accent-soft: rgba(52,224,161,0.14); --ink: #eef2f6; --muted: #93a0bb; --faint: #6b7791;
+        --bg0: #0b1120; --glass: rgba(255,255,255,0.045); --brd: rgba(255,255,255,0.085); --warn: #f0b24a; --bad: #ff6b6b; }
+      * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+      [hidden] { display: none !important; }
+      html, body { margin: 0; height: 100%; color: var(--ink); font-family: "Segoe UI", system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased;
+        background: radial-gradient(125% 80% at 50% -8%, #16233f 0%, #0c1120 46%, #070a14 100%) fixed; }
+      body { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
+
+      /* header */
+      .top { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 8px; flex: none; }
+      .brand { font-size: 17px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase;
+        background: linear-gradient(90deg, #7af0c2, #34e0a1); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .bell { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+        background: var(--glass); border: 1px solid var(--brd); color: var(--muted); }
+      .bell.on { color: var(--accent); border-color: rgba(52,224,161,0.45); background: var(--accent-soft); }
+      .bell svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+
+      /* scroll area */
+      .scroll { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 4px 16px 8px; }
+      .scroll::-webkit-scrollbar { width: 0; }
+
+      /* robot hero */
+      .robot { width: min(46vw, 178px); height: min(46vw, 178px); margin: 2px auto 0; }
+      .robotsvg { width: 100%; height: 100%; overflow: visible; }
+      .botbody { animation: float 4s ease-in-out infinite; transform-origin: 110px 120px; }
+      @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+      .antennatip { animation: blink 2.4s ease-in-out infinite; }
+      @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+      .ring { opacity: 0; transform-origin: 110px 112px; }
+      .robot.listening .ring { animation: ripple 1.8s ease-out infinite; }
+      .robot.listening .r2 { animation-delay: 0.5s; }
+      @keyframes ripple { 0% { opacity: 0.55; transform: scale(0.82); } 100% { opacity: 0; transform: scale(1.12); } }
+      .robot.talking .eye { animation: eyebounce 0.5s ease-in-out infinite; }
+      .robot.talking .chevron, .robot.talking .antennatip { animation: glowpulse 0.6s ease-in-out infinite; }
+      @keyframes eyebounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1.5px); } }
+      @keyframes glowpulse { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
+      .status { text-align: center; font-size: 14.5px; color: var(--muted); min-height: 20px; margin: 4px 0 16px; transition: color .2s ease; }
+      .robot.listening ~ .status, .robot.talking ~ .status { color: var(--accent); }
+
+      /* now / next — one quiet line */
+      .nownext { max-width: 520px; margin: 0 auto 16px; }
+      .nncard { position: relative; background: var(--glass); border: 1px solid var(--brd); border-left: 3px solid var(--accent); border-radius: 14px; padding: 11px 14px; }
+      .nncard.working { border-left-color: var(--warn); }
+      .nncard.red { border-left-color: var(--bad); }
+      .nnline { font-size: 13.5px; line-height: 1.5; color: var(--ink); padding-right: 20px; }
+      .nnline + .nnline { margin-top: 2px; }
+      .nnk { color: var(--faint); font-weight: 700; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; margin-right: 8px; }
+      .nndot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 7px; vertical-align: middle; }
+      .nnalert { color: var(--accent); font-weight: 600; }
+      .nndismiss { position: absolute; top: 5px; right: 5px; width: 28px; height: 28px; line-height: 26px; text-align: center; padding: 0;
+        border: none; background: transparent; color: var(--faint); font-size: 19px; border-radius: 9px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+      .nndismiss:hover, .nndismiss:active { color: var(--ink); background: var(--glass); }
+
+      /* tasks */
+      .tasks { max-width: 520px; margin: 0 auto; }
+      .aphead { font-size: 11.5px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--faint); margin: 2px 4px 11px; }
+      .card { background: var(--glass); border: 1px solid var(--brd); border-left: 3px solid var(--accent); border-radius: 13px; padding: 10px 13px; margin-bottom: 8px;
+        overflow: hidden; max-height: 320px; transition: opacity .3s ease, transform .3s ease, max-height .34s ease, margin .3s ease, padding .3s ease, border-width .3s ease; }
+      .card.warn { border-left-color: var(--warn); }
+      .card.removing { opacity: 0; transform: translateX(46px) scale(.97); max-height: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0; border-width: 0; }
+      /* Compact: key title on one line, one-liner detail, small buttons. */
+      .card .title { font-size: 14px; font-weight: 650; line-height: 1.3; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .card .detail { font-size: 11.5px; color: var(--muted); line-height: 1.4; margin-bottom: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .card .row { display: flex; gap: 9px; }
+      .card .row button { flex: 1; height: 38px; border-radius: 10px; border: 1px solid var(--brd); font-size: 18px; font-weight: 700; cursor: pointer; display: grid; place-items: center; transition: transform .1s ease, background .15s ease; }
+      .card .row button:active { transform: scale(0.95); }
+      .ok { background: rgba(52,224,161,0.15); border-color: rgba(52,224,161,0.5) !important; color: var(--accent); }
+      .no { background: rgba(255,107,107,0.1); border-color: rgba(255,107,107,0.4) !important; color: #ff8f8f; }
+      .empty { text-align: center; color: var(--faint); font-size: 14.5px; padding: 18px; }
+      .offline { text-align: center; color: #ff8f8f; font-size: 14px; padding: 14px; }
+
+      /* chat log (above the bar) */
+      .chatlog { max-width: 520px; margin: 14px auto 4px; display: flex; flex-direction: column; gap: 8px; }
+      .chatlog:empty { display: none; }
+      .amsg { font-size: 14.5px; line-height: 1.45; padding: 11px 14px; border-radius: 16px; max-width: 88%; word-break: break-word; white-space: pre-wrap; }
+      .amsg.me { align-self: flex-end; background: var(--accent-soft); border-bottom-right-radius: 5px; }
+      .amsg.gamma { align-self: flex-start; background: var(--glass); border: 1px solid var(--brd); border-bottom-left-radius: 5px; }
+      .amsg.work { align-self: flex-start; background: transparent; border: 1px dashed var(--brd); color: var(--muted); font-size: 13px; font-style: italic; }
+      .amsg.err { align-self: flex-start; background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.3); color: #ff8f8f; }
+      .amsg .who { display: block; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--faint); margin-bottom: 3px; }
+
+      /* rendered markdown — GAMMA answer bubbles only (scannable, clean) */
+      .amsg.gamma { padding: 12px 15px; max-width: 90%; border-radius: 16px 16px 16px 6px; }
+      .amsg.gamma .md { line-height: 1.5; white-space: normal; }
+      .amsg.gamma .md > :first-child { margin-top: 0; }
+      .amsg.gamma .md > :last-child { margin-bottom: 0; }
+      .amsg.gamma .md p { margin: 7px 0; }
+      .amsg.gamma strong { color: #cdeede; font-weight: 700; }
+      .amsg.gamma code { font-family: "SF Mono", "Cascadia Code", ui-monospace, "Consolas", monospace; font-size: 12.5px;
+        background: rgba(52,224,161,0.12); border: 1px solid rgba(52,224,161,0.22); color: #aef0d4;
+        padding: 1px 6px; border-radius: 6px; word-break: break-word; }
+      .amsg.gamma ul { margin: 6px 0; padding-left: 18px; }
+      .amsg.gamma li { margin: 2px 0; }
+      .amsg.gamma .h { color: #cdeede; font-weight: 700; font-size: 13.5px; letter-spacing: 0.3px; margin: 11px 0 4px; }
+      .amsg.gamma .md > .h:first-child { margin-top: 0; }
+
+      /* bottom bar — the one combined chat + mic */
+      .bar { flex: none; display: flex; align-items: center; gap: 9px; padding: 9px 14px calc(9px + env(safe-area-inset-bottom));
+        background: rgba(8,11,20,0.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 1px solid var(--brd); }
+      .bar input { flex: 1; min-width: 0; height: 48px; border-radius: 999px; border: 1px solid var(--brd); background: var(--glass); color: var(--ink); font-size: 16px; padding: 0 18px; outline: none; }
+      .bar input:focus { border-color: rgba(52,224,161,0.5); }
+      .bar input::placeholder { color: var(--faint); }
+      .circ { width: 48px; height: 48px; border-radius: 50%; border: none; flex: none; cursor: pointer; display: grid; place-items: center; transition: transform .1s ease; }
+      .circ:active { transform: scale(0.93); }
+      .circ svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .micbtn { background: var(--glass); border: 1px solid var(--brd); color: var(--ink); }
+      .micbtn.listening { background: rgba(255,107,107,0.2); color: #ff8f8f; animation: micpulse 1.3s infinite; }
+      @keyframes micpulse { 0% { box-shadow: 0 0 0 0 rgba(255,107,107,0.45); } 100% { box-shadow: 0 0 0 13px rgba(255,107,107,0); } }
+      .sendbtn { background: var(--accent); color: #04241a; }
+
+      /* work-queue fly-out (the "leaf") */
+      .hdr-actions { display: flex; align-items: center; gap: 8px; }
+      .leafbtn { position: relative; }
+      .qbadge { position: absolute; top: -3px; right: -3px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 9px;
+        background: var(--accent); color: #04241a; font-size: 10px; font-weight: 800; display: grid; place-items: center; line-height: 1; }
+      .qbackdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.45); opacity: 0; transition: opacity .28s ease; z-index: 39; }
+      .qbackdrop.open { opacity: 1; }
+      .qpanel { position: fixed; top: 0; right: 0; height: 100dvh; width: min(88vw, 372px); background: rgba(8,11,20,0.95);
+        backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-left: 1px solid var(--brd);
+        transform: translateX(100%); transition: transform .28s cubic-bezier(.22,.61,.36,1); z-index: 40; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top); }
+      .qpanel.open { transform: translateX(0); }
+      .qhead { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 6px; }
+      .qhead .aphead { margin: 0; }
+      .qbody { flex: 1; min-height: 0; overflow-y: auto; padding: 6px 14px calc(18px + env(safe-area-inset-bottom)); }
+      .qbody::-webkit-scrollbar { width: 0; }
+      .qsec { margin-bottom: 15px; }
+      .qsec .aphead { margin: 4px 2px 8px; }
+      .qrow { background: var(--glass); border: 1px solid var(--brd); border-left: 3px solid var(--accent); border-radius: 12px;
+        padding: 9px 12px; margin-bottom: 7px; display: flex; align-items: center; gap: 10px; }
+      .qrow.working { border-left-color: var(--warn); }
+      .qrow.failed { border-left-color: var(--bad); }
+      .qmain { flex: 1; min-width: 0; }
+      .qlabel { font-size: 13px; line-height: 1.35; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .qsub { font-size: 11px; color: var(--faint); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .qright { flex: none; font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+      .qglyph.ok { color: var(--accent); } .qglyph.bad { color: var(--bad); } .qglyph.dim { color: var(--faint); }
+      .qspin { width: 13px; height: 13px; border-radius: 50%; border: 2px solid rgba(240,178,74,0.25); border-top-color: var(--warn); animation: qspin .8s linear infinite; }
+      @keyframes qspin { to { transform: rotate(360deg); } }
+      .qempty { color: var(--faint); font-size: 12.5px; padding: 2px 2px 6px; }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <span class="brand">Gamma</span>
+      <div class="hdr-actions">
+        <button class="bell leafbtn" id="queueBtn" aria-label="Work queue" title="What Gamma's working on">
+          <svg viewBox="0 0 24 24"><path d="M5 21c0-8.5 5.5-14 14-14 0 8.5-6 14-14 14z" /><path d="M5 21c3-5.5 7.5-9 13-10" /></svg>
+          <span class="qbadge" id="qBadge" hidden>0</span>
+        </button>
+        <button class="bell" id="bell" hidden aria-label="Enable wrist alerts" title="Wrist alerts">
+          <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.7 21a2 2 0 01-3.4 0" /></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="scroll" id="scroll">
+      <div class="robot" id="robot">
+        <svg class="robotsvg" viewBox="0 0 220 220" aria-label="Gamma robot">
+          <defs>
+            <radialGradient id="glow" cx="50%" cy="46%" r="52%">
+              <stop offset="0%" stop-color="#34e0a1" stop-opacity="0.55" />
+              <stop offset="55%" stop-color="#34e0a1" stop-opacity="0.10" />
+              <stop offset="100%" stop-color="#34e0a1" stop-opacity="0" />
+            </radialGradient>
+            <linearGradient id="rbody" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7af0c2" /><stop offset="100%" stop-color="#2fc488" /></linearGradient>
+            <linearGradient id="rhead" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8ff5d2" /><stop offset="100%" stop-color="#41d29b" /></linearGradient>
+          </defs>
+          <circle class="glow" cx="110" cy="106" r="104" fill="url(#glow)" />
+          <circle class="ring r2" cx="110" cy="112" r="96" fill="none" stroke="#34e0a1" stroke-width="1.5" />
+          <circle class="ring r1" cx="110" cy="112" r="82" fill="none" stroke="#34e0a1" stroke-width="2" />
+          <g class="botbody">
+            <line x1="110" y1="50" x2="110" y2="34" stroke="#2fc488" stroke-width="4.5" stroke-linecap="round" />
+            <circle class="antennatip" cx="110" cy="29" r="7.5" fill="#ffd86b" />
+            <rect x="64" y="50" width="92" height="76" rx="27" fill="url(#rhead)" />
+            <rect x="77" y="64" width="66" height="48" rx="19" fill="#08231c" />
+            <circle class="eye" cx="99" cy="87" r="7.5" fill="#7af7d0" />
+            <circle class="eye" cx="121" cy="87" r="7.5" fill="#7af7d0" />
+            <path class="smile" d="M98 100 Q110 109 122 100" fill="none" stroke="#7af7d0" stroke-width="3.4" stroke-linecap="round" />
+            <rect x="72" y="124" width="76" height="62" rx="23" fill="url(#rbody)" />
+            <rect x="87" y="138" width="46" height="36" rx="13" fill="#08231c" />
+            <path class="chevron" d="M96 158 L110 145 L124 158" fill="none" stroke="#5dffd0" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round" />
+            <rect x="53" y="130" width="15" height="42" rx="7.5" fill="#34e0a1" />
+            <rect x="152" y="120" width="15" height="36" rx="7.5" fill="#34e0a1" />
+          </g>
+        </svg>
+      </div>
+      <div class="status" id="status">Tap the mic to talk</div>
+
+      <div class="nownext" id="nownext" hidden><div class="nncard" id="nncard"></div></div>
+
+      <section class="tasks">
+        <div class="aphead">Needs your OK</div>
+        <div id="approvals"><div class="empty">Loading&hellip;</div></div>
+      </section>
+
+      <div class="chatlog" id="ask-log"></div>
+    </main>
+
+    <div class="bar">
+      <button class="circ micbtn" id="mic" aria-label="Talk to Gamma">
+        <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0014 0M12 18v3" /></svg>
+      </button>
+      <input id="ask-input" type="text" placeholder="Ask Gamma&hellip;" autocomplete="off" autocapitalize="sentences" enterkeyhint="send" />
+      <button class="circ sendbtn" id="ask-send" aria-label="Send">
+        <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
+      </button>
+    </div>
+
+    <div class="qbackdrop" id="qBackdrop" hidden></div>
+    <aside class="qpanel" id="qPanel" hidden aria-label="Work queue">
+      <div class="qhead">
+        <span class="aphead">Work queue</span>
+        <button class="bell" id="qClose" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+      </div>
+      <div class="qbody" id="qBody"></div>
+    </aside>
+
+    <script src="/realtime.js"></script>
+    <script>
+      (function () {
+        var GTOK = (document.querySelector('meta[name="gamma-token"]') || {}).content || "";
+        var _fetch = window.fetch.bind(window);
+        window.fetch = function (url, opts) {
+          if (typeof url === "string" && url.indexOf("/api/") === 0) {
+            opts = opts || {};
+            opts.headers = Object.assign({}, opts.headers || {}, { "x-gamma-token": GTOK });
+          }
+          return _fetch(url, opts);
+        };
+        var $ = function (id) { return document.getElementById(id); };
+        var voiceAvailable = false;
+
+        function setStatus(t) { var s = $("status"); if (s) s.textContent = t; }
+        function robotState(state) {
+          var r = $("robot"); if (!r) return;
+          r.classList.remove("listening", "talking");
+          if (state === "talking") r.classList.add("talking");
+          else if (state === "listening" || state === "user_speaking") r.classList.add("listening");
+          setStatus(
+            state === "talking" ? "Gamma is talking…" :
+            state === "user_speaking" ? "Listening…" :
+            state === "listening" ? "Listening — go ahead" :
+            "Tap the mic to talk"
+          );
+        }
+
+        // ---- tasks: render + resolve (cards SLIDE AWAY on tap) ----
+        var lastApprovalsSig = "__init__";
+        var dismissed = {}; // ids the user already cleared this session — obligation/derived
+                            // cards regenerate from live state, so we hide them locally so a
+                            // tapped task STAYS gone instead of bouncing back on the next poll.
+        var inflight = {};  // ask_id -> bubble. One working indicator per ask, EVER —
+                            // stops a card-approval + a chat/voice ask stacking two
+                            // "-ing" bubbles, and a re-poll/visibility-refresh re-minting one.
+        function renderApprovals(list) {
+          var box = $("approvals");
+          if (!box) return;
+          if (box.querySelector(".card[data-busy]")) return; // don't yank a card mid-animation
+          var visible = (list || []).filter(function (a) { return a && a.id && !dismissed[a.id]; });
+          // Only rebuild when the visible set actually changes -> no 5s flicker.
+          var sig = visible.map(function (a) { return a.id + "|" + (a.title || ""); }).join("~");
+          if (sig === lastApprovalsSig) return;
+          lastApprovalsSig = sig;
+          box.innerHTML = "";
+          if (!visible.length) { box.innerHTML = '<div class="empty">Nothing needs you right now.</div>'; return; }
+          visible.forEach(function (a) {
+            var card = document.createElement("div");
+            card.className = "card " + (a.severity === "warn" ? "warn" : "");
+            var t = document.createElement("div"); t.className = "title"; t.textContent = a.title || "Decision";
+            var row = document.createElement("div"); row.className = "row";
+            var yes = document.createElement("button"); yes.className = "ok"; yes.textContent = "✓"; yes.setAttribute("aria-label", "Approve");
+            var no = document.createElement("button"); no.className = "no"; no.textContent = "✗"; no.setAttribute("aria-label", "Reject");
+            yes.onclick = function () { decide(a, "approve", card); };
+            no.onclick = function () { decide(a, "reject", card); };
+            row.append(yes, no);
+            card.append(t);
+            if (a.detail) { var d = document.createElement("div"); d.className = "detail"; d.textContent = a.detail; card.append(d); }
+            card.append(row);
+            box.appendChild(card);
+          });
+        }
+        function vanish(card) {
+          card.setAttribute("data-busy", "1");
+          card.classList.add("removing");
+          setTimeout(function () {
+            var box = $("approvals");
+            card.remove();
+            if (box && !box.querySelector(".card")) box.innerHTML = '<div class="empty">Nothing needs you right now.</div>';
+          }, 330);
+        }
+        function decide(a, decision, card) {
+          card.style.pointerEvents = "none";
+          if (a && a.id) dismissed[a.id] = 1; // keep it gone even if the server keeps regenerating it
+          lastApprovalsSig = "__changed__"; // force the next poll to re-render the (now-filtered) set
+          vanish(card); // optimistic: clear it immediately, the post is fire-and-confirm
+          fetch("/api/approve", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: a.id, decision: decision, action: a.action || null }) })
+            .then(function (r) { return r.json(); })
+            .then(function (j) {
+              // Card-approved builds go to the WORK QUEUE (the leaf panel + the now-line),
+              // NOT a chat bubble — approving a card must never clutter the conversation,
+              // and it must never stack a 2nd "-ing" bubble on top of a chat/voice ask.
+              // The result lands in the queue's "Recently shipped" + a wrist push.
+              if (j && j.escalated) { setStatus("Sent ⧉ — see the queue"); refreshNow(); } // non-committal: the queue shows accept/refuse
+              setTimeout(refresh, 900);
+            })
+            .catch(function () {
+              // The POST never reached the server -> the decision was NOT logged.
+              // Un-dismiss so the card RE-SURFACES on the next poll (matching app.js),
+              // instead of vanishing into dismissed{} for the rest of the session.
+              if (a && a.id) delete dismissed[a.id];
+              lastApprovalsSig = "__changed__";
+              setStatus("That didn't send — it'll reappear if it wasn't logged");
+              setTimeout(refresh, 1200);
+            });
+        }
+
+        // ---- chat / build ----
+        // SMALL, SAFE markdown renderer — GAMMA answer bubbles ONLY.
+        // Escapes & < > " FIRST, then formats a safe subset on the ESCAPED string,
+        // so no raw HTML from the model can ever survive (no XSS). Returns an HTML
+        // string that is set via innerHTML only for class 'gamma'; user/work/err
+        // bubbles stay plain textContent.
+        function mdEsc(s) {
+          return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+          });
+        }
+        function mdInline(escaped) {
+          // operate on ALREADY-escaped text: `code` first (so ** inside code is
+          // left literal), then **bold**. Inputs are escaped, so no tags can form.
+          return escaped
+            .replace(/`([^`]+)`/g, function (_, c) { return "<code>" + c + "</code>"; })
+            .replace(/\*\*([^*]+)\*\*/g, function (_, b) { return "<strong>" + b + "</strong>"; });
+        }
+        function renderGammaMarkdown(text) {
+          var lines = mdEsc(text).replace(/\r\n?/g, "\n").split("\n");
+          var html = "", para = [], list = [];
+          function flushPara() {
+            if (para.length) { html += "<p>" + mdInline(para.join("<br>")) + "</p>"; para = []; }
+          }
+          function flushList() {
+            if (list.length) {
+              html += "<ul>";
+              for (var i = 0; i < list.length; i++) html += "<li>" + mdInline(list[i]) + "</li>";
+              html += "</ul>"; list = [];
+            }
+          }
+          for (var li = 0; li < lines.length; li++) {
+            var raw = lines[li], line = raw.replace(/\s+$/, "");
+            var trimmed = line.replace(/^\s+/, "");
+            if (trimmed === "") { flushList(); flushPara(); continue; } // blank -> paragraph break
+            var bullet = trimmed.match(/^[-*]\s+(.*)$/);
+            if (bullet) { flushPara(); list.push(bullet[1]); continue; }
+            flushList();
+            var hd = trimmed.match(/^#{1,6}\s+(.*)$/);
+            if (hd) { flushPara(); html += '<div class="h">' + mdInline(hd[1]) + "</div>"; continue; }
+            // a line that is WHOLLY bold -> a small header
+            var whole = trimmed.match(/^\*\*([^*]+)\*\*$/);
+            if (whole) { flushPara(); html += '<div class="h">' + mdInline("**" + whole[1] + "**").replace(/^<strong>|<\/strong>$/g, "") + "</div>"; continue; }
+            para.push(line); // single newlines within a paragraph -> <br>
+          }
+          flushList(); flushPara();
+          return '<div class="md">' + html + "</div>";
+        }
+        function addAsk(who, text, cls) {
+          var log = $("ask-log");
+          if (!log) return null;
+          var resolvedCls = cls || (who === "You" ? "me" : "gamma");
+          var m = document.createElement("div");
+          m.className = "amsg " + resolvedCls;
+          var w = document.createElement("span"); w.className = "who"; w.textContent = who;
+          var b = document.createElement("span");
+          // GAMMA answer bubbles render the safe markdown (escape-then-format);
+          // everyone else (user / work / err) stays plain textContent.
+          if (resolvedCls === "gamma") b.innerHTML = renderGammaMarkdown(text);
+          else b.textContent = text;
+          m.append(w, b); log.appendChild(m);
+          // Bound a long-lived session, but never trim a LIVE in-flight working bubble
+          // (setLine/finishResult would then write to a detached node).
+          var guard = 200;
+          while (log.children.length > 60 && guard-- > 0) {
+            var first = log.firstChild, isLive = false;
+            for (var ik in inflight) { if (inflight[ik] === first) { isLive = true; break; } }
+            if (isLive) break;
+            log.removeChild(first);
+          }
+          var sc = $("scroll"); if (sc) sc.scrollTop = sc.scrollHeight;
+          return m;
+        }
+        // Watch a build live over SSE (so the phone SEES Claude work), with a
+        // graceful fall back to /api/ask-result polling on any SSE error.
+        // ONE friendly status phrase per kind of step — enough to KNOW Claude is
+        // really working, without flooding the screen with every tool call.
+        function workingPhrase(d) {
+          if (!d || !d.step) return null;
+          if (d.step === "thinking") return "Thinking it through…";
+          if (d.step === "tool" || d.step === "tool_start") {
+            var n = (d.name || "").toLowerCase();
+            if (/read|glob|grep|search|ls/.test(n)) return "Reading the files…";
+            if (/edit|write|notebook|create/.test(n)) return "Writing the code…";
+            if (/bash/.test(n)) return "Running a check…";
+            if (/tradingview|alpaca|chart|quote|option|stock|market/.test(n)) return "Checking the markets…";
+            if (n.indexOf("mcp__") === 0) return "Using a tool…";
+            return "Working on it…";
+          }
+          if (d.step === "queued" || d.step === "session") return "Spinning up…";
+          return null; // text / delta / tool_result -> don't churn the line
+        }
+        // Watch a build as ONE calm, updating status line (not a flood of steps),
+        // so you KNOW Claude is really working. Falls back to polling on SSE error.
+        function trackAsk(askId, streamToken, existingPh) {
+          if (!askId || inflight[askId]) return; // ONE indicator per ask, EVER
+          var ph = existingPh || addAsk("Gamma", "On it 🧠 — working…", "work");
+          inflight[askId] = ph;
+          var settled = false;
+          function setLine(t) { if (ph && ph.lastChild) ph.lastChild.textContent = t; }
+          function finishResult(res) {
+            if (settled) return; settled = true;
+            delete inflight[askId];
+            if (ph) try { ph.remove(); } catch (e) {}
+            addAsk("Gamma", (res && res.summary || "Done.").toString().trim(), res && res.ok ? "gamma" : "err");
+          }
+          function startPoll() {
+            var tries = 0;
+            var iv = setInterval(function () {
+              tries++;
+              fetch("/api/ask-result?id=" + encodeURIComponent(askId), { cache: "no-store" })
+                .then(function (x) { return x.json(); })
+                .then(function (j) { if (j && j.done && j.result) { clearInterval(iv); finishResult(j.result); } })
+                .catch(function () {});
+              // Poll past the 15-min escalation hard-kill (4s * 230 ≈ 15.3 min) so the
+              // PHONE — the primary surface — never gives up before the build can
+              // finish and the answer lands. (Was 40 ≈ 2.7 min, which stranded any
+              // build that fell back to polling after an SSE drop.)
+              // Don't leave a frozen "-ing" bubble: clear the indicator and point to
+              // the queue (the build may still be running; the panel + a push track it).
+              if (tries > 230) { clearInterval(iv); finishResult({ ok: true, summary: "Taking a while — watch the queue ⧉, or you'll get a push when it lands." }); }
+            }, 4000);
+          }
+          if (!streamToken || typeof EventSource === "undefined") { startPoll(); return; }
+          var es = null, fellBack = false, graceTimer = null;
+          try {
+            es = new EventSource("/api/ask-stream?id=" + encodeURIComponent(askId) + "&tok=" + encodeURIComponent(streamToken));
+          } catch (e) { startPoll(); return; }
+          es.onmessage = function (ev) {
+            // Healthy frame -> cancel any pending reconnect-grace timer.
+            if (graceTimer) { clearTimeout(graceTimer); graceTimer = null; }
+            var d; try { d = JSON.parse(ev.data); } catch (e) { return; }
+            if (!d || !d.step) return;
+            if (d.step === "result") {
+              try { es.close(); } catch (e) {}
+              if (!settled) {
+                // The result frame's summary is just "Done in Ns" — the real ANSWER
+                // lands in /api/ask-result a beat later, so poll a few times before
+                // falling back, so J always sees the actual answer not "Done".
+                var rtries = 0;
+                (function pull() {
+                  rtries++;
+                  fetch("/api/ask-result?id=" + encodeURIComponent(askId), { cache: "no-store" })
+                    .then(function (x) { return x.json(); })
+                    .then(function (j) {
+                      if (j && j.done && j.result) finishResult(j.result);
+                      else if (rtries < 6) setTimeout(pull, 600);
+                      else finishResult({ ok: d.ok, summary: (d.summary || (d.ok ? "Done." : "That didn't work.")) });
+                    })
+                    .catch(function () { if (rtries < 6) setTimeout(pull, 600); else finishResult({ ok: d.ok, summary: (d.summary || "Done.") }); });
+                })();
+              }
+              return;
+            }
+            var p = workingPhrase(d);
+            if (p) setLine(p); // ONE line, updated in place — no flood
+          };
+          es.onerror = function () {
+            if (fellBack || settled) return;
+            // EventSource self-reconnects on transient blips; don't treat the first
+            // error as terminal. Grace ~12s, then fall back to polling only if the
+            // stream is truly CLOSED/CONNECTING-stuck. onmessage clears the timer.
+            if (graceTimer) return;
+            graceTimer = setTimeout(function () {
+              graceTimer = null;
+              if (fellBack || settled) return;
+              if (!es || es.readyState === 2 || es.readyState === 0) {
+                fellBack = true;
+                try { es.close(); } catch (e) {}
+                startPoll();
+              }
+            }, 12000);
+          };
+        }
+        function sendAsk(message) {
+          message = (message || "").trim();
+          if (!message) return;
+          addAsk("You", message);
+          $("ask-input").value = "";
+          var thinking = addAsk("Gamma", "thinking…", "work");
+          fetch("/api/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: message }) })
+            .then(function (r) { return r.json(); })
+            .then(function (j) {
+              if (j && j.escalate && j.ask_id) {
+                // ONE bubble: reuse the 'thinking' bubble as the live working line
+                // (no separate 'On it' bubble), and let trackAsk turn it into the answer.
+                if (thinking && thinking.lastChild) thinking.lastChild.textContent = (j.reply || "On it 🧠 — working…");
+                trackAsk(j.ask_id, j.stream_token, thinking);
+              } else {
+                if (thinking) thinking.remove();
+                addAsk("Gamma", (j && j.reply) || "(no reply)");
+              }
+            })
+            .catch(function () { if (thinking) thinking.remove(); addAsk("Gamma", "Couldn't reach the PC — is it awake?", "err"); });
+        }
+        $("ask-send").onclick = function () { sendAsk($("ask-input").value); };
+        $("ask-input").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); sendAsk($("ask-input").value); } });
+
+        // ---- now / next ----
+        // Status tile: glanceable, MEANINGFUL signal only — engine health + market,
+        // each book's position, what Gamma's doing now, and anything that needs you.
+        // Dismissable: the × hides it, and it resurfaces only when a REAL thing changes
+        // (a position opens/closes, a new approval, engine goes RED, Claude starts working) —
+        // never on idle verdict/market flapping.
+        var lastNNSig = "__init__";
+        var STATUS_DISMISS_KEY = "gamma_status_dismissed_sig";
+        function verdictColor(v) { return v === "GREEN" ? "var(--accent)" : v === "YELLOW" ? "var(--warn)" : v === "RED" ? "var(--bad)" : "var(--faint)"; }
+        function posStr(a) { a = a || {}; if (!a.in_position) return "flat"; var p = a.position; return (typeof p === "string" && p.length > 0 && p.length <= 18) ? p : "in position"; }
+        function renderNowNext(s) {
+          var wrap = $("nownext"), card = $("nncard");
+          if (!wrap || !card) return;
+          s = s || {};
+          var acc = s.accounts || {}, safe = acc.safe || {}, bold = acc.bold || {};
+          var running = (s.claude && s.claude.running) || [];
+          var approvals = (s.approvals || []).length;
+          var reds = (s.health && s.health.reds) || [];
+          var verdict = s.verdict || "UNKNOWN";
+
+          var rows = [];
+          rows.push({ k: "Engine", v: verdict + (s.market_open ? " · market open" : " · market closed"), dot: verdictColor(verdict) });
+          rows.push({ k: "Books", v: "Safe " + posStr(safe) + " · Bold " + posStr(bold) });
+          if (running.length) {
+            var t = (running[0].task || "a build").toString().replace(/^J asked.*?:\s*/i, "");
+            rows.push({ k: "Now", v: t.length > 60 ? t.slice(0, 59) + "…" : t, work: true });
+          }
+          if (approvals > 0) rows.push({ k: "Needs you", v: approvals + (approvals === 1 ? " thing to OK — open the queue ⧉" : " things to OK — open the queue ⧉"), alert: true });
+          else if (reds.length) rows.push({ k: "Alert", v: reds.length + " engine check" + (reds.length === 1 ? "" : "s") + " RED", alert: true });
+
+          // Resurface signature: only these MEANINGFUL axes un-dismiss the tile.
+          var alertSig = [posStr(safe), posStr(bold), approvals > 0, verdict === "RED", running.length].join("|");
+          var dismissed = ""; try { dismissed = localStorage.getItem(STATUS_DISMISS_KEY) || ""; } catch (e) {}
+          if (dismissed === alertSig) { wrap.hidden = true; return; }
+          if (dismissed) { try { localStorage.removeItem(STATUS_DISMISS_KEY); } catch (e) {} } // state changed -> resurface
+
+          var working = running.length > 0;
+          var sig = JSON.stringify(rows) + alertSig;
+          if (sig === lastNNSig && !wrap.hidden) return;
+          lastNNSig = sig;
+
+          card.className = "nncard" + (working ? " working" : "") + (verdict === "RED" ? " red" : "");
+          card.innerHTML = "";
+          var x = document.createElement("button");
+          x.className = "nndismiss"; x.type = "button"; x.setAttribute("aria-label", "Dismiss status"); x.textContent = "×";
+          x.onclick = function (e) { e.stopPropagation(); try { localStorage.setItem(STATUS_DISMISS_KEY, alertSig); } catch (er) {} wrap.hidden = true; };
+          card.appendChild(x);
+          rows.forEach(function (r) {
+            var line = document.createElement("div"); line.className = "nnline";
+            var k = document.createElement("span"); k.className = "nnk"; k.textContent = r.k;
+            var v = document.createElement("span"); if (r.alert) v.className = "nnalert";
+            if (r.dot) { var d = document.createElement("span"); d.className = "nndot"; d.style.background = r.dot; v.appendChild(d); v.appendChild(document.createTextNode(r.v)); }
+            else v.textContent = r.v;
+            line.append(k, v); card.appendChild(line);
+          });
+          wrap.hidden = false;
+        }
+
+        // ---- work queue fly-out (the leaf): ONE canonical place for "what's Gamma doing" ----
+        function qEsc(s) { return (s == null ? "" : String(s)).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+        function qTidy(s, n) { s = (s == null ? "" : String(s)).replace(/\s+/g, " ").trim(); return s.length > n ? s.slice(0, n - 1) + "…" : s; }
+        function qAgo(iso) { var t = Date.parse(iso); if (!isFinite(t)) return ""; var sec = Math.max(0, Math.round((Date.now() - t) / 1000)); if (sec < 60) return sec + "s"; var m = Math.round(sec / 60); if (m < 60) return m + "m"; return Math.round(m / 60) + "h"; }
+        function qRow(label, sub, right, cls) {
+          return '<div class="qrow ' + (cls || "") + '"><div class="qmain"><div class="qlabel">' + qEsc(label) + "</div>" +
+            (sub ? '<div class="qsub">' + qEsc(sub) + "</div>" : "") + '</div><div class="qright">' + (right || "") + "</div></div>";
+        }
+        var lastQSig = "__init__";
+        function renderQueuePanel(s) {
+          var body = $("qBody"); if (!body) return;
+          var claude = s.claude || {}; var running = claude.running || []; var recent = claude.recent || [];
+          var build = s.build || {}; var queue = (build.queue || []).filter(function (t) { return t && (t.status === "pending" || t.status === "in_progress"); });
+          var feed = s.feed || []; var k = s.kitchen || {}; var proposals = s.proposals || [];
+          var recentDone = recent.filter(function (t) { return t && ["done", "failed", "cancelled", "busy", "blocked"].indexOf(t.status) >= 0; }).slice(0, 6);
+          var nLive = running.length + queue.length; // proposals are read-only, don't inflate the badge
+          var badge = $("qBadge");
+          if (badge) { if (nLive > 0) { badge.textContent = nLive > 9 ? "9+" : String(nLive); badge.hidden = false; } else { badge.hidden = true; } }
+          // Fold a coarse 15s elapsed bucket into the sig so a running row's "Xs"
+          // ticks while the panel stays open (otherwise it freezes), without thrashing.
+          var sig = JSON.stringify([
+            running.map(function (t) { return t.id + ":" + Math.floor((Date.now() - Date.parse(t.started)) / 15000); }),
+            queue.map(function (t) { return t.id + t.status; }),
+            recentDone.map(function (t) { return t.id + t.status; }), (k.pending || 0) + "/" + (k.completed || 0),
+            feed.slice(0, 4).map(function (f) { return (f.ts || "") + "|" + (f.text || ""); }),
+            proposals.map(function (p) { return p.title; }),
+          ]);
+          if (sig === lastQSig) return; lastQSig = sig;
+          var h = "";
+          if (proposals.length) {
+            h += '<div class="qsec"><div class="aphead">Drafted — ratify on PC</div>';
+            proposals.forEach(function (p) { h += qRow(p.title, (p.kind || "proposal") + " · drafted", '<span class="qglyph dim">◆</span>', ""); });
+            h += "</div>";
+          }
+          h += '<div class="qsec"><div class="aphead">Working now</div>';
+          running.forEach(function (t) { h += qRow(qTidy(t.task || "a build", 58), "running · " + qAgo(t.started), '<div class="qspin"></div>', "working"); });
+          if (k && k.pending != null) h += qRow("Kitchen R&D", (k.pending || 0) + " cooking · " + (k.completed || 0) + " cooked", '<span class="qglyph dim">🍳</span>', "");
+          if (!running.length && !(k && k.pending != null)) h += '<div class="qempty">Idle right now.</div>';
+          h += "</div>";
+          h += '<div class="qsec"><div class="aphead">Queued</div>';
+          if (build.next && build.next.title) h += qRow(build.next.title, "up next", '<span class="qglyph">→</span>', "");
+          queue.forEach(function (t) { if (!build.next || t.title !== build.next.title) h += qRow(t.title || "task", t.status, "", ""); });
+          if (!queue.length && !(build.next && build.next.title)) h += '<div class="qempty">Nothing queued.</div>';
+          h += "</div>";
+          h += '<div class="qsec"><div class="aphead">Recently shipped</div>';
+          recentDone.forEach(function (t) {
+            var ok = t.ok; var g = ok ? '<span class="qglyph ok">✓</span>' : (t.status === "cancelled" ? '<span class="qglyph dim">⊘</span>' : '<span class="qglyph bad">✕</span>');
+            // Show what Claude actually found/did (the result preview), not just "X ago",
+            // so a card-approved build's ANSWER is readable here instead of write-only.
+            var sub = t.summary ? qTidy(t.summary, 72) : (qAgo(t.finished) + " ago");
+            h += qRow(qTidy(t.task || "a build", 58), sub, g, ok ? "" : "failed");
+          });
+          feed.slice(0, 5).forEach(function (f) { h += qRow(qTidy(f.text || "", 64), f.name || f.kind || "", '<span class="qglyph dim">•</span>', ""); });
+          if (!recentDone.length && !feed.length) h += '<div class="qempty">No recent activity.</div>';
+          h += "</div>";
+          // Preserve scroll position across the innerHTML swap so a 5s poll doesn't
+          // yank J back to the top while he's reading 'Recently shipped'.
+          var _sc = body.scrollTop;
+          body.innerHTML = h;
+          body.scrollTop = _sc;
+        }
+        var qHideTimer = null, qPushed = false;
+        function _hideQueue() {
+          var p = $("qPanel"), b = $("qBackdrop"); if (!p) return;
+          p.classList.remove("open"); if (b) b.classList.remove("open");
+          if (qHideTimer) clearTimeout(qHideTimer);
+          qHideTimer = setTimeout(function () { p.hidden = true; if (b) b.hidden = true; qHideTimer = null; }, 300);
+        }
+        function openQueue() {
+          var p = $("qPanel"), b = $("qBackdrop"); if (!p) return;
+          if (qHideTimer) { clearTimeout(qHideTimer); qHideTimer = null; } // don't let a pending hide swallow a re-open
+          p.hidden = false; if (b) b.hidden = false;
+          requestAnimationFrame(function () { p.classList.add("open"); if (b) b.classList.add("open"); });
+          if (!qPushed) { try { history.pushState({ queue: 1 }, ""); qPushed = true; } catch (e) {} } // Android Back closes the drawer, not the app
+          refreshNow();
+        }
+        function closeQueue() {
+          // Clear qPushed SYNCHRONOUSLY before the async history.back(), so a second
+          // near-simultaneous close (rage double-tap X + backdrop) falls through to the
+          // idempotent _hideQueue() instead of firing a 2nd back() that pops the PAGE's
+          // own entry and navigates J out of the app.
+          if (qPushed) { qPushed = false; try { history.back(); return; } catch (e) { qPushed = true; } }
+          _hideQueue();
+        }
+        window.addEventListener("popstate", function () { qPushed = false; _hideQueue(); });
+        if ($("queueBtn")) $("queueBtn").onclick = openQueue;
+        if ($("qClose")) $("qClose").onclick = closeQueue;
+        if ($("qBackdrop")) $("qBackdrop").onclick = closeQueue;
+        document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeQueue(); });
+
+        // Self-scheduling poll: 5s when healthy, retry fast (2s) while offline so a
+        // brief blip (e.g. the PC mid-restart) recovers on its own within seconds
+        // instead of leaving a scary permanent error.
+        var pollTimer = null;
+        function schedule(ms) { clearTimeout(pollTimer); pollTimer = setTimeout(refresh, ms); }
+        function showReconnecting() {
+          var box = $("approvals");
+          if (box && !box.querySelector(".card")) box.innerHTML = '<div class="offline">Reconnecting to Gamma&hellip;</div>';
+        }
+        function refresh() {
+          fetch("/api/state", { cache: "no-store" })
+            .then(function (r) { return r.json().catch(function () { return null; }); })
+            .then(function (s) {
+              // The service worker serves a synthetic {ok:false,error:"offline"} body
+              // when the PC is unreachable, and a real 500/403 also returns {ok:false}.
+              // Treat ALL of those as offline (show Reconnecting), NOT a clean all-clear.
+              if (!s || s.ok === false) { showReconnecting(); schedule(2000); return; }
+              voiceAvailable = !!s.voice;
+              // A render error must NEVER wedge the poll loop (frozen screen).
+              try { renderApprovals(s.approvals || []); renderNowNext(s); renderQueuePanel(s); } catch (e) {}
+              schedule(5000);
+            })
+            .catch(function () { showReconnecting(); schedule(2000); });
+        }
+        // Mobile PWAs SUSPEND background timers — so when J reopens the app it would
+        // otherwise show a STALE frozen snapshot until a throttled timer fires (the
+        // "62 kitchen / doesn't auto-refresh" bug). Force an IMMEDIATE fresh poll
+        // whenever the app returns to the foreground (reopen / tab focus / back-nav).
+        function refreshNow() { schedule(0); }
+        document.addEventListener("visibilitychange", function () { if (!document.hidden) refreshNow(); });
+        window.addEventListener("focus", refreshNow);
+        window.addEventListener("pageshow", refreshNow);
+        // Tap the GAMMA wordmark for a manual hard refresh, anytime.
+        (function () { var h = document.querySelector(".brand, .wordmark, header .logo, header strong"); if (h) { h.style.cursor = "pointer"; h.addEventListener("click", refreshNow); } })();
+
+        // ---- mic / voice ----
+        $("mic").onclick = function () {
+          var mic = $("mic");
+          if (voiceAvailable && window.GammaRealtime) {
+            if (window.GammaRealtime.isActive()) { window.GammaRealtime.stop(); mic.classList.remove("listening"); robotState(null); return; }
+            mic.classList.add("listening"); robotState("listening");
+            window.GammaRealtime.start(function (st) {
+              if (st === "listening") robotState("listening");
+              else if (st === "user_speaking") robotState("user_speaking");
+              else if (st === "speaking") robotState("talking");
+              else if (st === "connecting") setStatus("Connecting voice…");
+              else if (st === "stopped") { mic.classList.remove("listening"); robotState(null); }
+              else if (st.indexOf("error") === 0) { mic.classList.remove("listening"); robotState(null); setStatus(st.slice(6) || "Voice isn't available right now — type to me instead."); }
+            });
+          } else { setStatus("Voice needs internet + an OpenAI key"); }
+        };
+
+        // ---- wrist alerts (the bell) ----
+        function u8(base64) {
+          var pad = "=".repeat((4 - (base64.length % 4)) % 4);
+          var b = (base64 + pad).replace(/-/g, "+").replace(/_/g, "/");
+          var raw = atob(b); var arr = new Uint8Array(raw.length);
+          for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+          return arr;
+        }
+        var vapidPublic = null;
+        function initBell() {
+          var bell = $("bell"); if (!bell) return;
+          if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) { bell.hidden = true; return; }
+          fetch("/api/push/vapid-public", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (j) {
+            if (!(j && j.ok && j.enabled && j.publicKey)) { bell.hidden = true; return; }
+            vapidPublic = j.publicKey;
+            navigator.serviceWorker.ready.then(function (reg) { return reg.pushManager.getSubscription(); })
+              .then(function (sub) {
+                if (!sub) return;
+                // Re-sync the existing browser subscription to the server (saveSub is
+                // idempotent) so a server reset / VAPID rotation self-heals — and the
+                // bell only lights once the server actually HAS the record (no fake "on").
+                return fetch("/api/push/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ subscription: sub.toJSON() }) })
+                  .then(function (r) { return r.json(); })
+                  .then(function (j) { if (j && j.ok) bell.classList.add("on"); });
+              }).catch(function () {});
+            bell.hidden = false;
+          }).catch(function () { bell.hidden = true; });
+          bell.onclick = function () {
+            if (Notification.permission === "denied") { setStatus("Notifications are blocked in your phone settings"); return; }
+            Notification.requestPermission().then(function (perm) {
+              if (perm !== "granted") { setStatus("Allow notifications to get wrist alerts"); return; }
+              return navigator.serviceWorker.ready.then(function (reg) {
+                return reg.pushManager.getSubscription().then(function (sub) {
+                  return sub || reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: u8(vapidPublic) });
+                });
+              }).then(function (sub) {
+                return fetch("/api/push/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ subscription: sub.toJSON() }) }).then(function (r) { return r.json(); });
+              }).then(function (j) {
+                if (j && j.ok) { bell.classList.add("on"); setStatus("Wrist alerts on — I'll ping you"); }
+                else setStatus("Couldn't turn on alerts — try again");
+              });
+            }).catch(function () { setStatus("Couldn't turn on alerts — try again"); });
+          };
+        }
+
+        // service worker = required for push to the phone + watch
+        if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/service-worker.js").catch(function () {}); }
+
+        initBell();
+        refresh(); // self-schedules its next poll (5s healthy / 2s while reconnecting)
+      })();
+    </script>
+  </body>
+</html>

@@ -5,10 +5,10 @@
 > *how* J's real winning trades become the automation's ground truth and setup
 > definitions — the "data rules" payoff. Authored 2026-06-19.
 >
-> **Companion docs:** [`markdown/0dte/J-WEBULL-EDGE-2021-2023.md`](markdown/0dte/J-WEBULL-EDGE-2021-2023.md)
-> (the 2021-23 ledger + style stats), [`markdown/0dte/J-EDGE-SETUP-SPECS.md`](markdown/0dte/J-EDGE-SETUP-SPECS.md)
+> **Companion docs:** [`markdown/0dte/J-WEBULL-EDGE-2021-2023.md`](J-WEBULL-EDGE-2021-2023.md)
+> (the 2021-23 ledger + style stats), [`markdown/0dte/J-EDGE-SETUP-SPECS.md`](J-EDGE-SETUP-SPECS.md)
 > (the per-archetype automation specs parameterized from his winners),
-> [`markdown/research/REGIME-AWARE-BOOK.md`](markdown/research/REGIME-AWARE-BOOK.md) (the book the specs slot into).
+> [`markdown/research/REGIME-AWARE-BOOK.md`](../research/REGIME-AWARE-BOOK.md) (the book the specs slot into).
 >
 > **Inputs read:** `backtest/autoresearch/j_edge_tracker.py`,
 > `backtest/lib/engine/regime_book.py`, `analysis/webull-j-trades/winner_setups.json`,

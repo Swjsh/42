@@ -1,0 +1,75 @@
+{
+  "date": "2026-06-24",
+  "morning_thesis": "SPY recovered overnight from 6/23 session close (~734.97) and is grinding up through premarket, reaching PMH 737.11 by 08:30 ET. Saty Pivot Ribbon is fully BULLISH (Fast 736.66 > Pivot 736.21 > Slow 735.92, 74c spread) — first BULL ribbon in multiple sessions following the 6/22–6/23 sell-off (743.86→~735). Price is above SMA50 (735.58). Key resistance cluster starts at 743.35 (former Carry double-bottom support, broken on 6/23 close — now overhead resistance). PCE tomorrow 08:30 ET is the macro overhang. Primary setup (BEARISH_REJECTION_RIDE_THE_RIBBON) requires BEAR ribbon — NOT active at open. Watch for ribbon flip if SPY reaches 743.35 zone and gets rejected. BULLISH_RECLAIM remains DRAFT. Today is likely HOLD or opportunistic if ribbon stays stacked and price breaks PMH 737.11.",
+  "predictions": [
+    {
+      "prediction_idx": 0,
+      "claim": "SPY breaks and holds 5m close above PMH 737.20, extending toward 743.35 zone",
+      "trigger_window": "09:35-12:00 ET",
+      "invalidation": "5m close below 736.50 after 09:35 ET — means PMH rejected at open",
+      "confidence": 0.45,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "SPY tagged 737.13/737.29 at open and rejected hard to 734.37. No sustained close above PMH. Extension to 743.35 never attempted. Session high only ~737.29 per J's live observation.",
+      "category": "level",
+      "evidence_timestamp": "09:30",
+      "graded_at": "2026-06-24T16:30:00-04:00"
+    },
+    {
+      "prediction_idx": 1,
+      "claim": "SMA50 (735.58) and PML (734.80) hold as intraday floor — any dip to 735.00-735.60 bounces on 5m chart",
+      "trigger_window": "09:35-13:00 ET",
+      "invalidation": "5m close below 734.60 — structure breaks bearish, premarket low taken out",
+      "confidence": 0.55,
+      "specificity": 0.9,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "Session low 731.23 — well below PML 734.80 and SMA50 735.58. Both violated decisively. Close 732.13. Bear continuation dominated all afternoon.",
+      "category": "level",
+      "evidence_timestamp": null,
+      "graded_at": "2026-06-24T16:30:00-04:00"
+    },
+    {
+      "prediction_idx": 2,
+      "claim": "743.35 (broken Carry support) acts as overhead resistance on first test — any tag sees at least $1.50 rejection",
+      "trigger_window": "if/when SPY reaches 743.00-743.50",
+      "invalidation": "5m close above 744.00 on first approach to 743.35 zone",
+      "confidence": 0.65,
+      "specificity": 0.9,
+      "novelty": "fresh",
+      "outcome": "UNTESTED",
+      "actual": "SPY never approached 743.35. Session closed at 732.13, session high ~737.29. The carry resistance zone was out of range entirely.",
+      "category": "level",
+      "evidence_timestamp": null,
+      "graded_at": "2026-06-24T16:30:00-04:00"
+    },
+    {
+      "prediction_idx": 3,
+      "claim": "No BEARISH_REJECTION setup triggers before 11:00 ET — ribbon BULL (74c spread) at open, no early flip expected",
+      "trigger_window": "09:35-11:00 ET",
+      "invalidation": "Ribbon flips BEAR (Fast EMA < Slow EMA on 5m close) AND rejection candle at named level before 10:30 ET",
+      "confidence": 0.70,
+      "specificity": 0.9,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "No BEARISH_REJECTION setup triggered before 11:00 ET. Engine was blind at open; ribbon remained BULL at 09:35 (structural). Only HOLD_DEV signals emitted throughout morning. Ribbon eventually flipped BEAR by afternoon (130c spread by 14:39 ET).",
+      "category": "trigger",
+      "evidence_timestamp": "11:00",
+      "graded_at": "2026-06-24T16:30:00-04:00"
+    }
+  ],
+  "surprises": [
+    "PCE-eve compression trapped both directions — opened bull gap, PMH rejection, partial recovery, then afternoon sell-off to 731.23; the 74c BULL ribbon at open gave false structural confidence for the day",
+    "Engine structurally blind at 09:35 ET (TV reload at bell, 280s kill) missed the PMH rejection — J's cleanest read of the day. Third documented session with this pattern.",
+    "Bold scored 11/11 BULLISH_RECLAIM with level_reclaim at PMH at 11:00 ET — highest quality signal of day — vetoed by block_bull_morning_agg blunt time gate. Fixed live mid-session."
+  ],
+  "lesson": "Two orthogonal failure modes today: BLIND at 09:35 (TV hardware at bell) and OVER-GATED at 11:00 (blunt time-block on perfect signal). Open blindness (OPEN-BLINDNESS-TV-HANG) is P0 — until shipped, first-bar PMH rejections are structurally unplayable for the engine.",
+  "tomorrow_hint": "PCE 08:30 ET — no-trade 08:25-08:50 ET. New floor 731.23 / 734.80 flipped resistance / 737.11 rejection zone. Ribbon BEAR 130c. Trade the PCE reaction, not the premarket drift.",
+  "predictions_count": 4,
+  "predictions_passed": 1,
+  "predictions_partial": 0,
+  "hit_rate_passing": 0.333,
+  "specificity_weighted_hit_rate": 0.3,
+  "graded_at": "2026-06-24T16:30:00-04:00"
+}

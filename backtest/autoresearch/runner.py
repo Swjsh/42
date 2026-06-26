@@ -21,6 +21,7 @@ import pandas as pd
 
 from lib import filters as filters_mod
 from lib.orchestrator import run_backtest, BacktestResult
+from lib.cap_admission import cap_allows
 
 from . import config
 from .metrics import TradeMetrics, compute_metrics
@@ -177,12 +178,29 @@ def run_with_params(
     end: dt.date,
     spy_df: pd.DataFrame | None = None,
     vix_df: pd.DataFrame | None = None,
+    *,
+    enforce_cap: bool = True,
+    cap_account: str | None = None,
+    cap_equity: float | None = None,
 ) -> tuple[BacktestResult, TradeMetrics]:
     """Run a backtest over [start, end] with the given parameter overrides.
 
     Returns (BacktestResult, TradeMetrics). Metrics are computed only on
     trades whose entry date is within [start, end] (the orchestrator already
     filters but we double-check to be safe).
+
+    BOOK-ADMISSION (the graduated cap, lib.cap_admission):
+      The TradeMetrics are computed on the REALIZABLE book — the subset of trades the
+      LIVE risk_gate would admit at the given account/equity (notional within the
+      tighter of risk-cap/tier AND qty >= min_contracts). A blocked trade is EXCLUDED
+      ($0), never qty-reduced. The cap is an ORDER gate, not a fill price — per-fill
+      economics (and the returned BacktestResult.trades) are UNTOUCHED; only the metrics
+      book is filtered.
+
+      `enforce_cap` defaults True (realizable book is the default). It engages ONLY when a
+      `cap_account` is supplied — existing callers that pass no account context get the OLD
+      cap-blind metrics BYTE-IDENTICALLY (no behaviour change). Pass enforce_cap=False to
+      force the cap-blind book even with an account supplied (explicit comparison only).
     """
     if spy_df is None or vix_df is None:
         spy_df, vix_df = load_data(start, end)
@@ -208,6 +226,9 @@ def run_with_params(
         "tp1_qty_fraction",
         "runner_target_premium_pct",
         "level_stop_buffer_dollars",
+        # B4b 2026-06-20: ribbon-flip-back min-spread (the LIVE binding stop). Was hardcoded
+        # 30.0 in simulator_real; now wirable so the params-path / sweep can vary it.
+        "ribbon_flip_back_min_spread_cents",
         "time_stop_minutes_before_close",
         # v14_enhanced profit-lock (NEW 2026-05-13)
         "profit_lock_threshold_pct",
@@ -265,5 +286,26 @@ def run_with_params(
     with _patched_filter_constants(params):
         result = run_backtest(spy_df, vix_df, **kwargs)
 
-    metrics = compute_metrics(result.trades)
+    # BOOK-ADMISSION: compute metrics on the realizable (cap-admitted) book by default.
+    # Engages only when an account+equity is supplied (existing callers stay byte-identical).
+    # Per-trade qty is the trade's OWN qty (the order the live engine would actually place).
+    book = result.trades
+    if cap_account is not None and cap_equity is not None and result.trades:
+        book = _admit_per_trade_qty(
+            result.trades, cap_account, float(cap_equity), enforce_cap=enforce_cap,
+        )
+
+    metrics = compute_metrics(book)
     return result, metrics
+
+
+def _admit_per_trade_qty(trades, account: str, equity: float, *, enforce_cap: bool):
+    """Cap-admit a list of TradeFills using EACH trade's own qty (the order the live
+    engine would place). admit_book takes a single qty; the runner book carries per-trade
+    qty, so we gate per trade here through the same lib authority (one decision per trade)."""
+    if not enforce_cap:
+        return list(trades)
+    return [
+        t for t in trades
+        if cap_allows(account, equity, int(t.qty), float(t.entry_premium))
+    ]

@@ -1,0 +1,14 @@
+{"date": "2025-05-15", "price": 554.02, "source": "round", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-05-15", "price": 561.72, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-05-15", "price": 564.14, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-05-15", "price": 581.475, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-05-15", "price": 584.86, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-05-15", "price": 585.0, "source": "round", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-05-15", "price": 585.545, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.575, "false_break": true}
+{"date": "2025-05-15", "price": 586.0, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.9, "false_break": false}
+{"date": "2025-05-15", "price": 586.13, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.03, "false_break": false}
+{"date": "2025-05-15", "price": 587.177053528631, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.677, "false_break": false}
+{"date": "2025-05-15", "price": 587.3372174113683, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.207, "false_break": false}
+{"date": "2025-05-15", "price": 587.45, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.32, "false_break": false}
+{"date": "2025-05-15", "price": 588.965, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.355, "false_break": false}
+{"date": "2025-05-15", "price": 589.04, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.43, "false_break": false}

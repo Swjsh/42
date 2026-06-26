@@ -1,0 +1,48 @@
+{
+  "study": "AGG no_trade_window sweep",
+  "date": "2026-06-17",
+  "motivation": "SAFE ENFORCED-4 found 11:30-12:00 AUTO-RATIFY (WF=247.282). Testing if AGG (ITM-2) shows same structural pattern.",
+  "baseline": {
+    "is_n": 129,
+    "is_pnl": 19885.14,
+    "oos_n": 21,
+    "oos_pnl": 2959.63
+  },
+  "results": [
+    {
+      "window": "11:30-12:00 (early lunch zone)",
+      "is_delta": -261.27,
+      "oos_delta": 0.0,
+      "verdict": "REJECT_L155"
+    },
+    {
+      "window": "15:00-15:30 (late gamma zone)",
+      "win_start": "15:00:00",
+      "win_end": "15:30:00",
+      "dropped_is": 7,
+      "dropped_oos": 0,
+      "is_n": 122,
+      "oos_n": 21,
+      "is_pnl": 19902.68,
+      "oos_pnl": 2959.63,
+      "is_delta": 17.54,
+      "oos_delta": 0.0,
+      "wf_norm": 0.0,
+      "sw_hurt": 0,
+      "anchor": "PASS",
+      "verdict": "REJECT"
+    },
+    {
+      "window": "11:30-13:00 (full lunch zone)",
+      "is_delta": -3017.98,
+      "oos_delta": -1.6,
+      "verdict": "REJECT_L155"
+    },
+    {
+      "window": "11:00-12:00 (pre+early lunch)",
+      "is_delta": -8735.11,
+      "oos_delta": 435.89,
+      "verdict": "REJECT_L155"
+    }
+  ]
+}

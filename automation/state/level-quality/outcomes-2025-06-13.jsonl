@@ -1,0 +1,13 @@
+{"date": "2025-06-13", "price": 589.3, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-06-13", "price": 596.91, "source": "multi_day", "touched": true, "outcome": "RESPECT", "reaction_dollars": 2.44, "false_break": false}
+{"date": "2025-06-13", "price": 597.0, "source": "round", "touched": true, "outcome": "BREAK", "reaction_dollars": 2.12, "false_break": true}
+{"date": "2025-06-13", "price": 597.9, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.12, "false_break": false}
+{"date": "2025-06-13", "price": 598.0, "source": "round", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.02, "false_break": false}
+{"date": "2025-06-13", "price": 598.78, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.9, "false_break": true}
+{"date": "2025-06-13", "price": 598.975, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.095, "false_break": true}
+{"date": "2025-06-13", "price": 599.57, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.69, "false_break": true}
+{"date": "2025-06-13", "price": 599.75, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.87, "false_break": true}
+{"date": "2025-06-13", "price": 603.063007432317, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-06-13", "price": 603.4, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-06-13", "price": 603.72, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-06-13", "price": 605.04, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}

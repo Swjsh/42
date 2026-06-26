@@ -1,0 +1,33 @@
+{
+  "tick_time": "2026-06-17T15:30:02",
+  "instrument": "MNQ",
+  "price": 30171.0,
+  "vix_pending": "quote_get returned MNQ data (VIX query issue)",
+  "ribbon": "unknown",
+  "last_3_bars": [
+    {"time": "15:23 ET", "open": 30289.75, "high": 30370.25, "low": 30201.25, "close": 30354.25, "vol": 40169},
+    {"time": "15:28 ET", "open": 30353.5, "high": 30361.75, "low": 30217.25, "close": 30218.25, "vol": 34133},
+    {"time": "15:33 ET", "open": 30219.5, "high": 30222.75, "low": 30170.5, "close": 30171.0, "vol": 7924}
+  ],
+  "bar_trend": "DOWN (30354.25 → 30171, -183 pts over 2 bars)",
+  "action": "HOLD_FLAT",
+  "reason": "EOD final window (15:50 hard close in 20 min). Position flat. No key levels from premarket (futures-premarket.py pending). WATCH_ONLY mode. Approaching forced close time.",
+  "position": {
+    "side": "flat",
+    "qty": 0,
+    "entry_price": null
+  },
+  "account": {
+    "equity": 25000.0,
+    "daily_pnl": 0.0,
+    "floor": 24000.0
+  },
+  "status": "WATCH_ONLY",
+  "implementation_status": "futures-heartbeat tick executed; watcher signal integration pending",
+  "blockers": [
+    "VIX quote_get returned MNQ instead of VIX",
+    "Key levels missing (futures-premarket.py not implemented)",
+    "Watcher signal logic requires strategy_config_v3 integration",
+    "Tastytrade broker connection module not yet invoked"
+  ]
+}

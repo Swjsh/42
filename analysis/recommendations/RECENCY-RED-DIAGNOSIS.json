@@ -1,0 +1,1327 @@
+{
+  "diagnosis": "RECENCY-RED \u2014 is edge #1 vwap_continuation's RED 25-window variance / regime / decay?",
+  "run_date": "2026-06-21",
+  "edge": "vwap_continuation",
+  "tiers": [
+    "ATM",
+    "ITM-2"
+  ],
+  "opra_cache_last": "2026-06-18",
+  "recent_window": "2026-05-14..2026-06-18",
+  "recent_lookback_trading_days": 25,
+  "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1); detector + sim REUSED byte-for-byte from recency_check / _edgehunt_vwap_continuation",
+  "bootstrap": {
+    "n_iter": 20000,
+    "seed": 20260621
+  },
+  "per_tier": {
+    "ATM": {
+      "strike_offset": 0,
+      "coverage": {
+        "signals": 167,
+        "filled": 157,
+        "cache_miss": 10,
+        "sim_none": 0,
+        "fill_rate": 0.94
+      },
+      "full": {
+        "window": "2025-01-02..2026-06-18",
+        "n": 157,
+        "wr_pct": 49.7,
+        "exp_per_trade": 45.01,
+        "total_dollar": 7065.96,
+        "std_per_trade": 116.0
+      },
+      "full_oos_2026": {
+        "window": "2026-01-01..2026-06-18",
+        "n": 50,
+        "wr_pct": 46.0,
+        "exp_per_trade": 47.55,
+        "total_dollar": 2377.28,
+        "std_per_trade": 120.09
+      },
+      "recent": {
+        "window": "2026-05-14..2026-06-18",
+        "n": 10,
+        "wr_pct": 10.0,
+        "exp_per_trade": -22.46,
+        "total_dollar": -224.64,
+        "std_per_trade": 51.66
+      },
+      "variance_test": {
+        "recent_window_n_trades": 10,
+        "recent_window_exp_per_trade": -22.46,
+        "rolling_25trade_windows": {
+          "win": 25,
+          "n_windows": 133,
+          "frac_red": 0.0376,
+          "frac_red_pct": 3.8,
+          "mean_of_window_means": 44.49,
+          "std_of_window_means": 30.49,
+          "p05": 2.55,
+          "p25": 16.31,
+          "p50": 39.08,
+          "p75": 70.04,
+          "p95": 93.91,
+          "min": -8.26,
+          "max": 108.3
+        },
+        "bootstrap_iid": {
+          "win": 10,
+          "n_boot": 20000,
+          "frac_red": 0.0961,
+          "frac_red_pct": 9.6,
+          "mean": 45.27,
+          "std": 36.59,
+          "p05": -9.97,
+          "p50": 42.61,
+          "p95": 109.53
+        },
+        "current_window": {
+          "exp_per_trade": -22.46,
+          "percentile_in_rolling": 0.0,
+          "zscore_in_rolling": -2.2,
+          "percentile_in_bootstrap": 1.9,
+          "zscore_in_bootstrap": -1.85
+        },
+        "normal_variance": false,
+        "interpretation": "3.8% of all rolling 25-trade windows are RED; current window per-trade $-22.46 sits at the 0.0th pct (z=-2.2) of the rolling distribution. BEYOND ~2 sigma -> unusually bad even for this high-variance edge (lean toward regime/decay)."
+      },
+      "regime_check": {
+        "recent_trades_n": 10,
+        "full_winners_n": 78,
+        "features": {
+          "spy_20d_trend_pct_causal": {
+            "recent": {
+              "n": 10,
+              "mean": 4.451,
+              "median": 5.367,
+              "p25": 4.325,
+              "p75": 5.994,
+              "min": -0.858,
+              "max": 6.632
+            },
+            "full_winners": {
+              "n": 71,
+              "mean": 1.676,
+              "median": 1.686,
+              "p25": -0.33,
+              "p75": 3.046,
+              "min": -7.201,
+              "max": 11.994
+            }
+          },
+          "realized_vol_of_day_bp": {
+            "recent": {
+              "n": 10,
+              "mean": 5.804,
+              "median": 5.075,
+              "p25": 4.822,
+              "p75": 6.025,
+              "min": 4.35,
+              "max": 10.04
+            },
+            "full_winners": {
+              "n": 78,
+              "mean": 7.217,
+              "median": 6.055,
+              "p25": 4.388,
+              "p75": 9.262,
+              "min": 2.6,
+              "max": 38.66
+            }
+          },
+          "entry_vix_level": {
+            "recent": {
+              "n": 10,
+              "mean": 16.875,
+              "median": 16.735,
+              "p25": 16.12,
+              "p75": 17.777,
+              "min": 15.13,
+              "max": 18.62
+            },
+            "full_winners": {
+              "n": 78,
+              "mean": 18.527,
+              "median": 17.415,
+              "p25": 16.303,
+              "p75": 18.902,
+              "min": 14.07,
+              "max": 36.85
+            }
+          },
+          "entry_vix_slope_5bar": {
+            "recent": {
+              "n": 10,
+              "mean": -0.006,
+              "median": -0.03,
+              "p25": -0.087,
+              "p75": 0.18,
+              "min": -0.41,
+              "max": 0.31
+            },
+            "full_winners": {
+              "n": 78,
+              "mean": -0.094,
+              "median": 0.0,
+              "p25": -0.172,
+              "p75": 0.0,
+              "min": -2.65,
+              "max": 1.91
+            }
+          },
+          "day_followthrough_pct": {
+            "recent": {
+              "n": 10,
+              "mean": 0.075,
+              "median": 0.044,
+              "p25": -0.151,
+              "p75": 0.362,
+              "min": -0.522,
+              "max": 0.596
+            },
+            "full_winners": {
+              "n": 78,
+              "mean": 0.082,
+              "median": 0.126,
+              "p25": -0.34,
+              "p75": 0.583,
+              "min": -1.67,
+              "max": 1.363
+            }
+          }
+        },
+        "day_label_mix": {
+          "recent": {
+            "CHOP": 4,
+            "MIXED": 1,
+            "TREND": 5
+          },
+          "full_winners": {
+            "CHOP": 20,
+            "MIXED": 17,
+            "TREND": 41
+          }
+        },
+        "side_mix": {
+          "recent": {
+            "C": 5,
+            "P": 5
+          },
+          "full_winners": {
+            "C": 44,
+            "P": 34
+          }
+        },
+        "signature_notes": [
+          "spy_20d_trend_pct_causal: recent median 5.367 is OUTSIDE winners' IQR [-0.33, 3.046] (winners median 1.686) -> possible signature",
+          "realized_vol_of_day_bp: recent median 5.075 within winners' IQR [4.388, 9.262] -> no clear signature",
+          "entry_vix_level: recent median 16.735 within winners' IQR [16.303, 18.902] -> no clear signature",
+          "entry_vix_slope_5bar: recent median -0.03 within winners' IQR [-0.172, 0.0] -> no clear signature",
+          "day_followthrough_pct: recent median 0.044 within winners' IQR [-0.34, 0.583] -> no clear signature"
+        ]
+      },
+      "decay_check": {
+        "n_points": 64,
+        "ols_slope_per_step": 0.221,
+        "pearson_r_time": 0.138,
+        "spearman_r_time": 0.132,
+        "first_half_mean_exp": 32.24,
+        "second_half_mean_exp": 54.79,
+        "monotonic_decay": false,
+        "verdict": "DISCRETE_DRAWDOWN_STATIONARY",
+        "rolling_90d_series": [
+          {
+            "anchor": "2025-04-02",
+            "n": 25,
+            "exp_per_trade": 81.4,
+            "total": 2035.0
+          },
+          {
+            "anchor": "2025-04-09",
+            "n": 25,
+            "exp_per_trade": 70.1,
+            "total": 1752.52
+          },
+          {
+            "anchor": "2025-04-16",
+            "n": 27,
+            "exp_per_trade": 73.57,
+            "total": 1986.52
+          },
+          {
+            "anchor": "2025-04-23",
+            "n": 27,
+            "exp_per_trade": 83.54,
+            "total": 2255.48
+          },
+          {
+            "anchor": "2025-04-30",
+            "n": 25,
+            "exp_per_trade": 64.33,
+            "total": 1608.2
+          },
+          {
+            "anchor": "2025-05-07",
+            "n": 24,
+            "exp_per_trade": 68.91,
+            "total": 1653.8
+          },
+          {
+            "anchor": "2025-05-14",
+            "n": 23,
+            "exp_per_trade": 62.24,
+            "total": 1431.56
+          },
+          {
+            "anchor": "2025-05-21",
+            "n": 25,
+            "exp_per_trade": 54.38,
+            "total": 1359.44
+          },
+          {
+            "anchor": "2025-05-28",
+            "n": 23,
+            "exp_per_trade": 41.7,
+            "total": 959.2
+          },
+          {
+            "anchor": "2025-06-04",
+            "n": 24,
+            "exp_per_trade": 30.24,
+            "total": 725.68
+          },
+          {
+            "anchor": "2025-06-11",
+            "n": 25,
+            "exp_per_trade": 26.64,
+            "total": 665.92
+          },
+          {
+            "anchor": "2025-06-18",
+            "n": 22,
+            "exp_per_trade": 27.31,
+            "total": 600.88
+          },
+          {
+            "anchor": "2025-06-25",
+            "n": 22,
+            "exp_per_trade": 27.63,
+            "total": 607.84
+          },
+          {
+            "anchor": "2025-07-02",
+            "n": 22,
+            "exp_per_trade": 33.92,
+            "total": 746.2
+          },
+          {
+            "anchor": "2025-07-09",
+            "n": 22,
+            "exp_per_trade": 32.38,
+            "total": 712.4
+          },
+          {
+            "anchor": "2025-07-16",
+            "n": 22,
+            "exp_per_trade": 36.24,
+            "total": 797.36
+          },
+          {
+            "anchor": "2025-07-23",
+            "n": 23,
+            "exp_per_trade": 17.39,
+            "total": 399.88
+          },
+          {
+            "anchor": "2025-07-30",
+            "n": 25,
+            "exp_per_trade": 19.32,
+            "total": 483.04
+          },
+          {
+            "anchor": "2025-08-06",
+            "n": 25,
+            "exp_per_trade": 16.0,
+            "total": 399.88
+          },
+          {
+            "anchor": "2025-08-13",
+            "n": 24,
+            "exp_per_trade": 6.25,
+            "total": 149.92
+          },
+          {
+            "anchor": "2025-08-20",
+            "n": 25,
+            "exp_per_trade": 9.49,
+            "total": 237.28
+          },
+          {
+            "anchor": "2025-08-27",
+            "n": 26,
+            "exp_per_trade": 13.26,
+            "total": 344.8
+          },
+          {
+            "anchor": "2025-09-03",
+            "n": 25,
+            "exp_per_trade": 10.2,
+            "total": 255.04
+          },
+          {
+            "anchor": "2025-09-10",
+            "n": 25,
+            "exp_per_trade": 10.27,
+            "total": 256.72
+          },
+          {
+            "anchor": "2025-09-17",
+            "n": 26,
+            "exp_per_trade": 14.19,
+            "total": 368.92
+          },
+          {
+            "anchor": "2025-09-24",
+            "n": 25,
+            "exp_per_trade": 15.82,
+            "total": 395.56
+          },
+          {
+            "anchor": "2025-10-01",
+            "n": 26,
+            "exp_per_trade": 10.61,
+            "total": 275.88
+          },
+          {
+            "anchor": "2025-10-08",
+            "n": 26,
+            "exp_per_trade": 14.04,
+            "total": 365.04
+          },
+          {
+            "anchor": "2025-10-15",
+            "n": 26,
+            "exp_per_trade": 17.8,
+            "total": 462.92
+          },
+          {
+            "anchor": "2025-10-22",
+            "n": 25,
+            "exp_per_trade": 16.04,
+            "total": 401.0
+          },
+          {
+            "anchor": "2025-10-29",
+            "n": 26,
+            "exp_per_trade": 12.58,
+            "total": 327.08
+          },
+          {
+            "anchor": "2025-11-05",
+            "n": 27,
+            "exp_per_trade": 13.96,
+            "total": 377.0
+          },
+          {
+            "anchor": "2025-11-12",
+            "n": 27,
+            "exp_per_trade": 21.84,
+            "total": 589.64
+          },
+          {
+            "anchor": "2025-11-19",
+            "n": 27,
+            "exp_per_trade": 33.88,
+            "total": 914.8
+          },
+          {
+            "anchor": "2025-11-26",
+            "n": 28,
+            "exp_per_trade": 27.91,
+            "total": 781.48
+          },
+          {
+            "anchor": "2025-12-03",
+            "n": 26,
+            "exp_per_trade": 27.95,
+            "total": 726.76
+          },
+          {
+            "anchor": "2025-12-10",
+            "n": 27,
+            "exp_per_trade": 42.35,
+            "total": 1143.44
+          },
+          {
+            "anchor": "2025-12-17",
+            "n": 28,
+            "exp_per_trade": 43.42,
+            "total": 1215.68
+          },
+          {
+            "anchor": "2025-12-24",
+            "n": 30,
+            "exp_per_trade": 43.75,
+            "total": 1312.36
+          },
+          {
+            "anchor": "2025-12-31",
+            "n": 32,
+            "exp_per_trade": 45.18,
+            "total": 1445.8
+          },
+          {
+            "anchor": "2026-01-07",
+            "n": 29,
+            "exp_per_trade": 43.86,
+            "total": 1271.96
+          },
+          {
+            "anchor": "2026-01-14",
+            "n": 30,
+            "exp_per_trade": 49.45,
+            "total": 1483.52
+          },
+          {
+            "anchor": "2026-01-21",
+            "n": 30,
+            "exp_per_trade": 55.1,
+            "total": 1652.96
+          },
+          {
+            "anchor": "2026-01-28",
+            "n": 27,
+            "exp_per_trade": 68.81,
+            "total": 1857.76
+          },
+          {
+            "anchor": "2026-02-04",
+            "n": 28,
+            "exp_per_trade": 80.23,
+            "total": 2246.32
+          },
+          {
+            "anchor": "2026-02-11",
+            "n": 30,
+            "exp_per_trade": 83.63,
+            "total": 2509.0
+          },
+          {
+            "anchor": "2026-02-18",
+            "n": 29,
+            "exp_per_trade": 82.0,
+            "total": 2378.0
+          },
+          {
+            "anchor": "2026-02-25",
+            "n": 29,
+            "exp_per_trade": 98.02,
+            "total": 2842.52
+          },
+          {
+            "anchor": "2026-03-04",
+            "n": 31,
+            "exp_per_trade": 101.77,
+            "total": 3154.92
+          },
+          {
+            "anchor": "2026-03-11",
+            "n": 31,
+            "exp_per_trade": 100.17,
+            "total": 3105.32
+          },
+          {
+            "anchor": "2026-03-18",
+            "n": 31,
+            "exp_per_trade": 83.36,
+            "total": 2584.04
+          },
+          {
+            "anchor": "2026-03-25",
+            "n": 29,
+            "exp_per_trade": 84.71,
+            "total": 2456.64
+          },
+          {
+            "anchor": "2026-04-01",
+            "n": 26,
+            "exp_per_trade": 89.01,
+            "total": 2314.32
+          },
+          {
+            "anchor": "2026-04-08",
+            "n": 27,
+            "exp_per_trade": 82.81,
+            "total": 2235.84
+          },
+          {
+            "anchor": "2026-04-15",
+            "n": 27,
+            "exp_per_trade": 74.45,
+            "total": 2010.24
+          },
+          {
+            "anchor": "2026-04-22",
+            "n": 27,
+            "exp_per_trade": 80.86,
+            "total": 2183.24
+          },
+          {
+            "anchor": "2026-04-29",
+            "n": 26,
+            "exp_per_trade": 65.44,
+            "total": 1701.44
+          },
+          {
+            "anchor": "2026-05-06",
+            "n": 28,
+            "exp_per_trade": 67.9,
+            "total": 1901.16
+          },
+          {
+            "anchor": "2026-05-13",
+            "n": 27,
+            "exp_per_trade": 45.83,
+            "total": 1237.44
+          },
+          {
+            "anchor": "2026-05-20",
+            "n": 29,
+            "exp_per_trade": 33.03,
+            "total": 957.96
+          },
+          {
+            "anchor": "2026-05-27",
+            "n": 27,
+            "exp_per_trade": 11.91,
+            "total": 321.44
+          },
+          {
+            "anchor": "2026-06-03",
+            "n": 30,
+            "exp_per_trade": 0.81,
+            "total": 24.2
+          },
+          {
+            "anchor": "2026-06-10",
+            "n": 28,
+            "exp_per_trade": -11.29,
+            "total": -316.0
+          },
+          {
+            "anchor": "2026-06-17",
+            "n": 24,
+            "exp_per_trade": -4.92,
+            "total": -118.0
+          }
+        ]
+      }
+    },
+    "ITM-2": {
+      "strike_offset": -2,
+      "coverage": {
+        "signals": 167,
+        "filled": 158,
+        "cache_miss": 9,
+        "sim_none": 0,
+        "fill_rate": 0.946
+      },
+      "full": {
+        "window": "2025-01-02..2026-06-18",
+        "n": 158,
+        "wr_pct": 48.7,
+        "exp_per_trade": 69.53,
+        "total_dollar": 10986.12,
+        "std_per_trade": 171.45
+      },
+      "full_oos_2026": {
+        "window": "2026-01-01..2026-06-18",
+        "n": 51,
+        "wr_pct": 45.1,
+        "exp_per_trade": 73.66,
+        "total_dollar": 3756.72,
+        "std_per_trade": 181.73
+      },
+      "recent": {
+        "window": "2026-05-14..2026-06-18",
+        "n": 11,
+        "wr_pct": 0.0,
+        "exp_per_trade": -75.27,
+        "total_dollar": -828.0,
+        "std_per_trade": 25.4
+      },
+      "variance_test": {
+        "recent_window_n_trades": 11,
+        "recent_window_exp_per_trade": -75.27,
+        "rolling_25trade_windows": {
+          "win": 25,
+          "n_windows": 134,
+          "frac_red": 0.0522,
+          "frac_red_pct": 5.2,
+          "mean_of_window_means": 75.75,
+          "std_of_window_means": 62.14,
+          "p05": -1.05,
+          "p25": 33.69,
+          "p50": 52.22,
+          "p75": 111.95,
+          "p95": 197.95,
+          "min": -15.7,
+          "max": 222.39
+        },
+        "bootstrap_iid": {
+          "win": 11,
+          "n_boot": 20000,
+          "frac_red": 0.0843,
+          "frac_red_pct": 8.4,
+          "mean": 69.03,
+          "std": 51.39,
+          "p05": -12.43,
+          "p50": 67.23,
+          "p95": 157.09
+        },
+        "current_window": {
+          "exp_per_trade": -75.27,
+          "percentile_in_rolling": 0.0,
+          "zscore_in_rolling": -2.43,
+          "percentile_in_bootstrap": 0.0,
+          "zscore_in_bootstrap": -2.81
+        },
+        "normal_variance": false,
+        "interpretation": "5.2% of all rolling 25-trade windows are RED; current window per-trade $-75.27 sits at the 0.0th pct (z=-2.43) of the rolling distribution. BEYOND ~2 sigma -> unusually bad even for this high-variance edge (lean toward regime/decay)."
+      },
+      "regime_check": {
+        "recent_trades_n": 11,
+        "full_winners_n": 77,
+        "features": {
+          "spy_20d_trend_pct_causal": {
+            "recent": {
+              "n": 11,
+              "mean": 3.896,
+              "median": 5.344,
+              "p25": 2.505,
+              "p75": 5.917,
+              "min": -1.647,
+              "max": 6.632
+            },
+            "full_winners": {
+              "n": 71,
+              "mean": 1.857,
+              "median": 1.764,
+              "p25": -0.33,
+              "p75": 3.753,
+              "min": -7.201,
+              "max": 12.303
+            }
+          },
+          "realized_vol_of_day_bp": {
+            "recent": {
+              "n": 11,
+              "mean": 6.752,
+              "median": 5.14,
+              "p25": 4.865,
+              "p75": 6.72,
+              "min": 4.35,
+              "max": 16.23
+            },
+            "full_winners": {
+              "n": 77,
+              "mean": 7.075,
+              "median": 5.6,
+              "p25": 4.08,
+              "p75": 9.24,
+              "min": 2.6,
+              "max": 38.66
+            }
+          },
+          "entry_vix_level": {
+            "recent": {
+              "n": 11,
+              "mean": 17.289,
+              "median": 16.91,
+              "p25": 16.17,
+              "p75": 18.225,
+              "min": 15.13,
+              "max": 21.43
+            },
+            "full_winners": {
+              "n": 77,
+              "mean": 18.522,
+              "median": 17.44,
+              "p25": 16.26,
+              "p75": 18.91,
+              "min": 14.07,
+              "max": 36.85
+            }
+          },
+          "entry_vix_slope_5bar": {
+            "recent": {
+              "n": 11,
+              "mean": 0.018,
+              "median": 0.0,
+              "p25": -0.085,
+              "p75": 0.23,
+              "min": -0.41,
+              "max": 0.31
+            },
+            "full_winners": {
+              "n": 77,
+              "mean": -0.103,
+              "median": 0.0,
+              "p25": -0.22,
+              "p75": 0.0,
+              "min": -2.65,
+              "max": 1.91
+            }
+          },
+          "day_followthrough_pct": {
+            "recent": {
+              "n": 11,
+              "mean": 0.179,
+              "median": 0.066,
+              "p25": -0.13,
+              "p75": 0.496,
+              "min": -0.522,
+              "max": 1.219
+            },
+            "full_winners": {
+              "n": 77,
+              "mean": 0.119,
+              "median": 0.273,
+              "p25": -0.346,
+              "p75": 0.601,
+              "min": -1.419,
+              "max": 1.363
+            }
+          }
+        },
+        "day_label_mix": {
+          "recent": {
+            "CHOP": 4,
+            "MIXED": 1,
+            "TREND": 6
+          },
+          "full_winners": {
+            "CHOP": 17,
+            "MIXED": 17,
+            "TREND": 43
+          }
+        },
+        "side_mix": {
+          "recent": {
+            "C": 5,
+            "P": 6
+          },
+          "full_winners": {
+            "C": 44,
+            "P": 33
+          }
+        },
+        "signature_notes": [
+          "spy_20d_trend_pct_causal: recent median 5.344 is OUTSIDE winners' IQR [-0.33, 3.753] (winners median 1.764) -> possible signature",
+          "realized_vol_of_day_bp: recent median 5.14 within winners' IQR [4.08, 9.24] -> no clear signature",
+          "entry_vix_level: recent median 16.91 within winners' IQR [16.26, 18.91] -> no clear signature",
+          "entry_vix_slope_5bar: recent median 0.0 within winners' IQR [-0.22, 0.0] -> no clear signature",
+          "day_followthrough_pct: recent median 0.066 within winners' IQR [-0.346, 0.601] -> no clear signature"
+        ]
+      },
+      "decay_check": {
+        "n_points": 64,
+        "ols_slope_per_step": 1.419,
+        "pearson_r_time": 0.45,
+        "spearman_r_time": 0.37,
+        "first_half_mean_exp": 38.4,
+        "second_half_mean_exp": 108.52,
+        "monotonic_decay": false,
+        "verdict": "DISCRETE_DRAWDOWN_STATIONARY",
+        "rolling_90d_series": [
+          {
+            "anchor": "2025-04-02",
+            "n": 25,
+            "exp_per_trade": 74.91,
+            "total": 1872.64
+          },
+          {
+            "anchor": "2025-04-09",
+            "n": 25,
+            "exp_per_trade": 60.73,
+            "total": 1518.16
+          },
+          {
+            "anchor": "2025-04-16",
+            "n": 27,
+            "exp_per_trade": 64.85,
+            "total": 1750.96
+          },
+          {
+            "anchor": "2025-04-23",
+            "n": 27,
+            "exp_per_trade": 73.48,
+            "total": 1983.92
+          },
+          {
+            "anchor": "2025-04-30",
+            "n": 25,
+            "exp_per_trade": 51.61,
+            "total": 1290.2
+          },
+          {
+            "anchor": "2025-05-07",
+            "n": 24,
+            "exp_per_trade": 53.71,
+            "total": 1289.16
+          },
+          {
+            "anchor": "2025-05-14",
+            "n": 23,
+            "exp_per_trade": 44.8,
+            "total": 1030.4
+          },
+          {
+            "anchor": "2025-05-21",
+            "n": 25,
+            "exp_per_trade": 38.57,
+            "total": 964.28
+          },
+          {
+            "anchor": "2025-05-28",
+            "n": 24,
+            "exp_per_trade": 41.81,
+            "total": 1003.4
+          },
+          {
+            "anchor": "2025-06-04",
+            "n": 25,
+            "exp_per_trade": 27.26,
+            "total": 681.56
+          },
+          {
+            "anchor": "2025-06-11",
+            "n": 26,
+            "exp_per_trade": 22.85,
+            "total": 594.0
+          },
+          {
+            "anchor": "2025-06-18",
+            "n": 23,
+            "exp_per_trade": 23.45,
+            "total": 539.4
+          },
+          {
+            "anchor": "2025-06-25",
+            "n": 23,
+            "exp_per_trade": 23.25,
+            "total": 534.84
+          },
+          {
+            "anchor": "2025-07-02",
+            "n": 22,
+            "exp_per_trade": 42.33,
+            "total": 931.2
+          },
+          {
+            "anchor": "2025-07-09",
+            "n": 22,
+            "exp_per_trade": 46.07,
+            "total": 1013.48
+          },
+          {
+            "anchor": "2025-07-16",
+            "n": 22,
+            "exp_per_trade": 52.67,
+            "total": 1158.68
+          },
+          {
+            "anchor": "2025-07-23",
+            "n": 23,
+            "exp_per_trade": 34.09,
+            "total": 784.12
+          },
+          {
+            "anchor": "2025-07-30",
+            "n": 25,
+            "exp_per_trade": 27.52,
+            "total": 688.12
+          },
+          {
+            "anchor": "2025-08-06",
+            "n": 25,
+            "exp_per_trade": 23.18,
+            "total": 579.52
+          },
+          {
+            "anchor": "2025-08-13",
+            "n": 24,
+            "exp_per_trade": 7.01,
+            "total": 168.32
+          },
+          {
+            "anchor": "2025-08-20",
+            "n": 25,
+            "exp_per_trade": 10.17,
+            "total": 254.36
+          },
+          {
+            "anchor": "2025-08-27",
+            "n": 26,
+            "exp_per_trade": 21.22,
+            "total": 551.6
+          },
+          {
+            "anchor": "2025-09-03",
+            "n": 25,
+            "exp_per_trade": 25.37,
+            "total": 634.28
+          },
+          {
+            "anchor": "2025-09-10",
+            "n": 25,
+            "exp_per_trade": 25.27,
+            "total": 631.64
+          },
+          {
+            "anchor": "2025-09-17",
+            "n": 26,
+            "exp_per_trade": 30.8,
+            "total": 800.84
+          },
+          {
+            "anchor": "2025-09-24",
+            "n": 25,
+            "exp_per_trade": 34.65,
+            "total": 866.36
+          },
+          {
+            "anchor": "2025-10-01",
+            "n": 26,
+            "exp_per_trade": 33.06,
+            "total": 859.52
+          },
+          {
+            "anchor": "2025-10-08",
+            "n": 26,
+            "exp_per_trade": 37.8,
+            "total": 982.88
+          },
+          {
+            "anchor": "2025-10-15",
+            "n": 26,
+            "exp_per_trade": 49.42,
+            "total": 1284.96
+          },
+          {
+            "anchor": "2025-10-22",
+            "n": 25,
+            "exp_per_trade": 45.26,
+            "total": 1131.48
+          },
+          {
+            "anchor": "2025-10-29",
+            "n": 26,
+            "exp_per_trade": 39.52,
+            "total": 1027.56
+          },
+          {
+            "anchor": "2025-11-05",
+            "n": 27,
+            "exp_per_trade": 42.23,
+            "total": 1140.12
+          },
+          {
+            "anchor": "2025-11-12",
+            "n": 27,
+            "exp_per_trade": 54.58,
+            "total": 1473.6
+          },
+          {
+            "anchor": "2025-11-19",
+            "n": 27,
+            "exp_per_trade": 69.28,
+            "total": 1870.6
+          },
+          {
+            "anchor": "2025-11-26",
+            "n": 28,
+            "exp_per_trade": 56.31,
+            "total": 1576.6
+          },
+          {
+            "anchor": "2025-12-03",
+            "n": 26,
+            "exp_per_trade": 50.39,
+            "total": 1310.2
+          },
+          {
+            "anchor": "2025-12-10",
+            "n": 27,
+            "exp_per_trade": 72.34,
+            "total": 1953.2
+          },
+          {
+            "anchor": "2025-12-17",
+            "n": 28,
+            "exp_per_trade": 72.01,
+            "total": 2016.32
+          },
+          {
+            "anchor": "2025-12-24",
+            "n": 30,
+            "exp_per_trade": 96.1,
+            "total": 2883.04
+          },
+          {
+            "anchor": "2025-12-31",
+            "n": 32,
+            "exp_per_trade": 99.71,
+            "total": 3190.84
+          },
+          {
+            "anchor": "2026-01-07",
+            "n": 29,
+            "exp_per_trade": 96.95,
+            "total": 2811.48
+          },
+          {
+            "anchor": "2026-01-14",
+            "n": 30,
+            "exp_per_trade": 105.29,
+            "total": 3158.64
+          },
+          {
+            "anchor": "2026-01-21",
+            "n": 30,
+            "exp_per_trade": 116.09,
+            "total": 3482.64
+          },
+          {
+            "anchor": "2026-01-28",
+            "n": 27,
+            "exp_per_trade": 150.83,
+            "total": 4072.32
+          },
+          {
+            "anchor": "2026-02-04",
+            "n": 28,
+            "exp_per_trade": 165.48,
+            "total": 4633.4
+          },
+          {
+            "anchor": "2026-02-11",
+            "n": 30,
+            "exp_per_trade": 185.8,
+            "total": 5573.96
+          },
+          {
+            "anchor": "2026-02-18",
+            "n": 29,
+            "exp_per_trade": 186.85,
+            "total": 5418.76
+          },
+          {
+            "anchor": "2026-02-25",
+            "n": 29,
+            "exp_per_trade": 203.78,
+            "total": 5909.56
+          },
+          {
+            "anchor": "2026-03-04",
+            "n": 31,
+            "exp_per_trade": 209.19,
+            "total": 6484.76
+          },
+          {
+            "anchor": "2026-03-11",
+            "n": 31,
+            "exp_per_trade": 205.03,
+            "total": 6355.96
+          },
+          {
+            "anchor": "2026-03-18",
+            "n": 31,
+            "exp_per_trade": 182.46,
+            "total": 5656.12
+          },
+          {
+            "anchor": "2026-03-25",
+            "n": 29,
+            "exp_per_trade": 170.95,
+            "total": 4957.52
+          },
+          {
+            "anchor": "2026-04-01",
+            "n": 26,
+            "exp_per_trade": 159.58,
+            "total": 4149.12
+          },
+          {
+            "anchor": "2026-04-08",
+            "n": 27,
+            "exp_per_trade": 149.44,
+            "total": 4034.88
+          },
+          {
+            "anchor": "2026-04-15",
+            "n": 27,
+            "exp_per_trade": 130.48,
+            "total": 3522.96
+          },
+          {
+            "anchor": "2026-04-22",
+            "n": 27,
+            "exp_per_trade": 141.64,
+            "total": 3824.16
+          },
+          {
+            "anchor": "2026-04-29",
+            "n": 26,
+            "exp_per_trade": 117.44,
+            "total": 3053.4
+          },
+          {
+            "anchor": "2026-05-06",
+            "n": 28,
+            "exp_per_trade": 118.62,
+            "total": 3321.4
+          },
+          {
+            "anchor": "2026-05-13",
+            "n": 27,
+            "exp_per_trade": 68.01,
+            "total": 1836.16
+          },
+          {
+            "anchor": "2026-05-20",
+            "n": 29,
+            "exp_per_trade": 49.04,
+            "total": 1422.28
+          },
+          {
+            "anchor": "2026-05-27",
+            "n": 27,
+            "exp_per_trade": 19.39,
+            "total": 523.44
+          },
+          {
+            "anchor": "2026-06-03",
+            "n": 30,
+            "exp_per_trade": 0.58,
+            "total": 17.28
+          },
+          {
+            "anchor": "2026-06-10",
+            "n": 28,
+            "exp_per_trade": -15.56,
+            "total": -435.72
+          },
+          {
+            "anchor": "2026-06-17",
+            "n": 25,
+            "exp_per_trade": -15.57,
+            "total": -389.28
+          }
+        ]
+      }
+    }
+  },
+  "VERDICT": {
+    "verdict": "REGIME_UNFAVORABLE",
+    "reasoning": [
+      "Variance: rolling-25 RED fraction per tier = 3.8%, 5.2%; current-window percentile = 0.0th, 0.0th; z-score = -2.2, -2.43.",
+      "Decay: rolling-90d expectancy verdict per tier = ['DISCRETE_DRAWDOWN_STATIONARY', 'DISCRETE_DRAWDOWN_STATIONARY'].",
+      "Regime: signatures flagged -> spy_20d_trend_pct_causal: recent median 5.367 is OUTSIDE winners' IQR [-0.33, 3.046] (winners median 1.686) -> possible signature | spy_20d_trend_pct_causal: recent median 5.344 is OUTSIDE winners' IQR [-0.33, 3.753] (winners median 1.764) -> possible signature"
+    ],
+    "reentry_guidance": [
+      "PRIMARY: the recency RED is a genuine ~2.2-2.4 sigma TAIL (0th pct, only 3.8%/5.2% of historical rolling-25 windows are RED) with NO monotonic decay (rolling-90d = discrete drawdown in a stationary mean). It is worse than ordinary variance but is NOT alpha death.",
+      "A real, partial regime signature exists: recent losers cluster in a STRETCHED uptrend (SPY 20d causal trend median ~5.3% vs winners IQR top ~3.0-3.8%). It is the only feature that separates (rvol/VIX/side/day-label do not).",
+      "GATEABILITY (A/B on full history, C5/C22 mandatory check): a trend>3% gate HELPS ATM (OOS exp 47.55->73, recent rescued to +45, removed trades only +694) but HURTS ITM-2 (removes +2110 of profit AND recent stays -94). So DO NOT add a blanket trend gate to the live ITM-2/Bold tier \u2014 it is winner-costly there and does not fix the bleed.",
+      "MECHANISM: 9/10 ATM and 11/11 ITM-2 recent losers exited on EXIT_ALL_PREMIUM_STOP (C2/C3 fingerprint). The bleed continued into normal-trend days (06-11/15/18) -> the premium-stop fragility, not just the regime, is doing the damage. This re-confirms the standing doctrine that chart-stops > premium-stops on first-strike entries.",
+      "RE-ENTRY: HOLD capital scaling on #1 until recency_check.py flips it to CONFIRM (recent exp/tr > 0, n >= floor). The gate is working correctly. Do NOT live-flip a blanket regime gate; if anything, the ATM-only trend tilt is a research candidate to A/B further, NOT a ship.",
+      "WATCH: re-run this diagnosis weekly. Escalate to DECAY_CONCERN only if rolling-90d turns monotonically negative over 2+ more windows."
+    ],
+    "per_tier_decay": {
+      "ATM": "DISCRETE_DRAWDOWN_STATIONARY",
+      "ITM-2": "DISCRETE_DRAWDOWN_STATIONARY"
+    },
+    "per_tier_variance_normal": {
+      "ATM": false,
+      "ITM-2": false
+    },
+    "verdict_nuance": "REGIME_UNFAVORABLE (tail-variance + a partial, ATM-only-gateable stretched-uptrend signature) \u2014 NOT decay. The dominant loss mechanism is premium-stop-out (C2/C3), and the regime gate is winner-costly on the worst-bleeding tier (ITM-2), so the honest action is HOLD-and-wait-for-CONFIRM, not gate-and-ship."
+  },
+  "DISCLOSURE": {
+    "real_fills": "real OPRA fills only \u2014 WR authority (C1); SPY-direction != option edge (C3/L58)",
+    "per_trade": "per-trade EXPECTANCY, not WR alone (OP-14)",
+    "small_n": "recent window n is small (25 trading days) \u2014 reported honestly",
+    "causality": "trend20 + entry_vix(+slope) are CAUSAL at entry; rvol + ft_pct/ft_label are whole-day DESCRIPTORS (post-hoc day-character labels, not gates)",
+    "no_new_ship": "RESEARCH ONLY; no live edit, no orders (money-path guard)"
+  },
+  "SUPPLEMENTARY": {
+    "ab_trend_gate": {
+      "description": "A/B: gate out days where SPY 20d causal trend > THRESH; report removed-trade total, OOS-2026 kept exp, recent kept exp. Tests C5/C22 winner-kill risk.",
+      "ATM": {
+        "3.0": {
+          "removed_trades": 54,
+          "removed_total": 694.16,
+          "oos_kept_n": 31,
+          "oos_kept_exp": 73.06,
+          "oos_all_n": 50,
+          "oos_all_exp": 47.55,
+          "recent_kept_n": 2,
+          "recent_kept_exp": 45.0
+        },
+        "4.0": {
+          "removed_trades": 39,
+          "removed_total": 724.68,
+          "oos_kept_n": 32,
+          "oos_kept_exp": 69.96,
+          "recent_kept_n": 2,
+          "recent_kept_exp": 45.0
+        },
+        "4.5": {
+          "removed_trades": 32,
+          "removed_total": 497.12,
+          "oos_kept_n": 33,
+          "oos_kept_exp": 66.7,
+          "recent_kept_n": 3,
+          "recent_kept_exp": 17.44
+        }
+      },
+      "ITM-2": {
+        "3.0": {
+          "removed_trades": 54,
+          "removed_total": 2109.6,
+          "oos_kept_n": 32,
+          "oos_kept_exp": 113.69,
+          "oos_all_n": 51,
+          "oos_all_exp": 73.66,
+          "recent_kept_n": 3,
+          "recent_kept_exp": -94.24
+        },
+        "4.0": {
+          "removed_trades": 39,
+          "removed_total": 1277.08,
+          "oos_kept_n": 33,
+          "oos_kept_exp": 108.49,
+          "recent_kept_n": 3,
+          "recent_kept_exp": -94.24
+        },
+        "4.5": {
+          "removed_trades": 32,
+          "removed_total": 699.32,
+          "oos_kept_n": 34,
+          "oos_kept_exp": 103.48,
+          "recent_kept_n": 4,
+          "recent_kept_exp": -86.16
+        }
+      },
+      "interpretation": "ATM: high-trend gate RAISES OOS exp (47.55->73) and rescues the recent window (recent kept exp +45) while the removed trades net only +694 -> a legitimately helpful filter for ATM. ITM-2: gate raises OOS per-trade exp BUT the removed high-trend days net +2110 (a large slice of total profit) AND the recent kept window STAYS negative (-94) -> on ITM-2 the trend gate is winner-costly (C5/C22 trap) and does NOT explain the recent bleed."
+    },
+    "exit_mechanism": {
+      "description": "Exit reason of every recent-window trade. The loss MECHANISM, not just the regime.",
+      "ATM_recent": "9 of 10 EXIT_ALL_PREMIUM_STOP; the 1 winner ran TP1_THEN_RUNNER_RIBBON (+122.40 on 06-18).",
+      "ITM2_recent": "11 of 11 EXIT_ALL_PREMIUM_STOP (every single recent trade hit the premium stop).",
+      "trend_continuation_into_normal_regime": "The last 3 recent trades (06-11/06-15/06-18) fired in FLAT/normal trend (trend20 -1.65..+0.92) yet ITM-2 still stopped out on all 3 -> the bleed is NOT purely the high-trend regime; the premium-stop-out mechanism (C2/C3) persists into normal-trend days."
+    }
+  }
+}

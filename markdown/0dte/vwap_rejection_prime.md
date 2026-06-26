@@ -1,9 +1,9 @@
 # VWAP_REJECTION_PRIME — Strategy Spec
 
 > Status: **DRAFT — WATCH-ONLY per OP 21**. Backtest pending. Not auto-tradable.
-> Numeric values are NOT canonical here — they live in [`automation/state/params.json`](../automation/state/params.json) once promoted.
-> Hard rules + operating principles inherited from [`CLAUDE.md`](../CLAUDE.md).
-> Mirrors the Setup Template in [`markdown/0dte/playbook.md`](markdown/0dte/playbook.md). Detector mirrors [`backtest/lib/sniper_detector.py`](../backtest/lib/sniper_detector.py). Evaluator pattern from [`backtest/autoresearch/sniper_evaluator.py`](../backtest/autoresearch/sniper_evaluator.py).
+> Numeric values are NOT canonical here — they live in [`automation/state/params.json`](../../automation/state/params.json) once promoted.
+> Hard rules + operating principles inherited from [`CLAUDE.md`](../../CLAUDE.md).
+> Mirrors the Setup Template in [`markdown/0dte/playbook.md`](playbook.md). Detector mirrors [`backtest/lib/sniper_detector.py`](../../backtest/lib/sniper_detector.py). Evaluator pattern from [`backtest/autoresearch/_archive/sniper/sniper_evaluator.py`](../../backtest/autoresearch/_archive/sniper/sniper_evaluator.py).
 
 **Setup name:** VWAP_REJECTION_PRIME
 **Direction:** PUTS (resistance side) or CALLS (support side) — fires both sides symmetrically

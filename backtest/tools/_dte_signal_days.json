@@ -1,0 +1,8082 @@
+{
+  "vwap_continuation": [
+    {
+      "date": "2025-01-02",
+      "side": "P",
+      "atm": 588,
+      "spot": 587.61,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-01-03",
+      "side": "C",
+      "atm": 589,
+      "spot": 589.07,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-01-14",
+      "side": "C",
+      "atm": 584,
+      "spot": 583.82,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-01-17",
+      "side": "P",
+      "atm": 596,
+      "spot": 596.28,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-01-23",
+      "side": "C",
+      "atm": 606,
+      "spot": 606.2,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-01-27",
+      "side": "C",
+      "atm": 598,
+      "spot": 598.02,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-01-28",
+      "side": "P",
+      "atm": 598,
+      "spot": 597.8,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-01-29",
+      "side": "P",
+      "atm": 603,
+      "spot": 602.77,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-02-04",
+      "side": "C",
+      "atm": 599,
+      "spot": 598.93,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-02-05",
+      "side": "C",
+      "atm": 601,
+      "spot": 600.52,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-02-07",
+      "side": "C",
+      "atm": 608,
+      "spot": 607.85,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-02-10",
+      "side": "P",
+      "atm": 603,
+      "spot": 602.95,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-02-11",
+      "side": "C",
+      "atm": 603,
+      "spot": 603.39,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-02-12",
+      "side": "C",
+      "atm": 601,
+      "spot": 601.13,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-02-21",
+      "side": "P",
+      "atm": 609,
+      "spot": 608.96,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-02-24",
+      "side": "P",
+      "atm": 601,
+      "spot": 600.54,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-03-05",
+      "side": "C",
+      "atm": 578,
+      "spot": 578.43,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-03-06",
+      "side": "P",
+      "atm": 574,
+      "spot": 574.44,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-03-07",
+      "side": "C",
+      "atm": 575,
+      "spot": 575.39,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-03-14",
+      "side": "C",
+      "atm": 559,
+      "spot": 559.11,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-03-17",
+      "side": "C",
+      "atm": 566,
+      "spot": 565.88,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-03-18",
+      "side": "P",
+      "atm": 562,
+      "spot": 561.88,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-03-20",
+      "side": "C",
+      "atm": 566,
+      "spot": 565.51,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-03-24",
+      "side": "C",
+      "atm": 573,
+      "spot": 572.58,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-03-25",
+      "side": "P",
+      "atm": 574,
+      "spot": 574.33,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-03-31",
+      "side": "P",
+      "atm": 548,
+      "spot": 547.74,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-04-02",
+      "side": "C",
+      "atm": 559,
+      "spot": 559.16,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-04-04",
+      "side": "P",
+      "atm": 521,
+      "spot": 521.37,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-04-07",
+      "side": "P",
+      "atm": 500,
+      "spot": 499.74,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-04-08",
+      "side": "P",
+      "atm": 519,
+      "spot": 519.36,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-04-09",
+      "side": "C",
+      "atm": 499,
+      "spot": 498.65,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-04-10",
+      "side": "P",
+      "atm": 531,
+      "spot": 530.52,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-04-14",
+      "side": "P",
+      "atm": 541,
+      "spot": 541.21,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-04-15",
+      "side": "C",
+      "atm": 542,
+      "spot": 542.13,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-04-21",
+      "side": "P",
+      "atm": 520,
+      "spot": 519.58,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-04-23",
+      "side": "C",
+      "atm": 544,
+      "spot": 544.14,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-04-24",
+      "side": "C",
+      "atm": 538,
+      "spot": 538.33,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-04-29",
+      "side": "C",
+      "atm": 551,
+      "spot": 551.03,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-04-30",
+      "side": "P",
+      "atm": 544,
+      "spot": 544.21,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-05-06",
+      "side": "C",
+      "atm": 559,
+      "spot": 558.6,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-05-08",
+      "side": "P",
+      "atm": 564,
+      "spot": 563.74,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-05-12",
+      "side": "P",
+      "atm": 579,
+      "spot": 579.2,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-05-13",
+      "side": "C",
+      "atm": 584,
+      "spot": 584.13,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-05-19",
+      "side": "C",
+      "atm": 591,
+      "spot": 590.95,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-05-21",
+      "side": "C",
+      "atm": 590,
+      "spot": 590.14,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-05-29",
+      "side": "P",
+      "atm": 590,
+      "spot": 590.44,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-05-30",
+      "side": "P",
+      "atm": 587,
+      "spot": 587.35,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-06-02",
+      "side": "C",
+      "atm": 588,
+      "spot": 587.83,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-06-05",
+      "side": "P",
+      "atm": 595,
+      "spot": 595.17,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-06-06",
+      "side": "C",
+      "atm": 601,
+      "spot": 600.51,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-06-16",
+      "side": "C",
+      "atm": 602,
+      "spot": 602.14,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-06-24",
+      "side": "C",
+      "atm": 605,
+      "spot": 604.88,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-06-25",
+      "side": "C",
+      "atm": 608,
+      "spot": 608.17,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-06-27",
+      "side": "C",
+      "atm": 614,
+      "spot": 613.82,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-07-03",
+      "side": "C",
+      "atm": 624,
+      "spot": 623.82,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-07-09",
+      "side": "C",
+      "atm": 625,
+      "spot": 624.55,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-07-10",
+      "side": "P",
+      "atm": 624,
+      "spot": 623.57,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-07-15",
+      "side": "P",
+      "atm": 626,
+      "spot": 625.96,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-07-17",
+      "side": "C",
+      "atm": 626,
+      "spot": 625.91,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-07-18",
+      "side": "P",
+      "atm": 629,
+      "spot": 628.68,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-07-21",
+      "side": "C",
+      "atm": 630,
+      "spot": 630.1,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-07-25",
+      "side": "C",
+      "atm": 635,
+      "spot": 635.39,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-07-28",
+      "side": "P",
+      "atm": 637,
+      "spot": 637.23,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-07-30",
+      "side": "C",
+      "atm": 636,
+      "spot": 635.72,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-08-01",
+      "side": "P",
+      "atm": 621,
+      "spot": 621.38,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-08-04",
+      "side": "C",
+      "atm": 628,
+      "spot": 628.36,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-08-13",
+      "side": "C",
+      "atm": 646,
+      "spot": 645.84,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-08-14",
+      "side": "C",
+      "atm": 644,
+      "spot": 643.66,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-08-15",
+      "side": "P",
+      "atm": 644,
+      "spot": 643.93,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-08-20",
+      "side": "P",
+      "atm": 637,
+      "spot": 637.38,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-08-21",
+      "side": "C",
+      "atm": 636,
+      "spot": 636.12,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-08-27",
+      "side": "C",
+      "atm": 645,
+      "spot": 645.42,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-08-29",
+      "side": "P",
+      "atm": 646,
+      "spot": 646.12,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-09-03",
+      "side": "C",
+      "atm": 643,
+      "spot": 642.66,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-09-09",
+      "side": "C",
+      "atm": 649,
+      "spot": 649.04,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-09-16",
+      "side": "P",
+      "atm": 661,
+      "spot": 660.91,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-09-17",
+      "side": "P",
+      "atm": 660,
+      "spot": 659.82,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-09-24",
+      "side": "P",
+      "atm": 663,
+      "spot": 662.97,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-09-25",
+      "side": "P",
+      "atm": 656,
+      "spot": 656.15,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-09-26",
+      "side": "C",
+      "atm": 662,
+      "spot": 661.53,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-10-01",
+      "side": "C",
+      "atm": 665,
+      "spot": 664.53,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-10-03",
+      "side": "C",
+      "atm": 671,
+      "spot": 671.08,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-10-06",
+      "side": "P",
+      "atm": 671,
+      "spot": 670.75,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-10-09",
+      "side": "P",
+      "atm": 673,
+      "spot": 672.96,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-10-10",
+      "side": "C",
+      "atm": 673,
+      "spot": 673.08,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-10-14",
+      "side": "P",
+      "atm": 655,
+      "spot": 654.58,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-10-20",
+      "side": "C",
+      "atm": 669,
+      "spot": 669.24,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-10-23",
+      "side": "C",
+      "atm": 670,
+      "spot": 670.26,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-10-24",
+      "side": "C",
+      "atm": 677,
+      "spot": 676.98,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-10-28",
+      "side": "P",
+      "atm": 686,
+      "spot": 685.66,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-10-29",
+      "side": "C",
+      "atm": 689,
+      "spot": 688.93,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-10-30",
+      "side": "P",
+      "atm": 684,
+      "spot": 683.68,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-10-31",
+      "side": "P",
+      "atm": 683,
+      "spot": 683.41,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-11-03",
+      "side": "P",
+      "atm": 683,
+      "spot": 683.13,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-11-07",
+      "side": "P",
+      "atm": 665,
+      "spot": 664.9,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-11-10",
+      "side": "C",
+      "atm": 679,
+      "spot": 678.56,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-11-13",
+      "side": "P",
+      "atm": 678,
+      "spot": 678.17,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-11-17",
+      "side": "C",
+      "atm": 673,
+      "spot": 672.8,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-11-19",
+      "side": "C",
+      "atm": 664,
+      "spot": 663.54,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-11-20",
+      "side": "C",
+      "atm": 674,
+      "spot": 674.1,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-11-21",
+      "side": "P",
+      "atm": 654,
+      "spot": 654.5,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-11-26",
+      "side": "C",
+      "atm": 679,
+      "spot": 679.32,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-12-08",
+      "side": "P",
+      "atm": 686,
+      "spot": 685.52,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-12-09",
+      "side": "C",
+      "atm": 684,
+      "spot": 684.06,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-12-15",
+      "side": "P",
+      "atm": 684,
+      "spot": 683.58,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-12-16",
+      "side": "P",
+      "atm": 679,
+      "spot": 679.48,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-12-17",
+      "side": "P",
+      "atm": 678,
+      "spot": 678.49,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-12-18",
+      "side": "P",
+      "atm": 676,
+      "spot": 676.19,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-12-19",
+      "side": "C",
+      "atm": 679,
+      "spot": 678.96,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-12-22",
+      "side": "P",
+      "atm": 683,
+      "spot": 683.41,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-12-23",
+      "side": "C",
+      "atm": 686,
+      "spot": 685.93,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-12-26",
+      "side": "C",
+      "atm": 691,
+      "spot": 691.24,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2025-12-29",
+      "side": "C",
+      "atm": 688,
+      "spot": 687.98,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-12-30",
+      "side": "P",
+      "atm": 687,
+      "spot": 687.49,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2025-12-31",
+      "side": "P",
+      "atm": 686,
+      "spot": 685.59,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-01-08",
+      "side": "P",
+      "atm": 688,
+      "spot": 688.23,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-01-12",
+      "side": "C",
+      "atm": 693,
+      "spot": 693.0,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-01-15",
+      "side": "P",
+      "atm": 694,
+      "spot": 694.19,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-01-20",
+      "side": "C",
+      "atm": 683,
+      "spot": 683.02,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-01-26",
+      "side": "C",
+      "atm": 692,
+      "spot": 692.18,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-01-29",
+      "side": "P",
+      "atm": 694,
+      "spot": 693.59,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-02-02",
+      "side": "C",
+      "atm": 693,
+      "spot": 692.85,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-02-03",
+      "side": "P",
+      "atm": 695,
+      "spot": 695.12,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-02-05",
+      "side": "C",
+      "atm": 683,
+      "spot": 682.86,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-02-06",
+      "side": "C",
+      "atm": 686,
+      "spot": 685.55,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-02-09",
+      "side": "C",
+      "atm": 691,
+      "spot": 691.26,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-02-10",
+      "side": "P",
+      "atm": 694,
+      "spot": 693.91,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-02-11",
+      "side": "P",
+      "atm": 696,
+      "spot": 695.65,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-02-13",
+      "side": "P",
+      "atm": 681,
+      "spot": 680.51,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-02-20",
+      "side": "C",
+      "atm": 684,
+      "spot": 684.07,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-02-25",
+      "side": "C",
+      "atm": 692,
+      "spot": 691.66,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-02-26",
+      "side": "P",
+      "atm": 691,
+      "spot": 691.05,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-03-02",
+      "side": "C",
+      "atm": 683,
+      "spot": 683.22,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-03-06",
+      "side": "P",
+      "atm": 671,
+      "spot": 670.76,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-03-09",
+      "side": "P",
+      "atm": 664,
+      "spot": 663.62,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-03-10",
+      "side": "P",
+      "atm": 677,
+      "spot": 677.26,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-03-13",
+      "side": "C",
+      "atm": 671,
+      "spot": 671.17,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-03-16",
+      "side": "C",
+      "atm": 670,
+      "spot": 669.99,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-03-17",
+      "side": "C",
+      "atm": 674,
+      "spot": 674.25,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-03-18",
+      "side": "C",
+      "atm": 669,
+      "spot": 669.09,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-03-19",
+      "side": "C",
+      "atm": 658,
+      "spot": 657.93,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-03-30",
+      "side": "P",
+      "atm": 636,
+      "spot": 636.09,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-04-07",
+      "side": "P",
+      "atm": 655,
+      "spot": 654.58,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-04-08",
+      "side": "P",
+      "atm": 674,
+      "spot": 674.1,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-04-10",
+      "side": "P",
+      "atm": 681,
+      "spot": 680.52,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-04-14",
+      "side": "C",
+      "atm": 690,
+      "spot": 689.77,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-04-17",
+      "side": "C",
+      "atm": 707,
+      "spot": 707.07,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-04-28",
+      "side": "C",
+      "atm": 712,
+      "spot": 712.24,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-04-30",
+      "side": "P",
+      "atm": 713,
+      "spot": 712.51,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-05-01",
+      "side": "C",
+      "atm": 722,
+      "spot": 722.18,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-05-04",
+      "side": "C",
+      "atm": 720,
+      "spot": 720.41,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-05-05",
+      "side": "C",
+      "atm": 722,
+      "spot": 722.16,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-05-06",
+      "side": "C",
+      "atm": 729,
+      "spot": 729.08,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-05-07",
+      "side": "P",
+      "atm": 734,
+      "spot": 733.67,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-05-11",
+      "side": "C",
+      "atm": 739,
+      "spot": 738.79,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-05-13",
+      "side": "P",
+      "atm": 736,
+      "spot": 736.34,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-05-14",
+      "side": "C",
+      "atm": 746,
+      "spot": 745.7,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-05-15",
+      "side": "P",
+      "atm": 740,
+      "spot": 739.65,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-05-18",
+      "side": "P",
+      "atm": 739,
+      "spot": 739.18,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-05-22",
+      "side": "C",
+      "atm": 747,
+      "spot": 747.4,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-05-28",
+      "side": "P",
+      "atm": 749,
+      "spot": 749.37,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-05-29",
+      "side": "C",
+      "atm": 758,
+      "spot": 757.63,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-06-01",
+      "side": "C",
+      "atm": 756,
+      "spot": 756.4,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-06-03",
+      "side": "P",
+      "atm": 755,
+      "spot": 755.11,
+      "note": "jvwap_breakout"
+    },
+    {
+      "date": "2026-06-11",
+      "side": "P",
+      "atm": 728,
+      "spot": 727.83,
+      "note": "jvwap_pullback"
+    },
+    {
+      "date": "2026-06-15",
+      "side": "C",
+      "atm": 754,
+      "spot": 753.8,
+      "note": "jvwap_breakout"
+    }
+  ],
+  "orb_continuation": [
+    {
+      "date": "2025-01-14",
+      "side": "P",
+      "atm": 582,
+      "spot": 581.93,
+      "note": "ORBdn rvol=1.36"
+    },
+    {
+      "date": "2025-01-15",
+      "side": "C",
+      "atm": 592,
+      "spot": 592.32,
+      "note": "ORBup rvol=1.48"
+    },
+    {
+      "date": "2025-01-24",
+      "side": "P",
+      "atm": 610,
+      "spot": 609.54,
+      "note": "ORBdn rvol=1.37"
+    },
+    {
+      "date": "2025-01-27",
+      "side": "C",
+      "atm": 599,
+      "spot": 599.04,
+      "note": "ORBup rvol=2.13"
+    },
+    {
+      "date": "2025-01-28",
+      "side": "C",
+      "atm": 601,
+      "spot": 600.85,
+      "note": "ORBup rvol=1.30"
+    },
+    {
+      "date": "2025-02-03",
+      "side": "P",
+      "atm": 591,
+      "spot": 591.49,
+      "note": "ORBdn rvol=1.95"
+    },
+    {
+      "date": "2025-02-04",
+      "side": "C",
+      "atm": 600,
+      "spot": 599.81,
+      "note": "ORBup rvol=1.26"
+    },
+    {
+      "date": "2025-02-07",
+      "side": "P",
+      "atm": 605,
+      "spot": 604.79,
+      "note": "ORBdn rvol=1.26"
+    },
+    {
+      "date": "2025-02-14",
+      "side": "C",
+      "atm": 611,
+      "spot": 610.95,
+      "note": "ORBup rvol=1.41"
+    },
+    {
+      "date": "2025-02-24",
+      "side": "P",
+      "atm": 597,
+      "spot": 597.32,
+      "note": "ORBdn rvol=1.59"
+    },
+    {
+      "date": "2025-02-25",
+      "side": "P",
+      "atm": 594,
+      "spot": 593.64,
+      "note": "ORBdn rvol=1.34"
+    },
+    {
+      "date": "2025-02-27",
+      "side": "P",
+      "atm": 592,
+      "spot": 591.85,
+      "note": "ORBdn rvol=1.73"
+    },
+    {
+      "date": "2025-02-28",
+      "side": "C",
+      "atm": 587,
+      "spot": 586.62,
+      "note": "ORBup rvol=1.22"
+    },
+    {
+      "date": "2025-03-03",
+      "side": "P",
+      "atm": 592,
+      "spot": 591.94,
+      "note": "ORBdn rvol=2.06"
+    },
+    {
+      "date": "2025-03-04",
+      "side": "P",
+      "atm": 575,
+      "spot": 574.63,
+      "note": "ORBdn rvol=3.21"
+    },
+    {
+      "date": "2025-03-11",
+      "side": "P",
+      "atm": 557,
+      "spot": 557.0,
+      "note": "ORBdn rvol=1.21"
+    },
+    {
+      "date": "2025-03-12",
+      "side": "P",
+      "atm": 558,
+      "spot": 557.53,
+      "note": "ORBdn rvol=1.42"
+    },
+    {
+      "date": "2025-03-14",
+      "side": "C",
+      "atm": 560,
+      "spot": 560.17,
+      "note": "ORBup rvol=1.25"
+    },
+    {
+      "date": "2025-03-21",
+      "side": "C",
+      "atm": 561,
+      "spot": 561.47,
+      "note": "ORBup rvol=1.31"
+    },
+    {
+      "date": "2025-03-24",
+      "side": "C",
+      "atm": 573,
+      "spot": 573.04,
+      "note": "ORBup rvol=1.36"
+    },
+    {
+      "date": "2025-03-27",
+      "side": "C",
+      "atm": 568,
+      "spot": 568.49,
+      "note": "ORBup rvol=1.48"
+    },
+    {
+      "date": "2025-03-31",
+      "side": "C",
+      "atm": 551,
+      "spot": 551.38,
+      "note": "ORBup rvol=1.61"
+    },
+    {
+      "date": "2025-04-03",
+      "side": "P",
+      "atm": 543,
+      "spot": 543.28,
+      "note": "ORBdn rvol=2.16"
+    },
+    {
+      "date": "2025-04-04",
+      "side": "P",
+      "atm": 518,
+      "spot": 518.43,
+      "note": "ORBdn rvol=2.64"
+    },
+    {
+      "date": "2025-04-07",
+      "side": "C",
+      "atm": 513,
+      "spot": 513.12,
+      "note": "ORBup rvol=3.53"
+    },
+    {
+      "date": "2025-04-08",
+      "side": "C",
+      "atm": 524,
+      "spot": 524.06,
+      "note": "ORBup rvol=2.96"
+    },
+    {
+      "date": "2025-04-09",
+      "side": "P",
+      "atm": 493,
+      "spot": 493.22,
+      "note": "ORBdn rvol=1.77"
+    },
+    {
+      "date": "2025-04-10",
+      "side": "P",
+      "atm": 528,
+      "spot": 527.57,
+      "note": "ORBdn rvol=1.34"
+    },
+    {
+      "date": "2025-04-23",
+      "side": "P",
+      "atm": 539,
+      "spot": 538.59,
+      "note": "ORBdn rvol=1.72"
+    },
+    {
+      "date": "2025-04-30",
+      "side": "C",
+      "atm": 548,
+      "spot": 547.8,
+      "note": "ORBup rvol=1.34"
+    },
+    {
+      "date": "2025-05-12",
+      "side": "P",
+      "atm": 578,
+      "spot": 578.18,
+      "note": "ORBdn rvol=1.99"
+    },
+    {
+      "date": "2025-05-14",
+      "side": "P",
+      "atm": 586,
+      "spot": 586.12,
+      "note": "ORBdn rvol=1.32"
+    },
+    {
+      "date": "2025-05-15",
+      "side": "C",
+      "atm": 587,
+      "spot": 586.79,
+      "note": "ORBup rvol=1.86"
+    },
+    {
+      "date": "2025-05-19",
+      "side": "C",
+      "atm": 592,
+      "spot": 591.96,
+      "note": "ORBup rvol=1.21"
+    },
+    {
+      "date": "2025-05-21",
+      "side": "C",
+      "atm": 591,
+      "spot": 590.53,
+      "note": "ORBup rvol=1.33"
+    },
+    {
+      "date": "2025-05-22",
+      "side": "C",
+      "atm": 585,
+      "spot": 584.68,
+      "note": "ORBup rvol=1.90"
+    },
+    {
+      "date": "2025-05-23",
+      "side": "C",
+      "atm": 578,
+      "spot": 578.29,
+      "note": "ORBup rvol=2.64"
+    },
+    {
+      "date": "2025-05-27",
+      "side": "C",
+      "atm": 587,
+      "spot": 586.79,
+      "note": "ORBup rvol=1.31"
+    },
+    {
+      "date": "2025-06-02",
+      "side": "P",
+      "atm": 586,
+      "spot": 585.99,
+      "note": "ORBdn rvol=1.40"
+    },
+    {
+      "date": "2025-06-06",
+      "side": "P",
+      "atm": 598,
+      "spot": 597.96,
+      "note": "ORBdn rvol=1.56"
+    },
+    {
+      "date": "2025-06-16",
+      "side": "C",
+      "atm": 604,
+      "spot": 603.68,
+      "note": "ORBup rvol=1.23"
+    },
+    {
+      "date": "2025-06-24",
+      "side": "C",
+      "atm": 606,
+      "spot": 605.65,
+      "note": "ORBup rvol=1.29"
+    },
+    {
+      "date": "2025-06-25",
+      "side": "P",
+      "atm": 607,
+      "spot": 607.42,
+      "note": "ORBdn rvol=1.29"
+    },
+    {
+      "date": "2025-06-27",
+      "side": "C",
+      "atm": 615,
+      "spot": 615.09,
+      "note": "ORBup rvol=1.50"
+    },
+    {
+      "date": "2025-07-03",
+      "side": "C",
+      "atm": 625,
+      "spot": 624.82,
+      "note": "ORBup rvol=1.31"
+    },
+    {
+      "date": "2025-07-22",
+      "side": "C",
+      "atm": 629,
+      "spot": 629.47,
+      "note": "ORBup rvol=1.23"
+    },
+    {
+      "date": "2025-07-30",
+      "side": "C",
+      "atm": 637,
+      "spot": 636.55,
+      "note": "ORBup rvol=1.23"
+    },
+    {
+      "date": "2025-07-31",
+      "side": "P",
+      "atm": 637,
+      "spot": 637.28,
+      "note": "ORBdn rvol=1.34"
+    },
+    {
+      "date": "2025-08-01",
+      "side": "P",
+      "atm": 621,
+      "spot": 621.04,
+      "note": "ORBdn rvol=2.64"
+    },
+    {
+      "date": "2025-08-04",
+      "side": "C",
+      "atm": 629,
+      "spot": 629.39,
+      "note": "ORBup rvol=1.60"
+    },
+    {
+      "date": "2025-08-13",
+      "side": "P",
+      "atm": 644,
+      "spot": 644.16,
+      "note": "ORBdn rvol=1.20"
+    },
+    {
+      "date": "2025-08-20",
+      "side": "P",
+      "atm": 634,
+      "spot": 634.34,
+      "note": "ORBdn rvol=2.38"
+    },
+    {
+      "date": "2025-08-28",
+      "side": "C",
+      "atm": 648,
+      "spot": 648.15,
+      "note": "ORBup rvol=1.56"
+    },
+    {
+      "date": "2025-08-29",
+      "side": "P",
+      "atm": 645,
+      "spot": 644.61,
+      "note": "ORBdn rvol=1.58"
+    },
+    {
+      "date": "2025-09-02",
+      "side": "C",
+      "atm": 639,
+      "spot": 639.44,
+      "note": "ORBup rvol=1.56"
+    },
+    {
+      "date": "2025-09-03",
+      "side": "P",
+      "atm": 642,
+      "spot": 641.62,
+      "note": "ORBdn rvol=1.53"
+    },
+    {
+      "date": "2025-09-05",
+      "side": "P",
+      "atm": 650,
+      "spot": 650.5,
+      "note": "ORBdn rvol=2.25"
+    },
+    {
+      "date": "2025-09-08",
+      "side": "P",
+      "atm": 648,
+      "spot": 647.93,
+      "note": "ORBdn rvol=1.43"
+    },
+    {
+      "date": "2025-09-10",
+      "side": "C",
+      "atm": 654,
+      "spot": 654.1,
+      "note": "ORBup rvol=1.33"
+    },
+    {
+      "date": "2025-09-11",
+      "side": "C",
+      "atm": 656,
+      "spot": 655.74,
+      "note": "ORBup rvol=1.76"
+    },
+    {
+      "date": "2025-09-15",
+      "side": "C",
+      "atm": 661,
+      "spot": 660.71,
+      "note": "ORBup rvol=1.25"
+    },
+    {
+      "date": "2025-09-16",
+      "side": "P",
+      "atm": 660,
+      "spot": 659.92,
+      "note": "ORBdn rvol=1.23"
+    },
+    {
+      "date": "2025-09-18",
+      "side": "C",
+      "atm": 663,
+      "spot": 662.75,
+      "note": "ORBup rvol=1.60"
+    },
+    {
+      "date": "2025-09-19",
+      "side": "P",
+      "atm": 661,
+      "spot": 661.26,
+      "note": "ORBdn rvol=1.65"
+    },
+    {
+      "date": "2025-09-23",
+      "side": "P",
+      "atm": 666,
+      "spot": 666.47,
+      "note": "ORBdn rvol=1.21"
+    },
+    {
+      "date": "2025-09-25",
+      "side": "C",
+      "atm": 658,
+      "spot": 657.98,
+      "note": "ORBup rvol=1.43"
+    },
+    {
+      "date": "2025-10-13",
+      "side": "C",
+      "atm": 663,
+      "spot": 662.99,
+      "note": "ORBup rvol=1.28"
+    },
+    {
+      "date": "2025-10-15",
+      "side": "C",
+      "atm": 669,
+      "spot": 668.89,
+      "note": "ORBup rvol=1.21"
+    },
+    {
+      "date": "2025-10-29",
+      "side": "P",
+      "atm": 688,
+      "spot": 688.13,
+      "note": "ORBdn rvol=1.75"
+    },
+    {
+      "date": "2025-10-30",
+      "side": "P",
+      "atm": 681,
+      "spot": 680.99,
+      "note": "ORBdn rvol=1.25"
+    },
+    {
+      "date": "2025-11-04",
+      "side": "C",
+      "atm": 679,
+      "spot": 678.99,
+      "note": "ORBup rvol=1.99"
+    },
+    {
+      "date": "2025-11-07",
+      "side": "P",
+      "atm": 664,
+      "spot": 664.24,
+      "note": "ORBdn rvol=1.56"
+    },
+    {
+      "date": "2025-11-10",
+      "side": "P",
+      "atm": 677,
+      "spot": 676.92,
+      "note": "ORBdn rvol=1.57"
+    },
+    {
+      "date": "2025-11-14",
+      "side": "C",
+      "atm": 670,
+      "spot": 669.81,
+      "note": "ORBup rvol=1.31"
+    },
+    {
+      "date": "2025-11-18",
+      "side": "P",
+      "atm": 657,
+      "spot": 657.01,
+      "note": "ORBdn rvol=1.59"
+    },
+    {
+      "date": "2025-11-20",
+      "side": "C",
+      "atm": 675,
+      "spot": 675.3,
+      "note": "ORBup rvol=1.41"
+    },
+    {
+      "date": "2025-12-11",
+      "side": "C",
+      "atm": 686,
+      "spot": 686.46,
+      "note": "ORBup rvol=1.23"
+    },
+    {
+      "date": "2025-12-22",
+      "side": "P",
+      "atm": 683,
+      "spot": 682.93,
+      "note": "ORBdn rvol=1.21"
+    },
+    {
+      "date": "2026-01-02",
+      "side": "P",
+      "atm": 684,
+      "spot": 683.85,
+      "note": "ORBdn rvol=1.57"
+    },
+    {
+      "date": "2026-01-05",
+      "side": "C",
+      "atm": 688,
+      "spot": 688.05,
+      "note": "ORBup rvol=1.37"
+    },
+    {
+      "date": "2026-01-08",
+      "side": "C",
+      "atm": 690,
+      "spot": 689.83,
+      "note": "ORBup rvol=1.59"
+    },
+    {
+      "date": "2026-01-12",
+      "side": "C",
+      "atm": 694,
+      "spot": 693.91,
+      "note": "ORBup rvol=1.54"
+    },
+    {
+      "date": "2026-01-13",
+      "side": "P",
+      "atm": 694,
+      "spot": 693.81,
+      "note": "ORBdn rvol=1.37"
+    },
+    {
+      "date": "2026-01-15",
+      "side": "C",
+      "atm": 695,
+      "spot": 694.8,
+      "note": "ORBup rvol=1.82"
+    },
+    {
+      "date": "2026-01-20",
+      "side": "P",
+      "atm": 681,
+      "spot": 681.12,
+      "note": "ORBdn rvol=1.27"
+    },
+    {
+      "date": "2026-01-21",
+      "side": "C",
+      "atm": 683,
+      "spot": 682.8,
+      "note": "ORBup rvol=1.84"
+    },
+    {
+      "date": "2026-01-22",
+      "side": "P",
+      "atm": 687,
+      "spot": 687.28,
+      "note": "ORBdn rvol=1.45"
+    },
+    {
+      "date": "2026-01-26",
+      "side": "C",
+      "atm": 693,
+      "spot": 693.11,
+      "note": "ORBup rvol=1.57"
+    },
+    {
+      "date": "2026-02-05",
+      "side": "P",
+      "atm": 677,
+      "spot": 676.89,
+      "note": "ORBdn rvol=1.84"
+    },
+    {
+      "date": "2026-02-06",
+      "side": "C",
+      "atm": 687,
+      "spot": 686.9,
+      "note": "ORBup rvol=1.64"
+    },
+    {
+      "date": "2026-02-13",
+      "side": "C",
+      "atm": 683,
+      "spot": 682.95,
+      "note": "ORBup rvol=1.66"
+    },
+    {
+      "date": "2026-02-27",
+      "side": "C",
+      "atm": 685,
+      "spot": 684.69,
+      "note": "ORBup rvol=1.78"
+    },
+    {
+      "date": "2026-03-02",
+      "side": "C",
+      "atm": 684,
+      "spot": 684.17,
+      "note": "ORBup rvol=2.18"
+    },
+    {
+      "date": "2026-03-03",
+      "side": "P",
+      "atm": 671,
+      "spot": 671.07,
+      "note": "ORBdn rvol=3.90"
+    },
+    {
+      "date": "2026-03-06",
+      "side": "C",
+      "atm": 674,
+      "spot": 674.09,
+      "note": "ORBup rvol=1.26"
+    },
+    {
+      "date": "2026-03-09",
+      "side": "C",
+      "atm": 668,
+      "spot": 667.53,
+      "note": "ORBup rvol=1.89"
+    },
+    {
+      "date": "2026-03-12",
+      "side": "P",
+      "atm": 668,
+      "spot": 668.16,
+      "note": "ORBdn rvol=1.30"
+    },
+    {
+      "date": "2026-03-16",
+      "side": "C",
+      "atm": 671,
+      "spot": 670.99,
+      "note": "ORBup rvol=96.41"
+    },
+    {
+      "date": "2026-03-17",
+      "side": "P",
+      "atm": 672,
+      "spot": 671.83,
+      "note": "ORBdn rvol=75.03"
+    },
+    {
+      "date": "2026-03-18",
+      "side": "P",
+      "atm": 667,
+      "spot": 667.16,
+      "note": "ORBdn rvol=86.63"
+    },
+    {
+      "date": "2026-03-19",
+      "side": "C",
+      "atm": 659,
+      "spot": 659.36,
+      "note": "ORBup rvol=129.16"
+    },
+    {
+      "date": "2026-03-20",
+      "side": "P",
+      "atm": 653,
+      "spot": 652.91,
+      "note": "ORBdn rvol=96.84"
+    },
+    {
+      "date": "2026-03-23",
+      "side": "C",
+      "atm": 661,
+      "spot": 661.17,
+      "note": "ORBup rvol=191.01"
+    },
+    {
+      "date": "2026-03-24",
+      "side": "C",
+      "atm": 653,
+      "spot": 653.41,
+      "note": "ORBup rvol=60.05"
+    },
+    {
+      "date": "2026-03-25",
+      "side": "P",
+      "atm": 655,
+      "spot": 655.14,
+      "note": "ORBdn rvol=66.38"
+    },
+    {
+      "date": "2026-03-26",
+      "side": "P",
+      "atm": 650,
+      "spot": 650.36,
+      "note": "ORBdn rvol=58.71"
+    },
+    {
+      "date": "2026-03-27",
+      "side": "P",
+      "atm": 638,
+      "spot": 638.32,
+      "note": "ORBdn rvol=36.30"
+    },
+    {
+      "date": "2026-03-30",
+      "side": "P",
+      "atm": 635,
+      "spot": 634.55,
+      "note": "ORBdn rvol=2.51"
+    },
+    {
+      "date": "2026-03-31",
+      "side": "C",
+      "atm": 645,
+      "spot": 644.87,
+      "note": "ORBup rvol=1.51"
+    },
+    {
+      "date": "2026-04-01",
+      "side": "C",
+      "atm": 656,
+      "spot": 656.18,
+      "note": "ORBup rvol=1.63"
+    },
+    {
+      "date": "2026-04-08",
+      "side": "P",
+      "atm": 674,
+      "spot": 673.73,
+      "note": "ORBdn rvol=1.54"
+    },
+    {
+      "date": "2026-04-30",
+      "side": "C",
+      "atm": 715,
+      "spot": 715.31,
+      "note": "ORBup rvol=1.25"
+    },
+    {
+      "date": "2026-05-15",
+      "side": "C",
+      "atm": 742,
+      "spot": 741.99,
+      "note": "ORBup rvol=1.49"
+    },
+    {
+      "date": "2026-05-27",
+      "side": "P",
+      "atm": 749,
+      "spot": 749.18,
+      "note": "ORBdn rvol=1.23"
+    },
+    {
+      "date": "2026-06-01",
+      "side": "C",
+      "atm": 757,
+      "spot": 757.04,
+      "note": "ORBup rvol=1.41"
+    },
+    {
+      "date": "2026-06-03",
+      "side": "P",
+      "atm": 754,
+      "spot": 754.13,
+      "note": "ORBdn rvol=1.33"
+    },
+    {
+      "date": "2026-06-04",
+      "side": "C",
+      "atm": 754,
+      "spot": 754.18,
+      "note": "ORBup rvol=1.43"
+    },
+    {
+      "date": "2026-06-05",
+      "side": "P",
+      "atm": 748,
+      "spot": 748.3,
+      "note": "ORBdn rvol=1.69"
+    },
+    {
+      "date": "2026-06-08",
+      "side": "C",
+      "atm": 745,
+      "spot": 744.99,
+      "note": "ORBup rvol=1.77"
+    },
+    {
+      "date": "2026-06-09",
+      "side": "P",
+      "atm": 742,
+      "spot": 741.54,
+      "note": "ORBdn rvol=1.25"
+    },
+    {
+      "date": "2026-06-10",
+      "side": "C",
+      "atm": 737,
+      "spot": 737.12,
+      "note": "ORBup rvol=1.70"
+    },
+    {
+      "date": "2026-06-11",
+      "side": "P",
+      "atm": 726,
+      "spot": 725.6,
+      "note": "ORBdn rvol=1.71"
+    },
+    {
+      "date": "2026-06-12",
+      "side": "C",
+      "atm": 742,
+      "spot": 741.68,
+      "note": "ORBup rvol=1.32"
+    }
+  ],
+  "momentum_morning": [
+    {
+      "date": "2025-01-02",
+      "side": "P",
+      "atm": 581,
+      "spot": 581.47,
+      "note": "morning_move=-0.0134"
+    },
+    {
+      "date": "2025-01-03",
+      "side": "C",
+      "atm": 590,
+      "spot": 590.49,
+      "note": "morning_move=+0.0050"
+    },
+    {
+      "date": "2025-01-07",
+      "side": "P",
+      "atm": 591,
+      "spot": 591.24,
+      "note": "morning_move=-0.0104"
+    },
+    {
+      "date": "2025-01-10",
+      "side": "P",
+      "atm": 581,
+      "spot": 581.21,
+      "note": "morning_move=-0.0080"
+    },
+    {
+      "date": "2025-01-13",
+      "side": "C",
+      "atm": 579,
+      "spot": 579.3,
+      "note": "morning_move=+0.0061"
+    },
+    {
+      "date": "2025-01-14",
+      "side": "P",
+      "atm": 581,
+      "spot": 580.81,
+      "note": "morning_move=-0.0060"
+    },
+    {
+      "date": "2025-01-28",
+      "side": "C",
+      "atm": 604,
+      "spot": 604.22,
+      "note": "morning_move=+0.0058"
+    },
+    {
+      "date": "2025-01-29",
+      "side": "P",
+      "atm": 600,
+      "spot": 600.05,
+      "note": "morning_move=-0.0061"
+    },
+    {
+      "date": "2025-02-03",
+      "side": "C",
+      "atm": 597,
+      "spot": 597.45,
+      "note": "morning_move=+0.0083"
+    },
+    {
+      "date": "2025-02-04",
+      "side": "C",
+      "atm": 600,
+      "spot": 600.49,
+      "note": "morning_move=+0.0048"
+    },
+    {
+      "date": "2025-02-05",
+      "side": "C",
+      "atm": 603,
+      "spot": 602.79,
+      "note": "morning_move=+0.0036"
+    },
+    {
+      "date": "2025-02-07",
+      "side": "P",
+      "atm": 603,
+      "spot": 602.95,
+      "note": "morning_move=-0.0064"
+    },
+    {
+      "date": "2025-02-12",
+      "side": "C",
+      "atm": 604,
+      "spot": 604.0,
+      "note": "morning_move=+0.0080"
+    },
+    {
+      "date": "2025-02-20",
+      "side": "P",
+      "atm": 608,
+      "spot": 607.92,
+      "note": "morning_move=-0.0059"
+    },
+    {
+      "date": "2025-02-21",
+      "side": "P",
+      "atm": 603,
+      "spot": 603.18,
+      "note": "morning_move=-0.0115"
+    },
+    {
+      "date": "2025-02-27",
+      "side": "P",
+      "atm": 594,
+      "spot": 593.84,
+      "note": "morning_move=-0.0051"
+    },
+    {
+      "date": "2025-03-03",
+      "side": "P",
+      "atm": 591,
+      "spot": 591.41,
+      "note": "morning_move=-0.0080"
+    },
+    {
+      "date": "2025-03-04",
+      "side": "P",
+      "atm": 577,
+      "spot": 576.89,
+      "note": "morning_move=-0.0049"
+    },
+    {
+      "date": "2025-03-05",
+      "side": "C",
+      "atm": 581,
+      "spot": 580.77,
+      "note": "morning_move=+0.0071"
+    },
+    {
+      "date": "2025-03-06",
+      "side": "P",
+      "atm": 572,
+      "spot": 572.47,
+      "note": "morning_move=-0.0052"
+    },
+    {
+      "date": "2025-03-11",
+      "side": "P",
+      "atm": 554,
+      "spot": 553.64,
+      "note": "morning_move=-0.0101"
+    },
+    {
+      "date": "2025-03-12",
+      "side": "P",
+      "atm": 559,
+      "spot": 559.26,
+      "note": "morning_move=-0.0052"
+    },
+    {
+      "date": "2025-03-13",
+      "side": "P",
+      "atm": 553,
+      "spot": 552.88,
+      "note": "morning_move=-0.0099"
+    },
+    {
+      "date": "2025-03-14",
+      "side": "C",
+      "atm": 562,
+      "spot": 562.14,
+      "note": "morning_move=+0.0108"
+    },
+    {
+      "date": "2025-03-18",
+      "side": "P",
+      "atm": 561,
+      "spot": 560.87,
+      "note": "morning_move=-0.0069"
+    },
+    {
+      "date": "2025-03-20",
+      "side": "C",
+      "atm": 566,
+      "spot": 566.41,
+      "note": "morning_move=+0.0058"
+    },
+    {
+      "date": "2025-03-21",
+      "side": "C",
+      "atm": 563,
+      "spot": 563.12,
+      "note": "morning_move=+0.0070"
+    },
+    {
+      "date": "2025-03-24",
+      "side": "C",
+      "atm": 573,
+      "spot": 572.99,
+      "note": "morning_move=+0.0039"
+    },
+    {
+      "date": "2025-03-26",
+      "side": "P",
+      "atm": 570,
+      "spot": 569.61,
+      "note": "morning_move=-0.0097"
+    },
+    {
+      "date": "2025-03-28",
+      "side": "P",
+      "atm": 556,
+      "spot": 556.21,
+      "note": "morning_move=-0.0162"
+    },
+    {
+      "date": "2025-03-31",
+      "side": "C",
+      "atm": 554,
+      "spot": 553.89,
+      "note": "morning_move=+0.0074"
+    },
+    {
+      "date": "2025-04-01",
+      "side": "C",
+      "atm": 561,
+      "spot": 560.83,
+      "note": "morning_move=+0.0061"
+    },
+    {
+      "date": "2025-04-02",
+      "side": "C",
+      "atm": 566,
+      "spot": 566.19,
+      "note": "morning_move=+0.0200"
+    },
+    {
+      "date": "2025-04-04",
+      "side": "P",
+      "atm": 513,
+      "spot": 512.57,
+      "note": "morning_move=-0.0211"
+    },
+    {
+      "date": "2025-04-07",
+      "side": "C",
+      "atm": 497,
+      "spot": 496.8,
+      "note": "morning_move=+0.0157"
+    },
+    {
+      "date": "2025-04-08",
+      "side": "P",
+      "atm": 508,
+      "spot": 507.67,
+      "note": "morning_move=-0.0274"
+    },
+    {
+      "date": "2025-04-09",
+      "side": "C",
+      "atm": 505,
+      "spot": 505.08,
+      "note": "morning_move=+0.0209"
+    },
+    {
+      "date": "2025-04-10",
+      "side": "P",
+      "atm": 521,
+      "spot": 521.11,
+      "note": "morning_move=-0.0208"
+    },
+    {
+      "date": "2025-04-11",
+      "side": "C",
+      "atm": 532,
+      "spot": 532.43,
+      "note": "morning_move=+0.0181"
+    },
+    {
+      "date": "2025-04-14",
+      "side": "P",
+      "atm": 536,
+      "spot": 536.19,
+      "note": "morning_move=-0.0145"
+    },
+    {
+      "date": "2025-04-21",
+      "side": "P",
+      "atm": 510,
+      "spot": 510.06,
+      "note": "morning_move=-0.0213"
+    },
+    {
+      "date": "2025-04-22",
+      "side": "C",
+      "atm": 528,
+      "spot": 527.83,
+      "note": "morning_move=+0.0147"
+    },
+    {
+      "date": "2025-04-23",
+      "side": "P",
+      "atm": 538,
+      "spot": 538.31,
+      "note": "morning_move=-0.0040"
+    },
+    {
+      "date": "2025-04-24",
+      "side": "C",
+      "atm": 545,
+      "spot": 545.18,
+      "note": "morning_move=+0.0158"
+    },
+    {
+      "date": "2025-04-25",
+      "side": "C",
+      "atm": 549,
+      "spot": 549.25,
+      "note": "morning_move=+0.0035"
+    },
+    {
+      "date": "2025-04-28",
+      "side": "P",
+      "atm": 546,
+      "spot": 546.41,
+      "note": "morning_move=-0.0088"
+    },
+    {
+      "date": "2025-04-29",
+      "side": "C",
+      "atm": 551,
+      "spot": 551.46,
+      "note": "morning_move=+0.0047"
+    },
+    {
+      "date": "2025-05-02",
+      "side": "C",
+      "atm": 568,
+      "spot": 567.63,
+      "note": "morning_move=+0.0051"
+    },
+    {
+      "date": "2025-05-05",
+      "side": "C",
+      "atm": 565,
+      "spot": 565.44,
+      "note": "morning_move=+0.0050"
+    },
+    {
+      "date": "2025-05-08",
+      "side": "C",
+      "atm": 570,
+      "spot": 569.57,
+      "note": "morning_move=+0.0076"
+    },
+    {
+      "date": "2025-05-09",
+      "side": "P",
+      "atm": 563,
+      "spot": 563.44,
+      "note": "morning_move=-0.0054"
+    },
+    {
+      "date": "2025-05-13",
+      "side": "C",
+      "atm": 588,
+      "spot": 587.93,
+      "note": "morning_move=+0.0077"
+    },
+    {
+      "date": "2025-05-15",
+      "side": "C",
+      "atm": 591,
+      "spot": 590.58,
+      "note": "morning_move=+0.0085"
+    },
+    {
+      "date": "2025-05-19",
+      "side": "C",
+      "atm": 595,
+      "spot": 595.04,
+      "note": "morning_move=+0.0117"
+    },
+    {
+      "date": "2025-05-21",
+      "side": "C",
+      "atm": 591,
+      "spot": 591.35,
+      "note": "morning_move=+0.0047"
+    },
+    {
+      "date": "2025-05-23",
+      "side": "C",
+      "atm": 579,
+      "spot": 579.39,
+      "note": "morning_move=+0.0061"
+    },
+    {
+      "date": "2025-05-27",
+      "side": "C",
+      "atm": 590,
+      "spot": 590.2,
+      "note": "morning_move=+0.0070"
+    },
+    {
+      "date": "2025-05-29",
+      "side": "P",
+      "atm": 590,
+      "spot": 589.93,
+      "note": "morning_move=-0.0053"
+    },
+    {
+      "date": "2025-05-30",
+      "side": "P",
+      "atm": 585,
+      "spot": 585.08,
+      "note": "morning_move=-0.0066"
+    },
+    {
+      "date": "2025-06-02",
+      "side": "C",
+      "atm": 590,
+      "spot": 590.14,
+      "note": "morning_move=+0.0040"
+    },
+    {
+      "date": "2025-06-03",
+      "side": "C",
+      "atm": 596,
+      "spot": 596.46,
+      "note": "morning_move=+0.0068"
+    },
+    {
+      "date": "2025-06-05",
+      "side": "P",
+      "atm": 595,
+      "spot": 594.95,
+      "note": "morning_move=-0.0045"
+    },
+    {
+      "date": "2025-06-12",
+      "side": "C",
+      "atm": 603,
+      "spot": 602.74,
+      "note": "morning_move=+0.0045"
+    },
+    {
+      "date": "2025-06-13",
+      "side": "C",
+      "atm": 601,
+      "spot": 600.76,
+      "note": "morning_move=+0.0037"
+    },
+    {
+      "date": "2025-06-16",
+      "side": "C",
+      "atm": 603,
+      "spot": 602.68,
+      "note": "morning_move=+0.0037"
+    },
+    {
+      "date": "2025-06-20",
+      "side": "P",
+      "atm": 595,
+      "spot": 595.1,
+      "note": "morning_move=-0.0055"
+    },
+    {
+      "date": "2025-06-24",
+      "side": "C",
+      "atm": 607,
+      "spot": 606.81,
+      "note": "morning_move=+0.0041"
+    },
+    {
+      "date": "2025-06-27",
+      "side": "C",
+      "atm": 616,
+      "spot": 615.73,
+      "note": "morning_move=+0.0046"
+    },
+    {
+      "date": "2025-07-03",
+      "side": "C",
+      "atm": 626,
+      "spot": 625.61,
+      "note": "morning_move=+0.0050"
+    },
+    {
+      "date": "2025-07-07",
+      "side": "P",
+      "atm": 620,
+      "spot": 619.72,
+      "note": "morning_move=-0.0058"
+    },
+    {
+      "date": "2025-07-15",
+      "side": "P",
+      "atm": 623,
+      "spot": 623.46,
+      "note": "morning_move=-0.0065"
+    },
+    {
+      "date": "2025-07-17",
+      "side": "C",
+      "atm": 627,
+      "spot": 626.89,
+      "note": "morning_move=+0.0041"
+    },
+    {
+      "date": "2025-07-18",
+      "side": "P",
+      "atm": 627,
+      "spot": 626.74,
+      "note": "morning_move=-0.0040"
+    },
+    {
+      "date": "2025-07-21",
+      "side": "C",
+      "atm": 631,
+      "spot": 631.35,
+      "note": "morning_move=+0.0041"
+    },
+    {
+      "date": "2025-08-01",
+      "side": "P",
+      "atm": 621,
+      "spot": 621.03,
+      "note": "morning_move=-0.0085"
+    },
+    {
+      "date": "2025-08-04",
+      "side": "C",
+      "atm": 630,
+      "spot": 630.23,
+      "note": "morning_move=+0.0072"
+    },
+    {
+      "date": "2025-08-05",
+      "side": "P",
+      "atm": 629,
+      "spot": 628.81,
+      "note": "morning_move=-0.0047"
+    },
+    {
+      "date": "2025-08-06",
+      "side": "C",
+      "atm": 632,
+      "spot": 632.35,
+      "note": "morning_move=+0.0052"
+    },
+    {
+      "date": "2025-08-07",
+      "side": "P",
+      "atm": 631,
+      "spot": 630.83,
+      "note": "morning_move=-0.0085"
+    },
+    {
+      "date": "2025-08-08",
+      "side": "C",
+      "atm": 636,
+      "spot": 636.42,
+      "note": "morning_move=+0.0036"
+    },
+    {
+      "date": "2025-08-12",
+      "side": "C",
+      "atm": 642,
+      "spot": 641.63,
+      "note": "morning_move=+0.0052"
+    },
+    {
+      "date": "2025-08-19",
+      "side": "P",
+      "atm": 639,
+      "spot": 639.34,
+      "note": "morning_move=-0.0059"
+    },
+    {
+      "date": "2025-08-20",
+      "side": "P",
+      "atm": 637,
+      "spot": 636.83,
+      "note": "morning_move=-0.0040"
+    },
+    {
+      "date": "2025-08-22",
+      "side": "C",
+      "atm": 645,
+      "spot": 645.38,
+      "note": "morning_move=+0.0119"
+    },
+    {
+      "date": "2025-08-29",
+      "side": "P",
+      "atm": 644,
+      "spot": 643.91,
+      "note": "morning_move=-0.0055"
+    },
+    {
+      "date": "2025-09-05",
+      "side": "P",
+      "atm": 646,
+      "spot": 645.66,
+      "note": "morning_move=-0.0089"
+    },
+    {
+      "date": "2025-09-11",
+      "side": "C",
+      "atm": 657,
+      "spot": 657.06,
+      "note": "morning_move=+0.0043"
+    },
+    {
+      "date": "2025-09-22",
+      "side": "C",
+      "atm": 666,
+      "spot": 666.47,
+      "note": "morning_move=+0.0064"
+    },
+    {
+      "date": "2025-09-24",
+      "side": "P",
+      "atm": 661,
+      "spot": 660.78,
+      "note": "morning_move=-0.0056"
+    },
+    {
+      "date": "2025-10-01",
+      "side": "C",
+      "atm": 667,
+      "spot": 667.26,
+      "note": "morning_move=+0.0061"
+    },
+    {
+      "date": "2025-10-02",
+      "side": "P",
+      "atm": 668,
+      "spot": 668.08,
+      "note": "morning_move=-0.0035"
+    },
+    {
+      "date": "2025-10-07",
+      "side": "P",
+      "atm": 669,
+      "spot": 668.99,
+      "note": "morning_move=-0.0053"
+    },
+    {
+      "date": "2025-10-08",
+      "side": "C",
+      "atm": 673,
+      "spot": 672.75,
+      "note": "morning_move=+0.0037"
+    },
+    {
+      "date": "2025-10-09",
+      "side": "P",
+      "atm": 670,
+      "spot": 669.81,
+      "note": "morning_move=-0.0055"
+    },
+    {
+      "date": "2025-10-10",
+      "side": "P",
+      "atm": 658,
+      "spot": 658.34,
+      "note": "morning_move=-0.0205"
+    },
+    {
+      "date": "2025-10-13",
+      "side": "C",
+      "atm": 664,
+      "spot": 664.48,
+      "note": "morning_move=+0.0057"
+    },
+    {
+      "date": "2025-10-14",
+      "side": "C",
+      "atm": 665,
+      "spot": 664.58,
+      "note": "morning_move=+0.0113"
+    },
+    {
+      "date": "2025-10-15",
+      "side": "P",
+      "atm": 663,
+      "spot": 663.04,
+      "note": "morning_move=-0.0056"
+    },
+    {
+      "date": "2025-10-16",
+      "side": "P",
+      "atm": 662,
+      "spot": 661.97,
+      "note": "morning_move=-0.0073"
+    },
+    {
+      "date": "2025-10-20",
+      "side": "C",
+      "atm": 672,
+      "spot": 671.64,
+      "note": "morning_move=+0.0065"
+    },
+    {
+      "date": "2025-10-22",
+      "side": "P",
+      "atm": 667,
+      "spot": 666.67,
+      "note": "morning_move=-0.0075"
+    },
+    {
+      "date": "2025-10-23",
+      "side": "C",
+      "atm": 671,
+      "spot": 671.49,
+      "note": "morning_move=+0.0050"
+    },
+    {
+      "date": "2025-10-31",
+      "side": "P",
+      "atm": 680,
+      "spot": 680.1,
+      "note": "morning_move=-0.0071"
+    },
+    {
+      "date": "2025-11-05",
+      "side": "C",
+      "atm": 680,
+      "spot": 680.39,
+      "note": "morning_move=+0.0081"
+    },
+    {
+      "date": "2025-11-06",
+      "side": "P",
+      "atm": 670,
+      "spot": 670.4,
+      "note": "morning_move=-0.0091"
+    },
+    {
+      "date": "2025-11-07",
+      "side": "P",
+      "atm": 664,
+      "spot": 664.1,
+      "note": "morning_move=-0.0057"
+    },
+    {
+      "date": "2025-11-11",
+      "side": "C",
+      "atm": 682,
+      "spot": 682.37,
+      "note": "morning_move=+0.0036"
+    },
+    {
+      "date": "2025-11-13",
+      "side": "P",
+      "atm": 674,
+      "spot": 674.18,
+      "note": "morning_move=-0.0093"
+    },
+    {
+      "date": "2025-11-14",
+      "side": "C",
+      "atm": 673,
+      "spot": 672.63,
+      "note": "morning_move=+0.0109"
+    },
+    {
+      "date": "2025-11-20",
+      "side": "P",
+      "atm": 658,
+      "spot": 658.37,
+      "note": "morning_move=-0.0217"
+    },
+    {
+      "date": "2025-11-21",
+      "side": "C",
+      "atm": 659,
+      "spot": 658.61,
+      "note": "morning_move=+0.0059"
+    },
+    {
+      "date": "2025-11-24",
+      "side": "C",
+      "atm": 669,
+      "spot": 669.39,
+      "note": "morning_move=+0.0102"
+    },
+    {
+      "date": "2025-11-25",
+      "side": "C",
+      "atm": 674,
+      "spot": 673.54,
+      "note": "morning_move=+0.0074"
+    },
+    {
+      "date": "2025-11-26",
+      "side": "C",
+      "atm": 681,
+      "spot": 681.4,
+      "note": "morning_move=+0.0056"
+    },
+    {
+      "date": "2025-12-01",
+      "side": "C",
+      "atm": 682,
+      "spot": 682.33,
+      "note": "morning_move=+0.0052"
+    },
+    {
+      "date": "2025-12-03",
+      "side": "C",
+      "atm": 684,
+      "spot": 683.97,
+      "note": "morning_move=+0.0050"
+    },
+    {
+      "date": "2025-12-08",
+      "side": "P",
+      "atm": 684,
+      "spot": 683.61,
+      "note": "morning_move=-0.0042"
+    },
+    {
+      "date": "2025-12-11",
+      "side": "C",
+      "atm": 688,
+      "spot": 687.74,
+      "note": "morning_move=+0.0038"
+    },
+    {
+      "date": "2025-12-12",
+      "side": "P",
+      "atm": 683,
+      "spot": 682.83,
+      "note": "morning_move=-0.0078"
+    },
+    {
+      "date": "2025-12-15",
+      "side": "P",
+      "atm": 681,
+      "spot": 680.59,
+      "note": "morning_move=-0.0075"
+    },
+    {
+      "date": "2025-12-16",
+      "side": "P",
+      "atm": 676,
+      "spot": 675.79,
+      "note": "morning_move=-0.0049"
+    },
+    {
+      "date": "2025-12-17",
+      "side": "P",
+      "atm": 674,
+      "spot": 674.46,
+      "note": "morning_move=-0.0078"
+    },
+    {
+      "date": "2025-12-19",
+      "side": "C",
+      "atm": 681,
+      "spot": 680.75,
+      "note": "morning_move=+0.0061"
+    },
+    {
+      "date": "2025-12-23",
+      "side": "C",
+      "atm": 687,
+      "spot": 686.93,
+      "note": "morning_move=+0.0044"
+    },
+    {
+      "date": "2026-01-02",
+      "side": "P",
+      "atm": 681,
+      "spot": 681.33,
+      "note": "morning_move=-0.0061"
+    },
+    {
+      "date": "2026-01-06",
+      "side": "C",
+      "atm": 691,
+      "spot": 690.83,
+      "note": "morning_move=+0.0042"
+    },
+    {
+      "date": "2026-01-09",
+      "side": "C",
+      "atm": 694,
+      "spot": 693.69,
+      "note": "morning_move=+0.0045"
+    },
+    {
+      "date": "2026-01-12",
+      "side": "C",
+      "atm": 695,
+      "spot": 694.91,
+      "note": "morning_move=+0.0061"
+    },
+    {
+      "date": "2026-01-13",
+      "side": "P",
+      "atm": 693,
+      "spot": 692.57,
+      "note": "morning_move=-0.0041"
+    },
+    {
+      "date": "2026-01-14",
+      "side": "P",
+      "atm": 687,
+      "spot": 687.12,
+      "note": "morning_move=-0.0055"
+    },
+    {
+      "date": "2026-01-26",
+      "side": "C",
+      "atm": 693,
+      "spot": 693.2,
+      "note": "morning_move=+0.0039"
+    },
+    {
+      "date": "2026-01-29",
+      "side": "P",
+      "atm": 690,
+      "spot": 689.7,
+      "note": "morning_move=-0.0095"
+    },
+    {
+      "date": "2026-02-02",
+      "side": "C",
+      "atm": 697,
+      "spot": 696.59,
+      "note": "morning_move=+0.0101"
+    },
+    {
+      "date": "2026-02-03",
+      "side": "P",
+      "atm": 688,
+      "spot": 687.51,
+      "note": "morning_move=-0.0125"
+    },
+    {
+      "date": "2026-02-04",
+      "side": "P",
+      "atm": 683,
+      "spot": 683.25,
+      "note": "morning_move=-0.0102"
+    },
+    {
+      "date": "2026-02-06",
+      "side": "C",
+      "atm": 689,
+      "spot": 689.47,
+      "note": "morning_move=+0.0118"
+    },
+    {
+      "date": "2026-02-09",
+      "side": "C",
+      "atm": 695,
+      "spot": 694.73,
+      "note": "morning_move=+0.0076"
+    },
+    {
+      "date": "2026-02-11",
+      "side": "P",
+      "atm": 693,
+      "spot": 692.61,
+      "note": "morning_move=-0.0055"
+    },
+    {
+      "date": "2026-02-12",
+      "side": "P",
+      "atm": 683,
+      "spot": 683.09,
+      "note": "morning_move=-0.0160"
+    },
+    {
+      "date": "2026-02-13",
+      "side": "C",
+      "atm": 684,
+      "spot": 684.5,
+      "note": "morning_move=+0.0041"
+    },
+    {
+      "date": "2026-02-18",
+      "side": "C",
+      "atm": 689,
+      "spot": 688.74,
+      "note": "morning_move=+0.0071"
+    },
+    {
+      "date": "2026-02-20",
+      "side": "C",
+      "atm": 687,
+      "spot": 687.11,
+      "note": "morning_move=+0.0072"
+    },
+    {
+      "date": "2026-02-23",
+      "side": "P",
+      "atm": 682,
+      "spot": 682.4,
+      "note": "morning_move=-0.0079"
+    },
+    {
+      "date": "2026-02-24",
+      "side": "C",
+      "atm": 688,
+      "spot": 687.97,
+      "note": "morning_move=+0.0095"
+    },
+    {
+      "date": "2026-02-26",
+      "side": "P",
+      "atm": 685,
+      "spot": 685.14,
+      "note": "morning_move=-0.0115"
+    },
+    {
+      "date": "2026-03-02",
+      "side": "C",
+      "atm": 687,
+      "spot": 687.23,
+      "note": "morning_move=+0.0125"
+    },
+    {
+      "date": "2026-03-03",
+      "side": "C",
+      "atm": 678,
+      "spot": 678.44,
+      "note": "morning_move=+0.0051"
+    },
+    {
+      "date": "2026-03-04",
+      "side": "C",
+      "atm": 686,
+      "spot": 685.99,
+      "note": "morning_move=+0.0063"
+    },
+    {
+      "date": "2026-03-05",
+      "side": "P",
+      "atm": 677,
+      "spot": 677.1,
+      "note": "morning_move=-0.0073"
+    },
+    {
+      "date": "2026-03-09",
+      "side": "C",
+      "atm": 671,
+      "spot": 670.84,
+      "note": "morning_move=+0.0067"
+    },
+    {
+      "date": "2026-03-10",
+      "side": "C",
+      "atm": 682,
+      "spot": 681.88,
+      "note": "morning_move=+0.0062"
+    },
+    {
+      "date": "2026-03-13",
+      "side": "P",
+      "atm": 664,
+      "spot": 663.52,
+      "note": "morning_move=-0.0085"
+    },
+    {
+      "date": "2026-03-20",
+      "side": "P",
+      "atm": 653,
+      "spot": 653.11,
+      "note": "morning_move=-0.0052"
+    },
+    {
+      "date": "2026-03-23",
+      "side": "P",
+      "atm": 655,
+      "spot": 655.08,
+      "note": "morning_move=-0.0046"
+    },
+    {
+      "date": "2026-03-26",
+      "side": "P",
+      "atm": 649,
+      "spot": 649.44,
+      "note": "morning_move=-0.0040"
+    },
+    {
+      "date": "2026-03-27",
+      "side": "P",
+      "atm": 638,
+      "spot": 638.47,
+      "note": "morning_move=-0.0063"
+    },
+    {
+      "date": "2026-03-30",
+      "side": "P",
+      "atm": 635,
+      "spot": 634.88,
+      "note": "morning_move=-0.0082"
+    },
+    {
+      "date": "2026-03-31",
+      "side": "C",
+      "atm": 648,
+      "spot": 648.06,
+      "note": "morning_move=+0.0143"
+    },
+    {
+      "date": "2026-04-01",
+      "side": "C",
+      "atm": 658,
+      "spot": 658.31,
+      "note": "morning_move=+0.0067"
+    },
+    {
+      "date": "2026-04-02",
+      "side": "C",
+      "atm": 654,
+      "spot": 653.81,
+      "note": "morning_move=+0.0114"
+    },
+    {
+      "date": "2026-04-09",
+      "side": "C",
+      "atm": 680,
+      "spot": 680.14,
+      "note": "morning_move=+0.0079"
+    },
+    {
+      "date": "2026-04-10",
+      "side": "P",
+      "atm": 679,
+      "spot": 678.8,
+      "note": "morning_move=-0.0037"
+    },
+    {
+      "date": "2026-04-13",
+      "side": "C",
+      "atm": 682,
+      "spot": 682.48,
+      "note": "morning_move=+0.0075"
+    },
+    {
+      "date": "2026-04-14",
+      "side": "C",
+      "atm": 693,
+      "spot": 693.16,
+      "note": "morning_move=+0.0080"
+    },
+    {
+      "date": "2026-04-17",
+      "side": "C",
+      "atm": 712,
+      "spot": 712.07,
+      "note": "morning_move=+0.0084"
+    },
+    {
+      "date": "2026-04-21",
+      "side": "P",
+      "atm": 706,
+      "spot": 705.97,
+      "note": "morning_move=-0.0050"
+    },
+    {
+      "date": "2026-04-24",
+      "side": "C",
+      "atm": 714,
+      "spot": 713.58,
+      "note": "morning_move=+0.0040"
+    },
+    {
+      "date": "2026-05-04",
+      "side": "P",
+      "atm": 717,
+      "spot": 717.08,
+      "note": "morning_move=-0.0037"
+    },
+    {
+      "date": "2026-05-06",
+      "side": "C",
+      "atm": 731,
+      "spot": 731.25,
+      "note": "morning_move=+0.0042"
+    },
+    {
+      "date": "2026-05-07",
+      "side": "P",
+      "atm": 732,
+      "spot": 732.07,
+      "note": "morning_move=-0.0041"
+    },
+    {
+      "date": "2026-05-11",
+      "side": "C",
+      "atm": 740,
+      "spot": 739.53,
+      "note": "morning_move=+0.0041"
+    },
+    {
+      "date": "2026-05-12",
+      "side": "P",
+      "atm": 733,
+      "spot": 732.87,
+      "note": "morning_move=-0.0054"
+    },
+    {
+      "date": "2026-05-13",
+      "side": "C",
+      "atm": 742,
+      "spot": 742.41,
+      "note": "morning_move=+0.0053"
+    },
+    {
+      "date": "2026-05-14",
+      "side": "C",
+      "atm": 748,
+      "spot": 748.16,
+      "note": "morning_move=+0.0061"
+    },
+    {
+      "date": "2026-05-18",
+      "side": "P",
+      "atm": 737,
+      "spot": 736.89,
+      "note": "morning_move=-0.0040"
+    },
+    {
+      "date": "2026-05-20",
+      "side": "C",
+      "atm": 739,
+      "spot": 739.1,
+      "note": "morning_move=+0.0046"
+    },
+    {
+      "date": "2026-05-28",
+      "side": "C",
+      "atm": 755,
+      "spot": 754.73,
+      "note": "morning_move=+0.0060"
+    },
+    {
+      "date": "2026-06-02",
+      "side": "C",
+      "atm": 760,
+      "spot": 759.91,
+      "note": "morning_move=+0.0038"
+    },
+    {
+      "date": "2026-06-03",
+      "side": "P",
+      "atm": 755,
+      "spot": 754.71,
+      "note": "morning_move=-0.0045"
+    },
+    {
+      "date": "2026-06-04",
+      "side": "C",
+      "atm": 757,
+      "spot": 756.71,
+      "note": "morning_move=+0.0061"
+    },
+    {
+      "date": "2026-06-05",
+      "side": "P",
+      "atm": 744,
+      "spot": 743.9,
+      "note": "morning_move=-0.0112"
+    },
+    {
+      "date": "2026-06-09",
+      "side": "P",
+      "atm": 728,
+      "spot": 728.39,
+      "note": "morning_move=-0.0205"
+    },
+    {
+      "date": "2026-06-11",
+      "side": "P",
+      "atm": 726,
+      "spot": 725.88,
+      "note": "morning_move=-0.0040"
+    }
+  ],
+  "power_hour": [
+    {
+      "date": "2025-01-02",
+      "side": "P",
+      "atm": 584,
+      "spot": 583.8,
+      "note": "PH move=-0.0095 stack=BEAR"
+    },
+    {
+      "date": "2025-01-03",
+      "side": "C",
+      "atm": 592,
+      "spot": 591.74,
+      "note": "PH move=+0.0071 stack=BULL"
+    },
+    {
+      "date": "2025-01-07",
+      "side": "P",
+      "atm": 590,
+      "spot": 589.67,
+      "note": "PH move=-0.0130 stack=BEAR"
+    },
+    {
+      "date": "2025-01-10",
+      "side": "P",
+      "atm": 582,
+      "spot": 581.96,
+      "note": "PH move=-0.0067 stack=BEAR"
+    },
+    {
+      "date": "2025-01-13",
+      "side": "C",
+      "atm": 580,
+      "spot": 580.15,
+      "note": "PH move=+0.0076 stack=BULL"
+    },
+    {
+      "date": "2025-01-15",
+      "side": "C",
+      "atm": 593,
+      "spot": 593.37,
+      "note": "PH move=+0.0047 stack=BULL"
+    },
+    {
+      "date": "2025-01-23",
+      "side": "C",
+      "atm": 608,
+      "spot": 607.71,
+      "note": "PH move=+0.0032 stack=BULL"
+    },
+    {
+      "date": "2025-01-24",
+      "side": "P",
+      "atm": 608,
+      "spot": 607.78,
+      "note": "PH move=-0.0033 stack=BEAR"
+    },
+    {
+      "date": "2025-01-28",
+      "side": "C",
+      "atm": 605,
+      "spot": 604.89,
+      "note": "PH move=+0.0070 stack=BULL"
+    },
+    {
+      "date": "2025-01-30",
+      "side": "C",
+      "atm": 606,
+      "spot": 606.08,
+      "note": "PH move=+0.0034 stack=BULL"
+    },
+    {
+      "date": "2025-01-31",
+      "side": "P",
+      "atm": 602,
+      "spot": 601.77,
+      "note": "PH move=-0.0094 stack=BEAR"
+    },
+    {
+      "date": "2025-02-03",
+      "side": "C",
+      "atm": 600,
+      "spot": 599.96,
+      "note": "PH move=+0.0126 stack=BULL"
+    },
+    {
+      "date": "2025-02-04",
+      "side": "C",
+      "atm": 601,
+      "spot": 601.45,
+      "note": "PH move=+0.0064 stack=BULL"
+    },
+    {
+      "date": "2025-02-05",
+      "side": "C",
+      "atm": 603,
+      "spot": 603.26,
+      "note": "PH move=+0.0044 stack=BULL"
+    },
+    {
+      "date": "2025-02-06",
+      "side": "P",
+      "atm": 604,
+      "spot": 603.73,
+      "note": "PH move=-0.0037 stack=BEAR"
+    },
+    {
+      "date": "2025-02-07",
+      "side": "P",
+      "atm": 601,
+      "spot": 600.51,
+      "note": "PH move=-0.0104 stack=BEAR"
+    },
+    {
+      "date": "2025-02-11",
+      "side": "C",
+      "atm": 605,
+      "spot": 605.46,
+      "note": "PH move=+0.0048 stack=BULL"
+    },
+    {
+      "date": "2025-02-12",
+      "side": "C",
+      "atm": 604,
+      "spot": 603.81,
+      "note": "PH move=+0.0077 stack=BULL"
+    },
+    {
+      "date": "2025-02-13",
+      "side": "C",
+      "atm": 609,
+      "spot": 609.1,
+      "note": "PH move=+0.0076 stack=BULL"
+    },
+    {
+      "date": "2025-02-19",
+      "side": "C",
+      "atm": 613,
+      "spot": 612.83,
+      "note": "PH move=+0.0045 stack=BULL"
+    },
+    {
+      "date": "2025-02-21",
+      "side": "P",
+      "atm": 600,
+      "spot": 600.01,
+      "note": "PH move=-0.0167 stack=BEAR"
+    },
+    {
+      "date": "2025-02-24",
+      "side": "P",
+      "atm": 599,
+      "spot": 599.42,
+      "note": "PH move=-0.0043 stack=BEAR"
+    },
+    {
+      "date": "2025-02-26",
+      "side": "P",
+      "atm": 593,
+      "spot": 592.68,
+      "note": "PH move=-0.0056 stack=BEAR"
+    },
+    {
+      "date": "2025-02-27",
+      "side": "P",
+      "atm": 588,
+      "spot": 587.74,
+      "note": "PH move=-0.0153 stack=BEAR"
+    },
+    {
+      "date": "2025-02-28",
+      "side": "C",
+      "atm": 589,
+      "spot": 588.86,
+      "note": "PH move=+0.0060 stack=BULL"
+    },
+    {
+      "date": "2025-03-03",
+      "side": "P",
+      "atm": 584,
+      "spot": 584.47,
+      "note": "PH move=-0.0197 stack=BEAR"
+    },
+    {
+      "date": "2025-03-04",
+      "side": "C",
+      "atm": 582,
+      "spot": 582.46,
+      "note": "PH move=+0.0047 stack=BULL"
+    },
+    {
+      "date": "2025-03-05",
+      "side": "C",
+      "atm": 584,
+      "spot": 584.34,
+      "note": "PH move=+0.0133 stack=BULL"
+    },
+    {
+      "date": "2025-03-06",
+      "side": "P",
+      "atm": 572,
+      "spot": 572.23,
+      "note": "PH move=-0.0057 stack=BEAR"
+    },
+    {
+      "date": "2025-03-07",
+      "side": "C",
+      "atm": 575,
+      "spot": 575.03,
+      "note": "PH move=+0.0072 stack=BULL"
+    },
+    {
+      "date": "2025-03-14",
+      "side": "C",
+      "atm": 562,
+      "spot": 562.09,
+      "note": "PH move=+0.0107 stack=BULL"
+    },
+    {
+      "date": "2025-03-17",
+      "side": "C",
+      "atm": 569,
+      "spot": 568.92,
+      "note": "PH move=+0.0108 stack=BULL"
+    },
+    {
+      "date": "2025-03-19",
+      "side": "C",
+      "atm": 569,
+      "spot": 568.94,
+      "note": "PH move=+0.0109 stack=BULL"
+    },
+    {
+      "date": "2025-03-21",
+      "side": "C",
+      "atm": 562,
+      "spot": 562.08,
+      "note": "PH move=+0.0051 stack=BULL"
+    },
+    {
+      "date": "2025-03-24",
+      "side": "C",
+      "atm": 574,
+      "spot": 573.88,
+      "note": "PH move=+0.0055 stack=BULL"
+    },
+    {
+      "date": "2025-03-26",
+      "side": "P",
+      "atm": 568,
+      "spot": 567.56,
+      "note": "PH move=-0.0133 stack=BEAR"
+    },
+    {
+      "date": "2025-03-28",
+      "side": "P",
+      "atm": 556,
+      "spot": 556.17,
+      "note": "PH move=-0.0163 stack=BEAR"
+    },
+    {
+      "date": "2025-03-31",
+      "side": "C",
+      "atm": 557,
+      "spot": 557.44,
+      "note": "PH move=+0.0138 stack=BULL"
+    },
+    {
+      "date": "2025-04-03",
+      "side": "P",
+      "atm": 541,
+      "spot": 541.48,
+      "note": "PH move=-0.0067 stack=BEAR"
+    },
+    {
+      "date": "2025-04-04",
+      "side": "P",
+      "atm": 507,
+      "spot": 507.32,
+      "note": "PH move=-0.0312 stack=BEAR"
+    },
+    {
+      "date": "2025-04-07",
+      "side": "C",
+      "atm": 504,
+      "spot": 503.71,
+      "note": "PH move=+0.0298 stack=BULL"
+    },
+    {
+      "date": "2025-04-08",
+      "side": "P",
+      "atm": 501,
+      "spot": 500.55,
+      "note": "PH move=-0.0410 stack=BEAR"
+    },
+    {
+      "date": "2025-04-09",
+      "side": "C",
+      "atm": 534,
+      "spot": 534.25,
+      "note": "PH move=+0.0799 stack=BULL"
+    },
+    {
+      "date": "2025-04-11",
+      "side": "C",
+      "atm": 534,
+      "spot": 534.02,
+      "note": "PH move=+0.0211 stack=BULL"
+    },
+    {
+      "date": "2025-04-16",
+      "side": "P",
+      "atm": 522,
+      "spot": 522.22,
+      "note": "PH move=-0.0177 stack=BEAR"
+    },
+    {
+      "date": "2025-04-21",
+      "side": "P",
+      "atm": 510,
+      "spot": 509.69,
+      "note": "PH move=-0.0221 stack=BEAR"
+    },
+    {
+      "date": "2025-04-22",
+      "side": "C",
+      "atm": 527,
+      "spot": 526.91,
+      "note": "PH move=+0.0129 stack=BULL"
+    },
+    {
+      "date": "2025-04-23",
+      "side": "P",
+      "atm": 535,
+      "spot": 535.29,
+      "note": "PH move=-0.0095 stack=BEAR"
+    },
+    {
+      "date": "2025-04-24",
+      "side": "C",
+      "atm": 545,
+      "spot": 545.23,
+      "note": "PH move=+0.0159 stack=BULL"
+    },
+    {
+      "date": "2025-04-25",
+      "side": "C",
+      "atm": 550,
+      "spot": 550.4,
+      "note": "PH move=+0.0056 stack=BULL"
+    },
+    {
+      "date": "2025-04-29",
+      "side": "C",
+      "atm": 554,
+      "spot": 554.34,
+      "note": "PH move=+0.0099 stack=BULL"
+    },
+    {
+      "date": "2025-04-30",
+      "side": "C",
+      "atm": 550,
+      "spot": 550.23,
+      "note": "PH move=+0.0049 stack=BULL"
+    },
+    {
+      "date": "2025-05-02",
+      "side": "C",
+      "atm": 566,
+      "spot": 566.49,
+      "note": "PH move=+0.0031 stack=BULL"
+    },
+    {
+      "date": "2025-05-05",
+      "side": "C",
+      "atm": 566,
+      "spot": 565.55,
+      "note": "PH move=+0.0052 stack=BULL"
+    },
+    {
+      "date": "2025-05-08",
+      "side": "C",
+      "atm": 568,
+      "spot": 568.32,
+      "note": "PH move=+0.0054 stack=BULL"
+    },
+    {
+      "date": "2025-05-13",
+      "side": "C",
+      "atm": 588,
+      "spot": 588.43,
+      "note": "PH move=+0.0085 stack=BULL"
+    },
+    {
+      "date": "2025-05-15",
+      "side": "C",
+      "atm": 590,
+      "spot": 589.92,
+      "note": "PH move=+0.0074 stack=BULL"
+    },
+    {
+      "date": "2025-05-16",
+      "side": "C",
+      "atm": 594,
+      "spot": 593.83,
+      "note": "PH move=+0.0043 stack=BULL"
+    },
+    {
+      "date": "2025-05-20",
+      "side": "P",
+      "atm": 590,
+      "spot": 589.74,
+      "note": "PH move=-0.0057 stack=BEAR"
+    },
+    {
+      "date": "2025-05-21",
+      "side": "P",
+      "atm": 584,
+      "spot": 584.17,
+      "note": "PH move=-0.0075 stack=BEAR"
+    },
+    {
+      "date": "2025-05-22",
+      "side": "C",
+      "atm": 586,
+      "spot": 586.12,
+      "note": "PH move=+0.0059 stack=BULL"
+    },
+    {
+      "date": "2025-05-23",
+      "side": "C",
+      "atm": 580,
+      "spot": 580.19,
+      "note": "PH move=+0.0075 stack=BULL"
+    },
+    {
+      "date": "2025-05-27",
+      "side": "C",
+      "atm": 590,
+      "spot": 590.48,
+      "note": "PH move=+0.0075 stack=BULL"
+    },
+    {
+      "date": "2025-05-29",
+      "side": "P",
+      "atm": 589,
+      "spot": 589.25,
+      "note": "PH move=-0.0065 stack=BEAR"
+    },
+    {
+      "date": "2025-06-02",
+      "side": "C",
+      "atm": 592,
+      "spot": 592.11,
+      "note": "PH move=+0.0074 stack=BULL"
+    },
+    {
+      "date": "2025-06-03",
+      "side": "C",
+      "atm": 596,
+      "spot": 596.24,
+      "note": "PH move=+0.0064 stack=BULL"
+    },
+    {
+      "date": "2025-06-05",
+      "side": "P",
+      "atm": 595,
+      "spot": 594.93,
+      "note": "PH move=-0.0046 stack=BEAR"
+    },
+    {
+      "date": "2025-06-10",
+      "side": "C",
+      "atm": 603,
+      "spot": 602.87,
+      "note": "PH move=+0.0042 stack=BULL"
+    },
+    {
+      "date": "2025-06-11",
+      "side": "P",
+      "atm": 601,
+      "spot": 600.51,
+      "note": "PH move=-0.0061 stack=BEAR"
+    },
+    {
+      "date": "2025-06-12",
+      "side": "C",
+      "atm": 603,
+      "spot": 603.38,
+      "note": "PH move=+0.0056 stack=BULL"
+    },
+    {
+      "date": "2025-06-17",
+      "side": "P",
+      "atm": 598,
+      "spot": 597.6,
+      "note": "PH move=-0.0044 stack=BEAR"
+    },
+    {
+      "date": "2025-06-20",
+      "side": "P",
+      "atm": 594,
+      "spot": 593.72,
+      "note": "PH move=-0.0078 stack=BEAR"
+    },
+    {
+      "date": "2025-06-23",
+      "side": "C",
+      "atm": 599,
+      "spot": 599.25,
+      "note": "PH move=+0.0070 stack=BULL"
+    },
+    {
+      "date": "2025-06-24",
+      "side": "C",
+      "atm": 608,
+      "spot": 607.51,
+      "note": "PH move=+0.0053 stack=BULL"
+    },
+    {
+      "date": "2025-06-26",
+      "side": "C",
+      "atm": 612,
+      "spot": 611.61,
+      "note": "PH move=+0.0043 stack=BULL"
+    },
+    {
+      "date": "2025-07-02",
+      "side": "C",
+      "atm": 620,
+      "spot": 620.05,
+      "note": "PH move=+0.0045 stack=BULL"
+    },
+    {
+      "date": "2025-07-07",
+      "side": "P",
+      "atm": 620,
+      "spot": 619.9,
+      "note": "PH move=-0.0055 stack=BEAR"
+    },
+    {
+      "date": "2025-07-10",
+      "side": "C",
+      "atm": 626,
+      "spot": 626.36,
+      "note": "PH move=+0.0034 stack=BULL"
+    },
+    {
+      "date": "2025-07-14",
+      "side": "C",
+      "atm": 625,
+      "spot": 625.02,
+      "note": "PH move=+0.0030 stack=BULL"
+    },
+    {
+      "date": "2025-07-15",
+      "side": "P",
+      "atm": 624,
+      "spot": 623.58,
+      "note": "PH move=-0.0063 stack=BEAR"
+    },
+    {
+      "date": "2025-07-17",
+      "side": "C",
+      "atm": 628,
+      "spot": 628.27,
+      "note": "PH move=+0.0063 stack=BULL"
+    },
+    {
+      "date": "2025-07-25",
+      "side": "C",
+      "atm": 637,
+      "spot": 637.28,
+      "note": "PH move=+0.0034 stack=BULL"
+    },
+    {
+      "date": "2025-07-29",
+      "side": "P",
+      "atm": 635,
+      "spot": 635.38,
+      "note": "PH move=-0.0047 stack=BEAR"
+    },
+    {
+      "date": "2025-07-30",
+      "side": "P",
+      "atm": 632,
+      "spot": 632.1,
+      "note": "PH move=-0.0061 stack=BEAR"
+    },
+    {
+      "date": "2025-07-31",
+      "side": "P",
+      "atm": 634,
+      "spot": 634.41,
+      "note": "PH move=-0.0079 stack=BEAR"
+    },
+    {
+      "date": "2025-08-01",
+      "side": "P",
+      "atm": 621,
+      "spot": 621.14,
+      "note": "PH move=-0.0083 stack=BEAR"
+    },
+    {
+      "date": "2025-08-04",
+      "side": "C",
+      "atm": 630,
+      "spot": 629.95,
+      "note": "PH move=+0.0068 stack=BULL"
+    },
+    {
+      "date": "2025-08-05",
+      "side": "P",
+      "atm": 629,
+      "spot": 628.82,
+      "note": "PH move=-0.0047 stack=BEAR"
+    },
+    {
+      "date": "2025-08-06",
+      "side": "C",
+      "atm": 633,
+      "spot": 632.84,
+      "note": "PH move=+0.0060 stack=BULL"
+    },
+    {
+      "date": "2025-08-07",
+      "side": "P",
+      "atm": 631,
+      "spot": 630.5,
+      "note": "PH move=-0.0090 stack=BEAR"
+    },
+    {
+      "date": "2025-08-08",
+      "side": "C",
+      "atm": 637,
+      "spot": 637.09,
+      "note": "PH move=+0.0047 stack=BULL"
+    },
+    {
+      "date": "2025-08-12",
+      "side": "C",
+      "atm": 642,
+      "spot": 642.1,
+      "note": "PH move=+0.0060 stack=BULL"
+    },
+    {
+      "date": "2025-08-19",
+      "side": "P",
+      "atm": 639,
+      "spot": 638.84,
+      "note": "PH move=-0.0067 stack=BEAR"
+    },
+    {
+      "date": "2025-08-22",
+      "side": "C",
+      "atm": 646,
+      "spot": 645.58,
+      "note": "PH move=+0.0123 stack=BULL"
+    },
+    {
+      "date": "2025-08-27",
+      "side": "C",
+      "atm": 647,
+      "spot": 646.92,
+      "note": "PH move=+0.0037 stack=BULL"
+    },
+    {
+      "date": "2025-09-04",
+      "side": "C",
+      "atm": 648,
+      "spot": 647.72,
+      "note": "PH move=+0.0051 stack=BULL"
+    },
+    {
+      "date": "2025-09-10",
+      "side": "P",
+      "atm": 652,
+      "spot": 651.6,
+      "note": "PH move=-0.0031 stack=BEAR"
+    },
+    {
+      "date": "2025-09-11",
+      "side": "C",
+      "atm": 658,
+      "spot": 657.62,
+      "note": "PH move=+0.0051 stack=BULL"
+    },
+    {
+      "date": "2025-09-22",
+      "side": "C",
+      "atm": 667,
+      "spot": 666.87,
+      "note": "PH move=+0.0070 stack=BULL"
+    },
+    {
+      "date": "2025-09-23",
+      "side": "P",
+      "atm": 662,
+      "spot": 662.28,
+      "note": "PH move=-0.0067 stack=BEAR"
+    },
+    {
+      "date": "2025-09-24",
+      "side": "P",
+      "atm": 661,
+      "spot": 660.73,
+      "note": "PH move=-0.0056 stack=BEAR"
+    },
+    {
+      "date": "2025-09-26",
+      "side": "C",
+      "atm": 662,
+      "spot": 661.83,
+      "note": "PH move=+0.0035 stack=BULL"
+    },
+    {
+      "date": "2025-10-01",
+      "side": "C",
+      "atm": 669,
+      "spot": 669.35,
+      "note": "PH move=+0.0093 stack=BULL"
+    },
+    {
+      "date": "2025-10-09",
+      "side": "P",
+      "atm": 670,
+      "spot": 669.95,
+      "note": "PH move=-0.0053 stack=BEAR"
+    },
+    {
+      "date": "2025-10-10",
+      "side": "P",
+      "atm": 658,
+      "spot": 657.63,
+      "note": "PH move=-0.0216 stack=BEAR"
+    },
+    {
+      "date": "2025-10-14",
+      "side": "C",
+      "atm": 665,
+      "spot": 665.08,
+      "note": "PH move=+0.0120 stack=BULL"
+    },
+    {
+      "date": "2025-10-16",
+      "side": "P",
+      "atm": 660,
+      "spot": 660.18,
+      "note": "PH move=-0.0100 stack=BEAR"
+    },
+    {
+      "date": "2025-10-17",
+      "side": "C",
+      "atm": 665,
+      "spot": 664.77,
+      "note": "PH move=+0.0079 stack=BULL"
+    },
+    {
+      "date": "2025-10-20",
+      "side": "C",
+      "atm": 672,
+      "spot": 671.88,
+      "note": "PH move=+0.0069 stack=BULL"
+    },
+    {
+      "date": "2025-10-22",
+      "side": "P",
+      "atm": 666,
+      "spot": 666.17,
+      "note": "PH move=-0.0082 stack=BEAR"
+    },
+    {
+      "date": "2025-10-23",
+      "side": "C",
+      "atm": 673,
+      "spot": 672.59,
+      "note": "PH move=+0.0067 stack=BULL"
+    },
+    {
+      "date": "2025-10-29",
+      "side": "P",
+      "atm": 685,
+      "spot": 684.69,
+      "note": "PH move=-0.0059 stack=BEAR"
+    },
+    {
+      "date": "2025-11-05",
+      "side": "C",
+      "atm": 680,
+      "spot": 680.36,
+      "note": "PH move=+0.0080 stack=BULL"
+    },
+    {
+      "date": "2025-11-10",
+      "side": "C",
+      "atm": 682,
+      "spot": 681.67,
+      "note": "PH move=+0.0065 stack=BULL"
+    },
+    {
+      "date": "2025-11-11",
+      "side": "C",
+      "atm": 683,
+      "spot": 683.32,
+      "note": "PH move=+0.0050 stack=BULL"
+    },
+    {
+      "date": "2025-11-13",
+      "side": "P",
+      "atm": 671,
+      "spot": 671.28,
+      "note": "PH move=-0.0135 stack=BEAR"
+    },
+    {
+      "date": "2025-11-14",
+      "side": "C",
+      "atm": 675,
+      "spot": 674.84,
+      "note": "PH move=+0.0142 stack=BULL"
+    },
+    {
+      "date": "2025-11-17",
+      "side": "P",
+      "atm": 663,
+      "spot": 662.7,
+      "note": "PH move=-0.0104 stack=BEAR"
+    },
+    {
+      "date": "2025-11-20",
+      "side": "P",
+      "atm": 656,
+      "spot": 656.17,
+      "note": "PH move=-0.0249 stack=BEAR"
+    },
+    {
+      "date": "2025-11-21",
+      "side": "C",
+      "atm": 662,
+      "spot": 661.65,
+      "note": "PH move=+0.0106 stack=BULL"
+    },
+    {
+      "date": "2025-11-25",
+      "side": "C",
+      "atm": 674,
+      "spot": 674.49,
+      "note": "PH move=+0.0088 stack=BULL"
+    },
+    {
+      "date": "2025-11-26",
+      "side": "C",
+      "atm": 681,
+      "spot": 681.08,
+      "note": "PH move=+0.0051 stack=BULL"
+    },
+    {
+      "date": "2025-11-28",
+      "side": "C",
+      "atm": 683,
+      "spot": 683.01,
+      "note": "PH move=+0.0031 stack=BULL"
+    },
+    {
+      "date": "2025-12-03",
+      "side": "C",
+      "atm": 685,
+      "spot": 684.58,
+      "note": "PH move=+0.0059 stack=BULL"
+    },
+    {
+      "date": "2025-12-04",
+      "side": "P",
+      "atm": 683,
+      "spot": 682.87,
+      "note": "PH move=-0.0035 stack=BEAR"
+    },
+    {
+      "date": "2025-12-08",
+      "side": "P",
+      "atm": 682,
+      "spot": 682.3,
+      "note": "PH move=-0.0061 stack=BEAR"
+    },
+    {
+      "date": "2025-12-10",
+      "side": "C",
+      "atm": 688,
+      "spot": 688.16,
+      "note": "PH move=+0.0083 stack=BULL"
+    },
+    {
+      "date": "2025-12-11",
+      "side": "C",
+      "atm": 689,
+      "spot": 689.04,
+      "note": "PH move=+0.0057 stack=BULL"
+    },
+    {
+      "date": "2025-12-12",
+      "side": "P",
+      "atm": 682,
+      "spot": 681.9,
+      "note": "PH move=-0.0091 stack=BEAR"
+    },
+    {
+      "date": "2025-12-17",
+      "side": "P",
+      "atm": 673,
+      "spot": 672.65,
+      "note": "PH move=-0.0105 stack=BEAR"
+    },
+    {
+      "date": "2025-12-19",
+      "side": "C",
+      "atm": 681,
+      "spot": 680.53,
+      "note": "PH move=+0.0058 stack=BULL"
+    },
+    {
+      "date": "2025-12-23",
+      "side": "C",
+      "atm": 688,
+      "spot": 687.96,
+      "note": "PH move=+0.0059 stack=BULL"
+    },
+    {
+      "date": "2025-12-24",
+      "side": "C",
+      "atm": 690,
+      "spot": 690.11,
+      "note": "PH move=+0.0032 stack=BULL"
+    },
+    {
+      "date": "2025-12-31",
+      "side": "P",
+      "atm": 684,
+      "spot": 683.6,
+      "note": "PH move=-0.0052 stack=BEAR"
+    },
+    {
+      "date": "2026-01-06",
+      "side": "C",
+      "atm": 692,
+      "spot": 692.11,
+      "note": "PH move=+0.0061 stack=BULL"
+    },
+    {
+      "date": "2026-01-09",
+      "side": "C",
+      "atm": 695,
+      "spot": 695.0,
+      "note": "PH move=+0.0064 stack=BULL"
+    },
+    {
+      "date": "2026-01-12",
+      "side": "C",
+      "atm": 696,
+      "spot": 695.81,
+      "note": "PH move=+0.0074 stack=BULL"
+    },
+    {
+      "date": "2026-01-13",
+      "side": "P",
+      "atm": 693,
+      "spot": 692.68,
+      "note": "PH move=-0.0040 stack=BEAR"
+    },
+    {
+      "date": "2026-01-20",
+      "side": "P",
+      "atm": 678,
+      "spot": 677.62,
+      "note": "PH move=-0.0057 stack=BEAR"
+    },
+    {
+      "date": "2026-01-21",
+      "side": "C",
+      "atm": 688,
+      "spot": 687.73,
+      "note": "PH move=+0.0123 stack=BULL"
+    },
+    {
+      "date": "2026-01-26",
+      "side": "C",
+      "atm": 694,
+      "spot": 693.72,
+      "note": "PH move=+0.0047 stack=BULL"
+    },
+    {
+      "date": "2026-02-03",
+      "side": "P",
+      "atm": 686,
+      "spot": 686.35,
+      "note": "PH move=-0.0142 stack=BEAR"
+    },
+    {
+      "date": "2026-02-06",
+      "side": "C",
+      "atm": 690,
+      "spot": 689.52,
+      "note": "PH move=+0.0119 stack=BULL"
+    },
+    {
+      "date": "2026-02-09",
+      "side": "C",
+      "atm": 695,
+      "spot": 695.45,
+      "note": "PH move=+0.0087 stack=BULL"
+    },
+    {
+      "date": "2026-02-17",
+      "side": "C",
+      "atm": 684,
+      "spot": 683.69,
+      "note": "PH move=+0.0052 stack=BULL"
+    },
+    {
+      "date": "2026-02-20",
+      "side": "C",
+      "atm": 689,
+      "spot": 688.62,
+      "note": "PH move=+0.0094 stack=BULL"
+    },
+    {
+      "date": "2026-02-23",
+      "side": "P",
+      "atm": 681,
+      "spot": 681.17,
+      "note": "PH move=-0.0096 stack=BEAR"
+    },
+    {
+      "date": "2026-02-25",
+      "side": "C",
+      "atm": 693,
+      "spot": 693.09,
+      "note": "PH move=+0.0043 stack=BULL"
+    },
+    {
+      "date": "2026-03-02",
+      "side": "C",
+      "atm": 688,
+      "spot": 688.03,
+      "note": "PH move=+0.0137 stack=BULL"
+    },
+    {
+      "date": "2026-03-03",
+      "side": "C",
+      "atm": 681,
+      "spot": 681.11,
+      "note": "PH move=+0.0090 stack=BULL"
+    },
+    {
+      "date": "2026-03-04",
+      "side": "C",
+      "atm": 687,
+      "spot": 686.91,
+      "note": "PH move=+0.0077 stack=BULL"
+    },
+    {
+      "date": "2026-03-05",
+      "side": "P",
+      "atm": 678,
+      "spot": 677.93,
+      "note": "PH move=-0.0061 stack=BEAR"
+    },
+    {
+      "date": "2026-03-06",
+      "side": "C",
+      "atm": 676,
+      "spot": 675.72,
+      "note": "PH move=+0.0034 stack=BULL"
+    },
+    {
+      "date": "2026-03-09",
+      "side": "C",
+      "atm": 670,
+      "spot": 670.28,
+      "note": "PH move=+0.0059 stack=BULL"
+    },
+    {
+      "date": "2026-03-11",
+      "side": "P",
+      "atm": 675,
+      "spot": 674.9,
+      "note": "PH move=-0.0041 stack=BEAR"
+    },
+    {
+      "date": "2026-03-12",
+      "side": "P",
+      "atm": 667,
+      "spot": 667.31,
+      "note": "PH move=-0.0057 stack=BEAR"
+    },
+    {
+      "date": "2026-03-18",
+      "side": "P",
+      "atm": 664,
+      "spot": 664.43,
+      "note": "PH move=-0.0059 stack=BEAR"
+    },
+    {
+      "date": "2026-03-20",
+      "side": "P",
+      "atm": 648,
+      "spot": 648.17,
+      "note": "PH move=-0.0127 stack=BEAR"
+    },
+    {
+      "date": "2026-03-24",
+      "side": "C",
+      "atm": 655,
+      "spot": 655.13,
+      "note": "PH move=+0.0058 stack=BULL"
+    },
+    {
+      "date": "2026-03-25",
+      "side": "P",
+      "atm": 656,
+      "spot": 656.06,
+      "note": "PH move=-0.0040 stack=BEAR"
+    },
+    {
+      "date": "2026-03-26",
+      "side": "P",
+      "atm": 647,
+      "spot": 646.71,
+      "note": "PH move=-0.0082 stack=BEAR"
+    },
+    {
+      "date": "2026-03-27",
+      "side": "P",
+      "atm": 635,
+      "spot": 634.79,
+      "note": "PH move=-0.0120 stack=BEAR"
+    },
+    {
+      "date": "2026-03-30",
+      "side": "P",
+      "atm": 632,
+      "spot": 631.52,
+      "note": "PH move=-0.0134 stack=BEAR"
+    },
+    {
+      "date": "2026-03-31",
+      "side": "C",
+      "atm": 649,
+      "spot": 648.94,
+      "note": "PH move=+0.0157 stack=BULL"
+    },
+    {
+      "date": "2026-04-02",
+      "side": "C",
+      "atm": 655,
+      "spot": 654.53,
+      "note": "PH move=+0.0125 stack=BULL"
+    },
+    {
+      "date": "2026-04-06",
+      "side": "C",
+      "atm": 658,
+      "spot": 658.37,
+      "note": "PH move=+0.0038 stack=BULL"
+    },
+    {
+      "date": "2026-04-07",
+      "side": "P",
+      "atm": 654,
+      "spot": 654.08,
+      "note": "PH move=-0.0039 stack=BEAR"
+    },
+    {
+      "date": "2026-04-08",
+      "side": "P",
+      "atm": 673,
+      "spot": 673.29,
+      "note": "PH move=-0.0046 stack=BEAR"
+    },
+    {
+      "date": "2026-04-13",
+      "side": "C",
+      "atm": 683,
+      "spot": 683.37,
+      "note": "PH move=+0.0088 stack=BULL"
+    },
+    {
+      "date": "2026-04-15",
+      "side": "C",
+      "atm": 700,
+      "spot": 699.73,
+      "note": "PH move=+0.0064 stack=BULL"
+    },
+    {
+      "date": "2026-04-23",
+      "side": "P",
+      "atm": 707,
+      "spot": 707.21,
+      "note": "PH move=-0.0032 stack=BEAR"
+    },
+    {
+      "date": "2026-04-24",
+      "side": "C",
+      "atm": 714,
+      "spot": 713.74,
+      "note": "PH move=+0.0042 stack=BULL"
+    },
+    {
+      "date": "2026-04-30",
+      "side": "C",
+      "atm": 719,
+      "spot": 718.76,
+      "note": "PH move=+0.0058 stack=BULL"
+    },
+    {
+      "date": "2026-05-04",
+      "side": "P",
+      "atm": 717,
+      "spot": 717.37,
+      "note": "PH move=-0.0033 stack=BEAR"
+    },
+    {
+      "date": "2026-05-05",
+      "side": "C",
+      "atm": 724,
+      "spot": 724.49,
+      "note": "PH move=+0.0038 stack=BULL"
+    },
+    {
+      "date": "2026-05-06",
+      "side": "C",
+      "atm": 733,
+      "spot": 733.34,
+      "note": "PH move=+0.0071 stack=BULL"
+    },
+    {
+      "date": "2026-05-07",
+      "side": "P",
+      "atm": 731,
+      "spot": 730.92,
+      "note": "PH move=-0.0056 stack=BEAR"
+    },
+    {
+      "date": "2026-05-13",
+      "side": "C",
+      "atm": 743,
+      "spot": 743.11,
+      "note": "PH move=+0.0063 stack=BULL"
+    },
+    {
+      "date": "2026-05-14",
+      "side": "C",
+      "atm": 748,
+      "spot": 748.48,
+      "note": "PH move=+0.0065 stack=BULL"
+    },
+    {
+      "date": "2026-05-18",
+      "side": "P",
+      "atm": 736,
+      "spot": 736.41,
+      "note": "PH move=-0.0046 stack=BEAR"
+    },
+    {
+      "date": "2026-05-20",
+      "side": "C",
+      "atm": 740,
+      "spot": 740.23,
+      "note": "PH move=+0.0062 stack=BULL"
+    },
+    {
+      "date": "2026-05-21",
+      "side": "C",
+      "atm": 742,
+      "spot": 741.85,
+      "note": "PH move=+0.0043 stack=BULL"
+    },
+    {
+      "date": "2026-05-28",
+      "side": "C",
+      "atm": 754,
+      "spot": 754.37,
+      "note": "PH move=+0.0055 stack=BULL"
+    },
+    {
+      "date": "2026-06-01",
+      "side": "C",
+      "atm": 760,
+      "spot": 759.66,
+      "note": "PH move=+0.0057 stack=BULL"
+    },
+    {
+      "date": "2026-06-04",
+      "side": "C",
+      "atm": 758,
+      "spot": 757.89,
+      "note": "PH move=+0.0077 stack=BULL"
+    },
+    {
+      "date": "2026-06-05",
+      "side": "P",
+      "atm": 739,
+      "spot": 739.11,
+      "note": "PH move=-0.0175 stack=BEAR"
+    },
+    {
+      "date": "2026-06-08",
+      "side": "P",
+      "atm": 741,
+      "spot": 740.97,
+      "note": "PH move=-0.0032 stack=BEAR"
+    },
+    {
+      "date": "2026-06-10",
+      "side": "P",
+      "atm": 727,
+      "spot": 727.35,
+      "note": "PH move=-0.0082 stack=BEAR"
+    },
+    {
+      "date": "2026-06-11",
+      "side": "C",
+      "atm": 736,
+      "spot": 736.34,
+      "note": "PH move=+0.0104 stack=BULL"
+    },
+    {
+      "date": "2026-06-16",
+      "side": "P",
+      "atm": 752,
+      "spot": 751.73,
+      "note": "PH move=-0.0037 stack=BEAR"
+    }
+  ],
+  "vwap_pullback": [
+    {
+      "date": "2025-01-23",
+      "side": "C",
+      "atm": 606,
+      "spot": 606.04,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-01-27",
+      "side": "C",
+      "atm": 598,
+      "spot": 597.59,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-02-12",
+      "side": "C",
+      "atm": 600,
+      "spot": 600.48,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-02-21",
+      "side": "P",
+      "atm": 608,
+      "spot": 608.22,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-02-24",
+      "side": "P",
+      "atm": 598,
+      "spot": 598.32,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-03-07",
+      "side": "C",
+      "atm": 575,
+      "spot": 574.57,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-03-14",
+      "side": "C",
+      "atm": 558,
+      "spot": 557.79,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-03-18",
+      "side": "P",
+      "atm": 561,
+      "spot": 561.42,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-03-20",
+      "side": "C",
+      "atm": 568,
+      "spot": 568.02,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-03-24",
+      "side": "C",
+      "atm": 572,
+      "spot": 572.15,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-03-25",
+      "side": "P",
+      "atm": 574,
+      "spot": 574.28,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-04-02",
+      "side": "C",
+      "atm": 559,
+      "spot": 558.95,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-04-09",
+      "side": "C",
+      "atm": 499,
+      "spot": 498.95,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-04-14",
+      "side": "P",
+      "atm": 542,
+      "spot": 541.55,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-04-15",
+      "side": "C",
+      "atm": 542,
+      "spot": 541.85,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-04-21",
+      "side": "P",
+      "atm": 512,
+      "spot": 511.73,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-04-23",
+      "side": "C",
+      "atm": 543,
+      "spot": 543.41,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-04-29",
+      "side": "C",
+      "atm": 551,
+      "spot": 551.26,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-04-30",
+      "side": "P",
+      "atm": 543,
+      "spot": 542.97,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-05-08",
+      "side": "P",
+      "atm": 564,
+      "spot": 564.34,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-05-13",
+      "side": "C",
+      "atm": 587,
+      "spot": 587.36,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-05-21",
+      "side": "C",
+      "atm": 591,
+      "spot": 590.53,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-05-30",
+      "side": "P",
+      "atm": 588,
+      "spot": 588.14,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-06-05",
+      "side": "P",
+      "atm": 594,
+      "spot": 594.41,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-06-06",
+      "side": "C",
+      "atm": 600,
+      "spot": 600.05,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-06-16",
+      "side": "C",
+      "atm": 603,
+      "spot": 603.49,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-06-27",
+      "side": "C",
+      "atm": 615,
+      "spot": 614.9,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-07-03",
+      "side": "C",
+      "atm": 625,
+      "spot": 624.82,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-07-09",
+      "side": "C",
+      "atm": 624,
+      "spot": 624.22,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-07-10",
+      "side": "P",
+      "atm": 623,
+      "spot": 623.21,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-07-15",
+      "side": "P",
+      "atm": 626,
+      "spot": 625.86,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-07-17",
+      "side": "C",
+      "atm": 626,
+      "spot": 626.13,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-07-21",
+      "side": "C",
+      "atm": 631,
+      "spot": 630.8,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-08-01",
+      "side": "P",
+      "atm": 622,
+      "spot": 621.95,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-08-04",
+      "side": "C",
+      "atm": 629,
+      "spot": 628.98,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-08-13",
+      "side": "C",
+      "atm": 644,
+      "spot": 644.26,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-08-14",
+      "side": "C",
+      "atm": 644,
+      "spot": 644.12,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-08-15",
+      "side": "P",
+      "atm": 644,
+      "spot": 644.48,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-08-20",
+      "side": "P",
+      "atm": 635,
+      "spot": 635.45,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-08-29",
+      "side": "P",
+      "atm": 645,
+      "spot": 644.61,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-09-16",
+      "side": "P",
+      "atm": 660,
+      "spot": 660.09,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-09-24",
+      "side": "P",
+      "atm": 663,
+      "spot": 663.38,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-09-25",
+      "side": "P",
+      "atm": 658,
+      "spot": 657.64,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-09-26",
+      "side": "C",
+      "atm": 661,
+      "spot": 660.54,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-10-06",
+      "side": "P",
+      "atm": 670,
+      "spot": 670.04,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-10-09",
+      "side": "P",
+      "atm": 672,
+      "spot": 671.89,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-10-20",
+      "side": "C",
+      "atm": 669,
+      "spot": 669.28,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-10-23",
+      "side": "C",
+      "atm": 670,
+      "spot": 669.89,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-10-24",
+      "side": "C",
+      "atm": 677,
+      "spot": 677.35,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-10-28",
+      "side": "P",
+      "atm": 686,
+      "spot": 685.89,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-10-29",
+      "side": "C",
+      "atm": 689,
+      "spot": 689.21,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-10-31",
+      "side": "P",
+      "atm": 683,
+      "spot": 682.63,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-11-03",
+      "side": "P",
+      "atm": 682,
+      "spot": 682.33,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-11-10",
+      "side": "C",
+      "atm": 679,
+      "spot": 678.77,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-11-13",
+      "side": "P",
+      "atm": 678,
+      "spot": 678.06,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-11-17",
+      "side": "C",
+      "atm": 672,
+      "spot": 672.1,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-11-19",
+      "side": "C",
+      "atm": 666,
+      "spot": 665.52,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-11-20",
+      "side": "C",
+      "atm": 674,
+      "spot": 674.01,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-12-08",
+      "side": "P",
+      "atm": 686,
+      "spot": 685.61,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-12-09",
+      "side": "C",
+      "atm": 685,
+      "spot": 684.59,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-12-15",
+      "side": "P",
+      "atm": 682,
+      "spot": 681.76,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-12-19",
+      "side": "C",
+      "atm": 680,
+      "spot": 679.75,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2025-12-23",
+      "side": "C",
+      "atm": 685,
+      "spot": 685.27,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-01-12",
+      "side": "C",
+      "atm": 693,
+      "spot": 693.33,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-01-15",
+      "side": "P",
+      "atm": 694,
+      "spot": 693.66,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-01-26",
+      "side": "C",
+      "atm": 692,
+      "spot": 692.21,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-01-29",
+      "side": "P",
+      "atm": 688,
+      "spot": 688.49,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-02-02",
+      "side": "C",
+      "atm": 694,
+      "spot": 693.73,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-02-06",
+      "side": "C",
+      "atm": 686,
+      "spot": 685.61,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-02-11",
+      "side": "P",
+      "atm": 693,
+      "spot": 692.51,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-02-20",
+      "side": "C",
+      "atm": 687,
+      "spot": 686.7,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-02-25",
+      "side": "C",
+      "atm": 691,
+      "spot": 691.13,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-02-26",
+      "side": "P",
+      "atm": 688,
+      "spot": 687.65,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-03-02",
+      "side": "C",
+      "atm": 684,
+      "spot": 684.17,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-03-06",
+      "side": "P",
+      "atm": 671,
+      "spot": 671.02,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-03-09",
+      "side": "P",
+      "atm": 663,
+      "spot": 663.43,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-03-10",
+      "side": "P",
+      "atm": 675,
+      "spot": 674.91,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-03-16",
+      "side": "C",
+      "atm": 670,
+      "spot": 669.83,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-03-17",
+      "side": "C",
+      "atm": 673,
+      "spot": 673.28,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-03-18",
+      "side": "C",
+      "atm": 669,
+      "spot": 668.88,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-03-19",
+      "side": "C",
+      "atm": 658,
+      "spot": 657.64,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-03-30",
+      "side": "P",
+      "atm": 637,
+      "spot": 636.51,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-04-07",
+      "side": "P",
+      "atm": 654,
+      "spot": 654.5,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-04-10",
+      "side": "P",
+      "atm": 681,
+      "spot": 680.58,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-04-14",
+      "side": "C",
+      "atm": 690,
+      "spot": 689.63,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-04-17",
+      "side": "C",
+      "atm": 710,
+      "spot": 709.88,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-04-30",
+      "side": "P",
+      "atm": 712,
+      "spot": 711.87,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-05-01",
+      "side": "C",
+      "atm": 723,
+      "spot": 723.29,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-05-04",
+      "side": "C",
+      "atm": 720,
+      "spot": 720.31,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-05-05",
+      "side": "C",
+      "atm": 723,
+      "spot": 722.75,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-05-06",
+      "side": "C",
+      "atm": 729,
+      "spot": 729.4,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-05-07",
+      "side": "P",
+      "atm": 734,
+      "spot": 734.0,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-05-11",
+      "side": "C",
+      "atm": 739,
+      "spot": 738.6,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-05-13",
+      "side": "P",
+      "atm": 737,
+      "spot": 737.11,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-05-22",
+      "side": "C",
+      "atm": 747,
+      "spot": 746.8,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-05-29",
+      "side": "C",
+      "atm": 758,
+      "spot": 757.7,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-06-03",
+      "side": "P",
+      "atm": 756,
+      "spot": 756.36,
+      "note": "vwap_pullback"
+    },
+    {
+      "date": "2026-06-15",
+      "side": "C",
+      "atm": 754,
+      "spot": 753.69,
+      "note": "vwap_pullback"
+    }
+  ],
+  "gap_fade": [
+    {
+      "date": "2025-01-03",
+      "side": "P",
+      "atm": 588,
+      "spot": 588.09,
+      "note": "gap=+0.0040"
+    },
+    {
+      "date": "2025-01-06",
+      "side": "P",
+      "atm": 597,
+      "spot": 596.83,
+      "note": "gap=+0.0068"
+    },
+    {
+      "date": "2025-01-07",
+      "side": "P",
+      "atm": 597,
+      "spot": 596.97,
+      "note": "gap=+0.0034"
+    },
+    {
+      "date": "2025-01-10",
+      "side": "C",
+      "atm": 585,
+      "spot": 585.03,
+      "note": "gap=-0.0059"
+    },
+    {
+      "date": "2025-01-13",
+      "side": "C",
+      "atm": 576,
+      "spot": 576.41,
+      "note": "gap=-0.0080"
+    },
+    {
+      "date": "2025-01-14",
+      "side": "P",
+      "atm": 584,
+      "spot": 583.96,
+      "note": "gap=+0.0050"
+    },
+    {
+      "date": "2025-01-15",
+      "side": "P",
+      "atm": 591,
+      "spot": 590.6,
+      "note": "gap=+0.0144"
+    },
+    {
+      "date": "2025-01-17",
+      "side": "P",
+      "atm": 596,
+      "spot": 596.34,
+      "note": "gap=+0.0101"
+    },
+    {
+      "date": "2025-01-21",
+      "side": "P",
+      "atm": 601,
+      "spot": 600.81,
+      "note": "gap=+0.0058"
+    },
+    {
+      "date": "2025-01-22",
+      "side": "P",
+      "atm": 606,
+      "spot": 605.77,
+      "note": "gap=+0.0048"
+    },
+    {
+      "date": "2025-01-30",
+      "side": "P",
+      "atm": 604,
+      "spot": 603.74,
+      "note": "gap=+0.0037"
+    },
+    {
+      "date": "2025-01-31",
+      "side": "P",
+      "atm": 607,
+      "spot": 607.39,
+      "note": "gap=+0.0045"
+    },
+    {
+      "date": "2025-02-04",
+      "side": "C",
+      "atm": 598,
+      "spot": 598.04,
+      "note": "gap=-0.0056"
+    },
+    {
+      "date": "2025-02-06",
+      "side": "P",
+      "atm": 606,
+      "spot": 605.64,
+      "note": "gap=+0.0031"
+    },
+    {
+      "date": "2025-02-07",
+      "side": "P",
+      "atm": 607,
+      "spot": 607.32,
+      "note": "gap=+0.0030"
+    },
+    {
+      "date": "2025-02-10",
+      "side": "P",
+      "atm": 603,
+      "spot": 603.48,
+      "note": "gap=+0.0051"
+    },
+    {
+      "date": "2025-02-11",
+      "side": "C",
+      "atm": 603,
+      "spot": 603.29,
+      "note": "gap=-0.0038"
+    },
+    {
+      "date": "2025-02-12",
+      "side": "C",
+      "atm": 600,
+      "spot": 599.63,
+      "note": "gap=-0.0099"
+    },
+    {
+      "date": "2025-02-24",
+      "side": "P",
+      "atm": 602,
+      "spot": 602.17,
+      "note": "gap=+0.0033"
+    },
+    {
+      "date": "2025-02-26",
+      "side": "P",
+      "atm": 595,
+      "spot": 595.28,
+      "note": "gap=+0.0027"
+    },
+    {
+      "date": "2025-02-27",
+      "side": "P",
+      "atm": 597,
+      "spot": 597.19,
+      "note": "gap=+0.0028"
+    },
+    {
+      "date": "2025-03-03",
+      "side": "P",
+      "atm": 597,
+      "spot": 596.93,
+      "note": "gap=+0.0040"
+    },
+    {
+      "date": "2025-03-04",
+      "side": "C",
+      "atm": 579,
+      "spot": 578.62,
+      "note": "gap=-0.0028"
+    },
+    {
+      "date": "2025-03-05",
+      "side": "C",
+      "atm": 578,
+      "spot": 577.57,
+      "note": "gap=-0.0061"
+    },
+    {
+      "date": "2025-03-06",
+      "side": "C",
+      "atm": 575,
+      "spot": 575.08,
+      "note": "gap=-0.0129"
+    },
+    {
+      "date": "2025-03-07",
+      "side": "C",
+      "atm": 573,
+      "spot": 572.52,
+      "note": "gap=-0.0029"
+    },
+    {
+      "date": "2025-03-12",
+      "side": "P",
+      "atm": 562,
+      "spot": 562.31,
+      "note": "gap=+0.0104"
+    },
+    {
+      "date": "2025-03-14",
+      "side": "P",
+      "atm": 556,
+      "spot": 556.43,
+      "note": "gap=+0.0056"
+    },
+    {
+      "date": "2025-03-18",
+      "side": "C",
+      "atm": 564,
+      "spot": 564.01,
+      "note": "gap=-0.0032"
+    },
+    {
+      "date": "2025-03-19",
+      "side": "P",
+      "atm": 563,
+      "spot": 562.65,
+      "note": "gap=+0.0035"
+    },
+    {
+      "date": "2025-03-20",
+      "side": "C",
+      "atm": 564,
+      "spot": 564.35,
+      "note": "gap=-0.0068"
+    },
+    {
+      "date": "2025-03-21",
+      "side": "C",
+      "atm": 560,
+      "spot": 559.61,
+      "note": "gap=-0.0117"
+    },
+    {
+      "date": "2025-03-24",
+      "side": "P",
+      "atm": 571,
+      "spot": 570.88,
+      "note": "gap=+0.0117"
+    },
+    {
+      "date": "2025-03-28",
+      "side": "C",
+      "atm": 565,
+      "spot": 564.97,
+      "note": "gap=-0.0030"
+    },
+    {
+      "date": "2025-03-31",
+      "side": "C",
+      "atm": 549,
+      "spot": 548.65,
+      "note": "gap=-0.0079"
+    },
+    {
+      "date": "2025-04-02",
+      "side": "C",
+      "atm": 557,
+      "spot": 556.82,
+      "note": "gap=-0.0107"
+    },
+    {
+      "date": "2025-04-09",
+      "side": "C",
+      "atm": 495,
+      "spot": 495.35,
+      "note": "gap=-0.0026"
+    },
+    {
+      "date": "2025-04-11",
+      "side": "C",
+      "atm": 523,
+      "spot": 522.71,
+      "note": "gap=-0.0050"
+    },
+    {
+      "date": "2025-04-15",
+      "side": "P",
+      "atm": 540,
+      "spot": 540.25,
+      "note": "gap=+0.0065"
+    },
+    {
+      "date": "2025-04-16",
+      "side": "C",
+      "atm": 533,
+      "spot": 532.92,
+      "note": "gap=-0.0112"
+    },
+    {
+      "date": "2025-04-17",
+      "side": "P",
+      "atm": 527,
+      "spot": 527.16,
+      "note": "gap=+0.0048"
+    },
+    {
+      "date": "2025-04-21",
+      "side": "C",
+      "atm": 520,
+      "spot": 520.5,
+      "note": "gap=-0.0106"
+    },
+    {
+      "date": "2025-04-22",
+      "side": "P",
+      "atm": 519,
+      "spot": 519.43,
+      "note": "gap=+0.0127"
+    },
+    {
+      "date": "2025-04-24",
+      "side": "P",
+      "atm": 536,
+      "spot": 536.37,
+      "note": "gap=+0.0026"
+    },
+    {
+      "date": "2025-04-25",
+      "side": "C",
+      "atm": 547,
+      "spot": 546.9,
+      "note": "gap=-0.0032"
+    },
+    {
+      "date": "2025-04-29",
+      "side": "C",
+      "atm": 549,
+      "spot": 549.42,
+      "note": "gap=-0.0040"
+    },
+    {
+      "date": "2025-04-30",
+      "side": "C",
+      "atm": 546,
+      "spot": 546.38,
+      "note": "gap=-0.0117"
+    },
+    {
+      "date": "2025-05-01",
+      "side": "P",
+      "atm": 559,
+      "spot": 559.26,
+      "note": "gap=+0.0042"
+    },
+    {
+      "date": "2025-05-02",
+      "side": "P",
+      "atm": 565,
+      "spot": 564.88,
+      "note": "gap=+0.0150"
+    },
+    {
+      "date": "2025-05-05",
+      "side": "C",
+      "atm": 563,
+      "spot": 562.93,
+      "note": "gap=-0.0074"
+    },
+    {
+      "date": "2025-05-06",
+      "side": "C",
+      "atm": 559,
+      "spot": 559.22,
+      "note": "gap=-0.0086"
+    },
+    {
+      "date": "2025-05-07",
+      "side": "P",
+      "atm": 560,
+      "spot": 560.23,
+      "note": "gap=+0.0046"
+    },
+    {
+      "date": "2025-05-08",
+      "side": "P",
+      "atm": 565,
+      "spot": 564.75,
+      "note": "gap=+0.0074"
+    },
+    {
+      "date": "2025-05-09",
+      "side": "P",
+      "atm": 567,
+      "spot": 567.22,
+      "note": "gap=+0.0027"
+    },
+    {
+      "date": "2025-05-15",
+      "side": "C",
+      "atm": 586,
+      "spot": 586.36,
+      "note": "gap=-0.0027"
+    },
+    {
+      "date": "2025-05-19",
+      "side": "C",
+      "atm": 589,
+      "spot": 589.3,
+      "note": "gap=-0.0058"
+    },
+    {
+      "date": "2025-05-21",
+      "side": "C",
+      "atm": 589,
+      "spot": 589.32,
+      "note": "gap=-0.0073"
+    },
+    {
+      "date": "2025-05-23",
+      "side": "C",
+      "atm": 577,
+      "spot": 577.38,
+      "note": "gap=-0.0123"
+    },
+    {
+      "date": "2025-05-27",
+      "side": "P",
+      "atm": 585,
+      "spot": 585.17,
+      "note": "gap=+0.0132"
+    },
+    {
+      "date": "2025-05-29",
+      "side": "P",
+      "atm": 592,
+      "spot": 592.06,
+      "note": "gap=+0.0058"
+    },
+    {
+      "date": "2025-06-02",
+      "side": "C",
+      "atm": 589,
+      "spot": 589.44,
+      "note": "gap=-0.0025"
+    },
+    {
+      "date": "2025-06-05",
+      "side": "P",
+      "atm": 597,
+      "spot": 596.6,
+      "note": "gap=+0.0030"
+    },
+    {
+      "date": "2025-06-06",
+      "side": "P",
+      "atm": 599,
+      "spot": 599.04,
+      "note": "gap=+0.0107"
+    },
+    {
+      "date": "2025-06-13",
+      "side": "C",
+      "atm": 600,
+      "spot": 599.7,
+      "note": "gap=-0.0073"
+    },
+    {
+      "date": "2025-06-16",
+      "side": "P",
+      "atm": 602,
+      "spot": 601.52,
+      "note": "gap=+0.0057"
+    },
+    {
+      "date": "2025-06-17",
+      "side": "C",
+      "atm": 600,
+      "spot": 600.43,
+      "note": "gap=-0.0044"
+    },
+    {
+      "date": "2025-06-24",
+      "side": "P",
+      "atm": 605,
+      "spot": 604.52,
+      "note": "gap=+0.0072"
+    },
+    {
+      "date": "2025-06-26",
+      "side": "P",
+      "atm": 609,
+      "spot": 609.21,
+      "note": "gap=+0.0036"
+    },
+    {
+      "date": "2025-06-30",
+      "side": "P",
+      "atm": 617,
+      "spot": 616.64,
+      "note": "gap=+0.0049"
+    },
+    {
+      "date": "2025-07-03",
+      "side": "P",
+      "atm": 623,
+      "spot": 623.35,
+      "note": "gap=+0.0038"
+    },
+    {
+      "date": "2025-07-07",
+      "side": "C",
+      "atm": 623,
+      "spot": 623.22,
+      "note": "gap=-0.0027"
+    },
+    {
+      "date": "2025-07-08",
+      "side": "P",
+      "atm": 621,
+      "spot": 620.75,
+      "note": "gap=+0.0034"
+    },
+    {
+      "date": "2025-07-09",
+      "side": "P",
+      "atm": 624,
+      "spot": 623.53,
+      "note": "gap=+0.0036"
+    },
+    {
+      "date": "2025-07-11",
+      "side": "C",
+      "atm": 623,
+      "spot": 622.59,
+      "note": "gap=-0.0043"
+    },
+    {
+      "date": "2025-07-15",
+      "side": "P",
+      "atm": 627,
+      "spot": 626.94,
+      "note": "gap=+0.0048"
+    },
+    {
+      "date": "2025-07-23",
+      "side": "P",
+      "atm": 631,
+      "spot": 631.15,
+      "note": "gap=+0.0044"
+    },
+    {
+      "date": "2025-07-31",
+      "side": "P",
+      "atm": 639,
+      "spot": 639.12,
+      "note": "gap=+0.0035"
+    },
+    {
+      "date": "2025-08-01",
+      "side": "C",
+      "atm": 624,
+      "spot": 624.32,
+      "note": "gap=-0.0094"
+    },
+    {
+      "date": "2025-08-04",
+      "side": "P",
+      "atm": 627,
+      "spot": 626.88,
+      "note": "gap=+0.0064"
+    },
+    {
+      "date": "2025-08-07",
+      "side": "P",
+      "atm": 637,
+      "spot": 636.72,
+      "note": "gap=+0.0062"
+    },
+    {
+      "date": "2025-08-08",
+      "side": "P",
+      "atm": 634,
+      "spot": 634.02,
+      "note": "gap=+0.0028"
+    },
+    {
+      "date": "2025-08-12",
+      "side": "P",
+      "atm": 639,
+      "spot": 639.4,
+      "note": "gap=+0.0038"
+    },
+    {
+      "date": "2025-08-13",
+      "side": "P",
+      "atm": 645,
+      "spot": 645.18,
+      "note": "gap=+0.0036"
+    },
+    {
+      "date": "2025-08-14",
+      "side": "C",
+      "atm": 643,
+      "spot": 642.91,
+      "note": "gap=-0.0035"
+    },
+    {
+      "date": "2025-08-21",
+      "side": "C",
+      "atm": 636,
+      "spot": 635.9,
+      "note": "gap=-0.0027"
+    },
+    {
+      "date": "2025-08-22",
+      "side": "P",
+      "atm": 638,
+      "spot": 637.66,
+      "note": "gap=+0.0035"
+    },
+    {
+      "date": "2025-08-28",
+      "side": "P",
+      "atm": 648,
+      "spot": 647.83,
+      "note": "gap=+0.0032"
+    },
+    {
+      "date": "2025-09-02",
+      "side": "C",
+      "atm": 636,
+      "spot": 636.47,
+      "note": "gap=-0.0116"
+    },
+    {
+      "date": "2025-09-05",
+      "side": "P",
+      "atm": 652,
+      "spot": 651.64,
+      "note": "gap=+0.0036"
+    },
+    {
+      "date": "2025-09-08",
+      "side": "P",
+      "atm": 649,
+      "spot": 648.67,
+      "note": "gap=+0.0029"
+    },
+    {
+      "date": "2025-09-10",
+      "side": "P",
+      "atm": 653,
+      "spot": 653.24,
+      "note": "gap=+0.0055"
+    },
+    {
+      "date": "2025-09-11",
+      "side": "P",
+      "atm": 654,
+      "spot": 654.48,
+      "note": "gap=+0.0034"
+    },
+    {
+      "date": "2025-09-15",
+      "side": "P",
+      "atm": 660,
+      "spot": 659.81,
+      "note": "gap=+0.0030"
+    },
+    {
+      "date": "2025-09-18",
+      "side": "P",
+      "atm": 662,
+      "spot": 662.02,
+      "note": "gap=+0.0031"
+    },
+    {
+      "date": "2025-09-25",
+      "side": "C",
+      "atm": 657,
+      "spot": 657.17,
+      "note": "gap=-0.0056"
+    },
+    {
+      "date": "2025-09-29",
+      "side": "P",
+      "atm": 664,
+      "spot": 664.3,
+      "note": "gap=+0.0031"
+    },
+    {
+      "date": "2025-10-01",
+      "side": "C",
+      "atm": 665,
+      "spot": 664.53,
+      "note": "gap=-0.0043"
+    },
+    {
+      "date": "2025-10-02",
+      "side": "P",
+      "atm": 670,
+      "spot": 670.25,
+      "note": "gap=+0.0035"
+    },
+    {
+      "date": "2025-10-06",
+      "side": "P",
+      "atm": 671,
+      "spot": 671.0,
+      "note": "gap=+0.0042"
+    },
+    {
+      "date": "2025-10-13",
+      "side": "P",
+      "atm": 661,
+      "spot": 660.71,
+      "note": "gap=+0.0114"
+    },
+    {
+      "date": "2025-10-14",
+      "side": "C",
+      "atm": 656,
+      "spot": 655.96,
+      "note": "gap=-0.0086"
+    },
+    {
+      "date": "2025-10-15",
+      "side": "P",
+      "atm": 667,
+      "spot": 666.56,
+      "note": "gap=+0.0067"
+    },
+    {
+      "date": "2025-10-16",
+      "side": "P",
+      "atm": 667,
+      "spot": 667.03,
+      "note": "gap=+0.0026"
+    },
+    {
+      "date": "2025-10-20",
+      "side": "P",
+      "atm": 668,
+      "spot": 668.5,
+      "note": "gap=+0.0035"
+    },
+    {
+      "date": "2025-10-24",
+      "side": "P",
+      "atm": 677,
+      "spot": 676.82,
+      "note": "gap=+0.0069"
+    },
+    {
+      "date": "2025-10-27",
+      "side": "P",
+      "atm": 683,
+      "spot": 682.71,
+      "note": "gap=+0.0083"
+    },
+    {
+      "date": "2025-10-29",
+      "side": "P",
+      "atm": 689,
+      "spot": 688.83,
+      "note": "gap=+0.0030"
+    },
+    {
+      "date": "2025-10-30",
+      "side": "C",
+      "atm": 683,
+      "spot": 683.29,
+      "note": "gap=-0.0053"
+    },
+    {
+      "date": "2025-10-31",
+      "side": "P",
+      "atm": 684,
+      "spot": 684.15,
+      "note": "gap=+0.0041"
+    },
+    {
+      "date": "2025-11-03",
+      "side": "P",
+      "atm": 685,
+      "spot": 684.71,
+      "note": "gap=+0.0053"
+    },
+    {
+      "date": "2025-11-04",
+      "side": "C",
+      "atm": 675,
+      "spot": 674.9,
+      "note": "gap=-0.0104"
+    },
+    {
+      "date": "2025-11-07",
+      "side": "C",
+      "atm": 666,
+      "spot": 666.25,
+      "note": "gap=-0.0058"
+    },
+    {
+      "date": "2025-11-10",
+      "side": "P",
+      "atm": 678,
+      "spot": 677.82,
+      "note": "gap=+0.0082"
+    },
+    {
+      "date": "2025-11-11",
+      "side": "C",
+      "atm": 680,
+      "spot": 680.08,
+      "note": "gap=-0.0026"
+    },
+    {
+      "date": "2025-11-12",
+      "side": "P",
+      "atm": 684,
+      "spot": 684.15,
+      "note": "gap=+0.0027"
+    },
+    {
+      "date": "2025-11-13",
+      "side": "C",
+      "atm": 680,
+      "spot": 680.06,
+      "note": "gap=-0.0045"
+    },
+    {
+      "date": "2025-11-14",
+      "side": "C",
+      "atm": 663,
+      "spot": 663.49,
+      "note": "gap=-0.0102"
+    },
+    {
+      "date": "2025-11-17",
+      "side": "C",
+      "atm": 671,
+      "spot": 671.06,
+      "note": "gap=-0.0049"
+    },
+    {
+      "date": "2025-11-18",
+      "side": "C",
+      "atm": 663,
+      "spot": 662.87,
+      "note": "gap=-0.0065"
+    },
+    {
+      "date": "2025-11-20",
+      "side": "P",
+      "atm": 673,
+      "spot": 673.31,
+      "note": "gap=+0.0102"
+    },
+    {
+      "date": "2025-11-21",
+      "side": "P",
+      "atm": 655,
+      "spot": 655.32,
+      "note": "gap=+0.0040"
+    },
+    {
+      "date": "2025-11-24",
+      "side": "P",
+      "atm": 665,
+      "spot": 665.06,
+      "note": "gap=+0.0050"
+    },
+    {
+      "date": "2025-11-26",
+      "side": "P",
+      "atm": 678,
+      "spot": 678.27,
+      "note": "gap=+0.0036"
+    },
+    {
+      "date": "2025-12-01",
+      "side": "C",
+      "atm": 680,
+      "spot": 679.54,
+      "note": "gap=-0.0061"
+    },
+    {
+      "date": "2025-12-11",
+      "side": "C",
+      "atm": 685,
+      "spot": 684.7,
+      "note": "gap=-0.0032"
+    },
+    {
+      "date": "2025-12-12",
+      "side": "C",
+      "atm": 688,
+      "spot": 688.41,
+      "note": "gap=-0.0038"
+    },
+    {
+      "date": "2025-12-15",
+      "side": "P",
+      "atm": 684,
+      "spot": 683.99,
+      "note": "gap=+0.0056"
+    },
+    {
+      "date": "2025-12-16",
+      "side": "C",
+      "atm": 679,
+      "spot": 679.44,
+      "note": "gap=-0.0028"
+    },
+    {
+      "date": "2025-12-18",
+      "side": "P",
+      "atm": 678,
+      "spot": 677.77,
+      "note": "gap=+0.0075"
+    },
+    {
+      "date": "2025-12-22",
+      "side": "P",
+      "atm": 684,
+      "spot": 683.65,
+      "note": "gap=+0.0045"
+    },
+    {
+      "date": "2025-12-29",
+      "side": "C",
+      "atm": 688,
+      "spot": 688.07,
+      "note": "gap=-0.0036"
+    },
+    {
+      "date": "2026-01-02",
+      "side": "P",
+      "atm": 685,
+      "spot": 684.77,
+      "note": "gap=+0.0032"
+    },
+    {
+      "date": "2026-01-05",
+      "side": "P",
+      "atm": 687,
+      "spot": 687.07,
+      "note": "gap=+0.0047"
+    },
+    {
+      "date": "2026-01-12",
+      "side": "C",
+      "atm": 692,
+      "spot": 691.91,
+      "note": "gap=-0.0049"
+    },
+    {
+      "date": "2026-01-14",
+      "side": "C",
+      "atm": 692,
+      "spot": 691.53,
+      "note": "gap=-0.0037"
+    },
+    {
+      "date": "2026-01-15",
+      "side": "P",
+      "atm": 694,
+      "spot": 694.22,
+      "note": "gap=+0.0090"
+    },
+    {
+      "date": "2026-01-20",
+      "side": "C",
+      "atm": 683,
+      "spot": 682.65,
+      "note": "gap=-0.0145"
+    },
+    {
+      "date": "2026-01-22",
+      "side": "P",
+      "atm": 690,
+      "spot": 689.95,
+      "note": "gap=+0.0066"
+    },
+    {
+      "date": "2026-01-26",
+      "side": "P",
+      "atm": 691,
+      "spot": 691.26,
+      "note": "gap=+0.0030"
+    },
+    {
+      "date": "2026-01-30",
+      "side": "C",
+      "atm": 693,
+      "spot": 693.05,
+      "note": "gap=-0.0034"
+    },
+    {
+      "date": "2026-02-02",
+      "side": "C",
+      "atm": 691,
+      "spot": 691.14,
+      "note": "gap=-0.0026"
+    },
+    {
+      "date": "2026-02-05",
+      "side": "C",
+      "atm": 681,
+      "spot": 680.79,
+      "note": "gap=-0.0122"
+    },
+    {
+      "date": "2026-02-06",
+      "side": "P",
+      "atm": 684,
+      "spot": 683.81,
+      "note": "gap=+0.0102"
+    },
+    {
+      "date": "2026-02-11",
+      "side": "P",
+      "atm": 696,
+      "spot": 696.09,
+      "note": "gap=+0.0062"
+    },
+    {
+      "date": "2026-02-12",
+      "side": "P",
+      "atm": 695,
+      "spot": 694.92,
+      "note": "gap=+0.0035"
+    },
+    {
+      "date": "2026-02-19",
+      "side": "C",
+      "atm": 684,
+      "spot": 684.05,
+      "note": "gap=-0.0034"
+    },
+    {
+      "date": "2026-02-20",
+      "side": "C",
+      "atm": 683,
+      "spot": 683.35,
+      "note": "gap=-0.0033"
+    },
+    {
+      "date": "2026-02-25",
+      "side": "P",
+      "atm": 691,
+      "spot": 690.82,
+      "note": "gap=+0.0045"
+    },
+    {
+      "date": "2026-02-27",
+      "side": "C",
+      "atm": 684,
+      "spot": 683.73,
+      "note": "gap=-0.0085"
+    },
+    {
+      "date": "2026-03-02",
+      "side": "C",
+      "atm": 681,
+      "spot": 681.2,
+      "note": "gap=-0.0091"
+    },
+    {
+      "date": "2026-03-05",
+      "side": "C",
+      "atm": 684,
+      "spot": 684.12,
+      "note": "gap=-0.0051"
+    },
+    {
+      "date": "2026-03-06",
+      "side": "C",
+      "atm": 672,
+      "spot": 672.43,
+      "note": "gap=-0.0104"
+    },
+    {
+      "date": "2026-03-09",
+      "side": "C",
+      "atm": 666,
+      "spot": 666.32,
+      "note": "gap=-0.0087"
+    },
+    {
+      "date": "2026-03-12",
+      "side": "C",
+      "atm": 671,
+      "spot": 671.05,
+      "note": "gap=-0.0067"
+    },
+    {
+      "date": "2026-03-13",
+      "side": "P",
+      "atm": 670,
+      "spot": 669.8,
+      "note": "gap=+0.0032"
+    },
+    {
+      "date": "2026-03-16",
+      "side": "P",
+      "atm": 669,
+      "spot": 668.57,
+      "note": "gap=+0.0097"
+    },
+    {
+      "date": "2026-03-17",
+      "side": "P",
+      "atm": 673,
+      "spot": 673.44,
+      "note": "gap=+0.0051"
+    },
+    {
+      "date": "2026-03-18",
+      "side": "C",
+      "atm": 669,
+      "spot": 668.77,
+      "note": "gap=-0.0035"
+    },
+    {
+      "date": "2026-03-19",
+      "side": "C",
+      "atm": 656,
+      "spot": 656.17,
+      "note": "gap=-0.0070"
+    },
+    {
+      "date": "2026-03-20",
+      "side": "C",
+      "atm": 655,
+      "spot": 655.06,
+      "note": "gap=-0.0049"
+    },
+    {
+      "date": "2026-03-23",
+      "side": "P",
+      "atm": 657,
+      "spot": 656.77,
+      "note": "gap=+0.0147"
+    },
+    {
+      "date": "2026-03-24",
+      "side": "C",
+      "atm": 653,
+      "spot": 652.79,
+      "note": "gap=-0.0062"
+    },
+    {
+      "date": "2026-03-25",
+      "side": "P",
+      "atm": 660,
+      "spot": 659.68,
+      "note": "gap=+0.0084"
+    },
+    {
+      "date": "2026-03-26",
+      "side": "C",
+      "atm": 652,
+      "spot": 651.63,
+      "note": "gap=-0.0071"
+    },
+    {
+      "date": "2026-03-27",
+      "side": "C",
+      "atm": 640,
+      "spot": 640.49,
+      "note": "gap=-0.0040"
+    },
+    {
+      "date": "2026-03-30",
+      "side": "P",
+      "atm": 639,
+      "spot": 638.85,
+      "note": "gap=+0.0095"
+    },
+    {
+      "date": "2026-03-31",
+      "side": "P",
+      "atm": 640,
+      "spot": 639.73,
+      "note": "gap=+0.0110"
+    },
+    {
+      "date": "2026-04-01",
+      "side": "P",
+      "atm": 655,
+      "spot": 654.99,
+      "note": "gap=+0.0056"
+    },
+    {
+      "date": "2026-04-02",
+      "side": "C",
+      "atm": 647,
+      "spot": 647.09,
+      "note": "gap=-0.0134"
+    },
+    {
+      "date": "2026-04-07",
+      "side": "C",
+      "atm": 656,
+      "spot": 655.74,
+      "note": "gap=-0.0034"
+    },
+    {
+      "date": "2026-04-13",
+      "side": "C",
+      "atm": 678,
+      "spot": 677.5,
+      "note": "gap=-0.0028"
+    },
+    {
+      "date": "2026-04-17",
+      "side": "P",
+      "atm": 707,
+      "spot": 706.98,
+      "note": "gap=+0.0065"
+    },
+    {
+      "date": "2026-04-22",
+      "side": "P",
+      "atm": 709,
+      "spot": 708.56,
+      "note": "gap=+0.0071"
+    },
+    {
+      "date": "2026-04-24",
+      "side": "P",
+      "atm": 710,
+      "spot": 709.84,
+      "note": "gap=+0.0033"
+    },
+    {
+      "date": "2026-04-28",
+      "side": "C",
+      "atm": 712,
+      "spot": 711.57,
+      "note": "gap=-0.0047"
+    },
+    {
+      "date": "2026-04-30",
+      "side": "P",
+      "atm": 713,
+      "spot": 712.88,
+      "note": "gap=+0.0043"
+    },
+    {
+      "date": "2026-05-01",
+      "side": "P",
+      "atm": 722,
+      "spot": 722.32,
+      "note": "gap=+0.0040"
+    },
+    {
+      "date": "2026-05-05",
+      "side": "P",
+      "atm": 722,
+      "spot": 722.29,
+      "note": "gap=+0.0052"
+    },
+    {
+      "date": "2026-05-06",
+      "side": "P",
+      "atm": 729,
+      "spot": 729.13,
+      "note": "gap=+0.0061"
+    },
+    {
+      "date": "2026-05-08",
+      "side": "P",
+      "atm": 735,
+      "spot": 735.23,
+      "note": "gap=+0.0050"
+    },
+    {
+      "date": "2026-05-15",
+      "side": "C",
+      "atm": 740,
+      "spot": 740.17,
+      "note": "gap=-0.0084"
+    },
+    {
+      "date": "2026-05-19",
+      "side": "C",
+      "atm": 735,
+      "spot": 734.5,
+      "note": "gap=-0.0048"
+    },
+    {
+      "date": "2026-05-22",
+      "side": "P",
+      "atm": 747,
+      "spot": 747.19,
+      "note": "gap=+0.0028"
+    },
+    {
+      "date": "2026-05-26",
+      "side": "P",
+      "atm": 749,
+      "spot": 749.45,
+      "note": "gap=+0.0084"
+    },
+    {
+      "date": "2026-06-04",
+      "side": "C",
+      "atm": 753,
+      "spot": 752.91,
+      "note": "gap=-0.0028"
+    },
+    {
+      "date": "2026-06-05",
+      "side": "C",
+      "atm": 753,
+      "spot": 752.59,
+      "note": "gap=-0.0063"
+    },
+    {
+      "date": "2026-06-08",
+      "side": "P",
+      "atm": 742,
+      "spot": 742.18,
+      "note": "gap=+0.0081"
+    },
+    {
+      "date": "2026-06-09",
+      "side": "P",
+      "atm": 744,
+      "spot": 743.63,
+      "note": "gap=+0.0058"
+    },
+    {
+      "date": "2026-06-10",
+      "side": "C",
+      "atm": 732,
+      "spot": 731.78,
+      "note": "gap=-0.0050"
+    },
+    {
+      "date": "2026-06-11",
+      "side": "P",
+      "atm": 727,
+      "spot": 727.28,
+      "note": "gap=+0.0046"
+    },
+    {
+      "date": "2026-06-12",
+      "side": "P",
+      "atm": 738,
+      "spot": 738.5,
+      "note": "gap=+0.0042"
+    },
+    {
+      "date": "2026-06-15",
+      "side": "P",
+      "atm": 753,
+      "spot": 752.7,
+      "note": "gap=+0.0137"
+    }
+  ],
+  "vwap_reclaim_failed_break": [
+    {
+      "date": "2025-01-02",
+      "side": "P",
+      "atm": 588,
+      "spot": 587.61,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-01-03",
+      "side": "C",
+      "atm": 589,
+      "spot": 589.07,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-01-14",
+      "side": "C",
+      "atm": 584,
+      "spot": 583.82,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-01-17",
+      "side": "P",
+      "atm": 596,
+      "spot": 596.28,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-01-23",
+      "side": "C",
+      "atm": 606,
+      "spot": 606.04,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-01-27",
+      "side": "C",
+      "atm": 598,
+      "spot": 598.19,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-01-29",
+      "side": "P",
+      "atm": 603,
+      "spot": 603.28,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-02-04",
+      "side": "C",
+      "atm": 599,
+      "spot": 598.93,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-02-05",
+      "side": "C",
+      "atm": 601,
+      "spot": 600.52,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-02-11",
+      "side": "C",
+      "atm": 603,
+      "spot": 603.39,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-02-12",
+      "side": "C",
+      "atm": 600,
+      "spot": 600.48,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-03-05",
+      "side": "C",
+      "atm": 578,
+      "spot": 578.43,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-03-06",
+      "side": "P",
+      "atm": 574,
+      "spot": 574.44,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-03-14",
+      "side": "C",
+      "atm": 558,
+      "spot": 557.59,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-03-17",
+      "side": "C",
+      "atm": 566,
+      "spot": 565.88,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-04-04",
+      "side": "P",
+      "atm": 520,
+      "spot": 519.91,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-04-07",
+      "side": "P",
+      "atm": 500,
+      "spot": 499.74,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-04-09",
+      "side": "C",
+      "atm": 499,
+      "spot": 498.95,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-04-10",
+      "side": "P",
+      "atm": 531,
+      "spot": 530.52,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-04-14",
+      "side": "P",
+      "atm": 542,
+      "spot": 541.55,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-04-23",
+      "side": "C",
+      "atm": 543,
+      "spot": 542.94,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-04-29",
+      "side": "C",
+      "atm": 551,
+      "spot": 550.82,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-05-06",
+      "side": "C",
+      "atm": 559,
+      "spot": 558.6,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-05-12",
+      "side": "P",
+      "atm": 579,
+      "spot": 578.74,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-05-29",
+      "side": "P",
+      "atm": 591,
+      "spot": 591.15,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-06-02",
+      "side": "C",
+      "atm": 588,
+      "spot": 587.83,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-06-05",
+      "side": "P",
+      "atm": 595,
+      "spot": 595.05,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-06-06",
+      "side": "C",
+      "atm": 600,
+      "spot": 600.05,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-06-24",
+      "side": "C",
+      "atm": 605,
+      "spot": 604.88,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-06-25",
+      "side": "C",
+      "atm": 608,
+      "spot": 608.17,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-07-09",
+      "side": "C",
+      "atm": 624,
+      "spot": 624.22,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-07-17",
+      "side": "C",
+      "atm": 625,
+      "spot": 625.46,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-07-18",
+      "side": "P",
+      "atm": 629,
+      "spot": 628.68,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-07-25",
+      "side": "C",
+      "atm": 635,
+      "spot": 635.3,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-07-28",
+      "side": "P",
+      "atm": 638,
+      "spot": 637.53,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-07-30",
+      "side": "C",
+      "atm": 636,
+      "spot": 635.72,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-08-21",
+      "side": "C",
+      "atm": 637,
+      "spot": 636.79,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-08-27",
+      "side": "C",
+      "atm": 645,
+      "spot": 645.42,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-09-03",
+      "side": "C",
+      "atm": 643,
+      "spot": 642.66,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-09-09",
+      "side": "C",
+      "atm": 649,
+      "spot": 649.04,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-09-17",
+      "side": "P",
+      "atm": 660,
+      "spot": 659.82,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-10-01",
+      "side": "C",
+      "atm": 665,
+      "spot": 664.53,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-10-03",
+      "side": "C",
+      "atm": 671,
+      "spot": 670.8,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-10-10",
+      "side": "C",
+      "atm": 673,
+      "spot": 673.12,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-10-23",
+      "side": "C",
+      "atm": 669,
+      "spot": 669.48,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-10-30",
+      "side": "P",
+      "atm": 684,
+      "spot": 683.68,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-11-07",
+      "side": "P",
+      "atm": 665,
+      "spot": 665.01,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-11-10",
+      "side": "C",
+      "atm": 679,
+      "spot": 679.02,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-11-13",
+      "side": "P",
+      "atm": 679,
+      "spot": 678.92,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-11-17",
+      "side": "C",
+      "atm": 672,
+      "spot": 672.1,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-11-20",
+      "side": "C",
+      "atm": 674,
+      "spot": 674.01,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-11-21",
+      "side": "P",
+      "atm": 655,
+      "spot": 654.52,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-11-26",
+      "side": "C",
+      "atm": 678,
+      "spot": 678.43,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-12-16",
+      "side": "P",
+      "atm": 679,
+      "spot": 679.48,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-12-17",
+      "side": "P",
+      "atm": 679,
+      "spot": 678.87,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-12-18",
+      "side": "P",
+      "atm": 677,
+      "spot": 676.77,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-12-22",
+      "side": "P",
+      "atm": 683,
+      "spot": 683.49,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-12-23",
+      "side": "C",
+      "atm": 685,
+      "spot": 685.27,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-12-26",
+      "side": "C",
+      "atm": 691,
+      "spot": 690.88,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-12-29",
+      "side": "C",
+      "atm": 688,
+      "spot": 687.98,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-12-30",
+      "side": "P",
+      "atm": 687,
+      "spot": 687.49,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2025-12-31",
+      "side": "P",
+      "atm": 686,
+      "spot": 685.98,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-01-08",
+      "side": "P",
+      "atm": 688,
+      "spot": 688.23,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-01-15",
+      "side": "P",
+      "atm": 694,
+      "spot": 693.94,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-01-20",
+      "side": "C",
+      "atm": 683,
+      "spot": 683.02,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-02-03",
+      "side": "P",
+      "atm": 695,
+      "spot": 695.12,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-02-06",
+      "side": "C",
+      "atm": 686,
+      "spot": 685.61,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-02-09",
+      "side": "C",
+      "atm": 691,
+      "spot": 691.24,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-02-13",
+      "side": "P",
+      "atm": 681,
+      "spot": 680.51,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-02-20",
+      "side": "C",
+      "atm": 687,
+      "spot": 686.6,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-02-25",
+      "side": "C",
+      "atm": 691,
+      "spot": 691.13,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-03-06",
+      "side": "P",
+      "atm": 671,
+      "spot": 671.02,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-03-09",
+      "side": "P",
+      "atm": 663,
+      "spot": 663.43,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-03-18",
+      "side": "C",
+      "atm": 669,
+      "spot": 668.88,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-03-19",
+      "side": "C",
+      "atm": 658,
+      "spot": 658.45,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-04-08",
+      "side": "P",
+      "atm": 674,
+      "spot": 674.1,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-04-28",
+      "side": "C",
+      "atm": 712,
+      "spot": 712.13,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-05-05",
+      "side": "C",
+      "atm": 723,
+      "spot": 723.18,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-05-13",
+      "side": "P",
+      "atm": 737,
+      "spot": 737.11,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-05-14",
+      "side": "C",
+      "atm": 745,
+      "spot": 745.3,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-05-15",
+      "side": "P",
+      "atm": 739,
+      "spot": 739.17,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-05-18",
+      "side": "P",
+      "atm": 739,
+      "spot": 739.18,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-06-01",
+      "side": "C",
+      "atm": 756,
+      "spot": 756.35,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-06-03",
+      "side": "P",
+      "atm": 756,
+      "spot": 756.22,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-06-11",
+      "side": "P",
+      "atm": 728,
+      "spot": 727.83,
+      "note": "struct_vwap_reclaim"
+    },
+    {
+      "date": "2026-06-15",
+      "side": "C",
+      "atm": 754,
+      "spot": 753.54,
+      "note": "struct_vwap_reclaim"
+    }
+  ],
+  "vix_regime_dayside": [
+    {
+      "date": "2025-01-02",
+      "side": "P",
+      "atm": 586,
+      "spot": 585.9,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-01-03",
+      "side": "C",
+      "atm": 588,
+      "spot": 587.86,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-01-14",
+      "side": "C",
+      "atm": 584,
+      "spot": 583.94,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-01-17",
+      "side": "P",
+      "atm": 597,
+      "spot": 596.95,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-01-23",
+      "side": "C",
+      "atm": 606,
+      "spot": 606.2,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-01-28",
+      "side": "P",
+      "atm": 598,
+      "spot": 597.8,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-02-04",
+      "side": "C",
+      "atm": 598,
+      "spot": 598.02,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-02-05",
+      "side": "C",
+      "atm": 599,
+      "spot": 598.77,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-02-07",
+      "side": "C",
+      "atm": 608,
+      "spot": 607.85,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-02-10",
+      "side": "P",
+      "atm": 603,
+      "spot": 602.95,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-02-12",
+      "side": "C",
+      "atm": 602,
+      "spot": 601.98,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-02-21",
+      "side": "P",
+      "atm": 609,
+      "spot": 608.96,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-02-24",
+      "side": "P",
+      "atm": 598,
+      "spot": 598.02,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-03-05",
+      "side": "C",
+      "atm": 578,
+      "spot": 578.43,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-03-07",
+      "side": "C",
+      "atm": 575,
+      "spot": 575.39,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-03-14",
+      "side": "C",
+      "atm": 559,
+      "spot": 559.11,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-03-17",
+      "side": "C",
+      "atm": 565,
+      "spot": 564.78,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-03-20",
+      "side": "C",
+      "atm": 566,
+      "spot": 565.51,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-03-24",
+      "side": "C",
+      "atm": 573,
+      "spot": 572.58,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-03-25",
+      "side": "P",
+      "atm": 574,
+      "spot": 574.33,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-03-27",
+      "side": "P",
+      "atm": 568,
+      "spot": 567.91,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-04-02",
+      "side": "C",
+      "atm": 560,
+      "spot": 560.36,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-04-08",
+      "side": "P",
+      "atm": 519,
+      "spot": 519.36,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-04-09",
+      "side": "C",
+      "atm": 499,
+      "spot": 498.65,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-04-14",
+      "side": "P",
+      "atm": 541,
+      "spot": 541.21,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-04-15",
+      "side": "C",
+      "atm": 542,
+      "spot": 542.13,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-04-23",
+      "side": "C",
+      "atm": 544,
+      "spot": 544.14,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-04-24",
+      "side": "C",
+      "atm": 538,
+      "spot": 538.33,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-04-29",
+      "side": "C",
+      "atm": 551,
+      "spot": 551.03,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-05-08",
+      "side": "P",
+      "atm": 564,
+      "spot": 563.74,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-05-12",
+      "side": "P",
+      "atm": 579,
+      "spot": 579.2,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-05-13",
+      "side": "C",
+      "atm": 584,
+      "spot": 584.13,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-05-28",
+      "side": "C",
+      "atm": 591,
+      "spot": 591.28,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-05-29",
+      "side": "P",
+      "atm": 590,
+      "spot": 590.44,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-05-30",
+      "side": "P",
+      "atm": 589,
+      "spot": 589.24,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-06-02",
+      "side": "C",
+      "atm": 586,
+      "spot": 585.99,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-06-05",
+      "side": "P",
+      "atm": 594,
+      "spot": 594.5,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-06-06",
+      "side": "C",
+      "atm": 601,
+      "spot": 600.51,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-06-16",
+      "side": "C",
+      "atm": 602,
+      "spot": 602.14,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-06-20",
+      "side": "C",
+      "atm": 598,
+      "spot": 597.98,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-06-24",
+      "side": "C",
+      "atm": 605,
+      "spot": 604.85,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-06-25",
+      "side": "C",
+      "atm": 608,
+      "spot": 607.89,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-06-27",
+      "side": "C",
+      "atm": 614,
+      "spot": 613.82,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-07-03",
+      "side": "C",
+      "atm": 624,
+      "spot": 623.82,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-07-09",
+      "side": "C",
+      "atm": 625,
+      "spot": 624.55,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-07-10",
+      "side": "P",
+      "atm": 624,
+      "spot": 623.57,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-07-15",
+      "side": "P",
+      "atm": 626,
+      "spot": 625.96,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-07-17",
+      "side": "C",
+      "atm": 626,
+      "spot": 625.91,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-07-18",
+      "side": "P",
+      "atm": 629,
+      "spot": 629.06,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-07-21",
+      "side": "C",
+      "atm": 631,
+      "spot": 630.86,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-07-25",
+      "side": "C",
+      "atm": 635,
+      "spot": 634.94,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-08-04",
+      "side": "C",
+      "atm": 628,
+      "spot": 628.36,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-08-13",
+      "side": "C",
+      "atm": 646,
+      "spot": 645.84,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-08-15",
+      "side": "P",
+      "atm": 644,
+      "spot": 644.48,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-08-21",
+      "side": "C",
+      "atm": 637,
+      "spot": 636.79,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-08-27",
+      "side": "C",
+      "atm": 645,
+      "spot": 645.36,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-09-03",
+      "side": "C",
+      "atm": 642,
+      "spot": 642.48,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-09-19",
+      "side": "P",
+      "atm": 662,
+      "spot": 662.37,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-09-24",
+      "side": "P",
+      "atm": 663,
+      "spot": 663.38,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-09-25",
+      "side": "P",
+      "atm": 657,
+      "spot": 657.02,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-09-26",
+      "side": "C",
+      "atm": 662,
+      "spot": 661.53,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-10-01",
+      "side": "C",
+      "atm": 666,
+      "spot": 665.97,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-10-03",
+      "side": "C",
+      "atm": 671,
+      "spot": 671.08,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-10-10",
+      "side": "C",
+      "atm": 673,
+      "spot": 673.08,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-10-20",
+      "side": "C",
+      "atm": 669,
+      "spot": 669.24,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-10-23",
+      "side": "C",
+      "atm": 670,
+      "spot": 670.26,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-10-24",
+      "side": "C",
+      "atm": 677,
+      "spot": 676.98,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-11-03",
+      "side": "P",
+      "atm": 682,
+      "spot": 682.26,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-11-10",
+      "side": "C",
+      "atm": 679,
+      "spot": 678.56,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-11-19",
+      "side": "C",
+      "atm": 664,
+      "spot": 663.54,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-11-20",
+      "side": "C",
+      "atm": 674,
+      "spot": 674.1,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-11-21",
+      "side": "P",
+      "atm": 654,
+      "spot": 654.5,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-11-26",
+      "side": "C",
+      "atm": 679,
+      "spot": 679.32,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-12-09",
+      "side": "C",
+      "atm": 684,
+      "spot": 684.06,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-12-17",
+      "side": "P",
+      "atm": 678,
+      "spot": 678.49,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-12-18",
+      "side": "P",
+      "atm": 676,
+      "spot": 676.19,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-12-19",
+      "side": "C",
+      "atm": 679,
+      "spot": 678.96,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-12-22",
+      "side": "P",
+      "atm": 683,
+      "spot": 683.41,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-12-23",
+      "side": "C",
+      "atm": 686,
+      "spot": 685.93,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2025-12-30",
+      "side": "P",
+      "atm": 688,
+      "spot": 687.93,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-01-08",
+      "side": "P",
+      "atm": 689,
+      "spot": 688.53,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-01-15",
+      "side": "P",
+      "atm": 694,
+      "spot": 694.19,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-02-02",
+      "side": "C",
+      "atm": 693,
+      "spot": 692.85,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-02-06",
+      "side": "C",
+      "atm": 686,
+      "spot": 685.55,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-02-09",
+      "side": "C",
+      "atm": 691,
+      "spot": 691.24,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-02-11",
+      "side": "P",
+      "atm": 696,
+      "spot": 695.65,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-02-13",
+      "side": "P",
+      "atm": 681,
+      "spot": 680.95,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-02-20",
+      "side": "C",
+      "atm": 684,
+      "spot": 684.07,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-02-25",
+      "side": "C",
+      "atm": 692,
+      "spot": 691.66,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-03-09",
+      "side": "P",
+      "atm": 664,
+      "spot": 663.96,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-03-10",
+      "side": "P",
+      "atm": 677,
+      "spot": 677.26,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-03-13",
+      "side": "C",
+      "atm": 671,
+      "spot": 671.17,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-03-16",
+      "side": "C",
+      "atm": 670,
+      "spot": 669.99,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-03-17",
+      "side": "C",
+      "atm": 674,
+      "spot": 674.25,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-03-19",
+      "side": "C",
+      "atm": 658,
+      "spot": 657.93,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-03-30",
+      "side": "P",
+      "atm": 636,
+      "spot": 636.09,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-04-10",
+      "side": "P",
+      "atm": 681,
+      "spot": 680.52,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-04-14",
+      "side": "C",
+      "atm": 690,
+      "spot": 689.77,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-04-17",
+      "side": "C",
+      "atm": 707,
+      "spot": 707.07,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-04-28",
+      "side": "C",
+      "atm": 710,
+      "spot": 710.09,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-04-30",
+      "side": "P",
+      "atm": 713,
+      "spot": 712.51,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-05-01",
+      "side": "C",
+      "atm": 722,
+      "spot": 722.18,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-05-04",
+      "side": "C",
+      "atm": 720,
+      "spot": 720.41,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-05-05",
+      "side": "C",
+      "atm": 722,
+      "spot": 722.16,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-05-07",
+      "side": "P",
+      "atm": 734,
+      "spot": 733.67,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-05-14",
+      "side": "C",
+      "atm": 748,
+      "spot": 748.04,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-05-15",
+      "side": "P",
+      "atm": 740,
+      "spot": 739.65,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-05-18",
+      "side": "P",
+      "atm": 739,
+      "spot": 738.87,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-05-22",
+      "side": "C",
+      "atm": 748,
+      "spot": 747.54,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-05-28",
+      "side": "P",
+      "atm": 749,
+      "spot": 749.37,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-05-29",
+      "side": "C",
+      "atm": 758,
+      "spot": 757.63,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-06-03",
+      "side": "P",
+      "atm": 757,
+      "spot": 756.81,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-06-11",
+      "side": "P",
+      "atm": 731,
+      "spot": 731.04,
+      "note": "vix_regime_dayside_union"
+    },
+    {
+      "date": "2026-06-15",
+      "side": "C",
+      "atm": 754,
+      "spot": 753.8,
+      "note": "vix_regime_dayside_union"
+    }
+  ]
+}

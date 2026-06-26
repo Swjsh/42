@@ -70,6 +70,18 @@ if ($mins -ge 575 -and $mins -le 955) {
         if ($ageMin -gt 7) { $hbFlag = "STALE_$([int]$ageMin)min" }
         elseif ($hb.LastTaskResult -ne 0) { $hbFlag = ("ERR_0x{0:X}" -f $hb.LastTaskResult) }
         else { $hbFlag = "fresh" }
+
+        # Hung-bridge detection (2026-06-24): CDP alive + heartbeat stale > 6 min during RTH
+        # = MCP bridge is hung (port 9222 answers but tool calls freeze). Force-restart TV.
+        # Grace is 6 min (< the 7 min stale-flag threshold) so we heal before alerting J.
+        if ($cdpReady -and $ageMin -gt 6) {
+            $tvAction = "relaunch_hung_bridge"
+            $tvDetail = "CDP alive but heartbeat stale $([int]$ageMin)min — hung bridge, force-restarting TV"
+            $lsScript = Join-Path $WorkDir "setup\launch_tv_debug.ps1"
+            $lLogFile = Join-Path $LogDir "tv-watchdog-$($et.ToString('yyyy-MM-dd')).log"
+            Write-TaskLog -TaskName $task -Message "RELAUNCH_HUNG_BRIDGE $tvDetail"
+            & powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -NonInteractive -File $lsScript -Kill *>&1 | Out-File -Append -Encoding utf8 -FilePath $lLogFile
+        }
     } catch { $hbFlag = "unknown" }
 }
 

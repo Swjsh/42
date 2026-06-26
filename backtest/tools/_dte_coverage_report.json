@@ -1,0 +1,131 @@
+{
+  "generated": "2026-06-21T12:24:24.833201",
+  "oos_cut": "2026-01-09",
+  "offsets": {
+    "ITM2": -2,
+    "ATM": 0,
+    "OTM2": 2
+  },
+  "coverage": {
+    "momentum_morning|1DTE|ITM2": {
+      "sigdays": 183,
+      "fill_total": 181,
+      "fill_oos": 57
+    },
+    "momentum_morning|1DTE|ATM": {
+      "sigdays": 183,
+      "fill_total": 183,
+      "fill_oos": 57
+    },
+    "momentum_morning|1DTE|OTM2": {
+      "sigdays": 183,
+      "fill_total": 180,
+      "fill_oos": 56
+    },
+    "momentum_morning|2DTE|ITM2": {
+      "sigdays": 183,
+      "fill_total": 181,
+      "fill_oos": 57
+    },
+    "momentum_morning|2DTE|ATM": {
+      "sigdays": 183,
+      "fill_total": 183,
+      "fill_oos": 57
+    },
+    "momentum_morning|2DTE|OTM2": {
+      "sigdays": 183,
+      "fill_total": 180,
+      "fill_oos": 56
+    },
+    "orb_continuation|1DTE|ITM2": {
+      "sigdays": 123,
+      "fill_total": 123,
+      "fill_oos": 42
+    },
+    "orb_continuation|1DTE|ATM": {
+      "sigdays": 123,
+      "fill_total": 123,
+      "fill_oos": 42
+    },
+    "orb_continuation|1DTE|OTM2": {
+      "sigdays": 123,
+      "fill_total": 123,
+      "fill_oos": 42
+    },
+    "orb_continuation|2DTE|ITM2": {
+      "sigdays": 123,
+      "fill_total": 123,
+      "fill_oos": 42
+    },
+    "orb_continuation|2DTE|ATM": {
+      "sigdays": 123,
+      "fill_total": 123,
+      "fill_oos": 42
+    },
+    "orb_continuation|2DTE|OTM2": {
+      "sigdays": 123,
+      "fill_total": 123,
+      "fill_oos": 42
+    },
+    "power_hour|1DTE|ITM2": {
+      "sigdays": 190,
+      "fill_total": 188,
+      "fill_oos": 54
+    },
+    "power_hour|1DTE|ATM": {
+      "sigdays": 190,
+      "fill_total": 188,
+      "fill_oos": 54
+    },
+    "power_hour|1DTE|OTM2": {
+      "sigdays": 190,
+      "fill_total": 186,
+      "fill_oos": 54
+    },
+    "power_hour|2DTE|ITM2": {
+      "sigdays": 190,
+      "fill_total": 188,
+      "fill_oos": 54
+    },
+    "power_hour|2DTE|ATM": {
+      "sigdays": 190,
+      "fill_total": 188,
+      "fill_oos": 54
+    },
+    "power_hour|2DTE|OTM2": {
+      "sigdays": 190,
+      "fill_total": 186,
+      "fill_oos": 54
+    },
+    "vwap_pullback|1DTE|ITM2": {
+      "sigdays": 98,
+      "fill_total": 98,
+      "fill_oos": 35
+    },
+    "vwap_pullback|1DTE|ATM": {
+      "sigdays": 98,
+      "fill_total": 98,
+      "fill_oos": 35
+    },
+    "vwap_pullback|1DTE|OTM2": {
+      "sigdays": 98,
+      "fill_total": 98,
+      "fill_oos": 35
+    },
+    "vwap_pullback|2DTE|ITM2": {
+      "sigdays": 98,
+      "fill_total": 97,
+      "fill_oos": 34
+    },
+    "vwap_pullback|2DTE|ATM": {
+      "sigdays": 98,
+      "fill_total": 97,
+      "fill_oos": 34
+    },
+    "vwap_pullback|2DTE|OTM2": {
+      "sigdays": 98,
+      "fill_total": 97,
+      "fill_oos": 34
+    }
+  }
+}

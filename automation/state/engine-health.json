@@ -1,32 +1,32 @@
 {
-  "checked_at_et": "2026-06-19 00:11:52",
-  "checked_at_utc": "2026-06-19T04:11:52Z",
-  "verdict": "YELLOW",
+  "checked_at_et": "2026-06-26 16:15:02",
+  "checked_at_utc": "2026-06-26T20:15:02Z",
+  "verdict": "GREEN",
   "market_open": false,
   "checks": [
     {
       "name": "heartbeat_safe",
       "status": "GREEN",
-      "detail": "last write 563.9m ago; mode=BASE; ticks=16 (market closed -- quiet OK)",
+      "detail": "last safe tick 20.0m ago (15:55:03) (market closed -- quiet OK)",
       "critical": true
     },
     {
       "name": "heartbeat_bold",
       "status": "GREEN",
-      "detail": "last write 521.8m ago; mode=BASE; ticks=30 (market closed -- quiet OK)",
+      "detail": "last bold tick 20.0m ago (15:55:04) (market closed -- quiet OK)",
+      "critical": true
+    },
+    {
+      "name": "sight_beacon",
+      "status": "GREEN",
+      "detail": "eye 0.0m old; spy=730.75 ribbon=BEAR src=alpaca_rest_iex (market closed -- quiet OK)",
       "critical": true
     },
     {
       "name": "watcher_feed",
       "status": "GREEN",
-      "detail": "newest bar 2026-06-17 (market closed -- quiet OK)",
+      "detail": "newest bar 2026-06-26 (market closed -- quiet OK)",
       "critical": true
-    },
-    {
-      "name": "tv_chart",
-      "status": "YELLOW",
-      "detail": "watchdog status stale 491.8m (>20m); action=healthy",
-      "critical": false
     },
     {
       "name": "killswitch_safe",
@@ -54,5 +54,6 @@
     }
   ],
   "reds": [],
+  "red_checks": [],
   "alerted": false
 }

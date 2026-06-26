@@ -1,19 +1,18 @@
 {
   "schema_version": 3,
-  "session_id": "2026-06-19",
-  "last_change_at": "2026-06-19T08:30:32-04:00",
-  "last_change_reason": "session_init_holiday",
-  "last_bar_timestamp": 0,
-  "current_mode": "BASE",
+  "session_id": "2026-06-26",
+  "last_change_at": "2026-06-26T08:40:00-04:00",
+  "last_change_reason": "session_init",
+  "last_bar_timestamp": 1782477600,
+  "current_mode": "HOT",
   "writes_today": 1,
   "ticks_today": 0,
-  "spy": { "last": null, "session_high": null, "session_low": null },
-  "vix_cache": { "value": null, "prior_value": null, "dir": null, "fetched_at": null },
-  "ribbon": null,
+  "spy": { "last": 729.51, "session_high": null, "session_low": null },
+  "vix_cache": { "value": 20.02, "prior_value": 17.88, "dir": "rising", "fetched_at": "2026-06-26T08:40:00-04:00" },
+  "ribbon": { "fast": 729.98, "pivot": 729.85, "slow": 729.91, "spread_cents": 13, "stack": "mixed" },
   "htf_15m": null,
   "last_filter_score": { "bear": 0, "bear_blockers": [], "bull": 0, "bull_blockers": [] },
   "developing_setup": null,
   "first_entry_lock": [],
-  "next_tick_model": "haiku",
-  "_note": "JUNETEENTH HOLIDAY 2026-06-19. Market closed. No heartbeat ticks expected. first_entry_lock cleared from yesterday's BULLISH_RECLAIM stop-out."
+  "next_tick_model": "haiku"
 }

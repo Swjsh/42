@@ -1,0 +1,15 @@
+{
+  "created_at": "2026-06-25T10:25:02-04:00",
+  "reason": "CRITICAL_TV_OUTAGE",
+  "detail": "4 consecutive heartbeat ticks (10:06, 10:09, 10:23, 10:25 ET) returned SKIP_TV_DATA_STALE. TV MCP unable to connect. Alpaca fallback ribbon_cli failed (insufficient bar history). Both Safe and Bold accounts PAUSED.",
+  "prior_failures": [
+    "2026-06-25T10:06:00-04:00 SKIP_TV_DATA_STALE",
+    "2026-06-25T10:09:00-04:00 SKIP_TV_DATA_STALE",
+    "2026-06-25T10:23:00-04:00 SKIP_TV_DATA_STALE"
+  ],
+  "recovery_steps": "1. Restart TradingView via setup/launch_tv_debug.ps1. 2. Verify CDP on port 9222 is responding. 3. Run premarket repair to redraw levels. 4. Delete this file to resume trading.",
+  "accounts_affected": [
+    "Gamma-Safe-2 (Safe account)",
+    "Gamma-Risky-2 (Aggressive account)"
+  ]
+}

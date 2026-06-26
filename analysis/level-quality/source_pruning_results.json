@@ -1,0 +1,124 @@
+{
+  "study": "source_pruning",
+  "analytical_from_benchmark": true,
+  "baseline_respect_lift_vs_dm_null_pp": -0.6,
+  "dm_null_respect": 0.2568,
+  "sources": {
+    "intraday": {
+      "n_levels": 281,
+      "touch_rate": 0.7331,
+      "respect_rate": 0.2282,
+      "dm_null_lift_pp": -3.1,
+      "if_pruned": {
+        "n_levels_pruned": 281,
+        "n_levels_remaining": 2902,
+        "new_touch_rate": 0.5083,
+        "new_respect_rate_of_touched": 0.2542,
+        "new_respect_lift_pp": -0.3,
+        "baseline_lift_pp": -0.6,
+        "delta_pp": 0.3,
+        "improves": true
+      },
+      "anchor_check": {
+        "affected_winners": [],
+        "affected_losers": [
+          "2026-05-07a",
+          "2026-05-07b"
+        ],
+        "winner_safe": true,
+        "loser_improves": true,
+        "verdict": "SAFE"
+      },
+      "verdict": "KILL"
+    },
+    "swept": {
+      "n_levels": 1569,
+      "touch_rate": 0.5813,
+      "respect_rate": 0.2456,
+      "dm_null_lift_pp": null,
+      "if_pruned": {
+        "n_levels_pruned": 1569,
+        "n_levels_remaining": 1614,
+        "new_touch_rate": 0.4765,
+        "new_respect_rate_of_touched": 0.2575,
+        "new_respect_lift_pp": 0.1,
+        "baseline_lift_pp": -0.6,
+        "delta_pp": 0.7,
+        "improves": true
+      },
+      "anchor_check": {
+        "affected_winners": [],
+        "affected_losers": [],
+        "winner_safe": true,
+        "loser_improves": false,
+        "verdict": "SAFE"
+      },
+      "verdict": "INCONCLUSIVE"
+    },
+    "round": {
+      "n_levels": 274,
+      "touch_rate": 0.719,
+      "respect_rate": 0.264,
+      "dm_null_lift_pp": 2.1,
+      "if_pruned": {
+        "n_levels_pruned": 274,
+        "n_levels_remaining": 2909,
+        "new_touch_rate": 0.5101,
+        "new_respect_rate_of_touched": 0.2493,
+        "new_respect_lift_pp": -0.7,
+        "baseline_lift_pp": -0.6,
+        "delta_pp": -0.1,
+        "improves": false
+      },
+      "anchor_check": {
+        "affected_winners": [],
+        "affected_losers": [
+          "2026-05-05",
+          "2026-05-07a",
+          "2026-05-07b"
+        ],
+        "winner_safe": true,
+        "loser_improves": true,
+        "verdict": "SAFE"
+      },
+      "verdict": "KEEP"
+    },
+    "multi_day": {
+      "n_levels": 1059,
+      "touch_rate": 0.3456,
+      "respect_rate": 0.2705,
+      "dm_null_lift_pp": null,
+      "if_pruned": {
+        "n_levels_pruned": 1059,
+        "n_levels_remaining": 2124,
+        "new_touch_rate": 0.6191,
+        "new_respect_rate_of_touched": 0.2456,
+        "new_respect_lift_pp": -1.1,
+        "baseline_lift_pp": -0.6,
+        "delta_pp": -0.5,
+        "improves": false
+      },
+      "anchor_check": {
+        "affected_winners": [
+          "2026-04-29",
+          "2026-05-01",
+          "2026-05-04"
+        ],
+        "affected_losers": [
+          "2026-05-05",
+          "2026-05-06"
+        ],
+        "winner_safe": false,
+        "loser_improves": true,
+        "verdict": "RISK-3-winners"
+      },
+      "verdict": "INCONCLUSIVE"
+    }
+  },
+  "verdicts": {
+    "intraday": "KILL",
+    "swept": "INCONCLUSIVE",
+    "round": "KEEP",
+    "multi_day": "INCONCLUSIVE"
+  }
+}

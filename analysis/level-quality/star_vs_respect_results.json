@@ -1,0 +1,26 @@
+{
+  "study": "star_vs_respect",
+  "days": 219,
+  "n_total_levels": 3183,
+  "star_summary": {
+    "1star": {
+      "n_levels": 114,
+      "touch_rate": 0.342,
+      "respect_rate_of_touched": 0.282
+    },
+    "2star": {
+      "n_levels": 683,
+      "touch_rate": 0.261,
+      "respect_rate_of_touched": 0.27
+    },
+    "3star": {
+      "n_levels": 2386,
+      "touch_rate": 0.614,
+      "respect_rate_of_touched": 0.248
+    }
+  },
+  "verdict": "DOES_NOT_SEPARATE",
+  "max_spread_pp": 3.4,
+  "separates_at_5pp": false,
+  "key_finding": "3-star levels have LOWER respect rate (0.248) than 1-star (0.282). High touch_count boosts stars but means price approaches the level often -- which correlates with eventual break, not bounce. Formula reweight needed."
+}

@@ -1,0 +1,144 @@
+{
+  "slug": "avoid_final_hour_pinning_compression_long",
+  "run_date": "2026-06-21",
+  "kind": "exit_management / entry_cutoff_confirmation (NOT a new entry signal)",
+  "window": "2025-01-02..2026-06-16",
+  "hard_window_opra": "2026-05-29",
+  "claim": "Final hour (15:00-16:00) realized-move compression / pinning suppresses directional follow-through -> long-premium late entries underperform; reinforce earlier cutoff + 15:50 flatten.",
+  "testability": {
+    "part_a_realized_compression": "TESTABLE on full SPY 5m window",
+    "part_b_late_entry_pnl": "TESTABLE on real OPRA fills <= 2026-05-29 (hard-window)",
+    "gamma_pinning_attribution": "UNVERIFIABLE -- no real-time GEX / dealer feed (only 1-day archive). PART A measures the realized EFFECT, not its cause."
+  },
+  "part_a_realized_compression": {
+    "overall": {
+      "n": 359,
+      "open_range_atr_med": 5.4968,
+      "final_range_atr_med": 3.255,
+      "open_path_atr_med": 8.2935,
+      "final_path_atr_med": 5.3037,
+      "final_over_open_range_med": 0.62,
+      "final_over_open_range_mean": 0.7377,
+      "final_over_open_path_med": 0.6354,
+      "pct_days_final_lt_open_range": 79.4
+    },
+    "by_daytype": {
+      "non_friday": {
+        "n": 287,
+        "open_range_atr_med": 5.4968,
+        "final_range_atr_med": 3.3239,
+        "open_path_atr_med": 8.3639,
+        "final_path_atr_med": 5.3364,
+        "final_over_open_range_med": 0.6331,
+        "final_over_open_range_mean": 0.7541,
+        "final_over_open_path_med": 0.6354,
+        "pct_days_final_lt_open_range": 78.0
+      },
+      "non_opex_friday": {
+        "n": 56,
+        "open_range_atr_med": 5.2341,
+        "final_range_atr_med": 3.1773,
+        "open_path_atr_med": 8.0404,
+        "final_path_atr_med": 5.2869,
+        "final_over_open_range_med": 0.5845,
+        "final_over_open_range_mean": 0.6915,
+        "final_over_open_path_med": 0.6611,
+        "pct_days_final_lt_open_range": 83.9
+      },
+      "opex_friday": {
+        "n": 16,
+        "open_range_atr_med": 5.7399,
+        "final_range_atr_med": 2.7793,
+        "open_path_atr_med": 7.7834,
+        "final_path_atr_med": 4.3791,
+        "final_over_open_range_med": 0.4565,
+        "final_over_open_range_mean": 0.6041,
+        "final_over_open_path_med": 0.6154,
+        "pct_days_final_lt_open_range": 87.5
+      }
+    },
+    "n_days": 359
+  },
+  "part_b_late_entry_pnl": {
+    "config": "LIVE vwap_continuation params: ITM-2 (offset -2), -8% premium stop, qty 3",
+    "live_cutoff_signals": 166,
+    "relaxed_cutoff_signals": 171,
+    "coverage": {
+      "signals": 171,
+      "filled": 158,
+      "cache_miss": 9,
+      "sim_none": 0,
+      "post_hard_window_dropped": 4,
+      "fill_rate": 0.924
+    },
+    "by_entry_bucket": {
+      "MORNING_<=1030": {
+        "n": 153,
+        "wr_pct": 50.3,
+        "exp_dollar": 74.58,
+        "total_dollar": 11410.44,
+        "median_pnl": 3.0,
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 2,
+          "EXIT_ALL_PREMIUM_STOP": 76,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 22,
+          "EXIT_ALL_TIME_STOP": 2,
+          "TP1_THEN_RUNNER_RIBBON": 35,
+          "TP1_THEN_RUNNER_TIME": 16
+        }
+      },
+      "MIDDAY_1030-1300": {
+        "n": 4,
+        "wr_pct": 50.0,
+        "exp_dollar": 23.61,
+        "total_dollar": 94.44,
+        "median_pnl": 4.74,
+        "exit_hist": {
+          "EXIT_ALL_PREMIUM_STOP": 2,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 1,
+          "TP1_THEN_RUNNER_RIBBON": 1
+        }
+      },
+      "AFTERNOON_1300-1500": {
+        "n": 1,
+        "wr_pct": 0.0,
+        "exp_dollar": -54.24,
+        "total_dollar": -54.24,
+        "median_pnl": -54.24,
+        "exit_hist": {
+          "EXIT_ALL_PREMIUM_STOP": 1
+        }
+      },
+      "FINAL_HOUR_>=1500": {
+        "n": 0
+      }
+    },
+    "overall": {
+      "n": 158,
+      "wr_pct": 50.0,
+      "exp_dollar": 72.47,
+      "total_dollar": 11450.64,
+      "median_pnl": -5.94,
+      "exit_hist": {
+        "EXIT_ALL_LEVEL_STOP": 2,
+        "EXIT_ALL_PREMIUM_STOP": 79,
+        "EXIT_ALL_RIBBON_FLIP_BACK": 23,
+        "EXIT_ALL_TIME_STOP": 2,
+        "TP1_THEN_RUNNER_RIBBON": 36,
+        "TP1_THEN_RUNNER_TIME": 16
+      }
+    }
+  },
+  "verdict": {
+    "realized_compression_confirmed": true,
+    "late_entry_underperforms_judgeable": false,
+    "late_entry_underperforms": null,
+    "live_edge_is_morning_only": "vwap_continuation ENTRY_CUTOFF=10:30 -> the live edge NEVER enters in the final hour; the 'entry initiated in final hour' clause cannot occur live."
+  },
+  "DISCLOSURE": {
+    "no_new_signal": "live edge is morning-only by construction; this is a cutoff confirm",
+    "fills_authority": "real OPRA via simulator_real (C1); causal next-bar entry",
+    "gamma_caveat": "pinning cause unverifiable on our data (no GEX feed)",
+    "opex_definition": "monthly OPEX = 3rd Friday (day in [15,21]); weekly Fri also 0DTE"
+  }
+}

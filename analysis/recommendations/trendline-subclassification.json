@@ -1,0 +1,100 @@
+{
+  "study": "trendline sub-classification (phantom vs live-eligible)",
+  "date": "2026-06-17",
+  "safe_is": {
+    "n_tl": 74,
+    "by_sub": {
+      "tl_pure": {
+        "n": 64,
+        "pnl": -570.84,
+        "avg": -8.92,
+        "live_eligible": false
+      },
+      "tl+lvl_rej": {
+        "n": 4,
+        "pnl": 1149.0,
+        "avg": 287.25,
+        "live_eligible": false
+      },
+      "tl+ribbon_flip": {
+        "n": 6,
+        "pnl": 2991.9,
+        "avg": 498.65,
+        "live_eligible": true
+      }
+    },
+    "pure_phantom_n": 64,
+    "pure_phantom_pnl": -570.84,
+    "live_eligible_n": 6,
+    "live_eligible_pnl": 2991.9
+  },
+  "safe_oos": {
+    "n_tl": 8,
+    "by_sub": {
+      "tl_pure": {
+        "n": 6,
+        "pnl": 96.45,
+        "avg": 16.08,
+        "live_eligible": false
+      },
+      "tl+lvl_rej": {
+        "n": 2,
+        "pnl": -357.02,
+        "avg": -178.51,
+        "live_eligible": false
+      }
+    },
+    "pure_phantom_n": 6,
+    "pure_phantom_pnl": 96.45,
+    "live_eligible_n": 0,
+    "live_eligible_pnl": 0
+  },
+  "agg_is": {
+    "n_tl": 53,
+    "by_sub": {
+      "tl_pure": {
+        "n": 42,
+        "pnl": -440.24,
+        "avg": -10.48,
+        "live_eligible": false
+      },
+      "tl+ribbon_flip": {
+        "n": 8,
+        "pnl": 3472.13,
+        "avg": 434.02,
+        "live_eligible": true
+      },
+      "tl+lvl_rej": {
+        "n": 3,
+        "pnl": 2220.65,
+        "avg": 740.22,
+        "live_eligible": false
+      }
+    },
+    "pure_phantom_n": 42,
+    "pure_phantom_pnl": -440.24,
+    "live_eligible_n": 8,
+    "live_eligible_pnl": 3472.13
+  },
+  "agg_oos": {
+    "n_tl": 7,
+    "by_sub": {
+      "tl+lvl_rej": {
+        "n": 2,
+        "pnl": -229.67,
+        "avg": -114.84,
+        "live_eligible": false
+      },
+      "tl_pure": {
+        "n": 5,
+        "pnl": 174.17,
+        "avg": 34.83,
+        "live_eligible": false
+      }
+    },
+    "pure_phantom_n": 5,
+    "pure_phantom_pnl": 174.17,
+    "live_eligible_n": 0,
+    "live_eligible_pnl": 0
+  }
+}

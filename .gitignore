@@ -77,3 +77,28 @@ automation/state/fleet/decisions/
 .mcp.json.bak*
 **/*.bak-winfix-*
 **/*.bak
+
+# === Added 2026-06-21: companion Web Push secrets + ephemeral push state ===
+# VAPID private key + push subscriptions carry the wrist-approval signing material.
+# (.approve-hmac.key already matches **/*.key above; .json files do NOT — pin them.)
+automation/state/.vapid.json
+**/.vapid.json
+automation/state/push-subscriptions.json
+**/push-subscriptions.json
+# Ephemeral runtime push state — single-use token ledger + rising-edge dedupe
+automation/state/.approve-consumed.json
+**/.approve-consumed.json
+automation/state/.push-seen.json
+**/.push-seen.json
+# Ephemeral companion live-transcript + card-ack snooze state (per-machine runtime)
+automation/state/companion-ask-feed/
+**/companion-ask-feed/
+automation/state/companion-card-acks.json
+**/companion-card-acks.json
+# Machine-specific companion config: persisted page-auth token + tailnet host.
+# .companion-token is the stable x-gamma-token; .tailnet-host is this PC's
+# Tailscale MagicDNS name. Both are per-machine — never tracked.
+automation/state/.companion-token
+**/.companion-token
+automation/state/.tailnet-host
+**/.tailnet-host

@@ -1,0 +1,30 @@
+{
+  "task": "safe-prior-rejection-gate",
+  "description": "Block BEAR entries where prior bar (N-1) is a rejection/doji (body_pct < 0.30)",
+  "is_baseline": 23426.571075424217,
+  "is_candidate": 23260.402057046274,
+  "is_n_blocked": 26,
+  "is_blocked_pnl": 166.2,
+  "is_blocked_wr": 0.346,
+  "oos_baseline": 5920.776775150395,
+  "oos_candidate": 6603.500000000001,
+  "oos_n_blocked": 5,
+  "oos_blocked_pnl": -682.7,
+  "oos_blocked_wr": 0.2,
+  "is_delta": -166.2,
+  "oos_delta": 682.7,
+  "wf": -4.108,
+  "sw_hurt": 1,
+  "anchor_baseline": 0,
+  "anchor_candidate": 0,
+  "gates": {
+    "G1": false,
+    "G2": true,
+    "G3": false,
+    "G4": true,
+    "G5": true,
+    "all": false
+  },
+  "verdict": "REJECT",
+  "note": "Gate requires orchestrator parameter: block_prior_rejection_bar=True. Revert: set False. Implementation: in BEAR trigger logic, after all gates pass and before entry, check bar N-1 body_pct \u2014 if < 0.30, skip entry."
+}

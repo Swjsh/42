@@ -1,0 +1,30 @@
+{
+  "symbol": "SPY",
+  "mode": "backtest",
+  "asof_utc": "2026-05-04T20:00:00+00:00",
+  "n_bars": 141,
+  "last_close": 718.07,
+  "trend": "uptrend",
+  "recent_label_sequence": [
+    "HH",
+    "LL",
+    "LL",
+    "LH",
+    "HL",
+    "HH"
+  ],
+  "last_swing_high": 718.26,
+  "last_swing_low": 717.43,
+  "last_event": null,
+  "structure_confidence": 1.0,
+  "patterns": [],
+  "nearest_level": {
+    "name": "RTH_LOW_2026-06-18",
+    "price": 743.35,
+    "tier": "Active",
+    "distance": 25.28,
+    "side": "above"
+  },
+  "low_data": false,
+  "summary": "SPY UPTREND | (LL LH HL HH) | nearest RTH_LOW_2026-06-18 743.35 (25.28 above)"
+}

@@ -1,0 +1,26 @@
+# Lesson candidate: an L172 random-strike null must trade the SAME strike universe as production (legs_in_band parity) — else it mis-estimates the percentile and flips the verdict
+
+> Queued by Gamma (IC-LEAD validation, premium-selling pivot) 2026-06-21. lesson-author picks up at next wake fire.
+
+## Symptom
+Validating the iron-condor premium-selling LEAD (`IC 10:30 off2 w2 pt0.5 1.5×`, OOS +$23.03/tr) against the L172 random-short-offset null, the gate-6 verdict appeared to **flip on the RNG seed**:
+- finalize pass (seed 13, 30 iters): strike-null p95 $26.03 → **FAIL**.
+- a first in-script re-seed (seed 99, 60 iters): strike-null p95 **$22.67** → actual at the **95th pctile → spurious "PASS."**
+- production-parity re-run (seed 99, 400 iters): strike-null mean **$19.68** / p95 **$26.66** / actual at the **78.7th pctile → FAIL**.
+- standalone harness (500 iters × 3 seeds {7,101,2024}): p95 ~$26.4 / actual at **75.6–76.6th pctile → FAIL** (stable).
+
+The "seed fragility" was a symptom, not the cause. The real cause was a **strike-universe mismatch** between the null and production.
+
+## Root cause
+Production scoring (`backtest/autoresearch/_pivot_premium_selling.py::run_variant`, line ~178) and the standalone null (`_pivot_premium_selling_null.py::_one_day_fill`) both apply `legs_in_band(legs, spot, half_width=5)` BEFORE pricing — which **always drops short_offset=4** (longC = ATM+6 sits outside the ±$5 cache band). My first in-script null (`_pivot_premium_ic_validate.py::fill_for_day`) omitted that pre-filter, so when the random draw picked off=4 it traded the condor whenever the strikes happened to be cached (down-drift days) — trades **production geometry never takes**. Those extra marginal-loss off=4 condors dragged the **null mean down ($19.7 → $15.6)**, which **inflated the actual's percentile from ~79th to ~95th** — straight into the knife-edge where 30-vs-60-iter p95 noise then flipped the boolean. Restoring the `legs_in_band` filter to match production pulled the actual back to ~79th (in-script) / ~76th (standalone): a clean, seed-stable FAIL. Net: the IC's +EV is reproduced by ~1-in-4 random-offset condors — generic theta, no strike-selection alpha (C3/L172, inverse/selling direction).
+
+## Fix
+- `backtest/autoresearch/_pivot_premium_ic_validate.py::fill_for_day` now applies the same `legs_in_band(half_width=5)` pre-filter `run_variant` uses (returns an `out_of_band` skip), so the null and the production grid trade an identical strike universe. Re-ran → `ic_validate.json check1_null`: strike_null_mean $19.68, p95 $26.66, actual_pctile 0.787, beats_null=False.
+- `analysis/recommendations/PIVOT-PREMIUM-SELLING-SCORECARD.md` "IC LEAD — assigned 4-check validation" CHECK 1 documents both causes (parity primary, iteration-noise secondary) and the convergent ~76–79th-pctile FAIL.
+- TODO (graduate to code assertion per "a re-violated lesson is a missing guardrail" → `backtest/tests/test_graduated_guards.py`): any null/permutation harness should assert its per-day eligibility filter is byte-identical to the production scorer's (share ONE `eligible(legs, spot)` helper between `run_variant` and the null), and gate on percentile rank over ≥300 iters / ≥2 seeds, treating actual within [p90,p99] as INCONCLUSIVE-rerun-bigger rather than PASS.
+
+## Encoded in
+Scorecard CHECK 1 (documented) + `_pivot_premium_ic_validate.py` (band-parity filter). Pending graduation into a shared `eligible()` helper + null-gate assertion in `verify_edgehunt_candidates.py` / `test_graduated_guards.py`.
+
+## L## (optional)
+Suggested **L175** (CLAUDE.md Lessons index reads "through L174 as of 2026-06-21" — grep for max to confirm/assign). Fold into theme **C3** (beat the null MAX) sharpened with: "…and the null must trade production's exact strike universe (same `legs_in_band`/eligibility filter) — a null that prices strikes production skips mis-estimates the percentile and can flip the verdict." Cross-ref **C9/L42** (update ALL state consumers / dual-symmetry — same family: keep the null and the scorer in lock-step) and the OP-16 sim-accuracy gate ("verify sim's strike picker matches production before any ratification"). Corroborating domain note: the ±$5 OPRA cache's 55.6% IC skip is 100% `missing_cache` on the high-excursion days (skipped days move ~5× more entry→close), so the IC's +EV is calm-day-survivorship-conditioned and the adverse tail is **untestable** until a wider delta-targeted band is fetched.

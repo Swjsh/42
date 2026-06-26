@@ -1,0 +1,125 @@
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-25T01:05:18"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate/critique/test the existing rece", "out": "analysis\\manager\\2026-06-25-0107-validator-validate-critique-test-the-existing-rece.md", "elapsed_s": 40.184, "ts_et": "2026-06-25T01:07:03"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate/critique/test the top contender", "out": "analysis\\manager\\2026-06-25-0111-validator-validate-critique-test-the-top-contender.md", "elapsed_s": 12.156, "ts_et": "2026-06-25T01:11:48"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-25T01:13:15"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validator", "out": "analysis\\manager\\2026-06-25-0114-critic-validator.md", "elapsed_s": 23.257, "ts_et": "2026-06-25T01:14:39"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-25T01:33:16"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-25T01:53:16"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate/critique/test the top contender", "out": "analysis\\manager\\2026-06-25-0213-critic-validate-critique-test-the-top-contender.md", "elapsed_s": 14.611, "ts_et": "2026-06-25T02:13:30"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-25T02:33:16"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-25T02:53:16"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate/critique/test the top contender", "out": "analysis\\manager\\2026-06-25-0313-validator-validate-critique-test-the-top-contender.md", "elapsed_s": 16.468, "ts_et": "2026-06-25T03:13:32"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate/critique/test the top contender", "out": "analysis\\manager\\2026-06-25-0333-validator-validate-critique-test-the-top-contender.md", "elapsed_s": 8.947, "ts_et": "2026-06-25T03:33:25"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate/critique/test the top contender", "out": "analysis\\manager\\2026-06-25-0353-critic-validate-critique-test-the-top-contender.md", "elapsed_s": 19.35, "ts_et": "2026-06-25T03:53:35"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate/critique/test the top contender", "out": "analysis\\manager\\2026-06-25-0414-validator-validate-critique-test-the-top-contender.md", "elapsed_s": 56.07, "ts_et": "2026-06-25T04:14:12"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validator", "out": "analysis\\manager\\2026-06-25-0433-critic-validator.md", "elapsed_s": 11.305, "ts_et": "2026-06-25T04:33:27"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-25T04:53:16"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-25T05:13:16"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate/critique/test the top contender from the CONTENDER SWEEP", "out": "analysis\\manager\\2026-06-25-0533-critic-validate-critique-test-the-top-contender-from-the-.md", "elapsed_s": 11.53, "ts_et": "2026-06-25T05:33:27"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "ollama::qwen3:14b", "action": "validate/critique/test the top contender from the CONTENDER SWEEP", "out": "analysis\\manager\\2026-06-25-0553-validator-validate-critique-test-the-top-contender-from-the-.md", "elapsed_s": 36.217, "ts_et": "2026-06-25T05:53:53"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-25T06:13:16"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate/critique/test the top contender from the CONTENDER SWEEP", "out": "analysis\\manager\\2026-06-25-0633-validator-validate-critique-test-the-top-contender-from-the-.md", "elapsed_s": 7.58, "ts_et": "2026-06-25T06:33:24"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-25T06:53:16"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate/critique/test the top contender from the CONTENDER SWEEP", "out": "analysis\\manager\\2026-06-25-0716-validator-validate-critique-test-the-top-contender-from-the-.md", "elapsed_s": 197.956, "ts_et": "2026-06-25T07:16:34"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-25T07:33:16"}
+{"phase": "dispatch", "ok": true, "role": "forager", "lane": "google_aistudio::gemini-flash-lite-latest", "action": "harvest free data/strategies from the CO", "out": "analysis\\manager\\2026-06-25-0753-forager-harvest-free-data-strategies-from-the-co.md", "elapsed_s": 20.529, "ts_et": "2026-06-25T07:53:43"}
+{"phase": "pick", "ok": false, "bad_role": "ideator", "action": "IDEATE", "ts_et": "2026-06-25T07:58:26"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "IDEATE", "out": "analysis\\manager\\2026-06-25-0759-strategist-ideate.md", "elapsed_s": 5.907, "ts_et": "2026-06-25T07:59:14"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "IDEATE", "out": "analysis\\manager\\2026-06-25-0813-strategist-ideate.md", "elapsed_s": 17.49, "ts_et": "2026-06-25T08:13:34"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "IDEATE — Produce ONE new variant of vwap", "out": "analysis\\manager\\2026-06-25-0830-strategist-ideate---produce-one-new-variant-of-vwap.md", "elapsed_s": 23.955, "ts_et": "2026-06-25T08:30:33"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "IDEATE — Produce ONE new variant of vwap", "out": "analysis\\manager\\2026-06-25-0833-strategist-ideate---produce-one-new-variant-of-vwap.md", "elapsed_s": 8.012, "ts_et": "2026-06-25T08:33:30"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "IDEATE — Produce ONE new variant of vwap", "out": "analysis\\manager\\2026-06-25-0853-strategist-ideate---produce-one-new-variant-of-vwap.md", "elapsed_s": 24.888, "ts_et": "2026-06-25T08:53:42"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "IDEATE — Produce ONE new variant of vwap", "out": "analysis\\manager\\2026-06-25-0913-strategist-ideate---produce-one-new-variant-of-vwap.md", "elapsed_s": 18.827, "ts_et": "2026-06-25T09:13:36"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:33", "ts_et": "2026-06-25T09:33:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:53", "ts_et": "2026-06-25T09:53:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:13", "ts_et": "2026-06-25T10:13:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:33", "ts_et": "2026-06-25T10:33:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:53", "ts_et": "2026-06-25T10:53:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:13", "ts_et": "2026-06-25T11:13:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:33", "ts_et": "2026-06-25T11:33:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:53", "ts_et": "2026-06-25T11:53:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:13", "ts_et": "2026-06-25T12:13:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:33", "ts_et": "2026-06-25T12:33:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:53", "ts_et": "2026-06-25T12:53:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:13", "ts_et": "2026-06-25T13:13:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:33", "ts_et": "2026-06-25T13:33:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:53", "ts_et": "2026-06-25T13:53:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:13", "ts_et": "2026-06-25T14:13:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:33", "ts_et": "2026-06-25T14:33:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:53", "ts_et": "2026-06-25T14:53:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:13", "ts_et": "2026-06-25T15:13:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:33", "ts_et": "2026-06-25T15:33:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:53", "ts_et": "2026-06-25T15:53:14"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-25-1613-python-rank_contenders.md", "ts_et": "2026-06-25T16:13:24"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-25-1633-python-rank_contenders.md", "ts_et": "2026-06-25T16:33:17"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-25-1653-python-rank_contenders.md", "ts_et": "2026-06-25T16:53:17"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate the contender sweep: rank the t", "out": "analysis\\manager\\2026-06-25-1713-validator-validate-the-contender-sweep--rank-the-t.md", "elapsed_s": 9.108, "ts_et": "2026-06-25T17:13:26"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate the contender sweep: rank the t", "out": "analysis\\manager\\2026-06-25-1733-validator-validate-the-contender-sweep--rank-the-t.md", "elapsed_s": 2.387, "ts_et": "2026-06-25T17:33:20"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-25-1753-python-rank_contenders.md", "ts_et": "2026-06-25T17:53:17"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Validate the contender sweep: rank the t", "out": "analysis\\manager\\2026-06-25-1813-validator-validate-the-contender-sweep--rank-the-t.md", "elapsed_s": 7.172, "ts_et": "2026-06-25T18:13:24"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "A strategy scored edge=1692, WF=1.98, WR", "out": "analysis\\manager\\2026-06-25-1833-critic-a-strategy-scored-edge-1692--wf-1-98--wr.md", "elapsed_s": 12.706, "ts_et": "2026-06-25T18:33:31"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Validate the contender sweep: run OTM-2:", "out": "analysis\\manager\\2026-06-25-1853-validator-validate-the-contender-sweep--run-otm-2-.md", "elapsed_s": 17.36, "ts_et": "2026-06-25T18:53:34"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Validate the contender sweep: run OTM-2:", "out": "analysis\\manager\\2026-06-25-1913-validator-validate-the-contender-sweep--run-otm-2-.md", "elapsed_s": 4.312, "ts_et": "2026-06-25T19:13:21"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "A strategy scored edge=1692, WF=1.98, WR", "out": "analysis\\manager\\2026-06-25-1933-critic-a-strategy-scored-edge-1692--wf-1-98--wr.md", "elapsed_s": 3.198, "ts_et": "2026-06-25T19:33:20"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Ideate one structural variant of the top", "out": "analysis\\manager\\2026-06-25-1953-strategist-ideate-one-structural-variant-of-the-top.md", "elapsed_s": 17.82, "ts_et": "2026-06-25T19:53:35"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-25-2013-python-rank_contenders.md", "ts_et": "2026-06-25T20:13:18"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-25-2033-python-rank_contenders.md", "ts_et": "2026-06-25T20:33:17"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-25-2053-python-rank_contenders.md", "ts_et": "2026-06-25T20:53:17"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-25-2113-python-rank_contenders.md", "ts_et": "2026-06-25T21:13:20"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-25-2133-python-rank_contenders.md", "ts_et": "2026-06-25T21:33:16"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-25-2153-python-rank_contenders.md", "ts_et": "2026-06-25T21:53:17"}
+{"phase": "dispatch", "ok": true, "role": "forager", "lane": "google_aistudio::gemini-flash-lite-latest", "action": "fetch the FRED series VIXCLS (daily VIX", "out": "analysis\\manager\\2026-06-25-2213-forager-fetch-the-fred-series-vixcls--daily-vix.md", "elapsed_s": 13.496, "ts_et": "2026-06-25T22:13:30"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-25T22:33:17"}
+{"phase": "dispatch", "ok": true, "role": "forager", "lane": "google_aistudio::gemini-flash-lite-latest", "action": "fetch the FRED series VIXCLS (daily VIX", "out": "analysis\\manager\\2026-06-25-2253-forager-fetch-the-fred-series-vixcls--daily-vix.md", "elapsed_s": 2.041, "ts_et": "2026-06-25T22:53:19"}
+{"phase": "dispatch", "ok": true, "role": "forager", "lane": "google_aistudio::gemini-flash-lite-latest", "action": "fetch the FRED series VIXCLS (daily VIX", "out": "analysis\\manager\\2026-06-25-2313-forager-fetch-the-fred-series-vixcls--daily-vix.md", "elapsed_s": 4.177, "ts_et": "2026-06-25T23:13:21"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-25T23:33:18"}
+{"phase": "dispatch", "ok": true, "role": "forager", "lane": "google_aistudio::gemini-flash-lite-latest", "action": "fetch the FRED series VIXCLS (daily VIX", "out": "analysis\\manager\\2026-06-25-2353-forager-fetch-the-fred-series-vixcls--daily-vix.md", "elapsed_s": 3.91, "ts_et": "2026-06-25T23:53:21"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-26-0013-python-rank_contenders.md", "ts_et": "2026-06-26T00:13:18"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-26-0033-python-rank_contenders.md", "ts_et": "2026-06-26T00:33:17"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the edge=1692 candidate (the on", "out": "analysis\\manager\\2026-06-26-0053-critic-critique-the-edge-1692-candidate--the-on.md", "elapsed_s": 8.06, "ts_et": "2026-06-26T00:53:25"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-26-0113-python-rank_contenders.md", "ts_et": "2026-06-26T01:13:16"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-26-0133-python-rank_contenders.md", "ts_et": "2026-06-26T01:33:17"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-26-0153-python-rank_contenders.md", "ts_et": "2026-06-26T01:53:16"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Validate edge=1692 on OTM-2:LR0:mt1:stop", "out": "analysis\\manager\\2026-06-26-0213-validator-validate-edge-1692-on-otm-2-lr0-mt1-stop.md", "elapsed_s": 3.962, "ts_et": "2026-06-26T02:13:21"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Validate edge=1692 on OTM-2:LR0:mt1:stop", "out": "analysis\\manager\\2026-06-26-0233-validator-validate-edge-1692-on-otm-2-lr0-mt1-stop.md", "elapsed_s": 11.166, "ts_et": "2026-06-26T02:33:28"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Validate edge=1692 on OTM-2:LR0:mt1:stop", "out": "analysis\\manager\\2026-06-26-0253-validator-validate-edge-1692-on-otm-2-lr0-mt1-stop.md", "elapsed_s": 4.51, "ts_et": "2026-06-26T02:53:21"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Validate edge=1563 on OTM-1:LR1 (edge>77", "out": "analysis\\manager\\2026-06-26-0313-validator-validate-edge-1563-on-otm-1-lr1--edge-77.md", "elapsed_s": 3.544, "ts_et": "2026-06-26T03:13:20"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Validate edge=1563 on OTM-1:LR1 (edge>77", "out": "analysis\\manager\\2026-06-26-0333-validator-validate-edge-1563-on-otm-1-lr1--edge-77.md", "elapsed_s": 2.497, "ts_et": "2026-06-26T03:33:19"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Validate edge=1563 on OTM-1:LR1 (edge>77", "out": "analysis\\manager\\2026-06-26-0353-validator-validate-edge-1563-on-otm-1-lr1--edge-77.md", "elapsed_s": 2.435, "ts_et": "2026-06-26T03:53:18"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-26T04:13:17"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-26-0433-python-rank_contenders.md", "ts_et": "2026-06-26T04:33:23"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-26-0453-python-rank_contenders.md", "ts_et": "2026-06-26T04:53:17"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the con", "out": "analysis\\manager\\2026-06-26-0513-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 0.743, "ts_et": "2026-06-26T05:13:18"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-26-0533-python-rank_contenders.md", "ts_et": "2026-06-26T05:33:17"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-26-0553-python-rank_contenders.md", "ts_et": "2026-06-26T05:53:17"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique OTM-2:LR0:mt1:stop-8:tp+150%:se", "out": "analysis\\manager\\2026-06-26-0613-critic-critique-otm-2-lr0-mt1-stop-8-tp-150--se.md", "elapsed_s": 19.61, "ts_et": "2026-06-26T06:13:36"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique OTM-2:LR0:mt1:stop-8:tp+150%:se", "out": "analysis\\manager\\2026-06-26-0633-critic-critique-otm-2-lr0-mt1-stop-8-tp-150--se.md", "elapsed_s": 27.132, "ts_et": "2026-06-26T06:33:45"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique OTM-2:LR0:mt1:stop-8:tp+150%:se", "out": "analysis\\manager\\2026-06-26-0653-critic-critique-otm-2-lr0-mt1-stop-8-tp-150--se.md", "elapsed_s": 33.182, "ts_et": "2026-06-26T06:53:50"}
+{"phase": "dispatch", "ok": true, "role": "forager", "lane": "google_aistudio::gemini-flash-lite-latest", "action": "Query FRED API for `VIXCLS` daily closes", "out": "analysis\\manager\\2026-06-26-0713-forager-query-fred-api-for--vixcls--daily-closes.md", "elapsed_s": 4.512, "ts_et": "2026-06-26T07:13:21"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique OTM-2:LR0:mt1:stop-8:tp+150%:se", "out": "analysis\\manager\\2026-06-26-0733-critic-critique-otm-2-lr0-mt1-stop-8-tp-150--se.md", "elapsed_s": 18.905, "ts_et": "2026-06-26T07:33:36"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique OTM-2:LR0:mt1:stop-8:tp+150%:se", "out": "analysis\\manager\\2026-06-26-0753-critic-critique-otm-2-lr0-mt1-stop-8-tp-150--se.md", "elapsed_s": 17.513, "ts_et": "2026-06-26T07:53:35"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-26-0813-python-rank_contenders.md", "ts_et": "2026-06-26T08:13:18"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-26-0833-python-rank_contenders.md", "ts_et": "2026-06-26T08:33:25"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-26-0853-python-rank_contenders.md", "ts_et": "2026-06-26T08:53:18"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-26-0913-python-rank_contenders.md", "ts_et": "2026-06-26T09:13:18"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:33", "ts_et": "2026-06-26T09:33:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:53", "ts_et": "2026-06-26T09:53:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:13", "ts_et": "2026-06-26T10:13:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:33", "ts_et": "2026-06-26T10:33:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:53", "ts_et": "2026-06-26T10:53:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:13", "ts_et": "2026-06-26T11:13:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:33", "ts_et": "2026-06-26T11:33:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:53", "ts_et": "2026-06-26T11:53:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:13", "ts_et": "2026-06-26T12:13:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:33", "ts_et": "2026-06-26T12:33:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:53", "ts_et": "2026-06-26T12:53:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:13", "ts_et": "2026-06-26T13:13:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:33", "ts_et": "2026-06-26T13:33:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:53", "ts_et": "2026-06-26T13:53:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:13", "ts_et": "2026-06-26T14:13:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:33", "ts_et": "2026-06-26T14:33:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:53", "ts_et": "2026-06-26T14:53:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:13", "ts_et": "2026-06-26T15:13:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:33", "ts_et": "2026-06-26T15:33:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:53", "ts_et": "2026-06-26T15:53:14"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Does tp+150% ever realize on a 0DTE OTM-", "out": "analysis\\manager\\2026-06-26-1614-critic-does-tp-150--ever-realize-on-a-0dte-otm-.md", "elapsed_s": 67.57, "ts_et": "2026-06-26T16:14:31"}

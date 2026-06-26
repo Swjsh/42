@@ -1,0 +1,87 @@
+{
+  "date": "2026-06-19",
+  "bias": "no-trade",
+  "no_trade_reason": "market_holiday_juneteenth",
+  "bias_note": "JUNETEENTH NATIONAL INDEPENDENCE DAY — US equity markets closed. NYSE/Alpaca next_open: 2026-06-22T09:30:00-04:00 (Monday). No trades today. Circuit breakers re-armed with live equity. Loop states reset (first_entry_lock cleared). Carry levels (748.00, 745.33) expire 2026-06-20 — Monday premarket must draw fresh levels for Monday session.",
+  "key_levels": {
+    "resistance": [
+      { "price": 750.0, "label": "ROUND_750", "tier": "Reference", "note": "Psychological — valid thru 2026-08-15" },
+      { "price": 748.0, "label": "PML_2026-06-15_CARRY", "tier": "Carry", "note": "Expires 2026-06-20 — needs Monday refresh" }
+    ],
+    "support": [
+      { "price": 745.33, "label": "CARRY_SESSION_HIGH_2026-06-08", "tier": "Carry", "note": "Expires 2026-06-20 — needs Monday refresh" }
+    ],
+    "ema_fast": null,
+    "ema_pivot": null,
+    "ema_slow": null,
+    "sma_50": null,
+    "ema_read_failed": true,
+    "ema_read_note": "Holiday — no chart pull performed"
+  },
+  "falsifiable_predictions": [
+    {
+      "claim": "NO_TRADE_DAY — Juneteenth national holiday. Market closed.",
+      "trigger_window": "n/a",
+      "invalidation": "n/a",
+      "confidence": 1.0,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": null
+    }
+  ],
+  "falsifiable_hypothesis": "NO_TRADE_DAY — Juneteenth holiday 2026-06-19. Market closed.",
+  "vix_at_open": null,
+  "vix_prior": 16.72,
+  "vix_bias": "n/a",
+  "iv_regime": "n/a",
+  "iv_source": "n/a",
+  "iv_value": null,
+  "session_window": {
+    "open_et": "CLOSED",
+    "close_et": "CLOSED",
+    "next_open": "2026-06-22T09:30:00-04:00"
+  },
+  "news_calendar": {
+    "events_today": [],
+    "no_trade_window": [],
+    "size_modifier_windows": [],
+    "catalyst_narrative": {
+      "stale": false,
+      "note": "Holiday — no RTH events. Next event: PCE 2026-06-25 08:30 ET (high severity)."
+    },
+    "stale": false,
+    "calendar_freshness_days": 5
+  },
+  "gates_passed": {
+    "tv_connected": true,
+    "cdp_connected": true,
+    "market_open_today": false,
+    "no_trade_reason": "market_holiday_juneteenth",
+    "safe_flat": true,
+    "bold_flat": true,
+    "rule_version_match": "v15.3 OK",
+    "SAFE_EQUITY_BOD_PENDING": false,
+    "DRIFT_GATE_NO_DATA": "backtest-drift.json dated 2026-05-18 (>48h old) — no block, continue",
+    "swarm_context": "SWARM_CONTEXT_UNAVAILABLE_stale_22h",
+    "macro_calendar_freshness_days": 5
+  },
+  "daily_loss_budget_dollars": null,
+  "day_trades_remaining": null,
+  "safe_equity_confirmed": 2000.00,
+  "bold_equity": 1648.75,
+  "swarm_context": {
+    "consensus_bias": "no_trade",
+    "swarm_confidence": 0,
+    "consensus_strength": "split",
+    "dissent_flag": { "active": true, "dissenting_agents": ["macro", "level_thesis", "technical", "internals"], "reason": "4-way core split — stale 22h" },
+    "battle_level_price": 752.09,
+    "top_invalidation_scenario": "SPY reclaims 752.09 on 5-minute close — bullish breakout invalidates no_trade thesis",
+    "synthesis_narrative": "STALE (generated 2026-06-18T10:20Z). Split no_trade: macro bullish (overnight gap), tech/internals no_trade, level_thesis bearish at 752.09. Valid context for Monday open — key watch: 752.09 battle.",
+    "swarm_predictions": [],
+    "agreement_with_premarket": "agree",
+    "stale": true,
+    "generated_at": "2026-06-18T10:20:29Z"
+  },
+  "prior_day_review_hint": "EOD NOOP — flat into close",
+  "updated_at": "2026-06-19T08:30:32-04:00"
+}

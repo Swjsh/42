@@ -1,0 +1,24 @@
+{
+  "date": "2026-06-16",
+  "total_ticks": 39,
+  "live_trading_ticks": 35,
+  "counts": {
+    "ALIGNED": 12,
+    "MISALIGNED-BENIGN": 23,
+    "MISALIGNED-CRITICAL": 0,
+    "STALE_PAUSED": 2,
+    "NO_DATA": 2,
+    "NO_BAR": 0
+  },
+  "misaligned_critical_count": 0,
+  "misaligned_critical_pct_of_live": 0.0,
+  "headline": "0 of 35 live-trading ticks (0%) were MISALIGNED-CRITICAL on 2026-06-16",
+  "critical_ticks": [],
+  "log_path": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\logs\\heartbeat-2026-06-16.log",
+  "csv_path": "C:\\Users\\jackw\\Desktop\\42\\backtest\\data\\spy_5m_2026-05-19_2026-06-16.csv",
+  "audit_files": {
+    "per_tick_csv": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-06-16.csv",
+    "summary_json": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-06-16.json",
+    "human_md": "C:\\Users\\jackw\\Desktop\\42\\docs\\HEARTBEAT-TICK-AUDIT-2026-06-16.md"
+  }
+}

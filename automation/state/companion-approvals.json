@@ -1,0 +1,13 @@
+{
+  "schema": "gamma-companion-approvals@1",
+  "updated_at": "2026-06-25T00:05:09.668Z",
+  "pending": [
+    {
+      "severity": "info",
+      "created_at": "2026-06-25T00:05:09.668Z",
+      "id": "gp-2026-06-24-001",
+      "title": "Sync heartbeat AGG-4 prose (morning-bull gate you removed)",
+      "detail": "block_bull_morning_agg is off in params (your mid-session call); prompt still said true. Approve to sync the prose. Behavior already correct."
+    }
+  ]
+}

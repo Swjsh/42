@@ -1,0 +1,9 @@
+{
+  "instrument": "MNQ",
+  "date": null,
+  "levels": [],
+  "vwap": null,
+  "ema_20": null,
+  "notes": "Populated by premarket script. Key levels from TV chart: PDH, PDL, overnight high/low, VWAP, major MAs.",
+  "last_updated": null
+}

@@ -23,12 +23,12 @@
 **Confidence:** ceiling-clipped at 95 on all 5 days — **calibration too tight** (see Finding 1)
 
 Source-of-truth (per-day grade files):
-- [`analysis/swarm-benchmark/replay-2026-05-11-0600/grade.json`](../analysis/swarm-benchmark/replay-2026-05-11-0600/grade.json)
-- [`analysis/swarm-benchmark/replay-2026-05-12-0600/grade.json`](../analysis/swarm-benchmark/replay-2026-05-12-0600/grade.json)
-- [`analysis/swarm-benchmark/replay-2026-05-13-0600/grade.json`](../analysis/swarm-benchmark/replay-2026-05-13-0600/grade.json)
-- [`analysis/swarm-benchmark/replay-2026-05-14-0600/grade.json`](../analysis/swarm-benchmark/replay-2026-05-14-0600/grade.json)
-- [`analysis/swarm-benchmark/replay-2026-05-15-0600/grade.json`](../analysis/swarm-benchmark/replay-2026-05-15-0600/grade.json)
-- Aggregate: [`analysis/swarm-benchmark/aggregate.json`](../analysis/swarm-benchmark/aggregate.json)
+- [`analysis/swarm-benchmark/replay-2026-05-11-0600/grade.json`](../../analysis/swarm-benchmark/replay-2026-05-11-0600/grade.json)
+- [`analysis/swarm-benchmark/replay-2026-05-12-0600/grade.json`](../../analysis/swarm-benchmark/replay-2026-05-12-0600/grade.json)
+- [`analysis/swarm-benchmark/replay-2026-05-13-0600/grade.json`](../../analysis/swarm-benchmark/replay-2026-05-13-0600/grade.json)
+- [`analysis/swarm-benchmark/replay-2026-05-14-0600/grade.json`](../../analysis/swarm-benchmark/replay-2026-05-14-0600/grade.json)
+- [`analysis/swarm-benchmark/replay-2026-05-15-0600/grade.json`](../../analysis/swarm-benchmark/replay-2026-05-15-0600/grade.json)
+- Aggregate: [`analysis/swarm-benchmark/aggregate.json`](../../analysis/swarm-benchmark/aggregate.json)
 
 ---
 
@@ -173,6 +173,6 @@ Wall-clock: ~3.5 min per day in sequence; 18 min total for the week.
 
 ## See also
 
-- [`automation/swarm/README.md`](../automation/swarm/README.md) — system documentation
-- [`markdown/research/SWARM-REPLAY-PLAYBOOK.md`](markdown/research/SWARM-REPLAY-PLAYBOOK.md) — how to replay any day
-- [`CLAUDE.md` OP-28](../CLAUDE.md) — doctrine governing swarm role
+- [`automation/swarm/README.md`](../../automation/swarm/README.md) — system documentation
+- [`markdown/research/SWARM-REPLAY-PLAYBOOK.md`](SWARM-REPLAY-PLAYBOOK.md) — how to replay any day
+- [`CLAUDE.md` OP-28](../../CLAUDE.md) — doctrine governing swarm role

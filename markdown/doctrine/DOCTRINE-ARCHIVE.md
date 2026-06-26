@@ -7,7 +7,7 @@
 > or encode behavior already captured in heartbeat.md (OP-12 tiered runner), or were superseded by
 > the simpler 9-task surface. The load-bearing 7 OPs remain in CLAUDE.md.
 >
-> Reference: [docs/RESET-2026-05-23.md](RESET-2026-05-23.md)
+> Reference: `docs/RESET-2026-05-23.md` (archived — original doc removed).
 
 ---
 
@@ -93,7 +93,7 @@
 
 ## OP-15: Multi-Agent Gamma 2.0
 
-**Multi-Agent Gamma 2.0.** Uses `multiprocessing.Pool` for research, Claude Agent SDK + parallel `Invoke-Claude` for EOD analysis. Master plan: [`docs/plans/multi-agent-gamma.md`](plans/multi-agent-gamma.md). **Hard caps:** `MAX_PARALLEL_RESEARCH_WORKERS = 4`, `MAX_PARALLEL_EOD_WORKERS = 4`. **Safety:** research MUST use `multiprocessing.Pool` (process-based), never `ThreadPoolExecutor` — `runner._patched_filter_constants` is NOT thread-safe.
+**Multi-Agent Gamma 2.0.** Uses `multiprocessing.Pool` for research, Claude Agent SDK + parallel `Invoke-Claude` for EOD analysis. Master plan: `docs/plans/multi-agent-gamma.md` (archived — original doc removed). **Hard caps:** `MAX_PARALLEL_RESEARCH_WORKERS = 4`, `MAX_PARALLEL_EOD_WORKERS = 4`. **Safety:** research MUST use `multiprocessing.Pool` (process-based), never `ThreadPoolExecutor` — `runner._patched_filter_constants` is NOT thread-safe.
 
 ---
 
@@ -192,7 +192,7 @@
 
 **Mandatory checks:**
 - **Session startup (premarket + wake fires):** read `crypto/data/scorecards/latest.json`. If `summary.overall_pass == false`, surface to `automation/overnight/STATUS.md` known-broken section AND do not modify production heartbeat.md / params.json until green.
-- **Pre-merge any heartbeat.md / backtest/lib/filters.py / indicator code edit:** run `python crypto/validators/runner.py --skip-replay` — must show `overall_pass=True`. Total stages: 87 (--skip-replay; benchmark.replay_5_14 requires `backtest/data/spy_5m_2026-05-08_2026-05-14.csv`). [bumped 2026-05-24: +2 for v40_bearish_rejection_morning_gate.offline + .live]. [bumped 2026-06-16: +2 for v41_midday_trendline_gate.offline + .live]. [bumped 2026-06-16: +2 for v42_sizing_risk_cap_guard.offline + .live]. [bumped 2026-06-15: +2 for v43_ghost_entry_dual_account.offline + .live]. [bumped 2026-06-18: +4 for v44_named_level_second_test_gate + v45_stairstep_continuation_gate (.offline + .live each) — landed with the key-levels tier→stars schema fix that un-inerted the 4 level-keyed watchers]. Two live-source parity validators are carved out of `overall_pass` as KNOWN_FLAKY: `v02_source_parity` and `v15_three_source_parity.live`.
+- **Pre-merge any heartbeat.md / backtest/lib/filters.py / indicator code edit:** run `python crypto/validators/runner.py --skip-replay` — must show `overall_pass=True`. Total stages: 95 (--skip-replay; benchmark.replay_5_14 requires `backtest/data/spy_5m_2026-05-08_2026-05-14.csv`). [bumped 2026-05-24: +2 for v40_bearish_rejection_morning_gate.offline + .live]. [bumped 2026-06-16: +2 for v41_midday_trendline_gate.offline + .live]. [bumped 2026-06-16: +2 for v42_sizing_risk_cap_guard.offline + .live]. [bumped 2026-06-15: +2 for v43_ghost_entry_dual_account.offline + .live]. [bumped 2026-06-18: +4 for v44_named_level_second_test_gate + v45_stairstep_continuation_gate (.offline + .live each) — landed with the key-levels tier→stars schema fix that un-inerted the 4 level-keyed watchers]. [bumped 2026-06-20: +8 catch-up — v46_market_structure + v47_chart_read (shipped in the Chart-Master session without bumping this line) and v48_double_top_gate + v49_market_structure_watcher_gate (the double_top + market_structure WATCH_ONLY watcher wrappers); .offline + .live each. 87→95]. Two live-source parity validators are carved out of `overall_pass` as KNOWN_FLAKY: `v02_source_parity` and `v15_three_source_parity.live`.
 - **Pre-merge any new primitive added to crypto/lib/:** write a `crypto/validators/vNN_*.py` with offline + live mode that passes BEFORE the primitive is referenced elsewhere.
 
 **Healthcheck the harness itself:**
@@ -220,7 +220,7 @@
 
 **Scheduled-task discipline — lean, hidden, registered, audited (ratified 2026-05-16).**
 
-**Source of truth:** [`automation/state/SCHEDULED-TASKS.md`](../automation/state/SCHEDULED-TASKS.md). Every active task must have an entry with: cadence, what it produces, what it reads, cost/fire, and a 1-sentence "why it exists".
+**Source of truth:** [`automation/state/SCHEDULED-TASKS.md`](../../automation/state/SCHEDULED-TASKS.md). Every active task must have an entry with: cadence, what it produces, what it reads, cost/fire, and a 1-sentence "why it exists".
 
 **Mandatory window-hidden convention.** All scheduled-task actions MUST use the canonical spawn chain:
 ```
@@ -366,4 +366,4 @@ Task Scheduler → wscript.exe //nologo run_exe_hidden.vbs
 
 ---
 
-*Archive created 2026-05-23. Full lesson text lives in [markdown/doctrine/LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md).*
+*Archive created 2026-05-23. Full lesson text lives in [markdown/doctrine/LESSONS-LEARNED.md](LESSONS-LEARNED.md).*

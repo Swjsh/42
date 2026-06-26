@@ -247,6 +247,43 @@ The regime is stored in `today-bias.iv_regime` and tagged onto every `current-po
 
 ---
 
+## Market structure — trend from swings (added 2026-06-20)
+
+> Until now this doc defined trend ONLY via the EMA ribbon stack. That is one lens. A
+> second, independent lens is **price structure** — the sequence of swing highs/lows J's
+> eye tracks before he even looks at the ribbon. Both are now encoded; this section is the
+> reference. Detector: [`crypto/lib/market_structure.py`](../../crypto/lib/market_structure.py).
+> Cited geometry: [`TA-PATTERN-REFERENCE.md`](../research/TA-PATTERN-REFERENCE.md). Runnable
+> read: the `chart-read` skill.
+
+**The labels** (each swing vs the prior swing of the same kind):
+- **HH** higher high · **HL** higher low → **uptrend** (buyers in control)
+- **LH** lower high · **LL** lower low → **downtrend** (sellers in control)
+- mixed (e.g. HH with LL) → **range / transition** — no structural edge
+
+**The two events that matter** (both require a **bar CLOSE** beyond the swing — a wick that
+pokes through and closes back is a liquidity sweep, NOT a break):
+- **BOS (Break of Structure):** close beyond the most recent swing IN the trend direction →
+  trend *continuation*. (Uptrend: close above the last swing high.)
+- **CHoCH (Change of Character):** the FIRST close beyond a swing AGAINST the trend → earliest
+  reversal hint. It flips the working trend; the next with-trend break is again a BOS.
+
+**Precedence rule — structure vs ribbon (load-bearing, avoids a two-trend-source foot-gun):**
+The ribbon trend and the structure trend are **two independent reads**.
+- **They agree** (ribbon BEAR + structure downtrend) → higher conviction; this is the J-edge
+  signature (4/29, 5/4 were ribbon-flip + downtrend structure together).
+- **They disagree** → that divergence is itself information (e.g. ribbon still BULL but structure
+  just printed a bearish CHoCH = early distribution; or ribbon BEAR but structure making HH =
+  a counter-trend bounce). Do NOT treat structure as a tie-breaker that overrides the ribbon —
+  surface both and let the setup rules decide.
+
+**Role: AWARENESS / READ layer, NOT a standalone trigger** — same status as the candlestick
+patterns above. Structure enriches the chart description, the journal narrative, and bias; it
+does not by itself fire a trade. (A market-structure WATCH_ONLY watcher is a documented DRAFT,
+OP-21 gated — 3 live J confirmations before any promotion, and re-measured on our SPY sample.)
+
+---
+
 ## Volume as a validity filter (learned 2026-05-05)
 
 Volume is a required confirmation layer — not just a nice-to-have. Observed in session:

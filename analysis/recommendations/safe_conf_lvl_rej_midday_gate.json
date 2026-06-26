@@ -1,0 +1,18 @@
+{
+  "study": "Safe conf+lvl_rej midday/afternoon gate",
+  "date": "2026-06-17",
+  "baseline": {
+    "is_n": 126,
+    "is_pnl": 16529.23,
+    "oos_n": 21,
+    "oos_pnl": 5900.25
+  },
+  "results": [
+    {
+      "gate": "block conf+lvl_rej midday+afternoon",
+      "is_delta": -5152.0,
+      "oos_delta": 357.02,
+      "verdict": "REJECT"
+    }
+  ]
+}

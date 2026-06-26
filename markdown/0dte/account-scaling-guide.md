@@ -3,7 +3,7 @@
 > **Status:** TEMPLATE — populated with empirical data after 20+ live trading days per account (target: ~4 weeks post-2026-05-18)
 > **Updates:** Every Sunday weekly review appends a new data row to each table below.
 > **Source data:** `journal/trades.csv` filtered by `account_id` · `automation/state/equity-curve.json`
-> **Doctrine:** [`markdown/0dte/dual-account-design.md`](markdown/0dte/dual-account-design.md) | [`markdown/0dte/risk-rules.md`](markdown/0dte/risk-rules.md)
+> **Doctrine:** [`markdown/0dte/dual-account-design.md`](dual-account-design.md) | [`markdown/0dte/risk-rules.md`](risk-rules.md)
 
 ---
 

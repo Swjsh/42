@@ -1,0 +1,22 @@
+Loading data...
+
+Running Safe baseline...
+IS:  n=126 pnl=+16,529
+OOS: n=21 pnl=+5,900
+
+  IS conf+lvl_rej time breakdown:
+    09:35-11:29 (morning): n=0
+    11:30-13:59 (midday): n=0
+    14:00-15:55 (afternoon): n=0
+
+  OOS conf+lvl_rej time breakdown:
+    09:35-11:29 (morning): n=0
+    11:30-13:59 (midday): n=0
+    14:00-15:55 (afternoon): n=0
+
+Gate                                         IS_d    OOS_d       WF   SW   ANC Verdict
+-------------------------------------------------------------------------------------
+block conf+lvl_rej midday+afternoon        -5,152     +357     L155  N/A   N/A REJECT(IS_delta<=0)
+  [SKIP] block conf+lvl_rej afternoon only: param not supported in orchestrator (TypeError)
+
+Saved: C:\Users\jackw\Desktop\42\analysis\recommendations\safe_conf_lvl_rej_midday_gate.json

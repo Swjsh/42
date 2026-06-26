@@ -1,0 +1,33 @@
+{
+  "skill": "mcp-weekly-audit",
+  "run_at": "2026-06-25T18:30:39-04:00",
+  "verdict": "GREEN",
+  "alpaca_safe": {
+    "ok": true,
+    "account": "PA3S2PYAS2WQ",
+    "status": "ACTIVE",
+    "trading_blocked": false,
+    "account_blocked": false,
+    "equity": 2000,
+    "note": "healthy"
+  },
+  "alpaca_bold": {
+    "ok": true,
+    "account": "PA33W2KUAT40",
+    "status": "ACTIVE",
+    "trading_blocked": false,
+    "account_blocked": false,
+    "equity": 1648.75,
+    "note": "healthy"
+  },
+  "tradingview": {
+    "ok": true,
+    "cdp_connected": true,
+    "api_available": true,
+    "relaunched": false,
+    "chart_symbol": "BATS:SPY",
+    "chart_resolution": "5",
+    "note": "healthy"
+  },
+  "reason": "all servers responsive, accounts active and not blocked, TV CDP connected"
+}

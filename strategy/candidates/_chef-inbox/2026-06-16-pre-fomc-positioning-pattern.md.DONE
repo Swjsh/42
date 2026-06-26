@@ -1,0 +1,50 @@
+# Chef research item: Pre-FOMC Day-1 positioning drift pattern
+
+> Queued by Analyst 2026-06-16. Chef picks up at next fire.
+
+## Observation
+
+FOMC Day-1 sessions (the calendar day before the rate decision) have a consistent behavioral fingerprint in 2026:
+
+- Low conviction directional drift (today: -$3.50 net, most of the move in the final 2 hours)
+- VIX suppression even when SPY drifts lower (hedge-stripping by dealers who are long vol)
+- Tight bid-ask spreads on options due to low IV
+- Ribbon direction unclear or drifting rather than trending (today: BULL open → BEAR 10:33 → BULL 11:48 → BEAR by close)
+- No clean setup in either direction per current engine filter stack
+
+Anecdotally, FOMC Day-1 is often cited as the worst day of the month for 0DTE directional options because (a) premium is cheapened by suppressed IV and (b) market direction is genuinely uncertain before the binary event.
+
+## Hypothesis to test
+
+Characterize FOMC Day-1 sessions across the full backtest history (2025-10-01 to 2026-06-16). Specifically:
+
+1. On FOMC Day-1, what fraction of sessions produce a net directional move >$3.00? What fraction chop?
+2. What is the engine's historical P&L on FOMC Day-1 sessions vs non-FOMC Day-1 sessions?
+3. Is there a case for a "FOMC_DAY1_CAUTION" mode that: (a) raises the bull/bear score thresholds by 1 point (e.g., need 10/10 not 9/10), OR (b) blocks entries before 11:00 ET on FOMC Day-1?
+
+## Backtest specification
+
+- Date range: 2025-10-01 to 2026-06-16
+- FOMC Day-1 calendar dates (to identify): approximately every 6 weeks (Jan 28, Mar 18, May 6, Jun 16 in 2026)
+- Engine flag: `fomc_day1_caution_mode: [false (baseline), true (candidate)]`
+- When true: raise entry score thresholds by 1 point; apply only to FOMC Day-1 sessions
+- Edge_capture floor: must not regress J's anchor wins (4/29 = FOMC-adjacent? check calendar)
+- OOS gate: WF ≥0.70, all sub-windows positive
+
+## Secondary question
+
+Does the engine already naturally avoid FOMC Day-1 sessions because of the macro no-trade windows (Treasury auctions, etc.)? If yes, is the 0-trade outcome on 2026-06-16 consistent with prior FOMC Day-1 sessions? That would make this research item lower priority.
+
+## Why now
+
+2026-06-16 produced 0 trades on a day where the primary blocker was regime (not bad setups). Before building a FOMC-eve specific playbook entry or threshold change, quantify whether the current engine's behavior on FOMC Day-1 is historically correct or if it has been systematically missing/taking losing trades.
+
+## Cost estimate
+
+Low: requires adding FOMC calendar dates to backtest date-filter; no new watcher needed; pure filtering analysis.
+
+---
+
+## DISPOSITION — RESOLVED-INFORMATIONAL [2026-06-21 02:05 ET, conductor]
+
+**Verdict: RESOLVED-INFORMATIONAL. Not cooked.** The item's own secondary question is the answer: on 2026-06-16 (FOMC Day-1) the engine took **0 trades** — the correct abstention on a low-conviction, declining-VIX, choppy-ribbon day (C5/L154: high-score + 0-trade + declining-VIX = correct abstention). A proposed `FOMC_DAY1_CAUTION` mode only *further tightens* an abstention the engine already performs correctly → no upside, only false-negative risk on the rare clean FOMC-eve trend day. The macro no-trade windows + the existing VIX-character gate already deliver the caution this item asks for. Per OP-22, closing rather than building a redundant mode. (If FOMC Day-1 P&L distribution is ever wanted as pure awareness, it's a 1-hour analyst read, not a chef/engine change — not queued.)

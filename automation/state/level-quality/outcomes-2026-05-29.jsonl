@@ -1,0 +1,14 @@
+{"date": "2026-05-29", "price": 718.3900146484375, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-05-29", "price": 737.030029296875, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-05-29", "price": 745.67, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-05-29", "price": 749.23, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-05-29", "price": 750.01, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-05-29", "price": 754.612371132583, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-05-29", "price": 754.6812825303567, "source": "multi_day", "touched": true, "outcome": "RESPECT", "reaction_dollars": 2.739, "false_break": false}
+{"date": "2026-05-29", "price": 754.85, "source": "intraday", "touched": true, "outcome": "RESPECT", "reaction_dollars": 2.57, "false_break": false}
+{"date": "2026-05-29", "price": 755.0, "source": "round", "touched": true, "outcome": "RESPECT", "reaction_dollars": 2.42, "false_break": false}
+{"date": "2026-05-29", "price": 755.15, "source": "multi_day", "touched": true, "outcome": "RESPECT", "reaction_dollars": 2.165, "false_break": false}
+{"date": "2026-05-29", "price": 755.7, "source": "intraday", "touched": true, "outcome": "RESPECT", "reaction_dollars": 2.38, "false_break": false}
+{"date": "2026-05-29", "price": 755.95, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.45, "false_break": false}
+{"date": "2026-05-29", "price": 756.1, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.6, "false_break": false}
+{"date": "2026-05-29", "price": 756.39, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.43, "false_break": false}

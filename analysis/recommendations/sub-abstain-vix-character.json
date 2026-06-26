@@ -1,0 +1,1344 @@
+{
+  "study": "abstain_vix_character \u2014 VIX CHARACTER (5-bar slope) vs VIX LEVEL tercile, subtractive abstention on vwap_continuation",
+  "kind": "subtractive_abstention",
+  "hypothesis": "VIX CHARACTER not level (C5): take vwap entries only when as-of VIX 5-bar slope agrees (calls when VIX falling, puts when VIX rising), SKIP contra. Does character-based abstention beat the level-tercile skip?",
+  "run_date": "2026-06-20",
+  "window": "2025-01-02..2026-05-15",
+  "trading_days": 342,
+  "detector": "BYTE-FOR-BYTE j_daily_pattern_ratify.detect_j_vwap_continuation (imported from _edgehunt_vwap_continuation; live port = backtest/lib/watchers/vwap_continuation_watcher.py)",
+  "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1)",
+  "oos_split": "IS=2025 / OOS=2026 (calendar-year)",
+  "strike_tiers": {
+    "primary": "ITM-2 (offset -2, survivor structure)",
+    "secondary": "OTM-2 (offset +2, Safe-2 $2K tier; C29 cross-check)"
+  },
+  "vix_slope_lookback_bars": 5,
+  "character_rule": "CALL taken when 5-bar VIX slope agrees (falling); PUT when rising; as-of at entry bar (look-ahead-safe via _vix_slope idx<=entry)",
+  "level_benchmark": "skip_top_tercile_only \u2014 drop entries with entry_VIX > 19.11 (the 2/3 quantile of full-sample entry_VIX = WORST VIX-level regime)",
+  "n_signals": 158,
+  "signal_fire_day_pct": 46.2,
+  "signal_side_count": {
+    "C": 86,
+    "P": 72
+  },
+  "character_breakdown": {
+    "agree": 61,
+    "flat": 52,
+    "contra": 45,
+    "top_tercile_cut": 19.11
+  },
+  "eight_gates_definition": {
+    "G1": "OOS(2026) per-trade > 0",
+    "G2": "positive_quarters >= 4/6",
+    "G3": "top5_day_pct < 200",
+    "G4": "n >= 20",
+    "G5": "drop-top5 per-trade > 0",
+    "G6": "IS(2025) first-half per-trade > 0",
+    "G7": "beats random null (same-day mean+1std AND coin-flip MAX, 20 seeds)",
+    "G8": "no-truncation: per-trade sign holds -8% -> chart-stop-only -0.99"
+  },
+  "results_by_strike_tier": {
+    "ITM2": {
+      "strike_offset": -2,
+      "ungated_baseline": {
+        "config": {
+          "strike_offset": -2,
+          "strike_tier": "ITM2",
+          "premium_stop_pct": -0.08,
+          "exits": "v15 default"
+        },
+        "coverage": {
+          "signals": 158,
+          "filled": 149,
+          "cache_miss": 9,
+          "sim_none": 0,
+          "fill_rate": 0.943
+        },
+        "metrics": {
+          "n": 149,
+          "wr_pct": 51.7,
+          "exp_dollar": 78.29,
+          "total_dollar": 11665.56,
+          "max_drawdown": -612.12,
+          "is_n": 107,
+          "is_exp": 67.56,
+          "is_total": 7229.4,
+          "is_first_half_per_trade": 57.34,
+          "oos_n": 42,
+          "oos_exp": 105.62,
+          "oos_total": 4436.16,
+          "quarters": {
+            "2025Q1": {
+              "n": 25,
+              "exp": 84.93,
+              "total": 2123.32
+            },
+            "2025Q2": {
+              "n": 23,
+              "exp": 35.67,
+              "total": 820.32
+            },
+            "2025Q3": {
+              "n": 26,
+              "exp": 23.37,
+              "total": 607.52
+            },
+            "2025Q4": {
+              "n": 33,
+              "exp": 111.46,
+              "total": 3678.24
+            },
+            "2026Q1": {
+              "n": 26,
+              "exp": 159.58,
+              "total": 4149.12
+            },
+            "2026Q2": {
+              "n": 16,
+              "exp": 17.94,
+              "total": 287.04
+            }
+          },
+          "positive_quarters": "6/6",
+          "positive_quarters_n": 6,
+          "n_quarters": 6,
+          "top5_day_pct": 20.6,
+          "drop_top5_day_per_trade": 64.34,
+          "by_side": {
+            "C": {
+              "n": 82,
+              "exp": 84.07,
+              "wr": 53.7,
+              "total": 6893.4
+            },
+            "P": {
+              "n": 67,
+              "exp": 71.23,
+              "wr": 49.3,
+              "total": 4772.16
+            }
+          },
+          "exit_hist": {
+            "EXIT_ALL_LEVEL_STOP": 2,
+            "EXIT_ALL_PREMIUM_STOP": 72,
+            "EXIT_ALL_RIBBON_FLIP_BACK": 22,
+            "EXIT_ALL_TIME_STOP": 2,
+            "TP1_THEN_RUNNER_RIBBON": 35,
+            "TP1_THEN_RUNNER_TIME": 16
+          }
+        },
+        "no_truncation": {
+          "stop8_exp": 78.29,
+          "chartstop_exp": 79.59,
+          "stop8_oos_exp": 105.62,
+          "chartstop_oos_exp": 78.41,
+          "sign_stable": true
+        },
+        "random_null": {
+          "sameday_sameside": {
+            "seeds": 20,
+            "mean": 70.8,
+            "min": 53.0,
+            "max": 91.92,
+            "std": 9.3,
+            "oos_mean": 100.42
+          },
+          "coinflip": {
+            "seeds": 20,
+            "mean": 5.96,
+            "min": -15.35,
+            "max": 29.13,
+            "std": 11.59,
+            "oos_mean": 10.83
+          }
+        }
+      },
+      "skip_top_tercile_only": {
+        "gate": "skip_top_tercile_only",
+        "desc": "campaign survivor: SKIP entries with entry_VIX > top tercile (19.11)",
+        "strike_offset": -2,
+        "n_signals_kept": 105,
+        "coverage": {
+          "signals": 105,
+          "filled": 104,
+          "cache_miss": 1,
+          "sim_none": 0,
+          "fill_rate": 0.99
+        },
+        "metrics": {
+          "n": 104,
+          "wr_pct": 54.8,
+          "exp_dollar": 95.18,
+          "total_dollar": 9898.64,
+          "max_drawdown": -495.84,
+          "is_n": 78,
+          "is_exp": 79.44,
+          "is_total": 6196.16,
+          "is_first_half_per_trade": 55.89,
+          "oos_n": 26,
+          "oos_exp": 142.4,
+          "oos_total": 3702.48,
+          "quarters": {
+            "2025Q1": {
+              "n": 17,
+              "exp": 93.36,
+              "total": 1587.2
+            },
+            "2025Q2": {
+              "n": 9,
+              "exp": 63.38,
+              "total": 570.44
+            },
+            "2025Q3": {
+              "n": 25,
+              "exp": 27.44,
+              "total": 686.0
+            },
+            "2025Q4": {
+              "n": 27,
+              "exp": 124.17,
+              "total": 3352.52
+            },
+            "2026Q1": {
+              "n": 13,
+              "exp": 245.17,
+              "total": 3187.2
+            },
+            "2026Q2": {
+              "n": 13,
+              "exp": 39.64,
+              "total": 515.28
+            }
+          },
+          "positive_quarters": "6/6",
+          "positive_quarters_n": 6,
+          "n_quarters": 6,
+          "top5_day_pct": 23.2,
+          "drop_top5_day_per_trade": 76.79,
+          "by_side": {
+            "C": {
+              "n": 59,
+              "exp": 99.8,
+              "wr": 55.9,
+              "total": 5888.4
+            },
+            "P": {
+              "n": 45,
+              "exp": 89.12,
+              "wr": 53.3,
+              "total": 4010.24
+            }
+          },
+          "exit_hist": {
+            "EXIT_ALL_LEVEL_STOP": 1,
+            "EXIT_ALL_PREMIUM_STOP": 47,
+            "EXIT_ALL_RIBBON_FLIP_BACK": 16,
+            "EXIT_ALL_TIME_STOP": 2,
+            "TP1_THEN_RUNNER_RIBBON": 24,
+            "TP1_THEN_RUNNER_TIME": 14
+          }
+        },
+        "vs_baseline": {
+          "oos_per_trade_lift": 36.78,
+          "oos_total_kept_frac": 0.835,
+          "maxdd_delta": 116.28
+        },
+        "no_truncation": {
+          "stop8_exp": 95.18,
+          "chartstop_exp": 108.13,
+          "stop8_oos_exp": 142.4,
+          "chartstop_oos_exp": 119.4,
+          "sign_stable": true
+        },
+        "random_null": {
+          "sameday_sameside": {
+            "seeds": 20,
+            "mean": 71.31,
+            "min": 58.51,
+            "max": 88.29,
+            "std": 7.43,
+            "oos_mean": 109.46
+          },
+          "coinflip": {
+            "seeds": 20,
+            "mean": 5.63,
+            "min": -25.17,
+            "max": 21.78,
+            "std": 13.32,
+            "oos_mean": 12.78
+          },
+          "beats_sameday_mean1std": true,
+          "beats_coinflip_max": true,
+          "beats_null": true
+        },
+        "eight_gates": {
+          "G1_oos_per_trade_pos": true,
+          "G2_posQ_ge_4": true,
+          "G3_top5_lt_200": true,
+          "G4_n_ge_20": true,
+          "G5_drop_top5_pos": true,
+          "G6_is_first_half_pos": true,
+          "G7_beats_random_null": true,
+          "G8_truncation_sign_stable": true,
+          "ALL_8_PASS": true,
+          "n_failed": 0
+        }
+      },
+      "vix_character_loose": {
+        "gate": "vix_character_loose",
+        "desc": "take calls when VIX falling-or-flat / puts when VIX rising-or-flat; SKIP contra",
+        "strike_offset": -2,
+        "n_signals_kept": 113,
+        "coverage": {
+          "signals": 113,
+          "filled": 107,
+          "cache_miss": 6,
+          "sim_none": 0,
+          "fill_rate": 0.947
+        },
+        "metrics": {
+          "n": 107,
+          "wr_pct": 51.4,
+          "exp_dollar": 85.15,
+          "total_dollar": 9110.68,
+          "max_drawdown": -613.8,
+          "is_n": 73,
+          "is_exp": 73.03,
+          "is_total": 5331.04,
+          "is_first_half_per_trade": 65.85,
+          "oos_n": 34,
+          "oos_exp": 111.17,
+          "oos_total": 3779.64,
+          "quarters": {
+            "2025Q1": {
+              "n": 18,
+              "exp": 77.52,
+              "total": 1395.4
+            },
+            "2025Q2": {
+              "n": 16,
+              "exp": 49.46,
+              "total": 791.4
+            },
+            "2025Q3": {
+              "n": 16,
+              "exp": 22.55,
+              "total": 360.8
+            },
+            "2025Q4": {
+              "n": 23,
+              "exp": 121.02,
+              "total": 2783.44
+            },
+            "2026Q1": {
+              "n": 25,
+              "exp": 156.0,
+              "total": 3900.12
+            },
+            "2026Q2": {
+              "n": 9,
+              "exp": -13.39,
+              "total": -120.48
+            }
+          },
+          "positive_quarters": "5/6",
+          "positive_quarters_n": 5,
+          "n_quarters": 6,
+          "top5_day_pct": 26.3,
+          "drop_top5_day_per_trade": 65.79,
+          "by_side": {
+            "C": {
+              "n": 64,
+              "exp": 81.54,
+              "wr": 50.0,
+              "total": 5218.6
+            },
+            "P": {
+              "n": 43,
+              "exp": 90.51,
+              "wr": 53.5,
+              "total": 3892.08
+            }
+          },
+          "exit_hist": {
+            "EXIT_ALL_LEVEL_STOP": 1,
+            "EXIT_ALL_PREMIUM_STOP": 52,
+            "EXIT_ALL_RIBBON_FLIP_BACK": 15,
+            "EXIT_ALL_TIME_STOP": 2,
+            "TP1_THEN_RUNNER_RIBBON": 23,
+            "TP1_THEN_RUNNER_TIME": 14
+          }
+        },
+        "vs_baseline": {
+          "oos_per_trade_lift": 5.55,
+          "oos_total_kept_frac": 0.852,
+          "maxdd_delta": -1.68
+        },
+        "no_truncation": {
+          "stop8_exp": 85.15,
+          "chartstop_exp": 93.17,
+          "stop8_oos_exp": 111.17,
+          "chartstop_oos_exp": 109.13,
+          "sign_stable": true
+        },
+        "random_null": {
+          "sameday_sameside": {
+            "seeds": 20,
+            "mean": 79.67,
+            "min": 58.32,
+            "max": 106.78,
+            "std": 13.16,
+            "oos_mean": 110.86
+          },
+          "coinflip": {
+            "seeds": 20,
+            "mean": 7.89,
+            "min": -16.43,
+            "max": 31.02,
+            "std": 12.06,
+            "oos_mean": 12.51
+          },
+          "beats_sameday_mean1std": false,
+          "beats_coinflip_max": true,
+          "beats_null": false
+        },
+        "eight_gates": {
+          "G1_oos_per_trade_pos": true,
+          "G2_posQ_ge_4": true,
+          "G3_top5_lt_200": true,
+          "G4_n_ge_20": true,
+          "G5_drop_top5_pos": true,
+          "G6_is_first_half_pos": true,
+          "G7_beats_random_null": false,
+          "G8_truncation_sign_stable": true,
+          "ALL_8_PASS": false,
+          "n_failed": 1
+        }
+      },
+      "vix_character_strict": {
+        "gate": "vix_character_strict",
+        "desc": "take calls ONLY when VIX falling / puts ONLY when VIX rising; SKIP contra AND flat",
+        "strike_offset": -2,
+        "n_signals_kept": 61,
+        "coverage": {
+          "signals": 61,
+          "filled": 59,
+          "cache_miss": 2,
+          "sim_none": 0,
+          "fill_rate": 0.967
+        },
+        "metrics": {
+          "n": 59,
+          "wr_pct": 40.7,
+          "exp_dollar": 55.21,
+          "total_dollar": 3257.4,
+          "max_drawdown": -633.12,
+          "is_n": 48,
+          "is_exp": 46.32,
+          "is_total": 2223.48,
+          "is_first_half_per_trade": 50.19,
+          "oos_n": 11,
+          "oos_exp": 93.99,
+          "oos_total": 1033.92,
+          "quarters": {
+            "2025Q1": {
+              "n": 14,
+              "exp": 80.58,
+              "total": 1128.16
+            },
+            "2025Q2": {
+              "n": 12,
+              "exp": -3.31,
+              "total": -39.68
+            },
+            "2025Q3": {
+              "n": 12,
+              "exp": 28.69,
+              "total": 344.24
+            },
+            "2025Q4": {
+              "n": 10,
+              "exp": 79.08,
+              "total": 790.76
+            },
+            "2026Q1": {
+              "n": 7,
+              "exp": 152.81,
+              "total": 1069.68
+            },
+            "2026Q2": {
+              "n": 4,
+              "exp": -8.94,
+              "total": -35.76
+            }
+          },
+          "positive_quarters": "4/6",
+          "positive_quarters_n": 4,
+          "n_quarters": 6,
+          "top5_day_pct": 73.3,
+          "drop_top5_day_per_trade": 16.09,
+          "by_side": {
+            "C": {
+              "n": 38,
+              "exp": 61.01,
+              "wr": 42.1,
+              "total": 2318.24
+            },
+            "P": {
+              "n": 21,
+              "exp": 44.72,
+              "wr": 38.1,
+              "total": 939.16
+            }
+          },
+          "exit_hist": {
+            "EXIT_ALL_PREMIUM_STOP": 35,
+            "EXIT_ALL_RIBBON_FLIP_BACK": 6,
+            "EXIT_ALL_TIME_STOP": 2,
+            "TP1_THEN_RUNNER_RIBBON": 8,
+            "TP1_THEN_RUNNER_TIME": 8
+          }
+        },
+        "vs_baseline": {
+          "oos_per_trade_lift": -11.63,
+          "oos_total_kept_frac": 0.233,
+          "maxdd_delta": -21.0
+        },
+        "no_truncation": {
+          "stop8_exp": 55.21,
+          "chartstop_exp": 69.55,
+          "stop8_oos_exp": 93.99,
+          "chartstop_oos_exp": 143.13,
+          "sign_stable": true
+        },
+        "random_null": {
+          "sameday_sameside": {
+            "seeds": 20,
+            "mean": 53.0,
+            "min": 8.94,
+            "max": 96.5,
+            "std": 19.38,
+            "oos_mean": 101.64
+          },
+          "coinflip": {
+            "seeds": 20,
+            "mean": 18.75,
+            "min": -26.67,
+            "max": 63.52,
+            "std": 21.03,
+            "oos_mean": 28.25
+          },
+          "beats_sameday_mean1std": false,
+          "beats_coinflip_max": false,
+          "beats_null": false
+        },
+        "eight_gates": {
+          "G1_oos_per_trade_pos": true,
+          "G2_posQ_ge_4": true,
+          "G3_top5_lt_200": true,
+          "G4_n_ge_20": true,
+          "G5_drop_top5_pos": true,
+          "G6_is_first_half_pos": true,
+          "G7_beats_random_null": false,
+          "G8_truncation_sign_stable": true,
+          "ALL_8_PASS": false,
+          "n_failed": 1
+        }
+      },
+      "vix_character_inverse": {
+        "gate": "vix_character_inverse",
+        "desc": "L166 cross-check: take ONLY contra-character entries (calls into rising VIX, puts into falling VIX) \u2014 a real character edge makes this WORSE",
+        "strike_offset": -2,
+        "n_signals_kept": 45,
+        "coverage": {
+          "signals": 45,
+          "filled": 42,
+          "cache_miss": 3,
+          "sim_none": 0,
+          "fill_rate": 0.933
+        },
+        "metrics": {
+          "n": 42,
+          "wr_pct": 52.4,
+          "exp_dollar": 60.83,
+          "total_dollar": 2554.88,
+          "max_drawdown": -360.84,
+          "is_n": 34,
+          "is_exp": 55.83,
+          "is_total": 1898.36,
+          "is_first_half_per_trade": 39.08,
+          "oos_n": 8,
+          "oos_exp": 82.06,
+          "oos_total": 656.52,
+          "quarters": {
+            "2025Q1": {
+              "n": 7,
+              "exp": 103.99,
+              "total": 727.92
+            },
+            "2025Q2": {
+              "n": 7,
+              "exp": 4.13,
+              "total": 28.92
+            },
+            "2025Q3": {
+              "n": 10,
+              "exp": 24.67,
+              "total": 246.72
+            },
+            "2025Q4": {
+              "n": 10,
+              "exp": 89.48,
+              "total": 894.8
+            },
+            "2026Q1": {
+              "n": 1,
+              "exp": 249.0,
+              "total": 249.0
+            },
+            "2026Q2": {
+              "n": 7,
+              "exp": 58.22,
+              "total": 407.52
+            }
+          },
+          "positive_quarters": "6/6",
+          "positive_quarters_n": 6,
+          "n_quarters": 6,
+          "top5_day_pct": 61.7,
+          "drop_top5_day_per_trade": 26.42,
+          "by_side": {
+            "C": {
+              "n": 18,
+              "exp": 93.04,
+              "wr": 66.7,
+              "total": 1674.8
+            },
+            "P": {
+              "n": 24,
+              "exp": 36.67,
+              "wr": 41.7,
+              "total": 880.08
+            }
+          },
+          "exit_hist": {
+            "EXIT_ALL_LEVEL_STOP": 1,
+            "EXIT_ALL_PREMIUM_STOP": 20,
+            "EXIT_ALL_RIBBON_FLIP_BACK": 7,
+            "TP1_THEN_RUNNER_RIBBON": 12,
+            "TP1_THEN_RUNNER_TIME": 2
+          }
+        },
+        "vs_baseline": {
+          "oos_per_trade_lift": -23.56,
+          "oos_total_kept_frac": 0.148,
+          "maxdd_delta": 251.28
+        },
+        "no_truncation": {
+          "stop8_exp": 60.83,
+          "chartstop_exp": 45.0,
+          "stop8_oos_exp": 82.06,
+          "chartstop_oos_exp": -52.12,
+          "sign_stable": true
+        },
+        "random_null": {
+          "sameday_sameside": {
+            "seeds": 20,
+            "mean": 44.16,
+            "min": 20.48,
+            "max": 72.7,
+            "std": 15.7,
+            "oos_mean": 44.86
+          },
+          "coinflip": {
+            "seeds": 20,
+            "mean": 1.0,
+            "min": -43.27,
+            "max": 38.09,
+            "std": 19.35,
+            "oos_mean": 6.7
+          },
+          "beats_sameday_mean1std": true,
+          "beats_coinflip_max": true,
+          "beats_null": true
+        },
+        "eight_gates": {
+          "G1_oos_per_trade_pos": true,
+          "G2_posQ_ge_4": true,
+          "G3_top5_lt_200": true,
+          "G4_n_ge_20": true,
+          "G5_drop_top5_pos": true,
+          "G6_is_first_half_pos": true,
+          "G7_beats_random_null": true,
+          "G8_truncation_sign_stable": true,
+          "ALL_8_PASS": true,
+          "n_failed": 0
+        }
+      }
+    },
+    "OTM2": {
+      "strike_offset": 2,
+      "ungated_baseline": {
+        "config": {
+          "strike_offset": 2,
+          "strike_tier": "OTM2",
+          "premium_stop_pct": -0.08,
+          "exits": "v15 default"
+        },
+        "coverage": {
+          "signals": 158,
+          "filled": 147,
+          "cache_miss": 11,
+          "sim_none": 0,
+          "fill_rate": 0.93
+        },
+        "metrics": {
+          "n": 147,
+          "wr_pct": 40.8,
+          "exp_dollar": 21.12,
+          "total_dollar": 3105.36,
+          "max_drawdown": -296.64,
+          "is_n": 107,
+          "is_exp": 20.34,
+          "is_total": 2176.88,
+          "is_first_half_per_trade": 36.08,
+          "oos_n": 40,
+          "oos_exp": 23.21,
+          "oos_total": 928.48,
+          "quarters": {
+            "2025Q1": {
+              "n": 25,
+              "exp": 55.31,
+              "total": 1382.64
+            },
+            "2025Q2": {
+              "n": 23,
+              "exp": 24.19,
+              "total": 556.32
+            },
+            "2025Q3": {
+              "n": 26,
+              "exp": -1.68,
+              "total": -43.56
+            },
+            "2025Q4": {
+              "n": 33,
+              "exp": 8.53,
+              "total": 281.48
+            },
+            "2026Q1": {
+              "n": 24,
+              "exp": 38.81,
+              "total": 931.36
+            },
+            "2026Q2": {
+              "n": 16,
+              "exp": -0.18,
+              "total": -2.88
+            }
+          },
+          "positive_quarters": "4/6",
+          "positive_quarters_n": 4,
+          "n_quarters": 6,
+          "top5_day_pct": 48.5,
+          "drop_top5_day_per_trade": 11.26,
+          "by_side": {
+            "C": {
+              "n": 80,
+              "exp": 16.35,
+              "wr": 41.2,
+              "total": 1308.24
+            },
+            "P": {
+              "n": 67,
+              "exp": 26.82,
+              "wr": 40.3,
+              "total": 1797.12
+            }
+          },
+          "exit_hist": {
+            "EXIT_ALL_LEVEL_STOP": 2,
+            "EXIT_ALL_PREMIUM_STOP": 87,
+            "EXIT_ALL_RIBBON_FLIP_BACK": 15,
+            "TP1_THEN_RUNNER_RIBBON": 37,
+            "TP1_THEN_RUNNER_TIME": 6
+          }
+        },
+        "no_truncation": {
+          "stop8_exp": 21.12,
+          "chartstop_exp": 22.48,
+          "stop8_oos_exp": 23.21,
+          "chartstop_oos_exp": 18.88,
+          "sign_stable": true
+        },
+        "random_null": {
+          "sameday_sameside": {
+            "seeds": 20,
+            "mean": 20.02,
+            "min": 11.98,
+            "max": 28.48,
+            "std": 4.21,
+            "oos_mean": 15.98
+          },
+          "coinflip": {
+            "seeds": 20,
+            "mean": 1.17,
+            "min": -10.47,
+            "max": 36.16,
+            "std": 8.98,
+            "oos_mean": -2.7
+          }
+        }
+      },
+      "skip_top_tercile_only": {
+        "gate": "skip_top_tercile_only",
+        "desc": "campaign survivor: SKIP entries with entry_VIX > top tercile (19.11)",
+        "strike_offset": 2,
+        "n_signals_kept": 105,
+        "coverage": {
+          "signals": 105,
+          "filled": 105,
+          "cache_miss": 0,
+          "sim_none": 0,
+          "fill_rate": 1.0
+        },
+        "metrics": {
+          "n": 105,
+          "wr_pct": 38.1,
+          "exp_dollar": 15.92,
+          "total_dollar": 1671.32,
+          "max_drawdown": -144.0,
+          "is_n": 79,
+          "is_exp": 15.02,
+          "is_total": 1186.72,
+          "is_first_half_per_trade": 28.67,
+          "oos_n": 26,
+          "oos_exp": 18.64,
+          "oos_total": 484.6,
+          "quarters": {
+            "2025Q1": {
+              "n": 18,
+              "exp": 56.14,
+              "total": 1010.56
+            },
+            "2025Q2": {
+              "n": 9,
+              "exp": 14.93,
+              "total": 134.4
+            },
+            "2025Q3": {
+              "n": 25,
+              "exp": -0.39,
+              "total": -9.72
+            },
+            "2025Q4": {
+              "n": 27,
+              "exp": 1.91,
+              "total": 51.48
+            },
+            "2026Q1": {
+              "n": 13,
+              "exp": 31.0,
+              "total": 403.0
+            },
+            "2026Q2": {
+              "n": 13,
+              "exp": 6.28,
+              "total": 81.6
+            }
+          },
+          "positive_quarters": "5/6",
+          "positive_quarters_n": 5,
+          "n_quarters": 6,
+          "top5_day_pct": 63.6,
+          "drop_top5_day_per_trade": 6.08,
+          "by_side": {
+            "C": {
+              "n": 59,
+              "exp": 7.69,
+              "wr": 37.3,
+              "total": 453.8
+            },
+            "P": {
+              "n": 46,
+              "exp": 26.47,
+              "wr": 39.1,
+              "total": 1217.52
+            }
+          },
+          "exit_hist": {
+            "EXIT_ALL_LEVEL_STOP": 1,
+            "EXIT_ALL_PREMIUM_STOP": 65,
+            "EXIT_ALL_RIBBON_FLIP_BACK": 10,
+            "TP1_THEN_RUNNER_RIBBON": 26,
+            "TP1_THEN_RUNNER_TIME": 3
+          }
+        },
+        "vs_baseline": {
+          "oos_per_trade_lift": -4.57,
+          "oos_total_kept_frac": 0.522,
+          "maxdd_delta": 152.64
+        },
+        "no_truncation": {
+          "stop8_exp": 15.92,
+          "chartstop_exp": 10.49,
+          "stop8_oos_exp": 18.64,
+          "chartstop_oos_exp": -3.13,
+          "sign_stable": true
+        },
+        "random_null": {
+          "sameday_sameside": {
+            "seeds": 20,
+            "mean": 14.55,
+            "min": 6.57,
+            "max": 20.31,
+            "std": 3.3,
+            "oos_mean": 13.1
+          },
+          "coinflip": {
+            "seeds": 20,
+            "mean": -0.49,
+            "min": -10.31,
+            "max": 9.11,
+            "std": 6.16,
+            "oos_mean": 0.87
+          },
+          "beats_sameday_mean1std": false,
+          "beats_coinflip_max": true,
+          "beats_null": false
+        },
+        "eight_gates": {
+          "G1_oos_per_trade_pos": true,
+          "G2_posQ_ge_4": true,
+          "G3_top5_lt_200": true,
+          "G4_n_ge_20": true,
+          "G5_drop_top5_pos": true,
+          "G6_is_first_half_pos": true,
+          "G7_beats_random_null": false,
+          "G8_truncation_sign_stable": true,
+          "ALL_8_PASS": false,
+          "n_failed": 1
+        }
+      },
+      "vix_character_loose": {
+        "gate": "vix_character_loose",
+        "desc": "take calls when VIX falling-or-flat / puts when VIX rising-or-flat; SKIP contra",
+        "strike_offset": 2,
+        "n_signals_kept": 113,
+        "coverage": {
+          "signals": 113,
+          "filled": 104,
+          "cache_miss": 9,
+          "sim_none": 0,
+          "fill_rate": 0.92
+        },
+        "metrics": {
+          "n": 104,
+          "wr_pct": 39.4,
+          "exp_dollar": 19.23,
+          "total_dollar": 1999.72,
+          "max_drawdown": -289.92,
+          "is_n": 72,
+          "is_exp": 16.8,
+          "is_total": 1209.96,
+          "is_first_half_per_trade": 36.88,
+          "oos_n": 32,
+          "oos_exp": 24.68,
+          "oos_total": 789.76,
+          "quarters": {
+            "2025Q1": {
+              "n": 18,
+              "exp": 48.35,
+              "total": 870.36
+            },
+            "2025Q2": {
+              "n": 15,
+              "exp": 30.55,
+              "total": 458.28
+            },
+            "2025Q3": {
+              "n": 16,
+              "exp": -1.97,
+              "total": -31.44
+            },
+            "2025Q4": {
+              "n": 23,
+              "exp": -3.79,
+              "total": -87.24
+            },
+            "2026Q1": {
+              "n": 23,
+              "exp": 35.28,
+              "total": 811.36
+            },
+            "2026Q2": {
+              "n": 9,
+              "exp": -2.4,
+              "total": -21.6
+            }
+          },
+          "positive_quarters": "3/6",
+          "positive_quarters_n": 3,
+          "n_quarters": 6,
+          "top5_day_pct": 72.2,
+          "drop_top5_day_per_trade": 5.61,
+          "by_side": {
+            "C": {
+              "n": 61,
+              "exp": 8.86,
+              "wr": 36.1,
+              "total": 540.28
+            },
+            "P": {
+              "n": 43,
+              "exp": 33.94,
+              "wr": 44.2,
+              "total": 1459.44
+            }
+          },
+          "exit_hist": {
+            "EXIT_ALL_LEVEL_STOP": 1,
+            "EXIT_ALL_PREMIUM_STOP": 63,
+            "EXIT_ALL_RIBBON_FLIP_BACK": 11,
+            "TP1_THEN_RUNNER_RIBBON": 24,
+            "TP1_THEN_RUNNER_TIME": 5
+          }
+        },
+        "vs_baseline": {
+          "oos_per_trade_lift": 1.47,
+          "oos_total_kept_frac": 0.851,
+          "maxdd_delta": 6.72
+        },
+        "no_truncation": {
+          "stop8_exp": 19.23,
+          "chartstop_exp": 28.46,
+          "stop8_oos_exp": 24.68,
+          "chartstop_oos_exp": 42.76,
+          "sign_stable": true
+        },
+        "random_null": {
+          "sameday_sameside": {
+            "seeds": 20,
+            "mean": 21.86,
+            "min": 10.8,
+            "max": 37.9,
+            "std": 6.0,
+            "oos_mean": 23.89
+          },
+          "coinflip": {
+            "seeds": 20,
+            "mean": 1.24,
+            "min": -9.85,
+            "max": 12.92,
+            "std": 6.02,
+            "oos_mean": -0.81
+          },
+          "beats_sameday_mean1std": false,
+          "beats_coinflip_max": true,
+          "beats_null": false
+        },
+        "eight_gates": {
+          "G1_oos_per_trade_pos": true,
+          "G2_posQ_ge_4": false,
+          "G3_top5_lt_200": true,
+          "G4_n_ge_20": true,
+          "G5_drop_top5_pos": true,
+          "G6_is_first_half_pos": true,
+          "G7_beats_random_null": false,
+          "G8_truncation_sign_stable": true,
+          "ALL_8_PASS": false,
+          "n_failed": 2
+        }
+      },
+      "vix_character_strict": {
+        "gate": "vix_character_strict",
+        "desc": "take calls ONLY when VIX falling / puts ONLY when VIX rising; SKIP contra AND flat",
+        "strike_offset": 2,
+        "n_signals_kept": 61,
+        "coverage": {
+          "signals": 61,
+          "filled": 58,
+          "cache_miss": 3,
+          "sim_none": 0,
+          "fill_rate": 0.951
+        },
+        "metrics": {
+          "n": 58,
+          "wr_pct": 29.3,
+          "exp_dollar": 8.5,
+          "total_dollar": 492.84,
+          "max_drawdown": -389.04,
+          "is_n": 47,
+          "is_exp": 13.01,
+          "is_total": 611.4,
+          "is_first_half_per_trade": 37.1,
+          "oos_n": 11,
+          "oos_exp": -10.78,
+          "oos_total": -118.56,
+          "quarters": {
+            "2025Q1": {
+              "n": 14,
+              "exp": 54.56,
+              "total": 763.8
+            },
+            "2025Q2": {
+              "n": 11,
+              "exp": 6.51,
+              "total": 71.64
+            },
+            "2025Q3": {
+              "n": 12,
+              "exp": -7.09,
+              "total": -85.08
+            },
+            "2025Q4": {
+              "n": 10,
+              "exp": -13.9,
+              "total": -138.96
+            },
+            "2026Q1": {
+              "n": 7,
+              "exp": -7.03,
+              "total": -49.2
+            },
+            "2026Q2": {
+              "n": 4,
+              "exp": -17.34,
+              "total": -69.36
+            }
+          },
+          "positive_quarters": "2/6",
+          "positive_quarters_n": 2,
+          "n_quarters": 6,
+          "top5_day_pct": 233.1,
+          "drop_top5_day_per_trade": -12.38,
+          "by_side": {
+            "C": {
+              "n": 37,
+              "exp": -0.08,
+              "wr": 24.3,
+              "total": -2.8
+            },
+            "P": {
+              "n": 21,
+              "exp": 23.6,
+              "wr": 38.1,
+              "total": 495.64
+            }
+          },
+          "exit_hist": {
+            "EXIT_ALL_PREMIUM_STOP": 41,
+            "EXIT_ALL_RIBBON_FLIP_BACK": 5,
+            "TP1_THEN_RUNNER_RIBBON": 10,
+            "TP1_THEN_RUNNER_TIME": 2
+          }
+        },
+        "vs_baseline": {
+          "oos_per_trade_lift": -33.99,
+          "oos_total_kept_frac": -0.128,
+          "maxdd_delta": -92.4
+        },
+        "no_truncation": {
+          "stop8_exp": 8.5,
+          "chartstop_exp": 23.62,
+          "stop8_oos_exp": -10.78,
+          "chartstop_oos_exp": 44.8,
+          "sign_stable": true
+        },
+        "random_null": {
+          "sameday_sameside": {
+            "seeds": 20,
+            "mean": 20.91,
+            "min": 8.93,
+            "max": 29.85,
+            "std": 6.15,
+            "oos_mean": 16.83
+          },
+          "coinflip": {
+            "seeds": 20,
+            "mean": 6.51,
+            "min": -12.14,
+            "max": 60.15,
+            "std": 15.39,
+            "oos_mean": 4.07
+          },
+          "beats_sameday_mean1std": false,
+          "beats_coinflip_max": false,
+          "beats_null": false
+        },
+        "eight_gates": {
+          "G1_oos_per_trade_pos": false,
+          "G2_posQ_ge_4": false,
+          "G3_top5_lt_200": false,
+          "G4_n_ge_20": true,
+          "G5_drop_top5_pos": false,
+          "G6_is_first_half_pos": true,
+          "G7_beats_random_null": false,
+          "G8_truncation_sign_stable": true,
+          "ALL_8_PASS": false,
+          "n_failed": 5
+        }
+      },
+      "vix_character_inverse": {
+        "gate": "vix_character_inverse",
+        "desc": "L166 cross-check: take ONLY contra-character entries (calls into rising VIX, puts into falling VIX) \u2014 a real character edge makes this WORSE",
+        "strike_offset": 2,
+        "n_signals_kept": 45,
+        "coverage": {
+          "signals": 45,
+          "filled": 43,
+          "cache_miss": 2,
+          "sim_none": 0,
+          "fill_rate": 0.956
+        },
+        "metrics": {
+          "n": 43,
+          "wr_pct": 44.2,
+          "exp_dollar": 25.71,
+          "total_dollar": 1105.64,
+          "max_drawdown": -151.44,
+          "is_n": 35,
+          "is_exp": 27.63,
+          "is_total": 966.92,
+          "is_first_half_per_trade": 34.39,
+          "oos_n": 8,
+          "oos_exp": 17.34,
+          "oos_total": 138.72,
+          "quarters": {
+            "2025Q1": {
+              "n": 7,
+              "exp": 73.18,
+              "total": 512.28
+            },
+            "2025Q2": {
+              "n": 8,
+              "exp": 12.26,
+              "total": 98.04
+            },
+            "2025Q3": {
+              "n": 10,
+              "exp": -1.21,
+              "total": -12.12
+            },
+            "2025Q4": {
+              "n": 10,
+              "exp": 36.87,
+              "total": 368.72
+            },
+            "2026Q1": {
+              "n": 1,
+              "exp": 120.0,
+              "total": 120.0
+            },
+            "2026Q2": {
+              "n": 7,
+              "exp": 2.67,
+              "total": 18.72
+            }
+          },
+          "positive_quarters": "5/6",
+          "positive_quarters_n": 5,
+          "n_quarters": 6,
+          "top5_day_pct": 78.3,
+          "drop_top5_day_per_trade": 6.31,
+          "by_side": {
+            "C": {
+              "n": 19,
+              "exp": 40.42,
+              "wr": 57.9,
+              "total": 767.96
+            },
+            "P": {
+              "n": 24,
+              "exp": 14.07,
+              "wr": 33.3,
+              "total": 337.68
+            }
+          },
+          "exit_hist": {
+            "EXIT_ALL_LEVEL_STOP": 1,
+            "EXIT_ALL_PREMIUM_STOP": 24,
+            "EXIT_ALL_RIBBON_FLIP_BACK": 4,
+            "TP1_THEN_RUNNER_RIBBON": 13,
+            "TP1_THEN_RUNNER_TIME": 1
+          }
+        },
+        "vs_baseline": {
+          "oos_per_trade_lift": -5.87,
+          "oos_total_kept_frac": 0.149,
+          "maxdd_delta": 145.2
+        },
+        "no_truncation": {
+          "stop8_exp": 25.71,
+          "chartstop_exp": 8.0,
+          "stop8_oos_exp": 17.34,
+          "chartstop_oos_exp": -76.65,
+          "sign_stable": true
+        },
+        "random_null": {
+          "sameday_sameside": {
+            "seeds": 20,
+            "mean": 20.16,
+            "min": 7.22,
+            "max": 34.45,
+            "std": 6.62,
+            "oos_mean": -1.15
+          },
+          "coinflip": {
+            "seeds": 20,
+            "mean": -0.85,
+            "min": -19.15,
+            "max": 20.09,
+            "std": 8.31,
+            "oos_mean": -0.4
+          },
+          "beats_sameday_mean1std": false,
+          "beats_coinflip_max": true,
+          "beats_null": false
+        },
+        "eight_gates": {
+          "G1_oos_per_trade_pos": true,
+          "G2_posQ_ge_4": true,
+          "G3_top5_lt_200": true,
+          "G4_n_ge_20": true,
+          "G5_drop_top5_pos": true,
+          "G6_is_first_half_pos": true,
+          "G7_beats_random_null": false,
+          "G8_truncation_sign_stable": true,
+          "ALL_8_PASS": false,
+          "n_failed": 1
+        }
+      }
+    }
+  },
+  "headline_primary_tier": {
+    "tier": "ITM-2",
+    "best_character_variant": "vix_character_loose",
+    "best_character_oos_per_trade": 111.17,
+    "best_character_eight_gates": {
+      "G1_oos_per_trade_pos": true,
+      "G2_posQ_ge_4": true,
+      "G3_top5_lt_200": true,
+      "G4_n_ge_20": true,
+      "G5_drop_top5_pos": true,
+      "G6_is_first_half_pos": true,
+      "G7_beats_random_null": false,
+      "G8_truncation_sign_stable": true,
+      "ALL_8_PASS": false,
+      "n_failed": 1
+    },
+    "level_skip_oos_per_trade": 142.4,
+    "beats_level_skip": false,
+    "inverse_oos_per_trade": 82.06,
+    "inverse_confirms_causality": true
+  },
+  "verdict": "CHARACTER GATE REJECTED \u2014 best variant vix_character_loose fails 1 of 8 gates (['G7_beats_random_null']). VIX-character abstention does NOT clear the bar on real fills; the level-tercile skip remains the only subtractive survivor.",
+  "DISCLOSURE": {
+    "no_cherry_pick": "character gate reported as BOTH loose (skip contra only) and strict (skip contra+flat); level skip reproduced as the comparison benchmark; inverse-character gate reported as the L166 causality cross-check (anti-pattern 2.10).",
+    "subtractive": "this is a SUBTRACTIVE study (abstain from bad-regime entries), not additive confluence.",
+    "as_of": "VIX 5-bar slope + entry_VIX read AT the entry bar via _vix_slope (idx <= entry; look-ahead-safe, C6).",
+    "spy_vs_option": "real OPRA fills; SPY-direction != option edge (C3/L58).",
+    "strike_transfer": "FULL gate panel re-run at OTM-2 per C29 (gates don't transfer across strike tiers).",
+    "fraud_gates": "G7 random-entry null (same-day + coin-flip, 20 seeds, L172) + G8 no-truncation (L171)."
+  }
+}

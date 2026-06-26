@@ -1,0 +1,50 @@
+{
+  "_doc": "Deploy-ready fleet challenger arms validated by the mass-grind funnel, STAGED awaiting a live paper-account slot. Each entry is a complete fleet-v1 arm config (params_patch + gate_override) minus account_number/key_ref. To go live: assign a free paper account (account_number + secrets.json key_ref), set live:true, splice into accounts.json `arms`, run test_fleet_executor.py. All 6 current accounts are mid-experiment (flipped 2026-06-25 for data) -> a new key is the only thing between staged and live. NOT a permission gate -- a resource (Alpaca paper key J creates).",
+  "schema": "fleet-v1-staged",
+  "created": "2026-06-25",
+  "staged": [
+    {
+      "id": "safe-grind-otm-ride",
+      "role": "grind-elite-tight-stop-otm-ride",
+      "looseness": "validated-challenger",
+      "status": "staged_validated",
+      "live": false,
+      "execution": "fleet_rest",
+      "fidelity": "real_fills",
+      "broker": "alpaca",
+      "instrument": "SPY_0DTE_OPTION",
+      "account_number": null,
+      "key_ref": "PENDING -- needs a free Alpaca paper account key in secrets.json",
+      "starting_equity": 2000.0,
+      "config_source": "inherit safe + gate_override + params_patch (mass-grind funnel winner)",
+      "gate_override": {
+        "min_triggers": 2
+      },
+      "params_patch": {
+        "strike_tier_table": "bold",
+        "premium_stop_pct_bull": -0.20,
+        "premium_stop_pct_bear": -0.20,
+        "tp1_premium_pct": 1.5,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "fixed",
+        "block_level_rejection": true
+      },
+      "provenance": {
+        "source": "mass_grind funnel phase-4 elite (consolidate_elites.py)",
+        "setup_family": "OTM-1/2/3 tight-stop directional ride (LR1, mt2)",
+        "best_label": "OTM-1:LR1:mt2:stop-20:tp+150%:sell80%:fixed",
+        "expectancy_per_trade": 155.0,
+        "edge_over_random_null": 167.0,
+        "null_max_per_trade": -2.3,
+        "walk_forward_ratio": 1.80,
+        "quarter_positive_fraction": 1.0,
+        "n_trades": 75,
+        "edge_capture": 862.0,
+        "report": "markdown/research/GRIND-ELITE-CONSOLIDATION-2026-06-25.md"
+      },
+      "strike_note": "Funnel winner is OTM-1; the fleet strike tables are SAFE=ATM / BOLD=OTM-2, so this arm deploys at OTM-2 (bold table, the #4 family member, $141/tr) -- faithful to the family. Exact OTM-1 needs an OTM-1 tier in strike_selection (small follow-up) if the 1-strike difference matters.",
+      "validation_status": "NOT-OVERFIT (WF 1.80 > 1, positive every quarter incl. held-out 2026). Owes: multiple-testing haircut acknowledged (3,360-config search; mitigated by 25-setup family coherence), and forward-paper evidence on this account before any live-money or params.json flip.",
+      "frozen_at": "2026-06-25"
+    }
+  ]
+}

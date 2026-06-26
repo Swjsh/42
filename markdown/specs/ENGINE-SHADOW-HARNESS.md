@@ -1,6 +1,6 @@
 # Engine Shadow Harness — Phase 3 prep (wired-not-enabled)
 
-> **Status: BUILT + DRY-RUN-PROVEN, NOT yet firing live.** The harness code + tests ship now; the one live wiring (a ~2-line `heartbeat.md` shadow block) is **propose-only (Rule 9)** — J/conductor flips it on, after-hours. Authored 2026-06-19 (weekend loop). Spec parent: [`markdown/specs/SHARED-DECISION-LIBRARY-MIGRATION.md`](markdown/specs/SHARED-DECISION-LIBRARY-MIGRATION.md) §3 (Phase 3).
+> **Status: BUILT + DRY-RUN-PROVEN, NOT yet firing live.** The harness code + tests ship now; the one live wiring (a ~2-line `heartbeat.md` shadow block) is **propose-only (Rule 9)** — J/conductor flips it on, after-hours. Authored 2026-06-19 (weekend loop). Spec parent: [`markdown/specs/SHARED-DECISION-LIBRARY-MIGRATION.md`](SHARED-DECISION-LIBRARY-MIGRATION.md) §3 (Phase 3).
 
 ## 1. What & why
 

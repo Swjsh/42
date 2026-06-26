@@ -1,0 +1,789 @@
+{
+  "run_date": "2026-06-21",
+  "window": "2025-01-02..2026-06-16",
+  "families": {
+    "vwap_continuation": {
+      "n_signals": 166,
+      "by_dte": {
+        "0": {
+          "strike_tier": "ITM2",
+          "strike_offset": -2,
+          "premium_stop_pct": -0.08,
+          "n": 157,
+          "oos_n": 50,
+          "oos_per_trade": 36.34,
+          "exp_per_trade": 51.27,
+          "is_first_half": 66.86,
+          "positive_quarters": "5/6",
+          "top5_day_pct": 21.2,
+          "drop_top5_full": 41.73,
+          "oos_drop_top5": 7.76,
+          "oos_drop_top5_evaluable": true,
+          "L173_pass": true,
+          "risk_adj_exp_over_std": 0.3574,
+          "structural_gates_pass": true,
+          "structural_fails": [],
+          "gate7_null": {
+            "seeds": 20,
+            "per_trade_mean": 1.51,
+            "per_trade_max": 20.54,
+            "per_trade_min": -15.42,
+            "n_drawn": 157
+          },
+          "gate7_null_pass": true,
+          "gate8_truncation_artifact": false,
+          "all_gates_pass": true,
+          "overnight": {
+            "held_overnight_n": 0,
+            "held_overnight_pct": 0.0,
+            "gap_through_stop_n": 0,
+            "expiry_settlement_n": 0,
+            "mean_gap_pts_favor": 0.0
+          },
+          "gap_contribution_dollar": 0.0
+        },
+        "1": {
+          "strike_tier": "ITM2",
+          "strike_offset": -2,
+          "premium_stop_pct": -0.08,
+          "n": 166,
+          "oos_n": 51,
+          "oos_per_trade": 59.02,
+          "exp_per_trade": 67.25,
+          "is_first_half": 79.55,
+          "positive_quarters": "5/6",
+          "top5_day_pct": 22.3,
+          "drop_top5_full": 53.89,
+          "oos_drop_top5": 19.44,
+          "oos_drop_top5_evaluable": true,
+          "L173_pass": true,
+          "risk_adj_exp_over_std": 0.3185,
+          "structural_gates_pass": true,
+          "structural_fails": [],
+          "gate7_null": {
+            "seeds": 20,
+            "per_trade_mean": 15.92,
+            "per_trade_max": 70.59,
+            "per_trade_min": -30.63,
+            "n_drawn": 166
+          },
+          "gate7_null_pass": false,
+          "gate8_truncation_artifact": false,
+          "all_gates_pass": false,
+          "overnight": {
+            "held_overnight_n": 0,
+            "held_overnight_pct": 0.0,
+            "gap_through_stop_n": 0,
+            "expiry_settlement_n": 0,
+            "mean_gap_pts_favor": 0.0
+          },
+          "gap_contribution_dollar": 0.0
+        },
+        "2": {
+          "strike_tier": "ITM2",
+          "strike_offset": -2,
+          "premium_stop_pct": -0.08,
+          "n": 165,
+          "oos_n": 50,
+          "oos_per_trade": 66.13,
+          "exp_per_trade": 71.57,
+          "is_first_half": 117.45,
+          "positive_quarters": "4/6",
+          "top5_day_pct": 29.5,
+          "drop_top5_full": 52.04,
+          "oos_drop_top5": 21.52,
+          "oos_drop_top5_evaluable": true,
+          "L173_pass": true,
+          "risk_adj_exp_over_std": 0.2502,
+          "structural_gates_pass": true,
+          "structural_fails": [],
+          "gate7_null": {
+            "seeds": 20,
+            "per_trade_mean": 8.34,
+            "per_trade_max": 108.65,
+            "per_trade_min": -65.81,
+            "n_drawn": 165
+          },
+          "gate7_null_pass": false,
+          "gate8_truncation_artifact": false,
+          "all_gates_pass": false,
+          "overnight": {
+            "held_overnight_n": 2,
+            "held_overnight_pct": 1.2,
+            "gap_through_stop_n": 0,
+            "expiry_settlement_n": 2,
+            "mean_gap_pts_favor": -0.57
+          },
+          "gap_contribution_dollar": -342.0
+        }
+      },
+      "resurrects": false,
+      "shippable_1_2dte": false
+    },
+    "momentum_morning": {
+      "n_signals": 183,
+      "by_dte": {
+        "0": {
+          "strike_tier": "OTM2",
+          "strike_offset": 2,
+          "premium_stop_pct": -0.08,
+          "n": 175,
+          "oos_n": 57,
+          "oos_per_trade": -4.68,
+          "exp_per_trade": -1.31,
+          "is_first_half": 3.55,
+          "positive_quarters": "1/6",
+          "top5_day_pct": null,
+          "drop_top5_full": -6.67,
+          "oos_drop_top5": -10.25,
+          "oos_drop_top5_evaluable": true,
+          "L173_pass": false,
+          "risk_adj_exp_over_std": -0.0289,
+          "structural_gates_pass": false,
+          "structural_fails": [
+            "oos_exp=-4.68<=0",
+            "pos_q=1/6<4",
+            "top5_day_pct=None",
+            "drop_top5_full=-6.67<=0",
+            "oos_drop_top5=-10.25<=0(L173)"
+          ],
+          "gate7_null": null,
+          "gate7_null_pass": null,
+          "gate8_truncation_artifact": false,
+          "all_gates_pass": false,
+          "overnight": {
+            "held_overnight_n": 0,
+            "held_overnight_pct": 0.0,
+            "gap_through_stop_n": 0,
+            "expiry_settlement_n": 0,
+            "mean_gap_pts_favor": 0.0
+          },
+          "gap_contribution_dollar": 0.0
+        },
+        "1": {
+          "strike_tier": "ITM2",
+          "strike_offset": -2,
+          "premium_stop_pct": -0.08,
+          "n": 181,
+          "oos_n": 59,
+          "oos_per_trade": 44.01,
+          "exp_per_trade": -6.4,
+          "is_first_half": -39.09,
+          "positive_quarters": "3/6",
+          "top5_day_pct": null,
+          "drop_top5_full": -33.07,
+          "oos_drop_top5": -22.66,
+          "oos_drop_top5_evaluable": true,
+          "L173_pass": false,
+          "risk_adj_exp_over_std": -0.0271,
+          "structural_gates_pass": false,
+          "structural_fails": [
+            "pos_q=3/6<4",
+            "top5_day_pct=None",
+            "drop_top5_full=-33.07<=0",
+            "is_first_half=-39.09<=0",
+            "oos_drop_top5=-22.66<=0(L173)"
+          ],
+          "gate7_null": null,
+          "gate7_null_pass": null,
+          "gate8_truncation_artifact": false,
+          "all_gates_pass": false,
+          "overnight": {
+            "held_overnight_n": 4,
+            "held_overnight_pct": 2.2,
+            "gap_through_stop_n": 0,
+            "expiry_settlement_n": 4,
+            "mean_gap_pts_favor": 0.459
+          },
+          "gap_contribution_dollar": 550.5,
+          "deconcentration": {
+            "attempts": [
+              {
+                "fix": "drop_top1_oos_day",
+                "oos_per_trade": 16.12,
+                "oos_drop_top5": -30.31,
+                "oos_n": 58,
+                "full_drop_top5": -35.81,
+                "positive_quarters_n": 3,
+                "n_quarters": 6,
+                "is_first_half": -39.09,
+                "n": 180
+              },
+              {
+                "fix": "side=C_only",
+                "oos_per_trade": 31.58,
+                "oos_drop_top5": -85.44,
+                "oos_n": 32,
+                "full_drop_top5": -54.44,
+                "positive_quarters_n": 3,
+                "n_quarters": 6,
+                "is_first_half": -60.09,
+                "n": 97
+              },
+              {
+                "fix": "side=P_only",
+                "oos_per_trade": 58.74,
+                "oos_drop_top5": -25.47,
+                "oos_n": 27,
+                "full_drop_top5": -34.66,
+                "positive_quarters_n": 2,
+                "n_quarters": 6,
+                "is_first_half": -12.3,
+                "n": 84
+              }
+            ],
+            "deconcentrated": false,
+            "winner": null
+          }
+        },
+        "2": {
+          "strike_tier": "OTM2",
+          "strike_offset": 2,
+          "premium_stop_pct": -0.08,
+          "n": 180,
+          "oos_n": 58,
+          "oos_per_trade": -16.68,
+          "exp_per_trade": -15.42,
+          "is_first_half": -14.69,
+          "positive_quarters": "1/6",
+          "top5_day_pct": null,
+          "drop_top5_full": -34.59,
+          "oos_drop_top5": -56.83,
+          "oos_drop_top5_evaluable": true,
+          "L173_pass": false,
+          "risk_adj_exp_over_std": -0.0881,
+          "structural_gates_pass": false,
+          "structural_fails": [
+            "oos_exp=-16.68<=0",
+            "pos_q=1/6<4",
+            "top5_day_pct=None",
+            "drop_top5_full=-34.59<=0",
+            "is_first_half=-14.69<=0",
+            "oos_drop_top5=-56.83<=0(L173)"
+          ],
+          "gate7_null": null,
+          "gate7_null_pass": null,
+          "gate8_truncation_artifact": false,
+          "all_gates_pass": false,
+          "overnight": {
+            "held_overnight_n": 3,
+            "held_overnight_pct": 1.7,
+            "gap_through_stop_n": 1,
+            "expiry_settlement_n": 2,
+            "mean_gap_pts_favor": 0.737
+          },
+          "gap_contribution_dollar": 663.0
+        }
+      },
+      "resurrects": true,
+      "shippable_1_2dte": false
+    },
+    "orb_continuation": {
+      "n_signals": 123,
+      "by_dte": {
+        "0": {
+          "strike_tier": "ITM2",
+          "strike_offset": -2,
+          "premium_stop_pct": -0.5,
+          "n": 113,
+          "oos_n": 41,
+          "oos_per_trade": 18.19,
+          "exp_per_trade": 16.37,
+          "is_first_half": 24.79,
+          "positive_quarters": "4/6",
+          "top5_day_pct": 106.6,
+          "drop_top5_full": -1.14,
+          "oos_drop_top5": -21.98,
+          "oos_drop_top5_evaluable": true,
+          "L173_pass": false,
+          "risk_adj_exp_over_std": 0.0515,
+          "structural_gates_pass": false,
+          "structural_fails": [
+            "drop_top5_full=-1.14<=0",
+            "oos_drop_top5=-21.98<=0(L173)"
+          ],
+          "gate7_null": null,
+          "gate7_null_pass": null,
+          "gate8_truncation_artifact": false,
+          "all_gates_pass": false,
+          "overnight": {
+            "held_overnight_n": 2,
+            "held_overnight_pct": 1.8,
+            "gap_through_stop_n": 0,
+            "expiry_settlement_n": 2,
+            "mean_gap_pts_favor": 0.0
+          },
+          "gap_contribution_dollar": 0.0
+        },
+        "1": {
+          "strike_tier": "ITM2",
+          "strike_offset": -2,
+          "premium_stop_pct": -0.5,
+          "n": 123,
+          "oos_n": 45,
+          "oos_per_trade": 183.31,
+          "exp_per_trade": 30.21,
+          "is_first_half": -6.06,
+          "positive_quarters": "2/6",
+          "top5_day_pct": 249.0,
+          "drop_top5_full": -46.9,
+          "oos_drop_top5": -3.9,
+          "oos_drop_top5_evaluable": true,
+          "L173_pass": false,
+          "risk_adj_exp_over_std": 0.042,
+          "structural_gates_pass": false,
+          "structural_fails": [
+            "pos_q=2/6<4",
+            "top5_day_pct=249.0",
+            "drop_top5_full=-46.9<=0",
+            "is_first_half=-6.06<=0",
+            "oos_drop_top5=-3.9<=0(L173)"
+          ],
+          "gate7_null": null,
+          "gate7_null_pass": null,
+          "gate8_truncation_artifact": false,
+          "all_gates_pass": false,
+          "overnight": {
+            "held_overnight_n": 22,
+            "held_overnight_pct": 17.9,
+            "gap_through_stop_n": 4,
+            "expiry_settlement_n": 18,
+            "mean_gap_pts_favor": -0.115
+          },
+          "gap_contribution_dollar": -759.0,
+          "deconcentration": {
+            "attempts": [
+              {
+                "fix": "drop_top1_oos_day",
+                "oos_per_trade": 131.56,
+                "oos_drop_top5": -16.65,
+                "oos_n": 44,
+                "full_drop_top5": -54.04,
+                "positive_quarters_n": 2,
+                "n_quarters": 6,
+                "is_first_half": -6.06,
+                "n": 122
+              },
+              {
+                "fix": "side=C_only",
+                "oos_per_trade": 31.49,
+                "oos_drop_top5": -173.37,
+                "oos_n": 25,
+                "full_drop_top5": -148.95,
+                "positive_quarters_n": 2,
+                "n_quarters": 6,
+                "is_first_half": -61.17,
+                "n": 65
+              },
+              {
+                "fix": "side=P_only",
+                "oos_per_trade": 373.08,
+                "oos_drop_top5": 64.64,
+                "oos_n": 20,
+                "full_drop_top5": 8.49,
+                "positive_quarters_n": 3,
+                "n_quarters": 6,
+                "is_first_half": 54.3,
+                "n": 58
+              }
+            ],
+            "deconcentrated": false,
+            "winner": null
+          }
+        },
+        "2": {
+          "strike_tier": "ATM",
+          "strike_offset": 0,
+          "premium_stop_pct": -0.5,
+          "n": 123,
+          "oos_n": 45,
+          "oos_per_trade": 200.31,
+          "exp_per_trade": 14.65,
+          "is_first_half": -17.84,
+          "positive_quarters": "3/6",
+          "top5_day_pct": 785.4,
+          "drop_top5_full": -104.65,
+          "oos_drop_top5": -99.71,
+          "oos_drop_top5_evaluable": true,
+          "L173_pass": false,
+          "risk_adj_exp_over_std": 0.0159,
+          "structural_gates_pass": false,
+          "structural_fails": [
+            "pos_q=3/6<4",
+            "top5_day_pct=785.4",
+            "drop_top5_full=-104.65<=0",
+            "is_first_half=-17.84<=0",
+            "oos_drop_top5=-99.71<=0(L173)"
+          ],
+          "gate7_null": null,
+          "gate7_null_pass": null,
+          "gate8_truncation_artifact": false,
+          "all_gates_pass": false,
+          "overnight": {
+            "held_overnight_n": 28,
+            "held_overnight_pct": 22.8,
+            "gap_through_stop_n": 12,
+            "expiry_settlement_n": 16,
+            "mean_gap_pts_favor": -0.798
+          },
+          "gap_contribution_dollar": -6703.5,
+          "deconcentration": {
+            "attempts": [
+              {
+                "fix": "drop_top1_oos_day",
+                "oos_per_trade": 96.59,
+                "oos_drop_top5": -117.19,
+                "oos_n": 44,
+                "full_drop_top5": -113.24,
+                "positive_quarters_n": 3,
+                "n_quarters": 6,
+                "is_first_half": -17.84,
+                "n": 122
+              },
+              {
+                "fix": "side=C_only",
+                "oos_per_trade": -126.85,
+                "oos_drop_top5": -323.7,
+                "oos_n": 25,
+                "full_drop_top5": -224.64,
+                "positive_quarters_n": 1,
+                "n_quarters": 6,
+                "is_first_half": -84.13,
+                "n": 65
+              },
+              {
+                "fix": "side=P_only",
+                "oos_per_trade": 609.25,
+                "oos_drop_top5": -8.58,
+                "oos_n": 20,
+                "full_drop_top5": -51.82,
+                "positive_quarters_n": 4,
+                "n_quarters": 6,
+                "is_first_half": 54.77,
+                "n": 58
+              }
+            ],
+            "deconcentrated": false,
+            "winner": null
+          }
+        }
+      },
+      "resurrects": true,
+      "shippable_1_2dte": false
+    },
+    "power_hour": {
+      "n_signals": 190,
+      "by_dte": {
+        "0": {
+          "strike_tier": "ITM2",
+          "strike_offset": -2,
+          "premium_stop_pct": -0.08,
+          "n": 187,
+          "oos_n": 55,
+          "oos_per_trade": 24.16,
+          "exp_per_trade": 3.5,
+          "is_first_half": 2.36,
+          "positive_quarters": "3/6",
+          "top5_day_pct": 207.0,
+          "drop_top5_full": -3.85,
+          "oos_drop_top5": 1.0,
+          "oos_drop_top5_evaluable": true,
+          "L173_pass": true,
+          "risk_adj_exp_over_std": 0.0341,
+          "structural_gates_pass": false,
+          "structural_fails": [
+            "pos_q=3/6<4",
+            "top5_day_pct=207.0",
+            "drop_top5_full=-3.85<=0"
+          ],
+          "gate7_null": null,
+          "gate7_null_pass": null,
+          "gate8_truncation_artifact": true,
+          "all_gates_pass": false,
+          "overnight": {
+            "held_overnight_n": 6,
+            "held_overnight_pct": 3.2,
+            "gap_through_stop_n": 0,
+            "expiry_settlement_n": 6,
+            "mean_gap_pts_favor": 0.0
+          },
+          "gap_contribution_dollar": 0.0
+        },
+        "1": {
+          "strike_tier": "ITM2",
+          "strike_offset": -2,
+          "premium_stop_pct": -0.08,
+          "n": 188,
+          "oos_n": 55,
+          "oos_per_trade": 23.51,
+          "exp_per_trade": -56.69,
+          "is_first_half": -111.12,
+          "positive_quarters": "2/6",
+          "top5_day_pct": null,
+          "drop_top5_full": -93.53,
+          "oos_drop_top5": -74.54,
+          "oos_drop_top5_evaluable": true,
+          "L173_pass": false,
+          "risk_adj_exp_over_std": -0.1242,
+          "structural_gates_pass": false,
+          "structural_fails": [
+            "pos_q=2/6<4",
+            "top5_day_pct=None",
+            "drop_top5_full=-93.53<=0",
+            "is_first_half=-111.12<=0",
+            "oos_drop_top5=-74.54<=0(L173)"
+          ],
+          "gate7_null": null,
+          "gate7_null_pass": null,
+          "gate8_truncation_artifact": false,
+          "all_gates_pass": false,
+          "overnight": {
+            "held_overnight_n": 37,
+            "held_overnight_pct": 19.7,
+            "gap_through_stop_n": 4,
+            "expiry_settlement_n": 33,
+            "mean_gap_pts_favor": -0.917
+          },
+          "gap_contribution_dollar": -10177.8,
+          "deconcentration": {
+            "attempts": [
+              {
+                "fix": "drop_top1_oos_day",
+                "oos_per_trade": -32.72,
+                "oos_drop_top5": -84.84,
+                "oos_n": 54,
+                "full_drop_top5": -96.93,
+                "positive_quarters_n": 1,
+                "n_quarters": 6,
+                "is_first_half": -111.12,
+                "n": 187
+              },
+              {
+                "fix": "side=C_only",
+                "oos_per_trade": -37.31,
+                "oos_drop_top5": -123.34,
+                "oos_n": 33,
+                "full_drop_top5": -133.89,
+                "positive_quarters_n": 1,
+                "n_quarters": 6,
+                "is_first_half": -174.61,
+                "n": 113
+              },
+              {
+                "fix": "side=P_only",
+                "oos_per_trade": 114.74,
+                "oos_drop_top5": -127.02,
+                "oos_n": 22,
+                "full_drop_top5": -72.22,
+                "positive_quarters_n": 3,
+                "n_quarters": 6,
+                "is_first_half": -6.82,
+                "n": 75
+              }
+            ],
+            "deconcentrated": false,
+            "winner": null
+          }
+        },
+        "2": {
+          "strike_tier": "OTM2",
+          "strike_offset": 2,
+          "premium_stop_pct": -0.08,
+          "n": 186,
+          "oos_n": 55,
+          "oos_per_trade": 16.95,
+          "exp_per_trade": -1.93,
+          "is_first_half": 24.48,
+          "positive_quarters": "2/6",
+          "top5_day_pct": null,
+          "drop_top5_full": -94.54,
+          "oos_drop_top5": -136.94,
+          "oos_drop_top5_evaluable": true,
+          "L173_pass": false,
+          "risk_adj_exp_over_std": -0.0024,
+          "structural_gates_pass": false,
+          "structural_fails": [
+            "pos_q=2/6<4",
+            "top5_day_pct=None",
+            "drop_top5_full=-94.54<=0",
+            "oos_drop_top5=-136.94<=0(L173)"
+          ],
+          "gate7_null": null,
+          "gate7_null_pass": null,
+          "gate8_truncation_artifact": false,
+          "all_gates_pass": false,
+          "overnight": {
+            "held_overnight_n": 35,
+            "held_overnight_pct": 18.8,
+            "gap_through_stop_n": 7,
+            "expiry_settlement_n": 28,
+            "mean_gap_pts_favor": -0.103
+          },
+          "gap_contribution_dollar": -1080.6,
+          "deconcentration": {
+            "attempts": [
+              {
+                "fix": "drop_top1_oos_day",
+                "oos_per_trade": -50.01,
+                "oos_drop_top5": -148.0,
+                "oos_n": 54,
+                "full_drop_top5": -97.62,
+                "positive_quarters_n": 1,
+                "n_quarters": 6,
+                "is_first_half": 24.48,
+                "n": 185
+              },
+              {
+                "fix": "side=C_only",
+                "oos_per_trade": 62.9,
+                "oos_drop_top5": -138.75,
+                "oos_n": 33,
+                "full_drop_top5": -107.61,
+                "positive_quarters_n": 2,
+                "n_quarters": 6,
+                "is_first_half": 68.45,
+                "n": 113
+              },
+              {
+                "fix": "side=P_only",
+                "oos_per_trade": -51.97,
+                "oos_drop_top5": -280.34,
+                "oos_n": 22,
+                "full_drop_top5": -111.25,
+                "positive_quarters_n": 2,
+                "n_quarters": 6,
+                "is_first_half": -50.42,
+                "n": 73
+              }
+            ],
+            "deconcentrated": false,
+            "winner": null
+          }
+        }
+      },
+      "resurrects": true,
+      "shippable_1_2dte": false
+    },
+    "vwap_pullback": {
+      "n_signals": 98,
+      "by_dte": {
+        "0": {
+          "strike_tier": "ITM2",
+          "strike_offset": -2,
+          "premium_stop_pct": -0.08,
+          "n": 93,
+          "oos_n": 34,
+          "oos_per_trade": 64.77,
+          "exp_per_trade": 30.94,
+          "is_first_half": 27.12,
+          "positive_quarters": "4/6",
+          "top5_day_pct": 52.6,
+          "drop_top5_full": 15.5,
+          "oos_drop_top5": 31.41,
+          "oos_drop_top5_evaluable": true,
+          "L173_pass": true,
+          "risk_adj_exp_over_std": 0.2358,
+          "structural_gates_pass": true,
+          "structural_fails": [],
+          "gate7_null": {
+            "seeds": 20,
+            "per_trade_mean": 0.3,
+            "per_trade_max": 16.43,
+            "per_trade_min": -21.5,
+            "n_drawn": 93
+          },
+          "gate7_null_pass": true,
+          "gate8_truncation_artifact": false,
+          "all_gates_pass": true,
+          "overnight": {
+            "held_overnight_n": 0,
+            "held_overnight_pct": 0.0,
+            "gap_through_stop_n": 0,
+            "expiry_settlement_n": 0,
+            "mean_gap_pts_favor": 0.0
+          },
+          "gap_contribution_dollar": 0.0
+        },
+        "1": {
+          "strike_tier": "ITM2",
+          "strike_offset": -2,
+          "premium_stop_pct": -0.08,
+          "n": 98,
+          "oos_n": 35,
+          "oos_per_trade": 67.78,
+          "exp_per_trade": 42.5,
+          "is_first_half": 36.58,
+          "positive_quarters": "4/6",
+          "top5_day_pct": 58.1,
+          "drop_top5_full": 18.77,
+          "oos_drop_top5": 11.31,
+          "oos_drop_top5_evaluable": true,
+          "L173_pass": true,
+          "risk_adj_exp_over_std": 0.186,
+          "structural_gates_pass": true,
+          "structural_fails": [],
+          "gate7_null": {
+            "seeds": 20,
+            "per_trade_mean": -5.61,
+            "per_trade_max": 77.3,
+            "per_trade_min": -97.47,
+            "n_drawn": 98
+          },
+          "gate7_null_pass": false,
+          "gate8_truncation_artifact": true,
+          "all_gates_pass": false,
+          "overnight": {
+            "held_overnight_n": 1,
+            "held_overnight_pct": 1.0,
+            "gap_through_stop_n": 0,
+            "expiry_settlement_n": 1,
+            "mean_gap_pts_favor": -1.7
+          },
+          "gap_contribution_dollar": -510.0
+        },
+        "2": {
+          "strike_tier": "OTM1",
+          "strike_offset": 1,
+          "premium_stop_pct": -0.08,
+          "n": 97,
+          "oos_n": 34,
+          "oos_per_trade": 54.79,
+          "exp_per_trade": 35.49,
+          "is_first_half": -1.34,
+          "positive_quarters": "4/6",
+          "top5_day_pct": 68.3,
+          "drop_top5_full": 11.85,
+          "oos_drop_top5": 1.92,
+          "oos_drop_top5_evaluable": true,
+          "L173_pass": true,
+          "risk_adj_exp_over_std": 0.2051,
+          "structural_gates_pass": false,
+          "structural_fails": [
+            "is_first_half=-1.34<=0"
+          ],
+          "gate7_null": null,
+          "gate7_null_pass": null,
+          "gate8_truncation_artifact": true,
+          "all_gates_pass": false,
+          "overnight": {
+            "held_overnight_n": 0,
+            "held_overnight_pct": 0.0,
+            "gap_through_stop_n": 0,
+            "expiry_settlement_n": 0,
+            "mean_gap_pts_favor": 0.0
+          },
+          "gap_contribution_dollar": 0.0
+        }
+      },
+      "resurrects": false,
+      "shippable_1_2dte": false
+    }
+  },
+  "verdict": "PARTIAL_RESURRECTION",
+  "resurrected_families": [
+    "momentum_morning",
+    "orb_continuation",
+    "power_hour"
+  ],
+  "shippable_families": []
+}

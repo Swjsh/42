@@ -1,6 +1,6 @@
 {
   "generated_at": "2026-06-20T23:30:04.157973+00:00",
-  "campaign": "J-DATA profitability \u2014 A6 (calendar/event-day) / A7 (level-keyed entry) / A10 (self-PnL state). docs/J-DATA-RESEARCH-MASTER-PLAN.md",
+  "campaign": "J-DATA profitability \u2014 A6 (calendar/event-day) / A7 (level-keyed entry) / A10 (self-PnL state). markdown/research/J-DATA-RESEARCH-MASTER-PLAN.md",
   "method": "His Webull data (analysis/webull-j-trades/, ~655 closed round-trips 2021-23) DEFINES each hypothesis. OUR 2025-26 SPY real-OPRA fills VALIDATE the TRANSLATABLE findings (A6 calendar filter, A7 level-proximity filter) forward via the SAME OP-22 _full_metrics scorecard reused verbatim from j_entry_specificity. A filter SHIPS only if it clears the edge gate, fires >=2/wk, AND lifts OOS expectancy vs the unfiltered morning baseline. A10 is behavioral (J's live sequencing) \u2192 Part-A-only by construction.",
   "anti_confound_note": "Per-cell HEADLINE is WR + size-neutral pct_move (return on premium per contract); raw $pnl is reported but flagged SIZE_CONFOUNDED (his book size varied by time-of-day/regime, mixing edge with sizing).",
   "causality": "Part-A features at/before entry-bar close (same-session premarket for PMH/PML; look-back only for A10 streak state). Part-B fills next-bar-open (sim, L166); chart-stop only (premium_stop=-0.99).",

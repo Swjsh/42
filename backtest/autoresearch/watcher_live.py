@@ -648,11 +648,16 @@ def main() -> int:
         # Discord ping for medium+ confidence
         if s.confidence in ("medium", "high"):
             emoji = "🔴" if s.confidence == "high" else "🟡"
+            conf_label = "HIGH" if s.confidence == "high" else "med"
+            watcher_short = s.watcher_name.removesuffix("_watcher")
+            runner_part = f"  **R** ${s.runner_price:.2f}" if s.runner_price else ""
+            reason = s.reason
+            if len(reason) > 100:
+                reason = reason[:100].rsplit(" ", 1)[0] + "…"
             msg = (
-                f"{emoji} **{s.watcher_name}**: {s.setup_name} ({s.confidence})\n"
-                f"entry=${s.entry_price:.2f} stop=${s.stop_price:.2f} "
-                f"tp1=${s.tp1_price:.2f}" + (f" runner=${s.runner_price:.2f}" if s.runner_price else "") + "\n"
-                f"reason: {s.reason}"
+                f"{emoji} **{s.setup_name}** `{watcher_short}` · {conf_label}\n"
+                f"• **E** ${s.entry_price:.2f}  **SL** ${s.stop_price:.2f}  **TP1** ${s.tp1_price:.2f}{runner_part}\n"
+                f"• {reason}"
             )
             _queue_alert(msg)
 

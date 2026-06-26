@@ -1,0 +1,381 @@
+{
+  "generated_at": "2026-06-18T03:39:11.038858+00:00",
+  "purpose": "Sweep ribbon-pattern-proxy and key-level-proximity gate relaxations",
+  "data_file": "spy_5m_2025-01-01_2026-05-15.csv",
+  "j_winners": {
+    "2026-04-29": 342,
+    "2026-05-01": 470,
+    "2026-05-04": 730
+  },
+  "j_losers": {
+    "2026-05-05": -260,
+    "2026-05-06": -300,
+    "2026-05-07": -165
+  },
+  "op16_floor": 771,
+  "max_edge": 1542,
+  "baseline_10_10": {
+    "description": "disable_filters=[8] + vix_soft_mode=True + all other production params",
+    "per_day_pnl": {
+      "2026-04-29": 131.64,
+      "2026-05-01": null,
+      "2026-05-04": 159.09,
+      "2026-05-05": 90.65,
+      "2026-05-06": 135.65,
+      "2026-05-07": 160.04
+    },
+    "edge_capture": 290.73,
+    "sharpe": 2.034,
+    "final_score": 591.34,
+    "op16_pass": false
+  },
+  "scenarios": [
+    {
+      "id": "E1",
+      "name": "bear>=9 + fresh_flip_bear (<=3 bars)",
+      "gate": "bear>=9 + fresh_flip_bear (<=3 bars)",
+      "n_winner_days_fired": 2,
+      "n_loser_days_fired": 0,
+      "bars_fired_per_day": {
+        "2026-04-29": 3,
+        "2026-05-01": 0,
+        "2026-05-04": 2,
+        "2026-05-05": 0,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "edge_capture": 290.73,
+      "op16_pass": false,
+      "aggregate_sharpe": 0.702,
+      "final_score": 204.09,
+      "marginal_trades": 3,
+      "marginal_wr": 0.0,
+      "marginal_pnl": -386.34,
+      "verdict": "REJECT",
+      "per_day_pnl": {
+        "2026-04-29": 131.64,
+        "2026-05-01": null,
+        "2026-05-04": 159.09,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": null
+      }
+    },
+    {
+      "id": "E2",
+      "name": "bear>=8 + flip_bear_strict (<=2 bars)",
+      "gate": "bear>=8 + flip_bear_strict (<=2 bars)",
+      "n_winner_days_fired": 2,
+      "n_loser_days_fired": 0,
+      "bars_fired_per_day": {
+        "2026-04-29": 2,
+        "2026-05-01": 0,
+        "2026-05-04": 3,
+        "2026-05-05": 0,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "edge_capture": 290.73,
+      "op16_pass": false,
+      "aggregate_sharpe": 0.702,
+      "final_score": 204.09,
+      "marginal_trades": 3,
+      "marginal_wr": 0.0,
+      "marginal_pnl": -386.34,
+      "verdict": "REJECT",
+      "per_day_pnl": {
+        "2026-04-29": 131.64,
+        "2026-05-01": null,
+        "2026-05-04": 159.09,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": null
+      }
+    },
+    {
+      "id": "E3",
+      "name": "bear>=8 + ribbon_spreading (spread>prior3bars+5c)",
+      "gate": "bear>=8 + ribbon_spreading (spread>prior3bars+5c)",
+      "n_winner_days_fired": 2,
+      "n_loser_days_fired": 2,
+      "bars_fired_per_day": {
+        "2026-04-29": 10,
+        "2026-05-01": 0,
+        "2026-05-04": 7,
+        "2026-05-05": 5,
+        "2026-05-06": 1,
+        "2026-05-07": 0
+      },
+      "edge_capture": 290.73,
+      "op16_pass": false,
+      "aggregate_sharpe": 1.343,
+      "final_score": 390.45,
+      "marginal_trades": 1,
+      "marginal_wr": 0.0,
+      "marginal_pnl": -160.04,
+      "verdict": "REJECT",
+      "per_day_pnl": {
+        "2026-04-29": 131.64,
+        "2026-05-01": null,
+        "2026-05-04": 159.09,
+        "2026-05-05": 90.65,
+        "2026-05-06": 135.65,
+        "2026-05-07": null
+      }
+    },
+    {
+      "id": "E4",
+      "name": "bear>=7 + range_compression (3bar<60% of 10bar avg)",
+      "gate": "bear>=7 + range_compression (3bar<60% of 10bar avg)",
+      "n_winner_days_fired": 2,
+      "n_loser_days_fired": 3,
+      "bars_fired_per_day": {
+        "2026-04-29": 4,
+        "2026-05-01": 3,
+        "2026-05-04": 10,
+        "2026-05-05": 6,
+        "2026-05-06": 6,
+        "2026-05-07": 3
+      },
+      "edge_capture": 290.73,
+      "op16_pass": false,
+      "aggregate_sharpe": 2.034,
+      "final_score": 591.34,
+      "marginal_trades": 0,
+      "marginal_wr": null,
+      "marginal_pnl": 0,
+      "verdict": "REJECT",
+      "per_day_pnl": {
+        "2026-04-29": 131.64,
+        "2026-05-01": null,
+        "2026-05-04": 159.09,
+        "2026-05-05": 90.65,
+        "2026-05-06": 135.65,
+        "2026-05-07": 160.04
+      }
+    },
+    {
+      "id": "E5",
+      "name": "bear>=6 + compression + vol>=3.0 + lvl<=0.40 + flip",
+      "gate": "bear>=6 + compression + vol>=3.0 + lvl<=0.40 + flip",
+      "n_winner_days_fired": 0,
+      "n_loser_days_fired": 0,
+      "bars_fired_per_day": {
+        "2026-04-29": 0,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 0,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "edge_capture": 0.0,
+      "op16_pass": false,
+      "aggregate_sharpe": 0.0,
+      "final_score": 0.0,
+      "marginal_trades": 5,
+      "marginal_wr": 0.0,
+      "marginal_pnl": -677.07,
+      "verdict": "REJECT",
+      "per_day_pnl": {
+        "2026-04-29": null,
+        "2026-05-01": null,
+        "2026-05-04": null,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": null
+      }
+    },
+    {
+      "id": "E6",
+      "name": "bull>=9 + ribbon_just_flipped_bull",
+      "gate": "bull>=9 + ribbon_just_flipped_bull",
+      "n_winner_days_fired": 0,
+      "n_loser_days_fired": 2,
+      "bars_fired_per_day": {
+        "2026-04-29": 0,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 0,
+        "2026-05-06": 3,
+        "2026-05-07": 2
+      },
+      "edge_capture": 0.0,
+      "op16_pass": false,
+      "aggregate_sharpe": 0.704,
+      "final_score": 0.0,
+      "marginal_trades": 3,
+      "marginal_wr": 0.0,
+      "marginal_pnl": -381.38,
+      "verdict": "REJECT",
+      "per_day_pnl": {
+        "2026-04-29": null,
+        "2026-05-01": null,
+        "2026-05-04": null,
+        "2026-05-05": null,
+        "2026-05-06": 135.65,
+        "2026-05-07": 160.04
+      }
+    },
+    {
+      "id": "C1",
+      "name": "bear>=9 + nearest_level<=0.25",
+      "gate": "bear>=9 + nearest_level<=0.25",
+      "n_winner_days_fired": 1,
+      "n_loser_days_fired": 0,
+      "bars_fired_per_day": {
+        "2026-04-29": 13,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 0,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "edge_capture": 131.64,
+      "op16_pass": false,
+      "aggregate_sharpe": 0.447,
+      "final_score": 58.84,
+      "marginal_trades": 4,
+      "marginal_wr": 0.0,
+      "marginal_pnl": -545.43,
+      "verdict": "REJECT",
+      "per_day_pnl": {
+        "2026-04-29": 131.64,
+        "2026-05-01": null,
+        "2026-05-04": null,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": null
+      }
+    },
+    {
+      "id": "C2",
+      "name": "bear>=8 + nearest_level<=0.20",
+      "gate": "bear>=8 + nearest_level<=0.20",
+      "n_winner_days_fired": 2,
+      "n_loser_days_fired": 2,
+      "bars_fired_per_day": {
+        "2026-04-29": 25,
+        "2026-05-01": 0,
+        "2026-05-04": 1,
+        "2026-05-05": 7,
+        "2026-05-06": 0,
+        "2026-05-07": 4
+      },
+      "edge_capture": 290.73,
+      "op16_pass": false,
+      "aggregate_sharpe": 1.33,
+      "final_score": 386.67,
+      "marginal_trades": 1,
+      "marginal_wr": 0.0,
+      "marginal_pnl": -135.65,
+      "verdict": "REJECT",
+      "per_day_pnl": {
+        "2026-04-29": 131.64,
+        "2026-05-01": null,
+        "2026-05-04": 159.09,
+        "2026-05-05": 90.65,
+        "2026-05-06": null,
+        "2026-05-07": 160.04
+      }
+    },
+    {
+      "id": "C3",
+      "name": "bear>=7 + confluence_in_triggers",
+      "gate": "bear>=7 + confluence_in_triggers",
+      "n_winner_days_fired": 2,
+      "n_loser_days_fired": 1,
+      "bars_fired_per_day": {
+        "2026-04-29": 21,
+        "2026-05-01": 0,
+        "2026-05-04": 6,
+        "2026-05-05": 11,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "edge_capture": 290.73,
+      "op16_pass": false,
+      "aggregate_sharpe": 0.954,
+      "final_score": 277.36,
+      "marginal_trades": 2,
+      "marginal_wr": 0.0,
+      "marginal_pnl": -295.69,
+      "verdict": "REJECT",
+      "per_day_pnl": {
+        "2026-04-29": 131.64,
+        "2026-05-01": null,
+        "2026-05-04": 159.09,
+        "2026-05-05": 90.65,
+        "2026-05-06": null,
+        "2026-05-07": null
+      }
+    },
+    {
+      "id": "C4",
+      "name": "bear>=8 + prior_day_high_within_0.30",
+      "gate": "bear>=8 + prior_day_high_within_0.30",
+      "n_winner_days_fired": 0,
+      "n_loser_days_fired": 1,
+      "bars_fired_per_day": {
+        "2026-04-29": 0,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 3,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "edge_capture": 0.0,
+      "op16_pass": false,
+      "aggregate_sharpe": 0.447,
+      "final_score": 0.0,
+      "marginal_trades": 4,
+      "marginal_wr": 0.0,
+      "marginal_pnl": -586.42,
+      "verdict": "REJECT",
+      "per_day_pnl": {
+        "2026-04-29": null,
+        "2026-05-01": null,
+        "2026-05-04": null,
+        "2026-05-05": 90.65,
+        "2026-05-06": null,
+        "2026-05-07": null
+      }
+    },
+    {
+      "id": "C5",
+      "name": "bear>=7 + confluence + vol_ratio>=2.0",
+      "gate": "bear>=7 + confluence + vol_ratio>=2.0",
+      "n_winner_days_fired": 2,
+      "n_loser_days_fired": 1,
+      "bars_fired_per_day": {
+        "2026-04-29": 3,
+        "2026-05-01": 0,
+        "2026-05-04": 2,
+        "2026-05-05": 2,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "edge_capture": 290.73,
+      "op16_pass": false,
+      "aggregate_sharpe": 0.954,
+      "final_score": 277.36,
+      "marginal_trades": 2,
+      "marginal_wr": 0.0,
+      "marginal_pnl": -295.69,
+      "verdict": "REJECT",
+      "per_day_pnl": {
+        "2026-04-29": 131.64,
+        "2026-05-01": null,
+        "2026-05-04": 159.09,
+        "2026-05-05": 90.65,
+        "2026-05-06": null,
+        "2026-05-07": null
+      }
+    }
+  ],
+  "methodology": {
+    "approach": "Per-bar scenario gate: if ANY bar on a given day fires the gate, that day's baseline P&L is credited. If NO bar fires, the day is skipped (no trade simulated). This is conservative \u2014 assumes same exit as baseline when gate fires.",
+    "vix_disable": "disable_filters=[8] applied to all J anchor days (4/29, 5/01, 5/04 predate the VIX rule added 2026-05-05)",
+    "level_proxy": "level_proximity = min(abs(close - L) for L in levels_active) \u2014 actual detected levels, not just rejection_level",
+    "marginal_analysis": "marginal_deltas = days where |scenario_pnl - baseline_pnl| > $0.01"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "task": "block-elite-bull-vix-high-18",
+  "rule_id": "block_elite_bull_vix_high",
+  "description": "Extend ELITE bull VIX block from 17.5 to 18.0",
+  "prior_ratification": "17.5 (2026-06-17)",
+  "candidate_vix_high": 18.0,
+  "is_date_range": [
+    "2025-01-02",
+    "2026-02-26"
+  ],
+  "oos_date_range": [
+    "2026-02-27",
+    "2026-05-22"
+  ],
+  "is_delta": 0.0,
+  "oos_delta": 744.0,
+  "wf_norm": null,
+  "wf_note": "N/A structural: no IS trades in VIX 17.5-18.0 bucket",
+  "sw_hurt": 0,
+  "anchor_change": 0.0,
+  "n_blocked_oos": 4,
+  "n_unlocked_oos": 1,
+  "blocked_oos": [
+    {
+      "date": "2026-05-13",
+      "side": "C",
+      "vix": 17.94,
+      "pnl": -120
+    },
+    {
+      "date": "2026-05-19",
+      "side": "C",
+      "vix": 17.95,
+      "pnl": -110
+    },
+    {
+      "date": "2026-05-20",
+      "side": "C",
+      "vix": 17.61,
+      "pnl": -166
+    },
+    {
+      "date": "2026-05-20",
+      "side": "C",
+      "vix": 17.74,
+      "pnl": -145
+    }
+  ],
+  "unlocked_oos": [
+    {
+      "date": "2026-05-19",
+      "side": "P",
+      "vix": 17.93,
+      "pnl": 204
+    }
+  ],
+  "gates": {
+    "G1_is_nonneg": true,
+    "G2_oos_pos": true,
+    "G3_wf": null,
+    "G3_note": "N/A structural",
+    "G4_sw_hurt": true,
+    "G5_anchor": true,
+    "all_pass": true
+  },
+  "auto_ratify": true,
+  "ratify_value": 18.0,
+  "verdict": "RATIFY",
+  "ratified_at": "2026-06-18",
+  "rationale": "ELITE C at VIX 17.5-18.0 are OOS losers (4/4 lost, -$541 total). Extension of prior block (15-17.5). IS=0 structural. J standing directive: if profitable implement it."
+}

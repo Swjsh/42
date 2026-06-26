@@ -1,0 +1,95 @@
+{
+  "study": "vision_divergence_report",
+  "version": "1.0",
+  "evidence_n": 3,
+  "evidence_min_required": 20,
+  "data_sufficient": false,
+  "summary": {
+    "total_vision_spy_obs": 3,
+    "total_decisions_safe": 56,
+    "total_decisions_aggressive": 194,
+    "paired": 3,
+    "aligned_active": 0,
+    "aligned_hold": 1,
+    "diverged": 0,
+    "vision_only": 2,
+    "heartbeat_only": 47
+  },
+  "D1_level_miss": {
+    "count": 1,
+    "description": "Vision saw named level but engine had no trigger fired",
+    "accuracy_pct": 0.0,
+    "verdict": "INSUFFICIENT_DATA"
+  },
+  "D2_direction_mismatch": {
+    "count": 0,
+    "description": "Vision direction call disagrees with engine action",
+    "verdict": "INSUFFICIENT_DATA"
+  },
+  "multihr_context_feature": {
+    "ctx_0_accuracy_pct": 0.0,
+    "ctx_0_n": 1,
+    "ctx_1plus_accuracy_pct": null,
+    "ctx_1plus_n": 0,
+    "separates": false,
+    "verdict": "INSUFFICIENT_DATA"
+  },
+  "pairs": [
+    {
+      "date": "2026-05-19",
+      "time_et": "10:48",
+      "vis_dir": "bear",
+      "vis_confidence": 6,
+      "eng_dir": "hold",
+      "pair_type": "ALIGNED_HOLD",
+      "classification": "ALIGNED_HOLD",
+      "level_name": null,
+      "level_interaction": "holding_below",
+      "d1_level_miss": false,
+      "d2_direction_mismatch": false,
+      "next_bar_truth": "FLAT",
+      "ctx_level_tests_today": 0,
+      "ctx_dir_run": 0
+    },
+    {
+      "date": "2026-05-19",
+      "time_et": "15:24",
+      "vis_dir": "bear",
+      "vis_confidence": 8,
+      "eng_dir": "none",
+      "pair_type": "vision-only",
+      "classification": "vision-only",
+      "level_name": "734.48 Support",
+      "level_interaction": "breaking",
+      "d1_level_miss": true,
+      "d2_direction_mismatch": false,
+      "next_bar_truth": "WRONG",
+      "ctx_level_tests_today": 0,
+      "ctx_dir_run": 1
+    },
+    {
+      "date": "2026-05-19",
+      "time_et": "15:36",
+      "vis_dir": "unclear",
+      "vis_confidence": 4,
+      "eng_dir": "none",
+      "pair_type": "vision-only",
+      "classification": "vision-only",
+      "level_name": null,
+      "level_interaction": "no_relevant_level",
+      "d1_level_miss": false,
+      "d2_direction_mismatch": false,
+      "next_bar_truth": null,
+      "ctx_level_tests_today": 0,
+      "ctx_dir_run": 0
+    }
+  ],
+  "known_limitations": [
+    "Vision observer has only fired on 1 date (2026-05-19) \u2014 systematic gaps in coverage",
+    "Some lines in decisions.jsonl are malformed (2 objects concatenated) and were skipped",
+    "Next-bar truth uses 5m close delta; option P&L accuracy would require real-fills",
+    "Missing date field on some decision rows (9/56) due to format drift",
+    "N=3 usable paired obs is far below evidence_min=20 \u2014 no statistical conclusions possible"
+  ],
+  "when_to_rerun": "Rerun after vision observer accumulates >=20 SPY obs across >=5 trading days. Set HEADLINE_REACT and HEADLINE_K to match the level quality benchmark."
+}

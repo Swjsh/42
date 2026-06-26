@@ -1,0 +1,45 @@
+{
+  "_doc": "Role -> ordered lanes for the free swarm kitchen (Plan B). Each lane is (provider, model). Every role ends in the local Ollama floor so it can never run out of capacity. privacy=sensitive roles are restricted to no-train lanes (groq/cerebras/nvidia) or local; privacy=public_ok roles may use training-on-input lanes (gemini/mistral) because they only see public scraped pages. Provider API keys live in gitignored per-provider key files, NEVER here. Spec: markdown/planning/FREE-AGENT-PLAN-B-KITCHEN.md sec 7.",
+  "updated_utc": "2026-06-25T01:45:00Z",
+  "local_floor": { "provider": "ollama", "base_url": "http://localhost:11434/v1/", "model": "qwen3:14b", "installed": true },
+  "providers": {
+    "openrouter": { "base_url": "https://openrouter.ai/api/v1", "key_file": "automation/state/.openrouter.key", "trains_on_input": false, "topped_up": false, "reset": "00:00 UTC" },
+    "groq": { "base_url": "https://api.groq.com/openai/v1", "key_file": "automation/state/.groq.key", "trains_on_input": false, "reset": "rolling" },
+    "cerebras": { "base_url": "https://api.cerebras.ai/v1", "key_file": "automation/state/.cerebras.key", "trains_on_input": false, "ctx_cap": 8192, "reset": "rolling" },
+    "google_aistudio": { "base_url": "https://generativelanguage.googleapis.com/v1beta/openai", "key_file": "automation/state/.gemini.key", "trains_on_input": true, "reset": "00:00 PT" },
+    "mistral": { "base_url": "https://api.mistral.ai/v1", "key_file": "automation/state/.mistral.key", "trains_on_input": true, "reset": "monthly" },
+    "ollama": { "base_url": "http://localhost:11434/v1", "key_file": null, "trains_on_input": false, "reset": "none" }
+  },
+  "roles": {
+    "coordinator": { "privacy": "sensitive", "lanes": [
+      { "provider": "groq", "model": "llama-3.1-8b-instant" },
+      { "provider": "openrouter", "model": "meta-llama/llama-3.3-70b-instruct:free" },
+      { "provider": "ollama", "model": "qwen3:14b" } ] },
+    "strategist": { "privacy": "sensitive", "lanes": [
+      { "provider": "openrouter", "model": "nvidia/nemotron-3-super-120b-a12b:free" },
+      { "provider": "ollama", "model": "qwen3:14b" } ] },
+    "coder": { "privacy": "sensitive", "_note": "must lead with a clean-JSON no-train lane; Cerebras gpt-oss benched json_ok=FALSE (think-block breaks strict JSON); Gemini excluded (trains)", "lanes": [
+      { "provider": "groq", "model": "llama-3.3-70b-versatile" },
+      { "provider": "openrouter", "model": "qwen/qwen3-coder:free" },
+      { "provider": "ollama", "model": "qwen3:14b" } ] },
+    "validator": { "privacy": "sensitive", "lanes": [
+      { "provider": "openrouter", "model": "nvidia/nemotron-3-super-120b-a12b:free" },
+      { "provider": "ollama", "model": "qwen3:14b" } ] },
+    "critic": { "privacy": "sensitive", "lanes": [
+      { "provider": "openrouter", "model": "nvidia/nemotron-3-super-120b-a12b:free" },
+      { "provider": "cerebras", "model": "zai-glm-4.7" },
+      { "provider": "ollama", "model": "qwen3:14b" } ] },
+    "forager": { "privacy": "public_ok", "lanes": [
+      { "provider": "google_aistudio", "model": "gemini-flash-lite-latest" },
+      { "provider": "openrouter", "model": "nvidia/nemotron-3-super-120b-a12b:free" },
+      { "provider": "ollama", "model": "qwen3:14b" } ] },
+    "chef": { "privacy": "sensitive", "_note": "kitchen R&D cooks — needs big ctx (~31K-token prompts) + no-train; Cerebras 8K cap excludes it", "lanes": [
+      { "provider": "groq", "model": "llama-3.3-70b-versatile" },
+      { "provider": "openrouter", "model": "nvidia/nemotron-3-super-120b-a12b:free" },
+      { "provider": "groq", "model": "openai/gpt-oss-120b" } ] }
+  },
+  "dead": [
+    { "id": "moonshotai/kimi-k2.6:free", "since": "2026-06-13", "reason": "404 no endpoints" },
+    { "id": "deepseek/deepseek-r1:free", "since": "2026-06-24", "reason": "404 — de-tagged to paid (caught by roster_liveness probe)" }
+  ]
+}

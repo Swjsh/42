@@ -277,7 +277,16 @@ function Stop-StaleClaudeProcesses {
         'sniper_stages345.py',
         'weekend-research-pipeline',
         'autoresearch\watcher_live.py',
-        'autoresearch/watcher_live.py'
+        'autoresearch/watcher_live.py',
+        # Backtest grind family: the backtest .venv interpreter is ONLY used for
+        # long-running grids (mass_grind shards + phase2), never MCP servers. Exempting
+        # the whole venv keeps the heartbeat reaper from killing the grind + its
+        # multiprocessing.spawn workers mid-run (root cause of 12h of "silent crashes",
+        # diagnosed 2026-06-25: heartbeat fires Stop-StaleClaudeProcesses every 3 min,
+        # reaped the grind once it crossed the 5-min stale threshold).
+        'backtest\.venv',
+        'backtest/.venv',
+        'mass_grind'
     )
 
     $cutoffUtc = [DateTime]::UtcNow.AddMinutes(-$StaleAfterMinutes)

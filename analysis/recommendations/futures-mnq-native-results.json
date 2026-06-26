@@ -1,0 +1,201 @@
+{
+  "instrument": "MNQ",
+  "top_slices": [
+    {
+      "watcher": "erl_irl_watcher",
+      "dir": "long",
+      "conf": "high",
+      "n": 107,
+      "net": 3996.2399999999993,
+      "wr": 79.43925233644859,
+      "per_trade": 37.34803738317756
+    },
+    {
+      "watcher": "shotgun_scalper_watcher",
+      "dir": "long",
+      "conf": "medium",
+      "n": 95,
+      "net": 3793.8999999999996,
+      "wr": 72.63157894736842,
+      "per_trade": 39.93578947368421
+    },
+    {
+      "watcher": "shotgun_scalper_watcher",
+      "dir": "long",
+      "conf": "high",
+      "n": 37,
+      "net": 2644.3599999999997,
+      "wr": 67.56756756756756,
+      "per_trade": 71.46918918918918
+    },
+    {
+      "watcher": "shotgun_scalper_watcher",
+      "dir": "short",
+      "conf": "high",
+      "n": 217,
+      "net": 2486.0600000000004,
+      "wr": 67.2811059907834,
+      "per_trade": 11.456497695852537
+    },
+    {
+      "watcher": "bullish_watcher",
+      "dir": "long",
+      "conf": "medium",
+      "n": 131,
+      "net": 2212.03,
+      "wr": 46.56488549618321,
+      "per_trade": 16.885725190839697
+    },
+    {
+      "watcher": "erl_irl_watcher",
+      "dir": "short",
+      "conf": "medium",
+      "n": 106,
+      "net": 1799.819999999999,
+      "wr": 74.52830188679245,
+      "per_trade": 16.979433962264142
+    },
+    {
+      "watcher": "v14_enhanced_watcher",
+      "dir": "short",
+      "conf": "medium",
+      "n": 120,
+      "net": 1775.8100000000002,
+      "wr": 28.333333333333332,
+      "per_trade": 14.798416666666668
+    },
+    {
+      "watcher": "tbr_high_vol_watcher",
+      "dir": "long",
+      "conf": "medium",
+      "n": 28,
+      "net": 1545.4399999999998,
+      "wr": 71.42857142857143,
+      "per_trade": 55.194285714285705
+    },
+    {
+      "watcher": "tbr_high_vol_watcher",
+      "dir": "short",
+      "conf": "medium",
+      "n": 34,
+      "net": 797.1199999999999,
+      "wr": 70.58823529411765,
+      "per_trade": 23.444705882352938
+    },
+    {
+      "watcher": "v14_enhanced_watcher",
+      "dir": "short",
+      "conf": "high",
+      "n": 23,
+      "net": 785.4100000000001,
+      "wr": 60.86956521739131,
+      "per_trade": 34.14826086956522
+    },
+    {
+      "watcher": "orb_watcher",
+      "dir": "long",
+      "conf": "medium",
+      "n": 5,
+      "net": 75.1,
+      "wr": 40.0,
+      "per_trade": 15.02
+    },
+    {
+      "watcher": "bearish_reversal_at_level_watcher",
+      "dir": "short",
+      "conf": "high",
+      "n": 2,
+      "net": 4.56,
+      "wr": 100.0,
+      "per_trade": 2.28
+    },
+    {
+      "watcher": "rsi_divergence_watcher",
+      "dir": "long",
+      "conf": "low",
+      "n": 15,
+      "net": -127.8,
+      "wr": 0.0,
+      "per_trade": -8.52
+    },
+    {
+      "watcher": "bearish_reversal_at_level_watcher",
+      "dir": "short",
+      "conf": "medium",
+      "n": 11,
+      "net": -267.42,
+      "wr": 72.72727272727273,
+      "per_trade": -24.310909090909092
+    },
+    {
+      "watcher": "erl_irl_watcher",
+      "dir": "long",
+      "conf": "medium",
+      "n": 141,
+      "net": -455.32000000000085,
+      "wr": 76.59574468085107,
+      "per_trade": -3.2292198581560343
+    },
+    {
+      "watcher": "rsi_divergence_watcher",
+      "dir": "long",
+      "conf": "high",
+      "n": 84,
+      "net": -715.68,
+      "wr": 0.0,
+      "per_trade": -8.52
+    },
+    {
+      "watcher": "shotgun_scalper_watcher",
+      "dir": "short",
+      "conf": "low",
+      "n": 35,
+      "net": -907.1,
+      "wr": 48.57142857142857,
+      "per_trade": -25.917142857142856
+    },
+    {
+      "watcher": "shotgun_scalper_watcher",
+      "dir": "long",
+      "conf": "low",
+      "n": 35,
+      "net": -963.5,
+      "wr": 48.57142857142857,
+      "per_trade": -27.52857142857143
+    },
+    {
+      "watcher": "v14_enhanced_watcher",
+      "dir": "short",
+      "conf": "low",
+      "n": 138,
+      "net": -1155.06,
+      "wr": 0.0,
+      "per_trade": -8.37
+    },
+    {
+      "watcher": "rsi_divergence_watcher",
+      "dir": "long",
+      "conf": "medium",
+      "n": 148,
+      "net": -1248.06,
+      "wr": 0.0,
+      "per_trade": -8.432837837837837
+    }
+  ],
+  "oos": {
+    "raw": {
+      "is_net": -21987.760000000002,
+      "oos_net": 10963.21,
+      "gate": "PASS-REGIME-FLIP (IS<0, OOS>0, watch for recency bias)"
+    },
+    "v2b": {
+      "is_net": -3214.1100000000015,
+      "oos_net": 10238.060000000001,
+      "is_n": 173,
+      "oos_n": 94,
+      "is_pt": -18.578670520231224,
+      "oos_pt": 108.91553191489363,
+      "gate": "PASS-REGIME-FLIP (IS<0, OOS>0, watch for recency bias)"
+    }
+  }
+}

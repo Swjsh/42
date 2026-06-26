@@ -1,0 +1,22 @@
+{
+  "rule_id": "TRENDLINE_RIBBON_FLIP_REQUIRED",
+  "hypothesis": "Pure trendline_rejection entries (no ribbon_flip) are losers (IS n=58, WR=27.6%, avg=-$34). Ribbon_flip+trendline (n=6, WR=50%, avg=+$312) should be kept. Gate: block TRENDLINE entries without ribbon_flip.",
+  "status": "HOLD",
+  "hold_reason": "OOS NEGATIVE: delta=-$190 from 14 blocked OOS entries (avg=-$13.57/entry). OOS trendline entries had positive EV in May 2026 VIX spike recovery regime. WF=-1.371 FAIL.",
+  "is_delta": 2624,
+  "oos_delta": -190,
+  "wf_norm": -1.371,
+  "is_n_removed": 51,
+  "oos_n_blocked": 14,
+  "sub_windows": {
+    "W1_2025H1": 183,
+    "W2_2025H2": -684,
+    "W3_Q12026": 3153,
+    "W4_Apr26": -27
+  },
+  "key_insight": "IS trendline drag is regime-specific. VIX 15-17 trendline entries are actually profitable (+$1,338 IS). VIX 21-25 trendline entries are the worst (-$879). In OOS May 2026 (post-tariff VIX spike), blocked trendline entries would have been profitable on average. This is a C5/VIX-character pattern: low-VIX trendline IS good, mid-high VIX trendline context-dependent.",
+  "alternative_research": "Consider VIX-bucketed trendline gate (block at VIX 21-25 only) vs blanket ribbon_flip requirement. Also consider that ribbon_flip+trendline (n=13 with cascade after fix) WR=38.5% shows the gate IS directionally right in IS.",
+  "engine_param": "trendline_requires_ribbon_flip",
+  "scorecard_script": "backtest/autoresearch/trendline_ribbon_flip_ab.py",
+  "created_at": "2026-06-17"
+}

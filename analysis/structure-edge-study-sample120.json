@@ -1,0 +1,83 @@
+{
+  "csv": "spy_5m_2025-01-01_2026-05-15.csv",
+  "days": 120,
+  "evaluated_reads": 8183,
+  "params": {
+    "LOOKBACK": 60,
+    "WARMUP": 24,
+    "K_FWD": 6,
+    "TARGET_PCT": 0.0015,
+    "STOP_PCT": 0.0015,
+    "step": 1
+  },
+  "overall": {
+    "n": 8183,
+    "win_rate": 49.0,
+    "mean_fwd_bps": -0.5
+  },
+  "by_conviction": {
+    "0-20": {
+      "n": 24,
+      "win_rate": 45.8,
+      "mean_fwd_bps": -2.2
+    },
+    "20-40": {
+      "n": 448,
+      "win_rate": 50.7,
+      "mean_fwd_bps": -0.8
+    },
+    "40-60": {
+      "n": 699,
+      "win_rate": 47.6,
+      "mean_fwd_bps": -0.6
+    },
+    "60-80": {
+      "n": 902,
+      "win_rate": 47.8,
+      "mean_fwd_bps": -0.2
+    },
+    "80-100": {
+      "n": 6110,
+      "win_rate": 49.2,
+      "mean_fwd_bps": -0.5
+    }
+  },
+  "by_bias": {
+    "bearish": {
+      "n": 3679,
+      "win_rate": 47.0,
+      "mean_fwd_bps": -1.3
+    },
+    "bullish": {
+      "n": 4504,
+      "win_rate": 50.6,
+      "mean_fwd_bps": 0.1
+    }
+  },
+  "by_structure_event": {
+    "no_structure_event": {
+      "n": 65,
+      "win_rate": 61.5,
+      "mean_fwd_bps": 4.1
+    },
+    "with_structure_event": {
+      "n": 8118,
+      "win_rate": 48.9,
+      "mean_fwd_bps": -0.5
+    }
+  },
+  "by_time_of_day": {
+    "afternoon": {
+      "n": 5192,
+      "win_rate": 49.6,
+      "mean_fwd_bps": -0.4
+    },
+    "morning": {
+      "n": 2991,
+      "win_rate": 47.9,
+      "mean_fwd_bps": -0.6
+    }
+  },
+  "conviction_monotonic_winrate": false,
+  "disclaimer": "SPY-direction screening, NOT an option-edge claim (C3/L58). Real-fills sim is the option authority."
+}

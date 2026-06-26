@@ -1,0 +1,14 @@
+{"date": "2025-03-13", "price": 552.1, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.25, "false_break": false}
+{"date": "2025-03-13", "price": 553.74, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.34, "false_break": true}
+{"date": "2025-03-13", "price": 558.0, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.695, "false_break": false}
+{"date": "2025-03-13", "price": 558.92, "source": "swept", "touched": true, "outcome": "RESPECT", "reaction_dollars": 3.305, "false_break": false}
+{"date": "2025-03-13", "price": 559.0, "source": "swept", "touched": true, "outcome": "RESPECT", "reaction_dollars": 3.385, "false_break": false}
+{"date": "2025-03-13", "price": 559.2, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-13", "price": 559.27, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-13", "price": 559.5833545076007, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-13", "price": 559.6514588154638, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-13", "price": 559.7290781056297, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-13", "price": 563.065, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-13", "price": 575.07, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-13", "price": 584.3, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-13", "price": 588.22, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}

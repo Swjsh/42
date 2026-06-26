@@ -1,6 +1,6 @@
 {
   "generated_at": "2026-06-20T22:25:09.162310+00:00",
-  "campaign": "J-DATA profitability \u2014 A5 (time-of-day) / A8 (trigger x condition) / A9 (call vs put). docs/J-DATA-RESEARCH-MASTER-PLAN.md",
+  "campaign": "J-DATA profitability \u2014 A5 (time-of-day) / A8 (trigger x condition) / A9 (call vs put). markdown/research/J-DATA-RESEARCH-MASTER-PLAN.md",
   "method": "His Webull data (analysis/webull-j-trades/entry_quality.json, 655 closed round-trips 2021-23) DEFINES the sharpest cell per angle. OUR 2025-26 SPY real-OPRA fills VALIDATE forward via a parameterized clone of detect_j_vwap_continuation through the SAME OP-22 _full_metrics scorecard as gap_and_go_ratify / j_daily_pattern_ratify. A restriction SHIPS only if it clears the edge gate, fires >=2/wk, AND LIFTS OOS expectancy vs the unrestricted morning baseline.",
   "anti_confound_note": "J's per-cell HEADLINE is WR and size-neutral pct_move (return on premium per contract); raw $pnl is reported but flagged SIZE_CONFOUNDED (his afternoon book was smaller, morning 0DTE size larger \u2014 raw $ mixes edge with sizing).",
   "causality": "all features at/before entry-bar close; fill next-bar-open (sim, L166). VWAP-to-date cumulative same-session. Chart-stop only (premium_stop=-0.99, live config).",

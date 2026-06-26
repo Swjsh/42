@@ -1,0 +1,14 @@
+{"date": "2026-01-13", "price": 684.125, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-01-13", "price": 687.49, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-01-13", "price": 690.29, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-01-13", "price": 690.4, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-01-13", "price": 693.3, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.14, "false_break": false}
+{"date": "2026-01-13", "price": 694.0, "source": "round", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.44, "false_break": false}
+{"date": "2026-01-13", "price": 694.37, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.68, "false_break": false}
+{"date": "2026-01-13", "price": 694.89, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.3, "false_break": false}
+{"date": "2026-01-13", "price": 694.9647611318858, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.115, "false_break": false}
+{"date": "2026-01-13", "price": 695.0663605833448, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.014, "false_break": false}
+{"date": "2026-01-13", "price": 695.2352199334371, "source": "multi_day", "touched": true, "outcome": "RESPECT", "reaction_dollars": 0.975, "false_break": false}
+{"date": "2026-01-13", "price": 695.5091347858752, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.701, "false_break": false}
+{"date": "2026-01-13", "price": 695.95, "source": "multi_day", "touched": true, "outcome": "RESPECT", "reaction_dollars": 2.73, "false_break": false}
+{"date": "2026-01-13", "price": 696.02, "source": "round", "touched": true, "outcome": "RESPECT", "reaction_dollars": 2.8, "false_break": false}

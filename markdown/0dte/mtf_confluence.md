@@ -1,10 +1,10 @@
 # MTF_CONFLUENCE — Strategy Spec
 
 > Status: **DRAFT — WATCH-ONLY per OP 21**. Backtest scheduled by J's call (not running tonight). Not auto-tradable.
-> Numeric values are NOT canonical here — they live in [`automation/state/params.json`](../automation/state/params.json) once promoted.
-> Hard rules + operating principles inherited from [`CLAUDE.md`](../CLAUDE.md).
-> Mirrors the Setup Template in [`markdown/0dte/playbook.md`](markdown/0dte/playbook.md) and the spec format of [`markdown/0dte/vwap_rejection_prime.md`](markdown/0dte/vwap_rejection_prime.md) and [`markdown/0dte/opening_drive_fade.md`](markdown/0dte/opening_drive_fade.md).
-> Source-thesis anchor: [`markdown/planning/FUTURE-IMPROVEMENTS.md#6`](../markdown/planning/FUTURE-IMPROVEMENTS.md) — "Multi-timeframe confirmation (5min + 15min ribbon)".
+> Numeric values are NOT canonical here — they live in [`automation/state/params.json`](../../automation/state/params.json) once promoted.
+> Hard rules + operating principles inherited from [`CLAUDE.md`](../../CLAUDE.md).
+> Mirrors the Setup Template in [`markdown/0dte/playbook.md`](playbook.md) and the spec format of [`markdown/0dte/vwap_rejection_prime.md`](vwap_rejection_prime.md) and [`markdown/0dte/opening_drive_fade.md`](opening_drive_fade.md).
+> Source-thesis anchor: [`markdown/planning/FUTURE-IMPROVEMENTS.md#6`](../planning/FUTURE-IMPROVEMENTS.md) — "Multi-timeframe confirmation (5min + 15min ribbon)".
 
 **Setup name:** MTF_CONFLUENCE
 **Direction:** PUTS (bearish stack on BOTH timeframes) or CALLS (bullish stack on BOTH timeframes) — fires both sides symmetrically
@@ -67,7 +67,7 @@ A signal fires on a 5-minute SPY bar (closed) when **every** one of the 8 condit
 
 ### 3a. 15m bar discipline (anti-lookahead)
 
-When a 5m bar closes at, say, 10:35 ET, the most-recent CLOSED 15m bar is the one that closed at **10:30 ET** (NOT the still-forming 10:30–10:45 bar). The evaluator MUST use the prior-closed 15m bar — pulling an in-progress 15m bar is lookahead bias and is the kind of mistake that kills regime-robustness. This is enforced via `htf_bar_closed_ts <= ltf_bar_open_ts` in the trigger code. Cross-reference [`markdown/doctrine/LESSONS-LEARNED.md`](../markdown/doctrine/LESSONS-LEARNED.md) for the lookahead-bias anti-patterns.
+When a 5m bar closes at, say, 10:35 ET, the most-recent CLOSED 15m bar is the one that closed at **10:30 ET** (NOT the still-forming 10:30–10:45 bar). The evaluator MUST use the prior-closed 15m bar — pulling an in-progress 15m bar is lookahead bias and is the kind of mistake that kills regime-robustness. This is enforced via `htf_bar_closed_ts <= ltf_bar_open_ts` in the trigger code. Cross-reference [`markdown/doctrine/LESSONS-LEARNED.md`](../doctrine/LESSONS-LEARNED.md) for the lookahead-bias anti-patterns.
 
 ---
 

@@ -1,0 +1,56 @@
+{
+  "study": "Safe min_swings sweep",
+  "date": "2026-06-17",
+  "baseline": {
+    "is_n": 126,
+    "is_pnl": 16529.23,
+    "oos_n": 21,
+    "oos_pnl": 5900.25
+  },
+  "results": [
+    {
+      "min_swings": 2,
+      "is_n": 195,
+      "is_pnl": 17142.88,
+      "is_delta": 613.65,
+      "oos_n": 31,
+      "oos_pnl": 4837.76,
+      "oos_delta": -1062.49,
+      "sw_hurt": 1,
+      "verdict": "REJECT"
+    },
+    {
+      "min_swings": 3,
+      "is_n": 126,
+      "is_pnl": 16529.23,
+      "is_delta": 0.0,
+      "oos_n": 21,
+      "oos_pnl": 5900.25,
+      "oos_delta": 0.0,
+      "sw_hurt": 0,
+      "verdict": "BASELINE"
+    },
+    {
+      "min_swings": 4,
+      "is_n": 94,
+      "is_pnl": 12618.75,
+      "is_delta": -3910.48,
+      "oos_n": 16,
+      "oos_pnl": 5689.29,
+      "oos_delta": -210.96,
+      "sw_hurt": 0,
+      "verdict": "REJECT(IS_delta<=0)"
+    },
+    {
+      "min_swings": 5,
+      "is_n": 87,
+      "is_pnl": 13327.31,
+      "is_delta": -3201.92,
+      "oos_n": 16,
+      "oos_pnl": 6200.32,
+      "oos_delta": 300.08,
+      "sw_hurt": 0,
+      "verdict": "REJECT(IS_delta<=0)"
+    }
+  ]
+}

@@ -1,0 +1,5822 @@
+{
+  "task": "SNIPER D1 param sweep",
+  "baseline": {
+    "key": "D1(w=4,p=0.10,s=0.20,PLoff)",
+    "oos_totpc": 375.7
+  },
+  "sweep_grid": {
+    "windows": [
+      3,
+      4,
+      6,
+      8
+    ],
+    "prox_mults": [
+      0.05,
+      0.1,
+      0.15,
+      0.2,
+      0.3
+    ],
+    "stops": [
+      0.12,
+      0.15,
+      0.2,
+      0.25
+    ],
+    "pl_options": [
+      "PLoff",
+      "PLon"
+    ],
+    "total_configs": 160
+  },
+  "oos_days": 60,
+  "oos_signals": 60,
+  "missed_week_signals": 7,
+  "anchor_signals": 7,
+  "results": [
+    {
+      "window": 6,
+      "prox_mult": 0.05,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 296.3,
+        "green": 6,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 7,
+        "wr": 0.583,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.05,s=0.2,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.1,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 269.9,
+        "green": 6,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 7,
+        "wr": 0.583,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.1,s=0.25,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.1,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 269.9,
+        "green": 6,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 7,
+        "wr": 0.583,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.1,s=0.25,PLoff)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.1,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 269.9,
+        "green": 6,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 7,
+        "wr": 0.583,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.1,s=0.25,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.05,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 267.9,
+        "green": 5,
+        "days_traded": 9,
+        "n": 11,
+        "wins": 6,
+        "wr": 0.545,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.05,s=0.2,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.05,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 267.9,
+        "green": 5,
+        "days_traded": 9,
+        "n": 11,
+        "wins": 6,
+        "wr": 0.545,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.05,s=0.2,PLoff)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.05,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 259.9,
+        "green": 6,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 7,
+        "wr": 0.583,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.05,s=0.25,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.05,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 233.3,
+        "green": 6,
+        "days_traded": 12,
+        "n": 14,
+        "wins": 7,
+        "wr": 0.5,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -73.8,
+        "green": 0,
+        "days_traded": 2,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -31.6
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.05,s=0.2,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.05,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 231.5,
+        "green": 5,
+        "days_traded": 9,
+        "n": 11,
+        "wins": 6,
+        "wr": 0.545,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.05,s=0.25,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.05,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 231.5,
+        "green": 5,
+        "days_traded": 9,
+        "n": 11,
+        "wins": 6,
+        "wr": 0.545,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.05,s=0.25,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.1,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 229.5,
+        "green": 5,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 6,
+        "wr": 0.5,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.1,s=0.2,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.1,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 229.5,
+        "green": 5,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 6,
+        "wr": 0.5,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.1,s=0.2,PLoff)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.1,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 229.5,
+        "green": 5,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 6,
+        "wr": 0.5,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.1,s=0.2,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.15,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 225.4,
+        "green": 5,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 7,
+        "wr": 0.538,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.15,s=0.25,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.2,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 225.4,
+        "green": 5,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 7,
+        "wr": 0.538,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.2,s=0.25,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.3,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 225.4,
+        "green": 5,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 7,
+        "wr": 0.538,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -66.0,
+        "green": 0,
+        "days_traded": 2,
+        "n": 4,
+        "wins": 1,
+        "wr": 0.25,
+        "worst_pc": -43.8
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.3,s=0.25,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.15,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 225.4,
+        "green": 5,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 7,
+        "wr": 0.538,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.15,s=0.25,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.2,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 225.4,
+        "green": 5,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 7,
+        "wr": 0.538,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.2,s=0.25,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.3,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 225.4,
+        "green": 5,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 7,
+        "wr": 0.538,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -66.0,
+        "green": 0,
+        "days_traded": 2,
+        "n": 4,
+        "wins": 1,
+        "wr": 0.25,
+        "worst_pc": -43.8
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.3,s=0.25,PLoff)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.15,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 225.4,
+        "green": 5,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 7,
+        "wr": 0.538,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.15,s=0.25,PLoff)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.2,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 225.4,
+        "green": 5,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 7,
+        "wr": 0.538,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.2,s=0.25,PLoff)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.3,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 225.4,
+        "green": 5,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 7,
+        "wr": 0.538,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -66.0,
+        "green": 0,
+        "days_traded": 2,
+        "n": 4,
+        "wins": 1,
+        "wr": 0.25,
+        "worst_pc": -43.8
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.3,s=0.25,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.15,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 193.9,
+        "green": 5,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 6,
+        "wr": 0.462,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.15,s=0.2,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.2,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 193.9,
+        "green": 5,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 6,
+        "wr": 0.462,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.2,s=0.2,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.3,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 193.9,
+        "green": 5,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 6,
+        "wr": 0.462,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -51.2,
+        "green": 0,
+        "days_traded": 2,
+        "n": 4,
+        "wins": 1,
+        "wr": 0.25,
+        "worst_pc": -35.0
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.3,s=0.2,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.15,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 193.9,
+        "green": 5,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 6,
+        "wr": 0.462,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.15,s=0.2,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.2,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 193.9,
+        "green": 5,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 6,
+        "wr": 0.462,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.2,s=0.2,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.3,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 193.9,
+        "green": 5,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 6,
+        "wr": 0.462,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -51.2,
+        "green": 0,
+        "days_traded": 2,
+        "n": 4,
+        "wins": 1,
+        "wr": 0.25,
+        "worst_pc": -35.0
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.3,s=0.2,PLoff)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.15,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 193.9,
+        "green": 5,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 6,
+        "wr": 0.462,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.15,s=0.2,PLoff)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.2,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 193.9,
+        "green": 5,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 6,
+        "wr": 0.462,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.2,s=0.2,PLoff)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.3,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 193.9,
+        "green": 5,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 6,
+        "wr": 0.462,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -51.2,
+        "green": 0,
+        "days_traded": 2,
+        "n": 4,
+        "wins": 1,
+        "wr": 0.25,
+        "worst_pc": -35.0
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.3,s=0.2,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.1,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 191.2,
+        "green": 6,
+        "days_traded": 12,
+        "n": 14,
+        "wins": 7,
+        "wr": 0.5,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -87.8,
+        "green": 0,
+        "days_traded": 2,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -39.5
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.1,s=0.25,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.05,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 181.2,
+        "green": 6,
+        "days_traded": 12,
+        "n": 14,
+        "wins": 7,
+        "wr": 0.5,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -87.8,
+        "green": 0,
+        "days_traded": 2,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -39.5
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.05,s=0.25,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.1,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 166.5,
+        "green": 5,
+        "days_traded": 12,
+        "n": 14,
+        "wins": 6,
+        "wr": 0.429,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -73.8,
+        "green": 0,
+        "days_traded": 2,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -31.6
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.1,s=0.2,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.15,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 146.7,
+        "green": 5,
+        "days_traded": 12,
+        "n": 15,
+        "wins": 7,
+        "wr": 0.467,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -87.8,
+        "green": 0,
+        "days_traded": 2,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -39.5
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.15,s=0.25,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.2,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 146.7,
+        "green": 5,
+        "days_traded": 12,
+        "n": 15,
+        "wins": 7,
+        "wr": 0.467,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -87.8,
+        "green": 0,
+        "days_traded": 2,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -39.5
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.2,s=0.25,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.3,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 146.7,
+        "green": 5,
+        "days_traded": 12,
+        "n": 15,
+        "wins": 7,
+        "wr": 0.467,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -66.0,
+        "green": 0,
+        "days_traded": 2,
+        "n": 4,
+        "wins": 1,
+        "wr": 0.25,
+        "worst_pc": -43.8
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.3,s=0.25,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.15,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 130.9,
+        "green": 5,
+        "days_traded": 12,
+        "n": 15,
+        "wins": 6,
+        "wr": 0.4,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -73.8,
+        "green": 0,
+        "days_traded": 2,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -31.6
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.15,s=0.2,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.2,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 130.9,
+        "green": 5,
+        "days_traded": 12,
+        "n": 15,
+        "wins": 6,
+        "wr": 0.4,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -73.8,
+        "green": 0,
+        "days_traded": 2,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -31.6
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.2,s=0.2,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.3,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 130.9,
+        "green": 5,
+        "days_traded": 12,
+        "n": 15,
+        "wins": 6,
+        "wr": 0.4,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -51.2,
+        "green": 0,
+        "days_traded": 2,
+        "n": 4,
+        "wins": 1,
+        "wr": 0.25,
+        "worst_pc": -35.0
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.3,s=0.2,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.05,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 75.0,
+        "green": 5,
+        "days_traded": 6,
+        "n": 11,
+        "wins": 5,
+        "wr": 0.455,
+        "worst_pc": -38.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.05,s=0.25,PLon)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.1,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 75.0,
+        "green": 5,
+        "days_traded": 6,
+        "n": 12,
+        "wins": 5,
+        "wr": 0.417,
+        "worst_pc": -38.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.1,s=0.25,PLon)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.15,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 75.0,
+        "green": 5,
+        "days_traded": 6,
+        "n": 13,
+        "wins": 5,
+        "wr": 0.385,
+        "worst_pc": -38.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.15,s=0.25,PLon)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.2,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 75.0,
+        "green": 5,
+        "days_traded": 6,
+        "n": 13,
+        "wins": 5,
+        "wr": 0.385,
+        "worst_pc": -38.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.2,s=0.25,PLon)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.3,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 75.0,
+        "green": 5,
+        "days_traded": 6,
+        "n": 13,
+        "wins": 5,
+        "wr": 0.385,
+        "worst_pc": -38.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 4,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.3,s=0.25,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.05,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 75.0,
+        "green": 5,
+        "days_traded": 6,
+        "n": 11,
+        "wins": 5,
+        "wr": 0.455,
+        "worst_pc": -38.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.05,s=0.25,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.1,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 75.0,
+        "green": 5,
+        "days_traded": 6,
+        "n": 12,
+        "wins": 5,
+        "wr": 0.417,
+        "worst_pc": -38.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.1,s=0.25,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.15,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 75.0,
+        "green": 5,
+        "days_traded": 6,
+        "n": 13,
+        "wins": 5,
+        "wr": 0.385,
+        "worst_pc": -38.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.15,s=0.25,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.2,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 75.0,
+        "green": 5,
+        "days_traded": 6,
+        "n": 13,
+        "wins": 5,
+        "wr": 0.385,
+        "worst_pc": -38.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.2,s=0.25,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.3,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 75.0,
+        "green": 5,
+        "days_traded": 6,
+        "n": 13,
+        "wins": 5,
+        "wr": 0.385,
+        "worst_pc": -38.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 4,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.3,s=0.25,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.05,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 75.0,
+        "green": 5,
+        "days_traded": 6,
+        "n": 12,
+        "wins": 5,
+        "wr": 0.417,
+        "worst_pc": -38.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.05,s=0.25,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.1,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 75.0,
+        "green": 5,
+        "days_traded": 6,
+        "n": 12,
+        "wins": 5,
+        "wr": 0.417,
+        "worst_pc": -38.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.1,s=0.25,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.15,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 75.0,
+        "green": 5,
+        "days_traded": 6,
+        "n": 13,
+        "wins": 5,
+        "wr": 0.385,
+        "worst_pc": -38.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.15,s=0.25,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.2,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 75.0,
+        "green": 5,
+        "days_traded": 6,
+        "n": 13,
+        "wins": 5,
+        "wr": 0.385,
+        "worst_pc": -38.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.2,s=0.25,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.3,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 75.0,
+        "green": 5,
+        "days_traded": 6,
+        "n": 13,
+        "wins": 5,
+        "wr": 0.385,
+        "worst_pc": -38.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 4,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.3,s=0.25,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.05,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 64.8,
+        "green": 5,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 5,
+        "wr": 0.417,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.05,s=0.12,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.05,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 44.7,
+        "green": 4,
+        "days_traded": 7,
+        "n": 11,
+        "wins": 4,
+        "wr": 0.364,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.05,s=0.12,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.05,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 44.7,
+        "green": 4,
+        "days_traded": 7,
+        "n": 11,
+        "wins": 4,
+        "wr": 0.364,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.05,s=0.12,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.05,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 44.7,
+        "green": 4,
+        "days_traded": 7,
+        "n": 12,
+        "wins": 4,
+        "wr": 0.333,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.05,s=0.12,PLon)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.05,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 36.4,
+        "green": 4,
+        "days_traded": 9,
+        "n": 11,
+        "wins": 4,
+        "wr": 0.364,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.05,s=0.12,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.05,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 36.4,
+        "green": 4,
+        "days_traded": 9,
+        "n": 11,
+        "wins": 4,
+        "wr": 0.364,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.05,s=0.12,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.05,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 34.6,
+        "green": 4,
+        "days_traded": 6,
+        "n": 11,
+        "wins": 4,
+        "wr": 0.364,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.05,s=0.2,PLon)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.1,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 34.6,
+        "green": 4,
+        "days_traded": 6,
+        "n": 12,
+        "wins": 4,
+        "wr": 0.333,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.1,s=0.2,PLon)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.15,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 34.6,
+        "green": 4,
+        "days_traded": 6,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.15,s=0.2,PLon)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.2,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 34.6,
+        "green": 4,
+        "days_traded": 6,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.2,s=0.2,PLon)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.3,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 34.6,
+        "green": 4,
+        "days_traded": 6,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 4,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.3,s=0.2,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.05,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 34.6,
+        "green": 4,
+        "days_traded": 6,
+        "n": 11,
+        "wins": 4,
+        "wr": 0.364,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.05,s=0.2,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.1,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 34.6,
+        "green": 4,
+        "days_traded": 6,
+        "n": 12,
+        "wins": 4,
+        "wr": 0.333,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.1,s=0.2,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.15,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 34.6,
+        "green": 4,
+        "days_traded": 6,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.15,s=0.2,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.2,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 34.6,
+        "green": 4,
+        "days_traded": 6,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.2,s=0.2,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.3,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 34.6,
+        "green": 4,
+        "days_traded": 6,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 4,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.3,s=0.2,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.05,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 34.6,
+        "green": 4,
+        "days_traded": 6,
+        "n": 12,
+        "wins": 4,
+        "wr": 0.333,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.05,s=0.2,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.1,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 34.6,
+        "green": 4,
+        "days_traded": 6,
+        "n": 12,
+        "wins": 4,
+        "wr": 0.333,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.1,s=0.2,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.15,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 34.6,
+        "green": 4,
+        "days_traded": 6,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.15,s=0.2,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.2,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 34.6,
+        "green": 4,
+        "days_traded": 6,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.2,s=0.2,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.3,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 34.6,
+        "green": 4,
+        "days_traded": 6,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 4,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.3,s=0.2,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.05,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 33.5,
+        "green": 5,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 5,
+        "wr": 0.417,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.05,s=0.15,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.05,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 29.2,
+        "green": 4,
+        "days_traded": 7,
+        "n": 11,
+        "wins": 4,
+        "wr": 0.364,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.05,s=0.15,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.05,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 29.2,
+        "green": 4,
+        "days_traded": 7,
+        "n": 11,
+        "wins": 4,
+        "wr": 0.364,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.05,s=0.15,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.05,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 29.2,
+        "green": 4,
+        "days_traded": 7,
+        "n": 12,
+        "wins": 4,
+        "wr": 0.333,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.05,s=0.15,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.05,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 27.0,
+        "green": 5,
+        "days_traded": 12,
+        "n": 14,
+        "wins": 5,
+        "wr": 0.357,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -51.5,
+        "green": 0,
+        "days_traded": 2,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -19.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.05,s=0.12,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.05,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 26.0,
+        "green": 5,
+        "days_traded": 7,
+        "n": 14,
+        "wins": 5,
+        "wr": 0.357,
+        "worst_pc": -49.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.05,s=0.25,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.1,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 26.0,
+        "green": 5,
+        "days_traded": 7,
+        "n": 14,
+        "wins": 5,
+        "wr": 0.357,
+        "worst_pc": -49.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.1,s=0.25,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.15,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 26.0,
+        "green": 5,
+        "days_traded": 7,
+        "n": 15,
+        "wins": 5,
+        "wr": 0.333,
+        "worst_pc": -49.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.15,s=0.25,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.2,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 26.0,
+        "green": 5,
+        "days_traded": 7,
+        "n": 15,
+        "wins": 5,
+        "wr": 0.333,
+        "worst_pc": -49.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.2,s=0.25,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.3,
+      "stop": 0.25,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 26.0,
+        "green": 5,
+        "days_traded": 7,
+        "n": 15,
+        "wins": 5,
+        "wr": 0.333,
+        "worst_pc": -49.0
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 4,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.3,s=0.25,PLon)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.1,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 21.7,
+        "green": 4,
+        "days_traded": 8,
+        "n": 12,
+        "wins": 4,
+        "wr": 0.333,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.1,s=0.12,PLon)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.15,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 21.7,
+        "green": 4,
+        "days_traded": 8,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.15,s=0.12,PLon)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.2,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 21.7,
+        "green": 4,
+        "days_traded": 8,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.2,s=0.12,PLon)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.3,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 21.7,
+        "green": 4,
+        "days_traded": 8,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 4,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.3,s=0.12,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.1,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 21.7,
+        "green": 4,
+        "days_traded": 8,
+        "n": 12,
+        "wins": 4,
+        "wr": 0.333,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.1,s=0.12,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.15,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 21.7,
+        "green": 4,
+        "days_traded": 8,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.15,s=0.12,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.2,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 21.7,
+        "green": 4,
+        "days_traded": 8,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.2,s=0.12,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.3,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 21.7,
+        "green": 4,
+        "days_traded": 8,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 4,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.3,s=0.12,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.1,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 21.7,
+        "green": 4,
+        "days_traded": 8,
+        "n": 12,
+        "wins": 4,
+        "wr": 0.333,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.1,s=0.12,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.15,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 21.7,
+        "green": 4,
+        "days_traded": 8,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.15,s=0.12,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.2,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 21.7,
+        "green": 4,
+        "days_traded": 8,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.2,s=0.12,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.3,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 21.7,
+        "green": 4,
+        "days_traded": 8,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 4,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.3,s=0.12,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.05,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 21.2,
+        "green": 4,
+        "days_traded": 8,
+        "n": 14,
+        "wins": 4,
+        "wr": 0.286,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.05,s=0.12,PLon)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.1,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 13.4,
+        "green": 4,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 4,
+        "wr": 0.333,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.1,s=0.12,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.1,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 13.4,
+        "green": 4,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 4,
+        "wr": 0.333,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.1,s=0.12,PLoff)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.1,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 13.4,
+        "green": 4,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 4,
+        "wr": 0.333,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.1,s=0.12,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.05,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 5.1,
+        "green": 4,
+        "days_traded": 9,
+        "n": 11,
+        "wins": 4,
+        "wr": 0.364,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.05,s=0.15,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.05,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 5.1,
+        "green": 4,
+        "days_traded": 9,
+        "n": 11,
+        "wins": 4,
+        "wr": 0.364,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.05,s=0.15,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.1,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 0.4,
+        "green": 4,
+        "days_traded": 8,
+        "n": 12,
+        "wins": 4,
+        "wr": 0.333,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.1,s=0.15,PLon)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.15,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 0.4,
+        "green": 4,
+        "days_traded": 8,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.15,s=0.15,PLon)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.2,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 0.4,
+        "green": 4,
+        "days_traded": 8,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.2,s=0.15,PLon)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.3,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 0.4,
+        "green": 4,
+        "days_traded": 8,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 4,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.3,s=0.15,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.1,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 0.4,
+        "green": 4,
+        "days_traded": 8,
+        "n": 12,
+        "wins": 4,
+        "wr": 0.333,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.1,s=0.15,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.15,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 0.4,
+        "green": 4,
+        "days_traded": 8,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.15,s=0.15,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.2,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 0.4,
+        "green": 4,
+        "days_traded": 8,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.2,s=0.15,PLon)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.3,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 0.4,
+        "green": 4,
+        "days_traded": 8,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 4,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.3,s=0.15,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.1,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 0.4,
+        "green": 4,
+        "days_traded": 8,
+        "n": 12,
+        "wins": 4,
+        "wr": 0.333,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.1,s=0.15,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.15,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 0.4,
+        "green": 4,
+        "days_traded": 8,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.15,s=0.15,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.2,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 0.4,
+        "green": 4,
+        "days_traded": 8,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.2,s=0.15,PLon)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.3,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": 0.4,
+        "green": 4,
+        "days_traded": 8,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 4,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.3,s=0.15,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.05,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": -0.2,
+        "green": 4,
+        "days_traded": 8,
+        "n": 14,
+        "wins": 4,
+        "wr": 0.286,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.05,s=0.15,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.1,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": -1.8,
+        "green": 4,
+        "days_traded": 9,
+        "n": 14,
+        "wins": 4,
+        "wr": 0.286,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.1,s=0.12,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.15,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": -1.8,
+        "green": 4,
+        "days_traded": 9,
+        "n": 15,
+        "wins": 4,
+        "wr": 0.267,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.15,s=0.12,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.2,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": -1.8,
+        "green": 4,
+        "days_traded": 9,
+        "n": 15,
+        "wins": 4,
+        "wr": 0.267,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.2,s=0.12,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.3,
+      "stop": 0.12,
+      "pl": "PLon",
+      "oos": {
+        "totpc": -1.8,
+        "green": 4,
+        "days_traded": 9,
+        "n": 15,
+        "wins": 4,
+        "wr": 0.267,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 4,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.3,s=0.12,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.05,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": -4.6,
+        "green": 4,
+        "days_traded": 7,
+        "n": 14,
+        "wins": 4,
+        "wr": 0.286,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.05,s=0.2,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.1,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": -4.6,
+        "green": 4,
+        "days_traded": 7,
+        "n": 14,
+        "wins": 4,
+        "wr": 0.286,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.1,s=0.2,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.15,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": -4.6,
+        "green": 4,
+        "days_traded": 7,
+        "n": 15,
+        "wins": 4,
+        "wr": 0.267,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.15,s=0.2,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.2,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": -4.6,
+        "green": 4,
+        "days_traded": 7,
+        "n": 15,
+        "wins": 4,
+        "wr": 0.267,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.2,s=0.2,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.3,
+      "stop": 0.2,
+      "pl": "PLon",
+      "oos": {
+        "totpc": -4.6,
+        "green": 4,
+        "days_traded": 7,
+        "n": 15,
+        "wins": 4,
+        "wr": 0.267,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 4,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.3,s=0.2,PLon)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.15,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -8.0,
+        "green": 4,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.15,s=0.12,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.2,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -8.0,
+        "green": 4,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.2,s=0.12,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.3,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -8.0,
+        "green": 4,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -27.5,
+        "green": 0,
+        "days_traded": 2,
+        "n": 4,
+        "wins": 1,
+        "wr": 0.25,
+        "worst_pc": -21.0
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.3,s=0.12,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.15,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -8.0,
+        "green": 4,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.15,s=0.12,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.2,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -8.0,
+        "green": 4,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.2,s=0.12,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.3,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -8.0,
+        "green": 4,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -27.5,
+        "green": 0,
+        "days_traded": 2,
+        "n": 4,
+        "wins": 1,
+        "wr": 0.25,
+        "worst_pc": -21.0
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.3,s=0.12,PLoff)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.15,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -8.0,
+        "green": 4,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.15,s=0.12,PLoff)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.2,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -8.0,
+        "green": 4,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -32.5,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.0
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.2,s=0.12,PLoff)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.3,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -8.0,
+        "green": 4,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -27.5,
+        "green": 0,
+        "days_traded": 2,
+        "n": 4,
+        "wins": 1,
+        "wr": 0.25,
+        "worst_pc": -21.0
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.3,s=0.12,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.05,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -13.8,
+        "green": 5,
+        "days_traded": 12,
+        "n": 14,
+        "wins": 5,
+        "wr": 0.357,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -59.9,
+        "green": 0,
+        "days_traded": 2,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -23.7
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.05,s=0.15,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.1,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -23.7,
+        "green": 4,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 4,
+        "wr": 0.333,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.1,s=0.15,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.1,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -23.7,
+        "green": 4,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 4,
+        "wr": 0.333,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.1,s=0.15,PLoff)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.1,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -23.7,
+        "green": 4,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 4,
+        "wr": 0.333,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.1,s=0.15,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.1,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -24.4,
+        "green": 4,
+        "days_traded": 12,
+        "n": 14,
+        "wins": 4,
+        "wr": 0.286,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -51.5,
+        "green": 0,
+        "days_traded": 2,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -19.0
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.1,s=0.12,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.1,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": -29.0,
+        "green": 4,
+        "days_traded": 9,
+        "n": 14,
+        "wins": 4,
+        "wr": 0.286,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.1,s=0.15,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.15,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": -29.0,
+        "green": 4,
+        "days_traded": 9,
+        "n": 15,
+        "wins": 4,
+        "wr": 0.267,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.15,s=0.15,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.2,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": -29.0,
+        "green": 4,
+        "days_traded": 9,
+        "n": 15,
+        "wins": 4,
+        "wr": 0.267,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.2,s=0.15,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.3,
+      "stop": 0.15,
+      "pl": "PLon",
+      "oos": {
+        "totpc": -29.0,
+        "green": 4,
+        "days_traded": 9,
+        "n": 15,
+        "wins": 4,
+        "wr": 0.267,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 4,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.3,s=0.15,PLon)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.15,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -45.8,
+        "green": 4,
+        "days_traded": 12,
+        "n": 15,
+        "wins": 4,
+        "wr": 0.267,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -51.5,
+        "green": 0,
+        "days_traded": 2,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -19.0
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.15,s=0.12,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.2,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -45.8,
+        "green": 4,
+        "days_traded": 12,
+        "n": 15,
+        "wins": 4,
+        "wr": 0.267,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -51.5,
+        "green": 0,
+        "days_traded": 2,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -19.0
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.2,s=0.12,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.3,
+      "stop": 0.12,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -45.8,
+        "green": 4,
+        "days_traded": 12,
+        "n": 15,
+        "wins": 4,
+        "wr": 0.267,
+        "worst_pc": -25.2
+      },
+      "missed_week": {
+        "totpc": -27.5,
+        "green": 0,
+        "days_traded": 2,
+        "n": 4,
+        "wins": 1,
+        "wr": 0.25,
+        "worst_pc": -21.0
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.3,s=0.12,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.15,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -50.5,
+        "green": 4,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.15,s=0.15,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.2,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -50.5,
+        "green": 4,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.2,s=0.15,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.3,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -50.5,
+        "green": 4,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.4,
+        "green": 0,
+        "days_traded": 2,
+        "n": 4,
+        "wins": 1,
+        "wr": 0.25,
+        "worst_pc": -26.2
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.3,s=0.15,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.15,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -50.5,
+        "green": 4,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.15,s=0.15,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.2,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -50.5,
+        "green": 4,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.2,s=0.15,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.3,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -50.5,
+        "green": 4,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.4,
+        "green": 0,
+        "days_traded": 2,
+        "n": 4,
+        "wins": 1,
+        "wr": 0.25,
+        "worst_pc": -26.2
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.3,s=0.15,PLoff)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.15,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -50.5,
+        "green": 4,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.15,s=0.15,PLoff)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.2,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -50.5,
+        "green": 4,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.1,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -18.1
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.2,s=0.15,PLoff)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.3,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -50.5,
+        "green": 4,
+        "days_traded": 10,
+        "n": 13,
+        "wins": 4,
+        "wr": 0.308,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.4,
+        "green": 0,
+        "days_traded": 2,
+        "n": 4,
+        "wins": 1,
+        "wr": 0.25,
+        "worst_pc": -26.2
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.3,s=0.15,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.1,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -71.0,
+        "green": 4,
+        "days_traded": 12,
+        "n": 14,
+        "wins": 4,
+        "wr": 0.286,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -59.9,
+        "green": 0,
+        "days_traded": 2,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -23.7
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.1,s=0.15,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.15,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -97.7,
+        "green": 4,
+        "days_traded": 12,
+        "n": 15,
+        "wins": 4,
+        "wr": 0.267,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -59.9,
+        "green": 0,
+        "days_traded": 2,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -23.7
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.15,s=0.15,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.2,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -97.7,
+        "green": 4,
+        "days_traded": 12,
+        "n": 15,
+        "wins": 4,
+        "wr": 0.267,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -59.9,
+        "green": 0,
+        "days_traded": 2,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -23.7
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.2,s=0.15,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.3,
+      "stop": 0.15,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": -97.7,
+        "green": 4,
+        "days_traded": 12,
+        "n": 15,
+        "wins": 4,
+        "wr": 0.267,
+        "worst_pc": -31.5
+      },
+      "missed_week": {
+        "totpc": -36.4,
+        "green": 0,
+        "days_traded": 2,
+        "n": 4,
+        "wins": 1,
+        "wr": 0.25,
+        "worst_pc": -26.2
+      },
+      "anchor": {
+        "totpc": 29.2,
+        "green": 1,
+        "days_traded": 1,
+        "n": 1,
+        "wins": 1,
+        "wr": 1.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.3,s=0.15,PLoff)"
+    }
+  ],
+  "top_10": [
+    {
+      "window": 6,
+      "prox_mult": 0.05,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 296.3,
+        "green": 6,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 7,
+        "wr": 0.583,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.05,s=0.2,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.1,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 269.9,
+        "green": 6,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 7,
+        "wr": 0.583,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.1,s=0.25,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.1,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 269.9,
+        "green": 6,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 7,
+        "wr": 0.583,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.1,s=0.25,PLoff)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.1,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 269.9,
+        "green": 6,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 7,
+        "wr": 0.583,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.1,s=0.25,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.05,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 267.9,
+        "green": 5,
+        "days_traded": 9,
+        "n": 11,
+        "wins": 6,
+        "wr": 0.545,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.05,s=0.2,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.05,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 267.9,
+        "green": 5,
+        "days_traded": 9,
+        "n": 11,
+        "wins": 6,
+        "wr": 0.545,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -42.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -24.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.05,s=0.2,PLoff)"
+    },
+    {
+      "window": 6,
+      "prox_mult": 0.05,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 259.9,
+        "green": 6,
+        "days_traded": 10,
+        "n": 12,
+        "wins": 7,
+        "wr": 0.583,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=6,p=0.05,s=0.25,PLoff)"
+    },
+    {
+      "window": 8,
+      "prox_mult": 0.05,
+      "stop": 0.2,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 233.3,
+        "green": 6,
+        "days_traded": 12,
+        "n": 14,
+        "wins": 7,
+        "wr": 0.5,
+        "worst_pc": -42.0
+      },
+      "missed_week": {
+        "totpc": -73.8,
+        "green": 0,
+        "days_traded": 2,
+        "n": 3,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -31.6
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=8,p=0.05,s=0.2,PLoff)"
+    },
+    {
+      "window": 3,
+      "prox_mult": 0.05,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 231.5,
+        "green": 5,
+        "days_traded": 9,
+        "n": 11,
+        "wins": 6,
+        "wr": 0.545,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=3,p=0.05,s=0.25,PLoff)"
+    },
+    {
+      "window": 4,
+      "prox_mult": 0.05,
+      "stop": 0.25,
+      "pl": "PLoff",
+      "oos": {
+        "totpc": 231.5,
+        "green": 5,
+        "days_traded": 9,
+        "n": 11,
+        "wins": 6,
+        "wr": 0.545,
+        "worst_pc": -52.5
+      },
+      "missed_week": {
+        "totpc": -48.2,
+        "green": 0,
+        "days_traded": 1,
+        "n": 2,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": -30.2
+      },
+      "anchor": {
+        "totpc": 0.0,
+        "green": 0,
+        "days_traded": 0,
+        "n": 0,
+        "wins": 0,
+        "wr": 0.0,
+        "worst_pc": 0.0
+      },
+      "key": "D1(w=4,p=0.05,s=0.25,PLoff)"
+    }
+  ],
+  "beats_baseline": []
+}

@@ -1,0 +1,151 @@
+{
+  "family": "supply_demand_zone",
+  "generated": "2026-06-25T22:04:52",
+  "window": "2025-01-01..2026-06-18",
+  "n_signals": 248,
+  "entry_window": [
+    "09:40",
+    "14:00"
+  ],
+  "p1_candidate_cells": 12,
+  "p1_oos_positive": 42,
+  "p3_survivors": 28,
+  "p4_elites": 1,
+  "elites": [
+    {
+      "family": "supply_demand_zone",
+      "phase": 3,
+      "cell": "OTM-1|stop-30",
+      "strike": "OTM-1",
+      "strike_offset": 1,
+      "stop": "-30",
+      "stop_pct": -0.3,
+      "tp1": 0.5,
+      "tq": 0.667,
+      "trail": null,
+      "metrics": {
+        "n": 232,
+        "total": 2360.0,
+        "wr": 34.1,
+        "exp": 10.2,
+        "is_n": 176,
+        "is_total": 1099.4,
+        "oos_n": 56,
+        "oos_total": 1260.6,
+        "oos_exp": 22.5,
+        "quarters": {
+          "2025Q1": 127.6,
+          "2025Q2": 24.9,
+          "2025Q3": -248.3,
+          "2025Q4": 1195.2,
+          "2026Q1": 1171.9,
+          "2026Q2": 88.7
+        },
+        "qpf": 0.833,
+        "top5_day_pct": 135.0,
+        "max_dd": -1063.1,
+        "wf": 3.604,
+        "edge_capture": -169.2,
+        "edge_capture_vacuous": true,
+        "n_call": 78,
+        "n_put": 154,
+        "no_data": 16
+      },
+      "candidate_bar": true,
+      "fail_reasons": [],
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.978,
+          "real_exp": 11.11,
+          "real_total": 2521.1
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.845,
+          "real_exp": -0.72,
+          "real_total": -141.33
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.595,
+          "real_exp": -33.46,
+          "real_total": -4616.8
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.466,
+          "real_exp": -63.21,
+          "real_total": -6826.33
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.224,
+          "real_exp": -57.51,
+          "real_total": -2990.5
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.953,
+          "real_exp": 21.14,
+          "real_total": 4672.17
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.772,
+          "real_exp": -9.02,
+          "real_total": -1615.47
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.651,
+          "real_exp": -45.26,
+          "real_total": -6834.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.379,
+          "real_exp": -88.73,
+          "real_total": -7808.5
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 10.17,
+          "real_total": 2360.0
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 16.95,
+          "real_total": 3933.33
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 27.13,
+          "real_total": 6293.33
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 33.91,
+          "real_total": 7866.67
+        },
+        "safe25000_q15": {
+          "admit_pct": 1.0,
+          "real_exp": 50.86,
+          "real_total": 11800.0
+        }
+      },
+      "verdict": "PASS-P4",
+      "p3_pass": true,
+      "live_real_exp": 11.11,
+      "live_admit_pct": 0.978,
+      "null": {
+        "null_pass": true,
+        "per_trade": 10.17,
+        "drop_top5_per_trade": -3.65,
+        "null_mean": -14.76,
+        "null_max": 0.68,
+        "edge_over_null": 24.93,
+        "beats_null_max": true,
+        "drop_top5_beats_null_mean": true,
+        "seeds": 10
+      }
+    }
+  ],
+  "authority": "real OPRA fills (C1); null=random-entry MATCHING-exit (C3/L58/L171); gate=candidate-bar+null (edge_capture vacuous for non-J-anchor entries, disclosed)"
+}

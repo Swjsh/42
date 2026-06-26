@@ -19,7 +19,6 @@ import csv
 import datetime as dt
 import json
 import logging
-import os
 import time
 from pathlib import Path
 from typing import Iterator
@@ -28,15 +27,13 @@ from urllib.request import Request, urlopen
 
 import pandas as pd
 
+from _alpaca_creds import masked, resolve_alpaca_creds
+
 logger = logging.getLogger(__name__)
 
 REPO = Path(__file__).resolve().parents[1]
 DATA = REPO / "data"
 
-ALPACA_KEY = os.environ.get("ALPACA_API_KEY", "PK33J2RV4PNIY6TCOLUG3WYGRX")
-ALPACA_SECRET = os.environ.get(
-    "ALPACA_API_SECRET", "FxbJshSbhJ8Rn7KPENssS4eWsLpxCyYeyxavxywV9Bbs"
-)
 SPY_URL = "https://data.alpaca.markets/v2/stocks/SPY/bars"
 
 
@@ -50,7 +47,9 @@ def _month_windows(start: dt.date, end: dt.date) -> Iterator[tuple[dt.date, dt.d
         cur = nxt + dt.timedelta(days=1)
 
 
-def fetch_spy_window(start_date: dt.date, end_date: dt.date) -> list[dict]:
+def fetch_spy_window(
+    start_date: dt.date, end_date: dt.date, key: str, secret: str
+) -> list[dict]:
     """Fetch SPY 5-min from Alpaca for [start, end]. Pages through if needed."""
     rows: list[dict] = []
     page_token: str | None = None
@@ -68,8 +67,8 @@ def fetch_spy_window(start_date: dt.date, end_date: dt.date) -> list[dict]:
         req = Request(
             url,
             headers={
-                "APCA-API-KEY-ID": ALPACA_KEY,
-                "APCA-API-SECRET-KEY": ALPACA_SECRET,
+                "APCA-API-KEY-ID": key,
+                "APCA-API-SECRET-KEY": secret,
             },
         )
         try:
@@ -173,9 +172,12 @@ def main() -> int:
         ap.error("start must be <= end")
 
     if not args.no_spy:
+        # Resolve creds lazily on the fetch path — skipped entirely with --no-spy.
+        creds = resolve_alpaca_creds()
+        logger.info("Alpaca creds: key=%s source=%s", masked(creds.key), creds.source)
         all_spy: list[dict] = []
         for w_start, w_end in _month_windows(start, end):
-            chunk = fetch_spy_window(w_start, w_end)
+            chunk = fetch_spy_window(w_start, w_end, creds.key, creds.secret)
             logger.info("SPY %s..%s -> %d bars", w_start, w_end, len(chunk))
             all_spy.extend(chunk)
             time.sleep(0.2)

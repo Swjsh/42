@@ -1,0 +1,2693 @@
+{
+  "run_date": "2026-06-20",
+  "family": "gap_and_go",
+  "detector": "infinite_ammo_discovery.detect_gap_and_go (the VALIDATED detector behind gap-and-go-LIVE.json; prior_close=prior-day FULL-session last close)",
+  "fills": "lib.simulator_real.simulate_trade_real on the FULL frame with nearest-cached-strike snapping (strike_override) + entry_vix \u2014 identical harness to discovery_chart_stop_reeval._sim (the gap-and-go-LIVE.json generator). v15 exit stack.",
+  "window": "2025-01-01..2026-05-15",
+  "n_trading_days": 342,
+  "qty": 3,
+  "strike_convention": "VERIFIED simulator_real.py L354-364: side P strike=atm-offset, side C strike=atm+offset; for BOTH sides negative offset=ITM, positive=OTM, 0=ATM. Then snapped to nearest CACHED strike within +-4 steps (MAX_STRIKE_STEPS) per the validated harness; mean_actual_offset disclosed per cell.",
+  "n_signals": 82,
+  "side_counts": {
+    "C": 52,
+    "P": 30
+  },
+  "reconciliation_vs_LIVE_scorecard": {
+    "live_scorecard": "analysis/recommendations/gap-and-go-LIVE.json",
+    "live_window": "2025-01-02..2026-06-16 (363 trading days; spy_5m_2025-01-01_2026-06-16.csv)",
+    "this_window": "2025-01-01..2026-05-15 (342 trading days; per spec load_data(2025-01-01,2026-05-15))",
+    "why_different": "This sweep uses the spec-mandated window ending 2026-05-15, which EXCLUDES most of 2026Q2 \u2014 the LIVE scorecard's single strongest quarter (ATM exp +$118/trade, n=11). It also has fewer signals (82 vs 96) purely from the ~21 fewer trading days. The detector + fill harness are byte-identical to LIVE; the divergence is the data window, NOT a methodology difference. Net effect: the ATM chart-stop-only headline that reads +$41.6/trade over 363 days reads MUCH weaker over this shorter window because the carrying 2026Q2 gap days are mostly absent."
+  },
+  "sweep": {
+    "strike_offset": [
+      -2,
+      -1,
+      0,
+      1,
+      2
+    ],
+    "premium_stop_pct": [
+      -0.08,
+      -0.2,
+      -0.5,
+      -0.99
+    ],
+    "exit_tp1_premium_pct": [
+      0.3,
+      0.5
+    ],
+    "exit_runner_target_premium_pct": [
+      2.0,
+      2.5,
+      3.0
+    ],
+    "exit_chandelier_trail_pct": [
+      null,
+      0.2
+    ]
+  },
+  "candidate_edge_bar": {
+    "rule": "ALL of: OOS per-trade>0 AND positive_quarters>=4/6 AND top5_day_pct<200 AND n_trades>=20",
+    "min_n": 20,
+    "min_pos_quarters": 4,
+    "max_top5_pct": 200.0
+  },
+  "best_overall_per_trade_config": "ITM1|stop=-0.5",
+  "best_overall_per_trade": 22.04,
+  "n_cells_clear_mechanical": 1,
+  "n_cells_clear_robust": 0,
+  "candidate_edges": [
+    {
+      "config": "ITM1|stop=-0.5",
+      "n_trades": 73,
+      "oos_per_trade": 21.67,
+      "oos_total_pnl": 498.3,
+      "overall_per_trade": 22.04,
+      "positive_quarters": "4/6",
+      "top5_day_pct": 144.0,
+      "clears_bar": false,
+      "clears_bar_mechanical": true,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": 498.3,
+        "oos_drop_top1_day_total": -65.5,
+        "oos_top5_day_pct": 334.0,
+        "is_fragile_survivor": true,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "premium_stop_pct": -0.5,
+      "doctrinal_chart_stop_only": false
+    }
+  ],
+  "direction_split_on_ATM_chart_stop_only": {
+    "C": {
+      "n": 48,
+      "wr": 62.5,
+      "total_pnl": -432.0,
+      "avg_pnl": -9.0,
+      "top5_day_pct": null
+    },
+    "P": {
+      "n": 26,
+      "wr": 69.2,
+      "total_pnl": 251.2,
+      "avg_pnl": 9.66,
+      "top5_day_pct": 556.0
+    }
+  },
+  "grid": {
+    "ITM2|stop=-0.08": {
+      "overall": {
+        "n": 75,
+        "wr": 26.7,
+        "total_pnl": 513.2,
+        "avg_pnl": 6.84,
+        "top5_day_pct": 405.0
+      },
+      "by_side": {
+        "C": {
+          "n": 49,
+          "wr": 24.5,
+          "total_pnl": 54.8,
+          "avg_pnl": 1.12,
+          "top5_day_pct": 2985.0
+        },
+        "P": {
+          "n": 26,
+          "wr": 30.8,
+          "total_pnl": 458.4,
+          "avg_pnl": 17.63,
+          "top5_day_pct": 334.0
+        }
+      },
+      "IS_2025": {
+        "n": 52,
+        "wr": 30.8,
+        "total_pnl": 966.1,
+        "avg_pnl": 18.58,
+        "top5_day_pct": 205.0
+      },
+      "OOS_2026": {
+        "n": 23,
+        "wr": 17.4,
+        "total_pnl": -452.9,
+        "avg_pnl": -19.69,
+        "top5_day_pct": null
+      },
+      "oos_per_trade": -19.69,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 11,
+          "wr": 36.4,
+          "total_pnl": 448.6,
+          "avg_pnl": 40.78,
+          "top5_day_pct": 256.0
+        },
+        "2025Q2": {
+          "n": 11,
+          "wr": 36.4,
+          "total_pnl": 414.8,
+          "avg_pnl": 37.71,
+          "top5_day_pct": 266.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 33.3,
+          "total_pnl": 431.2,
+          "avg_pnl": 23.96,
+          "top5_day_pct": 229.0
+        },
+        "2025Q4": {
+          "n": 12,
+          "wr": 16.7,
+          "total_pnl": -328.4,
+          "avg_pnl": -27.37,
+          "top5_day_pct": null
+        },
+        "2026Q1": {
+          "n": 14,
+          "wr": 21.4,
+          "total_pnl": -78.3,
+          "avg_pnl": -5.59,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 11.1,
+          "total_pnl": -374.6,
+          "avg_pnl": -41.63,
+          "top5_day_pct": null
+        }
+      },
+      "positive_quarters": "3/6",
+      "pos_quarters_n": 3,
+      "top5_day_pct": 405.0,
+      "coverage": {
+        "cache_miss": 7,
+        "sim_none": 0,
+        "filled": 75,
+        "mean_actual_offset": -0.55
+      },
+      "clears_bar": false,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": -452.9,
+        "oos_drop_top1_day_total": -793.3,
+        "oos_top5_day_pct": null,
+        "is_fragile_survivor": false,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [
+        "oos_per_trade<=0 (-19.69)",
+        "pos_quarters 3/6 < 4",
+        "top5_day_pct 405.0 >= 200.0"
+      ],
+      "config": "ITM2|stop=-0.08",
+      "strike_offset": -2,
+      "premium_stop_pct": -0.08
+    },
+    "ITM2|stop=-0.2": {
+      "overall": {
+        "n": 75,
+        "wr": 45.3,
+        "total_pnl": -85.4,
+        "avg_pnl": -1.14,
+        "top5_day_pct": null
+      },
+      "by_side": {
+        "C": {
+          "n": 49,
+          "wr": 42.9,
+          "total_pnl": -417.4,
+          "avg_pnl": -8.52,
+          "top5_day_pct": null
+        },
+        "P": {
+          "n": 26,
+          "wr": 50.0,
+          "total_pnl": 332.0,
+          "avg_pnl": 12.77,
+          "top5_day_pct": 495.0
+        }
+      },
+      "IS_2025": {
+        "n": 52,
+        "wr": 48.1,
+        "total_pnl": 527.0,
+        "avg_pnl": 10.13,
+        "top5_day_pct": 401.0
+      },
+      "OOS_2026": {
+        "n": 23,
+        "wr": 39.1,
+        "total_pnl": -612.4,
+        "avg_pnl": -26.63,
+        "top5_day_pct": null
+      },
+      "oos_per_trade": -26.63,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 11,
+          "wr": 45.5,
+          "total_pnl": -290.0,
+          "avg_pnl": -26.36,
+          "top5_day_pct": null
+        },
+        "2025Q2": {
+          "n": 11,
+          "wr": 54.5,
+          "total_pnl": 263.8,
+          "avg_pnl": 23.98,
+          "top5_day_pct": 511.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 50.0,
+          "total_pnl": 485.4,
+          "avg_pnl": 26.97,
+          "top5_day_pct": 239.0
+        },
+        "2025Q4": {
+          "n": 12,
+          "wr": 41.7,
+          "total_pnl": 67.8,
+          "avg_pnl": 5.65,
+          "top5_day_pct": 1812.0
+        },
+        "2026Q1": {
+          "n": 14,
+          "wr": 28.6,
+          "total_pnl": -988.0,
+          "avg_pnl": -70.57,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 55.6,
+          "total_pnl": 375.6,
+          "avg_pnl": 41.73,
+          "top5_day_pct": 280.0
+        }
+      },
+      "positive_quarters": "4/6",
+      "pos_quarters_n": 4,
+      "top5_day_pct": null,
+      "coverage": {
+        "cache_miss": 7,
+        "sim_none": 0,
+        "filled": 75,
+        "mean_actual_offset": -0.55
+      },
+      "clears_bar": false,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": -612.4,
+        "oos_drop_top1_day_total": -952.8,
+        "oos_top5_day_pct": null,
+        "is_fragile_survivor": false,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [
+        "oos_per_trade<=0 (-26.63)",
+        "top5_undefined (total<=0)"
+      ],
+      "config": "ITM2|stop=-0.2",
+      "strike_offset": -2,
+      "premium_stop_pct": -0.2
+    },
+    "ITM2|stop=-0.5": {
+      "overall": {
+        "n": 75,
+        "wr": 61.3,
+        "total_pnl": 979.7,
+        "avg_pnl": 13.06,
+        "top5_day_pct": 247.0
+      },
+      "by_side": {
+        "C": {
+          "n": 49,
+          "wr": 59.2,
+          "total_pnl": 411.7,
+          "avg_pnl": 8.4,
+          "top5_day_pct": 547.0
+        },
+        "P": {
+          "n": 26,
+          "wr": 65.4,
+          "total_pnl": 568.0,
+          "avg_pnl": 21.85,
+          "top5_day_pct": 305.0
+        }
+      },
+      "IS_2025": {
+        "n": 52,
+        "wr": 59.6,
+        "total_pnl": 591.8,
+        "avg_pnl": 11.38,
+        "top5_day_pct": 375.0
+      },
+      "OOS_2026": {
+        "n": 23,
+        "wr": 65.2,
+        "total_pnl": 387.9,
+        "avg_pnl": 16.87,
+        "top5_day_pct": 480.0
+      },
+      "oos_per_trade": 16.87,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 11,
+          "wr": 45.5,
+          "total_pnl": -1086.2,
+          "avg_pnl": -98.75,
+          "top5_day_pct": null
+        },
+        "2025Q2": {
+          "n": 11,
+          "wr": 63.6,
+          "total_pnl": 398.8,
+          "avg_pnl": 36.25,
+          "top5_day_pct": 400.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 66.7,
+          "total_pnl": 646.5,
+          "avg_pnl": 35.92,
+          "top5_day_pct": 240.0
+        },
+        "2025Q4": {
+          "n": 12,
+          "wr": 58.3,
+          "total_pnl": 632.7,
+          "avg_pnl": 52.73,
+          "top5_day_pct": 204.0
+        },
+        "2026Q1": {
+          "n": 14,
+          "wr": 42.9,
+          "total_pnl": -2005.3,
+          "avg_pnl": -143.24,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 100.0,
+          "total_pnl": 2393.2,
+          "avg_pnl": 265.91,
+          "top5_day_pct": 70.0
+        }
+      },
+      "positive_quarters": "4/6",
+      "pos_quarters_n": 4,
+      "top5_day_pct": 247.0,
+      "coverage": {
+        "cache_miss": 7,
+        "sim_none": 0,
+        "filled": 75,
+        "mean_actual_offset": -0.55
+      },
+      "clears_bar": false,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": 387.9,
+        "oos_drop_top1_day_total": -175.9,
+        "oos_top5_day_pct": 480.0,
+        "is_fragile_survivor": true,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [
+        "top5_day_pct 247.0 >= 200.0"
+      ],
+      "config": "ITM2|stop=-0.5",
+      "strike_offset": -2,
+      "premium_stop_pct": -0.5,
+      "exit_minisweep": {
+        "best": {
+          "tp1_premium_pct": 0.5,
+          "runner_target_premium_pct": 2.0,
+          "chandelier_trail_pct": null,
+          "overall_per_trade": -16.79,
+          "overall_total": -1259.5,
+          "oos_per_trade": 34.13,
+          "pos_quarters": 1,
+          "top5_day_pct": null
+        },
+        "all": [
+          {
+            "tp1_premium_pct": 0.3,
+            "runner_target_premium_pct": 2.0,
+            "chandelier_trail_pct": null,
+            "overall_per_trade": 13.06,
+            "overall_total": 979.7,
+            "oos_per_trade": 16.87,
+            "pos_quarters": 4,
+            "top5_day_pct": 247.0
+          },
+          {
+            "tp1_premium_pct": 0.3,
+            "runner_target_premium_pct": 2.0,
+            "chandelier_trail_pct": 0.2,
+            "overall_per_trade": -9.25,
+            "overall_total": -693.8,
+            "oos_per_trade": -17.51,
+            "pos_quarters": 2,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.3,
+            "runner_target_premium_pct": 2.5,
+            "chandelier_trail_pct": null,
+            "overall_per_trade": 13.06,
+            "overall_total": 979.7,
+            "oos_per_trade": 16.87,
+            "pos_quarters": 4,
+            "top5_day_pct": 247.0
+          },
+          {
+            "tp1_premium_pct": 0.3,
+            "runner_target_premium_pct": 2.5,
+            "chandelier_trail_pct": 0.2,
+            "overall_per_trade": -9.25,
+            "overall_total": -693.8,
+            "oos_per_trade": -17.51,
+            "pos_quarters": 2,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.3,
+            "runner_target_premium_pct": 3.0,
+            "chandelier_trail_pct": null,
+            "overall_per_trade": 13.06,
+            "overall_total": 979.7,
+            "oos_per_trade": 16.87,
+            "pos_quarters": 4,
+            "top5_day_pct": 247.0
+          },
+          {
+            "tp1_premium_pct": 0.3,
+            "runner_target_premium_pct": 3.0,
+            "chandelier_trail_pct": 0.2,
+            "overall_per_trade": -9.25,
+            "overall_total": -693.8,
+            "oos_per_trade": -17.51,
+            "pos_quarters": 2,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.5,
+            "runner_target_premium_pct": 2.0,
+            "chandelier_trail_pct": null,
+            "overall_per_trade": -16.79,
+            "overall_total": -1259.5,
+            "oos_per_trade": 34.13,
+            "pos_quarters": 1,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.5,
+            "runner_target_premium_pct": 2.0,
+            "chandelier_trail_pct": 0.2,
+            "overall_per_trade": -10.78,
+            "overall_total": -808.8,
+            "oos_per_trade": -15.46,
+            "pos_quarters": 3,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.5,
+            "runner_target_premium_pct": 2.5,
+            "chandelier_trail_pct": null,
+            "overall_per_trade": -16.79,
+            "overall_total": -1259.5,
+            "oos_per_trade": 34.13,
+            "pos_quarters": 1,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.5,
+            "runner_target_premium_pct": 2.5,
+            "chandelier_trail_pct": 0.2,
+            "overall_per_trade": -10.78,
+            "overall_total": -808.8,
+            "oos_per_trade": -15.46,
+            "pos_quarters": 3,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.5,
+            "runner_target_premium_pct": 3.0,
+            "chandelier_trail_pct": null,
+            "overall_per_trade": -16.79,
+            "overall_total": -1259.5,
+            "oos_per_trade": 34.13,
+            "pos_quarters": 1,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.5,
+            "runner_target_premium_pct": 3.0,
+            "chandelier_trail_pct": 0.2,
+            "overall_per_trade": -10.78,
+            "overall_total": -808.8,
+            "oos_per_trade": -15.46,
+            "pos_quarters": 3,
+            "top5_day_pct": null
+          }
+        ]
+      }
+    },
+    "ITM2|stop=-0.99": {
+      "overall": {
+        "n": 75,
+        "wr": 61.3,
+        "total_pnl": 258.2,
+        "avg_pnl": 3.44,
+        "top5_day_pct": 938.0
+      },
+      "by_side": {
+        "C": {
+          "n": 49,
+          "wr": 59.2,
+          "total_pnl": -186.8,
+          "avg_pnl": -3.81,
+          "top5_day_pct": null
+        },
+        "P": {
+          "n": 26,
+          "wr": 65.4,
+          "total_pnl": 445.0,
+          "avg_pnl": 17.12,
+          "top5_day_pct": 389.0
+        }
+      },
+      "IS_2025": {
+        "n": 52,
+        "wr": 59.6,
+        "total_pnl": 546.8,
+        "avg_pnl": 10.52,
+        "top5_day_pct": 406.0
+      },
+      "OOS_2026": {
+        "n": 23,
+        "wr": 65.2,
+        "total_pnl": -288.6,
+        "avg_pnl": -12.55,
+        "top5_day_pct": null
+      },
+      "oos_per_trade": -12.55,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 11,
+          "wr": 45.5,
+          "total_pnl": -1083.2,
+          "avg_pnl": -98.47,
+          "top5_day_pct": null
+        },
+        "2025Q2": {
+          "n": 11,
+          "wr": 63.6,
+          "total_pnl": 398.8,
+          "avg_pnl": 36.25,
+          "top5_day_pct": 400.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 66.7,
+          "total_pnl": 585.0,
+          "avg_pnl": 32.5,
+          "top5_day_pct": 265.0
+        },
+        "2025Q4": {
+          "n": 12,
+          "wr": 58.3,
+          "total_pnl": 646.2,
+          "avg_pnl": 53.85,
+          "top5_day_pct": 199.0
+        },
+        "2026Q1": {
+          "n": 14,
+          "wr": 42.9,
+          "total_pnl": -2681.8,
+          "avg_pnl": -191.56,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 100.0,
+          "total_pnl": 2393.2,
+          "avg_pnl": 265.91,
+          "top5_day_pct": 70.0
+        }
+      },
+      "positive_quarters": "4/6",
+      "pos_quarters_n": 4,
+      "top5_day_pct": 938.0,
+      "coverage": {
+        "cache_miss": 7,
+        "sim_none": 0,
+        "filled": 75,
+        "mean_actual_offset": -0.55
+      },
+      "clears_bar": false,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": -288.6,
+        "oos_drop_top1_day_total": -852.4,
+        "oos_top5_day_pct": null,
+        "is_fragile_survivor": false,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [
+        "oos_per_trade<=0 (-12.55)",
+        "top5_day_pct 938.0 >= 200.0"
+      ],
+      "config": "ITM2|stop=-0.99",
+      "strike_offset": -2,
+      "premium_stop_pct": -0.99
+    },
+    "ITM1|stop=-0.08": {
+      "overall": {
+        "n": 73,
+        "wr": 28.8,
+        "total_pnl": 1211.8,
+        "avg_pnl": 16.6,
+        "top5_day_pct": 154.0
+      },
+      "by_side": {
+        "C": {
+          "n": 48,
+          "wr": 27.1,
+          "total_pnl": 665.3,
+          "avg_pnl": 13.86,
+          "top5_day_pct": 227.0
+        },
+        "P": {
+          "n": 25,
+          "wr": 32.0,
+          "total_pnl": 546.5,
+          "avg_pnl": 21.86,
+          "top5_day_pct": 248.0
+        }
+      },
+      "IS_2025": {
+        "n": 50,
+        "wr": 34.0,
+        "total_pnl": 1557.0,
+        "avg_pnl": 31.14,
+        "top5_day_pct": 118.0
+      },
+      "OOS_2026": {
+        "n": 23,
+        "wr": 17.4,
+        "total_pnl": -345.2,
+        "avg_pnl": -15.01,
+        "top5_day_pct": null
+      },
+      "oos_per_trade": -15.01,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 10,
+          "wr": 40.0,
+          "total_pnl": 540.4,
+          "avg_pnl": 54.04,
+          "top5_day_pct": 186.0
+        },
+        "2025Q2": {
+          "n": 10,
+          "wr": 40.0,
+          "total_pnl": 607.8,
+          "avg_pnl": 60.78,
+          "top5_day_pct": 161.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 38.9,
+          "total_pnl": 677.4,
+          "avg_pnl": 37.63,
+          "top5_day_pct": 143.0
+        },
+        "2025Q4": {
+          "n": 12,
+          "wr": 16.7,
+          "total_pnl": -268.6,
+          "avg_pnl": -22.38,
+          "top5_day_pct": null
+        },
+        "2026Q1": {
+          "n": 14,
+          "wr": 21.4,
+          "total_pnl": -50.1,
+          "avg_pnl": -3.58,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 11.1,
+          "total_pnl": -295.1,
+          "avg_pnl": -32.79,
+          "top5_day_pct": null
+        }
+      },
+      "positive_quarters": "3/6",
+      "pos_quarters_n": 3,
+      "top5_day_pct": 154.0,
+      "coverage": {
+        "cache_miss": 9,
+        "sim_none": 0,
+        "filled": 73,
+        "mean_actual_offset": -0.26
+      },
+      "clears_bar": false,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": -345.2,
+        "oos_drop_top1_day_total": -623.4,
+        "oos_top5_day_pct": null,
+        "is_fragile_survivor": false,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [
+        "oos_per_trade<=0 (-15.01)",
+        "pos_quarters 3/6 < 4"
+      ],
+      "config": "ITM1|stop=-0.08",
+      "strike_offset": -1,
+      "premium_stop_pct": -0.08
+    },
+    "ITM1|stop=-0.2": {
+      "overall": {
+        "n": 73,
+        "wr": 45.2,
+        "total_pnl": 496.0,
+        "avg_pnl": 6.79,
+        "top5_day_pct": 396.0
+      },
+      "by_side": {
+        "C": {
+          "n": 48,
+          "wr": 41.7,
+          "total_pnl": -149.6,
+          "avg_pnl": -3.12,
+          "top5_day_pct": null
+        },
+        "P": {
+          "n": 25,
+          "wr": 52.0,
+          "total_pnl": 645.6,
+          "avg_pnl": 25.82,
+          "top5_day_pct": 233.0
+        }
+      },
+      "IS_2025": {
+        "n": 50,
+        "wr": 50.0,
+        "total_pnl": 1375.2,
+        "avg_pnl": 27.5,
+        "top5_day_pct": 143.0
+      },
+      "OOS_2026": {
+        "n": 23,
+        "wr": 34.8,
+        "total_pnl": -879.2,
+        "avg_pnl": -38.23,
+        "top5_day_pct": null
+      },
+      "oos_per_trade": -38.23,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 10,
+          "wr": 50.0,
+          "total_pnl": 77.4,
+          "avg_pnl": 7.74,
+          "top5_day_pct": 1444.0
+        },
+        "2025Q2": {
+          "n": 10,
+          "wr": 60.0,
+          "total_pnl": 654.4,
+          "avg_pnl": 65.44,
+          "top5_day_pct": 182.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 44.4,
+          "total_pnl": 208.4,
+          "avg_pnl": 11.58,
+          "top5_day_pct": 471.0
+        },
+        "2025Q4": {
+          "n": 12,
+          "wr": 50.0,
+          "total_pnl": 435.0,
+          "avg_pnl": 36.25,
+          "top5_day_pct": 258.0
+        },
+        "2026Q1": {
+          "n": 14,
+          "wr": 28.6,
+          "total_pnl": -769.4,
+          "avg_pnl": -54.96,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 44.4,
+          "total_pnl": -109.8,
+          "avg_pnl": -12.2,
+          "top5_day_pct": null
+        }
+      },
+      "positive_quarters": "4/6",
+      "pos_quarters_n": 4,
+      "top5_day_pct": 396.0,
+      "coverage": {
+        "cache_miss": 9,
+        "sim_none": 0,
+        "filled": 73,
+        "mean_actual_offset": -0.26
+      },
+      "clears_bar": false,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": -879.2,
+        "oos_drop_top1_day_total": -1157.4,
+        "oos_top5_day_pct": null,
+        "is_fragile_survivor": false,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [
+        "oos_per_trade<=0 (-38.23)",
+        "top5_day_pct 396.0 >= 200.0"
+      ],
+      "config": "ITM1|stop=-0.2",
+      "strike_offset": -1,
+      "premium_stop_pct": -0.2
+    },
+    "ITM1|stop=-0.5": {
+      "overall": {
+        "n": 73,
+        "wr": 63.0,
+        "total_pnl": 1609.1,
+        "avg_pnl": 22.04,
+        "top5_day_pct": 144.0
+      },
+      "by_side": {
+        "C": {
+          "n": 48,
+          "wr": 60.4,
+          "total_pnl": 777.0,
+          "avg_pnl": 16.19,
+          "top5_day_pct": 269.0
+        },
+        "P": {
+          "n": 25,
+          "wr": 68.0,
+          "total_pnl": 832.1,
+          "avg_pnl": 33.28,
+          "top5_day_pct": 195.0
+        }
+      },
+      "IS_2025": {
+        "n": 50,
+        "wr": 62.0,
+        "total_pnl": 1110.8,
+        "avg_pnl": 22.22,
+        "top5_day_pct": 187.0
+      },
+      "OOS_2026": {
+        "n": 23,
+        "wr": 65.2,
+        "total_pnl": 498.3,
+        "avg_pnl": 21.67,
+        "top5_day_pct": 334.0
+      },
+      "oos_per_trade": 21.67,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 10,
+          "wr": 50.0,
+          "total_pnl": -667.2,
+          "avg_pnl": -66.72,
+          "top5_day_pct": null
+        },
+        "2025Q2": {
+          "n": 10,
+          "wr": 70.0,
+          "total_pnl": 636.0,
+          "avg_pnl": 63.6,
+          "top5_day_pct": 222.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 66.7,
+          "total_pnl": 563.9,
+          "avg_pnl": 31.33,
+          "top5_day_pct": 257.0
+        },
+        "2025Q4": {
+          "n": 12,
+          "wr": 58.3,
+          "total_pnl": 578.1,
+          "avg_pnl": 48.18,
+          "top5_day_pct": 203.0
+        },
+        "2026Q1": {
+          "n": 14,
+          "wr": 42.9,
+          "total_pnl": -1525.1,
+          "avg_pnl": -108.94,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 100.0,
+          "total_pnl": 2023.4,
+          "avg_pnl": 224.82,
+          "top5_day_pct": 73.0
+        }
+      },
+      "positive_quarters": "4/6",
+      "pos_quarters_n": 4,
+      "top5_day_pct": 144.0,
+      "coverage": {
+        "cache_miss": 9,
+        "sim_none": 0,
+        "filled": 73,
+        "mean_actual_offset": -0.26
+      },
+      "clears_bar": true,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": 498.3,
+        "oos_drop_top1_day_total": -65.5,
+        "oos_top5_day_pct": 334.0,
+        "is_fragile_survivor": true,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [],
+      "config": "ITM1|stop=-0.5",
+      "strike_offset": -1,
+      "premium_stop_pct": -0.5,
+      "exit_minisweep": {
+        "best": {
+          "tp1_premium_pct": 0.5,
+          "runner_target_premium_pct": 2.0,
+          "chandelier_trail_pct": null,
+          "overall_per_trade": 14.01,
+          "overall_total": 1022.5,
+          "oos_per_trade": 26.04,
+          "pos_quarters": 4,
+          "top5_day_pct": 274.0
+        },
+        "all": [
+          {
+            "tp1_premium_pct": 0.3,
+            "runner_target_premium_pct": 2.0,
+            "chandelier_trail_pct": null,
+            "overall_per_trade": 22.04,
+            "overall_total": 1609.1,
+            "oos_per_trade": 21.67,
+            "pos_quarters": 4,
+            "top5_day_pct": 144.0
+          },
+          {
+            "tp1_premium_pct": 0.3,
+            "runner_target_premium_pct": 2.0,
+            "chandelier_trail_pct": 0.2,
+            "overall_per_trade": -8.71,
+            "overall_total": -636.0,
+            "oos_per_trade": -44.84,
+            "pos_quarters": 3,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.3,
+            "runner_target_premium_pct": 2.5,
+            "chandelier_trail_pct": null,
+            "overall_per_trade": 22.04,
+            "overall_total": 1609.1,
+            "oos_per_trade": 21.67,
+            "pos_quarters": 4,
+            "top5_day_pct": 144.0
+          },
+          {
+            "tp1_premium_pct": 0.3,
+            "runner_target_premium_pct": 2.5,
+            "chandelier_trail_pct": 0.2,
+            "overall_per_trade": -8.71,
+            "overall_total": -636.0,
+            "oos_per_trade": -44.84,
+            "pos_quarters": 3,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.3,
+            "runner_target_premium_pct": 3.0,
+            "chandelier_trail_pct": null,
+            "overall_per_trade": 22.04,
+            "overall_total": 1609.1,
+            "oos_per_trade": 21.67,
+            "pos_quarters": 4,
+            "top5_day_pct": 144.0
+          },
+          {
+            "tp1_premium_pct": 0.3,
+            "runner_target_premium_pct": 3.0,
+            "chandelier_trail_pct": 0.2,
+            "overall_per_trade": -8.71,
+            "overall_total": -636.0,
+            "oos_per_trade": -44.84,
+            "pos_quarters": 3,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.5,
+            "runner_target_premium_pct": 2.0,
+            "chandelier_trail_pct": null,
+            "overall_per_trade": 14.01,
+            "overall_total": 1022.5,
+            "oos_per_trade": 26.04,
+            "pos_quarters": 4,
+            "top5_day_pct": 274.0
+          },
+          {
+            "tp1_premium_pct": 0.5,
+            "runner_target_premium_pct": 2.0,
+            "chandelier_trail_pct": 0.2,
+            "overall_per_trade": -9.2,
+            "overall_total": -671.4,
+            "oos_per_trade": -44.84,
+            "pos_quarters": 3,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.5,
+            "runner_target_premium_pct": 2.5,
+            "chandelier_trail_pct": null,
+            "overall_per_trade": 14.01,
+            "overall_total": 1022.5,
+            "oos_per_trade": 26.04,
+            "pos_quarters": 4,
+            "top5_day_pct": 274.0
+          },
+          {
+            "tp1_premium_pct": 0.5,
+            "runner_target_premium_pct": 2.5,
+            "chandelier_trail_pct": 0.2,
+            "overall_per_trade": -9.2,
+            "overall_total": -671.4,
+            "oos_per_trade": -44.84,
+            "pos_quarters": 3,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.5,
+            "runner_target_premium_pct": 3.0,
+            "chandelier_trail_pct": null,
+            "overall_per_trade": 14.01,
+            "overall_total": 1022.5,
+            "oos_per_trade": 26.04,
+            "pos_quarters": 4,
+            "top5_day_pct": 274.0
+          },
+          {
+            "tp1_premium_pct": 0.5,
+            "runner_target_premium_pct": 3.0,
+            "chandelier_trail_pct": 0.2,
+            "overall_per_trade": -9.2,
+            "overall_total": -671.4,
+            "oos_per_trade": -44.84,
+            "pos_quarters": 3,
+            "top5_day_pct": null
+          }
+        ]
+      }
+    },
+    "ITM1|stop=-0.99": {
+      "overall": {
+        "n": 73,
+        "wr": 63.0,
+        "total_pnl": 683.6,
+        "avg_pnl": 9.36,
+        "top5_day_pct": 340.0
+      },
+      "by_side": {
+        "C": {
+          "n": 48,
+          "wr": 60.4,
+          "total_pnl": 24.0,
+          "avg_pnl": 0.5,
+          "top5_day_pct": 8699.0
+        },
+        "P": {
+          "n": 25,
+          "wr": 68.0,
+          "total_pnl": 659.6,
+          "avg_pnl": 26.38,
+          "top5_day_pct": 246.0
+        }
+      },
+      "IS_2025": {
+        "n": 50,
+        "wr": 62.0,
+        "total_pnl": 942.8,
+        "avg_pnl": 18.86,
+        "top5_day_pct": 221.0
+      },
+      "OOS_2026": {
+        "n": 23,
+        "wr": 65.2,
+        "total_pnl": -259.2,
+        "avg_pnl": -11.27,
+        "top5_day_pct": null
+      },
+      "oos_per_trade": -11.27,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 10,
+          "wr": 50.0,
+          "total_pnl": -685.2,
+          "avg_pnl": -68.52,
+          "top5_day_pct": null
+        },
+        "2025Q2": {
+          "n": 10,
+          "wr": 70.0,
+          "total_pnl": 636.0,
+          "avg_pnl": 63.6,
+          "top5_day_pct": 222.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 66.7,
+          "total_pnl": 457.4,
+          "avg_pnl": 25.41,
+          "top5_day_pct": 317.0
+        },
+        "2025Q4": {
+          "n": 12,
+          "wr": 58.3,
+          "total_pnl": 534.6,
+          "avg_pnl": 44.55,
+          "top5_day_pct": 219.0
+        },
+        "2026Q1": {
+          "n": 14,
+          "wr": 42.9,
+          "total_pnl": -2282.6,
+          "avg_pnl": -163.04,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 100.0,
+          "total_pnl": 2023.4,
+          "avg_pnl": 224.82,
+          "top5_day_pct": 73.0
+        }
+      },
+      "positive_quarters": "4/6",
+      "pos_quarters_n": 4,
+      "top5_day_pct": 340.0,
+      "coverage": {
+        "cache_miss": 9,
+        "sim_none": 0,
+        "filled": 73,
+        "mean_actual_offset": -0.26
+      },
+      "clears_bar": false,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": -259.2,
+        "oos_drop_top1_day_total": -823.0,
+        "oos_top5_day_pct": null,
+        "is_fragile_survivor": false,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [
+        "oos_per_trade<=0 (-11.27)",
+        "top5_day_pct 340.0 >= 200.0"
+      ],
+      "config": "ITM1|stop=-0.99",
+      "strike_offset": -1,
+      "premium_stop_pct": -0.99
+    },
+    "ATM|stop=-0.08": {
+      "overall": {
+        "n": 74,
+        "wr": 31.1,
+        "total_pnl": 892.8,
+        "avg_pnl": 12.06,
+        "top5_day_pct": 170.0
+      },
+      "by_side": {
+        "C": {
+          "n": 48,
+          "wr": 29.2,
+          "total_pnl": 412.1,
+          "avg_pnl": 8.59,
+          "top5_day_pct": 266.0
+        },
+        "P": {
+          "n": 26,
+          "wr": 34.6,
+          "total_pnl": 480.7,
+          "avg_pnl": 18.49,
+          "top5_day_pct": 246.0
+        }
+      },
+      "IS_2025": {
+        "n": 51,
+        "wr": 37.3,
+        "total_pnl": 1128.0,
+        "avg_pnl": 22.12,
+        "top5_day_pct": 125.0
+      },
+      "OOS_2026": {
+        "n": 23,
+        "wr": 17.4,
+        "total_pnl": -235.2,
+        "avg_pnl": -10.23,
+        "top5_day_pct": null
+      },
+      "oos_per_trade": -10.23,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 10,
+          "wr": 40.0,
+          "total_pnl": 128.6,
+          "avg_pnl": 12.86,
+          "top5_day_pct": 418.0
+        },
+        "2025Q2": {
+          "n": 10,
+          "wr": 40.0,
+          "total_pnl": 588.5,
+          "avg_pnl": 58.85,
+          "top5_day_pct": 149.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 33.3,
+          "total_pnl": 378.6,
+          "avg_pnl": 21.04,
+          "top5_day_pct": 184.0
+        },
+        "2025Q4": {
+          "n": 13,
+          "wr": 38.5,
+          "total_pnl": 32.3,
+          "avg_pnl": 2.48,
+          "top5_day_pct": 1481.0
+        },
+        "2026Q1": {
+          "n": 14,
+          "wr": 21.4,
+          "total_pnl": -25.8,
+          "avg_pnl": -1.85,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 11.1,
+          "total_pnl": -209.4,
+          "avg_pnl": -23.27,
+          "top5_day_pct": null
+        }
+      },
+      "positive_quarters": "4/6",
+      "pos_quarters_n": 4,
+      "top5_day_pct": 170.0,
+      "coverage": {
+        "cache_miss": 8,
+        "sim_none": 0,
+        "filled": 74,
+        "mean_actual_offset": 0.01
+      },
+      "clears_bar": false,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": -235.2,
+        "oos_drop_top1_day_total": -486.6,
+        "oos_top5_day_pct": null,
+        "is_fragile_survivor": false,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [
+        "oos_per_trade<=0 (-10.23)"
+      ],
+      "config": "ATM|stop=-0.08",
+      "strike_offset": 0,
+      "premium_stop_pct": -0.08
+    },
+    "ATM|stop=-0.2": {
+      "overall": {
+        "n": 74,
+        "wr": 44.6,
+        "total_pnl": -72.2,
+        "avg_pnl": -0.98,
+        "top5_day_pct": null
+      },
+      "by_side": {
+        "C": {
+          "n": 48,
+          "wr": 41.7,
+          "total_pnl": -286.6,
+          "avg_pnl": -5.97,
+          "top5_day_pct": null
+        },
+        "P": {
+          "n": 26,
+          "wr": 50.0,
+          "total_pnl": 214.4,
+          "avg_pnl": 8.25,
+          "top5_day_pct": 621.0
+        }
+      },
+      "IS_2025": {
+        "n": 51,
+        "wr": 49.0,
+        "total_pnl": 608.0,
+        "avg_pnl": 11.92,
+        "top5_day_pct": 267.0
+      },
+      "OOS_2026": {
+        "n": 23,
+        "wr": 34.8,
+        "total_pnl": -680.2,
+        "avg_pnl": -29.57,
+        "top5_day_pct": null
+      },
+      "oos_per_trade": -29.57,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 10,
+          "wr": 40.0,
+          "total_pnl": -483.8,
+          "avg_pnl": -48.38,
+          "top5_day_pct": null
+        },
+        "2025Q2": {
+          "n": 10,
+          "wr": 50.0,
+          "total_pnl": 279.4,
+          "avg_pnl": 27.94,
+          "top5_day_pct": 338.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 44.4,
+          "total_pnl": 267.8,
+          "avg_pnl": 14.88,
+          "top5_day_pct": 305.0
+        },
+        "2025Q4": {
+          "n": 13,
+          "wr": 61.5,
+          "total_pnl": 544.6,
+          "avg_pnl": 41.89,
+          "top5_day_pct": 182.0
+        },
+        "2026Q1": {
+          "n": 14,
+          "wr": 28.6,
+          "total_pnl": -610.0,
+          "avg_pnl": -43.57,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 44.4,
+          "total_pnl": -70.2,
+          "avg_pnl": -7.8,
+          "top5_day_pct": null
+        }
+      },
+      "positive_quarters": "3/6",
+      "pos_quarters_n": 3,
+      "top5_day_pct": null,
+      "coverage": {
+        "cache_miss": 8,
+        "sim_none": 0,
+        "filled": 74,
+        "mean_actual_offset": 0.01
+      },
+      "clears_bar": false,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": -680.2,
+        "oos_drop_top1_day_total": -931.6,
+        "oos_top5_day_pct": null,
+        "is_fragile_survivor": false,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [
+        "oos_per_trade<=0 (-29.57)",
+        "pos_quarters 3/6 < 4",
+        "top5_undefined (total<=0)"
+      ],
+      "config": "ATM|stop=-0.2",
+      "strike_offset": 0,
+      "premium_stop_pct": -0.2
+    },
+    "ATM|stop=-0.5": {
+      "overall": {
+        "n": 74,
+        "wr": 63.5,
+        "total_pnl": 540.1,
+        "avg_pnl": 7.3,
+        "top5_day_pct": 373.0
+      },
+      "by_side": {
+        "C": {
+          "n": 48,
+          "wr": 60.4,
+          "total_pnl": 204.9,
+          "avg_pnl": 4.27,
+          "top5_day_pct": 834.0
+        },
+        "P": {
+          "n": 26,
+          "wr": 69.2,
+          "total_pnl": 335.2,
+          "avg_pnl": 12.89,
+          "top5_day_pct": 416.0
+        }
+      },
+      "IS_2025": {
+        "n": 51,
+        "wr": 62.7,
+        "total_pnl": 272.4,
+        "avg_pnl": 5.34,
+        "top5_day_pct": 655.0
+      },
+      "OOS_2026": {
+        "n": 23,
+        "wr": 65.2,
+        "total_pnl": 267.7,
+        "avg_pnl": 11.64,
+        "top5_day_pct": 503.0
+      },
+      "oos_per_trade": 11.64,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 10,
+          "wr": 50.0,
+          "total_pnl": -1067.6,
+          "avg_pnl": -106.76,
+          "top5_day_pct": null
+        },
+        "2025Q2": {
+          "n": 10,
+          "wr": 70.0,
+          "total_pnl": 504.5,
+          "avg_pnl": 50.45,
+          "top5_day_pct": 246.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 61.1,
+          "total_pnl": 313.4,
+          "avg_pnl": 17.41,
+          "top5_day_pct": 380.0
+        },
+        "2025Q4": {
+          "n": 13,
+          "wr": 69.2,
+          "total_pnl": 522.1,
+          "avg_pnl": 40.16,
+          "top5_day_pct": 199.0
+        },
+        "2026Q1": {
+          "n": 14,
+          "wr": 42.9,
+          "total_pnl": -1238.5,
+          "avg_pnl": -88.46,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 100.0,
+          "total_pnl": 1506.2,
+          "avg_pnl": 167.36,
+          "top5_day_pct": 75.0
+        }
+      },
+      "positive_quarters": "4/6",
+      "pos_quarters_n": 4,
+      "top5_day_pct": 373.0,
+      "coverage": {
+        "cache_miss": 8,
+        "sim_none": 0,
+        "filled": 74,
+        "mean_actual_offset": 0.01
+      },
+      "clears_bar": false,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": 267.7,
+        "oos_drop_top1_day_total": -216.3,
+        "oos_top5_day_pct": 503.0,
+        "is_fragile_survivor": true,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [
+        "top5_day_pct 373.0 >= 200.0"
+      ],
+      "config": "ATM|stop=-0.5",
+      "strike_offset": 0,
+      "premium_stop_pct": -0.5,
+      "exit_minisweep": {
+        "best": {
+          "tp1_premium_pct": 0.3,
+          "runner_target_premium_pct": 2.0,
+          "chandelier_trail_pct": null,
+          "overall_per_trade": 7.3,
+          "overall_total": 540.1,
+          "oos_per_trade": 11.64,
+          "pos_quarters": 4,
+          "top5_day_pct": 373.0
+        },
+        "all": [
+          {
+            "tp1_premium_pct": 0.3,
+            "runner_target_premium_pct": 2.0,
+            "chandelier_trail_pct": null,
+            "overall_per_trade": 7.3,
+            "overall_total": 540.1,
+            "oos_per_trade": 11.64,
+            "pos_quarters": 4,
+            "top5_day_pct": 373.0
+          },
+          {
+            "tp1_premium_pct": 0.3,
+            "runner_target_premium_pct": 2.0,
+            "chandelier_trail_pct": 0.2,
+            "overall_per_trade": -4.46,
+            "overall_total": -329.8,
+            "oos_per_trade": -35.52,
+            "pos_quarters": 5,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.3,
+            "runner_target_premium_pct": 2.5,
+            "chandelier_trail_pct": null,
+            "overall_per_trade": 7.3,
+            "overall_total": 540.1,
+            "oos_per_trade": 11.64,
+            "pos_quarters": 4,
+            "top5_day_pct": 373.0
+          },
+          {
+            "tp1_premium_pct": 0.3,
+            "runner_target_premium_pct": 2.5,
+            "chandelier_trail_pct": 0.2,
+            "overall_per_trade": -4.46,
+            "overall_total": -329.8,
+            "oos_per_trade": -35.52,
+            "pos_quarters": 5,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.3,
+            "runner_target_premium_pct": 3.0,
+            "chandelier_trail_pct": null,
+            "overall_per_trade": 7.3,
+            "overall_total": 540.1,
+            "oos_per_trade": 11.64,
+            "pos_quarters": 4,
+            "top5_day_pct": 373.0
+          },
+          {
+            "tp1_premium_pct": 0.3,
+            "runner_target_premium_pct": 3.0,
+            "chandelier_trail_pct": 0.2,
+            "overall_per_trade": -4.46,
+            "overall_total": -329.8,
+            "oos_per_trade": -35.52,
+            "pos_quarters": 5,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.5,
+            "runner_target_premium_pct": 2.0,
+            "chandelier_trail_pct": null,
+            "overall_per_trade": -1.44,
+            "overall_total": -106.5,
+            "oos_per_trade": 6.72,
+            "pos_quarters": 3,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.5,
+            "runner_target_premium_pct": 2.0,
+            "chandelier_trail_pct": 0.2,
+            "overall_per_trade": -5.94,
+            "overall_total": -439.6,
+            "oos_per_trade": -35.52,
+            "pos_quarters": 4,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.5,
+            "runner_target_premium_pct": 2.5,
+            "chandelier_trail_pct": null,
+            "overall_per_trade": -1.44,
+            "overall_total": -106.5,
+            "oos_per_trade": 6.72,
+            "pos_quarters": 3,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.5,
+            "runner_target_premium_pct": 2.5,
+            "chandelier_trail_pct": 0.2,
+            "overall_per_trade": -5.94,
+            "overall_total": -439.6,
+            "oos_per_trade": -35.52,
+            "pos_quarters": 4,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.5,
+            "runner_target_premium_pct": 3.0,
+            "chandelier_trail_pct": null,
+            "overall_per_trade": -1.44,
+            "overall_total": -106.5,
+            "oos_per_trade": 6.72,
+            "pos_quarters": 3,
+            "top5_day_pct": null
+          },
+          {
+            "tp1_premium_pct": 0.5,
+            "runner_target_premium_pct": 3.0,
+            "chandelier_trail_pct": 0.2,
+            "overall_per_trade": -5.94,
+            "overall_total": -439.6,
+            "oos_per_trade": -35.52,
+            "pos_quarters": 4,
+            "top5_day_pct": null
+          }
+        ]
+      }
+    },
+    "ATM|stop=-0.99": {
+      "overall": {
+        "n": 74,
+        "wr": 64.9,
+        "total_pnl": -180.8,
+        "avg_pnl": -2.44,
+        "top5_day_pct": null
+      },
+      "by_side": {
+        "C": {
+          "n": 48,
+          "wr": 62.5,
+          "total_pnl": -432.0,
+          "avg_pnl": -9.0,
+          "top5_day_pct": null
+        },
+        "P": {
+          "n": 26,
+          "wr": 69.2,
+          "total_pnl": 251.2,
+          "avg_pnl": 9.66,
+          "top5_day_pct": 556.0
+        }
+      },
+      "IS_2025": {
+        "n": 51,
+        "wr": 64.7,
+        "total_pnl": 267.0,
+        "avg_pnl": 5.24,
+        "top5_day_pct": 668.0
+      },
+      "OOS_2026": {
+        "n": 23,
+        "wr": 65.2,
+        "total_pnl": -447.8,
+        "avg_pnl": -19.47,
+        "top5_day_pct": null
+      },
+      "oos_per_trade": -19.47,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 10,
+          "wr": 50.0,
+          "total_pnl": -1085.6,
+          "avg_pnl": -108.56,
+          "top5_day_pct": null
+        },
+        "2025Q2": {
+          "n": 10,
+          "wr": 70.0,
+          "total_pnl": 506.0,
+          "avg_pnl": 50.6,
+          "top5_day_pct": 246.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 66.7,
+          "total_pnl": 281.0,
+          "avg_pnl": 15.61,
+          "top5_day_pct": 424.0
+        },
+        "2025Q4": {
+          "n": 13,
+          "wr": 69.2,
+          "total_pnl": 565.6,
+          "avg_pnl": 43.51,
+          "top5_day_pct": 184.0
+        },
+        "2026Q1": {
+          "n": 14,
+          "wr": 42.9,
+          "total_pnl": -1954.0,
+          "avg_pnl": -139.57,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 100.0,
+          "total_pnl": 1506.2,
+          "avg_pnl": 167.36,
+          "top5_day_pct": 75.0
+        }
+      },
+      "positive_quarters": "4/6",
+      "pos_quarters_n": 4,
+      "top5_day_pct": null,
+      "coverage": {
+        "cache_miss": 8,
+        "sim_none": 0,
+        "filled": 74,
+        "mean_actual_offset": 0.01
+      },
+      "clears_bar": false,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": -447.8,
+        "oos_drop_top1_day_total": -931.8,
+        "oos_top5_day_pct": null,
+        "is_fragile_survivor": false,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [
+        "oos_per_trade<=0 (-19.47)",
+        "top5_undefined (total<=0)"
+      ],
+      "config": "ATM|stop=-0.99",
+      "strike_offset": 0,
+      "premium_stop_pct": -0.99
+    },
+    "OTM1|stop=-0.08": {
+      "overall": {
+        "n": 73,
+        "wr": 31.5,
+        "total_pnl": 1044.7,
+        "avg_pnl": 14.31,
+        "top5_day_pct": 132.0
+      },
+      "by_side": {
+        "C": {
+          "n": 49,
+          "wr": 28.6,
+          "total_pnl": 383.0,
+          "avg_pnl": 7.82,
+          "top5_day_pct": 238.0
+        },
+        "P": {
+          "n": 24,
+          "wr": 37.5,
+          "total_pnl": 661.7,
+          "avg_pnl": 27.57,
+          "top5_day_pct": 159.0
+        }
+      },
+      "IS_2025": {
+        "n": 49,
+        "wr": 38.8,
+        "total_pnl": 1193.4,
+        "avg_pnl": 24.35,
+        "top5_day_pct": 106.0
+      },
+      "OOS_2026": {
+        "n": 24,
+        "wr": 16.7,
+        "total_pnl": -148.6,
+        "avg_pnl": -6.19,
+        "top5_day_pct": null
+      },
+      "oos_per_trade": -6.19,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 9,
+          "wr": 44.4,
+          "total_pnl": 153.0,
+          "avg_pnl": 17.0,
+          "top5_day_pct": 258.0
+        },
+        "2025Q2": {
+          "n": 10,
+          "wr": 40.0,
+          "total_pnl": 572.2,
+          "avg_pnl": 57.22,
+          "top5_day_pct": 139.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 33.3,
+          "total_pnl": 272.0,
+          "avg_pnl": 15.11,
+          "top5_day_pct": 189.0
+        },
+        "2025Q4": {
+          "n": 12,
+          "wr": 41.7,
+          "total_pnl": 196.2,
+          "avg_pnl": 16.35,
+          "top5_day_pct": 229.0
+        },
+        "2026Q1": {
+          "n": 15,
+          "wr": 20.0,
+          "total_pnl": -9.0,
+          "avg_pnl": -0.6,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 11.1,
+          "total_pnl": -139.7,
+          "avg_pnl": -15.52,
+          "top5_day_pct": null
+        }
+      },
+      "positive_quarters": "4/6",
+      "pos_quarters_n": 4,
+      "top5_day_pct": 132.0,
+      "coverage": {
+        "cache_miss": 9,
+        "sim_none": 0,
+        "filled": 73,
+        "mean_actual_offset": 0.25
+      },
+      "clears_bar": false,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": -148.6,
+        "oos_drop_top1_day_total": -400.0,
+        "oos_top5_day_pct": null,
+        "is_fragile_survivor": false,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [
+        "oos_per_trade<=0 (-6.19)"
+      ],
+      "config": "OTM1|stop=-0.08",
+      "strike_offset": 1,
+      "premium_stop_pct": -0.08
+    },
+    "OTM1|stop=-0.2": {
+      "overall": {
+        "n": 73,
+        "wr": 38.4,
+        "total_pnl": -605.6,
+        "avg_pnl": -8.3,
+        "top5_day_pct": null
+      },
+      "by_side": {
+        "C": {
+          "n": 49,
+          "wr": 36.7,
+          "total_pnl": -513.6,
+          "avg_pnl": -10.48,
+          "top5_day_pct": null
+        },
+        "P": {
+          "n": 24,
+          "wr": 41.7,
+          "total_pnl": -92.0,
+          "avg_pnl": -3.83,
+          "top5_day_pct": null
+        }
+      },
+      "IS_2025": {
+        "n": 49,
+        "wr": 44.9,
+        "total_pnl": 267.6,
+        "avg_pnl": 5.46,
+        "top5_day_pct": 507.0
+      },
+      "OOS_2026": {
+        "n": 24,
+        "wr": 25.0,
+        "total_pnl": -873.2,
+        "avg_pnl": -36.38,
+        "top5_day_pct": null
+      },
+      "oos_per_trade": -36.38,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 9,
+          "wr": 44.4,
+          "total_pnl": -210.6,
+          "avg_pnl": -23.4,
+          "top5_day_pct": null
+        },
+        "2025Q2": {
+          "n": 10,
+          "wr": 40.0,
+          "total_pnl": 241.0,
+          "avg_pnl": 24.1,
+          "top5_day_pct": 329.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 38.9,
+          "total_pnl": 14.8,
+          "avg_pnl": 0.82,
+          "top5_day_pct": 3947.0
+        },
+        "2025Q4": {
+          "n": 12,
+          "wr": 58.3,
+          "total_pnl": 222.4,
+          "avg_pnl": 18.53,
+          "top5_day_pct": 296.0
+        },
+        "2026Q1": {
+          "n": 15,
+          "wr": 20.0,
+          "total_pnl": -721.4,
+          "avg_pnl": -48.09,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 33.3,
+          "total_pnl": -151.8,
+          "avg_pnl": -16.87,
+          "top5_day_pct": null
+        }
+      },
+      "positive_quarters": "3/6",
+      "pos_quarters_n": 3,
+      "top5_day_pct": null,
+      "coverage": {
+        "cache_miss": 9,
+        "sim_none": 0,
+        "filled": 73,
+        "mean_actual_offset": 0.25
+      },
+      "clears_bar": false,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": -873.2,
+        "oos_drop_top1_day_total": -1124.6,
+        "oos_top5_day_pct": null,
+        "is_fragile_survivor": false,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [
+        "oos_per_trade<=0 (-36.38)",
+        "pos_quarters 3/6 < 4",
+        "top5_undefined (total<=0)"
+      ],
+      "config": "OTM1|stop=-0.2",
+      "strike_offset": 1,
+      "premium_stop_pct": -0.2
+    },
+    "OTM1|stop=-0.5": {
+      "overall": {
+        "n": 73,
+        "wr": 64.4,
+        "total_pnl": 104.6,
+        "avg_pnl": 1.43,
+        "top5_day_pct": 1650.0
+      },
+      "by_side": {
+        "C": {
+          "n": 49,
+          "wr": 61.2,
+          "total_pnl": -248.3,
+          "avg_pnl": -5.07,
+          "top5_day_pct": null
+        },
+        "P": {
+          "n": 24,
+          "wr": 70.8,
+          "total_pnl": 352.9,
+          "avg_pnl": 14.7,
+          "top5_day_pct": 323.0
+        }
+      },
+      "IS_2025": {
+        "n": 49,
+        "wr": 65.3,
+        "total_pnl": 286.5,
+        "avg_pnl": 5.85,
+        "top5_day_pct": 515.0
+      },
+      "OOS_2026": {
+        "n": 24,
+        "wr": 62.5,
+        "total_pnl": -181.9,
+        "avg_pnl": -7.58,
+        "top5_day_pct": null
+      },
+      "oos_per_trade": -7.58,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 9,
+          "wr": 55.6,
+          "total_pnl": -523.2,
+          "avg_pnl": -58.13,
+          "top5_day_pct": null
+        },
+        "2025Q2": {
+          "n": 10,
+          "wr": 70.0,
+          "total_pnl": 429.0,
+          "avg_pnl": 42.9,
+          "top5_day_pct": 250.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 61.1,
+          "total_pnl": -18.1,
+          "avg_pnl": -1.01,
+          "top5_day_pct": null
+        },
+        "2025Q4": {
+          "n": 12,
+          "wr": 75.0,
+          "total_pnl": 398.8,
+          "avg_pnl": 33.23,
+          "top5_day_pct": 186.0
+        },
+        "2026Q1": {
+          "n": 15,
+          "wr": 46.7,
+          "total_pnl": -988.4,
+          "avg_pnl": -65.89,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 88.9,
+          "total_pnl": 806.5,
+          "avg_pnl": 89.61,
+          "top5_day_pct": 100.0
+        }
+      },
+      "positive_quarters": "3/6",
+      "pos_quarters_n": 3,
+      "top5_day_pct": 1650.0,
+      "coverage": {
+        "cache_miss": 9,
+        "sim_none": 0,
+        "filled": 73,
+        "mean_actual_offset": 0.25
+      },
+      "clears_bar": false,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": -181.9,
+        "oos_drop_top1_day_total": -587.3,
+        "oos_top5_day_pct": null,
+        "is_fragile_survivor": false,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [
+        "oos_per_trade<=0 (-7.58)",
+        "pos_quarters 3/6 < 4",
+        "top5_day_pct 1650.0 >= 200.0"
+      ],
+      "config": "OTM1|stop=-0.5",
+      "strike_offset": 1,
+      "premium_stop_pct": -0.5
+    },
+    "OTM1|stop=-0.99": {
+      "overall": {
+        "n": 73,
+        "wr": 67.1,
+        "total_pnl": -211.2,
+        "avg_pnl": -2.89,
+        "top5_day_pct": null
+      },
+      "by_side": {
+        "C": {
+          "n": 49,
+          "wr": 65.3,
+          "total_pnl": -511.6,
+          "avg_pnl": -10.44,
+          "top5_day_pct": null
+        },
+        "P": {
+          "n": 24,
+          "wr": 70.8,
+          "total_pnl": 300.4,
+          "avg_pnl": 12.52,
+          "top5_day_pct": 379.0
+        }
+      },
+      "IS_2025": {
+        "n": 49,
+        "wr": 67.3,
+        "total_pnl": 119.4,
+        "avg_pnl": 2.44,
+        "top5_day_pct": 1236.0
+      },
+      "OOS_2026": {
+        "n": 24,
+        "wr": 66.7,
+        "total_pnl": -330.6,
+        "avg_pnl": -13.77,
+        "top5_day_pct": null
+      },
+      "oos_per_trade": -13.77,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 9,
+          "wr": 55.6,
+          "total_pnl": -541.2,
+          "avg_pnl": -60.13,
+          "top5_day_pct": null
+        },
+        "2025Q2": {
+          "n": 10,
+          "wr": 70.0,
+          "total_pnl": 402.0,
+          "avg_pnl": 40.2,
+          "top5_day_pct": 267.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 66.7,
+          "total_pnl": -128.2,
+          "avg_pnl": -7.12,
+          "top5_day_pct": null
+        },
+        "2025Q4": {
+          "n": 12,
+          "wr": 75.0,
+          "total_pnl": 386.8,
+          "avg_pnl": 32.23,
+          "top5_day_pct": 192.0
+        },
+        "2026Q1": {
+          "n": 15,
+          "wr": 46.7,
+          "total_pnl": -1477.4,
+          "avg_pnl": -98.49,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 100.0,
+          "total_pnl": 1146.8,
+          "avg_pnl": 127.42,
+          "top5_day_pct": 78.0
+        }
+      },
+      "positive_quarters": "3/6",
+      "pos_quarters_n": 3,
+      "top5_day_pct": null,
+      "coverage": {
+        "cache_miss": 9,
+        "sim_none": 0,
+        "filled": 73,
+        "mean_actual_offset": 0.25
+      },
+      "clears_bar": false,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": -330.6,
+        "oos_drop_top1_day_total": -736.0,
+        "oos_top5_day_pct": null,
+        "is_fragile_survivor": false,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [
+        "oos_per_trade<=0 (-13.77)",
+        "pos_quarters 3/6 < 4",
+        "top5_undefined (total<=0)"
+      ],
+      "config": "OTM1|stop=-0.99",
+      "strike_offset": 1,
+      "premium_stop_pct": -0.99
+    },
+    "OTM2|stop=-0.08": {
+      "overall": {
+        "n": 73,
+        "wr": 30.1,
+        "total_pnl": 546.2,
+        "avg_pnl": 7.48,
+        "top5_day_pct": 177.0
+      },
+      "by_side": {
+        "C": {
+          "n": 48,
+          "wr": 25.0,
+          "total_pnl": -80.2,
+          "avg_pnl": -1.67,
+          "top5_day_pct": null
+        },
+        "P": {
+          "n": 25,
+          "wr": 40.0,
+          "total_pnl": 626.5,
+          "avg_pnl": 25.06,
+          "top5_day_pct": 138.0
+        }
+      },
+      "IS_2025": {
+        "n": 50,
+        "wr": 38.0,
+        "total_pnl": 946.9,
+        "avg_pnl": 18.94,
+        "top5_day_pct": 102.0
+      },
+      "OOS_2026": {
+        "n": 23,
+        "wr": 13.0,
+        "total_pnl": -400.7,
+        "avg_pnl": -17.42,
+        "top5_day_pct": null
+      },
+      "oos_per_trade": -17.42,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 10,
+          "wr": 50.0,
+          "total_pnl": 244.3,
+          "avg_pnl": 24.43,
+          "top5_day_pct": 174.0
+        },
+        "2025Q2": {
+          "n": 10,
+          "wr": 40.0,
+          "total_pnl": 371.1,
+          "avg_pnl": 37.11,
+          "top5_day_pct": 147.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 27.8,
+          "total_pnl": 138.4,
+          "avg_pnl": 7.69,
+          "top5_day_pct": 252.0
+        },
+        "2025Q4": {
+          "n": 12,
+          "wr": 41.7,
+          "total_pnl": 193.1,
+          "avg_pnl": 16.09,
+          "top5_day_pct": 205.0
+        },
+        "2026Q1": {
+          "n": 14,
+          "wr": 14.3,
+          "total_pnl": -312.8,
+          "avg_pnl": -22.35,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 11.1,
+          "total_pnl": -87.8,
+          "avg_pnl": -9.76,
+          "top5_day_pct": null
+        }
+      },
+      "positive_quarters": "4/6",
+      "pos_quarters_n": 4,
+      "top5_day_pct": 177.0,
+      "coverage": {
+        "cache_miss": 9,
+        "sim_none": 0,
+        "filled": 73,
+        "mean_actual_offset": 0.49
+      },
+      "clears_bar": false,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": -400.7,
+        "oos_drop_top1_day_total": -478.7,
+        "oos_top5_day_pct": null,
+        "is_fragile_survivor": false,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [
+        "oos_per_trade<=0 (-17.42)"
+      ],
+      "config": "OTM2|stop=-0.08",
+      "strike_offset": 2,
+      "premium_stop_pct": -0.08
+    },
+    "OTM2|stop=-0.2": {
+      "overall": {
+        "n": 73,
+        "wr": 34.2,
+        "total_pnl": -1326.6,
+        "avg_pnl": -18.17,
+        "top5_day_pct": null
+      },
+      "by_side": {
+        "C": {
+          "n": 48,
+          "wr": 31.2,
+          "total_pnl": -1158.2,
+          "avg_pnl": -24.13,
+          "top5_day_pct": null
+        },
+        "P": {
+          "n": 25,
+          "wr": 40.0,
+          "total_pnl": -168.4,
+          "avg_pnl": -6.74,
+          "top5_day_pct": null
+        }
+      },
+      "IS_2025": {
+        "n": 50,
+        "wr": 44.0,
+        "total_pnl": -73.8,
+        "avg_pnl": -1.48,
+        "top5_day_pct": null
+      },
+      "OOS_2026": {
+        "n": 23,
+        "wr": 13.0,
+        "total_pnl": -1252.8,
+        "avg_pnl": -54.47,
+        "top5_day_pct": null
+      },
+      "oos_per_trade": -54.47,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 10,
+          "wr": 50.0,
+          "total_pnl": -28.2,
+          "avg_pnl": -2.82,
+          "top5_day_pct": null
+        },
+        "2025Q2": {
+          "n": 10,
+          "wr": 40.0,
+          "total_pnl": 109.4,
+          "avg_pnl": 10.94,
+          "top5_day_pct": 499.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 38.9,
+          "total_pnl": -99.8,
+          "avg_pnl": -5.54,
+          "top5_day_pct": null
+        },
+        "2025Q4": {
+          "n": 12,
+          "wr": 50.0,
+          "total_pnl": -55.2,
+          "avg_pnl": -4.6,
+          "top5_day_pct": null
+        },
+        "2026Q1": {
+          "n": 14,
+          "wr": 14.3,
+          "total_pnl": -916.2,
+          "avg_pnl": -65.44,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 11.1,
+          "total_pnl": -336.6,
+          "avg_pnl": -37.4,
+          "top5_day_pct": null
+        }
+      },
+      "positive_quarters": "1/6",
+      "pos_quarters_n": 1,
+      "top5_day_pct": null,
+      "coverage": {
+        "cache_miss": 9,
+        "sim_none": 0,
+        "filled": 73,
+        "mean_actual_offset": 0.49
+      },
+      "clears_bar": false,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": -1252.8,
+        "oos_drop_top1_day_total": -1330.8,
+        "oos_top5_day_pct": null,
+        "is_fragile_survivor": false,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [
+        "oos_per_trade<=0 (-54.47)",
+        "pos_quarters 1/6 < 4",
+        "top5_undefined (total<=0)"
+      ],
+      "config": "OTM2|stop=-0.2",
+      "strike_offset": 2,
+      "premium_stop_pct": -0.2
+    },
+    "OTM2|stop=-0.5": {
+      "overall": {
+        "n": 73,
+        "wr": 63.0,
+        "total_pnl": -1058.7,
+        "avg_pnl": -14.5,
+        "top5_day_pct": null
+      },
+      "by_side": {
+        "C": {
+          "n": 48,
+          "wr": 56.2,
+          "total_pnl": -1504.7,
+          "avg_pnl": -31.35,
+          "top5_day_pct": null
+        },
+        "P": {
+          "n": 25,
+          "wr": 76.0,
+          "total_pnl": 446.0,
+          "avg_pnl": 17.84,
+          "top5_day_pct": 212.0
+        }
+      },
+      "IS_2025": {
+        "n": 50,
+        "wr": 64.0,
+        "total_pnl": -435.6,
+        "avg_pnl": -8.71,
+        "top5_day_pct": null
+      },
+      "OOS_2026": {
+        "n": 23,
+        "wr": 60.9,
+        "total_pnl": -623.1,
+        "avg_pnl": -27.09,
+        "top5_day_pct": null
+      },
+      "oos_per_trade": -27.09,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 10,
+          "wr": 70.0,
+          "total_pnl": -258.6,
+          "avg_pnl": -25.86,
+          "top5_day_pct": null
+        },
+        "2025Q2": {
+          "n": 10,
+          "wr": 60.0,
+          "total_pnl": 88.7,
+          "avg_pnl": 8.87,
+          "top5_day_pct": 786.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 55.6,
+          "total_pnl": -499.4,
+          "avg_pnl": -27.74,
+          "top5_day_pct": null
+        },
+        "2025Q4": {
+          "n": 12,
+          "wr": 75.0,
+          "total_pnl": 233.7,
+          "avg_pnl": 19.48,
+          "top5_day_pct": 251.0
+        },
+        "2026Q1": {
+          "n": 14,
+          "wr": 42.9,
+          "total_pnl": -1156.2,
+          "avg_pnl": -82.59,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 88.9,
+          "total_pnl": 533.1,
+          "avg_pnl": 59.23,
+          "top5_day_pct": 113.0
+        }
+      },
+      "positive_quarters": "3/6",
+      "pos_quarters_n": 3,
+      "top5_day_pct": null,
+      "coverage": {
+        "cache_miss": 9,
+        "sim_none": 0,
+        "filled": 73,
+        "mean_actual_offset": 0.49
+      },
+      "clears_bar": false,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": -623.1,
+        "oos_drop_top1_day_total": -942.9,
+        "oos_top5_day_pct": null,
+        "is_fragile_survivor": false,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [
+        "oos_per_trade<=0 (-27.09)",
+        "pos_quarters 3/6 < 4",
+        "top5_undefined (total<=0)"
+      ],
+      "config": "OTM2|stop=-0.5",
+      "strike_offset": 2,
+      "premium_stop_pct": -0.5
+    },
+    "OTM2|stop=-0.99": {
+      "overall": {
+        "n": 73,
+        "wr": 68.5,
+        "total_pnl": -1244.6,
+        "avg_pnl": -17.05,
+        "top5_day_pct": null
+      },
+      "by_side": {
+        "C": {
+          "n": 48,
+          "wr": 64.6,
+          "total_pnl": -1564.6,
+          "avg_pnl": -32.6,
+          "top5_day_pct": null
+        },
+        "P": {
+          "n": 25,
+          "wr": 76.0,
+          "total_pnl": 320.0,
+          "avg_pnl": 12.8,
+          "top5_day_pct": 296.0
+        }
+      },
+      "IS_2025": {
+        "n": 50,
+        "wr": 70.0,
+        "total_pnl": -422.0,
+        "avg_pnl": -8.44,
+        "top5_day_pct": null
+      },
+      "OOS_2026": {
+        "n": 23,
+        "wr": 65.2,
+        "total_pnl": -822.6,
+        "avg_pnl": -35.77,
+        "top5_day_pct": null
+      },
+      "oos_per_trade": -35.77,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 10,
+          "wr": 70.0,
+          "total_pnl": -276.6,
+          "avg_pnl": -27.66,
+          "top5_day_pct": null
+        },
+        "2025Q2": {
+          "n": 10,
+          "wr": 70.0,
+          "total_pnl": 201.0,
+          "avg_pnl": 20.1,
+          "top5_day_pct": 379.0
+        },
+        "2025Q3": {
+          "n": 18,
+          "wr": 66.7,
+          "total_pnl": -536.6,
+          "avg_pnl": -29.81,
+          "top5_day_pct": null
+        },
+        "2025Q4": {
+          "n": 12,
+          "wr": 75.0,
+          "total_pnl": 190.2,
+          "avg_pnl": 15.85,
+          "top5_day_pct": 309.0
+        },
+        "2026Q1": {
+          "n": 14,
+          "wr": 42.9,
+          "total_pnl": -1597.2,
+          "avg_pnl": -114.09,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 9,
+          "wr": 100.0,
+          "total_pnl": 774.6,
+          "avg_pnl": 86.07,
+          "top5_day_pct": 81.0
+        }
+      },
+      "positive_quarters": "3/6",
+      "pos_quarters_n": 3,
+      "top5_day_pct": null,
+      "coverage": {
+        "cache_miss": 9,
+        "sim_none": 0,
+        "filled": 73,
+        "mean_actual_offset": 0.49
+      },
+      "clears_bar": false,
+      "clears_bar_robust": false,
+      "fragility": {
+        "oos_total": -822.6,
+        "oos_drop_top1_day_total": -1142.4,
+        "oos_top5_day_pct": null,
+        "is_fragile_survivor": false,
+        "note": "OOS rests on the single best day and/or OOS top-5 days exceed total OOS P&L \u2014 treat as a fragile survivor, NOT a clean edge (anti-pattern 2.10)."
+      },
+      "fail_reasons": [
+        "oos_per_trade<=0 (-35.77)",
+        "pos_quarters 3/6 < 4",
+        "top5_undefined (total<=0)"
+      ],
+      "config": "OTM2|stop=-0.99",
+      "strike_offset": 2,
+      "premium_stop_pct": -0.99
+    }
+  },
+  "DISCLOSURE": {
+    "authority": "real OPRA fills (C1) \u2014 the only WR/expectancy authority; supersedes BS-sim + SPY-direction proxies",
+    "per_trade": "expectancy (avg_pnl) reported per cell, NOT WR alone (OP-14)",
+    "is_oos": "IS=2025 calendar, OOS=2026 calendar (per-cut WF not re-run here; see gap-and-go-LIVE.json for expanding-anchor WF)",
+    "concentration": "top5_day_pct = top-5 POSITIVE days as % of total P&L (OP-20 #5)",
+    "positive_quarters": "out of 6 quarters (2025Q1..2026Q2)",
+    "bull_tilt": "direction split reported (by_side C vs P) \u2014 bull/bear asymmetry on options is real",
+    "proxy_strike_caveat": "L58: ATM/ITM not always cached; nearest-cached strike (within +-4) used by the sim (mirrors validated harness); cache_miss + mean_actual_offset disclosed in each cell's coverage block",
+    "no_cherry_pick": "anti-pattern 2.10: every cell's clears_bar + fail_reasons reported; a tiny-N / high-concentration / OOS-negative survivor is marked clears_bar=false",
+    "grid_search_disclosure": "20 (strike x stop) cells searched + exit mini-sweep on OOS+ cells; treat multiple-comparisons risk accordingly (DSR in gap-and-go-LIVE.json used n_trials=30)"
+  }
+}

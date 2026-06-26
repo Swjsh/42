@@ -1,3 +1,10 @@
 date,time_et,setup,reason,bull_score,bear_score,account,rule_version
 2026-06-02,13:24,DUAL_NEAR_MISS,bull_10/11_filter10_RED_bar+bear_8/10_vix_rising,10,8,aggressive,v15.2
 2026-06-18,12:48,BULLISH_RECLAIM_NEAR_MISS,bull_9/11_gate10_fail_bearish_bar_746.98_lt_open_747.18+blocked_by_first_entry_lock_premium_stop_11:04,9,3,aggressive,v15.2
+2026-06-22,13:42,BEARISH_REJECTION_RIDE_THE_RIBBON,9,no_triggers_fired,aggressive
+2026-06-22,14:57,aggressive,BULLISH_RECLAIM_RIDE_THE_RIBBON,8,4,near_miss_bull_8_of_11_blockers_ribbon_mixed_spread_tight_htf_bear,745.11,MIXED,17.4
+2026-06-24,11:09,BULLISH_RECLAIM_RIDE_THE_RIBBON,10,no_triggers_fired,739.65,18.23,BULL,150
+2026-06-24,13:21,BEARISH_REJECTION_RIDE_THE_RIBBON,4,9,19.19,BEAR,143,no_level_rejection_or_multi_day_confluence_trigger_on_bar,aggressive
+2026-06-25,11:12,BEARISH_REJECTION_RIDE_THE_RIBBON,bear_9/10_no_triggers_vix_19.26_rising,7,9,aggressive,v15.2
+2026-06-25,12:41,AGG_BEAR_NEAR_MISS_8/10,VIX_CACHED_DIR_BLOCKS_FILTER_8,BEAR,0,HOLD_DEV,aggressive
+2026-06-25,13:20,BEARISH_REJECTION_NEAR_MISS,bear_8/10_vix_filter8_cached_blocks_entry+ribbon_bear_94c_spreads_ok,5,8,aggressive,v15.2

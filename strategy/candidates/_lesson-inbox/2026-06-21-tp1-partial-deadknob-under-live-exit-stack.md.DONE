@@ -1,0 +1,37 @@
+# Lesson candidate — TP1 partial-out knob is near-dead under the LIVE vwap_continuation exit stack (chandelier/premium-stop binds first)
+
+date: 2026-06-21
+target_L: L176
+proposed_header: `## L176 -- 2026-06-21: An exit-target knob is a NEAR-DEAD knob when a dominant upstream exit (chandelier trailing-lock / premium-stop) binds first — dump the exit-reason histogram on the LIVE config and confirm the knob's exit reason fires on a meaningful fraction of trades BEFORE sweeping it`
+
+## Symptom
+
+The web-sourced hypothesis "raise the TP1 partial-out target from **+30% → +50%** improves `vwap_continuation` per-trade expectancy" was tested on **real OPRA fills** (HARD-window <= 2026-05-29) via the dedicated harness `backtest/autoresearch/_web_tp1_partial_5030.py`, scorecards `analysis/recommendations/web-tp1-partial-5030.json` + `analysis/recommendations/SUNDAY-WEB-LEARN-SCORECARD.md`. It was **REJECTED**: across the sweep the expectancy moved only **$0.14–$1.20/trade**, WR was effectively identical (**55.0% vs 54.4%**), and book Sharpe/Sortino were essentially flat. Worse, the Safe-2 ATM `tp1_qty=0.50` cell actually FAILED the per-trade Sharpe check, and the Bold ITM-2 `tp1=0.40` and `tp1=0.50` cells both FAILED `higher_mean`. The "improvement" the web hypothesis promised simply did not exist on the live config.
+
+## Root cause
+
+On the LIVE `vwap_continuation` exit stack — `profit_lock_mode='trailing'`, chandelier `trail=0.15`, `arm=0.05`, `premium_stop=-0.08`, `runner=2.5x`, `tp1_qty=0.50` — the realized **exit-reason mix is `EXIT_ALL_PREMIUM_STOP` on 148 of 149 trades**. The fixed +30%/+50% TP1 partial fills **exactly ONCE** in the entire sample. The chandelier trailing profit-lock and the −8% premium-stop almost always **bind BEFORE** price ever reaches the fixed TP1 partial threshold, so `tp1_premium_pct` is a **NEAR-DEAD KNOB** under the live configuration: it controls an exit branch that fires on <1% of trades, so sweeping it can only move noise.
+
+The trap is that the original edgehunt mini-sweep numbers that **motivated** this hypothesis (**+$90.43 vs +$78.29**) came from a **chandelier-OFF cell** — the mini-sweep varied `trail` in `{0.0, 0.20}`, and in the `trail=0.0` cell the TP1 partial WAS the binding exit. The knob looked alive only because that cell removed the dominant upstream exit. Carried onto the LIVE stack (chandelier ON), the same knob is inert. This is the C30/L148-class **dead-knob** (a runner/exit target that the realized exit path almost never reaches) AND the C14-class **dead/masked knob** (a knob whose effect is swamped by a dominant upstream gate/exit) — here unified: the knob is dead *specifically because* a dominant upstream exit (chandelier + premium-stop) supersedes it.
+
+## Fix
+
+Doctrine-only — NO live params/watchers touched (rule 9). The candidate was rejected in `analysis/recommendations/web-tp1-partial-5030.json` and disclosed in `SUNDAY-WEB-LEARN-SCORECARD.md`. The durable guardrail: **before sweeping ANY exit-target knob, dump the exit-reason histogram on the LIVE config and confirm the knob's own exit reason fires on a meaningful fraction of trades. A sweep of a knob whose exit reason fires on <5% of trades is measuring noise — re-validate (or disable the dominant upstream exit) before trusting any mini-sweep delta.** Equivalently: a mini-sweep that turned the knob "alive" by also toggling a dominant upstream exit (e.g. chandelier `trail`) is reporting the *interaction*, not the knob — confirm the knob still binds on the SHIPPED exit stack before promoting.
+
+## Encoded in
+
+`backtest/autoresearch/_web_tp1_partial_5030.py` (the harness that produced the exit-reason histogram exposing 148/149 = `EXIT_ALL_PREMIUM_STOP`), `analysis/recommendations/web-tp1-partial-5030.json` (the rejected scorecard: expectancy delta $0.14–$1.20, WR 55.0%/54.4%, ATM tp1=0.50 fails per-trade Sharpe, Bold ITM-2 tp1=0.40/0.50 both fail higher_mean), `analysis/recommendations/SUNDAY-WEB-LEARN-SCORECARD.md` (disclosure), `markdown/doctrine/LESSONS-LEARNED.md` L176, CLAUDE.md OP-25 index table rows C30 + C14.
+
+## Detection
+
+Future regression — any exit/exit-target sweep (`tp1_premium_pct`, `tp1_qty`, runner target, profit-lock arm/trail) declared an "improvement" off a mini-sweep delta WITHOUT first confirming, on the LIVE exit config, that the knob's own exit reason (`EXIT_*_TP1`, `EXIT_*_RUNNER_TARGET`, etc.) accounts for a meaningful fraction (>~5%) of realized exits. The tell: the exit-reason histogram on the live stack is dominated (>~90%) by a DIFFERENT exit reason (`EXIT_ALL_PREMIUM_STOP`, chandelier trailing-lock, time/ribbon-flip), or the only sweep cell that showed a delta also toggled a dominant upstream exit (e.g. chandelier `trail=0.0`). Cheap check: histogram the `exit_reason` column on the live-config run before the sweep; if the swept knob's reason is <5%, STOP.
+
+## Related lessons
+
+L148 (sibling dead-knob — AGG runner rarely hits its premium target; the same "the realized exit path almost never reaches this knob" mechanism — C30), C30 (audit what % of exits actually hit the target before sweeping it — this is the direct extension), C14 (dead/translated-but-unapplied knobs: vary-and-assert; here the knob is masked by a dominant upstream exit rather than untranslated), C15 (gates interact multiplicatively — a dominant upstream filter/exit supersedes a downstream knob; re-validate the shared pool when one is added), C28 (exit mechanics are locally optimal; ENTRIES are where edge lives — exit-target tuning has diminishing returns once the stop/lock dominates the exit mix), L175 (sibling exit-sweep foot-gun from the same hunt — a mean-lift that ignores distribution shape; L176 is the complementary "the knob doesn't even bind" failure).
+
+## Index-table mapping (for OP-25 Lessons index in CLAUDE.md)
+
+- **Primary:** extend the **C30** row ("Unconstrained exit targets ... = dead knob; audit what % of exits actually hit the target before sweeping it") — append **L176** after L148.
+- **Secondary:** extend the **C14** row ("Dead/translated-but-unapplied knobs: vary-and-assert; sync tracker to params") — append **L176** (a knob masked by a dominant upstream exit is the same dead-knob family).
+- Bump the index header "through L175 as of 2026-06-21" → "through L176 as of 2026-06-21".

@@ -1,0 +1,142 @@
+{
+  "rule_id": "RIBBON_MOMENTUM_GATE",
+  "rank": 22,
+  "status": "LIVE_IN_PRODUCTION",
+  "params": {
+    "min_ribbon_momentum_cents": 5.0,
+    "max_ribbon_duration_bars": 15
+  },
+  "l107_revalidation": true,
+  "root_cause_old_validation": {
+    "bug": "L107 \u2014 Rank 22 validated on BS sim (use_real_fills=False) with default bear_stop=-0.08",
+    "evidence": "Reproducing old leaderboard exactly: urf=False, bear_stop=-0.08 gives baseline n=17 pnl=-907; gates n=5 pnl=+1204; delta=+2111. Matches old claim exactly.",
+    "date_discovered": "2026-06-17",
+    "old_validation_label": "Re-verified 2026-06-16 in prior session \u2014 wrong params used"
+  },
+  "correct_params": {
+    "use_real_fills": true,
+    "no_trade_window": null,
+    "no_trade_before": "09:35",
+    "midday_trendline_gate": true,
+    "premium_stop_pct_bear": -0.2,
+    "per_trade_risk_cap_pct": 0.3,
+    "tp1_qty_fraction": 0.5,
+    "note_l108": "L108 (2026-06-17): tp1_qty_fraction was dead knob in real-fills path (hardcoded 0.667). Fix applied. Scorecard numbers below reflect CORRECTED frac=0.50 (production). Previous numbers used frac=0.667 silently."
+  },
+  "l108_baseline_correction": {
+    "old_oos_baseline_pnl": 4367,
+    "old_oos_baseline_frac": 0.667,
+    "new_oos_baseline_pnl": 3304,
+    "new_oos_baseline_frac": 0.5,
+    "note": "L108 fix changes baseline. Verdict (FAIL) unchanged but numbers corrected."
+  },
+  "is_window": {
+    "start": "2025-01-01",
+    "end": "2026-04-30",
+    "baseline": {
+      "n": 246,
+      "pnl": -6524,
+      "wr": 0.289,
+      "note": "L108 corrected: was -5610 at frac=0.667"
+    },
+    "gates": {
+      "n": 76,
+      "pnl": -5981,
+      "wr": 0.316,
+      "note": "L108 corrected: was -4576 at frac=0.667"
+    },
+    "delta": 543,
+    "note": "L108 corrected: was +1034. April 2026 tariff-shock still drives most of IS improvement.",
+    "sub_windows": {
+      "full_is_2025_01_to_2026_04": {
+        "baseline_n": 246,
+        "baseline_pnl": -5610,
+        "gates_n": 76,
+        "gates_pnl": -4576,
+        "delta": 1034
+      },
+      "ex_april_2025_01_to_2026_03": {
+        "baseline_n": 223,
+        "baseline_pnl": 936,
+        "gates_n": 68,
+        "gates_pnl": -2562,
+        "delta": -3498,
+        "note": "BASELINE IS PROFITABLE (+936). Gate DESTROYS it (-2562). -3498 hurt."
+      },
+      "april_2026_tariff_shock": {
+        "baseline_n": 22,
+        "baseline_pnl": -6335,
+        "gates_n": 8,
+        "gates_pnl": -2014,
+        "delta": 4321,
+        "note": "ONLY window where gate helps. Drives 100%+ of IS net improvement."
+      }
+    }
+  },
+  "oos_window": {
+    "start": "2026-05-08",
+    "end": "2026-05-22",
+    "baseline": {
+      "n": 17,
+      "pnl": 3304,
+      "wr": 0.471,
+      "note": "L108 corrected: was 4367 at frac=0.667"
+    },
+    "gates": {
+      "n": 8,
+      "pnl": 2106,
+      "wr": 0.5,
+      "note": "L108 corrected: was 3015 at frac=0.667"
+    },
+    "delta": -1198,
+    "note": "L108 corrected: was -1352. Gate removes 9 OOS trades worth +1198 net P&L \u2014 still HURTS in recovery regime"
+  },
+  "walk_forward": {
+    "wf_ratio": -2.204,
+    "threshold": 0.7,
+    "verdict": "FAIL",
+    "note": "L108 corrected: was -1.308. Still FAIL. IS delta smaller (543 vs 1034), OOS similar (-1198 vs -1352). WF worsened."
+  },
+  "sub_window_stability": {
+    "april_2026_tariff_shock": {
+      "baseline_n": 22,
+      "baseline_pnl": -6335,
+      "gates_n": 8,
+      "gates_pnl": -2014,
+      "delta": 4321,
+      "verdict": "HELP"
+    },
+    "may_2026_recovery": {
+      "baseline_n": 17,
+      "baseline_pnl": 4367,
+      "gates_n": 8,
+      "gates_pnl": 3015,
+      "delta": -1352,
+      "verdict": "HURT"
+    },
+    "stability_verdict": "REGIME_CONDITIONAL \u2014 gate tuned on tariff-shock; reverts in recovery",
+    "verdict_upgraded": "REGIME_ARTIFACT \u2014 the entire IS net improvement (+1034) comes from ONE month (April tariff shock, +4321). Ex-April: gate takes profitable +936 baseline to -2562 (-3498 damage). OOS recovery: -1352 damage. Gate is tuned exclusively on tariff-shock regime and is harmful in all other market conditions."
+  },
+  "old_validation": {
+    "method": "BS_sim + bear_stop=-0.08 (defaults)",
+    "baseline_n": 17,
+    "baseline_pnl": -907,
+    "gates_n": 5,
+    "gates_pnl": 1204,
+    "delta": 2111,
+    "verdict": "INVALIDATED \u2014 wrong params"
+  },
+  "ratification_gates": {
+    "wf_gte_0_70": false,
+    "oos_delta_positive": false,
+    "anchor_days_no_regression": "N/A \u2014 4/29 same pnl baseline vs gates; 5/1 5/4 not in window",
+    "sub_window_stable": false,
+    "gates_met": "0 of 4 primary",
+    "verdict": "FAIL \u2014 gate should not have been ratified under correct params"
+  },
+  "production_risk": "HIGH \u2014 gate is live and removing profitable OOS trades worth -1198 (L108 corrected: was -1352). Regime-conditional: helps tariff shock, hurts recovery. Recommend J review for reversion.",
+  "action_required": "FLAG_FOR_J \u2014 Rule 9 prohibits mid-session params.json change. J must decide whether to remove gate from production.",
+  "generated": "2026-06-16 15:00:10.238683",
+  "last_corrected": "2026-06-17 L108 fix: tp1_qty_fraction=0.667 was hardcoded in real-fills path; corrected to frac=0.50. IS delta: 1034->543, OOS delta: -1352->-1198, WF: -1.308->-2.204. Verdict unchanged: FAIL.",
+  "overall_verdict": "FAILED \u2014 WF=-2.204 (L107+L108 corrected). Gate validated on wrong params (BS sim + wrong stop). Regime artifact: April-only help, damages all other regimes. LIVE IN PRODUCTION \u2014 requires J reversion decision per Rule 9."
+}

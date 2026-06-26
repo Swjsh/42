@@ -1,0 +1,391 @@
+{
+  "slug": "overnight-gap-up-fades-the-day",
+  "kind": "deploy_timing",
+  "run_date": "2026-06-21",
+  "window": "2025-01-01..2026-06-12",
+  "trading_days": 361,
+  "books_evaluated": [
+    "Safe2_ATM_1+2+4",
+    "Bold_ITM2_1+2",
+    "LIVE_#1_vwap_continuation_ATM",
+    "LIVE_#1_vwap_continuation_ITM-2"
+  ],
+  "fills_authority": "real OPRA via lib.simulator_real (C1); v15 default exits, stop -8%",
+  "gap_definition": "SPY (09:30 open - prior 15:55 close)/prior close (5m frame, primary gate)",
+  "mes_crosscheck": "corr(SPY 5m gap, MES overnight gap)=0.835 on 353 overlap days",
+  "gap_distribution": {
+    "mean_pct": 0.021,
+    "sd_pct": 0.723,
+    "pct_up_gt_0.20": 128,
+    "pct_up_gt_0.30": 97,
+    "pct_up_gt_0.50": 58,
+    "n": 353
+  },
+  "thresholds_pct": [
+    0.2,
+    0.3,
+    0.5
+  ],
+  "deploy_timing_bar": "ACCEPT iff deploying-only-on-non-large-up-gap days raises BOOK Sharpe AND abstained (gap>thr) days sum NET-NEGATIVE (L174 no-regression)",
+  "results": {
+    "Safe2_ATM_1+2+4": {
+      "baseline": {
+        "n_days": 361,
+        "n_trade_days": 157,
+        "total_dollar": 13346.36,
+        "daily_mean": 36.971,
+        "daily_sd": 141.977,
+        "sharpe_ann": 4.134,
+        "sortino_ann": 5.967,
+        "max_drawdown": -1007.16,
+        "win_days": 85,
+        "loss_days": 72
+      },
+      "thresholds": {
+        "0.20pct": {
+          "threshold_pct": 0.2,
+          "n_abstained_days": 128,
+          "n_abstained_trade_days": 56,
+          "abstained_total_pnl": 2866.36,
+          "abstained_pnl_on_traded_days": 2866.36,
+          "abstained_net_negative": false,
+          "deployed_stats": {
+            "n_days": 233,
+            "n_trade_days": 101,
+            "total_dollar": 10480.0,
+            "daily_mean": 44.979,
+            "daily_sd": 144.398,
+            "sharpe_ann": 4.945,
+            "sortino_ann": 7.609,
+            "max_drawdown": -618.24,
+            "win_days": 59,
+            "loss_days": 42
+          },
+          "sharpe_lift": 0.811,
+          "sortino_lift": 1.642,
+          "ACCEPT": false,
+          "accept_reason": "abstained days SUM POSITIVE (+$2866.36) = winner-removal, NOT no-regression"
+        },
+        "0.30pct": {
+          "threshold_pct": 0.3,
+          "n_abstained_days": 97,
+          "n_abstained_trade_days": 47,
+          "abstained_total_pnl": 2861.32,
+          "abstained_pnl_on_traded_days": 2861.32,
+          "abstained_net_negative": false,
+          "deployed_stats": {
+            "n_days": 264,
+            "n_trade_days": 110,
+            "total_dollar": 10485.04,
+            "daily_mean": 39.716,
+            "daily_sd": 138.178,
+            "sharpe_ann": 4.563,
+            "sortino_ann": 7.073,
+            "max_drawdown": -745.44,
+            "win_days": 61,
+            "loss_days": 49
+          },
+          "sharpe_lift": 0.429,
+          "sortino_lift": 1.106,
+          "ACCEPT": false,
+          "accept_reason": "abstained days SUM POSITIVE (+$2861.32) = winner-removal, NOT no-regression"
+        },
+        "0.50pct": {
+          "threshold_pct": 0.5,
+          "n_abstained_days": 58,
+          "n_abstained_trade_days": 31,
+          "abstained_total_pnl": 2670.64,
+          "abstained_pnl_on_traded_days": 2670.64,
+          "abstained_net_negative": false,
+          "deployed_stats": {
+            "n_days": 303,
+            "n_trade_days": 126,
+            "total_dollar": 10675.72,
+            "daily_mean": 35.233,
+            "daily_sd": 134.294,
+            "sharpe_ann": 4.165,
+            "sortino_ann": 5.799,
+            "max_drawdown": -704.28,
+            "win_days": 68,
+            "loss_days": 58
+          },
+          "sharpe_lift": 0.031,
+          "sortino_lift": -0.168,
+          "ACCEPT": false,
+          "accept_reason": "abstained days SUM POSITIVE (+$2670.64) = winner-removal, NOT no-regression"
+        }
+      }
+    },
+    "Bold_ITM2_1+2": {
+      "baseline": {
+        "n_days": 361,
+        "n_trade_days": 156,
+        "total_dollar": 17902.56,
+        "daily_mean": 49.592,
+        "daily_sd": 182.881,
+        "sharpe_ann": 4.305,
+        "sortino_ann": 6.411,
+        "max_drawdown": -1494.6,
+        "win_days": 84,
+        "loss_days": 72
+      },
+      "thresholds": {
+        "0.20pct": {
+          "threshold_pct": 0.2,
+          "n_abstained_days": 128,
+          "n_abstained_trade_days": 57,
+          "abstained_total_pnl": 3594.04,
+          "abstained_pnl_on_traded_days": 3594.04,
+          "abstained_net_negative": false,
+          "deployed_stats": {
+            "n_days": 233,
+            "n_trade_days": 99,
+            "total_dollar": 14308.52,
+            "daily_mean": 61.41,
+            "daily_sd": 201.539,
+            "sharpe_ann": 4.837,
+            "sortino_ann": 7.483,
+            "max_drawdown": -1492.68,
+            "win_days": 57,
+            "loss_days": 42
+          },
+          "sharpe_lift": 0.532,
+          "sortino_lift": 1.072,
+          "ACCEPT": false,
+          "accept_reason": "abstained days SUM POSITIVE (+$3594.04) = winner-removal, NOT no-regression"
+        },
+        "0.30pct": {
+          "threshold_pct": 0.3,
+          "n_abstained_days": 97,
+          "n_abstained_trade_days": 48,
+          "abstained_total_pnl": 3772.0,
+          "abstained_pnl_on_traded_days": 3772.0,
+          "abstained_net_negative": false,
+          "deployed_stats": {
+            "n_days": 264,
+            "n_trade_days": 108,
+            "total_dollar": 14130.56,
+            "daily_mean": 53.525,
+            "daily_sd": 191.552,
+            "sharpe_ann": 4.436,
+            "sortino_ann": 6.852,
+            "max_drawdown": -1620.6,
+            "win_days": 59,
+            "loss_days": 49
+          },
+          "sharpe_lift": 0.131,
+          "sortino_lift": 0.441,
+          "ACCEPT": false,
+          "accept_reason": "abstained days SUM POSITIVE (+$3772.00) = winner-removal, NOT no-regression"
+        },
+        "0.50pct": {
+          "threshold_pct": 0.5,
+          "n_abstained_days": 58,
+          "n_abstained_trade_days": 31,
+          "abstained_total_pnl": 3545.8,
+          "abstained_pnl_on_traded_days": 3545.8,
+          "abstained_net_negative": false,
+          "deployed_stats": {
+            "n_days": 303,
+            "n_trade_days": 125,
+            "total_dollar": 14356.76,
+            "daily_mean": 47.382,
+            "daily_sd": 183.886,
+            "sharpe_ann": 4.09,
+            "sortino_ann": 5.951,
+            "max_drawdown": -1744.32,
+            "win_days": 66,
+            "loss_days": 59
+          },
+          "sharpe_lift": -0.215,
+          "sortino_lift": -0.46,
+          "ACCEPT": "False",
+          "accept_reason": "abstained days SUM POSITIVE (+$3545.80) = winner-removal, NOT no-regression"
+        }
+      }
+    },
+    "LIVE_#1_vwap_continuation_ATM": {
+      "baseline": {
+        "n_days": 361,
+        "n_trade_days": 155,
+        "total_dollar": 6975.96,
+        "daily_mean": 19.324,
+        "daily_sd": 79.343,
+        "sharpe_ann": 3.866,
+        "sortino_ann": 5.72,
+        "max_drawdown": -454.56,
+        "win_days": 77,
+        "loss_days": 78
+      },
+      "thresholds": {
+        "0.20pct": {
+          "threshold_pct": 0.2,
+          "n_abstained_days": 128,
+          "n_abstained_trade_days": 56,
+          "abstained_total_pnl": 1163.48,
+          "abstained_pnl_on_traded_days": 1163.48,
+          "abstained_net_negative": false,
+          "deployed_stats": {
+            "n_days": 233,
+            "n_trade_days": 99,
+            "total_dollar": 5812.48,
+            "daily_mean": 24.946,
+            "daily_sd": 86.021,
+            "sharpe_ann": 4.604,
+            "sortino_ann": 7.301,
+            "max_drawdown": -520.56,
+            "win_days": 54,
+            "loss_days": 45
+          },
+          "sharpe_lift": 0.738,
+          "sortino_lift": 1.581,
+          "ACCEPT": false,
+          "accept_reason": "abstained days SUM POSITIVE (+$1163.48) = winner-removal, NOT no-regression"
+        },
+        "0.30pct": {
+          "threshold_pct": 0.3,
+          "n_abstained_days": 97,
+          "n_abstained_trade_days": 47,
+          "abstained_total_pnl": 1129.4,
+          "abstained_pnl_on_traded_days": 1129.4,
+          "abstained_net_negative": false,
+          "deployed_stats": {
+            "n_days": 264,
+            "n_trade_days": 108,
+            "total_dollar": 5846.56,
+            "daily_mean": 22.146,
+            "daily_sd": 82.235,
+            "sharpe_ann": 4.275,
+            "sortino_ann": 6.758,
+            "max_drawdown": -584.16,
+            "win_days": 56,
+            "loss_days": 52
+          },
+          "sharpe_lift": 0.409,
+          "sortino_lift": 1.038,
+          "ACCEPT": false,
+          "accept_reason": "abstained days SUM POSITIVE (+$1129.40) = winner-removal, NOT no-regression"
+        },
+        "0.50pct": {
+          "threshold_pct": 0.5,
+          "n_abstained_days": 58,
+          "n_abstained_trade_days": 31,
+          "abstained_total_pnl": 1101.68,
+          "abstained_pnl_on_traded_days": 1101.68,
+          "abstained_net_negative": false,
+          "deployed_stats": {
+            "n_days": 303,
+            "n_trade_days": 124,
+            "total_dollar": 5874.28,
+            "daily_mean": 19.387,
+            "daily_sd": 78.467,
+            "sharpe_ann": 3.922,
+            "sortino_ann": 5.917,
+            "max_drawdown": -537.96,
+            "win_days": 62,
+            "loss_days": 62
+          },
+          "sharpe_lift": 0.056,
+          "sortino_lift": 0.197,
+          "ACCEPT": false,
+          "accept_reason": "abstained days SUM POSITIVE (+$1101.68) = winner-removal, NOT no-regression"
+        }
+      }
+    },
+    "LIVE_#1_vwap_continuation_ITM-2": {
+      "baseline": {
+        "n_days": 361,
+        "n_trade_days": 156,
+        "total_dollar": 11122.44,
+        "daily_mean": 30.81,
+        "daily_sd": 118.165,
+        "sharpe_ann": 4.139,
+        "sortino_ann": 6.259,
+        "max_drawdown": -876.72,
+        "win_days": 77,
+        "loss_days": 79
+      },
+      "thresholds": {
+        "0.20pct": {
+          "threshold_pct": 0.2,
+          "n_abstained_days": 128,
+          "n_abstained_trade_days": 57,
+          "abstained_total_pnl": 1864.84,
+          "abstained_pnl_on_traded_days": 1864.84,
+          "abstained_net_negative": false,
+          "deployed_stats": {
+            "n_days": 233,
+            "n_trade_days": 99,
+            "total_dollar": 9257.6,
+            "daily_mean": 39.732,
+            "daily_sd": 127.133,
+            "sharpe_ann": 4.961,
+            "sortino_ann": 7.988,
+            "max_drawdown": -877.44,
+            "win_days": 54,
+            "loss_days": 45
+          },
+          "sharpe_lift": 0.822,
+          "sortino_lift": 1.729,
+          "ACCEPT": false,
+          "accept_reason": "abstained days SUM POSITIVE (+$1864.84) = winner-removal, NOT no-regression"
+        },
+        "0.30pct": {
+          "threshold_pct": 0.3,
+          "n_abstained_days": 97,
+          "n_abstained_trade_days": 48,
+          "abstained_total_pnl": 1913.2,
+          "abstained_pnl_on_traded_days": 1913.2,
+          "abstained_net_negative": false,
+          "deployed_stats": {
+            "n_days": 264,
+            "n_trade_days": 108,
+            "total_dollar": 9209.24,
+            "daily_mean": 34.883,
+            "daily_sd": 121.891,
+            "sharpe_ann": 4.543,
+            "sortino_ann": 7.176,
+            "max_drawdown": -1005.36,
+            "win_days": 56,
+            "loss_days": 52
+          },
+          "sharpe_lift": 0.404,
+          "sortino_lift": 0.917,
+          "ACCEPT": false,
+          "accept_reason": "abstained days SUM POSITIVE (+$1913.20) = winner-removal, NOT no-regression"
+        },
+        "0.50pct": {
+          "threshold_pct": 0.5,
+          "n_abstained_days": 58,
+          "n_abstained_trade_days": 31,
+          "abstained_total_pnl": 1681.6,
+          "abstained_pnl_on_traded_days": 1681.6,
+          "abstained_net_negative": false,
+          "deployed_stats": {
+            "n_days": 303,
+            "n_trade_days": 125,
+            "total_dollar": 9440.84,
+            "daily_mean": 31.158,
+            "daily_sd": 117.236,
+            "sharpe_ann": 4.219,
+            "sortino_ann": 6.327,
+            "max_drawdown": -969.36,
+            "win_days": 63,
+            "loss_days": 62
+          },
+          "sharpe_lift": 0.08,
+          "sortino_lift": 0.068,
+          "ACCEPT": false,
+          "accept_reason": "abstained days SUM POSITIVE (+$1681.60) = winner-removal, NOT no-regression"
+        }
+      }
+    }
+  },
+  "ANY_ACCEPT": false,
+  "DISCLOSURE": {
+    "no_regression": "abstained days must be NET-NEGATIVE (not winner-removal) \u2014 L174",
+    "small_n_dsr": "abstained-day counts are small (see n_abstained_trade_days); a positive Sharpe lift on few removed days is fragile \u2014 DSR-discount any lift driven by < ~5 abstained trade-days",
+    "real_fills": "real OPRA fills only \u2014 the WR authority (C1); SPY-direction != option edge (C3/L58)",
+    "research_only": "no live edit, no orders (Sunday money-path guard)"
+  }
+}

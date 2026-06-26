@@ -1,0 +1,50 @@
+{
+  "study": "require_bearish_fill_bar gate sweep",
+  "date": "2026-06-17",
+  "safe": {
+    "label": "SAFE",
+    "baseline": {
+      "IS_n": 130,
+      "IS_pnl": 16173.63,
+      "OOS_n": 21,
+      "OOS_pnl": 5900.25
+    },
+    "candidate": {
+      "IS_n": 106,
+      "IS_pnl": 15313.44,
+      "OOS_n": 18,
+      "OOS_pnl": 7001.76
+    },
+    "IS_delta": -860.19,
+    "OOS_delta": 1101.51,
+    "WF_norm": -7.927,
+    "OOS_positive": true,
+    "SW_hurt": 2,
+    "anchor_OK": false,
+    "verdict": "REJECT",
+    "note": "LOOK-AHEAD gate. Live implementation requires heartbeat.md one-bar confirmation delay (Rule 9)."
+  },
+  "agg": {
+    "label": "AGG",
+    "baseline": {
+      "IS_n": 105,
+      "IS_pnl": 11335.08,
+      "OOS_n": 18,
+      "OOS_pnl": 238.28
+    },
+    "candidate": {
+      "IS_n": 79,
+      "IS_pnl": 11698.24,
+      "OOS_n": 15,
+      "OOS_pnl": 1391.39
+    },
+    "IS_delta": 363.16,
+    "OOS_delta": 1153.11,
+    "WF_norm": 18.522,
+    "OOS_positive": true,
+    "SW_hurt": 1,
+    "anchor_OK": true,
+    "verdict": "AUTO-RATIFY",
+    "note": "LOOK-AHEAD gate. Live implementation requires heartbeat.md one-bar confirmation delay (Rule 9)."
+  }
+}

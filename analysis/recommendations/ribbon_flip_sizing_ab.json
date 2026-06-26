@@ -1,0 +1,69 @@
+{
+  "task": "ribbon-flip-sizing-ab",
+  "task_id": "2207a18a",
+  "description": "ribbon_just_flipped_bearish as quality-tier sizing bonus",
+  "is_ribbon_flip_true": {
+    "n": 27,
+    "wr": 0.259,
+    "avg": 427.0,
+    "total": 11524.0,
+    "avg_qty": 18.3
+  },
+  "oos_ribbon_flip_true": {
+    "n": 4,
+    "wr": 0.5,
+    "avg": 626.0,
+    "total": 2505.0,
+    "avg_qty": 13.8
+  },
+  "is_ribbon_flip_false": {
+    "n": 132,
+    "wr": 0.288,
+    "avg": 126.0,
+    "total": 16620.0,
+    "avg_qty": 14.2
+  },
+  "oos_ribbon_flip_false": {
+    "n": 27,
+    "wr": 0.148,
+    "avg": 103.0,
+    "total": 2782.0,
+    "avg_qty": 10.5
+  },
+  "quality_tier_oos": {
+    "SUPER": {
+      "wr": 1.0,
+      "n": 2,
+      "avg": 1430.0,
+      "ribbon_flip": 2
+    },
+    "ELITE": {
+      "wr": 0.0,
+      "n": 6,
+      "avg": -134.0,
+      "ribbon_flip": 0
+    },
+    "LEVEL": {
+      "wr": 0.125,
+      "n": 8,
+      "avg": 459.0,
+      "ribbon_flip": 1
+    },
+    "TRENDLINE": {
+      "wr": 0.2,
+      "n": 15,
+      "avg": -30.0,
+      "ribbon_flip": 1
+    }
+  },
+  "sizing_sim_trendline_to_elite": {
+    "is_upgraded": 2,
+    "is_pnl_delta": 1734.0,
+    "oos_upgraded": 1,
+    "oos_pnl_delta": -137.0
+  },
+  "verdict": "REJECT",
+  "reason": "ribbon_flip already captured by SUPER tier (conf+ribbon_flip -> qty=15). Sizing sim HURTS OOS (-$137, 1 upgraded trade was a loser). Key finding: ELITE OOS WR=0% triggered block_elite_bull_vix_high=18.0 ratification.",
+  "watch_list": "SUPER tier OOS WR=100% (n=2) -- monitor for n>=10",
+  "key_finding": "ELITE tier (confluence only, no ribbon_flip) OOS WR=0%, -$802. Spawned block_elite_bull_vix_high=18.0 action."
+}

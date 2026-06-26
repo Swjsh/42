@@ -1,0 +1,8 @@
+{
+  "created_at": "2026-06-25T11:22:02-04:00",
+  "trigger": "TV_EXHAUSTED",
+  "reason": "TV not connected after 3 self-heal attempts; stale bar for 3+ consecutive ticks (SKIP_TV_DATA_STALE x3 + ERROR_TV on tick 4)",
+  "last_tick_time": "2026-06-25T11:22:02-04:00",
+  "tick_count_before_trip": 6,
+  "halt_reason": "No valid market data available; cannot trade either account safely"
+}

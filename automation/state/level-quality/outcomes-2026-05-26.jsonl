@@ -1,0 +1,17 @@
+{"date": "2026-05-26", "price": 718.3900146484375, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-05-26", "price": 731.530029296875, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-05-26", "price": 744.53, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-05-26", "price": 745.67, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-05-26", "price": 745.8, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-05-26", "price": 746.170799146645, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-05-26", "price": 746.4540413793103, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-05-26", "price": 746.5453457760464, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-05-26", "price": 746.7847614047167, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-05-26", "price": 748.8, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.68, "false_break": true}
+{"date": "2026-05-26", "price": 748.92, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.56, "false_break": true}
+{"date": "2026-05-26", "price": 749.9, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.26, "false_break": true}
+{"date": "2026-05-26", "price": 750.0, "source": "round", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.16, "false_break": true}
+{"date": "2026-05-26", "price": 750.75, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.18, "false_break": false}
+{"date": "2026-05-26", "price": 750.9, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.33, "false_break": false}
+{"date": "2026-05-26", "price": 751.0, "source": "round", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.43, "false_break": false}
+{"date": "2026-05-26", "price": 751.69, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.38, "false_break": true}

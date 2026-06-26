@@ -1,0 +1,57 @@
+Loading data...
+
+Running Safe baseline (no_trade_window=None)...
+IS:  n=126 pnl=+16,529
+OOS: n=21 pnl=+5,900
+
+Window                                   IS_d    OOS_d       WF   SW   ANC Verdict
+--------------------------------------------------------------------------------
+
+  Window: 11:30-12:00 (early lunch zone)
+  IS:  base n=126 pnl=+16,529 | cand n=123 pnl=+16,540 delta=+10
+  OOS: base n=21 pnl=+5,900 | cand n=20 pnl=+6,325 delta=+424
+  Dropped IS n=3 | Dropped OOS n=1
+    W1 Jan-Jun 2025: base=+157 cand=-289 delta=-445
+    W2 Jul-Dec 2025: base=+10,502 cand=+10,751 delta=+250
+    W3 Jan-Mar 2026: base=+5,738 cand=+5,944 delta=+206
+    W4 Apr-May 2026: base=+133 cand=+133 delta=+0
+  ANCHOR: PASS
+  GATES: OOS=PASS WF=PASS(247.282) SW=PASS(0) ANCHOR=PASS
+  VERDICT: AUTO-RATIFY
+11:30-12:00 (early lunch zone)            +10     +424  247.282    0  PASS AUTO-RATIFY
+
+  Window: 15:00-15:30 (late gamma zone)
+  IS:  base n=126 pnl=+16,529 | cand n=119 pnl=+17,072 delta=+542
+  OOS: base n=21 pnl=+5,900 | cand n=21 pnl=+5,900 delta=+0
+  Dropped IS n=7 | Dropped OOS n=0
+    W1 Jan-Jun 2025: base=+157 cand=+406 delta=+249
+    W2 Jul-Dec 2025: base=+10,502 cand=+10,243 delta=-259
+    W3 Jan-Mar 2026: base=+5,738 cand=+6,291 delta=+552
+    W4 Apr-May 2026: base=+133 cand=+133 delta=+0
+  ANCHOR: PASS
+  GATES: OOS=PASS WF=FAIL(0.000) SW=PASS(0) ANCHOR=PASS
+  VERDICT: REJECT WF=0.000
+15:00-15:30 (late gamma zone)            +542       +0    0.000    0  PASS REJECT WF=0.000
+
+  Window: 11:30-13:00 (full lunch zone)
+  IS:  base n=126 pnl=+16,529 | cand n=129 pnl=+13,548 delta=-2,981
+  OOS: base n=21 pnl=+5,900 | cand n=20 pnl=+6,323 delta=+423
+  Dropped IS n=-3 | Dropped OOS n=1
+  IS_delta=-2,981 <= 0: REJECT (L155)
+11:30-13:00 (full lunch zone)          -2,981     +423     L155  N/A   N/A REJECT(IS_delta<=0)
+
+  Window: 11:00-12:00 (pre+early lunch)
+  IS:  base n=126 pnl=+16,529 | cand n=101 pnl=+12,934 delta=-3,595
+  OOS: base n=21 pnl=+5,900 | cand n=17 pnl=+5,796 delta=-105
+  Dropped IS n=25 | Dropped OOS n=4
+  IS_delta=-3,595 <= 0: REJECT (L155)
+11:00-12:00 (pre+early lunch)          -3,595     -105     L155  N/A   N/A REJECT(IS_delta<=0)
+
+
+=== SUMMARY ===
+  11:30-12:00 (early lunch zone)       IS=+10 OOS=+424 WF=247.282 -> AUTO-RATIFY
+  15:00-15:30 (late gamma zone)        IS=+542 OOS=+0 WF=0.0 -> REJECT
+  11:30-13:00 (full lunch zone)        IS=-2,981 OOS=+423 WF=L155 -> REJECT_L155
+  11:00-12:00 (pre+early lunch)        IS=-3,595 OOS=-105 WF=L155 -> REJECT_L155
+
+Saved: C:\Users\jackw\Desktop\42\analysis\recommendations\safe_no_trade_window_sweep.json

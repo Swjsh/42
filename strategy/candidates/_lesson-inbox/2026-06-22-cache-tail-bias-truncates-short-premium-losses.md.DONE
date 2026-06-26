@@ -1,0 +1,28 @@
+# Lesson candidate: a fixed narrow strike-band cache silently TRUNCATES the loss tail of any short-premium / defined-risk structure on big-move days — manufacturing a phantom edge that a wide-band de-bias INVERTS
+
+> Queued by Gamma (event-IV-crush #6 wide-band de-bias) 2026-06-22. lesson-author picks up at next wake fire. Direct resolution of the open domain-note thread in the L177 lesson ("the adverse tail is untestable until a wider delta-targeted band is fetched").
+
+## Symptom
+The event-IV-crush LEAD (#6) passed a mechanism pre-check on the ±$5 OPRA cache: a narrow defined-risk iron condor on scheduled-event days (FOMC/CPI/NFP) showed **event exp/tr +$32.15 vs +$18.86 non-event (delta +$13.29)**, event days at the **99th percentile** of the L172 random-DAY null, bootstrap **P(delta≤0)=0.007**, 16/17 winners — looked like the first real premium-selling edge. The pre-check itself flagged the one weakness as "n=17 thin" and "absolute magnitude biased high (37% fill-rate both groups)."
+
+The wide-band de-bias (ATM ±$18/side fetched into a dedicated cache, proper ~16-delta short + $10-wide wings, real loser tail priced) **INVERTED the verdict**:
+- event exp/tr **−$11.38** (was +$32.15), n=38, worst trade −$640/lot, avg max-defined-loss $925/lot
+- non-event **+$9.77/tr** → the "event edge" FLIPPED SIGN and is now WORSE than non-event days
+- vs the same-geometry L172 null: event sits at the **0.0th percentile** (absolute worst tail, not the right tail), selection_delta **−$21.15**, **boot P(delta≤0)=1.0**
+- tail BLOWS the kill-switch even at minimum size (−$640/lot → −$1,920 at Safe q3 vs −$600 kill)
+
+## Root cause
+The ±$5 cache holds only the 11 near-ATM $1 strikes per side. For a short condor that forces (a) a near-ATM short (NOT a real ~16-delta short, which is $10-18 OTM) and (b) a $1-2 wing (NOT the proper $10-wide wing). Worse: on a big-move day the spot travels PAST the cached band, so the short leg's adverse premium and the EOD intrinsic land on strikes that **have no CSV → the day is dropped as `missing_cache`.** Those dropped days ARE the short condor's LOSER days. So the cache silently **truncates the left tail of the P&L distribution** — it prices the calm winners and drops the violent losers, manufacturing a phantom positive expectancy.
+
+The fill-rate being symmetric (event 37% == non-event 37%) protected the SELECTION signal (delta and null share the same biased basis) — but it did NOT protect the **absolute magnitude**, and absolute magnitude is exactly what the kill-switch cap AND the null distribution judge. Once the wide band prices the real loser strikes, the event days (which by construction have FATTER move distributions — that is *why* their IV is rich) take the biggest losses, and the edge inverts. Event IV is fairly priced: you are paid more premium precisely because the realized move is bigger, and the two cancel (slightly negative after costs).
+
+## Fix
+- Built `backtest/tools/fetch_event_wide_band.py` — wide-band (ATM ±$18, $1 grid, C+P) fetch into a DEDICATED cache `backtest/data/options_event_wide/` so the ±$5 cache is never clobbered. 46 event + 46 matched non-event days, 5,334/6,808 contracts with bars (78.3% fill).
+- Built `backtest/autoresearch/_event_iv_crush_reprice.py` — re-points the shared OPRA loader at the wide cache, builds the PROPER ~16-delta (premium-proxy) / $10-wide condor, SKIPS+logs any day whose short OR its $10 wing falls outside the priced band (so the geometry is never priced dishonestly), holds to the 0DTE close (real loser tail realized), and runs the same-geometry L172 null + cap/kill check. Result `_state/event_iv_crush_reprice.json`, verdict DEAD.
+- VERDICT recorded: STRATEGY-DIRECTION-BACKLOG.md #6 DEAD (premium-selling class CLOSED), STATUS.md OP-25 entry.
+
+## Encoded in
+`fetch_event_wide_band.py` + `_event_iv_crush_reprice.py` (the de-bias harness pair) + backlog #6 DEAD + STATUS.md. Pending graduation into a reusable assertion.
+
+## L## (optional)
+Suggested **L182** (CLAUDE.md Lessons index reads "through L181 as of 2026-06-22" — grep `LESSONS-LEARNED.md` for max to confirm/assign). Fold into theme **C1** (real-fills is the only authority; BS-sim is ranking-only) sharpened with the tail-truncation corollary, OR theme **C3** (beat the null MAX) cross-referenced with **L177/OP-16 sim-accuracy gate**. Core principle to encode: *"Before trusting ANY short-premium / defined-risk structure's expectancy or worst-day from a FIXED narrow strike-band cache, verify the band reaches the strikes the move actually travelled to on the big-move days — a narrow band truncates the loss tail (drops the loser days as `missing_cache`) and manufactures a phantom edge. A fill-rate-SYMMETRIC drop protects the SELECTION signal but NOT the absolute magnitude, and the cap + the null both judge absolute magnitude. The de-bias is a wide-band fetch + a re-price that SKIPS any day whose proper geometry (real-delta short + full-width wing) is not entirely inside the priced band."* Graduate (per "a re-violated lesson is a missing guardrail"): in any credit-structure harness, assert the strike band covers the day's intraday extreme (or explicitly SKIP+count the day) before scoring expectancy/worst-day — never silently price a truncated tail. Cross-ref **C30/L148/L176** (audit what the cache actually prices before sweeping a knob — same family: audit what the cache can REACH before trusting a tail).

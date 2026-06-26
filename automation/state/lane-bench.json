@@ -1,0 +1,44 @@
+[
+  {
+    "lane": "groq::llama-3.1-8b-instant",
+    "json_ok": true,
+    "json_latency_s": 1.8,
+    "reason_latency_s": 0.7,
+    "reason_sample": "A 0DTE SPY call with low delta can still lose money even when SPY moves up in your favor due to the potential for time decay and volatility skew, which can cause the option's price to decrease more rapidly than the underlying stock's price increase."
+  },
+  {
+    "lane": "cerebras::gpt-oss-120b",
+    "json_ok": false,
+    "json_latency_s": 0.4,
+    "reason_latency_s": 0.7,
+    "reason_sample": "Because a low\u2011delta SPY call has very little intrinsic sensitivity, its price is dominated by time\u2011decay and extrinsic premium\u2014so even a favorable move may not generate enough delta\u2011gain to offset the decay and other Greeks, causing the option to lose money."
+  },
+  {
+    "lane": "cerebras::zai-glm-4.7",
+    "json_ok": false,
+    "json_latency_s": 1.3,
+    "reason_latency_s": 1.8,
+    "reason_sample": ""
+  },
+  {
+    "lane": "google_aistudio::gemini-flash-lite-latest",
+    "json_ok": true,
+    "json_latency_s": 1.0,
+    "reason_latency_s": 1.2,
+    "reason_sample": "A 0DTE call can lose money despite a favorable move if the rapid decay of extrinsic value (theta) outweighs the gains from the underlying price increase, or if implied volatility collapses significantly after your entry."
+  },
+  {
+    "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free",
+    "json_ok": true,
+    "json_latency_s": 1.6,
+    "reason_latency_s": 2.9,
+    "reason_sample": "Because a low\u2011delta 0DTE call gains only a tiny amount of value per point SPY rises, while its rapid time\u2011decay (theta) and any drop in implied volatility can erode that small gain\u2014or even outweigh it\u2014so the option can still lose money despite the underlying m"
+  },
+  {
+    "lane": "ollama::qwen3:14b",
+    "json_ok": true,
+    "json_latency_s": 30.2,
+    "reason_latency_s": 10.9,
+    "reason_sample": "A 0DTE SPY call with low delta can lose money even if SPY rises because the option's time decay (theta) is so extreme that the increase in intrinsic value from the stock move is outweighed by the rapid erosion of the option's premium, especially if the option "
+  }
+]

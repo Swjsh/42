@@ -1,11 +1,9 @@
 ﻿{
-    "checked_at":  "2026-06-15T05:44:34.0574253-06:00",
-    "trading_day":  true,
-    "health":  "RED",
+    "checked_at":  "2026-06-21T22:05:25.3731110-06:00",
+    "trading_day":  false,
+    "health":  "GREEN",
     "problems":  [
-                     "premarket stale: circuit-breaker.last_reset 2026-06-08 \u003c today",
-                     "decisions.jsonl stale: 281.4h old",
-                     "setup-performance.json MISSING (EOD outer-loop input)"
+
                  ],
     "watchdog":  "ok"
 }

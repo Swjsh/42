@@ -491,26 +491,34 @@ def main() -> int:
         return 0
 
     prompt = _build_seeder_prompt(TARGET_NEW_TASKS_PER_FIRE)
-    # Try the model ladder explicitly (same pattern as kitchen_daemon._run_task but here)
+    # FREE POOL FIRST: route seeding through the lane pool (chef role = Groq-70B
+    # primary, big-ctx + no-train, never the throttled OpenRouter-only ladder).
+    # Removes the ~32% OpenRouter-429 failure + the paid MiniMax tier. Falls back
+    # to the original ladder only if the pool returns nothing usable.
     result = None
-    for tier_idx, model in enumerate(MODEL_LADDER):
-        _log(f"attempt tier={tier_idx} model={model}")
-        result = call_minimax(
-            prompt,
-            system=SEEDER_SYSTEM_PROMPT,
-            model=model,
-            max_tokens=4000,
-            temperature=0.7,
-            timeout=240,
-            task_id=f"kitchen.seeder.tier{tier_idx}",
-        )
+    try:
+        import swarm_client as _swarm  # noqa: E402
+        result = _swarm.call_role("chef", prompt, system=SEEDER_SYSTEM_PROMPT,
+                                  max_tokens=4000, temperature=0.7,
+                                  timeout=120, remote_timeout=90, task_id="kitchen.seeder")
         if result.get("ok") and (result.get("content") or "").strip():
-            result["ladder_used"] = tier_idx
-            break
-        _log(f"  tier {tier_idx} failed: {result.get('error', 'unknown')}")
+            _log(f"seeder via pool lane={result.get('lane')}")
+    except Exception as exc:  # noqa: BLE001
+        _log(f"swarm seeder path failed: {type(exc).__name__}: {exc}; trying ladder")
+        result = None
+    if not (result and result.get("ok") and (result.get("content") or "").strip()):
+        for tier_idx, model in enumerate(MODEL_LADDER):
+            _log(f"ladder attempt tier={tier_idx} model={model}")
+            result = call_minimax(prompt, system=SEEDER_SYSTEM_PROMPT, model=model,
+                                  max_tokens=4000, temperature=0.7, timeout=240,
+                                  task_id=f"kitchen.seeder.tier{tier_idx}")
+            if result.get("ok") and (result.get("content") or "").strip():
+                result["ladder_used"] = tier_idx
+                break
+            _log(f"  tier {tier_idx} failed: {result.get('error', 'unknown')}")
 
     if not result or not result.get("ok"):
-        _log(f"all tiers failed; aborting this seed fire. error={result.get('error') if result else 'none'}")
+        _log(f"all paths failed; aborting this seed fire. error={result.get('error') if result else 'none'}")
         return 1
 
     content = result.get("content", "")

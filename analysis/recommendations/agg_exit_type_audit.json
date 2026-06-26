@@ -1,0 +1,97 @@
+{
+  "task": "agg-exit-type-audit",
+  "task_id": "6b403baf",
+  "description": "AGG exit reason breakdown IS + OOS",
+  "is_exit_breakdown": {
+    "EXIT_ALL_PREMIUM_STOP": {
+      "n": 111,
+      "pct": 0.7,
+      "avg": -193,
+      "total": -21402
+    },
+    "EXIT_ALL_TIME_STOP": {
+      "n": 14,
+      "pct": 0.09,
+      "avg": 1036,
+      "total": 14497
+    },
+    "TP1_THEN_RUNNER_RIBBON": {
+      "n": 13,
+      "pct": 0.08,
+      "avg": 1408,
+      "total": 18306
+    },
+    "TP1_THEN_RUNNER_TIME": {
+      "n": 7,
+      "pct": 0.04,
+      "avg": 1609,
+      "total": 11264
+    },
+    "EXIT_ALL_LEVEL_STOP": {
+      "n": 6,
+      "pct": 0.04,
+      "avg": 748,
+      "total": 4488
+    },
+    "EXIT_ALL_RIBBON_FLIP_BACK": {
+      "n": 4,
+      "pct": 0.02,
+      "avg": 31,
+      "total": 122
+    },
+    "TP1_THEN_RUNNER_BE_STOP": {
+      "n": 2,
+      "pct": 0.01,
+      "avg": 70,
+      "total": 139
+    },
+    "TP1_THEN_RUNNER_TARGET": {
+      "n": 2,
+      "pct": 0.01,
+      "avg": 365,
+      "total": 729
+    }
+  },
+  "oos_exit_breakdown": {
+    "EXIT_ALL_PREMIUM_STOP": {
+      "n": 24,
+      "pct": 0.77,
+      "avg": -165,
+      "total": -3952
+    },
+    "TP1_THEN_RUNNER_RIBBON": {
+      "n": 3,
+      "pct": 0.1,
+      "avg": 1036,
+      "total": 3108
+    },
+    "TP1_THEN_RUNNER_TIME": {
+      "n": 2,
+      "pct": 0.06,
+      "avg": 3086,
+      "total": 6172
+    },
+    "EXIT_ALL_LEVEL_STOP": {
+      "n": 1,
+      "pct": 0.03,
+      "avg": -72,
+      "total": -72
+    },
+    "EXIT_ALL_RIBBON_FLIP_BACK": {
+      "n": 1,
+      "pct": 0.03,
+      "avg": 33,
+      "total": 33
+    }
+  },
+  "key_findings": [
+    "Premium stop = 70/77% IS/OOS -- dominant losing exit",
+    "TP1_THEN_RUNNER_TIME: best OOS exit avg +$3086 (6% of OOS trades)",
+    "TP1_THEN_RUNNER_RIBBON: IS +$1408, OOS +$1036 -- consistent quality exit",
+    "RIBBON_FLIP_BACK runner: avg +$31-33 -- near zero, marginal",
+    "TP1_THEN_RUNNER_TARGET: 2 IS hits, 0 OOS hits -- dead OOS (C30 confirmed)",
+    "EXIT_ALL_TIME_STOP: IS +$1036 avg -- letting trade run to 15:40 is profitable"
+  ],
+  "verdict": "INFO",
+  "action": "No param change. TP1_THEN_RUNNER_TARGET confirmed dead knob OOS. Runner exits in OOS are TIME (6%) and RIBBON (10%). RIBBON_FLIP_BACK is the weakest runner exit path."
+}

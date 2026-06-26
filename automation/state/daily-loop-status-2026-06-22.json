@@ -1,0 +1,13 @@
+{
+  "date_et": "2026-06-22",
+  "verification_route": "free-tier-primary",
+  "model": "nvidia/nemotron-3-super-120b-a12b:free",
+  "cost_usd": 0.0,
+  "phases_verified": "see daily-brief markdown (no MCP -- tool-dependent checks skipped)",
+  "omitted_features": [
+    "MCP Alpaca account-info ping (no MCP)",
+    "daily-loop-status-{date}.json structured write (no Write tool)",
+    "manager-log.jsonl append (no Write tool)"
+  ],
+  "written_at_utc": "2026-06-22T21:30:42+00:00"
+}

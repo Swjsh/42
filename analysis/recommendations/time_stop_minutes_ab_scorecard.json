@@ -1,0 +1,130 @@
+{
+  "rule_id": "TIME_STOP_MINUTES_BEFORE_CLOSE",
+  "candidate_id": "time_stop_20min",
+  "filed": "2026-06-17",
+  "status": "NEEDS-J-DECISION",
+  "description": "Change time_stop_minutes_before_close from 10 (=15:50 ET) to 20 (=15:40 ET). Exit runners 10 minutes earlier to avoid 0DTE theta crush in final minutes of trading.",
+
+  "sweep_summary": {
+    "note": "Full 6-point sweep IS+OOS. n=246 IS and n=17 OOS constant across all variants (time stop only affects exit timing, not entry count).",
+    "results": [
+      {"min": 5,  "stop_et": "15:55", "IS_n": 246, "IS_pnl": -5554, "OOS_n": 17, "OOS_pnl": 2715, "IS_delta": 523,   "OOS_delta": -589, "WF": -1.13, "verdict": "FAIL - OOS HURT"},
+      {"min": 10, "stop_et": "15:50", "IS_n": 246, "IS_pnl": -6077, "OOS_n": 17, "OOS_pnl": 3304, "IS_delta": 0,     "OOS_delta": 0,    "WF": null,  "verdict": "PRODUCTION BASELINE"},
+      {"min": 15, "stop_et": "15:45", "IS_n": 246, "IS_pnl": -5018, "OOS_n": 17, "OOS_pnl": 3734, "IS_delta": 1059,  "OOS_delta": 430,  "WF": 0.41,  "verdict": "FAIL WF<0.70 - IS overfits"},
+      {"min": 20, "stop_et": "15:40", "IS_n": 246, "IS_pnl": -5525, "OOS_n": 17, "OOS_pnl": 3779, "IS_delta": 552,   "OOS_delta": 475,  "WF": 0.86,  "verdict": "PASS - sweet spot"},
+      {"min": 25, "stop_et": "15:35", "IS_n": 246, "IS_pnl": -6187, "OOS_n": 17, "OOS_pnl": 3754, "IS_delta": -110,  "OOS_delta": 450,  "WF": null,  "verdict": "FAIL - IS HURT"},
+      {"min": 30, "stop_et": "15:30", "IS_n": 246, "IS_pnl": -3843, "OOS_n": 17, "OOS_pnl": 3629, "IS_delta": 2234,  "OOS_delta": 325,  "WF": 0.15,  "verdict": "FAIL WF<0.70 - IS overfit"}
+    ]
+  },
+
+  "candidate_params": {
+    "time_stop_minutes_before_close": 20,
+    "time_stop_et_equivalent": "15:40:00",
+    "description": "Exit all open 0DTE positions at 15:40 ET (20 min before close) instead of 15:50 ET"
+  },
+
+  "production_params": {
+    "time_stop_minutes_before_close": 10,
+    "time_stop_et_equivalent": "15:50:00"
+  },
+
+  "correct_baseline_params": {
+    "use_real_fills": true,
+    "no_trade_window": null,
+    "no_trade_before": "09:35",
+    "midday_trendline_gate": true,
+    "premium_stop_pct_bear": -0.2,
+    "premium_stop_pct_bull": -0.08,
+    "per_trade_risk_cap_pct": 0.30,
+    "tp1_qty_fraction": 0.50,
+    "runner_target_premium_pct": 2.50,
+    "note": "L108+L109+L110 dead-knob fixes applied. Production-correct baseline."
+  },
+
+  "is_window": {
+    "start": "2025-01-01",
+    "end": "2026-04-30",
+    "baseline_n": 246,
+    "baseline_pnl": -6077,
+    "candidate_n": 246,
+    "candidate_pnl": -5525,
+    "delta": 552
+  },
+
+  "oos_window": {
+    "start": "2026-05-08",
+    "end": "2026-05-22",
+    "baseline_n": 17,
+    "baseline_pnl": 3304,
+    "candidate_n": 17,
+    "candidate_pnl": 3779,
+    "delta": 475
+  },
+
+  "sub_windows": {
+    "is_full_jan25_apr26": {
+      "baseline_pnl": -6077,
+      "candidate_pnl": -5525,
+      "delta": 552,
+      "verdict": "HELP"
+    },
+    "is_ex_april_jan25_mar26": {
+      "baseline_pnl": 964,
+      "candidate_pnl": 1348,
+      "delta": 384,
+      "verdict": "HELP"
+    },
+    "april_2026_tariff_shock": {
+      "baseline_pnl": -6831,
+      "candidate_pnl": -6662,
+      "delta": 169,
+      "verdict": "HELP"
+    },
+    "oos_may_2026": {
+      "baseline_pnl": 3304,
+      "candidate_pnl": 3779,
+      "delta": 475,
+      "verdict": "HELP"
+    }
+  },
+
+  "walk_forward": {
+    "is_delta": 552,
+    "oos_delta": 475,
+    "wf_ratio": 0.86,
+    "threshold": 0.70,
+    "verdict": "PASS",
+    "note": "WF=0.86 is in the clean generalization zone. 15-min candidate WF=0.41 fails (IS overfit). 20-min is the sweet spot."
+  },
+
+  "sub_window_stability": {
+    "verdict": "STABLE - ALL 4 POSITIVE",
+    "note": "Tariff shock, recovery, and ex-April (pre-tariff) all improve. No regime-conditional artifact."
+  },
+
+  "ratification_gates": {
+    "wf_gte_0_70": true,
+    "oos_delta_positive": true,
+    "sub_window_stable_all_positive": true,
+    "anchor_days_no_regression": "N/A - exit-only param; entries unchanged",
+    "evidence_n_gte_20": false,
+    "evidence_n": 17,
+    "gates_met": "3 of 4 quantitative + anchor N/A",
+    "auto_ratify": false,
+    "auto_ratify_block_reason": "evidence_n=17 < 20 required threshold"
+  },
+
+  "mechanism": "0DTE options experience exponential theta decay in the final 15-30 minutes before close. Runners that survive to 15:40 ET still have residual premium that erodes sharply between 15:40-15:50. Exiting at 15:40 consistently captures more of this premium vs waiting for 15:50 time stop. The 15-min candidate (15:45) over-tilts IS (+$1,059) while the 20-min (15:40) achieves IS/OOS balance.",
+
+  "implementation": {
+    "file": "automation/state/params.json",
+    "key": "time_stop_minutes_before_close",
+    "change": "10 → 20",
+    "note": "Also update automation/state/aggressive/params.json for dual-account symmetry (C9). EOD flatten tasks (Gamma_EodFlatten + Gamma_EodFlatten_Aggressive) run at 15:55 ET - no scheduling conflict."
+  },
+
+  "overall_verdict": "PASS - NEEDS J DECISION (evidence_n=17 < 20). WF=0.86, all 4 sub-windows HELP. Mechanism is the well-known 0DTE theta crush in final minutes. Recommend J approve time_stop_minutes_before_close: 20 in both params.json files.",
+
+  "related_candidates": ["tp1_qty_fraction_ab_scorecard.json"],
+  "lessons": ["L110 (time_stop_et parameterized in simulate_trade_real, enabling this sweep)"]
+}

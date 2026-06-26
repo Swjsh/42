@@ -1,0 +1,120 @@
+{
+  "task": "safe-bear-stop-sweep",
+  "rule_id": "safe_premium_stop_pct_bear",
+  "description": "SAFE premium_stop_pct_bear sweep [-0.07, -0.08, -0.09, -0.10]",
+  "baseline_stop": -0.1,
+  "thresholds_tested": [
+    -0.07,
+    -0.08,
+    -0.09,
+    -0.1
+  ],
+  "sweep_results": [
+    {
+      "stop": -0.07,
+      "is": {
+        "n": 116,
+        "wr": 0.328,
+        "avg": 188.1,
+        "total": 21825.3
+      },
+      "oos": {
+        "n": 25,
+        "wr": 0.24,
+        "avg": 188.5,
+        "total": 4713.4
+      },
+      "is_delta": -1601.3,
+      "oos_delta": -1207.4,
+      "wf_norm": 3.499,
+      "sw_hurt": 0,
+      "anchor_ok": true,
+      "gates": {
+        "G1": false,
+        "G2": false,
+        "G3": true,
+        "G4": true,
+        "G5": true,
+        "all": false
+      }
+    },
+    {
+      "stop": -0.08,
+      "is": {
+        "n": 115,
+        "wr": 0.365,
+        "avg": 200.5,
+        "total": 23058.5
+      },
+      "oos": {
+        "n": 25,
+        "wr": 0.24,
+        "avg": 179.0,
+        "total": 4475.2
+      },
+      "is_delta": -368.1,
+      "oos_delta": -1445.6,
+      "wf_norm": 18.065,
+      "sw_hurt": 0,
+      "anchor_ok": true,
+      "gates": {
+        "G1": false,
+        "G2": false,
+        "G3": true,
+        "G4": true,
+        "G5": true,
+        "all": false
+      }
+    },
+    {
+      "stop": -0.09,
+      "is": {
+        "n": 113,
+        "wr": 0.381,
+        "avg": 211.1,
+        "total": 23856.0
+      },
+      "oos": {
+        "n": 25,
+        "wr": 0.24,
+        "avg": 169.5,
+        "total": 4237.0
+      },
+      "is_delta": 429.4,
+      "oos_delta": -1683.8,
+      "wf_norm": -17.724,
+      "sw_hurt": 0,
+      "anchor_ok": true,
+      "gates": {
+        "G1": true,
+        "G2": false,
+        "G3": false,
+        "G4": true,
+        "G5": true,
+        "all": false
+      }
+    },
+    {
+      "stop": -0.1,
+      "is": {
+        "n": 113,
+        "wr": 0.389,
+        "avg": 207.3,
+        "total": 23426.6
+      },
+      "oos": {
+        "n": 24,
+        "wr": 0.333,
+        "avg": 246.7,
+        "total": 5920.8
+      },
+      "is_delta": 0.0,
+      "oos_delta": 0.0,
+      "verdict": "BASELINE"
+    }
+  ],
+  "best": null,
+  "auto_ratify": false,
+  "ratify_value": null,
+  "verdict": "REJECT"
+}

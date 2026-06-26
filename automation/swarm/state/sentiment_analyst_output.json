@@ -1,0 +1,21 @@
+{
+  "agent": "sentiment_analyst",
+  "generated_at": "2026-06-26T14:17:56Z",
+  "bias": "no_trade",
+  "confidence": 0.5,
+  "reasoning": "VIX at 19.17 sits in FEAR zone (16-20) but direction is falling — fear receding toward neutral. Mixed sector rotation: XLK down -1.0% (risk-off) while XLF flat, XLE flat. Overnight gap down -$1.09 with premarket high 731.2 below prior close 734.3 confirms bearish overnight sentiment. Contrasting signals: falling VIX suggests improving sentiment but gap down and tech weakness suggest participants de-risking. No clear directional conviction — mixed signals warrant neutrality.",
+  "fear_greed_label": "FEAR",
+  "vix_current": 19.17,
+  "vix_sentiment_direction": "improving",
+  "rotation_sentiment": "mixed",
+  "sentiment_extreme": false,
+  "contrarian_signal": "none",
+  "overnight_sentiment": "bearish",
+  "key_observations": [
+    "VIX 19.17 in FEAR zone (16-20) but falling = fear receding toward neutral",
+    "Sector rotation mixed: XLK -1.0% (tech weakness), XLF flat, XLE flat — no clear risk-on conviction",
+    "Overnight gap down -$1.09 with premarket high below prior close = bearish overnight positioning",
+    "Conflicting signals: improving VIX but risk-off rotation and gap down = no_trade bias"
+  ],
+  "data_quality": "full"
+}

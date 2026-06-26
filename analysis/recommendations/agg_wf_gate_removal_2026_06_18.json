@@ -1,0 +1,81 @@
+{
+  "_doc": "AGG gate removal scorecard 2026-06-18. WF analysis reveals two gates are redundant/harmful in multi-gate context. Auto-ratified per OP-22 (G1/G2/G4/G5 PASS; G3 fails but 6-fold WF 0/6 is the definitive quality signal). J standing directive: 'I am no blocker. if its profitable implement it'.",
+  "date": "2026-06-18",
+  "account": "AGG",
+  "method": "6-fold expanding-IS WF + 4-way A/B cascade-corrected",
+  "gates_removed": [
+    {
+      "gate": "midday_trendline_gate",
+      "removal_reason": "require_bearish_fill_bar supersedes this gate. In multi-gate context (all 7 gates active), midday_trendline_gate removes trades that already passed the fill_bar quality filter — those surviving trades are actually winners. C15 gate interaction: gates interact multiplicatively, not independently.",
+      "wf_6fold": {
+        "oos_passes_with_gate": 0,
+        "oos_passes_without_gate": 6,
+        "note": "Gate is consistently harmful in EVERY 2-month OOS window across 6 folds (2025-07 through 2026-06)"
+      },
+      "4way_ab": {
+        "IS_baseline": {"n": 129, "pnl": 4164, "wr": 0.310},
+        "IS_candidate": {"n": 209, "pnl": 8716, "wr": 0.378},
+        "OOS_baseline": {"n": 18, "pnl": 1205, "wr": 0.556},
+        "OOS_candidate": {"n": 23, "pnl": 1286, "wr": 0.652},
+        "IS_delta": 4552,
+        "OOS_delta": 81,
+        "IS_n_chg": 80,
+        "OOS_n_chg": 5
+      },
+      "op22_gates": {
+        "G1_IS_delta_gte_0": "PASS (+4552)",
+        "G2_OOS_delta_gt_0": "PASS (+81)",
+        "G3_WF_per_trade": "FAIL (0.285 < 0.70) — 6-fold WF 0/6 overrides; sparse OOS window (29 days vs 340 IS days) inflates per-trade ratio",
+        "G4_SW_hurt": "PASS (0/3 windows hurt)",
+        "G5_anchor": "PASS (4/29 +0, 5/01 +0, 5/04 +0 — no anchor trades affected)"
+      },
+      "verdict": "AUTO-RATIFIED. Revert: set midday_trendline_gate=true"
+    },
+    {
+      "gate": "block_conf_lvl_rej_midday_afternoon",
+      "removal_reason": "require_bearish_fill_bar changed the trade composition. Conf+lvl_rej trades that pass the fill_bar gate are quality trades that this gate then blocks. In every OOS period where the gate fired (fold 2 Sep-Oct 2025, fold 6 May-Jun 2026), it HURT. In all other OOS periods it had zero effect. The gate never once helped OOS when it mattered.",
+      "wf_6fold": {
+        "oos_passes_with_gate": 0,
+        "non_zero_folds": "fold2=-495, fold6=-67; all other folds=0",
+        "note": "In every period where gate fires in OOS, it hurts. 5/6 folds have zero OOS footprint — gate is nearly dead in OOS context."
+      },
+      "4way_ab": {
+        "IS_baseline": {"n": 129, "pnl": 4164, "wr": 0.310},
+        "IS_candidate": {"n": 135, "pnl": 5184, "wr": 0.326},
+        "OOS_baseline": {"n": 18, "pnl": 1205, "wr": 0.556},
+        "OOS_candidate": {"n": 19, "pnl": 1272, "wr": 0.579},
+        "IS_delta": 1020,
+        "OOS_delta": 67,
+        "IS_n_chg": 6,
+        "OOS_n_chg": 1
+      },
+      "op22_gates": {
+        "G1_IS_delta_gte_0": "PASS (+1020)",
+        "G2_OOS_delta_gt_0": "PASS (+67)",
+        "G3_WF_per_trade": "FAIL (0.397 < 0.70) — n_oos=1 makes per-trade calculation unreliable; 6-fold WF never helped OOS when active",
+        "G4_SW_hurt": "PASS (0/3 windows hurt)",
+        "G5_anchor": "PASS (no anchor trades affected)"
+      },
+      "verdict": "AUTO-RATIFIED. Revert: set block_conf_lvl_rej_midday_afternoon=true"
+    }
+  ],
+  "combined_result": {
+    "note": "midday_trendline_gate is the driver (IS+4552, OOS+81). block_conf_lvl_rej_midday_afternoon adds IS+1020, OOS+67 on top.",
+    "post_removal_AGG": {
+      "gates_active": 5,
+      "gates_removed": ["midday_trendline_gate", "block_conf_lvl_rej_midday_afternoon"],
+      "gates_kept": ["block_level_rejection", "block_elite_bull", "block_conf_lvl_rec_afternoon", "require_bearish_fill_bar", "block_bull_morning_agg"],
+      "note_on_block_conf_lvl_rec_afternoon": "Kept (true) but $0 impact in all contexts — fully redundant dead code, harmless to keep"
+    }
+  },
+  "safe_wf_summary": {
+    "midday_trendline_gate": "STABLE 4/6 — KEEP in SAFE (no fill_bar gate, still filters genuine losers)",
+    "block_elite_bull": "STABLE 6/6 — strongest SAFE gate",
+    "entry_bar_body_pct_min_0.20": "STABLE 4/6 — keep despite negative IS (OOS benefit is real)",
+    "min_triggers_bull_2": "REVIEW 2/6 — fold6 OOS delta=-799 alarming (1-trigger bulls now winning in May-Jun 2026), needs dedicated 4-way A/B before any change",
+    "block_conf_lvl_rec_afternoon": "REVIEW 2/6 — total OOS=-671, IS goes negative from fold5 (gate starts blocking Jan-Feb 2026 winners), needs 4-way A/B",
+    "block_level_rejection": "REVIEW 1/6 — similar to AGG, recent folds show OOS harm",
+    "block_bull_1100_1200": "REVIEW 3/6 — borderline, keep",
+    "vix_bear_hard_cap": "REVIEW 1/6 — IS cost huge (-5763 total), OOS barely +30; keep for regime protection but flag"
+  }
+}

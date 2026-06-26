@@ -1,0 +1,23 @@
+{
+  "generated_by": "backtest/tools/data_coverage_manifest.py",
+  "status": "OK",
+  "realfills_gap": null,
+  "note": "option_chain_realfills.last < spy_5m_bars.last means real-fills OOS silently scores only days the option cache covers. Backfill via backtest/tools/fetch_option_data.py or hard-window grids to the cache last day.",
+  "classes": {
+    "option_chain_realfills": {
+      "first": "2025-01-02",
+      "last": "2026-06-18",
+      "n_days": 365
+    },
+    "spy_5m_bars": {
+      "first": "2025-01-01",
+      "last": "2026-06-18",
+      "n_days": 533
+    },
+    "vix_5m": {
+      "first": "2025-01-01",
+      "last": "2026-06-19",
+      "n_days": 534
+    }
+  }
+}

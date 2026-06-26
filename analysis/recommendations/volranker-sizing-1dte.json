@@ -1,0 +1,2009 @@
+{
+  "slug": "overnight-vol-sizing-overlay-1dte",
+  "kind": "sizing_overlay on the WP-8 1DTE/dollar-stop DEPLOYED config (NOT a gate; L174-safe)",
+  "run_date": "2026-06-21",
+  "the_question": "does the higher 1DTE premium give the min-3 floor enough room that the overnight-vol sizing overlay now improves risk-adjusted return at $10K/$25K -- the compounding case the 0DTE stream structurally blocked?",
+  "edge": "vwap_continuation (LIVE #1), CALL+PUT, real per-DTE OPRA fills (C1)",
+  "deployed_config": "WP-8 1DTE / DOLLAR-STOP: Safe-2 ATM/$35.88, Bold ITM-2/$67.68 (dollar threshold = median 0DTE -8% loss at that tier, frozen at 1DTE)",
+  "overnight_feature": "sum(|MES 1m logret|) over 18:00->09:30 ET (W-track def, byte-for-byte)",
+  "tercile_mechanism": "causal: day's overnight_rv vs PRIOR 60d window (shift-1); cuts = 1/3 & 2/3 quantiles; <20 priors -> BASE (no guess)",
+  "tercile_multipliers": {
+    "top": 1.5,
+    "mid": 1.0,
+    "bot": 0.6
+  },
+  "join_cutoff": "2026-06-12",
+  "mes_overnight_last": "2026-06-12",
+  "tercile_counts": {
+    "base_warmup": 20,
+    "mid": 99,
+    "bot": 138,
+    "top": 117
+  },
+  "the_bar": "sizing overlay must (1) improve risk-adjusted return (per-trade Sharpe OR per-day Sharpe/Sortino UP, OR maxDD DOWN at eq-or-better return) vs FLAT-3 on the SAME 1DTE/dollar-stop stream, (2) RESPECT Rule-6 caps (per-trade cap + min-3; 0 breaches), (3) NEVER zero a takeable day (L174; 0 zero-days), (4) OOS-honest (OOS-2026 also improves risk-adjusted, not just IS lever-up). The COMPOUNDING case is the $10K/$25K cells.",
+  "equity_levels": [
+    2000.0,
+    10000.0,
+    25000.0
+  ],
+  "accounts": {
+    "Safe-2": {
+      "tier": "ATM",
+      "strike_offset": 0,
+      "dollar_stop_thresh": 35.88,
+      "calibration": {
+        "tier_offset": 0,
+        "dollar_thresh": 35.88,
+        "n_0dte_losers": 82,
+        "median_0dte_entry_premium": 1.35,
+        "median_dte_entry_premium": {
+          "0": 1.35,
+          "1": 2.495,
+          "2": 3.34
+        },
+        "percent_scaled_pct": {
+          "0": -0.08,
+          "1": -0.0433,
+          "2": -0.0323
+        }
+      },
+      "premium_stats": {
+        "n": 165,
+        "median_premium": 2.5,
+        "mean_premium": 2.9134,
+        "min_premium": 0.62,
+        "max_premium": 12.2
+      },
+      "n_trades": 166,
+      "n_classifiable": 165,
+      "n_dropped_post_mes": 1,
+      "n_IS": 115,
+      "n_OOS": 50,
+      "coverage": {
+        "signals": 166,
+        "filled": 166,
+        "cache_miss": 0,
+        "no_expiry_listed": 0,
+        "sim_none": 0,
+        "fill_rate": 1.0
+      },
+      "per_equity": {
+        "2000": {
+          "full": {
+            "cell": {
+              "equity": 2000.0,
+              "flat3": {
+                "per_trade": {
+                  "n": 160,
+                  "total": 6787.99,
+                  "mean": 42.42,
+                  "std": 81.03,
+                  "sharpe": 0.5236,
+                  "sortino": 4.8024,
+                  "win_rate_pct": 40.0
+                },
+                "per_day": {
+                  "n_days": 160,
+                  "total": 6787.99,
+                  "mean_day": 42.42,
+                  "sharpe_day": 0.5236,
+                  "sortino_day": 4.8024,
+                  "max_dd": -322.92,
+                  "worst_day": -35.88,
+                  "best_day": 179.1,
+                  "win_days": 64,
+                  "loss_days": 96
+                },
+                "compounding": {
+                  "final_equity": 11246.49,
+                  "ruin": false,
+                  "growth_mult": 5.6232,
+                  "total_return_pct": 462.32,
+                  "max_dd_frac": 0.0597,
+                  "kill_trips": 0
+                }
+              },
+              "overlay": {
+                "per_trade": {
+                  "n": 160,
+                  "total": 6868.99,
+                  "mean": 42.93,
+                  "std": 81.65,
+                  "sharpe": 0.5258,
+                  "sortino": 4.8597,
+                  "win_rate_pct": 40.0
+                },
+                "per_day": {
+                  "n_days": 160,
+                  "total": 6868.99,
+                  "mean_day": 42.93,
+                  "sharpe_day": 0.5258,
+                  "sortino_day": 4.8597,
+                  "max_dd": -322.92,
+                  "worst_day": -35.88,
+                  "best_day": 179.1,
+                  "win_days": 64,
+                  "loss_days": 96
+                },
+                "compounding": {
+                  "final_equity": 12153.41,
+                  "ruin": false,
+                  "growth_mult": 6.0767,
+                  "total_return_pct": 507.67,
+                  "max_dd_frac": 0.0621,
+                  "kill_trips": 0
+                },
+                "avg_qty_by_tercile": {
+                  "top": 1.6,
+                  "mid": 1.93,
+                  "bot": 2.36,
+                  "base_warmup": 2.12
+                },
+                "qty_hist": {
+                  "flat": {
+                    "1": 50,
+                    "2": 64,
+                    "3": 46
+                  },
+                  "overlay": {
+                    "1": 50,
+                    "2": 64,
+                    "3": 44,
+                    "4": 2
+                  }
+                }
+              },
+              "cap_respect": {
+                "cap_breaches": 0,
+                "overlay_zeroed_flat_takeable": 0,
+                "cap_skips_shared_both_arms": 5,
+                "per_trade_cap_frac": 0.3,
+                "min_contracts": 3,
+                "RESPECTS_CAPS": true
+              }
+            },
+            "verdict": {
+              "sharpe_per_trade_delta": 0.0022,
+              "sharpe_per_day_delta": 0.0022,
+              "sortino_per_day_delta": 0.0573,
+              "maxdd_frac_delta": 0.0024,
+              "total_return_pct_delta": 45.35,
+              "risk_adjusted_up": true,
+              "lower_dd_at_eq_or_better_return": false,
+              "respects_caps": true,
+              "IMPROVES": true
+            }
+          },
+          "IS_2025": {
+            "cell": {
+              "equity": 2000.0,
+              "flat3": {
+                "per_trade": {
+                  "n": 110,
+                  "total": 5016.25,
+                  "mean": 45.6,
+                  "std": 83.86,
+                  "sharpe": 0.5438,
+                  "sortino": 4.8944,
+                  "win_rate_pct": 41.8
+                },
+                "per_day": {
+                  "n_days": 110,
+                  "total": 5016.25,
+                  "mean_day": 45.6,
+                  "sharpe_day": 0.5438,
+                  "sortino_day": 4.8944,
+                  "max_dd": -234.22,
+                  "worst_day": -35.88,
+                  "best_day": 179.1,
+                  "win_days": 46,
+                  "loss_days": 64
+                },
+                "compounding": {
+                  "final_equity": 8273.55,
+                  "ruin": false,
+                  "growth_mult": 4.1368,
+                  "total_return_pct": 313.68,
+                  "max_dd_frac": 0.0597,
+                  "kill_trips": 0
+                }
+              },
+              "overlay": {
+                "per_trade": {
+                  "n": 110,
+                  "total": 5057.05,
+                  "mean": 45.97,
+                  "std": 84.3,
+                  "sharpe": 0.5454,
+                  "sortino": 4.9343,
+                  "win_rate_pct": 41.8
+                },
+                "per_day": {
+                  "n_days": 110,
+                  "total": 5057.05,
+                  "mean_day": 45.97,
+                  "sharpe_day": 0.5454,
+                  "sortino_day": 4.9343,
+                  "max_dd": -234.22,
+                  "worst_day": -35.88,
+                  "best_day": 179.1,
+                  "win_days": 46,
+                  "loss_days": 64
+                },
+                "compounding": {
+                  "final_equity": 8617.27,
+                  "ruin": false,
+                  "growth_mult": 4.3086,
+                  "total_return_pct": 330.86,
+                  "max_dd_frac": 0.0621,
+                  "kill_trips": 0
+                },
+                "avg_qty_by_tercile": {
+                  "top": 1.66,
+                  "mid": 1.93,
+                  "bot": 2.51,
+                  "base_warmup": 2.12
+                },
+                "qty_hist": {
+                  "flat": {
+                    "1": 30,
+                    "2": 41,
+                    "3": 39
+                  },
+                  "overlay": {
+                    "1": 30,
+                    "2": 41,
+                    "3": 38,
+                    "4": 1
+                  }
+                }
+              },
+              "cap_respect": {
+                "cap_breaches": 0,
+                "overlay_zeroed_flat_takeable": 0,
+                "cap_skips_shared_both_arms": 5,
+                "per_trade_cap_frac": 0.3,
+                "min_contracts": 3,
+                "RESPECTS_CAPS": true
+              }
+            },
+            "verdict": {
+              "sharpe_per_trade_delta": 0.0016,
+              "sharpe_per_day_delta": 0.0016,
+              "sortino_per_day_delta": 0.0399,
+              "maxdd_frac_delta": 0.0024,
+              "total_return_pct_delta": 17.18,
+              "risk_adjusted_up": true,
+              "lower_dd_at_eq_or_better_return": false,
+              "respects_caps": true,
+              "IMPROVES": true
+            }
+          },
+          "OOS_2026": {
+            "cell": {
+              "equity": 2000.0,
+              "flat3": {
+                "per_trade": {
+                  "n": 50,
+                  "total": 1771.74,
+                  "mean": 35.43,
+                  "std": 74.74,
+                  "sharpe": 0.4741,
+                  "sortino": 4.8191,
+                  "win_rate_pct": 36.0
+                },
+                "per_day": {
+                  "n_days": 50,
+                  "total": 1771.74,
+                  "mean_day": 35.43,
+                  "sharpe_day": 0.4741,
+                  "sortino_day": 4.8191,
+                  "max_dd": -322.92,
+                  "worst_day": -35.88,
+                  "best_day": 175.2,
+                  "win_days": 18,
+                  "loss_days": 32
+                },
+                "compounding": {
+                  "final_equity": 4678.66,
+                  "ruin": false,
+                  "growth_mult": 2.3393,
+                  "total_return_pct": 133.93,
+                  "max_dd_frac": 0.1011,
+                  "kill_trips": 0
+                }
+              },
+              "overlay": {
+                "per_trade": {
+                  "n": 50,
+                  "total": 1811.94,
+                  "mean": 36.24,
+                  "std": 75.88,
+                  "sharpe": 0.4776,
+                  "sortino": 4.9284,
+                  "win_rate_pct": 36.0
+                },
+                "per_day": {
+                  "n_days": 50,
+                  "total": 1811.94,
+                  "mean_day": 36.24,
+                  "sharpe_day": 0.4776,
+                  "sortino_day": 4.9284,
+                  "max_dd": -322.92,
+                  "worst_day": -35.88,
+                  "best_day": 175.2,
+                  "win_days": 18,
+                  "loss_days": 32
+                },
+                "compounding": {
+                  "final_equity": 4877.8,
+                  "ruin": false,
+                  "growth_mult": 2.4389,
+                  "total_return_pct": 143.89,
+                  "max_dd_frac": 0.0994,
+                  "kill_trips": 0
+                },
+                "avg_qty_by_tercile": {
+                  "top": 1.5,
+                  "mid": 1.95,
+                  "bot": 1.85,
+                  "base_warmup": null
+                },
+                "qty_hist": {
+                  "flat": {
+                    "1": 20,
+                    "2": 23,
+                    "3": 7
+                  },
+                  "overlay": {
+                    "1": 20,
+                    "2": 23,
+                    "3": 6,
+                    "4": 1
+                  }
+                }
+              },
+              "cap_respect": {
+                "cap_breaches": 0,
+                "overlay_zeroed_flat_takeable": 0,
+                "cap_skips_shared_both_arms": 0,
+                "per_trade_cap_frac": 0.3,
+                "min_contracts": 3,
+                "RESPECTS_CAPS": true
+              }
+            },
+            "verdict": {
+              "sharpe_per_trade_delta": 0.0035,
+              "sharpe_per_day_delta": 0.0035,
+              "sortino_per_day_delta": 0.1093,
+              "maxdd_frac_delta": -0.0017,
+              "total_return_pct_delta": 9.96,
+              "risk_adjusted_up": true,
+              "lower_dd_at_eq_or_better_return": true,
+              "respects_caps": true,
+              "IMPROVES": true
+            }
+          },
+          "OOS_HONEST_CLEAN": true
+        },
+        "10000": {
+          "full": {
+            "cell": {
+              "equity": 10000.0,
+              "flat3": {
+                "per_trade": {
+                  "n": 165,
+                  "total": 9633.99,
+                  "mean": 58.39,
+                  "std": 129.77,
+                  "sharpe": 0.4499,
+                  "sortino": 34.8479,
+                  "win_rate_pct": 38.8
+                },
+                "per_day": {
+                  "n_days": 165,
+                  "total": 9633.99,
+                  "mean_day": 58.39,
+                  "sharpe_day": 0.4499,
+                  "sortino_day": 34.8479,
+                  "max_dd": -538.2,
+                  "worst_day": -35.89,
+                  "best_day": 441.9,
+                  "win_days": 64,
+                  "loss_days": 101
+                },
+                "compounding": {
+                  "final_equity": 19622.03,
+                  "ruin": false,
+                  "growth_mult": 1.9622,
+                  "total_return_pct": 96.22,
+                  "max_dd_frac": 0.0317,
+                  "kill_trips": 0
+                }
+              },
+              "overlay": {
+                "per_trade": {
+                  "n": 165,
+                  "total": 10831.79,
+                  "mean": 65.65,
+                  "std": 149.88,
+                  "sharpe": 0.438,
+                  "sortino": 11.1482,
+                  "win_rate_pct": 38.8
+                },
+                "per_day": {
+                  "n_days": 165,
+                  "total": 10831.79,
+                  "mean_day": 65.65,
+                  "sharpe_day": 0.438,
+                  "sortino_day": 11.1482,
+                  "max_dd": -550.16,
+                  "worst_day": -47.85,
+                  "best_day": 589.2,
+                  "win_days": 64,
+                  "loss_days": 101
+                },
+                "compounding": {
+                  "final_equity": 20783.96,
+                  "ruin": false,
+                  "growth_mult": 2.0784,
+                  "total_return_pct": 107.84,
+                  "max_dd_frac": 0.038,
+                  "kill_trips": 0
+                },
+                "avg_qty_by_tercile": {
+                  "top": 3.87,
+                  "mid": 3.0,
+                  "bot": 3.0,
+                  "base_warmup": 3.0
+                },
+                "qty_hist": {
+                  "flat": {
+                    "2": 2,
+                    "3": 163
+                  },
+                  "overlay": {
+                    "2": 2,
+                    "3": 113,
+                    "4": 50
+                  }
+                }
+              },
+              "cap_respect": {
+                "cap_breaches": 0,
+                "overlay_zeroed_flat_takeable": 0,
+                "cap_skips_shared_both_arms": 0,
+                "per_trade_cap_frac": 0.3,
+                "min_contracts": 3,
+                "RESPECTS_CAPS": true
+              }
+            },
+            "verdict": {
+              "sharpe_per_trade_delta": -0.0119,
+              "sharpe_per_day_delta": -0.0119,
+              "sortino_per_day_delta": -23.6997,
+              "maxdd_frac_delta": 0.0063,
+              "total_return_pct_delta": 11.62,
+              "risk_adjusted_up": false,
+              "lower_dd_at_eq_or_better_return": false,
+              "respects_caps": true,
+              "IMPROVES": false
+            }
+          },
+          "IS_2025": {
+            "cell": {
+              "equity": 10000.0,
+              "flat3": {
+                "per_trade": {
+                  "n": 115,
+                  "total": 6661.05,
+                  "mean": 57.92,
+                  "std": 125.75,
+                  "sharpe": 0.4606,
+                  "sortino": 28.6421,
+                  "win_rate_pct": 40.0
+                },
+                "per_day": {
+                  "n_days": 115,
+                  "total": 6661.05,
+                  "mean_day": 57.92,
+                  "sharpe_day": 0.4606,
+                  "sortino_day": 28.6421,
+                  "max_dd": -370.72,
+                  "worst_day": -35.89,
+                  "best_day": 433.8,
+                  "win_days": 46,
+                  "loss_days": 69
+                },
+                "compounding": {
+                  "final_equity": 16649.09,
+                  "ruin": false,
+                  "growth_mult": 1.6649,
+                  "total_return_pct": 66.49,
+                  "max_dd_frac": 0.0317,
+                  "kill_trips": 0
+                }
+              },
+              "overlay": {
+                "per_trade": {
+                  "n": 115,
+                  "total": 7295.65,
+                  "mean": 63.44,
+                  "std": 142.05,
+                  "sharpe": 0.4466,
+                  "sortino": 10.5141,
+                  "win_rate_pct": 40.0
+                },
+                "per_day": {
+                  "n_days": 115,
+                  "total": 7295.65,
+                  "mean_day": 63.44,
+                  "sharpe_day": 0.4466,
+                  "sortino_day": 10.5141,
+                  "max_dd": -418.56,
+                  "worst_day": -47.85,
+                  "best_day": 578.4,
+                  "win_days": 46,
+                  "loss_days": 69
+                },
+                "compounding": {
+                  "final_equity": 17247.82,
+                  "ruin": false,
+                  "growth_mult": 1.7248,
+                  "total_return_pct": 72.48,
+                  "max_dd_frac": 0.038,
+                  "kill_trips": 0
+                },
+                "avg_qty_by_tercile": {
+                  "top": 3.81,
+                  "mid": 3.0,
+                  "bot": 3.0,
+                  "base_warmup": 3.0
+                },
+                "qty_hist": {
+                  "flat": {
+                    "2": 2,
+                    "3": 113
+                  },
+                  "overlay": {
+                    "2": 2,
+                    "3": 81,
+                    "4": 32
+                  }
+                }
+              },
+              "cap_respect": {
+                "cap_breaches": 0,
+                "overlay_zeroed_flat_takeable": 0,
+                "cap_skips_shared_both_arms": 0,
+                "per_trade_cap_frac": 0.3,
+                "min_contracts": 3,
+                "RESPECTS_CAPS": true
+              }
+            },
+            "verdict": {
+              "sharpe_per_trade_delta": -0.014,
+              "sharpe_per_day_delta": -0.014,
+              "sortino_per_day_delta": -18.128,
+              "maxdd_frac_delta": 0.0063,
+              "total_return_pct_delta": 5.99,
+              "risk_adjusted_up": false,
+              "lower_dd_at_eq_or_better_return": false,
+              "respects_caps": true,
+              "IMPROVES": false
+            }
+          },
+          "OOS_2026": {
+            "cell": {
+              "equity": 10000.0,
+              "flat3": {
+                "per_trade": {
+                  "n": 50,
+                  "total": 2972.94,
+                  "mean": 59.46,
+                  "std": 139.88,
+                  "sharpe": 0.4251,
+                  "sortino": 21409.9323,
+                  "win_rate_pct": 36.0
+                },
+                "per_day": {
+                  "n_days": 50,
+                  "total": 2972.94,
+                  "mean_day": 59.46,
+                  "sharpe_day": 0.4251,
+                  "sortino_day": 21409.9323,
+                  "max_dd": -538.2,
+                  "worst_day": -35.88,
+                  "best_day": 441.9,
+                  "win_days": 18,
+                  "loss_days": 32
+                },
+                "compounding": {
+                  "final_equity": 12972.94,
+                  "ruin": false,
+                  "growth_mult": 1.2973,
+                  "total_return_pct": 29.73,
+                  "max_dd_frac": 0.0398,
+                  "kill_trips": 0
+                }
+              },
+              "overlay": {
+                "per_trade": {
+                  "n": 50,
+                  "total": 3536.14,
+                  "mean": 70.72,
+                  "std": 167.93,
+                  "sharpe": 0.4211,
+                  "sortino": 12.5558,
+                  "win_rate_pct": 36.0
+                },
+                "per_day": {
+                  "n_days": 50,
+                  "total": 3536.14,
+                  "mean_day": 70.72,
+                  "sharpe_day": 0.4211,
+                  "sortino_day": 12.5558,
+                  "max_dd": -550.16,
+                  "worst_day": -47.85,
+                  "best_day": 589.2,
+                  "win_days": 18,
+                  "loss_days": 32
+                },
+                "compounding": {
+                  "final_equity": 13536.14,
+                  "ruin": false,
+                  "growth_mult": 1.3536,
+                  "total_return_pct": 35.36,
+                  "max_dd_frac": 0.0391,
+                  "kill_trips": 0
+                },
+                "avg_qty_by_tercile": {
+                  "top": 4.0,
+                  "mid": 3.0,
+                  "bot": 3.0,
+                  "base_warmup": null
+                },
+                "qty_hist": {
+                  "flat": {
+                    "3": 50
+                  },
+                  "overlay": {
+                    "3": 32,
+                    "4": 18
+                  }
+                }
+              },
+              "cap_respect": {
+                "cap_breaches": 0,
+                "overlay_zeroed_flat_takeable": 0,
+                "cap_skips_shared_both_arms": 0,
+                "per_trade_cap_frac": 0.3,
+                "min_contracts": 3,
+                "RESPECTS_CAPS": true
+              }
+            },
+            "verdict": {
+              "sharpe_per_trade_delta": -0.004,
+              "sharpe_per_day_delta": -0.004,
+              "sortino_per_day_delta": -21397.3765,
+              "maxdd_frac_delta": -0.0007,
+              "total_return_pct_delta": 5.63,
+              "risk_adjusted_up": false,
+              "lower_dd_at_eq_or_better_return": true,
+              "respects_caps": true,
+              "IMPROVES": true
+            }
+          },
+          "OOS_HONEST_CLEAN": false
+        },
+        "25000": {
+          "full": {
+            "cell": {
+              "equity": 25000.0,
+              "flat3": {
+                "per_trade": {
+                  "n": 165,
+                  "total": 9610.07,
+                  "mean": 58.24,
+                  "std": 129.87,
+                  "sharpe": 0.4485,
+                  "sortino": 17779.6512,
+                  "win_rate_pct": 38.8
+                },
+                "per_day": {
+                  "n_days": 165,
+                  "total": 9610.07,
+                  "mean_day": 58.24,
+                  "sharpe_day": 0.4485,
+                  "sortino_day": 17779.6512,
+                  "max_dd": -538.2,
+                  "worst_day": -35.89,
+                  "best_day": 441.9,
+                  "win_days": 64,
+                  "loss_days": 101
+                },
+                "compounding": {
+                  "final_equity": 34610.07,
+                  "ruin": false,
+                  "growth_mult": 1.3844,
+                  "total_return_pct": 38.44,
+                  "max_dd_frac": 0.0153,
+                  "kill_trips": 0
+                }
+              },
+              "overlay": {
+                "per_trade": {
+                  "n": 165,
+                  "total": 10748.09,
+                  "mean": 65.14,
+                  "std": 150.23,
+                  "sharpe": 0.4336,
+                  "sortino": 11.3902,
+                  "win_rate_pct": 38.8
+                },
+                "per_day": {
+                  "n_days": 165,
+                  "total": 10748.09,
+                  "mean_day": 65.14,
+                  "sharpe_day": 0.4336,
+                  "sortino_day": 11.3902,
+                  "max_dd": -550.16,
+                  "worst_day": -47.85,
+                  "best_day": 589.2,
+                  "win_days": 64,
+                  "loss_days": 101
+                },
+                "compounding": {
+                  "final_equity": 35748.09,
+                  "ruin": false,
+                  "growth_mult": 1.4299,
+                  "total_return_pct": 42.99,
+                  "max_dd_frac": 0.0184,
+                  "kill_trips": 0
+                },
+                "avg_qty_by_tercile": {
+                  "top": 4.0,
+                  "mid": 3.0,
+                  "bot": 3.0,
+                  "base_warmup": 3.0
+                },
+                "qty_hist": {
+                  "flat": {
+                    "3": 165
+                  },
+                  "overlay": {
+                    "3": 110,
+                    "4": 55
+                  }
+                }
+              },
+              "cap_respect": {
+                "cap_breaches": 0,
+                "overlay_zeroed_flat_takeable": 0,
+                "cap_skips_shared_both_arms": 0,
+                "per_trade_cap_frac": 0.3,
+                "min_contracts": 3,
+                "RESPECTS_CAPS": true
+              }
+            },
+            "verdict": {
+              "sharpe_per_trade_delta": -0.0149,
+              "sharpe_per_day_delta": -0.0149,
+              "sortino_per_day_delta": -17768.261,
+              "maxdd_frac_delta": 0.0031,
+              "total_return_pct_delta": 4.55,
+              "risk_adjusted_up": false,
+              "lower_dd_at_eq_or_better_return": false,
+              "respects_caps": true,
+              "IMPROVES": false
+            }
+          },
+          "IS_2025": {
+            "cell": {
+              "equity": 25000.0,
+              "flat3": {
+                "per_trade": {
+                  "n": 115,
+                  "total": 6637.14,
+                  "mean": 57.71,
+                  "std": 125.9,
+                  "sharpe": 0.4584,
+                  "sortino": 16651.3165,
+                  "win_rate_pct": 40.0
+                },
+                "per_day": {
+                  "n_days": 115,
+                  "total": 6637.14,
+                  "mean_day": 57.71,
+                  "sharpe_day": 0.4584,
+                  "sortino_day": 16651.3165,
+                  "max_dd": -394.63,
+                  "worst_day": -35.89,
+                  "best_day": 433.8,
+                  "win_days": 46,
+                  "loss_days": 69
+                },
+                "compounding": {
+                  "final_equity": 31637.14,
+                  "ruin": false,
+                  "growth_mult": 1.2655,
+                  "total_return_pct": 26.55,
+                  "max_dd_frac": 0.0146,
+                  "kill_trips": 0
+                }
+              },
+              "overlay": {
+                "per_trade": {
+                  "n": 115,
+                  "total": 7211.95,
+                  "mean": 62.71,
+                  "std": 142.57,
+                  "sharpe": 0.4399,
+                  "sortino": 10.8318,
+                  "win_rate_pct": 40.0
+                },
+                "per_day": {
+                  "n_days": 115,
+                  "total": 7211.95,
+                  "mean_day": 62.71,
+                  "sharpe_day": 0.4399,
+                  "sortino_day": 10.8318,
+                  "max_dd": -502.26,
+                  "worst_day": -47.85,
+                  "best_day": 578.4,
+                  "win_days": 46,
+                  "loss_days": 69
+                },
+                "compounding": {
+                  "final_equity": 32211.95,
+                  "ruin": false,
+                  "growth_mult": 1.2885,
+                  "total_return_pct": 28.85,
+                  "max_dd_frac": 0.0184,
+                  "kill_trips": 0
+                },
+                "avg_qty_by_tercile": {
+                  "top": 4.0,
+                  "mid": 3.0,
+                  "bot": 3.0,
+                  "base_warmup": 3.0
+                },
+                "qty_hist": {
+                  "flat": {
+                    "3": 115
+                  },
+                  "overlay": {
+                    "3": 78,
+                    "4": 37
+                  }
+                }
+              },
+              "cap_respect": {
+                "cap_breaches": 0,
+                "overlay_zeroed_flat_takeable": 0,
+                "cap_skips_shared_both_arms": 0,
+                "per_trade_cap_frac": 0.3,
+                "min_contracts": 3,
+                "RESPECTS_CAPS": true
+              }
+            },
+            "verdict": {
+              "sharpe_per_trade_delta": -0.0185,
+              "sharpe_per_day_delta": -0.0185,
+              "sortino_per_day_delta": -16640.4847,
+              "maxdd_frac_delta": 0.0038,
+              "total_return_pct_delta": 2.3,
+              "risk_adjusted_up": false,
+              "lower_dd_at_eq_or_better_return": false,
+              "respects_caps": true,
+              "IMPROVES": false
+            }
+          },
+          "OOS_2026": {
+            "cell": {
+              "equity": 25000.0,
+              "flat3": {
+                "per_trade": {
+                  "n": 50,
+                  "total": 2972.94,
+                  "mean": 59.46,
+                  "std": 139.88,
+                  "sharpe": 0.4251,
+                  "sortino": 21409.9323,
+                  "win_rate_pct": 36.0
+                },
+                "per_day": {
+                  "n_days": 50,
+                  "total": 2972.94,
+                  "mean_day": 59.46,
+                  "sharpe_day": 0.4251,
+                  "sortino_day": 21409.9323,
+                  "max_dd": -538.2,
+                  "worst_day": -35.88,
+                  "best_day": 441.9,
+                  "win_days": 18,
+                  "loss_days": 32
+                },
+                "compounding": {
+                  "final_equity": 27972.94,
+                  "ruin": false,
+                  "growth_mult": 1.1189,
+                  "total_return_pct": 11.89,
+                  "max_dd_frac": 0.0189,
+                  "kill_trips": 0
+                }
+              },
+              "overlay": {
+                "per_trade": {
+                  "n": 50,
+                  "total": 3536.14,
+                  "mean": 70.72,
+                  "std": 167.93,
+                  "sharpe": 0.4211,
+                  "sortino": 12.5558,
+                  "win_rate_pct": 36.0
+                },
+                "per_day": {
+                  "n_days": 50,
+                  "total": 3536.14,
+                  "mean_day": 70.72,
+                  "sharpe_day": 0.4211,
+                  "sortino_day": 12.5558,
+                  "max_dd": -550.16,
+                  "worst_day": -47.85,
+                  "best_day": 589.2,
+                  "win_days": 18,
+                  "loss_days": 32
+                },
+                "compounding": {
+                  "final_equity": 28536.14,
+                  "ruin": false,
+                  "growth_mult": 1.1414,
+                  "total_return_pct": 14.14,
+                  "max_dd_frac": 0.0189,
+                  "kill_trips": 0
+                },
+                "avg_qty_by_tercile": {
+                  "top": 4.0,
+                  "mid": 3.0,
+                  "bot": 3.0,
+                  "base_warmup": null
+                },
+                "qty_hist": {
+                  "flat": {
+                    "3": 50
+                  },
+                  "overlay": {
+                    "3": 32,
+                    "4": 18
+                  }
+                }
+              },
+              "cap_respect": {
+                "cap_breaches": 0,
+                "overlay_zeroed_flat_takeable": 0,
+                "cap_skips_shared_both_arms": 0,
+                "per_trade_cap_frac": 0.3,
+                "min_contracts": 3,
+                "RESPECTS_CAPS": true
+              }
+            },
+            "verdict": {
+              "sharpe_per_trade_delta": -0.004,
+              "sharpe_per_day_delta": -0.004,
+              "sortino_per_day_delta": -21397.3765,
+              "maxdd_frac_delta": 0.0,
+              "total_return_pct_delta": 2.25,
+              "risk_adjusted_up": false,
+              "lower_dd_at_eq_or_better_return": false,
+              "respects_caps": true,
+              "IMPROVES": false
+            }
+          },
+          "OOS_HONEST_CLEAN": false
+        }
+      }
+    },
+    "Bold": {
+      "tier": "ITM-2",
+      "strike_offset": -2,
+      "dollar_stop_thresh": 67.68,
+      "calibration": {
+        "tier_offset": -2,
+        "dollar_thresh": 67.68,
+        "n_0dte_losers": 85,
+        "median_0dte_entry_premium": 2.55,
+        "median_dte_entry_premium": {
+          "0": 2.55,
+          "1": 3.57,
+          "2": 4.48
+        },
+        "percent_scaled_pct": {
+          "0": -0.08,
+          "1": -0.0571,
+          "2": -0.0455
+        }
+      },
+      "premium_stats": {
+        "n": 165,
+        "median_premium": 3.57,
+        "mean_premium": 3.9808,
+        "min_premium": 1.53,
+        "max_premium": 13.07
+      },
+      "n_trades": 166,
+      "n_classifiable": 165,
+      "n_dropped_post_mes": 1,
+      "n_IS": 115,
+      "n_OOS": 50,
+      "coverage": {
+        "signals": 166,
+        "filled": 166,
+        "cache_miss": 0,
+        "no_expiry_listed": 0,
+        "sim_none": 0,
+        "fill_rate": 1.0
+      },
+      "per_equity": {
+        "2000": {
+          "full": {
+            "cell": {
+              "equity": 2000.0,
+              "flat3": {
+                "per_trade": {
+                  "n": 163,
+                  "total": 11448.94,
+                  "mean": 70.24,
+                  "std": 140.07,
+                  "sharpe": 0.5015,
+                  "sortino": 4.3841,
+                  "win_rate_pct": 42.3
+                },
+                "per_day": {
+                  "n_days": 163,
+                  "total": 11448.94,
+                  "mean_day": 70.24,
+                  "sharpe_day": 0.5015,
+                  "sortino_day": 4.3841,
+                  "max_dd": -541.45,
+                  "worst_day": -67.68,
+                  "best_day": 297.9,
+                  "win_days": 69,
+                  "loss_days": 94
+                },
+                "compounding": {
+                  "final_equity": 16040.59,
+                  "ruin": false,
+                  "growth_mult": 8.0203,
+                  "total_return_pct": 702.03,
+                  "max_dd_frac": 0.1123,
+                  "kill_trips": 0
+                }
+              },
+              "overlay": {
+                "per_trade": {
+                  "n": 163,
+                  "total": 11649.04,
+                  "mean": 71.47,
+                  "std": 141.51,
+                  "sharpe": 0.505,
+                  "sortino": 4.4607,
+                  "win_rate_pct": 42.3
+                },
+                "per_day": {
+                  "n_days": 163,
+                  "total": 11649.04,
+                  "mean_day": 71.47,
+                  "sharpe_day": 0.505,
+                  "sortino_day": 4.4607,
+                  "max_dd": -541.45,
+                  "worst_day": -67.68,
+                  "best_day": 297.9,
+                  "win_days": 69,
+                  "loss_days": 94
+                },
+                "compounding": {
+                  "final_equity": 17458.48,
+                  "ruin": false,
+                  "growth_mult": 8.7292,
+                  "total_return_pct": 772.92,
+                  "max_dd_frac": 0.1187,
+                  "kill_trips": 0
+                },
+                "avg_qty_by_tercile": {
+                  "top": 1.89,
+                  "mid": 2.24,
+                  "bot": 2.5,
+                  "base_warmup": 2.62
+                },
+                "qty_hist": {
+                  "flat": {
+                    "1": 29,
+                    "2": 70,
+                    "3": 64
+                  },
+                  "overlay": {
+                    "1": 29,
+                    "2": 70,
+                    "3": 61,
+                    "4": 3
+                  }
+                }
+              },
+              "cap_respect": {
+                "cap_breaches": 0,
+                "overlay_zeroed_flat_takeable": 0,
+                "cap_skips_shared_both_arms": 2,
+                "per_trade_cap_frac": 0.5,
+                "min_contracts": 3,
+                "RESPECTS_CAPS": true
+              }
+            },
+            "verdict": {
+              "sharpe_per_trade_delta": 0.0035,
+              "sharpe_per_day_delta": 0.0035,
+              "sortino_per_day_delta": 0.0766,
+              "maxdd_frac_delta": 0.0064,
+              "total_return_pct_delta": 70.89,
+              "risk_adjusted_up": true,
+              "lower_dd_at_eq_or_better_return": false,
+              "respects_caps": true,
+              "IMPROVES": true
+            }
+          },
+          "IS_2025": {
+            "cell": {
+              "equity": 2000.0,
+              "flat3": {
+                "per_trade": {
+                  "n": 113,
+                  "total": 8154.91,
+                  "mean": 72.17,
+                  "std": 142.76,
+                  "sharpe": 0.5055,
+                  "sortino": 4.2475,
+                  "win_rate_pct": 43.4
+                },
+                "per_day": {
+                  "n_days": 113,
+                  "total": 8154.91,
+                  "mean_day": 72.17,
+                  "sharpe_day": 0.5055,
+                  "sortino_day": 4.2475,
+                  "max_dd": -406.07,
+                  "worst_day": -67.68,
+                  "best_day": 297.9,
+                  "win_days": 49,
+                  "loss_days": 64
+                },
+                "compounding": {
+                  "final_equity": 12203.34,
+                  "ruin": false,
+                  "growth_mult": 6.1017,
+                  "total_return_pct": 510.17,
+                  "max_dd_frac": 0.1123,
+                  "kill_trips": 0
+                }
+              },
+              "overlay": {
+                "per_trade": {
+                  "n": 113,
+                  "total": 8287.51,
+                  "mean": 73.34,
+                  "std": 144.1,
+                  "sharpe": 0.509,
+                  "sortino": 4.3166,
+                  "win_rate_pct": 43.4
+                },
+                "per_day": {
+                  "n_days": 113,
+                  "total": 8287.51,
+                  "mean_day": 73.34,
+                  "sharpe_day": 0.509,
+                  "sortino_day": 4.3166,
+                  "max_dd": -406.07,
+                  "worst_day": -67.68,
+                  "best_day": 297.9,
+                  "win_days": 49,
+                  "loss_days": 64
+                },
+                "compounding": {
+                  "final_equity": 13117.0,
+                  "ruin": false,
+                  "growth_mult": 6.5585,
+                  "total_return_pct": 555.85,
+                  "max_dd_frac": 0.1187,
+                  "kill_trips": 0
+                },
+                "avg_qty_by_tercile": {
+                  "top": 1.89,
+                  "mid": 2.19,
+                  "bot": 2.63,
+                  "base_warmup": 2.62
+                },
+                "qty_hist": {
+                  "flat": {
+                    "1": 19,
+                    "2": 44,
+                    "3": 50
+                  },
+                  "overlay": {
+                    "1": 19,
+                    "2": 44,
+                    "3": 48,
+                    "4": 2
+                  }
+                }
+              },
+              "cap_respect": {
+                "cap_breaches": 0,
+                "overlay_zeroed_flat_takeable": 0,
+                "cap_skips_shared_both_arms": 2,
+                "per_trade_cap_frac": 0.5,
+                "min_contracts": 3,
+                "RESPECTS_CAPS": true
+              }
+            },
+            "verdict": {
+              "sharpe_per_trade_delta": 0.0035,
+              "sharpe_per_day_delta": 0.0035,
+              "sortino_per_day_delta": 0.0691,
+              "maxdd_frac_delta": 0.0064,
+              "total_return_pct_delta": 45.68,
+              "risk_adjusted_up": true,
+              "lower_dd_at_eq_or_better_return": false,
+              "respects_caps": true,
+              "IMPROVES": true
+            }
+          },
+          "OOS_2026": {
+            "cell": {
+              "equity": 2000.0,
+              "flat3": {
+                "per_trade": {
+                  "n": 50,
+                  "total": 3294.03,
+                  "mean": 65.88,
+                  "std": 135.1,
+                  "sharpe": 0.4877,
+                  "sortino": 5.3012,
+                  "win_rate_pct": 40.0
+                },
+                "per_day": {
+                  "n_days": 50,
+                  "total": 3294.03,
+                  "mean_day": 65.88,
+                  "sharpe_day": 0.4877,
+                  "sortino_day": 5.3012,
+                  "max_dd": -541.45,
+                  "worst_day": -67.68,
+                  "best_day": 295.2,
+                  "win_days": 20,
+                  "loss_days": 30
+                },
+                "compounding": {
+                  "final_equity": 5859.81,
+                  "ruin": false,
+                  "growth_mult": 2.9299,
+                  "total_return_pct": 192.99,
+                  "max_dd_frac": 0.1295,
+                  "kill_trips": 0
+                }
+              },
+              "overlay": {
+                "per_trade": {
+                  "n": 50,
+                  "total": 3361.53,
+                  "mean": 67.23,
+                  "std": 136.82,
+                  "sharpe": 0.4914,
+                  "sortino": 5.4099,
+                  "win_rate_pct": 40.0
+                },
+                "per_day": {
+                  "n_days": 50,
+                  "total": 3361.53,
+                  "mean_day": 67.23,
+                  "sharpe_day": 0.4914,
+                  "sortino_day": 5.4099,
+                  "max_dd": -541.45,
+                  "worst_day": -67.68,
+                  "best_day": 295.2,
+                  "win_days": 20,
+                  "loss_days": 30
+                },
+                "compounding": {
+                  "final_equity": 6409.16,
+                  "ruin": false,
+                  "growth_mult": 3.2046,
+                  "total_return_pct": 220.46,
+                  "max_dd_frac": 0.1413,
+                  "kill_trips": 0
+                },
+                "avg_qty_by_tercile": {
+                  "top": 1.89,
+                  "mid": 2.32,
+                  "bot": 2.08,
+                  "base_warmup": null
+                },
+                "qty_hist": {
+                  "flat": {
+                    "1": 10,
+                    "2": 26,
+                    "3": 14
+                  },
+                  "overlay": {
+                    "1": 10,
+                    "2": 26,
+                    "3": 13,
+                    "4": 1
+                  }
+                }
+              },
+              "cap_respect": {
+                "cap_breaches": 0,
+                "overlay_zeroed_flat_takeable": 0,
+                "cap_skips_shared_both_arms": 0,
+                "per_trade_cap_frac": 0.5,
+                "min_contracts": 3,
+                "RESPECTS_CAPS": true
+              }
+            },
+            "verdict": {
+              "sharpe_per_trade_delta": 0.0037,
+              "sharpe_per_day_delta": 0.0037,
+              "sortino_per_day_delta": 0.1087,
+              "maxdd_frac_delta": 0.0118,
+              "total_return_pct_delta": 27.47,
+              "risk_adjusted_up": true,
+              "lower_dd_at_eq_or_better_return": false,
+              "respects_caps": true,
+              "IMPROVES": true
+            }
+          },
+          "OOS_HONEST_CLEAN": true
+        },
+        "10000": {
+          "full": {
+            "cell": {
+              "equity": 10000.0,
+              "flat3": {
+                "per_trade": {
+                  "n": 165,
+                  "total": 13972.91,
+                  "mean": 84.68,
+                  "std": 189.54,
+                  "sharpe": 0.4468,
+                  "sortino": 20915.7601,
+                  "win_rate_pct": 41.8
+                },
+                "per_day": {
+                  "n_days": 165,
+                  "total": 13972.91,
+                  "mean_day": 84.68,
+                  "sharpe_day": 0.4468,
+                  "sortino_day": 20915.7601,
+                  "max_dd": -812.18,
+                  "worst_day": -67.69,
+                  "best_day": 537.3,
+                  "win_days": 69,
+                  "loss_days": 96
+                },
+                "compounding": {
+                  "final_equity": 23972.91,
+                  "ruin": false,
+                  "growth_mult": 2.3973,
+                  "total_return_pct": 139.73,
+                  "max_dd_frac": 0.0524,
+                  "kill_trips": 0
+                }
+              },
+              "overlay": {
+                "per_trade": {
+                  "n": 165,
+                  "total": 15300.56,
+                  "mean": 92.73,
+                  "std": 214.22,
+                  "sharpe": 0.4329,
+                  "sortino": 8.5491,
+                  "win_rate_pct": 41.8
+                },
+                "per_day": {
+                  "n_days": 165,
+                  "total": 15300.56,
+                  "mean_day": 92.73,
+                  "sharpe_day": 0.4329,
+                  "sortino_day": 8.5491,
+                  "max_dd": -992.67,
+                  "worst_day": -90.25,
+                  "best_day": 716.4,
+                  "win_days": 69,
+                  "loss_days": 96
+                },
+                "compounding": {
+                  "final_equity": 25278.0,
+                  "ruin": false,
+                  "growth_mult": 2.5278,
+                  "total_return_pct": 152.78,
+                  "max_dd_frac": 0.0648,
+                  "kill_trips": 0
+                },
+                "avg_qty_by_tercile": {
+                  "top": 3.98,
+                  "mid": 3.0,
+                  "bot": 3.0,
+                  "base_warmup": 3.0
+                },
+                "qty_hist": {
+                  "flat": {
+                    "3": 165
+                  },
+                  "overlay": {
+                    "3": 111,
+                    "4": 54
+                  }
+                }
+              },
+              "cap_respect": {
+                "cap_breaches": 0,
+                "overlay_zeroed_flat_takeable": 0,
+                "cap_skips_shared_both_arms": 0,
+                "per_trade_cap_frac": 0.5,
+                "min_contracts": 3,
+                "RESPECTS_CAPS": true
+              }
+            },
+            "verdict": {
+              "sharpe_per_trade_delta": -0.0139,
+              "sharpe_per_day_delta": -0.0139,
+              "sortino_per_day_delta": -20907.211,
+              "maxdd_frac_delta": 0.0124,
+              "total_return_pct_delta": 13.05,
+              "risk_adjusted_up": false,
+              "lower_dd_at_eq_or_better_return": false,
+              "respects_caps": true,
+              "IMPROVES": false
+            }
+          },
+          "IS_2025": {
+            "cell": {
+              "equity": 10000.0,
+              "flat3": {
+                "per_trade": {
+                  "n": 115,
+                  "total": 10135.66,
+                  "mean": 88.14,
+                  "std": 190.71,
+                  "sharpe": 0.4621,
+                  "sortino": 21741.6659,
+                  "win_rate_pct": 42.6
+                },
+                "per_day": {
+                  "n_days": 115,
+                  "total": 10135.66,
+                  "mean_day": 88.14,
+                  "sharpe_day": 0.4621,
+                  "sortino_day": 21741.6659,
+                  "max_dd": -744.5,
+                  "worst_day": -67.69,
+                  "best_day": 537.3,
+                  "win_days": 49,
+                  "loss_days": 66
+                },
+                "compounding": {
+                  "final_equity": 20135.66,
+                  "ruin": false,
+                  "growth_mult": 2.0136,
+                  "total_return_pct": 101.36,
+                  "max_dd_frac": 0.0524,
+                  "kill_trips": 0
+                }
+              },
+              "overlay": {
+                "per_trade": {
+                  "n": 115,
+                  "total": 10959.08,
+                  "mean": 95.3,
+                  "std": 213.48,
+                  "sharpe": 0.4464,
+                  "sortino": 8.7973,
+                  "win_rate_pct": 42.6
+                },
+                "per_day": {
+                  "n_days": 115,
+                  "total": 10959.08,
+                  "mean_day": 95.3,
+                  "sharpe_day": 0.4464,
+                  "sortino_day": 8.7973,
+                  "max_dd": -924.99,
+                  "worst_day": -90.25,
+                  "best_day": 716.4,
+                  "win_days": 49,
+                  "loss_days": 66
+                },
+                "compounding": {
+                  "final_equity": 20936.52,
+                  "ruin": false,
+                  "growth_mult": 2.0937,
+                  "total_return_pct": 109.37,
+                  "max_dd_frac": 0.0648,
+                  "kill_trips": 0
+                },
+                "avg_qty_by_tercile": {
+                  "top": 3.97,
+                  "mid": 3.0,
+                  "bot": 3.0,
+                  "base_warmup": 3.0
+                },
+                "qty_hist": {
+                  "flat": {
+                    "3": 115
+                  },
+                  "overlay": {
+                    "3": 79,
+                    "4": 36
+                  }
+                }
+              },
+              "cap_respect": {
+                "cap_breaches": 0,
+                "overlay_zeroed_flat_takeable": 0,
+                "cap_skips_shared_both_arms": 0,
+                "per_trade_cap_frac": 0.5,
+                "min_contracts": 3,
+                "RESPECTS_CAPS": true
+              }
+            },
+            "verdict": {
+              "sharpe_per_trade_delta": -0.0157,
+              "sharpe_per_day_delta": -0.0157,
+              "sortino_per_day_delta": -21732.8686,
+              "maxdd_frac_delta": 0.0124,
+              "total_return_pct_delta": 8.01,
+              "risk_adjusted_up": false,
+              "lower_dd_at_eq_or_better_return": false,
+              "respects_caps": true,
+              "IMPROVES": false
+            }
+          },
+          "OOS_2026": {
+            "cell": {
+              "equity": 10000.0,
+              "flat3": {
+                "per_trade": {
+                  "n": 50,
+                  "total": 3837.25,
+                  "mean": 76.75,
+                  "std": 188.5,
+                  "sharpe": 0.4071,
+                  "sortino": 20808.9182,
+                  "win_rate_pct": 40.0
+                },
+                "per_day": {
+                  "n_days": 50,
+                  "total": 3837.25,
+                  "mean_day": 76.75,
+                  "sharpe_day": 0.4071,
+                  "sortino_day": 20808.9182,
+                  "max_dd": -812.18,
+                  "worst_day": -67.69,
+                  "best_day": 500.4,
+                  "win_days": 20,
+                  "loss_days": 30
+                },
+                "compounding": {
+                  "final_equity": 13837.25,
+                  "ruin": false,
+                  "growth_mult": 1.3837,
+                  "total_return_pct": 38.37,
+                  "max_dd_frac": 0.057,
+                  "kill_trips": 0
+                }
+              },
+              "overlay": {
+                "per_trade": {
+                  "n": 50,
+                  "total": 4341.48,
+                  "mean": 86.83,
+                  "std": 217.98,
+                  "sharpe": 0.3983,
+                  "sortino": 7.852,
+                  "win_rate_pct": 40.0
+                },
+                "per_day": {
+                  "n_days": 50,
+                  "total": 4341.48,
+                  "mean_day": 86.83,
+                  "sharpe_day": 0.3983,
+                  "sortino_day": 7.852,
+                  "max_dd": -992.67,
+                  "worst_day": -90.25,
+                  "best_day": 667.2,
+                  "win_days": 20,
+                  "loss_days": 30
+                },
+                "compounding": {
+                  "final_equity": 14341.48,
+                  "ruin": false,
+                  "growth_mult": 1.4341,
+                  "total_return_pct": 43.41,
+                  "max_dd_frac": 0.0664,
+                  "kill_trips": 0
+                },
+                "avg_qty_by_tercile": {
+                  "top": 4.0,
+                  "mid": 3.0,
+                  "bot": 3.0,
+                  "base_warmup": null
+                },
+                "qty_hist": {
+                  "flat": {
+                    "3": 50
+                  },
+                  "overlay": {
+                    "3": 32,
+                    "4": 18
+                  }
+                }
+              },
+              "cap_respect": {
+                "cap_breaches": 0,
+                "overlay_zeroed_flat_takeable": 0,
+                "cap_skips_shared_both_arms": 0,
+                "per_trade_cap_frac": 0.5,
+                "min_contracts": 3,
+                "RESPECTS_CAPS": true
+              }
+            },
+            "verdict": {
+              "sharpe_per_trade_delta": -0.0088,
+              "sharpe_per_day_delta": -0.0088,
+              "sortino_per_day_delta": -20801.0662,
+              "maxdd_frac_delta": 0.0094,
+              "total_return_pct_delta": 5.04,
+              "risk_adjusted_up": false,
+              "lower_dd_at_eq_or_better_return": false,
+              "respects_caps": true,
+              "IMPROVES": false
+            }
+          },
+          "OOS_HONEST_CLEAN": false
+        },
+        "25000": {
+          "full": {
+            "cell": {
+              "equity": 25000.0,
+              "flat3": {
+                "per_trade": {
+                  "n": 165,
+                  "total": 13972.91,
+                  "mean": 84.68,
+                  "std": 189.54,
+                  "sharpe": 0.4468,
+                  "sortino": 20915.7601,
+                  "win_rate_pct": 41.8
+                },
+                "per_day": {
+                  "n_days": 165,
+                  "total": 13972.91,
+                  "mean_day": 84.68,
+                  "sharpe_day": 0.4468,
+                  "sortino_day": 20915.7601,
+                  "max_dd": -812.18,
+                  "worst_day": -67.69,
+                  "best_day": 537.3,
+                  "win_days": 69,
+                  "loss_days": 96
+                },
+                "compounding": {
+                  "final_equity": 38972.91,
+                  "ruin": false,
+                  "growth_mult": 1.5589,
+                  "total_return_pct": 55.89,
+                  "max_dd_frac": 0.0255,
+                  "kill_trips": 0
+                }
+              },
+              "overlay": {
+                "per_trade": {
+                  "n": 165,
+                  "total": 15278.0,
+                  "mean": 92.59,
+                  "std": 214.33,
+                  "sharpe": 0.432,
+                  "sortino": 8.4825,
+                  "win_rate_pct": 41.8
+                },
+                "per_day": {
+                  "n_days": 165,
+                  "total": 15278.0,
+                  "mean_day": 92.59,
+                  "sharpe_day": 0.432,
+                  "sortino_day": 8.4825,
+                  "max_dd": -992.67,
+                  "worst_day": -90.25,
+                  "best_day": 716.4,
+                  "win_days": 69,
+                  "loss_days": 96
+                },
+                "compounding": {
+                  "final_equity": 40278.0,
+                  "ruin": false,
+                  "growth_mult": 1.6111,
+                  "total_return_pct": 61.11,
+                  "max_dd_frac": 0.032,
+                  "kill_trips": 0
+                },
+                "avg_qty_by_tercile": {
+                  "top": 4.0,
+                  "mid": 3.0,
+                  "bot": 3.0,
+                  "base_warmup": 3.0
+                },
+                "qty_hist": {
+                  "flat": {
+                    "3": 165
+                  },
+                  "overlay": {
+                    "3": 110,
+                    "4": 55
+                  }
+                }
+              },
+              "cap_respect": {
+                "cap_breaches": 0,
+                "overlay_zeroed_flat_takeable": 0,
+                "cap_skips_shared_both_arms": 0,
+                "per_trade_cap_frac": 0.5,
+                "min_contracts": 3,
+                "RESPECTS_CAPS": true
+              }
+            },
+            "verdict": {
+              "sharpe_per_trade_delta": -0.0148,
+              "sharpe_per_day_delta": -0.0148,
+              "sortino_per_day_delta": -20907.2776,
+              "maxdd_frac_delta": 0.0065,
+              "total_return_pct_delta": 5.22,
+              "risk_adjusted_up": false,
+              "lower_dd_at_eq_or_better_return": false,
+              "respects_caps": true,
+              "IMPROVES": false
+            }
+          },
+          "IS_2025": {
+            "cell": {
+              "equity": 25000.0,
+              "flat3": {
+                "per_trade": {
+                  "n": 115,
+                  "total": 10135.66,
+                  "mean": 88.14,
+                  "std": 190.71,
+                  "sharpe": 0.4621,
+                  "sortino": 21741.6659,
+                  "win_rate_pct": 42.6
+                },
+                "per_day": {
+                  "n_days": 115,
+                  "total": 10135.66,
+                  "mean_day": 88.14,
+                  "sharpe_day": 0.4621,
+                  "sortino_day": 21741.6659,
+                  "max_dd": -744.5,
+                  "worst_day": -67.69,
+                  "best_day": 537.3,
+                  "win_days": 49,
+                  "loss_days": 66
+                },
+                "compounding": {
+                  "final_equity": 35135.66,
+                  "ruin": false,
+                  "growth_mult": 1.4054,
+                  "total_return_pct": 40.54,
+                  "max_dd_frac": 0.0255,
+                  "kill_trips": 0
+                }
+              },
+              "overlay": {
+                "per_trade": {
+                  "n": 115,
+                  "total": 10936.52,
+                  "mean": 95.1,
+                  "std": 213.65,
+                  "sharpe": 0.4451,
+                  "sortino": 8.6962,
+                  "win_rate_pct": 42.6
+                },
+                "per_day": {
+                  "n_days": 115,
+                  "total": 10936.52,
+                  "mean_day": 95.1,
+                  "sharpe_day": 0.4451,
+                  "sortino_day": 8.6962,
+                  "max_dd": -947.55,
+                  "worst_day": -90.25,
+                  "best_day": 716.4,
+                  "win_days": 49,
+                  "loss_days": 66
+                },
+                "compounding": {
+                  "final_equity": 35936.52,
+                  "ruin": false,
+                  "growth_mult": 1.4375,
+                  "total_return_pct": 43.75,
+                  "max_dd_frac": 0.032,
+                  "kill_trips": 0
+                },
+                "avg_qty_by_tercile": {
+                  "top": 4.0,
+                  "mid": 3.0,
+                  "bot": 3.0,
+                  "base_warmup": 3.0
+                },
+                "qty_hist": {
+                  "flat": {
+                    "3": 115
+                  },
+                  "overlay": {
+                    "3": 78,
+                    "4": 37
+                  }
+                }
+              },
+              "cap_respect": {
+                "cap_breaches": 0,
+                "overlay_zeroed_flat_takeable": 0,
+                "cap_skips_shared_both_arms": 0,
+                "per_trade_cap_frac": 0.5,
+                "min_contracts": 3,
+                "RESPECTS_CAPS": true
+              }
+            },
+            "verdict": {
+              "sharpe_per_trade_delta": -0.017,
+              "sharpe_per_day_delta": -0.017,
+              "sortino_per_day_delta": -21732.9697,
+              "maxdd_frac_delta": 0.0065,
+              "total_return_pct_delta": 3.21,
+              "risk_adjusted_up": false,
+              "lower_dd_at_eq_or_better_return": false,
+              "respects_caps": true,
+              "IMPROVES": false
+            }
+          },
+          "OOS_2026": {
+            "cell": {
+              "equity": 25000.0,
+              "flat3": {
+                "per_trade": {
+                  "n": 50,
+                  "total": 3837.25,
+                  "mean": 76.75,
+                  "std": 188.5,
+                  "sharpe": 0.4071,
+                  "sortino": 20808.9182,
+                  "win_rate_pct": 40.0
+                },
+                "per_day": {
+                  "n_days": 50,
+                  "total": 3837.25,
+                  "mean_day": 76.75,
+                  "sharpe_day": 0.4071,
+                  "sortino_day": 20808.9182,
+                  "max_dd": -812.18,
+                  "worst_day": -67.69,
+                  "best_day": 500.4,
+                  "win_days": 20,
+                  "loss_days": 30
+                },
+                "compounding": {
+                  "final_equity": 28837.25,
+                  "ruin": false,
+                  "growth_mult": 1.1535,
+                  "total_return_pct": 15.35,
+                  "max_dd_frac": 0.0278,
+                  "kill_trips": 0
+                }
+              },
+              "overlay": {
+                "per_trade": {
+                  "n": 50,
+                  "total": 4341.48,
+                  "mean": 86.83,
+                  "std": 217.98,
+                  "sharpe": 0.3983,
+                  "sortino": 7.852,
+                  "win_rate_pct": 40.0
+                },
+                "per_day": {
+                  "n_days": 50,
+                  "total": 4341.48,
+                  "mean_day": 86.83,
+                  "sharpe_day": 0.3983,
+                  "sortino_day": 7.852,
+                  "max_dd": -992.67,
+                  "worst_day": -90.25,
+                  "best_day": 667.2,
+                  "win_days": 20,
+                  "loss_days": 30
+                },
+                "compounding": {
+                  "final_equity": 29341.48,
+                  "ruin": false,
+                  "growth_mult": 1.1737,
+                  "total_return_pct": 17.37,
+                  "max_dd_frac": 0.0331,
+                  "kill_trips": 0
+                },
+                "avg_qty_by_tercile": {
+                  "top": 4.0,
+                  "mid": 3.0,
+                  "bot": 3.0,
+                  "base_warmup": null
+                },
+                "qty_hist": {
+                  "flat": {
+                    "3": 50
+                  },
+                  "overlay": {
+                    "3": 32,
+                    "4": 18
+                  }
+                }
+              },
+              "cap_respect": {
+                "cap_breaches": 0,
+                "overlay_zeroed_flat_takeable": 0,
+                "cap_skips_shared_both_arms": 0,
+                "per_trade_cap_frac": 0.5,
+                "min_contracts": 3,
+                "RESPECTS_CAPS": true
+              }
+            },
+            "verdict": {
+              "sharpe_per_trade_delta": -0.0088,
+              "sharpe_per_day_delta": -0.0088,
+              "sortino_per_day_delta": -20801.0662,
+              "maxdd_frac_delta": 0.0053,
+              "total_return_pct_delta": 2.02,
+              "risk_adjusted_up": false,
+              "lower_dd_at_eq_or_better_return": false,
+              "respects_caps": true,
+              "IMPROVES": false
+            }
+          },
+          "OOS_HONEST_CLEAN": false
+        }
+      }
+    }
+  },
+  "verdict": "MARGINAL",
+  "verdict_rollup": {
+    "improves_2k": true,
+    "improves_10k": false,
+    "oos_clean_10k": false,
+    "improves_25k": false,
+    "oos_clean_25k": false,
+    "compounding_case_clean_at_scale": false,
+    "caps_respected_all_cells": true,
+    "overlay_zeroed_takeable_days_total": 0
+  },
+  "verdict_legend": {
+    "SIZING_IMPROVEMENT": "OOS-honest risk-adjusted lift at $10K OR $25K (the compounding case)",
+    "MARGINAL": "helps somewhere (often $2K risk-tool) but NOT OOS-clean at $10K/$25K scale",
+    "NO_IMPROVEMENT": "caps respected, no zero days, but no risk-adjusted lift (inert)",
+    "DEAD": "breaches caps or zeroes takeable days (broken overlay)"
+  },
+  "DISCLOSURE": {
+    "overlay_logic": "BYTE-FOR-BYTE _volranker_sizing.{run_cell, overlay_contracts, _improvement_verdict, causal_terciles}; only the trade stream swapped",
+    "stream": "1DTE/dollar-stop via _dte_stop_construction.run_cell(construction='dollar') -> real per-DTE OPRA day-T bars + honest overnight gap + expiry intrinsic settlement (inherited byte-for-byte from _dte_expansion_sim); converted to the volranker T (pct=pct_return qty-invariant, pnl3=dollar_pnl@qty-3)",
+    "caps": "Rule-6 clamp = _b10_sizing.contracts_from_fraction (via overlay); audited 0 breaches",
+    "never_zero": "overlay floors at >=1 where the cap fits; bottom-tercile reduced not removed (L174)",
+    "calibration_note": "dollar threshold re-derived from the 0DTE -8% run at each tier (Safe-2 $35.88, Bold $67.68), frozen and applied at 1DTE -- the SAME calibration the WP-8 ship-spec uses, NOT refit on the 1DTE stream",
+    "join_caveat": "classifiable days bounded by MES 1m (ends 2026-06-12); 1DTE trades after that have no overnight tercile (dropped, disclosed) -- OPRA to 2026-06-18",
+    "fixed_equity_note": "per-trade/per-day risk metrics at FIXED equity (so $ comparable, not confounded by the compounding path); growth/maxDD-frac from the replay",
+    "research_only": "Sunday money-path guard: no watcher/params/risk_gate/heartbeat edit, no orders, no commit",
+    "spy_vs_option": "C3/L58 -- overnight-FLOW ranker validated on the OPTION P&L, not SPY/futures range"
+  }
+}

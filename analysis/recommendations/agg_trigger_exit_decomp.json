@@ -1,0 +1,89 @@
+{
+  "study": "AGG trigger-class \u00d7 exit-type decomposition",
+  "date": "2026-06-17",
+  "is": {
+    "n": 105,
+    "total_pnl": 11335.08,
+    "by_class": {
+      "lvl_rec_only": {
+        "n": 5,
+        "pnl": -2209.04,
+        "avg": -441.81,
+        "stop_rate": 1.0,
+        "runner_rate": 0.0
+      },
+      "conf+lvl_rej": {
+        "n": 18,
+        "pnl": 6305.08,
+        "avg": 350.28,
+        "stop_rate": 0.722,
+        "runner_rate": 0.167
+      },
+      "conf+lvl_rec": {
+        "n": 33,
+        "pnl": 3973.0,
+        "avg": 120.39,
+        "stop_rate": 0.909,
+        "runner_rate": 0.091
+      },
+      "trendline": {
+        "n": 49,
+        "pnl": 3266.04,
+        "avg": 66.65,
+        "stop_rate": 0.878,
+        "runner_rate": 0.061
+      }
+    },
+    "tp1_runner_survivors": {
+      "trendline": {
+        "n": 3,
+        "pnl": 4132.5,
+        "avg": 1377.5
+      },
+      "conf+lvl_rec": {
+        "n": 3,
+        "pnl": 6858.0,
+        "avg": 2286.0
+      },
+      "conf+lvl_rej": {
+        "n": 3,
+        "pnl": 7773.0,
+        "avg": 2591.0
+      }
+    }
+  },
+  "oos": {
+    "n": 18,
+    "total_pnl": 238.28,
+    "by_class": {
+      "conf+lvl_rec": {
+        "n": 7,
+        "pnl": 470.8,
+        "avg": 67.26,
+        "stop_rate": 0.857,
+        "runner_rate": 0.143
+      },
+      "conf+lvl_rej": {
+        "n": 6,
+        "pnl": -406.69,
+        "avg": -67.78,
+        "stop_rate": 1.0,
+        "runner_rate": 0.0
+      },
+      "trendline": {
+        "n": 5,
+        "pnl": 174.17,
+        "avg": 34.83,
+        "stop_rate": 0.4,
+        "runner_rate": 0.0
+      }
+    },
+    "tp1_runner_survivors": {
+      "conf+lvl_rec": {
+        "n": 1,
+        "pnl": 1860.0,
+        "avg": 1860.0
+      }
+    }
+  }
+}

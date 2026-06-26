@@ -1,0 +1,371 @@
+{
+  "campaign": "momentum_morning ENTRY-FILTER resurrection (1DTE + dollar-stop; strict IS->OOS no-overfit)",
+  "run_date": "2026-06-21",
+  "family": "momentum_morning",
+  "dte": 1,
+  "tier": "ITM-2",
+  "tier_offset": -2,
+  "window": "2025-01-02..2026-06-16",
+  "n_signals": 183,
+  "dollar_thresh": 59.28,
+  "method": {
+    "causal_only": "every filter feature computed at-or-before the ref-time entry bar",
+    "is_chosen_oos_validated": "threshold/side selected on IS-2025 fills ONLY (objective: maximize IS drop_top5_full s.t. keep_frac>=0.55), frozen, applied to OOS-2026",
+    "clean_win_bar": "filtered OOS cell clears the full canonical structural bar (n>=20, oos_exp>0, posQ>=4, top5<200, drop_top5_full>0, IS-1H>0, oos_drop_top5>0 [decisive L173]) AND no-regression (removed OOS dollars net-negative, L174)",
+    "small_sweep": "5 a-priori filters, each tested ONCE IS->OOS (no multi-threshold fishing)",
+    "min_keep_frac": 0.55,
+    "is_quantile_grid": [
+      0.1,
+      0.2,
+      0.25,
+      0.3,
+      0.4
+    ]
+  },
+  "baseline_unfiltered": {
+    "n": 181,
+    "oos_n": 59,
+    "oos_exp": 61.31,
+    "oos_total": 3617.01,
+    "positive_quarters": "4/6",
+    "top5_day_pct": 119.2,
+    "drop_top5_full": -4.21,
+    "oos_drop_top5": -1.25,
+    "oos_drop_top5_evaluable": true,
+    "is_first_half_exp": 2.89,
+    "book_maxDD": -2252.16,
+    "book_sortino_ann": 6.212,
+    "book_worst_day": -159.0,
+    "structural_bar_pass": false,
+    "structural_bar_fails": [
+      "drop_top5_full=-4.21<=0",
+      "oos_drop_top5=-1.25<=0(L173)"
+    ],
+    "removed_oos_n": 0,
+    "removed_oos_total": 0.0,
+    "removed_oos_exp": 0.0,
+    "no_regression_removed_oos_net_neg": true,
+    "CLEAN_WIN": false
+  },
+  "filters": {
+    "F1_momentum_strength": {
+      "selection": {
+        "feasible": true,
+        "best": {
+          "q": 0.1,
+          "thr": 0.004,
+          "keep_frac": 0.919,
+          "is_drop_top5_full": -25.09
+        },
+        "trials": [
+          {
+            "q": 0.1,
+            "thr": 0.004,
+            "keep_frac": 0.919,
+            "is_drop_top5_full": -25.09
+          },
+          {
+            "q": 0.2,
+            "thr": 0.0047,
+            "keep_frac": 0.815,
+            "is_drop_top5_full": -25.69
+          },
+          {
+            "q": 0.25,
+            "thr": 0.005,
+            "keep_frac": 0.766,
+            "is_drop_top5_full": -30.75
+          },
+          {
+            "q": 0.3,
+            "thr": 0.0052,
+            "keep_frac": 0.71,
+            "is_drop_top5_full": -28.28
+          },
+          {
+            "q": 0.4,
+            "thr": 0.00562,
+            "keep_frac": 0.597,
+            "is_drop_top5_full": -31.42
+          }
+        ],
+        "feature": "move_abs",
+        "direction": "keep_high"
+      },
+      "frozen_threshold": 0.004,
+      "direction": "keep_high",
+      "applied_oos": {
+        "n": 167,
+        "oos_n": 55,
+        "oos_exp": 70.08,
+        "oos_total": 3854.13,
+        "positive_quarters": "5/6",
+        "top5_day_pct": 110.2,
+        "drop_top5_full": -2.62,
+        "oos_drop_top5": 3.39,
+        "oos_drop_top5_evaluable": true,
+        "is_first_half_exp": 7.98,
+        "book_maxDD": -2034.78,
+        "book_sortino_ann": 7.291,
+        "book_worst_day": -159.0,
+        "structural_bar_pass": false,
+        "structural_bar_fails": [
+          "drop_top5_full=-2.62<=0"
+        ],
+        "removed_oos_n": 4,
+        "removed_oos_total": -237.12,
+        "removed_oos_exp": -59.28,
+        "no_regression_removed_oos_net_neg": true,
+        "CLEAN_WIN": false
+      }
+    },
+    "F4_tight_stop_dist": {
+      "selection": {
+        "feasible": true,
+        "best": {
+          "q": 0.1,
+          "thr": 0.016907,
+          "keep_frac": 0.895,
+          "is_drop_top5_full": -30.35
+        },
+        "trials": [
+          {
+            "q": 0.1,
+            "thr": 0.016907,
+            "keep_frac": 0.895,
+            "is_drop_top5_full": -30.35
+          },
+          {
+            "q": 0.2,
+            "thr": 0.01261,
+            "keep_frac": 0.798,
+            "is_drop_top5_full": -34.66
+          },
+          {
+            "q": 0.25,
+            "thr": 0.011592,
+            "keep_frac": 0.75,
+            "is_drop_top5_full": -34.92
+          },
+          {
+            "q": 0.3,
+            "thr": 0.010815,
+            "keep_frac": 0.702,
+            "is_drop_top5_full": -44.58
+          },
+          {
+            "q": 0.4,
+            "thr": 0.009037,
+            "keep_frac": 0.597,
+            "is_drop_top5_full": -45.94
+          }
+        ],
+        "feature": "stop_dist_rel",
+        "direction": "keep_low"
+      },
+      "frozen_threshold": 0.016907,
+      "direction": "keep_low",
+      "applied_oos": {
+        "n": 168,
+        "oos_n": 57,
+        "oos_exp": 65.54,
+        "oos_total": 3735.57,
+        "positive_quarters": "3/6",
+        "top5_day_pct": 161.3,
+        "drop_top5_full": -8.72,
+        "oos_drop_top5": 0.98,
+        "oos_drop_top5_evaluable": true,
+        "is_first_half_exp": -20.33,
+        "book_maxDD": -2430.0,
+        "book_sortino_ann": 4.016,
+        "book_worst_day": -159.0,
+        "structural_bar_pass": false,
+        "structural_bar_fails": [
+          "pos_q=3/6<4",
+          "drop_top5_full=-8.72<=0",
+          "is_first_half=-20.33<=0"
+        ],
+        "removed_oos_n": 2,
+        "removed_oos_total": -118.56,
+        "removed_oos_exp": -59.28,
+        "no_regression_removed_oos_net_neg": true,
+        "CLEAN_WIN": false
+      }
+    },
+    "F3a_low_vix": {
+      "selection": {
+        "feasible": true,
+        "best": {
+          "q": 0.1,
+          "thr": 26.695,
+          "keep_frac": 0.895,
+          "is_drop_top5_full": -30.35
+        },
+        "trials": [
+          {
+            "q": 0.1,
+            "thr": 26.695,
+            "keep_frac": 0.895,
+            "is_drop_top5_full": -30.35
+          },
+          {
+            "q": 0.2,
+            "thr": 22.552,
+            "keep_frac": 0.798,
+            "is_drop_top5_full": -33.71
+          },
+          {
+            "q": 0.25,
+            "thr": 21.79,
+            "keep_frac": 0.75,
+            "is_drop_top5_full": -35.56
+          },
+          {
+            "q": 0.3,
+            "thr": 20.844,
+            "keep_frac": 0.702,
+            "is_drop_top5_full": -33.83
+          },
+          {
+            "q": 0.4,
+            "thr": 19.424,
+            "keep_frac": 0.597,
+            "is_drop_top5_full": -37.42
+          }
+        ],
+        "feature": "vix",
+        "direction": "keep_low"
+      },
+      "frozen_threshold": 26.695,
+      "direction": "keep_low",
+      "applied_oos": {
+        "n": 165,
+        "oos_n": 54,
+        "oos_exp": 55.09,
+        "oos_total": 2974.95,
+        "positive_quarters": "3/6",
+        "top5_day_pct": 240.0,
+        "drop_top5_full": -13.62,
+        "oos_drop_top5": -11.56,
+        "oos_drop_top5_evaluable": true,
+        "is_first_half_exp": -18.94,
+        "book_maxDD": -2489.28,
+        "book_sortino_ann": 2.732,
+        "book_worst_day": -159.0,
+        "structural_bar_pass": false,
+        "structural_bar_fails": [
+          "pos_q=3/6<4",
+          "top5_day_pct=240.0",
+          "drop_top5_full=-13.62<=0",
+          "is_first_half=-18.94<=0",
+          "oos_drop_top5=-11.56<=0(L173)"
+        ],
+        "removed_oos_n": 5,
+        "removed_oos_total": 642.06,
+        "removed_oos_exp": 128.41,
+        "no_regression_removed_oos_net_neg": false,
+        "CLEAN_WIN": false
+      }
+    },
+    "F3b_vix_not_rising": {
+      "selection": {
+        "feasible": true,
+        "best": {
+          "q": 0.3,
+          "thr": 0.16,
+          "keep_frac": 0.694,
+          "is_drop_top5_full": -24.78
+        },
+        "trials": [
+          {
+            "q": 0.1,
+            "thr": 0.701,
+            "keep_frac": 0.895,
+            "is_drop_top5_full": -28.43
+          },
+          {
+            "q": 0.2,
+            "thr": 0.304,
+            "keep_frac": 0.798,
+            "is_drop_top5_full": -29.6
+          },
+          {
+            "q": 0.25,
+            "thr": 0.195,
+            "keep_frac": 0.75,
+            "is_drop_top5_full": -27.55
+          },
+          {
+            "q": 0.3,
+            "thr": 0.16,
+            "keep_frac": 0.694,
+            "is_drop_top5_full": -24.78
+          },
+          {
+            "q": 0.4,
+            "thr": 0.02,
+            "keep_frac": 0.573,
+            "is_drop_top5_full": -26.01
+          }
+        ],
+        "feature": "vix_slope",
+        "direction": "keep_low"
+      },
+      "frozen_threshold": 0.16,
+      "direction": "keep_low",
+      "applied_oos": {
+        "n": 132,
+        "oos_n": 45,
+        "oos_exp": 47.96,
+        "oos_total": 2158.05,
+        "positive_quarters": "4/6",
+        "top5_day_pct": 164.0,
+        "drop_top5_full": -14.07,
+        "oos_drop_top5": -31.14,
+        "oos_drop_top5_evaluable": true,
+        "is_first_half_exp": 19.28,
+        "book_maxDD": -1854.06,
+        "book_sortino_ann": 6.089,
+        "book_worst_day": -159.0,
+        "structural_bar_pass": false,
+        "structural_bar_fails": [
+          "drop_top5_full=-14.07<=0",
+          "oos_drop_top5=-31.14<=0(L173)"
+        ],
+        "removed_oos_n": 14,
+        "removed_oos_total": 1458.96,
+        "removed_oos_exp": 104.21,
+        "no_regression_removed_oos_net_neg": false,
+        "CLEAN_WIN": false
+      }
+    },
+    "F2_side_select": {
+      "selection": {
+        "feasible": false,
+        "per_side": {
+          "C": {
+            "keep_frac": 0.532,
+            "is_drop_top5_full": -28.24,
+            "is_n": 65
+          },
+          "P": {
+            "keep_frac": 0.468,
+            "is_drop_top5_full": -48.87,
+            "is_n": 57
+          }
+        }
+      },
+      "applied_oos": null,
+      "note": "no IS-feasible side"
+    }
+  },
+  "winners": [],
+  "verdict": "OVERFIT_OR_FAILS",
+  "DISCLOSURE": {
+    "detector": "BYTE-FOR-BYTE FAMILIES_EXT[momentum_morning] = detect_intraday_momentum",
+    "fills": "1DTE dollar-stop cell via _dte_stop_construction.run_cell (the SAME harness as the -$1.25 baseline)",
+    "dollar_thresh_note": "C29 re-derived from the 0DTE -8% run at ITM-2 (matches the baseline $59.28)",
+    "beats_null_caveat": "L172 random-entry-null is the 0DTE simulate_trade_real null; a 1DTE-native null is not in this harness, so beats-null (gate 7) is NOT re-run here. The decisive de-concentration gates (5 + 9, L173) ARE evaluated; a filter that fails them is rejected regardless of null.",
+    "overfit_caveat": "the -$1.25 gap on 59 OOS trades is noise-level; ONLY a filter whose IS-chosen rule flips oos_drop_top5 POSITIVE on the held-out OOS counts. IS-only wins are REJECTED."
+  }
+}

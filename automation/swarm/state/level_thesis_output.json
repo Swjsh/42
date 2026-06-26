@@ -1,75 +1,85 @@
 {
   "agent": "level_thesis",
-  "generated_at": "2026-06-19T14:17:13Z",
+  "generated_at": "2026-06-26T14:17:56.000000+00:00",
   "bias": "bearish",
   "confidence": 0.65,
-  "reasoning": "SPY at 746.92, down from premarket high of 748.17. Two Carry levels bracket price: 748.0 resistance (1.08 above) and 745.33 support (1.59 below). The battle level is 748.0 — it's the nearest in-play level and represents the ceiling from today's premarket decline. Ribbon is BEAR, supporting bearish bias. If 748.0 holds as resistance, expect continuation down to 745.33. If 745.33 breaks, next target is 750.0 psychological (but that's out of range today).",
+  "reasoning": "SPY at 733.21, trading below prior session close (734.30) after overnight gap down of -$1.09. Price is sandwiched between 734.97 Reference support (now broken to resistance, $1.76 above) and 732.62 Active PMH resistance ($0.59 below). The ribbon shows BULL stack but price is below pivot 730.11, creating mixed signals. The battle level is 732.62 PMH — nearest resistance, tested from below. If it holds, expect pullback to 728.50 PML support. If it breaks, next target is 734.97 prior close reclaim attempt.",
   "battle_level": {
-    "price": 748.0,
-    "tier": "Carry",
-    "strength_stars": 3,
+    "price": 732.62,
+    "tier": "Active",
+    "strength_stars": 2,
     "role": "resistance",
     "test_direction": "from_below"
   },
   "level_priority": [
     {
-      "price": 748.0,
+      "price": 734.97,
+      "tier": "Reference",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "hold_from",
+      "priority_rank": 1,
+      "distance_from_price": 1.76
+    },
+    {
+      "price": 732.62,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "test_direction": "from_below",
+      "test_type": "flush_to",
+      "priority_rank": 2,
+      "distance_from_price": 0.59
+    },
+    {
+      "price": 728.5,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
+      "test_direction": "from_above",
+      "test_type": "flush_to",
+      "priority_rank": 3,
+      "distance_from_price": 4.71
+    },
+    {
+      "price": 743.35,
       "tier": "Carry",
       "strength_stars": 3,
       "role": "resistance",
       "test_direction": "from_below",
-      "test_type": "flush_to",
-      "priority_rank": 1,
-      "distance_from_price": 1.08
-    },
-    {
-      "price": 745.33,
-      "tier": "Carry",
-      "strength_stars": 3,
-      "role": "support",
-      "test_direction": "from_above",
       "test_type": "hold_from",
-      "priority_rank": 2,
-      "distance_from_price": 1.59
-    },
-    {
-      "price": 750.0,
-      "tier": "Reference",
-      "strength_stars": 0,
-      "role": null,
-      "test_direction": "from_below",
-      "test_type": "hold_from",
-      "priority_rank": 3,
-      "distance_from_price": 3.08
+      "priority_rank": 4,
+      "distance_from_price": 10.14
     }
   ],
   "scenario_map": {
     "primary": {
-      "condition": "if SPY fails at 748.0 resistance",
+      "condition": "if SPY holds below 732.62 PMH",
       "bias": "bearish",
-      "target": 745.33,
-      "entry_trigger": "level_rejection + ribbon_bear"
+      "target": 728.5,
+      "entry_trigger": "resistance_hold + ribbon_bear"
     },
     "secondary": {
-      "condition": "if SPY holds 745.33 support",
+      "condition": "if SPY breaks above 732.62 and reclaims 734.97",
       "bias": "bullish",
-      "target": 748.0,
-      "entry_trigger": "bounce_confirmation"
+      "target": 743.35,
+      "entry_trigger": "level_reclaim + ribbon_stack"
     },
     "tertiary": {
-      "condition": "if SPY breaks below 745.33",
+      "condition": "if SPY breaks below 728.50 PML",
       "bias": "bearish",
-      "target": 743.35,
-      "entry_trigger": "momentum_continuation"
+      "target": 725.0,
+      "entry_trigger": "support_break + momentum"
     }
   },
-  "levels_in_play_count": 2,
+  "levels_in_play_count": 4,
   "key_observations": [
-    "Juneteenth holiday — market closed, data reflects premarket activity only",
-    "Both in-play levels (748.0 and 745.33) are Carry tier expiring 2026-06-20 — Monday requires full level refresh",
-    "Premarket showed sharp decline: 748.17 high to 746.92 current (-1.25)",
-    "Ribbon BEAR confirms downward bias from momentum perspective",
-    "750.0 psychological is out of range at 3.08 above — not relevant for today"
+    "SPY gapped down -$1.09 overnight, trading below prior close 734.30",
+    "Ribbon shows BULL stack (fast 731.2 > pivot 730.11 > slow 729.91) but price below pivot — mixed signal",
+    "734.97 prior close is now broken support acting as resistance — key reclaim target",
+    "732.62 PMH is nearest resistance at $0.59 below current price",
+    "728.50 PML is key support target if bears take control"
   ],
-  "data_quality": "partial"
+  "data_quality": "full"
 }

@@ -1,0 +1,379 @@
+{
+  "task": "fa1e568f-runner-target-sweep",
+  "sweep_runners": [
+    1.5,
+    2.0,
+    2.5,
+    3.0,
+    3.5,
+    4.0
+  ],
+  "baseline_runner": 2.5,
+  "baseline": {
+    "is": {
+      "n": 113,
+      "wr": 0.389,
+      "avg": 207.3,
+      "total": 23426.6,
+      "sharpe": 4.244
+    },
+    "oos": {
+      "n": 24,
+      "wr": 0.333,
+      "avg": 246.7,
+      "total": 5920.8,
+      "sharpe": 5.313
+    },
+    "anchor": 0,
+    "exit_audit": {
+      "ExitReason.EXIT_ALL_PREMIUM_STOP": {
+        "n": 66,
+        "pct": 0.584
+      },
+      "ExitReason.TP1_THEN_RUNNER_TIME": {
+        "n": 16,
+        "pct": 0.142
+      },
+      "ExitReason.TP1_THEN_RUNNER_RIBBON": {
+        "n": 13,
+        "pct": 0.115
+      },
+      "ExitReason.EXIT_ALL_TIME_STOP": {
+        "n": 8,
+        "pct": 0.071
+      },
+      "ExitReason.EXIT_ALL_RIBBON_FLIP_BACK": {
+        "n": 5,
+        "pct": 0.044
+      },
+      "ExitReason.EXIT_ALL_LEVEL_STOP": {
+        "n": 2,
+        "pct": 0.018
+      },
+      "ExitReason.TP1_THEN_RUNNER_TARGET": {
+        "n": 2,
+        "pct": 0.018
+      },
+      "ExitReason.TP1_THEN_RUNNER_BE_STOP": {
+        "n": 1,
+        "pct": 0.009
+      }
+    }
+  },
+  "gate_rows": [
+    {
+      "runner": 1.5,
+      "is_delta": -479.5,
+      "oos_delta": -86.0,
+      "wf": 0.179,
+      "sw_hurt": 2,
+      "anchor": 0,
+      "g1": false,
+      "g2": false,
+      "g3": false,
+      "g4": false,
+      "g5": true,
+      "passed": false,
+      "is_stats": {
+        "n": 113,
+        "wr": 0.389,
+        "avg": 203.1,
+        "total": 22947.1,
+        "sharpe": 4.178
+      },
+      "oos_stats": {
+        "n": 24,
+        "wr": 0.333,
+        "avg": 243.1,
+        "total": 5834.8,
+        "sharpe": 5.316
+      },
+      "exit_audit": {
+        "ExitReason.EXIT_ALL_PREMIUM_STOP": {
+          "n": 66,
+          "pct": 0.584
+        },
+        "ExitReason.TP1_THEN_RUNNER_TIME": {
+          "n": 16,
+          "pct": 0.142
+        },
+        "ExitReason.TP1_THEN_RUNNER_RIBBON": {
+          "n": 12,
+          "pct": 0.106
+        },
+        "ExitReason.EXIT_ALL_TIME_STOP": {
+          "n": 8,
+          "pct": 0.071
+        },
+        "ExitReason.EXIT_ALL_RIBBON_FLIP_BACK": {
+          "n": 5,
+          "pct": 0.044
+        },
+        "ExitReason.TP1_THEN_RUNNER_TARGET": {
+          "n": 3,
+          "pct": 0.027
+        },
+        "ExitReason.EXIT_ALL_LEVEL_STOP": {
+          "n": 2,
+          "pct": 0.018
+        },
+        "ExitReason.TP1_THEN_RUNNER_BE_STOP": {
+          "n": 1,
+          "pct": 0.009
+        }
+      }
+    },
+    {
+      "runner": 2.0,
+      "is_delta": -343.5,
+      "oos_delta": 0.0,
+      "wf": -0.0,
+      "sw_hurt": 2,
+      "anchor": 0,
+      "g1": false,
+      "g2": false,
+      "g3": false,
+      "g4": false,
+      "g5": true,
+      "passed": false,
+      "is_stats": {
+        "n": 113,
+        "wr": 0.389,
+        "avg": 204.3,
+        "total": 23083.1,
+        "sharpe": 4.21
+      },
+      "oos_stats": {
+        "n": 24,
+        "wr": 0.333,
+        "avg": 246.7,
+        "total": 5920.8,
+        "sharpe": 5.313
+      },
+      "exit_audit": {
+        "ExitReason.EXIT_ALL_PREMIUM_STOP": {
+          "n": 66,
+          "pct": 0.584
+        },
+        "ExitReason.TP1_THEN_RUNNER_TIME": {
+          "n": 16,
+          "pct": 0.142
+        },
+        "ExitReason.TP1_THEN_RUNNER_RIBBON": {
+          "n": 13,
+          "pct": 0.115
+        },
+        "ExitReason.EXIT_ALL_TIME_STOP": {
+          "n": 8,
+          "pct": 0.071
+        },
+        "ExitReason.EXIT_ALL_RIBBON_FLIP_BACK": {
+          "n": 5,
+          "pct": 0.044
+        },
+        "ExitReason.EXIT_ALL_LEVEL_STOP": {
+          "n": 2,
+          "pct": 0.018
+        },
+        "ExitReason.TP1_THEN_RUNNER_TARGET": {
+          "n": 2,
+          "pct": 0.018
+        },
+        "ExitReason.TP1_THEN_RUNNER_BE_STOP": {
+          "n": 1,
+          "pct": 0.009
+        }
+      }
+    },
+    {
+      "runner": 3.0,
+      "is_delta": -8.5,
+      "oos_delta": 0.0,
+      "wf": -0.0,
+      "sw_hurt": 1,
+      "anchor": 0,
+      "g1": false,
+      "g2": false,
+      "g3": false,
+      "g4": true,
+      "g5": true,
+      "passed": false,
+      "is_stats": {
+        "n": 113,
+        "wr": 0.389,
+        "avg": 207.2,
+        "total": 23418.1,
+        "sharpe": 4.246
+      },
+      "oos_stats": {
+        "n": 24,
+        "wr": 0.333,
+        "avg": 246.7,
+        "total": 5920.8,
+        "sharpe": 5.313
+      },
+      "exit_audit": {
+        "ExitReason.EXIT_ALL_PREMIUM_STOP": {
+          "n": 66,
+          "pct": 0.584
+        },
+        "ExitReason.TP1_THEN_RUNNER_TIME": {
+          "n": 16,
+          "pct": 0.142
+        },
+        "ExitReason.TP1_THEN_RUNNER_RIBBON": {
+          "n": 13,
+          "pct": 0.115
+        },
+        "ExitReason.EXIT_ALL_TIME_STOP": {
+          "n": 8,
+          "pct": 0.071
+        },
+        "ExitReason.EXIT_ALL_RIBBON_FLIP_BACK": {
+          "n": 5,
+          "pct": 0.044
+        },
+        "ExitReason.EXIT_ALL_LEVEL_STOP": {
+          "n": 2,
+          "pct": 0.018
+        },
+        "ExitReason.TP1_THEN_RUNNER_TARGET": {
+          "n": 2,
+          "pct": 0.018
+        },
+        "ExitReason.TP1_THEN_RUNNER_BE_STOP": {
+          "n": 1,
+          "pct": 0.009
+        }
+      }
+    },
+    {
+      "runner": 3.5,
+      "is_delta": 185.0,
+      "oos_delta": 0.0,
+      "wf": 0.0,
+      "sw_hurt": 1,
+      "anchor": 0,
+      "g1": true,
+      "g2": false,
+      "g3": false,
+      "g4": true,
+      "g5": true,
+      "passed": false,
+      "is_stats": {
+        "n": 113,
+        "wr": 0.389,
+        "avg": 209.0,
+        "total": 23611.6,
+        "sharpe": 4.264
+      },
+      "oos_stats": {
+        "n": 24,
+        "wr": 0.333,
+        "avg": 246.7,
+        "total": 5920.8,
+        "sharpe": 5.313
+      },
+      "exit_audit": {
+        "ExitReason.EXIT_ALL_PREMIUM_STOP": {
+          "n": 66,
+          "pct": 0.584
+        },
+        "ExitReason.TP1_THEN_RUNNER_TIME": {
+          "n": 16,
+          "pct": 0.142
+        },
+        "ExitReason.TP1_THEN_RUNNER_RIBBON": {
+          "n": 13,
+          "pct": 0.115
+        },
+        "ExitReason.EXIT_ALL_TIME_STOP": {
+          "n": 8,
+          "pct": 0.071
+        },
+        "ExitReason.EXIT_ALL_RIBBON_FLIP_BACK": {
+          "n": 5,
+          "pct": 0.044
+        },
+        "ExitReason.EXIT_ALL_LEVEL_STOP": {
+          "n": 2,
+          "pct": 0.018
+        },
+        "ExitReason.TP1_THEN_RUNNER_TARGET": {
+          "n": 2,
+          "pct": 0.018
+        },
+        "ExitReason.TP1_THEN_RUNNER_BE_STOP": {
+          "n": 1,
+          "pct": 0.009
+        }
+      }
+    },
+    {
+      "runner": 4.0,
+      "is_delta": 378.5,
+      "oos_delta": 0.0,
+      "wf": 0.0,
+      "sw_hurt": 1,
+      "anchor": 0,
+      "g1": true,
+      "g2": false,
+      "g3": false,
+      "g4": true,
+      "g5": true,
+      "passed": false,
+      "is_stats": {
+        "n": 113,
+        "wr": 0.389,
+        "avg": 210.7,
+        "total": 23805.1,
+        "sharpe": 4.281
+      },
+      "oos_stats": {
+        "n": 24,
+        "wr": 0.333,
+        "avg": 246.7,
+        "total": 5920.8,
+        "sharpe": 5.313
+      },
+      "exit_audit": {
+        "ExitReason.EXIT_ALL_PREMIUM_STOP": {
+          "n": 66,
+          "pct": 0.584
+        },
+        "ExitReason.TP1_THEN_RUNNER_TIME": {
+          "n": 16,
+          "pct": 0.142
+        },
+        "ExitReason.TP1_THEN_RUNNER_RIBBON": {
+          "n": 13,
+          "pct": 0.115
+        },
+        "ExitReason.EXIT_ALL_TIME_STOP": {
+          "n": 8,
+          "pct": 0.071
+        },
+        "ExitReason.EXIT_ALL_RIBBON_FLIP_BACK": {
+          "n": 5,
+          "pct": 0.044
+        },
+        "ExitReason.EXIT_ALL_LEVEL_STOP": {
+          "n": 2,
+          "pct": 0.018
+        },
+        "ExitReason.TP1_THEN_RUNNER_TARGET": {
+          "n": 2,
+          "pct": 0.018
+        },
+        "ExitReason.TP1_THEN_RUNNER_BE_STOP": {
+          "n": 1,
+          "pct": 0.009
+        }
+      }
+    }
+  ],
+  "best_candidate": null,
+  "verdict": "REJECT",
+  "auto_ratified": false,
+  "c30_note": "C30: if runner_target almost never hit, sweeping it is pointless (dead knob). Check exit_audit for runner_target hit rate."
+}

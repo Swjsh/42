@@ -1,0 +1,170 @@
+{
+  "study": "pattern_detectors_l75_l59",
+  "days": 219,
+  "l75": {
+    "total_events": 1230,
+    "days_with_event": 211,
+    "frequency_pct": 96.3,
+    "per_day_avg": 5.62,
+    "fires_on_anchor_losers": 3,
+    "fires_on_anchor_winners": 3
+  },
+  "l59": {
+    "total_events": 247,
+    "days_with_event": 133,
+    "frequency_pct": 60.7,
+    "per_day_avg": 1.13,
+    "fires_on_anchor_losers": 2
+  },
+  "anchor_loser_events": {
+    "2026-05-05": {
+      "l75": 3,
+      "l59": 0,
+      "l75_details": [
+        {
+          "level": 721.97,
+          "bar_i": 0,
+          "bar_time": "2026-05-05 09:30:00",
+          "pattern": "L75_BEAR_TRAP",
+          "pierce_depth": 0.475,
+          "suspend_until_bar_i": 6
+        },
+        {
+          "level": 722.1199951171875,
+          "bar_i": 0,
+          "bar_time": "2026-05-05 09:30:00",
+          "pattern": "L75_BEAR_TRAP",
+          "pierce_depth": 0.625,
+          "suspend_until_bar_i": 6
+        },
+        {
+          "level": 724.8699951171875,
+          "bar_i": 69,
+          "bar_time": "2026-05-05 15:15:00",
+          "pattern": "L75_BEAR_TRAP",
+          "pierce_depth": 0.3,
+          "suspend_until_bar_i": 75
+        }
+      ],
+      "l59_details": []
+    },
+    "2026-05-06": {
+      "l75": 6,
+      "l59": 2,
+      "l75_details": [
+        {
+          "level": 729.0,
+          "bar_i": 0,
+          "bar_time": "2026-05-06 09:30:00",
+          "pattern": "L75_BEAR_TRAP",
+          "pierce_depth": 1.18,
+          "suspend_until_bar_i": 6
+        },
+        {
+          "level": 729.15,
+          "bar_i": 4,
+          "bar_time": "2026-05-06 09:50:00",
+          "pattern": "L75_BEAR_TRAP",
+          "pierce_depth": 0.82,
+          "suspend_until_bar_i": 10
+        },
+        {
+          "level": 729.4,
+          "bar_i": 4,
+          "bar_time": "2026-05-06 09:50:00",
+          "pattern": "L75_BEAR_TRAP",
+          "pierce_depth": 1.07,
+          "suspend_until_bar_i": 10
+        }
+      ],
+      "l59_details": [
+        {
+          "level": 729.15,
+          "bar_i": 2,
+          "bar_time": "2026-05-06T09:40:00.000000000",
+          "pattern": "L59_CEILING_DISTRIBUTION",
+          "run_length": 3,
+          "run_start_i": 0
+        },
+        {
+          "level": 731.7,
+          "bar_i": 27,
+          "bar_time": "2026-05-06T11:45:00.000000000",
+          "pattern": "L59_CEILING_DISTRIBUTION",
+          "run_length": 3,
+          "run_start_i": 25
+        }
+      ]
+    },
+    "2026-05-07": {
+      "l75": 9,
+      "l59": 3,
+      "l75_details": [
+        {
+          "level": 733.1907855726586,
+          "bar_i": 35,
+          "bar_time": "2026-05-07 12:25:00",
+          "pattern": "L75_BEAR_TRAP",
+          "pierce_depth": 0.491,
+          "suspend_until_bar_i": 41
+        },
+        {
+          "level": 733.2787913857314,
+          "bar_i": 31,
+          "bar_time": "2026-05-07 12:05:00",
+          "pattern": "L75_BEAR_TRAP",
+          "pierce_depth": 0.329,
+          "suspend_until_bar_i": 37
+        },
+        {
+          "level": 733.83,
+          "bar_i": 4,
+          "bar_time": "2026-05-07 09:50:00",
+          "pattern": "L75_BEAR_TRAP",
+          "pierce_depth": 0.28,
+          "suspend_until_bar_i": 10
+        }
+      ],
+      "l59_details": [
+        {
+          "level": 734.5900268554688,
+          "bar_i": 10,
+          "bar_time": "2026-05-07T10:20:00.000000000",
+          "pattern": "L59_CEILING_DISTRIBUTION",
+          "run_length": 3,
+          "run_start_i": 8
+        },
+        {
+          "level": 734.7,
+          "bar_i": 9,
+          "bar_time": "2026-05-07T10:15:00.000000000",
+          "pattern": "L59_CEILING_DISTRIBUTION",
+          "run_length": 3,
+          "run_start_i": 7
+        },
+        {
+          "level": 734.8,
+          "bar_i": 12,
+          "bar_time": "2026-05-07T10:30:00.000000000",
+          "pattern": "L59_CEILING_DISTRIBUTION",
+          "run_length": 3,
+          "run_start_i": 10
+        }
+      ]
+    }
+  },
+  "anchor_winner_events": {
+    "2026-04-29": {
+      "l75": 6,
+      "l59": 0
+    },
+    "2026-05-01": {
+      "l75": 2,
+      "l59": 0
+    },
+    "2026-05-04": {
+      "l75": 8,
+      "l59": 3
+    }
+  }
+}

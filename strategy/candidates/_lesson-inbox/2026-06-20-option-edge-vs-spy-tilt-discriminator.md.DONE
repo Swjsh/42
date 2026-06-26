@@ -1,0 +1,50 @@
+---
+slug: option-edge-vs-spy-tilt-discriminator
+date: 2026-06-20
+proposes: new L### (generalizes C3 / L58 / L74 into an operational test)
+source: edge-hunt + new-strategy + SwjshAK real-fills campaigns (~27 strategies, real OPRA fills)
+---
+
+# A real 0DTE OPTION edge must pass BOTH random-entry-null AND no-truncation gates
+
+> **UPDATE 2026-06-20 (loop closed on the lesson half -- do NOT rebuild a duplicate L###):**
+> The two-gate doctrine this item proposes is now SHIPPED as a sibling lesson pair, NOT one
+> generalizing lesson:
+> - **No-truncation gate** -> `backtest/lib/truncation_guard.py` + **L171**.
+> - **Random-entry-null gate** -> `backtest/autoresearch/null_baseline.py` (`random_entry_null` +
+>   `null_gate`, beat-the-MAX standard) + **L172** + `backtest/tests/test_null_baseline.py` (12 tests).
+>
+> Both lessons cross-reference each other and state the "must pass BOTH" thesis (the operational
+> C3/L58 form). **Remaining (keep this item OPEN until done):** graduate BOTH shared gates into the
+> real-fills verify harness `backtest/autoresearch/verify_edgehunt_candidates.py` so every candidate
+> is auto-checked -- only that code-wiring deliverable is still outstanding; the lesson write-up is complete.
+
+**Symptom:** strategies that look profitable on real fills at a tight −8% premium stop — and even pass OOS-positive + ≥4/6 quarters + top5<200% + n≥20 — yet are NOT real per-trade option edges. The standard gates miss them.
+
+**Two discriminators that catch them (both MANDATORY before any "edge" claim):**
+1. **Random-entry-null benchmark** — re-run the SAME exit/stop on RANDOM entry bars (same count, ~20 seeds). If random entries match the strategy's per-trade, the "edge" is the EXIT BRACKET, not the signal. (Caught RSI(2) MR: null +$8.10/tr ≥ strategy +$6.11/tr.)
+2. **No-truncation-artifact** — the SIGN of per-trade must NOT invert between the −8% stop and chart-stop-only (−0.99). If it is only positive because the tight stop TRUNCATES losers, it's a stop artifact, not an edge. (Caught ema_adx_gate: +$3.4/tr at −8% → −$41.6/tr at chart-stop-only.)
+
+**The killer combination:** PASS null + FAIL truncation = a SPY-DIRECTION tilt that profits only via stop-truncation, NOT an option edge. This is the operational, testable form of C3/L58 ("SPY-price edge ≠ option edge").
+
+**Root cause:** on 0DTE, theta + delta + stop-misfire dominate. A tight premium stop can manufacture a positive average by cutting losers fast even when there is NO real directional signal — OOS/concentration gates don't detect it.
+
+**Fix / guard (graduate to code):** add both gates to the real-fills verify harness (`backtest/autoresearch/verify_edgehunt_candidates.py`) so every candidate is auto-checked. Evidence across ~27 strategies (edge-hunt 9 + new-strategy 7 + SwjshAK 4 + structure/double-top kills): only `vwap_continuation` survived ALL gates.
+
+**Cross-ref:** C3, L58, L74. Scorecards: `analysis/recommendations/{EDGE-HUNT,NEW-STRATEGY,SWJSHAK-CONTINUATION,FLEET-REALFILLS}-SCORECARD.md`.
+
+---
+
+## CLOSED 2026-06-21 (conductor) — the last outstanding deliverable shipped
+
+The remaining code-wiring deliverable ("graduate BOTH shared gates into
+`verify_edgehunt_candidates.py` so every candidate is auto-checked") is **DONE**:
+- Wiring already present: `verify_edgehunt_candidates._gate` -> `autoresearch.fraud_gates`
+  -> `truncation_guard.is_truncation_artifact` (L171) + `null_baseline.null_gate` (L172).
+- **Graduated to a test** (STAGE 4.5): `backtest/tests/test_verify_edgehunt_candidates.py`
+  (8/8 green) asserts the harness REJECTS truncation-artifact + null-failing candidates
+  that clear the naive 5-gate bar, CONFIRMS the clean vwap-shaped survivor, honors inline
+  pins, fails-open on null-unverified, and guards against silent un-wiring.
+- **L164 fixed:** all four fraud-gate files were UNTRACKED; committed (now `git ls-files`-visible).
+
+Lesson write-up was already complete as L171 + L172. Nothing left open.

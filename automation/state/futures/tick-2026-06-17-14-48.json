@@ -1,0 +1,24 @@
+{
+  "tick_time": "2026-06-17T14:48:02",
+  "instrument": "MNQ",
+  "price": 30340.25,
+  "ribbon": "BULL",
+  "ribbon_fast": 30277.16,
+  "ribbon_pivot": 30334.94,
+  "ribbon_slow": 30362.88,
+  "ribbon_spread_pts": 85.72,
+  "bar_state": "CLOSED",
+  "position": "FLAT",
+  "equity": 25000.0,
+  "daily_pnl": 0.0,
+  "status": "WATCH_ONLY",
+  "action": "HOLD_DEV",
+  "signal": null,
+  "reason": "No key levels populated (premarket not run), no watcher fleet implemented yet. Futures infrastructure in build phase.",
+  "context": {
+    "vix_load": "FAILED (TV MCP quote bug)",
+    "key_levels": "EMPTY",
+    "strategy_config": "NOT_FOUND",
+    "watchers": "NOT_IMPLEMENTED"
+  }
+}

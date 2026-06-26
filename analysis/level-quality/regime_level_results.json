@@ -1,0 +1,102 @@
+{
+  "study": "regime_level_quality",
+  "days": 219,
+  "dm_null_respect": 0.2568,
+  "vix_5d_window": 5,
+  "regime_summary": {
+    "high_spike": {
+      "n": 37,
+      "touched": 18,
+      "respect": 5,
+      "touch_rate": 0.4865,
+      "respect_rate": 0.2778,
+      "dm_null_lift_pp": 2.1
+    },
+    "high_trending": {
+      "n": 228,
+      "touched": 119,
+      "respect": 29,
+      "touch_rate": 0.5219,
+      "respect_rate": 0.2437,
+      "dm_null_lift_pp": -1.3
+    },
+    "low_spike": {
+      "n": 195,
+      "touched": 96,
+      "respect": 30,
+      "touch_rate": 0.4923,
+      "respect_rate": 0.3125,
+      "dm_null_lift_pp": 5.6
+    },
+    "low_trending": {
+      "n": 75,
+      "touched": 33,
+      "respect": 10,
+      "touch_rate": 0.44,
+      "respect_rate": 0.303,
+      "dm_null_lift_pp": 4.6
+    },
+    "mid_spike": {
+      "n": 1419,
+      "touched": 723,
+      "respect": 199,
+      "touch_rate": 0.5095,
+      "respect_rate": 0.2752,
+      "dm_null_lift_pp": 1.8
+    },
+    "mid_trending": {
+      "n": 1229,
+      "touched": 692,
+      "respect": 149,
+      "touch_rate": 0.5631,
+      "respect_rate": 0.2153,
+      "dm_null_lift_pp": -4.1
+    }
+  },
+  "wf_results": {
+    "high_spike": {
+      "is_respect": null,
+      "oos_respect": 0.2778,
+      "is_lift": null,
+      "oos_lift": 2.1,
+      "wf_ratio": null
+    },
+    "high_trending": {
+      "is_respect": 0.0833,
+      "oos_respect": 0.2617,
+      "is_lift": -17.3,
+      "oos_lift": 0.5,
+      "wf_ratio": -0.029
+    },
+    "low_spike": {
+      "is_respect": 0.2921,
+      "oos_respect": 0.5714,
+      "is_lift": 3.5,
+      "oos_lift": 31.5,
+      "wf_ratio": 9.0
+    },
+    "low_trending": {
+      "is_respect": 0.303,
+      "oos_respect": null,
+      "is_lift": 4.6,
+      "oos_lift": null,
+      "wf_ratio": null
+    },
+    "mid_spike": {
+      "is_respect": 0.3032,
+      "oos_respect": 0.2578,
+      "is_lift": 4.6,
+      "oos_lift": 0.1,
+      "wf_ratio": 0.022
+    },
+    "mid_trending": {
+      "is_respect": 0.1851,
+      "oos_respect": 0.2437,
+      "is_lift": -7.2,
+      "oos_lift": -1.3,
+      "wf_ratio": 0.181
+    }
+  },
+  "max_regime_spread_pp": 9.7,
+  "separates": true
+}

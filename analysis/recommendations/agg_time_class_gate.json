@@ -1,0 +1,60 @@
+{
+  "study": "AGG time-of-day x trigger-class gate sweep",
+  "date": "2026-06-17",
+  "is_n": 105,
+  "oos_n": 18,
+  "is_pnl": 11335.08,
+  "oos_pnl": 238.28,
+  "gate_results": [
+    {
+      "gate": "block conf+lvl_rec midday+afternoon",
+      "IS_delta": 2515.2,
+      "OOS_delta": -1288.0,
+      "WF": -2.987,
+      "OOS_positive": false,
+      "SW_hurt": 0,
+      "anchor_OK": true,
+      "verdict": "REJECT"
+    },
+    {
+      "gate": "block conf+lvl_rec midday only",
+      "IS_delta": 2047.2,
+      "OOS_delta": -1464.0,
+      "WF": -4.172,
+      "OOS_positive": false,
+      "SW_hurt": 0,
+      "anchor_OK": true,
+      "verdict": "REJECT"
+    },
+    {
+      "gate": "block conf+lvl_rec afternoon only",
+      "IS_delta": 468.0,
+      "OOS_delta": 176.0,
+      "WF": 2.194,
+      "OOS_positive": true,
+      "SW_hurt": 0,
+      "anchor_OK": true,
+      "verdict": "AUTO-RATIFY"
+    },
+    {
+      "gate": "block conf+lvl_rej midday+afternoon",
+      "IS_delta": 565.75,
+      "OOS_delta": 229.67,
+      "WF": 2.368,
+      "OOS_positive": true,
+      "SW_hurt": 1,
+      "anchor_OK": true,
+      "verdict": "AUTO-RATIFY"
+    },
+    {
+      "gate": "block lvl_rec_only all times (IS 100% stop rate)",
+      "IS_delta": 2209.04,
+      "OOS_delta": 0.0,
+      "WF": 0.0,
+      "OOS_positive": true,
+      "SW_hurt": 0,
+      "anchor_OK": true,
+      "verdict": "REJECT"
+    }
+  ]
+}

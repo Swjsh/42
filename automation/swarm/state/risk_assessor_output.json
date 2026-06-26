@@ -1,0 +1,77 @@
+{
+  "agent": "risk_assessor",
+  "generated_at": "2026-06-26T14:18:42Z",
+  "consensus_direction": "bearish",
+  "vote_breakdown": {
+    "bullish": 1,
+    "bearish": 5,
+    "no_trade": 4,
+    "neutral": 2
+  },
+  "risk_level": "medium",
+  "recommendation": "REDUCE_SIZE",
+  "reasoning": "5/12 bearish consensus (technical bullish outlier). Top risks: (1) CLOSE_CEILING distribution at 732.62 PMH — 5 bars failed to close above, fake breakout risk HIGH if price pushes through; (2) Volume 0.27x avg with 7% contraction — low volume moves don't sustain, reversal likely on any spike; (3) Momentum decelerating with 76% body contraction — conviction fading fast. Asymmetry unfavorable: if bearish holds, target 728.50 ($4.71 risk); if wrong and PMH breaks, target 743.35 ($10.14 reward) but fake breakout makes this likely trap. REDUCE_SIZE to half normal.",
+  "risk_factors": [
+    {
+      "type": "DISTRIBUTION_BEAR",
+      "description": "CLOSE_CEILING at PMH 732.62: 5 consecutive bars with high >= 732.62 but close < 732.62. Fake breakout risk HIGH if price breaks above.",
+      "severity": "high"
+    },
+    {
+      "type": "VOLUME",
+      "description": "Relative volume 0.27x average. Recent 5 bars avg 9,871 vs prior 5 bars avg 137,809 — only 7% of prior. Low volume makes price movements unreliable.",
+      "severity": "high"
+    },
+    {
+      "type": "MOMENTUM",
+      "description": "ROC 5-bar +0.54%, 15-bar +0.44% — weak positive. Body contraction 76% from prior 3 bars to recent 2 bars indicating strong deceleration.",
+      "severity": "medium"
+    },
+    {
+      "type": "REGIME",
+      "description": "RANGE_DAY: directional_efficiency=0.16 (well below 0.3 threshold). No net directional trend confirmed.",
+      "severity": "medium"
+    },
+    {
+      "type": "CATALYST",
+      "description": "Monthly options expiry Friday June 26 — elevated pin risk to SPY levels. Could force price to specific strikes.",
+      "severity": "medium"
+    },
+    {
+      "type": "TIME",
+      "description": "Morning session (10:17 ET) with 282 min to entry cutoff. Theta decay slow before 12:00 ET but expiry context adds time pressure.",
+      "severity": "low"
+    }
+  ],
+  "tail_risk_scenarios": [
+    {
+      "scenario": "Price breaks above 732.62 PMH and fills gap to 734.97 prior close — bull trap triggers, price reverses to 728.50",
+      "probability": "medium",
+      "consequence": "Bearish position takes full loss if caught in fake breakout above PMH resistance"
+    },
+    {
+      "scenario": "Volume spikes and price gaps down through 728.50 PML support to 725.0 target",
+      "probability": "low",
+      "consequence": "Bearish position wins but low volume makes this scenario unlikely to sustain"
+    },
+    {
+      "scenario": "VIX spikes back above 20 (fear returns) while price holds 732.62 — range compression traps both sides",
+      "probability": "low",
+      "consequence": "Time decay erodes premium with no directional move; theta loss on options position"
+    }
+  ],
+  "asymmetry": {
+    "reward_scenario": "Bearish thesis correct: price holds below 732.62 PMH, pulls back to 728.50 PML ($4.71 gain per share)",
+    "risk_scenario": "Bull trap: price breaks above 732.62, reclaims 734.97 prior close, rallies to 743.35 carry level ($10.14 loss per share from entry at 733.21)",
+    "ratio": "unfavorable"
+  },
+  "size_recommendation": "half",
+  "key_observations": [
+    "CLOSE_CEILING distribution at 732.62 PMH is the dominant risk — 5 bars rejected at resistance signals distribution, not accumulation",
+    "Volume collapse (0.27x, 7% of prior) means any move is fragile — could snap either direction on volume return",
+    "Momentum clearly decelerating (76% body contraction) — the bounce off overnight lows is fading, supports bearish continuation",
+    "Technical agent bullish with ribbon but price below pivot creates mixed signal — ribbon may be lagging indicator in this range day",
+    "Pattern scout flags fake_breakout_risk: HIGH if next bar closes above 732.62 — bull trap likely"
+  ],
+  "data_quality": "full"
+}

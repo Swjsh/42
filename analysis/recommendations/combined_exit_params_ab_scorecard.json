@@ -1,0 +1,144 @@
+{
+  "rule_id": "COMBINED_EXIT_PARAMS_V2",
+  "candidate_id": "combined_tp1_0667_stop_20min",
+  "filed": "2026-06-17",
+  "status": "NEEDS-J-DECISION",
+  "description": "Bundle both individually-validated exit-param changes: tp1_qty_fraction 0.50→0.667 (Rank 29) AND time_stop_minutes_before_close 10→20 (Rank 30). Recommended as a single deployment over sequential changes.",
+
+  "component_candidates": {
+    "tp1_qty_fraction": {
+      "change": "0.50 → 0.667",
+      "scorecard": "analysis/recommendations/tp1_qty_fraction_ab_scorecard.json",
+      "individual_is_delta": 765,
+      "individual_oos_delta": 1064,
+      "individual_wf": 1.39
+    },
+    "time_stop_minutes_before_close": {
+      "change": "10 → 20 (15:50 → 15:40 ET)",
+      "scorecard": "analysis/recommendations/time_stop_minutes_ab_scorecard.json",
+      "individual_is_delta": 552,
+      "individual_oos_delta": 475,
+      "individual_wf": 0.86
+    }
+  },
+
+  "combined_vs_additive": {
+    "sum_is_delta": 1317,
+    "combined_is_delta": 1333,
+    "sum_oos_delta": 1539,
+    "combined_oos_delta": 1444,
+    "interaction_note": "Near-additive. IS +$16 bonus (0.1%), OOS -$95 discount (6%). Both parameters improve independently and compose cleanly."
+  },
+
+  "correct_baseline_params": {
+    "use_real_fills": true,
+    "no_trade_window": null,
+    "no_trade_before": "09:35",
+    "midday_trendline_gate": true,
+    "premium_stop_pct_bear": -0.2,
+    "premium_stop_pct_bull": -0.08,
+    "per_trade_risk_cap_pct": 0.30,
+    "tp1_qty_fraction": 0.50,
+    "runner_target_premium_pct": 2.50,
+    "time_stop_minutes_before_close": 10
+  },
+
+  "candidate_params": {
+    "tp1_qty_fraction": 0.667,
+    "time_stop_minutes_before_close": 20
+  },
+
+  "is_window": {
+    "start": "2025-01-01",
+    "end": "2026-04-30",
+    "baseline_n": 246,
+    "baseline_pnl": -6077,
+    "candidate_n": 246,
+    "candidate_pnl": -4745,
+    "delta": 1333
+  },
+
+  "oos_window": {
+    "start": "2026-05-08",
+    "end": "2026-05-22",
+    "baseline_n": 17,
+    "baseline_pnl": 3304,
+    "candidate_n": 17,
+    "candidate_pnl": 4747,
+    "delta": 1444
+  },
+
+  "sub_windows": {
+    "is_ex_april_jan25_mar26": {
+      "baseline_pnl": 964,
+      "candidate_pnl": 1655,
+      "delta": 691,
+      "verdict": "HELP"
+    },
+    "april_2026_tariff_shock": {
+      "baseline_pnl": -6831,
+      "candidate_pnl": -6189,
+      "delta": 641,
+      "verdict": "HELP"
+    },
+    "is_full_jan25_apr26": {
+      "baseline_pnl": -6077,
+      "candidate_pnl": -4745,
+      "delta": 1333,
+      "verdict": "HELP"
+    },
+    "oos_may_2026": {
+      "baseline_pnl": 3304,
+      "candidate_pnl": 4747,
+      "delta": 1444,
+      "verdict": "HELP"
+    }
+  },
+
+  "walk_forward": {
+    "is_delta": 1333,
+    "oos_delta": 1444,
+    "wf_ratio": 1.08,
+    "threshold": 0.70,
+    "verdict": "PASS"
+  },
+
+  "sub_window_stability": {
+    "verdict": "STABLE - ALL 4 POSITIVE",
+    "note": "All market regimes improve: pre-tariff, tariff shock, recovery. No regime-conditional artifact."
+  },
+
+  "negative_sweeps_this_session": {
+    "f9_vol_mult": "Production 0.7 is already OOS-optimal. All other values worse OOS. No improvement available.",
+    "no_trade_before": "09:35 (production) is already optimal. Later times consistently hurt IS and OOS.",
+    "no_trade_window": "None (production, v15.1 removal) is optimal. Reinstating 14:00-15:00 window: IS+$2,255, OOS-$274, WF=-0.12 FAIL. v15.1 removal decision confirmed correct."
+  },
+
+  "ratification_gates": {
+    "wf_gte_0_70": true,
+    "oos_delta_positive": true,
+    "sub_window_stable_all_positive": true,
+    "anchor_days_no_regression": "N/A - exit-only params; entries unchanged",
+    "evidence_n_gte_20": false,
+    "evidence_n": 17,
+    "auto_ratify": false,
+    "auto_ratify_block_reason": "evidence_n=17 < 20 required threshold"
+  },
+
+  "implementation": {
+    "files": [
+      "automation/state/params.json",
+      "automation/state/aggressive/params.json"
+    ],
+    "changes": {
+      "tp1_qty_fraction": "0.50 → 0.667",
+      "time_stop_minutes_before_close": "10 → 20"
+    },
+    "note": "Both params already wired to simulate_trade_real() via L108+L110 fixes. EOD flatten tasks (15:55 ET) are independent safety net — no conflict with 15:40 heartbeat time stop."
+  },
+
+  "overall_verdict": "PASS - NEEDS J DECISION. WF=1.08, all 4 sub-windows HELP, near-additive with individual candidates. Auto-ratify blocked by evidence_n=17 < 20. Combined OOS P&L: +$4,747 vs production +$3,304 (+44% improvement). Recommend J approve as a single bundle.",
+
+  "supersedes": "Consider deploying combined instead of Rank 29 and Rank 30 individually. All three paths are valid but combined is most efficient.",
+  "related_scorecards": ["tp1_qty_fraction_ab_scorecard.json", "time_stop_minutes_ab_scorecard.json"]
+}

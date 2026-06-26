@@ -1,0 +1,31 @@
+{
+  "_doc": "EXAMPLE shared-signal.json — the one-perception contract the heartbeat emits per tick; the fleet executor fans it to all arms. This example = a clean A+ BEAR setup. Real file is written live by the heartbeat (Milestone 2).",
+  "tick_id": 42,
+  "date": "2026-06-22",
+  "time_et": "10:15",
+  "spot": 748.5,
+  "vix": 18.4,
+  "vix_dir": "rising",
+  "iv_regime": "MID",
+  "ribbon_stack": "BEAR",
+  "ribbon_spread_cents": 170,
+  "htf_15m_stack": "BEAR",
+  "production_action": "ENTER_BEAR",
+  "confidence": 0.72,
+  "est_premium": 0.40,
+  "bear": {
+    "passed": true,
+    "score": 8,
+    "max": 10,
+    "blockers": [],
+    "triggers_fired": ["level_reject", "confluence"],
+    "confluence": true,
+    "rejection_level": 749.0,
+    "confidence": 0.72,
+    "est_premium": 0.40,
+    "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+  },
+  "bull": {"passed": false, "score": 4, "blockers": [5, 8], "triggers_fired": []},
+  "written_at": "2026-06-22T10:15:03-04:00",
+  "source": "heartbeat-tick"
+}

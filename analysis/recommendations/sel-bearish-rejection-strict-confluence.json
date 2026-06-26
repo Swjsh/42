@@ -1,0 +1,220 @@
+{
+  "slug": "bearish-rejection-strict-confluence",
+  "thesis": "THE REAL J-EDGE: BEARISH_REJECTION_RIDE_THE_RIBBON at STRICT >=2-confluence selection (named-level rejection / ribbon-flip-to-bear / multi-day trendline / sequence-rejection) in the morning (09:35-11:00 ET), puts only. Does strict selection convert the low-confluence coin-flip into a real per-trade option edge? Tested honestly; may also fail.",
+  "run_date": "2026-06-20",
+  "window": "2025-01-01..2026-05-15",
+  "trading_days": 342,
+  "detector": "STRICT >=2-of-4 confluence on closed bars, causal one-entry/day, next-bar-open fill (no look-ahead). Components: named_level_rejection (structural per-day levels), ribbon_flip_to_bear (Saty 13/20/48 stack flip), multiday_trendline (descending resistance line projected to bar), sequence_rejection (market_structure fresh bearish CHoCH/BOS or fresh LH)",
+  "confluence_rule": {
+    "min_confluence": 2,
+    "morning_window": "09:35-11:00 ET",
+    "side": "P (puts only)",
+    "components": 4
+  },
+  "structure": {
+    "strike_offset": -2,
+    "strike_tier": "ITM-2",
+    "premium_stop_pct": -0.08,
+    "qty": 3,
+    "exits": "v15"
+  },
+  "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1)",
+  "oos_split": "IS=2025 / OOS=2026 (calendar-year)",
+  "signals": {
+    "n": 114,
+    "on_days": 114,
+    "fire_day_pct": 33.3,
+    "confluence_hist": {
+      "2": 110,
+      "3": 4
+    },
+    "component_hist": {
+      "named_level_rejection": 100,
+      "sequence_rejection": 85,
+      "ribbon_flip_to_bear": 27,
+      "multiday_trendline": 20
+    }
+  },
+  "coverage": {
+    "signals": 114,
+    "filled": 107,
+    "cache_miss": 7,
+    "sim_none": 0,
+    "fill_rate": 0.939
+  },
+  "metrics": {
+    "n": 107,
+    "overall_per_trade": -12.68,
+    "is_n": 80,
+    "is_per_trade": -12.16,
+    "oos_n": 27,
+    "oos_per_trade": -14.22,
+    "drop_top5_per_trade": -26.06,
+    "top5_day_pct": null,
+    "positive_quarters": "1/6",
+    "quarters": {
+      "2025Q1": {
+        "n": 14,
+        "per_trade": -48.78,
+        "total": -682.92
+      },
+      "2025Q2": {
+        "n": 16,
+        "per_trade": -26.56,
+        "total": -424.92
+      },
+      "2025Q3": {
+        "n": 22,
+        "per_trade": -7.77,
+        "total": -171.0
+      },
+      "2025Q4": {
+        "n": 28,
+        "per_trade": 10.94,
+        "total": 306.28
+      },
+      "2026Q1": {
+        "n": 19,
+        "per_trade": -10.02,
+        "total": -190.32
+      },
+      "2026Q2": {
+        "n": 8,
+        "per_trade": -24.21,
+        "total": -193.68
+      }
+    },
+    "wr_pct": 28.0,
+    "total_dollar": -1356.56,
+    "exit_hist": {
+      "EXIT_ALL_LEVEL_STOP": 1,
+      "EXIT_ALL_PREMIUM_STOP": 76,
+      "EXIT_ALL_RIBBON_FLIP_BACK": 11,
+      "TP1_THEN_RUNNER_RIBBON": 16,
+      "TP1_THEN_RUNNER_TIME": 3
+    }
+  },
+  "j_anchor_edge_capture": {
+    "winners": {
+      "2026-04-29": {
+        "fired": false,
+        "engine_pnl": 0.0,
+        "j_pnl": 342.0
+      },
+      "2026-05-01": {
+        "fired": false,
+        "engine_pnl": 0.0,
+        "j_pnl": 470.0
+      },
+      "2026-05-04": {
+        "fired": false,
+        "engine_pnl": 0.0,
+        "j_pnl": 730.0
+      }
+    },
+    "losers": {
+      "2026-05-05": {
+        "fired": false,
+        "engine_pnl": 0.0,
+        "j_pnl": -260.0,
+        "regression": false
+      },
+      "2026-05-06": {
+        "fired": false,
+        "engine_pnl": 0.0,
+        "j_pnl": -300.0,
+        "regression": false
+      },
+      "2026-05-07": {
+        "fired": false,
+        "engine_pnl": 0.0,
+        "j_pnl": -120.0,
+        "regression": false
+      }
+    },
+    "edge_capture": 0.0,
+    "edge_capture_formula": "sum(engine_pnl on J winning days) - sum(max(0, engine loss on J losing days)); winners not fired = missed capture",
+    "no_loser_regression": true
+  },
+  "fraud_gates": {
+    "passes": false,
+    "no_truncation_pass": true,
+    "null_pass": false,
+    "is_truncation_artifact": false,
+    "chosen_per_trade": -16.44,
+    "chart_stop_only_per_trade": -34.5,
+    "chosen_premium_stop_pct": -0.08,
+    "n_chosen": 96,
+    "n_chart_stop_only": 96,
+    "null": {
+      "seeds": 20,
+      "n_eligible": 25544,
+      "n_drawn": 96,
+      "per_trade_mean": -12.44,
+      "per_trade_min": -32.08,
+      "per_trade_max": 4.21,
+      "per_trade_by_seed": [
+        -18.13,
+        -18.54,
+        -7.19,
+        -7.29,
+        -16.71,
+        -4.73,
+        -2.64,
+        -19.44,
+        -28.73,
+        -32.08,
+        -0.49,
+        -23.93,
+        -5.82,
+        -10.58,
+        -6.06,
+        4.21,
+        -0.96,
+        -8.09,
+        -15.77,
+        -25.74
+      ]
+    },
+    "null_gate": {
+      "beats_null_mean": false,
+      "beats_null_max": false,
+      "drop_top5_beats_null_mean": false,
+      "edge_over_null_per_trade": -4.0,
+      "null_pass": false
+    },
+    "reason": "no-truncation PASS: chart-stop-only (-0.99)/tr=$-34.50208333333332 holds vs chosen $-16.4395833333333/tr | RANDOM-NULL FAIL: $-16.4395833333333/tr vs null max $4.21 mean $-12.44 (drop-top5 $-32.529670329670296) -> a coin-flip entry reproduces it; the edge is the exit bracket (L172)",
+    "error": null
+  },
+  "gates": {
+    "GATE_OOS_pt_gt0": false,
+    "GATE_IS_pt_gt0": false,
+    "GATE_pos_quarters_ge4of6": false,
+    "GATE_top5_day_lt200": false,
+    "GATE_drop_top5_pt_gt0": false,
+    "GATE_n_ge20": true,
+    "GATE_beats_random_null": false,
+    "GATE_no_truncation": true
+  },
+  "fails": [
+    "GATE_OOS_pt_gt0",
+    "GATE_IS_pt_gt0",
+    "GATE_pos_quarters_ge4of6",
+    "GATE_top5_day_lt200",
+    "GATE_drop_top5_pt_gt0",
+    "GATE_beats_random_null"
+  ],
+  "selection_edge": false,
+  "verdict": "NOT A SELECTION_EDGE: fails ['GATE_OOS_pt_gt0', 'GATE_IS_pt_gt0', 'GATE_pos_quarters_ge4of6', 'GATE_top5_day_lt200', 'GATE_drop_top5_pt_gt0', 'GATE_beats_random_null']",
+  "DISCLOSURE": {
+    "per_trade": "expectancy reported, not WR alone (OP-14)",
+    "is_oos": "IS=2025 AND OOS=2026 BOTH required positive (rejects single-regime artifacts)",
+    "concentration": "top5_day_pct + drop-top-5-days per-trade (OP-20 #5)",
+    "spy_vs_option": "real OPRA fills; SPY-direction != option edge (C3/L58)",
+    "fraud_gates": "random-entry-null (L172) AND no-truncation (L171) -- the two discriminators that caught RSI2/IBS/ema_adx after the naive 5-gate bar",
+    "named_levels_caveat": "live key-levels.json is today-only; for the 16mo backtest named levels are derived STRUCTURALLY per-day (prior-day high/close, overnight/premarket high) -- a documented substitute, NOT J's curated star levels",
+    "j_anchor": "OP-16 edge-capture is DISCLOSED not gated -- the strict morning detector need not fire on every anchor day; a non-firing winner = missed capture, a fired-and-worse loser = regression (anchor.no_loser_regression)",
+    "j_anchor_finding": "DIAGNOSED: edge_capture=$0 because the strict >=2 gate NEVER reaches 2 components on ANY of J's 3 anchor winner days (4/29, 5/01, 5/04) -- each fires only ONE structural component at MIN_CONFLUENCE=1 (4/29 named_level, 5/01 sequence, 5/04 named_level). J's actual reads (his curated star levels + hand-drawn multi-day trendlines) carry information the structural substitutes do not reproduce, so strict structural confluence does not co-locate with J's real winners. The 114 signals it DID stack to 2+ are a different, losing population (28% WR, -$12.68/tr) -- i.e. strict confluence selected MORE trades, not BETTER ones (C24: anchor trades are one-off exceptional setups; the general same-class population are losers).",
+    "no_cherry_pick": "single fixed structure (ITM-2/-8%/v15), MIN_CONFLUENCE=2; no grid pick (2.10)"
+  }
+}

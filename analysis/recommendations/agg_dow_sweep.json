@@ -1,0 +1,44 @@
+{
+  "study": "AGG day-of-week sweep",
+  "date": "2026-06-17",
+  "baseline": {
+    "is_n": 129,
+    "is_pnl": 19885.14,
+    "oos_n": 21,
+    "oos_pnl": 2959.63
+  },
+  "gates": [
+    {
+      "gate": "block Friday entries",
+      "IS_delta": -6939.03,
+      "OOS_delta": 423.33,
+      "verdict": "REJECT (IS_delta<=0)"
+    },
+    {
+      "gate": "block Monday entries",
+      "IS_delta": 975.91,
+      "OOS_delta": -744.43,
+      "WF": -4.686,
+      "OOS_positive": true,
+      "SW_hurt": 1,
+      "anchor_OK": true,
+      "verdict": "REJECT"
+    },
+    {
+      "gate": "block Monday + Friday",
+      "IS_delta": -5963.12,
+      "OOS_delta": -321.1,
+      "verdict": "REJECT (IS_delta<=0)"
+    },
+    {
+      "gate": "block Friday afternoon only",
+      "IS_delta": 707.26,
+      "OOS_delta": 18.91,
+      "WF": 0.164,
+      "OOS_positive": true,
+      "SW_hurt": 0,
+      "anchor_OK": true,
+      "verdict": "REJECT"
+    }
+  ]
+}

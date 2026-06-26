@@ -1,0 +1,556 @@
+{
+  "schema_version": "eod-deep-v1",
+  "date": "2026-06-23",
+  "generated_at_et": "2026-06-23T20:26:31",
+  "rule_version_active": "v15.3",
+  "market_session_summary": {
+    "session_high": 750.18,
+    "session_low": 743.35,
+    "session_close": 743.86,
+    "vix_close": 17.12,
+    "vix_dir": "falling",
+    "regime_predicted": "low_vix_bull_drift_pre_fomc"
+  },
+  "account_equity_start": 1184.0,
+  "account_equity_end": 0,
+  "day_pnl_dollars": -1184.0,
+  "day_pnl_pct": -100.0,
+  "day_trade_count": 0,
+  "daily_loss_budget_used_pct": 0.0,
+  "trades": [],
+  "categories": {
+    "execution": {
+      "score": 50.0,
+      "evidence": {
+        "phase": "stub",
+        "module": "execution"
+      },
+      "narrative": "[STUB] execution module pending Phase 2 implementation. No trades to analyze.",
+      "actions": []
+    },
+    "detection": {
+      "score": 50.0,
+      "evidence": {
+        "phase": "3.0",
+        "verdict": "NO_DATA",
+        "engine_decisions": [],
+        "error": "no RTH bars for 2026-06-23"
+      },
+      "narrative": "Phase 3 replay produced no decisions: no RTH bars for 2026-06-23",
+      "actions": []
+    },
+    "edge": {
+      "score": 50.0,
+      "evidence": {
+        "trade_count": 0,
+        "note": "no trades today"
+      },
+      "narrative": "No trades fired today, so edge analysis is N/A. Engine scored a setup at 10/11 but blocker on filter 11 prevented entry.",
+      "actions": []
+    },
+    "doctrine": {
+      "score": 50.0,
+      "evidence": {
+        "phase": "stub",
+        "module": "doctrine"
+      },
+      "narrative": "[STUB] doctrine module pending Phase 2 implementation. No trades, no doctrine to evaluate.",
+      "actions": []
+    },
+    "risk": {
+      "score": 100.0,
+      "evidence": {
+        "phase": "2.4",
+        "trades": 0,
+        "note": "no trades = no risk taken"
+      },
+      "narrative": "No trades today, no risk taken. Account capital preserved.",
+      "actions": []
+    },
+    "process": {
+      "score": 25.0,
+      "evidence": {
+        "phase": "2.7",
+        "section_count": 0,
+        "trades_csv_rows": 0,
+        "trades_actual": 0,
+        "decisions_count": 0,
+        "decisions_per_trade": null,
+        "grades_count": 0,
+        "premarket_predictions": 3,
+        "grade_coverage_pct": 0.0,
+        "weights": {
+          "journal": 0,
+          "trades_csv": 25,
+          "decisions": 0,
+          "grades": 0
+        },
+        "gaps": [
+          "journal sections 0/6",
+          "decisions.jsonl entries 0 (target \u226515 no-trade days)",
+          "hypothesis grade coverage 0% (0/3 predictions)"
+        ]
+      },
+      "narrative": "Process score 25/100. Journal: 0/6 sections, 0B. Trades.csv: 0 rows for 0 trades. Decisions.jsonl: 0 entries. Hypothesis coverage: 0/3 predictions (0%). Gaps: journal sections 0/6 / decisions.jsonl entries 0 (target \u226515 no-trade days) / hypothesis grade coverage 0% (0/3 predictions)",
+      "actions": []
+    },
+    "macro": {
+      "score": 80.0,
+      "evidence": {
+        "phase": "2.4",
+        "predicted_regime": "low_vix_bull_drift_pre_fomc",
+        "primary_catalyst_type": "macro_calendar",
+        "realized_regime": "mixed_drift",
+        "session_high": 750.18,
+        "session_low": 743.35,
+        "session_close": 743.86,
+        "news_freshness": "stale_one_day_or_more",
+        "news_as_of": "2026-06-15T23:00:00-04:00"
+      },
+      "narrative": "Predicted regime: low_vix_bull_drift_pre_fomc (catalyst: macro_calendar). Realized: mixed_drift. News freshness: stale_one_day_or_more. Score 80/100.",
+      "actions": [
+        {
+          "type": "alert_stale_news",
+          "priority": "MED",
+          "details": {
+            "as_of": "2026-06-15T23:00:00-04:00",
+            "today": "2026-06-23",
+            "note": "Premarket should re-fetch news.json on next fire."
+          }
+        }
+      ]
+    },
+    "technical": {
+      "score": 57.0,
+      "evidence": {
+        "phase": "2.4",
+        "hypothesis_grades": {
+          "pass": 0,
+          "fail": 0,
+          "total": 0
+        },
+        "levels_held": [
+          {
+            "price": 752.09,
+            "kind": "resistance"
+          },
+          {
+            "price": 743.35,
+            "kind": "support"
+          }
+        ],
+        "levels_broken": [
+          {
+            "price": 748.07,
+            "kind": "resistance"
+          },
+          {
+            "price": 747.25,
+            "kind": "support"
+          },
+          {
+            "price": 745.33,
+            "kind": "support"
+          }
+        ],
+        "ribbon_close_stack": "BEAR",
+        "bias_direction_predicted": "bearish",
+        "weights": {
+          "grades": 15,
+          "levels": 12,
+          "ribbon": 30
+        }
+      },
+      "narrative": "Hypothesis grades: 0/0 PASS. Key levels: 2 held / 3 broken. Ribbon close: BEAR (bias was: bearish). Score 57/100 (grades=15/40, levels=12/30, ribbon=30/30).",
+      "actions": []
+    },
+    "engine_health": {
+      "score": 45.0,
+      "evidence": {
+        "phase": "2.4",
+        "rule_version_active": "v15.3",
+        "heartbeat_tick_count": 0,
+        "expected_heartbeat_ticks": 127,
+        "watcher_diag_fires": 0,
+        "expected_watcher_fires": 76,
+        "incidents": [
+          "ingest_warning:journal/2026-06-23.md not found"
+        ],
+        "weights": {
+          "pin": 30,
+          "heartbeat": 0,
+          "diag": 0,
+          "silent_failure": 15
+        }
+      },
+      "narrative": "Pin chain: v15.3. Heartbeat ticks: 0/127 (0%). Watcher diag fires: 0/76 (0%). Incidents: ingest_warning:journal/2026-06-23.md not found.",
+      "actions": []
+    },
+    "watcher_fleet": {
+      "score": 0.0,
+      "evidence": {
+        "phase": "2.4",
+        "diag_fires_total": 0,
+        "expected_diag_fires": 76,
+        "fires_with_signals": 0,
+        "observations_by_watcher": {},
+        "unique_watchers_firing_today": 0,
+        "expected_watchers": [
+          "orb_watcher",
+          "bullish_watcher",
+          "v14_enhanced_watcher",
+          "opening_drive_fade_watcher",
+          "vwap_watcher",
+          "premarket_fail_fade_watcher"
+        ],
+        "silent_watchers_today": [
+          "orb_watcher",
+          "bullish_watcher",
+          "v14_enhanced_watcher",
+          "opening_drive_fade_watcher",
+          "vwap_watcher",
+          "premarket_fail_fade_watcher"
+        ],
+        "weights": {
+          "diag": 0,
+          "signal": 0,
+          "unique": 0,
+          "silent": 0
+        }
+      },
+      "narrative": "Diag fires: 0/76 (0% of expected). Fires with signals: 0 (0%). Watchers active: 0/6. Silent watchers: ['orb_watcher', 'bullish_watcher', 'v14_enhanced_watcher', 'opening_drive_fade_watcher', 'vwap_watcher', 'premarket_fail_fade_watcher']. Score 0/100.",
+      "actions": [
+        {
+          "type": "alert_silent_watchers",
+          "priority": "HIGH",
+          "details": {
+            "silent_watchers": [
+              "orb_watcher",
+              "bullish_watcher",
+              "v14_enhanced_watcher",
+              "opening_drive_fade_watcher",
+              "vwap_watcher",
+              "premarket_fail_fade_watcher"
+            ],
+            "expected": [
+              "orb_watcher",
+              "bullish_watcher",
+              "v14_enhanced_watcher",
+              "opening_drive_fade_watcher",
+              "vwap_watcher",
+              "premarket_fail_fade_watcher"
+            ],
+            "by_watcher_today": {},
+            "note": "Run setup/scripts/audit-silent-watcher-days.ps1 for cross-day pattern"
+          }
+        }
+      ]
+    },
+    "lessons": {
+      "score": 100.0,
+      "evidence": {
+        "phase": "2.4",
+        "candidate_count": 1,
+        "lesson_candidates": [
+          {
+            "candidate_l_num": 53,
+            "title": "ingest warning: journal/2026-06-23.md not found",
+            "source": "ingest_warnings",
+            "detail": "journal/2026-06-23.md not found",
+            "duplicate_of_existing": false
+          }
+        ],
+        "next_l_number": 54,
+        "existing_lesson_count": 51
+      },
+      "narrative": "Lesson candidates detected: 1 (rule_breaks=0, ingest_warnings=1, journal_markers=0). All candidates queued \u2014 NEVER auto-written to LESSONS-LEARNED.md. Score 100/100.",
+      "actions": [
+        {
+          "type": "queue_lesson_candidate",
+          "priority": "MED",
+          "details": {
+            "count": 1,
+            "candidates": [
+              {
+                "candidate_l_num": 53,
+                "title": "ingest warning: journal/2026-06-23.md not found",
+                "source": "ingest_warnings",
+                "detail": "journal/2026-06-23.md not found",
+                "duplicate_of_existing": false
+              }
+            ],
+            "destination": "analysis/recommendations/lessons-candidates.jsonl",
+            "note": "OP 24 \u2014 auto-write to LESSONS-LEARNED.md is BANNED. Candidates queued for J ratification."
+          }
+        }
+      ]
+    },
+    "forensics": {
+      "score": 50.0,
+      "evidence": {
+        "phase": "2.3",
+        "trade_count": 0
+      },
+      "narrative": "No trades today. Forensics N/A.",
+      "actions": []
+    },
+    "tomorrow": {
+      "score": 65.0,
+      "evidence": {
+        "phase": "2.4",
+        "next_trading_day": "2026-06-24",
+        "carry_levels": {
+          "today_session_high": 750.18,
+          "today_session_low": 743.35,
+          "today_session_close": 743.86,
+          "key_levels_from_today_bias": {
+            "resistance": [
+              {
+                "price": 748.07,
+                "label": "PMH_2026-06-22",
+                "tier": "Active",
+                "type": "resistance",
+                "role": "premarket_high",
+                "notes": "Today's PMH \u2014 key bull/bear pivot at RTH open"
+              },
+              {
+                "price": 750.0,
+                "label": "ROUND_750",
+                "tier": "Reference",
+                "type": "psychological",
+                "role": null
+              },
+              {
+                "price": 752.09,
+                "label": "BATTLE_PMH_2026-06-15",
+                "tier": "Reference",
+                "type": "resistance",
+                "role": null
+              }
+            ],
+            "support": [
+              {
+                "price": 747.25,
+                "label": "RTH_HIGH_2026-06-18",
+                "tier": "Active",
+                "type": "support",
+                "role": "broken_resistance_now_support",
+                "notes": "Broken in premarket. Critical: if SPY opens below this at RTH, bear setup eligible at this level"
+              },
+              {
+                "price": 745.33,
+                "label": "CARRY_SESSION_HIGH_2026-06-08",
+                "tier": "Carry",
+                "type": "support",
+                "role": "broken_to_support"
+              },
+              {
+                "price": 743.35,
+                "label": "RTH_LOW_2026-06-18",
+                "tier": "Active",
+                "type": "support",
+                "role": null
+              }
+            ],
+            "ema_fast": 747.51,
+            "ema_pivot": 747.12,
+            "ema_slow": 746.94,
+            "sma_50": 746.61,
+            "ribbon_stack": "BULL",
+            "ribbon_spread_cents": 57,
+            "ema_read_failed": false
+          },
+          "5d_high": 755.44,
+          "5d_low": 739.23,
+          "5d_dates": [
+            "2026-06-15",
+            "2026-06-16",
+            "2026-06-17",
+            "2026-06-18",
+            "2026-06-22"
+          ]
+        },
+        "scheduled_events_tomorrow": [],
+        "developing_setup_at_close": null
+      },
+      "narrative": "Next trading day: 2026-06-24. Session H/L/C: 750.18 / 743.35 / 743.86. Macro events tomorrow: 0.",
+      "actions": []
+    }
+  },
+  "process_score": 55.6,
+  "edge_capture_pct": 0.0,
+  "research_handoffs": {
+    "fixes_shipped_today": [],
+    "doctrine_candidates_for_grinder": [],
+    "ingest_warnings": [
+      "journal/2026-06-23.md not found"
+    ],
+    "drift_check": {
+      "actual_pnl": -1184.0,
+      "verdict": "DRIFT_HIGH_LEFT",
+      "narrative": "Today's $-1184 is BELOW P10 of recent distribution \u2014 significant negative outlier. Distribution: n=30, P10/P25/P50/P75/P90 = $1057.64/1163.24/1755.01/2196.74/2926.78. Today percentile estimate: P1.",
+      "n_days_in_distribution": 30,
+      "percentiles": {
+        "p10": 1057.64,
+        "p25": 1163.24,
+        "p50": 1755.01,
+        "p75": 2196.74,
+        "p90": 2926.78
+      },
+      "today_percentile_estimate": 1,
+      "cache_age_days": null
+    },
+    "heartbeat_tick_audit": {
+      "headline": null,
+      "counts": {},
+      "live_trading_ticks": 0,
+      "misaligned_critical_count": 0,
+      "misaligned_critical_pct_of_live": 0.0,
+      "audit_files": {},
+      "first_3_critical_ticks": []
+    },
+    "self_heal_skills": {
+      "pin_chain_verify": {
+        "verdict": "YELLOW",
+        "reason": "aggressive-variant-intentionally-divergent-1-warning(s)",
+        "canonical": "v15.3",
+        "mismatches": 1
+      },
+      "chart_data_verify": {
+        "verdict": "YELLOW",
+        "reason": "no-csv-data-yet-yfinance-has-bars (CSV stale, EOD appender hasn't run)",
+        "bars_checked": 0,
+        "max_divergence": null
+      },
+      "watcher_state_inspector": {
+        "verdict": "RED",
+        "reason": "could-not-load-bars-for-date",
+        "orb_phase": null,
+        "obs_today": 0
+      },
+      "heartbeat_pulse_check": {
+        "verdict": "NOT_APPLICABLE",
+        "fire_count": null,
+        "max_gap_minutes": 0.0,
+        "gaps_over_15_min": 0
+      },
+      "heartbeat_mcp_self_test_error": "JSONDecodeError: Unexpected UTF-8 BOM (decode using utf-8-sig): line 1 column 1 (char 0)"
+    },
+    "vision_observer_grader": {
+      "verdict": "NO_DATA",
+      "total_paired_ticks": 0,
+      "aligned": 0,
+      "diverged": 0,
+      "vision_only": 0,
+      "heartbeat_only": 0,
+      "vision_accuracy_pct": null,
+      "heartbeat_accuracy_pct": null,
+      "diverged_vision_accuracy_pct": null,
+      "diverged_heartbeat_accuracy_pct": null,
+      "vision_minus_heartbeat_diverged_pp": null,
+      "ingest_warnings": [
+        "spy 5m bars for 2026-06-23 not found in C:\\Users\\jackw\\Desktop\\42\\backtest\\data \u2014 next-bar grading disabled"
+      ]
+    },
+    "pattern_backtest_error": "no CSV covering 2026-06-23",
+    "missed_setups_scan": {
+      "date": "2026-06-23",
+      "level_interactions": [],
+      "missed_setup_count": 0,
+      "missed_setup_total_pnl_dollars": 0.0,
+      "engine_trades_today": 0,
+      "engine_pnl_today": 0.0,
+      "edge_capture_pct": 0.0,
+      "scan_warnings": [
+        "no SPY bars found for 2026-06-23"
+      ],
+      "opra_available": true
+    },
+    "missed_setups_markdown": "### Engine Misses Today\n\nNo qualifying missed setups detected on the chart today \u2014 engine took 0 trade(s) with $0.00 P&L.\n\n_(scanner warnings: 1)_",
+    "feedback_dispatch_counts": {
+      "grinder_queue": 0,
+      "lessons": 1,
+      "future_improvements": 0,
+      "duplicates_skipped": 0,
+      "unhandled": 0,
+      "alerts": 0
+    }
+  },
+  "tomorrow_setup": {
+    "phase": "2.4",
+    "next_trading_day": "2026-06-24",
+    "carry_levels": {
+      "today_session_high": 750.18,
+      "today_session_low": 743.35,
+      "today_session_close": 743.86,
+      "key_levels_from_today_bias": {
+        "resistance": [
+          {
+            "price": 748.07,
+            "label": "PMH_2026-06-22",
+            "tier": "Active",
+            "type": "resistance",
+            "role": "premarket_high",
+            "notes": "Today's PMH \u2014 key bull/bear pivot at RTH open"
+          },
+          {
+            "price": 750.0,
+            "label": "ROUND_750",
+            "tier": "Reference",
+            "type": "psychological",
+            "role": null
+          },
+          {
+            "price": 752.09,
+            "label": "BATTLE_PMH_2026-06-15",
+            "tier": "Reference",
+            "type": "resistance",
+            "role": null
+          }
+        ],
+        "support": [
+          {
+            "price": 747.25,
+            "label": "RTH_HIGH_2026-06-18",
+            "tier": "Active",
+            "type": "support",
+            "role": "broken_resistance_now_support",
+            "notes": "Broken in premarket. Critical: if SPY opens below this at RTH, bear setup eligible at this level"
+          },
+          {
+            "price": 745.33,
+            "label": "CARRY_SESSION_HIGH_2026-06-08",
+            "tier": "Carry",
+            "type": "support",
+            "role": "broken_to_support"
+          },
+          {
+            "price": 743.35,
+            "label": "RTH_LOW_2026-06-18",
+            "tier": "Active",
+            "type": "support",
+            "role": null
+          }
+        ],
+        "ema_fast": 747.51,
+        "ema_pivot": 747.12,
+        "ema_slow": 746.94,
+        "sma_50": 746.61,
+        "ribbon_stack": "BULL",
+        "ribbon_spread_cents": 57,
+        "ema_read_failed": false
+      },
+      "5d_high": 755.44,
+      "5d_low": 739.23,
+      "5d_dates": [
+        "2026-06-15",
+        "2026-06-16",
+        "2026-06-17",
+        "2026-06-18",
+        "2026-06-22"
+      ]
+    },
+    "scheduled_events_tomorrow": [],
+    "developing_setup_at_close": null
+  }
+}

@@ -1,0 +1,1631 @@
+{
+  "family": "b7_mdt_confluence",
+  "angle": "B \u2014 multi-day-trendline confluence (J 5/4 source-of-truth signature)",
+  "run_date": "2026-06-21",
+  "window": "2025-01-02..2026-06-16",
+  "trading_days": 363,
+  "detector": {
+    "rule": "one causal morning (<=10:30) entry/day: a bar that REJECTS a same-session trendline (high/low tags it, closes back through) AND the day-trendline is within MDT_TOL of a MULTI-DAY trendline (fit across prior 4 days' swings, >=3 touches) AND within LEVEL_TOL of a causal named level (PDH/PDL/PDC/PMH/PML/IBH/IBL), same direction",
+    "day_tl_tol": 0.3,
+    "mdt_tol": 0.75,
+    "level_tol": 0.75,
+    "entry_cutoff": "15:30:00",
+    "structural_not_additive": true
+  },
+  "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1); nearest-cached strike snap <=4; causal next-bar-open entry; chart-stop = session extreme via rejection_level",
+  "strike_tiers": "C29: ATM (Safe-2) + ITM-2 (Bold); offset<0=ITM both sides",
+  "oos_split": "IS=2025 / OOS=2026",
+  "nine_gate_bar": "(1)oos_exp>0 (2)posQ>=4/6 (3)top5%<200 (4)n>=20 (5)full_drop5>0 (6)is_exp>0 (7)beats-null L172 (8)no-truncation L171 (9)oos_drop5>0 L173",
+  "n_signals": 67,
+  "signal_fire_day_pct": 18.5,
+  "signal_side_count": {
+    "C": 39,
+    "P": 28
+  },
+  "anchor_check": {
+    "winner_days_fired": [],
+    "winner_days_missed": [
+      "2026-04-29P",
+      "2026-05-01P",
+      "2026-05-04P"
+    ],
+    "loser_days_skipped": [
+      "2026-05-05P",
+      "2026-05-06P",
+      "2026-05-07C"
+    ],
+    "loser_days_fired": [],
+    "n_winners_taken": 0,
+    "n_winners_total": 3,
+    "n_losers_skipped": 3,
+    "n_losers_total": 3,
+    "anchor_note": "all J anchors are 2026 dates (matched to actual SPY price). They lie in the OOS window, so an anchor TAKE is a structural-fidelity check, NOT independent OOS evidence (disclosed caveat)."
+  },
+  "base_grid": [
+    {
+      "strike_offset": 0,
+      "strike_tier": "ATM",
+      "premium_stop_pct": -0.08,
+      "stop_label": "-8pct",
+      "coverage": {
+        "signals": 67,
+        "filled": 66,
+        "cache_miss": 1,
+        "sim_none": 0,
+        "fill_rate": 0.985
+      },
+      "metrics": {
+        "n": 66,
+        "wr_pct": 25.8,
+        "exp_dollar": 5.2,
+        "total_dollar": 343.44,
+        "is_n": 52,
+        "is_exp": 3.59,
+        "is_total": 186.72,
+        "oos_n": 14,
+        "oos_exp": 11.19,
+        "oos_total": 156.72,
+        "quarters": {
+          "2025Q1": {
+            "n": 9,
+            "exp": 5.63,
+            "total": 50.64
+          },
+          "2025Q2": {
+            "n": 8,
+            "exp": -31.95,
+            "total": -255.6
+          },
+          "2025Q3": {
+            "n": 20,
+            "exp": 26.27,
+            "total": 525.36
+          },
+          "2025Q4": {
+            "n": 15,
+            "exp": -8.91,
+            "total": -133.68
+          },
+          "2026Q1": {
+            "n": 9,
+            "exp": 3.04,
+            "total": 27.36
+          },
+          "2026Q2": {
+            "n": 5,
+            "exp": 25.87,
+            "total": 129.36
+          }
+        },
+        "positive_quarters": "4/6",
+        "positive_quarters_n": 4,
+        "n_quarters": 6,
+        "top5_day_pct": 304.9,
+        "full_drop_top5_per_trade": -11.53,
+        "oos_drop_top5_per_trade": -28.05,
+        "by_side": {
+          "C": {
+            "n": 38,
+            "exp": -2.53,
+            "wr": 23.7,
+            "total": -96.0
+          },
+          "P": {
+            "n": 28,
+            "exp": 15.69,
+            "wr": 28.6,
+            "total": 439.44
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_PREMIUM_STOP": 49,
+          "TP1_THEN_RUNNER_RIBBON": 15,
+          "TP1_THEN_RUNNER_TIME": 2
+        }
+      },
+      "clears_9_gates": false,
+      "fraud": {
+        "passes": false,
+        "no_truncation_pass": false,
+        "null_pass": false,
+        "is_truncation_artifact": true,
+        "chosen_per_trade": 6.66,
+        "chart_stop_only_per_trade": -51.72,
+        "chosen_premium_stop_pct": -0.08,
+        "n_chosen": 63,
+        "n_chart_stop_only": 63,
+        "null": {
+          "seeds": 20,
+          "n_eligible": 27055,
+          "n_drawn": 63,
+          "per_trade_mean": -0.97,
+          "per_trade_min": -12.43,
+          "per_trade_max": 33.78,
+          "per_trade_by_seed": [
+            -2.86,
+            -8.33,
+            -10.92,
+            -12.43,
+            -5.52,
+            2.67,
+            -11.42,
+            3.23,
+            0.17,
+            -3.76,
+            1.47,
+            6.35,
+            -8.46,
+            -9.03,
+            12.09,
+            6.65,
+            -3.42,
+            -10.62,
+            0.99,
+            33.78
+          ]
+        },
+        "null_gate": {
+          "beats_null_mean": true,
+          "beats_null_max": false,
+          "drop_top5_beats_null_mean": false,
+          "edge_over_null_per_trade": 7.63,
+          "null_pass": false
+        },
+        "reason": "TRUNCATION ARTIFACT: +$6.659047619047634/tr at stop=-0.08 inverts to $-51.71968253968254/tr at chart-stop-only (-0.99) -> the tight stop, not the signal, is the edge (L171) | RANDOM-NULL FAIL: $6.659047619047634/tr vs null max $33.78 mean $-0.97 (drop-top5 $-10.818620689655159) -> a coin-flip entry reproduces it; the edge is the exit bracket (L172)",
+        "error": null
+      },
+      "nine_gate_fails": [
+        "G3 top5%=304.9>=200.0",
+        "G5 full_drop_top5=-11.53<=0",
+        "G9 oos_drop_top5=-28.05<=0",
+        "G7 fails random-null (L172)",
+        "G8 truncation artifact (L171)"
+      ]
+    },
+    {
+      "strike_offset": 0,
+      "strike_tier": "ATM",
+      "premium_stop_pct": -0.2,
+      "stop_label": "-20pct",
+      "coverage": {
+        "signals": 67,
+        "filled": 66,
+        "cache_miss": 1,
+        "sim_none": 0,
+        "fill_rate": 0.985
+      },
+      "metrics": {
+        "n": 66,
+        "wr_pct": 31.8,
+        "exp_dollar": -17.16,
+        "total_dollar": -1132.8,
+        "is_n": 52,
+        "is_exp": -22.2,
+        "is_total": -1154.4,
+        "oos_n": 14,
+        "oos_exp": 1.54,
+        "oos_total": 21.6,
+        "quarters": {
+          "2025Q1": {
+            "n": 9,
+            "exp": -23.13,
+            "total": -208.2
+          },
+          "2025Q2": {
+            "n": 8,
+            "exp": -79.88,
+            "total": -639.0
+          },
+          "2025Q3": {
+            "n": 20,
+            "exp": 15.63,
+            "total": 312.6
+          },
+          "2025Q4": {
+            "n": 15,
+            "exp": -41.32,
+            "total": -619.8
+          },
+          "2026Q1": {
+            "n": 9,
+            "exp": -12.4,
+            "total": -111.6
+          },
+          "2026Q2": {
+            "n": 5,
+            "exp": 26.64,
+            "total": 133.2
+          }
+        },
+        "positive_quarters": "2/6",
+        "positive_quarters_n": 2,
+        "n_quarters": 6,
+        "top5_day_pct": null,
+        "full_drop_top5_per_trade": -35.73,
+        "oos_drop_top5_per_trade": -46.33,
+        "by_side": {
+          "C": {
+            "n": 38,
+            "exp": -23.67,
+            "wr": 31.6,
+            "total": -899.4
+          },
+          "P": {
+            "n": 28,
+            "exp": -8.34,
+            "wr": 32.1,
+            "total": -233.4
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 1,
+          "EXIT_ALL_PREMIUM_STOP": 44,
+          "TP1_THEN_RUNNER_RIBBON": 19,
+          "TP1_THEN_RUNNER_TIME": 2
+        }
+      },
+      "clears_9_gates": false,
+      "fraud": {
+        "passes": false,
+        "no_truncation_pass": true,
+        "null_pass": false,
+        "is_truncation_artifact": false,
+        "chosen_per_trade": -14.96,
+        "chart_stop_only_per_trade": -51.72,
+        "chosen_premium_stop_pct": -0.2,
+        "n_chosen": 63,
+        "n_chart_stop_only": 63,
+        "null": {
+          "seeds": 20,
+          "n_eligible": 27055,
+          "n_drawn": 63,
+          "per_trade_mean": -20.32,
+          "per_trade_min": -39.5,
+          "per_trade_max": 25.58,
+          "per_trade_by_seed": [
+            -39.5,
+            -25.23,
+            -31.06,
+            -32.32,
+            -26.49,
+            -19.06,
+            -36.13,
+            -11.47,
+            -28.58,
+            -18.31,
+            -26.34,
+            -9.19,
+            -30.74,
+            -25.74,
+            -11.46,
+            -8.0,
+            -9.0,
+            -21.76,
+            -21.63,
+            25.58
+          ]
+        },
+        "null_gate": {
+          "beats_null_mean": true,
+          "beats_null_max": false,
+          "drop_top5_beats_null_mean": false,
+          "edge_over_null_per_trade": 5.36,
+          "null_pass": false
+        },
+        "reason": "no-truncation PASS: chart-stop-only (-0.99)/tr=$-51.71968253968254 holds vs chosen $-14.961904761904746/tr | RANDOM-NULL FAIL: $-14.961904761904746/tr vs null max $25.58 mean $-20.32 (drop-top5 $-34.30344827586205) -> a coin-flip entry reproduces it; the edge is the exit bracket (L172)",
+        "error": null
+      },
+      "nine_gate_fails": [
+        "G2 posQ=2/6<4/6",
+        "G3 top5%=None>=200.0",
+        "G5 full_drop_top5=-35.73<=0",
+        "G6 is_exp=-22.2<=0",
+        "G9 oos_drop_top5=-46.33<=0",
+        "G7 fails random-null (L172)"
+      ]
+    },
+    {
+      "strike_offset": 0,
+      "strike_tier": "ATM",
+      "premium_stop_pct": -0.5,
+      "stop_label": "-50pct",
+      "coverage": {
+        "signals": 67,
+        "filled": 66,
+        "cache_miss": 1,
+        "sim_none": 0,
+        "fill_rate": 0.985
+      },
+      "metrics": {
+        "n": 66,
+        "wr_pct": 54.5,
+        "exp_dollar": -36.01,
+        "total_dollar": -2376.5,
+        "is_n": 52,
+        "is_exp": -35.74,
+        "is_total": -1858.7,
+        "oos_n": 14,
+        "oos_exp": -36.99,
+        "oos_total": -517.8,
+        "quarters": {
+          "2025Q1": {
+            "n": 9,
+            "exp": -64.28,
+            "total": -578.5
+          },
+          "2025Q2": {
+            "n": 8,
+            "exp": -133.41,
+            "total": -1067.3
+          },
+          "2025Q3": {
+            "n": 20,
+            "exp": 36.62,
+            "total": 732.4
+          },
+          "2025Q4": {
+            "n": 15,
+            "exp": -63.02,
+            "total": -945.3
+          },
+          "2026Q1": {
+            "n": 9,
+            "exp": -56.13,
+            "total": -505.2
+          },
+          "2026Q2": {
+            "n": 5,
+            "exp": -2.52,
+            "total": -12.6
+          }
+        },
+        "positive_quarters": "1/6",
+        "positive_quarters_n": 1,
+        "n_quarters": 6,
+        "top5_day_pct": null,
+        "full_drop_top5_per_trade": -58.45,
+        "oos_drop_top5_per_trade": -106.27,
+        "by_side": {
+          "C": {
+            "n": 38,
+            "exp": -27.06,
+            "wr": 63.2,
+            "total": -1028.4
+          },
+          "P": {
+            "n": 28,
+            "exp": -48.15,
+            "wr": 42.9,
+            "total": -1348.1
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 2,
+          "EXIT_ALL_PREMIUM_STOP": 28,
+          "TP1_THEN_RUNNER_RIBBON": 30,
+          "TP1_THEN_RUNNER_TIME": 6
+        }
+      },
+      "clears_9_gates": false,
+      "fraud": null,
+      "nine_gate_fails": [
+        "G1 oos_exp=-36.99<=0",
+        "G2 posQ=1/6<4/6",
+        "G3 top5%=None>=200.0",
+        "G5 full_drop_top5=-58.45<=0",
+        "G6 is_exp=-35.74<=0",
+        "G9 oos_drop_top5=-106.27<=0",
+        "G7/G8 fraud-gate not run"
+      ]
+    },
+    {
+      "strike_offset": 0,
+      "strike_tier": "ATM",
+      "premium_stop_pct": -0.99,
+      "stop_label": "chart_stop_only",
+      "coverage": {
+        "signals": 67,
+        "filled": 66,
+        "cache_miss": 1,
+        "sim_none": 0,
+        "fill_rate": 0.985
+      },
+      "metrics": {
+        "n": 66,
+        "wr_pct": 60.6,
+        "exp_dollar": -58.56,
+        "total_dollar": -3864.94,
+        "is_n": 52,
+        "is_exp": -54.37,
+        "is_total": -2827.0,
+        "oos_n": 14,
+        "oos_exp": -74.14,
+        "oos_total": -1037.94,
+        "quarters": {
+          "2025Q1": {
+            "n": 9,
+            "exp": 6.07,
+            "total": 54.6
+          },
+          "2025Q2": {
+            "n": 8,
+            "exp": -244.22,
+            "total": -1953.8
+          },
+          "2025Q3": {
+            "n": 20,
+            "exp": 17.45,
+            "total": 349.0
+          },
+          "2025Q4": {
+            "n": 15,
+            "exp": -85.12,
+            "total": -1276.8
+          },
+          "2026Q1": {
+            "n": 9,
+            "exp": -87.47,
+            "total": -787.2
+          },
+          "2026Q2": {
+            "n": 5,
+            "exp": -50.15,
+            "total": -250.74
+          }
+        },
+        "positive_quarters": "2/6",
+        "positive_quarters_n": 2,
+        "n_quarters": 6,
+        "top5_day_pct": null,
+        "full_drop_top5_per_trade": -83.6,
+        "oos_drop_top5_per_trade": -164.06,
+        "by_side": {
+          "C": {
+            "n": 38,
+            "exp": -37.28,
+            "wr": 71.1,
+            "total": -1416.8
+          },
+          "P": {
+            "n": 28,
+            "exp": -87.43,
+            "wr": 46.4,
+            "total": -2448.14
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 13,
+          "EXIT_ALL_PREMIUM_STOP": 2,
+          "EXIT_ALL_TIME_STOP": 12,
+          "TP1_THEN_RUNNER_RIBBON": 31,
+          "TP1_THEN_RUNNER_TIME": 8
+        }
+      },
+      "clears_9_gates": false,
+      "fraud": null,
+      "nine_gate_fails": [
+        "G1 oos_exp=-74.14<=0",
+        "G2 posQ=2/6<4/6",
+        "G3 top5%=None>=200.0",
+        "G5 full_drop_top5=-83.6<=0",
+        "G6 is_exp=-54.37<=0",
+        "G9 oos_drop_top5=-164.06<=0",
+        "G7/G8 fraud-gate not run"
+      ]
+    },
+    {
+      "strike_offset": -2,
+      "strike_tier": "ITM2",
+      "premium_stop_pct": -0.08,
+      "stop_label": "-8pct",
+      "coverage": {
+        "signals": 67,
+        "filled": 64,
+        "cache_miss": 3,
+        "sim_none": 0,
+        "fill_rate": 0.955
+      },
+      "metrics": {
+        "n": 64,
+        "wr_pct": 18.8,
+        "exp_dollar": -6.82,
+        "total_dollar": -436.76,
+        "is_n": 51,
+        "is_exp": -16.15,
+        "is_total": -823.4,
+        "oos_n": 13,
+        "oos_exp": 29.74,
+        "oos_total": 386.64,
+        "quarters": {
+          "2025Q1": {
+            "n": 8,
+            "exp": 9.63,
+            "total": 77.04
+          },
+          "2025Q2": {
+            "n": 8,
+            "exp": -60.21,
+            "total": -481.68
+          },
+          "2025Q3": {
+            "n": 20,
+            "exp": 6.44,
+            "total": 128.8
+          },
+          "2025Q4": {
+            "n": 15,
+            "exp": -36.5,
+            "total": -547.56
+          },
+          "2026Q1": {
+            "n": 8,
+            "exp": -0.29,
+            "total": -2.28
+          },
+          "2026Q2": {
+            "n": 5,
+            "exp": 77.78,
+            "total": 388.92
+          }
+        },
+        "positive_quarters": "3/6",
+        "positive_quarters_n": 3,
+        "n_quarters": 6,
+        "top5_day_pct": null,
+        "full_drop_top5_per_trade": -35.9,
+        "oos_drop_top5_per_trade": -60.6,
+        "by_side": {
+          "C": {
+            "n": 37,
+            "exp": -19.48,
+            "wr": 16.2,
+            "total": -720.68
+          },
+          "P": {
+            "n": 27,
+            "exp": 10.52,
+            "wr": 22.2,
+            "total": 283.92
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_PREMIUM_STOP": 52,
+          "TP1_THEN_RUNNER_RIBBON": 8,
+          "TP1_THEN_RUNNER_TIME": 4
+        }
+      },
+      "clears_9_gates": false,
+      "fraud": {
+        "passes": false,
+        "no_truncation_pass": true,
+        "null_pass": false,
+        "is_truncation_artifact": false,
+        "chosen_per_trade": -14.51,
+        "chart_stop_only_per_trade": -89.0,
+        "chosen_premium_stop_pct": -0.08,
+        "n_chosen": 62,
+        "n_chart_stop_only": 62,
+        "null": {
+          "seeds": 20,
+          "n_eligible": 27055,
+          "n_drawn": 62,
+          "per_trade_mean": -6.56,
+          "per_trade_min": -36.16,
+          "per_trade_max": 27.04,
+          "per_trade_by_seed": [
+            -6.8,
+            -11.59,
+            -17.68,
+            -13.84,
+            -25.57,
+            -13.91,
+            -6.45,
+            -11.49,
+            -24.41,
+            14.45,
+            2.24,
+            8.58,
+            -6.93,
+            9.61,
+            21.14,
+            27.04,
+            -5.05,
+            -36.16,
+            -18.86,
+            -15.5
+          ]
+        },
+        "null_gate": {
+          "beats_null_mean": false,
+          "beats_null_max": false,
+          "drop_top5_beats_null_mean": false,
+          "edge_over_null_per_trade": -7.95,
+          "null_pass": false
+        },
+        "reason": "no-truncation PASS: chart-stop-only (-0.99)/tr=$-88.99677419354836 holds vs chosen $-14.511612903225778/tr | RANDOM-NULL FAIL: $-14.511612903225778/tr vs null max $27.04 mean $-6.56 (drop-top5 $-39.38105263157892) -> a coin-flip entry reproduces it; the edge is the exit bracket (L172)",
+        "error": null
+      },
+      "nine_gate_fails": [
+        "G2 posQ=3/6<4/6",
+        "G3 top5%=None>=200.0",
+        "G5 full_drop_top5=-35.9<=0",
+        "G6 is_exp=-16.15<=0",
+        "G9 oos_drop_top5=-60.6<=0",
+        "G7 fails random-null (L172)"
+      ]
+    },
+    {
+      "strike_offset": -2,
+      "strike_tier": "ITM2",
+      "premium_stop_pct": -0.2,
+      "stop_label": "-20pct",
+      "coverage": {
+        "signals": 67,
+        "filled": 64,
+        "cache_miss": 3,
+        "sim_none": 0,
+        "fill_rate": 0.955
+      },
+      "metrics": {
+        "n": 64,
+        "wr_pct": 28.1,
+        "exp_dollar": -44.53,
+        "total_dollar": -2849.6,
+        "is_n": 51,
+        "is_exp": -52.87,
+        "is_total": -2696.6,
+        "oos_n": 13,
+        "oos_exp": -11.77,
+        "oos_total": -153.0,
+        "quarters": {
+          "2025Q1": {
+            "n": 8,
+            "exp": -55.35,
+            "total": -442.8
+          },
+          "2025Q2": {
+            "n": 8,
+            "exp": -150.53,
+            "total": -1204.2
+          },
+          "2025Q3": {
+            "n": 20,
+            "exp": 11.93,
+            "total": 238.6
+          },
+          "2025Q4": {
+            "n": 15,
+            "exp": -85.88,
+            "total": -1288.2
+          },
+          "2026Q1": {
+            "n": 8,
+            "exp": -35.92,
+            "total": -287.4
+          },
+          "2026Q2": {
+            "n": 5,
+            "exp": 26.88,
+            "total": 134.4
+          }
+        },
+        "positive_quarters": "2/6",
+        "positive_quarters_n": 2,
+        "n_quarters": 6,
+        "top5_day_pct": null,
+        "full_drop_top5_per_trade": -80.36,
+        "oos_drop_top5_per_trade": -149.7,
+        "by_side": {
+          "C": {
+            "n": 37,
+            "exp": -55.76,
+            "wr": 27.0,
+            "total": -2063.0
+          },
+          "P": {
+            "n": 27,
+            "exp": -29.13,
+            "wr": 29.6,
+            "total": -786.6
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 1,
+          "EXIT_ALL_PREMIUM_STOP": 44,
+          "EXIT_ALL_TIME_STOP": 1,
+          "TP1_THEN_RUNNER_RIBBON": 12,
+          "TP1_THEN_RUNNER_TIME": 6
+        }
+      },
+      "clears_9_gates": false,
+      "fraud": null,
+      "nine_gate_fails": [
+        "G1 oos_exp=-11.77<=0",
+        "G2 posQ=2/6<4/6",
+        "G3 top5%=None>=200.0",
+        "G5 full_drop_top5=-80.36<=0",
+        "G6 is_exp=-52.87<=0",
+        "G9 oos_drop_top5=-149.7<=0",
+        "G7/G8 fraud-gate not run"
+      ]
+    },
+    {
+      "strike_offset": -2,
+      "strike_tier": "ITM2",
+      "premium_stop_pct": -0.5,
+      "stop_label": "-50pct",
+      "coverage": {
+        "signals": 67,
+        "filled": 64,
+        "cache_miss": 3,
+        "sim_none": 0,
+        "fill_rate": 0.955
+      },
+      "metrics": {
+        "n": 64,
+        "wr_pct": 50.0,
+        "exp_dollar": -55.32,
+        "total_dollar": -3540.2,
+        "is_n": 51,
+        "is_exp": -60.99,
+        "is_total": -3110.7,
+        "oos_n": 13,
+        "oos_exp": -33.04,
+        "oos_total": -429.5,
+        "quarters": {
+          "2025Q1": {
+            "n": 8,
+            "exp": 39.72,
+            "total": 317.8
+          },
+          "2025Q2": {
+            "n": 8,
+            "exp": -198.53,
+            "total": -1588.2
+          },
+          "2025Q3": {
+            "n": 20,
+            "exp": 19.54,
+            "total": 390.9
+          },
+          "2025Q4": {
+            "n": 15,
+            "exp": -148.75,
+            "total": -2231.2
+          },
+          "2026Q1": {
+            "n": 8,
+            "exp": -74.01,
+            "total": -592.1
+          },
+          "2026Q2": {
+            "n": 5,
+            "exp": 32.52,
+            "total": 162.6
+          }
+        },
+        "positive_quarters": "3/6",
+        "positive_quarters_n": 3,
+        "n_quarters": 6,
+        "top5_day_pct": null,
+        "full_drop_top5_per_trade": -94.3,
+        "oos_drop_top5_per_trade": -221.59,
+        "by_side": {
+          "C": {
+            "n": 37,
+            "exp": 1.16,
+            "wr": 59.5,
+            "total": 43.0
+          },
+          "P": {
+            "n": 27,
+            "exp": -132.71,
+            "wr": 37.0,
+            "total": -3583.2
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 5,
+          "EXIT_ALL_PREMIUM_STOP": 22,
+          "EXIT_ALL_TIME_STOP": 9,
+          "TP1_THEN_RUNNER_RIBBON": 16,
+          "TP1_THEN_RUNNER_TIME": 12
+        }
+      },
+      "clears_9_gates": false,
+      "fraud": null,
+      "nine_gate_fails": [
+        "G1 oos_exp=-33.04<=0",
+        "G2 posQ=3/6<4/6",
+        "G3 top5%=None>=200.0",
+        "G5 full_drop_top5=-94.3<=0",
+        "G6 is_exp=-60.99<=0",
+        "G9 oos_drop_top5=-221.59<=0",
+        "G7/G8 fraud-gate not run"
+      ]
+    },
+    {
+      "strike_offset": -2,
+      "strike_tier": "ITM2",
+      "premium_stop_pct": -0.99,
+      "stop_label": "chart_stop_only",
+      "coverage": {
+        "signals": 67,
+        "filled": 64,
+        "cache_miss": 3,
+        "sim_none": 0,
+        "fill_rate": 0.955
+      },
+      "metrics": {
+        "n": 64,
+        "wr_pct": 50.0,
+        "exp_dollar": -79.32,
+        "total_dollar": -5076.2,
+        "is_n": 51,
+        "is_exp": -81.26,
+        "is_total": -4144.2,
+        "oos_n": 13,
+        "oos_exp": -71.69,
+        "oos_total": -932.0,
+        "quarters": {
+          "2025Q1": {
+            "n": 8,
+            "exp": 46.1,
+            "total": 368.8
+          },
+          "2025Q2": {
+            "n": 8,
+            "exp": -309.52,
+            "total": -2476.2
+          },
+          "2025Q3": {
+            "n": 20,
+            "exp": -5.88,
+            "total": -117.6
+          },
+          "2025Q4": {
+            "n": 15,
+            "exp": -127.95,
+            "total": -1919.2
+          },
+          "2026Q1": {
+            "n": 8,
+            "exp": -89.2,
+            "total": -713.6
+          },
+          "2026Q2": {
+            "n": 5,
+            "exp": -43.68,
+            "total": -218.4
+          }
+        },
+        "positive_quarters": "1/6",
+        "positive_quarters_n": 1,
+        "n_quarters": 6,
+        "top5_day_pct": null,
+        "full_drop_top5_per_trade": -120.33,
+        "oos_drop_top5_per_trade": -284.4,
+        "by_side": {
+          "C": {
+            "n": 37,
+            "exp": -18.05,
+            "wr": 59.5,
+            "total": -668.0
+          },
+          "P": {
+            "n": 27,
+            "exp": -163.27,
+            "wr": 37.0,
+            "total": -4408.2
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 14,
+          "EXIT_ALL_TIME_STOP": 22,
+          "TP1_THEN_RUNNER_RIBBON": 16,
+          "TP1_THEN_RUNNER_TIME": 12
+        }
+      },
+      "clears_9_gates": false,
+      "fraud": null,
+      "nine_gate_fails": [
+        "G1 oos_exp=-71.69<=0",
+        "G2 posQ=1/6<4/6",
+        "G3 top5%=None>=200.0",
+        "G5 full_drop_top5=-120.33<=0",
+        "G6 is_exp=-81.26<=0",
+        "G9 oos_drop_top5=-284.4<=0",
+        "G7/G8 fraud-gate not run"
+      ]
+    }
+  ],
+  "best_cell_by_oos_exp": {
+    "strike_offset": -2,
+    "strike_tier": "ITM2",
+    "premium_stop_pct": -0.08,
+    "stop_label": "-8pct",
+    "coverage": {
+      "signals": 67,
+      "filled": 64,
+      "cache_miss": 3,
+      "sim_none": 0,
+      "fill_rate": 0.955
+    },
+    "metrics": {
+      "n": 64,
+      "wr_pct": 18.8,
+      "exp_dollar": -6.82,
+      "total_dollar": -436.76,
+      "is_n": 51,
+      "is_exp": -16.15,
+      "is_total": -823.4,
+      "oos_n": 13,
+      "oos_exp": 29.74,
+      "oos_total": 386.64,
+      "quarters": {
+        "2025Q1": {
+          "n": 8,
+          "exp": 9.63,
+          "total": 77.04
+        },
+        "2025Q2": {
+          "n": 8,
+          "exp": -60.21,
+          "total": -481.68
+        },
+        "2025Q3": {
+          "n": 20,
+          "exp": 6.44,
+          "total": 128.8
+        },
+        "2025Q4": {
+          "n": 15,
+          "exp": -36.5,
+          "total": -547.56
+        },
+        "2026Q1": {
+          "n": 8,
+          "exp": -0.29,
+          "total": -2.28
+        },
+        "2026Q2": {
+          "n": 5,
+          "exp": 77.78,
+          "total": 388.92
+        }
+      },
+      "positive_quarters": "3/6",
+      "positive_quarters_n": 3,
+      "n_quarters": 6,
+      "top5_day_pct": null,
+      "full_drop_top5_per_trade": -35.9,
+      "oos_drop_top5_per_trade": -60.6,
+      "by_side": {
+        "C": {
+          "n": 37,
+          "exp": -19.48,
+          "wr": 16.2,
+          "total": -720.68
+        },
+        "P": {
+          "n": 27,
+          "exp": 10.52,
+          "wr": 22.2,
+          "total": 283.92
+        }
+      },
+      "exit_hist": {
+        "EXIT_ALL_PREMIUM_STOP": 52,
+        "TP1_THEN_RUNNER_RIBBON": 8,
+        "TP1_THEN_RUNNER_TIME": 4
+      }
+    },
+    "clears_9_gates": false,
+    "fraud": {
+      "passes": false,
+      "no_truncation_pass": true,
+      "null_pass": false,
+      "is_truncation_artifact": false,
+      "chosen_per_trade": -14.51,
+      "chart_stop_only_per_trade": -89.0,
+      "chosen_premium_stop_pct": -0.08,
+      "n_chosen": 62,
+      "n_chart_stop_only": 62,
+      "null": {
+        "seeds": 20,
+        "n_eligible": 27055,
+        "n_drawn": 62,
+        "per_trade_mean": -6.56,
+        "per_trade_min": -36.16,
+        "per_trade_max": 27.04,
+        "per_trade_by_seed": [
+          -6.8,
+          -11.59,
+          -17.68,
+          -13.84,
+          -25.57,
+          -13.91,
+          -6.45,
+          -11.49,
+          -24.41,
+          14.45,
+          2.24,
+          8.58,
+          -6.93,
+          9.61,
+          21.14,
+          27.04,
+          -5.05,
+          -36.16,
+          -18.86,
+          -15.5
+        ]
+      },
+      "null_gate": {
+        "beats_null_mean": false,
+        "beats_null_max": false,
+        "drop_top5_beats_null_mean": false,
+        "edge_over_null_per_trade": -7.95,
+        "null_pass": false
+      },
+      "reason": "no-truncation PASS: chart-stop-only (-0.99)/tr=$-88.99677419354836 holds vs chosen $-14.511612903225778/tr | RANDOM-NULL FAIL: $-14.511612903225778/tr vs null max $27.04 mean $-6.56 (drop-top5 $-39.38105263157892) -> a coin-flip entry reproduces it; the edge is the exit bracket (L172)",
+      "error": null
+    },
+    "nine_gate_fails": [
+      "G2 posQ=3/6<4/6",
+      "G3 top5%=None>=200.0",
+      "G5 full_drop_top5=-35.9<=0",
+      "G6 is_exp=-16.15<=0",
+      "G9 oos_drop_top5=-60.6<=0",
+      "G7 fails random-null (L172)"
+    ]
+  },
+  "n_cells_clearing_9_gates": 0,
+  "honest_verdict": "DEAD: NO cell clears the 9-gate bar. Multi-day-trendline STRUCTURAL confluence (not additive scoring) does not manufacture a discrete option edge OOS. Best cell ITM2/-8pct: oos_exp=$29.74/t (n=64, oos_n=13), full_drop5=$-35.9, oos_drop5=$-60.6. Like the B0 additive triple-kill, the structural co-incidence is a SPY-direction read, not an option edge (C3/L58): cheaper/righter strikes + capped losers shift magnitude, not sign. Best-cell gate fails: G2 posQ=3/6<4/6; G3 top5%=None>=200.0; G5 full_drop_top5=-35.9<=0; G6 is_exp=-16.15<=0; G9 oos_drop_top5=-60.6<=0; G7 fails random-null (L172)",
+  "signals_detail": [
+    {
+      "date": "2025-01-17",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 596.97,
+      "mdt_dist": 0.65,
+      "level_dist": 0.37
+    },
+    {
+      "date": "2025-01-23",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 607.37,
+      "mdt_dist": 0.607,
+      "level_dist": 0.55
+    },
+    {
+      "date": "2025-02-10",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 604.97,
+      "mdt_dist": 0.749,
+      "level_dist": 0.49
+    },
+    {
+      "date": "2025-02-11",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 604.1,
+      "mdt_dist": 0.037,
+      "level_dist": 0.29
+    },
+    {
+      "date": "2025-02-12",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 604.69,
+      "mdt_dist": 0.248,
+      "level_dist": 0.7
+    },
+    {
+      "date": "2025-02-19",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 611.15,
+      "mdt_dist": 0.433,
+      "level_dist": 0.07
+    },
+    {
+      "date": "2025-02-27",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 594.46,
+      "mdt_dist": 0.663,
+      "level_dist": 0.51
+    },
+    {
+      "date": "2025-03-19",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 563.88,
+      "mdt_dist": 0.594,
+      "level_dist": 0.27
+    },
+    {
+      "date": "2025-03-20",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 566.0,
+      "mdt_dist": 0.001,
+      "level_dist": 0.67
+    },
+    {
+      "date": "2025-05-16",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 590.46,
+      "mdt_dist": 0.037,
+      "level_dist": 0.33
+    },
+    {
+      "date": "2025-06-02",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 589.77,
+      "mdt_dist": 0.61,
+      "level_dist": 0.29
+    },
+    {
+      "date": "2025-06-05",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 598.27,
+      "mdt_dist": 0.67,
+      "level_dist": 0.02
+    },
+    {
+      "date": "2025-06-06",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 597.78,
+      "mdt_dist": 0.353,
+      "level_dist": 0.02
+    },
+    {
+      "date": "2025-06-10",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 601.01,
+      "mdt_dist": 0.603,
+      "level_dist": 0.03
+    },
+    {
+      "date": "2025-06-12",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 602.29,
+      "mdt_dist": 0.459,
+      "level_dist": 0.61
+    },
+    {
+      "date": "2025-06-17",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 600.78,
+      "mdt_dist": 0.341,
+      "level_dist": 0.05
+    },
+    {
+      "date": "2025-06-18",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 600.03,
+      "mdt_dist": 0.046,
+      "level_dist": 0.42
+    },
+    {
+      "date": "2025-07-02",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 618.55,
+      "mdt_dist": 0.611,
+      "level_dist": 0.02
+    },
+    {
+      "date": "2025-07-09",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 621.63,
+      "mdt_dist": 0.154,
+      "level_dist": 0.665
+    },
+    {
+      "date": "2025-07-15",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 624.78,
+      "mdt_dist": 0.175,
+      "level_dist": 0.17
+    },
+    {
+      "date": "2025-07-16",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 624.03,
+      "mdt_dist": 0.518,
+      "level_dist": 0.04
+    },
+    {
+      "date": "2025-07-21",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 630.61,
+      "mdt_dist": 0.562,
+      "level_dist": 0.05
+    },
+    {
+      "date": "2025-07-23",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 631.02,
+      "mdt_dist": 0.745,
+      "level_dist": 0.575
+    },
+    {
+      "date": "2025-07-25",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 635.41,
+      "mdt_dist": 0.015,
+      "level_dist": 0.305
+    },
+    {
+      "date": "2025-07-30",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 636.01,
+      "mdt_dist": 0.088,
+      "level_dist": 0.045
+    },
+    {
+      "date": "2025-07-31",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 637.21,
+      "mdt_dist": 0.421,
+      "level_dist": 0.16
+    },
+    {
+      "date": "2025-08-12",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 639.39,
+      "mdt_dist": 0.194,
+      "level_dist": 0.455
+    },
+    {
+      "date": "2025-08-14",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 642.82,
+      "mdt_dist": 0.072,
+      "level_dist": 0.07
+    },
+    {
+      "date": "2025-08-21",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 636.49,
+      "mdt_dist": 0.252,
+      "level_dist": 0.005
+    },
+    {
+      "date": "2025-08-25",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 643.85,
+      "mdt_dist": 0.013,
+      "level_dist": 0.545
+    },
+    {
+      "date": "2025-08-27",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 646.07,
+      "mdt_dist": 0.654,
+      "level_dist": 0.62
+    },
+    {
+      "date": "2025-09-09",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 649.57,
+      "mdt_dist": 0.083,
+      "level_dist": 0.035
+    },
+    {
+      "date": "2025-09-12",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 657.84,
+      "mdt_dist": 0.726,
+      "level_dist": 0.05
+    },
+    {
+      "date": "2025-09-19",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 662.42,
+      "mdt_dist": 0.665,
+      "level_dist": 0.125
+    },
+    {
+      "date": "2025-09-22",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 664.43,
+      "mdt_dist": 0.53,
+      "level_dist": 0.135
+    },
+    {
+      "date": "2025-09-23",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 667.17,
+      "mdt_dist": 0.285,
+      "level_dist": 0.125
+    },
+    {
+      "date": "2025-09-30",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 662.53,
+      "mdt_dist": 0.541,
+      "level_dist": 0.05
+    },
+    {
+      "date": "2025-10-02",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 667.73,
+      "mdt_dist": 0.02,
+      "level_dist": 0.19
+    },
+    {
+      "date": "2025-10-03",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 669.98,
+      "mdt_dist": 0.152,
+      "level_dist": 0.02
+    },
+    {
+      "date": "2025-10-09",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 671.57,
+      "mdt_dist": 0.246,
+      "level_dist": 0.315
+    },
+    {
+      "date": "2025-10-23",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 672.2,
+      "mdt_dist": 0.374,
+      "level_dist": 0.68
+    },
+    {
+      "date": "2025-10-28",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 687.21,
+      "mdt_dist": 0.459,
+      "level_dist": 0.105
+    },
+    {
+      "date": "2025-11-05",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 677.71,
+      "mdt_dist": 0.647,
+      "level_dist": 0.31
+    },
+    {
+      "date": "2025-11-12",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 683.54,
+      "mdt_dist": 0.573,
+      "level_dist": 0.18
+    },
+    {
+      "date": "2025-11-18",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 663.49,
+      "mdt_dist": 0.252,
+      "level_dist": 0.46
+    },
+    {
+      "date": "2025-11-19",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 660.51,
+      "mdt_dist": 0.249,
+      "level_dist": 0.5
+    },
+    {
+      "date": "2025-12-04",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 683.51,
+      "mdt_dist": 0.548,
+      "level_dist": 0.365
+    },
+    {
+      "date": "2025-12-05",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 684.78,
+      "mdt_dist": 0.569,
+      "level_dist": 0.26
+    },
+    {
+      "date": "2025-12-09",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 683.61,
+      "mdt_dist": 0.007,
+      "level_dist": 0.065
+    },
+    {
+      "date": "2025-12-10",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 683.73,
+      "mdt_dist": 0.639,
+      "level_dist": 0.12
+    },
+    {
+      "date": "2025-12-26",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 690.67,
+      "mdt_dist": 0.745,
+      "level_dist": 0.05
+    },
+    {
+      "date": "2025-12-30",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 687.38,
+      "mdt_dist": 0.676,
+      "level_dist": 0.05
+    },
+    {
+      "date": "2026-01-12",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 693.75,
+      "mdt_dist": 0.066,
+      "level_dist": 0.3
+    },
+    {
+      "date": "2026-01-27",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 694.91,
+      "mdt_dist": 0.346,
+      "level_dist": 0.37
+    },
+    {
+      "date": "2026-01-28",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 696.84,
+      "mdt_dist": 0.328,
+      "level_dist": 0.08
+    },
+    {
+      "date": "2026-01-30",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 690.32,
+      "mdt_dist": 0.509,
+      "level_dist": 0.06
+    },
+    {
+      "date": "2026-02-10",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 694.37,
+      "mdt_dist": 0.345,
+      "level_dist": 0.385
+    },
+    {
+      "date": "2026-02-19",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 685.72,
+      "mdt_dist": 0.443,
+      "level_dist": 0.27
+    },
+    {
+      "date": "2026-03-09",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 669.68,
+      "mdt_dist": 0.653,
+      "level_dist": 0.235
+    },
+    {
+      "date": "2026-03-11",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 675.38,
+      "mdt_dist": 0.023,
+      "level_dist": 0.24
+    },
+    {
+      "date": "2026-03-25",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 656.72,
+      "mdt_dist": 0.665,
+      "level_dist": 0.28
+    },
+    {
+      "date": "2026-04-02",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 653.93,
+      "mdt_dist": 0.19,
+      "level_dist": 0.65
+    },
+    {
+      "date": "2026-04-22",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 709.13,
+      "mdt_dist": 0.313,
+      "level_dist": 0.12
+    },
+    {
+      "date": "2026-04-23",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 709.23,
+      "mdt_dist": 0.251,
+      "level_dist": 0.26
+    },
+    {
+      "date": "2026-04-24",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 710.78,
+      "mdt_dist": 0.186,
+      "level_dist": 0.49
+    },
+    {
+      "date": "2026-05-19",
+      "side": "P",
+      "note": "mdt_conf_resist_reject",
+      "day_tl": 736.98,
+      "mdt_dist": 0.391,
+      "level_dist": 0.57
+    },
+    {
+      "date": "2026-06-02",
+      "side": "C",
+      "note": "mdt_conf_support_reclaim",
+      "day_tl": 759.51,
+      "mdt_dist": 0.388,
+      "level_dist": 0.74
+    }
+  ],
+  "DISCLOSURE": {
+    "per_trade": "expectancy reported, not WR alone (OP-14)",
+    "concentration": "top5_day_pct + drop-top5-per-trade (full AND OOS-alone)",
+    "spy_vs_option": "real OPRA fills; SPY-direction != option edge (C3/L58)",
+    "anchor_caveat": "all J anchors are 2026 dates (matched to actual SPY price). They lie in the OOS window, so an anchor TAKE is a structural-fidelity check, NOT independent OOS evidence (disclosed caveat).",
+    "no_survivor_pick": "every cell reported with its exact failing gates",
+    "b0_history": "additive confluence died before (B0 triple-kill); this tests whether STRUCTURAL multi-day-trendline co-incidence differs"
+  }
+}

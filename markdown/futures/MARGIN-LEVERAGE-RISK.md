@@ -1,6 +1,6 @@
 # Margin, Leverage & Risk — Futures
 
-> Sources: NinjaTrader (margin day vs overnight), Optimus Futures, AMP/QuantVPS, Britannica Money. See [SOURCES.md](markdown/futures/SOURCES.md). **Margin dollar figures change with volatility — always confirm live with the broker.** Mechanics below are stable.
+> Sources: NinjaTrader (margin day vs overnight), Optimus Futures, AMP/QuantVPS, Britannica Money. See [SOURCES.md](SOURCES.md). **Margin dollar figures change with volatility — always confirm live with the broker.** Mechanics below are stable.
 
 ## Margin is a good-faith deposit, NOT the cost of the trade
 

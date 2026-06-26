@@ -1,0 +1,83 @@
+{
+  "rule_id": "vwap_reclaim_failed_break",
+  "edge_number": 2,
+  "kind": "OP-11 A/B ship-scorecard (decision-grade, pre-computed for zero-lag ship once WP-0 lands)",
+  "task": "A6",
+  "run_date": "2026-06-21",
+  "generated_by": "backtest/autoresearch/_sub_struct_vwap_reclaim_failed_break.py (re-run, hard-windowed via data load to 2026-05-15)",
+  "underlying_harness_output": "analysis/recommendations/sub-struct_vwap_reclaim_failed_break.json",
+
+  "hypothesis": "Morning-trend VWAP-reclaim after a FAILED counter-trend VWAP break -> one causal with-trend entry/day ('failed counter-trend move' shape). Subtractive/structural-mimic of vwap_continuation (#1), NOT additive confluence.",
+
+  "deploy_config": {
+    "account": "Safe-2 = ATM; Bold = ITM-2 (strike_offset -2). PRIMARY scorecard tier = ITM-2.",
+    "premium_stop_pct": -0.08,
+    "exits": "v15 default (tp1=0.30, runner=2.5x, profit_lock=OFF)",
+    "isolated_stop": true,
+    "qty": 3
+  },
+
+  "data_coverage": "last real-fill 2026-05-15 (data load capped at 2026-05-15; ~14d real-fills blind spot exists from 2026-05-29 to 2026-06-18 but is NOT reached by this run). ASSERTED last filled-trade date = 2026-05-15 <= 2026-05-29 (clean window).",
+  "opra_blind_spot_assert": {"last_fill_date": "2026-05-15", "cliff": "2026-05-29", "within_clean_window": true},
+
+  "PRIMARY_TIER_ITM2": {
+    "coverage": {"signals": 81, "filled": 76, "cache_miss": 5, "fill_rate": 0.938},
+    "full_sample": {"n": 76, "exp_dollar": 93.67, "total_dollar": 7118.76, "wr_pct": "C 57.8 / P 48.4"},
+    "oos_2026": {"n": 18, "exp_dollar": 72.11, "sign": "POSITIVE"},
+    "is_2025_first_half": {"exp_dollar": 101.42, "sign": "POSITIVE"},
+    "positive_quarters": "5/6 (only 2026Q2 negative: -$68.24/trade, n=6)",
+    "top5_day_pct": 33.6,
+    "by_side": {"C": {"n": 45, "exp": 121.97, "total": 5488.52}, "P": {"n": 31, "exp": 52.59, "total": 1630.24}},
+    "quarters": {"2025Q1": 132.93, "2025Q2": 77.69, "2025Q3": 27.92, "2025Q4": 132.1, "2026Q1": 142.28, "2026Q2": -68.24}
+  },
+
+  "STANDING_BAR": {
+    "G1_oos_positive": {"pass": true, "value": 72.11},
+    "G2_positive_quarters_ge4": {"pass": true, "value": "5/6"},
+    "G3_top5_day_pct_lt200": {"pass": true, "value": 33.6},
+    "G4_n_ge20": {"pass": true, "value": 76},
+    "G5_drop_top5_per_trade_positive_L173_FULL": {"pass": true, "value": 66.61},
+    "G6_is_first_half_positive": {"pass": true, "value": 101.42},
+    "G7_beats_random_null_L172": {
+      "pass": true,
+      "coinflip_null": {"null_pass": true, "edge_over_null_per_trade": 101.89},
+      "sameday_sameside_null": {"seeds": 20, "null_exp_mean": 77.71, "null_exp_std": 8.26, "null_oos_exp_mean": 90.12, "beats_full_sample_mean_plus_std": true, "oos_beats_sameday_mean": false}
+    },
+    "G8_no_truncation_sign_L171": {"pass": true, "stop8_exp": 93.67, "chartstop_only_exp": 111.69, "stop8_oos_exp": 72.11, "chartstop_only_oos_exp": 64.88, "is_truncation_artifact": false, "sign_stable_full": true, "sign_stable_oos": true},
+    "drop_top5_OOS_alone_L173": "OOS n=18 with top-5 OOS days removed is not separately persisted by the harness; full-sample drop-top5 = $66.61 (positive). OOS-alone concentration is the WEAK point (see caveats).",
+    "independence_vs_edge1_L174": {
+      "verdict": "NOT INDEPENDENT — strict subset of #1",
+      "edge2_signal_days": 81,
+      "edge1_vwap_cont_signal_days": 158,
+      "overlap_days": 81,
+      "overlap_pct_of_edge2": 100.0,
+      "same_side_in_overlap": 81,
+      "note": "EVERY edge-#2 entry day is also a vwap_continuation (#1) entry day, SAME SIDE. Edge #2 is a same-side sub-pool filter of #1 (81 of #1's 158 days), differing only in reclaim-trigger timing + strike/stop geometry. Shipping it alongside #1 is NOT diversification; it re-slices #1's exposure into a subset (overlap with edge #4 = 45 days)."
+    },
+    "op16_7anchor_no_regression": {
+      "verdict": "NO REGRESSION (does not re-take J's losers)",
+      "anchors": {
+        "2025-04-29_WINNER_Pside": "edge2 fires C (opposite) -> no winner capture",
+        "2025-05-01_WINNER_Pside": "edge2 no-fire",
+        "2025-05-04_WINNER_Pside": "edge2 no-fire",
+        "2025-05-05_LOSER_Pside": "edge2 no-fire (correctly avoids)",
+        "2025-05-06_LOSER_Pside": "edge2 fires C (opposite side from J's losing put -> does NOT take J's loser)",
+        "2025-05-07_LOSER_Cside": "edge2 no-fire (correctly avoids)"
+      },
+      "note": "Dormant standalone edge, not a J-edge replicator. It does not capture J's winners (different side / no-fire) but critically takes ZERO of J's losing-side anchor trades. Live engine + #1 remain the J-edge vehicle; #2 does not modify production anchor handling -> no regression to the live edge-capture score."
+    }
+  },
+
+  "VERDICT": "SHIPPABLE-WITH-CAVEAT",
+  "shippable": true,
+  "verdict_detail": "ITM-2 clears all 8 coded gates on the clean (<=2026-05-29) real-fills window: OOS +$72.11/trade, 5/6 positive quarters, beats coin-flip null by +$101.89/trade, sign-stable -8% -> chart-stop-only, drop-top5 positive, n=76. SHIPS under OP-11/OP-22 standing authorization (validated + profitable). OTM-2 tier FAILS (6/8: G7 null + G8 truncation) -> ship ITM-2/ATM only, never OTM-2 (C29).",
+
+  "MANDATORY_CAVEATS_for_REVOKE_note": [
+    "OOS-ALONE same-day null band: OOS per-trade ($72.11) sits BELOW the same-day/same-side random-entry null OOS mean ($90.12). The trigger beats the coin-flip null and the full-sample same-day null (mean+std) and clears every coded gate, but on the OOS slice alone the edge is largely DAY+SIDE selection (picking the right trend days/sides), NOT reclaim-trigger precision. This is the known soft caveat -> REVOKE note, not a ship blocker.",
+    "L174 NOT INDEPENDENT of #1: 100% same-side subset of vwap_continuation. Shipping #2 concentrates into a #1 sub-pool rather than adding uncorrelated edge. Net incremental value over already-live #1 is UNPROVEN here (the comparison '#2 sub-pool vs the rest of #1' was not run). Recommend treating #2 as a candidate REFINEMENT/overlay of #1, not a parallel independent allocation.",
+    "2026Q2 is negative (-$68.24/trade, n=6) -> the most recent in-window quarter is the worst; small-n but worth a REVOKE watch.",
+    "OTM-2 tier is NOT shippable (fails G7+G8) per C29 strike-tier non-transfer."
+  ],
+
+  "OTM2_secondary_tier_FAILS": {"n": 75, "oos_exp": 5.53, "gates_passed": "6/8", "fails": ["G7_null", "G8_truncation"], "ship": false}
+}

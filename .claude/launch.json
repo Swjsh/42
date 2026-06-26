@@ -7,6 +7,20 @@
       "runtimeArgs": ["next", "dev"],
       "autoPort": true,
       "cwd": "dashboard"
+    },
+    {
+      "name": "companion",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["server.js"],
+      "port": 4317,
+      "cwd": "gamma-companion"
+    },
+    {
+      "name": "companion-debug",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["test-preview.js"],
+      "port": 4319,
+      "cwd": "gamma-companion"
     }
   ]
 }

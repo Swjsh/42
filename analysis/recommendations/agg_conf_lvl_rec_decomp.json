@@ -1,0 +1,130 @@
+{
+  "study": "agg_conf_lvl_rec_time_vix_decomp",
+  "date": "2026-06-17",
+  "cook_queue_task": "6d8e358a",
+  "baseline": {
+    "IS_n": 109,
+    "IS_pnl": 19080,
+    "OOS_n": 18,
+    "OOS_pnl": 3833
+  },
+  "conf_lvl_rec_IS": {
+    "n": 34,
+    "WR_pct": 20.6,
+    "total": 8471,
+    "avg": 249,
+    "by_time": {
+      "09:35-10:00": {
+        "n": 7,
+        "WR": 28.6,
+        "total": 3632,
+        "avg": 519,
+        "stops": 5
+      },
+      "10:00-12:00": {
+        "n": 23,
+        "WR": 21.7,
+        "total": 5583,
+        "avg": 243,
+        "stops": 18
+      },
+      "12:00-14:00": {
+        "n": 4,
+        "WR": 0.0,
+        "total": -743,
+        "avg": -186,
+        "stops": 4
+      }
+    },
+    "by_vix": {
+      "<15": {
+        "n": 15,
+        "WR": 26.7,
+        "total": 6145,
+        "avg": 410,
+        "stops": 11
+      },
+      "15-18": {
+        "n": 13,
+        "WR": 15.4,
+        "total": 1414,
+        "avg": 109,
+        "stops": 11
+      },
+      "18-22": {
+        "n": 2,
+        "WR": 0.0,
+        "total": -613,
+        "avg": -306,
+        "stops": 2
+      },
+      "22+": {
+        "n": 4,
+        "WR": 25.0,
+        "total": 1525,
+        "avg": 381,
+        "stops": 3
+      }
+    }
+  },
+  "conf_lvl_rec_OOS": {
+    "n": 7,
+    "WR_pct": 28.6,
+    "total": 3100,
+    "avg": 443,
+    "by_time": {
+      "09:35-10:00": {
+        "n": 1,
+        "WR": 0.0,
+        "total": -219,
+        "avg": -219,
+        "stops": 1
+      },
+      "10:00-12:00": {
+        "n": 3,
+        "WR": 33.3,
+        "total": 1867,
+        "avg": 622,
+        "stops": 2
+      },
+      "12:00-14:00": {
+        "n": 2,
+        "WR": 50.0,
+        "total": 1628,
+        "avg": 814,
+        "stops": 1,
+        "note": "+1860 winner at 13:25 (outside 12:00-13:00 gate), -232 stop at 12:45"
+      },
+      "14:00-15:00": {
+        "n": 1,
+        "WR": 0.0,
+        "total": -176,
+        "avg": -176,
+        "stops": 1
+      }
+    },
+    "by_vix": {
+      "15-18": {
+        "n": 6,
+        "WR": 33.3,
+        "total": 3319,
+        "avg": 553,
+        "stops": 4
+      },
+      "18-22": {
+        "n": 1,
+        "WR": 0.0,
+        "total": -219,
+        "avg": -219,
+        "stops": 1
+      }
+    }
+  },
+  "key_findings": [
+    "IS 12:00-14:00 conf+lvl_rec: WR=0% (4 stops, -743). All entry-order conf+lvl_rec in that window lose.",
+    "OOS 12:00-14:00 conf+lvl_rec: 1 winner +1860 at 13:25 + 1 stop -232 at 12:45. Net +1628.",
+    "12:00-13:00 gate (separate sweep): IS removes 4 stops (-875) including 2 conf+lvl_rec + 2 others. OOS removes 1 stop (-232 at 12:45). IS_delta=+875, OOS_delta=+232.",
+    "VIX 18-22 IS: WR=0% (n=2, too small to gate). Monitor as OOS grows.",
+    "OOS conf+lvl_rec (n=7) avg=+443/trade vs IS avg=+249/trade \u2014 regime-stable with IS-to-OOS improvement."
+  ]
+}

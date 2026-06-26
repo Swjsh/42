@@ -1,24 +1,24 @@
 {
-  "started_at": "2026-06-20T14:15:06.807579",
-  "deadline_at": "2026-06-20T17:15:06.807579",
+  "started_at": "2026-06-26T11:27:21.099026",
+  "deadline_at": "2026-06-26T14:27:21.099026",
   "total_combos": 2160,
-  "completed": 210,
+  "completed": 255,
   "passed_floors": 0,
-  "rejected": 210,
+  "rejected": 255,
   "keepers": 0,
   "best_edge_capture": 0.0,
   "best_final_score": 0.0,
   "best_wide_pnl": null,
-  "current_pid": 19708,
+  "current_pid": 2584,
   "workers": 4,
   "run_identity": {
-    "run_id": "2026-06-20_865dd5a5_0d3b98_89ce16",
+    "run_id": "2026-06-26_56b7dfd2_0d3b98_a935c1",
     "data_hash": "0d3b984a703498e4",
-    "code_hash": "865dd5a546b1fab6",
-    "params_hash": "89ce1651be4a725c",
+    "code_hash": "56b7dfd222a609e2",
+    "params_hash": "a935c14cb4075fe7",
     "code_source": "git",
-    "computed_at": "2026-06-20T14:15:06"
+    "computed_at": "2026-06-26T11:27:21"
   },
-  "last_update": "2026-06-20T16:13:10.380724",
+  "last_update": "2026-06-26T14:15:03.730677",
   "status": "running"
 }

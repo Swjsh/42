@@ -1,0 +1,102 @@
+{
+  "account": "SAFE",
+  "params_date": "2026-06-17",
+  "is_stats": {
+    "n": 113,
+    "wr": 0.389,
+    "avg": 207.3,
+    "total": 23426.6
+  },
+  "oos_stats": {
+    "n": 24,
+    "wr": 0.333,
+    "avg": 246.7,
+    "total": 5920.8
+  },
+  "anchor": 0,
+  "is_exit_bd": {
+    "EXIT_ALL_PREMIUM_STOP": {
+      "n": 66,
+      "pct": 0.584
+    },
+    "TP1_THEN_RUNNER_TIME": {
+      "n": 16,
+      "pct": 0.142
+    },
+    "TP1_THEN_RUNNER_RIBBON": {
+      "n": 13,
+      "pct": 0.115
+    },
+    "EXIT_ALL_TIME_STOP": {
+      "n": 8,
+      "pct": 0.071
+    },
+    "EXIT_ALL_RIBBON_FLIP_BACK": {
+      "n": 5,
+      "pct": 0.044
+    },
+    "EXIT_ALL_LEVEL_STOP": {
+      "n": 2,
+      "pct": 0.018
+    },
+    "TP1_THEN_RUNNER_TARGET": {
+      "n": 2,
+      "pct": 0.018
+    },
+    "TP1_THEN_RUNNER_BE_STOP": {
+      "n": 1,
+      "pct": 0.009
+    }
+  },
+  "oos_exit_bd": {
+    "EXIT_ALL_PREMIUM_STOP": {
+      "n": 15,
+      "pct": 0.625
+    },
+    "TP1_THEN_RUNNER_RIBBON": {
+      "n": 4,
+      "pct": 0.167
+    },
+    "TP1_THEN_RUNNER_TIME": {
+      "n": 3,
+      "pct": 0.125
+    },
+    "EXIT_ALL_LEVEL_STOP": {
+      "n": 1,
+      "pct": 0.042
+    },
+    "EXIT_ALL_RIBBON_FLIP_BACK": {
+      "n": 1,
+      "pct": 0.042
+    }
+  },
+  "oos_premium_stop_pct": 0.625,
+  "oos_stop_count": 15,
+  "oos_win_count": 9,
+  "vix_gap_17518": [
+    {
+      "date": "2026-05-13",
+      "vix": 17.94,
+      "tier": "ELITE",
+      "pnl": 2452.0
+    },
+    {
+      "date": "2026-05-19",
+      "vix": 17.95,
+      "tier": "ELITE",
+      "pnl": -176.0
+    },
+    {
+      "date": "2026-05-20",
+      "vix": 17.61,
+      "tier": "ELITE",
+      "pnl": -264.8
+    },
+    {
+      "date": "2026-05-20",
+      "vix": 17.74,
+      "tier": "ELITE",
+      "pnl": -232.0
+    }
+  ]
+}

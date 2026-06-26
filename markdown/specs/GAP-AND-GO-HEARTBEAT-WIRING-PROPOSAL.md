@@ -8,7 +8,7 @@
 
 ## Why this ships under ship-validated-wins
 
-Scorecard: [`analysis/recommendations/gap-and-go-LIVE.json`](../analysis/recommendations/gap-and-go-LIVE.json).
+Scorecard: [`analysis/recommendations/gap-and-go-LIVE.json`](../../analysis/recommendations/gap-and-go-LIVE.json).
 Config = **ATM, chart-stop-only** (the live detector's config; the doctrinally-correct
 exit for a first-strike entry per L51/L55/C2 and the live CHART-STOP-PRIMARY doctrine).
 

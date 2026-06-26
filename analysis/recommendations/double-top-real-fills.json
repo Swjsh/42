@@ -1,0 +1,2537 @@
+{
+  "run_date": "2026-06-20",
+  "family": "double_top",
+  "side": "P",
+  "window": "2025-01-01..2026-05-15",
+  "authority": "real OPRA fills (C1)",
+  "n_signals": 407,
+  "n_completed": 354,
+  "n_no_opra": 53,
+  "wr_pct": 54.5,
+  "total_pnl": -17013.0,
+  "per_trade": -48.1,
+  "is_2025": {
+    "n": 255,
+    "per_trade": -46.8,
+    "total": -11930.0
+  },
+  "oos_2026": {
+    "n": 99,
+    "per_trade": -51.3,
+    "total": -5083.0
+  },
+  "positive_quarters": "0/6",
+  "by_quarter": {
+    "2025Q1": {
+      "n": 79,
+      "pnl": -5457.0
+    },
+    "2025Q2": {
+      "n": 78,
+      "pnl": -4957.0
+    },
+    "2025Q3": {
+      "n": 25,
+      "pnl": -177.0
+    },
+    "2025Q4": {
+      "n": 73,
+      "pnl": -1339.0
+    },
+    "2026Q1": {
+      "n": 77,
+      "pnl": -3967.0
+    },
+    "2026Q2": {
+      "n": 22,
+      "pnl": -1117.0
+    }
+  },
+  "top5_day_pct": null,
+  "DISCLOSURE": {
+    "per_trade": "expectancy reported, not WR alone (OP-14)",
+    "spy_vs_option": "SPY-shape != option edge; this is the option test (C3/L58)",
+    "un_gated": "double_top_watcher has NO conf/VIX/proximity gate -> full unbiased population (ATM, chart-stop-only)",
+    "sample": "single honest read, NOT a grid survivor (anti-pattern 2.10)"
+  },
+  "results": [
+    {
+      "date": "2025-01-02",
+      "conf": 0.687,
+      "strike": 581,
+      "pnl": -186.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-01-03",
+      "conf": 0.637,
+      "strike": 588,
+      "pnl": -150.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-01-07",
+      "conf": 0.731,
+      "strike": 594,
+      "pnl": 101.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-01-07",
+      "conf": 0.653,
+      "strike": 591,
+      "pnl": 78.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-01-07",
+      "conf": 0.652,
+      "strike": 590,
+      "pnl": -180.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-01-08",
+      "conf": 0.714,
+      "strike": 588,
+      "pnl": 117.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-01-08",
+      "conf": 0.652,
+      "strike": 586,
+      "pnl": -264.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-01-10",
+      "conf": 0.651,
+      "strike": 584,
+      "pnl": 133.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-01-10",
+      "conf": 0.585,
+      "strike": 582,
+      "pnl": 109.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-01-10",
+      "conf": 0.786,
+      "strike": 579,
+      "pnl": -222.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-01-10",
+      "conf": 0.72,
+      "strike": 582,
+      "pnl": -102.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-01-10",
+      "conf": 0.573,
+      "strike": 581,
+      "pnl": -108.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-01-13",
+      "conf": 0.62,
+      "strike": 577,
+      "pnl": -219.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-01-13",
+      "conf": 0.632,
+      "strike": 576,
+      "pnl": -210.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-01-14",
+      "conf": 0.627,
+      "strike": 581,
+      "pnl": 113.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-01-16",
+      "conf": 0.563,
+      "strike": 592,
+      "pnl": -147.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-01-24",
+      "conf": 0.584,
+      "strike": 609,
+      "pnl": -150.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-01-27",
+      "conf": 0.662,
+      "strike": 597,
+      "pnl": -279.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-01-30",
+      "conf": 0.799,
+      "strike": 602,
+      "pnl": -276.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-01-31",
+      "conf": 0.626,
+      "strike": 604,
+      "pnl": 88.2,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-01-31",
+      "conf": 0.693,
+      "strike": 603,
+      "pnl": -135.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-02-05",
+      "conf": 0.519,
+      "strike": 600,
+      "pnl": 89.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-02-07",
+      "conf": 0.679,
+      "strike": 605,
+      "pnl": 99.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-02-07",
+      "conf": 0.653,
+      "strike": 602,
+      "pnl": 93.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-02-12",
+      "conf": 0.68,
+      "strike": 601,
+      "pnl": 58.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-02-12",
+      "conf": 0.699,
+      "strike": 603,
+      "pnl": -186.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-02-12",
+      "conf": 0.716,
+      "strike": 603,
+      "pnl": -198.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-02-20",
+      "conf": 0.708,
+      "strike": 608,
+      "pnl": -159.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-02-24",
+      "conf": 0.705,
+      "strike": 600,
+      "pnl": 0.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-02-24",
+      "conf": 0.572,
+      "strike": 600,
+      "pnl": 51.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-02-25",
+      "conf": 0.665,
+      "strike": 591,
+      "pnl": 84.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-02-25",
+      "conf": 0.691,
+      "strike": 593,
+      "pnl": -195.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-02-26",
+      "conf": 0.631,
+      "strike": 597,
+      "pnl": 282.4,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-02-26",
+      "conf": 0.771,
+      "strike": 594,
+      "pnl": 111.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-02-26",
+      "conf": 0.833,
+      "strike": 593,
+      "pnl": -291.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-03-04",
+      "conf": 0.77,
+      "strike": 581,
+      "pnl": 220.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-03-04",
+      "conf": 0.77,
+      "strike": 579,
+      "pnl": 182.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-03-04",
+      "conf": 0.617,
+      "strike": 576,
+      "pnl": -249.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-04",
+      "conf": 0.616,
+      "strike": 581,
+      "pnl": -171.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-06",
+      "conf": 0.848,
+      "strike": 575,
+      "pnl": 184.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-03-06",
+      "conf": 0.802,
+      "strike": 577,
+      "pnl": 289.2,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-03-06",
+      "conf": 0.929,
+      "strike": 573,
+      "pnl": 145.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-03-06",
+      "conf": 0.757,
+      "strike": 571,
+      "pnl": -261.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-06",
+      "conf": 0.645,
+      "strike": 571,
+      "pnl": -399.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-06",
+      "conf": 0.632,
+      "strike": 571,
+      "pnl": -228.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-11",
+      "conf": 0.788,
+      "strike": 558,
+      "pnl": 188.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-03-11",
+      "conf": 0.683,
+      "strike": 557,
+      "pnl": 143.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-03-11",
+      "conf": 0.753,
+      "strike": 556,
+      "pnl": 143.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-03-11",
+      "conf": 0.624,
+      "strike": 560,
+      "pnl": 97.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-03-11",
+      "conf": 0.717,
+      "strike": 558,
+      "pnl": 105.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-03-12",
+      "conf": 0.585,
+      "strike": 558,
+      "pnl": 170.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-03-12",
+      "conf": 0.639,
+      "strike": 559,
+      "pnl": -327.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-13",
+      "conf": 0.733,
+      "strike": 558,
+      "pnl": 166.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-03-13",
+      "conf": 0.715,
+      "strike": 555,
+      "pnl": 126.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-03-13",
+      "conf": 0.733,
+      "strike": 553,
+      "pnl": -204.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-13",
+      "conf": 0.646,
+      "strike": 550,
+      "pnl": -204.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-13",
+      "conf": 0.744,
+      "strike": 553,
+      "pnl": 91.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-03-14",
+      "conf": 0.641,
+      "strike": 561,
+      "pnl": -219.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-14",
+      "conf": 0.627,
+      "strike": 560,
+      "pnl": -159.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-17",
+      "conf": 0.608,
+      "strike": 564,
+      "pnl": -201.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-17",
+      "conf": 0.601,
+      "strike": 563,
+      "pnl": -240.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-18",
+      "conf": 0.691,
+      "strike": 560,
+      "pnl": -288.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-18",
+      "conf": 0.685,
+      "strike": 560,
+      "pnl": -207.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-18",
+      "conf": 0.765,
+      "strike": 560,
+      "pnl": -138.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-03-20",
+      "conf": 0.631,
+      "strike": 568,
+      "pnl": 165.4,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-03-20",
+      "conf": 0.692,
+      "strike": 567,
+      "pnl": 90.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-03-20",
+      "conf": 0.73,
+      "strike": 566,
+      "pnl": 85.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-03-20",
+      "conf": 0.665,
+      "strike": 564,
+      "pnl": -213.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-21",
+      "conf": 0.901,
+      "strike": 559,
+      "pnl": -772.2,
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-03-21",
+      "conf": 0.589,
+      "strike": 562,
+      "pnl": -210.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-21",
+      "conf": 0.582,
+      "strike": 562,
+      "pnl": -270.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-03-25",
+      "conf": 0.751,
+      "strike": 574,
+      "pnl": -204.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-26",
+      "conf": 0.556,
+      "strike": 569,
+      "pnl": 73.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-03-26",
+      "conf": 0.825,
+      "strike": 568,
+      "pnl": -270.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-27",
+      "conf": 0.79,
+      "strike": 565,
+      "pnl": -396.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-27",
+      "conf": 0.655,
+      "strike": 567,
+      "pnl": -186.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-03-28",
+      "conf": 0.723,
+      "strike": 558,
+      "pnl": 89.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-03-28",
+      "conf": 0.78,
+      "strike": 557,
+      "pnl": 89.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-03-28",
+      "conf": 0.687,
+      "strike": 556,
+      "pnl": -243.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-04-01",
+      "conf": 0.691,
+      "strike": 557,
+      "pnl": 139.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-04-01",
+      "conf": 0.602,
+      "strike": 560,
+      "pnl": 78.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-04-03",
+      "conf": 0.637,
+      "strike": 541,
+      "pnl": -327.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-04-03",
+      "conf": 0.816,
+      "strike": 541,
+      "pnl": 199.8,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-04-03",
+      "conf": 0.728,
+      "strike": 541,
+      "pnl": 217.8,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-04-03",
+      "conf": 0.811,
+      "strike": 539,
+      "pnl": 84.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-04-07",
+      "conf": 0.548,
+      "strike": 506,
+      "pnl": -468.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-04-10",
+      "conf": 0.678,
+      "strike": 525,
+      "pnl": -585.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-04-10",
+      "conf": 0.776,
+      "strike": 522,
+      "pnl": 146.4,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-04-11",
+      "conf": 0.689,
+      "strike": 530,
+      "pnl": -402.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-04-11",
+      "conf": 0.739,
+      "strike": 534,
+      "pnl": -105.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-04-14",
+      "conf": 0.73,
+      "strike": 541,
+      "pnl": 339.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-04-15",
+      "conf": 0.74,
+      "strike": 539,
+      "pnl": -438.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-04-15",
+      "conf": 0.615,
+      "strike": 540,
+      "pnl": -237.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-04-15",
+      "conf": 0.804,
+      "strike": 540,
+      "pnl": 95.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-04-15",
+      "conf": 0.644,
+      "strike": 539,
+      "pnl": 96.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-04-15",
+      "conf": 0.618,
+      "strike": 537,
+      "pnl": -225.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-04-15",
+      "conf": 0.734,
+      "strike": 538,
+      "pnl": 49.2,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-04-16",
+      "conf": 0.69,
+      "strike": 529,
+      "pnl": 276.6,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-04-16",
+      "conf": 0.751,
+      "strike": 525,
+      "pnl": 110.4,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-04-16",
+      "conf": 0.707,
+      "strike": 524,
+      "pnl": 96.6,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-04-16",
+      "conf": 0.822,
+      "strike": 522,
+      "pnl": 98.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-04-16",
+      "conf": 0.821,
+      "strike": 522,
+      "pnl": -309.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-04-17",
+      "conf": 0.771,
+      "strike": 527,
+      "pnl": 148.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-04-17",
+      "conf": 0.89,
+      "strike": 524,
+      "pnl": -549.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-04-17",
+      "conf": 0.636,
+      "strike": 527,
+      "pnl": -204.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-04-17",
+      "conf": 0.68,
+      "strike": 528,
+      "pnl": -213.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-04-21",
+      "conf": 0.722,
+      "strike": 515,
+      "pnl": 150.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-04-21",
+      "conf": 0.655,
+      "strike": 509,
+      "pnl": -195.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-04-22",
+      "conf": 0.613,
+      "strike": 524,
+      "pnl": -264.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-04-22",
+      "conf": 0.801,
+      "strike": 526,
+      "pnl": 117.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-04-23",
+      "conf": 0.639,
+      "strike": 536,
+      "pnl": 155.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-04-23",
+      "conf": 0.806,
+      "strike": 536,
+      "pnl": 80.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-04-23",
+      "conf": 0.748,
+      "strike": 535,
+      "pnl": 72.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-04-24",
+      "conf": 0.703,
+      "strike": 544,
+      "pnl": -240.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-04-25",
+      "conf": 0.671,
+      "strike": 549,
+      "pnl": -174.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-04-28",
+      "conf": 0.71,
+      "strike": 549,
+      "pnl": 92.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-04-28",
+      "conf": 0.785,
+      "strike": 548,
+      "pnl": 100.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-04-28",
+      "conf": 0.551,
+      "strike": 546,
+      "pnl": -198.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-04-29",
+      "conf": 0.585,
+      "strike": 551,
+      "pnl": -210.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-05-01",
+      "conf": 0.623,
+      "strike": 559,
+      "pnl": -162.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-05-01",
+      "conf": 0.782,
+      "strike": 560,
+      "pnl": 756.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-05-02",
+      "conf": 0.624,
+      "strike": 564,
+      "pnl": -234.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-05-02",
+      "conf": 0.706,
+      "strike": 567,
+      "pnl": -195.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-05-05",
+      "conf": 0.869,
+      "strike": 563,
+      "pnl": 131.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-05-06",
+      "conf": 0.705,
+      "strike": 559,
+      "pnl": 58.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-05-07",
+      "conf": 0.835,
+      "strike": 557,
+      "pnl": -516.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-05-07",
+      "conf": 0.76,
+      "strike": 558,
+      "pnl": -315.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-05-07",
+      "conf": 0.669,
+      "strike": 558,
+      "pnl": -309.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-05-08",
+      "conf": 0.577,
+      "strike": 564,
+      "pnl": -189.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-05-08",
+      "conf": 0.589,
+      "strike": 569,
+      "pnl": 62.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-05-08",
+      "conf": 0.601,
+      "strike": 568,
+      "pnl": -270.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-05-09",
+      "conf": 0.802,
+      "strike": 566,
+      "pnl": 102.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-05-09",
+      "conf": 0.886,
+      "strike": 564,
+      "pnl": -465.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-05-09",
+      "conf": 0.586,
+      "strike": 564,
+      "pnl": -291.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-05-12",
+      "conf": 0.705,
+      "strike": 578,
+      "pnl": -210.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-05-14",
+      "conf": 0.649,
+      "strike": 587,
+      "pnl": 52.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-05-14",
+      "conf": 0.658,
+      "strike": 587,
+      "pnl": -183.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-05-15",
+      "conf": 0.674,
+      "strike": 586,
+      "pnl": -312.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-05-19",
+      "conf": 0.98,
+      "strike": 590,
+      "pnl": -507.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-05-21",
+      "conf": 0.661,
+      "strike": 585,
+      "pnl": -201.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-05-23",
+      "conf": 0.758,
+      "strike": 580,
+      "pnl": 87.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-05-23",
+      "conf": 0.767,
+      "strike": 579,
+      "pnl": -6.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-05-29",
+      "conf": 0.66,
+      "strike": 589,
+      "pnl": 84.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-05-29",
+      "conf": 0.738,
+      "strike": 588,
+      "pnl": -186.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-05-30",
+      "conf": 0.764,
+      "strike": 588,
+      "pnl": 90.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-05-30",
+      "conf": 0.743,
+      "strike": 590,
+      "pnl": 21.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-06-05",
+      "conf": 0.79,
+      "strike": 593,
+      "pnl": -99.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-06-13",
+      "conf": 0.917,
+      "strike": 600,
+      "pnl": 103.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-06-13",
+      "conf": 0.554,
+      "strike": 599,
+      "pnl": 54.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-06-13",
+      "conf": 0.616,
+      "strike": 596,
+      "pnl": 37.2,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-06-16",
+      "conf": 0.643,
+      "strike": 602,
+      "pnl": -156.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-06-17",
+      "conf": 0.669,
+      "strike": 598,
+      "pnl": 65.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-06-18",
+      "conf": 0.675,
+      "strike": 599,
+      "pnl": 82.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-06-20",
+      "conf": 0.699,
+      "strike": 597,
+      "pnl": 218.2,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-06-20",
+      "conf": 0.668,
+      "strike": 595,
+      "pnl": 98.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-06-20",
+      "conf": 0.682,
+      "strike": 595,
+      "pnl": 82.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-06-23",
+      "conf": 0.7,
+      "strike": 596,
+      "pnl": 60.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-07-01",
+      "conf": 0.71,
+      "strike": 617,
+      "pnl": 69.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-07-01",
+      "conf": 0.737,
+      "strike": 616,
+      "pnl": 56.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-07-07",
+      "conf": 0.717,
+      "strike": 620,
+      "pnl": 49.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-07-08",
+      "conf": 0.578,
+      "strike": 620,
+      "pnl": 40.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-07-15",
+      "conf": 0.683,
+      "strike": 625,
+      "pnl": 60.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-07-16",
+      "conf": 0.746,
+      "strike": 620,
+      "pnl": 72.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-07-30",
+      "conf": 0.694,
+      "strike": 636,
+      "pnl": 213.4,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-08-01",
+      "conf": 0.731,
+      "strike": 622,
+      "pnl": -264.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-08-01",
+      "conf": 0.637,
+      "strike": 622,
+      "pnl": -195.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-08-07",
+      "conf": 0.678,
+      "strike": 635,
+      "pnl": 334.4,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-08-07",
+      "conf": 0.73,
+      "strike": 634,
+      "pnl": 236.8,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-08-07",
+      "conf": 0.79,
+      "strike": 631,
+      "pnl": 79.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-08-07",
+      "conf": 0.838,
+      "strike": 629,
+      "pnl": -198.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-08-11",
+      "conf": 0.677,
+      "strike": 637,
+      "pnl": 33.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-08-14",
+      "conf": 0.793,
+      "strike": 643,
+      "pnl": -219.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-08-20",
+      "conf": 0.553,
+      "strike": 634,
+      "pnl": -204.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-08-26",
+      "conf": 0.564,
+      "strike": 642,
+      "pnl": -252.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-08-28",
+      "conf": 0.66,
+      "strike": 647,
+      "pnl": 86.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-09-02",
+      "conf": 0.895,
+      "strike": 637,
+      "pnl": 108.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-09-02",
+      "conf": 0.676,
+      "strike": 638,
+      "pnl": 78.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-09-03",
+      "conf": 0.663,
+      "strike": 642,
+      "pnl": -180.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-09-08",
+      "conf": 0.64,
+      "strike": 648,
+      "pnl": 28.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-09-19",
+      "conf": 0.8,
+      "strike": 662,
+      "pnl": 85.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-09-24",
+      "conf": 0.648,
+      "strike": 660,
+      "pnl": -144.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-09-30",
+      "conf": 0.632,
+      "strike": 662,
+      "pnl": -153.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-10-03",
+      "conf": 0.695,
+      "strike": 670,
+      "pnl": 41.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-10-03",
+      "conf": 0.716,
+      "strike": 669,
+      "pnl": 48.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-10-10",
+      "conf": 0.791,
+      "strike": 658,
+      "pnl": 373.0,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-10-10",
+      "conf": 0.75,
+      "strike": 654,
+      "pnl": -81.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-10-13",
+      "conf": 0.572,
+      "strike": 663,
+      "pnl": -225.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-10-15",
+      "conf": 0.715,
+      "strike": 669,
+      "pnl": 480.8,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-10-15",
+      "conf": 0.643,
+      "strike": 666,
+      "pnl": 80.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-10-15",
+      "conf": 0.667,
+      "strike": 666,
+      "pnl": 93.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-10-15",
+      "conf": 0.574,
+      "strike": 665,
+      "pnl": 96.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-10-15",
+      "conf": 0.709,
+      "strike": 661,
+      "pnl": -630.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-10-15",
+      "conf": 0.618,
+      "strike": 664,
+      "pnl": -213.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-10-15",
+      "conf": 0.668,
+      "strike": 664,
+      "pnl": -216.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-10-16",
+      "conf": 0.757,
+      "strike": 663,
+      "pnl": 107.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-10-16",
+      "conf": 0.647,
+      "strike": 662,
+      "pnl": 96.0,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-10-16",
+      "conf": 0.774,
+      "strike": 658,
+      "pnl": 100.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-10-17",
+      "conf": 0.574,
+      "strike": 661,
+      "pnl": 153.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-10-17",
+      "conf": 0.788,
+      "strike": 661,
+      "pnl": -270.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-10-22",
+      "conf": 0.729,
+      "strike": 668,
+      "pnl": -237.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-10-22",
+      "conf": 0.56,
+      "strike": 667,
+      "pnl": 67.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-10-22",
+      "conf": 0.73,
+      "strike": 666,
+      "pnl": 120.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-10-29",
+      "conf": 0.838,
+      "strike": 684,
+      "pnl": 59.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-10-29",
+      "conf": 0.746,
+      "strike": 685,
+      "pnl": -195.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-10-30",
+      "conf": 0.791,
+      "strike": 682,
+      "pnl": -453.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-10-30",
+      "conf": 0.662,
+      "strike": 680,
+      "pnl": -237.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-10-31",
+      "conf": 0.573,
+      "strike": 683,
+      "pnl": -264.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-10-31",
+      "conf": 0.731,
+      "strike": 682,
+      "pnl": 79.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-10-31",
+      "conf": 0.696,
+      "strike": 680,
+      "pnl": 78.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-11-04",
+      "conf": 0.765,
+      "strike": 676,
+      "pnl": 78.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-11-06",
+      "conf": 0.732,
+      "strike": 670,
+      "pnl": 103.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-11-07",
+      "conf": 0.797,
+      "strike": 668,
+      "pnl": 142.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-11-12",
+      "conf": 0.745,
+      "strike": 683,
+      "pnl": 80.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-11-12",
+      "conf": 0.589,
+      "strike": 683,
+      "pnl": 83.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-11-12",
+      "conf": 0.659,
+      "strike": 681,
+      "pnl": -195.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-11-13",
+      "conf": 0.828,
+      "strike": 677,
+      "pnl": 484.4,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-11-13",
+      "conf": 0.6,
+      "strike": 675,
+      "pnl": -165.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-11-13",
+      "conf": 0.746,
+      "strike": 675,
+      "pnl": -201.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-11-13",
+      "conf": 0.732,
+      "strike": 674,
+      "pnl": 84.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-11-13",
+      "conf": 0.703,
+      "strike": 671,
+      "pnl": -18.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-11-14",
+      "conf": 0.751,
+      "strike": 674,
+      "pnl": 87.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-11-14",
+      "conf": 0.602,
+      "strike": 672,
+      "pnl": -264.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-11-17",
+      "conf": 0.805,
+      "strike": 667,
+      "pnl": 264.0,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-11-17",
+      "conf": 0.636,
+      "strike": 664,
+      "pnl": -21.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-11-18",
+      "conf": 0.698,
+      "strike": 663,
+      "pnl": 190.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-11-18",
+      "conf": 0.69,
+      "strike": 663,
+      "pnl": 166.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-11-18",
+      "conf": 0.809,
+      "strike": 657,
+      "pnl": -705.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-11-18",
+      "conf": 0.754,
+      "strike": 657,
+      "pnl": -336.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-11-18",
+      "conf": 0.63,
+      "strike": 661,
+      "pnl": 132.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-11-18",
+      "conf": 0.668,
+      "strike": 663,
+      "pnl": -255.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-11-19",
+      "conf": 0.657,
+      "strike": 662,
+      "pnl": -780.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-11-19",
+      "conf": 0.651,
+      "strike": 661,
+      "pnl": 139.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-11-19",
+      "conf": 0.661,
+      "strike": 661,
+      "pnl": -234.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-11-21",
+      "conf": 0.716,
+      "strike": 655,
+      "pnl": -282.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-11-21",
+      "conf": 0.656,
+      "strike": 659,
+      "pnl": 133.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-11-21",
+      "conf": 0.599,
+      "strike": 663,
+      "pnl": 74.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-11-26",
+      "conf": 0.785,
+      "strike": 680,
+      "pnl": -198.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-12-04",
+      "conf": 0.631,
+      "strike": 684,
+      "pnl": 96.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-12-04",
+      "conf": 0.65,
+      "strike": 683,
+      "pnl": -201.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-12-05",
+      "conf": 0.563,
+      "strike": 685,
+      "pnl": -195.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-12-08",
+      "conf": 0.615,
+      "strike": 684,
+      "pnl": 81.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-12-12",
+      "conf": 0.722,
+      "strike": 687,
+      "pnl": 436.4,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-12-12",
+      "conf": 0.785,
+      "strike": 686,
+      "pnl": 337.0,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-12-12",
+      "conf": 0.818,
+      "strike": 685,
+      "pnl": 243.2,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-12-12",
+      "conf": 0.708,
+      "strike": 680,
+      "pnl": -213.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-12-15",
+      "conf": 0.594,
+      "strike": 681,
+      "pnl": 85.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-12-16",
+      "conf": 0.665,
+      "strike": 679,
+      "pnl": 94.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-12-16",
+      "conf": 0.621,
+      "strike": 677,
+      "pnl": 75.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-12-16",
+      "conf": 0.649,
+      "strike": 676,
+      "pnl": 64.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-12-17",
+      "conf": 0.737,
+      "strike": 678,
+      "pnl": 430.4,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-12-17",
+      "conf": 0.868,
+      "strike": 675,
+      "pnl": 97.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-12-18",
+      "conf": 0.674,
+      "strike": 676,
+      "pnl": -39.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-12-23",
+      "conf": 0.584,
+      "strike": 685,
+      "pnl": -213.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2025-12-26",
+      "conf": 0.583,
+      "strike": 690,
+      "pnl": -231.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-12-31",
+      "conf": 0.712,
+      "strike": 685,
+      "pnl": 66.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-01-02",
+      "conf": 0.647,
+      "strike": 681,
+      "pnl": 55.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-01-08",
+      "conf": 0.809,
+      "strike": 689,
+      "pnl": 79.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-01-08",
+      "conf": 0.841,
+      "strike": 688,
+      "pnl": 69.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-01-08",
+      "conf": 0.737,
+      "strike": 689,
+      "pnl": -114.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2026-01-09",
+      "conf": 0.693,
+      "strike": 690,
+      "pnl": -303.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-01-20",
+      "conf": 0.69,
+      "strike": 681,
+      "pnl": -285.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-01-20",
+      "conf": 0.627,
+      "strike": 682,
+      "pnl": 70.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-01-28",
+      "conf": 0.626,
+      "strike": 696,
+      "pnl": 110.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-01-30",
+      "conf": 0.615,
+      "strike": 692,
+      "pnl": -249.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-01-30",
+      "conf": 0.812,
+      "strike": 690,
+      "pnl": 100.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-01-30",
+      "conf": 0.625,
+      "strike": 689,
+      "pnl": 79.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-01-30",
+      "conf": 0.716,
+      "strike": 688,
+      "pnl": -294.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-02-03",
+      "conf": 0.713,
+      "strike": 689,
+      "pnl": 278.2,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2026-02-03",
+      "conf": 0.637,
+      "strike": 688,
+      "pnl": 190.8,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2026-02-03",
+      "conf": 0.658,
+      "strike": 685,
+      "pnl": 65.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-02-03",
+      "conf": 0.625,
+      "strike": 686,
+      "pnl": -216.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2026-02-04",
+      "conf": 0.78,
+      "strike": 688,
+      "pnl": -297.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-02-04",
+      "conf": 0.591,
+      "strike": 687,
+      "pnl": 128.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-02-04",
+      "conf": 0.71,
+      "strike": 685,
+      "pnl": 113.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-02-05",
+      "conf": 0.763,
+      "strike": 677,
+      "pnl": -720.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2026-02-05",
+      "conf": 0.562,
+      "strike": 676,
+      "pnl": -306.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-02-05",
+      "conf": 0.603,
+      "strike": 680,
+      "pnl": 105.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-02-05",
+      "conf": 0.682,
+      "strike": 678,
+      "pnl": -246.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-02-10",
+      "conf": 0.699,
+      "strike": 695,
+      "pnl": -198.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-02-11",
+      "conf": 0.57,
+      "strike": 695,
+      "pnl": 85.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-02-11",
+      "conf": 0.717,
+      "strike": 690,
+      "pnl": -653.4,
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2026-02-11",
+      "conf": 0.674,
+      "strike": 692,
+      "pnl": -204.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-02-13",
+      "conf": 0.846,
+      "strike": 681,
+      "pnl": 151.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-02-17",
+      "conf": 0.769,
+      "strike": 681,
+      "pnl": 83.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-02-17",
+      "conf": 0.637,
+      "strike": 680,
+      "pnl": 89.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-02-19",
+      "conf": 0.605,
+      "strike": 684,
+      "pnl": 103.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-02-20",
+      "conf": 0.881,
+      "strike": 685,
+      "pnl": -297.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-02-27",
+      "conf": 0.742,
+      "strike": 684,
+      "pnl": 81.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-02-27",
+      "conf": 0.693,
+      "strike": 683,
+      "pnl": -12.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2026-03-03",
+      "conf": 0.676,
+      "strike": 680,
+      "pnl": 66.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-03-06",
+      "conf": 0.628,
+      "strike": 675,
+      "pnl": 256.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-03-06",
+      "conf": 0.554,
+      "strike": 674,
+      "pnl": -300.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-03-06",
+      "conf": 0.657,
+      "strike": 674,
+      "pnl": 121.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-03-06",
+      "conf": 0.609,
+      "strike": 673,
+      "pnl": -414.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-03-10",
+      "conf": 0.55,
+      "strike": 676,
+      "pnl": 129.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-03-10",
+      "conf": 0.677,
+      "strike": 679,
+      "pnl": 39.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2026-03-10",
+      "conf": 0.787,
+      "strike": 677,
+      "pnl": 51.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-03-11",
+      "conf": 0.752,
+      "strike": 674,
+      "pnl": -186.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-03-11",
+      "conf": 0.81,
+      "strike": 674,
+      "pnl": -414.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2026-03-12",
+      "conf": 0.651,
+      "strike": 669,
+      "pnl": 129.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-03-12",
+      "conf": 0.667,
+      "strike": 668,
+      "pnl": 77.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-03-13",
+      "conf": 0.691,
+      "strike": 665,
+      "pnl": 134.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-03-13",
+      "conf": 0.698,
+      "strike": 663,
+      "pnl": -228.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-03-13",
+      "conf": 0.71,
+      "strike": 663,
+      "pnl": -315.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-03-13",
+      "conf": 0.692,
+      "strike": 663,
+      "pnl": -177.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-03-13",
+      "conf": 0.695,
+      "strike": 663,
+      "pnl": 60.0,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2026-03-17",
+      "conf": 0.628,
+      "strike": 672,
+      "pnl": 86.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-03-17",
+      "conf": 0.735,
+      "strike": 671,
+      "pnl": -393.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2026-03-18",
+      "conf": 0.682,
+      "strike": 667,
+      "pnl": 133.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-03-18",
+      "conf": 0.737,
+      "strike": 666,
+      "pnl": 308.8,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2026-03-18",
+      "conf": 0.669,
+      "strike": 666,
+      "pnl": 96.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-03-18",
+      "conf": 0.662,
+      "strike": 662,
+      "pnl": 192.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2026-03-19",
+      "conf": 0.809,
+      "strike": 656,
+      "pnl": -778.14,
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2026-03-19",
+      "conf": 0.736,
+      "strike": 658,
+      "pnl": 139.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-03-19",
+      "conf": 0.691,
+      "strike": 657,
+      "pnl": 76.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-03-20",
+      "conf": 0.633,
+      "strike": 652,
+      "pnl": -213.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-03-20",
+      "conf": 0.602,
+      "strike": 647,
+      "pnl": 52.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-03-23",
+      "conf": 0.61,
+      "strike": 655,
+      "pnl": -276.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-03-23",
+      "conf": 0.724,
+      "strike": 657,
+      "pnl": 537.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2026-03-24",
+      "conf": 0.86,
+      "strike": 651,
+      "pnl": -671.22,
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2026-03-24",
+      "conf": 0.742,
+      "strike": 654,
+      "pnl": 100.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-03-24",
+      "conf": 0.771,
+      "strike": 653,
+      "pnl": -294.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-03-25",
+      "conf": 0.671,
+      "strike": 657,
+      "pnl": 98.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-03-26",
+      "conf": 0.693,
+      "strike": 653,
+      "pnl": 119.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-03-26",
+      "conf": 0.556,
+      "strike": 646,
+      "pnl": 105.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2026-03-27",
+      "conf": 0.68,
+      "strike": 639,
+      "pnl": -210.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-03-27",
+      "conf": 0.571,
+      "strike": 640,
+      "pnl": 100.8,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-03-27",
+      "conf": 0.74,
+      "strike": 638,
+      "pnl": 363.0,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2026-03-30",
+      "conf": 0.654,
+      "strike": 635,
+      "pnl": -186.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-03-30",
+      "conf": 0.549,
+      "strike": 633,
+      "pnl": 63.8,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2026-03-30",
+      "conf": 0.697,
+      "strike": 632,
+      "pnl": 42.6,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2026-03-31",
+      "conf": 0.776,
+      "strike": 647,
+      "pnl": -240.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-04-02",
+      "conf": 0.642,
+      "strike": 654,
+      "pnl": 114.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-04-07",
+      "conf": 0.698,
+      "strike": 653,
+      "pnl": 128.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-04-08",
+      "conf": 0.604,
+      "strike": 674,
+      "pnl": 114.6,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-04-09",
+      "conf": 0.703,
+      "strike": 679,
+      "pnl": -252.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2026-04-10",
+      "conf": 0.712,
+      "strike": 679,
+      "pnl": -249.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-04-16",
+      "conf": 0.592,
+      "strike": 699,
+      "pnl": -273.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-04-16",
+      "conf": 0.57,
+      "strike": 700,
+      "pnl": -171.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-04-20",
+      "conf": 0.711,
+      "strike": 707,
+      "pnl": 79.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-04-21",
+      "conf": 0.722,
+      "strike": 706,
+      "pnl": 57.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-04-21",
+      "conf": 0.649,
+      "strike": 706,
+      "pnl": 75.0,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-04-21",
+      "conf": 0.717,
+      "strike": 705,
+      "pnl": -207.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-04-21",
+      "conf": 0.568,
+      "strike": 705,
+      "pnl": -138.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-04-21",
+      "conf": 0.739,
+      "strike": 703,
+      "pnl": -186.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2026-04-23",
+      "conf": 0.689,
+      "strike": 710,
+      "pnl": 173.4,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2026-04-24",
+      "conf": 0.575,
+      "strike": 709,
+      "pnl": -171.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-04-28",
+      "conf": 0.63,
+      "strike": 711,
+      "pnl": 82.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-04-28",
+      "conf": 0.642,
+      "strike": 711,
+      "pnl": 91.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-04-29",
+      "conf": 0.647,
+      "strike": 710,
+      "pnl": -414.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-04-29",
+      "conf": 0.749,
+      "strike": 709,
+      "pnl": -165.0,
+      "exit": "EXIT_ALL_LEVEL_STOP"
+    },
+    {
+      "date": "2026-05-01",
+      "conf": 0.596,
+      "strike": 721,
+      "pnl": 31.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-05-04",
+      "conf": 0.72,
+      "strike": 717,
+      "pnl": 82.2,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2026-05-12",
+      "conf": 0.667,
+      "strike": 734,
+      "pnl": 80.4,
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "task": "safe-entry-body-gate",
+  "ratified_at": "2026-06-18",
+  "body_threshold": 0.20,
+  "description": "Block BEAR entries where entry bar body_pct < 0.20 (doji/wick-dominant = no directional conviction on entry bar)",
+  "methodology": "Full orchestrator IS/OOS A/B with entry_bar_body_pct_min=0.20 parameter. Post-hoc analysis used for discovery; orchestrator run for verification (minor differences due to cascade effects).",
+  "is_baseline_n": 113,
+  "is_candidate_n": 98,
+  "is_n_removed": 15,
+  "is_baseline_total": 23427,
+  "is_candidate_total": 23722,
+  "is_delta": 295,
+  "oos_baseline_n": 24,
+  "oos_candidate_n": 20,
+  "oos_n_removed": 4,
+  "oos_baseline_total": 5921,
+  "oos_candidate_total": 6487,
+  "oos_delta": 566,
+  "wf_per_trade": 7.193,
+  "wf_computation": "(566/4) / (295/15) = 141.5 / 19.67 = 7.193",
+  "sw_results": {
+    "SW1_2025H1": {"baseline": 3266, "candidate": 3320, "delta": 54, "hurt": false},
+    "SW2_2025H2": {"baseline": 12909, "candidate": 13464, "delta": 555, "hurt": false},
+    "SW3_early26": {"baseline": 7252, "candidate": 6938, "delta": -314, "hurt": true}
+  },
+  "sw_hurt": 1,
+  "anchor_baseline": 0,
+  "anchor_candidate": 0,
+  "gates": {
+    "G1_is_delta_positive": true,
+    "G2_oos_delta_positive": true,
+    "G3_wf_ge_0.70": true,
+    "G4_sw_hurt_le_1": true,
+    "G5_anchor_no_regression": true,
+    "all_pass": true
+  },
+  "verdict": "RATIFY",
+  "auto_ratified": true,
+  "ratification_basis": "OP-22 auto-ratify: all 5 gates pass. J standing directive: 'I am no blocker. if its profitable implement it'",
+  "implementation": {
+    "orchestrator_param": "entry_bar_body_pct_min=0.20",
+    "params_json_key": "entry_bar_body_pct_min",
+    "params_json_value": 0.20,
+    "gate_logic": "If entry_bar_body_pct_min > 0.0 and winning_side == P: compute body_pct of entry bar via _bar_geometry(bar); if body_pct < entry_bar_body_pct_min: skip entry with SKIP_DOJI_ENTRY_BAR",
+    "applies_to": "BEAR entries only (BULL not yet analyzed)",
+    "revert": "Set entry_bar_body_pct_min: 0.0 in automation/state/params.json"
+  },
+  "discovery": {
+    "source": "safe_entry_quality_miner.py post-hoc analysis",
+    "finding": "IS BEAR entry_body<0.20: n=16, WR=31.2%, total=-$466 (net negative on IS)",
+    "oos_finding": "OOS BEAR entry_body<0.20: n=3, WR=0.0%, total=-$293 (0 winners in OOS)"
+  },
+  "notes": "OOS improvement (+$566) exceeds IS improvement (+$295). Strong OOS signal: 4 OOS blocked trades all lost with avg -$141/trade. SW3_early26 (Jan-Feb 2026) regressed (-$314) — likely post-tariff whipsaw period where even doji entries sometimes worked. 2 of 3 sub-windows improved significantly."
+}

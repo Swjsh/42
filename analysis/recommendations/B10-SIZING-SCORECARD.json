@@ -1,0 +1,965 @@
+{
+  "campaign": "B10 \u2014 sizing/compounding the measured 3-edge book within J's hard caps",
+  "run_date": "2026-06-21",
+  "window": "2025-01-01..2026-05-15",
+  "trading_days": 342,
+  "fills_authority": "real OPRA via lib.simulator_real (reuses B9 detect+fill pipeline; C1)",
+  "baseline_qty": 3,
+  "b9_crosscheck": {
+    "Safe-2_qty3_total": 14608.16,
+    "b9_Safe-2": 14608.16,
+    "Bold_qty3_total": 18784.32,
+    "b9_Bold": 18784.32,
+    "match": true
+  },
+  "hard_caps": {
+    "Safe-2": {
+      "daily_kill_frac": 0.3,
+      "per_trade_cap_frac": 0.3,
+      "min_contracts": 3,
+      "v15_tiers": [
+        [
+          0.0,
+          5,
+          8
+        ],
+        [
+          10000.0,
+          10,
+          15
+        ]
+      ]
+    },
+    "Bold": {
+      "daily_kill_frac": 0.5,
+      "per_trade_cap_frac": 0.5,
+      "min_contracts": 3,
+      "v15_tiers": [
+        [
+          0.0,
+          5,
+          8
+        ],
+        [
+          10000.0,
+          10,
+          15
+        ]
+      ]
+    }
+  },
+  "books": {
+    "Safe-2": {
+      "start_equity": 2000.0,
+      "strike_tier": "ATM",
+      "edges": [
+        "e1",
+        "e2",
+        "e4"
+      ],
+      "n_trades": 301,
+      "n_days": 149,
+      "trade_return_distribution": {
+        "n": 301,
+        "mean_return": 0.16142,
+        "std_return": 0.50087,
+        "variance_return": 0.25087,
+        "downside_dev": 0.05476,
+        "skew": 9.453,
+        "win_rate": 0.5249,
+        "avg_win_return": 0.37897,
+        "avg_loss_return": -0.07895,
+        "worst_trade_return": -0.08,
+        "best_trade_return": 7.16667,
+        "median_premium": 1.38
+      },
+      "day_return_distribution": {
+        "n_days": 149,
+        "mean_day_return": 0.19759,
+        "std_day_return": 0.64761,
+        "downside_day_dev": 0.05109,
+        "worst_day_return": -0.08,
+        "best_day_return": 7.16667,
+        "day_win_rate": 0.5705
+      },
+      "kelly": {
+        "f_continuous": 0.6434,
+        "f_discrete": 0.4259,
+        "f_full_kelly": 0.4259,
+        "f_half_kelly": 0.213,
+        "f_quarter_kelly": 0.1065,
+        "kelly_note": "f* = fraction of EQUITY deployed as option premium per trade; headline full-Kelly = min(continuous m/v, discrete) to stay conservative. Half/quarter-Kelly are the practical fractions."
+      },
+      "compounding_sims": {
+        "v15_current": {
+          "sizing": "v15",
+          "edge_haircut": 0.0,
+          "kelly_fraction": null,
+          "start_equity": 2000.0,
+          "final_equity": 49290.31,
+          "total_return_pct": 2364.5,
+          "cagr_pct": 22484.0,
+          "trading_days_replayed": 149,
+          "n_trades_taken": 300,
+          "n_trades_skipped_cap": 1,
+          "max_drawdown_dollar": 3086.8,
+          "max_drawdown_pct": 6.0,
+          "kill_switch_trips": 0,
+          "kill_trip_rate_per_day": 0.0,
+          "ruined": false,
+          "days_to_5k": 7,
+          "days_to_10k": 18,
+          "days_to_25k": 90,
+          "equity_curve_tail": [
+            [
+              "2026-05-07",
+              50710.31
+            ],
+            [
+              "2026-05-11",
+              50624.71
+            ],
+            [
+              "2026-05-13",
+              50342.71
+            ],
+            [
+              "2026-05-14",
+              49907.91
+            ],
+            [
+              "2026-05-15",
+              49290.31
+            ]
+          ]
+        },
+        "full_kelly": {
+          "sizing": "kelly",
+          "edge_haircut": 0.0,
+          "kelly_fraction": 0.4259,
+          "start_equity": 2000.0,
+          "final_equity": 423926723.99,
+          "total_return_pct": 21196236.2,
+          "cagr_pct": 101899634588.4,
+          "trading_days_replayed": 149,
+          "n_trades_taken": 300,
+          "n_trades_skipped_cap": 1,
+          "max_drawdown_dollar": 163098655.65,
+          "max_drawdown_pct": 30.4,
+          "kill_switch_trips": 0,
+          "kill_trip_rate_per_day": 0.0,
+          "ruined": false,
+          "days_to_5k": 6,
+          "days_to_10k": 9,
+          "days_to_25k": 15,
+          "equity_curve_tail": [
+            [
+              "2026-05-07",
+              527524179.91
+            ],
+            [
+              "2026-05-11",
+              514863606.07
+            ],
+            [
+              "2026-05-13",
+              490446726.31
+            ],
+            [
+              "2026-05-14",
+              455975293.43
+            ],
+            [
+              "2026-05-15",
+              423926723.99
+            ]
+          ]
+        },
+        "half_kelly": {
+          "sizing": "kelly",
+          "edge_haircut": 0.0,
+          "kelly_fraction": 0.213,
+          "start_equity": 2000.0,
+          "final_equity": 16222458.81,
+          "total_return_pct": 811022.9,
+          "cagr_pct": 408640241.2,
+          "trading_days_replayed": 149,
+          "n_trades_taken": 300,
+          "n_trades_skipped_cap": 1,
+          "max_drawdown_dollar": 4304521.59,
+          "max_drawdown_pct": 22.6,
+          "kill_switch_trips": 0,
+          "kill_trip_rate_per_day": 0.0,
+          "ruined": false,
+          "days_to_5k": 7,
+          "days_to_10k": 14,
+          "days_to_25k": 15,
+          "equity_curve_tail": [
+            [
+              "2026-05-07",
+              18936196.57
+            ],
+            [
+              "2026-05-11",
+              18613527.37
+            ],
+            [
+              "2026-05-13",
+              17984588.41
+            ],
+            [
+              "2026-05-14",
+              17080815.05
+            ],
+            [
+              "2026-05-15",
+              16222458.81
+            ]
+          ]
+        },
+        "quarter_kelly": {
+          "sizing": "kelly",
+          "edge_haircut": 0.0,
+          "kelly_fraction": 0.1065,
+          "start_equity": 2000.0,
+          "final_equity": 251483.74,
+          "total_return_pct": 12474.2,
+          "cagr_pct": 355366.1,
+          "trading_days_replayed": 149,
+          "n_trades_taken": 300,
+          "n_trades_skipped_cap": 1,
+          "max_drawdown_dollar": 32304.55,
+          "max_drawdown_pct": 11.9,
+          "kill_switch_trips": 0,
+          "kill_trip_rate_per_day": 0.0,
+          "ruined": false,
+          "days_to_5k": 13,
+          "days_to_10k": 17,
+          "days_to_25k": 90,
+          "equity_curve_tail": [
+            [
+              "2026-05-07",
+              271539.82
+            ],
+            [
+              "2026-05-11",
+              269228.62
+            ],
+            [
+              "2026-05-13",
+              264671.5
+            ],
+            [
+              "2026-05-14",
+              257978.78
+            ],
+            [
+              "2026-05-15",
+              251483.74
+            ]
+          ]
+        },
+        "half_kelly_stressed50": {
+          "sizing": "kelly",
+          "edge_haircut": 0.5,
+          "kelly_fraction": 0.213,
+          "start_equity": 2000.0,
+          "final_equity": 215740.81,
+          "total_return_pct": 10687.0,
+          "cagr_pct": 274181.9,
+          "trading_days_replayed": 149,
+          "n_trades_taken": 298,
+          "n_trades_skipped_cap": 3,
+          "max_drawdown_dollar": 27761.92,
+          "max_drawdown_pct": 11.9,
+          "kill_switch_trips": 0,
+          "kill_trip_rate_per_day": 0.0,
+          "ruined": false,
+          "days_to_5k": 15,
+          "days_to_10k": 32,
+          "days_to_25k": 92,
+          "equity_curve_tail": [
+            [
+              "2026-05-07",
+              232972.77
+            ],
+            [
+              "2026-05-11",
+              230991.13
+            ],
+            [
+              "2026-05-13",
+              227082.61
+            ],
+            [
+              "2026-05-14",
+              221337.45
+            ],
+            [
+              "2026-05-15",
+              215740.81
+            ]
+          ]
+        },
+        "quarter_kelly_stressed50": {
+          "sizing": "kelly",
+          "edge_haircut": 0.5,
+          "kelly_fraction": 0.1065,
+          "start_equity": 2000.0,
+          "final_equity": 27620.51,
+          "total_return_pct": 1281.0,
+          "cagr_pct": 8380.0,
+          "trading_days_replayed": 149,
+          "n_trades_taken": 295,
+          "n_trades_skipped_cap": 6,
+          "max_drawdown_dollar": 1715.8,
+          "max_drawdown_pct": 6.0,
+          "kill_switch_trips": 0,
+          "kill_trip_rate_per_day": 0.0,
+          "ruined": false,
+          "days_to_5k": 15,
+          "days_to_10k": 95,
+          "days_to_25k": 122,
+          "equity_curve_tail": [
+            [
+              "2026-05-07",
+              28671.35
+            ],
+            [
+              "2026-05-11",
+              28551.51
+            ],
+            [
+              "2026-05-13",
+              28314.63
+            ],
+            [
+              "2026-05-14",
+              27958.43
+            ],
+            [
+              "2026-05-15",
+              27620.51
+            ]
+          ]
+        },
+        "v15_stressed50": {
+          "sizing": "v15",
+          "edge_haircut": 0.5,
+          "kelly_fraction": null,
+          "start_equity": 2000.0,
+          "final_equity": 21823.19,
+          "total_return_pct": 991.2,
+          "cagr_pct": 5593.2,
+          "trading_days_replayed": 149,
+          "n_trades_taken": 298,
+          "n_trades_skipped_cap": 3,
+          "max_drawdown_dollar": 1543.4,
+          "max_drawdown_pct": 6.7,
+          "kill_switch_trips": 0,
+          "kill_trip_rate_per_day": 0.0,
+          "ruined": false,
+          "days_to_5k": 15,
+          "days_to_10k": 91,
+          "days_to_25k": null,
+          "equity_curve_tail": [
+            [
+              "2026-05-07",
+              22533.19
+            ],
+            [
+              "2026-05-11",
+              22490.39
+            ],
+            [
+              "2026-05-13",
+              22349.39
+            ],
+            [
+              "2026-05-14",
+              22131.99
+            ],
+            [
+              "2026-05-15",
+              21823.19
+            ]
+          ]
+        }
+      },
+      "monte_carlo_ruin": {
+        "quarter_kelly": {
+          "n_paths": 2000,
+          "edge_haircut": 0.0,
+          "kelly_fraction": 0.1065,
+          "ruin_rate": 0.0,
+          "final_equity_p05": 63157.37,
+          "final_equity_median": 239740.8,
+          "final_equity_p95": 1251055.74,
+          "max_dd_pct_median": 5.8,
+          "max_dd_pct_p95": 11.9,
+          "kill_trips_median": 0.0,
+          "kill_trips_p95": 0.0,
+          "note": "day-block bootstrap (resample whole days w/ replacement, 342-day paths). Final-equity dispersion is wide because compounding a positive-mean bull-tape edge over 342 days is explosive in the lucky tail \u2014 read the P05 + ruin_rate + max_dd, NOT the median terminal $, as the risk signal."
+        },
+        "quarter_kelly_stressed50": {
+          "n_paths": 2000,
+          "edge_haircut": 0.5,
+          "kelly_fraction": 0.1065,
+          "ruin_rate": 0.0,
+          "final_equity_p05": 12455.97,
+          "final_equity_median": 24363.92,
+          "final_equity_p95": 57512.27,
+          "max_dd_pct_median": 3.5,
+          "max_dd_pct_p95": 7.1,
+          "kill_trips_median": 0.0,
+          "kill_trips_p95": 0.0,
+          "note": "day-block bootstrap (resample whole days w/ replacement, 342-day paths). Final-equity dispersion is wide because compounding a positive-mean bull-tape edge over 342 days is explosive in the lucky tail \u2014 read the P05 + ruin_rate + max_dd, NOT the median terminal $, as the risk signal."
+        },
+        "half_kelly": {
+          "n_paths": 2000,
+          "edge_haircut": 0.0,
+          "kelly_fraction": 0.213,
+          "ruin_rate": 0.0,
+          "final_equity_p05": 1288052.06,
+          "final_equity_median": 15186424.9,
+          "final_equity_p95": 296052763.95,
+          "max_dd_pct_median": 9.8,
+          "max_dd_pct_p95": 21.1,
+          "kill_trips_median": 0.0,
+          "kill_trips_p95": 0.0,
+          "note": "day-block bootstrap (resample whole days w/ replacement, 342-day paths). Final-equity dispersion is wide because compounding a positive-mean bull-tape edge over 342 days is explosive in the lucky tail \u2014 read the P05 + ruin_rate + max_dd, NOT the median terminal $, as the risk signal."
+        },
+        "half_kelly_stressed50": {
+          "n_paths": 2000,
+          "edge_haircut": 0.5,
+          "kelly_fraction": 0.213,
+          "ruin_rate": 0.0,
+          "final_equity_p05": 56792.11,
+          "final_equity_median": 209954.29,
+          "final_equity_p95": 1098817.11,
+          "max_dd_pct_median": 5.8,
+          "max_dd_pct_p95": 12.0,
+          "kill_trips_median": 0.0,
+          "kill_trips_p95": 0.0,
+          "note": "day-block bootstrap (resample whole days w/ replacement, 342-day paths). Final-equity dispersion is wide because compounding a positive-mean bull-tape edge over 342 days is explosive in the lucky tail \u2014 read the P05 + ruin_rate + max_dd, NOT the median terminal $, as the risk signal."
+        }
+      },
+      "sizing_spec_by_equity_tier": {
+        "$2000": {
+          "recommended_contracts": 3,
+          "kelly_wanted_contracts": 1,
+          "per_trade_cap_contracts": 4,
+          "clamp": "min_floor",
+          "v15_base_contracts": 5,
+          "v15_elite_contracts": 8,
+          "v15_base_pct_of_equity": 34.5,
+          "v15_elite_pct_of_equity": 55.2,
+          "v15_base_breaches_cap": true,
+          "v15_elite_breaches_cap": true
+        },
+        "$5000": {
+          "recommended_contracts": 3,
+          "kelly_wanted_contracts": 3,
+          "per_trade_cap_contracts": 10,
+          "clamp": null,
+          "v15_base_contracts": 5,
+          "v15_elite_contracts": 8,
+          "v15_base_pct_of_equity": 13.8,
+          "v15_elite_pct_of_equity": 22.1,
+          "v15_base_breaches_cap": false,
+          "v15_elite_breaches_cap": false
+        },
+        "$10000": {
+          "recommended_contracts": 7,
+          "kelly_wanted_contracts": 7,
+          "per_trade_cap_contracts": 21,
+          "clamp": null,
+          "v15_base_contracts": 10,
+          "v15_elite_contracts": 15,
+          "v15_base_pct_of_equity": 13.8,
+          "v15_elite_pct_of_equity": 20.7,
+          "v15_base_breaches_cap": false,
+          "v15_elite_breaches_cap": false
+        },
+        "$25000": {
+          "recommended_contracts": 19,
+          "kelly_wanted_contracts": 19,
+          "per_trade_cap_contracts": 54,
+          "clamp": null,
+          "v15_base_contracts": 10,
+          "v15_elite_contracts": 15,
+          "v15_base_pct_of_equity": 5.5,
+          "v15_elite_pct_of_equity": 8.3,
+          "v15_base_breaches_cap": false,
+          "v15_elite_breaches_cap": false
+        }
+      },
+      "v15_vs_recommended_verdict": "v15 BREACHES Rule 6 at $2K: nominal base 5 contracts = 34.5% of equity (cap 30%); elite 8 = 55.2%. The Rule 6 cap MUST clip these to 4. Quarter-Kelly+min-3 floor = 3 contracts (20.7% of equity) sits safely inside the cap and is the correct sub-$5K size.",
+      "recommended_fraction": 0.1065,
+      "recommended_fraction_name": "quarter_kelly",
+      "respects_hard_caps": true,
+      "quarter_kelly_stressed_ruin_rate": 0.0,
+      "recommended_fraction_safe_under_stress": true
+    },
+    "Bold": {
+      "start_equity": 1673.0,
+      "strike_tier": "ITM-2",
+      "edges": [
+        "e1",
+        "e2"
+      ],
+      "n_trades": 225,
+      "n_days": 149,
+      "trade_return_distribution": {
+        "n": 225,
+        "mean_return": 0.15149,
+        "std_return": 0.29232,
+        "variance_return": 0.085451,
+        "downside_dev": 0.05491,
+        "skew": 1.405,
+        "win_rate": 0.5244,
+        "avg_win_return": 0.36075,
+        "avg_loss_return": -0.07928,
+        "worst_trade_return": -0.08,
+        "best_trade_return": 1.26322,
+        "median_premium": 2.57
+      },
+      "day_return_distribution": {
+        "n_days": 149,
+        "mean_day_return": 0.15583,
+        "std_day_return": 0.28901,
+        "downside_day_dev": 0.05256,
+        "worst_day_return": -0.08,
+        "best_day_return": 1.2273,
+        "day_win_rate": 0.5638
+      },
+      "kelly": {
+        "f_continuous": 1.7728,
+        "f_discrete": 0.4199,
+        "f_full_kelly": 0.4199,
+        "f_half_kelly": 0.2099,
+        "f_quarter_kelly": 0.105,
+        "kelly_note": "f* = fraction of EQUITY deployed as option premium per trade; headline full-Kelly = min(continuous m/v, discrete) to stay conservative. Half/quarter-Kelly are the practical fractions."
+      },
+      "compounding_sims": {
+        "v15_current": {
+          "sizing": "v15",
+          "edge_haircut": 0.0,
+          "kelly_fraction": null,
+          "start_equity": 1673.0,
+          "final_equity": 66077.64,
+          "total_return_pct": 3849.6,
+          "cagr_pct": 50044.1,
+          "trading_days_replayed": 149,
+          "n_trades_taken": 225,
+          "n_trades_skipped_cap": 0,
+          "max_drawdown_dollar": 3218.8,
+          "max_drawdown_pct": 4.7,
+          "kill_switch_trips": 0,
+          "kill_trip_rate_per_day": 0.0,
+          "ruined": false,
+          "days_to_5k": 7,
+          "days_to_10k": 19,
+          "days_to_25k": 77,
+          "equity_curve_tail": [
+            [
+              "2026-05-07",
+              67989.24
+            ],
+            [
+              "2026-05-11",
+              67798.84
+            ],
+            [
+              "2026-05-13",
+              67300.04
+            ],
+            [
+              "2026-05-14",
+              66720.44
+            ],
+            [
+              "2026-05-15",
+              66077.64
+            ]
+          ]
+        },
+        "full_kelly": {
+          "sizing": "kelly",
+          "edge_haircut": 0.0,
+          "kelly_fraction": 0.4199,
+          "start_equity": 1673.0,
+          "final_equity": 377258597.36,
+          "total_return_pct": 22549726.5,
+          "cagr_pct": 113145730681.2,
+          "trading_days_replayed": 149,
+          "n_trades_taken": 225,
+          "n_trades_skipped_cap": 0,
+          "max_drawdown_dollar": 155909320.32,
+          "max_drawdown_pct": 31.0,
+          "kill_switch_trips": 0,
+          "kill_trip_rate_per_day": 0.0,
+          "ruined": false,
+          "days_to_5k": 7,
+          "days_to_10k": 14,
+          "days_to_25k": 34,
+          "equity_curve_tail": [
+            [
+              "2026-05-07",
+              479198493.44
+            ],
+            [
+              "2026-05-11",
+              463101258.72
+            ],
+            [
+              "2026-05-13",
+              432510847.92
+            ],
+            [
+              "2026-05-14",
+              403941127.2
+            ],
+            [
+              "2026-05-15",
+              377258597.36
+            ]
+          ]
+        },
+        "half_kelly": {
+          "sizing": "kelly",
+          "edge_haircut": 0.0,
+          "kelly_fraction": 0.2099,
+          "start_equity": 1673.0,
+          "final_equity": 1204295.98,
+          "total_return_pct": 71884.2,
+          "cagr_pct": 6797795.6,
+          "trading_days_replayed": 149,
+          "n_trades_taken": 225,
+          "n_trades_skipped_cap": 0,
+          "max_drawdown_dollar": 230476.6,
+          "max_drawdown_pct": 16.7,
+          "kill_switch_trips": 0,
+          "kill_trip_rate_per_day": 0.0,
+          "ruined": false,
+          "days_to_5k": 16,
+          "days_to_10k": 49,
+          "days_to_25k": 91,
+          "equity_curve_tail": [
+            [
+              "2026-05-07",
+              1355770.3
+            ],
+            [
+              "2026-05-11",
+              1333017.5
+            ],
+            [
+              "2026-05-13",
+              1288641.5
+            ],
+            [
+              "2026-05-14",
+              1245745.66
+            ],
+            [
+              "2026-05-15",
+              1204295.98
+            ]
+          ]
+        },
+        "quarter_kelly": {
+          "sizing": "kelly",
+          "edge_haircut": 0.0,
+          "kelly_fraction": 0.105,
+          "start_equity": 1673.0,
+          "final_equity": 89843.9,
+          "total_return_pct": 5270.2,
+          "cagr_pct": 84212.8,
+          "trading_days_replayed": 149,
+          "n_trades_taken": 224,
+          "n_trades_skipped_cap": 1,
+          "max_drawdown_dollar": 8260.44,
+          "max_drawdown_pct": 8.6,
+          "kill_switch_trips": 0,
+          "kill_trip_rate_per_day": 0.0,
+          "ruined": false,
+          "days_to_5k": 17,
+          "days_to_10k": 75,
+          "days_to_25k": 105,
+          "equity_curve_tail": [
+            [
+              "2026-05-07",
+              95247.1
+            ],
+            [
+              "2026-05-11",
+              94447.42
+            ],
+            [
+              "2026-05-13",
+              92873.9
+            ],
+            [
+              "2026-05-14",
+              91352.22
+            ],
+            [
+              "2026-05-15",
+              89843.9
+            ]
+          ]
+        },
+        "half_kelly_stressed50": {
+          "sizing": "kelly",
+          "edge_haircut": 0.5,
+          "kelly_fraction": 0.2099,
+          "start_equity": 1673.0,
+          "final_equity": 58393.92,
+          "total_return_pct": 3390.4,
+          "cagr_pct": 40583.7,
+          "trading_days_replayed": 149,
+          "n_trades_taken": 221,
+          "n_trades_skipped_cap": 4,
+          "max_drawdown_dollar": 5329.08,
+          "max_drawdown_pct": 8.6,
+          "kill_switch_trips": 0,
+          "kill_trip_rate_per_day": 0.0,
+          "ruined": false,
+          "days_to_5k": 42,
+          "days_to_10k": 97,
+          "days_to_25k": 114,
+          "equity_curve_tail": [
+            [
+              "2026-05-07",
+              61909.2
+            ],
+            [
+              "2026-05-11",
+              61395.12
+            ],
+            [
+              "2026-05-13",
+              60379.36
+            ],
+            [
+              "2026-05-14",
+              59381.28
+            ],
+            [
+              "2026-05-15",
+              58393.92
+            ]
+          ]
+        },
+        "quarter_kelly_stressed50": {
+          "sizing": "kelly",
+          "edge_haircut": 0.5,
+          "kelly_fraction": 0.105,
+          "start_equity": 1673.0,
+          "final_equity": 16986.36,
+          "total_return_pct": 915.3,
+          "cagr_pct": 4940.2,
+          "trading_days_replayed": 149,
+          "n_trades_taken": 221,
+          "n_trades_skipped_cap": 4,
+          "max_drawdown_dollar": 718.78,
+          "max_drawdown_pct": 4.1,
+          "kill_switch_trips": 0,
+          "kill_trip_rate_per_day": 0.0,
+          "ruined": false,
+          "days_to_5k": 45,
+          "days_to_10k": 109,
+          "days_to_25k": null,
+          "equity_curve_tail": [
+            [
+              "2026-05-07",
+              17448.0
+            ],
+            [
+              "2026-05-11",
+              17381.36
+            ],
+            [
+              "2026-05-13",
+              17241.92
+            ],
+            [
+              "2026-05-14",
+              17117.16
+            ],
+            [
+              "2026-05-15",
+              16986.36
+            ]
+          ]
+        },
+        "v15_stressed50": {
+          "sizing": "v15",
+          "edge_haircut": 0.5,
+          "kelly_fraction": null,
+          "start_equity": 1673.0,
+          "final_equity": 30774.96,
+          "total_return_pct": 1739.5,
+          "cagr_pct": 13670.8,
+          "trading_days_replayed": 149,
+          "n_trades_taken": 222,
+          "n_trades_skipped_cap": 3,
+          "max_drawdown_dollar": 1609.4,
+          "max_drawdown_pct": 5.0,
+          "kill_switch_trips": 0,
+          "kill_trip_rate_per_day": 0.0,
+          "ruined": false,
+          "days_to_5k": 17,
+          "days_to_10k": 76,
+          "days_to_25k": 118,
+          "equity_curve_tail": [
+            [
+              "2026-05-07",
+              31730.76
+            ],
+            [
+              "2026-05-11",
+              31635.56
+            ],
+            [
+              "2026-05-13",
+              31386.16
+            ],
+            [
+              "2026-05-14",
+              31096.36
+            ],
+            [
+              "2026-05-15",
+              30774.96
+            ]
+          ]
+        }
+      },
+      "monte_carlo_ruin": {
+        "quarter_kelly": {
+          "n_paths": 2000,
+          "edge_haircut": 0.0,
+          "kelly_fraction": 0.105,
+          "ruin_rate": 0.0,
+          "final_equity_p05": 31310.55,
+          "final_equity_median": 77448.14,
+          "final_equity_p95": 200581.33,
+          "max_dd_pct_median": 4.8,
+          "max_dd_pct_p95": 10.0,
+          "kill_trips_median": 0.0,
+          "kill_trips_p95": 0.0,
+          "note": "day-block bootstrap (resample whole days w/ replacement, 342-day paths). Final-equity dispersion is wide because compounding a positive-mean bull-tape edge over 342 days is explosive in the lucky tail \u2014 read the P05 + ruin_rate + max_dd, NOT the median terminal $, as the risk signal."
+        },
+        "quarter_kelly_stressed50": {
+          "n_paths": 2000,
+          "edge_haircut": 0.5,
+          "kelly_fraction": 0.105,
+          "ruin_rate": 0.0,
+          "final_equity_p05": 9549.74,
+          "final_equity_median": 14712.4,
+          "final_equity_p95": 23476.5,
+          "max_dd_pct_median": 4.1,
+          "max_dd_pct_p95": 11.9,
+          "kill_trips_median": 0.0,
+          "kill_trips_p95": 0.0,
+          "note": "day-block bootstrap (resample whole days w/ replacement, 342-day paths). Final-equity dispersion is wide because compounding a positive-mean bull-tape edge over 342 days is explosive in the lucky tail \u2014 read the P05 + ruin_rate + max_dd, NOT the median terminal $, as the risk signal."
+        },
+        "half_kelly": {
+          "n_paths": 2000,
+          "edge_haircut": 0.0,
+          "kelly_fraction": 0.2099,
+          "ruin_rate": 0.0,
+          "final_equity_p05": 234328.75,
+          "final_equity_median": 1347870.3,
+          "final_equity_p95": 8402685.36,
+          "max_dd_pct_median": 8.1,
+          "max_dd_pct_p95": 17.2,
+          "kill_trips_median": 0.0,
+          "kill_trips_p95": 0.0,
+          "note": "day-block bootstrap (resample whole days w/ replacement, 342-day paths). Final-equity dispersion is wide because compounding a positive-mean bull-tape edge over 342 days is explosive in the lucky tail \u2014 read the P05 + ruin_rate + max_dd, NOT the median terminal $, as the risk signal."
+        },
+        "half_kelly_stressed50": {
+          "n_paths": 2000,
+          "edge_haircut": 0.5,
+          "kelly_fraction": 0.2099,
+          "ruin_rate": 0.0,
+          "final_equity_p05": 21508.82,
+          "final_equity_median": 52983.2,
+          "final_equity_p95": 135996.35,
+          "max_dd_pct_median": 4.9,
+          "max_dd_pct_p95": 9.5,
+          "kill_trips_median": 0.0,
+          "kill_trips_p95": 0.0,
+          "note": "day-block bootstrap (resample whole days w/ replacement, 342-day paths). Final-equity dispersion is wide because compounding a positive-mean bull-tape edge over 342 days is explosive in the lucky tail \u2014 read the P05 + ruin_rate + max_dd, NOT the median terminal $, as the risk signal."
+        }
+      },
+      "sizing_spec_by_equity_tier": {
+        "$2000": {
+          "recommended_contracts": 3,
+          "kelly_wanted_contracts": 0,
+          "per_trade_cap_contracts": 3,
+          "clamp": "min_floor",
+          "v15_base_contracts": 5,
+          "v15_elite_contracts": 8,
+          "v15_base_pct_of_equity": 64.2,
+          "v15_elite_pct_of_equity": 102.8,
+          "v15_base_breaches_cap": true,
+          "v15_elite_breaches_cap": true
+        },
+        "$5000": {
+          "recommended_contracts": 3,
+          "kelly_wanted_contracts": 2,
+          "per_trade_cap_contracts": 9,
+          "clamp": "min_floor",
+          "v15_base_contracts": 5,
+          "v15_elite_contracts": 8,
+          "v15_base_pct_of_equity": 25.7,
+          "v15_elite_pct_of_equity": 41.1,
+          "v15_base_breaches_cap": false,
+          "v15_elite_breaches_cap": false
+        },
+        "$10000": {
+          "recommended_contracts": 4,
+          "kelly_wanted_contracts": 4,
+          "per_trade_cap_contracts": 19,
+          "clamp": null,
+          "v15_base_contracts": 10,
+          "v15_elite_contracts": 15,
+          "v15_base_pct_of_equity": 25.7,
+          "v15_elite_pct_of_equity": 38.5,
+          "v15_base_breaches_cap": false,
+          "v15_elite_breaches_cap": false
+        },
+        "$25000": {
+          "recommended_contracts": 10,
+          "kelly_wanted_contracts": 10,
+          "per_trade_cap_contracts": 48,
+          "clamp": null,
+          "v15_base_contracts": 10,
+          "v15_elite_contracts": 15,
+          "v15_base_pct_of_equity": 10.3,
+          "v15_elite_pct_of_equity": 15.4,
+          "v15_base_breaches_cap": false,
+          "v15_elite_breaches_cap": false
+        }
+      },
+      "v15_vs_recommended_verdict": "v15 BREACHES Rule 6 at $2K: nominal base 5 contracts = 64.2% of equity (cap 50%); elite 8 = 102.8%. The Rule 6 cap MUST clip these to 3. Quarter-Kelly+min-3 floor = 3 contracts (38.5% of equity) sits safely inside the cap and is the correct sub-$5K size.",
+      "recommended_fraction": 0.105,
+      "recommended_fraction_name": "quarter_kelly",
+      "respects_hard_caps": true,
+      "quarter_kelly_stressed_ruin_rate": 0.0,
+      "recommended_fraction_safe_under_stress": true
+    }
+  },
+  "verdict": "SIZING_SPEC_PRODUCED",
+  "respects_hard_caps": true,
+  "DISCLOSURE": {
+    "kelly_unit": "Kelly fraction = fraction of EQUITY deployed as option premium per trade; full-Kelly = min(continuous m/v, discrete two-outcome) for conservatism. We recommend QUARTER-Kelly as the practical fraction (0DTE fat tails + bull-regime-flattered edge).",
+    "hard_caps_never_exceeded": "every proposed contract count is CLAMPED to Rule 6 (per-trade cap + min-3 floor); where Kelly wants more we FLAG 'edge supports X, capped at Y' and clamp \u2014 never override.",
+    "bull_regime_caveat": "the measured Sharpe (~4.5-4.7) reflects a 2025-26 BULL tape and will NOT hold in chop/bear. We re-run every sizing with a 50% edge haircut (stressed50 rows) \u2014 the recommended fraction must still avoid ruin under that stress. Size for the WORSE regime.",
+    "compounding_replay": "per-trade measured returns replayed chronologically; equity compounds; daily kill switch enforced intraday vs SoD equity; ruin = equity < 10% of start.",
+    "real_fills": "real OPRA fills (C1); per-trade EXPECTANCY not WR (OP-14); SPY-dir != option edge (C3)."
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "task": "agg-entry-body-gate",
+  "account": "Gamma-Bold (AGG)",
+  "is_baseline": {
+    "n": 146,
+    "wr": 0.151,
+    "avg": 13.8,
+    "total": 2011.9
+  },
+  "is_candidate": {
+    "n": 144,
+    "wr": 0.146,
+    "avg": 10.6,
+    "total": 1529.3
+  },
+  "is_n_removed": 2,
+  "is_delta": -482.6,
+  "oos_baseline": {
+    "n": 23,
+    "wr": 0.174,
+    "avg": 71.7,
+    "total": 1649.1
+  },
+  "oos_candidate": {
+    "n": 19,
+    "wr": 0.158,
+    "avg": 89.5,
+    "total": 1701.2
+  },
+  "oos_n_removed": 4,
+  "oos_delta": 52.1,
+  "wf": -0.054,
+  "sw_hurt": 1,
+  "sw_rows": [
+    {
+      "label": "SW1_2025H1",
+      "baseline": 663.4,
+      "candidate": 180.8,
+      "delta": -482.6,
+      "hurt": true
+    },
+    {
+      "label": "SW2_2025H2",
+      "baseline": 1145.4,
+      "candidate": 1145.4,
+      "delta": 0.0,
+      "hurt": false
+    },
+    {
+      "label": "SW3_early26",
+      "baseline": 203.1,
+      "candidate": 203.1,
+      "delta": 0.0,
+      "hurt": false
+    }
+  ],
+  "anchor_baseline": -73.39000000000006,
+  "anchor_candidate": -73.39000000000006,
+  "gates": {
+    "G1": false,
+    "G2": true,
+    "G3": false,
+    "G4": true,
+    "G5": true,
+    "all": false
+  },
+  "verdict": "REJECT",
+  "auto_ratified": false,
+  "ratification_basis": "N/A"
+}

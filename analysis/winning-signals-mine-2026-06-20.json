@@ -1,0 +1,407 @@
+{
+  "setup_dir": [
+    {
+      "key": "LEVEL_REJECT_LIVE | long",
+      "mes": {
+        "n": 169,
+        "net": 3308.8,
+        "wr": 0.651,
+        "avg": 19.58
+      },
+      "mnq": {
+        "n": 104,
+        "net": 4892.8,
+        "wr": 0.712,
+        "avg": 47.05
+      },
+      "both_positive": true,
+      "robust_avg": 19.58,
+      "combined_n": 273,
+      "combined_wr": 0.674
+    },
+    {
+      "key": "OPEN_REJECTION | short",
+      "mes": {
+        "n": 162,
+        "net": -101.4,
+        "wr": 0.568,
+        "avg": -0.63
+      },
+      "mnq": {
+        "n": 163,
+        "net": 2885.8,
+        "wr": 0.681,
+        "avg": 17.7
+      },
+      "both_positive": false,
+      "robust_avg": -0.63,
+      "combined_n": 325,
+      "combined_wr": 0.625
+    },
+    {
+      "key": "BEARISH_REJECTION_v14e | short",
+      "mes": {
+        "n": 279,
+        "net": -418.1,
+        "wr": 0.204,
+        "avg": -1.5
+      },
+      "mnq": {
+        "n": 281,
+        "net": 1406.2,
+        "wr": 0.171,
+        "avg": 5.0
+      },
+      "both_positive": false,
+      "robust_avg": -1.5,
+      "combined_n": 560,
+      "combined_wr": 0.187
+    },
+    {
+      "key": "TRENDLINE_BREAK_RETEST | short",
+      "mes": {
+        "n": 195,
+        "net": -139.9,
+        "wr": 0.518,
+        "avg": -0.72
+      },
+      "mnq": {
+        "n": 69,
+        "net": -110.0,
+        "wr": 0.594,
+        "avg": -1.59
+      },
+      "both_positive": false,
+      "robust_avg": -1.59,
+      "combined_n": 264,
+      "combined_wr": 0.538
+    },
+    {
+      "key": "TRENDLINE_BREAK_RETEST | long",
+      "mes": {
+        "n": 226,
+        "net": -2405.7,
+        "wr": 0.407,
+        "avg": -10.64
+      },
+      "mnq": {
+        "n": 63,
+        "net": 581.9,
+        "wr": 0.587,
+        "avg": 9.24
+      },
+      "both_positive": false,
+      "robust_avg": -10.64,
+      "combined_n": 289,
+      "combined_wr": 0.446
+    },
+    {
+      "key": "BULLISH_RECLAIM_RIDE_THE_RIBBON | long",
+      "mes": {
+        "n": 128,
+        "net": -1546.0,
+        "wr": 0.453,
+        "avg": -12.08
+      },
+      "mnq": {
+        "n": 131,
+        "net": 2212.0,
+        "wr": 0.466,
+        "avg": 16.89
+      },
+      "both_positive": false,
+      "robust_avg": -12.08,
+      "combined_n": 259,
+      "combined_wr": 0.46
+    },
+    {
+      "key": "ERL_IRL_SWEEP_FVG | short",
+      "mes": {
+        "n": 237,
+        "net": -3486.8,
+        "wr": 0.624,
+        "avg": -14.71
+      },
+      "mnq": {
+        "n": 218,
+        "net": -771.5,
+        "wr": 0.775,
+        "avg": -3.54
+      },
+      "both_positive": false,
+      "robust_avg": -14.71,
+      "combined_n": 455,
+      "combined_wr": 0.696
+    },
+    {
+      "key": "LEVEL_REJECT_LIVE | short",
+      "mes": {
+        "n": 210,
+        "net": -1231.0,
+        "wr": 0.61,
+        "avg": -5.86
+      },
+      "mnq": {
+        "n": 155,
+        "net": -2491.1,
+        "wr": 0.645,
+        "avg": -16.07
+      },
+      "both_positive": false,
+      "robust_avg": -16.07,
+      "combined_n": 365,
+      "combined_wr": 0.625
+    },
+    {
+      "key": "ERL_IRL_SWEEP_FVG | long",
+      "mes": {
+        "n": 257,
+        "net": -6353.9,
+        "wr": 0.576,
+        "avg": -24.72
+      },
+      "mnq": {
+        "n": 248,
+        "net": 3540.9,
+        "wr": 0.778,
+        "avg": 14.28
+      },
+      "both_positive": false,
+      "robust_avg": -24.72,
+      "combined_n": 505,
+      "combined_wr": 0.675
+    },
+    {
+      "key": "NAMED_LEVEL_WICK_BOUNCE | long",
+      "mes": {
+        "n": 323,
+        "net": -8570.7,
+        "wr": 0.279,
+        "avg": -26.53
+      },
+      "mnq": {
+        "n": 314,
+        "net": -13644.4,
+        "wr": 0.271,
+        "avg": -43.45
+      },
+      "both_positive": false,
+      "robust_avg": -43.45,
+      "combined_n": 637,
+      "combined_wr": 0.275
+    },
+    {
+      "key": "BEARISH_REJECTION_MORNING | short",
+      "mes": {
+        "n": 163,
+        "net": -3808.2,
+        "wr": 0.546,
+        "avg": -23.36
+      },
+      "mnq": {
+        "n": 181,
+        "net": -9590.5,
+        "wr": 0.564,
+        "avg": -52.99
+      },
+      "both_positive": false,
+      "robust_avg": -52.99,
+      "combined_n": 344,
+      "combined_wr": 0.555
+    }
+  ],
+  "setup_dir_vix_winners": [
+    {
+      "key": "LEVEL_REJECT_LIVE | long | ELEV(18-22)",
+      "mes": {
+        "n": 39,
+        "net": 2328.7,
+        "wr": 0.872,
+        "avg": 59.71
+      },
+      "mnq": {
+        "n": 28,
+        "net": 2728.8,
+        "wr": 0.75,
+        "avg": 97.46
+      },
+      "both_positive": true,
+      "robust_avg": 59.71,
+      "combined_n": 67,
+      "combined_wr": 0.821
+    },
+    {
+      "key": "ERL_IRL_SWEEP_FVG | short | ELEV(18-22)",
+      "mes": {
+        "n": 66,
+        "net": 911.6,
+        "wr": 0.636,
+        "avg": 13.81
+      },
+      "mnq": {
+        "n": 62,
+        "net": 1610.8,
+        "wr": 0.806,
+        "avg": 25.98
+      },
+      "both_positive": true,
+      "robust_avg": 13.81,
+      "combined_n": 128,
+      "combined_wr": 0.718
+    },
+    {
+      "key": "OPEN_REJECTION | short | MID(15-18)",
+      "mes": {
+        "n": 78,
+        "net": 60.3,
+        "wr": 0.564,
+        "avg": 0.77
+      },
+      "mnq": {
+        "n": 77,
+        "net": 4142.5,
+        "wr": 0.766,
+        "avg": 53.8
+      },
+      "both_positive": true,
+      "robust_avg": 0.77,
+      "combined_n": 155,
+      "combined_wr": 0.664
+    },
+    {
+      "key": "BEARISH_REJECTION_v14e | short | HIGH(>22)",
+      "mes": {
+        "n": 59,
+        "net": 1190.3,
+        "wr": 0.458,
+        "avg": 20.18
+      },
+      "mnq": {
+        "n": 62,
+        "net": 1.0,
+        "wr": 0.29,
+        "avg": 0.02
+      },
+      "both_positive": true,
+      "robust_avg": 0.02,
+      "combined_n": 121,
+      "combined_wr": 0.372
+    }
+  ],
+  "conf_dir": [
+    {
+      "key": "conf=medium | short",
+      "mes": {
+        "n": 666,
+        "net": -4136.6,
+        "wr": 0.521,
+        "avg": -6.21
+      },
+      "mnq": {
+        "n": 478,
+        "net": -137.9,
+        "wr": 0.586,
+        "avg": -0.29
+      },
+      "both_positive": false,
+      "robust_avg": -6.21,
+      "combined_n": 1144,
+      "combined_wr": 0.548
+    },
+    {
+      "key": "conf=high | short",
+      "mes": {
+        "n": 460,
+        "net": -2916.7,
+        "wr": 0.609,
+        "avg": -6.34
+      },
+      "mnq": {
+        "n": 424,
+        "net": -3758.4,
+        "wr": 0.7,
+        "avg": -8.86
+      },
+      "both_positive": false,
+      "robust_avg": -8.86,
+      "combined_n": 884,
+      "combined_wr": 0.653
+    },
+    {
+      "key": "conf=medium | long",
+      "mes": {
+        "n": 879,
+        "net": -11212.2,
+        "wr": 0.455,
+        "avg": -12.76
+      },
+      "mnq": {
+        "n": 820,
+        "net": -5707.1,
+        "wr": 0.407,
+        "avg": -6.96
+      },
+      "both_positive": false,
+      "robust_avg": -12.76,
+      "combined_n": 1699,
+      "combined_wr": 0.432
+    },
+    {
+      "key": "conf=high | long",
+      "mes": {
+        "n": 193,
+        "net": -3334.2,
+        "wr": 0.575,
+        "avg": -17.28
+      },
+      "mnq": {
+        "n": 228,
+        "net": 5924.9,
+        "wr": 0.482,
+        "avg": 25.99
+      },
+      "both_positive": false,
+      "robust_avg": -17.28,
+      "combined_n": 421,
+      "combined_wr": 0.525
+    },
+    {
+      "key": "conf=low | short",
+      "mes": {
+        "n": 253,
+        "net": -2522.6,
+        "wr": 0.245,
+        "avg": -9.97
+      },
+      "mnq": {
+        "n": 212,
+        "net": -4240.6,
+        "wr": 0.132,
+        "avg": -20.0
+      },
+      "both_positive": false,
+      "robust_avg": -20.0,
+      "combined_n": 465,
+      "combined_wr": 0.193
+    },
+    {
+      "key": "conf=low | long",
+      "mes": {
+        "n": 160,
+        "net": -2004.3,
+        "wr": 0.331,
+        "avg": -12.53
+      },
+      "mnq": {
+        "n": 92,
+        "net": -3105.5,
+        "wr": 0.304,
+        "avg": -33.76
+      },
+      "both_positive": false,
+      "robust_avg": -33.76,
+      "combined_n": 252,
+      "combined_wr": 0.321
+    }
+  ]
+}

@@ -50,19 +50,14 @@ STATE_DIR = PROJECT_ROOT / "automation" / "state"
 STATUS_FILE = PROJECT_ROOT / "automation" / "overnight" / "STATUS.md"
 DECISIONS_FILE = STATE_DIR / "decisions.jsonl"
 
-# Same key shape as atomic_bracket_guard.py. If keys drift, audit_scheduled_tasks
-# + heartbeat self-test catch it before this silently uses stale creds.
-ACCOUNT_KEYS: dict[str, tuple[str, str]] = {
-    "safe": (
-        "PKGZIUWDJIMDG5QYDGCPFJDGHJ",
-        "9EzmHpix6GShFRHH5dUmVJb6V9VPvZppPGmtjdM3WEYs",
-    ),
-    "bold": (
-        # Rotated 2026-05-22 09:35 ET — account PA33W2KUAT40 (Gamma-Risky-2)
-        "PKQMQD2NNWII7PYGSTGIDXZU3T",
-        "ELWu7QjbQDkGZawg8yM7QfpHPjB7kFQcMdERSEPirUsV",
-    ),
-}
+# Live paper Alpaca creds load from the GITIGNORED .mcp.json -- NOT hard-coded -- so
+# they can never drift from the keys the engine actually trades with (2026-06-21 audit
+# C1/P0-1: a stale hard-coded Safe-1 key would 401 on the first real Safe ENTER and
+# falsely flag the legitimate fill as a ghost). Shared loader: setup/scripts/alpaca_keys.py.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from alpaca_keys import load_account_keys  # noqa: E402
+
+ACCOUNT_KEYS: dict[str, tuple[str, str]] = load_account_keys()
 ALPACA_BASE = "https://paper-api.alpaca.markets/v2"
 
 # DST-aware ET (no tzdata dep, matches sibling scripts).

@@ -1,0 +1,7703 @@
+{
+  "harness": "REGIME-SWITCH THRESHOLD + NEUTRAL SWEEP",
+  "run_date": "2026-06-21",
+  "universe_days": 365,
+  "universe_span": "2025-01-02..2026-06-18",
+  "oos_start": "2026-01-01",
+  "recency_n": 25,
+  "directional_always_baseline": {
+    "full": {
+      "n_days": 365,
+      "total": 7065.96,
+      "mean": 19.359,
+      "sharpe": 3.883,
+      "sortino": 5.753,
+      "max_dd": -454.56,
+      "win_days": 78,
+      "loss_days": 79
+    },
+    "oos": {
+      "n_days": 116,
+      "total": 2377.28,
+      "mean": 20.494,
+      "sharpe": 3.973,
+      "sortino": 6.568,
+      "max_dd": -454.56,
+      "win_days": 23,
+      "loss_days": 27
+    },
+    "recency": {
+      "n_days": 25,
+      "total": -224.64,
+      "mean": -8.986,
+      "sharpe": -4.249,
+      "sortino": -3.606,
+      "max_dd": -312.96,
+      "win_days": 1,
+      "loss_days": 9
+    }
+  },
+  "n_cells": 108,
+  "n_cells_all_pass": 0,
+  "n_cells_thesis_supported": 0,
+  "best_cell": {
+    "trend_q": [
+      0.15,
+      0.85
+    ],
+    "on_q": [
+      0.33,
+      0.67
+    ],
+    "policy": "directional",
+    "dist": {
+      "NEUTRAL": 312,
+      "CHOP": 27,
+      "TREND": 26
+    },
+    "degenerate": false,
+    "chop_iso": {
+      "n_chop_days": 27,
+      "directional_pnl_on_chop": 320.0,
+      "condor_pnl_on_chop": 185.6,
+      "condor_minus_directional_on_chop": -134.4,
+      "thesis_supported": false,
+      "n_trend_days": 26,
+      "directional_pnl_on_trend": -180.52
+    },
+    "full": {
+      "n_days": 365,
+      "total": 6931.56,
+      "mean": 18.991,
+      "sharpe": 3.842,
+      "sortino": 5.515,
+      "max_dd": -454.56,
+      "win_days": 83,
+      "loss_days": 74
+    },
+    "oos": {
+      "n_days": 116,
+      "total": 2340.56,
+      "mean": 20.177,
+      "sharpe": 3.96,
+      "sortino": 6.38,
+      "max_dd": -454.56,
+      "win_days": 26,
+      "loss_days": 26
+    },
+    "recency": {
+      "n_days": 25,
+      "total": -224.64,
+      "mean": -8.986,
+      "sharpe": -4.249,
+      "sortino": -3.606,
+      "max_dd": -312.96,
+      "win_days": 1,
+      "loss_days": 9
+    },
+    "no_regression": {
+      "n_switch_days": 339,
+      "book_pnl_on_switch_days": 7112.08,
+      "directional_pnl_on_switch_days": 7246.48,
+      "net_improvement": -134.4,
+      "no_regression_pass": false
+    },
+    "bar": {
+      "1_rr_up": false,
+      "2_rec_dd_down": true,
+      "3_no_regress": false,
+      "4_oos_pos": true,
+      "ALL_PASS": false
+    }
+  },
+  "best_thesis_cell": {
+    "trend_q": [
+      0.15,
+      0.85
+    ],
+    "on_q": [
+      0.33,
+      0.67
+    ],
+    "chop_iso": {
+      "n_chop_days": 27,
+      "directional_pnl_on_chop": 320.0,
+      "condor_pnl_on_chop": 185.6,
+      "condor_minus_directional_on_chop": -134.4,
+      "thesis_supported": false,
+      "n_trend_days": 26,
+      "directional_pnl_on_trend": -180.52
+    },
+    "dist": {
+      "NEUTRAL": 312,
+      "CHOP": 27,
+      "TREND": 26
+    }
+  },
+  "all_cells": [
+    {
+      "trend_q": [
+        0.5,
+        0.5
+      ],
+      "on_q": [
+        0.5,
+        0.5
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 171,
+        "CHOP": 100,
+        "TREND": 94
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 100,
+        "directional_pnl_on_chop": 2133.6,
+        "condor_pnl_on_chop": 624.2,
+        "condor_minus_directional_on_chop": -1509.4,
+        "thesis_supported": false,
+        "n_trend_days": 94,
+        "directional_pnl_on_trend": 1183.28
+      },
+      "full": {
+        "n_days": 365,
+        "total": 5556.56,
+        "mean": 15.223,
+        "sharpe": 3.299,
+        "sortino": 4.358,
+        "max_dd": -454.56,
+        "win_days": 95,
+        "loss_days": 75
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2100.16,
+        "mean": 18.105,
+        "sharpe": 3.68,
+        "sortino": 5.633,
+        "max_dd": -454.56,
+        "win_days": 28,
+        "loss_days": 25
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 271,
+        "book_pnl_on_switch_days": 4373.28,
+        "directional_pnl_on_switch_days": 5882.68,
+        "net_improvement": -1509.4,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.5,
+        0.5
+      ],
+      "on_q": [
+        0.5,
+        0.5
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 171,
+        "CHOP": 100,
+        "TREND": 94
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 100,
+        "directional_pnl_on_chop": 2133.6,
+        "condor_pnl_on_chop": 624.2,
+        "condor_minus_directional_on_chop": -1509.4,
+        "thesis_supported": false,
+        "n_trend_days": 94,
+        "directional_pnl_on_trend": 1183.28
+      },
+      "full": {
+        "n_days": 365,
+        "total": 3186.48,
+        "mean": 8.73,
+        "sharpe": 3.113,
+        "sortino": 2.595,
+        "max_dd": -356.08,
+        "win_days": 113,
+        "loss_days": 48
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1406.44,
+        "mean": 12.124,
+        "sharpe": 3.853,
+        "sortino": 3.953,
+        "max_dd": -253.48,
+        "win_days": 37,
+        "loss_days": 15
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -205.84,
+        "mean": -8.234,
+        "sharpe": -6.847,
+        "sortino": -3.207,
+        "max_dd": -219.64,
+        "win_days": 2,
+        "loss_days": 6
+      },
+      "no_regression": {
+        "n_switch_days": 271,
+        "book_pnl_on_switch_days": 2003.2,
+        "directional_pnl_on_switch_days": 5882.68,
+        "net_improvement": -3879.48,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.5,
+        0.5
+      ],
+      "on_q": [
+        0.5,
+        0.5
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 171,
+        "CHOP": 100,
+        "TREND": 94
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 100,
+        "directional_pnl_on_chop": 2133.6,
+        "condor_pnl_on_chop": 624.2,
+        "condor_minus_directional_on_chop": -1509.4,
+        "thesis_supported": false,
+        "n_trend_days": 94,
+        "directional_pnl_on_trend": 1183.28
+      },
+      "full": {
+        "n_days": 365,
+        "total": 1807.48,
+        "mean": 4.952,
+        "sharpe": 1.851,
+        "sortino": 1.323,
+        "max_dd": -277.28,
+        "win_days": 57,
+        "loss_days": 34
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 706.84,
+        "mean": 6.093,
+        "sharpe": 2.004,
+        "sortino": 1.868,
+        "max_dd": -244.08,
+        "win_days": 17,
+        "loss_days": 13
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -210.24,
+        "mean": -8.41,
+        "sharpe": -7.546,
+        "sortino": -3.099,
+        "max_dd": -210.24,
+        "win_days": 0,
+        "loss_days": 5
+      },
+      "no_regression": {
+        "n_switch_days": 271,
+        "book_pnl_on_switch_days": 624.2,
+        "directional_pnl_on_switch_days": 5882.68,
+        "net_improvement": -5258.48,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.5,
+        0.5
+      ],
+      "on_q": [
+        0.4,
+        0.6
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 194,
+        "CHOP": 94,
+        "TREND": 77
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 94,
+        "directional_pnl_on_chop": 1914.36,
+        "condor_pnl_on_chop": 596.8,
+        "condor_minus_directional_on_chop": -1317.56,
+        "thesis_supported": false,
+        "n_trend_days": 77,
+        "directional_pnl_on_trend": 548.96
+      },
+      "full": {
+        "n_days": 365,
+        "total": 5748.4,
+        "mean": 15.749,
+        "sharpe": 3.394,
+        "sortino": 4.499,
+        "max_dd": -454.56,
+        "win_days": 96,
+        "loss_days": 75
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2226.36,
+        "mean": 19.193,
+        "sharpe": 3.857,
+        "sortino": 5.866,
+        "max_dd": -454.56,
+        "win_days": 28,
+        "loss_days": 24
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 288,
+        "book_pnl_on_switch_days": 5199.44,
+        "directional_pnl_on_switch_days": 6517.0,
+        "net_improvement": -1317.56,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.5,
+        0.5
+      ],
+      "on_q": [
+        0.4,
+        0.6
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 194,
+        "CHOP": 94,
+        "TREND": 77
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 94,
+        "directional_pnl_on_chop": 1914.36,
+        "condor_pnl_on_chop": 596.8,
+        "condor_minus_directional_on_chop": -1317.56,
+        "thesis_supported": false,
+        "n_trend_days": 77,
+        "directional_pnl_on_trend": 548.96
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2680.96,
+        "mean": 7.345,
+        "sharpe": 2.882,
+        "sortino": 2.158,
+        "max_dd": -363.32,
+        "win_days": 118,
+        "loss_days": 46
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1527.36,
+        "mean": 13.167,
+        "sharpe": 4.213,
+        "sortino": 4.293,
+        "max_dd": -204.72,
+        "win_days": 41,
+        "loss_days": 14
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -84.92,
+        "mean": -3.397,
+        "sharpe": -2.733,
+        "sortino": -1.384,
+        "max_dd": -119.8,
+        "win_days": 6,
+        "loss_days": 5
+      },
+      "no_regression": {
+        "n_switch_days": 288,
+        "book_pnl_on_switch_days": 2132.0,
+        "directional_pnl_on_switch_days": 6517.0,
+        "net_improvement": -4385.0,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.5,
+        0.5
+      ],
+      "on_q": [
+        0.4,
+        0.6
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 194,
+        "CHOP": 94,
+        "TREND": 77
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 94,
+        "directional_pnl_on_chop": 1914.36,
+        "condor_pnl_on_chop": 596.8,
+        "condor_minus_directional_on_chop": -1317.56,
+        "thesis_supported": false,
+        "n_trend_days": 77,
+        "directional_pnl_on_trend": 548.96
+      },
+      "full": {
+        "n_days": 365,
+        "total": 1145.76,
+        "mean": 3.139,
+        "sharpe": 1.317,
+        "sortino": 0.801,
+        "max_dd": -363.32,
+        "win_days": 50,
+        "loss_days": 30
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 729.96,
+        "mean": 6.293,
+        "sharpe": 2.089,
+        "sortino": 1.848,
+        "max_dd": -204.72,
+        "win_days": 16,
+        "loss_days": 11
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -161.52,
+        "mean": -6.461,
+        "sharpe": -6.562,
+        "sortino": -2.468,
+        "max_dd": -161.52,
+        "win_days": 0,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 288,
+        "book_pnl_on_switch_days": 596.8,
+        "directional_pnl_on_switch_days": 6517.0,
+        "net_improvement": -5920.2,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.5,
+        0.5
+      ],
+      "on_q": [
+        0.33,
+        0.67
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 212,
+        "CHOP": 88,
+        "TREND": 65
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 88,
+        "directional_pnl_on_chop": 1787.76,
+        "condor_pnl_on_chop": 538.2,
+        "condor_minus_directional_on_chop": -1249.56,
+        "thesis_supported": false,
+        "n_trend_days": 65,
+        "directional_pnl_on_trend": 442.28
+      },
+      "full": {
+        "n_days": 365,
+        "total": 5816.4,
+        "mean": 15.935,
+        "sharpe": 3.43,
+        "sortino": 4.552,
+        "max_dd": -454.56,
+        "win_days": 96,
+        "loss_days": 75
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2250.76,
+        "mean": 19.403,
+        "sharpe": 3.896,
+        "sortino": 5.93,
+        "max_dd": -454.56,
+        "win_days": 28,
+        "loss_days": 24
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 300,
+        "book_pnl_on_switch_days": 5374.12,
+        "directional_pnl_on_switch_days": 6623.68,
+        "net_improvement": -1249.56,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.5,
+        0.5
+      ],
+      "on_q": [
+        0.33,
+        0.67
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 212,
+        "CHOP": 88,
+        "TREND": 65
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 88,
+        "directional_pnl_on_chop": 1787.76,
+        "condor_pnl_on_chop": 538.2,
+        "condor_minus_directional_on_chop": -1249.56,
+        "thesis_supported": false,
+        "n_trend_days": 65,
+        "directional_pnl_on_trend": 442.28
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2563.08,
+        "mean": 7.022,
+        "sharpe": 2.82,
+        "sortino": 1.971,
+        "max_dd": -324.76,
+        "win_days": 119,
+        "loss_days": 42
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1433.32,
+        "mean": 12.356,
+        "sharpe": 3.939,
+        "sortino": 3.564,
+        "max_dd": -214.0,
+        "win_days": 41,
+        "loss_days": 13
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -45.8,
+        "mean": -1.832,
+        "sharpe": -1.591,
+        "sortino": -0.747,
+        "max_dd": -119.8,
+        "win_days": 6,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 300,
+        "book_pnl_on_switch_days": 2120.8,
+        "directional_pnl_on_switch_days": 6623.68,
+        "net_improvement": -4502.88,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.5,
+        0.5
+      ],
+      "on_q": [
+        0.33,
+        0.67
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 212,
+        "CHOP": 88,
+        "TREND": 65
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 88,
+        "directional_pnl_on_chop": 1787.76,
+        "condor_pnl_on_chop": 538.2,
+        "condor_minus_directional_on_chop": -1249.56,
+        "thesis_supported": false,
+        "n_trend_days": 65,
+        "directional_pnl_on_trend": 442.28
+      },
+      "full": {
+        "n_days": 365,
+        "total": 980.48,
+        "mean": 2.686,
+        "sharpe": 1.182,
+        "sortino": 0.643,
+        "max_dd": -382.72,
+        "win_days": 45,
+        "loss_days": 24
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 690.52,
+        "mean": 5.953,
+        "sharpe": 2.014,
+        "sortino": 1.652,
+        "max_dd": -204.72,
+        "win_days": 14,
+        "loss_days": 9
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -122.4,
+        "mean": -4.896,
+        "sharpe": -5.509,
+        "sortino": -1.836,
+        "max_dd": -122.4,
+        "win_days": 0,
+        "loss_days": 3
+      },
+      "no_regression": {
+        "n_switch_days": 300,
+        "book_pnl_on_switch_days": 538.2,
+        "directional_pnl_on_switch_days": 6623.68,
+        "net_improvement": -6085.48,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.5,
+        0.5
+      ],
+      "on_q": [
+        0.25,
+        0.75
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 234,
+        "CHOP": 83,
+        "TREND": 48
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 83,
+        "directional_pnl_on_chop": 1827.6,
+        "condor_pnl_on_chop": 538.2,
+        "condor_minus_directional_on_chop": -1289.4,
+        "thesis_supported": false,
+        "n_trend_days": 48,
+        "directional_pnl_on_trend": 478.16
+      },
+      "full": {
+        "n_days": 365,
+        "total": 5776.56,
+        "mean": 15.826,
+        "sharpe": 3.404,
+        "sortino": 4.535,
+        "max_dd": -454.56,
+        "win_days": 96,
+        "loss_days": 76
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2250.76,
+        "mean": 19.403,
+        "sharpe": 3.896,
+        "sortino": 5.93,
+        "max_dd": -454.56,
+        "win_days": 28,
+        "loss_days": 24
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 317,
+        "book_pnl_on_switch_days": 5298.4,
+        "directional_pnl_on_switch_days": 6587.8,
+        "net_improvement": -1289.4,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.5,
+        0.5
+      ],
+      "on_q": [
+        0.25,
+        0.75
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 234,
+        "CHOP": 83,
+        "TREND": 48
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 83,
+        "directional_pnl_on_chop": 1827.6,
+        "condor_pnl_on_chop": 538.2,
+        "condor_minus_directional_on_chop": -1289.4,
+        "thesis_supported": false,
+        "n_trend_days": 48,
+        "directional_pnl_on_trend": 478.16
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2894.56,
+        "mean": 7.93,
+        "sharpe": 3.268,
+        "sortino": 2.2,
+        "max_dd": -303.88,
+        "win_days": 124,
+        "loss_days": 37
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1485.72,
+        "mean": 12.808,
+        "sharpe": 4.107,
+        "sortino": 3.627,
+        "max_dd": -214.0,
+        "win_days": 42,
+        "loss_days": 12
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -45.8,
+        "mean": -1.832,
+        "sharpe": -1.591,
+        "sortino": -0.747,
+        "max_dd": -119.8,
+        "win_days": 6,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 317,
+        "book_pnl_on_switch_days": 2416.4,
+        "directional_pnl_on_switch_days": 6587.8,
+        "net_improvement": -4171.4,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.5,
+        0.5
+      ],
+      "on_q": [
+        0.25,
+        0.75
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 234,
+        "CHOP": 83,
+        "TREND": 48
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 83,
+        "directional_pnl_on_chop": 1827.6,
+        "condor_pnl_on_chop": 538.2,
+        "condor_minus_directional_on_chop": -1289.4,
+        "thesis_supported": false,
+        "n_trend_days": 48,
+        "directional_pnl_on_trend": 478.16
+      },
+      "full": {
+        "n_days": 365,
+        "total": 1016.36,
+        "mean": 2.785,
+        "sharpe": 1.278,
+        "sortino": 0.634,
+        "max_dd": -234.88,
+        "win_days": 43,
+        "loss_days": 19
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 671.32,
+        "mean": 5.787,
+        "sharpe": 1.978,
+        "sortino": 1.559,
+        "max_dd": -222.48,
+        "win_days": 13,
+        "loss_days": 8
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -122.4,
+        "mean": -4.896,
+        "sharpe": -5.509,
+        "sortino": -1.836,
+        "max_dd": -122.4,
+        "win_days": 0,
+        "loss_days": 3
+      },
+      "no_regression": {
+        "n_switch_days": 317,
+        "book_pnl_on_switch_days": 538.2,
+        "directional_pnl_on_switch_days": 6587.8,
+        "net_improvement": -6049.6,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.5,
+        0.5
+      ],
+      "on_q": [
+        0.2,
+        0.8
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 251,
+        "CHOP": 79,
+        "TREND": 35
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 79,
+        "directional_pnl_on_chop": 1880.16,
+        "condor_pnl_on_chop": 506.6,
+        "condor_minus_directional_on_chop": -1373.56,
+        "thesis_supported": false,
+        "n_trend_days": 35,
+        "directional_pnl_on_trend": 53.04
+      },
+      "full": {
+        "n_days": 365,
+        "total": 5692.4,
+        "mean": 15.596,
+        "sharpe": 3.352,
+        "sortino": 4.512,
+        "max_dd": -454.56,
+        "win_days": 94,
+        "loss_days": 78
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2235.88,
+        "mean": 19.275,
+        "sharpe": 3.868,
+        "sortino": 6.002,
+        "max_dd": -454.56,
+        "win_days": 28,
+        "loss_days": 25
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 330,
+        "book_pnl_on_switch_days": 5639.36,
+        "directional_pnl_on_switch_days": 7012.92,
+        "net_improvement": -1373.56,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.5,
+        0.5
+      ],
+      "on_q": [
+        0.2,
+        0.8
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 251,
+        "CHOP": 79,
+        "TREND": 35
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 79,
+        "directional_pnl_on_chop": 1880.16,
+        "condor_pnl_on_chop": 506.6,
+        "condor_minus_directional_on_chop": -1373.56,
+        "thesis_supported": false,
+        "n_trend_days": 35,
+        "directional_pnl_on_trend": 53.04
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2486.24,
+        "mean": 6.812,
+        "sharpe": 3.401,
+        "sortino": 1.999,
+        "max_dd": -303.88,
+        "win_days": 126,
+        "loss_days": 37
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1391.2,
+        "mean": 11.993,
+        "sharpe": 4.455,
+        "sortino": 4.072,
+        "max_dd": -214.0,
+        "win_days": 43,
+        "loss_days": 11
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -54.2,
+        "mean": -2.168,
+        "sharpe": -1.825,
+        "sortino": -0.846,
+        "max_dd": -119.8,
+        "win_days": 6,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 330,
+        "book_pnl_on_switch_days": 2433.2,
+        "directional_pnl_on_switch_days": 7012.92,
+        "net_improvement": -4579.72,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.5,
+        0.5
+      ],
+      "on_q": [
+        0.2,
+        0.8
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 251,
+        "CHOP": 79,
+        "TREND": 35
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 79,
+        "directional_pnl_on_chop": 1880.16,
+        "condor_pnl_on_chop": 506.6,
+        "condor_minus_directional_on_chop": -1373.56,
+        "thesis_supported": false,
+        "n_trend_days": 35,
+        "directional_pnl_on_trend": 53.04
+      },
+      "full": {
+        "n_days": 365,
+        "total": 559.64,
+        "mean": 1.533,
+        "sharpe": 0.921,
+        "sortino": 0.361,
+        "max_dd": -451.36,
+        "win_days": 39,
+        "loss_days": 17
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 571.4,
+        "mean": 4.926,
+        "sharpe": 2.018,
+        "sortino": 1.697,
+        "max_dd": -141.6,
+        "win_days": 12,
+        "loss_days": 6
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -93.6,
+        "mean": -3.744,
+        "sharpe": -4.495,
+        "sortino": -1.247,
+        "max_dd": -93.6,
+        "win_days": 0,
+        "loss_days": 2
+      },
+      "no_regression": {
+        "n_switch_days": 330,
+        "book_pnl_on_switch_days": 506.6,
+        "directional_pnl_on_switch_days": 7012.92,
+        "net_improvement": -6506.32,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.5,
+        0.5
+      ],
+      "on_q": [
+        0.15,
+        0.85
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 262,
+        "CHOP": 75,
+        "TREND": 28
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 75,
+        "directional_pnl_on_chop": 1589.76,
+        "condor_pnl_on_chop": 489.2,
+        "condor_minus_directional_on_chop": -1100.56,
+        "thesis_supported": false,
+        "n_trend_days": 28,
+        "directional_pnl_on_trend": -30.96
+      },
+      "full": {
+        "n_days": 365,
+        "total": 5965.4,
+        "mean": 16.344,
+        "sharpe": 3.483,
+        "sortino": 4.698,
+        "max_dd": -454.56,
+        "win_days": 94,
+        "loss_days": 77
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2389.28,
+        "mean": 20.597,
+        "sharpe": 4.084,
+        "sortino": 6.414,
+        "max_dd": -454.56,
+        "win_days": 29,
+        "loss_days": 25
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 337,
+        "book_pnl_on_switch_days": 5996.36,
+        "directional_pnl_on_switch_days": 7096.92,
+        "net_improvement": -1100.56,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.5,
+        0.5
+      ],
+      "on_q": [
+        0.15,
+        0.85
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 262,
+        "CHOP": 75,
+        "TREND": 28
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 75,
+        "directional_pnl_on_chop": 1589.76,
+        "condor_pnl_on_chop": 489.2,
+        "condor_minus_directional_on_chop": -1100.56,
+        "thesis_supported": false,
+        "n_trend_days": 28,
+        "directional_pnl_on_trend": -30.96
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2407.64,
+        "mean": 6.596,
+        "sharpe": 3.274,
+        "sortino": 1.904,
+        "max_dd": -303.88,
+        "win_days": 127,
+        "loss_days": 38
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1396.6,
+        "mean": 12.04,
+        "sharpe": 4.368,
+        "sortino": 3.783,
+        "max_dd": -252.4,
+        "win_days": 45,
+        "loss_days": 12
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -92.6,
+        "mean": -3.704,
+        "sharpe": -2.227,
+        "sortino": -1.144,
+        "max_dd": -158.2,
+        "win_days": 7,
+        "loss_days": 5
+      },
+      "no_regression": {
+        "n_switch_days": 337,
+        "book_pnl_on_switch_days": 2438.6,
+        "directional_pnl_on_switch_days": 7096.92,
+        "net_improvement": -4658.32,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.5,
+        0.5
+      ],
+      "on_q": [
+        0.15,
+        0.85
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 262,
+        "CHOP": 75,
+        "TREND": 28
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 75,
+        "directional_pnl_on_chop": 1589.76,
+        "condor_pnl_on_chop": 489.2,
+        "condor_minus_directional_on_chop": -1100.56,
+        "thesis_supported": false,
+        "n_trend_days": 28,
+        "directional_pnl_on_trend": -30.96
+      },
+      "full": {
+        "n_days": 365,
+        "total": 458.24,
+        "mean": 1.255,
+        "sharpe": 0.765,
+        "sortino": 0.287,
+        "max_dd": -452.56,
+        "win_days": 36,
+        "loss_days": 16
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 571.4,
+        "mean": 4.926,
+        "sharpe": 2.018,
+        "sortino": 1.697,
+        "max_dd": -141.6,
+        "win_days": 12,
+        "loss_days": 6
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -93.6,
+        "mean": -3.744,
+        "sharpe": -4.495,
+        "sortino": -1.247,
+        "max_dd": -93.6,
+        "win_days": 0,
+        "loss_days": 2
+      },
+      "no_regression": {
+        "n_switch_days": 337,
+        "book_pnl_on_switch_days": 489.2,
+        "directional_pnl_on_switch_days": 7096.92,
+        "net_improvement": -6607.72,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.4,
+        0.6
+      ],
+      "on_q": [
+        0.5,
+        0.5
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 205,
+        "CHOP": 78,
+        "TREND": 82
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 78,
+        "directional_pnl_on_chop": 1414.84,
+        "condor_pnl_on_chop": 635.2,
+        "condor_minus_directional_on_chop": -779.64,
+        "thesis_supported": false,
+        "n_trend_days": 82,
+        "directional_pnl_on_trend": 1133.36
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6286.32,
+        "mean": 17.223,
+        "sharpe": 3.684,
+        "sortino": 5.003,
+        "max_dd": -454.56,
+        "win_days": 95,
+        "loss_days": 73
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2349.16,
+        "mean": 20.251,
+        "sharpe": 4.027,
+        "sortino": 6.301,
+        "max_dd": -454.56,
+        "win_days": 29,
+        "loss_days": 25
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 283,
+        "book_pnl_on_switch_days": 5152.96,
+        "directional_pnl_on_switch_days": 5932.6,
+        "net_improvement": -779.64,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.4,
+        0.6
+      ],
+      "on_q": [
+        0.5,
+        0.5
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 205,
+        "CHOP": 78,
+        "TREND": 82
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 78,
+        "directional_pnl_on_chop": 1414.84,
+        "condor_pnl_on_chop": 635.2,
+        "condor_minus_directional_on_chop": -779.64,
+        "thesis_supported": false,
+        "n_trend_days": 82,
+        "directional_pnl_on_trend": 1133.36
+      },
+      "full": {
+        "n_days": 365,
+        "total": 3256.16,
+        "mean": 8.921,
+        "sharpe": 3.185,
+        "sortino": 2.65,
+        "max_dd": -319.6,
+        "win_days": 118,
+        "loss_days": 48
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1450.24,
+        "mean": 12.502,
+        "sharpe": 3.967,
+        "sortino": 4.076,
+        "max_dd": -253.48,
+        "win_days": 38,
+        "loss_days": 15
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -205.84,
+        "mean": -8.234,
+        "sharpe": -6.847,
+        "sortino": -3.207,
+        "max_dd": -219.64,
+        "win_days": 2,
+        "loss_days": 6
+      },
+      "no_regression": {
+        "n_switch_days": 283,
+        "book_pnl_on_switch_days": 2122.8,
+        "directional_pnl_on_switch_days": 5932.6,
+        "net_improvement": -3809.8,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.4,
+        0.6
+      ],
+      "on_q": [
+        0.5,
+        0.5
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 205,
+        "CHOP": 78,
+        "TREND": 82
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 78,
+        "directional_pnl_on_chop": 1414.84,
+        "condor_pnl_on_chop": 635.2,
+        "condor_minus_directional_on_chop": -779.64,
+        "thesis_supported": false,
+        "n_trend_days": 82,
+        "directional_pnl_on_trend": 1133.36
+      },
+      "full": {
+        "n_days": 365,
+        "total": 1768.56,
+        "mean": 4.845,
+        "sharpe": 1.844,
+        "sortino": 1.3,
+        "max_dd": -244.08,
+        "win_days": 49,
+        "loss_days": 30
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 663.04,
+        "mean": 5.716,
+        "sharpe": 1.885,
+        "sortino": 1.753,
+        "max_dd": -244.08,
+        "win_days": 16,
+        "loss_days": 13
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -210.24,
+        "mean": -8.41,
+        "sharpe": -7.546,
+        "sortino": -3.099,
+        "max_dd": -210.24,
+        "win_days": 0,
+        "loss_days": 5
+      },
+      "no_regression": {
+        "n_switch_days": 283,
+        "book_pnl_on_switch_days": 635.2,
+        "directional_pnl_on_switch_days": 5932.6,
+        "net_improvement": -5297.4,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.4,
+        0.6
+      ],
+      "on_q": [
+        0.4,
+        0.6
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 223,
+        "CHOP": 74,
+        "TREND": 68
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 74,
+        "directional_pnl_on_chop": 1411.6,
+        "condor_pnl_on_chop": 609.6,
+        "condor_minus_directional_on_chop": -802.0,
+        "thesis_supported": false,
+        "n_trend_days": 68,
+        "directional_pnl_on_trend": 548.96
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6263.96,
+        "mean": 17.162,
+        "sharpe": 3.669,
+        "sortino": 4.974,
+        "max_dd": -454.56,
+        "win_days": 95,
+        "loss_days": 73
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2323.56,
+        "mean": 20.031,
+        "sharpe": 3.986,
+        "sortino": 6.122,
+        "max_dd": -454.56,
+        "win_days": 28,
+        "loss_days": 24
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 297,
+        "book_pnl_on_switch_days": 5715.0,
+        "directional_pnl_on_switch_days": 6517.0,
+        "net_improvement": -802.0,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.4,
+        0.6
+      ],
+      "on_q": [
+        0.4,
+        0.6
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 223,
+        "CHOP": 74,
+        "TREND": 68
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 74,
+        "directional_pnl_on_chop": 1411.6,
+        "condor_pnl_on_chop": 609.6,
+        "condor_minus_directional_on_chop": -802.0,
+        "thesis_supported": false,
+        "n_trend_days": 68,
+        "directional_pnl_on_trend": 548.96
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2741.96,
+        "mean": 7.512,
+        "sharpe": 2.941,
+        "sortino": 2.224,
+        "max_dd": -346.12,
+        "win_days": 122,
+        "loss_days": 47
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1571.16,
+        "mean": 13.544,
+        "sharpe": 4.328,
+        "sortino": 4.417,
+        "max_dd": -204.72,
+        "win_days": 42,
+        "loss_days": 14
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -84.92,
+        "mean": -3.397,
+        "sharpe": -2.733,
+        "sortino": -1.384,
+        "max_dd": -119.8,
+        "win_days": 6,
+        "loss_days": 5
+      },
+      "no_regression": {
+        "n_switch_days": 297,
+        "book_pnl_on_switch_days": 2193.0,
+        "directional_pnl_on_switch_days": 6517.0,
+        "net_improvement": -4324.0,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.4,
+        0.6
+      ],
+      "on_q": [
+        0.4,
+        0.6
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 223,
+        "CHOP": 74,
+        "TREND": 68
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 74,
+        "directional_pnl_on_chop": 1411.6,
+        "condor_pnl_on_chop": 609.6,
+        "condor_minus_directional_on_chop": -802.0,
+        "thesis_supported": false,
+        "n_trend_days": 68,
+        "directional_pnl_on_trend": 548.96
+      },
+      "full": {
+        "n_days": 365,
+        "total": 1158.56,
+        "mean": 3.174,
+        "sharpe": 1.355,
+        "sortino": 0.821,
+        "max_dd": -263.88,
+        "win_days": 44,
+        "loss_days": 27
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 686.16,
+        "mean": 5.915,
+        "sharpe": 1.969,
+        "sortino": 1.737,
+        "max_dd": -204.72,
+        "win_days": 15,
+        "loss_days": 11
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -161.52,
+        "mean": -6.461,
+        "sharpe": -6.562,
+        "sortino": -2.468,
+        "max_dd": -161.52,
+        "win_days": 0,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 297,
+        "book_pnl_on_switch_days": 609.6,
+        "directional_pnl_on_switch_days": 6517.0,
+        "net_improvement": -5907.4,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.4,
+        0.6
+      ],
+      "on_q": [
+        0.33,
+        0.67
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 240,
+        "CHOP": 69,
+        "TREND": 56
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 69,
+        "directional_pnl_on_chop": 1285.0,
+        "condor_pnl_on_chop": 551.0,
+        "condor_minus_directional_on_chop": -734.0,
+        "thesis_supported": false,
+        "n_trend_days": 56,
+        "directional_pnl_on_trend": 442.28
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6331.96,
+        "mean": 17.348,
+        "sharpe": 3.706,
+        "sortino": 5.028,
+        "max_dd": -454.56,
+        "win_days": 95,
+        "loss_days": 73
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2347.96,
+        "mean": 20.241,
+        "sharpe": 4.025,
+        "sortino": 6.186,
+        "max_dd": -454.56,
+        "win_days": 28,
+        "loss_days": 24
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 309,
+        "book_pnl_on_switch_days": 5889.68,
+        "directional_pnl_on_switch_days": 6623.68,
+        "net_improvement": -734.0,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.4,
+        0.6
+      ],
+      "on_q": [
+        0.33,
+        0.67
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 240,
+        "CHOP": 69,
+        "TREND": 56
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 69,
+        "directional_pnl_on_chop": 1285.0,
+        "condor_pnl_on_chop": 551.0,
+        "condor_minus_directional_on_chop": -734.0,
+        "thesis_supported": false,
+        "n_trend_days": 56,
+        "directional_pnl_on_trend": 442.28
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2624.08,
+        "mean": 7.189,
+        "sharpe": 2.881,
+        "sortino": 2.036,
+        "max_dd": -324.76,
+        "win_days": 123,
+        "loss_days": 43
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1477.12,
+        "mean": 12.734,
+        "sharpe": 4.054,
+        "sortino": 3.673,
+        "max_dd": -214.0,
+        "win_days": 42,
+        "loss_days": 13
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -45.8,
+        "mean": -1.832,
+        "sharpe": -1.591,
+        "sortino": -0.747,
+        "max_dd": -119.8,
+        "win_days": 6,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 309,
+        "book_pnl_on_switch_days": 2181.8,
+        "directional_pnl_on_switch_days": 6623.68,
+        "net_improvement": -4441.88,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.4,
+        0.6
+      ],
+      "on_q": [
+        0.33,
+        0.67
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 240,
+        "CHOP": 69,
+        "TREND": 56
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 69,
+        "directional_pnl_on_chop": 1285.0,
+        "condor_pnl_on_chop": 551.0,
+        "condor_minus_directional_on_chop": -734.0,
+        "thesis_supported": false,
+        "n_trend_days": 56,
+        "directional_pnl_on_trend": 442.28
+      },
+      "full": {
+        "n_days": 365,
+        "total": 993.28,
+        "mean": 2.721,
+        "sharpe": 1.22,
+        "sortino": 0.655,
+        "max_dd": -268.32,
+        "win_days": 39,
+        "loss_days": 21
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 646.72,
+        "mean": 5.575,
+        "sharpe": 1.892,
+        "sortino": 1.547,
+        "max_dd": -204.72,
+        "win_days": 13,
+        "loss_days": 9
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -122.4,
+        "mean": -4.896,
+        "sharpe": -5.509,
+        "sortino": -1.836,
+        "max_dd": -122.4,
+        "win_days": 0,
+        "loss_days": 3
+      },
+      "no_regression": {
+        "n_switch_days": 309,
+        "book_pnl_on_switch_days": 551.0,
+        "directional_pnl_on_switch_days": 6623.68,
+        "net_improvement": -6072.68,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.4,
+        0.6
+      ],
+      "on_q": [
+        0.25,
+        0.75
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 258,
+        "CHOP": 66,
+        "TREND": 41
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 66,
+        "directional_pnl_on_chop": 1285.0,
+        "condor_pnl_on_chop": 551.0,
+        "condor_minus_directional_on_chop": -734.0,
+        "thesis_supported": false,
+        "n_trend_days": 41,
+        "directional_pnl_on_trend": 478.16
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6331.96,
+        "mean": 17.348,
+        "sharpe": 3.706,
+        "sortino": 5.028,
+        "max_dd": -454.56,
+        "win_days": 95,
+        "loss_days": 73
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2347.96,
+        "mean": 20.241,
+        "sharpe": 4.025,
+        "sortino": 6.186,
+        "max_dd": -454.56,
+        "win_days": 28,
+        "loss_days": 24
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 324,
+        "book_pnl_on_switch_days": 5853.8,
+        "directional_pnl_on_switch_days": 6587.8,
+        "net_improvement": -734.0,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.4,
+        0.6
+      ],
+      "on_q": [
+        0.25,
+        0.75
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 258,
+        "CHOP": 66,
+        "TREND": 41
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 66,
+        "directional_pnl_on_chop": 1285.0,
+        "condor_pnl_on_chop": 551.0,
+        "condor_minus_directional_on_chop": -734.0,
+        "thesis_supported": false,
+        "n_trend_days": 41,
+        "directional_pnl_on_trend": 478.16
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2955.56,
+        "mean": 8.097,
+        "sharpe": 3.329,
+        "sortino": 2.269,
+        "max_dd": -303.88,
+        "win_days": 128,
+        "loss_days": 38
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1529.52,
+        "mean": 13.186,
+        "sharpe": 4.222,
+        "sortino": 3.734,
+        "max_dd": -214.0,
+        "win_days": 43,
+        "loss_days": 12
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -45.8,
+        "mean": -1.832,
+        "sharpe": -1.591,
+        "sortino": -0.747,
+        "max_dd": -119.8,
+        "win_days": 6,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 324,
+        "book_pnl_on_switch_days": 2477.4,
+        "directional_pnl_on_switch_days": 6587.8,
+        "net_improvement": -4110.4,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.4,
+        0.6
+      ],
+      "on_q": [
+        0.25,
+        0.75
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 258,
+        "CHOP": 66,
+        "TREND": 41
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 66,
+        "directional_pnl_on_chop": 1285.0,
+        "condor_pnl_on_chop": 551.0,
+        "condor_minus_directional_on_chop": -734.0,
+        "thesis_supported": false,
+        "n_trend_days": 41,
+        "directional_pnl_on_trend": 478.16
+      },
+      "full": {
+        "n_days": 365,
+        "total": 1029.16,
+        "mean": 2.82,
+        "sharpe": 1.321,
+        "sortino": 0.641,
+        "max_dd": -222.48,
+        "win_days": 37,
+        "loss_days": 16
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 627.52,
+        "mean": 5.41,
+        "sharpe": 1.854,
+        "sortino": 1.457,
+        "max_dd": -222.48,
+        "win_days": 12,
+        "loss_days": 8
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -122.4,
+        "mean": -4.896,
+        "sharpe": -5.509,
+        "sortino": -1.836,
+        "max_dd": -122.4,
+        "win_days": 0,
+        "loss_days": 3
+      },
+      "no_regression": {
+        "n_switch_days": 324,
+        "book_pnl_on_switch_days": 551.0,
+        "directional_pnl_on_switch_days": 6587.8,
+        "net_improvement": -6036.8,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.4,
+        0.6
+      ],
+      "on_q": [
+        0.2,
+        0.8
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 272,
+        "CHOP": 63,
+        "TREND": 30
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 63,
+        "directional_pnl_on_chop": 1337.56,
+        "condor_pnl_on_chop": 524.2,
+        "condor_minus_directional_on_chop": -813.36,
+        "thesis_supported": false,
+        "n_trend_days": 30,
+        "directional_pnl_on_trend": 53.04
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6252.6,
+        "mean": 17.13,
+        "sharpe": 3.656,
+        "sortino": 5.014,
+        "max_dd": -454.56,
+        "win_days": 94,
+        "loss_days": 75
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2333.08,
+        "mean": 20.113,
+        "sharpe": 3.997,
+        "sortino": 6.263,
+        "max_dd": -454.56,
+        "win_days": 28,
+        "loss_days": 25
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 335,
+        "book_pnl_on_switch_days": 6199.56,
+        "directional_pnl_on_switch_days": 7012.92,
+        "net_improvement": -813.36,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.4,
+        0.6
+      ],
+      "on_q": [
+        0.2,
+        0.8
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 272,
+        "CHOP": 63,
+        "TREND": 30
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 63,
+        "directional_pnl_on_chop": 1337.56,
+        "condor_pnl_on_chop": 524.2,
+        "condor_minus_directional_on_chop": -813.36,
+        "thesis_supported": false,
+        "n_trend_days": 30,
+        "directional_pnl_on_trend": 53.04
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2564.64,
+        "mean": 7.026,
+        "sharpe": 3.501,
+        "sortino": 2.062,
+        "max_dd": -303.88,
+        "win_days": 129,
+        "loss_days": 37
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1435.0,
+        "mean": 12.371,
+        "sharpe": 4.586,
+        "sortino": 4.201,
+        "max_dd": -214.0,
+        "win_days": 44,
+        "loss_days": 11
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -54.2,
+        "mean": -2.168,
+        "sharpe": -1.825,
+        "sortino": -0.846,
+        "max_dd": -119.8,
+        "win_days": 6,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 335,
+        "book_pnl_on_switch_days": 2511.6,
+        "directional_pnl_on_switch_days": 7012.92,
+        "net_improvement": -4501.32,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.4,
+        0.6
+      ],
+      "on_q": [
+        0.2,
+        0.8
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 272,
+        "CHOP": 63,
+        "TREND": 30
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 63,
+        "directional_pnl_on_chop": 1337.56,
+        "condor_pnl_on_chop": 524.2,
+        "condor_minus_directional_on_chop": -813.36,
+        "thesis_supported": false,
+        "n_trend_days": 30,
+        "directional_pnl_on_trend": 53.04
+      },
+      "full": {
+        "n_days": 365,
+        "total": 577.24,
+        "mean": 1.581,
+        "sharpe": 0.985,
+        "sortino": 0.374,
+        "max_dd": -332.16,
+        "win_days": 34,
+        "loss_days": 14
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 527.6,
+        "mean": 4.548,
+        "sharpe": 1.872,
+        "sortino": 1.567,
+        "max_dd": -141.6,
+        "win_days": 11,
+        "loss_days": 6
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -93.6,
+        "mean": -3.744,
+        "sharpe": -4.495,
+        "sortino": -1.247,
+        "max_dd": -93.6,
+        "win_days": 0,
+        "loss_days": 2
+      },
+      "no_regression": {
+        "n_switch_days": 335,
+        "book_pnl_on_switch_days": 524.2,
+        "directional_pnl_on_switch_days": 7012.92,
+        "net_improvement": -6488.72,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.4,
+        0.6
+      ],
+      "on_q": [
+        0.15,
+        0.85
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 280,
+        "CHOP": 60,
+        "TREND": 25
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 60,
+        "directional_pnl_on_chop": 1184.16,
+        "condor_pnl_on_chop": 511.6,
+        "condor_minus_directional_on_chop": -672.56,
+        "thesis_supported": false,
+        "n_trend_days": 25,
+        "directional_pnl_on_trend": -30.96
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6393.4,
+        "mean": 17.516,
+        "sharpe": 3.721,
+        "sortino": 5.092,
+        "max_dd": -454.56,
+        "win_days": 94,
+        "loss_days": 74
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2486.48,
+        "mean": 21.435,
+        "sharpe": 4.211,
+        "sortino": 6.675,
+        "max_dd": -454.56,
+        "win_days": 29,
+        "loss_days": 25
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 340,
+        "book_pnl_on_switch_days": 6424.36,
+        "directional_pnl_on_switch_days": 7096.92,
+        "net_improvement": -672.56,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.4,
+        0.6
+      ],
+      "on_q": [
+        0.15,
+        0.85
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 280,
+        "CHOP": 60,
+        "TREND": 25
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 60,
+        "directional_pnl_on_chop": 1184.16,
+        "condor_pnl_on_chop": 511.6,
+        "condor_minus_directional_on_chop": -672.56,
+        "thesis_supported": false,
+        "n_trend_days": 25,
+        "directional_pnl_on_trend": -30.96
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2442.24,
+        "mean": 6.691,
+        "sharpe": 3.32,
+        "sortino": 1.932,
+        "max_dd": -303.88,
+        "win_days": 129,
+        "loss_days": 38
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1396.6,
+        "mean": 12.04,
+        "sharpe": 4.368,
+        "sortino": 3.783,
+        "max_dd": -252.4,
+        "win_days": 45,
+        "loss_days": 12
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -92.6,
+        "mean": -3.704,
+        "sharpe": -2.227,
+        "sortino": -1.144,
+        "max_dd": -158.2,
+        "win_days": 7,
+        "loss_days": 5
+      },
+      "no_regression": {
+        "n_switch_days": 340,
+        "book_pnl_on_switch_days": 2473.2,
+        "directional_pnl_on_switch_days": 7096.92,
+        "net_improvement": -4623.72,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.4,
+        0.6
+      ],
+      "on_q": [
+        0.15,
+        0.85
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 280,
+        "CHOP": 60,
+        "TREND": 25
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 60,
+        "directional_pnl_on_chop": 1184.16,
+        "condor_pnl_on_chop": 511.6,
+        "condor_minus_directional_on_chop": -672.56,
+        "thesis_supported": false,
+        "n_trend_days": 25,
+        "directional_pnl_on_trend": -30.96
+      },
+      "full": {
+        "n_days": 365,
+        "total": 480.64,
+        "mean": 1.317,
+        "sharpe": 0.832,
+        "sortino": 0.3,
+        "max_dd": -332.16,
+        "win_days": 32,
+        "loss_days": 13
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 527.6,
+        "mean": 4.548,
+        "sharpe": 1.872,
+        "sortino": 1.567,
+        "max_dd": -141.6,
+        "win_days": 11,
+        "loss_days": 6
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -93.6,
+        "mean": -3.744,
+        "sharpe": -4.495,
+        "sortino": -1.247,
+        "max_dd": -93.6,
+        "win_days": 0,
+        "loss_days": 2
+      },
+      "no_regression": {
+        "n_switch_days": 340,
+        "book_pnl_on_switch_days": 511.6,
+        "directional_pnl_on_switch_days": 7096.92,
+        "net_improvement": -6585.32,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.33,
+        0.67
+      ],
+      "on_q": [
+        0.5,
+        0.5
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 234,
+        "CHOP": 63,
+        "TREND": 68
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 63,
+        "directional_pnl_on_chop": 1332.28,
+        "condor_pnl_on_chop": 516.0,
+        "condor_minus_directional_on_chop": -816.28,
+        "thesis_supported": false,
+        "n_trend_days": 68,
+        "directional_pnl_on_trend": 544.88
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6249.68,
+        "mean": 17.122,
+        "sharpe": 3.655,
+        "sortino": 4.973,
+        "max_dd": -454.56,
+        "win_days": 88,
+        "loss_days": 73
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2349.16,
+        "mean": 20.251,
+        "sharpe": 4.027,
+        "sortino": 6.301,
+        "max_dd": -454.56,
+        "win_days": 29,
+        "loss_days": 25
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 297,
+        "book_pnl_on_switch_days": 5704.8,
+        "directional_pnl_on_switch_days": 6521.08,
+        "net_improvement": -816.28,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.33,
+        0.67
+      ],
+      "on_q": [
+        0.5,
+        0.5
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 234,
+        "CHOP": 63,
+        "TREND": 68
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 63,
+        "directional_pnl_on_chop": 1332.28,
+        "condor_pnl_on_chop": 516.0,
+        "condor_minus_directional_on_chop": -816.28,
+        "thesis_supported": false,
+        "n_trend_days": 68,
+        "directional_pnl_on_trend": 544.88
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2791.08,
+        "mean": 7.647,
+        "sharpe": 3.319,
+        "sortino": 2.189,
+        "max_dd": -305.68,
+        "win_days": 122,
+        "loss_days": 44
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1197.56,
+        "mean": 10.324,
+        "sharpe": 4.258,
+        "sortino": 3.141,
+        "max_dd": -215.36,
+        "win_days": 40,
+        "loss_days": 14
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -167.72,
+        "mean": -6.709,
+        "sharpe": -4.107,
+        "sortino": -2.19,
+        "max_dd": -181.52,
+        "win_days": 4,
+        "loss_days": 6
+      },
+      "no_regression": {
+        "n_switch_days": 297,
+        "book_pnl_on_switch_days": 2246.2,
+        "directional_pnl_on_switch_days": 6521.08,
+        "net_improvement": -4274.88,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.33,
+        0.67
+      ],
+      "on_q": [
+        0.5,
+        0.5
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 234,
+        "CHOP": 63,
+        "TREND": 68
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 63,
+        "directional_pnl_on_chop": 1332.28,
+        "condor_pnl_on_chop": 516.0,
+        "condor_minus_directional_on_chop": -816.28,
+        "thesis_supported": false,
+        "n_trend_days": 68,
+        "directional_pnl_on_trend": 544.88
+      },
+      "full": {
+        "n_days": 365,
+        "total": 1060.88,
+        "mean": 2.907,
+        "sharpe": 1.427,
+        "sortino": 0.728,
+        "max_dd": -211.68,
+        "win_days": 38,
+        "loss_days": 24
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 393.16,
+        "mean": 3.389,
+        "sharpe": 1.566,
+        "sortino": 1.017,
+        "max_dd": -195.36,
+        "win_days": 15,
+        "loss_days": 11
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -161.52,
+        "mean": -6.461,
+        "sharpe": -6.562,
+        "sortino": -2.468,
+        "max_dd": -161.52,
+        "win_days": 0,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 297,
+        "book_pnl_on_switch_days": 516.0,
+        "directional_pnl_on_switch_days": 6521.08,
+        "net_improvement": -6005.08,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.33,
+        0.67
+      ],
+      "on_q": [
+        0.4,
+        0.6
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 249,
+        "CHOP": 59,
+        "TREND": 57
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 59,
+        "directional_pnl_on_chop": 1329.04,
+        "condor_pnl_on_chop": 490.4,
+        "condor_minus_directional_on_chop": -838.64,
+        "thesis_supported": false,
+        "n_trend_days": 57,
+        "directional_pnl_on_trend": -112.72
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6227.32,
+        "mean": 17.061,
+        "sharpe": 3.64,
+        "sortino": 4.945,
+        "max_dd": -454.56,
+        "win_days": 88,
+        "loss_days": 73
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2323.56,
+        "mean": 20.031,
+        "sharpe": 3.986,
+        "sortino": 6.122,
+        "max_dd": -454.56,
+        "win_days": 28,
+        "loss_days": 24
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 308,
+        "book_pnl_on_switch_days": 6340.04,
+        "directional_pnl_on_switch_days": 7178.68,
+        "net_improvement": -838.64,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.33,
+        0.67
+      ],
+      "on_q": [
+        0.4,
+        0.6
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 249,
+        "CHOP": 59,
+        "TREND": 57
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 59,
+        "directional_pnl_on_chop": 1329.04,
+        "condor_pnl_on_chop": 490.4,
+        "condor_minus_directional_on_chop": -838.64,
+        "thesis_supported": false,
+        "n_trend_days": 57,
+        "directional_pnl_on_trend": -112.72
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2173.08,
+        "mean": 5.954,
+        "sharpe": 2.973,
+        "sortino": 1.717,
+        "max_dd": -331.88,
+        "win_days": 124,
+        "loss_days": 45
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1241.96,
+        "mean": 10.707,
+        "sharpe": 4.418,
+        "sortino": 3.258,
+        "max_dd": -192.04,
+        "win_days": 43,
+        "loss_days": 14
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -123.32,
+        "mean": -4.933,
+        "sharpe": -2.904,
+        "sortino": -1.61,
+        "max_dd": -158.2,
+        "win_days": 7,
+        "loss_days": 6
+      },
+      "no_regression": {
+        "n_switch_days": 308,
+        "book_pnl_on_switch_days": 2285.8,
+        "directional_pnl_on_switch_days": 7178.68,
+        "net_improvement": -4892.88,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.33,
+        0.67
+      ],
+      "on_q": [
+        0.4,
+        0.6
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 249,
+        "CHOP": 59,
+        "TREND": 57
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 59,
+        "directional_pnl_on_chop": 1329.04,
+        "condor_pnl_on_chop": 490.4,
+        "condor_minus_directional_on_chop": -838.64,
+        "thesis_supported": false,
+        "n_trend_days": 57,
+        "directional_pnl_on_trend": -112.72
+      },
+      "full": {
+        "n_days": 365,
+        "total": 377.68,
+        "mean": 1.035,
+        "sharpe": 0.625,
+        "sortino": 0.254,
+        "max_dd": -531.68,
+        "win_days": 33,
+        "loss_days": 23
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 367.56,
+        "mean": 3.169,
+        "sharpe": 1.476,
+        "sortino": 0.911,
+        "max_dd": -195.36,
+        "win_days": 14,
+        "loss_days": 10
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -161.52,
+        "mean": -6.461,
+        "sharpe": -6.562,
+        "sortino": -2.468,
+        "max_dd": -161.52,
+        "win_days": 0,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 308,
+        "book_pnl_on_switch_days": 490.4,
+        "directional_pnl_on_switch_days": 7178.68,
+        "net_improvement": -6688.28,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.33,
+        0.67
+      ],
+      "on_q": [
+        0.33,
+        0.67
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 263,
+        "CHOP": 55,
+        "TREND": 47
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 55,
+        "directional_pnl_on_chop": 1202.44,
+        "condor_pnl_on_chop": 459.6,
+        "condor_minus_directional_on_chop": -742.84,
+        "thesis_supported": false,
+        "n_trend_days": 47,
+        "directional_pnl_on_trend": -158.32
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6323.12,
+        "mean": 17.324,
+        "sharpe": 3.693,
+        "sortino": 5.021,
+        "max_dd": -454.56,
+        "win_days": 89,
+        "loss_days": 73
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2347.96,
+        "mean": 20.241,
+        "sharpe": 4.025,
+        "sortino": 6.186,
+        "max_dd": -454.56,
+        "win_days": 28,
+        "loss_days": 24
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 318,
+        "book_pnl_on_switch_days": 6481.44,
+        "directional_pnl_on_switch_days": 7224.28,
+        "net_improvement": -742.84,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.33,
+        0.67
+      ],
+      "on_q": [
+        0.33,
+        0.67
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 263,
+        "CHOP": 55,
+        "TREND": 47
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 55,
+        "directional_pnl_on_chop": 1202.44,
+        "condor_pnl_on_chop": 459.6,
+        "condor_minus_directional_on_chop": -742.84,
+        "thesis_supported": false,
+        "n_trend_days": 47,
+        "directional_pnl_on_trend": -158.32
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2077.48,
+        "mean": 5.692,
+        "sharpe": 2.909,
+        "sortino": 1.575,
+        "max_dd": -324.76,
+        "win_days": 125,
+        "loss_days": 42
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1147.92,
+        "mean": 9.896,
+        "sharpe": 4.065,
+        "sortino": 2.691,
+        "max_dd": -252.4,
+        "win_days": 43,
+        "loss_days": 13
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -84.2,
+        "mean": -3.368,
+        "sharpe": -2.055,
+        "sortino": -1.063,
+        "max_dd": -158.2,
+        "win_days": 7,
+        "loss_days": 5
+      },
+      "no_regression": {
+        "n_switch_days": 318,
+        "book_pnl_on_switch_days": 2235.8,
+        "directional_pnl_on_switch_days": 7224.28,
+        "net_improvement": -4988.48,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.33,
+        0.67
+      ],
+      "on_q": [
+        0.33,
+        0.67
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 263,
+        "CHOP": 55,
+        "TREND": 47
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 55,
+        "directional_pnl_on_chop": 1202.44,
+        "condor_pnl_on_chop": 459.6,
+        "condor_minus_directional_on_chop": -742.84,
+        "thesis_supported": false,
+        "n_trend_days": 47,
+        "directional_pnl_on_trend": -158.32
+      },
+      "full": {
+        "n_days": 365,
+        "total": 301.28,
+        "mean": 0.825,
+        "sharpe": 0.537,
+        "sortino": 0.188,
+        "max_dd": -436.8,
+        "win_days": 30,
+        "loss_days": 18
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 328.12,
+        "mean": 2.829,
+        "sharpe": 1.37,
+        "sortino": 0.762,
+        "max_dd": -163.92,
+        "win_days": 12,
+        "loss_days": 8
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -122.4,
+        "mean": -4.896,
+        "sharpe": -5.509,
+        "sortino": -1.836,
+        "max_dd": -122.4,
+        "win_days": 0,
+        "loss_days": 3
+      },
+      "no_regression": {
+        "n_switch_days": 318,
+        "book_pnl_on_switch_days": 459.6,
+        "directional_pnl_on_switch_days": 7224.28,
+        "net_improvement": -6764.68,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.33,
+        0.67
+      ],
+      "on_q": [
+        0.25,
+        0.75
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 280,
+        "CHOP": 52,
+        "TREND": 33
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 52,
+        "directional_pnl_on_chop": 1202.44,
+        "condor_pnl_on_chop": 459.6,
+        "condor_minus_directional_on_chop": -742.84,
+        "thesis_supported": false,
+        "n_trend_days": 33,
+        "directional_pnl_on_trend": -163.24
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6323.12,
+        "mean": 17.324,
+        "sharpe": 3.693,
+        "sortino": 5.021,
+        "max_dd": -454.56,
+        "win_days": 89,
+        "loss_days": 73
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2347.96,
+        "mean": 20.241,
+        "sharpe": 4.025,
+        "sortino": 6.186,
+        "max_dd": -454.56,
+        "win_days": 28,
+        "loss_days": 24
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 332,
+        "book_pnl_on_switch_days": 6486.36,
+        "directional_pnl_on_switch_days": 7229.2,
+        "net_improvement": -742.84,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.33,
+        0.67
+      ],
+      "on_q": [
+        0.25,
+        0.75
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 280,
+        "CHOP": 52,
+        "TREND": 33
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 52,
+        "directional_pnl_on_chop": 1202.44,
+        "condor_pnl_on_chop": 459.6,
+        "condor_minus_directional_on_chop": -742.84,
+        "thesis_supported": false,
+        "n_trend_days": 33,
+        "directional_pnl_on_trend": -163.24
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2368.16,
+        "mean": 6.488,
+        "sharpe": 3.443,
+        "sortino": 1.784,
+        "max_dd": -303.88,
+        "win_days": 130,
+        "loss_days": 38
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1159.52,
+        "mean": 9.996,
+        "sharpe": 4.112,
+        "sortino": 2.718,
+        "max_dd": -252.4,
+        "win_days": 44,
+        "loss_days": 13
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -84.2,
+        "mean": -3.368,
+        "sharpe": -2.055,
+        "sortino": -1.063,
+        "max_dd": -158.2,
+        "win_days": 7,
+        "loss_days": 5
+      },
+      "no_regression": {
+        "n_switch_days": 332,
+        "book_pnl_on_switch_days": 2531.4,
+        "directional_pnl_on_switch_days": 7229.2,
+        "net_improvement": -4697.8,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.33,
+        0.67
+      ],
+      "on_q": [
+        0.25,
+        0.75
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 280,
+        "CHOP": 52,
+        "TREND": 33
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 52,
+        "directional_pnl_on_chop": 1202.44,
+        "condor_pnl_on_chop": 459.6,
+        "condor_minus_directional_on_chop": -742.84,
+        "thesis_supported": false,
+        "n_trend_days": 33,
+        "directional_pnl_on_trend": -163.24
+      },
+      "full": {
+        "n_days": 365,
+        "total": 296.36,
+        "mean": 0.812,
+        "sharpe": 0.579,
+        "sortino": 0.175,
+        "max_dd": -288.96,
+        "win_days": 28,
+        "loss_days": 14
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 268.12,
+        "mean": 2.311,
+        "sharpe": 1.134,
+        "sortino": 0.622,
+        "max_dd": -222.48,
+        "win_days": 11,
+        "loss_days": 8
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -122.4,
+        "mean": -4.896,
+        "sharpe": -5.509,
+        "sortino": -1.836,
+        "max_dd": -122.4,
+        "win_days": 0,
+        "loss_days": 3
+      },
+      "no_regression": {
+        "n_switch_days": 332,
+        "book_pnl_on_switch_days": 459.6,
+        "directional_pnl_on_switch_days": 7229.2,
+        "net_improvement": -6769.6,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.33,
+        0.67
+      ],
+      "on_q": [
+        0.2,
+        0.8
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 291,
+        "CHOP": 50,
+        "TREND": 24
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 50,
+        "directional_pnl_on_chop": 1255.0,
+        "condor_pnl_on_chop": 459.6,
+        "condor_minus_directional_on_chop": -795.4,
+        "thesis_supported": false,
+        "n_trend_days": 24,
+        "directional_pnl_on_trend": -263.16
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6270.56,
+        "mean": 17.18,
+        "sharpe": 3.659,
+        "sortino": 5.028,
+        "max_dd": -454.56,
+        "win_days": 89,
+        "loss_days": 75
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2333.08,
+        "mean": 20.113,
+        "sharpe": 3.997,
+        "sortino": 6.263,
+        "max_dd": -454.56,
+        "win_days": 28,
+        "loss_days": 25
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 341,
+        "book_pnl_on_switch_days": 6533.72,
+        "directional_pnl_on_switch_days": 7329.12,
+        "net_improvement": -795.4,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.33,
+        0.67
+      ],
+      "on_q": [
+        0.2,
+        0.8
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 291,
+        "CHOP": 50,
+        "TREND": 24
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 50,
+        "directional_pnl_on_chop": 1255.0,
+        "condor_pnl_on_chop": 459.6,
+        "condor_minus_directional_on_chop": -795.4,
+        "thesis_supported": false,
+        "n_trend_days": 24,
+        "directional_pnl_on_trend": -263.16
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2274.64,
+        "mean": 6.232,
+        "sharpe": 3.753,
+        "sortino": 1.79,
+        "max_dd": -303.88,
+        "win_days": 131,
+        "loss_days": 37
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1037.2,
+        "mean": 8.941,
+        "sharpe": 4.848,
+        "sortino": 2.809,
+        "max_dd": -252.4,
+        "win_days": 44,
+        "loss_days": 12
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -92.6,
+        "mean": -3.704,
+        "sharpe": -2.227,
+        "sortino": -1.144,
+        "max_dd": -158.2,
+        "win_days": 7,
+        "loss_days": 5
+      },
+      "no_regression": {
+        "n_switch_days": 341,
+        "book_pnl_on_switch_days": 2537.8,
+        "directional_pnl_on_switch_days": 7329.12,
+        "net_improvement": -4791.32,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.33,
+        0.67
+      ],
+      "on_q": [
+        0.2,
+        0.8
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 291,
+        "CHOP": 50,
+        "TREND": 24
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 50,
+        "directional_pnl_on_chop": 1255.0,
+        "condor_pnl_on_chop": 459.6,
+        "condor_minus_directional_on_chop": -795.4,
+        "thesis_supported": false,
+        "n_trend_days": 24,
+        "directional_pnl_on_trend": -263.16
+      },
+      "full": {
+        "n_days": 365,
+        "total": 196.44,
+        "mean": 0.538,
+        "sharpe": 0.505,
+        "sortino": 0.12,
+        "max_dd": -288.96,
+        "win_days": 27,
+        "loss_days": 12
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 168.2,
+        "mean": 1.45,
+        "sharpe": 1.175,
+        "sortino": 0.5,
+        "max_dd": -141.6,
+        "win_days": 10,
+        "loss_days": 6
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -93.6,
+        "mean": -3.744,
+        "sharpe": -4.495,
+        "sortino": -1.247,
+        "max_dd": -93.6,
+        "win_days": 0,
+        "loss_days": 2
+      },
+      "no_regression": {
+        "n_switch_days": 341,
+        "book_pnl_on_switch_days": 459.6,
+        "directional_pnl_on_switch_days": 7329.12,
+        "net_improvement": -6869.52,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.33,
+        0.67
+      ],
+      "on_q": [
+        0.15,
+        0.85
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 297,
+        "CHOP": 47,
+        "TREND": 21
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 47,
+        "directional_pnl_on_chop": 1101.6,
+        "condor_pnl_on_chop": 447.0,
+        "condor_minus_directional_on_chop": -654.6,
+        "thesis_supported": false,
+        "n_trend_days": 21,
+        "directional_pnl_on_trend": -347.16
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6411.36,
+        "mean": 17.565,
+        "sharpe": 3.724,
+        "sortino": 5.106,
+        "max_dd": -454.56,
+        "win_days": 89,
+        "loss_days": 74
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2486.48,
+        "mean": 21.435,
+        "sharpe": 4.211,
+        "sortino": 6.675,
+        "max_dd": -454.56,
+        "win_days": 29,
+        "loss_days": 25
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 344,
+        "book_pnl_on_switch_days": 6758.52,
+        "directional_pnl_on_switch_days": 7413.12,
+        "net_improvement": -654.6,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.33,
+        0.67
+      ],
+      "on_q": [
+        0.15,
+        0.85
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 297,
+        "CHOP": 47,
+        "TREND": 21
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 47,
+        "directional_pnl_on_chop": 1101.6,
+        "condor_pnl_on_chop": 447.0,
+        "condor_minus_directional_on_chop": -654.6,
+        "thesis_supported": false,
+        "n_trend_days": 21,
+        "directional_pnl_on_trend": -347.16
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2190.64,
+        "mean": 6.002,
+        "sharpe": 3.659,
+        "sortino": 1.724,
+        "max_dd": -303.88,
+        "win_days": 130,
+        "loss_days": 37
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1037.2,
+        "mean": 8.941,
+        "sharpe": 4.848,
+        "sortino": 2.809,
+        "max_dd": -252.4,
+        "win_days": 44,
+        "loss_days": 12
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -92.6,
+        "mean": -3.704,
+        "sharpe": -2.227,
+        "sortino": -1.144,
+        "max_dd": -158.2,
+        "win_days": 7,
+        "loss_days": 5
+      },
+      "no_regression": {
+        "n_switch_days": 344,
+        "book_pnl_on_switch_days": 2537.8,
+        "directional_pnl_on_switch_days": 7413.12,
+        "net_improvement": -4875.32,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.33,
+        0.67
+      ],
+      "on_q": [
+        0.15,
+        0.85
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 297,
+        "CHOP": 47,
+        "TREND": 21
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 47,
+        "directional_pnl_on_chop": 1101.6,
+        "condor_pnl_on_chop": 447.0,
+        "condor_minus_directional_on_chop": -654.6,
+        "thesis_supported": false,
+        "n_trend_days": 21,
+        "directional_pnl_on_trend": -347.16
+      },
+      "full": {
+        "n_days": 365,
+        "total": 99.84,
+        "mean": 0.274,
+        "sharpe": 0.266,
+        "sortino": 0.058,
+        "max_dd": -288.96,
+        "win_days": 25,
+        "loss_days": 11
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 168.2,
+        "mean": 1.45,
+        "sharpe": 1.175,
+        "sortino": 0.5,
+        "max_dd": -141.6,
+        "win_days": 10,
+        "loss_days": 6
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -93.6,
+        "mean": -3.744,
+        "sharpe": -4.495,
+        "sortino": -1.247,
+        "max_dd": -93.6,
+        "win_days": 0,
+        "loss_days": 2
+      },
+      "no_regression": {
+        "n_switch_days": 344,
+        "book_pnl_on_switch_days": 447.0,
+        "directional_pnl_on_switch_days": 7413.12,
+        "net_improvement": -6966.12,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.25,
+        0.75
+      ],
+      "on_q": [
+        0.5,
+        0.5
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 258,
+        "CHOP": 51,
+        "TREND": 56
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 51,
+        "directional_pnl_on_chop": 1182.28,
+        "condor_pnl_on_chop": 401.4,
+        "condor_minus_directional_on_chop": -780.88,
+        "thesis_supported": false,
+        "n_trend_days": 56,
+        "directional_pnl_on_trend": 681.44
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6285.08,
+        "mean": 17.219,
+        "sharpe": 3.659,
+        "sortino": 4.932,
+        "max_dd": -454.56,
+        "win_days": 84,
+        "loss_days": 71
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2300.36,
+        "mean": 19.831,
+        "sharpe": 3.944,
+        "sortino": 6.17,
+        "max_dd": -454.56,
+        "win_days": 28,
+        "loss_days": 25
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 309,
+        "book_pnl_on_switch_days": 5603.64,
+        "directional_pnl_on_switch_days": 6384.52,
+        "net_improvement": -780.88,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.25,
+        0.75
+      ],
+      "on_q": [
+        0.5,
+        0.5
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 258,
+        "CHOP": 51,
+        "TREND": 56
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 51,
+        "directional_pnl_on_chop": 1182.28,
+        "condor_pnl_on_chop": 401.4,
+        "condor_minus_directional_on_chop": -780.88,
+        "thesis_supported": false,
+        "n_trend_days": 56,
+        "directional_pnl_on_trend": 681.44
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2949.44,
+        "mean": 8.081,
+        "sharpe": 3.509,
+        "sortino": 2.24,
+        "max_dd": -274.6,
+        "win_days": 126,
+        "loss_days": 41
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1282.44,
+        "mean": 11.056,
+        "sharpe": 4.572,
+        "sortino": 3.279,
+        "max_dd": -163.92,
+        "win_days": 42,
+        "loss_days": 13
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -82.84,
+        "mean": -3.314,
+        "sharpe": -1.925,
+        "sortino": -1.019,
+        "max_dd": -122.32,
+        "win_days": 6,
+        "loss_days": 5
+      },
+      "no_regression": {
+        "n_switch_days": 309,
+        "book_pnl_on_switch_days": 2268.0,
+        "directional_pnl_on_switch_days": 6384.52,
+        "net_improvement": -4116.52,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.25,
+        0.75
+      ],
+      "on_q": [
+        0.5,
+        0.5
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 258,
+        "CHOP": 51,
+        "TREND": 56
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 51,
+        "directional_pnl_on_chop": 1182.28,
+        "condor_pnl_on_chop": 401.4,
+        "condor_minus_directional_on_chop": -780.88,
+        "thesis_supported": false,
+        "n_trend_days": 56,
+        "directional_pnl_on_trend": 681.44
+      },
+      "full": {
+        "n_days": 365,
+        "total": 1082.84,
+        "mean": 2.967,
+        "sharpe": 1.472,
+        "sortino": 0.639,
+        "max_dd": -211.68,
+        "win_days": 33,
+        "loss_days": 17
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 410.84,
+        "mean": 3.542,
+        "sharpe": 1.666,
+        "sortino": 0.998,
+        "max_dd": -182.12,
+        "win_days": 14,
+        "loss_days": 9
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -95.04,
+        "mean": -3.802,
+        "sharpe": -4.511,
+        "sortino": -1.251,
+        "max_dd": -95.04,
+        "win_days": 0,
+        "loss_days": 2
+      },
+      "no_regression": {
+        "n_switch_days": 309,
+        "book_pnl_on_switch_days": 401.4,
+        "directional_pnl_on_switch_days": 6384.52,
+        "net_improvement": -5983.12,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.25,
+        0.75
+      ],
+      "on_q": [
+        0.4,
+        0.6
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 272,
+        "CHOP": 47,
+        "TREND": 46
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 47,
+        "directional_pnl_on_chop": 1179.04,
+        "condor_pnl_on_chop": 375.8,
+        "condor_minus_directional_on_chop": -803.24,
+        "thesis_supported": false,
+        "n_trend_days": 46,
+        "directional_pnl_on_trend": 23.84
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6262.72,
+        "mean": 17.158,
+        "sharpe": 3.645,
+        "sortino": 4.904,
+        "max_dd": -454.56,
+        "win_days": 84,
+        "loss_days": 71
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2274.76,
+        "mean": 19.61,
+        "sharpe": 3.903,
+        "sortino": 5.993,
+        "max_dd": -454.56,
+        "win_days": 27,
+        "loss_days": 24
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 319,
+        "book_pnl_on_switch_days": 6238.88,
+        "directional_pnl_on_switch_days": 7042.12,
+        "net_improvement": -803.24,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.25,
+        0.75
+      ],
+      "on_q": [
+        0.4,
+        0.6
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 272,
+        "CHOP": 47,
+        "TREND": 46
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 47,
+        "directional_pnl_on_chop": 1179.04,
+        "condor_pnl_on_chop": 375.8,
+        "condor_minus_directional_on_chop": -803.24,
+        "thesis_supported": false,
+        "n_trend_days": 46,
+        "directional_pnl_on_trend": 23.84
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2314.64,
+        "mean": 6.341,
+        "sharpe": 3.166,
+        "sortino": 1.772,
+        "max_dd": -285.36,
+        "win_days": 127,
+        "loss_days": 42
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1310.04,
+        "mean": 11.293,
+        "sharpe": 4.672,
+        "sortino": 3.349,
+        "max_dd": -163.92,
+        "win_days": 44,
+        "loss_days": 13
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -55.24,
+        "mean": -2.21,
+        "sharpe": -1.261,
+        "sortino": -0.68,
+        "max_dd": -107.4,
+        "win_days": 8,
+        "loss_days": 5
+      },
+      "no_regression": {
+        "n_switch_days": 319,
+        "book_pnl_on_switch_days": 2290.8,
+        "directional_pnl_on_switch_days": 7042.12,
+        "net_improvement": -4751.32,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.25,
+        0.75
+      ],
+      "on_q": [
+        0.4,
+        0.6
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 272,
+        "CHOP": 47,
+        "TREND": 46
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 47,
+        "directional_pnl_on_chop": 1179.04,
+        "condor_pnl_on_chop": 375.8,
+        "condor_minus_directional_on_chop": -803.24,
+        "thesis_supported": false,
+        "n_trend_days": 46,
+        "directional_pnl_on_trend": 23.84
+      },
+      "full": {
+        "n_days": 365,
+        "total": 399.64,
+        "mean": 1.095,
+        "sharpe": 0.672,
+        "sortino": 0.229,
+        "max_dd": -472.2,
+        "win_days": 28,
+        "loss_days": 16
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 385.24,
+        "mean": 3.321,
+        "sharpe": 1.575,
+        "sortino": 0.888,
+        "max_dd": -163.92,
+        "win_days": 13,
+        "loss_days": 8
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -95.04,
+        "mean": -3.802,
+        "sharpe": -4.511,
+        "sortino": -1.251,
+        "max_dd": -95.04,
+        "win_days": 0,
+        "loss_days": 2
+      },
+      "no_regression": {
+        "n_switch_days": 319,
+        "book_pnl_on_switch_days": 375.8,
+        "directional_pnl_on_switch_days": 7042.12,
+        "net_improvement": -6666.32,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.25,
+        0.75
+      ],
+      "on_q": [
+        0.33,
+        0.67
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 285,
+        "CHOP": 43,
+        "TREND": 37
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 43,
+        "directional_pnl_on_chop": 1052.44,
+        "condor_pnl_on_chop": 345.0,
+        "condor_minus_directional_on_chop": -707.44,
+        "thesis_supported": false,
+        "n_trend_days": 37,
+        "directional_pnl_on_trend": -41.68
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6358.52,
+        "mean": 17.421,
+        "sharpe": 3.697,
+        "sortino": 4.979,
+        "max_dd": -454.56,
+        "win_days": 85,
+        "loss_days": 71
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2299.16,
+        "mean": 19.82,
+        "sharpe": 3.942,
+        "sortino": 6.057,
+        "max_dd": -454.56,
+        "win_days": 27,
+        "loss_days": 24
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 328,
+        "book_pnl_on_switch_days": 6400.2,
+        "directional_pnl_on_switch_days": 7107.64,
+        "net_improvement": -707.44,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.25,
+        0.75
+      ],
+      "on_q": [
+        0.33,
+        0.67
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 285,
+        "CHOP": 43,
+        "TREND": 37
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 43,
+        "directional_pnl_on_chop": 1052.44,
+        "condor_pnl_on_chop": 345.0,
+        "condor_minus_directional_on_chop": -707.44,
+        "thesis_supported": false,
+        "n_trend_days": 37,
+        "directional_pnl_on_trend": -41.68
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2240.32,
+        "mean": 6.138,
+        "sharpe": 3.143,
+        "sortino": 1.65,
+        "max_dd": -274.6,
+        "win_days": 128,
+        "loss_days": 39
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1216.0,
+        "mean": 10.483,
+        "sharpe": 4.315,
+        "sortino": 2.766,
+        "max_dd": -175.92,
+        "win_days": 44,
+        "loss_days": 12
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -16.12,
+        "mean": -0.645,
+        "sharpe": -0.383,
+        "sortino": -0.189,
+        "max_dd": -107.4,
+        "win_days": 8,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 328,
+        "book_pnl_on_switch_days": 2282.0,
+        "directional_pnl_on_switch_days": 7107.64,
+        "net_improvement": -4825.64,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.25,
+        0.75
+      ],
+      "on_q": [
+        0.33,
+        0.67
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 285,
+        "CHOP": 43,
+        "TREND": 37
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 43,
+        "directional_pnl_on_chop": 1052.44,
+        "condor_pnl_on_chop": 345.0,
+        "condor_minus_directional_on_chop": -707.44,
+        "thesis_supported": false,
+        "n_trend_days": 37,
+        "directional_pnl_on_trend": -41.68
+      },
+      "full": {
+        "n_days": 365,
+        "total": 303.32,
+        "mean": 0.831,
+        "sharpe": 0.549,
+        "sortino": 0.158,
+        "max_dd": -394.08,
+        "win_days": 25,
+        "loss_days": 12
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 345.8,
+        "mean": 2.981,
+        "sharpe": 1.472,
+        "sortino": 0.725,
+        "max_dd": -163.92,
+        "win_days": 11,
+        "loss_days": 6
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -55.92,
+        "mean": -2.237,
+        "sharpe": -3.175,
+        "sortino": -0.635,
+        "max_dd": -55.92,
+        "win_days": 0,
+        "loss_days": 1
+      },
+      "no_regression": {
+        "n_switch_days": 328,
+        "book_pnl_on_switch_days": 345.0,
+        "directional_pnl_on_switch_days": 7107.64,
+        "net_improvement": -6762.64,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.25,
+        0.75
+      ],
+      "on_q": [
+        0.25,
+        0.75
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 299,
+        "CHOP": 41,
+        "TREND": 25
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 41,
+        "directional_pnl_on_chop": 1052.44,
+        "condor_pnl_on_chop": 345.0,
+        "condor_minus_directional_on_chop": -707.44,
+        "thesis_supported": false,
+        "n_trend_days": 25,
+        "directional_pnl_on_trend": -67.48
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6358.52,
+        "mean": 17.421,
+        "sharpe": 3.697,
+        "sortino": 4.979,
+        "max_dd": -454.56,
+        "win_days": 85,
+        "loss_days": 71
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2299.16,
+        "mean": 19.82,
+        "sharpe": 3.942,
+        "sortino": 6.057,
+        "max_dd": -454.56,
+        "win_days": 27,
+        "loss_days": 24
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 340,
+        "book_pnl_on_switch_days": 6426.0,
+        "directional_pnl_on_switch_days": 7133.44,
+        "net_improvement": -707.44,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.25,
+        0.75
+      ],
+      "on_q": [
+        0.25,
+        0.75
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 299,
+        "CHOP": 41,
+        "TREND": 25
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 41,
+        "directional_pnl_on_chop": 1052.44,
+        "condor_pnl_on_chop": 345.0,
+        "condor_minus_directional_on_chop": -707.44,
+        "thesis_supported": false,
+        "n_trend_days": 25,
+        "directional_pnl_on_trend": -67.48
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2498.32,
+        "mean": 6.845,
+        "sharpe": 3.637,
+        "sortino": 1.844,
+        "max_dd": -274.6,
+        "win_days": 132,
+        "loss_days": 36
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1227.6,
+        "mean": 10.583,
+        "sharpe": 4.363,
+        "sortino": 2.792,
+        "max_dd": -175.92,
+        "win_days": 45,
+        "loss_days": 12
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -16.12,
+        "mean": -0.645,
+        "sharpe": -0.383,
+        "sortino": -0.189,
+        "max_dd": -107.4,
+        "win_days": 8,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 340,
+        "book_pnl_on_switch_days": 2565.8,
+        "directional_pnl_on_switch_days": 7133.44,
+        "net_improvement": -4567.64,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.25,
+        0.75
+      ],
+      "on_q": [
+        0.25,
+        0.75
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 299,
+        "CHOP": 41,
+        "TREND": 25
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 41,
+        "directional_pnl_on_chop": 1052.44,
+        "condor_pnl_on_chop": 345.0,
+        "condor_minus_directional_on_chop": -707.44,
+        "thesis_supported": false,
+        "n_trend_days": 25,
+        "directional_pnl_on_trend": -67.48
+      },
+      "full": {
+        "n_days": 365,
+        "total": 277.52,
+        "mean": 0.76,
+        "sharpe": 0.553,
+        "sortino": 0.134,
+        "max_dd": -259.68,
+        "win_days": 23,
+        "loss_days": 9
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 285.8,
+        "mean": 2.464,
+        "sharpe": 1.234,
+        "sortino": 0.599,
+        "max_dd": -222.48,
+        "win_days": 10,
+        "loss_days": 6
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -55.92,
+        "mean": -2.237,
+        "sharpe": -3.175,
+        "sortino": -0.635,
+        "max_dd": -55.92,
+        "win_days": 0,
+        "loss_days": 1
+      },
+      "no_regression": {
+        "n_switch_days": 340,
+        "book_pnl_on_switch_days": 345.0,
+        "directional_pnl_on_switch_days": 7133.44,
+        "net_improvement": -6788.44,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.25,
+        0.75
+      ],
+      "on_q": [
+        0.2,
+        0.8
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 307,
+        "CHOP": 39,
+        "TREND": 19
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 39,
+        "directional_pnl_on_chop": 1105.0,
+        "condor_pnl_on_chop": 345.0,
+        "condor_minus_directional_on_chop": -760.0,
+        "thesis_supported": false,
+        "n_trend_days": 19,
+        "directional_pnl_on_trend": -196.2
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6305.96,
+        "mean": 17.277,
+        "sharpe": 3.664,
+        "sortino": 4.989,
+        "max_dd": -454.56,
+        "win_days": 85,
+        "loss_days": 73
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2284.28,
+        "mean": 19.692,
+        "sharpe": 3.915,
+        "sortino": 6.132,
+        "max_dd": -454.56,
+        "win_days": 27,
+        "loss_days": 25
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 346,
+        "book_pnl_on_switch_days": 6502.16,
+        "directional_pnl_on_switch_days": 7262.16,
+        "net_improvement": -760.0,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.25,
+        0.75
+      ],
+      "on_q": [
+        0.2,
+        0.8
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 307,
+        "CHOP": 39,
+        "TREND": 19
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 39,
+        "directional_pnl_on_chop": 1105.0,
+        "condor_pnl_on_chop": 345.0,
+        "condor_minus_directional_on_chop": -760.0,
+        "thesis_supported": false,
+        "n_trend_days": 19,
+        "directional_pnl_on_trend": -196.2
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2413.2,
+        "mean": 6.612,
+        "sharpe": 3.994,
+        "sortino": 1.866,
+        "max_dd": -274.6,
+        "win_days": 133,
+        "loss_days": 35
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1113.68,
+        "mean": 9.601,
+        "sharpe": 5.241,
+        "sortino": 2.957,
+        "max_dd": -175.92,
+        "win_days": 45,
+        "loss_days": 11
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -16.12,
+        "mean": -0.645,
+        "sharpe": -0.383,
+        "sortino": -0.189,
+        "max_dd": -107.4,
+        "win_days": 8,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 346,
+        "book_pnl_on_switch_days": 2609.4,
+        "directional_pnl_on_switch_days": 7262.16,
+        "net_improvement": -4652.76,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.25,
+        0.75
+      ],
+      "on_q": [
+        0.2,
+        0.8
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 307,
+        "CHOP": 39,
+        "TREND": 19
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 39,
+        "directional_pnl_on_chop": 1105.0,
+        "condor_pnl_on_chop": 345.0,
+        "condor_minus_directional_on_chop": -760.0,
+        "thesis_supported": false,
+        "n_trend_days": 19,
+        "directional_pnl_on_trend": -196.2
+      },
+      "full": {
+        "n_days": 365,
+        "total": 148.8,
+        "mean": 0.408,
+        "sharpe": 0.394,
+        "sortino": 0.076,
+        "max_dd": -259.68,
+        "win_days": 22,
+        "loss_days": 8
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 157.08,
+        "mean": 1.354,
+        "sharpe": 1.148,
+        "sortino": 0.452,
+        "max_dd": -141.6,
+        "win_days": 9,
+        "loss_days": 5
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -55.92,
+        "mean": -2.237,
+        "sharpe": -3.175,
+        "sortino": -0.635,
+        "max_dd": -55.92,
+        "win_days": 0,
+        "loss_days": 1
+      },
+      "no_regression": {
+        "n_switch_days": 346,
+        "book_pnl_on_switch_days": 345.0,
+        "directional_pnl_on_switch_days": 7262.16,
+        "net_improvement": -6917.16,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.25,
+        0.75
+      ],
+      "on_q": [
+        0.15,
+        0.85
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 311,
+        "CHOP": 37,
+        "TREND": 17
+      },
+      "degenerate": true,
+      "chop_iso": {
+        "n_chop_days": 37,
+        "directional_pnl_on_chop": 951.6,
+        "condor_pnl_on_chop": 332.2,
+        "condor_minus_directional_on_chop": -619.4,
+        "thesis_supported": false,
+        "n_trend_days": 17,
+        "directional_pnl_on_trend": -280.2
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6446.56,
+        "mean": 17.662,
+        "sharpe": 3.729,
+        "sortino": 5.1,
+        "max_dd": -454.56,
+        "win_days": 85,
+        "loss_days": 73
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2437.68,
+        "mean": 21.014,
+        "sharpe": 4.129,
+        "sortino": 6.544,
+        "max_dd": -454.56,
+        "win_days": 28,
+        "loss_days": 25
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 348,
+        "book_pnl_on_switch_days": 6726.76,
+        "directional_pnl_on_switch_days": 7346.16,
+        "net_improvement": -619.4,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.25,
+        0.75
+      ],
+      "on_q": [
+        0.15,
+        0.85
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 311,
+        "CHOP": 37,
+        "TREND": 17
+      },
+      "degenerate": true,
+      "chop_iso": {
+        "n_chop_days": 37,
+        "directional_pnl_on_chop": 951.6,
+        "condor_pnl_on_chop": 332.2,
+        "condor_minus_directional_on_chop": -619.4,
+        "thesis_supported": false,
+        "n_trend_days": 17,
+        "directional_pnl_on_trend": -280.2
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2329.2,
+        "mean": 6.381,
+        "sharpe": 3.901,
+        "sortino": 1.801,
+        "max_dd": -274.6,
+        "win_days": 132,
+        "loss_days": 35
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1113.68,
+        "mean": 9.601,
+        "sharpe": 5.241,
+        "sortino": 2.957,
+        "max_dd": -175.92,
+        "win_days": 45,
+        "loss_days": 11
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -16.12,
+        "mean": -0.645,
+        "sharpe": -0.383,
+        "sortino": -0.189,
+        "max_dd": -107.4,
+        "win_days": 8,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 348,
+        "book_pnl_on_switch_days": 2609.4,
+        "directional_pnl_on_switch_days": 7346.16,
+        "net_improvement": -4736.76,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.25,
+        0.75
+      ],
+      "on_q": [
+        0.15,
+        0.85
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 311,
+        "CHOP": 37,
+        "TREND": 17
+      },
+      "degenerate": true,
+      "chop_iso": {
+        "n_chop_days": 37,
+        "directional_pnl_on_chop": 951.6,
+        "condor_pnl_on_chop": 332.2,
+        "condor_minus_directional_on_chop": -619.4,
+        "thesis_supported": false,
+        "n_trend_days": 17,
+        "directional_pnl_on_trend": -280.2
+      },
+      "full": {
+        "n_days": 365,
+        "total": 52.0,
+        "mean": 0.142,
+        "sharpe": 0.143,
+        "sortino": 0.026,
+        "max_dd": -259.68,
+        "win_days": 20,
+        "loss_days": 8
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 157.08,
+        "mean": 1.354,
+        "sharpe": 1.148,
+        "sortino": 0.452,
+        "max_dd": -141.6,
+        "win_days": 9,
+        "loss_days": 5
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -55.92,
+        "mean": -2.237,
+        "sharpe": -3.175,
+        "sortino": -0.635,
+        "max_dd": -55.92,
+        "win_days": 0,
+        "loss_days": 1
+      },
+      "no_regression": {
+        "n_switch_days": 348,
+        "book_pnl_on_switch_days": 332.2,
+        "directional_pnl_on_switch_days": 7346.16,
+        "net_improvement": -7013.96,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.2,
+        0.8
+      ],
+      "on_q": [
+        0.5,
+        0.5
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 277,
+        "CHOP": 44,
+        "TREND": 44
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 44,
+        "directional_pnl_on_chop": 638.16,
+        "condor_pnl_on_chop": 327.0,
+        "condor_minus_directional_on_chop": -311.16,
+        "thesis_supported": false,
+        "n_trend_days": 44,
+        "directional_pnl_on_trend": 611.48
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6754.8,
+        "mean": 18.506,
+        "sharpe": 3.771,
+        "sortino": 5.329,
+        "max_dd": -454.56,
+        "win_days": 84,
+        "loss_days": 72
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2256.56,
+        "mean": 19.453,
+        "sharpe": 3.869,
+        "sortino": 6.052,
+        "max_dd": -454.56,
+        "win_days": 27,
+        "loss_days": 25
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 321,
+        "book_pnl_on_switch_days": 6143.32,
+        "directional_pnl_on_switch_days": 6454.48,
+        "net_improvement": -311.16,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.2,
+        0.8
+      ],
+      "on_q": [
+        0.5,
+        0.5
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 277,
+        "CHOP": 44,
+        "TREND": 44
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 44,
+        "directional_pnl_on_chop": 638.16,
+        "condor_pnl_on_chop": 327.0,
+        "condor_minus_directional_on_chop": -311.16,
+        "thesis_supported": false,
+        "n_trend_days": 44,
+        "directional_pnl_on_trend": 611.48
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2961.08,
+        "mean": 8.113,
+        "sharpe": 3.675,
+        "sortino": 2.353,
+        "max_dd": -274.6,
+        "win_days": 129,
+        "loss_days": 39
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1395.64,
+        "mean": 12.031,
+        "sharpe": 5.378,
+        "sortino": 4.321,
+        "max_dd": -115.56,
+        "win_days": 44,
+        "loss_days": 11
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -16.12,
+        "mean": -0.645,
+        "sharpe": -0.383,
+        "sortino": -0.189,
+        "max_dd": -107.4,
+        "win_days": 8,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 321,
+        "book_pnl_on_switch_days": 2349.6,
+        "directional_pnl_on_switch_days": 6454.48,
+        "net_improvement": -4104.88,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.2,
+        0.8
+      ],
+      "on_q": [
+        0.5,
+        0.5
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 277,
+        "CHOP": 44,
+        "TREND": 44
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 44,
+        "directional_pnl_on_chop": 638.16,
+        "condor_pnl_on_chop": 327.0,
+        "condor_minus_directional_on_chop": -311.16,
+        "thesis_supported": false,
+        "n_trend_days": 44,
+        "directional_pnl_on_trend": 611.48
+      },
+      "full": {
+        "n_days": 365,
+        "total": 938.48,
+        "mean": 2.571,
+        "sharpe": 1.366,
+        "sortino": 0.563,
+        "max_dd": -211.68,
+        "win_days": 27,
+        "loss_days": 14
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 443.84,
+        "mean": 3.826,
+        "sharpe": 1.997,
+        "sortino": 1.421,
+        "max_dd": -89.76,
+        "win_days": 12,
+        "loss_days": 7
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -55.92,
+        "mean": -2.237,
+        "sharpe": -3.175,
+        "sortino": -0.635,
+        "max_dd": -55.92,
+        "win_days": 0,
+        "loss_days": 1
+      },
+      "no_regression": {
+        "n_switch_days": 321,
+        "book_pnl_on_switch_days": 327.0,
+        "directional_pnl_on_switch_days": 6454.48,
+        "net_improvement": -6127.48,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.2,
+        0.8
+      ],
+      "on_q": [
+        0.4,
+        0.6
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 283,
+        "CHOP": 42,
+        "TREND": 40
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 42,
+        "directional_pnl_on_chop": 673.92,
+        "condor_pnl_on_chop": 345.2,
+        "condor_minus_directional_on_chop": -328.72,
+        "thesis_supported": false,
+        "n_trend_days": 40,
+        "directional_pnl_on_trend": 154.88
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6737.24,
+        "mean": 18.458,
+        "sharpe": 3.76,
+        "sortino": 5.304,
+        "max_dd": -454.56,
+        "win_days": 84,
+        "loss_days": 72
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2274.76,
+        "mean": 19.61,
+        "sharpe": 3.903,
+        "sortino": 5.993,
+        "max_dd": -454.56,
+        "win_days": 27,
+        "loss_days": 24
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 325,
+        "book_pnl_on_switch_days": 6582.36,
+        "directional_pnl_on_switch_days": 6911.08,
+        "net_improvement": -328.72,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.2,
+        0.8
+      ],
+      "on_q": [
+        0.4,
+        0.6
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 283,
+        "CHOP": 42,
+        "TREND": 40
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 42,
+        "directional_pnl_on_chop": 673.92,
+        "condor_pnl_on_chop": 345.2,
+        "condor_minus_directional_on_chop": -328.72,
+        "thesis_supported": false,
+        "n_trend_days": 40,
+        "directional_pnl_on_trend": 154.88
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2531.08,
+        "mean": 6.934,
+        "sharpe": 3.576,
+        "sortino": 2.012,
+        "max_dd": -274.6,
+        "win_days": 129,
+        "loss_days": 39
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1395.64,
+        "mean": 12.031,
+        "sharpe": 5.378,
+        "sortino": 4.321,
+        "max_dd": -115.56,
+        "win_days": 44,
+        "loss_days": 11
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -16.12,
+        "mean": -0.645,
+        "sharpe": -0.383,
+        "sortino": -0.189,
+        "max_dd": -107.4,
+        "win_days": 8,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 325,
+        "book_pnl_on_switch_days": 2376.2,
+        "directional_pnl_on_switch_days": 6911.08,
+        "net_improvement": -4534.88,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.2,
+        0.8
+      ],
+      "on_q": [
+        0.4,
+        0.6
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 283,
+        "CHOP": 42,
+        "TREND": 40
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 42,
+        "directional_pnl_on_chop": 673.92,
+        "condor_pnl_on_chop": 345.2,
+        "condor_minus_directional_on_chop": -328.72,
+        "thesis_supported": false,
+        "n_trend_days": 40,
+        "directional_pnl_on_trend": 154.88
+      },
+      "full": {
+        "n_days": 365,
+        "total": 500.08,
+        "mean": 1.37,
+        "sharpe": 0.89,
+        "sortino": 0.29,
+        "max_dd": -425.76,
+        "win_days": 25,
+        "loss_days": 13
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 462.04,
+        "mean": 3.983,
+        "sharpe": 2.084,
+        "sortino": 1.387,
+        "max_dd": -89.76,
+        "win_days": 12,
+        "loss_days": 6
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -55.92,
+        "mean": -2.237,
+        "sharpe": -3.175,
+        "sortino": -0.635,
+        "max_dd": -55.92,
+        "win_days": 0,
+        "loss_days": 1
+      },
+      "no_regression": {
+        "n_switch_days": 325,
+        "book_pnl_on_switch_days": 345.2,
+        "directional_pnl_on_switch_days": 6911.08,
+        "net_improvement": -6565.88,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.2,
+        0.8
+      ],
+      "on_q": [
+        0.33,
+        0.67
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 292,
+        "CHOP": 38,
+        "TREND": 35
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 38,
+        "directional_pnl_on_chop": 547.32,
+        "condor_pnl_on_chop": 314.4,
+        "condor_minus_directional_on_chop": -232.92,
+        "thesis_supported": false,
+        "n_trend_days": 35,
+        "directional_pnl_on_trend": 131.84
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6833.04,
+        "mean": 18.721,
+        "sharpe": 3.81,
+        "sortino": 5.38,
+        "max_dd": -454.56,
+        "win_days": 85,
+        "loss_days": 72
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2299.16,
+        "mean": 19.82,
+        "sharpe": 3.942,
+        "sortino": 6.057,
+        "max_dd": -454.56,
+        "win_days": 27,
+        "loss_days": 24
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 330,
+        "book_pnl_on_switch_days": 6701.2,
+        "directional_pnl_on_switch_days": 6934.12,
+        "net_improvement": -232.92,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.2,
+        0.8
+      ],
+      "on_q": [
+        0.33,
+        0.67
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 292,
+        "CHOP": 38,
+        "TREND": 35
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 38,
+        "directional_pnl_on_chop": 547.32,
+        "condor_pnl_on_chop": 314.4,
+        "condor_minus_directional_on_chop": -232.92,
+        "thesis_supported": false,
+        "n_trend_days": 35,
+        "directional_pnl_on_trend": 131.84
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2413.84,
+        "mean": 6.613,
+        "sharpe": 3.485,
+        "sortino": 1.852,
+        "max_dd": -274.6,
+        "win_days": 128,
+        "loss_days": 37
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1335.28,
+        "mean": 11.511,
+        "sharpe": 4.991,
+        "sortino": 3.546,
+        "max_dd": -175.92,
+        "win_days": 44,
+        "loss_days": 11
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -16.12,
+        "mean": -0.645,
+        "sharpe": -0.383,
+        "sortino": -0.189,
+        "max_dd": -107.4,
+        "win_days": 8,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 330,
+        "book_pnl_on_switch_days": 2282.0,
+        "directional_pnl_on_switch_days": 6934.12,
+        "net_improvement": -4652.12,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.2,
+        0.8
+      ],
+      "on_q": [
+        0.33,
+        0.67
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 292,
+        "CHOP": 38,
+        "TREND": 35
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 38,
+        "directional_pnl_on_chop": 547.32,
+        "condor_pnl_on_chop": 314.4,
+        "condor_minus_directional_on_chop": -232.92,
+        "thesis_supported": false,
+        "n_trend_days": 35,
+        "directional_pnl_on_trend": 131.84
+      },
+      "full": {
+        "n_days": 365,
+        "total": 446.24,
+        "mean": 1.223,
+        "sharpe": 0.846,
+        "sortino": 0.238,
+        "max_dd": -386.64,
+        "win_days": 23,
+        "loss_days": 10
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 465.08,
+        "mean": 4.009,
+        "sharpe": 2.119,
+        "sortino": 1.338,
+        "max_dd": -58.56,
+        "win_days": 11,
+        "loss_days": 5
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -55.92,
+        "mean": -2.237,
+        "sharpe": -3.175,
+        "sortino": -0.635,
+        "max_dd": -55.92,
+        "win_days": 0,
+        "loss_days": 1
+      },
+      "no_regression": {
+        "n_switch_days": 330,
+        "book_pnl_on_switch_days": 314.4,
+        "directional_pnl_on_switch_days": 6934.12,
+        "net_improvement": -6619.72,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.2,
+        0.8
+      ],
+      "on_q": [
+        0.25,
+        0.75
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 305,
+        "CHOP": 36,
+        "TREND": 24
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 36,
+        "directional_pnl_on_chop": 547.32,
+        "condor_pnl_on_chop": 314.4,
+        "condor_minus_directional_on_chop": -232.92,
+        "thesis_supported": false,
+        "n_trend_days": 24,
+        "directional_pnl_on_trend": 51.8
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6833.04,
+        "mean": 18.721,
+        "sharpe": 3.81,
+        "sortino": 5.38,
+        "max_dd": -454.56,
+        "win_days": 85,
+        "loss_days": 72
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2299.16,
+        "mean": 19.82,
+        "sharpe": 3.942,
+        "sortino": 6.057,
+        "max_dd": -454.56,
+        "win_days": 27,
+        "loss_days": 24
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 341,
+        "book_pnl_on_switch_days": 6781.24,
+        "directional_pnl_on_switch_days": 7014.16,
+        "net_improvement": -232.92,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.2,
+        0.8
+      ],
+      "on_q": [
+        0.25,
+        0.75
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 305,
+        "CHOP": 36,
+        "TREND": 24
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 36,
+        "directional_pnl_on_chop": 547.32,
+        "condor_pnl_on_chop": 314.4,
+        "condor_minus_directional_on_chop": -232.92,
+        "thesis_supported": false,
+        "n_trend_days": 24,
+        "directional_pnl_on_trend": 51.8
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2617.6,
+        "mean": 7.172,
+        "sharpe": 3.907,
+        "sortino": 2.024,
+        "max_dd": -274.6,
+        "win_days": 132,
+        "loss_days": 35
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1346.88,
+        "mean": 11.611,
+        "sharpe": 5.043,
+        "sortino": 3.577,
+        "max_dd": -175.92,
+        "win_days": 45,
+        "loss_days": 11
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -16.12,
+        "mean": -0.645,
+        "sharpe": -0.383,
+        "sortino": -0.189,
+        "max_dd": -107.4,
+        "win_days": 8,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 341,
+        "book_pnl_on_switch_days": 2565.8,
+        "directional_pnl_on_switch_days": 7014.16,
+        "net_improvement": -4448.36,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.2,
+        0.8
+      ],
+      "on_q": [
+        0.25,
+        0.75
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 305,
+        "CHOP": 36,
+        "TREND": 24
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 36,
+        "directional_pnl_on_chop": 547.32,
+        "condor_pnl_on_chop": 314.4,
+        "condor_minus_directional_on_chop": -232.92,
+        "thesis_supported": false,
+        "n_trend_days": 24,
+        "directional_pnl_on_trend": 51.8
+      },
+      "full": {
+        "n_days": 365,
+        "total": 366.2,
+        "mean": 1.003,
+        "sharpe": 0.763,
+        "sortino": 0.186,
+        "max_dd": -259.68,
+        "win_days": 21,
+        "loss_days": 8
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 405.08,
+        "mean": 3.492,
+        "sharpe": 1.874,
+        "sortino": 1.165,
+        "max_dd": -103.2,
+        "win_days": 10,
+        "loss_days": 5
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -55.92,
+        "mean": -2.237,
+        "sharpe": -3.175,
+        "sortino": -0.635,
+        "max_dd": -55.92,
+        "win_days": 0,
+        "loss_days": 1
+      },
+      "no_regression": {
+        "n_switch_days": 341,
+        "book_pnl_on_switch_days": 314.4,
+        "directional_pnl_on_switch_days": 7014.16,
+        "net_improvement": -6699.76,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.2,
+        0.8
+      ],
+      "on_q": [
+        0.2,
+        0.8
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 312,
+        "CHOP": 34,
+        "TREND": 19
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 34,
+        "directional_pnl_on_chop": 599.88,
+        "condor_pnl_on_chop": 314.4,
+        "condor_minus_directional_on_chop": -285.48,
+        "thesis_supported": false,
+        "n_trend_days": 19,
+        "directional_pnl_on_trend": -196.2
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6780.48,
+        "mean": 18.577,
+        "sharpe": 3.778,
+        "sortino": 5.392,
+        "max_dd": -454.56,
+        "win_days": 85,
+        "loss_days": 74
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2284.28,
+        "mean": 19.692,
+        "sharpe": 3.915,
+        "sortino": 6.132,
+        "max_dd": -454.56,
+        "win_days": 27,
+        "loss_days": 25
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 346,
+        "book_pnl_on_switch_days": 6976.68,
+        "directional_pnl_on_switch_days": 7262.16,
+        "net_improvement": -285.48,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.2,
+        0.8
+      ],
+      "on_q": [
+        0.2,
+        0.8
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 312,
+        "CHOP": 34,
+        "TREND": 19
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 34,
+        "directional_pnl_on_chop": 599.88,
+        "condor_pnl_on_chop": 314.4,
+        "condor_minus_directional_on_chop": -285.48,
+        "thesis_supported": false,
+        "n_trend_days": 19,
+        "directional_pnl_on_trend": -196.2
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2413.2,
+        "mean": 6.612,
+        "sharpe": 3.994,
+        "sortino": 1.866,
+        "max_dd": -274.6,
+        "win_days": 133,
+        "loss_days": 35
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1113.68,
+        "mean": 9.601,
+        "sharpe": 5.241,
+        "sortino": 2.957,
+        "max_dd": -175.92,
+        "win_days": 45,
+        "loss_days": 11
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -16.12,
+        "mean": -0.645,
+        "sharpe": -0.383,
+        "sortino": -0.189,
+        "max_dd": -107.4,
+        "win_days": 8,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 346,
+        "book_pnl_on_switch_days": 2609.4,
+        "directional_pnl_on_switch_days": 7262.16,
+        "net_improvement": -4652.76,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.2,
+        0.8
+      ],
+      "on_q": [
+        0.2,
+        0.8
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 312,
+        "CHOP": 34,
+        "TREND": 19
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 34,
+        "directional_pnl_on_chop": 599.88,
+        "condor_pnl_on_chop": 314.4,
+        "condor_minus_directional_on_chop": -285.48,
+        "thesis_supported": false,
+        "n_trend_days": 19,
+        "directional_pnl_on_trend": -196.2
+      },
+      "full": {
+        "n_days": 365,
+        "total": 118.2,
+        "mean": 0.324,
+        "sharpe": 0.314,
+        "sortino": 0.06,
+        "max_dd": -259.68,
+        "win_days": 20,
+        "loss_days": 8
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 157.08,
+        "mean": 1.354,
+        "sharpe": 1.148,
+        "sortino": 0.452,
+        "max_dd": -141.6,
+        "win_days": 9,
+        "loss_days": 5
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -55.92,
+        "mean": -2.237,
+        "sharpe": -3.175,
+        "sortino": -0.635,
+        "max_dd": -55.92,
+        "win_days": 0,
+        "loss_days": 1
+      },
+      "no_regression": {
+        "n_switch_days": 346,
+        "book_pnl_on_switch_days": 314.4,
+        "directional_pnl_on_switch_days": 7262.16,
+        "net_improvement": -6947.76,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.2,
+        0.8
+      ],
+      "on_q": [
+        0.15,
+        0.85
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 316,
+        "CHOP": 32,
+        "TREND": 17
+      },
+      "degenerate": true,
+      "chop_iso": {
+        "n_chop_days": 32,
+        "directional_pnl_on_chop": 446.48,
+        "condor_pnl_on_chop": 301.6,
+        "condor_minus_directional_on_chop": -144.88,
+        "thesis_supported": false,
+        "n_trend_days": 17,
+        "directional_pnl_on_trend": -280.2
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6921.08,
+        "mean": 18.962,
+        "sharpe": 3.84,
+        "sortino": 5.504,
+        "max_dd": -454.56,
+        "win_days": 85,
+        "loss_days": 74
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2437.68,
+        "mean": 21.014,
+        "sharpe": 4.129,
+        "sortino": 6.544,
+        "max_dd": -454.56,
+        "win_days": 28,
+        "loss_days": 25
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 348,
+        "book_pnl_on_switch_days": 7201.28,
+        "directional_pnl_on_switch_days": 7346.16,
+        "net_improvement": -144.88,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.2,
+        0.8
+      ],
+      "on_q": [
+        0.15,
+        0.85
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 316,
+        "CHOP": 32,
+        "TREND": 17
+      },
+      "degenerate": true,
+      "chop_iso": {
+        "n_chop_days": 32,
+        "directional_pnl_on_chop": 446.48,
+        "condor_pnl_on_chop": 301.6,
+        "condor_minus_directional_on_chop": -144.88,
+        "thesis_supported": false,
+        "n_trend_days": 17,
+        "directional_pnl_on_trend": -280.2
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2329.2,
+        "mean": 6.381,
+        "sharpe": 3.901,
+        "sortino": 1.801,
+        "max_dd": -274.6,
+        "win_days": 132,
+        "loss_days": 35
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1113.68,
+        "mean": 9.601,
+        "sharpe": 5.241,
+        "sortino": 2.957,
+        "max_dd": -175.92,
+        "win_days": 45,
+        "loss_days": 11
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -16.12,
+        "mean": -0.645,
+        "sharpe": -0.383,
+        "sortino": -0.189,
+        "max_dd": -107.4,
+        "win_days": 8,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 348,
+        "book_pnl_on_switch_days": 2609.4,
+        "directional_pnl_on_switch_days": 7346.16,
+        "net_improvement": -4736.76,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.2,
+        0.8
+      ],
+      "on_q": [
+        0.15,
+        0.85
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 316,
+        "CHOP": 32,
+        "TREND": 17
+      },
+      "degenerate": true,
+      "chop_iso": {
+        "n_chop_days": 32,
+        "directional_pnl_on_chop": 446.48,
+        "condor_pnl_on_chop": 301.6,
+        "condor_minus_directional_on_chop": -144.88,
+        "thesis_supported": false,
+        "n_trend_days": 17,
+        "directional_pnl_on_trend": -280.2
+      },
+      "full": {
+        "n_days": 365,
+        "total": 21.4,
+        "mean": 0.059,
+        "sharpe": 0.059,
+        "sortino": 0.011,
+        "max_dd": -259.68,
+        "win_days": 18,
+        "loss_days": 8
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 157.08,
+        "mean": 1.354,
+        "sharpe": 1.148,
+        "sortino": 0.452,
+        "max_dd": -141.6,
+        "win_days": 9,
+        "loss_days": 5
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -55.92,
+        "mean": -2.237,
+        "sharpe": -3.175,
+        "sortino": -0.635,
+        "max_dd": -55.92,
+        "win_days": 0,
+        "loss_days": 1
+      },
+      "no_regression": {
+        "n_switch_days": 348,
+        "book_pnl_on_switch_days": 301.6,
+        "directional_pnl_on_switch_days": 7346.16,
+        "net_improvement": -7044.56,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.15,
+        0.85
+      ],
+      "on_q": [
+        0.5,
+        0.5
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 300,
+        "CHOP": 33,
+        "TREND": 32
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 33,
+        "directional_pnl_on_chop": 410.84,
+        "condor_pnl_on_chop": 198.2,
+        "condor_minus_directional_on_chop": -212.64,
+        "thesis_supported": false,
+        "n_trend_days": 32,
+        "directional_pnl_on_trend": 332.96
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6853.32,
+        "mean": 18.776,
+        "sharpe": 3.803,
+        "sortino": 5.465,
+        "max_dd": -454.56,
+        "win_days": 82,
+        "loss_days": 74
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2297.96,
+        "mean": 19.81,
+        "sharpe": 3.888,
+        "sortino": 6.367,
+        "max_dd": -454.56,
+        "win_days": 26,
+        "loss_days": 27
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 333,
+        "book_pnl_on_switch_days": 6520.36,
+        "directional_pnl_on_switch_days": 6733.0,
+        "net_improvement": -212.64,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.15,
+        0.85
+      ],
+      "on_q": [
+        0.5,
+        0.5
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 300,
+        "CHOP": 33,
+        "TREND": 32
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 33,
+        "directional_pnl_on_chop": 410.84,
+        "condor_pnl_on_chop": 198.2,
+        "condor_minus_directional_on_chop": -212.64,
+        "thesis_supported": false,
+        "n_trend_days": 32,
+        "directional_pnl_on_trend": 332.96
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2700.36,
+        "mean": 7.398,
+        "sharpe": 3.431,
+        "sortino": 2.068,
+        "max_dd": -268.8,
+        "win_days": 130,
+        "loss_days": 38
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1206.32,
+        "mean": 10.399,
+        "sharpe": 4.878,
+        "sortino": 3.164,
+        "max_dd": -224.12,
+        "win_days": 44,
+        "loss_days": 10
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -16.12,
+        "mean": -0.645,
+        "sharpe": -0.383,
+        "sortino": -0.189,
+        "max_dd": -107.4,
+        "win_days": 8,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 333,
+        "book_pnl_on_switch_days": 2367.4,
+        "directional_pnl_on_switch_days": 6733.0,
+        "net_improvement": -4365.6,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.15,
+        0.85
+      ],
+      "on_q": [
+        0.5,
+        0.5
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 300,
+        "CHOP": 33,
+        "TREND": 32
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 33,
+        "directional_pnl_on_chop": 410.84,
+        "condor_pnl_on_chop": 198.2,
+        "condor_minus_directional_on_chop": -212.64,
+        "thesis_supported": false,
+        "n_trend_days": 32,
+        "directional_pnl_on_trend": 332.96
+      },
+      "full": {
+        "n_days": 365,
+        "total": 531.16,
+        "mean": 1.455,
+        "sharpe": 0.826,
+        "sortino": 0.288,
+        "max_dd": -211.68,
+        "win_days": 18,
+        "loss_days": 11
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 175.72,
+        "mean": 1.515,
+        "sharpe": 0.945,
+        "sortino": 0.547,
+        "max_dd": -130.32,
+        "win_days": 7,
+        "loss_days": 5
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -55.92,
+        "mean": -2.237,
+        "sharpe": -3.175,
+        "sortino": -0.635,
+        "max_dd": -55.92,
+        "win_days": 0,
+        "loss_days": 1
+      },
+      "no_regression": {
+        "n_switch_days": 333,
+        "book_pnl_on_switch_days": 198.2,
+        "directional_pnl_on_switch_days": 6733.0,
+        "net_improvement": -6534.8,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.15,
+        0.85
+      ],
+      "on_q": [
+        0.4,
+        0.6
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 304,
+        "CHOP": 31,
+        "TREND": 30
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 31,
+        "directional_pnl_on_chop": 446.6,
+        "condor_pnl_on_chop": 216.4,
+        "condor_minus_directional_on_chop": -230.2,
+        "thesis_supported": false,
+        "n_trend_days": 30,
+        "directional_pnl_on_trend": -123.64
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6835.76,
+        "mean": 18.728,
+        "sharpe": 3.792,
+        "sortino": 5.439,
+        "max_dd": -454.56,
+        "win_days": 82,
+        "loss_days": 74
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2316.16,
+        "mean": 19.967,
+        "sharpe": 3.922,
+        "sortino": 6.314,
+        "max_dd": -454.56,
+        "win_days": 26,
+        "loss_days": 26
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 335,
+        "book_pnl_on_switch_days": 6959.4,
+        "directional_pnl_on_switch_days": 7189.6,
+        "net_improvement": -230.2,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.15,
+        0.85
+      ],
+      "on_q": [
+        0.4,
+        0.6
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 304,
+        "CHOP": 31,
+        "TREND": 30
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 31,
+        "directional_pnl_on_chop": 446.6,
+        "condor_pnl_on_chop": 216.4,
+        "condor_minus_directional_on_chop": -230.2,
+        "thesis_supported": false,
+        "n_trend_days": 30,
+        "directional_pnl_on_trend": -123.64
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2263.56,
+        "mean": 6.202,
+        "sharpe": 3.3,
+        "sortino": 1.734,
+        "max_dd": -268.8,
+        "win_days": 129,
+        "loss_days": 38
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1206.32,
+        "mean": 10.399,
+        "sharpe": 4.878,
+        "sortino": 3.164,
+        "max_dd": -224.12,
+        "win_days": 44,
+        "loss_days": 10
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -16.12,
+        "mean": -0.645,
+        "sharpe": -0.383,
+        "sortino": -0.189,
+        "max_dd": -107.4,
+        "win_days": 8,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 335,
+        "book_pnl_on_switch_days": 2387.2,
+        "directional_pnl_on_switch_days": 7189.6,
+        "net_improvement": -4802.4,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.15,
+        0.85
+      ],
+      "on_q": [
+        0.4,
+        0.6
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 304,
+        "CHOP": 31,
+        "TREND": 30
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 31,
+        "directional_pnl_on_chop": 446.6,
+        "condor_pnl_on_chop": 216.4,
+        "condor_minus_directional_on_chop": -230.2,
+        "thesis_supported": false,
+        "n_trend_days": 30,
+        "directional_pnl_on_trend": -123.64
+      },
+      "full": {
+        "n_days": 365,
+        "total": 92.76,
+        "mean": 0.254,
+        "sharpe": 0.183,
+        "sortino": 0.048,
+        "max_dd": -433.36,
+        "win_days": 16,
+        "loss_days": 10
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 193.92,
+        "mean": 1.672,
+        "sharpe": 1.046,
+        "sortino": 0.55,
+        "max_dd": -130.32,
+        "win_days": 7,
+        "loss_days": 4
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -55.92,
+        "mean": -2.237,
+        "sharpe": -3.175,
+        "sortino": -0.635,
+        "max_dd": -55.92,
+        "win_days": 0,
+        "loss_days": 1
+      },
+      "no_regression": {
+        "n_switch_days": 335,
+        "book_pnl_on_switch_days": 216.4,
+        "directional_pnl_on_switch_days": 7189.6,
+        "net_improvement": -6973.2,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.15,
+        0.85
+      ],
+      "on_q": [
+        0.33,
+        0.67
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 312,
+        "CHOP": 27,
+        "TREND": 26
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 27,
+        "directional_pnl_on_chop": 320.0,
+        "condor_pnl_on_chop": 185.6,
+        "condor_minus_directional_on_chop": -134.4,
+        "thesis_supported": false,
+        "n_trend_days": 26,
+        "directional_pnl_on_trend": -180.52
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6931.56,
+        "mean": 18.991,
+        "sharpe": 3.842,
+        "sortino": 5.515,
+        "max_dd": -454.56,
+        "win_days": 83,
+        "loss_days": 74
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2340.56,
+        "mean": 20.177,
+        "sharpe": 3.96,
+        "sortino": 6.38,
+        "max_dd": -454.56,
+        "win_days": 26,
+        "loss_days": 26
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 339,
+        "book_pnl_on_switch_days": 7112.08,
+        "directional_pnl_on_switch_days": 7246.48,
+        "net_improvement": -134.4,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.15,
+        0.85
+      ],
+      "on_q": [
+        0.33,
+        0.67
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 312,
+        "CHOP": 27,
+        "TREND": 26
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 27,
+        "directional_pnl_on_chop": 320.0,
+        "condor_pnl_on_chop": 185.6,
+        "condor_minus_directional_on_chop": -134.4,
+        "thesis_supported": false,
+        "n_trend_days": 26,
+        "directional_pnl_on_trend": -180.52
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2206.68,
+        "mean": 6.046,
+        "sharpe": 3.339,
+        "sortino": 1.684,
+        "max_dd": -268.8,
+        "win_days": 128,
+        "loss_days": 36
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1206.32,
+        "mean": 10.399,
+        "sharpe": 4.878,
+        "sortino": 3.164,
+        "max_dd": -224.12,
+        "win_days": 44,
+        "loss_days": 10
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -16.12,
+        "mean": -0.645,
+        "sharpe": -0.383,
+        "sortino": -0.189,
+        "max_dd": -107.4,
+        "win_days": 8,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 339,
+        "book_pnl_on_switch_days": 2387.2,
+        "directional_pnl_on_switch_days": 7246.48,
+        "net_improvement": -4859.28,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.15,
+        0.85
+      ],
+      "on_q": [
+        0.33,
+        0.67
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 312,
+        "CHOP": 27,
+        "TREND": 26
+      },
+      "degenerate": false,
+      "chop_iso": {
+        "n_chop_days": 27,
+        "directional_pnl_on_chop": 320.0,
+        "condor_pnl_on_chop": 185.6,
+        "condor_minus_directional_on_chop": -134.4,
+        "thesis_supported": false,
+        "n_trend_days": 26,
+        "directional_pnl_on_trend": -180.52
+      },
+      "full": {
+        "n_days": 365,
+        "total": 5.08,
+        "mean": 0.014,
+        "sharpe": 0.011,
+        "sortino": 0.002,
+        "max_dd": -386.64,
+        "win_days": 14,
+        "loss_days": 8
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 163.12,
+        "mean": 1.406,
+        "sharpe": 0.885,
+        "sortino": 0.462,
+        "max_dd": -130.32,
+        "win_days": 6,
+        "loss_days": 4
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -55.92,
+        "mean": -2.237,
+        "sharpe": -3.175,
+        "sortino": -0.635,
+        "max_dd": -55.92,
+        "win_days": 0,
+        "loss_days": 1
+      },
+      "no_regression": {
+        "n_switch_days": 339,
+        "book_pnl_on_switch_days": 185.6,
+        "directional_pnl_on_switch_days": 7246.48,
+        "net_improvement": -7060.88,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.15,
+        0.85
+      ],
+      "on_q": [
+        0.25,
+        0.75
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 322,
+        "CHOP": 26,
+        "TREND": 17
+      },
+      "degenerate": true,
+      "chop_iso": {
+        "n_chop_days": 26,
+        "directional_pnl_on_chop": 320.0,
+        "condor_pnl_on_chop": 185.6,
+        "condor_minus_directional_on_chop": -134.4,
+        "thesis_supported": false,
+        "n_trend_days": 17,
+        "directional_pnl_on_trend": -200.56
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6931.56,
+        "mean": 18.991,
+        "sharpe": 3.842,
+        "sortino": 5.515,
+        "max_dd": -454.56,
+        "win_days": 83,
+        "loss_days": 74
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2340.56,
+        "mean": 20.177,
+        "sharpe": 3.96,
+        "sortino": 6.38,
+        "max_dd": -454.56,
+        "win_days": 26,
+        "loss_days": 26
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 348,
+        "book_pnl_on_switch_days": 7132.12,
+        "directional_pnl_on_switch_days": 7266.52,
+        "net_improvement": -134.4,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.15,
+        0.85
+      ],
+      "on_q": [
+        0.25,
+        0.75
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 322,
+        "CHOP": 26,
+        "TREND": 17
+      },
+      "degenerate": true,
+      "chop_iso": {
+        "n_chop_days": 26,
+        "directional_pnl_on_chop": 320.0,
+        "condor_pnl_on_chop": 185.6,
+        "condor_minus_directional_on_chop": -134.4,
+        "thesis_supported": false,
+        "n_trend_days": 17,
+        "directional_pnl_on_trend": -200.56
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2415.64,
+        "mean": 6.618,
+        "sharpe": 3.787,
+        "sortino": 1.858,
+        "max_dd": -268.8,
+        "win_days": 132,
+        "loss_days": 34
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1223.12,
+        "mean": 10.544,
+        "sharpe": 4.947,
+        "sortino": 3.208,
+        "max_dd": -224.12,
+        "win_days": 45,
+        "loss_days": 10
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -16.12,
+        "mean": -0.645,
+        "sharpe": -0.383,
+        "sortino": -0.189,
+        "max_dd": -107.4,
+        "win_days": 8,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 348,
+        "book_pnl_on_switch_days": 2616.2,
+        "directional_pnl_on_switch_days": 7266.52,
+        "net_improvement": -4650.32,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.15,
+        0.85
+      ],
+      "on_q": [
+        0.25,
+        0.75
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 322,
+        "CHOP": 26,
+        "TREND": 17
+      },
+      "degenerate": true,
+      "chop_iso": {
+        "n_chop_days": 26,
+        "directional_pnl_on_chop": 320.0,
+        "condor_pnl_on_chop": 185.6,
+        "condor_minus_directional_on_chop": -134.4,
+        "thesis_supported": false,
+        "n_trend_days": 17,
+        "directional_pnl_on_trend": -200.56
+      },
+      "full": {
+        "n_days": 365,
+        "total": -14.96,
+        "mean": -0.041,
+        "sharpe": -0.036,
+        "sortino": -0.007,
+        "max_dd": -259.68,
+        "win_days": 13,
+        "loss_days": 6
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 163.12,
+        "mean": 1.406,
+        "sharpe": 0.885,
+        "sortino": 0.462,
+        "max_dd": -130.32,
+        "win_days": 6,
+        "loss_days": 4
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -55.92,
+        "mean": -2.237,
+        "sharpe": -3.175,
+        "sortino": -0.635,
+        "max_dd": -55.92,
+        "win_days": 0,
+        "loss_days": 1
+      },
+      "no_regression": {
+        "n_switch_days": 348,
+        "book_pnl_on_switch_days": 185.6,
+        "directional_pnl_on_switch_days": 7266.52,
+        "net_improvement": -7080.92,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.15,
+        0.85
+      ],
+      "on_q": [
+        0.2,
+        0.8
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 328,
+        "CHOP": 25,
+        "TREND": 12
+      },
+      "degenerate": true,
+      "chop_iso": {
+        "n_chop_days": 25,
+        "directional_pnl_on_chop": 357.68,
+        "condor_pnl_on_chop": 185.6,
+        "condor_minus_directional_on_chop": -172.08,
+        "thesis_supported": false,
+        "n_trend_days": 12,
+        "directional_pnl_on_trend": -448.56
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6893.88,
+        "mean": 18.887,
+        "sharpe": 3.819,
+        "sortino": 5.505,
+        "max_dd": -454.56,
+        "win_days": 83,
+        "loss_days": 75
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2340.56,
+        "mean": 20.177,
+        "sharpe": 3.96,
+        "sortino": 6.38,
+        "max_dd": -454.56,
+        "win_days": 26,
+        "loss_days": 26
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 353,
+        "book_pnl_on_switch_days": 7342.44,
+        "directional_pnl_on_switch_days": 7514.52,
+        "net_improvement": -172.08,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.15,
+        0.85
+      ],
+      "on_q": [
+        0.2,
+        0.8
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 328,
+        "CHOP": 25,
+        "TREND": 12
+      },
+      "degenerate": true,
+      "chop_iso": {
+        "n_chop_days": 25,
+        "directional_pnl_on_chop": 357.68,
+        "condor_pnl_on_chop": 185.6,
+        "condor_minus_directional_on_chop": -172.08,
+        "thesis_supported": false,
+        "n_trend_days": 12,
+        "directional_pnl_on_trend": -448.56
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2211.24,
+        "mean": 6.058,
+        "sharpe": 3.892,
+        "sortino": 1.701,
+        "max_dd": -268.8,
+        "win_days": 133,
+        "loss_days": 34
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 989.92,
+        "mean": 8.534,
+        "sharpe": 5.311,
+        "sortino": 2.596,
+        "max_dd": -224.12,
+        "win_days": 45,
+        "loss_days": 10
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -16.12,
+        "mean": -0.645,
+        "sharpe": -0.383,
+        "sortino": -0.189,
+        "max_dd": -107.4,
+        "win_days": 8,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 353,
+        "book_pnl_on_switch_days": 2659.8,
+        "directional_pnl_on_switch_days": 7514.52,
+        "net_improvement": -4854.72,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.15,
+        0.85
+      ],
+      "on_q": [
+        0.2,
+        0.8
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 328,
+        "CHOP": 25,
+        "TREND": 12
+      },
+      "degenerate": true,
+      "chop_iso": {
+        "n_chop_days": 25,
+        "directional_pnl_on_chop": 357.68,
+        "condor_pnl_on_chop": 185.6,
+        "condor_minus_directional_on_chop": -172.08,
+        "thesis_supported": false,
+        "n_trend_days": 12,
+        "directional_pnl_on_trend": -448.56
+      },
+      "full": {
+        "n_days": 365,
+        "total": -262.96,
+        "mean": -0.72,
+        "sharpe": -0.89,
+        "sortino": -0.118,
+        "max_dd": -297.56,
+        "win_days": 12,
+        "loss_days": 6
+      },
+      "oos": {
+        "n_days": 116,
+        "total": -84.88,
+        "mean": -0.732,
+        "sharpe": -1.143,
+        "sortino": -0.241,
+        "max_dd": -188.88,
+        "win_days": 5,
+        "loss_days": 4
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -55.92,
+        "mean": -2.237,
+        "sharpe": -3.175,
+        "sortino": -0.635,
+        "max_dd": -55.92,
+        "win_days": 0,
+        "loss_days": 1
+      },
+      "no_regression": {
+        "n_switch_days": 353,
+        "book_pnl_on_switch_days": 185.6,
+        "directional_pnl_on_switch_days": 7514.52,
+        "net_improvement": -7328.92,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": false,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.15,
+        0.85
+      ],
+      "on_q": [
+        0.15,
+        0.85
+      ],
+      "policy": "directional",
+      "dist": {
+        "NEUTRAL": 330,
+        "CHOP": 24,
+        "TREND": 11
+      },
+      "degenerate": true,
+      "chop_iso": {
+        "n_chop_days": 24,
+        "directional_pnl_on_chop": 357.68,
+        "condor_pnl_on_chop": 172.8,
+        "condor_minus_directional_on_chop": -184.88,
+        "thesis_supported": false,
+        "n_trend_days": 11,
+        "directional_pnl_on_trend": -448.56
+      },
+      "full": {
+        "n_days": 365,
+        "total": 6881.08,
+        "mean": 18.852,
+        "sharpe": 3.811,
+        "sortino": 5.494,
+        "max_dd": -454.56,
+        "win_days": 82,
+        "loss_days": 75
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2340.56,
+        "mean": 20.177,
+        "sharpe": 3.96,
+        "sortino": 6.38,
+        "max_dd": -454.56,
+        "win_days": 26,
+        "loss_days": 26
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 354,
+        "book_pnl_on_switch_days": 7329.64,
+        "directional_pnl_on_switch_days": 7514.52,
+        "net_improvement": -184.88,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.15,
+        0.85
+      ],
+      "on_q": [
+        0.15,
+        0.85
+      ],
+      "policy": "condor",
+      "dist": {
+        "NEUTRAL": 330,
+        "CHOP": 24,
+        "TREND": 11
+      },
+      "degenerate": true,
+      "chop_iso": {
+        "n_chop_days": 24,
+        "directional_pnl_on_chop": 357.68,
+        "condor_pnl_on_chop": 172.8,
+        "condor_minus_directional_on_chop": -184.88,
+        "thesis_supported": false,
+        "n_trend_days": 11,
+        "directional_pnl_on_trend": -448.56
+      },
+      "full": {
+        "n_days": 365,
+        "total": 2211.24,
+        "mean": 6.058,
+        "sharpe": 3.892,
+        "sortino": 1.701,
+        "max_dd": -268.8,
+        "win_days": 133,
+        "loss_days": 34
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 989.92,
+        "mean": 8.534,
+        "sharpe": 5.311,
+        "sortino": 2.596,
+        "max_dd": -224.12,
+        "win_days": 45,
+        "loss_days": 10
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -16.12,
+        "mean": -0.645,
+        "sharpe": -0.383,
+        "sortino": -0.189,
+        "max_dd": -107.4,
+        "win_days": 8,
+        "loss_days": 4
+      },
+      "no_regression": {
+        "n_switch_days": 354,
+        "book_pnl_on_switch_days": 2659.8,
+        "directional_pnl_on_switch_days": 7514.52,
+        "net_improvement": -4854.72,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": true,
+        "ALL_PASS": false
+      }
+    },
+    {
+      "trend_q": [
+        0.15,
+        0.85
+      ],
+      "on_q": [
+        0.15,
+        0.85
+      ],
+      "policy": "abstain",
+      "dist": {
+        "NEUTRAL": 330,
+        "CHOP": 24,
+        "TREND": 11
+      },
+      "degenerate": true,
+      "chop_iso": {
+        "n_chop_days": 24,
+        "directional_pnl_on_chop": 357.68,
+        "condor_pnl_on_chop": 172.8,
+        "condor_minus_directional_on_chop": -184.88,
+        "thesis_supported": false,
+        "n_trend_days": 11,
+        "directional_pnl_on_trend": -448.56
+      },
+      "full": {
+        "n_days": 365,
+        "total": -275.76,
+        "mean": -0.756,
+        "sharpe": -0.934,
+        "sortino": -0.124,
+        "max_dd": -310.36,
+        "win_days": 11,
+        "loss_days": 6
+      },
+      "oos": {
+        "n_days": 116,
+        "total": -84.88,
+        "mean": -0.732,
+        "sharpe": -1.143,
+        "sortino": -0.241,
+        "max_dd": -188.88,
+        "win_days": 5,
+        "loss_days": 4
+      },
+      "recency": {
+        "n_days": 25,
+        "total": -55.92,
+        "mean": -2.237,
+        "sharpe": -3.175,
+        "sortino": -0.635,
+        "max_dd": -55.92,
+        "win_days": 0,
+        "loss_days": 1
+      },
+      "no_regression": {
+        "n_switch_days": 354,
+        "book_pnl_on_switch_days": 172.8,
+        "directional_pnl_on_switch_days": 7514.52,
+        "net_improvement": -7341.72,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_rr_up": false,
+        "2_rec_dd_down": true,
+        "3_no_regress": false,
+        "4_oos_pos": false,
+        "ALL_PASS": false
+      }
+    }
+  ],
+  "DISCLOSURE": {
+    "what_this_answers": "does ANY causal IS-learned threshold make regime allocation beat directional-always? (sweep of the base harness)",
+    "condor_data_constrained": "IC sleeve is null-failing-standalone + +/-$5 OPRA band; a SHIP still needs wide-band condor validation (4b)."
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "skill": "chart-data-verify",
+  "run_at": "2026-06-17T14:30:13",
+  "target_date": "2026-06-17",
+  "verdict": "GREEN",
+  "reason": "all-bars-within-tolerance (non-close max=$0.0000)",
+  "csv_path": "C:\\Users\\jackw\\Desktop\\42\\backtest\\data\\spy_5m_2026-05-19_2026-06-17.csv",
+  "max_divergence_dollars": 0.08,
+  "rows_compared": 5,
+  "heal_action": "no-op",
+  "rows": [
+    {
+      "ts": "2026-06-17 15:35:00",
+      "csv_close": 739.530029296875,
+      "yf_close": 739.530029296875,
+      "divergence": 0.0,
+      "note": null
+    },
+    {
+      "ts": "2026-06-17 15:40:00",
+      "csv_close": 739.9500122070312,
+      "yf_close": 739.9500122070312,
+      "divergence": 0.0,
+      "note": null
+    },
+    {
+      "ts": "2026-06-17 15:45:00",
+      "csv_close": 740.8200073242188,
+      "yf_close": 740.8200073242188,
+      "divergence": 0.0,
+      "note": null
+    },
+    {
+      "ts": "2026-06-17 15:50:00",
+      "csv_close": 740.0,
+      "yf_close": 740.0,
+      "divergence": 0.0,
+      "note": null
+    },
+    {
+      "ts": "2026-06-17 15:55:00",
+      "csv_close": 741.010009765625,
+      "yf_close": 740.9299926757812,
+      "divergence": 0.08,
+      "note": "15:55-close-bar-relaxed-tolerance"
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "kind": "b2_vix_feed_parity",
+  "run_date": "2026-06-21",
+  "hard_window_last": "2026-05-29",
+  "last_signal_date": "2026-05-29",
+  "last_signal_within_cache": true,
+  "primitive_parity": {
+    "median_identical": true,
+    "slope_identical": true
+  },
+  "overall_exact_reproduction": true,
+  "totals": {
+    "research": 574,
+    "watcher": 574,
+    "intersect": 574
+  },
+  "validated_cell": {
+    "low_margin": 0.25,
+    "slope_rule": "not_rising",
+    "n_research": 84,
+    "n_watcher": 84,
+    "n_intersect": 84,
+    "n_only_research": 0,
+    "n_only_watcher": 0,
+    "jaccard": 1.0,
+    "side_disagreements": [],
+    "examples_only_research": [],
+    "examples_only_watcher": []
+  },
+  "cells": [
+    {
+      "low_margin": 0.0,
+      "slope_rule": "not_rising",
+      "n_research": 111,
+      "n_watcher": 111,
+      "n_intersect": 111,
+      "n_only_research": 0,
+      "n_only_watcher": 0,
+      "jaccard": 1.0,
+      "side_disagreements": [],
+      "examples_only_research": [],
+      "examples_only_watcher": []
+    },
+    {
+      "low_margin": 0.25,
+      "slope_rule": "not_rising",
+      "n_research": 84,
+      "n_watcher": 84,
+      "n_intersect": 84,
+      "n_only_research": 0,
+      "n_only_watcher": 0,
+      "jaccard": 1.0,
+      "side_disagreements": [],
+      "examples_only_research": [],
+      "examples_only_watcher": []
+    },
+    {
+      "low_margin": 0.5,
+      "slope_rule": "not_rising",
+      "n_research": 58,
+      "n_watcher": 58,
+      "n_intersect": 58,
+      "n_only_research": 0,
+      "n_only_watcher": 0,
+      "jaccard": 1.0,
+      "side_disagreements": [],
+      "examples_only_research": [],
+      "examples_only_watcher": []
+    },
+    {
+      "low_margin": 1.0,
+      "slope_rule": "not_rising",
+      "n_research": 34,
+      "n_watcher": 34,
+      "n_intersect": 34,
+      "n_only_research": 0,
+      "n_only_watcher": 0,
+      "jaccard": 1.0,
+      "side_disagreements": [],
+      "examples_only_research": [],
+      "examples_only_watcher": []
+    },
+    {
+      "low_margin": 0.0,
+      "slope_rule": "any",
+      "n_research": 111,
+      "n_watcher": 111,
+      "n_intersect": 111,
+      "n_only_research": 0,
+      "n_only_watcher": 0,
+      "jaccard": 1.0,
+      "side_disagreements": [],
+      "examples_only_research": [],
+      "examples_only_watcher": []
+    },
+    {
+      "low_margin": 0.25,
+      "slope_rule": "any",
+      "n_research": 84,
+      "n_watcher": 84,
+      "n_intersect": 84,
+      "n_only_research": 0,
+      "n_only_watcher": 0,
+      "jaccard": 1.0,
+      "side_disagreements": [],
+      "examples_only_research": [],
+      "examples_only_watcher": []
+    },
+    {
+      "low_margin": 0.5,
+      "slope_rule": "any",
+      "n_research": 58,
+      "n_watcher": 58,
+      "n_intersect": 58,
+      "n_only_research": 0,
+      "n_only_watcher": 0,
+      "jaccard": 1.0,
+      "side_disagreements": [],
+      "examples_only_research": [],
+      "examples_only_watcher": []
+    },
+    {
+      "low_margin": 1.0,
+      "slope_rule": "any",
+      "n_research": 34,
+      "n_watcher": 34,
+      "n_intersect": 34,
+      "n_only_research": 0,
+      "n_only_watcher": 0,
+      "jaccard": 1.0,
+      "side_disagreements": [],
+      "examples_only_research": [],
+      "examples_only_watcher": []
+    }
+  ],
+  "feed_spec": {
+    "source": "VIX 5m RTH closes (CBOE ^VIX), ffilled onto the SPY 5m grid via UTC join",
+    "alignment": "_align_vix: SPY ts -> tz America/New_York -> UTC; VIX ts utc=True; reindex VIX close onto SPY UTC index method='ffill'; NaN->0.0 only in deep warmup (never inside the 09:35-11:30 window)",
+    "lookback_median_bars": 78,
+    "median_rule": "pandas rolling(78, min_periods=max(5,78//4)=19).median().shift(1)",
+    "slope_window_bars": 5,
+    "slope_rule": "vix[i] - vix[i-5] (causal; NaN for i<5)",
+    "tz": "America/New_York for the 09:35-11:30 ET entry window (NOT UTC; L165/L61)",
+    "causality": "median shift(1) so a bar never sets its own baseline; all VIX inputs read at-or-before the candidate (just-closed) bar; entry fills NEXT bar",
+    "ctx_seam": "ctx.vix_intraday = list/np.ndarray of 5m VIX closes aligned to ctx.prior_bars (newest last), carrying >= VIX_MEDIAN_BARS prior bars of history for the median/slope warmup; the wrapper computes the causal regime over the FULL series then tail-slices to today's RTH frame",
+    "validated_live_cell": {
+      "low_margin": 0.25,
+      "slope_rule": "not_rising",
+      "strike_offset": 0,
+      "premium_stop_pct": -0.08,
+      "tier": "ATM_safe2"
+    }
+  },
+  "verdict": "VIX_FEED_PINNED"
+}

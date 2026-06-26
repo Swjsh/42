@@ -1,0 +1,33 @@
+# Lesson candidate: author-inbox items have no closing handshake → stale phantom backlog + duplicate-rebuild risk
+
+> Queued by conductor 2026-06-20 (after-hours fire). Class C7 (silent success / loop-not-closed) + OP-22 (compound, don't accumulate).
+
+## Symptom
+The `_validator-inbox` carried 2 items for an entire month (`sizing-risk-cap-guard.md` since 2026-05-31, `2026-05-21-ghost-entry-v26-regression.md` since 2026-05-21) that were **already fully implemented and registered** as gym validators:
+- `sizing-risk-cap-guard.md` → `crypto/validators/v42_sizing_risk_cap_guard.py` (registered, offline 12/12).
+- `2026-05-21-ghost-entry-v26-regression.md` → `v26_ghost_entry_detection.py` + `v43_ghost_entry_dual_account.py` (registered, 15/15 + 10/10).
+
+The 2026-06-20 22:05 conductor fire read these as "stale items worth draining" — i.e. **pending work** — when they were done. A future fire spawning `validator-author` against them would have built a near-duplicate (e.g. a redundant v44 of v42).
+
+## Root cause
+There is no closing handshake on the OP-29 author inboxes. When an author persona (validator/skill/lesson/chef) ships its artifact, **nothing renames the source inbox item to `.DONE`**. The producer (artifact) and the consumer-signal (inbox file) drift: artifact exists, inbox still says "pending." Same producer/consumer-silent-break class as the contracts/registry work, applied to the inbox lifecycle.
+
+## Fix (shipped this fire)
+Both items appended a CLOSED note pointing at the implementing validator + renamed `.DONE`. Validator-inbox now drained.
+
+## Proposed guard (graduate-to-code candidate)
+The durable fix is a closing-handshake guard so this cannot recur:
+1. **Process:** every author persona's FINAL step must rename its source inbox item `.DONE` (add to validator-author / skill-author / chef prompts).
+2. **Reconciliation test (preferred — encodes the invariant):** a pytest that, for each `_validator-inbox/*.md` carrying a `proposed_validator:` frontmatter field, ASSERTS the file is `.DONE` if `crypto/validators/{proposed_validator}.py` (or a `v\d+_{slug}`) already exists. Items lacking frontmatter (like the ghost-entry one) are reported as advisory, not hard-failed. This turns "did the author close its loop?" into a build-time assertion instead of a conductor re-reading phantom work every fire.
+
+## Related
+C7 (silent success is failure — audit outputs not exit codes), OP-22 (the 371st untriaged candidate is debt), the watcher-registry reconciliation test precedent (`backtest/tests/test_watcher_registry.py`) — same "being-defined == being-registered == being-reconciled" pattern, here applied to "being-implemented == inbox-closed."
+
+---
+## CLOSED 2026-06-21 (conductor) — ENCODED as L170 + GRADUATED to code
+Encoded as **L170** in `markdown/doctrine/LESSONS-LEARNED.md` (full Symptom/Root-cause/Fix/
+Principle/Encoded-in/Detection/Related structure). The proposed reconciliation-test guard was
+SHIPPED: `backtest/tests/test_author_inbox_reconciliation.py` (7/7 green) — asserts any open
+`_validator-inbox/*.md` whose `proposed_validator:` already exists on disk MUST be `.DONE`,
+with synthetic reproducers proving it fires when it should + frontmatterless items treated as
+advisory (fail-open). CLAUDE.md OP-25 C7-row fold staged as proposal `cd-2026-06-21-001` (rail 4).

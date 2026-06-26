@@ -1,0 +1,23 @@
+{
+  "skill": "watcher-state-inspector",
+  "run_at": "2026-06-17T14:30:14",
+  "target_date": "2026-06-17",
+  "verdict": "YELLOW",
+  "reason": "odf_state empty (may be correct if no drive-then-fade pattern)",
+  "today_bars_loaded": 78,
+  "bar_idx_in_day_warmed_up": 77,
+  "orb_state": {
+    "state": "NEUTRAL",
+    "direction": null,
+    "breakout_close": 752.1199951171875,
+    "breakout_ts": "2026-06-17 10:20:00-04:00",
+    "bars_since_breakout": 2,
+    "or_data": "OpeningRange(high=751.77001953125, low=749.8599853515625, range=1.9100341796875, pt_long_05=752.7250366210938, pt_long_10=753.6800537109375, pt_short_05=748.9049682617188, pt_short_10=747.949951171875)"
+  },
+  "odf_state": {},
+  "orb_status": "NEUTRAL",
+  "odf_status": null,
+  "warmup_errors": [],
+  "watcher_obs_count_today": 1,
+  "heal_action": "no-op"
+}

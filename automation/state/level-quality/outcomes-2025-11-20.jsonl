@@ -1,0 +1,14 @@
+{"date": "2025-11-20", "price": 655.91, "source": "multi_day", "touched": true, "outcome": "RESPECT", "reaction_dollars": 4.1, "false_break": false}
+{"date": "2025-11-20", "price": 658.77, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.57, "false_break": false}
+{"date": "2025-11-20", "price": 660.966614153951, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.973, "false_break": false}
+{"date": "2025-11-20", "price": 661.0881542428125, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.852, "false_break": false}
+{"date": "2025-11-20", "price": 661.1420690528051, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.798, "false_break": false}
+{"date": "2025-11-20", "price": 661.9, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.04, "false_break": false}
+{"date": "2025-11-20", "price": 667.34, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.81, "false_break": false}
+{"date": "2025-11-20", "price": 670.0, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.09, "false_break": false}
+{"date": "2025-11-20", "price": 670.35, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.74, "false_break": false}
+{"date": "2025-11-20", "price": 671.0, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.145, "false_break": false}
+{"date": "2025-11-20", "price": 671.37, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.775, "false_break": false}
+{"date": "2025-11-20", "price": 674.66, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.86, "false_break": true}
+{"date": "2025-11-20", "price": 681.42, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-11-20", "price": 682.03, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}

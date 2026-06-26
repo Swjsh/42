@@ -1,0 +1,153 @@
+{
+  "study": "vwap_pullback (H4) \u2014 genuine 4th 0DTE edge, or re-skin of #1 (L174)?",
+  "run_date": "2026-06-21",
+  "mode": "SAFE research \u2014 READ-ONLY, $0, no live edit, no orders",
+  "frame_independence_and_gates": "2025-01-02..2026-06-16 (master)",
+  "fills_authority": "real OPRA via lib.simulator_real / _dte_expansion_sim (C1)",
+  "detector": "BYTE-FOR-BYTE infinite_ammo_discovery.detect_vwap_pullback (H4)",
+  "overlap_method": "_b8_anchored_vwap convention (shared/candidate) + jaccard + same-side; OVERLAP_MAX=0.8 (L174)",
+  "best_tier": {
+    "tier": "ITM-2",
+    "strike_offset": -2,
+    "premium_stop_pct": -0.08
+  },
+  "vwap_pullback_signal_days": 98,
+  "independence_vs_book": {
+    "vwap_continuation": {
+      "candidate_days": 98,
+      "other_days": 166,
+      "shared_days": 98,
+      "same_side_shared_days": 98,
+      "day_overlap_shared_over_candidate": 1.0,
+      "jaccard_shared_over_union": 0.59,
+      "same_side_day_overlap": 1.0,
+      "reskin_by_same_side": true,
+      "reskin_by_day_overlap": true
+    },
+    "vwap_reclaim_failed_break": {
+      "candidate_days": 98,
+      "other_days": 86,
+      "shared_days": 30,
+      "same_side_shared_days": 30,
+      "day_overlap_shared_over_candidate": 0.306,
+      "jaccard_shared_over_union": 0.195,
+      "same_side_day_overlap": 0.306,
+      "reskin_by_same_side": false,
+      "reskin_by_day_overlap": false
+    },
+    "vix_regime_dayside": {
+      "candidate_days": 98,
+      "other_days": 85,
+      "shared_days": 51,
+      "same_side_shared_days": 51,
+      "day_overlap_shared_over_candidate": 0.52,
+      "jaccard_shared_over_union": 0.386,
+      "same_side_day_overlap": 0.52,
+      "reskin_by_same_side": false,
+      "reskin_by_day_overlap": false
+    }
+  },
+  "reskin_of_1": true,
+  "gate_bar_11": {
+    "tier": "ITM-2",
+    "strike_offset": -2,
+    "premium_stop_pct": -0.08,
+    "coverage": {
+      "signals": 98,
+      "filled": 93,
+      "cache_miss": 5,
+      "no_expiry_listed": 0,
+      "sim_none": 0,
+      "fill_rate": 0.949
+    },
+    "n": 93,
+    "oos_n": 34,
+    "oos_per_trade": 64.77,
+    "exp_per_trade": 30.94,
+    "is_first_half": 27.12,
+    "positive_quarters": "4/6",
+    "top5_day_pct": 52.6,
+    "drop_top5_full": 15.5,
+    "oos_drop_top5_L173": 31.41,
+    "oos_drop_top5_evaluable": true,
+    "risk_adj_exp_over_std": 0.2358,
+    "structural_gates_pass": true,
+    "structural_fails": [],
+    "L173_pass": true,
+    "gate7_null": {
+      "seeds": 20,
+      "per_trade_mean": 0.3,
+      "per_trade_max": 16.43,
+      "per_trade_min": -21.5,
+      "n_drawn": 93
+    },
+    "gate7_null_pass": true,
+    "chart_stop_only_per_trade": 39.63,
+    "gate8_truncation_artifact": false,
+    "ALL_11_GATES_PASS": true
+  },
+  "recency": {
+    "recent_window": {
+      "window": "2026-05-14..2026-06-18",
+      "n": 5,
+      "n_days": 5,
+      "wr_pct": 20.0,
+      "exp_per_trade": -20.42,
+      "total_dollar": -102.12,
+      "sign": "NEGATIVE",
+      "win_days": 1,
+      "loss_days": 4
+    },
+    "full_oos_2026": {
+      "window": "2026-01-01..2026-06-18",
+      "n": 35,
+      "n_days": 35,
+      "wr_pct": 54.3,
+      "exp_per_trade": 117.27,
+      "total_dollar": 4104.6,
+      "sign": "POSITIVE",
+      "win_days": 19,
+      "loss_days": 16
+    },
+    "verdict": "YELLOW",
+    "reason": "recent $-20.42/tr <=0 but n=5<floor; full-OOS $117.27/tr",
+    "opra_cache_last": "2026-06-18"
+  },
+  "incremental_value": {
+    "note": "all on master frame, real OPRA fills, ITM-2/-0.08 (directional apples-to-apples)",
+    "vwap_pullback_daily": {
+      "n_days": 93,
+      "total": 5930.88,
+      "daily_mean": 63.77,
+      "daily_sharpe": 0.3561
+    },
+    "existing_book_1+2+4_daily": {
+      "n_days": 160,
+      "total": 21279.08,
+      "daily_mean": 132.99,
+      "daily_sharpe": 0.4091
+    },
+    "book_plus_vp_daily": {
+      "n_days": 160,
+      "total": 27209.96,
+      "daily_mean": 170.06,
+      "daily_sharpe": 0.4314
+    },
+    "corr_vp_vs_#1": {
+      "n_common_days": 93,
+      "pearson": 0.389
+    },
+    "corr_vp_vs_existing_book": {
+      "n_common_days": 93,
+      "pearson": 0.464
+    },
+    "shared_trading_days_vp_book": 93
+  },
+  "VERDICT": "RESKIN_OF_1",
+  "DISCLOSURE": {
+    "L174": "decisive test is same-side day-overlap vs LIVE #1; anchored-VWAP A3 was blocked at 0.973",
+    "chart_stop_caveat": "the headline +$64.77/tr uses premium_stop=-0.08; the LIVE first-strike rule (L51/L55/C2) trades chart-stop-only, where prior ratify (vwap_pullback_ratify.py) found only +$14/t and WF median 0.239 FAIL. This study evaluates the SURVEY's -0.08 cell as posed.",
+    "proxy_strikes": "nearest-cached strike (L58); directionally valid, $ modestly off",
+    "real_fills": "real OPRA fills only \u2014 WR authority (C1); SPY-direction != option edge (C3/L58)"
+  }
+}

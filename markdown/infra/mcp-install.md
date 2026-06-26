@@ -1,46 +1,57 @@
 # MCP Install — Alpaca + TradingView (Claude Code)
 
-> Run these steps once on the trading rig. Verify with `markdown/infra/verification.md` after.
+> How the trading rig is wired today. Verify with [`markdown/infra/verification.md`](verification.md) after any change.
 
-**Host:** Claude Code (we picked this because Cowork's connector registry doesn't carry Alpaca or TradingView MCPs).
-**Config file:** `~/.claude/.mcp.json` (Linux/macOS) or `%USERPROFILE%\.claude\.mcp.json` (Windows).
+**Host:** Claude Code (Cowork's connector registry doesn't carry Alpaca or TradingView MCPs).
+**Config file:** repo-root **`.mcp.json`** (`C:\Users\jackw\Desktop\42\.mcp.json`) — project-scoped, picked up on Claude Code restart. The same server block is mirrored in `~/.claude.json` under this project's entry; keep the two in sync.
+
+There are **three** MCP servers: `tradingview`, `alpaca` (Gamma-Safe-2), `alpaca_aggressive` (Gamma-Risky-2). Both Alpaca servers run the same binary under different keys.
 
 ---
 
-## 1. Alpaca MCP (paper trading API)
+## The pythonw hidden-window shim
 
-There are several community Alpaca MCP servers. The most actively maintained one as of project kickoff is the official Alpaca Markets reference (`alpacahq/alpaca-mcp-server`) — verify which one you want before installing. Below assumes the Python reference impl; adjust if you choose a different one.
+Every server is launched through `setup\mcp\mcp_stdio_hidden.py` run by the **Store Python 3.13 `pythonw.exe`** (`...\Python\Python313\pythonw.exe`). The shim re-spawns the real command (`uvx ...` / `node ...`) with `CREATE_NO_WINDOW` so no black console flashes on Win11 (the window-leak fix). Do NOT invoke `uvx`/`node` directly in `.mcp.json` — always go through the shim.
+
+---
+
+## 1. Alpaca MCP (paper trading) — two accounts
+
+Binary: `uvx alpaca-mcp-server` (uv fetches/pins it; no clone, no `pip install -e`). One server per account, distinguished only by the `env` keys.
 
 ### Get paper API keys
 
-1. Sign in to alpaca.markets.
-2. Toggle to **Paper Trading**.
-3. Generate **API Key** and **Secret** for paper. Save to a password manager — never paste into chat or files.
+1. Sign in to alpaca.markets → toggle to **Paper Trading**.
+2. Generate **API Key** + **Secret** for each paper account. Save to a password manager — never paste into chat.
 
-### Install
-
-```bash
-# clone or pip install — pick the one that matches the package you chose
-pip install alpaca-mcp-server
-# or
-git clone https://github.com/alpacahq/alpaca-mcp-server.git ~/code/alpaca-mcp
-cd ~/code/alpaca-mcp && pip install -e .
-```
-
-### Add to `~/.claude/.mcp.json`
-
-Open that file and add an entry under `mcpServers`:
+### Server blocks (in repo-root `.mcp.json`)
 
 ```jsonc
 {
   "mcpServers": {
-    "alpaca": {
-      "command": "python",
-      "args": ["-m", "alpaca_mcp_server"],
+    "alpaca": {                         // → Gamma-Safe-2  (PA3S2PYAS2WQ)
+      "command": "C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe",
+      "args": [
+        "C:\\Users\\jackw\\Desktop\\42\\setup\\mcp\\mcp_stdio_hidden.py",
+        "uvx", "alpaca-mcp-server"
+      ],
       "env": {
-        "ALPACA_API_KEY_ID": "<paste paper key>",
-        "ALPACA_SECRET_KEY": "<paste paper secret>",
-        "ALPACA_PAPER": "true",
+        "ALPACA_API_KEY": "PK7WRO5T…",      // Safe-2 key
+        "ALPACA_SECRET_KEY": "…",
+        "ALPACA_PAPER_TRADE": "true",
+        "ALPACA_BASE_URL": "https://paper-api.alpaca.markets"
+      }
+    },
+    "alpaca_aggressive": {              // → Gamma-Risky-2 (PA33W2KUAT40)
+      "command": "C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe",
+      "args": [
+        "C:\\Users\\jackw\\Desktop\\42\\setup\\mcp\\mcp_stdio_hidden.py",
+        "uvx", "alpaca-mcp-server"
+      ],
+      "env": {
+        "ALPACA_API_KEY": "PKQMQD2N…",      // Risky-2 key
+        "ALPACA_SECRET_KEY": "…",
+        "ALPACA_PAPER_TRADE": "true",
         "ALPACA_BASE_URL": "https://paper-api.alpaca.markets"
       }
     }
@@ -48,17 +59,29 @@ Open that file and add an entry under `mcpServers`:
 }
 ```
 
-> **Important:** keep the file out of git. If `~/.claude/.mcp.json` lives anywhere version-controlled, swap secrets for env-var refs and source from a `.env` you `.gitignore`.
+Tools come through as `mcp__alpaca__*` (Safe) and `mcp__alpaca_aggressive__*` (Bold).
+
+> **Important:** `.mcp.json` holds live secrets — it must stay out of git. If it ever lands somewhere version-controlled, swap secrets for env-var refs sourced from a `.gitignore`d `.env`.
 
 ---
 
 ## 2. TradingView MCP
 
-```bash
-git clone https://github.com/tradesdontlie/tradingview-mcp.git ~/code/tradingview-mcp
-cd ~/code/tradingview-mcp
-npm install
-npm run build   # if the repo has a build step — check its README
+Launched via the **SwjshAlgoKnife launcher** (`launcher.cjs`), also wrapped in the hidden-window shim:
+
+```jsonc
+{
+  "mcpServers": {
+    "tradingview": {
+      "command": "C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe",
+      "args": [
+        "C:\\Users\\jackw\\Desktop\\42\\setup\\mcp\\mcp_stdio_hidden.py",
+        "node",
+        "C:\\Users\\jackw\\Desktop\\SwjshAlgoKnife\\mcp-servers\\tradingview-mcp\\launcher.cjs"
+      ]
+    }
+  }
+}
 ```
 
 ### Launch TradingView desktop with the debug port
@@ -73,52 +96,22 @@ C:\Users\jackw\Desktop\42\setup\launch_tv_debug.ps1
 C:\Users\jackw\Desktop\42\setup\launch_tv_debug.ps1 -Kill
 ```
 
-Expected output: `CDP ready at http://localhost:9222`
-
-> This must run **before** opening Claude Code. The TV MCP connects to the debug port at startup. If you open Claude Code first, restart it after running the script.
-
-### Add to `~/.claude/.mcp.json`
-
-```jsonc
-{
-  "mcpServers": {
-    "alpaca": { "...": "..." },
-    "tradingview": {
-      "command": "node",
-      "args": ["~/code/tradingview-mcp/dist/index.js"],
-      "env": {
-        "TV_DEBUG_PORT": "9222"
-      }
-    }
-  }
-}
-```
-
-(Replace path/entry-point with whatever the repo specifies.)
+Expected output: `CDP ready at http://localhost:9222`. In production this runs automatically (`Gamma_LaunchTV` 08:00 ET + `Gamma_TvWatchdog` keepalive). The TV MCP connects to the debug port at startup — if you open Claude Code before the port is up, restart Claude Code.
 
 ---
 
 ## 3. Restart Claude Code
 
-After saving `.mcp.json`, fully restart Claude Code. The MCPs need a fresh process to load.
-
-```bash
-# kill any running Claude Code processes, then re-launch
-claude  # or however you start it
-```
+After editing `.mcp.json`, fully restart Claude Code (and mirror the change into `~/.claude.json`). The MCP servers need a fresh process to load — a rotated key only takes effect on restart.
 
 ---
 
 ## 4. Verify
 
-Proceed to `markdown/infra/verification.md`.
+Proceed to [`markdown/infra/verification.md`](verification.md).
 
 ---
 
 ## Where to journal the install
 
-When done, log in `CLAUDE.md` update table:
-
-| Date | Update | By |
-|---|---|---|
-| YYYY-MM-DD | MCPs installed: Alpaca paper (vX.Y), TradingView (commit `abc1234`). Both responding to health checks. | J |
+Log doctrine/wiring changes in [CHANGELOG.md](../../CHANGELOG.md), not inline in CLAUDE.md.

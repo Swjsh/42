@@ -1,0 +1,24 @@
+{
+  "agent": "pattern_scout",
+  "generated_at": "2026-06-26T14:17:56.000000+00:00",
+  "bias": "bearish",
+  "confidence": 0.65,
+  "reasoning": "Close-ceiling pattern detected at PMH_2026-06-26 (732.62): 5 consecutive bars with high >= 732.62 but close < 732.62. Bars at 14:00-14:15 all tested the PMH level but failed to close above it. This is distribution (bear absorption). Volume dropped sharply on last bar (12,405 vs 116,081 prior), suggesting exhaustion of buying pressure. If next bar closes above 732.62, fake_breakout_risk becomes HIGH (bull trap likely).",
+  "close_ceiling_detected": true,
+  "close_ceiling_level": 732.62,
+  "close_ceiling_run": 5,
+  "floor_hold_detected": false,
+  "floor_hold_level": null,
+  "floor_hold_run": 0,
+  "fake_breakout_risk": "HIGH",
+  "candlestick_pattern": "none",
+  "last_bar_vs_level": "above_key_level",
+  "nearest_level_price": 732.62,
+  "nearest_level_type": "resistance",
+  "key_observations": [
+    "Close-ceiling at PMH_732.62: 5 bars (14:00-14:15) with high >= 732.62 but close < 732.62 — distribution confirmed",
+    "Last bar (14:15): close 733.21 is above key level 732.62 but high 733.27 failed to hold — rejection at resistance",
+    "Candlesticks show small bodies with minimal wicks — no clear exhaustion signals, consolidation pattern instead"
+  ],
+  "data_quality": "full"
+}

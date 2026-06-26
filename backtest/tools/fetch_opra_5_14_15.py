@@ -15,7 +15,6 @@ Run:
 from __future__ import annotations
 
 import datetime as dt
-import os
 import time
 from pathlib import Path
 from urllib.error import HTTPError, URLError
@@ -25,6 +24,8 @@ import csv
 import json
 import logging
 
+from _alpaca_creds import masked, resolve_alpaca_creds
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -32,10 +33,6 @@ REPO = Path(__file__).resolve().parents[1]
 OPTIONS_DIR = REPO / "data" / "options"
 OPTIONS_DIR.mkdir(parents=True, exist_ok=True)
 
-ALPACA_KEY = os.environ.get("ALPACA_API_KEY", "PK33J2RV4PNIY6TCOLUG3WYGRX")
-ALPACA_SECRET = os.environ.get(
-    "ALPACA_API_SECRET", "FxbJshSbhJ8Rn7KPENssS4eWsLpxCyYeyxavxywV9Bbs"
-)
 ALPACA_OPTIONS_URL = "https://data.alpaca.markets/v1beta1/options/bars"
 SLEEP = 0.31  # ~190 req/min — safe under Alpaca free-tier 200 req/min
 
@@ -46,7 +43,7 @@ def option_symbol(trade_date: dt.date, strike: int, side: str) -> str:
     return f"SPY{yymmdd}{s}{int(round(strike)) * 1000:08d}"
 
 
-def fetch_contract_bars(symbol: str, trade_date: dt.date) -> list[dict]:
+def fetch_contract_bars(symbol: str, trade_date: dt.date, key: str, secret: str) -> list[dict]:
     """Fetch 5-minute OHLCV bars for a 0DTE contract on trade_date.
 
     Matches expand_opra_cache.py exactly — no feed/currency params, UTC window,
@@ -64,8 +61,8 @@ def fetch_contract_bars(symbol: str, trade_date: dt.date) -> list[dict]:
     }
     url = f"{ALPACA_OPTIONS_URL}?{urlencode(params)}"
     req = Request(url, headers={
-        "APCA-API-KEY-ID": ALPACA_KEY,
-        "APCA-API-SECRET-KEY": ALPACA_SECRET,
+        "APCA-API-KEY-ID": key,
+        "APCA-API-SECRET-KEY": secret,
     })
     with urlopen(req, timeout=30) as resp:
         data = json.loads(resp.read().decode("utf-8"))
@@ -129,13 +126,16 @@ def build_targets() -> list[tuple[dt.date, str]]:
 
 def main() -> None:
     targets = build_targets()
+    # Resolve creds lazily on the fetch path (never at import time).
+    creds = resolve_alpaca_creds()
+    logger.info("Alpaca creds: key=%s source=%s", masked(creds.key), creds.source)
     logger.info("Fetching %d contracts for 2026-05-14 + 2026-05-15", len(targets))
     for i, (trade_date, symbol) in enumerate(targets, 1):
         attempt = 0
         while True:
             attempt += 1
             try:
-                rows = fetch_contract_bars(symbol, trade_date)
+                rows = fetch_contract_bars(symbol, trade_date, creds.key, creds.secret)
                 if rows:
                     write_cache(symbol, rows)
                     logger.info("[%d/%d] OK   %s  %d bars", i, len(targets), symbol, len(rows))

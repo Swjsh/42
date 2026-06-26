@@ -1,0 +1,52 @@
+{
+  "task": "c7d2e831-lbfs-fill-bar",
+  "candidate": "require_bearish_fill_bar=True on SAFE account",
+  "baseline": {
+    "is": {
+      "n": 113,
+      "wr": 0.389,
+      "avg": 207.3,
+      "total": 23426.6
+    },
+    "oos": {
+      "n": 24,
+      "wr": 0.333,
+      "avg": 246.7,
+      "total": 5920.8
+    },
+    "anchor": 0
+  },
+  "candidate_stats": {
+    "is": {
+      "n": 93,
+      "wr": 0.43,
+      "avg": 237.9,
+      "total": 22123.1
+    },
+    "oos": {
+      "n": 24,
+      "wr": 0.417,
+      "avg": 293.6,
+      "total": 7046.3
+    },
+    "anchor": 101.39999999999995
+  },
+  "is_delta": -1303.5,
+  "oos_delta": 1125.5,
+  "wf_norm": null,
+  "sw_hurt": 3,
+  "removed_is": 20,
+  "removed_oos": 0,
+  "gates": {
+    "G1": false,
+    "G2": true,
+    "G3": false,
+    "G4": false,
+    "G5": true,
+    "all": false
+  },
+  "verdict": "REJECT",
+  "auto_ratify": false,
+  "ratify_action": null,
+  "note": "C29 caveat: both SAFE and AGG use strike_offset=-2 (ITM-2 per orchestrator). G3=WF>=0.70 is the key gate."
+}

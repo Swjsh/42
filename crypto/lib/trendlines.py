@@ -38,20 +38,33 @@ class Trendline:
         return self.intercept + self.slope * time_unix
 
 
-def find_swing_points(bars: Sequence[Bar], window: int = 3) -> list[SwingPoint]:
+def find_swing_points(
+    bars: Sequence[Bar], window: int = 3, inclusive_right: bool = False
+) -> list[SwingPoint]:
     """Find swing highs/lows. A swing high at index i requires
-    bars[i].high > all of bars[i-window:i].high and bars[i+1:i+window+1].high."""
+    bars[i].high > all of bars[i-window:i].high and bars[i+1:i+window+1].high.
+
+    inclusive_right: if True, the right-side comparison allows equality (<=/>=),
+    so a flat-topped/flat-bottomed plateau (equal highs/lows on adjacent bars)
+    registers ONE deterministic pivot at the FIRST bar of the plateau. Default
+    False preserves the original strict behaviour (used by v06 + trendline fits);
+    market_structure passes True so equal-level double-tops/bottoms aren't dropped.
+    """
     out: list[SwingPoint] = []
     n = len(bars)
     for i in range(window, n - window):
         h = bars[i].high
         l = bars[i].low
-        is_swing_high = all(bars[j].high < h for j in range(i - window, i)) and all(
-            bars[j].high < h for j in range(i + 1, i + window + 1)
-        )
-        is_swing_low = all(bars[j].low > l for j in range(i - window, i)) and all(
-            bars[j].low > l for j in range(i + 1, i + window + 1)
-        )
+        left_high = all(bars[j].high < h for j in range(i - window, i))
+        left_low = all(bars[j].low > l for j in range(i - window, i))
+        if inclusive_right:
+            right_high = all(bars[j].high <= h for j in range(i + 1, i + window + 1))
+            right_low = all(bars[j].low >= l for j in range(i + 1, i + window + 1))
+        else:
+            right_high = all(bars[j].high < h for j in range(i + 1, i + window + 1))
+            right_low = all(bars[j].low > l for j in range(i + 1, i + window + 1))
+        is_swing_high = left_high and right_high
+        is_swing_low = left_low and right_low
         if is_swing_high:
             out.append(SwingPoint(i, bars[i].open_time.timestamp(), h, "swing_high"))
         if is_swing_low:

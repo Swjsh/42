@@ -1,0 +1,218 @@
+{
+  "lead_cell": "IC 10:30 off2 w2 pt0.5 stop1.5x",
+  "data_window": "2025-01-02..2026-06-18",
+  "n_days": 365,
+  "n_oos": 116,
+  "check1_null": {
+    "seed": 99,
+    "iters": 400,
+    "n_oos": 52,
+    "actual_oos_exp": 23.03,
+    "strike_null_mean": 19.68,
+    "strike_null_p95": 26.66,
+    "actual_pctile_vs_strike": 0.787,
+    "entry_null_mean": 7.18,
+    "entry_null_p95": 13.35,
+    "actual_pctile_vs_entry": 1.0,
+    "beats_strike_null": false,
+    "beats_entry_null": true,
+    "beats_null": false
+  },
+  "check2_survivorship": {
+    "n_days": 365,
+    "n_taken": 162,
+    "n_skipped": 203,
+    "skip_rate": 0.556,
+    "skip_reasons": {
+      "missing_cache": 203
+    },
+    "excursion_full": {
+      "taken": {
+        "range_pct": {
+          "n": 162,
+          "mean": 0.844,
+          "median": 0.751,
+          "p90": 1.37,
+          "max": 2.53
+        },
+        "move_to_close_pct": {
+          "n": 162,
+          "mean": 0.119,
+          "median": 0.096,
+          "p90": 0.22,
+          "max": 0.768
+        },
+        "max_excursion_pct": {
+          "n": 162,
+          "mean": 0.442,
+          "median": 0.366,
+          "p90": 0.748,
+          "max": 1.565
+        }
+      },
+      "skipped": {
+        "range_pct": {
+          "n": 203,
+          "mean": 1.557,
+          "median": 1.23,
+          "p90": 2.575,
+          "max": 12.21
+        },
+        "move_to_close_pct": {
+          "n": 203,
+          "mean": 0.735,
+          "median": 0.547,
+          "p90": 1.242,
+          "max": 8.918
+        },
+        "max_excursion_pct": {
+          "n": 203,
+          "mean": 0.984,
+          "median": 0.726,
+          "p90": 1.626,
+          "max": 9.04
+        }
+      }
+    },
+    "excursion_oos": {
+      "taken": {
+        "range_pct": {
+          "n": 52,
+          "mean": 1.001,
+          "median": 1.015,
+          "p90": 1.401,
+          "max": 1.848
+        },
+        "move_to_close_pct": {
+          "n": 52,
+          "mean": 0.13,
+          "median": 0.089,
+          "p90": 0.23,
+          "max": 0.768
+        },
+        "max_excursion_pct": {
+          "n": 52,
+          "mean": 0.476,
+          "median": 0.424,
+          "p90": 0.735,
+          "max": 1.565
+        }
+      },
+      "skipped": {
+        "range_pct": {
+          "n": 64,
+          "mean": 1.64,
+          "median": 1.352,
+          "p90": 2.806,
+          "max": 8.346
+        },
+        "move_to_close_pct": {
+          "n": 64,
+          "mean": 0.641,
+          "median": 0.483,
+          "p90": 1.278,
+          "max": 1.895
+        },
+        "max_excursion_pct": {
+          "n": 64,
+          "mean": 0.867,
+          "median": 0.683,
+          "p90": 1.534,
+          "max": 2.511
+        }
+      }
+    },
+    "forced_trade_counterfactual": {
+      "skip_days_total": 203,
+      "forced_priceable": 201,
+      "forced_unpriceable": 2,
+      "forced_only_expectancy": 36.99,
+      "forced_only_wr": 0.955,
+      "taken_only_expectancy": 16.53,
+      "combined_expectancy": 27.86,
+      "ev_flips_negative_when_forced": false
+    }
+  },
+  "check3_posq": {
+    "EOD": {
+      "posMonth_oos": 5,
+      "n_oos_months": 6,
+      "posQ_combined_IS_OOS": 6,
+      "n_combined_quarters": 6,
+      "month_means": {
+        "2026-01": 32.72,
+        "2026-02": 38.5,
+        "2026-03": 40.23,
+        "2026-04": 20.17,
+        "2026-05": -3.58,
+        "2026-06": 9.8
+      },
+      "passes_posMonth_4of6": true
+    },
+    "1.5x": {
+      "posMonth_oos": 5,
+      "n_oos_months": 6,
+      "posQ_combined_IS_OOS": 5,
+      "n_combined_quarters": 6,
+      "month_means": {
+        "2026-01": 32.72,
+        "2026-02": 38.5,
+        "2026-03": 40.23,
+        "2026-04": 20.17,
+        "2026-05": -3.28,
+        "2026-06": 9.8
+      },
+      "passes_posMonth_4of6": true
+    },
+    "2.0x": {
+      "posMonth_oos": 5,
+      "n_oos_months": 6,
+      "posQ_combined_IS_OOS": 5,
+      "n_combined_quarters": 6,
+      "month_means": {
+        "2026-01": 32.72,
+        "2026-02": 38.5,
+        "2026-03": 40.23,
+        "2026-04": 20.17,
+        "2026-05": -5.58,
+        "2026-06": 9.8
+      },
+      "passes_posMonth_4of6": true
+    }
+  },
+  "check4_intrabar": {
+    "EOD": {
+      "stop_active": false,
+      "n_taken": 162,
+      "n_oos": 52,
+      "actual_close_basis_stops": 0,
+      "intrabar_extra_would_hit": 0,
+      "intrabar_extra_rate": 0.0,
+      "oos_actual_stops": 0,
+      "oos_intrabar_extra_would_hit": 0,
+      "note": "EOD-only variant has NO stop -> intrabar-stop dishonesty N/A, but the trade-off is an UNCAPPED-intraday hold (defined-risk wing the only cap)"
+    },
+    "1.5x": {
+      "stop_active": true,
+      "n_taken": 162,
+      "n_oos": 52,
+      "actual_close_basis_stops": 7,
+      "intrabar_extra_would_hit": 33,
+      "intrabar_extra_rate": 0.204,
+      "oos_actual_stops": 1,
+      "oos_intrabar_extra_would_hit": 8,
+      "note": "trades where intrabar-worst MTM <= stop but bar.close did NOT -> real fills would have stopped these out; close-basis EV is OPTIMISTIC"
+    },
+    "2.0x": {
+      "stop_active": true,
+      "n_taken": 162,
+      "n_oos": 52,
+      "actual_close_basis_stops": 3,
+      "intrabar_extra_would_hit": 14,
+      "intrabar_extra_rate": 0.086,
+      "oos_actual_stops": 1,
+      "oos_intrabar_extra_would_hit": 4,
+      "note": "trades where intrabar-worst MTM <= stop but bar.close did NOT -> real fills would have stopped these out; close-basis EV is OPTIMISTIC"
+    }
+  }
+}

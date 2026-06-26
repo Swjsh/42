@@ -1,0 +1,83 @@
+{
+  "rule_id": "safe_bull_1100_1200_gate",
+  "title": "BLOCK_BULL_1100_1200: block ALL BULL (C) entries during 11:00-12:00 ET window",
+  "hypothesis": "CALL entries from 11:00-12:00 ET are structurally weak: 10/11 IS losses in this window. Time-of-day effect — midday liquidity dip + premium decay accelerating.",
+  "attempted_at": "2026-06-18",
+  "verdict": "RATIFY",
+  "op22_gates": {
+    "G1_IS_delta_ge_0": {
+      "value": 89,
+      "pass": true,
+      "note": "IS n=11 blocked (10 losers, 1 winner: 2026-01-09 +$198), total=-$89 removed"
+    },
+    "G2_OOS_delta_gt_0": {
+      "value": 42,
+      "pass": true,
+      "note": "OOS n=1 blocked: 2026-05-20 11:20 confluence+level_reclaim -$42"
+    },
+    "G3_WF_ge_0.70": {
+      "value": 5.219,
+      "pass": true,
+      "formula": "(42/1) / (89/11) = 42 / 8.09 = 5.19"
+    },
+    "G4_SW_hurt_le_1": {
+      "pass": true,
+      "sw_hurt": 1,
+      "detail": [
+        {"window": "2025-01-02..2025-05-30", "n_removed": 3, "delta": 88, "pass": true},
+        {"window": "2025-06-02..2025-10-31", "n_removed": 3, "delta": 97, "pass": true},
+        {"window": "2025-11-03..2026-05-07", "n_removed": 5, "delta": -96, "pass": false,
+         "note": "2026-01-09 +$198 winner in this window drives negative delta"}
+      ]
+    },
+    "G5_anchor_no_regression": {
+      "pass": true,
+      "note": "Gate blocks BULL (C) entries only. Anchor trades (4/29, 5/1, 5/4) are all PUT/BEAR — unaffected."
+    }
+  },
+  "baseline": {
+    "account": "Gamma-Safe-2",
+    "IS_period": "2025-01-02 to 2026-05-07",
+    "OOS_period": "2026-05-08 to 2026-06-15",
+    "IS_n_trades": 98,
+    "OOS_n_trades": 20,
+    "active_gates": [
+      "entry_bar_body_pct_min=0.20",
+      "block_level_rejection=True",
+      "block_elite_bull=True (VIX 15-17.5)",
+      "midday_trendline_gate=True",
+      "vix_bear_hard_cap=23.0"
+    ]
+  },
+  "blocked_IS_bulls": [
+    {"date": "2025-01-03", "time": "11:05", "combo": "level_reclaim+ribbon_flip+sequence_reclaim", "pnl": -44},
+    {"date": "2025-01-16", "time": "11:25", "combo": "confluence+level_reclaim+ribbon_flip", "pnl": -45},
+    {"date": "2025-02-10", "time": "11:05", "combo": "confluence+level_reclaim+ribbon_flip", "pnl": 0},
+    {"date": "2025-08-27", "time": "11:40", "combo": "confluence+level_reclaim", "pnl": -48},
+    {"date": "2025-09-12", "time": "11:00", "combo": "confluence+level_reclaim", "pnl": -11},
+    {"date": "2025-09-26", "time": "11:30", "combo": "confluence+level_reclaim+ribbon_flip", "pnl": -38},
+    {"date": "2025-12-09", "time": "11:30", "combo": "confluence+level_reclaim+sequence_reclaim", "pnl": -34},
+    {"date": "2025-12-11", "time": "11:25", "combo": "level_reclaim+ribbon_flip", "pnl": -44},
+    {"date": "2025-12-23", "time": "11:10", "combo": "confluence+level_reclaim", "pnl": 0},
+    {"date": "2026-01-07", "time": "11:35", "combo": "confluence+level_reclaim+ribbon_flip", "pnl": -24},
+    {"date": "2026-01-09", "time": "11:15", "combo": "confluence+level_reclaim", "pnl": 198}
+  ],
+  "blocked_OOS_bulls": [
+    {"date": "2026-05-20", "time": "11:20", "combo": "confluence+level_reclaim", "pnl": -42}
+  ],
+  "caveats": [
+    "SW3 (2025-11-03..2026-05-07) has delta=-96 due to 1 large IS winner (2026-01-09 +$198). G4 passes because ≤1 sub-window can hurt.",
+    "OOS evidence thin (n=1 blocked). Signal is IS-dominant. The IS WR=9.1% (n=11) is the core evidence.",
+    "Gate is broad — blocks ALL bull entries 11-12, not just bad combos. Any future high-conviction 11:XX bull SUPER trade would also be blocked.",
+    "Does not overlap with midday_trendline_gate (which covers 11:30-14:00 but only for TRENDLINE-only BEARS)."
+  ],
+  "implementation": {
+    "orchestrator_param": "block_bull_1100_1200",
+    "params_json_key": "block_bull_1100_1200",
+    "params_json_value": true,
+    "gate_condition": "winning_side == 'C' AND 11:00 <= bar_time < 12:00",
+    "action": "SKIP_BULL_1100_1200",
+    "ratified_at": "2026-06-18",
+    "revert": "set block_bull_1100_1200: false in params.json"
+  }
+}

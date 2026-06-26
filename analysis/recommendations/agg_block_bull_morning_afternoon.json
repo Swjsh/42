@@ -1,0 +1,116 @@
+{
+  "rule_id": "agg_block_bull_morning_afternoon",
+  "title": "Block ALL BULL (C) entries 10:00-11:30 ET AND >=14:00 ET (Aggressive account)",
+  "hypothesis": "IS MORNING bulls (10:00-11:30 ET): n=47, WR=14.9%, total=-$222 — structurally weak at ITM-2. IS AFTERNOON bulls (14:00-15:00 ET): n=6, WR=0%, total=-$82 (all losses/breakevens). IS POWER_HOUR bulls (>=15:00): n=3, WR=33%, total=-$45 (aligns with live entry_no_trade_after_et=15:00). Bulls in all these windows drain P&L without meaningful signal. OOS MORNING: 2 trades (2026-05-26 +$0, 2026-05-28 -$40). OOS POWER_HOUR: 1 trade (2026-05-27 15:05 -$42).",
+  "attempted_at": "2026-06-18",
+  "extended_at": "2026-06-18",
+  "verdict": "RATIFY",
+  "method": "4-way A/B (baseline IS/OOS vs candidate IS/OOS, orchestrator full run with cascade). Extended from 14:00-15:00 to >=14:00 (adds POWER_HOUR). Re-run confirmed all 5 OP-22 gates still pass with better margins.",
+  "baseline": {
+    "IS_n": 169,
+    "IS_pnl": 3962,
+    "IS_wr": 0.260,
+    "OOS_n": 21,
+    "OOS_pnl": 1128,
+    "OOS_wr": 0.476
+  },
+  "candidate": {
+    "block_bull_morning_agg": true,
+    "gate_windows": "10:00-11:30 ET AND >=14:00 ET (BULL/C side only)",
+    "IS_n": 129,
+    "IS_pnl": 4346,
+    "IS_wr": 0.310,
+    "OOS_n": 18,
+    "OOS_pnl": 1210,
+    "OOS_wr": 0.556
+  },
+  "op22_gates": {
+    "G1_IS_delta_ge_0": {
+      "value": 384,
+      "n_removed_net": 40,
+      "pass": true,
+      "note": "Cascade-adjusted: 40 fewer trades net (47 MORNING + 6 AFTERNOON + 3 POWER_HOUR post-hoc = 56 blocked; cascade-in adds 16 replacement trades). IS P&L improves +$384."
+    },
+    "G2_OOS_delta_gt_0": {
+      "value": 82,
+      "n_removed_net": 3,
+      "pass": true,
+      "note": "3 OOS bulls removed: 2026-05-26 10:40 level_reclaim +$0, 2026-05-28 10:15 conf+lvl_rec+ribbon -$40, 2026-05-27 15:05 level_reclaim -$42."
+    },
+    "G3_WF_ge_0.70": {
+      "value": 2.837,
+      "pass": true,
+      "formula": "(82/3) / (384/40) = 27.33 / 9.60 = 2.837"
+    },
+    "G4_SW_hurt_le_1": {
+      "pass": true,
+      "sw_hurt": 1,
+      "detail": [
+        {"window": "2025-01-02..2025-05-30", "delta": -126, "pass": false, "note": "Cascade: MORNING winners in Jan-Feb 2025 blocked; replacements are losers"},
+        {"window": "2025-06-02..2025-10-31", "delta": 401, "pass": true},
+        {"window": "2025-11-03..2026-05-07", "delta": 109, "pass": true}
+      ]
+    },
+    "G5_anchor_no_regression": {
+      "pass": true,
+      "note": "All 3 anchor dates (2026-04-29, 2026-05-01, 2026-05-04) are PUT/BEAR trades. Gate only affects BULL (C) entries. Anchor P&L unchanged: 4/29=+$0, 5/01=+$34, 5/04=+$0."
+    }
+  },
+  "post_hoc_detail": {
+    "IS_morning_bulls_blocked": {
+      "n": 47,
+      "pnl": -222,
+      "wr": "14.9%",
+      "window": "10:00-11:30 ET"
+    },
+    "IS_afternoon_bulls_blocked": {
+      "n": 6,
+      "pnl": -82,
+      "wr": "0%",
+      "window": "14:00-15:00 ET",
+      "trades": [
+        {"date": "2025-01-15", "time": "14:20", "pnl": 0},
+        {"date": "2025-02-14", "time": "14:35", "pnl": 0},
+        {"date": "2025-06-06", "time": "14:20", "pnl": -44},
+        {"date": "2025-07-09", "time": "14:10", "pnl": 0},
+        {"date": "2025-07-22", "time": "14:55", "pnl": -38},
+        {"date": "2025-11-03", "time": "14:05", "pnl": 0}
+      ]
+    },
+    "IS_power_hour_bulls_blocked": {
+      "n": 3,
+      "pnl": -44,
+      "wr": "33%",
+      "window": ">=15:00 ET",
+      "note": "Aligns backtest with live entry_no_trade_after_et=15:00 in aggressive/params.json",
+      "trades": [
+        {"date": "2025-02-10", "time": "15:10", "pnl": 0},
+        {"date": "2025-07-22", "time": "15:10", "pnl": -46},
+        {"date": "2025-08-20", "time": "15:20", "pnl": 2}
+      ]
+    },
+    "OOS_bulls_blocked": [
+      {"date": "2026-05-26", "time": "10:40", "combo": "level_reclaim", "pnl": 0, "window": "MORNING"},
+      {"date": "2026-05-28", "time": "10:15", "combo": "confluence+level_reclaim+ribbon_flip", "pnl": -40, "window": "MORNING"},
+      {"date": "2026-05-27", "time": "15:05", "combo": "level_reclaim", "pnl": -42, "window": "POWER_HOUR"}
+    ]
+  },
+  "caveats": [
+    "SW1 (Jan-May 2025) cascade: gate blocks some MORNING winners in early 2025. Replacement cascade trades are losers, so SW1 delta=-$126. G4 allows 1 fail.",
+    "Gate is broad: blocks ALL BULL entries in windows, including some rare morning wins. The cost is acceptable given low base WR (14.9%/0%/33%).",
+    "POWER_HOUR extension (>=15:00) adds IS_delta=+$45 and OOS_delta=+$42 vs the original 14:00-15:00 gate. Primarily a backtest/live alignment fix.",
+    "Bulls in OPEN_DRIVE (09:35-10:00) and MIDDAY (11:30-14:00) are unaffected. MIDDAY IS bulls have positive P&L and are not touched.",
+    "MORNING IS bears (WR=56.2%, +$1,090) are explicitly excluded — gate is BULL-only.",
+    "Cascade-adjusted: 40 net trades removed vs 56 post-hoc (16 cascade-in trades absorbed by freed quality slots)."
+  ],
+  "implementation": {
+    "params_json_key": "block_bull_morning_agg",
+    "params_json_value": true,
+    "orchestrator_param": "block_bull_morning_agg=True",
+    "gate_condition": "winning_side=='C' AND (10:00<=bar_time<11:30 OR bar_time>=14:00)",
+    "gate_windows": "10:00-11:30 ET (MORNING) AND >=14:00 ET (AFTERNOON + POWER_HOUR), BULL (C) entries only",
+    "ratified_at": "2026-06-18",
+    "extended_at": "2026-06-18",
+    "revert": "set block_bull_morning_agg=false in automation/state/aggressive/params.json"
+  }
+}

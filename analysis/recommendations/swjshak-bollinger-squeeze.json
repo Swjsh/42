@@ -1,0 +1,472 @@
+{
+  "run_date": "2026-06-20",
+  "strategy": "bollinger_squeeze",
+  "cls": "continuation-breakout",
+  "source": "SwjshAK data/brain/bollinger-breakout.md",
+  "hypothesis": "BB(20,2) bandwidth squeeze (<50% recent avg) -> expansion + volume -> breakout entry in expansion direction (up=CALL, down=PUT). Vol-expansion continuation.",
+  "window": "2025-01-01..2026-05-15",
+  "signal_params": {
+    "bb_len": 20,
+    "bb_k": 2.0,
+    "bw_avg_lookback": 50,
+    "squeeze_ratio": 0.5,
+    "vol_avg_lookback": 20,
+    "vol_mult": 1.0,
+    "cooldown_min": 35,
+    "warmup_bars": 70,
+    "rth": "09:30-16:00",
+    "causal": true,
+    "per_day_reset": true
+  },
+  "n_signals": 19,
+  "n_calls": 7,
+  "n_puts": 12,
+  "primary_config": {
+    "strike_offset": -2,
+    "premium_stop_pct": -0.08,
+    "qty": 3,
+    "exits": "default v15",
+    "label": "SURVIVOR STRUCTURE (ITM-2 + -8% stop + v15 exits)"
+  },
+  "primary_overall": {
+    "n": 19,
+    "wr": 57.9,
+    "total_pnl": 1088.0,
+    "avg_pnl": 57.28,
+    "top5_day_pct": 143.0,
+    "pnl_ex_top5_days": -467.0
+  },
+  "primary_by_side": {
+    "C": {
+      "n": 7,
+      "wr": 28.6,
+      "total_pnl": -17.0,
+      "avg_pnl": -2.48,
+      "top5_day_pct": null,
+      "pnl_ex_top5_days": -218.0
+    },
+    "P": {
+      "n": 12,
+      "wr": 75.0,
+      "total_pnl": 1106.0,
+      "avg_pnl": 92.14,
+      "top5_day_pct": 132.0,
+      "pnl_ex_top5_days": -351.0
+    }
+  },
+  "primary_IS_2025": {
+    "n": 16,
+    "wr": 68.8,
+    "total_pnl": 1353.0,
+    "avg_pnl": 84.57,
+    "top5_day_pct": 115.0,
+    "pnl_ex_top5_days": -202.0
+  },
+  "primary_OOS_2026": {
+    "n": 3,
+    "wr": 0.0,
+    "total_pnl": -265.0,
+    "avg_pnl": -88.24,
+    "top5_day_pct": null,
+    "pnl_ex_top5_days": 0.0
+  },
+  "primary_by_quarter": {
+    "2025Q1": {
+      "n": 2,
+      "wr": 50.0,
+      "total_pnl": 289.0,
+      "avg_pnl": 144.36,
+      "top5_day_pct": 100.0,
+      "pnl_ex_top5_days": 0.0
+    },
+    "2025Q2": {
+      "n": 3,
+      "wr": 66.7,
+      "total_pnl": 531.0,
+      "avg_pnl": 177.0,
+      "top5_day_pct": 100.0,
+      "pnl_ex_top5_days": 0.0
+    },
+    "2025Q3": {
+      "n": 5,
+      "wr": 80.0,
+      "total_pnl": 514.0,
+      "avg_pnl": 102.79,
+      "top5_day_pct": 100.0,
+      "pnl_ex_top5_days": -0.0
+    },
+    "2025Q4": {
+      "n": 6,
+      "wr": 66.7,
+      "total_pnl": 19.0,
+      "avg_pnl": 3.23,
+      "top5_day_pct": 2744.0,
+      "pnl_ex_top5_days": -513.0
+    },
+    "2026Q1": {
+      "n": 1,
+      "wr": 0.0,
+      "total_pnl": -46.0,
+      "avg_pnl": -46.32,
+      "top5_day_pct": null,
+      "pnl_ex_top5_days": 0.0
+    },
+    "2026Q2": {
+      "n": 2,
+      "wr": 0.0,
+      "total_pnl": -218.0,
+      "avg_pnl": -109.2,
+      "top5_day_pct": null,
+      "pnl_ex_top5_days": 0.0
+    }
+  },
+  "positive_quarters": "4/6",
+  "n_no_opra_data": 0,
+  "self_verify": {
+    "a_op11": {
+      "pass": false,
+      "oos_per_trade_gt0": false,
+      "oos_per_trade": -88.24,
+      "oos_n": 3,
+      "positive_quarters_ge4": true,
+      "top5_day_lt200pct": true,
+      "top5_day_pct": 143.0,
+      "n_ge20": false,
+      "n_overall": 19,
+      "drop_top5_days_gt0": false,
+      "pnl_ex_top5_days": -467.0
+    },
+    "b_random_null": {
+      "pass": true,
+      "strategy_per_trade": 57.28,
+      "seeds": 20,
+      "target_n_per_seed": 20,
+      "null_per_trade_mean": 11.68,
+      "null_per_trade_min": -40.49,
+      "null_per_trade_max": 75.38,
+      "call_frac": 0.368,
+      "delta_strategy_minus_null": 45.6
+    },
+    "c_no_truncation": {
+      "pass": true,
+      "per_trade_stop_8pct": 57.28,
+      "per_trade_chart_stop_only_99": 53.41,
+      "sign_8pct": 1,
+      "sign_99": 1,
+      "note": "FAIL if sign inverts OR positive only because -8% truncates losers"
+    },
+    "ALL_THREE_PASS": false
+  },
+  "secondary_sweep": [
+    {
+      "strike_offset": -2,
+      "premium_stop_pct": -0.08,
+      "n": 19,
+      "avg_pnl": 57.28,
+      "total_pnl": 1088.0,
+      "oos_avg_pnl": -88.24,
+      "oos_n": 3
+    },
+    {
+      "strike_offset": -2,
+      "premium_stop_pct": -0.2,
+      "n": 19,
+      "avg_pnl": 55.53,
+      "total_pnl": 1055.0,
+      "oos_avg_pnl": -57.0,
+      "oos_n": 3
+    },
+    {
+      "strike_offset": -2,
+      "premium_stop_pct": -0.5,
+      "n": 19,
+      "avg_pnl": 54.12,
+      "total_pnl": 1028.0,
+      "oos_avg_pnl": -46.0,
+      "oos_n": 3
+    },
+    {
+      "strike_offset": -2,
+      "premium_stop_pct": -0.99,
+      "n": 19,
+      "avg_pnl": 53.41,
+      "total_pnl": 1015.0,
+      "oos_avg_pnl": -46.0,
+      "oos_n": 3
+    },
+    {
+      "strike_offset": -1,
+      "premium_stop_pct": -0.08,
+      "n": 19,
+      "avg_pnl": 48.17,
+      "total_pnl": 915.0,
+      "oos_avg_pnl": -71.16,
+      "oos_n": 3
+    },
+    {
+      "strike_offset": -1,
+      "premium_stop_pct": -0.2,
+      "n": 19,
+      "avg_pnl": 37.53,
+      "total_pnl": 713.0,
+      "oos_avg_pnl": -104.4,
+      "oos_n": 3
+    },
+    {
+      "strike_offset": -1,
+      "premium_stop_pct": -0.5,
+      "n": 19,
+      "avg_pnl": 41.69,
+      "total_pnl": 792.0,
+      "oos_avg_pnl": -65.0,
+      "oos_n": 3
+    },
+    {
+      "strike_offset": -1,
+      "premium_stop_pct": -0.99,
+      "n": 19,
+      "avg_pnl": 43.43,
+      "total_pnl": 825.0,
+      "oos_avg_pnl": -65.0,
+      "oos_n": 3
+    },
+    {
+      "strike_offset": 0,
+      "premium_stop_pct": -0.08,
+      "n": 19,
+      "avg_pnl": 37.37,
+      "total_pnl": 710.0,
+      "oos_avg_pnl": -31.12,
+      "oos_n": 3
+    },
+    {
+      "strike_offset": 0,
+      "premium_stop_pct": -0.2,
+      "n": 19,
+      "avg_pnl": 33.41,
+      "total_pnl": 635.0,
+      "oos_avg_pnl": -47.8,
+      "oos_n": 3
+    },
+    {
+      "strike_offset": 0,
+      "premium_stop_pct": -0.5,
+      "n": 19,
+      "avg_pnl": 29.42,
+      "total_pnl": 559.0,
+      "oos_avg_pnl": -89.5,
+      "oos_n": 3
+    },
+    {
+      "strike_offset": 0,
+      "premium_stop_pct": -0.99,
+      "n": 19,
+      "avg_pnl": 31.55,
+      "total_pnl": 599.0,
+      "oos_avg_pnl": -57.0,
+      "oos_n": 3
+    }
+  ],
+  "DISCLOSURE": {
+    "authority": "real OPRA fills (C1) \u2014 the only WR authority",
+    "spy_vs_option": "bollinger squeeze is a SPY-PRICE signal; this is the OPTION-edge test (C3/L58)",
+    "per_trade": "expectancy (avg_pnl) reported, not WR alone (OP-14/OP-20)",
+    "concentration": "top5_day_pct + pnl_ex_top5_days shown (OP-20 #5)",
+    "no_cherry_pick": "PRIMARY survivor-structure verdict is canonical; the secondary sweep is disclosed in full but does NOT override it (anti-2.10)",
+    "random_null": "direction-matched random entries, same exit bracket+stop, 20 seeds",
+    "truncation": "sign-stability of per-trade between -8% stop and chart-stop-only"
+  },
+  "verdict": "REJECT \u2014 bollinger_squeeze fails the 0DTE wall. n<20 (overall=19, oos=3); OOS per-trade<=0 (-88.24); drop-top5<=0 (-467.0). Consistent with C3/L58: SPY-price signal, no surviving option edge.",
+  "results_primary": [
+    {
+      "date": "2025-03-17",
+      "time": "15:50",
+      "side": "P",
+      "vix": 20.5,
+      "strike": 570,
+      "entry_premium": 2.2,
+      "pnl": 336.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-03-28",
+      "time": "15:30",
+      "side": "P",
+      "vix": 21.6,
+      "strike": 557,
+      "entry_premium": 1.97,
+      "pnl": -47.28,
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-04-29",
+      "time": "15:55",
+      "side": "P",
+      "vix": 24.3,
+      "strike": 556,
+      "entry_premium": 1.74,
+      "pnl": 9.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-05-08",
+      "time": "15:40",
+      "side": "P",
+      "vix": 22.6,
+      "strike": 570,
+      "entry_premium": 2.57,
+      "pnl": 537.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-06-23",
+      "time": "15:50",
+      "side": "C",
+      "vix": 19.9,
+      "strike": 598,
+      "entry_premium": 1.86,
+      "pnl": -15.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-07-28",
+      "time": "15:40",
+      "side": "C",
+      "vix": 15.1,
+      "strike": 634,
+      "entry_premium": 2.28,
+      "pnl": 78.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-07-29",
+      "time": "15:25",
+      "side": "P",
+      "vix": 16.0,
+      "strike": 637,
+      "entry_premium": 1.94,
+      "pnl": 116.4,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-08-08",
+      "time": "15:30",
+      "side": "P",
+      "vix": 15.4,
+      "strike": 639,
+      "entry_premium": 2.07,
+      "pnl": 135.2,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-08-12",
+      "time": "15:35",
+      "side": "C",
+      "vix": 14.8,
+      "strike": 641,
+      "entry_premium": 1.56,
+      "pnl": -37.44,
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-09-03",
+      "time": "15:30",
+      "side": "C",
+      "vix": 16.4,
+      "strike": 640,
+      "entry_premium": 1.63,
+      "pnl": 221.8,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-10-01",
+      "time": "15:55",
+      "side": "P",
+      "vix": 16.1,
+      "strike": 671,
+      "entry_premium": 2.52,
+      "pnl": 114.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-10-02",
+      "time": "15:50",
+      "side": "P",
+      "vix": 16.6,
+      "strike": 671,
+      "entry_premium": 2.15,
+      "pnl": -141.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-10-03",
+      "time": "15:55",
+      "side": "P",
+      "vix": 16.6,
+      "strike": 671,
+      "entry_premium": 1.77,
+      "pnl": 123.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-10-14",
+      "time": "15:30",
+      "side": "P",
+      "vix": 20.4,
+      "strike": 666,
+      "entry_premium": 1.74,
+      "pnl": 325.4,
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-10-15",
+      "time": "15:50",
+      "side": "P",
+      "vix": 20.5,
+      "strike": 666,
+      "entry_premium": 2.44,
+      "pnl": -513.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2025-10-23",
+      "time": "15:35",
+      "side": "P",
+      "vix": 17.3,
+      "strike": 674,
+      "entry_premium": 1.91,
+      "pnl": 111.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2026-03-11",
+      "time": "15:30",
+      "side": "C",
+      "vix": 24.3,
+      "strike": 674,
+      "entry_premium": 1.93,
+      "pnl": -46.32,
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2026-04-06",
+      "time": "15:55",
+      "side": "C",
+      "vix": 24.2,
+      "strike": 657,
+      "entry_premium": 1.97,
+      "pnl": -156.0,
+      "exit": "EXIT_ALL_TIME_STOP"
+    },
+    {
+      "date": "2026-04-27",
+      "time": "15:45",
+      "side": "C",
+      "vix": 18.1,
+      "strike": 713,
+      "entry_premium": 2.6,
+      "pnl": -62.4,
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    }
+  ]
+}

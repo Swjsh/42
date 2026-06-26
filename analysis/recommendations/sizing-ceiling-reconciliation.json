@@ -151,7 +151,7 @@
   },
   "source_docs": [
     "markdown/research/SIZING-STUDY-2026-06-19.md (the 6% derivation)",
-    "docs/J-DAILY-TRADING-BOOK.md (B1 feasibility; the 27-40% finding)",
+    "markdown/0dte/J-DAILY-TRADING-BOOK.md (B1 feasibility; the 27-40% finding)",
     "automation/state/params.json (live ceilings + Rule 6 cap)"
   ],
   "caveats": [

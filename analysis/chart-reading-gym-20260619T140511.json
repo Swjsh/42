@@ -1,0 +1,100 @@
+{
+  "range_start": "2026-05-05",
+  "range_end": "2026-05-15",
+  "aggregate": {
+    "days_scanned": 9,
+    "total_pattern_hits": 0,
+    "total_alert_class_hits": 0,
+    "total_fast_path_decisions": 0,
+    "enter_decisions": 0,
+    "skip_decisions": 0,
+    "errors": 0,
+    "error_samples": [],
+    "p95_fpe_latency_ms_across_days": null,
+    "max_fpe_latency_ms_across_days": null,
+    "latency_budget_pass": true
+  },
+  "per_day": [
+    {
+      "date": "2026-05-05",
+      "bars": 0,
+      "hits": 0,
+      "detector_sec": 0.005,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2026-05-06",
+      "bars": 0,
+      "hits": 0,
+      "detector_sec": 0.006,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2026-05-07",
+      "bars": 0,
+      "hits": 0,
+      "detector_sec": 0.005,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2026-05-08",
+      "bars": 0,
+      "hits": 0,
+      "detector_sec": 0.005,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2026-05-11",
+      "bars": 0,
+      "hits": 0,
+      "detector_sec": 0.005,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2026-05-12",
+      "bars": 0,
+      "hits": 0,
+      "detector_sec": 0.005,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2026-05-13",
+      "bars": 0,
+      "hits": 0,
+      "detector_sec": 0.005,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2026-05-14",
+      "bars": 0,
+      "hits": 0,
+      "detector_sec": 0.005,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    },
+    {
+      "date": "2026-05-15",
+      "bars": 0,
+      "hits": 0,
+      "detector_sec": 0.007,
+      "fast_path_decisions": 0,
+      "errors": [],
+      "skipped": "no_hits"
+    }
+  ]
+}

@@ -17,15 +17,15 @@ from urllib.request import Request, urlopen
 import pandas as pd
 import yfinance as yf
 
-K = "PK33J2RV4PNIY6TCOLUG3WYGRX"
-S = "FxbJshSbhJ8Rn7KPENssS4eWsLpxCyYeyxavxywV9Bbs"
+from _alpaca_creds import masked, resolve_alpaca_creds
+
 SPY_URL = "https://data.alpaca.markets/v2/stocks/SPY/bars"
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 
 
-def fetch_spy_window(start: str, end: str):
+def fetch_spy_window(start: str, end: str, key: str, secret: str):
     """Fetch SPY 5-min from Alpaca for [start, end]. Pages through if needed."""
     rows = []
     page_token = None
@@ -35,7 +35,7 @@ def fetch_spy_window(start: str, end: str):
         if page_token:
             params["page_token"] = page_token
         req = Request(f"{SPY_URL}?{urlencode(params)}", headers={
-            "APCA-API-KEY-ID": K, "APCA-API-SECRET-KEY": S,
+            "APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": secret,
         })
         data = json.loads(urlopen(req, timeout=60).read())
         bars = data.get("bars", []) or []
@@ -86,8 +86,12 @@ def fetch_vix_1h(start: str, end: str):
 
 
 def main():
+    # Resolve creds lazily on the fetch path (never at import time).
+    creds = resolve_alpaca_creds()
+    print(f"Alpaca creds: key={masked(creds.key)} source={creds.source}")
+
     # Extend SPY: fetch 2026-01-01 to 2026-03-14 (the gap before existing data)
-    new_spy_rows = fetch_spy_window("2026-01-01", "2026-03-14")
+    new_spy_rows = fetch_spy_window("2026-01-01", "2026-03-14", creds.key, creds.secret)
     print(f"Fetched {len(new_spy_rows)} new SPY 5-min bars")
 
     # Read existing

@@ -1,0 +1,411 @@
+{
+  "kind": "b5_rescue",
+  "slug": "ml-futures-liveweights",
+  "test": "ml_futures_liveweights",
+  "lane": "ml-futures",
+  "hypothesis": "Re-run the LEARNED next-K-bar direction model on the FUTURES point-P&L target (no theta) using ONLY the live-weight feature set from B4 (VIX level + VIX 5-bar slope + VWAP-distance + time-of-day; DROP the dead RSI + ribbon-stack/structure/returns); LR + GBM, strict walk-forward (train 2025 -> test 2026, no leakage); trade the top-decile high-probability subset on MES/MNQ point-P&L through all 8 gates. Does the 53%-direction model become PROFITABLE without theta?",
+  "method": "new (supervised learning on theta-free futures point-P&L; live-weight features only)",
+  "run_date": "2026-06-21",
+  "features": [
+    "vix",
+    "vix_slope5",
+    "vwap_dist_pct",
+    "tod"
+  ],
+  "features_dropped_from_b4": [
+    "rsi2",
+    "rsi14",
+    "adx14",
+    "ribbon_stack",
+    "structure",
+    "ret1",
+    "ret3",
+    "ret5"
+  ],
+  "label": "sign of next-6-bar FUTURES point return (same-day RTH window)",
+  "pnl_model": "point-P&L: (exit-entry)*point_value*qty - costs; NO option pricing, NO theta; 1 micro, $1.24 RT commission, 1 tick slippage each side; ATR-trailing exit (let runner RUN)",
+  "model_hparams": {
+    "logreg": {
+      "epochs": 400,
+      "lr": 0.3,
+      "l2": 0.001
+    },
+    "gbm": {
+      "trees": 60,
+      "lr": 0.1,
+      "max_depth": 1
+    },
+    "note": "fixed a priori, NO OOS tuning (same as B4)"
+  },
+  "per_symbol": {
+    "MES": {
+      "symbol": "MES",
+      "point_value": 5.0,
+      "data": {
+        "n_bars": 28167,
+        "n_days": 367,
+        "range": [
+          "2025-01-02",
+          "2026-06-12"
+        ]
+      },
+      "walk_forward": {
+        "train_fold": "2025",
+        "test_fold": "2026 (<= VIX-fresh 2026-05-15)",
+        "train_n": 16347,
+        "test_n": 6132,
+        "train_up_rate": 0.5153,
+        "test_up_rate": 0.5183,
+        "no_leakage": "features causal as-of bar i; futures-point fwd label only in train fit; standardizer + weights TRAIN-only; OOS labels score-only; test capped at VIX-fresh cutoff to avoid stale-VIX leakage"
+      },
+      "oos_classification": {
+        "coinflip_acc": 0.5,
+        "majority_train_class": 1,
+        "majority_acc_oos": 0.5183,
+        "logreg_acc_oos": 0.5342,
+        "gbm_acc_oos": 0.5287,
+        "beats_coinflip": true,
+        "beats_majority": true,
+        "beats_baselines_oos": true,
+        "best_model": "LR"
+      },
+      "feature_importance": {
+        "logreg_abs_std_weight": {
+          "vix": 0.092,
+          "vwap_dist_pct": 0.0242,
+          "vix_slope5": 0.0221,
+          "tod": 0.0154
+        },
+        "gbm_split_frequency": {
+          "vix": 0.5,
+          "vwap_dist_pct": 0.35,
+          "tod": 0.15,
+          "vix_slope5": 0.0
+        }
+      },
+      "high_prob_subset": {
+        "top_decile": 0.1,
+        "confidence_threshold_abs": 0.03335,
+        "prob_threshold_long_ge": 0.5334,
+        "prob_threshold_short_le": 0.4666,
+        "oos_distinct_day_picks": 36,
+        "oos_side_count": {
+          "long": 29,
+          "short": 7
+        },
+        "n_picks_total": 177,
+        "n_picks_is": 141,
+        "n_picks_oos": 36
+      },
+      "exit_structure": {
+        "headline": {
+          "exit_mode": "atr_trail",
+          "atr_stop_mult": 1.5,
+          "atr_target_mult": 0.0,
+          "trail_mult": 2.5
+        },
+        "truncation_crosscheck": {
+          "exit_mode": "atr_target",
+          "atr_stop_mult": 1.0,
+          "atr_target_mult": 1.0,
+          "trail_mult": 0.0
+        }
+      },
+      "metrics_headline": {
+        "n": 177,
+        "wr_pct": 24.3,
+        "exp_dollar": -26.42,
+        "total_dollar": -4677.06,
+        "is_n": 141,
+        "is_exp": -29.65,
+        "is_total": -4179.97,
+        "is_half_n": 70,
+        "is_half_exp": -40.0,
+        "oos_n": 36,
+        "oos_exp": -13.81,
+        "oos_total": -497.08,
+        "drop_top5_per_trade": -35.07,
+        "quarters": {
+          "2025Q1": {
+            "n": 36,
+            "exp": -38.1,
+            "total": -1371.56
+          },
+          "2025Q2": {
+            "n": 27,
+            "exp": -52.31,
+            "total": -1412.46
+          },
+          "2025Q3": {
+            "n": 49,
+            "exp": -16.9,
+            "total": -828.04
+          },
+          "2025Q4": {
+            "n": 29,
+            "exp": -19.58,
+            "total": -567.9
+          },
+          "2026Q1": {
+            "n": 31,
+            "exp": -6.54,
+            "total": -202.64
+          },
+          "2026Q2": {
+            "n": 5,
+            "exp": -58.89,
+            "total": -294.45
+          }
+        },
+        "positive_quarters": "0/6",
+        "positive_quarters_n": 0,
+        "n_quarters": 6,
+        "top5_day_pct": null,
+        "by_side": {
+          "long": {
+            "n": 151,
+            "exp": -24.43,
+            "wr": 23.8,
+            "total": -3689.06
+          },
+          "short": {
+            "n": 26,
+            "exp": -38.0,
+            "wr": 26.9,
+            "total": -987.99
+          }
+        },
+        "exit_mix": {
+          "eod": 31,
+          "stop": 146
+        }
+      },
+      "metrics_tight_target_crosscheck": {
+        "oos_per_trade": -13.32,
+        "n": 177,
+        "oos_n": 36,
+        "total": -4557.32
+      },
+      "random_entry_null_oos": {
+        "per_trade_mean": -9.46,
+        "per_trade_std": 11.3,
+        "per_trade_p95": 10.39,
+        "per_trade_max": 12.04,
+        "n_replicates": 30
+      },
+      "gates": {
+        "g1_oos_per_trade_pos": false,
+        "g2_pos_quarters_ge4of6": false,
+        "g3_top5_lt_200": false,
+        "g4_n_ge_20": true,
+        "g5_drop_top5_pos": false,
+        "g6_is_half_pos": false,
+        "g7_beats_null": false,
+        "g8_no_truncation": true,
+        "clears_all_gates": false,
+        "_detail": {
+          "oos_per_trade": -13.81,
+          "drop_top5_per_trade": -35.07,
+          "null_mean": -9.46,
+          "null_max": 12.04,
+          "tight_target_oos_per_trade": -13.32
+        }
+      },
+      "clears_all_gates": false,
+      "oos_per_trade": -13.81,
+      "beats_null": false
+    },
+    "MNQ": {
+      "symbol": "MNQ",
+      "point_value": 2.0,
+      "data": {
+        "n_bars": 28167,
+        "n_days": 367,
+        "range": [
+          "2025-01-02",
+          "2026-06-12"
+        ]
+      },
+      "walk_forward": {
+        "train_fold": "2025",
+        "test_fold": "2026 (<= VIX-fresh 2026-05-15)",
+        "train_n": 16347,
+        "test_n": 6132,
+        "train_up_rate": 0.5177,
+        "test_up_rate": 0.5276,
+        "no_leakage": "features causal as-of bar i; futures-point fwd label only in train fit; standardizer + weights TRAIN-only; OOS labels score-only; test capped at VIX-fresh cutoff to avoid stale-VIX leakage"
+      },
+      "oos_classification": {
+        "coinflip_acc": 0.5,
+        "majority_train_class": 1,
+        "majority_acc_oos": 0.5276,
+        "logreg_acc_oos": 0.5444,
+        "gbm_acc_oos": 0.5259,
+        "beats_coinflip": true,
+        "beats_majority": true,
+        "beats_baselines_oos": true,
+        "best_model": "LR"
+      },
+      "feature_importance": {
+        "logreg_abs_std_weight": {
+          "vix": 0.086,
+          "tod": 0.0237,
+          "vwap_dist_pct": 0.0206,
+          "vix_slope5": 0.0174
+        },
+        "gbm_split_frequency": {
+          "vix": 0.6333,
+          "tod": 0.3667,
+          "vix_slope5": 0.0,
+          "vwap_dist_pct": 0.0
+        }
+      },
+      "high_prob_subset": {
+        "top_decile": 0.1,
+        "confidence_threshold_abs": 0.03512,
+        "prob_threshold_long_ge": 0.5351,
+        "prob_threshold_short_le": 0.4649,
+        "oos_distinct_day_picks": 44,
+        "oos_side_count": {
+          "long": 39,
+          "short": 5
+        },
+        "n_picks_total": 205,
+        "n_picks_is": 161,
+        "n_picks_oos": 44
+      },
+      "exit_structure": {
+        "headline": {
+          "exit_mode": "atr_trail",
+          "atr_stop_mult": 1.5,
+          "atr_target_mult": 0.0,
+          "trail_mult": 2.5
+        },
+        "truncation_crosscheck": {
+          "exit_mode": "atr_target",
+          "atr_stop_mult": 1.0,
+          "atr_target_mult": 1.0,
+          "trail_mult": 0.0
+        }
+      },
+      "metrics_headline": {
+        "n": 205,
+        "wr_pct": 27.8,
+        "exp_dollar": -47.3,
+        "total_dollar": -9697.15,
+        "is_n": 161,
+        "is_exp": -52.82,
+        "is_total": -8503.77,
+        "is_half_n": 80,
+        "is_half_exp": -70.95,
+        "oos_n": 44,
+        "oos_exp": -27.12,
+        "oos_total": -1193.38,
+        "drop_top5_per_trade": -59.26,
+        "quarters": {
+          "2025Q1": {
+            "n": 36,
+            "exp": -78.96,
+            "total": -2842.55
+          },
+          "2025Q2": {
+            "n": 29,
+            "exp": -73.25,
+            "total": -2124.24
+          },
+          "2025Q3": {
+            "n": 58,
+            "exp": -42.21,
+            "total": -2448.04
+          },
+          "2025Q4": {
+            "n": 38,
+            "exp": -28.66,
+            "total": -1088.95
+          },
+          "2026Q1": {
+            "n": 32,
+            "exp": -40.62,
+            "total": -1299.86
+          },
+          "2026Q2": {
+            "n": 12,
+            "exp": 8.87,
+            "total": 106.48
+          }
+        },
+        "positive_quarters": "1/6",
+        "positive_quarters_n": 1,
+        "n_quarters": 6,
+        "top5_day_pct": null,
+        "by_side": {
+          "long": {
+            "n": 183,
+            "exp": -42.94,
+            "wr": 27.3,
+            "total": -7858.44
+          },
+          "short": {
+            "n": 22,
+            "exp": -83.58,
+            "wr": 31.8,
+            "total": -1838.71
+          }
+        },
+        "exit_mix": {
+          "eod": 41,
+          "stop": 164
+        }
+      },
+      "metrics_tight_target_crosscheck": {
+        "oos_per_trade": -27.85,
+        "n": 205,
+        "oos_n": 44,
+        "total": -7946.85
+      },
+      "random_entry_null_oos": {
+        "per_trade_mean": -19.9,
+        "per_trade_std": 19.2,
+        "per_trade_p95": 9.54,
+        "per_trade_max": 15.1,
+        "n_replicates": 30
+      },
+      "gates": {
+        "g1_oos_per_trade_pos": false,
+        "g2_pos_quarters_ge4of6": false,
+        "g3_top5_lt_200": false,
+        "g4_n_ge_20": true,
+        "g5_drop_top5_pos": false,
+        "g6_is_half_pos": false,
+        "g7_beats_null": false,
+        "g8_no_truncation": true,
+        "clears_all_gates": false,
+        "_detail": {
+          "oos_per_trade": -27.12,
+          "drop_top5_per_trade": -59.26,
+          "null_mean": -19.9,
+          "null_max": 15.1,
+          "tight_target_oos_per_trade": -27.85
+        }
+      },
+      "clears_all_gates": false,
+      "oos_per_trade": -27.12,
+      "beats_null": false
+    }
+  },
+  "best_config": "MES",
+  "best_config_clears_all_gates": false,
+  "any_symbol_clears_all_gates": false,
+  "DISCLOSURE": {
+    "pure_python": "no sklearn (not in venv); LR + GBM hand-rolled in numpy; $0",
+    "theta_free": "futures point-P&L only \u2014 this is the C3/L58 directional-edge arena",
+    "live_weights_only": "features restricted to B4's non-dead weights (VIX level #1, VIX slope, VWAP-dist, time-of-day); dead features dropped per C4",
+    "per_trade": "per-trade expectancy reported, not WR alone (OP-14/C4)",
+    "is_oos": "IS=2025 (train, in-sample by construction) / OOS=2026 (test) split",
+    "decisive_gate": "gate 1 (OOS-2026 per-trade > 0) is the decisive directional test",
+    "drop_top5_gate": "gate 5 (drop best-5-days per-trade > 0) is THE gate the divergence lead failed; the rescue MUST clear it",
+    "null": "random-entry null (same exit, matched count/side) isolates exit artifact (L172)",
+    "truncation": "wide-trail vs tight-target OOS-sign cross-check (L171)",
+    "vix_freshness": "test fold capped at 2026-05-15 (VIX feed end) to avoid stale-VIX leakage"
+  }
+}

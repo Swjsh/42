@@ -1,0 +1,27 @@
+{
+  "task": "a9d3f1c2-0001-quality-sizing",
+  "candidate": "TRENDLINE bear trades with bearish_streak>=3 OR vol_ratio_1.0-1.5 upgraded to qty=10 (from qty=3)",
+  "upgrade_ratio": 3.3333333333333335,
+  "is_base_total": 23426.571075424217,
+  "is_upgraded_trades": 21,
+  "is_extra": 9669.1,
+  "oos_base_total": 5920.776775150395,
+  "oos_upgraded_trades": 6,
+  "oos_extra": 581.2,
+  "is_delta": 9669.1,
+  "oos_delta": 581.2,
+  "wf": 0.06,
+  "sw_hurt": 0,
+  "anchor_baseline": 0,
+  "anchor_candidate": 0,
+  "gates": {
+    "G1": true,
+    "G2": true,
+    "G3": false,
+    "G4": true,
+    "G5": true,
+    "all": false
+  },
+  "verdict": "REJECT",
+  "note": "Post-hoc re-weighting analysis. To implement: orchestrator needs bar-quality check in TRENDLINE tier assignment (bearish_streak>=3 OR vol_ratio 1.0-1.5 at entry bar). Requires orchestrator code change + re-run with actual qty=10."
+}

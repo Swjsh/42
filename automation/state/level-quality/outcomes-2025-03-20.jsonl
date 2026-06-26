@@ -1,0 +1,9 @@
+{"date": "2025-03-20", "price": 549.76, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-20", "price": 561.64, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-20", "price": 562.78, "source": "swept", "touched": true, "outcome": "RESPECT", "reaction_dollars": 5.72, "false_break": false}
+{"date": "2025-03-20", "price": 566.7699830330971, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.53, "false_break": false}
+{"date": "2025-03-20", "price": 567.0, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.02, "false_break": false}
+{"date": "2025-03-20", "price": 567.5746309522011, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.595, "false_break": false}
+{"date": "2025-03-20", "price": 567.9770572451448, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.997, "false_break": false}
+{"date": "2025-03-20", "price": 570.88, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-03-20", "price": 588.22, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}

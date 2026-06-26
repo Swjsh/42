@@ -1,0 +1,42 @@
+{
+  "tick_time": "2026-06-17T15:12:02",
+  "instrument": "MNQ",
+  "current_time_et": "2026-06-17T15:12:02",
+  "session_phase": "late-afternoon",
+  "time_to_eod": 43,
+  "position_state": {
+    "side": "flat",
+    "qty": 0,
+    "entry_price": null,
+    "stop_price": null,
+    "tp1_price": null,
+    "runner_price": null
+  },
+  "account": {
+    "equity": 25000.0,
+    "day_start_equity": 25000.0,
+    "daily_pnl": 0.0,
+    "daily_loss_limit": 500.0,
+    "floor": 24000.0,
+    "kill_switch_active": false
+  },
+  "chart_data": {
+    "status": "chart_connection_needed",
+    "note": "TradingView connection not queried this tick. Premarket should populate key levels; currently empty."
+  },
+  "key_levels": {
+    "populated": false,
+    "reason": "Premarket script not yet wiring futures level extraction"
+  },
+  "watcher_status": {
+    "fleet": "v3_mnq",
+    "config_location": "backtest/futures/strategy_config_v3.py",
+    "config_integrated": false,
+    "reason": "Watcher orchestration not yet integrated into heartbeat loop; awaiting key-level population"
+  },
+  "action": "HOLD_FLAT",
+  "signal": null,
+  "reason": "Position already flat. Infrastructure incomplete (key levels unpopulated, watcher integration pending).",
+  "mode": "WATCH_ONLY",
+  "status": "infrastructure_build_phase"
+}

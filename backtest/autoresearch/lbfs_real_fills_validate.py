@@ -37,7 +37,6 @@ from __future__ import annotations
 import datetime as dt
 import json
 import logging
-import os
 import sys
 import time
 from pathlib import Path
@@ -51,7 +50,9 @@ import pandas as pd
 REPO = Path(__file__).resolve().parent.parent
 ROOT = REPO.parent
 sys.path.insert(0, str(REPO))
+sys.path.insert(0, str(REPO / "tools"))  # for the shared _alpaca_creds resolver
 
+from _alpaca_creds import masked, resolve_alpaca_creds  # noqa: E402
 from lib.ribbon import compute_ribbon  # noqa: E402
 from lib.option_pricing_real import (  # noqa: E402
     CACHE_DIR as OPRA_DIR,
@@ -67,11 +68,7 @@ log = logging.getLogger(__name__)
 SPY_PATH = REPO / "data" / "spy_5m_2025-01-01_2026-05-15.csv"
 OUT_JSON = ROOT / "analysis" / "recommendations" / "lbfs-v4-real-fills.json"
 
-# ── Alpaca credentials (same as expand_opra_cache.py) ─────────────────────────
-ALPACA_KEY = os.environ.get("ALPACA_API_KEY", "PK33J2RV4PNIY6TCOLUG3WYGRX")
-ALPACA_SECRET = os.environ.get(
-    "ALPACA_API_SECRET", "FxbJshSbhJ8Rn7KPENssS4eWsLpxCyYeyxavxywV9Bbs"
-)
+# ── Alpaca credentials (resolved lazily on the fetch path, never hardcoded) ────
 ALPACA_OPTIONS_URL = "https://data.alpaca.markets/v1beta1/options/bars"
 
 # ── LBFS simulation parameters (from watcher defaults) ────────────────────────
@@ -132,7 +129,7 @@ SIGNALS = [
 
 # ── Alpaca OPRA fetch helper ───────────────────────────────────────────────────
 
-def _fetch_opra_contract(symbol: str, trade_date: str) -> bool:
+def _fetch_opra_contract(symbol: str, trade_date: str, key: str, secret: str) -> bool:
     """Fetch a single 0DTE contract's 5-min bars from Alpaca, save to cache.
 
     Returns True if fetch succeeded and bars were written, False on failure.
@@ -153,8 +150,8 @@ def _fetch_opra_contract(symbol: str, trade_date: str) -> bool:
     }
     url = f"{ALPACA_OPTIONS_URL}?{urlencode(params)}"
     req = Request(url, headers={
-        "APCA-API-KEY-ID": ALPACA_KEY,
-        "APCA-API-SECRET-KEY": ALPACA_SECRET,
+        "APCA-API-KEY-ID": key,
+        "APCA-API-SECRET-KEY": secret,
     })
     try:
         with urlopen(req, timeout=30) as resp:
@@ -217,10 +214,14 @@ def _ensure_contracts_cached(signals: list[dict]) -> None:
         log.info("All OPRA contracts cached — no fetches needed")
         return
 
+    # Resolve creds lazily — only when there's actually a fetch to make.
+    creds = resolve_alpaca_creds()
+    log.info("Alpaca creds: key=%s source=%s", masked(creds.key), creds.source)
+
     log.info("Need to fetch %d missing OPRA contract(s):", len(needed))
     for sym, trade_date in needed:
         log.info("  fetching %s for %s", sym, trade_date)
-        ok = _fetch_opra_contract(sym, trade_date)
+        ok = _fetch_opra_contract(sym, trade_date, creds.key, creds.secret)
         if ok:
             time.sleep(0.3)  # rate-limit polite sleep
 

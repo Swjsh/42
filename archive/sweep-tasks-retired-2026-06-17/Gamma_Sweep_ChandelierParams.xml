@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.3" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>Chandelier parameter sweep: arm/trail vs OFF for Safe+Aggressive</Description>
+    <URI>\Gamma_Sweep_ChandelierParams</URI>
+  </RegistrationInfo>
+  <Principals>
+    <Principal id="Author">
+      <UserId>S-1-5-21-2841532845-3477745843-585094597-1001</UserId>
+      <LogonType>InteractiveToken</LogonType>
+    </Principal>
+  </Principals>
+  <Settings>
+    <DisallowStartIfOnBatteries>true</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>true</StopIfGoingOnBatteries>
+    <ExecutionTimeLimit>PT2H</ExecutionTimeLimit>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <IdleSettings>
+      <Duration>PT10M</Duration>
+      <WaitTimeout>PT1H</WaitTimeout>
+      <StopOnIdleEnd>true</StopOnIdleEnd>
+      <RestartOnIdle>false</RestartOnIdle>
+    </IdleSettings>
+    <UseUnifiedSchedulingEngine>true</UseUnifiedSchedulingEngine>
+  </Settings>
+  <Triggers>
+    <TimeTrigger>
+      <StartBoundary>2026-06-17T11:46:20-06:00</StartBoundary>
+    </TimeTrigger>
+  </Triggers>
+  <Actions Context="Author">
+    <Exec>
+      <Command>cmd.exe</Command>
+      <Arguments>/c "C:\Users\jackw\AppData\Local\Microsoft\WindowsApps\python.exe" -u "C:\Users\jackw\Desktop\42\backtest\autoresearch\chandelier_sweep.py" &gt; "C:\Users\jackw\Desktop\42\backtest\autoresearch\results\chandelier_sweep.txt" 2&gt; "C:\Users\jackw\Desktop\42\backtest\autoresearch\results\chandelier_sweep.err.txt"</Arguments>
+    </Exec>
+  </Actions>
+</Task>

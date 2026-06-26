@@ -1,0 +1,553 @@
+{
+  "study": "vwap_continuation fractional-Kelly position sizing + compounding + risk-of-ruin",
+  "slug": "vwap-sizing",
+  "run_date": "2026-06-20",
+  "window": "2025-01-02..2026-05-15",
+  "trading_days": 342,
+  "interpreter": "backtest/.venv/Scripts/python.exe",
+  "cost": "$0 pure-Python sim loop; no LLM; no live orders; markets closed",
+  "survivor_config": {
+    "strike_offset": -2,
+    "strike_tier": "ITM-2",
+    "premium_stop_pct": -0.08,
+    "exits": "v15 default",
+    "qty_sim": 3
+  },
+  "detector": "BYTE-FOR-BYTE j_daily_pattern_ratify.detect_j_vwap_continuation (reused from _edgehunt_vwap_continuation); live port = backtest/lib/watchers/vwap_continuation_watcher.py",
+  "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1); nearest-cached strike snap <=4; causal next-bar-open entry; chart-stop = session extreme",
+  "oos_split": "IS=2025 / OOS=2026 (calendar-year)",
+  "n_signals": 158,
+  "signal_fire_day_pct": 46.2,
+  "signal_side_count": {
+    "C": 86,
+    "P": 72
+  },
+  "coverage": {
+    "signals": 158,
+    "filled": 149,
+    "cache_miss": 9,
+    "sim_none": 0,
+    "fill_rate": 0.943
+  },
+  "distribution_qty3": {
+    "n": 149,
+    "wr_pct": 51.7,
+    "exp_dollar_qty3": 78.29,
+    "total_dollar_qty3": 11665.56,
+    "is_n": 107,
+    "is_exp_qty3": 67.56,
+    "oos_n": 42,
+    "oos_exp_qty3": 105.62,
+    "quarters": {
+      "2025Q1": {
+        "n": 25,
+        "exp": 84.93,
+        "total": 2123.32
+      },
+      "2025Q2": {
+        "n": 23,
+        "exp": 35.67,
+        "total": 820.32
+      },
+      "2025Q3": {
+        "n": 26,
+        "exp": 23.37,
+        "total": 607.52
+      },
+      "2025Q4": {
+        "n": 33,
+        "exp": 111.46,
+        "total": 3678.24
+      },
+      "2026Q1": {
+        "n": 26,
+        "exp": 159.58,
+        "total": 4149.12
+      },
+      "2026Q2": {
+        "n": 16,
+        "exp": 17.94,
+        "total": 287.04
+      }
+    },
+    "positive_quarters": "6/6",
+    "top5_day_pct": 20.6,
+    "by_side": {
+      "C": {
+        "n": 82,
+        "exp": 84.07,
+        "wr": 53.7,
+        "total": 6893.4
+      },
+      "P": {
+        "n": 67,
+        "exp": 71.23,
+        "wr": 49.3,
+        "total": 4772.16
+      }
+    },
+    "exit_hist": {
+      "EXIT_ALL_LEVEL_STOP": 2,
+      "EXIT_ALL_PREMIUM_STOP": 72,
+      "EXIT_ALL_RIBBON_FLIP_BACK": 22,
+      "EXIT_ALL_TIME_STOP": 2,
+      "TP1_THEN_RUNNER_RIBBON": 35,
+      "TP1_THEN_RUNNER_TIME": 16
+    }
+  },
+  "per_contract": {
+    "n": 149,
+    "mean_pnl_per_contract": 26.1,
+    "median_pnl_per_contract": 14.4,
+    "std_pnl_per_contract": 57.53,
+    "win_pnl_mean": 73.17,
+    "loss_pnl_mean": -24.24,
+    "best_pnl": 181.13,
+    "worst_pnl": -74.56,
+    "median_entry_premium_per_share": 2.5
+  },
+  "GATES": {
+    "all_pass": true,
+    "fails": [],
+    "results": {
+      "n>=20": {
+        "pass": true,
+        "detail": "n=149"
+      },
+      "oos_per_trade>0": {
+        "pass": true,
+        "detail": "oos_exp=$105.62"
+      },
+      "is_per_trade>0": {
+        "pass": true,
+        "detail": "is_exp=$67.56"
+      },
+      "positive_quarters>=4/6": {
+        "pass": true,
+        "detail": "posQ=6/6"
+      },
+      "top5_day<200pct": {
+        "pass": true,
+        "detail": "top5%=20.6"
+      },
+      "drop_top5_days>0": {
+        "pass": true,
+        "detail": "drop5_pt=$64.34 (n=144)"
+      },
+      "beats_random_null": {
+        "pass": true,
+        "detail": "strat=$78.29 vs null=$-4.26"
+      },
+      "sign_stable_no_truncation": {
+        "pass": true,
+        "detail": "chartstop_exp=$79.59"
+      }
+    },
+    "random_null": {
+      "per_trade_mean_qty3": -4.26,
+      "per_trade_seeds_qty3": [
+        15.6,
+        12.6,
+        -4.1,
+        -10.8,
+        -4.6,
+        9.2,
+        -7.3,
+        -2.9,
+        -8.5,
+        1.1,
+        -22.5,
+        -1.6,
+        6.1,
+        -5.7,
+        -18.3,
+        -13.4,
+        -12.1,
+        -1.1,
+        -19.2,
+        2.4
+      ],
+      "n_eligible": 25544,
+      "seeds_completed": 20
+    },
+    "truncation_control_chartstop": {
+      "premium_stop_pct": -0.99,
+      "n": 149,
+      "exp_dollar_qty3": 79.59,
+      "oos_exp_qty3": 78.41,
+      "sign_stable": true
+    },
+    "drop_top5_days_per_trade_qty3": 64.34
+  },
+  "edge_validated": true,
+  "kelly": {
+    "full_kelly_frac": 0.28,
+    "half_kelly_frac": 0.14,
+    "quarter_kelly_frac": 0.07,
+    "kelly_pegged_at_grid_ceiling": false,
+    "kelly_unbounded_by_ruin_in_sample": false,
+    "ruin_bounded_f_ceiling": 0.325,
+    "worst_in_sample_return": -3.0759,
+    "log_growth_at_full_kelly": 0.132391,
+    "log_growth_at_half_kelly": 0.101308,
+    "mean_return_per_unit_risk": 1.0766,
+    "std_return_per_unit_risk": 2.3732,
+    "risk_denominator": "stop-defined realized avg loss per contract (NOT full premium)",
+    "avg_loss_per_contract_dollars": 24.24
+  },
+  "sizing_constants": {
+    "rule6_safe_risk_cap_frac": 0.3,
+    "min_contracts": 3,
+    "premium_ceiling_frac": 0.06,
+    "signals_per_week": 2.0,
+    "ruin_def": "equity <= 50% of start (impaired)",
+    "mc_paths": 5000
+  },
+  "monte_carlo": {
+    "2000": {
+      "full_kelly_ruinbounded": {
+        "start_equity": 2000.0,
+        "target_equity": 5000.0,
+        "infeasible_strike_at_tier": true,
+        "note": "median ITM-2 premium cannot be sized >=1 contract within Rule-6 30% cap at this equity -> trade a cheaper strike (OTM ladder) or skip",
+        "p_hit_target": null,
+        "p_ruin_impaired_50pct": null,
+        "median_trades_to_target": null,
+        "median_weeks_to_target": null,
+        "median_final_equity": 2000.0,
+        "p10_final_equity": 2000.0,
+        "p90_final_equity": 2000.0,
+        "median_max_drawdown_pct": null,
+        "p90_max_drawdown_pct": null
+      },
+      "half_kelly": {
+        "start_equity": 2000.0,
+        "target_equity": 5000.0,
+        "infeasible_strike_at_tier": true,
+        "note": "median ITM-2 premium cannot be sized >=1 contract within Rule-6 30% cap at this equity -> trade a cheaper strike (OTM ladder) or skip",
+        "p_hit_target": null,
+        "p_ruin_impaired_50pct": null,
+        "median_trades_to_target": null,
+        "median_weeks_to_target": null,
+        "median_final_equity": 2000.0,
+        "p10_final_equity": 2000.0,
+        "p90_final_equity": 2000.0,
+        "median_max_drawdown_pct": null,
+        "p90_max_drawdown_pct": null
+      },
+      "quarter_kelly": {
+        "start_equity": 2000.0,
+        "target_equity": 5000.0,
+        "infeasible_strike_at_tier": true,
+        "note": "median ITM-2 premium cannot be sized >=1 contract within Rule-6 30% cap at this equity -> trade a cheaper strike (OTM ladder) or skip",
+        "p_hit_target": null,
+        "p_ruin_impaired_50pct": null,
+        "median_trades_to_target": null,
+        "median_weeks_to_target": null,
+        "median_final_equity": 2000.0,
+        "p10_final_equity": 2000.0,
+        "p90_final_equity": 2000.0,
+        "median_max_drawdown_pct": null,
+        "p90_max_drawdown_pct": null
+      },
+      "current_rule_min3_30cap": {
+        "start_equity": 2000.0,
+        "target_equity": 5000.0,
+        "infeasible_strike_at_tier": false,
+        "p_hit_target": 0.8694,
+        "p_ruin_impaired_50pct": 0.0,
+        "p_stranded_cant_afford_trade": 0.1306,
+        "p_timeout_no_resolution": 0.0,
+        "median_trades_to_target": 25,
+        "median_weeks_to_target": 12.5,
+        "median_final_equity": 5204.0,
+        "p10_final_equity": 2615.0,
+        "p90_final_equity": 5818.0,
+        "median_max_drawdown_pct": 6.5,
+        "p90_max_drawdown_pct": 12.0
+      }
+    },
+    "5000": {
+      "full_kelly_ruinbounded": {
+        "start_equity": 5000.0,
+        "target_equity": 10000.0,
+        "infeasible_strike_at_tier": false,
+        "p_hit_target": 0.5328,
+        "p_ruin_impaired_50pct": 0.0,
+        "p_stranded_cant_afford_trade": 0.4672,
+        "p_timeout_no_resolution": 0.0,
+        "median_trades_to_target": 58,
+        "median_weeks_to_target": 29.0,
+        "median_final_equity": 10013.0,
+        "p10_final_equity": 5111.0,
+        "p90_final_equity": 10250.0,
+        "median_max_drawdown_pct": 4.3,
+        "p90_max_drawdown_pct": 7.8
+      },
+      "half_kelly": {
+        "start_equity": 5000.0,
+        "target_equity": 10000.0,
+        "infeasible_strike_at_tier": false,
+        "p_hit_target": 0.5328,
+        "p_ruin_impaired_50pct": 0.0,
+        "p_stranded_cant_afford_trade": 0.4672,
+        "p_timeout_no_resolution": 0.0,
+        "median_trades_to_target": 58,
+        "median_weeks_to_target": 29.0,
+        "median_final_equity": 10013.0,
+        "p10_final_equity": 5111.0,
+        "p90_final_equity": 10250.0,
+        "median_max_drawdown_pct": 4.3,
+        "p90_max_drawdown_pct": 7.8
+      },
+      "quarter_kelly": {
+        "start_equity": 5000.0,
+        "target_equity": 10000.0,
+        "infeasible_strike_at_tier": false,
+        "p_hit_target": 0.5328,
+        "p_ruin_impaired_50pct": 0.0,
+        "p_stranded_cant_afford_trade": 0.4672,
+        "p_timeout_no_resolution": 0.0,
+        "median_trades_to_target": 58,
+        "median_weeks_to_target": 29.0,
+        "median_final_equity": 10013.0,
+        "p10_final_equity": 5111.0,
+        "p90_final_equity": 10250.0,
+        "median_max_drawdown_pct": 4.3,
+        "p90_max_drawdown_pct": 7.8
+      },
+      "current_rule_min3_30cap": {
+        "start_equity": 5000.0,
+        "target_equity": 10000.0,
+        "infeasible_strike_at_tier": false,
+        "p_hit_target": 1.0,
+        "p_ruin_impaired_50pct": 0.0,
+        "p_stranded_cant_afford_trade": 0.0,
+        "p_timeout_no_resolution": 0.0,
+        "median_trades_to_target": 18,
+        "median_weeks_to_target": 9.0,
+        "median_final_equity": 10522.0,
+        "p10_final_equity": 10090.0,
+        "p90_final_equity": 11727.0,
+        "median_max_drawdown_pct": 6.7,
+        "p90_max_drawdown_pct": 12.7
+      }
+    },
+    "10000": {
+      "full_kelly_ruinbounded": {
+        "start_equity": 10000.0,
+        "target_equity": 25000.0,
+        "infeasible_strike_at_tier": false,
+        "p_hit_target": 1.0,
+        "p_ruin_impaired_50pct": 0.0,
+        "p_stranded_cant_afford_trade": 0.0,
+        "p_timeout_no_resolution": 0.0,
+        "median_trades_to_target": 114,
+        "median_weeks_to_target": 57.0,
+        "median_final_equity": 25270.0,
+        "p10_final_equity": 25047.0,
+        "p90_final_equity": 25864.0,
+        "median_max_drawdown_pct": 3.3,
+        "p90_max_drawdown_pct": 5.3
+      },
+      "half_kelly": {
+        "start_equity": 10000.0,
+        "target_equity": 25000.0,
+        "infeasible_strike_at_tier": false,
+        "p_hit_target": 1.0,
+        "p_ruin_impaired_50pct": 0.0,
+        "p_stranded_cant_afford_trade": 0.0,
+        "p_timeout_no_resolution": 0.0,
+        "median_trades_to_target": 114,
+        "median_weeks_to_target": 57.0,
+        "median_final_equity": 25270.0,
+        "p10_final_equity": 25047.0,
+        "p90_final_equity": 25864.0,
+        "median_max_drawdown_pct": 3.3,
+        "p90_max_drawdown_pct": 5.3
+      },
+      "quarter_kelly": {
+        "start_equity": 10000.0,
+        "target_equity": 25000.0,
+        "infeasible_strike_at_tier": false,
+        "p_hit_target": 1.0,
+        "p_ruin_impaired_50pct": 0.0,
+        "p_stranded_cant_afford_trade": 0.0,
+        "p_timeout_no_resolution": 0.0,
+        "median_trades_to_target": 114,
+        "median_weeks_to_target": 57.0,
+        "median_final_equity": 25270.0,
+        "p10_final_equity": 25047.0,
+        "p90_final_equity": 25864.0,
+        "median_max_drawdown_pct": 3.3,
+        "p90_max_drawdown_pct": 5.3
+      },
+      "current_rule_min3_30cap": {
+        "start_equity": 10000.0,
+        "target_equity": 25000.0,
+        "infeasible_strike_at_tier": false,
+        "p_hit_target": 1.0,
+        "p_ruin_impaired_50pct": 0.0,
+        "p_stranded_cant_afford_trade": 0.0,
+        "p_timeout_no_resolution": 0.0,
+        "median_trades_to_target": 23,
+        "median_weeks_to_target": 11.5,
+        "median_final_equity": 26300.0,
+        "p10_final_equity": 25214.0,
+        "p90_final_equity": 29329.0,
+        "median_max_drawdown_pct": 8.2,
+        "p90_max_drawdown_pct": 14.3
+      }
+    },
+    "25000": {
+      "full_kelly_ruinbounded": {
+        "start_equity": 25000.0,
+        "target_equity": 50000.0,
+        "infeasible_strike_at_tier": false,
+        "p_hit_target": 1.0,
+        "p_ruin_impaired_50pct": 0.0,
+        "p_stranded_cant_afford_trade": 0.0,
+        "p_timeout_no_resolution": 0.0,
+        "median_trades_to_target": 82,
+        "median_weeks_to_target": 41.0,
+        "median_final_equity": 50586.0,
+        "p10_final_equity": 50100.0,
+        "p90_final_equity": 51824.0,
+        "median_max_drawdown_pct": 2.4,
+        "p90_max_drawdown_pct": 3.7
+      },
+      "half_kelly": {
+        "start_equity": 25000.0,
+        "target_equity": 50000.0,
+        "infeasible_strike_at_tier": false,
+        "p_hit_target": 1.0,
+        "p_ruin_impaired_50pct": 0.0,
+        "p_stranded_cant_afford_trade": 0.0,
+        "p_timeout_no_resolution": 0.0,
+        "median_trades_to_target": 82,
+        "median_weeks_to_target": 41.0,
+        "median_final_equity": 50586.0,
+        "p10_final_equity": 50100.0,
+        "p90_final_equity": 51824.0,
+        "median_max_drawdown_pct": 2.4,
+        "p90_max_drawdown_pct": 3.7
+      },
+      "quarter_kelly": {
+        "start_equity": 25000.0,
+        "target_equity": 50000.0,
+        "infeasible_strike_at_tier": false,
+        "p_hit_target": 1.0,
+        "p_ruin_impaired_50pct": 0.0,
+        "p_stranded_cant_afford_trade": 0.0,
+        "p_timeout_no_resolution": 0.0,
+        "median_trades_to_target": 82,
+        "median_weeks_to_target": 41.0,
+        "median_final_equity": 50586.0,
+        "p10_final_equity": 50100.0,
+        "p90_final_equity": 51824.0,
+        "median_max_drawdown_pct": 2.4,
+        "p90_max_drawdown_pct": 3.7
+      },
+      "current_rule_min3_30cap": {
+        "start_equity": 25000.0,
+        "target_equity": 50000.0,
+        "infeasible_strike_at_tier": false,
+        "p_hit_target": 1.0,
+        "p_ruin_impaired_50pct": 0.0,
+        "p_stranded_cant_afford_trade": 0.0,
+        "p_timeout_no_resolution": 0.0,
+        "median_trades_to_target": 17,
+        "median_weeks_to_target": 8.5,
+        "median_final_equity": 52738.0,
+        "p10_final_equity": 50458.0,
+        "p90_final_equity": 59071.0,
+        "median_max_drawdown_pct": 7.0,
+        "p90_max_drawdown_pct": 13.4
+      }
+    }
+  },
+  "otm2_affordable_fallback": {
+    "strike_tier": "OTM-2",
+    "n": 147,
+    "exp_dollar_qty3": 21.12,
+    "oos_exp_qty3": 23.21,
+    "positive_quarters": "4/6",
+    "top5_day_pct": 48.5,
+    "median_entry_premium_per_share": 0.62,
+    "median_premium_cost_per_contract": 62.0,
+    "mean_pnl_per_contract": 7.04,
+    "edge_haircut_vs_itm2_pct": 73.0
+  },
+  "recommendation_per_tier": [
+    {
+      "tier_equity": 2000.0,
+      "edge_strike": "ITM-2 (survivor)",
+      "itm2_median_entry_premium_per_share": 2.5,
+      "itm2_median_premium_cost_per_contract": 250.0,
+      "avg_loss_per_contract": 24.0,
+      "half_kelly_contracts_uncapped": 11,
+      "itm2_contracts_at_30pct_risk_cap": 2,
+      "itm2_contracts_at_6pct_premium_ceiling": 0,
+      "RECOMMENDED_strike": "OTM-2 (ITM-2 unaffordable within 30% cap at this equity)",
+      "RECOMMENDED_contracts": 3,
+      "binding_constraint": "min_3_floor_OTM2",
+      "otm2_median_premium_cost_per_contract": 62.0,
+      "premium_cost_pct_of_equity": 9.3,
+      "expected_dollar_per_trade_at_rec": 21.12,
+      "edge_haircut_note": "OTM-2 captures ~7.0/contract vs ITM-2 $26.0/contract (73.0% haircut) \u2014 this tier is structurally below where the edge lives"
+    },
+    {
+      "tier_equity": 5000.0,
+      "edge_strike": "ITM-2 (survivor)",
+      "itm2_median_entry_premium_per_share": 2.5,
+      "itm2_median_premium_cost_per_contract": 250.0,
+      "avg_loss_per_contract": 24.0,
+      "half_kelly_contracts_uncapped": 28,
+      "itm2_contracts_at_30pct_risk_cap": 6,
+      "itm2_contracts_at_6pct_premium_ceiling": 1,
+      "RECOMMENDED_strike": "ITM-2 (edge strike)",
+      "RECOMMENDED_contracts": 3,
+      "binding_constraint": "min_3_floor",
+      "premium_cost_pct_of_equity": 15.0,
+      "expected_dollar_per_trade_at_rec": 78.29
+    },
+    {
+      "tier_equity": 10000.0,
+      "edge_strike": "ITM-2 (survivor)",
+      "itm2_median_entry_premium_per_share": 2.5,
+      "itm2_median_premium_cost_per_contract": 250.0,
+      "avg_loss_per_contract": 24.0,
+      "half_kelly_contracts_uncapped": 57,
+      "itm2_contracts_at_30pct_risk_cap": 12,
+      "itm2_contracts_at_6pct_premium_ceiling": 2,
+      "RECOMMENDED_strike": "ITM-2 (edge strike)",
+      "RECOMMENDED_contracts": 3,
+      "binding_constraint": "min_3_floor",
+      "premium_cost_pct_of_equity": 7.5,
+      "expected_dollar_per_trade_at_rec": 78.29
+    },
+    {
+      "tier_equity": 25000.0,
+      "edge_strike": "ITM-2 (survivor)",
+      "itm2_median_entry_premium_per_share": 2.5,
+      "itm2_median_premium_cost_per_contract": 250.0,
+      "avg_loss_per_contract": 24.0,
+      "half_kelly_contracts_uncapped": 144,
+      "itm2_contracts_at_30pct_risk_cap": 30,
+      "itm2_contracts_at_6pct_premium_ceiling": 6,
+      "RECOMMENDED_strike": "ITM-2 (edge strike)",
+      "RECOMMENDED_contracts": 6,
+      "binding_constraint": "6pct_premium_ceiling",
+      "premium_cost_pct_of_equity": 6.0,
+      "expected_dollar_per_trade_at_rec": 156.58
+    }
+  ],
+  "recommended_operating_point": "half_kelly (clamped by Rule-6 30% cap + 6% premium ceiling, floored at min-3); at tiers where ITM-2 is unaffordable, drop to OTM-2 affordable execution",
+  "DISCLOSURE": {
+    "real_fills": "C1 \u2014 real OPRA fills, BS-sim never touched (ranking-only authority)",
+    "no_cherry_pick": "anti-pattern 2.10 \u2014 every mandatory gate run deterministically; sizing flagged edge_validated=false if ANY gate fails",
+    "kelly_caveat": "full-Kelly on a 16-mo / n~150 sample over-bets; half-Kelly is the operating point, further clamped by Rule 6 + 6% ceiling. Kelly fraction = fraction of equity committed as premium-at-risk.",
+    "strike_ladder_mismatch": "the EDGE is measured at ITM-2; the Safe v15 ladder runs OTM-2 below $25K. Sizing math is on the ITM-2 survivor; applying it requires trading the edge's strike, not the nominal ladder strike (flagged for J / Treasurer).",
+    "ruin_model": "bootstrap resample of the joint (pnl, premium) per-trade outcomes; assumes future trades are drawn from the observed 16-mo distribution (stationarity assumption \u2014 the real risk to all of this)."
+  }
+}

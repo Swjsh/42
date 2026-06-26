@@ -1,0 +1,67 @@
+{
+  "prod_frac": 0.5,
+  "cand_frac": 0.667,
+  "windows": {
+    "IS (2025-01..2026-04)": {
+      "baseline": {
+        "n": 246,
+        "pnl": -6077.43,
+        "wr": 0.289
+      },
+      "candidate": {
+        "n": 246,
+        "pnl": -5312.03,
+        "wr": 0.289
+      },
+      "delta": 765.4,
+      "verdict": "HELP"
+    },
+    "IS ex-Apr (2025-01..2026-03)": {
+      "baseline": {
+        "n": 223,
+        "pnl": 963.95,
+        "wr": 0.291
+      },
+      "candidate": {
+        "n": 223,
+        "pnl": 1233.85,
+        "wr": 0.291
+      },
+      "delta": 269.9,
+      "verdict": "HELP"
+    },
+    "April 2026 tariff shock": {
+      "baseline": {
+        "n": 22,
+        "pnl": -6830.98,
+        "wr": 0.273
+      },
+      "candidate": {
+        "n": 22,
+        "pnl": -6335.48,
+        "wr": 0.273
+      },
+      "delta": 495.5,
+      "verdict": "HELP"
+    },
+    "OOS May 2026": {
+      "baseline": {
+        "n": 17,
+        "pnl": 3303.8,
+        "wr": 0.471
+      },
+      "candidate": {
+        "n": 17,
+        "pnl": 4367.4,
+        "wr": 0.471
+      },
+      "delta": 1063.6,
+      "verdict": "HELP"
+    }
+  },
+  "is_delta": 765.4,
+  "oos_delta": 1063.6,
+  "wf": 1.39,
+  "sub_window_all_positive": true,
+  "verdict": "PASS"
+}

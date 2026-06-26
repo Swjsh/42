@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gamma's Office</title>
+    <style>
+      :root { --accent: #34e0a1; --ink: #eef2f6; --muted: #9aa7c2; --faint: #6b7791; --bad: #ff6b6b; --warn: #f0b24a;
+        --glass: rgba(255,255,255,0.06); --brd: rgba(255,255,255,0.10); }
+      * { box-sizing: border-box; }
+      [hidden] { display: none !important; }
+      html, body { margin: 0; height: 100%; overflow: hidden; background: #070b14; color: var(--ink);
+        font-family: -apple-system, "Segoe UI", system-ui, sans-serif; -webkit-font-smoothing: antialiased; user-select: none; }
+      #office { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+      .hud { position: fixed; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 11px;
+        padding: 14px 20px; pointer-events: none; z-index: 5;
+        background: linear-gradient(180deg, rgba(7,11,20,0.9) 0%, rgba(7,11,20,0) 100%); }
+      .brand { font-size: 15px; font-weight: 800; letter-spacing: 3.5px; text-transform: uppercase;
+        background: linear-gradient(90deg, #7af0c2, #34e0a1); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .sub { font-size: 12.5px; color: var(--faint); letter-spacing: 0.4px; font-weight: 500; }
+      .count { margin-left: auto; font-size: 12.5px; color: var(--muted); background: var(--glass);
+        border: 1px solid var(--brd); border-radius: 999px; padding: 5px 13px; display: flex; align-items: center; gap: 7px; }
+      .count .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--faint); }
+      .count.live .dot { background: var(--accent); box-shadow: 0 0 8px rgba(52,224,161,0.7); animation: pulse 1.6s ease-in-out infinite; }
+      @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
+      .count b { color: var(--ink); font-weight: 700; }
+      .empty { position: fixed; inset: 0; display: grid; place-items: center; text-align: center; z-index: 4; pointer-events: none; transition: opacity .4s ease; }
+      .empty .box { max-width: 360px; padding: 22px; }
+      .empty .mark { font-size: 40px; opacity: 0.5; margin-bottom: 6px; }
+      .empty h2 { font-size: 16px; margin: 0 0 8px; color: var(--ink); font-weight: 650; }
+      .empty p { font-size: 13.5px; color: var(--muted); line-height: 1.55; margin: 0; }
+      .offline { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 6;
+        font-size: 12px; color: #ffc4c4; background: rgba(255,107,107,0.12); border: 1px solid rgba(255,107,107,0.3); border-radius: 999px; padding: 6px 15px; }
+      /* "while you were away" — last few finished sessions, bottom-left, subtle */
+      .ledger { position: fixed; left: 16px; bottom: 16px; z-index: 5; width: min(320px, 40vw); pointer-events: none;
+        background: rgba(8,12,22,0.78); border: 1px solid var(--brd); border-radius: 13px; padding: 9px 11px; backdrop-filter: blur(10px); }
+      .ledger .lh { font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--faint); margin: 1px 2px 7px; }
+      .ledger .lrow { display: flex; align-items: baseline; gap: 8px; padding: 3px 2px; }
+      .ledger .lg { flex: none; font-size: 12px; width: 13px; text-align: center; }
+      .ledger .lg.ok { color: var(--accent); } .ledger .lg.bad { color: var(--bad); } .ledger .lg.dim { color: var(--faint); }
+      .ledger .lt { flex: 1; min-width: 0; font-size: 12px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .ledger .la { flex: none; font-size: 10.5px; color: var(--faint); }
+    </style>
+  </head>
+  <body>
+    <canvas id="office"></canvas>
+    <div class="hud">
+      <span class="brand">Gamma</span><span class="sub">the office</span>
+      <span class="count" id="count"><span class="dot"></span><b>0</b>&nbsp;sessions</span>
+    </div>
+    <div class="empty" id="empty">
+      <div class="box">
+        <div class="mark">🤖</div>
+        <h2>The office is quiet.</h2>
+        <p>Spin up a build from your phone and a worker walks in here and gets to it — you'll watch them read, write, and run. One per session.</p>
+      </div>
+    </div>
+    <div class="offline" id="offline" hidden>Reconnecting to Gamma…</div>
+    <aside class="ledger" id="ledger" hidden></aside>
+
+    <script>
+      (function () {
+        var GTOK = (document.querySelector('meta[name="gamma-token"]') || {}).content || "";
+        var _fetch = window.fetch.bind(window);
+        window.fetch = function (url, opts) {
+          if (typeof url === "string" && url.indexOf("/api/") === 0) { opts = opts || {}; opts.headers = Object.assign({}, opts.headers || {}, { "x-gamma-token": GTOK }); }
+          return _fetch(url, opts);
+        };
+        var $ = function (id) { return document.getElementById(id); };
+
+        var FW = 16, FH = 32, FRAMES = 7, DIR = { down: 0, up: 1, right: 2 };
+        var S = 3, CW = FW * S, CH = FH * S, FLOOR = 16, DESK_W = 48, DESK_H = 32;
+        var TOP = 58, CELL_W = 200, CELL_H = 190;
+
+        var A = {};
+        function loadImg(src) { return new Promise(function (r) { var i = new Image(); i.onload = function () { r(i); }; i.onerror = function () { r(null); }; i.src = src; }); }
+        function loadAll() {
+          var jobs = [];
+          for (var c = 0; c < 6; c++) (function (c) { jobs.push(loadImg("/assets/pixel/characters/char_" + c + ".png").then(function (im) { A["char" + c] = im; })); })(c);
+          jobs.push(loadImg("/assets/pixel/floors/floor_1.png").then(function (im) { A.floor = im; }));
+          jobs.push(loadImg("/assets/pixel/furniture/DESK_FRONT.png").then(function (im) { A.desk = im; }));
+          jobs.push(loadImg("/assets/pixel/furniture/CACTUS.png").then(function (im) { A.cactus = im; }));
+          return Promise.all(jobs);
+        }
+
+        var canvas = $("office"), ctx = canvas.getContext("2d"), W = 0, H = 0, dpr = 1;
+        function resize() {
+          dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+          W = canvas.clientWidth; H = canvas.clientHeight;
+          canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        window.addEventListener("resize", resize);
+
+        function tidy(s, n) { s = (s == null ? "" : String(s)).replace(/\s+/g, " ").trim(); return s.length > n ? s.slice(0, n - 1) + "…" : s; }
+        function roundRect(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+
+        // ---- layout: occupied workers are CENTERED + SPREAD by count; positions
+        // recompute from the (stable seq-sorted) active list, and workers re-target
+        // smoothly each frame — so they never stack in a line or jump/overlap. ----
+        function gridFor(n) {
+          var cols = Math.max(1, Math.min(n, Math.floor((W - 40) / CELL_W)));
+          var rows = Math.max(1, Math.ceil(n / cols));
+          var ch = Math.max(124, Math.min(CELL_H, (H - TOP - 36) / rows));
+          var gridW = cols * CELL_W, gridH = rows * ch;
+          var ox = Math.round((W - gridW) / 2);
+          var oy = Math.round(Math.max(TOP + 20, (H - gridH) / 2 - 4));
+          return { cols: cols, ch: ch, ox: ox, oy: oy };
+        }
+        function seatOf(i, g) {
+          var col = i % g.cols, row = Math.floor(i / g.cols);
+          var deskX = g.ox + col * CELL_W + Math.round((CELL_W - DESK_W * S) / 2);
+          var deskY = g.oy + row * g.ch;
+          return { deskX: deskX, deskY: deskY, seatX: deskX + (DESK_W * S) / 2 - CW / 2, seatY: deskY + DESK_H * S - 4 };
+        }
+
+        var chars = {}, seen = {}, seq = 0; // seen = ids already shown (so a lingering recent session never re-spawns)
+        function hashChar(id) { var h = 0; for (var i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0; return h % 6; }
+        function glyphFor(status, ok) {
+          if (ok === true) return { ch: "✓", color: "#7af5cf", word: "done" };
+          if (status === "cancelled") return { ch: "⊘", color: "#9aa7c2", word: "stopped" };
+          if (status === "busy" || status === "blocked" || status === "duplicate") return { ch: "◔", color: "#9aa7c2", word: "queued — try again" };
+          if (status === "failed") return { ch: "✕", color: "#ff8f8f", word: "hit an error" };
+          return { ch: "·", color: "#9aa7c2", word: "wrapped up" };
+        }
+        function activityOf(t) {
+          var step = t.lastStep || (t.status === "running" ? "session" : ""), tool = (t.lastTool || "").toLowerCase();
+          if (step === "queued" || step === "session") return { phrase: "settling in…", work: false };
+          if (step === "thinking") return { phrase: "thinking it through…", work: false };
+          if (step === "tool_start" || step === "tool" || step === "tool_result") {
+            if (/read|glob|grep|search|^ls|cat/.test(tool)) return { phrase: "reading the files…", work: true };
+            if (/edit|write|notebook|create|multiedit/.test(tool)) return { phrase: "writing code…", work: true };
+            if (/bash|shell|run/.test(tool)) return { phrase: "running a check…", work: true };
+            if (/tradingview|alpaca|chart|quote|option|stock|market|mcp/.test(tool)) return { phrase: "checking the markets…", work: true };
+            return { phrase: "working…", work: true };
+          }
+          return { phrase: "working…", work: true };
+        }
+        function originBadge(o) { return o === "card" ? "✔" : o === "voice" ? "🎙" : o === "diagram" ? "▦" : "💬"; }
+
+        function spawn(t, seated) {
+          if (chars[t.id]) return;
+          seen[t.id] = true;
+          var c = { id: t.id, seq: seq++, sprite: hashChar(t.id), task: t.task || "a build", origin: t.origin || "chat",
+            x: W / 2 - CW / 2, y: H + 30, tx: W / 2 - CW / 2, ty: H + 30, phase: "enter", dir: "up", frame: 0, ft: 0,
+            status: t.status, ok: t.ok, lastStep: t.lastStep, lastTool: t.lastTool, phrase: "settling in…", work: false,
+            glyph: null, glyphAt: 0, summary: t.summary || "", alpha: 1 };
+          if (seated) { var gl = glyphFor(t.status, t.ok); c.glyph = gl; c.glyphAt = performance.now(); c.phrase = gl.word; }
+          chars[t.id] = c;
+        }
+        function leave(c) { if (c.phase === "leave") return; c.phase = "leave"; c.tx = c.x; c.ty = H + CH + 60; c.dir = "down"; }
+        function remove(c) { delete chars[c.id]; }
+
+        var failStreak = 0;
+        function agoOf(iso) { var t = Date.parse(iso); if (!isFinite(t)) return ""; var s = Math.max(0, Math.round((Date.now() - t) / 1000)); if (s < 60) return s + "s ago"; var m = Math.round(s / 60); if (m < 60) return m + "m ago"; var h = Math.round(m / 60); if (h < 24) return h + "h ago"; return Math.round(h / 24) + "d ago"; }
+        var lastLedgerSig = "";
+        function renderLedger(done) {
+          var el = $("ledger"); if (!el) return;
+          done = (done || []).slice(-5).reverse(); // newest first, last 5
+          if (!done.length) { el.hidden = true; lastLedgerSig = ""; return; }
+          var sig = done.map(function (d) { return d.id + (d.ok ? "1" : "0"); }).join("~");
+          if (sig === lastLedgerSig) return; lastLedgerSig = sig;
+          el.innerHTML = "";
+          var head = document.createElement("div"); head.className = "lh"; head.textContent = "Recently shipped"; el.appendChild(head);
+          done.forEach(function (d) {
+            var row = document.createElement("div"); row.className = "lrow";
+            var g = document.createElement("span"); g.className = "lg " + (d.ok ? "ok" : "bad"); g.textContent = d.ok ? "✓" : "✕";
+            var label = String(d.summary || d.task || "a build").replace(/^J asked( this)? via the Gamma companion:\s*/i, "");
+            // strip markdown artifacts so the row reads as clean prose (keep code identifiers / underscores intact)
+            label = label.replace(/`+/g, "").replace(/\*\*/g, "").replace(/(^|\s)[#>]+\s*/g, " ").replace(/-{2,}/g, " ").replace(/\s+/g, " ").trim();
+            var t = document.createElement("span"); t.className = "lt"; t.textContent = tidy(label, 52); // textContent = XSS-safe
+            var a = document.createElement("span"); a.className = "la"; a.textContent = agoOf(d.finished);
+            row.appendChild(g); row.appendChild(t); row.appendChild(a); el.appendChild(row);
+          });
+          el.hidden = false;
+        }
+        function poll() {
+          return fetch("/api/claude", { cache: "no-store" })
+            .then(function (r) { return r.json().catch(function () { return null; }); })
+            .then(function (j) {
+              if (!j || j.ok === false || !j.claude) { failStreak++; if (failStreak > 1) $("offline").hidden = false; return; }
+              failStreak = 0; $("offline").hidden = true;
+              var running = j.claude.running || [], recent = j.claude.recent || [];
+              var runMap = {}, recMap = {};
+              running.forEach(function (t) { runMap[t.id] = t; });
+              recent.forEach(function (t) { recMap[t.id] = t; });
+              running.forEach(function (t) {
+                if (!chars[t.id]) spawn(t, false);
+                var c = chars[t.id]; if (!c) return;
+                c.task = t.task || c.task; c.origin = t.origin || c.origin; c.lastStep = t.lastStep; c.lastTool = t.lastTool; c.status = "running"; c.glyph = null;
+                var a = activityOf(t); c.phrase = a.phrase; c.work = a.work;
+              });
+              Object.keys(chars).forEach(function (id) {
+                var c = chars[id];
+                if (runMap[id] || c.phase === "leave") return;
+                var done = recMap[id];
+                if (done) { c.status = done.status; c.ok = done.ok; c.summary = done.summary || c.summary; }
+                if (!c.glyph) { c.glyph = glyphFor(c.status, c.ok); c.glyphAt = performance.now(); c.phrase = c.glyph.word; c.work = false; }
+              });
+              recent.forEach(function (t) { if (chars[t.id] || runMap[t.id] || seen[t.id]) return; spawn(t, true); });
+              Object.keys(seen).forEach(function (id) { if (!runMap[id] && !recMap[id]) delete seen[id]; });
+              renderLedger(j.done);
+            })
+            .catch(function () { failStreak++; if (failStreak > 1) $("offline").hidden = false; });
+        }
+
+        function drawFloor() {
+          ctx.imageSmoothingEnabled = false;
+          if (A.floor) { var ts = FLOOR * S; for (var y = 0; y < H; y += ts) for (var x = 0; x < W; x += ts) ctx.drawImage(A.floor, 0, 0, FLOOR, FLOOR, x, y, ts, ts); }
+          else { ctx.fillStyle = "#11182a"; ctx.fillRect(0, 0, W, H); }
+          ctx.imageSmoothingEnabled = true;
+          ctx.fillStyle = "rgba(14,24,42,0.55)"; ctx.fillRect(0, 0, W, H);
+          var vg = ctx.createRadialGradient(W / 2, H * 0.46, Math.min(W, H) * 0.22, W / 2, H * 0.5, Math.max(W, H) * 0.7);
+          vg.addColorStop(0, "rgba(20,40,60,0)"); vg.addColorStop(1, "rgba(4,7,14,0.85)");
+          ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+        }
+        function drawDecor() {
+          if (!A.cactus) return; ctx.imageSmoothingEnabled = false;
+          ctx.drawImage(A.cactus, 0, 0, 16, 32, 22, H - 32 * S - 14, 16 * S, 32 * S);
+          ctx.drawImage(A.cactus, 0, 0, 16, 32, W - 16 * S - 22, H - 32 * S - 14, 16 * S, 32 * S);
+        }
+        function drawDesk(x, y) {
+          ctx.imageSmoothingEnabled = false;
+          if (A.desk) ctx.drawImage(A.desk, 0, 0, DESK_W, DESK_H, Math.round(x), Math.round(y), DESK_W * S, DESK_H * S);
+          else { ctx.fillStyle = "#5a4636"; ctx.fillRect(x, y, DESK_W * S, DESK_H * S); }
+        }
+        function bubble(cx, by, text, color) {
+          ctx.save(); ctx.imageSmoothingEnabled = true; ctx.font = "600 12px -apple-system, system-ui, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          var maxW = CELL_W - 22, w = Math.min(maxW, Math.ceil(ctx.measureText(text).width) + 22), h = 25, x = Math.round(cx - w / 2), y = Math.round(by - h - 7);
+          ctx.fillStyle = "rgba(11,17,30,0.94)"; ctx.strokeStyle = "rgba(255,255,255,0.11)"; ctx.lineWidth = 1;
+          roundRect(x, y, w, h, 9); ctx.fill(); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(cx - 5, y + h - 1); ctx.lineTo(cx + 5, y + h - 1); ctx.lineTo(cx, y + h + 6); ctx.closePath(); ctx.fillStyle = "rgba(11,17,30,0.94)"; ctx.fill();
+          ctx.fillStyle = color; ctx.fillText(text, Math.round(cx), y + h / 2);
+          ctx.restore();
+        }
+        function drawChar(c) {
+          var row = DIR[c.dir === "left" ? "right" : c.dir], col = c.frame % FRAMES, sheet = A["char" + c.sprite];
+          var dx = Math.round(c.x), dy = Math.round(c.y - CH);
+          ctx.save(); ctx.globalAlpha = c.alpha; ctx.imageSmoothingEnabled = false;
+          ctx.globalAlpha = c.alpha * 0.5; ctx.fillStyle = "rgba(0,0,0,0.35)";
+          ctx.beginPath(); ctx.ellipse(dx + CW / 2, dy + CH - 3, 16, 5, 0, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = c.alpha;
+          if (sheet) {
+            if (c.dir === "left") { ctx.translate(dx + CW, dy); ctx.scale(-1, 1); ctx.drawImage(sheet, col * FW, row * FH, FW, FH, 0, 0, CW, CH); }
+            else ctx.drawImage(sheet, col * FW, row * FH, FW, FH, dx, dy, CW, CH);
+          } else { ctx.fillStyle = "#34e0a1"; ctx.fillRect(dx + 10, dy + 10, CW - 20, CH - 14); }
+          ctx.restore();
+          var phr = c.glyph ? (c.glyph.ch + " " + tidy(c.summary || c.glyph.word, 24)) : tidy(c.phrase, 24);
+          bubble(dx + CW / 2, dy - 2, phr, c.glyph ? c.glyph.color : "#dfe7f3");
+          ctx.save(); ctx.globalAlpha = c.alpha; ctx.textAlign = "center"; ctx.imageSmoothingEnabled = true;
+          ctx.font = "11px system-ui"; var bx = dx + CW / 2, by2 = dy + CH - 1;
+          ctx.fillStyle = "rgba(7,11,20,0.78)"; roundRect(Math.round(bx - 11), Math.round(by2), 22, 16, 6); ctx.fill();
+          ctx.fillStyle = "#cfe7df"; ctx.textBaseline = "middle"; ctx.fillText(originBadge(c.origin), Math.round(bx), Math.round(by2 + 8));
+          ctx.font = "600 11px -apple-system, system-ui, sans-serif"; ctx.fillStyle = "rgba(154,167,194,0.92)";
+          ctx.fillText(tidy(c.task, 24), Math.round(bx), Math.round(by2 + 28));
+          ctx.restore();
+        }
+
+        var last = 0;
+        function tick(ts) {
+          var dt = Math.min(48, ts - last); if (dt <= 0) dt = 16; last = ts;
+          if (canvas.clientWidth !== W || canvas.clientHeight !== H) resize(); // auto-correct stale/changed dims
+          drawFloor(); drawDecor();
+          var ids = Object.keys(chars);
+          var active = ids.filter(function (id) { return chars[id].phase !== "leave"; }).sort(function (a, b) { return chars[a].seq - chars[b].seq; });
+          var g = gridFor(active.length || 1), seat = {};
+          active.forEach(function (id, i) { var s = seatOf(i, g); seat[id] = s; var c = chars[id]; c.tx = s.seatX; c.ty = s.seatY; });
+          active.forEach(function (id) { var s = seat[id]; drawDesk(s.deskX, s.deskY); });
+          ids.sort(function (a, b) { return chars[a].y - chars[b].y; });
+          ids.forEach(function (id) {
+            var c = chars[id];
+            var dxv = c.tx - c.x, dyv = c.ty - c.y, dist = Math.hypot(dxv, dyv), spd = 1.7 * dt / 16, moving = dist > 2;
+            if (moving) {
+              c.x += (dxv / dist) * Math.min(spd, dist); c.y += (dyv / dist) * Math.min(spd, dist);
+              c.dir = Math.abs(dxv) > Math.abs(dyv) ? (dxv < 0 ? "left" : "right") : (dyv < 0 ? "up" : "down");
+              c.ft += dt; if (c.ft > 105) { c.ft = 0; c.frame = (c.frame % (FRAMES - 1)) + 1; }
+            } else {
+              if (c.phase === "enter") c.phase = "work";
+              c.dir = "up";
+              if (c.work) { c.ft += dt; if (c.ft > 190) { c.ft = 0; c.frame = c.frame === 0 ? 1 : 0; } } else c.frame = 0;
+            }
+            if (c.phase === "leave") { c.alpha = Math.max(0, c.alpha - dt / 360); if (c.y > H + 6 || c.alpha <= 0.02) { remove(c); return; } }
+            if (c.glyph && c.phase !== "leave" && ts - c.glyphAt > 2600) leave(c);
+            drawChar(c);
+          });
+          var n = Object.keys(chars).length, live = active.filter(function (id) { return !chars[id].glyph; }).length;
+          var cEl = $("count"); cEl.classList.toggle("live", live > 0);
+          cEl.innerHTML = '<span class="dot"></span><b>' + n + "</b>&nbsp;session" + (n === 1 ? "" : "s");
+          var em = $("empty"); em.style.opacity = n > 0 ? "0" : "1"; em.hidden = n !== 0;
+          requestAnimationFrame(tick);
+        }
+
+        // read-only snapshot of the office (no mutation) — verification + future debugging.
+        // Returns each worker's live position, target seat, distance-to-seat, and phase.
+        window.__officeSnapshot = function () {
+          return Object.keys(chars).map(function (id) {
+            var c = chars[id];
+            return { id: id, seq: c.seq, phase: c.phase, status: c.status, ok: c.ok,
+              x: Math.round(c.x), y: Math.round(c.y), tx: Math.round(c.tx), ty: Math.round(c.ty),
+              dist: Math.round(Math.hypot(c.tx - c.x, c.ty - c.y)), alpha: +Number(c.alpha).toFixed(2),
+              glyph: c.glyph ? c.glyph.ch : null, phrase: c.phrase, work: !!c.work, origin: c.origin,
+              task: (c.task || "").slice(0, 48) };
+          });
+        };
+        window.__officeMeta = function () { return { W: Math.round(W), H: Math.round(H), CW: CW, CH: CH, count: Object.keys(chars).length }; };
+        // Deterministic drivers — used ONLY to verify the office when a headless test tab is
+        // backgrounded (Chromium throttles rAF/timers when hidden). On a real visible Electron
+        // window the rAF loop drives spawn+movement automatically; these just let a test step
+        // them by hand with controlled time. No behavior change to the shipped product.
+        window.__poll = function () { return poll(); };
+        window.__pumpClock = null;
+        window.__pump = function (frames, dtMs) {
+          frames = frames || 1; dtMs = dtMs || 16;
+          // never lag the real clock: glyphAt (the done/leave timer) is stamped with
+          // performance.now(), so synthetic ts must be >= it or "leave" never triggers.
+          var base = (window.__pumpClock == null) ? (last || performance.now()) : window.__pumpClock;
+          base = Math.max(base, performance.now());
+          for (var i = 0; i < frames; i++) { base += dtMs; tick(base); }
+          window.__pumpClock = base;
+          return window.__officeSnapshot();
+        };
+
+        resize();
+        loadAll().then(function () { resize(); poll(); setInterval(poll, 1200); last = performance.now(); requestAnimationFrame(tick); });
+        document.addEventListener("visibilitychange", function () {
+          if (document.hidden) return;
+          var now = performance.now();
+          Object.keys(chars).forEach(function (id) { var c = chars[id]; if (c.glyph && c.phase !== "leave") c.glyphAt = now; });
+          last = now; poll();
+        });
+      })();
+    </script>
+  </body>
+</html>

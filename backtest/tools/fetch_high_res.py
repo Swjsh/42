@@ -16,8 +16,8 @@ from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-ALPACA_KEY = "PK33J2RV4PNIY6TCOLUG3WYGRX"
-ALPACA_SECRET = "FxbJshSbhJ8Rn7KPENssS4eWsLpxCyYeyxavxywV9Bbs"
+from _alpaca_creds import masked, resolve_alpaca_creds
+
 STOCK_URL = "https://data.alpaca.markets/v2/stocks/SPY/bars"
 OPT_URL = "https://data.alpaca.markets/v1beta1/options/bars"
 
@@ -32,17 +32,17 @@ WIN_DAYS = [
 ]
 
 
-def alpaca_get(url, params):
+def alpaca_get(url, params, key, secret):
     full = f"{url}?{urlencode(params)}"
     req = Request(full, headers={
-        "APCA-API-KEY-ID": ALPACA_KEY,
-        "APCA-API-SECRET-KEY": ALPACA_SECRET,
+        "APCA-API-KEY-ID": key,
+        "APCA-API-SECRET-KEY": secret,
     })
     with urlopen(req, timeout=30) as resp:
         return json.loads(resp.read().decode("utf-8"))
 
 
-def fetch_spy_1min(date_str):
+def fetch_spy_1min(date_str, key, secret):
     start_utc = f"{date_str}T13:00:00Z"   # 09:00 ET (premarket too)
     end_utc = f"{date_str}T20:30:00Z"     # 16:30 ET
     payload = alpaca_get(STOCK_URL, {
@@ -51,11 +51,11 @@ def fetch_spy_1min(date_str):
         "end": end_utc,
         "limit": 1000,
         "feed": "iex",  # free tier
-    })
+    }, key, secret)
     return payload.get("bars", []) or []
 
 
-def fetch_opt_1min(symbol, date_str):
+def fetch_opt_1min(symbol, date_str, key, secret):
     start_utc = f"{date_str}T13:30:00Z"
     end_utc = f"{date_str}T20:30:00Z"
     payload = alpaca_get(OPT_URL, {
@@ -64,7 +64,7 @@ def fetch_opt_1min(symbol, date_str):
         "start": start_utc,
         "end": end_utc,
         "limit": 1000,
-    })
+    }, key, secret)
     return payload.get("bars", {}).get(symbol, []) or []
 
 
@@ -82,10 +82,14 @@ def write_csv(path, rows, fieldnames):
 
 
 def main():
+    # Resolve creds lazily on the fetch path (never at import time).
+    creds = resolve_alpaca_creds()
+    print(f"Alpaca creds: key={masked(creds.key)} source={creds.source}")
+
     HIRES_DIR.mkdir(parents=True, exist_ok=True)
     for date_str, opt_sym in WIN_DAYS:
         # SPY
-        spy_bars = fetch_spy_1min(date_str)
+        spy_bars = fetch_spy_1min(date_str, creds.key, creds.secret)
         spy_rows = [{
             "timestamp_et": to_et(b["t"]).strftime("%Y-%m-%dT%H:%M:%S-04:00"),
             "open": b["o"], "high": b["h"], "low": b["l"], "close": b["c"],
@@ -101,7 +105,7 @@ def main():
         time.sleep(0.3)
 
         # Option
-        opt_bars = fetch_opt_1min(opt_sym, date_str)
+        opt_bars = fetch_opt_1min(opt_sym, date_str, creds.key, creds.secret)
         opt_rows = [{
             "timestamp_et": to_et(b["t"]).strftime("%Y-%m-%dT%H:%M:%S-04:00"),
             "open": b["o"], "high": b["h"], "low": b["l"], "close": b["c"],

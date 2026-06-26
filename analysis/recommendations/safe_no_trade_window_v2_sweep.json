@@ -1,0 +1,96 @@
+{
+  "study": "Safe no_trade_window V2 sweep (vs ENFORCED-4 baseline)",
+  "date": "2026-06-17",
+  "motivation": "time_distribution_audit post-ENFORCED-4: 12:00-12:30 IS n=3 avg=-258 100%stop, OOS n=1 avg=-232. Structural lunch zone continues past 12:00.",
+  "baseline": {
+    "window": "11:30-12:00 (ENFORCED-4)",
+    "is_n": 123,
+    "is_pnl": 16539.53,
+    "oos_n": 20,
+    "oos_pnl": 6324.75
+  },
+  "results": [
+    {
+      "window": "(11:30-12:30) extend 30min",
+      "win_start": "11:30:00",
+      "win_end": "12:30:00",
+      "is_n": 122,
+      "oos_n": 20,
+      "dropped_is": 1,
+      "dropped_oos": 0,
+      "is_delta": 662.18,
+      "oos_delta": 0.0,
+      "wf_norm": 0.0,
+      "sw_hurt": 0,
+      "anchor": "PASS",
+      "verdict": "REJECT",
+      "sub_windows": [
+        {
+          "label": "W1 Jan-Jun 2025",
+          "delta": 224.0,
+          "hurt": false
+        },
+        {
+          "label": "W2 Jul-Dec 2025",
+          "delta": 550.08,
+          "hurt": false
+        },
+        {
+          "label": "W3 Jan-Mar 2026",
+          "delta": -111.9,
+          "hurt": false
+        },
+        {
+          "label": "W4 Apr-May 2026",
+          "delta": 0.0,
+          "hurt": false
+        }
+      ]
+    },
+    {
+      "window": "(11:30-13:00) extend 60min",
+      "is_delta": -2991.22,
+      "oos_delta": -1.6,
+      "dropped_is": -6,
+      "dropped_oos": 0,
+      "verdict": "REJECT_L155"
+    },
+    {
+      "window": "(15:00-15:30) late gamma",
+      "win_start": "15:00:00",
+      "win_end": "15:30:00",
+      "is_n": 119,
+      "oos_n": 21,
+      "dropped_is": 4,
+      "dropped_oos": -1,
+      "is_delta": 532.01,
+      "oos_delta": -424.5,
+      "wf_norm": -4.907,
+      "sw_hurt": 1,
+      "anchor": "PASS",
+      "verdict": "REJECT",
+      "sub_windows": [
+        {
+          "label": "W1 Jan-Jun 2025",
+          "delta": 694.31,
+          "hurt": false
+        },
+        {
+          "label": "W2 Jul-Dec 2025",
+          "delta": -508.6,
+          "hurt": true
+        },
+        {
+          "label": "W3 Jan-Mar 2026",
+          "delta": 346.3,
+          "hurt": false
+        },
+        {
+          "label": "W4 Apr-May 2026",
+          "delta": 0.0,
+          "hurt": false
+        }
+      ]
+    }
+  ]
+}

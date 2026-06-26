@@ -1,9 +1,9 @@
 # J's Real Webull Options Edge — 2021-2023 Ground Truth
 
 > Mined from `docs/WeBull History/{2021,2022,2023}/Webull_Orders_Records_Options.csv`.
-> Parser: [`backtest/autoresearch/webull_history_miner.py`](../backtest/autoresearch/webull_history_miner.py).
-> Setup analyzer: [`backtest/autoresearch/webull_winner_setups.py`](../backtest/autoresearch/webull_winner_setups.py).
-> Trade ledger + stats: [`analysis/webull-j-trades/`](../analysis/webull-j-trades/).
+> Parser: [`backtest/autoresearch/webull_history_miner.py`](../../backtest/autoresearch/webull_history_miner.py).
+> Setup analyzer: [`backtest/autoresearch/webull_winner_setups.py`](../../backtest/autoresearch/webull_winner_setups.py).
+> Trade ledger + stats: [`analysis/webull-j-trades/`](../../analysis/webull-j-trades/).
 > Generated 2026-06-19. **This is real fills — the richest ground truth Gamma has.**
 
 ---

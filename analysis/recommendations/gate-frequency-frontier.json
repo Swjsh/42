@@ -1,0 +1,561 @@
+{
+  "generated_at": "2026-06-24T15:16:49",
+  "purpose": "Frequency-vs-total-P&L frontier on the LIVE Safe config ($2K -> OTM-2). Find the LOOSEST live-config variant that stays net +EV, to trade the existing BEARISH_REJECTION edge more often (toward daily). PROPOSE-ONLY.",
+  "metric": "TOTAL P&L (account growth); admitted population must be net positive-or-neutral.",
+  "config": "live params.json, chart-stop primary, real OPRA fills, SAFE $2K -> OTM-2",
+  "rf_window": "2025-01-02..2026-05-29 (OPRA coverage cap)",
+  "oos_split": {
+    "IS": "2025 (<2026-01-01)",
+    "OOS": ">= 2026-01-01"
+  },
+  "baseline_SAFE_otm2_2k": {
+    "n": 56,
+    "total": 5247.93,
+    "wr": 0.5893,
+    "exp": 93.71,
+    "tr_per_mo": 4.0,
+    "bear_n": 32,
+    "bear_pnl": 2757.35,
+    "bull_n": 24,
+    "bull_pnl": 2490.58
+  },
+  "leave_one_out_SAFE": [
+    {
+      "relaxation": "vix_bear_hard_cap_OFF",
+      "patch": {
+        "vix_bear_hard_cap": 999.0
+      },
+      "new_n": 69,
+      "new_total": 6161.67,
+      "new_wr": 0.6087,
+      "new_exp": 89.3,
+      "new_tr_per_mo": 4.31,
+      "delta_n": 13,
+      "delta_total": 913.74,
+      "admitted_n": 13,
+      "admitted_total": 913.74,
+      "admitted_wr": 0.6923,
+      "admitted_exp": 70.29,
+      "admitted_bear_n": 13,
+      "admitted_bear_pnl": 913.74,
+      "admitted_bull_n": 0,
+      "admitted_bull_pnl": 0,
+      "verdict": "OVER-RESTRICTIVE"
+    },
+    {
+      "relaxation": "filter9_vol_0p4",
+      "patch": {
+        "filter_9_vol_multiplier": 0.4
+      },
+      "new_n": 56,
+      "new_total": 5907.55,
+      "new_wr": 0.6071,
+      "new_exp": 105.49,
+      "new_tr_per_mo": 4.0,
+      "delta_n": 0,
+      "delta_total": 659.62,
+      "admitted_n": 6,
+      "admitted_total": 605.52,
+      "admitted_wr": 0.6667,
+      "admitted_exp": 100.92,
+      "admitted_bear_n": 3,
+      "admitted_bear_pnl": 577.33,
+      "admitted_bull_n": 3,
+      "admitted_bull_pnl": 28.18,
+      "verdict": "OVER-RESTRICTIVE"
+    },
+    {
+      "relaxation": "filter9_vol_0p0",
+      "patch": {
+        "filter_9_vol_multiplier": 0.0
+      },
+      "new_n": 58,
+      "new_total": 5865.55,
+      "new_wr": 0.6034,
+      "new_exp": 101.13,
+      "new_tr_per_mo": 4.14,
+      "delta_n": 2,
+      "delta_total": 617.62,
+      "admitted_n": 8,
+      "admitted_total": 563.52,
+      "admitted_wr": 0.625,
+      "admitted_exp": 70.44,
+      "admitted_bear_n": 4,
+      "admitted_bear_pnl": 667.33,
+      "admitted_bull_n": 4,
+      "admitted_bull_pnl": -103.82,
+      "verdict": "OVER-RESTRICTIVE"
+    },
+    {
+      "relaxation": "entry_body_gate_OFF",
+      "patch": {
+        "entry_bar_body_pct_min": 0.0
+      },
+      "new_n": 65,
+      "new_total": 5701.6,
+      "new_wr": 0.5692,
+      "new_exp": 87.72,
+      "new_tr_per_mo": 4.64,
+      "delta_n": 9,
+      "delta_total": 453.67,
+      "admitted_n": 9,
+      "admitted_total": 453.67,
+      "admitted_wr": 0.4444,
+      "admitted_exp": 50.41,
+      "admitted_bear_n": 9,
+      "admitted_bear_pnl": 453.67,
+      "admitted_bull_n": 0,
+      "admitted_bull_pnl": 0,
+      "verdict": "OVER-RESTRICTIVE"
+    },
+    {
+      "relaxation": "ribbon_spread_20c",
+      "patch": {
+        "ribbon_min_spread_cents": 20
+      },
+      "new_n": 56,
+      "new_total": 5247.93,
+      "new_wr": 0.5893,
+      "new_exp": 93.71,
+      "new_tr_per_mo": 4.0,
+      "delta_n": 0,
+      "delta_total": 0.0,
+      "admitted_n": 0,
+      "admitted_total": 0.0,
+      "admitted_wr": 0.0,
+      "admitted_exp": 0.0,
+      "admitted_bear_n": 0,
+      "admitted_bear_pnl": 0.0,
+      "admitted_bull_n": 0,
+      "admitted_bull_pnl": 0.0,
+      "verdict": "NO-OP"
+    },
+    {
+      "relaxation": "entry_after_1530",
+      "patch": {
+        "entry_no_trade_after_et": "15:30"
+      },
+      "new_n": 56,
+      "new_total": 5247.93,
+      "new_wr": 0.5893,
+      "new_exp": 93.71,
+      "new_tr_per_mo": 4.0,
+      "delta_n": 0,
+      "delta_total": 0.0,
+      "admitted_n": 0,
+      "admitted_total": 0.0,
+      "admitted_wr": 0.0,
+      "admitted_exp": 0.0,
+      "admitted_bear_n": 0,
+      "admitted_bear_pnl": 0.0,
+      "admitted_bull_n": 0,
+      "admitted_bull_pnl": 0.0,
+      "verdict": "NO-OP"
+    },
+    {
+      "relaxation": "entry_before_0930",
+      "patch": {
+        "entry_no_trade_before_et": "09:30"
+      },
+      "new_n": 56,
+      "new_total": 5247.93,
+      "new_wr": 0.5893,
+      "new_exp": 93.71,
+      "new_tr_per_mo": 4.0,
+      "delta_n": 0,
+      "delta_total": 0.0,
+      "admitted_n": 0,
+      "admitted_total": 0.0,
+      "admitted_wr": 0.0,
+      "admitted_exp": 0.0,
+      "admitted_bear_n": 0,
+      "admitted_bear_pnl": 0.0,
+      "admitted_bull_n": 0,
+      "admitted_bull_pnl": 0.0,
+      "verdict": "NO-OP"
+    },
+    {
+      "relaxation": "vix_drop_rising_req",
+      "patch": {
+        "vix_bear_rising_deadband": -5.0
+      },
+      "new_n": 86,
+      "new_total": 4382.21,
+      "new_wr": 0.5698,
+      "new_exp": 50.96,
+      "new_tr_per_mo": 5.73,
+      "delta_n": 30,
+      "delta_total": -865.72,
+      "admitted_n": 37,
+      "admitted_total": -18.72,
+      "admitted_wr": 0.5405,
+      "admitted_exp": -0.51,
+      "admitted_bear_n": 37,
+      "admitted_bear_pnl": -18.72,
+      "admitted_bull_n": 0,
+      "admitted_bull_pnl": 0,
+      "verdict": "EARNS-KEEP"
+    },
+    {
+      "relaxation": "vix_bear_floor_12",
+      "patch": {
+        "vix_bear_threshold": 12.0
+      },
+      "new_n": 60,
+      "new_total": 4779.23,
+      "new_wr": 0.5667,
+      "new_exp": 79.65,
+      "new_tr_per_mo": 4.29,
+      "delta_n": 4,
+      "delta_total": -468.7,
+      "admitted_n": 4,
+      "admitted_total": -468.7,
+      "admitted_wr": 0.25,
+      "admitted_exp": -117.18,
+      "admitted_bear_n": 4,
+      "admitted_bear_pnl": -468.7,
+      "admitted_bull_n": 0,
+      "admitted_bull_pnl": 0,
+      "verdict": "EARNS-KEEP"
+    },
+    {
+      "relaxation": "block_level_rejection_OFF",
+      "patch": {
+        "block_level_rejection": false
+      },
+      "new_n": 69,
+      "new_total": 4860.96,
+      "new_wr": 0.5652,
+      "new_exp": 70.45,
+      "new_tr_per_mo": 4.6,
+      "delta_n": 13,
+      "delta_total": -386.97,
+      "admitted_n": 14,
+      "admitted_total": -506.97,
+      "admitted_wr": 0.4286,
+      "admitted_exp": -36.21,
+      "admitted_bear_n": 14,
+      "admitted_bear_pnl": -506.97,
+      "admitted_bull_n": 0,
+      "admitted_bull_pnl": 0,
+      "verdict": "EARNS-KEEP"
+    },
+    {
+      "relaxation": "midday_trendline_gate_OFF",
+      "patch": {
+        "midday_trendline_gate": false
+      },
+      "new_n": 88,
+      "new_total": 4469.1,
+      "new_wr": 0.5227,
+      "new_exp": 50.79,
+      "new_tr_per_mo": 5.87,
+      "delta_n": 32,
+      "delta_total": -778.83,
+      "admitted_n": 34,
+      "admitted_total": -762.33,
+      "admitted_wr": 0.4118,
+      "admitted_exp": -22.42,
+      "admitted_bear_n": 34,
+      "admitted_bear_pnl": -762.33,
+      "admitted_bull_n": 0,
+      "admitted_bull_pnl": 0,
+      "verdict": "EARNS-KEEP"
+    },
+    {
+      "relaxation": "min_triggers_bull_1",
+      "patch": {
+        "min_triggers_bull": 1
+      },
+      "new_n": 96,
+      "new_total": 3969.54,
+      "new_wr": 0.5208,
+      "new_exp": 41.35,
+      "new_tr_per_mo": 6.86,
+      "delta_n": 40,
+      "delta_total": -1278.39,
+      "admitted_n": 41,
+      "admitted_total": -1141.73,
+      "admitted_wr": 0.439,
+      "admitted_exp": -27.85,
+      "admitted_bear_n": 0,
+      "admitted_bear_pnl": 0,
+      "admitted_bull_n": 41,
+      "admitted_bull_pnl": -1141.73,
+      "verdict": "EARNS-KEEP"
+    }
+  ],
+  "frontier_SAFE": [
+    {
+      "step": 0,
+      "added": null,
+      "patch": {},
+      "n": 56,
+      "total": 5247.93,
+      "wr": 0.5893,
+      "exp": 93.71,
+      "tr_per_mo": 4.0,
+      "accepted": true
+    },
+    {
+      "step": 1,
+      "added": "vix_bear_hard_cap_OFF",
+      "patch": {
+        "vix_bear_hard_cap": 999.0
+      },
+      "n": 69,
+      "total": 6161.67,
+      "wr": 0.6087,
+      "exp": 89.3,
+      "tr_per_mo": 4.31,
+      "delta_vs_baseline_total": 913.74,
+      "accepted": true
+    },
+    {
+      "step": 2,
+      "added": "filter9_vol_0p4",
+      "patch": {
+        "vix_bear_hard_cap": 999.0,
+        "filter_9_vol_multiplier": 0.4
+      },
+      "n": 68,
+      "total": 6655.68,
+      "wr": 0.6176,
+      "exp": 97.88,
+      "tr_per_mo": 4.25,
+      "delta_vs_baseline_total": 1407.75,
+      "accepted": true
+    },
+    {
+      "step": 3,
+      "added": "filter9_vol_0p0",
+      "patch": {
+        "vix_bear_hard_cap": 999.0,
+        "filter_9_vol_multiplier": 0.0
+      },
+      "n": 70,
+      "total": 6613.68,
+      "wr": 0.6143,
+      "exp": 94.48,
+      "tr_per_mo": 4.38,
+      "delta_vs_baseline_total": 1365.75,
+      "accepted": true
+    },
+    {
+      "step": 4,
+      "added": "entry_body_gate_OFF",
+      "patch": {
+        "vix_bear_hard_cap": 999.0,
+        "filter_9_vol_multiplier": 0.0,
+        "entry_bar_body_pct_min": 0.0
+      },
+      "n": 79,
+      "total": 7067.35,
+      "wr": 0.5949,
+      "exp": 89.46,
+      "tr_per_mo": 4.94,
+      "delta_vs_baseline_total": 1819.42,
+      "accepted": true
+    }
+  ],
+  "chosen_loosest_patch": {
+    "vix_bear_hard_cap": 999.0,
+    "filter_9_vol_multiplier": 0.0,
+    "entry_bar_body_pct_min": 0.0
+  },
+  "verdict_summary": {
+    "over_restrictive": [
+      "vix_bear_hard_cap_OFF",
+      "filter9_vol_0p4",
+      "filter9_vol_0p0",
+      "entry_body_gate_OFF"
+    ],
+    "neutral": [],
+    "earns_keep": [
+      "vix_drop_rising_req",
+      "vix_bear_floor_12",
+      "block_level_rejection_OFF",
+      "midday_trendline_gate_OFF",
+      "min_triggers_bull_1"
+    ],
+    "no_op_not_binding": [
+      "ribbon_spread_20c",
+      "entry_after_1530",
+      "entry_before_0930"
+    ]
+  },
+  "discipline_notes": [
+    "Total P&L is the metric; admitted population required net positive-or-neutral so frequency is not bought with negative-EV trades (J's overtrading lost -$17k).",
+    "Causality preserved: only gate thresholds RELAXED; no look-ahead added.",
+    "SAFE audit. Bold (ITM-2, 50% risk, no chandelier) cross-check is a TRANSFER FLAG only \u2014 C29: gate knobs do not auto-transfer across strike tiers.",
+    "min_triggers_bull_1 expands the BULL side, which is OP-16 DRAFT (BULLISH_RECLAIM not yet J-proven). Flag, do not ship bull expansion without J.",
+    "Propose-only: live params.json NOT edited."
+  ],
+  "chosen_config_SAFE": {
+    "patch": {
+      "vix_bear_hard_cap": 999.0,
+      "filter_9_vol_multiplier": 0.0,
+      "entry_bar_body_pct_min": 0.0
+    },
+    "summary": {
+      "n": 79,
+      "total": 7067.35,
+      "wr": 0.5949,
+      "exp": 89.46,
+      "tr_per_mo": 4.94,
+      "bear_n": 53,
+      "bear_pnl": 4388.08,
+      "bull_n": 26,
+      "bull_pnl": 2679.27
+    },
+    "validation": {
+      "label": "chosen_loosest_SAFE",
+      "IS": {
+        "n": 46,
+        "total": 5246.52,
+        "wr": 0.5652,
+        "exp": 114.05,
+        "tr_per_mo": 4.18,
+        "bear_n": 29,
+        "bear_pnl": 3646.98,
+        "bull_n": 17,
+        "bull_pnl": 1599.54
+      },
+      "OOS": {
+        "n": 33,
+        "total": 1820.83,
+        "wr": 0.6364,
+        "exp": 55.18,
+        "tr_per_mo": 6.6,
+        "bear_n": 24,
+        "bear_pnl": 741.1,
+        "bull_n": 9,
+        "bull_pnl": 1079.73
+      },
+      "wf_per_trade": 0.484,
+      "quarters": {
+        "2025Q1": {
+          "n": 10,
+          "total": 192.3,
+          "exp": 19.23
+        },
+        "2025Q2": {
+          "n": 7,
+          "total": 1810.57,
+          "exp": 258.65
+        },
+        "2025Q3": {
+          "n": 17,
+          "total": 3198.04,
+          "exp": 188.12
+        },
+        "2025Q4": {
+          "n": 12,
+          "total": 45.61,
+          "exp": 3.8
+        },
+        "2026Q1": {
+          "n": 16,
+          "total": 1182.47,
+          "exp": 73.9
+        },
+        "2026Q2": {
+          "n": 17,
+          "total": 638.36,
+          "exp": 37.55
+        }
+      },
+      "quarter_positive_fraction": 1.0,
+      "gate": {
+        "oos_positive": true,
+        "wf_ge_0.70": false,
+        "sub_window_stable": true,
+        "PASS": false
+      }
+    },
+    "vs_baseline": {
+      "delta_n": 23,
+      "delta_total": 1819.42,
+      "delta_tr_per_mo": 0.94
+    }
+  },
+  "chosen_config_BOLD_crosscheck": {
+    "summary": {
+      "n": 80,
+      "total": 34250.49,
+      "wr": 0.5875,
+      "exp": 428.13,
+      "tr_per_mo": 5.0,
+      "bear_n": 53,
+      "bear_pnl": 14890.99,
+      "bull_n": 27,
+      "bull_pnl": 19359.5
+    },
+    "validation": {
+      "label": "chosen_loosest_BOLD",
+      "IS": {
+        "n": 46,
+        "total": 12986.65,
+        "wr": 0.5,
+        "exp": 282.32,
+        "tr_per_mo": 4.18,
+        "bear_n": 29,
+        "bear_pnl": 7591.15,
+        "bull_n": 17,
+        "bull_pnl": 5395.5
+      },
+      "OOS": {
+        "n": 34,
+        "total": 21263.84,
+        "wr": 0.7059,
+        "exp": 625.41,
+        "tr_per_mo": 6.8,
+        "bear_n": 24,
+        "bear_pnl": 7299.84,
+        "bull_n": 10,
+        "bull_pnl": 13964.0
+      },
+      "wf_per_trade": 2.215,
+      "quarters": {
+        "2025Q1": {
+          "n": 10,
+          "total": 109.88,
+          "exp": 10.99
+        },
+        "2025Q2": {
+          "n": 7,
+          "total": 10174.0,
+          "exp": 1453.43
+        },
+        "2025Q3": {
+          "n": 17,
+          "total": 1201.0,
+          "exp": 70.65
+        },
+        "2025Q4": {
+          "n": 12,
+          "total": 1501.77,
+          "exp": 125.15
+        },
+        "2026Q1": {
+          "n": 17,
+          "total": 10633.84,
+          "exp": 625.52
+        },
+        "2026Q2": {
+          "n": 17,
+          "total": 10630.0,
+          "exp": 625.29
+        }
+      },
+      "quarter_positive_fraction": 1.0,
+      "gate": {
+        "oos_positive": true,
+        "wf_ge_0.70": true,
+        "sub_window_stable": true,
+        "PASS": true
+      }
+    },
+    "_note": "C29 transfer flag only \u2014 Bold uses ITM-2; do NOT assume the SAFE gate choice transfers."
+  }
+}

@@ -1,0 +1,39 @@
+# Lesson candidate: harvester false-CRITICAL flood from live-source transients
+
+**Date:** 2026-06-20
+**Source:** Gamma_Conductor fire (Saturday after-hours)
+**Theme fit:** C7 (silent success/noise — audit outputs, not exit codes) + OP-22 (compound, don't accumulate)
+
+## Symptom
+`automation/overnight/queue.md` accumulated 24 phantom `## CRITICAL` HARVEST-REGFAIL
+rows overnight (2026-06-19T22:27 .. 2026-06-20T09:57, one per half-hourly run), each
+showing the SAME 14 `.live`/parity stages failing at `passed=74/88`. Every future
+conductor fire would read 24 CRITICALs at the top of the queue and be misled into
+thinking the engine was on fire. Nothing ever drains them.
+
+## Root cause
+`crypto/benchmarks/gym_harvester.py::_detect_regression_fail` emitted a CRITICAL the
+moment `overall_pass is False`, with no discrimination between a deterministic code
+regression and an environmental transient. When the live data feed is briefly
+unreachable (network blip / rate-limit), EVERY `.live` validator fails at once →
+`overall_pass=false` → CRITICAL emitted. It self-heals on the next run (verified:
+live gym was 90/90 overall_pass=true an hour after the last phantom row), but the
+queue rows are append-only and persist.
+
+## Fix (shipped this fire)
+Producer guard: a stage failure is only a reproducible regression if the stage is
+DETERMINISTIC (`.offline`/`.fixture`). `_detect_regression_fail` now suppresses the
+CRITICAL when ALL failed stages are `.live`/known-flaky (`v02_source_parity`,
+`v15_three_source_parity.live`); it fires only when ≥1 deterministic stage fails, or
+when no `per_stage` breakdown exists to classify (conservative). Mirrors the existing
+v02/v15 KNOWN_FLAKY_LIVE_SOURCE carve-out already used by `runner.py` overall_pass and
+`_detect_source_disagreement`. Guarded by
+`test_gym_harvester.py::test_regression_fail_suppressed_when_only_live_stages_fail`
+(+ `_emits_when_per_stage_missing`). The 24 stale rows were pruned and archived
+verbatim to `automation/overnight/queue-archive-2026-06-20.md`.
+
+## Generalizable principle
+An auto-queue producer that fires CRITICAL on a non-deterministic (live/source-dependent)
+signal will flood the backlog with un-drainable noise on every transient. CRITICAL must
+be reserved for reproducible, deterministic failures. Classify environmental vs
+deterministic at the producer, not by hoping a downstream triage prunes it.

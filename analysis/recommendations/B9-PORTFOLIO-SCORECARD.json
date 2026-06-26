@@ -1,0 +1,631 @@
+{
+  "campaign": "B9 \u2014 measure the 3-edge VWAP portfolio (combined real-fills + correlation + routing)",
+  "run_date": "2026-06-21",
+  "window": "2025-01-01..2026-05-15",
+  "trading_days": 342,
+  "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1)",
+  "oos_split": "IS=2025 / OOS=2026",
+  "config": {
+    "premium_stop_pct": -0.08,
+    "qty": 3,
+    "exits": "v15 default (tp1=0.30, runner=2.5x, profit_lock=OFF)",
+    "vix_regime_config": {
+      "slope_rule": "not_rising",
+      "low_margin": 0.25,
+      "source": "b5 robust_clearing_cell"
+    }
+  },
+  "edges": {
+    "1_vwap_continuation": "LIVE; ITM-2 (Bold) + ATM (Safe-2); +WP-1 touch-and-go A/B variant",
+    "2_vwap_reclaim_failed_break": "dormant; ITM-2 (Bold) + ATM (Safe-2)",
+    "4_vix_regime_dayside": "dormant; ATM (Safe-2 only)"
+  },
+  "account_composition": {
+    "Safe-2_ATM": [
+      "#1",
+      "#2",
+      "#4"
+    ],
+    "Bold_ITM2": [
+      "#1",
+      "#2"
+    ]
+  },
+  "signal_counts": {
+    "e1": 158,
+    "e1_touch_and_go": 124,
+    "e2": 81,
+    "e4": 80
+  },
+  "coverage": {
+    "e1_atm": {
+      "signals": 158,
+      "filled": 149,
+      "cache_miss": 9,
+      "sim_none": 0,
+      "fill_rate": 0.943
+    },
+    "e1_itm2": {
+      "signals": 158,
+      "filled": 149,
+      "cache_miss": 9,
+      "sim_none": 0,
+      "fill_rate": 0.943
+    },
+    "e1tg_atm": {
+      "signals": 124,
+      "filled": 117,
+      "cache_miss": 7,
+      "sim_none": 0,
+      "fill_rate": 0.944
+    },
+    "e1tg_itm2": {
+      "signals": 124,
+      "filled": 116,
+      "cache_miss": 8,
+      "sim_none": 0,
+      "fill_rate": 0.935
+    },
+    "e2_atm": {
+      "signals": 81,
+      "filled": 76,
+      "cache_miss": 5,
+      "sim_none": 0,
+      "fill_rate": 0.938
+    },
+    "e2_itm2": {
+      "signals": 81,
+      "filled": 76,
+      "cache_miss": 5,
+      "sim_none": 0,
+      "fill_rate": 0.938
+    },
+    "e4_atm": {
+      "signals": 80,
+      "filled": 76,
+      "cache_miss": 4,
+      "sim_none": 0,
+      "fill_rate": 0.95
+    }
+  },
+  "standalone_edge_metrics": {
+    "e1_atm": {
+      "n": 149,
+      "days": 149,
+      "wr_pct": 51.7,
+      "exp_dollar": 48.33,
+      "total_dollar": 7200.6,
+      "is_n": 107,
+      "is_exp": 43.82,
+      "oos_n": 42,
+      "oos_exp": 59.81,
+      "oos_total": 2511.92,
+      "daily_mean": 48.33,
+      "daily_std": 117.53,
+      "by_side": {
+        "C": {
+          "n": 82,
+          "total": 3676.28
+        },
+        "P": {
+          "n": 67,
+          "total": 3524.32
+        }
+      }
+    },
+    "e1_itm2": {
+      "n": 149,
+      "days": 149,
+      "wr_pct": 51.7,
+      "exp_dollar": 78.29,
+      "total_dollar": 11665.56,
+      "is_n": 107,
+      "is_exp": 67.56,
+      "oos_n": 42,
+      "oos_exp": 105.62,
+      "oos_total": 4436.16,
+      "daily_mean": 78.29,
+      "daily_std": 172.58,
+      "by_side": {
+        "C": {
+          "n": 82,
+          "total": 6893.4
+        },
+        "P": {
+          "n": 67,
+          "total": 4772.16
+        }
+      }
+    },
+    "e1tg_atm": {
+      "n": 117,
+      "days": 117,
+      "wr_pct": 47.9,
+      "exp_dollar": 35.88,
+      "total_dollar": 4198.0,
+      "is_n": 85,
+      "is_exp": 30.51,
+      "oos_n": 32,
+      "oos_exp": 50.15,
+      "oos_total": 1604.84,
+      "daily_mean": 35.88,
+      "daily_std": 112.2,
+      "by_side": {
+        "C": {
+          "n": 65,
+          "total": 3520.24
+        },
+        "P": {
+          "n": 52,
+          "total": 677.76
+        }
+      }
+    },
+    "e1tg_itm2": {
+      "n": 116,
+      "days": 116,
+      "wr_pct": 47.4,
+      "exp_dollar": 68.11,
+      "total_dollar": 7900.56,
+      "is_n": 84,
+      "is_exp": 48.59,
+      "oos_n": 32,
+      "oos_exp": 119.34,
+      "oos_total": 3818.92,
+      "daily_mean": 68.11,
+      "daily_std": 178.45,
+      "by_side": {
+        "C": {
+          "n": 65,
+          "total": 6800.72
+        },
+        "P": {
+          "n": 51,
+          "total": 1099.84
+        }
+      }
+    },
+    "e2_atm": {
+      "n": 76,
+      "days": 76,
+      "wr_pct": 55.3,
+      "exp_dollar": 53.28,
+      "total_dollar": 4049.0,
+      "is_n": 58,
+      "is_exp": 61.0,
+      "oos_n": 18,
+      "oos_exp": 28.39,
+      "oos_total": 511.08,
+      "daily_mean": 53.28,
+      "daily_std": 120.04,
+      "by_side": {
+        "C": {
+          "n": 45,
+          "total": 3056.36
+        },
+        "P": {
+          "n": 31,
+          "total": 992.64
+        }
+      }
+    },
+    "e2_itm2": {
+      "n": 76,
+      "days": 76,
+      "wr_pct": 53.9,
+      "exp_dollar": 93.67,
+      "total_dollar": 7118.76,
+      "is_n": 58,
+      "is_exp": 100.36,
+      "oos_n": 18,
+      "oos_exp": 72.11,
+      "oos_total": 1297.96,
+      "daily_mean": 93.67,
+      "daily_std": 184.37,
+      "by_side": {
+        "C": {
+          "n": 45,
+          "total": 5488.52
+        },
+        "P": {
+          "n": 31,
+          "total": 1630.24
+        }
+      }
+    },
+    "e4_atm": {
+      "n": 76,
+      "days": 76,
+      "wr_pct": 51.3,
+      "exp_dollar": 44.19,
+      "total_dollar": 3358.56,
+      "is_n": 55,
+      "is_exp": 30.71,
+      "oos_n": 21,
+      "oos_exp": 79.49,
+      "oos_total": 1669.24,
+      "daily_mean": 44.19,
+      "daily_std": 106.65,
+      "by_side": {
+        "C": {
+          "n": 48,
+          "total": 2273.88
+        },
+        "P": {
+          "n": 28,
+          "total": 1084.68
+        }
+      }
+    }
+  },
+  "portfolios": {
+    "Safe-2_ATM_base_1+2+4": {
+      "total_dollar": 14608.16,
+      "days_in_market": 149,
+      "n_trading_days": 342,
+      "pct_days_in_market": 43.6,
+      "daily_mean_all_days": 42.71,
+      "daily_mean_in_market": 98.04,
+      "daily_std_all_days": 149.72,
+      "annualized_sharpe": 4.53,
+      "max_drawdown": -836.4,
+      "worst_day": -423.36,
+      "best_day": 1045.2,
+      "win_days": 85,
+      "loss_days": 64,
+      "day_win_pct": 57.0
+    },
+    "Safe-2_ATM_withWP1touchandgo_1tg+2+4": {
+      "total_dollar": 11605.56,
+      "days_in_market": 134,
+      "n_trading_days": 342,
+      "pct_days_in_market": 39.2,
+      "daily_mean_all_days": 33.93,
+      "daily_mean_in_market": 86.61,
+      "daily_std_all_days": 137.08,
+      "annualized_sharpe": 3.93,
+      "max_drawdown": -630.96,
+      "worst_day": -423.36,
+      "best_day": 1012.2,
+      "win_days": 79,
+      "loss_days": 55,
+      "day_win_pct": 59.0
+    },
+    "Bold_ITM2_base_1+2": {
+      "total_dollar": 18784.32,
+      "days_in_market": 149,
+      "n_trading_days": 342,
+      "pct_days_in_market": 43.6,
+      "daily_mean_all_days": 54.92,
+      "daily_mean_in_market": 126.07,
+      "daily_std_all_days": 185.59,
+      "annualized_sharpe": 4.7,
+      "max_drawdown": -847.8,
+      "worst_day": -447.36,
+      "best_day": 974.8,
+      "win_days": 84,
+      "loss_days": 65,
+      "day_win_pct": 56.4
+    },
+    "Bold_ITM2_withWP1touchandgo_1tg+2": {
+      "total_dollar": 15019.32,
+      "days_in_market": 118,
+      "n_trading_days": 342,
+      "pct_days_in_market": 34.5,
+      "daily_mean_all_days": 43.92,
+      "daily_mean_in_market": 127.28,
+      "daily_std_all_days": 185.19,
+      "annualized_sharpe": 3.76,
+      "max_drawdown": -944.88,
+      "worst_day": -447.36,
+      "best_day": 1064.4,
+      "win_days": 61,
+      "loss_days": 57,
+      "day_win_pct": 51.7
+    }
+  },
+  "correlation_overlap": {
+    "Safe-2": {
+      "day_overlap": {
+        "e1__e2": {
+          "jaccard": 0.51,
+          "shared_days": 76,
+          "e1_days": 149,
+          "e2_days": 76
+        },
+        "e1__e4": {
+          "jaccard": 0.51,
+          "shared_days": 76,
+          "e1_days": 149,
+          "e4_days": 76
+        },
+        "e2__e4": {
+          "jaccard": 0.382,
+          "shared_days": 42,
+          "e2_days": 76,
+          "e4_days": 76
+        }
+      },
+      "daily_pnl_correlation": {
+        "e1__e2": 0.313,
+        "e1__e4": 0.54,
+        "e2__e4": 0.076
+      },
+      "fire_day_counts": {
+        "e1": 149,
+        "e2": 76,
+        "e4": 76
+      }
+    },
+    "Bold": {
+      "day_overlap": {
+        "e1__e2": {
+          "jaccard": 0.51,
+          "shared_days": 76,
+          "e1_days": 149,
+          "e2_days": 76
+        }
+      },
+      "daily_pnl_correlation": {
+        "e1__e2": 0.439
+      },
+      "fire_day_counts": {
+        "e1": 149,
+        "e2": 76
+      }
+    }
+  },
+  "routing": {
+    "Safe-2": {
+      "base_portfolio": {
+        "total_dollar": 14608.16,
+        "days_in_market": 149,
+        "n_trading_days": 342,
+        "pct_days_in_market": 43.6,
+        "daily_mean_all_days": 42.71,
+        "daily_mean_in_market": 98.04,
+        "daily_std_all_days": 149.72,
+        "annualized_sharpe": 4.53,
+        "max_drawdown": -836.4,
+        "worst_day": -423.36,
+        "best_day": 1045.2,
+        "win_days": 85,
+        "loss_days": 64,
+        "day_win_pct": 57.0
+      },
+      "buckets": {
+        "day_of_week": {
+          "Fri": {
+            "n_days": 31,
+            "mean": 146.77,
+            "total": 4549.96
+          },
+          "Mon": {
+            "n_days": 33,
+            "mean": 132.84,
+            "total": 4383.72
+          },
+          "Thu": {
+            "n_days": 28,
+            "mean": 74.7,
+            "total": 2091.6
+          },
+          "Tue": {
+            "n_days": 29,
+            "mean": 58.27,
+            "total": 1689.88
+          },
+          "Wed": {
+            "n_days": 28,
+            "mean": 67.61,
+            "total": 1893.0
+          }
+        },
+        "gap_bucket": {
+          "flat_open": {
+            "n_days": 65,
+            "mean": 85.63,
+            "total": 5565.64
+          },
+          "gap_down": {
+            "n_days": 37,
+            "mean": 143.98,
+            "total": 5327.2
+          },
+          "gap_up": {
+            "n_days": 47,
+            "mean": 79.05,
+            "total": 3715.32
+          }
+        },
+        "range_bucket": {
+          "mid": {
+            "n_days": 80,
+            "mean": 113.11,
+            "total": 9048.56
+          },
+          "narrow": {
+            "n_days": 46,
+            "mean": 49.6,
+            "total": 2281.72
+          },
+          "wide": {
+            "n_days": 23,
+            "mean": 142.52,
+            "total": 3277.88
+          }
+        },
+        "trend_side": {
+          "down": {
+            "n_days": 67,
+            "mean": 83.61,
+            "total": 5601.64
+          },
+          "up": {
+            "n_days": 82,
+            "mean": 109.84,
+            "total": 9006.52
+          }
+        },
+        "opex": {
+          "non_opex": {
+            "n_days": 140,
+            "mean": 93.44,
+            "total": 13082.2
+          },
+          "opex": {
+            "n_days": 9,
+            "mean": 169.55,
+            "total": 1525.96
+          }
+        },
+        "month_end": {
+          "month_end": {
+            "n_days": 6,
+            "mean": 2.08,
+            "total": 12.48
+          },
+          "non_month_end": {
+            "n_days": 143,
+            "mean": 102.07,
+            "total": 14595.68
+          }
+        }
+      },
+      "single_best_abstain": null,
+      "cumulative_abstain": null,
+      "routing_note": "a bucket is an ABSTAIN candidate only if its in-market daily MEAN < 0 with >= 4 days; no-regression (L174) requires the abstained days' NET P&L < 0. Sharpe/DD/total deltas are vs the base 3-edge book."
+    },
+    "Bold": {
+      "base_portfolio": {
+        "total_dollar": 18784.32,
+        "days_in_market": 149,
+        "n_trading_days": 342,
+        "pct_days_in_market": 43.6,
+        "daily_mean_all_days": 54.92,
+        "daily_mean_in_market": 126.07,
+        "daily_std_all_days": 185.59,
+        "annualized_sharpe": 4.7,
+        "max_drawdown": -847.8,
+        "worst_day": -447.36,
+        "best_day": 974.8,
+        "win_days": 84,
+        "loss_days": 65,
+        "day_win_pct": 56.4
+      },
+      "buckets": {
+        "day_of_week": {
+          "Fri": {
+            "n_days": 30,
+            "mean": 143.67,
+            "total": 4310.04
+          },
+          "Mon": {
+            "n_days": 34,
+            "mean": 174.57,
+            "total": 5935.32
+          },
+          "Thu": {
+            "n_days": 28,
+            "mean": 93.54,
+            "total": 2619.16
+          },
+          "Tue": {
+            "n_days": 29,
+            "mean": 95.49,
+            "total": 2769.08
+          },
+          "Wed": {
+            "n_days": 28,
+            "mean": 112.53,
+            "total": 3150.72
+          }
+        },
+        "gap_bucket": {
+          "flat_open": {
+            "n_days": 64,
+            "mean": 110.78,
+            "total": 7090.24
+          },
+          "gap_down": {
+            "n_days": 38,
+            "mean": 191.28,
+            "total": 7268.48
+          },
+          "gap_up": {
+            "n_days": 47,
+            "mean": 94.16,
+            "total": 4425.6
+          }
+        },
+        "range_bucket": {
+          "mid": {
+            "n_days": 80,
+            "mean": 137.59,
+            "total": 11007.04
+          },
+          "narrow": {
+            "n_days": 46,
+            "mean": 101.52,
+            "total": 4670.0
+          },
+          "wide": {
+            "n_days": 23,
+            "mean": 135.1,
+            "total": 3107.28
+          }
+        },
+        "trend_side": {
+          "down": {
+            "n_days": 67,
+            "mean": 95.56,
+            "total": 6402.4
+          },
+          "up": {
+            "n_days": 82,
+            "mean": 151.0,
+            "total": 12381.92
+          }
+        },
+        "opex": {
+          "non_opex": {
+            "n_days": 141,
+            "mean": 126.03,
+            "total": 17770.44
+          },
+          "opex": {
+            "n_days": 8,
+            "mean": 126.73,
+            "total": 1013.88
+          }
+        },
+        "month_end": {
+          "month_end": {
+            "n_days": 7,
+            "mean": 125.67,
+            "total": 879.72
+          },
+          "non_month_end": {
+            "n_days": 142,
+            "mean": 126.09,
+            "total": 17904.6
+          }
+        }
+      },
+      "single_best_abstain": null,
+      "cumulative_abstain": null,
+      "routing_note": "a bucket is an ABSTAIN candidate only if its in-market daily MEAN < 0 with >= 4 days; no-regression (L174) requires the abstained days' NET P&L < 0. Sharpe/DD/total deltas are vs the base 3-edge book."
+    }
+  },
+  "verdict": "PORTFOLIO_MEASURED",
+  "routing_reasons": [],
+  "DISCLOSURE": {
+    "measurement_not_candidate": "this is a PORTFOLIO MEASUREMENT \u2014 the constituents each cleared the standing bar individually; no new standing-bar gate is applied to the book itself.",
+    "per_trade": "per-trade EXPECTANCY reported, not WR alone (OP-14/C4)",
+    "spy_vs_option": "real OPRA fills; SPY-direction != option edge (C3/L58)",
+    "sharpe": "annualized = daily Sharpe x sqrt(252); daily series over ALL trading days (flat days = 0) so % days in market is reflected in the risk-adjusted number",
+    "correlation": "daily-P&L Pearson on the UNION of each pair's fire-days (0 where one didn't fire) \u2014 the realistic book-level diversification measure; Jaccard = day-set overlap",
+    "routing_no_regression": "L174 \u2014 an abstain bucket is only non-regressive if the abstained days' NET P&L < 0; reported per bucket",
+    "wp1_caveat": "the touch-and-go (WP-1) row SWAPS #1's call entry for the touch-and-go entry on call-days; reported as an A/B, not double-counted with base #1"
+  }
+}

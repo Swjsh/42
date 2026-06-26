@@ -243,12 +243,24 @@ Required fields (object):
 - 4-5 days → `novelty: "repeat_5d"`.
 - Otherwise → `novelty: "fresh"`.
 
-## Step 5 — draw new levels (if any)
+## Step 5 — refresh level lines (WIPE stale + REDRAW current — keeps the chart CLEAN)
 
-For levels in audit's "needs draw" list:
-- Run protocol drawing checklist (5 fields complete + reasoning).
-- Use `mcp__tradingview__draw_shape` with `horizontal_line`.
-- Capture `entity_id` back to key-levels.json.
+> **Why this is wipe-then-redraw (2026-06-24):** per-entity removal (`draw_remove_one`) is BROKEN (`getChartApi is not defined`), so for weeks the "draw new levels" step only ADDED lines and never removed old ones — the chart accumulated to **58 drawings / 48 stale horizontal lines** (e.g. 752.09 drawn 4×, 756.68 ×3) which is unreadable for J AND pollutes the Step 5b trendline read. Fix: stop tracking individual entity_ids for removal — each premarket WIPE every engine level-line and REDRAW the current set fresh. Idempotent + self-cleaning. **Do NOT revert to additive-only drawing.**
+
+`draw_list` / `draw_remove_one` / `draw_clear` are BROKEN (`getChartApi is not defined`). Use the `ui_evaluate` JS workarounds in `automation/scripts/tv_ops/` (chart-widget API: `window._exposed_chartWidgetCollection.activeChartWidget._value.model()`). NEVER rely on the MCP draw-management tools for listing/removing.
+
+**WIPE — remove all engine-drawn horizontal level lines (PRESERVE J's structural drawings):**
+- Read `automation/scripts/tv_ops/remove_by_title.js`, substitute `__TITLE_SUBSTR__` → `"horizontal line"`, pass to `mcp__tradingview__ui_evaluate`.
+- This removes EVERY `horizontal line` but LEAVES `trendline` / `ray` / `horizontal ray` / `rectangle` — those are J's manual structural work (Rule: **J owns trendlines/rays; never auto-delete them**). The needle `"horizontal line"` does NOT match `"horizontal ray"`, so rays survive.
+- Record `removed_count` into `key-levels.json#chart_cleanup_log`.
+
+**REDRAW — draw only the current, near-price levels (capped so it can never re-clutter):**
+- From `key-levels.json#levels[]`, select to draw: `abs(price − spot) ≤ $12` AND `tier ∈ {Active, Carry, Liquidity}`. Skip `Reference` + `psychological` unless within $5 of spot. **Hard cap = the 10 nearest** (if more qualify, draw nearest 10, log the rest as "not drawn — far").
+- For each selected level: run the protocol drawing checklist (5 fields + reasoning), then `mcp__tradingview__draw_shape` `horizontal_line` at `{ time: <latest 5m bar>, price: level.price }` with color by type (resistance=red `#ef5350`, support=green `#26a69a`, transition=amber, psychological=gray — per `markdown/planning/daily-review.md`) + a short `text` label. Capture the returned `entity_id` back to that level.
+- Far levels (> $12 from spot) stay in `levels[]` for awareness with `entity_id: null, draw_needed: false`; they auto-draw on a future premarket once price approaches.
+- Update `key-levels.json#chart_drawing_summary { drawn_count, drew_this_session[], as_of, note }`.
+
+Net result: the chart shows ONLY today's current levels + J's manual lines, refreshed clean every morning. (EOD-summary / daily-review may also draw for tomorrow; this premarket wipe absorbs whatever they added — no separate cleanup needed there.)
 
 ## Step 5b — read chart drawings + compute trendlines (NEW 2026-05-08)
 

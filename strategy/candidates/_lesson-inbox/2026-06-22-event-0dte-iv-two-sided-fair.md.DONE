@@ -1,0 +1,28 @@
+# Lesson candidate: scheduled-event 0DTE SPY IV is two-sided FAIR — selling it blows the tail (#6) and buying it under-covers the premium (#6b), so neither direction is an edge; a positive selection-delta that does NOT cover the premium is NOT a tradable edge
+
+> Queued by Gamma (event LONG-VEGA #6b, the inverse of the #6 short-condor death) 2026-06-22. lesson-author picks up at next wake fire. Companion to the same-day `2026-06-22-cache-tail-bias...md` lesson — together they close the 0DTE premium class both directions.
+
+## Symptom
+The short-condor death (#6) reasoned: realized event moves blow THROUGH the short strikes (that is what inverted the short edge to −$11.38/tr at the 0th null percentile). The natural pivot: that same fat-move distribution should pay a LONG strangle/straddle buyer. Built `_event_iv_crush_long.py` on the banked wide cache (ATM ±$18), 10:00 ET entry, hold-to-0DTE-expiry, settle true intrinsic vs SPY close, full premium + slip + commission, all 46 event + 46 matched non-event days, zero skips.
+
+The long side ALSO fails:
+- LONG STRANGLE (~16-delta C+P, $0.45/leg proxy): **event exp/tr −$38.82**, n=46, WR 17.4%, total −$1,785.80; NON-EVENT −$67.02/tr.
+- LONG STRADDLE (ATM C+P): **event exp/tr −$107.09**, WR 30.4%; NON-EVENT −$134.45/tr; and cap-BLOCKED (avg $423/lot → min-3 $1,269 > $600 Safe cap).
+- The event move IS systematically bigger (avg abs move 3.21 vs 2.33; **selection_delta +$28.20/tr** strangle, both positive) — but it does NOT cover the richer event premium. Both lose net of premium.
+
+## Root cause
+Scheduled-event 0DTE IV is fairly priced two-sided: the market charges MORE premium precisely because the realized move is bigger, and the two cancel to within transaction costs. The short side proved this from one side (you collect rich premium but the fat tail blows through your strikes — #6 / cache-tail-bias). The long side proves it from the other side (the move is genuinely bigger but the premium you paid for it is bigger still — #6b). A real, positive **selection delta** (event days move more than random days) is therefore NECESSARY but NOT SUFFICIENT for a long-vol edge: the delta must exceed the premium PAID, not merely exceed the non-event move. Here +$28/tr of extra move did not cover ~$94/lot of strangle premium.
+
+Two methodology traps surfaced and must be encoded:
+1. **Degenerate bootstrap null.** When the random-day null draws a sample equal to the entire non-event pool (n_sample == pool_size == 46), the bootstrap p95 collapses onto the pool MEAN, so `beats_null_p95` becomes a point-comparison that merely restates the selection delta — it is NOT a tail test and must NOT be read as a pass. The decisive gate for a LONG debit structure is `positive_net_of_premium`, full stop. (A true null for the long side needs a strictly larger non-event pool than the event sample, OR a per-day premium-normalized payoff null.)
+2. **drop_best2 is the right concentration check for a long debit.** drop_best2_exp = −$59.85 (< the headline −$38.82) confirms the loss is BROAD (38 of 46 days lose), not carried by one giant move day — the inverse-L173 check for a long structure (a long-vol edge that LOOKS positive must survive removing its biggest move days; a long-vol edge that is negative is confirmed broad when removing winners makes it worse).
+
+## Fix
+- Built `backtest/autoresearch/_event_iv_crush_long.py` (reuses the wide loader + `_event_iv_crush_precheck.build_event_days()` + spot/entry plumbing; settles true intrinsic; result `_state/event_iv_crush_long.json`), verdict DEAD both structures.
+- VERDICT recorded: STRATEGY-DIRECTION-BACKLOG.md #6b DEAD + #4b FULLY-SPENT (wide-band data unlock now spent both directions); STATUS.md OP-25 head entry; next direction = climb OFF the premium axis (compound #1 / instrument #7).
+
+## Encoded in
+`_event_iv_crush_long.py` + backlog #6b DEAD + STATUS.md. Pending graduation into a reusable assertion.
+
+## L## (optional)
+Suggested **L183** (after L182 = cache-tail-bias; grep `LESSONS-LEARNED.md` for max to confirm/assign). Fold into theme **C3** (SPY-price edge != option edge; beat the null MAX) with the long-vol corollary, cross-ref **C4** (per-trade expectancy not WR; a published anomaly != a per-trade option edge). Core principles to encode: *(a) "A positive selection-delta (the selected days move more than the null) is necessary but NOT sufficient for a LONG-premium edge — the delta must exceed the PREMIUM PAID, not merely the non-event move. Always gate a long debit structure on positive-net-of-FULL-premium first; the selection delta is diagnostic, not the verdict." (b) "A bootstrap null whose sample == the whole comparison pool is degenerate (p95 == pool mean) — it is a point comparison, not a tail test; size the null pool strictly larger than the event sample or normalize per-day, and never read beats_null as a pass when the headline already loses net of premium." (c) "For a long debit structure, drop_best-2 (not drop-worst-2) is the concentration check — the edge must survive removing its biggest-move days."* Domain conclusion to record: **scheduled-event 0DTE SPY premium is two-sided fair; the 0DTE SPY premium class (long single-leg ~64 families + short defined-risk #6 + long vol #6b) is exhaustively closed on this data — the productive frontier is OFF the premium axis (DTE/instrument/class).** Graduate (per "a re-violated lesson is a missing guardrail"): in any long/short premium harness, the verdict gate must be net-of-full-premium expectancy AND a non-degenerate null (pool > sample); a selection-delta-only "pass" is banned.

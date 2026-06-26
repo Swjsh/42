@@ -1,0 +1,384 @@
+{
+  "kind": "b4_new_method",
+  "slug": "ml-direction-model",
+  "hypothesis": "LEARNED next-K-bar SPY direction classifier (logreg + GBM stumps, pure numpy) under strict walk-forward (train 2025 -> test 2026, no leakage); beat coin-flip + majority OOS, then real-fill the top-decile high-probability subset through all 8 gates",
+  "method": "new (supervised learning, not a hand-coded detector)",
+  "run_date": "2026-06-21",
+  "window": "2025-01-02..2026-05-15",
+  "trading_days": 342,
+  "label": "sign of next-6-bar SPY return (same-day RTH forward window)",
+  "features": [
+    "rsi2",
+    "rsi14",
+    "adx14",
+    "vwap_dist_pct",
+    "tod",
+    "vix",
+    "vix_slope5",
+    "ribbon_stack",
+    "structure",
+    "ret1",
+    "ret3",
+    "ret5"
+  ],
+  "walk_forward": {
+    "train_fold": "< 2026 (2025)",
+    "test_fold": "2026 (OOS)",
+    "train_n": 14073,
+    "test_n": 5301,
+    "train_up_rate": 0.5231,
+    "test_up_rate": 0.5129,
+    "no_leakage": "features causal as-of bar i; forward label only in train fit; standardizer + model weights fit on TRAIN only; OOS labels used ONLY to score accuracy"
+  },
+  "model_hparams": {
+    "logreg": {
+      "epochs": 400,
+      "lr": 0.3,
+      "l2": 0.001
+    },
+    "gbm": {
+      "trees": 60,
+      "lr": 0.1,
+      "max_depth": 1
+    },
+    "note": "fixed a priori, NO OOS tuning"
+  },
+  "oos_classification": {
+    "coinflip_acc": 0.5,
+    "majority_train_class": 1,
+    "majority_acc_oos": 0.5129,
+    "oos_up_rate_peek": 0.5129,
+    "logreg_acc_oos": 0.5299,
+    "gbm_acc_oos": 0.5156,
+    "beats_coinflip": true,
+    "beats_majority": true,
+    "beats_baselines_oos": true,
+    "best_model": "LR"
+  },
+  "feature_importance": {
+    "logreg_abs_std_weight": {
+      "vix": 0.0902,
+      "vix_slope5": 0.0323,
+      "ret1": 0.0287,
+      "ret3": 0.0283,
+      "structure": 0.0224,
+      "ribbon_stack": 0.0209,
+      "rsi2": 0.0206,
+      "tod": 0.0139,
+      "adx14": 0.0082,
+      "rsi14": 0.0076,
+      "vwap_dist_pct": 0.0045,
+      "ret5": 0.0037
+    },
+    "gbm_split_frequency": {
+      "vix": 0.4833,
+      "tod": 0.3,
+      "vwap_dist_pct": 0.2,
+      "adx14": 0.0167,
+      "rsi2": 0.0,
+      "rsi14": 0.0,
+      "vix_slope5": 0.0,
+      "ribbon_stack": 0.0,
+      "structure": 0.0,
+      "ret1": 0.0,
+      "ret3": 0.0,
+      "ret5": 0.0
+    }
+  },
+  "high_prob_subset": {
+    "top_decile": 0.1,
+    "confidence_threshold": 0.04432,
+    "oos_bars_in_decile": 531,
+    "oos_distinct_day_picks": 64,
+    "oos_side_count": {
+      "C": 56,
+      "P": 8
+    },
+    "candidate_population_note": "trade population = top-decile-confident bars, 1/day cap, IS(2025)+OOS(2026) via the SAME frozen-on-2025 model; gate 1 is OOS-2026-only (decisive), IS bars feed the IS-half/quarter/null gates and are IN-SAMPLE by construction (disclosed honestly)",
+    "n_picks_total": 261,
+    "n_picks_is": 197,
+    "n_picks_oos": 64
+  },
+  "real_fills_authority": "lib.simulator_real.simulate_trade_real (C1); nearest-cached strike snap <=4; causal next-bar-open; chart-stop = 12-bar trailing swing via rejection_level",
+  "strike_tiers": {
+    "ITM2_survivor": {
+      "strike_offset": -2,
+      "premium_stop_pct": -0.08,
+      "coverage": {
+        "signals": 261,
+        "filled": 254,
+        "cache_miss": 7,
+        "sim_none": 0,
+        "fill_rate": 0.973
+      },
+      "metrics": {
+        "n": 254,
+        "wr_pct": 20.5,
+        "exp_dollar": -15.63,
+        "total_dollar": -3969.04,
+        "is_n": 190,
+        "is_exp": -13.3,
+        "is_total": -2527.12,
+        "is_half_n": 95,
+        "is_half_exp": -10.15,
+        "oos_n": 64,
+        "oos_exp": -22.53,
+        "oos_total": -1441.92,
+        "drop_top5_per_trade": -24.41,
+        "quarters": {
+          "2025Q1": {
+            "n": 39,
+            "exp": -18.74,
+            "total": -730.68
+          },
+          "2025Q2": {
+            "n": 40,
+            "exp": -16.0,
+            "total": -639.84
+          },
+          "2025Q3": {
+            "n": 61,
+            "exp": 6.25,
+            "total": 381.04
+          },
+          "2025Q4": {
+            "n": 50,
+            "exp": -30.75,
+            "total": -1537.64
+          },
+          "2026Q1": {
+            "n": 41,
+            "exp": -33.16,
+            "total": -1359.44
+          },
+          "2026Q2": {
+            "n": 23,
+            "exp": -3.59,
+            "total": -82.48
+          }
+        },
+        "positive_quarters": "1/6",
+        "positive_quarters_n": 1,
+        "n_quarters": 6,
+        "top5_day_pct": null,
+        "by_side": {
+          "C": {
+            "n": 237,
+            "exp": -15.29,
+            "wr": 20.3,
+            "total": -3623.6
+          },
+          "P": {
+            "n": 17,
+            "exp": -20.32,
+            "wr": 23.5,
+            "total": -345.44
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 1,
+          "EXIT_ALL_PREMIUM_STOP": 200,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 14,
+          "EXIT_ALL_TIME_STOP": 1,
+          "TP1_THEN_RUNNER_RIBBON": 21,
+          "TP1_THEN_RUNNER_TIME": 17
+        }
+      },
+      "chart_stop_only_oos_exp": 34.5,
+      "null": {
+        "seeds": 10,
+        "n_eligible": 25544,
+        "n_drawn": 64,
+        "per_trade_mean": 0.16,
+        "per_trade_min": -18.83,
+        "per_trade_max": 49.09,
+        "per_trade_by_seed": [
+          0.38,
+          7.67,
+          -15.69,
+          7.07,
+          -17.19,
+          -0.83,
+          -18.83,
+          -13.45,
+          3.41,
+          49.09
+        ]
+      },
+      "gates": {
+        "g1_oos_per_trade_pos": false,
+        "g2_pos_quarters_ge4of6": false,
+        "g3_top5_lt_200": false,
+        "g4_n_ge_20": true,
+        "g5_drop_top5_pos": false,
+        "g6_is_half_pos": false,
+        "g7_beats_null": false,
+        "g8_no_truncation": true,
+        "clears_all_gates": false,
+        "_null_detail": {
+          "beats_null_mean": false,
+          "beats_null_max": false,
+          "drop_top5_beats_null_mean": false,
+          "edge_over_null_per_trade": -22.69,
+          "null_pass": false
+        },
+        "_truncation_artifact": false
+      }
+    },
+    "ATM_safe2": {
+      "strike_offset": 0,
+      "premium_stop_pct": -0.08,
+      "coverage": {
+        "signals": 261,
+        "filled": 253,
+        "cache_miss": 8,
+        "sim_none": 0,
+        "fill_rate": 0.969
+      },
+      "metrics": {
+        "n": 253,
+        "wr_pct": 17.8,
+        "exp_dollar": -8.4,
+        "total_dollar": -2125.56,
+        "is_n": 190,
+        "is_exp": -10.06,
+        "is_total": -1912.32,
+        "is_half_n": 95,
+        "is_half_exp": -9.61,
+        "oos_n": 63,
+        "oos_exp": -3.38,
+        "oos_total": -213.24,
+        "drop_top5_per_trade": -14.87,
+        "quarters": {
+          "2025Q1": {
+            "n": 39,
+            "exp": -14.96,
+            "total": -583.56
+          },
+          "2025Q2": {
+            "n": 40,
+            "exp": -9.19,
+            "total": -367.8
+          },
+          "2025Q3": {
+            "n": 61,
+            "exp": -0.64,
+            "total": -39.12
+          },
+          "2025Q4": {
+            "n": 50,
+            "exp": -18.44,
+            "total": -921.84
+          },
+          "2026Q1": {
+            "n": 40,
+            "exp": -14.07,
+            "total": -563.0
+          },
+          "2026Q2": {
+            "n": 23,
+            "exp": 15.21,
+            "total": 349.76
+          }
+        },
+        "positive_quarters": "1/6",
+        "positive_quarters_n": 1,
+        "n_quarters": 6,
+        "top5_day_pct": null,
+        "by_side": {
+          "C": {
+            "n": 237,
+            "exp": -10.02,
+            "wr": 16.9,
+            "total": -2373.88
+          },
+          "P": {
+            "n": 16,
+            "exp": 15.52,
+            "wr": 31.2,
+            "total": 248.32
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_PREMIUM_STOP": 205,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 10,
+          "TP1_THEN_RUNNER_RIBBON": 30,
+          "TP1_THEN_RUNNER_TIME": 8
+        }
+      },
+      "chart_stop_only_oos_exp": 17.77,
+      "null": {
+        "seeds": 10,
+        "n_eligible": 25544,
+        "n_drawn": 63,
+        "per_trade_mean": 1.21,
+        "per_trade_min": -10.85,
+        "per_trade_max": 20.34,
+        "per_trade_by_seed": [
+          4.14,
+          11.11,
+          -8.72,
+          -4.86,
+          -10.85,
+          7.73,
+          -9.82,
+          -0.78,
+          20.34,
+          3.79
+        ]
+      },
+      "gates": {
+        "g1_oos_per_trade_pos": false,
+        "g2_pos_quarters_ge4of6": false,
+        "g3_top5_lt_200": false,
+        "g4_n_ge_20": true,
+        "g5_drop_top5_pos": false,
+        "g6_is_half_pos": false,
+        "g7_beats_null": false,
+        "g8_no_truncation": true,
+        "clears_all_gates": false,
+        "_null_detail": {
+          "beats_null_mean": false,
+          "beats_null_max": false,
+          "drop_top5_beats_null_mean": false,
+          "edge_over_null_per_trade": -4.59,
+          "null_pass": false
+        },
+        "_truncation_artifact": false
+      }
+    }
+  },
+  "headline_tier": "ITM2_survivor",
+  "EIGHT_GATES_headline": {
+    "g1_oos_per_trade_pos": false,
+    "g2_pos_quarters_ge4of6": false,
+    "g3_top5_lt_200": false,
+    "g4_n_ge_20": true,
+    "g5_drop_top5_pos": false,
+    "g6_is_half_pos": false,
+    "g7_beats_null": false,
+    "g8_no_truncation": true,
+    "clears_all_gates": false,
+    "_null_detail": {
+      "beats_null_mean": false,
+      "beats_null_max": false,
+      "drop_top5_beats_null_mean": false,
+      "edge_over_null_per_trade": -22.69,
+      "null_pass": false
+    },
+    "_truncation_artifact": false
+  },
+  "clears_all_gates": false,
+  "oos_per_trade": -22.53,
+  "beats_null": false,
+  "DISCLOSURE": {
+    "pure_python": "no sklearn (not in venv); logreg + GBM hand-rolled in numpy; $0",
+    "per_trade": "per-trade expectancy reported, not WR alone (OP-14/C4)",
+    "is_oos": "IS=2025 (train, in-sample by construction) / OOS=2026 (test) split",
+    "decisive_gate": "gate 1 (OOS-2026 per-trade > 0) is the decisive directional test",
+    "null": "random-entry null isolates exit-structure artifact from signal (L172/C3)",
+    "truncation": "same-strike chart-stop-only sign cross-check (L171)",
+    "no_survivor_pick": "all tiers + all 8 gates reported with the exact pass/fail flags",
+    "spy_vs_option": "real OPRA fills; a SPY-direction accuracy edge != option edge (C3/L58)"
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "study": "profit_lock_sweep",
+  "date": "2026-06-17",
+  "motivation": "v15 params.json has v15_profit_lock_threshold_pct=0.05, mode='trailing', trail=0.20 but _params_to_kwargs has no mapping \u2014 all backtests run with profit_lock=off. Original T50 test pre-dates ENFORCED gates. This sweep checks post-ENFORCED baselines.",
+  "results": [
+    {
+      "account": "SAFE (post-ENFORCED-4)",
+      "baseline_is_pnl": 16539.53,
+      "baseline_oos_pnl": 6324.75,
+      "candidates": [
+        {
+          "name": "v15 prod: thr=0.05 floor=0.10 trail=0.20",
+          "pl_kw": {
+            "profit_lock_threshold_pct": 0.05,
+            "profit_lock_stop_offset_pct": 0.1,
+            "profit_lock_mode": "trailing",
+            "profit_lock_trail_pct": 0.2
+          },
+          "is_pnl": 13617.09,
+          "oos_pnl": 2194.01,
+          "is_delta": -2922.44,
+          "oos_delta": -4130.74,
+          "wf_norm": "NaN",
+          "sw_hurt": 2,
+          "anchor_fails": [],
+          "gate": "L155"
+        },
+        {
+          "name": "trail tighter: thr=0.05 floor=0.10 trail=0.15",
+          "pl_kw": {
+            "profit_lock_threshold_pct": 0.05,
+            "profit_lock_stop_offset_pct": 0.1,
+            "profit_lock_mode": "trailing",
+            "profit_lock_trail_pct": 0.15
+          },
+          "is_pnl": 15402.74,
+          "oos_pnl": 2262.71,
+          "is_delta": -1136.79,
+          "oos_delta": -4062.04,
+          "wf_norm": "NaN",
+          "sw_hurt": 2,
+          "anchor_fails": [],
+          "gate": "L155"
+        },
+        {
+          "name": "threshold higher: thr=0.10 floor=0.10 trail=0.20",
+          "pl_kw": {
+            "profit_lock_threshold_pct": 0.1,
+            "profit_lock_stop_offset_pct": 0.1,
+            "profit_lock_mode": "trailing",
+            "profit_lock_trail_pct": 0.2
+          },
+          "is_pnl": 12189.69,
+          "oos_pnl": 2194.01,
+          "is_delta": -4349.84,
+          "oos_delta": -4130.74,
+          "wf_norm": "NaN",
+          "sw_hurt": 2,
+          "anchor_fails": [],
+          "gate": "L155"
+        },
+        {
+          "name": "pure trail no threshold: thr=0 floor=0 trail=0.20",
+          "pl_kw": {
+            "profit_lock_threshold_pct": 0.0,
+            "profit_lock_stop_offset_pct": 0.0,
+            "profit_lock_mode": "trailing",
+            "profit_lock_trail_pct": 0.2
+          },
+          "is_pnl": 11821.27,
+          "oos_pnl": 0.41,
+          "is_delta": -4718.26,
+          "oos_delta": -6324.34,
+          "wf_norm": "NaN",
+          "sw_hurt": 2,
+          "anchor_fails": [],
+          "gate": "L155"
+        }
+      ]
+    },
+    {
+      "account": "AGG  (post-ENFORCED-5)",
+      "baseline_is_pnl": 19080.34,
+      "baseline_oos_pnl": 3833.36,
+      "candidates": [
+        {
+          "name": "v15 prod: thr=0.05 floor=0.10 trail=0.20",
+          "pl_kw": {
+            "profit_lock_threshold_pct": 0.05,
+            "profit_lock_stop_offset_pct": 0.1,
+            "profit_lock_mode": "trailing",
+            "profit_lock_trail_pct": 0.2
+          },
+          "is_pnl": 11508.75,
+          "oos_pnl": 2599.53,
+          "is_delta": -7571.59,
+          "oos_delta": -1233.83,
+          "wf_norm": "NaN",
+          "sw_hurt": 2,
+          "anchor_fails": [
+            "2026-05-01"
+          ],
+          "gate": "L155"
+        },
+        {
+          "name": "trail tighter: thr=0.05 floor=0.10 trail=0.15",
+          "pl_kw": {
+            "profit_lock_threshold_pct": 0.05,
+            "profit_lock_stop_offset_pct": 0.1,
+            "profit_lock_mode": "trailing",
+            "profit_lock_trail_pct": 0.15
+          },
+          "is_pnl": 13040.05,
+          "oos_pnl": 2668.23,
+          "is_delta": -6040.29,
+          "oos_delta": -1165.13,
+          "wf_norm": "NaN",
+          "sw_hurt": 2,
+          "anchor_fails": [
+            "2026-05-01"
+          ],
+          "gate": "L155"
+        },
+        {
+          "name": "threshold higher: thr=0.10 floor=0.10 trail=0.20",
+          "pl_kw": {
+            "profit_lock_threshold_pct": 0.1,
+            "profit_lock_stop_offset_pct": 0.1,
+            "profit_lock_mode": "trailing",
+            "profit_lock_trail_pct": 0.2
+          },
+          "is_pnl": 9779.01,
+          "oos_pnl": 2599.53,
+          "is_delta": -9301.33,
+          "oos_delta": -1233.83,
+          "wf_norm": "NaN",
+          "sw_hurt": 2,
+          "anchor_fails": [
+            "2026-05-01"
+          ],
+          "gate": "L155"
+        },
+        {
+          "name": "pure trail no threshold: thr=0 floor=0 trail=0.20",
+          "pl_kw": {
+            "profit_lock_threshold_pct": 0.0,
+            "profit_lock_stop_offset_pct": 0.0,
+            "profit_lock_mode": "trailing",
+            "profit_lock_trail_pct": 0.2
+          },
+          "is_pnl": 11463.97,
+          "oos_pnl": 625.13,
+          "is_delta": -7616.37,
+          "oos_delta": -3208.23,
+          "wf_norm": "NaN",
+          "sw_hurt": 2,
+          "anchor_fails": [
+            "2026-05-01"
+          ],
+          "gate": "L155"
+        }
+      ]
+    }
+  ]
+}

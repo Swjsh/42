@@ -1,0 +1,43 @@
+{
+  "skill": "chart-data-verify",
+  "run_at": "2026-06-16T22:40:00",
+  "target_date": "2026-06-16",
+  "verdict": "YELLOW",
+  "reason": "yfinance-fetch-failed-csv-only",
+  "csv_path": "C:\\Users\\jackw\\Desktop\\42\\backtest\\data\\spy_5m_2026-05-19_2026-06-16.csv",
+  "max_divergence_dollars": 0,
+  "rows_compared": 5,
+  "heal_action": "no-op",
+  "rows": [
+    {
+      "ts": "2026-06-16 15:35:00",
+      "csv_close": 750.4500122070312,
+      "yf_close": null,
+      "divergence": null
+    },
+    {
+      "ts": "2026-06-16 15:40:00",
+      "csv_close": 750.989990234375,
+      "yf_close": null,
+      "divergence": null
+    },
+    {
+      "ts": "2026-06-16 15:45:00",
+      "csv_close": 750.7999877929688,
+      "yf_close": null,
+      "divergence": null
+    },
+    {
+      "ts": "2026-06-16 15:50:00",
+      "csv_close": 751.0900268554688,
+      "yf_close": null,
+      "divergence": null
+    },
+    {
+      "ts": "2026-06-16 15:55:00",
+      "csv_close": 750.6199951171875,
+      "yf_close": null,
+      "divergence": null
+    }
+  ]
+}

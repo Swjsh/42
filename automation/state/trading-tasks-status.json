@@ -1,0 +1,62 @@
+﻿{
+    "checked_at":  "2026-06-15T05:53:04.7615885-06:00",
+    "fixed":  false,
+    "tasks":  [
+                  {
+                      "name":  "Gamma_LaunchTV",
+                      "state":  "Ready",
+                      "lastRun":  "06/08/2026 13:21:38",
+                      "lastResult":  "0",
+                      "nextRun":  "06/15/2026 06:00:00",
+                      "wakeToRun":  true
+                  },
+                  {
+                      "name":  "Gamma_TvWatchdog",
+                      "state":  "Ready",
+                      "lastRun":  "06/14/2026 21:24:48",
+                      "lastResult":  "0",
+                      "nextRun":  "06/15/2026 06:05:00",
+                      "wakeToRun":  false
+                  },
+                  {
+                      "name":  "Gamma_Premarket",
+                      "state":  "Ready",
+                      "lastRun":  "06/08/2026 13:21:38",
+                      "lastResult":  "0",
+                      "nextRun":  "06/15/2026 06:30:00",
+                      "wakeToRun":  true
+                  },
+                  {
+                      "name":  "Gamma_Heartbeat",
+                      "state":  "Ready",
+                      "lastRun":  "06/14/2026 19:53:48",
+                      "lastResult":  "0",
+                      "nextRun":  "06/15/2026 07:30:00",
+                      "wakeToRun":  true
+                  },
+                  {
+                      "name":  "Gamma_Heartbeat_Aggressive",
+                      "state":  "Ready",
+                      "lastRun":  "06/14/2026 19:53:48",
+                      "lastResult":  "0",
+                      "nextRun":  "06/15/2026 07:30:00",
+                      "wakeToRun":  true
+                  },
+                  {
+                      "name":  "Gamma_EodFlatten",
+                      "state":  "Ready",
+                      "lastRun":  "06/14/2026 13:55:01",
+                      "lastResult":  "0",
+                      "nextRun":  "06/15/2026 13:55:00",
+                      "wakeToRun":  true
+                  },
+                  {
+                      "name":  "Gamma_EodFlatten_Aggressive",
+                      "state":  "Ready",
+                      "lastRun":  "06/14/2026 13:55:01",
+                      "lastResult":  "0",
+                      "nextRun":  "06/15/2026 13:55:00",
+                      "wakeToRun":  true
+                  }
+              ]
+}

@@ -1,0 +1,13 @@
+{
+  "instrument": "MNQ",
+  "side": "flat",
+  "qty": 0,
+  "entry_price": null,
+  "stop_price": null,
+  "tp1_price": null,
+  "runner_price": null,
+  "entry_time": null,
+  "tp1_filled": false,
+  "runner_order_id": null,
+  "stop_order_id": null
+}

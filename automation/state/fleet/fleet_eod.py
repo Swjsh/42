@@ -17,6 +17,7 @@ from pathlib import Path
 FLEET_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(FLEET_DIR))
 import fleet_broker as fb  # noqa: E402
+import fleet_live as fl  # noqa: E402  (share the _arm_is_processable unification gate)
 
 
 def main() -> int:
@@ -27,7 +28,9 @@ def main() -> int:
         return 0
     accounts = json.loads((FLEET_DIR / "accounts.json").read_text(encoding="utf-8"))
     for arm in accounts.get("arms", []):
-        if arm.get("status") != "active" or arm.get("execution") != "fleet_rest":
+        # Same unification gate as fleet_live: the 4 fleet_rest arms always; the 2
+        # mcp_heartbeat controls only when FLEET_OWNS_ALL_6 (else Gamma_EodFlatten owns them).
+        if not fl._arm_is_processable(arm):
             continue
         arm_id = arm["id"]
         creds = creds_all.get(arm_id)

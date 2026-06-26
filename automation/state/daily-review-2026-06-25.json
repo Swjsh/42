@@ -1,0 +1,61 @@
+{
+  "date": "2026-06-25",
+  "morning_thesis": "TV not connected after 3 self-heal attempts (CDP failed). Safe Alpaca MCP returning 401 Unauthorized — cannot verify Safe equity or Safe positions. Both issues must be resolved before Safe account can trade. PCE released 08:30 ET today (Fed preferred inflation gauge, HIGH severity); no-trade window 08:25-08:50 ET. SPY gapped up overnight from 6/24 close (~731-732) to ~737.33 (Alpaca aggressive quote). VIX 17.88 from gym v18 run at 08:57 ET = MID regime, 3-bar direction falling. Bold account is LIVE (equity $1,648.75, flat, Bold heartbeat CAN trade if TV comes up). Without TV cannot read ribbon, EMAs, or draw today's premarket levels. Heartbeat should treat bias=no-trade for Safe; Bold heartbeat may proceed if TV connects. Falsifiable predictions: (1) SPY holds above 734.97 through 11:00 ET as PCE print is absorbed without structural breakdown; (2) VIX stays in MID regime (15-22) through 14:00 ET; (3) SPY fails to reclaim 743.35 on first test from below.",
+  "predictions": [
+    {
+      "prediction_idx": 0,
+      "claim": "SPY holds above 734.97 (prior 6/23 close) through 11:00 ET as PCE print is absorbed without structural breakdown",
+      "trigger_window": "09:35-11:00 ET",
+      "invalidation": "SPY 5m close below 734.97 before 11:00 ET",
+      "confidence": 0.55,
+      "specificity": 0.85,
+      "novelty": "fresh",
+      "outcome": "PARTIAL_TIMING",
+      "actual": "SPY opened ~737.33 (held early), then faded to 732.8 by ~13:25 ET (early afternoon), breaching 734.97 at unknown mid-session time; TV unavailable prevents confirming exact 11:00 ET window check",
+      "category": "level",
+      "evidence_timestamp": null,
+      "graded_at": "2026-06-25T16:30:00-04:00"
+    },
+    {
+      "prediction_idx": 1,
+      "claim": "VIX stays in MID regime (15-22) through 14:00 ET — PCE fade leads to flat-to-declining VIX from 17.88",
+      "trigger_window": "09:35-14:00 ET",
+      "invalidation": "VIX breaks above 22 or below 15 with sustained directional close",
+      "confidence": 0.60,
+      "specificity": 0.80,
+      "novelty": "fresh",
+      "outcome": "UNTESTED",
+      "actual": "VIX data stale from 08:57 ET gym run (17.88 falling); TV down all session; no live VIX reads available through 14:00 ET window; last known value consistent with MID but unconfirmable",
+      "category": "other",
+      "evidence_timestamp": null,
+      "graded_at": "2026-06-25T16:30:00-04:00"
+    },
+    {
+      "prediction_idx": 2,
+      "claim": "SPY fails to reclaim 743.35 on first test from below — broken-support-now-resistance role confirmed by rejection within first 90 minutes RTH",
+      "trigger_window": "09:35-11:00 ET",
+      "invalidation": "SPY 5m close above 743.50 within first 90 minutes of RTH",
+      "confidence": 0.55,
+      "specificity": 0.85,
+      "novelty": "fresh",
+      "outcome": "UNTESTED",
+      "actual": "SPY opened at 737.33 and faded to 732.8 — never approached 743.35; prediction requires a test of the level that never occurred",
+      "category": "level",
+      "evidence_timestamp": null,
+      "graded_at": "2026-06-25T16:30:00-04:00"
+    }
+  ],
+  "surprises": [
+    "PCE gap fully reversed intraday: SPY +$5 gap-up (731→737.33) faded entirely to 732.8 by early afternoon — clean sell-the-news on HIGH-severity macro print; candidate new playbook pattern",
+    "Ribbon remained BEAR throughout despite gap-up: beacon fast 733.11 < pivot 733.42 < slow 734.06 BEAR all session; bear structure absorbed PCE gap without ribbon flip",
+    "TV + Safe Alpaca double failure on a PCE day: second occurrence of dual data-chain failure on a HIGH-severity macro event day — worst possible timing; infrastructure resilience = revenue problem"
+  ],
+  "lesson": "TV + Safe Alpaca 401 double failure on PCE day cost a full volatility session — the beacon works as heartbeat fallback but cannot substitute for chart context; premarket TV self-heal must fire before macro releases, and Safe Alpaca key auth must auto-rotate before 09:35.",
+  "tomorrow_hint": "TOMORROW — 743.35 Carry resistance overhead (~$10); 734.97 role may flip to resistance (SPY closed ~732.8); ribbon BEAR; verify TV + auth before any entry",
+  "predictions_count": 3,
+  "predictions_passed": 0,
+  "predictions_partial": 1,
+  "hit_rate_passing": 0.0,
+  "specificity_weighted_hit_rate": 0.0,
+  "graded_at": "2026-06-25T16:30:00-04:00"
+}

@@ -1,0 +1,14 @@
+{"date": "2025-08-28", "price": 631.9, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-08-28", "price": 633.87, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-08-28", "price": 644.01, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-08-28", "price": 644.46, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-08-28", "price": 645.31, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-08-28", "price": 646.55, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.75, "false_break": false}
+{"date": "2025-08-28", "price": 646.61, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.69, "false_break": false}
+{"date": "2025-08-28", "price": 646.7642792821896, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.536, "false_break": false}
+{"date": "2025-08-28", "price": 646.821831401993, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.478, "false_break": false}
+{"date": "2025-08-28", "price": 646.9402795091945, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.15, "false_break": false}
+{"date": "2025-08-28", "price": 647.0, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.09, "false_break": false}
+{"date": "2025-08-28", "price": 647.2, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.835, "false_break": true}
+{"date": "2025-08-28", "price": 647.37, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 2.005, "false_break": true}
+{"date": "2025-08-28", "price": 648.0, "source": "round", "touched": true, "outcome": "RESPECT", "reaction_dollars": 2.635, "false_break": false}

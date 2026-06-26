@@ -4,7 +4,7 @@
 
 **Status:** **DRAFT — WATCH-ONLY per OP 21.** Zero live trades. Promotion requires 3 historical wins via grader + 3 J-confirmed live observations + positive 16-month expectancy + per-confidence-tier expectancy positive + J ratification.
 
-**Rule version:** v14 — exit values pulled from [`automation/state/params.json`](../automation/state/params.json). No drift permitted.
+**Rule version:** v14 — exit values pulled from [`automation/state/params.json`](../../automation/state/params.json). No drift permitted.
 
 **Last updated:** 2026-05-13
 
@@ -168,6 +168,6 @@ OPENING_DRIVE_FADE starts **WATCH-ONLY**; logs to `automation/state/watcher-obse
 ## Status footer
 
 **Status:** DRAFT — WATCH-ONLY. Created 2026-05-13.
-**Rule version pin:** v14. Exit values reference [`params.json`](../automation/state/params.json). Drift = kill-switch.
+**Rule version pin:** v14. Exit values reference [`params.json`](../../automation/state/params.json). Drift = kill-switch.
 **Next action:** Build `lib/watchers/opening_drive_fade_watcher.py` mirroring `sniper_detector.py` structure → wire into heartbeat (read-only, journal-only) → start observation log accrual.
 **Eligibility for autonomous paper trading:** **NO** until promotion gates 1-7 above all clear.

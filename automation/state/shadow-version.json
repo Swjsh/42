@@ -1,16 +1,46 @@
 {
-  "_doc": "Karpathy shadow mode controller. When enabled=true, every heartbeat tick computes filter scores under BOTH production params (params.json) AND the overrides below; both decisions are logged to decisions.jsonl with a version field. The shadow is read-only — it never affects what the production engine actually does. EOD-summary 8c writes the daily diff. Default: disabled (no candidate to test).",
-
-  "enabled": false,
-  "version": null,
-  "rule_id": null,
-  "started_at": null,
-  "expires_at": null,
-
+  "_doc": "Karpathy shadow mode controller for SYSTEM A (the prose params-OVERLAY shadow). When enabled=true, every heartbeat tick re-scores under BOTH production params AND the overrides below; both decisions log to decisions.jsonl with a version field. Read-only \u2014 never affects production. INTENTIONALLY DISABLED: with version=null + overrides={} it is a no-op that would only burn per-tick tokens on the shared Max pool (OP-3 violation) for zero signal; enable it ONLY when there is a concrete validated-but-unshipped PARAMS OVERLAY to test (today there is none \u2014 the unshipped wins WP-0/5/6/8 are order-builder/strike/expiry/stop changes, not param overlays). 2026-06-21 NOTE: the LIVE Karpathy shadow path is SYSTEM B (the free-tier Nemotron model-eval, setup/scripts/shadow_model_eval.py), which does NOT read this file \u2014 it is now wired into run-eod-summary.ps1 (post-close, $0, read-only) -> writes shadow-model-decisions.jsonl -> EOD-summary 8c scores the 5-of-7 verdict -> weekly-review.md auto-ratifies (premarket Step 1a is a pin-check only, NOT an auto-bump; that doc gap is flagged in STATUS). So 'shadow mode' as the outer loop is RE-ENABLED via System B; this System-A controller stays off by design.",
+  "enabled": true,
+  "version": "ssgrind_otm1_L2_tight",
+  "rule_id": "fleet_strategy_space_otm1_L2_pct8",
+  "started_at": "2026-06-24",
+  "expires_at": "2026-07-09",
   "_overrides_doc": "Shape mirrors params.json. Only the fields named here are overridden; unnamed fields fall through to params.json defaults. Use dot-notation for nested fields (e.g., 'vix_entry_thresholds.bear_min_exclusive_and_rising').",
-  "overrides": {},
-
+  "overrides": {
+    "v15_strike_offset_per_tier": [
+      {
+        "equity_min": 0,
+        "equity_max": 2000,
+        "strike_offset": -3,
+        "label": "OTM-3"
+      },
+      {
+        "equity_min": 2000,
+        "equity_max": 10000,
+        "strike_offset": -1,
+        "label": "OTM-1 (SHADOW: grind-validated, was -2)"
+      },
+      {
+        "equity_min": 10000,
+        "equity_max": 25000,
+        "strike_offset": -1,
+        "label": "OTM-1 / ATM"
+      },
+      {
+        "equity_min": 25000,
+        "equity_max": 999999999,
+        "strike_offset": 2,
+        "label": "ITM-2"
+      }
+    ],
+    "block_level_rejection": false,
+    "midday_trendline_gate": false,
+    "entry_bar_body_pct_min": 0.0,
+    "premium_stop_pct": -0.08,
+    "premium_stop_pct_bear": -0.08
+  },
   "_lifecycle": "shadow runs typically last 5-10 trading days. After the window expires, EOD-summary 8c emits a final scorecard at analysis/recommendations/{rule_id}.json with verdict {auto_ratify | needs_review | reject}. If auto_ratify and J doesn't revoke within 24h, premarket bumps params.json + RULE_VERSION on the following day.",
-  "scorecard_path": null,
-  "decision_log_path_pattern": "automation/state/decisions.jsonl"
+  "scorecard_path": "analysis/recommendations/fleet_strategy_space_otm1_L2_pct8.json",
+  "decision_log_path_pattern": "automation/state/decisions.jsonl",
+  "_enabled_note": "ENABLED 2026-06-24: shadowing the FIRST OP-16 PROMOTE from the strategy-space grind (OTM-1 x L2-gate x -8% stop; backtest EC=$946, WF=5.63, OOS+, reproduced). SIM-ACCURACY DISCLOSURE (OP-16 gate): the 2 secondary L2 frequency-tuners filter_9_vol_multiplier(0.4) + ribbon_spread_min_cents(20) are SIM-ONLY (0 hits in the live Safe heartbeat) so they are EXCLUDED from this overlay; the shadow tests the LOAD-BEARING core (block_level_rejection:false + tight stop + OTM-1) which the register identified as THE edge. Read-only; EOD-summary 8c diffs vs production -> auto-ratify if it dominates 5-of-7. Revert: enabled=false."
 }

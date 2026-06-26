@@ -1,0 +1,2780 @@
+{
+  "geometry": {
+    "target_wing_prem": 0.45,
+    "entry_et": "10:00:00",
+    "wide_half": 18,
+    "settle": "true_intrinsic_vs_spy_close",
+    "entry_slip": 0.02,
+    "commission": 0.65
+  },
+  "event_days": 46,
+  "matched_nonevent": 46,
+  "strangle": {
+    "event": {
+      "label": "EVENT",
+      "n": 46,
+      "exp_per_trade": -38.82,
+      "total_pnl": -1785.8,
+      "wr": 0.174,
+      "worst_trade": -142.3,
+      "best_trade": 657.7,
+      "drop_worst2_exp": -34.87,
+      "drop_best2_exp": -59.85,
+      "avg_premium_paid": 93.7,
+      "avg_abs_move": 3.21
+    },
+    "event_skips": 0,
+    "event_days_total": 46,
+    "nonevent": {
+      "label": "NON-EVENT",
+      "n": 46,
+      "exp_per_trade": -67.02,
+      "total_pnl": -3082.8,
+      "wr": 0.109,
+      "worst_trade": -118.3,
+      "best_trade": 96.7,
+      "drop_worst2_exp": -64.89,
+      "drop_best2_exp": -74.44,
+      "avg_premium_paid": 92.8,
+      "avg_abs_move": 2.33
+    },
+    "nonevent_skips": 0,
+    "event_metas": [
+      {
+        "date": "2025-01-10",
+        "spot": 580.17,
+        "spot_close": 580.39,
+        "abs_move": 0.22,
+        "call_k": 591,
+        "put_k": 579,
+        "prem_c": 0.4,
+        "prem_p": 0.45,
+        "pct_otm_c": 1.9,
+        "pct_otm_p": 0.17,
+        "premium_paid": 89.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -90.3,
+        "legs": [
+          {
+            "k": 591,
+            "side": "C",
+            "entry": 0.42,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 579,
+            "side": "P",
+            "entry": 0.47,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-01-15",
+        "spot": 592.14,
+        "spot_close": 592.77,
+        "abs_move": 0.63,
+        "call_k": 594,
+        "put_k": 585,
+        "prem_c": 0.46,
+        "prem_p": 0.5,
+        "pct_otm_c": 0.34,
+        "pct_otm_p": 1.18,
+        "premium_paid": 100.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -101.3,
+        "legs": [
+          {
+            "k": 594,
+            "side": "C",
+            "entry": 0.48,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 585,
+            "side": "P",
+            "entry": 0.52,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-01-29",
+        "spot": 603.47,
+        "spot_close": 601.81,
+        "abs_move": 1.66,
+        "call_k": 609,
+        "put_k": 598,
+        "prem_c": 0.37,
+        "prem_p": 0.48,
+        "pct_otm_c": 1.0,
+        "pct_otm_p": 0.83,
+        "premium_paid": 89.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -90.3,
+        "legs": [
+          {
+            "k": 609,
+            "side": "C",
+            "entry": 0.39,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 598,
+            "side": "P",
+            "entry": 0.5,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-02-07",
+        "spot": 604.79,
+        "spot_close": 600.97,
+        "abs_move": 3.82,
+        "call_k": 609,
+        "put_k": 603,
+        "prem_c": 0.54,
+        "prem_p": 0.38,
+        "pct_otm_c": 0.66,
+        "pct_otm_p": 0.33,
+        "premium_paid": 96.0,
+        "intrinsic_value": 203.0,
+        "commission": 1.3,
+        "pnl": 105.7,
+        "legs": [
+          {
+            "k": 609,
+            "side": "C",
+            "entry": 0.56,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 603,
+            "side": "P",
+            "entry": 0.4,
+            "intrinsic": 2.03
+          }
+        ]
+      },
+      {
+        "date": "2025-02-12",
+        "spot": 600.03,
+        "spot_close": 603.48,
+        "abs_move": 3.45,
+        "call_k": 603,
+        "put_k": 595,
+        "prem_c": 0.42,
+        "prem_p": 0.52,
+        "pct_otm_c": 0.5,
+        "pct_otm_p": 0.83,
+        "premium_paid": 98.0,
+        "intrinsic_value": 48.0,
+        "commission": 1.3,
+        "pnl": -51.3,
+        "legs": [
+          {
+            "k": 603,
+            "side": "C",
+            "entry": 0.44,
+            "intrinsic": 0.48
+          },
+          {
+            "k": 595,
+            "side": "P",
+            "entry": 0.54,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-03-07",
+        "spot": 574.57,
+        "spot_close": 575.88,
+        "abs_move": 1.31,
+        "call_k": 582,
+        "put_k": 559,
+        "prem_c": 0.42,
+        "prem_p": 0.46,
+        "pct_otm_c": 1.22,
+        "pct_otm_p": 2.78,
+        "premium_paid": 92.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -93.3,
+        "legs": [
+          {
+            "k": 582,
+            "side": "C",
+            "entry": 0.44,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 559,
+            "side": "P",
+            "entry": 0.48,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-03-12",
+        "spot": 559.07,
+        "spot_close": 558.36,
+        "abs_move": 0.71,
+        "call_k": 568,
+        "put_k": 550,
+        "prem_c": 0.42,
+        "prem_p": 0.44,
+        "pct_otm_c": 1.61,
+        "pct_otm_p": 1.61,
+        "premium_paid": 90.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -91.3,
+        "legs": [
+          {
+            "k": 568,
+            "side": "C",
+            "entry": 0.44,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 550,
+            "side": "P",
+            "entry": 0.46,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-03-19",
+        "spot": 564.52,
+        "spot_close": 567.0,
+        "abs_move": 2.48,
+        "call_k": 570,
+        "put_k": 557,
+        "prem_c": 0.45,
+        "prem_p": 0.47,
+        "pct_otm_c": 0.88,
+        "pct_otm_p": 1.42,
+        "premium_paid": 96.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -97.3,
+        "legs": [
+          {
+            "k": 570,
+            "side": "C",
+            "entry": 0.47,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 557,
+            "side": "P",
+            "entry": 0.49,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-04-04",
+        "spot": 522.31,
+        "spot_close": 502.5,
+        "abs_move": 19.81,
+        "call_k": 537,
+        "put_k": 505,
+        "prem_c": 0.47,
+        "prem_p": 0.48,
+        "pct_otm_c": 2.87,
+        "pct_otm_p": 3.26,
+        "premium_paid": 99.0,
+        "intrinsic_value": 250.0,
+        "commission": 1.3,
+        "pnl": 149.7,
+        "legs": [
+          {
+            "k": 537,
+            "side": "C",
+            "entry": 0.49,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 505,
+            "side": "P",
+            "entry": 0.5,
+            "intrinsic": 2.5
+          }
+        ]
+      },
+      {
+        "date": "2025-04-10",
+        "spot": 528.58,
+        "spot_close": 525.62,
+        "abs_move": 2.96,
+        "call_k": 547,
+        "put_k": 511,
+        "prem_c": 0.63,
+        "prem_p": 0.74,
+        "pct_otm_c": 3.4,
+        "pct_otm_p": 3.4,
+        "premium_paid": 141.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -142.3,
+        "legs": [
+          {
+            "k": 547,
+            "side": "C",
+            "entry": 0.65,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 511,
+            "side": "P",
+            "entry": 0.76,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-05-02",
+        "spot": 564.1,
+        "spot_close": 566.81,
+        "abs_move": 2.71,
+        "call_k": 568,
+        "put_k": 558,
+        "prem_c": 0.52,
+        "prem_p": 0.47,
+        "pct_otm_c": 0.71,
+        "pct_otm_p": 1.06,
+        "premium_paid": 103.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -104.3,
+        "legs": [
+          {
+            "k": 568,
+            "side": "C",
+            "entry": 0.54,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 558,
+            "side": "P",
+            "entry": 0.49,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-05-07",
+        "spot": 561.29,
+        "spot_close": 561.15,
+        "abs_move": 0.14,
+        "call_k": 567,
+        "put_k": 554,
+        "prem_c": 0.49,
+        "prem_p": 0.44,
+        "pct_otm_c": 1.07,
+        "pct_otm_p": 1.25,
+        "premium_paid": 97.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -98.3,
+        "legs": [
+          {
+            "k": 567,
+            "side": "C",
+            "entry": 0.51,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 554,
+            "side": "P",
+            "entry": 0.46,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-05-13",
+        "spot": 585.74,
+        "spot_close": 586.51,
+        "abs_move": 0.77,
+        "call_k": 588,
+        "put_k": 582,
+        "prem_c": 0.47,
+        "prem_p": 0.4,
+        "pct_otm_c": 0.34,
+        "pct_otm_p": 0.68,
+        "premium_paid": 91.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -92.3,
+        "legs": [
+          {
+            "k": 588,
+            "side": "C",
+            "entry": 0.49,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 582,
+            "side": "P",
+            "entry": 0.42,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-06-06",
+        "spot": 599.74,
+        "spot_close": 599.1,
+        "abs_move": 0.64,
+        "call_k": 602,
+        "put_k": 596,
+        "prem_c": 0.46,
+        "prem_p": 0.41,
+        "pct_otm_c": 0.33,
+        "pct_otm_p": 0.67,
+        "premium_paid": 91.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -92.3,
+        "legs": [
+          {
+            "k": 602,
+            "side": "C",
+            "entry": 0.48,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 596,
+            "side": "P",
+            "entry": 0.43,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-06-11",
+        "spot": 603.52,
+        "spot_close": 601.39,
+        "abs_move": 2.13,
+        "call_k": 606,
+        "put_k": 601,
+        "prem_c": 0.38,
+        "prem_p": 0.47,
+        "pct_otm_c": 0.33,
+        "pct_otm_p": 0.5,
+        "premium_paid": 89.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -90.3,
+        "legs": [
+          {
+            "k": 606,
+            "side": "C",
+            "entry": 0.4,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 601,
+            "side": "P",
+            "entry": 0.49,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-06-18",
+        "spot": 599.6,
+        "spot_close": 597.52,
+        "abs_move": 2.08,
+        "call_k": 603,
+        "put_k": 594,
+        "prem_c": 0.39,
+        "prem_p": 0.4,
+        "pct_otm_c": 0.5,
+        "pct_otm_p": 1.0,
+        "premium_paid": 83.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -84.3,
+        "legs": [
+          {
+            "k": 603,
+            "side": "C",
+            "entry": 0.41,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 594,
+            "side": "P",
+            "entry": 0.42,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-07-03",
+        "spot": 624.82,
+        "spot_close": 625.03,
+        "abs_move": 0.21,
+        "call_k": 626,
+        "put_k": 623,
+        "prem_c": 0.34,
+        "prem_p": 0.34,
+        "pct_otm_c": 0.16,
+        "pct_otm_p": 0.32,
+        "premium_paid": 72.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -73.3,
+        "legs": [
+          {
+            "k": 626,
+            "side": "C",
+            "entry": 0.36,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 623,
+            "side": "P",
+            "entry": 0.36,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-07-15",
+        "spot": 625.49,
+        "spot_close": 622.19,
+        "abs_move": 3.29,
+        "call_k": 627,
+        "put_k": 623,
+        "prem_c": 0.54,
+        "prem_p": 0.41,
+        "pct_otm_c": 0.32,
+        "pct_otm_p": 0.32,
+        "premium_paid": 99.0,
+        "intrinsic_value": 81.0,
+        "commission": 1.3,
+        "pnl": -19.3,
+        "legs": [
+          {
+            "k": 627,
+            "side": "C",
+            "entry": 0.56,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 623,
+            "side": "P",
+            "entry": 0.43,
+            "intrinsic": 0.81
+          }
+        ]
+      },
+      {
+        "date": "2025-07-30",
+        "spot": 635.48,
+        "spot_close": 637.2,
+        "abs_move": 1.72,
+        "call_k": 638,
+        "put_k": 632,
+        "prem_c": 0.51,
+        "prem_p": 0.48,
+        "pct_otm_c": 0.47,
+        "pct_otm_p": 0.47,
+        "premium_paid": 103.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -104.3,
+        "legs": [
+          {
+            "k": 638,
+            "side": "C",
+            "entry": 0.53,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 632,
+            "side": "P",
+            "entry": 0.5,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-08-01",
+        "spot": 621.04,
+        "spot_close": 621.74,
+        "abs_move": 0.7,
+        "call_k": 627,
+        "put_k": 615,
+        "prem_c": 0.47,
+        "prem_p": 0.5,
+        "pct_otm_c": 0.97,
+        "pct_otm_p": 0.97,
+        "premium_paid": 101.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -102.3,
+        "legs": [
+          {
+            "k": 627,
+            "side": "C",
+            "entry": 0.49,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 615,
+            "side": "P",
+            "entry": 0.52,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-08-12",
+        "spot": 637.95,
+        "spot_close": 642.58,
+        "abs_move": 4.63,
+        "call_k": 640,
+        "put_k": 635,
+        "prem_c": 0.45,
+        "prem_p": 0.46,
+        "pct_otm_c": 0.31,
+        "pct_otm_p": 0.47,
+        "premium_paid": 95.0,
+        "intrinsic_value": 258.0,
+        "commission": 1.3,
+        "pnl": 161.7,
+        "legs": [
+          {
+            "k": 640,
+            "side": "C",
+            "entry": 0.47,
+            "intrinsic": 2.58
+          },
+          {
+            "k": 635,
+            "side": "P",
+            "entry": 0.48,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-09-05",
+        "spot": 650.5,
+        "spot_close": 646.79,
+        "abs_move": 3.71,
+        "call_k": 652,
+        "put_k": 648,
+        "prem_c": 0.55,
+        "prem_p": 0.48,
+        "pct_otm_c": 0.31,
+        "pct_otm_p": 0.31,
+        "premium_paid": 107.0,
+        "intrinsic_value": 121.0,
+        "commission": 1.3,
+        "pnl": 12.7,
+        "legs": [
+          {
+            "k": 652,
+            "side": "C",
+            "entry": 0.57,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 648,
+            "side": "P",
+            "entry": 0.5,
+            "intrinsic": 1.21
+          }
+        ]
+      },
+      {
+        "date": "2025-09-11",
+        "spot": 655.74,
+        "spot_close": 657.53,
+        "abs_move": 1.79,
+        "call_k": 657,
+        "put_k": 653,
+        "prem_c": 0.43,
+        "prem_p": 0.39,
+        "pct_otm_c": 0.15,
+        "pct_otm_p": 0.46,
+        "premium_paid": 86.0,
+        "intrinsic_value": 53.0,
+        "commission": 1.3,
+        "pnl": -34.3,
+        "legs": [
+          {
+            "k": 657,
+            "side": "C",
+            "entry": 0.45,
+            "intrinsic": 0.53
+          },
+          {
+            "k": 653,
+            "side": "P",
+            "entry": 0.41,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-09-17",
+        "spot": 659.55,
+        "spot_close": 659.85,
+        "abs_move": 0.3,
+        "call_k": 665,
+        "put_k": 652,
+        "prem_c": 0.41,
+        "prem_p": 0.45,
+        "pct_otm_c": 0.76,
+        "pct_otm_p": 1.21,
+        "premium_paid": 90.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -91.3,
+        "legs": [
+          {
+            "k": 665,
+            "side": "C",
+            "entry": 0.43,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 652,
+            "side": "P",
+            "entry": 0.47,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-10-03",
+        "spot": 670.29,
+        "spot_close": 668.84,
+        "abs_move": 1.45,
+        "call_k": 672,
+        "put_k": 668,
+        "prem_c": 0.33,
+        "prem_p": 0.4,
+        "pct_otm_c": 0.3,
+        "pct_otm_p": 0.3,
+        "premium_paid": 77.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -78.3,
+        "legs": [
+          {
+            "k": 672,
+            "side": "C",
+            "entry": 0.35,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 668,
+            "side": "P",
+            "entry": 0.42,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-10-15",
+        "spot": 668.89,
+        "spot_close": 665.08,
+        "abs_move": 3.81,
+        "call_k": 671,
+        "put_k": 665,
+        "prem_c": 0.53,
+        "prem_p": 0.5,
+        "pct_otm_c": 0.3,
+        "pct_otm_p": 0.6,
+        "premium_paid": 107.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -108.3,
+        "legs": [
+          {
+            "k": 671,
+            "side": "C",
+            "entry": 0.55,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 665,
+            "side": "P",
+            "entry": 0.52,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-10-29",
+        "spot": 689.21,
+        "spot_close": 687.32,
+        "abs_move": 1.89,
+        "call_k": 694,
+        "put_k": 682,
+        "prem_c": 0.46,
+        "prem_p": 0.47,
+        "pct_otm_c": 0.73,
+        "pct_otm_p": 1.02,
+        "premium_paid": 97.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -98.3,
+        "legs": [
+          {
+            "k": 694,
+            "side": "C",
+            "entry": 0.48,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 682,
+            "side": "P",
+            "entry": 0.49,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-11-07",
+        "spot": 665.01,
+        "spot_close": 671.76,
+        "abs_move": 6.75,
+        "call_k": 673,
+        "put_k": 661,
+        "prem_c": 0.41,
+        "prem_p": 0.49,
+        "pct_otm_c": 1.2,
+        "pct_otm_p": 0.6,
+        "premium_paid": 94.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -95.3,
+        "legs": [
+          {
+            "k": 673,
+            "side": "C",
+            "entry": 0.43,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 661,
+            "side": "P",
+            "entry": 0.51,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-11-13",
+        "spot": 678.06,
+        "spot_close": 672.23,
+        "abs_move": 5.83,
+        "call_k": 684,
+        "put_k": 675,
+        "prem_c": 0.42,
+        "prem_p": 0.4,
+        "pct_otm_c": 0.88,
+        "pct_otm_p": 0.44,
+        "premium_paid": 86.0,
+        "intrinsic_value": 277.0,
+        "commission": 1.3,
+        "pnl": 189.7,
+        "legs": [
+          {
+            "k": 684,
+            "side": "C",
+            "entry": 0.44,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 675,
+            "side": "P",
+            "entry": 0.42,
+            "intrinsic": 2.77
+          }
+        ]
+      },
+      {
+        "date": "2025-12-05",
+        "spot": 687.62,
+        "spot_close": 686.04,
+        "abs_move": 1.58,
+        "call_k": 689,
+        "put_k": 681,
+        "prem_c": 0.2,
+        "prem_p": 0.39,
+        "pct_otm_c": 0.15,
+        "pct_otm_p": 1.02,
+        "premium_paid": 63.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -64.3,
+        "legs": [
+          {
+            "k": 689,
+            "side": "C",
+            "entry": 0.22,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 681,
+            "side": "P",
+            "entry": 0.41,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-12-10",
+        "spot": 682.98,
+        "spot_close": 687.32,
+        "abs_move": 4.34,
+        "call_k": 688,
+        "put_k": 676,
+        "prem_c": 0.39,
+        "prem_p": 0.51,
+        "pct_otm_c": 0.73,
+        "pct_otm_p": 1.02,
+        "premium_paid": 94.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -95.3,
+        "legs": [
+          {
+            "k": 688,
+            "side": "C",
+            "entry": 0.41,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 676,
+            "side": "P",
+            "entry": 0.53,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2026-01-09",
+        "spot": 690.69,
+        "spot_close": 694.07,
+        "abs_move": 3.38,
+        "call_k": 695,
+        "put_k": 685,
+        "prem_c": 0.35,
+        "prem_p": 0.45,
+        "pct_otm_c": 0.58,
+        "pct_otm_p": 0.87,
+        "premium_paid": 84.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -85.3,
+        "legs": [
+          {
+            "k": 695,
+            "side": "C",
+            "entry": 0.37,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 685,
+            "side": "P",
+            "entry": 0.47,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2026-01-14",
+        "spot": 688.25,
+        "spot_close": 688.41,
+        "abs_move": 0.16,
+        "call_k": 694,
+        "put_k": 687,
+        "prem_c": 0.47,
+        "prem_p": 0.5,
+        "pct_otm_c": 0.87,
+        "pct_otm_p": 0.15,
+        "premium_paid": 101.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -102.3,
+        "legs": [
+          {
+            "k": 694,
+            "side": "C",
+            "entry": 0.49,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 687,
+            "side": "P",
+            "entry": 0.52,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2026-01-28",
+        "spot": 697.13,
+        "spot_close": 696.48,
+        "abs_move": 0.65,
+        "call_k": 700,
+        "put_k": 692,
+        "prem_c": 0.55,
+        "prem_p": 0.49,
+        "pct_otm_c": 0.43,
+        "pct_otm_p": 0.72,
+        "premium_paid": 108.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -109.3,
+        "legs": [
+          {
+            "k": 700,
+            "side": "C",
+            "entry": 0.57,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 692,
+            "side": "P",
+            "entry": 0.51,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2026-02-06",
+        "spot": 684.06,
+        "spot_close": 690.15,
+        "abs_move": 6.09,
+        "call_k": 688,
+        "put_k": 672,
+        "prem_c": 0.42,
+        "prem_p": 0.48,
+        "pct_otm_c": 0.58,
+        "pct_otm_p": 1.75,
+        "premium_paid": 94.0,
+        "intrinsic_value": 215.0,
+        "commission": 1.3,
+        "pnl": 119.7,
+        "legs": [
+          {
+            "k": 688,
+            "side": "C",
+            "entry": 0.44,
+            "intrinsic": 2.15
+          },
+          {
+            "k": 672,
+            "side": "P",
+            "entry": 0.5,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2026-02-11",
+        "spot": 693.69,
+        "spot_close": 691.81,
+        "abs_move": 1.88,
+        "call_k": 699,
+        "put_k": 692,
+        "prem_c": 0.37,
+        "prem_p": 0.45,
+        "pct_otm_c": 0.72,
+        "pct_otm_p": 0.29,
+        "premium_paid": 86.0,
+        "intrinsic_value": 19.0,
+        "commission": 1.3,
+        "pnl": -68.3,
+        "legs": [
+          {
+            "k": 699,
+            "side": "C",
+            "entry": 0.39,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 692,
+            "side": "P",
+            "entry": 0.47,
+            "intrinsic": 0.19
+          }
+        ]
+      },
+      {
+        "date": "2026-03-06",
+        "spot": 672.78,
+        "spot_close": 672.24,
+        "abs_move": 0.54,
+        "call_k": 683,
+        "put_k": 661,
+        "prem_c": 0.41,
+        "prem_p": 0.39,
+        "pct_otm_c": 1.49,
+        "pct_otm_p": 1.78,
+        "premium_paid": 84.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -85.3,
+        "legs": [
+          {
+            "k": 683,
+            "side": "C",
+            "entry": 0.43,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 661,
+            "side": "P",
+            "entry": 0.41,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2026-03-11",
+        "spot": 678.3,
+        "spot_close": 675.62,
+        "abs_move": 2.68,
+        "call_k": 683,
+        "put_k": 672,
+        "prem_c": 0.51,
+        "prem_p": 0.48,
+        "pct_otm_c": 0.74,
+        "pct_otm_p": 0.88,
+        "premium_paid": 103.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -104.3,
+        "legs": [
+          {
+            "k": 683,
+            "side": "C",
+            "entry": 0.53,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 672,
+            "side": "P",
+            "entry": 0.5,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2026-03-18",
+        "spot": 668.46,
+        "spot_close": 661.57,
+        "abs_move": 6.89,
+        "call_k": 673,
+        "put_k": 662,
+        "prem_c": 0.53,
+        "prem_p": 0.47,
+        "pct_otm_c": 0.75,
+        "pct_otm_p": 0.9,
+        "premium_paid": 104.0,
+        "intrinsic_value": 43.0,
+        "commission": 1.3,
+        "pnl": -62.3,
+        "legs": [
+          {
+            "k": 673,
+            "side": "C",
+            "entry": 0.55,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 662,
+            "side": "P",
+            "entry": 0.49,
+            "intrinsic": 0.43
+          }
+        ]
+      },
+      {
+        "date": "2026-04-10",
+        "spot": 680.58,
+        "spot_close": 679.34,
+        "abs_move": 1.24,
+        "call_k": 683,
+        "put_k": 678,
+        "prem_c": 0.33,
+        "prem_p": 0.46,
+        "pct_otm_c": 0.29,
+        "pct_otm_p": 0.44,
+        "premium_paid": 83.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -84.3,
+        "legs": [
+          {
+            "k": 683,
+            "side": "C",
+            "entry": 0.35,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 678,
+            "side": "P",
+            "entry": 0.48,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2026-04-29",
+        "spot": 710.72,
+        "spot_close": 711.58,
+        "abs_move": 0.86,
+        "call_k": 716,
+        "put_k": 703,
+        "prem_c": 0.43,
+        "prem_p": 0.41,
+        "pct_otm_c": 0.7,
+        "pct_otm_p": 1.13,
+        "premium_paid": 88.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -89.3,
+        "legs": [
+          {
+            "k": 716,
+            "side": "C",
+            "entry": 0.45,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 703,
+            "side": "P",
+            "entry": 0.43,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2026-05-08",
+        "spot": 736.65,
+        "spot_close": 737.54,
+        "abs_move": 0.89,
+        "call_k": 739,
+        "put_k": 734,
+        "prem_c": 0.36,
+        "prem_p": 0.5,
+        "pct_otm_c": 0.27,
+        "pct_otm_p": 0.41,
+        "premium_paid": 90.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -91.3,
+        "legs": [
+          {
+            "k": 739,
+            "side": "C",
+            "entry": 0.38,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 734,
+            "side": "P",
+            "entry": 0.52,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2026-05-12",
+        "spot": 735.1,
+        "spot_close": 737.58,
+        "abs_move": 2.49,
+        "call_k": 738,
+        "put_k": 731,
+        "prem_c": 0.35,
+        "prem_p": 0.38,
+        "pct_otm_c": 0.41,
+        "pct_otm_p": 0.54,
+        "premium_paid": 77.0,
+        "intrinsic_value": 0.0,
+        "commission": 1.3,
+        "pnl": -78.3,
+        "legs": [
+          {
+            "k": 738,
+            "side": "C",
+            "entry": 0.37,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 731,
+            "side": "P",
+            "entry": 0.4,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2026-06-05",
+        "spot": 749.02,
+        "spot_close": 737.4,
+        "abs_move": 11.62,
+        "call_k": 753,
+        "put_k": 745,
+        "prem_c": 0.47,
+        "prem_p": 0.5,
+        "pct_otm_c": 0.53,
+        "pct_otm_p": 0.53,
+        "premium_paid": 101.0,
+        "intrinsic_value": 760.0,
+        "commission": 1.3,
+        "pnl": 657.7,
+        "legs": [
+          {
+            "k": 753,
+            "side": "C",
+            "entry": 0.49,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 745,
+            "side": "P",
+            "entry": 0.52,
+            "intrinsic": 7.6
+          }
+        ]
+      },
+      {
+        "date": "2026-06-10",
+        "spot": 736.57,
+        "spot_close": 725.43,
+        "abs_move": 11.14,
+        "call_k": 744,
+        "put_k": 726,
+        "prem_c": 0.45,
+        "prem_p": 0.45,
+        "pct_otm_c": 0.95,
+        "pct_otm_p": 1.49,
+        "premium_paid": 94.0,
+        "intrinsic_value": 57.0,
+        "commission": 1.3,
+        "pnl": -38.3,
+        "legs": [
+          {
+            "k": 744,
+            "side": "C",
+            "entry": 0.47,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 726,
+            "side": "P",
+            "entry": 0.47,
+            "intrinsic": 0.57
+          }
+        ]
+      },
+      {
+        "date": "2026-06-17",
+        "spot": 750.45,
+        "spot_close": 741.01,
+        "abs_move": 9.44,
+        "call_k": 756,
+        "put_k": 743,
+        "prem_c": 0.44,
+        "prem_p": 0.5,
+        "pct_otm_c": 0.8,
+        "pct_otm_p": 0.93,
+        "premium_paid": 98.0,
+        "intrinsic_value": 199.0,
+        "commission": 1.3,
+        "pnl": 99.7,
+        "legs": [
+          {
+            "k": 756,
+            "side": "C",
+            "entry": 0.46,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 743,
+            "side": "P",
+            "entry": 0.52,
+            "intrinsic": 1.99
+          }
+        ]
+      }
+    ],
+    "null": {
+      "reps_total": 10000,
+      "n_sample": 46,
+      "n_sample_clamped": 46,
+      "pool_size": 46,
+      "null_mean": -67.02,
+      "null_p95": -67.02,
+      "event_exp": -38.82,
+      "event_pctile_in_null": 1.0,
+      "beats_null_p95": true,
+      "selection_delta": 28.2,
+      "boot_P_delta_le0": 0.0
+    },
+    "cap": {
+      "safe": {
+        "cap_dollars": 600.0,
+        "min_contracts": 3,
+        "avg_premium_per_lot": 93.7,
+        "max_premium_per_lot": 141.0,
+        "qty_fits_at_avg": 6,
+        "qty_fits_at_worst": 4,
+        "min3_at_avg_cost": 281.09,
+        "min3_at_worst_cost": 423.0,
+        "cap_fits_at_avg": true,
+        "cap_fits_at_worst": true
+      },
+      "bold": {
+        "cap_dollars": 824.0,
+        "min_contracts": 5,
+        "avg_premium_per_lot": 93.7,
+        "max_premium_per_lot": 141.0,
+        "qty_fits_at_avg": 8,
+        "qty_fits_at_worst": 5,
+        "min3_at_avg_cost": 468.48,
+        "min3_at_worst_cost": 705.0,
+        "cap_fits_at_avg": true,
+        "cap_fits_at_worst": true
+      }
+    },
+    "by_class": {
+      "NFP": {
+        "n": 17,
+        "exp": -0.59
+      },
+      "CPI": {
+        "n": 17,
+        "exp": -50.3
+      },
+      "FOMC": {
+        "n": 12,
+        "exp": -76.72
+      }
+    },
+    "gate": {
+      "positive_net_of_premium": false,
+      "beats_null": true,
+      "l173_concentrated": false,
+      "cap_fits_safe_avg": true,
+      "adequate_n": true,
+      "n": 46,
+      "survives": false
+    },
+    "verdict": "DEAD"
+  },
+  "straddle": {
+    "event": {
+      "label": "EVENT",
+      "n": 46,
+      "exp_per_trade": -107.09,
+      "total_pnl": -4926.3,
+      "wr": 0.304,
+      "worst_trade": -709.3,
+      "best_trade": 1085.7,
+      "drop_worst2_exp": -80.15,
+      "drop_best2_exp": -154.77,
+      "avg_premium_paid": 423.13,
+      "avg_abs_move": 3.21
+    },
+    "event_skips": 0,
+    "event_days_total": 46,
+    "nonevent": {
+      "label": "NON-EVENT",
+      "n": 46,
+      "exp_per_trade": -134.45,
+      "total_pnl": -6184.8,
+      "wr": 0.196,
+      "worst_trade": -467.3,
+      "best_trade": 206.7,
+      "drop_worst2_exp": -120.89,
+      "drop_best2_exp": -147.55,
+      "avg_premium_paid": 367.57,
+      "avg_abs_move": 2.33
+    },
+    "nonevent_skips": 0,
+    "event_metas": [
+      {
+        "date": "2025-01-10",
+        "spot": 580.17,
+        "spot_close": 580.39,
+        "abs_move": 0.22,
+        "call_k": 580,
+        "put_k": 580,
+        "premium_paid": 669.0,
+        "intrinsic_value": 39.0,
+        "commission": 1.3,
+        "pnl": -631.3,
+        "legs": [
+          {
+            "k": 580,
+            "side": "C",
+            "entry": 6.14,
+            "intrinsic": 0.39
+          },
+          {
+            "k": 580,
+            "side": "P",
+            "entry": 0.55,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-01-15",
+        "spot": 592.14,
+        "spot_close": 592.77,
+        "abs_move": 0.63,
+        "call_k": 592,
+        "put_k": 592,
+        "premium_paid": 398.0,
+        "intrinsic_value": 77.0,
+        "commission": 1.3,
+        "pnl": -322.3,
+        "legs": [
+          {
+            "k": 592,
+            "side": "C",
+            "entry": 1.1,
+            "intrinsic": 0.77
+          },
+          {
+            "k": 592,
+            "side": "P",
+            "entry": 2.88,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-01-29",
+        "spot": 603.47,
+        "spot_close": 601.81,
+        "abs_move": 1.66,
+        "call_k": 603,
+        "put_k": 603,
+        "premium_paid": 430.0,
+        "intrinsic_value": 119.0,
+        "commission": 1.3,
+        "pnl": -312.3,
+        "legs": [
+          {
+            "k": 603,
+            "side": "C",
+            "entry": 2.51,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 603,
+            "side": "P",
+            "entry": 1.79,
+            "intrinsic": 1.19
+          }
+        ]
+      },
+      {
+        "date": "2025-02-07",
+        "spot": 604.79,
+        "spot_close": 600.97,
+        "abs_move": 3.82,
+        "call_k": 605,
+        "put_k": 605,
+        "premium_paid": 342.0,
+        "intrinsic_value": 403.0,
+        "commission": 1.3,
+        "pnl": 59.7,
+        "legs": [
+          {
+            "k": 605,
+            "side": "C",
+            "entry": 2.62,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 605,
+            "side": "P",
+            "entry": 0.8,
+            "intrinsic": 4.03
+          }
+        ]
+      },
+      {
+        "date": "2025-02-12",
+        "spot": 600.03,
+        "spot_close": 603.48,
+        "abs_move": 3.45,
+        "call_k": 600,
+        "put_k": 600,
+        "premium_paid": 360.0,
+        "intrinsic_value": 348.0,
+        "commission": 1.3,
+        "pnl": -13.3,
+        "legs": [
+          {
+            "k": 600,
+            "side": "C",
+            "entry": 1.44,
+            "intrinsic": 3.48
+          },
+          {
+            "k": 600,
+            "side": "P",
+            "entry": 2.16,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-03-07",
+        "spot": 574.57,
+        "spot_close": 575.88,
+        "abs_move": 1.31,
+        "call_k": 575,
+        "put_k": 575,
+        "premium_paid": 796.0,
+        "intrinsic_value": 88.0,
+        "commission": 1.3,
+        "pnl": -709.3,
+        "legs": [
+          {
+            "k": 575,
+            "side": "C",
+            "entry": 1.95,
+            "intrinsic": 0.88
+          },
+          {
+            "k": 575,
+            "side": "P",
+            "entry": 6.01,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-03-12",
+        "spot": 559.07,
+        "spot_close": 558.36,
+        "abs_move": 0.71,
+        "call_k": 559,
+        "put_k": 559,
+        "premium_paid": 595.0,
+        "intrinsic_value": 64.0,
+        "commission": 1.3,
+        "pnl": -532.3,
+        "legs": [
+          {
+            "k": 559,
+            "side": "C",
+            "entry": 3.14,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 559,
+            "side": "P",
+            "entry": 2.81,
+            "intrinsic": 0.64
+          }
+        ]
+      },
+      {
+        "date": "2025-03-19",
+        "spot": 564.52,
+        "spot_close": 567.0,
+        "abs_move": 2.48,
+        "call_k": 565,
+        "put_k": 565,
+        "premium_paid": 488.0,
+        "intrinsic_value": 200.0,
+        "commission": 1.3,
+        "pnl": -289.3,
+        "legs": [
+          {
+            "k": 565,
+            "side": "C",
+            "entry": 2.2,
+            "intrinsic": 2.0
+          },
+          {
+            "k": 565,
+            "side": "P",
+            "entry": 2.68,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-04-04",
+        "spot": 522.31,
+        "spot_close": 502.5,
+        "abs_move": 19.81,
+        "call_k": 522,
+        "put_k": 522,
+        "premium_paid": 863.0,
+        "intrinsic_value": 1950.0,
+        "commission": 1.3,
+        "pnl": 1085.7,
+        "legs": [
+          {
+            "k": 522,
+            "side": "C",
+            "entry": 4.32,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 522,
+            "side": "P",
+            "entry": 4.31,
+            "intrinsic": 19.5
+          }
+        ]
+      },
+      {
+        "date": "2025-04-10",
+        "spot": 528.58,
+        "spot_close": 525.62,
+        "abs_move": 2.96,
+        "call_k": 529,
+        "put_k": 529,
+        "premium_paid": 1027.0,
+        "intrinsic_value": 338.0,
+        "commission": 1.3,
+        "pnl": -690.3,
+        "legs": [
+          {
+            "k": 529,
+            "side": "C",
+            "entry": 4.93,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 529,
+            "side": "P",
+            "entry": 5.34,
+            "intrinsic": 3.38
+          }
+        ]
+      },
+      {
+        "date": "2025-05-02",
+        "spot": 564.1,
+        "spot_close": 566.81,
+        "abs_move": 2.71,
+        "call_k": 564,
+        "put_k": 564,
+        "premium_paid": 405.0,
+        "intrinsic_value": 281.0,
+        "commission": 1.3,
+        "pnl": -125.3,
+        "legs": [
+          {
+            "k": 564,
+            "side": "C",
+            "entry": 2.05,
+            "intrinsic": 2.81
+          },
+          {
+            "k": 564,
+            "side": "P",
+            "entry": 2.0,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-05-07",
+        "spot": 561.29,
+        "spot_close": 561.15,
+        "abs_move": 0.14,
+        "call_k": 561,
+        "put_k": 561,
+        "premium_paid": 472.0,
+        "intrinsic_value": 15.0,
+        "commission": 1.3,
+        "pnl": -458.3,
+        "legs": [
+          {
+            "k": 561,
+            "side": "C",
+            "entry": 2.55,
+            "intrinsic": 0.15
+          },
+          {
+            "k": 561,
+            "side": "P",
+            "entry": 2.17,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-05-13",
+        "spot": 585.74,
+        "spot_close": 586.51,
+        "abs_move": 0.77,
+        "call_k": 586,
+        "put_k": 586,
+        "premium_paid": 278.0,
+        "intrinsic_value": 51.0,
+        "commission": 1.3,
+        "pnl": -228.3,
+        "legs": [
+          {
+            "k": 586,
+            "side": "C",
+            "entry": 1.24,
+            "intrinsic": 0.51
+          },
+          {
+            "k": 586,
+            "side": "P",
+            "entry": 1.54,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-06-06",
+        "spot": 599.74,
+        "spot_close": 599.1,
+        "abs_move": 0.64,
+        "call_k": 600,
+        "put_k": 600,
+        "premium_paid": 279.0,
+        "intrinsic_value": 90.0,
+        "commission": 1.3,
+        "pnl": -190.3,
+        "legs": [
+          {
+            "k": 600,
+            "side": "C",
+            "entry": 1.27,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 600,
+            "side": "P",
+            "entry": 1.52,
+            "intrinsic": 0.9
+          }
+        ]
+      },
+      {
+        "date": "2025-06-11",
+        "spot": 603.52,
+        "spot_close": 601.39,
+        "abs_move": 2.13,
+        "call_k": 604,
+        "put_k": 604,
+        "premium_paid": 259.0,
+        "intrinsic_value": 261.0,
+        "commission": 1.3,
+        "pnl": 0.7,
+        "legs": [
+          {
+            "k": 604,
+            "side": "C",
+            "entry": 1.09,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 604,
+            "side": "P",
+            "entry": 1.5,
+            "intrinsic": 2.61
+          }
+        ]
+      },
+      {
+        "date": "2025-06-18",
+        "spot": 599.6,
+        "spot_close": 597.52,
+        "abs_move": 2.08,
+        "call_k": 600,
+        "put_k": 600,
+        "premium_paid": 347.0,
+        "intrinsic_value": 248.0,
+        "commission": 1.3,
+        "pnl": -100.3,
+        "legs": [
+          {
+            "k": 600,
+            "side": "C",
+            "entry": 1.52,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 600,
+            "side": "P",
+            "entry": 1.95,
+            "intrinsic": 2.48
+          }
+        ]
+      },
+      {
+        "date": "2025-07-03",
+        "spot": 624.82,
+        "spot_close": 625.03,
+        "abs_move": 0.21,
+        "call_k": 625,
+        "put_k": 625,
+        "premium_paid": 171.0,
+        "intrinsic_value": 3.0,
+        "commission": 1.3,
+        "pnl": -169.3,
+        "legs": [
+          {
+            "k": 625,
+            "side": "C",
+            "entry": 0.77,
+            "intrinsic": 0.03
+          },
+          {
+            "k": 625,
+            "side": "P",
+            "entry": 0.94,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-07-15",
+        "spot": 625.49,
+        "spot_close": 622.19,
+        "abs_move": 3.29,
+        "call_k": 625,
+        "put_k": 625,
+        "premium_paid": 245.0,
+        "intrinsic_value": 281.0,
+        "commission": 1.3,
+        "pnl": 34.7,
+        "legs": [
+          {
+            "k": 625,
+            "side": "C",
+            "entry": 1.47,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 625,
+            "side": "P",
+            "entry": 0.98,
+            "intrinsic": 2.81
+          }
+        ]
+      },
+      {
+        "date": "2025-07-30",
+        "spot": 635.48,
+        "spot_close": 637.2,
+        "abs_move": 1.72,
+        "call_k": 635,
+        "put_k": 635,
+        "premium_paid": 312.0,
+        "intrinsic_value": 220.0,
+        "commission": 1.3,
+        "pnl": -93.3,
+        "legs": [
+          {
+            "k": 635,
+            "side": "C",
+            "entry": 1.8,
+            "intrinsic": 2.2
+          },
+          {
+            "k": 635,
+            "side": "P",
+            "entry": 1.32,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-08-01",
+        "spot": 621.04,
+        "spot_close": 621.74,
+        "abs_move": 0.7,
+        "call_k": 621,
+        "put_k": 621,
+        "premium_paid": 453.0,
+        "intrinsic_value": 74.0,
+        "commission": 1.3,
+        "pnl": -380.3,
+        "legs": [
+          {
+            "k": 621,
+            "side": "C",
+            "entry": 2.28,
+            "intrinsic": 0.74
+          },
+          {
+            "k": 621,
+            "side": "P",
+            "entry": 2.25,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-08-12",
+        "spot": 637.95,
+        "spot_close": 642.58,
+        "abs_move": 4.63,
+        "call_k": 638,
+        "put_k": 638,
+        "premium_paid": 264.0,
+        "intrinsic_value": 458.0,
+        "commission": 1.3,
+        "pnl": 192.7,
+        "legs": [
+          {
+            "k": 638,
+            "side": "C",
+            "entry": 1.31,
+            "intrinsic": 4.58
+          },
+          {
+            "k": 638,
+            "side": "P",
+            "entry": 1.33,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-09-05",
+        "spot": 650.5,
+        "spot_close": 646.79,
+        "abs_move": 3.71,
+        "call_k": 650,
+        "put_k": 650,
+        "premium_paid": 256.0,
+        "intrinsic_value": 321.0,
+        "commission": 1.3,
+        "pnl": 63.7,
+        "legs": [
+          {
+            "k": 650,
+            "side": "C",
+            "entry": 1.53,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 650,
+            "side": "P",
+            "entry": 1.03,
+            "intrinsic": 3.21
+          }
+        ]
+      },
+      {
+        "date": "2025-09-11",
+        "spot": 655.74,
+        "spot_close": 657.53,
+        "abs_move": 1.79,
+        "call_k": 656,
+        "put_k": 656,
+        "premium_paid": 210.0,
+        "intrinsic_value": 153.0,
+        "commission": 1.3,
+        "pnl": -58.3,
+        "legs": [
+          {
+            "k": 656,
+            "side": "C",
+            "entry": 0.91,
+            "intrinsic": 1.53
+          },
+          {
+            "k": 656,
+            "side": "P",
+            "entry": 1.19,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-09-17",
+        "spot": 659.55,
+        "spot_close": 659.85,
+        "abs_move": 0.3,
+        "call_k": 660,
+        "put_k": 660,
+        "premium_paid": 444.0,
+        "intrinsic_value": 15.0,
+        "commission": 1.3,
+        "pnl": -430.3,
+        "legs": [
+          {
+            "k": 660,
+            "side": "C",
+            "entry": 1.99,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 660,
+            "side": "P",
+            "entry": 2.45,
+            "intrinsic": 0.15
+          }
+        ]
+      },
+      {
+        "date": "2025-10-03",
+        "spot": 670.29,
+        "spot_close": 668.84,
+        "abs_move": 1.45,
+        "call_k": 670,
+        "put_k": 670,
+        "premium_paid": 217.0,
+        "intrinsic_value": 116.0,
+        "commission": 1.3,
+        "pnl": -102.3,
+        "legs": [
+          {
+            "k": 670,
+            "side": "C",
+            "entry": 1.24,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 670,
+            "side": "P",
+            "entry": 0.93,
+            "intrinsic": 1.16
+          }
+        ]
+      },
+      {
+        "date": "2025-10-15",
+        "spot": 668.89,
+        "spot_close": 665.08,
+        "abs_move": 3.81,
+        "call_k": 669,
+        "put_k": 669,
+        "premium_paid": 292.0,
+        "intrinsic_value": 392.0,
+        "commission": 1.3,
+        "pnl": 98.7,
+        "legs": [
+          {
+            "k": 669,
+            "side": "C",
+            "entry": 1.44,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 669,
+            "side": "P",
+            "entry": 1.48,
+            "intrinsic": 3.92
+          }
+        ]
+      },
+      {
+        "date": "2025-10-29",
+        "spot": 689.21,
+        "spot_close": 687.32,
+        "abs_move": 1.89,
+        "call_k": 689,
+        "put_k": 689,
+        "premium_paid": 445.0,
+        "intrinsic_value": 168.5,
+        "commission": 1.3,
+        "pnl": -277.8,
+        "legs": [
+          {
+            "k": 689,
+            "side": "C",
+            "entry": 2.3,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 689,
+            "side": "P",
+            "entry": 2.15,
+            "intrinsic": 1.68
+          }
+        ]
+      },
+      {
+        "date": "2025-11-07",
+        "spot": 665.01,
+        "spot_close": 671.76,
+        "abs_move": 6.75,
+        "call_k": 665,
+        "put_k": 665,
+        "premium_paid": 503.0,
+        "intrinsic_value": 676.0,
+        "commission": 1.3,
+        "pnl": 171.7,
+        "legs": [
+          {
+            "k": 665,
+            "side": "C",
+            "entry": 3.76,
+            "intrinsic": 6.76
+          },
+          {
+            "k": 665,
+            "side": "P",
+            "entry": 1.27,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2025-11-13",
+        "spot": 678.06,
+        "spot_close": 672.23,
+        "abs_move": 5.83,
+        "call_k": 678,
+        "put_k": 678,
+        "premium_paid": 431.0,
+        "intrinsic_value": 577.0,
+        "commission": 1.3,
+        "pnl": 144.7,
+        "legs": [
+          {
+            "k": 678,
+            "side": "C",
+            "entry": 3.39,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 678,
+            "side": "P",
+            "entry": 0.92,
+            "intrinsic": 5.77
+          }
+        ]
+      },
+      {
+        "date": "2025-12-05",
+        "spot": 687.62,
+        "spot_close": 686.04,
+        "abs_move": 1.58,
+        "call_k": 688,
+        "put_k": 688,
+        "premium_paid": 344.0,
+        "intrinsic_value": 196.0,
+        "commission": 1.3,
+        "pnl": -149.3,
+        "legs": [
+          {
+            "k": 688,
+            "side": "C",
+            "entry": 0.42,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 688,
+            "side": "P",
+            "entry": 3.02,
+            "intrinsic": 1.96
+          }
+        ]
+      },
+      {
+        "date": "2025-12-10",
+        "spot": 682.98,
+        "spot_close": 687.32,
+        "abs_move": 4.34,
+        "call_k": 683,
+        "put_k": 683,
+        "premium_paid": 460.0,
+        "intrinsic_value": 432.0,
+        "commission": 1.3,
+        "pnl": -29.3,
+        "legs": [
+          {
+            "k": 683,
+            "side": "C",
+            "entry": 2.09,
+            "intrinsic": 4.32
+          },
+          {
+            "k": 683,
+            "side": "P",
+            "entry": 2.51,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2026-01-09",
+        "spot": 690.69,
+        "spot_close": 694.07,
+        "abs_move": 3.38,
+        "call_k": 691,
+        "put_k": 691,
+        "premium_paid": 376.0,
+        "intrinsic_value": 307.0,
+        "commission": 1.3,
+        "pnl": -70.3,
+        "legs": [
+          {
+            "k": 691,
+            "side": "C",
+            "entry": 1.69,
+            "intrinsic": 3.07
+          },
+          {
+            "k": 691,
+            "side": "P",
+            "entry": 2.07,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2026-01-14",
+        "spot": 688.25,
+        "spot_close": 688.41,
+        "abs_move": 0.16,
+        "call_k": 688,
+        "put_k": 688,
+        "premium_paid": 461.0,
+        "intrinsic_value": 41.0,
+        "commission": 1.3,
+        "pnl": -421.3,
+        "legs": [
+          {
+            "k": 688,
+            "side": "C",
+            "entry": 3.9,
+            "intrinsic": 0.41
+          },
+          {
+            "k": 688,
+            "side": "P",
+            "entry": 0.71,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2026-01-28",
+        "spot": 697.13,
+        "spot_close": 696.48,
+        "abs_move": 0.65,
+        "call_k": 697,
+        "put_k": 697,
+        "premium_paid": 361.0,
+        "intrinsic_value": 52.0,
+        "commission": 1.3,
+        "pnl": -310.3,
+        "legs": [
+          {
+            "k": 697,
+            "side": "C",
+            "entry": 1.78,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 697,
+            "side": "P",
+            "entry": 1.83,
+            "intrinsic": 0.52
+          }
+        ]
+      },
+      {
+        "date": "2026-02-06",
+        "spot": 684.06,
+        "spot_close": 690.15,
+        "abs_move": 6.09,
+        "call_k": 684,
+        "put_k": 684,
+        "premium_paid": 548.0,
+        "intrinsic_value": 615.0,
+        "commission": 1.3,
+        "pnl": 65.7,
+        "legs": [
+          {
+            "k": 684,
+            "side": "C",
+            "entry": 1.49,
+            "intrinsic": 6.15
+          },
+          {
+            "k": 684,
+            "side": "P",
+            "entry": 3.99,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2026-02-11",
+        "spot": 693.69,
+        "spot_close": 691.81,
+        "abs_move": 1.88,
+        "call_k": 694,
+        "put_k": 694,
+        "premium_paid": 393.0,
+        "intrinsic_value": 219.0,
+        "commission": 1.3,
+        "pnl": -175.3,
+        "legs": [
+          {
+            "k": 694,
+            "side": "C",
+            "entry": 3.16,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 694,
+            "side": "P",
+            "entry": 0.77,
+            "intrinsic": 2.19
+          }
+        ]
+      },
+      {
+        "date": "2026-03-06",
+        "spot": 672.78,
+        "spot_close": 672.24,
+        "abs_move": 0.54,
+        "call_k": 673,
+        "put_k": 673,
+        "premium_paid": 727.0,
+        "intrinsic_value": 76.0,
+        "commission": 1.3,
+        "pnl": -652.3,
+        "legs": [
+          {
+            "k": 673,
+            "side": "C",
+            "entry": 3.87,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 673,
+            "side": "P",
+            "entry": 3.4,
+            "intrinsic": 0.76
+          }
+        ]
+      },
+      {
+        "date": "2026-03-11",
+        "spot": 678.3,
+        "spot_close": 675.62,
+        "abs_move": 2.68,
+        "call_k": 678,
+        "put_k": 678,
+        "premium_paid": 448.0,
+        "intrinsic_value": 238.0,
+        "commission": 1.3,
+        "pnl": -211.3,
+        "legs": [
+          {
+            "k": 678,
+            "side": "C",
+            "entry": 2.41,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 678,
+            "side": "P",
+            "entry": 2.07,
+            "intrinsic": 2.38
+          }
+        ]
+      },
+      {
+        "date": "2026-03-18",
+        "spot": 668.46,
+        "spot_close": 661.57,
+        "abs_move": 6.89,
+        "call_k": 668,
+        "put_k": 668,
+        "premium_paid": 449.0,
+        "intrinsic_value": 643.0,
+        "commission": 1.3,
+        "pnl": 192.7,
+        "legs": [
+          {
+            "k": 668,
+            "side": "C",
+            "entry": 2.46,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 668,
+            "side": "P",
+            "entry": 2.03,
+            "intrinsic": 6.43
+          }
+        ]
+      },
+      {
+        "date": "2026-04-10",
+        "spot": 680.58,
+        "spot_close": 679.34,
+        "abs_move": 1.24,
+        "call_k": 681,
+        "put_k": 681,
+        "premium_paid": 243.0,
+        "intrinsic_value": 166.0,
+        "commission": 1.3,
+        "pnl": -78.3,
+        "legs": [
+          {
+            "k": 681,
+            "side": "C",
+            "entry": 1.01,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 681,
+            "side": "P",
+            "entry": 1.42,
+            "intrinsic": 1.66
+          }
+        ]
+      },
+      {
+        "date": "2026-04-29",
+        "spot": 710.72,
+        "spot_close": 711.58,
+        "abs_move": 0.86,
+        "call_k": 711,
+        "put_k": 711,
+        "premium_paid": 458.0,
+        "intrinsic_value": 58.0,
+        "commission": 1.3,
+        "pnl": -401.3,
+        "legs": [
+          {
+            "k": 711,
+            "side": "C",
+            "entry": 2.14,
+            "intrinsic": 0.58
+          },
+          {
+            "k": 711,
+            "side": "P",
+            "entry": 2.44,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2026-05-08",
+        "spot": 736.65,
+        "spot_close": 737.54,
+        "abs_move": 0.89,
+        "call_k": 737,
+        "put_k": 737,
+        "premium_paid": 251.0,
+        "intrinsic_value": 54.0,
+        "commission": 1.3,
+        "pnl": -198.3,
+        "legs": [
+          {
+            "k": 737,
+            "side": "C",
+            "entry": 1.12,
+            "intrinsic": 0.54
+          },
+          {
+            "k": 737,
+            "side": "P",
+            "entry": 1.39,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2026-05-12",
+        "spot": 735.1,
+        "spot_close": 737.58,
+        "abs_move": 2.49,
+        "call_k": 735,
+        "put_k": 735,
+        "premium_paid": 293.0,
+        "intrinsic_value": 258.0,
+        "commission": 1.3,
+        "pnl": -36.3,
+        "legs": [
+          {
+            "k": 735,
+            "side": "C",
+            "entry": 1.53,
+            "intrinsic": 2.58
+          },
+          {
+            "k": 735,
+            "side": "P",
+            "entry": 1.4,
+            "intrinsic": 0.0
+          }
+        ]
+      },
+      {
+        "date": "2026-06-05",
+        "spot": 749.02,
+        "spot_close": 737.4,
+        "abs_move": 11.62,
+        "call_k": 749,
+        "put_k": 749,
+        "premium_paid": 361.0,
+        "intrinsic_value": 1160.0,
+        "commission": 1.3,
+        "pnl": 797.7,
+        "legs": [
+          {
+            "k": 749,
+            "side": "C",
+            "entry": 1.83,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 749,
+            "side": "P",
+            "entry": 1.78,
+            "intrinsic": 11.6
+          }
+        ]
+      },
+      {
+        "date": "2026-06-10",
+        "spot": 736.57,
+        "spot_close": 725.43,
+        "abs_move": 11.14,
+        "call_k": 737,
+        "put_k": 737,
+        "premium_paid": 561.0,
+        "intrinsic_value": 1157.0,
+        "commission": 1.3,
+        "pnl": 594.7,
+        "legs": [
+          {
+            "k": 737,
+            "side": "C",
+            "entry": 2.58,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 737,
+            "side": "P",
+            "entry": 3.03,
+            "intrinsic": 11.57
+          }
+        ]
+      },
+      {
+        "date": "2026-06-17",
+        "spot": 750.45,
+        "spot_close": 741.01,
+        "abs_move": 9.44,
+        "call_k": 750,
+        "put_k": 750,
+        "premium_paid": 479.0,
+        "intrinsic_value": 899.0,
+        "commission": 1.3,
+        "pnl": 418.7,
+        "legs": [
+          {
+            "k": 750,
+            "side": "C",
+            "entry": 2.62,
+            "intrinsic": 0.0
+          },
+          {
+            "k": 750,
+            "side": "P",
+            "entry": 2.17,
+            "intrinsic": 8.99
+          }
+        ]
+      }
+    ],
+    "null": {
+      "reps_total": 10000,
+      "n_sample": 46,
+      "n_sample_clamped": 46,
+      "pool_size": 46,
+      "null_mean": -134.45,
+      "null_p95": -134.45,
+      "event_exp": -107.09,
+      "event_pctile_in_null": 1.0,
+      "beats_null_p95": true,
+      "selection_delta": 27.36,
+      "boot_P_delta_le0": 0.0
+    },
+    "cap": {
+      "safe": {
+        "cap_dollars": 600.0,
+        "min_contracts": 3,
+        "avg_premium_per_lot": 423.13,
+        "max_premium_per_lot": 1027.0,
+        "qty_fits_at_avg": 1,
+        "qty_fits_at_worst": 0,
+        "min3_at_avg_cost": 1269.39,
+        "min3_at_worst_cost": 3081.0,
+        "cap_fits_at_avg": false,
+        "cap_fits_at_worst": false
+      },
+      "bold": {
+        "cap_dollars": 824.0,
+        "min_contracts": 5,
+        "avg_premium_per_lot": 423.13,
+        "max_premium_per_lot": 1027.0,
+        "qty_fits_at_avg": 1,
+        "qty_fits_at_worst": 0,
+        "min3_at_avg_cost": 2115.65,
+        "min3_at_worst_cost": 5135.0,
+        "cap_fits_at_avg": false,
+        "cap_fits_at_worst": false
+      }
+    },
+    "by_class": {
+      "NFP": {
+        "n": 17,
+        "exp": -66.71
+      },
+      "CPI": {
+        "n": 17,
+        "exp": -100.06
+      },
+      "FOMC": {
+        "n": 12,
+        "exp": -174.26
+      }
+    },
+    "gate": {
+      "positive_net_of_premium": false,
+      "beats_null": true,
+      "l173_concentrated": false,
+      "cap_fits_safe_avg": false,
+      "adequate_n": true,
+      "n": 46,
+      "survives": false
+    },
+    "verdict": "DEAD"
+  }
+}

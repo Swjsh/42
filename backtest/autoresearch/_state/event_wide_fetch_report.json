@@ -1,0 +1,842 @@
+{
+  "band_half_dollars": 18,
+  "event_days_fetched": 46,
+  "nonevent_days_fetched": 46,
+  "contracts_pulled_new": 0,
+  "contracts_with_bars": 5334,
+  "contracts_possible": 6808,
+  "wide_fill_rate": 0.783,
+  "days_with_tail_beyond_5": 0,
+  "days_total": 92,
+  "cache_dir": "C:\\Users\\jackw\\Desktop\\42\\backtest\\data\\options_event_wide",
+  "per_day": [
+    {
+      "date": "2025-01-10",
+      "kind": "EVENT",
+      "class": "NFP",
+      "atm": 580,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-01-15",
+      "kind": "EVENT",
+      "class": "CPI",
+      "atm": 592,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-01-29",
+      "kind": "EVENT",
+      "class": "FOMC",
+      "atm": 603,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-02-07",
+      "kind": "EVENT",
+      "class": "NFP",
+      "atm": 605,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-02-12",
+      "kind": "EVENT",
+      "class": "CPI",
+      "atm": 600,
+      "contracts_with_bars": 0,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-03-07",
+      "kind": "EVENT",
+      "class": "NFP",
+      "atm": 575,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-03-12",
+      "kind": "EVENT",
+      "class": "CPI",
+      "atm": 559,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-03-19",
+      "kind": "EVENT",
+      "class": "FOMC",
+      "atm": 565,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-04-04",
+      "kind": "EVENT",
+      "class": "NFP",
+      "atm": 522,
+      "contracts_with_bars": 34,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-04-10",
+      "kind": "EVENT",
+      "class": "CPI",
+      "atm": 529,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-05-02",
+      "kind": "EVENT",
+      "class": "NFP",
+      "atm": 564,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-05-07",
+      "kind": "EVENT",
+      "class": "FOMC",
+      "atm": 561,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-05-13",
+      "kind": "EVENT",
+      "class": "CPI",
+      "atm": 586,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-06-06",
+      "kind": "EVENT",
+      "class": "NFP",
+      "atm": 600,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-06-11",
+      "kind": "EVENT",
+      "class": "CPI",
+      "atm": 604,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-06-18",
+      "kind": "EVENT",
+      "class": "FOMC",
+      "atm": 600,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-07-03",
+      "kind": "EVENT",
+      "class": "NFP",
+      "atm": 625,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-07-15",
+      "kind": "EVENT",
+      "class": "CPI",
+      "atm": 625,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-07-30",
+      "kind": "EVENT",
+      "class": "FOMC",
+      "atm": 635,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-08-01",
+      "kind": "EVENT",
+      "class": "NFP",
+      "atm": 621,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-08-12",
+      "kind": "EVENT",
+      "class": "CPI",
+      "atm": 638,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-09-05",
+      "kind": "EVENT",
+      "class": "NFP",
+      "atm": 650,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-09-11",
+      "kind": "EVENT",
+      "class": "CPI",
+      "atm": 656,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-09-17",
+      "kind": "EVENT",
+      "class": "FOMC",
+      "atm": 660,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-10-03",
+      "kind": "EVENT",
+      "class": "NFP",
+      "atm": 670,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-10-15",
+      "kind": "EVENT",
+      "class": "CPI",
+      "atm": 669,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-10-29",
+      "kind": "EVENT",
+      "class": "FOMC",
+      "atm": 689,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-11-07",
+      "kind": "EVENT",
+      "class": "NFP",
+      "atm": 665,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-11-13",
+      "kind": "EVENT",
+      "class": "CPI",
+      "atm": 678,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-12-05",
+      "kind": "EVENT",
+      "class": "NFP",
+      "atm": 688,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-12-10",
+      "kind": "EVENT",
+      "class": "FOMC",
+      "atm": 683,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-01-09",
+      "kind": "EVENT",
+      "class": "NFP",
+      "atm": 691,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-01-14",
+      "kind": "EVENT",
+      "class": "CPI",
+      "atm": 688,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-01-28",
+      "kind": "EVENT",
+      "class": "FOMC",
+      "atm": 697,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-02-06",
+      "kind": "EVENT",
+      "class": "NFP",
+      "atm": 684,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-02-11",
+      "kind": "EVENT",
+      "class": "CPI",
+      "atm": 694,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-03-06",
+      "kind": "EVENT",
+      "class": "NFP",
+      "atm": 673,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-03-11",
+      "kind": "EVENT",
+      "class": "CPI",
+      "atm": 678,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-03-18",
+      "kind": "EVENT",
+      "class": "FOMC",
+      "atm": 668,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-04-10",
+      "kind": "EVENT",
+      "class": "CPI",
+      "atm": 681,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-04-29",
+      "kind": "EVENT",
+      "class": "FOMC",
+      "atm": 711,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-05-08",
+      "kind": "EVENT",
+      "class": "NFP",
+      "atm": 737,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-05-12",
+      "kind": "EVENT",
+      "class": "CPI",
+      "atm": 735,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-06-05",
+      "kind": "EVENT",
+      "class": "NFP",
+      "atm": 749,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-06-10",
+      "kind": "EVENT",
+      "class": "CPI",
+      "atm": 737,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-06-17",
+      "kind": "EVENT",
+      "class": "FOMC",
+      "atm": 750,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-01-06",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 598,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-01-24",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 610,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-01-27",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 598,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-01-28",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 600,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-02-26",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 598,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-04-17",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 529,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-04-21",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 517,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-04-23",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 543,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-04-28",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 551,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-05-06",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 558,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-05-19",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 592,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-05-20",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 593,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-05-28",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 591,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-05-29",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 591,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-05-30",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 588,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-06-09",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 599,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-06-12",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 601,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-07-24",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 635,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-07-28",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 638,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-08-22",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 643,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-08-27",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 645,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-09-25",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 657,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-10-06",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 670,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-10-07",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 672,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-10-20",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 669,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-10-24",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 677,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-11-04",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 679,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-11-24",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 665,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-12-02",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 683,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-12-04",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 683,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-12-15",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 682,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2025-12-23",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 685,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-01-21",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 682,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-02-10",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 696,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-02-17",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 678,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-02-24",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 683,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-03-02",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 684,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-03-12",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 670,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-03-20",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 653,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-03-23",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 659,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-04-24",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 710,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-05-04",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 720,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-05-06",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 729,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-05-29",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 758,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-06-03",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 756,
+      "contracts_with_bars": 40,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    },
+    {
+      "date": "2026-06-12",
+      "kind": "NONEVENT",
+      "class": "-",
+      "atm": 739,
+      "contracts_with_bars": 74,
+      "total_bars": 0,
+      "max_strike_dist_with_bars": 0
+    }
+  ]
+}

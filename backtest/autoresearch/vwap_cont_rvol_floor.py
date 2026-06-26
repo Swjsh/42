@@ -3,7 +3,7 @@ the LIVE chart-stop config, and is there a shippable BULL-side edge?
 
 CONTEXT (what Batch 1 actually found, and the trap this script avoids)
 ----------------------------------------------------------------------
-C1 (docs/J-REGIME-FILTERS.md) found `rvol >= 9 bps` lifts a VWAP setup to all-sub-windows-
+C1 (markdown/0dte/J-REGIME-FILTERS.md) found `rvol >= 9 bps` lifts a VWAP setup to all-sub-windows-
 positive with a clean own-OOS — BUT that was measured on `detect_vwap_pullback` (the H4
 VWAP-*pullback* survivor) on the **-8% premium-stop** config. It went config-sensitive on
 chart-stop and rvol wasn't computed live.
@@ -447,7 +447,7 @@ def main() -> int:
         "goal": "GOAL1: make the rvol floor work on the LIVE chart-stop config (7/7 OP-22?). "
                 "GOAL2: is there a shippable BULL-side edge?",
         "context_note": (
-            "Batch-1 C1 (docs/J-REGIME-FILTERS.md) measured rvol>=9 on detect_vwap_PULLBACK "
+            "Batch-1 C1 (markdown/0dte/J-REGIME-FILTERS.md) measured rvol>=9 on detect_vwap_PULLBACK "
             "(H4) at -8% stop. The dormant watcher to flip trades detect_j_vwap_CONTINUATION. "
             "This script re-measures the floor on the CONTINUATION detector + LIVE chart-stop. "
             "Different detector => result does not transfer by assertion; measured fresh here."

@@ -1,0 +1,124 @@
+{
+  "rule_id": "max_ribbon_duration_bars_8",
+  "rank": 25,
+  "generated": "2026-06-16",
+  "generated_by": "manual-session",
+  "engine_version": "v15",
+  "candidate_param": "max_ribbon_duration_bars",
+  "baseline_value": "null (disabled)",
+  "candidate_value": 8,
+  "params_source": "automation/state/params.json",
+  "real_fills": true,
+  "l102_bug_fix_applied": true,
+  "l106_params_fix_applied": true,
+  "note": "CORRECTED 2026-06-16: L106 fix. Original scorecard (v1) used no_trade_before=10:00 default instead of production 09:35, and entry_no_trade_window_et:null was silently dropped keeping legacy 14:00-15:00 window active. Both bugs fixed in _params_to_kwargs. Production-correct run (09:35 gate, no_trade_window=None) gives different baseline (n=97 IS vs v1 n=54). V1 WF=5.794 was an artifact.",
+  "production_params": {
+    "entry_no_trade_before_et": "09:35",
+    "entry_no_trade_window_et": null,
+    "min_ribbon_momentum_cents": 5.0,
+    "midday_trendline_gate": true,
+    "max_ribbon_duration_bars": "null (baseline); 8 (candidate)",
+    "premium_stop_pct_bear": -0.2,
+    "premium_stop_pct_bull": -0.08,
+    "per_trade_risk_cap_pct": 0.3
+  },
+  "is_window_v2": {
+    "start": "2025-01-02",
+    "end": "2026-03-31",
+    "note": "Production-correct params (09:35 gate, no_trade_window=None)",
+    "baseline": {
+      "n_trades": 97,
+      "total_pnl": -2625,
+      "win_rate": 0.299
+    },
+    "candidate": {
+      "n_trades": 51,
+      "total_pnl": -358,
+      "win_rate": 0.333,
+      "max_ribbon_duration_bars": 8
+    },
+    "delta_pnl": 2267,
+    "delta_n": -46
+  },
+  "oos_window_v2": {
+    "start": "2026-04-01",
+    "end": "2026-05-22",
+    "note": "Production-correct params (09:35 gate, no_trade_window=None)",
+    "baseline": {
+      "n_trades": 21,
+      "total_pnl": 1563,
+      "win_rate": 0.524
+    },
+    "candidate": {
+      "n_trades": 14,
+      "total_pnl": 1726,
+      "win_rate": 0.571,
+      "max_ribbon_duration_bars": 8
+    },
+    "delta_pnl": 163,
+    "delta_n": -7,
+    "notes": "3 of 7 removed trades were profitable. Filter over-aggressive in May recovery regime."
+  },
+  "walk_forward_v2": {
+    "wf_ratio": 0.072,
+    "formula": "oos_delta / is_delta = 163 / 2267",
+    "threshold": 0.7,
+    "result": "FAIL \u2014 well below threshold",
+    "interpretation": "IS improvement of ,267 generalizes to only 63 OOS. Filter helps catastrophe months (April tariff-shock: +,584) but hurts recovery months (May: -,421). Regime-conditional, not universal."
+  },
+  "j_edge_score": {
+    "5_04_status": "CAPTURED \u2014 5/04 +04 preserved in dur=8 (anchor +04 both baseline and candidate)",
+    "note": "4/29 and 5/01 early-morning anchors now INCLUDED in baseline (09:35 gate fixes this). 4/29 in OOS baseline."
+  },
+  "sub_window_stability_v2": {
+    "checked_date": "2026-06-16",
+    "sw1": {
+      "label": "April 2026-04-01..2026-04-30",
+      "baseline_n": 10,
+      "baseline_pnl": -2910,
+      "baseline_wr": 0.4,
+      "dur8_n": 6,
+      "dur8_pnl": -326,
+      "dur8_wr": 0.5,
+      "delta": 2584,
+      "result": "PASS \u2014 dur=8 beats baseline by +,584 (tariff-shock filtered)"
+    },
+    "sw2": {
+      "label": "May 2026-05-01..2026-05-22",
+      "baseline_n": 11,
+      "baseline_pnl": 4473,
+      "baseline_wr": 0.636,
+      "dur8_n": 8,
+      "dur8_pnl": 2052,
+      "dur8_wr": 0.625,
+      "delta": -2421,
+      "result": "FAIL \u2014 dur=8 HURTS baseline by -,421 (filter over-aggressive in recovery regime)"
+    },
+    "verdict": "FAIL \u2014 April passes but May fails. Filter is regime-conditional: works in catastrophe months, hurts in trending recovery months."
+  },
+  "ratification_gates_v2": {
+    "is_delta_positive": true,
+    "oos_delta_positive": true,
+    "wf_ratio_above_0_7": false,
+    "anchor_wins_captured": true,
+    "real_fills_validated": true,
+    "ab_scorecard_exists": true,
+    "oos_n_above_20": false,
+    "sub_window_stable": "FAIL \u2014 May sub-window shows filter hurts (-,421)",
+    "auto_ratify_eligible": false,
+    "auto_ratify_blocker": "WF=0.072 < 0.7 threshold; May sub-window FAIL; oos_n=14 < 20",
+    "gates_met": "3 of 8 (IS+OOS delta positive, anchor captured)"
+  },
+  "root_cause_v1_failure": {
+    "issue": "L106 \u2014 params_overrides null propagation bug",
+    "details": "Old scorecard used no_trade_before=10:00 (function default) instead of production 09:35. Also entry_no_trade_window_et:null was silently ignored, keeping legacy (14:00,15:00) no-trade window. Both bugs fixed 2026-06-16.",
+    "impact": "V1 baseline missed 43 IS and 8 OOS early-morning trades. V1 OOS baseline was -,907 (all 09:35-10:00 OOS trades were profitable; excluding them made baseline look terrible). V1 WF=5.794 was entirely an artifact of the wrong baseline."
+  },
+  "next_steps": [
+    "Research: is dur=8 filter useful with VIX-regime conditioning (escalating VIX only)?",
+    "Research: would a larger threshold (dur=12 or dur=15) avoid removing May recovery trades?",
+    "Research: compare May morning vs afternoon dur distributions to understand which trades are removed"
+  ],
+  "leaderboard_status": "3/10 FAILED",
+  "overall_verdict": "FAILED \u2014 WF=0.072 (threshold 0.7). Production-correct params reveal filter is regime-conditional: helps April catastrophe (+,584) but hurts May recovery (-,421). Not safe to ratify unconditionally. See next_steps for potential VIX-gated variant."
+}

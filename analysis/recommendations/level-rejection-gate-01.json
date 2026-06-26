@@ -1,0 +1,96 @@
+{
+  "rule_id": "level-rejection-gate-01",
+  "filed": "2026-06-17",
+  "title": "LEVEL_REJECTION_GATE: block bear LEVEL-tier level_rejection entries",
+  "status": "RATIFY",
+  "auto_ratify_eligible": true,
+  "ratify_timing": "after-hours same evening",
+
+  "hypothesis": "BEARISH_REVERSAL LEVEL-tier entries fire on two distinct trigger types: level_rejection (counter-trend fade of a resistance touch) and level_reclaim (bull reclaim as context for bear entry). The level_rejection subset is systematically unprofitable: IS n=22 avg -$584/trade (-$13,389 total). Blocking it removes the dominant IS drag while leaving level_reclaim and all other tiers intact.",
+
+  "gate_parameter": "block_level_rejection",
+  "gate_default": false,
+  "gate_proposed": true,
+  "params_key": "block_level_rejection",
+
+  "evidence": {
+    "method": "Engine-level backtest (use_real_fills=True, cascade effects fully simulated)",
+    "is_window": "2025-01-02 to 2026-05-07",
+    "oos_window": "2026-05-08 to 2026-05-22",
+
+    "baseline": {
+      "is_n": 244,
+      "is_pnl": -5118,
+      "oos_n": 15,
+      "oos_pnl": 2659
+    },
+    "candidate": {
+      "is_n": 227,
+      "is_pnl": 8063,
+      "oos_n": 12,
+      "oos_pnl": 3341
+    },
+    "deltas": {
+      "is_delta": 13181,
+      "oos_delta": 682,
+      "is_n_removed": 17,
+      "is_n_added_via_cascade": 5
+    },
+    "wf_norm": 0.842,
+    "wf_formula": "(oos_delta/n_oos_base) / (is_delta/n_is_base)",
+
+    "anchor_days": {
+      "2026-04-29": {"base": -2477, "cand": -999, "delta": 1478, "result": "OK"},
+      "2026-05-01": {"base": 0, "cand": 0, "delta": 0, "result": "OK"},
+      "2026-05-04": {"base": 804, "cand": 804, "delta": 0, "result": "OK"}
+    },
+
+    "is_sub_windows": {
+      "W1_2025-01_to_2025-06": {"base": -1759, "cand": 1520, "delta": 3279, "result": "OK"},
+      "W2_2025-07_to_2025-12": {"base": 3254, "cand": 3635, "delta": 381, "result": "OK"},
+      "W3_2026-01_to_2026-03": {"base": -1185, "cand": 4285, "delta": 5470, "result": "OK"},
+      "W4_2026-04_to_2026-05-07": {"base": -5428, "cand": -1377, "delta": 4051, "result": "OK"}
+    },
+    "n_hurt_sub_windows": 0,
+
+    "oos_rolling_windows": {
+      "OOS_W1_2026-05-08_to_14": {"base": 2955, "cand": 2955, "delta": 0, "result": "PASS"},
+      "OOS_W2_2026-05-15_to_22": {"base": -296, "cand": 387, "delta": 682, "result": "PASS"}
+    }
+  },
+
+  "ratification_gates": {
+    "OOS_positive": true,
+    "WF_ge_0_70": true,
+    "anchor_no_regression": true,
+    "sub_window_stable": true,
+    "oos_rolling_gate": true
+  },
+
+  "cascade_note": "Gate fires BEFORE quality lock is set — blocked trades do not consume the day's LEVEL quality slot. This allows cascade: 5 IS days where a blocked level_rejection entry unlocked a subsequent trade (net additive). The corrected gate includes winning_side=='P' guard to prevent incorrectly blocking BULL level_reclaim LEVEL trades (initial implementation bug caught and fixed in the same session).",
+
+  "implementation": {
+    "file": "backtest/lib/orchestrator.py",
+    "parameter": "block_level_rejection: bool = False",
+    "gate_condition": "quality_tier == 'LEVEL' and has_level and winning_side == 'P'",
+    "params_to_kwargs_key": "block_level_rejection",
+    "action": "SKIP_LEVEL_REJECTION_GATE"
+  },
+
+  "is_trades_removed_detail": {
+    "level_rejection_pure_n17": {"WR": "29.4%", "avg_pnl": -627},
+    "level_rejection_ribbon_flip_n3": {"WR": "33.3%", "avg_pnl": -498},
+    "level_rejection_trendline_n2": {"WR": "0.0%", "avg_pnl": -617}
+  },
+
+  "oos_trades_removed": [
+    {"date": "2026-05-15", "pnl": -1316, "triggers": ["level_rejection"]},
+    {"date": "2026-05-19", "pnl": 2072, "triggers": ["level_rejection"]},
+    {"date": "2026-05-21", "pnl": -1439, "triggers": ["level_rejection", "ribbon_flip"]}
+  ],
+
+  "oos_note": "OOS removes 3 trades net -$682 in losses (net positive for candidate). 5/19 is a +$2,072 winner that gets removed — this is the only OOS loser for the gate. The gate correctly keeps 5/08 +$1,130 BULL level_reclaim LEVEL trade.",
+
+  "cost_estimate": "$0 additional per day (engine parameter change, no new data fetch)",
+  "production_change": "Set block_level_rejection: true in automation/state/params.json AND automation/state/aggressive/params.json"
+}

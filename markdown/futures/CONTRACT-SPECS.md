@@ -1,6 +1,6 @@
 # Contract Specifications — Equity Index Futures
 
-> Source: CME Group official contract-spec pages (see [SOURCES.md](markdown/futures/SOURCES.md)). Specs are stable; **margins move** and are covered in [MARGIN-LEVERAGE-RISK.md](markdown/futures/MARGIN-LEVERAGE-RISK.md).
+> Source: CME Group official contract-spec pages (see [SOURCES.md](SOURCES.md)). Specs are stable; **margins move** and are covered in [MARGIN-LEVERAGE-RISK.md](MARGIN-LEVERAGE-RISK.md).
 
 ## The four contracts we care about
 

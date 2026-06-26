@@ -1,0 +1,109 @@
+{
+  "strategy": "SNIPER_LEVEL_BREAK",
+  "stage": 2,
+  "generated_at": "2026-06-16T07:17:48.206959",
+  "combo": {
+    "vol_mult": 1.1,
+    "body_min_cents": 0.05,
+    "min_stars": 2,
+    "strike_offset": 2,
+    "premium_stop_pct": -0.06,
+    "tp1_premium_pct": 0.4,
+    "runner_target_pct": 3.0,
+    "profit_lock_threshold_pct": 0.0,
+    "profit_lock_stop_offset_pct": 0.05,
+    "tp1_qty_fraction": 0.667,
+    "qty": 10,
+    "proximity_dollars": 1.5,
+    "require_break_above_open": true
+  },
+  "wide_window": {
+    "start": "2025-01-01",
+    "end": "2026-05-22"
+  },
+  "bs_sim_summary": {
+    "total_pnl": 27813.62,
+    "n_trades": 231,
+    "n_days": 231
+  },
+  "top3_bs": [
+    [
+      "2025-10-10",
+      2662.51
+    ],
+    [
+      "2025-04-07",
+      1007.63
+    ],
+    [
+      "2025-04-08",
+      173.79
+    ]
+  ],
+  "opra_status": [
+    {
+      "date": "2025-10-10",
+      "strike": 671,
+      "side": "P",
+      "symbol": "SPY251010P00671000",
+      "opra_available": false,
+      "bs_pnl": 2662.51
+    },
+    {
+      "date": "2025-04-07",
+      "strike": 511,
+      "side": "C",
+      "symbol": "SPY250407C00511000",
+      "opra_available": true,
+      "bs_pnl": 1007.63
+    },
+    {
+      "date": "2025-04-08",
+      "strike": 521,
+      "side": "C",
+      "symbol": "SPY250408C00521000",
+      "opra_available": false,
+      "bs_pnl": 173.79
+    }
+  ],
+  "real_fills": [
+    {
+      "date": "2025-10-10",
+      "bs_pnl": 2662.51,
+      "real_pnl": null,
+      "verdict": "BLOCKED",
+      "reason": "OPRA missing: SPY251010P00671000"
+    },
+    {
+      "date": "2025-04-07",
+      "bs_pnl": 1007.63,
+      "real_pnl": -555.6,
+      "diff_pct": -155.1,
+      "verdict": "CAVEAT",
+      "trades": [
+        {
+          "entry_time_et": "2025-04-07T10:10:00",
+          "side": "C",
+          "strike": 511,
+          "entry_spot": 513.12,
+          "entry_premium": 9.26,
+          "tp1_premium": null,
+          "runner_exit_premium": 8.7044,
+          "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+          "dollar_pnl": -555.6,
+          "symbol": "SPY250407C00511000"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "date": "2025-04-08",
+      "bs_pnl": 173.79,
+      "real_pnl": null,
+      "verdict": "BLOCKED",
+      "reason": "OPRA missing: SPY250408C00521000"
+    }
+  ],
+  "overall_verdict": "CAVEAT",
+  "verdict_rule": "PASS if all available days |diff|<20%; CAVEAT if any day |diff|>=20%; BLOCKED if no OPRA data"
+}

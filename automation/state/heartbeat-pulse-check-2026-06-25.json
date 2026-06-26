@@ -1,0 +1,65 @@
+{
+  "skill": "heartbeat-pulse-check",
+  "run_at": "2026-06-25T21:00:03.411655+00:00",
+  "target_date": "2026-06-25",
+  "verdict": "YELLOW",
+  "reason": "3-gaps-6-to-15-min",
+  "fire_count_total": 73,
+  "market_fire_count": 73,
+  "max_gap_minutes": 9.02,
+  "gaps_over_15_min": 0,
+  "gaps_6_to_15_min": 3,
+  "heal_action": "no-op",
+  "sample_gaps": [
+    {
+      "from": "09:39:06",
+      "to": "09:44:02",
+      "gap_min": 4.93
+    },
+    {
+      "from": "09:54:01",
+      "to": "09:59:02",
+      "gap_min": 5.02
+    },
+    {
+      "from": "10:09:01",
+      "to": "10:18:02",
+      "gap_min": 9.02
+    },
+    {
+      "from": "10:23:02",
+      "to": "10:28:04",
+      "gap_min": 5.03
+    },
+    {
+      "from": "10:28:04",
+      "to": "10:33:03",
+      "gap_min": 4.98
+    },
+    {
+      "from": "10:38:02",
+      "to": "10:43:02",
+      "gap_min": 5.0
+    },
+    {
+      "from": "10:43:02",
+      "to": "10:47:03",
+      "gap_min": 4.02
+    },
+    {
+      "from": "10:48:01",
+      "to": "10:52:02",
+      "gap_min": 4.02
+    },
+    {
+      "from": "10:52:02",
+      "to": "10:57:03",
+      "gap_min": 5.02
+    },
+    {
+      "from": "10:57:03",
+      "to": "11:02:02",
+      "gap_min": 4.98
+    }
+  ]
+}

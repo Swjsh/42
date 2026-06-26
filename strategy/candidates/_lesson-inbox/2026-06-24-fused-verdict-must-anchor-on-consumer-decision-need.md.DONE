@@ -1,0 +1,61 @@
+# Lesson candidate — a fused health verdict must anchor on the consumer's actual decision need
+
+**Filed:** 2026-06-24 (conductor fire)
+**Theme:** C7 (cry-wolf observability) + OP-22 (compound, don't accumulate signal-trust)
+**Status:** GUARD ALREADY SHIPPED — `backtest/tests/test_gym_session_verdict.py` (17 assertions). This item is for the LESSONS-LEARNED.md prose + CLAUDE.md OP-25 index fold only (rail-4; conductor cannot edit CLAUDE.md).
+
+## Symptom
+`gym_session.py`'s `overall_verdict` was RED 6-of-7 days (2026-06-15..06-23) while the
+crypto-gym chart-reading harness it nominally reports was GREEN 7-of-7. Every RED came from
+peripheral inputs unrelated to detector health: absent peripheral producers (a 3-second
+write race made `watcher-state-inspector-2026-06-23.json` read as MISSING; `heartbeat-tick-audit`
+simply didn't run → MISSING), the L39 pulse max-gap artifact, and the intentional Bold v15.2
+pin "mismatch". The conductor's STAGE-0 backpressure ("gym RED → don't touch detectors")
+was therefore PERMANENTLY tripped on a signal that has nothing to do with detectors — and a
+real crypto-gym RED would have been invisible in the noise (alarm desensitization).
+
+## Root cause
+`_aggregate_verdict` was `RED if any audit RED or MISSING`, weighting the core harness
+identically to 6 peripheral operational audits, AND escalating MISSING (producer-didn't-run /
+read race) to the same severity as a genuine failure. A fused verdict was being computed
+without reference to what its single consumer (STAGE-0 "is it safe to touch detectors")
+actually needed to decide.
+
+## Fix
+Anchor the fused verdict on the consumer's decision need. Only RED_CAPABLE audits drive RED:
+the detector harness (crypto-gym — also RED on MISSING, fail-closed: unknown detector health
+blocks detector work), chart-data-verify (detector INPUT integrity), heartbeat-tick-audit
+(RED == a real in-progress-bar ENTER/EXIT). Every operational audit (pin/mcp/pulse/watcher) —
+already owned with its own critical alerter by `engine-health.json` — caps at YELLOW: it
+SURFACES (degraded observability) but cannot RED the chart-reading scorecard. Added a
+`detector_verdict` field = the harness verdict, unambiguous for the consumer. Cross-historical
+re-aggregation proved no genuine RED is masked (06-16/06-19 real chart-data divergence stay RED).
+
+## Generalizable principle
+A FUSED health/status verdict consumed by an automated GATE must be anchored on the gate's
+actual decision need, and inputs that are NOT decision-relevant to that gate must cap at a
+non-blocking severity — never share equal weight with the decision-critical signal, and never
+let "producer didn't run / MISSING" escalate to "failed". Equal-weighting a grab-bag of
+peripheral signals into one verdict manufactures a chronic cry-wolf that (a) blocks the gate on
+unrelated noise and (b) hides the one signal the gate exists to catch. When two systems both
+watch the same operational concern (here gym vs engine-health.json), exactly one should own the
+alarm; the other surfaces, not alarms. Generalizes the engine-self-healer NOTIFY-ONLY cry-wolf
+finding (HealthBeacon, 2026-06-22) from "alert frequency" to "verdict-aggregation design".
+
+## Watch-out
+Do not "fix" a chronic RED by suppressing signal globally (that hides real failures). The fix is
+to RECLASSIFY by decision-relevance and keep every genuine decision-critical RED, validated by
+re-aggregating the full historical series and confirming the real REDs survive.
+
+## Encoded-in (guard already live)
+- `backtest/autoresearch/gym_session.py` — `_RED_CAPABLE` / `_DETECTOR_HARNESS` + `_aggregate_verdict`; `detector_verdict` scorecard field. Commit 4ce3b9c.
+- `backtest/tests/test_gym_session_verdict.py` — 17 assertions incl. the exact 06-23 case, the L39 pulse downgrade, and chart-data-RED-still-REDs no-mask.
+
+## Detection
+A fused verdict whose aggregate severity flaps RED/MISSING while its named core component is
+green N-of-N days → the aggregation is conflating critical and operational inputs. Check whether
+the consuming gate keys off the aggregate or the core component.
+
+## Related
+C7 (cry-wolf observability), L39 (SKIP-not-FIRE pulse-gap artifact), L161 (naive-ET producer-dark),
+engine-self-healer NOTIFY-ONLY cry-wolf (project memory, 2026-06-22).

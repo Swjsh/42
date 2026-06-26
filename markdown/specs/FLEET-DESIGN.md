@@ -3,7 +3,7 @@
 > Run several frozen configs in parallel so we collect multiple statistically-valid
 > baselines at once — without freezing the firm or stopping the kitchen. Each account/arm
 > holds ONE config frozen; the PORTFOLIO of arms keeps evolving. Replaces the "freeze for a
-> month" plan (J, 2026-06-20). Baseline to beat: [HONEST-PNL-BASELINE-2026-06-20](../analysis/HONEST-PNL-BASELINE-2026-06-20.md).
+> month" plan (J, 2026-06-20). Baseline to beat: [HONEST-PNL-BASELINE-2026-06-20](../../analysis/HONEST-PNL-BASELINE-2026-06-20.md).
 
 ## Why this dissolves the freeze tension
 

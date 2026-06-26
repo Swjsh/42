@@ -1,0 +1,4305 @@
+{
+  "schema_version": "eod-deep-v1",
+  "date": "2026-06-25",
+  "generated_at_et": "2026-06-25T14:30:31",
+  "rule_version_active": "v15.3",
+  "market_session_summary": {
+    "session_high": null,
+    "session_low": null,
+    "session_close": 732.8,
+    "vix_close": 17.88,
+    "vix_dir": "falling",
+    "regime_predicted": "low_vix_bull_drift_pre_fomc"
+  },
+  "account_equity_start": 1184.0,
+  "account_equity_end": 0,
+  "day_pnl_dollars": -1184.0,
+  "day_pnl_pct": -100.0,
+  "day_trade_count": 0,
+  "daily_loss_budget_used_pct": 0.0,
+  "trades": [],
+  "categories": {
+    "execution": {
+      "score": 50.0,
+      "evidence": {
+        "phase": "stub",
+        "module": "execution"
+      },
+      "narrative": "[STUB] execution module pending Phase 2 implementation. No trades to analyze.",
+      "actions": []
+    },
+    "detection": {
+      "score": 55.0,
+      "evidence": {
+        "phase": "3.0",
+        "verdict": "OVER_AGGRESSIVE",
+        "engine_decisions": [
+          {
+            "time_et": "09:30:00",
+            "tick_or_fire_id": 28206,
+            "decision": "SKIP_TIME_GATE",
+            "reasoning": "filter 1 blocked: bar before no_trade_before=09:35:00 ET (v15.1 entry gate)",
+            "raw_state": {
+              "spy_close": 737.3399047851562,
+              "vix": 18.170000076293945,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 84.53706403954584,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 4,
+              "bear_blockers": [
+                1,
+                5,
+                8
+              ],
+              "bull_blockers": [
+                1,
+                5,
+                7,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": 738.9099731445312,
+              "reclaim_level": 737.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 0
+            }
+          },
+          {
+            "time_et": "09:35:00",
+            "tick_or_fire_id": 28207,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 8], bull_blockers=[5, 9, 10, 11]",
+            "raw_state": {
+              "spy_close": 736.9600219726562,
+              "vix": 18.13999938964844,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 58.95136220910899,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 6,
+              "bear_blockers": [
+                5,
+                8
+              ],
+              "bull_blockers": [
+                5,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 737.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 5
+            }
+          },
+          {
+            "time_et": "09:40:00",
+            "tick_or_fire_id": 28208,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 8], bull_blockers=[5, 9, 10, 11]",
+            "raw_state": {
+              "spy_close": 734.2899780273438,
+              "vix": 18.780000686645508,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 51.048941325086616,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 6,
+              "bear_blockers": [
+                5,
+                8
+              ],
+              "bull_blockers": [
+                5,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 735.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 10
+            }
+          },
+          {
+            "time_et": "09:45:00",
+            "tick_or_fire_id": 28209,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5], bull_blockers=[5, 8, 9, 10, 11]",
+            "raw_state": {
+              "spy_close": 732.889892578125,
+              "vix": 19.25,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 51.612032579589595,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 5,
+              "bear_blockers": [
+                5
+              ],
+              "bull_blockers": [
+                5,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": 734.2542663710525,
+              "reclaim_level": 732.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 15
+            }
+          },
+          {
+            "time_et": "09:50:00",
+            "tick_or_fire_id": 28210,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5], bull_blockers=[5, 8, 9, 10, 11]",
+            "raw_state": {
+              "spy_close": 730.7000122070312,
+              "vix": 19.709999084472656,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 63.8177881073716,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 5,
+              "bear_blockers": [
+                5
+              ],
+              "bull_blockers": [
+                5,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 733.4047791959022,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 20
+            }
+          },
+          {
+            "time_et": "09:55:00",
+            "tick_or_fire_id": 28211,
+            "decision": "ENTER_BEAR",
+            "reasoning": "bearish setup passed, score 10/10. triggers=['level_rejection', 'ribbon_flip', 'confluence'], level=730.8400268554688",
+            "raw_state": {
+              "spy_close": 729.8350219726562,
+              "vix": 19.8799991607666,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 91.10578010823929,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 10,
+              "bull_score": 5,
+              "bear_blockers": [],
+              "bull_blockers": [
+                5,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "ribbon_flip",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 730.8400268554688,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 25
+            }
+          },
+          {
+            "time_et": "10:00:00",
+            "tick_or_fire_id": 28212,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[7, 8, 9], bull_blockers=[5, 9]",
+            "raw_state": {
+              "spy_close": 733.239990234375,
+              "vix": 19.149999618530277,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 81.3473805917738,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 8,
+              "bear_blockers": [
+                7,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                9
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "ribbon_flip",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 733.4630307900799,
+              "reclaim_level": 730.8400268554688,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 30
+            }
+          },
+          {
+            "time_et": "10:05:00",
+            "tick_or_fire_id": 28213,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 8, 9], bull_blockers=[5, 9]",
+            "raw_state": {
+              "spy_close": 734.9099731445312,
+              "vix": 18.90999984741211,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 58.71143764146609,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 8,
+              "bear_blockers": [
+                5,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                9
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 735.0,
+              "reclaim_level": 733.5242357084483,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 35
+            }
+          },
+          {
+            "time_et": "10:10:00",
+            "tick_or_fire_id": 28214,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 8], bull_blockers=[5, 9, 10, 11]",
+            "raw_state": {
+              "spy_close": 734.1199951171875,
+              "vix": 19.25,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 50.29970054091564,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 6,
+              "bear_blockers": [
+                5,
+                8
+              ],
+              "bull_blockers": [
+                5,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 735.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 40
+            }
+          },
+          {
+            "time_et": "10:15:00",
+            "tick_or_fire_id": 28215,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 8, 9, 10], bull_blockers=[5, 9, 10]",
+            "raw_state": {
+              "spy_close": 735.5599975585938,
+              "vix": 19.040000915527344,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 34.96744232436413,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 7,
+              "bear_blockers": [
+                5,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                9,
+                10
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 733.24,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 45
+            }
+          },
+          {
+            "time_et": "10:20:00",
+            "tick_or_fire_id": 28216,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6, 9], bull_blockers=[5, 6, 7, 8, 9, 10, 11]",
+            "raw_state": {
+              "spy_close": 735.0,
+              "vix": 19.1299991607666,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 24.573282918584027,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 3,
+              "bear_blockers": [
+                5,
+                6,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 736.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 50
+            }
+          },
+          {
+            "time_et": "10:25:00",
+            "tick_or_fire_id": 28217,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6, 8, 9, 10], bull_blockers=[5, 6, 7, 9, 10, 11]",
+            "raw_state": {
+              "spy_close": 735.4749755859375,
+              "vix": 18.96999931335449,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 29.50341177477185,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 5,
+              "bull_score": 4,
+              "bear_blockers": [
+                5,
+                6,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                7,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 735.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 55
+            }
+          },
+          {
+            "time_et": "10:30:00",
+            "tick_or_fire_id": 28218,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[5, 7, 8, 9], bull_blockers=[9, 10]",
+            "raw_state": {
+              "spy_close": 736.3699951171875,
+              "vix": 18.86000061035156,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 40.222529498066706,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 8,
+              "bear_blockers": [
+                5,
+                7,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                9,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "ribbon_flip"
+              ],
+              "rejection_level": 737.0,
+              "reclaim_level": 736.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 60
+            }
+          },
+          {
+            "time_et": "10:35:00",
+            "tick_or_fire_id": 28219,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[5, 8, 9, 10], bull_blockers=[9, 10]",
+            "raw_state": {
+              "spy_close": 736.64501953125,
+              "vix": 18.700000762939453,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 62.19036319557745,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 8,
+              "bear_blockers": [
+                5,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                9,
+                10
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim",
+                "ribbon_flip"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 736.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 65
+            }
+          },
+          {
+            "time_et": "10:40:00",
+            "tick_or_fire_id": 28220,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[5, 8, 9], bull_blockers=[7, 8, 9, 10]",
+            "raw_state": {
+              "spy_close": 735.409912109375,
+              "vix": 18.93000030517578,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 67.28561800532589,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 6,
+              "bear_blockers": [
+                5,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                7,
+                8,
+                9,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "ribbon_flip"
+              ],
+              "rejection_level": 736.0,
+              "reclaim_level": 735.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 70
+            }
+          },
+          {
+            "time_et": "10:45:00",
+            "tick_or_fire_id": 28221,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[5, 8, 9, 10], bull_blockers=[7, 9, 10, 11]",
+            "raw_state": {
+              "spy_close": 736.3499755859375,
+              "vix": 18.690000534057617,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 80.67486811701201,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 6,
+              "bear_blockers": [
+                5,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                7,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 736.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 75
+            }
+          },
+          {
+            "time_et": "10:50:00",
+            "tick_or_fire_id": 28222,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[5, 7, 8, 9, 10], bull_blockers=[9, 10, 11]",
+            "raw_state": {
+              "spy_close": 737.7999877929688,
+              "vix": 18.40999984741211,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 106.00857517201803,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 5,
+              "bull_score": 7,
+              "bear_blockers": [
+                5,
+                7,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 737.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 80
+            }
+          },
+          {
+            "time_et": "10:55:00",
+            "tick_or_fire_id": 28223,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[5, 8], bull_blockers=[7, 9, 10, 11], bear_score=8/10, bull_score=6/11",
+            "raw_state": {
+              "spy_close": 735.22998046875,
+              "vix": 18.8700008392334,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 99.99418043267951,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 6,
+              "bear_blockers": [
+                5,
+                8
+              ],
+              "bull_blockers": [
+                7,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 736.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 85
+            }
+          },
+          {
+            "time_et": "11:00:00",
+            "tick_or_fire_id": 28224,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[5, 8, 9, 10], bull_blockers=[7, 8, 9, 10, 11]",
+            "raw_state": {
+              "spy_close": 736.1599731445312,
+              "vix": 18.68000030517578,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 103.95606582006849,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 5,
+              "bear_blockers": [
+                5,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                7,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 736.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 90
+            }
+          },
+          {
+            "time_et": "11:05:00",
+            "tick_or_fire_id": 28225,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[5, 9], bull_blockers=[7, 8, 9, 10]",
+            "raw_state": {
+              "spy_close": 734.760009765625,
+              "vix": 18.96999931335449,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 92.32186092626762,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 6,
+              "bear_blockers": [
+                5,
+                9
+              ],
+              "bull_blockers": [
+                7,
+                8,
+                9,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 735.0,
+              "reclaim_level": 734.74187161029,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 95
+            }
+          },
+          {
+            "time_et": "11:10:00",
+            "tick_or_fire_id": 28226,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[5], bull_blockers=[7, 8, 9, 10, 11], bear_score=9/10, bull_score=5/11",
+            "raw_state": {
+              "spy_close": 732.969970703125,
+              "vix": 19.34000015258789,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 63.95268827130849,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 5,
+              "bear_blockers": [
+                5
+              ],
+              "bull_blockers": [
+                7,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 734.6888072692748,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 100
+            }
+          },
+          {
+            "time_et": "11:15:00",
+            "tick_or_fire_id": 28227,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[5, 7, 9, 10], bull_blockers=[8, 9]",
+            "raw_state": {
+              "spy_close": 733.6699829101562,
+              "vix": 19.18000030517578,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 47.39884179717819,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 8,
+              "bear_blockers": [
+                5,
+                7,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                8,
+                9
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 732.3599853515625,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 105
+            }
+          },
+          {
+            "time_et": "11:20:00",
+            "tick_or_fire_id": 28228,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[5, 7, 9], bull_blockers=[8, 9, 10, 11]",
+            "raw_state": {
+              "spy_close": 734.5100708007812,
+              "vix": 19.15999984741211,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 42.084921178764034,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 6,
+              "bear_blockers": [
+                5,
+                7,
+                9
+              ],
+              "bull_blockers": [
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": 734.8122741181708,
+              "reclaim_level": 733.24,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 110
+            }
+          },
+          {
+            "time_et": "11:25:00",
+            "tick_or_fire_id": 28229,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[5, 8, 9], bull_blockers=[9, 10]",
+            "raw_state": {
+              "spy_close": 734.2899780273438,
+              "vix": 19.07999992370605,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 35.22480408320234,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 8,
+              "bear_blockers": [
+                5,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                9,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 734.7772808571917,
+              "reclaim_level": 734.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 115
+            }
+          },
+          {
+            "time_et": "11:30:00",
+            "tick_or_fire_id": 28230,
+            "decision": "SKIP_RIBBON_SPREAD",
+            "reasoning": "filter 6 blocked: ribbon spread <30c (chop)",
+            "raw_state": {
+              "spy_close": 734.2230834960938,
+              "vix": 19.030000686645508,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 28.69671811091621,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 7,
+              "bear_blockers": [
+                5,
+                6,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                6,
+                9,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 735.0,
+              "reclaim_level": 734.145004980837,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 120
+            }
+          },
+          {
+            "time_et": "11:35:00",
+            "tick_or_fire_id": 28231,
+            "decision": "SKIP_RIBBON_SPREAD",
+            "reasoning": "filter 6 blocked: ribbon spread <30c (chop)",
+            "raw_state": {
+              "spy_close": 734.2100219726562,
+              "vix": 18.979999542236328,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 23.028995042591305,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 6,
+              "bear_blockers": [
+                5,
+                6,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                6,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 734.7475096166445,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 125
+            }
+          },
+          {
+            "time_et": "11:40:00",
+            "tick_or_fire_id": 28232,
+            "decision": "SKIP_RIBBON_SPREAD",
+            "reasoning": "filter 6 blocked: ribbon spread <30c (chop)",
+            "raw_state": {
+              "spy_close": 734.77001953125,
+              "vix": 18.90999984741211,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 23.94921533334582,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 5,
+              "bull_score": 7,
+              "bear_blockers": [
+                5,
+                6,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                6,
+                9,
+                10
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 733.9392586022719,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 130
+            }
+          },
+          {
+            "time_et": "11:45:00",
+            "tick_or_fire_id": 28233,
+            "decision": "SKIP_RIBBON_SPREAD",
+            "reasoning": "filter 6 blocked: ribbon spread <30c (chop)",
+            "raw_state": {
+              "spy_close": 734.448974609375,
+              "vix": 18.93000030517578,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 21.29016712565317,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 5,
+              "bear_blockers": [
+                5,
+                6,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                6,
+                7,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence",
+                "trendline_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 735.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 135
+            }
+          },
+          {
+            "time_et": "11:50:00",
+            "tick_or_fire_id": 28234,
+            "decision": "SKIP_RIBBON_SPREAD",
+            "reasoning": "filter 6 blocked: ribbon spread <30c (chop)",
+            "raw_state": {
+              "spy_close": 734.5999755859375,
+              "vix": 18.8700008392334,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 20.520696248536296,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 6,
+              "bear_blockers": [
+                5,
+                6,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                6,
+                7,
+                9,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 734.7333297259866,
+              "reclaim_level": 734.1069697994737,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 140
+            }
+          },
+          {
+            "time_et": "11:55:00",
+            "tick_or_fire_id": 28235,
+            "decision": "SKIP_RIBBON_SPREAD",
+            "reasoning": "filter 6 blocked: ribbon spread <30c (chop)",
+            "raw_state": {
+              "spy_close": 734.1400146484375,
+              "vix": 18.950000762939453,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 15.074936886742307,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 6,
+              "bear_blockers": [
+                5,
+                6,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                6,
+                8,
+                9,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 734.7154164778127,
+              "reclaim_level": 734.1297922731288,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 145
+            }
+          },
+          {
+            "time_et": "12:00:00",
+            "tick_or_fire_id": 28236,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6, 8], bull_blockers=[5, 6, 7, 8, 9, 10]",
+            "raw_state": {
+              "spy_close": 734.1500244140625,
+              "vix": 18.979999542236328,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 11.912602133145356,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 7,
+              "bull_score": 5,
+              "bear_blockers": [
+                5,
+                6,
+                8
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 734.2979550381236,
+              "reclaim_level": 734.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 150
+            }
+          },
+          {
+            "time_et": "12:05:00",
+            "tick_or_fire_id": 28237,
+            "decision": "SKIP_RIBBON_SPREAD",
+            "reasoning": "filter 6 blocked: ribbon spread <30c (chop)",
+            "raw_state": {
+              "spy_close": 735.3300170898438,
+              "vix": 18.75,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 18.921455292513656,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 4,
+              "bull_score": 8,
+              "bear_blockers": [
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                6,
+                9,
+                10
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim",
+                "ribbon_flip",
+                "confluence"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 734.1816263444598,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 155
+            }
+          },
+          {
+            "time_et": "12:10:00",
+            "tick_or_fire_id": 28238,
+            "decision": "SKIP_RIBBON_SPREAD",
+            "reasoning": "filter 6 blocked: ribbon spread <30c (chop)",
+            "raw_state": {
+              "spy_close": 735.6900024414062,
+              "vix": 18.63999938964844,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 29.316204323572492,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 6,
+              "bull_score": 7,
+              "bear_blockers": [
+                5,
+                6,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                6,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "ribbon_flip"
+              ],
+              "rejection_level": 736.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 160
+            }
+          },
+          {
+            "time_et": "12:15:00",
+            "tick_or_fire_id": 28239,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[5, 8], bull_blockers=[7, 9, 10, 11], bear_score=8/10, bull_score=7/11",
+            "raw_state": {
+              "spy_close": 735.5,
+              "vix": 18.68000030517578,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 35.752584128795206,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 8,
+              "bull_score": 7,
+              "bear_blockers": [
+                5,
+                8
+              ],
+              "bull_blockers": [
+                7,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "trendline_rejection"
+              ],
+              "bull_triggers": [
+                "ribbon_flip"
+              ],
+              "rejection_level": 736.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 165
+            }
+          },
+          {
+            "time_et": "12:20:00",
+            "tick_or_fire_id": 28240,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[5, 9], bull_blockers=[7, 8, 9, 10]",
+            "raw_state": {
+              "spy_close": 734.4401245117188,
+              "vix": 18.86000061035156,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 30.0207757551334,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 8,
+              "bull_score": 7,
+              "bear_blockers": [
+                5,
+                9
+              ],
+              "bull_blockers": [
+                7,
+                8,
+                9,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence",
+                "trendline_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 735.0,
+              "reclaim_level": 734.3802951592204,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 170
+            }
+          },
+          {
+            "time_et": "12:25:00",
+            "tick_or_fire_id": 28241,
+            "decision": "SKIP_RIBBON_SPREAD",
+            "reasoning": "filter 6 blocked: ribbon spread <30c (chop)",
+            "raw_state": {
+              "spy_close": 734.1900024414062,
+              "vix": 18.920000076293945,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 22.58101260941885,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 7,
+              "bull_score": 6,
+              "bear_blockers": [
+                5,
+                6,
+                9
+              ],
+              "bull_blockers": [
+                6,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": 734.4216764179647,
+              "reclaim_level": 734.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 175
+            }
+          },
+          {
+            "time_et": "12:30:00",
+            "tick_or_fire_id": 28242,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6, 9], bull_blockers=[5, 6, 8, 9, 10, 11]",
+            "raw_state": {
+              "spy_close": 733.389892578125,
+              "vix": 19.100000381469727,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 10.829813697330337,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 4,
+              "bear_blockers": [
+                5,
+                6,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": 734.0,
+              "reclaim_level": 733.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 180
+            }
+          },
+          {
+            "time_et": "12:35:00",
+            "tick_or_fire_id": 28243,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6, 9], bull_blockers=[5, 6, 8, 9, 10, 11]",
+            "raw_state": {
+              "spy_close": 732.77001953125,
+              "vix": 19.170000076293945,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 10.756225512818673,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 4,
+              "bear_blockers": [
+                5,
+                6,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 733.24,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 185
+            }
+          },
+          {
+            "time_et": "12:40:00",
+            "tick_or_fire_id": 28244,
+            "decision": "SKIP_RIBBON_SPREAD",
+            "reasoning": "filter 6 blocked: ribbon spread <30c (chop)",
+            "raw_state": {
+              "spy_close": 732.2899780273438,
+              "vix": 19.299999237060547,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 29.875503321613905,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 4,
+              "bear_blockers": [
+                6
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "ribbon_flip",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 732.5,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 190
+            }
+          },
+          {
+            "time_et": "12:45:00",
+            "tick_or_fire_id": 28245,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[7, 9, 10], bull_blockers=[5, 8, 9, 11]",
+            "raw_state": {
+              "spy_close": 732.7999877929688,
+              "vix": 19.18000030517578,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 40.79345221168751,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 6,
+              "bear_blockers": [
+                7,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                8,
+                9,
+                11
+              ],
+              "bear_triggers": [
+                "ribbon_flip"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 732.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 195
+            }
+          },
+          {
+            "time_et": "12:50:00",
+            "tick_or_fire_id": 28246,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[7, 8, 9], bull_blockers=[5, 8, 9, 10]",
+            "raw_state": {
+              "spy_close": 732.7000122070312,
+              "vix": 19.18000030517578,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 50.552021405155756,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 6,
+              "bear_blockers": [
+                7,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                8,
+                9,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "ribbon_flip"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 733.0,
+              "reclaim_level": 732.3599853515625,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 200
+            }
+          },
+          {
+            "time_et": "12:55:00",
+            "tick_or_fire_id": 28247,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[8, 10], bull_blockers=[5, 9, 10], bear_score=8/10, bull_score=7/11",
+            "raw_state": {
+              "spy_close": 732.5399780273438,
+              "vix": 19.239999771118164,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 59.91333947703197,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 7,
+              "bear_blockers": [
+                8,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                9,
+                10
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 732.3599853515625,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 205
+            }
+          },
+          {
+            "time_et": "13:00:00",
+            "tick_or_fire_id": 28248,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[8], bull_blockers=[5, 8, 9, 10]",
+            "raw_state": {
+              "spy_close": 732.5078125,
+              "vix": 19.170000076293945,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 67.58868747417637,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 6,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                8,
+                9,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 733.0,
+              "reclaim_level": 732.5,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 210
+            }
+          },
+          {
+            "time_et": "13:05:00",
+            "tick_or_fire_id": 28249,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[8, 9, 10], bull_blockers=[5, 9, 10]",
+            "raw_state": {
+              "spy_close": 732.7000122070312,
+              "vix": 19.1299991607666,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 71.54370725735362,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 7,
+              "bear_blockers": [
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                9,
+                10
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 732.3599853515625,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 215
+            }
+          },
+          {
+            "time_et": "13:10:00",
+            "tick_or_fire_id": 28250,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[7, 8, 9], bull_blockers=[5, 9, 11]",
+            "raw_state": {
+              "spy_close": 733.219970703125,
+              "vix": 18.96999931335449,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 69.07249276177936,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 7,
+              "bear_blockers": [
+                7,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                9,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": 733.6994782422133,
+              "reclaim_level": 733.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 220
+            }
+          },
+          {
+            "time_et": "13:15:00",
+            "tick_or_fire_id": 28251,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[8], bull_blockers=[5, 7, 9, 10], bear_score=9/10, bull_score=6/11",
+            "raw_state": {
+              "spy_close": 732.510009765625,
+              "vix": 19.059999465942383,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 73.88250969464707,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 6,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                9,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 733.6591065385062,
+              "reclaim_level": 732.5,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 225
+            }
+          },
+          {
+            "time_et": "13:20:00",
+            "tick_or_fire_id": 28252,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[8, 9], bull_blockers=[5, 7, 9]",
+            "raw_state": {
+              "spy_close": 732.8900146484375,
+              "vix": 19.030000686645508,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 73.52869822477714,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 7,
+              "bear_blockers": [
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                9
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 733.0,
+              "reclaim_level": 732.3599853515625,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 230
+            }
+          },
+          {
+            "time_et": "13:25:00",
+            "tick_or_fire_id": 28253,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[8, 9], bull_blockers=[5, 8, 9, 10]",
+            "raw_state": {
+              "spy_close": 733.260009765625,
+              "vix": 18.989999771118164,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 69.03361034981117,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 6,
+              "bear_blockers": [
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                8,
+                9,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 733.5937812125487,
+              "reclaim_level": 733.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 235
+            }
+          },
+          {
+            "time_et": "13:30:00",
+            "tick_or_fire_id": 28254,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[8], bull_blockers=[5, 7, 8, 9, 10]",
+            "raw_state": {
+              "spy_close": 732.9299926757812,
+              "vix": 19.040000915527344,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 68.30293341984088,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 5,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                8,
+                9,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 733.24,
+              "reclaim_level": 732.7933130379492,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 240
+            }
+          },
+          {
+            "time_et": "13:35:00",
+            "tick_or_fire_id": 28255,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[8, 9], bull_blockers=[5, 7, 9]",
+            "raw_state": {
+              "spy_close": 733.3400268554688,
+              "vix": 18.96999931335449,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 63.119911874650825,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 7,
+              "bear_blockers": [
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                9
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 733.5338231257718,
+              "reclaim_level": 733.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 245
+            }
+          },
+          {
+            "time_et": "13:40:00",
+            "tick_or_fire_id": 28256,
+            "decision": "ENTER_BEAR",
+            "reasoning": "bearish setup passed, score 10/10. triggers=['level_rejection', 'confluence'], level=733.5081546043028",
+            "raw_state": {
+              "spy_close": 732.6300048828125,
+              "vix": 19.040000915527344,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 65.73572821519065,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 10,
+              "bull_score": 4,
+              "bear_blockers": [],
+              "bull_blockers": [
+                5,
+                7,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 733.5081546043028,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 250
+            }
+          },
+          {
+            "time_et": "13:45:00",
+            "tick_or_fire_id": 28257,
+            "decision": "ENTER_BEAR",
+            "reasoning": "bearish setup passed, score 10/10. triggers=['level_rejection', 'confluence'], level=732.5",
+            "raw_state": {
+              "spy_close": 731.8599853515625,
+              "vix": 19.229999542236328,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 75.36038451542026,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 10,
+              "bull_score": 4,
+              "bear_blockers": [],
+              "bull_blockers": [
+                5,
+                7,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 732.5,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 255
+            }
+          },
+          {
+            "time_et": "13:50:00",
+            "tick_or_fire_id": 28258,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[7, 8, 9], bull_blockers=[5, 8, 9, 11]",
+            "raw_state": {
+              "spy_close": 732.5700073242188,
+              "vix": 18.920000076293945,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 75.58882592455802,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 6,
+              "bear_blockers": [
+                7,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                8,
+                9,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": 732.6780806997712,
+              "reclaim_level": 732.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 260
+            }
+          },
+          {
+            "time_et": "13:55:00",
+            "tick_or_fire_id": 28259,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[7, 8, 9, 10], bull_blockers=[5, 9]",
+            "raw_state": {
+              "spy_close": 733.4500122070312,
+              "vix": 18.950000762939453,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 66.35624789448684,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 8,
+              "bear_blockers": [
+                7,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                9
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 732.3599853515625,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 265
+            }
+          },
+          {
+            "time_et": "14:00:00",
+            "tick_or_fire_id": 28260,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[8], bull_blockers=[5, 7, 8, 9, 10, 11]",
+            "raw_state": {
+              "spy_close": 731.9299926757812,
+              "vix": 19.21999931335449,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 73.88910171110865,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 4,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 733.1973893598873,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 270
+            }
+          },
+          {
+            "time_et": "14:05:00",
+            "tick_or_fire_id": 28261,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[8, 9, 10], bull_blockers=[5, 7, 8, 9]",
+            "raw_state": {
+              "spy_close": 733.4249877929688,
+              "vix": 18.940000534057617,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 64.39640101930308,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 6,
+              "bear_blockers": [
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                8,
+                9
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 732.3599853515625,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 275
+            }
+          },
+          {
+            "time_et": "14:10:00",
+            "tick_or_fire_id": 28262,
+            "decision": "ENTER_BEAR",
+            "reasoning": "bearish setup passed, score 10/10. triggers=['level_rejection', 'trendline_rejection'], level=733.19",
+            "raw_state": {
+              "spy_close": 733.219970703125,
+              "vix": 19.020000457763672,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 58.30842847506119,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 10,
+              "bull_score": 6,
+              "bear_blockers": [],
+              "bull_blockers": [
+                5,
+                8,
+                9,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "trendline_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 733.19,
+              "reclaim_level": 732.9912391589702,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 280
+            }
+          },
+          {
+            "time_et": "14:15:00",
+            "tick_or_fire_id": 28263,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[7, 8, 9], bull_blockers=[5, 9]",
+            "raw_state": {
+              "spy_close": 734.8200073242188,
+              "vix": 18.670000076293945,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 36.63626145390708,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 8,
+              "bear_blockers": [
+                7,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                9
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 735.0,
+              "reclaim_level": 733.061260467231,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 285
+            }
+          },
+          {
+            "time_et": "14:20:00",
+            "tick_or_fire_id": 28264,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6, 7, 8, 9], bull_blockers=[5, 6, 9, 11]",
+            "raw_state": {
+              "spy_close": 734.9099731445312,
+              "vix": 18.690000534057617,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 23.28407329625861,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 5,
+              "bull_score": 6,
+              "bear_blockers": [
+                5,
+                6,
+                7,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                9,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 735.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 290
+            }
+          },
+          {
+            "time_et": "14:25:00",
+            "tick_or_fire_id": 28265,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6, 8, 9], bull_blockers=[5, 6, 9, 11]",
+            "raw_state": {
+              "spy_close": 735.8400268554688,
+              "vix": 18.549999237060547,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 16.474815653123187,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 6,
+              "bear_blockers": [
+                5,
+                6,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                9,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": 736.0,
+              "reclaim_level": 735.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 295
+            }
+          },
+          {
+            "time_et": "14:30:00",
+            "tick_or_fire_id": 28266,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6], bull_blockers=[5, 6, 8, 9, 10]",
+            "raw_state": {
+              "spy_close": 734.02001953125,
+              "vix": 18.81999969482422,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 16.01952451676425,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 5,
+              "bear_blockers": [
+                5,
+                6
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                8,
+                9,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 735.0,
+              "reclaim_level": 733.9701452682103,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 300
+            }
+          },
+          {
+            "time_et": "14:35:00",
+            "tick_or_fire_id": 28267,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6, 9, 10], bull_blockers=[5, 6, 8, 9]",
+            "raw_state": {
+              "spy_close": 734.4600219726562,
+              "vix": 18.770000457763672,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 17.543738601159475,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 6,
+              "bear_blockers": [
+                5,
+                6,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                8,
+                9
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 734.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 305
+            }
+          },
+          {
+            "time_et": "14:40:00",
+            "tick_or_fire_id": 28268,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6, 9], bull_blockers=[5, 6, 8, 9, 10, 11]",
+            "raw_state": {
+              "spy_close": 733.9249877929688,
+              "vix": 18.86000061035156,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 15.9393100476791,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 4,
+              "bear_blockers": [
+                5,
+                6,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 734.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 310
+            }
+          },
+          {
+            "time_et": "14:45:00",
+            "tick_or_fire_id": 28269,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6, 10], bull_blockers=[5, 6, 7, 8, 9, 10]",
+            "raw_state": {
+              "spy_close": 733.5650024414062,
+              "vix": 18.96999931335449,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 12.763982011722419,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 4,
+              "bear_blockers": [
+                5,
+                6,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 733.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 315
+            }
+          },
+          {
+            "time_et": "14:50:00",
+            "tick_or_fire_id": 28270,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6, 9], bull_blockers=[5, 6, 8, 9, 10]",
+            "raw_state": {
+              "spy_close": 733.6849975585938,
+              "vix": 18.940000534057617,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 10.699228419252904,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 5,
+              "bear_blockers": [
+                5,
+                6,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                8,
+                9,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 734.0,
+              "reclaim_level": 733.4371285722325,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 320
+            }
+          },
+          {
+            "time_et": "14:55:00",
+            "tick_or_fire_id": 28271,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6, 7, 8, 9], bull_blockers=[5, 6, 8, 9, 11]",
+            "raw_state": {
+              "spy_close": 733.8800048828125,
+              "vix": 18.88999938964844,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 9.881029511598172,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 5,
+              "bull_score": 5,
+              "bear_blockers": [
+                5,
+                6,
+                7,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                8,
+                9,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 734.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 325
+            }
+          },
+          {
+            "time_et": "15:00:00",
+            "tick_or_fire_id": 28272,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6, 9], bull_blockers=[5, 6, 7, 8, 9, 10, 11]",
+            "raw_state": {
+              "spy_close": 733.0,
+              "vix": 19.040000915527344,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 5.0503975126162,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 3,
+              "bear_blockers": [
+                5,
+                6,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 733.8899391135166,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 330
+            }
+          },
+          {
+            "time_et": "15:05:00",
+            "tick_or_fire_id": 28273,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6, 7, 9, 10], bull_blockers=[5, 6, 8, 9, 11]",
+            "raw_state": {
+              "spy_close": 733.0900268554688,
+              "vix": 19.01000022888184,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 8.022874173468608,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 5,
+              "bull_score": 5,
+              "bear_blockers": [
+                5,
+                6,
+                7,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                8,
+                9,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 733.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 335
+            }
+          },
+          {
+            "time_et": "15:10:00",
+            "tick_or_fire_id": 28274,
+            "decision": "SKIP_RIBBON_SPREAD",
+            "reasoning": "filter 6 blocked: ribbon spread <30c (chop)",
+            "raw_state": {
+              "spy_close": 732.3800048828125,
+              "vix": 19.07999992370605,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 19.10093813937692,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 4,
+              "bear_blockers": [
+                6,
+                7
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "ribbon_flip",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 733.0,
+              "reclaim_level": 732.3599853515625,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 340
+            }
+          },
+          {
+            "time_et": "15:15:00",
+            "tick_or_fire_id": 28275,
+            "decision": "ENTER_BEAR",
+            "reasoning": "bearish setup passed, score 10/10. triggers=['level_rejection', 'ribbon_flip', 'confluence'], level=732.5",
+            "raw_state": {
+              "spy_close": 732.22998046875,
+              "vix": 19.13999938964844,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 30.809943111137272,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 10,
+              "bull_score": 4,
+              "bear_blockers": [],
+              "bull_blockers": [
+                5,
+                7,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "ribbon_flip",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": 732.5,
+              "reclaim_level": 732.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 345
+            }
+          },
+          {
+            "time_et": "15:20:00",
+            "tick_or_fire_id": 28276,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[9, 10], bull_blockers=[5, 8, 9]",
+            "raw_state": {
+              "spy_close": 732.6500244140625,
+              "vix": 19.06999969482422,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 35.970776076794664,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 7,
+              "bear_blockers": [
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                8,
+                9
+              ],
+              "bear_triggers": [
+                "ribbon_flip"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 732.3599853515625,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 350
+            }
+          },
+          {
+            "time_et": "15:25:00",
+            "tick_or_fire_id": 28277,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[8], bull_blockers=[5, 7, 8, 9, 10]",
+            "raw_state": {
+              "spy_close": 732.3923950195312,
+              "vix": 19.100000381469727,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 42.63292250542463,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 5,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                8,
+                9,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 732.5,
+              "reclaim_level": 732.3599853515625,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 355
+            }
+          },
+          {
+            "time_et": "15:30:00",
+            "tick_or_fire_id": 28278,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[8], bull_blockers=[5, 7, 8, 9, 10, 11]",
+            "raw_state": {
+              "spy_close": 732.1500244140625,
+              "vix": 19.149999618530277,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 50.33483669493535,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 4,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": 732.3599853515625,
+              "reclaim_level": 732.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 360
+            }
+          },
+          {
+            "time_et": "15:35:00",
+            "tick_or_fire_id": 28279,
+            "decision": "SKIP_TRIGGERS",
+            "reasoning": "filter 10/11 blocked: insufficient triggers. bear_triggers=[], bull_triggers=['level_reclaim']",
+            "raw_state": {
+              "spy_close": 732.0891723632812,
+              "vix": 19.15999984741211,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 56.99446440860356,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 5,
+              "bear_blockers": [
+                10
+              ],
+              "bull_blockers": [
+                5,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 732.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 365
+            }
+          },
+          {
+            "time_et": "15:40:00",
+            "tick_or_fire_id": 28280,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[8], bull_blockers=[5, 8, 9, 10, 11]",
+            "raw_state": {
+              "spy_close": 731.9600219726562,
+              "vix": 19.100000381469727,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 63.455258734040854,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 5,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 732.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 370
+            }
+          },
+          {
+            "time_et": "15:45:00",
+            "tick_or_fire_id": 28281,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[8], bull_blockers=[5, 8, 9, 10, 11]",
+            "raw_state": {
+              "spy_close": 731.7550048828125,
+              "vix": 19.149999618530277,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 70.4890584330542,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 5,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 732.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 375
+            }
+          },
+          {
+            "time_et": "15:50:00",
+            "tick_or_fire_id": 28282,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[7, 8, 9, 10], bull_blockers=[5, 8, 9, 11]",
+            "raw_state": {
+              "spy_close": 732.5399780273438,
+              "vix": 19.149999618530277,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 67.85100418347838,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 6,
+              "bear_blockers": [
+                7,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                8,
+                9,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 732.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 380
+            }
+          },
+          {
+            "time_et": "15:55:00",
+            "tick_or_fire_id": 28283,
+            "decision": "SKIP_VIX",
+            "reasoning": "filter 8/9 blocked: VIX gate failed. bear_blockers=[7, 8], bull_blockers=[5, 7, 8, 9, 10, 11]",
+            "raw_state": {
+              "spy_close": 731.9400024414062,
+              "vix": 19.149999618530277,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 71.40867544887897,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 4,
+              "bear_blockers": [
+                7,
+                8
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                8,
+                9,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 732.8173565127456,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 385
+            }
+          }
+        ],
+        "summary": {
+          "total_bars": 78,
+          "n_enter_decisions": 5,
+          "n_skip_decisions": 73,
+          "n_hold_decisions": 0,
+          "n_in_position_decisions": 0,
+          "engine_entry_bars": [
+            25,
+            250,
+            255,
+            280,
+            345
+          ],
+          "actual_entry_bars": []
+        },
+        "trade_windows": [],
+        "method": "Replays lib.filters.evaluate_bearish_setup + evaluate_bullish_setup (same engine as live heartbeat) over today's RTH bars. Each bar produces one EngineDecision with full filter scores + blockers + triggers.",
+        "thresholds": {
+          "no_trade_before": "09:35:00",
+          "no_trade_after": "15:00:00",
+          "no_trade_window": null,
+          "min_triggers_bear": 1,
+          "min_triggers_bull": 2,
+          "f9_vol_mult": 0.7
+        }
+      },
+      "narrative": "Phase 3 orchestrator-replay: 78 bars evaluated. Engine ENTERs: 5 | Actual trades: 0 | SKIPs: 73 | HOLDs: 0 | Verdict: OVER_AGGRESSIVE. engine produced 5 spurious ENTER(s) where no real trade fired. Would have churned the account.. Score 55/100.",
+      "actions": [
+        {
+          "type": "queue_for_grinder",
+          "priority": "MED",
+          "details": {
+            "setup_name": "DETECTION_PHASE3_OVER_AGGRESSIVE",
+            "rationale": "Engine replay would have ENTERed 5 times today; actual trades = 0. Excess fires would churn the account.",
+            "engine_entry_times": [
+              "09:55:00",
+              "13:40:00",
+              "13:45:00",
+              "14:10:00",
+              "15:15:00"
+            ]
+          }
+        }
+      ]
+    },
+    "edge": {
+      "score": 50.0,
+      "evidence": {
+        "trade_count": 0,
+        "note": "no trades today"
+      },
+      "narrative": "No trades fired today, so edge analysis is N/A. Engine scored a setup at 10/11 but blocker on filter 11 prevented entry.",
+      "actions": []
+    },
+    "doctrine": {
+      "score": 50.0,
+      "evidence": {
+        "phase": "stub",
+        "module": "doctrine"
+      },
+      "narrative": "[STUB] doctrine module pending Phase 2 implementation. No trades, no doctrine to evaluate.",
+      "actions": []
+    },
+    "risk": {
+      "score": 100.0,
+      "evidence": {
+        "phase": "2.4",
+        "trades": 0,
+        "note": "no trades = no risk taken"
+      },
+      "narrative": "No trades today, no risk taken. Account capital preserved.",
+      "actions": []
+    },
+    "process": {
+      "score": 60.0,
+      "evidence": {
+        "phase": "2.7",
+        "section_count": 2,
+        "trades_csv_rows": 0,
+        "trades_actual": 0,
+        "decisions_count": 35,
+        "decisions_per_trade": null,
+        "grades_count": 0,
+        "premarket_predictions": 3,
+        "grade_coverage_pct": 0.0,
+        "weights": {
+          "journal": 10,
+          "trades_csv": 25,
+          "decisions": 25,
+          "grades": 0
+        },
+        "gaps": [
+          "journal sections 2/6",
+          "hypothesis grade coverage 0% (0/3 predictions)"
+        ]
+      },
+      "narrative": "Process score 60/100. Journal: 2/6 sections, 5820B. Trades.csv: 0 rows for 0 trades. Decisions.jsonl: 35 entries. Hypothesis coverage: 0/3 predictions (0%). Gaps: journal sections 2/6 / hypothesis grade coverage 0% (0/3 predictions)",
+      "actions": []
+    },
+    "macro": {
+      "score": 50.0,
+      "evidence": {
+        "phase": "2.4",
+        "predicted_regime": "low_vix_bull_drift_pre_fomc",
+        "primary_catalyst_type": "macro_calendar",
+        "realized_regime": "unknown",
+        "session_high": 0.0,
+        "session_low": 0.0,
+        "session_close": 732.8,
+        "news_freshness": "stale_one_day_or_more",
+        "news_as_of": "2026-06-15T23:00:00-04:00"
+      },
+      "narrative": "Predicted regime: low_vix_bull_drift_pre_fomc (catalyst: macro_calendar). Realized: unknown. News freshness: stale_one_day_or_more. Score 50/100.",
+      "actions": [
+        {
+          "type": "alert_stale_news",
+          "priority": "MED",
+          "details": {
+            "as_of": "2026-06-15T23:00:00-04:00",
+            "today": "2026-06-25",
+            "note": "Premarket should re-fetch news.json on next fire."
+          }
+        }
+      ]
+    },
+    "technical": {
+      "score": 54.0,
+      "evidence": {
+        "phase": "2.4",
+        "hypothesis_grades": {
+          "pass": 0,
+          "fail": 0,
+          "total": 0
+        },
+        "levels_held": [
+          {
+            "price": 743.35,
+            "kind": "resistance"
+          },
+          {
+            "price": 745.33,
+            "kind": "resistance"
+          },
+          {
+            "price": 750.0,
+            "kind": "resistance"
+          },
+          {
+            "price": 752.09,
+            "kind": "resistance"
+          }
+        ],
+        "levels_broken": [
+          {
+            "price": 734.97,
+            "kind": "support"
+          }
+        ],
+        "ribbon_close_stack": "BEAR",
+        "bias_direction_predicted": "no-trade-tv-fail",
+        "weights": {
+          "grades": 15,
+          "levels": 24,
+          "ribbon": 15
+        }
+      },
+      "narrative": "Hypothesis grades: 0/0 PASS. Key levels: 4 held / 1 broken. Ribbon close: BEAR (bias was: no-trade-tv-fail). Score 54/100 (grades=15/40, levels=24/30, ribbon=15/30).",
+      "actions": []
+    },
+    "engine_health": {
+      "score": 80.0,
+      "evidence": {
+        "phase": "2.4",
+        "rule_version_active": "v15.3",
+        "heartbeat_tick_count": 35,
+        "expected_heartbeat_ticks": 127,
+        "watcher_diag_fires": 154,
+        "expected_watcher_fires": 76,
+        "incidents": [],
+        "weights": {
+          "pin": 30,
+          "heartbeat": 5,
+          "diag": 25,
+          "silent_failure": 20
+        }
+      },
+      "narrative": "Pin chain: v15.3. Heartbeat ticks: 35/127 (28%). Watcher diag fires: 154/76 (203%). No silent-failure incidents detected.",
+      "actions": []
+    },
+    "watcher_fleet": {
+      "score": 72.0,
+      "evidence": {
+        "phase": "2.4",
+        "diag_fires_total": 154,
+        "expected_diag_fires": 76,
+        "fires_with_signals": 62,
+        "observations_by_watcher": {
+          "shotgun_scalper_watcher": 39,
+          "named_level_wick_bounce_watcher": 2,
+          "vwap_continuation_watcher": 5,
+          "rsi_divergence_watcher": 1,
+          "double_top": 11,
+          "market_structure": 9,
+          "vwap_trend_pullback": 22,
+          "erl_irl_watcher": 2,
+          "vwap_reclaim_failed_break_watcher": 1,
+          "named_level_second_test_watcher": 3,
+          "floor_hold_bounce": 3,
+          "fbw_morning_mid": 1,
+          "v14_enhanced_watcher": 1,
+          "tbr_high_vol_watcher": 6,
+          "level_break_first_strike_watcher": 1,
+          "db_base_quiet": 1
+        },
+        "unique_watchers_firing_today": 16,
+        "expected_watchers": [
+          "orb_watcher",
+          "bullish_watcher",
+          "v14_enhanced_watcher",
+          "opening_drive_fade_watcher",
+          "vwap_watcher",
+          "premarket_fail_fade_watcher"
+        ],
+        "silent_watchers_today": [
+          "orb_watcher",
+          "bullish_watcher",
+          "opening_drive_fade_watcher",
+          "vwap_watcher",
+          "premarket_fail_fade_watcher"
+        ],
+        "weights": {
+          "diag": 30,
+          "signal": 22,
+          "unique": 20,
+          "silent": 0
+        }
+      },
+      "narrative": "Diag fires: 154/76 (203% of expected). Fires with signals: 62 (40%). Watchers active: 16/6. Silent watchers: ['orb_watcher', 'bullish_watcher', 'opening_drive_fade_watcher', 'vwap_watcher', 'premarket_fail_fade_watcher']. Score 72/100.",
+      "actions": [
+        {
+          "type": "alert_silent_watchers",
+          "priority": "HIGH",
+          "details": {
+            "silent_watchers": [
+              "orb_watcher",
+              "bullish_watcher",
+              "opening_drive_fade_watcher",
+              "vwap_watcher",
+              "premarket_fail_fade_watcher"
+            ],
+            "expected": [
+              "orb_watcher",
+              "bullish_watcher",
+              "v14_enhanced_watcher",
+              "opening_drive_fade_watcher",
+              "vwap_watcher",
+              "premarket_fail_fade_watcher"
+            ],
+            "by_watcher_today": {
+              "shotgun_scalper_watcher": 39,
+              "named_level_wick_bounce_watcher": 2,
+              "vwap_continuation_watcher": 5,
+              "rsi_divergence_watcher": 1,
+              "double_top": 11,
+              "market_structure": 9,
+              "vwap_trend_pullback": 22,
+              "erl_irl_watcher": 2,
+              "vwap_reclaim_failed_break_watcher": 1,
+              "named_level_second_test_watcher": 3,
+              "floor_hold_bounce": 3,
+              "fbw_morning_mid": 1,
+              "v14_enhanced_watcher": 1,
+              "tbr_high_vol_watcher": 6,
+              "level_break_first_strike_watcher": 1,
+              "db_base_quiet": 1
+            },
+            "note": "Run setup/scripts/audit-silent-watcher-days.ps1 for cross-day pattern"
+          }
+        }
+      ]
+    },
+    "lessons": {
+      "score": 85.0,
+      "evidence": {
+        "phase": "2.4",
+        "candidate_count": 6,
+        "lesson_candidates": [
+          {
+            "candidate_l_num": 53,
+            "title": "journal candidate: TV connected and ribbon readable",
+            "source": "journal_md",
+            "detail": "TV connected and ribbon readable",
+            "duplicate_of_existing": false
+          },
+          {
+            "candidate_l_num": 54,
+            "title": "journal candidate: Setup matches named pattern in playbook (BEARISH_REJECTION_RIDE_THE_RIBBON)",
+            "source": "journal_md",
+            "detail": "Setup matches named pattern in playbook (BEARISH_REJECTION_RIDE_THE_RIBBON)",
+            "duplicate_of_existing": false
+          },
+          {
+            "candidate_l_num": 55,
+            "title": "journal candidate: Safe: Alpaca MCP 401 resolved",
+            "source": "journal_md",
+            "detail": "Safe: Alpaca MCP 401 resolved",
+            "duplicate_of_existing": false
+          },
+          {
+            "candidate_l_num": 56,
+            "title": "journal candidate: Bias, trigger, strike, stop, target, qty written to journal",
+            "source": "journal_md",
+            "detail": "Bias, trigger, strike, stop, target, qty written to journal",
+            "duplicate_of_existing": false
+          },
+          {
+            "candidate_l_num": 57,
+            "title": "journal candidate: Sizing math: $-risk \u2264 30% (Safe) / 50% (Bold) of account equity",
+            "source": "journal_md",
+            "detail": "Sizing math: $-risk \u2264 30% (Safe) / 50% (Bold) of account equity",
+            "duplicate_of_existing": false
+          },
+          {
+            "candidate_l_num": 58,
+            "title": "journal candidate: Daily loss budget not exceeded",
+            "source": "journal_md",
+            "detail": "Daily loss budget not exceeded",
+            "duplicate_of_existing": false
+          }
+        ],
+        "next_l_number": 59,
+        "existing_lesson_count": 51
+      },
+      "narrative": "Lesson candidates detected: 6 (rule_breaks=0, ingest_warnings=0, journal_markers=6). All candidates queued \u2014 NEVER auto-written to LESSONS-LEARNED.md. Score 85/100.",
+      "actions": [
+        {
+          "type": "queue_lesson_candidate",
+          "priority": "MED",
+          "details": {
+            "count": 6,
+            "candidates": [
+              {
+                "candidate_l_num": 53,
+                "title": "journal candidate: TV connected and ribbon readable",
+                "source": "journal_md",
+                "detail": "TV connected and ribbon readable",
+                "duplicate_of_existing": false
+              },
+              {
+                "candidate_l_num": 54,
+                "title": "journal candidate: Setup matches named pattern in playbook (BEARISH_REJECTION_RIDE_THE_RIBBON)",
+                "source": "journal_md",
+                "detail": "Setup matches named pattern in playbook (BEARISH_REJECTION_RIDE_THE_RIBBON)",
+                "duplicate_of_existing": false
+              },
+              {
+                "candidate_l_num": 55,
+                "title": "journal candidate: Safe: Alpaca MCP 401 resolved",
+                "source": "journal_md",
+                "detail": "Safe: Alpaca MCP 401 resolved",
+                "duplicate_of_existing": false
+              },
+              {
+                "candidate_l_num": 56,
+                "title": "journal candidate: Bias, trigger, strike, stop, target, qty written to journal",
+                "source": "journal_md",
+                "detail": "Bias, trigger, strike, stop, target, qty written to journal",
+                "duplicate_of_existing": false
+              },
+              {
+                "candidate_l_num": 57,
+                "title": "journal candidate: Sizing math: $-risk \u2264 30% (Safe) / 50% (Bold) of account equity",
+                "source": "journal_md",
+                "detail": "Sizing math: $-risk \u2264 30% (Safe) / 50% (Bold) of account equity",
+                "duplicate_of_existing": false
+              },
+              {
+                "candidate_l_num": 58,
+                "title": "journal candidate: Daily loss budget not exceeded",
+                "source": "journal_md",
+                "detail": "Daily loss budget not exceeded",
+                "duplicate_of_existing": false
+              }
+            ],
+            "destination": "analysis/recommendations/lessons-candidates.jsonl",
+            "note": "OP 24 \u2014 auto-write to LESSONS-LEARNED.md is BANNED. Candidates queued for J ratification."
+          }
+        }
+      ]
+    },
+    "forensics": {
+      "score": 50.0,
+      "evidence": {
+        "phase": "2.3",
+        "trade_count": 0
+      },
+      "narrative": "No trades today. Forensics N/A.",
+      "actions": []
+    },
+    "tomorrow": {
+      "score": 25.0,
+      "evidence": {
+        "phase": "2.4",
+        "next_trading_day": "2026-06-26",
+        "carry_levels": {
+          "today_session_high": null,
+          "today_session_low": null,
+          "today_session_close": 732.8,
+          "csv_computed": {
+            "today_rth_high": 739.37,
+            "today_rth_low": 729.6,
+            "today_rth_close": 731.94,
+            "today_rth_open": 738.91,
+            "today_session_range": 9.77,
+            "today_volume_total": 43665132
+          },
+          "key_levels_from_today_bias": {
+            "resistance": [
+              {
+                "price": 743.35,
+                "label": "DOUBLE_BOTTOM_RTH_LOW_6-18_6-22",
+                "tier": "Carry",
+                "role": "broken_to_resistance",
+                "note": "Double-bottom broken on 6/23 close; primary bear rejection zone on first test from below"
+              },
+              {
+                "price": 745.33,
+                "label": "CARRY_SESSION_HIGH_2026-06-08",
+                "tier": "Active",
+                "role": "broken_to_resistance",
+                "note": "Broken 6/22 close below; overhead cap on any bounce"
+              },
+              {
+                "price": 750.0,
+                "label": "ROUND_750",
+                "tier": "Reference",
+                "role": null,
+                "note": "Psychological round number; awareness only"
+              },
+              {
+                "price": 752.09,
+                "label": "BATTLE_PMH_2026-06-15",
+                "tier": "Reference",
+                "role": null,
+                "note": "Multi-week structural resistance"
+              }
+            ],
+            "support": [
+              {
+                "price": 734.97,
+                "label": "PRIOR_CLOSE_2026-06-23",
+                "tier": "Reference",
+                "role": null,
+                "note": "6/23 RTH close; gap-fill anchor and prior reference"
+              }
+            ],
+            "pmh_today": null,
+            "pml_today": null,
+            "pmh_note": "TV unavailable \u2014 today's premarket high/low could not be determined",
+            "ema_fast": null,
+            "ema_pivot": null,
+            "ema_slow": null,
+            "sma_50": null,
+            "ema_read_failed": true,
+            "ema_read_note": "TV not connected \u2014 EMAs unavailable. Prior session: ribbon BEAR 130c spread at end of 6/24."
+          },
+          "5d_high": 750.18,
+          "5d_low": 729.6,
+          "5d_dates": [
+            "2026-06-18",
+            "2026-06-22",
+            "2026-06-23",
+            "2026-06-24",
+            "2026-06-25"
+          ]
+        },
+        "scheduled_events_tomorrow": [],
+        "developing_setup_at_close": null
+      },
+      "narrative": "Next trading day: 2026-06-26. Session H/L/C: None / None / 732.8. Macro events tomorrow: 0.",
+      "actions": []
+    }
+  },
+  "process_score": 58.9,
+  "edge_capture_pct": 0.0,
+  "research_handoffs": {
+    "fixes_shipped_today": [],
+    "doctrine_candidates_for_grinder": [
+      {
+        "category": "detection",
+        "type": "queue_for_grinder",
+        "priority": "MED",
+        "details": {
+          "setup_name": "DETECTION_PHASE3_OVER_AGGRESSIVE",
+          "rationale": "Engine replay would have ENTERed 5 times today; actual trades = 0. Excess fires would churn the account.",
+          "engine_entry_times": [
+            "09:55:00",
+            "13:40:00",
+            "13:45:00",
+            "14:10:00",
+            "15:15:00"
+          ]
+        }
+      }
+    ],
+    "ingest_warnings": [],
+    "drift_check": {
+      "actual_pnl": -1184.0,
+      "verdict": "DRIFT_HIGH_LEFT",
+      "narrative": "Today's $-1184 is BELOW P10 of recent distribution \u2014 significant negative outlier. Distribution: n=30, P10/P25/P50/P75/P90 = $1057.64/1163.24/1755.01/2196.74/2926.78. Today percentile estimate: P1.",
+      "n_days_in_distribution": 30,
+      "percentiles": {
+        "p10": 1057.64,
+        "p25": 1163.24,
+        "p50": 1755.01,
+        "p75": 2196.74,
+        "p90": 2926.78
+      },
+      "today_percentile_estimate": 1,
+      "cache_age_days": null
+    },
+    "heartbeat_tick_audit": {
+      "headline": "8 of 32 live-trading ticks (25%) were MISALIGNED-CRITICAL on 2026-06-25",
+      "counts": {
+        "ALIGNED": 10,
+        "MISALIGNED-BENIGN": 14,
+        "MISALIGNED-CRITICAL": 8,
+        "STALE_PAUSED": 9,
+        "NO_DATA": 32,
+        "NO_BAR": 0
+      },
+      "live_trading_ticks": 32,
+      "misaligned_critical_count": 8,
+      "misaligned_critical_pct_of_live": 25.0,
+      "audit_files": {
+        "per_tick_csv": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-06-25.csv",
+        "summary_json": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-06-25.json",
+        "human_md": "C:\\Users\\jackw\\Desktop\\42\\markdown\\audits\\HEARTBEAT-TICK-AUDIT-2026-06-25.md"
+      },
+      "first_3_critical_ticks": [
+        {
+          "tick_id": 12,
+          "fire_at": "2026-06-25T10:06:02",
+          "decision": "SKIP_TV_DATA_STALE",
+          "claimed_spy": 737.33,
+          "closed_close": 733.239990234375,
+          "divergence": 4.09,
+          "reason": "spy=737.33 ribbon=unknown vix=17.88(falling) bear=0/10 bull=0/11 htf=null | TV_FALLBACK_FAILED: ribboncli returned UNKNOWN stack after premarket 3 self-heal retries"
+        },
+        {
+          "tick_id": 13,
+          "fire_at": "2026-06-25T10:09:01",
+          "decision": "SKIP_TV_DATA_STALE",
+          "claimed_spy": 737.33,
+          "closed_close": 733.239990234375,
+          "divergence": 4.09,
+          "reason": "spy=737.33 ribbon=UNAVAIL vix=17.88(falling_stale) bear=0/10 bull=0/11 htf=null | TV down 40min + Safe MCP 401; no-trade-bias"
+        },
+        {
+          "tick_id": 35,
+          "fire_at": "2026-06-25T11:15:01",
+          "decision": "SKIP_TV_DATA_STALE",
+          "claimed_spy": 737.33,
+          "closed_close": 732.969970703125,
+          "divergence": 4.36,
+          "reason": "spy=737.33 ribbon=null vix=17.88(falling) bear=0/10 bull=0/11 htf=null | TV_MCP_unavailable_Safe_401 TV_FALLBACK_FAILED"
+        }
+      ]
+    },
+    "self_heal_skills": {
+      "pin_chain_verify": {
+        "verdict": "YELLOW",
+        "reason": "aggressive-variant-intentionally-divergent-1-warning(s)",
+        "canonical": "v15.3",
+        "mismatches": 1
+      },
+      "chart_data_verify": {
+        "verdict": "YELLOW",
+        "reason": "close-bar-only-divergence-$1.3300-EOD-source-difference",
+        "bars_checked": 0,
+        "max_divergence": null
+      },
+      "watcher_state_inspector": {
+        "verdict": "YELLOW",
+        "reason": "odf_state empty (may be correct if no drive-then-fade pattern)",
+        "orb_phase": null,
+        "obs_today": 108
+      },
+      "heartbeat_mcp_self_test_error": "JSONDecodeError: Unexpected UTF-8 BOM (decode using utf-8-sig): line 1 column 1 (char 0)"
+    },
+    "vision_observer_grader": {
+      "verdict": "INFORMATIONAL",
+      "total_paired_ticks": 30,
+      "aligned": 0,
+      "diverged": 0,
+      "vision_only": 0,
+      "heartbeat_only": 30,
+      "vision_accuracy_pct": null,
+      "heartbeat_accuracy_pct": null,
+      "diverged_vision_accuracy_pct": null,
+      "diverged_heartbeat_accuracy_pct": null,
+      "vision_minus_heartbeat_diverged_pp": null,
+      "ingest_warnings": []
+    },
+    "pattern_backtest": {
+      "bars_count": 156,
+      "total_hits": 32,
+      "detectors_run": [
+        "double_bottom",
+        "double_top",
+        "failed_breakdown_wick",
+        "rejection_at_level_bearish",
+        "momentum_acceleration",
+        "inside_bar_consolidation",
+        "head_and_shoulders_top",
+        "double_bottom_contra",
+        "double_top_contra",
+        "failed_breakdown_wick_contra",
+        "rejection_at_level_bearish_contra",
+        "momentum_acceleration_contra",
+        "head_and_shoulders_top_contra",
+        "ral_at_RefR_752.09",
+        "ral_at_ActR_745.33",
+        "ral_at_CarR_743.35",
+        "fbw_at_RefS_734.97"
+      ],
+      "summary_by_detector": {
+        "double_bottom": {
+          "hits": 9,
+          "wins": 3,
+          "losses": 6,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 2,
+          "pattern_only": 7,
+          "win_rate_pct": 33.3
+        },
+        "double_top": {
+          "hits": 9,
+          "wins": 5,
+          "losses": 4,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 1,
+          "pattern_only": 8,
+          "win_rate_pct": 55.6
+        },
+        "failed_breakdown_wick": {
+          "hits": 3,
+          "wins": 2,
+          "losses": 1,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 1,
+          "pattern_only": 2,
+          "win_rate_pct": 66.7
+        },
+        "rejection_at_level_bearish": {
+          "hits": 1,
+          "wins": 1,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 1,
+          "pattern_only": 0,
+          "win_rate_pct": 100.0
+        },
+        "momentum_acceleration": {
+          "hits": 1,
+          "wins": 1,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 1,
+          "win_rate_pct": 100.0
+        },
+        "inside_bar_consolidation": {
+          "hits": 0,
+          "wins": 0,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 0,
+          "win_rate_pct": null
+        },
+        "head_and_shoulders_top": {
+          "hits": 0,
+          "wins": 0,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 0,
+          "win_rate_pct": null
+        },
+        "double_bottom_contra": {
+          "hits": 2,
+          "wins": 1,
+          "losses": 1,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 1,
+          "pattern_only": 1,
+          "win_rate_pct": 50.0
+        },
+        "double_top_contra": {
+          "hits": 0,
+          "wins": 0,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 0,
+          "win_rate_pct": null
+        },
+        "failed_breakdown_wick_contra": {
+          "hits": 2,
+          "wins": 1,
+          "losses": 1,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 2,
+          "win_rate_pct": 50.0
+        },
+        "rejection_at_level_bearish_contra": {
+          "hits": 1,
+          "wins": 1,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 1,
+          "pattern_only": 0,
+          "win_rate_pct": 100.0
+        },
+        "momentum_acceleration_contra": {
+          "hits": 1,
+          "wins": 1,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 1,
+          "win_rate_pct": 100.0
+        },
+        "head_and_shoulders_top_contra": {
+          "hits": 0,
+          "wins": 0,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 0,
+          "win_rate_pct": null
+        },
+        "ral_at_RefR_752.09": {
+          "hits": 0,
+          "wins": 0,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 0,
+          "win_rate_pct": null
+        },
+        "ral_at_ActR_745.33": {
+          "hits": 0,
+          "wins": 0,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 0,
+          "win_rate_pct": null
+        },
+        "ral_at_CarR_743.35": {
+          "hits": 0,
+          "wins": 0,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 0,
+          "win_rate_pct": null
+        },
+        "fbw_at_RefS_734.97": {
+          "hits": 3,
+          "wins": 1,
+          "losses": 2,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 1,
+          "pattern_only": 2,
+          "win_rate_pct": 33.3
+        }
+      }
+    },
+    "missed_setups_scan": {
+      "date": "2026-06-25",
+      "level_interactions": [
+        {
+          "bar_time": "10:10 ET",
+          "bar_idx": 8,
+          "level": 734.97,
+          "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+          "level_stars": 2,
+          "interaction_type": "break",
+          "interaction_distance": 0.85,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_3",
+              "direction": "PUT",
+              "strike": 733,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.698,
+              "would_be_exit_premium": 1.047,
+              "would_be_pnl_dollars": 104.7,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "primary_target",
+              "pricing_source": "bs_estimate",
+              "confidence": "high",
+              "level_price": 734.97,
+              "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            }
+          ]
+        },
+        {
+          "bar_time": "10:15 ET",
+          "bar_idx": 9,
+          "level": 734.97,
+          "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+          "level_stars": 2,
+          "interaction_type": "reclaim",
+          "interaction_distance": 0.59,
+          "qualifying_setups": [
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 736,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.368,
+              "would_be_exit_premium": 1.573,
+              "would_be_pnl_dollars": 61.56,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "stop_after_tp1",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 734.97,
+              "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "10:20 ET",
+          "bar_idx": 10,
+          "level": 734.97,
+          "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": 0.46,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "CALL",
+              "strike": 736,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.72,
+              "would_be_exit_premium": 1.08,
+              "would_be_pnl_dollars": 108.0,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "primary_target",
+              "pricing_source": "bs_estimate",
+              "confidence": "high",
+              "level_price": 734.97,
+              "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 735,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.5,
+              "would_be_exit_premium": 1.725,
+              "would_be_pnl_dollars": 67.5,
+              "would_be_hold_minutes": 20,
+              "exit_reason": "stop_after_tp1",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 734.97,
+              "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "10:25 ET",
+          "bar_idx": 11,
+          "level": 734.97,
+          "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": 0.16,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "CALL",
+              "strike": 736,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.805,
+              "would_be_exit_premium": 1.208,
+              "would_be_pnl_dollars": 120.75,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "primary_target",
+              "pricing_source": "bs_estimate",
+              "confidence": "high",
+              "level_price": 734.97,
+              "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 735,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.975,
+              "would_be_exit_premium": 2.271,
+              "would_be_pnl_dollars": 88.88,
+              "would_be_hold_minutes": 15,
+              "exit_reason": "stop_after_tp1",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 734.97,
+              "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "10:40 ET",
+          "bar_idx": 14,
+          "level": 734.97,
+          "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": 0.2,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "CALL",
+              "strike": 736,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.794,
+              "would_be_exit_premium": 1.191,
+              "would_be_pnl_dollars": 119.1,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "primary_target",
+              "pricing_source": "bs_estimate",
+              "confidence": "high",
+              "level_price": 734.97,
+              "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 735,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.91,
+              "would_be_exit_premium": 2.196,
+              "would_be_pnl_dollars": 85.95,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "stop_after_tp1",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 734.97,
+              "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "10:45 ET",
+          "bar_idx": 15,
+          "level": 734.97,
+          "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": 0.22,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "CALL",
+              "strike": 737,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.783,
+              "would_be_exit_premium": 1.175,
+              "would_be_pnl_dollars": 117.45,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "primary_target",
+              "pricing_source": "bs_estimate",
+              "confidence": "high",
+              "level_price": 734.97,
+              "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 736,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.85,
+              "would_be_exit_premium": 2.128,
+              "would_be_pnl_dollars": 83.25,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "stop_after_tp1",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 734.97,
+              "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "10:55 ET",
+          "bar_idx": 17,
+          "level": 734.97,
+          "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": -0.06,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "CALL",
+              "strike": 736,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.761,
+              "would_be_exit_premium": 1.141,
+              "would_be_pnl_dollars": 114.15,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "primary_target",
+              "pricing_source": "bs_estimate",
+              "confidence": "high",
+              "level_price": 734.97,
+              "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 735,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.73,
+              "would_be_exit_premium": 1.99,
+              "would_be_pnl_dollars": 77.85,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "stop_after_tp1",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 734.97,
+              "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "11:00 ET",
+          "bar_idx": 18,
+          "level": 734.97,
+          "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": 0.11,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "CALL",
+              "strike": 737,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.749,
+              "would_be_exit_premium": 0.599,
+              "would_be_pnl_dollars": -44.94,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 734.97,
+              "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 736,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.66,
+              "would_be_exit_premium": 1.527,
+              "would_be_pnl_dollars": -39.84,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 734.97,
+              "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "11:05 ET",
+          "bar_idx": 19,
+          "level": 734.97,
+          "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+          "level_stars": 2,
+          "interaction_type": "break",
+          "interaction_distance": 0.21,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_3",
+              "direction": "PUT",
+              "strike": 734,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.763,
+              "would_be_exit_premium": 1.145,
+              "would_be_pnl_dollars": 114.45,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "primary_target",
+              "pricing_source": "bs_estimate",
+              "confidence": "high",
+              "level_price": 734.97,
+              "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            }
+          ]
+        },
+        {
+          "bar_time": "12:05 ET",
+          "bar_idx": 31,
+          "level": 734.97,
+          "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+          "level_stars": 2,
+          "interaction_type": "reclaim",
+          "interaction_distance": 0.36,
+          "qualifying_setups": [
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 735,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.83,
+              "would_be_exit_premium": 1.684,
+              "would_be_pnl_dollars": -43.92,
+              "would_be_hold_minutes": 15,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 734.97,
+              "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "12:20 ET",
+          "bar_idx": 34,
+          "level": 734.97,
+          "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+          "level_stars": 2,
+          "interaction_type": "break",
+          "interaction_distance": 0.5299,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_3",
+              "direction": "PUT",
+              "strike": 733,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.641,
+              "would_be_exit_premium": 0.641,
+              "would_be_pnl_dollars": 0.0,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 734.97,
+              "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            }
+          ]
+        },
+        {
+          "bar_time": "14:25 ET",
+          "bar_idx": 59,
+          "level": 734.97,
+          "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+          "level_stars": 2,
+          "interaction_type": "reclaim",
+          "interaction_distance": 0.87,
+          "qualifying_setups": [
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 736,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.452,
+              "would_be_exit_premium": 1.336,
+              "would_be_pnl_dollars": -34.85,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 734.97,
+              "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "14:30 ET",
+          "bar_idx": 60,
+          "level": 734.97,
+          "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+          "level_stars": 2,
+          "interaction_type": "break",
+          "interaction_distance": 0.95,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_3",
+              "direction": "PUT",
+              "strike": 733,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.716,
+              "would_be_exit_premium": 0.716,
+              "would_be_pnl_dollars": 0.0,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 734.97,
+              "level_label": "1D bar 2026-06-23 RTH close ~734.97",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            }
+          ]
+        }
+      ],
+      "missed_setup_count": 19,
+      "missed_setup_total_pnl_dollars": 1100.04,
+      "engine_trades_today": 0,
+      "engine_pnl_today": 0.0,
+      "edge_capture_pct": 0.0,
+      "scan_warnings": [],
+      "opra_available": true
+    },
+    "missed_setups_markdown": "### Engine Misses Today\n\n**Total opportunities on the chart: 19 missed setups, +$1,100 paper P&L left on the table.**\n**Engine captured: 0% of available edge (engine took 0 trade(s), $0.00).**\n\n| Time | Level | Type | Setup | Dir | Strike | Would-be P&L | Hold | Why missed |\n|---|---|---|---|---|---|---|---|---|\n| 10:25 ET | 734.97 | Rejection | SHOTGUN_T2 | CALL | 736 | +$121 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 10:40 ET | 734.97 | Rejection | SHOTGUN_T2 | CALL | 736 | +$119 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 10:45 ET | 734.97 | Rejection | SHOTGUN_T2 | CALL | 737 | +$117 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 11:05 ET | 734.97 | Break | SHOTGUN_T3 | PUT | 734 | +$114 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 10:55 ET | 734.97 | Rejection | SHOTGUN_T2 | CALL | 736 | +$114 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 10:20 ET | 734.97 | Rejection | SHOTGUN_T2 | CALL | 736 | +$108 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 10:10 ET | 734.97 | Break | SHOTGUN_T3 | PUT | 733 | +$105 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 10:25 ET | 734.97 | Rejection | BULL_RECLAIM_RIBBON | CALL | 735 | +$89 | 15m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 10:40 ET | 734.97 | Rejection | BULL_RECLAIM_RIBBON | CALL | 735 | +$86 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 10:45 ET | 734.97 | Rejection | BULL_RECLAIM_RIBBON | CALL | 736 | +$83 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 10:55 ET | 734.97 | Rejection | BULL_RECLAIM_RIBBON | CALL | 735 | +$78 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 10:20 ET | 734.97 | Rejection | BULL_RECLAIM_RIBBON | CALL | 735 | +$68 | 20m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 10:15 ET | 734.97 | Reclaim | BULL_RECLAIM_RIBBON | CALL | 736 | +$62 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 12:20 ET | 734.97 | Break | SHOTGUN_T3 | PUT | 733 | +$0 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 14:30 ET | 734.97 | Break | SHOTGUN_T3 | PUT | 733 | +$0 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 14:25 ET | 734.97 | Reclaim | BULL_RECLAIM_RIBBON | CALL | 736 | -$35 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 11:00 ET | 734.97 | Rejection | BULL_RECLAIM_RIBBON | CALL | 736 | -$40 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 12:05 ET | 734.97 | Reclaim | BULL_RECLAIM_RIBBON | CALL | 735 | -$44 | 15m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 11:00 ET | 734.97 | Rejection | SHOTGUN_T2 | CALL | 737 | -$45 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n\n**Root causes (deduplicated):**\n- SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) (10 of 19)\n- Heartbeat closed-bar gate or ribbon/VIX filter blocked entry (9 of 19)",
+    "missed_setups_appended_to_journal": true,
+    "feedback_dispatch_counts": {
+      "grinder_queue": 0,
+      "lessons": 6,
+      "future_improvements": 0,
+      "duplicates_skipped": 1,
+      "unhandled": 0,
+      "alerts": 0
+    }
+  },
+  "tomorrow_setup": {
+    "phase": "2.4",
+    "next_trading_day": "2026-06-26",
+    "carry_levels": {
+      "today_session_high": null,
+      "today_session_low": null,
+      "today_session_close": 732.8,
+      "csv_computed": {
+        "today_rth_high": 739.37,
+        "today_rth_low": 729.6,
+        "today_rth_close": 731.94,
+        "today_rth_open": 738.91,
+        "today_session_range": 9.77,
+        "today_volume_total": 43665132
+      },
+      "key_levels_from_today_bias": {
+        "resistance": [
+          {
+            "price": 743.35,
+            "label": "DOUBLE_BOTTOM_RTH_LOW_6-18_6-22",
+            "tier": "Carry",
+            "role": "broken_to_resistance",
+            "note": "Double-bottom broken on 6/23 close; primary bear rejection zone on first test from below"
+          },
+          {
+            "price": 745.33,
+            "label": "CARRY_SESSION_HIGH_2026-06-08",
+            "tier": "Active",
+            "role": "broken_to_resistance",
+            "note": "Broken 6/22 close below; overhead cap on any bounce"
+          },
+          {
+            "price": 750.0,
+            "label": "ROUND_750",
+            "tier": "Reference",
+            "role": null,
+            "note": "Psychological round number; awareness only"
+          },
+          {
+            "price": 752.09,
+            "label": "BATTLE_PMH_2026-06-15",
+            "tier": "Reference",
+            "role": null,
+            "note": "Multi-week structural resistance"
+          }
+        ],
+        "support": [
+          {
+            "price": 734.97,
+            "label": "PRIOR_CLOSE_2026-06-23",
+            "tier": "Reference",
+            "role": null,
+            "note": "6/23 RTH close; gap-fill anchor and prior reference"
+          }
+        ],
+        "pmh_today": null,
+        "pml_today": null,
+        "pmh_note": "TV unavailable \u2014 today's premarket high/low could not be determined",
+        "ema_fast": null,
+        "ema_pivot": null,
+        "ema_slow": null,
+        "sma_50": null,
+        "ema_read_failed": true,
+        "ema_read_note": "TV not connected \u2014 EMAs unavailable. Prior session: ribbon BEAR 130c spread at end of 6/24."
+      },
+      "5d_high": 750.18,
+      "5d_low": 729.6,
+      "5d_dates": [
+        "2026-06-18",
+        "2026-06-22",
+        "2026-06-23",
+        "2026-06-24",
+        "2026-06-25"
+      ]
+    },
+    "scheduled_events_tomorrow": [],
+    "developing_setup_at_close": null
+  }
+}

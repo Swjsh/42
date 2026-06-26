@@ -1,0 +1,53 @@
+{
+  "study": "Safe confluence_tolerance_dollars tightening sweep",
+  "date": "2026-06-17",
+  "context": "Rank24 showed loosening 0.30->1.00 HURTS both IS+OOS. Testing tightening direction.",
+  "current_value": 0.3,
+  "candidates": [
+    0.1,
+    0.15,
+    0.2,
+    0.25
+  ],
+  "baseline": {
+    "is_n": 123,
+    "is_pnl": 16539.53,
+    "oos_n": 20,
+    "oos_pnl": 6324.75
+  },
+  "results": [
+    {
+      "tol": 0.1,
+      "is_delta": -4211.98,
+      "oos_delta": -2177.32,
+      "verdict": "REJECT_L155"
+    },
+    {
+      "tol": 0.15,
+      "is_delta": -4211.98,
+      "oos_delta": -2072.0,
+      "verdict": "REJECT_L155"
+    },
+    {
+      "tol": 0.2,
+      "is_delta": -2162.46,
+      "oos_delta": -2452.0,
+      "verdict": "REJECT_L155"
+    },
+    {
+      "tol": 0.25,
+      "dropped_is": 1,
+      "dropped_oos": 1,
+      "is_n": 122,
+      "oos_n": 19,
+      "is_pnl": 16707.47,
+      "oos_pnl": 3872.75,
+      "is_delta": 167.94,
+      "oos_delta": -2452.0,
+      "wf_norm": -89.793,
+      "sw_hurt": 0,
+      "anchor": "PASS",
+      "verdict": "REJECT"
+    }
+  ]
+}

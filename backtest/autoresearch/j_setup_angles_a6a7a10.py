@@ -1,6 +1,6 @@
 """A6 / A7 / A10 — the final setup-angle batch of the J-data profitability campaign.
 
-Part of docs/J-DATA-RESEARCH-MASTER-PLAN.md. These three are LOWER-PROBABILITY than
+Part of markdown/research/J-DATA-RESEARCH-MASTER-PLAN.md. These three are LOWER-PROBABILITY than
 the big finds already shipped (gap-and-go ITM-1, VWAP-cont rvol-floor) — the mandate
 is "leave no plan untested": test rigorously + honestly, a negative is a valid result.
 
@@ -842,7 +842,7 @@ def main() -> int:
     out = {
         "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "campaign": "J-DATA profitability — A6 (calendar/event-day) / A7 (level-keyed "
-                    "entry) / A10 (self-PnL state). docs/J-DATA-RESEARCH-MASTER-PLAN.md",
+                    "entry) / A10 (self-PnL state). markdown/research/J-DATA-RESEARCH-MASTER-PLAN.md",
         "method": (
             "His Webull data (analysis/webull-j-trades/, ~655 closed round-trips "
             "2021-23) DEFINES each hypothesis. OUR 2025-26 SPY real-OPRA fills VALIDATE "

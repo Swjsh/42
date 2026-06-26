@@ -1,0 +1,7751 @@
+{
+  "family": "vwap_continuation",
+  "ran_combos": 3360,
+  "valid": 3360,
+  "bangers": 2326,
+  "elapsed_min": 1.8,
+  "phase1_floor": {
+    "oos_positive": true,
+    "n_ge": 20,
+    "wf_ge": 0.7,
+    "qpf_ge": 0.6,
+    "note": "edge_capture (OP-16, J bearish anchors) disclosed but NOT gated for this bull-tilted continuation family (C24/OP-16)"
+  },
+  "window": "2025-01-01..2026-06-18",
+  "oos_boundary": "2026-01-01",
+  "exits": {
+    "runner_target": 2.5,
+    "profit_lock_threshold": 0.05,
+    "trail_pct_trailing": 0.125,
+    "note": "live-faithful v15 chandelier"
+  },
+  "bangers_list": [
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+30%:sell50%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.3,
+        0.5,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+30%:sell66%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.3,
+        0.667,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+30%:sell50%:fixed",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.3,
+        0.5,
+        "fixed"
+      ],
+      "edge_capture": -22.32,
+      "expectancy": 13.35,
+      "wr": 0.2177,
+      "trades_per_day": 1.0,
+      "max_dd": -116.64,
+      "wf": 1.007,
+      "n": 147,
+      "total": 1961.88,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 13.1,
+          "real_total": 1860.0
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 16.15,
+          "real_total": 2180.2
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 30.68,
+          "real_total": 3527.68
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 41.42,
+          "real_total": 4514.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 54.91,
+          "real_total": 5051.3
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 21.1,
+          "real_total": 2975.0
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 27.14,
+          "real_total": 3554.88
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 37.73,
+          "real_total": 4489.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 63.93,
+          "real_total": 6840.0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.35,
+          "real_total": 1961.88
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 22.24,
+          "real_total": 3269.8
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 35.59,
+          "real_total": 5231.68
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 44.49,
+          "real_total": 6539.6
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 63.37,
+          "real_total": 9251.4
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+30%:sell100%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.3,
+        1.0,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+30%:sell80%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.3,
+        0.8,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+30%:sell80%:fixed",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.3,
+        0.8,
+        "fixed"
+      ],
+      "edge_capture": -22.32,
+      "expectancy": 9.42,
+      "wr": 0.2177,
+      "trades_per_day": 1.0,
+      "max_dd": -116.64,
+      "wf": 0.857,
+      "n": 147,
+      "total": 1384.28,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 7.78,
+          "real_total": 1105.4
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 10.14,
+          "real_total": 1369.2
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 18.18,
+          "real_total": 2090.88
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 24.94,
+          "real_total": 2718.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 40.36,
+          "real_total": 3712.8
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 12.18,
+          "real_total": 1717.33
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 17.23,
+          "real_total": 2257.28
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 23.31,
+          "real_total": 2773.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 38.75,
+          "real_total": 4146.0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 9.42,
+          "real_total": 1384.28
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 15.69,
+          "real_total": 2307.13
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 25.11,
+          "real_total": 3691.41
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 31.39,
+          "real_total": 4614.27
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 39.76,
+          "real_total": 5805.4
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+30%:sell66%:fixed",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.3,
+        0.667,
+        "fixed"
+      ],
+      "edge_capture": -22.32,
+      "expectancy": 9.42,
+      "wr": 0.2177,
+      "trades_per_day": 1.0,
+      "max_dd": -116.64,
+      "wf": 0.857,
+      "n": 147,
+      "total": 1384.28,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 7.78,
+          "real_total": 1105.4
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 10.14,
+          "real_total": 1369.2
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 18.18,
+          "real_total": 2090.88
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 24.94,
+          "real_total": 2718.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 40.36,
+          "real_total": 3712.8
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 12.18,
+          "real_total": 1717.33
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 17.23,
+          "real_total": 2257.28
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 23.31,
+          "real_total": 2773.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 38.75,
+          "real_total": 4146.0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 9.42,
+          "real_total": 1384.28
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 15.69,
+          "real_total": 2307.13
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 25.11,
+          "real_total": 3691.41
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 31.39,
+          "real_total": 4614.27
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 39.76,
+          "real_total": 5805.4
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+50%:sell50%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.5,
+        0.5,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+50%:sell50%:fixed",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.5,
+        0.5,
+        "fixed"
+      ],
+      "edge_capture": -22.32,
+      "expectancy": 13.93,
+      "wr": 0.2041,
+      "trades_per_day": 1.0,
+      "max_dd": -116.64,
+      "wf": 1.2,
+      "n": 147,
+      "total": 2047.48,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 14.18,
+          "real_total": 2013.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 17.39,
+          "real_total": 2347.87
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 33.13,
+          "real_total": 3809.81
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 44.65,
+          "real_total": 4867.07
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 58.07,
+          "real_total": 5342.3
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 22.91,
+          "real_total": 3231.0
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 29.18,
+          "real_total": 3823.15
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 40.02,
+          "real_total": 4762.27
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 68.87,
+          "real_total": 7369.0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.93,
+          "real_total": 2047.48
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 23.21,
+          "real_total": 3412.47
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 37.14,
+          "real_total": 5459.95
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 46.43,
+          "real_total": 6824.93
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 70.12,
+          "real_total": 10237.4
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+50%:sell66%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.5,
+        0.667,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+50%:sell66%:fixed",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.5,
+        0.667,
+        "fixed"
+      ],
+      "edge_capture": -22.32,
+      "expectancy": 10.58,
+      "wr": 0.2041,
+      "trades_per_day": 1.0,
+      "max_dd": -116.64,
+      "wf": 1.389,
+      "n": 147,
+      "total": 1555.48,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 9.95,
+          "real_total": 1412.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 12.63,
+          "real_total": 1704.53
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 23.09,
+          "real_total": 2655.15
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 31.41,
+          "real_total": 3423.73
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 46.68,
+          "real_total": 4294.8
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 15.81,
+          "real_total": 2229.33
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 21.33,
+          "real_total": 2793.81
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 27.89,
+          "real_total": 3318.93
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 48.64,
+          "real_total": 5204.0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 10.58,
+          "real_total": 1555.48
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 17.64,
+          "real_total": 2592.47
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 28.22,
+          "real_total": 4147.95
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 35.27,
+          "real_total": 5184.93
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 53.27,
+          "real_total": 7777.4
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+50%:sell80%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.5,
+        0.8,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+50%:sell80%:fixed",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.5,
+        0.8,
+        "fixed"
+      ],
+      "edge_capture": -22.32,
+      "expectancy": 10.58,
+      "wr": 0.2041,
+      "trades_per_day": 1.0,
+      "max_dd": -116.64,
+      "wf": 1.389,
+      "n": 147,
+      "total": 1555.48,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 9.95,
+          "real_total": 1412.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 12.63,
+          "real_total": 1704.53
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 23.09,
+          "real_total": 2655.15
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 31.41,
+          "real_total": 3423.73
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 46.68,
+          "real_total": 4294.8
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 15.81,
+          "real_total": 2229.33
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 21.33,
+          "real_total": 2793.81
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 27.89,
+          "real_total": 3318.93
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 48.64,
+          "real_total": 5204.0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 10.58,
+          "real_total": 1555.48
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 17.64,
+          "real_total": 2592.47
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 28.22,
+          "real_total": 4147.95
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 35.27,
+          "real_total": 5184.93
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 53.27,
+          "real_total": 7777.4
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+50%:sell100%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.5,
+        1.0,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+75%:sell50%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.75,
+        0.5,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+75%:sell50%:fixed",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.75,
+        0.5,
+        "fixed"
+      ],
+      "edge_capture": -22.32,
+      "expectancy": 13.76,
+      "wr": 0.1701,
+      "trades_per_day": 1.0,
+      "max_dd": -122.4,
+      "wf": 1.152,
+      "n": 147,
+      "total": 2022.48,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 14.77,
+          "real_total": 2097.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 17.61,
+          "real_total": 2377.45
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 34.63,
+          "real_total": 3982.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 46.63,
+          "real_total": 5082.9
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.55,
+          "real_total": 5571.05
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 23.91,
+          "real_total": 3371.0
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 29.55,
+          "real_total": 3870.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 41.83,
+          "real_total": 4978.1
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 71.89,
+          "real_total": 7692.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.76,
+          "real_total": 2022.48
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 22.93,
+          "real_total": 3370.8
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 36.69,
+          "real_total": 5393.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 45.86,
+          "real_total": 6741.6
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 69.26,
+          "real_total": 10112.4
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+75%:sell80%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.75,
+        0.8,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+75%:sell66%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.75,
+        0.667,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+75%:sell100%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.75,
+        1.0,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+100%:sell50%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        1.0,
+        0.5,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+75%:sell66%:fixed",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.75,
+        0.667,
+        "fixed"
+      ],
+      "edge_capture": -22.32,
+      "expectancy": 10.24,
+      "wr": 0.1701,
+      "trades_per_day": 1.0,
+      "max_dd": -130.62,
+      "wf": 1.255,
+      "n": 147,
+      "total": 1505.48,
+      "oos_positive": true,
+      "qpf": 0.667,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 11.13,
+          "real_total": 1580.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 13.06,
+          "real_total": 1763.7
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 26.09,
+          "real_total": 3000.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 35.37,
+          "real_total": 3855.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 51.66,
+          "real_total": 4752.3
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 17.8,
+          "real_total": 2509.33
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 22.05,
+          "real_total": 2888.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 31.52,
+          "real_total": 3750.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 54.69,
+          "real_total": 5851.5
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 10.24,
+          "real_total": 1505.48
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 17.07,
+          "real_total": 2509.13
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 27.31,
+          "real_total": 4014.61
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 34.14,
+          "real_total": 5018.27
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 51.56,
+          "real_total": 7527.4
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+75%:sell80%:fixed",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        0.75,
+        0.8,
+        "fixed"
+      ],
+      "edge_capture": -22.32,
+      "expectancy": 10.24,
+      "wr": 0.1701,
+      "trades_per_day": 1.0,
+      "max_dd": -130.62,
+      "wf": 1.255,
+      "n": 147,
+      "total": 1505.48,
+      "oos_positive": true,
+      "qpf": 0.667,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 11.13,
+          "real_total": 1580.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 13.06,
+          "real_total": 1763.7
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 26.09,
+          "real_total": 3000.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 35.37,
+          "real_total": 3855.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 51.66,
+          "real_total": 4752.3
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 17.8,
+          "real_total": 2509.33
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 22.05,
+          "real_total": 2888.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 31.52,
+          "real_total": 3750.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 54.69,
+          "real_total": 5851.5
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 10.24,
+          "real_total": 1505.48
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 17.07,
+          "real_total": 2509.13
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 27.31,
+          "real_total": 4014.61
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 34.14,
+          "real_total": 5018.27
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 51.56,
+          "real_total": 7527.4
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+100%:sell66%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        1.0,
+        0.667,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+100%:sell80%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        1.0,
+        0.8,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+100%:sell50%:fixed",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        1.0,
+        0.5,
+        "fixed"
+      ],
+      "edge_capture": -22.32,
+      "expectancy": 14.96,
+      "wr": 0.1701,
+      "trades_per_day": 1.0,
+      "max_dd": -122.4,
+      "wf": 1.197,
+      "n": 147,
+      "total": 2198.48,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.01,
+          "real_total": 2273.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 18.97,
+          "real_total": 2560.37
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 37.18,
+          "real_total": 4275.15
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.99,
+          "real_total": 5448.73
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 64.02,
+          "real_total": 5889.8
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 25.99,
+          "real_total": 3664.33
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 31.78,
+          "real_total": 4163.15
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 44.91,
+          "real_total": 5343.93
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 77.02,
+          "real_total": 8241.5
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 14.96,
+          "real_total": 2198.48
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 24.93,
+          "real_total": 3664.13
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 39.88,
+          "real_total": 5862.61
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 49.85,
+          "real_total": 7328.27
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 75.29,
+          "real_total": 10992.4
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+100%:sell100%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        1.0,
+        1.0,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+150%:sell50%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        1.5,
+        0.5,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+100%:sell66%:fixed",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        1.0,
+        0.667,
+        "fixed"
+      ],
+      "edge_capture": -22.32,
+      "expectancy": 12.64,
+      "wr": 0.1701,
+      "trades_per_day": 1.0,
+      "max_dd": -122.4,
+      "wf": 1.348,
+      "n": 147,
+      "total": 1857.48,
+      "oos_positive": true,
+      "qpf": 0.667,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 13.61,
+          "real_total": 1932.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 15.77,
+          "real_total": 2129.53
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 31.18,
+          "real_total": 3585.81
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 42.08,
+          "real_total": 4587.07
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 58.58,
+          "real_total": 5389.8
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 21.96,
+          "real_total": 3096.0
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 26.52,
+          "real_total": 3473.81
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 37.67,
+          "real_total": 4482.27
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 64.94,
+          "real_total": 6949.0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 12.64,
+          "real_total": 1857.48
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 21.06,
+          "real_total": 3095.8
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 33.7,
+          "real_total": 4953.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 42.12,
+          "real_total": 6191.6
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 63.61,
+          "real_total": 9287.4
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+100%:sell80%:fixed",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        1.0,
+        0.8,
+        "fixed"
+      ],
+      "edge_capture": -22.32,
+      "expectancy": 12.64,
+      "wr": 0.1701,
+      "trades_per_day": 1.0,
+      "max_dd": -122.4,
+      "wf": 1.348,
+      "n": 147,
+      "total": 1857.48,
+      "oos_positive": true,
+      "qpf": 0.667,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 13.61,
+          "real_total": 1932.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 15.77,
+          "real_total": 2129.53
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 31.18,
+          "real_total": 3585.81
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 42.08,
+          "real_total": 4587.07
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 58.58,
+          "real_total": 5389.8
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 21.96,
+          "real_total": 3096.0
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 26.52,
+          "real_total": 3473.81
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 37.67,
+          "real_total": 4482.27
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 64.94,
+          "real_total": 6949.0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 12.64,
+          "real_total": 1857.48
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 21.06,
+          "real_total": 3095.8
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 33.7,
+          "real_total": 4953.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 42.12,
+          "real_total": 6191.6
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 63.61,
+          "real_total": 9287.4
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+150%:sell66%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        1.5,
+        0.667,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+150%:sell50%:fixed",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        1.5,
+        0.5,
+        "fixed"
+      ],
+      "edge_capture": -22.32,
+      "expectancy": 15.63,
+      "wr": 0.1497,
+      "trades_per_day": 1.0,
+      "max_dd": -122.4,
+      "wf": 1.027,
+      "n": 147,
+      "total": 2296.98,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.7,
+          "real_total": 2372.1
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 20.88,
+          "real_total": 2818.7
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 40.77,
+          "real_total": 4688.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 54.73,
+          "real_total": 5965.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 67.44,
+          "real_total": 6204.8
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 27.15,
+          "real_total": 3828.5
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 34.93,
+          "real_total": 4576.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 49.25,
+          "real_total": 5860.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 84.27,
+          "real_total": 9016.5
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 15.63,
+          "real_total": 2296.98
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 26.04,
+          "real_total": 3828.3
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 41.67,
+          "real_total": 6125.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 52.09,
+          "real_total": 7656.6
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 78.66,
+          "real_total": 11484.9
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+150%:sell80%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        1.5,
+        0.8,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+150%:sell66%:fixed",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        1.5,
+        0.667,
+        "fixed"
+      ],
+      "edge_capture": -22.32,
+      "expectancy": 13.98,
+      "wr": 0.1497,
+      "trades_per_day": 1.0,
+      "max_dd": -122.4,
+      "wf": 0.948,
+      "n": 147,
+      "total": 2054.48,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 15.0,
+          "real_total": 2129.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 19.6,
+          "real_total": 2646.2
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 38.37,
+          "real_total": 4412.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 51.56,
+          "real_total": 5620.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 65.43,
+          "real_total": 6019.8
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 24.29,
+          "real_total": 3424.33
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 32.83,
+          "real_total": 4300.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 46.35,
+          "real_total": 5515.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 79.43,
+          "real_total": 8499.0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.98,
+          "real_total": 2054.48
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 23.29,
+          "real_total": 3424.13
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 37.27,
+          "real_total": 5478.61
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 46.59,
+          "real_total": 6848.27
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 70.36,
+          "real_total": 10272.4
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+150%:sell100%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        1.5,
+        1.0,
+        "trailing"
+      ],
+      "edge_capture": 39.93,
+      "expectancy": 18.48,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -108.76,
+      "wf": 1.48,
+      "n": 147,
+      "total": 2715.86,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 16.46,
+          "real_total": 2337.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 23.04,
+          "real_total": 3110.58
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 36.99,
+          "real_total": 4253.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 49.68,
+          "real_total": 5415.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 60.85,
+          "real_total": 5597.93
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 26.84,
+          "real_total": 3784.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 35.38,
+          "real_total": 4634.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 45.97,
+          "real_total": 5470.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 70.91,
+          "real_total": 7587.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 18.48,
+          "real_total": 2715.86
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 30.79,
+          "real_total": 4526.43
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 49.27,
+          "real_total": 7242.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 61.58,
+          "real_total": 9052.85
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 84.75,
+          "real_total": 12373.65
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-20:tp+30%:sell50%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-20",
+        -0.2,
+        0.3,
+        0.5,
+        "trailing"
+      ],
+      "edge_capture": 6.45,
+      "expectancy": 13.44,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -283.73,
+      "wf": 1.593,
+      "n": 147,
+      "total": 1976.18,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 12.05,
+          "real_total": 1710.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 16.03,
+          "real_total": 2163.38
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 27.71,
+          "real_total": 3186.6
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 38.89,
+          "real_total": 4239.0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 47.36,
+          "real_total": 4357.12
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 19.43,
+          "real_total": 2739.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 24.57,
+          "real_total": 3218.8
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 34.76,
+          "real_total": 4137.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 55.38,
+          "real_total": 5925.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.44,
+          "real_total": 1976.18
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 22.41,
+          "real_total": 3293.63
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 35.85,
+          "real_total": 5269.8
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 44.81,
+          "real_total": 6587.25
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 59.42,
+          "real_total": 8675.25
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-8:tp+150%:sell80%:fixed",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-8",
+        -0.08,
+        1.5,
+        0.8,
+        "fixed"
+      ],
+      "edge_capture": -22.32,
+      "expectancy": 13.98,
+      "wr": 0.1497,
+      "trades_per_day": 1.0,
+      "max_dd": -122.4,
+      "wf": 0.948,
+      "n": 147,
+      "total": 2054.48,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 15.0,
+          "real_total": 2129.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 19.6,
+          "real_total": 2646.2
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 38.37,
+          "real_total": 4412.48
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 51.56,
+          "real_total": 5620.4
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 65.43,
+          "real_total": 6019.8
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 24.29,
+          "real_total": 3424.33
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 32.83,
+          "real_total": 4300.48
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 46.35,
+          "real_total": 5515.6
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 79.43,
+          "real_total": 8499.0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.98,
+          "real_total": 2054.48
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 23.29,
+          "real_total": 3424.13
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 37.27,
+          "real_total": 5478.61
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 46.59,
+          "real_total": 6848.27
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 70.36,
+          "real_total": 10272.4
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-20:tp+30%:sell66%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-20",
+        -0.2,
+        0.3,
+        0.667,
+        "trailing"
+      ],
+      "edge_capture": 6.45,
+      "expectancy": 13.44,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -283.73,
+      "wf": 1.593,
+      "n": 147,
+      "total": 1976.18,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 12.05,
+          "real_total": 1710.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 16.03,
+          "real_total": 2163.38
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 27.71,
+          "real_total": 3186.6
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 38.89,
+          "real_total": 4239.0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 47.36,
+          "real_total": 4357.12
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 19.43,
+          "real_total": 2739.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 24.57,
+          "real_total": 3218.8
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 34.76,
+          "real_total": 4137.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 55.38,
+          "real_total": 5925.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.44,
+          "real_total": 1976.18
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 22.41,
+          "real_total": 3293.63
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 35.85,
+          "real_total": 5269.8
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 44.81,
+          "real_total": 6587.25
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 59.42,
+          "real_total": 8675.25
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-20:tp+30%:sell80%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-20",
+        -0.2,
+        0.3,
+        0.8,
+        "trailing"
+      ],
+      "edge_capture": 6.45,
+      "expectancy": 13.44,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -283.73,
+      "wf": 1.593,
+      "n": 147,
+      "total": 1976.18,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 12.05,
+          "real_total": 1710.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 16.03,
+          "real_total": 2163.38
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 27.71,
+          "real_total": 3186.6
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 38.89,
+          "real_total": 4239.0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 47.36,
+          "real_total": 4357.12
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 19.43,
+          "real_total": 2739.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 24.57,
+          "real_total": 3218.8
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 34.76,
+          "real_total": 4137.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 55.38,
+          "real_total": 5925.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.44,
+          "real_total": 1976.18
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 22.41,
+          "real_total": 3293.63
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 35.85,
+          "real_total": 5269.8
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 44.81,
+          "real_total": 6587.25
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 59.42,
+          "real_total": 8675.25
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-20:tp+30%:sell100%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-20",
+        -0.2,
+        0.3,
+        1.0,
+        "trailing"
+      ],
+      "edge_capture": 6.45,
+      "expectancy": 13.44,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -283.73,
+      "wf": 1.593,
+      "n": 147,
+      "total": 1976.18,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 12.05,
+          "real_total": 1710.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 16.03,
+          "real_total": 2163.38
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 27.71,
+          "real_total": 3186.6
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 38.89,
+          "real_total": 4239.0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 47.36,
+          "real_total": 4357.12
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 19.43,
+          "real_total": 2739.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 24.57,
+          "real_total": 3218.8
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 34.76,
+          "real_total": 4137.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 55.38,
+          "real_total": 5925.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.44,
+          "real_total": 1976.18
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 22.41,
+          "real_total": 3293.63
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 35.85,
+          "real_total": 5269.8
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 44.81,
+          "real_total": 6587.25
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 59.42,
+          "real_total": 8675.25
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-20:tp+50%:sell50%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-20",
+        -0.2,
+        0.5,
+        0.5,
+        "trailing"
+      ],
+      "edge_capture": 6.45,
+      "expectancy": 13.44,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -283.73,
+      "wf": 1.593,
+      "n": 147,
+      "total": 1976.18,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 12.05,
+          "real_total": 1710.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 16.03,
+          "real_total": 2163.38
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 27.71,
+          "real_total": 3186.6
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 38.89,
+          "real_total": 4239.0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 47.36,
+          "real_total": 4357.12
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 19.43,
+          "real_total": 2739.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 24.57,
+          "real_total": 3218.8
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 34.76,
+          "real_total": 4137.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 55.38,
+          "real_total": 5925.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.44,
+          "real_total": 1976.18
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 22.41,
+          "real_total": 3293.63
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 35.85,
+          "real_total": 5269.8
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 44.81,
+          "real_total": 6587.25
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 59.42,
+          "real_total": 8675.25
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-20:tp+50%:sell66%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-20",
+        -0.2,
+        0.5,
+        0.667,
+        "trailing"
+      ],
+      "edge_capture": 6.45,
+      "expectancy": 13.44,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -283.73,
+      "wf": 1.593,
+      "n": 147,
+      "total": 1976.18,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 12.05,
+          "real_total": 1710.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 16.03,
+          "real_total": 2163.38
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 27.71,
+          "real_total": 3186.6
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 38.89,
+          "real_total": 4239.0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 47.36,
+          "real_total": 4357.12
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 19.43,
+          "real_total": 2739.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 24.57,
+          "real_total": 3218.8
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 34.76,
+          "real_total": 4137.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 55.38,
+          "real_total": 5925.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.44,
+          "real_total": 1976.18
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 22.41,
+          "real_total": 3293.63
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 35.85,
+          "real_total": 5269.8
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 44.81,
+          "real_total": 6587.25
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 59.42,
+          "real_total": 8675.25
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-20:tp+50%:sell80%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-20",
+        -0.2,
+        0.5,
+        0.8,
+        "trailing"
+      ],
+      "edge_capture": 6.45,
+      "expectancy": 13.44,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -283.73,
+      "wf": 1.593,
+      "n": 147,
+      "total": 1976.18,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 12.05,
+          "real_total": 1710.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 16.03,
+          "real_total": 2163.38
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 27.71,
+          "real_total": 3186.6
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 38.89,
+          "real_total": 4239.0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 47.36,
+          "real_total": 4357.12
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 19.43,
+          "real_total": 2739.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 24.57,
+          "real_total": 3218.8
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 34.76,
+          "real_total": 4137.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 55.38,
+          "real_total": 5925.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.44,
+          "real_total": 1976.18
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 22.41,
+          "real_total": 3293.63
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 35.85,
+          "real_total": 5269.8
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 44.81,
+          "real_total": 6587.25
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 59.42,
+          "real_total": 8675.25
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-20:tp+50%:sell100%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-20",
+        -0.2,
+        0.5,
+        1.0,
+        "trailing"
+      ],
+      "edge_capture": 6.45,
+      "expectancy": 13.44,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -283.73,
+      "wf": 1.593,
+      "n": 147,
+      "total": 1976.18,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 12.05,
+          "real_total": 1710.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 16.03,
+          "real_total": 2163.38
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 27.71,
+          "real_total": 3186.6
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 38.89,
+          "real_total": 4239.0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 47.36,
+          "real_total": 4357.12
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 19.43,
+          "real_total": 2739.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 24.57,
+          "real_total": 3218.8
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 34.76,
+          "real_total": 4137.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 55.38,
+          "real_total": 5925.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.44,
+          "real_total": 1976.18
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 22.41,
+          "real_total": 3293.63
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 35.85,
+          "real_total": 5269.8
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 44.81,
+          "real_total": 6587.25
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 59.42,
+          "real_total": 8675.25
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-20:tp+75%:sell50%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-20",
+        -0.2,
+        0.75,
+        0.5,
+        "trailing"
+      ],
+      "edge_capture": 6.45,
+      "expectancy": 13.44,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -283.73,
+      "wf": 1.593,
+      "n": 147,
+      "total": 1976.18,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 12.05,
+          "real_total": 1710.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 16.03,
+          "real_total": 2163.38
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 27.71,
+          "real_total": 3186.6
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 38.89,
+          "real_total": 4239.0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 47.36,
+          "real_total": 4357.12
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 19.43,
+          "real_total": 2739.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 24.57,
+          "real_total": 3218.8
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 34.76,
+          "real_total": 4137.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 55.38,
+          "real_total": 5925.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.44,
+          "real_total": 1976.18
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 22.41,
+          "real_total": 3293.63
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 35.85,
+          "real_total": 5269.8
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 44.81,
+          "real_total": 6587.25
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 59.42,
+          "real_total": 8675.25
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-20:tp+75%:sell80%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-20",
+        -0.2,
+        0.75,
+        0.8,
+        "trailing"
+      ],
+      "edge_capture": 6.45,
+      "expectancy": 13.44,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -283.73,
+      "wf": 1.593,
+      "n": 147,
+      "total": 1976.18,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 12.05,
+          "real_total": 1710.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 16.03,
+          "real_total": 2163.38
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 27.71,
+          "real_total": 3186.6
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 38.89,
+          "real_total": 4239.0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 47.36,
+          "real_total": 4357.12
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 19.43,
+          "real_total": 2739.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 24.57,
+          "real_total": 3218.8
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 34.76,
+          "real_total": 4137.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 55.38,
+          "real_total": 5925.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.44,
+          "real_total": 1976.18
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 22.41,
+          "real_total": 3293.63
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 35.85,
+          "real_total": 5269.8
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 44.81,
+          "real_total": 6587.25
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 59.42,
+          "real_total": 8675.25
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-20:tp+75%:sell66%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-20",
+        -0.2,
+        0.75,
+        0.667,
+        "trailing"
+      ],
+      "edge_capture": 6.45,
+      "expectancy": 13.44,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -283.73,
+      "wf": 1.593,
+      "n": 147,
+      "total": 1976.18,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 12.05,
+          "real_total": 1710.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 16.03,
+          "real_total": 2163.38
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 27.71,
+          "real_total": 3186.6
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 38.89,
+          "real_total": 4239.0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 47.36,
+          "real_total": 4357.12
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 19.43,
+          "real_total": 2739.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 24.57,
+          "real_total": 3218.8
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 34.76,
+          "real_total": 4137.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 55.38,
+          "real_total": 5925.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.44,
+          "real_total": 1976.18
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 22.41,
+          "real_total": 3293.63
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 35.85,
+          "real_total": 5269.8
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 44.81,
+          "real_total": 6587.25
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 59.42,
+          "real_total": 8675.25
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-20:tp+75%:sell100%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-20",
+        -0.2,
+        0.75,
+        1.0,
+        "trailing"
+      ],
+      "edge_capture": 6.45,
+      "expectancy": 13.44,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -283.73,
+      "wf": 1.593,
+      "n": 147,
+      "total": 1976.18,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 12.05,
+          "real_total": 1710.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 16.03,
+          "real_total": 2163.38
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 27.71,
+          "real_total": 3186.6
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 38.89,
+          "real_total": 4239.0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 47.36,
+          "real_total": 4357.12
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 19.43,
+          "real_total": 2739.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 24.57,
+          "real_total": 3218.8
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 34.76,
+          "real_total": 4137.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 55.38,
+          "real_total": 5925.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.44,
+          "real_total": 1976.18
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 22.41,
+          "real_total": 3293.63
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 35.85,
+          "real_total": 5269.8
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 44.81,
+          "real_total": 6587.25
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 59.42,
+          "real_total": 8675.25
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-20:tp+100%:sell50%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-20",
+        -0.2,
+        1.0,
+        0.5,
+        "trailing"
+      ],
+      "edge_capture": 6.45,
+      "expectancy": 13.44,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -283.73,
+      "wf": 1.593,
+      "n": 147,
+      "total": 1976.18,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 12.05,
+          "real_total": 1710.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 16.03,
+          "real_total": 2163.38
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 27.71,
+          "real_total": 3186.6
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 38.89,
+          "real_total": 4239.0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 47.36,
+          "real_total": 4357.12
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 19.43,
+          "real_total": 2739.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 24.57,
+          "real_total": 3218.8
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 34.76,
+          "real_total": 4137.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 55.38,
+          "real_total": 5925.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.44,
+          "real_total": 1976.18
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 22.41,
+          "real_total": 3293.63
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 35.85,
+          "real_total": 5269.8
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 44.81,
+          "real_total": 6587.25
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 59.42,
+          "real_total": 8675.25
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-20:tp+100%:sell66%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-20",
+        -0.2,
+        1.0,
+        0.667,
+        "trailing"
+      ],
+      "edge_capture": 6.45,
+      "expectancy": 13.44,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -283.73,
+      "wf": 1.593,
+      "n": 147,
+      "total": 1976.18,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 12.05,
+          "real_total": 1710.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 16.03,
+          "real_total": 2163.38
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 27.71,
+          "real_total": 3186.6
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 38.89,
+          "real_total": 4239.0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 47.36,
+          "real_total": 4357.12
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 19.43,
+          "real_total": 2739.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 24.57,
+          "real_total": 3218.8
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 34.76,
+          "real_total": 4137.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 55.38,
+          "real_total": 5925.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.44,
+          "real_total": 1976.18
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 22.41,
+          "real_total": 3293.63
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 35.85,
+          "real_total": 5269.8
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 44.81,
+          "real_total": 6587.25
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 59.42,
+          "real_total": 8675.25
+        }
+      }
+    },
+    {
+      "label": "bk0vx0:OTM-4:stop-20:tp+100%:sell80%:trailing",
+      "combo": [
+        "bk0vx0",
+        false,
+        false,
+        "OTM-4",
+        4,
+        "-20",
+        -0.2,
+        1.0,
+        0.8,
+        "trailing"
+      ],
+      "edge_capture": 6.45,
+      "expectancy": 13.44,
+      "wr": 0.5034,
+      "trades_per_day": 1.0,
+      "max_dd": -283.73,
+      "wf": 1.593,
+      "n": 147,
+      "total": 1976.18,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.966,
+          "real_exp": 12.05,
+          "real_total": 1710.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.918,
+          "real_exp": 16.03,
+          "real_total": 2163.38
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.782,
+          "real_exp": 27.71,
+          "real_total": 3186.6
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.741,
+          "real_exp": 38.89,
+          "real_total": 4239.0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.626,
+          "real_exp": 47.36,
+          "real_total": 4357.12
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.959,
+          "real_exp": 19.43,
+          "real_total": 2739.75
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.891,
+          "real_exp": 24.57,
+          "real_total": 3218.8
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.81,
+          "real_exp": 34.76,
+          "real_total": 4137.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.728,
+          "real_exp": 55.38,
+          "real_total": 5925.75
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 13.44,
+          "real_total": 1976.18
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 22.41,
+          "real_total": 3293.63
+        },
+        "safe25000_q8": {
+          "admit_pct": 1.0,
+          "real_exp": 35.85,
+          "real_total": 5269.8
+        },
+        "safe25000_q10": {
+          "admit_pct": 1.0,
+          "real_exp": 44.81,
+          "real_total": 6587.25
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.993,
+          "real_exp": 59.42,
+          "real_total": 8675.25
+        }
+      }
+    }
+  ],
+  "top25_by_oos_exp": [
+    {
+      "label": "bk1vx1:ITM-2:stop-8:tp+150%:sell50%:fixed",
+      "combo": [
+        "bk1vx1",
+        true,
+        true,
+        "ITM-2",
+        -2,
+        "-8",
+        -0.08,
+        1.5,
+        0.5,
+        "fixed"
+      ],
+      "edge_capture": 0.0,
+      "expectancy": 103.17,
+      "wr": 0.2422,
+      "trades_per_day": 1.0,
+      "max_dd": -386.16,
+      "wf": 2.126,
+      "n": 128,
+      "total": 13205.48,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.234,
+          "real_exp": 295.36,
+          "real_total": 8860.84
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.047,
+          "real_exp": 517.78,
+          "real_total": 3106.67
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.109,
+          "real_exp": 625.24,
+          "real_total": 8753.33
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 103.17,
+          "real_total": 13205.48
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 171.95,
+          "real_total": 22009.13
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 277.28,
+          "real_total": 35214.61
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 356.06,
+          "real_total": 44507.87
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.852,
+          "real_exp": 634.28,
+          "real_total": 69136.6
+        }
+      }
+    },
+    {
+      "label": "bk1vx1:ITM-2:stop-8:tp+150%:sell66%:fixed",
+      "combo": [
+        "bk1vx1",
+        true,
+        true,
+        "ITM-2",
+        -2,
+        "-8",
+        -0.08,
+        1.5,
+        0.667,
+        "fixed"
+      ],
+      "edge_capture": 0.0,
+      "expectancy": 101.56,
+      "wr": 0.2422,
+      "trades_per_day": 1.0,
+      "max_dd": -386.16,
+      "wf": 1.77,
+      "n": 128,
+      "total": 12999.48,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.234,
+          "real_exp": 268.56,
+          "real_total": 8056.84
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.047,
+          "real_exp": 455.0,
+          "real_total": 2730.0
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.109,
+          "real_exp": 571.79,
+          "real_total": 8005.0
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 101.56,
+          "real_total": 12999.48
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 169.26,
+          "real_total": 21665.8
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 272.95,
+          "real_total": 34665.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 350.57,
+          "real_total": 43821.2
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.852,
+          "real_exp": 624.83,
+          "real_total": 68106.6
+        }
+      }
+    },
+    {
+      "label": "bk1vx1:ITM-2:stop-8:tp+150%:sell80%:fixed",
+      "combo": [
+        "bk1vx1",
+        true,
+        true,
+        "ITM-2",
+        -2,
+        "-8",
+        -0.08,
+        1.5,
+        0.8,
+        "fixed"
+      ],
+      "edge_capture": 0.0,
+      "expectancy": 101.56,
+      "wr": 0.2422,
+      "trades_per_day": 1.0,
+      "max_dd": -386.16,
+      "wf": 1.77,
+      "n": 128,
+      "total": 12999.48,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.234,
+          "real_exp": 268.56,
+          "real_total": 8056.84
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.047,
+          "real_exp": 455.0,
+          "real_total": 2730.0
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.109,
+          "real_exp": 571.79,
+          "real_total": 8005.0
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 101.56,
+          "real_total": 12999.48
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 169.26,
+          "real_total": 21665.8
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 272.95,
+          "real_total": 34665.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 350.57,
+          "real_total": 43821.2
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.852,
+          "real_exp": 624.83,
+          "real_total": 68106.6
+        }
+      }
+    },
+    {
+      "label": "bk1vx1:ITM-2:stop-8:tp+100%:sell50%:fixed",
+      "combo": [
+        "bk1vx1",
+        true,
+        true,
+        "ITM-2",
+        -2,
+        "-8",
+        -0.08,
+        1.0,
+        0.5,
+        "fixed"
+      ],
+      "edge_capture": 0.0,
+      "expectancy": 99.5,
+      "wr": 0.2578,
+      "trades_per_day": 1.0,
+      "max_dd": -386.16,
+      "wf": 2.075,
+      "n": 128,
+      "total": 12735.98,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.234,
+          "real_exp": 281.11,
+          "real_total": 8433.34
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.047,
+          "real_exp": 506.39,
+          "real_total": 3038.33
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 96.0,
+          "real_total": 192.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.109,
+          "real_exp": 595.12,
+          "real_total": 8331.67
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 96.0,
+          "real_total": 192.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.016,
+          "real_exp": 120.0,
+          "real_total": 240.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 99.5,
+          "real_total": 12735.98
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 165.83,
+          "real_total": 21226.63
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 267.42,
+          "real_total": 33962.61
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 343.54,
+          "real_total": 42942.87
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.852,
+          "real_exp": 612.74,
+          "real_total": 66789.1
+        }
+      }
+    },
+    {
+      "label": "bk1vx1:ITM-2:stop-8:tp+75%:sell50%:fixed",
+      "combo": [
+        "bk1vx1",
+        true,
+        true,
+        "ITM-2",
+        -2,
+        "-8",
+        -0.08,
+        0.75,
+        0.5,
+        "fixed"
+      ],
+      "edge_capture": 168.0,
+      "expectancy": 98.56,
+      "wr": 0.2812,
+      "trades_per_day": 1.0,
+      "max_dd": -386.16,
+      "wf": 1.989,
+      "n": 128,
+      "total": 12615.73,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.234,
+          "real_exp": 276.64,
+          "real_total": 8299.34
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.047,
+          "real_exp": 485.69,
+          "real_total": 2914.17
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 72.0,
+          "real_total": 144.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.109,
+          "real_exp": 573.63,
+          "real_total": 8030.83
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 72.0,
+          "real_total": 144.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.016,
+          "real_exp": 90.0,
+          "real_total": 180.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 98.56,
+          "real_total": 12615.73
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 164.27,
+          "real_total": 21026.22
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 264.9,
+          "real_total": 33641.95
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 340.34,
+          "real_total": 42542.03
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.852,
+          "real_exp": 607.23,
+          "real_total": 66187.85
+        }
+      }
+    },
+    {
+      "label": "bk1vx0:ITM-2:stop-8:tp+150%:sell50%:fixed",
+      "combo": [
+        "bk1vx0",
+        true,
+        false,
+        "ITM-2",
+        -2,
+        "-8",
+        -0.08,
+        1.5,
+        0.5,
+        "fixed"
+      ],
+      "edge_capture": -68.64,
+      "expectancy": 96.91,
+      "wr": 0.2331,
+      "trades_per_day": 1.0,
+      "max_dd": -454.8,
+      "wf": 2.034,
+      "n": 133,
+      "total": 12888.68,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.218,
+          "real_exp": 305.55,
+          "real_total": 8860.84
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.045,
+          "real_exp": 517.78,
+          "real_total": 3106.67
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.015,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.105,
+          "real_exp": 625.24,
+          "real_total": 8753.33
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.015,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.015,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 96.91,
+          "real_total": 12888.68
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 161.51,
+          "real_total": 21481.13
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 260.38,
+          "real_total": 34369.81
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 334.25,
+          "real_total": 43451.87
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.85,
+          "real_exp": 597.85,
+          "real_total": 67557.4
+        }
+      }
+    },
+    {
+      "label": "bk1vx0:ITM-2:stop-8:tp+150%:sell66%:fixed",
+      "combo": [
+        "bk1vx0",
+        true,
+        false,
+        "ITM-2",
+        -2,
+        "-8",
+        -0.08,
+        1.5,
+        0.667,
+        "fixed"
+      ],
+      "edge_capture": -68.64,
+      "expectancy": 95.36,
+      "wr": 0.2331,
+      "trades_per_day": 1.0,
+      "max_dd": -454.8,
+      "wf": 1.686,
+      "n": 133,
+      "total": 12682.68,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.218,
+          "real_exp": 277.82,
+          "real_total": 8056.84
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.045,
+          "real_exp": 455.0,
+          "real_total": 2730.0
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.015,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.105,
+          "real_exp": 571.79,
+          "real_total": 8005.0
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.015,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.015,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 95.36,
+          "real_total": 12682.68
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 158.93,
+          "real_total": 21137.8
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 256.22,
+          "real_total": 33820.48
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 328.96,
+          "real_total": 42765.2
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.85,
+          "real_exp": 588.74,
+          "real_total": 66527.4
+        }
+      }
+    },
+    {
+      "label": "bk1vx0:ITM-2:stop-8:tp+150%:sell80%:fixed",
+      "combo": [
+        "bk1vx0",
+        true,
+        false,
+        "ITM-2",
+        -2,
+        "-8",
+        -0.08,
+        1.5,
+        0.8,
+        "fixed"
+      ],
+      "edge_capture": -68.64,
+      "expectancy": 95.36,
+      "wr": 0.2331,
+      "trades_per_day": 1.0,
+      "max_dd": -454.8,
+      "wf": 1.686,
+      "n": 133,
+      "total": 12682.68,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.218,
+          "real_exp": 277.82,
+          "real_total": 8056.84
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.045,
+          "real_exp": 455.0,
+          "real_total": 2730.0
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.015,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.105,
+          "real_exp": 571.79,
+          "real_total": 8005.0
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.015,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.015,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 95.36,
+          "real_total": 12682.68
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 158.93,
+          "real_total": 21137.8
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 256.22,
+          "real_total": 33820.48
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 328.96,
+          "real_total": 42765.2
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.85,
+          "real_exp": 588.74,
+          "real_total": 66527.4
+        }
+      }
+    },
+    {
+      "label": "bk1vx1:ITM-2:stop-8:tp+100%:sell66%:fixed",
+      "combo": [
+        "bk1vx1",
+        true,
+        true,
+        "ITM-2",
+        -2,
+        "-8",
+        -0.08,
+        1.0,
+        0.667,
+        "fixed"
+      ],
+      "edge_capture": 0.0,
+      "expectancy": 94.22,
+      "wr": 0.2578,
+      "trades_per_day": 1.0,
+      "max_dd": -386.16,
+      "wf": 1.656,
+      "n": 128,
+      "total": 12060.48,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.234,
+          "real_exp": 240.06,
+          "real_total": 7201.84
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.047,
+          "real_exp": 432.22,
+          "real_total": 2593.33
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 192.0,
+          "real_total": 384.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.109,
+          "real_exp": 511.55,
+          "real_total": 7161.67
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 192.0,
+          "real_total": 384.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.016,
+          "real_exp": 240.0,
+          "real_total": 480.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 94.22,
+          "real_total": 12060.48
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 157.04,
+          "real_total": 20100.8
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 253.24,
+          "real_total": 32161.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 325.53,
+          "real_total": 40691.2
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.852,
+          "real_exp": 581.76,
+          "real_total": 63411.6
+        }
+      }
+    },
+    {
+      "label": "bk1vx1:ITM-2:stop-8:tp+100%:sell80%:fixed",
+      "combo": [
+        "bk1vx1",
+        true,
+        true,
+        "ITM-2",
+        -2,
+        "-8",
+        -0.08,
+        1.0,
+        0.8,
+        "fixed"
+      ],
+      "edge_capture": 0.0,
+      "expectancy": 94.22,
+      "wr": 0.2578,
+      "trades_per_day": 1.0,
+      "max_dd": -386.16,
+      "wf": 1.656,
+      "n": 128,
+      "total": 12060.48,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.234,
+          "real_exp": 240.06,
+          "real_total": 7201.84
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.047,
+          "real_exp": 432.22,
+          "real_total": 2593.33
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 192.0,
+          "real_total": 384.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.109,
+          "real_exp": 511.55,
+          "real_total": 7161.67
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 192.0,
+          "real_total": 384.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.016,
+          "real_exp": 240.0,
+          "real_total": 480.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 94.22,
+          "real_total": 12060.48
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 157.04,
+          "real_total": 20100.8
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 253.24,
+          "real_total": 32161.28
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 325.53,
+          "real_total": 40691.2
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.852,
+          "real_exp": 581.76,
+          "real_total": 63411.6
+        }
+      }
+    },
+    {
+      "label": "bk1vx0:ITM-2:stop-8:tp+100%:sell50%:fixed",
+      "combo": [
+        "bk1vx0",
+        true,
+        false,
+        "ITM-2",
+        -2,
+        "-8",
+        -0.08,
+        1.0,
+        0.5,
+        "fixed"
+      ],
+      "edge_capture": -68.64,
+      "expectancy": 93.38,
+      "wr": 0.2481,
+      "trades_per_day": 1.0,
+      "max_dd": -454.8,
+      "wf": 1.984,
+      "n": 133,
+      "total": 12419.18,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.218,
+          "real_exp": 290.8,
+          "real_total": 8433.34
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.045,
+          "real_exp": 506.39,
+          "real_total": 3038.33
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.015,
+          "real_exp": 96.0,
+          "real_total": 192.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.105,
+          "real_exp": 595.12,
+          "real_total": 8331.67
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.015,
+          "real_exp": 96.0,
+          "real_total": 192.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.015,
+          "real_exp": 120.0,
+          "real_total": 240.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 93.38,
+          "real_total": 12419.18
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 155.63,
+          "real_total": 20698.63
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 250.89,
+          "real_total": 33117.81
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 322.21,
+          "real_total": 41886.87
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.85,
+          "real_exp": 577.08,
+          "real_total": 65209.9
+        }
+      }
+    },
+    {
+      "label": "bk1vx1:ITM-2:stop-8:tp+50%:sell50%:fixed",
+      "combo": [
+        "bk1vx1",
+        true,
+        true,
+        "ITM-2",
+        -2,
+        "-8",
+        -0.08,
+        0.5,
+        0.5,
+        "fixed"
+      ],
+      "edge_capture": 112.0,
+      "expectancy": 93.14,
+      "wr": 0.3125,
+      "trades_per_day": 1.0,
+      "max_dd": -386.16,
+      "wf": 1.995,
+      "n": 128,
+      "total": 11921.98,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.234,
+          "real_exp": 267.91,
+          "real_total": 8037.34
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.047,
+          "real_exp": 465.0,
+          "real_total": 2790.0
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 48.0,
+          "real_total": 96.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.109,
+          "real_exp": 552.14,
+          "real_total": 7730.0
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 48.0,
+          "real_total": 96.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.016,
+          "real_exp": 60.0,
+          "real_total": 120.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 93.14,
+          "real_total": 11921.98
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 155.23,
+          "real_total": 19869.97
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 250.33,
+          "real_total": 31791.95
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 321.84,
+          "real_total": 40229.53
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.852,
+          "real_exp": 575.4,
+          "real_total": 62719.1
+        }
+      }
+    },
+    {
+      "label": "bk1vx0:ITM-2:stop-8:tp+75%:sell50%:fixed",
+      "combo": [
+        "bk1vx0",
+        true,
+        false,
+        "ITM-2",
+        -2,
+        "-8",
+        -0.08,
+        0.75,
+        0.5,
+        "fixed"
+      ],
+      "edge_capture": 99.36,
+      "expectancy": 92.47,
+      "wr": 0.2707,
+      "trades_per_day": 1.0,
+      "max_dd": -454.8,
+      "wf": 1.899,
+      "n": 133,
+      "total": 12298.93,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.218,
+          "real_exp": 286.18,
+          "real_total": 8299.34
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.045,
+          "real_exp": 485.69,
+          "real_total": 2914.17
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.015,
+          "real_exp": 72.0,
+          "real_total": 144.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.105,
+          "real_exp": 573.63,
+          "real_total": 8030.83
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.015,
+          "real_exp": 72.0,
+          "real_total": 144.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.015,
+          "real_exp": 90.0,
+          "real_total": 180.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 92.47,
+          "real_total": 12298.93
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 154.12,
+          "real_total": 20498.22
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 248.46,
+          "real_total": 32797.15
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 319.12,
+          "real_total": 41486.03
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.85,
+          "real_exp": 571.76,
+          "real_total": 64608.65
+        }
+      }
+    },
+    {
+      "label": "bk1vx1:ITM-2:stop-8:tp+75%:sell66%:fixed",
+      "combo": [
+        "bk1vx1",
+        true,
+        true,
+        "ITM-2",
+        -2,
+        "-8",
+        -0.08,
+        0.75,
+        0.667,
+        "fixed"
+      ],
+      "edge_capture": 336.0,
+      "expectancy": 92.34,
+      "wr": 0.2812,
+      "trades_per_day": 1.0,
+      "max_dd": -386.16,
+      "wf": 1.502,
+      "n": 128,
+      "total": 11819.98,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.234,
+          "real_exp": 231.13,
+          "real_total": 6933.84
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.047,
+          "real_exp": 390.83,
+          "real_total": 2345.0
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 144.0,
+          "real_total": 288.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.109,
+          "real_exp": 468.57,
+          "real_total": 6560.0
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 144.0,
+          "real_total": 288.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.016,
+          "real_exp": 180.0,
+          "real_total": 360.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 92.34,
+          "real_total": 11819.98
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 153.91,
+          "real_total": 19699.97
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 248.19,
+          "real_total": 31519.95
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 319.12,
+          "real_total": 39889.53
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.852,
+          "real_exp": 570.73,
+          "real_total": 62209.1
+        }
+      }
+    },
+    {
+      "label": "bk1vx1:ITM-2:stop-8:tp+75%:sell80%:fixed",
+      "combo": [
+        "bk1vx1",
+        true,
+        true,
+        "ITM-2",
+        -2,
+        "-8",
+        -0.08,
+        0.75,
+        0.8,
+        "fixed"
+      ],
+      "edge_capture": 336.0,
+      "expectancy": 92.34,
+      "wr": 0.2812,
+      "trades_per_day": 1.0,
+      "max_dd": -386.16,
+      "wf": 1.502,
+      "n": 128,
+      "total": 11819.98,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.234,
+          "real_exp": 231.13,
+          "real_total": 6933.84
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.047,
+          "real_exp": 390.83,
+          "real_total": 2345.0
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 144.0,
+          "real_total": 288.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.109,
+          "real_exp": 468.57,
+          "real_total": 6560.0
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 144.0,
+          "real_total": 288.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.016,
+          "real_exp": 180.0,
+          "real_total": 360.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 92.34,
+          "real_total": 11819.98
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 153.91,
+          "real_total": 19699.97
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 248.19,
+          "real_total": 31519.95
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 319.12,
+          "real_total": 39889.53
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.852,
+          "real_exp": 570.73,
+          "real_total": 62209.1
+        }
+      }
+    },
+    {
+      "label": "bk1vx1:ITM-2:stop-20:tp+150%:sell50%:fixed",
+      "combo": [
+        "bk1vx1",
+        true,
+        true,
+        "ITM-2",
+        -2,
+        "-20",
+        -0.2,
+        1.5,
+        0.5,
+        "fixed"
+      ],
+      "edge_capture": 0.0,
+      "expectancy": 92.05,
+      "wr": 0.2422,
+      "trades_per_day": 1.0,
+      "max_dd": -822.6,
+      "wf": 2.212,
+      "n": 128,
+      "total": 11782.4,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.234,
+          "real_exp": 293.15,
+          "real_total": 8794.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.047,
+          "real_exp": 517.78,
+          "real_total": 3106.67
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.109,
+          "real_exp": 625.24,
+          "real_total": 8753.33
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 92.05,
+          "real_total": 11782.4
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 153.42,
+          "real_total": 19637.33
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 247.4,
+          "real_total": 31419.73
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 323.99,
+          "real_total": 40498.67
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.852,
+          "real_exp": 584.9,
+          "real_total": 63754.0
+        }
+      }
+    },
+    {
+      "label": "bk1vx1:ITM-2:stop-20:tp+150%:sell66%:fixed",
+      "combo": [
+        "bk1vx1",
+        true,
+        true,
+        "ITM-2",
+        -2,
+        "-20",
+        -0.2,
+        1.5,
+        0.667,
+        "fixed"
+      ],
+      "edge_capture": 0.0,
+      "expectancy": 90.44,
+      "wr": 0.2422,
+      "trades_per_day": 1.0,
+      "max_dd": -822.6,
+      "wf": 1.803,
+      "n": 128,
+      "total": 11576.4,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.234,
+          "real_exp": 266.35,
+          "real_total": 7990.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.047,
+          "real_exp": 455.0,
+          "real_total": 2730.0
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.109,
+          "real_exp": 571.79,
+          "real_total": 8005.0
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 90.44,
+          "real_total": 11576.4
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 150.73,
+          "real_total": 19294.0
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 243.07,
+          "real_total": 30870.4
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 318.5,
+          "real_total": 39812.0
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.852,
+          "real_exp": 575.45,
+          "real_total": 62724.0
+        }
+      }
+    },
+    {
+      "label": "bk1vx1:ITM-2:stop-20:tp+150%:sell80%:fixed",
+      "combo": [
+        "bk1vx1",
+        true,
+        true,
+        "ITM-2",
+        -2,
+        "-20",
+        -0.2,
+        1.5,
+        0.8,
+        "fixed"
+      ],
+      "edge_capture": 0.0,
+      "expectancy": 90.44,
+      "wr": 0.2422,
+      "trades_per_day": 1.0,
+      "max_dd": -822.6,
+      "wf": 1.803,
+      "n": 128,
+      "total": 11576.4,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.234,
+          "real_exp": 266.35,
+          "real_total": 7990.6
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.047,
+          "real_exp": 455.0,
+          "real_total": 2730.0
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.109,
+          "real_exp": 571.79,
+          "real_total": 8005.0
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 90.44,
+          "real_total": 11576.4
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 150.73,
+          "real_total": 19294.0
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 243.07,
+          "real_total": 30870.4
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 318.5,
+          "real_total": 39812.0
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.852,
+          "real_exp": 575.45,
+          "real_total": 62724.0
+        }
+      }
+    },
+    {
+      "label": "bk1vx1:ITM-2:stop-20:tp+100%:sell50%:fixed",
+      "combo": [
+        "bk1vx1",
+        true,
+        true,
+        "ITM-2",
+        -2,
+        "-20",
+        -0.2,
+        1.0,
+        0.5,
+        "fixed"
+      ],
+      "edge_capture": 0.0,
+      "expectancy": 88.38,
+      "wr": 0.2578,
+      "trades_per_day": 1.0,
+      "max_dd": -822.6,
+      "wf": 2.156,
+      "n": 128,
+      "total": 11312.9,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.234,
+          "real_exp": 278.9,
+          "real_total": 8367.1
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.047,
+          "real_exp": 506.39,
+          "real_total": 3038.33
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 96.0,
+          "real_total": 192.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.109,
+          "real_exp": 595.12,
+          "real_total": 8331.67
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 96.0,
+          "real_total": 192.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.016,
+          "real_exp": 120.0,
+          "real_total": 240.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 88.38,
+          "real_total": 11312.9
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 147.3,
+          "real_total": 18854.83
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 237.54,
+          "real_total": 30167.73
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 311.47,
+          "real_total": 38933.67
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.852,
+          "real_exp": 563.36,
+          "real_total": 61406.5
+        }
+      }
+    },
+    {
+      "label": "bk1vx0:ITM-2:stop-8:tp+100%:sell66%:fixed",
+      "combo": [
+        "bk1vx0",
+        true,
+        false,
+        "ITM-2",
+        -2,
+        "-8",
+        -0.08,
+        1.0,
+        0.667,
+        "fixed"
+      ],
+      "edge_capture": -68.64,
+      "expectancy": 88.3,
+      "wr": 0.2481,
+      "trades_per_day": 1.0,
+      "max_dd": -454.8,
+      "wf": 1.574,
+      "n": 133,
+      "total": 11743.68,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.218,
+          "real_exp": 248.34,
+          "real_total": 7201.84
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.045,
+          "real_exp": 432.22,
+          "real_total": 2593.33
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.015,
+          "real_exp": 192.0,
+          "real_total": 384.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.105,
+          "real_exp": 511.55,
+          "real_total": 7161.67
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.015,
+          "real_exp": 192.0,
+          "real_total": 384.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.015,
+          "real_exp": 240.0,
+          "real_total": 480.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 88.3,
+          "real_total": 11743.68
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 147.16,
+          "real_total": 19572.8
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 237.25,
+          "real_total": 31316.48
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 304.89,
+          "real_total": 39635.2
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.85,
+          "real_exp": 547.19,
+          "real_total": 61832.4
+        }
+      }
+    },
+    {
+      "label": "bk1vx0:ITM-2:stop-8:tp+100%:sell80%:fixed",
+      "combo": [
+        "bk1vx0",
+        true,
+        false,
+        "ITM-2",
+        -2,
+        "-8",
+        -0.08,
+        1.0,
+        0.8,
+        "fixed"
+      ],
+      "edge_capture": -68.64,
+      "expectancy": 88.3,
+      "wr": 0.2481,
+      "trades_per_day": 1.0,
+      "max_dd": -454.8,
+      "wf": 1.574,
+      "n": 133,
+      "total": 11743.68,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.218,
+          "real_exp": 248.34,
+          "real_total": 7201.84
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.045,
+          "real_exp": 432.22,
+          "real_total": 2593.33
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.015,
+          "real_exp": 192.0,
+          "real_total": 384.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.105,
+          "real_exp": 511.55,
+          "real_total": 7161.67
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.015,
+          "real_exp": 192.0,
+          "real_total": 384.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.015,
+          "real_exp": 240.0,
+          "real_total": 480.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 88.3,
+          "real_total": 11743.68
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 147.16,
+          "real_total": 19572.8
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 237.25,
+          "real_total": 31316.48
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 304.89,
+          "real_total": 39635.2
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.85,
+          "real_exp": 547.19,
+          "real_total": 61832.4
+        }
+      }
+    },
+    {
+      "label": "bk1vx1:ITM-2:stop-20:tp+75%:sell50%:fixed",
+      "combo": [
+        "bk1vx1",
+        true,
+        true,
+        "ITM-2",
+        -2,
+        "-20",
+        -0.2,
+        0.75,
+        0.5,
+        "fixed"
+      ],
+      "edge_capture": 168.0,
+      "expectancy": 87.44,
+      "wr": 0.2812,
+      "trades_per_day": 1.0,
+      "max_dd": -822.6,
+      "wf": 2.056,
+      "n": 128,
+      "total": 11192.65,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.234,
+          "real_exp": 274.44,
+          "real_total": 8233.1
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.047,
+          "real_exp": 485.69,
+          "real_total": 2914.17
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 72.0,
+          "real_total": 144.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.109,
+          "real_exp": 573.63,
+          "real_total": 8030.83
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 72.0,
+          "real_total": 144.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.016,
+          "real_exp": 90.0,
+          "real_total": 180.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 87.44,
+          "real_total": 11192.65
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 145.74,
+          "real_total": 18654.42
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 235.02,
+          "real_total": 29847.07
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 308.26,
+          "real_total": 38532.83
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.852,
+          "real_exp": 557.85,
+          "real_total": 60805.25
+        }
+      }
+    },
+    {
+      "label": "bk1vx0:ITM-2:stop-8:tp+50%:sell50%:fixed",
+      "combo": [
+        "bk1vx0",
+        true,
+        false,
+        "ITM-2",
+        -2,
+        "-8",
+        -0.08,
+        0.5,
+        0.5,
+        "fixed"
+      ],
+      "edge_capture": 43.36,
+      "expectancy": 87.26,
+      "wr": 0.3008,
+      "trades_per_day": 1.0,
+      "max_dd": -454.8,
+      "wf": 1.906,
+      "n": 133,
+      "total": 11605.18,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.218,
+          "real_exp": 277.15,
+          "real_total": 8037.34
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.045,
+          "real_exp": 465.0,
+          "real_total": 2790.0
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.015,
+          "real_exp": 48.0,
+          "real_total": 96.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.105,
+          "real_exp": 552.14,
+          "real_total": 7730.0
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.015,
+          "real_exp": 48.0,
+          "real_total": 96.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.015,
+          "real_exp": 60.0,
+          "real_total": 120.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 87.26,
+          "real_total": 11605.18
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 145.43,
+          "real_total": 19341.97
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 234.45,
+          "real_total": 30947.15
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 301.33,
+          "real_total": 39173.53
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.85,
+          "real_exp": 541.06,
+          "real_total": 61139.9
+        }
+      }
+    },
+    {
+      "label": "bk1vx1:ITM-2:stop-8:tp+30%:sell50%:fixed",
+      "combo": [
+        "bk1vx1",
+        true,
+        true,
+        "ITM-2",
+        -2,
+        "-8",
+        -0.08,
+        0.3,
+        0.5,
+        "fixed"
+      ],
+      "edge_capture": 67.2,
+      "expectancy": 87.15,
+      "wr": 0.3516,
+      "trades_per_day": 1.0,
+      "max_dd": -386.16,
+      "wf": 2.064,
+      "n": 128,
+      "total": 11155.48,
+      "oos_positive": true,
+      "qpf": 1.0,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.234,
+          "real_exp": 254.76,
+          "real_total": 7642.94
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.047,
+          "real_exp": 448.44,
+          "real_total": 2690.67
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 28.8,
+          "real_total": 57.6
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.109,
+          "real_exp": 534.95,
+          "real_total": 7489.33
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 28.8,
+          "real_total": 57.6
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.016,
+          "real_exp": 36.0,
+          "real_total": 72.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 87.15,
+          "real_total": 11155.48
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 145.25,
+          "real_total": 18592.47
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 234.24,
+          "real_total": 29747.95
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 301.4,
+          "real_total": 37674.53
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.852,
+          "real_exp": 530.87,
+          "real_total": 57865.1
+        }
+      }
+    },
+    {
+      "label": "bk1vx1:ITM-2:stop-50:tp+150%:sell50%:fixed",
+      "combo": [
+        "bk1vx1",
+        true,
+        true,
+        "ITM-2",
+        -2,
+        "-50",
+        -0.5,
+        1.5,
+        0.5,
+        "fixed"
+      ],
+      "edge_capture": 0.0,
+      "expectancy": 86.52,
+      "wr": 0.2422,
+      "trades_per_day": 1.0,
+      "max_dd": -973.5,
+      "wf": 2.299,
+      "n": 128,
+      "total": 11075.0,
+      "oos_positive": true,
+      "qpf": 0.833,
+      "op16_reject": true,
+      "qty_frontier": {
+        "safe2000_q3": {
+          "admit_pct": 0.234,
+          "real_exp": 296.83,
+          "real_total": 8905.0
+        },
+        "safe2000_q5": {
+          "admit_pct": 0.047,
+          "real_exp": 517.78,
+          "real_total": 3106.67
+        },
+        "safe2000_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "safe2000_q10": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe2000_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q3": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "bold1648_q5": {
+          "admit_pct": 0.109,
+          "real_exp": 625.24,
+          "real_total": 8753.33
+        },
+        "bold1648_q8": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q10": {
+          "admit_pct": 0.016,
+          "real_exp": 0.0,
+          "real_total": 0.0
+        },
+        "bold1648_q15": {
+          "admit_pct": 0.0,
+          "real_exp": 0.0,
+          "real_total": 0
+        },
+        "safe25000_q3": {
+          "admit_pct": 1.0,
+          "real_exp": 86.52,
+          "real_total": 11075.0
+        },
+        "safe25000_q5": {
+          "admit_pct": 1.0,
+          "real_exp": 144.21,
+          "real_total": 18458.33
+        },
+        "safe25000_q8": {
+          "admit_pct": 0.992,
+          "real_exp": 232.55,
+          "real_total": 29533.33
+        },
+        "safe25000_q10": {
+          "admit_pct": 0.977,
+          "real_exp": 318.45,
+          "real_total": 39806.67
+        },
+        "safe25000_q15": {
+          "admit_pct": 0.852,
+          "real_exp": 580.0,
+          "real_total": 63220.0
+        }
+      }
+    }
+  ]
+}

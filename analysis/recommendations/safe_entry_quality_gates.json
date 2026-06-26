@@ -1,0 +1,149 @@
+{
+  "task": "f4d9b0de-entry-quality-miner",
+  "is_days": 287,
+  "bear_trades_total": 73,
+  "annotated": 73,
+  "overall_wr": 0.425,
+  "bearish_streak": [
+    {
+      "bucket": "streak_1",
+      "lo": 1,
+      "hi": 2,
+      "n": 4,
+      "wr": 0.25,
+      "avg": -43.9,
+      "total": -175.4
+    },
+    {
+      "bucket": "streak_2",
+      "lo": 2,
+      "hi": 3,
+      "n": 23,
+      "wr": 0.435,
+      "avg": 149.3,
+      "total": 3434.1
+    },
+    {
+      "bucket": "streak_3+",
+      "lo": 3,
+      "hi": 99,
+      "n": 18,
+      "wr": 0.611,
+      "avg": 333.2,
+      "total": 5997.9
+    }
+  ],
+  "vol_ratio": [
+    {
+      "bucket": "vol<0.7",
+      "lo": 0,
+      "hi": 0.7,
+      "n": 23,
+      "wr": 0.261,
+      "avg": 29.1,
+      "total": 669.2
+    },
+    {
+      "bucket": "vol_0.7-1.0",
+      "lo": 0.7,
+      "hi": 1.0,
+      "n": 20,
+      "wr": 0.35,
+      "avg": 118.8,
+      "total": 2376.3
+    },
+    {
+      "bucket": "vol_1.0-1.5",
+      "lo": 1.0,
+      "hi": 1.5,
+      "n": 13,
+      "wr": 0.692,
+      "avg": 323.9,
+      "total": 4210.6
+    },
+    {
+      "bucket": "vol_1.5-2.0",
+      "lo": 1.5,
+      "hi": 2.0,
+      "n": 8,
+      "wr": 0.625,
+      "avg": 39.8,
+      "total": 318.6
+    },
+    {
+      "bucket": "vol_2.0+",
+      "lo": 2.0,
+      "hi": 99,
+      "n": 9,
+      "wr": 0.444,
+      "avg": 180.8,
+      "total": 1627.1
+    }
+  ],
+  "entry_body_pct": [
+    {
+      "bucket": "body<0.20",
+      "lo": 0,
+      "hi": 0.2,
+      "n": 16,
+      "wr": 0.312,
+      "avg": -29.1,
+      "total": -466.2
+    },
+    {
+      "bucket": "body_0.20-0.40",
+      "lo": 0.2,
+      "hi": 0.4,
+      "n": 18,
+      "wr": 0.5,
+      "avg": 140.5,
+      "total": 2528.2
+    },
+    {
+      "bucket": "body_0.40-0.60",
+      "lo": 0.4,
+      "hi": 0.6,
+      "n": 17,
+      "wr": 0.471,
+      "avg": 39.0,
+      "total": 662.3
+    },
+    {
+      "bucket": "body_0.60+",
+      "lo": 0.6,
+      "hi": 1.01,
+      "n": 22,
+      "wr": 0.409,
+      "avg": 294.4,
+      "total": 6477.4
+    }
+  ],
+  "prior_rejection": {
+    "True": {
+      "n": 17,
+      "wr": 0.235
+    },
+    "False": {
+      "n": 56,
+      "wr": 0.482
+    }
+  },
+  "gate_candidates": [
+    {
+      "metric": "bearish_streak",
+      "bucket": "streak_3+",
+      "n": 18,
+      "wr": 0.611,
+      "avg": 333.2
+    },
+    {
+      "metric": "vol_ratio",
+      "bucket": "vol_1.0-1.5",
+      "n": 13,
+      "wr": 0.692,
+      "avg": 323.9
+    }
+  ],
+  "verdict": "GATE_CANDIDATES_FOUND",
+  "next_step": "For each gate candidate WR>=55%, n>=10: run IS/OOS A/B backtest via orchestrator gate parameter."
+}

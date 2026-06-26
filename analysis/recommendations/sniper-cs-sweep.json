@@ -1,0 +1,2734 @@
+{
+  "results": [
+    {
+      "combo": {
+        "chart_stop_buffer": 0.3,
+        "tp1_r": 1.5,
+        "runner_r": 2.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -231.78,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -231.78,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 375.62,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -231.78,
+      "losers_added": 0.0,
+      "edge_capture": -231.78,
+      "wide_pnl": -1065.54,
+      "wide_n_trades": 170,
+      "wide_wr": 0.376,
+      "top5_pct": 999.0,
+      "quarter_pnl": {
+        "2025-Q1": 6407.2,
+        "2025-Q2": -3282.01,
+        "2025-Q3": 633.4,
+        "2025-Q4": -1347.42,
+        "2026-Q1": -94.89,
+        "2026-Q2": -3381.82
+      },
+      "positive_quarters": 2,
+      "quarter_count": 6,
+      "max_drawdown": 8272.49,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-232 negative on J winning day",
+        "winners_capture $-232 < $200 floor"
+      ],
+      "_run_index": 1
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.3,
+        "tp1_r": 1.5,
+        "runner_r": 2.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -358.95,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -358.95,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 542.8,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -358.95,
+      "losers_added": 0.0,
+      "edge_capture": -358.95,
+      "wide_pnl": -6159.57,
+      "wide_n_trades": 170,
+      "wide_wr": 0.406,
+      "top5_pct": 999.0,
+      "quarter_pnl": {
+        "2025-Q1": 5503.65,
+        "2025-Q2": -6174.3,
+        "2025-Q3": 1327.54,
+        "2025-Q4": -1195.48,
+        "2026-Q1": -2621.45,
+        "2026-Q2": -2999.53
+      },
+      "positive_quarters": 2,
+      "quarter_count": 6,
+      "max_drawdown": 13950.16,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-359 negative on J winning day",
+        "winners_capture $-359 < $200 floor"
+      ],
+      "_run_index": 2
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.3,
+        "tp1_r": 1.5,
+        "runner_r": 3.0,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -231.78,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -231.78,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 128.08,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -231.78,
+      "losers_added": 0.0,
+      "edge_capture": -231.78,
+      "wide_pnl": -470.1,
+      "wide_n_trades": 170,
+      "wide_wr": 0.376,
+      "top5_pct": 999.0,
+      "quarter_pnl": {
+        "2025-Q1": 7024.1,
+        "2025-Q2": -3177.98,
+        "2025-Q3": 697.52,
+        "2025-Q4": -1588.98,
+        "2026-Q1": 109.55,
+        "2026-Q2": -3534.31
+      },
+      "positive_quarters": 3,
+      "quarter_count": 6,
+      "max_drawdown": 8192.55,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-232 negative on J winning day",
+        "winners_capture $-232 < $200 floor"
+      ],
+      "_run_index": 3
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.3,
+        "tp1_r": 1.5,
+        "runner_r": 3.0,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -358.95,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -358.95,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 202.91,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -358.95,
+      "losers_added": 0.0,
+      "edge_capture": -358.95,
+      "wide_pnl": -5769.22,
+      "wide_n_trades": 170,
+      "wide_wr": 0.406,
+      "top5_pct": 999.0,
+      "quarter_pnl": {
+        "2025-Q1": 6181.08,
+        "2025-Q2": -6076.43,
+        "2025-Q3": 1368.03,
+        "2025-Q4": -1575.11,
+        "2026-Q1": -2453.16,
+        "2026-Q2": -3213.63
+      },
+      "positive_quarters": 2,
+      "quarter_count": 6,
+      "max_drawdown": 14023.14,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-359 negative on J winning day",
+        "winners_capture $-359 < $200 floor"
+      ],
+      "_run_index": 4
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.3,
+        "tp1_r": 1.5,
+        "runner_r": 3.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -231.78,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -231.78,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 128.08,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -231.78,
+      "losers_added": 0.0,
+      "edge_capture": -231.78,
+      "wide_pnl": 110.39,
+      "wide_n_trades": 170,
+      "wide_wr": 0.376,
+      "top5_pct": 107.978,
+      "quarter_pnl": {
+        "2025-Q1": 6710.35,
+        "2025-Q2": -2774.36,
+        "2025-Q3": 959.2,
+        "2025-Q4": -1213.29,
+        "2026-Q1": -137.0,
+        "2026-Q2": -3434.51
+      },
+      "positive_quarters": 2,
+      "quarter_count": 6,
+      "max_drawdown": 7661.39,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-232 negative on J winning day",
+        "winners_capture $-232 < $200 floor"
+      ],
+      "_run_index": 5
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.3,
+        "tp1_r": 1.5,
+        "runner_r": 3.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -358.95,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -358.95,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 202.91,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -358.95,
+      "losers_added": 0.0,
+      "edge_capture": -358.95,
+      "wide_pnl": -4845.09,
+      "wide_n_trades": 170,
+      "wide_wr": 0.406,
+      "top5_pct": 999.0,
+      "quarter_pnl": {
+        "2025-Q1": 5921.98,
+        "2025-Q2": -5642.68,
+        "2025-Q3": 1724.08,
+        "2025-Q4": -1142.65,
+        "2026-Q1": -2620.02,
+        "2026-Q2": -3085.8
+      },
+      "positive_quarters": 2,
+      "quarter_count": 6,
+      "max_drawdown": 12967.74,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-359 negative on J winning day",
+        "winners_capture $-359 < $200 floor"
+      ],
+      "_run_index": 6
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.3,
+        "tp1_r": 2.0,
+        "runner_r": 2.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -231.78,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -231.78,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 464.2,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -231.78,
+      "losers_added": 0.0,
+      "edge_capture": -231.78,
+      "wide_pnl": -374.75,
+      "wide_n_trades": 170,
+      "wide_wr": 0.312,
+      "top5_pct": 999.0,
+      "quarter_pnl": {
+        "2025-Q1": 8878.73,
+        "2025-Q2": -2437.93,
+        "2025-Q3": 536.86,
+        "2025-Q4": -2440.9,
+        "2026-Q1": 233.42,
+        "2026-Q2": -5144.93
+      },
+      "positive_quarters": 3,
+      "quarter_count": 6,
+      "max_drawdown": 9787.51,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-232 negative on J winning day",
+        "winners_capture $-232 < $200 floor"
+      ],
+      "_run_index": 7
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.3,
+        "tp1_r": 2.0,
+        "runner_r": 2.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -358.95,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -358.95,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 660.33,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -358.95,
+      "losers_added": 0.0,
+      "edge_capture": -358.95,
+      "wide_pnl": -4750.08,
+      "wide_n_trades": 170,
+      "wide_wr": 0.347,
+      "top5_pct": 999.0,
+      "quarter_pnl": {
+        "2025-Q1": 8013.97,
+        "2025-Q2": -5541.34,
+        "2025-Q3": 1759.62,
+        "2025-Q4": -2289.24,
+        "2026-Q1": -1902.06,
+        "2026-Q2": -4791.03
+      },
+      "positive_quarters": 2,
+      "quarter_count": 6,
+      "max_drawdown": 14142.13,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-359 negative on J winning day",
+        "winners_capture $-359 < $200 floor"
+      ],
+      "_run_index": 8
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.3,
+        "tp1_r": 2.0,
+        "runner_r": 3.0,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -231.78,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -231.78,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 216.66,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -231.78,
+      "losers_added": 0.0,
+      "edge_capture": -231.78,
+      "wide_pnl": 220.71,
+      "wide_n_trades": 170,
+      "wide_wr": 0.312,
+      "top5_pct": 61.202,
+      "quarter_pnl": {
+        "2025-Q1": 9495.64,
+        "2025-Q2": -2333.9,
+        "2025-Q3": 600.98,
+        "2025-Q4": -2682.45,
+        "2026-Q1": 437.86,
+        "2026-Q2": -5297.42
+      },
+      "positive_quarters": 3,
+      "quarter_count": 6,
+      "max_drawdown": 10020.55,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-232 negative on J winning day",
+        "winners_capture $-232 < $200 floor"
+      ],
+      "_run_index": 9
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.3,
+        "tp1_r": 2.0,
+        "runner_r": 3.0,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -358.95,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -358.95,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 320.44,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -358.95,
+      "losers_added": 0.0,
+      "edge_capture": -358.95,
+      "wide_pnl": -4359.74,
+      "wide_n_trades": 170,
+      "wide_wr": 0.347,
+      "top5_pct": 999.0,
+      "quarter_pnl": {
+        "2025-Q1": 8691.39,
+        "2025-Q2": -5443.47,
+        "2025-Q3": 1800.1,
+        "2025-Q4": -2668.87,
+        "2026-Q1": -1733.76,
+        "2026-Q2": -5005.13
+      },
+      "positive_quarters": 2,
+      "quarter_count": 6,
+      "max_drawdown": 14215.11,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-359 negative on J winning day",
+        "winners_capture $-359 < $200 floor"
+      ],
+      "_run_index": 10
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.3,
+        "tp1_r": 2.0,
+        "runner_r": 3.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -231.78,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -231.78,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 216.66,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -231.78,
+      "losers_added": 0.0,
+      "edge_capture": -231.78,
+      "wide_pnl": 801.21,
+      "wide_n_trades": 170,
+      "wide_wr": 0.312,
+      "top5_pct": 17.359,
+      "quarter_pnl": {
+        "2025-Q1": 9181.88,
+        "2025-Q2": -1930.27,
+        "2025-Q3": 862.67,
+        "2025-Q4": -2306.76,
+        "2026-Q1": 191.31,
+        "2026-Q2": -5197.62
+      },
+      "positive_quarters": 3,
+      "quarter_count": 6,
+      "max_drawdown": 9847.37,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-232 negative on J winning day",
+        "winners_capture $-232 < $200 floor"
+      ],
+      "_run_index": 11
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.3,
+        "tp1_r": 2.0,
+        "runner_r": 3.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -358.95,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -358.95,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 320.44,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -358.95,
+      "losers_added": 0.0,
+      "edge_capture": -358.95,
+      "wide_pnl": -3435.58,
+      "wide_n_trades": 170,
+      "wide_wr": 0.347,
+      "top5_pct": 999.0,
+      "quarter_pnl": {
+        "2025-Q1": 8432.3,
+        "2025-Q2": -5009.71,
+        "2025-Q3": 2156.14,
+        "2025-Q4": -2236.39,
+        "2026-Q1": -1900.63,
+        "2026-Q2": -4877.29
+      },
+      "positive_quarters": 2,
+      "quarter_count": 6,
+      "max_drawdown": 13607.3,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-359 negative on J winning day",
+        "winners_capture $-359 < $200 floor"
+      ],
+      "_run_index": 12
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.3,
+        "tp1_r": 2.5,
+        "runner_r": 3.0,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -231.78,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -231.78,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 302.53,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -231.78,
+      "losers_added": 0.0,
+      "edge_capture": -231.78,
+      "wide_pnl": -2290.65,
+      "wide_n_trades": 170,
+      "wide_wr": 0.271,
+      "top5_pct": 999.0,
+      "quarter_pnl": {
+        "2025-Q1": 6907.67,
+        "2025-Q2": -1128.39,
+        "2025-Q3": 960.41,
+        "2025-Q4": -5011.0,
+        "2026-Q1": 1162.47,
+        "2026-Q2": -5181.81
+      },
+      "positive_quarters": 3,
+      "quarter_count": 6,
+      "max_drawdown": 11595.95,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-232 negative on J winning day",
+        "winners_capture $-232 < $200 floor"
+      ],
+      "_run_index": 13
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.3,
+        "tp1_r": 2.5,
+        "runner_r": 3.0,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -358.95,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -358.95,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 436.24,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -358.95,
+      "losers_added": 0.0,
+      "edge_capture": -358.95,
+      "wide_pnl": -6643.12,
+      "wide_n_trades": 170,
+      "wide_wr": 0.329,
+      "top5_pct": 999.0,
+      "quarter_pnl": {
+        "2025-Q1": 5454.91,
+        "2025-Q2": -4262.81,
+        "2025-Q3": 2301.18,
+        "2025-Q4": -4744.68,
+        "2026-Q1": -583.05,
+        "2026-Q2": -4808.67
+      },
+      "positive_quarters": 2,
+      "quarter_count": 6,
+      "max_drawdown": 14293.52,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-359 negative on J winning day",
+        "winners_capture $-359 < $200 floor"
+      ],
+      "_run_index": 14
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.3,
+        "tp1_r": 2.5,
+        "runner_r": 3.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -231.78,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -231.78,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 302.53,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -231.78,
+      "losers_added": 0.0,
+      "edge_capture": -231.78,
+      "wide_pnl": -1710.16,
+      "wide_n_trades": 170,
+      "wide_wr": 0.271,
+      "top5_pct": 999.0,
+      "quarter_pnl": {
+        "2025-Q1": 6593.91,
+        "2025-Q2": -724.77,
+        "2025-Q3": 1222.11,
+        "2025-Q4": -4635.31,
+        "2026-Q1": 915.9,
+        "2026-Q2": -5082.0
+      },
+      "positive_quarters": 3,
+      "quarter_count": 6,
+      "max_drawdown": 11412.51,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-232 negative on J winning day",
+        "winners_capture $-232 < $200 floor"
+      ],
+      "_run_index": 15
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.3,
+        "tp1_r": 2.5,
+        "runner_r": 3.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -358.95,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -358.95,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 436.24,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -358.95,
+      "losers_added": 0.0,
+      "edge_capture": -358.95,
+      "wide_pnl": -5718.96,
+      "wide_n_trades": 170,
+      "wide_wr": 0.329,
+      "top5_pct": 999.0,
+      "quarter_pnl": {
+        "2025-Q1": 5195.81,
+        "2025-Q2": -3829.06,
+        "2025-Q3": 2657.24,
+        "2025-Q4": -4312.22,
+        "2026-Q1": -749.9,
+        "2026-Q2": -4680.83
+      },
+      "positive_quarters": 2,
+      "quarter_count": 6,
+      "max_drawdown": 14097.68,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-359 negative on J winning day",
+        "winners_capture $-359 < $200 floor"
+      ],
+      "_run_index": 16
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.5,
+        "tp1_r": 1.5,
+        "runner_r": 2.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -311.6,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -311.6,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 540.77,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -311.6,
+      "losers_added": 0.0,
+      "edge_capture": -311.6,
+      "wide_pnl": 3876.05,
+      "wide_n_trades": 170,
+      "wide_wr": 0.382,
+      "top5_pct": 3.095,
+      "quarter_pnl": {
+        "2025-Q1": 8368.84,
+        "2025-Q2": -4481.34,
+        "2025-Q3": -0.64,
+        "2025-Q4": -116.98,
+        "2026-Q1": 1519.54,
+        "2026-Q2": -1413.37
+      },
+      "positive_quarters": 2,
+      "quarter_count": 6,
+      "max_drawdown": 7613.06,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-312 negative on J winning day",
+        "winners_capture $-312 < $200 floor"
+      ],
+      "_run_index": 17
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.5,
+        "tp1_r": 1.5,
+        "runner_r": 2.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -498.07,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -498.07,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 808.71,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -498.07,
+      "losers_added": 0.0,
+      "edge_capture": -498.07,
+      "wide_pnl": -143.94,
+      "wide_n_trades": 170,
+      "wide_wr": 0.418,
+      "top5_pct": 999.0,
+      "quarter_pnl": {
+        "2025-Q1": 7126.62,
+        "2025-Q2": -8635.32,
+        "2025-Q3": 931.73,
+        "2025-Q4": 415.44,
+        "2026-Q1": 106.55,
+        "2026-Q2": -88.96
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 12170.03,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-498 negative on J winning day",
+        "winners_capture $-498 < $200 floor"
+      ],
+      "_run_index": 18
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.5,
+        "tp1_r": 1.5,
+        "runner_r": 3.0,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -311.6,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -311.6,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 561.64,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -311.6,
+      "losers_added": 0.0,
+      "edge_capture": -311.6,
+      "wide_pnl": 4494.64,
+      "wide_n_trades": 170,
+      "wide_wr": 0.382,
+      "top5_pct": 2.781,
+      "quarter_pnl": {
+        "2025-Q1": 8685.42,
+        "2025-Q2": -4240.18,
+        "2025-Q3": 291.97,
+        "2025-Q4": -311.95,
+        "2026-Q1": 1043.32,
+        "2026-Q2": -973.94
+      },
+      "positive_quarters": 3,
+      "quarter_count": 6,
+      "max_drawdown": 7613.06,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-312 negative on J winning day",
+        "winners_capture $-312 < $200 floor"
+      ],
+      "_run_index": 19
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.5,
+        "tp1_r": 1.5,
+        "runner_r": 3.0,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -498.07,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -498.07,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 878.19,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -498.07,
+      "losers_added": 0.0,
+      "edge_capture": -498.07,
+      "wide_pnl": 929.59,
+      "wide_n_trades": 170,
+      "wide_wr": 0.418,
+      "top5_pct": 16.866,
+      "quarter_pnl": {
+        "2025-Q1": 7502.52,
+        "2025-Q2": -8527.23,
+        "2025-Q3": 1310.33,
+        "2025-Q4": 287.41,
+        "2026-Q1": -132.5,
+        "2026-Q2": 489.06
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 12170.03,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-498 negative on J winning day",
+        "winners_capture $-498 < $200 floor"
+      ],
+      "_run_index": 20
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.5,
+        "tp1_r": 1.5,
+        "runner_r": 3.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -311.6,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -311.6,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 632.66,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -311.6,
+      "losers_added": 0.0,
+      "edge_capture": -311.6,
+      "wide_pnl": 5112.87,
+      "wide_n_trades": 170,
+      "wide_wr": 0.382,
+      "top5_pct": 2.441,
+      "quarter_pnl": {
+        "2025-Q1": 8539.32,
+        "2025-Q2": -4754.05,
+        "2025-Q3": 530.17,
+        "2025-Q4": -70.96,
+        "2026-Q1": 1328.01,
+        "2026-Q2": -459.62
+      },
+      "positive_quarters": 3,
+      "quarter_count": 6,
+      "max_drawdown": 7613.06,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-312 negative on J winning day",
+        "winners_capture $-312 < $200 floor"
+      ],
+      "_run_index": 21
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.5,
+        "tp1_r": 1.5,
+        "runner_r": 3.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -498.07,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -498.07,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 966.69,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -498.07,
+      "losers_added": 0.0,
+      "edge_capture": -498.07,
+      "wide_pnl": 1685.44,
+      "wide_n_trades": 170,
+      "wide_wr": 0.418,
+      "top5_pct": 9.298,
+      "quarter_pnl": {
+        "2025-Q1": 7166.91,
+        "2025-Q2": -9032.79,
+        "2025-Q3": 1580.07,
+        "2025-Q4": 557.85,
+        "2026-Q1": 316.23,
+        "2026-Q2": 1097.17
+      },
+      "positive_quarters": 5,
+      "quarter_count": 6,
+      "max_drawdown": 12170.03,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-498 negative on J winning day",
+        "winners_capture $-498 < $200 floor"
+      ],
+      "_run_index": 22
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.5,
+        "tp1_r": 2.0,
+        "runner_r": 2.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -311.6,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -311.6,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 657.1,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -311.6,
+      "losers_added": 0.0,
+      "edge_capture": -311.6,
+      "wide_pnl": 3317.03,
+      "wide_n_trades": 170,
+      "wide_wr": 0.312,
+      "top5_pct": 4.213,
+      "quarter_pnl": {
+        "2025-Q1": 11577.63,
+        "2025-Q2": -4347.18,
+        "2025-Q3": -24.26,
+        "2025-Q4": -4541.22,
+        "2026-Q1": 2314.34,
+        "2026-Q2": -1662.28
+      },
+      "positive_quarters": 2,
+      "quarter_count": 6,
+      "max_drawdown": 10521.37,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-312 negative on J winning day",
+        "winners_capture $-312 < $200 floor"
+      ],
+      "_run_index": 23
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.5,
+        "tp1_r": 2.0,
+        "runner_r": 2.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -498.07,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -498.07,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 974.08,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -498.07,
+      "losers_added": 0.0,
+      "edge_capture": -498.07,
+      "wide_pnl": 95.35,
+      "wide_n_trades": 170,
+      "wide_wr": 0.376,
+      "top5_pct": 181.315,
+      "quarter_pnl": {
+        "2025-Q1": 10807.2,
+        "2025-Q2": -8774.79,
+        "2025-Q3": 862.37,
+        "2025-Q4": -4104.27,
+        "2026-Q1": 1337.48,
+        "2026-Q2": -32.64
+      },
+      "positive_quarters": 3,
+      "quarter_count": 6,
+      "max_drawdown": 15002.06,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-498 negative on J winning day",
+        "winners_capture $-498 < $200 floor"
+      ],
+      "_run_index": 24
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.5,
+        "tp1_r": 2.0,
+        "runner_r": 3.0,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -311.6,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -311.6,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 677.97,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -311.6,
+      "losers_added": 0.0,
+      "edge_capture": -311.6,
+      "wide_pnl": 3935.62,
+      "wide_n_trades": 170,
+      "wide_wr": 0.312,
+      "top5_pct": 3.663,
+      "quarter_pnl": {
+        "2025-Q1": 11894.19,
+        "2025-Q2": -4106.01,
+        "2025-Q3": 268.35,
+        "2025-Q4": -4736.2,
+        "2026-Q1": 1838.14,
+        "2026-Q2": -1222.85
+      },
+      "positive_quarters": 3,
+      "quarter_count": 6,
+      "max_drawdown": 10192.57,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-312 negative on J winning day",
+        "winners_capture $-312 < $200 floor"
+      ],
+      "_run_index": 25
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.5,
+        "tp1_r": 2.0,
+        "runner_r": 3.0,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -498.07,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -498.07,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1043.56,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -498.07,
+      "losers_added": 0.0,
+      "edge_capture": -498.07,
+      "wide_pnl": 1168.92,
+      "wide_n_trades": 170,
+      "wide_wr": 0.376,
+      "top5_pct": 15.195,
+      "quarter_pnl": {
+        "2025-Q1": 11183.13,
+        "2025-Q2": -8666.7,
+        "2025-Q3": 1240.96,
+        "2025-Q4": -4232.29,
+        "2026-Q1": 1098.44,
+        "2026-Q2": 545.38
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 14791.3,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-498 negative on J winning day",
+        "winners_capture $-498 < $200 floor"
+      ],
+      "_run_index": 26
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.5,
+        "tp1_r": 2.0,
+        "runner_r": 3.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -311.6,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -311.6,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 748.99,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -311.6,
+      "losers_added": 0.0,
+      "edge_capture": -311.6,
+      "wide_pnl": 4553.81,
+      "wide_n_trades": 170,
+      "wide_wr": 0.312,
+      "top5_pct": 3.161,
+      "quarter_pnl": {
+        "2025-Q1": 11748.08,
+        "2025-Q2": -4619.87,
+        "2025-Q3": 506.55,
+        "2025-Q4": -4495.2,
+        "2026-Q1": 2122.8,
+        "2026-Q2": -708.55
+      },
+      "positive_quarters": 3,
+      "quarter_count": 6,
+      "max_drawdown": 10740.63,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-312 negative on J winning day",
+        "winners_capture $-312 < $200 floor"
+      ],
+      "_run_index": 27
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.5,
+        "tp1_r": 2.0,
+        "runner_r": 3.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -498.07,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -498.07,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1132.06,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -498.07,
+      "losers_added": 0.0,
+      "edge_capture": -498.07,
+      "wide_pnl": 1924.75,
+      "wide_n_trades": 170,
+      "wide_wr": 0.376,
+      "top5_pct": 9.224,
+      "quarter_pnl": {
+        "2025-Q1": 10847.5,
+        "2025-Q2": -9172.26,
+        "2025-Q3": 1510.7,
+        "2025-Q4": -3961.85,
+        "2026-Q1": 1547.18,
+        "2026-Q2": 1153.48
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 14904.66,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-498 negative on J winning day",
+        "winners_capture $-498 < $200 floor"
+      ],
+      "_run_index": 28
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.5,
+        "tp1_r": 2.5,
+        "runner_r": 3.0,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -311.6,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -311.6,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 685.5,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -311.6,
+      "losers_added": 0.0,
+      "edge_capture": -311.6,
+      "wide_pnl": 5185.27,
+      "wide_n_trades": 170,
+      "wide_wr": 0.294,
+      "top5_pct": 3.212,
+      "quarter_pnl": {
+        "2025-Q1": 9099.05,
+        "2025-Q2": -2921.82,
+        "2025-Q3": 1343.29,
+        "2025-Q4": -5021.26,
+        "2026-Q1": 3105.25,
+        "2026-Q2": -419.24
+      },
+      "positive_quarters": 3,
+      "quarter_count": 6,
+      "max_drawdown": 8978.44,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-312 negative on J winning day",
+        "winners_capture $-312 < $200 floor"
+      ],
+      "_run_index": 29
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.5,
+        "tp1_r": 2.5,
+        "runner_r": 3.0,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -498.07,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -498.07,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1156.0,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -498.07,
+      "losers_added": 0.0,
+      "edge_capture": -498.07,
+      "wide_pnl": 2120.57,
+      "wide_n_trades": 170,
+      "wide_wr": 0.359,
+      "top5_pct": 9.437,
+      "quarter_pnl": {
+        "2025-Q1": 7591.69,
+        "2025-Q2": -7358.9,
+        "2025-Q3": 2513.71,
+        "2025-Q4": -4854.57,
+        "2026-Q1": 2487.92,
+        "2026-Q2": 1740.72
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 12971.56,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-498 negative on J winning day",
+        "winners_capture $-498 < $200 floor"
+      ],
+      "_run_index": 30
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.5,
+        "tp1_r": 2.5,
+        "runner_r": 3.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -311.6,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -311.6,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 756.52,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -311.6,
+      "losers_added": 0.0,
+      "edge_capture": -311.6,
+      "wide_pnl": 5803.51,
+      "wide_n_trades": 170,
+      "wide_wr": 0.294,
+      "top5_pct": 2.866,
+      "quarter_pnl": {
+        "2025-Q1": 8952.95,
+        "2025-Q2": -3435.67,
+        "2025-Q3": 1581.49,
+        "2025-Q4": -4780.28,
+        "2026-Q1": 3389.94,
+        "2026-Q2": 95.08
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 9063.28,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-312 negative on J winning day",
+        "winners_capture $-312 < $200 floor"
+      ],
+      "_run_index": 31
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.5,
+        "tp1_r": 2.5,
+        "runner_r": 3.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -498.07,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -498.07,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1244.5,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -498.07,
+      "losers_added": 0.0,
+      "edge_capture": -498.07,
+      "wide_pnl": 2876.38,
+      "wide_n_trades": 170,
+      "wide_wr": 0.359,
+      "top5_pct": 6.955,
+      "quarter_pnl": {
+        "2025-Q1": 7256.05,
+        "2025-Q2": -7864.47,
+        "2025-Q3": 2783.45,
+        "2025-Q4": -4584.13,
+        "2026-Q1": 2936.66,
+        "2026-Q2": 2348.82
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 13084.93,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-498 negative on J winning day",
+        "winners_capture $-498 < $200 floor"
+      ],
+      "_run_index": 32
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.75,
+        "tp1_r": 1.5,
+        "runner_r": 2.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -430.79,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -430.79,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 786.54,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -430.79,
+      "losers_added": 0.0,
+      "edge_capture": -430.79,
+      "wide_pnl": 18625.36,
+      "wide_n_trades": 170,
+      "wide_wr": 0.371,
+      "top5_pct": 1.161,
+      "quarter_pnl": {
+        "2025-Q1": 9984.35,
+        "2025-Q2": 6801.27,
+        "2025-Q3": -248.13,
+        "2025-Q4": 577.47,
+        "2026-Q1": 3249.67,
+        "2026-Q2": -1739.27
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 8204.26,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-431 negative on J winning day",
+        "winners_capture $-431 < $200 floor"
+      ],
+      "_run_index": 33
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.75,
+        "tp1_r": 1.5,
+        "runner_r": 2.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -691.85,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -691.85,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1178.97,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -691.85,
+      "losers_added": 0.0,
+      "edge_capture": -691.85,
+      "wide_pnl": 15654.72,
+      "wide_n_trades": 170,
+      "wide_wr": 0.435,
+      "top5_pct": 1.607,
+      "quarter_pnl": {
+        "2025-Q1": 8033.04,
+        "2025-Q2": 4091.48,
+        "2025-Q3": -343.64,
+        "2025-Q4": 1967.18,
+        "2026-Q1": 2366.15,
+        "2026-Q2": -459.49
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 11385.34,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-692 negative on J winning day",
+        "winners_capture $-692 < $200 floor"
+      ],
+      "_run_index": 34
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.75,
+        "tp1_r": 1.5,
+        "runner_r": 3.0,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -430.79,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -430.79,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 892.4,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -430.79,
+      "losers_added": 0.0,
+      "edge_capture": -430.79,
+      "wide_pnl": 21333.95,
+      "wide_n_trades": 170,
+      "wide_wr": 0.371,
+      "top5_pct": 1.033,
+      "quarter_pnl": {
+        "2025-Q1": 10606.78,
+        "2025-Q2": 6709.73,
+        "2025-Q3": 38.43,
+        "2025-Q4": 921.84,
+        "2026-Q1": 4076.36,
+        "2026-Q2": -1019.19
+      },
+      "positive_quarters": 5,
+      "quarter_count": 6,
+      "max_drawdown": 7660.73,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-431 negative on J winning day",
+        "winners_capture $-431 < $200 floor"
+      ],
+      "_run_index": 35
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.75,
+        "tp1_r": 1.5,
+        "runner_r": 3.0,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -691.85,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -691.85,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1305.67,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -691.85,
+      "losers_added": 0.0,
+      "edge_capture": -691.85,
+      "wide_pnl": 18784.82,
+      "wide_n_trades": 170,
+      "wide_wr": 0.435,
+      "top5_pct": 1.361,
+      "quarter_pnl": {
+        "2025-Q1": 8690.31,
+        "2025-Q2": 4019.9,
+        "2025-Q3": -29.19,
+        "2025-Q4": 2348.67,
+        "2026-Q1": 3385.92,
+        "2026-Q2": 369.21
+      },
+      "positive_quarters": 5,
+      "quarter_count": 6,
+      "max_drawdown": 11385.34,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-692 negative on J winning day",
+        "winners_capture $-692 < $200 floor"
+      ],
+      "_run_index": 36
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.75,
+        "tp1_r": 1.5,
+        "runner_r": 3.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -430.79,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -430.79,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 557.52,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -430.79,
+      "losers_added": 0.0,
+      "edge_capture": -430.79,
+      "wide_pnl": 21858.3,
+      "wide_n_trades": 170,
+      "wide_wr": 0.371,
+      "top5_pct": 1.027,
+      "quarter_pnl": {
+        "2025-Q1": 10218.45,
+        "2025-Q2": 6678.78,
+        "2025-Q3": -237.43,
+        "2025-Q4": 1544.43,
+        "2026-Q1": 5253.91,
+        "2026-Q2": -1599.84
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 7660.73,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-431 negative on J winning day",
+        "winners_capture $-431 < $200 floor"
+      ],
+      "_run_index": 37
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.75,
+        "tp1_r": 1.5,
+        "runner_r": 3.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -691.85,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -691.85,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 972.03,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -691.85,
+      "losers_added": 0.0,
+      "edge_capture": -691.85,
+      "wide_pnl": 19085.48,
+      "wide_n_trades": 170,
+      "wide_wr": 0.435,
+      "top5_pct": 1.359,
+      "quarter_pnl": {
+        "2025-Q1": 8062.08,
+        "2025-Q2": 4000.43,
+        "2025-Q3": -292.89,
+        "2025-Q4": 2991.01,
+        "2026-Q1": 4705.76,
+        "2026-Q2": -380.91
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 11385.34,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-692 negative on J winning day",
+        "winners_capture $-692 < $200 floor"
+      ],
+      "_run_index": 38
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.75,
+        "tp1_r": 2.0,
+        "runner_r": 2.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -430.79,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -430.79,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 771.0,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -430.79,
+      "losers_added": 0.0,
+      "edge_capture": -430.79,
+      "wide_pnl": 21709.9,
+      "wide_n_trades": 170,
+      "wide_wr": 0.329,
+      "top5_pct": 1.117,
+      "quarter_pnl": {
+        "2025-Q1": 11716.6,
+        "2025-Q2": 8366.86,
+        "2025-Q3": 815.32,
+        "2025-Q4": -444.26,
+        "2026-Q1": 1902.21,
+        "2026-Q2": -646.83
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 9080.1,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-431 negative on J winning day",
+        "winners_capture $-431 < $200 floor"
+      ],
+      "_run_index": 39
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.75,
+        "tp1_r": 2.0,
+        "runner_r": 2.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -691.85,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -691.85,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1342.67,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -691.85,
+      "losers_added": 0.0,
+      "edge_capture": -691.85,
+      "wide_pnl": 18724.61,
+      "wide_n_trades": 170,
+      "wide_wr": 0.4,
+      "top5_pct": 1.49,
+      "quarter_pnl": {
+        "2025-Q1": 9513.15,
+        "2025-Q2": 6096.79,
+        "2025-Q3": 1033.52,
+        "2025-Q4": 433.89,
+        "2026-Q1": 469.52,
+        "2026-Q2": 1177.74
+      },
+      "positive_quarters": 6,
+      "quarter_count": 6,
+      "max_drawdown": 12043.29,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-692 negative on J winning day",
+        "winners_capture $-692 < $200 floor"
+      ],
+      "_run_index": 40
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.75,
+        "tp1_r": 2.0,
+        "runner_r": 3.0,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -430.79,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -430.79,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 876.86,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -430.79,
+      "losers_added": 0.0,
+      "edge_capture": -430.79,
+      "wide_pnl": 24418.5,
+      "wide_n_trades": 170,
+      "wide_wr": 0.329,
+      "top5_pct": 1.021,
+      "quarter_pnl": {
+        "2025-Q1": 12339.02,
+        "2025-Q2": 8275.33,
+        "2025-Q3": 1101.87,
+        "2025-Q4": -99.89,
+        "2026-Q1": 2728.91,
+        "2026-Q2": 73.26
+      },
+      "positive_quarters": 5,
+      "quarter_count": 6,
+      "max_drawdown": 9043.88,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-431 negative on J winning day",
+        "winners_capture $-431 < $200 floor"
+      ],
+      "_run_index": 41
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.75,
+        "tp1_r": 2.0,
+        "runner_r": 3.0,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -691.85,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -691.85,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1469.37,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -691.85,
+      "losers_added": 0.0,
+      "edge_capture": -691.85,
+      "wide_pnl": 21854.72,
+      "wide_n_trades": 170,
+      "wide_wr": 0.4,
+      "top5_pct": 1.303,
+      "quarter_pnl": {
+        "2025-Q1": 10170.43,
+        "2025-Q2": 6025.23,
+        "2025-Q3": 1347.96,
+        "2025-Q4": 815.35,
+        "2026-Q1": 1489.3,
+        "2026-Q2": 2006.45
+      },
+      "positive_quarters": 6,
+      "quarter_count": 6,
+      "max_drawdown": 11984.99,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-692 negative on J winning day",
+        "winners_capture $-692 < $200 floor"
+      ],
+      "_run_index": 42
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.75,
+        "tp1_r": 2.0,
+        "runner_r": 3.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -430.79,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -430.79,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 541.99,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -430.79,
+      "losers_added": 0.0,
+      "edge_capture": -430.79,
+      "wide_pnl": 24942.85,
+      "wide_n_trades": 170,
+      "wide_wr": 0.329,
+      "top5_pct": 1.018,
+      "quarter_pnl": {
+        "2025-Q1": 11950.7,
+        "2025-Q2": 8244.38,
+        "2025-Q3": 826.02,
+        "2025-Q4": 522.69,
+        "2026-Q1": 3906.46,
+        "2026-Q2": -507.4
+      },
+      "positive_quarters": 5,
+      "quarter_count": 6,
+      "max_drawdown": 8922.03,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-431 negative on J winning day",
+        "winners_capture $-431 < $200 floor"
+      ],
+      "_run_index": 43
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.75,
+        "tp1_r": 2.0,
+        "runner_r": 3.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -691.85,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -691.85,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1135.73,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -691.85,
+      "losers_added": 0.0,
+      "edge_capture": -691.85,
+      "wide_pnl": 22155.35,
+      "wide_n_trades": 170,
+      "wide_wr": 0.4,
+      "top5_pct": 1.306,
+      "quarter_pnl": {
+        "2025-Q1": 9542.18,
+        "2025-Q2": 6005.75,
+        "2025-Q3": 1084.27,
+        "2025-Q4": 1457.7,
+        "2026-Q1": 2809.13,
+        "2026-Q2": 1256.32
+      },
+      "positive_quarters": 6,
+      "quarter_count": 6,
+      "max_drawdown": 11844.52,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-692 negative on J winning day",
+        "winners_capture $-692 < $200 floor"
+      ],
+      "_run_index": 44
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.75,
+        "tp1_r": 2.5,
+        "runner_r": 3.0,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -430.79,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -430.79,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1090.39,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -430.79,
+      "losers_added": 0.0,
+      "edge_capture": -430.79,
+      "wide_pnl": 22479.01,
+      "wide_n_trades": 170,
+      "wide_wr": 0.288,
+      "top5_pct": 1.23,
+      "quarter_pnl": {
+        "2025-Q1": 7597.03,
+        "2025-Q2": 9220.21,
+        "2025-Q3": 2185.69,
+        "2025-Q4": 843.02,
+        "2026-Q1": 989.71,
+        "2026-Q2": 1643.35
+      },
+      "positive_quarters": 6,
+      "quarter_count": 6,
+      "max_drawdown": 9780.64,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-431 negative on J winning day",
+        "winners_capture $-431 < $200 floor"
+      ],
+      "_run_index": 45
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.75,
+        "tp1_r": 2.5,
+        "runner_r": 3.0,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -691.85,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -691.85,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1754.74,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -691.85,
+      "losers_added": 0.0,
+      "edge_capture": -691.85,
+      "wide_pnl": 19391.45,
+      "wide_n_trades": 170,
+      "wide_wr": 0.365,
+      "top5_pct": 1.616,
+      "quarter_pnl": {
+        "2025-Q1": 3791.87,
+        "2025-Q2": 6644.86,
+        "2025-Q3": 2622.06,
+        "2025-Q4": 1919.59,
+        "2026-Q1": 513.87,
+        "2026-Q2": 3899.2
+      },
+      "positive_quarters": 6,
+      "quarter_count": 6,
+      "max_drawdown": 12184.9,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-692 negative on J winning day",
+        "winners_capture $-692 < $200 floor"
+      ],
+      "_run_index": 46
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.75,
+        "tp1_r": 2.5,
+        "runner_r": 3.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -430.79,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -430.79,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 755.52,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -430.79,
+      "losers_added": 0.0,
+      "edge_capture": -430.79,
+      "wide_pnl": 23003.34,
+      "wide_n_trades": 170,
+      "wide_wr": 0.288,
+      "top5_pct": 1.222,
+      "quarter_pnl": {
+        "2025-Q1": 7208.71,
+        "2025-Q2": 9189.26,
+        "2025-Q3": 1909.83,
+        "2025-Q4": 1465.6,
+        "2026-Q1": 2167.25,
+        "2026-Q2": 1062.69
+      },
+      "positive_quarters": 6,
+      "quarter_count": 6,
+      "max_drawdown": 9658.78,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-431 negative on J winning day",
+        "winners_capture $-431 < $200 floor"
+      ],
+      "_run_index": 47
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 0.75,
+        "tp1_r": 2.5,
+        "runner_r": 3.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -691.85,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -691.85,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1421.1,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -691.85,
+      "losers_added": 0.0,
+      "edge_capture": -691.85,
+      "wide_pnl": 19692.12,
+      "wide_n_trades": 170,
+      "wide_wr": 0.365,
+      "top5_pct": 1.614,
+      "quarter_pnl": {
+        "2025-Q1": 3163.63,
+        "2025-Q2": 6625.38,
+        "2025-Q3": 2358.37,
+        "2025-Q4": 2561.93,
+        "2026-Q1": 1833.73,
+        "2026-Q2": 3149.08
+      },
+      "positive_quarters": 6,
+      "quarter_count": 6,
+      "max_drawdown": 12044.44,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-692 negative on J winning day",
+        "winners_capture $-692 < $200 floor"
+      ],
+      "_run_index": 48
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 1.0,
+        "tp1_r": 1.5,
+        "runner_r": 2.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -620.52,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -620.52,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 902.4,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -620.52,
+      "losers_added": 0.0,
+      "edge_capture": -620.52,
+      "wide_pnl": 15166.5,
+      "wide_n_trades": 170,
+      "wide_wr": 0.341,
+      "top5_pct": 1.525,
+      "quarter_pnl": {
+        "2025-Q1": 9675.8,
+        "2025-Q2": 6049.62,
+        "2025-Q3": 421.57,
+        "2025-Q4": 1772.82,
+        "2026-Q1": -1576.18,
+        "2026-Q2": -1177.13
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 9128.08,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-621 negative on J winning day",
+        "winners_capture $-621 < $200 floor"
+      ],
+      "_run_index": 49
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 1.0,
+        "tp1_r": 1.5,
+        "runner_r": 2.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -968.3,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -968.3,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1490.31,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -968.3,
+      "losers_added": 0.0,
+      "edge_capture": -968.3,
+      "wide_pnl": 8624.09,
+      "wide_n_trades": 170,
+      "wide_wr": 0.418,
+      "top5_pct": 3.101,
+      "quarter_pnl": {
+        "2025-Q1": 5580.19,
+        "2025-Q2": 2038.76,
+        "2025-Q3": -6.78,
+        "2025-Q4": 5021.83,
+        "2026-Q1": -5118.8,
+        "2026-Q2": 1108.89
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 13560.18,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-968 negative on J winning day",
+        "winners_capture $-968 < $200 floor"
+      ],
+      "_run_index": 50
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 1.0,
+        "tp1_r": 1.5,
+        "runner_r": 3.0,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -620.52,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -620.52,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 510.4,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -620.52,
+      "losers_added": 0.0,
+      "edge_capture": -620.52,
+      "wide_pnl": 14399.97,
+      "wide_n_trades": 170,
+      "wide_wr": 0.341,
+      "top5_pct": 1.612,
+      "quarter_pnl": {
+        "2025-Q1": 10279.53,
+        "2025-Q2": 5754.65,
+        "2025-Q3": 168.63,
+        "2025-Q4": 2498.96,
+        "2026-Q1": -2328.21,
+        "2026-Q2": -1973.59
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 9729.72,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-621 negative on J winning day",
+        "winners_capture $-621 < $200 floor"
+      ],
+      "_run_index": 51
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 1.0,
+        "tp1_r": 1.5,
+        "runner_r": 3.0,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -968.3,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -968.3,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1098.42,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -968.3,
+      "losers_added": 0.0,
+      "edge_capture": -968.3,
+      "wide_pnl": 7306.34,
+      "wide_n_trades": 170,
+      "wide_wr": 0.418,
+      "top5_pct": 3.663,
+      "quarter_pnl": {
+        "2025-Q1": 6202.55,
+        "2025-Q2": 1753.6,
+        "2025-Q3": -245.99,
+        "2025-Q4": 5775.33,
+        "2026-Q1": -6294.22,
+        "2026-Q2": 115.07
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 14559.3,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-968 negative on J winning day",
+        "winners_capture $-968 < $200 floor"
+      ],
+      "_run_index": 52
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 1.0,
+        "tp1_r": 1.5,
+        "runner_r": 3.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -620.52,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -620.52,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 510.4,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -620.52,
+      "losers_added": 0.0,
+      "edge_capture": -620.52,
+      "wide_pnl": 13585.96,
+      "wide_n_trades": 170,
+      "wide_wr": 0.341,
+      "top5_pct": 1.723,
+      "quarter_pnl": {
+        "2025-Q1": 10270.55,
+        "2025-Q2": 4731.03,
+        "2025-Q3": 394.66,
+        "2025-Q4": 2569.24,
+        "2026-Q1": -1779.21,
+        "2026-Q2": -2600.31
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 10052.92,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-621 negative on J winning day",
+        "winners_capture $-621 < $200 floor"
+      ],
+      "_run_index": 53
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 1.0,
+        "tp1_r": 1.5,
+        "runner_r": 3.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -968.3,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -968.3,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1098.42,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -968.3,
+      "losers_added": 0.0,
+      "edge_capture": -968.3,
+      "wide_pnl": 6046.05,
+      "wide_n_trades": 170,
+      "wide_wr": 0.418,
+      "top5_pct": 4.472,
+      "quarter_pnl": {
+        "2025-Q1": 6193.83,
+        "2025-Q2": 404.67,
+        "2025-Q3": -13.59,
+        "2025-Q4": 5862.34,
+        "2026-Q1": -5668.78,
+        "2026-Q2": -732.42
+      },
+      "positive_quarters": 3,
+      "quarter_count": 6,
+      "max_drawdown": 13751.84,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-968 negative on J winning day",
+        "winners_capture $-968 < $200 floor"
+      ],
+      "_run_index": 54
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 1.0,
+        "tp1_r": 2.0,
+        "runner_r": 2.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -620.52,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -620.52,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1192.14,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -620.52,
+      "losers_added": 0.0,
+      "edge_capture": -620.52,
+      "wide_pnl": 15112.55,
+      "wide_n_trades": 170,
+      "wide_wr": 0.294,
+      "top5_pct": 1.737,
+      "quarter_pnl": {
+        "2025-Q1": 6259.64,
+        "2025-Q2": 7544.81,
+        "2025-Q3": 1533.11,
+        "2025-Q4": 1421.95,
+        "2026-Q1": -2437.34,
+        "2026-Q2": 790.38
+      },
+      "positive_quarters": 5,
+      "quarter_count": 6,
+      "max_drawdown": 10839.75,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-621 negative on J winning day",
+        "winners_capture $-621 < $200 floor"
+      ],
+      "_run_index": 55
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 1.0,
+        "tp1_r": 2.0,
+        "runner_r": 2.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -968.3,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -968.3,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1861.65,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -968.3,
+      "losers_added": 0.0,
+      "edge_capture": -968.3,
+      "wide_pnl": 7729.26,
+      "wide_n_trades": 170,
+      "wide_wr": 0.376,
+      "top5_pct": 3.866,
+      "quarter_pnl": {
+        "2025-Q1": 396.91,
+        "2025-Q2": 3211.92,
+        "2025-Q3": 1381.69,
+        "2025-Q4": 4278.26,
+        "2026-Q1": -5021.33,
+        "2026-Q2": 3481.81
+      },
+      "positive_quarters": 5,
+      "quarter_count": 6,
+      "max_drawdown": 14990.58,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-968 negative on J winning day",
+        "winners_capture $-968 < $200 floor"
+      ],
+      "_run_index": 56
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 1.0,
+        "tp1_r": 2.0,
+        "runner_r": 3.0,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -620.52,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -620.52,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 800.14,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -620.52,
+      "losers_added": 0.0,
+      "edge_capture": -620.52,
+      "wide_pnl": 14346.0,
+      "wide_n_trades": 170,
+      "wide_wr": 0.294,
+      "top5_pct": 1.845,
+      "quarter_pnl": {
+        "2025-Q1": 6863.37,
+        "2025-Q2": 7249.84,
+        "2025-Q3": 1280.17,
+        "2025-Q4": 2148.09,
+        "2026-Q1": -3189.39,
+        "2026-Q2": -6.08
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 11437.18,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-621 negative on J winning day",
+        "winners_capture $-621 < $200 floor"
+      ],
+      "_run_index": 57
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 1.0,
+        "tp1_r": 2.0,
+        "runner_r": 3.0,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -968.3,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -968.3,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1469.76,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -968.3,
+      "losers_added": 0.0,
+      "edge_capture": -968.3,
+      "wide_pnl": 6411.5,
+      "wide_n_trades": 170,
+      "wide_wr": 0.376,
+      "top5_pct": 4.697,
+      "quarter_pnl": {
+        "2025-Q1": 1019.29,
+        "2025-Q2": 2926.75,
+        "2025-Q3": 1142.48,
+        "2025-Q4": 5031.77,
+        "2026-Q1": -6196.77,
+        "2026-Q2": 2487.98
+      },
+      "positive_quarters": 5,
+      "quarter_count": 6,
+      "max_drawdown": 15989.71,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-968 negative on J winning day",
+        "winners_capture $-968 < $200 floor"
+      ],
+      "_run_index": 58
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 1.0,
+        "tp1_r": 2.0,
+        "runner_r": 3.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -620.52,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -620.52,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 800.14,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -620.52,
+      "losers_added": 0.0,
+      "edge_capture": -620.52,
+      "wide_pnl": 13531.98,
+      "wide_n_trades": 170,
+      "wide_wr": 0.294,
+      "top5_pct": 1.961,
+      "quarter_pnl": {
+        "2025-Q1": 6854.37,
+        "2025-Q2": 6226.22,
+        "2025-Q3": 1506.2,
+        "2025-Q4": 2218.37,
+        "2026-Q1": -2640.38,
+        "2026-Q2": -632.8
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 10722.53,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-621 negative on J winning day",
+        "winners_capture $-621 < $200 floor"
+      ],
+      "_run_index": 59
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 1.0,
+        "tp1_r": 2.0,
+        "runner_r": 3.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -968.3,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -968.3,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1469.76,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -968.3,
+      "losers_added": 0.0,
+      "edge_capture": -968.3,
+      "wide_pnl": 5151.22,
+      "wide_n_trades": 170,
+      "wide_wr": 0.376,
+      "top5_pct": 5.857,
+      "quarter_pnl": {
+        "2025-Q1": 1010.56,
+        "2025-Q2": 1577.83,
+        "2025-Q3": 1374.88,
+        "2025-Q4": 5118.78,
+        "2026-Q1": -5571.33,
+        "2026-Q2": 1640.5
+      },
+      "positive_quarters": 5,
+      "quarter_count": 6,
+      "max_drawdown": 15182.25,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-968 negative on J winning day",
+        "winners_capture $-968 < $200 floor"
+      ],
+      "_run_index": 60
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 1.0,
+        "tp1_r": 2.5,
+        "runner_r": 3.0,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -620.52,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -620.52,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1135.82,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -620.52,
+      "losers_added": 0.0,
+      "edge_capture": -620.52,
+      "wide_pnl": 21245.97,
+      "wide_n_trades": 170,
+      "wide_wr": 0.288,
+      "top5_pct": 1.395,
+      "quarter_pnl": {
+        "2025-Q1": 5755.27,
+        "2025-Q2": 8600.26,
+        "2025-Q3": 2188.49,
+        "2025-Q4": 3226.75,
+        "2026-Q1": -657.99,
+        "2026-Q2": 2133.19
+      },
+      "positive_quarters": 5,
+      "quarter_count": 6,
+      "max_drawdown": 10477.47,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-621 negative on J winning day",
+        "winners_capture $-621 < $200 floor"
+      ],
+      "_run_index": 61
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 1.0,
+        "tp1_r": 2.5,
+        "runner_r": 3.0,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -968.3,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -968.3,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1852.65,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -968.3,
+      "losers_added": 0.0,
+      "edge_capture": -968.3,
+      "wide_pnl": 13790.14,
+      "wide_n_trades": 170,
+      "wide_wr": 0.371,
+      "top5_pct": 2.418,
+      "quarter_pnl": {
+        "2025-Q1": -690.66,
+        "2025-Q2": 4334.82,
+        "2025-Q3": 2148.12,
+        "2025-Q4": 6211.68,
+        "2026-Q1": -3138.25,
+        "2026-Q2": 4924.43
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 12662.67,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-968 negative on J winning day",
+        "winners_capture $-968 < $200 floor"
+      ],
+      "_run_index": 62
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 1.0,
+        "tp1_r": 2.5,
+        "runner_r": 3.5,
+        "strike_offset": 0
+      },
+      "pnl_4_29": -620.52,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -620.52,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1135.82,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -620.52,
+      "losers_added": 0.0,
+      "edge_capture": -620.52,
+      "wide_pnl": 20431.95,
+      "wide_n_trades": 170,
+      "wide_wr": 0.288,
+      "top5_pct": 1.453,
+      "quarter_pnl": {
+        "2025-Q1": 5746.27,
+        "2025-Q2": 7576.64,
+        "2025-Q3": 2414.52,
+        "2025-Q4": 3297.03,
+        "2026-Q1": -108.99,
+        "2026-Q2": 1506.48
+      },
+      "positive_quarters": 5,
+      "quarter_count": 6,
+      "max_drawdown": 10311.83,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-621 negative on J winning day",
+        "winners_capture $-621 < $200 floor"
+      ],
+      "_run_index": 63
+    },
+    {
+      "combo": {
+        "chart_stop_buffer": 1.0,
+        "tp1_r": 2.5,
+        "runner_r": 3.5,
+        "strike_offset": 2
+      },
+      "pnl_4_29": -968.3,
+      "pnl_5_04": 0,
+      "by_day": {
+        "2026-04-29": -968.3,
+        "2026-05-01": 0,
+        "2026-05-04": 0,
+        "2026-05-05": 1852.65,
+        "2026-05-06": 0,
+        "2026-05-07": 0
+      },
+      "winners_capture": -968.3,
+      "losers_added": 0.0,
+      "edge_capture": -968.3,
+      "wide_pnl": 12529.88,
+      "wide_n_trades": 170,
+      "wide_wr": 0.371,
+      "top5_pct": 2.666,
+      "quarter_pnl": {
+        "2025-Q1": -699.38,
+        "2025-Q2": 2985.9,
+        "2025-Q3": 2380.53,
+        "2025-Q4": 6298.68,
+        "2026-Q1": -2512.8,
+        "2026-Q2": 4076.95
+      },
+      "positive_quarters": 4,
+      "quarter_count": 6,
+      "max_drawdown": 12460.44,
+      "passed_floors": false,
+      "regressions": [
+        "4/29 $-968 negative on J winning day",
+        "winners_capture $-968 < $200 floor"
+      ],
+      "_run_index": 64
+    }
+  ],
+  "best": {
+    "combo": {
+      "chart_stop_buffer": 0.3,
+      "tp1_r": 1.5,
+      "runner_r": 2.5,
+      "strike_offset": 0
+    },
+    "pnl_4_29": -231.78,
+    "pnl_5_04": 0,
+    "by_day": {
+      "2026-04-29": -231.78,
+      "2026-05-01": 0,
+      "2026-05-04": 0,
+      "2026-05-05": 375.62,
+      "2026-05-06": 0,
+      "2026-05-07": 0
+    },
+    "winners_capture": -231.78,
+    "losers_added": 0.0,
+    "edge_capture": -231.78,
+    "wide_pnl": -1065.54,
+    "wide_n_trades": 170,
+    "wide_wr": 0.376,
+    "top5_pct": 999.0,
+    "quarter_pnl": {
+      "2025-Q1": 6407.2,
+      "2025-Q2": -3282.01,
+      "2025-Q3": 633.4,
+      "2025-Q4": -1347.42,
+      "2026-Q1": -94.89,
+      "2026-Q2": -3381.82
+    },
+    "positive_quarters": 2,
+    "quarter_count": 6,
+    "max_drawdown": 8272.49,
+    "passed_floors": false,
+    "regressions": [
+      "4/29 $-232 negative on J winning day",
+      "winners_capture $-232 < $200 floor"
+    ],
+    "_run_index": 1
+  }
+}

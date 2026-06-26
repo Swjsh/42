@@ -1,0 +1,313 @@
+{
+  "slug": "overnight-vol-expansion-favors-edges",
+  "kind": "regime_gate (DEPLOY-TIMING layer)",
+  "run_date": "2026-06-21",
+  "claim": "overnight realized vol positively predicts next-day intraday range; continuation edges need range to reach TP1/runner -> deploy on high-overnight-vol nights, abstain on dead-overnight (theta-bleed/chop) days",
+  "web_sources": [
+    "Volatility clustering / persistence (GARCH stylized fact): Bollerslev (1986) JoE; Engle (1982) ARCH. High vol tends to be followed by high vol.",
+    "Overnight->intraday vol spillover: e.g. 'Overnight Returns and Firm-Specific Investor Sentiment' (Berkman et al. 2012, JFQA) + the broad RV-persistence literature (Andersen/Bollerslev/Diebold realized-vol HAR models) showing lagged RV (incl. overnight component) predicts next-period RV."
+  ],
+  "the_bar": "DEPLOY-TIMING layer: ACCEPT only if (a) abstain-on-low-overnight-vol LIFTS the BOOK risk-adjusted return (Sharpe/Sortino/total up, maxDD no worse) AND (b) NO-REGRESSION (L174): the ABSTAINED days are net-NEGATIVE (removed losers, not winners). Disambiguated from the DEAD VIX-level knob by entry-VIX control.",
+  "data": {
+    "overnight_feature": "sum(|MES 1m log returns|) over 18:00->09:30 ET (globex incl. overnight)",
+    "mes_overnight_last": "2026-06-12",
+    "opra_cache_last": "2026-06-18",
+    "join_cutoff": "2026-06-12",
+    "join_caveat": "JOIN bounded by MES 1m (ends 2026-06-12) -- classifiable trading days run through 2026-06-12 though OPRA fills exist to 2026-06-18; the freshest ~4 trading days are NOT classifiable (disclosed).",
+    "deploy_threshold": "overnight_rv > rolling-60d median (causal shift-1); static-median fallback=0.0945 pre-warmup",
+    "fills_authority": "real OPRA via lib.simulator_real (C1, the WR authority)"
+  },
+  "overnight_vol_days": 374,
+  "classifiable_days": 374,
+  "vix_disambiguation": {
+    "corr_overnight_rv_vs_entry_vix": 0.874,
+    "within_mid_vix_tercile_control": {
+      "vix_tercile_bounds": [
+        16.72,
+        18.61
+      ],
+      "mid_tercile_n_days": 53,
+      "hi_overnight_in_mid_vix": {
+        "n_days": 23,
+        "total": 3251.08,
+        "mean_day": 141.35,
+        "std_day": 189.71,
+        "sharpe_day": 0.745,
+        "sortino_day": 3.736,
+        "max_dd": -229.32,
+        "win_days": 16,
+        "loss_days": 7,
+        "sign": "POSITIVE"
+      },
+      "lo_overnight_in_mid_vix": {
+        "n_days": 30,
+        "total": 725.96,
+        "mean_day": 24.2,
+        "std_day": 142.34,
+        "sharpe_day": 0.17,
+        "sortino_day": 1.094,
+        "max_dd": -626.4,
+        "win_days": 12,
+        "loss_days": 18,
+        "sign": "POSITIVE"
+      },
+      "interpretation": "if HI-overnight still beats LO-overnight WITHIN one VIX tercile, the signal is overnight-FLOW not VIX-level in disguise"
+    }
+  },
+  "books": {
+    "Safe2_ATM_1+2+4": {
+      "deploy_every_day": {
+        "n_days": 157,
+        "total": 13346.36,
+        "mean_day": 85.01,
+        "std_day": 205.93,
+        "sharpe_day": 0.413,
+        "sortino_day": 1.385,
+        "max_dd": -1007.16,
+        "win_days": 85,
+        "loss_days": 72,
+        "sign": "POSITIVE"
+      },
+      "deploy_hi_only": {
+        "n_days": 77,
+        "total": 8543.28,
+        "mean_day": 110.95,
+        "std_day": 240.4,
+        "sharpe_day": 0.462,
+        "sortino_day": 1.356,
+        "max_dd": -879.96,
+        "win_days": 46,
+        "loss_days": 31,
+        "sign": "POSITIVE"
+      },
+      "abstained_lo_days": {
+        "n_days": 80,
+        "total": 4803.08,
+        "mean_day": 60.04,
+        "std_day": 163.88,
+        "sharpe_day": 0.366,
+        "sortino_day": 2.516,
+        "max_dd": -577.92,
+        "win_days": 39,
+        "loss_days": 41,
+        "sign": "POSITIVE"
+      },
+      "lift_total": -4803.08,
+      "lift_sharpe": 0.049,
+      "lift_sortino": -0.029,
+      "dd_no_worse": true,
+      "risk_adjusted_lift": false,
+      "abstained_net_negative": false,
+      "accept": false,
+      "verdict": "WALL",
+      "n_hi_days": 77,
+      "n_lo_days": 80
+    },
+    "Bold_ITM2_1+2": {
+      "deploy_every_day": {
+        "n_days": 156,
+        "total": 17902.56,
+        "mean_day": 114.76,
+        "std_day": 264.86,
+        "sharpe_day": 0.433,
+        "sortino_day": 1.898,
+        "max_dd": -1494.6,
+        "win_days": 84,
+        "loss_days": 72,
+        "sign": "POSITIVE"
+      },
+      "deploy_hi_only": {
+        "n_days": 78,
+        "total": 11086.8,
+        "mean_day": 142.14,
+        "std_day": 299.89,
+        "sharpe_day": 0.474,
+        "sortino_day": 1.846,
+        "max_dd": -1093.08,
+        "win_days": 45,
+        "loss_days": 33,
+        "sign": "POSITIVE"
+      },
+      "abstained_lo_days": {
+        "n_days": 78,
+        "total": 6815.76,
+        "mean_day": 87.38,
+        "std_day": 223.08,
+        "sharpe_day": 0.392,
+        "sortino_day": 2.676,
+        "max_dd": -847.44,
+        "win_days": 39,
+        "loss_days": 39,
+        "sign": "POSITIVE"
+      },
+      "lift_total": -6815.76,
+      "lift_sharpe": 0.041,
+      "lift_sortino": -0.052,
+      "dd_no_worse": true,
+      "risk_adjusted_lift": false,
+      "abstained_net_negative": false,
+      "accept": false,
+      "verdict": "WALL",
+      "n_hi_days": 78,
+      "n_lo_days": 78
+    }
+  },
+  "edges_ATM_single": {
+    "vwap_continuation": {
+      "deploy_every_day": {
+        "n_days": 155,
+        "total": 6975.96,
+        "mean_day": 45.01,
+        "std_day": 116.42,
+        "sharpe_day": 0.387,
+        "sortino_day": 1.486,
+        "max_dd": -454.56,
+        "win_days": 77,
+        "loss_days": 78,
+        "sign": "POSITIVE"
+      },
+      "deploy_hi_only": {
+        "n_days": 76,
+        "total": 3915.88,
+        "mean_day": 51.52,
+        "std_day": 135.13,
+        "sharpe_day": 0.381,
+        "sortino_day": 1.359,
+        "max_dd": -539.76,
+        "win_days": 40,
+        "loss_days": 36,
+        "sign": "POSITIVE"
+      },
+      "abstained_lo_days": {
+        "n_days": 79,
+        "total": 3060.08,
+        "mean_day": 38.74,
+        "std_day": 95.5,
+        "sharpe_day": 0.406,
+        "sortino_day": 3.476,
+        "max_dd": -319.44,
+        "win_days": 37,
+        "loss_days": 42,
+        "sign": "POSITIVE"
+      },
+      "lift_total": -3060.08,
+      "lift_sharpe": -0.006,
+      "lift_sortino": -0.127,
+      "dd_no_worse": false,
+      "risk_adjusted_lift": false,
+      "abstained_net_negative": false,
+      "accept": false,
+      "verdict": "DEAD",
+      "n_hi_days": 76,
+      "n_lo_days": 79
+    },
+    "vwap_reclaim_failed_break": {
+      "deploy_every_day": {
+        "n_days": 79,
+        "total": 3941.72,
+        "mean_day": 49.9,
+        "std_day": 118.94,
+        "sharpe_day": 0.419,
+        "sortino_day": 1.509,
+        "max_dd": -475.2,
+        "win_days": 42,
+        "loss_days": 37,
+        "sign": "POSITIVE"
+      },
+      "deploy_hi_only": {
+        "n_days": 44,
+        "total": 3088.52,
+        "mean_day": 70.19,
+        "std_day": 145.83,
+        "sharpe_day": 0.481,
+        "sortino_day": 1.571,
+        "max_dd": -265.92,
+        "win_days": 26,
+        "loss_days": 18,
+        "sign": "POSITIVE"
+      },
+      "abstained_lo_days": {
+        "n_days": 35,
+        "total": 853.2,
+        "mean_day": 24.38,
+        "std_day": 66.02,
+        "sharpe_day": 0.369,
+        "sortino_day": 4.419,
+        "max_dd": -278.4,
+        "win_days": 16,
+        "loss_days": 19,
+        "sign": "POSITIVE"
+      },
+      "lift_total": -853.2,
+      "lift_sharpe": 0.062,
+      "lift_sortino": 0.062,
+      "dd_no_worse": true,
+      "risk_adjusted_lift": false,
+      "abstained_net_negative": false,
+      "accept": false,
+      "verdict": "WALL",
+      "n_hi_days": 44,
+      "n_lo_days": 35
+    },
+    "vix_regime_dayside": {
+      "deploy_every_day": {
+        "n_days": 79,
+        "total": 2428.68,
+        "mean_day": 30.74,
+        "std_day": 107.95,
+        "sharpe_day": 0.285,
+        "sortino_day": 1.168,
+        "max_dd": -549.36,
+        "win_days": 36,
+        "loss_days": 43,
+        "sign": "POSITIVE"
+      },
+      "deploy_hi_only": {
+        "n_days": 45,
+        "total": 1538.88,
+        "mean_day": 34.2,
+        "std_day": 112.61,
+        "sharpe_day": 0.304,
+        "sortino_day": 1.138,
+        "max_dd": -430.08,
+        "win_days": 23,
+        "loss_days": 22,
+        "sign": "POSITIVE"
+      },
+      "abstained_lo_days": {
+        "n_days": 34,
+        "total": 889.8,
+        "mean_day": 26.17,
+        "std_day": 102.94,
+        "sharpe_day": 0.254,
+        "sortino_day": 2.509,
+        "max_dd": -242.76,
+        "win_days": 13,
+        "loss_days": 21,
+        "sign": "POSITIVE"
+      },
+      "lift_total": -889.8,
+      "lift_sharpe": 0.019,
+      "lift_sortino": -0.03,
+      "dd_no_worse": true,
+      "risk_adjusted_lift": false,
+      "abstained_net_negative": false,
+      "accept": false,
+      "verdict": "WALL",
+      "n_hi_days": 45,
+      "n_lo_days": 34
+    }
+  },
+  "headline": {
+    "book": "Safe2_ATM_1+2+4",
+    "verdict": "WALL",
+    "any_accept": false
+  },
+  "DISCLOSURE": {
+    "small_n": "classifiable window is short -- per-book n_days is SMALL; reported honestly, not a standing ratification. A deploy-timing mask on this few days is a directional read, not a live flip.",
+    "no_regression": "L174 -- abstained days must be net-negative; winner-removal is rejected",
+    "vix_separation": "C5/L122 -- VIX *level* gating is DEAD; this is overnight-FLOW, controlled for VIX",
+    "spy_vs_option": "C3/L58 -- real OPRA fills; SPY/futures range != option edge",
+    "research_only": "no live edit, no orders (Sunday money-path guard)"
+  }
+}

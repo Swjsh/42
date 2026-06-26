@@ -1,0 +1,22 @@
+{
+  "tick_time": "2026-06-17T14:54:02Z",
+  "tick_et": "2026-06-17T10:54:02-04:00",
+  "instrument": "MNQ",
+  "mode": "WATCH_ONLY",
+  "price_last": 30505,
+  "vix": 16.97,
+  "ribbon_state": "BULLISH",
+  "ribbon_fast": 30296.07,
+  "ribbon_pivot": 30337.42,
+  "ribbon_slow": 30362.85,
+  "ribbon_spread_pts": 66.78,
+  "sma_50": 30393.79,
+  "volume_last_bar": 42100,
+  "position": "FLAT",
+  "account_equity": 25000.0,
+  "daily_pnl": 0.0,
+  "kill_switch": false,
+  "action": "HOLD_FLAT",
+  "reason": "WATCH_ONLY mode; strategy_config_v3.py not yet implemented. VIX 16.97 would gate ON (>=16 threshold). Ribbon bullish, price above all EMAs. Awaiting: (1) entry watcher fleet implementation, (2) J ratification for paper live, (3) 3+ paper live wins before real money.",
+  "notes": "Mid-market activity normal (42K vol/bar). Ribbon spread 66.78pts (~0.22% at price 30505) indicates moderate momentum. 1hr until entry cutoff (15:00 ET)."
+}

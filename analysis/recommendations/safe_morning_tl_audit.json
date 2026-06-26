@@ -1,0 +1,54 @@
+{
+  "study": "Safe morning trendline audit",
+  "date": "2026-06-17",
+  "baseline": {
+    "is_n": 126,
+    "is_pnl": 16529.23,
+    "oos_n": 21,
+    "oos_pnl": 5900.25
+  },
+  "morning_tl_is": {
+    "n": 30,
+    "total": -1496.6,
+    "avg": -49.9,
+    "stop_pct": 83.3
+  },
+  "morning_tl_oos": {
+    "n": 5,
+    "total": 115.4,
+    "avg": 23.1,
+    "stop_pct": 60.0
+  },
+  "gates": [
+    {
+      "gate": "block all morning trendlines",
+      "IS_delta": 1496.56,
+      "OOS_delta": -115.36,
+      "WF": -0.463,
+      "OOS_positive": true,
+      "SW_hurt": 0,
+      "anchor_OK": true,
+      "verdict": "REJECT"
+    },
+    {
+      "gate": "block morning tl_pure only (keep tl+rf/tl+rej)",
+      "IS_delta": 1496.56,
+      "OOS_delta": -115.36,
+      "WF": -0.463,
+      "OOS_positive": true,
+      "SW_hurt": 0,
+      "anchor_OK": true,
+      "verdict": "REJECT"
+    },
+    {
+      "gate": "block morning trendlines 09:35-09:59 ET only",
+      "IS_delta": 93.0,
+      "OOS_delta": 0.0,
+      "WF": 0.0,
+      "OOS_positive": true,
+      "SW_hurt": 0,
+      "anchor_OK": true,
+      "verdict": "REJECT"
+    }
+  ]
+}

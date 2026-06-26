@@ -1,0 +1,40 @@
+loaded 34606 22283
+running FULL blocked...
+blocked done: n_bear 44 pnl 1093.78
+running FULL unblocked...
+unblocked done: n_bear 55 pnl 948.87
+RESULT: {
+  "FULL": {
+    "blocked": {
+      "n_bear": 44,
+      "bear_pnl": 1093.78,
+      "bear_wr": 0.25,
+      "bear_sharpe": 0.19,
+      "n_all": 54,
+      "all_pnl": 307.1,
+      "all_sharpe": 0.04
+    },
+    "unblocked": {
+      "n_bear": 55,
+      "bear_pnl": 948.87,
+      "bear_wr": 0.236,
+      "bear_sharpe": 0.145,
+      "n_all": 65,
+      "all_pnl": 162.18,
+      "all_sharpe": 0.019
+    },
+    "delta_block_minus_unblock_bearpnl": 144.91,
+    "n_removed_by_cap": 11,
+    "removed_pnl": -144.92,
+    "removed_per_trade": -13.17,
+    "removed_wr": 0.182
+  },
+  "anchor": {
+    "blocked_anchor_bear_pnl": 0,
+    "unblocked_anchor_bear_pnl": 0,
+    "blocked_rows": [],
+    "unblocked_rows": [],
+    "regression": false
+  }
+}
+WROTE result json

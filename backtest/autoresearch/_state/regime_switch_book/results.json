@@ -1,0 +1,245 @@
+{
+  "harness": "REGIME-SWITCH BOOK \u2014 does regime allocation beat directional-always?",
+  "run_date": "2026-06-21",
+  "research_question": "Allocate between two real-fills sleeves by causal morning regime (TREND->directional vwap_continuation, CHOP->iron condor LEAD); does the switched book beat directional-ALWAYS on risk-adjusted return + recency chop drawdown + no-regression + OOS-positive?",
+  "frame": "2025-01-02..2026-06-18",
+  "universe_days": 365,
+  "universe_span": "2025-01-02..2026-06-18",
+  "oos_start": "2026-01-01",
+  "fills_authority": "real OPRA \u2014 simulator_real (directional) + simulator_credit (condor) (C1)",
+  "directional_config": {
+    "detector": "vwap_continuation (live)",
+    "strike_offset": 0,
+    "tier": "ATM (Safe-2)",
+    "premium_stop_pct": -0.08,
+    "qty": 3,
+    "exits": "v15 default"
+  },
+  "condor_config": {
+    "structure": "IC",
+    "entry": "10:30",
+    "short_offset": 2,
+    "wing": 2,
+    "pt_frac": 0.5,
+    "stop_mult": 1.5,
+    "commission": 0.65,
+    "source": "PIVOT-PREMIUM-SELLING-SCORECARD.md LEAD cell"
+  },
+  "regime_classifier": {
+    "features": [
+      "trend_strength_20d (causal, prior closes vs prior SMA20)",
+      "vix_spot @09:30 (causal)",
+      "vix_slope_5bar (causal)",
+      "overnight_range_pct_atr (MES 18:00->09:30 / 14d MES range ATR, causal)",
+      "prior_realized_range_pct_atr (prior RTH range / 14d SPY ATR, causal)"
+    ],
+    "rule": "TREND = strong trend AND adequate overnight range; CHOP = flat trend AND (compressed overnight range OR compressed VIX); NEUTRAL = otherwise",
+    "thresholds_source": "IN-SAMPLE terciles (pre-2026), no OOS leakage",
+    "thresholds": {
+      "trend_hi": 0.018856,
+      "trend_lo": 0.010481,
+      "on_hi": 0.8172,
+      "on_lo": 0.5016,
+      "vix_lo": 16.487
+    },
+    "distribution_universe": {
+      "NEUTRAL": 263,
+      "CHOP": 55,
+      "TREND": 47
+    },
+    "distribution_oos": {
+      "CHOP": 15,
+      "NEUTRAL": 77,
+      "TREND": 24
+    },
+    "degenerate_split_flag": false
+  },
+  "chop_day_isolation": {
+    "n_chop_days": 55,
+    "directional_pnl_on_chop": 1202.44,
+    "condor_pnl_on_chop": 459.6,
+    "condor_minus_directional_on_chop": -742.84,
+    "thesis_supported": false,
+    "n_trend_days": 47,
+    "directional_pnl_on_trend": -158.32
+  },
+  "directional_always_baseline": {
+    "full": {
+      "n_days": 365,
+      "total": 7065.96,
+      "mean": 19.359,
+      "sharpe": 3.883,
+      "sortino": 5.753,
+      "max_dd": -454.56,
+      "win_days": 78,
+      "loss_days": 79
+    },
+    "oos": {
+      "n_days": 116,
+      "total": 2377.28,
+      "mean": 20.494,
+      "sharpe": 3.973,
+      "sortino": 6.568,
+      "max_dd": -454.56,
+      "win_days": 23,
+      "loss_days": 27
+    },
+    "recency_25d": {
+      "n_days": 25,
+      "total": -224.64,
+      "mean": -8.986,
+      "sharpe": -4.249,
+      "sortino": -3.606,
+      "max_dd": -312.96,
+      "win_days": 1,
+      "loss_days": 9
+    }
+  },
+  "switched_book_variants": {
+    "directional": {
+      "full": {
+        "n_days": 365,
+        "total": 6323.12,
+        "mean": 17.324,
+        "sharpe": 3.693,
+        "sortino": 5.021,
+        "max_dd": -454.56,
+        "win_days": 89,
+        "loss_days": 73
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 2347.96,
+        "mean": 20.241,
+        "sharpe": 4.025,
+        "sortino": 6.186,
+        "max_dd": -454.56,
+        "win_days": 28,
+        "loss_days": 24
+      },
+      "recency_25d": {
+        "n_days": 25,
+        "total": -224.64,
+        "mean": -8.986,
+        "sharpe": -4.249,
+        "sortino": -3.606,
+        "max_dd": -312.96,
+        "win_days": 1,
+        "loss_days": 9
+      },
+      "no_regression": {
+        "n_switch_days": 318,
+        "book_pnl_on_switch_days": 6481.44,
+        "directional_pnl_on_switch_days": 7224.28,
+        "net_improvement": -742.84,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_risk_adjusted_up_vs_directional": false,
+        "2_recency_chop_drawdown_reduced": true,
+        "3_no_regression_on_switch_days": false,
+        "4_oos_positive": true,
+        "ALL_PASS": false
+      }
+    },
+    "condor": {
+      "full": {
+        "n_days": 365,
+        "total": 2077.48,
+        "mean": 5.692,
+        "sharpe": 2.909,
+        "sortino": 1.575,
+        "max_dd": -324.76,
+        "win_days": 125,
+        "loss_days": 42
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 1147.92,
+        "mean": 9.896,
+        "sharpe": 4.065,
+        "sortino": 2.691,
+        "max_dd": -252.4,
+        "win_days": 43,
+        "loss_days": 13
+      },
+      "recency_25d": {
+        "n_days": 25,
+        "total": -84.2,
+        "mean": -3.368,
+        "sharpe": -2.055,
+        "sortino": -1.063,
+        "max_dd": -158.2,
+        "win_days": 7,
+        "loss_days": 5
+      },
+      "no_regression": {
+        "n_switch_days": 318,
+        "book_pnl_on_switch_days": 2235.8,
+        "directional_pnl_on_switch_days": 7224.28,
+        "net_improvement": -4988.48,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_risk_adjusted_up_vs_directional": false,
+        "2_recency_chop_drawdown_reduced": true,
+        "3_no_regression_on_switch_days": false,
+        "4_oos_positive": true,
+        "ALL_PASS": false
+      }
+    },
+    "abstain": {
+      "full": {
+        "n_days": 365,
+        "total": 301.28,
+        "mean": 0.825,
+        "sharpe": 0.537,
+        "sortino": 0.188,
+        "max_dd": -436.8,
+        "win_days": 30,
+        "loss_days": 18
+      },
+      "oos": {
+        "n_days": 116,
+        "total": 328.12,
+        "mean": 2.829,
+        "sharpe": 1.37,
+        "sortino": 0.762,
+        "max_dd": -163.92,
+        "win_days": 12,
+        "loss_days": 8
+      },
+      "recency_25d": {
+        "n_days": 25,
+        "total": -122.4,
+        "mean": -4.896,
+        "sharpe": -5.509,
+        "sortino": -1.836,
+        "max_dd": -122.4,
+        "win_days": 0,
+        "loss_days": 3
+      },
+      "no_regression": {
+        "n_switch_days": 318,
+        "book_pnl_on_switch_days": 459.6,
+        "directional_pnl_on_switch_days": 7224.28,
+        "net_improvement": -6764.68,
+        "no_regression_pass": false
+      },
+      "bar": {
+        "1_risk_adjusted_up_vs_directional": false,
+        "2_recency_chop_drawdown_reduced": true,
+        "3_no_regression_on_switch_days": false,
+        "4_oos_positive": true,
+        "ALL_PASS": false
+      }
+    }
+  },
+  "DISCLOSURE": {
+    "condor_is_null_failing_standalone": "the IC sleeve FAILS the L172 random-strike null as a standalone (generic theta, not selection alpha) AND is data-constrained by the +/-$5 OPRA band / narrow $2 wings \u2014 see PIVOT-PREMIUM-SELLING-SCORECARD.md. A SHIP needs the wide-band condor validation (direction 4b) FIRST.",
+    "what_this_answers": "the RESEARCH question only \u2014 does regime ALLOCATION beat directional-alone? A YES makes the heavy wide-band fetch (4b) worth it; it is NOT a ship signal on its own.",
+    "per_trade": "per-trade/per-day EXPECTANCY, not WR alone (OP-14)",
+    "real_fills": "real OPRA fills only \u2014 the WR authority (C1); SPY-direction != option edge (C3/L58)",
+    "no_new_ship": "RESEARCH ONLY; no live edit, no orders (money-path guard)"
+  }
+}

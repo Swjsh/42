@@ -1,0 +1,519 @@
+{
+  "generated_at": "2026-06-21T12:28:58.822545+00:00",
+  "slug": "vwap_cont_morning_window_outperforms_midday",
+  "kind": "improves existing edge #1 (vwap_continuation, LIVE)",
+  "hypothesis": "vwap_continuation entries 09:35-11:00 ET have materially higher per-trade expectancy (return on premium) than 11:00-14:00 ET because intraday realized variance is U-shaped (peaks first hour, ~38% lower in the 12-13:00 silent hour), so a long-premium 0DTE buyer entered midday rarely earns the move to beat theta.",
+  "web_sources": [
+    "Intraday volatility U-shape / smile (high at open & close, trough midday) \u2014 Wood, McInish & Ord (1985) JoF; Harris (1986) JFE; Andersen & Bollerslev (1997) 'Intraday periodicity and volatility persistence in financial markets' (J. Emp. Finance) \u2014 realized vol bottoms ~12:00-13:00 ET ('lunch lull').",
+    "CBOE / practitioner notes on the 0DTE 'theta cliff': intraday theta decay of a same-day SPX/SPY option accelerates into the afternoon, so a midday long-premium buyer needs a larger realized move to break even."
+  ],
+  "method": "Detector + sim + OP-22 scorecard imported VERBATIM from j_entry_specificity.py (detect_j_cont_param / _sim / _full_metrics / _ship_gate). HARD-WINDOW <=2026-05-29 (SPY sliced + asserted BEFORE day-contexts). ATM tier, both sides, real OPRA fills. Three buckets compared on per-trade expectancy + OOS + drop-top5, n>=20 required.",
+  "hard_window": "2026-05-29",
+  "data": {
+    "spy": "spy_5m_2025-01-01_2026-06-16.csv",
+    "vix": "vix_5m_2025-01-01_2026-06-16.csv",
+    "trading_days": 351,
+    "date_range": [
+      "2025-01-02",
+      "2026-05-29"
+    ]
+  },
+  "bar_applied": "IMPROVES-EXISTING-EDGE bar: per-trade expectancy LIFT vs continuous baseline AND OOS-positive AND keep n>=20 (NOT the full 11-gate new-signal bar, since this only restricts the live detector's entry_window \u2014 no new signal introduced).",
+  "buckets": [
+    {
+      "label": "BASELINE_0935_1500",
+      "window": [
+        "09:35:00",
+        "15:00:00"
+      ],
+      "signal_count": 167,
+      "side_counts": {
+        "C": 90,
+        "P": 77
+      },
+      "metrics": {
+        "n": 158,
+        "wins": 120,
+        "wr_pct": 75.9,
+        "exp_dollar": 34.45,
+        "total_dollar": 5442.8,
+        "exp_pct_return": 0.1624,
+        "fire_days": 158,
+        "trading_days": 351,
+        "fire_day_pct": 45.0,
+        "trades_per_week": 2.25,
+        "is_n": 108,
+        "oos_n": 50,
+        "is_exp_dollar": 40.07,
+        "oos_exp_dollar": 22.3,
+        "is_exp_pct": 0.17648,
+        "oos_exp_pct": 0.13198,
+        "oos_sign_stable": true,
+        "wf_windows": [
+          {
+            "cut_frac": 0.6,
+            "cut_date": "2025-11-05",
+            "is_n": 92,
+            "oos_n": 66,
+            "is_total": 2536.8,
+            "oos_total": 2906.0,
+            "oos_exp": 44.03,
+            "wf_norm": 1.597,
+            "oos_positive": true
+          },
+          {
+            "cut_frac": 0.7,
+            "cut_date": "2025-12-26",
+            "is_n": 108,
+            "oos_n": 50,
+            "is_total": 4328.0,
+            "oos_total": 1114.8,
+            "oos_exp": 22.3,
+            "wf_norm": 0.556,
+            "oos_positive": true
+          },
+          {
+            "cut_frac": 0.8,
+            "cut_date": "2026-02-18",
+            "is_n": 126,
+            "oos_n": 32,
+            "is_total": 6398.0,
+            "oos_total": -955.2,
+            "oos_exp": -29.85,
+            "wf_norm": -0.588,
+            "oos_positive": false
+          }
+        ],
+        "median_wf_norm": 0.556,
+        "all_cuts_oos_positive": false,
+        "quarters": {
+          "2025Q1": {
+            "n": 26,
+            "exp": 99.96,
+            "total": 2599.0
+          },
+          "2025Q2": {
+            "n": 25,
+            "exp": -18.19,
+            "total": -454.8
+          },
+          "2025Q3": {
+            "n": 28,
+            "exp": 1.79,
+            "total": 50.2
+          },
+          "2025Q4": {
+            "n": 33,
+            "exp": 64.55,
+            "total": 2130.0
+          },
+          "2026Q1": {
+            "n": 26,
+            "exp": 92.95,
+            "total": 2416.6
+          },
+          "2026Q2": {
+            "n": 20,
+            "exp": -64.91,
+            "total": -1298.2
+          }
+        },
+        "quarter_positive_fraction": 0.67,
+        "by_side": {
+          "C": {
+            "n": 86,
+            "exp": 22.91,
+            "wr": 76.7,
+            "total": 1970.2
+          },
+          "P": {
+            "n": 72,
+            "exp": 48.23,
+            "wr": 75.0,
+            "total": 3472.6
+          }
+        },
+        "both_dirs_positive": true,
+        "drop_top5_mean_dollar": 20.93,
+        "top5_winner_share_of_gross_wins": 0.142,
+        "robust_to_outliers": true,
+        "dsr": {
+          "verdict": "PASS",
+          "dsr": 0.9996894781276054,
+          "psr": 0.99999044562408,
+          "pbo": null,
+          "n_obs": 158,
+          "n_trials": 3,
+          "low_power": false,
+          "notes": [
+            "PSR(vs 0)=1.0000 on n=158 obs (Sharpe=0.225, skew=5.67, kurt=57.16).",
+            "DSR deflated for n_trials=3 (SR_0=0.045) = 0.9997.",
+            "PBO skipped (no performance matrix supplied).",
+            "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+          ]
+        },
+        "dsr_verdict": "PASS",
+        "exit_reason_hist": {
+          "TP1_THEN_RUNNER_RIBBON": 69,
+          "EXIT_ALL_LEVEL_STOP": 19,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 47,
+          "TP1_THEN_RUNNER_TIME": 20,
+          "EXIT_ALL_TIME_STOP": 3
+        },
+        "coverage": {
+          "filled": 158,
+          "cache_miss": 9
+        },
+        "ship_gate": {
+          "oos_positive": true,
+          "wf_median_ge_0.70": false,
+          "all_cuts_oos_positive": false,
+          "sub_window_stable_q>=0.60": true,
+          "dsr_not_fail": true,
+          "robust_drop_top5": true,
+          "both_dirs_positive": true
+        },
+        "edge_ship_pass": false,
+        "freq_pass_>=2/wk": true,
+        "DAILY_SURVIVOR": false,
+        "n_ge_20": true
+      }
+    },
+    {
+      "label": "MORNING_0935_1100",
+      "window": [
+        "09:35:00",
+        "11:00:00"
+      ],
+      "signal_count": 164,
+      "side_counts": {
+        "C": 89,
+        "P": 75
+      },
+      "metrics": {
+        "n": 155,
+        "wins": 119,
+        "wr_pct": 76.8,
+        "exp_dollar": 38.41,
+        "total_dollar": 5952.8,
+        "exp_pct_return": 0.1752,
+        "fire_days": 155,
+        "trading_days": 351,
+        "fire_day_pct": 44.2,
+        "trades_per_week": 2.21,
+        "is_n": 105,
+        "oos_n": 50,
+        "is_exp_dollar": 46.08,
+        "oos_exp_dollar": 22.3,
+        "is_exp_pct": 0.19577,
+        "oos_exp_pct": 0.13198,
+        "oos_sign_stable": true,
+        "wf_windows": [
+          {
+            "cut_frac": 0.6,
+            "cut_date": "2025-11-05",
+            "is_n": 89,
+            "oos_n": 66,
+            "is_total": 3046.8,
+            "oos_total": 2906.0,
+            "oos_exp": 44.03,
+            "wf_norm": 1.286,
+            "oos_positive": true
+          },
+          {
+            "cut_frac": 0.7,
+            "cut_date": "2025-12-26",
+            "is_n": 105,
+            "oos_n": 50,
+            "is_total": 4838.0,
+            "oos_total": 1114.8,
+            "oos_exp": 22.3,
+            "wf_norm": 0.484,
+            "oos_positive": true
+          },
+          {
+            "cut_frac": 0.8,
+            "cut_date": "2026-02-18",
+            "is_n": 123,
+            "oos_n": 32,
+            "is_total": 6908.0,
+            "oos_total": -955.2,
+            "oos_exp": -29.85,
+            "wf_norm": -0.531,
+            "oos_positive": false
+          }
+        ],
+        "median_wf_norm": 0.484,
+        "all_cuts_oos_positive": false,
+        "quarters": {
+          "2025Q1": {
+            "n": 25,
+            "exp": 101.2,
+            "total": 2530.0
+          },
+          "2025Q2": {
+            "n": 24,
+            "exp": -8.57,
+            "total": -205.8
+          },
+          "2025Q3": {
+            "n": 27,
+            "exp": 14.08,
+            "total": 380.2
+          },
+          "2025Q4": {
+            "n": 33,
+            "exp": 64.55,
+            "total": 2130.0
+          },
+          "2026Q1": {
+            "n": 26,
+            "exp": 92.95,
+            "total": 2416.6
+          },
+          "2026Q2": {
+            "n": 20,
+            "exp": -64.91,
+            "total": -1298.2
+          }
+        },
+        "quarter_positive_fraction": 0.67,
+        "by_side": {
+          "C": {
+            "n": 85,
+            "exp": 26.11,
+            "wr": 77.6,
+            "total": 2219.2
+          },
+          "P": {
+            "n": 70,
+            "exp": 53.34,
+            "wr": 75.7,
+            "total": 3733.6
+          }
+        },
+        "both_dirs_positive": true,
+        "drop_top5_mean_dollar": 24.74,
+        "top5_winner_share_of_gross_wins": 0.143,
+        "robust_to_outliers": true,
+        "dsr": {
+          "verdict": "PASS",
+          "dsr": 0.9999014488688169,
+          "psr": 0.9999976246515931,
+          "pbo": null,
+          "n_obs": 155,
+          "n_trials": 3,
+          "low_power": false,
+          "notes": [
+            "PSR(vs 0)=1.0000 on n=155 obs (Sharpe=0.244, skew=5.82, kurt=58.57).",
+            "DSR deflated for n_trials=3 (SR_0=0.045) = 0.9999.",
+            "PBO skipped (no performance matrix supplied).",
+            "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+          ]
+        },
+        "dsr_verdict": "PASS",
+        "exit_reason_hist": {
+          "TP1_THEN_RUNNER_RIBBON": 68,
+          "EXIT_ALL_LEVEL_STOP": 19,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 46,
+          "TP1_THEN_RUNNER_TIME": 20,
+          "EXIT_ALL_TIME_STOP": 2
+        },
+        "coverage": {
+          "filled": 155,
+          "cache_miss": 9
+        },
+        "ship_gate": {
+          "oos_positive": true,
+          "wf_median_ge_0.70": false,
+          "all_cuts_oos_positive": false,
+          "sub_window_stable_q>=0.60": true,
+          "dsr_not_fail": true,
+          "robust_drop_top5": true,
+          "both_dirs_positive": true
+        },
+        "edge_ship_pass": false,
+        "freq_pass_>=2/wk": true,
+        "DAILY_SURVIVOR": false,
+        "n_ge_20": true
+      }
+    },
+    {
+      "label": "MIDDAY_1100_1400",
+      "window": [
+        "11:00:00",
+        "14:00:00"
+      ],
+      "signal_count": 143,
+      "side_counts": {
+        "C": 80,
+        "P": 63
+      },
+      "metrics": {
+        "n": 139,
+        "wins": 106,
+        "wr_pct": 76.3,
+        "exp_dollar": 20.24,
+        "total_dollar": 2813.6,
+        "exp_pct_return": 0.11647,
+        "fire_days": 139,
+        "trading_days": 351,
+        "fire_day_pct": 39.6,
+        "trades_per_week": 1.98,
+        "is_n": 97,
+        "oos_n": 42,
+        "is_exp_dollar": 14.51,
+        "oos_exp_dollar": 33.47,
+        "is_exp_pct": 0.11462,
+        "oos_exp_pct": 0.12073,
+        "oos_sign_stable": true,
+        "wf_windows": [
+          {
+            "cut_frac": 0.6,
+            "cut_date": "2025-11-05",
+            "is_n": 83,
+            "oos_n": 56,
+            "is_total": -214.8,
+            "oos_total": 3028.4,
+            "oos_exp": 54.08,
+            "wf_norm": -20.896,
+            "oos_positive": true
+          },
+          {
+            "cut_frac": 0.7,
+            "cut_date": "2025-12-26",
+            "is_n": 97,
+            "oos_n": 42,
+            "is_total": 1407.8,
+            "oos_total": 1405.8,
+            "oos_exp": 33.47,
+            "wf_norm": 2.306,
+            "oos_positive": true
+          },
+          {
+            "cut_frac": 0.8,
+            "cut_date": "2026-02-18",
+            "is_n": 114,
+            "oos_n": 25,
+            "is_total": 1713.2,
+            "oos_total": 1100.4,
+            "oos_exp": 44.02,
+            "wf_norm": 2.929,
+            "oos_positive": true
+          }
+        ],
+        "median_wf_norm": 2.306,
+        "all_cuts_oos_positive": true,
+        "quarters": {
+          "2025Q1": {
+            "n": 23,
+            "exp": 11.15,
+            "total": 256.4
+          },
+          "2025Q2": {
+            "n": 24,
+            "exp": -13.03,
+            "total": -312.8
+          },
+          "2025Q3": {
+            "n": 25,
+            "exp": -28.72,
+            "total": -718.0
+          },
+          "2025Q4": {
+            "n": 29,
+            "exp": 71.3,
+            "total": 2067.6
+          },
+          "2026Q1": {
+            "n": 21,
+            "exp": 57.5,
+            "total": 1207.4
+          },
+          "2026Q2": {
+            "n": 17,
+            "exp": 18.41,
+            "total": 313.0
+          }
+        },
+        "quarter_positive_fraction": 0.67,
+        "by_side": {
+          "C": {
+            "n": 79,
+            "exp": 21.62,
+            "wr": 78.5,
+            "total": 1707.8
+          },
+          "P": {
+            "n": 60,
+            "exp": 18.43,
+            "wr": 73.3,
+            "total": 1105.8
+          }
+        },
+        "both_dirs_positive": true,
+        "drop_top5_mean_dollar": 8.09,
+        "top5_winner_share_of_gross_wins": 0.166,
+        "robust_to_outliers": true,
+        "dsr": {
+          "verdict": "PASS",
+          "dsr": 0.9745740439056841,
+          "psr": 0.997488319068453,
+          "pbo": null,
+          "n_obs": 139,
+          "n_trials": 3,
+          "low_power": false,
+          "notes": [
+            "PSR(vs 0)=0.9975 on n=139 obs (Sharpe=0.216, skew=1.39, kurt=11.29).",
+            "DSR deflated for n_trials=3 (SR_0=0.066) = 0.9746.",
+            "PBO skipped (no performance matrix supplied).",
+            "Verdict PASS: PSR>=0.95, DSR>0.0, and PBO under ceiling (or not tested)."
+          ]
+        },
+        "dsr_verdict": "PASS",
+        "exit_reason_hist": {
+          "TP1_THEN_RUNNER_RIBBON": 82,
+          "TP1_THEN_RUNNER_TIME": 19,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 24,
+          "EXIT_ALL_TIME_STOP": 9,
+          "EXIT_ALL_LEVEL_STOP": 5
+        },
+        "coverage": {
+          "filled": 139,
+          "cache_miss": 4
+        },
+        "ship_gate": {
+          "oos_positive": true,
+          "wf_median_ge_0.70": true,
+          "all_cuts_oos_positive": true,
+          "sub_window_stable_q>=0.60": true,
+          "dsr_not_fail": true,
+          "robust_drop_top5": true,
+          "both_dirs_positive": true
+        },
+        "edge_ship_pass": true,
+        "freq_pass_>=2/wk": false,
+        "DAILY_SURVIVOR": false,
+        "n_ge_20": true
+      }
+    }
+  ],
+  "contrasts": {
+    "morning_minus_midday_exp_pct_return": 0.05873,
+    "morning_minus_midday_exp_dollar": 18.17,
+    "morning_minus_baseline_oos_exp_dollar": 0.0,
+    "morning_n": 155,
+    "midday_n": 139,
+    "baseline_n": 158,
+    "morning_exp_pct": 0.1752,
+    "midday_exp_pct": 0.11647,
+    "baseline_exp_pct": 0.1624
+  },
+  "VERDICT": "DEAD",
+  "verdict_reason": "Hypothesis NOT supported on OUR real fills: morning exp_pct +0.1752 vs midday +0.1165, morning-vs-baseline OOS lift $+0.0. The realized-variance U-shape does not translate into a per-CONTRACT 0DTE option expectancy edge for this detector (C3/L58: a SPY-price/variance regularity != an option edge once theta+delta+stop-misfire are paid).",
+  "caveats": [
+    "vwap_continuation is a ONCE-PER-DAY, morning-trend-established continuation detector (trend side fixed by first 3 RTH bars; one entry per day). It is NOT a free intraday entry generator, so the midday bucket is structurally starved and this test cannot fully isolate the realized-variance claim from detector shape.",
+    "Proxy strikes (L58): nearest-cached strike used; OPRA cache ends ~2026-05-29 (enforced via HARD-WINDOW slice, not just cache_miss drops).",
+    "ATM tier headline; live config is ITM/ATM + tight stop. Propose-only (Rule 9). NO live edits performed (Sunday, markets closed)."
+  ]
+}

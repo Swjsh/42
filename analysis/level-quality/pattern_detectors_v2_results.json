@@ -1,0 +1,114 @@
+{
+  "study": "l75_open_bar_only_v2",
+  "days": 219,
+  "l75_v1_baseline_freq_pct": 96.3,
+  "l75_v2": {
+    "total_events": 109,
+    "days_with_event": 60,
+    "frequency_pct": 27.4,
+    "covers_n_loser_days": 2,
+    "would_block_n_winner_days": 2,
+    "verdict_freq_ok": true,
+    "verdict_coverage_ok": true,
+    "verdict_no_winner_block": false,
+    "all_pass": false
+  },
+  "anchor_loser_events": {
+    "2026-05-05": {
+      "l75_v2_count": 2,
+      "j_entry_time": "09:35:00",
+      "would_block_j_entry": true,
+      "l75_details": [
+        {
+          "level": 721.97,
+          "bar_i": 0,
+          "bar_time": "2026-05-05 09:30:00",
+          "pattern": "L75_OPEN_BAR_ONLY",
+          "pierce_depth": 0.475,
+          "suspend_until_bar_i": 6,
+          "suspend_until_time": "10:00 ET"
+        },
+        {
+          "level": 722.1199951171875,
+          "bar_i": 0,
+          "bar_time": "2026-05-05 09:30:00",
+          "pattern": "L75_OPEN_BAR_ONLY",
+          "pierce_depth": 0.625,
+          "suspend_until_bar_i": 6,
+          "suspend_until_time": "10:00 ET"
+        }
+      ]
+    },
+    "2026-05-06": {
+      "l75_v2_count": 1,
+      "j_entry_time": "14:50:00",
+      "would_block_j_entry": false,
+      "l75_details": [
+        {
+          "level": 729.0,
+          "bar_i": 0,
+          "bar_time": "2026-05-06 09:30:00",
+          "pattern": "L75_OPEN_BAR_ONLY",
+          "pierce_depth": 1.18,
+          "suspend_until_bar_i": 6,
+          "suspend_until_time": "10:00 ET"
+        }
+      ]
+    },
+    "2026-05-07": {
+      "l75_v2_count": 0,
+      "j_entry_time": "09:35:00",
+      "would_block_j_entry": [],
+      "l75_details": []
+    }
+  },
+  "anchor_winner_events": {
+    "2026-04-29": {
+      "l75_v2_count": 0,
+      "j_entry_time": "09:35:00",
+      "would_block_j_entry": [],
+      "l75_details": []
+    },
+    "2026-05-01": {
+      "l75_v2_count": 2,
+      "j_entry_time": "09:35:00",
+      "would_block_j_entry": true,
+      "l75_details": [
+        {
+          "level": 721.0,
+          "bar_i": 0,
+          "bar_time": "2026-05-01 09:30:00",
+          "pattern": "L75_OPEN_BAR_ONLY",
+          "pierce_depth": 0.26,
+          "suspend_until_bar_i": 6,
+          "suspend_until_time": "10:00 ET"
+        },
+        {
+          "level": 721.99,
+          "bar_i": 0,
+          "bar_time": "2026-05-01 09:30:00",
+          "pattern": "L75_OPEN_BAR_ONLY",
+          "pierce_depth": 1.25,
+          "suspend_until_bar_i": 6,
+          "suspend_until_time": "10:00 ET"
+        }
+      ]
+    },
+    "2026-05-04": {
+      "l75_v2_count": 1,
+      "j_entry_time": "09:35:00",
+      "would_block_j_entry": true,
+      "l75_details": [
+        {
+          "level": 719.9,
+          "bar_i": 0,
+          "bar_time": "2026-05-04 09:30:00",
+          "pattern": "L75_OPEN_BAR_ONLY",
+          "pierce_depth": 0.65,
+          "suspend_until_bar_i": 6,
+          "suspend_until_time": "10:00 ET"
+        }
+      ]
+    }
+  }
+}

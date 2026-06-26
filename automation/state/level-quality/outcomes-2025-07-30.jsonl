@@ -1,0 +1,11 @@
+{"date": "2025-07-30", "price": 617.83, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-07-30", "price": 629.755, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-07-30", "price": 634.365, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.485, "false_break": false}
+{"date": "2025-07-30", "price": 635.0, "source": "round", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.42, "false_break": false}
+{"date": "2025-07-30", "price": 635.1060323542853, "source": "multi_day", "touched": true, "outcome": "RESPECT", "reaction_dollars": 0.649, "false_break": false}
+{"date": "2025-07-30", "price": 635.2, "source": "multi_day", "touched": true, "outcome": "RESPECT", "reaction_dollars": 0.555, "false_break": false}
+{"date": "2025-07-30", "price": 635.26, "source": "multi_day", "touched": true, "outcome": "RESPECT", "reaction_dollars": 0.495, "false_break": false}
+{"date": "2025-07-30", "price": 636.0, "source": "round", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.21, "false_break": false}
+{"date": "2025-07-30", "price": 637.02, "source": "round", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.01, "false_break": false}
+{"date": "2025-07-30", "price": 637.465, "source": "swept", "touched": true, "outcome": "RESPECT", "reaction_dollars": 5.685, "false_break": false}
+{"date": "2025-07-30", "price": 638.63, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}

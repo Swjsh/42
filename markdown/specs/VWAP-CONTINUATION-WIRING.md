@@ -1,14 +1,13 @@
-# VWAP_CONTINUATION (J_VWAP_CONT) — flip-ready DORMANT wiring
+# VWAP_CONTINUATION (J_VWAP_CONT) — LIVE wiring
 
-> **Status: SHIPPED DORMANT / PROPOSE-AND-PING-J.** J's near-daily trading edge,
-> implemented end-to-end and **one flag-flip from live**. The detector, tests,
-> registration, params keys, and heartbeat block ARE shipped (engine code + dormant
-> doctrine). The setup is **OFF by default** (`params.j_vwap_cont_enabled = false` →
-> the heartbeat block is inert → zero behavior change). It is NOT auto-live because it
-> clears **6 of 7** OP-22 gates (misses strict all-cuts-OOS-positive on a soft recent
-> quarter). **J flips it.** J's role per OP-22/OP-25 is REVOKE, not approve — but
-> because this is a 6/7 with a recent-Q caveat AND touches the bull-side direction
-> (OP-16), the flip is explicitly J's call.
+> **Status: LIVE** (shipped 2026-06-20, commit b580fcf; `params.j_vwap_cont_enabled = true`).
+> J's near-daily trading edge, implemented end-to-end and **trading live**. The detector,
+> tests, registration, params keys, and heartbeat block are all shipped and the master flag
+> is ON, so the heartbeat block is active. It cleared **6 of 7** OP-22 gates (the one soft
+> miss is strict all-cuts-OOS-positive on a thin recent quarter) and — as an OOS-positive,
+> DSR-pass, broad-based, both-directions edge — **shipped live under the standing
+> authorization (OP-22 / OP-11), reported for REVOKE only.** J's role per OP-22/OP-25 is
+> REVOKE, not approve.
 
 ## What this is
 
@@ -23,7 +22,7 @@ This was translated **structurally** (VWAP-relation / time-of-day / side are sca
 so his 2021-23 SPX rule maps directly onto 2025-26 SPY) into a **causal** detector and
 run through the full OP-22 stack on **real OPRA fills** with the live CHART-STOP-ONLY
 config — `backtest/autoresearch/j_daily_pattern_ratify.py` →
-[`analysis/recommendations/j-daily-pattern-LIVE.json`](../analysis/recommendations/j-daily-pattern-LIVE.json).
+[`analysis/recommendations/j-daily-pattern-LIVE.json`](../../analysis/recommendations/j-daily-pattern-LIVE.json).
 
 ## Why it ships (the validated numbers)
 
@@ -69,7 +68,8 @@ sole negative window across all three cuts. Root causes (both disclosed in the s
 **put-side bear-chop patch** (the VIX gate, when enabled, recovers most of it: VIXGATE
 2026-Q2 = −$34.0 vs ungated −$64.9). This is **the same class** as the already-shipped H4
 VWAP-pullback edge — regime-soft in a recent window, structurally sound across the full
-sample — so it ships **DORMANT/flip-ready with the caveat**, not as a clean auto-live.
+sample — so it **shipped live under the standing authorization with the caveat carried as a
+REVOKE note**, the one soft gate being a flag for J to revoke, not a permission gate.
 
 The other knock: **near-daily, not every-day.** It fires ~2.1×/week (42% of days), which
 clears the ≥2/wk "daily-tradeable" floor but is not literally daily — J's own pattern
@@ -84,7 +84,7 @@ per-tick continuous-scoring rubric, so — exactly like GAP_AND_GO — it wires 
 block evaluated each morning tick BEFORE `### Scoring`, gated on its flag, routing the
 signal through the SAME execution + `risk_gate` path as a normal entry.
 
-## What shipped (engine code + dormant doctrine)
+## What shipped (engine code + live doctrine)
 
 - **Live detector:** `backtest/lib/watchers/vwap_continuation_watcher.py` — pure causal
   core (`detect_vwap_continuation_core` + `trend_side` + `vix_slope`) + the streaming
@@ -99,41 +99,39 @@ signal through the SAME execution + `risk_gate` path as a normal entry.
   are claimable for the LIVE detector (L153). Plus unit tests for the VWAP-side logic, the
   VIX gate (rising allows / falling blocks puts), the morning cutoff, causality (warmup),
   and one-entry-per-day.
-- **Params (DORMANT, default OFF):** `automation/state/params.json`
-  - `j_vwap_cont_enabled: false` — the master flag (false = inert).
-  - `j_vwap_cont_side: "both"` — both directions validated +, BUT see the OP-16 note below.
+- **Params (LIVE, master flag ON):** `automation/state/params.json`
+  - `j_vwap_cont_enabled: true` — the master flag (true = active).
+  - `j_vwap_cont_side: "both"` — both directions validated +.
   - `j_vwap_cont_put_vix_gate: false` — opt-in C5 VIX put-gate (the stronger cell).
   - `_j_vwap_cont_doc` — full provenance + revert.
-- **Heartbeat block (DORMANT):** `automation/prompts/heartbeat.md` → `### VWAP_CONTINUATION
+- **Heartbeat block (LIVE):** `automation/prompts/heartbeat.md` → `### VWAP_CONTINUATION
   morning setup` (own first-entry lock key `VWAP_CONTINUATION`, ≤10:30 morning-window gate,
   VWAP-side + breakout/pullback trigger + optional VIX-gate recognition, per-tier strike,
   chart-stop, min-3 + ~6% premium ceiling, standard v15 exits, routed through the normal
-  pre-exec gate + `risk_gate`). **Gated on `j_vwap_cont_enabled != true → SKIP`** → falls
-  through to `### Scoring` unchanged when off.
+  pre-exec gate + `risk_gate`). **Gated on `j_vwap_cont_enabled != true → SKIP`** → the flag
+  is `true`, so the block is active each morning tick before `### Scoring`.
 
 Pin-sync: the params values (`enabled`/`side`/`put_vix_gate`, gap thresholds, cutoff,
 chart-stop-only) and the heartbeat block describe the SAME rule — a drift between them is a
 kill-switch event (rule-version pin check, premarket Step 1a).
 
-## THE ONE FLIP TO MAKE J'S DAILY EDGE TRADE
+## The live config (the flip that shipped J's daily edge)
 
-Edit `automation/state/params.json`:
+`automation/state/params.json` carries:
 
 ```json
   "j_vwap_cont_enabled": true,
 ```
 
-That single change activates the heartbeat block. Nothing else is required — the detector,
-gates, sizing, exits, and risk_gate routing are all already wired.
+That single value activates the heartbeat block — the detector, gates, sizing, exits, and
+risk_gate routing were all already wired, so nothing else was required.
 
-Direction / gate choices when flipping:
-- **`j_vwap_cont_side`** — keep `"both"` to trade J's full validated edge (calls + puts,
-  both cleared the bar). **OP-16 caveat:** the doctrine keeps bull-side new entries DRAFT
-  until J has 3 live wins on a bull setup, so going live with `"both"` is **J's explicit
-  call**. Set `"put"` for the OP-16-conservative bear-only first step (forfeits the call
-  half, which is the larger and equally-validated side).
-- **`j_vwap_cont_put_vix_gate`** — set `true` to use the stronger VIX-gated cell (lifts the
-  put book and trims the recent-Q drag); leave `false` for the headline cell.
+Direction / gate config (current live values):
+- **`j_vwap_cont_side: "both"`** — trades J's full validated edge (calls + puts, both
+  cleared the bar). Setting `"put"` would forfeit the call half (the larger, equally-validated
+  side) for a bear-only book.
+- **`j_vwap_cont_put_vix_gate: false`** — the headline cell. Setting `true` switches to the
+  stronger VIX-gated cell (lifts the put book and trims the recent-Q drag).
 
 ## Revert
 
@@ -146,7 +144,7 @@ code). J holds REVOKE per Rule 9 / OP-25.
 - Profile (Part A): `backtest/autoresearch/webull_daily_pattern_miner.py` →
   `analysis/webull-j-trades/j_daily_rules.json` + `j_winner_features.json`.
 - Validation (Part B): `backtest/autoresearch/j_daily_pattern_ratify.py` →
-  [`analysis/recommendations/j-daily-pattern-LIVE.json`](../analysis/recommendations/j-daily-pattern-LIVE.json)
+  [`analysis/recommendations/j-daily-pattern-LIVE.json`](../../analysis/recommendations/j-daily-pattern-LIVE.json)
   (real OPRA fills, OP-22 stack + co-equal frequency metric, chart-stop-only).
 - Live detector + parity/unit tests: `backtest/lib/watchers/vwap_continuation_watcher.py`
   + `backtest/tests/test_vwap_continuation_watcher.py` (21 tests, 363-day parity).

@@ -365,6 +365,26 @@ Status line: "Live-deployment ready: YES / NO. Blockers: <list>. Regressions thi
 
 ---
 
+## Section 6.5 — Recency-confirmation check (CONFIRM-BEFORE-CAPITAL gate · NEW 2026-06-21)
+
+**Why this exists.** Sunday's fresh re-validation surfaced a RECENCY YELLOW FLAG — the validated research edges (#1 `vwap_continuation` LIVE, #2 `vwap_reclaim_failed_break`, #4 `vix_regime_dayside`) stay positive over full-OOS-2026 (n≈24–51) but did NOT confirm positive on the freshest trading weeks (small-n). The honest gate this implies is **CONFIRM-BEFORE-CAPITAL**: do not flip an edge live while its recency verdict is RED, and do not scale capital on an edge until it re-confirms (CONFIRM) on accumulating recent real fills. This is the OP-11 OUTER-loop expression of that gate — run it WEEKLY here as recent OPRA fills accumulate.
+
+**Run.** `backtest/.venv/Scripts/python.exe backtest/autoresearch/recency_check.py` (pure-Python, $0, READ-ONLY — reuses the validated detectors + real-OPRA sim byte-for-byte; edits NO watcher / params / risk_gate / orchestrator / heartbeat). It auto-reads the OPRA cache last-date from `automation/state/data-coverage.json`, scores the newest ~25 trading days of real fills per edge/tier AND per book, and writes `automation/state/recency-confirmation.json` + prepends a dated wake-signal to `automation/overnight/STATUS.md`.
+
+**Read the verdicts.** Each edge/tier and each book carries one of:
+- **CONFIRM** = recent expectancy/tr > 0 AND recent n ≥ floor (default n≥10).
+- **YELLOW** = positive but n < floor, OR recent ≤0 with n < floor (small-n wobble vs a positive full-OOS base).
+- **RED** = recent expectancy/tr < 0 AND n ≥ floor (clear).
+
+**Surface in Section 0 + gate the flips:**
+- If any edge slated for a live flip (e.g. WP-5 strike correction, WP-0 #2/#4 stop flips per `markdown/planning/LIVE-PATH-WORKPACKAGE.md`) reads **RED**, surface a CRITICAL "DO-NOT-FLIP" note in Section 0 and do NOT recommend the flip this week — it must re-confirm to ≥ YELLOW first.
+- An edge already live stays at minimum sizing until its recency verdict reads **CONFIRM** — surface any capital-scale recommendation as BLOCKED-on-CONFIRM until then.
+- A per-book **RED** is a portfolio sizing brake (size the combined book down; do not add the edge as a fresh independent sleeve).
+
+**Render** the per-edge/per-book verdict table from `recency-confirmation.json#headline` + `#books`, and cite the JSON path. This section NEVER auto-edits params — it gates and informs the Section 0 / Section 7 / Section 7.1 recommendations.
+
+---
+
 ## Section 7 — Setup promote/demote (AUTO-EDIT 2026-05-09)
 
 For each setup in `analysis/setup-performance.json`:
@@ -540,7 +560,8 @@ This paragraph also gets written to `automation/state/dashboard-dialogue.json#ti
 1. Compute the week's date range from "today" (Sunday) → last_friday → mon_of_week.
 2. Read all required files. If any are missing, write the dependent section with placeholder "no data" and note in the log.
 3. **Compute all metrics first** (random baseline simulation, simple-rules backtests, calibration aggregation) so section 0's executive block reflects the strongest evidence.
-4. **Generate recommendations** by applying the urgency rubric (S6.3) to: rule-break costs, setup hit rates, baseline gaps, calibration deltas, deployment regressions.
+3a. **Run the recency-confirmation tracker (Section 6.5):** `backtest/.venv/Scripts/python.exe backtest/autoresearch/recency_check.py`. Read `automation/state/recency-confirmation.json` — any RED edge slated for a live flip becomes a CRITICAL DO-NOT-FLIP note; any live edge not yet CONFIRM blocks a capital-scale recommendation.
+4. **Generate recommendations** by applying the urgency rubric (S6.3) to: rule-break costs, setup hit rates, baseline gaps, calibration deltas, deployment regressions, AND the recency-confirmation gate (Section 6.5).
 5. **Cross-check against `recommendations-log.jsonl`** — skip already-ratified or recently-declined-with-stable-evidence items. Append `status: "pending"` rows for new ones.
 6. Build the markdown per the spec. Section 0 first (executive block), then sections 1–9 in order.
 7. Write `analysis/{YYYY-Www}.md`.

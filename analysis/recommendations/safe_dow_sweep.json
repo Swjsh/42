@@ -1,0 +1,40 @@
+{
+  "study": "Safe day-of-week sweep",
+  "date": "2026-06-17",
+  "baseline": {
+    "is_n": 126,
+    "is_pnl": 16529.23,
+    "oos_n": 21,
+    "oos_pnl": 5900.25
+  },
+  "gates": [
+    {
+      "gate": "block Friday entries",
+      "IS_delta": -3974.64,
+      "OOS_delta": -1924.56,
+      "verdict": "REJECT (IS_delta<=0)"
+    },
+    {
+      "gate": "block Monday entries",
+      "IS_delta": 468.38,
+      "OOS_delta": -1972.38,
+      "WF": -25.266,
+      "OOS_positive": true,
+      "SW_hurt": 1,
+      "anchor_OK": true,
+      "verdict": "REJECT"
+    },
+    {
+      "gate": "block Monday + Friday entries",
+      "IS_delta": -3506.26,
+      "OOS_delta": -3896.94,
+      "verdict": "REJECT (IS_delta<=0)"
+    },
+    {
+      "gate": "block Friday afternoon only",
+      "IS_delta": -1247.12,
+      "OOS_delta": 18.91,
+      "verdict": "REJECT (IS_delta<=0)"
+    }
+  ]
+}

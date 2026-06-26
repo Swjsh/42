@@ -1,0 +1,57 @@
+tick_id,fire_at,decision,claimed_spy,claimed_bar_label,last_closed_bar_open,last_closed_close,in_progress_bar_open,in_progress_close_so_far,in_progress_high,in_progress_low,divergence_vs_closed,divergence_dollars,csv_lag_minutes,ribbon_cents,bear_score,bull_score,classification,notes
+3,09:39:01,HOLD_DEV,752.71,09:39,09:30,752.7000122070312,09:35,753.0712890625,753.4600219726562,752.6799926757812,0.01,0.01,4.0,59,0,9,ALIGNED,spy=752.71 ribbon=59c(BULL) vix=16.16(falling) bear=0/10 bull=9/11 htf=null | bull near-miss 9/11 level_reclaim confirmed PMH 752.09 but fil
+6,09:48:02,HOLD_DEV,753.61,09:48,09:40,752.8400268554688,09:45,753.7999877929688,753.905029296875,752.8300170898438,0.77,0.77,3.0,84,0,8,MISALIGNED-BENIGN,spy=753.61 ribbon=84c(BULL) vix=16.16(falling) bear=0/10 bull=8/11 htf=null | BULL 8/11 blocked filter 10 red bar
+9,09:57:02,HOLD,753.71,09:57,09:50,753.7050170898438,09:55,753.3200073242188,754.0700073242188,753.219970703125,0.005,0.005,2.0,117,0,8,ALIGNED,spy=753.71 ribbon=117c(BULL) vix=16.2(falling) bear=0/10 bull=8/11 htf=null | bull_blocked_f10_red_bar
+11,10:03:02,ERROR_TV,753.61,10:03,09:55,753.3200073242188,10:00,753.6900024414062,753.9600219726562,753.072021484375,0.29,0.29,3.0,84,,,STALE_PAUSED,MCP bridge unavailable; cannot refresh SPY 5m/ribbon/VIX. Recommend heartbeat harness restart. Last cached: spy=753.61 ribbon=84c BULL vix=1
+12,10:06:02,HOLD,753.77,10:06,10:00,753.6900024414062,10:05,753.22998046875,753.9600219726562,752.9199829101562,0.08,0.08,1.0,84,0,8,MISALIGNED-BENIGN,spy=753.77 ribbon=84c(BULL) vix=16.16(cached) bear=0/10 bull=8/11 htf=null | bull_8_11_below_threshold_no_trigger
+15,10:15:01,HOLD_DEV,753.22,10:15,10:10,753.0299072265625,10:15,753.2999877929688,753.3499755859375,752.5900268554688,0.1901,0.1901,0.0,109,0,8,MISALIGNED-BENIGN,spy=753.22 ribbon=109c(BULL) vix=16.16(falling) bear=0/10 bull=8/11 htf=null | bull_8_11_awaiting_green_bar_filter10
+16,10:18:02,(no_decision),,,10:10,753.0299072265625,10:15,753.2999877929688,753.3499755859375,752.5900268554688,,,3.0,,,,NO_DATA,
+18,10:24:01,HOLD_DEV,753.61,10:24,10:15,753.2999877929688,10:20,753.0195922851562,753.469970703125,752.6500244140625,0.31,0.31,4.0,84,0,8,MISALIGNED-BENIGN,spy=753.61 ribbon=84c(BULL) vix=16.16(falling) bear=0/10 bull=8/11 htf=null | bull_developing_awaiting_bar_close
+21,10:33:00,(no_decision),,,10:25,753.5399780273438,,,,,,,3.0,,,,NO_DATA,
+24,10:42:00,(no_decision),,,10:25,753.5399780273438,,,,,,,12.0,,,,NO_DATA,
+26,10:48:00,HOLD[safe+bold],753.56,10:48,10:25,753.5399780273438,,,,,0.02,0.02,18.0,88,0,8,ALIGNED,spy=753.56 ribbon=88c(BULL) vix=16.28(cached) bear=0/10 bull=8/11 htf=null | bull_8/11_blocked_filter10_buyer_pressure_req
+27,10:51:00,HOLD[safe+bold],753.53,10:51,10:25,753.5399780273438,,,,,-0.01,-0.01,21.0,86,0,8,ALIGNED,spy=753.53 ribbon=86c(BULL) vix=16.28(cached) bear=0/10 bull=8/11 | bull_8_filter10_blocked_bold_unrealized+$210
+30,11:00:00,HOLD[safe+bold],754.18,11:00,10:25,753.5399780273438,,,,,0.64,0.64,30.0,98,0,8,MISALIGNED-BENIGN,"spy=754.18 ribbon=98c(BULL) vix=16.25(flat) bear=0/10 bull=8/11 | BOLD 752C +$395 no stops/TP1 triggers, SAFE 8/11 subthreshold"
+31,11:03:00,HOLD_DEV,754.18,11:03,10:25,753.5399780273438,,,,,0.64,0.64,33.0,98,0,8,MISALIGNED-BENIGN,spy=754.18 ribbon=98c(BULL) vix=16.25(flat) bear=0/10 bull=8/11 htf=null | bull-8/11-blocked-filter10-HTF
+33,11:09:00,HOLD[safe+bold],754.18,11:09,10:25,753.5399780273438,,,,,0.64,0.64,39.0,98,0,8,MISALIGNED-BENIGN,spy=754.18 ribbon=98c(BULL) vix=16.25(flat) bear=0/10 bull=8/11 | bold_pos_open +$90_TP1_pending safe_blocked_filter10_buyer_pressure
+36,11:18:00,HOLD_DEV,754.63,11:18,10:25,753.5399780273438,,,,,1.09,1.09,48.0,120,0,9,MISALIGNED-BENIGN,spy=754.63 ribbon=120c(BULL) vix=16.25(cached) bear=0/10 bull=9/11 | BULLISH_RECLAIM blocked filter_10 (no buyer pressure) + filter_11 (only
+39,11:27:00,HOLD[safe+bold],754.87,11:27,10:25,753.5399780273438,,,,,1.33,1.33,57.0,123,0,8,MISALIGNED-BENIGN,spy=754.87 ribbon=123c(BULL) vix=16.25(flat) bear=0/10 bull=8/11 | bold_open_up580_tp1_imminent_safe_flat
+41,11:33:01,HOLD_DEV,755.13,11:33,10:25,753.5399780273438,,,,,1.59,1.59,63.0,127,4,9,MISALIGNED-BENIGN,"spy=755.13 ribbon=127c(BULL) vix=16.36(rising) bear=4/10 bull=9/11 htf=null | BULLISH_RECLAIM 9/11, level_reclaim unconfirmed at session hig"
+42,11:36:00,HOLD,754.87,11:36,10:25,753.5399780273438,,,,,1.33,1.33,66.0,125,4,7,MISALIGNED-BENIGN,spy=754.87 ribbon=125c(BULL) vix=16.36(rising) bear=4/10 bull=7/11 htf=null | bull_developing_stale_down_bar_filter10_fail
+45,11:45:01,(no_decision),,,10:25,753.5399780273438,,,,,,,75.0,,,,NO_DATA,
+46,11:48:00,(no_decision),,,10:25,753.5399780273438,,,,,,,78.0,,,,NO_DATA,
+48,11:54:00,(no_decision),,,10:25,753.5399780273438,,,,,,,84.0,,,,NO_DATA,
+51,12:03:00,HOLD[safe+bold],756.53,12:03,10:25,753.5399780273438,,,,,2.99,2.99,93.0,154,4,10,MISALIGNED-BENIGN,spy=756.53 ribbon=154c(BULL) vix=16.31(flat) bear=4/10 bull=10/11 htf=BULL | wide_spread_chop_bold_runner_earning
+54,12:12:00,HOLD[safe+bold],756.3,12:12,10:25,753.5399780273438,,,,,2.76,2.76,102.0,160,4,9,MISALIGNED-BENIGN,"spy=756.30 ribbon=160c(BULL) vix=16.32(flat) bear=4/10 bull=9/11 | safe blocked filters, bold runner live $4.24"
+56,12:18:00,HOLD,756.15,12:18,10:25,753.5399780273438,,,,,2.61,2.61,108.0,155,4,10,MISALIGNED-BENIGN,spy=756.15 ribbon=155c(BULL) vix=16.26(flat) bear=4/10 bull=10/11 htf=BULL | wide_spread_blocks_both_chop_zone
+61,12:33:00,HOLD_DEV,756.49,12:33,10:25,753.5399780273438,,,,,2.95,2.95,123.0,148,4,10,MISALIGNED-BENIGN,spy=756.49 ribbon=148c(BULL) vix=16.31(flat) bear=4/10 bull=10/11 | ALERT BULL 10/11 blocked filter_6 spread=148c
+63,12:39:00,HOLD_DEV[safe+bold],755.88,12:39,10:25,753.5399780273438,,,,,2.34,2.34,129.0,140,4,9,MISALIGNED-BENIGN,spy=755.88 ribbon=140c(BULL) vix=16.06(falling) bear=4/10 bull=9/11 htf=BULL | Safe_BULL_9_11_developing_blocked_filter_10_RED_bar; Bold_run
+66,12:48:00,(no_decision),,,10:25,753.5399780273438,,,,,,,138.0,,,,NO_DATA,
+69,12:57:00,(no_decision),,,10:25,753.5399780273438,,,,,,,147.0,,,,NO_DATA,
+71,13:03:00,HOLD_DEV,755.75,13:03,10:25,753.5399780273438,,,,,2.21,2.21,153.0,95,0,10,MISALIGNED-BENIGN,"spy=755.75 ribbon=95c(BULL) vix=16.31(cached) bear=0/10 bull=10/11 htf=BULL | bull near-miss blocked filter_11 (needs ΓëÑ2 triggers, only le"
+72,13:06:00,(no_decision),,,10:25,753.5399780273438,,,,,,,156.0,,,,NO_DATA,
+75,13:15:00,HOLD,755.79,13:15,10:25,753.5399780273438,,,,,2.25,2.25,165.0,64,4,8,MISALIGNED-BENIGN,spy=755.79 ribbon=64c(BULL) vix=16.31(cached) bear=4/10 bull=8/11 htf=BULL | ribbon_compression(64c>30c) + volume_divergence blocked bull en
+76,13:18:00,(no_decision),,,10:25,753.5399780273438,,,,,,,168.0,,,,NO_DATA,
+78,13:24:00,(no_decision),,,10:25,753.5399780273438,,,,,,,174.0,,,,NO_DATA,
+81,13:33:00,HOLD[safe+bold],755.78,13:33,10:25,753.5399780273438,,,,,2.24,2.24,183.0,66,0,10,MISALIGNED-BENIGN,spy=755.78 ribbon=66c(BULL) vix=16.31(cached) bear=0/10 bull=10/11 | spread>30c chop; runner+3.94
+84,13:42:00,(no_decision),,,10:25,753.5399780273438,,,,,,,192.0,,,,NO_DATA,
+86,13:48:00,(no_decision),,,10:25,753.5399780273438,,,,,,,198.0,,,,NO_DATA,
+87,13:51:00,(no_decision),,,10:25,753.5399780273438,,,,,,,201.0,,,,NO_DATA,
+90,14:00:00,(no_decision),,,10:25,753.5399780273438,,,,,,,210.0,,,,NO_DATA,
+91,14:03:00,(no_decision),,,10:25,753.5399780273438,,,,,,,213.0,,,,NO_DATA,
+93,14:09:00,(no_decision),,,10:25,753.5399780273438,,,,,,,219.0,,,,NO_DATA,
+96,14:18:00,(no_decision),,,10:25,753.5399780273438,,,,,,,228.0,,,,NO_DATA,
+99,14:27:00,(no_decision),,,10:25,753.5399780273438,,,,,,,237.0,,,,NO_DATA,
+101,14:33:00,(no_decision),,,10:25,753.5399780273438,,,,,,,243.0,,,,NO_DATA,
+102,14:36:00,(no_decision),,,10:25,753.5399780273438,,,,,,,246.0,,,,NO_DATA,
+105,14:45:00,(no_decision),,,10:25,753.5399780273438,,,,,,,255.0,,,,NO_DATA,
+106,14:48:00,(no_decision),,,10:25,753.5399780273438,,,,,,,258.0,,,,NO_DATA,
+108,14:54:00,(no_decision),,,10:25,753.5399780273438,,,,,,,264.0,,,,NO_DATA,
+111,15:03:00,(no_decision),,,10:25,753.5399780273438,,,,,,,273.0,,,,NO_DATA,
+114,15:12:00,(no_decision),,,10:25,753.5399780273438,,,,,,,282.0,,,,NO_DATA,
+116,15:18:00,(no_decision),,,10:25,753.5399780273438,,,,,,,288.0,,,,NO_DATA,
+117,15:21:00,(no_decision),,,10:25,753.5399780273438,,,,,,,291.0,,,,NO_DATA,
+120,15:30:00,HOLD,754.37,15:30,10:25,753.5399780273438,,,,,0.83,0.83,300.0,29,0,0,MISALIGNED-BENIGN,spy=754.37 ribbon=29c(BULL) vix=16.11(falling) bear=0/10 bull=0/11 htf=BULL | entry_window_closed_past_15:00_et_hard_cutoff
+121,15:33:00,HOLD,754.37,15:33,10:25,753.5399780273438,,,,,0.83,0.83,303.0,29,0,0,MISALIGNED-BENIGN,spy=754.37 ribbon=29c(BULL) vix=16.11(falling) bear=0/10 bull=0/11 htf=BULL | entry_window_closed_post_1500_et
+123,15:39:00,HOLD,754.37,15:39,10:25,753.5399780273438,,,,,0.83,0.83,309.0,29,0,0,MISALIGNED-BENIGN,"spy=754.37 ribbon=29c(BULL) vix=16.11(falling,cached) bear=0/10 bull=0/11 htf=BULL | entry_window_closed_15:00_ET"
+126,15:48:00,HOLD,754.75,15:48,10:25,753.5399780273438,,,,,1.21,1.21,318.0,40,0,0,MISALIGNED-BENIGN,spy=754.75 ribbon=40c(BULL) vix=16.11(falling) bear=0/10 bull=0/11 htf=BULL | past_entry_cutoff_15:00_flat

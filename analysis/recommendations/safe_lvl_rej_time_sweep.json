@@ -1,0 +1,42 @@
+{
+  "study": "Safe conf+lvl_rej time-class gate sweep",
+  "date": "2026-06-17",
+  "baseline": {
+    "is_n": 130,
+    "is_pnl": 16173.63,
+    "oos_n": 21,
+    "oos_pnl": 5900.25
+  },
+  "gates": [
+    {
+      "gate": "block conf+lvl_rej midday+afternoon",
+      "IS_delta": -5152.0,
+      "OOS_delta": 357.02,
+      "WF": 0.0,
+      "OOS_positive": true,
+      "SW_hurt": 0,
+      "anchor_OK": true,
+      "verdict": "REJECT (IS_delta<=0)"
+    },
+    {
+      "gate": "block conf+lvl_rej afternoon only",
+      "IS_delta": -2070.0,
+      "OOS_delta": 0.0,
+      "WF": 0.0,
+      "OOS_positive": true,
+      "SW_hurt": 0,
+      "anchor_OK": true,
+      "verdict": "REJECT (IS_delta<=0)"
+    },
+    {
+      "gate": "block conf+lvl_rej midday only",
+      "IS_delta": -3082.0,
+      "OOS_delta": 357.02,
+      "WF": 0.0,
+      "OOS_positive": true,
+      "SW_hurt": 0,
+      "anchor_OK": true,
+      "verdict": "REJECT (IS_delta<=0)"
+    }
+  ]
+}

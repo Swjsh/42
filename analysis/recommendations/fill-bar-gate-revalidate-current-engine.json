@@ -1,0 +1,150 @@
+{
+  "study": "require_bearish_fill_bar RE-VALIDATION under CURRENT engine",
+  "date": "2026-06-26",
+  "account": "bold/aggressive",
+  "engine_profile": "real_fills + ITM-2 + premium_stop_bear=-0.07 + chandelier(arm+5%,trail15%) + managed exits",
+  "window": {
+    "IS": [
+      "2025-01-02",
+      "2026-05-07"
+    ],
+    "OOS": [
+      "2026-05-08",
+      "2026-06-18"
+    ]
+  },
+  "baseline_gate_off": {
+    "IS_all": {
+      "n": 100,
+      "wr": 0.6,
+      "total": 10914.9,
+      "avg": 109.1
+    },
+    "OOS_all": {
+      "n": 20,
+      "wr": 0.65,
+      "total": 2940.1,
+      "avg": 147.0
+    },
+    "IS_bear": {
+      "n": 63,
+      "wr": 0.635,
+      "total": 8137.6,
+      "avg": 129.2
+    },
+    "OOS_bear": {
+      "n": 11,
+      "wr": 0.727,
+      "total": 2853.8,
+      "avg": 259.4
+    }
+  },
+  "candidate_gate_on": {
+    "IS_all": {
+      "n": 76,
+      "wr": 0.711,
+      "total": 10239.2,
+      "avg": 134.7
+    },
+    "OOS_all": {
+      "n": 17,
+      "wr": 0.765,
+      "total": 3714.7,
+      "avg": 218.5
+    },
+    "IS_bear": {
+      "n": 39,
+      "wr": 0.872,
+      "total": 7461.8,
+      "avg": 191.3
+    },
+    "OOS_bear": {
+      "n": 8,
+      "wr": 1.0,
+      "total": 3628.5,
+      "avg": 453.6
+    }
+  },
+  "IS_delta": -675.7,
+  "OOS_delta": 774.6,
+  "WF_norm": -5.732,
+  "SW_hurt": 2,
+  "subwindows": [
+    {
+      "window": "W1 Jan-Jun 2025",
+      "base": 4067.9,
+      "cand": 4976.0,
+      "delta": 908.1,
+      "hurt": false
+    },
+    {
+      "window": "W2 Jul-Dec 2025",
+      "base": 2670.0,
+      "cand": 1967.5,
+      "delta": -702.5,
+      "hurt": true
+    },
+    {
+      "window": "W3 Jan-Mar 2026",
+      "base": 4282.5,
+      "cand": 3265.5,
+      "delta": -1017.1,
+      "hurt": true
+    },
+    {
+      "window": "W4 Apr-May 2026",
+      "base": -105.6,
+      "cand": 30.2,
+      "delta": 135.8,
+      "hurt": false
+    }
+  ],
+  "anchor_rows": [
+    {
+      "date": "2026-04-29",
+      "kind": "WINNER",
+      "base": 0.0,
+      "cand": 0.0,
+      "regressed": false
+    },
+    {
+      "date": "2026-05-01",
+      "kind": "WINNER",
+      "base": 0.0,
+      "cand": 0.0,
+      "regressed": false
+    },
+    {
+      "date": "2026-05-04",
+      "kind": "WINNER",
+      "base": 0.0,
+      "cand": 31.8,
+      "regressed": false
+    },
+    {
+      "date": "2026-05-05",
+      "kind": "LOSER",
+      "base": 0.0,
+      "cand": 0.0,
+      "regressed": false
+    },
+    {
+      "date": "2026-05-06",
+      "kind": "LOSER",
+      "base": 0.0,
+      "cand": 0.0,
+      "regressed": false
+    }
+  ],
+  "anchor_ok": true,
+  "gates": {
+    "G1_IS_delta_ge_0": false,
+    "G2_OOS_delta_gt_0": true,
+    "G3_WF_ge_070": false,
+    "G4_SW_hurt_le_1": false,
+    "G5_anchor": true
+  },
+  "keep_justified": false,
+  "verdict": "UNBLOCK",
+  "note": "Original ratification (2026-06-17) ran OLD bracket-only profile. This re-run applies the CURRENT managed-exit ITM-2 profile. Gate fires only on bear (P) entries; OP-16 anchor check confirms it does not suppress the bear winners."
+}

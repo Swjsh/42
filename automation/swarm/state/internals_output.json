@@ -1,23 +1,23 @@
 {
   "agent": "internals",
-  "generated_at": "2026-06-19T14:17:13Z",
+  "generated_at": "2026-06-26T14:17:56Z",
   "bias": "bearish",
-  "confidence": 0.65,
-  "reasoning": "XLK -1.7% + XLF -0.44% + XLE -1.07% while SPY -1.37%. Tech (XLK) is underperforming SPY by 0.33%, indicating narrow leadership to the downside. Financials (XLF) relatively resilient at -0.44% vs SPY's -1.37%, but still negative. Energy (XLE) down -1.07% in line with SPY. Classic risk-off rotation with all three sectors negative — tech leading the decline. Bearish bias with medium confidence — sector internals confirm downside pressure.",
-  "rotation_signal": "risk_off",
+  "confidence": 0.6,
+  "reasoning": "XLK down -1.0% while XLF flat (+0.06%) and XLE flat (0.0%) = tech leading SPY lower. XLK underperforming SPY by 85 bps (-1.0% vs -0.15%), indicating narrow tech-driven weakness rather than broad-based selling. Tech is the largest SPY weighting (~30%), so XLK weakness drags the index. Bearish bias with medium confidence — sector internals confirm downside pressure from tech leadership.",
+  "rotation_signal": "mixed",
   "sector_alignment": {
-    "xlk_change_pct": -1.7,
-    "xlf_change_pct": -0.44,
-    "xle_change_pct": -1.07,
-    "spy_change_pct": -1.37,
+    "xlk_change_pct": -1.0,
+    "xlf_change_pct": 0.06,
+    "xle_change_pct": 0.0,
+    "spy_change_pct": -0.15,
     "xlk_vs_spy": "underperform",
     "breadth": "narrow"
   },
   "key_observations": [
-    "XLK down -1.7%: Tech selling dragging SPY — largest SPY weighting (~30%) leading to the downside",
-    "XLF down -0.44%: Financials relatively resilient but still negative, not providing support",
-    "XLE down -1.07%: Energy also declining, no defensive rotation occurring",
-    "Overall: Risk-off rotation confirmed — all sectors negative with tech leading SPY lower"
+    "XLK: -1.0% (tech down significantly, dragging SPY lower as largest weight)",
+    "XLF: +0.06% (flat, financials not confirming weakness)",
+    "XLE: 0.0% (flat, energy neutral)",
+    "Rotation: Tech weakness driving SPY lower but breadth narrow — only XLK moving meaningfully"
   ],
   "data_quality": "full"
 }

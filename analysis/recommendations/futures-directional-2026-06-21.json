@@ -1,0 +1,1210 @@
+{
+  "meta": {
+    "generated": "2026-06-21",
+    "qty_micros": 1,
+    "commission_rt": 1.24,
+    "slippage_ticks_each_side": 1,
+    "point_value": {
+      "MNQ": 2.0,
+      "MES": 5.0
+    },
+    "note": "Point-P&L, NO option pricing, NO theta. Intraday only."
+  },
+  "by_symbol": {
+    "MES": {
+      "n_bars": 28167,
+      "n_days": 367,
+      "date_range": [
+        "2025-01-02",
+        "2026-06-12"
+      ],
+      "oos_split": {
+        "is_days": 256,
+        "oos_days": 111,
+        "oos_start": "2026-01-07"
+      },
+      "strategies": {
+        "vwap_continuation": {
+          "strategy": "vwap_continuation",
+          "label": "VWAP-continuation (live edge) \u2014 ATR trail, let runner RUN",
+          "symbol": "MES",
+          "exit_mode": "atr_trail",
+          "exit_params": {
+            "atr_stop_mult": 1.5,
+            "atr_target_mult": 0.0,
+            "trail_mult": 2.5
+          },
+          "n_signals": 159,
+          "n_fills": 158,
+          "full": {
+            "n": 158,
+            "wr": 34.2,
+            "total_pnl": -468.0,
+            "per_trade": -2.96,
+            "avg_win": 111.56,
+            "avg_loss": -62.42,
+            "max_dd": -1281.0,
+            "profit_factor": 0.93,
+            "avg_bars_held": 17.7,
+            "exit_mix": {
+              "stop": 143,
+              "eod": 15
+            },
+            "n_days": 158
+          },
+          "is": {
+            "n": 109,
+            "wr": 36.7,
+            "total_pnl": 264.0,
+            "per_trade": 2.42,
+            "avg_win": 111.58,
+            "avg_loss": -60.86,
+            "max_dd": -830.0,
+            "profit_factor": 1.06,
+            "avg_bars_held": 18.9,
+            "exit_mix": {
+              "stop": 98,
+              "eod": 11
+            },
+            "n_days": 109
+          },
+          "oos": {
+            "n": 49,
+            "wr": 28.6,
+            "total_pnl": -731.0,
+            "per_trade": -14.93,
+            "avg_win": 111.51,
+            "avg_loss": -65.5,
+            "max_dd": -1281.0,
+            "profit_factor": 0.68,
+            "avg_bars_held": 15.0,
+            "exit_mix": {
+              "stop": 45,
+              "eod": 4
+            },
+            "n_days": 49
+          },
+          "by_quarter": {
+            "2025Q1": {
+              "n": 25,
+              "total": -917.0,
+              "per_trade": -36.66
+            },
+            "2025Q2": {
+              "n": 27,
+              "total": 1284.0,
+              "per_trade": 47.54
+            },
+            "2025Q3": {
+              "n": 25,
+              "total": 1.0,
+              "per_trade": 0.05
+            },
+            "2025Q4": {
+              "n": 32,
+              "total": -105.0,
+              "per_trade": -3.27
+            },
+            "2026Q1": {
+              "n": 26,
+              "total": -160.0,
+              "per_trade": -6.15
+            },
+            "2026Q2": {
+              "n": 23,
+              "total": -571.0,
+              "per_trade": -24.85
+            }
+          },
+          "positive_quarters": 2,
+          "n_quarters": 6,
+          "need_quarters": 4,
+          "per_week_pnl": -6.16,
+          "random_null_oos": {
+            "per_trade": -11.0,
+            "per_trade_std": 8.66,
+            "n_replicates": 30,
+            "p95": 1.97
+          },
+          "random_null_full": {
+            "per_trade": -7.95,
+            "per_trade_std": 6.45,
+            "n_replicates": 30,
+            "p95": 3.98
+          },
+          "gates": {
+            "oos_per_trade_pos_n>=10": false,
+            "beats_random_null_oos": false,
+            "positive_in_>=60pct_quarters": false,
+            "survives_costs_full": false
+          },
+          "verdict": "FAIL"
+        },
+        "bull_tilt": {
+          "strategy": "bull_tilt",
+          "label": "Systematic morning bull-tilt \u2014 long every session, ATR trail",
+          "symbol": "MES",
+          "exit_mode": "atr_trail",
+          "exit_params": {
+            "atr_stop_mult": 1.5,
+            "atr_target_mult": 0.0,
+            "trail_mult": 2.5
+          },
+          "n_signals": 367,
+          "n_fills": 366,
+          "full": {
+            "n": 366,
+            "wr": 32.5,
+            "total_pnl": -1726.0,
+            "per_trade": -4.71,
+            "avg_win": 103.29,
+            "avg_loss": -56.75,
+            "max_dd": -1880.0,
+            "profit_factor": 0.88,
+            "avg_bars_held": 17.9,
+            "exit_mix": {
+              "stop": 328,
+              "eod": 38
+            },
+            "n_days": 366
+          },
+          "is": {
+            "n": 255,
+            "wr": 31.4,
+            "total_pnl": -1411.0,
+            "per_trade": -5.53,
+            "avg_win": 105.96,
+            "avg_loss": -56.5,
+            "max_dd": -1787.0,
+            "profit_factor": 0.86,
+            "avg_bars_held": 18.7,
+            "exit_mix": {
+              "stop": 229,
+              "eod": 26
+            },
+            "n_days": 255
+          },
+          "oos": {
+            "n": 111,
+            "wr": 35.1,
+            "total_pnl": -314.0,
+            "per_trade": -2.83,
+            "avg_win": 97.83,
+            "avg_loss": -57.36,
+            "max_dd": -791.0,
+            "profit_factor": 0.92,
+            "avg_bars_held": 16.1,
+            "exit_mix": {
+              "stop": 99,
+              "eod": 12
+            },
+            "n_days": 111
+          },
+          "by_quarter": {
+            "2025Q1": {
+              "n": 60,
+              "total": -1655.0,
+              "per_trade": -27.58
+            },
+            "2025Q2": {
+              "n": 63,
+              "total": 1074.0,
+              "per_trade": 17.04
+            },
+            "2025Q3": {
+              "n": 65,
+              "total": -110.0,
+              "per_trade": -1.69
+            },
+            "2025Q4": {
+              "n": 64,
+              "total": -825.0,
+              "per_trade": -12.89
+            },
+            "2026Q1": {
+              "n": 62,
+              "total": -300.0,
+              "per_trade": -4.84
+            },
+            "2026Q2": {
+              "n": 52,
+              "total": 90.0,
+              "per_trade": 1.74
+            }
+          },
+          "positive_quarters": 2,
+          "n_quarters": 6,
+          "need_quarters": 4,
+          "per_week_pnl": -22.71,
+          "random_null_oos": {
+            "per_trade": -8.1,
+            "per_trade_std": 5.39,
+            "n_replicates": 30,
+            "p95": -0.19
+          },
+          "random_null_full": {
+            "per_trade": -6.25,
+            "per_trade_std": 3.95,
+            "n_replicates": 30,
+            "p95": -0.36
+          },
+          "gates": {
+            "oos_per_trade_pos_n>=10": false,
+            "beats_random_null_oos": true,
+            "positive_in_>=60pct_quarters": false,
+            "survives_costs_full": false
+          },
+          "verdict": "FAIL"
+        },
+        "ema_adx": {
+          "strategy": "ema_adx",
+          "label": "EMA(9/21)+ADX>25 trend-follow \u2014 ATR trail, NO fixed target",
+          "symbol": "MES",
+          "exit_mode": "atr_trail",
+          "exit_params": {
+            "atr_stop_mult": 1.5,
+            "atr_target_mult": 0.0,
+            "trail_mult": 2.5
+          },
+          "n_signals": 142,
+          "n_fills": 135,
+          "full": {
+            "n": 135,
+            "wr": 31.1,
+            "total_pnl": -1379.0,
+            "per_trade": -10.22,
+            "avg_win": 64.23,
+            "avg_loss": -43.84,
+            "max_dd": -1639.0,
+            "profit_factor": 0.66,
+            "avg_bars_held": 11.6,
+            "exit_mix": {
+              "stop": 112,
+              "eod": 23
+            },
+            "n_days": 115
+          },
+          "is": {
+            "n": 98,
+            "wr": 31.6,
+            "total_pnl": -600.0,
+            "per_trade": -6.12,
+            "avg_win": 67.8,
+            "avg_loss": -40.32,
+            "max_dd": -796.0,
+            "profit_factor": 0.78,
+            "avg_bars_held": 11.2,
+            "exit_mix": {
+              "stop": 79,
+              "eod": 19
+            },
+            "n_days": 83
+          },
+          "oos": {
+            "n": 37,
+            "wr": 29.7,
+            "total_pnl": -780.0,
+            "per_trade": -21.07,
+            "avg_win": 54.18,
+            "avg_loss": -52.91,
+            "max_dd": -1037.0,
+            "profit_factor": 0.43,
+            "avg_bars_held": 12.5,
+            "exit_mix": {
+              "stop": 33,
+              "eod": 4
+            },
+            "n_days": 32
+          },
+          "by_quarter": {
+            "2025Q1": {
+              "n": 28,
+              "total": -142.0,
+              "per_trade": -5.08
+            },
+            "2025Q2": {
+              "n": 34,
+              "total": -287.0,
+              "per_trade": -8.45
+            },
+            "2025Q3": {
+              "n": 19,
+              "total": -137.0,
+              "per_trade": -7.23
+            },
+            "2025Q4": {
+              "n": 16,
+              "total": -15.0,
+              "per_trade": -0.92
+            },
+            "2026Q1": {
+              "n": 19,
+              "total": -479.0,
+              "per_trade": -25.23
+            },
+            "2026Q2": {
+              "n": 19,
+              "total": -318.0,
+              "per_trade": -16.74
+            }
+          },
+          "positive_quarters": 0,
+          "n_quarters": 6,
+          "need_quarters": 4,
+          "per_week_pnl": -18.14,
+          "random_null_oos": {
+            "per_trade": -7.63,
+            "per_trade_std": 15.03,
+            "n_replicates": 30,
+            "p95": 19.62
+          },
+          "random_null_full": {
+            "per_trade": -8.16,
+            "per_trade_std": 5.89,
+            "n_replicates": 30,
+            "p95": 1.13
+          },
+          "gates": {
+            "oos_per_trade_pos_n>=10": false,
+            "beats_random_null_oos": false,
+            "positive_in_>=60pct_quarters": false,
+            "survives_costs_full": false
+          },
+          "verdict": "FAIL"
+        },
+        "orb": {
+          "strategy": "orb",
+          "label": "Opening-range breakout \u2014 ATR trail (trend-riding)",
+          "symbol": "MES",
+          "exit_mode": "atr_trail",
+          "exit_params": {
+            "atr_stop_mult": 1.5,
+            "atr_target_mult": 0.0,
+            "trail_mult": 2.5
+          },
+          "n_signals": 225,
+          "n_fills": 224,
+          "full": {
+            "n": 224,
+            "wr": 37.5,
+            "total_pnl": -871.0,
+            "per_trade": -3.89,
+            "avg_win": 86.79,
+            "avg_loss": -58.29,
+            "max_dd": -1309.0,
+            "profit_factor": 0.89,
+            "avg_bars_held": 29.2,
+            "exit_mix": {
+              "eod": 53,
+              "stop": 171
+            },
+            "n_days": 224
+          },
+          "is": {
+            "n": 155,
+            "wr": 36.1,
+            "total_pnl": -733.0,
+            "per_trade": -4.73,
+            "avg_win": 87.45,
+            "avg_loss": -56.87,
+            "max_dd": -1213.0,
+            "profit_factor": 0.87,
+            "avg_bars_held": 29.4,
+            "exit_mix": {
+              "eod": 36,
+              "stop": 119
+            },
+            "n_days": 155
+          },
+          "oos": {
+            "n": 69,
+            "wr": 40.6,
+            "total_pnl": -138.0,
+            "per_trade": -2.0,
+            "avg_win": 85.47,
+            "avg_loss": -61.73,
+            "max_dd": -611.0,
+            "profit_factor": 0.95,
+            "avg_bars_held": 28.7,
+            "exit_mix": {
+              "stop": 52,
+              "eod": 17
+            },
+            "n_days": 69
+          },
+          "by_quarter": {
+            "2025Q1": {
+              "n": 32,
+              "total": -551.0,
+              "per_trade": -17.23
+            },
+            "2025Q2": {
+              "n": 43,
+              "total": -17.0,
+              "per_trade": -0.4
+            },
+            "2025Q3": {
+              "n": 42,
+              "total": -182.0,
+              "per_trade": -4.33
+            },
+            "2025Q4": {
+              "n": 36,
+              "total": 99.0,
+              "per_trade": 2.74
+            },
+            "2026Q1": {
+              "n": 35,
+              "total": -497.0,
+              "per_trade": -14.19
+            },
+            "2026Q2": {
+              "n": 36,
+              "total": 278.0,
+              "per_trade": 7.72
+            }
+          },
+          "positive_quarters": 2,
+          "n_quarters": 6,
+          "need_quarters": 4,
+          "per_week_pnl": -11.46,
+          "random_null_oos": {
+            "per_trade": 1.62,
+            "per_trade_std": 6.93,
+            "n_replicates": 30,
+            "p95": 13.58
+          },
+          "random_null_full": {
+            "per_trade": 1.66,
+            "per_trade_std": 4.51,
+            "n_replicates": 30,
+            "p95": 8.79
+          },
+          "gates": {
+            "oos_per_trade_pos_n>=10": false,
+            "beats_random_null_oos": false,
+            "positive_in_>=60pct_quarters": false,
+            "survives_costs_full": false
+          },
+          "verdict": "FAIL"
+        },
+        "rsi2": {
+          "strategy": "rsi2",
+          "label": "RSI(2) mean-reversion \u2014 small ATR target",
+          "symbol": "MES",
+          "exit_mode": "atr_target",
+          "exit_params": {
+            "atr_stop_mult": 1.0,
+            "atr_target_mult": 1.0,
+            "trail_mult": 0.0
+          },
+          "n_signals": 1120,
+          "n_fills": 1120,
+          "full": {
+            "n": 1120,
+            "wr": 30.4,
+            "total_pnl": -4130.0,
+            "per_trade": -3.69,
+            "avg_win": 37.03,
+            "avg_loss": -21.51,
+            "max_dd": -4129.0,
+            "profit_factor": 0.75,
+            "avg_bars_held": 2.4,
+            "exit_mix": {
+              "stop": 779,
+              "target": 340,
+              "eod": 1
+            },
+            "n_days": 363
+          },
+          "is": {
+            "n": 783,
+            "wr": 30.5,
+            "total_pnl": -2885.0,
+            "per_trade": -3.69,
+            "avg_win": 37.43,
+            "avg_loss": -21.75,
+            "max_dd": -2885.0,
+            "profit_factor": 0.76,
+            "avg_bars_held": 2.5,
+            "exit_mix": {
+              "stop": 544,
+              "target": 239
+            },
+            "n_days": 253
+          },
+          "oos": {
+            "n": 337,
+            "wr": 30.3,
+            "total_pnl": -1244.0,
+            "per_trade": -3.69,
+            "avg_win": 36.09,
+            "avg_loss": -20.96,
+            "max_dd": -1247.0,
+            "profit_factor": 0.75,
+            "avg_bars_held": 2.2,
+            "exit_mix": {
+              "stop": 235,
+              "target": 101,
+              "eod": 1
+            },
+            "n_days": 110
+          },
+          "by_quarter": {
+            "2025Q1": {
+              "n": 190,
+              "total": -1048.0,
+              "per_trade": -5.52
+            },
+            "2025Q2": {
+              "n": 197,
+              "total": 15.0,
+              "per_trade": 0.07
+            },
+            "2025Q3": {
+              "n": 197,
+              "total": -1045.0,
+              "per_trade": -5.31
+            },
+            "2025Q4": {
+              "n": 192,
+              "total": -712.0,
+              "per_trade": -3.71
+            },
+            "2026Q1": {
+              "n": 185,
+              "total": -703.0,
+              "per_trade": -3.8
+            },
+            "2026Q2": {
+              "n": 159,
+              "total": -636.0,
+              "per_trade": -4.0
+            }
+          },
+          "positive_quarters": 1,
+          "n_quarters": 6,
+          "need_quarters": 4,
+          "per_week_pnl": -54.34,
+          "random_null_oos": {
+            "per_trade": -3.73,
+            "per_trade_std": 2.87,
+            "n_replicates": 30,
+            "p95": 1.42
+          },
+          "random_null_full": {
+            "per_trade": -3.44,
+            "per_trade_std": 1.63,
+            "n_replicates": 30,
+            "p95": -1.34
+          },
+          "gates": {
+            "oos_per_trade_pos_n>=10": false,
+            "beats_random_null_oos": true,
+            "positive_in_>=60pct_quarters": false,
+            "survives_costs_full": false
+          },
+          "verdict": "FAIL"
+        }
+      }
+    },
+    "MNQ": {
+      "n_bars": 28167,
+      "n_days": 367,
+      "date_range": [
+        "2025-01-02",
+        "2026-06-12"
+      ],
+      "oos_split": {
+        "is_days": 256,
+        "oos_days": 111,
+        "oos_start": "2026-01-07"
+      },
+      "strategies": {
+        "vwap_continuation": {
+          "strategy": "vwap_continuation",
+          "label": "VWAP-continuation (live edge) \u2014 ATR trail, let runner RUN",
+          "symbol": "MNQ",
+          "exit_mode": "atr_trail",
+          "exit_params": {
+            "atr_stop_mult": 1.5,
+            "atr_target_mult": 0.0,
+            "trail_mult": 2.5
+          },
+          "n_signals": 159,
+          "n_fills": 158,
+          "full": {
+            "n": 158,
+            "wr": 35.4,
+            "total_pnl": 518.0,
+            "per_trade": 3.28,
+            "avg_win": 199.59,
+            "avg_loss": -104.5,
+            "max_dd": -1446.0,
+            "profit_factor": 1.05,
+            "avg_bars_held": 19.9,
+            "exit_mix": {
+              "stop": 136,
+              "eod": 22
+            },
+            "n_days": 158
+          },
+          "is": {
+            "n": 119,
+            "wr": 35.3,
+            "total_pnl": 983.0,
+            "per_trade": 8.26,
+            "avg_win": 204.17,
+            "avg_loss": -98.6,
+            "max_dd": -1434.0,
+            "profit_factor": 1.13,
+            "avg_bars_held": 20.7,
+            "exit_mix": {
+              "stop": 103,
+              "eod": 16
+            },
+            "n_days": 119
+          },
+          "oos": {
+            "n": 39,
+            "wr": 35.9,
+            "total_pnl": -464.0,
+            "per_trade": -11.91,
+            "avg_win": 185.86,
+            "avg_loss": -122.66,
+            "max_dd": -1446.0,
+            "profit_factor": 0.85,
+            "avg_bars_held": 17.3,
+            "exit_mix": {
+              "stop": 33,
+              "eod": 6
+            },
+            "n_days": 39
+          },
+          "by_quarter": {
+            "2025Q1": {
+              "n": 30,
+              "total": -1614.0,
+              "per_trade": -53.8
+            },
+            "2025Q2": {
+              "n": 28,
+              "total": 2262.0,
+              "per_trade": 80.77
+            },
+            "2025Q3": {
+              "n": 27,
+              "total": -341.0,
+              "per_trade": -12.62
+            },
+            "2025Q4": {
+              "n": 34,
+              "total": 676.0,
+              "per_trade": 19.88
+            },
+            "2026Q1": {
+              "n": 21,
+              "total": 87.0,
+              "per_trade": 4.14
+            },
+            "2026Q2": {
+              "n": 18,
+              "total": -551.0,
+              "per_trade": -30.63
+            }
+          },
+          "positive_quarters": 3,
+          "n_quarters": 6,
+          "need_quarters": 4,
+          "per_week_pnl": 6.82,
+          "random_null_oos": {
+            "per_trade": -3.71,
+            "per_trade_std": 28.49,
+            "n_replicates": 30,
+            "p95": 49.8
+          },
+          "random_null_full": {
+            "per_trade": -4.22,
+            "per_trade_std": 13.06,
+            "n_replicates": 30,
+            "p95": 15.07
+          },
+          "gates": {
+            "oos_per_trade_pos_n>=10": false,
+            "beats_random_null_oos": false,
+            "positive_in_>=60pct_quarters": false,
+            "survives_costs_full": true
+          },
+          "verdict": "FAIL"
+        },
+        "bull_tilt": {
+          "strategy": "bull_tilt",
+          "label": "Systematic morning bull-tilt \u2014 long every session, ATR trail",
+          "symbol": "MNQ",
+          "exit_mode": "atr_trail",
+          "exit_params": {
+            "atr_stop_mult": 1.5,
+            "atr_target_mult": 0.0,
+            "trail_mult": 2.5
+          },
+          "n_signals": 367,
+          "n_fills": 366,
+          "full": {
+            "n": 366,
+            "wr": 33.3,
+            "total_pnl": -1750.0,
+            "per_trade": -4.78,
+            "avg_win": 197.54,
+            "avg_loss": -105.94,
+            "max_dd": -3116.0,
+            "profit_factor": 0.93,
+            "avg_bars_held": 16.9,
+            "exit_mix": {
+              "stop": 325,
+              "eod": 41
+            },
+            "n_days": 366
+          },
+          "is": {
+            "n": 255,
+            "wr": 33.7,
+            "total_pnl": -443.0,
+            "per_trade": -1.74,
+            "avg_win": 196.91,
+            "avg_loss": -102.83,
+            "max_dd": -3116.0,
+            "profit_factor": 0.97,
+            "avg_bars_held": 18.3,
+            "exit_mix": {
+              "stop": 223,
+              "eod": 32
+            },
+            "n_days": 255
+          },
+          "oos": {
+            "n": 111,
+            "wr": 32.4,
+            "total_pnl": -1306.0,
+            "per_trade": -11.77,
+            "avg_win": 199.04,
+            "avg_loss": -112.96,
+            "max_dd": -1588.0,
+            "profit_factor": 0.85,
+            "avg_bars_held": 13.9,
+            "exit_mix": {
+              "stop": 102,
+              "eod": 9
+            },
+            "n_days": 111
+          },
+          "by_quarter": {
+            "2025Q1": {
+              "n": 60,
+              "total": -2497.0,
+              "per_trade": -41.61
+            },
+            "2025Q2": {
+              "n": 63,
+              "total": 2149.0,
+              "per_trade": 34.12
+            },
+            "2025Q3": {
+              "n": 65,
+              "total": -539.0,
+              "per_trade": -8.29
+            },
+            "2025Q4": {
+              "n": 64,
+              "total": 176.0,
+              "per_trade": 2.76
+            },
+            "2026Q1": {
+              "n": 62,
+              "total": -895.0,
+              "per_trade": -14.43
+            },
+            "2026Q2": {
+              "n": 52,
+              "total": -146.0,
+              "per_trade": -2.8
+            }
+          },
+          "positive_quarters": 2,
+          "n_quarters": 6,
+          "need_quarters": 4,
+          "per_week_pnl": -23.03,
+          "random_null_oos": {
+            "per_trade": -6.82,
+            "per_trade_std": 13.12,
+            "n_replicates": 30,
+            "p95": 10.64
+          },
+          "random_null_full": {
+            "per_trade": -6.49,
+            "per_trade_std": 7.69,
+            "n_replicates": 30,
+            "p95": 4.59
+          },
+          "gates": {
+            "oos_per_trade_pos_n>=10": false,
+            "beats_random_null_oos": false,
+            "positive_in_>=60pct_quarters": false,
+            "survives_costs_full": false
+          },
+          "verdict": "FAIL"
+        },
+        "ema_adx": {
+          "strategy": "ema_adx",
+          "label": "EMA(9/21)+ADX>25 trend-follow \u2014 ATR trail, NO fixed target",
+          "symbol": "MNQ",
+          "exit_mode": "atr_trail",
+          "exit_params": {
+            "atr_stop_mult": 1.5,
+            "atr_target_mult": 0.0,
+            "trail_mult": 2.5
+          },
+          "n_signals": 125,
+          "n_fills": 120,
+          "full": {
+            "n": 120,
+            "wr": 35.0,
+            "total_pnl": -409.0,
+            "per_trade": -3.41,
+            "avg_win": 145.43,
+            "avg_loss": -83.55,
+            "max_dd": -1487.0,
+            "profit_factor": 0.94,
+            "avg_bars_held": 12.7,
+            "exit_mix": {
+              "stop": 97,
+              "eod": 23
+            },
+            "n_days": 107
+          },
+          "is": {
+            "n": 87,
+            "wr": 34.5,
+            "total_pnl": -532.0,
+            "per_trade": -6.11,
+            "avg_win": 125.87,
+            "avg_loss": -75.58,
+            "max_dd": -1475.0,
+            "profit_factor": 0.88,
+            "avg_bars_held": 12.8,
+            "exit_mix": {
+              "stop": 69,
+              "eod": 18
+            },
+            "n_days": 77
+          },
+          "oos": {
+            "n": 33,
+            "wr": 36.4,
+            "total_pnl": 123.0,
+            "per_trade": 3.72,
+            "avg_win": 194.32,
+            "avg_loss": -105.19,
+            "max_dd": -673.0,
+            "profit_factor": 1.06,
+            "avg_bars_held": 12.3,
+            "exit_mix": {
+              "stop": 28,
+              "eod": 5
+            },
+            "n_days": 30
+          },
+          "by_quarter": {
+            "2025Q1": {
+              "n": 27,
+              "total": -950.0,
+              "per_trade": -35.19
+            },
+            "2025Q2": {
+              "n": 25,
+              "total": 270.0,
+              "per_trade": 10.79
+            },
+            "2025Q3": {
+              "n": 17,
+              "total": -549.0,
+              "per_trade": -32.28
+            },
+            "2025Q4": {
+              "n": 18,
+              "total": 697.0,
+              "per_trade": 38.74
+            },
+            "2026Q1": {
+              "n": 17,
+              "total": -349.0,
+              "per_trade": -20.51
+            },
+            "2026Q2": {
+              "n": 16,
+              "total": 471.0,
+              "per_trade": 29.46
+            }
+          },
+          "positive_quarters": 3,
+          "n_quarters": 6,
+          "need_quarters": 4,
+          "per_week_pnl": -5.38,
+          "random_null_oos": {
+            "per_trade": -3.66,
+            "per_trade_std": 26.38,
+            "n_replicates": 30,
+            "p95": 47.49
+          },
+          "random_null_full": {
+            "per_trade": -4.94,
+            "per_trade_std": 13.62,
+            "n_replicates": 30,
+            "p95": 15.4
+          },
+          "gates": {
+            "oos_per_trade_pos_n>=10": true,
+            "beats_random_null_oos": true,
+            "positive_in_>=60pct_quarters": false,
+            "survives_costs_full": false
+          },
+          "verdict": "FAIL"
+        },
+        "orb": {
+          "strategy": "orb",
+          "label": "Opening-range breakout \u2014 ATR trail (trend-riding)",
+          "symbol": "MNQ",
+          "exit_mode": "atr_trail",
+          "exit_params": {
+            "atr_stop_mult": 1.5,
+            "atr_target_mult": 0.0,
+            "trail_mult": 2.5
+          },
+          "n_signals": 208,
+          "n_fills": 207,
+          "full": {
+            "n": 207,
+            "wr": 38.2,
+            "total_pnl": 15.0,
+            "per_trade": 0.07,
+            "avg_win": 187.64,
+            "avg_loss": -115.69,
+            "max_dd": -1686.0,
+            "profit_factor": 1.0,
+            "avg_bars_held": 30.3,
+            "exit_mix": {
+              "eod": 56,
+              "stop": 151
+            },
+            "n_days": 207
+          },
+          "is": {
+            "n": 141,
+            "wr": 36.2,
+            "total_pnl": -1278.0,
+            "per_trade": -9.06,
+            "avg_win": 169.14,
+            "avg_loss": -110.04,
+            "max_dd": -1686.0,
+            "profit_factor": 0.87,
+            "avg_bars_held": 29.5,
+            "exit_mix": {
+              "eod": 36,
+              "stop": 105
+            },
+            "n_days": 141
+          },
+          "oos": {
+            "n": 66,
+            "wr": 42.4,
+            "total_pnl": 1293.0,
+            "per_trade": 19.6,
+            "avg_win": 221.34,
+            "avg_loss": -129.05,
+            "max_dd": -1514.0,
+            "profit_factor": 1.26,
+            "avg_bars_held": 32.1,
+            "exit_mix": {
+              "stop": 46,
+              "eod": 20
+            },
+            "n_days": 66
+          },
+          "by_quarter": {
+            "2025Q1": {
+              "n": 32,
+              "total": -749.0,
+              "per_trade": -23.4
+            },
+            "2025Q2": {
+              "n": 42,
+              "total": -87.0,
+              "per_trade": -2.08
+            },
+            "2025Q3": {
+              "n": 35,
+              "total": -166.0,
+              "per_trade": -4.74
+            },
+            "2025Q4": {
+              "n": 30,
+              "total": -38.0,
+              "per_trade": -1.28
+            },
+            "2026Q1": {
+              "n": 33,
+              "total": 278.0,
+              "per_trade": 8.42
+            },
+            "2026Q2": {
+              "n": 35,
+              "total": 778.0,
+              "per_trade": 22.23
+            }
+          },
+          "positive_quarters": 2,
+          "n_quarters": 6,
+          "need_quarters": 4,
+          "per_week_pnl": 0.2,
+          "random_null_oos": {
+            "per_trade": 5.5,
+            "per_trade_std": 19.24,
+            "n_replicates": 30,
+            "p95": 34.93
+          },
+          "random_null_full": {
+            "per_trade": 7.49,
+            "per_trade_std": 11.21,
+            "n_replicates": 30,
+            "p95": 24.5
+          },
+          "gates": {
+            "oos_per_trade_pos_n>=10": true,
+            "beats_random_null_oos": true,
+            "positive_in_>=60pct_quarters": false,
+            "survives_costs_full": true
+          },
+          "verdict": "FAIL"
+        },
+        "rsi2": {
+          "strategy": "rsi2",
+          "label": "RSI(2) mean-reversion \u2014 small ATR target",
+          "symbol": "MNQ",
+          "exit_mode": "atr_target",
+          "exit_params": {
+            "atr_stop_mult": 1.0,
+            "atr_target_mult": 1.0,
+            "trail_mult": 0.0
+          },
+          "n_signals": 1081,
+          "n_fills": 1080,
+          "full": {
+            "n": 1080,
+            "wr": 33.0,
+            "total_pnl": -1647.0,
+            "per_trade": -1.53,
+            "avg_win": 72.62,
+            "avg_loss": -37.98,
+            "max_dd": -4189.0,
+            "profit_factor": 0.94,
+            "avg_bars_held": 2.5,
+            "exit_mix": {
+              "stop": 723,
+              "target": 352,
+              "eod": 5
+            },
+            "n_days": 360
+          },
+          "is": {
+            "n": 748,
+            "wr": 32.2,
+            "total_pnl": -2719.0,
+            "per_trade": -3.63,
+            "avg_win": 68.17,
+            "avg_loss": -37.77,
+            "max_dd": -4189.0,
+            "profit_factor": 0.86,
+            "avg_bars_held": 2.6,
+            "exit_mix": {
+              "stop": 506,
+              "target": 239,
+              "eod": 3
+            },
+            "n_days": 250
+          },
+          "oos": {
+            "n": 332,
+            "wr": 34.6,
+            "total_pnl": 1071.0,
+            "per_trade": 3.23,
+            "avg_win": 81.94,
+            "avg_loss": -38.49,
+            "max_dd": -1322.0,
+            "profit_factor": 1.13,
+            "avg_bars_held": 2.4,
+            "exit_mix": {
+              "target": 113,
+              "stop": 217,
+              "eod": 2
+            },
+            "n_days": 110
+          },
+          "by_quarter": {
+            "2025Q1": {
+              "n": 169,
+              "total": 235.0,
+              "per_trade": 1.39
+            },
+            "2025Q2": {
+              "n": 188,
+              "total": 36.0,
+              "per_trade": 0.19
+            },
+            "2025Q3": {
+              "n": 202,
+              "total": -1481.0,
+              "per_trade": -7.33
+            },
+            "2025Q4": {
+              "n": 183,
+              "total": -1485.0,
+              "per_trade": -8.12
+            },
+            "2026Q1": {
+              "n": 191,
+              "total": 733.0,
+              "per_trade": 3.84
+            },
+            "2026Q2": {
+              "n": 147,
+              "total": 314.0,
+              "per_trade": 2.14
+            }
+          },
+          "positive_quarters": 4,
+          "n_quarters": 6,
+          "need_quarters": 4,
+          "per_week_pnl": -21.67,
+          "random_null_oos": {
+            "per_trade": -2.52,
+            "per_trade_std": 5.18,
+            "n_replicates": 30,
+            "p95": 5.55
+          },
+          "random_null_full": {
+            "per_trade": -1.89,
+            "per_trade_std": 2.19,
+            "n_replicates": 30,
+            "p95": 1.65
+          },
+          "gates": {
+            "oos_per_trade_pos_n>=10": true,
+            "beats_random_null_oos": true,
+            "positive_in_>=60pct_quarters": true,
+            "survives_costs_full": false
+          },
+          "verdict": "FAIL"
+        }
+      }
+    }
+  }
+}

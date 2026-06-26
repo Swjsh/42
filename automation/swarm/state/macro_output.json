@@ -1,23 +1,23 @@
 {
   "agent": "macro",
-  "generated_at": "2026-06-19T14:17:13Z",
+  "generated_at": "2026-06-26T14:17:56.000000+00:00",
   "bias": "neutral",
   "confidence": 0.55,
-  "reasoning": "VIX at 16.41 in MID regime with flat direction — neither bullish nor bearish from VIX alone. No macro events scheduled for today (2026-06-19) in the calendar; last events were FOMC/Retail Sales on 06-17 and PCE on 06-25. Overnight gap is significant at +$5.96 (up from prior close 740.96), indicating strong bullish overnight sentiment. However, rotation_signal shows 'risk_off' which contradicts the gap-up — this suggests the overnight enthusiasm may be fading as regular trading begins. The gap-up is substantial but the risk-off signal creates uncertainty about sustainability.",
+  "reasoning": "VIX at 19.17 falling from recent levels (MID regime) suggests fear is receding, which is normally bullish for SPY calls. However, overnight gap is down $1.09 (significant bearish sentiment). Calendar is 12 days stale (last refresh 2026-06-14) - no events listed for today in events_30d, but this creates uncertainty. The gap down combined with falling VIX creates mixed signals: VIX compression typically favors calls but the overnight sell-off suggests risk-off. No high-impact events in the calendar for today, but calendar staleness reduces confidence in this assessment.",
   "vix_regime": "MID",
-  "vix_direction": "flat",
-  "vix_current": 16.41,
+  "vix_direction": "falling",
+  "vix_current": 19.17,
   "event_risk": "none",
   "events_today": [],
-  "overnight_gap_dir": "up",
-  "overnight_gap_dollars": 5.96,
+  "overnight_gap_dir": "down",
+  "overnight_gap_dollars": -1.09,
   "macro_backdrop": "neutral",
   "key_observations": [
-    "VIX at 16.41 MID regime with flat direction — no fear signal but no complacency either",
-    "No high-impact macro events today (FOMC was 06-17, next is PCE on 06-25)",
-    "Overnight gap +$5.96 represents significant bullish sentiment (prior close 740.96 to premarket 747.95)",
-    "Rotation signal 'risk_off' contradicts gap-up — market may be fading overnight enthusiasm",
-    "SPY premarket declined from 747.95 to current 746.92, suggesting gap is under pressure"
+    "VIX at 19.17 falling = MID regime, fear receding (bullish for calls normally)",
+    "Overnight gap down $1.09 from prior close 734.30 to premarket low 727.40 = significant bearish overnight sentiment",
+    "Calendar is 12 days stale (last refresh 2026-06-14) - no events listed for today, confidence reduced by 0.10",
+    "SPY current price 733.21 vs prior close 734.30 = trading below prior session close despite VIX falling",
+    "Sector rotation mixed: XLK down 1.0%, SPY flat at -0.15%, suggesting tech weakness but broad market stable"
   ],
-  "data_quality": "full"
+  "data_quality": "partial"
 }

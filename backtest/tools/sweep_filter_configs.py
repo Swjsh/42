@@ -28,13 +28,12 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from _alpaca_creds import masked, resolve_alpaca_creds  # noqa: E402
 from lib.orchestrator import run_backtest  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[1]
 DATA_DIR = REPO / "data"
 CACHE_DIR = DATA_DIR / "options"
-ALPACA_KEY = "PK33J2RV4PNIY6TCOLUG3WYGRX"
-ALPACA_SECRET = "FxbJshSbhJ8Rn7KPENssS4eWsLpxCyYeyxavxywV9Bbs"
 OPT_URL = "https://data.alpaca.markets/v1beta1/options/bars"
 
 
@@ -78,7 +77,7 @@ def cache_path(symbol):
     return CACHE_DIR / f"{symbol}.csv"
 
 
-def fetch_contract(symbol, trade_date):
+def fetch_contract(symbol, trade_date, key, secret):
     """Fetch a single 0DTE contract's 5-min bars and cache."""
     if cache_path(symbol).exists():
         return True
@@ -87,8 +86,8 @@ def fetch_contract(symbol, trade_date):
     params = {"symbols": symbol, "timeframe": "5Min",
               "start": start_utc, "end": end_utc, "limit": 200}
     req = Request(f"{OPT_URL}?{urlencode(params)}",
-                  headers={"APCA-API-KEY-ID": ALPACA_KEY,
-                           "APCA-API-SECRET-KEY": ALPACA_SECRET})
+                  headers={"APCA-API-KEY-ID": key,
+                           "APCA-API-SECRET-KEY": secret})
     try:
         data = json.loads(urlopen(req, timeout=30).read())
         bars = data.get("bars", {}).get(symbol, [])
@@ -123,7 +122,7 @@ def derive_symbol_from_trade(t):
     return f"SPY{d.strftime('%y%m%d')}P{int(t.strike) * 1000:08d}"
 
 
-def run_one_config(spy, vix, start, end, config):
+def run_one_config(spy, vix, start, end, config, key, secret):
     """Run backtest with given config + pre-fetch any missing contracts."""
     # First pass: BS pricing (fast) to discover which contracts the config wants
     result_discovery = run_backtest(
@@ -146,7 +145,7 @@ def run_one_config(spy, vix, start, end, config):
     if needed:
         print(f"    fetching {len(needed)} new contract(s)...")
         for sym, d in needed:
-            ok = fetch_contract(sym, d)
+            ok = fetch_contract(sym, d, key, secret)
             print(f"      {'ok  ' if ok else 'FAIL'} {sym}")
             time.sleep(0.2)
 
@@ -211,10 +210,14 @@ def main():
 
     print(f"\nWindow: {start} to {end} ({n_days} calendar days, ~{n_days * 5 // 7} trading days)\n")
 
+    # Resolve creds lazily on the fetch path (never at import time).
+    creds = resolve_alpaca_creds()
+    print(f"Alpaca creds: key={masked(creds.key)} source={creds.source}\n")
+
     results = {}
     for cfg in CONFIGS:
         print(f"  {cfg['name']}: {cfg['desc']}")
-        r = run_one_config(spy, vix, start, end, cfg)
+        r = run_one_config(spy, vix, start, end, cfg, creds.key, creds.secret)
         s = summarize(r)
         results[cfg["name"]] = s
         print(f"    -> {s['n_trades']} trades, "

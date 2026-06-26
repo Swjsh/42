@@ -1,0 +1,60 @@
+{
+  "study": "Safe time-of-day x trigger-class gate sweep",
+  "date": "2026-06-17",
+  "is_n": 130,
+  "oos_n": 21,
+  "is_pnl": 16173.63,
+  "oos_pnl": 5900.25,
+  "gate_results": [
+    {
+      "gate": "block conf+lvl_rec midday+afternoon",
+      "IS_delta": 2177.6,
+      "OOS_delta": -832.0,
+      "WF": -2.365,
+      "OOS_positive": true,
+      "SW_hurt": 0,
+      "anchor_OK": true,
+      "verdict": "REJECT"
+    },
+    {
+      "gate": "block conf+lvl_rec afternoon only",
+      "IS_delta": 412.0,
+      "OOS_delta": 176.0,
+      "WF": 2.644,
+      "OOS_positive": true,
+      "SW_hurt": 0,
+      "anchor_OK": true,
+      "verdict": "AUTO-RATIFY"
+    },
+    {
+      "gate": "block conf+lvl_rec midday only",
+      "IS_delta": 1765.6,
+      "OOS_delta": -1008.0,
+      "WF": -3.534,
+      "OOS_positive": true,
+      "SW_hurt": 0,
+      "anchor_OK": true,
+      "verdict": "REJECT"
+    },
+    {
+      "gate": "morning-only for ALL trades (block midday+afternoon for all classes)",
+      "IS_delta": -6508.33,
+      "OOS_delta": -1646.07,
+      "WF": 0.0,
+      "OOS_positive": true,
+      "SW_hurt": 3,
+      "anchor_OK": true,
+      "verdict": "REJECT (IS_delta<=0)"
+    },
+    {
+      "gate": "block non-conf midday+afternoon (conf-only after 11:30)",
+      "IS_delta": -3533.93,
+      "OOS_delta": -1171.09,
+      "WF": 0.0,
+      "OOS_positive": true,
+      "SW_hurt": 2,
+      "anchor_OK": true,
+      "verdict": "REJECT (IS_delta<=0)"
+    }
+  ]
+}

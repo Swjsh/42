@@ -1,0 +1,37 @@
+name: safety-gate
+
+# The bypass-proof backstop for autonomous self-modification (Phase 2). The local
+# pre-commit hook can be skipped with --no-verify; CI cannot. Runs on every push/PR.
+# NOTE: inert until a GitHub remote exists -- the local pre-commit hook + the actuator's
+# own gate-before-commit are the ACTIVE gates today.
+on:
+  push:
+  pull_request:
+
+jobs:
+  curated-gate:
+    name: curated safety gate (required)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: install deps
+        run: pip install -r backtest/requirements.txt
+      - name: run fast curated gate
+        run: python backtest/tests/run_safety_gate.py
+
+  full-suite:
+    name: full backtest suite (advisory)
+    runs-on: ubuntu-latest
+    continue-on-error: true   # advisory: live-state/backtest tests can be environment-sensitive
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: install deps
+        run: pip install -r backtest/requirements.txt
+      - name: run full suite
+        run: python backtest/tests/run_safety_gate.py --full

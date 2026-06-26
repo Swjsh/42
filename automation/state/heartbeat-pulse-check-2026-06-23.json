@@ -1,0 +1,14 @@
+{
+  "skill": "heartbeat-pulse-check",
+  "run_at": "2026-06-24T04:35:27.961502+00:00",
+  "target_date": "2026-06-23",
+  "verdict": "NOT_APPLICABLE",
+  "reason": "no-heartbeat-log-found:heartbeat-2026-06-23.log",
+  "fire_count_total": 0,
+  "market_fire_count": 0,
+  "max_gap_minutes": 0.0,
+  "gaps_over_15_min": 0,
+  "gaps_6_to_15_min": 0,
+  "heal_action": "no-op",
+  "sample_gaps": []
+}

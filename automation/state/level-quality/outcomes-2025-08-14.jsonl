@@ -1,0 +1,15 @@
+{"date": "2025-08-14", "price": 629.195, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-08-14", "price": 631.9, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-08-14", "price": 637.26, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-08-14", "price": 637.51, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-08-14", "price": 641.49, "source": "intraday", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-08-14", "price": 642.0, "source": "round", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-08-14", "price": 642.725, "source": "multi_day", "touched": true, "outcome": "RESPECT", "reaction_dollars": 1.505, "false_break": false}
+{"date": "2025-08-14", "price": 643.0, "source": "round", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.64, "false_break": false}
+{"date": "2025-08-14", "price": 643.1, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.23, "false_break": false}
+{"date": "2025-08-14", "price": 644.1, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.91, "false_break": true}
+{"date": "2025-08-14", "price": 644.2544428854294, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.539, "false_break": false}
+{"date": "2025-08-14", "price": 644.4279646469853, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.658, "false_break": false}
+{"date": "2025-08-14", "price": 644.5401095468021, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.77, "false_break": false}
+{"date": "2025-08-14", "price": 644.92, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.61, "false_break": true}
+{"date": "2025-08-14", "price": 646.15, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}

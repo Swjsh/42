@@ -1,0 +1,38 @@
+[
+  {
+    "label": "v2b (SPY-proxy derived)",
+    "full_net": -211.73000000000422,
+    "is_net": -1379.1100000000022,
+    "oos_net": 1167.3799999999983,
+    "full_n": 461,
+    "is_n": 288,
+    "oos_n": 173,
+    "oos_wr": 59.53757225433526,
+    "oos_pt": 6.747861271676291,
+    "gate": "PASS-REGIME-FLIP (IS<0, OOS>0, watch for recency bias)"
+  },
+  {
+    "label": "v3 (MNQ-native derived)",
+    "full_net": -5331.860000000006,
+    "is_net": -8152.660000000004,
+    "oos_net": 2820.7999999999984,
+    "full_n": 844,
+    "is_n": 546,
+    "oos_n": 298,
+    "oos_wr": 56.711409395973156,
+    "oos_pt": 9.465771812080531,
+    "gate": "PASS-REGIME-FLIP (IS<0, OOS>0, watch for recency bias)"
+  },
+  {
+    "label": "v3_mes (MES-native derived)",
+    "full_net": 4143.779999999999,
+    "is_net": 1905.5799999999992,
+    "oos_net": 2238.1999999999994,
+    "full_n": 232,
+    "is_n": 131,
+    "oos_n": 101,
+    "oos_wr": 56.43564356435643,
+    "oos_pt": 22.160396039603953,
+    "gate": "PASS"
+  }
+]

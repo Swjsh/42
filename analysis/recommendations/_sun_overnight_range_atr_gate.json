@@ -1,0 +1,565 @@
+{
+  "slug": "overnight-range-pct-atr-regime-gate",
+  "kind": "regime_gate (deploy-timing layer on the BOOK)",
+  "run_date": "2026-06-21",
+  "hypothesis": "overnight range (18:00 ET prior -> 09:30 ET, MES 1m) as fraction of daily ATR(14): <25% chop-leaning (edges bleed), >50% trend-leaning (edges work); deploy book only in trend-leaning band, abstain in chop",
+  "web_source": "TradingView 'NQ Overnight Range (% of Daily ATR)' (rodtradessometimes) \u2014 the <25%/25-50%/>50% chop/neutral/expansion framework; corroborated by ATR-regime day-trading literature (StockCharts ATRP, TradeThatSwing ADR/IR)",
+  "bands": {
+    "chop": "<0.25",
+    "neutral": "0.25-0.5",
+    "trend": ">0.5"
+  },
+  "the_bar": "DEPLOY-TIMING (L174): ACCEPT only if (a) risk-adj better (Sharpe/Sortino up, maxDD not worse) AND (b) abstained days sum NET-NEGATIVE (removing losers, not winners). Winner-removal => REJECT.",
+  "data": {
+    "overnight_range_atr": "MES_1m_continuous 2025-01-24..2026-06-12 (352 dates)",
+    "fills": "real OPRA via lib.simulator_real (C1)",
+    "coverage_caveat": "MES 1m ends 2026-06-12; OPRA fills end 2026-06-18 -> dates 2026-06-13..06-18 UNCLASSIFIED & kept-in-deployed (can't abstain without overnight data). DD window 2026-05-14..06-18 covered thru 06-12.",
+    "atr_causal": "ATR(14) from MES RTH daily TR, shifted +1 day (known at prior close)"
+  },
+  "band_counts_full_history": {
+    "chop": 10,
+    "trend": 218,
+    "neutral": 124
+  },
+  "books": {
+    "Safe2_ATM_1+2+4": {
+      "members": [
+        "vwap_continuation/ATM",
+        "vwap_reclaim_failed_break/ATM",
+        "vix_regime_dayside/ATM"
+      ],
+      "full_history_book": {
+        "n_days": 152,
+        "total": 12681.8,
+        "daily_mean": 83.43,
+        "daily_sd": 206.96,
+        "sharpe_ann": 6.4,
+        "sortino_ann": 21.733,
+        "max_dd": -1007.16,
+        "win_days": 81,
+        "loss_days": 71
+      },
+      "drawdown_window_book": {
+        "n_days": 10,
+        "total": -215.64,
+        "daily_mean": -21.56,
+        "daily_sd": 106.26,
+        "sharpe_ann": -3.221,
+        "sortino_ann": -12.102,
+        "max_dd": -453.36,
+        "win_days": 3,
+        "loss_days": 7
+      },
+      "buckets_full_history": {
+        "chop": {
+          "n_days": 2,
+          "total": -172.32,
+          "daily_mean": -86.16,
+          "win_days": 0,
+          "loss_days": 2
+        },
+        "neutral": {
+          "n_days": 52,
+          "total": 3401.28,
+          "daily_mean": 65.41,
+          "win_days": 25,
+          "loss_days": 27
+        },
+        "trend": {
+          "n_days": 96,
+          "total": 9273.4,
+          "daily_mean": 96.6,
+          "win_days": 55,
+          "loss_days": 41
+        },
+        "unclassified": {
+          "n_days": 2,
+          "total": 179.44,
+          "daily_mean": 89.72,
+          "win_days": 1,
+          "loss_days": 1
+        }
+      },
+      "buckets_drawdown_window": {
+        "chop": {
+          "n_days": 0,
+          "total": 0.0
+        },
+        "neutral": {
+          "n_days": 3,
+          "total": -179.28,
+          "daily_mean": -59.76,
+          "win_days": 0,
+          "loss_days": 3
+        },
+        "trend": {
+          "n_days": 5,
+          "total": 8.28,
+          "daily_mean": 1.66,
+          "win_days": 2,
+          "loss_days": 3
+        },
+        "unclassified": {
+          "n_days": 2,
+          "total": -44.64,
+          "daily_mean": -22.32,
+          "win_days": 1,
+          "loss_days": 1
+        }
+      },
+      "rules": {
+        "ge25_full": {
+          "rule": "deploy_if_ratio>=25% (drop chop)",
+          "deploy_bands": [
+            "neutral",
+            "trend"
+          ],
+          "base": {
+            "n_days": 152,
+            "total": 12681.8,
+            "daily_mean": 83.43,
+            "daily_sd": 206.96,
+            "sharpe_ann": 6.4,
+            "sortino_ann": 21.733,
+            "max_dd": -1007.16,
+            "win_days": 81,
+            "loss_days": 71
+          },
+          "deployed": {
+            "n_days": 150,
+            "total": 12854.12,
+            "daily_mean": 85.69,
+            "daily_sd": 207.36,
+            "sharpe_ann": 6.56,
+            "sortino_ann": 22.128,
+            "max_dd": -1007.16,
+            "win_days": 81,
+            "loss_days": 69
+          },
+          "abstained": {
+            "n_days": 2,
+            "total": -172.32,
+            "daily_mean": -86.16,
+            "daily_sd": 52.61,
+            "sharpe_ann": -25.998,
+            "sortino_ann": -25.998,
+            "max_dd": -48.96,
+            "win_days": 0,
+            "loss_days": 2
+          },
+          "n_unclassified_kept": 2,
+          "abstained_net": -172.32,
+          "no_regression_ok": true,
+          "sharpe_lift": 0.16,
+          "sortino_lift": 0.395,
+          "maxdd_improve": 0.0,
+          "ACCEPT": true
+        },
+        "trend_full": {
+          "rule": "deploy_if_ratio>50% (trend band only)",
+          "deploy_bands": [
+            "trend"
+          ],
+          "base": {
+            "n_days": 152,
+            "total": 12681.8,
+            "daily_mean": 83.43,
+            "daily_sd": 206.96,
+            "sharpe_ann": 6.4,
+            "sortino_ann": 21.733,
+            "max_dd": -1007.16,
+            "win_days": 81,
+            "loss_days": 71
+          },
+          "deployed": {
+            "n_days": 98,
+            "total": 9452.84,
+            "daily_mean": 96.46,
+            "daily_sd": 221.28,
+            "sharpe_ann": 6.92,
+            "sortino_ann": 21.64,
+            "max_dd": -879.96,
+            "win_days": 56,
+            "loss_days": 42
+          },
+          "abstained": {
+            "n_days": 54,
+            "total": 3228.96,
+            "daily_mean": 59.8,
+            "daily_sd": 177.56,
+            "sharpe_ann": 5.346,
+            "sortino_ann": 27.21,
+            "max_dd": -455.88,
+            "win_days": 25,
+            "loss_days": 29
+          },
+          "n_unclassified_kept": 2,
+          "abstained_net": 3228.96,
+          "no_regression_ok": false,
+          "sharpe_lift": 0.52,
+          "sortino_lift": -0.093,
+          "maxdd_improve": 127.2,
+          "ACCEPT": false
+        },
+        "ge25_drawdown": {
+          "rule": "DD-window deploy_if_ratio>=25%",
+          "deploy_bands": [
+            "neutral",
+            "trend"
+          ],
+          "base": {
+            "n_days": 10,
+            "total": -215.64,
+            "daily_mean": -21.56,
+            "daily_sd": 106.26,
+            "sharpe_ann": -3.221,
+            "sortino_ann": -12.102,
+            "max_dd": -453.36,
+            "win_days": 3,
+            "loss_days": 7
+          },
+          "deployed": {
+            "n_days": 10,
+            "total": -215.64,
+            "daily_mean": -21.56,
+            "daily_sd": 106.26,
+            "sharpe_ann": -3.221,
+            "sortino_ann": -12.102,
+            "max_dd": -453.36,
+            "win_days": 3,
+            "loss_days": 7
+          },
+          "abstained": {
+            "n_days": 0,
+            "total": 0.0
+          },
+          "n_unclassified_kept": 2,
+          "abstained_net": 0.0,
+          "no_regression_ok": false,
+          "sharpe_lift": 0.0,
+          "sortino_lift": 0.0,
+          "maxdd_improve": 0.0,
+          "ACCEPT": false
+        },
+        "trend_drawdown": {
+          "rule": "DD-window deploy_if_ratio>50%",
+          "deploy_bands": [
+            "trend"
+          ],
+          "base": {
+            "n_days": 10,
+            "total": -215.64,
+            "daily_mean": -21.56,
+            "daily_sd": 106.26,
+            "sharpe_ann": -3.221,
+            "sortino_ann": -12.102,
+            "max_dd": -453.36,
+            "win_days": 3,
+            "loss_days": 7
+          },
+          "deployed": {
+            "n_days": 7,
+            "total": -36.36,
+            "daily_mean": -5.19,
+            "daily_sd": 125.03,
+            "sharpe_ann": -0.659,
+            "sortino_ann": -3.265,
+            "max_dd": -349.68,
+            "win_days": 3,
+            "loss_days": 4
+          },
+          "abstained": {
+            "n_days": 3,
+            "total": -179.28,
+            "daily_mean": -59.76,
+            "daily_sd": 28.06,
+            "sharpe_ann": -33.806,
+            "sortino_ann": -33.806,
+            "max_dd": -103.68,
+            "win_days": 0,
+            "loss_days": 3
+          },
+          "n_unclassified_kept": 2,
+          "abstained_net": -179.28,
+          "no_regression_ok": true,
+          "sharpe_lift": 2.562,
+          "sortino_lift": 8.837,
+          "maxdd_improve": 103.68,
+          "ACCEPT": true
+        }
+      }
+    },
+    "Bold_ITM2_1+2": {
+      "members": [
+        "vwap_continuation/ITM-2",
+        "vwap_reclaim_failed_break/ITM-2"
+      ],
+      "full_history_book": {
+        "n_days": 151,
+        "total": 17197.92,
+        "daily_mean": 113.89,
+        "daily_sd": 267.53,
+        "sharpe_ann": 6.758,
+        "sortino_ann": 29.903,
+        "max_dd": -1494.6,
+        "win_days": 80,
+        "loss_days": 71
+      },
+      "drawdown_window_book": {
+        "n_days": 11,
+        "total": -1464.72,
+        "daily_mean": -133.16,
+        "daily_sd": 64.15,
+        "sharpe_ann": -32.952,
+        "sortino_ann": -32.952,
+        "max_dd": -1327.68,
+        "win_days": 0,
+        "loss_days": 11
+      },
+      "buckets_full_history": {
+        "chop": {
+          "n_days": 2,
+          "total": -192.48,
+          "daily_mean": -96.24,
+          "win_days": 0,
+          "loss_days": 2
+        },
+        "neutral": {
+          "n_days": 51,
+          "total": 5441.36,
+          "daily_mean": 106.69,
+          "win_days": 26,
+          "loss_days": 25
+        },
+        "trend": {
+          "n_days": 97,
+          "total": 11678.44,
+          "daily_mean": 120.4,
+          "win_days": 53,
+          "loss_days": 44
+        },
+        "unclassified": {
+          "n_days": 1,
+          "total": 270.6,
+          "daily_mean": 270.6,
+          "win_days": 1,
+          "loss_days": 0
+        }
+      },
+      "buckets_drawdown_window": {
+        "chop": {
+          "n_days": 0,
+          "total": 0.0
+        },
+        "neutral": {
+          "n_days": 3,
+          "total": -323.52,
+          "daily_mean": -107.84,
+          "win_days": 0,
+          "loss_days": 3
+        },
+        "trend": {
+          "n_days": 6,
+          "total": -852.24,
+          "daily_mean": -142.04,
+          "win_days": 0,
+          "loss_days": 6
+        },
+        "unclassified": {
+          "n_days": 2,
+          "total": -288.96,
+          "daily_mean": -144.48,
+          "win_days": 0,
+          "loss_days": 2
+        }
+      },
+      "rules": {
+        "ge25_full": {
+          "rule": "deploy_if_ratio>=25% (drop chop)",
+          "deploy_bands": [
+            "neutral",
+            "trend"
+          ],
+          "base": {
+            "n_days": 151,
+            "total": 17197.92,
+            "daily_mean": 113.89,
+            "daily_sd": 267.53,
+            "sharpe_ann": 6.758,
+            "sortino_ann": 29.903,
+            "max_dd": -1494.6,
+            "win_days": 80,
+            "loss_days": 71
+          },
+          "deployed": {
+            "n_days": 149,
+            "total": 17390.4,
+            "daily_mean": 116.71,
+            "daily_sd": 268.2,
+            "sharpe_ann": 6.908,
+            "sortino_ann": 30.218,
+            "max_dd": -1494.6,
+            "win_days": 80,
+            "loss_days": 69
+          },
+          "abstained": {
+            "n_days": 2,
+            "total": -192.48,
+            "daily_mean": -96.24,
+            "daily_sd": 6.45,
+            "sharpe_ann": -236.906,
+            "sortino_ann": -236.906,
+            "max_dd": -100.8,
+            "win_days": 0,
+            "loss_days": 2
+          },
+          "n_unclassified_kept": 1,
+          "abstained_net": -192.48,
+          "no_regression_ok": true,
+          "sharpe_lift": 0.15,
+          "sortino_lift": 0.315,
+          "maxdd_improve": 0.0,
+          "ACCEPT": true
+        },
+        "trend_full": {
+          "rule": "deploy_if_ratio>50% (trend band only)",
+          "deploy_bands": [
+            "trend"
+          ],
+          "base": {
+            "n_days": 151,
+            "total": 17197.92,
+            "daily_mean": 113.89,
+            "daily_sd": 267.53,
+            "sharpe_ann": 6.758,
+            "sortino_ann": 29.903,
+            "max_dd": -1494.6,
+            "win_days": 80,
+            "loss_days": 71
+          },
+          "deployed": {
+            "n_days": 98,
+            "total": 11949.04,
+            "daily_mean": 121.93,
+            "daily_sd": 280.89,
+            "sharpe_ann": 6.891,
+            "sortino_ann": 27.681,
+            "max_dd": -1086.0,
+            "win_days": 54,
+            "loss_days": 44
+          },
+          "abstained": {
+            "n_days": 53,
+            "total": 5248.88,
+            "daily_mean": 99.04,
+            "daily_sd": 242.75,
+            "sharpe_ann": 6.476,
+            "sortino_ann": 42.199,
+            "max_dd": -449.28,
+            "win_days": 26,
+            "loss_days": 27
+          },
+          "n_unclassified_kept": 1,
+          "abstained_net": 5248.88,
+          "no_regression_ok": false,
+          "sharpe_lift": 0.133,
+          "sortino_lift": -2.222,
+          "maxdd_improve": 408.6,
+          "ACCEPT": false
+        },
+        "ge25_drawdown": {
+          "rule": "DD-window deploy_if_ratio>=25%",
+          "deploy_bands": [
+            "neutral",
+            "trend"
+          ],
+          "base": {
+            "n_days": 11,
+            "total": -1464.72,
+            "daily_mean": -133.16,
+            "daily_sd": 64.15,
+            "sharpe_ann": -32.952,
+            "sortino_ann": -32.952,
+            "max_dd": -1327.68,
+            "win_days": 0,
+            "loss_days": 11
+          },
+          "deployed": {
+            "n_days": 11,
+            "total": -1464.72,
+            "daily_mean": -133.16,
+            "daily_sd": 64.15,
+            "sharpe_ann": -32.952,
+            "sortino_ann": -32.952,
+            "max_dd": -1327.68,
+            "win_days": 0,
+            "loss_days": 11
+          },
+          "abstained": {
+            "n_days": 0,
+            "total": 0.0
+          },
+          "n_unclassified_kept": 2,
+          "abstained_net": 0.0,
+          "no_regression_ok": false,
+          "sharpe_lift": 0.0,
+          "sortino_lift": 0.0,
+          "maxdd_improve": 0.0,
+          "ACCEPT": false
+        },
+        "trend_drawdown": {
+          "rule": "DD-window deploy_if_ratio>50%",
+          "deploy_bands": [
+            "trend"
+          ],
+          "base": {
+            "n_days": 11,
+            "total": -1464.72,
+            "daily_mean": -133.16,
+            "daily_sd": 64.15,
+            "sharpe_ann": -32.952,
+            "sortino_ann": -32.952,
+            "max_dd": -1327.68,
+            "win_days": 0,
+            "loss_days": 11
+          },
+          "deployed": {
+            "n_days": 8,
+            "total": -1141.2,
+            "daily_mean": -142.65,
+            "daily_sd": 70.43,
+            "sharpe_ann": -32.153,
+            "sortino_ann": -32.153,
+            "max_dd": -984.24,
+            "win_days": 0,
+            "loss_days": 8
+          },
+          "abstained": {
+            "n_days": 3,
+            "total": -323.52,
+            "daily_mean": -107.84,
+            "daily_sd": 43.5,
+            "sharpe_ann": -39.35,
+            "sortino_ann": -39.35,
+            "max_dd": -186.48,
+            "win_days": 0,
+            "loss_days": 3
+          },
+          "n_unclassified_kept": 2,
+          "abstained_net": -323.52,
+          "no_regression_ok": true,
+          "sharpe_lift": 0.799,
+          "sortino_lift": 0.799,
+          "maxdd_improve": 343.44,
+          "ACCEPT": true
+        }
+      }
+    }
+  },
+  "DISCLOSURE": {
+    "real_fills": "real OPRA only \u2014 WR authority (C1); SPY-direction != option edge (C3/L58)",
+    "per_trade": "book daily P&L; risk metrics on DAILY series; Sharpe ann x sqrt(252)",
+    "no_winner_kill": "abstained-day net reported explicitly (L174 no-regression honesty)",
+    "research_only": "no live edit, no orders (Sunday money-path guard)"
+  }
+}

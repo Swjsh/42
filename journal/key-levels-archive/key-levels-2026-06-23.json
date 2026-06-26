@@ -1,0 +1,288 @@
+{
+  "schema_version": 3,
+  "protocol_version": "markdown/0dte/key-levels-protocol.md@2",
+  "as_of": "2026-06-22T16:30:00-04:00",
+  "for_session": "2026-06-23",
+  "spot_at_compute": 743.86,
+  "computed_from": {
+    "prior_date": "2026-06-22",
+    "today_date": "2026-06-23",
+    "prior_rth_bars": 0,
+    "today_rth_bars": 0,
+    "premarket_bars": 0,
+    "tv_unavailable": true,
+    "note": "EOD DAILY REVIEW 2026-06-22 16:30 ET. Built from today's session data. RTH H 750.18 / L 743.35 / last 743.86. 750.18 new Active resistance. 743.35 promoted to Carry (double-confirmed 6/18+6/22). 745.33 role flipped to broken_to_resistance (close 743.86 < 745.33). 747.25 kept as Active overhead resistance. PCE 6/25 overhang. ENTER_BEAR at 10:57 killed by timeout — no fill."
+  },
+  "levels": [
+    {
+      "price": 752.09,
+      "type": "resistance",
+      "role": null,
+      "label": "BATTLE_PMH_2026-06-15",
+      "tier": "Reference",
+      "source": "prior_session_pmh_swarm_flagged",
+      "verified_at": "2026-06-22T16:30:00-04:00",
+      "expires_at": "2026-07-04T16:00:00-04:00",
+      "reasoning": "6/15 PMH. Multi-week structural resistance. Far above current price (743.86). Break above 5m-close = bullish to 755+. Awareness only.",
+      "notes": "Re-verified at daily review 2026-06-22. Reference tier.",
+      "entity_id": "HonR33",
+      "draw_needed": false
+    },
+    {
+      "price": 750.18,
+      "type": "resistance",
+      "role": "session_high",
+      "label": "RTH_HIGH_2026-06-22",
+      "tier": "Active",
+      "source": "today_rth_high",
+      "verified_at": "2026-06-22T16:30:00-04:00",
+      "expires_at": "2026-06-24T16:00:00-04:00",
+      "reasoning": "Today's RTH high. Failed breakout above PMH 748.07 — SPY ran to 750.18 then fully reversed to 743.35. First test tomorrow = bear setup zone (BEARISH_REJECTION eligible if ribbon BEAR at 750). Break and hold 5m close above 750.25 = bull continuation.",
+      "notes": "New level built at daily review. draw_needed=true for premarket.",
+      "entity_id": null,
+      "draw_needed": true
+    },
+    {
+      "price": 750.00,
+      "type": "psychological",
+      "role": null,
+      "label": "ROUND_750",
+      "tier": "Reference",
+      "source": "round_number_near_price",
+      "verified_at": "2026-06-22T16:30:00-04:00",
+      "expires_at": "2026-08-15T16:00:00-04:00",
+      "reasoning": "Round $750 level, near today's session high. Magnet — awareness only. NOT a trigger source.",
+      "notes": "Awareness only. Engine does not score as trigger source.",
+      "entity_id": null,
+      "draw_needed": false
+    },
+    {
+      "price": 747.25,
+      "type": "resistance",
+      "role": "overhead_pivot",
+      "label": "RTH_HIGH_2026-06-18",
+      "tier": "Active",
+      "source": "prior_session_rth_high",
+      "verified_at": "2026-06-22T16:30:00-04:00",
+      "expires_at": "2026-06-24T16:00:00-04:00",
+      "reasoning": "6/18 RTH high. Broken both ways in 6/22 session (SPY ran above it to 750.18, then broke back below it, closing at 743.86). Now overhead resistance. Reclaim (5m close above 747.40) = structure flip bullish. Bear continues below.",
+      "notes": "Role updated: broken_resistance_now_support → overhead_pivot after 6/22 session broke back below. Re-verified daily review.",
+      "entity_id": "0rLUqS",
+      "draw_needed": false
+    },
+    {
+      "price": 745.33,
+      "type": "resistance",
+      "role": "broken_to_resistance",
+      "label": "CARRY_SESSION_HIGH_2026-06-08",
+      "tier": "Active",
+      "source": "prior_session_high_carry",
+      "verified_at": "2026-06-22T16:30:00-04:00",
+      "expires_at": "2026-06-26T16:00:00-04:00",
+      "reasoning": "Jun-8 session high. Was Carry support. SPY closed at 743.86 today — below this level. Role flipped: broken_to_resistance. Now acts as overhead cap on any bounce. First test = bear entry zone.",
+      "notes": "Role change at daily review 2026-06-22: support → broken_to_resistance. Close below confirmed the break.",
+      "entity_id": "hfkF91",
+      "draw_needed": false
+    },
+    {
+      "price": 743.35,
+      "type": "support",
+      "role": "double_confirmed_support",
+      "label": "DOUBLE_BOTTOM_RTH_LOW_6-18_6-22",
+      "tier": "Carry",
+      "source": "double_session_low",
+      "verified_at": "2026-06-22T16:30:00-04:00",
+      "expires_at": "2026-06-30T16:00:00-04:00",
+      "reasoning": "Exact same low on 6/18 and 6/22. Double-confirmed structural support. Promoted from Active to Carry. Break below on 5m close = bear acceleration; defense = strong bounce candidate. Critical level to watch.",
+      "notes": "Promoted to Carry at daily review 2026-06-22. Previously RTH_LOW_2026-06-18, now confirmed on 6/22 session as well.",
+      "entity_id": "SOGhtH",
+      "draw_needed": false
+    }
+  ],
+  "deprecated_levels": [
+    {
+      "price": 756.68,
+      "label": "RTH_HIGH_2026-06-15 (Carry, expired)",
+      "reason": "EXPIRED: expires_at 2026-06-17T16:00:00-04:00."
+    },
+    {
+      "price": 755.35,
+      "label": "PMH_2026-06-16 (resistance)",
+      "reason": "Consolidated into RTH_HIGH_2026-06-16 at 755.39."
+    },
+    {
+      "price": 755.39,
+      "label": "RTH_HIGH_2026-06-16 (Active resistance, expired)",
+      "reason": "EXPIRED: expires_at 2026-06-18T16:00:00-04:00."
+    },
+    {
+      "price": 752.09,
+      "label": "PMH_2026-06-15_NOW_RESISTANCE (Active, expired)",
+      "reason": "EXPIRED as Active level 2026-06-18T16:00. Rebuilt as Reference tier BATTLE_PMH_2026-06-15."
+    },
+    {
+      "price": 751.65,
+      "label": "RTH_LOW_2026-06-15 (support)",
+      "reason": "Superseded by lower session low at 750.62."
+    },
+    {
+      "price": 750.62,
+      "label": "RTH_LOW_2026-06-16 (Active resistance, expired)",
+      "reason": "EXPIRED: expires_at 2026-06-18T16:00:00-04:00."
+    },
+    {
+      "price": 748.07,
+      "label": "PMH_2026-06-22 (Active, expired EOD)",
+      "reason": "EXPIRED: end of 2026-06-22 session. Today's RTH high (750.18) supersedes as the new active resistance."
+    },
+    {
+      "price": 748.00,
+      "label": "PML_2026-06-15_CARRY (Carry, expired)",
+      "reason": "EXPIRED: expires_at 2026-06-20T16:00:00-04:00."
+    },
+    {
+      "price": 747.00,
+      "label": "PMH_2026-06-18 (Active, expired)",
+      "reason": "EXPIRED: expires_at 2026-06-18T16:00:00-04:00."
+    },
+    {
+      "price": 740.00,
+      "label": "ROUND_740 (reference)",
+      "reason": "Too far from current price. Restore if SPY approaches."
+    }
+  ],
+  "rth_high_today": 750.18,
+  "rth_low_today": 743.35,
+  "close_today": 743.86,
+  "prior_session": {
+    "date": "2026-06-22",
+    "rth_high": 750.18,
+    "rth_low": 743.35,
+    "rth_close": 743.86,
+    "ah_last": null,
+    "ah_note": "6/22 session: HOLD_DEV all day. Morning bull sweep 748.07→750.18, then full reversal to 743.35. ENTER_BEAR at 10:57 (10/10 score) killed by harness timeout — no fill. Both accounts flat. Safe $2,000 / Bold ~$1,648."
+  },
+  "summary": {
+    "total_in": 6,
+    "kept": 6,
+    "dropped_distance": 0,
+    "dropped_expiry": 1,
+    "dropped_protocol": 0,
+    "added_new": 1,
+    "by_stars": {
+      "3star": 0,
+      "2star": 0,
+      "1star": 0
+    },
+    "tuesday_alert": "6 levels for 2026-06-23. PMH 748.07 expired → replaced by RTH_HIGH_2026-06-22 at 750.18 (draw_needed). 745.33 role flipped to broken_to_resistance. 743.35 promoted to Carry (double-confirmed). PCE Thu 6/25 08:30 ET — no-trade 08:25-08:50 block."
+  },
+  "session_bias": {
+    "direction": "BEARISH",
+    "confidence": "MEDIUM",
+    "reasoning": "SPY closed 743.86, below 745.33 former Carry support (now resistance), below 747.25 overhead pivot. Ribbon ended BEAR 40c spread. VIX 17.12 elevated MID. Double-confirmed support at 743.35. Bear continues while below 745.33. Bull requires reclaim of 745.33 on 5m close."
+  },
+  "audit_log": [
+    {
+      "timestamp": "2026-06-15T08:30:00-04:00",
+      "count_in": 7, "count_pass": 1, "count_dropped": 6, "count_added": 4,
+      "tv_available": true,
+      "note": "PREMARKET AUDIT 2026-06-15 08:30 ET."
+    },
+    {
+      "timestamp": "2026-06-15T10:28:49-04:00",
+      "count_in": 5, "count_pass": 5, "count_dropped": 0, "count_added": 2,
+      "tv_available": true,
+      "note": "MID-SESSION REVIEW 10:28 ET 2026-06-15."
+    },
+    {
+      "timestamp": "2026-06-15T16:30:00-04:00",
+      "count_in": 7, "count_pass": 7, "count_dropped": 0, "count_added": 0,
+      "tv_available": false,
+      "note": "EOD REVIEW 16:30 ET 2026-06-15."
+    },
+    {
+      "timestamp": "2026-06-16T08:02:40-04:00",
+      "count_in": 7, "count_pass": 7, "count_dropped": 0, "count_added": 0,
+      "tv_available": true,
+      "note": "PREMARKET AUDIT 2026-06-16 08:02 ET."
+    },
+    {
+      "timestamp": "2026-06-16T08:30:02-04:00",
+      "count_in": 8, "count_pass": 8, "count_dropped": 0, "count_added": 1,
+      "tv_available": true,
+      "note": "PREMARKET AUDIT 2026-06-16 08:30 ET. Added PMH_2026-06-16 at 755.35."
+    },
+    {
+      "timestamp": "2026-06-16T16:30:00-04:00",
+      "count_in": 8, "count_pass": 7, "count_dropped": 3, "count_added": 2,
+      "tv_available": false,
+      "note": "EOD REVIEW 2026-06-16 16:30 ET."
+    },
+    {
+      "timestamp": "2026-06-17T08:30:00-04:00",
+      "count_in": 7, "count_pass": 7, "count_dropped": 0, "count_added": 0,
+      "tv_available": true,
+      "note": "PREMARKET AUDIT 2026-06-17 08:30 ET. FOMC day."
+    },
+    {
+      "timestamp": "2026-06-18T08:40:00-04:00",
+      "count_in": 7, "count_pass": 7, "count_dropped": 1, "count_added": 1,
+      "tv_available": true,
+      "note": "PREMARKET AUDIT 2026-06-18 08:40 ET."
+    },
+    {
+      "timestamp": "2026-06-19T08:30:32-04:00",
+      "count_in": 7, "count_pass": 3, "count_dropped": 4, "count_added": 0,
+      "tv_available": true,
+      "note": "PREMARKET AUDIT 2026-06-19. Juneteenth holiday."
+    },
+    {
+      "timestamp": "2026-06-19T16:30:00-04:00",
+      "count_in": 3, "count_pass": 5, "count_dropped": 1, "count_added": 3,
+      "tv_available": false,
+      "note": "DAILY REVIEW 2026-06-19. Holiday. Pre-seeded 3 Monday candidates."
+    },
+    {
+      "timestamp": "2026-06-22T08:39:00-04:00",
+      "count_in": 5, "count_pass": 6, "count_dropped": 0, "count_added": 1,
+      "tv_available": true,
+      "note": "PREMARKET AUDIT 2026-06-22. Added PMH_2026-06-22 748.07. Ribbon BULL 57c."
+    },
+    {
+      "timestamp": "2026-06-22T16:30:00-04:00",
+      "count_in": 6, "count_pass": 6, "count_dropped": 1, "count_added": 1,
+      "tv_available": false,
+      "note": "DAILY REVIEW 2026-06-22 16:30 ET. Dropped PMH_2026-06-22 (expired). Added RTH_HIGH_2026-06-22 at 750.18 (draw_needed). Promoted 743.35 to Carry (double-confirmed). Flipped 745.33 role to broken_to_resistance. Updated 747.25 to overhead_pivot. Tomorrow for_session 2026-06-23."
+    }
+  ],
+  "chart_cleanup_log": [
+    {
+      "ran_at": "2026-06-22T08:39:00-04:00",
+      "method": "premarket_audit_note",
+      "note": "5 draw_needed levels at premarket. draw_remove_one still broken.",
+      "before_count": 5,
+      "after_count": 6,
+      "removed_count": 0,
+      "drew_new_entity_ids": [],
+      "stale_entities_on_chart": ["rCinX8 (755.39)", "Gd0RFh (752.09 old)", "gMxYxG (750.62)", "7f6O7p (747.00)", "nyAGrW (748.00)"]
+    },
+    {
+      "ran_at": "2026-06-22T16:30:00-04:00",
+      "method": "eod_daily_review",
+      "note": "TV unavailable post-session. PMH_2026-06-22 entity wIZQS3 now stale (expired). RTH_HIGH_2026-06-22 at 750.18 draw_needed=true for premarket. Chart cleanup deferred to premarket 2026-06-23.",
+      "before_count": 6,
+      "after_count": 5,
+      "removed_count": 0,
+      "drew_new_entity_ids": [],
+      "stale_entities_on_chart": ["rCinX8 (755.39)", "Gd0RFh (752.09 old)", "gMxYxG (750.62)", "7f6O7p (747.00)", "nyAGrW (748.00)", "wIZQS3 (748.07 expired)"]
+    }
+  ],
+  "chart_drawing_summary": {
+    "drawn_count": 5,
+    "draw_needed_count": 1,
+    "drew_this_session": [],
+    "draw_needed_levels": ["750.18 RTH_HIGH_2026-06-22 (new)"],
+    "note": "Draw 750.18 at premarket 2026-06-23. Remove stale wIZQS3 (748.07 expired) if possible."
+  },
+  "date": "2026-06-22"
+}

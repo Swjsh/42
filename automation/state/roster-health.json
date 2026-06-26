@@ -1,0 +1,63 @@
+{
+  "checked_utc": "2026-06-25T04:12:14+00:00",
+  "n_lanes": 8,
+  "n_live": 6,
+  "lanes": [
+    {
+      "lane": "groq::llama-3.1-8b-instant",
+      "ok": true,
+      "class": "live",
+      "elapsed_s": 1.995,
+      "error": ""
+    },
+    {
+      "lane": "openrouter::meta-llama/llama-3.3-70b-instruct:free",
+      "ok": false,
+      "class": "throttled",
+      "elapsed_s": 1.989,
+      "error": "RateLimitError: Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'meta-llama/llama-3.3-70"
+    },
+    {
+      "lane": "ollama::qwen3:14b",
+      "ok": true,
+      "class": "live",
+      "elapsed_s": 4.179,
+      "error": ""
+    },
+    {
+      "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free",
+      "ok": true,
+      "class": "live",
+      "elapsed_s": 15.928,
+      "error": ""
+    },
+    {
+      "lane": "cerebras::gpt-oss-120b",
+      "ok": true,
+      "class": "live",
+      "elapsed_s": 1.83,
+      "error": ""
+    },
+    {
+      "lane": "openrouter::qwen/qwen3-coder:free",
+      "ok": false,
+      "class": "throttled",
+      "elapsed_s": 1.851,
+      "error": "RateLimitError: Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'qwen/qwen3-coder:free i"
+    },
+    {
+      "lane": "cerebras::zai-glm-4.7",
+      "ok": true,
+      "class": "live",
+      "elapsed_s": 1.719,
+      "error": ""
+    },
+    {
+      "lane": "google_aistudio::gemini-flash-lite-latest",
+      "ok": true,
+      "class": "live",
+      "elapsed_s": 9.444,
+      "error": ""
+    }
+  ]
+}

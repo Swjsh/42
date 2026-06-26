@@ -1,0 +1,64 @@
+{
+  "window": {
+    "start": "2026-05-23",
+    "end": "2026-06-15"
+  },
+  "note": "TRUE post-research-date OOS (params locked 2026-05-31, A/B on 2026-05-08..22)",
+  "configs": [
+    {
+      "label": "BASE",
+      "n": 4,
+      "wr": 0.25,
+      "total_pnl": -539.96,
+      "per_trade": -134.99,
+      "positive_days": 1,
+      "total_days": 4,
+      "by_day": {
+        "2026-05-26": -432.9600000000002,
+        "2026-05-27": -252.7999999999997,
+        "2026-05-28": -320.40000000000003,
+        "2026-05-29": 466.2000000000001
+      }
+    },
+    {
+      "label": "MIDDAY_ONLY (live)",
+      "n": 4,
+      "wr": 0.25,
+      "total_pnl": -539.96,
+      "per_trade": -134.99,
+      "positive_days": 1,
+      "total_days": 4,
+      "by_day": {
+        "2026-05-26": -432.9600000000002,
+        "2026-05-27": -252.7999999999997,
+        "2026-05-28": -320.40000000000003,
+        "2026-05-29": 466.2000000000001
+      }
+    },
+    {
+      "label": "MOMENTUM_ONLY (proposed)",
+      "n": 1,
+      "wr": 0.0,
+      "total_pnl": -320.4,
+      "per_trade": -320.4,
+      "positive_days": 0,
+      "total_days": 1,
+      "by_day": {
+        "2026-05-28": -320.40000000000003
+      }
+    },
+    {
+      "label": "ALL_THREE",
+      "n": 1,
+      "wr": 0.0,
+      "total_pnl": -320.4,
+      "per_trade": -320.4,
+      "positive_days": 0,
+      "total_days": 1,
+      "by_day": {
+        "2026-05-28": -320.40000000000003
+      }
+    }
+  ],
+  "momentum_vs_live_delta": 219.56
+}

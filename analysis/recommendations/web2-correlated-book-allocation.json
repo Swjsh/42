@@ -1,0 +1,531 @@
+{
+  "campaign": "WEB-LEARN-2 \u2014 correlation-aware allocation across the correlated 3-edge book",
+  "run_date": "2026-06-21",
+  "window": "2025-01-01..2026-05-15",
+  "hard_opra_cap": "2026-05-29",
+  "fills_authority": "real OPRA via lib.simulator_real (C1)",
+  "oos_split": "IS=2025 estimate / OOS=2026 apply (covariance estimated IS-only, no look-ahead)",
+  "method": "equal-weight(LIVE) vs inverse-variance vs equal-risk-contribution(ERC) vs min-variance; weights normalized so equal-weight=all-ones (unit baseline); weights estimated on 2025 daily edge P&L, applied to 2026",
+  "bar": "L175 risk-adjusted (book Sharpe AND Sortino no-worse AND maxDD no-worse AND OOS-positive; MATERIAL Sharpe lift > 0.05 required to PROMOTE) \u2014 NOT the 11-gate (no new signal)",
+  "Safe-2": {
+    "edges": [
+      "e1",
+      "e2",
+      "e4"
+    ],
+    "fire_day_counts": {
+      "e1": 149,
+      "e2": 76,
+      "e4": 76
+    },
+    "is_days": 249,
+    "oos_days": 93,
+    "cov_IS": [
+      [
+        6085.3,
+        1661.3,
+        1490.6
+      ],
+      [
+        1661.3,
+        4255.8,
+        42.9
+      ],
+      [
+        1490.6,
+        42.9,
+        1969.2
+      ]
+    ],
+    "corr_IS": [
+      [
+        1.0,
+        0.326,
+        0.431
+      ],
+      [
+        0.326,
+        1.0,
+        0.015
+      ],
+      [
+        0.431,
+        0.015,
+        1.0
+      ]
+    ],
+    "schemes": {
+      "equal_weight_LIVE": {
+        "weights_IS_estimated": {
+          "e1": 1.0,
+          "e2": 1.0,
+          "e4": 1.0
+        },
+        "weights_fullsample_fit": {
+          "e1": 1.0,
+          "e2": 1.0,
+          "e4": 1.0
+        },
+        "ALL": {
+          "total": 14608.16,
+          "daily_mean": 98.041,
+          "daily_std": 214.916,
+          "ann_sharpe": 7.242,
+          "ann_sortino": 23.914,
+          "max_dd": -836.4,
+          "worst_day": -423.36,
+          "best_day": 1045.2
+        },
+        "IS_2025": {
+          "total": 9915.92,
+          "daily_mean": 92.672,
+          "daily_std": 196.994,
+          "ann_sharpe": 7.468,
+          "ann_sortino": 20.867,
+          "max_dd": -682.08,
+          "worst_day": -423.36,
+          "best_day": 650.4
+        },
+        "OOS_2026": {
+          "total": 4692.24,
+          "daily_mean": 111.72,
+          "daily_std": 257.167,
+          "ann_sharpe": 6.896,
+          "ann_sortino": 33.545,
+          "max_dd": -836.4,
+          "worst_day": -221.52,
+          "best_day": 1045.2
+        }
+      },
+      "inverse_variance": {
+        "weights_IS_estimated": {
+          "e1": 0.5435,
+          "e2": 0.7771,
+          "e4": 1.6794
+        },
+        "weights_fullsample_fit": {
+          "e1": 0.5873,
+          "e2": 1.054,
+          "e4": 1.3587
+        },
+        "ALL": {
+          "total": 12700.37,
+          "daily_mean": 85.237,
+          "daily_std": 201.093,
+          "ann_sharpe": 6.729,
+          "ann_sortino": 22.544,
+          "max_dd": -726.55,
+          "worst_day": -279.54,
+          "best_day": 1052.56
+        },
+        "IS_2025": {
+          "total": 8134.66,
+          "daily_mean": 76.025,
+          "daily_std": 172.617,
+          "ann_sharpe": 6.992,
+          "ann_sortino": 19.653,
+          "max_dd": -551.83,
+          "worst_day": -279.54,
+          "best_day": 614.85
+        },
+        "OOS_2026": {
+          "total": 4565.71,
+          "daily_mean": 108.707,
+          "daily_std": 261.058,
+          "ann_sharpe": 6.61,
+          "ann_sortino": 29.64,
+          "max_dd": -726.55,
+          "worst_day": -236.53,
+          "best_day": 1052.56
+        }
+      },
+      "equal_risk_contribution": {
+        "weights_IS_estimated": {
+          "e1": 0.6638,
+          "e2": 0.967,
+          "e4": 1.3691
+        },
+        "weights_fullsample_fit": {
+          "e1": 0.6986,
+          "e2": 1.1212,
+          "e4": 1.1802
+        },
+        "ALL": {
+          "total": 13293.35,
+          "daily_mean": 89.217,
+          "daily_std": 201.534,
+          "ann_sharpe": 7.027,
+          "ann_sortino": 23.137,
+          "max_dd": -752.43,
+          "worst_day": -345.21,
+          "best_day": 1046.25
+        },
+        "IS_2025": {
+          "total": 8846.36,
+          "daily_mean": 82.676,
+          "daily_std": 178.547,
+          "ann_sharpe": 7.351,
+          "ann_sortino": 20.278,
+          "max_dd": -598.7,
+          "worst_day": -345.21,
+          "best_day": 562.3
+        },
+        "OOS_2026": {
+          "total": 4446.98,
+          "daily_mean": 105.881,
+          "daily_std": 252.582,
+          "ann_sharpe": 6.654,
+          "ann_sortino": 31.002,
+          "max_dd": -752.43,
+          "worst_day": -219.15,
+          "best_day": 1046.25
+        }
+      },
+      "min_variance": {
+        "weights_IS_estimated": {
+          "e1": 0.0,
+          "e2": 0.0,
+          "e4": 3.0
+        },
+        "weights_fullsample_fit": {
+          "e1": 0.0,
+          "e2": 0.0,
+          "e4": 3.0
+        },
+        "ALL": {
+          "total": 10075.68,
+          "daily_mean": 67.622,
+          "daily_std": 237.271,
+          "ann_sharpe": 4.524,
+          "ann_sortino": 13.843,
+          "max_dd": -1547.28,
+          "worst_day": -436.32,
+          "best_day": 1137.6
+        },
+        "IS_2025": {
+          "total": 5067.96,
+          "daily_mean": 47.364,
+          "daily_std": 200.432,
+          "ann_sharpe": 3.751,
+          "ann_sortino": 9.34,
+          "max_dd": -1547.28,
+          "worst_day": -436.32,
+          "best_day": 829.8
+        },
+        "OOS_2026": {
+          "total": 5007.72,
+          "daily_mean": 119.231,
+          "daily_std": 309.126,
+          "ann_sharpe": 6.123,
+          "ann_sortino": 27.484,
+          "max_dd": -722.88,
+          "worst_day": -306.72,
+          "best_day": 1137.6
+        }
+      }
+    },
+    "L175_gates_vs_equalweight_OOS": {
+      "inverse_variance": {
+        "promote": false,
+        "oos_sharpe": 6.61,
+        "base_oos_sharpe": 6.896,
+        "oos_sharpe_lift": -0.286,
+        "oos_sortino": 29.64,
+        "base_oos_sortino": 33.545,
+        "oos_maxdd": -726.55,
+        "base_oos_maxdd": -836.4,
+        "oos_total": 4565.71,
+        "oos_total_base": 4692.24,
+        "sharpe_no_worse": "False",
+        "sortino_no_worse": "False",
+        "maxdd_no_worse": true,
+        "oos_positive": true
+      },
+      "equal_risk_contribution": {
+        "promote": false,
+        "oos_sharpe": 6.654,
+        "base_oos_sharpe": 6.896,
+        "oos_sharpe_lift": -0.242,
+        "oos_sortino": 31.002,
+        "base_oos_sortino": 33.545,
+        "oos_maxdd": -752.43,
+        "base_oos_maxdd": -836.4,
+        "oos_total": 4446.98,
+        "oos_total_base": 4692.24,
+        "sharpe_no_worse": "False",
+        "sortino_no_worse": "False",
+        "maxdd_no_worse": true,
+        "oos_positive": true
+      },
+      "min_variance": {
+        "promote": false,
+        "oos_sharpe": 6.123,
+        "base_oos_sharpe": 6.896,
+        "oos_sharpe_lift": -0.773,
+        "oos_sortino": 27.484,
+        "base_oos_sortino": 33.545,
+        "oos_maxdd": -722.88,
+        "base_oos_maxdd": -836.4,
+        "oos_total": 5007.72,
+        "oos_total_base": 4692.24,
+        "sharpe_no_worse": "False",
+        "sortino_no_worse": "False",
+        "maxdd_no_worse": true,
+        "oos_positive": true
+      }
+    }
+  },
+  "Bold": {
+    "edges": [
+      "e1",
+      "e2"
+    ],
+    "fire_day_counts": {
+      "e1": 149,
+      "e2": 76
+    },
+    "is_days": 249,
+    "oos_days": 93,
+    "cov_IS": [
+      [
+        13068.1,
+        5252.3
+      ],
+      [
+        5252.3,
+        9796.5
+      ]
+    ],
+    "corr_IS": [
+      [
+        1.0,
+        0.464
+      ],
+      [
+        0.464,
+        1.0
+      ]
+    ],
+    "schemes": {
+      "equal_weight_LIVE": {
+        "weights_IS_estimated": {
+          "e1": 1.0,
+          "e2": 1.0
+        },
+        "weights_fullsample_fit": {
+          "e1": 1.0,
+          "e2": 1.0
+        },
+        "ALL": {
+          "total": 18784.32,
+          "daily_mean": 126.069,
+          "daily_std": 265.201,
+          "ann_sharpe": 7.546,
+          "ann_sortino": 34.385,
+          "max_dd": -847.8,
+          "worst_day": -447.36,
+          "best_day": 974.8
+        },
+        "IS_2025": {
+          "total": 13050.2,
+          "daily_mean": 121.964,
+          "daily_std": 263.644,
+          "ann_sharpe": 7.344,
+          "ann_sortino": 29.956,
+          "max_dd": -822.48,
+          "worst_day": -447.36,
+          "best_day": 974.8
+        },
+        "OOS_2026": {
+          "total": 5734.12,
+          "daily_mean": 136.527,
+          "daily_std": 272.068,
+          "ann_sharpe": 7.966,
+          "ann_sortino": 56.506,
+          "max_dd": -847.8,
+          "worst_day": -165.6,
+          "best_day": 932.4
+        }
+      },
+      "inverse_variance": {
+        "weights_IS_estimated": {
+          "e1": 0.8569,
+          "e2": 1.1431
+        },
+        "weights_fullsample_fit": {
+          "e1": 0.7679,
+          "e2": 1.2321
+        },
+        "ALL": {
+          "total": 18133.67,
+          "daily_mean": 121.703,
+          "daily_std": 260.663,
+          "ann_sharpe": 7.412,
+          "ann_sortino": 31.415,
+          "max_dd": -793.93,
+          "worst_day": -447.36,
+          "best_day": 974.8
+        },
+        "IS_2025": {
+          "total": 12848.63,
+          "daily_mean": 120.081,
+          "daily_std": 261.098,
+          "ann_sharpe": 7.301,
+          "ann_sortino": 28.25,
+          "max_dd": -768.8,
+          "worst_day": -447.36,
+          "best_day": 974.8
+        },
+        "OOS_2026": {
+          "total": 5285.04,
+          "daily_mean": 125.834,
+          "daily_std": 262.663,
+          "ann_sharpe": 7.605,
+          "ann_sortino": 45.736,
+          "max_dd": -793.93,
+          "worst_day": -164.78,
+          "best_day": 931.83
+        }
+      },
+      "equal_risk_contribution": {
+        "weights_IS_estimated": {
+          "e1": 0.9281,
+          "e2": 1.0719
+        },
+        "weights_fullsample_fit": {
+          "e1": 0.8823,
+          "e2": 1.1177
+        },
+        "ALL": {
+          "total": 18457.41,
+          "daily_mean": 123.875,
+          "daily_std": 262.657,
+          "ann_sharpe": 7.487,
+          "ann_sortino": 33.016,
+          "max_dd": -820.73,
+          "worst_day": -447.36,
+          "best_day": 974.8
+        },
+        "IS_2025": {
+          "total": 12948.92,
+          "daily_mean": 121.018,
+          "daily_std": 262.086,
+          "ann_sharpe": 7.33,
+          "ann_sortino": 29.102,
+          "max_dd": -795.51,
+          "worst_day": -447.36,
+          "best_day": 974.8
+        },
+        "OOS_2026": {
+          "total": 5508.48,
+          "daily_mean": 131.154,
+          "daily_std": 267.152,
+          "ann_sharpe": 7.793,
+          "ann_sortino": 52.449,
+          "max_dd": -820.73,
+          "worst_day": -165.19,
+          "best_day": 932.11
+        }
+      },
+      "min_variance": {
+        "weights_IS_estimated": {
+          "e1": 0.7353,
+          "e2": 1.2647
+        },
+        "weights_fullsample_fit": {
+          "e1": 0.5622,
+          "e2": 1.4378
+        },
+        "ALL": {
+          "total": 17580.78,
+          "daily_mean": 117.992,
+          "daily_std": 258.499,
+          "ann_sharpe": 7.246,
+          "ann_sortino": 29.418,
+          "max_dd": -754.41,
+          "worst_day": -447.36,
+          "best_day": 974.8
+        },
+        "IS_2025": {
+          "total": 12677.34,
+          "daily_mean": 118.48,
+          "daily_std": 260.7,
+          "ann_sharpe": 7.214,
+          "ann_sortino": 26.796,
+          "max_dd": -723.19,
+          "worst_day": -447.36,
+          "best_day": 974.8
+        },
+        "OOS_2026": {
+          "total": 4903.44,
+          "daily_mean": 116.749,
+          "daily_std": 255.921,
+          "ann_sharpe": 7.242,
+          "ann_sortino": 41.846,
+          "max_dd": -754.41,
+          "worst_day": -164.08,
+          "best_day": 931.34
+        }
+      }
+    },
+    "L175_gates_vs_equalweight_OOS": {
+      "inverse_variance": {
+        "promote": false,
+        "oos_sharpe": 7.605,
+        "base_oos_sharpe": 7.966,
+        "oos_sharpe_lift": -0.361,
+        "oos_sortino": 45.736,
+        "base_oos_sortino": 56.506,
+        "oos_maxdd": -793.93,
+        "base_oos_maxdd": -847.8,
+        "oos_total": 5285.04,
+        "oos_total_base": 5734.12,
+        "sharpe_no_worse": "False",
+        "sortino_no_worse": "False",
+        "maxdd_no_worse": true,
+        "oos_positive": true
+      },
+      "equal_risk_contribution": {
+        "promote": false,
+        "oos_sharpe": 7.793,
+        "base_oos_sharpe": 7.966,
+        "oos_sharpe_lift": -0.173,
+        "oos_sortino": 52.449,
+        "base_oos_sortino": 56.506,
+        "oos_maxdd": -820.73,
+        "base_oos_maxdd": -847.8,
+        "oos_total": 5508.48,
+        "oos_total_base": 5734.12,
+        "sharpe_no_worse": "False",
+        "sortino_no_worse": "False",
+        "maxdd_no_worse": true,
+        "oos_positive": true
+      },
+      "min_variance": {
+        "promote": false,
+        "oos_sharpe": 7.242,
+        "base_oos_sharpe": 7.966,
+        "oos_sharpe_lift": -0.724,
+        "oos_sortino": 41.846,
+        "base_oos_sortino": 56.506,
+        "oos_maxdd": -754.41,
+        "base_oos_maxdd": -847.8,
+        "oos_total": 4903.44,
+        "oos_total_base": 5734.12,
+        "sharpe_no_worse": "False",
+        "sortino_no_worse": "False",
+        "maxdd_no_worse": true,
+        "oos_positive": true
+      }
+    }
+  },
+  "verdict": "DEAD_EQUALWEIGHT_HOLDS",
+  "promotions": [],
+  "DISCLOSURE": {
+    "real_fills": "real OPRA fills, the only 0DTE WR authority (C1); SPY-dir != option edge (C3/L58)",
+    "no_lookahead": "covariance/weights estimated IN-SAMPLE (2025) only, applied OOS (2026) \u2014 L161/L166",
+    "min_3_floor": "fractional weights are a RISK-MODEL answer (which edge deserves more capital as the book scales above the min-3-contract floor); sub-$5K the contract floor + risk caps bind so fractional weights aren't literally placeable today \u2014 flagged, not hidden (C14/L168 sizing-reality)",
+    "byte_for_byte": "detectors + simulate_set imported verbatim from _b9_portfolio (same machinery)",
+    "relative_sharpe": "Sharpe/Sortino are RELATIVE (same trade set, same bull tape) so the 2026 bull bias cancels across schemes; absolute Sharpe is not a forward forecast"
+  }
+}

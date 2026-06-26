@@ -1,9 +1,9 @@
 # REGIME_SWITCHER — Strategy Spec (DRAFT, WATCH-ONLY)
 
 > Status: **DRAFT — WATCH-ONLY per OP 21**. Backtest pending. Not auto-tradable.
-> Numeric values are NOT canonical here — they live in [`automation/state/params.json`](../automation/state/params.json) once promoted.
-> Hard rules + operating principles inherited from [`CLAUDE.md`](../CLAUDE.md).
-> Mirrors the Setup Template in [`markdown/0dte/playbook.md`](markdown/0dte/playbook.md). Sub-strategies inherit from their own specs.
+> Numeric values are NOT canonical here — they live in [`automation/state/params.json`](../../automation/state/params.json) once promoted.
+> Hard rules + operating principles inherited from [`CLAUDE.md`](../../CLAUDE.md).
+> Mirrors the Setup Template in [`markdown/0dte/playbook.md`](playbook.md). Sub-strategies inherit from their own specs.
 
 **Setup name:** REGIME_SWITCHER
 **Direction:** EITHER (delegated to selected sub-strategy)

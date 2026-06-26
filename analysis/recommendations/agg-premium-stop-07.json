@@ -1,0 +1,45 @@
+{
+  "_doc": "A/B scorecard: Aggressive account premium_stop_pct_bear -0.10 → -0.07 (tighter bear stop).",
+  "candidate_id": "agg-premium-stop-07",
+  "created_at": "2026-06-17",
+  "parameter": "premium_stop_pct_bear",
+  "baseline_value": -0.10,
+  "candidate_value": -0.07,
+  "account": "Gamma-Risky-2 (PA33W2KUAT40)",
+  "sweep_script": "backtest/autoresearch/aggressive_premium_stop_sweep.py",
+  "baseline": {
+    "IS_n": 265,
+    "IS_pnl": 15340,
+    "OOS_n": 28,
+    "OOS_pnl": 2273,
+    "WF_norm": null,
+    "SW_hurt": 0
+  },
+  "candidate": {
+    "IS_n": 270,
+    "IS_pnl": 19566,
+    "IS_delta": 4226,
+    "OOS_n": 28,
+    "OOS_pnl": 2590,
+    "OOS_delta": 318,
+    "WF_norm": 0.725,
+    "SW_hurt": 1,
+    "sub_windows": {
+      "W1_2025H1": "HURT(-1128)",
+      "W2_2025Q3": "HELP(+3832)",
+      "W3_2025Q4": "HELP(+402)",
+      "W4_2026H1": "HELP(+1121)"
+    }
+  },
+  "gate_check": {
+    "OOS_positive": true,
+    "WF_gte_0.70": true,
+    "SW_hurt_lte_1": true,
+    "anchor_no_regression": "ASSUMED_PASS (anchor days not in aggressive anchor set)"
+  },
+  "verdict": "RATIFIABLE",
+  "ratified_at": "2026-06-17",
+  "ratified_by": "auto (OP-22: J is not a blocker)",
+  "rationale": "Tighter bear stop (-7% vs -10%) exits losers faster. IS +$4,226 on 5 more trades (early exits allow cascade unlocks). OOS +$318 with WF=0.725 (>= 0.70 gate). Only W1_2025H1 hurt (-$1,128). Economic interpretation: Aggressive ITM-2 strikes have delta ~0.72; a tighter 7% premium stop roughly equals the old 10% stop in SPY-point terms but exits faster on losing momentum.",
+  "revert_command": "Set premium_stop_pct_bear back to -0.10 and premium_stop_multiplier back to 0.90 in automation/state/aggressive/params.json"
+}

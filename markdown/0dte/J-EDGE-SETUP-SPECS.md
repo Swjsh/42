@@ -4,11 +4,11 @@
 > not wired code. No heartbeat, params, `j_edge_tracker`, or `regime_book` behavior is
 > changed. Each spec slots into `regime_book.REGIME_SETUP_MAP` as a `WATCH_ONLY`
 > `SetupSlot`; promotion to `REGIME_ACTIVE` requires the gates in
-> [`markdown/0dte/J-EDGE-GROUND-TRUTH.md`](markdown/0dte/J-EDGE-GROUND-TRUTH.md) §4-5. Authored 2026-06-19.
+> [`markdown/0dte/J-EDGE-GROUND-TRUTH.md`](J-EDGE-GROUND-TRUTH.md) §4-5. Authored 2026-06-19.
 >
 > **Every parameter below is DERIVED from J's actual winning trades** in
 > `analysis/webull-j-trades/winner_setups.json` (look-ahead-free features at his entry
-> bar) + the style tables in [`markdown/0dte/J-WEBULL-EDGE-2021-2023.md`](markdown/0dte/J-WEBULL-EDGE-2021-2023.md).
+> bar) + the style tables in [`markdown/0dte/J-WEBULL-EDGE-2021-2023.md`](J-WEBULL-EDGE-2021-2023.md).
 > Where a value is an *observed envelope* from a small n, it is flagged as such — these
 > are J's observed values, **not** values optimized on 2025-26 SPY (the era gap;
 > `J-EDGE-GROUND-TRUTH.md` §3). They are the **starting envelope for in-era

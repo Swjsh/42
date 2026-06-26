@@ -4,7 +4,7 @@
 >
 > **What you do this fire:** read health + status + the prioritized queue → pick the SINGLE highest-value ready item → fan out the right specialist persona(s) via the Agent tool → validate (gym/tests MUST pass) → SHIP only if it clears the auto-ratify gate, ELSE flag J via Discord → learn (foot-gun → guard) → update STATUS + queue → exit. The next fire continues from where you stopped. External memory is `STATUS.md` + the queue — NOT your context window.
 >
-> **Model:** opus (hard reasoning: what is the single highest-leverage thing, and is it safe to ship). **Budget:** ~$1.50/fire. **Cadence:** after-hours only.
+> **Model:** opus (hard reasoning: what is the single highest-leverage thing, and is it safe to ship). **Budget:** ~$10/fire cap (notional headroom for opus + sub-agent fan-out + validation — NOT a target; a normal bounded fire costs far less). **Cadence:** after-hours only.
 
 ---
 
@@ -43,14 +43,16 @@ Run in order. Any failure short-circuits to the stated action.
 
 ## STAGE 1 — PICK THE SINGLE HIGHEST-VALUE READY ITEM
 
-You pick **ONE.** Priority order (first ready, eligible item wins):
+You pick **ONE.** First run `python setup/scripts/task_scorer.py` — it parses the Active backlog and ranks ready items by **ROI** (value ÷ cost: leverage + engine-benefit + quick-win + readiness, minus bookkeeping and expensive-design cost). Use its ranking to choose WITHIN a tier and to break ties; the hard priority order below still wins ACROSS tiers (an Engine-RED flag outranks a high-ROI LOW item). `--top` gives the single best ready id.
+
+Priority order (first ready, eligible item wins):
 
 1. **Engine RED / STATUS `### BROKEN:` flags** — infra repair or flag-to-J first. CRITICAL.
 2. **`queue.md` priority HIGH** — explicit high-priority backlog.
 3. **Author inboxes** (oldest non-README first): `_validator-inbox` → validator-author, `_skill-inbox` → skill-author, `_lesson-inbox` → lesson-author, `_chef-inbox` → chef. These are **engine-benefit, observer/authoring-only** — they ship without J ratification (OP-22/OP-26), because they do NOT touch live doctrine.
 4. **Kitchen promotions** — a cook output worth promoting (you are the only writer to `_LEADERBOARD.md`).
 5. **`queue.md` priority MED → LOW.**
-6. **BRAINSTORM** — if all empty, read `markdown/planning/FUTURE-IMPROVEMENTS.md`, `markdown/doctrine/LESSONS-LEARNED.md`, `journal/mistakes.md`, latest `automation/state/news.json`, the most recent J trades. Add 3+ bounded candidate tasks to the queue. Never go idle (OP-25), but adding tasks IS the bounded work for this fire — do not then also execute one.
+6. **BRAINSTORM + DRIVE** — if all empty, read `markdown/planning/FUTURE-IMPROVEMENTS.md`, the [STRATEGY-DIRECTION-BACKLOG](../../markdown/research/STRATEGY-DIRECTION-BACKLOG.md), `markdown/doctrine/LESSONS-LEARNED.md`, `journal/mistakes.md`, latest `automation/state/news.json`, the most recent J trades. Add 3+ bounded candidate tasks to the queue, then **immediately score them (`task_scorer.py`) and EXECUTE the single highest-ROI one this fire.** Adding-without-doing is the retired idle anti-pattern — you GENERATE direction *and* drive it; never punt "give me a direction" to J (his documented pain point). If a whole vein is dry, climb the search-space ladder (signal → structure → DTE → instrument → class) per the direction backlog rather than re-mining a dead one — a wall is progress; the response is the next self-generated pivot.
 
 **Skip an item if:** its `depends:` references an incomplete task; its `status` is `in_progress` (another fire owns it); OR completing it would require touching a doctrine/params/order surface as anything other than a DRAFT proposal (rail 4) — in that case the *eligible* task is "write the DRAFT + ping J", not "apply the change".
 
@@ -106,7 +108,21 @@ Work is not "done" until it is *validated*. Before you ship or claim completion:
 {"queued_at":"<ISO>Z","content":"Proposal gp-2026-06-18-001: tighter bear stop -22%. OOS +$840, WF 1.4, anchors clean, scorecard filed. Reply 'ship gp-2026-06-18-001' or react thumbs-up to apply; 'shelve ...' or thumbs-down to drop. 📈"}
 ```
 
-Also append the proposal to `automation/state/conductor-proposals.jsonl` (one row: `{"proposal_id","created_at","title","kind","draft_path","apply":"<exact file edit or command the responder/J approval will trigger>","status":"pending"}`) so the approve/revoke consumer knows what "ship gp-..." should DO. **The conductor never applies a doctrine/params/order change itself — it only ever stages the DRAFT + the proposal row.** Applying happens only after J approves (responder flips status → `approved`; the actual param edit is still a human/J-gated step for the trading surface).
+Also append the proposal to `automation/state/conductor-proposals.jsonl` (one row). **Carry a STRUCTURED `apply_ops` array** so the AutoApply actuator can apply it deterministically once J approves — each op is an EXACT string replacement whose `find` occurs verbatim EXACTLY ONCE in the target file:
+
+```json
+{"proposal_id":"gp-...","created_at":"<ISO>Z","title":"...","kind":"doctrine|params|doc-index","draft_path":"...","apply":"<one-line human summary>","apply_ops":[{"file":"CLAUDE.md","find":"<exact unique current text>","replace":"<exact new text>"}],"status":"pending"}
+```
+
+**The conductor never applies the change itself** (rail 4) — it stages the DRAFT + the proposal row with `apply_ops`. After J approves on Discord/the wrist (responder flips `status → approved`), the **AutoApply actuator** (`Gamma_AutoApply`, after-hours, $0, `setup/scripts/autonomy_actuator.py`) applies the `apply_ops`, runs the fast safety gate, snapshots, and commits — OR, if the row is prose-only (no `apply_ops`), flags it `needs_structured_apply`. So: ALWAYS include `apply_ops` for any edit you want applied autonomously, and quote enough surrounding context that the `find` is unique (a non-unique `find` is refused). J can undo any applied change with `revert <proposal_id>`.
+
+**Also raise it on the companion (phone + watch).** When a proposal genuinely needs J's APPROVE/REJECT (not just an FYI), additionally enqueue it on the Gamma companion so it pushes to J's phone and Samsung watch with tappable Approve/Reject buttons. This is additive to the Discord ping above — it does NOT replace it, and it does NOT replace `dashboard-dialogue.json`. One line, fire-and-forget, never throws (no `.vapid.json` on J's machine ⇒ silent $0 no-op):
+
+```
+node -e "require('./gamma-companion/lib/approvals').enqueueApproval(process.env.GAMMA_WORKSPACE||'.', { id: 'gp-2026-06-18-001', title: 'Tighter bear stop -22%', detail: 'OOS +$840 · WF 1.4 · anchors clean. Approve to stage for J.' })"
+```
+
+Use the SAME `proposal_id` as the card `id` so the wrist Approve and the Discord `ship gp-...` resolve to the same proposal. The companion's wrist Approve / Discord `ship` only RECORDS J's consent (flips `status → approved`); rail 4 still holds for the conductor itself. The apply is then performed by the **AutoApply actuator** — gated, snapshotted, committed, and reversible via `revert <id>` — NOT by a manual J edit anymore. That closes the loop the actuator was built to close.
 
 ---
 
@@ -126,6 +142,9 @@ This is the closing step of Gamma's cycle (gamma.md step 6): the engine gets bet
 1. **`automation/overnight/STATUS.md`** — append a fire line: `[<ET ts>] conductor: <OK|FLAGGED|SKIP> — <item id> — <1-line outcome>`. If something broke, add/append a `### BROKEN:` block (never silently overwrite an existing one). Update the top-3 next-actions.
 2. **`automation/overnight/queue.md`** — move the completed item to `## COMPLETED`; mark blockers with a reason; add any follow-ups you discovered.
 3. **One-line log** of cost + outcome (estimate model spend, round to $0.25).
+4. **Record the fire outcome (the learning metric, Phase 4).** Run:
+   `python setup/scripts/conductor_outcome.py record --task-id <id> --cost <usd> --drained <n> --added <n> --lessons <n> --tests-delta <n> --regressions <n> --note "<1-line>"`
+   then `python setup/scripts/conductor_outcome.py metric`. This appends a structured row to `conductor-outcomes.jsonl` and refreshes `autonomy-metric.json` (net-improvement, cost/drained, trend) — so "always-on = always-IMPROVING" (OP-22) is MEASURED, not asserted. If the metric `trend` is `regressing`, say so in the STATUS line and prefer a loop-closing item next fire.
 
 Get the real timestamp from the injected runtime-context header (or `Get-Date`); never guess (wake-protocol timestamp-drift foot-gun).
 

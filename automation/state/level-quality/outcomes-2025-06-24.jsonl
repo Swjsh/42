@@ -1,0 +1,15 @@
+{"date": "2025-06-24", "price": 589.3, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-06-24", "price": 591.91, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-06-24", "price": 594.18, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-06-24", "price": 595.07, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-06-24", "price": 598.0331526253887, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-06-24", "price": 599.1620907368984, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-06-24", "price": 599.3774755320541, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-06-24", "price": 599.478275068254, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-06-24", "price": 600.08, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-06-24", "price": 600.53, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-06-24", "price": 604.0, "source": "round", "touched": true, "outcome": "RESPECT", "reaction_dollars": 1.44, "false_break": false}
+{"date": "2025-06-24", "price": 604.3, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.14, "false_break": true}
+{"date": "2025-06-24", "price": 604.39, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.56, "false_break": false}
+{"date": "2025-06-24", "price": 604.45, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.62, "false_break": true}
+{"date": "2025-06-24", "price": 605.0, "source": "round", "touched": true, "outcome": "RESPECT", "reaction_dollars": 1.48, "false_break": false}

@@ -1,0 +1,54 @@
+{
+  "study": "close-ceiling pre-entry pattern analysis (L59)",
+  "date": "2026-06-17",
+  "n_min": 3,
+  "lookback_bars": 10,
+  "is": {
+    "n": 130,
+    "ceiling_detected": {
+      "n": 1,
+      "pnl": -309.6,
+      "avg": -309.6,
+      "stop_rate": 1.0,
+      "runner_rate": 0.0
+    },
+    "no_ceiling": {
+      "n": 129,
+      "pnl": 16483.23,
+      "avg": 127.78
+    }
+  },
+  "oos": {
+    "n": 21,
+    "ceiling_detected": {
+      "n": 1,
+      "pnl": -232.0,
+      "avg": -232.0,
+      "stop_rate": 1.0,
+      "runner_rate": 0.0
+    },
+    "no_ceiling": {
+      "n": 20,
+      "pnl": 6132.25,
+      "avg": 306.61
+    }
+  },
+  "n_min_sweep": {
+    "2": {
+      "ceiling_n": 10,
+      "ceiling_avg": 509.51
+    },
+    "3": {
+      "ceiling_n": 1,
+      "ceiling_avg": -309.6
+    },
+    "4": {
+      "ceiling_n": 0,
+      "ceiling_avg": 0
+    },
+    "5": {
+      "ceiling_n": 0,
+      "ceiling_avg": 0
+    }
+  }
+}

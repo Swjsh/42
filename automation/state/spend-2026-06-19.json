@@ -1,0 +1,20 @@
+{
+  "date_et": "2026-06-19",
+  "total_cost_usd": 36.4696,
+  "claude_cost_usd": 36.4696,
+  "minimax_cost_usd": 0.0,
+  "claude_sessions": 1,
+  "claude_by_tier": {
+    "opus": {
+      "tier": "opus",
+      "messages": 25,
+      "input_tokens": 25866,
+      "output_tokens": 160288,
+      "cache_creation_input_tokens": 176270,
+      "cache_read_input_tokens": 13836613,
+      "estimated_cost_usd": 36.4696
+    }
+  },
+  "minimax_calls": 0,
+  "minimax_by_task": {}
+}

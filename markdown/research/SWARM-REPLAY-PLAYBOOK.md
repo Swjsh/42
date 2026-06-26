@@ -1,7 +1,7 @@
 # Swarm Replay Playbook
 
 > How to replay the Gamma Swarm against any historical day (2025-01-02 → 2026-05-15).
-> Shipped 2026-05-16 — see [`SWARM-BENCHMARK-WEEK-1.md`](markdown/research/SWARM-BENCHMARK-WEEK-1.md) for first-week results.
+> Shipped 2026-05-16 — see [`SWARM-BENCHMARK-WEEK-1.md`](SWARM-BENCHMARK-WEEK-1.md) for first-week results.
 
 ---
 
@@ -196,4 +196,4 @@ The key-levels gap is the largest fidelity difference. Live swarm has J's hand-c
 - **Phase 5 (post-backfill):** weekend Saturday review task to feed weekly-review pipeline
 - **Phase 6 (long-term):** plumb battle_level + dissent_active into `today-bias.json` as awareness fields
 
-See [`SWARM-BENCHMARK-WEEK-1.md`](markdown/research/SWARM-BENCHMARK-WEEK-1.md) — Findings section — for the rationale on each.
+See [`SWARM-BENCHMARK-WEEK-1.md`](SWARM-BENCHMARK-WEEK-1.md) — Findings section — for the rationale on each.

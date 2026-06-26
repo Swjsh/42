@@ -1,0 +1,162 @@
+{
+  "study": "AGG no_trade_window sweep post-ENFORCED-5",
+  "date": "2026-06-17",
+  "motivation": "ENFORCED-5 fill bar gate changed AGG 11:30-12:00 from profitable to negative. Pre-ENFORCED-5: blocking 11:30-12:00 gave IS_delta=-261 (REJECT L155). Post-ENFORCED-5: 11:30-12:00 IS n=10 avg=-48 total=-484. Testing whether lunch-zone gate now passes autorate criteria.",
+  "baseline": {
+    "label": "ENFORCED-5 (all 5 AGG gates including require_bearish_fill_bar)",
+    "is_n": 109,
+    "is_pnl": 19080.34,
+    "oos_n": 18,
+    "oos_pnl": 3833.36
+  },
+  "results": [
+    {
+      "window": "(11:30-12:00) ENFORCED-4 analog",
+      "win_start": "11:30:00",
+      "win_end": "12:00:00",
+      "is_n": 107,
+      "oos_n": 18,
+      "dropped_is": 2,
+      "dropped_oos": 0,
+      "is_delta": 232.3,
+      "oos_delta": 0.0,
+      "wf_norm": 0.0,
+      "sw_hurt": 1,
+      "anchor": "PASS",
+      "verdict": "REJECT",
+      "sub_windows": [
+        {
+          "label": "W1 Jan-Jun 2025",
+          "delta": -742.98,
+          "hurt": true
+        },
+        {
+          "label": "W2 Jul-Dec 2025",
+          "delta": 739.6,
+          "hurt": false
+        },
+        {
+          "label": "W3 Jan-Mar 2026",
+          "delta": 235.68,
+          "hurt": false
+        },
+        {
+          "label": "W4 Apr-May 2026",
+          "delta": 0.0,
+          "hurt": false
+        }
+      ]
+    },
+    {
+      "window": "(11:30-13:00) extended lunch",
+      "win_start": "11:30:00",
+      "win_end": "13:00:00",
+      "is_n": 107,
+      "oos_n": 18,
+      "dropped_is": 2,
+      "dropped_oos": 0,
+      "is_delta": 1012.5,
+      "oos_delta": -1.6,
+      "wf_norm": -0.01,
+      "sw_hurt": 1,
+      "anchor": "PASS",
+      "verdict": "REJECT",
+      "sub_windows": [
+        {
+          "label": "W1 Jan-Jun 2025",
+          "delta": -557.54,
+          "hurt": true
+        },
+        {
+          "label": "W2 Jul-Dec 2025",
+          "delta": 1150.19,
+          "hurt": false
+        },
+        {
+          "label": "W3 Jan-Mar 2026",
+          "delta": 96.45,
+          "hurt": false
+        },
+        {
+          "label": "W4 Apr-May 2026",
+          "delta": 323.4,
+          "hurt": false
+        }
+      ]
+    },
+    {
+      "window": "(12:30-13:00) post-lunch dip",
+      "win_start": "12:30:00",
+      "win_end": "13:00:00",
+      "is_n": 109,
+      "oos_n": 18,
+      "dropped_is": 0,
+      "dropped_oos": 0,
+      "is_delta": 700.6,
+      "oos_delta": -1.6,
+      "wf_norm": -0.014,
+      "sw_hurt": 0,
+      "anchor": "PASS",
+      "verdict": "REJECT",
+      "sub_windows": [
+        {
+          "label": "W1 Jan-Jun 2025",
+          "delta": 306.4,
+          "hurt": false
+        },
+        {
+          "label": "W2 Jul-Dec 2025",
+          "delta": 117.0,
+          "hurt": false
+        },
+        {
+          "label": "W3 Jan-Mar 2026",
+          "delta": -46.2,
+          "hurt": false
+        },
+        {
+          "label": "W4 Apr-May 2026",
+          "delta": 323.4,
+          "hurt": false
+        }
+      ]
+    },
+    {
+      "window": "(15:00-15:30) late gamma",
+      "win_start": "15:00:00",
+      "win_end": "15:30:00",
+      "is_n": 101,
+      "oos_n": 17,
+      "dropped_is": 8,
+      "dropped_oos": 1,
+      "is_delta": 368.38,
+      "oos_delta": -33.79,
+      "wf_norm": -0.555,
+      "sw_hurt": 0,
+      "anchor": "PASS",
+      "verdict": "REJECT",
+      "sub_windows": [
+        {
+          "label": "W1 Jan-Jun 2025",
+          "delta": -235.62,
+          "hurt": false
+        },
+        {
+          "label": "W2 Jul-Dec 2025",
+          "delta": 172.8,
+          "hurt": false
+        },
+        {
+          "label": "W3 Jan-Mar 2026",
+          "delta": 386.68,
+          "hurt": false
+        },
+        {
+          "label": "W4 Apr-May 2026",
+          "delta": 44.52,
+          "hurt": false
+        }
+      ]
+    }
+  ]
+}

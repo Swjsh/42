@@ -1,0 +1,31 @@
+{
+  "_doc": "EXAMPLE shared-signal.json — a MARGINAL BULL setup (single trigger, confidence 0.55). Demonstrates arm DIVERGENCE: controls take it, the A+ arm abstains (below 0.65), the puts-only arm abstains (direction lock).",
+  "tick_id": 77,
+  "date": "2026-06-22",
+  "time_et": "12:48",
+  "spot": 748.5,
+  "vix": 16.1,
+  "vix_dir": "falling",
+  "iv_regime": "MID",
+  "ribbon_stack": "BULL",
+  "ribbon_spread_cents": 90,
+  "htf_15m_stack": "MIXED",
+  "production_action": "ENTER_BULL",
+  "confidence": 0.55,
+  "est_premium": 0.35,
+  "bear": {"passed": false, "score": 3, "blockers": [5, 8], "triggers_fired": []},
+  "bull": {
+    "passed": true,
+    "score": 8,
+    "max": 11,
+    "blockers": [],
+    "triggers_fired": ["ribbon_flip"],
+    "confluence": false,
+    "reclaim_level": 748.2,
+    "confidence": 0.55,
+    "est_premium": 0.35,
+    "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+  },
+  "written_at": "2026-06-22T12:48:03-04:00",
+  "source": "heartbeat-tick"
+}

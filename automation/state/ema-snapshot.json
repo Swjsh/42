@@ -1,0 +1,17 @@
+{
+  "computed_at": "2026-06-26T06:20:05",
+  "last_bar_timestamp": "2026-06-18 15:55:00",
+  "last_close": 747.92,
+  "ema_fast": 746.83,
+  "ema_pivot": 746.73,
+  "ema_slow": 746.57,
+  "sma_50": 746.73,
+  "periods": {
+    "fast_ema": 13,
+    "pivot_ema": 20,
+    "slow_ema": 48,
+    "sma_50": 50
+  },
+  "source": "computed-from-csv",
+  "csv_bars": 34606
+}

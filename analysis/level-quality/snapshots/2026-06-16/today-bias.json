@@ -1,0 +1,97 @@
+{
+  "date": "2026-06-15",
+  "bias": "bullish",
+  "bias_note": "SPY gapped up ~$9 from Thursday June 12 close (~742) to Monday premarket at 750-752. VIX 16.60 (MID regime, sharply lower than last week's 19.16 — fear fading). Premarket consolidation range 748-752 with PMH 752.09 as first key resistance. No macro events today; FOMC not until Wednesday June 17. Ribbon state unknown (not pulled — will update at first heartbeat tick). Bullish bias conditional on RTH confirming: bull trigger = 752.09 PMH break + 5m close above. Bear pivot = 748.00 PML break + 5m close below + ribbon flip to BEAR. Swarm unavailable (all agents failed — SWARM_CONTEXT_UNAVAILABLE). FOMC Wed creates medium-term uncertainty but today's tape is clean and constructive.",
+  "key_levels": {
+    "resistance": [752.09],
+    "support": [750.00, 748.00, 745.33],
+    "ema_fast": null,
+    "ema_pivot": null,
+    "ema_slow": null,
+    "sma_50": null
+  },
+  "falsifiable_predictions": [
+    {
+      "claim": "PMH 752.09 acts as resistance on first RTH approach — SPY reaches 751.50+ in the first hour but fails to close a 5m bar above 752.25 before 10:30 ET",
+      "trigger_window": "09:30-10:30 ET",
+      "invalidation": "SPY closes a 5m bar above 752.25 before 10:30 ET",
+      "confidence": 0.55,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": null
+    },
+    {
+      "claim": "Premarket floor 748.00 holds all session — SPY does not close a 5m bar below 748.50 at any point before 15:00 ET",
+      "trigger_window": "09:30-15:00 ET",
+      "invalidation": "SPY closes a 5m bar below 748.50 before 15:00 ET",
+      "confidence": 0.60,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": null
+    },
+    {
+      "claim": "VIX stays below 17.20 all session (keeps bull filter eligible), confirming the fear unwind from last week's 19.16",
+      "trigger_window": "09:35-14:00 ET",
+      "invalidation": "VIX prints above 17.20 with rising direction at any heartbeat check before 14:00 ET",
+      "confidence": 0.70,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": null
+    },
+    {
+      "claim": "SPY closes the RTH session above 750.00 — the bull continuation holds all day with no bear cascade",
+      "trigger_window": "15:50 ET bar close",
+      "invalidation": "Any 5m bar closes below 749.00 during RTH session before 15:50 ET",
+      "confidence": 0.55,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": null
+    }
+  ],
+  "falsifiable_hypothesis": "PMH 752.09 acts as first-touch resistance before 10:30 ET — SPY fails to close above 752.25; bull bias remains intact above 748 floor all session.",
+  "vix_at_open": 16.60,
+  "vix_bias": "flat",
+  "iv_regime": "MID",
+  "iv_source": "vix_proxy",
+  "iv_value": 16.60,
+  "session_window": { "open_et": "09:30", "close_et": "16:00" },
+  "news_calendar": {
+    "events_today": [],
+    "no_trade_window": [],
+    "size_modifier_windows": [],
+    "catalyst_narrative": {
+      "stale": false,
+      "last_updated": "2026-06-14T18:00:00-04:00",
+      "note": "Calendar refreshed 2026-06-14 (1 day ago, within 7-day threshold). TODAY 2026-06-15: No events. Wednesday 2026-06-17: Retail Sales 08:30 ET (med, premarket) + FOMC Rate Decision 14:00 ET (HIGH — block 13:30-15:00 ET). June 25: PCE 08:30 ET (high, premarket)."
+    },
+    "stale": false,
+    "calendar_freshness_days": 1
+  },
+  "daily_loss_budget_dollars": 214.05,
+  "day_trades_remaining": 3,
+  "bold_daily_loss_budget_dollars": 673.00,
+  "bold_day_trades_remaining": 3,
+  "prior_day_review_hint": "HEARTBEAT DARK 12D - fix R-0011 first. FOMC Wed 6/17 block 13:30-15:00. Safe $714 (-28.6% DD). Bear bias 740.80. 0 trades W24.",
+  "swarm_context": {
+    "consensus_bias": "no_trade",
+    "swarm_confidence": 0,
+    "consensus_strength": "split",
+    "dissent_flag": { "active": false, "dissenting_agents": [], "reason": null },
+    "battle_level_price": null,
+    "top_invalidation_scenario": null,
+    "synthesis_narrative": "Swarm unavailable — all specialist agents failed (status=failed). No advisory context available today.",
+    "swarm_predictions": [],
+    "agreement_with_premarket": null
+  },
+  "gates_passed": {
+    "tv_connected": true,
+    "market_open": true,
+    "safe_position_check": "flat",
+    "bold_position_check": "flat",
+    "rule_version_pin": "PASS (v15.3 matches params.json)",
+    "drift_gate": "NO_DATA (backtest-drift.json stale from 2026-05-18, >48h — no block)",
+    "crypto_harness": "PASS (overall_pass=true; v02_source_parity flaky but not failing)",
+    "macro_calendar": "FRESH (1 day, threshold 7)"
+  },
+  "updated_at": "2026-06-15T08:30:00-04:00"
+}

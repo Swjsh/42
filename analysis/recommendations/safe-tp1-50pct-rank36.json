@@ -1,0 +1,52 @@
+{
+  "rank": 36,
+  "slug": "safe-tp1-50pct",
+  "filed_at": "2026-06-17",
+  "description": "SAFE account TP1 premium fallback: +30% -> +50%",
+  "account": "Gamma-Safe (PA3S2PYAS2WQ)",
+  "type": "exit_param_change",
+  "param_changed": "tp1_premium_pct",
+  "from_value": 0.30,
+  "to_value": 0.50,
+  "baseline": {
+    "IS_n": 128,
+    "IS_pnl": 12838,
+    "OOS_n": 21,
+    "OOS_pnl": 3728,
+    "IS_date_range": "2025-01-02 to 2026-05-07",
+    "OOS_date_range": "2026-05-08 to 2026-06-16"
+  },
+  "candidate": {
+    "IS_n": 128,
+    "IS_pnl": 16174,
+    "OOS_n": 21,
+    "OOS_pnl": 5900
+  },
+  "deltas": {
+    "IS_delta": 3335,
+    "OOS_delta": 2172,
+    "OOS_pct_improvement": 0.583
+  },
+  "gates": {
+    "OOS_positive": true,
+    "WF_norm": 3.969,
+    "WF_passes_0_70": true,
+    "SW_hurt_count": 1,
+    "SW_ok": true,
+    "anchor_no_regression": true,
+    "anchor_notes": "Safe engine fires $0 on 4/29, 5/01, 5/04, 5/05, 5/06 (engine filters don't fire those setups). 5/07 is BETTER (+$378 vs +$168). All anchors either flat or improved."
+  },
+  "sub_windows": {
+    "W1_2025H1": {"delta": -2436, "verdict": "HURT"},
+    "W2_2025H2": {"delta": 3253, "verdict": "HELP"},
+    "W3_Q12026": {"delta": 2508, "verdict": "HELP"},
+    "W4_Apr26":  {"delta": 10,   "verdict": "FLAT"}
+  },
+  "mechanism": "Raising TP1 from +30% to +50% locks in larger premiums on 2/3 of position before the runner. OOS recovery-regime moves are large enough to reach +50% (winners avg 52 min hold), while OOS losers exit at premium stop before TP1 regardless of threshold. W1 (Jan-Jun 2025 calm market) hurts -$2,436 because small-move days can't reach +50%; W2/W3 more volatile and benefit strongly.",
+  "ratification_criteria": "OOS_positive=TRUE AND WF=3.969>=0.70 AND SW_hurt=1/4<=1 AND anchor_no_regression=TRUE AND scorecard filed",
+  "auto_ratified": true,
+  "ratified_at": "2026-06-17",
+  "ratification_note": "Auto-ratified per OP-22 (J: 'I am no blocker. if its profitable implement it'). All 5 gates pass. Ticket: backtest/autoresearch/safe_tp1_sweep.py.",
+  "revert": "Set tp1_premium_pct=0.30 and tp1_premium_multiplier=1.30 in params.json. Update heartbeat.md line ~286: entry × 1.50 → entry × 1.30.",
+  "guard_name": "test_rank36_safe_tp1_50pct_oos_improvement"
+}

@@ -1,172 +1,189 @@
 {
-  "generated_at": "2026-06-19T14:18:30Z",
+  "generated_at": "2026-06-26T14:18:48Z",
   "swarm_version": "v5.2",
   "status": "ok",
   "vote_map": {
     "bullish": [
-      "sentiment_analyst",
+      "technical",
       "session_timer"
     ],
     "bearish": [
-      "technical",
       "level_thesis",
       "internals",
-      "momentum_analyst",
-      "regime_classifier",
       "premarket_analyst",
+      "pattern_scout",
       "correlation_analyst"
     ],
     "no_trade": [
       "macro",
       "volume_analyst",
-      "pattern_scout",
-      "catalyst_analyst"
+      "momentum_analyst",
+      "regime_classifier",
+      "catalyst_analyst",
+      "sentiment_analyst"
     ]
   },
   "vote_counts": {
     "bullish": 2,
-    "bearish": 7,
-    "no_trade": 4
+    "bearish": 5,
+    "no_trade": 6
   },
   "core_vote_counts": {
-    "bullish": 0,
-    "bearish": 3,
+    "bullish": 1,
+    "bearish": 2,
     "no_trade": 1,
     "note": "4 core agents only (technical/macro/level_thesis/internals) — calibrated formula"
   },
   "supplemental_vote_counts": {
-    "bullish": 2,
+    "bullish": 1,
     "bearish": 4,
-    "no_trade": 3,
-    "supplemental_modifier": 0,
+    "no_trade": 4,
+    "supplemental_modifier": -3,
     "note": "8 supplemental agents — bounded ±5 modifier"
   },
   "weighted_scores": {
-    "bullish": 0.0,
-    "bearish": 0.5975
+    "bullish": 0.35,
+    "bearish": 0.35
   },
   "consensus_bias": "no_trade",
-  "consensus_strength": "moderate",
+  "consensus_strength": "split",
   "swarm_confidence": 0,
   "size_recommendation": "skip",
   "dissent_flag": {
     "active": true,
     "dissenting_agents": [
-      "macro",
-      "sentiment_analyst",
-      "session_timer"
+      "technical (bullish)",
+      "macro (neutral)",
+      "level_thesis (bearish)",
+      "internals (bearish)"
     ],
-    "dissent_reason": "Macro neutral due to conflicting gap-up vs risk-off signals; sentiment and session timer bullish on overnight gap and morning window quality"
+    "dissent_reason": "Split core vote: technical bullish with CLEAN_BULL ribbon (129c spread, 3 green bars) vs level_thesis/internals bearish citing tech weakness and PMH resistance at 732.62. Macro neutral due to conflicting VIX falling vs overnight gap-down."
   },
   "validator_assessment": {
-    "consensus_robustness": "moderate",
-    "weakest_link": "Overnight gap-up $5.96 (0.80%) dismissed as 'fading' by bearish agents — largest directional signal in dataset",
-    "top_invalidation_scenario": "SPY breaks above 748.0 resistance level and holds for 15+ minutes, inverting the entire bearish thesis"
+    "consensus_robustness": "weak",
+    "weakest_link": "The bearish consensus relies heavily on overnight gap-down and XLK weakness, but the technical ribbon shows strong bullish structure (CLEAN_BULL, 129c spread, 3 consecutive green bars) that bearish agents did not adequately address. The close-ceiling pattern is only 5 bars old and could break on any momentum shift.",
+    "top_invalidation_scenario": "SPY breaks above 732.62 PMH and closes above it with volume expansion (>50k shares) — invalidates the close-ceiling distribution pattern"
   },
   "risk_assessment": {
     "risk_level": "medium",
-    "top_risk": "Quarterly expiry Friday creates extreme pin risk toward 748.0 and 745.33 levels regardless of directional bias",
+    "top_risk": "Monthly options expiry creates elevated pin risk to 732.62 and 734.97 levels regardless of directional conviction",
     "recommendation": "SKIP"
   },
   "battle_level": {
-    "price": 748.0,
-    "tier": "Carry",
-    "strength_stars": 3,
+    "price": 732.62,
+    "tier": "Active",
+    "strength_stars": 2,
     "role": "resistance"
   },
   "level_priority": [
     {
-      "price": 748.0,
-      "tier": "Carry",
-      "strength_stars": 3,
+      "price": 732.62,
+      "tier": "Active",
+      "strength_stars": 2,
       "role": "resistance",
       "priority_rank": 1,
       "likely_test": "flush_to"
     },
     {
-      "price": 745.33,
-      "tier": "Carry",
-      "strength_stars": 3,
-      "role": "support",
+      "price": 734.97,
+      "tier": "Reference",
+      "strength_stars": 2,
+      "role": "resistance",
       "priority_rank": 2,
       "likely_test": "hold_from"
     },
     {
-      "price": 750.0,
-      "tier": "Reference",
-      "strength_stars": 0,
-      "role": null,
+      "price": 728.5,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "support",
       "priority_rank": 3,
+      "likely_test": "flush_to"
+    },
+    {
+      "price": 743.35,
+      "tier": "Carry",
+      "strength_stars": 3,
+      "role": "resistance",
+      "priority_rank": 4,
+      "likely_test": "hold_from"
+    },
+    {
+      "price": 745.33,
+      "tier": "Active",
+      "strength_stars": 2,
+      "role": "resistance",
+      "priority_rank": 5,
       "likely_test": "hold_from"
     }
   ],
   "scenario_map": {
     "primary": {
-      "condition": "if SPY fails at 748.0 resistance",
+      "condition": "if SPY holds below 732.62 PMH",
       "bias": "bearish",
-      "target": 745.33,
-      "entry_trigger": "level_rejection + ribbon_bear"
+      "target": 728.5,
+      "entry_trigger": "resistance_hold + ribbon_bear"
     },
     "secondary": {
-      "condition": "if SPY holds 745.33 support",
+      "condition": "if SPY breaks above 732.62 and reclaims 734.97",
       "bias": "bullish",
-      "target": 748.0,
-      "entry_trigger": "bounce_confirmation"
+      "target": 743.35,
+      "entry_trigger": "level_reclaim + ribbon_stack"
     },
     "invalidation": {
-      "condition": "SPY breaks above 748.0 resistance level and holds for 15+ minutes",
-      "effect": "The level_thesis primary bearish scenario inverts. Short-covering would likely trigger as 748.0 was identified as the battle level with 3-star strength. Ribbon would need to flip to confirm new bullish structure."
+      "condition": "SPY breaks above 732.62 PMH and closes above it with volume expansion (>50k shares)",
+      "effect": "Invalidates the close-ceiling distribution pattern; pattern_scout's bearish thesis collapses if price closes above 732.62 with conviction"
     }
   },
   "swarm_predictions": [
     {
-      "claim": "SPY will test 748.0 resistance within first 90 minutes of RTH and fail to break above",
-      "invalidation": "SPY breaks and holds above 748.0 for 15+ minutes",
+      "claim": "SPY tests 732.62 PMH resistance within first 90 minutes of RTH",
+      "invalidation": "SPY does not touch 732.62 before 11:00 ET",
       "confidence": 0.65,
       "champion_agent": "level_thesis",
       "domain": "level"
     },
     {
-      "claim": "VIX will remain in MID regime (16-20) and stay flat to slightly higher given risk-off rotation",
-      "invalidation": "VIX drops below 15.0 within first 60 minutes",
+      "claim": "VIX remains in MID regime (17-22) and does not spike above 25",
+      "invalidation": "VIX closes above 25 or drops below 15",
       "confidence": 0.55,
       "champion_agent": "macro",
       "domain": "vix_macro"
     },
     {
-      "claim": "Ribbon will maintain CLEAN_BEAR structure with fast EMA staying below slow EMA",
-      "invalidation": "Ribbon flips to MIXED or BULL as fast EMA crosses above slow EMA",
-      "confidence": 0.6,
+      "claim": "Ribbon maintains BULL stack (fast > slow) through first hour of RTH",
+      "invalidation": "Ribbon flips to BEAR stack (slow > fast) before 11:30 ET",
+      "confidence": 0.7,
       "champion_agent": "technical",
       "domain": "technical"
     }
   ],
-  "synthesis_narrative": "Bearish consensus (8/12 agents) conflicts with massive overnight gap-up signal ($5.96, 0.80%) that most bearish agents dismissed as 'fading.' The 748.0 resistance level is the battleground - bears expect failure here, but gap-up suggests potential reclaim. XLK underperforming SPY by 0.33% confirms risk-off rotation, but extremely low volume (0.15x) contradicts strong bearish conviction. Quarterly expiry creates pin risk toward key levels regardless of direction.",
+  "synthesis_narrative": "CORE 4 SPECIALIST VOTE SPLIT (0.35 bullish vs 0.35 bearish) — technical's CLEAN_BULL ribbon (129c spread, 3 consecutive green bars, price 310c above pivot) is offset by level_thesis/internals bearish on overnight gap-down and XLK-led weakness. Supplemental panel tilts bearish (4 bearish vs 1 bullish vs 4 no_trade) but weak participation (0.27x volume) undermines conviction. Validator flags structural flaw: bullish ribbon ignored by bearish consensus. Risk assessor recommends SKIP due to monthly expiry pin risk. NO_TRADE: insufficient directional conviction with split core vote.",
   "agent_summaries": {
     "technical": {
-      "bias": "bearish",
-      "confidence": 0.65,
-      "one_line": "CLEAN_BEAR ribbon with 13c spread, price 5c below pivot, mixed bar structure but bearish momentum"
+      "bias": "bullish",
+      "confidence": 0.85,
+      "one_line": "CLEAN_BULL ribbon with 129c spread (fast 731.2 > slow 729.91), last 3 bars green with full bodies, price 310c above pivot 730.11 — strong bullish structure"
     },
     "macro": {
       "bias": "neutral",
       "confidence": 0.55,
-      "one_line": "VIX MID regime at 16.41 flat, no events today, gap-up conflicts with risk-off rotation signal"
+      "one_line": "VIX 19.17 MID regime falling suggests fear receding, but overnight gap-down $1.09 and stale calendar create mixed signals"
     },
     "level_thesis": {
       "bias": "bearish",
       "confidence": 0.65,
-      "one_line": "748.0 resistance battle level, expect failure and continuation to 745.33 support"
+      "one_line": "Battle at 732.62 PMH resistance; price below prior close 734.30; bearish if holds, bullish if breaks and reclaims 734.97"
     },
     "internals": {
       "bias": "bearish",
-      "confidence": 0.65,
-      "one_line": "Risk-off rotation with XLK -1.7% leading SPY decline, all sectors negative"
+      "confidence": 0.6,
+      "one_line": "XLK down -1.0% leading SPY lower, tech weakness dragging index despite flat XLF/XLE — narrow breadth selloff"
     },
     "validator": {
       "devil_advocate_bias": "bullish",
-      "consensus_robustness": "moderate",
-      "top_invalidation": "SPY breaks above 748.0 resistance and holds, invalidating bearish thesis"
+      "consensus_robustness": "weak",
+      "top_invalidation": "SPY breaks above 732.62 PMH with volume expansion invalidates bearish close-ceiling thesis"
     }
   },
   "cost_usd": 0.065,

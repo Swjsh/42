@@ -21,13 +21,12 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from _alpaca_creds import masked, resolve_alpaca_creds  # noqa: E402
 from lib.orchestrator import run_backtest  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[1]
 DATA_DIR = REPO / "data"
 CACHE_DIR = DATA_DIR / "options"
-ALPACA_KEY = "PK33J2RV4PNIY6TCOLUG3WYGRX"
-ALPACA_SECRET = "FxbJshSbhJ8Rn7KPENssS4eWsLpxCyYeyxavxywV9Bbs"
 OPT_URL = "https://data.alpaca.markets/v1beta1/options/bars"
 
 
@@ -39,15 +38,15 @@ def cache_path(symbol):
     return CACHE_DIR / f"{symbol}.csv"
 
 
-def fetch_contract(symbol, trade_date):
+def fetch_contract(symbol, trade_date, key, secret):
     if cache_path(symbol).exists():
         return True
     params = {"symbols": symbol, "timeframe": "5Min",
               "start": f"{trade_date}T13:30:00Z", "end": f"{trade_date}T20:30:00Z",
               "limit": 200}
     req = Request(f"{OPT_URL}?{urlencode(params)}",
-                  headers={"APCA-API-KEY-ID": ALPACA_KEY,
-                           "APCA-API-SECRET-KEY": ALPACA_SECRET})
+                  headers={"APCA-API-KEY-ID": key,
+                           "APCA-API-SECRET-KEY": secret})
     try:
         data = json.loads(urlopen(req, timeout=30).read())
         bars = data.get("bars", {}).get(symbol, [])
@@ -75,7 +74,7 @@ def fetch_contract(symbol, trade_date):
         return False
 
 
-def discover_and_prefetch(spy, vix, start, end, strike_offset):
+def discover_and_prefetch(spy, vix, start, end, strike_offset, key, secret):
     """First-pass BS run to discover which contracts the strike_offset wants, then fetch."""
     result = run_backtest(
         spy, vix, start_date=start, end_date=end,
@@ -93,7 +92,7 @@ def discover_and_prefetch(spy, vix, start, end, strike_offset):
             needed.append((sym, d.isoformat()))
     if needed:
         for sym, d in needed:
-            ok = fetch_contract(sym, d)
+            ok = fetch_contract(sym, d, key, secret)
             if not ok:
                 print(f"      FAIL fetch {sym}")
             time.sleep(0.15)
@@ -133,11 +132,15 @@ def main():
     start = dt.date(2026, 3, 15)
     end = dt.date(2026, 5, 7)
 
+    # Resolve creds lazily on the fetch path (never at import time).
+    creds = resolve_alpaca_creds()
+    print(f"\nAlpaca creds: key={masked(creds.key)} source={creds.source}")
+
     # Pre-fetch all contract permutations needed
     print("\nPre-fetching contracts for all strike offsets...")
     for offset in STRIKE_OFFSETS:
         print(f"  offset {offset:+d}:")
-        discover_and_prefetch(spy, vix, start, end, offset)
+        discover_and_prefetch(spy, vix, start, end, offset, creds.key, creds.secret)
 
     print("\nRunning sweeps...")
     print(f"\n{'STOP':<6}{'OFFSET':<8}{'N':<5}{'WR':<6}{'AvgW':<7}{'AvgL':<7}"

@@ -54,6 +54,21 @@ SOUL_FILE = REPO / "automation" / "presence" / "SOUL.md"
 # which would re-introduce the very crying-wolf this rewrite removed). A real death
 # (no log line) still REDs within 10m = ~3 missed ticks = unambiguously dead.
 HEARTBEAT_STALE_MIN = 10
+# --- New deterministic-engine liveness budgets (2026-06-26 repoint) -------------
+# The LLM heartbeat was replaced by heartbeat_core (pure-Python, 1-min cadence) and
+# the TV-CDP eye by sight_beacon (direct REST, 1-min). These checks watch the NEW
+# producers -- core-decisions.jsonl (the brain) + sight-beacon.json (the eye) -- not
+# the retired loop-state/LLM logs (which read "log missing" forever after the rebuild,
+# pinning the monitor permanently YELLOW and blind to the real engine). Cadence is 1m,
+# so 8 missed ticks = unambiguously dead while leaving slack for the veto-call latency
+# + scheduler/IO jitter (avoids re-introducing false-RED).
+CORE_STALE_MIN = 8
+BEACON_STALE_MIN = 8
+# A session's first bar cannot exist until it closes (~09:31 for 1m, ~09:35 for 5m) and
+# the producer needs a beat to write it -- so watcher_feed must NOT cry "producer dark"
+# in the first minutes after the open. This killed the recurring 09:30:02 false-RED (the
+# canary fired 2s after the bell, before any today-bar could physically exist).
+WATCHER_OPEN_GRACE_MIN = 11
 # Map each heartbeat check to its log basename stem (date is appended per-day).
 HEARTBEAT_LOG_STEM = {
     "heartbeat_safe": "heartbeat",
@@ -122,6 +137,12 @@ def market_is_open(et: datetime) -> bool:
         return False
     hhmm = et.hour * 100 + et.minute
     return 930 <= hhmm < 1555
+
+
+def _minutes_since_open(et: datetime) -> float:
+    """Minutes since today's 09:30 ET open (negative before the bell). et is naive ET."""
+    open_dt = et.replace(hour=9, minute=30, second=0, microsecond=0)
+    return (et - open_dt).total_seconds() / 60.0
 
 
 # ---------------------------------------------------------------------------
@@ -278,6 +299,18 @@ def check_watcher_feed(market_open: bool, et: datetime) -> dict:
         return _chk("watcher_feed", "GREEN", f"newest bar {newest_date} (market closed -- quiet OK)", critical=True)
     if newest_date == today:
         return _chk("watcher_feed", "GREEN", f"producing TODAY's rows (newest bar {newest})", critical=True)
+    # Post-open grace (2026-06-26): the first session bar cannot physically exist in the
+    # first minutes after the bell, so "newest != today" here is warm-up, not a dark
+    # producer. This kills the recurring 09:30:02 cry-wolf RED (fired 2s after the open)
+    # WITHOUT weakening the canary past the grace window -- the re-arm guard test runs at
+    # 11:00 ET (90m in), well clear of WATCHER_OPEN_GRACE_MIN.
+    mins_open = _minutes_since_open(et)
+    if 0 <= mins_open < WATCHER_OPEN_GRACE_MIN:
+        return _chk(
+            "watcher_feed", "YELLOW",
+            f"warming up {mins_open:.1f}m into open (newest bar {newest_date}) -- first session bar not written yet",
+            critical=False,
+        )
     # critical=True (RE-ARMED 2026-06-24): the 2026-06-22 downgrade to critical=False
     # was a DELIBERATE TEMPORARY measure to stop cry-wolf overall-REDs every market open
     # while the watcher_live.py producer rebuild was in flight (the morning no-op =
@@ -297,6 +330,83 @@ def check_watcher_feed(market_open: bool, et: datetime) -> dict:
         f"PRODUCER DARK: newest bar {newest_date} != today {today} -- feed not writing during RTH",
         critical=True,
     )
+
+
+def check_sight_beacon(market_open: bool, now_utc: datetime) -> dict:
+    """The EYE: sight-beacon.json must be fresh during RTH. A stale/failed beacon means
+    the engine is BLIND -- the #1 forbidden state (J: 'the engine can NOT be blind ever').
+    Replaces the retired TV-CDP tv_chart eye: heartbeat_core reads bars via direct REST,
+    so the beacon's freshness + ok-flag is the real sight liveness now."""
+    name = "sight_beacon"
+    data, err = _read_json(STATE / "sight-beacon.json")
+    if data is None:
+        # Missing during RTH is a genuine blind-spot (critical); quiet when closed.
+        return _chk(name, "RED" if market_open else "YELLOW",
+                    f"sight-beacon.json {err}", critical=market_open)
+    age = _age_min(_parse_ts(data.get("ts_utc")), now_utc)
+    spy = data.get("spy", "?")
+    rib = data.get("ribbon_stack", "?")
+    src = data.get("data_source", "?")
+    if age is None:
+        return _chk(name, "YELLOW", "no ts_utc in beacon", critical=False)
+    detail = f"eye {age:.1f}m old; spy={spy} ribbon={rib} src={src}"
+    if not market_open:
+        return _chk(name, "GREEN", f"{detail} (market closed -- quiet OK)", critical=True)
+    if data.get("ok") is False:
+        return _chk(name, "RED", f"BLIND: beacon ok=False (fetch failed) -- {detail}", critical=True)
+    if age > BEACON_STALE_MIN:
+        return _chk(name, "RED",
+                    f"BLIND: eye STALE {age:.1f}m (>{BEACON_STALE_MIN}m) during RTH -- {detail}",
+                    critical=True)
+    return _chk(name, "GREEN", detail, critical=True)
+
+
+def check_engine_core(name: str, account: str, market_open: bool, et: datetime) -> dict:
+    """The BRAIN: heartbeat_core writes one core-decisions.jsonl row per account every
+    ~1-min tick (even on HOLD), so a stale newest-row for an account means the
+    deterministic engine stopped ticking. Replaces the LLM-era loop-state.json liveness
+    (which now reads 'log missing' against the disabled Gamma_Heartbeat logs). ts_et is
+    naive ET wall-clock -- compared against et (also naive ET)."""
+    path = STATE / "core-decisions.jsonl"
+    if not path.exists():
+        return _chk(name, "RED" if market_open else "YELLOW",
+                    "core-decisions.jsonl missing", critical=market_open)
+    newest: Optional[str] = None
+    try:
+        with path.open("rb") as f:
+            f.seek(0, os.SEEK_END)
+            size = f.tell()
+            f.seek(max(0, size - 131072))  # tail 128KB -- many ticks, cheap
+            tail = f.read().decode("utf-8", errors="replace").splitlines()
+    except Exception as e:  # noqa: BLE001 -- never crash the beacon
+        return _chk(name, "YELLOW", f"read error ({type(e).__name__})", critical=False)
+    for raw in reversed(tail):
+        raw = raw.strip()
+        if not raw:
+            continue
+        try:
+            row = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+        if row.get("account") == account and row.get("ts_et"):
+            newest = str(row["ts_et"])
+            break
+    if newest is None:
+        return _chk(name, "RED" if market_open else "YELLOW",
+                    f"no {account} row in tail", critical=market_open)
+    try:
+        dt = datetime.strptime(newest[:19], "%Y-%m-%dT%H:%M:%S")  # naive ET
+    except ValueError:
+        return _chk(name, "YELLOW", f"unparseable ts_et {newest!r}", critical=False)
+    age = (et - dt).total_seconds() / 60.0
+    detail = f"last {account} tick {age:.1f}m ago ({newest[11:19]})"
+    if not market_open:
+        return _chk(name, "GREEN", f"{detail} (market closed -- quiet OK)", critical=True)
+    if age > CORE_STALE_MIN:
+        return _chk(name, "RED",
+                    f"ENGINE STALE {age:.1f}m (>{CORE_STALE_MIN}m) during RTH -- {detail}",
+                    critical=True)
+    return _chk(name, "GREEN", detail, critical=True)
 
 
 def check_tv_chart(now_utc: datetime) -> dict:
@@ -367,11 +477,17 @@ def build_report() -> dict:
     et = _et_now(now_utc)
     mkt = market_is_open(et)
 
+    # ROSTER REPOINT (2026-06-26): watch the NEW deterministic engine, not the retired
+    # LLM producers. heartbeat_safe/bold now read core-decisions.jsonl (the brain's
+    # per-account per-tick output) instead of the disabled-LLM loop-state.json; sight_beacon
+    # is the eye (direct-REST liveness) replacing the retired tv_chart (TV/CDP is no longer
+    # on the trade hot path -- Gamma_TvWatchdog owns premarket TV liveness separately). The
+    # check NAMES are preserved so the transition-alert idempotency keys stay stable.
     checks = [
-        check_heartbeat("heartbeat_safe", STATE / "loop-state.json", mkt, now_utc),
-        check_heartbeat("heartbeat_bold", AGG / "loop-state.json", mkt, now_utc),
+        check_engine_core("heartbeat_safe", "safe", mkt, et),
+        check_engine_core("heartbeat_bold", "bold", mkt, et),
+        check_sight_beacon(mkt, now_utc),
         check_watcher_feed(mkt, et),
-        check_tv_chart(now_utc),
         check_killswitch("killswitch_safe", STATE / "circuit-breaker.json"),
         check_killswitch("killswitch_bold", AGG / "circuit-breaker.json"),
         check_position("position_safe", STATE / "current-position.json"),

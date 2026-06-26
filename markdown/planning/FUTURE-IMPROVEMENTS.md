@@ -188,7 +188,7 @@ Current grinder varies 7 knobs. Unexplored (rough list):
 - **T58 ✅ DONE 2026-05-14 00:48** — Liquidity sweep detection (wick-through-close-inside pattern)
 - **T59 ✅ DONE 2026-05-17** — Body-vs-wick ratio gate: `is_decisive_bar(bar, min_body_ratio=0.50)` added to `backtest/lib/filters.py` using existing `_bar_geometry`. 6 unit tests added to `test_filters.py`. 43/43 filter+level_strength suite PASS.
 - **T60** — TradingView MCP J-drawn-line capture → key-levels.json
-- **Doctrine ref:** `docs/KEY-LEVELS-DEEPDIVE-2026-05-13.md`
+- **Doctrine ref:** `docs/KEY-LEVELS-DEEPDIVE-2026-05-13.md` (archived — original removed in the `docs/` tombstone; no current markdown/ home)
 - **Status: 9 of 10 shipped (T51-T59). 1 remaining (T60 — needs TradingView interactive session).**
 
 ### 13. Volume gate — slow-grind breakouts (T48) — ⚠️ PREMISE WAS WRONG
@@ -198,7 +198,7 @@ Current grinder varies 7 knobs. Unexplored (rough list):
   - Per-fire diag-trail at `automation/state/watcher-live-diag.jsonl` (Fire #20 watcher_live.py patch)
   - T62 multi_day_rth invariant check (Fire #22 runner.py patch — WARNING on stderr when None during live call)
   - T63 silent-except remove (Fire #22 runner.py patch — per-watcher exceptions surface to stderr)
-- **Doc:** `docs/T48-SNIPER-5-13-MISSFIRE-2026-05-14.md`
+- **Doc:** `docs/T48-SNIPER-5-13-MISSFIRE-2026-05-14.md` (archived — original removed in the `docs/` tombstone; no current markdown/ home)
 - **Still TBD:** volume gate as cumulative-N-bar alternative IS still a valid improvement (lower priority now — the immediate slot for tomorrow's CPI day is the diag-trail revealing actual failure mode).
 
 ### 14. decisions.jsonl logging gap (T49)
@@ -217,7 +217,7 @@ Current grinder varies 7 knobs. Unexplored (rough list):
 - **Cosmetic, not blocking. Encoded in `regime_switcher_prepass.py` comment block + T37 doc.**
 
 ### 17. Per-tier sizing rules ratification
-- **Trigger:** J reviews `docs/DOCTRINE-CHANGE-2026-05-13-EVENING.md` `v15_strike_offset_per_tier` table
+- **Trigger:** J reviews `docs/DOCTRINE-CHANGE-2026-05-13-EVENING.md` (archived — original removed in the `docs/` tombstone) `v15_strike_offset_per_tier` table
 - **Scope:** approve/refine the per-tier strike offset rules ($1K → OTM-3, $25K+ → ITM-2) + max premium % caps (40/30/25/20%)
 - **Recommendation:** activate as part of v15 (T50d). The hard gate prevents 315%-leverage scenarios.
 
@@ -229,7 +229,7 @@ Current grinder varies 7 knobs. Unexplored (rough list):
   - T62 stderr WARNING when multi_day_rth is None during apparent live call
   - T63 per-watcher exception surfaces with type + message
 - **Verification window:** tomorrow 5/14 09:30-16:00 ET — first WatcherLive fire writes first diag-trail entry, then verify hourly. If signals_emitted > 0 → mitigation works. If still silent → drill into runner.py per-watcher branches.
-- **Doc:** `docs/T48-SNIPER-5-13-MISSFIRE-2026-05-14.md`
+- **Doc:** `docs/T48-SNIPER-5-13-MISSFIRE-2026-05-14.md` (archived — original removed in the `docs/` tombstone; no current markdown/ home)
 
 ### 19. v14e grinder mitigations T70-T74 (NEW Fire #23 forensics 2026-05-14 03:20 ET)
 - **T70 (HIGH)** — Add `maxtasksperchild=10` to `mp.Pool(workers)` call in `v14_enhanced_grinder.py` L303. Forces worker recycle every 10 combos. Bounds memory commit.

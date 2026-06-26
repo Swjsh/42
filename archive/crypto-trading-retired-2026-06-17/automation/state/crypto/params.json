@@ -1,0 +1,47 @@
+{
+  "_doc": "Crypto heartbeat config v1.1. Mirror of futures/options params pattern. Single source of truth. Updated 2026-06-16 from overnight research: ATR multipliers raised for BTC wicks, RSI widened (BTC hits 78-85 in valid trends), h1 trend filter added.",
+
+  "instrument": "BTC/USD",
+  "timeframe_minutes": 15,
+  "bar_limit": 70,
+
+  "_signal_section": "EMA ribbon (9/21/50). min_stack_bars=2 is most important filter — do not lower. RSI thresholds widened from 72/28: BTC regularly hits 78-85 during the strongest ribbon signals.",
+  "ema_fast_period": 9,
+  "ema_pivot_period": 21,
+  "ema_slow_period": 50,
+  "min_stack_bars": 2,
+  "rsi_period": 14,
+  "rsi_overbought": 80,
+  "rsi_oversold": 20,
+
+  "_h1_filter_section": "Higher timeframe trend filter (2026-06-16 research). Take 15m LONG only when 1h EMA-9 > EMA-50; SHORT only when 1h EMA-9 < EMA-50. Requires one extra Alpaca API call (get_crypto_bars 1h). This is the correct fix for chop during thin hours — NOT switching to 1h timeframe.",
+  "h1_trend_filter": true,
+  "h1_ema_fast": 9,
+  "h1_ema_slow": 50,
+
+  "_stop_section": "ATR-based stops. Raised from 1.5/2.0/3.0 — BTC 15m wicks spike 0.8-1.2x ATR inside valid trends, causing false stops. Ratio preserved: 1:1.5:2.25 (stop:TP1:runner). TP1 R:R=1.5R, runner R:R=2.25R.",
+  "atr_period": 14,
+  "atr_stop_multiplier": 2.0,
+  "atr_tp1_multiplier": 3.0,
+  "atr_runner_multiplier": 4.5,
+  "tp1_qty_fraction": 0.50,
+
+  "_risk_section": "Per-trade risk 2%, daily kill switch -10%, single position cap 25%.",
+  "risk_per_trade_pct": 0.02,
+  "max_position_pct": 0.25,
+  "daily_loss_kill_switch_pct": 0.10,
+  "min_notional_usd": 50.0,
+  "max_hold_hours": 8,
+
+  "_logging_section": "Log session metadata with each would-be trade for future regime analysis (WR varies by hour-of-day + day-of-week).",
+  "log_session_metadata": true,
+
+  "_status_section": "WATCH-ONLY until 20+ trades with WR >= 45% and positive expectancy. ETH/USD: add watch-only AFTER BTC clears 20-trade gate. Separate state dir automation/state/crypto_eth/ when ready.",
+  "watch_only": true,
+  "live_threshold_trades": 20,
+  "live_threshold_wr": 0.45,
+  "status": "WATCH-ONLY — paper mode, ratify after 20+ trades WR>=45%",
+  "version": "v1.1",
+  "version_notes": "v1.1 2026-06-16: ATR 1.5/2.0/3.0 → 2.0/3.0/4.5 (BTC wick resistance), RSI 72/28 → 80/20 (BTC momentum range), h1_trend_filter=true, log_session_metadata=true",
+  "ratified_at": ""
+}

@@ -1,0 +1,33 @@
+{
+  "rule_id": "safe_trendline_bear_spread_gate",
+  "title": "MIN_TRENDLINE_BEAR_SPREAD_CENTS=35 for SAFE TRENDLINE-only BEAR entries",
+  "attempted_at": "2026-06-18",
+  "verdict": "REJECT",
+  "verdict_reason": "G1 FAIL (IS_delta=-11). Root cause: analysis had a timezone bug that invalidated the A/B test.",
+  "timezone_bug": {
+    "description": "entry_time_et stores naive ET strings (option CSV convention). A/B test applied tz_localize('UTC') instead of tz_localize('America/New_York'), causing a ~5h offset. The ribbon spread values were actually pulled from premarket bars (not RTH entry-time bars). With correct timezone handling, the IS spread values changed completely.",
+    "wrong_approach": "tz_localize('UTC') on naive ET timestamp",
+    "correct_approach": "tz_localize('America/New_York').tz_convert('UTC') for naive entry_time_et",
+    "lesson": "ALL future A/B tests using entry_time_et must use tz_localize('America/New_York') — not UTC."
+  },
+  "corrected_results": {
+    "IS_removed": {
+      "n": 14,
+      "pnl": -11,
+      "note": "includes +$92 winner (2025-02-24, spread=19c) and +$35 winner (2026-02-04, spread=28c)"
+    },
+    "IS_delta": -11,
+    "OOS_removed": {"n": 1, "date": "2026-06-12", "spread_cents": 34, "pnl": -19},
+    "OOS_delta": 19
+  },
+  "op22_gates_corrected": {
+    "G1_IS_delta_ge_0": {"value": -11, "pass": false},
+    "G2_OOS_delta_gt_0": {"value": 19, "pass": true},
+    "G3_WF_ge_0.70": {"value": -23.07, "pass": false},
+    "G4_SW_hurt_le_1": {"pass": true, "sw_hurt": 1},
+    "G5_anchor_no_regression": {"pass": true}
+  },
+  "no_valid_threshold": "No threshold in 1c-100c passes G1 AND G2 simultaneously. To block OOS loser at 34c requires threshold >=35c. At >=35c, IS 2025-02-24 (19c spread, +$92) is also blocked. IS_delta becomes negative at all thresholds that capture the OOS improvement.",
+  "implementation_status": "Reverted. Orchestrator: gate kept as dormant knob (default 0.0 = disabled, no production effect). params.json: NOT updated.",
+  "follow_up": "TRENDLINE-only bear ribbon spread is NOT a useful entry-time gate. Hypothesis disproven. Next: analyze OOS bull losses (-$173 OOS, n=8) — a more impactful research direction."
+}

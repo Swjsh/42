@@ -1,0 +1,502 @@
+{
+  "hypothesis": "skip_top_tercile_only (subtractive abstention) re-verified across strike tiers",
+  "kind": "subtractive-SHIP re-verify",
+  "thesis": "RE-VERIFY the campaign's lone SUBTRACTIVE winner -- abstain from vwap_continuation entries when entry VIX is in the worst (top, expanding-window) VIX tercile -- at the SURVIVOR strike (ITM-2, reproduce) AND at Safe-2's actual $2K OTM-2 tier (the ship decision per C29). Additive confluence is dead on 0DTE; the edge improves by SUBTRACTION.",
+  "run_date": "2026-06-20",
+  "window": "2025-01-02..2026-05-15",
+  "trading_days": 342,
+  "detector": "BYTE-FOR-BYTE j_daily_pattern_ratify.detect_j_vwap_continuation (imported from the campaign harness); live port = backtest/lib/watchers/vwap_continuation_watcher.py",
+  "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1); premium_stop_pct=-0.08, v15 default exits, nearest-cached strike snap<=4",
+  "no_drift_note": "simulate_base / sched_skip_top_tercile_only / metrics / random_null / no_truncation_check / evaluate_schedule are ALL imported verbatim from _sel_regime_conditional_vwap_sizing; ONLY module STRIKE_OFFSET is flipped per run (-2 then +2). Zero re-derivation (C14).",
+  "strike_offset_convention": "VERIFIED simulator_real.py L356-364: puts strike=atm-offset, calls strike=atm+offset => NEGATIVE offset = ITM, POSITIVE = OTM for BOTH sides (anti-pattern 2.2 cleared)",
+  "oos_split": "IS=2025 / OOS=2026 (calendar-year)",
+  "causal_regime": "expanding-window VIX terciles over PRIOR entries only; warmup=8 trades; NO look-ahead (L14/L34/L57)",
+  "schedule_tested": "skip_top_tercile_only",
+  "n_signals": 158,
+  "signal_fire_day_pct": 46.2,
+  "signal_side_count": {
+    "C": 86,
+    "P": 72
+  },
+  "gates_required": {
+    "1_oos_per_trade_positive": "> 0",
+    "2_positive_quarters_ge_4": ">= 4/6",
+    "3_top5_day_lt_200": "< 200%",
+    "4_n_ge_20": ">= 20",
+    "5_drop_top5_days_positive": "> 0 after removing 5 best days",
+    "6_is_half_positive": "IS(2025) per-trade exp > 0",
+    "7_beats_random_null": "real total > mean of 20-seed random-entry null (L172)",
+    "8_truncation_safe": "overall sign does NOT invert at chart-stop-only -0.99 (L171)"
+  },
+  "runs_by_strike": {
+    "ITM-2": {
+      "purpose": "reproduce_campaign_winner",
+      "strike_offset": -2,
+      "base_coverage": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none": 0,
+        "fill_rate": 0.943
+      },
+      "chartstop_coverage": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none": 0,
+        "fill_rate": 0.943
+      },
+      "FLAT_baseline": {
+        "name": "FLAT_baseline",
+        "metrics": {
+          "n": 149,
+          "wr_pct": 51.7,
+          "exp_dollar": 78.29,
+          "total_dollar": 11665.56,
+          "is_n": 107,
+          "is_exp": 67.56,
+          "is_total": 7229.4,
+          "oos_n": 42,
+          "oos_exp": 105.62,
+          "oos_total": 4436.16,
+          "quarters": {
+            "2025Q1": {
+              "n": 25,
+              "exp": 84.93,
+              "total": 2123.32
+            },
+            "2025Q2": {
+              "n": 23,
+              "exp": 35.67,
+              "total": 820.32
+            },
+            "2025Q3": {
+              "n": 26,
+              "exp": 23.37,
+              "total": 607.52
+            },
+            "2025Q4": {
+              "n": 33,
+              "exp": 111.46,
+              "total": 3678.24
+            },
+            "2026Q1": {
+              "n": 26,
+              "exp": 159.58,
+              "total": 4149.12
+            },
+            "2026Q2": {
+              "n": 16,
+              "exp": 17.94,
+              "total": 287.04
+            }
+          },
+          "positive_quarters": "6/6",
+          "positive_quarters_n": 6,
+          "n_quarters": 6,
+          "top5_day_pct": 20.6,
+          "drop_top5_days_total": 9264.96,
+          "max_drawdown_dollars": -612.12,
+          "max_drawdown_pct_of_2k": 30.6,
+          "worst_single_trade_dollars": -223.68,
+          "total_contracts": 447,
+          "by_side": {
+            "C": {
+              "n": 82,
+              "exp": 84.07,
+              "wr": 53.7,
+              "total": 6893.4
+            },
+            "P": {
+              "n": 67,
+              "exp": 71.23,
+              "wr": 49.3,
+              "total": 4772.16
+            }
+          }
+        },
+        "null": {
+          "real_total": 11665.56,
+          "null_mean_total": 11198.56,
+          "null_std_total": 1488.68,
+          "real_minus_null_mean": 467.0,
+          "real_pctile_vs_null": 65.0,
+          "beats_null": true,
+          "seeds": 20
+        },
+        "no_truncation": {
+          "chartstop_total_dollar": 11859.4,
+          "chartstop_oos_exp": 78.41,
+          "chartstop_exp_dollar": 79.59,
+          "chartstop_n": 149
+        },
+        "gates": {
+          "oos_per_trade_positive": true,
+          "positive_quarters_ge_4": true,
+          "top5_day_lt_200": true,
+          "n_ge_20": true,
+          "drop_top5_days_positive": true,
+          "beats_random_null": true,
+          "truncation_safe": true,
+          "is_half_positive": true
+        },
+        "clears_all_gates": true,
+        "vs_flat": null
+      },
+      "skip_top_tercile_only": {
+        "name": "skip_top_tercile_only",
+        "metrics": {
+          "n": 103,
+          "wr_pct": 54.4,
+          "exp_dollar": 92.64,
+          "total_dollar": 9541.48,
+          "is_n": 80,
+          "is_exp": 78.29,
+          "is_total": 6263.12,
+          "oos_n": 23,
+          "oos_exp": 142.54,
+          "oos_total": 3278.36,
+          "quarters": {
+            "2025Q1": {
+              "n": 16,
+              "exp": 101.64,
+              "total": 1626.32
+            },
+            "2025Q2": {
+              "n": 13,
+              "exp": 40.48,
+              "total": 526.28
+            },
+            "2025Q3": {
+              "n": 25,
+              "exp": 27.44,
+              "total": 686.0
+            },
+            "2025Q4": {
+              "n": 26,
+              "exp": 131.71,
+              "total": 3424.52
+            },
+            "2026Q1": {
+              "n": 10,
+              "exp": 276.31,
+              "total": 2763.08
+            },
+            "2026Q2": {
+              "n": 13,
+              "exp": 39.64,
+              "total": 515.28
+            }
+          },
+          "positive_quarters": "6/6",
+          "positive_quarters_n": 6,
+          "n_quarters": 6,
+          "top5_day_pct": 24.1,
+          "drop_top5_days_total": 7244.68,
+          "max_drawdown_dollars": -423.84,
+          "max_drawdown_pct_of_2k": 21.2,
+          "worst_single_trade_dollars": -85.2,
+          "total_contracts": 309,
+          "by_side": {
+            "C": {
+              "n": 59,
+              "exp": 100.66,
+              "wr": 55.9,
+              "total": 5938.68
+            },
+            "P": {
+              "n": 44,
+              "exp": 81.88,
+              "wr": 52.3,
+              "total": 3602.8
+            }
+          }
+        },
+        "null": {
+          "real_total": 9541.48,
+          "null_mean_total": 7923.79,
+          "null_std_total": 1152.8,
+          "real_minus_null_mean": 1617.69,
+          "real_pctile_vs_null": 85.0,
+          "beats_null": true,
+          "seeds": 20
+        },
+        "no_truncation": {
+          "chartstop_total_dollar": 9753.2,
+          "chartstop_oos_exp": 114.27,
+          "chartstop_exp_dollar": 94.69,
+          "chartstop_n": 103
+        },
+        "gates": {
+          "oos_per_trade_positive": true,
+          "positive_quarters_ge_4": true,
+          "top5_day_lt_200": true,
+          "n_ge_20": true,
+          "drop_top5_days_positive": true,
+          "beats_random_null": true,
+          "truncation_safe": true,
+          "is_half_positive": true
+        },
+        "clears_all_gates": true,
+        "vs_flat": {
+          "delta_total_dollar": -2124.08,
+          "delta_oos_exp": 36.92,
+          "delta_max_drawdown_dollars": 188.28,
+          "delta_worst_trade_dollars": 138.48,
+          "improves_return": false,
+          "ruin_not_materially_worse": true,
+          "materially_improves_no_extra_ruin": false
+        }
+      }
+    },
+    "OTM-2": {
+      "purpose": "safe2_actual_2k_tier_C29",
+      "strike_offset": 2,
+      "base_coverage": {
+        "signals": 158,
+        "filled": 147,
+        "cache_miss": 11,
+        "sim_none": 0,
+        "fill_rate": 0.93
+      },
+      "chartstop_coverage": {
+        "signals": 158,
+        "filled": 147,
+        "cache_miss": 11,
+        "sim_none": 0,
+        "fill_rate": 0.93
+      },
+      "FLAT_baseline": {
+        "name": "FLAT_baseline",
+        "metrics": {
+          "n": 147,
+          "wr_pct": 40.8,
+          "exp_dollar": 21.12,
+          "total_dollar": 3105.36,
+          "is_n": 107,
+          "is_exp": 20.34,
+          "is_total": 2176.88,
+          "oos_n": 40,
+          "oos_exp": 23.21,
+          "oos_total": 928.48,
+          "quarters": {
+            "2025Q1": {
+              "n": 25,
+              "exp": 55.31,
+              "total": 1382.64
+            },
+            "2025Q2": {
+              "n": 23,
+              "exp": 24.19,
+              "total": 556.32
+            },
+            "2025Q3": {
+              "n": 26,
+              "exp": -1.68,
+              "total": -43.56
+            },
+            "2025Q4": {
+              "n": 33,
+              "exp": 8.53,
+              "total": 281.48
+            },
+            "2026Q1": {
+              "n": 24,
+              "exp": 38.81,
+              "total": 931.36
+            },
+            "2026Q2": {
+              "n": 16,
+              "exp": -0.18,
+              "total": -2.88
+            }
+          },
+          "positive_quarters": "4/6",
+          "positive_quarters_n": 4,
+          "n_quarters": 6,
+          "top5_day_pct": 48.5,
+          "drop_top5_days_total": 1598.96,
+          "max_drawdown_dollars": -296.64,
+          "max_drawdown_pct_of_2k": 14.8,
+          "worst_single_trade_dollars": -211.68,
+          "total_contracts": 441,
+          "by_side": {
+            "C": {
+              "n": 80,
+              "exp": 16.35,
+              "wr": 41.2,
+              "total": 1308.24
+            },
+            "P": {
+              "n": 67,
+              "exp": 26.82,
+              "wr": 40.3,
+              "total": 1797.12
+            }
+          }
+        },
+        "null": {
+          "real_total": 3105.36,
+          "null_mean_total": 3744.91,
+          "null_std_total": 776.71,
+          "real_minus_null_mean": -639.55,
+          "real_pctile_vs_null": 15.0,
+          "beats_null": false,
+          "seeds": 20
+        },
+        "no_truncation": {
+          "chartstop_total_dollar": 3304.2,
+          "chartstop_oos_exp": 18.88,
+          "chartstop_exp_dollar": 22.48,
+          "chartstop_n": 147
+        },
+        "gates": {
+          "oos_per_trade_positive": true,
+          "positive_quarters_ge_4": true,
+          "top5_day_lt_200": true,
+          "n_ge_20": true,
+          "drop_top5_days_positive": true,
+          "beats_random_null": false,
+          "truncation_safe": true,
+          "is_half_positive": true
+        },
+        "clears_all_gates": false,
+        "vs_flat": null
+      },
+      "skip_top_tercile_only": {
+        "name": "skip_top_tercile_only",
+        "metrics": {
+          "n": 103,
+          "wr_pct": 36.9,
+          "exp_dollar": 10.9,
+          "total_dollar": 1122.44,
+          "is_n": 80,
+          "is_exp": 8.65,
+          "is_total": 692.04,
+          "oos_n": 23,
+          "oos_exp": 18.71,
+          "oos_total": 430.4,
+          "quarters": {
+            "2025Q1": {
+              "n": 16,
+              "exp": 37.37,
+              "total": 597.84
+            },
+            "2025Q2": {
+              "n": 13,
+              "exp": 3.06,
+              "total": 39.72
+            },
+            "2025Q3": {
+              "n": 25,
+              "exp": -0.39,
+              "total": -9.72
+            },
+            "2025Q4": {
+              "n": 26,
+              "exp": 2.47,
+              "total": 64.2
+            },
+            "2026Q1": {
+              "n": 10,
+              "exp": 34.88,
+              "total": 348.8
+            },
+            "2026Q2": {
+              "n": 13,
+              "exp": 6.28,
+              "total": 81.6
+            }
+          },
+          "positive_quarters": "5/6",
+          "positive_quarters_n": 5,
+          "n_quarters": 6,
+          "top5_day_pct": 68.0,
+          "drop_top5_days_total": 358.64,
+          "max_drawdown_dollars": -138.48,
+          "max_drawdown_pct_of_2k": 6.9,
+          "worst_single_trade_dollars": -69.12,
+          "total_contracts": 309,
+          "by_side": {
+            "C": {
+              "n": 59,
+              "exp": 6.79,
+              "wr": 37.3,
+              "total": 400.4
+            },
+            "P": {
+              "n": 44,
+              "exp": 16.41,
+              "wr": 36.4,
+              "total": 722.04
+            }
+          }
+        },
+        "null": {
+          "real_total": 1122.44,
+          "null_mean_total": 1504.3,
+          "null_std_total": 430.47,
+          "real_minus_null_mean": -381.86,
+          "real_pctile_vs_null": 25.0,
+          "beats_null": false,
+          "seeds": 20
+        },
+        "no_truncation": {
+          "chartstop_total_dollar": 136.2,
+          "chartstop_oos_exp": -7.54,
+          "chartstop_exp_dollar": 1.32,
+          "chartstop_n": 103
+        },
+        "gates": {
+          "oos_per_trade_positive": true,
+          "positive_quarters_ge_4": true,
+          "top5_day_lt_200": true,
+          "n_ge_20": true,
+          "drop_top5_days_positive": true,
+          "beats_random_null": false,
+          "truncation_safe": true,
+          "is_half_positive": true
+        },
+        "clears_all_gates": false,
+        "vs_flat": {
+          "delta_total_dollar": -1982.92,
+          "delta_oos_exp": -4.5,
+          "delta_max_drawdown_dollars": 158.16,
+          "delta_worst_trade_dollars": 142.56,
+          "improves_return": false,
+          "ruin_not_materially_worse": true,
+          "materially_improves_no_extra_ruin": false
+        }
+      }
+    }
+  },
+  "cross_tier_verdict": {
+    "itm2_clears_all_gates": true,
+    "otm2_clears_all_gates": false,
+    "reproduces_campaign_at_itm2": true,
+    "holds_at_otm2": false,
+    "ship_ready_for_safe2": false,
+    "itm2_oos_per_trade": 142.54,
+    "otm2_oos_per_trade": 18.71,
+    "itm2_max_drawdown": -423.84,
+    "otm2_max_drawdown": -138.48,
+    "c29_note": "C29: gates ratified on one strike tier do NOT transfer automatically; the OTM-2 run is the binding ship decision for the $2K Safe-2 account."
+  },
+  "wiring_if_holds": {
+    "where": "automation/prompts/heartbeat.md -- the VWAP_CONTINUATION entry block",
+    "param_source": "automation/state/params.json (Safe) / automation/state/aggressive/params.json (Bold)",
+    "flag": "j_vwap_cont_skip_top_vix_tercile",
+    "semantics": "BEFORE arming a vwap_continuation entry, compute the expanding-window VIX tercile boundaries over the entry-VIX of ALL PRIOR vwap_continuation entries this account has taken (persisted causal state; warmup 8 entries -> no abstention until then). If the CURRENT entry VIX > the top (2/3) tercile boundary, ABSTAIN (skip the entry, log as a regime-abstention WATCH_ONLY decision). Otherwise enter at base size. This is a PURE subtraction -- no size-up leg, base qty everywhere it does not skip -- so it stays inside the 30% per-trade cap (unlike the 2x schedules) and is Safe-2-compatible at OTM-2.",
+    "state_needed": "persist per-account rolling list of prior vwap_continuation entry-VIX values (the causal tercile window) in the loop-state JSON so the expanding-window boundary is reproducible tick-to-tick across restarts.",
+    "strike_tier_caveat": "WIRE ONLY IF the OTM-2 run clears all 8 gates -- Safe-2 trades OTM-2 (strike_offset=+2), not the ITM-2 survivor strike (C29)."
+  },
+  "DISCLOSURE": {
+    "no_cherry_pick": "ALL 8 mandatory gates reported at BOTH strikes; a strike that fails any gate is reported clears_all_gates=false (anti-pattern 2.10).",
+    "per_trade": "expectancy (oos_exp / exp_dollar) reported, not WR alone (OP-14)",
+    "is_oos": "IS=2025 vs OOS=2026 per strike (OP-20)",
+    "concentration": "top5_day_pct + drop-top-5-days total per strike (OP-20 #5)",
+    "fraud_gates": "random-entry null (20 seeds, same days/sides, total-P&L basis) + no-truncation (overall sign must hold -8% -> chart-stop-only).",
+    "c29": "gates do NOT transfer across strike tiers; OTM-2 is the binding Safe-2 decision.",
+    "spy_vs_option": "real OPRA fills; SPY-direction != option edge (C3/L58)."
+  }
+}

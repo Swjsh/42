@@ -1,0 +1,15 @@
+{"date": "2025-12-17", "price": 675.01, "source": "round", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.08, "false_break": false}
+{"date": "2025-12-17", "price": 676.8612151365749, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.109, "false_break": false}
+{"date": "2025-12-17", "price": 677.1343205741038, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.836, "false_break": false}
+{"date": "2025-12-17", "price": 677.4409108290911, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.529, "false_break": false}
+{"date": "2025-12-17", "price": 677.8, "source": "swept", "touched": true, "outcome": "RESPECT", "reaction_dollars": 1.855, "false_break": false}
+{"date": "2025-12-17", "price": 677.95, "source": "swept", "touched": true, "outcome": "RESPECT", "reaction_dollars": 1.705, "false_break": false}
+{"date": "2025-12-17", "price": 679.94, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.445, "false_break": false}
+{"date": "2025-12-17", "price": 680.0, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.385, "false_break": false}
+{"date": "2025-12-17", "price": 681.0, "source": "swept", "touched": true, "outcome": "RESPECT", "reaction_dollars": 3.35, "false_break": false}
+{"date": "2025-12-17", "price": 681.1, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-12-17", "price": 681.97, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-12-17", "price": 682.06, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-12-17", "price": 683.01, "source": "round", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-12-17", "price": 685.08, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-12-17", "price": 689.35, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}

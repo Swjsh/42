@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=validator lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=11.166s | action=Validate edge=1692 on OTM-2:LR0:mt1:stop -->
+<!-- reason:  -->
+
+I’m unable to verify the edge value of 1692 for the strategy **OTM‑2:LR0:mt1:stop‑8:tp+150%:sell80%:fixed** without seeing the underlying “7 J source‑of‑truth trades” that the edge is supposed to be calculated from. Could you please provide those seven trade records (or the summary statistics needed to compute the edge)? Once I have that data, I can check whether the reported edge of 1692 matches the result derived from the trades.

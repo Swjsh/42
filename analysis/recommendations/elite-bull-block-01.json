@@ -1,0 +1,30 @@
+{
+  "rule_id": "BLOCK_ELITE_BULL",
+  "hypothesis": "ELITE confluence+level_reclaim (BULL) IS n=110, WR=14.5%, avg=-$37, pnl=-$4,112. Only confluence+level_rejection (BEAR) IS n=15, WR=60%, avg=+$467 is profitable. Gate: block ELITE entries with level_reclaim in triggers.",
+  "status": "SUPERSEDED",
+  "hold_reason": "OOS NEGATIVE: delta=-$722, 5 blocked OOS ELITE bull entries averaged +$144 each. May 2026 OOS window was POST-TARIFF-SHOCK RECOVERY — strongly bullish. BULL entries in OOS had high EV. WF=-4.943 FAIL.",
+  "superseded_by": "analysis/recommendations/elite-bull-block-vix-01.json (RATIFIED 2026-06-17 — VIX-range gated version: block ONLY when 15 <= VIX < 17.5)",
+  "is_delta": 2765,
+  "oos_delta": -722,
+  "wf_norm": -4.943,
+  "is_n_removed": 103,
+  "oos_n_blocked": 5,
+  "is_sub_windows": {
+    "W1_2025H1": "+1,075 HELP",
+    "W2_2025H2": "+486 HELP",
+    "W3_Q12026": "+561 HELP",
+    "W4_Apr26": "+643 HELP"
+  },
+  "is_elite_after_gate": {
+    "n": 15,
+    "pnl": 7003,
+    "wr": "60.0%",
+    "avg": 467
+  },
+  "regime_analysis": "IS period (Jan 2025 - May 2026): mixed/bearish VIX regimes, BULL ELITE entries average -$37. OOS (May 8-22 2026): post-tariff-shock recovery rally, BULL ELITE entries average +$144. The IS finding is real but regime-specific. Normal mkt conditions should resemble IS distribution.",
+  "cascade_effect": "0/4 IS sub-windows hurt (all HELP). Freeing ELITE slot enables subsequent BEAR ELITE entries that outperform the blocked BULL ones. Net IS benefit is real and robust across sub-windows.",
+  "alternative_research": "VIX-conditioned version: block ELITE bull ONLY when VIX 15-17 (the worst IS bucket: n=73, WR=9.6%, avg=-$100). In OOS May 2026 (VIX 17+), this gate would NOT fire → OOS delta = $0. WF formula would fail (0/positive = 0) but OOS preserved. Need separate validation approach for VIX-gated version.",
+  "engine_param": "block_elite_bull",
+  "scorecard_script": "backtest/autoresearch/elite_bull_block_ab.py",
+  "created_at": "2026-06-17"
+}

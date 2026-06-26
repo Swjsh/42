@@ -1,0 +1,35 @@
+{
+  "agent": "correlation_analyst",
+  "generated_at": "2026-06-26T10:17:56Z",
+  "bias": "bearish",
+  "confidence": 0.45,
+  "reasoning": "SPY -0.15% (down). XLK -1.0% (confirming, tech leading lower by 0.85%). XLF +0.06% (diverging — financial strength against SPY weakness). XLE 0.0% (neutral/lagging). 1/3 sectors confirm bearish direction. VIX 19.17 falling (normal inverse relationship with SPY down = risk-off confirmed). Mixed rotation signal and single-sector confirmation limits confidence.",
+  "spy_change_pct": -0.15,
+  "sector_alignment": {
+    "XLK": {
+      "change_pct": -1.0,
+      "vs_spy": "confirming"
+    },
+    "XLF": {
+      "change_pct": 0.06,
+      "vs_spy": "diverging"
+    },
+    "XLE": {
+      "change_pct": 0.0,
+      "vs_spy": "neutral"
+    }
+  },
+  "confirming_count": 1,
+  "diverging_count": 1,
+  "sector_leadership": "tech_led",
+  "relative_strength_signal": "MIXED",
+  "vix_spy_relationship": "normal_inverse",
+  "rotation_signal": "mixed",
+  "key_observations": [
+    "1/3 sectors (XLK) confirming SPY bearish move, XLF diverging with slight gain",
+    "Tech sector (XLK) leading lower — typical risk-off behavior",
+    "VIX falling with SPY down = normal inverse relationship, confirms risk-off",
+    "Mixed rotation signal and only 1 confirming sector reduces confidence"
+  ],
+  "data_quality": "full"
+}

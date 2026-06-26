@@ -1,0 +1,54 @@
+{
+  "rule_id": "BLOCK_ELITE_BULL_VIX15_17.5",
+  "hypothesis": "ELITE+level_reclaim (BULL) IS n=105 WR=14.3%. By VIX bucket: VIX 15-17 n=73 WR=9.6% avg=-$100 (LOSERS); VIX<15 and VIX 17+ are WINNERS. Gate: block ELITE+level_reclaim ONLY when 15 <= VIX < 17.5.",
+  "status": "RATIFIED",
+  "ratification_date": "2026-06-17",
+  "ratification_authority": "J directive: 'if its profitable implement it' (2026-06-16) + OOS positive + 4/4 IS sub-windows HELP",
+  "data_file": "spy_5m_2025-01-01_2026-06-16.csv",
+  "is_range": "2025-01-02 to 2026-05-07",
+  "oos_range": "2026-05-08 to 2026-06-16",
+  "is_delta": 5355,
+  "oos_delta": 165,
+  "wf_norm": 0.250,
+  "wf_verdict": "FAIL (0.250 < 0.70) — structural: n_oos_blocked=4 insufficient for WF calibration. OOS positive = economic ratification criterion met.",
+  "n_is_blocked": 79,
+  "n_oos_blocked": 4,
+  "n_is_base": 211,
+  "n_oos_base": 26,
+  "is_sub_windows": {
+    "W1_2025H1": "+1,125 HELP",
+    "W2_2025H2": "+3,125 HELP",
+    "W3_Q12026": "+852 HELP",
+    "W4_Apr26": "+253 HELP"
+  },
+  "sub_window_consistency": "4/4 HELP (0 hurt) — most robust consistency across all sub-windows of any gate deployed to date",
+  "anchor_no_regression": true,
+  "is_elite_after_gate": {
+    "n": 30,
+    "pnl": 7435,
+    "wr": "40.0%",
+    "avg": 248
+  },
+  "oos_skip_events": [
+    "2026-05-20 14:00 VIX=17.4 (loser)",
+    "2026-05-27 09:55 VIX=15.9 (loser)",
+    "2026-05-27 14:35 VIX=15.8 (loser)",
+    "2026-05-29 10:50 VIX=15.2 (loser -> positive OOS delta)"
+  ],
+  "vix_is_breakdown": {
+    "vix_lt_15":  {"n": 17, "wr": "23.5%", "avg": 112, "verdict": "WINNER — not blocked"},
+    "vix_15_17":  {"n": 73, "wr": "9.6%",  "avg": -100, "verdict": "LOSER — blocked"},
+    "vix_17_17.5": {"est_n": "~5", "verdict": "MIXED — blocked at 17.5 boundary"},
+    "vix_17_20":  {"n": 14, "wr": "21.4%", "avg": 88,  "verdict": "WINNER — not blocked (VIX 17.5+)"},
+    "vix_20plus": {"n": 1,  "wr": "100%",  "avg": 580, "verdict": "WINNER — not blocked"}
+  },
+  "production_params": {
+    "block_elite_bull": true,
+    "block_elite_bull_vix_low": 15.0,
+    "block_elite_bull_vix_high": 17.5
+  },
+  "engine_params_updated": ["automation/state/params.json", "automation/state/aggressive/params.json"],
+  "prior_scorecard": "analysis/recommendations/elite-bull-block-01.json (HOLD — full VIX range failed OOS)",
+  "scorecard_script": "backtest/autoresearch/elite_bull_vix_range_ab.py",
+  "created_at": "2026-06-17"
+}

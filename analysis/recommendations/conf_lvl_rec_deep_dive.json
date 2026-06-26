@@ -1,0 +1,135 @@
+{
+  "task": "conf-lvl-rec-deep-dive",
+  "task_id": "6d8e358a",
+  "description": "Decompose conf+lvl_rec trades by time/VIX/level-type",
+  "is_total": {
+    "n": 28,
+    "wr": 0.214,
+    "avg": 230,
+    "total": 6452
+  },
+  "oos_total": {
+    "n": 7,
+    "wr": 0.143,
+    "avg": 151,
+    "total": 1058
+  },
+  "is_by_time": {
+    "09:35-10:00": {
+      "n": 6,
+      "wr": 0.167,
+      "avg": 191,
+      "total": 1146
+    },
+    "10:00-12:00": {
+      "n": 17,
+      "wr": 0.294,
+      "avg": 345,
+      "total": 5860
+    },
+    "12:00-14:00": {
+      "n": 5,
+      "wr": 0.0,
+      "avg": -111,
+      "total": -554
+    }
+  },
+  "oos_by_time": {
+    "10:00-12:00": {
+      "n": 4,
+      "wr": 0.0,
+      "avg": -137,
+      "total": -547
+    },
+    "12:00-14:00": {
+      "n": 2,
+      "wr": 0.5,
+      "avg": 858,
+      "total": 1715
+    },
+    "14:00-15:00": {
+      "n": 1,
+      "wr": 0.0,
+      "avg": -110,
+      "total": -110
+    }
+  },
+  "is_by_vix": {
+    "<15": {
+      "n": 15,
+      "wr": 0.133,
+      "avg": 80,
+      "total": 1202
+    },
+    "15-18": {
+      "n": 11,
+      "wr": 0.182,
+      "avg": 337,
+      "total": 3711
+    },
+    "18-22": {
+      "n": 2,
+      "wr": 1.0,
+      "avg": 769,
+      "total": 1539
+    }
+  },
+  "oos_by_vix": {
+    "15-18": {
+      "n": 5,
+      "wr": 0.2,
+      "avg": 264,
+      "total": 1320
+    },
+    "18-22": {
+      "n": 1,
+      "wr": 0.0,
+      "avg": -189,
+      "total": -189
+    },
+    "22+": {
+      "n": 1,
+      "wr": 0.0,
+      "avg": -72,
+      "total": -72
+    }
+  },
+  "is_by_type": {
+    "level_reclaim": {
+      "n": 26,
+      "wr": 0.154,
+      "avg": 189,
+      "total": 4914
+    },
+    "level_rejection": {
+      "n": 2,
+      "wr": 1.0,
+      "avg": 769,
+      "total": 1539
+    }
+  },
+  "oos_by_type": {
+    "level_reclaim": {
+      "n": 5,
+      "wr": 0.2,
+      "avg": 264,
+      "total": 1320
+    },
+    "level_rejection": {
+      "n": 2,
+      "wr": 0.0,
+      "avg": -131,
+      "total": -261
+    }
+  },
+  "key_findings": [
+    "IS 10:00-12:00 best bucket (WR=29%, avg +$345) but OOS 10:00-12:00 ALL LOSERS (WR=0%)",
+    "IS-OOS time reversal -- morning conf+lvl_rec IS winner, OOS loser, possible IS overfit",
+    "level_reclaim C = 93% of all conf+lvl_rec trades (n=26), WR only 15.4% IS",
+    "IS VIX<15 weakest bucket (WR=13.3%) -- low VIX conf+lvl_rec chops",
+    "NO actionable block passes G1 -- IS delta always negative if blocked",
+    "block_conf_lvl_rec_afternoon already in params (14:00+ blocked)"
+  ],
+  "verdict": "INFO",
+  "potential_future_test": "conf+lvl_rec 10:00-12:00 C block: IS -$5,860 (fails G1). Need OOS to continue losing to build evidence for eventual block."
+}

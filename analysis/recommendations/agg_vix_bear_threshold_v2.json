@@ -1,0 +1,112 @@
+{
+  "task": "agg-vix-bear-threshold-v2",
+  "rule_id": "agg_vix_bear_threshold",
+  "description": "AGG vix_bear_threshold sweep from 17.3 baseline, testing [17.3, 17.5, 18.0, 18.5]",
+  "baseline_value": 17.3,
+  "sweep_results": [
+    {
+      "vbt": 17.3,
+      "is": {
+        "n": 116,
+        "wr": 0.181,
+        "avg": 12.2,
+        "total": 1415.2
+      },
+      "oos": {
+        "n": 22,
+        "wr": 0.136,
+        "avg": -20.3,
+        "total": -446.4
+      },
+      "verdict": "BASELINE"
+    },
+    {
+      "vbt": 17.5,
+      "is": {
+        "n": 116,
+        "wr": 0.181,
+        "avg": 12.2,
+        "total": 1415.2
+      },
+      "oos": {
+        "n": 22,
+        "wr": 0.136,
+        "avg": -20.3,
+        "total": -446.4
+      },
+      "is_delta": 0.0,
+      "oos_delta": 0.0,
+      "wf_norm": null,
+      "sw_hurt": 1,
+      "anchor_ok": true,
+      "gates": {
+        "G1": true,
+        "G2": false,
+        "G3": false,
+        "G4": true,
+        "G5": true,
+        "all": false
+      }
+    },
+    {
+      "vbt": 18.0,
+      "is": {
+        "n": 114,
+        "wr": 0.184,
+        "avg": 12.7,
+        "total": 1443.9
+      },
+      "oos": {
+        "n": 22,
+        "wr": 0.136,
+        "avg": -20.3,
+        "total": -446.4
+      },
+      "is_delta": 28.7,
+      "oos_delta": 0.0,
+      "wf_norm": 0.0,
+      "sw_hurt": 1,
+      "anchor_ok": true,
+      "gates": {
+        "G1": true,
+        "G2": false,
+        "G3": false,
+        "G4": true,
+        "G5": true,
+        "all": false
+      }
+    },
+    {
+      "vbt": 18.5,
+      "is": {
+        "n": 114,
+        "wr": 0.184,
+        "avg": 12.7,
+        "total": 1443.9
+      },
+      "oos": {
+        "n": 22,
+        "wr": 0.136,
+        "avg": -20.3,
+        "total": -446.4
+      },
+      "is_delta": 28.7,
+      "oos_delta": 0.0,
+      "wf_norm": 0.0,
+      "sw_hurt": 1,
+      "anchor_ok": true,
+      "gates": {
+        "G1": true,
+        "G2": false,
+        "G3": false,
+        "G4": true,
+        "G5": true,
+        "all": false
+      }
+    }
+  ],
+  "best": null,
+  "auto_ratify": false,
+  "ratify_value": null,
+  "verdict": "REJECT"
+}

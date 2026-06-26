@@ -61,10 +61,13 @@ try {
         [void]$problems.Add("params.json missing or invalid JSON")
     } else {
         if (-not $params.rule_version) { [void]$problems.Add("params.json has no rule_version") }
-        # exits must be v15 (reconciled 2026-06-14): tp1 0.5, runner 2.5, bear -0.20
-        if ($params.tp1_qty_fraction -ne 0.5) { [void]$problems.Add("params.tp1_qty_fraction=$($params.tp1_qty_fraction) (expected 0.5)") }
+        # exits pinned to CURRENT ratified v15.3 doctrine (synced 2026-06-21 -- the prior
+        # 2026-06-14 pins tp1=0.5/bear=-0.20 were stale: Rank-31 set tp1_qty_fraction=0.667
+        # (2026-06-16) and chart-stop-primary set premium_stop_pct_bear=-0.50 (2026-06-18),
+        # both ratified with scorecards. params.json is canonical -- bump these on next ratify.
+        if ($params.tp1_qty_fraction -ne 0.667) { [void]$problems.Add("params.tp1_qty_fraction=$($params.tp1_qty_fraction) (expected 0.667)") }
         if ($params.runner_max_premium_pct -ne 2.5) { [void]$problems.Add("params.runner_max_premium_pct=$($params.runner_max_premium_pct) (expected 2.5)") }
-        if ($params.premium_stop_pct_bear -ne -0.2) { [void]$problems.Add("params.premium_stop_pct_bear missing/!=-0.2") }
+        if ($params.premium_stop_pct_bear -ne -0.5) { [void]$problems.Add("params.premium_stop_pct_bear=$($params.premium_stop_pct_bear) (expected -0.5)") }
     }
     $safe = Read-Json (Join-Path $state "params_safe.json")
     $bold = Read-Json (Join-Path $state "aggressive\params.json")

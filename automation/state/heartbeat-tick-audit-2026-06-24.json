@@ -1,0 +1,61 @@
+{
+  "date": "2026-06-24",
+  "total_ticks": 112,
+  "live_trading_ticks": 78,
+  "counts": {
+    "ALIGNED": 12,
+    "MISALIGNED-BENIGN": 62,
+    "MISALIGNED-CRITICAL": 4,
+    "STALE_PAUSED": 0,
+    "NO_DATA": 34,
+    "NO_BAR": 0
+  },
+  "misaligned_critical_count": 4,
+  "misaligned_critical_pct_of_live": 5.13,
+  "headline": "4 of 78 live-trading ticks (5%) were MISALIGNED-CRITICAL on 2026-06-24",
+  "critical_ticks": [
+    {
+      "tick_id": 76,
+      "fire_at": "2026-06-24T13:18:02",
+      "decision": "ENTER_BEAR",
+      "claimed_spy": 733.81,
+      "closed_close": 734.7899780273438,
+      "divergence": -0.98,
+      "reason": "spy=733.81 ribbon=115c(BEAR) vix=18.79(rising) bear=10/10 bull=N/A htf=null | ribbon_flip to BEAR stack fresh, v15 OTM-3 qty=3"
+    },
+    {
+      "tick_id": 77,
+      "fire_at": "2026-06-24T13:21:02",
+      "decision": "HOLD",
+      "claimed_spy": 736.48,
+      "closed_close": 733.8200073242188,
+      "divergence": 2.66,
+      "reason": "spy=736.48 ribbon=36c(MIXED) vix=18.79(rising) bear=4/10 bull=7/11 htf=null | ribbon MIXED, VIX@18.79 caps BULL(18.0)"
+    },
+    {
+      "tick_id": 80,
+      "fire_at": "2026-06-24T13:30:01",
+      "decision": "HOLD_DEV",
+      "claimed_spy": 736.48,
+      "closed_close": 732.1599731445312,
+      "divergence": 4.32,
+      "reason": "spy=736.48 ribbon=36c(MIXED) vix=18.79(rising) bear=4/10 bull=7/11 htf=null | ribbon MIXED blocks both; VIX 18.79 > bull hard cap 18.0"
+    },
+    {
+      "tick_id": 81,
+      "fire_at": "2026-06-24T13:33:02",
+      "decision": "HOLD_DEV",
+      "claimed_spy": 736.48,
+      "closed_close": 732.1599731445312,
+      "divergence": 4.32,
+      "reason": "spy=736.48 ribbon=36c(MIXED) vix=18.79(rising) bear=4/10 bull=7/11 htf=null | bear F5 blocked (ribbon MIXED), bull F8 blocked (VIX 18.79 >= cap 18.0)"
+    }
+  ],
+  "log_path": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\logs\\heartbeat-2026-06-24.log",
+  "csv_path": "C:\\Users\\jackw\\Desktop\\42\\backtest\\data\\spy_5m_2026-05-19_2026-06-24.csv",
+  "audit_files": {
+    "per_tick_csv": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-06-24.csv",
+    "summary_json": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-06-24.json",
+    "human_md": "C:\\Users\\jackw\\Desktop\\42\\markdown\\audits\\HEARTBEAT-TICK-AUDIT-2026-06-24.md"
+  }
+}

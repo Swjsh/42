@@ -1,0 +1,155 @@
+{
+  "slug": "vwap-continuation",
+  "thesis": "SELECTION/CONFLUENCE is the edge -- a SELECTIVE detector (vwap_continuation, the sole survivor of ~32 mechanical-daily-signal strategies) converts the 0DTE coin-flip into a per-trade option edge. Tested honestly; may also fail.",
+  "run_date": "2026-06-20",
+  "window": "2025-01-01..2026-05-15",
+  "trading_days": 342,
+  "detector": "VALIDATED _edgehunt_vwap_continuation.detect_signals (byte-for-byte the live vwap_continuation_watcher port): first 3 RTH closes same-side of as-of VWAP = day side; first in-trend continuation (breakout or shallow VWAP-ward dip) = entry; one causal entry/day, next-bar-open fill, no look-ahead",
+  "structure": {
+    "strike_offset": -2,
+    "strike_tier": "ITM-2",
+    "premium_stop_pct": -0.08,
+    "qty": 3,
+    "exits": "v15"
+  },
+  "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1)",
+  "oos_split": "IS=2025 / OOS=2026 (calendar-year)",
+  "signals": {
+    "n": 158,
+    "on_days": 158,
+    "fire_day_pct": 46.2,
+    "side": {
+      "C": 86,
+      "P": 72
+    }
+  },
+  "coverage": {
+    "signals": 158,
+    "filled": 149,
+    "cache_miss": 9,
+    "sim_none": 0,
+    "fill_rate": 0.943
+  },
+  "metrics": {
+    "n": 149,
+    "overall_per_trade": 68.78,
+    "is_n": 107,
+    "is_per_trade": 58.55,
+    "oos_n": 42,
+    "oos_per_trade": 94.84,
+    "drop_top5_per_trade": 54.44,
+    "top5_day_pct": 23.5,
+    "positive_quarters": "6/6",
+    "quarters": {
+      "2025Q1": {
+        "n": 25,
+        "per_trade": 59.29,
+        "total": 1482.32
+      },
+      "2025Q2": {
+        "n": 23,
+        "per_trade": 47.94,
+        "total": 1102.72
+      },
+      "2025Q3": {
+        "n": 26,
+        "per_trade": 20.4,
+        "total": 530.48
+      },
+      "2025Q4": {
+        "n": 33,
+        "per_trade": 95.43,
+        "total": 3149.04
+      },
+      "2026Q1": {
+        "n": 26,
+        "per_trade": 142.16,
+        "total": 3696.04
+      },
+      "2026Q2": {
+        "n": 16,
+        "per_trade": 17.94,
+        "total": 287.04
+      }
+    },
+    "wr_pct": 48.3,
+    "exit_hist": {
+      "EXIT_ALL_LEVEL_STOP": 2,
+      "EXIT_ALL_PREMIUM_STOP": 77,
+      "EXIT_ALL_TIME_STOP": 2,
+      "TP1_THEN_RUNNER_RIBBON": 46,
+      "TP1_THEN_RUNNER_TIME": 22
+    }
+  },
+  "fraud_gates": {
+    "passes": true,
+    "no_truncation_pass": true,
+    "null_pass": true,
+    "is_truncation_artifact": false,
+    "chosen_per_trade": 64.45,
+    "chart_stop_only_per_trade": 97.93,
+    "chosen_premium_stop_pct": -0.08,
+    "n_chosen": 128,
+    "n_chart_stop_only": 128,
+    "null": {
+      "seeds": 20,
+      "n_eligible": 25544,
+      "n_drawn": 128,
+      "per_trade_mean": -7.61,
+      "per_trade_min": -25.09,
+      "per_trade_max": 17.21,
+      "per_trade_by_seed": [
+        3.07,
+        -20.24,
+        -10.34,
+        -7.32,
+        -25.09,
+        -7.12,
+        -12.42,
+        -20.7,
+        -5.78,
+        17.21,
+        -3.42,
+        -6.33,
+        12.55,
+        -2.43,
+        -7.11,
+        -4.64,
+        -23.51,
+        -20.57,
+        -8.61,
+        0.55
+      ]
+    },
+    "null_gate": {
+      "beats_null_mean": true,
+      "beats_null_max": true,
+      "drop_top5_beats_null_mean": true,
+      "edge_over_null_per_trade": 72.06,
+      "null_pass": true
+    },
+    "reason": "no-truncation PASS: chart-stop-only (-0.99)/tr=$97.93281250000003 holds vs chosen $64.45125000000003/tr | random-null PASS: $64.45125000000003/tr beats null max $17.21 AND drop-top5 $48.37691056910572 beats null mean $-7.61",
+    "error": null
+  },
+  "gates": {
+    "GATE_OOS_pt_gt0": true,
+    "GATE_IS_pt_gt0": true,
+    "GATE_pos_quarters_ge4of6": true,
+    "GATE_top5_day_lt200": true,
+    "GATE_drop_top5_pt_gt0": true,
+    "GATE_n_ge20": true,
+    "GATE_beats_random_null": true,
+    "GATE_no_truncation": true
+  },
+  "fails": [],
+  "selection_edge": true,
+  "verdict": "SELECTION_EDGE: all mandatory gates hold (incl. both graduated fraud gates) -> selection/confluence converts the coin-flip into a real per-trade option edge",
+  "DISCLOSURE": {
+    "per_trade": "expectancy reported, not WR alone (OP-14)",
+    "is_oos": "IS=2025 AND OOS=2026 BOTH required positive (rejects single-regime artifacts)",
+    "concentration": "top5_day_pct + drop-top-5-days per-trade (OP-20 #5)",
+    "spy_vs_option": "real OPRA fills; SPY-direction != option edge (C3/L58)",
+    "fraud_gates": "random-entry-null (L172) AND no-truncation (L171) -- the two discriminators that caught RSI2/IBS/ema_adx after the naive 5-gate bar",
+    "no_cherry_pick": "single fixed structure (ITM-2/-8%/v15); no grid survivor-pick (2.10)"
+  }
+}

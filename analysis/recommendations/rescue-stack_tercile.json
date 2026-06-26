@@ -1,0 +1,895 @@
+{
+  "hypothesis": "stack_tercile: COMPOUND struct_vwap_reclaim_failed_break (EDGE A, the SHAPE) with skip_top_tercile VIX abstention (EDGE B, the SUBTRACTION) \u2014 apply EDGE B's causal expanding-window top-VIX-tercile skip to EDGE A's one-entry/day struct stream. Does stacking raise OOS/tr above +$72 AND cut the -$574 maxDD, clearing all 8 gates at a $2K-tradeable strike (OTM-2), not just ITM-2?",
+  "kind": "compound_two_confirmed_edges",
+  "run_date": "2026-06-21",
+  "window": "2025-01-02..2026-05-15",
+  "trading_days": 342,
+  "opra_fill_cutoff": "2026-05-29 (signals after drop as cache_miss; OOS fills = Jan..May 2026)",
+  "edge_A": "struct_vwap_reclaim_failed_break \u2014 detector imported BYTE-FOR-BYTE from _sub_struct_vwap_reclaim_failed_break.detect_signals (one causal with-trend entry/day after a failed counter-trend VWAP break that reclaims; chart stop = failed-break excursion extreme). Standalone: 8/8 @ ITM-2 (OOS +$72/tr), FAILS @ OTM-2.",
+  "edge_B": "skip_top_tercile \u2014 abstention schedule imported BYTE-FOR-BYTE from _sel_regime_conditional_vwap_sizing.sched_skip_top_tercile_only (causal expanding-window top-VIX-tercile skip; warmup=8 entries). Pure SUBTRACTION (no size-up leg -> base qty everywhere it does not skip -> stays inside the $2K 30% cap).",
+  "compound_method": "apply EDGE B's causal top-tercile abstention OVERLAY to EDGE A's signal stream, ordered by entry bar; prior_vix grows with EACH visited signal (kept or skipped) AFTER the decision (mirrors campaign apply_schedule \u2014 no look-ahead L14/L34/L57). Kept-trade fills are bit-identical to the standalone stream (the skip is a pure post-filter; a per-trade fill does not depend on which OTHER trades fired).",
+  "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1)",
+  "oos_split": "IS=2025 / OOS=2026 (calendar-year)",
+  "config": {
+    "premium_stop_pct": -0.08,
+    "qty": 3,
+    "base_qty": 3,
+    "warmup_trades": 8,
+    "exits": "v15 default (tp1=0.30, runner=2.5x, profit_lock=OFF)",
+    "primary_strike_offset": -2,
+    "secondary_strike_offset": 2
+  },
+  "n_signals": 81,
+  "signal_fire_day_pct": 23.7,
+  "signal_side_count": {
+    "C": 48,
+    "P": 33
+  },
+  "baseline_for_compound_question": {
+    "standalone_published_oos_per_trade": 72.11,
+    "standalone_published_maxdd_context": -574.0,
+    "note": "standalone maxDD is ALSO recomputed per tier in vs_standalone.standalone_maxdd_dollars on the identical daily-curve method so the comparison is internally consistent (the published -$574 is the hunt-context figure)."
+  },
+  "eight_gates": {
+    "G1": "OOS(2026) per-trade > 0",
+    "G2": "positive_quarters >= 4/6",
+    "G3": "top5_day_pct < 200",
+    "G4": "n_trades >= 20",
+    "G5": "drop-top5-day per-trade > 0",
+    "G6": "IS(2025) first-half per-trade > 0",
+    "G7": "beats random-entry null (coin-flip null_pass AND same-day mean+std, ~20 seeds)",
+    "G8": "no-truncation: sign holds -8% -> chart-stop-only (-0.99)"
+  },
+  "tiers": {
+    "ITM2_primary": {
+      "tier": "ITM2_primary",
+      "strike_offset": -2,
+      "strike_tier_name": "ITM2",
+      "coverage": {
+        "signals": 81,
+        "filled": 76,
+        "cache_miss": 5,
+        "sim_none": 0,
+        "fill_rate": 0.938
+      },
+      "standalone_metrics": {
+        "n": 76,
+        "wr_pct": 53.9,
+        "exp_dollar": 93.67,
+        "total_dollar": 7118.76,
+        "is_n": 58,
+        "is_exp": 100.36,
+        "is_total": 5820.8,
+        "is_first_half_n": 29,
+        "is_first_half_exp": 101.42,
+        "oos_n": 18,
+        "oos_exp": 72.11,
+        "oos_total": 1297.96,
+        "quarters": {
+          "2025Q1": {
+            "n": 15,
+            "exp": 132.93,
+            "total": 1993.88
+          },
+          "2025Q2": {
+            "n": 13,
+            "exp": 77.69,
+            "total": 1009.92
+          },
+          "2025Q3": {
+            "n": 11,
+            "exp": 27.92,
+            "total": 307.08
+          },
+          "2025Q4": {
+            "n": 19,
+            "exp": 132.1,
+            "total": 2509.92
+          },
+          "2026Q1": {
+            "n": 12,
+            "exp": 142.28,
+            "total": 1707.4
+          },
+          "2026Q2": {
+            "n": 6,
+            "exp": -68.24,
+            "total": -409.44
+          }
+        },
+        "positive_quarters": "5/6",
+        "positive_quarters_n": 5,
+        "n_quarters": 6,
+        "top5_day_pct": 33.6,
+        "drop_top5_day_per_trade": 66.61,
+        "max_drawdown_dollars": -573.84,
+        "worst_single_trade_dollars": -223.68,
+        "by_side": {
+          "C": {
+            "n": 45,
+            "exp": 121.97,
+            "wr": 57.8,
+            "total": 5488.52
+          },
+          "P": {
+            "n": 31,
+            "exp": 52.59,
+            "wr": 48.4,
+            "total": 1630.24
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 1,
+          "EXIT_ALL_PREMIUM_STOP": 34,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 15,
+          "EXIT_ALL_TIME_STOP": 1,
+          "TP1_THEN_RUNNER_RIBBON": 16,
+          "TP1_THEN_RUNNER_TIME": 9
+        }
+      },
+      "metrics": {
+        "n": 54,
+        "wr_pct": 50.0,
+        "exp_dollar": 83.86,
+        "total_dollar": 4528.44,
+        "is_n": 44,
+        "is_exp": 86.18,
+        "is_total": 3791.72,
+        "is_first_half_n": 22,
+        "is_first_half_exp": 72.35,
+        "oos_n": 10,
+        "oos_exp": 73.67,
+        "oos_total": 736.72,
+        "quarters": {
+          "2025Q1": {
+            "n": 11,
+            "exp": 115.7,
+            "total": 1272.68
+          },
+          "2025Q2": {
+            "n": 7,
+            "exp": 28.8,
+            "total": 201.6
+          },
+          "2025Q3": {
+            "n": 11,
+            "exp": 27.92,
+            "total": 307.08
+          },
+          "2025Q4": {
+            "n": 15,
+            "exp": 134.02,
+            "total": 2010.36
+          },
+          "2026Q1": {
+            "n": 5,
+            "exp": 214.98,
+            "total": 1074.88
+          },
+          "2026Q2": {
+            "n": 5,
+            "exp": -67.63,
+            "total": -338.16
+          }
+        },
+        "positive_quarters": "5/6",
+        "positive_quarters_n": 5,
+        "n_quarters": 6,
+        "top5_day_pct": 50.2,
+        "drop_top5_day_per_trade": 46.0,
+        "max_drawdown_dollars": -446.64,
+        "worst_single_trade_dollars": -83.28,
+        "by_side": {
+          "C": {
+            "n": 34,
+            "exp": 102.49,
+            "wr": 52.9,
+            "total": 3484.52
+          },
+          "P": {
+            "n": 20,
+            "exp": 52.2,
+            "wr": 45.0,
+            "total": 1043.92
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_PREMIUM_STOP": 27,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 10,
+          "EXIT_ALL_TIME_STOP": 1,
+          "TP1_THEN_RUNNER_RIBBON": 9,
+          "TP1_THEN_RUNNER_TIME": 7
+        }
+      },
+      "abstained_audit": [
+        {
+          "date": "2025-03-05",
+          "side": "C",
+          "vix": 21.8,
+          "top_tercile_boundary": 16.91,
+          "would_have_pnl": 147.0
+        },
+        {
+          "date": "2025-03-06",
+          "side": "P",
+          "vix": 25.63,
+          "top_tercile_boundary": 17.41,
+          "would_have_pnl": 120.0
+        },
+        {
+          "date": "2025-03-14",
+          "side": "C",
+          "vix": 21.88,
+          "top_tercile_boundary": 18.02,
+          "would_have_pnl": 532.2
+        },
+        {
+          "date": "2025-03-17",
+          "side": "C",
+          "vix": 20.46,
+          "top_tercile_boundary": 18.05,
+          "would_have_pnl": -78.0
+        },
+        {
+          "date": "2025-04-07",
+          "side": "P",
+          "vix": 47.74,
+          "top_tercile_boundary": 18.35,
+          "would_have_pnl": -223.68
+        },
+        {
+          "date": "2025-04-10",
+          "side": "P",
+          "vix": 44.3,
+          "top_tercile_boundary": 18.92,
+          "would_have_pnl": 325.2
+        },
+        {
+          "date": "2025-04-14",
+          "side": "P",
+          "vix": 30.94,
+          "top_tercile_boundary": 19.95,
+          "would_have_pnl": -3.0
+        },
+        {
+          "date": "2025-04-23",
+          "side": "C",
+          "vix": 28.59,
+          "top_tercile_boundary": 20.91,
+          "would_have_pnl": 282.0
+        },
+        {
+          "date": "2025-04-29",
+          "side": "C",
+          "vix": 24.07,
+          "top_tercile_boundary": 21.8,
+          "would_have_pnl": 181.8
+        },
+        {
+          "date": "2025-05-06",
+          "side": "C",
+          "vix": 24.38,
+          "top_tercile_boundary": 21.85,
+          "would_have_pnl": 246.0
+        },
+        {
+          "date": "2025-11-07",
+          "side": "P",
+          "vix": 19.25,
+          "top_tercile_boundary": 18.07,
+          "would_have_pnl": 118.8
+        },
+        {
+          "date": "2025-11-13",
+          "side": "P",
+          "vix": 20.54,
+          "top_tercile_boundary": 18.22,
+          "would_have_pnl": 43.2
+        },
+        {
+          "date": "2025-11-17",
+          "side": "C",
+          "vix": 22.5,
+          "top_tercile_boundary": 18.53,
+          "would_have_pnl": 453.0
+        },
+        {
+          "date": "2025-11-21",
+          "side": "P",
+          "vix": 23.27,
+          "top_tercile_boundary": 18.79,
+          "would_have_pnl": -115.44
+        },
+        {
+          "date": "2026-01-20",
+          "side": "C",
+          "vix": 20.46,
+          "top_tercile_boundary": 17.95,
+          "would_have_pnl": 93.0
+        },
+        {
+          "date": "2026-02-03",
+          "side": "P",
+          "vix": 19.08,
+          "top_tercile_boundary": 18.02,
+          "would_have_pnl": -14.88
+        },
+        {
+          "date": "2026-02-13",
+          "side": "P",
+          "vix": 20.25,
+          "top_tercile_boundary": 18.02,
+          "would_have_pnl": 203.4
+        },
+        {
+          "date": "2026-02-20",
+          "side": "C",
+          "vix": 19.21,
+          "top_tercile_boundary": 18.05,
+          "would_have_pnl": 311.4
+        },
+        {
+          "date": "2026-03-06",
+          "side": "P",
+          "vix": 29.66,
+          "top_tercile_boundary": 18.07,
+          "would_have_pnl": 204.0
+        },
+        {
+          "date": "2026-03-18",
+          "side": "C",
+          "vix": 23.25,
+          "top_tercile_boundary": 18.38,
+          "would_have_pnl": -79.92
+        },
+        {
+          "date": "2026-03-19",
+          "side": "C",
+          "vix": 24.83,
+          "top_tercile_boundary": 18.66,
+          "would_have_pnl": -84.48
+        },
+        {
+          "date": "2026-04-08",
+          "side": "P",
+          "vix": 21.25,
+          "top_tercile_boundary": 18.92,
+          "would_have_pnl": -71.28
+        }
+      ],
+      "vs_standalone": {
+        "standalone_oos_per_trade": 72.11,
+        "compound_oos_per_trade": 73.67,
+        "raises_oos_per_trade": true,
+        "beats_published_72": true,
+        "standalone_maxdd_dollars": -573.84,
+        "compound_maxdd_dollars": -446.64,
+        "cuts_maxdd": true,
+        "cuts_published_574_maxdd": true,
+        "delta_oos_per_trade": 1.56,
+        "delta_maxdd_dollars": 127.2,
+        "n_abstained": 22,
+        "n_standalone": 76,
+        "n_compound": 54
+      },
+      "gates": {
+        "G1_oos_per_trade_positive": {
+          "pass": true,
+          "value": 73.67,
+          "oos_n": 10
+        },
+        "G2_positive_quarters_ge_4": {
+          "pass": true,
+          "value": "5/6"
+        },
+        "G3_top5_day_pct_lt_200": {
+          "pass": true,
+          "value": 50.2
+        },
+        "G4_n_ge_20": {
+          "pass": true,
+          "value": 54
+        },
+        "G5_drop_top5_per_trade_positive": {
+          "pass": true,
+          "value": 46.0
+        },
+        "G6_is_first_half_positive": {
+          "pass": true,
+          "value": 72.35,
+          "is_first_half_n": 22
+        },
+        "G7_beats_random_null": {
+          "pass": false,
+          "coinflip_null": {
+            "seeds": 20,
+            "n_eligible": 25544,
+            "n_drawn": 54,
+            "per_trade_mean": -4.95,
+            "per_trade_min": -21.86,
+            "per_trade_max": 13.07,
+            "per_trade_by_seed": [
+              0.96,
+              -5.6,
+              2.67,
+              0.83,
+              -14.07,
+              7.45,
+              -15.04,
+              -17.33,
+              5.65,
+              -1.56,
+              -5.53,
+              -21.86,
+              -14.7,
+              6.11,
+              4.92,
+              13.07,
+              -12.63,
+              -14.53,
+              -5.5,
+              -12.25
+            ],
+            "beats_null_mean": true,
+            "beats_null_max": true,
+            "drop_top5_beats_null_mean": true,
+            "edge_over_null_per_trade": 88.81,
+            "null_pass": true
+          },
+          "sameday_null": {
+            "seeds": 20,
+            "null_exp_mean": 69.24,
+            "null_exp_min": 42.86,
+            "null_exp_max": 95.01,
+            "null_exp_std": 15.7,
+            "null_oos_exp_mean": 66.88,
+            "beats_sameday_mean_plus_std": false,
+            "oos_beats_sameday_mean": true
+          }
+        },
+        "G8_no_truncation": {
+          "pass": true,
+          "stop8_exp": 83.86,
+          "chartstop_exp": 95.34,
+          "stop8_oos_exp": 73.67,
+          "chartstop_oos_exp": 59.96,
+          "stop8_total": 4528.44,
+          "chartstop_total": 5148.6,
+          "is_truncation_artifact": false,
+          "sign_stable_full": true,
+          "sign_stable_oos": true
+        }
+      },
+      "clears_all_gates": false,
+      "n_gates_passed": 7,
+      "caveats": []
+    },
+    "OTM2_safe2": {
+      "tier": "OTM2_safe2",
+      "strike_offset": 2,
+      "strike_tier_name": "OTM2",
+      "coverage": {
+        "signals": 81,
+        "filled": 75,
+        "cache_miss": 6,
+        "sim_none": 0,
+        "fill_rate": 0.926
+      },
+      "standalone_metrics": {
+        "n": 75,
+        "wr_pct": 40.0,
+        "exp_dollar": 23.25,
+        "total_dollar": 1744.08,
+        "is_n": 57,
+        "is_exp": 28.85,
+        "is_total": 1644.6,
+        "is_first_half_n": 28,
+        "is_first_half_exp": 41.58,
+        "oos_n": 18,
+        "oos_exp": 5.53,
+        "oos_total": 99.48,
+        "quarters": {
+          "2025Q1": {
+            "n": 15,
+            "exp": 51.63,
+            "total": 774.48
+          },
+          "2025Q2": {
+            "n": 12,
+            "exp": 33.15,
+            "total": 397.8
+          },
+          "2025Q3": {
+            "n": 11,
+            "exp": 3.05,
+            "total": 33.6
+          },
+          "2025Q4": {
+            "n": 19,
+            "exp": 23.09,
+            "total": 438.72
+          },
+          "2026Q1": {
+            "n": 12,
+            "exp": 18.19,
+            "total": 218.28
+          },
+          "2026Q2": {
+            "n": 6,
+            "exp": -19.8,
+            "total": -118.8
+          }
+        },
+        "positive_quarters": "5/6",
+        "positive_quarters_n": 5,
+        "n_quarters": 6,
+        "top5_day_pct": 78.7,
+        "drop_top5_day_per_trade": 5.3,
+        "max_drawdown_dollars": -235.44,
+        "worst_single_trade_dollars": -211.68,
+        "by_side": {
+          "C": {
+            "n": 44,
+            "exp": 25.02,
+            "wr": 40.9,
+            "total": 1101.0
+          },
+          "P": {
+            "n": 31,
+            "exp": 20.74,
+            "wr": 38.7,
+            "total": 643.08
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 1,
+          "EXIT_ALL_PREMIUM_STOP": 44,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 10,
+          "TP1_THEN_RUNNER_RIBBON": 19,
+          "TP1_THEN_RUNNER_TIME": 1
+        }
+      },
+      "metrics": {
+        "n": 54,
+        "wr_pct": 31.5,
+        "exp_dollar": 7.92,
+        "total_dollar": 427.56,
+        "is_n": 44,
+        "is_exp": 11.22,
+        "is_total": 493.56,
+        "is_first_half_n": 22,
+        "is_first_half_exp": 21.24,
+        "oos_n": 10,
+        "oos_exp": -6.6,
+        "oos_total": -66.0,
+        "quarters": {
+          "2025Q1": {
+            "n": 11,
+            "exp": 27.95,
+            "total": 307.44
+          },
+          "2025Q2": {
+            "n": 7,
+            "exp": 27.67,
+            "total": 193.68
+          },
+          "2025Q3": {
+            "n": 11,
+            "exp": 3.05,
+            "total": 33.6
+          },
+          "2025Q4": {
+            "n": 15,
+            "exp": -2.74,
+            "total": -41.16
+          },
+          "2026Q1": {
+            "n": 5,
+            "exp": 4.61,
+            "total": 23.04
+          },
+          "2026Q2": {
+            "n": 5,
+            "exp": -17.81,
+            "total": -89.04
+          }
+        },
+        "positive_quarters": "4/6",
+        "positive_quarters_n": 4,
+        "n_quarters": 6,
+        "top5_day_pct": 145.1,
+        "drop_top5_day_per_trade": -3.94,
+        "max_drawdown_dollars": -124.2,
+        "worst_single_trade_dollars": -38.88,
+        "by_side": {
+          "C": {
+            "n": 34,
+            "exp": 4.72,
+            "wr": 32.4,
+            "total": 160.32
+          },
+          "P": {
+            "n": 20,
+            "exp": 13.36,
+            "wr": 30.0,
+            "total": 267.24
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_PREMIUM_STOP": 37,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 5,
+          "TP1_THEN_RUNNER_RIBBON": 12
+        }
+      },
+      "abstained_audit": [
+        {
+          "date": "2025-03-05",
+          "side": "C",
+          "vix": 21.8,
+          "top_tercile_boundary": 16.91,
+          "would_have_pnl": 141.0
+        },
+        {
+          "date": "2025-03-06",
+          "side": "P",
+          "vix": 25.63,
+          "top_tercile_boundary": 17.41,
+          "would_have_pnl": 57.0
+        },
+        {
+          "date": "2025-03-14",
+          "side": "C",
+          "vix": 21.88,
+          "top_tercile_boundary": 18.02,
+          "would_have_pnl": 292.8
+        },
+        {
+          "date": "2025-03-17",
+          "side": "C",
+          "vix": 20.46,
+          "top_tercile_boundary": 18.05,
+          "would_have_pnl": -23.76
+        },
+        {
+          "date": "2025-04-07",
+          "side": "P",
+          "vix": 47.74,
+          "top_tercile_boundary": 18.35,
+          "would_have_pnl": -211.68
+        },
+        {
+          "date": "2025-04-10",
+          "side": "P",
+          "vix": 44.3,
+          "top_tercile_boundary": 18.92,
+          "would_have_pnl": 270.6
+        },
+        {
+          "date": "2025-04-14",
+          "side": "P",
+          "vix": 30.94,
+          "top_tercile_boundary": 19.95,
+          "would_have_pnl": -9.0
+        },
+        {
+          "date": "2025-04-29",
+          "side": "C",
+          "vix": 24.07,
+          "top_tercile_boundary": 20.91,
+          "would_have_pnl": 55.2
+        },
+        {
+          "date": "2025-05-06",
+          "side": "C",
+          "vix": 24.38,
+          "top_tercile_boundary": 21.8,
+          "would_have_pnl": 99.0
+        },
+        {
+          "date": "2025-11-07",
+          "side": "P",
+          "vix": 19.25,
+          "top_tercile_boundary": 18.04,
+          "would_have_pnl": 118.8
+        },
+        {
+          "date": "2025-11-13",
+          "side": "P",
+          "vix": 20.54,
+          "top_tercile_boundary": 18.05,
+          "would_have_pnl": 43.2
+        },
+        {
+          "date": "2025-11-17",
+          "side": "C",
+          "vix": 22.5,
+          "top_tercile_boundary": 18.22,
+          "would_have_pnl": 393.0
+        },
+        {
+          "date": "2025-11-21",
+          "side": "P",
+          "vix": 23.27,
+          "top_tercile_boundary": 18.53,
+          "would_have_pnl": -75.12
+        },
+        {
+          "date": "2026-01-20",
+          "side": "C",
+          "vix": 20.46,
+          "top_tercile_boundary": 17.88,
+          "would_have_pnl": 75.0
+        },
+        {
+          "date": "2026-02-03",
+          "side": "P",
+          "vix": 19.08,
+          "top_tercile_boundary": 17.95,
+          "would_have_pnl": -10.8
+        },
+        {
+          "date": "2026-02-13",
+          "side": "P",
+          "vix": 20.25,
+          "top_tercile_boundary": 17.95,
+          "would_have_pnl": 106.8
+        },
+        {
+          "date": "2026-02-20",
+          "side": "C",
+          "vix": 19.21,
+          "top_tercile_boundary": 18.02,
+          "would_have_pnl": 18.6
+        },
+        {
+          "date": "2026-03-06",
+          "side": "P",
+          "vix": 29.66,
+          "top_tercile_boundary": 18.04,
+          "would_have_pnl": 115.8
+        },
+        {
+          "date": "2026-03-18",
+          "side": "C",
+          "vix": 23.25,
+          "top_tercile_boundary": 18.07,
+          "would_have_pnl": -79.92
+        },
+        {
+          "date": "2026-03-19",
+          "side": "C",
+          "vix": 24.83,
+          "top_tercile_boundary": 18.38,
+          "would_have_pnl": -30.24
+        },
+        {
+          "date": "2026-04-08",
+          "side": "P",
+          "vix": 21.25,
+          "top_tercile_boundary": 18.66,
+          "would_have_pnl": -29.76
+        }
+      ],
+      "vs_standalone": {
+        "standalone_oos_per_trade": 5.53,
+        "compound_oos_per_trade": -6.6,
+        "raises_oos_per_trade": false,
+        "beats_published_72": false,
+        "standalone_maxdd_dollars": -235.44,
+        "compound_maxdd_dollars": -124.2,
+        "cuts_maxdd": true,
+        "cuts_published_574_maxdd": true,
+        "delta_oos_per_trade": -12.13,
+        "delta_maxdd_dollars": 111.24,
+        "n_abstained": 21,
+        "n_standalone": 75,
+        "n_compound": 54
+      },
+      "gates": {
+        "G1_oos_per_trade_positive": {
+          "pass": false,
+          "value": -6.6,
+          "oos_n": 10
+        },
+        "G2_positive_quarters_ge_4": {
+          "pass": true,
+          "value": "4/6"
+        },
+        "G3_top5_day_pct_lt_200": {
+          "pass": true,
+          "value": 145.1
+        },
+        "G4_n_ge_20": {
+          "pass": true,
+          "value": 54
+        },
+        "G5_drop_top5_per_trade_positive": {
+          "pass": false,
+          "value": -3.94
+        },
+        "G6_is_first_half_positive": {
+          "pass": true,
+          "value": 21.24,
+          "is_first_half_n": 22
+        },
+        "G7_beats_random_null": {
+          "pass": false,
+          "coinflip_null": {
+            "seeds": 20,
+            "n_eligible": 25544,
+            "n_drawn": 54,
+            "per_trade_mean": -1.73,
+            "per_trade_min": -10.87,
+            "per_trade_max": 11.74,
+            "per_trade_by_seed": [
+              -5.18,
+              0.04,
+              5.11,
+              -7.8,
+              -7.48,
+              0.43,
+              -10.87,
+              -0.86,
+              11.74,
+              -4.05,
+              -0.72,
+              -0.48,
+              -1.76,
+              2.73,
+              -6.74,
+              -2.95,
+              0.38,
+              1.26,
+              -3.13,
+              -4.28
+            ],
+            "beats_null_mean": true,
+            "beats_null_max": false,
+            "drop_top5_beats_null_mean": false,
+            "edge_over_null_per_trade": 9.65,
+            "null_pass": false
+          },
+          "sameday_null": {
+            "seeds": 20,
+            "null_exp_mean": 14.72,
+            "null_exp_min": 4.75,
+            "null_exp_max": 22.16,
+            "null_exp_std": 4.19,
+            "null_oos_exp_mean": 12.56,
+            "beats_sameday_mean_plus_std": false,
+            "oos_beats_sameday_mean": false
+          }
+        },
+        "G8_no_truncation": {
+          "pass": true,
+          "stop8_exp": 7.92,
+          "chartstop_exp": 7.06,
+          "stop8_oos_exp": -6.6,
+          "chartstop_oos_exp": -32.04,
+          "stop8_total": 427.56,
+          "chartstop_total": 381.4,
+          "is_truncation_artifact": false,
+          "sign_stable_full": true,
+          "sign_stable_oos": true
+        }
+      },
+      "clears_all_gates": false,
+      "n_gates_passed": 5,
+      "caveats": []
+    }
+  },
+  "PRIMARY_TIER": "ITM2_primary",
+  "SAFE2_TIER": "OTM2_safe2",
+  "compound_dominates_standalone_itm2": true,
+  "safe2_tradeable": false,
+  "verdict": "REJECTED \u2014 compound fails one or more of the 8 mandatory gates @ ITM-2 (see gates block)",
+  "DISCLOSURE": {
+    "no_cherry_pick": "ALL 8 gates reported for BOTH strike tiers (ITM-2 primary + OTM-2 Safe-2); a tier that fails any gate is marked clears_all_gates=false (anti-pattern 2.10).",
+    "compound_not_additive_confluence": "EDGE B is a pure SUBTRACTION (skip) over EDGE A's ONE causal entry/day, NOT a stacked confirmation; the campaign proved additive confluence is dead on 0DTE.",
+    "must_earn_keep": "the compound is only a WIN if it BOTH raises OOS/tr AND cuts maxDD vs the standalone EDGE-A (vs_standalone); clearing 8 gates without dominance is flagged, not sold as a win.",
+    "strike_tier_caveat": "C29 \u2014 gates do NOT transfer across strike tiers; OTM-2 is the binding Safe-2 ($2K 30%-cap) decision, reported independently.",
+    "spy_vs_option": "real OPRA fills; SPY-direction != option edge (C3/L58).",
+    "fraud_gates": "G7 random-entry null (coin-flip + same-day/same-side, 20 seeds) + G8 no-truncation (sign must hold -8% -> chart-stop-only).",
+    "causal_abstention": "top-VIX-tercile boundary is a causal expanding-window over PRIOR entries only; warmup=8 (no abstention until then); no look-ahead (L14/L34/L57)."
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "task": "c88eb9e0-bull-a5-walkforward",
+  "is_dates": [
+    "2025-01-02",
+    "2025-09-30"
+  ],
+  "oos_dates": [
+    "2025-10-01",
+    "2026-06-16"
+  ],
+  "is_bull": {
+    "n": 144,
+    "total_pnl": 775.2,
+    "avg_pnl": 5.4,
+    "wr": 0.09
+  },
+  "oos_bull": {
+    "n": 142,
+    "total_pnl": 5535.5,
+    "avg_pnl": 39.0,
+    "wr": 0.141
+  },
+  "is_bull_2t": {
+    "n": 99,
+    "total_pnl": 798.7
+  },
+  "oos_bull_2t": {
+    "n": 91,
+    "total_pnl": 3145.7
+  },
+  "wf_norm": 4.285,
+  "is_bear_baseline_pnl": 409.6,
+  "oos_bear_baseline_pnl": 4974.3,
+  "anchor_a5_check": {
+    "2026-05-05": {
+      "bull_trades": [
+        {
+          "time": "2026-05-05 10:05:00",
+          "pnl": -34.1,
+          "triggers": [
+            "level_reclaim"
+          ]
+        },
+        {
+          "time": "2026-05-05 15:20:00",
+          "pnl": -3.0,
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ]
+        }
+      ]
+    },
+    "2026-05-06": {
+      "bull_trades": [
+        {
+          "time": "2026-05-06 10:10:00",
+          "pnl": -42.9,
+          "triggers": [
+            "level_reclaim"
+          ]
+        },
+        {
+          "time": "2026-05-06 11:20:00",
+          "pnl": -31.9,
+          "triggers": [
+            "level_reclaim"
+          ]
+        },
+        {
+          "time": "2026-05-06 12:15:00",
+          "pnl": -19.8,
+          "triggers": [
+            "level_reclaim"
+          ]
+        },
+        {
+          "time": "2026-05-06 13:35:00",
+          "pnl": -8.8,
+          "triggers": [
+            "level_reclaim"
+          ]
+        }
+      ]
+    },
+    "2026-05-07": {
+      "bull_trades": [
+        {
+          "time": "2026-05-07 11:55:00",
+          "pnl": -13.5,
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ]
+        }
+      ]
+    }
+  },
+  "recommendation": "PROMISING"
+}

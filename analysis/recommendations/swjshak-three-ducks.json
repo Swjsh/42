@@ -1,0 +1,621 @@
+{
+  "run_date": "2026-06-20",
+  "strategy": "three_ducks",
+  "cls": "continuation",
+  "hypothesis": "Three Ducks MTF: 4H close>SMA60 AND 1H close>SMA60 -> bullish regime; enter on 5m SMA60 cross that direction (CALL); mirror bearish (PUT). Continuation/trend (survivor class).",
+  "source": "SwjshAK data/brain/three-ducks.md (via markdown/research/SWJSHAK-STRATEGY-EXTRACTION-2026-06-20.md row 7)",
+  "window": "2025-01-01..2026-05-15",
+  "sourced_rule": {
+    "regime_4h": "4H close vs 4H-SMA60 (>SMA = bull duck, <SMA = bear duck)",
+    "regime_1h": "1H close vs 1H-SMA60 (>SMA = bull duck, <SMA = bear duck)",
+    "trigger_5m": "5m close crosses SMA60 in the regime direction (closed-bar cross)",
+    "alignment": "all 3 ducks must agree (regime 4H + regime 1H + 5m cross direction)",
+    "original_exit": "FX swing system has no 0DTE exit; substituted v15 intraday exits (TP1 +30%/chart-level, BE runner, 15:50 hard time stop) per task spec"
+  },
+  "adaptation": {
+    "instrument": "SPY 0DTE single-leg directional (bull->CALL, bear->PUT)",
+    "sma_len": 60,
+    "timeframes": [
+      "5min(trigger)",
+      "1H(regime)",
+      "4H(regime)"
+    ],
+    "htf_causality": "higher-TF close>SMA booleans shifted 1 bar + merge_asof backward (strict prior) onto 5m close-times -> no look-ahead (C6)",
+    "swing_lookback_bars": 12,
+    "rejection_level": "CALL->trailing swing LOW (support); PUT->trailing swing HIGH (resistance)",
+    "cooldown_min": 30,
+    "entry_gate": "09:35:00-15:45:00",
+    "qty": 3,
+    "exits": "v15 defaults (causal, no look-ahead C6)"
+  },
+  "primary_config": {
+    "label": "SURVIVOR STRUCTURE (live vwap_continuation shape)",
+    "strike_offset": -2,
+    "premium_stop_pct": -0.08,
+    "exits": "v15 defaults"
+  },
+  "grid": {
+    "strike_offset": [
+      -2,
+      -1,
+      0
+    ],
+    "premium_stop_pct": [
+      -0.08,
+      -0.2,
+      -0.5,
+      -0.99
+    ]
+  },
+  "self_verify_gate": {
+    "oos_per_trade": 0.0,
+    "positive_quarters_min": 4,
+    "top5_max_pct": 200.0,
+    "n_min": 20,
+    "drop_top5_per_trade_min": 0.0
+  },
+  "n_signals": 391,
+  "n_call": 289,
+  "n_put": 102,
+  "sweep": [
+    {
+      "strike_offset": -2,
+      "premium_stop_pct": -0.08,
+      "report": {
+        "n": 351,
+        "wr": 21.9,
+        "total_pnl": -2134.0,
+        "per_trade": -6.08,
+        "top5_day_pct": null
+      },
+      "n_no_opra_data": 40
+    },
+    {
+      "strike_offset": -2,
+      "premium_stop_pct": -0.2,
+      "report": {
+        "n": 351,
+        "wr": 36.2,
+        "total_pnl": -9934.0,
+        "per_trade": -28.3,
+        "top5_day_pct": null
+      },
+      "n_no_opra_data": 40
+    },
+    {
+      "strike_offset": -2,
+      "premium_stop_pct": -0.5,
+      "report": {
+        "n": 351,
+        "wr": 54.7,
+        "total_pnl": -11344.0,
+        "per_trade": -32.32,
+        "top5_day_pct": null
+      },
+      "n_no_opra_data": 40
+    },
+    {
+      "strike_offset": -2,
+      "premium_stop_pct": -0.99,
+      "report": {
+        "n": 351,
+        "wr": 55.8,
+        "total_pnl": -15483.0,
+        "per_trade": -44.11,
+        "top5_day_pct": null
+      },
+      "n_no_opra_data": 40
+    },
+    {
+      "strike_offset": -1,
+      "premium_stop_pct": -0.08,
+      "report": {
+        "n": 360,
+        "wr": 21.7,
+        "total_pnl": -1593.0,
+        "per_trade": -4.42,
+        "top5_day_pct": null
+      },
+      "n_no_opra_data": 31
+    },
+    {
+      "strike_offset": -1,
+      "premium_stop_pct": -0.2,
+      "report": {
+        "n": 360,
+        "wr": 36.7,
+        "total_pnl": -5266.0,
+        "per_trade": -14.63,
+        "top5_day_pct": null
+      },
+      "n_no_opra_data": 31
+    },
+    {
+      "strike_offset": -1,
+      "premium_stop_pct": -0.5,
+      "report": {
+        "n": 360,
+        "wr": 55.6,
+        "total_pnl": -8120.0,
+        "per_trade": -22.56,
+        "top5_day_pct": null
+      },
+      "n_no_opra_data": 31
+    },
+    {
+      "strike_offset": -1,
+      "premium_stop_pct": -0.99,
+      "report": {
+        "n": 360,
+        "wr": 58.3,
+        "total_pnl": -12929.0,
+        "per_trade": -35.91,
+        "top5_day_pct": null
+      },
+      "n_no_opra_data": 31
+    },
+    {
+      "strike_offset": 0,
+      "premium_stop_pct": -0.08,
+      "report": {
+        "n": 358,
+        "wr": 21.2,
+        "total_pnl": -44.0,
+        "per_trade": -0.12,
+        "top5_day_pct": null
+      },
+      "n_no_opra_data": 33
+    },
+    {
+      "strike_offset": 0,
+      "premium_stop_pct": -0.2,
+      "report": {
+        "n": 358,
+        "wr": 33.2,
+        "total_pnl": -4271.0,
+        "per_trade": -11.93,
+        "top5_day_pct": null
+      },
+      "n_no_opra_data": 33
+    },
+    {
+      "strike_offset": 0,
+      "premium_stop_pct": -0.5,
+      "report": {
+        "n": 358,
+        "wr": 56.1,
+        "total_pnl": -5259.0,
+        "per_trade": -14.69,
+        "top5_day_pct": null
+      },
+      "n_no_opra_data": 33
+    },
+    {
+      "strike_offset": 0,
+      "premium_stop_pct": -0.99,
+      "report": {
+        "n": 358,
+        "wr": 61.5,
+        "total_pnl": -8412.0,
+        "per_trade": -23.5,
+        "top5_day_pct": null
+      },
+      "n_no_opra_data": 33
+    }
+  ],
+  "primary_verify_a": {
+    "overall": {
+      "n": 351,
+      "wr": 21.9,
+      "total_pnl": -2134.0,
+      "per_trade": -6.08,
+      "top5_day_pct": null
+    },
+    "by_sample": {
+      "IS_2025": {
+        "n": 252,
+        "wr": 22.2,
+        "total_pnl": -1216.0,
+        "per_trade": -4.82,
+        "top5_day_pct": null
+      },
+      "OOS_2026": {
+        "n": 99,
+        "wr": 21.2,
+        "total_pnl": -918.0,
+        "per_trade": -9.27,
+        "top5_day_pct": null
+      }
+    },
+    "by_quarter": {
+      "2025Q1": {
+        "n": 28,
+        "wr": 14.3,
+        "total_pnl": -420.0,
+        "per_trade": -14.99,
+        "top5_day_pct": null
+      },
+      "2025Q2": {
+        "n": 67,
+        "wr": 19.4,
+        "total_pnl": -1005.0,
+        "per_trade": -14.99,
+        "top5_day_pct": null
+      },
+      "2025Q3": {
+        "n": 86,
+        "wr": 25.6,
+        "total_pnl": 569.0,
+        "per_trade": 6.61,
+        "top5_day_pct": 287.0
+      },
+      "2025Q4": {
+        "n": 71,
+        "wr": 23.9,
+        "total_pnl": -360.0,
+        "per_trade": -5.07,
+        "top5_day_pct": null
+      },
+      "2026Q1": {
+        "n": 70,
+        "wr": 22.9,
+        "total_pnl": -550.0,
+        "per_trade": -7.86,
+        "top5_day_pct": null
+      },
+      "2026Q2": {
+        "n": 29,
+        "wr": 17.2,
+        "total_pnl": -368.0,
+        "per_trade": -12.68,
+        "top5_day_pct": null
+      }
+    },
+    "positive_quarters": "1/6",
+    "positive_quarters_n": 1,
+    "n_quarters": 6,
+    "oos_per_trade": -9.27,
+    "drop_top5_per_trade": -12.82,
+    "drop_top5_n": 344,
+    "dropped_top5_pnl": 2278.0,
+    "top5_day_pct": null,
+    "clears_bar": false
+  },
+  "random_null_b": {
+    "seeds": 20,
+    "per_trade_mean": 3.6,
+    "per_trade_min": -3.66,
+    "per_trade_max": 22.31,
+    "edge_over_null_per_trade": -9.68,
+    "best_beats_null_mean": false,
+    "best_beats_null_max": false,
+    "drop_top5_beats_null_mean": false
+  },
+  "truncation_check_c": {
+    "primary_stop_per_trade": -6.08,
+    "chart_stop_only_per_trade": -44.11,
+    "primary_stop_n": 351,
+    "chart_stop_only_n": 351,
+    "sign_inverts": false,
+    "truncation_safe": true
+  },
+  "primary_per_trade": -6.08,
+  "oos_per_trade": -9.27,
+  "beats_random_null": false,
+  "truncation_safe": true,
+  "clears_bar": false,
+  "verdict": "NOT A CANDIDATE (no cherry-pick): PRIMARY survivor config fails \u2014 (a) OOS per-trade=-9.27 (need >0); (a) positive_quarters=1/6 (need >=4/6); (a) top5_day_pct=None (need <200); (a) drop_top5_per_trade=-12.82 (need >0); (b) per_trade=-6.08 does NOT beat random-null MEAN 3.6 (edge_over_null=-9.68) => 'edge' is the asymmetric exit STRUCTURE, not the MTF signal (C3/L58); (b) drop-top5 per-trade=-12.82 <= random-null mean 3.6 => surviving edge is day-concentration, not signal",
+  "sample_rows": [
+    {
+      "date": "2025-02-18",
+      "time": "11:10",
+      "side": "C",
+      "vix": 15.5,
+      "strike": 608,
+      "entry_premium": 2.53,
+      "pnl": -60.72,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-02-18",
+      "time": "11:40",
+      "side": "C",
+      "vix": 15.5,
+      "strike": 608,
+      "entry_premium": 2.47,
+      "pnl": -59.28,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-02-18",
+      "time": "12:25",
+      "side": "C",
+      "vix": 15.5,
+      "strike": 608,
+      "entry_premium": 2.57,
+      "pnl": -61.68,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-02-18",
+      "time": "13:10",
+      "side": "C",
+      "vix": 15.6,
+      "strike": 608,
+      "entry_premium": 2.3,
+      "pnl": -55.2,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-02-18",
+      "time": "13:50",
+      "side": "C",
+      "vix": 15.6,
+      "strike": 608,
+      "entry_premium": 2.5,
+      "pnl": -60.0,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-02-19",
+      "time": "10:30",
+      "side": "C",
+      "vix": 15.8,
+      "strike": 608,
+      "entry_premium": 2.59,
+      "pnl": -62.16,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-02-19",
+      "time": "11:15",
+      "side": "C",
+      "vix": 15.6,
+      "strike": 608,
+      "entry_premium": 2.26,
+      "pnl": 424.6,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-02-20",
+      "time": "15:05",
+      "side": "C",
+      "vix": 15.4,
+      "strike": 607,
+      "entry_premium": 2.01,
+      "pnl": -48.24,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-02-24",
+      "time": "15:40",
+      "side": "P",
+      "vix": 19.2,
+      "strike": 602,
+      "entry_premium": 2.16,
+      "pnl": -51.84,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-02-25",
+      "time": "14:10",
+      "side": "P",
+      "vix": 19.3,
+      "strike": 597,
+      "entry_premium": 2.47,
+      "pnl": -59.28,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-02-25",
+      "time": "15:10",
+      "side": "P",
+      "vix": 19.7,
+      "strike": 596,
+      "entry_premium": 2.67,
+      "pnl": -64.08,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-02-26",
+      "time": "13:45",
+      "side": "P",
+      "vix": 19.9,
+      "strike": 599,
+      "entry_premium": 2.9,
+      "pnl": 411.0,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "TP1_THEN_RUNNER_TIME"
+    },
+    {
+      "date": "2025-03-04",
+      "time": "14:15",
+      "side": "P",
+      "vix": 22.2,
+      "strike": 581,
+      "entry_premium": 3.24,
+      "pnl": 194.4,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+      "date": "2025-03-05",
+      "time": "10:45",
+      "side": "P",
+      "vix": 23.3,
+      "strike": 579,
+      "entry_premium": 4.48,
+      "pnl": -107.52,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-03-05",
+      "time": "11:15",
+      "side": "P",
+      "vix": 23.6,
+      "strike": 579,
+      "entry_premium": 4.07,
+      "pnl": -97.68,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-03-06",
+      "time": "10:30",
+      "side": "P",
+      "vix": 23.5,
+      "strike": 577,
+      "entry_premium": 4.14,
+      "pnl": -99.36,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-03-07",
+      "time": "10:55",
+      "side": "P",
+      "vix": 24.8,
+      "strike": 576,
+      "entry_premium": 4.26,
+      "pnl": -102.24,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-03-07",
+      "time": "13:55",
+      "side": "P",
+      "vix": 24.2,
+      "strike": 572,
+      "entry_premium": 3.35,
+      "pnl": -80.4,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-03-12",
+      "time": "10:35",
+      "side": "P",
+      "vix": 26.3,
+      "strike": 559,
+      "entry_premium": 3.57,
+      "pnl": -85.68,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-03-12",
+      "time": "13:55",
+      "side": "P",
+      "vix": 25.1,
+      "strike": 560,
+      "entry_premium": 2.84,
+      "pnl": -68.16,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-03-12",
+      "time": "15:40",
+      "side": "P",
+      "vix": 23.9,
+      "strike": 561,
+      "entry_premium": 1.84,
+      "pnl": -44.16,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-03-13",
+      "time": "14:50",
+      "side": "P",
+      "vix": 24.8,
+      "strike": 556,
+      "entry_premium": 2.91,
+      "pnl": -69.84,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-03-18",
+      "time": "14:25",
+      "side": "P",
+      "vix": 21.5,
+      "strike": 562,
+      "entry_premium": 1.98,
+      "pnl": -47.52,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-03-18",
+      "time": "15:40",
+      "side": "P",
+      "vix": 21.9,
+      "strike": 563,
+      "entry_premium": 2.32,
+      "pnl": -55.68,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+      "date": "2025-03-21",
+      "time": "12:35",
+      "side": "P",
+      "vix": 19.4,
+      "strike": 564,
+      "entry_premium": 2.45,
+      "pnl": -58.8,
+      "year": 2025,
+      "quarter": "2025Q1",
+      "exit": "EXIT_ALL_PREMIUM_STOP"
+    }
+  ],
+  "DISCLOSURE": {
+    "authority": "real OPRA fills (C1) \u2014 the only WR/expectancy authority",
+    "per_trade": "per-trade EXPECTANCY reported, not WR alone (OP-14)",
+    "is_oos": "IS=2025, OOS=2026 split shown for the PRIMARY survivor cell",
+    "concentration": "top5_day_pct + drop-top-5-days per-trade shown (OP-20 #5; anti-2.10)",
+    "no_cherry_pick": "verdict uses the PRIMARY survivor config (ITM-2,-8%) as the headline, NOT the best sweep cell; the sweep is disclosure only",
+    "spy_vs_option": "C3/L58 \u2014 a SPY-price/FX trend edge is NOT an option edge; theta+delta+stop-misfire routinely erase a directional-underlying edge in 0DTE",
+    "random_entry_null": "PRIMARY cell vs a coin-flip null (random RTH entries, same count/side-mix/stop/strike, 20 seeds). If random reproduces the per-trade, the 'edge' is the asymmetric exit STRUCTURE, not the MTF signal.",
+    "truncation_check": "sign of per-trade must NOT invert between -8% stop and chart-stop-only (-0.99) at ITM-2; a +->- flip means the tight stop truncates losers (stop artifact, not directional signal)",
+    "the_0dte_wall": "23-strategy prior: nearly every directional SPY-price edge dies on 0DTE; the only survivor (live vwap_continuation) is ITM-2 + tight -8% stop + sustained-directional + morning \u2014 which is exactly the PRIMARY config tested"
+  }
+}

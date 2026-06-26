@@ -72,6 +72,62 @@ from lib.truncation_guard import (  # noqa: E402
 # null_baseline default is 10, but the fraud gate uses the stronger 20-seed bar.
 NULL_SEEDS = 20
 
+# OOS-ALONE drop-top5 (L173). To drop the 5 best OOS observations and still have a
+# non-empty remainder you need STRICTLY MORE than 5 OOS observations. Mirrors the
+# per-harness convention in autoresearch/_b10_exit_audit.py::oos_drop_top5 (which
+# trims arr[:-5] and reports drop-top5-positive only when len(trimmed) > 0). Below
+# this floor the gate is UNEVALUABLE (skip/None), never a crash.
+MIN_OOS_TO_DROP_TOP5 = 5
+
+
+def oos_drop_top5_gate(
+    *,
+    oos_drop_top5_per_trade: Optional[float],
+    oos_n: Optional[int] = None,
+) -> dict:
+    """L173 OOS-ALONE drop-top5 gate (the THIRD graduated concentration check).
+
+    Full-sample drop-top5 > 0 (the existing GATE_FRAUD null check and the family
+    grids' own ``top5_day_pct`` < 200% gate) is NECESSARY-BUT-NOT-SUFFICIENT: a
+    candidate can pass full-sample concentration while its edge lives in a handful
+    of OOS days, so that removing the 5 best OOS observations turns the OOS-only
+    per-trade NEGATIVE. This caught edge #3 (a 2026-bull-regime artifact): it passed
+    the full-sample drop-top5 at B5 but failed OOS-alone at B6 (OOS-alone drop-top5
+    -$16 -> -$23; top5-day-OOS 120-228%). C4/L173.
+
+    The gate PASSES iff the OOS-window-only per-trade AFTER dropping the 5 best OOS
+    observations is strictly > 0. It is ADDITIVE — it never relaxes the full-sample
+    drop-top5 / null / truncation gates; it only adds a stricter OOS-alone cut.
+
+    Small-n handling (matches autoresearch/_b10_exit_audit.py::oos_drop_top5): when
+    there are not strictly more than ``MIN_OOS_TO_DROP_TOP5`` (5) OOS observations,
+    the 5-best cannot be dropped leaving a non-empty remainder, so the gate is
+    UNEVALUABLE (``evaluable=False``) and reported as a caveat by the harness rather
+    than failing or crashing. Fails OPEN on a missing per-trade value (cannot
+    disprove != bless), exactly like the truncation/null gates.
+
+    Args:
+        oos_drop_top5_per_trade: OOS-only per-trade expectancy after removing the 5
+            best OOS observations (None when the family did not record it).
+        oos_n: OOS observation count, used only to flag the too-small-to-drop-5 case
+            (advisory; the gate is still evaluated on the per-trade value when present).
+
+    Returns:
+        dict with ``oos_drop_top5_per_trade`` (echoed), ``evaluable`` (bool — False
+        when the value is missing or OOS n <= 5), and ``oos_drop_top5_pass`` (bool —
+        True only when evaluable AND per-trade > 0).
+    """
+    too_small = oos_n is not None and oos_n <= MIN_OOS_TO_DROP_TOP5
+    evaluable = oos_drop_top5_per_trade is not None and not too_small
+    return {
+        "oos_drop_top5_per_trade": (round(float(oos_drop_top5_per_trade), 2)
+                                    if oos_drop_top5_per_trade is not None else None),
+        "oos_n": oos_n,
+        "evaluable": bool(evaluable),
+        # PASS only when we can evaluate AND the OOS-alone drop-top5 stays positive.
+        "oos_drop_top5_pass": bool(evaluable and oos_drop_top5_per_trade > 0),
+    }
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # A re-simulated signal: just the inputs simulate_trade_real needs.

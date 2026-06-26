@@ -2,11 +2,11 @@
 
 > Named setups with explicit context, trigger, entry, stop, and target. Every entry here is earned from real evidence, not theorized.
 >
-> **Numeric values (premium stop, TP1 multiplier, vol multiplier, time gates, qty tiers) are NOT canonical here — they live in [`automation/state/params.json`](../automation/state/params.json).** When you change a value in this file, change params.json in the same edit. Drift between this file and params.json is detected at premarket Step 1a (rule-version pin check) and creates a kill-switch.
+> **Numeric values (premium stop, TP1 multiplier, vol multiplier, time gates, qty tiers) are NOT canonical here — they live in [`automation/state/params.json`](../../automation/state/params.json) (Safe) and [`automation/state/aggressive/params.json`](../../automation/state/aggressive/params.json) (Bold).** When you change a value in this file, change the relevant params.json in the same edit. Drift between this file and params.json is detected at premarket Step 1a (rule-version pin check) and creates a kill-switch.
 
 **Version:** 1.0 setup library (BEARISH_REJECTION CONFIRMED, BULLISH_RECLAIM PAPER-ELIGIBLE)
-**Rule version:** v14 — see [`automation/state/params.json#rule_version`](../automation/state/params.json) for canonical
-**Last updated:** 2026-05-08
+**Rule version:** v15.3 (Safe) / v15.2 (Bold) — see [`automation/state/params.json#rule_version`](../../automation/state/params.json) for canonical
+**Last updated:** 2026-06-21
 
 ---
 
@@ -62,16 +62,17 @@
 - Order type: limit at mid; reassess in 30s if not filled. Don't chase if SPY has moved against entry > 0.10.
 
 ### Stop
-- **Premium stop:** **v14 ratified `-8%` (entry × 0.92).** Source of truth: [`automation/state/params.json#premium_stop_pct`](../automation/state/params.json). Was -50% in v1, tightened through v9 (-33%) → v10 (-10%) → v14 (-8%) by backtest sweep. The -8% level was chosen because it strictly dominates -10% on all user criteria simultaneously (total $4,731 vs $4,375, W/L 2.93x vs 2.57x, max DD smaller, same WR). **Drift check: premarket Step 1a verifies prompt + params.json match.**
-- **Chart stop:** SPY closes a 3-min candle **above** the rejected level + $0.50 buffer (params.json#chart_stop_buffer_dollars). Ribbon condition removed in v11 (tested worse). Setup is dead.
+- **Chart stop (PRIMARY invalidation):** SPY closes a 3-min candle **above** the rejected level + $0.50 buffer (params.json#chart_stop_buffer_dollars). The chart structure failing is the real invalidation — this is the primary stop. Ribbon-flip-back (opposite-stack + spread) is the secondary structural exit. Ribbon condition removed in v11 (tested worse).
+- **Chandelier profit-lock:** arms at +5% favor, trails 0.15 off the high-water mark (params.json) — locks gains as the move runs (v15).
+- **Premium stop (catastrophe cap only):** Safe = **−50%** (entry × 0.50, params.json#premium_stop_pct); Bold = **−7% bear** (aggressive params.json#premium_stop_pct_bear). This is a backstop catastrophe cap, NOT the primary stop — chart-stop-primary doctrine (C2). **Drift check: premarket Step 1a verifies prompt + params.json match.**
 - **Time stop:** Out by 15:50 ET. No 0DTE held into the close.
 
 ### Target / exit — RIDE THE RIBBON (primary management)
 
-Locked at TP1 = +30% premium (params.json#tp1_premium_pct) based on `markdown/0dte/scale-out-math.md` analysis. Banks meaningful profit; doesn't clip the natural runner; +30% is reachable on every trade in the n=3 confirmed sample. **TP1 fallback to chart-level (next Active/Carry tier level past entry, $1.50 min distance, no round numbers) per v11 ratification — whichever fires first.**
+Locked at TP1 = +50% premium (params.json#tp1_premium_pct) at qty fraction 0.667 (sell 2 of 3, params.json#tp1_qty_fraction) based on `scale-out-math.md` analysis. Banks meaningful profit; doesn't clip the natural runner. **TP1 fallback to chart-level (next Active/Carry tier level past entry, $1.50 min distance, no round numbers) per v11 ratification — whichever fires first.**
 
-**TP1 (sell 2 of 3 contracts):** when **either** of these fires first —
-- Premium ≥ entry premium × 1.30 (i.e., +30% gain), OR
+**TP1 (sell 2 of 3 contracts, qty_fraction 0.667):** when **either** of these fires first —
+- Premium ≥ entry premium × 1.50 (i.e., +50% gain), OR
 - SPY reaches first major intraday support level from `today-bias.json`.
 
 **After TP1 fires:**
@@ -169,16 +170,17 @@ This caps both the upside and the downside, but it removes the "I was working an
 - Order type: limit at mid; reassess in 30s if not filled. Don't chase if SPY has moved 0.10 against entry.
 
 ### Stop
-- **Premium stop:** **v14 ratified `-8%` (entry × 0.92).** Source of truth: [`automation/state/params.json#premium_stop_pct`](../automation/state/params.json). Mirror of bearish stop — same value, same backtest provenance. **Drift check: premarket Step 1a verifies prompt + params.json match.**
-- **Chart stop:** SPY closes a 3-min candle **below** the reclaimed level + $0.50 buffer (params.json#chart_stop_buffer_dollars). Ribbon-flip-back exit requires opposite-stack + 30c spread (params.json#ribbon_flip_back_*) — not just MIXED transition (chop = no real bias).
+- **Chart stop (PRIMARY invalidation):** SPY closes a 3-min candle **below** the reclaimed level + $0.50 buffer (params.json#chart_stop_buffer_dollars). The chart structure failing is the real invalidation — this is the primary stop. Ribbon-flip-back exit requires opposite-stack + 30c spread (params.json#ribbon_flip_back_*) — not just MIXED transition (chop = no real bias).
+- **Chandelier profit-lock:** arms at +5% favor, trails 0.15 off the high-water mark (params.json) — locks gains as the move runs (v15).
+- **Premium stop (catastrophe cap only):** Safe = **−50%** (entry × 0.50, params.json#premium_stop_pct); Bold = **−5% bull** (aggressive params.json#premium_stop_pct_bull). This is a backstop catastrophe cap, NOT the primary stop — chart-stop-primary doctrine (C2). **Drift check: premarket Step 1a verifies prompt + params.json match.**
 - **Time stop:** Out by 15:50 ET. No 0DTE held into the close.
 
 ### Target / exit — RIDE THE RIBBON (primary management)
 
-Same math as bearish version (`scale-out-math.md` analysis applies symmetrically).
+Same math as bearish version (`scale-out-math.md` analysis applies symmetrically). TP1 = +50% premium (params.json#tp1_premium_pct) at qty fraction 0.667.
 
-**TP1 (sell 2 of 3 contracts):** when **either** of these fires first —
-- Premium ≥ entry premium × 1.30 (i.e., +30% gain), OR
+**TP1 (sell 2 of 3 contracts, qty_fraction 0.667):** when **either** of these fires first —
+- Premium ≥ entry premium × 1.50 (i.e., +50% gain), OR
 - SPY reaches first major intraday resistance level from `today-bias.json`.
 
 **After TP1 fires:**
@@ -227,6 +229,52 @@ Per playbook policy (line 14): "Setup needs at least 3 confirming real-trade exa
 **Paper-validated observations (toward 3-example confirmation):**
 - 1 (2026-05-05 10:20 AM) — 721.49–722.00 reclaim, vol 82K (4× avg), launched full bullish day to 725.04
 - 2 (2026-05-11 ~10:05 AM) — 738.10 bull flag break during MCP outage window. Flagpole = opening V-launch. Flag = tight consolidation. Break = 738.10 reclaim with volume. Price ran to 739.59. Would have been a winner on +30% TP1 within 2-3 bars. (DRAFT setup, not auto-traded — observed via journal reconstruction)
+
+---
+
+### Setup name: VWAP_CONTINUATION (CALLS and PUTS)
+
+**Status:** **LIVE** — `j_vwap_cont_enabled=true` in [`automation/state/params.json`](../../automation/state/params.json), `side='both'` (J's explicit call; bull-side entries remain OP-16-tracked toward 3 live wins). Full wiring + validation: [`markdown/specs/VWAP-CONTINUATION-WIRING.md`](../specs/VWAP-CONTINUATION-WIRING.md).
+
+**Why it exists (Rule 1 mapping):** The live heartbeat's `VWAP_CONTINUATION` block can fire an entry — so it needs a named playbook pattern. This is the entry. Mined from J's 313 real Webull winners and re-validated on our 2025–26 real OPRA fills (2026-06-20): real-fills/ATM n=153, expectancy +$38.3, WR 76.5%, fires ~42% of days (near-daily), both directions positive, drop-top5 robust, DSR PASS.
+
+**Hypothesis:** J's near-daily VWAP-aligned MORNING CONTINUATION edge. When the first 3 RTH closes are all on one side of the (as-of) session VWAP, the session has a directional bias; the first morning bar (≤ 10:30 ET) that continues in-trend — a breakout (fresh in-trend extreme) OR a pullback (shallow VWAP-ward dip then with-trend close) — is the entry.
+
+**Context filters:**
+- First 3 RTH closes all the SAME side of session VWAP (as-of, no look-ahead).
+- Entry window: first qualifying morning bar ≤ 10:30 ET.
+- Optional VIX put-gate (`j_vwap_cont_put_vix_gate`): puts only when as-of VIX 5-bar slope ≥ 0 (C5).
+
+**Trigger:** the first ≤10:30-ET bar that continues in-trend (breakout = fresh in-trend session extreme, OR pullback = shallow VWAP-ward dip then a with-trend close). Entry = next bar open.
+
+**Contract selection:** per account tier — Safe ITM/ATM, Bold ITM-2. Min 3 contracts, ~6% premium ceiling.
+
+**Stop:** **CHART-STOP-ONLY** — the session extreme against the trade is the invalidation. Premium stop is the −50% Safe / −7% bear · −5% bull Bold catastrophe cap only (chart-stop-primary, C2). Standard v15 TP1 (+50% / 0.667), runner, chandelier profit-lock, and 15:50 ET time stop apply.
+
+**Detector:** `backtest/lib/watchers/vwap_continuation_watcher.py` (parity-tested vs `j_daily_pattern_ratify` over 363 days). Scorecard: `analysis/recommendations/j-daily-pattern-LIVE.json`.
+
+---
+
+### Setup name: GAP_AND_GO (PUTS)
+
+**Status:** **LIVE** — `gap_and_go_enabled=true` in [`automation/state/params.json`](../../automation/state/params.json), `side='put'` (put-only = OP-16-compliant, no bull-side scope expansion).
+
+**Why it exists (Rule 1 mapping):** The live heartbeat's `GAP_AND_GO` block can fire an entry — so it needs a named playbook pattern. This is the entry.
+
+**Hypothesis:** H2b opening-gap continuation. When SPY opens with a meaningful gap and the first RTH bar confirms the direction, the gap tends to extend rather than fill. Validated real-fills (chart-stop-only): expectancy +$41.6, WR 72.6%, n=84, DSR PASS, WF median +1.87 all-OOS-positive, 6/6 quarters positive, both directions positive (we trade puts only per OP-16), causality 96/96 PASS.
+
+**Context filters:**
+- First RTH bar gap ≥ 0.25%.
+- Confirming bar: red → puts (calls require `side='both'`, J's bull-side extend per OP-16).
+- Standard entry/time gates apply.
+
+**Trigger:** first-RTH-bar gap ≥ 0.25% + a confirming red bar (for puts). Entry = next bar.
+
+**Contract selection:** per account tier. Min 3 contracts, ~6% premium ceiling.
+
+**Stop:** **CHART-STOP-ONLY** — the first-bar opposite extreme is the invalidation. Premium stop is the catastrophe cap only (chart-stop-primary, C2). Standard v15 TP1 (+50% / 0.667), runner, chandelier, and 15:50 ET time stop apply.
+
+**Detector:** `backtest/lib/watchers/gap_and_go_watcher.py`. Scorecard: `analysis/recommendations/gap-and-go-LIVE.json`.
 
 ---
 

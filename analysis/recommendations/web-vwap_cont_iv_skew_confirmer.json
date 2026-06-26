@@ -1,0 +1,347 @@
+{
+  "family": "vwap_continuation",
+  "experiment": "W1_iv_skew_25delta_RR_confirmer",
+  "run_date": "2026-06-22",
+  "window": "2025-01-02..2026-05-15",
+  "live_cell": {
+    "strike_offset": 0,
+    "strike_tier": "ATM",
+    "premium_stop_pct": -0.08,
+    "qty": 3
+  },
+  "mechanism": "BS-invert IV at cached strikes -> interpolate IV vs |delta| to ~25d call/put -> RR=IV(25dC)-IV(25dP) + put-wing slope + their CHANGE vs prior 3 bars, as-of the trigger bar in a 09:35-10:30 ET snapshot. CONFIRM: put-skew steepens / RR falls => keep PUT; flattens / RR rises => keep CALL; drop disagreements.",
+  "coverage": {
+    "n_signals": 158,
+    "side_count": {
+      "C": 86,
+      "P": 72
+    },
+    "in_window": 158,
+    "true_25delta_resolved": 106,
+    "has_skew_change": 157,
+    "cache_caveat": "OPRA cache spans ~$10 (+-$5) on ~97.5% of (day,side) groups (measured: 712/730); only ~18 groups carry the +-$18/+-$30 event cache. 25-delta 0DTE in the morning frequently sits at or beyond +-$5 so most days resolve only to the NEAREST available delta (extrapolation flagged per signal via delta_err / resolved). strict25d variants EXCLUDE unresolved entries from the gate (pass-through unfiltered)."
+  },
+  "unfiltered_baseline": {
+    "n": 149,
+    "exp": 48.33,
+    "oos_exp": 59.81,
+    "total": 7200.6,
+    "posQ": "6/6",
+    "drop_top5_per_trade": 35.84,
+    "oos_drop_top5_per_trade": 26.45,
+    "top5_day_pct": 28.3,
+    "anchor_pnl": -50.88,
+    "by_side": {
+      "C": {
+        "n": 82,
+        "exp": 44.83,
+        "wr": 53.7,
+        "total": 3676.28
+      },
+      "P": {
+        "n": 67,
+        "exp": 52.6,
+        "wr": 49.3,
+        "total": 3524.32
+      }
+    }
+  },
+  "variants": {
+    "W1b_put_side_first_strict25d": {
+      "put_only": true,
+      "strict_resolved": true,
+      "n_signals_in": 158,
+      "n_kept": 138,
+      "n_dropped": 20,
+      "drop_fraction": 0.127,
+      "n_filled": 129,
+      "filtered": {
+        "exp": 45.66,
+        "oos_exp": 59.34,
+        "total": 5890.56,
+        "wr_pct": 50.4,
+        "posQ": "6/6",
+        "drop_top5_per_trade": 31.08,
+        "oos_drop_top5_per_trade": 21.87,
+        "top5_day_pct": 34.6,
+        "by_side": {
+          "C": {
+            "n": 82,
+            "exp": 44.83,
+            "wr": 53.7,
+            "total": 3676.28
+          },
+          "P": {
+            "n": 47,
+            "exp": 47.11,
+            "wr": 44.7,
+            "total": 2214.28
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 2,
+          "EXIT_ALL_PREMIUM_STOP": 63,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 18,
+          "EXIT_ALL_TIME_STOP": 1,
+          "TP1_THEN_RUNNER_RIBBON": 36,
+          "TP1_THEN_RUNNER_TIME": 9
+        },
+        "anchor_pnl": -50.88
+      },
+      "gates": {
+        "beats_unfiltered_exp": false,
+        "beats_random_filter_null": false,
+        "null_p": 0.763,
+        "oos_positive": true,
+        "drop_top5_positive": true,
+        "oos_drop_top5_positive_L173": true,
+        "n_ge_20": true,
+        "clears_structural_bar": true,
+        "structural_fails": [],
+        "anchor_no_regression_OP16": true
+      },
+      "random_filter_null_L172": {
+        "n_total": 149,
+        "n_keep": 129,
+        "drop_fraction": 0.134,
+        "seeds": 2000,
+        "null_mean": 48.3,
+        "null_p05": 41.79,
+        "null_p50": 48.42,
+        "null_p95": 54.3,
+        "null_max": 59.22,
+        "applicable": true
+      },
+      "orthogonality": {
+        "judged_n": 47,
+        "skew_agrees_with_side_rate": 0.574,
+        "note": "agreement-rate near 0.5 => skew is orthogonal to the VWAP trigger (not re-deriving the side); near 1.0 => redundant"
+      },
+      "improves_edge": false
+    },
+    "W1b_put_side_first_loose": {
+      "put_only": true,
+      "strict_resolved": false,
+      "n_signals_in": 158,
+      "n_kept": 126,
+      "n_dropped": 32,
+      "drop_fraction": 0.203,
+      "n_filled": 119,
+      "filtered": {
+        "exp": 43.41,
+        "oos_exp": 59.95,
+        "total": 5165.24,
+        "wr_pct": 50.4,
+        "posQ": "6/6",
+        "drop_top5_per_trade": 28.62,
+        "oos_drop_top5_per_trade": 20.16,
+        "top5_day_pct": 36.8,
+        "by_side": {
+          "C": {
+            "n": 82,
+            "exp": 44.83,
+            "wr": 53.7,
+            "total": 3676.28
+          },
+          "P": {
+            "n": 37,
+            "exp": 40.24,
+            "wr": 43.2,
+            "total": 1488.96
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 2,
+          "EXIT_ALL_PREMIUM_STOP": 58,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 17,
+          "EXIT_ALL_TIME_STOP": 1,
+          "TP1_THEN_RUNNER_RIBBON": 33,
+          "TP1_THEN_RUNNER_TIME": 8
+        },
+        "anchor_pnl": -50.88
+      },
+      "gates": {
+        "beats_unfiltered_exp": false,
+        "beats_random_filter_null": false,
+        "null_p": 0.8465,
+        "oos_positive": true,
+        "drop_top5_positive": true,
+        "oos_drop_top5_positive_L173": true,
+        "n_ge_20": true,
+        "clears_structural_bar": true,
+        "structural_fails": [],
+        "anchor_no_regression_OP16": true
+      },
+      "random_filter_null_L172": {
+        "n_total": 149,
+        "n_keep": 119,
+        "drop_fraction": 0.201,
+        "seeds": 2000,
+        "null_mean": 48.31,
+        "null_p05": 40.41,
+        "null_p50": 48.37,
+        "null_p95": 56.18,
+        "null_max": 63.67,
+        "applicable": true
+      },
+      "orthogonality": {
+        "judged_n": 72,
+        "skew_agrees_with_side_rate": 0.556,
+        "note": "agreement-rate near 0.5 => skew is orthogonal to the VWAP trigger (not re-deriving the side); near 1.0 => redundant"
+      },
+      "improves_edge": false
+    },
+    "W1_both_sides_strict25d": {
+      "put_only": false,
+      "strict_resolved": true,
+      "n_signals_in": 158,
+      "n_kept": 106,
+      "n_dropped": 52,
+      "drop_fraction": 0.329,
+      "n_filled": 97,
+      "filtered": {
+        "exp": 44.71,
+        "oos_exp": 47.28,
+        "total": 4337.2,
+        "wr_pct": 50.5,
+        "posQ": "6/6",
+        "drop_top5_per_trade": 25.0,
+        "oos_drop_top5_per_trade": 2.48,
+        "top5_day_pct": 47.0,
+        "by_side": {
+          "C": {
+            "n": 50,
+            "exp": 42.46,
+            "wr": 56.0,
+            "total": 2122.92
+          },
+          "P": {
+            "n": 47,
+            "exp": 47.11,
+            "wr": 44.7,
+            "total": 2214.28
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 2,
+          "EXIT_ALL_PREMIUM_STOP": 47,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 15,
+          "EXIT_ALL_TIME_STOP": 1,
+          "TP1_THEN_RUNNER_RIBBON": 28,
+          "TP1_THEN_RUNNER_TIME": 4
+        },
+        "anchor_pnl": -50.88
+      },
+      "gates": {
+        "beats_unfiltered_exp": false,
+        "beats_random_filter_null": false,
+        "null_p": 0.704,
+        "oos_positive": true,
+        "drop_top5_positive": true,
+        "oos_drop_top5_positive_L173": true,
+        "n_ge_20": true,
+        "clears_structural_bar": true,
+        "structural_fails": [],
+        "anchor_no_regression_OP16": true
+      },
+      "random_filter_null_L172": {
+        "n_total": 149,
+        "n_keep": 97,
+        "drop_fraction": 0.349,
+        "seeds": 2000,
+        "null_mean": 48.32,
+        "null_p05": 36.72,
+        "null_p50": 48.55,
+        "null_p95": 59.46,
+        "null_max": 68.08,
+        "applicable": true
+      },
+      "orthogonality": {
+        "judged_n": 106,
+        "skew_agrees_with_side_rate": 0.509,
+        "note": "agreement-rate near 0.5 => skew is orthogonal to the VWAP trigger (not re-deriving the side); near 1.0 => redundant"
+      },
+      "improves_edge": false
+    },
+    "W1_both_sides_loose": {
+      "put_only": false,
+      "strict_resolved": false,
+      "n_signals_in": 158,
+      "n_kept": 82,
+      "n_dropped": 76,
+      "drop_fraction": 0.481,
+      "n_filled": 77,
+      "filtered": {
+        "exp": 38.61,
+        "oos_exp": 33.17,
+        "total": 2973.24,
+        "wr_pct": 49.4,
+        "posQ": "5/6",
+        "drop_top5_per_trade": 17.11,
+        "oos_drop_top5_per_trade": -15.7,
+        "top5_day_pct": 58.6,
+        "by_side": {
+          "C": {
+            "n": 40,
+            "exp": 37.11,
+            "wr": 55.0,
+            "total": 1484.28
+          },
+          "P": {
+            "n": 37,
+            "exp": 40.24,
+            "wr": 43.2,
+            "total": 1488.96
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 2,
+          "EXIT_ALL_PREMIUM_STOP": 38,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 13,
+          "EXIT_ALL_TIME_STOP": 1,
+          "TP1_THEN_RUNNER_RIBBON": 21,
+          "TP1_THEN_RUNNER_TIME": 2
+        },
+        "anchor_pnl": 0
+      },
+      "gates": {
+        "beats_unfiltered_exp": false,
+        "beats_random_filter_null": false,
+        "null_p": 0.8425,
+        "oos_positive": true,
+        "drop_top5_positive": true,
+        "oos_drop_top5_positive_L173": false,
+        "n_ge_20": true,
+        "clears_structural_bar": true,
+        "structural_fails": [],
+        "anchor_no_regression_OP16": true
+      },
+      "random_filter_null_L172": {
+        "n_total": 149,
+        "n_keep": 77,
+        "drop_fraction": 0.483,
+        "seeds": 2000,
+        "null_mean": 48.49,
+        "null_p05": 32.77,
+        "null_p50": 48.84,
+        "null_p95": 63.67,
+        "null_max": 79.15,
+        "applicable": true
+      },
+      "orthogonality": {
+        "judged_n": 157,
+        "skew_agrees_with_side_rate": 0.516,
+        "note": "agreement-rate near 0.5 => skew is orthogonal to the VWAP trigger (not re-deriving the side); near 1.0 => redundant"
+      },
+      "improves_edge": false
+    }
+  },
+  "headline_variant": "W1_both_sides_strict25d",
+  "any_variant_improves_edge": false,
+  "DISCLOSURE": {
+    "fills_authority": "real OPRA via lib.simulator_real (C1); same path as edge #1",
+    "load_bearing_gate": "L172 random-FILTER null \u2014 drops the SAME fraction at random 2000x; the confirmer's kept per-trade must beat it (one-sided p<0.05). The VIX-level gate FAILED this at p=0.355.",
+    "spy_vs_option": "C3/L58 \u2014 IV inverted from option bars IS the option surface, but coverage forces nearest-delta extrapolation on most days.",
+    "honest_default": "filters usually just shrink n without real selection; improves_edge is true ONLY on all gates incl. the random-filter null."
+  }
+}

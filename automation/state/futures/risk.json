@@ -1,0 +1,13 @@
+{
+  "account_type": "tastytrade_sandbox",
+  "account_id": "5WW73759",
+  "prop_type": null,
+  "daily_start_equity": 2000.0,
+  "peak_equity": 2000.0,
+  "floor": 1600.0,
+  "daily_loss_limit": 200.0,
+  "kill_switch_triggered": false,
+  "kill_switch_reason": null,
+  "last_updated": "2026-06-17",
+  "notes": "TT sandbox paper account. Kill at -$200/day or equity < $1,600 floor."
+}

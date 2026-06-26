@@ -1,0 +1,60 @@
+{
+  "date": "2026-06-16",
+  "morning_thesis": "SPY premarket ~755.09 with ribbon BULL stack (Fast 755.01 > Pivot 754.82 > Slow 754.68, 33c spread). Price above all key levels: PMH-turned-support 752.09, PDC 754.37, SMA-50 754.47. VIX 16.13 MID — bull eligible (<17.20 threshold). FOMC Day 1 (meeting 6/16-6/17, decision tomorrow 14:00 ET) creates ceiling on conviction — expect chop/wait-and-see pre-FOMC. Primary range: 752.09 support to 756.68 RTH high resistance. Today's PMH 755.35 is first intraday resistance. Bull thesis: continuation of yesterday's structure as long as ribbon holds BULL and 752.09 holds on 5m close. FOMC caution: manage runners tightly, no chasing into 756.68, entries require confirmed setup per playbook.",
+  "predictions": [
+    {
+      "prediction_idx": 0,
+      "claim": "SPY does not close above 756.68 on any 5m bar before 13:00 ET (FOMC churn ceiling holds)",
+      "trigger_window": "09:35-13:00 ET",
+      "invalidation": "5m bar closes above 756.68 before 13:00 ET",
+      "confidence": 0.70,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "SPY peaked at 755.39 session high (early morning) and never challenged 756.68. Price ranged 752-755 all day under the FOMC ceiling.",
+      "category": "level",
+      "evidence_timestamp": "15:48",
+      "graded_at": "2026-06-16T16:30:00-04:00"
+    },
+    {
+      "prediction_idx": 1,
+      "claim": "If SPY tests 752.09, a 5m bar closes above that level within 30 minutes of first touch",
+      "trigger_window": "09:35-15:00 ET",
+      "invalidation": "5m close below 752.09 on first or second test of that level",
+      "confidence": 0.65,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PARTIAL_TIMING",
+      "actual": "752.09 tested at ~13:33-13:48 ET (spy=751.97, 751.94). Recovery above 752 occurred at 14:03 ET (752.11) — ~30-35min after first touch. Close call on timing; ribbon was 67c BEAR at touch blocking confirmed reclaim trigger.",
+      "category": "level",
+      "evidence_timestamp": "13:33",
+      "graded_at": "2026-06-16T16:30:00-04:00"
+    },
+    {
+      "prediction_idx": 2,
+      "claim": "Ribbon remains BULL stack (Fast > Pivot > Slow) through 11:00 ET open-drive window",
+      "trigger_window": "09:35-11:00 ET",
+      "invalidation": "Ribbon flips BEAR (Slow > Fast) on any 5m close before 11:00 ET",
+      "confidence": 0.68,
+      "specificity": 0.85,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "Ribbon flipped MIXED at 10:24 ET (3c spread) and BEAR at 10:33 ET (40c spread), 27 minutes before the 11:00 ET cutoff. Open 33c spread was a compression warning.",
+      "category": "bias",
+      "evidence_timestamp": "10:33",
+      "graded_at": "2026-06-16T16:30:00-04:00"
+    }
+  ],
+  "surprises": [
+    "FOMC-eve VIX suppression with bearish drift: SPY fell ~$4.77 (755.39→750.62) while VIX fell 16.13→15.85 — institutions stripping hedges pre-FOMC created 'fear gauge down / price down' regime that structurally blocked all BEAR entries (filter 8 requires VIX >17.30 rising).",
+    "BULL 11/11 at 14:30 ET (level_reclaim + ribbon_flip simultaneous) blocked by ribbon momentum gate (spread compressing 52c→43c, needs +5c expansion) — trigger criteria met but momentum confirmation failed."
+  ],
+  "lesson": "FOMC-eve sessions can create VIX-suppressed bearish drift — document as named regime, evaluate character-gate discriminator in Sunday weekly review, not a mid-session rule change.",
+  "tomorrow_hint": "FOMC 14:00 ET — hard block 13:30-15:00. Watch 752.09 for bull/bear pivot; 750.62 session floor is first bear target; 756.68 ceiling still in play.",
+  "predictions_count": 3,
+  "predictions_passed": 1,
+  "predictions_partial": 1,
+  "hit_rate_passing": 0.583,
+  "specificity_weighted_hit_rate": 0.567,
+  "graded_at": "2026-06-16T16:30:00-04:00"
+}

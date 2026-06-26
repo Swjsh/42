@@ -1,6 +1,6 @@
 """A5 / A8 / A9 — J's SHARPEST entry CELLS (his data) validated forward on OURS.
 
-Part of the profitability campaign (docs/J-DATA-RESEARCH-MASTER-PLAN.md). Three
+Part of the profitability campaign (markdown/research/J-DATA-RESEARCH-MASTER-PLAN.md). Three
 sub-angles, one anti-overfit method: his Webull data DEFINES the hypothesis (which
 window / trigger / side is sharpest); OUR 2025-26 SPY real-OPRA fills VALIDATE it
 forward through the SAME OP-22 stack used by gap_and_go_ratify / j_daily_pattern.
@@ -541,7 +541,7 @@ def main() -> int:
     out = {
         "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "campaign": "J-DATA profitability — A5 (time-of-day) / A8 (trigger x condition) "
-                    "/ A9 (call vs put). docs/J-DATA-RESEARCH-MASTER-PLAN.md",
+                    "/ A9 (call vs put). markdown/research/J-DATA-RESEARCH-MASTER-PLAN.md",
         "method": (
             "His Webull data (analysis/webull-j-trades/entry_quality.json, 655 closed "
             "round-trips 2021-23) DEFINES the sharpest cell per angle. OUR 2025-26 SPY "

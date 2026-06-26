@@ -2,8 +2,10 @@
 
 > **Effective:** 2026-05-18 (both accounts reset/seeded on this date)
 > **Ratified:** 2026-05-14 by J
-> **Canonical configs:** [`automation/state/params_safe.json`](../automation/state/params_safe.json) · [`automation/state/params_bold.json`](../automation/state/params_bold.json)
+> **Canonical configs:** [`automation/state/params.json`](../../automation/state/params.json) (Safe) · [`automation/state/aggressive/params.json`](../../automation/state/aggressive/params.json) (Bold). (`params_safe.json` / `params_bold.json` never existed — the original design-of-record names; the live files are these.)
 > **Why this exists:** Controlled A/B experiment. Same signal engine, two expression layers. Equal capital. Real trading data to build the account-scaling doctrine we don't yet have evidence for.
+
+> **⚠️ DESIGN-OF-RECORD BANNER (2026-05-18):** The parameter tables below are the *original* dual-account design. Several values have since moved (live as of 2026-06-21): Safe = $2K (Safe-2 `PA3S2PYAS2WQ`), OTM-2 strike (per-tier), 09:35 entry gate, +50% TP1, −50% premium catastrophe cap (chart-stop primary); Bold = ~$1.65K (Risky-2 `PA33W2KUAT40`), −7% bear / −5% bull. **For live values, [`automation/state/params.json`](../../automation/state/params.json) + [`automation/state/aggressive/params.json`](../../automation/state/aggressive/params.json) are authoritative.**
 
 ---
 
@@ -29,25 +31,28 @@ After 20+ trading days (~4 weeks), the log becomes the empirical foundation for:
 
 | Attribute | Value |
 |---|---|
-| **Alpaca alias** | `alpaca` (current credentials in `~/.claude/.mcp.json`, reset 5/18) |
-| **Starting equity** | $1,000 |
-| **Config file** | `automation/state/params_safe.json` |
+| **Alpaca alias** | `alpaca` (current credentials in `~/.claude/.mcp.json`) |
+| **Account #** | `PA3S2PYAS2WQ` (Safe-2, replaced Safe-1 on 2026-06-15) |
+| **Starting equity** | $1,000 (design-of-record) → **$2,000 live** (Safe-2, 2026-06-15) |
+| **Config file** | [`automation/state/params.json`](../../automation/state/params.json) |
 | **Position state** | `automation/state/current-position-safe.json` |
 | **Philosophy** | Capital preservation. Win rate over raw P&L. Never blow up before the lesson is learned. |
 
 **Parameter table:**
 
-| Parameter | Safe Value | Base (params.json) | Why |
+_Design-of-record values (2026-05-18); the **Live** column is the current `params.json` authority as of 2026-06-21._
+
+| Parameter | Safe Value (DoR) | Live (params.json, 2026-06-21) | Why |
 |---|---|---|---|
-| `per_trade_risk_cap_pct` | **30%** | 50% | Lose 3 in a row without hitting kill switch |
-| `daily_loss_kill_switch_pct` | **−30%** | −50% | Tighter — $300 max daily loss on $1K |
-| `premium_stop_pct` | **−8% (symmetric)** | −8% bear / −5% bull | No asymmetry complexity |
-| `tp1_premium_pct` | **+30%** | +75% | Take profit early; prioritize WR |
-| `tp1_qty_fraction` | **0.667** (2 of 3) | 0.333 | Get paid early; 1 runner only |
-| `runner_target_pct` | **2.0×** | 5.0× | Runner to 2× entry premium then trail |
-| `entry_gate_et` | **10:00** | 09:35 | Fully formed market context |
-| `no_trade_window` | **14:00–15:00 ET** | 13:45–15:45 ET | Narrower rest window |
-| `strike_offset` | **ATM (0)** | ITM-2 | delta ~0.50; no gamma leverage risk |
+| `per_trade_risk_cap_pct` | **30%** | 30% | Lose 3 in a row without hitting kill switch |
+| `daily_loss_kill_switch_pct` | **−30%** | −30% (−$600 on $2K) | Tighter — capital preservation |
+| `premium_stop_pct` | **−8% (symmetric)** | **−50% catastrophe cap** (chart-stop primary, C2) | Chart-stop-primary doctrine; premium stop is a backstop |
+| `tp1_premium_pct` | **+30%** | **+50%** | Take profit early; prioritize WR |
+| `tp1_qty_fraction` | **0.667** (2 of 3) | 0.667 (2 of 3) | Get paid early; 1 runner only |
+| `runner_target_pct` | **2.0×** | 2.5× | Runner to 2.5× entry premium then trail |
+| `entry_gate_et` | **10:00** | **09:35** | v15 gate — catches gap fills + morning continuation |
+| `no_trade_window` | **14:00–15:00 ET** | 13:45–15:45 ET | v15 window |
+| `strike_offset` | **ATM (0)** | **OTM-2** (per-tier @ $2K; see `v15_strike_offset_per_tier`) | $2K tier → OTM-2 balances premium vs compounding |
 | `vix_bull_max` | **17.20** | 20.00 | Only calls in genuinely low-vol regime |
 | `vix_bear_min` | **17.30** | 15.00 | Only puts in genuinely elevated regime |
 | `vix_hard_cap` | **22.00** | 30.00 | Current standard cap |
@@ -67,19 +72,22 @@ After 20+ trading days (~4 weeks), the log becomes the empirical foundation for:
 
 | Attribute | Value |
 |---|---|
-| **Alpaca alias** | `alpaca_aggressive` (already in `~/.claude/.mcp.json` as of 5/14) |
-| **Starting equity** | $1,000 |
-| **Config file** | `automation/state/params_bold.json` |
+| **Alpaca alias** | `alpaca_aggressive` (in `~/.claude/.mcp.json`) |
+| **Account #** | `PA33W2KUAT40` (Risky-2) |
+| **Starting equity** | $1,000 (design-of-record) → **~$1,649 live** (Risky-2, 2026-06-21) |
+| **Config file** | [`automation/state/aggressive/params.json`](../../automation/state/aggressive/params.json) |
 | **Position state** | `automation/state/current-position-bold.json` |
 | **Philosophy** | Max P&L when signals are right. Expect bigger drawdowns. The account WILL blow up faster on bad days — that's the data. Document every blowup so we know what NOT to do at $25K. |
 
 **Parameter table:**
 
-| Parameter | Bold Value | Base (params.json) | Why |
+_Design-of-record values (2026-05-18); the **Live** column is the current `aggressive/params.json` authority as of 2026-06-21._
+
+| Parameter | Bold Value (DoR) | Live (aggressive/params.json, 2026-06-21) | Why |
 |---|---|---|---|
 | `per_trade_risk_cap_pct` | **50%** | 50% | Full risk — one max loss = day done |
 | `daily_loss_kill_switch_pct` | **−50%** | −50% | Standard kill switch |
-| `premium_stop_pct_bear` | **−15%** | −8% | Room for puts to breathe (v15 doctrine) |
+| `premium_stop_pct_bear` | **−15%** | **−7%** (chart-stop primary, C2) | Catastrophe cap; chart-stop is the real invalidation |
 | `premium_stop_pct_bull` | **−5%** | −5% | Calls fail fast |
 | `tp1_premium_pct` | **+75%** | +75% | Let winners develop |
 | `tp1_qty_fraction` | **0.333** (1 of 3) | 0.333 | Take 1 off; 2 runners ride |
@@ -106,14 +114,16 @@ After 20+ trading days (~4 weeks), the log becomes the empirical foundation for:
 
 When the same setup fires for both accounts simultaneously (the highest-value case):
 
+_Live values (2026-06-21); see params.json / aggressive/params.json for canonical._
+
 | Decision Point | Gamma-Safe | Gamma-Bold |
 |---|---|---|
-| **Strike** | ATM (offset 0) | ITM-2 (offset −2) |
-| **Entry time** | 10:00 ET gate | 09:35 ET gate |
-| **Stop** | −8% symmetric | −15% bear / −5% bull |
-| **TP1 threshold** | +30% | +75% |
-| **TP1 fraction** | 2 of 3 (67%) off | 1 of 3 (33%) off |
-| **Runner target** | 2× entry premium | 5× entry premium |
+| **Strike** | OTM-2 (per-tier @ $2K) | ITM-2 (offset −2) |
+| **Entry time** | 09:35 ET gate | 09:35 ET gate |
+| **Stop** | chart-stop primary; −50% premium catastrophe cap | chart-stop primary; −7% bear / −5% bull cap |
+| **TP1 threshold** | +50% | +75% |
+| **TP1 fraction** | 2 of 3 (0.667) off | 1 of 3 (0.333) off |
+| **Runner target** | 2.5× entry premium | 5× entry premium |
 | **Risk capital** | 30% of account | 50% of account |
 
 **Both execute on the same tick.** Gamma places two independent bracket orders (one per Alpaca account). Both rows logged to `decisions.jsonl` with `account_id: safe` and `account_id: bold`.
@@ -132,8 +142,8 @@ When the same setup fires for both accounts simultaneously (the highest-value ca
 |---|---|
 | `automation/state/current-position-safe.json` | Gamma-Safe live position state |
 | `automation/state/current-position-bold.json` | Gamma-Bold live position state |
-| `automation/state/params_safe.json` | Safe parameter overrides |
-| `automation/state/params_bold.json` | Bold parameter overrides |
+| `automation/state/params.json` | Safe canonical config |
+| `automation/state/aggressive/params.json` | Bold canonical config |
 
 ### Heartbeat Processing (per tick)
 

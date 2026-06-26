@@ -68,6 +68,10 @@ from .stairstep_continuation_watcher import detect_stairstep_continuation_setup 
 from .vwap_trend_pullback_watcher import detect_vwap_trend_pullback_setup  # 2026-06-19 H4
 from .gap_and_go_watcher import detect_gap_and_go_setup  # 2026-06-19 H2b (open-bar; needs prior_close)
 from .vwap_continuation_watcher import detect_vwap_continuation_setup  # 2026-06-20 J_VWAP_CONT (J's daily edge)
+from .double_top_watcher import detect_double_top_setup  # 2026-06-20 bearish mirror of double_bottom (WATCH_ONLY)
+from .market_structure_watcher import detect_market_structure_setup  # 2026-06-20 BOS/CHoCH Insight stream (WATCH_ONLY)
+from .vwap_reclaim_failed_break_watcher import detect_vwap_reclaim_failed_break_setup  # 2026-06-21 J_VWAP_RECLAIM_FB edge #2 (DORMANT)
+from .vix_regime_dayside_watcher import detect_vix_regime_dayside_setup  # 2026-06-21 J_VIX_DAYSIDE edge #4 (DORMANT)
 from ..filters import BarContext
 
 REPO = Path(__file__).resolve().parents[2]
@@ -260,6 +264,41 @@ WATCHERS: list[WatcherSpec] = [
     # full pattern, no VIX gate (the headline J_VWAP_CONT/ATM cell). WATCH_ONLY per OP-21
     # until 3 live J wins; DORMANT heartbeat wiring is gated on params.j_vwap_cont_enabled.
     _ctx_spec("vwap_continuation_watcher", "detect_vwap_continuation_setup", detect_vwap_continuation_setup),
+    # 2026-06-20 Chart-Master follow-up — two WATCH_ONLY observe-only streams (OP-21,
+    # 0/3 live wins; NEITHER is a live trigger). double_top = bearish mirror of the two
+    # double_bottom watchers (closes the TA-CAPABILITY-AND-GAPS double-top mirror gap);
+    # market_structure surfaces BOS/CHoCH from the gym-validated analyze_structure detector
+    # (fires only when the break prints on the current bar — no stale re-emit). Both ctx-only
+    # (need today's RTH history in prior_bars for the pattern/swing window).
+    _ctx_spec("double_top_watcher", "detect_double_top_setup", detect_double_top_setup),
+    _ctx_spec("market_structure_watcher", "detect_market_structure_setup", detect_market_structure_setup),
+    # J_VWAP_RECLAIM_FB (edge #2) — the SUBTRACTIVE/STRUCTURAL sibling of vwap_continuation:
+    # morning trend side -> a counter-trend VWAP break that FAILS and RECLAIMS with-trend
+    # (<=10:30 ET, ONE causal entry/day, chart stop = the failed-break excursion extreme).
+    # Ported byte-for-byte from the validated research detector
+    # (autoresearch._sub_struct_vwap_reclaim_failed_break.detect_signals); clears all 8
+    # anti-cherry-pick gates @ ITM-2 on real OPRA fills (OOS +$72/tr, posQ 5/6). C29:
+    # Safe-2 ships ATM, Bold ships ITM-2 (OTM-2 fails — theta/delta). WATCH_ONLY per OP-21
+    # until 3 live J wins; DORMANT heartbeat wiring gated on params.j_vwap_reclaim_fb_enabled
+    # (default FALSE). ctx-only (needs today's full RTH history in prior_bars for the as-of
+    # session-VWAP + 3-bar trend window + the phase machine).
+    _ctx_spec("vwap_reclaim_failed_break_watcher", "detect_vwap_reclaim_failed_break_setup", detect_vwap_reclaim_failed_break_setup),
+    # J_VIX_DAYSIDE (edge #4) — the VIX-regime-conditional DAY+SIDE directional system:
+    # take the established morning VWAP day-trend side ONLY in the favorable VIX regime
+    # (LOW level + not-rising 5-bar slope), 09:35-11:30 ET, ATM single-leg. Ported
+    # byte-for-byte from the validated research detector
+    # (autoresearch._b5_vix_regime_dayside.detect_opt_signals / favorable_regime / trend_side);
+    # the gate-clearing cell (low_margin=0.25, slope_rule=not_rising, ATM) clears all 8
+    # anti-cherry-pick gates on real OPRA fills (OOS +$79.49/tr, drop-top5 +$25.91,
+    # chart-stop-only OOS+ = no truncation, posQ 5/6). C29: Safe-2 ships ATM (ITM-2 at the
+    # same cell is a truncation-artifact, NOT shipped). WATCH_ONLY per OP-21 until 3 live J
+    # wins; DORMANT heartbeat wiring gated on params.j_vix_dayside_enabled (default FALSE).
+    # ctx-only (needs today's full RTH history in prior_bars for the as-of session-VWAP +
+    # 3-bar trend window). Structural note: the VIX regime needs an intraday VIX series
+    # (trailing-median 78 + slope 5) the live BarContext does not carry by default; the
+    # wrapper reads an OPTIONAL ctx.vix_intraday and SKIPS (returns None — never guesses)
+    # when absent, so the live wiring stays inert until the feed threads the VIX series in.
+    _ctx_spec("vix_regime_dayside_watcher", "detect_vix_regime_dayside_setup", detect_vix_regime_dayside_setup),
     # H2b data-discovered survivor (2026-06-19). Ratified: analysis/recommendations/
     # gap-and-go-LIVE.json (chart-stop-only: exp +$41.6/WR 72.6%, DSR PASS, WF_PASS
     # all cuts, causality 96/96 PASS, both dirs +). Once-per-day OPEN-bar setup: fires

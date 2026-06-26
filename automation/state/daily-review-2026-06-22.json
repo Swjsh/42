@@ -1,0 +1,61 @@
+{
+  "date": "2026-06-22",
+  "morning_thesis": "Bias: BEARISH (pending ribbon flip). SPY opened Monday gap-up (+$0.45 from 6/18 AH 746.50) and ran to PMH 748.07 in premarket, tagging the swarm's battle level before pulling back to 747.75. Ribbon BULL-stacked (Fast 747.51 > Pivot 747.12 > Slow 746.94, spread 57c) — no bear setup eligible at open. Watch: ribbon flips BEAR below 747.25, BEARISH_REJECTION activates targeting 745.33. VIX 17.04 MID. No macro today; PCE 6/25. BULLISH_RECLAIM DRAFT. Falsifiable predictions: [0] SPY rejects 748.0 zone, 5m close below 747.25 before 11:00 ET (invalidated if 5m close above 748.25 by 11:00); [1] Ribbon flips BULL->BEAR in first 60min if SPY fails 747.25 (inv: ribbon BULL 20c+ through 10:30); [2] VIX holds above 16.5 through morning (inv: VIX < 16.0 by 11:00 ET).",
+  "predictions": [
+    {
+      "prediction_idx": 0,
+      "claim": "SPY will reject at 748.0 zone and print at least one 5m close below 747.25 before 11:00 ET",
+      "trigger_window": "09:30-11:00 ET",
+      "invalidation": "SPY breaks and holds a 5m close above 748.25 by 11:00 ET, confirming continuation",
+      "confidence": 0.60,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "SPY broke above 748.25 to session high 750.18 before 10:30 ET. Invalidation condition triggered. Morning rejection thesis was wrong.",
+      "category": "level",
+      "evidence_timestamp": "~10:00",
+      "graded_at": "2026-06-22T16:30:00-04:00"
+    },
+    {
+      "prediction_idx": 1,
+      "claim": "Ribbon will flip from BULL to BEAR (fast EMA < slow EMA) within first 60 minutes of RTH if SPY fails to hold 747.25",
+      "trigger_window": "09:30-10:30 ET",
+      "invalidation": "Ribbon maintains BULL stack with spread > +20c through 10:30 ET",
+      "confidence": 0.55,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "Ribbon flipped BEAR at ~10:48 ET (outside 10:30 window). SPY ran to 750.18 first — did not fail 747.25 on the way down before 10:30. Flip happened 18 min late after a full bull reversal.",
+      "category": "bias",
+      "evidence_timestamp": "10:48",
+      "graded_at": "2026-06-22T16:30:00-04:00"
+    },
+    {
+      "prediction_idx": 2,
+      "claim": "VIX will hold above 16.5 through the morning session (09:30-12:00 ET), confirming elevated caution as SPY probes 748 resistance",
+      "trigger_window": "09:30-12:00 ET",
+      "invalidation": "VIX drops below 16.0 by 11:00 ET on a 5m close",
+      "confidence": 0.60,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "VIX opened 17.04, rose to 17.53 by 10:48 ET. Never approached 16.5. Held elevated all morning.",
+      "category": "other",
+      "evidence_timestamp": "10:48",
+      "graded_at": "2026-06-22T16:30:00-04:00"
+    }
+  ],
+  "surprises": [
+    "SPY swept PMH 748.07 by +$2.11 to 750.18 session high before reversing — failed breakout pattern; full roundtrip (750.18 → 743.35) in a single session",
+    "ENTER_BEAR 10/10 score fired at 10:57 but killed by 220s harness timeout — valid signal, missed trade due to infrastructure, not rule block",
+    "743.35 (6/18 RTH low) defended again as today's session low — double-confirmed structural support across two sessions"
+  ],
+  "lesson": "A BULL-stacked ribbon at open is an active counter-signal — model a bull sweep scenario before the first bear setup qualifies; today's missed ENTER_BEAR was infrastructure (timeout), not signal — fix = trim prompt and stagger Safe/Bold fires.",
+  "tomorrow_hint": "750.18 new cap; bear trend intact; 743.35 double-confirmed support; PCE Thu 08:30 overhang",
+  "predictions_count": 3,
+  "predictions_passed": 1,
+  "predictions_partial": 0,
+  "hit_rate_passing": 0.333,
+  "specificity_weighted_hit_rate": 0.333,
+  "graded_at": "2026-06-22T16:30:00-04:00"
+}

@@ -1,0 +1,1 @@
+- [0DTE premium class closed](project_0dte_premium_class_closed.md) — the whole 0DTE SPY premium axis is dead (L182/L183: long-single-leg theta + short-defined-risk cache-tail-bias + long-vol two-sided-fair); don't re-mine it, climb OFF the premium axis

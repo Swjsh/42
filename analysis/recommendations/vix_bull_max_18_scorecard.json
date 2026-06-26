@@ -1,0 +1,62 @@
+{
+  "rule_id": "VIX_BULL_MAX_18",
+  "candidate_id": "vix_bull_max_18",
+  "filed": "2026-06-17",
+  "status": "REJECTED",
+
+  "description": "Reduce VIX_BULL_HARD_CAP from 22.0 to 18.0 to block BULL (CALL) entries when VIX > 18.0. Hypothesis: VIX 18-22 bull entries are net losers.",
+
+  "sweep_results": {
+    "baseline": {"vix_bull_max": 22.0, "IS_n": 244, "IS_pnl": -5118, "OOS_n": 15, "OOS_pnl": 2659},
+    "vix_bull_max_16": {"IS_n": 173, "IS_pnl": -1093, "IS_delta": 4025, "OOS_n": 7, "OOS_pnl": -141, "OOS_delta": -2800, "WF": -11.316, "verdict": "FAIL"},
+    "vix_bull_max_18": {"IS_n": 233, "IS_pnl": -3865, "IS_delta": 1253, "OOS_n": 14, "OOS_pnl": 2878, "OOS_delta": 219, "WF": 2.846, "anchor": "OK", "verdict": "PASS_initial"},
+    "vix_bull_max_20": {"IS_n": 241, "IS_pnl": -5159, "IS_delta": -42, "OOS_n": 15, "OOS_pnl": 2659, "OOS_delta": 0, "WF": -0.0, "verdict": "FAIL"},
+    "vix_bull_max_25": {"IS_n": 253, "IS_pnl": -4387, "IS_delta": 731, "OOS_n": 15, "OOS_pnl": 2659, "OOS_delta": 0, "WF": 0.0, "verdict": "FAIL"}
+  },
+
+  "sub_window_analysis": {
+    "W1_Jan_Jun_2025": {"BASE_n": 60, "BASE_pnl": -1759, "CAND_n": 58, "CAND_pnl": -2132, "delta": -372, "result": "HURT"},
+    "W2_Jul_Dec_2025": {"BASE_n": 110, "BASE_pnl": 3254, "CAND_n": 110, "CAND_pnl": 3254, "delta": 0, "result": "NEUTRAL"},
+    "W3_Jan_Mar_2026": {"BASE_n": 49, "BASE_pnl": -505, "CAND_n": 48, "CAND_pnl": -99, "delta": 406, "result": "HELP"},
+    "W4_Apr_May_2026": {"BASE_n": 24, "BASE_pnl": -5217, "CAND_n": 17, "CAND_pnl": -4208, "delta": 1009, "result": "HELP"},
+    "summary": "UNSTABLE — W1 HURT. Improvement concentrated in high-VIX 2026 periods (W3+W4). Normal 2025 market (W1) suffers."
+  },
+
+  "anchor_detail": {
+    "2026-04-29": {"base": -2477, "cand": -2477, "verdict": "OK"},
+    "2026-05-01": {"base": 0, "cand": 0, "verdict": "OK"},
+    "2026-05-04": {"base": 804, "cand": 804, "verdict": "OK"}
+  },
+
+  "oos_detail": {
+    "trade_removed": {
+      "date": "2026-05-13",
+      "side": "P",
+      "premium": 2.74,
+      "pnl": -219,
+      "entry_vix": 18.3
+    },
+    "anomaly_note": "Removed OOS trade is a PUT (bear entry, side=P). Expected: vix_bull_max only blocks CALL (bull) entries. Why a bear entry is removed when reducing the bull cap from 22->18 requires investigation in filters.py VIX_BULL_HARD_CAP usage context."
+  },
+
+  "ratification_gates": {
+    "oos_delta_positive": true,
+    "wf_gte_0_70": true,
+    "anchor_ok": true,
+    "sub_window_stable": false,
+    "sub_window_note": "W1 Jan-Jun 2025 HURT (-$372). 2 IS bull entries in VIX 18-22 were profitable in calm 2025 market. Regime-conditional improvement only.",
+    "final_verdict": "REJECTED"
+  },
+
+  "mechanism": "Blocks BULL (CALL) entries when VIX > 18.0. In high-VIX post-shock environments (2026), bull entries at VIX 18-22 are net losers. In calm markets (2025, VIX 15-17), VIX momentarily crosses 18 on bearish days when BULL reversals ARE profitable. Filter is regime-conditional.",
+
+  "root_cause": "The IS improvement (+$1,253) and OOS improvement (+$219) are driven by 2026 high-VIX conditions (W3+W4). In 2025 (W1), the 2 removed IS bull entries were profitable. The filter works when VIX-base is high (18+ is the normal level) but hurts when VIX is low (18 is a temporary spike on an otherwise calm day).",
+
+  "related_candidates": ["tighter-stop-01.json", "time_stop_minutes_ab_scorecard.json"],
+  "lessons": ["L73 (VIX-character gate specificity)", "L93 (cross-strategy VIX gate contamination)"],
+
+  "next_steps": [
+    "Investigate why PUT entry on 2026-05-13 VIX=18.3 is removed by bull cap change (grep VIX_BULL_HARD_CAP in filters.py)",
+    "Consider regime-specific deployment: enable vix_bull_max=18.0 only after VIX has been > 20 for 5+ days (prevents W1 HURT). Kitchen task candidate."
+  ]
+}

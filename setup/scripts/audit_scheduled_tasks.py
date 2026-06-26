@@ -172,6 +172,11 @@ def audit() -> dict:
         if age_h is None:
             # never ran or unparseable — flag only if was supposed to run
             continue
+        # Weekend false-positive suppression: weekday-only tasks are expected silent on
+        # Sat/Sun. Max legitimate gap = ~62h (Thu EOD -> Mon premarket); allow 70h.
+        _today_dow = datetime.now().weekday()  # 5=Sat, 6=Sun
+        if _today_dow >= 5 and age_h <= 70:
+            continue
         # Heuristic: anything > 26h old without successful run = SILENT
         if age_h > 26 and "Weekly" not in name and "Monday" not in name:
             flags.append({"flag": "SILENT_TASK", "task": name,

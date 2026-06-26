@@ -1,0 +1,16 @@
+{"date": "2026-04-24", "price": 650.239990234375, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-04-24", "price": 655.34, "source": "intraday", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-04-24", "price": 702.2802734375, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-04-24", "price": 707.0345668769273, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-04-24", "price": 707.9139535445221, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-04-24", "price": 707.9762779741866, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-04-24", "price": 708.4, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-04-24", "price": 708.780029296875, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-04-24", "price": 708.9, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-04-24", "price": 709.0, "source": "swept", "touched": true, "outcome": "RESPECT", "reaction_dollars": 1.7, "false_break": false}
+{"date": "2026-04-24", "price": 709.15, "source": "swept", "touched": true, "outcome": "RESPECT", "reaction_dollars": 1.55, "false_break": false}
+{"date": "2026-04-24", "price": 710.0499877929688, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.11, "false_break": false}
+{"date": "2026-04-24", "price": 711.0, "source": "swept", "touched": true, "outcome": "RESPECT", "reaction_dollars": 1.99, "false_break": false}
+{"date": "2026-04-24", "price": 712.0, "source": "round", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.49, "false_break": false}
+{"date": "2026-04-24", "price": 712.3598022460938, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.74, "false_break": false}
+{"date": "2026-04-24", "price": 713.38, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.76, "false_break": true}

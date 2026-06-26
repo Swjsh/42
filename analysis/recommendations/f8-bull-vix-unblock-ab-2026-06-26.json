@@ -1,0 +1,286 @@
+{
+  "generated_at": "2026-06-26T15:41:57.564996Z",
+  "block": "VIX_BULL_LOW_THRESHOLD (filter 8) \u2014 bull entry needs VIX<17.20 OR vix_falling",
+  "account": "safe",
+  "engine": "CURRENT: use_real_fills=True + V15 managed exits (chart-stop-primary, -50% cap, chandelier, tp1=0.667/runner=2.5)",
+  "recommendation": "KEEP",
+  "still_justified": true,
+  "reason": "Block suppresses 3 bull trades that are net LOSERS ($-892 full, $-310 OOS). Admitting them degrades P&L -> F8 still earns its keep under the current engine.",
+  "anchor_no_regression": true,
+  "op16_floor_pass": true,
+  "anchor_edge_capture": {
+    "baseline": 780.0,
+    "unblocked": 780.0,
+    "delta": 0.0
+  },
+  "full_delta_bull_pnl": -891.6,
+  "oos_delta_bull_pnl": -309.6,
+  "train_delta_bull_pnl": -582.0,
+  "n_suppressed_bull_full": 3,
+  "quarters_positive": 0,
+  "quarters_negative": 3,
+  "ab": {
+    "train_2025": {
+      "baseline": {
+        "n_trades": 14,
+        "total_pnl": 1344.23,
+        "win_rate": 0.429,
+        "sharpe": 0.0,
+        "max_drawdown": -1232.4,
+        "n_bull": 3,
+        "n_bull_wins": 0,
+        "bull_wr": 0.0,
+        "bull_pnl": -1039.04,
+        "bull_avg": -346.35
+      },
+      "unblocked": {
+        "n_trades": 16,
+        "total_pnl": 762.23,
+        "win_rate": 0.375,
+        "sharpe": 0.0,
+        "max_drawdown": -1232.4,
+        "n_bull": 5,
+        "n_bull_wins": 0,
+        "bull_wr": 0.0,
+        "bull_pnl": -1621.04,
+        "bull_avg": -324.21
+      },
+      "delta_bull_n": 2,
+      "delta_bull_pnl": -582.0,
+      "delta_total_pnl": -582.0
+    },
+    "oos_2026": {
+      "baseline": {
+        "n_trades": 21,
+        "total_pnl": 6210.95,
+        "win_rate": 0.619,
+        "sharpe": 0.0,
+        "max_drawdown": -2272.93,
+        "n_bull": 6,
+        "n_bull_wins": 3,
+        "bull_wr": 0.5,
+        "bull_pnl": 4689.16,
+        "bull_avg": 781.53
+      },
+      "unblocked": {
+        "n_trades": 22,
+        "total_pnl": 5901.35,
+        "win_rate": 0.591,
+        "sharpe": 0.0,
+        "max_drawdown": -2272.93,
+        "n_bull": 7,
+        "n_bull_wins": 3,
+        "bull_wr": 0.429,
+        "bull_pnl": 4379.56,
+        "bull_avg": 625.65
+      },
+      "delta_bull_n": 1,
+      "delta_bull_pnl": -309.6,
+      "delta_total_pnl": -309.6
+    },
+    "full": {
+      "baseline": {
+        "n_trades": 35,
+        "total_pnl": 7555.18,
+        "win_rate": 0.543,
+        "sharpe": 0.0,
+        "max_drawdown": -2272.93,
+        "n_bull": 9,
+        "n_bull_wins": 3,
+        "bull_wr": 0.333,
+        "bull_pnl": 3650.12,
+        "bull_avg": 405.57
+      },
+      "unblocked": {
+        "n_trades": 38,
+        "total_pnl": 6663.58,
+        "win_rate": 0.5,
+        "sharpe": 0.0,
+        "max_drawdown": -2272.93,
+        "n_bull": 12,
+        "n_bull_wins": 3,
+        "bull_wr": 0.25,
+        "bull_pnl": 2758.52,
+        "bull_avg": 229.88
+      },
+      "delta_bull_n": 3,
+      "delta_bull_pnl": -891.6,
+      "delta_total_pnl": -891.6
+    },
+    "2025Q1": {
+      "baseline": {
+        "n_trades": 5,
+        "total_pnl": -309.9,
+        "win_rate": 0.2,
+        "sharpe": 0.0,
+        "max_drawdown": -939.9,
+        "n_bull": 1,
+        "n_bull_wins": 0,
+        "bull_wr": 0.0,
+        "bull_pnl": -290.4,
+        "bull_avg": -290.4
+      },
+      "unblocked": {
+        "n_trades": 6,
+        "total_pnl": -606.3,
+        "win_rate": 0.167,
+        "sharpe": 0.0,
+        "max_drawdown": -939.9,
+        "n_bull": 2,
+        "n_bull_wins": 0,
+        "bull_wr": 0.0,
+        "bull_pnl": -586.8,
+        "bull_avg": -293.4
+      },
+      "delta_bull_n": 1,
+      "delta_bull_pnl": -296.4,
+      "delta_total_pnl": -296.4
+    },
+    "2025Q2": {
+      "baseline": {
+        "n_trades": 2,
+        "total_pnl": 1007.5,
+        "win_rate": 0.5,
+        "sharpe": 0.0,
+        "max_drawdown": -292.5,
+        "n_bull": 0,
+        "n_bull_wins": 0,
+        "bull_wr": 0.0,
+        "bull_pnl": 0,
+        "bull_avg": 0.0
+      },
+      "unblocked": {
+        "n_trades": 2,
+        "total_pnl": 1007.5,
+        "win_rate": 0.5,
+        "sharpe": 0.0,
+        "max_drawdown": -292.5,
+        "n_bull": 0,
+        "n_bull_wins": 0,
+        "bull_wr": 0.0,
+        "bull_pnl": 0,
+        "bull_avg": 0.0
+      },
+      "delta_bull_n": 0,
+      "delta_bull_pnl": 0,
+      "delta_total_pnl": 0.0
+    },
+    "2025Q3": {
+      "baseline": {
+        "n_trades": 4,
+        "total_pnl": -615.64,
+        "win_rate": 0.5,
+        "sharpe": 0.0,
+        "max_drawdown": -748.64,
+        "n_bull": 2,
+        "n_bull_wins": 0,
+        "bull_wr": 0.0,
+        "bull_pnl": -748.64,
+        "bull_avg": -374.32
+      },
+      "unblocked": {
+        "n_trades": 5,
+        "total_pnl": -901.24,
+        "win_rate": 0.4,
+        "sharpe": 0.0,
+        "max_drawdown": -992.24,
+        "n_bull": 3,
+        "n_bull_wins": 0,
+        "bull_wr": 0.0,
+        "bull_pnl": -1034.24,
+        "bull_avg": -344.75
+      },
+      "delta_bull_n": 1,
+      "delta_bull_pnl": -285.6,
+      "delta_total_pnl": -285.6
+    },
+    "2025Q4": {
+      "baseline": {
+        "n_trades": 3,
+        "total_pnl": 1262.27,
+        "win_rate": 0.667,
+        "sharpe": 0.0,
+        "max_drawdown": -177.73,
+        "n_bull": 0,
+        "n_bull_wins": 0,
+        "bull_wr": 0.0,
+        "bull_pnl": 0,
+        "bull_avg": 0.0
+      },
+      "unblocked": {
+        "n_trades": 3,
+        "total_pnl": 1262.27,
+        "win_rate": 0.667,
+        "sharpe": 0.0,
+        "max_drawdown": -177.73,
+        "n_bull": 0,
+        "n_bull_wins": 0,
+        "bull_wr": 0.0,
+        "bull_pnl": 0,
+        "bull_avg": 0.0
+      },
+      "delta_bull_n": 0,
+      "delta_bull_pnl": 0,
+      "delta_total_pnl": 0.0
+    },
+    "2026Q1": {
+      "baseline": {
+        "n_trades": 8,
+        "total_pnl": 5995.56,
+        "win_rate": 0.625,
+        "sharpe": 0.0,
+        "max_drawdown": -482.24,
+        "n_bull": 4,
+        "n_bull_wins": 2,
+        "bull_wr": 0.5,
+        "bull_pnl": 3769.56,
+        "bull_avg": 942.39
+      },
+      "unblocked": {
+        "n_trades": 8,
+        "total_pnl": 5995.56,
+        "win_rate": 0.625,
+        "sharpe": 0.0,
+        "max_drawdown": -482.24,
+        "n_bull": 4,
+        "n_bull_wins": 2,
+        "bull_wr": 0.5,
+        "bull_pnl": 3769.56,
+        "bull_avg": 942.39
+      },
+      "delta_bull_n": 0,
+      "delta_bull_pnl": 0.0,
+      "delta_total_pnl": 0.0
+    },
+    "2026Q2": {
+      "baseline": {
+        "n_trades": 13,
+        "total_pnl": 215.39,
+        "win_rate": 0.615,
+        "sharpe": 0.0,
+        "max_drawdown": -2272.93,
+        "n_bull": 2,
+        "n_bull_wins": 1,
+        "bull_wr": 0.5,
+        "bull_pnl": 919.6,
+        "bull_avg": 459.8
+      },
+      "unblocked": {
+        "n_trades": 14,
+        "total_pnl": -94.21,
+        "win_rate": 0.571,
+        "sharpe": 0.0,
+        "max_drawdown": -2272.93,
+        "n_bull": 3,
+        "n_bull_wins": 1,
+        "bull_wr": 0.333,
+        "bull_pnl": 610.0,
+        "bull_avg": 203.33
+      },
+      "delta_bull_n": 1,
+      "delta_bull_pnl": -309.6,
+      "delta_total_pnl": -309.6
+    }
+  },
+  "param_diff_to_unblock": "filters.py evaluate_bullish_setup filter 8: remove the VIX<17.20-OR-falling block on the bull path (or expose params.json key 'disable_bull_filter_8': true / 'block_bull_vix_low': false). No params.json knob exists today \u2014 F8 is hardcoded."
+}

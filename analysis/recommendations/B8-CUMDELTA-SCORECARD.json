@@ -1,0 +1,507 @@
+{
+  "angle": "B - cumulative-delta / volume-imbalance (flow proxy from 5m OHLCV)",
+  "run_date": "2026-06-21",
+  "window": "2025-01-02..2026-05-15",
+  "trading_days": 342,
+  "proxy": "bar_delta=((close-open)/range)*volume, cumulative per session, causal as-of",
+  "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1)",
+  "tiers": {
+    "Safe2_ATM": 0,
+    "Bold_ITM2": -2
+  },
+  "oos_split": "IS=2025 / OOS=2026",
+  "USE1_standalone": {
+    "Safe2_ATM": {
+      "clears": true,
+      "metrics": {
+        "n": 113,
+        "wr_pct": 42.5,
+        "exp_dollar": 34.8,
+        "total_dollar": 3931.88,
+        "is_n": 80,
+        "is_exp": 34.9,
+        "is_total": 2792.08,
+        "oos_n": 33,
+        "oos_exp": 34.54,
+        "oos_total": 1139.8,
+        "quarters": {
+          "2025Q1": {
+            "n": 14,
+            "exp": 91.09,
+            "total": 1275.32
+          },
+          "2025Q2": {
+            "n": 18,
+            "exp": 12.11,
+            "total": 218.0
+          },
+          "2025Q3": {
+            "n": 22,
+            "exp": 8.36,
+            "total": 183.88
+          },
+          "2025Q4": {
+            "n": 26,
+            "exp": 42.88,
+            "total": 1114.88
+          },
+          "2026Q1": {
+            "n": 19,
+            "exp": 64.36,
+            "total": 1222.76
+          },
+          "2026Q2": {
+            "n": 14,
+            "exp": -5.93,
+            "total": -82.96
+          }
+        },
+        "positive_quarters": "5/6",
+        "positive_quarters_n": 5,
+        "n_quarters": 6,
+        "top5_day_pct": 51.0,
+        "drop_top5_per_trade": 17.84,
+        "oos_alone_drop_top5": 3.08,
+        "by_side": {
+          "C": {
+            "n": 62,
+            "exp": 41.34,
+            "wr": 51.6,
+            "total": 2563.08
+          },
+          "P": {
+            "n": 51,
+            "exp": 26.84,
+            "wr": 31.4,
+            "total": 1368.8
+          }
+        }
+      },
+      "gates": {
+        "1_oos_per_trade_pos": true,
+        "2_pos_quarters_4of6": true,
+        "3_top5_day_lt_200": true,
+        "4_n_ge_20": true,
+        "5_full_drop_top5_pos": true,
+        "6_is_2025_half_pos": true,
+        "7_beats_random_null": true,
+        "8_no_truncation": true,
+        "9_oos_alone_drop_top5_pos": true
+      },
+      "fails": [],
+      "null": {
+        "seeds": 20,
+        "n_eligible": 25544,
+        "n_drawn": 113,
+        "per_trade_mean": -3.2,
+        "per_trade_min": -9.9,
+        "per_trade_max": 5.3,
+        "per_trade_by_seed": [
+          -6.0,
+          -8.18,
+          -6.32,
+          -9.11,
+          -0.43,
+          0.13,
+          -6.4,
+          1.92,
+          0.12,
+          -0.89,
+          -7.75,
+          1.0,
+          4.53,
+          -8.11,
+          4.07,
+          -9.9,
+          -3.43,
+          -9.34,
+          5.3,
+          -5.15
+        ]
+      },
+      "null_gate": {
+        "beats_null_mean": true,
+        "beats_null_max": true,
+        "drop_top5_beats_null_mean": true,
+        "edge_over_null_per_trade": 38.0,
+        "null_pass": true
+      },
+      "chart_stop_only_per_trade": 27.57,
+      "is_truncation_artifact": false,
+      "coverage": {
+        "signals": 119,
+        "filled": 113,
+        "cache_miss": 6,
+        "sim_none": 0,
+        "fill_rate": 0.95
+      },
+      "premium_stop_pct": -0.08,
+      "strike_offset": 0
+    },
+    "Bold_ITM2": {
+      "clears": true,
+      "metrics": {
+        "n": 112,
+        "wr_pct": 43.8,
+        "exp_dollar": 67.34,
+        "total_dollar": 7541.6,
+        "is_n": 79,
+        "is_exp": 60.07,
+        "is_total": 4745.32,
+        "oos_n": 33,
+        "oos_exp": 84.74,
+        "oos_total": 2796.28,
+        "quarters": {
+          "2025Q1": {
+            "n": 13,
+            "exp": 102.22,
+            "total": 1328.92
+          },
+          "2025Q2": {
+            "n": 18,
+            "exp": 18.1,
+            "total": 325.76
+          },
+          "2025Q3": {
+            "n": 22,
+            "exp": 14.49,
+            "total": 318.68
+          },
+          "2025Q4": {
+            "n": 26,
+            "exp": 106.61,
+            "total": 2771.96
+          },
+          "2026Q1": {
+            "n": 19,
+            "exp": 150.91,
+            "total": 2867.36
+          },
+          "2026Q2": {
+            "n": 14,
+            "exp": -5.08,
+            "total": -71.08
+          }
+        },
+        "positive_quarters": "5/6",
+        "positive_quarters_n": 5,
+        "n_quarters": 6,
+        "top5_day_pct": 31.3,
+        "drop_top5_per_trade": 48.39,
+        "oos_alone_drop_top5": 28.6,
+        "by_side": {
+          "C": {
+            "n": 62,
+            "exp": 87.69,
+            "wr": 51.6,
+            "total": 5437.0
+          },
+          "P": {
+            "n": 50,
+            "exp": 42.09,
+            "wr": 34.0,
+            "total": 2104.6
+          }
+        }
+      },
+      "gates": {
+        "1_oos_per_trade_pos": true,
+        "2_pos_quarters_4of6": true,
+        "3_top5_day_lt_200": true,
+        "4_n_ge_20": true,
+        "5_full_drop_top5_pos": true,
+        "6_is_2025_half_pos": true,
+        "7_beats_random_null": true,
+        "8_no_truncation": true,
+        "9_oos_alone_drop_top5_pos": true
+      },
+      "fails": [],
+      "null": {
+        "seeds": 20,
+        "n_eligible": 25544,
+        "n_drawn": 112,
+        "per_trade_mean": -2.58,
+        "per_trade_min": -26.24,
+        "per_trade_max": 17.78,
+        "per_trade_by_seed": [
+          9.09,
+          -0.89,
+          4.26,
+          -26.24,
+          -10.31,
+          0.27,
+          3.22,
+          -11.07,
+          17.78,
+          -3.42,
+          -11.68,
+          -20.9,
+          2.99,
+          1.02,
+          16.21,
+          5.74,
+          -1.93,
+          -14.01,
+          3.06,
+          -14.84
+        ]
+      },
+      "null_gate": {
+        "beats_null_mean": true,
+        "beats_null_max": true,
+        "drop_top5_beats_null_mean": true,
+        "edge_over_null_per_trade": 69.92,
+        "null_pass": true
+      },
+      "chart_stop_only_per_trade": 65.19,
+      "is_truncation_artifact": false,
+      "coverage": {
+        "signals": 119,
+        "filled": 112,
+        "cache_miss": 7,
+        "sim_none": 0,
+        "fill_rate": 0.941
+      },
+      "premium_stop_pct": -0.08,
+      "strike_offset": -2
+    }
+  },
+  "USE2_confirmation_gate": {
+    "Safe2_ATM": {
+      "strike_offset": 0,
+      "premium_stop_pct": -0.08,
+      "no_regression": {
+        "base_n": 149,
+        "base_per_trade": 48.33,
+        "base_total": 7200.6,
+        "kept_n": 106,
+        "kept_per_trade": 40.77,
+        "kept_total": 4321.76,
+        "skipped_n": 43,
+        "skipped_per_trade": 66.95,
+        "skipped_total": 2878.84,
+        "skipped_oos_total": 1752.92,
+        "skipped_net_negative": false,
+        "kept_improves": false,
+        "no_regression_pass": false
+      },
+      "kept_coverage": {
+        "signals": 111,
+        "filled": 106,
+        "cache_miss": 5,
+        "sim_none": 0,
+        "fill_rate": 0.955
+      },
+      "kept_9gate": {
+        "clears": false,
+        "fails": [
+          "9_oos_alone_drop_top5_pos"
+        ],
+        "metrics": {
+          "n": 106,
+          "wr_pct": 48.1,
+          "exp_dollar": 40.77,
+          "total_dollar": 4321.76,
+          "is_n": 82,
+          "is_exp": 43.45,
+          "is_total": 3562.76,
+          "oos_n": 24,
+          "oos_exp": 31.63,
+          "oos_total": 759.0,
+          "quarters": {
+            "2025Q1": {
+              "n": 23,
+              "exp": 85.21,
+              "total": 1959.76
+            },
+            "2025Q2": {
+              "n": 19,
+              "exp": 5.5,
+              "total": 104.52
+            },
+            "2025Q3": {
+              "n": 21,
+              "exp": 11.18,
+              "total": 234.76
+            },
+            "2025Q4": {
+              "n": 19,
+              "exp": 66.51,
+              "total": 1263.72
+            },
+            "2026Q1": {
+              "n": 15,
+              "exp": 62.41,
+              "total": 936.12
+            },
+            "2026Q2": {
+              "n": 9,
+              "exp": -19.68,
+              "total": -177.12
+            }
+          },
+          "positive_quarters": "5/6",
+          "positive_quarters_n": 5,
+          "n_quarters": 6,
+          "top5_day_pct": 38.3,
+          "drop_top5_per_trade": 26.38,
+          "oos_alone_drop_top5": -5.43,
+          "by_side": {
+            "C": {
+              "n": 61,
+              "exp": 33.61,
+              "wr": 50.8,
+              "total": 2049.92
+            },
+            "P": {
+              "n": 45,
+              "exp": 50.49,
+              "wr": 44.4,
+              "total": 2271.84
+            }
+          }
+        },
+        "gates": {
+          "1_oos_per_trade_pos": true,
+          "2_pos_quarters_4of6": true,
+          "3_top5_day_lt_200": true,
+          "4_n_ge_20": true,
+          "5_full_drop_top5_pos": true,
+          "6_is_2025_half_pos": true,
+          "7_beats_random_null": true,
+          "8_no_truncation": true,
+          "9_oos_alone_drop_top5_pos": false
+        }
+      }
+    },
+    "Bold_ITM2": {
+      "strike_offset": -2,
+      "premium_stop_pct": -0.08,
+      "no_regression": {
+        "base_n": 149,
+        "base_per_trade": 78.29,
+        "base_total": 11665.56,
+        "kept_n": 105,
+        "kept_per_trade": 73.68,
+        "kept_total": 7736.32,
+        "skipped_n": 44,
+        "skipped_per_trade": 89.3,
+        "skipped_total": 3929.24,
+        "skipped_oos_total": 2765.68,
+        "skipped_net_negative": false,
+        "kept_improves": false,
+        "no_regression_pass": false
+      },
+      "kept_coverage": {
+        "signals": 111,
+        "filled": 105,
+        "cache_miss": 6,
+        "sim_none": 0,
+        "fill_rate": 0.946
+      },
+      "kept_9gate": {
+        "clears": false,
+        "fails": [
+          "9_oos_alone_drop_top5_pos"
+        ],
+        "metrics": {
+          "n": 105,
+          "wr_pct": 50.5,
+          "exp_dollar": 73.68,
+          "total_dollar": 7736.32,
+          "is_n": 81,
+          "is_exp": 74.89,
+          "is_total": 6065.84,
+          "oos_n": 24,
+          "oos_exp": 69.6,
+          "oos_total": 1670.48,
+          "quarters": {
+            "2025Q1": {
+              "n": 22,
+              "exp": 96.97,
+              "total": 2133.28
+            },
+            "2025Q2": {
+              "n": 19,
+              "exp": 7.57,
+              "total": 143.88
+            },
+            "2025Q3": {
+              "n": 21,
+              "exp": 34.29,
+              "total": 720.08
+            },
+            "2025Q4": {
+              "n": 19,
+              "exp": 161.51,
+              "total": 3068.6
+            },
+            "2026Q1": {
+              "n": 15,
+              "exp": 134.39,
+              "total": 2015.84
+            },
+            "2026Q2": {
+              "n": 9,
+              "exp": -38.37,
+              "total": -345.36
+            }
+          },
+          "positive_quarters": "5/6",
+          "positive_quarters_n": 5,
+          "n_quarters": 6,
+          "top5_day_pct": 29.5,
+          "drop_top5_per_trade": 54.55,
+          "oos_alone_drop_top5": -4.93,
+          "by_side": {
+            "C": {
+              "n": 61,
+              "exp": 74.87,
+              "wr": 52.5,
+              "total": 4567.32
+            },
+            "P": {
+              "n": 44,
+              "exp": 72.02,
+              "wr": 47.7,
+              "total": 3169.0
+            }
+          }
+        },
+        "gates": {
+          "1_oos_per_trade_pos": true,
+          "2_pos_quarters_4of6": true,
+          "3_top5_day_lt_200": true,
+          "4_n_ge_20": true,
+          "5_full_drop_top5_pos": true,
+          "6_is_2025_half_pos": true,
+          "7_beats_random_null": true,
+          "8_no_truncation": true,
+          "9_oos_alone_drop_top5_pos": false
+        }
+      }
+    }
+  },
+  "use1_clears_9gate": {
+    "Safe2_ATM": true,
+    "Bold_ITM2": true
+  },
+  "use2_no_regression_pass": {
+    "Safe2_ATM": false,
+    "Bold_ITM2": false
+  },
+  "verdict": "DEAD",
+  "verdict_detail": "RELABEL of LIVE #1 vwap_continuation. USE1 standalone passes the raw 9-gate but is a strict SUBSET of LIVE #1 (119/119 USE1 days are #1 days, all same side); the 39 #1-days the cum-delta filter SKIPS are net-POSITIVE (+$693 Safe/+$695 Bold), so as a selection it FAILS no-regression (removes winners). USE2 confirmation-gate FAILS no-regression directly (skipped flow-disagree set net-positive +$2879 Safe/+$3929 Bold). Cum-delta agreement adds no edge over #1 and discards #1 winners.",
+  "use1_overlap_audit": {
+    "use1_n": 119,
+    "use1_days_in_1": 119,
+    "use1_same_side_as_1": 119,
+    "base_1_days": 158,
+    "skipped_1_days": 39,
+    "skipped_total_safe": 693.24,
+    "skipped_total_bold": 695.08,
+    "skipped_oos_safe": 68.88,
+    "skipped_oos_bold": 329.92,
+    "skipped_net_negative": false
+  }
+}

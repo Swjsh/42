@@ -1,0 +1,221 @@
+{
+  "campaign": "B10 WP-4 \u2014 TP1 +30%->+75% variance / downside audit (3-edge book, real OPRA fills)",
+  "purpose": "verify the ONE open caveat: does the higher TP1 raise the mean by taking on disproportionate tail risk on no-run days, or is it risk-adjusted clean?",
+  "run_date": "2026-06-21",
+  "window": "2025-01-01..2026-05-15",
+  "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1)",
+  "oos_split": "IS=2025 / OOS=2026",
+  "baseline_v15_tp30": {
+    "tp1_premium_pct": 0.3,
+    "tp1_qty_fraction": 0.5,
+    "runner_target_pct": 2.5,
+    "time_stop_et": "15:50"
+  },
+  "winning_tp75": {
+    "tp1_premium_pct": 0.75,
+    "tp1_qty_fraction": 0.5,
+    "runner_target_pct": 3.0,
+    "time_stop_et": "15:30"
+  },
+  "maxdd_material_worsen_threshold": 0.25,
+  "books": {
+    "Safe-2_ATM": {
+      "per_trade": {
+        "baseline_tp30": {
+          "n": 301,
+          "mean": 51.87,
+          "std": 155.54,
+          "sharpe_per_trade": 0.3335,
+          "skew": 2.782,
+          "p05": -75.12,
+          "p25": -33.84,
+          "median": 21.6,
+          "p75": 67.2,
+          "p95": 377.4,
+          "worst_trade": -211.68,
+          "best_trade": 1080.2,
+          "pct_losing": 47.5,
+          "mean_of_losers": -44.06,
+          "n_losers": 143,
+          "total": 15613.96
+        },
+        "winning_tp75": {
+          "n": 301,
+          "mean": 65.1,
+          "std": 201.99,
+          "sharpe_per_trade": 0.3223,
+          "skew": 2.831,
+          "p05": -81.36,
+          "p25": -39.6,
+          "median": -24.72,
+          "p75": 104.25,
+          "p95": 559.5,
+          "worst_trade": -211.68,
+          "best_trade": 1497.0,
+          "pct_losing": 59.5,
+          "mean_of_losers": -44.29,
+          "n_losers": 179,
+          "total": 19594.57
+        }
+      },
+      "downside_worse_set": {
+        "shared_trades": 301,
+        "n_worse": 41,
+        "n_better": 66,
+        "n_same": 194,
+        "worse_total_giveback": -4156.14,
+        "better_total_gain": 8136.75,
+        "net_changed": 3980.61,
+        "worse_pct_no_tp1": 87.8,
+        "worse_exit_mix_at_75": {
+          "EXIT_ALL_PREMIUM_STOP": 36,
+          "TP1_THEN_RUNNER_TIME": 4,
+          "TP1_THEN_RUNNER_RIBBON": 1
+        },
+        "worse_set_base_mean": 98.38,
+        "worse_set_win_mean": -2.99,
+        "worse_green_to_red_n": 36
+      },
+      "book": {
+        "baseline_tp30": {
+          "trading_days": 149,
+          "mean_daily": 104.79,
+          "std_daily": 287.93,
+          "downside_dev_daily": 70.07,
+          "worst_day": -423.36,
+          "best_day": 1730.4,
+          "max_drawdown": -836.4,
+          "total": 15613.96,
+          "day_wr_pct": 55.0,
+          "sharpe_annualized": 5.777,
+          "sortino_annualized": 23.742
+        },
+        "winning_tp75": {
+          "trading_days": 149,
+          "mean_daily": 131.51,
+          "std_daily": 397.6,
+          "downside_dev_daily": 84.32,
+          "worst_day": -423.36,
+          "best_day": 2297.5,
+          "max_drawdown": -1282.41,
+          "total": 19594.57,
+          "day_wr_pct": 45.0,
+          "sharpe_annualized": 5.251,
+          "sortino_annualized": 24.757
+        }
+      },
+      "verdict": {
+        "higher_mean": true,
+        "per_trade_sharpe_holds": false,
+        "book_sharpe_holds": false,
+        "book_sortino_holds": true,
+        "maxdd_worsen_frac": 0.5332,
+        "maxdd_material_worse": true,
+        "verdict": "RISK_UP"
+      }
+    },
+    "Bold_ITM2": {
+      "per_trade": {
+        "baseline_tp30": {
+          "n": 225,
+          "mean": 97.21,
+          "std": 238.95,
+          "sharpe_per_trade": 0.4068,
+          "skew": 1.677,
+          "p05": -90.72,
+          "p25": -65.76,
+          "median": 31.5,
+          "p75": 147.0,
+          "p95": 692.34,
+          "worst_trade": -223.68,
+          "best_trade": 1080.2,
+          "pct_losing": 47.6,
+          "mean_of_losers": -71.65,
+          "n_losers": 107,
+          "total": 21871.82
+        },
+        "winning_tp75": {
+          "n": 225,
+          "mean": 114.38,
+          "std": 292.69,
+          "sharpe_per_trade": 0.3908,
+          "skew": 1.808,
+          "p05": -93.79,
+          "p25": -69.12,
+          "median": -52.32,
+          "p75": 207.0,
+          "p95": 799.8,
+          "worst_trade": -223.68,
+          "best_trade": 1497.0,
+          "pct_losing": 57.3,
+          "mean_of_losers": -71.74,
+          "n_losers": 129,
+          "total": 25734.46
+        }
+      },
+      "downside_worse_set": {
+        "shared_trades": 225,
+        "n_worse": 29,
+        "n_better": 50,
+        "n_same": 146,
+        "worse_total_giveback": -3997.46,
+        "better_total_gain": 7860.1,
+        "net_changed": 3862.64,
+        "worse_pct_no_tp1": 86.2,
+        "worse_exit_mix_at_75": {
+          "EXIT_ALL_PREMIUM_STOP": 22,
+          "TP1_THEN_RUNNER_TIME": 4,
+          "EXIT_ALL_TIME_STOP": 2,
+          "EXIT_ALL_LEVEL_STOP": 1
+        },
+        "worse_set_base_mean": 179.18,
+        "worse_set_win_mean": 41.33,
+        "worse_green_to_red_n": 22
+      },
+      "book": {
+        "baseline_tp30": {
+          "trading_days": 149,
+          "mean_daily": 146.79,
+          "std_daily": 361.17,
+          "downside_dev_daily": 79.2,
+          "worst_day": -447.36,
+          "best_day": 1555.4,
+          "max_drawdown": -847.8,
+          "total": 21871.82,
+          "day_wr_pct": 55.7,
+          "sharpe_annualized": 6.452,
+          "sortino_annualized": 29.422
+        },
+        "winning_tp75": {
+          "trading_days": 149,
+          "mean_daily": 172.71,
+          "std_daily": 439.52,
+          "downside_dev_daily": 90.74,
+          "worst_day": -447.36,
+          "best_day": 1956.5,
+          "max_drawdown": -1269.66,
+          "total": 25734.46,
+          "day_wr_pct": 45.6,
+          "sharpe_annualized": 6.238,
+          "sortino_annualized": 30.217
+        }
+      },
+      "verdict": {
+        "higher_mean": true,
+        "per_trade_sharpe_holds": false,
+        "book_sharpe_holds": false,
+        "book_sortino_holds": true,
+        "maxdd_worsen_frac": 0.4976,
+        "maxdd_material_worse": true,
+        "verdict": "RISK_UP"
+      }
+    }
+  },
+  "overall_verdict": "RISK_UP",
+  "DISCLOSURE": {
+    "real_fills": "real OPRA fills, the only 0DTE WR authority (C1); SPY-dir != option edge (C3)",
+    "bull_tape_caveat": "OOS (2026) is a bull tape; the ~4.5-4.7 book Sharpe is bull-flattered and will compress in chop/bear. The risk-adjusted comparison here is RELATIVE (tp75 vs tp30 on the SAME tape) so the bull bias cancels \u2014 but the absolute Sharpe/Sortino are NOT a forward forecast.",
+    "annualization": "daily P&L annualized with sqrt(252); both configs trade the identical entry/day set so the scalar cancels in the comparison.",
+    "per_trade_sharpe": "mean/std on the per-trade $ P&L (not annualized) \u2014 a shape metric."
+  }
+}

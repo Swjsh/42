@@ -1,0 +1,110 @@
+{
+  "task": "D1 retest-reclaim entry filter \u2014 IS+OOS validation",
+  "candidate": "D1(window=6, prox_mult=0.05, stop=0.2, PLoff)",
+  "vs_baseline": "V0(stop=0.08, PLoff) \u2014 production entry timing",
+  "is": {
+    "days": 287,
+    "sigs": 308,
+    "calls": 154,
+    "puts": 154,
+    "v0": {
+      "totpc": 43.1,
+      "green": 70,
+      "n": 288,
+      "wr": 0.278,
+      "worst": -55.7
+    },
+    "d1": {
+      "totpc": 99.1,
+      "green": 29,
+      "n": 85,
+      "wr": 0.447,
+      "worst": -46.2
+    },
+    "delta": 56.0
+  },
+  "oos": {
+    "days": 60,
+    "d1_totpc": 296.3,
+    "d1_n": 12,
+    "v0_totpc": -187.2,
+    "v0_n": 57,
+    "delta": 483.5
+  },
+  "wf_norm": 61.157,
+  "sw_hurt": 2,
+  "sub_windows": [
+    {
+      "name": "SW1_2025H1",
+      "days": 121,
+      "sigs": 106,
+      "v0": {
+        "totpc": -481.8,
+        "green": 16,
+        "n": 92,
+        "wr": 0.196,
+        "worst": -48.0
+      },
+      "d1": {
+        "totpc": 161.4,
+        "green": 10,
+        "n": 18,
+        "wr": 0.611,
+        "worst": -30.6
+      },
+      "delta": 643.2,
+      "hurt": false
+    },
+    {
+      "name": "SW2_2025H2",
+      "days": 128,
+      "sigs": 159,
+      "v0": {
+        "totpc": 541.4,
+        "green": 42,
+        "n": 153,
+        "wr": 0.301,
+        "worst": -55.7
+      },
+      "d1": {
+        "totpc": 41.1,
+        "green": 18,
+        "n": 59,
+        "wr": 0.424,
+        "worst": -46.2
+      },
+      "delta": -500.3,
+      "hurt": true
+    },
+    {
+      "name": "SW3_early26",
+      "days": 38,
+      "sigs": 43,
+      "v0": {
+        "totpc": -16.5,
+        "green": 12,
+        "n": 43,
+        "wr": 0.372,
+        "worst": -38.7
+      },
+      "d1": {
+        "totpc": -103.5,
+        "green": 1,
+        "n": 8,
+        "wr": 0.25,
+        "worst": -37.4
+      },
+      "delta": -87.0,
+      "hurt": true
+    }
+  ],
+  "gates": {
+    "is_pos": true,
+    "oos_pos": true,
+    "wf": true,
+    "sw": false,
+    "anchor": true
+  },
+  "verdict": "REJECT",
+  "implementation_note": "D1 requires heartbeat to track pending signal state: after engine fires entry, hold for up to window=6 bars (30min) for price to pull back to within prox=0.05*ATR5 of level and bounce (close>level, green bar). State: loop-state.json -> pending_d1_signal: {level, deadline_bar, side}."
+}

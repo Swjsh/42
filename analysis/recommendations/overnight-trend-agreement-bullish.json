@@ -1,0 +1,322 @@
+{
+  "slug": "overnight-trend-agreement-bullish",
+  "kind": "deploy_timing",
+  "run_date": "2026-06-21",
+  "window": "2025-01-02..2026-06-18",
+  "cache_last_hard_window": "2026-06-18",
+  "futures_note": "MES/MNQ 1m continuous include the Globex overnight session (18:00 prior ET .. 09:30); files end 2026-06-12 so edge days after that have no overnight feature (counted in days_missing_overnight_feat)",
+  "blowoff_def": "on_close_position>0.85 AND higher_high vs prior overnight high; on_close_position=(last_overnight_close - on_low)/(on_high - on_low)",
+  "detector": "_edgehunt_vwap_continuation.detect_signals (LIVE #1), CALL side only",
+  "fills_authority": "lib.simulator_real.simulate_trade_real (real OPRA, C1)",
+  "deploy_timing_bar": "ACCEPT iff (1) keep-book lifts risk-adjusted return [mean/day up, maxDD not worse, total not worse] AND (2) abstained blowoff days sum NET-NEGATIVE (no winner-killing, L174); cross-validated MES & MNQ must SIGN-AGREE",
+  "tiers": {
+    "ITM-2": {
+      "strike_offset": -2,
+      "coverage": {
+        "call_signals": 90,
+        "filled": 86,
+        "cache_miss": 4,
+        "sim_none": 0
+      },
+      "n_edge_days_total": 86,
+      "edge_full_book_all_days": {
+        "n_days": 86,
+        "total": 6619.56,
+        "mean_per_day": 76.97,
+        "std_per_day": 172.64,
+        "sharpe_day": 0.446,
+        "sortino_day": 4.083,
+        "maxdd": -488.4,
+        "win_days": 44,
+        "loss_days": 42
+      },
+      "MES": {
+        "instrument": "MES",
+        "n_common_days": 85,
+        "n_blowoff_days": 9,
+        "n_keep_days": 76,
+        "days_missing_overnight_feat": [
+          "2026-06-15"
+        ],
+        "full_book": {
+          "n_days": 85,
+          "total": 6681.96,
+          "mean_per_day": 78.61,
+          "std_per_day": 172.99,
+          "sharpe_day": 0.454,
+          "sortino_day": 4.133,
+          "maxdd": -488.4,
+          "win_days": 44,
+          "loss_days": 41
+        },
+        "deploy_timing_book_keep": {
+          "n_days": 76,
+          "total": 6682.72,
+          "mean_per_day": 87.93,
+          "std_per_day": 176.28,
+          "sharpe_day": 0.499,
+          "sortino_day": 5.655,
+          "maxdd": -331.92,
+          "win_days": 41,
+          "loss_days": 35
+        },
+        "abstained_blowoff_set": {
+          "n_days": 9,
+          "total": -0.76,
+          "mean_per_day": -0.08,
+          "std_per_day": 122.89,
+          "sharpe_day": -0.001,
+          "sortino_day": -0.002,
+          "maxdd": -178.08,
+          "win_days": 3,
+          "loss_days": 6
+        },
+        "blowoff_total": -0.76,
+        "gate_lifts_risk_adjusted": true,
+        "gate_lift_detail": {
+          "mean_up": true,
+          "sharpe_up": true,
+          "maxdd_ok": true,
+          "total_ge": true
+        },
+        "gate_blowoff_net_negative": true,
+        "ACCEPT": true,
+        "blowoff_day_pnls": {
+          "2025-03-24": -60.0,
+          "2025-04-23": -145.44,
+          "2025-07-03": 235.4,
+          "2025-07-09": -51.6,
+          "2025-08-13": -54.48,
+          "2025-10-20": -72.0,
+          "2025-11-10": 105.0,
+          "2026-02-25": 115.8,
+          "2026-03-17": -73.44
+        }
+      },
+      "MNQ": {
+        "instrument": "MNQ",
+        "n_common_days": 85,
+        "n_blowoff_days": 13,
+        "n_keep_days": 72,
+        "days_missing_overnight_feat": [
+          "2026-06-15"
+        ],
+        "full_book": {
+          "n_days": 85,
+          "total": 6681.96,
+          "mean_per_day": 78.61,
+          "std_per_day": 172.99,
+          "sharpe_day": 0.454,
+          "sortino_day": 4.133,
+          "maxdd": -488.4,
+          "win_days": 44,
+          "loss_days": 41
+        },
+        "deploy_timing_book_keep": {
+          "n_days": 72,
+          "total": 6158.68,
+          "mean_per_day": 85.54,
+          "std_per_day": 178.37,
+          "sharpe_day": 0.48,
+          "sortino_day": 5.51,
+          "maxdd": -349.92,
+          "win_days": 38,
+          "loss_days": 34
+        },
+        "abstained_blowoff_set": {
+          "n_days": 13,
+          "total": 523.28,
+          "mean_per_day": 40.25,
+          "std_per_day": 139.05,
+          "sharpe_day": 0.289,
+          "sortino_day": 1.221,
+          "maxdd": -209.76,
+          "win_days": 6,
+          "loss_days": 7
+        },
+        "blowoff_total": 523.28,
+        "gate_lifts_risk_adjusted": false,
+        "gate_lift_detail": {
+          "mean_up": true,
+          "sharpe_up": true,
+          "maxdd_ok": true,
+          "total_ge": false
+        },
+        "gate_blowoff_net_negative": false,
+        "ACCEPT": false,
+        "blowoff_day_pnls": {
+          "2025-03-24": -60.0,
+          "2025-04-23": -145.44,
+          "2025-06-25": -64.32,
+          "2025-07-03": 235.4,
+          "2025-07-09": -51.6,
+          "2025-08-13": -54.48,
+          "2025-11-10": 105.0,
+          "2025-11-26": 105.0,
+          "2026-01-26": 301.2,
+          "2026-02-25": 115.8,
+          "2026-03-17": -73.44,
+          "2026-05-05": 168.0,
+          "2026-05-29": -57.84
+        }
+      },
+      "sign_agreement_mes_mnq": false,
+      "BOTH_ACCEPT": false,
+      "VERDICT": "REJECT_no_sign_agreement"
+    },
+    "ATM": {
+      "strike_offset": 0,
+      "coverage": {
+        "call_signals": 90,
+        "filled": 86,
+        "cache_miss": 4,
+        "sim_none": 0
+      },
+      "n_edge_days_total": 86,
+      "edge_full_book_all_days": {
+        "n_days": 86,
+        "total": 3528.68,
+        "mean_per_day": 41.03,
+        "std_per_day": 104.54,
+        "sharpe_day": 0.393,
+        "sortino_day": 1.482,
+        "maxdd": -369.84,
+        "win_days": 44,
+        "loss_days": 42
+      },
+      "MES": {
+        "instrument": "MES",
+        "n_common_days": 85,
+        "n_blowoff_days": 9,
+        "n_keep_days": 76,
+        "days_missing_overnight_feat": [
+          "2026-06-15"
+        ],
+        "full_book": {
+          "n_days": 85,
+          "total": 3561.08,
+          "mean_per_day": 41.9,
+          "std_per_day": 104.85,
+          "sharpe_day": 0.4,
+          "sortino_day": 1.497,
+          "maxdd": -369.84,
+          "win_days": 44,
+          "loss_days": 41
+        },
+        "deploy_timing_book_keep": {
+          "n_days": 76,
+          "total": 3652.0,
+          "mean_per_day": 48.05,
+          "std_per_day": 106.82,
+          "sharpe_day": 0.45,
+          "sortino_day": 2.0,
+          "maxdd": -249.6,
+          "win_days": 41,
+          "loss_days": 35
+        },
+        "abstained_blowoff_set": {
+          "n_days": 9,
+          "total": -90.92,
+          "mean_per_day": -10.1,
+          "std_per_day": 71.13,
+          "sharpe_day": -0.142,
+          "sortino_day": -0.211,
+          "maxdd": -145.44,
+          "win_days": 3,
+          "loss_days": 6
+        },
+        "blowoff_total": -90.92,
+        "gate_lifts_risk_adjusted": true,
+        "gate_lift_detail": {
+          "mean_up": true,
+          "sharpe_up": true,
+          "maxdd_ok": true,
+          "total_ge": true
+        },
+        "gate_blowoff_net_negative": true,
+        "ACCEPT": true,
+        "blowoff_day_pnls": {
+          "2025-03-24": -30.48,
+          "2025-04-23": -145.44,
+          "2025-07-03": 100.6,
+          "2025-07-09": -20.88,
+          "2025-08-13": -21.36,
+          "2025-10-20": -35.76,
+          "2025-11-10": 48.0,
+          "2026-02-25": 55.2,
+          "2026-03-17": -40.8
+        }
+      },
+      "MNQ": {
+        "instrument": "MNQ",
+        "n_common_days": 85,
+        "n_blowoff_days": 13,
+        "n_keep_days": 72,
+        "days_missing_overnight_feat": [
+          "2026-06-15"
+        ],
+        "full_book": {
+          "n_days": 85,
+          "total": 3561.08,
+          "mean_per_day": 41.9,
+          "std_per_day": 104.85,
+          "sharpe_day": 0.4,
+          "sortino_day": 1.497,
+          "maxdd": -369.84,
+          "win_days": 44,
+          "loss_days": 41
+        },
+        "deploy_timing_book_keep": {
+          "n_days": 72,
+          "total": 3399.44,
+          "mean_per_day": 47.21,
+          "std_per_day": 108.78,
+          "sharpe_day": 0.434,
+          "sortino_day": 1.954,
+          "maxdd": -249.6,
+          "win_days": 38,
+          "loss_days": 34
+        },
+        "abstained_blowoff_set": {
+          "n_days": 13,
+          "total": 161.64,
+          "mean_per_day": 12.43,
+          "std_per_day": 76.3,
+          "sharpe_day": 0.163,
+          "sortino_day": 0.278,
+          "maxdd": -174.48,
+          "win_days": 6,
+          "loss_days": 7
+        },
+        "blowoff_total": 161.64,
+        "gate_lifts_risk_adjusted": false,
+        "gate_lift_detail": {
+          "mean_up": true,
+          "sharpe_up": true,
+          "maxdd_ok": true,
+          "total_ge": false
+        },
+        "gate_blowoff_net_negative": false,
+        "ACCEPT": false,
+        "blowoff_day_pnls": {
+          "2025-03-24": -30.48,
+          "2025-04-23": -145.44,
+          "2025-06-25": -29.04,
+          "2025-07-03": 100.6,
+          "2025-07-09": -20.88,
+          "2025-08-13": -21.36,
+          "2025-11-10": 48.0,
+          "2025-11-26": 45.0,
+          "2026-01-26": 146.6,
+          "2026-02-25": 55.2,
+          "2026-03-17": -40.8,
+          "2026-05-05": 81.6,
+          "2026-05-29": -27.36
+        }
+      },
+      "sign_agreement_mes_mnq": false,
+      "BOTH_ACCEPT": false,
+      "VERDICT": "REJECT_no_sign_agreement"
+    }
+  }
+}

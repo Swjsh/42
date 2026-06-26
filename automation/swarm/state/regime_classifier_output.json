@@ -1,0 +1,21 @@
+{
+  "agent": "regime_classifier",
+  "generated_at": "2026-06-26T14:17:56Z",
+  "bias": "no_trade",
+  "confidence": 0.3,
+  "reasoning": "RANGE_DAY: directional_efficiency=0.16 (well below 0.3 threshold), indicating price oscillation without net direction. Vol regime STABLE (vol_expansion=1.06, within 0.7-1.4 band). VIX MID (19.17) + falling = normal volatility. Ribbon BULL but efficiency too low for trend confirmation. This is a range day with no directional bias.",
+  "day_type": "RANGE_DAY",
+  "directional_efficiency": 0.16,
+  "vol_regime": "STABLE",
+  "avg_bar_bar_range_20": 1.158,
+  "avg_bar_range_5": 1.226,
+  "ribbon_stack": "BULL",
+  "vix_regime": "MID",
+  "regime_label": "LOW_VOL_RANGE",
+  "key_observations": [
+    "directional_efficiency=0.16 confirms ranging/choppy price action (net move 3.70 vs total range 23.15)",
+    "vol_expansion=1.06 indicates STABLE volatility (5-bar avg 1.226 vs 20-bar avg 1.158)",
+    "VIX MID (19.17) + falling + ribbon BULL = range day with no trend confirmation"
+  ],
+  "data_quality": "full"
+}

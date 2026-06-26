@@ -1,0 +1,86 @@
+{
+  "kind": "novel-data",
+  "slug": "gamma_wall_interaction",
+  "hypothesis": "0DTE dealer-gamma call/put walls + max-pain as MAGNET (price drawn to max-pain / pinned between walls under long-gamma) vs REJECTION (walls cap the move under short-gamma); real-fills entries on SPY price interacting with a gamma wall.",
+  "run_date": "2026-06-21",
+  "verdict": "INFEASIBLE_NO_HISTORICAL_DATA",
+  "key_finding": "Gamma walls / max-pain CANNOT be backtested on current data. The dealer gamma surface (as-of per-strike OI + per-contract gamma across the full SPY chain) exists for exactly 1 day in journal/gex-archive (2026-06-19, capture started that day); the OPRA price bars carry no OI and no gamma; OI is not reconstructable from price. Computing historical walls would require fabricating OI/gamma = a banned fake backtest (C4/L171, OP-20). SPY price data IS available (342 days) \u2014 the sole bottleneck is the dealer-positioning layer, which is now accruing forward and not yet deep enough to trade-test.",
+  "evidence": {
+    "gex_archive_days": [
+      "2026-06-19"
+    ],
+    "n_gex_archive_days": 1,
+    "min_gex_days_required": 60,
+    "opra_csv_columns": [
+      "timestamp_et",
+      "open",
+      "high",
+      "low",
+      "close",
+      "volume",
+      "vwap",
+      "trade_count"
+    ],
+    "opra_has_open_interest": false,
+    "opra_has_gamma": false,
+    "spy_price_data": {
+      "available": true,
+      "rows": 31068,
+      "trading_days": 342,
+      "window": "2025-01-02..2026-05-15"
+    },
+    "engine_feasibility_assessor": {
+      "can_backtest_now": false,
+      "reason": "GEX needs per-strike OPEN INTEREST and per-contract GAMMA across the FULL chain, as-of each historical day. We have OPRA per-contract PRICE bars (backtest/data/options/SPY*.csv) only \u2014 those files carry no OI and no stored gamma, and OI (an end-of-day outstanding-contracts figure) is NOT reconstructable from intraday price bars. Computing historical GEX would require fabricating OI/gamma, which is a fake backtest (banned).",
+      "what_we_have": "OPRA per-contract 5m PRICE bars (strike-level, no OI/gamma).",
+      "what_is_missing": "Daily full-chain OI + gamma snapshots, as-of each day.",
+      "path_to_backtestable": "Stand up a once-per-day capture that persists get_option_chain greeks+OI (a small JSONL/parquet per day), accumulate >= a few months, THEN a GEX backtest becomes possible. Until then gex_regime.py is a LIVE premarket/heartbeat regime TAG, computed from the current chain forward.",
+      "position": "LIVE-going-forward regime tag (propose-only; NOT a trigger, NOT gated live)."
+    },
+    "doctrine_refs": [
+      "markdown/specs/GEX-PREMARKET-WIRING.md \u00a76 ('Cannot be backtested')",
+      "backtest/lib/engine/gex_regime.py::assess_backtest_feasibility (can_backtest_now=False)",
+      "automation/scripts/gex_capture.py (Gamma_GexCapture, banking daily from 2026-06-19)",
+      "CLAUDE.md C4/L171 (a positive average from a proxied level is an artifact, not an edge); BACKTESTING-PLAYBOOK OP-20 (no fabricated data)."
+    ]
+  },
+  "blockers": [
+    "gex-archive holds 1 day(s) (['2026-06-19']); need >= 60 as-of full-chain OI+gamma snapshots to mark walls/max-pain across enough days for n>=20 wall-interaction trades. Capture began 2026-06-19 (Gamma_GexCapture) and is accruing forward.",
+    "OPRA per-contract bars carry only ['timestamp_et', 'open', 'high', 'low', 'close', 'volume', 'vwap', 'trade_count'] \u2014 NO open_interest, NO gamma; OI is a daily EOD figure not reconstructable from intraday price bars, so historical walls cannot be derived from the data we have."
+  ],
+  "infeasible": true,
+  "n_signals": 0,
+  "n_trades": 0,
+  "is_per_trade": null,
+  "oos_per_trade": null,
+  "best_config": null,
+  "positive_quarters": null,
+  "top5_day_pct": null,
+  "beats_null": false,
+  "is_half_positive": false,
+  "truncation_safe": false,
+  "clears_all_gates": false,
+  "gates": {
+    "oos_per_trade_gt_0": null,
+    "positive_quarters_ge_4of6": null,
+    "top5_day_pct_lt_200": null,
+    "n_ge_20": false,
+    "drop_top5_gt_0": null,
+    "is_2025_half_gt_0": null,
+    "beats_random_entry_null": null,
+    "no_truncation_artifact": null,
+    "note": "Every gate is untestable: there is no historical wall/max-pain series to mark entries against. Reported null (not 0) so this is not mistaken for a tested-and-failed result."
+  },
+  "path_to_backtestable": {
+    "step_1": "Let Gamma_GexCapture keep banking journal/gex-archive/{date}.json daily (per-strike OI + per-contract gamma + spot). Already running.",
+    "step_2": "Once >= ~60-90 archived days accumulate, build a marker that, for each day, computes call_wall/put_wall/max-pain/zero-gamma-flip from that day's archived chain (REUSE lib.engine.gex_regime \u2014 already computes walls + zero-gamma; add max-pain = strike minimizing total OI payoff).",
+    "step_3": "Detect causal wall-interaction entries on RTH SPY bars (touch / 5m-close reject / reclaim of a wall, or drift toward max-pain), fill the next bar open via lib.simulator_real.simulate_trade_real (C1), split MAGNET (long-gamma days) vs REJECTION (short-gamma days) using that day's net_gex_sign.",
+    "step_4": "Run the full 8-gate suite (this file's schema) + the random-entry null (autoresearch.null_baseline) + truncation guard (lib.truncation_guard). RE-RUN THIS HUNT for real then.",
+    "re_run_trigger": "n_gex_archive_days >= 60 with status==ok."
+  },
+  "DISCLOSURE": {
+    "why_not_a_proxy": "A wall proxied from round numbers / volume / back-filled greeks is NOT the level dealer hedging actually defended; any 'edge' on it measures the proxy, not gamma positioning (C4/L171). Refused on purpose.",
+    "no_fabrication": "Zero trades simulated. No OI/gamma invented. Gates null, not 0, to avoid a false 'tested & failed' reading.",
+    "live_value_now": "The single live tag (gex-regime.json, short_gamma_trend, call_wall=put_wall=750 on 2026-06-19) is real-time situational awareness only; N=1 is not a sample."
+  }
+}

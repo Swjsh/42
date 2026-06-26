@@ -1,0 +1,15 @@
+{"date": "2026-04-27", "price": 650.239990234375, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-04-27", "price": 702.2802734375, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-04-27", "price": 709.010009765625, "source": "round", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-04-27", "price": 710.3, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-04-27", "price": 712.5, "source": "swept", "touched": true, "outcome": "RESPECT", "reaction_dollars": 0.91, "false_break": false}
+{"date": "2026-04-27", "price": 713.0, "source": "swept", "touched": true, "outcome": "RESPECT", "reaction_dollars": 1.409, "false_break": false}
+{"date": "2026-04-27", "price": 713.55, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.95, "false_break": false}
+{"date": "2026-04-27", "price": 713.6, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.0, "false_break": false}
+{"date": "2026-04-27", "price": 713.7, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.1, "false_break": false}
+{"date": "2026-04-27", "price": 713.796772563453, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.197, "false_break": false}
+{"date": "2026-04-27", "price": 713.9389606659311, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.339, "false_break": true}
+{"date": "2026-04-27", "price": 714.0, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.4, "false_break": true}
+{"date": "2026-04-27", "price": 714.4, "source": "intraday", "touched": true, "outcome": "RESPECT", "reaction_dollars": 1.8, "false_break": false}
+{"date": "2026-04-27", "price": 714.469970703125, "source": "multi_day", "touched": true, "outcome": "RESPECT", "reaction_dollars": 1.67, "false_break": false}
+{"date": "2026-04-27", "price": 715.06, "source": "intraday", "touched": true, "outcome": "RESPECT", "reaction_dollars": 0.48, "false_break": false}

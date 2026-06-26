@@ -1,0 +1,76 @@
+{
+  "date": "2026-06-15",
+  "morning_thesis": "SPY gapped up ~$9 from Thursday June 12 close (~742) to Monday premarket at 750-752. VIX 16.60 (MID regime, sharply lower than last week's 19.16 \u2014 fear fading). Premarket consolidation range 748-752 with PMH 752.09 as first key resistance. No macro events today; FOMC not until Wednesday June 17. Bullish bias conditional on RTH confirming: bull trigger = 752.09 PMH break + 5m close above. Bear pivot = 748.00 PML break + 5m close below + ribbon flip to BEAR. Swarm unavailable (all agents failed \u2014 SWARM_CONTEXT_UNAVAILABLE). FOMC Wed creates medium-term uncertainty but today's tape is clean and constructive.",
+  "predictions": [
+    {
+      "prediction_idx": 0,
+      "claim": "PMH 752.09 acts as resistance on first RTH approach \u2014 SPY reaches 751.50+ in the first hour but fails to close a 5m bar above 752.25 before 10:30 ET",
+      "trigger_window": "09:30-10:30 ET",
+      "invalidation": "SPY closes a 5m bar above 752.25 before 10:30 ET",
+      "confidence": 0.55,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "SPY printed 752.71 at first tick 09:39 ET \u2014 above 752.25 before 10:30, invalidation triggered on open drive",
+      "category": "level",
+      "evidence_timestamp": "09:39",
+      "graded_at": "2026-06-15T16:30:00-04:00"
+    },
+    {
+      "prediction_idx": 1,
+      "claim": "Premarket floor 748.00 holds all session \u2014 SPY does not close a 5m bar below 748.50 at any point before 15:00 ET",
+      "trigger_window": "09:30-15:00 ET",
+      "invalidation": "SPY closes a 5m bar below 748.50 before 15:00 ET",
+      "confidence": 0.6,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "Session low 751.65 \u2014 748.00 level never tested; floor held cleanly all session",
+      "category": "level",
+      "evidence_timestamp": null,
+      "graded_at": "2026-06-15T16:30:00-04:00"
+    },
+    {
+      "prediction_idx": 2,
+      "claim": "VIX stays below 17.20 all session (keeps bull filter eligible), confirming the fear unwind from last week's 19.16",
+      "trigger_window": "09:35-14:00 ET",
+      "invalidation": "VIX prints above 17.20 with rising direction at any heartbeat check before 14:00 ET",
+      "confidence": 0.7,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "VIX fell from 16.60 at open to 16.06 at 12:39 ET, peaked intraday at ~16.36, stayed well below 17.20 all session",
+      "category": "bias",
+      "evidence_timestamp": "12:39",
+      "graded_at": "2026-06-15T16:30:00-04:00"
+    },
+    {
+      "prediction_idx": 3,
+      "claim": "SPY closes the RTH session above 750.00 \u2014 the bull continuation holds all day with no bear cascade",
+      "trigger_window": "15:50 ET bar close",
+      "invalidation": "Any 5m bar closes below 749.00 during RTH session before 15:50 ET",
+      "confidence": 0.55,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "Session low 751.65; last observed SPY 754.37 at 15:30 ET ribbon BULL 29c; no bear cascade; held above 750 all session",
+      "category": "bias",
+      "evidence_timestamp": "15:30",
+      "graded_at": "2026-06-15T16:30:00-04:00"
+    }
+  ],
+  "surprises": [
+    "Bold entered BULLISH_RECLAIM 752C at 10:24 ET (5 contracts, 2.14 avg) and TP1 filled +74 at 11:32 \u2014 EOD free-tier report incorrectly said 0 trades; free-tier model lacks current-position file access",
+    "Haiku rate-limit wall activated 13:42 ET and blinded all heartbeat ticks until ~15:30 ET (1h48m blackout) \u2014 open runner unmanaged; severity: CRITICAL infrastructure gap",
+    "Session ran to 756.68 high (not 753.61 from mid-session review) \u2014 strong continuation above PMH all day, no retrace to 752.09 support",
+    "Safe account skipped liquidity at 10:42 (753C would exceed 14 daily loss cap) \u2014 size cap prevented Safe from participating in the best bull day since return from dark period"
+  ],
+  "lesson": "Haiku rate-limit pool exhaustion (\"resets 1:30pm MT\" = 3:30pm ET) caused 1h48m heartbeat blackout with an open Bold runner \u2014 C10 violation. The fix: add a rate-limit detection branch in the heartbeat harness wrapper that switches model to a fallback (Sonnet or a free-tier claude model) when Haiku exit=1 on consecutive ticks, rather than silently failing across the position management window.",
+  "tomorrow_hint": "TUESDAY pre-FOMC: watch 756.68 high / 752.09 support / 748.00 carry floor | FOMC Wed 13:30-15:00 ET no-trade window | VIX 16.11 bull eligible | expect vol expansion Tue PM",
+  "predictions_count": 4,
+  "predictions_passed": 3,
+  "predictions_partial": 0,
+  "hit_rate_passing": 0.75,
+  "specificity_weighted_hit_rate": 0.771,
+  "graded_at": "2026-06-15T16:30:00-04:00"
+}

@@ -1,0 +1,235 @@
+{
+  "gate": "block_conf_lvl_rec_afternoon",
+  "account": "bold",
+  "engine": "real_fills + ITM-2 + managed -50% cap + chandelier",
+  "is_range": [
+    "2025-01-02",
+    "2026-02-26"
+  ],
+  "oos_range": [
+    "2026-02-27",
+    "2026-06-18"
+  ],
+  "windows": {
+    "IS": {
+      "blocked": {
+        "label": "BLOCKED(prod)",
+        "n": 203,
+        "wins": 115,
+        "wr": 0.5665,
+        "total": 45625.77,
+        "avg": 224.76
+      },
+      "unblocked": {
+        "label": "UNBLOCKED",
+        "n": 207,
+        "wins": 117,
+        "wr": 0.5652,
+        "total": 46404.77,
+        "avg": 224.18
+      },
+      "delta_total_unblocked_minus_blocked": 779.0,
+      "trades_removed_by_gate": {
+        "label": "afternoon_conf_rec_removed_by_gate",
+        "n": 4,
+        "wins": 2,
+        "wr": 0.5,
+        "total": 779.0,
+        "avg": 194.75
+      },
+      "removed_sides": {
+        "C": 4
+      },
+      "removed_detail": [
+        {
+          "date": "2025-07-10",
+          "side": "C",
+          "pnl": 60.0,
+          "time": "15:10",
+          "exit": "ExitReason.EXIT_ALL_TIME_STOP"
+        },
+        {
+          "date": "2026-01-02",
+          "side": "C",
+          "pnl": 1034.0,
+          "time": "15:05",
+          "exit": "ExitReason.TP1_THEN_RUNNER_TIME"
+        },
+        {
+          "date": "2026-01-12",
+          "side": "C",
+          "pnl": -150.0,
+          "time": "15:35",
+          "exit": "ExitReason.EXIT_ALL_TIME_STOP"
+        },
+        {
+          "date": "2026-01-21",
+          "side": "C",
+          "pnl": -165.0,
+          "time": "14:35",
+          "exit": "ExitReason.EXIT_ALL_PREMIUM_STOP"
+        }
+      ],
+      "anchor_blocked": {
+        "2026-04-29": {
+          "engine_pnl": 0.0,
+          "n_trades": 0
+        },
+        "2026-05-01": {
+          "engine_pnl": 0.0,
+          "n_trades": 0
+        },
+        "2026-05-04": {
+          "engine_pnl": 0.0,
+          "n_trades": 0
+        },
+        "2026-05-05": {
+          "engine_pnl": 0.0,
+          "n_trades": 0
+        },
+        "2026-05-06": {
+          "engine_pnl": 0.0,
+          "n_trades": 0
+        },
+        "2026-05-07": {
+          "engine_pnl": 0.0,
+          "n_trades": 0
+        }
+      },
+      "anchor_unblocked": {
+        "2026-04-29": {
+          "engine_pnl": 0.0,
+          "n_trades": 0
+        },
+        "2026-05-01": {
+          "engine_pnl": 0.0,
+          "n_trades": 0
+        },
+        "2026-05-04": {
+          "engine_pnl": 0.0,
+          "n_trades": 0
+        },
+        "2026-05-05": {
+          "engine_pnl": 0.0,
+          "n_trades": 0
+        },
+        "2026-05-06": {
+          "engine_pnl": 0.0,
+          "n_trades": 0
+        },
+        "2026-05-07": {
+          "engine_pnl": 0.0,
+          "n_trades": 0
+        }
+      },
+      "edge_capture_blocked": 0.0,
+      "edge_capture_unblocked": 0.0
+    },
+    "OOS": {
+      "blocked": {
+        "label": "BLOCKED(prod)",
+        "n": 64,
+        "wins": 37,
+        "wr": 0.5781,
+        "total": 9667.59,
+        "avg": 151.06
+      },
+      "unblocked": {
+        "label": "UNBLOCKED",
+        "n": 64,
+        "wins": 37,
+        "wr": 0.5781,
+        "total": 9667.59,
+        "avg": 151.06
+      },
+      "delta_total_unblocked_minus_blocked": 0.0,
+      "trades_removed_by_gate": {
+        "label": "afternoon_conf_rec_removed_by_gate",
+        "n": 1,
+        "wins": 0,
+        "wr": 0.0,
+        "total": -790.0,
+        "avg": -790.0
+      },
+      "removed_sides": {
+        "C": 1
+      },
+      "removed_detail": [
+        {
+          "date": "2026-05-19",
+          "side": "C",
+          "pnl": -790.0,
+          "time": "14:00",
+          "exit": "ExitReason.EXIT_ALL_LEVEL_STOP"
+        }
+      ],
+      "anchor_blocked": {
+        "2026-04-29": {
+          "engine_pnl": -210.0,
+          "n_trades": 1
+        },
+        "2026-05-01": {
+          "engine_pnl": -4284.5,
+          "n_trades": 3
+        },
+        "2026-05-04": {
+          "engine_pnl": 2370.0,
+          "n_trades": 1
+        },
+        "2026-05-05": {
+          "engine_pnl": 0.0,
+          "n_trades": 0
+        },
+        "2026-05-06": {
+          "engine_pnl": 0.0,
+          "n_trades": 0
+        },
+        "2026-05-07": {
+          "engine_pnl": 518.0,
+          "n_trades": 1
+        }
+      },
+      "anchor_unblocked": {
+        "2026-04-29": {
+          "engine_pnl": -210.0,
+          "n_trades": 1
+        },
+        "2026-05-01": {
+          "engine_pnl": -4284.5,
+          "n_trades": 3
+        },
+        "2026-05-04": {
+          "engine_pnl": 2370.0,
+          "n_trades": 1
+        },
+        "2026-05-05": {
+          "engine_pnl": 0.0,
+          "n_trades": 0
+        },
+        "2026-05-06": {
+          "engine_pnl": 0.0,
+          "n_trades": 0
+        },
+        "2026-05-07": {
+          "engine_pnl": 518.0,
+          "n_trades": 1
+        }
+      },
+      "edge_capture_blocked": -2124.5,
+      "edge_capture_unblocked": -2124.5
+    }
+  },
+  "verdict": "UNBLOCK_SUPPRESSES_WINNERS",
+  "n_removed_total": 5,
+  "anchor_regress_on_unblock": false,
+  "summary": {
+    "is_delta": 779.0,
+    "oos_delta": 0.0,
+    "edge_capture": {
+      "is_blocked": 0.0,
+      "is_unblocked": 0.0,
+      "oos_blocked": -2124.5,
+      "oos_unblocked": -2124.5
+    }
+  }
+}

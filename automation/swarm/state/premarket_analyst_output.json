@@ -1,0 +1,29 @@
+{
+  "agent": "premarket_analyst",
+  "generated_at": "2026-06-26T14:17:56.000000+00:00",
+  "bias": "bearish",
+  "confidence": 0.65,
+  "reasoning": "Gap down $1.09 (0.15%). PM range $3.80 (high 731.2, low 727.4). Price 733.21 is above PM midpoint 729.3 but below prior close 734.3 which now acts as resistance. PM high 731.2 aligns with active resistance PMH_2026-06-26 at 732.62 ($1.42 away). PM low 727.4 aligns with PML_2026-06-26 at 728.50 ($1.10 away). Mixed pre-market structure: price above midpoint suggests overnight bulls, but gap down and prior close as resistance favors bears. Small gap limits directional conviction.",
+  "premarket_high": 731.2,
+  "premarket_low": 727.4,
+  "pm_range_dollars": 3.8,
+  "pm_midpoint": 729.3,
+  "price_vs_pm_midpoint": "above",
+  "overnight_gap_dollars": -1.09,
+  "overnight_gap_dir": "down",
+  "gap_pct": 0.148,
+  "gap_size": "small",
+  "gap_fill_probability": "low",
+  "prior_close": 734.3,
+  "prior_close_role": "resistance",
+  "key_level_alignment": "yes",
+  "key_observations": [
+    "Small gap down $1.09 (0.15%) — minimal overnight conviction",
+    "Wide PM range $3.80 indicates significant overnight volatility",
+    "Price 733.21 above PM midpoint 729.3 but below prior close 734.3 (now resistance)",
+    "PM high 731.2 aligns with PMH_2026-06-26 resistance at 732.62",
+    "PM low 727.4 aligns with PML_2026-06-26 support at 728.50",
+    "Prior close 734.3 flipped to resistance — break above needed for bullish continuation"
+  ],
+  "data_quality": "full"
+}

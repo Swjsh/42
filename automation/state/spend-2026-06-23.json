@@ -1,0 +1,19 @@
+{
+  "date_et": "2026-06-23",
+  "total_cost_usd": 0.0154,
+  "claude_cost_usd": 0,
+  "minimax_cost_usd": 0.0154,
+  "claude_sessions": 0,
+  "claude_by_tier": {},
+  "minimax_calls": 8,
+  "minimax_by_task": {
+    "swarm.momentum_analyst": 0.002742,
+    "swarm.premarket_analyst": 0.002318,
+    "swarm.volume_analyst": 0.002017,
+    "swarm.macro": 0.001914,
+    "swarm.regime_classifier": 0.001779,
+    "swarm.catalyst_analyst": 0.001734,
+    "swarm.session_timer": 0.001474,
+    "swarm.sentiment_analyst": 0.001385
+  }
+}

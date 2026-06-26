@@ -1,0 +1,47 @@
+# Chef research item: FOMC-eve quiet-bear continuation setup
+
+> Queued by Analyst 2026-06-16. Chef picks up at next fire.
+
+## Observation
+
+2026-06-16 (FOMC Day-1): SPY fell ~$4.77 from session high to low. Bear score sustained 8-9/10 from 10:33 ET to ~15:00 ET. Every bear near-miss was blocked by filter_8 (VIX requires ≥17.30 AND rising direction). VIX was 15.82–16.16 all session — flat to falling. Root cause: institutional hedge-stripping pre-FOMC suppresses VIX even as the underlying drifts lower on low conviction.
+
+This creates a structural gap: a confirmed ribbon-BEAR + level_reject setup exists, but the VIX gate categorically blocks it on exactly the class of days where SPY drifts lower on light vol.
+
+Same pattern observed on 2026-06-01 (bull side — SPY up, VIX falling, no bear, no bull trades either). Pattern appears to be a recurring low-VIX, low-conviction drift regime.
+
+## Hypothesis to test
+
+On sessions where: (a) FOMC Day-1 context OR VIX is 15.0–17.0 AND falling, AND (b) ribbon flips BEAR before 11:00 ET with spread ≥30c, AND (c) a trigger fires (ribbon_flip or level_reject):
+
+Does entering with a RELAXED filter_8 (pure level: VIX >15.0, no direction requirement) produce positive expectancy in real-fills backtesting?
+
+Secondary hypothesis: does the absence of VIX rising direction predict wider option bid-ask spreads and worse fill quality, making the theoretical edge disappear in practice?
+
+## Backtest specification
+
+- Date range: 2026-03-01 to 2026-06-16 (full history with real fills available)
+- Strategy: BEARISH_REJECTION_RIDE_THE_RIBBON only
+- Engine flag: `vix_direction_gate_mode: ["rising_only" (baseline), "any_direction" (candidate), "level_only_gt15" (candidate2)]`
+- Filter_8 modification: change `vix_dir == "rising"` to `True` (disable direction requirement), keep level gate at 17.30 as separate test, then try 15.0
+- Edge_capture floor (OP-16): must capture ≥50% of J's source-of-truth winners ($771 floor on $1,542 max)
+- Required: anchor-no-regression on 4/29, 5/01, 5/04 (all three are declining-VIX days per L93 — they pass the BEARISH_REVERSAL filter because F8 is different for that watcher; verify this distinction is preserved)
+- OOS gate: WF ≥0.70, all 4 sub-windows positive
+
+## Why now
+
+2026-06-16 produced a full-session 9/10 bear score with 0 entries due to VIX gate. If there is edge in low-VIX BEAR continuation days, this is the regime where the engine is structurally blind. Quantify the edge (or confirm there is none) before next FOMC-eve session (July FOMC is approximately 2026-07-29/30).
+
+## Routing note
+
+If VIX direction gate removal shows OOS-positive edge: candidate for a new `BEARISH_CONTINUATION_LOW_VIX` playbook entry, NOT a modification to BEARISH_REJECTION filter_8 (which protects J's anchor wins). Keep the two separate.
+
+---
+
+## DISPOSITION — SUPERSEDED [2026-06-21 02:05 ET, conductor]
+
+**Verdict: SUPERSEDED by the terminal strategy-campaign verdict (STATUS 2026-06-21 00:15) + OP-22 "STOP entry-hunting (saturated)".** Not cooked. Rationale:
+- The campaign real-fills-tested ~27 strategies across 3 parallel hunts + fleet scorecard + SwjshAK port; **exactly ONE survivor (vwap_continuation, already LIVE).** Continuation did NOT beat reversion; the 0DTE OPTION STRUCTURE (theta/delta/stop-misfire), not the entry signal, is the wall. A new low-VIX bear *continuation* entry is squarely in the killed class.
+- This proposes RELAXING the filter_8 VIX-direction gate to chase low-VIX bear days. That contradicts **L93** (the existing bearish read correctly requires the *declining-not-escalating* VIX character — F8 is already regime-aware) and **C5/L154** (high-score + 0-trade + declining-VIX = the engine *correctly abstaining*, not a missed edge).
+- The 2026-06-16 0-trade outcome the item cites IS the correct behavior, not a structural blind spot.
+- If a future J ruling reopens entry-expansion, re-derive from real ★★★ levels + a fresh A/B; do not resurrect this proxy-era proposal verbatim. Closed per OP-22 compound-don't-accumulate.

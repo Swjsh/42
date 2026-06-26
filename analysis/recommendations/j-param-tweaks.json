@@ -1,6 +1,6 @@
 {
   "generated_at_utc": "2026-06-20",
-  "campaign": "J-DATA PROFITABILITY — B1/B2/B3 parameter tweaks (docs/J-DATA-RESEARCH-MASTER-PLAN.md)",
+  "campaign": "J-DATA PROFITABILITY — B1/B2/B3 parameter tweaks (markdown/research/J-DATA-RESEARCH-MASTER-PLAN.md)",
   "mandate": "J: 'there has to be something profitable if we just tweak certain parameters.' Find his optimal strike/hold/TP, validate forward on OUR data.",
   "method": {
     "part_A_defines": "His Webull winners (analysis/webull-j-trades/) DEFINE each candidate param value. B1 from moneyness-at-entry buckets; B2/B3 from option-premium path reconstructed along the cached underlier with per-trade IV inverted from his real entry fill.",

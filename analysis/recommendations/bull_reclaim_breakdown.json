@@ -1,0 +1,98 @@
+{
+  "task": "0c0aff49-bull-reclaim-breakdown",
+  "bull_n": 88,
+  "bull_wr": 0.273,
+  "bull_avg": 189.9,
+  "bull_total": 16709.0,
+  "tod_breakdown": [
+    {
+      "bucket": "09:35-10:00",
+      "n": 22,
+      "wr": 0.182,
+      "avg": 176.0,
+      "total": 3871.6
+    },
+    {
+      "bucket": "10:00-11:00",
+      "n": 22,
+      "wr": 0.409,
+      "avg": 367.6,
+      "total": 8086.4
+    },
+    {
+      "bucket": "11:00-12:00",
+      "n": 12,
+      "wr": 0.167,
+      "avg": -3.8,
+      "total": -45.8
+    },
+    {
+      "bucket": "12:00-13:00",
+      "n": 12,
+      "wr": 0.417,
+      "avg": 245.2,
+      "total": 2943.0
+    },
+    {
+      "bucket": "13:00-14:00",
+      "n": 17,
+      "wr": 0.118,
+      "avg": 41.8,
+      "total": 709.8
+    },
+    {
+      "bucket": "14:00-15:00",
+      "n": 1,
+      "wr": 1.0,
+      "avg": 200.0,
+      "total": 200.0
+    },
+    {
+      "bucket": "15:00-15:55",
+      "n": 2,
+      "wr": 0.5,
+      "avg": 472.0,
+      "total": 944.0
+    }
+  ],
+  "vix_breakdown": [
+    {
+      "bucket": "vix<15",
+      "n": 13,
+      "wr": 0.231,
+      "avg": 55.2,
+      "total": 718.2
+    },
+    {
+      "bucket": "vix_15-17",
+      "n": 65,
+      "wr": 0.277,
+      "avg": 205.2,
+      "total": 13339.6
+    },
+    {
+      "bucket": "vix_17-20",
+      "n": 10,
+      "wr": 0.3,
+      "avg": 265.1,
+      "total": 2651.2
+    }
+  ],
+  "promising_segments": [
+    {
+      "bucket": "10:00-11:00",
+      "dim": "time",
+      "n": 22,
+      "wr": 0.409,
+      "avg": 367.6
+    },
+    {
+      "bucket": "12:00-13:00",
+      "dim": "time",
+      "n": 12,
+      "wr": 0.417,
+      "avg": 245.2
+    }
+  ],
+  "note": "BULLISH_RECLAIM stays DRAFT per CLAUDE.md until J has 3 live wins. This IS analysis is for sub-segment identification only."
+}

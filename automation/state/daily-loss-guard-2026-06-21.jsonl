@@ -1,0 +1,2 @@
+{"ts_et": "2026-06-21T21:24:53.506101-04:00", "account": "safe", "ok": true, "sod": 2000.0, "equity": 1300.0, "loss_pct": 0.35, "limit_pct": 0.3, "already_tripped": false, "action": "TRIPPED"}
+{"ts_et": "2026-06-21T21:24:53.527788-04:00", "account": "safe", "ok": true, "sod": 2000.0, "equity": 1400.0, "loss_pct": 0.3, "limit_pct": 0.3, "already_tripped": false, "action": "TRIPPED"}

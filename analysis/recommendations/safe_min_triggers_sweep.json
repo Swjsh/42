@@ -1,0 +1,72 @@
+{
+  "task": "safe-min-triggers-bear-sweep",
+  "rule_id": "safe_min_triggers_bear",
+  "description": "SAFE min_triggers_bear sweep [1 (baseline), 2, 3]",
+  "baseline_value": 1,
+  "sweep_results": [
+    {
+      "mtb": 1,
+      "verdict": "BASELINE"
+    },
+    {
+      "mtb": 2,
+      "is": {
+        "n": 56,
+        "wr": 0.375,
+        "avg": 362.8,
+        "total": 20315.7
+      },
+      "oos": {
+        "n": 11,
+        "wr": 0.545,
+        "avg": 647.6,
+        "total": 7123.6
+      },
+      "is_delta": -3110.9,
+      "oos_delta": 1202.8,
+      "wf_norm": -1.968,
+      "sw_hurt": 0,
+      "anchor_ok": true,
+      "gates": {
+        "G1": false,
+        "G2": true,
+        "G3": false,
+        "G4": true,
+        "G5": true,
+        "all": false
+      }
+    },
+    {
+      "mtb": 3,
+      "is": {
+        "n": 43,
+        "wr": 0.349,
+        "avg": 410.5,
+        "total": 17652.3
+      },
+      "oos": {
+        "n": 7,
+        "wr": 0.571,
+        "avg": 870.3,
+        "total": 6092.2
+      },
+      "is_delta": -5774.3,
+      "oos_delta": 171.4,
+      "wf_norm": -0.182,
+      "sw_hurt": 0,
+      "anchor_ok": true,
+      "gates": {
+        "G1": false,
+        "G2": true,
+        "G3": false,
+        "G4": true,
+        "G5": true,
+        "all": false
+      }
+    }
+  ],
+  "best": null,
+  "auto_ratify": false,
+  "ratify_value": null,
+  "verdict": "REJECT"
+}

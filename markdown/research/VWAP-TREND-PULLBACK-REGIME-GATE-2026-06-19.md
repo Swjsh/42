@@ -10,9 +10,9 @@ cleanly done?
 edge meet OP-22 on the exit config the live detector actually trades. A false 2nd edge
 is worse than none. Details below.
 
-- Harness: [`backtest/autoresearch/vwap_pullback_regime_gate.py`](../backtest/autoresearch/vwap_pullback_regime_gate.py) (diagnosis + gate sweep, both exit configs)
-- Anti-overfit: [`backtest/autoresearch/vwap_pullback_gate_own_oos.py`](../backtest/autoresearch/vwap_pullback_gate_own_oos.py) (threshold-own-OOS)
-- Scorecards: [`analysis/recommendations/vwap-trend-pullback-regime-gate.json`](../analysis/recommendations/vwap-trend-pullback-regime-gate.json), [`analysis/recommendations/vwap-trend-pullback-gate-own-oos.json`](../analysis/recommendations/vwap-trend-pullback-gate-own-oos.json)
+- Harness: [`backtest/autoresearch/vwap_pullback_regime_gate.py`](../../backtest/autoresearch/vwap_pullback_regime_gate.py) (diagnosis + gate sweep, both exit configs)
+- Anti-overfit: [`backtest/autoresearch/vwap_pullback_gate_own_oos.py`](../../backtest/autoresearch/vwap_pullback_gate_own_oos.py) (threshold-own-OOS)
+- Scorecards: [`analysis/recommendations/vwap-trend-pullback-regime-gate.json`](../../analysis/recommendations/vwap-trend-pullback-regime-gate.json), [`analysis/recommendations/vwap-trend-pullback-gate-own-oos.json`](../../analysis/recommendations/vwap-trend-pullback-gate-own-oos.json)
 
 ---
 

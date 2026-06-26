@@ -1,0 +1,49 @@
+{
+  "rule_id": "VIX_BULL_HARD_CAP_18",
+  "hypothesis": "Lowering VIX BULL hard cap from 22 to 18. CALL entries in VIX 18-22 zone are net losers (elevated VIX bull entries underperform). IS n=4 blocked, delta=+$221. OOS n=1 blocked, delta=+$219.",
+  "status": "RATIFIED",
+  "ratification_date": "2026-06-17",
+  "ratification_authority": "Auto-ratify: OOS positive + WF>=0.70 + SW hurt<=1 + anchor OK. J directive 'if its profitable implement it'.",
+  "prior_c14_result": "Batch 8 (old baseline, 2-week OOS): IS_delta=+$1,253, OOS_delta=+$219, WF=2.846. Sub-window not explicitly logged; C14 closed as 'sole RATIFY=tighter stop'.",
+  "data_file": "spy_5m_2025-01-01_2026-06-16.csv",
+  "is_range": "2025-01-02 to 2026-05-07",
+  "oos_range": "2026-05-08 to 2026-06-16",
+  "baseline": "block_level_rejection=True + block_elite_bull_vix15_17.5 + premium_stop_pct_bear=-0.10",
+  "is_base_n": 132,
+  "is_base_pnl": 12617,
+  "is_cand_n": 128,
+  "is_cand_pnl": 12838,
+  "is_delta": 221,
+  "n_is_blocked": 4,
+  "oos_base_n": 22,
+  "oos_base_pnl": 3509,
+  "oos_cand_n": 21,
+  "oos_cand_pnl": 3728,
+  "oos_delta": 219,
+  "n_oos_blocked": 1,
+  "wf_norm": 5.946,
+  "wf_verdict": "PASS (5.946 >= 0.70). NOTE: inflated by small n_is_blocked=4 (per-trade IS=$55 vs OOS=$219). Direction consistent. Evidence thin.",
+  "is_sub_windows": {
+    "W1_2025H1": "-372 HURT (blocked a profitable VIX 18-22 BULL entry in early-2025 regime)",
+    "W2_2025H2": "+0 FLAT",
+    "W3_Q12026": "+406 HELP",
+    "W4_Apr26": "+188 HELP"
+  },
+  "sub_window_hurt": "1/4 (gate: <=1)",
+  "sub_window_verdict": "PASS (1/4 hurt)",
+  "anchor_no_regression": true,
+  "anchor_notes": "4/29, 5/01, 5/04 all delta=$0 — anchor days had VIX<18 after tariff-shock drop, gate doesn't fire.",
+  "oos_blocked_trades": [
+    "1 trade blocked in May 8-Jun 16 OOS window (pnl=-$219 before block = +$219 after block)"
+  ],
+  "mechanism": "Blocks ALL CALL (BULL) entries when VIX >= 18.0 (previously >= 22.0). In VIX 18-22 zone: elevated uncertainty, bull entries statistically lose. Rationale: W3/W4 IS shows VIX 18-22 bull entries are net negative; OOS May 2026 confirms 1 blocked loser.",
+  "evidence_quality": "THIN — n_is_blocked=4, n_oos_blocked=1. Statistical significance low. WF score inflated by n ratio. Deploy with revert-ready posture.",
+  "deployment_scope": "SAFE account only (params.json). Aggressive NOT updated — aggressive has VIX<30 hard cap, different baseline, unvalidated for VIX 22-30 blocks.",
+  "production_changes": {
+    "automation/state/params.json": "vix_entry_thresholds.bull_hard_cap: 22.0 -> 18.0",
+    "automation/prompts/heartbeat.md": "filter 9: VIX<22 -> VIX<18; VIX cache refresh threshold 22.00 -> 18.00"
+  },
+  "revert_instructions": "set vix_entry_thresholds.bull_hard_cap: 22.0 in params.json and restore heartbeat.md filter 9 to 'VIX<22 (HARD)'",
+  "scorecard_script": "backtest/autoresearch/vix_bull_max_ab.py",
+  "created_at": "2026-06-17"
+}

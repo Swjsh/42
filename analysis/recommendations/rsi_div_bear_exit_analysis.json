@@ -1,0 +1,10 @@
+{
+  "task": "rsi-div-bear-exit-analysis",
+  "scan_date": "2026-05-21",
+  "bull_sig_count": 42,
+  "accounts_analyzed": [
+    "AGG",
+    "SAFE"
+  ],
+  "run_date": "2026-06-18"
+}

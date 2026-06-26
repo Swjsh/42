@@ -39,20 +39,18 @@ import urllib.error
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 ET_TZ = timezone(timedelta(hours=-4))
 
-# Hard-coded paper Alpaca account keys (synced with .mcp.json). If keys drift,
-# audit_scheduled_tasks + heartbeat self-test will catch it before this script
-# silently uses stale creds.
-ACCOUNT_KEYS: dict[str, tuple[str, str]] = {
-    "safe": (
-        "PKGZIUWDJIMDG5QYDGCPFJDGHJ",
-        "9EzmHpix6GShFRHH5dUmVJb6V9VPvZppPGmtjdM3WEYs",
-    ),
-    "bold": (
-        # Rotated 2026-05-22 09:35 ET — account PA33W2KUAT40 (Gamma-Risky-2)
-        "PKQMQD2NNWII7PYGSTGIDXZU3T",
-        "ELWu7QjbQDkGZawg8yM7QfpHPjB7kFQcMdERSEPirUsV",
-    ),
-}
+# Live paper Alpaca creds load from the GITIGNORED project-root .mcp.json (the same
+# file Claude Code loads the MCP servers from) -- NOT hard-coded. This guarantees the
+# guard's keys can never drift from what the engine actually trades with, and keeps
+# secrets out of committed source. 2026-06-21 readiness audit C1/P0-1: a hard-coded
+# RETIRED Safe-1 key (PKGZIUWD...) made this guard return HTTP 401 on every Safe run,
+# silently disabling the naked-order safety net on the live Safe account. See
+# setup/scripts/alpaca_keys.py. Fail-loud: a missing key raises here (the wrapper logs
+# it) rather than letting the guard run on stale creds.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from alpaca_keys import load_account_keys  # noqa: E402
+
+ACCOUNT_KEYS: dict[str, tuple[str, str]] = load_account_keys()
 ALPACA_BASE = "https://paper-api.alpaca.markets/v2"
 
 

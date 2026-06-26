@@ -1,0 +1,201 @@
+{
+  "instrument": "MES",
+  "top_slices": [
+    {
+      "watcher": "shotgun_scalper_watcher",
+      "dir": "long",
+      "conf": "high",
+      "n": 78,
+      "net": 2764.5899999999997,
+      "wr": 64.1025641025641,
+      "per_trade": 35.443461538461534
+    },
+    {
+      "watcher": "v14_enhanced_watcher",
+      "dir": "short",
+      "conf": "medium",
+      "n": 128,
+      "net": 713.4900000000001,
+      "wr": 30.46875,
+      "per_trade": 5.574140625000001
+    },
+    {
+      "watcher": "v14_enhanced_watcher",
+      "dir": "short",
+      "conf": "high",
+      "n": 28,
+      "net": 677.75,
+      "wr": 64.28571428571429,
+      "per_trade": 24.205357142857142
+    },
+    {
+      "watcher": "tbr_high_vol_watcher",
+      "dir": "short",
+      "conf": "medium",
+      "n": 91,
+      "net": 203.23000000000005,
+      "wr": 58.24175824175825,
+      "per_trade": 2.2332967032967037
+    },
+    {
+      "watcher": "orb_watcher",
+      "dir": "long",
+      "conf": "medium",
+      "n": 22,
+      "net": 112.41000000000003,
+      "wr": 59.09090909090909,
+      "per_trade": 5.109545454545455
+    },
+    {
+      "watcher": "level_break_first_strike_watcher",
+      "dir": "short",
+      "conf": "low",
+      "n": 3,
+      "net": 10.34,
+      "wr": 66.66666666666666,
+      "per_trade": 3.4466666666666668
+    },
+    {
+      "watcher": "bearish_reversal_at_level_watcher",
+      "dir": "short",
+      "conf": "high",
+      "n": 9,
+      "net": -118.73,
+      "wr": 55.55555555555556,
+      "per_trade": -13.192222222222222
+    },
+    {
+      "watcher": "shotgun_scalper_watcher",
+      "dir": "short",
+      "conf": "medium",
+      "n": 213,
+      "net": -144.86000000000027,
+      "wr": 58.21596244131455,
+      "per_trade": -0.6800938967136163
+    },
+    {
+      "watcher": "shotgun_scalper_watcher",
+      "dir": "short",
+      "conf": "low",
+      "n": 95,
+      "net": -152.3999999999999,
+      "wr": 46.31578947368421,
+      "per_trade": -1.6042105263157884
+    },
+    {
+      "watcher": "tbr_high_vol_watcher",
+      "dir": "short",
+      "conf": "high",
+      "n": 9,
+      "net": -190.73,
+      "wr": 44.44444444444444,
+      "per_trade": -21.19222222222222
+    },
+    {
+      "watcher": "bearish_reversal_at_level_watcher",
+      "dir": "short",
+      "conf": "medium",
+      "n": 21,
+      "net": -294.57,
+      "wr": 47.61904761904761,
+      "per_trade": -14.027142857142858
+    },
+    {
+      "watcher": "tbr_high_vol_watcher",
+      "dir": "long",
+      "conf": "high",
+      "n": 12,
+      "net": -310.89,
+      "wr": 25.0,
+      "per_trade": -25.9075
+    },
+    {
+      "watcher": "shotgun_scalper_watcher",
+      "dir": "long",
+      "conf": "medium",
+      "n": 198,
+      "net": -551.5600000000001,
+      "wr": 57.07070707070707,
+      "per_trade": -2.785656565656566
+    },
+    {
+      "watcher": "erl_irl_watcher",
+      "dir": "long",
+      "conf": "medium",
+      "n": 154,
+      "net": -565.9700000000003,
+      "wr": 58.44155844155844,
+      "per_trade": -3.675129870129872
+    },
+    {
+      "watcher": "bearish_rejection_morning_watcher",
+      "dir": "short",
+      "conf": "low",
+      "n": 32,
+      "net": -571.14,
+      "wr": 50.0,
+      "per_trade": -17.848125
+    },
+    {
+      "watcher": "bearish_rejection_morning_watcher",
+      "dir": "short",
+      "conf": "high",
+      "n": 44,
+      "net": -639.27,
+      "wr": 65.9090909090909,
+      "per_trade": -14.528863636363637
+    },
+    {
+      "watcher": "named_level_wick_bounce_watcher",
+      "dir": "long",
+      "conf": "low",
+      "n": 41,
+      "net": -694.42,
+      "wr": 34.146341463414636,
+      "per_trade": -16.937073170731708
+    },
+    {
+      "watcher": "tbr_high_vol_watcher",
+      "dir": "long",
+      "conf": "medium",
+      "n": 95,
+      "net": -784.9000000000001,
+      "wr": 52.63157894736842,
+      "per_trade": -8.262105263157896
+    },
+    {
+      "watcher": "shotgun_scalper_watcher",
+      "dir": "short",
+      "conf": "high",
+      "n": 259,
+      "net": -1174.9800000000002,
+      "wr": 59.07335907335908,
+      "per_trade": -4.536602316602318
+    },
+    {
+      "watcher": "shotgun_scalper_watcher",
+      "dir": "long",
+      "conf": "low",
+      "n": 119,
+      "net": -1309.9299999999998,
+      "wr": 32.773109243697476,
+      "per_trade": -11.007815126050419
+    }
+  ],
+  "oos": {
+    "raw": {
+      "is_net": -20438.91000000001,
+      "oos_net": -5687.710000000006,
+      "gate": "FAIL (OOS negative)"
+    },
+    "v2b": {
+      "is_net": -1379.1100000000022,
+      "oos_net": 1167.3799999999983,
+      "is_n": 288,
+      "oos_n": 173,
+      "is_pt": -4.788576388888896,
+      "oos_pt": 6.747861271676291,
+      "gate": "PASS-REGIME-FLIP (IS<0, OOS>0, watch for recency bias)"
+    }
+  }
+}

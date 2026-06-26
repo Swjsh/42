@@ -1,0 +1,101 @@
+{
+  "generated_at": "2026-06-16T21:00:01.867951+00:00",
+  "for_date": "2026-06-16",
+  "overall_verdict": "RED",
+  "audits": [
+    {
+      "name": "crypto-gym (42 validators)",
+      "source_file": "crypto/data/scorecards/latest.json",
+      "verdict": "GREEN",
+      "summary": "83/84 pass (KNOWN_FLAKY excluded: 1)",
+      "evidence": {
+        "stages": 84,
+        "passed": 83,
+        "flaky_failed": [
+          "v02_source_parity"
+        ]
+      }
+    },
+    {
+      "name": "chart-data-verify",
+      "source_file": "automation/state/chart-data-verify-2026-06-16.json",
+      "verdict": "RED",
+      "summary": "5 bars checked, max div $0.2700",
+      "evidence": {
+        "max_divergence_usd": 0.27,
+        "bars_checked": 5
+      }
+    },
+    {
+      "name": "heartbeat-tick-audit",
+      "source_file": "automation/state/heartbeat-tick-audit-2026-06-16.json",
+      "verdict": "GREEN",
+      "summary": "35 live ticks, 0 MISALIGNED-CRITICAL (0.0%)",
+      "evidence": {
+        "by_classification": {
+          "ALIGNED": 12,
+          "MISALIGNED-BENIGN": 23,
+          "MISALIGNED-CRITICAL": 0,
+          "STALE_PAUSED": 2,
+          "NO_DATA": 2,
+          "NO_BAR": 0
+        },
+        "live_ticks": 35,
+        "misaligned_critical": 0,
+        "misaligned_pct": 0.0
+      }
+    },
+    {
+      "name": "pin-chain-verify",
+      "source_file": "automation/state/pin-chain-verify-latest.json",
+      "verdict": "RED",
+      "summary": "rule_version=v15.3, mismatches=1",
+      "evidence": {
+        "canonical_rule_version": "v15.3",
+        "mismatches": [
+          {
+            "file": "C:\\Users\\jackw\\Desktop\\42\\automation\\prompts\\aggressive\\heartbeat.md",
+            "line": 9,
+            "found": "v15.2",
+            "expected": "v15.3",
+            "note": "aggressive-variant-may-be-intentionally-divergent-confirm-with-J"
+          }
+        ]
+      }
+    },
+    {
+      "name": "heartbeat-mcp-self-test",
+      "source_file": "automation/state/heartbeat-mcp-self-test-latest.json",
+      "verdict": "GREEN",
+      "summary": "TV CDP listening=True",
+      "evidence": {
+        "tv_cdp_listening": true
+      }
+    },
+    {
+      "name": "heartbeat-pulse-check",
+      "source_file": "automation/state/heartbeat-pulse-check-2026-06-16.json",
+      "verdict": "YELLOW",
+      "summary": "max gap 15.0min",
+      "evidence": {
+        "max_gap_minutes": 15.0
+      }
+    },
+    {
+      "name": "watcher-state-inspector",
+      "source_file": "automation/state/watcher-state-inspector-2026-06-16.json",
+      "verdict": "YELLOW",
+      "summary": "odf_state empty (may be correct if no drive-then-fade pattern)",
+      "evidence": {
+        "obs_today": 0,
+        "reason": "odf_state empty (may be correct if no drive-then-fade pattern)"
+      }
+    }
+  ],
+  "stale_reruns": {
+    "heartbeat_pulse_check": {
+      "exit": 0,
+      "log_tail": ", 'gap_min': 6.0}, {'from': '10:03:02', 'to': '10:18:02', 'gap_min': 15.0}, {'from': '10:18:02', 'to': '10:24:02', 'gap_min': 6.0}, {'from': '10:24:02', 'to': '10:33:02', 'gap_min': 9.0}, {'from': '10:33:02', 'to': '10:42:02', 'gap_min': 9.0}, {'from': '10:42:02', 'to': '10:48:02', 'gap_min': 6.0}, {'from': '10:51:02', 'to': '11:00:02', 'gap_min': 9.0}, {'from': '11:03:02', 'to': '11:09:02', 'gap_min': 6.0}]\nWrote: C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-pulse-check-2026-06-16.json\n"
+    }
+  }
+}

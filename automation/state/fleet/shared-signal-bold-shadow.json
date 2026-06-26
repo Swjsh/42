@@ -1,0 +1,23 @@
+{
+  "_doc": "SHADOW (scoring-peak derivation, BOLD ledger) -- proves looser-than-production passes. WATCH-only; not consumed by the live fleet until after-close deploy.",
+  "tick_id": 54,
+  "date": "2026-06-24",
+  "time_et": "15:42",
+  "spot": 731.775,
+  "vix": 19.91,
+  "ribbon_stack": "BEAR",
+  "production_action": "HOLD_DEV",
+  "setup_name": null,
+  "bull": {
+    "passed": false,
+    "score": 0,
+    "triggers_fired": []
+  },
+  "bear": {
+    "passed": false,
+    "score": 0,
+    "triggers_fired": []
+  },
+  "written_at": "2026-06-24T16:22:40-0400",
+  "source": "shadow-scoring-peak-bold-v1"
+}

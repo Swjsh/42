@@ -1,0 +1,1968 @@
+{
+  "campaign": "RECENCY STOP-VARIANT A/B \u2014 edge #1 vwap_continuation (real OPRA fills)",
+  "purpose": "does a stop variant reduce the recency drawdown WITHOUT breaking the full-sample edge? (holds/beats -8% exp + L175 risk-adjusted + no-truncation + null_pass + recent bleed reduced)",
+  "run_date": "2026-06-21",
+  "opra_cache_last": "2026-06-18",
+  "frame": "2025-01-02..2026-06-18 (master + recent daily concat)",
+  "recent_window": "2026-05-14..2026-06-18",
+  "recent_window_trading_days": 25,
+  "oos_split": "OOS=2026 (full OOS-2026 to cache last)",
+  "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1)",
+  "detector": "BYTE-FOR-BYTE _edgehunt_vwap_continuation.detect_signals (LIVE detector); live port = backtest/lib/watchers/vwap_continuation_watcher.py",
+  "tiers": [
+    "ATM",
+    "ITM-2"
+  ],
+  "n_signals": 167,
+  "signal_side_count": {
+    "C": 90,
+    "P": 77
+  },
+  "stop_variants": {
+    "a_premium_-8pct": {
+      "premium_stop_pct": -0.08
+    },
+    "b_chartstop_only_-99": {
+      "premium_stop_pct": -0.99
+    },
+    "c_premium_-15pct": {
+      "premium_stop_pct": -0.15
+    },
+    "c_premium_-20pct": {
+      "premium_stop_pct": -0.2
+    },
+    "c_premium_-25pct": {
+      "premium_stop_pct": -0.25
+    },
+    "d_chartstop_+cat_-50": {
+      "premium_stop_pct": -0.5
+    },
+    "e_premium_-20_tp_+20": {
+      "premium_stop_pct": -0.2,
+      "tp1_premium_pct": 0.2
+    }
+  },
+  "win_bar": "(full) exp >= -8% baseline exp (same tier) AND L175 risk-adjusted pass (per-trade Sharpe holds + book Sortino holds + maxDD no material worse +25% vs -8% baseline) AND no-truncation (full exp > 0) AND null_pass (C3/L58) AND (recent) recent exp/tr improves AND recent total loss shrinks vs -8%",
+  "maxdd_material_worsen_threshold": 0.25,
+  "results_by_tier": {
+    "ATM": {
+      "strike_offset": 0,
+      "baseline_key": "a_premium_-8pct",
+      "baseline_full": {
+        "n": 157,
+        "exp_per_trade": 45.01,
+        "total": 7065.96,
+        "wr_pct": 49.7,
+        "std_per_trade": 116.0,
+        "sharpe_per_trade": 0.388,
+        "pct_losing": 50.3,
+        "worst_trade": -211.68,
+        "median_trade": -3.0,
+        "book_maxDD": -454.56,
+        "book_worst_day": -211.68,
+        "book_sortino_ann": 18.856,
+        "book_sharpe_ann": 6.159,
+        "trading_days": 157,
+        "exit_mix": {
+          "EXIT_ALL_LEVEL_STOP": 2,
+          "EXIT_ALL_PREMIUM_STOP": 78,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 22,
+          "EXIT_ALL_TIME_STOP": 1,
+          "TP1_THEN_RUNNER_RIBBON": 43,
+          "TP1_THEN_RUNNER_TIME": 11
+        }
+      },
+      "baseline_oos": {
+        "n": 50,
+        "exp_per_trade": 47.55,
+        "total": 2377.28,
+        "wr_pct": 46.0,
+        "std_per_trade": 120.09,
+        "sharpe_per_trade": 0.3959,
+        "pct_losing": 54.0,
+        "worst_trade": -119.28,
+        "median_trade": -24.6,
+        "book_maxDD": -454.56,
+        "book_worst_day": -119.28,
+        "book_sortino_ann": 20.735,
+        "book_sharpe_ann": 6.285,
+        "trading_days": 50,
+        "exit_mix": {
+          "EXIT_ALL_PREMIUM_STOP": 27,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 7,
+          "TP1_THEN_RUNNER_RIBBON": 11,
+          "TP1_THEN_RUNNER_TIME": 5
+        }
+      },
+      "baseline_recent": {
+        "n": 10,
+        "exp_per_trade": -22.46,
+        "total": -224.64,
+        "wr_pct": 10.0,
+        "std_per_trade": 51.66,
+        "sharpe_per_trade": -0.4348,
+        "pct_losing": 90.0,
+        "worst_trade": -55.92,
+        "median_trade": -35.88,
+        "book_maxDD": -312.96,
+        "book_worst_day": -55.92,
+        "book_sortino_ann": -9.502,
+        "book_sharpe_ann": -6.903,
+        "trading_days": 10,
+        "exit_mix": {
+          "EXIT_ALL_PREMIUM_STOP": 9,
+          "TP1_THEN_RUNNER_RIBBON": 1
+        }
+      },
+      "variants": {
+        "a_premium_-8pct": {
+          "stop_kwargs": {
+            "premium_stop_pct": -0.08
+          },
+          "coverage": {
+            "signals": 167,
+            "filled": 157,
+            "cache_miss": 10,
+            "sim_none": 0,
+            "fill_rate": 0.94
+          },
+          "full_sample": {
+            "n": 157,
+            "exp_per_trade": 45.01,
+            "total": 7065.96,
+            "wr_pct": 49.7,
+            "std_per_trade": 116.0,
+            "sharpe_per_trade": 0.388,
+            "pct_losing": 50.3,
+            "worst_trade": -211.68,
+            "median_trade": -3.0,
+            "book_maxDD": -454.56,
+            "book_worst_day": -211.68,
+            "book_sortino_ann": 18.856,
+            "book_sharpe_ann": 6.159,
+            "trading_days": 157,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 2,
+              "EXIT_ALL_PREMIUM_STOP": 78,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 22,
+              "EXIT_ALL_TIME_STOP": 1,
+              "TP1_THEN_RUNNER_RIBBON": 43,
+              "TP1_THEN_RUNNER_TIME": 11
+            }
+          },
+          "full_oos_2026": {
+            "n": 50,
+            "exp_per_trade": 47.55,
+            "total": 2377.28,
+            "wr_pct": 46.0,
+            "std_per_trade": 120.09,
+            "sharpe_per_trade": 0.3959,
+            "pct_losing": 54.0,
+            "worst_trade": -119.28,
+            "median_trade": -24.6,
+            "book_maxDD": -454.56,
+            "book_worst_day": -119.28,
+            "book_sortino_ann": 20.735,
+            "book_sharpe_ann": 6.285,
+            "trading_days": 50,
+            "exit_mix": {
+              "EXIT_ALL_PREMIUM_STOP": 27,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 7,
+              "TP1_THEN_RUNNER_RIBBON": 11,
+              "TP1_THEN_RUNNER_TIME": 5
+            }
+          },
+          "recent_window": {
+            "n": 10,
+            "exp_per_trade": -22.46,
+            "total": -224.64,
+            "wr_pct": 10.0,
+            "std_per_trade": 51.66,
+            "sharpe_per_trade": -0.4348,
+            "pct_losing": 90.0,
+            "worst_trade": -55.92,
+            "median_trade": -35.88,
+            "book_maxDD": -312.96,
+            "book_worst_day": -55.92,
+            "book_sortino_ann": -9.502,
+            "book_sharpe_ann": -6.903,
+            "trading_days": 10,
+            "exit_mix": {
+              "EXIT_ALL_PREMIUM_STOP": 9,
+              "TP1_THEN_RUNNER_RIBBON": 1
+            }
+          },
+          "no_truncation_full_exp_positive": true,
+          "null": {
+            "seeds": 10,
+            "n_eligible": 27205,
+            "n_drawn": 157,
+            "per_trade_mean": -3.29,
+            "per_trade_min": -12.53,
+            "per_trade_max": 6.77,
+            "per_trade_by_seed": [
+              -5.34,
+              -3.6,
+              -3.42,
+              -8.92,
+              -3.57,
+              -12.53,
+              -2.02,
+              -6.58,
+              6.29,
+              6.77
+            ]
+          },
+          "null_gate": {
+            "beats_null_mean": true,
+            "beats_null_max": true,
+            "drop_top5_beats_null_mean": true,
+            "edge_over_null_per_trade": 48.3,
+            "null_pass": true
+          },
+          "l175_gate_vs_baseline": {
+            "per_trade_sharpe_holds": true,
+            "book_sortino_holds": true,
+            "book_sharpe_holds": true,
+            "maxdd_worsen_frac": 0.0,
+            "maxdd_material_worse": false,
+            "l175_pass": true
+          },
+          "win_bar_legs": {
+            "is_baseline": true,
+            "full_holds_or_beats_baseline": true,
+            "l175_pass": true,
+            "no_truncation": true,
+            "null_pass": true,
+            "recent_exp_better_than_baseline": false,
+            "recent_loss_shrinks_vs_baseline": false,
+            "recent_bleed_reduced": false,
+            "CLEARS_WIN_BAR": false
+          }
+        },
+        "b_chartstop_only_-99": {
+          "stop_kwargs": {
+            "premium_stop_pct": -0.99
+          },
+          "coverage": {
+            "signals": 167,
+            "filled": 157,
+            "cache_miss": 10,
+            "sim_none": 0,
+            "fill_rate": 0.94
+          },
+          "full_sample": {
+            "n": 157,
+            "exp_per_trade": 35.01,
+            "total": 5496.2,
+            "wr_pct": 75.2,
+            "std_per_trade": 223.8,
+            "sharpe_per_trade": 0.1564,
+            "pct_losing": 24.2,
+            "worst_trade": -1173.0,
+            "median_trade": 79.8,
+            "book_maxDD": -2685.6,
+            "book_worst_day": -1173.0,
+            "book_sortino_ann": 3.193,
+            "book_sharpe_ann": 2.483,
+            "trading_days": 157,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 19,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 46,
+              "EXIT_ALL_TIME_STOP": 4,
+              "TP1_THEN_RUNNER_RIBBON": 68,
+              "TP1_THEN_RUNNER_TIME": 20
+            }
+          },
+          "full_oos_2026": {
+            "n": 50,
+            "exp_per_trade": 15.1,
+            "total": 754.8,
+            "wr_pct": 70.0,
+            "std_per_trade": 233.38,
+            "sharpe_per_trade": 0.0647,
+            "pct_losing": 30.0,
+            "worst_trade": -624.0,
+            "median_trade": 82.8,
+            "book_maxDD": -2685.6,
+            "book_worst_day": -624.0,
+            "book_sortino_ann": 1.307,
+            "book_sharpe_ann": 1.027,
+            "trading_days": 50,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 6,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 16,
+              "EXIT_ALL_TIME_STOP": 2,
+              "TP1_THEN_RUNNER_RIBBON": 20,
+              "TP1_THEN_RUNNER_TIME": 6
+            }
+          },
+          "recent_window": {
+            "n": 10,
+            "exp_per_trade": -191.94,
+            "total": -1919.4,
+            "wr_pct": 20.0,
+            "std_per_trade": 215.71,
+            "sharpe_per_trade": -0.8898,
+            "pct_losing": 80.0,
+            "worst_trade": -624.0,
+            "median_trade": -180.0,
+            "book_maxDD": -2127.0,
+            "book_worst_day": -624.0,
+            "book_sortino_ann": -11.017,
+            "book_sharpe_ann": -14.125,
+            "trading_days": 10,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 1,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 5,
+              "EXIT_ALL_TIME_STOP": 2,
+              "TP1_THEN_RUNNER_RIBBON": 2
+            }
+          },
+          "no_truncation_full_exp_positive": true,
+          "null": {
+            "seeds": 10,
+            "n_eligible": 27205,
+            "n_drawn": 157,
+            "per_trade_mean": -35.81,
+            "per_trade_min": -69.4,
+            "per_trade_max": -7.79,
+            "per_trade_by_seed": [
+              -52.75,
+              -29.47,
+              -7.79,
+              -47.56,
+              -35.12,
+              -37.37,
+              -33.34,
+              -69.4,
+              -28.62,
+              -16.73
+            ]
+          },
+          "null_gate": {
+            "beats_null_mean": true,
+            "beats_null_max": true,
+            "drop_top5_beats_null_mean": true,
+            "edge_over_null_per_trade": 70.82,
+            "null_pass": true
+          },
+          "l175_gate_vs_baseline": {
+            "per_trade_sharpe_holds": false,
+            "book_sortino_holds": false,
+            "book_sharpe_holds": false,
+            "maxdd_worsen_frac": 4.9081,
+            "maxdd_material_worse": true,
+            "l175_pass": false
+          },
+          "win_bar_legs": {
+            "is_baseline": false,
+            "full_holds_or_beats_baseline": false,
+            "l175_pass": false,
+            "no_truncation": true,
+            "null_pass": true,
+            "recent_exp_better_than_baseline": false,
+            "recent_loss_shrinks_vs_baseline": false,
+            "recent_bleed_reduced": false,
+            "CLEARS_WIN_BAR": false
+          }
+        },
+        "c_premium_-15pct": {
+          "stop_kwargs": {
+            "premium_stop_pct": -0.15
+          },
+          "coverage": {
+            "signals": 167,
+            "filled": 157,
+            "cache_miss": 10,
+            "sim_none": 0,
+            "fill_rate": 0.94
+          },
+          "full_sample": {
+            "n": 157,
+            "exp_per_trade": 38.33,
+            "total": 6017.85,
+            "wr_pct": 55.4,
+            "std_per_trade": 135.3,
+            "sharpe_per_trade": 0.2833,
+            "pct_losing": 43.9,
+            "worst_trade": -396.9,
+            "median_trade": 48.0,
+            "book_maxDD": -912.55,
+            "book_worst_day": -396.9,
+            "book_sortino_ann": 9.248,
+            "book_sharpe_ann": 4.497,
+            "trading_days": 157,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 2,
+              "EXIT_ALL_PREMIUM_STOP": 66,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 28,
+              "EXIT_ALL_TIME_STOP": 1,
+              "TP1_THEN_RUNNER_RIBBON": 48,
+              "TP1_THEN_RUNNER_TIME": 12
+            }
+          },
+          "full_oos_2026": {
+            "n": 50,
+            "exp_per_trade": 45.87,
+            "total": 2293.35,
+            "wr_pct": 54.0,
+            "std_per_trade": 134.7,
+            "sharpe_per_trade": 0.3405,
+            "pct_losing": 46.0,
+            "worst_trade": -223.65,
+            "median_trade": 46.2,
+            "book_maxDD": -912.55,
+            "book_worst_day": -223.65,
+            "book_sortino_ann": 12.605,
+            "book_sharpe_ann": 5.406,
+            "trading_days": 50,
+            "exit_mix": {
+              "EXIT_ALL_PREMIUM_STOP": 22,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 9,
+              "TP1_THEN_RUNNER_RIBBON": 14,
+              "TP1_THEN_RUNNER_TIME": 5
+            }
+          },
+          "recent_window": {
+            "n": 10,
+            "exp_per_trade": -52.83,
+            "total": -528.3,
+            "wr_pct": 10.0,
+            "std_per_trade": 63.76,
+            "sharpe_per_trade": -0.8285,
+            "pct_losing": 90.0,
+            "worst_trade": -104.85,
+            "median_trade": -67.28,
+            "book_maxDD": -586.8,
+            "book_worst_day": -104.85,
+            "book_sortino_ann": -11.918,
+            "book_sharpe_ann": -13.153,
+            "trading_days": 10,
+            "exit_mix": {
+              "EXIT_ALL_PREMIUM_STOP": 9,
+              "TP1_THEN_RUNNER_RIBBON": 1
+            }
+          },
+          "no_truncation_full_exp_positive": true,
+          "null": {
+            "seeds": 10,
+            "n_eligible": 27205,
+            "n_drawn": 157,
+            "per_trade_mean": -14.03,
+            "per_trade_min": -27.56,
+            "per_trade_max": -3.59,
+            "per_trade_by_seed": [
+              -14.22,
+              -12.3,
+              -6.85,
+              -21.0,
+              -17.01,
+              -27.56,
+              -11.76,
+              -19.3,
+              -6.73,
+              -3.59
+            ]
+          },
+          "null_gate": {
+            "beats_null_mean": true,
+            "beats_null_max": true,
+            "drop_top5_beats_null_mean": true,
+            "edge_over_null_per_trade": 52.36,
+            "null_pass": true
+          },
+          "l175_gate_vs_baseline": {
+            "per_trade_sharpe_holds": false,
+            "book_sortino_holds": false,
+            "book_sharpe_holds": false,
+            "maxdd_worsen_frac": 1.0075,
+            "maxdd_material_worse": true,
+            "l175_pass": false
+          },
+          "win_bar_legs": {
+            "is_baseline": false,
+            "full_holds_or_beats_baseline": false,
+            "l175_pass": false,
+            "no_truncation": true,
+            "null_pass": true,
+            "recent_exp_better_than_baseline": false,
+            "recent_loss_shrinks_vs_baseline": false,
+            "recent_bleed_reduced": false,
+            "CLEARS_WIN_BAR": false
+          }
+        },
+        "c_premium_-20pct": {
+          "stop_kwargs": {
+            "premium_stop_pct": -0.2
+          },
+          "coverage": {
+            "signals": 167,
+            "filled": 157,
+            "cache_miss": 10,
+            "sim_none": 0,
+            "fill_rate": 0.94
+          },
+          "full_sample": {
+            "n": 157,
+            "exp_per_trade": 29.63,
+            "total": 4651.8,
+            "wr_pct": 57.3,
+            "std_per_trade": 148.25,
+            "sharpe_per_trade": 0.1999,
+            "pct_losing": 42.0,
+            "worst_trade": -529.2,
+            "median_trade": 51.6,
+            "book_maxDD": -1450.0,
+            "book_worst_day": -529.2,
+            "book_sortino_ann": 5.482,
+            "book_sharpe_ann": 3.173,
+            "trading_days": 157,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 2,
+              "EXIT_ALL_PREMIUM_STOP": 61,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 32,
+              "EXIT_ALL_TIME_STOP": 1,
+              "TP1_THEN_RUNNER_RIBBON": 49,
+              "TP1_THEN_RUNNER_TIME": 12
+            }
+          },
+          "full_oos_2026": {
+            "n": 50,
+            "exp_per_trade": 34.82,
+            "total": 1741.2,
+            "wr_pct": 54.0,
+            "std_per_trade": 146.99,
+            "sharpe_per_trade": 0.2369,
+            "pct_losing": 46.0,
+            "worst_trade": -298.2,
+            "median_trade": 46.2,
+            "book_maxDD": -1450.0,
+            "book_worst_day": -298.2,
+            "book_sortino_ann": 7.234,
+            "book_sharpe_ann": 3.761,
+            "trading_days": 50,
+            "exit_mix": {
+              "EXIT_ALL_PREMIUM_STOP": 21,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 10,
+              "TP1_THEN_RUNNER_RIBBON": 14,
+              "TP1_THEN_RUNNER_TIME": 5
+            }
+          },
+          "recent_window": {
+            "n": 10,
+            "exp_per_trade": -74.52,
+            "total": -745.2,
+            "wr_pct": 10.0,
+            "std_per_trade": 72.64,
+            "sharpe_per_trade": -1.0259,
+            "pct_losing": 90.0,
+            "worst_trade": -139.8,
+            "median_trade": -89.7,
+            "book_maxDD": -782.4,
+            "book_worst_day": -139.8,
+            "book_sortino_ann": -12.608,
+            "book_sharpe_ann": -16.286,
+            "trading_days": 10,
+            "exit_mix": {
+              "EXIT_ALL_PREMIUM_STOP": 9,
+              "TP1_THEN_RUNNER_RIBBON": 1
+            }
+          },
+          "no_truncation_full_exp_positive": true,
+          "null": {
+            "seeds": 10,
+            "n_eligible": 27205,
+            "n_drawn": 157,
+            "per_trade_mean": -21.3,
+            "per_trade_min": -31.92,
+            "per_trade_max": -11.3,
+            "per_trade_by_seed": [
+              -23.25,
+              -22.87,
+              -17.78,
+              -28.11,
+              -21.83,
+              -31.92,
+              -20.04,
+              -20.02,
+              -15.9,
+              -11.3
+            ]
+          },
+          "null_gate": {
+            "beats_null_mean": true,
+            "beats_null_max": true,
+            "drop_top5_beats_null_mean": true,
+            "edge_over_null_per_trade": 50.93,
+            "null_pass": true
+          },
+          "l175_gate_vs_baseline": {
+            "per_trade_sharpe_holds": false,
+            "book_sortino_holds": false,
+            "book_sharpe_holds": false,
+            "maxdd_worsen_frac": 2.1899,
+            "maxdd_material_worse": true,
+            "l175_pass": false
+          },
+          "win_bar_legs": {
+            "is_baseline": false,
+            "full_holds_or_beats_baseline": false,
+            "l175_pass": false,
+            "no_truncation": true,
+            "null_pass": true,
+            "recent_exp_better_than_baseline": false,
+            "recent_loss_shrinks_vs_baseline": false,
+            "recent_bleed_reduced": false,
+            "CLEARS_WIN_BAR": false
+          }
+        },
+        "c_premium_-25pct": {
+          "stop_kwargs": {
+            "premium_stop_pct": -0.25
+          },
+          "coverage": {
+            "signals": 167,
+            "filled": 157,
+            "cache_miss": 10,
+            "sim_none": 0,
+            "fill_rate": 0.94
+          },
+          "full_sample": {
+            "n": 157,
+            "exp_per_trade": 29.93,
+            "total": 4699.4,
+            "wr_pct": 61.1,
+            "std_per_trade": 162.78,
+            "sharpe_per_trade": 0.1839,
+            "pct_losing": 38.2,
+            "worst_trade": -661.5,
+            "median_trade": 57.0,
+            "book_maxDD": -1396.0,
+            "book_worst_day": -661.5,
+            "book_sortino_ann": 4.612,
+            "book_sharpe_ann": 2.919,
+            "trading_days": 157,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 3,
+              "EXIT_ALL_PREMIUM_STOP": 54,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 32,
+              "EXIT_ALL_TIME_STOP": 1,
+              "TP1_THEN_RUNNER_RIBBON": 53,
+              "TP1_THEN_RUNNER_TIME": 14
+            }
+          },
+          "full_oos_2026": {
+            "n": 50,
+            "exp_per_trade": 35.61,
+            "total": 1780.5,
+            "wr_pct": 58.0,
+            "std_per_trade": 163.09,
+            "sharpe_per_trade": 0.2183,
+            "pct_losing": 42.0,
+            "worst_trade": -372.75,
+            "median_trade": 65.4,
+            "book_maxDD": -1396.0,
+            "book_worst_day": -372.75,
+            "book_sortino_ann": 6.065,
+            "book_sharpe_ann": 3.466,
+            "trading_days": 50,
+            "exit_mix": {
+              "EXIT_ALL_PREMIUM_STOP": 19,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 10,
+              "TP1_THEN_RUNNER_RIBBON": 15,
+              "TP1_THEN_RUNNER_TIME": 6
+            }
+          },
+          "recent_window": {
+            "n": 10,
+            "exp_per_trade": -96.21,
+            "total": -962.1,
+            "wr_pct": 10.0,
+            "std_per_trade": 81.63,
+            "sharpe_per_trade": -1.1786,
+            "pct_losing": 90.0,
+            "worst_trade": -174.75,
+            "median_trade": -112.12,
+            "book_maxDD": -978.0,
+            "book_worst_day": -174.75,
+            "book_sortino_ann": -13.022,
+            "book_sharpe_ann": -18.71,
+            "trading_days": 10,
+            "exit_mix": {
+              "EXIT_ALL_PREMIUM_STOP": 9,
+              "TP1_THEN_RUNNER_RIBBON": 1
+            }
+          },
+          "no_truncation_full_exp_positive": true,
+          "null": {
+            "seeds": 10,
+            "n_eligible": 27205,
+            "n_drawn": 157,
+            "per_trade_mean": -26.12,
+            "per_trade_min": -41.52,
+            "per_trade_max": -12.95,
+            "per_trade_by_seed": [
+              -26.07,
+              -29.17,
+              -21.05,
+              -33.14,
+              -18.55,
+              -41.52,
+              -28.5,
+              -29.67,
+              -20.6,
+              -12.95
+            ]
+          },
+          "null_gate": {
+            "beats_null_mean": true,
+            "beats_null_max": true,
+            "drop_top5_beats_null_mean": true,
+            "edge_over_null_per_trade": 56.05,
+            "null_pass": true
+          },
+          "l175_gate_vs_baseline": {
+            "per_trade_sharpe_holds": false,
+            "book_sortino_holds": false,
+            "book_sharpe_holds": false,
+            "maxdd_worsen_frac": 2.0711,
+            "maxdd_material_worse": true,
+            "l175_pass": false
+          },
+          "win_bar_legs": {
+            "is_baseline": false,
+            "full_holds_or_beats_baseline": false,
+            "l175_pass": false,
+            "no_truncation": true,
+            "null_pass": true,
+            "recent_exp_better_than_baseline": false,
+            "recent_loss_shrinks_vs_baseline": false,
+            "recent_bleed_reduced": false,
+            "CLEARS_WIN_BAR": false
+          }
+        },
+        "d_chartstop_+cat_-50": {
+          "stop_kwargs": {
+            "premium_stop_pct": -0.5
+          },
+          "coverage": {
+            "signals": 167,
+            "filled": 157,
+            "cache_miss": 10,
+            "sim_none": 0,
+            "fill_rate": 0.94
+          },
+          "full_sample": {
+            "n": 157,
+            "exp_per_trade": 32.87,
+            "total": 5159.9,
+            "wr_pct": 71.3,
+            "std_per_trade": 201.46,
+            "sharpe_per_trade": 0.1631,
+            "pct_losing": 28.0,
+            "worst_trade": -909.0,
+            "median_trade": 75.0,
+            "book_maxDD": -2041.6,
+            "book_worst_day": -909.0,
+            "book_sortino_ann": 3.546,
+            "book_sharpe_ann": 2.59,
+            "trading_days": 157,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 5,
+              "EXIT_ALL_PREMIUM_STOP": 28,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 40,
+              "EXIT_ALL_TIME_STOP": 2,
+              "TP1_THEN_RUNNER_RIBBON": 65,
+              "TP1_THEN_RUNNER_TIME": 17
+            }
+          },
+          "full_oos_2026": {
+            "n": 50,
+            "exp_per_trade": 24.83,
+            "total": 1241.4,
+            "wr_pct": 68.0,
+            "std_per_trade": 205.71,
+            "sharpe_per_trade": 0.1207,
+            "pct_losing": 32.0,
+            "worst_trade": -606.0,
+            "median_trade": 81.9,
+            "book_maxDD": -2041.6,
+            "book_worst_day": -606.0,
+            "book_sortino_ann": 2.626,
+            "book_sharpe_ann": 1.916,
+            "trading_days": 50,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 2,
+              "EXIT_ALL_PREMIUM_STOP": 10,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 12,
+              "EXIT_ALL_TIME_STOP": 1,
+              "TP1_THEN_RUNNER_RIBBON": 19,
+              "TP1_THEN_RUNNER_TIME": 6
+            }
+          },
+          "recent_window": {
+            "n": 10,
+            "exp_per_trade": -143.49,
+            "total": -1434.9,
+            "wr_pct": 20.0,
+            "std_per_trade": 153.01,
+            "sharpe_per_trade": -0.9378,
+            "pct_losing": 80.0,
+            "worst_trade": -349.5,
+            "median_trade": -153.0,
+            "book_maxDD": -1642.5,
+            "book_worst_day": -349.5,
+            "book_sortino_ann": -11.47,
+            "book_sharpe_ann": -14.887,
+            "trading_days": 10,
+            "exit_mix": {
+              "EXIT_ALL_PREMIUM_STOP": 5,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 2,
+              "EXIT_ALL_TIME_STOP": 1,
+              "TP1_THEN_RUNNER_RIBBON": 2
+            }
+          },
+          "no_truncation_full_exp_positive": true,
+          "null": {
+            "seeds": 10,
+            "n_eligible": 27205,
+            "n_drawn": 157,
+            "per_trade_mean": -40.93,
+            "per_trade_min": -59.69,
+            "per_trade_max": -15.45,
+            "per_trade_by_seed": [
+              -49.92,
+              -35.93,
+              -15.45,
+              -59.69,
+              -38.9,
+              -44.97,
+              -42.35,
+              -51.25,
+              -44.74,
+              -26.11
+            ]
+          },
+          "null_gate": {
+            "beats_null_mean": true,
+            "beats_null_max": true,
+            "drop_top5_beats_null_mean": true,
+            "edge_over_null_per_trade": 73.8,
+            "null_pass": true
+          },
+          "l175_gate_vs_baseline": {
+            "per_trade_sharpe_holds": false,
+            "book_sortino_holds": false,
+            "book_sharpe_holds": false,
+            "maxdd_worsen_frac": 3.4914,
+            "maxdd_material_worse": true,
+            "l175_pass": false
+          },
+          "win_bar_legs": {
+            "is_baseline": false,
+            "full_holds_or_beats_baseline": false,
+            "l175_pass": false,
+            "no_truncation": true,
+            "null_pass": true,
+            "recent_exp_better_than_baseline": false,
+            "recent_loss_shrinks_vs_baseline": false,
+            "recent_bleed_reduced": false,
+            "CLEARS_WIN_BAR": false
+          }
+        },
+        "e_premium_-20_tp_+20": {
+          "stop_kwargs": {
+            "premium_stop_pct": -0.2,
+            "tp1_premium_pct": 0.2
+          },
+          "coverage": {
+            "signals": 167,
+            "filled": 157,
+            "cache_miss": 10,
+            "sim_none": 0,
+            "fill_rate": 0.94
+          },
+          "full_sample": {
+            "n": 157,
+            "exp_per_trade": 22.59,
+            "total": 3546.2,
+            "wr_pct": 59.2,
+            "std_per_trade": 138.62,
+            "sharpe_per_trade": 0.1629,
+            "pct_losing": 40.1,
+            "worst_trade": -529.2,
+            "median_trade": 38.0,
+            "book_maxDD": -1402.2,
+            "book_worst_day": -529.2,
+            "book_sortino_ann": 4.269,
+            "book_sharpe_ann": 2.587,
+            "trading_days": 157,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 2,
+              "EXIT_ALL_PREMIUM_STOP": 58,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 32,
+              "EXIT_ALL_TIME_STOP": 1,
+              "TP1_THEN_RUNNER_RIBBON": 52,
+              "TP1_THEN_RUNNER_TIME": 12
+            }
+          },
+          "full_oos_2026": {
+            "n": 50,
+            "exp_per_trade": 29.02,
+            "total": 1451.0,
+            "wr_pct": 56.0,
+            "std_per_trade": 136.57,
+            "sharpe_per_trade": 0.2125,
+            "pct_losing": 44.0,
+            "worst_trade": -298.2,
+            "median_trade": 42.0,
+            "book_maxDD": -1402.2,
+            "book_worst_day": -298.2,
+            "book_sortino_ann": 6.262,
+            "book_sharpe_ann": 3.373,
+            "trading_days": 50,
+            "exit_mix": {
+              "EXIT_ALL_PREMIUM_STOP": 20,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 10,
+              "TP1_THEN_RUNNER_RIBBON": 15,
+              "TP1_THEN_RUNNER_TIME": 5
+            }
+          },
+          "recent_window": {
+            "n": 10,
+            "exp_per_trade": -78.6,
+            "total": -786.0,
+            "wr_pct": 10.0,
+            "std_per_trade": 60.47,
+            "sharpe_per_trade": -1.2997,
+            "pct_losing": 90.0,
+            "worst_trade": -139.8,
+            "median_trade": -89.7,
+            "book_maxDD": -782.4,
+            "book_worst_day": -139.8,
+            "book_sortino_ann": -13.298,
+            "book_sharpe_ann": -20.633,
+            "trading_days": 10,
+            "exit_mix": {
+              "EXIT_ALL_PREMIUM_STOP": 9,
+              "TP1_THEN_RUNNER_RIBBON": 1
+            }
+          },
+          "no_truncation_full_exp_positive": true,
+          "null": {
+            "seeds": 10,
+            "n_eligible": 27205,
+            "n_drawn": 157,
+            "per_trade_mean": -21.3,
+            "per_trade_min": -31.92,
+            "per_trade_max": -11.3,
+            "per_trade_by_seed": [
+              -23.25,
+              -22.87,
+              -17.78,
+              -28.11,
+              -21.83,
+              -31.92,
+              -20.04,
+              -20.02,
+              -15.9,
+              -11.3
+            ]
+          },
+          "null_gate": {
+            "beats_null_mean": true,
+            "beats_null_max": true,
+            "drop_top5_beats_null_mean": true,
+            "edge_over_null_per_trade": 43.89,
+            "null_pass": true
+          },
+          "l175_gate_vs_baseline": {
+            "per_trade_sharpe_holds": false,
+            "book_sortino_holds": false,
+            "book_sharpe_holds": false,
+            "maxdd_worsen_frac": 2.0847,
+            "maxdd_material_worse": true,
+            "l175_pass": false
+          },
+          "win_bar_legs": {
+            "is_baseline": false,
+            "full_holds_or_beats_baseline": false,
+            "l175_pass": false,
+            "no_truncation": true,
+            "null_pass": true,
+            "recent_exp_better_than_baseline": false,
+            "recent_loss_shrinks_vs_baseline": false,
+            "recent_bleed_reduced": false,
+            "CLEARS_WIN_BAR": false
+          }
+        }
+      }
+    },
+    "ITM-2": {
+      "strike_offset": -2,
+      "baseline_key": "a_premium_-8pct",
+      "baseline_full": {
+        "n": 158,
+        "exp_per_trade": 69.53,
+        "total": 10986.12,
+        "wr_pct": 48.7,
+        "std_per_trade": 171.45,
+        "sharpe_per_trade": 0.4056,
+        "pct_losing": 51.3,
+        "worst_trade": -223.68,
+        "median_trade": -40.8,
+        "book_maxDD": -1013.04,
+        "book_worst_day": -223.68,
+        "book_sortino_ann": 19.784,
+        "book_sharpe_ann": 6.438,
+        "trading_days": 158,
+        "exit_mix": {
+          "EXIT_ALL_LEVEL_STOP": 2,
+          "EXIT_ALL_PREMIUM_STOP": 81,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 22,
+          "EXIT_ALL_TIME_STOP": 2,
+          "TP1_THEN_RUNNER_RIBBON": 35,
+          "TP1_THEN_RUNNER_TIME": 16
+        }
+      },
+      "baseline_oos": {
+        "n": 51,
+        "exp_per_trade": 73.66,
+        "total": 3756.72,
+        "wr_pct": 45.1,
+        "std_per_trade": 181.73,
+        "sharpe_per_trade": 0.4053,
+        "pct_losing": 54.9,
+        "worst_trade": -146.4,
+        "median_trade": -54.72,
+        "book_maxDD": -1013.04,
+        "book_worst_day": -146.4,
+        "book_sortino_ann": 20.907,
+        "book_sharpe_ann": 6.435,
+        "trading_days": 51,
+        "exit_mix": {
+          "EXIT_ALL_PREMIUM_STOP": 28,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 7,
+          "TP1_THEN_RUNNER_RIBBON": 10,
+          "TP1_THEN_RUNNER_TIME": 6
+        }
+      },
+      "baseline_recent": {
+        "n": 11,
+        "exp_per_trade": -75.27,
+        "total": -828.0,
+        "wr_pct": 0.0,
+        "std_per_trade": 25.4,
+        "sharpe_per_trade": -2.9639,
+        "pct_losing": 100.0,
+        "worst_trade": -146.4,
+        "median_trade": -68.64,
+        "book_maxDD": -764.64,
+        "book_worst_day": -146.4,
+        "book_sortino_ann": -15.112,
+        "book_sharpe_ann": -47.05,
+        "trading_days": 11,
+        "exit_mix": {
+          "EXIT_ALL_PREMIUM_STOP": 11
+        }
+      },
+      "variants": {
+        "a_premium_-8pct": {
+          "stop_kwargs": {
+            "premium_stop_pct": -0.08
+          },
+          "coverage": {
+            "signals": 167,
+            "filled": 158,
+            "cache_miss": 9,
+            "sim_none": 0,
+            "fill_rate": 0.946
+          },
+          "full_sample": {
+            "n": 158,
+            "exp_per_trade": 69.53,
+            "total": 10986.12,
+            "wr_pct": 48.7,
+            "std_per_trade": 171.45,
+            "sharpe_per_trade": 0.4056,
+            "pct_losing": 51.3,
+            "worst_trade": -223.68,
+            "median_trade": -40.8,
+            "book_maxDD": -1013.04,
+            "book_worst_day": -223.68,
+            "book_sortino_ann": 19.784,
+            "book_sharpe_ann": 6.438,
+            "trading_days": 158,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 2,
+              "EXIT_ALL_PREMIUM_STOP": 81,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 22,
+              "EXIT_ALL_TIME_STOP": 2,
+              "TP1_THEN_RUNNER_RIBBON": 35,
+              "TP1_THEN_RUNNER_TIME": 16
+            }
+          },
+          "full_oos_2026": {
+            "n": 51,
+            "exp_per_trade": 73.66,
+            "total": 3756.72,
+            "wr_pct": 45.1,
+            "std_per_trade": 181.73,
+            "sharpe_per_trade": 0.4053,
+            "pct_losing": 54.9,
+            "worst_trade": -146.4,
+            "median_trade": -54.72,
+            "book_maxDD": -1013.04,
+            "book_worst_day": -146.4,
+            "book_sortino_ann": 20.907,
+            "book_sharpe_ann": 6.435,
+            "trading_days": 51,
+            "exit_mix": {
+              "EXIT_ALL_PREMIUM_STOP": 28,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 7,
+              "TP1_THEN_RUNNER_RIBBON": 10,
+              "TP1_THEN_RUNNER_TIME": 6
+            }
+          },
+          "recent_window": {
+            "n": 11,
+            "exp_per_trade": -75.27,
+            "total": -828.0,
+            "wr_pct": 0.0,
+            "std_per_trade": 25.4,
+            "sharpe_per_trade": -2.9639,
+            "pct_losing": 100.0,
+            "worst_trade": -146.4,
+            "median_trade": -68.64,
+            "book_maxDD": -764.64,
+            "book_worst_day": -146.4,
+            "book_sortino_ann": -15.112,
+            "book_sharpe_ann": -47.05,
+            "trading_days": 11,
+            "exit_mix": {
+              "EXIT_ALL_PREMIUM_STOP": 11
+            }
+          },
+          "no_truncation_full_exp_positive": true,
+          "null": {
+            "seeds": 10,
+            "n_eligible": 27205,
+            "n_drawn": 158,
+            "per_trade_mean": -0.04,
+            "per_trade_min": -12.28,
+            "per_trade_max": 8.46,
+            "per_trade_by_seed": [
+              -2.86,
+              8.46,
+              2.68,
+              -12.28,
+              -3.71,
+              -2.33,
+              3.45,
+              4.31,
+              -0.32,
+              2.22
+            ]
+          },
+          "null_gate": {
+            "beats_null_mean": true,
+            "beats_null_max": true,
+            "drop_top5_beats_null_mean": true,
+            "edge_over_null_per_trade": 69.57,
+            "null_pass": true
+          },
+          "l175_gate_vs_baseline": {
+            "per_trade_sharpe_holds": true,
+            "book_sortino_holds": true,
+            "book_sharpe_holds": true,
+            "maxdd_worsen_frac": 0.0,
+            "maxdd_material_worse": false,
+            "l175_pass": true
+          },
+          "win_bar_legs": {
+            "is_baseline": true,
+            "full_holds_or_beats_baseline": true,
+            "l175_pass": true,
+            "no_truncation": true,
+            "null_pass": true,
+            "recent_exp_better_than_baseline": false,
+            "recent_loss_shrinks_vs_baseline": false,
+            "recent_bleed_reduced": false,
+            "CLEARS_WIN_BAR": false
+          }
+        },
+        "b_chartstop_only_-99": {
+          "stop_kwargs": {
+            "premium_stop_pct": -0.99
+          },
+          "coverage": {
+            "signals": 167,
+            "filled": 158,
+            "cache_miss": 9,
+            "sim_none": 0,
+            "fill_rate": 0.946
+          },
+          "full_sample": {
+            "n": 158,
+            "exp_per_trade": 61.35,
+            "total": 9693.4,
+            "wr_pct": 75.3,
+            "std_per_trade": 316.44,
+            "sharpe_per_trade": 0.1939,
+            "pct_losing": 24.7,
+            "worst_trade": -1173.0,
+            "median_trade": 146.1,
+            "book_maxDD": -3848.4,
+            "book_worst_day": -1173.0,
+            "book_sortino_ann": 4.052,
+            "book_sharpe_ann": 3.078,
+            "trading_days": 158,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 20,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 47,
+              "EXIT_ALL_TIME_STOP": 6,
+              "TP1_THEN_RUNNER_RIBBON": 60,
+              "TP1_THEN_RUNNER_TIME": 25
+            }
+          },
+          "full_oos_2026": {
+            "n": 51,
+            "exp_per_trade": 22.11,
+            "total": 1127.4,
+            "wr_pct": 66.7,
+            "std_per_trade": 353.57,
+            "sharpe_per_trade": 0.0625,
+            "pct_losing": 33.3,
+            "worst_trade": -831.0,
+            "median_trade": 168.0,
+            "book_maxDD": -3848.4,
+            "book_worst_day": -831.0,
+            "book_sortino_ann": 1.276,
+            "book_sharpe_ann": 0.992,
+            "trading_days": 51,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 6,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 17,
+              "EXIT_ALL_TIME_STOP": 3,
+              "TP1_THEN_RUNNER_RIBBON": 17,
+              "TP1_THEN_RUNNER_TIME": 8
+            }
+          },
+          "recent_window": {
+            "n": 11,
+            "exp_per_trade": -244.69,
+            "total": -2691.6,
+            "wr_pct": 18.2,
+            "std_per_trade": 360.84,
+            "sharpe_per_trade": -0.6781,
+            "pct_losing": 81.8,
+            "worst_trade": -831.0,
+            "median_trade": -174.0,
+            "book_maxDD": -2997.0,
+            "book_worst_day": -831.0,
+            "book_sortino_ann": -9.785,
+            "book_sharpe_ann": -10.765,
+            "trading_days": 11,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 1,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 6,
+              "EXIT_ALL_TIME_STOP": 2,
+              "TP1_THEN_RUNNER_RIBBON": 1,
+              "TP1_THEN_RUNNER_TIME": 1
+            }
+          },
+          "no_truncation_full_exp_positive": true,
+          "null": {
+            "seeds": 10,
+            "n_eligible": 27205,
+            "n_drawn": 158,
+            "per_trade_mean": -34.66,
+            "per_trade_min": -73.56,
+            "per_trade_max": -1.71,
+            "per_trade_by_seed": [
+              -42.99,
+              -3.07,
+              -13.21,
+              -61.91,
+              -46.43,
+              -17.22,
+              -30.9,
+              -55.58,
+              -73.56,
+              -1.71
+            ]
+          },
+          "null_gate": {
+            "beats_null_mean": true,
+            "beats_null_max": true,
+            "drop_top5_beats_null_mean": true,
+            "edge_over_null_per_trade": 96.01,
+            "null_pass": true
+          },
+          "l175_gate_vs_baseline": {
+            "per_trade_sharpe_holds": false,
+            "book_sortino_holds": false,
+            "book_sharpe_holds": false,
+            "maxdd_worsen_frac": 2.7989,
+            "maxdd_material_worse": true,
+            "l175_pass": false
+          },
+          "win_bar_legs": {
+            "is_baseline": false,
+            "full_holds_or_beats_baseline": false,
+            "l175_pass": false,
+            "no_truncation": true,
+            "null_pass": true,
+            "recent_exp_better_than_baseline": false,
+            "recent_loss_shrinks_vs_baseline": false,
+            "recent_bleed_reduced": false,
+            "CLEARS_WIN_BAR": false
+          }
+        },
+        "c_premium_-15pct": {
+          "stop_kwargs": {
+            "premium_stop_pct": -0.15
+          },
+          "coverage": {
+            "signals": 167,
+            "filled": 158,
+            "cache_miss": 9,
+            "sim_none": 0,
+            "fill_rate": 0.946
+          },
+          "full_sample": {
+            "n": 158,
+            "exp_per_trade": 57.58,
+            "total": 9097.7,
+            "wr_pct": 55.7,
+            "std_per_trade": 200.64,
+            "sharpe_per_trade": 0.287,
+            "pct_losing": 44.3,
+            "worst_trade": -419.4,
+            "median_trade": 77.6,
+            "book_maxDD": -1899.45,
+            "book_worst_day": -419.4,
+            "book_sortino_ann": 9.345,
+            "book_sharpe_ann": 4.556,
+            "trading_days": 158,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 2,
+              "EXIT_ALL_PREMIUM_STOP": 66,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 30,
+              "EXIT_ALL_TIME_STOP": 2,
+              "TP1_THEN_RUNNER_RIBBON": 40,
+              "TP1_THEN_RUNNER_TIME": 18
+            }
+          },
+          "full_oos_2026": {
+            "n": 51,
+            "exp_per_trade": 68.48,
+            "total": 3492.6,
+            "wr_pct": 52.9,
+            "std_per_trade": 213.5,
+            "sharpe_per_trade": 0.3208,
+            "pct_losing": 47.1,
+            "worst_trade": -274.5,
+            "median_trade": 87.0,
+            "book_maxDD": -1899.45,
+            "book_worst_day": -274.5,
+            "book_sortino_ann": 11.352,
+            "book_sharpe_ann": 5.092,
+            "trading_days": 51,
+            "exit_mix": {
+              "EXIT_ALL_PREMIUM_STOP": 22,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 10,
+              "TP1_THEN_RUNNER_RIBBON": 12,
+              "TP1_THEN_RUNNER_TIME": 7
+            }
+          },
+          "recent_window": {
+            "n": 11,
+            "exp_per_trade": -141.14,
+            "total": -1552.5,
+            "wr_pct": 0.0,
+            "std_per_trade": 47.62,
+            "sharpe_per_trade": -2.9639,
+            "pct_losing": 100.0,
+            "worst_trade": -274.5,
+            "median_trade": -128.7,
+            "book_maxDD": -1433.7,
+            "book_worst_day": -274.5,
+            "book_sortino_ann": -15.112,
+            "book_sharpe_ann": -47.05,
+            "trading_days": 11,
+            "exit_mix": {
+              "EXIT_ALL_PREMIUM_STOP": 11
+            }
+          },
+          "no_truncation_full_exp_positive": true,
+          "null": {
+            "seeds": 10,
+            "n_eligible": 27205,
+            "n_drawn": 158,
+            "per_trade_mean": -17.06,
+            "per_trade_min": -38.02,
+            "per_trade_max": 7.59,
+            "per_trade_by_seed": [
+              -26.23,
+              7.59,
+              -14.45,
+              -38.02,
+              -24.59,
+              -7.23,
+              -15.93,
+              -13.84,
+              -22.6,
+              -15.27
+            ]
+          },
+          "null_gate": {
+            "beats_null_mean": true,
+            "beats_null_max": true,
+            "drop_top5_beats_null_mean": true,
+            "edge_over_null_per_trade": 74.64,
+            "null_pass": true
+          },
+          "l175_gate_vs_baseline": {
+            "per_trade_sharpe_holds": false,
+            "book_sortino_holds": false,
+            "book_sharpe_holds": false,
+            "maxdd_worsen_frac": 0.875,
+            "maxdd_material_worse": true,
+            "l175_pass": false
+          },
+          "win_bar_legs": {
+            "is_baseline": false,
+            "full_holds_or_beats_baseline": false,
+            "l175_pass": false,
+            "no_truncation": true,
+            "null_pass": true,
+            "recent_exp_better_than_baseline": false,
+            "recent_loss_shrinks_vs_baseline": false,
+            "recent_bleed_reduced": false,
+            "CLEARS_WIN_BAR": false
+          }
+        },
+        "c_premium_-20pct": {
+          "stop_kwargs": {
+            "premium_stop_pct": -0.2
+          },
+          "coverage": {
+            "signals": 167,
+            "filled": 158,
+            "cache_miss": 9,
+            "sim_none": 0,
+            "fill_rate": 0.946
+          },
+          "full_sample": {
+            "n": 158,
+            "exp_per_trade": 51.06,
+            "total": 8067.4,
+            "wr_pct": 60.1,
+            "std_per_trade": 220.1,
+            "sharpe_per_trade": 0.232,
+            "pct_losing": 39.9,
+            "worst_trade": -559.2,
+            "median_trade": 100.5,
+            "book_maxDD": -2532.6,
+            "book_worst_day": -559.2,
+            "book_sortino_ann": 6.449,
+            "book_sharpe_ann": 3.683,
+            "trading_days": 158,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 4,
+              "EXIT_ALL_PREMIUM_STOP": 58,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 32,
+              "EXIT_ALL_TIME_STOP": 2,
+              "TP1_THEN_RUNNER_RIBBON": 43,
+              "TP1_THEN_RUNNER_TIME": 19
+            }
+          },
+          "full_oos_2026": {
+            "n": 51,
+            "exp_per_trade": 52.53,
+            "total": 2679.0,
+            "wr_pct": 54.9,
+            "std_per_trade": 233.7,
+            "sharpe_per_trade": 0.2248,
+            "pct_losing": 45.1,
+            "worst_trade": -366.0,
+            "median_trade": 93.0,
+            "book_maxDD": -2532.6,
+            "book_worst_day": -366.0,
+            "book_sortino_ann": 6.608,
+            "book_sharpe_ann": 3.568,
+            "trading_days": 51,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 1,
+              "EXIT_ALL_PREMIUM_STOP": 21,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 10,
+              "TP1_THEN_RUNNER_RIBBON": 12,
+              "TP1_THEN_RUNNER_TIME": 7
+            }
+          },
+          "recent_window": {
+            "n": 11,
+            "exp_per_trade": -188.18,
+            "total": -2070.0,
+            "wr_pct": 0.0,
+            "std_per_trade": 63.49,
+            "sharpe_per_trade": -2.9639,
+            "pct_losing": 100.0,
+            "worst_trade": -366.0,
+            "median_trade": -171.6,
+            "book_maxDD": -1911.6,
+            "book_worst_day": -366.0,
+            "book_sortino_ann": -15.112,
+            "book_sharpe_ann": -47.05,
+            "trading_days": 11,
+            "exit_mix": {
+              "EXIT_ALL_PREMIUM_STOP": 11
+            }
+          },
+          "no_truncation_full_exp_positive": true,
+          "null": {
+            "seeds": 10,
+            "n_eligible": 27205,
+            "n_drawn": 158,
+            "per_trade_mean": -27.89,
+            "per_trade_min": -56.77,
+            "per_trade_max": -10.89,
+            "per_trade_by_seed": [
+              -42.36,
+              -10.89,
+              -14.61,
+              -56.77,
+              -29.3,
+              -26.53,
+              -19.45,
+              -20.43,
+              -34.09,
+              -24.46
+            ]
+          },
+          "null_gate": {
+            "beats_null_mean": true,
+            "beats_null_max": true,
+            "drop_top5_beats_null_mean": true,
+            "edge_over_null_per_trade": 78.95,
+            "null_pass": true
+          },
+          "l175_gate_vs_baseline": {
+            "per_trade_sharpe_holds": false,
+            "book_sortino_holds": false,
+            "book_sharpe_holds": false,
+            "maxdd_worsen_frac": 1.5,
+            "maxdd_material_worse": true,
+            "l175_pass": false
+          },
+          "win_bar_legs": {
+            "is_baseline": false,
+            "full_holds_or_beats_baseline": false,
+            "l175_pass": false,
+            "no_truncation": true,
+            "null_pass": true,
+            "recent_exp_better_than_baseline": false,
+            "recent_loss_shrinks_vs_baseline": false,
+            "recent_bleed_reduced": false,
+            "CLEARS_WIN_BAR": false
+          }
+        },
+        "c_premium_-25pct": {
+          "stop_kwargs": {
+            "premium_stop_pct": -0.25
+          },
+          "coverage": {
+            "signals": 167,
+            "filled": 158,
+            "cache_miss": 9,
+            "sim_none": 0,
+            "fill_rate": 0.946
+          },
+          "full_sample": {
+            "n": 158,
+            "exp_per_trade": 45.36,
+            "total": 7166.85,
+            "wr_pct": 62.0,
+            "std_per_trade": 240.43,
+            "sharpe_per_trade": 0.1887,
+            "pct_losing": 38.0,
+            "worst_trade": -699.0,
+            "median_trade": 105.0,
+            "book_maxDD": -3231.75,
+            "book_worst_day": -699.0,
+            "book_sortino_ann": 4.771,
+            "book_sharpe_ann": 2.995,
+            "trading_days": 158,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 4,
+              "EXIT_ALL_PREMIUM_STOP": 53,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 34,
+              "EXIT_ALL_TIME_STOP": 2,
+              "TP1_THEN_RUNNER_RIBBON": 45,
+              "TP1_THEN_RUNNER_TIME": 20
+            }
+          },
+          "full_oos_2026": {
+            "n": 51,
+            "exp_per_trade": 34.2,
+            "total": 1744.05,
+            "wr_pct": 54.9,
+            "std_per_trade": 254.62,
+            "sharpe_per_trade": 0.1343,
+            "pct_losing": 45.1,
+            "worst_trade": -457.5,
+            "median_trade": 93.0,
+            "book_maxDD": -3231.75,
+            "book_worst_day": -457.5,
+            "book_sortino_ann": 3.479,
+            "book_sharpe_ann": 2.132,
+            "trading_days": 51,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 1,
+              "EXIT_ALL_PREMIUM_STOP": 20,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 11,
+              "TP1_THEN_RUNNER_RIBBON": 12,
+              "TP1_THEN_RUNNER_TIME": 7
+            }
+          },
+          "recent_window": {
+            "n": 11,
+            "exp_per_trade": -230.32,
+            "total": -2533.5,
+            "wr_pct": 0.0,
+            "std_per_trade": 81.5,
+            "sharpe_per_trade": -2.8261,
+            "pct_losing": 100.0,
+            "worst_trade": -457.5,
+            "median_trade": -198.0,
+            "book_maxDD": -2335.5,
+            "book_worst_day": -457.5,
+            "book_sortino_ann": -15.042,
+            "book_sharpe_ann": -44.863,
+            "trading_days": 11,
+            "exit_mix": {
+              "EXIT_ALL_PREMIUM_STOP": 10,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 1
+            }
+          },
+          "no_truncation_full_exp_positive": true,
+          "null": {
+            "seeds": 10,
+            "n_eligible": 27205,
+            "n_drawn": 158,
+            "per_trade_mean": -33.04,
+            "per_trade_min": -53.63,
+            "per_trade_max": -10.05,
+            "per_trade_by_seed": [
+              -47.83,
+              -14.19,
+              -10.05,
+              -53.63,
+              -44.96,
+              -32.78,
+              -25.45,
+              -34.74,
+              -45.18,
+              -21.61
+            ]
+          },
+          "null_gate": {
+            "beats_null_mean": true,
+            "beats_null_max": true,
+            "drop_top5_beats_null_mean": true,
+            "edge_over_null_per_trade": 78.4,
+            "null_pass": true
+          },
+          "l175_gate_vs_baseline": {
+            "per_trade_sharpe_holds": false,
+            "book_sortino_holds": false,
+            "book_sharpe_holds": false,
+            "maxdd_worsen_frac": 2.1902,
+            "maxdd_material_worse": true,
+            "l175_pass": false
+          },
+          "win_bar_legs": {
+            "is_baseline": false,
+            "full_holds_or_beats_baseline": false,
+            "l175_pass": false,
+            "no_truncation": true,
+            "null_pass": true,
+            "recent_exp_better_than_baseline": false,
+            "recent_loss_shrinks_vs_baseline": false,
+            "recent_bleed_reduced": false,
+            "CLEARS_WIN_BAR": false
+          }
+        },
+        "d_chartstop_+cat_-50": {
+          "stop_kwargs": {
+            "premium_stop_pct": -0.5
+          },
+          "coverage": {
+            "signals": 167,
+            "filled": 158,
+            "cache_miss": 9,
+            "sim_none": 0,
+            "fill_rate": 0.946
+          },
+          "full_sample": {
+            "n": 158,
+            "exp_per_trade": 61.3,
+            "total": 9685.9,
+            "wr_pct": 73.4,
+            "std_per_trade": 293.04,
+            "sharpe_per_trade": 0.2092,
+            "pct_losing": 26.6,
+            "worst_trade": -909.0,
+            "median_trade": 141.3,
+            "book_maxDD": -3462.9,
+            "book_worst_day": -909.0,
+            "book_sortino_ann": 4.61,
+            "book_sharpe_ann": 3.321,
+            "trading_days": 158,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 7,
+              "EXIT_ALL_PREMIUM_STOP": 25,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 41,
+              "EXIT_ALL_TIME_STOP": 3,
+              "TP1_THEN_RUNNER_RIBBON": 58,
+              "TP1_THEN_RUNNER_TIME": 24
+            }
+          },
+          "full_oos_2026": {
+            "n": 51,
+            "exp_per_trade": 29.66,
+            "total": 1512.9,
+            "wr_pct": 64.7,
+            "std_per_trade": 320.27,
+            "sharpe_per_trade": 0.0926,
+            "pct_losing": 35.3,
+            "worst_trade": -606.0,
+            "median_trade": 142.8,
+            "book_maxDD": -3462.9,
+            "book_worst_day": -606.0,
+            "book_sortino_ann": 2.014,
+            "book_sharpe_ann": 1.47,
+            "trading_days": 51,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 2,
+              "EXIT_ALL_PREMIUM_STOP": 12,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 12,
+              "EXIT_ALL_TIME_STOP": 1,
+              "TP1_THEN_RUNNER_RIBBON": 16,
+              "TP1_THEN_RUNNER_TIME": 8
+            }
+          },
+          "recent_window": {
+            "n": 11,
+            "exp_per_trade": -220.96,
+            "total": -2430.6,
+            "wr_pct": 18.2,
+            "std_per_trade": 307.81,
+            "sharpe_per_trade": -0.7179,
+            "pct_losing": 81.8,
+            "worst_trade": -532.5,
+            "median_trade": -342.0,
+            "book_maxDD": -2736.0,
+            "book_worst_day": -532.5,
+            "book_sortino_ann": -10.375,
+            "book_sharpe_ann": -11.396,
+            "trading_days": 11,
+            "exit_mix": {
+              "EXIT_ALL_PREMIUM_STOP": 6,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 2,
+              "EXIT_ALL_TIME_STOP": 1,
+              "TP1_THEN_RUNNER_RIBBON": 1,
+              "TP1_THEN_RUNNER_TIME": 1
+            }
+          },
+          "no_truncation_full_exp_positive": true,
+          "null": {
+            "seeds": 10,
+            "n_eligible": 27205,
+            "n_drawn": 158,
+            "per_trade_mean": -38.5,
+            "per_trade_min": -67.84,
+            "per_trade_max": -7.04,
+            "per_trade_by_seed": [
+              -51.88,
+              -7.04,
+              -15.44,
+              -67.15,
+              -49.5,
+              -28.8,
+              -44.13,
+              -43.02,
+              -67.84,
+              -10.22
+            ]
+          },
+          "null_gate": {
+            "beats_null_mean": true,
+            "beats_null_max": true,
+            "drop_top5_beats_null_mean": true,
+            "edge_over_null_per_trade": 99.8,
+            "null_pass": true
+          },
+          "l175_gate_vs_baseline": {
+            "per_trade_sharpe_holds": false,
+            "book_sortino_holds": false,
+            "book_sharpe_holds": false,
+            "maxdd_worsen_frac": 2.4183,
+            "maxdd_material_worse": true,
+            "l175_pass": false
+          },
+          "win_bar_legs": {
+            "is_baseline": false,
+            "full_holds_or_beats_baseline": false,
+            "l175_pass": false,
+            "no_truncation": true,
+            "null_pass": true,
+            "recent_exp_better_than_baseline": false,
+            "recent_loss_shrinks_vs_baseline": false,
+            "recent_bleed_reduced": false,
+            "CLEARS_WIN_BAR": false
+          }
+        },
+        "e_premium_-20_tp_+20": {
+          "stop_kwargs": {
+            "premium_stop_pct": -0.2,
+            "tp1_premium_pct": 0.2
+          },
+          "coverage": {
+            "signals": 167,
+            "filled": 158,
+            "cache_miss": 9,
+            "sim_none": 0,
+            "fill_rate": 0.946
+          },
+          "full_sample": {
+            "n": 158,
+            "exp_per_trade": 44.56,
+            "total": 7040.6,
+            "wr_pct": 65.2,
+            "std_per_trade": 199.41,
+            "sharpe_per_trade": 0.2235,
+            "pct_losing": 34.8,
+            "worst_trade": -559.2,
+            "median_trade": 91.6,
+            "book_maxDD": -2109.8,
+            "book_worst_day": -559.2,
+            "book_sortino_ann": 5.897,
+            "book_sharpe_ann": 3.547,
+            "trading_days": 158,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 4,
+              "EXIT_ALL_PREMIUM_STOP": 50,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 32,
+              "EXIT_ALL_TIME_STOP": 2,
+              "TP1_THEN_RUNNER_RIBBON": 53,
+              "TP1_THEN_RUNNER_TIME": 17
+            }
+          },
+          "full_oos_2026": {
+            "n": 51,
+            "exp_per_trade": 58.75,
+            "total": 2996.4,
+            "wr_pct": 62.7,
+            "std_per_trade": 210.99,
+            "sharpe_per_trade": 0.2785,
+            "pct_losing": 37.3,
+            "worst_trade": -366.0,
+            "median_trade": 95.2,
+            "book_maxDD": -2109.8,
+            "book_worst_day": -366.0,
+            "book_sortino_ann": 8.017,
+            "book_sharpe_ann": 4.42,
+            "trading_days": 51,
+            "exit_mix": {
+              "EXIT_ALL_LEVEL_STOP": 1,
+              "EXIT_ALL_PREMIUM_STOP": 17,
+              "EXIT_ALL_RIBBON_FLIP_BACK": 10,
+              "TP1_THEN_RUNNER_RIBBON": 16,
+              "TP1_THEN_RUNNER_TIME": 7
+            }
+          },
+          "recent_window": {
+            "n": 11,
+            "exp_per_trade": -160.18,
+            "total": -1762.0,
+            "wr_pct": 9.1,
+            "std_per_trade": 113.42,
+            "sharpe_per_trade": -1.4123,
+            "pct_losing": 90.9,
+            "worst_trade": -366.0,
+            "median_trade": -158.4,
+            "book_maxDD": -1726.8,
+            "book_worst_day": -366.0,
+            "book_sortino_ann": -13.407,
+            "book_sharpe_ann": -22.42,
+            "trading_days": 11,
+            "exit_mix": {
+              "EXIT_ALL_PREMIUM_STOP": 10,
+              "TP1_THEN_RUNNER_RIBBON": 1
+            }
+          },
+          "no_truncation_full_exp_positive": true,
+          "null": {
+            "seeds": 10,
+            "n_eligible": 27205,
+            "n_drawn": 158,
+            "per_trade_mean": -27.89,
+            "per_trade_min": -56.77,
+            "per_trade_max": -10.89,
+            "per_trade_by_seed": [
+              -42.36,
+              -10.89,
+              -14.61,
+              -56.77,
+              -29.3,
+              -26.53,
+              -19.45,
+              -20.43,
+              -34.09,
+              -24.46
+            ]
+          },
+          "null_gate": {
+            "beats_null_mean": true,
+            "beats_null_max": true,
+            "drop_top5_beats_null_mean": true,
+            "edge_over_null_per_trade": 72.45,
+            "null_pass": true
+          },
+          "l175_gate_vs_baseline": {
+            "per_trade_sharpe_holds": false,
+            "book_sortino_holds": false,
+            "book_sharpe_holds": false,
+            "maxdd_worsen_frac": 1.0826,
+            "maxdd_material_worse": true,
+            "l175_pass": false
+          },
+          "win_bar_legs": {
+            "is_baseline": false,
+            "full_holds_or_beats_baseline": false,
+            "l175_pass": false,
+            "no_truncation": true,
+            "null_pass": true,
+            "recent_exp_better_than_baseline": false,
+            "recent_loss_shrinks_vs_baseline": false,
+            "recent_bleed_reduced": false,
+            "CLEARS_WIN_BAR": false
+          }
+        }
+      }
+    }
+  },
+  "winners": [],
+  "verdict": "-8%_REMAINS_OPTIMAL",
+  "DISCLOSURE": {
+    "real_fills": "real OPRA fills, the only 0DTE WR authority (C1); SPY-dir != option edge (C3)",
+    "chart_stop_always_on": "rejection_level (=session-extreme chart stop) is supplied in EVERY variant; premium_stop_pct sets the premium backstop. -0.99 = chart-stop-only; -0.50 = chart-stop + catastrophe cap.",
+    "wider_stop_caveat": "C2/C28 \u2014 wider stops bleed FULL premium on 0DTE; a wider stop can raise mean while deepening maxDD. The L175 gate is the guard.",
+    "recent_small_n": "recent window is 25 trading days; recent n per tier is SMALL by design (a directional bleed-reduction check, not a standing ratification \u2014 full-history n is the ratification authority).",
+    "null_exit_caveat": "the random-entry null uses default v15 exits; variant (e)'s tp1 override is NOT threaded into the module null. The null isolates the SIGNAL from the stop/strike STRUCTURE (the dominant lever); for the tighter-target variant the null is the stop-geometry probe only.",
+    "annualization": "book Sortino/Sharpe annualized sqrt(252) on the daily P&L of traded days."
+  }
+}

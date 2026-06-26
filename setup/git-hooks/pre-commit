@@ -1,0 +1,19 @@
+#!/bin/sh
+# Gamma safety gate (pre-commit) -- blocks a commit if a self-modification guard trips.
+# Installed by setup/install-git-hooks.ps1. Runs the FAST curated gate (~2s: verify-committed,
+# lessons-index ratchet, kill-switch parity, params<->filters drift, scheduled-tasks doc).
+# This is a belt for INTERACTIVE commits; the autonomy actuator independently runs the same
+# gate before its autonomous commits, and CI runs the full suite on push.
+#
+# Emergency bypass (use sparingly):  git commit --no-verify
+ROOT="$(git rev-parse --show-toplevel)"
+PY="$ROOT/backtest/.venv/Scripts/python.exe"
+[ -x "$PY" ] || PY="$ROOT/backtest/.venv/bin/python"
+[ -x "$PY" ] || PY="python"
+if ! "$PY" "$ROOT/backtest/tests/run_safety_gate.py"; then
+  echo ""
+  echo "[pre-commit] SAFETY GATE RED -- commit blocked."
+  echo "[pre-commit] Fix the guard above, or override with: git commit --no-verify"
+  exit 1
+fi
+exit 0

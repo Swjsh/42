@@ -1,0 +1,327 @@
+{
+  "ranked_at_et": "2026-06-26 16:03",
+  "total_scored": 8835,
+  "total_rows": 8835,
+  "survivors_over_floor": 1880,
+  "j_edge_floor": 771.0,
+  "wf_pref": 0.7,
+  "top": [
+    {
+      "label": "OTM-2:LR0:mt1:stop-8:tp+150%:sell80%:fixed",
+      "edge_capture": 1692.39,
+      "expectancy": 23.78,
+      "wr": 0.1215,
+      "trades_per_day": 1.329,
+      "max_dd": -1162.6,
+      "wf": 1.98,
+      "n": 214,
+      "combo": [
+        "OTM-2",
+        2,
+        false,
+        1,
+        "-8",
+        -0.08,
+        1.5,
+        0.8,
+        "fixed"
+      ]
+    },
+    {
+      "label": "OTM-2:LR0:mt1:stop-8:tp+150%:sell80%:trailing",
+      "edge_capture": 1692.39,
+      "expectancy": 23.78,
+      "wr": 0.1215,
+      "trades_per_day": 1.329,
+      "max_dd": -1162.6,
+      "wf": 1.98,
+      "n": 214,
+      "combo": [
+        "OTM-2",
+        2,
+        false,
+        1,
+        "-8",
+        -0.08,
+        1.5,
+        0.8,
+        "trailing"
+      ]
+    },
+    {
+      "label": "OTM-1:LR1:mt1:stop-8:tp+150%:sell80%:fixed",
+      "edge_capture": 1562.75,
+      "expectancy": 44.34,
+      "wr": 0.1379,
+      "trades_per_day": 1.327,
+      "max_dd": -835.09,
+      "wf": 1.842,
+      "n": 203,
+      "combo": [
+        "OTM-1",
+        1,
+        true,
+        1,
+        "-8",
+        -0.08,
+        1.5,
+        0.8,
+        "fixed"
+      ]
+    },
+    {
+      "label": "OTM-1:LR1:mt1:stop-8:tp+150%:sell80%:trailing",
+      "edge_capture": 1562.75,
+      "expectancy": 44.34,
+      "wr": 0.1379,
+      "trades_per_day": 1.327,
+      "max_dd": -835.09,
+      "wf": 1.842,
+      "n": 203,
+      "combo": [
+        "OTM-1",
+        1,
+        true,
+        1,
+        "-8",
+        -0.08,
+        1.5,
+        0.8,
+        "trailing"
+      ]
+    },
+    {
+      "label": "OTM-1:LR0:mt1:stop-8:tp+150%:sell80%:fixed",
+      "edge_capture": 1562.75,
+      "expectancy": 39.28,
+      "wr": 0.1389,
+      "trades_per_day": 1.333,
+      "max_dd": -877.09,
+      "wf": 1.754,
+      "n": 216,
+      "combo": [
+        "OTM-1",
+        1,
+        false,
+        1,
+        "-8",
+        -0.08,
+        1.5,
+        0.8,
+        "fixed"
+      ]
+    },
+    {
+      "label": "OTM-1:LR0:mt1:stop-8:tp+150%:sell80%:trailing",
+      "edge_capture": 1562.75,
+      "expectancy": 39.28,
+      "wr": 0.1389,
+      "trades_per_day": 1.333,
+      "max_dd": -877.09,
+      "wf": 1.754,
+      "n": 216,
+      "combo": [
+        "OTM-1",
+        1,
+        false,
+        1,
+        "-8",
+        -0.08,
+        1.5,
+        0.8,
+        "trailing"
+      ]
+    },
+    {
+      "label": "OTM-2:LR1:mt1:stop-12:tp+150%:sell80%:fixed",
+      "edge_capture": 1554.47,
+      "expectancy": 39.85,
+      "wr": 0.155,
+      "trades_per_day": 1.316,
+      "max_dd": -779.64,
+      "wf": 2.794,
+      "n": 200,
+      "combo": [
+        "OTM-2",
+        2,
+        true,
+        1,
+        "-12",
+        -0.12,
+        1.5,
+        0.8,
+        "fixed"
+      ]
+    },
+    {
+      "label": "OTM-2:LR1:mt1:stop-12:tp+150%:sell80%:trailing",
+      "edge_capture": 1554.47,
+      "expectancy": 39.85,
+      "wr": 0.155,
+      "trades_per_day": 1.316,
+      "max_dd": -779.64,
+      "wf": 2.794,
+      "n": 200,
+      "combo": [
+        "OTM-2",
+        2,
+        true,
+        1,
+        "-12",
+        -0.12,
+        1.5,
+        0.8,
+        "trailing"
+      ]
+    },
+    {
+      "label": "OTM-2:LR0:mt1:stop-12:tp+150%:sell80%:fixed",
+      "edge_capture": 1554.47,
+      "expectancy": 33.93,
+      "wr": 0.1549,
+      "trades_per_day": 1.323,
+      "max_dd": -935.03,
+      "wf": 2.756,
+      "n": 213,
+      "combo": [
+        "OTM-2",
+        2,
+        false,
+        1,
+        "-12",
+        -0.12,
+        1.5,
+        0.8,
+        "fixed"
+      ]
+    },
+    {
+      "label": "OTM-2:LR0:mt1:stop-12:tp+150%:sell80%:trailing",
+      "edge_capture": 1554.47,
+      "expectancy": 33.93,
+      "wr": 0.1549,
+      "trades_per_day": 1.323,
+      "max_dd": -935.03,
+      "wf": 2.756,
+      "n": 213,
+      "combo": [
+        "OTM-2",
+        2,
+        false,
+        1,
+        "-12",
+        -0.12,
+        1.5,
+        0.8,
+        "trailing"
+      ]
+    },
+    {
+      "label": "OTM-2:LR1:mt1:stop-40:tp+150%:sell80%:fixed",
+      "edge_capture": 1524.83,
+      "expectancy": 33.28,
+      "wr": 0.2684,
+      "trades_per_day": 1.25,
+      "max_dd": -2284.7,
+      "wf": -216.979,
+      "n": 190,
+      "combo": [
+        "OTM-2",
+        2,
+        true,
+        1,
+        "-40",
+        -0.4,
+        1.5,
+        0.8,
+        "fixed"
+      ]
+    },
+    {
+      "label": "OTM-2:LR1:mt1:stop-40:tp+150%:sell80%:trailing",
+      "edge_capture": 1524.83,
+      "expectancy": 33.28,
+      "wr": 0.2684,
+      "trades_per_day": 1.25,
+      "max_dd": -2284.7,
+      "wf": -216.979,
+      "n": 190,
+      "combo": [
+        "OTM-2",
+        2,
+        true,
+        1,
+        "-40",
+        -0.4,
+        1.5,
+        0.8,
+        "trailing"
+      ]
+    },
+    {
+      "label": "OTM-2:LR0:mt1:stop-40:tp+150%:sell80%:fixed",
+      "edge_capture": 1524.83,
+      "expectancy": 27.58,
+      "wr": 0.266,
+      "trades_per_day": 1.261,
+      "max_dd": -2505.5,
+      "wf": 23.504,
+      "n": 203,
+      "combo": [
+        "OTM-2",
+        2,
+        false,
+        1,
+        "-40",
+        -0.4,
+        1.5,
+        0.8,
+        "fixed"
+      ]
+    },
+    {
+      "label": "OTM-2:LR0:mt1:stop-40:tp+150%:sell80%:trailing",
+      "edge_capture": 1524.83,
+      "expectancy": 27.58,
+      "wr": 0.266,
+      "trades_per_day": 1.261,
+      "max_dd": -2505.5,
+      "wf": 23.504,
+      "n": 203,
+      "combo": [
+        "OTM-2",
+        2,
+        false,
+        1,
+        "-40",
+        -0.4,
+        1.5,
+        0.8,
+        "trailing"
+      ]
+    },
+    {
+      "label": "OTM-2:LR0:mt1:stop-8:tp+150%:sell66%:fixed",
+      "edge_capture": 1487.22,
+      "expectancy": 20.07,
+      "wr": 0.1215,
+      "trades_per_day": 1.329,
+      "max_dd": -1162.6,
+      "wf": 2.088,
+      "n": 214,
+      "combo": [
+        "OTM-2",
+        2,
+        false,
+        1,
+        "-8",
+        -0.08,
+        1.5,
+        0.667,
+        "fixed"
+      ]
+    }
+  ],
+  "n_wf_strong": 13,
+  "note": "READ-ONLY snapshot; the sweep may still be running (partial)."
+}

@@ -1,0 +1,25 @@
+﻿{
+    "skill":  "preflight-gate",
+    "run_at":  "2026-06-24T07:24:45",
+    "date":  "2026-06-24",
+    "verdict":  "RED",
+    "summary":  "BLOCKED. RED: heartbeat-pulse. Do NOT start trading work until resolved.",
+    "checks":  [
+                   {
+                       "verdict":  "GREEN",
+                       "reason":  "tv-and-alpaca-mcp-reachable",
+                       "check":  "mcp-self-test"
+                   },
+                   {
+                       "verdict":  "GREEN",
+                       "reason":  "all-bars-within-tolerance (non-close max=$0.0000)",
+                       "check":  "chart-data-verify"
+                   },
+                   {
+                       "verdict":  "RED",
+                       "reason":  "log-missing",
+                       "check":  "heartbeat-pulse"
+                   }
+               ],
+    "healed":  true
+}

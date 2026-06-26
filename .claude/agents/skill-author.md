@@ -27,6 +27,7 @@ When Gamma rebuilds the same ad-hoc diagnostic three times, the foot-gun is the 
 - `markdown/infra/SKILLS-CATALOG.md` — append row under right category (section 1, 2, or 3) + tool-selection-guide row (section 4)
 - `automation/state/logs/_skill-author-log.jsonl` — fire log
 - `strategy/candidates/_skill-inbox/{date}-{slug}.md` — DELETE on success
+- `strategy/candidates/_skill-inbox/_correction-queue.jsonl` — flip `processed` flags in Stage 0 (NEVER delete; the hook caps retention)
 
 ## What you DO NOT own
 
@@ -37,6 +38,22 @@ When Gamma rebuilds the same ad-hoc diagnostic three times, the foot-gun is the 
 - DOES NOT place orders
 
 ## Your routine (every fire)
+
+### 0. Drain the inline-correction queue FIRST (inline skill self-improvement)
+
+`setup/hook-detect-correction.ps1` (a UserPromptSubmit hook) appends to `strategy/candidates/_skill-inbox/_correction-queue.jsonl` whenever J corrects Gamma mid-session ("stop doing X", "that's wrong", "do it this way"). This is the durable backstop for the Hermes-style inline self-improvement loop — the hook only CAPTURES; you do all the judgment + Rule-9 routing here.
+
+Read the queue; triage up to **5 oldest entries with `"processed": false`** per fire:
+
+1. Read the verbatim `prompt` + `skills_named` + `denylist_hit`.
+2. **Judge** — is it a genuine instruction about HOW Gamma should work (a behavioral/skill correction)? If it's just conversational with no behavioral change implied, mark it `processed:true`, `outcome:"noise"`, and skip.
+3. **Attribute** a target skill: the slug in `skills_named`, else the closest skill by topic (Grep `.claude/skills/` for the subject). If you cannot confidently attribute, file a `_lesson-inbox/` note and mark `outcome:"needs-human"`.
+4. **Route by the Rule-9 live-doctrine denylist** (`denylist_hit:true`, OR target is `heartbeat.md` / `heartbeat-aggressive.md` / `params*.json` / `pin-chain-verify` / `heartbeat-pulse-check` / `heartbeat-decision-trace` / anything under `automation/prompts/`):
+   - **Denylisted** → do NOT edit doctrine. Write `strategy/candidates/_lesson-inbox/{date}-correction-{slug}.md` flagging *"Inline J correction touches live doctrine — requires J ratification (Rule 9)"* with the verbatim correction. Mark `outcome:"deferred-to-lesson"`.
+   - **Safe** → embed the correction into the target skill: patch its `SKILL.md` (add/extend a `## Behavioral corrections (from J)` section with the dated instruction), OR if it's a numeric threshold change route through the `kind: tune` / `skill_tune.py` path below. Mark `outcome:"patched"`.
+5. **Mark processed**: rewrite `_correction-queue.jsonl` setting `processed:true` + an `outcome` on each entry you handled. NEVER delete the file — just flip the flags (the hook caps it at 500 lines).
+
+Then continue to Stage 1. If you handled any, lead your report with `CORRECTIONS: {n} triaged ({patched} patched / {deferred} deferred / {noise} noise)`.
 
 ### 1. Pick the oldest item in `_skill-inbox/`
 

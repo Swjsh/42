@@ -1,0 +1,12 @@
+{"date": "2026-02-02", "price": 684.85, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-02-02", "price": 687.17, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-02-02", "price": 688.0, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-02-02", "price": 688.64, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-02-02", "price": 689.0, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-02-02", "price": 690.5258807163605, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.081, "false_break": false}
+{"date": "2026-02-02", "price": 690.6657260662002, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.221, "false_break": false}
+{"date": "2026-02-02", "price": 690.8919904016179, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.447, "false_break": false}
+{"date": "2026-02-02", "price": 691.4864702376199, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.536, "false_break": false}
+{"date": "2026-02-02", "price": 691.9, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.95, "false_break": false}
+{"date": "2026-02-02", "price": 694.17, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.485, "false_break": false}
+{"date": "2026-02-02", "price": 697.825, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}

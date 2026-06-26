@@ -1,0 +1,61 @@
+{
+  "tick_time": "2026-06-17T15:18:02",
+  "session": "intraday",
+  "instrument": "MNQ",
+  "mode": "WATCH_ONLY",
+  "infrastructure_ready": false,
+  "chart": {
+    "symbol": "CME_MINI:MNQ1!",
+    "timeframe": "5m",
+    "current_close": 30333.50,
+    "day_high": 30420.75,
+    "day_low": 30220.50,
+    "change_pts": -84.25,
+    "change_pct": -0.28,
+    "volume_current_bar": 23520
+  },
+  "ribbon": {
+    "state": "BEARISH",
+    "fast_ema": 30341.87,
+    "pivot_ema": 30352.68,
+    "slow_ema": 30367.72,
+    "spread_pts": 25.85,
+    "price_vs_ribbon": "BELOW_ALL_EMAS"
+  },
+  "position": {
+    "side": "flat",
+    "qty": 0,
+    "entry_price": null,
+    "stop_price": null,
+    "tp1_price": null
+  },
+  "account": {
+    "equity": 25000.00,
+    "start_of_day": 25000.00,
+    "daily_pnl": 0.00,
+    "daily_loss_limit": 500.00,
+    "floor": 24000.00,
+    "drawdown": 0.00,
+    "kill_switch_triggered": false
+  },
+  "vix": {
+    "available": false,
+    "note": "TV MCP returned MNQ data instead of VIX; needs reconfiguration"
+  },
+  "signals": {
+    "count": 0,
+    "candidates": [],
+    "reason": "Watcher modules not yet implemented in futures infrastructure"
+  },
+  "action": "HOLD_FLAT",
+  "next_check": "15:25 ET",
+  "eod_flatten_window": "15:50-16:00 ET",
+  "status": "WATCH_ONLY infrastructure setup phase",
+  "blockers": [
+    "strategy_config_v3.py not implemented",
+    "strategy_config_v3_mes.py not implemented",
+    "watcher fleet not integrated into heartbeat loop",
+    "VIX feed needs reconfiguration"
+  ],
+  "next_phase": "Deploy watcher orchestration + gate logic after gym validation"
+}

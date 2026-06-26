@@ -1,0 +1,259 @@
+{
+  "generated": "2026-06-20",
+  "op11_bar": "per_trade>0 AND OOS>0 AND posQ>=4/6 AND top5<200 AND n>=20",
+  "authority": "real OPRA fills (C1); per-trade expectancy not WR (OP-14)",
+  "summary": {
+    "CLEARS_OP11": [],
+    "AWARENESS": [
+      "vwap_continuation (LIVE)",
+      "double_bottom_base_quiet",
+      "double_bottom_morning",
+      "hs_bear",
+      "fbw_morning_mid"
+    ],
+    "DEAD": [
+      "double_top",
+      "momentum_accel_highvol",
+      "confluence_structure",
+      "nlwb"
+    ]
+  },
+  "board": {
+    "vwap_continuation (LIVE)": {
+      "per_trade": 46.15,
+      "n": 149.0,
+      "wr": 78.5,
+      "total": 6876.8,
+      "oos_per_trade": 50.84,
+      "positive_quarters": null,
+      "top5_day_pct": 32.6,
+      "run_date": "2026-06-20",
+      "verdict": "AWARENESS",
+      "flags": [
+        "posQ-unverified"
+      ],
+      "artifact": "edgehunt-vwap_continuation.json"
+    },
+    "double_bottom_base_quiet": {
+      "per_trade": 14.39,
+      "n": 122.0,
+      "wr": 63.9,
+      "total": 1755.0,
+      "oos_per_trade": null,
+      "positive_quarters": null,
+      "top5_day_pct": null,
+      "run_date": "2026-06-20",
+      "verdict": "AWARENESS",
+      "flags": [
+        "OOS-unverified",
+        "posQ-unverified",
+        "conc-unverified"
+      ],
+      "artifact": "db-base-quiet-real-fills.json"
+    },
+    "double_bottom_morning": {
+      "per_trade": 7.59,
+      "n": 109.0,
+      "wr": 67.9,
+      "total": 827.6,
+      "oos_per_trade": null,
+      "positive_quarters": null,
+      "top5_day_pct": null,
+      "run_date": "2026-06-20",
+      "verdict": "AWARENESS",
+      "flags": [
+        "OOS-unverified",
+        "posQ-unverified",
+        "conc-unverified"
+      ],
+      "artifact": "db-morning-lowvol-real-fills.json"
+    },
+    "double_top": {
+      "per_trade": -48.1,
+      "n": 354.0,
+      "wr": 54.5,
+      "total": -17013.0,
+      "oos_per_trade": -51.3,
+      "positive_quarters": "0/6",
+      "top5_day_pct": null,
+      "run_date": "2026-06-20",
+      "verdict": "DEAD",
+      "flags": [
+        "per_trade=$-48<=0"
+      ],
+      "artifact": "double-top-real-fills.json"
+    },
+    "hs_bear": {
+      "per_trade": 18.22,
+      "n": 19.0,
+      "wr": 73.7,
+      "total": 346.2,
+      "oos_per_trade": null,
+      "positive_quarters": null,
+      "top5_day_pct": null,
+      "run_date": "2026-05-20",
+      "verdict": "AWARENESS",
+      "flags": [
+        "n=19<20",
+        "OOS-unverified",
+        "posQ-unverified",
+        "conc-unverified"
+      ],
+      "artifact": "hs-bear-real-fills.json"
+    },
+    "momentum_accel_highvol": {
+      "per_trade": -20.94,
+      "n": 35.0,
+      "wr": 42.9,
+      "total": -732.8,
+      "oos_per_trade": null,
+      "positive_quarters": null,
+      "top5_day_pct": null,
+      "run_date": "2026-06-20",
+      "verdict": "DEAD",
+      "flags": [
+        "per_trade=$-21<=0"
+      ],
+      "artifact": "momentum-accel-highvol-real-fills.json"
+    },
+    "orb_retest": {
+      "per_trade": null,
+      "n": null,
+      "wr": null,
+      "total": null,
+      "oos_per_trade": null,
+      "positive_quarters": null,
+      "top5_day_pct": null,
+      "run_date": "2026-06-20",
+      "verdict": "NO_DATA",
+      "flags": [],
+      "artifact": "orb_real_fills.json"
+    },
+    "bearish_rejection_morning": {
+      "per_trade": null,
+      "n": 122.0,
+      "wr": null,
+      "total": null,
+      "oos_per_trade": -8.22,
+      "positive_quarters": null,
+      "top5_day_pct": 231.0,
+      "run_date": "2026-06-20",
+      "verdict": "NO_DATA",
+      "flags": [],
+      "artifact": "edgehunt-bearish_rejection_morning.json"
+    },
+    "confluence_structure": {
+      "per_trade": -22.4,
+      "n": 1047.0,
+      "wr": 60.5,
+      "total": -23406.0,
+      "oos_per_trade": null,
+      "positive_quarters": "0/6",
+      "top5_day_pct": null,
+      "run_date": "2026-06-20",
+      "verdict": "DEAD",
+      "flags": [
+        "per_trade=$-22<=0"
+      ],
+      "artifact": "confluence-real-fills-fresh50.json"
+    },
+    "nlwb": {
+      "per_trade": -56.25,
+      "n": 23.0,
+      "wr": 47.8,
+      "total": -1293.8,
+      "oos_per_trade": null,
+      "positive_quarters": null,
+      "top5_day_pct": null,
+      "run_date": "2026-05-21",
+      "verdict": "DEAD",
+      "flags": [
+        "per_trade=$-56<=0"
+      ],
+      "artifact": "nlwb_full_real_fills.json"
+    },
+    "lbfs": {
+      "per_trade": null,
+      "n": 19.0,
+      "wr": null,
+      "total": null,
+      "oos_per_trade": null,
+      "positive_quarters": null,
+      "top5_day_pct": null,
+      "run_date": "2026-05-24",
+      "verdict": "NO_DATA",
+      "flags": [],
+      "artifact": "lbfs-expanded-real-fills.json"
+    },
+    "bull_ribbon_reversal": {
+      "per_trade": null,
+      "n": null,
+      "wr": null,
+      "total": null,
+      "oos_per_trade": null,
+      "positive_quarters": null,
+      "top5_day_pct": null,
+      "run_date": "2026-05-19",
+      "verdict": "NO_DATA",
+      "flags": [],
+      "artifact": "bull_ribbon_reversal_real_fills.json"
+    },
+    "v14_enhanced": {
+      "per_trade": null,
+      "n": null,
+      "wr": null,
+      "total": null,
+      "oos_per_trade": null,
+      "positive_quarters": null,
+      "top5_day_pct": null,
+      "run_date": "2026-05-13",
+      "verdict": "NO_DATA",
+      "flags": [],
+      "artifact": "v14_enhanced-real-fills.json"
+    },
+    "v14e_ampm": {
+      "per_trade": null,
+      "n": 16.0,
+      "wr": null,
+      "total": null,
+      "oos_per_trade": null,
+      "positive_quarters": null,
+      "top5_day_pct": null,
+      "run_date": "2026-05-24",
+      "verdict": "NO_DATA",
+      "flags": [],
+      "artifact": "v14e_ampm_real_fills.json"
+    },
+    "orb_narrow": {
+      "per_trade": null,
+      "n": null,
+      "wr": null,
+      "total": null,
+      "oos_per_trade": null,
+      "positive_quarters": null,
+      "top5_day_pct": null,
+      "run_date": "2026-05-21",
+      "verdict": "NO_DATA",
+      "flags": [],
+      "artifact": "orb_narrow_or_real_fills.json"
+    },
+    "fbw_morning_mid": {
+      "per_trade": 13.0,
+      "n": 35.0,
+      "wr": null,
+      "total": null,
+      "oos_per_trade": null,
+      "positive_quarters": null,
+      "top5_day_pct": null,
+      "run_date": "?",
+      "verdict": "AWARENESS",
+      "flags": [
+        "OOS-unverified",
+        "posQ-unverified",
+        "conc-unverified"
+      ],
+      "artifact": "fbw-morning-mid-real-fills.json"
+    }
+  },
+  "note": "Aggregated from per-family real-fills artifacts. DEFAULT config per family (not the swept best -- anti-pattern 2.10). Legacy artifacts tagged by run_date; re-run if a watcher changed."
+}

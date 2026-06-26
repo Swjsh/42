@@ -1,0 +1,32 @@
+{
+  "date": "2026-06-19",
+  "morning_thesis": "JUNETEENTH NATIONAL INDEPENDENCE DAY — US equity markets closed. NYSE/Alpaca next_open: 2026-06-22T09:30:00-04:00 (Monday). No trades today. Circuit breakers re-armed with live equity. Loop states reset (first_entry_lock cleared). Carry levels (748.00, 745.33) expire 2026-06-20 — Monday premarket must draw fresh levels for Monday session.",
+  "predictions": [
+    {
+      "prediction_idx": 0,
+      "claim": "NO_TRADE_DAY — Juneteenth national holiday. Market closed.",
+      "trigger_window": "n/a",
+      "invalidation": "n/a",
+      "confidence": 1.0,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "PASS",
+      "actual": "US equity markets were closed all day for Juneteenth National Independence Day. No price action. Zero heartbeat ticks.",
+      "category": "other",
+      "evidence_timestamp": "09:30",
+      "graded_at": "2026-06-19T16:30:00-04:00"
+    }
+  ],
+  "surprises": [
+    "Monthly options expiry (3rd Friday June) falls on a holiday — unclear if settled Thursday 6/18 or rolls to Monday. Confirm at Monday premarket.",
+    "Swarm from 6/18 (stale 22h by daily review) flags 752.09 as key battle level for Monday open — only actionable intelligence surviving the holiday."
+  ],
+  "lesson": "Holiday reviews should pre-seed the next session's Active level candidates (RTH H/L from prior_session data) so Monday premarket doesn't open from a blank slate.",
+  "tomorrow_hint": "MONDAY — full level rebuild required; watch 752.09 battle; carry levels expired; PCE on 6/25",
+  "predictions_count": 1,
+  "predictions_passed": 1,
+  "predictions_partial": 0,
+  "hit_rate_passing": 1.0,
+  "specificity_weighted_hit_rate": 1.0,
+  "graded_at": "2026-06-19T16:30:00-04:00"
+}

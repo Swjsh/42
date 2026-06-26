@@ -1,0 +1,26 @@
+{
+  "study": "AGG midday_trendline_gate sweep",
+  "date": "2026-06-17",
+  "candidate": {
+    "midday_trendline_gate": true
+  },
+  "baseline": {
+    "IS_n": 218,
+    "IS_pnl": 10018.67,
+    "OOS_n": 24,
+    "OOS_pnl": -42.88
+  },
+  "candidate_result": {
+    "IS_n": 105,
+    "IS_pnl": 11335.08,
+    "OOS_n": 18,
+    "OOS_pnl": 238.28
+  },
+  "IS_delta": 1316.41,
+  "OOS_delta": 281.16,
+  "WF_norm": 1.94,
+  "OOS_positive": true,
+  "SW_hurt": 1,
+  "anchor_OK": true,
+  "verdict": "AUTO-RATIFY"
+}

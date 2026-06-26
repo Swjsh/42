@@ -1,0 +1,1 @@
+tick=15 time=11:51:40 reading_market_data mode=HOT pos=flat

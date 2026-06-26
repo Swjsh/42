@@ -1,0 +1,379 @@
+{
+  "hypothesis": "vwap_plus_confluence",
+  "hypothesis_full": "Take vwap_continuation signals but keep ONLY the high-confluence subset (named-level within $0.30 AND ribbon-aligned AND vol>=1.3x). Does selection sharpen the proven +$78/tr ITM-2 survivor?",
+  "run_date": "2026-06-20",
+  "window": "2025-01-02..2026-05-15",
+  "trading_days": 342,
+  "detector": "BYTE-FOR-BYTE _edgehunt_vwap_continuation.detect_signals (= j_daily_pattern_ratify / vwap_continuation_watcher)",
+  "fills_authority": "real OPRA bars via lib.simulator_real.simulate_trade_real (C1); survivor structure strike_offset=-2 (ITM-2), premium_stop=-0.08, v15 exits tp1=0.30/runner=2.5/chandelier_trail=0.20",
+  "selection": {
+    "named_level_confluence_dollars": 0.3,
+    "named_level_set": "causal proxy (named_level_bounce_scan convention): PDH/PDL/PDC (prior RTH day), 5-session hi/lo, $5 round numbers -- all known at entry time (no look-ahead, C6)",
+    "ribbon_alignment": "stack BULL for call / BEAR for put at the entry bar",
+    "volume_mult_min": 1.3,
+    "volume_baseline_bars": 20
+  },
+  "oos_split": "IS=2025 / OOS=2026 (calendar-year)",
+  "n_vwap_signals": 158,
+  "vwap_signal_side_count": {
+    "C": 86,
+    "P": 72
+  },
+  "confirmation_rates": {
+    "level_ok": 33,
+    "ribbon_ok": 80,
+    "vol_ok": 61,
+    "of_total": 158
+  },
+  "n_selected": 8,
+  "selected_side_count": {
+    "C": 6,
+    "P": 2
+  },
+  "baseline_vwap_alone": {
+    "coverage": {
+      "signals": 158,
+      "filled": 149,
+      "cache_miss": 9,
+      "sim_none": 0,
+      "fill_rate": 0.943
+    },
+    "metrics": {
+      "n": 149,
+      "wr_pct": 47.7,
+      "exp_dollar": 56.01,
+      "total_dollar": 8345.4,
+      "is_n": 107,
+      "is_exp": 52.98,
+      "is_total": 5668.68,
+      "oos_n": 42,
+      "oos_exp": 63.73,
+      "oos_total": 2676.72,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 67.36,
+          "total": 1683.96
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 35.35,
+          "total": 813.16
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 25.9,
+          "total": 673.52
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 75.7,
+          "total": 2498.04
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 85.21,
+          "total": 2215.48
+        },
+        "2026Q2": {
+          "n": 16,
+          "exp": 28.83,
+          "total": 461.24
+        }
+      },
+      "positive_quarters": "6/6",
+      "positive_quarters_n": 6,
+      "n_quarters": 6,
+      "top5_day_pct": 20.9,
+      "drop_top5_days_total": 6599.6,
+      "by_side": {
+        "C": {
+          "n": 82,
+          "exp": 54.64,
+          "wr": 43.9,
+          "total": 4480.88
+        },
+        "P": {
+          "n": 67,
+          "exp": 57.68,
+          "wr": 52.2,
+          "total": 3864.52
+        }
+      },
+      "exit_hist": {
+        "EXIT_ALL_PREMIUM_STOP": 128,
+        "EXIT_ALL_RIBBON_FLIP_BACK": 4,
+        "TP1_THEN_RUNNER_RIBBON": 17
+      }
+    }
+  },
+  "selected_subset": {
+    "coverage": {
+      "signals": 8,
+      "filled": 8,
+      "cache_miss": 0,
+      "sim_none": 0,
+      "fill_rate": 1.0
+    },
+    "metrics": {
+      "n": 8,
+      "wr_pct": 12.5,
+      "exp_dollar": -10.14,
+      "total_dollar": -81.12,
+      "is_n": 5,
+      "is_exp": -4.66,
+      "is_total": -23.28,
+      "oos_n": 3,
+      "oos_exp": -19.28,
+      "oos_total": -57.84,
+      "quarters": {
+        "2025Q2": {
+          "n": 2,
+          "exp": 24.6,
+          "total": 49.2
+        },
+        "2025Q4": {
+          "n": 3,
+          "exp": -24.16,
+          "total": -72.48
+        },
+        "2026Q1": {
+          "n": 1,
+          "exp": 0.0,
+          "total": 0.0
+        },
+        "2026Q2": {
+          "n": 2,
+          "exp": -28.92,
+          "total": -57.84
+        }
+      },
+      "positive_quarters": "1/4",
+      "positive_quarters_n": 1,
+      "n_quarters": 4,
+      "top5_day_pct": null,
+      "drop_top5_days_total": -130.32,
+      "by_side": {
+        "C": {
+          "n": 6,
+          "exp": -9.64,
+          "wr": 0.0,
+          "total": -57.84
+        },
+        "P": {
+          "n": 2,
+          "exp": -11.64,
+          "wr": 50.0,
+          "total": -23.28
+        }
+      },
+      "exit_hist": {
+        "EXIT_ALL_PREMIUM_STOP": 8
+      }
+    }
+  },
+  "selected_chart_stop_only_no_truncation": {
+    "metrics": {
+      "n": 8,
+      "wr_pct": 12.5,
+      "exp_dollar": 6.15,
+      "total_dollar": 49.2,
+      "is_n": 5,
+      "is_exp": 9.84,
+      "is_total": 49.2,
+      "oos_n": 3,
+      "oos_exp": 0.0,
+      "oos_total": 0.0,
+      "quarters": {
+        "2025Q2": {
+          "n": 2,
+          "exp": 24.6,
+          "total": 49.2
+        },
+        "2025Q4": {
+          "n": 3,
+          "exp": 0.0,
+          "total": 0.0
+        },
+        "2026Q1": {
+          "n": 1,
+          "exp": 0.0,
+          "total": 0.0
+        },
+        "2026Q2": {
+          "n": 2,
+          "exp": 0.0,
+          "total": 0.0
+        }
+      },
+      "positive_quarters": "1/4",
+      "positive_quarters_n": 1,
+      "n_quarters": 4,
+      "top5_day_pct": 100.0,
+      "drop_top5_days_total": 0.0,
+      "by_side": {
+        "C": {
+          "n": 6,
+          "exp": 0.0,
+          "wr": 0.0,
+          "total": 0.0
+        },
+        "P": {
+          "n": 2,
+          "exp": 24.6,
+          "wr": 50.0,
+          "total": 49.2
+        }
+      },
+      "exit_hist": {
+        "EXIT_ALL_PREMIUM_STOP": 8
+      }
+    }
+  },
+  "random_entry_null": {
+    "seeds": 20,
+    "null_per_trade_mean": 17.81,
+    "null_per_trade_sd": 34.29,
+    "null_per_trade_threshold_mean_plus_1sd": 52.09,
+    "null_total_mean": 142.45
+  },
+  "gates": {
+    "G1_oos_per_trade_pos": false,
+    "G2_positive_quarters_ge4": false,
+    "G3_top5_day_lt200": false,
+    "G4_n_ge20": false,
+    "G5_drop_top5_days_pos": false,
+    "G6_beats_random_null": false,
+    "G7_no_truncation_sign_stable": false,
+    "G8_in_sample_pos": false
+  },
+  "clears_all_gates": false,
+  "baseline_per_trade": 56.01,
+  "selected_per_trade": -10.14,
+  "improvement_per_trade": -66.15,
+  "selection_sharpens": false,
+  "verdict": "INCONCLUSIVE -- selection thinned N to 8 (<20); the triple-confirmation subset is too rare to validate. per-trade $-10.14 vs vwap-alone $56.01.",
+  "selected_trades_detail": [
+    {
+      "date": "2025-04-29",
+      "time": "09:45",
+      "side": "C",
+      "spot": 551.03,
+      "nearest_level": 551.07,
+      "level_dist": 0.04,
+      "level_ok": true,
+      "stack": "BULL",
+      "ribbon_ok": true,
+      "vol_mult": 4.46,
+      "vol_ok": true,
+      "trig": "jvwap_breakout"
+    },
+    {
+      "date": "2025-06-05",
+      "time": "09:45",
+      "side": "P",
+      "spot": 595.17,
+      "nearest_level": 595.0,
+      "level_dist": 0.17,
+      "level_ok": "True",
+      "stack": "BEAR",
+      "ribbon_ok": true,
+      "vol_mult": 1.96,
+      "vol_ok": true,
+      "trig": "jvwap_breakout"
+    },
+    {
+      "date": "2025-10-23",
+      "time": "09:45",
+      "side": "C",
+      "spot": 670.26,
+      "nearest_level": 670.0,
+      "level_dist": 0.26,
+      "level_ok": "True",
+      "stack": "BULL",
+      "ribbon_ok": true,
+      "vol_mult": 1.35,
+      "vol_ok": true,
+      "trig": "jvwap_breakout"
+    },
+    {
+      "date": "2025-10-29",
+      "time": "09:45",
+      "side": "C",
+      "spot": 688.93,
+      "nearest_level": 688.9,
+      "level_dist": 0.03,
+      "level_ok": true,
+      "stack": "BULL",
+      "ribbon_ok": true,
+      "vol_mult": 1.62,
+      "vol_ok": true,
+      "trig": "jvwap_breakout"
+    },
+    {
+      "date": "2025-12-16",
+      "time": "10:10",
+      "side": "P",
+      "spot": 679.48,
+      "nearest_level": 679.28,
+      "level_dist": 0.2,
+      "level_ok": true,
+      "stack": "BEAR",
+      "ribbon_ok": true,
+      "vol_mult": 1.6,
+      "vol_ok": true,
+      "trig": "jvwap_pullback"
+    },
+    {
+      "date": "2026-03-16",
+      "time": "09:45",
+      "side": "C",
+      "spot": 669.99,
+      "nearest_level": 670.0,
+      "level_dist": 0.01,
+      "level_ok": "True",
+      "stack": "BULL",
+      "ribbon_ok": true,
+      "vol_mult": 4.55,
+      "vol_ok": true,
+      "trig": "jvwap_breakout"
+    },
+    {
+      "date": "2026-04-14",
+      "time": "09:45",
+      "side": "C",
+      "spot": 689.77,
+      "nearest_level": 690.0,
+      "level_dist": 0.231,
+      "level_ok": "True",
+      "stack": "BULL",
+      "ribbon_ok": true,
+      "vol_mult": 3.35,
+      "vol_ok": true,
+      "trig": "jvwap_pullback"
+    },
+    {
+      "date": "2026-05-05",
+      "time": "09:45",
+      "side": "C",
+      "spot": 722.16,
+      "nearest_level": 722.12,
+      "level_dist": 0.04,
+      "level_ok": true,
+      "stack": "BULL",
+      "ribbon_ok": true,
+      "vol_mult": 2.59,
+      "vol_ok": true,
+      "trig": "jvwap_breakout"
+    }
+  ],
+  "DISCLOSURE": {
+    "per_trade": "expectancy (exp_dollar / oos_exp), not WR alone (OP-14)",
+    "is_oos": "IS=2025 vs OOS=2026 split (OP-20)",
+    "concentration": "top5_day_pct = top-5 winning DAYS as % of total P&L (OP-20 #5)",
+    "spy_vs_option": "real OPRA fills; SPY-direction != option edge (C3/L58)",
+    "no_survivor_pick": "ALL 8 gates evaluated deterministically; subset reported with clears_all_gates + each gate's pass/fail (anti-pattern 2.10)",
+    "null_caveat": "random-entry null keeps same per-day count/side/exit/strike/stop; subset must beat mean(null)+1sd, not merely the mean (G6)",
+    "level_caveat": "historical key-levels.json is a single live snapshot, not per-day; this uses the codebase's causal PDH/PDL/PDC + round-number proxy"
+  }
+}

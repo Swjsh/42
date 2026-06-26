@@ -1,0 +1,417 @@
+{
+  "generated_at": "2026-06-18T03:33:48.707927+00:00",
+  "purpose": "Category I perfect-storm combination gate sweep",
+  "op16_floor": 771,
+  "j_max_edge": 1542,
+  "production_params": {
+    "premium_stop_pct_bear": -0.1,
+    "tp1_premium_pct": 0.5,
+    "tp1_qty_fraction": 0.667,
+    "runner_target_premium_pct": 2.5,
+    "f9_vol_mult": 0.7
+  },
+  "baseline_10_10": {
+    "description": "Standard production filters \u2014 full 10/10 gate",
+    "per_day_pnl": {
+      "2026-04-29": -600.0,
+      "2026-05-01": -22.5,
+      "2026-05-04": 341.0,
+      "2026-05-05": 0.0,
+      "2026-05-06": null,
+      "2026-05-07": -31.0
+    },
+    "n_trades": 5,
+    "total_pnl": -312.5,
+    "edge_capture": 310.0,
+    "edge_pct_of_max": 20.1,
+    "aggregate_sharpe": -0.188,
+    "final_score": -58.22
+  },
+  "scenarios": [
+    {
+      "id": "I1",
+      "name": "bear7+morning+level0.30+vol2.0",
+      "description": "bear_score>=7 AND morning AND level<=0.30 AND vol_ratio>=2.0",
+      "per_day_pnl": {
+        "2026-04-29": -600.0,
+        "2026-05-01": null,
+        "2026-05-04": null,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": null
+      },
+      "n_trades": 1,
+      "wr": 0.0,
+      "total_pnl": -600.0,
+      "edge_capture": 0.0,
+      "edge_pct_of_max": 0.0,
+      "aggregate_sharpe": -0.447,
+      "final_score": -0.0,
+      "marginal_trades": 0,
+      "marginal_wr": null,
+      "marginal_pnl": 0.0,
+      "trades_dropped_by_filter": 4,
+      "filter_saves_dollars": -287.5,
+      "j_winner_early_fires": {
+        "2026-04-29": {
+          "gate_fires_at": "10:10",
+          "baseline_fires_at": "12:10",
+          "minutes_earlier": -120.0,
+          "note": "earlier"
+        },
+        "2026-05-01": {
+          "gate_fires_at": null,
+          "baseline_fires_at": "12:55",
+          "minutes_earlier": null,
+          "note": "combo_gate_BLOCKS_winner"
+        },
+        "2026-05-04": {
+          "gate_fires_at": null,
+          "baseline_fires_at": "10:05",
+          "minutes_earlier": null,
+          "note": "combo_gate_BLOCKS_winner"
+        }
+      },
+      "op16_pass": false,
+      "verdict": "rejected"
+    },
+    {
+      "id": "I2",
+      "name": "bear6+morning+level0.30+vol3.0+htfBEAR",
+      "description": "bear_score>=6 AND morning AND level<=0.30 AND vol_ratio>=3.0 AND htf==BEAR",
+      "per_day_pnl": {
+        "2026-04-29": -600.0,
+        "2026-05-01": null,
+        "2026-05-04": null,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": null
+      },
+      "n_trades": 1,
+      "wr": 0.0,
+      "total_pnl": -600.0,
+      "edge_capture": 0.0,
+      "edge_pct_of_max": 0.0,
+      "aggregate_sharpe": -0.447,
+      "final_score": -0.0,
+      "marginal_trades": 0,
+      "marginal_wr": null,
+      "marginal_pnl": 0.0,
+      "trades_dropped_by_filter": 4,
+      "filter_saves_dollars": -287.5,
+      "j_winner_early_fires": {
+        "2026-04-29": {
+          "gate_fires_at": "10:10",
+          "baseline_fires_at": "12:10",
+          "minutes_earlier": -120.0,
+          "note": "earlier"
+        },
+        "2026-05-01": {
+          "gate_fires_at": null,
+          "baseline_fires_at": "12:55",
+          "minutes_earlier": null,
+          "note": "combo_gate_BLOCKS_winner"
+        },
+        "2026-05-04": {
+          "gate_fires_at": null,
+          "baseline_fires_at": "10:05",
+          "minutes_earlier": null,
+          "note": "combo_gate_BLOCKS_winner"
+        }
+      },
+      "op16_pass": false,
+      "verdict": "rejected"
+    },
+    {
+      "id": "I3",
+      "name": "bear6+level0.30+vol4.0+ribbonflip",
+      "description": "bear_score>=6 AND level<=0.30 AND vol_ratio>=4.0 AND ribbon_just_flipped",
+      "per_day_pnl": {
+        "2026-04-29": null,
+        "2026-05-01": null,
+        "2026-05-04": 341.0,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": null
+      },
+      "n_trades": 1,
+      "wr": 1.0,
+      "total_pnl": 341.0,
+      "edge_capture": 341.0,
+      "edge_pct_of_max": 22.1,
+      "aggregate_sharpe": 0.447,
+      "final_score": 152.5,
+      "marginal_trades": 0,
+      "marginal_wr": null,
+      "marginal_pnl": 0.0,
+      "trades_dropped_by_filter": 4,
+      "filter_saves_dollars": 653.5,
+      "j_winner_early_fires": {
+        "2026-04-29": {
+          "gate_fires_at": null,
+          "baseline_fires_at": "12:10",
+          "minutes_earlier": null,
+          "note": "combo_gate_BLOCKS_winner"
+        },
+        "2026-05-01": {
+          "gate_fires_at": null,
+          "baseline_fires_at": "12:55",
+          "minutes_earlier": null,
+          "note": "combo_gate_BLOCKS_winner"
+        },
+        "2026-05-04": {
+          "gate_fires_at": "09:30",
+          "baseline_fires_at": "10:05",
+          "minutes_earlier": -35.0,
+          "note": "earlier"
+        }
+      },
+      "op16_pass": false,
+      "verdict": "rejected"
+    },
+    {
+      "id": "I4",
+      "name": "bear5+morning+level0.25+vol4.0+htfBEAR+ribbonflip",
+      "description": "bear_score>=5 AND morning AND level<=0.25 AND vol_ratio>=4.0 AND htf==BEAR AND ribbon_just_flipped",
+      "per_day_pnl": {
+        "2026-04-29": null,
+        "2026-05-01": null,
+        "2026-05-04": null,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": null
+      },
+      "n_trades": 0,
+      "wr": 0.0,
+      "total_pnl": 0,
+      "edge_capture": 0.0,
+      "edge_pct_of_max": 0.0,
+      "aggregate_sharpe": 0.0,
+      "final_score": 0.0,
+      "marginal_trades": 0,
+      "marginal_wr": null,
+      "marginal_pnl": 0.0,
+      "trades_dropped_by_filter": 5,
+      "filter_saves_dollars": 312.5,
+      "j_winner_early_fires": {
+        "2026-04-29": {
+          "gate_fires_at": null,
+          "baseline_fires_at": "12:10",
+          "minutes_earlier": null,
+          "note": "combo_gate_BLOCKS_winner"
+        },
+        "2026-05-01": {
+          "gate_fires_at": null,
+          "baseline_fires_at": "12:55",
+          "minutes_earlier": null,
+          "note": "combo_gate_BLOCKS_winner"
+        },
+        "2026-05-04": {
+          "gate_fires_at": null,
+          "baseline_fires_at": "10:05",
+          "minutes_earlier": null,
+          "note": "combo_gate_BLOCKS_winner"
+        }
+      },
+      "op16_pass": false,
+      "verdict": "rejected"
+    },
+    {
+      "id": "I5",
+      "name": "bull7+morning+level0.30+vol3.0+htfBULL",
+      "description": "bull_score>=7 AND morning AND level<=0.30 AND vol_ratio>=3.0 AND htf==BULL",
+      "per_day_pnl": {
+        "2026-04-29": null,
+        "2026-05-01": null,
+        "2026-05-04": null,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": null
+      },
+      "n_trades": 0,
+      "wr": 0.0,
+      "total_pnl": 0,
+      "edge_capture": 0.0,
+      "edge_pct_of_max": 0.0,
+      "aggregate_sharpe": 0.0,
+      "final_score": 0.0,
+      "marginal_trades": 0,
+      "marginal_wr": null,
+      "marginal_pnl": 0.0,
+      "trades_dropped_by_filter": 5,
+      "filter_saves_dollars": 312.5,
+      "j_winner_early_fires": {
+        "2026-04-29": {
+          "gate_fires_at": null,
+          "baseline_fires_at": "12:10",
+          "minutes_earlier": null,
+          "note": "combo_gate_BLOCKS_winner"
+        },
+        "2026-05-01": {
+          "gate_fires_at": null,
+          "baseline_fires_at": "12:55",
+          "minutes_earlier": null,
+          "note": "combo_gate_BLOCKS_winner"
+        },
+        "2026-05-04": {
+          "gate_fires_at": null,
+          "baseline_fires_at": "10:05",
+          "minutes_earlier": null,
+          "note": "combo_gate_BLOCKS_winner"
+        }
+      },
+      "op16_pass": false,
+      "verdict": "rejected"
+    },
+    {
+      "id": "BEST_COMBO_BEAR",
+      "name": "bear8+any_one_compensator",
+      "description": "bear_score>=8 AND (htf==BEAR OR vol_ratio>=2.0 OR ribbon_just_flipped)",
+      "per_day_pnl": {
+        "2026-04-29": -600.0,
+        "2026-05-01": -22.5,
+        "2026-05-04": 341.0,
+        "2026-05-05": 0.0,
+        "2026-05-06": null,
+        "2026-05-07": -31.0
+      },
+      "n_trades": 5,
+      "wr": 0.2,
+      "total_pnl": -312.5,
+      "edge_capture": 310.0,
+      "edge_pct_of_max": 20.1,
+      "aggregate_sharpe": -0.188,
+      "final_score": -58.22,
+      "marginal_trades": 0,
+      "marginal_wr": null,
+      "marginal_pnl": 0.0,
+      "trades_dropped_by_filter": 0,
+      "filter_saves_dollars": -0.0,
+      "j_winner_early_fires": {
+        "2026-04-29": {
+          "gate_fires_at": "09:45",
+          "baseline_fires_at": "12:10",
+          "minutes_earlier": -145.0,
+          "note": "earlier"
+        },
+        "2026-05-01": {
+          "gate_fires_at": "15:50",
+          "baseline_fires_at": "12:55",
+          "minutes_earlier": 175.0,
+          "note": "later"
+        },
+        "2026-05-04": {
+          "gate_fires_at": "11:10",
+          "baseline_fires_at": "10:05",
+          "minutes_earlier": 65.0,
+          "note": "later"
+        }
+      },
+      "op16_pass": false,
+      "verdict": "rejected"
+    },
+    {
+      "id": "TRIPLE_LOCK",
+      "name": "bear7+htfBEAR+level0.30+vol2.0",
+      "description": "bear_score>=7 AND htf==BEAR AND level<=0.30 AND vol_ratio>=2.0",
+      "per_day_pnl": {
+        "2026-04-29": -600.0,
+        "2026-05-01": null,
+        "2026-05-04": null,
+        "2026-05-05": null,
+        "2026-05-06": null,
+        "2026-05-07": null
+      },
+      "n_trades": 1,
+      "wr": 0.0,
+      "total_pnl": -600.0,
+      "edge_capture": 0.0,
+      "edge_pct_of_max": 0.0,
+      "aggregate_sharpe": -0.447,
+      "final_score": -0.0,
+      "marginal_trades": 0,
+      "marginal_wr": null,
+      "marginal_pnl": 0.0,
+      "trades_dropped_by_filter": 4,
+      "filter_saves_dollars": -287.5,
+      "j_winner_early_fires": {
+        "2026-04-29": {
+          "gate_fires_at": "10:10",
+          "baseline_fires_at": "12:10",
+          "minutes_earlier": -120.0,
+          "note": "earlier"
+        },
+        "2026-05-01": {
+          "gate_fires_at": null,
+          "baseline_fires_at": "12:55",
+          "minutes_earlier": null,
+          "note": "combo_gate_BLOCKS_winner"
+        },
+        "2026-05-04": {
+          "gate_fires_at": null,
+          "baseline_fires_at": "10:05",
+          "minutes_earlier": null,
+          "note": "combo_gate_BLOCKS_winner"
+        }
+      },
+      "op16_pass": false,
+      "verdict": "rejected"
+    },
+    {
+      "id": "MORNING_LEVEL_ONLY",
+      "name": "bear7+morning+level0.25",
+      "description": "bear_score>=7 AND morning AND level<=0.25",
+      "per_day_pnl": {
+        "2026-04-29": -600.0,
+        "2026-05-01": null,
+        "2026-05-04": 341.0,
+        "2026-05-05": 0.0,
+        "2026-05-06": null,
+        "2026-05-07": -31.0
+      },
+      "n_trades": 4,
+      "wr": 0.25,
+      "total_pnl": -290.0,
+      "edge_capture": 310.0,
+      "edge_pct_of_max": 20.1,
+      "aggregate_sharpe": -0.174,
+      "final_score": -53.92,
+      "marginal_trades": 0,
+      "marginal_wr": null,
+      "marginal_pnl": 0.0,
+      "trades_dropped_by_filter": 1,
+      "filter_saves_dollars": 22.5,
+      "j_winner_early_fires": {
+        "2026-04-29": {
+          "gate_fires_at": "09:55",
+          "baseline_fires_at": "12:10",
+          "minutes_earlier": -135.0,
+          "note": "earlier"
+        },
+        "2026-05-01": {
+          "gate_fires_at": null,
+          "baseline_fires_at": "12:55",
+          "minutes_earlier": null,
+          "note": "combo_gate_BLOCKS_winner"
+        },
+        "2026-05-04": {
+          "gate_fires_at": "09:35",
+          "baseline_fires_at": "10:05",
+          "minutes_earlier": -30.0,
+          "note": "earlier"
+        }
+      },
+      "op16_pass": false,
+      "verdict": "rejected"
+    }
+  ],
+  "synthesis": {
+    "n_passing_op16": 0,
+    "n_failing_op16": 8,
+    "best_by_final_score": "I3",
+    "best_edge_scenario": "I3",
+    "best_sharpe_scenario": "I3",
+    "recommended_live_test": null,
+    "notes": "Scenario P&L is estimated as: if the combination gate fires on a given day, attribute the same P&L as the production baseline run for that day. This assumes the engine would take the same trade if the gate fires at all. Marginal trades = days where scenario fires but baseline did NOT fire. A high marginal_wr >= 0.45 means the extra entries are net profitable."
+  }
+}

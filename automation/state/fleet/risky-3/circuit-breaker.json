@@ -1,0 +1,11 @@
+{
+  "tripped": false,
+  "tripped_at": null,
+  "tripped_reason": null,
+  "starting_equity_today": 2000.0,
+  "current_equity": 2000.0,
+  "daily_loss_limit_pct": 0.5,
+  "max_drawdown_today_pct": 0.0,
+  "last_reset": "2026-06-26T08:14:20-0400",
+  "_note": "fleet arm risky-3 daily kill-switch (-50% of SoD)."
+}

@@ -35,9 +35,11 @@ pool discipline). FAIL-OPEN: this responder never blocks or kills J's session.
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
 import json
 import logging
 import re
+import shutil
 import subprocess
 import sys
 from datetime import timedelta, timezone
@@ -171,6 +173,8 @@ _PROPOSAL_ID_RE = re.compile(r"\b([a-zA-Z]{1,6}-[0-9][0-9A-Za-z\-]{4,})\b")
 #    can't false-match digits inside an id.
 _SHIP_WORDS = ("ship", "approve", "approved", "go", "yes", "ok", "okay", "yep")
 _SHELVE_WORDS = ("shelve", "shelf", "reject", "rejected", "drop", "skip", "kill", "nope")
+# REVERT verbs -- J's one-tap off-switch for an already-APPLIED autonomous change.
+_REVERT_WORDS = ("revert", "undo", "rollback")
 # Reactions are matched literally on the id-stripped text. We deliberately do NOT
 # include bare "+1"/"-1" (they collide with digits/dashes inside ids and dates);
 # the unicode thumbs + :shortcode: forms cover Discord reactions unambiguously.
@@ -289,12 +293,149 @@ def _try_resolve_proposal(content: str, user_id: str) -> bool:
     if new_status == "approved":
         ack = (
             f"{target_id} approved \U0001F7E2 ({target.get('title','')}). "
-            f"Marked for apply -- the param/doctrine edit stays J-gated; "
-            f"draft at {target.get('draft_path','(see proposal)')}. Next conductor fire picks it up."
+            f"AutoApply will apply + commit it after-hours (safety-gated, snapshot-backed; "
+            f"structured edits only). Reply 'revert {target_id}' any time to undo."
         )
     else:
         ack = f"{target_id} shelved. ({target.get('title','')}). Dropped, no change. Next."
     _queue_outbox(ack, user_id)
+    return True
+
+
+def _applied_by_id(rows: list[dict]) -> dict[str, dict]:
+    return {r.get("proposal_id"): r for r in rows if r.get("status") == "applied"}
+
+
+def _try_revert(content: str, user_id: str) -> bool:
+    """If `content` is a 'revert <id>' command targeting an APPLIED proposal, hand it to
+    the actuator (which restores the pre-apply snapshot + commits the revert) and ack J.
+    J's explicit off-switch -- allowed any time (an undo is a safety action, not a new
+    mid-session change). Pure dispatch; the actuator does the git work. Returns True if handled."""
+    low = content.lower()
+    stripped = _PROPOSAL_ID_RE.sub(" ", low)
+    words = set(_WORD_RE.findall(stripped))
+    if not (words & set(_REVERT_WORDS)):
+        return False
+    rows = _read_proposals()
+    applied = _applied_by_id(rows)
+    if not applied:
+        return False
+    target_id = None
+    for m in _PROPOSAL_ID_RE.finditer(content):
+        if m.group(1) in applied:
+            target_id = m.group(1)
+            break
+    if target_id is None and len(applied) == 1:
+        target_id = next(iter(applied))
+    if target_id is None:
+        return False  # revert verb but ambiguous id -> don't guess
+
+    actuator = REPO / "setup" / "scripts" / "autonomy_actuator.py"
+    try:
+        res = subprocess.run(
+            [sys.executable, str(actuator), "revert", target_id],
+            capture_output=True, text=True, timeout=120, cwd=str(REPO),
+        )
+        ok = res.returncode == 0
+        last = ((res.stdout or "") + (res.stderr or "")).strip().splitlines()
+        tail = last[-1] if last else ""
+        msg = (f"{target_id} reverted ↩ -- restored to the pre-apply state + committed."
+               if ok else f"{target_id} revert FAILED: {tail[:160]}")
+    except Exception as exc:
+        msg = f"{target_id} revert error: {exc}"
+    _queue_outbox(msg, user_id)
+    logging.info("revert %s ok-dispatch", target_id)
+    return True
+
+
+# ---------------------------------------------------------------------------
+# Correction capture -- inline self-learning parity with the terminal hook
+# (setup/hook-detect-correction.ps1). J's Discord corrections ("stop doing X",
+# "that's wrong", "do it this way") are appended to the SAME skill-learning queue
+# the terminal hook writes, so skill-author Stage 0 triages terminal + Discord
+# corrections uniformly. Pure Python ($0), fail-open, runs even during RTH (no
+# LLM). CAPTURE-ONLY -- all judgment + Rule-9 routing happen in skill-author.
+# ---------------------------------------------------------------------------
+
+CORRECTION_QUEUE = REPO / "strategy" / "candidates" / "_skill-inbox" / "_correction-queue.jsonl"
+SKILLS_DIR = REPO / ".claude" / "skills"
+
+# Same high-precision phrases as the PowerShell hook (low false-positive set).
+_CORRECTION_PATTERNS = [
+    r"stop doing", r"quit doing", r"stop trying to", r"stop being",
+    r"don'?t do that", r"don'?t ever", r"never do that", r"never say that",
+    r"you('?re| are) wrong", r"that'?s wrong", r"that'?s incorrect",
+    r"you got (that|it) wrong", r"do it this way", r"do this instead",
+    r"instead of (doing|that)", r"you should(n'?t| not) have", r"you should have",
+    r"that'?s not what i", r"not what i asked", r"i (told|said) you",
+    r"next time,? (don'?t|do)",
+]
+_CORRECTION_RE = [re.compile(p) for p in _CORRECTION_PATTERNS]
+# Trading jargon stripped BEFORE matching ("stop loss" is not a correction).
+_JARGON_RE = re.compile(r"stop[\s\-]?loss|stop(ped)?\s+out|stop[\s\-]?out")
+# Rule-9 live-doctrine denylist tags (capture-only; skill-author enforces the gate).
+_CORRECTION_DENYLIST = (
+    "heartbeat-pulse-check", "heartbeat-decision-trace", "pin-chain-verify",
+    "heartbeat", "params", "risk_gate", "kill switch", "kill-switch",
+)
+
+
+def _detect_correction(text: str) -> str | None:
+    """Return the matched correction phrase, or None. Jargon-excluded, low false-positive."""
+    scan = _JARGON_RE.sub("", text.lower())
+    for rx in _CORRECTION_RE:
+        m = rx.search(scan)
+        if m:
+            return m.group(0)
+    return None
+
+
+def _skills_named(low: str) -> list[str]:
+    """Coarse attribution: which skill dir names appear in the message (skill-author refines)."""
+    out: list[str] = []
+    if SKILLS_DIR.exists():
+        for d in SKILLS_DIR.iterdir():
+            if d.is_dir() and d.name.lower() in low:
+                out.append(d.name)
+    return out
+
+
+def _capture_correction(content: str) -> bool:
+    """If J's Discord message is a correction, append it to the skill-learning queue.
+    Pure Python ($0), fail-open. Returns True if captured. Does NOT consume the message
+    (the caller still processes revert/approve/Q&A normally)."""
+    matched = _detect_correction(content)
+    if not matched:
+        return False
+    h = hashlib.sha256(content.encode("utf-8")).hexdigest()[:16]
+    try:
+        existing = CORRECTION_QUEUE.read_text(encoding="utf-8").splitlines() if CORRECTION_QUEUE.exists() else []
+    except Exception:
+        existing = []
+    if existing and h in existing[-1]:
+        return False  # dedup vs the last queued line
+    low = content.lower()
+    snippet = content if len(content) <= 1200 else content[:1200] + " [truncated]"
+    entry = {
+        "ts": dt.datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
+        "source": "discord",
+        "hash": h,
+        "matched_phrase": matched,
+        "prompt": snippet,
+        "skills_named": _skills_named(low),
+        "denylist_hit": any(d in low for d in _CORRECTION_DENYLIST),
+        "processed": False,
+    }
+    CORRECTION_QUEUE.parent.mkdir(parents=True, exist_ok=True)
+    with CORRECTION_QUEUE.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(entry) + "\n")
+    try:  # retention cap (OP-22): keep last 500 lines
+        all_lines = CORRECTION_QUEUE.read_text(encoding="utf-8").splitlines()
+        if len(all_lines) > 500:
+            CORRECTION_QUEUE.write_text("\n".join(all_lines[-500:]) + "\n", encoding="utf-8")
+    except Exception:
+        pass
+    logging.info("correction captured (discord): %s", matched)
     return True
 
 
@@ -336,13 +477,33 @@ J just sent:
 Reply CONCISELY (under 1200 chars -- Discord). Direct answer, then what you ARE doing (not "should I"). If he is asking status, summarize state + any pending proposals (he resolves a proposal by replying "ship <id>" or "shelve <id>"). End with the next concrete step. Per OP-18: no "let me know if", no "your call", no hedging."""
 
 
+def _resolve_claude_exe() -> str:
+    """Resolve the claude executable absolutely. The Task Scheduler -> wscript ->
+    pythonw chain runs with a minimal PATH that does NOT include the npm global bin,
+    so a bare "claude" raised FileNotFoundError -- the "[claude CLI not found on
+    PATH]" bug surfaced on the responder's first live fire (2026-06-20). Prefer the
+    real .exe (CreateProcess-friendly; a .cmd shim can't be run by subprocess without
+    a shell) at the same absolute path the PowerShell tasks use (_shared.ps1
+    $ClaudeExe), then fall back to PATH lookup, then the .cmd shim, then bare name."""
+    exe = Path.home() / "AppData/Roaming/npm/node_modules/@anthropic-ai/claude-code/bin/claude.exe"
+    if exe.exists():
+        return str(exe)
+    found = shutil.which("claude")
+    if found:
+        return found
+    cmd = Path.home() / "AppData/Roaming/npm/claude.cmd"
+    if cmd.exists():
+        return str(cmd)
+    return "claude"
+
+
 def _invoke_claude(prompt: str) -> str:
     """Run claude --print on Haiku (cheap). Returns stdout, or an error string."""
     try:
         _flags = 0x08000000 if sys.platform == "win32" else 0  # CREATE_NO_WINDOW (L41)
         result = subprocess.run(
             [
-                "claude", "--print",
+                _resolve_claude_exe(), "--print",
                 "--model", "haiku",
                 "--max-budget-usd", "0.15",
                 "--effort", "low",
@@ -360,7 +521,7 @@ def _invoke_claude(prompt: str) -> str:
     except subprocess.TimeoutExpired:
         return "[claude --print timed out after 180s]"
     except FileNotFoundError:
-        return "[claude CLI not found on PATH]"
+        return "[claude CLI not found -- checked npm global bin + PATH]"
     except Exception as exc:
         return f"[invoke error: {exc}]"
 
@@ -417,6 +578,22 @@ def main() -> int:
             _save_watermark(msg.get("discord_msg_id", ""))
             continue
         logging.info("processing: %s", content[:80])
+
+        # 0a) CAPTURE J'S CORRECTION (pure Python, $0, even during RTH) -- parity with
+        # the terminal hook so Discord corrections aren't lost. Non-consuming side
+        # effect: we still revert/approve/answer below regardless.
+        try:
+            _capture_correction(content)
+        except Exception as e:
+            logging.exception("correction-capture error: %s", e)
+
+        # 0) REVERT (J's off-switch) -- dispatch to the actuator; works any time.
+        try:
+            if _try_revert(content, user_id):
+                _save_watermark(msg["discord_msg_id"])
+                continue
+        except Exception as e:
+            logging.exception("revert parse error: %s", e)
 
         # 1) APPROVE/REVOKE first -- pure Python, $0, works even during RTH.
         try:

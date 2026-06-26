@@ -1,0 +1,394 @@
+{
+  "campaign": "SUNDAY-COMBINE-RULE \u2014 live combine rule for the 3 overlapping VWAP edges",
+  "run_date": "2026-06-21",
+  "window": "2025-01-01..2026-06-16",
+  "trading_days": 363,
+  "opra_cache_last_day": "2026-06-18",
+  "realized_last_fill": "2026-06-15",
+  "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1)",
+  "oos_split": "IS=2025 / OOS=2026",
+  "config": {
+    "premium_stop_pct": -0.08,
+    "qty_per_edge": 3,
+    "exits": "v15 default (tp1=0.30, runner=2.5x, profit_lock=OFF)",
+    "vix_regime_config": {
+      "slope_rule": "not_rising",
+      "low_margin": 0.25,
+      "source": "b5 robust_clearing_cell"
+    },
+    "kill_switch_daily": {
+      "Safe-2": -600.0,
+      "Bold": -836.0
+    }
+  },
+  "edges": {
+    "1_vwap_continuation": "LIVE; ATM (Safe-2) + ITM-2 (Bold)",
+    "2_vwap_reclaim_failed_break": "dormant; ATM (Safe-2) + ITM-2 (Bold)",
+    "4_vix_regime_dayside": "dormant; ATM (Safe-2 only)"
+  },
+  "combine_rules": {
+    "ONLY_1": "baseline \u2014 take only edge #1 (current live behaviour)",
+    "TAKE_BEST": "on multi-edge days take the single edge with best IS (2025) expectancy",
+    "TAKE_ALL_STACK": "take every firing edge = 2-3x position on overlap days",
+    "FIRST_TO_FIRE": "take only the earliest-triggering edge that day"
+  },
+  "signal_counts": {
+    "e1": 166,
+    "e2": 86,
+    "e4": 85
+  },
+  "coverage": {
+    "e1_atm": {
+      "signals": 166,
+      "filled": 156,
+      "fill_rate": 0.94
+    },
+    "e2_atm": {
+      "signals": 86,
+      "filled": 80,
+      "fill_rate": 0.93
+    },
+    "e4_atm": {
+      "signals": 85,
+      "filled": 80,
+      "fill_rate": 0.941
+    },
+    "e1_itm2": {
+      "signals": 166,
+      "filled": 157,
+      "fill_rate": 0.946
+    },
+    "e2_itm2": {
+      "signals": 86,
+      "filled": 81,
+      "fill_rate": 0.942
+    }
+  },
+  "results": {
+    "Safe-2": {
+      "tier": "ATM",
+      "is_exp_ranking_key": {
+        "1": 43.82,
+        "2": 61.0,
+        "4": 29.97
+      },
+      "kill_switch_daily_limit": -600.0,
+      "overlap": {
+        "total_signal_days": 158,
+        "days_by_n_edges": {
+          "1": 43,
+          "2": 72,
+          "3": 43
+        },
+        "multi_edge_days": 115,
+        "same_side_multi_edge_days": 115
+      },
+      "rules": {
+        "ONLY_1": {
+          "n_trades": 156,
+          "days_in_market": 156,
+          "n_trading_days": 363,
+          "pct_days_in_market": 43.0,
+          "exp_per_trade": 44.51,
+          "total_dollar": 6943.56,
+          "wr_pct": 49.4,
+          "is_n": 107,
+          "is_exp": 43.82,
+          "oos_n": 49,
+          "oos_exp": 46.02,
+          "oos_total": 2254.88,
+          "daily_mean_all_days": 19.13,
+          "daily_std_all_days": 79.18,
+          "annualized_sharpe": 3.84,
+          "max_drawdown": -454.56,
+          "worst_day": -211.68,
+          "best_day": 543.4,
+          "win_days": 77,
+          "loss_days": 79,
+          "day_win_pct": 49.4,
+          "L175_return_per_maxDD": 15.28,
+          "kill_switch": {
+            "n_breach_days": 0,
+            "clipped_loss_recovered": 0.0,
+            "daily_limit": -600.0
+          }
+        },
+        "TAKE_BEST": {
+          "n_trades": 158,
+          "days_in_market": 158,
+          "n_trading_days": 363,
+          "pct_days_in_market": 43.5,
+          "exp_per_trade": 52.15,
+          "total_dollar": 8240.28,
+          "wr_pct": 51.3,
+          "is_n": 109,
+          "is_exp": 60.12,
+          "oos_n": 49,
+          "oos_exp": 34.42,
+          "oos_total": 1686.8,
+          "daily_mean_all_days": 22.7,
+          "daily_std_all_days": 84.28,
+          "annualized_sharpe": 4.28,
+          "max_drawdown": -573.28,
+          "worst_day": -211.68,
+          "best_day": 543.4,
+          "win_days": 81,
+          "loss_days": 77,
+          "day_win_pct": 51.3,
+          "L175_return_per_maxDD": 14.37,
+          "kill_switch": {
+            "n_breach_days": 0,
+            "clipped_loss_recovered": 0.0,
+            "daily_limit": -600.0
+          }
+        },
+        "TAKE_ALL_STACK": {
+          "n_trades": 316,
+          "days_in_market": 158,
+          "n_trading_days": 363,
+          "pct_days_in_market": 43.5,
+          "exp_per_trade": 41.86,
+          "total_dollar": 13227.56,
+          "wr_pct": 49.1,
+          "is_n": 221,
+          "is_exp": 44.82,
+          "oos_n": 95,
+          "oos_exp": 34.98,
+          "oos_total": 3322.88,
+          "daily_mean_all_days": 36.44,
+          "daily_std_all_days": 141.83,
+          "annualized_sharpe": 4.08,
+          "max_drawdown": -1007.16,
+          "worst_day": -423.36,
+          "best_day": 1045.2,
+          "win_days": 85,
+          "loss_days": 73,
+          "day_win_pct": 53.8,
+          "L175_return_per_maxDD": 13.13,
+          "kill_switch": {
+            "n_breach_days": 0,
+            "clipped_loss_recovered": 0.0,
+            "daily_limit": -600.0
+          }
+        },
+        "FIRST_TO_FIRE": {
+          "n_trades": 158,
+          "days_in_market": 158,
+          "n_trading_days": 363,
+          "pct_days_in_market": 43.5,
+          "exp_per_trade": 47.32,
+          "total_dollar": 7477.12,
+          "wr_pct": 50.0,
+          "is_n": 109,
+          "is_exp": 44.7,
+          "oos_n": 49,
+          "oos_exp": 53.15,
+          "oos_total": 2604.56,
+          "daily_mean_all_days": 20.6,
+          "daily_std_all_days": 81.72,
+          "annualized_sharpe": 4.0,
+          "max_drawdown": -454.56,
+          "worst_day": -211.68,
+          "best_day": 543.4,
+          "win_days": 79,
+          "loss_days": 79,
+          "day_win_pct": 50.0,
+          "L175_return_per_maxDD": 16.45,
+          "kill_switch": {
+            "n_breach_days": 0,
+            "clipped_loss_recovered": 0.0,
+            "daily_limit": -600.0
+          }
+        }
+      }
+    },
+    "Bold": {
+      "tier": "ITM-2",
+      "is_exp_ranking_key": {
+        "1": 67.56,
+        "2": 100.36
+      },
+      "kill_switch_daily_limit": -836.0,
+      "overlap": {
+        "total_signal_days": 157,
+        "days_by_n_edges": {
+          "1": 76,
+          "2": 81
+        },
+        "multi_edge_days": 81,
+        "same_side_multi_edge_days": 81
+      },
+      "rules": {
+        "ONLY_1": {
+          "n_trades": 157,
+          "days_in_market": 157,
+          "n_trading_days": 363,
+          "pct_days_in_market": 43.3,
+          "exp_per_trade": 70.45,
+          "total_dollar": 11060.04,
+          "wr_pct": 49.0,
+          "is_n": 107,
+          "is_exp": 67.56,
+          "oos_n": 50,
+          "oos_exp": 76.61,
+          "oos_total": 3830.64,
+          "daily_mean_all_days": 30.47,
+          "daily_std_all_days": 117.95,
+          "annualized_sharpe": 4.1,
+          "max_drawdown": -939.12,
+          "worst_day": -223.68,
+          "best_day": 543.4,
+          "win_days": 77,
+          "loss_days": 80,
+          "day_win_pct": 49.0,
+          "L175_return_per_maxDD": 11.78,
+          "kill_switch": {
+            "n_breach_days": 0,
+            "clipped_loss_recovered": 0.0,
+            "daily_limit": -836.0
+          }
+        },
+        "TAKE_BEST": {
+          "n_trades": 157,
+          "days_in_market": 157,
+          "n_trading_days": 363,
+          "pct_days_in_market": 43.3,
+          "exp_per_trade": 84.07,
+          "total_dollar": 13198.52,
+          "wr_pct": 51.0,
+          "is_n": 107,
+          "is_exp": 91.93,
+          "oos_n": 50,
+          "oos_exp": 67.25,
+          "oos_total": 3362.44,
+          "daily_mean_all_days": 36.36,
+          "daily_std_all_days": 125.47,
+          "annualized_sharpe": 4.6,
+          "max_drawdown": -1053.12,
+          "worst_day": -223.68,
+          "best_day": 543.4,
+          "win_days": 80,
+          "loss_days": 77,
+          "day_win_pct": 51.0,
+          "L175_return_per_maxDD": 12.53,
+          "kill_switch": {
+            "n_breach_days": 0,
+            "clipped_loss_recovered": 0.0,
+            "daily_limit": -836.0
+          }
+        },
+        "TAKE_ALL_STACK": {
+          "n_trades": 238,
+          "days_in_market": 157,
+          "n_trading_days": 363,
+          "pct_days_in_market": 43.3,
+          "exp_per_trade": 74.63,
+          "total_dollar": 17762.16,
+          "wr_pct": 49.6,
+          "is_n": 165,
+          "is_exp": 79.09,
+          "oos_n": 73,
+          "oos_exp": 64.55,
+          "oos_total": 4711.96,
+          "daily_mean_all_days": 48.93,
+          "daily_std_all_days": 182.67,
+          "annualized_sharpe": 4.25,
+          "max_drawdown": -1635.0,
+          "worst_day": -447.36,
+          "best_day": 974.8,
+          "win_days": 84,
+          "loss_days": 73,
+          "day_win_pct": 53.5,
+          "L175_return_per_maxDD": 10.86,
+          "kill_switch": {
+            "n_breach_days": 0,
+            "clipped_loss_recovered": 0.0,
+            "daily_limit": -836.0
+          }
+        },
+        "FIRST_TO_FIRE": {
+          "n_trades": 157,
+          "days_in_market": 157,
+          "n_trading_days": 363,
+          "pct_days_in_market": 43.3,
+          "exp_per_trade": 70.45,
+          "total_dollar": 11060.04,
+          "wr_pct": 49.0,
+          "is_n": 107,
+          "is_exp": 67.56,
+          "oos_n": 50,
+          "oos_exp": 76.61,
+          "oos_total": 3830.64,
+          "daily_mean_all_days": 30.47,
+          "daily_std_all_days": 117.95,
+          "annualized_sharpe": 4.1,
+          "max_drawdown": -939.12,
+          "worst_day": -223.68,
+          "best_day": 543.4,
+          "win_days": 77,
+          "loss_days": 80,
+          "day_win_pct": 49.0,
+          "L175_return_per_maxDD": 11.78,
+          "kill_switch": {
+            "n_breach_days": 0,
+            "clipped_loss_recovered": 0.0,
+            "daily_limit": -836.0
+          }
+        }
+      }
+    }
+  },
+  "overstake_take_all_vs_only1": {
+    "Safe-2": {
+      "total_delta": 6284.0,
+      "maxDD_delta": -552.6,
+      "worst_day_delta": -211.68,
+      "sharpe_delta": 0.24,
+      "ks_breach_delta": 0,
+      "overstakes": false
+    },
+    "Bold": {
+      "total_delta": 6702.12,
+      "maxDD_delta": -695.88,
+      "worst_day_delta": -223.68,
+      "sharpe_delta": 0.15,
+      "ks_breach_delta": 0,
+      "overstakes": false
+    }
+  },
+  "recommendation": {
+    "Safe-2": {
+      "rule": "FIRST_TO_FIRE",
+      "sharpe": 4.0,
+      "L175_return_per_maxDD": 16.45,
+      "total_dollar": 7477.12,
+      "oos_exp": 53.15,
+      "baseline_only1_oos_exp": 46.02,
+      "rejected": [
+        "TAKE_BEST: OOS exp $34.42 degrades vs ONLY_1 $46.02 (>5.0)",
+        "TAKE_ALL_STACK: OOS exp $34.98 degrades vs ONLY_1 $46.02 (>5.0)"
+      ]
+    },
+    "Bold": {
+      "rule": "ONLY_1",
+      "sharpe": 4.1,
+      "L175_return_per_maxDD": 11.78,
+      "total_dollar": 11060.04,
+      "oos_exp": 76.61,
+      "baseline_only1_oos_exp": 76.61,
+      "rejected": [
+        "TAKE_BEST: OOS exp $67.25 degrades vs ONLY_1 $76.61 (>5.0)",
+        "TAKE_ALL_STACK: OOS exp $64.55 degrades vs ONLY_1 $76.61 (>5.0)"
+      ]
+    }
+  },
+  "DISCLOSURE": {
+    "real_fills": "real OPRA fills (C1) \u2014 the only 0DTE WR authority; SPY-direction != option edge (C3/L58)",
+    "expectancy": "per-trade EXPECTANCY reported, not WR alone (OP-14/C4)",
+    "sharpe": "annualized = daily Sharpe x sqrt(252); daily series over ALL trading days (flat=0)",
+    "L175_risk_adjusted": "return-per-maxDD (total/|maxDD|) + Sharpe = the risk-adjusted lens",
+    "kill_switch": "each day's realized P&L is clipped at the per-account daily halt (Safe-2 -$600, Bold -$836) \u2014 the realistic book; n_breach_days = days the halt fired, clipped_loss_recovered = loss the halt prevented",
+    "no_lookahead": "TAKE_BEST ranking key = each edge's IS-2025 expectancy, frozen before scoring; never peeks at the day being decided",
+    "measurement_not_candidate": "combine-RULE recommendation, not a new edge \u2014 constituents cleared their standing bars individually"
+  }
+}

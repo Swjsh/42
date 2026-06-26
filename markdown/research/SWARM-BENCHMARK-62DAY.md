@@ -263,12 +263,12 @@ Per OP-20:
 
 ## See Also
 
-- [`analysis/swarm-benchmark/aggregate.json`](../analysis/swarm-benchmark/aggregate.json) — ground truth per-day grades
-- [`analysis/swarm-benchmark/calibration-report.md`](../analysis/swarm-benchmark/calibration-report.md) — full confidence breakdown
-- [`analysis/swarm-tuning/untested-level-proposal.json`](../analysis/swarm-tuning/untested-level-proposal.json) — UNTESTED penalty proposal
-- [`analysis/swarm-tuning/v3_retrograde_simulation.json`](../analysis/swarm-tuning/v3_retrograde_simulation.json) — v3 formula retrograde simulation (bucket ECE, changed days)
-- [`automation/swarm/replay/swarm_v3_retrograde.py`](../automation/swarm/replay/swarm_v3_retrograde.py) — retrograde simulation script (reads specialist agreement from existing replay files)
-- [`automation/swarm/prompts/synthesis_agent-v3-draft.md`](../automation/swarm/prompts/synthesis_agent-v3-draft.md) — v3 formula draft (NOT YET RATIFIED)
-- [`markdown/research/SWARM-BENCHMARK-WEEK-1.md`](markdown/research/SWARM-BENCHMARK-WEEK-1.md) — first 5-day benchmark (historical)
-- [`automation/overnight/queue.md`](../automation/overnight/queue.md) — `SWARM-CALIBRATION-FORMULA-V3` and `SWARM-CALIBRATION-BASE-SCALE` tasks
-- [`CLAUDE.md` OP-28](../CLAUDE.md) — doctrine governing swarm advisory role
+- [`analysis/swarm-benchmark/aggregate.json`](../../analysis/swarm-benchmark/aggregate.json) — ground truth per-day grades
+- [`analysis/swarm-benchmark/calibration-report.md`](../../analysis/swarm-benchmark/calibration-report.md) — full confidence breakdown
+- [`analysis/swarm-tuning/untested-level-proposal.json`](../../analysis/swarm-tuning/untested-level-proposal.json) — UNTESTED penalty proposal
+- [`analysis/swarm-tuning/v3_retrograde_simulation.json`](../../analysis/swarm-tuning/v3_retrograde_simulation.json) — v3 formula retrograde simulation (bucket ECE, changed days)
+- [`automation/swarm/replay/swarm_v3_retrograde.py`](../../automation/swarm/replay/swarm_v3_retrograde.py) — retrograde simulation script (reads specialist agreement from existing replay files)
+- [`automation/swarm/prompts/synthesis_agent.md`](../../automation/swarm/prompts/synthesis_agent.md) — synthesis agent prompt (v3 formula draft was folded in)
+- [`markdown/research/SWARM-BENCHMARK-WEEK-1.md`](SWARM-BENCHMARK-WEEK-1.md) — first 5-day benchmark (historical)
+- [`automation/overnight/queue.md`](../../automation/overnight/queue.md) — `SWARM-CALIBRATION-FORMULA-V3` and `SWARM-CALIBRATION-BASE-SCALE` tasks
+- [`CLAUDE.md` OP-28](../../CLAUDE.md) — doctrine governing swarm advisory role

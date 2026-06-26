@@ -1,0 +1,1074 @@
+{
+  "run_date": "2026-06-21",
+  "strategy": "volume_profile_poc",
+  "kind": "novel-data",
+  "hypothesis": "Volume-profile POC / value-area rejection (market profile / TPO): build a session/prior-day volume profile; fade rejections at POC + value-area-high/low back toward value. Engine has VWAP/levels/pivots but NO volume-profile layer.",
+  "window": "2025-01-01..2026-05-15",
+  "sourced_rules": {
+    "profile": "price-binned volume; POC=max-volume bin; value area=70% of vol around POC (Steidlmayer/Dalton, TradingView VRVP)",
+    "entry": "VAH rejection->PUT(target POC); VAL bounce->CALL(target POC); POC first-touch reversal = lower-quality variant; all faded back into value",
+    "invalidation": "chart-stop beyond the faded value-edge (acceptance kills the fade)",
+    "exits": "v15 production intraday stack (TP1 +30%/chart-level, BE runner, 15:50 time stop)",
+    "published_edge_caveat": "profile lore is an UNDERLYING context/probability framing, NOT a 0DTE option edge (C4/L58); real fills are the test"
+  },
+  "sources": [
+    "https://www.tradingview.com/support/solutions/43000502040-volume-profile/",
+    "Dalton, Mind Over Markets (value area = 70% of volume around POC)",
+    "CME Group, A Six-Part Study Guide to Market Profile"
+  ],
+  "adaptation": {
+    "instrument": "SPY 0DTE single-leg directional (fade->CALL/PUT)",
+    "bin_width": 0.25,
+    "value_area_fraction": 0.7,
+    "edge_touch_buffer": 0.15,
+    "swing_lookback_bars": 12,
+    "cooldown_min": 45,
+    "entry_gate": "09:35:00-15:45:00",
+    "profile_variants": [
+      "prior_day",
+      "developing"
+    ],
+    "developing_min_bars": 6,
+    "qty": 3,
+    "timeframe": "5min RTH",
+    "causality": "C6 \u2014 profile from CLOSED bars only; prior_day profile frozen at open; entry fills NEXT bar open"
+  },
+  "grid": {
+    "strike_offset": [
+      -2,
+      -1,
+      0,
+      1,
+      2
+    ],
+    "premium_stop_pct": [
+      -0.08,
+      -0.2,
+      -0.5,
+      -0.99
+    ],
+    "profile_variants": [
+      "prior_day",
+      "developing"
+    ]
+  },
+  "self_verify_gate": {
+    "oos_per_trade": 0.0,
+    "positive_quarters_min": 4,
+    "top5_max_pct": 200.0,
+    "n_min": 20,
+    "drop_top5_per_trade_min": 0.0,
+    "is_half_per_trade_min": 0.0
+  },
+  "all_8_gates": [
+    "1 OOS(2026) per-trade>0",
+    "2 positive_quarters>=4/6",
+    "3 top5_day_pct<200",
+    "4 n>=20",
+    "5 drop-top5 per-trade>0",
+    "6 IS(2025)-half per-trade>0",
+    "7 beats random-entry NULL (L172)",
+    "8 no truncation artifact (L171)"
+  ],
+  "variants": {
+    "prior_day": {
+      "n_signals": 731,
+      "n_call": 337,
+      "n_put": 394,
+      "tags": {
+        "poc_bounce_from_above": 91,
+        "poc_reject_from_below": 97,
+        "vah_reject": 297,
+        "val_bounce": 246
+      },
+      "survivor_itm2_8pct": {
+        "n": 659,
+        "wr": 22.5,
+        "total_pnl": -3413.0,
+        "per_trade": -5.18,
+        "top5_day_pct": null
+      },
+      "atm_safe2_8pct": {
+        "n": 673,
+        "wr": 21.4,
+        "total_pnl": -562.0,
+        "per_trade": -0.83,
+        "top5_day_pct": null
+      },
+      "cells": [
+        {
+          "strike_offset": 2,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 648,
+            "wr": 16.8,
+            "total_pnl": 485.0,
+            "per_trade": 0.75,
+            "top5_day_pct": 385.0
+          },
+          "n_no_opra_data": 83
+        },
+        {
+          "strike_offset": 1,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 661,
+            "wr": 20.1,
+            "total_pnl": -109.0,
+            "per_trade": -0.16,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 70
+        },
+        {
+          "strike_offset": 0,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 673,
+            "wr": 21.4,
+            "total_pnl": -562.0,
+            "per_trade": -0.83,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 58
+        },
+        {
+          "strike_offset": 2,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 648,
+            "wr": 27.8,
+            "total_pnl": -2749.0,
+            "per_trade": -4.24,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 83
+        },
+        {
+          "strike_offset": -1,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 663,
+            "wr": 22.0,
+            "total_pnl": -2815.0,
+            "per_trade": -4.25,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 68
+        },
+        {
+          "strike_offset": -2,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 659,
+            "wr": 22.5,
+            "total_pnl": -3413.0,
+            "per_trade": -5.18,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 72
+        },
+        {
+          "strike_offset": 1,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 661,
+            "wr": 32.8,
+            "total_pnl": -4019.0,
+            "per_trade": -6.08,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 70
+        },
+        {
+          "strike_offset": 2,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 648,
+            "wr": 48.5,
+            "total_pnl": -4134.0,
+            "per_trade": -6.38,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 83
+        },
+        {
+          "strike_offset": 2,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 648,
+            "wr": 59.0,
+            "total_pnl": -4516.0,
+            "per_trade": -6.97,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 83
+        },
+        {
+          "strike_offset": 0,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 673,
+            "wr": 35.7,
+            "total_pnl": -6699.0,
+            "per_trade": -9.95,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 58
+        },
+        {
+          "strike_offset": 1,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 661,
+            "wr": 53.4,
+            "total_pnl": -7326.0,
+            "per_trade": -11.08,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 70
+        },
+        {
+          "strike_offset": 1,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 661,
+            "wr": 61.0,
+            "total_pnl": -10084.0,
+            "per_trade": -15.25,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 70
+        },
+        {
+          "strike_offset": -1,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 663,
+            "wr": 36.8,
+            "total_pnl": -10840.0,
+            "per_trade": -16.35,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 68
+        },
+        {
+          "strike_offset": 0,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 673,
+            "wr": 56.3,
+            "total_pnl": -13348.0,
+            "per_trade": -19.83,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 58
+        },
+        {
+          "strike_offset": -2,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 659,
+            "wr": 37.5,
+            "total_pnl": -14544.0,
+            "per_trade": -22.07,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 72
+        },
+        {
+          "strike_offset": -1,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 663,
+            "wr": 57.3,
+            "total_pnl": -16050.0,
+            "per_trade": -24.21,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 68
+        },
+        {
+          "strike_offset": 0,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 673,
+            "wr": 61.7,
+            "total_pnl": -18029.0,
+            "per_trade": -26.79,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 58
+        },
+        {
+          "strike_offset": -2,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 659,
+            "wr": 55.2,
+            "total_pnl": -21639.0,
+            "per_trade": -32.84,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 72
+        },
+        {
+          "strike_offset": -1,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 663,
+            "wr": 60.3,
+            "total_pnl": -23127.0,
+            "per_trade": -34.88,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 68
+        },
+        {
+          "strike_offset": -2,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 659,
+            "wr": 56.3,
+            "total_pnl": -32220.0,
+            "per_trade": -48.89,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 72
+        }
+      ]
+    },
+    "developing": {
+      "n_signals": 1875,
+      "n_call": 860,
+      "n_put": 1015,
+      "tags": {
+        "vah_reject": 812,
+        "val_bounce": 645,
+        "poc_reject_from_below": 203,
+        "poc_bounce_from_above": 215
+      },
+      "survivor_itm2_8pct": {
+        "n": 1700,
+        "wr": 23.5,
+        "total_pnl": -1017.0,
+        "per_trade": -0.6,
+        "top5_day_pct": null
+      },
+      "atm_safe2_8pct": {
+        "n": 1733,
+        "wr": 21.2,
+        "total_pnl": 2056.0,
+        "per_trade": 1.19,
+        "top5_day_pct": 123.0
+      },
+      "cells": [
+        {
+          "strike_offset": 0,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 1733,
+            "wr": 21.2,
+            "total_pnl": 2056.0,
+            "per_trade": 1.19,
+            "top5_day_pct": 123.0
+          },
+          "n_no_opra_data": 142
+        },
+        {
+          "strike_offset": 1,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 1728,
+            "wr": 19.2,
+            "total_pnl": 856.0,
+            "per_trade": 0.5,
+            "top5_day_pct": 242.0
+          },
+          "n_no_opra_data": 147
+        },
+        {
+          "strike_offset": -1,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 1719,
+            "wr": 22.7,
+            "total_pnl": 532.0,
+            "per_trade": 0.31,
+            "top5_day_pct": 649.0
+          },
+          "n_no_opra_data": 156
+        },
+        {
+          "strike_offset": 2,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 1682,
+            "wr": 15.2,
+            "total_pnl": -326.0,
+            "per_trade": -0.19,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 193
+        },
+        {
+          "strike_offset": -2,
+          "premium_stop_pct": -0.08,
+          "report": {
+            "n": 1700,
+            "wr": 23.5,
+            "total_pnl": -1017.0,
+            "per_trade": -0.6,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 175
+        },
+        {
+          "strike_offset": 2,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 1682,
+            "wr": 24.3,
+            "total_pnl": -9188.0,
+            "per_trade": -5.46,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 193
+        },
+        {
+          "strike_offset": 1,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 1728,
+            "wr": 29.0,
+            "total_pnl": -13558.0,
+            "per_trade": -7.85,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 147
+        },
+        {
+          "strike_offset": 0,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 1733,
+            "wr": 33.4,
+            "total_pnl": -17910.0,
+            "per_trade": -10.33,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 142
+        },
+        {
+          "strike_offset": 2,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 1682,
+            "wr": 41.9,
+            "total_pnl": -17532.0,
+            "per_trade": -10.42,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 193
+        },
+        {
+          "strike_offset": 2,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 1682,
+            "wr": 50.0,
+            "total_pnl": -23304.0,
+            "per_trade": -13.85,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 193
+        },
+        {
+          "strike_offset": 1,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 1728,
+            "wr": 48.1,
+            "total_pnl": -25995.0,
+            "per_trade": -15.04,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 147
+        },
+        {
+          "strike_offset": -1,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 1719,
+            "wr": 35.1,
+            "total_pnl": -29671.0,
+            "per_trade": -17.26,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 156
+        },
+        {
+          "strike_offset": 1,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 1728,
+            "wr": 55.4,
+            "total_pnl": -30829.0,
+            "per_trade": -17.84,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 147
+        },
+        {
+          "strike_offset": 0,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 1733,
+            "wr": 51.9,
+            "total_pnl": -39144.0,
+            "per_trade": -22.59,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 142
+        },
+        {
+          "strike_offset": -2,
+          "premium_stop_pct": -0.2,
+          "report": {
+            "n": 1700,
+            "wr": 36.2,
+            "total_pnl": -40559.0,
+            "per_trade": -23.86,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 175
+        },
+        {
+          "strike_offset": 0,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 1733,
+            "wr": 57.8,
+            "total_pnl": -42900.0,
+            "per_trade": -24.75,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 142
+        },
+        {
+          "strike_offset": -1,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 1719,
+            "wr": 52.9,
+            "total_pnl": -56029.0,
+            "per_trade": -32.59,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 156
+        },
+        {
+          "strike_offset": -1,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 1719,
+            "wr": 55.7,
+            "total_pnl": -62772.0,
+            "per_trade": -36.52,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 156
+        },
+        {
+          "strike_offset": -2,
+          "premium_stop_pct": -0.5,
+          "report": {
+            "n": 1700,
+            "wr": 50.8,
+            "total_pnl": -73112.0,
+            "per_trade": -43.01,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 175
+        },
+        {
+          "strike_offset": -2,
+          "premium_stop_pct": -0.99,
+          "report": {
+            "n": 1700,
+            "wr": 51.9,
+            "total_pnl": -75273.0,
+            "per_trade": -44.28,
+            "top5_day_pct": null
+          },
+          "n_no_opra_data": 175
+        }
+      ]
+    }
+  },
+  "best_cell": {
+    "variant": "developing",
+    "strike_offset": 0,
+    "premium_stop_pct": -0.08,
+    "per_trade": 1.19,
+    "verify": {
+      "overall": {
+        "n": 1733,
+        "wr": 21.2,
+        "total_pnl": 2056.0,
+        "per_trade": 1.19,
+        "top5_day_pct": 123.0
+      },
+      "by_sample": {
+        "IS_2025": {
+          "n": 1245,
+          "wr": 21.0,
+          "total_pnl": 1330.0,
+          "per_trade": 1.07,
+          "top5_day_pct": 178.0
+        },
+        "OOS_2026": {
+          "n": 488,
+          "wr": 21.7,
+          "total_pnl": 726.0,
+          "per_trade": 1.49,
+          "top5_day_pct": 303.0
+        }
+      },
+      "by_quarter": {
+        "2025Q1": {
+          "n": 252,
+          "wr": 23.0,
+          "total_pnl": 697.0,
+          "per_trade": 2.77,
+          "top5_day_pct": 264.0
+        },
+        "2025Q2": {
+          "n": 299,
+          "wr": 19.1,
+          "total_pnl": -1437.0,
+          "per_trade": -4.81,
+          "top5_day_pct": null
+        },
+        "2025Q3": {
+          "n": 376,
+          "wr": 19.9,
+          "total_pnl": 1296.0,
+          "per_trade": 3.45,
+          "top5_day_pct": 143.0
+        },
+        "2025Q4": {
+          "n": 318,
+          "wr": 22.3,
+          "total_pnl": 774.0,
+          "per_trade": 2.44,
+          "top5_day_pct": 204.0
+        },
+        "2026Q1": {
+          "n": 323,
+          "wr": 23.8,
+          "total_pnl": 400.0,
+          "per_trade": 1.24,
+          "top5_day_pct": 441.0
+        },
+        "2026Q2": {
+          "n": 165,
+          "wr": 17.6,
+          "total_pnl": 326.0,
+          "per_trade": 1.98,
+          "top5_day_pct": 516.0
+        }
+      },
+      "positive_quarters": "5/6",
+      "positive_quarters_n": 5,
+      "n_quarters": 6,
+      "oos_per_trade": 1.49,
+      "drop_top5_per_trade": -0.28,
+      "drop_top5_n": 1704,
+      "dropped_top5_pnl": 2525.0,
+      "is_half_per_trade": -2.36,
+      "top5_day_pct": 123.0,
+      "clears_structural": false
+    },
+    "random_entry_null": {
+      "seeds": 10,
+      "n_eligible": 24575,
+      "n_drawn": 1733,
+      "per_trade_mean": 2.25,
+      "per_trade_min": -0.63,
+      "per_trade_max": 5.87,
+      "per_trade_by_seed": [
+        5.87,
+        4.39,
+        1.84,
+        0.7,
+        1.63,
+        2.38,
+        1.02,
+        -0.63,
+        1.06,
+        4.27
+      ],
+      "edge_over_null_per_trade": -1.06,
+      "beats_null_mean": false,
+      "beats_null_max": false,
+      "drop_top5_beats_null_mean": false,
+      "null_pass": false
+    },
+    "truncation": {
+      "chart_stop_only_per_trade": -24.75,
+      "is_artifact": true,
+      "truncation_safe": false,
+      "n_chartstop": 1733
+    },
+    "sample_rows": [
+      {
+        "date": "2025-01-02",
+        "time": "11:15",
+        "side": "P",
+        "tag": "vah_reject",
+        "vix": 17.1,
+        "strike": 589,
+        "entry_premium": 1.38,
+        "pnl": 421.8,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "TP1_THEN_RUNNER_TIME"
+      },
+      {
+        "date": "2025-01-02",
+        "time": "12:20",
+        "side": "C",
+        "tag": "val_bounce",
+        "vix": 18.4,
+        "strike": 587,
+        "entry_premium": 1.69,
+        "pnl": -40.56,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-02",
+        "time": "13:05",
+        "side": "P",
+        "tag": "poc_reject_from_below",
+        "vix": 19.0,
+        "strike": 587,
+        "entry_premium": 1.12,
+        "pnl": -26.88,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-02",
+        "time": "15:20",
+        "side": "C",
+        "tag": "val_bounce",
+        "vix": 18.1,
+        "strike": 583,
+        "entry_premium": 1.14,
+        "pnl": -27.36,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-03",
+        "time": "11:00",
+        "side": "P",
+        "tag": "vah_reject",
+        "vix": 16.6,
+        "strike": 589,
+        "entry_premium": 1.58,
+        "pnl": -37.92,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-03",
+        "time": "11:50",
+        "side": "P",
+        "tag": "vah_reject",
+        "vix": 16.6,
+        "strike": 589,
+        "entry_premium": 1.49,
+        "pnl": -35.76,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-06",
+        "time": "11:00",
+        "side": "C",
+        "tag": "poc_bounce_from_above",
+        "vix": 15.8,
+        "strike": 598,
+        "entry_premium": 1.38,
+        "pnl": -33.12,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-06",
+        "time": "11:45",
+        "side": "C",
+        "tag": "poc_bounce_from_above",
+        "vix": 15.8,
+        "strike": 599,
+        "entry_premium": 0.77,
+        "pnl": 46.2,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "TP1_THEN_RUNNER_RIBBON"
+      },
+      {
+        "date": "2025-01-06",
+        "time": "12:50",
+        "side": "P",
+        "tag": "vah_reject",
+        "vix": 16.0,
+        "strike": 600,
+        "entry_premium": 1.04,
+        "pnl": 437.4,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "TP1_THEN_RUNNER_TIME"
+      },
+      {
+        "date": "2025-01-06",
+        "time": "13:40",
+        "side": "C",
+        "tag": "val_bounce",
+        "vix": 16.4,
+        "strike": 598,
+        "entry_premium": 0.82,
+        "pnl": -19.68,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-07",
+        "time": "11:20",
+        "side": "C",
+        "tag": "val_bounce",
+        "vix": 17.7,
+        "strike": 594,
+        "entry_premium": 1.39,
+        "pnl": -33.36,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-07",
+        "time": "12:05",
+        "side": "C",
+        "tag": "val_bounce",
+        "vix": 17.5,
+        "strike": 593,
+        "entry_premium": 1.45,
+        "pnl": -34.8,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-07",
+        "time": "13:00",
+        "side": "C",
+        "tag": "val_bounce",
+        "vix": 17.4,
+        "strike": 591,
+        "entry_premium": 1.36,
+        "pnl": -32.64,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-07",
+        "time": "13:50",
+        "side": "C",
+        "tag": "val_bounce",
+        "vix": 17.4,
+        "strike": 590,
+        "entry_premium": 1.37,
+        "pnl": 82.2,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "TP1_THEN_RUNNER_RIBBON"
+      },
+      {
+        "date": "2025-01-07",
+        "time": "14:40",
+        "side": "C",
+        "tag": "val_bounce",
+        "vix": 17.6,
+        "strike": 591,
+        "entry_premium": 0.98,
+        "pnl": -23.52,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-07",
+        "time": "15:25",
+        "side": "C",
+        "tag": "poc_bounce_from_above",
+        "vix": 18.1,
+        "strike": 591,
+        "entry_premium": 0.79,
+        "pnl": -18.96,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-08",
+        "time": "11:00",
+        "side": "C",
+        "tag": "val_bounce",
+        "vix": 17.9,
+        "strike": 589,
+        "entry_premium": 1.59,
+        "pnl": -38.16,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-08",
+        "time": "11:45",
+        "side": "C",
+        "tag": "val_bounce",
+        "vix": 17.9,
+        "strike": 587,
+        "entry_premium": 1.94,
+        "pnl": -46.56,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-08",
+        "time": "12:40",
+        "side": "P",
+        "tag": "vah_reject",
+        "vix": 18.5,
+        "strike": 590,
+        "entry_premium": 1.56,
+        "pnl": 93.6,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "TP1_THEN_RUNNER_RIBBON"
+      },
+      {
+        "date": "2025-01-08",
+        "time": "14:00",
+        "side": "C",
+        "tag": "val_bounce",
+        "vix": 17.6,
+        "strike": 588,
+        "entry_premium": 1.27,
+        "pnl": -30.48,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-08",
+        "time": "14:55",
+        "side": "C",
+        "tag": "val_bounce",
+        "vix": 17.6,
+        "strike": 588,
+        "entry_premium": 1.05,
+        "pnl": -25.2,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-08",
+        "time": "15:40",
+        "side": "C",
+        "tag": "poc_bounce_from_above",
+        "vix": 17.6,
+        "strike": 588,
+        "entry_premium": 1.11,
+        "pnl": -26.64,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-10",
+        "time": "10:45",
+        "side": "P",
+        "tag": "vah_reject",
+        "vix": 19.6,
+        "strike": 583,
+        "entry_premium": 2.23,
+        "pnl": -53.52,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-10",
+        "time": "11:45",
+        "side": "C",
+        "tag": "poc_bounce_from_above",
+        "vix": 19.8,
+        "strike": 583,
+        "entry_premium": 1.55,
+        "pnl": -37.2,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "date": "2025-01-10",
+        "time": "12:40",
+        "side": "C",
+        "tag": "val_bounce",
+        "vix": 19.1,
+        "strike": 581,
+        "entry_premium": 1.23,
+        "pnl": -29.52,
+        "year": 2025,
+        "quarter": "2025Q1",
+        "exit": "EXIT_ALL_PREMIUM_STOP"
+      }
+    ]
+  },
+  "gate_flags": {
+    "oos_per_trade_gt0": true,
+    "positive_quarters_ge4": true,
+    "top5_lt200": true,
+    "n_ge20": true,
+    "drop_top5_gt0": false,
+    "is_half_gt0": false,
+    "beats_null": false,
+    "no_truncation": false
+  },
+  "clears_all_gates": false,
+  "verdict": "NOT A CANDIDATE (no cherry-pick): per-trade-best cell fails gate(s) ['drop_top5_gt0', 'is_half_gt0', 'beats_null', 'no_truncation']. detail={'oos_per_trade': 1.49, 'positive_quarters': '5/6', 'top5_day_pct': 123.0, 'n': 1733, 'drop_top5_per_trade': -0.28, 'is_half_per_trade': -2.36, 'null_max': 5.87, 'null_mean': 2.25, 'edge_over_null': -1.06, 'chart_stop_only_per_trade': -24.75}",
+  "DISCLOSURE": {
+    "authority": "real OPRA fills (C1) \u2014 the only WR/expectancy authority",
+    "per_trade": "per-trade EXPECTANCY reported, not WR alone (OP-14)",
+    "is_oos": "IS=2025, OOS=2026 + IS-first-half gate shown for the best cell",
+    "concentration": "top5_day_pct + drop-top-5-days per-trade shown (OP-20 #5; anti-pattern 2.10)",
+    "no_cherry_pick": "verdict uses the per-trade-BEST cell across BOTH profile variants and the full strike x stop grid; thin-N/high-conc/OOS-neg cells say so",
+    "spy_vs_option": "C3/L58 \u2014 a SPY-price/underlying profile read is NOT an option edge; theta+delta+stop-misfire routinely erase a directional-underlying edge in 0DTE",
+    "random_entry_null": "L172 \u2014 best cell vs coin-flip null (random RTH entries, same count/side-mix/stop/strike). Must beat null MAX + drop-top5 beats null MEAN.",
+    "truncation_guard": "L171 \u2014 same-strike chart-stop-only sign must hold (a tight stop can manufacture a positive average by truncating losers)."
+  }
+}

@@ -1,0 +1,398 @@
+{
+  "hypothesis": "struct_vwap_reclaim_failed_break: morning-trend VWAP-reclaim after a FAILED counter-trend VWAP break -> one causal with-trend entry/day (the 'failed counter-trend move' shape). SUBTRACTIVE/STRUCTURAL-mimic of vwap_continuation, NOT additive confluence.",
+  "kind": "structural_one_entry_per_day",
+  "run_date": "2026-06-21",
+  "window": "2025-01-02..2026-05-15",
+  "trading_days": 342,
+  "opra_fill_cutoff": "2026-05-29 (signals after drop as cache_miss; OOS fills = Jan..May 2026)",
+  "detector": "clean causal one-entry/day: trend side (first 3 RTH closes same side of as-of session VWAP) -> counter-trend VWAP break (close wrong side) -> with-trend VWAP reclaim (close back across) <=10:30 ET; entry=reclaim bar, fill=next bar open; chart stop = failed-break excursion extreme. DISTINCT from vwap_continuation (requires a completed+failed counter move).",
+  "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1)",
+  "oos_split": "IS=2025 / OOS=2026 (calendar-year)",
+  "config": {
+    "premium_stop_pct": -0.08,
+    "qty": 3,
+    "exits": "v15 default (tp1=0.30, runner=2.5x, profit_lock=OFF)",
+    "primary_strike_offset": -2,
+    "secondary_strike_offset": 2
+  },
+  "n_signals": 81,
+  "signal_fire_day_pct": 23.7,
+  "signal_side_count": {
+    "C": 48,
+    "P": 33
+  },
+  "eight_gates": {
+    "G1": "OOS(2026) per-trade > 0",
+    "G2": "positive_quarters >= 4/6",
+    "G3": "top5_day_pct < 200",
+    "G4": "n_trades >= 20",
+    "G5": "drop-top5-day per-trade > 0",
+    "G6": "IS(2025) first-half per-trade > 0",
+    "G7": "beats random-entry null (coin-flip null_pass AND same-day mean+std, ~20 seeds)",
+    "G8": "no-truncation: sign holds -8% -> chart-stop-only (-0.99)"
+  },
+  "tiers": {
+    "ITM2_primary": {
+      "tier": "ITM2_primary",
+      "strike_offset": -2,
+      "strike_tier_name": "ITM2",
+      "coverage": {
+        "signals": 81,
+        "filled": 76,
+        "cache_miss": 5,
+        "sim_none": 0,
+        "fill_rate": 0.938
+      },
+      "metrics": {
+        "n": 76,
+        "wr_pct": 53.9,
+        "exp_dollar": 93.67,
+        "total_dollar": 7118.76,
+        "is_n": 58,
+        "is_exp": 100.36,
+        "is_total": 5820.8,
+        "is_first_half_n": 29,
+        "is_first_half_exp": 101.42,
+        "oos_n": 18,
+        "oos_exp": 72.11,
+        "oos_total": 1297.96,
+        "quarters": {
+          "2025Q1": {
+            "n": 15,
+            "exp": 132.93,
+            "total": 1993.88
+          },
+          "2025Q2": {
+            "n": 13,
+            "exp": 77.69,
+            "total": 1009.92
+          },
+          "2025Q3": {
+            "n": 11,
+            "exp": 27.92,
+            "total": 307.08
+          },
+          "2025Q4": {
+            "n": 19,
+            "exp": 132.1,
+            "total": 2509.92
+          },
+          "2026Q1": {
+            "n": 12,
+            "exp": 142.28,
+            "total": 1707.4
+          },
+          "2026Q2": {
+            "n": 6,
+            "exp": -68.24,
+            "total": -409.44
+          }
+        },
+        "positive_quarters": "5/6",
+        "positive_quarters_n": 5,
+        "n_quarters": 6,
+        "top5_day_pct": 33.6,
+        "drop_top5_day_per_trade": 66.61,
+        "by_side": {
+          "C": {
+            "n": 45,
+            "exp": 121.97,
+            "wr": 57.8,
+            "total": 5488.52
+          },
+          "P": {
+            "n": 31,
+            "exp": 52.59,
+            "wr": 48.4,
+            "total": 1630.24
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 1,
+          "EXIT_ALL_PREMIUM_STOP": 34,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 15,
+          "EXIT_ALL_TIME_STOP": 1,
+          "TP1_THEN_RUNNER_RIBBON": 16,
+          "TP1_THEN_RUNNER_TIME": 9
+        }
+      },
+      "gates": {
+        "G1_oos_per_trade_positive": {
+          "pass": true,
+          "value": 72.11,
+          "oos_n": 18
+        },
+        "G2_positive_quarters_ge_4": {
+          "pass": true,
+          "value": "5/6"
+        },
+        "G3_top5_day_pct_lt_200": {
+          "pass": true,
+          "value": 33.6
+        },
+        "G4_n_ge_20": {
+          "pass": true,
+          "value": 76
+        },
+        "G5_drop_top5_per_trade_positive": {
+          "pass": true,
+          "value": 66.61
+        },
+        "G6_is_first_half_positive": {
+          "pass": true,
+          "value": 101.42,
+          "is_first_half_n": 29
+        },
+        "G7_beats_random_null": {
+          "pass": true,
+          "coinflip_null": {
+            "seeds": 20,
+            "n_eligible": 25544,
+            "n_drawn": 81,
+            "per_trade_mean": -8.22,
+            "per_trade_min": -36.51,
+            "per_trade_max": 9.97,
+            "per_trade_by_seed": [
+              2.49,
+              7.0,
+              8.19,
+              -15.25,
+              -7.41,
+              -7.66,
+              3.66,
+              -14.48,
+              9.97,
+              2.74,
+              -22.57,
+              -14.73,
+              -36.51,
+              -6.92,
+              -22.6,
+              9.25,
+              -33.86,
+              -4.37,
+              -8.07,
+              -13.21
+            ],
+            "beats_null_mean": true,
+            "beats_null_max": true,
+            "drop_top5_beats_null_mean": true,
+            "edge_over_null_per_trade": 101.89,
+            "null_pass": true
+          },
+          "sameday_null": {
+            "seeds": 20,
+            "null_exp_mean": 77.71,
+            "null_exp_min": 60.92,
+            "null_exp_max": 95.37,
+            "null_exp_std": 8.26,
+            "null_oos_exp_mean": 90.12,
+            "beats_sameday_mean_plus_std": true,
+            "oos_beats_sameday_mean": false
+          }
+        },
+        "G8_no_truncation": {
+          "pass": true,
+          "stop8_exp": 93.67,
+          "chartstop_exp": 111.69,
+          "stop8_oos_exp": 72.11,
+          "chartstop_oos_exp": 64.88,
+          "stop8_total": 7118.76,
+          "chartstop_total": 8488.8,
+          "is_truncation_artifact": false,
+          "sign_stable_full": true,
+          "sign_stable_oos": true
+        }
+      },
+      "clears_all_gates": true,
+      "n_gates_passed": 8,
+      "caveats": [
+        "oos_lift_within_sameday_null_band: OOS per-trade is below the same-day random-entry null OOS mean -> the OOS edge is largely day+side selection, not trigger precision (the trigger DOES beat the full-sample null and the coin-flip null; full-sample clears every gate)."
+      ]
+    },
+    "OTM2_safe2": {
+      "tier": "OTM2_safe2",
+      "strike_offset": 2,
+      "strike_tier_name": "OTM2",
+      "coverage": {
+        "signals": 81,
+        "filled": 75,
+        "cache_miss": 6,
+        "sim_none": 0,
+        "fill_rate": 0.926
+      },
+      "metrics": {
+        "n": 75,
+        "wr_pct": 40.0,
+        "exp_dollar": 23.25,
+        "total_dollar": 1744.08,
+        "is_n": 57,
+        "is_exp": 28.85,
+        "is_total": 1644.6,
+        "is_first_half_n": 28,
+        "is_first_half_exp": 41.58,
+        "oos_n": 18,
+        "oos_exp": 5.53,
+        "oos_total": 99.48,
+        "quarters": {
+          "2025Q1": {
+            "n": 15,
+            "exp": 51.63,
+            "total": 774.48
+          },
+          "2025Q2": {
+            "n": 12,
+            "exp": 33.15,
+            "total": 397.8
+          },
+          "2025Q3": {
+            "n": 11,
+            "exp": 3.05,
+            "total": 33.6
+          },
+          "2025Q4": {
+            "n": 19,
+            "exp": 23.09,
+            "total": 438.72
+          },
+          "2026Q1": {
+            "n": 12,
+            "exp": 18.19,
+            "total": 218.28
+          },
+          "2026Q2": {
+            "n": 6,
+            "exp": -19.8,
+            "total": -118.8
+          }
+        },
+        "positive_quarters": "5/6",
+        "positive_quarters_n": 5,
+        "n_quarters": 6,
+        "top5_day_pct": 78.7,
+        "drop_top5_day_per_trade": 5.3,
+        "by_side": {
+          "C": {
+            "n": 44,
+            "exp": 25.02,
+            "wr": 40.9,
+            "total": 1101.0
+          },
+          "P": {
+            "n": 31,
+            "exp": 20.74,
+            "wr": 38.7,
+            "total": 643.08
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 1,
+          "EXIT_ALL_PREMIUM_STOP": 44,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 10,
+          "TP1_THEN_RUNNER_RIBBON": 19,
+          "TP1_THEN_RUNNER_TIME": 1
+        }
+      },
+      "gates": {
+        "G1_oos_per_trade_positive": {
+          "pass": true,
+          "value": 5.53,
+          "oos_n": 18
+        },
+        "G2_positive_quarters_ge_4": {
+          "pass": true,
+          "value": "5/6"
+        },
+        "G3_top5_day_pct_lt_200": {
+          "pass": true,
+          "value": 78.7
+        },
+        "G4_n_ge_20": {
+          "pass": true,
+          "value": 75
+        },
+        "G5_drop_top5_per_trade_positive": {
+          "pass": true,
+          "value": 5.3
+        },
+        "G6_is_first_half_positive": {
+          "pass": true,
+          "value": 41.58,
+          "is_first_half_n": 28
+        },
+        "G7_beats_random_null": {
+          "pass": false,
+          "coinflip_null": {
+            "seeds": 20,
+            "n_eligible": 25544,
+            "n_drawn": 81,
+            "per_trade_mean": -3.52,
+            "per_trade_min": -11.6,
+            "per_trade_max": 8.79,
+            "per_trade_by_seed": [
+              -2.55,
+              -2.48,
+              8.79,
+              -7.42,
+              -3.59,
+              0.05,
+              -7.2,
+              -2.76,
+              5.54,
+              -2.91,
+              -4.95,
+              -8.23,
+              -11.6,
+              -1.65,
+              -4.11,
+              -8.99,
+              -9.63,
+              -3.31,
+              -7.03,
+              3.54
+            ],
+            "beats_null_mean": true,
+            "beats_null_max": true,
+            "drop_top5_beats_null_mean": true,
+            "edge_over_null_per_trade": 26.77,
+            "null_pass": true
+          },
+          "sameday_null": {
+            "seeds": 20,
+            "null_exp_mean": 25.82,
+            "null_exp_min": 12.68,
+            "null_exp_max": 37.98,
+            "null_exp_std": 5.91,
+            "null_oos_exp_mean": 31.86,
+            "beats_sameday_mean_plus_std": false,
+            "oos_beats_sameday_mean": false
+          }
+        },
+        "G8_no_truncation": {
+          "pass": false,
+          "stop8_exp": 23.25,
+          "chartstop_exp": 35.57,
+          "stop8_oos_exp": 5.53,
+          "chartstop_oos_exp": -15.1,
+          "stop8_total": 1744.08,
+          "chartstop_total": 2668.0,
+          "is_truncation_artifact": false,
+          "sign_stable_full": true,
+          "sign_stable_oos": false
+        }
+      },
+      "clears_all_gates": false,
+      "n_gates_passed": 6,
+      "caveats": []
+    }
+  },
+  "PRIMARY_TIER": "ITM2_primary",
+  "verdict": "PROMOTABLE \u2014 clears all 8 gates on ITM-2 real fills (CAVEAT: OOS per-trade sits inside the same-day random-entry null band -> OOS edge is largely day+side selection, not trigger precision; still clears the coin-flip null and every coded gate full-sample)",
+  "DISCLOSURE": {
+    "no_cherry_pick": "ALL 8 gates reported for BOTH strike tiers (ITM-2 primary + OTM-2 Safe-2); a tier that fails any gate is marked clears_all_gates=false (anti-pattern 2.10).",
+    "structural_not_additive": "ONE causal entry/day with a structural chart stop; no stacked confirmations (the campaign proved additive confluence is dead on 0DTE).",
+    "strike_tier_caveat": "C29 \u2014 gates do not transfer across strike tiers; reported per tier.",
+    "spy_vs_option": "real OPRA fills; SPY-direction != option edge (C3/L58).",
+    "fraud_gates": "G7 random-entry null (coin-flip + same-day/same-side, 20 seeds) + G8 no-truncation (sign must hold -8% -> chart-stop-only)."
+  }
+}

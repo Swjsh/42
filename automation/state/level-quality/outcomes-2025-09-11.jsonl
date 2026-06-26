@@ -1,0 +1,14 @@
+{"date": "2025-09-11", "price": 643.4, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-11", "price": 645.0, "source": "round", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-11", "price": 647.22, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-11", "price": 648.645, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-11", "price": 650.64, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-11", "price": 651.6699028224656, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-11", "price": 651.7775133841984, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-11", "price": 651.8541734864316, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-11", "price": 652.28, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-11", "price": 652.4, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-11", "price": 654.0, "source": "round", "touched": true, "outcome": "BREAK", "reaction_dollars": 2.235, "false_break": true}
+{"date": "2025-09-11", "price": 654.18, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.575, "false_break": true}
+{"date": "2025-09-11", "price": 654.55, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.925, "false_break": false}
+{"date": "2025-09-11", "price": 655.0, "source": "round", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.665, "false_break": false}

@@ -6,8 +6,8 @@ prose (Rule 9). Per OP-16/OP-22 it is *ready to ship after-hours* because the sh
 OOS positive AND walk-forward ≥ 0.70 AND sub-window stable AND A/B scorecard filed. **J's role
 = REVOKE**, not approve.
 
-- **Scorecard (filed):** [`analysis/recommendations/vwap-trend-pullback-LIVE.json`](../analysis/recommendations/vwap-trend-pullback-LIVE.json)
-- **Live detector (BUILT, parity-verified, gym-green):** [`backtest/lib/watchers/vwap_trend_pullback_watcher.py`](../backtest/lib/watchers/vwap_trend_pullback_watcher.py)
+- **Scorecard (filed):** [`analysis/recommendations/vwap-trend-pullback-LIVE.json`](../../analysis/recommendations/vwap-trend-pullback-LIVE.json)
+- **Live detector (BUILT, parity-verified, gym-green):** [`backtest/lib/watchers/vwap_trend_pullback_watcher.py`](../../backtest/lib/watchers/vwap_trend_pullback_watcher.py)
 - **Parity test:** `backtest/tests/test_vwap_trend_pullback_watcher.py::test_parity_with_batch_detector`
 - **Ratify harness:** `backtest/autoresearch/vwap_pullback_ratify.py`
 

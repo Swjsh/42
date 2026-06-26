@@ -1,0 +1,14 @@
+{"date": "2026-03-23", "price": 641.0, "source": "round", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-03-23", "price": 643.2, "source": "intraday", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-03-23", "price": 644.719970703125, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-03-23", "price": 648.3, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-03-23", "price": 648.4907945045278, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-03-23", "price": 648.8013845343946, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-03-23", "price": 649.4781327795777, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-03-23", "price": 649.9204440504706, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-03-23", "price": 656.6900024414062, "source": "multi_day", "touched": true, "outcome": "RESPECT", "reaction_dollars": 4.08, "false_break": false}
+{"date": "2026-03-23", "price": 659.0, "source": "round", "touched": true, "outcome": "BREAK", "reaction_dollars": 2.02, "false_break": false}
+{"date": "2026-03-23", "price": 660.0, "source": "round", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.42, "false_break": false}
+{"date": "2026-03-23", "price": 666.85, "source": "intraday", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-03-23", "price": 674.4299926757812, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-03-23", "price": 683.38, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}

@@ -1,0 +1,474 @@
+{
+  "hypothesis": "regime_conditional_vwap_sizing",
+  "thesis": "EXPLOIT the proven vwap_continuation survivor with REGIME-CONDITIONAL contract sizing (size up best-VIX-regime, size down/skip worst) vs FLAT qty. Causal expanding-window VIX median (no look-ahead). Size only in INTEGER MULTIPLES of the 3-lot base (Rule 6) so _compute_pnl scales EXACTLY linearly (asserted).",
+  "run_date": "2026-06-20",
+  "window": "2025-01-02..2026-05-15",
+  "trading_days": 342,
+  "detector": "BYTE-FOR-BYTE j_daily_pattern_ratify.detect_j_vwap_continuation; live port = backtest/lib/watchers/vwap_continuation_watcher.py",
+  "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1); ITM-2 (strike_offset=-2), premium_stop_pct=-0.08, v15 exits, nearest-cached strike snap<=4",
+  "survivor_structure": {
+    "strike_offset": -2,
+    "strike_tier": "ITM-2",
+    "premium_stop_pct": -0.08,
+    "base_qty": 3
+  },
+  "causal_regime": "expanding-window VIX median/terciles over PRIOR entries only; warmup=8 trades (no up/down sizing until then); NO look-ahead (L14/L34/L57)",
+  "scaling_method": {
+    "sim_qtys": [
+      3,
+      6
+    ],
+    "method": "EXACT per-qty real-fills sim (NO scaling)",
+    "n_trades_where_6_neq_2x3": 5,
+    "reason": "_compute_pnl TP1/runner integer split shifts 33/67->50/50 from qty 3->6, so dollar P&L is NOT linear; each qty is its own sim"
+  },
+  "n_signals": 158,
+  "signal_fire_day_pct": 46.2,
+  "signal_side_count": {
+    "C": 86,
+    "P": 72
+  },
+  "base_coverage": {
+    "signals": 158,
+    "filled": 149,
+    "cache_miss": 9,
+    "sim_none": 0,
+    "fill_rate": 0.943
+  },
+  "gates_required": {
+    "oos_per_trade_positive": "> 0",
+    "positive_quarters_ge_4": ">= 4/6",
+    "top5_day_lt_200": "< 200%",
+    "n_ge_20": ">= 20",
+    "drop_top5_days_positive": "> 0 after removing 5 best days",
+    "beats_random_null": "real total > mean of 20-seed random-entry null",
+    "truncation_safe": "sign does NOT invert at chart-stop-only",
+    "is_half_positive": "IS (2025) per-trade exp > 0"
+  },
+  "schedules": {
+    "FLAT_baseline": {
+      "name": "FLAT_baseline",
+      "metrics": {
+        "n": 149,
+        "wr_pct": 51.7,
+        "exp_dollar": 78.29,
+        "total_dollar": 11665.56,
+        "is_n": 107,
+        "is_exp": 67.56,
+        "is_total": 7229.4,
+        "oos_n": 42,
+        "oos_exp": 105.62,
+        "oos_total": 4436.16,
+        "quarters": {
+          "2025Q1": {
+            "n": 25,
+            "exp": 84.93,
+            "total": 2123.32
+          },
+          "2025Q2": {
+            "n": 23,
+            "exp": 35.67,
+            "total": 820.32
+          },
+          "2025Q3": {
+            "n": 26,
+            "exp": 23.37,
+            "total": 607.52
+          },
+          "2025Q4": {
+            "n": 33,
+            "exp": 111.46,
+            "total": 3678.24
+          },
+          "2026Q1": {
+            "n": 26,
+            "exp": 159.58,
+            "total": 4149.12
+          },
+          "2026Q2": {
+            "n": 16,
+            "exp": 17.94,
+            "total": 287.04
+          }
+        },
+        "positive_quarters": "6/6",
+        "positive_quarters_n": 6,
+        "n_quarters": 6,
+        "top5_day_pct": 20.6,
+        "drop_top5_days_total": 9264.96,
+        "max_drawdown_dollars": -612.12,
+        "max_drawdown_pct_of_2k": 30.6,
+        "worst_single_trade_dollars": -223.68,
+        "total_contracts": 447,
+        "by_side": {
+          "C": {
+            "n": 82,
+            "exp": 84.07,
+            "wr": 53.7,
+            "total": 6893.4
+          },
+          "P": {
+            "n": 67,
+            "exp": 71.23,
+            "wr": 49.3,
+            "total": 4772.16
+          }
+        }
+      },
+      "null": {
+        "real_total": 11665.56,
+        "null_mean_total": 11198.56,
+        "null_std_total": 1488.68,
+        "real_minus_null_mean": 467.0,
+        "real_pctile_vs_null": 65.0,
+        "beats_null": true,
+        "seeds": 20
+      },
+      "no_truncation": {
+        "chartstop_total_dollar": 11859.4,
+        "chartstop_oos_exp": 78.41,
+        "chartstop_exp_dollar": 79.59,
+        "chartstop_n": 149
+      },
+      "gates": {
+        "oos_per_trade_positive": true,
+        "positive_quarters_ge_4": true,
+        "top5_day_lt_200": true,
+        "n_ge_20": true,
+        "drop_top5_days_positive": true,
+        "beats_random_null": true,
+        "truncation_safe": true,
+        "is_half_positive": true
+      },
+      "clears_all_gates": true,
+      "vs_flat": null
+    },
+    "2x_below_median": {
+      "name": "2x_below_median",
+      "metrics": {
+        "n": 149,
+        "wr_pct": 51.7,
+        "exp_dollar": 121.41,
+        "total_dollar": 18090.24,
+        "is_n": 107,
+        "is_exp": 111.84,
+        "is_total": 11967.24,
+        "oos_n": 42,
+        "oos_exp": 145.79,
+        "oos_total": 6123.0,
+        "quarters": {
+          "2025Q1": {
+            "n": 25,
+            "exp": 101.25,
+            "total": 2531.2
+          },
+          "2025Q2": {
+            "n": 23,
+            "exp": 60.47,
+            "total": 1390.76
+          },
+          "2025Q3": {
+            "n": 26,
+            "exp": 52.16,
+            "total": 1356.16
+          },
+          "2025Q4": {
+            "n": 33,
+            "exp": 202.7,
+            "total": 6689.12
+          },
+          "2026Q1": {
+            "n": 26,
+            "exp": 201.97,
+            "total": 5251.2
+          },
+          "2026Q2": {
+            "n": 16,
+            "exp": 54.49,
+            "total": 871.8
+          }
+        },
+        "positive_quarters": "6/6",
+        "positive_quarters_n": 6,
+        "n_quarters": 6,
+        "top5_day_pct": 24.5,
+        "drop_top5_days_total": 13654.44,
+        "max_drawdown_dollars": -950.4,
+        "max_drawdown_pct_of_2k": 47.5,
+        "worst_single_trade_dollars": -223.68,
+        "total_contracts": 660,
+        "by_side": {
+          "C": {
+            "n": 82,
+            "exp": 132.68,
+            "wr": 53.7,
+            "total": 10879.88
+          },
+          "P": {
+            "n": 67,
+            "exp": 107.62,
+            "wr": 49.3,
+            "total": 7210.36
+          }
+        }
+      },
+      "null": {
+        "real_total": 18090.24,
+        "null_mean_total": 15972.06,
+        "null_std_total": 2147.02,
+        "real_minus_null_mean": 2118.18,
+        "real_pctile_vs_null": 85.0,
+        "beats_null": true,
+        "seeds": 20
+      },
+      "no_truncation": {
+        "chartstop_total_dollar": 19820.0,
+        "chartstop_oos_exp": 111.04,
+        "chartstop_exp_dollar": 133.02,
+        "chartstop_n": 149
+      },
+      "gates": {
+        "oos_per_trade_positive": true,
+        "positive_quarters_ge_4": true,
+        "top5_day_lt_200": true,
+        "n_ge_20": true,
+        "drop_top5_days_positive": true,
+        "beats_random_null": true,
+        "truncation_safe": true,
+        "is_half_positive": true
+      },
+      "clears_all_gates": true,
+      "vs_flat": {
+        "delta_total_dollar": 6424.68,
+        "delta_oos_exp": 40.17,
+        "delta_max_drawdown_dollars": -338.28,
+        "delta_worst_trade_dollars": 0.0,
+        "improves_return": true,
+        "ruin_not_materially_worse": false,
+        "materially_improves_no_extra_ruin": false
+      }
+    },
+    "2x_below_skip_top_tercile": {
+      "name": "2x_below_skip_top_tercile",
+      "metrics": {
+        "n": 103,
+        "wr_pct": 54.4,
+        "exp_dollar": 155.01,
+        "total_dollar": 15966.16,
+        "is_n": 80,
+        "is_exp": 137.51,
+        "is_total": 11000.96,
+        "oos_n": 23,
+        "oos_exp": 215.88,
+        "oos_total": 4965.2,
+        "quarters": {
+          "2025Q1": {
+            "n": 16,
+            "exp": 127.14,
+            "total": 2034.2
+          },
+          "2025Q2": {
+            "n": 13,
+            "exp": 84.36,
+            "total": 1096.72
+          },
+          "2025Q3": {
+            "n": 25,
+            "exp": 57.39,
+            "total": 1434.64
+          },
+          "2025Q4": {
+            "n": 26,
+            "exp": 247.52,
+            "total": 6435.4
+          },
+          "2026Q1": {
+            "n": 10,
+            "exp": 386.52,
+            "total": 3865.16
+          },
+          "2026Q2": {
+            "n": 13,
+            "exp": 84.62,
+            "total": 1100.04
+          }
+        },
+        "positive_quarters": "6/6",
+        "positive_quarters_n": 6,
+        "n_quarters": 6,
+        "top5_day_pct": 27.8,
+        "drop_top5_days_total": 11530.36,
+        "max_drawdown_dollars": -784.32,
+        "max_drawdown_pct_of_2k": 39.2,
+        "worst_single_trade_dollars": -160.32,
+        "total_contracts": 522,
+        "by_side": {
+          "C": {
+            "n": 59,
+            "exp": 168.22,
+            "wr": 55.9,
+            "total": 9925.16
+          },
+          "P": {
+            "n": 44,
+            "exp": 137.3,
+            "wr": 52.3,
+            "total": 6041.0
+          }
+        }
+      },
+      "null": {
+        "real_total": 15966.16,
+        "null_mean_total": 12697.3,
+        "null_std_total": 1897.12,
+        "real_minus_null_mean": 3268.86,
+        "real_pctile_vs_null": 90.0,
+        "beats_null": true,
+        "seeds": 20
+      },
+      "no_truncation": {
+        "chartstop_total_dollar": 17713.8,
+        "chartstop_oos_exp": 173.85,
+        "chartstop_exp_dollar": 171.98,
+        "chartstop_n": 103
+      },
+      "gates": {
+        "oos_per_trade_positive": true,
+        "positive_quarters_ge_4": true,
+        "top5_day_lt_200": true,
+        "n_ge_20": true,
+        "drop_top5_days_positive": true,
+        "beats_random_null": true,
+        "truncation_safe": true,
+        "is_half_positive": true
+      },
+      "clears_all_gates": true,
+      "vs_flat": {
+        "delta_total_dollar": 4300.6,
+        "delta_oos_exp": 110.26,
+        "delta_max_drawdown_dollars": -172.2,
+        "delta_worst_trade_dollars": 63.36,
+        "improves_return": true,
+        "ruin_not_materially_worse": false,
+        "materially_improves_no_extra_ruin": false
+      }
+    },
+    "skip_top_tercile_only": {
+      "name": "skip_top_tercile_only",
+      "metrics": {
+        "n": 103,
+        "wr_pct": 54.4,
+        "exp_dollar": 92.64,
+        "total_dollar": 9541.48,
+        "is_n": 80,
+        "is_exp": 78.29,
+        "is_total": 6263.12,
+        "oos_n": 23,
+        "oos_exp": 142.54,
+        "oos_total": 3278.36,
+        "quarters": {
+          "2025Q1": {
+            "n": 16,
+            "exp": 101.64,
+            "total": 1626.32
+          },
+          "2025Q2": {
+            "n": 13,
+            "exp": 40.48,
+            "total": 526.28
+          },
+          "2025Q3": {
+            "n": 25,
+            "exp": 27.44,
+            "total": 686.0
+          },
+          "2025Q4": {
+            "n": 26,
+            "exp": 131.71,
+            "total": 3424.52
+          },
+          "2026Q1": {
+            "n": 10,
+            "exp": 276.31,
+            "total": 2763.08
+          },
+          "2026Q2": {
+            "n": 13,
+            "exp": 39.64,
+            "total": 515.28
+          }
+        },
+        "positive_quarters": "6/6",
+        "positive_quarters_n": 6,
+        "n_quarters": 6,
+        "top5_day_pct": 24.1,
+        "drop_top5_days_total": 7244.68,
+        "max_drawdown_dollars": -423.84,
+        "max_drawdown_pct_of_2k": 21.2,
+        "worst_single_trade_dollars": -85.2,
+        "total_contracts": 309,
+        "by_side": {
+          "C": {
+            "n": 59,
+            "exp": 100.66,
+            "wr": 55.9,
+            "total": 5938.68
+          },
+          "P": {
+            "n": 44,
+            "exp": 81.88,
+            "wr": 52.3,
+            "total": 3602.8
+          }
+        }
+      },
+      "null": {
+        "real_total": 9541.48,
+        "null_mean_total": 7923.79,
+        "null_std_total": 1152.8,
+        "real_minus_null_mean": 1617.69,
+        "real_pctile_vs_null": 85.0,
+        "beats_null": true,
+        "seeds": 20
+      },
+      "no_truncation": {
+        "chartstop_total_dollar": 9753.2,
+        "chartstop_oos_exp": 114.27,
+        "chartstop_exp_dollar": 94.69,
+        "chartstop_n": 103
+      },
+      "gates": {
+        "oos_per_trade_positive": true,
+        "positive_quarters_ge_4": true,
+        "top5_day_lt_200": true,
+        "n_ge_20": true,
+        "drop_top5_days_positive": true,
+        "beats_random_null": true,
+        "truncation_safe": true,
+        "is_half_positive": true
+      },
+      "clears_all_gates": true,
+      "vs_flat": {
+        "delta_total_dollar": -2124.08,
+        "delta_oos_exp": 36.92,
+        "delta_max_drawdown_dollars": 188.28,
+        "delta_worst_trade_dollars": 138.48,
+        "improves_return": false,
+        "ruin_not_materially_worse": true,
+        "materially_improves_no_extra_ruin": false
+      }
+    }
+  },
+  "best_dynamic_schedule": "2x_below_skip_top_tercile",
+  "best_beats_flat_clean": false,
+  "DISCLOSURE": {
+    "exploit_not_hunt": "signal stream FROZEN to the validated survivor; only per-trade qty varies",
+    "per_trade": "expectancy reported, not WR alone (OP-14)",
+    "is_oos": "IS=2025 vs OOS=2026 per schedule (OP-20)",
+    "concentration": "top5_day_pct + drop-top-5-days total per schedule (OP-20 #5)",
+    "ruin_risk": "max daily-curve drawdown ($ and % of nominal $2K) + worst single trade per schedule; dynamic must NOT materially worsen these",
+    "lookahead_guard": "regime threshold is CAUSAL (prior-trades-only expanding median); a full-sample median would be look-ahead and is intentionally NOT used",
+    "scaling_caveat": "qty in integer multiples of the 3-lot base only, so the _compute_pnl TP1/runner integer split scales exactly (verified)",
+    "account_caveat": "2x sizing on the $2K Safe account would breach the 30% per-trade cap on richer ITM-2 premiums -- a 2x schedule is a LARGER-ACCOUNT/Bold concept; flagged, not silently assumed"
+  }
+}

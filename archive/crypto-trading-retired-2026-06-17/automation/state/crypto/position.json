@@ -1,0 +1,13 @@
+{
+  "instrument": "BTC/USD",
+  "side": "flat",
+  "qty_crypto": 0.0,
+  "qty_usd": 0.0,
+  "entry_price": 0.0,
+  "stop_price": 0.0,
+  "tp1_price": 0.0,
+  "runner_price": 0.0,
+  "entry_time": "",
+  "tp1_filled": false,
+  "order_ids": []
+}

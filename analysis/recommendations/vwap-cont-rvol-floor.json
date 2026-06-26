@@ -3,7 +3,7 @@
   "script": "backtest/autoresearch/vwap_cont_rvol_floor.py",
   "setup": "J_VWAP_CONT (VWAP-ALIGNED MORNING CONTINUATION) + causal realized-vol FLOOR",
   "goal": "GOAL1: make the rvol floor work on the LIVE chart-stop config (7/7 OP-22?). GOAL2: is there a shippable BULL-side edge?",
-  "context_note": "Batch-1 C1 (docs/J-REGIME-FILTERS.md) measured rvol>=9 on detect_vwap_PULLBACK (H4) at -8% stop. The dormant watcher to flip trades detect_j_vwap_CONTINUATION. This script re-measures the floor on the CONTINUATION detector + LIVE chart-stop. Different detector => result does not transfer by assertion; measured fresh here.",
+  "context_note": "Batch-1 C1 (markdown/0dte/J-REGIME-FILTERS.md) measured rvol>=9 on detect_vwap_PULLBACK (H4) at -8% stop. The dormant watcher to flip trades detect_j_vwap_CONTINUATION. This script re-measures the floor on the CONTINUATION detector + LIVE chart-stop. Different detector => result does not transfer by assertion; measured fresh here.",
   "rvol_definition": {
     "formula": "std(diff(log(session_5m_closes[open..trigger])), ddof=1) * 1e4  (bps/bar)",
     "causality": "reads only bars[0..trigger] of the session; live from cached 5m closes",

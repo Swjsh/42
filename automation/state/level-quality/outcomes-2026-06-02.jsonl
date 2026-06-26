@@ -1,0 +1,16 @@
+{"date": "2026-06-02", "price": 748.22, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-06-02", "price": 754.6900024414062, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-06-02", "price": 755.32, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-06-02", "price": 755.5, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-06-02", "price": 756.0, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-06-02", "price": 756.4, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-06-02", "price": 757.0, "source": "round", "touched": true, "outcome": "RESPECT", "reaction_dollars": 0.78, "false_break": false}
+{"date": "2026-06-02", "price": 757.25, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.5, "false_break": false}
+{"date": "2026-06-02", "price": 757.45, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.7, "false_break": false}
+{"date": "2026-06-02", "price": 757.9, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.36, "false_break": false}
+{"date": "2026-06-02", "price": 758.4400024414062, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.9, "false_break": false}
+{"date": "2026-06-02", "price": 758.54, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.82, "false_break": false}
+{"date": "2026-06-02", "price": 758.6613802892881, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.261, "false_break": false}
+{"date": "2026-06-02", "price": 758.732596887077, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.333, "false_break": false}
+{"date": "2026-06-02", "price": 759.0420346515821, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.232, "false_break": false}
+{"date": "2026-06-02", "price": 760.27001953125, "source": "multi_day", "touched": true, "outcome": "RESPECT", "reaction_dollars": 0.68, "false_break": false}

@@ -1,0 +1,238 @@
+{
+  "task": "agg-vix-bear-threshold-v3",
+  "version": "v3-correct-G5",
+  "baseline_vbt": 15.0,
+  "thresholds_tested": [
+    15.0,
+    15.5,
+    16.0,
+    16.5,
+    17.0,
+    17.3,
+    17.5,
+    18.0
+  ],
+  "base_anchor": -353.62,
+  "anchor_tol": 35.362,
+  "sweep_results": [
+    {
+      "thr": 15.0,
+      "verdict": "BASELINE"
+    },
+    {
+      "thr": 15.5,
+      "is": {
+        "n": 155,
+        "wr": 0.277,
+        "avg": 181.6,
+        "total": 28141.9
+      },
+      "oos": {
+        "n": 28,
+        "wr": 0.25,
+        "avg": 215.4,
+        "total": 6032.2
+      },
+      "is_delta": -2.0,
+      "oos_delta": 0.0,
+      "wf_norm": null,
+      "sw_hurt": 1,
+      "curr_anchor": -353.62,
+      "base_anchor": -353.62,
+      "anchor_tol": 35.362,
+      "gates": {
+        "G1": false,
+        "G2": false,
+        "G3": false,
+        "G4": true,
+        "G5": true,
+        "all": false
+      }
+    },
+    {
+      "thr": 16.0,
+      "is": {
+        "n": 154,
+        "wr": 0.273,
+        "avg": 181.0,
+        "total": 27868.9
+      },
+      "oos": {
+        "n": 28,
+        "wr": 0.25,
+        "avg": 215.4,
+        "total": 6032.2
+      },
+      "is_delta": -275.0,
+      "oos_delta": 0.0,
+      "wf_norm": null,
+      "sw_hurt": 1,
+      "curr_anchor": -353.62,
+      "base_anchor": -353.62,
+      "anchor_tol": 35.362,
+      "gates": {
+        "G1": false,
+        "G2": false,
+        "G3": false,
+        "G4": true,
+        "G5": true,
+        "all": false
+      }
+    },
+    {
+      "thr": 16.5,
+      "is": {
+        "n": 146,
+        "wr": 0.253,
+        "avg": 186.5,
+        "total": 27233.1
+      },
+      "oos": {
+        "n": 28,
+        "wr": 0.25,
+        "avg": 215.4,
+        "total": 6032.2
+      },
+      "is_delta": -910.8,
+      "oos_delta": 0.0,
+      "wf_norm": null,
+      "sw_hurt": 3,
+      "curr_anchor": -353.62,
+      "base_anchor": -353.62,
+      "anchor_tol": 35.362,
+      "gates": {
+        "G1": false,
+        "G2": false,
+        "G3": false,
+        "G4": false,
+        "G5": true,
+        "all": false
+      }
+    },
+    {
+      "thr": 17.0,
+      "is": {
+        "n": 139,
+        "wr": 0.245,
+        "avg": 192.8,
+        "total": 26795.5
+      },
+      "oos": {
+        "n": 27,
+        "wr": 0.222,
+        "avg": 214.2,
+        "total": 5784.7
+      },
+      "is_delta": -1348.4,
+      "oos_delta": -247.5,
+      "wf_norm": 3.671,
+      "sw_hurt": 3,
+      "curr_anchor": -601.12,
+      "base_anchor": -353.62,
+      "anchor_tol": 35.362,
+      "gates": {
+        "G1": false,
+        "G2": false,
+        "G3": true,
+        "G4": false,
+        "G5": false,
+        "all": false
+      }
+    },
+    {
+      "thr": 17.3,
+      "is": {
+        "n": 138,
+        "wr": 0.246,
+        "avg": 194.6,
+        "total": 26848.4
+      },
+      "oos": {
+        "n": 26,
+        "wr": 0.231,
+        "avg": 232.7,
+        "total": 6049.3
+      },
+      "is_delta": -1295.5,
+      "oos_delta": 17.1,
+      "wf_norm": -0.139,
+      "sw_hurt": 3,
+      "curr_anchor": -601.12,
+      "base_anchor": -353.62,
+      "anchor_tol": 35.362,
+      "gates": {
+        "G1": false,
+        "G2": true,
+        "G3": false,
+        "G4": false,
+        "G5": false,
+        "all": false
+      }
+    },
+    {
+      "thr": 17.5,
+      "is": {
+        "n": 137,
+        "wr": 0.248,
+        "avg": 196.3,
+        "total": 26896.1
+      },
+      "oos": {
+        "n": 25,
+        "wr": 0.24,
+        "avg": 244.3,
+        "total": 6108.1
+      },
+      "is_delta": -1247.8,
+      "oos_delta": 75.9,
+      "wf_norm": -0.446,
+      "sw_hurt": 2,
+      "curr_anchor": -601.12,
+      "base_anchor": -353.62,
+      "anchor_tol": 35.362,
+      "gates": {
+        "G1": false,
+        "G2": true,
+        "G3": false,
+        "G4": false,
+        "G5": false,
+        "all": false
+      }
+    },
+    {
+      "thr": 18.0,
+      "is": {
+        "n": 132,
+        "wr": 0.25,
+        "avg": 209.6,
+        "total": 27670.4
+      },
+      "oos": {
+        "n": 23,
+        "wr": 0.217,
+        "avg": 258.7,
+        "total": 5950.7
+      },
+      "is_delta": -473.5,
+      "oos_delta": -81.5,
+      "wf_norm": 0.929,
+      "sw_hurt": 1,
+      "curr_anchor": -601.12,
+      "base_anchor": -353.62,
+      "anchor_tol": 35.362,
+      "gates": {
+        "G1": false,
+        "G2": false,
+        "G3": true,
+        "G4": true,
+        "G5": false,
+        "all": false
+      }
+    }
+  ],
+  "best": null,
+  "auto_ratify": false,
+  "ratify_value": null,
+  "verdict": "REJECT",
+  "note": "v1 had wrong G5 (zero-tolerance); v2 had wrong AGG params (strike_offset=+2, vbt=17.3, SAFE-like params); v3 is canonical."
+}

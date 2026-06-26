@@ -1,0 +1,26 @@
+## Foot-gun: scoped `git commit -- <pathspec>` false-REDs the pre-commit safety gate
+
+**Theme:** C7 (silent/false failure — a guard tripping on an artifact, not a real problem) + C19/git-on-Windows family.
+
+**Symptom (reproduced twice, 2026-06-24 conductor fire):** an additive-only commit (a new test file + tracking an existing working file) was BLOCKED by the pre-commit safety gate with:
+```
+ERROR backtest\tests\test_verify_committed.py::test_commit_only_reproduces_the_drop
+ERROR backtest\tests\test_verify_committed.py::test_helper_uses_index_not_disk_presence
+25 passed, 4 errors
+[safety-gate] FAIL
+```
+…yet running the SAME gate standalone (`python backtest/tests/run_safety_gate.py`) and `test_verify_committed.py` standalone both pass (29 passed / 4 passed). The gate is green; only the in-hook run errors.
+
+**Root cause:** the commit used the scoped **pathspec** form `git commit -m "..." -- <file1> <file2>`. That form does a PARTIAL commit, which makes git build a temporary index and hold `index.lock` during the hook. The curated safety gate includes `test_verify_committed.py`, whose tests perform their OWN nested git operations (temp commits to verify L164/L62 untracked-drop behavior). Those nested git calls collide with the held lock and raise (collection/setup ERRORS, not assertion FAILURES). So a perfectly clean change gets a false RED.
+
+**Why it matters:** "scoped commit (only my N files, L164)" via `git commit -- <files>` is the documented conductor/gamma-drive pattern in dozens of STATUS entries. Any fire that uses the pathspec form on a session whose curated gate includes a git-touching test will hit a false RED, and may wrongly reach for `git commit --no-verify` (bypassing the real safety gate) to get unstuck.
+
+**Fix (the safe pattern):** stage explicitly, then commit with NO pathspec —
+```
+git add <file1> <file2>
+git diff --cached --name-only   # confirm ONLY the intended files are staged (still scoped)
+git commit -m "..."             # full-index commit; no index.lock contention
+```
+This keeps the commit scoped (only staged files land) AND avoids the partial-commit temp-index path. Verified: the identical commit went green (29 passed, 2 files, 199 insertions) the moment the pathspec was dropped.
+
+**Graduate-if-it-recurs:** if this bites again, the durable fix is to make `run_safety_gate.py` either (a) detect a held `index.lock` / partial-commit env (`GIT_INDEX_FILE` set to a tmp index) and skip the git-touching suites in-hook, or (b) move `test_verify_committed.py` to a push-time/CI gate only. Prefer documenting the `git add`-then-`commit` convention first (zero code change); graduate to a code skip only on re-violation.

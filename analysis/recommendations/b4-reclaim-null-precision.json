@@ -1,0 +1,1403 @@
+{
+  "hypothesis": "reclaim_null_precision (DIAGNOSTIC on confirmed edge #2 struct_vwap_reclaim_failed_break): does the reclaim bar have intra-day TIMING precision (beats a same-day same-side random entry) or is the edge pure DAY+SIDE SELECTION? Plus a fine stop-buffer plateau sweep {0.10,0.15,0.20,0.25,0.30} at ATM to confirm $0.25 is a stable plateau, not a spike. No new edge expected.",
+  "kind": "diagnostic_null_precision_and_buffer_plateau",
+  "run_date": "2026-06-21",
+  "window": "2025-01-02..2026-05-15",
+  "trading_days": 342,
+  "detector": "REUSED VALIDATED struct_vwap_reclaim_failed_break detector (sub-struct module, byte-for-byte): trend side (first 3 RTH closes same side of as-of VWAP) -> counter-trend VWAP break -> with-trend VWAP reclaim <=10:30 ET; chart stop = failed-break excursion extreme. ONE causal entry/day.",
+  "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1)",
+  "oos_split": "IS=2025 / OOS=2026 (calendar-year)",
+  "n_signals": 81,
+  "signal_fire_day_pct": 23.7,
+  "signal_side_count": {
+    "C": 48,
+    "P": 33
+  },
+  "config": {
+    "primary_strike_offset_ITM2_anchor": -2,
+    "safe2_strike_offset_ATM": 0,
+    "rescue_tp1_premium_pct": 0.3,
+    "rescue_buffer_dollars": 0.25,
+    "premium_stop_pct": -0.08,
+    "qty": 3,
+    "highseed_sameday_null_seeds": 60,
+    "coinflip_null_seeds": 20
+  },
+  "PART_A_precision_vs_selection": {
+    "control": "bar-randomized SAME-DAY SIDE-MATCHED null: for each real signal pick a RANDOM eligible morning bar [TREND_BARS..ENTRY_CUTOFF] on the SAME day, keep SAME side/stop/strike/exits. Day+side SELECTION held constant; only the entry BAR randomized. Signal >> null => TIMING precision; signal ~= null => pure day+side selection.",
+    "ITM2_anchor": {
+      "tier": "ITM2_anchor",
+      "strike_offset": -2,
+      "strike_tier_name": "ITM2",
+      "exit_config": {
+        "tp1_premium_pct": 0.3,
+        "level_stop_buffer_dollars": 0.5,
+        "premium_stop_pct": -0.08
+      },
+      "coverage": {
+        "signals": 81,
+        "filled": 76,
+        "cache_miss": 5,
+        "sim_none": 0,
+        "fill_rate": 0.938
+      },
+      "headline": {
+        "n": 76,
+        "exp_dollar": 93.67,
+        "oos_exp": 72.11,
+        "oos_n": 18,
+        "wr_pct": 53.9,
+        "positive_quarters": "5/6"
+      },
+      "sameday_null_highseed": {
+        "seeds": 60,
+        "full": {
+          "n_seeds": 60,
+          "null_mean": 75.5,
+          "null_std": 11.8,
+          "null_min": 43.69,
+          "null_max": 106.29,
+          "signal_value": 93.67,
+          "lift_over_mean": 18.17,
+          "z_score": 1.54,
+          "percentile_in_null": 95.0,
+          "beats_null_max": false,
+          "beats_mean_plus_1std": true,
+          "beats_mean_plus_2std": false
+        },
+        "oos": {
+          "n_seeds": 60,
+          "null_mean": 88.78,
+          "null_std": 23.04,
+          "null_min": 34.58,
+          "null_max": 135.34,
+          "signal_value": 72.11,
+          "lift_over_mean": -16.67,
+          "z_score": -0.72,
+          "percentile_in_null": 18.3,
+          "beats_null_max": false,
+          "beats_mean_plus_1std": false,
+          "beats_mean_plus_2std": false
+        }
+      },
+      "coinflip_null": {
+        "seeds": 20,
+        "n_eligible": 25544,
+        "n_drawn": 81,
+        "per_trade_mean": -8.22,
+        "per_trade_min": -36.51,
+        "per_trade_max": 9.97,
+        "per_trade_by_seed": [
+          2.49,
+          7.0,
+          8.19,
+          -15.25,
+          -7.41,
+          -7.66,
+          3.66,
+          -14.48,
+          9.97,
+          2.74,
+          -22.57,
+          -14.73,
+          -36.51,
+          -6.92,
+          -22.6,
+          9.25,
+          -33.86,
+          -4.37,
+          -8.07,
+          -13.21
+        ],
+        "beats_null_mean": true,
+        "beats_null_max": true,
+        "drop_top5_beats_null_mean": true,
+        "edge_over_null_per_trade": 101.89,
+        "null_pass": true
+      },
+      "full_timing_precision": true,
+      "oos_timing_precision": false,
+      "precision_verdict": "MIXED: FULL-sample shows timing precision (>=1std over the same-day null) but OOS sits INSIDE the same-day null band -> the OOS edge is largely DAY+SIDE SELECTION, not trigger precision. Size on selection, not on the bar."
+    },
+    "ATM_safe2_rescue": {
+      "tier": "ATM_safe2_rescue",
+      "strike_offset": 0,
+      "strike_tier_name": "ATM",
+      "exit_config": {
+        "tp1_premium_pct": 0.3,
+        "level_stop_buffer_dollars": 0.25,
+        "premium_stop_pct": -0.08
+      },
+      "coverage": {
+        "signals": 81,
+        "filled": 76,
+        "cache_miss": 5,
+        "sim_none": 0,
+        "fill_rate": 0.938
+      },
+      "headline": {
+        "n": 76,
+        "exp_dollar": 54.21,
+        "oos_exp": 32.33,
+        "oos_n": 18,
+        "wr_pct": 55.3,
+        "positive_quarters": "5/6"
+      },
+      "sameday_null_highseed": {
+        "seeds": 60,
+        "full": {
+          "n_seeds": 60,
+          "null_mean": 46.69,
+          "null_std": 8.15,
+          "null_min": 28.03,
+          "null_max": 72.25,
+          "signal_value": 54.21,
+          "lift_over_mean": 7.52,
+          "z_score": 0.92,
+          "percentile_in_null": 83.3,
+          "beats_null_max": false,
+          "beats_mean_plus_1std": false,
+          "beats_mean_plus_2std": false
+        },
+        "oos": {
+          "n_seeds": 60,
+          "null_mean": 54.69,
+          "null_std": 15.12,
+          "null_min": 15.45,
+          "null_max": 82.62,
+          "signal_value": 32.33,
+          "lift_over_mean": -22.36,
+          "z_score": -1.48,
+          "percentile_in_null": 11.7,
+          "beats_null_max": false,
+          "beats_mean_plus_1std": false,
+          "beats_mean_plus_2std": false
+        }
+      },
+      "coinflip_null": {
+        "seeds": 20,
+        "n_eligible": 25544,
+        "n_drawn": 81,
+        "per_trade_mean": -4.46,
+        "per_trade_min": -21.27,
+        "per_trade_max": 14.96,
+        "per_trade_by_seed": [
+          -5.88,
+          5.47,
+          5.16,
+          -16.33,
+          -0.95,
+          0.58,
+          0.21,
+          -4.37,
+          4.32,
+          -3.21,
+          -10.51,
+          -2.87,
+          -21.27,
+          -5.08,
+          -12.62,
+          -12.53,
+          -18.58,
+          -1.2,
+          -4.42,
+          14.96
+        ],
+        "beats_null_mean": true,
+        "beats_null_max": true,
+        "drop_top5_beats_null_mean": true,
+        "edge_over_null_per_trade": 58.67,
+        "null_pass": true
+      },
+      "full_timing_precision": false,
+      "oos_timing_precision": false,
+      "precision_verdict": "DAY+SIDE SELECTION: the signal does NOT clear the same-day same-side null by >=1std on FULL -> the edge is choosing the right trend days/sides; the specific reclaim bar adds little."
+    }
+  },
+  "PART_B_buffer_plateau": {
+    "axis": {
+      "strike_offset": 0,
+      "strike_tier": "ATM",
+      "tp1_premium_pct": 0.3,
+      "premium_stop_pct": -0.08,
+      "buffers": [
+        0.1,
+        0.15,
+        0.2,
+        0.25,
+        0.3
+      ],
+      "rescue_buffer": 0.25
+    },
+    "cells": [
+      {
+        "cell_id": "off+0_tp130_buf10",
+        "strike_offset": 0,
+        "strike_tier_name": "ATM",
+        "tp1_premium_pct": 0.3,
+        "level_stop_buffer_dollars": 0.1,
+        "coverage": {
+          "signals": 81,
+          "filled": 76,
+          "cache_miss": 5,
+          "sim_none": 0,
+          "fill_rate": 0.938
+        },
+        "metrics": {
+          "n": 76,
+          "wr_pct": 55.3,
+          "exp_dollar": 54.21,
+          "total_dollar": 4119.8,
+          "max_drawdown": -367.92,
+          "is_n": 58,
+          "is_exp": 61.0,
+          "is_total": 3537.92,
+          "is_first_half_n": 29,
+          "is_first_half_exp": 87.66,
+          "oos_n": 18,
+          "oos_exp": 32.33,
+          "oos_total": 581.88,
+          "quarters": {
+            "2025Q1": {
+              "n": 15,
+              "exp": 108.41,
+              "total": 1626.2
+            },
+            "2025Q2": {
+              "n": 13,
+              "exp": 72.62,
+              "total": 944.04
+            },
+            "2025Q3": {
+              "n": 11,
+              "exp": 19.2,
+              "total": 211.2
+            },
+            "2025Q4": {
+              "n": 19,
+              "exp": 39.81,
+              "total": 756.48
+            },
+            "2026Q1": {
+              "n": 12,
+              "exp": 68.03,
+              "total": 816.36
+            },
+            "2026Q2": {
+              "n": 6,
+              "exp": -39.08,
+              "total": -234.48
+            }
+          },
+          "positive_quarters": "5/6",
+          "positive_quarters_n": 5,
+          "n_quarters": 6,
+          "top5_day_pct": 45.2,
+          "drop_top5_day_per_trade": 31.82,
+          "median_entry_premium": 1.395,
+          "max_entry_premium": 8.82,
+          "by_side": {
+            "C": {
+              "n": 45,
+              "exp": 67.92,
+              "wr": 62.2,
+              "total": 3056.36
+            },
+            "P": {
+              "n": 31,
+              "exp": 34.3,
+              "wr": 45.2,
+              "total": 1063.44
+            }
+          },
+          "exit_hist": {
+            "EXIT_ALL_LEVEL_STOP": 2,
+            "EXIT_ALL_PREMIUM_STOP": 33,
+            "EXIT_ALL_RIBBON_FLIP_BACK": 15,
+            "TP1_THEN_RUNNER_RIBBON": 24,
+            "TP1_THEN_RUNNER_TIME": 2
+          }
+        },
+        "gates": {
+          "G1_oos_per_trade_positive": {
+            "pass": true,
+            "value": 32.33,
+            "oos_n": 18
+          },
+          "G2_positive_quarters_ge_4": {
+            "pass": true,
+            "value": "5/6"
+          },
+          "G3_top5_day_pct_lt_200": {
+            "pass": true,
+            "value": 45.2
+          },
+          "G4_n_ge_20": {
+            "pass": true,
+            "value": 76
+          },
+          "G5_drop_top5_per_trade_positive": {
+            "pass": true,
+            "value": 31.82
+          },
+          "G6_is_first_half_positive": {
+            "pass": true,
+            "value": 87.66,
+            "is_first_half_n": 29
+          },
+          "G7_beats_random_null": {
+            "pass": true,
+            "coinflip_null": {
+              "seeds": 20,
+              "n_eligible": 25544,
+              "n_drawn": 81,
+              "per_trade_mean": -4.46,
+              "per_trade_min": -21.27,
+              "per_trade_max": 14.96,
+              "per_trade_by_seed": [
+                -5.88,
+                5.47,
+                5.16,
+                -16.33,
+                -0.95,
+                0.58,
+                0.21,
+                -4.37,
+                4.32,
+                -3.21,
+                -10.51,
+                -2.87,
+                -21.27,
+                -5.08,
+                -12.62,
+                -12.53,
+                -18.58,
+                -1.2,
+                -4.42,
+                14.96
+              ],
+              "beats_null_mean": true,
+              "beats_null_max": true,
+              "drop_top5_beats_null_mean": true,
+              "edge_over_null_per_trade": 58.67,
+              "null_pass": true
+            },
+            "sameday_null": {
+              "seeds": 20,
+              "null_exp_mean": 47.74,
+              "null_exp_min": 37.02,
+              "null_exp_max": 60.56,
+              "null_exp_std": 6.23,
+              "null_oos_exp_mean": 55.34,
+              "beats_sameday_mean_plus_std": true,
+              "oos_beats_sameday_mean": false
+            }
+          },
+          "G8_no_truncation": {
+            "pass": true,
+            "stop8_exp": 54.21,
+            "chartstop_exp": 68.18,
+            "stop8_oos_exp": 32.33,
+            "chartstop_oos_exp": 16.56,
+            "stop8_total": 4119.8,
+            "chartstop_total": 5181.4,
+            "is_truncation_artifact": false,
+            "sign_stable_full": true,
+            "sign_stable_oos": true
+          }
+        },
+        "clears_all_gates": true,
+        "n_gates_passed": 8,
+        "safe2_position_risk_dollars": 418.5,
+        "safe2_fits_cap": true,
+        "safe2_strike_in_tier": true,
+        "safe2_tradeable": true,
+        "caveats": [
+          "oos_lift_within_sameday_null_band: OOS per-trade below the same-day random-entry null OOS mean -> OOS edge is largely day+side selection, not trigger precision (still clears the coin-flip null + every coded gate)."
+        ]
+      },
+      {
+        "cell_id": "off+0_tp130_buf15",
+        "strike_offset": 0,
+        "strike_tier_name": "ATM",
+        "tp1_premium_pct": 0.3,
+        "level_stop_buffer_dollars": 0.15,
+        "coverage": {
+          "signals": 81,
+          "filled": 76,
+          "cache_miss": 5,
+          "sim_none": 0,
+          "fill_rate": 0.938
+        },
+        "metrics": {
+          "n": 76,
+          "wr_pct": 55.3,
+          "exp_dollar": 54.21,
+          "total_dollar": 4119.8,
+          "max_drawdown": -367.92,
+          "is_n": 58,
+          "is_exp": 61.0,
+          "is_total": 3537.92,
+          "is_first_half_n": 29,
+          "is_first_half_exp": 87.66,
+          "oos_n": 18,
+          "oos_exp": 32.33,
+          "oos_total": 581.88,
+          "quarters": {
+            "2025Q1": {
+              "n": 15,
+              "exp": 108.41,
+              "total": 1626.2
+            },
+            "2025Q2": {
+              "n": 13,
+              "exp": 72.62,
+              "total": 944.04
+            },
+            "2025Q3": {
+              "n": 11,
+              "exp": 19.2,
+              "total": 211.2
+            },
+            "2025Q4": {
+              "n": 19,
+              "exp": 39.81,
+              "total": 756.48
+            },
+            "2026Q1": {
+              "n": 12,
+              "exp": 68.03,
+              "total": 816.36
+            },
+            "2026Q2": {
+              "n": 6,
+              "exp": -39.08,
+              "total": -234.48
+            }
+          },
+          "positive_quarters": "5/6",
+          "positive_quarters_n": 5,
+          "n_quarters": 6,
+          "top5_day_pct": 45.2,
+          "drop_top5_day_per_trade": 31.82,
+          "median_entry_premium": 1.395,
+          "max_entry_premium": 8.82,
+          "by_side": {
+            "C": {
+              "n": 45,
+              "exp": 67.92,
+              "wr": 62.2,
+              "total": 3056.36
+            },
+            "P": {
+              "n": 31,
+              "exp": 34.3,
+              "wr": 45.2,
+              "total": 1063.44
+            }
+          },
+          "exit_hist": {
+            "EXIT_ALL_LEVEL_STOP": 2,
+            "EXIT_ALL_PREMIUM_STOP": 33,
+            "EXIT_ALL_RIBBON_FLIP_BACK": 15,
+            "TP1_THEN_RUNNER_RIBBON": 24,
+            "TP1_THEN_RUNNER_TIME": 2
+          }
+        },
+        "gates": {
+          "G1_oos_per_trade_positive": {
+            "pass": true,
+            "value": 32.33,
+            "oos_n": 18
+          },
+          "G2_positive_quarters_ge_4": {
+            "pass": true,
+            "value": "5/6"
+          },
+          "G3_top5_day_pct_lt_200": {
+            "pass": true,
+            "value": 45.2
+          },
+          "G4_n_ge_20": {
+            "pass": true,
+            "value": 76
+          },
+          "G5_drop_top5_per_trade_positive": {
+            "pass": true,
+            "value": 31.82
+          },
+          "G6_is_first_half_positive": {
+            "pass": true,
+            "value": 87.66,
+            "is_first_half_n": 29
+          },
+          "G7_beats_random_null": {
+            "pass": true,
+            "coinflip_null": {
+              "seeds": 20,
+              "n_eligible": 25544,
+              "n_drawn": 81,
+              "per_trade_mean": -4.46,
+              "per_trade_min": -21.27,
+              "per_trade_max": 14.96,
+              "per_trade_by_seed": [
+                -5.88,
+                5.47,
+                5.16,
+                -16.33,
+                -0.95,
+                0.58,
+                0.21,
+                -4.37,
+                4.32,
+                -3.21,
+                -10.51,
+                -2.87,
+                -21.27,
+                -5.08,
+                -12.62,
+                -12.53,
+                -18.58,
+                -1.2,
+                -4.42,
+                14.96
+              ],
+              "beats_null_mean": true,
+              "beats_null_max": true,
+              "drop_top5_beats_null_mean": true,
+              "edge_over_null_per_trade": 58.67,
+              "null_pass": true
+            },
+            "sameday_null": {
+              "seeds": 20,
+              "null_exp_mean": 47.74,
+              "null_exp_min": 37.02,
+              "null_exp_max": 60.56,
+              "null_exp_std": 6.23,
+              "null_oos_exp_mean": 55.34,
+              "beats_sameday_mean_plus_std": true,
+              "oos_beats_sameday_mean": false
+            }
+          },
+          "G8_no_truncation": {
+            "pass": true,
+            "stop8_exp": 54.21,
+            "chartstop_exp": 67.27,
+            "stop8_oos_exp": 32.33,
+            "chartstop_oos_exp": 12.72,
+            "stop8_total": 4119.8,
+            "chartstop_total": 5112.4,
+            "is_truncation_artifact": false,
+            "sign_stable_full": true,
+            "sign_stable_oos": true
+          }
+        },
+        "clears_all_gates": true,
+        "n_gates_passed": 8,
+        "safe2_position_risk_dollars": 418.5,
+        "safe2_fits_cap": true,
+        "safe2_strike_in_tier": true,
+        "safe2_tradeable": true,
+        "caveats": [
+          "oos_lift_within_sameday_null_band: OOS per-trade below the same-day random-entry null OOS mean -> OOS edge is largely day+side selection, not trigger precision (still clears the coin-flip null + every coded gate)."
+        ]
+      },
+      {
+        "cell_id": "off+0_tp130_buf20",
+        "strike_offset": 0,
+        "strike_tier_name": "ATM",
+        "tp1_premium_pct": 0.3,
+        "level_stop_buffer_dollars": 0.2,
+        "coverage": {
+          "signals": 81,
+          "filled": 76,
+          "cache_miss": 5,
+          "sim_none": 0,
+          "fill_rate": 0.938
+        },
+        "metrics": {
+          "n": 76,
+          "wr_pct": 55.3,
+          "exp_dollar": 54.21,
+          "total_dollar": 4119.8,
+          "max_drawdown": -367.92,
+          "is_n": 58,
+          "is_exp": 61.0,
+          "is_total": 3537.92,
+          "is_first_half_n": 29,
+          "is_first_half_exp": 87.66,
+          "oos_n": 18,
+          "oos_exp": 32.33,
+          "oos_total": 581.88,
+          "quarters": {
+            "2025Q1": {
+              "n": 15,
+              "exp": 108.41,
+              "total": 1626.2
+            },
+            "2025Q2": {
+              "n": 13,
+              "exp": 72.62,
+              "total": 944.04
+            },
+            "2025Q3": {
+              "n": 11,
+              "exp": 19.2,
+              "total": 211.2
+            },
+            "2025Q4": {
+              "n": 19,
+              "exp": 39.81,
+              "total": 756.48
+            },
+            "2026Q1": {
+              "n": 12,
+              "exp": 68.03,
+              "total": 816.36
+            },
+            "2026Q2": {
+              "n": 6,
+              "exp": -39.08,
+              "total": -234.48
+            }
+          },
+          "positive_quarters": "5/6",
+          "positive_quarters_n": 5,
+          "n_quarters": 6,
+          "top5_day_pct": 45.2,
+          "drop_top5_day_per_trade": 31.82,
+          "median_entry_premium": 1.395,
+          "max_entry_premium": 8.82,
+          "by_side": {
+            "C": {
+              "n": 45,
+              "exp": 67.92,
+              "wr": 62.2,
+              "total": 3056.36
+            },
+            "P": {
+              "n": 31,
+              "exp": 34.3,
+              "wr": 45.2,
+              "total": 1063.44
+            }
+          },
+          "exit_hist": {
+            "EXIT_ALL_LEVEL_STOP": 2,
+            "EXIT_ALL_PREMIUM_STOP": 33,
+            "EXIT_ALL_RIBBON_FLIP_BACK": 15,
+            "TP1_THEN_RUNNER_RIBBON": 24,
+            "TP1_THEN_RUNNER_TIME": 2
+          }
+        },
+        "gates": {
+          "G1_oos_per_trade_positive": {
+            "pass": true,
+            "value": 32.33,
+            "oos_n": 18
+          },
+          "G2_positive_quarters_ge_4": {
+            "pass": true,
+            "value": "5/6"
+          },
+          "G3_top5_day_pct_lt_200": {
+            "pass": true,
+            "value": 45.2
+          },
+          "G4_n_ge_20": {
+            "pass": true,
+            "value": 76
+          },
+          "G5_drop_top5_per_trade_positive": {
+            "pass": true,
+            "value": 31.82
+          },
+          "G6_is_first_half_positive": {
+            "pass": true,
+            "value": 87.66,
+            "is_first_half_n": 29
+          },
+          "G7_beats_random_null": {
+            "pass": true,
+            "coinflip_null": {
+              "seeds": 20,
+              "n_eligible": 25544,
+              "n_drawn": 81,
+              "per_trade_mean": -4.46,
+              "per_trade_min": -21.27,
+              "per_trade_max": 14.96,
+              "per_trade_by_seed": [
+                -5.88,
+                5.47,
+                5.16,
+                -16.33,
+                -0.95,
+                0.58,
+                0.21,
+                -4.37,
+                4.32,
+                -3.21,
+                -10.51,
+                -2.87,
+                -21.27,
+                -5.08,
+                -12.62,
+                -12.53,
+                -18.58,
+                -1.2,
+                -4.42,
+                14.96
+              ],
+              "beats_null_mean": true,
+              "beats_null_max": true,
+              "drop_top5_beats_null_mean": true,
+              "edge_over_null_per_trade": 58.67,
+              "null_pass": true
+            },
+            "sameday_null": {
+              "seeds": 20,
+              "null_exp_mean": 47.74,
+              "null_exp_min": 37.02,
+              "null_exp_max": 60.56,
+              "null_exp_std": 6.23,
+              "null_oos_exp_mean": 55.34,
+              "beats_sameday_mean_plus_std": true,
+              "oos_beats_sameday_mean": false
+            }
+          },
+          "G8_no_truncation": {
+            "pass": true,
+            "stop8_exp": 54.21,
+            "chartstop_exp": 66.91,
+            "stop8_oos_exp": 32.33,
+            "chartstop_oos_exp": 12.72,
+            "stop8_total": 4119.8,
+            "chartstop_total": 5085.4,
+            "is_truncation_artifact": false,
+            "sign_stable_full": true,
+            "sign_stable_oos": true
+          }
+        },
+        "clears_all_gates": true,
+        "n_gates_passed": 8,
+        "safe2_position_risk_dollars": 418.5,
+        "safe2_fits_cap": true,
+        "safe2_strike_in_tier": true,
+        "safe2_tradeable": true,
+        "caveats": [
+          "oos_lift_within_sameday_null_band: OOS per-trade below the same-day random-entry null OOS mean -> OOS edge is largely day+side selection, not trigger precision (still clears the coin-flip null + every coded gate)."
+        ]
+      },
+      {
+        "cell_id": "off+0_tp130_buf25",
+        "strike_offset": 0,
+        "strike_tier_name": "ATM",
+        "tp1_premium_pct": 0.3,
+        "level_stop_buffer_dollars": 0.25,
+        "coverage": {
+          "signals": 81,
+          "filled": 76,
+          "cache_miss": 5,
+          "sim_none": 0,
+          "fill_rate": 0.938
+        },
+        "metrics": {
+          "n": 76,
+          "wr_pct": 55.3,
+          "exp_dollar": 54.21,
+          "total_dollar": 4119.8,
+          "max_drawdown": -367.92,
+          "is_n": 58,
+          "is_exp": 61.0,
+          "is_total": 3537.92,
+          "is_first_half_n": 29,
+          "is_first_half_exp": 87.66,
+          "oos_n": 18,
+          "oos_exp": 32.33,
+          "oos_total": 581.88,
+          "quarters": {
+            "2025Q1": {
+              "n": 15,
+              "exp": 108.41,
+              "total": 1626.2
+            },
+            "2025Q2": {
+              "n": 13,
+              "exp": 72.62,
+              "total": 944.04
+            },
+            "2025Q3": {
+              "n": 11,
+              "exp": 19.2,
+              "total": 211.2
+            },
+            "2025Q4": {
+              "n": 19,
+              "exp": 39.81,
+              "total": 756.48
+            },
+            "2026Q1": {
+              "n": 12,
+              "exp": 68.03,
+              "total": 816.36
+            },
+            "2026Q2": {
+              "n": 6,
+              "exp": -39.08,
+              "total": -234.48
+            }
+          },
+          "positive_quarters": "5/6",
+          "positive_quarters_n": 5,
+          "n_quarters": 6,
+          "top5_day_pct": 45.2,
+          "drop_top5_day_per_trade": 31.82,
+          "median_entry_premium": 1.395,
+          "max_entry_premium": 8.82,
+          "by_side": {
+            "C": {
+              "n": 45,
+              "exp": 67.92,
+              "wr": 62.2,
+              "total": 3056.36
+            },
+            "P": {
+              "n": 31,
+              "exp": 34.3,
+              "wr": 45.2,
+              "total": 1063.44
+            }
+          },
+          "exit_hist": {
+            "EXIT_ALL_LEVEL_STOP": 2,
+            "EXIT_ALL_PREMIUM_STOP": 33,
+            "EXIT_ALL_RIBBON_FLIP_BACK": 15,
+            "TP1_THEN_RUNNER_RIBBON": 24,
+            "TP1_THEN_RUNNER_TIME": 2
+          }
+        },
+        "gates": {
+          "G1_oos_per_trade_positive": {
+            "pass": true,
+            "value": 32.33,
+            "oos_n": 18
+          },
+          "G2_positive_quarters_ge_4": {
+            "pass": true,
+            "value": "5/6"
+          },
+          "G3_top5_day_pct_lt_200": {
+            "pass": true,
+            "value": 45.2
+          },
+          "G4_n_ge_20": {
+            "pass": true,
+            "value": 76
+          },
+          "G5_drop_top5_per_trade_positive": {
+            "pass": true,
+            "value": 31.82
+          },
+          "G6_is_first_half_positive": {
+            "pass": true,
+            "value": 87.66,
+            "is_first_half_n": 29
+          },
+          "G7_beats_random_null": {
+            "pass": true,
+            "coinflip_null": {
+              "seeds": 20,
+              "n_eligible": 25544,
+              "n_drawn": 81,
+              "per_trade_mean": -4.46,
+              "per_trade_min": -21.27,
+              "per_trade_max": 14.96,
+              "per_trade_by_seed": [
+                -5.88,
+                5.47,
+                5.16,
+                -16.33,
+                -0.95,
+                0.58,
+                0.21,
+                -4.37,
+                4.32,
+                -3.21,
+                -10.51,
+                -2.87,
+                -21.27,
+                -5.08,
+                -12.62,
+                -12.53,
+                -18.58,
+                -1.2,
+                -4.42,
+                14.96
+              ],
+              "beats_null_mean": true,
+              "beats_null_max": true,
+              "drop_top5_beats_null_mean": true,
+              "edge_over_null_per_trade": 58.67,
+              "null_pass": true
+            },
+            "sameday_null": {
+              "seeds": 20,
+              "null_exp_mean": 47.74,
+              "null_exp_min": 37.02,
+              "null_exp_max": 60.56,
+              "null_exp_std": 6.23,
+              "null_oos_exp_mean": 55.34,
+              "beats_sameday_mean_plus_std": true,
+              "oos_beats_sameday_mean": false
+            }
+          },
+          "G8_no_truncation": {
+            "pass": true,
+            "stop8_exp": 54.21,
+            "chartstop_exp": 69.26,
+            "stop8_oos_exp": 32.33,
+            "chartstop_oos_exp": 12.72,
+            "stop8_total": 4119.8,
+            "chartstop_total": 5263.6,
+            "is_truncation_artifact": false,
+            "sign_stable_full": true,
+            "sign_stable_oos": true
+          }
+        },
+        "clears_all_gates": true,
+        "n_gates_passed": 8,
+        "safe2_position_risk_dollars": 418.5,
+        "safe2_fits_cap": true,
+        "safe2_strike_in_tier": true,
+        "safe2_tradeable": true,
+        "caveats": [
+          "oos_lift_within_sameday_null_band: OOS per-trade below the same-day random-entry null OOS mean -> OOS edge is largely day+side selection, not trigger precision (still clears the coin-flip null + every coded gate)."
+        ]
+      },
+      {
+        "cell_id": "off+0_tp130_buf30",
+        "strike_offset": 0,
+        "strike_tier_name": "ATM",
+        "tp1_premium_pct": 0.3,
+        "level_stop_buffer_dollars": 0.3,
+        "coverage": {
+          "signals": 81,
+          "filled": 76,
+          "cache_miss": 5,
+          "sim_none": 0,
+          "fill_rate": 0.938
+        },
+        "metrics": {
+          "n": 76,
+          "wr_pct": 55.3,
+          "exp_dollar": 54.21,
+          "total_dollar": 4119.8,
+          "max_drawdown": -367.92,
+          "is_n": 58,
+          "is_exp": 61.0,
+          "is_total": 3537.92,
+          "is_first_half_n": 29,
+          "is_first_half_exp": 87.66,
+          "oos_n": 18,
+          "oos_exp": 32.33,
+          "oos_total": 581.88,
+          "quarters": {
+            "2025Q1": {
+              "n": 15,
+              "exp": 108.41,
+              "total": 1626.2
+            },
+            "2025Q2": {
+              "n": 13,
+              "exp": 72.62,
+              "total": 944.04
+            },
+            "2025Q3": {
+              "n": 11,
+              "exp": 19.2,
+              "total": 211.2
+            },
+            "2025Q4": {
+              "n": 19,
+              "exp": 39.81,
+              "total": 756.48
+            },
+            "2026Q1": {
+              "n": 12,
+              "exp": 68.03,
+              "total": 816.36
+            },
+            "2026Q2": {
+              "n": 6,
+              "exp": -39.08,
+              "total": -234.48
+            }
+          },
+          "positive_quarters": "5/6",
+          "positive_quarters_n": 5,
+          "n_quarters": 6,
+          "top5_day_pct": 45.2,
+          "drop_top5_day_per_trade": 31.82,
+          "median_entry_premium": 1.395,
+          "max_entry_premium": 8.82,
+          "by_side": {
+            "C": {
+              "n": 45,
+              "exp": 67.92,
+              "wr": 62.2,
+              "total": 3056.36
+            },
+            "P": {
+              "n": 31,
+              "exp": 34.3,
+              "wr": 45.2,
+              "total": 1063.44
+            }
+          },
+          "exit_hist": {
+            "EXIT_ALL_LEVEL_STOP": 2,
+            "EXIT_ALL_PREMIUM_STOP": 33,
+            "EXIT_ALL_RIBBON_FLIP_BACK": 15,
+            "TP1_THEN_RUNNER_RIBBON": 24,
+            "TP1_THEN_RUNNER_TIME": 2
+          }
+        },
+        "gates": {
+          "G1_oos_per_trade_positive": {
+            "pass": true,
+            "value": 32.33,
+            "oos_n": 18
+          },
+          "G2_positive_quarters_ge_4": {
+            "pass": true,
+            "value": "5/6"
+          },
+          "G3_top5_day_pct_lt_200": {
+            "pass": true,
+            "value": 45.2
+          },
+          "G4_n_ge_20": {
+            "pass": true,
+            "value": 76
+          },
+          "G5_drop_top5_per_trade_positive": {
+            "pass": true,
+            "value": 31.82
+          },
+          "G6_is_first_half_positive": {
+            "pass": true,
+            "value": 87.66,
+            "is_first_half_n": 29
+          },
+          "G7_beats_random_null": {
+            "pass": true,
+            "coinflip_null": {
+              "seeds": 20,
+              "n_eligible": 25544,
+              "n_drawn": 81,
+              "per_trade_mean": -4.46,
+              "per_trade_min": -21.27,
+              "per_trade_max": 14.96,
+              "per_trade_by_seed": [
+                -5.88,
+                5.47,
+                5.16,
+                -16.33,
+                -0.95,
+                0.58,
+                0.21,
+                -4.37,
+                4.32,
+                -3.21,
+                -10.51,
+                -2.87,
+                -21.27,
+                -5.08,
+                -12.62,
+                -12.53,
+                -18.58,
+                -1.2,
+                -4.42,
+                14.96
+              ],
+              "beats_null_mean": true,
+              "beats_null_max": true,
+              "drop_top5_beats_null_mean": true,
+              "edge_over_null_per_trade": 58.67,
+              "null_pass": true
+            },
+            "sameday_null": {
+              "seeds": 20,
+              "null_exp_mean": 47.74,
+              "null_exp_min": 37.02,
+              "null_exp_max": 60.56,
+              "null_exp_std": 6.23,
+              "null_oos_exp_mean": 55.34,
+              "beats_sameday_mean_plus_std": true,
+              "oos_beats_sameday_mean": false
+            }
+          },
+          "G8_no_truncation": {
+            "pass": true,
+            "stop8_exp": 54.21,
+            "chartstop_exp": 68.35,
+            "stop8_oos_exp": 32.33,
+            "chartstop_oos_exp": 12.72,
+            "stop8_total": 4119.8,
+            "chartstop_total": 5194.6,
+            "is_truncation_artifact": false,
+            "sign_stable_full": true,
+            "sign_stable_oos": true
+          }
+        },
+        "clears_all_gates": true,
+        "n_gates_passed": 8,
+        "safe2_position_risk_dollars": 418.5,
+        "safe2_fits_cap": true,
+        "safe2_strike_in_tier": true,
+        "safe2_tradeable": true,
+        "caveats": [
+          "oos_lift_within_sameday_null_band: OOS per-trade below the same-day random-entry null OOS mean -> OOS edge is largely day+side selection, not trigger precision (still clears the coin-flip null + every coded gate)."
+        ]
+      }
+    ],
+    "reference_cell_buf050_v15default": {
+      "cell_id": "off+0_tp130_buf50",
+      "strike_offset": 0,
+      "strike_tier_name": "ATM",
+      "tp1_premium_pct": 0.3,
+      "level_stop_buffer_dollars": 0.5,
+      "coverage": {
+        "signals": 81,
+        "filled": 76,
+        "cache_miss": 5,
+        "sim_none": 0,
+        "fill_rate": 0.938
+      },
+      "metrics": {
+        "n": 76,
+        "wr_pct": 55.3,
+        "exp_dollar": 53.28,
+        "total_dollar": 4049.0,
+        "max_drawdown": -367.92,
+        "is_n": 58,
+        "is_exp": 61.0,
+        "is_total": 3537.92,
+        "is_first_half_n": 29,
+        "is_first_half_exp": 87.66,
+        "oos_n": 18,
+        "oos_exp": 28.39,
+        "oos_total": 511.08,
+        "quarters": {
+          "2025Q1": {
+            "n": 15,
+            "exp": 108.41,
+            "total": 1626.2
+          },
+          "2025Q2": {
+            "n": 13,
+            "exp": 72.62,
+            "total": 944.04
+          },
+          "2025Q3": {
+            "n": 11,
+            "exp": 19.2,
+            "total": 211.2
+          },
+          "2025Q4": {
+            "n": 19,
+            "exp": 39.81,
+            "total": 756.48
+          },
+          "2026Q1": {
+            "n": 12,
+            "exp": 62.13,
+            "total": 745.56
+          },
+          "2026Q2": {
+            "n": 6,
+            "exp": -39.08,
+            "total": -234.48
+          }
+        },
+        "positive_quarters": "5/6",
+        "positive_quarters_n": 5,
+        "n_quarters": 6,
+        "top5_day_pct": 46.0,
+        "drop_top5_day_per_trade": 30.82,
+        "median_entry_premium": 1.395,
+        "max_entry_premium": 8.82,
+        "by_side": {
+          "C": {
+            "n": 45,
+            "exp": 67.92,
+            "wr": 62.2,
+            "total": 3056.36
+          },
+          "P": {
+            "n": 31,
+            "exp": 32.02,
+            "wr": 45.2,
+            "total": 992.64
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 1,
+          "EXIT_ALL_PREMIUM_STOP": 33,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 15,
+          "TP1_THEN_RUNNER_RIBBON": 25,
+          "TP1_THEN_RUNNER_TIME": 2
+        }
+      },
+      "gates": {
+        "G1_oos_per_trade_positive": {
+          "pass": true,
+          "value": 28.39,
+          "oos_n": 18
+        },
+        "G2_positive_quarters_ge_4": {
+          "pass": true,
+          "value": "5/6"
+        },
+        "G3_top5_day_pct_lt_200": {
+          "pass": true,
+          "value": 46.0
+        },
+        "G4_n_ge_20": {
+          "pass": true,
+          "value": 76
+        },
+        "G5_drop_top5_per_trade_positive": {
+          "pass": true,
+          "value": 30.82
+        },
+        "G6_is_first_half_positive": {
+          "pass": true,
+          "value": 87.66,
+          "is_first_half_n": 29
+        },
+        "G7_beats_random_null": {
+          "pass": false,
+          "coinflip_null": {
+            "seeds": 20,
+            "n_eligible": 25544,
+            "n_drawn": 81,
+            "per_trade_mean": -4.46,
+            "per_trade_min": -21.27,
+            "per_trade_max": 14.96,
+            "per_trade_by_seed": [
+              -5.88,
+              5.47,
+              5.16,
+              -16.33,
+              -0.95,
+              0.58,
+              0.21,
+              -4.37,
+              4.32,
+              -3.21,
+              -10.51,
+              -2.87,
+              -21.27,
+              -5.08,
+              -12.62,
+              -12.53,
+              -18.58,
+              -1.2,
+              -4.42,
+              14.96
+            ],
+            "beats_null_mean": true,
+            "beats_null_max": true,
+            "drop_top5_beats_null_mean": true,
+            "edge_over_null_per_trade": 57.74,
+            "null_pass": true
+          },
+          "sameday_null": {
+            "seeds": 20,
+            "null_exp_mean": 47.74,
+            "null_exp_min": 37.02,
+            "null_exp_max": 60.56,
+            "null_exp_std": 6.23,
+            "null_oos_exp_mean": 55.34,
+            "beats_sameday_mean_plus_std": false,
+            "oos_beats_sameday_mean": false
+          }
+        },
+        "G8_no_truncation": {
+          "pass": true,
+          "stop8_exp": 53.28,
+          "chartstop_exp": 64.1,
+          "stop8_oos_exp": 28.39,
+          "chartstop_oos_exp": 8.79,
+          "stop8_total": 4049.0,
+          "chartstop_total": 4871.8,
+          "is_truncation_artifact": false,
+          "sign_stable_full": true,
+          "sign_stable_oos": true
+        }
+      },
+      "clears_all_gates": false,
+      "n_gates_passed": 7,
+      "safe2_position_risk_dollars": 418.5,
+      "safe2_fits_cap": true,
+      "safe2_strike_in_tier": true,
+      "safe2_tradeable": false,
+      "caveats": []
+    },
+    "clears_by_buffer": {
+      "0.1": true,
+      "0.15": true,
+      "0.2": true,
+      "0.25": true,
+      "0.3": true
+    },
+    "oos_exp_by_buffer": {
+      "0.1": 32.33,
+      "0.15": 32.33,
+      "0.2": 32.33,
+      "0.25": 32.33,
+      "0.3": 32.33
+    },
+    "n_buffers_clearing_all_gates": 5,
+    "rescue_buffer_clears_all_gates": true,
+    "gate_clearing_contiguous_run_thru_025": 5,
+    "oos_positive_contiguous_run_thru_025": 5,
+    "neighbors_clearing": [
+      0.2,
+      0.3
+    ],
+    "fine_sweep_exp_by_buffer": {
+      "0.1": 54.21,
+      "0.15": 54.21,
+      "0.2": 54.21,
+      "0.25": 54.21,
+      "0.3": 54.21
+    },
+    "fine_sweep_oos_by_buffer": {
+      "0.1": 32.33,
+      "0.15": 32.33,
+      "0.2": 32.33,
+      "0.25": 32.33,
+      "0.3": 32.33
+    },
+    "fine_sweep_is_flat": true,
+    "boundary_050_binds": true,
+    "reference_050": {
+      "exp_dollar": 53.28,
+      "oos_exp": 28.39,
+      "clears_all_gates": false
+    },
+    "is_plateau": true,
+    "plateau_verdict": "FLAT PLATEAU: every buffer in [0.1, 0.15, 0.2, 0.25, 0.3] yields IDENTICAL results (exp=$54.21, oos=$32.33, 8/8 gates) \u2014 the buffer knob does NOT bind inside [0.10,0.30]; the rescue's gain came from crossing the $0.50 boundary (ref buf=0.50: exp=$53.28, oos=$28.39, clears=False; it flips exactly ONE trade's level-stop). $0.25 is the CENTER of a wide flat plateau, the OPPOSITE of a knife-edge spike \u2014 any buffer <=$0.30 is equally safe. Sizing the Safe-2 ATM cell on it is robust (the knob is coarse but the favorable side is flat and wide)."
+  },
+  "verdict": "DIAGNOSTIC (no new edge): PART A (precision vs selection): ITM-2 MIXED; ATM rescue DAY+SIDE SELECTION. PART B (buffer plateau): FLAT PLATEAU ($0.25 clears_all=True, gate-run=5, OOS-pos-run=5). Edge #2 remains the confirmed dormant edge; this quantifies HOW it works (selection vs timing) and how stable the Safe-2 rescue knob is.",
+  "key_finding": "PART A (precision vs selection): ITM-2 MIXED; ATM rescue DAY+SIDE SELECTION. PART B (buffer plateau): FLAT PLATEAU ($0.25 clears_all=True, gate-run=5, OOS-pos-run=5).",
+  "DISCLOSURE": {
+    "diagnostic_not_new_edge": "This settles HOW edge #2 works + how stable the rescue knob is; it does NOT propose a new edge.",
+    "no_cherry_pick": "Part B reports all 8 gates for EVERY buffer cell; Part A reports FULL + OOS same-day-null lift for both ITM-2 and ATM (anti-2.10).",
+    "detector_no_drift": "detector + same-day null + sim/metrics/gate code imported byte-for-byte from the validated sub-struct / rescue modules.",
+    "spy_vs_option": "real OPRA fills; SPY-direction != option edge (C3/L58).",
+    "precision_caveat": "same-day same-side null isolates entry-bar TIMING from day+side selection \u2014 the harder control than the coin-flip null (which also randomizes the day)."
+  }
+}

@@ -1,0 +1,753 @@
+{
+  "kind": "pivot_spreadify",
+  "edge": "#4 vix_regime_dayside (ATM Safe-2)",
+  "thesis": "debit spread (BUY near + SELL far-OTM same side) caps premium-at-risk, cuts theta/vega, reduces -8% premium-stop whipsaw in chop; A/B vs the long single-leg ATM Safe-2 baseline on real OPRA fills",
+  "run_date": "2026-06-21",
+  "data_window": "2025-01-01..2026-06-16",
+  "markets": "CLOSED (Sunday) \u2014 offline real-fills, $0, no live orders",
+  "regime_cell": {
+    "slope_rule": "not_rising",
+    "low_margin": 0.0,
+    "note": "canonical #4 favorable regime; spread refinement is geometry only"
+  },
+  "exit_rules_applied_to_spread_net": {
+    "premium_stop_pct": -0.08,
+    "tp1_pct": 0.3,
+    "tp1_qty_fraction": 0.5,
+    "runner_pct": 2.5,
+    "time_stop_et": "15:50:00",
+    "slippage_per_leg": 0.02,
+    "commission_headline": 0.0,
+    "commission_disclosed": 0.65
+  },
+  "n_signals": 114,
+  "recent_window_dates": [
+    "2026-02-25",
+    "2026-03-10",
+    "2026-03-13",
+    "2026-03-16",
+    "2026-03-17",
+    "2026-03-19",
+    "2026-03-30",
+    "2026-04-10",
+    "2026-04-14",
+    "2026-04-17",
+    "2026-04-28",
+    "2026-04-30",
+    "2026-05-01",
+    "2026-05-04",
+    "2026-05-05",
+    "2026-05-07",
+    "2026-05-14",
+    "2026-05-15",
+    "2026-05-18",
+    "2026-05-22",
+    "2026-05-28",
+    "2026-05-29",
+    "2026-06-03",
+    "2026-06-11",
+    "2026-06-15"
+  ],
+  "long_baseline": {
+    "structure": "long_single_leg_ATM_safe2",
+    "strike_offset": 0,
+    "coverage": {
+      "signals": 114,
+      "filled": 108,
+      "cache_miss": 6,
+      "sim_none": 0,
+      "fill_rate": 0.947
+    },
+    "full_oos": {
+      "label": "full_oos_2026",
+      "n": 33,
+      "wr_pct": 51.5,
+      "exp_per_trade": 59.47,
+      "total": 1962.52,
+      "book_max_dd": -266.88,
+      "sharpe_per_trade": 0.449,
+      "sortino_per_trade": 1.127,
+      "n_days": 33,
+      "exit_hist": {
+        "EXIT_ALL_PREMIUM_STOP": 15,
+        "EXIT_ALL_RIBBON_FLIP_BACK": 6,
+        "TP1_THEN_RUNNER_RIBBON": 8,
+        "TP1_THEN_RUNNER_TIME": 4
+      }
+    },
+    "recent": {
+      "label": "recent_25d",
+      "n": 25,
+      "wr_pct": 36.0,
+      "exp_per_trade": 19.5,
+      "total": 487.52,
+      "book_max_dd": -266.88,
+      "sharpe_per_trade": 0.183,
+      "sortino_per_trade": 0.37,
+      "n_days": 25,
+      "exit_hist": {
+        "EXIT_ALL_PREMIUM_STOP": 15,
+        "EXIT_ALL_RIBBON_FLIP_BACK": 4,
+        "TP1_THEN_RUNNER_RIBBON": 5,
+        "TP1_THEN_RUNNER_TIME": 1
+      }
+    },
+    "all_n": 108
+  },
+  "debit_spread_grid": [
+    {
+      "cell": "long_ATM_short_2wOTM",
+      "long_tier": "ATM",
+      "long_offset": 0,
+      "short_width": 2,
+      "coverage": {
+        "signals": 114,
+        "filled": 101,
+        "cache_miss": 13,
+        "skipped": 0,
+        "fill_rate": 0.886
+      },
+      "full_oos": {
+        "label": "full_oos_2026",
+        "n": 30,
+        "wr_pct": 26.7,
+        "exp_per_trade": 4.8,
+        "total": 144.0,
+        "book_max_dd": -504.0,
+        "sharpe_per_trade": 0.046,
+        "sortino_per_trade": 0.082,
+        "n_days": 30,
+        "exit_hist": {
+          "STOP": 22,
+          "TP1_RUNNER_TARGET": 4,
+          "TP1_THEN_TIME": 4
+        }
+      },
+      "recent": {
+        "label": "recent_25d",
+        "n": 22,
+        "wr_pct": 13.6,
+        "exp_per_trade": -22.91,
+        "total": -504.0,
+        "book_max_dd": -468.0,
+        "sharpe_per_trade": -0.272,
+        "sortino_per_trade": -0.403,
+        "n_days": 22,
+        "exit_hist": {
+          "STOP": 19,
+          "TP1_RUNNER_TARGET": 1,
+          "TP1_THEN_TIME": 2
+        }
+      },
+      "all_n": 101,
+      "delta_full_oos": {
+        "exp_per_trade": -54.67,
+        "wr_pct": -24.8,
+        "book_max_dd": -237.12,
+        "sharpe_per_trade": -0.403,
+        "sortino_per_trade": -1.045,
+        "total": -1818.52,
+        "n": -3
+      },
+      "delta_recent": {
+        "exp_per_trade": -42.41,
+        "wr_pct": -22.4,
+        "book_max_dd": -201.12,
+        "sharpe_per_trade": -0.455,
+        "sortino_per_trade": -0.773,
+        "total": -991.52,
+        "n": -3
+      }
+    },
+    {
+      "cell": "long_ATM_short_3wOTM",
+      "long_tier": "ATM",
+      "long_offset": 0,
+      "short_width": 3,
+      "coverage": {
+        "signals": 114,
+        "filled": 100,
+        "cache_miss": 14,
+        "skipped": 0,
+        "fill_rate": 0.877
+      },
+      "full_oos": {
+        "label": "full_oos_2026",
+        "n": 30,
+        "wr_pct": 30.0,
+        "exp_per_trade": 18.6,
+        "total": 558.0,
+        "book_max_dd": -611.0,
+        "sharpe_per_trade": 0.129,
+        "sortino_per_trade": 0.246,
+        "n_days": 30,
+        "exit_hist": {
+          "STOP": 21,
+          "TP1_RUNNER_TARGET": 4,
+          "TP1_THEN_TIME": 5
+        }
+      },
+      "recent": {
+        "label": "recent_25d",
+        "n": 22,
+        "wr_pct": 18.2,
+        "exp_per_trade": -19.23,
+        "total": -423.0,
+        "book_max_dd": -578.0,
+        "sharpe_per_trade": -0.164,
+        "sortino_per_trade": -0.259,
+        "n_days": 22,
+        "exit_hist": {
+          "STOP": 18,
+          "TP1_RUNNER_TARGET": 1,
+          "TP1_THEN_TIME": 3
+        }
+      },
+      "all_n": 100,
+      "delta_full_oos": {
+        "exp_per_trade": -40.87,
+        "wr_pct": -21.5,
+        "book_max_dd": -344.12,
+        "sharpe_per_trade": -0.32,
+        "sortino_per_trade": -0.881,
+        "total": -1404.52,
+        "n": -3
+      },
+      "delta_recent": {
+        "exp_per_trade": -38.73,
+        "wr_pct": -17.8,
+        "book_max_dd": -311.12,
+        "sharpe_per_trade": -0.347,
+        "sortino_per_trade": -0.629,
+        "total": -910.52,
+        "n": -3
+      }
+    },
+    {
+      "cell": "long_ATM_short_4wOTM",
+      "long_tier": "ATM",
+      "long_offset": 0,
+      "short_width": 4,
+      "coverage": {
+        "signals": 114,
+        "filled": 99,
+        "cache_miss": 15,
+        "skipped": 0,
+        "fill_rate": 0.868
+      },
+      "full_oos": {
+        "label": "full_oos_2026",
+        "n": 30,
+        "wr_pct": 30.0,
+        "exp_per_trade": 24.37,
+        "total": 731.0,
+        "book_max_dd": -731.0,
+        "sharpe_per_trade": 0.141,
+        "sortino_per_trade": 0.279,
+        "n_days": 30,
+        "exit_hist": {
+          "STOP": 21,
+          "TP1_RUNNER_TARGET": 5,
+          "TP1_THEN_TIME": 4
+        }
+      },
+      "recent": {
+        "label": "recent_25d",
+        "n": 22,
+        "wr_pct": 18.2,
+        "exp_per_trade": -21.59,
+        "total": -475.0,
+        "book_max_dd": -692.0,
+        "sharpe_per_trade": -0.155,
+        "sortino_per_trade": -0.248,
+        "n_days": 22,
+        "exit_hist": {
+          "STOP": 18,
+          "TP1_RUNNER_TARGET": 1,
+          "TP1_THEN_TIME": 3
+        }
+      },
+      "all_n": 99,
+      "delta_full_oos": {
+        "exp_per_trade": -35.1,
+        "wr_pct": -21.5,
+        "book_max_dd": -464.12,
+        "sharpe_per_trade": -0.308,
+        "sortino_per_trade": -0.848,
+        "total": -1231.52,
+        "n": -3
+      },
+      "delta_recent": {
+        "exp_per_trade": -41.09,
+        "wr_pct": -17.8,
+        "book_max_dd": -425.12,
+        "sharpe_per_trade": -0.338,
+        "sortino_per_trade": -0.618,
+        "total": -962.52,
+        "n": -3
+      }
+    },
+    {
+      "cell": "long_ITM1_short_2wOTM",
+      "long_tier": "ITM1",
+      "long_offset": -1,
+      "short_width": 2,
+      "coverage": {
+        "signals": 114,
+        "filled": 102,
+        "cache_miss": 11,
+        "skipped": 1,
+        "fill_rate": 0.895
+      },
+      "full_oos": {
+        "label": "full_oos_2026",
+        "n": 30,
+        "wr_pct": 20.0,
+        "exp_per_trade": -30.3,
+        "total": -909.0,
+        "book_max_dd": -1387.0,
+        "sharpe_per_trade": -0.24,
+        "sortino_per_trade": -0.257,
+        "n_days": 30,
+        "exit_hist": {
+          "STOP": 24,
+          "TP1_RUNNER_TARGET": 1,
+          "TP1_THEN_TIME": 5
+        }
+      },
+      "recent": {
+        "label": "recent_25d",
+        "n": 23,
+        "wr_pct": 8.7,
+        "exp_per_trade": -60.3,
+        "total": -1387.0,
+        "book_max_dd": -1351.0,
+        "sharpe_per_trade": -0.548,
+        "sortino_per_trade": -0.491,
+        "n_days": 23,
+        "exit_hist": {
+          "STOP": 21,
+          "TP1_THEN_TIME": 2
+        }
+      },
+      "all_n": 102,
+      "delta_full_oos": {
+        "exp_per_trade": -89.77,
+        "wr_pct": -31.5,
+        "book_max_dd": -1120.12,
+        "sharpe_per_trade": -0.689,
+        "sortino_per_trade": -1.384,
+        "total": -2871.52,
+        "n": -3
+      },
+      "delta_recent": {
+        "exp_per_trade": -79.8,
+        "wr_pct": -27.3,
+        "book_max_dd": -1084.12,
+        "sharpe_per_trade": -0.731,
+        "sortino_per_trade": -0.861,
+        "total": -1874.52,
+        "n": -2
+      }
+    },
+    {
+      "cell": "long_ITM1_short_3wOTM",
+      "long_tier": "ITM1",
+      "long_offset": -1,
+      "short_width": 3,
+      "coverage": {
+        "signals": 114,
+        "filled": 102,
+        "cache_miss": 12,
+        "skipped": 0,
+        "fill_rate": 0.895
+      },
+      "full_oos": {
+        "label": "full_oos_2026",
+        "n": 31,
+        "wr_pct": 25.8,
+        "exp_per_trade": -0.87,
+        "total": -27.0,
+        "book_max_dd": -1177.0,
+        "sharpe_per_trade": -0.006,
+        "sortino_per_trade": -0.009,
+        "n_days": 31,
+        "exit_hist": {
+          "STOP": 23,
+          "TP1_RUNNER_TARGET": 2,
+          "TP1_THEN_TIME": 6
+        }
+      },
+      "recent": {
+        "label": "recent_25d",
+        "n": 23,
+        "wr_pct": 13.0,
+        "exp_per_trade": -46.61,
+        "total": -1072.0,
+        "book_max_dd": -1138.0,
+        "sharpe_per_trade": -0.422,
+        "sortino_per_trade": -0.469,
+        "n_days": 23,
+        "exit_hist": {
+          "STOP": 20,
+          "TP1_THEN_TIME": 3
+        }
+      },
+      "all_n": 102,
+      "delta_full_oos": {
+        "exp_per_trade": -60.34,
+        "wr_pct": -25.7,
+        "book_max_dd": -910.12,
+        "sharpe_per_trade": -0.455,
+        "sortino_per_trade": -1.136,
+        "total": -1989.52,
+        "n": -2
+      },
+      "delta_recent": {
+        "exp_per_trade": -66.11,
+        "wr_pct": -23.0,
+        "book_max_dd": -871.12,
+        "sharpe_per_trade": -0.605,
+        "sortino_per_trade": -0.839,
+        "total": -1559.52,
+        "n": -2
+      }
+    },
+    {
+      "cell": "long_ITM1_short_4wOTM",
+      "long_tier": "ITM1",
+      "long_offset": -1,
+      "short_width": 4,
+      "coverage": {
+        "signals": 114,
+        "filled": 101,
+        "cache_miss": 13,
+        "skipped": 0,
+        "fill_rate": 0.886
+      },
+      "full_oos": {
+        "label": "full_oos_2026",
+        "n": 31,
+        "wr_pct": 25.8,
+        "exp_per_trade": 15.29,
+        "total": 474.0,
+        "book_max_dd": -1020.0,
+        "sharpe_per_trade": 0.087,
+        "sortino_per_trade": 0.167,
+        "n_days": 31,
+        "exit_hist": {
+          "STOP": 23,
+          "TP1_RUNNER_TARGET": 2,
+          "TP1_THEN_TIME": 6
+        }
+      },
+      "recent": {
+        "label": "recent_25d",
+        "n": 23,
+        "wr_pct": 13.0,
+        "exp_per_trade": -38.13,
+        "total": -877.0,
+        "book_max_dd": -975.0,
+        "sharpe_per_trade": -0.317,
+        "sortino_per_trade": -0.432,
+        "n_days": 23,
+        "exit_hist": {
+          "STOP": 20,
+          "TP1_THEN_TIME": 3
+        }
+      },
+      "all_n": 101,
+      "delta_full_oos": {
+        "exp_per_trade": -44.18,
+        "wr_pct": -25.7,
+        "book_max_dd": -753.12,
+        "sharpe_per_trade": -0.362,
+        "sortino_per_trade": -0.96,
+        "total": -1488.52,
+        "n": -2
+      },
+      "delta_recent": {
+        "exp_per_trade": -57.63,
+        "wr_pct": -23.0,
+        "book_max_dd": -708.12,
+        "sharpe_per_trade": -0.5,
+        "sortino_per_trade": -0.802,
+        "total": -1364.52,
+        "n": -2
+      }
+    },
+    {
+      "cell": "long_ITM2_short_2wOTM",
+      "long_tier": "ITM2",
+      "long_offset": -2,
+      "short_width": 2,
+      "coverage": {
+        "signals": 114,
+        "filled": 102,
+        "cache_miss": 11,
+        "skipped": 1,
+        "fill_rate": 0.895
+      },
+      "full_oos": {
+        "label": "full_oos_2026",
+        "n": 30,
+        "wr_pct": 23.3,
+        "exp_per_trade": -18.57,
+        "total": -557.0,
+        "book_max_dd": -1196.0,
+        "sharpe_per_trade": -0.19,
+        "sortino_per_trade": -0.25,
+        "n_days": 30,
+        "exit_hist": {
+          "STOP": 23,
+          "TP1_THEN_TIME": 7
+        }
+      },
+      "recent": {
+        "label": "recent_25d",
+        "n": 23,
+        "wr_pct": 13.0,
+        "exp_per_trade": -43.09,
+        "total": -991.0,
+        "book_max_dd": -1196.0,
+        "sharpe_per_trade": -0.591,
+        "sortino_per_trade": -0.589,
+        "n_days": 23,
+        "exit_hist": {
+          "STOP": 20,
+          "TP1_THEN_TIME": 3
+        }
+      },
+      "all_n": 102,
+      "delta_full_oos": {
+        "exp_per_trade": -78.04,
+        "wr_pct": -28.2,
+        "book_max_dd": -929.12,
+        "sharpe_per_trade": -0.639,
+        "sortino_per_trade": -1.377,
+        "total": -2519.52,
+        "n": -3
+      },
+      "delta_recent": {
+        "exp_per_trade": -62.59,
+        "wr_pct": -23.0,
+        "book_max_dd": -929.12,
+        "sharpe_per_trade": -0.774,
+        "sortino_per_trade": -0.959,
+        "total": -1478.52,
+        "n": -2
+      }
+    },
+    {
+      "cell": "long_ITM2_short_3wOTM",
+      "long_tier": "ITM2",
+      "long_offset": -2,
+      "short_width": 3,
+      "coverage": {
+        "signals": 114,
+        "filled": 103,
+        "cache_miss": 11,
+        "skipped": 0,
+        "fill_rate": 0.904
+      },
+      "full_oos": {
+        "label": "full_oos_2026",
+        "n": 31,
+        "wr_pct": 29.0,
+        "exp_per_trade": -2.52,
+        "total": -78.0,
+        "book_max_dd": -1321.0,
+        "sharpe_per_trade": -0.016,
+        "sortino_per_trade": -0.024,
+        "n_days": 31,
+        "exit_hist": {
+          "STOP": 22,
+          "TP1_RUNNER_TARGET": 1,
+          "TP1_THEN_TIME": 8
+        }
+      },
+      "recent": {
+        "label": "recent_25d",
+        "n": 23,
+        "wr_pct": 17.4,
+        "exp_per_trade": -45.13,
+        "total": -1038.0,
+        "book_max_dd": -1321.0,
+        "sharpe_per_trade": -0.391,
+        "sortino_per_trade": -0.446,
+        "n_days": 23,
+        "exit_hist": {
+          "STOP": 19,
+          "TP1_THEN_TIME": 4
+        }
+      },
+      "all_n": 103,
+      "delta_full_oos": {
+        "exp_per_trade": -61.99,
+        "wr_pct": -22.5,
+        "book_max_dd": -1054.12,
+        "sharpe_per_trade": -0.465,
+        "sortino_per_trade": -1.151,
+        "total": -2040.52,
+        "n": -2
+      },
+      "delta_recent": {
+        "exp_per_trade": -64.63,
+        "wr_pct": -18.6,
+        "book_max_dd": -1054.12,
+        "sharpe_per_trade": -0.574,
+        "sortino_per_trade": -0.816,
+        "total": -1525.52,
+        "n": -2
+      }
+    },
+    {
+      "cell": "long_ITM2_short_4wOTM",
+      "long_tier": "ITM2",
+      "long_offset": -2,
+      "short_width": 4,
+      "coverage": {
+        "signals": 114,
+        "filled": 102,
+        "cache_miss": 12,
+        "skipped": 0,
+        "fill_rate": 0.895
+      },
+      "full_oos": {
+        "label": "full_oos_2026",
+        "n": 31,
+        "wr_pct": 32.3,
+        "exp_per_trade": 32.74,
+        "total": 1015.0,
+        "book_max_dd": -1078.0,
+        "sharpe_per_trade": 0.145,
+        "sortino_per_trade": 0.271,
+        "n_days": 31,
+        "exit_hist": {
+          "STOP": 21,
+          "TP1_RUNNER_TARGET": 3,
+          "TP1_THEN_TIME": 7
+        }
+      },
+      "recent": {
+        "label": "recent_25d",
+        "n": 23,
+        "wr_pct": 21.7,
+        "exp_per_trade": -16.3,
+        "total": -375.0,
+        "book_max_dd": -1078.0,
+        "sharpe_per_trade": -0.08,
+        "sortino_per_trade": -0.135,
+        "n_days": 23,
+        "exit_hist": {
+          "STOP": 18,
+          "TP1_RUNNER_TARGET": 1,
+          "TP1_THEN_TIME": 4
+        }
+      },
+      "all_n": 102,
+      "delta_full_oos": {
+        "exp_per_trade": -26.73,
+        "wr_pct": -19.2,
+        "book_max_dd": -811.12,
+        "sharpe_per_trade": -0.304,
+        "sortino_per_trade": -0.856,
+        "total": -947.52,
+        "n": -2
+      },
+      "delta_recent": {
+        "exp_per_trade": -35.8,
+        "wr_pct": -14.3,
+        "book_max_dd": -811.12,
+        "sharpe_per_trade": -0.263,
+        "sortino_per_trade": -0.505,
+        "total": -862.52,
+        "n": -2
+      }
+    }
+  ],
+  "best_cell": {
+    "cell": "long_ATM_short_2wOTM",
+    "long_tier": "ATM",
+    "long_offset": 0,
+    "short_width": 2,
+    "coverage": {
+      "signals": 114,
+      "filled": 101,
+      "cache_miss": 13,
+      "skipped": 0,
+      "fill_rate": 0.886
+    },
+    "full_oos": {
+      "label": "full_oos_2026",
+      "n": 30,
+      "wr_pct": 26.7,
+      "exp_per_trade": 4.8,
+      "total": 144.0,
+      "book_max_dd": -504.0,
+      "sharpe_per_trade": 0.046,
+      "sortino_per_trade": 0.082,
+      "n_days": 30,
+      "exit_hist": {
+        "STOP": 22,
+        "TP1_RUNNER_TARGET": 4,
+        "TP1_THEN_TIME": 4
+      }
+    },
+    "recent": {
+      "label": "recent_25d",
+      "n": 22,
+      "wr_pct": 13.6,
+      "exp_per_trade": -22.91,
+      "total": -504.0,
+      "book_max_dd": -468.0,
+      "sharpe_per_trade": -0.272,
+      "sortino_per_trade": -0.403,
+      "n_days": 22,
+      "exit_hist": {
+        "STOP": 19,
+        "TP1_RUNNER_TARGET": 1,
+        "TP1_THEN_TIME": 2
+      }
+    },
+    "all_n": 101,
+    "delta_full_oos": {
+      "exp_per_trade": -54.67,
+      "wr_pct": -24.8,
+      "book_max_dd": -237.12,
+      "sharpe_per_trade": -0.403,
+      "sortino_per_trade": -1.045,
+      "total": -1818.52,
+      "n": -3
+    },
+    "delta_recent": {
+      "exp_per_trade": -42.41,
+      "wr_pct": -22.4,
+      "book_max_dd": -201.12,
+      "sharpe_per_trade": -0.455,
+      "sortino_per_trade": -0.773,
+      "total": -991.52,
+      "n": -3
+    }
+  },
+  "best_cell_name": "long_ATM_short_2wOTM",
+  "verdict": "NO_IMPROVEMENT",
+  "verdict_detail": {
+    "oos_exp_positive": true,
+    "recency_better": false,
+    "recency_total_improvement": -991.52,
+    "recency_maxdd_improvement": -201.12,
+    "oos_maxdd_improvement": -237.12,
+    "oos_sharpe_delta": -0.403,
+    "oos_exp_delta": -54.67,
+    "ev_cut_materially": true
+  },
+  "DISCLOSURE": {
+    "detector_reuse": "_b5_vix_regime_dayside.detect_opt_signals byte-for-byte; no watcher/param/risk_gate/orchestrator/heartbeat edits",
+    "real_fills": "lib.option_pricing_real OPRA loader; baseline via lib.simulator_real (live edge); spread priced leg-by-leg",
+    "band": "both legs within +/-$5 OPRA cache band (near-ATM narrow spreads fit)",
+    "per_trade": "per-trade expectancy + Sharpe/Sortino, not WR alone (C4/L175)",
+    "no_lookahead": "next-bar-open fill; exit decisions on bars <= current walk bar (C6)",
+    "recent_window": "last 25 trade dates of the signal stream (the chop/RED regime)"
+  }
+}

@@ -27,8 +27,8 @@ from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-ALPACA_KEY = "PK33J2RV4PNIY6TCOLUG3WYGRX"
-ALPACA_SECRET = "FxbJshSbhJ8Rn7KPENssS4eWsLpxCyYeyxavxywV9Bbs"
+from _alpaca_creds import resolve_alpaca_creds
+
 ALPACA_DATA_URL = "https://data.alpaca.markets/v1beta1/options/bars"
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -63,7 +63,7 @@ CONTRACTS = [
 ]
 
 
-def fetch_contract_bars(symbol: str, trade_date: str) -> list[dict]:
+def fetch_contract_bars(symbol: str, trade_date: str, key: str, secret: str) -> list[dict]:
     """Fetch 5-min bars for a single 0DTE contract, scoped to RTH on trade_date.
 
     Returns list of dicts with normalized field names.
@@ -79,8 +79,8 @@ def fetch_contract_bars(symbol: str, trade_date: str) -> list[dict]:
     }
     url = f"{ALPACA_DATA_URL}?{urlencode(params)}"
     req = Request(url, headers={
-        "APCA-API-KEY-ID": ALPACA_KEY,
-        "APCA-API-SECRET-KEY": ALPACA_SECRET,
+        "APCA-API-KEY-ID": key,
+        "APCA-API-SECRET-KEY": secret,
     })
     with urlopen(req, timeout=30) as resp:
         payload = json.loads(resp.read().decode("utf-8"))
@@ -142,6 +142,9 @@ def main(argv=None) -> int:
             print(f"  [{status}] {date_str}  {symbol}  {size}b")
         return 0
 
+    creds = resolve_alpaca_creds()
+    print(f"Alpaca creds: key={creds.key[:4]}... source={creds.source}")
+
     fetched = 0
     failed = []
     for date_str, symbol in CONTRACTS:
@@ -149,7 +152,7 @@ def main(argv=None) -> int:
             print(f"  skip {symbol}  (cached)")
             continue
         try:
-            rows = fetch_contract_bars(symbol, date_str)
+            rows = fetch_contract_bars(symbol, date_str, creds.key, creds.secret)
             if not rows:
                 print(f"  WARN {symbol}  empty response")
                 failed.append((symbol, "empty"))

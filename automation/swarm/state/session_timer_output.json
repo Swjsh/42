@@ -1,0 +1,21 @@
+{
+  "agent": "session_timer",
+  "generated_at": "2026-06-26T14:17:56Z",
+  "bias": "bullish",
+  "confidence": 0.8,
+  "reasoning": "Current time 10:17 ET = MORNING session (optimal window per J's doctrine). 282 minutes until 15:00 ET entry cutoff. 0DTE theta decay is SLOW (before 12:00 ET). Historical pattern for 10:15-11:30 ET shows best setup quality with first real trend established after open noise clears. Session timing is ADDITIVE to confidence — morning window supports entries in either direction; direction comes from other agents.",
+  "current_et_time": "10:17",
+  "session_phase": "MORNING",
+  "minutes_to_entry_cutoff": 282,
+  "theta_urgency": "slow",
+  "session_quality": "optimal",
+  "historical_bias": "trending",
+  "time_context_adds_to": "confidence",
+  "key_observations": [
+    "MORNING session (10:00-11:30 ET) — highest quality window for 0DTE entries",
+    "282 minutes remaining until 15:00 ET entry cutoff — ample time for position management",
+    "Theta decay SLOW before 12:00 ET — premium retention favorable",
+    "Historical pattern: 10:15-11:30 ET trending after morning noise settles"
+  ],
+  "data_quality": "full"
+}

@@ -1,0 +1,21 @@
+{
+  "agent": "momentum_analyst",
+  "generated_at": "2026-06-26T14:17:56Z",
+  "bias": "no_trade",
+  "confidence": 0.25,
+  "reasoning": "Short ROC +0.54% (5 bars), medium ROC +0.44% (15 bars) — both positive but very weak. Avg body 19.8% (weak/indecision). Recent 2-bar avg body 8.5% vs prior 3-bar avg 35.3% = 76% contraction indicating strong deceleration. No divergence but momentum clearly fading. Weak ROC values combined with decelerating momentum suggest no actionable edge.",
+  "roc_5bar_pct": 0.54,
+  "roc_15bar_pct": 0.44,
+  "momentum_direction": "up",
+  "avg_body_pct_5bar": 19.8,
+  "momentum_strength": "weak",
+  "momentum_trend": "decelerating",
+  "divergence": "none",
+  "key_observations": [
+    "ROC 5-bar +0.54% and 15-bar +0.44% — weak positive but below 0.3% and 0.5% thresholds respectively",
+    "Avg body 19.8% — doji/indecision bars, well below 30% threshold for moderate momentum",
+    "Body contraction 76% from prior 3 bars to recent 2 bars — clear deceleration signal",
+    "Price drifting up with shrinking candle bodies = fading move, not impulse"
+  ],
+  "data_quality": "full"
+}

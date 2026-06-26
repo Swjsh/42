@@ -1,0 +1,490 @@
+{
+  "slug": "chandelier-tighten-20-to-15-oos-wf",
+  "run_date": "2026-06-21",
+  "kind": "EXIT/MANAGEMENT change on LIVE edge #1 (vwap_continuation)",
+  "STALE_PREMISE_NOTE": "The hypothesis premise ('un-shipped forward-pointer, tighten 0.20->0.15') is STALE: params.json v15_profit_lock_trail_pct is ALREADY 0.15 (shipped LIVE 2026-06-19 via the full-engine reconfirm, scorecard weekend-fixes-live-reconfirm-2026-06-19.json). So the LIVE BASELINE is 0.15, not 0.20. This sub-study therefore re-frames the open question as: (a) does the 0.15>0.20 ranking hold on the vwap_continuation population + survive WF, and (b) does going TIGHTER than live (0.125 / 0.10) beat the current 0.15.",
+  "live_cell": {
+    "strike_offset": -2,
+    "strike_tier": "ITM2",
+    "premium_stop_pct": -0.08,
+    "profit_lock_mode": "trailing",
+    "arm_threshold_pct": 0.05,
+    "tp1_premium_pct": 0.5,
+    "runner_target_premium_pct": 2.5,
+    "LIVE_trail_pct": 0.15,
+    "prior_trail_pct": 0.2
+  },
+  "detector": "REUSED detect_signals from _edgehunt_vwap_continuation == BYTE-FOR-BYTE j_daily_pattern_ratify.detect_j_vwap_continuation == LIVE vwap_continuation_watcher",
+  "fills_authority": "lib.simulator_real.simulate_trade_real (real OPRA, C1)",
+  "hard_window": "filled trades asserted <= 2026-05-29 (cache blind spot)",
+  "actual_fill_window": "2025-01-02..2026-05-15",
+  "n_signals": 158,
+  "trail_sweep": [
+    0.1,
+    0.125,
+    0.15,
+    0.2
+  ],
+  "cells": {
+    "0.1": {
+      "n": 149,
+      "wr_pct": 58.4,
+      "exp_dollar": 80.62,
+      "total_dollar": 12012.3,
+      "is_n": 107,
+      "is_exp": 73.76,
+      "oos_n": 42,
+      "oos_exp": 98.1,
+      "oos_total": 4120.32,
+      "is_h1_exp": 64.57,
+      "is_h2_exp": 82.77,
+      "positive_quarters": "6/6",
+      "positive_quarters_n": 6,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 95.14,
+          "total": 2378.46
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 43.11,
+          "total": 991.56
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 37.15,
+          "total": 965.82
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 107.76,
+          "total": 3556.14
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 145.01,
+          "total": 3770.28
+        },
+        "2026Q2": {
+          "n": 16,
+          "exp": 21.88,
+          "total": 350.04
+        }
+      },
+      "top5_day_pct": 18.3,
+      "anchor_n": 2,
+      "anchor_pnl": 145.5,
+      "risk": {
+        "sharpe": 9.73,
+        "sortino": 15.907,
+        "max_dd": -315.12,
+        "n": 149
+      },
+      "exit_hist": {
+        "EXIT_ALL_PREMIUM_STOP": 148,
+        "EXIT_ALL_RIBBON_FLIP_BACK": 1
+      },
+      "coverage": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none": 0,
+        "fill_rate": 0.943
+      },
+      "wf": [
+        {
+          "fold": 1,
+          "start": "2025-01-02",
+          "end": "2025-05-13",
+          "n": 37,
+          "exp": 79.62,
+          "total": 2945.76
+        },
+        {
+          "fold": 2,
+          "start": "2025-05-19",
+          "end": "2025-09-26",
+          "n": 37,
+          "exp": 37.57,
+          "total": 1390.08
+        },
+        {
+          "fold": 3,
+          "start": "2025-10-01",
+          "end": "2026-01-20",
+          "n": 37,
+          "exp": 107.68,
+          "total": 3984.24
+        },
+        {
+          "fold": 4,
+          "start": "2026-01-26",
+          "end": "2026-05-15",
+          "n": 38,
+          "exp": 97.16,
+          "total": 3692.22
+        }
+      ]
+    },
+    "0.125": {
+      "n": 149,
+      "wr_pct": 54.4,
+      "exp_dollar": 69.94,
+      "total_dollar": 10420.81,
+      "is_n": 107,
+      "is_exp": 65.18,
+      "oos_n": 42,
+      "oos_exp": 82.06,
+      "oos_total": 3446.53,
+      "is_h1_exp": 54.2,
+      "is_h2_exp": 75.96,
+      "positive_quarters": "6/6",
+      "positive_quarters_n": 6,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 83.86,
+          "total": 2096.38
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 32.8,
+          "total": 754.32
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 38.64,
+          "total": 1004.69
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 94.51,
+          "total": 3118.89
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 124.47,
+          "total": 3236.14
+        },
+        "2026Q2": {
+          "n": 16,
+          "exp": 13.15,
+          "total": 210.39
+        }
+      },
+      "top5_day_pct": 19.7,
+      "anchor_n": 2,
+      "anchor_pnl": 118.87,
+      "risk": {
+        "sharpe": 9.038,
+        "sortino": 13.799,
+        "max_dd": -315.12,
+        "n": 149
+      },
+      "exit_hist": {
+        "EXIT_ALL_PREMIUM_STOP": 148,
+        "EXIT_ALL_RIBBON_FLIP_BACK": 1
+      },
+      "coverage": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none": 0,
+        "fill_rate": 0.943
+      },
+      "wf": [
+        {
+          "fold": 1,
+          "start": "2025-01-02",
+          "end": "2025-05-13",
+          "n": 37,
+          "exp": 68.12,
+          "total": 2520.57
+        },
+        {
+          "fold": 2,
+          "start": "2025-05-19",
+          "end": "2025-09-26",
+          "n": 37,
+          "exp": 36.08,
+          "total": 1334.82
+        },
+        {
+          "fold": 3,
+          "start": "2025-10-01",
+          "end": "2026-01-20",
+          "n": 37,
+          "exp": 93.73,
+          "total": 3468.01
+        },
+        {
+          "fold": 4,
+          "start": "2026-01-26",
+          "end": "2026-05-15",
+          "n": 38,
+          "exp": 81.51,
+          "total": 3097.41
+        }
+      ]
+    },
+    "0.15": {
+      "n": 149,
+      "wr_pct": 53.7,
+      "exp_dollar": 59.94,
+      "total_dollar": 8931.45,
+      "is_n": 107,
+      "is_exp": 57.14,
+      "oos_n": 42,
+      "oos_exp": 67.09,
+      "oos_total": 2817.72,
+      "is_h1_exp": 46.27,
+      "is_h2_exp": 67.8,
+      "positive_quarters": "6/6",
+      "positive_quarters_n": 6,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 71.96,
+          "total": 1799.01
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 28.39,
+          "total": 652.86
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 33.26,
+          "total": 864.87
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 84.76,
+          "total": 2796.99
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 104.73,
+          "total": 2722.98
+        },
+        "2026Q2": {
+          "n": 16,
+          "exp": 5.92,
+          "total": 94.74
+        }
+      },
+      "top5_day_pct": 21.4,
+      "anchor_n": 2,
+      "anchor_pnl": 92.25,
+      "risk": {
+        "sharpe": 8.362,
+        "sortino": 11.827,
+        "max_dd": -315.12,
+        "n": 149
+      },
+      "exit_hist": {
+        "EXIT_ALL_PREMIUM_STOP": 148,
+        "EXIT_ALL_RIBBON_FLIP_BACK": 1
+      },
+      "coverage": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none": 0,
+        "fill_rate": 0.943
+      },
+      "wf": [
+        {
+          "fold": 1,
+          "start": "2025-01-02",
+          "end": "2025-05-13",
+          "n": 37,
+          "exp": 56.37,
+          "total": 2085.81
+        },
+        {
+          "fold": 2,
+          "start": "2025-05-19",
+          "end": "2025-09-26",
+          "n": 37,
+          "exp": 33.27,
+          "total": 1230.93
+        },
+        {
+          "fold": 3,
+          "start": "2025-10-01",
+          "end": "2026-01-20",
+          "n": 37,
+          "exp": 82.9,
+          "total": 3067.14
+        },
+        {
+          "fold": 4,
+          "start": "2026-01-26",
+          "end": "2026-05-15",
+          "n": 38,
+          "exp": 67.04,
+          "total": 2547.57
+        }
+      ]
+    },
+    "0.2": {
+      "n": 149,
+      "wr_pct": 47.7,
+      "exp_dollar": 57.07,
+      "total_dollar": 8503.2,
+      "is_n": 107,
+      "is_exp": 53.91,
+      "oos_n": 42,
+      "oos_exp": 65.1,
+      "oos_total": 2734.32,
+      "is_h1_exp": 50.79,
+      "is_h2_exp": 56.98,
+      "positive_quarters": "6/6",
+      "positive_quarters_n": 6,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 60.76,
+          "total": 1518.96
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 49.39,
+          "total": 1135.96
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 28.12,
+          "total": 731.12
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 72.21,
+          "total": 2382.84
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 90.67,
+          "total": 2357.48
+        },
+        "2026Q2": {
+          "n": 16,
+          "exp": 23.55,
+          "total": 376.84
+        }
+      },
+      "top5_day_pct": 24.6,
+      "anchor_n": 2,
+      "anchor_pnl": 39.0,
+      "risk": {
+        "sharpe": 7.41,
+        "sortino": 11.26,
+        "max_dd": -350.52,
+        "n": 149
+      },
+      "exit_hist": {
+        "EXIT_ALL_PREMIUM_STOP": 136,
+        "EXIT_ALL_RIBBON_FLIP_BACK": 4,
+        "TP1_THEN_RUNNER_RIBBON": 9
+      },
+      "coverage": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none": 0,
+        "fill_rate": 0.943
+      },
+      "wf": [
+        {
+          "fold": 1,
+          "start": "2025-01-02",
+          "end": "2025-05-13",
+          "n": 37,
+          "exp": 59.44,
+          "total": 2199.16
+        },
+        {
+          "fold": 2,
+          "start": "2025-05-19",
+          "end": "2025-09-26",
+          "n": 37,
+          "exp": 32.08,
+          "total": 1186.88
+        },
+        {
+          "fold": 3,
+          "start": "2025-10-01",
+          "end": "2026-01-20",
+          "n": 37,
+          "exp": 71.8,
+          "total": 2656.44
+        },
+        {
+          "fold": 4,
+          "start": "2026-01-26",
+          "end": "2026-05-15",
+          "n": 38,
+          "exp": 64.76,
+          "total": 2460.72
+        }
+      ]
+    }
+  },
+  "monotonic_tighter_beats_wider_on_total": true,
+  "verdicts_vs_live015": {
+    "0.1": {
+      "trail": 0.1,
+      "promote": true,
+      "checks": {
+        "exp_lift_vs_live015": 20.68,
+        "oos_lift_vs_live015": 31.01,
+        "exp_better": true,
+        "oos_positive": true,
+        "sharpe_no_worse": true,
+        "sortino_no_worse": true,
+        "maxdd_no_worse": true,
+        "anchor_no_regression": true
+      }
+    },
+    "0.125": {
+      "trail": 0.125,
+      "promote": true,
+      "checks": {
+        "exp_lift_vs_live015": 10.0,
+        "oos_lift_vs_live015": 14.97,
+        "exp_better": true,
+        "oos_positive": true,
+        "sharpe_no_worse": true,
+        "sortino_no_worse": true,
+        "maxdd_no_worse": true,
+        "anchor_no_regression": true
+      }
+    },
+    "0.2": {
+      "trail": 0.2,
+      "promote": false,
+      "checks": {
+        "exp_lift_vs_live015": -2.87,
+        "oos_lift_vs_live015": -1.99,
+        "exp_better": false,
+        "oos_positive": true,
+        "sharpe_no_worse": false,
+        "sortino_no_worse": false,
+        "maxdd_no_worse": false,
+        "anchor_no_regression": false
+      }
+    }
+  },
+  "promote_any": [
+    0.1,
+    0.125
+  ],
+  "L175_gate": "PROMOTE a trail only if exp_better-vs-live AND oos_positive AND sharpe_no_worse AND sortino_no_worse AND maxdd_no_worse AND anchor_no_regression (all vs the LIVE 0.15)",
+  "DISCLOSURE": {
+    "risk_metric_note": "Sharpe/Sortino annualized with a CONSISTENT 252-trade scale across all trails -- the cross-trail COMPARISON is the signal, not the absolute level. maxDD is $ on the per-trade equity curve.",
+    "anchor_caveat": "anchor_n reported honestly; vwap_cont anchor overlap may be 0.",
+    "spy_vs_option": "real OPRA fills; this is an EXIT knob on an already-live edge (C3 N/A)."
+  }
+}

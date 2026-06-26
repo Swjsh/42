@@ -1,0 +1,102 @@
+{
+  "account": "SAFE",
+  "run_date": "2026-06-18",
+  "oos_total": 24,
+  "oos_stops": 15,
+  "oos_wins": 9,
+  "stop_pct": 0.625,
+  "block_attempts": [
+    {
+      "label": "ALL premium stops",
+      "oos_stops_blocked": 15,
+      "oos_delta": 2320.9,
+      "is_stops_blocked": 113,
+      "is_delta": -23426.6,
+      "G1": false,
+      "G2": true,
+      "both": false
+    },
+    {
+      "label": "TRENDLINE tier stops",
+      "oos_stops_blocked": 12,
+      "oos_delta": 1648.1,
+      "is_stops_blocked": 61,
+      "is_delta": -3250.5,
+      "G1": false,
+      "G2": true,
+      "both": false
+    },
+    {
+      "label": "ELITE tier stops",
+      "oos_stops_blocked": 3,
+      "oos_delta": 672.8,
+      "is_stops_blocked": 22,
+      "is_delta": -3242.0,
+      "G1": false,
+      "G2": true,
+      "both": false
+    },
+    {
+      "label": "Bear (P) stops only",
+      "oos_stops_blocked": 12,
+      "oos_delta": 1648.1,
+      "is_stops_blocked": 73,
+      "is_delta": -9201.8,
+      "G1": false,
+      "G2": true,
+      "both": false
+    },
+    {
+      "label": "Bull (C) stops only",
+      "oos_stops_blocked": 3,
+      "oos_delta": 672.8,
+      "is_stops_blocked": 40,
+      "is_delta": -14224.8,
+      "G1": false,
+      "G2": true,
+      "both": false
+    },
+    {
+      "label": "VIX >= 17.3 stops",
+      "oos_stops_blocked": 15,
+      "oos_delta": 2320.9,
+      "is_stops_blocked": 43,
+      "is_delta": -5824.9,
+      "G1": false,
+      "G2": true,
+      "both": false
+    },
+    {
+      "label": "TRENDLINE P stops",
+      "oos_stops_blocked": 12,
+      "oos_delta": 1648.1,
+      "is_stops_blocked": 61,
+      "is_delta": -3250.5,
+      "G1": false,
+      "G2": true,
+      "both": false
+    },
+    {
+      "label": "Stops after 14:00",
+      "oos_stops_blocked": 7,
+      "oos_delta": 1256.8,
+      "is_stops_blocked": 34,
+      "is_delta": -5226.6,
+      "G1": false,
+      "G2": true,
+      "both": false
+    },
+    {
+      "label": "Stops 10:00-11:00",
+      "oos_stops_blocked": 3,
+      "oos_delta": 334.5,
+      "is_stops_blocked": 32,
+      "is_delta": -8278.9,
+      "G1": false,
+      "G2": true,
+      "both": false
+    }
+  ],
+  "passing": [],
+  "verdict": "REJECT"
+}

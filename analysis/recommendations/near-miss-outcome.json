@@ -1,0 +1,456 @@
+{
+  "generated": "2026-06-16 09:34:24.279323",
+  "total_near_miss_blocked": 18,
+  "filter_summary": {
+    "5": {
+      "total_blocks": 3,
+      "with_outcome_data": 2,
+      "n_favorable_move": 2,
+      "n_adverse_move": 0,
+      "pct_favorable": 100.0,
+      "avg_max_favorable_spy": 1.96,
+      "avg_max_adverse_spy": 0.24,
+      "avg_final_move_spy": 1.44,
+      "verdict": "BLOCK_COSTLY",
+      "by_date": [
+        "2026-06-01 13:18 bull f10 outcome:2.18",
+        "2026-06-15 09:39 bull f11 outcome:0.7",
+        "2026-06-16 10:42 bear f8 outcome:N/A"
+      ]
+    },
+    "6": {
+      "total_blocks": 5,
+      "with_outcome_data": 3,
+      "n_favorable_move": 0,
+      "n_adverse_move": 1,
+      "pct_favorable": 0.0,
+      "avg_max_favorable_spy": 0.24,
+      "avg_max_adverse_spy": 0.95,
+      "avg_final_move_spy": -0.57,
+      "verdict": "BLOCK_JUSTIFIED",
+      "by_date": [
+        "2026-05-07 10:51 bull f6 outcome:-0.82",
+        "2026-06-01 13:51 bull f6 outcome:-0.32",
+        "2026-06-02 12:48 bull f6 outcome:-0.56",
+        "2026-06-15 11:54 bull f6 outcome:N/A",
+        "2026-06-16 11:09 bear f6 outcome:N/A"
+      ]
+    },
+    "8": {
+      "total_blocks": 4,
+      "with_outcome_data": 0,
+      "n_favorable_move": 0,
+      "n_adverse_move": 0,
+      "pct_favorable": 0,
+      "avg_max_favorable_spy": 0,
+      "avg_max_adverse_spy": 0,
+      "avg_final_move_spy": 0,
+      "verdict": "NEUTRAL",
+      "by_date": [
+        "2026-06-16 10:33 bear f8 outcome:N/A",
+        "2026-06-16 10:42 bear f8 outcome:N/A",
+        "2026-06-16 10:51 bear f8 outcome:N/A",
+        "2026-06-16 11:09 bear f6 outcome:N/A"
+      ]
+    },
+    "9": {
+      "total_blocks": 1,
+      "with_outcome_data": 1,
+      "n_favorable_move": 0,
+      "n_adverse_move": 0,
+      "pct_favorable": 0.0,
+      "avg_max_favorable_spy": 0.28,
+      "avg_max_adverse_spy": 0.63,
+      "avg_final_move_spy": 0.05,
+      "verdict": "NEUTRAL",
+      "by_date": [
+        "2026-06-02 12:03 bull f9 outcome:0.05"
+      ]
+    },
+    "10": {
+      "total_blocks": 4,
+      "with_outcome_data": 3,
+      "n_favorable_move": 2,
+      "n_adverse_move": 0,
+      "pct_favorable": 66.7,
+      "avg_max_favorable_spy": 1.53,
+      "avg_max_adverse_spy": 0.44,
+      "avg_final_move_spy": 0.94,
+      "verdict": "BLOCK_COSTLY",
+      "by_date": [
+        "2026-05-07 12:04 bear f10 outcome:1.16",
+        "2026-06-01 13:18 bull f10 outcome:2.18",
+        "2026-06-02 11:33 bull f10 outcome:-0.53",
+        "2026-06-15 12:39 bull f10 outcome:N/A"
+      ]
+    },
+    "11": {
+      "total_blocks": 7,
+      "with_outcome_data": 5,
+      "n_favorable_move": 2,
+      "n_adverse_move": 2,
+      "pct_favorable": 40.0,
+      "avg_max_favorable_spy": 0.61,
+      "avg_max_adverse_spy": 0.88,
+      "avg_final_move_spy": -0.14,
+      "verdict": "BLOCK_JUSTIFIED",
+      "by_date": [
+        "2026-06-02 12:48 bull f6 outcome:-0.56",
+        "2026-06-03 11:36 bull f11 outcome:-1.45",
+        "2026-06-03 11:54 bull f11 outcome:-0.09",
+        "2026-06-03 13:35 bull f11 outcome:0.72",
+        "2026-06-15 09:39 bull f11 outcome:0.7",
+        "2026-06-15 11:54 bull f6 outcome:N/A",
+        "2026-06-15 12:57 bull f11 outcome:N/A"
+      ]
+    }
+  },
+  "raw": [
+    {
+      "date": "2026-05-07",
+      "time_et": "10:51",
+      "side": "bull",
+      "bull_score": 9,
+      "bear_score": 4,
+      "blocked_filters": [
+        6
+      ],
+      "primary_filter": 6,
+      "spy": 735.3,
+      "vix": 17.15,
+      "outcome": {
+        "entry_price": 735.7,
+        "max_favorable_spy": 0.4,
+        "max_adverse_spy": 1.37,
+        "final_move_spy": -0.82,
+        "outcome_bars": 12,
+        "favorable": false,
+        "adverse": true
+      }
+    },
+    {
+      "date": "2026-05-07",
+      "time_et": "12:04",
+      "side": "bear",
+      "bull_score": 4,
+      "bear_score": 8,
+      "blocked_filters": [
+        10
+      ],
+      "primary_filter": 10,
+      "spy": 733.4,
+      "vix": 17.39,
+      "outcome": {
+        "entry_price": 733.31,
+        "max_favorable_spy": 1.7,
+        "max_adverse_spy": 0.51,
+        "final_move_spy": 1.16,
+        "outcome_bars": 12,
+        "favorable": true,
+        "adverse": false
+      }
+    },
+    {
+      "date": "2026-06-01",
+      "time_et": "13:18",
+      "side": "bull",
+      "bull_score": 9,
+      "bear_score": 4,
+      "blocked_filters": [
+        10,
+        5
+      ],
+      "primary_filter": 10,
+      "spy": 757.19,
+      "vix": 15.98,
+      "outcome": {
+        "entry_price": 757.61,
+        "max_favorable_spy": 2.66,
+        "max_adverse_spy": 0.14,
+        "final_move_spy": 2.18,
+        "outcome_bars": 12,
+        "favorable": true,
+        "adverse": false
+      }
+    },
+    {
+      "date": "2026-06-01",
+      "time_et": "13:51",
+      "side": "bull",
+      "bull_score": 9,
+      "bear_score": 2,
+      "blocked_filters": [
+        6
+      ],
+      "primary_filter": 6,
+      "spy": 759.77,
+      "vix": 15.81,
+      "outcome": {
+        "entry_price": 759.91,
+        "max_favorable_spy": 0.04,
+        "max_adverse_spy": 0.59,
+        "final_move_spy": -0.32,
+        "outcome_bars": 12,
+        "favorable": false,
+        "adverse": false
+      }
+    },
+    {
+      "date": "2026-06-02",
+      "time_et": "11:33",
+      "side": "bull",
+      "bull_score": 9,
+      "bear_score": 4,
+      "blocked_filters": [
+        10
+      ],
+      "primary_filter": 10,
+      "spy": 759.77,
+      "vix": 16.04,
+      "outcome": {
+        "entry_price": 759.78,
+        "max_favorable_spy": 0.23,
+        "max_adverse_spy": 0.68,
+        "final_move_spy": -0.53,
+        "outcome_bars": 12,
+        "favorable": false,
+        "adverse": false
+      }
+    },
+    {
+      "date": "2026-06-02",
+      "time_et": "12:03",
+      "side": "bull",
+      "bull_score": 9,
+      "bear_score": 4,
+      "blocked_filters": [
+        9
+      ],
+      "primary_filter": 9,
+      "spy": 759.7,
+      "vix": 16.04,
+      "outcome": {
+        "entry_price": 759.73,
+        "max_favorable_spy": 0.28,
+        "max_adverse_spy": 0.63,
+        "final_move_spy": 0.05,
+        "outcome_bars": 12,
+        "favorable": false,
+        "adverse": false
+      }
+    },
+    {
+      "date": "2026-06-02",
+      "time_et": "12:48",
+      "side": "bull",
+      "bull_score": 9,
+      "bear_score": 4,
+      "blocked_filters": [
+        6,
+        11
+      ],
+      "primary_filter": 6,
+      "spy": 759.56,
+      "vix": 15.96,
+      "outcome": {
+        "entry_price": 759.68,
+        "max_favorable_spy": 0.29,
+        "max_adverse_spy": 0.9,
+        "final_move_spy": -0.56,
+        "outcome_bars": 12,
+        "favorable": false,
+        "adverse": false
+      }
+    },
+    {
+      "date": "2026-06-03",
+      "time_et": "11:36",
+      "side": "bull",
+      "bull_score": 10,
+      "bear_score": 4,
+      "blocked_filters": [
+        11
+      ],
+      "primary_filter": 11,
+      "spy": 756.13,
+      "vix": 16.16,
+      "outcome": {
+        "entry_price": 755.35,
+        "max_favorable_spy": 0.22,
+        "max_adverse_spy": 1.47,
+        "final_move_spy": -1.45,
+        "outcome_bars": 12,
+        "favorable": false,
+        "adverse": true
+      }
+    },
+    {
+      "date": "2026-06-03",
+      "time_et": "11:54",
+      "side": "bull",
+      "bull_score": 9,
+      "bear_score": 6,
+      "blocked_filters": [
+        11
+      ],
+      "primary_filter": 11,
+      "spy": 755.19,
+      "vix": 16.25,
+      "outcome": {
+        "entry_price": 755.21,
+        "max_favorable_spy": 0.25,
+        "max_adverse_spy": 1.64,
+        "final_move_spy": -0.09,
+        "outcome_bars": 12,
+        "favorable": false,
+        "adverse": true
+      }
+    },
+    {
+      "date": "2026-06-03",
+      "time_et": "13:35",
+      "side": "bull",
+      "bull_score": 10,
+      "bear_score": 6,
+      "blocked_filters": [
+        11
+      ],
+      "primary_filter": 11,
+      "spy": 754.65,
+      "vix": 16.29,
+      "outcome": {
+        "entry_price": 755.0,
+        "max_favorable_spy": 1.05,
+        "max_adverse_spy": 0.06,
+        "final_move_spy": 0.72,
+        "outcome_bars": 12,
+        "favorable": true,
+        "adverse": false
+      }
+    },
+    {
+      "date": "2026-06-15",
+      "time_et": "09:39",
+      "side": "bull",
+      "bull_score": 9,
+      "bear_score": 0,
+      "blocked_filters": [
+        11,
+        5
+      ],
+      "primary_filter": 11,
+      "spy": 752.71,
+      "vix": 16.16,
+      "outcome": {
+        "entry_price": 752.84,
+        "max_favorable_spy": 1.25,
+        "max_adverse_spy": 0.33,
+        "final_move_spy": 0.7,
+        "outcome_bars": 9,
+        "favorable": true,
+        "adverse": false
+      }
+    },
+    {
+      "date": "2026-06-16",
+      "time_et": "10:33",
+      "side": "bear",
+      "bull_score": 7,
+      "bear_score": 9,
+      "blocked_filters": [
+        8
+      ],
+      "primary_filter": 8,
+      "spy": 753.05,
+      "vix": 16.16,
+      "outcome": null
+    },
+    {
+      "date": "2026-06-15",
+      "time_et": "11:54",
+      "side": "bull",
+      "bull_score": 10,
+      "bear_score": 4,
+      "blocked_filters": [
+        6,
+        11
+      ],
+      "primary_filter": 6,
+      "spy": 755.99,
+      "vix": 16.31,
+      "outcome": null
+    },
+    {
+      "date": "2026-06-15",
+      "time_et": "12:39",
+      "side": "bull",
+      "bull_score": 9,
+      "bear_score": 4,
+      "blocked_filters": [
+        10
+      ],
+      "primary_filter": 10,
+      "spy": 755.88,
+      "vix": 16.06,
+      "outcome": null
+    },
+    {
+      "date": "2026-06-15",
+      "time_et": "12:57",
+      "side": "bull",
+      "bull_score": 10,
+      "bear_score": 0,
+      "blocked_filters": [
+        11
+      ],
+      "primary_filter": 11,
+      "spy": 755.75,
+      "vix": 16.31,
+      "outcome": null
+    },
+    {
+      "date": "2026-06-16",
+      "time_et": "10:42",
+      "side": "bear",
+      "bull_score": 7,
+      "bear_score": 9,
+      "blocked_filters": [
+        8,
+        5
+      ],
+      "primary_filter": 8,
+      "spy": 753.65,
+      "vix": 16.16,
+      "outcome": null
+    },
+    {
+      "date": "2026-06-16",
+      "time_et": "10:51",
+      "side": "bear",
+      "bull_score": 7,
+      "bear_score": 9,
+      "blocked_filters": [
+        8
+      ],
+      "primary_filter": 8,
+      "spy": 753.41,
+      "vix": 15.9,
+      "outcome": null
+    },
+    {
+      "date": "2026-06-16",
+      "time_et": "11:09",
+      "side": "bear",
+      "bull_score": 8,
+      "bear_score": 8,
+      "blocked_filters": [
+        6,
+        8
+      ],
+      "primary_filter": 6,
+      "spy": 753.32,
+      "vix": 15.9,
+      "outcome": null
+    }
+  ]
+}

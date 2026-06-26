@@ -1,0 +1,13 @@
+{
+  "date": "2026-06-17",
+  "instrument": "MNQ",
+  "bias": "no-trade",
+  "bias_reason": "Premarket not yet run — will be populated at 08:30 ET",
+  "vix": null,
+  "vix_gate": null,
+  "overnight_gap_pts": null,
+  "key_levels_summary": [],
+  "no_trade_windows": [],
+  "falsifiable_prediction": null,
+  "updated_at": "2026-06-17T00:00:00"
+}

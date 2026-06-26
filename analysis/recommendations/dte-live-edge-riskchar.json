@@ -1,0 +1,151 @@
+{
+  "module": "dte_live_edge_riskchar",
+  "family": "vwap_continuation",
+  "live_cell": {
+    "strike_offset": -2,
+    "strike_tier": "ITM2",
+    "premium_stop_pct": -0.08
+  },
+  "run_date": "2026-06-21",
+  "window": "2025-01-02..2026-06-16",
+  "n_signals": 166,
+  "sim_qty": 3,
+  "live_qty": 5,
+  "kill_switch_safe": -600.0,
+  "kill_switch_bold": -835.0,
+  "by_dte": {
+    "0": {
+      "dte": 0,
+      "n": 157,
+      "wr_pct": 45.9,
+      "exp_dollar": 51.27,
+      "total_dollar": 8050.02,
+      "std_dollar": 143.48,
+      "sharpe_style_exp_over_std": 0.3574,
+      "downside_deviation": 56.87,
+      "sortino_exp_over_dd": 0.9016,
+      "oos_n": 50,
+      "oos_exp": 36.34,
+      "oos_total": 1817.16,
+      "is_n": 107,
+      "is_exp": 58.25,
+      "is_total": 6232.86,
+      "winners": {
+        "n": 72,
+        "mean": 197.41,
+        "std": 66.15,
+        "max": 487.8,
+        "p90": 276.21,
+        "sum": 14213.7
+      },
+      "losers": {
+        "n": 85,
+        "mean": -72.51,
+        "std": 26.9,
+        "min": -223.68,
+        "p10": -92.54,
+        "sum": -6163.68
+      },
+      "flats_n": 0,
+      "max_drawdown": -939.12,
+      "worst_day": {
+        "date": "2025-04-07",
+        "pnl": -223.68
+      },
+      "worst_day_live_qty": -372.8,
+      "held_overnight_n": 0,
+      "held_overnight_pct": 0.0,
+      "exit_hist": {
+        "LEVEL_STOP": 2,
+        "PREMIUM_STOP": 85,
+        "TP1_PREMIUM": 70
+      },
+      "coverage": {
+        "signals": 166,
+        "filled": 157,
+        "cache_miss": 9,
+        "no_expiry_listed": 0,
+        "sim_none": 0,
+        "fill_rate": 0.946
+      }
+    },
+    "1": {
+      "dte": 1,
+      "n": 166,
+      "wr_pct": 42.8,
+      "exp_dollar": 67.25,
+      "total_dollar": 11162.88,
+      "std_dollar": 211.16,
+      "sharpe_style_exp_over_std": 0.3185,
+      "downside_deviation": 85.77,
+      "sortino_exp_over_dd": 0.784,
+      "oos_n": 51,
+      "oos_exp": 59.02,
+      "oos_total": 3010.26,
+      "is_n": 115,
+      "is_exp": 70.89,
+      "is_total": 8152.62,
+      "winners": {
+        "n": 71,
+        "mean": 298.28,
+        "std": 90.21,
+        "max": 537.3,
+        "p90": 413.1,
+        "sum": 21177.6
+      },
+      "losers": {
+        "n": 95,
+        "mean": -105.42,
+        "std": 41.96,
+        "min": -313.68,
+        "p10": -144.48,
+        "sum": -10014.72
+      },
+      "flats_n": 0,
+      "max_drawdown": -1943.76,
+      "worst_day": {
+        "date": "2025-04-07",
+        "pnl": -313.68
+      },
+      "worst_day_live_qty": -522.8,
+      "held_overnight_n": 0,
+      "held_overnight_pct": 0.0,
+      "exit_hist": {
+        "LEVEL_STOP": 4,
+        "PREMIUM_STOP": 95,
+        "TP1_PREMIUM": 67
+      },
+      "coverage": {
+        "signals": 166,
+        "filled": 166,
+        "cache_miss": 0,
+        "no_expiry_listed": 0,
+        "sim_none": 0,
+        "fill_rate": 1.0
+      }
+    }
+  },
+  "verdict": "SHARPE_TRADEOFF_J_CALL",
+  "verdict_flags": {
+    "more_oos_dollars": true,
+    "oos_total_0dte": 1817.16,
+    "oos_total_1dte": 3010.26,
+    "sortino_0dte": 0.9016,
+    "sortino_1dte": 0.784,
+    "sortino_holds": false,
+    "maxdd_0dte": -939.12,
+    "maxdd_1dte": -1943.76,
+    "maxdd_ratio_1_over_0": 2.07,
+    "maxdd_not_materially_worse": false,
+    "worst_day_1dte_live_qty": -522.8,
+    "kill_switch_safe": -600.0,
+    "inside_killswitch_safe": true,
+    "winner_std_0dte": 66.15,
+    "winner_std_1dte": 90.21,
+    "loser_std_0dte": 26.9,
+    "loser_std_1dte": 41.96,
+    "winner_std_widening": 24.06,
+    "loser_std_widening": 15.06,
+    "variance_is_upside": true
+  }
+}

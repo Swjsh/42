@@ -1,0 +1,94 @@
+{
+  "rule_id": "safe_block_elite_bull_all_vix",
+  "title": "Extend block_elite_bull from VIX [15,17.5) to VIX [0,25): block confluence+level_reclaim bulls at all VIX",
+  "hypothesis": "All IS conf+lvl_rec bulls fire at VIX<17.5 (weak: WR=15.4%, total=-$106 at VIX<15). All OOS failures fire at VIX 17.8-18.0 — just above the old cap. Extending block to VIX<25 removes the OOS losers with near-zero IS cost at VIX[17.5,25).",
+  "attempted_at": "2026-06-18",
+  "verdict": "RATIFY",
+  "baseline": {
+    "block_elite_bull_vix_low": 15.0,
+    "block_elite_bull_vix_high": 17.5,
+    "IS_n": 92,
+    "IS_pnl": 4771,
+    "OOS_n": 19,
+    "OOS_pnl": 513
+  },
+  "candidate": {
+    "block_elite_bull_vix_low": 0.0,
+    "block_elite_bull_vix_high": 25.0,
+    "IS_n": 78,
+    "IS_pnl": 4884,
+    "OOS_n": 17,
+    "OOS_pnl": 576
+  },
+  "op22_gates": {
+    "G1_IS_delta_ge_0": {
+      "value": 113,
+      "n_removed": 14,
+      "pass": true,
+      "note": "14 IS conf+lvl_rec bulls removed: 12 losers, 2 small winners (+$26, +$10), net improvement"
+    },
+    "G2_OOS_delta_gt_0": {
+      "value": 63,
+      "n_removed": 2,
+      "pass": true,
+      "note": "Net 2 fewer OOS trades (3 conf+lvl_rec removed, 1 unblocked via quality-slot cascade); all 3 removed were losers (-$29, -$21, -$44)"
+    },
+    "G3_WF_ge_0.70": {
+      "value": 3.890,
+      "pass": true,
+      "formula": "(63/2) / (113/14) = 31.5 / 8.07 = 3.90"
+    },
+    "G4_SW_hurt_le_1": {
+      "pass": true,
+      "sw_hurt": 1,
+      "detail": [
+        {"window": "2025-01-02..2025-05-30", "n_removed": 2, "delta": 7, "pass": true},
+        {"window": "2025-06-02..2025-10-31", "n_removed": 7, "delta": 119, "pass": true},
+        {"window": "2025-11-03..2026-05-07", "n_removed": 5, "delta": -14, "pass": false,
+         "note": "2 IS winners removed in this window: 2025-12-22 +$26, 2025-12-26 +$10"}
+      ]
+    },
+    "G5_anchor_no_regression": {
+      "pass": true,
+      "note": "Anchor dates (4/29, 5/1, 5/4) are PUT/BEAR trades. Gate only affects BULL conf+lvl_rec."
+    }
+  },
+  "removed_IS_trades": [
+    {"date": "2025-01-23", "time": "12:50", "combo": "confluence+level_reclaim", "pnl": -7},
+    {"date": "2025-01-23", "time": "14:15", "combo": "confluence+level_reclaim", "pnl": 0},
+    {"date": "2025-07-29", "time": "10:40", "combo": "confluence+level_reclaim", "pnl": -7},
+    {"date": "2025-08-14", "time": "13:55", "combo": "confluence+level_reclaim", "pnl": -4},
+    {"date": "2025-08-14", "time": "15:20", "combo": "confluence+level_reclaim", "pnl": -5},
+    {"date": "2025-08-27", "time": "09:40", "combo": "confluence+level_reclaim", "pnl": -43},
+    {"date": "2025-08-27", "time": "13:15", "combo": "confluence+level_reclaim", "pnl": -24},
+    {"date": "2025-08-27", "time": "15:20", "combo": "confluence+level_reclaim", "pnl": -25},
+    {"date": "2025-09-12", "time": "11:00", "combo": "confluence+level_reclaim", "pnl": -11},
+    {"date": "2025-12-22", "time": "10:50", "combo": "confluence+level_reclaim", "pnl": 26, "note": "IS winner blocked"},
+    {"date": "2025-12-24", "time": "10:35", "combo": "confluence+level_reclaim", "pnl": -10},
+    {"date": "2025-12-26", "time": "10:35", "combo": "confluence+level_reclaim", "pnl": 10, "note": "IS winner blocked"},
+    {"date": "2026-01-05", "time": "10:35", "combo": "confluence+level_reclaim", "pnl": 0},
+    {"date": "2026-01-09", "time": "13:05", "combo": "confluence+level_reclaim", "pnl": -12}
+  ],
+  "removed_OOS_trades": [
+    {"date": "2026-05-13", "time": "10:55", "vix": 18.0, "combo": "confluence+level_reclaim", "pnl": -29},
+    {"date": "2026-05-19", "time": "14:00", "vix": 17.9, "combo": "confluence+level_reclaim", "pnl": -21},
+    {"date": "2026-05-20", "time": "12:45", "vix": 17.8, "combo": "confluence+level_reclaim", "pnl": -44}
+  ],
+  "caveats": [
+    "OOS n_removed=2 vs 3 removed trades shown: one OOS conf+lvl_rec removal freed a quality slot, allowing another OOS trade to fire. Net effect confirmed at +$63.",
+    "Gate now covers VIX<15 range where all IS conf+lvl_rec bulls live (WR=15.4%). Two small IS winners removed (2025-12-22 +$26, 2025-12-26 +$10).",
+    "VIX cap at 25.0 is conservative — all IS fire at VIX<15 anyway; no IS conf+lvl_rec at VIX[15,25). If VIX ever spikes >25 with a conf+lvl_rec bull, it would be unblocked (no evidence this is a problem).",
+    "Conceptually equivalent to 'never take pure confluence+level_reclaim bull' since IS shows no winning regime at any VIX level (WR=15.4% at VIX<15, VIX>17.5 = no IS trades)."
+  ],
+  "implementation": {
+    "params_json_keys": {
+      "block_elite_bull": true,
+      "block_elite_bull_vix_low": 0.0,
+      "block_elite_bull_vix_high": 25.0
+    },
+    "orchestrator_params": "block_elite_bull_vix_low=0.0, block_elite_bull_vix_high=25.0",
+    "no_code_change_needed": "The orchestrator gate body already uses these params. Only params.json values changed.",
+    "ratified_at": "2026-06-18",
+    "revert": "set block_elite_bull_vix_low=15.0, block_elite_bull_vix_high=17.5 in params.json"
+  }
+}

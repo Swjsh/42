@@ -50,6 +50,11 @@ from crypto.validators import (
     v43_ghost_entry_dual_account,
     v44_named_level_second_test_gate,
     v45_stairstep_continuation_gate,
+    v46_market_structure,
+    v47_chart_read,
+    v48_double_top_gate,
+    v49_market_structure_watcher_gate,
+    v50_confluence,
 )
 
 
@@ -188,6 +193,16 @@ def main(argv=None) -> int:
         ("v44_named_level_second_test_gate.live", v44_named_level_second_test_gate.run_live, [], {}),
         ("v45_stairstep_continuation_gate.offline", v45_stairstep_continuation_gate.run_offline, [], {}),
         ("v45_stairstep_continuation_gate.live", v45_stairstep_continuation_gate.run_live, [], {}),
+        ("v46_market_structure.offline", v46_market_structure.run_offline, [], {}),
+        ("v46_market_structure.live", v46_market_structure.run_live, [args.symbol, args.granularity, args.count], {}),
+        ("v47_chart_read.offline", v47_chart_read.run_offline, [], {}),
+        ("v47_chart_read.live", v47_chart_read.run_live, [], {}),
+        ("v48_double_top_gate.offline", v48_double_top_gate.run_offline, [], {}),
+        ("v48_double_top_gate.live", v48_double_top_gate.run_live, [], {}),
+        ("v49_market_structure_watcher_gate.offline", v49_market_structure_watcher_gate.run_offline, [], {}),
+        ("v49_market_structure_watcher_gate.live", v49_market_structure_watcher_gate.run_live, [], {}),
+        ("v50_confluence.offline", v50_confluence.run_offline, [], {}),
+        ("v50_confluence.live", v50_confluence.run_live, [], {}),
     ]
     if not args.skip_replay:
         stages.append((

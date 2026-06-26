@@ -1,0 +1,136 @@
+{
+  "task": "13ee2df6-vol-mult-sweep",
+  "sweep_mults": [
+    0.7,
+    1.0,
+    1.5,
+    1.8,
+    1.9,
+    1.95
+  ],
+  "baseline_mult": 0.7,
+  "baseline": {
+    "is": {
+      "n": 113,
+      "wr": 0.389,
+      "avg": 207.3,
+      "total": 23426.6
+    },
+    "oos": {
+      "n": 24,
+      "wr": 0.333,
+      "avg": 246.7,
+      "total": 5920.8
+    },
+    "anchor": 0
+  },
+  "gate_rows": [
+    {
+      "mult": 1.0,
+      "is_delta": -6643.3,
+      "oos_delta": -4914.2,
+      "wf": 3.329,
+      "sw_hurt": 3,
+      "anchor": 0,
+      "passed": false,
+      "is_stats": {
+        "n": 95,
+        "wr": 0.411,
+        "avg": 176.7,
+        "total": 16783.3
+      },
+      "oos_stats": {
+        "n": 20,
+        "wr": 0.25,
+        "avg": 50.3,
+        "total": 1006.6
+      }
+    },
+    {
+      "mult": 1.5,
+      "is_delta": -11466.3,
+      "oos_delta": -4300.7,
+      "wf": 3.657,
+      "sw_hurt": 3,
+      "anchor": 0,
+      "passed": false,
+      "is_stats": {
+        "n": 74,
+        "wr": 0.419,
+        "avg": 161.6,
+        "total": 11960.3
+      },
+      "oos_stats": {
+        "n": 20,
+        "wr": 0.3,
+        "avg": 81.0,
+        "total": 1620.1
+      }
+    },
+    {
+      "mult": 1.8,
+      "is_delta": -15910.3,
+      "oos_delta": -4300.7,
+      "wf": 2.906,
+      "sw_hurt": 3,
+      "anchor": 0,
+      "passed": false,
+      "is_stats": {
+        "n": 70,
+        "wr": 0.414,
+        "avg": 107.4,
+        "total": 7516.3
+      },
+      "oos_stats": {
+        "n": 20,
+        "wr": 0.3,
+        "avg": 81.0,
+        "total": 1620.1
+      }
+    },
+    {
+      "mult": 1.9,
+      "is_delta": -17598.3,
+      "oos_delta": -4300.7,
+      "wf": 2.688,
+      "sw_hurt": 3,
+      "anchor": 0,
+      "passed": false,
+      "is_stats": {
+        "n": 69,
+        "wr": 0.406,
+        "avg": 84.5,
+        "total": 5828.3
+      },
+      "oos_stats": {
+        "n": 20,
+        "wr": 0.3,
+        "avg": 81.0,
+        "total": 1620.1
+      }
+    },
+    {
+      "mult": 1.95,
+      "is_delta": -17121.4,
+      "oos_delta": -4300.7,
+      "wf": 2.826,
+      "sw_hurt": 3,
+      "anchor": 0,
+      "passed": false,
+      "is_stats": {
+        "n": 68,
+        "wr": 0.412,
+        "avg": 92.7,
+        "total": 6305.2
+      },
+      "oos_stats": {
+        "n": 20,
+        "wr": 0.3,
+        "avg": 81.0,
+        "total": 1620.1
+      }
+    }
+  ],
+  "best_candidate": null,
+  "verdict": "REJECT"
+}

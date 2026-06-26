@@ -1,0 +1,24 @@
+# Lesson candidate: author-inbox items have no SUPERSEDED disposition path
+
+> Filed by conductor 2026-06-21 02:05 ET. For lesson-author to encode as an L## or merge into L170.
+
+## Symptom
+Three `_chef-inbox` pattern candidates (`2026-05-21-false-break-open-carry-gate`, `2026-06-16-fomc-eve-quiet-bear`, `2026-06-16-pre-fomc-positioning-pattern`) sat OPEN across **three consecutive conductor fires** (2026-06-20 22:05, 23:00, and 2026-06-21 01:00). Every one of those fires re-read all three items, flagged in STATUS "evaluate whether these are worth a `chef` fire or should be marked superseded by the terminal campaign verdict before spawning," and then moved on without disposing of them. ~3 fires of opus tokens spent re-deriving the same "should I cook these?" question with no resolution.
+
+## Root cause
+The author-inbox model has a closing handshake for one direction only. L170 (`test_author_inbox_reconciliation.py`) covers **"research that has been IMPLEMENTED → close the inbox item"** (artifact exists on disk → must be `.DONE`). There is NO disposition path for the opposite case: **"research that has been SUPERSEDED by a strategic verdict / standing directive → close the inbox item."** When the terminal strategy campaign (STATUS 2026-06-21 00:15) + OP-22 "STOP entry-hunting (saturated)" rendered the FOMC-eve entry candidates moot, nothing closed them — so they remained as phantom backlog that every fire re-evaluates from scratch. A producer (Analyst queuing chef research) and a downstream policy change (campaign verdict) drifted with no reconciliation step.
+
+## Fix (applied this fire)
+The conductor IS the disposition authority for the inboxes (same role it exercised in the 23:00 validator-inbox drain). Each chef item closed to `.DONE` with an explicit DISPOSITION block stating one of: SUPERSEDED (cite the verdict/directive), RESOLVED-INFORMALLY (engine already does the right thing), or TRIAGED-TO-BACKLOG (legitimate but low-leverage → moved to a scoped queue line). Chef-inbox now empty.
+
+## Proposed graduate-to-code guard (for lesson-author to weigh)
+Extend the reconciliation idea: an author-inbox item OPEN for > N conductor fires (or > 7 days) with no `.DONE` AND no implementing artifact should surface as a STATUS flag "STALE-UNDISPOSED inbox item — triage to SUPERSEDED / RESOLVED / BACKLOG" so it cannot silently re-cost every fire. This is the staleness-ratchet analog of `test_author_inbox_reconciliation.py`, for the supersede direction rather than the implement direction. Likely a small extension to L170's test fixture rather than a wholly new lesson — lesson-author's call.
+
+## Related
+- L170 (author-inbox no closing handshake — implement direction)
+- OP-22 (compound-don't-accumulate; the 371st untriaged candidate is debt)
+- C7 (silent success/stale-state class)
+
+---
+
+**CLOSED 2026-06-21 03:xx ET (conductor fire):** Encoded as **L173** in markdown/doctrine/LESSONS-LEARNED.md (SUPERSEDE-direction sibling of L170) AND graduated to a code assertion: `find_stale_undisposed()` + 4 new tests in backtest/tests/test_author_inbox_reconciliation.py (now 11/11 green) walk all four author inboxes and surface any open *.md older than 7 days as an ADVISORY (fail-open) STALE-UNDISPOSED triage candidate. CLAUDE.md OP-25 C7-row fold staged as propose-only proposal (rail 4).

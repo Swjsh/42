@@ -54,6 +54,50 @@ if ((Test-Path $venvPython) -and (Test-Path $appendScript)) {
     Write-TaskLog -TaskName $task -Message "DATA_FLYWHEEL skipped (venv or script missing -- backfill manually)"
 }
 
+# --- Per-setup performance recompute (R-0007 fix) -- deterministic, runs on EVERY EOD path ---
+# The free-tier EOD migration silently dropped the LLM Step-8 recompute, freezing
+# setup-performance.json for ~37 days. This pure-Python regen keeps the deployment
+# gate (>=20 trades, hit_rate>=0.45) reading REAL per-setup stats. $0, no LLM.
+$setupPerfScript = Join-Path $WorkDir "backtest\scripts\update_setup_performance.py"
+if ((Test-Path $venvPython) -and (Test-Path $setupPerfScript)) {
+    Write-TaskLog -TaskName $task -Message "SETUP_PERF invoking update_setup_performance.py"
+    $perfOut = & $venvPython $setupPerfScript 2>&1
+    Write-TaskLog -TaskName $task -Message "SETUP_PERF output: $($perfOut -join ' | ')"
+} else {
+    Write-TaskLog -TaskName $task -Message "SETUP_PERF skipped (venv or script missing)"
+}
+
+# --- Decision grading (R-0008 fix) -- deterministic, runs on EVERY EOD path ---
+# decision_grade was null on ~100% of rows for 5 weeks (the LLM hand-edit step never
+# fired on the free-tier path). This pure-Python grader walks SPY 30min forward from
+# each ungraded heartbeat decision and writes correct/wrong/ambiguous in place. $0, no LLM.
+$gradeScript = Join-Path $WorkDir "setup\scripts\grade_decisions.py"
+if ((Test-Path $venvPython) -and (Test-Path $gradeScript)) {
+    Write-TaskLog -TaskName $task -Message "DECISION_GRADING invoking grade_decisions.py"
+    $gradeOut = & $venvPython $gradeScript "--date" $todayDate 2>&1
+    Write-TaskLog -TaskName $task -Message "DECISION_GRADING output: $($gradeOut -join ' | ')"
+} else {
+    Write-TaskLog -TaskName $task -Message "DECISION_GRADING skipped (venv or script missing)"
+}
+
+# --- Shadow model eval (Karpathy outer-loop re-activation) -- $0 free-tier, READ-ONLY, post-close ---
+# System B: re-scores today's ticks under the free-tier Nemotron model -> shadow-model-decisions.jsonl.
+# EOD-summary 8c diffs it into the 5-of-7 auto-ratify verdict. Runs LAST + hidden + bounded so it never
+# delays the deterministic fixes above (partial runs still write incrementally). Never touches live
+# params or the order path -- the model-shadow has hard $0 ceiling + no order imports by construction.
+$shadowScript = Join-Path $WorkDir "setup\scripts\shadow_model_eval.py"
+if (Test-Path $shadowScript) {
+    Write-TaskLog -TaskName $task -Message "SHADOW_EVAL invoking shadow_model_eval.py (free-tier, read-only)"
+    $shadowResult = Invoke-PythonHidden `
+        -ScriptPath "setup\scripts\shadow_model_eval.py" `
+        -ArgList @("--date", $todayDate, "--account", "both") `
+        -TaskName $task `
+        -TimeoutSec 240
+    Write-TaskLog -TaskName $task -Message "SHADOW_EVAL exit=$($shadowResult.ExitCode)"
+} else {
+    Write-TaskLog -TaskName $task -Message "SHADOW_EVAL skipped (script missing)"
+}
+
 # Run state-validation post-flywheel so the next premarket inherits clean state.
 # Repair-StateFiles is idempotent -- safe to call again here.
 $postRepair = Repair-StateFiles -TaskName $task

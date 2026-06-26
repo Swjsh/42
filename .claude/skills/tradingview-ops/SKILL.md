@@ -150,6 +150,8 @@ Reads are safe and frequent; **writes mutate J's live chart** and are the disrup
 2. **Off-hours only for structural writes** (draw, add/remove indicator, set inputs). During RTH the chart is J's instrument and the engine's read surface — don't repaint it.
 3. **If J may be on the chart, do not write at all.** Prefer cached reads. The cost of a flickered chart on a live operator outweighs any convenience. (MEMORY: highest-priority "don't disturb user".)
 
+**Chart hygiene — WIPE-then-REDRAW, never additive (2026-06-24):** `draw_list` / `draw_remove_one` / `draw_clear` are BROKEN (`getChartApi is not defined`), so per-entity cleanup silently fails and level lines COMPOUND (the chart hit **58 drawings / 48 stale horizontal lines** before this rule). The discipline for any routine that draws levels (premarket Step 5, EOD, daily-review): **each session WIPE all engine `horizontal line` drawings, then REDRAW the current near-price set fresh** — don't track entity_ids for removal. Use the `ui_evaluate` JS in `automation/scripts/tv_ops/` (`remove_by_title.js` with needle `"horizontal line"`, then `draw_shape`). The needle `"horizontal line"` does NOT match `"horizontal ray"` / `"trendline"` / `"ray"` / `"rectangle"` — **J owns those structural drawings; never auto-delete them.** Cap drawn levels at the ~10 nearest within ~$12 of spot so the chart can never re-clutter.
+
 > **Orders are NOT a TV operation.** Execution is Alpaca only (`mcp__alpaca__place_option_order`). The TV MCP never places, modifies, or cancels an order. `replay_trade` is a *backtest-replay* construct, not a live order — don't confuse it.
 
 ---

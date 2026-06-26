@@ -1,0 +1,161 @@
+{
+  "slug": "pre-fomc-announcement-drift",
+  "arena": "0dte",
+  "section": "B6-EXTERNAL",
+  "built": true,
+  "ran": true,
+  "verdict": "DEAD",
+  "gates_passed": "2/8",
+  "gates": {
+    "1_OOS_positive": false,
+    "2_quarters_4of6": false,
+    "3_conc_top5_lt200": true,
+    "4_n_ge20": false,
+    "5_drop_top5_positive": false,
+    "6_no_truncation": true,
+    "7_beats_null": false,
+    "8_oos_n_ge20": false
+  },
+  "config": {
+    "strike_offset": -1,
+    "strike_tier": "ITM-1",
+    "premium_stop_pct": -0.99,
+    "stop": "chart-stop-only (C2)",
+    "entry_gate": "09:35-10:00 ET",
+    "hard_exit": "13:55 ET (pre-print)",
+    "qty": 3
+  },
+  "fomc_days_tested": [
+    "2025-01-29",
+    "2025-03-19",
+    "2025-05-07",
+    "2025-06-18",
+    "2025-07-30",
+    "2025-09-17",
+    "2025-10-29",
+    "2025-12-10",
+    "2026-01-28",
+    "2026-03-18",
+    "2026-04-29"
+  ],
+  "n_signals_generated": 11,
+  "overall": {
+    "n": 9,
+    "total": -522.6,
+    "per_trade": -58.07,
+    "drop_top5_per_trade": -259.5,
+    "top5_day_pct": 87.3,
+    "days": {
+      "2025-01-29": -288.0,
+      "2025-03-19": 189.0,
+      "2025-05-07": -261.0,
+      "2025-06-18": 157.8,
+      "2025-07-30": 84.0,
+      "2025-09-17": -138.0,
+      "2025-10-29": -75.0,
+      "2026-01-28": -351.0,
+      "2026-04-29": 159.6
+    }
+  },
+  "OOS_2026": {
+    "n": 2,
+    "total": -191.4,
+    "per_trade": -95.7,
+    "drop_top5_per_trade": null,
+    "top5_day_pct": -119.9,
+    "days": {
+      "2026-01-28": -351.0,
+      "2026-04-29": 159.6
+    }
+  },
+  "positive_quarters": "1/6",
+  "null": {
+    "seeds": 20,
+    "n_eligible": 18810,
+    "n_drawn": 9,
+    "per_trade_mean": -47.99,
+    "per_trade_min": -220.87,
+    "per_trade_max": 113.85,
+    "per_trade_by_seed": [
+      -51.16,
+      -75.1,
+      53.87,
+      -69.34,
+      113.85,
+      55.8,
+      -65.63,
+      -54.0,
+      -62.22,
+      -22.86,
+      -31.8,
+      89.3,
+      -198.53,
+      -68.09,
+      -171.67,
+      62.58,
+      -126.22,
+      -131.73,
+      -220.87,
+      13.95
+    ]
+  },
+  "null_gate": {
+    "beats_null_mean": false,
+    "beats_null_max": false,
+    "drop_top5_beats_null_mean": false,
+    "edge_over_null_per_trade": -10.08,
+    "null_pass": false
+  },
+  "fraud_verdict": {
+    "passes": false,
+    "no_truncation_pass": true,
+    "null_pass": false,
+    "is_truncation_artifact": false,
+    "chosen_per_trade": -142.87,
+    "chart_stop_only_per_trade": -142.87,
+    "chosen_premium_stop_pct": -0.99,
+    "n_chosen": 9,
+    "n_chart_stop_only": 9,
+    "null": {
+      "seeds": 20,
+      "n_eligible": 27055,
+      "n_drawn": 9,
+      "per_trade_mean": -26.37,
+      "per_trade_min": -138.75,
+      "per_trade_max": 175.97,
+      "per_trade_by_seed": [
+        -1.05,
+        -120.53,
+        -92.7,
+        57.0,
+        -138.75,
+        -53.03,
+        175.97,
+        50.28,
+        90.84,
+        -96.17,
+        -30.3,
+        -13.02,
+        30.28,
+        -68.13,
+        -119.93,
+        -129.92,
+        -109.76,
+        2.45,
+        19.13,
+        19.93
+      ]
+    },
+    "null_gate": {
+      "beats_null_mean": false,
+      "beats_null_max": false,
+      "drop_top5_beats_null_mean": false,
+      "edge_over_null_per_trade": -116.5,
+      "null_pass": false
+    },
+    "reason": "no-truncation PASS: chart-stop-only (-0.99)/tr=$-142.86666666666667 holds vs chosen $-142.86666666666667/tr | RANDOM-NULL FAIL: $-142.86666666666667/tr vs null max $175.97 mean $-26.37 (drop-top5 $-444.75) -> a coin-flip entry reproduces it; the edge is the exit bracket (L172)",
+    "error": null
+  },
+  "death_cause": "insufficient-N: only 9 real-fill trades (~8 FOMC days/yr; OPRA window yields ~11 days max -- a calendar strategy can never reach the n>=20 statistical bar on 0DTE real-fills). Sample too small to claim an edge.",
+  "note": "Sourced external strategy run on REAL OPRA fills (lib.simulator_real, C1) with the survivor structure (ITM-1 + morning entry) and the strategy's own 13:55 pre-print hard exit + chart-stop-only (C2). 8 fraud-gates incl OOS-positive + beats-null + no-truncation."
+}

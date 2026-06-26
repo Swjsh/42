@@ -1,0 +1,15 @@
+{"date": "2025-09-10", "price": 640.5, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-10", "price": 645.0, "source": "round", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-10", "price": 647.22, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-10", "price": 647.28, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-10", "price": 648.645, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-10", "price": 649.9, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-10", "price": 650.055245390975, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-10", "price": 650.124508640208, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-10", "price": 650.26, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-10", "price": 650.845, "source": "multi_day", "touched": true, "outcome": "RESPECT", "reaction_dollars": 0.985, "false_break": false}
+{"date": "2025-09-10", "price": 652.2, "source": "multi_day", "touched": true, "outcome": "RESPECT", "reaction_dollars": 1.23, "false_break": false}
+{"date": "2025-09-10", "price": 653.49, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.7, "false_break": true}
+{"date": "2025-09-10", "price": 654.0, "source": "round", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.51, "false_break": true}
+{"date": "2025-09-10", "price": 654.1, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.61, "false_break": true}
+{"date": "2025-09-10", "price": 655.0, "source": "round", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}

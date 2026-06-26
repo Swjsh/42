@@ -151,7 +151,7 @@ import pandas as pd  # noqa: E402
 
 from lib.engine.gates import GateBlock, GateContext, evaluate_gates  # noqa: E402
 from lib.engine.score import ScoreResult, score_bar  # noqa: E402
-from lib.filters import BarContext  # noqa: E402
+from lib.filters import BarContext, LevelState  # noqa: E402
 from lib.ribbon import RibbonState  # noqa: E402
 
 
@@ -328,6 +328,23 @@ def build_bar_context(d: Mapping[str, Any]) -> BarContext:
     level_states = d.get("level_states", {})
     if not isinstance(level_states, Mapping):
         raise BadPayload(f"{ctx}.level_states: expected an object")
+    # Reconstruct JSON plain-dict level_states into LevelState objects so the filters
+    # (sequence_rejection/sequence_reclaim) can attribute-access state.price/.role/
+    # .bounce_history. heartbeat_core + replay both feed plain dicts; the orchestrator
+    # builds BarContext directly (never via this shim) so this is back-compatible.
+    rebuilt_ls: dict = {}
+    for k, v in level_states.items():
+        if isinstance(v, LevelState):
+            rebuilt_ls[k] = v
+        elif isinstance(v, Mapping):
+            rebuilt_ls[k] = LevelState(
+                price=_as_float(v.get("price"), f"{ctx}.level_states[{k}].price"),
+                role=v.get("role"),
+                broken_at_bar_idx=v.get("broken_at_bar_idx"),
+                bounce_history=list(v.get("bounce_history", [])),
+            )
+        else:
+            raise BadPayload(f"{ctx}.level_states[{k}]: expected an object or LevelState")
 
     htf = d.get("htf_15m_stack", None)
     if htf is not None and not isinstance(htf, str):
@@ -349,7 +366,7 @@ def build_bar_context(d: Mapping[str, Any]) -> BarContext:
         levels_active=[_as_float(x, f"{ctx}.levels_active[]") for x in levels_active],
         multi_day_levels=[_as_float(x, f"{ctx}.multi_day_levels[]") for x in multi_day_levels],
         htf_15m_stack=htf,
-        level_states=dict(level_states),
+        level_states=rebuilt_ls,
         fhh_level=(None if fhh is None else _as_float(fhh, f"{ctx}.fhh_level")),
         vix_5d_ma=_as_float(d.get("vix_5d_ma", 0.0), f"{ctx}.vix_5d_ma"),
         vix_20d_ma=_as_float(d.get("vix_20d_ma", 0.0), f"{ctx}.vix_20d_ma"),

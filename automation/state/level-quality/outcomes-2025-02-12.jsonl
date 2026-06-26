@@ -1,0 +1,15 @@
+{"date": "2025-02-12", "price": 598.635, "source": "multi_day", "touched": true, "outcome": "RESPECT", "reaction_dollars": 2.995, "false_break": false}
+{"date": "2025-02-12", "price": 601.12, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.52, "false_break": false}
+{"date": "2025-02-12", "price": 602.47, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.065, "false_break": true}
+{"date": "2025-02-12", "price": 603.6, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.58, "false_break": false}
+{"date": "2025-02-12", "price": 604.35, "source": "multi_day", "touched": true, "outcome": "RESPECT", "reaction_dollars": 1.21, "false_break": false}
+{"date": "2025-02-12", "price": 604.5576329966568, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-02-12", "price": 604.6287780793425, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-02-12", "price": 604.7, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-02-12", "price": 605.0, "source": "round", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-02-12", "price": 605.2057043333255, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-02-12", "price": 605.35, "source": "intraday", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-02-12", "price": 605.43, "source": "intraday", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-02-12", "price": 605.85, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-02-12", "price": 606.0, "source": "round", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-02-12", "price": 608.095, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}

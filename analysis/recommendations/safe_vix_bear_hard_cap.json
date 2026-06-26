@@ -1,0 +1,58 @@
+{
+  "scorecard_id": "safe_vix_bear_hard_cap",
+  "created_at": "2026-06-18",
+  "account": "SAFE",
+  "gate_name": "VIX_BEAR_HARD_CAP",
+  "hypothesis": "BEAR entries when VIX >= 23 are structurally unprofitable in both IS and OOS. High-fear VIX (≥23) inflates put premium, causing -10% stop to fire on small adverse moves (C3/L149). Blocking these trades improves net P&L without removing any winning setups.",
+  "parameter": "vix_bear_hard_cap",
+  "threshold_tested": 23.0,
+  "alternatives_tested": [20, 21, 22, 23, 24, 25],
+  "winner_rationale": "VIX≥23: 0/3 SW hurt (cleanest), IS_delta=+$790 (best among RATIFY candidates), same OOS_delta=+$420. VIX≥22 had 1/3 SW hurt. VIX 22-23 IS bears (n=2) are mildly profitable (+$45) and correctly excluded.",
+  "baseline": {
+    "IS": {"n": 98, "total": 23722, "wr": 0.408},
+    "OOS": {"n": 20, "total": 6487, "wr": 0.35}
+  },
+  "candidate": {
+    "IS": {"n": 89, "total": 24512, "wr_bears_unblocked": "improved"},
+    "OOS": {"n": 14, "total": 6907, "wr_bears_unblocked": "improved"}
+  },
+  "op22_gates": {
+    "G1_IS_delta": {"value": 790, "threshold": 0, "pass": true},
+    "G2_OOS_delta": {"value": 420, "threshold": 0, "pass": true},
+    "G3_WF_per_trade": {"value": 0.797, "threshold": 0.70, "pass": true, "calc": "(420/6)/(790/9)=70.0/87.8"},
+    "G4_SW_hurt": {"value": "0/3", "threshold": "≤1/3", "pass": true, "detail": "SW1+SW2+SW3 all neutral or improving"},
+    "G5_anchor_no_regression": {"pass": true, "detail": "Anchor dates 4/29 5/1 5/4 all have VIX<23; no anchor trades removed"}
+  },
+  "all_gates_pass": true,
+  "auto_ratified": true,
+  "ratification_basis": "OP-22 auto-ratify: OOS_positive AND WF≥0.70 AND sub_window_stable AND anchor_no_regression. J standing directive: 'I am no blocker. if its profitable implement it'",
+  "ratified_at": "2026-06-18",
+  "root_cause": "VIX≥23 = high-fear environment. Put options carry inflated IV → premium is expensive relative to directional move size → -10% stop fires on small adverse swings (C3/L149 doctrine: SPY-price edge ≠ option edge at high IV). Bearish setups still pattern-fire correctly, but option mechanics kill the trade before it plays out.",
+  "sub_window_breakdown": {
+    "SW1_2025H1": {"baseline": 3320, "candidate": 3779, "delta": 459, "hurt": false},
+    "SW2_2025H2": {"baseline": 13464, "candidate": 13884, "delta": 420, "hurt": false},
+    "SW3_early26": {"baseline": 6938, "candidate": 6938, "delta": 0, "hurt": false}
+  },
+  "vix_band_analysis": {
+    "IS_bears_VIX_22_23": {"n": 2, "total": 45, "profitable": true, "blocked_by_cap23": false},
+    "IS_bears_VIX_23_25": {"n": 4, "total": -720, "profitable": false, "blocked_by_cap23": true},
+    "IS_bears_VIX_25_plus": {"n": 3, "total": -115, "profitable": false, "blocked_by_cap23": true},
+    "OOS_bears_VIX_24_plus": {"n": 6, "total": -420, "profitable": false, "blocked_by_cap23": true}
+  },
+  "implementation": {
+    "orchestrator_param": "vix_bear_hard_cap",
+    "params_json_key": "vix_bear_hard_cap",
+    "params_to_kwargs_mapping": "added to _params_to_kwargs in orchestrator.py",
+    "gate_action": "SKIP_VIX_BEAR_HIGH",
+    "live_activation_status": "PARAMS_UPDATED — heartbeat.md activation pending (add filter: block bears if VIX >= vix_bear_hard_cap)",
+    "revert": "set vix_bear_hard_cap to 0 or null in params.json; remove gate from heartbeat.md"
+  },
+  "alternatives_sweep": [
+    {"threshold": 20, "IS_delta": -4360, "OOS_delta": 495, "WF": -0.357, "SW_hurt": "3/3", "verdict": "REJECT"},
+    {"threshold": 21, "IS_delta": -3411, "OOS_delta": 495, "WF": -0.332, "SW_hurt": "2/3", "verdict": "REJECT"},
+    {"threshold": 22, "IS_delta": 745, "OOS_delta": 420, "WF": 1.032, "SW_hurt": "1/3", "verdict": "RATIFY_ALT"},
+    {"threshold": 23, "IS_delta": 790, "OOS_delta": 420, "WF": 0.797, "SW_hurt": "0/3", "verdict": "RATIFY_CHOSEN"},
+    {"threshold": 24, "IS_delta": 70, "OOS_delta": 420, "WF": 4.978, "SW_hurt": "1/3", "verdict": "RATIFY_ALT"},
+    {"threshold": 25, "IS_delta": -300, "OOS_delta": 333, "WF": -0.667, "SW_hurt": "1/3", "verdict": "REJECT"}
+  ]
+}

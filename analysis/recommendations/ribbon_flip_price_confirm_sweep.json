@@ -1,0 +1,20 @@
+{
+  "study": "ribbon_flip_price_confirm exit gate sweep",
+  "date": "2026-06-17",
+  "motivation": "5/01 anchor day: engine exited flat +$3 via EXIT_ALL_RIBBON_FLIP_BACK when ribbon flipped BULL while SPY only $0.03 above entry (722.84 vs 722.81). J held to +$470. Gate: require SPY to move $0.50 past entry before ribbon flip-back exit fires. Hypothesis: regime-agnostic improvement.",
+  "gate": "ribbon_flip_price_confirm=True (SPY must move $0.50 past entry before EXIT_ALL_RIBBON_FLIP_BACK)",
+  "results": [
+    {
+      "account": "SAFE (post-ENFORCED-4 baseline)",
+      "is_delta": -265.5,
+      "oos_delta": 0.0,
+      "verdict": "REJECT_L155"
+    },
+    {
+      "account": "AGG  (post-ENFORCED-5 baseline)",
+      "is_delta": -198.96,
+      "oos_delta": 0.0,
+      "verdict": "REJECT_L155"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "BASELINE": {
+    "is_n": 90,
+    "is_pnl": 24537.13,
+    "is_wr": 0.322,
+    "is_sharpe": 1.529,
+    "oos_n": 80,
+    "oos_pnl": -3291.16,
+    "oos_wr": 0.25,
+    "oos_sharpe": -0.421,
+    "wf_ratio": -0.275,
+    "pass": false
+  },
+  "VIX18_LEVEL": {
+    "is_n": 43,
+    "is_pnl": 30702.44,
+    "is_wr": 0.442,
+    "is_sharpe": 2.06,
+    "oos_n": 52,
+    "oos_pnl": 2563.19,
+    "oos_wr": 0.25,
+    "oos_sharpe": 0.356,
+    "wf_ratio": 0.173,
+    "pass": false
+  },
+  "VIX_TREND": {
+    "is_n": 40,
+    "is_pnl": 21592.22,
+    "is_wr": 0.4,
+    "is_sharpe": 1.653,
+    "oos_n": 45,
+    "oos_pnl": -1041.13,
+    "oos_wr": 0.244,
+    "oos_sharpe": -0.181,
+    "wf_ratio": -0.109,
+    "pass": false
+  },
+  "VIX18+TREND": {
+    "is_n": 23,
+    "is_pnl": 22106.97,
+    "is_wr": 0.522,
+    "is_sharpe": 1.79,
+    "oos_n": 30,
+    "oos_pnl": 395.14,
+    "oos_wr": 0.233,
+    "oos_sharpe": 0.075,
+    "wf_ratio": 0.042,
+    "pass": false
+  }
+}

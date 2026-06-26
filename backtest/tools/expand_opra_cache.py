@@ -5,10 +5,13 @@ the 2025-01-01 → 2026-05-12 window.
 
 Coverage:
   - For every trading day in [start, end] (inclusive) we have a SPY bar in
-    `data/spy_5m_2025-01-01_2026-05-12.csv` for, we fetch 0DTE option bars at
-    strikes `round(daily_close) + offset` for `offset ∈ {-5..+5}`, both call and
-    put sides. That covers SNIPER's `strike_offset=+2` (ITM-2) trades plus all
-    adjacent strikes a sub-strategy could pick.
+    the CURRENT full-window SPY 5m master (resolved at runtime as the newest
+    `data/spy_5m_2025-01-01_YYYY-MM-DD.csv` by end-date) for, we fetch 0DTE
+    option bars at strikes `round(daily_close) + offset` for `offset ∈ {-5..+5}`,
+    both call and put sides. That covers SNIPER's `strike_offset=+2` (ITM-2)
+    trades plus all adjacent strikes a sub-strategy could pick. Centering on the
+    current master keeps strikes aligned to current daily closes (a stale master
+    would mis-center every strike).
 
 Persistence:
   - Each contract written to `backtest/data/options/{symbol}.csv` matching the
@@ -55,6 +58,8 @@ from urllib.request import Request, urlopen
 
 import pandas as pd
 
+from _alpaca_creds import resolve_alpaca_creds
+
 logger = logging.getLogger(__name__)
 
 REPO = Path(__file__).resolve().parents[1]
@@ -63,12 +68,37 @@ OPTIONS_DIR = DATA_DIR / "options"
 STATE_DIR = Path(__file__).resolve().parent / "_state"
 PROGRESS_FILE = STATE_DIR / "opra_ingest_progress.json"
 
-SPY_5M_MASTER = DATA_DIR / "spy_5m_2025-01-01_2026-05-12.csv"
 
-ALPACA_KEY = os.environ.get("ALPACA_API_KEY", "PK33J2RV4PNIY6TCOLUG3WYGRX")
-ALPACA_SECRET = os.environ.get(
-    "ALPACA_API_SECRET", "FxbJshSbhJ8Rn7KPENssS4eWsLpxCyYeyxavxywV9Bbs"
-)
+def resolve_spy_master() -> Path:
+    """Return the current full-window SPY 5m master.
+
+    Strikes center on `round(daily_close)`, so the master MUST be current or
+    option strikes get centered on stale closes. We resolve the newest
+    full-window master (filename `spy_5m_2025-01-01_*.csv`) by end-date rather
+    than hardcoding a fixed (and quickly stale) path.
+    """
+    candidates = sorted(DATA_DIR.glob("spy_5m_2025-01-01_*.csv"))
+    # Filter to plain end-dated masters (skip `_merged` / other suffixed variants)
+    # by requiring the stem to end in an ISO date.
+    dated = []
+    for p in candidates:
+        tail = p.stem.rsplit("_", 1)[-1]  # last token after final underscore
+        try:
+            dt.date.fromisoformat(tail)
+        except ValueError:
+            continue
+        dated.append((tail, p))
+    if not dated:
+        raise FileNotFoundError(
+            f"No full-window SPY 5m master (spy_5m_2025-01-01_YYYY-MM-DD.csv) "
+            f"found in {DATA_DIR}. Run tools/extend_data_v2.py / merge_data.py first."
+        )
+    dated.sort(key=lambda t: t[0])
+    return dated[-1][1]
+
+
+SPY_5M_MASTER = resolve_spy_master()
+
 ALPACA_OPTIONS_URL = "https://data.alpaca.markets/v1beta1/options/bars"
 
 # OCC symbol builder matches lib/option_pricing_real.py exactly so consumer can
@@ -130,7 +160,9 @@ def build_contract_list(
     return contracts
 
 
-def fetch_contract_bars(symbol: str, trade_date: dt.date, timeout: int = 30) -> list[dict]:
+def fetch_contract_bars(
+    symbol: str, trade_date: dt.date, key: str, secret: str, timeout: int = 30
+) -> list[dict]:
     """Fetch RTH 5-min bars for a single 0DTE contract. Empty list = no bars."""
     # Note: ET = UTC-4 during EDT (March 9 → Nov 1 in 2025 + 2026).
     # ET = UTC-5 during EST. Using UTC-4 window covers RTH in both cases —
@@ -149,8 +181,8 @@ def fetch_contract_bars(symbol: str, trade_date: dt.date, timeout: int = 30) -> 
     req = Request(
         url,
         headers={
-            "APCA-API-KEY-ID": ALPACA_KEY,
-            "APCA-API-SECRET-KEY": ALPACA_SECRET,
+            "APCA-API-KEY-ID": key,
+            "APCA-API-SECRET-KEY": secret,
         },
     )
     with urlopen(req, timeout=timeout) as resp:
@@ -289,6 +321,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.plan_only:
         return 0
 
+    creds = resolve_alpaca_creds()
+    logger.info("Alpaca creds: key=%s... source=%s", creds.key[:4], creds.source)
+
     if eta_minutes > 240:
         logger.error(
             "ETA %.1f min > 4h budget. Either tighten window, raise --sleep "
@@ -339,7 +374,7 @@ def main(argv: list[str] | None = None) -> int:
             while True:
                 attempt += 1
                 try:
-                    rows = fetch_contract_bars(symbol, trade_date)
+                    rows = fetch_contract_bars(symbol, trade_date, creds.key, creds.secret)
                     if rows:
                         write_cache(symbol, rows)
                         msg = f"OK   {symbol}  {len(rows)} bars"

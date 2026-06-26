@@ -48,6 +48,7 @@ BEAR_AUTHORIZED = {"v14_enhanced", "bearish_rejection_morning"}
 from autoresearch.fraud_gates import (  # noqa: E402
     CHART_STOP_ONLY_PCT,
     fraud_gate_from_per_trade,
+    oos_drop_top5_gate,
 )
 
 
@@ -122,6 +123,15 @@ def _fraud_inputs(c, ov, m, oos, fam_dict=None):
         sv.get("overall_per_trade"), c.get("overall_per_trade"),
         m.get("exp_dollar"), ov.get("avg_pnl")))
     strike_off = c.get("strike_offset")
+    # L173 OOS-ALONE drop-top5 per-trade (OOS-only expectancy after removing the 5 best
+    # OOS observations). Read whichever name a family recorded it under (the _b10 harness
+    # writes ``oos_exp_drop_top5``; the lesson names it ``oos_drop_top5_per_trade``);
+    # falls back to None (gate fails OPEN / caveat) when no family recorded it.
+    oos_drop_top5_pt = _num(_first(
+        sv.get("oos_drop_top5_per_trade"), c.get("oos_drop_top5_per_trade"),
+        sv.get("oos_exp_drop_top5"), c.get("oos_exp_drop_top5"),
+        m.get("oos_exp_drop_top5"), oos.get("oos_exp_drop_top5"),
+        oos.get("exp_drop_top5")))
     chart_stop_only_pt = _num(_first(
         sv.get("same_strike_chart_stop_only_per_trade"),
         c.get("same_strike_chart_stop_only_per_trade"),
@@ -134,6 +144,10 @@ def _fraud_inputs(c, ov, m, oos, fam_dict=None):
             c.get("premium_stop_pct"), sv.get("premium_stop_pct"))),
         "drop_top5_per_trade": _num(_first(
             sv.get("drop_top5_per_trade"), c.get("drop_top5_per_trade"))),
+        # L173 OOS-ALONE drop-top5 inputs (None => gate fails OPEN / caveat).
+        "oos_drop_top5_per_trade": oos_drop_top5_pt,
+        "oos_n": _num(_first(m.get("oos_n"), oos.get("n"), c.get("oos_n"),
+                             oos.get("oos_n"))),
         "null": null,
         # A family that recorded an inline truncation verdict pins it (overrides recompute).
         "inline_is_artifact": sv.get("is_truncation_artifact",
@@ -213,6 +227,24 @@ def _gate(fam, c):
         fails.append("RANDOM_NULL_FAIL(L172:coin-flip-reproduces-per-trade)")
     elif not fv.get("null_evaluable"):
         caveats.append("null-unverified(no inline null + no re-sim)")
+
+    # ── GATE_OOS_CONC: the THIRD graduated concentration gate (C4/L173) ──
+    # Full-sample drop-top5 > 0 is necessary-but-not-sufficient; the candidate must
+    # ALSO keep its OOS-window-only per-trade positive after the 5 best OOS days are
+    # dropped. Caught edge #3 (2026-bull regime artifact: passed full-sample drop-top5
+    # but OOS-alone drop-top5 went -$16 -> -$23). ADDITIVE — never relaxes the gates above.
+    fi = c.get("fraud_inputs") or {}
+    ov_g = oos_drop_top5_gate(
+        oos_drop_top5_per_trade=fi.get("oos_drop_top5_per_trade"),
+        oos_n=int(fi["oos_n"]) if fi.get("oos_n") is not None else None,
+    )
+    c["oos_drop_top5"] = ov_g
+    if ov_g.get("evaluable") and ov_g.get("oos_drop_top5_pass") is False:
+        fails.append(
+            f"OOS_DROP_TOP5<=0(L173:OOS-alone-conc-artifact;"
+            f"OOS_drop_top5/t={ov_g.get('oos_drop_top5_per_trade')})")
+    elif not ov_g.get("evaluable"):
+        caveats.append("OOS-drop-top5-unverified(no recorded oos_exp_drop_top5 / OOS_n<=5)")
     return fails, caveats
 
 
@@ -296,15 +328,21 @@ def main():
         for c in confirmed[:4]:
             cv = (" CAVEATS:" + ",".join(c["caveats"])) if c["caveats"] else ""
             fr = c.get("fraud") or {}
+            oc = c.get("oos_drop_top5") or {}
+            oc_s = (f" oosDropTop5={'OK' if oc.get('oos_drop_top5_pass') else ('OK*' if not oc.get('evaluable') else 'FAIL')}"
+                    f"(${oc.get('oos_drop_top5_per_trade')})")
             fr_s = (f" FRAUD[trunc={'OK' if fr.get('no_truncation_pass') else 'FAIL'},"
-                    f"null={'OK' if fr.get('null_pass') else ('OK*' if not fr.get('null_evaluable') else 'FAIL')}]")
+                    f"null={'OK' if fr.get('null_pass') else ('OK*' if not fr.get('null_evaluable') else 'FAIL')}]"
+                    f"{oc_s}")
             print(f"  [CONFIRMED] {c['config']:46s} OOS/t=${c['oos_pt']} all/t=${c['overall_pt']} n={c['n']} oosN={c['oos_n']} posQ={c['posq']} top5={c['top5']} oosTop5={c['oos_top5']}{fr_s}{cv}")
         for c in rejected[:2]:
             print(f"  [reject]    {c['config']:46s} OOS/t=${c['oos_pt']}  fails: {', '.join(c['fails'])}")
 
     out = {"gates": ("OOS>0; posQ>=4/6; top5<200; OOS_top5<300; n>=20; OOS_n>=20; robust; anchor; "
                      "auth-bear>0; NO-TRUNCATION(L171 sign holds at chart-stop-only); "
-                     "RANDOM-NULL(L172 beat coin-flip MAX)"),
+                     "RANDOM-NULL(L172 beat coin-flip MAX); "
+                     "OOS-ALONE-DROP-TOP5>0(L173 OOS-only per-trade stays positive after "
+                     "dropping the 5 best OOS days)"),
            "fraud_gates": ("GRADUATED C3/L58: no-truncation (truncation_guard.py + L171) AND "
                            "random-entry-null (null_baseline.py + L172), wired via "
                            "autoresearch.fraud_gates -- STANDARD on every candidate; a positive "

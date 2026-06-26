@@ -1,0 +1,91 @@
+{"ts": "2026-06-21T11:37:46.474Z", "source": "integrator", "origin": "manual", "tier": "engine", "model": null, "cost_usd": 0.0, "action": "wired operator spine write-side", "outcome": "log_activity.py shipped \u2014 operator can now write the shared activity ledger"}
+{"ts":"2026-06-21T12:23:17.942Z","source":"escalate","origin":"text","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"escalation skipped","outcome":"error: (busy: too many tasks running — try again in a moment)"}
+{"ts":"2026-06-21T12:23:19.943Z","source":"escalate","origin":"text","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"escalation skipped","outcome":"error: (busy: too many tasks running — try again in a moment)"}
+{"ts":"2026-06-21T12:23:21.628Z","source":"escalate","origin":"text","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"escalation skipped","outcome":"error: (busy: too many tasks running — try again in a moment)"}
+{"ts":"2026-06-21T12:43:36.590Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-opus-4-8","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T12:52:15.499Z","source":"escalate","origin":"test","tier":"agent","model":"claude-haiku-4-5","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T12:57:42.188Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T13:43:32.494Z","source":"approvals","origin":"card","tier":"approval","model":null,"cost_usd":0,"action":"resolved approval oblig-scheduled_tasks","outcome":"approve"}
+{"ts":"2026-06-21T13:43:33.336Z","source":"approvals","origin":"card","tier":"approval","model":null,"cost_usd":0,"action":"resolved approval act-kitchen-failed","outcome":"approve"}
+{"ts":"2026-06-21T13:43:35.071Z","source":"escalate","origin":"text","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"escalation skipped","outcome":"error: (busy: too many tasks running — try again in a moment)"}
+{"ts":"2026-06-21T13:43:35.072Z","source":"approvals","origin":"card","tier":"approval","model":null,"cost_usd":0,"action":"resolved approval oblig-scheduled_tasks","outcome":"approve"}
+{"ts":"2026-06-21T13:43:37.520Z","source":"escalate","origin":"text","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"escalation skipped","outcome":"error: (busy: too many tasks running — try again in a moment)"}
+{"ts":"2026-06-21T13:43:37.520Z","source":"approvals","origin":"card","tier":"approval","model":null,"cost_usd":0,"action":"resolved approval act-kitchen-failed","outcome":"approve"}
+{"ts":"2026-06-21T13:46:29.035Z","source":"escalate","origin":"card","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T13:47:03.394Z","source":"escalate","origin":"card","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T13:51:18.079Z","source":"approvals","origin":"card","tier":"approval","model":null,"cost_usd":0,"action":"resolved approval act-kitchen-failed","outcome":"approve"}
+{"ts":"2026-06-21T14:16:24.076Z","source":"approvals","origin":"card","tier":"approval","model":null,"cost_usd":0,"action":"resolved approval act-kitchen-failed","outcome":"reject"}
+{"ts":"2026-06-21T14:16:53.032Z","source":"approvals","origin":"card","tier":"approval","model":null,"cost_usd":0,"action":"resolved approval act-kitchen-failed","outcome":"reject"}
+{"ts":"2026-06-21T14:21:03.290Z","source":"approvals","origin":"card","tier":"approval","model":null,"cost_usd":0,"action":"resolved approval act-kitchen-failed","outcome":"approve"}
+{"ts":"2026-06-21T14:22:27.408Z","source":"approvals","origin":"card","tier":"approval","model":null,"cost_usd":0,"action":"resolved approval act-kitchen-failed","outcome":"approve"}
+{"ts":"2026-06-21T14:23:42.841Z","source":"approvals","origin":"card","tier":"approval","model":null,"cost_usd":0,"action":"resolved approval act-kitchen-failed","outcome":"reject"}
+{"ts":"2026-06-21T14:43:43.006Z","source":"escalate","origin":"text","tier":"agent","model":"claude-haiku-4-5","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T14:44:00.531Z","source":"escalate","origin":"text","tier":"agent","model":"claude-haiku-4-5","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T14:46:13.805Z","source":"escalate","origin":"test","tier":"agent","model":"claude-haiku-4-5","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T14:49:07.811Z","source":"approvals","origin":"card","tier":"approval","model":null,"cost_usd":0,"action":"resolved approval act-kitchen-failed","outcome":"approve"}
+{"ts":"2026-06-21T15:01:11.484Z","source":"approvals","origin":"card","tier":"approval","model":null,"cost_usd":0,"action":"resolved approval act-kitchen-failed","outcome":"approve"}
+{"ts":"2026-06-21T15:06:52.934Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T15:23:32.010Z","source":"escalate","origin":"selftest","tier":"agent","model":"claude-haiku-4-5","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T15:31:00.961Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T15:42:19.394Z","source":"approvals","origin":"card","tier":"approval","model":null,"cost_usd":0,"action":"resolved approval act-kitchen-failed","outcome":"approve"}
+{"ts":"2026-06-21T15:43:29.548Z","source":"approvals","origin":"card","tier":"approval","model":null,"cost_usd":0,"action":"resolved approval act-kitchen-failed","outcome":"approve"}
+{"ts":"2026-06-21T15:43:29.551Z","source":"escalate","origin":"text","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"escalation skipped","outcome":"error: (already working on that card — no duplicate build started)"}
+{"ts":"2026-06-21T15:45:49.215Z","source":"escalate","origin":"card","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T15:47:24.162Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T15:57:59.476Z","source":"approvals","origin":"card","tier":"approval","model":null,"cost_usd":0,"action":"resolved approval act-kitchen-failed","outcome":"approve"}
+{"ts":"2026-06-21T16:00:44.315Z","source":"escalate","origin":"card","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T16:04:06.808Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T16:05:28.464Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T16:56:11.388Z","source":"approvals","origin":"card","tier":"approval","model":null,"cost_usd":0,"action":"resolved approval act-kitchen-failed","outcome":"approve"}
+{"ts":"2026-06-21T16:59:54.453Z","source":"escalate","origin":"card","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T17:00:13.655Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T17:10:53.622Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-opus-4-8","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T17:33:23.112Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T18:46:08.932Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T21:53:05.607Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T21:54:34.242Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T21:55:44.025Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T22:02:49.501Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T22:03:07.014Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T22:03:47.409Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T22:08:17.558Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T22:08:19.357Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-opus-4-8","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T22:08:31.156Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T22:11:56.358Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T22:12:15.177Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T22:13:33.594Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:08:33.175Z","source":"escalate","origin":"text","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"escalation skipped","outcome":"error: (busy: too many tasks running — try again in a moment)"}
+{"ts":"2026-06-21T23:08:43.963Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:09:34.622Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:09:36.447Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:12:16.388Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:12:24.154Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:12:29.774Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:12:55.904Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:14:56.597Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:15:14.108Z","source":"escalate","origin":"text","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"escalation skipped","outcome":"error: (busy: too many tasks running — try again in a moment)"}
+{"ts":"2026-06-21T23:15:14.110Z","source":"escalate","origin":"text","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"escalation skipped","outcome":"error: (busy: too many tasks running — try again in a moment)"}
+{"ts":"2026-06-21T23:15:24.196Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:15:32.022Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-opus-4-8","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:15:36.471Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:15:46.507Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:22:53.754Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:23:00.523Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:23:03.537Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:26:02.176Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:26:11.729Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:26:28.553Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:27:44.820Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:27:54.735Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:27:59.917Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:28:58.735Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:29:14.569Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:29:23.667Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-21T23:43:39.305Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-opus-4-8","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-22T00:06:07.033Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-22T01:04:24.662Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-22T01:07:49.309Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"success"}
+{"ts":"2026-06-22T01:11:28.214Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"error: (escalation error -- Claude Code returned an error result: API Error: 529 Overloaded. This is a server-side issue, usual"}
+{"ts":"2026-06-22T01:11:28.577Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"error: (escalation error -- Claude Code returned an error result: API Error: 529 Overloaded. This is a server-side issue, usual"}
+{"ts":"2026-06-22T01:11:36.839Z","source":"escalate","origin":"chat","tier":"agent","model":"claude-sonnet-4-6","cost_usd":0,"action":"ran escalation","outcome":"error: (escalation error -- Claude Code returned an error result: API Error: 529 Overloaded. This is a server-side issue, usual"}
+{"ts":"2026-06-25T00:05:09.670Z","source":"approvals","origin":"engine","tier":"approval","model":null,"cost_usd":0,"action":"queued approval gp-2026-06-24-001","outcome":"Sync heartbeat AGG-4 prose (morning-bull gate you removed)"}

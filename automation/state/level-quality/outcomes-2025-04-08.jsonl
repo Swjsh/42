@@ -1,0 +1,16 @@
+{"date": "2025-04-08", "price": 481.83, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-04-08", "price": 489.14, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-04-08", "price": 503.36214627112315, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 5.688, "false_break": true}
+{"date": "2025-04-08", "price": 503.6225374976558, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 5.427, "false_break": true}
+{"date": "2025-04-08", "price": 503.6983750973425, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 5.352, "false_break": true}
+{"date": "2025-04-08", "price": 503.92534496412196, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 5.125, "false_break": true}
+{"date": "2025-04-08", "price": 504.45, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 4.6, "false_break": true}
+{"date": "2025-04-08", "price": 505.93, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 2.61, "false_break": false}
+{"date": "2025-04-08", "price": 508.3, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 3.02, "false_break": false}
+{"date": "2025-04-08", "price": 518.96, "source": "swept", "touched": true, "outcome": "RESPECT", "reaction_dollars": 5.31, "false_break": false}
+{"date": "2025-04-08", "price": 520.0, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 3.74, "false_break": true}
+{"date": "2025-04-08", "price": 521.0, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 2.74, "false_break": true}
+{"date": "2025-04-08", "price": 521.06, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 2.68, "false_break": true}
+{"date": "2025-04-08", "price": 523.04, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.875, "false_break": false}
+{"date": "2025-04-08", "price": 559.26, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-04-08", "price": 567.37, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}

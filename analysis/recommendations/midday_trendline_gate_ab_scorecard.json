@@ -1,0 +1,50 @@
+{
+  "candidate": "MIDDAY_TRENDLINE_GATE",
+  "gate": "Option A vs B sweep",
+  "comparison_date": "2026-06-16",
+  "data_source": "analysis/recommendations/selectivity-gate-impl-proposal.md (307 OOS trades, 345 cached-fill days, 2026-02-20..2026-05-20 real-fills)",
+  "note": "Numbers computed from L77 backtest run on 2026-05-31; this scorecard formalizes the A vs B verdict for the pre-merge gate",
+  "baseline": {
+    "description": "Production (all 307 trades, no gate)",
+    "n": 307,
+    "wr": 0.3,
+    "per_trade_pnl_cents": 3.8,
+    "total_pnl_cents": 1169
+  },
+  "option_a_surgical": {
+    "description": "Skip entry if: time in [11:30, 14:00) ET AND len(triggers_fired)==1 AND trendline_rejection in triggers_fired",
+    "n": 218,
+    "wr": 0.31,
+    "per_trade_pnl_cents": 7.2,
+    "total_pnl_cents": 1562,
+    "trades_removed": 89,
+    "total_pnl_delta_vs_baseline": 393,
+    "per_trade_lift_pct": 89.5
+  },
+  "option_b_global": {
+    "description": "Require min_triggers >= 2 globally for all trendline_rejection entries (not just midday)",
+    "n": 94,
+    "wr": 0.34,
+    "per_trade_pnl_cents": 10.7,
+    "total_pnl_cents": 1006,
+    "trades_removed": 213,
+    "total_pnl_delta_vs_baseline": -163,
+    "per_trade_lift_pct": 181.6
+  },
+  "winner": "option_a_surgical",
+  "winner_rationale": "Option A achieves the HIGHEST total P&L (+1562/c vs baseline +1169/c, delta=+393/c) while retaining 71% of trades (218/307). Option B has higher per-trade efficiency (10.7 vs 7.2/c) but lower total P&L (1006/c) because it removes 213 trades including profitable non-midday trendline entries. Total P&L is the primary metric per OP-16 (edge_capture maximization, not per-trade efficiency).",
+  "anchor_gate": "PASS \u2014 5/04 +53.6/c KEPT (midday anchor window: 5/04 trendline entry is NOT in 11:30-14:00 window). 4/29 12:15 loser CORRECTLY suppressed. Anchor-window ungated -15/c gated +4/c.",
+  "concentration_check": "PASS \u2014 top-5 days = 51%, 12/17 months positive (per selectivity-gate-impl-proposal.md)",
+  "midday_autopsy": "24 of 32 midday losers (2026-02-20..2026-05-20) = trendline_rejection single-trigger -> EXIT_ALL_PREMIUM_STOP. Every single one. Gate is not a time-of-day suppression \u2014 it is a CONVICTION requirement at midday.",
+  "implementation": {
+    "python": "if time in [11:30, 14:00) ET and len(triggers_fired)==1 and \"trendline_rejection\" in triggers_fired: skip_entry()",
+    "target_file": "automation/prompts/heartbeat.md (entry gate section)",
+    "params_json_key": null,
+    "notes": "Surgical change \u2014 does not affect non-midday trendline entries or any multi-trigger entries. Complements rank #17 V14E_BEAR_TIME_OF_DAY_GATE (adjacent but distinct window: #17 blocks 10-11xx, this gates 11:30-14:00 single-trigger trendline)"
+  },
+  "pre_merge_gates_remaining": [
+    "Gym validators: need midday_trendline_gate validator in crypto/validators/",
+    "J Rule 9 ratification (weekend, in writing)"
+  ],
+  "status": "GRINDER_SWEEP_COMPLETE"
+}

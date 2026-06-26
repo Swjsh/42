@@ -1,0 +1,47 @@
+{
+  "study": "ribbon_just_flipped_ab_split",
+  "cook_queue_task": "2207a18a",
+  "date": "2026-06-17",
+  "methodology": "trades with ribbon_flip in triggers_fired vs without. ribbon_flip means the ribbon JUST changed direction at entry bar.",
+  "IS": {
+    "ribbon_flip_n": 29,
+    "ribbon_flip_WR": 13.8,
+    "ribbon_flip_total": 2793,
+    "ribbon_flip_avg": 96,
+    "ribbon_flip_stop_pct": 86.2,
+    "ribbon_flip_runner_pct": 13.8,
+    "no_flip_n": 80,
+    "no_flip_WR": 32.5,
+    "no_flip_total": 16287,
+    "no_flip_avg": 204,
+    "no_flip_stop_pct": 63.8,
+    "no_flip_runner_pct": 20.0
+  },
+  "OOS": {
+    "ribbon_flip_n": 7,
+    "ribbon_flip_WR": 57.1,
+    "ribbon_flip_total": 1802,
+    "ribbon_flip_avg": 257,
+    "ribbon_flip_stop_pct": 42.9,
+    "ribbon_flip_runner_pct": 57.1,
+    "no_flip_n": 11,
+    "no_flip_WR": 36.4,
+    "no_flip_total": 2032,
+    "no_flip_avg": 185,
+    "no_flip_stop_pct": 63.6,
+    "no_flip_runner_pct": 18.2
+  },
+  "verdict": "C22_INVERSION",
+  "findings": [
+    "IS: ribbon_flip stops 86% (bad), no-flip stops 64% (better). IS ribbon_flip WR=13.8 vs 32.5.",
+    "OOS: ribbon_flip stops 43% (GOOD), no-flip stops 64%. OOS ribbon_flip WR=57.1 vs 36.4.",
+    "CANNOT GATE: blocking ribbon_flip gives IS_delta=-2793 (L155 fail). Net IS P&L positive.",
+    "C22 root: trending IS (bull 2025) = ribbon flip is false signal (reversal). Volatile OOS = ribbon flip is momentum entry.",
+    "FUTURE: regime-conditional sizing bonus for ribbon_flip on volatile VIX days. Deferred to VIX-regime classifier."
+  ],
+  "flip_combos_IS": {
+    "level_reclaim+ribbon_flip": 13,
+    "conf+lvl_rec+ribbon_flip": 10,
+    "trendline+ribbon_flip": 4
+  }
+}

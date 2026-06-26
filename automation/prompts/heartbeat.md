@@ -133,8 +133,12 @@ Standard tick. No change to scoring or output.
   1. Call `mcp__alpaca__get_stock_bars(symbol="SPY", timeframe="5Min", limit=60)` to fetch recent 5-minute SPY bars from Alpaca.
   2. Extract close prices oldest→newest as a JSON array. Run: `python automation/scripts/ribbon_cli.py '<closes_json_array>'` where `<closes_json_array>` is that JSON array string.
   3. If exit code 0: parse the JSON output and use returned `stack`, `price`, `ema_fast`, `ema_pivot`, `ema_slow`, `spread_cents` for ALL downstream ribbon checks this tick. Set `data_source = "alpaca_fallback"` in decisions.jsonl. Append `TV_FALLBACK_ACTIVE` to the one-line output.
-  4. If exit code 1 (UNKNOWN stack or error): emit `SKIP_TV_DATA_STALE` and log `TV_FALLBACK_FAILED` — no entry this tick. Exits/management proceed using cached loop-state ribbon.
-  Only emit `SKIP_TV_DATA_STALE` if this Alpaca fallback also fails.
+  4. If exit code 1 (UNKNOWN stack or error) OR the `mcp__alpaca__get_stock_bars` call itself errors/401s: do NOT emit SKIP yet — cascade to Layer-1b below.
+  **BEACON FALLBACK (Layer-1b — NEVER-BLIND guarantee 2026-06-25):** The standalone `Gamma_SightBeacon` task refreshes `automation/state/sight-beacon.json` every minute via DIRECT Alpaca REST + yfinance (plain HTTP — NO MCP, NO CDP, so it cannot be blocked the way TV's CDP connection or the uvx Alpaca MCP can). If Layer-1 (TV) AND Layer-1a (Alpaca MCP) both failed:
+  1. Read `automation/state/sight-beacon.json` as a plain file (e.g. `cat` it — do NOT use any MCP tool).
+  2. If `ok == true` AND its `ts_et` is within 180 s of now ET: USE its `ribbon_stack`, `spy`, `ema_fast`, `ema_pivot`, `ema_slow`, `sma_50`, `spread_cents` for ALL downstream ribbon checks this tick. Set `data_source = "sight_beacon_rest"` in decisions.jsonl and append `BEACON_ACTIVE` to the one-line output. The engine IS seeing — run the normal tick (entries allowed, gated by the usual rules).
+  3. Only if the beacon is missing, `ok=false`, or older than 180 s: emit `SKIP_TV_DATA_STALE` and log `TV_FALLBACK_FAILED` + `BEACON_STALE` — no entry this tick. Exits/management proceed using cached loop-state ribbon.
+  **The engine is BLIND only when TV, Alpaca-MCP, AND the beacon are ALL unavailable — emit `SKIP_TV_DATA_STALE` ONLY in that fully-blind case.** A fresh beacon means you can see; never report blindness while it is fresh.
 - `MARKET_OPEN` — `mcp__alpaca__get_clock` `is_open` true (RTH). Closed = clean no-trade, not an error.
 - `ACCOUNT_REACHABLE` — `get_account_info` returned numeric equity this session (alive-but-401 is caught here, not by "process up").
 - `FLAT_VERIFIED` — before a NEW entry, `mcp__alpaca__get_all_positions` confirms no open SPY 0DTE (broker = source of truth, L47/C11). If `get_all_positions` returns a transient error: log `FLAT_VERIFY_RETRY`, wait 2 seconds, retry — up to 2 retries. After 2 failed retries: treat gate as CONNECTIVITY_RED (skip entry, log `CONNECTIVITY_RED node=FLAT_VERIFIED`).
@@ -870,7 +874,7 @@ Do NOT write `note`, `recent_bars`, `rules_validated`, `session_summary`, `opera
 - Runtime <60s for HOLD ticks. Bias to early exit on error.
 - 15:50 ET = hard time stop on any open position.
 - Spread <30¢ = chop, no entry either side.
-- 3 consecutive TV failures → create kill-switch file.
+- 3 consecutive TV failures **AND the sight beacon is also stale/missing** → create kill-switch file. **NEVER-BLIND guarantee (2026-06-25):** a FRESH beacon (`automation/state/sight-beacon.json` with `ok=true` and `ts_et` within 180 s) means the engine can SEE via direct REST — it is NOT blind. Do NOT create a blindness kill-switch while the beacon is fresh; use Layer-1b instead. Blindness kill-switches may fire ONLY when TV, Alpaca-MCP, AND the beacon are all down.
 - Position state mismatch (current-position vs Alpaca) → kill-switch.
 - HTF refresh failure → log warning, continue with cached htf_15m.
 

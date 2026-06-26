@@ -1,0 +1,14 @@
+{"date": "2025-10-01", "price": 654.42, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-10-01", "price": 661.625, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-10-01", "price": 661.775, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-10-01", "price": 663.0, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-10-01", "price": 663.33, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.24, "false_break": false}
+{"date": "2025-10-01", "price": 663.48, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.39, "false_break": false}
+{"date": "2025-10-01", "price": 664.0, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.91, "false_break": false}
+{"date": "2025-10-01", "price": 664.3559168445132, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.266, "false_break": false}
+{"date": "2025-10-01", "price": 664.4491072144475, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.359, "false_break": false}
+{"date": "2025-10-01", "price": 664.7238674156343, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.634, "false_break": true}
+{"date": "2025-10-01", "price": 664.9678779286442, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.878, "false_break": true}
+{"date": "2025-10-01", "price": 666.06, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.29, "false_break": false}
+{"date": "2025-10-01", "price": 666.2, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.43, "false_break": false}
+{"date": "2025-10-01", "price": 666.65, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.3, "false_break": false}

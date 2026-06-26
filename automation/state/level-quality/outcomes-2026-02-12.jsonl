@@ -1,0 +1,14 @@
+{"date": "2026-02-12", "price": 675.81, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2026-02-12", "price": 689.22, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.39, "false_break": false}
+{"date": "2026-02-12", "price": 689.345, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.265, "false_break": false}
+{"date": "2026-02-12", "price": 690.49, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.8, "false_break": false}
+{"date": "2026-02-12", "price": 690.545, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.745, "false_break": false}
+{"date": "2026-02-12", "price": 692.6, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.12, "false_break": true}
+{"date": "2026-02-12", "price": 692.6938229276362, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.026, "false_break": true}
+{"date": "2026-02-12", "price": 693.0, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.72, "false_break": false}
+{"date": "2026-02-12", "price": 693.1252332815875, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.595, "false_break": false}
+{"date": "2026-02-12", "price": 693.3768862462141, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.908, "false_break": false}
+{"date": "2026-02-12", "price": 693.65, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.635, "false_break": false}
+{"date": "2026-02-12", "price": 693.89, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.395, "false_break": false}
+{"date": "2026-02-12", "price": 694.0, "source": "swept", "touched": true, "outcome": "BREAK", "reaction_dollars": 0.285, "false_break": false}
+{"date": "2026-02-12", "price": 697.08, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}

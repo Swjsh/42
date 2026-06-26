@@ -1,12 +1,14 @@
 {
-  "_doc": "Aggressive account daily P&L circuit breaker. Trips at -60% of start-of-day equity (vs -50% for safe). Managed by aggressive heartbeat (trip) + premarket (arm from live equity).",
+  "_doc": "Aggressive account daily P&L circuit breaker. Trips at -50% of start-of-day equity (Rule 5: Gamma-Bold = -50%; reconciled 2026-06-21 from the prior -60% drift to match CLAUDE.md Rule 5 + aggressive/params.json#daily_loss_kill_switch_pct=0.5). Managed by daily_loss_guard.py (mechanical post-tick trip) + aggressive heartbeat + premarket (arm from live equity).",
+  "daily_loss_kill_switch_pct": 0.5,
   "tripped": false,
-  "session_id": "2026-06-19",
+  "session_id": "2026-06-26",
   "equity_start_of_day": 1648.75,
   "equity_current": 1648.75,
   "loss_pct": 0.0,
   "trip_reason": null,
   "tripped_at_et": null,
-  "_note": "Re-armed 2026-06-19 08:30 ET. Live Alpaca equity $1648.75 confirmed. daytrade_count=0. JUNETEENTH HOLIDAY — market closed, no trading today. next_open: 2026-06-22. NOTE: trip threshold -60% in this file vs CLAUDE.md Rule 5 Bold=-50% — doc drift still unresolved pending J ruling.",
-  "_schema_note": "AGGRESSIVE breaker schema. The SAFE breaker (automation/state/circuit-breaker.json) uses a fully divergent vocabulary (C9 symmetry trap). Field-name mapping AGGRESSIVE -> SAFE: tripped->tripped (SAME, both present); trip_reason->tripped_reason; tripped_at_et->tripped_at; equity_start_of_day->starting_equity_today; equity_current->current_equity; loss_pct->(no direct equivalent; safe stores daily_loss_limit_dollars/_pct as the LIMIT, this file stores realized loss %). Today each heartbeat reads ONLY its own breaker and mostly only `.tripped` (present in both), so nothing breaks — but any CROSS-ACCOUNT consumer must use this mapping or it will read null on the other file. Do NOT rename the live keys here (the aggressive heartbeat gate reads them). THRESHOLD DRIFT (unresolved): this file trips at -60% (see _doc/_note) but CLAUDE.md Rule 5 says Bold=-50% — pending J ruling."
+  "day_trades_used_5d": 0,
+  "_note": "Re-armed 2026-06-26 premarket. Live Alpaca equity $1648.75 confirmed (PA33W2KUAT40, Gamma-Risky-2). daytrade_count=0. THRESHOLD: -50% = -$824.38 daily loss limit. daily_loss_guard.py reads daily_loss_kill_switch_pct=0.5.",
+  "_schema_note": "AGGRESSIVE breaker schema. The SAFE breaker (automation/state/circuit-breaker.json) uses a fully divergent vocabulary (C9 symmetry trap). Field-name mapping AGGRESSIVE -> SAFE: tripped->tripped (SAME, both present); trip_reason->tripped_reason; tripped_at_et->tripped_at; equity_start_of_day->starting_equity_today; equity_current->current_equity; loss_pct->(no direct equivalent; safe stores daily_loss_limit_dollars/_pct as the LIMIT, this file stores realized loss %). Today each heartbeat reads ONLY its own breaker and mostly only `.tripped` (present in both), so nothing breaks — but any CROSS-ACCOUNT consumer must use this mapping or it will read null on the other file. Do NOT rename the live keys here (the aggressive heartbeat gate reads them). THRESHOLD DRIFT RESOLVED 2026-06-21: reconciled to -50% (daily_loss_kill_switch_pct=0.5) to match CLAUDE.md Rule 5 Bold=-50%."
 }

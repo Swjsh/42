@@ -1,0 +1,432 @@
+{
+  "generated_for": "Project Gamma level-quality baseline",
+  "data_window": {
+    "start": "2025-08-01",
+    "end": "2026-06-16"
+  },
+  "days_benchmarked": 220,
+  "avg_levels_per_day": 14.55,
+  "config": {
+    "touch_tol": 0.02,
+    "break_cents": 0.15,
+    "headline_react_cents": 0.3,
+    "headline_k_bars": 6,
+    "react_grid": [
+      0.2,
+      0.3,
+      0.5
+    ],
+    "k_grid": [
+      3,
+      6
+    ],
+    "n_null_shuffles": 3,
+    "null_model_uniform": "same count/envelope as real, uniform random positions around day open",
+    "null_model_distance_matched": "same count/distances from open as real, random sign (isolates price selection)"
+  },
+  "headline": {
+    "real": {
+      "n_levels": 3202,
+      "touch_rate": 0.5287,
+      "respect_rate_of_touched": 0.2504,
+      "break_rate_of_touched": 0.7478,
+      "chop_rate_of_touched": 0.0018,
+      "false_break_rate_of_touched": 0.2327,
+      "tradeable_rate_of_touched": 0.9462,
+      "median_reaction_respected": 1.798,
+      "respect_rate_of_drawn": 0.1324
+    },
+    "null_random": {
+      "n_levels": 9606,
+      "touch_rate": 0.2189,
+      "respect_rate_of_touched": 0.2758,
+      "break_rate_of_touched": 0.7223,
+      "chop_rate_of_touched": 0.0019,
+      "false_break_rate_of_touched": 0.2363,
+      "tradeable_rate_of_touched": 0.9434,
+      "median_reaction_respected": 1.807,
+      "respect_rate_of_drawn": 0.0604
+    },
+    "null_distance_matched": {
+      "n_levels": 9606,
+      "touch_rate": 0.5133,
+      "respect_rate_of_touched": 0.2553,
+      "break_rate_of_touched": 0.7414,
+      "chop_rate_of_touched": 0.0032,
+      "false_break_rate_of_touched": 0.2563,
+      "tradeable_rate_of_touched": 0.9414,
+      "median_reaction_respected": 1.8,
+      "respect_rate_of_drawn": 0.1311
+    },
+    "respect_lift_vs_random_pp": -2.5,
+    "touch_lift_vs_random_pp": 31.0,
+    "respect_lift_vs_dm_null_pp": -0.5,
+    "touch_lift_vs_dm_null_pp": 1.5
+  },
+  "by_source_real": {
+    "multi_day": {
+      "n_levels": 1069,
+      "touch_rate": 0.3461,
+      "respect_rate_of_touched": 0.2757,
+      "break_rate_of_touched": 0.7189,
+      "chop_rate_of_touched": 0.0054,
+      "false_break_rate_of_touched": 0.1919,
+      "tradeable_rate_of_touched": 0.927,
+      "median_reaction_respected": 1.483,
+      "respect_rate_of_drawn": 0.0954
+    },
+    "intraday": {
+      "n_levels": 287,
+      "touch_rate": 0.7387,
+      "respect_rate_of_touched": 0.2264,
+      "break_rate_of_touched": 0.7736,
+      "chop_rate_of_touched": 0.0,
+      "false_break_rate_of_touched": 0.2736,
+      "tradeable_rate_of_touched": 0.9057,
+      "median_reaction_respected": 2.135,
+      "respect_rate_of_drawn": 0.1672
+    },
+    "round": {
+      "n_levels": 278,
+      "touch_rate": 0.723,
+      "respect_rate_of_touched": 0.2587,
+      "break_rate_of_touched": 0.7413,
+      "chop_rate_of_touched": 0.0,
+      "false_break_rate_of_touched": 0.2239,
+      "tradeable_rate_of_touched": 0.9204,
+      "median_reaction_respected": 1.75,
+      "respect_rate_of_drawn": 0.1871
+    },
+    "swept": {
+      "n_levels": 1568,
+      "touch_rate": 0.5804,
+      "respect_rate_of_touched": 0.244,
+      "break_rate_of_touched": 0.7549,
+      "chop_rate_of_touched": 0.0011,
+      "false_break_rate_of_touched": 0.2418,
+      "tradeable_rate_of_touched": 0.9692,
+      "median_reaction_respected": 2.027,
+      "respect_rate_of_drawn": 0.1416
+    }
+  },
+  "by_source_null": {
+    "multi_day": {
+      "n_levels": 0,
+      "touch_rate": null,
+      "respect_rate_of_touched": null,
+      "break_rate_of_touched": null,
+      "chop_rate_of_touched": null,
+      "false_break_rate_of_touched": null,
+      "tradeable_rate_of_touched": null,
+      "median_reaction_respected": null,
+      "respect_rate_of_drawn": null
+    },
+    "intraday": {
+      "n_levels": 9111,
+      "touch_rate": 0.2187,
+      "respect_rate_of_touched": 0.278,
+      "break_rate_of_touched": 0.72,
+      "chop_rate_of_touched": 0.002,
+      "false_break_rate_of_touched": 0.2328,
+      "tradeable_rate_of_touched": 0.9428,
+      "median_reaction_respected": 1.815,
+      "respect_rate_of_drawn": 0.0608
+    },
+    "round": {
+      "n_levels": 495,
+      "touch_rate": 0.2222,
+      "respect_rate_of_touched": 0.2364,
+      "break_rate_of_touched": 0.7636,
+      "chop_rate_of_touched": 0.0,
+      "false_break_rate_of_touched": 0.3,
+      "tradeable_rate_of_touched": 0.9545,
+      "median_reaction_respected": 1.69,
+      "respect_rate_of_drawn": 0.0525
+    },
+    "swept": {
+      "n_levels": 0,
+      "touch_rate": null,
+      "respect_rate_of_touched": null,
+      "break_rate_of_touched": null,
+      "chop_rate_of_touched": null,
+      "false_break_rate_of_touched": null,
+      "tradeable_rate_of_touched": null,
+      "median_reaction_respected": null,
+      "respect_rate_of_drawn": null
+    }
+  },
+  "by_source_dm_null_lift": {
+    "multi_day": {
+      "real_touch": 0.3461,
+      "dm_null_touch": 0.5133,
+      "touch_lift_vs_dm_pp": -16.7,
+      "null_random_touch": 0.2189,
+      "touch_lift_vs_random_pp": 12.7,
+      "note": "headline null (no per-source null for this type)",
+      "real_respect": 0.2757,
+      "dm_null_respect": null,
+      "lift_pp": null
+    },
+    "intraday": {
+      "real_touch": 0.7387,
+      "dm_null_touch": 0.4937,
+      "touch_lift_vs_dm_pp": 24.5,
+      "null_random_touch": 0.2187,
+      "touch_lift_vs_random_pp": 52.0,
+      "note": "per-source null",
+      "real_respect": 0.2264,
+      "dm_null_respect": 0.2579,
+      "lift_pp": -3.2
+    },
+    "round": {
+      "real_touch": 0.723,
+      "dm_null_touch": 0.6695,
+      "touch_lift_vs_dm_pp": 5.3,
+      "null_random_touch": 0.2222,
+      "touch_lift_vs_random_pp": 50.1,
+      "note": "per-source null",
+      "real_respect": 0.2587,
+      "dm_null_respect": 0.2399,
+      "lift_pp": 1.9
+    },
+    "swept": {
+      "real_touch": 0.5804,
+      "dm_null_touch": 0.5133,
+      "touch_lift_vs_dm_pp": 6.7,
+      "null_random_touch": 0.2189,
+      "touch_lift_vs_random_pp": 36.2,
+      "note": "headline null (no per-source null for this type)",
+      "real_respect": 0.244,
+      "dm_null_respect": null,
+      "lift_pp": null
+    }
+  },
+  "by_vix_regime_real": {
+    "low": {
+      "n_levels": 299,
+      "touch_rate": 0.4883,
+      "respect_rate_of_touched": 0.2877,
+      "break_rate_of_touched": 0.6986,
+      "chop_rate_of_touched": 0.0137,
+      "false_break_rate_of_touched": 0.2329,
+      "tradeable_rate_of_touched": 0.8836,
+      "median_reaction_respected": 1.165,
+      "respect_rate_of_drawn": 0.1405
+    },
+    "mid": {
+      "n_levels": 2399,
+      "touch_rate": 0.5356,
+      "respect_rate_of_touched": 0.2482,
+      "break_rate_of_touched": 0.751,
+      "chop_rate_of_touched": 0.0008,
+      "false_break_rate_of_touched": 0.2288,
+      "tradeable_rate_of_touched": 0.9432,
+      "median_reaction_respected": 1.72,
+      "respect_rate_of_drawn": 0.133
+    },
+    "high": {
+      "n_levels": 504,
+      "touch_rate": 0.5198,
+      "respect_rate_of_touched": 0.2405,
+      "break_rate_of_touched": 0.7595,
+      "chop_rate_of_touched": 0.0,
+      "false_break_rate_of_touched": 0.2519,
+      "tradeable_rate_of_touched": 0.9962,
+      "median_reaction_respected": 3.17,
+      "respect_rate_of_drawn": 0.125
+    },
+    "unknown": {
+      "n_levels": 0,
+      "touch_rate": null,
+      "respect_rate_of_touched": null,
+      "break_rate_of_touched": null,
+      "chop_rate_of_touched": null,
+      "false_break_rate_of_touched": null,
+      "tradeable_rate_of_touched": null,
+      "median_reaction_respected": null,
+      "respect_rate_of_drawn": null
+    }
+  },
+  "threshold_grid": {
+    "react0.2_k3": {
+      "real": {
+        "n_levels": 3202,
+        "touch_rate": 0.5287,
+        "respect_rate_of_touched": 0.3266,
+        "break_rate_of_touched": 0.6692,
+        "chop_rate_of_touched": 0.0041,
+        "false_break_rate_of_touched": 0.1648,
+        "tradeable_rate_of_touched": 0.9214,
+        "median_reaction_respected": 1.35,
+        "respect_rate_of_drawn": 0.1727
+      },
+      "null": {
+        "n_levels": 9606,
+        "touch_rate": 0.2189,
+        "respect_rate_of_touched": 0.3566,
+        "break_rate_of_touched": 0.6415,
+        "chop_rate_of_touched": 0.0019,
+        "false_break_rate_of_touched": 0.1707,
+        "tradeable_rate_of_touched": 0.9272,
+        "median_reaction_respected": 1.343,
+        "respect_rate_of_drawn": 0.0781
+      }
+    },
+    "react0.2_k6": {
+      "real": {
+        "n_levels": 3202,
+        "touch_rate": 0.5287,
+        "respect_rate_of_touched": 0.2522,
+        "break_rate_of_touched": 0.7478,
+        "chop_rate_of_touched": 0.0,
+        "false_break_rate_of_touched": 0.2327,
+        "tradeable_rate_of_touched": 0.9462,
+        "median_reaction_respected": 1.794,
+        "respect_rate_of_drawn": 0.1334
+      },
+      "null": {
+        "n_levels": 9606,
+        "touch_rate": 0.2189,
+        "respect_rate_of_touched": 0.2772,
+        "break_rate_of_touched": 0.7223,
+        "chop_rate_of_touched": 0.0005,
+        "false_break_rate_of_touched": 0.2363,
+        "tradeable_rate_of_touched": 0.9434,
+        "median_reaction_respected": 1.8,
+        "respect_rate_of_drawn": 0.0607
+      }
+    },
+    "react0.3_k3": {
+      "real": {
+        "n_levels": 3202,
+        "touch_rate": 0.5287,
+        "respect_rate_of_touched": 0.3201,
+        "break_rate_of_touched": 0.6692,
+        "chop_rate_of_touched": 0.0106,
+        "false_break_rate_of_touched": 0.1648,
+        "tradeable_rate_of_touched": 0.9214,
+        "median_reaction_respected": 1.383,
+        "respect_rate_of_drawn": 0.1693
+      },
+      "null": {
+        "n_levels": 9606,
+        "touch_rate": 0.2189,
+        "respect_rate_of_touched": 0.3509,
+        "break_rate_of_touched": 0.6415,
+        "chop_rate_of_touched": 0.0076,
+        "false_break_rate_of_touched": 0.1707,
+        "tradeable_rate_of_touched": 0.9272,
+        "median_reaction_respected": 1.373,
+        "respect_rate_of_drawn": 0.0768
+      }
+    },
+    "react0.3_k6": {
+      "real": {
+        "n_levels": 3202,
+        "touch_rate": 0.5287,
+        "respect_rate_of_touched": 0.2504,
+        "break_rate_of_touched": 0.7478,
+        "chop_rate_of_touched": 0.0018,
+        "false_break_rate_of_touched": 0.2327,
+        "tradeable_rate_of_touched": 0.9462,
+        "median_reaction_respected": 1.798,
+        "respect_rate_of_drawn": 0.1324
+      },
+      "null": {
+        "n_levels": 9606,
+        "touch_rate": 0.2189,
+        "respect_rate_of_touched": 0.2758,
+        "break_rate_of_touched": 0.7223,
+        "chop_rate_of_touched": 0.0019,
+        "false_break_rate_of_touched": 0.2363,
+        "tradeable_rate_of_touched": 0.9434,
+        "median_reaction_respected": 1.807,
+        "respect_rate_of_drawn": 0.0604
+      }
+    },
+    "react0.5_k3": {
+      "real": {
+        "n_levels": 3202,
+        "touch_rate": 0.5287,
+        "respect_rate_of_touched": 0.2995,
+        "break_rate_of_touched": 0.6692,
+        "chop_rate_of_touched": 0.0313,
+        "false_break_rate_of_touched": 0.1648,
+        "tradeable_rate_of_touched": 0.9214,
+        "median_reaction_respected": 1.45,
+        "respect_rate_of_drawn": 0.1583
+      },
+      "null": {
+        "n_levels": 9606,
+        "touch_rate": 0.2189,
+        "respect_rate_of_touched": 0.3205,
+        "break_rate_of_touched": 0.6415,
+        "chop_rate_of_touched": 0.038,
+        "false_break_rate_of_touched": 0.1707,
+        "tradeable_rate_of_touched": 0.9272,
+        "median_reaction_respected": 1.48,
+        "respect_rate_of_drawn": 0.0702
+      }
+    },
+    "react0.5_k6": {
+      "real": {
+        "n_levels": 3202,
+        "touch_rate": 0.5287,
+        "respect_rate_of_touched": 0.2457,
+        "break_rate_of_touched": 0.7478,
+        "chop_rate_of_touched": 0.0065,
+        "false_break_rate_of_touched": 0.2327,
+        "tradeable_rate_of_touched": 0.9462,
+        "median_reaction_respected": 1.823,
+        "respect_rate_of_drawn": 0.1299
+      },
+      "null": {
+        "n_levels": 9606,
+        "touch_rate": 0.2189,
+        "respect_rate_of_touched": 0.263,
+        "break_rate_of_touched": 0.7223,
+        "chop_rate_of_touched": 0.0147,
+        "false_break_rate_of_touched": 0.2363,
+        "tradeable_rate_of_touched": 0.9434,
+        "median_reaction_respected": 1.91,
+        "respect_rate_of_drawn": 0.0576
+      }
+    }
+  },
+  "atr_scaled": {
+    "n_touched": 1693,
+    "respect_rate_025atr": 0.9864,
+    "respect_rate_05atr": 0.9203,
+    "median_reaction_in_atr": 1.4807
+  },
+  "option_space_proxy": {
+    "label": "PROXY \u2014 SPY price-space only (L74). Real-fills required for true option edge.",
+    "theta_total_6bars": 0.156,
+    "breakeven_spy_move_by_tier": {
+      "OTM-2": 0.446,
+      "ATM": 0.312,
+      "ITM-1": 0.24
+    },
+    "note": "Breakeven move shows the minimum SPY bounce needed to profit at each moneyness after theta.",
+    "by_tier": {
+      "OTM-2": {
+        "delta": 0.35,
+        "n_respect": 424,
+        "profitable_rate": 0.9976,
+        "median_net_premium": 0.473
+      },
+      "ATM": {
+        "delta": 0.5,
+        "n_respect": 424,
+        "profitable_rate": 1.0,
+        "median_net_premium": 0.743
+      },
+      "ITM-1": {
+        "delta": 0.65,
+        "n_respect": 424,
+        "profitable_rate": 1.0,
+        "median_net_premium": 1.013
+      }
+    }
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "audit_date": "2026-06-21",
+  "summary": "Monday strategy audit, both accounts flat, kill-switches armed/untripped, engine-health YELLOW (only a stale TV watchdog node, non-critical, market closed). Two LIVE entry strategies on Safe-2 (vwap_continuation, gap_and_go) plus the legacy BEARISH_REJECTION/BULLISH_RECLAIM rubric. Risky-2 has NO vwap_continuation wiring (enabled key ABSENT in aggressive params + block not in aggressive heartbeat) so it runs only the legacy rubric. Critical Monday gate: every recency-gated edge is RED or YELLOW (#1 vwap_continuation ATM AND ITM-2 both RED on the trailing-25d window) -> recency_check HOLD is correct, NO dormant flips Monday. Dormant edges (#2 vwap_reclaim_failed_break, #4 vix_regime_dayside, WP-5 strike override, WP-8 1DTE+dollar-stop) are all wired flag-OFF and correctly gated by the RED recency state. No doctrine violations found; all firing setups map to named playbook patterns.",
+  "strategies": [
+    {
+      "name": "vwap_continuation (J_VWAP_CONT)",
+      "status": "LIVE",
+      "account": "Safe-2",
+      "playbook_eligible": true,
+      "doctrine_flags": [],
+      "recent_performance": {"wr": 10.0, "expectancy": -22.46, "n": 10, "note": "Trailing 25d (2026-05-14..06-18) ATM RED: exp -$22.46/tr, 1 win-day of 10. Full-2026-OOS POSITIVE: exp +$47.55/tr n=50. Live tier is OTM-2-leak (recency exp -$9.73, full-OOS +$18.36). Recency RED is a ~2.2sigma regime drawdown per prior session note, not stop/gate-fixable."},
+      "regime_gates_wired": true,
+      "risk_flags": ["recency RED -> no capital scaling until CONFIRM (recency_check gate holding correctly)", "LIVE tier fires the OTM-2 weakest cell -> WP-5 strike-leak (~$3,431/yr) is dormant flag-OFF, blocked by RED recency"],
+      "priority": "HIGH",
+      "action": "HOLD live as-is. Do NOT flip WP-5 strike-override or WP-8 1DTE+dollar-stop while recency RED. Re-run recency_check after next fills accrue; flip the queued WP-5/WP-8 upgrades only on CONFIRM."
+    },
+    {
+      "name": "gap_and_go (H2b, PUT-only)",
+      "status": "LIVE",
+      "account": "Safe-2",
+      "playbook_eligible": true,
+      "doctrine_flags": [],
+      "recent_performance": {"wr": 72.6, "expectancy": 41.6, "n": 84, "note": "Validation real-fills chart-stop-only: exp +$41.6/tr, WR 72.6%, n=84, DSR PASS, WF median +1.87 all-OOS-positive, 6/6 quarters +, causality 96/96. NOT in the recency-confirmation tracker (separate validation). No recent live fills in last-20 journal."},
+      "regime_gates_wired": true,
+      "risk_flags": ["not covered by the weekly recency_check tracker -> add it so this LIVE edge also gets the recency gate"],
+      "priority": "MEDIUM",
+      "action": "Keep live (put-only, OP-16-compliant). Add gap_and_go to recency-confirmation.json so the only un-tracked LIVE edge gets weekly recency coverage."
+    },
+    {
+      "name": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "status": "LIVE",
+      "account": "Both",
+      "playbook_eligible": true,
+      "doctrine_flags": [],
+      "recent_performance": {"wr": null, "expectancy": null, "n": 3, "note": "CONFIRMED setup, 3/3 real-money winners (4/29 +$342, 5/01 +$470, 5/04 +$730 = the OP-16 anchors). Paper sample n=0 in playbook stats. No new bear fills in last-20 journal (recent live activity all BULLISH_RECLAIM)."},
+      "regime_gates_wired": true,
+      "risk_flags": ["VIX bear hard cap 23 documented but heartbeat.md activation noted PENDING in params (_vix_bear_hard_cap_doc: 'heartbeat.md activation pending') -> verify the bear-VIX-cap filter is actually wired before Monday"],
+      "priority": "HIGH",
+      "action": "Verify vix_bear_hard_cap (23.0) FILTER is live in heartbeat.md -- params doc says activation pending. If unwired, it is a params/code drift (kill-switch class per premarket Step 1a)."
+    },
+    {
+      "name": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "status": "LIVE",
+      "account": "Both",
+      "playbook_eligible": true,
+      "doctrine_flags": ["OP-16: bull-side new entries remain DRAFT until J has 3 live wins; setup is PAPER-ELIGIBLE via J override, not confirmed"],
+      "recent_performance": {"wr": null, "expectancy": null, "n": 6, "note": "Recent live fills are nearly all this setup. Last 6 incl: 5/14 +$1,500 (EXCELLENT), 6/15 Bold +$552 (TP1+runner), 6/18 Bold -$24 (premium stop, single-trigger midday chop), 5/18 Bold -$99, 6/03 -$18. Mixed; the wins are clean reclaims, the losses are single-trigger midday/chop entries."},
+      "regime_gates_wired": true,
+      "risk_flags": ["6/18 Bold trade: broker stop leg MISSING from bracket (simple order filled, position unmanaged) -- atomic-bracket integrity (C11) regression to check", "multiple losses tagged single-trigger BULL in midday chop -> block_bull_morning_agg / block_bull_1100_1200 gates target this; confirm they fire"],
+      "priority": "HIGH",
+      "action": "Investigate 6/18 Bold missing-stop-leg bracket bug (C11/L47/L76 atomic bracket). Confirm bull-chop time-gates (block_bull_1100_1200 Safe, block_bull_morning_agg Bold) are active."
+    },
+    {
+      "name": "vwap_reclaim_failed_break (edge #2)",
+      "status": "DORMANT",
+      "account": "Both",
+      "playbook_eligible": false,
+      "doctrine_flags": ["No named playbook pattern -- detector wired + flag-gated OFF, so NOT a doctrine violation (block is inert). If flipped live it needs a playbook entry first (Rule 1).", "WATCH_ONLY per OP-21 until 3 live J confirmations"],
+      "recent_performance": {"wr": 0.0, "expectancy": -42.86, "n": 7, "note": "ATM recency YELLOW: recent exp -$42.86/tr but n=7 < floor 10 (small-n wobble), full-OOS-2026 POSITIVE +$13.11/tr n=23. ITM-2 (Bold) recency YELLOW too (-$79.59, n=8; full-OOS +$33.61). Validated ALL-8-gates @ ITM-2 OOS +$72/tr per scorecard."},
+      "regime_gates_wired": true,
+      "risk_flags": ["isolated exit keys load-bearing (-0.08 stop, not the -0.50 global cap) -- correctly isolated", "WP-0 order-builder refactor is BUILT; block IS wired in BOTH heartbeats (Safe + aggressive)"],
+      "priority": "MEDIUM",
+      "action": "Keep DORMANT (flag OFF). Wiring is complete and correct (Safe ATM + Bold ITM-2 cells, isolated stops). Flip-ready pending CONFIRM recency + 3 live J wins. Do NOT flip Monday (YELLOW, n<floor)."
+    },
+    {
+      "name": "vix_regime_dayside (edge #4)",
+      "status": "DORMANT",
+      "account": "Safe-2 (ATM cell)",
+      "playbook_eligible": false,
+      "doctrine_flags": ["No named playbook pattern -- detector wired flag-gated OFF (inert), not a violation. Needs playbook entry before any live flip (Rule 1).", "WATCH_ONLY per OP-21"],
+      "recent_performance": {"wr": 40.0, "expectancy": 61.8, "n": 5, "note": "ATM recency YELLOW: recent exp +$61.8/tr POSITIVE but n=5 < floor 10. Full-OOS-2026 +$29.93/tr n=24. Validated ALL-8-gates @ ATM OOS +$79.49/tr per b5-vix-regime-dayside.json."},
+      "regime_gates_wired": true,
+      "risk_flags": ["STRUCTURAL: needs an intraday VIX series (median-78 + slope-5) the live BarContext does NOT carry by default -> detector reads optional ctx.vix_intraday and SKIPS when absent, so block stays inert until the feed threads VIX series in. This is the real blocker, not the flag.", "block wired in Safe heartbeat only (correct -- ATM-only edge per C29)"],
+      "priority": "MEDIUM",
+      "action": "Keep DORMANT. The flag is not the blocker -- the live VIX-intraday feed is. Quick win candidate: thread an intraday VIX series into BarContext so the detector can actually evaluate live. Until then it can never fire even if flag flipped."
+    },
+    {
+      "name": "WP-5 per-setup strike override (vwap_continuation)",
+      "status": "DORMANT",
+      "account": "Both",
+      "playbook_eligible": true,
+      "doctrine_flags": [],
+      "recent_performance": {"wr": null, "expectancy": null, "n": 0, "note": "Validated leak: live OTM-2 cell leaks +$29.78/tr OOS (~$3,431/yr Safe) / +$64.59/tr OOS (~$7,441/yr Bold) vs the validated ATM(Safe)/ITM-2(Bold) cell. WP5-STRIKE-AB-SCORECARD.md."},
+      "regime_gates_wired": true,
+      "risk_flags": ["one-flag enable, byte-identical when OFF", "BLOCKED by RED recency on the parent edge -- correct to hold"],
+      "priority": "HIGH",
+      "action": "Flip-ready under standing authorization the moment vwap_continuation recency clears to CONFIRM. Biggest single already-trading-edge leak. Do NOT flip while parent is RED."
+    },
+    {
+      "name": "WP-8 1DTE + dollar-anchored stop (vwap_continuation)",
+      "status": "DORMANT",
+      "account": "Both",
+      "playbook_eligible": true,
+      "doctrine_flags": [],
+      "recent_performance": {"wr": null, "expectancy": null, "n": 0, "note": "Validated CLEAN-WIN both tiers: Safe-2 ATM OOS +$25.00->+$57.59/tr (2.30x), maxDD flat, Sortino +123%; Bold ITM-2 +$36.34->+$73.91/tr (2.03x). DTE-STOP-CONSTRUCTION-SCORECARD.md. The campaign 'doubler'."},
+      "regime_gates_wired": true,
+      "risk_flags": ["two independent flags both default OFF (1dte + dollar-stop)", "SAFETY GATE 3: 1DTE flag must not flip until EOD-flatten verified to close a 1DTE position (expiry-agnostic flatten verified)", "BLOCKED by RED recency"],
+      "priority": "HIGH",
+      "action": "Ship COMBINED with WP-5 in a daytime block AFTER recency CONFIRM. Needs the dollar-anchored stop construction in risk_gate + parity test. Do NOT flip Monday (RED)."
+    },
+    {
+      "name": "ORB_RETEST_LONG",
+      "status": "CANDIDATE",
+      "account": "N/A (watch-only)",
+      "playbook_eligible": true,
+      "doctrine_flags": ["OP-21 gate 0/3 live wins -- NOT tradable"],
+      "recent_performance": {"wr": 81.2, "expectancy": null, "n": 32, "note": "16mo deduped N=32 WR 81.2% P&L +$976, 5/6 q+, WF Sharpe ratio 0.667 PASS, real-fills N=22 WR 81.8% chart-stop-only."},
+      "regime_gates_wired": true,
+      "risk_flags": ["watcher running live, accumulating observations"],
+      "priority": "LOW",
+      "action": "Keep WATCH-ONLY. Promotion needs 3+ J live wins (OP-21)."
+    },
+    {
+      "name": "Kitchen candidates (strategy/candidates/)",
+      "status": "CANDIDATE",
+      "account": "N/A",
+      "playbook_eligible": false,
+      "doctrine_flags": ["All files are DRAFT chef/grinder outputs -- none carry a PROMOTE status; 893 completed cook tasks, 86 pending, 11 failed_permanent. Recent grinder runs (shotgun_scalper, v14_enhanced) produced keepers but are interpretation drafts, not validated ships."],
+      "recent_performance": {"wr": null, "expectancy": null, "n": null, "note": "Latest grinder keeper v14_enhanced: wide_pnl 26601, edge_capture 499.64 (>50% of 771 -> passes OP-16 floor), WR 0.649 -- but this is grinder leaderboard output, not a real-fills A/B scorecard. No candidate has cleared the 11-gate + recency bar."},
+      "regime_gates_wired": false,
+      "priority": "LOW",
+      "action": "No PROMOTE-status candidate exists. Daemon is healthy (PID 4384, $0/$3 spend). Reviewer triage continues; nothing ready to ship."
+    }
+  ],
+  "prioritized_issues": [
+    "CRITICAL-readiness: every recency-gated edge is RED (#1 ATM + ITM-2) or YELLOW (#2, #4). recency_check HOLD is correct -> NO dormant flips Monday. The #1 live edge is in a ~2.2sigma recency drawdown (regime tail, not decay).",
+    "HIGH: vix_bear_hard_cap (23.0) params doc says 'heartbeat.md activation pending' -- possible params/code drift (kill-switch class). Verify the bear-VIX filter is actually wired before open.",
+    "HIGH: 6/18 Bold BULLISH_RECLAIM had a MISSING broker stop leg (simple order filled, position unmanaged) -- atomic-bracket integrity regression (C11/L47/L76) to confirm is fixed.",
+    "MEDIUM: vix_regime_dayside (#4) can NEVER fire live even if flag-flipped -- the live BarContext does not thread an intraday VIX series; detector skips. The real blocker is the feed, not the flag.",
+    "MEDIUM: gap_and_go is LIVE but NOT in the weekly recency_check tracker -- the only un-gated live edge.",
+    "LOW: Risky-2 runs ONLY the legacy BEARISH/BULLISH rubric -- vwap_continuation enabled-key is ABSENT in aggressive params AND the block is not in the aggressive heartbeat. Bold is missing the validated near-daily edge entirely."
+  ],
+  "quick_wins": [
+    "Add gap_and_go to recency-confirmation.json so all LIVE edges get weekly recency coverage (no code, ~one tracker edit).",
+    "Verify/wire vix_bear_hard_cap filter in heartbeat.md (params doc flags it pending) -- closes a potential drift.",
+    "Thread an intraday VIX series (median-78 + slope-5) into the live BarContext so vix_regime_dayside (#4) becomes evaluable -- unblocks a YELLOW-positive edge from a structural dead-end (it is currently un-fireable regardless of flag)."
+  ],
+  "monday_readiness": "YELLOW",
+  "monday_readiness_reason": "Both accounts flat, kill-switches armed/untripped, positions clean. LIVE strategies are validated (OOS-positive + regime gates wired), so the floor is GREEN. NOT GREEN because: (1) the #1 live edge (vwap_continuation) is recency RED -- correctly held by recency_check, no scaling/flips -- but it means the primary money-maker is bleeding in the current regime; (2) two HIGH integrity items unverified (vix_bear_hard_cap activation-pending drift; 6/18 missing-stop-leg bracket bug). No kill-switch proximity and no doctrine violation, so YELLOW not RED. Action stance: trade the validated live stack unchanged, flip NOTHING dormant, fix the two HIGH integrity checks before open."
+}

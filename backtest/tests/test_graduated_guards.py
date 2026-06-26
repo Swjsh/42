@@ -2723,3 +2723,300 @@ def test_l177_null_verdict_knife_edge_inconclusive() -> None:
     # boundary: exactly p99 on both seeds is a PASS; exactly p90 is the knife-edge floor.
     assert nv([0.99, 0.99], 300, 2)[0] == "PASS"
     assert nv([0.90, 0.90], 300, 2)[0] == "INCONCLUSIVE"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CAP-ADMISSION — the order-ADMISSION cap graduated into the DEFAULT autoresearch
+# book-aggregation step (lib.cap_admission, calling the LIVE risk_gate).
+#
+#   THE RE-VIOLATED LESSON: risk_gate.check_order caps NOTIONAL = premium*qty*100 at the
+#   tighter of risk-cap/tier AND enforces min_contracts (Safe 3 / Bold 5), but the research
+#   path (simulator_real + the DTE harness) had NO such gate -> a validated expectancy
+#   SILENTLY OVERSTATES the realizable book for any config whose median order exceeds the cap
+#   (the 2026-06-15 Bold-oversize + 2026-06-21 DTE cap-overlay findings). Doctrine: a
+#   re-violated lesson is a missing guardrail -> graduate it to a code assertion. The cap is
+#   now the DEFAULT book-aggregation step (enforce_cap=True); the guard below asserts that.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def test_cap_admission_is_default_book_step_for_oversized_config() -> None:
+    """GRADUATED GUARD: any autoresearch book for a config whose MEDIAN order notional
+    (median entry premium * qty * 100) exceeds the account cap MUST be cap-aware by
+    DEFAULT — i.e. admit_book(enforce_cap default) reports a non-zero block_rate and
+    EXCLUDES the over-cap fills (never qty-reduces them). And enforce_cap=False must be
+    BYTE-IDENTICAL to the cap-blind book (no behaviour change to the comparison path).
+
+    This is the executable form of 'cap-aware is the default': if a future refactor
+    flips the default to cap-blind, or makes admit_book a no-op on an over-cap config,
+    this fails."""
+    import inspect
+    from dataclasses import dataclass
+
+    from lib import cap_admission as ca
+    from lib.risk_gate import CODE_RISK_CAP
+
+    # (1) the default IS cap-on (the signature default, the load-bearing fact).
+    sig = inspect.signature(ca.admit_book)
+    assert sig.parameters["enforce_cap"].default is True, (
+        "cap-admission regression: admit_book(enforce_cap) default must be True — "
+        "the realizable (cap-aware) book is the DEFAULT autoresearch book step."
+    )
+
+    @dataclass(frozen=True)
+    class _Fill:
+        entry_premium: float
+        dollar_pnl: float = 0.0
+        qty: int = 3
+
+    # An OVER-CAP Safe config: median order $2.50*3*100 = $750 > the $600 cap.
+    over = tuple(_Fill(p) for p in (2.40, 2.50, 2.60))
+    assert ca.median_notional_exceeds_cap(over, "safe", 2000.0, 3) is True, (
+        "fixture invalid: this config's median order should exceed the Safe $600 cap"
+    )
+
+    # (2) the DEFAULT call (no enforce_cap passed) must be cap-aware: block_rate > 0 and
+    #     the over-cap fills EXCLUDED ($0 realizable), not present in the admitted book.
+    default_book = ca.admit_book(over, "safe", 2000.0, 3)
+    assert default_book.enforce_cap is True
+    assert default_book.block_rate > 0.0, (
+        "cap-admission regression: an over-cap config's DEFAULT book reported block_rate 0 "
+        "-> the cap is not being enforced by default (validated expectancy would overstate)."
+    )
+    assert len(default_book.admitted) < len(over), "over-cap fills must be EXCLUDED, not kept"
+    assert default_book.block_codes.get(CODE_RISK_CAP), "block reason must be the notional cap"
+    # min_contracts DENIES (never shrinks): no admitted fill carries a reduced qty.
+    assert all(f.qty == 3 for f in default_book.admitted), "admission must not qty-reduce a fill"
+
+    # (3) PARITY: enforce_cap=False is BYTE-IDENTICAL to the cap-blind book (same objects,
+    #     same order, block_rate 0) — the explicit comparison path is unchanged.
+    capoff = ca.admit_book(over, "safe", 2000.0, 3, enforce_cap=False)
+    assert capoff.enforce_cap is False
+    assert capoff.admitted == over and capoff.blocked == () and capoff.block_rate == 0.0
+
+
+def test_dte_harness_aggregate_book_defaults_cap_on() -> None:
+    """GRADUATED GUARD: the DTE harness book-aggregation entry point
+    (_dte_stop_construction.aggregate_book) must default to the cap-aware realizable book,
+    and route through the shared lib (one cap implementation). Asserts the default is
+    cap-on and that an over-cap cell's aggregated book excludes the over-cap fills."""
+    import inspect
+    import importlib
+    from dataclasses import dataclass
+
+    dsc = importlib.import_module("autoresearch._dte_stop_construction")
+    assert hasattr(dsc, "aggregate_book"), "DTE harness must expose aggregate_book"
+    sig = inspect.signature(dsc.aggregate_book)
+    assert sig.parameters["enforce_cap"].default is True, (
+        "cap-admission regression: aggregate_book(enforce_cap) default must be True "
+        "(the realizable book is the DEFAULT DTE-harness aggregation step)."
+    )
+
+    @dataclass(frozen=True)
+    class _Fill:
+        entry_premium: float
+        dollar_pnl: float = 0.0
+        qty: int = 3
+
+    over = tuple(_Fill(p) for p in (2.40, 2.50, 2.60))   # median $2.50 -> $750 > $600 cap
+    res = dsc.aggregate_book(over, "safe", 2000.0, 3)     # default => cap-on
+    assert res.enforce_cap is True and res.block_rate > 0.0, (
+        "DTE harness aggregate_book did not enforce the cap by default on an over-cap cell"
+    )
+    # parity: cap-off returns the book byte-identical.
+    capoff = dsc.aggregate_book(over, "safe", 2000.0, 3, enforce_cap=False)
+    assert capoff.admitted == over and capoff.block_rate == 0.0
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# RESEARCH GUARDS — two session lessons graduated into a SINGLE-SOURCE library
+# (lib.research_guards) that every future sim/validator imports. These tests pin
+# the library to its REAL failure fixtures so the bar can never silently regress.
+#
+#   GUARD 1 — beats_random_filter_null (L172): a CONDITIONING FILTER on an existing
+#     edge must beat a coin-flip drop of the same fraction (one-sided p<0.05). The
+#     W1 IV-skew confirmer FAILED this (kept $45.66 vs null mean $48.30, p=0.76),
+#     the VIX-level gate FAILED (p=0.355), touch-and-go was selective-only — 3 deaths.
+#     The forward GEX-flip filter (~60-90 days out) will be held to THIS bar.
+#
+#   GUARD 2 — strike_band_covers_range (L177/L182): a SHORT-PREMIUM / credit sim must
+#     verify the cached strike band reaches the day's realized [low,high], else the
+#     loss tail is TRUNCATED and magnitude is biased upward — the cache-tail-bias that
+#     made the event condor look +$32/tr on a +-$5 cache when the real tail (+-$18
+#     wide cache) was -$751 on the same big-move day (2025-04-04).
+#
+# Full unit + edge coverage lives in tests/test_research_guards.py; these graduated
+# guards pin the LOAD-BEARING real-failure cases into the canonical regression suite.
+# ─────────────────────────────────────────────────────────────────────────────
+
+_RG_ARTIFACT = REPO / "analysis" / "recommendations" / "web-vwap_cont_iv_skew_confirmer.json"
+_RG_NARROW_CACHE = BACKTEST / "data" / "options"
+_RG_WIDE_CACHE = BACKTEST / "data" / "options_event_wide"
+# 2025-04-04 (tariff-crash / NFP big move): SPY realized intraday high ~525.86 (the
+# call-wing tail). The narrow +-$5 cache prices [497,505]; the wide +-$18 cache [505,540].
+_RG_EVENT_DAY = "250404"
+_RG_DAY_HIGH = 525.86
+_RG_ATM = 513.0
+
+
+def test_l172_iv_skew_filter_fails_random_null() -> None:
+    """L172 (graduated): the REAL W1 IV-skew confirmer kept-mask MUST FAIL
+    beats_random_filter_null — so any future re-introduction of a no-selection
+    CONDITIONING FILTER on an existing edge is caught.
+
+    The W1 confirmer (analysis/recommendations/web-vwap_cont_iv_skew_confirmer.json,
+    variant W1b_put_side_first_strict25d) kept 129/149 trades at exp $45.66 vs a
+    random-drop null mean $48.30 / p95 $54.30 -> one-sided p=0.76 -> FAIL. This is the
+    canonical "the filter just shrank n without real selection" failure (C3/L58).
+    The forward GEX-flip filter will be held to this same bar.
+
+    Data-free: reconstructs a base vector matching the artifact's PUBLISHED unfiltered
+    moments (n=149, exp~48.3) and a kept-mask reproducing the published filtered exp
+    ($45.66 < null mean) — the W1 signature is a kept subset BELOW the random-drop centre.
+    """
+    import numpy as np
+
+    from lib.research_guards import beats_random_filter_null
+
+    assert _RG_ARTIFACT.exists(), f"W1 IV-skew artifact missing at {_RG_ARTIFACT}"
+    art = json.loads(_RG_ARTIFACT.read_text(encoding="utf-8"))
+    v = art["variants"]["W1b_put_side_first_strict25d"]
+    nullblk = v["random_filter_null_L172"]
+    n_total = nullblk["n_total"]            # 149
+    n_keep = nullblk["n_keep"]             # 129
+    filtered_exp = v["filtered"]["exp"]    # 45.66 — the published kept-subset mean
+
+    # Sanity: the artifact ITSELF recorded this filter as FAILING the null. If the on-disk
+    # fixture ever flips to a passing gate, this guard's premise is gone — fail loudly.
+    assert v["gates"]["beats_random_filter_null"] is False, (
+        "fixture drift: the W1 IV-skew artifact no longer records "
+        "beats_random_filter_null=False — the canonical failure case changed."
+    )
+
+    # Reconstruct a base vector with the artifact's unfiltered mean (0DTE tight-stop shape:
+    # capped left tail, fat right tail) so the null distribution lands on the published moments.
+    rng = np.random.default_rng(7)
+    base_pnl = rng.lognormal(mean=4.4, sigma=0.9, size=n_total) - 60.0
+    base_pnl = base_pnl - base_pnl.mean() + art["unfiltered_baseline"]["exp"]
+
+    # Drop the n_drop trades nearest the implied drop-mean so the kept-mean == filtered_exp.
+    n_drop = n_total - n_keep
+    drop_target = (base_pnl.mean() * n_total - filtered_exp * n_keep) / n_drop
+    drop_idx = np.argsort(np.abs(base_pnl - drop_target))[:n_drop]
+    kept_mask = np.ones(n_total, dtype=bool)
+    kept_mask[drop_idx] = False
+
+    res = beats_random_filter_null(base_pnl, kept_mask)
+
+    assert res.applicable is True, res.reason
+    assert res.n_total == n_total and res.n_keep == n_keep
+    # The kept subset sits BELOW the random-drop centre -> NOT in the right tail -> FAILS.
+    assert res.passed is False, (
+        "L172 regression: the W1 IV-skew kept-mask now PASSES the random-filter null. "
+        "A no-selection conditioning filter must FAIL (the W1/VIX-level/touch-and-go bar). "
+        f"{res.reason}"
+    )
+    assert res.filt_mean < res.null_mean, res.reason
+    assert res.p_value is not None and res.p_value > 0.05, res.reason
+    # Null moments reproduce the artifact's published numbers (within a few dollars).
+    assert abs(res.null_mean - nullblk["null_mean"]) < 4.0, res.reason
+    assert abs(res.null_p95 - nullblk["null_p95"]) < 4.0, res.reason
+
+
+def test_l172_genuine_filter_passes_random_null() -> None:
+    """L172 discrimination half: the guard must NOT be always-False — a genuinely
+    selective filter (keep only the top-quartile P&L) MUST PASS beats_random_filter_null.
+    Without this, a broken always-False guard would pass test_l172_iv_skew_filter_fails
+    while silently rejecting every real edge (incl. the forward GEX-flip filter)."""
+    import numpy as np
+
+    from lib.research_guards import beats_random_filter_null
+
+    rng = np.random.default_rng(11)
+    base_pnl = rng.normal(40.0, 100.0, size=160)
+    kept_mask = base_pnl >= np.percentile(base_pnl, 75)  # the genuinely-best quarter
+    res = beats_random_filter_null(base_pnl, kept_mask)
+    assert res.applicable is True
+    assert res.passed is True, (
+        "L172 regression: a top-quartile selective filter FAILED the random-filter null "
+        f"-> the guard is over-strict / always-False and would reject real edges. {res.reason}"
+    )
+    assert res.p_value is not None and res.p_value < 0.05, res.reason
+    assert res.filt_mean > res.null_p95, res.reason
+
+
+def test_l172_degenerate_point_null_flagged_not_blessed() -> None:
+    """L172 non-degeneracy: a filter that keeps ALL (or NONE) of the sample is a
+    DEGENERATE point-null — there is no random-drop distribution to beat. The guard
+    must flag it (applicable=False) and NOT bless it (passed=False). The event-long-vega
+    harness hit exactly this (random pool == sample size)."""
+    from lib.research_guards import beats_random_filter_null
+
+    keep_all = beats_random_filter_null([10.0, 20.0, 30.0, 40.0], [True, True, True, True])
+    assert keep_all.applicable is False and keep_all.passed is False, keep_all.reason
+    assert "DEGENERATE" in keep_all.reason
+    keep_none = beats_random_filter_null([10.0, 20.0, 30.0, 40.0], [False, False, False, False])
+    assert keep_none.applicable is False and keep_none.passed is False
+
+
+def _rg_cache_band(cache_dir: Path, yymmdd: str) -> tuple:
+    """Min/max strike (across C and P) present in a cache dir for a day (filename parse)."""
+    import os as _os
+
+    pat = re.compile(r"SPY" + yymmdd + r"[CP](\d{8})\.csv$")
+    strikes = [int(m.group(1)) / 1000.0 for f in _os.listdir(cache_dir) if (m := pat.match(f))]
+    if not strikes:
+        raise FileNotFoundError(f"no {yymmdd} contracts in {cache_dir}")
+    return min(strikes), max(strikes)
+
+
+def test_l177_event_condor_narrow_cache_fails_band_coverage() -> None:
+    """L177/L182 (graduated): the REAL +-$5 event-condor cache MUST FAIL
+    strike_band_covers_range on the 2025-04-04 big-move day — so any future
+    short-premium sim priced off a too-narrow cache (truncated loss tail =
+    upward-biased magnitude) is caught.
+
+    The narrow cache prices [497,505]; the day's call-wing high was ~525.86, ~$21 past
+    the band. That truncation is what made the condor look +$32/tr on +-$5 when the real
+    tail (+-$18 wide cache) was -$751 the same day. Reads the REAL on-disk cache."""
+    from lib.research_guards import strike_band_covers_range
+
+    assert _RG_NARROW_CACHE.exists(), f"narrow event cache missing at {_RG_NARROW_CACHE}"
+    cmin, cmax = _rg_cache_band(_RG_NARROW_CACHE, _RG_EVENT_DAY)
+    assert (cmin, cmax) == (497.0, 505.0), (
+        f"fixture drift: the +-$5 narrow cache band for {_RG_EVENT_DAY} is "
+        f"[{cmin},{cmax}], expected [497.0,505.0]"
+    )
+    res = strike_band_covers_range(
+        day_low=cmin, day_high=_RG_DAY_HIGH, atm=_RG_ATM,
+        cache_min_strike=cmin, cache_max_strike=cmax,
+    )
+    assert res.covered is False, (
+        "L177/L182 regression: the +-$5 narrow cache now reports the 2025-04-04 move as "
+        "COVERED — the cache-tail-bias guard is broken; a short-premium sim would price a "
+        f"truncated loss tail. {res.reason}"
+    )
+    assert res.dropped_side == "high", res.reason
+    assert res.slack < 0, res.reason  # the high exited the band by ~$21
+
+
+def test_l177_event_condor_wide_cache_covers_band() -> None:
+    """L177/L182 discrimination half: the REAL +-$18 WIDE event cache MUST PASS
+    strike_band_covers_range on the same 2025-04-04 move — proving the guard is not
+    always-False and that the WIDE cache is the correct one to price the event tail."""
+    from lib.research_guards import strike_band_covers_range
+
+    assert _RG_WIDE_CACHE.exists(), f"wide event cache missing at {_RG_WIDE_CACHE}"
+    cmin, cmax = _rg_cache_band(_RG_WIDE_CACHE, _RG_EVENT_DAY)
+    assert (cmin, cmax) == (505.0, 540.0), (
+        f"fixture drift: the +-$18 wide cache band for {_RG_EVENT_DAY} is "
+        f"[{cmin},{cmax}], expected [505.0,540.0]"
+    )
+    res = strike_band_covers_range(
+        day_low=cmin, day_high=_RG_DAY_HIGH, atm=_RG_ATM,
+        cache_min_strike=cmin, cache_max_strike=cmax,
+    )
+    assert res.covered is True, (
+        "L177/L182 regression: the +-$18 wide cache now reports the 2025-04-04 move as "
+        f"NOT covered -> the band-coverage guard is over-strict / always-False. {res.reason}"
+    )
+    assert res.dropped_side is None, res.reason
+    assert res.slack >= 0, res.reason  # ~$14 of headroom above the high

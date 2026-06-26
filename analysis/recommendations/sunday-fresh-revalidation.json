@@ -1,0 +1,644 @@
+{
+  "campaign": "SUNDAY FRESH RE-VALIDATION \u2014 3 edges on the never-scored newest OOS window",
+  "run_date": "2026-06-21",
+  "fresh_window": "2026-05-30..2026-06-18",
+  "old_cache_edge": "2026-05-29",
+  "a1_backfill": "BACKFILLED \u2014 option cache now ends 2026-06-18 (contract files dated 260618)",
+  "frame": "2025-01-02..2026-06-18 (master + recent daily concat)",
+  "fresh_window_trading_days": 14,
+  "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1)",
+  "config": {
+    "premium_stop_pct": -0.08,
+    "qty": 3,
+    "snap_radius": 4,
+    "exits": "v15 default",
+    "vix_regime_cfg": {
+      "slope_rule": "not_rising",
+      "low_margin": 0.25,
+      "source": "b5 robust_clearing_cell"
+    }
+  },
+  "edge1_vwap_continuation": {
+    "n_signals_total": 167,
+    "n_signals_fresh": 5,
+    "ATM_safe2": {
+      "fresh": {
+        "window": "2026-05-30..2026-06-18",
+        "n": 4,
+        "n_days": 4,
+        "wr_pct": 25.0,
+        "exp_per_trade": 1.98,
+        "total_dollar": 7.92,
+        "sign": "POSITIVE",
+        "best_day": 122.4,
+        "worst_day": -42.96,
+        "win_days": 1,
+        "loss_days": 3,
+        "by_side": {
+          "C": {
+            "n": 2,
+            "exp": -35.76,
+            "total": -71.52
+          },
+          "P": {
+            "n": 2,
+            "exp": 39.72,
+            "total": 79.44
+          }
+        },
+        "first_fill": "2026-06-01",
+        "last_fill": "2026-06-18"
+      },
+      "full_oos_2026": {
+        "window": "2026-01-01..2026-06-18",
+        "n": 50,
+        "n_days": 50,
+        "wr_pct": 46.0,
+        "exp_per_trade": 47.55,
+        "total_dollar": 2377.28,
+        "sign": "POSITIVE",
+        "best_day": 379.2,
+        "worst_day": -119.28,
+        "win_days": 23,
+        "loss_days": 27,
+        "by_side": {
+          "C": {
+            "n": 28,
+            "exp": 53.58,
+            "total": 1500.24
+          },
+          "P": {
+            "n": 22,
+            "exp": 39.87,
+            "total": 877.04
+          }
+        },
+        "first_fill": "2026-01-08",
+        "last_fill": "2026-06-18"
+      }
+    },
+    "ITM2_bold": {
+      "fresh": {
+        "window": "2026-05-30..2026-06-18",
+        "n": 5,
+        "n_days": 5,
+        "wr_pct": 0.0,
+        "exp_per_trade": -84.86,
+        "total_dollar": -424.32,
+        "sign": "NEGATIVE",
+        "best_day": -62.4,
+        "worst_day": -146.4,
+        "win_days": 0,
+        "loss_days": 5,
+        "by_side": {
+          "C": {
+            "n": 2,
+            "exp": -67.68,
+            "total": -135.36
+          },
+          "P": {
+            "n": 3,
+            "exp": -96.32,
+            "total": -288.96
+          }
+        },
+        "first_fill": "2026-06-01",
+        "last_fill": "2026-06-18"
+      },
+      "full_oos_2026": {
+        "window": "2026-01-01..2026-06-18",
+        "n": 51,
+        "n_days": 51,
+        "wr_pct": 45.1,
+        "exp_per_trade": 73.66,
+        "total_dollar": 3756.72,
+        "sign": "POSITIVE",
+        "best_day": 468.2,
+        "worst_day": -146.4,
+        "win_days": 23,
+        "loss_days": 28,
+        "by_side": {
+          "C": {
+            "n": 28,
+            "exp": 95.57,
+            "total": 2676.08
+          },
+          "P": {
+            "n": 23,
+            "exp": 46.98,
+            "total": 1080.64
+          }
+        },
+        "first_fill": "2026-01-08",
+        "last_fill": "2026-06-18"
+      }
+    },
+    "OTM2_live_leak": {
+      "fresh": {
+        "window": "2026-05-30..2026-06-18",
+        "n": 4,
+        "n_days": 4,
+        "wr_pct": 25.0,
+        "exp_per_trade": 6.03,
+        "total_dollar": 24.12,
+        "sign": "POSITIVE",
+        "best_day": 79.8,
+        "worst_day": -25.68,
+        "win_days": 1,
+        "loss_days": 3,
+        "by_side": {
+          "C": {
+            "n": 2,
+            "exp": -15.0,
+            "total": -30.0
+          },
+          "P": {
+            "n": 2,
+            "exp": 27.06,
+            "total": 54.12
+          }
+        },
+        "first_fill": "2026-06-01",
+        "last_fill": "2026-06-18"
+      },
+      "full_oos_2026": {
+        "window": "2026-01-01..2026-06-18",
+        "n": 48,
+        "n_days": 48,
+        "wr_pct": 39.6,
+        "exp_per_trade": 18.36,
+        "total_dollar": 881.08,
+        "sign": "POSITIVE",
+        "best_day": 210.0,
+        "worst_day": -85.68,
+        "win_days": 19,
+        "loss_days": 29,
+        "by_side": {
+          "C": {
+            "n": 26,
+            "exp": 13.12,
+            "total": 341.24
+          },
+          "P": {
+            "n": 22,
+            "exp": 24.54,
+            "total": 539.84
+          }
+        },
+        "first_fill": "2026-01-08",
+        "last_fill": "2026-06-18"
+      }
+    },
+    "wp5_strike_ab": [
+      {
+        "label": "OTM-2",
+        "sim_offset": 2,
+        "role": "LIVE Safe-2 tier (the mis-strike leak)",
+        "coverage": {
+          "signals": 167,
+          "filled": 155,
+          "cache_miss": 12,
+          "sim_none": 0,
+          "fill_rate": 0.928
+        },
+        "fresh_window": {
+          "window": "2026-05-30..2026-06-18",
+          "n": 4,
+          "n_days": 4,
+          "wr_pct": 25.0,
+          "exp_per_trade": 6.03,
+          "total_dollar": 24.12,
+          "sign": "POSITIVE",
+          "best_day": 79.8,
+          "worst_day": -25.68,
+          "win_days": 1,
+          "loss_days": 3,
+          "by_side": {
+            "C": {
+              "n": 2,
+              "exp": -15.0,
+              "total": -30.0
+            },
+            "P": {
+              "n": 2,
+              "exp": 27.06,
+              "total": 54.12
+            }
+          },
+          "first_fill": "2026-06-01",
+          "last_fill": "2026-06-18"
+        },
+        "full_oos_2026": {
+          "window": "2026-01-01..2026-06-18",
+          "n": 48,
+          "n_days": 48,
+          "wr_pct": 39.6,
+          "exp_per_trade": 18.36,
+          "total_dollar": 881.08,
+          "sign": "POSITIVE",
+          "best_day": 210.0,
+          "worst_day": -85.68,
+          "win_days": 19,
+          "loss_days": 29,
+          "by_side": {
+            "C": {
+              "n": 26,
+              "exp": 13.12,
+              "total": 341.24
+            },
+            "P": {
+              "n": 22,
+              "exp": 24.54,
+              "total": 539.84
+            }
+          },
+          "first_fill": "2026-01-08",
+          "last_fill": "2026-06-18"
+        }
+      },
+      {
+        "label": "ATM",
+        "sim_offset": 0,
+        "role": "validated Safe-2 cell",
+        "coverage": {
+          "signals": 167,
+          "filled": 157,
+          "cache_miss": 10,
+          "sim_none": 0,
+          "fill_rate": 0.94
+        },
+        "fresh_window": {
+          "window": "2026-05-30..2026-06-18",
+          "n": 4,
+          "n_days": 4,
+          "wr_pct": 25.0,
+          "exp_per_trade": 1.98,
+          "total_dollar": 7.92,
+          "sign": "POSITIVE",
+          "best_day": 122.4,
+          "worst_day": -42.96,
+          "win_days": 1,
+          "loss_days": 3,
+          "by_side": {
+            "C": {
+              "n": 2,
+              "exp": -35.76,
+              "total": -71.52
+            },
+            "P": {
+              "n": 2,
+              "exp": 39.72,
+              "total": 79.44
+            }
+          },
+          "first_fill": "2026-06-01",
+          "last_fill": "2026-06-18"
+        },
+        "full_oos_2026": {
+          "window": "2026-01-01..2026-06-18",
+          "n": 50,
+          "n_days": 50,
+          "wr_pct": 46.0,
+          "exp_per_trade": 47.55,
+          "total_dollar": 2377.28,
+          "sign": "POSITIVE",
+          "best_day": 379.2,
+          "worst_day": -119.28,
+          "win_days": 23,
+          "loss_days": 27,
+          "by_side": {
+            "C": {
+              "n": 28,
+              "exp": 53.58,
+              "total": 1500.24
+            },
+            "P": {
+              "n": 22,
+              "exp": 39.87,
+              "total": 877.04
+            }
+          },
+          "first_fill": "2026-01-08",
+          "last_fill": "2026-06-18"
+        }
+      },
+      {
+        "label": "ITM-1",
+        "sim_offset": -1,
+        "role": "intermediate",
+        "coverage": {
+          "signals": 167,
+          "filled": 158,
+          "cache_miss": 9,
+          "sim_none": 0,
+          "fill_rate": 0.946
+        },
+        "fresh_window": {
+          "window": "2026-05-30..2026-06-18",
+          "n": 5,
+          "n_days": 5,
+          "wr_pct": 20.0,
+          "exp_per_trade": -30.31,
+          "total_dollar": -151.56,
+          "sign": "NEGATIVE",
+          "best_day": 150.6,
+          "worst_day": -146.4,
+          "win_days": 1,
+          "loss_days": 4,
+          "by_side": {
+            "C": {
+              "n": 2,
+              "exp": -50.52,
+              "total": -101.04
+            },
+            "P": {
+              "n": 3,
+              "exp": -16.84,
+              "total": -50.52
+            }
+          },
+          "first_fill": "2026-06-01",
+          "last_fill": "2026-06-18"
+        },
+        "full_oos_2026": {
+          "window": "2026-01-01..2026-06-18",
+          "n": 51,
+          "n_days": 51,
+          "wr_pct": 45.1,
+          "exp_per_trade": 56.48,
+          "total_dollar": 2880.36,
+          "sign": "POSITIVE",
+          "best_day": 439.6,
+          "worst_day": -146.4,
+          "win_days": 23,
+          "loss_days": 28,
+          "by_side": {
+            "C": {
+              "n": 28,
+              "exp": 69.1,
+              "total": 1934.84
+            },
+            "P": {
+              "n": 23,
+              "exp": 41.11,
+              "total": 945.52
+            }
+          },
+          "first_fill": "2026-01-08",
+          "last_fill": "2026-06-18"
+        }
+      },
+      {
+        "label": "ITM-2",
+        "sim_offset": -2,
+        "role": "validated Bold cell",
+        "coverage": {
+          "signals": 167,
+          "filled": 158,
+          "cache_miss": 9,
+          "sim_none": 0,
+          "fill_rate": 0.946
+        },
+        "fresh_window": {
+          "window": "2026-05-30..2026-06-18",
+          "n": 5,
+          "n_days": 5,
+          "wr_pct": 0.0,
+          "exp_per_trade": -84.86,
+          "total_dollar": -424.32,
+          "sign": "NEGATIVE",
+          "best_day": -62.4,
+          "worst_day": -146.4,
+          "win_days": 0,
+          "loss_days": 5,
+          "by_side": {
+            "C": {
+              "n": 2,
+              "exp": -67.68,
+              "total": -135.36
+            },
+            "P": {
+              "n": 3,
+              "exp": -96.32,
+              "total": -288.96
+            }
+          },
+          "first_fill": "2026-06-01",
+          "last_fill": "2026-06-18"
+        },
+        "full_oos_2026": {
+          "window": "2026-01-01..2026-06-18",
+          "n": 51,
+          "n_days": 51,
+          "wr_pct": 45.1,
+          "exp_per_trade": 73.66,
+          "total_dollar": 3756.72,
+          "sign": "POSITIVE",
+          "best_day": 468.2,
+          "worst_day": -146.4,
+          "win_days": 23,
+          "loss_days": 28,
+          "by_side": {
+            "C": {
+              "n": 28,
+              "exp": 95.57,
+              "total": 2676.08
+            },
+            "P": {
+              "n": 23,
+              "exp": 46.98,
+              "total": 1080.64
+            }
+          },
+          "first_fill": "2026-01-08",
+          "last_fill": "2026-06-18"
+        }
+      }
+    ],
+    "alive_on_fresh": true
+  },
+  "edge2_vwap_reclaim_failed_break": {
+    "n_signals": 87,
+    "coverage_atm": {
+      "signals": 87,
+      "filled": 81,
+      "cache_miss": 6,
+      "sim_none": 0,
+      "fill_rate": 0.931
+    },
+    "ATM_safe2_fresh": {
+      "window": "2026-05-30..2026-06-18",
+      "n": 4,
+      "n_days": 4,
+      "wr_pct": 0.0,
+      "exp_per_trade": -42.96,
+      "total_dollar": -171.84,
+      "sign": "NEGATIVE",
+      "best_day": -33.36,
+      "worst_day": -54.0,
+      "win_days": 0,
+      "loss_days": 4,
+      "by_side": {
+        "C": {
+          "n": 2,
+          "exp": -45.12,
+          "total": -90.24
+        },
+        "P": {
+          "n": 2,
+          "exp": -40.8,
+          "total": -81.6
+        }
+      },
+      "first_fill": "2026-06-01",
+      "last_fill": "2026-06-18"
+    },
+    "ITM2_bold_fresh": {
+      "window": "2026-05-30..2026-06-18",
+      "n": 5,
+      "n_days": 5,
+      "wr_pct": 0.0,
+      "exp_per_trade": -85.87,
+      "total_dollar": -429.36,
+      "sign": "NEGATIVE",
+      "best_day": -60.0,
+      "worst_day": -146.4,
+      "win_days": 0,
+      "loss_days": 5,
+      "by_side": {
+        "C": {
+          "n": 2,
+          "exp": -74.16,
+          "total": -148.32
+        },
+        "P": {
+          "n": 3,
+          "exp": -93.68,
+          "total": -281.04
+        }
+      },
+      "first_fill": "2026-06-01",
+      "last_fill": "2026-06-18"
+    },
+    "ATM_full_oos_2026": {
+      "window": "2026-01-01..2026-06-18",
+      "n": 23,
+      "n_days": 23,
+      "wr_pct": 34.8,
+      "exp_per_trade": 13.11,
+      "total_dollar": 301.56,
+      "sign": "POSITIVE",
+      "best_day": 326.4,
+      "worst_day": -79.92,
+      "win_days": 8,
+      "loss_days": 15,
+      "by_side": {
+        "C": {
+          "n": 12,
+          "exp": 22.24,
+          "total": 266.88
+        },
+        "P": {
+          "n": 11,
+          "exp": 3.15,
+          "total": 34.68
+        }
+      },
+      "first_fill": "2026-01-08",
+      "last_fill": "2026-06-18"
+    }
+  },
+  "edge4_vix_regime_dayside": {
+    "n_signals": 85,
+    "coverage_atm": {
+      "signals": 85,
+      "filled": 80,
+      "cache_miss": 5,
+      "sim_none": 0,
+      "fill_rate": 0.941
+    },
+    "cfg": {
+      "slope_rule": "not_rising",
+      "low_margin": 0.25,
+      "source": "b5 robust_clearing_cell"
+    },
+    "ATM_safe2_fresh": {
+      "window": "2026-05-30..2026-06-18",
+      "n": 1,
+      "n_days": 1,
+      "wr_pct": 0.0,
+      "exp_per_trade": -32.4,
+      "total_dollar": -32.4,
+      "sign": "NEGATIVE",
+      "best_day": -32.4,
+      "worst_day": -32.4,
+      "win_days": 0,
+      "loss_days": 1,
+      "by_side": {
+        "C": {
+          "n": 1,
+          "exp": -32.4,
+          "total": -32.4
+        }
+      },
+      "first_fill": "2026-06-15",
+      "last_fill": "2026-06-15"
+    },
+    "ATM_full_oos_2026": {
+      "window": "2026-01-01..2026-06-18",
+      "n": 24,
+      "n_days": 24,
+      "wr_pct": 41.7,
+      "exp_per_trade": 29.93,
+      "total_dollar": 718.2,
+      "sign": "POSITIVE",
+      "best_day": 359.4,
+      "worst_day": -119.28,
+      "win_days": 10,
+      "loss_days": 14,
+      "by_side": {
+        "C": {
+          "n": 14,
+          "exp": 13.68,
+          "total": 191.52
+        },
+        "P": {
+          "n": 10,
+          "exp": 52.67,
+          "total": 526.68
+        }
+      },
+      "first_fill": "2026-01-15",
+      "last_fill": "2026-06-15"
+    }
+  },
+  "portfolio_fresh": {
+    "Safe2_ATM_1+2+4": {
+      "n_days": 4,
+      "total_dollar": -196.32,
+      "daily_mean": -49.08,
+      "win_days": 1,
+      "loss_days": 3,
+      "best_day": 74.16,
+      "worst_day": -118.8,
+      "sign": "NEGATIVE"
+    },
+    "Bold_ITM2_1+2": {
+      "n_days": 5,
+      "total_dollar": -853.68,
+      "daily_mean": -170.74,
+      "win_days": 0,
+      "loss_days": 5,
+      "best_day": -128.64,
+      "worst_day": -292.8,
+      "sign": "NEGATIVE"
+    }
+  },
+  "edges_still_alive": true,
+  "DISCLOSURE": {
+    "small_n": "the fresh window is ~14 trading days \u2014 n per edge is SMALL; treat fresh-window expectancy as a directional sanity check, not a standing-bar ratification (the 11-gate bar needs full-history n)",
+    "per_trade": "per-trade EXPECTANCY reported, not WR alone (OP-14)",
+    "real_fills": "real OPRA fills only \u2014 the WR authority (C1); SPY-direction != option edge (C3/L58)",
+    "no_new_ship": "RESEARCH ONLY; no live edit on a Sunday (money-path guard)"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "date_et": "2026-06-20",
+  "total_cost_usd": 0.0,
+  "claude_cost_usd": 0,
+  "minimax_cost_usd": 0.0,
+  "claude_sessions": 0,
+  "claude_by_tier": {},
+  "minimax_calls": 0,
+  "minimax_by_task": {}
+}

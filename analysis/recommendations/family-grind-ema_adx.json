@@ -1,0 +1,16 @@
+{
+  "family": "ema_adx",
+  "generated": "2026-06-25T22:07:29",
+  "window": "2025-01-01..2026-06-18",
+  "n_signals": 136,
+  "entry_window": [
+    "09:35",
+    "15:45"
+  ],
+  "p1_candidate_cells": 4,
+  "p1_oos_positive": 26,
+  "p3_survivors": 15,
+  "p4_elites": 0,
+  "elites": [],
+  "authority": "real OPRA fills (C1); null=random-entry MATCHING-exit (C3/L58/L171); gate=candidate-bar+null (edge_capture vacuous for non-J-anchor entries, disclosed)"
+}

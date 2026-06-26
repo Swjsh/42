@@ -1,0 +1,14 @@
+{"date": "2025-09-04", "price": 634.96, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-04", "price": 637.5, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-04", "price": 640.5, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-04", "price": 642.0243344278615, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-04", "price": 642.092185467921, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-04", "price": 642.2882537378373, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-04", "price": 642.3567943140324, "source": "swept", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-04", "price": 643.4, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}
+{"date": "2025-09-04", "price": 643.605, "source": "multi_day", "touched": true, "outcome": "RESPECT", "reaction_dollars": 2.165, "false_break": false}
+{"date": "2025-09-04", "price": 644.0, "source": "round", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.35, "false_break": true}
+{"date": "2025-09-04", "price": 644.15, "source": "intraday", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.2, "false_break": true}
+{"date": "2025-09-04", "price": 644.21, "source": "multi_day", "touched": true, "outcome": "BREAK", "reaction_dollars": 1.06, "false_break": false}
+{"date": "2025-09-04", "price": 645.0, "source": "round", "touched": true, "outcome": "RESPECT", "reaction_dollars": 1.18, "false_break": false}
+{"date": "2025-09-04", "price": 649.47, "source": "multi_day", "touched": false, "outcome": "UNTOUCHED", "reaction_dollars": 0.0, "false_break": false}

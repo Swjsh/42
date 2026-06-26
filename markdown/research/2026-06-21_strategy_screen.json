@@ -1,0 +1,217 @@
+{
+  "as_of_session": "2026-06-21 (Sun, market closed)",
+  "engine": "backtest/run.py --real-fills (real OPRA option bars, cached backtest/data/options/)",
+  "data_window": "2026-05-08 .. 2026-06-16 (27 trading days, post-training OOS)",
+  "data_resolution": "5-minute SPY/VIX bars (framework native res; 1-min requested but only exists for 3 anchor days)",
+  "setup_class": "Bearish-rejection-ride-the-ribbon (only setup the v15 engine fires; OP-16 scope lock). Candidates are filter-config variants, not distinct setup classes.",
+  "context": {
+    "spy_752_battle": "confirmed - SPY hovered 750.08-755.44 on 06-15/16; 752 is a live recent pivot",
+    "recent_action": "06/05 flush 757->737, mid-June 722-746 vol, recovered to ~751 by 06/16",
+    "pce_catalyst": "PCE print referenced for week of 06/23 - forward event risk, NOT inside this backtest window"
+  },
+  "ranking_metric": "expectancy_per_trade_usd (WR is a theta trap per lessons C3/C4; expectancy is the edge). Tiebreak avg_R then max_drawdown.",
+  "configs": [
+    {
+      "config_id": "C1_baseline_v15_production",
+      "description": "All v15 production filters (bearish rejection ride-the-ribbon, chart-stop primary).",
+      "n_trades": 35,
+      "win_rate_pct": 40.0,
+      "avg_R": 0.643,
+      "avg_return_on_premium_pct": 8.0,
+      "total_pnl_usd": 5024.22,
+      "expectancy_per_trade_usd": 143.55,
+      "max_drawdown_usd": -1587.92,
+      "avg_winloss_ratio": 3.11,
+      "winners": 14,
+      "losers": 21,
+      "rank": 3,
+      "concentration": {
+        "median_trade_usd": -48.48,
+        "top1_pct_of_pnl": 43.8,
+        "top3_pct_of_pnl": 118.1,
+        "best_usd": 2200.0,
+        "worst_usd": -575.52
+      }
+    },
+    {
+      "config_id": "C2_vix_gate_relaxed",
+      "description": "Filter 8 (VIX regime gate) disabled - tests whether the VIX gate helps in the post-06/05 recovery chop.",
+      "n_trades": 39,
+      "win_rate_pct": 43.6,
+      "avg_R": 0.782,
+      "avg_return_on_premium_pct": 8.2,
+      "total_pnl_usd": 7087.58,
+      "expectancy_per_trade_usd": 181.73,
+      "max_drawdown_usd": -1422.72,
+      "avg_winloss_ratio": 3.09,
+      "winners": 17,
+      "losers": 22,
+      "rank": 2,
+      "concentration": {
+        "median_trade_usd": -46.08,
+        "top1_pct_of_pnl": 31.0,
+        "top3_pct_of_pnl": 83.8,
+        "best_usd": 2200.0,
+        "worst_usd": -575.52
+      }
+    },
+    {
+      "config_id": "C3_volume_trigger_relaxed",
+      "description": "Filter 9 (volume confirmation) disabled - recent recovery bars had uneven volume (06/15 thin).",
+      "n_trades": 42,
+      "win_rate_pct": 33.3,
+      "avg_R": 0.416,
+      "avg_return_on_premium_pct": 5.5,
+      "total_pnl_usd": 4030.46,
+      "expectancy_per_trade_usd": 95.96,
+      "max_drawdown_usd": -2034.32,
+      "avg_winloss_ratio": 3.25,
+      "winners": 14,
+      "losers": 28,
+      "rank": 4,
+      "concentration": {
+        "median_trade_usd": -99.16,
+        "top1_pct_of_pnl": 60.4,
+        "top3_pct_of_pnl": 166.4,
+        "best_usd": 2433.6,
+        "worst_usd": -575.52
+      }
+    },
+    {
+      "config_id": "C4_spread_floor_off",
+      "description": "Filter 6 (>=30c spread floor) disabled - admits tighter-premium setups.",
+      "n_trades": 39,
+      "win_rate_pct": 43.6,
+      "avg_R": 1.832,
+      "avg_return_on_premium_pct": 11.6,
+      "total_pnl_usd": 14176.0,
+      "expectancy_per_trade_usd": 363.49,
+      "max_drawdown_usd": -2003.12,
+      "avg_winloss_ratio": 5.5,
+      "winners": 17,
+      "losers": 22,
+      "rank": 1,
+      "concentration": {
+        "median_trade_usd": -46.08,
+        "top1_pct_of_pnl": 35.9,
+        "top3_pct_of_pnl": 66.0,
+        "best_usd": 5089.0,
+        "worst_usd": -628.32
+      }
+    },
+    {
+      "config_id": "C5_htf_sweep_relaxed",
+      "description": "Filter 11 (HTF alignment / sweep block) disabled - more permissive structure gate.",
+      "n_trades": 43,
+      "win_rate_pct": 32.6,
+      "avg_R": 0.186,
+      "avg_return_on_premium_pct": 5.8,
+      "total_pnl_usd": 2169.02,
+      "expectancy_per_trade_usd": 50.44,
+      "max_drawdown_usd": -4152.8,
+      "avg_winloss_ratio": 2.64,
+      "winners": 14,
+      "losers": 29,
+      "rank": 6,
+      "concentration": {
+        "median_trade_usd": -60.72,
+        "top1_pct_of_pnl": 101.4,
+        "top3_pct_of_pnl": 273.7,
+        "best_usd": 2200.0,
+        "worst_usd": -575.52
+      }
+    },
+    {
+      "config_id": "C6_loosest_6_8_9_off",
+      "description": "Filters 6,8,9 disabled - max-permissive: raw setup edge with most gates removed.",
+      "n_trades": 53,
+      "win_rate_pct": 28.3,
+      "avg_R": 0.214,
+      "avg_return_on_premium_pct": 4.0,
+      "total_pnl_usd": 3073.68,
+      "expectancy_per_trade_usd": 57.99,
+      "max_drawdown_usd": -2872.65,
+      "avg_winloss_ratio": 3.29,
+      "winners": 15,
+      "losers": 38,
+      "rank": 5,
+      "concentration": {
+        "median_trade_usd": -199.2,
+        "top1_pct_of_pnl": 77.6,
+        "top3_pct_of_pnl": 216.6,
+        "best_usd": 2385.4,
+        "worst_usd": -628.32
+      }
+    }
+  ],
+  "ranked": [
+    {
+      "rank": 1,
+      "config_id": "C4_spread_floor_off",
+      "win_rate_pct": 43.6,
+      "avg_R": 1.832,
+      "expectancy_per_trade_usd": 363.49,
+      "total_pnl_usd": 14176.0,
+      "max_drawdown_usd": -2003.12,
+      "n_trades": 39
+    },
+    {
+      "rank": 2,
+      "config_id": "C2_vix_gate_relaxed",
+      "win_rate_pct": 43.6,
+      "avg_R": 0.782,
+      "expectancy_per_trade_usd": 181.73,
+      "total_pnl_usd": 7087.58,
+      "max_drawdown_usd": -1422.72,
+      "n_trades": 39
+    },
+    {
+      "rank": 3,
+      "config_id": "C1_baseline_v15_production",
+      "win_rate_pct": 40.0,
+      "avg_R": 0.643,
+      "expectancy_per_trade_usd": 143.55,
+      "total_pnl_usd": 5024.22,
+      "max_drawdown_usd": -1587.92,
+      "n_trades": 35
+    },
+    {
+      "rank": 4,
+      "config_id": "C3_volume_trigger_relaxed",
+      "win_rate_pct": 33.3,
+      "avg_R": 0.416,
+      "expectancy_per_trade_usd": 95.96,
+      "total_pnl_usd": 4030.46,
+      "max_drawdown_usd": -2034.32,
+      "n_trades": 42
+    },
+    {
+      "rank": 5,
+      "config_id": "C6_loosest_6_8_9_off",
+      "win_rate_pct": 28.3,
+      "avg_R": 0.214,
+      "expectancy_per_trade_usd": 57.99,
+      "total_pnl_usd": 3073.68,
+      "max_drawdown_usd": -2872.65,
+      "n_trades": 53
+    },
+    {
+      "rank": 6,
+      "config_id": "C5_htf_sweep_relaxed",
+      "win_rate_pct": 32.6,
+      "avg_R": 0.186,
+      "expectancy_per_trade_usd": 50.44,
+      "total_pnl_usd": 2169.02,
+      "max_drawdown_usd": -4152.8,
+      "n_trades": 43
+    }
+  ],
+  "live_gate": "project rules: >=20 trades, WR>=45%, positive expectancy, <=2 rule breaks",
+  "caveats": [
+    "Real OPRA bars, no bid-ask spread modeled (+/-5-10pct fill noise).",
+    "First-trigger-wins; J discretion not modeled.",
+    "Single setup class - variants share the same trade population, differing only by gate admission.",
+    "Short 27-day window - regime-tail sensitive, NOT a ratification-grade sample."
+  ],
+  "headline_finding": "Edge is fat-tail capture on big down-days (06/05, 06/09 flushes), NOT a repeatable per-trade edge: median trade is NEGATIVE (-$46 to -$48) in EVERY config; 1-3 trades drive 66-118% of total P&L. C4's rank-1 is mostly one +$5089 trade (06/09 741P) admitted only because the spread floor was off. Treat all configs as the SAME long-premium tail strategy at different admission widths, not as distinct validated edges."
+}

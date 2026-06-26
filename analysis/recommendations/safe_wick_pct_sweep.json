@@ -1,0 +1,45 @@
+{
+  "study": "Safe wick_min_pct_of_range sweep",
+  "date": "2026-06-17",
+  "baseline_active_gates": "ENFORCED-4 no_trade_window=11:30-12:00, ENFORCED-1 block_conf_lvl_rec_afternoon, midday_trendline_gate",
+  "current_value": 0.5,
+  "candidates": [
+    0.3,
+    0.4,
+    0.5,
+    0.6,
+    0.7
+  ],
+  "baseline": {
+    "is_n": 123,
+    "is_pnl": 16539.53,
+    "oos_n": 20,
+    "oos_pnl": 6324.75
+  },
+  "results": [
+    {
+      "wick_pct": 0.3,
+      "is_delta": 0.0,
+      "oos_delta": 0.0,
+      "verdict": "REJECT_L155"
+    },
+    {
+      "wick_pct": 0.4,
+      "is_delta": 0.0,
+      "oos_delta": 0.0,
+      "verdict": "REJECT_L155"
+    },
+    {
+      "wick_pct": 0.6,
+      "is_delta": -450.0,
+      "oos_delta": 0.0,
+      "verdict": "REJECT_L155"
+    },
+    {
+      "wick_pct": 0.7,
+      "is_delta": -599.25,
+      "oos_delta": 0.0,
+      "verdict": "REJECT_L155"
+    }
+  ]
+}

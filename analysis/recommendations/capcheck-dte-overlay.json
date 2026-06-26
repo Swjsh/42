@@ -1,0 +1,98 @@
+{
+  "campaign": "CAP-CHECK OVERLAY \u2014 live risk-cap gate vs validated DTE-stop edge (#1 vwap_continuation)",
+  "purpose": "quantify how often the LIVE risk_gate (notional cap + MIN_CONTRACTS) BLOCKS the qty-3 1DTE fill the validation assumed (simulator_real has NO cap), and the cap-aware OOS expectancy over only the AFFORDABLE trades.",
+  "gate_authority": "automation/scripts/pre_order_gate.check -> lib.risk_gate.check_order (the live gate)",
+  "dte": 1,
+  "qty": 3,
+  "n_signals_total": 166,
+  "accounts": {
+    "safe": {
+      "deployed_cell": {
+        "tier": "ATM",
+        "offset": 0,
+        "dte": 1,
+        "qty": 3,
+        "equity": 2000.0,
+        "cap_dollars": 600.0,
+        "min_contracts": 3
+      },
+      "total_n": 166,
+      "affordable_n": 46,
+      "blocked_n": 120,
+      "block_rate_pct": 72.29,
+      "block_reasons": {
+        "RISK_CAP": 120
+      },
+      "validated_nocap_oos_exp": 57.59,
+      "recomputed_nocap_oos_exp": 46.08,
+      "capaware_oos_exp_affordable_only": 103.09,
+      "oos_total_n": 51,
+      "oos_affordable_n": 7,
+      "premium_profile": {
+        "all_trades": {
+          "n": 166,
+          "min": 0.62,
+          "median": 2.495,
+          "mean": 2.91,
+          "max": 12.2
+        },
+        "affordable_trades": {
+          "n": 46,
+          "min": 0.62,
+          "median": 1.795,
+          "mean": 1.725,
+          "max": 2.0
+        },
+        "blocked_trades": {
+          "n": 120,
+          "min": 2.02,
+          "median": 2.885,
+          "mean": 3.364,
+          "max": 12.2
+        }
+      }
+    },
+    "bold": {
+      "deployed_cell": {
+        "tier": "ITM-2",
+        "offset": -2,
+        "dte": 1,
+        "qty": 3,
+        "equity": 1648.0,
+        "cap_dollars": 824.0,
+        "min_contracts": 5
+      },
+      "total_n": 166,
+      "affordable_n": 0,
+      "blocked_n": 166,
+      "block_rate_pct": 100.0,
+      "block_reasons": {
+        "MIN_CONTRACTS": 166
+      },
+      "validated_nocap_oos_exp": 73.91,
+      "recomputed_nocap_oos_exp": 59.02,
+      "capaware_oos_exp_affordable_only": 0.0,
+      "oos_total_n": 51,
+      "oos_affordable_n": 0,
+      "premium_profile": {
+        "all_trades": {
+          "n": 166,
+          "min": 1.53,
+          "median": 3.57,
+          "mean": 3.978,
+          "max": 13.07
+        },
+        "affordable_trades": {
+          "n": 0
+        },
+        "blocked_trades": {
+          "n": 166,
+          "min": 1.53,
+          "median": 3.57,
+          "mean": 3.978,
+          "max": 13.07
+        }
+      }
+    }
+  }
+}

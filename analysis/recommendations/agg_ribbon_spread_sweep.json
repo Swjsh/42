@@ -1,0 +1,71 @@
+{
+  "study": "AGG ribbon_spread_min_cents sweep",
+  "date": "2026-06-17",
+  "hypothesis": "Raising ribbon spread min from 30c filters weak trendline entries (IS avg=+$1/trade)",
+  "baseline_spread_cents": 30,
+  "baseline": {
+    "is_n": 270,
+    "is_pnl": 19566,
+    "oos_n": 28,
+    "oos_pnl": 2590
+  },
+  "is_trigger_breakdown": {
+    "conf+lvl_rej": {"n": 22, "wr_pct": 36.4, "avg": 459, "total": 10095},
+    "conf+lvl_rec": {"n": 42, "wr_pct": 19.0, "avg": 173, "total": 7267},
+    "lvl_rec": {"n": 14, "wr_pct": 14.3, "avg": 138, "total": 1934},
+    "trendline_only": {"n": 192, "wr_pct": 22.9, "avg": 1, "total": 270}
+  },
+  "oos_trigger_breakdown": {
+    "conf+lvl_rec": {"n": 7, "wr_pct": 28.6, "avg": 443, "total": 3100},
+    "lvl_rej": {"n": 1, "wr_pct": 100.0, "avg": 1000, "total": 1000},
+    "trendline_only": {"n": 10, "wr_pct": 20.0, "avg": -8, "total": -75},
+    "conf+lvl_rej": {"n": 8, "wr_pct": 50.0, "avg": -66, "total": -528},
+    "lvl_rec": {"n": 2, "wr_pct": 0.0, "avg": -453, "total": -906}
+  },
+  "candidates": [
+    {
+      "spread": 25,
+      "is_n": 292, "is_pnl": 16555, "is_delta": -3010,
+      "oos_n": 28, "oos_pnl": 2410, "oos_delta": -180,
+      "oos_positive": false, "anchor": "FAIL",
+      "verdict": "REJECT (OOS_NEG + ANCHOR FAIL)"
+    },
+    {
+      "spread": 35,
+      "is_n": 258, "is_pnl": 14210, "is_delta": -5356,
+      "oos_n": 27, "oos_pnl": 2969, "oos_delta": 379,
+      "wf": -0.682, "oos_positive": true, "sw_hurt": 3, "anchor": "FAIL",
+      "verdict": "REJECT (IS_delta negative, WF<0, SW_hurt=3, ANCHOR FAIL)"
+    },
+    {
+      "spread": 40,
+      "is_n": 238, "is_pnl": 13104, "is_delta": -6462,
+      "oos_n": 26, "oos_pnl": 2992, "oos_delta": 402,
+      "wf": -0.600, "oos_positive": true, "sw_hurt": 3, "anchor": "FAIL",
+      "verdict": "REJECT (IS_delta negative, WF<0, SW_hurt=3, ANCHOR FAIL)"
+    },
+    {
+      "spread": 45,
+      "is_n": 216, "is_pnl": 11024, "is_delta": -8542,
+      "oos_n": 26, "oos_pnl": 2992, "oos_delta": 402,
+      "wf": -0.454, "oos_positive": true, "sw_hurt": 3, "anchor": "FAIL",
+      "verdict": "REJECT (IS_delta negative, WF<0, SW_hurt=3, ANCHOR FAIL)"
+    },
+    {
+      "spread": 50,
+      "is_n": 208, "is_pnl": 7738, "is_delta": -11827,
+      "oos_n": 26, "oos_pnl": 3002, "oos_delta": 411,
+      "wf": -0.335, "oos_positive": true, "sw_hurt": 3, "anchor": "FAIL",
+      "blocked_is": {
+        "trendline_only": {"n": 61, "avg": 109, "total": 6678},
+        "conf+lvl_rec": {"n": 17, "avg": -69, "total": -1179},
+        "conf+lvl_rej": {"n": 4, "avg": 1809, "total": 7238},
+        "lvl_rec": {"n": 4, "avg": 284, "total": 1137}
+      },
+      "verdict": "REJECT (IS_delta negative — kills 4 conf+lvl_rej IS winners avg +$1809)"
+    }
+  ],
+  "conclusion": "ALL REJECT. Raising ribbon spread always causes IS_delta<0 because it filters high-value conf+lvl_rej winners (4 trades avg +$1,809 IS blocked at spread=50c). The OOS gain (+$411) cannot justify losing +$11,827 IS. Keep baseline 30c.",
+  "key_observation": "AGG OOS conf+lvl_rej=-$528 (n=8 all time buckets) but AGG Gates AGG-1/AGG-2 already block afternoon+midday, leaving only morning conf+lvl_rej which is IS avg=$982/trade.",
+  "note": "Baseline uses midday_trendline_gate=False (old AGG baseline). Gates AGG-1 and AGG-2 are now enforced in production; OOS comparison is directionally valid but absolute numbers differ from current production baseline."
+}

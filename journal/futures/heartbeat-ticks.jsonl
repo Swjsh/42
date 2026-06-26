@@ -1,0 +1,12 @@
+﻿{
+    "ribbon":  "BULL",
+    "action":  "HOLD_FLAT",
+    "price":  30309.75,
+    "vix":  16.11,
+    "instrument":  "MNQ",
+    "position":  "flat",
+    "timestamp":  "2026-06-17T12:43:00.2995863-06:00",
+    "daily_pnl":  0,
+    "reason":  "FOMC_NO_TRADE_WINDOW",
+    "equity":  25000
+}

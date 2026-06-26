@@ -1,0 +1,350 @@
+{
+  "task": "agg-vix-bear-sweep-001",
+  "method": "post-hoc VIX filter (1 engine run per period, O(1) threshold sweep)",
+  "baseline_threshold": 15.0,
+  "thresholds_tested": [
+    15.0,
+    16.0,
+    17.0,
+    17.3,
+    17.5,
+    18.0
+  ],
+  "is_date_range": [
+    "2025-01-02",
+    "2026-02-26"
+  ],
+  "oos_date_range": [
+    "2026-02-27",
+    "2026-05-22"
+  ],
+  "is_trades_baseline": 159,
+  "oos_trades_baseline": 31,
+  "candidates": [
+    {
+      "threshold": 15.0,
+      "is": {
+        "total_pnl": 27822.9,
+        "n": 155,
+        "wr": 0.271,
+        "n_blocked": 4
+      },
+      "oos": {
+        "total_pnl": 5287.7,
+        "n": 31,
+        "wr": 0.194,
+        "n_blocked": 0
+      },
+      "is_delta": 0.0,
+      "oos_delta": 0.0,
+      "n_removed_is": 0,
+      "n_removed_oos": 0,
+      "wf_norm": null,
+      "sw_hurt": 0,
+      "sw_details": [
+        {
+          "name": "SW1_2025H1",
+          "delta": 0.0,
+          "hurt": false
+        },
+        {
+          "name": "SW2_2025H2",
+          "delta": 0.0,
+          "hurt": false
+        },
+        {
+          "name": "SW3_early26",
+          "delta": 0.0,
+          "hurt": false
+        }
+      ],
+      "anchor_blocked": [],
+      "gates": {
+        "is_pos": false,
+        "oos_pos": false,
+        "wf": false,
+        "sw": true,
+        "anchor": true
+      },
+      "auto_ratify": false
+    },
+    {
+      "threshold": 16.0,
+      "is": {
+        "total_pnl": 27709.5,
+        "n": 152,
+        "wr": 0.27,
+        "n_blocked": 7
+      },
+      "oos": {
+        "total_pnl": 5287.7,
+        "n": 31,
+        "wr": 0.194,
+        "n_blocked": 0
+      },
+      "is_delta": -113.4,
+      "oos_delta": 0.0,
+      "n_removed_is": 3,
+      "n_removed_oos": 0,
+      "wf_norm": null,
+      "sw_hurt": 1,
+      "sw_details": [
+        {
+          "name": "SW1_2025H1",
+          "delta": -159.4,
+          "hurt": true
+        },
+        {
+          "name": "SW2_2025H2",
+          "delta": 46.0,
+          "hurt": false
+        },
+        {
+          "name": "SW3_early26",
+          "delta": 0.0,
+          "hurt": false
+        }
+      ],
+      "anchor_blocked": [],
+      "gates": {
+        "is_pos": false,
+        "oos_pos": false,
+        "wf": false,
+        "sw": true,
+        "anchor": true
+      },
+      "auto_ratify": false
+    },
+    {
+      "threshold": 17.0,
+      "is": {
+        "total_pnl": 26766.4,
+        "n": 142,
+        "wr": 0.246,
+        "n_blocked": 17
+      },
+      "oos": {
+        "total_pnl": 5040.2,
+        "n": 30,
+        "wr": 0.167,
+        "n_blocked": 1
+      },
+      "is_delta": -1056.5,
+      "oos_delta": -247.5,
+      "n_removed_is": 13,
+      "n_removed_oos": 1,
+      "wf_norm": null,
+      "sw_hurt": 2,
+      "sw_details": [
+        {
+          "name": "SW1_2025H1",
+          "delta": -23.7,
+          "hurt": true
+        },
+        {
+          "name": "SW2_2025H2",
+          "delta": -1032.7,
+          "hurt": true
+        },
+        {
+          "name": "SW3_early26",
+          "delta": 0.0,
+          "hurt": false
+        }
+      ],
+      "anchor_blocked": [
+        {
+          "date": "2026-05-01",
+          "vix": 16.579999923706055,
+          "pnl": 247.5
+        }
+      ],
+      "gates": {
+        "is_pos": false,
+        "oos_pos": false,
+        "wf": false,
+        "sw": false,
+        "anchor": false
+      },
+      "auto_ratify": false
+    },
+    {
+      "threshold": 17.3,
+      "is": {
+        "total_pnl": 26918.6,
+        "n": 138,
+        "wr": 0.246,
+        "n_blocked": 21
+      },
+      "oos": {
+        "total_pnl": 5363.6,
+        "n": 28,
+        "wr": 0.179,
+        "n_blocked": 3
+      },
+      "is_delta": -904.3,
+      "oos_delta": 75.9,
+      "n_removed_is": 17,
+      "n_removed_oos": 3,
+      "wf_norm": null,
+      "sw_hurt": 2,
+      "sw_details": [
+        {
+          "name": "SW1_2025H1",
+          "delta": 55.5,
+          "hurt": false
+        },
+        {
+          "name": "SW2_2025H2",
+          "delta": -914.6,
+          "hurt": true
+        },
+        {
+          "name": "SW3_early26",
+          "delta": -45.0,
+          "hurt": true
+        }
+      ],
+      "anchor_blocked": [
+        {
+          "date": "2026-05-01",
+          "vix": 16.579999923706055,
+          "pnl": 247.5
+        }
+      ],
+      "gates": {
+        "is_pos": false,
+        "oos_pos": true,
+        "wf": false,
+        "sw": false,
+        "anchor": false
+      },
+      "auto_ratify": false
+    },
+    {
+      "threshold": 17.5,
+      "is": {
+        "total_pnl": 26975.3,
+        "n": 136,
+        "wr": 0.25,
+        "n_blocked": 23
+      },
+      "oos": {
+        "total_pnl": 5408.1,
+        "n": 27,
+        "wr": 0.185,
+        "n_blocked": 4
+      },
+      "is_delta": -847.6,
+      "oos_delta": 120.4,
+      "n_removed_is": 19,
+      "n_removed_oos": 4,
+      "wf_norm": null,
+      "sw_hurt": 1,
+      "sw_details": [
+        {
+          "name": "SW1_2025H1",
+          "delta": 55.5,
+          "hurt": false
+        },
+        {
+          "name": "SW2_2025H2",
+          "delta": -905.6,
+          "hurt": true
+        },
+        {
+          "name": "SW3_early26",
+          "delta": 2.7,
+          "hurt": false
+        }
+      ],
+      "anchor_blocked": [
+        {
+          "date": "2026-05-04",
+          "vix": 17.43000030517578,
+          "pnl": -44.52
+        },
+        {
+          "date": "2026-05-01",
+          "vix": 16.579999923706055,
+          "pnl": 247.5
+        }
+      ],
+      "gates": {
+        "is_pos": false,
+        "oos_pos": true,
+        "wf": false,
+        "sw": true,
+        "anchor": false
+      },
+      "auto_ratify": false
+    },
+    {
+      "threshold": 18.0,
+      "is": {
+        "total_pnl": 27749.5,
+        "n": 131,
+        "wr": 0.252,
+        "n_blocked": 28
+      },
+      "oos": {
+        "total_pnl": 5454.7,
+        "n": 26,
+        "wr": 0.192,
+        "n_blocked": 5
+      },
+      "is_delta": -73.4,
+      "oos_delta": 167.0,
+      "n_removed_is": 24,
+      "n_removed_oos": 5,
+      "wf_norm": null,
+      "sw_hurt": 1,
+      "sw_details": [
+        {
+          "name": "SW1_2025H1",
+          "delta": 104.6,
+          "hurt": false
+        },
+        {
+          "name": "SW2_2025H2",
+          "delta": -180.5,
+          "hurt": true
+        },
+        {
+          "name": "SW3_early26",
+          "delta": 2.7,
+          "hurt": false
+        }
+      ],
+      "anchor_blocked": [
+        {
+          "date": "2026-05-04",
+          "vix": 17.43000030517578,
+          "pnl": -44.52
+        },
+        {
+          "date": "2026-05-01",
+          "vix": 16.579999923706055,
+          "pnl": 247.5
+        }
+      ],
+      "gates": {
+        "is_pos": false,
+        "oos_pos": true,
+        "wf": false,
+        "sw": true,
+        "anchor": false
+      },
+      "auto_ratify": false
+    }
+  ],
+  "best": {
+    "threshold": null,
+    "is_delta": null,
+    "oos_delta": null,
+    "wf_norm": null,
+    "sw_hurt": null,
+    "auto_ratify": false
+  },
+  "implementation": "Update automation/state/aggressive/params.json vix_entry_thresholds.bear_min_exclusive_and_rising to best_threshold. Caution: post-hoc filter ignores cascade effects; confirm with 1 full engine re-run at best threshold."
+}

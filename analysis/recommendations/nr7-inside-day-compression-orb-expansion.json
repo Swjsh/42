@@ -1,0 +1,521 @@
+{
+  "section": "B6-EXTERNAL",
+  "slug": "nr7-inside-day-compression-orb-expansion",
+  "family": "external-sourced (Crabel NR7 / Inside-Day compression + ORB expansion)",
+  "arena": "0dte",
+  "generated_at": "2026-06-21T02:10:38.641833",
+  "window": "2025-01-01..2026-05-15",
+  "authority": "real OPRA fills via simulator_real.simulate_trade_real (C1)",
+  "regime_filter": "PRIOR trading day NR7 (narrowest range of last 7 daily-aggregated 5m-RTH bars) AND/OR Inside Day (prior H<day-2 H AND prior L>day-2 L)",
+  "entry": "first 5m CLOSE >OR-high (call) or <OR-low (put) at/after 09:45 ET on an eligible day; ONE first-break per day, no chasing the second side",
+  "exit": "chart-stop at opposite OR side (rejection_level); survivor -8% premium stop on headline cell; v15 tiered TP1/runner/chandelier inside simulate_trade_real; hard time-stop 15:50 ET",
+  "compression_days": {
+    "compressed": 78,
+    "nr7": 62,
+    "inside": 27,
+    "total_trading_days": 342
+  },
+  "n_signals": 65,
+  "n_calls": 30,
+  "n_puts": 35,
+  "n_distinct_days": 65,
+  "fixed_params": {
+    "qty": 3,
+    "setup": "NR7ID_ORB_EXPANSION",
+    "or_window": "09:30-09:45 ET",
+    "nr7_lookback": 7
+  },
+  "grids": {
+    "strike_offset": [
+      0,
+      -1
+    ],
+    "premium_stop_pct": [
+      -0.08,
+      -0.99
+    ]
+  },
+  "candidate_edge_bar": {
+    "oos_per_trade_gt": 0.0,
+    "positive_quarters_min": 4,
+    "top5_day_pct_lt": 200.0,
+    "n_trades_min": 20
+  },
+  "strike_stop_grid": [
+    {
+      "config": "ATM/8pct",
+      "strike_offset": 0,
+      "premium_stop_pct": -0.08,
+      "n_trades": 53,
+      "n_no_opra_data": 12,
+      "overall": {
+        "n": 53,
+        "wr": 22.6,
+        "total_pnl": 965.0,
+        "per_trade": 18.2,
+        "top5_day_pct": 185.0
+      },
+      "overall_per_trade": 18.2,
+      "IS_2025": {
+        "n": 44,
+        "wr": 25.0,
+        "total_pnl": 927.0,
+        "per_trade": 21.1,
+        "top5_day_pct": 168.0
+      },
+      "OOS_2026": {
+        "n": 9,
+        "wr": 11.1,
+        "total_pnl": 38.0,
+        "per_trade": 4.2,
+        "top5_day_pct": 653.0
+      },
+      "oos_per_trade": 4.24,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 7,
+          "wr": 28.6,
+          "total_pnl": 81.0,
+          "per_trade": 11.6,
+          "top5_day_pct": 254.0
+        },
+        "2025Q2": {
+          "n": 12,
+          "wr": 16.7,
+          "total_pnl": 198.0,
+          "per_trade": 16.5,
+          "top5_day_pct": 269.0
+        },
+        "2025Q3": {
+          "n": 14,
+          "wr": 14.3,
+          "total_pnl": 122.0,
+          "per_trade": 8.7,
+          "top5_day_pct": 302.0
+        },
+        "2025Q4": {
+          "n": 11,
+          "wr": 45.5,
+          "total_pnl": 525.0,
+          "per_trade": 47.8,
+          "top5_day_pct": 139.0
+        },
+        "2026Q1": {
+          "n": 5,
+          "wr": 20.0,
+          "total_pnl": 191.0,
+          "per_trade": 38.2,
+          "top5_day_pct": 100.0
+        },
+        "2026Q2": {
+          "n": 4,
+          "wr": 0.0,
+          "total_pnl": -153.0,
+          "per_trade": -38.2,
+          "top5_day_pct": null
+        }
+      },
+      "positive_quarters": "5/6",
+      "top5_day_pct": 185.0,
+      "op20_clears": true,
+      "fail_reasons": []
+    },
+    {
+      "config": "ATM/chartstop",
+      "strike_offset": 0,
+      "premium_stop_pct": -0.99,
+      "n_trades": 53,
+      "n_no_opra_data": 12,
+      "overall": {
+        "n": 53,
+        "wr": 66.0,
+        "total_pnl": -238.0,
+        "per_trade": -4.5,
+        "top5_day_pct": null
+      },
+      "overall_per_trade": -4.5,
+      "IS_2025": {
+        "n": 44,
+        "wr": 63.6,
+        "total_pnl": -377.0,
+        "per_trade": -8.6,
+        "top5_day_pct": null
+      },
+      "OOS_2026": {
+        "n": 9,
+        "wr": 77.8,
+        "total_pnl": 139.0,
+        "per_trade": 15.4,
+        "top5_day_pct": 653.0
+      },
+      "oos_per_trade": 15.42,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 7,
+          "wr": 85.7,
+          "total_pnl": 610.0,
+          "per_trade": 87.2,
+          "top5_day_pct": 126.0
+        },
+        "2025Q2": {
+          "n": 12,
+          "wr": 41.7,
+          "total_pnl": -1630.0,
+          "per_trade": -135.8,
+          "top5_day_pct": null
+        },
+        "2025Q3": {
+          "n": 14,
+          "wr": 57.1,
+          "total_pnl": -421.0,
+          "per_trade": -30.0,
+          "top5_day_pct": null
+        },
+        "2025Q4": {
+          "n": 11,
+          "wr": 81.8,
+          "total_pnl": 1063.0,
+          "per_trade": 96.7,
+          "top5_day_pct": 107.0
+        },
+        "2026Q1": {
+          "n": 5,
+          "wr": 60.0,
+          "total_pnl": -243.0,
+          "per_trade": -48.7,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 4,
+          "wr": 100.0,
+          "total_pnl": 382.0,
+          "per_trade": 95.6,
+          "top5_day_pct": 100.0
+        }
+      },
+      "positive_quarters": "3/6",
+      "top5_day_pct": null,
+      "op20_clears": false,
+      "fail_reasons": [
+        "positive_quarters 3/6 < 4",
+        "top5_day_pct None not < 200.0"
+      ]
+    },
+    {
+      "config": "ITM1/8pct",
+      "strike_offset": -1,
+      "premium_stop_pct": -0.08,
+      "n_trades": 50,
+      "n_no_opra_data": 15,
+      "overall": {
+        "n": 50,
+        "wr": 18.0,
+        "total_pnl": 7.0,
+        "per_trade": 0.1,
+        "top5_day_pct": 24783.0
+      },
+      "overall_per_trade": 0.1,
+      "IS_2025": {
+        "n": 44,
+        "wr": 20.5,
+        "total_pnl": 352.0,
+        "per_trade": 8.0,
+        "top5_day_pct": 467.0
+      },
+      "OOS_2026": {
+        "n": 6,
+        "wr": 0.0,
+        "total_pnl": -346.0,
+        "per_trade": -57.6,
+        "top5_day_pct": null
+      },
+      "oos_per_trade": -57.6,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 7,
+          "wr": 14.3,
+          "total_pnl": -161.0,
+          "per_trade": -22.9,
+          "top5_day_pct": null
+        },
+        "2025Q2": {
+          "n": 11,
+          "wr": 9.1,
+          "total_pnl": -426.0,
+          "per_trade": -38.7,
+          "top5_day_pct": null
+        },
+        "2025Q3": {
+          "n": 14,
+          "wr": 21.4,
+          "total_pnl": 452.0,
+          "per_trade": 32.3,
+          "top5_day_pct": 181.0
+        },
+        "2025Q4": {
+          "n": 12,
+          "wr": 33.3,
+          "total_pnl": 486.0,
+          "per_trade": 40.5,
+          "top5_day_pct": 176.0
+        },
+        "2026Q1": {
+          "n": 3,
+          "wr": 0.0,
+          "total_pnl": -188.0,
+          "per_trade": -62.6,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 3,
+          "wr": 0.0,
+          "total_pnl": -158.0,
+          "per_trade": -52.6,
+          "top5_day_pct": null
+        }
+      },
+      "positive_quarters": "2/6",
+      "top5_day_pct": 24783.0,
+      "op20_clears": false,
+      "fail_reasons": [
+        "OOS per-trade -57.6 <= 0",
+        "positive_quarters 2/6 < 4",
+        "top5_day_pct 24783.0 not < 200.0"
+      ]
+    },
+    {
+      "config": "ITM1/chartstop",
+      "strike_offset": -1,
+      "premium_stop_pct": -0.99,
+      "n_trades": 50,
+      "n_no_opra_data": 15,
+      "overall": {
+        "n": 50,
+        "wr": 60.0,
+        "total_pnl": -2231.0,
+        "per_trade": -44.6,
+        "top5_day_pct": null
+      },
+      "overall_per_trade": -44.6,
+      "IS_2025": {
+        "n": 44,
+        "wr": 59.1,
+        "total_pnl": -1580.0,
+        "per_trade": -35.9,
+        "top5_day_pct": null
+      },
+      "OOS_2026": {
+        "n": 6,
+        "wr": 66.7,
+        "total_pnl": -650.0,
+        "per_trade": -108.4,
+        "top5_day_pct": null
+      },
+      "oos_per_trade": -108.4,
+      "by_quarter": {
+        "2025Q1": {
+          "n": 7,
+          "wr": 85.7,
+          "total_pnl": 772.0,
+          "per_trade": 110.3,
+          "top5_day_pct": 127.0
+        },
+        "2025Q2": {
+          "n": 11,
+          "wr": 36.4,
+          "total_pnl": -2467.0,
+          "per_trade": -224.2,
+          "top5_day_pct": null
+        },
+        "2025Q3": {
+          "n": 14,
+          "wr": 57.1,
+          "total_pnl": -510.0,
+          "per_trade": -36.4,
+          "top5_day_pct": null
+        },
+        "2025Q4": {
+          "n": 12,
+          "wr": 66.7,
+          "total_pnl": 625.0,
+          "per_trade": 52.1,
+          "top5_day_pct": 248.0
+        },
+        "2026Q1": {
+          "n": 3,
+          "wr": 33.3,
+          "total_pnl": -1045.0,
+          "per_trade": -348.4,
+          "top5_day_pct": null
+        },
+        "2026Q2": {
+          "n": 3,
+          "wr": 100.0,
+          "total_pnl": 395.0,
+          "per_trade": 131.6,
+          "top5_day_pct": 100.0
+        }
+      },
+      "positive_quarters": "3/6",
+      "top5_day_pct": null,
+      "op20_clears": false,
+      "fail_reasons": [
+        "OOS per-trade -108.4 <= 0",
+        "positive_quarters 3/6 < 4",
+        "top5_day_pct None not < 200.0"
+      ]
+    }
+  ],
+  "headline_cell": {
+    "config": "ATM/8pct",
+    "strike_offset": 0,
+    "premium_stop_pct": -0.08,
+    "n_trades": 53,
+    "n_no_opra_data": 12,
+    "overall": {
+      "n": 53,
+      "wr": 22.6,
+      "total_pnl": 965.0,
+      "per_trade": 18.2,
+      "top5_day_pct": 185.0
+    },
+    "overall_per_trade": 18.2,
+    "IS_2025": {
+      "n": 44,
+      "wr": 25.0,
+      "total_pnl": 927.0,
+      "per_trade": 21.1,
+      "top5_day_pct": 168.0
+    },
+    "OOS_2026": {
+      "n": 9,
+      "wr": 11.1,
+      "total_pnl": 38.0,
+      "per_trade": 4.2,
+      "top5_day_pct": 653.0
+    },
+    "oos_per_trade": 4.24,
+    "by_quarter": {
+      "2025Q1": {
+        "n": 7,
+        "wr": 28.6,
+        "total_pnl": 81.0,
+        "per_trade": 11.6,
+        "top5_day_pct": 254.0
+      },
+      "2025Q2": {
+        "n": 12,
+        "wr": 16.7,
+        "total_pnl": 198.0,
+        "per_trade": 16.5,
+        "top5_day_pct": 269.0
+      },
+      "2025Q3": {
+        "n": 14,
+        "wr": 14.3,
+        "total_pnl": 122.0,
+        "per_trade": 8.7,
+        "top5_day_pct": 302.0
+      },
+      "2025Q4": {
+        "n": 11,
+        "wr": 45.5,
+        "total_pnl": 525.0,
+        "per_trade": 47.8,
+        "top5_day_pct": 139.0
+      },
+      "2026Q1": {
+        "n": 5,
+        "wr": 20.0,
+        "total_pnl": 191.0,
+        "per_trade": 38.2,
+        "top5_day_pct": 100.0
+      },
+      "2026Q2": {
+        "n": 4,
+        "wr": 0.0,
+        "total_pnl": -153.0,
+        "per_trade": -38.2,
+        "top5_day_pct": null
+      }
+    },
+    "positive_quarters": "5/6",
+    "top5_day_pct": 185.0,
+    "op20_clears": true,
+    "fail_reasons": []
+  },
+  "fraud_gates_verify": {
+    "passes": false,
+    "no_truncation_pass": false,
+    "null_pass": false,
+    "is_truncation_artifact": true,
+    "chosen_per_trade": 18.21,
+    "chart_stop_only_per_trade": -4.49,
+    "chosen_premium_stop_pct": -0.08,
+    "n_chosen": 53,
+    "n_chart_stop_only": 53,
+    "null": {
+      "seeds": 20,
+      "n_eligible": 24575,
+      "n_drawn": 53,
+      "per_trade_mean": 2.46,
+      "per_trade_min": -8.41,
+      "per_trade_max": 13.64,
+      "per_trade_by_seed": [
+        6.52,
+        4.91,
+        -3.31,
+        0.83,
+        12.63,
+        8.48,
+        -7.2,
+        4.17,
+        10.04,
+        10.7,
+        -5.39,
+        2.24,
+        3.63,
+        -2.01,
+        -6.02,
+        -6.09,
+        4.98,
+        13.64,
+        4.85,
+        -8.41
+      ]
+    },
+    "null_gate": {
+      "beats_null_mean": true,
+      "beats_null_max": true,
+      "drop_top5_beats_null_mean": false,
+      "edge_over_null_per_trade": 15.75,
+      "null_pass": false
+    },
+    "reason": "TRUNCATION ARTIFACT: +$18.21433962264153/tr at stop=-0.08 inverts to $-4.49056603773583/tr at chart-stop-only (-0.99) -> the tight stop, not the signal, is the edge (L171) | RANDOM-NULL FAIL: $18.21433962264153/tr vs null max $13.64 mean $2.46 (drop-top5 $-17.017499999999984) -> a coin-flip entry reproduces it; the edge is the exit bracket (L172)",
+    "error": null
+  },
+  "eight_gates": {
+    "1_oos_positive": true,
+    "2_pos_quarters_ge_4of6": true,
+    "3_top5_day_pct_lt_200": true,
+    "4_n_trades_ge_20": true,
+    "5_no_truncation": false,
+    "6_beats_null": false,
+    "7_no_opra_truncation": true,
+    "8_not_truncation_artifact": false
+  },
+  "n_gates_passed": 5,
+  "all_eight_pass": false,
+  "verdict_label": "LEAD",
+  "death_cause": "fails RANDOM-NULL \u2014 a coin-flip morning entry on the same exit bracket reproduces it; the 'edge' is the v15 exit, not the compression+ORB signal (L172)",
+  "honest_verdict": "LEAD \u2014 NR7/Inside-Day compression -> ORB expansion FAILS the 8-gate bar (5/8 pass) on headline ATM/8pct. DEATH CAUSE: fails RANDOM-NULL \u2014 a coin-flip morning entry on the same exit bracket reproduces it; the 'edge' is the v15 exit, not the compression+ORB signal (L172). Headline: OOS/tr=$4.24, posQ=5/6, top5=185.0%, N=53; fraud_gates: no_trunc=False, beats_null=False. The prior-day-compression gate does NOT make ORB a real option edge \u2014 same fate as the generic ORB / ORB+RVOL we killed (C3/L58: SPY-breakout direction != 0DTE option edge).",
+  "OP20_DISCLOSURE": {
+    "per_trade": "per-trade EXPECTANCY reported for every cell, not WR alone (OP-14)",
+    "is_oos": "IS=2025 / OOS=2026; gate keys off OOS per-trade",
+    "positive_quarters": "out of quarters in window; gate requires >=4/6",
+    "top5_day_pct": "top-5 winning DAYS as % of total P&L; gate <200%",
+    "spy_vs_option": "this is the option-edge test, not a SPY-price test (C3/L58)",
+    "fraud_gates": "verify_candidate runs 20-seed random-entry null + no-truncation (L171/L172)",
+    "already_tested_distinction": "generic ORB + ORB+RVOL(H3) already KILLED; the ONLY new thing here is the prior-day NR7/Inside-Day compression gate"
+  }
+}

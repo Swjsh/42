@@ -1,111 +1,116 @@
 {
-  "date": "2026-06-19",
-  "bias": "no-trade",
-  "no_trade_reason": "market_holiday_juneteenth",
-  "bias_note": "JUNETEENTH NATIONAL INDEPENDENCE DAY \u2014 US equity markets closed. NYSE/Alpaca next_open: 2026-06-22T09:30:00-04:00 (Monday). No trades today. Circuit breakers re-armed with live equity. Loop states reset (first_entry_lock cleared). Carry levels (748.00, 745.33) expire 2026-06-20 \u2014 Monday premarket must draw fresh levels for Monday session.",
+  "date": "2026-06-26",
+  "bias": "bearish",
+  "bias_note": "SPY at 729.51 (08:40 ET premarket) is ~$2.50 below prior close (~732) with all ribbon EMAs overhead (729.85-729.98). PMH 732.62 set at 04:00 ET then sold off all premarket to PML 728.50. All key levels (734.97, 743.35, 745.33) are overhead resistance. VIX 20.02 is above bull hard-cap 18.0 — calls mechanically BLOCKED. Bear entries eligible. Setup OP-16: BEARISH_REJECTION_RIDE_THE_RIBBON only. SWARM_CONTEXT_UNAVAILABLE (22h stale). No macro events today (calendar 12d stale; PCE was yesterday). Quarter-end week (Q2 ends Tue June 30).",
   "key_levels": {
     "resistance": [
-      {
-        "price": 750.0,
-        "label": "ROUND_750",
-        "tier": "Reference",
-        "note": "Psychological \u2014 valid thru 2026-08-15"
-      },
-      {
-        "price": 748.0,
-        "label": "PML_2026-06-15_CARRY",
-        "tier": "Carry",
-        "note": "Expires 2026-06-20 \u2014 needs Monday refresh"
-      }
+      { "price": 732.62, "label": "PMH_2026-06-26", "tier": "Active", "role": "resistance" },
+      { "price": 734.97, "label": "PRIOR_CLOSE_2026-06-23", "tier": "Reference", "role": "broken_to_resistance", "note": "expires today EOD" },
+      { "price": 743.35, "label": "DOUBLE_BOTTOM_RTH_LOW_6-18_6-22", "tier": "Carry", "role": "broken_to_resistance" },
+      { "price": 745.33, "label": "CARRY_SESSION_HIGH_2026-06-08", "tier": "Active", "role": "broken_to_resistance", "note": "expires today EOD" },
+      { "price": 752.09, "label": "BATTLE_PMH_2026-06-15", "tier": "Reference", "role": null }
     ],
     "support": [
-      {
-        "price": 745.33,
-        "label": "CARRY_SESSION_HIGH_2026-06-08",
-        "tier": "Carry",
-        "note": "Expires 2026-06-20 \u2014 needs Monday refresh"
-      }
+      { "price": 728.50, "label": "PML_2026-06-26", "tier": "Active", "role": "support" }
     ],
-    "ema_fast": 751.09,
-    "ema_pivot": 751.3,
-    "ema_slow": 751.94,
-    "sma_50": 752.12,
-    "ema_read_failed": true,
-    "ema_read_note": "Holiday \u2014 no chart pull performed"
+    "ema_fast": 729.98,
+    "ema_pivot": 729.85,
+    "ema_slow": 729.91,
+    "sma_50": 729.65,
+    "ribbon_spread_cents": 13,
+    "ribbon_stack": "mixed",
+    "price_vs_ribbon": "below_all_emas",
+    "ema_read_failed": false
   },
   "falsifiable_predictions": [
     {
-      "claim": "NO_TRADE_DAY \u2014 Juneteenth national holiday. Market closed.",
-      "trigger_window": "n/a",
-      "invalidation": "n/a",
-      "confidence": 1.0,
+      "claim": "SPY will test today's PML of 728.50 within the first 60 minutes of RTH (by 10:30 ET)",
+      "trigger_window": "09:30-10:30 ET",
+      "invalidation": "SPY closes a 5m bar above 732.00 by 10:30 ET without testing 728.50",
+      "confidence": 0.60,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": null
+    },
+    {
+      "claim": "First RTH bounce fails at or below 734.97 — overhead broken-to-resistance",
+      "trigger_window": "09:35-12:00 ET",
+      "invalidation": "SPY closes a 5m bar above 735.50 by 12:00 ET",
+      "confidence": 0.55,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": null
+    },
+    {
+      "claim": "Ribbon stays bear-biased (SPY price below all three EMAs) through the 10:05 ET 5m bar close",
+      "trigger_window": "09:35-10:05 ET",
+      "invalidation": "Fast EMA crosses above Slow EMA AND SPY closes above 731.00 on any 5m bar by 10:05 ET",
+      "confidence": 0.65,
       "specificity": 1.0,
       "novelty": "fresh",
       "outcome": null
     }
   ],
-  "falsifiable_hypothesis": "NO_TRADE_DAY \u2014 Juneteenth holiday 2026-06-19. Market closed.",
-  "vix_at_open": null,
-  "vix_prior": 16.72,
-  "vix_bias": "n/a",
-  "iv_regime": "n/a",
-  "iv_source": "n/a",
-  "iv_value": null,
-  "session_window": {
-    "open_et": "CLOSED",
-    "close_et": "CLOSED",
-    "next_open": "2026-06-22T09:30:00-04:00"
+  "falsifiable_hypothesis": {
+    "claim": "SPY will test today's PML of 728.50 within the first 60 minutes of RTH (by 10:30 ET)",
+    "trigger_window": "09:30-10:30 ET",
+    "invalidation": "SPY closes a 5m bar above 732.00 by 10:30 ET without testing 728.50",
+    "confidence": 0.60,
+    "specificity": 1.0,
+    "novelty": "fresh",
+    "outcome": null
   },
+  "vix_at_open": 20.02,
+  "vix_bias": "bear_zone",
+  "iv_regime": "MID",
+  "iv_source": "vix_proxy",
+  "iv_value": 20.02,
+  "vix_vs_gates": {
+    "bull_hard_cap": 18.0,
+    "calls_blocked_by_vix": true,
+    "bear_hard_cap": 23.0,
+    "bears_blocked_by_vix": false,
+    "note": "VIX 20.02 > bull_hard_cap 18.0 → CALL entries blocked. VIX 20.02 < bear_hard_cap 23.0 → bear entries eligible."
+  },
+  "session_window": { "open_et": "09:30", "close_et": "16:00" },
   "news_calendar": {
     "events_today": [],
     "no_trade_window": [],
     "size_modifier_windows": [],
-    "catalyst_narrative": {
-      "stale": false,
-      "note": "Holiday \u2014 no RTH events. Next event: PCE 2026-06-25 08:30 ET (high severity)."
-    },
-    "stale": false,
-    "calendar_freshness_days": 5
+    "catalyst_narrative": { "stale": true, "note": "No events today. PCE was yesterday June 25. Calendar 12d stale (threshold 7d). Q2 ends Tue June 30." },
+    "stale": true,
+    "calendar_freshness_days": 12
   },
-  "gates_passed": {
-    "tv_connected": true,
-    "cdp_connected": true,
-    "market_open_today": false,
-    "no_trade_reason": "market_holiday_juneteenth",
-    "safe_flat": true,
-    "bold_flat": true,
-    "rule_version_match": "v15.3 OK",
-    "SAFE_EQUITY_BOD_PENDING": false,
-    "DRIFT_GATE_NO_DATA": "backtest-drift.json dated 2026-05-18 (>48h old) \u2014 no block, continue",
-    "swarm_context": "SWARM_CONTEXT_UNAVAILABLE_stale_22h",
-    "macro_calendar_freshness_days": 5
+  "swarm_context": {
+    "status": "SWARM_CONTEXT_UNAVAILABLE",
+    "reason": "swarm_output.json generated 2026-06-25T14:18 UTC (~22h ago) — exceeds 6h threshold",
+    "consensus_bias": null,
+    "swarm_confidence": null,
+    "agreement_with_premarket": null
   },
-  "daily_loss_budget_dollars": null,
-  "day_trades_remaining": null,
+  "prior_day_close": 732.13,
+  "prior_day_high": null,
+  "prior_day_low": null,
+  "premarket_high": 732.62,
+  "premarket_low": 728.50,
+  "gap_dollars": -2.62,
+  "gap_direction": "down",
+  "current_price_premarket": 729.51,
+  "daily_loss_budget_dollars": 600.0,
+  "day_trades_remaining": 3,
   "safe_equity_confirmed": 2000.0,
   "bold_equity": 1648.75,
-  "swarm_context": {
-    "consensus_bias": "no_trade",
-    "swarm_confidence": 0,
-    "consensus_strength": "split",
-    "dissent_flag": {
-      "active": true,
-      "dissenting_agents": [
-        "macro",
-        "level_thesis",
-        "technical",
-        "internals"
-      ],
-      "reason": "4-way core split \u2014 stale 22h"
-    },
-    "battle_level_price": 752.09,
-    "top_invalidation_scenario": "SPY reclaims 752.09 on 5-minute close \u2014 bullish breakout invalidates no_trade thesis",
-    "synthesis_narrative": "STALE (generated 2026-06-18T10:20Z). Split no_trade: macro bullish (overnight gap), tech/internals no_trade, level_thesis bearish at 752.09. Valid context for Monday open \u2014 key watch: 752.09 battle.",
-    "swarm_predictions": [],
-    "agreement_with_premarket": "agree",
-    "stale": true,
-    "generated_at": "2026-06-18T10:20:29Z"
+  "prior_day_review_hint": "EOD NOOP — flat into close",
+  "gates_passed": {
+    "tv_connected": true,
+    "market_open_today": true,
+    "safe_flat": true,
+    "bold_flat": true,
+    "rule_version_pin": "OK_v15.3",
+    "SAFE_EQUITY_BOD_PENDING": false,
+    "drift_gate": "DRIFT_GATE_NO_DATA_48H_STALE",
+    "MACRO_CALENDAR_STALE": "12 days — journal warned",
+    "SWARM_CONTEXT_UNAVAILABLE": true
   },
-  "prior_day_review_hint": "EOD NOOP \u2014 flat into close",
-  "updated_at": "2026-06-19T08:30:32-04:00"
+  "updated_at": "2026-06-26T08:40:00-04:00"
 }

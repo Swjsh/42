@@ -1,0 +1,1409 @@
+{
+  "campaign": "DTE x STOP-CONSTRUCTION MATRIX \u2014 edge #1 vwap_continuation (real DTE OPRA fills)",
+  "purpose": "does a dollar-/percent-scaled-/chart-stop turn the 1-2DTE +$/tr theta lift into a CLEAN win by killing the -8%-percent-stop maxDD-doubling? Test the DTE x STOP matrix, not stops in isolation.",
+  "run_date": "2026-06-21",
+  "family": "momentum_morning",
+  "tier": "ITM-2",
+  "tier_offset": -2,
+  "window": "2025-01-02..2026-06-16",
+  "n_signals": 183,
+  "calibration": {
+    "tier_offset": -2,
+    "dollar_thresh": 59.28,
+    "n_0dte_losers": 141,
+    "median_0dte_entry_premium": 2.42,
+    "median_dte_entry_premium": {
+      "0": 2.42,
+      "1": 3.72,
+      "2": 4.57
+    },
+    "percent_scaled_pct": {
+      "0": -0.08,
+      "1": -0.052,
+      "2": -0.0424
+    }
+  },
+  "0dte_8pct_baseline": {
+    "book": {
+      "n": 176,
+      "exp_per_trade": -13.43,
+      "total": -2363.22,
+      "sharpe_per_trade": -0.1257,
+      "worst_trade": -130.56,
+      "book_maxDD": -2744.7,
+      "book_worst_day": -130.56,
+      "book_sortino_ann": -3.724,
+      "book_sharpe_ann": -1.995
+    },
+    "oos_total": -586.86
+  },
+  "constructions": {
+    "a_percent_-8pct": "the live default; premium floor = entry*(1-0.08)",
+    "b_dollar_anchored": "per-trade dollar-loss cap = median 0DTE -8% loss ($59.28); SAME $ at every DTE",
+    "c_chart_level": "PRICE/level stop only (premium stop disabled); option retains value at the level bar",
+    "d_percent_scaled": "per-DTE pct so dollar-loss == 0DTE dollar-loss: -8% * (median_0dte_prem / median_dte_prem)"
+  },
+  "clean_win_bar": "DTE>0 cell that (1) keeps materially MORE OOS dollars than the 0DTE -8% baseline at the same tier, (2) maxDD not materially worse than 0DTE -8% (<=+25%), (3) book Sortino >= 0DTE -8% baseline, (4) clears the structural+L173 bar, (5) worst day inside the Bold kill switch ($-835.0)",
+  "kill_switch": {
+    "safe": -600.0,
+    "bold": -835.0
+  },
+  "maxdd_material_worsen_threshold": 0.25,
+  "matrix": {
+    "a_percent_-8pct": {
+      "construction": "percent",
+      "by_dte": {
+        "0": {
+          "stop_param": -0.08,
+          "coverage": {
+            "signals": 183,
+            "filled": 176,
+            "cache_miss": 7,
+            "no_expiry_listed": 0,
+            "sim_none": 0,
+            "fill_rate": 0.962
+          },
+          "metrics": {
+            "n": 176,
+            "wr_pct": 19.9,
+            "exp_dollar": -13.43,
+            "total_dollar": -2363.22,
+            "std_dollar": 106.86,
+            "risk_adj_exp": -0.1257,
+            "is_n": 118,
+            "is_exp": -15.05,
+            "is_total": -1776.36,
+            "oos_n": 58,
+            "oos_exp": -10.12,
+            "oos_total": -586.86,
+            "drop_top5_full": -23.38,
+            "oos_drop_top5": -32.49,
+            "oos_drop_top5_evaluable": true,
+            "is_first_half_exp": -15.31,
+            "gap_contribution_dollar": 0.0,
+            "quarters": {
+              "2025Q1": {
+                "n": 29,
+                "exp": -24.65,
+                "total": -714.9
+              },
+              "2025Q2": {
+                "n": 33,
+                "exp": -7.11,
+                "total": -234.6
+              },
+              "2025Q3": {
+                "n": 21,
+                "exp": -28.58,
+                "total": -600.18
+              },
+              "2025Q4": {
+                "n": 35,
+                "exp": -6.48,
+                "total": -226.68
+              },
+              "2026Q1": {
+                "n": 34,
+                "exp": -19.58,
+                "total": -665.7
+              },
+              "2026Q2": {
+                "n": 24,
+                "exp": 3.29,
+                "total": 78.84
+              }
+            },
+            "positive_quarters": "1/6",
+            "positive_quarters_n": 1,
+            "n_quarters": 6,
+            "top5_day_pct": null,
+            "overnight": {
+              "held_overnight_n": 0,
+              "held_overnight_pct": 0.0,
+              "gap_through_stop_n": 0,
+              "expiry_settlement_n": 0,
+              "mean_gap_pts_favor": 0.0
+            },
+            "exit_hist": {
+              "PREMIUM_STOP": 141,
+              "TP1_PREMIUM": 35
+            }
+          },
+          "book": {
+            "n": 176,
+            "exp_per_trade": -13.43,
+            "total": -2363.22,
+            "sharpe_per_trade": -0.1257,
+            "worst_trade": -130.56,
+            "book_maxDD": -2744.7,
+            "book_worst_day": -130.56,
+            "book_sortino_ann": -3.724,
+            "book_sharpe_ann": -1.995
+          },
+          "oos_total": -586.86,
+          "structural_bar_pass": false,
+          "structural_bar_fails": [
+            "oos_exp=-10.12<=0",
+            "pos_q=1/6<4",
+            "top5_day_pct=None",
+            "drop_top5_full=-23.38<=0",
+            "is_first_half=-15.31<=0",
+            "oos_drop_top5=-32.49<=0(L173)"
+          ],
+          "clean_win_legs": {
+            "vs_0dte_8pct_baseline": true,
+            "oos_lift_kept": false,
+            "oos_total_vs_base": 0.0,
+            "maxdd_worsen_frac": 0.0,
+            "maxdd_not_materially_worse": true,
+            "sortino_holds": true,
+            "structural_bar_pass": false,
+            "worst_day_inside_bold_killswitch": true,
+            "worst_day_inside_safe_killswitch": true,
+            "CLEAN_WIN": false
+          }
+        },
+        "1": {
+          "stop_param": -0.08,
+          "coverage": {
+            "signals": 183,
+            "filled": 181,
+            "cache_miss": 2,
+            "no_expiry_listed": 0,
+            "sim_none": 0,
+            "fill_rate": 0.989
+          },
+          "metrics": {
+            "n": 181,
+            "wr_pct": 20.4,
+            "exp_dollar": -6.32,
+            "total_dollar": -1144.23,
+            "std_dollar": 236.64,
+            "risk_adj_exp": -0.0267,
+            "is_n": 122,
+            "is_exp": -30.66,
+            "is_total": -3741.0,
+            "oos_n": 59,
+            "oos_exp": 44.01,
+            "oos_total": 2596.77,
+            "drop_top5_full": -32.99,
+            "oos_drop_top5": -22.66,
+            "oos_drop_top5_evaluable": true,
+            "is_first_half_exp": -38.87,
+            "gap_contribution_dollar": 550.5,
+            "quarters": {
+              "2025Q1": {
+                "n": 31,
+                "exp": -40.92,
+                "total": -1268.64
+              },
+              "2025Q2": {
+                "n": 35,
+                "exp": -37.04,
+                "total": -1296.48
+              },
+              "2025Q3": {
+                "n": 21,
+                "exp": -70.56,
+                "total": -1481.76
+              },
+              "2025Q4": {
+                "n": 35,
+                "exp": 8.74,
+                "total": 305.88
+              },
+              "2026Q1": {
+                "n": 34,
+                "exp": 73.8,
+                "total": 2509.08
+              },
+              "2026Q2": {
+                "n": 25,
+                "exp": 3.51,
+                "total": 87.69
+              }
+            },
+            "positive_quarters": "3/6",
+            "positive_quarters_n": 3,
+            "n_quarters": 6,
+            "top5_day_pct": null,
+            "overnight": {
+              "held_overnight_n": 4,
+              "held_overnight_pct": 2.2,
+              "gap_through_stop_n": 0,
+              "expiry_settlement_n": 4,
+              "mean_gap_pts_favor": 0.459
+            },
+            "exit_hist": {
+              "EXPIRY_SETTLEMENT": 4,
+              "PREMIUM_STOP": 142,
+              "TP1_PREMIUM": 35
+            }
+          },
+          "book": {
+            "n": 181,
+            "exp_per_trade": -6.32,
+            "total": -1144.23,
+            "sharpe_per_trade": -0.0267,
+            "worst_trade": -876.0,
+            "book_maxDD": -4432.74,
+            "book_worst_day": -876.0,
+            "book_sortino_ann": -0.905,
+            "book_sharpe_ann": -0.424
+          },
+          "oos_total": 2596.77,
+          "structural_bar_pass": false,
+          "structural_bar_fails": [
+            "pos_q=3/6<4",
+            "top5_day_pct=None",
+            "drop_top5_full=-32.99<=0",
+            "is_first_half=-38.87<=0",
+            "oos_drop_top5=-22.66<=0(L173)"
+          ],
+          "clean_win_legs": {
+            "vs_0dte_8pct_baseline": true,
+            "oos_lift_kept": true,
+            "oos_total_vs_base": 3183.63,
+            "maxdd_worsen_frac": 0.615,
+            "maxdd_not_materially_worse": false,
+            "sortino_holds": true,
+            "structural_bar_pass": false,
+            "worst_day_inside_bold_killswitch": false,
+            "worst_day_inside_safe_killswitch": false,
+            "CLEAN_WIN": false
+          }
+        },
+        "2": {
+          "stop_param": -0.08,
+          "coverage": {
+            "signals": 183,
+            "filled": 181,
+            "cache_miss": 2,
+            "no_expiry_listed": 0,
+            "sim_none": 0,
+            "fill_rate": 0.989
+          },
+          "metrics": {
+            "n": 181,
+            "wr_pct": 21.0,
+            "exp_dollar": -18.28,
+            "total_dollar": -3308.52,
+            "std_dollar": 430.16,
+            "risk_adj_exp": -0.0425,
+            "is_n": 122,
+            "is_exp": -4.8,
+            "is_total": -585.54,
+            "oos_n": 59,
+            "oos_exp": -46.15,
+            "oos_total": -2722.98,
+            "drop_top5_full": -63.54,
+            "oos_drop_top5": -103.53,
+            "oos_drop_top5_evaluable": true,
+            "is_first_half_exp": -51.6,
+            "gap_contribution_dollar": 9026.7,
+            "quarters": {
+              "2025Q1": {
+                "n": 31,
+                "exp": -31.05,
+                "total": -962.7
+              },
+              "2025Q2": {
+                "n": 35,
+                "exp": -69.79,
+                "total": -2442.66
+              },
+              "2025Q3": {
+                "n": 21,
+                "exp": -7.4,
+                "total": -155.4
+              },
+              "2025Q4": {
+                "n": 35,
+                "exp": 85.01,
+                "total": 2975.22
+              },
+              "2026Q1": {
+                "n": 34,
+                "exp": 23.79,
+                "total": 808.86
+              },
+              "2026Q2": {
+                "n": 25,
+                "exp": -141.27,
+                "total": -3531.84
+              }
+            },
+            "positive_quarters": "2/6",
+            "positive_quarters_n": 2,
+            "n_quarters": 6,
+            "top5_day_pct": null,
+            "overnight": {
+              "held_overnight_n": 18,
+              "held_overnight_pct": 9.9,
+              "gap_through_stop_n": 3,
+              "expiry_settlement_n": 15,
+              "mean_gap_pts_favor": 1.672
+            },
+            "exit_hist": {
+              "EXPIRY_SETTLEMENT": 15,
+              "GAP_THROUGH_STOP": 3,
+              "PREMIUM_STOP": 136,
+              "TP1_PREMIUM": 27
+            }
+          },
+          "book": {
+            "n": 181,
+            "exp_per_trade": -18.28,
+            "total": -3308.52,
+            "sharpe_per_trade": -0.0425,
+            "worst_trade": -1515.0,
+            "book_maxDD": -5536.08,
+            "book_worst_day": -1515.0,
+            "book_sortino_ann": -1.19,
+            "book_sharpe_ann": -0.675
+          },
+          "oos_total": -2722.98,
+          "structural_bar_pass": false,
+          "structural_bar_fails": [
+            "oos_exp=-46.15<=0",
+            "pos_q=2/6<4",
+            "top5_day_pct=None",
+            "drop_top5_full=-63.54<=0",
+            "is_first_half=-51.6<=0",
+            "oos_drop_top5=-103.53<=0(L173)"
+          ],
+          "clean_win_legs": {
+            "vs_0dte_8pct_baseline": true,
+            "oos_lift_kept": false,
+            "oos_total_vs_base": -2136.12,
+            "maxdd_worsen_frac": 1.017,
+            "maxdd_not_materially_worse": false,
+            "sortino_holds": true,
+            "structural_bar_pass": false,
+            "worst_day_inside_bold_killswitch": false,
+            "worst_day_inside_safe_killswitch": false,
+            "CLEAN_WIN": false
+          }
+        }
+      }
+    },
+    "b_dollar_anchored": {
+      "construction": "dollar",
+      "by_dte": {
+        "0": {
+          "stop_param": 59.28,
+          "coverage": {
+            "signals": 183,
+            "filled": 176,
+            "cache_miss": 7,
+            "no_expiry_listed": 0,
+            "sim_none": 0,
+            "fill_rate": 0.962
+          },
+          "metrics": {
+            "n": 176,
+            "wr_pct": 23.3,
+            "exp_dollar": -6.42,
+            "total_dollar": -1129.5,
+            "std_dollar": 106.83,
+            "risk_adj_exp": -0.0601,
+            "is_n": 118,
+            "is_exp": -8.65,
+            "is_total": -1021.14,
+            "oos_n": 58,
+            "oos_exp": -1.87,
+            "oos_total": -108.36,
+            "drop_top5_full": -16.16,
+            "oos_drop_top5": -23.46,
+            "oos_drop_top5_evaluable": true,
+            "is_first_half_exp": -9.22,
+            "gap_contribution_dollar": 0.0,
+            "quarters": {
+              "2025Q1": {
+                "n": 29,
+                "exp": -15.55,
+                "total": -450.96
+              },
+              "2025Q2": {
+                "n": 33,
+                "exp": -3.66,
+                "total": -120.84
+              },
+              "2025Q3": {
+                "n": 21,
+                "exp": -32.93,
+                "total": -691.62
+              },
+              "2025Q4": {
+                "n": 35,
+                "exp": 6.92,
+                "total": 242.28
+              },
+              "2026Q1": {
+                "n": 34,
+                "exp": -5.74,
+                "total": -195.12
+              },
+              "2026Q2": {
+                "n": 24,
+                "exp": 3.61,
+                "total": 86.76
+              }
+            },
+            "positive_quarters": "2/6",
+            "positive_quarters_n": 2,
+            "n_quarters": 6,
+            "top5_day_pct": null,
+            "overnight": {
+              "held_overnight_n": 0,
+              "held_overnight_pct": 0.0,
+              "gap_through_stop_n": 0,
+              "expiry_settlement_n": 0,
+              "mean_gap_pts_favor": 0.0
+            },
+            "exit_hist": {
+              "DOLLAR_STOP": 135,
+              "TP1_PREMIUM": 41
+            }
+          },
+          "book": {
+            "n": 176,
+            "exp_per_trade": -6.42,
+            "total": -1129.5,
+            "sharpe_per_trade": -0.0601,
+            "worst_trade": -59.28,
+            "book_maxDD": -1634.16,
+            "book_worst_day": -59.28,
+            "book_sortino_ann": -1.962,
+            "book_sharpe_ann": -0.954
+          },
+          "oos_total": -108.36,
+          "structural_bar_pass": false,
+          "structural_bar_fails": [
+            "oos_exp=-1.87<=0",
+            "pos_q=2/6<4",
+            "top5_day_pct=None",
+            "drop_top5_full=-16.16<=0",
+            "is_first_half=-9.22<=0",
+            "oos_drop_top5=-23.46<=0(L173)"
+          ],
+          "clean_win_legs": {
+            "vs_0dte_8pct_baseline": true,
+            "oos_lift_kept": true,
+            "oos_total_vs_base": 478.5,
+            "maxdd_worsen_frac": -0.4046,
+            "maxdd_not_materially_worse": true,
+            "sortino_holds": true,
+            "structural_bar_pass": false,
+            "worst_day_inside_bold_killswitch": true,
+            "worst_day_inside_safe_killswitch": true,
+            "CLEAN_WIN": false
+          }
+        },
+        "1": {
+          "stop_param": 59.28,
+          "coverage": {
+            "signals": 183,
+            "filled": 181,
+            "cache_miss": 2,
+            "no_expiry_listed": 0,
+            "sim_none": 0,
+            "fill_rate": 0.989
+          },
+          "metrics": {
+            "n": 181,
+            "wr_pct": 19.3,
+            "exp_dollar": 21.27,
+            "total_dollar": 3849.93,
+            "std_dollar": 209.49,
+            "risk_adj_exp": 0.1015,
+            "is_n": 122,
+            "is_exp": 1.91,
+            "is_total": 232.92,
+            "oos_n": 59,
+            "oos_exp": 61.31,
+            "oos_total": 3617.01,
+            "drop_top5_full": -4.21,
+            "oos_drop_top5": -1.25,
+            "oos_drop_top5_evaluable": true,
+            "is_first_half_exp": 2.89,
+            "gap_contribution_dollar": 1060.5,
+            "quarters": {
+              "2025Q1": {
+                "n": 31,
+                "exp": -2.34,
+                "total": -72.6
+              },
+              "2025Q2": {
+                "n": 35,
+                "exp": 7.52,
+                "total": 263.04
+              },
+              "2025Q3": {
+                "n": 21,
+                "exp": -34.43,
+                "total": -722.94
+              },
+              "2025Q4": {
+                "n": 35,
+                "exp": 21.87,
+                "total": 765.42
+              },
+              "2026Q1": {
+                "n": 34,
+                "exp": 81.42,
+                "total": 2768.28
+              },
+              "2026Q2": {
+                "n": 25,
+                "exp": 33.95,
+                "total": 848.73
+              }
+            },
+            "positive_quarters": "4/6",
+            "positive_quarters_n": 4,
+            "n_quarters": 6,
+            "top5_day_pct": 119.2,
+            "overnight": {
+              "held_overnight_n": 3,
+              "held_overnight_pct": 1.7,
+              "gap_through_stop_n": 0,
+              "expiry_settlement_n": 3,
+              "mean_gap_pts_favor": 1.178
+            },
+            "exit_hist": {
+              "DOLLAR_STOP": 145,
+              "EXPIRY_SETTLEMENT": 3,
+              "TP1_PREMIUM": 33
+            }
+          },
+          "book": {
+            "n": 181,
+            "exp_per_trade": 21.27,
+            "total": 3849.93,
+            "sharpe_per_trade": 0.1015,
+            "worst_trade": -159.0,
+            "book_maxDD": -2252.16,
+            "book_worst_day": -159.0,
+            "book_sortino_ann": 6.212,
+            "book_sharpe_ann": 1.612
+          },
+          "oos_total": 3617.01,
+          "structural_bar_pass": false,
+          "structural_bar_fails": [
+            "drop_top5_full=-4.21<=0",
+            "oos_drop_top5=-1.25<=0(L173)"
+          ],
+          "clean_win_legs": {
+            "vs_0dte_8pct_baseline": true,
+            "oos_lift_kept": true,
+            "oos_total_vs_base": 4203.87,
+            "maxdd_worsen_frac": -0.1795,
+            "maxdd_not_materially_worse": true,
+            "sortino_holds": true,
+            "structural_bar_pass": false,
+            "worst_day_inside_bold_killswitch": true,
+            "worst_day_inside_safe_killswitch": true,
+            "CLEAN_WIN": false
+          }
+        },
+        "2": {
+          "stop_param": 59.28,
+          "coverage": {
+            "signals": 183,
+            "filled": 181,
+            "cache_miss": 2,
+            "no_expiry_listed": 0,
+            "sim_none": 0,
+            "fill_rate": 0.989
+          },
+          "metrics": {
+            "n": 181,
+            "wr_pct": 17.1,
+            "exp_dollar": 0.78,
+            "total_dollar": 140.52,
+            "std_dollar": 246.85,
+            "risk_adj_exp": 0.0031,
+            "is_n": 122,
+            "is_exp": -10.46,
+            "is_total": -1276.5,
+            "oos_n": 59,
+            "oos_exp": 24.02,
+            "oos_total": 1417.02,
+            "drop_top5_full": -20.02,
+            "oos_drop_top5": -22.28,
+            "oos_drop_top5_evaluable": true,
+            "is_first_half_exp": 4.44,
+            "gap_contribution_dollar": 1933.2,
+            "quarters": {
+              "2025Q1": {
+                "n": 31,
+                "exp": 15.63,
+                "total": 484.5
+              },
+              "2025Q2": {
+                "n": 35,
+                "exp": -5.47,
+                "total": -191.34
+              },
+              "2025Q3": {
+                "n": 21,
+                "exp": -95.59,
+                "total": -2007.48
+              },
+              "2025Q4": {
+                "n": 35,
+                "exp": 12.51,
+                "total": 437.82
+              },
+              "2026Q1": {
+                "n": 34,
+                "exp": 44.97,
+                "total": 1528.98
+              },
+              "2026Q2": {
+                "n": 25,
+                "exp": -4.48,
+                "total": -111.96
+              }
+            },
+            "positive_quarters": "3/6",
+            "positive_quarters_n": 3,
+            "n_quarters": 6,
+            "top5_day_pct": 2607.8,
+            "overnight": {
+              "held_overnight_n": 10,
+              "held_overnight_pct": 5.5,
+              "gap_through_stop_n": 2,
+              "expiry_settlement_n": 8,
+              "mean_gap_pts_favor": 0.644
+            },
+            "exit_hist": {
+              "DOLLAR_STOP": 146,
+              "EXPIRY_SETTLEMENT": 8,
+              "GAP_THROUGH_STOP": 2,
+              "TP1_PREMIUM": 25
+            }
+          },
+          "book": {
+            "n": 181,
+            "exp_per_trade": 0.78,
+            "total": 140.52,
+            "sharpe_per_trade": 0.0031,
+            "worst_trade": -1176.0,
+            "book_maxDD": -4474.38,
+            "book_worst_day": -1176.0,
+            "book_sortino_ann": 0.079,
+            "book_sharpe_ann": 0.05
+          },
+          "oos_total": 1417.02,
+          "structural_bar_pass": false,
+          "structural_bar_fails": [
+            "pos_q=3/6<4",
+            "top5_day_pct=2607.8",
+            "drop_top5_full=-20.02<=0",
+            "oos_drop_top5=-22.28<=0(L173)"
+          ],
+          "clean_win_legs": {
+            "vs_0dte_8pct_baseline": true,
+            "oos_lift_kept": true,
+            "oos_total_vs_base": 2003.88,
+            "maxdd_worsen_frac": 0.6302,
+            "maxdd_not_materially_worse": false,
+            "sortino_holds": true,
+            "structural_bar_pass": false,
+            "worst_day_inside_bold_killswitch": false,
+            "worst_day_inside_safe_killswitch": false,
+            "CLEAN_WIN": false
+          }
+        }
+      }
+    },
+    "c_chart_level": {
+      "construction": "chart",
+      "by_dte": {
+        "0": {
+          "stop_param": 0.0,
+          "coverage": {
+            "signals": 183,
+            "filled": 176,
+            "cache_miss": 7,
+            "no_expiry_listed": 0,
+            "sim_none": 0,
+            "fill_rate": 0.962
+          },
+          "metrics": {
+            "n": 176,
+            "wr_pct": 69.3,
+            "exp_dollar": -6.98,
+            "total_dollar": -1229.0,
+            "std_dollar": 357.18,
+            "risk_adj_exp": -0.0196,
+            "is_n": 118,
+            "is_exp": 4.25,
+            "is_total": 501.51,
+            "oos_n": 58,
+            "oos_exp": -29.84,
+            "oos_total": -1730.51,
+            "drop_top5_full": -19.53,
+            "oos_drop_top5": -58.77,
+            "oos_drop_top5_evaluable": true,
+            "is_first_half_exp": 8.25,
+            "gap_contribution_dollar": 0.0,
+            "quarters": {
+              "2025Q1": {
+                "n": 29,
+                "exp": 41.89,
+                "total": 1214.7
+              },
+              "2025Q2": {
+                "n": 33,
+                "exp": -21.3,
+                "total": -702.9
+              },
+              "2025Q3": {
+                "n": 21,
+                "exp": 74.97,
+                "total": 1574.4
+              },
+              "2025Q4": {
+                "n": 35,
+                "exp": -45.28,
+                "total": -1584.69
+              },
+              "2026Q1": {
+                "n": 34,
+                "exp": -8.28,
+                "total": -281.4
+              },
+              "2026Q2": {
+                "n": 24,
+                "exp": -60.38,
+                "total": -1449.11
+              }
+            },
+            "positive_quarters": "2/6",
+            "positive_quarters_n": 2,
+            "n_quarters": 6,
+            "top5_day_pct": null,
+            "overnight": {
+              "held_overnight_n": 50,
+              "held_overnight_pct": 28.4,
+              "gap_through_stop_n": 0,
+              "expiry_settlement_n": 50,
+              "mean_gap_pts_favor": 0.0
+            },
+            "exit_hist": {
+              "EXPIRY_SETTLEMENT": 50,
+              "LEVEL_STOP": 7,
+              "PREMIUM_STOP": 3,
+              "TP1_PREMIUM": 116
+            }
+          },
+          "book": {
+            "n": 176,
+            "exp_per_trade": -6.98,
+            "total": -1229.0,
+            "sharpe_per_trade": -0.0196,
+            "worst_trade": -1384.02,
+            "book_maxDD": -5462.19,
+            "book_worst_day": -1384.02,
+            "book_sortino_ann": -0.36,
+            "book_sharpe_ann": -0.31
+          },
+          "oos_total": -1730.51,
+          "structural_bar_pass": false,
+          "structural_bar_fails": [
+            "oos_exp=-29.84<=0",
+            "pos_q=2/6<4",
+            "top5_day_pct=None",
+            "drop_top5_full=-19.53<=0",
+            "oos_drop_top5=-58.77<=0(L173)"
+          ],
+          "clean_win_legs": {
+            "vs_0dte_8pct_baseline": true,
+            "oos_lift_kept": false,
+            "oos_total_vs_base": -1143.65,
+            "maxdd_worsen_frac": 0.9901,
+            "maxdd_not_materially_worse": false,
+            "sortino_holds": true,
+            "structural_bar_pass": false,
+            "worst_day_inside_bold_killswitch": false,
+            "worst_day_inside_safe_killswitch": false,
+            "CLEAN_WIN": false
+          }
+        },
+        "1": {
+          "stop_param": 0.0,
+          "coverage": {
+            "signals": 183,
+            "filled": 181,
+            "cache_miss": 2,
+            "no_expiry_listed": 0,
+            "sim_none": 0,
+            "fill_rate": 0.989
+          },
+          "metrics": {
+            "n": 181,
+            "wr_pct": 54.7,
+            "exp_dollar": -128.51,
+            "total_dollar": -23260.45,
+            "std_dollar": 958.4,
+            "risk_adj_exp": -0.1341,
+            "is_n": 122,
+            "is_exp": -123.64,
+            "is_total": -15084.0,
+            "oos_n": 59,
+            "oos_exp": -138.58,
+            "oos_total": -8176.45,
+            "drop_top5_full": -220.18,
+            "oos_drop_top5": -303.59,
+            "oos_drop_top5_evaluable": true,
+            "is_first_half_exp": -140.1,
+            "gap_contribution_dollar": -15753.0,
+            "quarters": {
+              "2025Q1": {
+                "n": 31,
+                "exp": 116.25,
+                "total": 3603.9
+              },
+              "2025Q2": {
+                "n": 35,
+                "exp": -367.16,
+                "total": -12850.5
+              },
+              "2025Q3": {
+                "n": 21,
+                "exp": -313.91,
+                "total": -6592.2
+              },
+              "2025Q4": {
+                "n": 35,
+                "exp": 21.57,
+                "total": 754.8
+              },
+              "2026Q1": {
+                "n": 34,
+                "exp": -90.62,
+                "total": -3081.0
+              },
+              "2026Q2": {
+                "n": 25,
+                "exp": -203.82,
+                "total": -5095.45
+              }
+            },
+            "positive_quarters": "2/6",
+            "positive_quarters_n": 2,
+            "n_quarters": 6,
+            "top5_day_pct": null,
+            "overnight": {
+              "held_overnight_n": 102,
+              "held_overnight_pct": 56.4,
+              "gap_through_stop_n": 11,
+              "expiry_settlement_n": 91,
+              "mean_gap_pts_favor": -0.515
+            },
+            "exit_hist": {
+              "EXPIRY_SETTLEMENT": 91,
+              "GAP_THROUGH_STOP": 11,
+              "LEVEL_STOP": 8,
+              "TP1_PREMIUM": 71
+            }
+          },
+          "book": {
+            "n": 181,
+            "exp_per_trade": -128.51,
+            "total": -23260.45,
+            "sharpe_per_trade": -0.1341,
+            "worst_trade": -1899.0,
+            "book_maxDD": -27914.95,
+            "book_worst_day": -1899.0,
+            "book_sortino_ann": -2.892,
+            "book_sharpe_ann": -2.129
+          },
+          "oos_total": -8176.45,
+          "structural_bar_pass": false,
+          "structural_bar_fails": [
+            "oos_exp=-138.58<=0",
+            "pos_q=2/6<4",
+            "top5_day_pct=None",
+            "drop_top5_full=-220.18<=0",
+            "is_first_half=-140.1<=0",
+            "oos_drop_top5=-303.59<=0(L173)"
+          ],
+          "clean_win_legs": {
+            "vs_0dte_8pct_baseline": true,
+            "oos_lift_kept": false,
+            "oos_total_vs_base": -7589.59,
+            "maxdd_worsen_frac": 9.1705,
+            "maxdd_not_materially_worse": false,
+            "sortino_holds": true,
+            "structural_bar_pass": false,
+            "worst_day_inside_bold_killswitch": false,
+            "worst_day_inside_safe_killswitch": false,
+            "CLEAN_WIN": false
+          }
+        },
+        "2": {
+          "stop_param": 0.0,
+          "coverage": {
+            "signals": 183,
+            "filled": 181,
+            "cache_miss": 2,
+            "no_expiry_listed": 0,
+            "sim_none": 0,
+            "fill_rate": 0.989
+          },
+          "metrics": {
+            "n": 181,
+            "wr_pct": 49.2,
+            "exp_dollar": -215.09,
+            "total_dollar": -38931.61,
+            "std_dollar": 1277.4,
+            "risk_adj_exp": -0.1684,
+            "is_n": 122,
+            "is_exp": -146.89,
+            "is_total": -17921.1,
+            "oos_n": 59,
+            "oos_exp": -356.11,
+            "oos_total": -21010.51,
+            "drop_top5_full": -329.94,
+            "oos_drop_top5": -591.14,
+            "oos_drop_top5_evaluable": true,
+            "is_first_half_exp": -137.36,
+            "gap_contribution_dollar": -26256.3,
+            "quarters": {
+              "2025Q1": {
+                "n": 31,
+                "exp": -103.13,
+                "total": -3197.1
+              },
+              "2025Q2": {
+                "n": 35,
+                "exp": -167.68,
+                "total": -5868.9
+              },
+              "2025Q3": {
+                "n": 21,
+                "exp": -399.43,
+                "total": -8388.0
+              },
+              "2025Q4": {
+                "n": 35,
+                "exp": -13.35,
+                "total": -467.1
+              },
+              "2026Q1": {
+                "n": 34,
+                "exp": -436.35,
+                "total": -14835.9
+              },
+              "2026Q2": {
+                "n": 25,
+                "exp": -246.98,
+                "total": -6174.61
+              }
+            },
+            "positive_quarters": "0/6",
+            "positive_quarters_n": 0,
+            "n_quarters": 6,
+            "top5_day_pct": null,
+            "overnight": {
+              "held_overnight_n": 122,
+              "held_overnight_pct": 67.4,
+              "gap_through_stop_n": 33,
+              "expiry_settlement_n": 89,
+              "mean_gap_pts_favor": -0.717
+            },
+            "exit_hist": {
+              "EXPIRY_SETTLEMENT": 89,
+              "GAP_THROUGH_STOP": 33,
+              "LEVEL_STOP": 8,
+              "TP1_PREMIUM": 51
+            }
+          },
+          "book": {
+            "n": 181,
+            "exp_per_trade": -215.09,
+            "total": -38931.61,
+            "sharpe_per_trade": -0.1684,
+            "worst_trade": -2352.0,
+            "book_maxDD": -43162.8,
+            "book_worst_day": -2352.0,
+            "book_sortino_ann": -3.63,
+            "book_sharpe_ann": -2.673
+          },
+          "oos_total": -21010.51,
+          "structural_bar_pass": false,
+          "structural_bar_fails": [
+            "oos_exp=-356.11<=0",
+            "pos_q=0/6<4",
+            "top5_day_pct=None",
+            "drop_top5_full=-329.94<=0",
+            "is_first_half=-137.36<=0",
+            "oos_drop_top5=-591.14<=0(L173)"
+          ],
+          "clean_win_legs": {
+            "vs_0dte_8pct_baseline": true,
+            "oos_lift_kept": false,
+            "oos_total_vs_base": -20423.65,
+            "maxdd_worsen_frac": 14.7259,
+            "maxdd_not_materially_worse": false,
+            "sortino_holds": true,
+            "structural_bar_pass": false,
+            "worst_day_inside_bold_killswitch": false,
+            "worst_day_inside_safe_killswitch": false,
+            "CLEAN_WIN": false
+          }
+        }
+      }
+    },
+    "d_percent_scaled": {
+      "construction": "percent_scaled",
+      "by_dte": {
+        "0": {
+          "stop_param": -0.08,
+          "coverage": {
+            "signals": 183,
+            "filled": 176,
+            "cache_miss": 7,
+            "no_expiry_listed": 0,
+            "sim_none": 0,
+            "fill_rate": 0.962
+          },
+          "metrics": {
+            "n": 176,
+            "wr_pct": 19.9,
+            "exp_dollar": -13.43,
+            "total_dollar": -2363.22,
+            "std_dollar": 106.86,
+            "risk_adj_exp": -0.1257,
+            "is_n": 118,
+            "is_exp": -15.05,
+            "is_total": -1776.36,
+            "oos_n": 58,
+            "oos_exp": -10.12,
+            "oos_total": -586.86,
+            "drop_top5_full": -23.38,
+            "oos_drop_top5": -32.49,
+            "oos_drop_top5_evaluable": true,
+            "is_first_half_exp": -15.31,
+            "gap_contribution_dollar": 0.0,
+            "quarters": {
+              "2025Q1": {
+                "n": 29,
+                "exp": -24.65,
+                "total": -714.9
+              },
+              "2025Q2": {
+                "n": 33,
+                "exp": -7.11,
+                "total": -234.6
+              },
+              "2025Q3": {
+                "n": 21,
+                "exp": -28.58,
+                "total": -600.18
+              },
+              "2025Q4": {
+                "n": 35,
+                "exp": -6.48,
+                "total": -226.68
+              },
+              "2026Q1": {
+                "n": 34,
+                "exp": -19.58,
+                "total": -665.7
+              },
+              "2026Q2": {
+                "n": 24,
+                "exp": 3.29,
+                "total": 78.84
+              }
+            },
+            "positive_quarters": "1/6",
+            "positive_quarters_n": 1,
+            "n_quarters": 6,
+            "top5_day_pct": null,
+            "overnight": {
+              "held_overnight_n": 0,
+              "held_overnight_pct": 0.0,
+              "gap_through_stop_n": 0,
+              "expiry_settlement_n": 0,
+              "mean_gap_pts_favor": 0.0
+            },
+            "exit_hist": {
+              "PREMIUM_STOP": 141,
+              "TP1_PREMIUM": 35
+            }
+          },
+          "book": {
+            "n": 176,
+            "exp_per_trade": -13.43,
+            "total": -2363.22,
+            "sharpe_per_trade": -0.1257,
+            "worst_trade": -130.56,
+            "book_maxDD": -2744.7,
+            "book_worst_day": -130.56,
+            "book_sortino_ann": -3.724,
+            "book_sharpe_ann": -1.995
+          },
+          "oos_total": -586.86,
+          "structural_bar_pass": false,
+          "structural_bar_fails": [
+            "oos_exp=-10.12<=0",
+            "pos_q=1/6<4",
+            "top5_day_pct=None",
+            "drop_top5_full=-23.38<=0",
+            "is_first_half=-15.31<=0",
+            "oos_drop_top5=-32.49<=0(L173)"
+          ],
+          "clean_win_legs": {
+            "vs_0dte_8pct_baseline": true,
+            "oos_lift_kept": false,
+            "oos_total_vs_base": 0.0,
+            "maxdd_worsen_frac": 0.0,
+            "maxdd_not_materially_worse": true,
+            "sortino_holds": true,
+            "structural_bar_pass": false,
+            "worst_day_inside_bold_killswitch": true,
+            "worst_day_inside_safe_killswitch": true,
+            "CLEAN_WIN": false
+          }
+        },
+        "1": {
+          "stop_param": -0.052,
+          "coverage": {
+            "signals": 183,
+            "filled": 181,
+            "cache_miss": 2,
+            "no_expiry_listed": 0,
+            "sim_none": 0,
+            "fill_rate": 0.989
+          },
+          "metrics": {
+            "n": 181,
+            "wr_pct": 16.6,
+            "exp_dollar": 3.76,
+            "total_dollar": 679.68,
+            "std_dollar": 169.26,
+            "risk_adj_exp": 0.0222,
+            "is_n": 122,
+            "is_exp": -6.47,
+            "is_total": -789.33,
+            "oos_n": 59,
+            "oos_exp": 24.9,
+            "oos_total": 1469.01,
+            "drop_top5_full": -15.26,
+            "oos_drop_top5": -16.95,
+            "oos_drop_top5_evaluable": true,
+            "is_first_half_exp": -6.74,
+            "gap_contribution_dollar": 127.5,
+            "quarters": {
+              "2025Q1": {
+                "n": 31,
+                "exp": -11.56,
+                "total": -358.4
+              },
+              "2025Q2": {
+                "n": 35,
+                "exp": -2.48,
+                "total": -86.7
+              },
+              "2025Q3": {
+                "n": 21,
+                "exp": -39.37,
+                "total": -826.83
+              },
+              "2025Q4": {
+                "n": 35,
+                "exp": 13.79,
+                "total": 482.6
+              },
+              "2026Q1": {
+                "n": 34,
+                "exp": 20.59,
+                "total": 699.98
+              },
+              "2026Q2": {
+                "n": 25,
+                "exp": 30.76,
+                "total": 769.03
+              }
+            },
+            "positive_quarters": "3/6",
+            "positive_quarters_n": 3,
+            "n_quarters": 6,
+            "top5_day_pct": 495.1,
+            "overnight": {
+              "held_overnight_n": 2,
+              "held_overnight_pct": 1.1,
+              "gap_through_stop_n": 0,
+              "expiry_settlement_n": 2,
+              "mean_gap_pts_favor": 0.212
+            },
+            "exit_hist": {
+              "EXPIRY_SETTLEMENT": 2,
+              "PREMIUM_STOP": 150,
+              "TP1_PREMIUM": 29
+            }
+          },
+          "book": {
+            "n": 181,
+            "exp_per_trade": 3.76,
+            "total": 679.68,
+            "sharpe_per_trade": 0.0222,
+            "worst_trade": -159.0,
+            "book_maxDD": -2523.43,
+            "book_worst_day": -159.0,
+            "book_sortino_ann": 0.993,
+            "book_sharpe_ann": 0.352
+          },
+          "oos_total": 1469.01,
+          "structural_bar_pass": false,
+          "structural_bar_fails": [
+            "pos_q=3/6<4",
+            "top5_day_pct=495.1",
+            "drop_top5_full=-15.26<=0",
+            "is_first_half=-6.74<=0",
+            "oos_drop_top5=-16.95<=0(L173)"
+          ],
+          "clean_win_legs": {
+            "vs_0dte_8pct_baseline": true,
+            "oos_lift_kept": true,
+            "oos_total_vs_base": 2055.87,
+            "maxdd_worsen_frac": -0.0806,
+            "maxdd_not_materially_worse": true,
+            "sortino_holds": true,
+            "structural_bar_pass": false,
+            "worst_day_inside_bold_killswitch": true,
+            "worst_day_inside_safe_killswitch": true,
+            "CLEAN_WIN": false
+          }
+        },
+        "2": {
+          "stop_param": -0.0424,
+          "coverage": {
+            "signals": 183,
+            "filled": 181,
+            "cache_miss": 2,
+            "no_expiry_listed": 0,
+            "sim_none": 0,
+            "fill_rate": 0.989
+          },
+          "metrics": {
+            "n": 181,
+            "wr_pct": 17.1,
+            "exp_dollar": 5.99,
+            "total_dollar": 1083.85,
+            "std_dollar": 239.49,
+            "risk_adj_exp": 0.025,
+            "is_n": 122,
+            "is_exp": -6.73,
+            "is_total": -820.7,
+            "oos_n": 59,
+            "oos_exp": 32.28,
+            "oos_total": 1904.55,
+            "drop_top5_full": -15.25,
+            "oos_drop_top5": -17.83,
+            "oos_drop_top5_evaluable": true,
+            "is_first_half_exp": -7.24,
+            "gap_contribution_dollar": 1411.2,
+            "quarters": {
+              "2025Q1": {
+                "n": 31,
+                "exp": 5.14,
+                "total": 159.4
+              },
+              "2025Q2": {
+                "n": 35,
+                "exp": -18.21,
+                "total": -637.41
+              },
+              "2025Q3": {
+                "n": 21,
+                "exp": -37.98,
+                "total": -797.67
+              },
+              "2025Q4": {
+                "n": 35,
+                "exp": 13.0,
+                "total": 454.98
+              },
+              "2026Q1": {
+                "n": 34,
+                "exp": 62.64,
+                "total": 2129.87
+              },
+              "2026Q2": {
+                "n": 25,
+                "exp": -9.01,
+                "total": -225.32
+              }
+            },
+            "positive_quarters": "3/6",
+            "positive_quarters_n": 3,
+            "n_quarters": 6,
+            "top5_day_pct": 347.6,
+            "overnight": {
+              "held_overnight_n": 9,
+              "held_overnight_pct": 5.0,
+              "gap_through_stop_n": 2,
+              "expiry_settlement_n": 7,
+              "mean_gap_pts_favor": 0.523
+            },
+            "exit_hist": {
+              "EXPIRY_SETTLEMENT": 7,
+              "GAP_THROUGH_STOP": 2,
+              "PREMIUM_STOP": 147,
+              "TP1_PREMIUM": 25
+            }
+          },
+          "book": {
+            "n": 181,
+            "exp_per_trade": 5.99,
+            "total": 1083.85,
+            "sharpe_per_trade": 0.025,
+            "worst_trade": -1176.0,
+            "book_maxDD": -3418.5,
+            "book_worst_day": -1176.0,
+            "book_sortino_ann": 0.694,
+            "book_sharpe_ann": 0.397
+          },
+          "oos_total": 1904.55,
+          "structural_bar_pass": false,
+          "structural_bar_fails": [
+            "pos_q=3/6<4",
+            "top5_day_pct=347.6",
+            "drop_top5_full=-15.25<=0",
+            "is_first_half=-7.24<=0",
+            "oos_drop_top5=-17.83<=0(L173)"
+          ],
+          "clean_win_legs": {
+            "vs_0dte_8pct_baseline": true,
+            "oos_lift_kept": true,
+            "oos_total_vs_base": 2491.41,
+            "maxdd_worsen_frac": 0.2455,
+            "maxdd_not_materially_worse": true,
+            "sortino_holds": true,
+            "structural_bar_pass": false,
+            "worst_day_inside_bold_killswitch": false,
+            "worst_day_inside_safe_killswitch": false,
+            "CLEAN_WIN": false
+          }
+        }
+      }
+    }
+  },
+  "winners": [],
+  "verdict": "NO_CLEAN_WIN_-8pct_0DTE_REMAINS",
+  "DISCLOSURE": {
+    "fills": "real per-DTE OPRA day-T bars + honest overnight gap + expiry intrinsic settlement (no synthetic mid-life marks) \u2014 inherited byte-for-byte from _dte_expansion_sim.simulate_dte_trade; only the stop check is generalized.",
+    "detector": "BYTE-FOR-BYTE FAMILIES[family] (#1 = _edgehunt_vwap_continuation, the LIVE detector)",
+    "calibration_note": "dollar_thresh + percent_scaled pct are calibrated FROM the 0DTE -8% run at this tier, then frozen and applied at 1/2DTE \u2014 no per-DTE refit.",
+    "chart_stop_caveat": "chart-stop-only was BAD at 0DTE (recency stop-variant A/B: 8x deeper maxDD \u2014 the -8% truncation IS the 0DTE risk mgmt); it is tested here at 1-2DTE where the option retains value at a structural-stop exit. The matrix quantifies whether it transfers.",
+    "tighter_stop_caveat": "a tighter dollar/percent stop may stop out MORE often, cutting the lift (the diagonal failure). oos_total quantifies the NET, not just maxDD.",
+    "n_caveat": "DTE option cache covers a sub-window of the SPY history; per-DTE n is the fill_rate authority."
+  }
+}
