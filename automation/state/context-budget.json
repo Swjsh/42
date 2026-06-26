@@ -1,41 +1,39 @@
 {
-  "ts": "2026-06-25T22:10:05Z",
+  "ts": "2026-06-26T22:15:22Z",
   "file": "CLAUDE.md",
   "method": "tiktoken-cl100k",
-  "bytes": 33046,
-  "tokens": 9054,
+  "bytes": 28528,
+  "tokens": 7866,
   "budget": 8000,
-  "pct": 113,
-  "status": "RED",
+  "pct": 98,
+  "status": "YELLOW",
   "warn_pct": 95,
-  "integrity_ok": false,
-  "missing_pointers": [
-    "file://~/.claude/rules/common/debugging.md"
-  ],
+  "integrity_ok": true,
+  "missing_pointers": [],
   "top_sections": [
     {
       "title": "Operating principles",
-      "tokens": 3781
+      "tokens": 3341
     },
     {
       "title": "Tech stack",
-      "tokens": 868
+      "tokens": 734
     },
     {
       "title": "Account context",
       "tokens": 669
     },
     {
-      "title": "Debugging discipline \u2014 diagnose before you fix (anti",
-      "tokens": 486
-    },
-    {
       "title": "Session startup \u2014 autonomous",
-      "tokens": 474
+      "tokens": 380
     },
     {
-      "title": "Knowledge transfer",
-      "tokens": 439
+      "title": "The strategy",
+      "tokens": 355
+    },
+    {
+      "title": "The 10 rules",
+      "tokens": 346
     }
   ]
 }

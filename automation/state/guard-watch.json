@@ -1,13 +1,13 @@
 {
   "skill": "guard-runner",
   "status": "pass",
-  "edited_file": "C:/Users/jackw/Desktop/42/crypto/validators/v25_filter_gates.py",
-  "summary": "38 passed, 35 deselected in 2.88s",
-  "started_at": "2026-06-26T15:08:33",
-  "finished_at": "2026-06-26T15:08:37",
+  "edited_file": "C:/Users/jackw/Desktop/42/crypto/validators/v52_trendline_break.py",
+  "summary": "38 passed, 35 deselected in 2.67s",
+  "started_at": "2026-06-26T16:13:41",
+  "finished_at": "2026-06-26T16:13:44",
   "surfaced": false,
   "tail": [
     "......................................                                   [100%]",
-    "38 passed, 35 deselected in 2.88s"
+    "38 passed, 35 deselected in 2.67s"
   ]
 }

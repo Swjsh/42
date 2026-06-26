@@ -1,14 +1,13 @@
-<!-- Sonnet overseer 2026-06-26 16:03 ET -->
-- **STOP** calling `rank_contenders` again — the top-6 have been identical across 4+ consecutive cycles (edge=1692/1563, same params). The leaderboard is stable; re-ranking it produces zero new information.
+<!-- Sonnet overseer 2026-06-26 18:03 ET -->
+- **STOP repeating validate-top-contender** — it ran at least twice this week; skip any action whose title contains "validate", "top contender", or "survivor" until a new candidate clears the grinder.
+- **STOP pulling VIXCLS** — it was foraged twice today (1633 + 1713). If foraging again, pick a different series (e.g. `T10Y2Y` yield-curve spread, `DPCREDIT` Fed credit, or `SOFR`).
+- **STOP accepting degenerate output** — the grinder-analysis cook hallucinated a culinary report ("500 kg of ingredients", "Chef Nemo culinary expert"). Any output that does not mention SPY, 0DTE, bars, strikes, or P&L within the first 100 words is **VOID**; log it as `LOW_QUALITY` and re-dispatch to a different lane.
 
-- **STOP** any action whose output would be byte-identical to a previous cycle's output. Before picking an action, check the last 3 outputs; if the result would match, skip it and pick differently.
+**Next 4 actions (pick in order, skip if already done this session):**
 
-- **Action 1 — Critique the #1 survivor for deployment blockers.** Target: `OTM-2:LR0:mt1:stop-8:tp+150%:sell80%:fixed` (edge=1692, WF=1.98). Ask the free model: does `tp+150%` ever realize on a 0DTE OTM-2 in practice? Is `sell80%` compatible with `min_contracts=3`? Is WR=0.12 operationally viable (8-of-9 losers)? Output: a structured PASS/BLOCK verdict with the blocking reason named.
+1. **Rank** — read `analysis/recommendations/contender-rank-2026-06-26.json` and rank the listed candidates by `edge_capture` against the 771 J-edge floor; output a 5-row table with pass/fail.
+2. **Critique** — send `vwap_reclaim_failed_break` (dormant WP edge) to the critic lane: "Does its stop at −8% still realize before theta kills the position given current VIX ~14.8 regime?"
+3. **Ideate** — chef proposes ONE `vwap_continuation` variant gated on `rvol_floor ≥ 1.2` (relative volume at trigger bar); write backtest hypothesis card only, no code.
+4. **Forage** — pull `T10Y2Y` (yield curve) from FRED; one paragraph: does the current inversion/steepening favour momentum or mean-reversion 0DTE bias?
 
-- **Action 2 — Ideate one new vwap_continuation variant with an rvol-floor gate.** The live vwap_continuation edge (LIVE, ITM-2, exp=+$105/t) has no volume filter. Instruct the free model to propose ONE concrete parameter set: rvol threshold, bar-count lookback, and expected direction of WR change. Output <=200 words, no code.
-
-- **Action 3 — Forage a regime-context series.** Pull one free FRED series (e.g. `VIXCLS` or `SP500`) to check whether the current 10-day recency drawdown aligns with a known macro regime (post-FOMC drift, low-VIX chop). Output: a 3-sentence regime read + recommended hold/deploy stance for the dormant edges (vwap_reclaim_failed_break, vix_regime_dayside).
-
-- **Action 4 — Draft a real-fills A/B scorecard stub for the #1 survivor.** Write the `analysis/recommendations/` JSON scaffold (fields: rule_id, OOS_positive, WF, sub_window_stable, anchor_no_regression, evidence_n) so it is ready to fill when replay data arrives. Output: the JSON, nothing else.
-
-- **Rule:** Every output ≤400 words, structured (headers or bullets), no repeated content from prior cycles. If you cannot produce a non-duplicate output for your chosen action, pick a different action.
+**Output rule:** every response ≤ 400 words, must contain at least one concrete SPY/options data point, no repeated headers, no hallucinated domain content.

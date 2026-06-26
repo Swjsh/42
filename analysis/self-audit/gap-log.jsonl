@@ -1,0 +1,12 @@
+{"ts_et": "2026-06-26T18:14:02", "key": "e8472485334c", "gap": "Rule\u202f9", "new": true}
+{"ts_et": "2026-06-26T18:14:02", "key": "0a094e467e0d", "gap": "Rule\u202f10", "new": true}
+{"ts_et": "2026-06-26T18:14:02", "key": "4f56314ada55", "gap": "OP\u201122", "new": true}
+{"ts_et": "2026-06-26T18:14:02", "key": "69dd15201434", "gap": "Strategy crowding", "new": true}
+{"ts_et": "2026-06-26T18:14:02", "key": "8cbea9347386", "gap": "Exit\u2011manager strain", "new": true}
+{"ts_et": "2026-06-26T18:14:02", "key": "e537d48322d1", "gap": "License\u2011monitor drift", "new": true}
+{"ts_et": "2026-06-26T18:14:02", "key": "ea64f2fbe81d", "gap": "The four dormant setups (`vwap_continuation`, `vwap_reclaim_failed_break`, `vix_regime_dayside`, `gap_and_go`) are being", "new": true}
+{"ts_et": "2026-06-26T18:14:02", "key": "95ed8392631d", "gap": "If either gate is still suppressing the setups, the config change will be a no\u2011op now but could trigger a synchronized b", "new": true}
+{"ts_et": "2026-06-26T18:14:02", "key": "178e20e3c68e", "gap": "The beacon fix only repaired the Alpaca path; the yfinance fallback still returns ascending, untruncated bars, so a feed", "new": true}
+{"ts_et": "2026-06-26T18:14:02", "key": "099d6284ba4a", "gap": "The OP\u201122 \u201cstanding authorization\u201d for the reversible commit lacks an automated rollback trigger (circuit\u2011breaker) that ", "new": true}
+{"ts_et": "2026-06-26T18:14:02", "key": "a4a56f62ba0f", "gap": "Adding four new entry streams increases strategy crowding, slippage, and market\u2011impact risk, especially for low\u2011volume 0", "new": true}
+{"ts_et": "2026-06-26T18:14:02", "key": "fbf021b76942", "gap": "The exit manager is sized for the historical mix; the extra streams risk exceeding its concurrency limits and dropping T", "new": true}

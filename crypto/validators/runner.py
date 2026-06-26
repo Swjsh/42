@@ -55,6 +55,9 @@ from crypto.validators import (
     v48_double_top_gate,
     v49_market_structure_watcher_gate,
     v50_confluence,
+    v51_structure_veto_gate,
+    v52_trendline_break,
+    v53_setup_dispatch,
 )
 
 
@@ -203,6 +206,12 @@ def main(argv=None) -> int:
         ("v49_market_structure_watcher_gate.live", v49_market_structure_watcher_gate.run_live, [], {}),
         ("v50_confluence.offline", v50_confluence.run_offline, [], {}),
         ("v50_confluence.live", v50_confluence.run_live, [], {}),
+        ("v51_structure_veto_gate.offline", v51_structure_veto_gate.run_offline, [], {}),
+        ("v51_structure_veto_gate.live", v51_structure_veto_gate.run_live, [], {}),
+        ("v52_trendline_break.offline", v52_trendline_break.run_offline, [], {}),
+        ("v52_trendline_break.live", v52_trendline_break.run_live, [], {}),
+        ("v53_setup_dispatch.offline", v53_setup_dispatch.run_offline, [], {}),
+        ("v53_setup_dispatch.live", v53_setup_dispatch.run_live, [], {}),
     ]
     if not args.skip_replay:
         stages.append((

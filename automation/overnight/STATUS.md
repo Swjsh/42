@@ -468,3 +468,5 @@ Kitchen: alive, queue 43 pending, last cook 0 min ago, today $0.00, model=groq::
 - route: free-tier-primary
 - ok: True
 - cost_usd: 0.0000
+
+- [2026-06-26 15:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 33.78% in last 24h (25/74) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 49.48% of last-24h iterations :: see crypto/data/scorecards/drift_report.json

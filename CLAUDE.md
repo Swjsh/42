@@ -4,7 +4,7 @@
 >
 > **Audit history & doctrine evolution:** [CHANGELOG.md](CHANGELOG.md). Don't touch CLAUDE.md when fixing a typo'd update entry — touch the changelog.
 
-> **J discipline reminder:** no interactive Claude sessions during 09:30–15:55 ET — now **load-bearing**, not just J's focus preference. As of 2026-06-17 the heartbeat runs on the **Max subscription (shared rate-limit pool)**; the dedicated isolated API key was retired after burning ~$30 and going dark mid-FOMC on 06-17 ("credit balance too low"). With no pool isolation, a market-hours interactive session **can** starve heartbeat ticks — so that discipline is the only guard. After OP-32 was removed (2026-05-23 reset), there is no automated guard — discipline lives here.
+> **J discipline reminder:** No interactive Claude sessions during 09:30–15:55 ET — load-bearing. Heartbeat runs on the Max subscription (shared pool); a market-hours interactive session can starve ticks. No automated guard after OP-32 removal (2026-05-23) — discipline is the only guard.
 
 ---
 
@@ -81,10 +81,10 @@ The spine. J's rules — Gamma enforces them, doesn't write them.
 | Account/chain/fills/orders (Gamma-Safe) | Alpaca MCP — `alpaca` server | `uvx alpaca-mcp-server` via pythonw hidden-shim, key `PK7WRO5T…` (Safe-2) in project-root `.mcp.json` (mirrored in `~/.claude.json`). Tools: `mcp__alpaca__*` |
 | Account/chain/fills/orders (Gamma-Bold) | Alpaca MCP — `alpaca_aggressive` server | Same binary, key `PKQMQD2N…` (Risky-2) in project-root `.mcp.json`. Tools: `mcp__alpaca_aggressive__*`. REST fallback if MCP not connected. |
 | Host | Claude Code | Active |
-| Trade engine | `Gamma_SightBeacon` + `Gamma_HeartbeatCore` (Python) | **MIGRATED 2026-06-25:** the LLM `Gamma_Heartbeat`(+`_Aggressive`) are **RETIRED/disabled** (crashed ~daily on LLM+MCP+CDP). Replaced by a never-blind **sight beacon** (direct REST, live) + a deterministic **`heartbeat_core.py`** (backtest `engine_cli` score+gates + 2 free-model veto + `risk_gate`, **DISARMED** until `replay_heartbeat_core.py` ≥95% parity). How-it's-wired: [`markdown/specs/ARCHITECTURE.md`](markdown/specs/ARCHITECTURE.md) §3.2. |
-| Heartbeat scheduler | Windows Task Scheduler + `claude --print` | **44 registered, as of 2026-06-25. Canonical registry: [`automation/state/SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md)** |
-| Nemotron shadow eval | `setup/scripts/shadow_model_eval.py` + `Gamma_ShadowEval` (16:05 ET weekdays) | **$0. Scores each trading day's decisions.jsonl against Nemotron free tier; writes `analysis/shadow-model/YYYY-MM-DD-scorecard.md`. Promoted 2026-06-25: 27/27 DTs = 100% across 4 days. Graduation bar (flip heartbeat to Nemotron): ≥85% DT across ≥15 real trading days with diverse conditions. Scorecard: [`analysis/shadow-model/PROMOTION-SCORECARD.md`](analysis/shadow-model/PROMOTION-SCORECARD.md).** |
-| Kitchen R&D loop | `setup/scripts/kitchen_daemon.py` + free-tier model ladder | **24/7 autonomous.** Nemotron→DeepSeek→MiniMax-free→MiniMax-paid ($3/day cap). |
+| Trade engine | `Gamma_SightBeacon` + `Gamma_HeartbeatCore` (Python) | Never-blind sight beacon (direct REST) + deterministic `heartbeat_core.py` (engine_cli score+gates + 2 free-model veto + risk_gate). LLM heartbeats RETIRED 2026-06-25. Arch: [`markdown/specs/ARCHITECTURE.md`](markdown/specs/ARCHITECTURE.md) §3.2. |
+| Heartbeat scheduler | Windows Task Scheduler + `claude --print` | 44 registered. Registry: [`automation/state/SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md) |
+| Nemotron shadow eval | `setup/scripts/shadow_model_eval.py` + `Gamma_ShadowEval` (16:05 ET) | $0. Scores decisions.jsonl daily. 27/27 DTs = 100%. Grad bar: ≥85% DT over ≥15 days. Scorecard: [`analysis/shadow-model/PROMOTION-SCORECARD.md`](analysis/shadow-model/PROMOTION-SCORECARD.md). |
+| Kitchen R&D loop | `setup/scripts/kitchen_daemon.py` + free-tier models | 24/7 autonomous. Spec: [`markdown/infra/KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md). |
 | Dashboard | Next.js 15 + React 19 + Canvas pixel-art | **DEPLOYED 2026-05-06.** localhost:3000. `dashboard/` |
 | State config | [`automation/state/params.json`](automation/state/params.json) | Canonical source of truth |
 | Context leanness | `check-context-budget.ps1` + `context-leanness` skill | Keeps CLAUDE.md <= 8K tokens. Daily score/alert; auto-trims after hours on RED. Spec: [`markdown/infra/CONTEXT-LEANNESS.md`](markdown/infra/CONTEXT-LEANNESS.md) |
@@ -102,7 +102,7 @@ Install: [`markdown/infra/mcp-install.md`](markdown/infra/mcp-install.md). Verif
 
 ### Where docs live — filing rule (cohesion)
 
-**All human-authored markdown lives under [`markdown/`](markdown/README.md); new `.md` → matching subfolder, never repo root or a code dir:** `0dte/` (SPY strategy, playbook, risk-rules, key-levels, J-edge), `futures/`, `research/` (backtests, studies), `planning/` (roadmaps, checklists, gameplans), `doctrine/` (lessons, archive), `specs/` (engine/wiring design), `audits/` (health, postmortems), `infra/` (setup, kitchen-spec, skills-catalog). **Operational files stay put** (`automation/`, `.claude/`, `journal/`, `analysis/`, `strategy/candidates/`, `params.json`); root anchors stay at root (`CLAUDE.md`, `README.md`, `CHANGELOG.md`). Doc generators emit into `markdown/` too. Moving a doc = rewire every reference + verify. Legacy `docs/` `doctrine/` `workflow/` are **tombstoned** (redirect READMEs) — never write `.md` there; `docs/` keeps only WeBull CSV data. Index: [`markdown/README.md`](markdown/README.md).
+All human-authored markdown → [`markdown/`](markdown/README.md) subfolder matching topic (`0dte/`, `research/`, `planning/`, `doctrine/`, `specs/`, `audits/`, `infra/`). Operational files stay put (`automation/`, `.claude/`, `journal/`, `analysis/`, `strategy/candidates/`). Root anchors only: `CLAUDE.md`, `README.md`, `CHANGELOG.md`. Legacy `docs/`, `doctrine/`, `workflow/` = **tombstoned** — never write `.md` there.
 
 ---
 
@@ -124,12 +124,6 @@ Install: [`markdown/infra/mcp-install.md`](markdown/infra/mcp-install.md). Verif
 | Every 2h :45 | Gamma_KitchenReviewer | Triages cook outputs → PROMOTE/VALIDATE/DUPLICATE/LOW_QUALITY |
 
 **Self-healing:** `_shared.ps1#Repair-StateFiles` validates state JSONs before/after each invocation, restores from `automation/state/.lastgood/`.
-
-To manually run: `& "C:\Users\jackw\Desktop\42\setup\scripts\run-premarket.ps1"`
-To verify tasks: `Get-ScheduledTask -TaskName 'Gamma_*' | Format-Table`
-To uninstall: `setup\uninstall-tasks.ps1`
-
-> TradingView MSIX requires direct process creation (`UseShellExecute=false`) to pass `--remote-debugging-port=9222`. Normal launcher strips the flag.
 
 ---
 
@@ -185,13 +179,9 @@ If it's not in the journal, it didn't happen.
 
 ## Debugging discipline — diagnose before you fix (anti-"fake fix")
 
-> Most "only Opus could fix it" moments are "nobody read the evidence" moments. The model is rarely the bottleneck; skipping diagnosis is. Sonnet finds the same root cause IF it follows this. Full general discipline: [`~/.claude/rules/common/debugging.md`](file://~/.claude/rules/common/debugging.md).
+> General protocol: `~/.claude/rules/common/debugging.md`. Rules: name root cause before fixing; stop repeating failing actions; quote the evidence; one hypothesis → one change → one test.
 
-- **A fix is not "it ran this time."** A fix = you can name the root cause in one sentence and explain why your change addresses the *mechanism*. Otherwise it's a band-aid — say so and keep digging.
-- **STOP repeating the failing action.** Restarting a process/script back into the same conditions is a loop, not progress. If your last two moves were "it died" → "I restarted it," halt and diagnose.
-- **Read the evidence before theorizing:** exact error, stderr, exit code, last log lines, **Windows Event Log**, state at failure. Quote it. Never blame OOM / a library bug / "flaky" you never actually checked.
-- **One hypothesis → one change → one test.** Never shotgun knobs (worker count, timeout, sleep, config) hoping one sticks.
-- **THIS RIG KILLS ITS OWN PROCESSES.** Silent process death — clean stderr, **no Windows Event Log entry**, recurring on a ~3–5 min cadence — is an *external kill*, NOT a crash. Suspect #1: [`setup/scripts/_shared.ps1`](setup/scripts/_shared.ps1)`#Stop-StaleClaudeProcesses` (the heartbeat fires it every 3 min and reaps project `python.exe` older than 5 min unless it's in `$EXEMPT_DAEMONS`). Also check the watchdog / keepalive / cleanup scripts. **Grep the repo + OS for process killers before assuming your code crashed.** (2026-06-25 scar: 12 h of "silent grind crashes" were the reaper — exempting `backtest\.venv`/`mass_grind` was the entire fix; long grinds also launch via Scheduled Task, not WMI/Start-Process, and run as ONE 6–8-worker process — 3 concurrent grind processes deadlock on the OPRA cache.)
+- **THIS RIG KILLS ITS OWN PROCESSES.** Silent process death — clean stderr, **no Windows Event Log entry**, recurring ~3–5 min cadence — is an *external kill*, NOT a crash. Suspect #1: [`setup/scripts/_shared.ps1`](setup/scripts/_shared.ps1)`#Stop-StaleClaudeProcesses` (fires every 3 min, reaps `python.exe` older than 5 min unless in `$EXEMPT_DAEMONS`). Grep repo + OS for process killers before assuming a crash. (2026-06-25 scar: 12h "silent grind crashes" were the reaper — exempting `backtest\.venv`/`mass_grind` was the fix; long grinds run as ONE 6–8-worker Scheduled Task — 3 concurrent processes deadlock on OPRA cache.)
 
 ---
 
@@ -209,15 +199,6 @@ If it's not in the journal, it didn't happen.
 If a script needs Alpaca keys at runtime, load from `.mcp.json` (see `setup/scripts/fast_path_executor.py` for the pattern). Never hardcode.
 
 **Push discipline:** Never push during 09:30–15:55 ET — shares the same Max pool as the heartbeat. After-hours only.
-
-**Common operations:**
-```
-gh repo view Swjsh/42          # repo overview
-gh pr list                      # open PRs
-gh issue list                   # open issues
-gh pr create                    # new PR from current branch
-git push origin main            # push to GitHub
-```
 
 ## PowerShell Compatibility
 
@@ -241,14 +222,9 @@ These are non-negotiable, second only to the 10 rules above.
 
 3. **Cost-effectiveness gate.** $200/mo Max 20x plan budget (upgraded from $100/5x 2026-06-24). Before adding any new feature, estimate per-day cost and show how it fits. Lean is the default; spam is the enemy.
 
-11. **Karpathy method — eval-first, data flywheel, shadow mode, reproducibility.**
-    - **INNER loop:** heartbeat fires production AND shadow version in parallel; shadow is read-only. Controller: `automation/state/shadow-version.json`.
-    - **MID loop (daily):** `append_today.py` feeds data flywheel. EOD-summary 8b/8c runs drift check + shadow diff scorecard. Premarket Step 1d gates on severity.
-    - **OUTER loop (weekly):** shadow dominates 5-of-7 with positive margin → auto-generates A/B scorecard (`auto_ratify`). Premarket auto-bumps params.json Monday. J's role = REVOKE, not approve.
-    - **Reproducibility:** `backtest/lib/repro.py` — `run_id = {date}_{code_hash[:8]}_{data_hash[:6]}_{params_hash[:6]}`. Historical runs stay frozen.
-    - **Eval-first gate:** every HIGH+ urgency recommendation needs A/B scorecard at `analysis/recommendations/{rule_id}.json` BEFORE ratification. Auto-ratify requires: OOS_positive AND WF ≥ 0.70 AND sub_window_stable AND anchor_no_regression. **J is NOT a ratification gate** — J's role is REVOKE only. evidence_n ≥ 15 is advisory (prefer it, but J's explicit authorization overrides). Ratify any after-hours evening, not weekends only. **FORBIDDEN FRAMING (2026-06-20, J: "THERE IS NO FUCKING WAIT ON ME GATE IF ITS PROFITABLE"):** NEVER present a profitable/validated edge as "flip-ready / your call / want me to flip it?" — that re-inserts the gate J abolished. If it clears the auto-ship bar OR J has ever said "if it's profitable implement it" (he has — STANDING authorization), SHIP it (flip it live) and report it for REVOKE. A "6-of-7 / near-survivor" that is OOS-positive + DSR-pass + broad-based IS profitable → ship under the standing authorization; the one soft gate is a REVOKE note, not a permission gate. Asking permission to ship a profitable edge IS the banned present-and-ask anti-pattern.
-    - **Loss walk:** EOD-summary 7i generates per-loss chart-walk in `journal/losses/`. Weekly-review 3.5 clusters fingerprints → R-NNNN candidates.
-    - **Cost:** ~$0.15/day total.
+11. **Karpathy method — eval-first, shadow mode, data flywheel.** Loop details + repro spec: [`markdown/infra/KARPATHY-METHOD.md`](markdown/infra/KARPATHY-METHOD.md).
+    - **Eval-first gate:** every HIGH+ urgency recommendation needs A/B scorecard at `analysis/recommendations/{rule_id}.json` BEFORE ratification. Auto-ratify requires: OOS_positive AND WF ≥ 0.70 AND sub_window_stable AND anchor_no_regression. **J is NOT a ratification gate** — J's role is REVOKE only. evidence_n ≥ 15 is advisory. Ratify any after-hours evening.
+    - **FORBIDDEN FRAMING:** NEVER present a profitable/validated edge as "flip-ready / your call / want me to flip it?" If it clears the auto-ship bar OR J has ever said "if it's profitable implement it" (he has — STANDING authorization), SHIP it and report for REVOKE. Asking permission to ship a profitable edge IS the banned anti-pattern.
 
 16. **J's edge is the source of truth — measure edge capture, NOT aggregate optimization.**
 
@@ -274,7 +250,7 @@ These are non-negotiable, second only to the 10 rules above.
     | **Premarket prep** | 08:00-09:30 ET | News refresh, level audit, bias write. Production-safe. | Gamma_LaunchTV + Gamma_Premarket |
     | **Weekend grind** | Saturday-Sunday | Multi-day pipelines (full backtest grids that need 24+ hours only). Param tuning + validated changes ship any after-4pm evening without J. | manual |
 
-    Weekend deferral = foot-gun: <8h tasks go in the NEXT after-4pm block. Verify-now: before saying "tomorrow," ask "can this be done in 60 min?" If yes → ship now. Ship autonomously when: OOS positive AND WF ≥ 0.70 AND sub-window stable AND anchor no-regression AND A/B scorecard filed (per OP-11). **No rationing across categories:** spawn parallel work where independent.
+    Weekend deferral = foot-gun: <8h tasks go tonight. Ask "can this be done in 60 min?" → if yes, ship now. Ship autonomously when: OOS positive AND WF ≥ 0.70 AND sub-window stable AND anchor no-regression AND A/B scorecard filed. Spawn parallel work where independent.
 
 25. **Autonomous operator — high uptime, J holds the off-switch.**
 
@@ -326,7 +302,7 @@ These are non-negotiable, second only to the 10 rules above.
     Archived verbatim to [`markdown/doctrine/LESSONS-CHRONOLOGICAL-LOG.md`](markdown/doctrine/LESSONS-CHRONOLOGICAL-LOG.md) on 2026-06-17 (Tier 0 lean pass). The themed **Lessons index** table above is the canonical quick view; full prose is in [`markdown/doctrine/LESSONS-LEARNED.md`](markdown/doctrine/LESSONS-LEARNED.md).
 
     </details>
-31. **The Kitchen — 24/7 autonomous free-tier R&D loop (ratified 2026-05-21 by J).** Three scheduled tasks: **KitchenDaemonKeepalive** (every 5 min, polls `cook-queue.jsonl`, writes DRAFT candidates to `strategy/candidates/`), **KitchenSeeder** (hourly :20, Nemotron brainstorms 5 tasks; skip if backlog ≥ 25), **KitchenReviewer** (every 2h :45, triages PROMOTE/VALIDATE/DUPLICATE/LOW_QUALITY). **Claude-when-awake = the driver:** read `kitchen-status.json` + latest review + last 10 chef-log rows → steer, promote, prune. Daemon NEVER touches `heartbeat*.md` / `params*.json` / `CLAUDE.md`, NEVER places orders. Paid tier capped **$3/day**. Full spec: [`markdown/infra/KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md).
+31. **The Kitchen — 24/7 autonomous free-tier R&D loop.** KitchenDaemonKeepalive (5 min) + KitchenSeeder (hourly :20) + KitchenReviewer (2h :45). Claude-when-awake = the driver: steer, promote, prune via `kitchen-status.json`. Daemon NEVER touches `heartbeat*.md` / `params*.json` / `CLAUDE.md`, NEVER places orders. Full spec: [`markdown/infra/KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md).
 ---
 
 ## Update log

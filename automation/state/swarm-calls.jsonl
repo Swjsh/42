@@ -400,3 +400,8 @@
 {"ts":"2026-06-26T21:13:18+00:00","task_id":"manager.dispatch.forager.forager","lane":"google_aistudio::gemini-flash-lite-latest","ok":true,"input_tokens":126,"output_tokens":213,"elapsed_s":2.002,"error":null}
 {"ts":"2026-06-26T21:33:16+00:00","task_id":"manager.pick.coordinator","lane":"groq::llama-3.1-8b-instant","ok":true,"input_tokens":2818,"output_tokens":72,"elapsed_s":1.866,"error":null}
 {"ts":"2026-06-26T21:33:17+00:00","task_id":"manager.pick.repair.coordinator","lane":"groq::llama-3.1-8b-instant","ok":true,"input_tokens":2839,"output_tokens":108,"elapsed_s":0.811,"error":null}
+{"ts":"2026-06-26T21:53:15+00:00","task_id":"manager.pick.coordinator","lane":"groq::llama-3.1-8b-instant","ok":true,"input_tokens":2818,"output_tokens":59,"elapsed_s":1.41,"error":null}
+{"ts":"2026-06-26T21:53:16+00:00","task_id":"manager.pick.repair.coordinator","lane":"groq::llama-3.1-8b-instant","ok":true,"input_tokens":2839,"output_tokens":101,"elapsed_s":0.782,"error":null}
+{"ts":"2026-06-26T21:53:19+00:00","task_id":"manager.dispatch.chef.chef","lane":"groq::llama-3.3-70b-versatile","ok":true,"input_tokens":104,"output_tokens":774,"elapsed_s":2.724,"error":null}
+{"ts":"2026-06-26T22:13:15+00:00","task_id":"manager.pick.coordinator","lane":"groq::llama-3.1-8b-instant","ok":true,"input_tokens":2801,"output_tokens":83,"elapsed_s":1.541,"error":null}
+{"ts":"2026-06-26T22:13:16+00:00","task_id":"manager.pick.repair.coordinator","lane":"groq::llama-3.1-8b-instant","ok":true,"input_tokens":2822,"output_tokens":82,"elapsed_s":0.811,"error":null}
