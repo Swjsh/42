@@ -3923,3 +3923,4 @@
 {"ts":"2026-06-26T14:19:12+00:00","task_id":"swarm.synthesis","model":"minimax/minimax-m2","input_tokens":17251,"output_tokens":2513,"cost_usd":0.006912,"elapsed_s":23.848,"ok":true,"finish_reason":"stop"}
 {"ts":"2026-06-26T20:00:13+00:00","task_id":"companion.face.voice","model":"nvidia/nemotron-3-nano-30b-a3b:free","input_tokens":4313,"output_tokens":200,"cost_usd":0.0,"elapsed_s":7.859,"ok":true,"finish_reason":"length"}
 {"ts":"2026-06-26T20:00:29+00:00","task_id":"eod_analytics.eod-summary","model":"nvidia/nemotron-3-super-120b-a12b:free","input_tokens":4241,"output_tokens":1144,"cost_usd":0.0,"elapsed_s":27.677,"ok":true,"finish_reason":"stop"}
+{"ts":"2026-06-26T21:30:24+00:00","task_id":"eod_analytics.manager","model":"nvidia/nemotron-3-super-120b-a12b:free","input_tokens":21274,"output_tokens":2139,"cost_usd":0.0,"elapsed_s":22.99,"ok":true,"finish_reason":"stop"}

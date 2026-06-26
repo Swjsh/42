@@ -1,25 +1,25 @@
 {
-  "checked_at_et": "2026-06-26 17:10:02",
-  "checked_at_utc": "2026-06-26T21:10:02Z",
+  "checked_at_et": "2026-06-26 17:50:02",
+  "checked_at_utc": "2026-06-26T21:50:02Z",
   "verdict": "GREEN",
   "market_open": false,
   "checks": [
     {
       "name": "heartbeat_safe",
       "status": "GREEN",
-      "detail": "last safe tick 75.0m ago (15:55:03) (market closed -- quiet OK)",
+      "detail": "last safe tick 115.0m ago (15:55:03) (market closed -- quiet OK)",
       "critical": true
     },
     {
       "name": "heartbeat_bold",
       "status": "GREEN",
-      "detail": "last bold tick 75.0m ago (15:55:04) (market closed -- quiet OK)",
+      "detail": "last bold tick 115.0m ago (15:55:04) (market closed -- quiet OK)",
       "critical": true
     },
     {
       "name": "sight_beacon",
       "status": "GREEN",
-      "detail": "eye 55.0m old; spy=730.75 ribbon=BEAR src=alpaca_rest_iex (market closed -- quiet OK)",
+      "detail": "eye 95.0m old; spy=730.75 ribbon=BEAR src=alpaca_rest_iex (market closed -- quiet OK)",
       "critical": true
     },
     {

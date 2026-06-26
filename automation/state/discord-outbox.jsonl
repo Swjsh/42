@@ -568,3 +568,4 @@
 {"queued_at": "2026-06-26T19:50:03Z", "content": "<@207983230618435584> \ud83d\udd34 **TBR_HIGH_VOL** `tbr_high_vol` \u00b7 HIGH\n\u2022 **E** $733.05  **SL** $733.72  **TP1** $731.76\n\u2022 Trendline low (4 touches over 39 bars, slope 0.0479/bar) broke bearish at bar idx 57; retest held\u2026"}
 {"ts": "2026-06-26T20:03:01+00:00", "source": "rank_contenders", "alert": "PROFITABLE contender: OTM-2:LR0:mt1:stop-8:tp+150%:sell80%:fixed edge_capture=1692 expectancy=23.78 wf=1.98 (1880 clear the 771 floor so far)"}
 {"ts": "2026-06-26T21:03:01+00:00", "source": "rank_contenders", "alert": "PROFITABLE contender: OTM-2:LR0:mt1:stop-8:tp+150%:sell80%:fixed edge_capture=1692 expectancy=23.78 wf=1.98 (1880 clear the 771 floor so far)"}
+{"ts": "2026-06-26T21:33:01+00:00", "source": "rank_contenders", "alert": "PROFITABLE contender: OTM-2:LR0:mt1:stop-8:tp+150%:sell80%:fixed edge_capture=1692 expectancy=23.78 wf=1.98 (1880 clear the 771 floor so far)"}

@@ -518,6 +518,21 @@ def run_account(account: str) -> dict:
     # otherwise computes + logs (WATCH). OFF unless GAMMA_CORE_MANAGES_EXITS=1.
     if CORE_MANAGES_EXITS:
         rec["exit_pass"] = _manage_exits(account)
+    # EXTRA-SETUP DISPATCH — evaluates 4 validated detectors that are individually
+    # flag-gated in params.json. When ALL flags are OFF (current default) this is a
+    # pure no-op: dispatch_extra_setups returns [] in O(1). When a flag is ON, the
+    # matching detector builds its own BarContext from sameday_5m_bars, runs the
+    # watcher, and logs the result. Order placement via these signals is NOT wired here
+    # yet — SKIP_NO_FEED / SKIP_NO_SIGNAL are the expected outputs until each detector
+    # is promoted to LIVE. This call must never raise (setup_dispatch fails open).
+    try:
+        from setup_dispatch import dispatch_extra_setups  # noqa: PLC0415
+        extra = dispatch_extra_setups(account, params, payload, verdict, armed=ARMED)
+        if extra:
+            rec["extra_signals"] = extra
+    except Exception as _disp_err:  # noqa: BLE001
+        logger.warning("[DISPATCH] setup_dispatch import/run failed: %s", _disp_err)
+
     v = verdict.get("verdict", "")
     if v in ("ENTER_BEAR", "ENTER_BULL"):
         rec["free_eval"] = _free_model_eval(account, payload, verdict)

@@ -459,3 +459,12 @@ Kitchen: alive, queue 43 pending, last cook 0 min ago, today $0.00, model=groq::
 - [2026-06-26 14:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 35.71% in last 24h (25/70) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 47.28% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
 - [2026-06-26 21:00:02] gym-session (2026-06-26) → **YELLOW** :: see `automation\state\gym-scorecard-2026-06-26.json`
+- [2026-06-26 15:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 32.43% in last 24h (24/74) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 49.34% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-06-26T21:30:24+00:00
+- task: manager
+- date_et: 2026-06-26
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
