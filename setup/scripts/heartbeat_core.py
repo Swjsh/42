@@ -106,6 +106,7 @@ GATE_KEYS = [
     "require_bearish_fill_bar", "min_ribbon_momentum_cents", "max_ribbon_duration_bars",
     "midday_trendline_gate", "block_conf_lvl_rej_midday_afternoon", "block_conf_lvl_rec_afternoon",
     "entry_bar_body_pct_min", "entry_bar_body_pct_min_bull", "vix_bear_hard_cap",
+    "structure_veto_enabled",
 ]
 
 
@@ -372,9 +373,26 @@ def _build_payload(df: pd.DataFrame, account_params: dict, *,
         "bear_kwargs": dict(_times, f9_vol_mult=_vm, min_triggers=account_params.get("filter_10_min_triggers_bear", 1)),
         "bull_kwargs": dict(_times, f10_vol_mult=_vm, min_triggers=account_params.get("filter_10_min_triggers_bull", 2)),
     }
+    # Same-day 5m bars up to and including the trigger bar (for structure_veto_enabled).
+    # Uses the full RTH `df` (not the bounded `win`) to capture bars from open onward.
+    _trig_ts = pd.to_datetime(trig["timestamp"])
+    _trig_date = _trig_ts.date()
+    _df_ts = pd.to_datetime(df["timestamp"])
+    _sameday_mask = (_df_ts.dt.date == _trig_date) & (_df_ts <= _trig_ts)
+    _sd = df[_sameday_mask].copy()
+    sameday_5m_bars = []
+    for _, _r in _sd.iterrows():
+        sameday_5m_bars.append({
+            "open": float(_r["open"]), "high": float(_r["high"]),
+            "low": float(_r["low"]), "close": float(_r["close"]),
+            "volume": float(_r["volume"]),
+            "timestamp_iso": str(_r["timestamp"].isoformat() if hasattr(_r["timestamp"], "isoformat")
+                                 else _r["timestamp"]),
+        })
     # Top-level frames the GATES walk via .loc (look-ahead fill-bar + momentum/duration).
     return {"bar_ctx": bar_ctx, "gate_params": gate_params, "score_params": score_params,
-            "spy_df": bars_all, "ribbon_df": ribbon_series}
+            "spy_df": bars_all, "ribbon_df": ribbon_series,
+            "sameday_5m_bars": sameday_5m_bars}
 
 
 def _engine_verdict(payload: dict) -> dict:

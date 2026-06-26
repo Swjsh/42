@@ -391,3 +391,7 @@
 {"ts":"2026-06-26T20:13:22+00:00","task_id":"manager.pick.coordinator","lane":"groq::llama-3.1-8b-instant","ok":true,"input_tokens":3017,"output_tokens":111,"elapsed_s":8.313,"error":null}
 {"ts":"2026-06-26T20:13:23+00:00","task_id":"manager.pick.repair.coordinator","lane":"groq::llama-3.1-8b-instant","ok":true,"input_tokens":3037,"output_tokens":97,"elapsed_s":0.863,"error":null}
 {"ts":"2026-06-26T20:14:31+00:00","task_id":"manager.dispatch.critic.critic","lane":"openrouter::nvidia/nemotron-3-super-120b-a12b:free","ok":true,"input_tokens":105,"output_tokens":1800,"elapsed_s":67.57,"error":null}
+{"ts":"2026-06-26T20:48:56+00:00","task_id":"kitchen.cook.interpret-overnight-grinder-gr.chef","lane":"groq::llama-3.3-70b-versatile","ok":true,"input_tokens":38087,"output_tokens":797,"elapsed_s":5.999,"error":null}
+{"ts":"2026-06-26T20:53:21+00:00","task_id":"manager.pick.coordinator","lane":"groq::llama-3.1-8b-instant","ok":true,"input_tokens":3056,"output_tokens":62,"elapsed_s":7.456,"error":null}
+{"ts":"2026-06-26T20:53:22+00:00","task_id":"manager.pick.repair.coordinator","lane":"groq::llama-3.1-8b-instant","ok":true,"input_tokens":3076,"output_tokens":78,"elapsed_s":0.689,"error":null}
+{"ts":"2026-06-26T20:53:24+00:00","task_id":"manager.dispatch.chef.chef","lane":"groq::llama-3.3-70b-versatile","ok":true,"input_tokens":90,"output_tokens":481,"elapsed_s":2.209,"error":null}

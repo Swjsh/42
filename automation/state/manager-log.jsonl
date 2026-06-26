@@ -123,3 +123,4 @@
 {"ok": true, "stage": "skipped_market_hours", "et": "15:33", "ts_et": "2026-06-26T15:33:14"}
 {"ok": true, "stage": "skipped_market_hours", "et": "15:53", "ts_et": "2026-06-26T15:53:14"}
 {"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Does tp+150% ever realize on a 0DTE OTM-", "out": "analysis\\manager\\2026-06-26-1614-critic-does-tp-150--ever-realize-on-a-0dte-otm-.md", "elapsed_s": 67.57, "ts_et": "2026-06-26T16:14:31"}
+{"phase": "dispatch", "ok": true, "role": "chef", "lane": "groq::llama-3.3-70b-versatile", "action": "cook the overnight grinder output analys", "out": "analysis\\manager\\2026-06-26-1653-chef-cook-the-overnight-grinder-output-analys.md", "elapsed_s": 2.209, "ts_et": "2026-06-26T16:53:24"}

@@ -1,11 +1,11 @@
 {
-  "audited_at": "2026-06-26T10:00:22.364879+00:00",
+  "audited_at": "2026-06-26T21:09:25.000741+00:00",
   "total_registered": 61,
   "active_registered": 53,
   "disabled_registered": 8,
   "registry_active": 46,
   "registry_disabled": 0,
-  "flags_count": 24,
+  "flags_count": 16,
   "flags": [
     {
       "flag": "ORPHAN_TASK",
@@ -83,49 +83,9 @@
       "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
     },
     {
-      "flag": "VISIBLE_WINDOW",
-      "task": "Gamma_Funnel_0",
-      "note": "execute='cmd.exe' args='/c \"set GAMMA_FUNNEL_SHARD=0&& set GAMMA_FUNNEL_NSHARDS=6&& C:\\\\Users\\\\jackw\\\\Deskt'"
-    },
-    {
-      "flag": "VISIBLE_WINDOW",
-      "task": "Gamma_Funnel_1",
-      "note": "execute='cmd.exe' args='/c \"set GAMMA_FUNNEL_SHARD=1&& set GAMMA_FUNNEL_NSHARDS=6&& C:\\\\Users\\\\jackw\\\\Deskt'"
-    },
-    {
-      "flag": "VISIBLE_WINDOW",
-      "task": "Gamma_Funnel_2",
-      "note": "execute='cmd.exe' args='/c \"set GAMMA_FUNNEL_SHARD=2&& set GAMMA_FUNNEL_NSHARDS=6&& C:\\\\Users\\\\jackw\\\\Deskt'"
-    },
-    {
-      "flag": "VISIBLE_WINDOW",
-      "task": "Gamma_Funnel_3",
-      "note": "execute='cmd.exe' args='/c \"set GAMMA_FUNNEL_SHARD=3&& set GAMMA_FUNNEL_NSHARDS=6&& C:\\\\Users\\\\jackw\\\\Deskt'"
-    },
-    {
-      "flag": "VISIBLE_WINDOW",
-      "task": "Gamma_Funnel_4",
-      "note": "execute='cmd.exe' args='/c \"set GAMMA_FUNNEL_SHARD=4&& set GAMMA_FUNNEL_NSHARDS=6&& C:\\\\Users\\\\jackw\\\\Deskt'"
-    },
-    {
-      "flag": "VISIBLE_WINDOW",
-      "task": "Gamma_Funnel_5",
-      "note": "execute='cmd.exe' args='/c \"set GAMMA_FUNNEL_SHARD=5&& set GAMMA_FUNNEL_NSHARDS=6&& C:\\\\Users\\\\jackw\\\\Deskt'"
-    },
-    {
       "flag": "SILENT_TASK",
       "task": "Gamma_GitHubAudit",
-      "note": "last ran 31.0h ago \u2014 expected within 26h"
-    },
-    {
-      "flag": "VISIBLE_WINDOW",
-      "task": "Gamma_Grind_all",
-      "note": "execute='cmd.exe' args='/c \"set GAMMA_GRIND_WORKERS=8&& C:\\\\Users\\\\jackw\\\\Desktop\\\\42\\\\backtest\\\\.venv\\\\Scripts'"
-    },
-    {
-      "flag": "VISIBLE_WINDOW",
-      "task": "Gamma_Grind_Watchdog",
-      "note": "execute='powershell.exe' args='-NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File \"C:'"
+      "note": "last ran 42.2h ago \u2014 expected within 26h"
     }
   ],
   "health": "RED"

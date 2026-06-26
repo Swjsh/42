@@ -155,6 +155,56 @@ from lib.filters import BarContext, LevelState  # noqa: E402
 from lib.ribbon import RibbonState  # noqa: E402
 
 
+def _veto_side(side: Any, trend: str) -> bool:
+    """Return True when a `side` entry fights the confirmed structure trend.
+
+    - BEAR/P blocked in uptrend (wrong-way short — the 2026-06-26 −$237 incident)
+    - BULL/C blocked in downtrend (wrong-way long)
+    - range / unknown => NO veto (fail-open; preserves 5/04 +$730 range reversal)
+    NEVER change 'P requires downtrend' — that blocks 5/04 (OP-16 non-negotiable).
+    """
+    if side == "P":
+        return trend == "uptrend"
+    if side == "C":
+        return trend == "downtrend"
+    return False
+
+
+def _classify_sameday_5m(sameday_bars_json: Any) -> str:
+    """Classify the intraday trend from same-day 5m bars up to the trigger bar.
+
+    sameday_bars_json: list of {open,high,low,close,volume,timestamp_iso} dicts for today
+    up to and including the trigger bar. Supplied by heartbeat_core.py.
+    < 5 bars or absent -> 'unknown' (no veto). Any error -> 'unknown' (fail-open).
+    """
+    if not sameday_bars_json or len(sameday_bars_json) < 5:
+        return "unknown"
+    try:
+        from crypto.lib.bar import Bar as _Bar
+        from crypto.lib.market_structure import classify_trend as _ct, label_swings as _ls
+        from crypto.lib.trendlines import find_swing_points as _fsp
+        import datetime as _dt2
+        bars = []
+        for r in sameday_bars_json:
+            ts_raw = r.get("timestamp_iso") or r.get("timestamp_et") or ""
+            try:
+                ot = _dt2.datetime.fromisoformat(str(ts_raw))
+            except (ValueError, TypeError):
+                ot = _dt2.datetime(2000, 1, 1)
+            bars.append(_Bar(
+                open_time=ot,
+                open=float(r["open"]), high=float(r["high"]),
+                low=float(r["low"]), close=float(r["close"]),
+                volume=float(r.get("volume", 0.0)),
+                granularity_seconds=300, source="spy_5m",
+            ))
+        swings = _fsp(bars, window=2, inclusive_right=True)
+        labeled = _ls(swings)
+        return _ct(labeled)
+    except Exception:
+        return "unknown"
+
+
 class BadPayload(Exception):
     """Raised for any malformed / unreadable input at the boundary.
 
@@ -513,6 +563,31 @@ def decide_payload(payload: Mapping[str, Any]) -> dict:
         base["verdict"] = "HOLD"
         base["reason"] = "no setup passed scoring (neither bear nor bull)"
         return base
+
+    # ── STRUCTURE VETO (gate_params["structure_veto_enabled"]) ───────────────────
+    # Blocks counter-structure entries: BEAR/P in confirmed intraday uptrend,
+    # BULL/C in downtrend. range / unknown -> no-veto (fail-open; preserves
+    # 5/04 +$730 range reversal — OP-16 non-negotiable).
+    # New payload field: "sameday_5m_bars" (list of {open,high,low,close,volume,
+    # timestamp_iso} dicts for today up to and including the trigger bar).
+    # Heartbeat_core.py already has these bars; absent or < 5 bars -> unknown -> no veto.
+    if gate_params.get("structure_veto_enabled", False):
+        _sameday_bars = payload.get("sameday_5m_bars")
+        _trend = _classify_sameday_5m(_sameday_bars)
+        if _veto_side(winning_side, _trend):
+            base["verdict"] = "SKIP_STRUCTURE_VETO"
+            base["gate"] = {
+                "gate_id": "structure_veto",
+                "action": "SKIP_STRUCTURE_VETO",
+                "blockers": ["STRUCTURE_VETO"],
+            }
+            base["reason"] = (
+                f"structure-veto: {winning_side} entry blocked — "
+                f"price structure is {_trend!r} (wrong-way entry)"
+            )
+            base["quality_tier"] = None
+            return base
+    # ─────────────────────────────────────────────────────────────────────────────
 
     setup_name = (
         "BEARISH_REJECTION_RIDE_THE_RIBBON" if winning_side == "P"

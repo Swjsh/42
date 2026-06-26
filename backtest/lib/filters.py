@@ -802,7 +802,7 @@ class BullishSetupResult:
 
 
 VIX_BULL_LOW_THRESHOLD = 17.20    # mirror of VIX_BEAR_THRESHOLD (17.30)
-VIX_BULL_HARD_CAP = 18.0          # filter 9: VIX < 18 hard (Rank 35, 2026-06-17)
+VIX_BULL_HARD_CAP = 22.0          # filter 9: VIX < 22 hard (WS2 unblock 2026-06-26, was 18)
 
 
 def evaluate_bullish_setup(

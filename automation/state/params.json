@@ -57,7 +57,7 @@
   "vix_entry_thresholds": {
     "bull_max_exclusive_or_falling": 17.2,
     "bear_min_exclusive_and_rising": 17.3,
-    "bull_hard_cap": 18.0
+    "bull_hard_cap": 22.0
   },
   "_vix_bull_hard_cap_doc": "VIX_BULL_HARD_CAP lowered 22->18 (Rank 35, 2026-06-17). Blocks all CALL entries when VIX>=18 (was VIX>=22). IS +$221 (n=4 blocks), OOS +$219 (n=1 block), WF=5.946 PASS, 1/4 SW hurt (W1-2025H1 -$372), anchor OK. Evidence thin (n_oos_blocked=1) but direction clear. SAFE only - aggressive has VIX<30 cap, different baseline. Revert: set bull_hard_cap: 22.0 and restore heartbeat.md filter 9. Scorecard: analysis/recommendations/vix-bull-hard-cap-01.json.",
   "vix_bear_hard_cap": 23.0,
@@ -124,7 +124,7 @@
   "_min_ribbon_momentum_cents_doc": "Gate A DISABLED (set 0). Was 5c. Reverted 2026-06-16: L107 showed correct params WF=-1.308. Set >0 to re-enable - but run OOS first.",
   "max_ribbon_duration_bars": 999,
   "_max_ribbon_duration_bars_doc": "Gate B DISABLED (set 999). Was 15. Reverted 2026-06-16: same L107 finding. Set <999 to re-enable - but run OOS first.",
-  "midday_trendline_gate": true,
+  "midday_trendline_gate": false,
   "_midday_trendline_gate_doc": "Gate C: if true, block entries where ONLY trigger is trendline_rejection and time is 11:30-14:00 ET. Single-trigger midday trendline = -8.6/trade historically (307 OOS trades). Revert: set false to disable.",
   "block_level_rejection": true,
   "_block_level_rejection_doc": "LEVEL_REJECTION_GATE (2026-06-17): block all BEAR-side LEVEL-tier level_rejection entries. Engine-level: IS +$13,181 (n=17 removed, n=5 unlocked), OOS +$682, WF=0.842, 0 HURT sub-windows, anchor OK (+$1,478 on 4/29). Auto-ratified per OP-22 (J: 'I am no blocker'). A/B scorecard: analysis/recommendations/level-rejection-gate-01.json. Revert: set false.",
@@ -243,5 +243,7 @@
   "max_consecutive_tv_failures_before_kill_switch": 3,
   "min_disk_free_mb": 100,
   "wedged_state_alert_hours": 24,
-  "_premium_stop_pct_bear_doc": "SUPERSEDED 2026-06-18 by CHART-STOP-PRIMARY (see _premium_stop_pct_bear_doc_2026_06_18 above - bear stop now -0.50 catastrophe cap). History: TIGHTER_STOP 2026-06-17 took -0.20 -> -0.10 (IS +$8,705 / OOS +$1,802, scorecard analysis/recommendations/tighter-stop-01.json). The chart-stop-primary demotion then widened -0.10 -> -0.50 because at -10% the premium stop already never bound on bear winners; a wide cap rides them while the chart/ribbon/profit-lock exits stay primary."
+  "_premium_stop_pct_bear_doc": "SUPERSEDED 2026-06-18 by CHART-STOP-PRIMARY (see _premium_stop_pct_bear_doc_2026_06_18 above - bear stop now -0.50 catastrophe cap). History: TIGHTER_STOP 2026-06-17 took -0.20 -> -0.10 (IS +$8,705 / OOS +$1,802, scorecard analysis/recommendations/tighter-stop-01.json). The chart-stop-primary demotion then widened -0.10 -> -0.50 because at -10% the premium stop already never bound on bear winners; a wide cap rides them while the chart/ribbon/profit-lock exits stay primary.",
+  "structure_veto_enabled": true,
+  "_structure_veto_enabled_doc": "STRUCTURE-VETO (2026-06-26): block BEAR/P entry when classify_trend(5m-sameday)==uptrend; block BULL/C when==downtrend. range/unknown=no-veto (fail-open; preserves 5/04 +$730 range reversal — OP-16 non-negotiable). Root cause: 2026-06-26 -$237 wrong-way-short into confirmed intraday uptrend; ribbon is lagging, price-swing (HH/HL) was already bullish. A/B (real-fills 2025-01-02..2026-06-18): IS +$583 (2 losers removed, 0 winners), OOS $0, anchor no-regression. Requires 'sameday_5m_bars' in engine_cli payload (heartbeat_core.py supplies). Revert: set false."
 }

@@ -460,17 +460,17 @@ def run_offline() -> dict:
     results.append(("U1c_bull_F8_vix_1750_falling_PASS", passed,
                     f"VIX=17.50 falling -> passed={passed}"))
 
-    # U2a: Bull F9 hard cap PASS — VIX=17.9 (< 18.0 cap, Rank 35)
-    ctx = _bull_ctx(vix_now=17.9, vix_prior=18.2)  # falling, also passes F8
+    # U2a: Bull F9 hard cap PASS — VIX=21.9 (< 22.0 cap, WS2 unblock 2026-06-26)
+    ctx = _bull_ctx(vix_now=21.9, vix_prior=22.2)  # falling, also passes F8 falling check
     passed = _bull(ctx)
-    results.append(("U2a_bull_F9_hard_cap_vix_179_PASS", passed,
-                    f"VIX=17.9 -> passed={passed}"))
+    results.append(("U2a_bull_F9_hard_cap_vix_219_PASS", passed,
+                    f"VIX=21.9 -> passed={passed}"))
 
-    # U2b: Bull F9 hard cap BLOCK — VIX=18.0 (exactly at cap, Rank 35)
-    ctx = _bull_ctx(vix_now=18.0, vix_prior=18.3)  # falling but at hard cap
+    # U2b: Bull F9 hard cap BLOCK — VIX=22.0 (exactly at new cap, WS2 unblock 2026-06-26)
+    ctx = _bull_ctx(vix_now=22.0, vix_prior=22.3)  # falling but at hard cap
     blockers_bull = evaluate_bullish_setup(ctx, disable_filters=[7]).blockers
-    results.append(("U2b_bull_F9_hard_cap_vix_180_BLOCK", 9 in blockers_bull,
-                    f"VIX=18.0 -> blockers={blockers_bull}"))
+    results.append(("U2b_bull_F9_hard_cap_vix_220_BLOCK", 9 in blockers_bull,
+                    f"VIX=22.0 -> blockers={blockers_bull}"))
 
     # ---- PARITY TESTS ----
     params = json.loads(_PARAMS_PATH.read_text(encoding="utf-8"))

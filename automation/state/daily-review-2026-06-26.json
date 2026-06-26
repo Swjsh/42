@@ -1,0 +1,61 @@
+{
+  "date": "2026-06-26",
+  "morning_thesis": "BEARISH. SPY at 729.51 (08:40 ET premarket) is ~$2.50 below prior close (~732) with all ribbon EMAs overhead (729.85-729.98). PMH 732.62 set at 04:00 ET then sold off all premarket to PML 728.50. All key levels (734.97, 743.35, 745.33) are overhead resistance. VIX 20.02 is above bull hard-cap 18.0 — calls mechanically BLOCKED. Bear entries eligible. Setup OP-16: BEARISH_REJECTION_RIDE_THE_RIBBON only. SWARM_CONTEXT_UNAVAILABLE (22h stale). No macro events today (calendar 12d stale; PCE was yesterday). Quarter-end week (Q2 ends Tue June 30).",
+  "predictions": [
+    {
+      "prediction_idx": 0,
+      "claim": "SPY will test today's PML of 728.50 within the first 60 minutes of RTH (by 10:30 ET)",
+      "trigger_window": "09:30-10:30 ET",
+      "invalidation": "SPY closes a 5m bar above 732.00 by 10:30 ET without testing 728.50",
+      "confidence": 0.60,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "FAIL",
+      "actual": "SPY never tested 728.50 RTH. Price grinded UP from the open toward 732+ area. Both puts decayed from 0.98/0.21 to 0.19/0.18 by EOD — directional move was opposite to prediction.",
+      "category": "level",
+      "evidence_timestamp": "15:55",
+      "graded_at": "2026-06-26T16:30:03-04:00"
+    },
+    {
+      "prediction_idx": 1,
+      "claim": "First RTH bounce fails at or below 734.97 — overhead broken-to-resistance",
+      "trigger_window": "09:35-12:00 ET",
+      "invalidation": "SPY closes a 5m bar above 735.50 by 12:00 ET",
+      "confidence": 0.55,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "UNTESTED",
+      "actual": "No evidence SPY reached 734.97. Engine went blind from TV data stale at noon; insufficient data to determine if level was tested. EOD close ~730-731.",
+      "category": "level",
+      "evidence_timestamp": null,
+      "graded_at": "2026-06-26T16:30:03-04:00"
+    },
+    {
+      "prediction_idx": 2,
+      "claim": "Ribbon stays bear-biased (SPY price below all three EMAs) through the 10:05 ET 5m bar close",
+      "trigger_window": "09:35-10:05 ET",
+      "invalidation": "Fast EMA crosses above Slow EMA AND SPY closes above 731.00 on any 5m bar by 10:05 ET",
+      "confidence": 0.65,
+      "specificity": 1.0,
+      "novelty": "fresh",
+      "outcome": "UNTESTED",
+      "actual": "No heartbeat_core log covering 10:05 ET bar. Ribbon was mixed (13c spread) at 08:40 premarket; BEAR (96.6c spread) by 16:30. Transition timing unknown — cannot confirm or deny the 10:05 bar state.",
+      "category": "bias",
+      "evidence_timestamp": null,
+      "graded_at": "2026-06-26T16:30:03-04:00"
+    }
+  ],
+  "surprises": [
+    "SPY grinded UP from ~729 premarket to ~732+ RTH despite MID-VIX and all EMAs overhead — low-volume Friday drift, no directional catalyst, theta/dealer flows dominated.",
+    "TV MCP data went stale at noon (three consecutive SKIP events 12:10/12:25/12:30). Engine blind mid-session; positions could not be actively managed.",
+    "Post-close beacon shows clean BEAR ribbon 96.6c spread — structural bear was correct but arrived hours after theta destroyed the positions."
+  ],
+  "lesson": "Premarket bear structure (PMH selloff, all EMAs overhead) justifies bias but not immediate RTH entry — wait for an RTH re-test of PMH 732.62 with a confirmed 5m close rejection before entering; do not enter on stale premarket structure when price is already below PMH.",
+  "tomorrow_hint": "MONDAY Q2 END — watch 732.62 PMH resistance and 728.50 support cluster; ribbon BEAR 96c spread; confirm exact Friday RTH close at premarket",
+  "predictions_count": 3,
+  "predictions_passed": 0,
+  "predictions_partial": 0,
+  "hit_rate_passing": 0.0,
+  "specificity_weighted_hit_rate": 0.0,
+  "graded_at": "2026-06-26T16:30:03-04:00"
+}

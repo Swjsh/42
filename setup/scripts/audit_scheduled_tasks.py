@@ -3,8 +3,9 @@
 Runs daily via Gamma_CryptoDaily. Flags:
   - ORPHAN_TASK            : registered but not in registry
   - STALE_REGISTRY_ENTRY   : in registry but not registered
-  - VISIBLE_WINDOW         : action not on the wscript->pythonw hidden chain (a DIRECT
-                             powershell.exe -WindowStyle Hidden FLASHES OpenConsole on Win11)
+  - BARE_CMD_POWERSHELL    : HARD FAIL -- bare cmd.exe/powershell.exe action (always flashes
+                             OpenConsole on Win11; convert to wscript->run_exe_hidden.vbs chain)
+  - VISIBLE_WINDOW         : action not on the wscript->pythonw hidden chain (subtler patterns)
   - SILENT_TASK            : active task hasn't fired in (cadence x 3) window
   - PYTHON_NOT_PYTHONW     : long-running python.exe launch (should use pythonw.exe)
   - CANDIDATE_FOR_REMOVAL  : disabled > 30 days
@@ -76,23 +77,26 @@ def _registered_tasks() -> list[dict]:
 def _is_hidden(execute: str, arguments: str) -> bool:
     """Approved hidden-window patterns per OP-27.
 
-    Per OP-27 L42 escalation (2026-05-17 evening), two patterns are canonical:
+    Per OP-27 L42 escalation (2026-05-17 evening), canonical patterns:
 
-    1. `wscript.exe //nologo run_hidden.vbs <ps1>` -- older, simpler pattern for
-       tasks that don't have window-leak concerns. Still approved.
+    1. `wscript.exe //nologo run_hidden.vbs <ps1>` -- older pattern, still approved.
 
-    2. `wscript.exe //nologo run_exe_hidden.vbs <sys-pythonw> <run_ps1_hidden.py> <ps1>`
-       -- the canonical L42 zero-leak pattern. Uses GUI-subsystem pythonw to
-       launch run_ps1_hidden.py which subprocess.Popens powershell.exe with
-       CREATE_NO_WINDOW flag. Required for tasks where Windows 11 default-
-       terminal would otherwise grab the child console.
+    2. `wscript.exe //nologo run_exe_hidden.vbs <pythonw> <run_ps1_hidden.py> <ps1>`
+       -- canonical L42 zero-leak pattern for PowerShell-wrapped tasks.
+
+    3. `wscript.exe //nologo run_exe_hidden.vbs <pythonw> <run_cmd_hidden.py> [args]`
+       -- canonical WS6 zero-leak pattern for cmd-style grind tasks (2026-06-26).
+       run_cmd_hidden.py accepts --env KEY=VAL + -- <python-exe> -m <module>.
 
     NOT hidden: a DIRECT `powershell.exe -WindowStyle Hidden` action. Task Scheduler
     allocates the console (OpenConsole.exe -Embedding on Win11) and SHOWS it before
     PowerShell applies -WindowStyle Hidden ~200ms later -> a visible black flash on EVERY
     fire (root-caused 2026-06-20 via Gamma_CryptoGrinderKeepalive, every 5 min = ~288
-    flashes/day). Convert such tasks with setup/fix-powershell-task-flash.ps1. A direct
-    GUI-subsystem `pythonw.exe` action is also fine (no console is ever allocated).
+    flashes/day).
+
+    NOT hidden: a DIRECT `cmd.exe /c ...` action. Same allocation problem.
+
+    A direct GUI-subsystem `pythonw.exe` action is fine (no console ever allocated).
     """
     e = (execute or "").lower()
     a = (arguments or "").lower()
@@ -101,6 +105,25 @@ def _is_hidden(execute: str, arguments: str) -> bool:
     if e.endswith("pythonw.exe"):
         return True
     return False
+
+
+def _is_bare_console_launcher(execute: str) -> bool:
+    """Return True if the task action is a bare console-subsystem launcher.
+
+    Bare cmd.exe or powershell.exe actions ALWAYS flash a console window on
+    Windows 11 (OpenConsole -Embedding) before any -WindowStyle Hidden takes
+    effect.  These MUST be converted to the wscript -> run_exe_hidden.vbs ->
+    pythonw -> run_cmd_hidden.py / run_ps1_hidden.py chain.
+
+    This check is a HARD FAIL in the audit (exit 1) -- not a warn -- because
+    a regressed task will flash on every fire (up to 288 times/day for 5-min
+    cadence tasks).  There is no acceptable reason to have a bare cmd.exe or
+    bare powershell.exe Gamma task action.
+    """
+    e = (execute or "").strip().lower()
+    # Match basename only so full paths like C:\Windows\System32\cmd.exe also match
+    basename = e.rsplit("\\", 1)[-1].rsplit("/", 1)[-1]
+    return basename in ("cmd.exe", "powershell.exe")
 
 
 def _is_long_running_python_with_console(execute: str, arguments: str) -> bool:
@@ -159,7 +182,14 @@ def audit() -> dict:
         state = t["state"]
         if state == "Disabled":
             continue
-        if not _is_hidden(t["execute"], t["arguments"]):
+        if _is_bare_console_launcher(t["execute"]):
+            # HARD FAIL: bare cmd.exe / powershell.exe flashes a window on EVERY fire.
+            # This is distinct from VISIBLE_WINDOW (which catches subtler patterns) and
+            # is always a bug -- there is no approved use of a bare console launcher.
+            flags.append({"flag": "BARE_CMD_POWERSHELL", "task": name,
+                          "note": f"HARD FAIL -- bare console launcher: execute={t['execute']!r}. "
+                                  f"Convert to wscript->run_exe_hidden.vbs->pythonw->run_cmd_hidden.py chain."})
+        elif not _is_hidden(t["execute"], t["arguments"]):
             flags.append({"flag": "VISIBLE_WINDOW", "task": name,
                           "note": f"execute={t['execute']!r} args={t['arguments'][:80]!r}"})
         if _is_long_running_python_with_console(t["execute"], t["arguments"]):

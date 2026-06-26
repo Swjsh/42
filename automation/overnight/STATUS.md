@@ -239,7 +239,7 @@
 
 
 ## Kitchen
-Kitchen: alive, queue 39 pending, last cook 0 min ago, today $0.00, model=groq::llama-3.3-70b-versatile
+Kitchen: alive, queue 43 pending, last cook 0 min ago, today $0.00, model=groq::llama-3.3-70b-versatile
 
 - [2026-06-24 23:27:16] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 68.75% in last 24h (33/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 33.38% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -455,3 +455,7 @@ Kitchen: alive, queue 39 pending, last cook 0 min ago, today $0.00, model=groq::
 - route: free-tier-primary
 - ok: True
 - cost_usd: 0.0000
+
+- [2026-06-26 14:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 35.71% in last 24h (25/70) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 47.28% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 21:00:02] gym-session (2026-06-26) → **YELLOW** :: see `automation\state\gym-scorecard-2026-06-26.json`

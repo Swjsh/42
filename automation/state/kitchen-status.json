@@ -1,24 +1,42 @@
 {
-  "updated_at_et": "2026-06-26T13:27:20",
+  "updated_at_et": "2026-06-26T16:49:56",
   "daemon_pid": 38400,
   "daemon_alive": true,
   "idle": false,
   "current_task_id": "b9a9a1f3-d1fc-460e-866d-4b5a7f5af3ab",
   "queue_summary": {
     "by_status": {
-      "completed": 1096,
-      "pending": 39,
+      "completed": 1098,
+      "pending": 43,
       "failed_permanent": 11
     },
     "by_priority_pending": {
       "low": 23,
-      "medium": 16
+      "medium": 20
     },
-    "total": 1146
+    "total": 1152
   },
   "today_cost_usd_paid_tier": 0.0,
   "today_cost_cap_usd": 3.0,
   "recent_completed_top_10": [
+    {
+      "task_id": "41059f8e",
+      "task": "Interpret overnight_grinder grinder output: 5 keepers found. Top: wide_pnl=6688.35, edge_capture=670.6, WR=0.393. Origin",
+      "completed_at": "2026-06-26T20:48:56+00:00",
+      "cost_usd": 0.0,
+      "model": "groq::llama-3.3-70b-versatile",
+      "tier": -2,
+      "output_path": "strategy\\candidates\\2026-06-26-chef-nemo-overnight-grinder-output-analysis.md"
+    },
+    {
+      "task_id": "372228bb",
+      "task": "Run overnight_grinder parameter sweep: General v14/v15 parameter sweep \u2014 432 combos, wide_pnl differentiator. Find keepe",
+      "completed_at": "2026-06-26T20:47:50+00:00",
+      "cost_usd": 0.0,
+      "model": "grinder-python",
+      "tier": -1,
+      "output_path": "strategy\\candidates\\2026-06-26-chef-nemo-grinder-overnight-grinder-20260626-1647.md"
+    },
     {
       "task_id": "9464afd9",
       "task": "Analyze the walk-forward test results to determine the candidate's effectiveness.",
@@ -90,24 +108,6 @@
       "model": "groq::llama-3.3-70b-versatile",
       "tier": -2,
       "output_path": "strategy\\candidates\\2026-06-26-chef-nemo-bearish-rejection-ride-the-ribbon-v2.md"
-    },
-    {
-      "task_id": "9ea79a04",
-      "task": "Interpret vwap_overnight_grinder grinder output: 5 keepers found. Top: wide_pnl=587.72, edge_capture=40.01, WR=0.833. Or",
-      "completed_at": "2026-06-26T17:17:09+00:00",
-      "cost_usd": 0.0,
-      "model": "groq::llama-3.3-70b-versatile",
-      "tier": -2,
-      "output_path": "strategy\\candidates\\2026-06-26-chef-nemo-vwap-anchored-entry-sweep.md"
-    },
-    {
-      "task_id": "bb6d3ece",
-      "task": "Run vwap_overnight_grinder parameter sweep: VWAP anchored entry sweep \u2014 VWAP reclaim / rejection combos. Find keepers wi",
-      "completed_at": "2026-06-26T17:16:03+00:00",
-      "cost_usd": 0.0,
-      "model": "grinder-python",
-      "tier": -1,
-      "output_path": "strategy\\candidates\\2026-06-26-chef-nemo-grinder-vwap-overnight-grinder-20260626-1316.md"
     }
   ],
   "model_ladder": [
