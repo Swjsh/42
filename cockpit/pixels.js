@@ -106,29 +106,42 @@
     steel: '#9aa6b4', steelDk: '#6b7686', wood: '#5a4636'
   };
 
-  // ── LimeZu interiors16.png tile regions (16px tiles, col,row,w,h) mapped by
-  //    reading the sheet (cols 0-15 x rows 0-88). Each entry is a recognizable
-  //    multi-tile object. Furniture kinds NOT listed here (gym gear) stay
-  //    procedural. Tiles confirmed from zoomed grid crops. ──
+  // ── LimeZu THEMED furniture tile regions (16px tiles: sheet, col, row, w, h).
+  //    Mapped by reading each theme sheet with a coordinate grid (see report).
+  //    `sheet` keys into Office.lz.* . Kinds absent here stay procedural (gym
+  //    gear uses the pre-built gym room blit, not these). ──
   var LZ_FURN = {
-    // KITCHEN
-    stove:      { c: 12, r: 84, w: 2, h: 2 },   // oven/stove unit (grey top + body)
-    counter:    { c: 3,  r: 55, w: 2, h: 2 },   // wood counter + cabinet doors
-    fridge:     { c: 7,  r: 51, w: 2, h: 2 },   // tall brown cabinet (fridge stand-in)
-    sink:       { c: 5,  r: 55, w: 2, h: 2 },   // counter (sink stand-in)
-    // LAB / R&D
-    whiteboard: { c: 8,  r: 36, w: 1, h: 2 },   // green board on stand
-    serverdesk: { c: 2,  r: 38, w: 2, h: 2 },   // desk + chair
-    bookshelf:  { c: 10, r: 69, w: 3, h: 2 },   // stocked shelves (colored)
-    // ACCOUNTS / TRADING — a desk+chair reads as a terminal workstation
-    terminal:   { c: 2,  r: 38, w: 2, h: 2 },
-    engine:     { c: 4,  r: 38, w: 2, h: 2 },   // a second desk variant
+    // KITCHEN (th_kitchen)
+    stove:       { sheet: 'kitchen', c: 8,  r: 11, w: 2, h: 2 },  // 4-burner stove+oven
+    counter:     { sheet: 'kitchen', c: 0,  r: 11, w: 2, h: 2 },  // wood counter+cabinet
+    fridge:      { sheet: 'kitchen', c: 2,  r: 1,  w: 2, h: 3 },  // tall fridge
+    sink:        { sheet: 'kitchen', c: 6,  r: 7,  w: 2, h: 2 },  // counter w/ sink
+    // LAB / R&D (th_conf + th_generic)
+    whiteboard:  { sheet: 'conf',    c: 6,  r: 4,  w: 2, h: 2 },  // wall board/screen
+    meeting:     { sheet: 'conf',    c: 5,  r: 7,  w: 4, h: 2 },  // big meeting table
+    serverdesk:  { sheet: 'generic', c: 4,  r: 8,  w: 2, h: 2 },  // desk (research)
+    server:      { sheet: 'conf',    c: 15, r: 8,  w: 1, h: 2 },  // server tower
+    // ACCOUNTS / TRADING terminals (th_generic desk + monitor accent)
+    terminal:    { sheet: 'generic', c: 4,  r: 8,  w: 2, h: 2 },  // desk = workstation
+    engine:      { sheet: 'generic', c: 0,  r: 8,  w: 2, h: 2 },  // desk variant
+    // DISPATCH service counter + register (th_grocery)
+    counter_svc: { sheet: 'grocery', c: 1,  r: 8,  w: 2, h: 2 },  // glass display counter
+    register:    { sheet: 'grocery', c: 1,  r: 8,  w: 2, h: 2 },  // counter (register drawn on top)
     // shared decor
-    plant:      { c: 13, r: 44, w: 1, h: 2 }    // potted palm
+    plant:       { sheet: 'generic', c: 5,  r: 5,  w: 1, h: 1 }   // small plant
   };
-  // roombuilder16.png tiles (16px). A clean modern floor + a wall strip.
-  var LZ_FLOOR = { c: 11, r: 11, w: 1, h: 1 };  // grey-blue modern tile floor
-  var LZ_WALL  = { c: 0,  r: 17, w: 1, h: 1 };  // grey-blue wall strip top
+  // roombuilder tiles (rb_floors.png + rb_walls.png) — a distinct floor PER ROOM,
+  // and one shared clean wall tile so every room reads as the same building.
+  var LZ_WALL  = { c: 1,  r: 4,  w: 1, h: 1 };               // rb_walls grey wall
+  var LZ_FLOORS = {                                          // rb_floors per room (verified tiles)
+    kitchen:  { c: 1,  r: 9 },   // cream/yellow tile  (231,228,169)
+    trading:  { c: 9,  r: 21 },  // slate-purple       (106,101,152)
+    lab:      { c: 9,  r: 25 },  // clean teal         (161,210,208)
+    accounts: { c: 13, r: 29 },  // light blue         (186,209,220)
+    dispatch: { c: 1,  r: 13 },  // warm wood/gold     (184,149,76)
+    gym:      { c: 13, r: 5 },   // grey concrete (gym uses pre-built room anyway)
+    _default: { c: 13, r: 5 }    // grey concrete for corridors
+  };
 
   // ── role → sector key + a 1-2 word nameplate role word ──
   var ROLE_SECTOR = {
@@ -247,21 +260,35 @@
       jobs.push(self._loadImg(self._url('char', 'char_' + c + '.png')).then(function (im) { self.assets['char' + c] = im; }));
     })(c);
     // OPTIONAL premium LimeZu Modern Interiors sheets (gitignored, local-only).
-    // GRACEFUL FALLBACK: if any sheet is absent (fresh clone), self.lz stays
-    // incomplete and we keep drawing the procedural furniture/floors. We only
-    // switch to LimeZu drawing once interiors16 + roombuilder are BOTH loaded.
-    self.lz = { interiors: null, room: null };
-    // Served at <assetBase>/limezu/* (nested route, verified 200). In flat mode
-    // the caller flattened sprites under assetBase, so limezu still nests there.
+    // GRACEFUL FALLBACK: if the CORE sheets (walls/floors + the 4 furniture themes)
+    // fail to load (fresh clone), _lzReady() stays false and the office draws the
+    // built-in PROCEDURAL furniture/floors. The gym room blit is best-effort: if
+    // gym_base/gym_furn are missing, the gym falls back to procedural gear too.
+    self.lz = { walls: null, floors: null, doors: null, gymBase: null, gymFurn: null,
+                kitchen: null, conf: null, generic: null, grocery: null, interiors: null };
     var lzBase = self.assetBase + '/limezu';
-    jobs.push(self._loadImg(lzBase + '/interiors16.png').then(function (im) { self.lz.interiors = im; }));
-    jobs.push(self._loadImg(lzBase + '/roombuilder16.png').then(function (im) { self.lz.room = im; }));
+    var load = function (file, key) { jobs.push(self._loadImg(lzBase + '/' + file).then(function (im) { self.lz[key] = im; })); };
+    load('rb_walls.png', 'walls'); load('rb_floors.png', 'floors'); load('rb_doors.png', 'doors');
+    load('gym_base.png', 'gymBase'); load('gym_furn.png', 'gymFurn');
+    load('th_kitchen.png', 'kitchen'); load('th_conf.png', 'conf');
+    load('th_generic.png', 'generic'); load('th_grocery.png', 'grocery');
+    load('interiors16.png', 'interiors');   // legacy decor (plants etc.)
     return Promise.all(jobs);
   };
-  // LimeZu furniture is usable only when both sheets are present + decoded.
+  // The premium look needs walls + floors + all 4 furniture themes decoded.
   Office.prototype._lzReady = function () {
-    return !!(this.lz && this.lz.interiors && this.lz.interiors.width &&
-              this.lz.room && this.lz.room.width);
+    var z = this.lz; if (!z) return false;
+    return !!(z.walls && z.walls.width && z.floors && z.floors.width &&
+              z.kitchen && z.kitchen.width && z.conf && z.conf.width &&
+              z.generic && z.generic.width && z.grocery && z.grocery.width);
+  };
+  Office.prototype._gymRoomReady = function () {
+    return !!(this.lz && this.lz.gymBase && this.lz.gymBase.width && this.lz.gymFurn && this.lz.gymFurn.width);
+  };
+  // pick the sheet image for a furniture mapping
+  Office.prototype._sheetFor = function (name) {
+    var z = this.lz; if (!z) return null;
+    return z[name] || null;
   };
   // Blit a tile-region of a 16px sheet to a dest rect (crisp, no smoothing).
   Office.prototype._blit = function (sheet, tc, tr, tw, th, dx, dy, dw, dh) {
@@ -304,99 +331,123 @@
     var cardBottom = Math.min(rows - 4, Math.round(rows * 0.55));
     this.cardRect = { lo: cardLo, hi: cardHi, bottom: cardBottom };
 
-    var obstacles = {};                 // global blockers (walls/card/furniture)
+    var obstacles = {};                 // global blockers (walls/furniture)
     this.obstacles = obstacles;
     var occ = function (c, r) { obstacles[r * cols + c] = true; };
     for (var rr = 0; rr <= cardBottom; rr++) for (var cc = cardLo; cc <= cardHi; cc++) occ(cc, rr);
 
-    // ── DESKTOP-ONLY layout (face.html gates mount at innerWidth>=1000, so we
-    //    assume a wide viewport — no narrow/phone fallback). J's drawn layout:
+    // ── ECOSYSTEM layout: WALLED ROOMS separated by a CORRIDOR of open floor.
+    //    Rooms are inset by 1 tile from the screen edge / card column so a
+    //    continuous corridor ring surrounds them; each room opens to that
+    //    corridor through ONE doorway. DISPATCH sits center, just below the card
+    //    column, also on the corridor — agents path room → doorway → corridor →
+    //    DISPATCH and back. The corridor is ONE connected open-floor region, so a
+    //    room→dispatch→room route is guaranteed (asserted in the sim).
     //
-    //      ┌──────────┬──────────────┬──────────┐
-    //      │          │  (card col   │          │
-    //      │ ACCOUNTS │   reserved   │   LAB    │   ← left & right margins,
-    //      │  (left   │   obstacle)  │  (right  │     FULL HEIGHT top→bottom
-    //      │  margin, ├──────────────┤  margin, │
-    //      │  6 cubes │ KITCH│TRD│GYM│  R&D)    │   ← bottom band (center strip
-    //      │  2x3)    │      │   │   │          │     below the card) split into
-    //      └──────────┴──────────────┴──────────┘     thirds: Kitchen|Trading|Gym
-    //
-    //    Left margin  = x 0..cardLo-1, full height          → ACCOUNTS
-    //    Right margin = x cardHi+1..cols-1, full height      → LAB / R&D
-    //    Bottom band  = x cardLo..cardHi, y cardBottom+1..   → KITCHEN|TRADING|GYM
+    //      ┌─────────┐ corridor ┌─────────┐
+    //      │ ACCOUNTS│  (cards) │   LAB   │
+    //      │ (left)  │ ┌──────┐ │ (right) │
+    //      │         │ │DISPAT│ │         │
+    //      │         │ └──────┘ │         │
+    //      │  ┌────┬────┬────┐  │         │
+    //      └──┤KITCH│TRD│GYM ├──┘  (bottom rooms)
+    //         └────┴────┴────┘
     var bandTop = cardBottom + 1;
-    var bandH = rows - bandTop;          // height of the bottom band
     var sectors = {};
     this.sectors = sectors;
+    // corridor = open-floor tiles between rooms (filled after rooms are carved)
+    var corridor = {}; this.corridor = corridor;
 
     var self = this;
-    // build a sector rectangle [x..x2] x [y..y2] inclusive; carves a 1-tile wall
-    // ring (obstacles) and records the interior walkable set + a door on its
-    // top or side wall. Furniture spots are added later per theme.
-    function makeSector(key, label, color, x, y, x2, y2, doorSide) {
+    // Build a WALLED ROOM rect [x..x2]x[y..y2] inclusive: wall ring (obstacles) +
+    // walkable interior + ONE doorway punched in the wall facing `doorSide`. The
+    // doorway tile AND the corridor tile just outside it are both opened so the
+    // room connects to the corridor.
+    function makeRoom(key, label, color, x, y, x2, y2, doorSide) {
       x = Math.max(0, x); y = Math.max(0, y); x2 = Math.min(cols - 1, x2); y2 = Math.min(rows - 1, y2);
-      if (x2 - x < 2 || y2 - y < 2) return null; // too small to be a room
+      if (x2 - x < 2 || y2 - y < 2) return null;
       var interior = {}, interiorList = [];
-      // wall ring = the rectangle border tiles (obstacles)
       for (var c = x; c <= x2; c++) { occ(c, y); occ(c, y2); }
       for (var r = y; r <= y2; r++) { occ(x, r); occ(x2, r); }
-      // interior = inside the ring
       for (var ic = x + 1; ic <= x2 - 1; ic++) for (var ir = y + 1; ir <= y2 - 1; ir++) {
         interior[ir * cols + ic] = true; interiorList.push([ic, ir]);
       }
-      // a DOOR: punch one wall tile open + record it as the entry tile. Default
-      // top-center; doorSide can be 'top'|'bottom'|'left'|'right'.
-      var door;
-      if (doorSide === 'bottom') door = [Math.round((x + x2) / 2), y2];
-      else if (doorSide === 'left') door = [x, Math.round((y + y2) / 2)];
-      else if (doorSide === 'right') door = [x2, Math.round((y + y2) / 2)];
-      else door = [Math.round((x + x2) / 2), y];
-      delete obstacles[door[1] * cols + door[0]];           // open the doorway
-      interior[door[1] * cols + door[0]] = true;            // door tile is walkable for this sector
-      var s = {
-        key: key, label: label, color: color, x: x, y: y, x2: x2, y2: y2,
-        interior: interior, interiorList: interiorList, door: door,
-        spots: [], furniture: []
-      };
-      sectors[key] = s;
-      return s;
+      var door, outside;
+      if (doorSide === 'bottom')      { door = [clampc((x + x2) >> 1), y2]; outside = [door[0], Math.min(rows - 1, y2 + 1)]; }
+      else if (doorSide === 'left')   { door = [x, clampr((y + y2) >> 1)]; outside = [Math.max(0, x - 1), door[1]]; }
+      else if (doorSide === 'right')  { door = [x2, clampr((y + y2) >> 1)]; outside = [Math.min(cols - 1, x2 + 1), door[1]]; }
+      else                            { door = [clampc((x + x2) >> 1), y]; outside = [door[0], Math.max(0, y - 1)]; }
+      delete obstacles[door[1] * cols + door[0]];
+      interior[door[1] * cols + door[0]] = true;
+      // the tile just outside the doorway must be corridor (open) — clear it
+      delete obstacles[outside[1] * cols + outside[0]];
+      corridor[outside[1] * cols + outside[0]] = true;
+      var s = { key: key, label: label, color: color, x: x, y: y, x2: x2, y2: y2,
+        interior: interior, interiorList: interiorList, door: door, outside: outside,
+        spots: [], furniture: [] };
+      sectors[key] = s; return s;
     }
+    function clampc(c) { return Math.max(0, Math.min(cols - 1, c)); }
+    function clampr(r) { return Math.max(0, Math.min(rows - 1, r)); }
 
-    // ── LEFT MARGIN → ACCOUNTS (full height) ──
-    // Everything left of the card column, top to bottom. The 6 cubicles are laid
-    // out as a 2-col x 3-row grid filling this tall zone (see _furnishSectors).
-    makeSector('accounts', 'ACCOUNTS', COL.glow, 0, 0, cardLo - 1, rows - 1, 'right');
+    // Geometry. Inset rooms by 1 tile so a corridor lane runs along every edge.
+    var M = 1;                                // corridor margin (tiles)
+    var leftRoomX2 = cardLo - 1 - M;          // accounts right edge (gap before card)
+    var rightRoomX = cardHi + 1 + M;          // lab left edge
+    var topY = M;
 
-    // ── RIGHT MARGIN → LAB / R&D (full height) ──
-    // Everything right of the card column, top to bottom. Whiteboards + research
-    // / server desks distributed down its height.
-    makeSector('lab', 'LAB / R&D', COL.accent, cardHi + 1, 0, cols - 1, rows - 1, 'left');
+    // DISPATCH sits in the gap directly UNDER the card column. Build it FIRST
+    // (fixed height) so the bottom band starts cleanly below it with a corridor
+    // lane between — no overlap.
+    var dispY = bandTop + M;                   // 1 corridor lane below the cards
+    var dispH = 3;                             // 3 interior rows
+    var dispBot = dispY + dispH;
+    var dispW = Math.max(5, Math.min(cardHi - cardLo - 1, Math.round((cardHi - cardLo) * 0.8)));
+    var dispX = ((cardLo + cardHi) >> 1) - (dispW >> 1);
 
-    // ── BOTTOM BAND (center strip below the card) → KITCHEN | TRADING | GYM ──
-    // The card-column width, below the reserved card rect, split into three. GYM
-    // gets the largest share (J: "the BIG one").
-    var bandX = cardLo, bandX2 = cardHi, by = bandTop, by2 = rows - 1;
+    // BOTTOM BAND (full width) starts below dispatch + a corridor lane, runs to
+    // the bottom. KITCHEN | TRADING | GYM — GYM widest + tall enough for the
+    // pre-built gym to render legibly.
+    var bRoomTop = dispBot + 1 + M;
+    var bRoomBot = rows - 1 - M;
+    if (bRoomBot - bRoomTop < 4) { bRoomTop = Math.max(dispBot + 2, bRoomBot - 6); } // guarantee room height
+    var sideBot = bRoomTop - 1 - M;            // accounts/lab bottom (above the band)
+
+    makeRoom('dispatch', 'DISPATCH', COL.glow, dispX, dispY, dispX + dispW, dispBot, 'bottom');
+
+    // ACCOUNTS — left margin room (top region), door on its RIGHT to the corridor.
+    makeRoom('accounts', 'ACCOUNTS', COL.glow, M, topY, Math.max(M + 3, leftRoomX2), sideBot, 'right');
+    // LAB / R&D — right margin room (top region), door on its LEFT.
+    makeRoom('lab', 'LAB / R&D', COL.accent, Math.min(cols - 2 - 3, rightRoomX), topY, cols - 1 - M, sideBot, 'left');
+
+    var bandX = M, bandX2 = cols - 1 - M;
     var bandW = bandX2 - bandX + 1;
-    // thirds with GYM widest: kitchen 0.30, trading 0.30, gym 0.40
-    var kEnd = bandX + Math.floor(bandW * 0.30) - 1;
-    var tEnd = bandX + Math.floor(bandW * 0.60) - 1;
-    makeSector('kitchen', 'KITCHEN', COL.caution, bandX,     by, kEnd,   by2, 'top');
-    makeSector('trading', 'TRADING', COL.alert,   kEnd + 1,  by, tEnd,   by2, 'top');
-    makeSector('gym',     'GYM',     COL.pos,     tEnd + 1,  by, bandX2, by2, 'top');
+    var kEnd = bandX + Math.floor(bandW * 0.30);
+    var tEnd = bandX + Math.floor(bandW * 0.58);
+    makeRoom('kitchen', 'KITCHEN', COL.caution, bandX,    bRoomTop, kEnd - 1, bRoomBot, 'top');
+    makeRoom('trading', 'TRADING', COL.alert,   kEnd + M, bRoomTop, tEnd - 1, bRoomBot, 'top');
+    makeRoom('gym',     'GYM',     COL.pos,     tEnd + M, bRoomTop, bandX2,   bRoomBot, 'top');
 
-    // Safety: if a sector failed to build (degenerate tiny grid — shouldn't happen
-    // on the desktop-only viewport this targets), alias its role to Lab so no
-    // worker is ever sector-less. Lab spans the full-height right margin and is the
-    // most robust fallback; guarantee it exists.
-    if (!sectors.lab) makeSector('lab', 'LAB / R&D', COL.accent, cardHi + 1, 0, cols - 1, rows - 1, 'left');
-    if (!sectors.lab) makeSector('lab', 'LAB / R&D', COL.accent, 1, by, Math.min(cols - 2, 1 + 8), by2, 'top');
+    // Fallbacks so no role is ever sector-less (degenerate tiny grids).
+    if (!sectors.lab) makeRoom('lab', 'LAB / R&D', COL.accent, Math.max(M, rightRoomX), topY, cols - 1 - M, botY, 'left');
     this.sectorAlias = {};
-    var allKeys = ['kitchen', 'gym', 'lab', 'accounts', 'trading'];
+    var allKeys = ['kitchen', 'gym', 'lab', 'accounts', 'trading', 'dispatch'];
     for (var ak = 0; ak < allKeys.length; ak++) {
-      if (!sectors[allKeys[ak]]) this.sectorAlias[allKeys[ak]] = 'lab';
+      if (!sectors[allKeys[ak]]) this.sectorAlias[allKeys[ak]] = sectors.lab ? 'lab' : 'dispatch';
     }
 
-    // ── populate THEMED furniture + dwell spots per sector ──
+    // ── CORRIDOR: every non-room, non-card, non-wall tile becomes open corridor
+    //    floor. This is the connected region the doorways open onto. (Rooms +
+    //    card already marked obstacle; furniture added later inside rooms.) ──
+    for (var cr = 0; cr < rows; cr++) for (var cc2 = 0; cc2 < cols; cc2++) {
+      var key = cr * cols + cc2;
+      if (obstacles[key]) continue;                 // wall / card / room-edge
+      var inRoom = false;
+      for (var si = 0; si < allKeys.length; si++) { var s2 = sectors[allKeys[si]]; if (s2 && s2.interior[key]) { inRoom = true; break; } }
+      if (!inRoom) corridor[key] = true;            // open corridor floor
+    }
+
+    // ── populate THEMED furniture + dwell spots per room ──
     this._furnishSectors();
 
     // re-validate workers against the rebuilt layout
@@ -414,15 +465,24 @@
     });
   };
 
-  // Walkability for worker `w`: ONLY tiles inside w's home sector interior, minus
-  // furniture obstacles, minus other workers' claimed spots (its own spot is OK).
+  // Walkability for worker `w`.
+  //  - DEFAULT (w.roaming false): confined to the home room interior — agents
+  //    stay home when working/idle.
+  //  - ROAMING (w.roaming true): home interior ∪ the CORRIDOR ∪ the DISPATCH
+  //    interior — so on a task pickup the agent can path out its doorway, through
+  //    the corridor, into dispatch, and back. Furniture + others' chairs block.
   Office.prototype._walkableFor = function (w) {
-    var self = this, g = this.grid, sec = this.sectors[w.sectorKey];
+    var self = this, g = this.grid, cols = g.cols, sec = this.sectors[w.sectorKey];
+    var disp = this.sectors.dispatch;
     return function (c, r) {
-      if (!sec) return false;
-      if (c < 0 || r < 0 || c >= g.cols || r >= g.rows) return false;
-      if (!sec.interior[r * g.cols + c]) return false;          // CONTAINMENT
-      if (self.obstacles[r * g.cols + c]) return false;          // furniture/wall
+      if (c < 0 || r < 0 || c >= cols || r >= g.rows) return false;
+      var key = r * cols + c;
+      if (self.obstacles[key]) return false;                     // furniture/wall/card
+      var ok = sec && sec.interior[key];                         // home room
+      if (!ok && w.roaming) {
+        ok = self.corridor[key] || (disp && disp.interior[key]); // corridor or dispatch
+      }
+      if (!ok) return false;
       var ids = Object.keys(self.workers);
       for (var i = 0; i < ids.length; i++) {
         var o = self.workers[ids[i]];
@@ -477,7 +537,18 @@
         return made;
       }
 
-      if (key === 'accounts') {
+      if (key === 'dispatch') {
+        // DISPATCH HUB: a service COUNTER + register along the top wall. Agents
+        // walk up to the counter (the spots below it) to pick up their task.
+        // Several counter spots so multiple agents can visit/queue.
+        for (var dc = x; dc <= x2; dc += 1) {
+          if (dc % 2 === 0) addUnit(dc, y, 'counter_svc', 'up');
+        }
+        // a register accent on one counter tile
+        if (s.furniture.length) s.furniture[0].kind = 'register';
+        // ensure at least 2 counter spots
+        if (s.spots.length < 2) { addUnit(x, y, 'counter_svc', 'up'); addUnit(x2, y, 'counter_svc', 'up'); }
+      } else if (key === 'accounts') {
         // 6 CUBICLE TERMINALS as a 2-col x 3-row grid filling the TALL left zone.
         // Resident sits BELOW the terminal (faceDir 'up'); rows spaced by 3 so
         // seats never collide; we choose a column step that yields ~2 columns.
@@ -555,6 +626,7 @@
       px: 0, py: 0, dir: 'down', frame: 0, frameT: 0,
       state: 'entering', spot: null, target: null,
       path: null, pathIdx: 0, dwellUntil: 0, dwellKind: null,
+      roaming: false, pickupTask: null,   // dispatch-pickup trip state
       alpha: 0, bob: Math.random() * Math.PI * 2
     };
     if (role === 'account') { w.acctSlot = this._acctSlot % 6; this._acctSlot++; }
@@ -565,10 +637,28 @@
   Office.prototype._beginLeave = function (w) {
     if (w.state === 'leaving') return;
     this._freeSpot(w);
+    w.roaming = false;
     w.state = 'leaving';
     w.dwellUntil = 0;
     var sec = this.sectors[w.sectorKey];
     if (sec) this._setPath(w, sec.door); else w.path = null;
+  };
+
+  // DISPATCH PICKUP: the agent leaves its station, opens roaming so A* may route
+  // through the corridor, and heads to the dispatch counter. The counter spot is
+  // the dwell target where it picks up the ticket. If dispatch is unreachable
+  // (shouldn't happen — corridor is connected) it falls back to staying home.
+  Office.prototype._beginPickup = function (w) {
+    var disp = this.sectors.dispatch; if (!disp || !disp.spots.length) return;
+    this._freeSpot(w);
+    w.roaming = true;
+    w.pickupTask = w.task;
+    w.state = 'goDispatch';
+    // pick the dispatch counter spot nearest the worker (don't reserve — it's a
+    // shared service point; multiple agents queue/visit it)
+    var goal = disp.spots[0];
+    this._setPath(w, [goal.c, goal.r]);
+    w.target = { kind: 'dispatch', spot: goal };
   };
 
   // ── path to a goal tile, confined to the worker's sector ──
@@ -615,13 +705,25 @@
       var w = this.workers[rec.id];
       if (!w) { this._spawn(rec); w = this.workers[rec.id]; }
       if (w) {
+        var prevTask = w.task;
         w.role = rec.role || w.role;
         w.runner = rec.runner != null ? rec.runner : w.runner;
-        w.task = rec.task != null ? rec.task : w.task;
+        var newTask = rec.task != null ? rec.task : w.task;
         w.account = rec.account != null ? rec.account : w.account;
         w.status = rec.status || w.status;
         w.sprite = spriteFor(w.role, w.id);
-        if (rec.status === 'done' && w.state !== 'leaving') this._beginLeave(w);
+        if (rec.status === 'done' && w.state !== 'leaving') { this._beginLeave(w); w.task = newTask; }
+        // DISPATCH PICKUP: a NEW task (task string changed) on a settled agent →
+        // it leaves its room, walks to the dispatch counter to pick up the
+        // ticket, dwells, then returns to its station. Skip while entering/
+        // leaving/already on a pickup, and skip the account residents (they hold
+        // their cubicles) unless dispatch is the only place to go.
+        var settled = (w.state !== 'entering' && w.state !== 'leaving' && w.state !== 'goDispatch' && w.state !== 'atDispatch' && w.state !== 'returnHome');
+        if (settled && newTask && newTask !== prevTask && this.sectors.dispatch && w.role !== 'account') {
+          w.task = newTask; this._beginPickup(w);
+        } else {
+          w.task = newTask;
+        }
       }
     }
     Object.keys(this.workers).forEach(function (id) {
@@ -664,16 +766,30 @@
           if (w.alpha <= 0.02) { this._freeSpot(w); delete this.workers[w.id]; delete this.seen[w.id]; continue; }
         } else if (w.state === 'entering') {
           w.state = 'toSpot'; this._pickDestination(w);
+        } else if (w.state === 'goDispatch') {
+          // reached the dispatch counter → dwell to "pick up" the ticket
+          w.state = 'atDispatch'; w.dir = 'up'; w.dwellKind = 'dispatch';
+          w.dwellUntil = ts + 1800 + Math.random() * 1200;
+        } else if (w.state === 'atDispatch') {
+          if (ts >= w.dwellUntil) {
+            // ticket in hand → walk back home (still roaming so the route through
+            // the corridor + own doorway is valid), then re-confine on arrival.
+            w.state = 'returnHome';
+            var home = this.sectors[w.sectorKey];
+            this._setPath(w, home ? home.door : [w.c, w.r]);
+          }
+        } else if (w.state === 'returnHome') {
+          // back at the home doorway → re-confine + go to a station to work
+          w.roaming = false; w.pickupTask = null;
+          w.state = 'toSpot'; this._pickDestination(w);
         } else if (w.state === 'toSpot') {
           w.state = 'dwell';
-          // face the furniture this spot belongs to
           w.dir = (w.target && w.target.spot) ? w.target.spot.dir : 'up';
           w.dwellKind = (w.target && w.target.spot) ? w.target.spot.kind : 'idle';
           var base = w.role === 'account' ? 6000 : 3600;
           w.dwellUntil = ts + base + Math.random() * 3000;
         } else if (w.state === 'dwell') {
           if (ts >= w.dwellUntil) {
-            // account residents mostly stay at their terminal; others roam more
             if (w.role !== 'account' && w.target && w.target.kind === 'spot' && Math.random() < 0.5) this._freeSpot(w);
             w.state = 'toSpot'; this._pickDestination(w);
           }
@@ -688,31 +804,45 @@
   // ───────────────────────────────────────────────────────────────────────────
   Office.prototype._drawFloor = function () {
     var ctx = this.ctx, W = this.W, H = this.H, g = this.grid;
-    // base
     ctx.fillStyle = COL.bg; ctx.fillRect(0, 0, W, H);
-    // Floor on sector interiors only (so the office reads as rooms, not a
-    // full-screen grid). Card region stays near-black. Use the LimeZu modern
-    // floor tile when the sheet is loaded; otherwise the procedural checker.
     var lz = this._lzReady();
+
+    // 1) CORRIDOR floor — a subtle dark tile under the connecting walkways so the
+    //    rooms read as connected by halls, not floating boxes.
+    if (g && this.corridor) {
+      var ck = Object.keys(this.corridor);
+      for (var ci = 0; ci < ck.length; ci++) {
+        var idx = +ck[ci], cc = idx % g.cols, rrr = (idx - cc) / g.cols;
+        var ct = this._tileRect(cc, rrr);
+        if (lz) this._blit(this.lz.floors, LZ_FLOORS._default.c, LZ_FLOORS._default.r, 1, 1, ct.x, ct.y, ct.w + 0.6, ct.h + 0.6);
+        else { ctx.fillStyle = '#12161d'; ctx.fillRect(ct.x, ct.y, ct.w + 0.6, ct.h + 0.6); }
+        ctx.fillStyle = 'rgba(8,10,14,0.35)'; ctx.fillRect(ct.x, ct.y, ct.w + 0.6, ct.h + 0.6); // darken
+      }
+    }
+
+    // 2) ROOM floors — a DISTINCT rb_floors tile per room (procedural checker
+    //    fallback). The GYM is a pre-built room blit (handled in _drawGymRoom).
     if (g && this.sectors) {
       var keys = Object.keys(this.sectors);
       for (var k = 0; k < keys.length; k++) {
         var s = this.sectors[keys[k]];
+        if (s.key === 'gym' && this._gymRoomReady()) continue; // pre-built blit covers it
+        var fl = LZ_FLOORS[s.key] || LZ_FLOORS._default;
         for (var c = s.x + 1; c <= s.x2 - 1; c++) for (var r = s.y + 1; r <= s.y2 - 1; r++) {
           var t = this._tileRect(c, r);
-          if (lz) {
-            this._blit(this.lz.room, LZ_FLOOR.c, LZ_FLOOR.r, 1, 1, t.x, t.y, t.w + 0.6, t.h + 0.6);
-          } else {
-            ctx.fillStyle = ((c + r) & 1) ? COL.floor : COL.floorLit;
-            ctx.fillRect(t.x, t.y, t.w + 0.6, t.h + 0.6);
-          }
+          if (lz) this._blit(this.lz.floors, fl.c, fl.r, 1, 1, t.x, t.y, t.w + 0.6, t.h + 0.6);
+          else { ctx.fillStyle = ((c + r) & 1) ? COL.floor : COL.floorLit; ctx.fillRect(t.x, t.y, t.w + 0.6, t.h + 0.6); }
         }
       }
     }
+
+    // 3) GYM pre-built room — blit gym_base (walls+floor) scaled into the sector.
+    this._drawGymRoom();
+
     // card rectangle: push to near-black so the dashboard cards read cleanly
     if (g && this.cardRect) {
       var cr = this.cardRect;
-      ctx.fillStyle = 'rgba(6,8,11,0.9)';
+      ctx.fillStyle = 'rgba(6,8,11,0.92)';
       ctx.fillRect(cr.lo * g.cw, 0, (cr.hi - cr.lo + 1) * g.cw, (cr.bottom + 1) * g.ch);
     }
     // gentle vignette
@@ -721,19 +851,46 @@
     ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
   };
 
+  // Blit the LimeZu PRE-BUILT GYM room (gym_base = walls+floor, gym_furn =
+  // equipment) scaled into the gym sector rect. It's a finished pro gym, so we
+  // draw it whole rather than tiling. Only when both gym sheets are present.
+  Office.prototype._drawGymRoom = function () {
+    if (!this._gymRoomReady()) return;
+    var s = this.sectors.gym; if (!s) return;
+    var t0 = this._tileRect(s.x, s.y);
+    var dw = (s.x2 - s.x + 1) * this.grid.cw, dh = (s.y2 - s.y + 1) * this.grid.ch;
+    var gw = this.lz.gymBase.width, gh = this.lz.gymBase.height;
+    var ctx = this.ctx; ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(this.lz.gymBase, 0, 0, gw, gh, t0.x, t0.y, dw, dh);
+    ctx.drawImage(this.lz.gymFurn, 0, 0, gw, gh, t0.x, t0.y, dw, dh);
+  };
+
   Office.prototype._drawSectorWalls = function () {
     var ctx = this.ctx, g = this.grid, keys = Object.keys(this.sectors);
     for (var k = 0; k < keys.length; k++) {
       var s = this.sectors[keys[k]];
-      // draw the wall ring as chunky pixel walls
+      if (s.key === 'gym' && this._gymRoomReady()) {
+        // pre-built gym already has its own walls + doorway — just re-open the
+        // logical doorway floor so the worker path reads through it.
+        this._openDoorway(s); continue;
+      }
       for (var c = s.x; c <= s.x2; c++) { this._wallTile(c, s.y, s); this._wallTile(c, s.y2, s); }
       for (var r = s.y; r <= s.y2; r++) { this._wallTile(s.x, r, s); this._wallTile(s.x2, r, s); }
-      // re-open the doorway visually (draw floor over the door tile)
-      var dt = this._tileRect(s.door[0], s.door[1]);
-      ctx.fillStyle = COL.floorLit; ctx.fillRect(dt.x, dt.y, dt.w + 0.6, dt.h + 0.6);
-      // a thin accent frame on the doorway posts
-      ctx.fillStyle = s.color;
-      ctx.globalAlpha = 0.5;
+      this._openDoorway(s);
+    }
+  };
+  Office.prototype._openDoorway = function (s) {
+    var ctx = this.ctx, dt = this._tileRect(s.door[0], s.door[1]);
+    // floor under the doorway (so it reads as an opening, not a wall)
+    var fl = LZ_FLOORS[s.key] || LZ_FLOORS._default;
+    if (this._lzReady()) this._blit(this.lz.floors, fl.c, fl.r, 1, 1, dt.x, dt.y, dt.w + 0.6, dt.h + 0.6);
+    else { ctx.fillStyle = COL.floorLit; ctx.fillRect(dt.x, dt.y, dt.w + 0.6, dt.h + 0.6); }
+    // arched doorway frame from rb_doors (grey arch matches the grey wall), else
+    // a thin accent post pair.
+    if (this._lzReady() && this.lz.doors && this.lz.doors.width) {
+      this._blit(this.lz.doors, 0, 5, 2, 2, dt.x - dt.w * 0.5, dt.y - dt.h * 0.4, dt.w * 2, dt.h * 1.4);
+    } else {
+      ctx.fillStyle = s.color; ctx.globalAlpha = 0.5;
       ctx.fillRect(dt.x - 1, dt.y, 2, dt.h); ctx.fillRect(dt.x + dt.w - 1, dt.y, 2, dt.h);
       ctx.globalAlpha = 1;
     }
@@ -741,14 +898,14 @@
   Office.prototype._wallTile = function (c, r, s) {
     var ctx = this.ctx, t = this._tileRect(c, r);
     if (this._lzReady()) {
-      // LimeZu modern wall strip + a darkening overlay tinted to the sector accent
-      this._blit(this.lz.room, LZ_WALL.c, LZ_WALL.r, 1, 1, t.x, t.y, t.w + 0.6, t.h + 0.6);
-      ctx.fillStyle = 'rgba(10,12,15,0.32)'; ctx.fillRect(t.x, t.y, t.w + 0.6, t.h + 0.6);
+      // LimeZu rb_walls grey wall tile + a slight accent tint along the top edge
+      this._blit(this.lz.walls, LZ_WALL.c, LZ_WALL.r, 1, 1, t.x, t.y, t.w + 0.6, t.h + 0.6);
+      ctx.fillStyle = 'rgba(10,12,15,0.18)'; ctx.fillRect(t.x, t.y, t.w + 0.6, t.h + 0.6);
       return;
     }
     ctx.fillStyle = COL.wall; ctx.fillRect(t.x, t.y, t.w + 0.6, t.h + 0.6);
-    ctx.fillStyle = COL.wallTop; ctx.fillRect(t.x, t.y, t.w + 0.6, Math.max(2, t.h * 0.28)); // top bevel
-    ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(t.x, t.y + t.h * 0.82, t.w + 0.6, t.h * 0.18); // base shadow
+    ctx.fillStyle = COL.wallTop; ctx.fillRect(t.x, t.y, t.w + 0.6, Math.max(2, t.h * 0.28));
+    ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(t.x, t.y + t.h * 0.82, t.w + 0.6, t.h * 0.18);
   };
 
   Office.prototype._drawSectorLabels = function () {
@@ -774,12 +931,15 @@
     var keys = Object.keys(this.sectors);
     for (var k = 0; k < keys.length; k++) {
       var s = this.sectors[keys[k]];
+      // the pre-built gym room already includes its equipment — don't draw
+      // procedural gear on top of it.
+      if (s.key === 'gym' && this._gymRoomReady()) continue;
       for (var f = 0; f < s.furniture.length; f++) {
         var u = s.furniture[f], t = this._tileRect(u.c, u.r);
         this._drawUnit(u.kind, t, s);
       }
-      // account cubicle labels (alias) under each terminal
       if (s.key === 'accounts') this._drawCubicleLabels(s);
+      if (s.key === 'dispatch') this._drawDispatchSign(s);
     }
   };
 
@@ -787,19 +947,23 @@
     var ctx = this.ctx; ctx.imageSmoothingEnabled = false;
     var x = t.x, y = t.y, w = t.w, h = t.h, T = performance.now() / 1000;
 
-    // PREMIUM PATH: if the LimeZu sheets are loaded AND this kind has a tile
-    // mapping, blit the real sprite. The multi-tile object is anchored so its
-    // BOTTOM sits at the furniture tile's bottom and it's centered horizontally,
-    // scaled by the grid cell size. Gym kinds (no LimeZu gear) fall through to
-    // the procedural drawing below.
+    // PREMIUM PATH: if the LimeZu sheets are loaded AND this kind maps to a themed
+    // sheet, blit the real multi-tile sprite — bottom-anchored + centered, scaled
+    // by the grid cell. Gym gear isn't here (pre-built room). Unmapped kinds fall
+    // through to the procedural drawing.
     if (this._lzReady() && LZ_FURN[kind]) {
       var m = LZ_FURN[kind];
-      var cw = this.grid.cw, ch = this.grid.ch;
-      var dw = m.w * cw, dh = m.h * ch;
-      var dx = x + w / 2 - dw / 2;          // center on the furniture tile
-      var dy = y + h - dh;                  // bottom-anchored (object stands on the tile)
-      this._blit(this.lz.interiors, m.c, m.r, m.w, m.h, Math.round(dx), Math.round(dy), Math.round(dw), Math.round(dh));
-      return;
+      var sheet = this._sheetFor(m.sheet);
+      if (sheet && sheet.width) {
+        var cw = this.grid.cw, ch = this.grid.ch;
+        var dw = m.w * cw, dh = m.h * ch;
+        var dx = x + w / 2 - dw / 2;          // center on the furniture tile
+        var dy = y + h - dh;                  // bottom-anchored (stands on the tile)
+        this._blit(sheet, m.c, m.r, m.w, m.h, Math.round(dx), Math.round(dy), Math.round(dw), Math.round(dh));
+        // a register accent on the dispatch counter
+        if (kind === 'register') { ctx.fillStyle = '#1b1f27'; ctx.fillRect(x + w * 0.35, y + h * 0.15, w * 0.3, h * 0.22); ctx.fillStyle = COL.pos; ctx.fillRect(x + w * 0.4, y + h * 0.2, w * 0.2, 3); }
+        return;
+      }
     }
 
     if (kind === 'stove') {
@@ -875,7 +1039,31 @@
       var st = (performance.now() / 700) % 1;
       ctx.strokeStyle = 'rgba(200,210,225,' + (0.3 * (1 - st)) + ')'; ctx.lineWidth = 1.4;
       var sx = x + w * 0.5, sy = y + h * 0.2 - st * h * 0.25; ctx.beginPath(); ctx.moveTo(sx, sy + 5); ctx.quadraticCurveTo(sx + 3, sy + 1, sx, sy - 3); ctx.stroke();
+    } else if (kind === 'counter_svc' || kind === 'register') {
+      // DISPATCH service counter (procedural fallback) — a desk-height counter
+      // with a register box + green readout.
+      ctx.fillStyle = '#3a3f4b'; ctx.fillRect(x + 1, y + h * 0.42, w - 2, h * 0.54);
+      ctx.fillStyle = '#cdd4dc'; ctx.fillRect(x + 1, y + h * 0.42, w - 2, 3);     // counter top
+      ctx.fillStyle = '#1b1f27'; ctx.fillRect(x + w * 0.36, y + h * 0.16, w * 0.3, h * 0.24); // register
+      ctx.fillStyle = COL.pos; ctx.fillRect(x + w * 0.42, y + h * 0.22, w * 0.18, 3);
+    } else if (kind === 'meeting') {
+      // big meeting table
+      ctx.fillStyle = COL.wood; ctx.fillRect(x + 2, y + h * 0.3, w - 4, h * 0.5);
+      ctx.fillStyle = '#6b543f'; ctx.fillRect(x + 2, y + h * 0.3, w - 4, 3);
+    } else if (kind === 'server') {
+      ctx.fillStyle = '#20262f'; ctx.fillRect(x + w * 0.3, y + 2, w * 0.4, h - 4);
+      for (var Sl = 0; Sl < 4; Sl++) { ctx.fillStyle = ((Math.floor(T * 4) + Sl) % 2) ? COL.pos : '#234'; ctx.fillRect(x + w * 0.36, y + 4 + Sl * 5, w * 0.28, 2); }
     }
+  };
+
+  // a small "DISPATCH" sign / glow over the hub so it reads as the task desk.
+  Office.prototype._drawDispatchSign = function (s) {
+    var ctx = this.ctx, t = this._tileRect(s.door[0], s.door[1]);
+    ctx.save(); ctx.imageSmoothingEnabled = true; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    var cx = (this._cx(s.x) + this._cx(s.x2)) / 2, cy = this._cy(s.y) - 2;
+    ctx.font = '700 9px "JetBrains Mono", ui-monospace, monospace';
+    ctx.fillStyle = 'rgba(205,223,251,0.18)'; // faint hub glow handled by label already
+    ctx.restore();
   };
 
   // a little CRT screen with an animated scanline; optional glyph hint
@@ -1046,8 +1234,8 @@
       var w = inst.workers[id];
       return { id: id, role: w.role, runner: w.runner, account: w.account, status: w.status,
         state: w.state, sector: w.sectorKey, c: w.c, r: w.r, px: Math.round(w.px), py: Math.round(w.py),
-        dir: w.dir, pathLen: w.path ? w.path.length : 0, pathIdx: w.pathIdx,
-        spot: w.spot ? [w.spot.c, w.spot.r] : null, alpha: +w.alpha.toFixed(2) };
+        dir: w.dir, pathLen: w.path ? w.path.length : 0, pathIdx: w.pathIdx, roaming: !!w.roaming,
+        task: w.task, spot: w.spot ? [w.spot.c, w.spot.r] : null, alpha: +w.alpha.toFixed(2) };
     });
   };
   global.__gxGrid = function () { return inst ? inst.grid : null; };
@@ -1073,12 +1261,27 @@
     var out = {};
     Object.keys(inst.sectors).forEach(function (k) {
       var s = inst.sectors[k];
-      out[k] = { label: s.label, x: s.x, y: s.y, x2: s.x2, y2: s.y2, door: s.door,
+      out[k] = { label: s.label, x: s.x, y: s.y, x2: s.x2, y2: s.y2, door: s.door, outside: s.outside,
         furnitureCount: s.furniture.length, spotCount: s.spots.length,
         furnitureKinds: s.furniture.map(function (f) { return f.kind; }) };
     });
     out.__cardRect = inst.cardRect;
     return out;
+  };
+  // Corridor + a BFS reachability check the sim uses to PROVE a room→dispatch
+  // route exists for every sector (over corridor + dispatch + each room interior).
+  global.__gxCorridor = function () { return inst ? Object.keys(inst.corridor || {}).map(Number) : []; };
+  // Is tile (c,r) part of the connected travel network (corridor ∪ any room
+  // interior ∪ dispatch)? Used by the sim's room→dispatch BFS.
+  global.__gxNetWalkable = function (c, r) {
+    if (!inst || !inst.grid) return false;
+    var g = inst.grid, key = r * g.cols + c;
+    if (c < 0 || r < 0 || c >= g.cols || r >= g.rows) return false;
+    if (inst.obstacles[key]) return false;
+    if (inst.corridor[key]) return true;
+    var ks = Object.keys(inst.sectors);
+    for (var i = 0; i < ks.length; i++) if (inst.sectors[ks[i]].interior[key]) return true;
+    return false;
   };
 
   global.GammaPixels = GammaPixels;

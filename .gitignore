@@ -106,3 +106,5 @@ automation/state/.tailnet-host
 # pixel-office local-only assets (LimeZu: not redistributable; sources: scratch)
 cockpit/assets/pixel/limezu/
 cockpit/assets/pixel/sources/
+
+cockpit/_devshot.png

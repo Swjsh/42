@@ -1902,6 +1902,25 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // DEV-ONLY (localhost): save a posted canvas dataURL to cockpit/_devshot.png so the
+  // office can be screenshotted when the preview tab is backgrounded (rAF + the preview
+  // screenshot tool are both blocked on a hidden tab). Not a product feature.
+  if (url.pathname === '/api/_devshot' && req.method === 'POST') {
+    const host = (req.headers.host || '').split(':')[0];
+    if (!['localhost', '127.0.0.1', '[::1]'].includes(host)) { res.writeHead(403); res.end('no'); return; }
+    let body = '';
+    req.on('data', c => { body += c; if (body.length > 12000000) req.destroy(); });
+    req.on('end', () => {
+      try {
+        const m = String(body).match(/^data:image\/\w+;base64,(.+)$/);
+        if (!m) { res.writeHead(400); res.end('need dataURL'); return; }
+        fs.writeFileSync(path.join(__dirname, '_devshot.png'), Buffer.from(m[1], 'base64'));
+        res.writeHead(200, { 'Content-Type': 'application/json' }); res.end('{"ok":true}');
+      } catch (e) { res.writeHead(500); res.end(String((e && e.message) || e)); }
+    });
+    return;
+  }
+
   // Serve the FACE (design D) — now the app's front door (GET /), plus /face alias.
   // The face is mobile-first and installable (PWA); the old console moves to /console.
   if (url.pathname === '/' || url.pathname === '/face' || url.pathname === '/face.html') {
