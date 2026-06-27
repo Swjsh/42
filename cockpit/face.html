@@ -66,6 +66,8 @@
   }
 
   .frame{
+    position:relative;
+    z-index:1;
     width:100%;
     max-width:440px;
     min-height:100vh;
@@ -470,6 +472,58 @@
   .sys-row .rstatus.RED{color:var(--alert);}
   .sys-row .rdetail{font-family:var(--mono);font-size:11.5px;color:var(--text-2);line-height:1.5;margin-top:4px;word-break:break-word;}
 
+  /* ── drill-in: per-system detail rendered in the EXACT Activity-feed style ── */
+  .sheet-back{
+    display:none;align-items:center;gap:5px;
+    font-size:12px;color:var(--text-2);
+    background:none;border:none;cursor:pointer;padding:2px 0;margin-bottom:2px;
+    letter-spacing:.01em;
+  }
+  .sheet-back.show{display:inline-flex;}
+  .sheet-back:hover{color:var(--text);}
+  .drill-section{margin-top:12px;}
+  .drill-section:first-child{margin-top:4px;}
+  .drill-label{
+    font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);font-weight:600;margin-bottom:5px;
+    display:flex;align-items:center;gap:7px;
+  }
+  .drill-label::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.06);}
+  /* a drill card == a feed-item: colored left-rule + mono ts + serif anchor + line + by-tag */
+  .drill-item{
+    display:grid;grid-template-columns:3px 1fr;gap:0;
+    padding:7px 0;border-top:1px solid rgba(255,255,255,.05);
+  }
+  .drill-item:first-of-type{border-top:none;}
+  .drill-rule{width:3px;border-radius:3px;background:var(--slate-3);align-self:stretch;}
+  .drill-rule.GREEN{background:var(--pos);}
+  .drill-rule.YELLOW{background:var(--caution);}
+  .drill-rule.RED{background:var(--alert);}
+  .drill-body{padding-left:13px;min-width:0;}
+  .drill-ts{
+    font-family:var(--mono);font-size:10.5px;color:var(--muted);
+    letter-spacing:.01em;display:block;margin-bottom:3px;
+  }
+  .drill-cat{
+    font-family:var(--serif);font-weight:500;font-size:14.5px;color:var(--text);
+    display:block;margin-bottom:1px;word-break:break-word;
+  }
+  .drill-text{
+    font-family:var(--ui);font-size:13px;line-height:1.45;color:var(--text-2);
+    word-break:break-word;
+  }
+  .drill-by{
+    display:block;margin-top:4px;
+    font-family:var(--ui);font-size:10px;color:var(--muted);
+    letter-spacing:.02em;opacity:.85;
+  }
+  .drill-by::before{content:"by ";opacity:.6;}
+  .drill-empty{font-size:12.5px;color:var(--muted);padding:6px 0;}
+  /* account rows are tappable drill cards — add an affordance chevron */
+  .drill-item.tappable{cursor:pointer;}
+  .drill-item.tappable:hover .drill-cat{color:var(--glow);}
+  .drill-item.tappable .drill-cat::after{content:" ›";color:var(--muted);font-family:var(--ui);}
+
   /* ── footer ──────────────────────────────────────── */
   .footer{
     display:none;
@@ -495,6 +549,8 @@
 </style>
 </head>
 <body>
+  <!-- pixel office: living agents behind the dashboard (fixed full-viewport canvas) -->
+  <canvas id="gx-office" aria-hidden="true" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:0;pointer-events:none;"></canvas>
   <main class="frame">
 
     <!-- HERO -->
@@ -573,8 +629,9 @@
   <!-- system detail sheet — what each part of Gamma is doing (tap any chip) -->
   <div class="sheet-backdrop" id="sheetBackdrop"></div>
   <aside class="sheet" id="sysSheet" role="dialog" aria-label="System detail" aria-hidden="true">
-    <div class="sheet-head"><div class="sheet-title">Systems</div><button class="sheet-close" id="sheetClose" type="button" aria-label="Close">✕</button></div>
-    <div class="sheet-sub">What each part of Gamma is doing right now</div>
+    <button class="sheet-back" id="sheetBack" type="button">‹ Back</button>
+    <div class="sheet-head"><div class="sheet-title" id="sheetTitle">Systems</div><button class="sheet-close" id="sheetClose" type="button" aria-label="Close">✕</button></div>
+    <div class="sheet-sub" id="sheetSub">What each part of Gamma is doing right now</div>
     <div id="sheetBody"></div>
   </aside>
 
@@ -869,25 +926,127 @@
   el("approveBtn").addEventListener("click", function(){ decide("approve"); });
   el("holdBtn").addEventListener("click", function(){ decide("reject"); });
 
-  // ── SYSTEM DETAIL SHEET — tap a health chip → what each part is doing now ────
-  function cleanDetail(s){ return String(s||"").replace(/\s*\|\s*/g," · ").replace(/\s+/g," ").trim() || "No detail reported."; }
-  function statusWord(light){ return light==="GREEN"?"healthy":light==="YELLOW"?"watch":"alert"; }
-  function buildSheet(tiles){
-    el("sheetBody").innerHTML = (tiles||[]).map(function(t){
-      var light = (t.light==="GREEN"||t.light==="YELLOW"||t.light==="RED") ? t.light : "RED";
-      return '<div class="sys-row">' +
-               '<span class="rdot '+light+'"></span>' +
-               '<div>' +
-                 '<div class="rhead"><span class="rname">'+esc(t.title||"")+'</span>' +
-                 '<span class="rstatus '+light+'">'+statusWord(light)+'</span></div>' +
-                 '<div class="rdetail">'+esc(cleanDetail(t.text))+'</div>' +
-               '</div>' +
+  // ── SYSTEM DRILL-IN SHEET — tap a chip → THAT system's own detail ───────────
+  // Each item renders as an Activity-feed card (colored rule + mono ts + serif
+  // anchor + line + a muted "by <who>" tag). Accounts get a 2nd layer.
+  function statusWord(light){ return light==="GREEN"?"healthy":light==="YELLOW"?"watch":light==="RED"?"alert":""; }
+
+  // Map a tile title → the system key the backend understands.
+  function tileKey(title){
+    var t = String(title||"").toLowerCase();
+    if (t.indexOf("beacon")>=0) return "beacon";
+    if (t.indexOf("account")>=0) return "accounts";
+    if (t.indexOf("autonomy")>=0) return "autonomy";
+    if (t.indexOf("conductor")>=0) return "conductor";
+    if (t.indexOf("discord")>=0) return "discord";
+    if (t.indexOf("kitchen")>=0) return "kitchen";
+    if (t.indexOf("spend")>=0) return "spend";
+    if (t.indexOf("gym")>=0) return "gym";
+    if (t.indexOf("task")>=0) return "tasks";
+    if (t.indexOf("engine")>=0) return "engine";
+    return "";
+  }
+
+  // Render ONE feed-style card. `tapAttr` (optional) makes it a drill row.
+  function drillCard(item, ruleLight, tapAttr){
+    var ts = esc(item && item.ts || "");
+    var cat = esc(item && item.category || "");
+    var text = esc(item && item.text || "");
+    var by = item && item.by ? '<span class="drill-by">'+esc(item.by)+'</span>' : '';
+    return '<div class="drill-item'+(tapAttr?' tappable':'')+'"'+(tapAttr||'')+'>' +
+             '<span class="drill-rule '+ruleLight+'"></span>' +
+             '<div class="drill-body">' +
+               (ts?'<span class="drill-ts">'+ts+'</span>':'') +
+               (cat?'<span class="drill-cat">'+cat+'</span>':'') +
+               (text?'<span class="drill-text">'+text+'</span>':'') +
+               by +
+             '</div>' +
+           '</div>';
+  }
+
+  // Render a system detail object {title,status,sections:[{label,items}]} into the
+  // sheet body. `accountDrill` toggles the accounts 2nd-layer tap affordance.
+  function renderSystem(sys, accountDrill){
+    var light = (sys && (sys.status==="GREEN"||sys.status==="YELLOW"||sys.status==="RED")) ? sys.status : "YELLOW";
+    el("sheetTitle").textContent = (sys && sys.title) || "System";
+    el("sheetSub").textContent = statusWord(light) ? ("Status: "+statusWord(light)) : "";
+    var sections = (sys && Array.isArray(sys.sections)) ? sys.sections : [];
+    if (!sections.length){
+      el("sheetBody").innerHTML = '<div class="drill-empty">No detail reported.</div>';
+      return;
+    }
+    el("sheetBody").innerHTML = sections.map(function(sec){
+      var items = Array.isArray(sec.items) ? sec.items : [];
+      var rows = items.length
+        ? items.map(function(it){
+            var tap = (accountDrill && it.sub_id)
+              ? ' data-account="'+esc(it.sub_id)+'"' : '';
+            return drillCard(it, light, tap);
+          }).join("")
+        : '<div class="drill-empty">Nothing here right now.</div>';
+      return '<div class="drill-section">' +
+               '<div class="drill-label">'+esc(sec.label||"")+'</div>' +
+               rows +
              '</div>';
     }).join("");
+    // Wire account drill rows (accounts layer 1 → layer 2).
+    if (accountDrill){
+      Array.prototype.forEach.call(el("sheetBody").querySelectorAll("[data-account]"), function(node){
+        node.addEventListener("click", function(){ openAccount(node.getAttribute("data-account")); });
+      });
+    }
   }
-  function openSheet(){ buildSheet(lastTiles); el("sheetBackdrop").classList.add("open"); el("sysSheet").classList.add("open"); el("sysSheet").setAttribute("aria-hidden","false"); }
-  function closeSheet(){ el("sheetBackdrop").classList.remove("open"); el("sysSheet").classList.remove("open"); el("sysSheet").setAttribute("aria-hidden","true"); }
-  el("sysGrid").addEventListener("click", openSheet);
+
+  var currentKey = null;       // which system the sheet is showing
+  function showBack(on){ el("sheetBack").classList.toggle("show", !!on); }
+
+  function openSystem(key){
+    currentKey = key;
+    showBack(false);
+    el("sheetBody").innerHTML = '<div class="drill-empty">Loading…</div>';
+    el("sheetTitle").textContent = "Loading…";
+    el("sheetSub").textContent = "";
+    fetch("/api/system?key="+encodeURIComponent(key))
+      .then(function(r){return r.json();})
+      .then(function(sys){ renderSystem(sys, key==="accounts"); })
+      .catch(function(){ el("sheetBody").innerHTML = '<div class="drill-empty">Couldn’t load detail.</div>'; });
+  }
+
+  function openAccount(id){
+    showBack(true);
+    el("sheetBody").innerHTML = '<div class="drill-empty">Loading account…</div>';
+    el("sheetTitle").textContent = "Loading…";
+    fetch("/api/account?id="+encodeURIComponent(id))
+      .then(function(r){return r.json();})
+      .then(function(acct){ renderSystem(acct, false); })
+      .catch(function(){ el("sheetBody").innerHTML = '<div class="drill-empty">Couldn’t load account.</div>'; });
+  }
+
+  function openSheet(key){
+    openSystem(key);
+    el("sheetBackdrop").classList.add("open");
+    el("sysSheet").classList.add("open");
+    el("sysSheet").setAttribute("aria-hidden","false");
+  }
+  function closeSheet(){
+    el("sheetBackdrop").classList.remove("open");
+    el("sysSheet").classList.remove("open");
+    el("sysSheet").setAttribute("aria-hidden","true");
+    showBack(false);
+  }
+
+  // Tap a specific chip → open THAT system (delegated; reads the chip's index).
+  el("sysGrid").addEventListener("click", function(e){
+    var chip = e.target.closest ? e.target.closest(".sys") : null;
+    if (!chip) return;
+    var chips = Array.prototype.slice.call(el("sysGrid").querySelectorAll(".sys"));
+    var idx = chips.indexOf(chip);
+    var tile = (idx >= 0 && lastTiles[idx]) ? lastTiles[idx] : null;
+    var key = tile ? tileKey(tile.title) : "";
+    if (key) openSheet(key);
+  });
+  // Back (accounts layer 2 → layer 1) re-opens the accounts list.
+  el("sheetBack").addEventListener("click", function(){ if (currentKey) openSystem(currentKey); });
   el("sheetClose").addEventListener("click", closeSheet);
   el("sheetBackdrop").addEventListener("click", closeSheet);
   document.addEventListener("keydown", function(e){ if(e.key==="Escape") closeSheet(); });
@@ -919,6 +1078,7 @@
     }
     function onStatus(s){
       clearMic();
+      window.__gammaVoice = (s === "listening" || s === "user_speaking" || s === "speaking");
       if (s === "connecting"){ btn.classList.add("is-connecting"); setStatus("Connecting…"); setCoreVoice(null); return; }
       if (s === "listening"){ btn.classList.add("is-listening"); setStatus("Listening — tap to end", "live"); setCoreVoice("listening"); return; }
       if (s === "user_speaking"){ btn.classList.add("is-user"); setStatus("Listening — tap to end", "live"); setCoreVoice("user"); return; }
@@ -973,6 +1133,32 @@
       });
     }
   } catch(_){ /* never block the app on SW failure */ }
+})();
+</script>
+
+<!-- Pixel office — living agents roam behind the dashboard, fed by /api/agents-live -->
+<script src="/pixels.js"></script>
+<script>
+(function(){
+  "use strict";
+  var canvas = document.getElementById("gx-office");
+  if (!canvas || !window.GammaPixels) return;
+  try { window.GammaPixels.mount(canvas); } catch(_) { return; }
+  function pump(){
+    fetch("/api/agents-live", { cache: "no-store" })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        var list = (d && d.agents) || [];
+        // When you're talking to Gamma, a Claude worker comes to life in the office.
+        if (window.__gammaVoice) {
+          list = list.concat([{ id:"voice-claude", role:"claude", runner:"Claude Opus", task:"talking with you", status:"working" }]);
+        }
+        try { window.GammaPixels.setAgents(list); } catch(_){}
+      })
+      .catch(function(){ /* fail-open: office keeps its last roster */ });
+  }
+  pump();
+  setInterval(pump, 2500);
 })();
 </script>
 </body>

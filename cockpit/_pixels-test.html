@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<!--
+  cockpit/_pixels-test.html — standalone harness for pixels.js.
+  Open this file directly in a browser (file:// works — sprites load via the
+  relative ./assets/pixel/... paths). It mounts the GammaPixels office with a
+  MOCK roster that mutates over time (spawn-in / despawn-out) and turns the
+  A* debug-path overlay ON so you can SEE each worker follow a multi-cell route
+  around the desks/coffee/whiteboard — not a straight line.
+
+  NOT shipped to users. Dev verification only. Do not commit.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GammaPixels — office test harness</title>
+<style>
+  :root { --bg:#0A0C0F; --accent:#93A8DD; --text:#E7EAF2; --muted:#6C7384; --pos:#43C98E; }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--text);
+    font-family:Inter,-apple-system,'Segoe UI',sans-serif; overflow:hidden; }
+  /* the office canvas — full-viewport background, exactly as it'll be wired in face.html */
+  #gx-office { position:fixed; inset:0; width:100vw; height:100vh; z-index:0; pointer-events:none; }
+  /* a fake "dashboard card" column so you can confirm workers roam the visible MARGINS */
+  .frame { position:relative; z-index:1; width:100%; max-width:440px; margin:0 auto;
+    min-height:100vh; padding:14px 18px; pointer-events:none; }
+  .card { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+    border-radius:14px; padding:16px; margin-top:10px; backdrop-filter:blur(8px); }
+  .card h1 { font-size:15px; margin:0 0 4px; letter-spacing:.5px; }
+  .card p { font-size:12.5px; color:var(--muted); margin:0; line-height:1.5; }
+  /* dev control panel — pointer-events re-enabled here only */
+  .panel { position:fixed; left:10px; bottom:10px; z-index:3; pointer-events:auto;
+    background:rgba(8,10,14,.9); border:1px solid rgba(147,168,221,.25); border-radius:12px;
+    padding:10px 12px; font-size:12px; width:min(380px,46vw); }
+  .panel b { color:var(--accent); }
+  .panel .row { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+  .panel button { font:inherit; font-size:11.5px; color:var(--text); cursor:pointer;
+    background:rgba(147,168,221,.14); border:1px solid rgba(147,168,221,.3);
+    border-radius:7px; padding:5px 9px; }
+  .panel button:hover { background:rgba(147,168,221,.26); }
+  .panel pre { margin:8px 0 0; max-height:34vh; overflow:auto; font-size:10.5px; line-height:1.45;
+    color:#A4ABBE; font-family:'JetBrains Mono',ui-monospace,monospace;
+    background:rgba(0,0,0,.3); padding:7px; border-radius:7px; white-space:pre-wrap; }
+  .ok { color:var(--pos); } .bad { color:#E0574E; }
+</style>
+</head>
+<body>
+  <canvas id="gx-office"></canvas>
+
+  <div class="frame">
+    <div class="card"><h1>Gamma cockpit (mock)</h1>
+      <p>This center column simulates the real dashboard cards. The pixel office runs
+         BEHIND it — confirm the little workers roam the side margins and clearly walk
+         <i>around</i> the desks, not in straight lines.</p></div>
+    <div class="card"><h1>Live agents</h1><p id="rosterTxt">—</p></div>
+  </div>
+
+  <div class="panel">
+    <div><b>GammaPixels test harness</b> — debug paths <b id="dbgState">ON</b></div>
+    <div class="row">
+      <button id="bAdd">+ add agent</button>
+      <button id="bRemove">– remove one</button>
+      <button id="bDone">mark one done</button>
+      <button id="bDbg">toggle debug paths</button>
+      <button id="bProve">prove pathing</button>
+      <button id="bChaos">cycle roster</button>
+    </div>
+    <pre id="out">booting…</pre>
+  </div>
+
+  <script src="./pixels.js"></script>
+  <script>
+  (function () {
+    var $ = function (id) { return document.getElementById(id); };
+    var canvas = $('gx-office');
+
+    // ── mock roster ──────────────────────────────────────────────────────────
+    var ROLES   = ['engine', 'conductor', 'kitchen', 'gym', 'research', 'claude'];
+    var RUNNERS = {
+      engine: 'Python', conductor: 'Claude Opus', kitchen: 'Nemotron · free',
+      gym: 'Python', research: 'Claude Sonnet', claude: 'Claude Opus'
+    };
+    var TASKS = ['wiring G6 vix feed', 'ranking candidates', 'seeding cook tasks',
+                 '42 validators', 'edge-hunt sweep', 'reading the tape'];
+    var seqId = 0;
+    var roster = [];
+
+    function mk(role) {
+      role = role || ROLES[Math.floor(Math.random() * ROLES.length)];
+      return {
+        id: role + '-' + (++seqId),
+        role: role,
+        runner: RUNNERS[role] || 'Claude',
+        task: TASKS[Math.floor(Math.random() * TASKS.length)],
+        status: Math.random() < 0.3 ? 'thinking' : 'working'
+      };
+    }
+    function push() { roster = roster.concat([mk()]); apply(); }
+    function pop() { if (roster.length) { roster = roster.slice(0, -1); apply(); } }
+    function markDone() {
+      if (!roster.length) return;
+      var i = Math.floor(Math.random() * roster.length);
+      roster = roster.map(function (r, j) { return j === i ? Object.assign({}, r, { status: 'done' }) : r; });
+      apply();
+    }
+    function apply() {
+      GammaPixels.setAgents(roster);
+      $('rosterTxt').textContent = roster.length
+        ? roster.map(function (r) { return r.role + ' (' + r.runner + ')' + (r.status === 'done' ? ' ✓' : ''); }).join(' · ')
+        : '(office empty)';
+      render();
+    }
+
+    // ── self-evidence: dump live snapshot + the planned A* paths ──────────────
+    function render() {
+      var snap = (window.__gxSnapshot && window.__gxSnapshot()) || [];
+      var grid = (window.__gxGrid && window.__gxGrid()) || {};
+      var lines = [];
+      lines.push('grid: ' + (grid.cols || '?') + 'x' + (grid.rows || '?') + ' tiles');
+      snap.forEach(function (s) {
+        var pathStr = (window.__lastPaths && window.__lastPaths[s.id]) || [];
+        lines.push(
+          s.role.padEnd(9) + ' ' + s.state.padEnd(9) +
+          ' tile(' + s.c + ',' + s.r + ') dir=' + s.dir +
+          ' pathCells=' + (pathStr.length || s.pathLen) + ' idx=' + s.pathIdx +
+          (s.desk ? ' desk=' + s.desk.join(',') : '')
+        );
+      });
+      $('out').textContent = lines.join('\n') || '(no workers)';
+    }
+
+    // PROVE the pathing: assert at least one worker's last path is a multi-cell,
+    // 4-connected route (i.e. NOT a 1- or 2-cell straight shot). Prints PASS/FAIL.
+    function provePathing() {
+      var paths = window.__lastPaths || {};
+      var ids = Object.keys(paths);
+      var multi = 0, straightOnly = 0, details = [];
+      ids.forEach(function (id) {
+        var p = paths[id]; if (!p || p.length < 2) return;
+        // is it 4-connected?
+        var connected = true, turns = 0, prevDir = null;
+        for (var i = 1; i < p.length; i++) {
+          var dc = p[i][0] - p[i-1][0], dr = p[i][1] - p[i-1][1];
+          if (Math.abs(dc) + Math.abs(dr) !== 1) connected = false;
+          var dir = dc !== 0 ? 'h' : 'v';
+          if (prevDir && dir !== prevDir) turns++;
+          prevDir = dir;
+        }
+        if (p.length >= 4 && connected) multi++; else straightOnly++;
+        details.push(id + ': ' + p.length + ' cells, ' + turns + ' turns, ' +
+          (connected ? '4-connected' : 'NOT-connected'));
+      });
+      var verdict = multi > 0
+        ? '<PASS> ' + multi + ' worker(s) follow a real multi-cell A* route (turning corners).'
+        : '<FAIL> no multi-cell routes captured yet — add agents / cycle roster, then retry.';
+      $('out').textContent = verdict + '\n\n' + details.join('\n');
+    }
+
+    // ── wire controls ──
+    $('bAdd').onclick = push;
+    $('bRemove').onclick = pop;
+    $('bDone').onclick = markDone;
+    $('bProve').onclick = provePathing;
+    $('bDbg').onclick = function () {
+      var el = $('dbgState'); var on = el.textContent === 'ON';
+      GammaPixels.setDebugPaths(!on); el.textContent = on ? 'OFF' : 'ON';
+    };
+    $('bChaos').onclick = function () {
+      // churn the roster: drop a couple, add a couple, flip a status — proves
+      // spawn-in + despawn-out + no ghost-leak as the live list mutates.
+      if (roster.length > 2) roster = roster.slice(1);
+      roster = roster.concat([mk(), mk()]);
+      if (roster.length) roster[0] = Object.assign({}, roster[0], { status: 'thinking' });
+      apply();
+    };
+
+    // ── boot: mount with debug paths ON, seed 4 mixed workers ──
+    GammaPixels.mount(canvas, { debugPaths: true });
+    // wait a tick for assets, then seed + start the auto-churn so it's self-driving
+    setTimeout(function () {
+      ['engine', 'conductor', 'kitchen', 'research'].forEach(function (role) { roster.push(mk(role)); });
+      apply();
+    }, 250);
+
+    // gentle auto-churn every ~6s so an idle observer still sees spawn/despawn
+    setInterval(function () {
+      var roll = Math.random();
+      if (roll < 0.35 && roster.length < 7) push();
+      else if (roll < 0.6 && roster.length > 2) pop();
+      else if (roll < 0.75) markDone();
+      else render();
+    }, 6000);
+
+    // keep the snapshot panel fresh
+    setInterval(render, 1000);
+  })();
+  </script>
+</body>
+</html>

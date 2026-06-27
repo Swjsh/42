@@ -638,6 +638,533 @@ function getPrevDate(dateStr, n) {
   return d.toISOString().slice(0, 10);
 }
 
+// ─── System drill-in (read-only — one system's own detail, feed-card shape) ───
+// GET /api/system?key=<key> returns { key, title, status, sections:[{label,
+// items:[{ts,category,text,by}]}], sub? }. Every reader fails OPEN: a missing or
+// malformed file yields an empty section, never a throw, never a write.
+
+// Read the last N non-blank lines of a (possibly large) JSONL file WITHOUT
+// loading the whole thing: seek a tail window from the end, split, keep the
+// last N parseable JSON objects (oldest→newest order preserved).
+function tailJsonl(filePath, n, windowBytes) {
+  const out = [];
+  try {
+    const stat = fs.statSync(filePath);
+    const size = stat.size;
+    const win = Math.min(size, windowBytes || 65536);
+    const start = size - win;
+    const buf = Buffer.alloc(win);
+    const fd = fs.openSync(filePath, 'r');
+    fs.readSync(fd, buf, 0, win, start);
+    fs.closeSync(fd);
+    let text = buf.toString('utf8');
+    // If we started mid-file, drop the first (likely partial) line.
+    if (start > 0) { const nl = text.indexOf('\n'); if (nl >= 0) text = text.slice(nl + 1); }
+    const lines = text.split('\n').map(s => s.trim()).filter(Boolean);
+    for (const l of lines) {
+      try { out.push(JSON.parse(l)); } catch (_) {}
+    }
+  } catch (_) {}
+  return out.slice(-Math.max(1, n || 6));
+}
+
+// "MM-DD HH:MM ET" short timestamp for a card. Naive-ET ISO keeps its own clock;
+// a zoned/UTC ISO is converted to the ET wall clock.
+function cardTs(isoStr) {
+  if (!isoStr) return '';
+  const s = String(isoStr);
+  const zoned = /[zZ]$|[+\-]\d{2}:?\d{2}$/.test(s);
+  if (!zoned) {
+    const m = s.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}:\d{2})/);
+    if (m) return `${m[2]}-${m[3]} ${m[4]}`;
+    const d = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (d) return `${d[2]}-${d[3]}`;
+    return s;
+  }
+  try {
+    return new Date(s).toLocaleString('en-US', {
+      timeZone: 'America/New_York', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hour12: false,
+    }).replace(',', '');
+  } catch (_) { return s; }
+}
+
+// Find the newest gym-scorecard-YYYY-MM-DD.json by the date in the filename.
+function newestGymScorecard() {
+  try {
+    const files = fs.readdirSync(STATE)
+      .filter(f => /^gym-scorecard-\d{4}-\d{2}-\d{2}\.json$/.test(f))
+      .sort();
+    if (!files.length) return { date: null, data: null };
+    const f = files[files.length - 1];
+    const date = f.slice('gym-scorecard-'.length, -'.json'.length);
+    return { date, data: readJSON(path.join(STATE, f)) };
+  } catch (_) { return { date: null, data: null }; }
+}
+
+// gym → newest validator results. Prefer crypto/data/scorecards/latest.json runs[]
+// (per-validator granularity); fall back to the gym scorecard audits[] rollup.
+function systemGym() {
+  const items = [];
+  const { date: gymDate, data: gym } = newestGymScorecard();
+  const ts = gymDate || '';
+
+  const latest = readJSON(path.join(REPO, 'crypto', 'data', 'scorecards', 'latest.json'));
+  const runs = (latest && Array.isArray(latest.runs)) ? latest.runs : [];
+  if (runs.length) {
+    // newest validators are the highest-numbered stages — show the last ~6 run
+    for (const r of runs.slice(-6).reverse()) {
+      const res = (r && r.result) || {};
+      const passed = r && r.ok && (res.all_pass !== false) && (res.pass !== false);
+      const mode = res.mode || (r.name && r.name.includes('.live') ? 'live' : '');
+      const checked = res.verdict || (passed ? 'PASS' : 'FAIL');
+      items.push({
+        ts,
+        category: String((r && r.name) || 'validator'),
+        text: `${mode ? mode + ' — ' : ''}${checked} (${passed ? 'PASS' : 'FAIL'})`,
+        by: 'Python · validator',
+      });
+    }
+  } else if (gym && Array.isArray(gym.audits)) {
+    for (const a of gym.audits.slice(0, 6)) {
+      items.push({
+        ts,
+        category: String(a.name || 'audit'),
+        text: `${a.summary || ''} (${a.verdict || '?'})`,
+        by: 'Python · validator',
+      });
+    }
+  }
+
+  const verdict = (gym && (gym.overall_verdict || gym.detector_verdict)) || '?';
+  const status = verdict === 'GREEN' ? 'GREEN' : verdict === 'YELLOW' ? 'YELLOW'
+    : verdict === '?' ? 'YELLOW' : 'RED';
+  const sumLine = latest && latest.summary
+    ? `${latest.summary.passed}/${latest.summary.stages} validators pass`
+    : (gym ? `gym ${verdict}` : 'no scorecard');
+  const sections = [{ label: `Validators · ${sumLine}`, items }];
+  return { key: 'gym', title: 'Gym', status, sections };
+}
+
+// autonomy → Research (running autoresearch families + recent kitchen cooks) +
+// Infra & autonomy (conductor outcomes).
+function systemAutonomy() {
+  // ── Research: families with a live/running progress.json ──
+  const research = [];
+  try {
+    const base = path.join(REPO, 'backtest', 'autoresearch', '_state');
+    const dirs = fs.readdirSync(base, { withFileTypes: true })
+      .filter(d => d.isDirectory() && !d.name.startsWith('_'));
+    for (const d of dirs) {
+      const prog = readJSON(path.join(base, d.name, 'progress.json'));
+      if (!prog || prog.status !== 'running') continue;
+      const done = prog.completed || 0;
+      const total = prog.total_combos || 0;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      research.push({
+        ts: cardTs(prog.last_update || prog.started_at),
+        category: d.name,
+        text: `sweeping ${done}/${total} combos (${pct}%) · keepers=${prog.keepers || 0} · best_edge=${(prog.best_edge_capture || 0).toFixed(0)}`,
+        by: `Python · ${prog.workers || 1}-worker grinder`,
+      });
+    }
+  } catch (_) {}
+  // Fold in the most recent kitchen strategy cooks (free-model R&D).
+  try {
+    const kitchen = readJSON(path.join(STATE, 'kitchen-status.json'));
+    const recent = (kitchen && Array.isArray(kitchen.recent_completed_top_10)) ? kitchen.recent_completed_top_10 : [];
+    for (const c of recent.slice(0, 3)) {
+      research.push({
+        ts: cardTs(c.completed_at),
+        category: 'kitchen cook',
+        text: String(c.task || '').slice(0, 160),
+        by: modelLabel(c.model),
+      });
+    }
+  } catch (_) {}
+
+  // ── Infra & autonomy: last ~6 conductor outcomes ──
+  const infra = [];
+  for (const r of tailJsonl(path.join(STATE, 'conductor-outcomes.jsonl'), 6).reverse()) {
+    const tweak = [];
+    if (typeof r.tests_delta === 'number' && r.tests_delta) tweak.push(`tests +${r.tests_delta}`);
+    if (typeof r.regressions === 'number') tweak.push(`regressions ${r.regressions}`);
+    const suffix = tweak.length ? ` (${tweak.join(', ')})` : '';
+    infra.push({
+      ts: cardTs(r.fired_at),
+      category: String(r.task_id || 'task'),
+      text: `${r.note || 'no note'}${suffix}`,
+      by: 'Conductor · Claude',
+    });
+  }
+
+  const metric = readJSON(path.join(STATE, 'autonomy-metric.json'));
+  const status = metric && metric.total_regressions > 0 ? 'RED'
+    : metric && metric.trend === 'improving' ? 'GREEN' : 'YELLOW';
+  return {
+    key: 'autonomy',
+    title: 'Autonomy Loop',
+    status,
+    sections: [
+      { label: 'Research', items: research },
+      { label: 'Infra & autonomy', items: infra },
+    ],
+  };
+}
+
+// conductor → last ~6 conductor-outcomes fires.
+function systemConductor() {
+  const items = [];
+  for (const r of tailJsonl(path.join(STATE, 'conductor-outcomes.jsonl'), 6).reverse()) {
+    const tweak = [];
+    if (typeof r.tests_delta === 'number' && r.tests_delta) tweak.push(`tests +${r.tests_delta}`);
+    if (typeof r.regressions === 'number') tweak.push(`reg ${r.regressions}`);
+    if (typeof r.cost_usd === 'number') tweak.push(`$${r.cost_usd.toFixed(2)}`);
+    const suffix = tweak.length ? ` (${tweak.join(', ')})` : '';
+    items.push({
+      ts: cardTs(r.fired_at),
+      category: String(r.task_id || 'task'),
+      text: `${r.note || 'no note'}${suffix}`,
+      by: 'Conductor · Claude',
+    });
+  }
+  const last = items[0];
+  const lastRaw = tailJsonl(path.join(STATE, 'conductor-outcomes.jsonl'), 1)[0];
+  const status = lastRaw && lastRaw.regressions > 0 ? 'RED' : items.length ? 'GREEN' : 'YELLOW';
+  return { key: 'conductor', title: 'Conductor', status, sections: [{ label: 'Recent fires', items }] };
+}
+
+// Tag a free-tier model slug with a friendly label for the "by" field.
+function modelLabel(slug) {
+  const s = String(slug || '').toLowerCase();
+  if (!s) return 'free model';
+  if (s.includes('nemotron') || s.includes('nvidia')) return 'Nemotron · free';
+  if (s.includes('deepseek')) return 'DeepSeek · free';
+  if (s.includes('minimax')) return 'MiniMax · free';
+  if (s.includes('llama') || s.includes('groq')) return 'Llama · free';
+  if (s.includes('grinder') || s.includes('python')) return 'Python · grinder';
+  return `${slug} · free`;
+}
+
+// kitchen → status summary card + last ~6 cook-queue completions.
+function systemKitchen() {
+  const k = readJSON(path.join(STATE, 'kitchen-status.json'));
+  const summary = [];
+  if (k) {
+    const q = (k.queue_summary && k.queue_summary.by_status) || {};
+    summary.push({
+      ts: cardTs(k.updated_at_et),
+      category: 'daemon',
+      text: `${k.daemon_alive ? 'ALIVE' : 'DEAD'} · completed=${q.completed || 0} · pending=${q.pending || 0} · cost=$${(k.today_cost_usd_paid_tier || 0).toFixed(2)}/${(k.today_cost_cap_usd || 0).toFixed(0)}`,
+      by: 'Python · kitchen daemon',
+    });
+  }
+
+  // Recent cooks: prefer kitchen-status' recent_completed_top_10 (carries model +
+  // task text); fall back to the raw cook-queue completion events.
+  const cooks = [];
+  const recent = (k && Array.isArray(k.recent_completed_top_10)) ? k.recent_completed_top_10 : [];
+  if (recent.length) {
+    for (const c of recent.slice(0, 6)) {
+      cooks.push({
+        ts: cardTs(c.completed_at),
+        category: 'cook',
+        text: String(c.task || '').slice(0, 170),
+        by: modelLabel(c.model),
+      });
+    }
+  } else {
+    for (const e of tailJsonl(path.join(STATE, 'cook-queue.jsonl'), 12).reverse()) {
+      if (e.event !== 'complete') continue;
+      if (cooks.length >= 6) break;
+      cooks.push({
+        ts: cardTs(e.ts),
+        category: 'cook',
+        text: String(e.output_path || e.task_id || 'cook').replace(/\\/g, '/'),
+        by: modelLabel(e.model),
+      });
+    }
+  }
+
+  const status = k ? (k.daemon_alive ? 'GREEN' : 'RED') : 'YELLOW';
+  return {
+    key: 'kitchen', title: 'Kitchen', status,
+    sections: [
+      { label: 'Daemon', items: summary },
+      { label: 'Recent cooks', items: cooks },
+    ],
+  };
+}
+
+// spend → last ~6 days from spend-daily.jsonl (the cost story).
+function systemSpend() {
+  const items = [];
+  let lastCost = 0;
+  for (const r of tailJsonl(path.join(STATE, 'spend-daily.jsonl'), 6).reverse()) {
+    lastCost = items.length === 0 ? (r.total_cost_usd || 0) : lastCost;
+    const sessions = r.claude_sessions || 0;
+    const mm = r.minimax_calls || 0;
+    items.push({
+      ts: r.date_et || '',
+      category: r.date_et || 'day',
+      text: `$${(r.total_cost_usd || 0).toFixed(2)} across ${sessions} session${sessions === 1 ? '' : 's'}${mm ? ` · ${mm} free calls` : ''}`,
+      by: '—',
+    });
+  }
+  const status = lastCost > 400 ? 'RED' : lastCost > 200 ? 'YELLOW' : 'GREEN';
+  return { key: 'spend', title: 'Spend', status, sections: [{ label: 'Daily cost', items }] };
+}
+
+// beacon → sight-beacon.json as one or two cards.
+function systemBeacon() {
+  const d = readJSON(path.join(STATE, 'sight-beacon.json'));
+  const items = [];
+  let status = 'YELLOW';
+  if (d) {
+    const ageS = typeof d.age_s === 'number' ? d.age_s : null;
+    status = !d.ok ? 'RED' : (ageS != null && ageS > 300) ? 'RED' : (ageS != null && ageS > 120) ? 'YELLOW' : 'GREEN';
+    items.push({
+      ts: cardTs(d.ts_et || d.ts_utc),
+      category: `SPY $${d.spy}`,
+      text: `ribbon=${d.ribbon_stack} · fast=${d.ema_fast} pivot=${d.ema_pivot} slow=${d.ema_slow} · ${d.n_bars || d.bars_used || '?'} bars`,
+      by: `${d.data_source || 'rest'} · Python`,
+    });
+    items.push({
+      ts: cardTs(d.ts_et || d.ts_utc),
+      category: 'freshness',
+      text: `age=${ageS != null ? Math.round(ageS) + 's' : '?'} · last_bar=${d.last_bar || '?'} · note=${d.fetch_note || '—'}`,
+      by: 'sight_beacon.py',
+    });
+  }
+  return { key: 'beacon', title: 'Beacon (Eye)', status, sections: [{ label: 'Never-blind eye', items }] };
+}
+
+// engine → engine-health.json key checks.
+function systemEngine() {
+  const d = readJSON(path.join(STATE, 'engine-health.json'));
+  const items = [];
+  let status = 'YELLOW';
+  if (d) {
+    status = d.verdict === 'GREEN' ? 'GREEN' : d.verdict === 'YELLOW' ? 'YELLOW' : 'RED';
+    for (const c of (d.checks || [])) {
+      items.push({
+        ts: cardTs(d.checked_at_utc || d.checked_at_et),
+        category: String(c.name || 'check'),
+        text: `${c.status} — ${c.detail || ''}`,
+        by: c.critical ? 'engine · critical' : 'engine',
+      });
+    }
+  }
+  return { key: 'engine', title: 'Engine', status, sections: [{ label: `Health · ${d ? d.verdict : '?'} · market_open=${d ? d.market_open : '?'}`, items }] };
+}
+
+// discord → discord-bridge-heartbeat.json (last tick, errors).
+function systemDiscord() {
+  const d = readJSON(path.join(STATE, 'discord-bridge-heartbeat.json'));
+  const ageMin = fileAgeMinutes(path.join(STATE, 'discord-bridge-heartbeat.json'));
+  const items = [];
+  let status = 'YELLOW';
+  if (d) {
+    status = (d.consecutive_errors || 0) > 5 ? 'RED' : ageMin > 15 ? 'YELLOW' : 'GREEN';
+    items.push({
+      ts: cardTs(d.last_tick_at),
+      category: 'bridge heartbeat',
+      text: `last tick ${ageMin < 60 ? Math.round(ageMin) + 'm' : (ageMin / 60).toFixed(1) + 'h'} ago · consecutive_errors=${d.consecutive_errors || 0}`,
+      by: 'discord bridge · Python',
+    });
+  }
+  return { key: 'discord', title: 'Discord Bridge', status, sections: [{ label: 'Presence layer', items }] };
+}
+
+// tasks → a short summary from the cached scheduled-tasks audit (NEVER the live
+// Task Scheduler).
+function systemTasks() {
+  const d = readJSON(path.join(STATE, 'scheduled-tasks-audit.json'));
+  const items = [];
+  let status = 'YELLOW';
+  if (d) {
+    const issues = Array.isArray(d.issues) ? d.issues : [];
+    status = issues.length === 0 ? 'GREEN' : issues.some(i => i.severity === 'CRITICAL') ? 'RED' : 'YELLOW';
+    items.push({
+      ts: cardTs(d.checked_at),
+      category: 'summary',
+      text: issues.length === 0 ? `${d.tasks_checked || '?'} tasks OK` : `${issues.length} issue(s) flagged`,
+      by: 'task audit · cached',
+    });
+    for (const i of issues.slice(0, 6)) {
+      items.push({
+        ts: cardTs(d.checked_at),
+        category: String(i.task || i.name || 'task'),
+        text: `${i.severity || 'issue'} — ${i.note || i.detail || ''}`,
+        by: 'task audit · cached',
+      });
+    }
+  }
+  return { key: 'tasks', title: 'Task Health', status, sections: [{ label: 'Scheduled tasks (cached)', items }] };
+}
+
+// accounts → the SIX SPY equity arms from fleet/accounts.json. Each arm becomes a
+// card AND a `sub` entry so the front end can drill into one account.
+function systemAccounts() {
+  const fleet = readJSON(path.join(STATE, 'fleet', 'accounts.json'));
+  const arms = (fleet && Array.isArray(fleet.arms)) ? fleet.arms : [];
+  const spyArms = arms.filter(a => a && a.instrument === 'SPY_0DTE_OPTION');
+
+  const items = [];
+  const sub = [];
+  for (const a of spyArms) {
+    const pos = accountPosition(a.id);
+    const flat = !(pos && pos.status);
+    items.push({
+      ts: a.frozen_at || fleet.updated || '',
+      category: `${a.id} · ${a.cell || ''}`.trim(),
+      text: `${a.account_number || '?'} · start $${Math.round(a.starting_equity || 0).toLocaleString('en-US')} · ${flat ? 'flat' : 'OPEN ' + (pos.symbol || '')} · ${a.execution || ''}`,
+      by: a.execution === 'mcp_heartbeat' ? 'control · heartbeat' : 'fleet · REST',
+      sub_id: a.id,
+    });
+    sub.push({ id: a.id, label: `${a.id} · ${a.cell || ''}`.trim(), flat });
+  }
+
+  // Futures sims as a small separate section (optional).
+  const futures = arms.filter(a => a && a.instrument && a.instrument.includes('FUTURES'));
+  const futItems = futures.map(a => ({
+    ts: '',
+    category: a.id,
+    text: `${a.account_number || '?'} · ${a.instrument} · status=${a.status || '?'}`,
+    by: 'futures sim',
+  }));
+
+  const sections = [{ label: `SPY arms (${spyArms.length})`, items }];
+  if (futItems.length) sections.push({ label: 'Futures sims', items: futItems });
+  return { key: 'accounts', title: 'Accounts / P&L', status: 'GREEN', sections, sub };
+}
+
+// Best cached position for an arm id. The two CONTROL arms (safe-2/bold-2) map to
+// the canonical current-position-safe/bold.json; fleet arms expose exit-state.json.
+function accountPosition(armId) {
+  try {
+    if (armId === 'safe-2') return readJSON(path.join(STATE, 'current-position-safe.json'));
+    if (armId === 'bold-2') return readJSON(path.join(STATE, 'current-position-bold.json'));
+    const f = path.join(STATE, 'fleet', armId, 'exit-state.json');
+    const d = readJSON(f);
+    // exit-state {} means flat; a populated object carries a live exit plan.
+    if (d && Object.keys(d).length) return d;
+    return null;
+  } catch (_) { return null; }
+}
+
+// GET /api/account?id=<armId> → one account's detail (positions / P&L / recent
+// fills) from the best cached per-account state. Read-only; never a broker call.
+function getAccountDetail(armId) {
+  const fleet = readJSON(path.join(STATE, 'fleet', 'accounts.json'));
+  const arms = (fleet && Array.isArray(fleet.arms)) ? fleet.arms : [];
+  const arm = arms.find(a => a && a.id === armId);
+  if (!arm) return { id: armId, title: armId, status: 'YELLOW', sections: [{ label: 'Unknown account', items: [] }] };
+
+  const pos = accountPosition(armId);
+  const flat = !(pos && pos.status);
+
+  const profile = [{
+    ts: arm.frozen_at || '',
+    category: arm.cell || arm.id,
+    text: `${arm.account_number || '?'} · start $${Math.round(arm.starting_equity || 0).toLocaleString('en-US')} · ${arm.execution || ''} · fidelity=${arm.fidelity || '?'}`,
+    by: arm.execution === 'mcp_heartbeat' ? 'control · heartbeat' : 'fleet · REST',
+  }];
+  if (arm.gate_override && Object.keys(arm.gate_override).length) {
+    const g = arm.gate_override;
+    profile.push({
+      ts: arm.frozen_at || '',
+      category: 'gate',
+      text: `min_triggers=${g.min_triggers != null ? g.min_triggers : 'default'}${g.require_confluence_or_sequence ? ' · confluence/sequence required' : ''}`,
+      by: 'gate profile',
+    });
+  } else {
+    profile.push({
+      ts: arm.frozen_at || '',
+      category: 'gate',
+      text: 'base gate — production default (control)',
+      by: 'gate profile',
+    });
+  }
+
+  const position = [];
+  if (flat) {
+    position.push({
+      ts: cardTs(pos && (pos._cleared_at)) || '',
+      category: 'position',
+      text: 'flat — no open position',
+      by: 'cached state',
+    });
+  } else {
+    position.push({
+      ts: cardTs(pos.entry_time || pos.opened_at || pos.ts) || '',
+      category: pos.symbol || 'position',
+      text: `${pos.side || ''} qty=${pos.qty || '?'} entry=${pos.entry_price || pos.avg_price || '?'} stop=${pos.stop || '?'} target=${pos.target || '?'}`,
+      by: 'cached position',
+    });
+  }
+
+  // Recent fills if a per-account decisions/fills cache exists (fail-open empty).
+  const fills = [];
+  const ledgerCandidates = [
+    path.join(STATE, 'fleet', armId, 'fills.jsonl'),
+    path.join(STATE, 'fleet', 'decisions', `${armId}.jsonl`),
+  ];
+  for (const f of ledgerCandidates) {
+    if (!fs.existsSync(f)) continue;
+    for (const r of tailJsonl(f, 4).reverse()) {
+      const bits = [];
+      if (r.strategy) bits.push(r.strategy);
+      if (r.mode) bits.push(r.mode);
+      if (r.symbol) bits.push(r.symbol);
+      if (r.qty != null) bits.push(`qty=${r.qty}`);
+      if (r.price != null) bits.push(`@${r.price}`);
+      fills.push({
+        ts: cardTs(r.ts || r.at || r.fired_at) || (r.time_et ? `${r.time_et} ET` : ''),
+        category: r.action || r.symbol || 'fill',
+        text: bits.length ? bits.join(' · ') : JSON.stringify(r).slice(0, 120),
+        by: 'fleet ledger',
+      });
+    }
+    break;
+  }
+
+  const sections = [
+    { label: 'Profile', items: profile },
+    { label: 'Position', items: position },
+  ];
+  if (fills.length) sections.push({ label: 'Recent fills', items: fills });
+  return {
+    id: armId,
+    title: `${arm.id} · ${arm.cell || ''}`.trim(),
+    status: flat ? 'GREEN' : 'YELLOW',
+    sections,
+  };
+}
+
+// Dispatch a system key → its detail object. Fail-open: unknown key → empty shell.
+function getSystemDetail(key) {
+  const k = String(key || '').toLowerCase();
+  try {
+    switch (k) {
+      case 'engine': return systemEngine();
+      case 'beacon': return systemBeacon();
+      case 'accounts': return systemAccounts();
+      case 'conductor': return systemConductor();
+      case 'gym': return systemGym();
+      case 'kitchen': return systemKitchen();
+      case 'spend': return systemSpend();
+      case 'discord': return systemDiscord();
+      case 'autonomy': return systemAutonomy();
+      case 'tasks': return systemTasks();
+      default:
+        return { key: k, title: k || 'System', status: 'YELLOW', sections: [{ label: 'No detail mapped', items: [] }] };
+    }
+  } catch (_) {
+    return { key: k, title: k || 'System', status: 'YELLOW', sections: [{ label: 'detail unavailable', items: [] }] };
+  }
+}
+
 // ─── Live vitals (read-only — never calls a broker, never places orders) ──────
 // Pulls real numbers from cached state files only. Fail-open: any missing/bad
 // file falls back to sensible defaults and (for accounts) marks stale:true.
@@ -846,6 +1373,41 @@ function recordDecision(id, decision) {
     }
   } catch (_) {}
   return { ok: true, id: String(id), decision: d };
+}
+
+// Live agent roster for the pixel office — derive who's actively running from cached
+// state (read-only). Always include the standing daemons so the office is never empty.
+function getAgentsLive() {
+  const agents = [];
+  try {
+    const k = readJSON(path.join(STATE, 'kitchen-status.json'));
+    if (k && (k.daemon_alive === true || k.daemon_alive === 'True')) {
+      const idle = (k.idle === true || k.idle === 'True');
+      agents.push({ id: 'kitchen', role: 'kitchen', runner: 'Nemotron · free', task: idle ? 'idle' : 'cooking strategies', status: idle ? 'thinking' : 'working' });
+    }
+  } catch (_) {}
+  try {
+    const lines = fs.readFileSync(path.join(STATE, 'conductor-outcomes.jsonl'), 'utf8').trim().split('\n').filter(Boolean);
+    const last = lines.length ? JSON.parse(lines[lines.length - 1]) : null;
+    let working = false, task = 'idle';
+    if (last && last.fired_at) { task = last.task_id || 'idle'; working = (Date.now() - new Date(last.fired_at).getTime()) < 10 * 60000; }
+    agents.push({ id: 'conductor', role: 'conductor', runner: 'Claude Opus', task: task, status: working ? 'working' : 'thinking' });
+  } catch (_) { agents.push({ id: 'conductor', role: 'conductor', runner: 'Claude Opus', task: 'idle', status: 'thinking' }); }
+  try {
+    const ag = readJSON(path.join(REPO, 'backtest', 'autoresearch', '_state', 'active_grinders.json'));
+    const list = Array.isArray(ag) ? ag : (ag && ag.active) || [];
+    if (list && list.length) {
+      const fam = (list[0] && (list[0].family || list[0].name)) || String(list[0] || 'sweeping');
+      agents.push({ id: 'research', role: 'research', runner: 'Python', task: String(fam), status: 'working' });
+    }
+  } catch (_) {}
+  try {
+    const e = readJSON(path.join(STATE, 'engine-health.json'));
+    if (e && e.market_open === true && (e.armed === true || e.core_armed === true)) {
+      agents.push({ id: 'engine', role: 'engine', runner: 'Python', task: 'watching the tape', status: 'working' });
+    }
+  } catch (_) {}
+  return { agents };
 }
 
 // "YYYY-MM-DD" in ET for a UTC ISO timestamp (for today-counting).
@@ -1084,6 +1646,26 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // One system's own drill-in detail (feed-card shape). Read-only, fail-open.
+  if (url.pathname === '/api/system') {
+    let out;
+    try { out = getSystemDetail(url.searchParams.get('key')); }
+    catch (_) { out = { key: '', title: 'System', status: 'YELLOW', sections: [] }; }
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(out));
+    return;
+  }
+
+  // One account's drill-in detail (positions / P&L / fills). Read-only, fail-open.
+  if (url.pathname === '/api/account') {
+    let out;
+    try { out = getAccountDetail(url.searchParams.get('id')); }
+    catch (_) { out = { id: '', title: 'Account', status: 'YELLOW', sections: [] }; }
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(out));
+    return;
+  }
+
   // Hook event receiver (from Claude Code hooks)
   if (url.pathname === '/event' && req.method === 'POST') {
     let body = '';
@@ -1271,6 +1853,19 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Pixel-office canvas module (mirror of the /realtime.js handler).
+  if (url.pathname === '/pixels.js') {
+    try {
+      const body = fs.readFileSync(path.join(__dirname, 'pixels.js'), 'utf8');
+      res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'no-cache' });
+      res.end(body);
+    } catch (_) {
+      res.writeHead(500);
+      res.end('pixels.js missing');
+    }
+    return;
+  }
+
   // Conductor log API
   if (url.pathname === '/api/conductor-log') {
     const date = url.searchParams.get('date') || new Date().toISOString().slice(0, 10);
@@ -1286,6 +1881,14 @@ const server = http.createServer((req, res) => {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ lines: [`No conductor log found for ${date}`] }));
     }
+    return;
+  }
+
+  // Live agent roster for the pixel office — who's actively running right now (read-only).
+  if (url.pathname === '/api/agents-live') {
+    let out; try { out = getAgentsLive(); } catch (_) { out = { agents: [] }; }
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(out));
     return;
   }
 
@@ -1334,6 +1937,27 @@ const server = http.createServer((req, res) => {
       res.writeHead(500);
       res.end('service-worker missing');
     }
+    return;
+  }
+
+  // Nested pixel-office assets (subfolders) — the generic /assets/ handler below is
+  // basename-only, so the sprite subtree (pixel/characters, pixel/floors, …) needs this.
+  // Served ONLY from cockpit/assets/pixel/**, traversal-sanitized.
+  if (url.pathname.startsWith('/assets/pixel/')) {
+    const rel = decodeURIComponent(url.pathname.slice('/assets/'.length)); // pixel/characters/char_0.png
+    const baseDir = path.join(__dirname, 'assets');
+    const filePath = path.normalize(path.join(baseDir, rel));
+    const pixelDir = path.join(baseDir, 'pixel');
+    if (filePath !== pixelDir && !filePath.startsWith(pixelDir + path.sep)) {
+      res.writeHead(400); res.end('bad pixel asset'); return;
+    }
+    const PT = { '.png': 'image/png', '.txt': 'text/plain; charset=utf-8', '.json': 'application/json' };
+    const pext = path.extname(filePath).toLowerCase();
+    fs.readFile(filePath, (err, buf) => {
+      if (err) { res.writeHead(404); res.end('pixel asset not found'); return; }
+      res.writeHead(200, { 'Content-Type': PT[pext] || 'application/octet-stream', 'Cache-Control': 'public, max-age=3600' });
+      res.end(buf);
+    });
     return;
   }
 
