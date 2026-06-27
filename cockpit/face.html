@@ -69,10 +69,10 @@
     width:100%;
     max-width:440px;
     min-height:100vh;
-    padding:max(env(safe-area-inset-top),18px) 20px max(env(safe-area-inset-bottom),32px);
+    padding:max(env(safe-area-inset-top),10px) 18px max(env(safe-area-inset-bottom),14px);
     display:flex;
     flex-direction:column;
-    gap:18px;
+    gap:6px;
   }
 
   /* ── HERO ─────────────────────────────────────────── */
@@ -80,11 +80,11 @@
     text-align:center;
     font-family:var(--serif);
     font-weight:400;
-    font-size:15px;
+    font-size:13px;
     letter-spacing:.62em;
     text-indent:.62em; /* compensate trailing tracking so it reads centered */
     color:var(--text-2);
-    padding-top:6px;
+    padding-top:2px;
     opacity:.92;
   }
 
@@ -97,8 +97,8 @@
   }
   .core-wrap{
     position:relative;
-    width:min(74vw,300px);
-    height:min(74vw,300px);
+    width:min(34vw,98px);
+    height:min(34vw,98px);
     display:flex;
     align-items:center;
     justify-content:center;
@@ -136,20 +136,20 @@
   .verdict{
     font-family:var(--serif);
     font-weight:400;
-    font-size:27px;
+    font-size:21px;
     line-height:1.15;
     text-align:center;
     color:var(--text);
-    margin-top:-6px;
+    margin-top:0;
     letter-spacing:.005em;
   }
   .verdict.is-watch{color:#EBD7A8;}
   .verdict.is-alert{color:#F2B0AA;}
   .subline{
     text-align:center;
-    font-size:12.5px;
+    font-size:12px;
     color:var(--muted);
-    margin-top:9px;
+    margin-top:4px;
     letter-spacing:.01em;
   }
   .subline .dot{opacity:.5;padding:0 5px;}
@@ -191,12 +191,12 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap:7px;
-    margin-top:10px;
+    gap:4px;
+    margin-top:4px;
   }
   .mic-btn{
     position:relative;
-    width:46px;height:46px;
+    width:36px;height:36px;
     border-radius:50%;
     border:1px solid var(--hairline-2);
     background:
@@ -265,8 +265,8 @@
   .card{
     background:var(--glass);
     border:1px solid var(--hairline);
-    border-radius:18px;
-    padding:16px 16px;
+    border-radius:16px;
+    padding:9px 13px;
     backdrop-filter:blur(6px);
     -webkit-backdrop-filter:blur(6px);
   }
@@ -275,7 +275,7 @@
     letter-spacing:.16em;
     text-transform:uppercase;
     color:var(--muted);
-    margin-bottom:10px;
+    margin-bottom:5px;
     font-weight:600;
   }
 
@@ -291,10 +291,10 @@
   .needs .card-label{color:var(--accent);}
   .needs .ask{
     font-family:var(--serif);
-    font-size:18px;
-    line-height:1.4;
+    font-size:16px;
+    line-height:1.35;
     color:var(--text);
-    margin-bottom:14px;
+    margin-bottom:10px;
   }
   .btn-row{display:flex;gap:10px;}
   .btn{
@@ -308,6 +308,7 @@
     cursor:pointer;
     transition:transform .12s ease, background .15s ease, border-color .15s ease;
     letter-spacing:.01em;
+    padding:9px 0;
   }
   .btn:active{transform:scale(.975);}
   .btn-approve{
@@ -329,6 +330,11 @@
     letter-spacing:.02em;
     opacity:.85;
   }
+  .is-hidden{display:none !important;}
+  .needs-detail{font-size:11.5px;color:var(--muted);line-height:1.4;margin:-2px 0 10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .needs.is-clear{border-color:var(--hairline);background:var(--glass);box-shadow:none;}
+  .needs.is-clear .card-label{color:var(--muted);}
+  .needs.is-clear .ask{font-family:var(--ui);font-size:13.5px;color:var(--text-2);margin-bottom:0;}
 
   /* ── ACTIVITY feed ───────────────────────────────── */
   .feed{display:flex;flex-direction:column;}
@@ -336,7 +342,7 @@
     display:grid;
     grid-template-columns:3px 1fr;
     gap:0;
-    padding:11px 0;
+    padding:6px 0;
     border-top:1px solid rgba(255,255,255,.05);
   }
   .feed-item:first-of-type{border-top:none;}
@@ -389,10 +395,10 @@
   .vitals-summary .v-alert{color:var(--alert);}
 
   .sys-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:9px 14px;
-    margin-bottom:6px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:9px 11px;
+    margin-bottom:2px;
   }
   .sys{
     display:flex;
@@ -409,19 +415,13 @@
   .sys-dot.GREEN{background:var(--pos);box-shadow:0 0 7px rgba(67,201,142,.55);}
   .sys-dot.YELLOW{background:var(--caution);box-shadow:0 0 7px rgba(224,162,60,.5);}
   .sys-dot.RED{background:var(--alert);box-shadow:0 0 8px rgba(224,87,78,.6);}
-  .sys-name{
-    font-size:12.5px;
-    color:var(--text-2);
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
+  .sys-name{display:none;}
 
   .figs{
     display:flex;
     border-top:1px solid var(--hairline);
-    margin-top:14px;
-    padding-top:14px;
+    margin-top:11px;
+    padding-top:11px;
     gap:12px;
   }
   .fig{flex:1;}
@@ -432,6 +432,7 @@
 
   /* ── footer ──────────────────────────────────────── */
   .footer{
+    display:none;
     text-align:center;
     font-size:10px;
     color:var(--muted);
@@ -483,15 +484,17 @@
       </div>
     </section>
 
-    <!-- NEEDS YOU (display-only — approval bus not wired) -->
-    <section class="card needs" data-display-only="true">
-      <div class="card-label">Needs you</div>
-      <div class="ask">Activate the new EOD-flatten task for Monday?</div>
-      <div class="btn-row">
+    <!-- NEEDS YOU — the real pending approval from /api/needs. Approve/Hold POST to
+         /api/decide → companion-decisions.jsonl, which the GATED actuator bridges (G8). -->
+    <section class="card needs is-hidden" id="needsCard">
+      <div class="card-label" id="needsLabel">Needs you</div>
+      <div class="ask" id="needsAsk"></div>
+      <div class="needs-detail is-hidden" id="needsDetail"></div>
+      <div class="btn-row" id="needsBtns">
         <button class="btn btn-approve" id="approveBtn" type="button">Approve</button>
         <button class="btn btn-hold" id="holdBtn" type="button">Hold</button>
       </div>
-      <div class="display-note" id="approveNote">Display-only preview · the approval bus isn't wired yet</div>
+      <div class="display-note is-hidden" id="approveNote"></div>
     </section>
 
     <!-- ACTIVITY -->
@@ -624,7 +627,7 @@
       return;
     }
     // newest first (server emits newest-first already; guard anyway by leaving order)
-    feed.innerHTML = messages.slice(0, 14).map(function(m){
+    feed.innerHTML = messages.slice(0, 3).map(function(m){
       var kind = ["shipped","caution","healthy","info"].indexOf(m.kind) >= 0 ? m.kind : "info";
       var a = splitAnchor(m.text);
       var ts = esc(m.ts_et || "");
@@ -748,6 +751,7 @@
         loadFeed();
         loadVitals();
         loadPulse();
+        loadNeeds();
       }, 250);
     };
     es.onopen = markLive;
@@ -760,16 +764,60 @@
     };
   }
 
-  // ── Approve / Hold: display-only, NO trade/order code ─────
-  el("approveBtn").addEventListener("click", function(){
-    el("approveNote").textContent = "Noted — approvals aren't wired to the engine yet (display-only).";
-    el("approveBtn").textContent = "Approved (preview)";
-    el("approveBtn").disabled = true;
-    el("approveBtn").style.opacity = ".7";
-  });
-  el("holdBtn").addEventListener("click", function(){
-    el("approveNote").textContent = "Held — nothing changes (display-only).";
-  });
+  // ── NEEDS YOU — real pending approval; Approve/Hold record consent to the bus ──
+  // POST /api/decide → companion-decisions.jsonl, which the GATED autonomy actuator
+  // bridges into the proposal ledger (G8). The app records consent only — it never
+  // edits params or places orders.
+  var resolvedNeeds = {};
+  function renderNeeds(n){
+    var card=el("needsCard"), ask=el("needsAsk"), detail=el("needsDetail"),
+        btns=el("needsBtns"), note=el("approveNote"), label=el("needsLabel");
+    var p = n && n.pending;
+    if (p && p.id && !resolvedNeeds[p.id]){
+      card.dataset.id = p.id;
+      card.classList.remove("is-hidden","is-clear");
+      label.textContent = "Needs you";
+      ask.textContent = p.title || "Approval needed";
+      if (p.detail){ detail.textContent = p.detail; detail.classList.remove("is-hidden"); }
+      else detail.classList.add("is-hidden");
+      btns.classList.remove("is-hidden");
+      note.classList.add("is-hidden"); note.textContent = "";
+      el("approveBtn").disabled=false; el("approveBtn").textContent="Approve";
+      el("holdBtn").disabled=false;
+    } else {
+      card.classList.remove("is-hidden"); card.classList.add("is-clear");
+      label.textContent = "All clear";
+      ask.textContent = "Nothing needs you right now.";
+      detail.classList.add("is-hidden");
+      btns.classList.add("is-hidden");
+      note.classList.add("is-hidden");
+    }
+  }
+  function loadNeeds(){
+    fetch("/api/needs").then(function(r){return r.json();})
+      .then(renderNeeds).catch(function(){ /* fail-open: keep last render */ });
+  }
+  function decide(decision){
+    var card=el("needsCard"); var id=card.dataset.id; if(!id) return;
+    el("approveBtn").disabled=true; el("holdBtn").disabled=true;
+    var note=el("approveNote"); note.classList.remove("is-hidden"); note.textContent="Sending…";
+    fetch("/api/decide",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({id:id,decision:decision})})
+      .then(function(r){return r.json();})
+      .then(function(res){
+        if(!res || res.ok===false){ throw new Error((res&&res.error)||"failed"); }
+        resolvedNeeds[id]=true;
+        el("needsBtns").classList.add("is-hidden");
+        note.textContent = decision==="approve" ? "Approved ✓ — sent to Gamma." : "Held ✓ — shelved.";
+        setTimeout(function(){ renderNeeds({pending:null}); }, 1500);
+      })
+      .catch(function(){
+        note.textContent = "Couldn't reach Gamma — try again.";
+        el("approveBtn").disabled=false; el("holdBtn").disabled=false;
+      });
+  }
+  el("approveBtn").addEventListener("click", function(){ decide("approve"); });
+  el("holdBtn").addEventListener("click", function(){ decide("reject"); });
 
   // ── VOICE (mic) — tap to talk to Gamma via OpenAI Realtime ─
   // Read/answer only: GammaRealtime streams mic in, plays Gamma's audio out, and
@@ -828,12 +876,14 @@
   loadFeed();
   loadVitals();
   loadPulse();
+  loadNeeds();
   connectSSE();
   // safety re-poll in case SSE is silent for a while
   setInterval(loadTiles, 30000);
   setInterval(loadFeed, 60000);
   setInterval(loadVitals, 30000);
   setInterval(loadPulse, 60000);
+  setInterval(loadNeeds, 45000);
 })();
 </script>
 <script>

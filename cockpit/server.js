@@ -809,6 +809,45 @@ function getPulse() {
   };
 }
 
+// ─── Needs-you: the real pending approval (read-only view of the consent queue) ──
+// Reads companion-approvals.json → the first pending proposal {id,title,detail} or
+// null. The face renders this as the "Needs you" card.
+function getNeeds() {
+  try {
+    const a = readJSON(path.join(STATE, 'companion-approvals.json'));
+    const pending = (a && Array.isArray(a.pending)) ? a.pending : [];
+    const p = pending.find(x => x && x.id);
+    if (!p) return { pending: null };
+    return { pending: { id: p.id, title: p.title || 'Approval needed', detail: p.detail || '', severity: p.severity || 'info' } };
+  } catch (_) { return { pending: null }; }
+}
+
+// Append J's Approve/Reject to companion-decisions.jsonl — the SAME consent bus the
+// wrist/Discord use, which the gated autonomy actuator bridges into the proposal
+// ledger (G8). Records consent ONLY: never edits params, never places orders; the
+// actuator's own safety gate + market guard + Rule-9 deferral remain the backstop.
+function recordDecision(id, decision) {
+  const d = decision === 'approve' ? 'approve' : 'reject';
+  const row = JSON.stringify({ id: String(id), decision: d, source: 'face', at: new Date().toISOString() }) + '\n';
+  fs.appendFileSync(path.join(STATE, 'companion-decisions.jsonl'), row);
+  // Remove the decided item from the pending queue so it doesn't re-surface on reload
+  // (mirrors the companion's resolveApproval). Fail-open: a hiccup leaves it pending —
+  // the recorded decision on the bus is what the actuator bridge acts on regardless.
+  try {
+    const p = path.join(STATE, 'companion-approvals.json');
+    const a = readJSON(p);
+    if (a && Array.isArray(a.pending)) {
+      const next = a.pending.filter(x => !(x && x.id === String(id)));
+      if (next.length !== a.pending.length) {
+        a.pending = next;
+        a.updated_at = new Date().toISOString();
+        fs.writeFileSync(p, JSON.stringify(a, null, 2));
+      }
+    }
+  } catch (_) {}
+  return { ok: true, id: String(id), decision: d };
+}
+
 // "YYYY-MM-DD" in ET for a UTC ISO timestamp (for today-counting).
 function utcToEtDate(isoStr) {
   try {
@@ -1114,6 +1153,38 @@ const server = http.createServer((req, res) => {
     catch (_) { pulse = { awake: false }; }
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(pulse));
+    return;
+  }
+
+  // Needs-you — the real pending approval the face renders as the consent card.
+  if (url.pathname === '/api/needs') {
+    let n; try { n = getNeeds(); } catch (_) { n = { pending: null }; }
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(n));
+    return;
+  }
+
+  // Record J's Approve/Reject → appends consent to companion-decisions.jsonl (the bus
+  // the gated actuator bridges, G8). Records consent only; applies nothing here.
+  if (url.pathname === '/api/decide' && req.method === 'POST') {
+    let body = '';
+    req.on('data', c => { body += c; if (body.length > 4096) req.destroy(); });
+    req.on('end', () => {
+      try {
+        const p = JSON.parse(body || '{}');
+        if (!p.id || (p.decision !== 'approve' && p.decision !== 'reject')) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ ok: false, error: 'need {id, decision:approve|reject}' }));
+          return;
+        }
+        const out = recordDecision(p.id, p.decision);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(out));
+      } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: false, error: String((e && e.message) || e) }));
+      }
+    });
     return;
   }
 
