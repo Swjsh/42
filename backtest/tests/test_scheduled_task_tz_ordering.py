@@ -99,9 +99,13 @@ PREP_CHAIN: list[tuple[str, str, str]] = [
 # FAILS -> the entry must be removed, tightening the ratchet. A brand-new daily installer
 # with the same bug is NOT auto-exempt — add it here consciously or fix it.
 # Each: script -> (task name, the ET-HH:MM it WRONGLY passes as a local literal).
-KNOWN_TZ_UNFIXED: dict[str, tuple[str, str]] = {
-    "install-tasks.ps1": ("Gamma_Premarket", "08:30"),
-}
+#
+# RATCHET FULLY TIGHTENED 2026-06-27 (G17): the sole entry `install-tasks.ps1` was RETIRED
+# to a no-op deprecation stub (registers nothing) — it no longer carries any -At literal,
+# so the time-bomb is gone and the allowlist is empty (the win state). A NEW daily installer
+# that re-introduces the ET-as-local bug must be added here CONSCIOUSLY (or fixed), and the
+# prep-chain consistency check below catches any prep installer that drifts.
+KNOWN_TZ_UNFIXED: dict[str, tuple[str, str]] = {}
 
 
 # ── Tests ────────────────────────────────────────────────────────────────────
@@ -163,6 +167,45 @@ def test_known_tz_unfixed_still_broken():
         )
 
 
+def test_install_tasks_ps1_stays_retired_noop():
+    """install-tasks.ps1 was RETIRED to a no-op deprecation stub 2026-06-27 (G17): it was a
+    dormant time-bomb (ET passed straight to -At on the MT rig -> EodFlatten fired after the
+    close on re-run) that ALSO registered the retired LLM heartbeats. The ratchet that used
+    to pin it is now empty, so THIS guard makes the retirement permanent: the stub must
+    carry NO -At/-AtTime literal and must NOT register any task. A future edit that re-arms
+    it (re-adds a schedule literal or a Register-ScheduledTask call) FAILS here."""
+    script = "install-tasks.ps1"
+    assert (_SETUP / script).exists(), f"setup/{script} missing — update this guard."
+    txt = (_SETUP / script).read_text(encoding="utf-8", errors="replace")
+    lits = _all_at_literals(script)
+    assert not lits, (
+        f"{script} is supposed to be a RETIRED no-op stub but carries -At literal(s) "
+        f"{sorted(set(lits))}. It registered the whole core chain 2h late on the MT rig; "
+        f"do NOT re-arm it — register core tasks via their per-task installers "
+        f"(see automation/state/SCHEDULED-TASKS.md)."
+    )
+    # No-op contract: the stub must not register anything. With no Register-ScheduledTask
+    # call, nothing is armed regardless of what comment text mentions.
+    assert "Register-ScheduledTask" not in txt, (
+        f"{script} must register NOTHING (it is a deprecation stub). Found "
+        f"'Register-ScheduledTask'. Core tasks are owned by their per-task installers."
+    )
+    assert "New-ScheduledTaskAction" not in txt, (
+        f"{script} must build NO task action (it is a deprecation stub). Found "
+        f"'New-ScheduledTaskAction'."
+    )
+    # The retired LLM heartbeats may be NAMED in the explanatory comment, but must never be
+    # wired as an action target (-Execute / -File / -Argument) — that would re-arm dead tasks.
+    for line in txt.splitlines():
+        lower = line.lower()
+        if any(k in lower for k in ("-execute", "-file", "-argument")):
+            for retired in ("run-heartbeat.ps1", "run-heartbeat-aggressive.ps1"):
+                assert retired not in lower, (
+                    f"{script} wires the RETIRED LLM heartbeat '{retired}' as a task action "
+                    f"(superseded by Gamma_HeartbeatCore 2026-06-25). Drop it. Line: {line!r}"
+                )
+
+
 def test_no_new_et_as_local_daily_installer():
     """A daily-task installer whose -At literal lands in market hours (>= 09:30 *as a
     bare local value*) is the ET-as-local smell — unless it is a known, accepted entry.
@@ -170,9 +213,10 @@ def test_no_new_et_as_local_daily_installer():
     second-guess the heterogeneous legacy scripts, only flags an unregistered new one
     that passes a clearly-ET trading-hours value straight to -At.
 
-    Scoped to the canonical install-tasks.ps1 premarket/launch block only (the known
-    instance) to stay deterministic; broadening is a conscious future tightening."""
-    # Structural: the known instance is install-tasks.ps1, and it IS in the allowlist.
+    The former known instance (install-tasks.ps1) was RETIRED to a no-op stub 2026-06-27
+    (G17) and is pinned by test_install_tasks_ps1_stays_retired_noop; the allowlist is now
+    empty. This check stays scoped to the PREP_CHAIN installers to stay deterministic;
+    broadening is a conscious future tightening."""
     # Assert the partition holds (documents intent; always true unless someone adds a
     # raw ET trading-hours literal to a prep installer, which test_prep_chain_tz_consistency
     # would already fail on).

@@ -109,7 +109,7 @@ Write-Host ("Already OK:  " + $alreadyOk)
 Write-Host ("Updated:     " + $updated)
 if ($missing.Count -gt 0) {
     Write-Host ("Missing:     " + ($missing -join ', ')) -ForegroundColor Yellow
-    Write-Host "Run setup\install-tasks.ps1 to register missing tasks." -ForegroundColor Yellow
+    Write-Host "Register missing tasks via their per-task installers (automation\state\SCHEDULED-TASKS.md)." -ForegroundColor Yellow
 }
 if ($Audit) {
     Write-Host "(Audit mode - no changes applied. Re-run without -Audit to harden.)" -ForegroundColor Yellow

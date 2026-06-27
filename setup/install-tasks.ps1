@@ -1,142 +1,56 @@
-# Install-tasks.ps1 - registers the full autonomy stack with Windows Task Scheduler.
-# Idempotent: safe to re-run. Removes existing Gamma_* tasks first, then registers fresh.
-# User-level only - does NOT require admin.
+# Install-tasks.ps1 - RETIRED 2026-06-27 (G17). DO NOT USE. Registers NOTHING.
+#
+# Why this script was retired (it was a dormant two-fold time-bomb, not a working installer):
+#
+#   1. TZ TIME-BOMB (project_scheduled_task_tz). The rig runs in MOUNTAIN time and
+#      Windows Task Scheduler's -At takes a LOCAL (MT) clock value, but every task below
+#      passed the ET value straight to -At (LaunchTV 08:00, Premarket 08:30, Heartbeat
+#      09:30, EodFlatten 15:55). ET = MT + 2h, so a re-run fired the whole core chain 2h
+#      LATE: heartbeats at 11:30 ET and -- catastrophically -- EodFlatten at 17:55 ET,
+#      i.e. AFTER the close, leaving 0DTE positions to expire worthless.
+#
+#   2. RETIRED ENGINE. It registered the LLM heartbeats (run-heartbeat.ps1 /
+#      run-heartbeat-aggressive.ps1), which were RETIRED 2026-06-25 in favor of the
+#      deterministic Gamma_HeartbeatCore (+ Gamma_SightBeacon / Gamma_FleetExecutor).
+#      Re-running this would have re-armed dead tasks that conflict with the live engine.
+#      It also used the bare "powershell.exe -WindowStyle Hidden" action that flashes a
+#      console on Win11 (project_mcp_window_leak_fix); live tasks use the wscript->pythonw
+#      chain instead.
+#
+# The live tasks are correct ONLY because other scripts re-registered them at the right MT
+# literal. This 6-task view is a stale snapshot of an architecture that now has ~46 tasks.
+#
+# CANONICAL SOURCES OF TRUTH (use these instead):
+#   - Registry / authority:  automation/state/SCHEDULED-TASKS.md  (every active task + its
+#                            own per-task install script; audited daily by
+#                            setup/scripts/audit_scheduled_tasks.py).
+#   - Pre-market prep chain:  setup/install-swarm-task.ps1, setup/install-ema-snapshot.ps1,
+#                            setup/scripts/register_tz_fixed_tasks.ps1 (all MT-literal correct).
+#   - Trading-task health/repair:  setup/scripts/fix-trading-tasks.ps1 [-Fix]
+#                            (enable + WakeToRun for the live trading chain).
+#
+# If you genuinely need to (re)register a core task, find its dedicated installer in
+# SCHEDULED-TASKS.md and run THAT -- never this script.
 
-$ErrorActionPreference = "Stop"
-$WorkDir = "C:\Users\jackw\Desktop\42"
-$ScriptsDir = Join-Path $WorkDir "setup\scripts"
-
-if (-not (Test-Path $ScriptsDir)) {
-    Write-Error "Scripts directory not found: $ScriptsDir"
-    exit 1
-}
-
-# Common settings - wake the PC to run, retry if missed, no idle stop, allow battery
-$commonSettings = New-ScheduledTaskSettingsSet `
-    -WakeToRun `
-    -StartWhenAvailable `
-    -DontStopOnIdleEnd `
-    -AllowStartIfOnBatteries `
-    -DontStopIfGoingOnBatteries `
-    -ExecutionTimeLimit (New-TimeSpan -Minutes 5)
-
-# Weekly settings - allow longer runtime for the heavier weekly aggregation
-$weeklySettings = New-ScheduledTaskSettingsSet `
-    -WakeToRun `
-    -StartWhenAvailable `
-    -DontStopOnIdleEnd `
-    -AllowStartIfOnBatteries `
-    -DontStopIfGoingOnBatteries `
-    -ExecutionTimeLimit (New-TimeSpan -Minutes 12)
-
-function Register-GammaTask {
-    param(
-        [string]$Name,
-        [string]$ScriptName,
-        [DateTime]$AtTime,
-        $RepetitionInterval,
-        $RepetitionDuration,
-        [string]$Description
-    )
-
-    $scriptPath = Join-Path $ScriptsDir $ScriptName
-    if (-not (Test-Path $scriptPath)) {
-        Write-Error "Script not found: $scriptPath"
-        return
-    }
-
-    # Remove existing
-    Unregister-ScheduledTask -TaskName $Name -Confirm:$false -ErrorAction SilentlyContinue
-
-    $action = New-ScheduledTaskAction `
-        -Execute "powershell.exe" `
-        -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$scriptPath`""
-
-    $trigger = New-ScheduledTaskTrigger -Daily -At $AtTime
-
-    Register-ScheduledTask `
-        -TaskName $Name `
-        -Action $action `
-        -Trigger $trigger `
-        -Settings $commonSettings `
-        -Description $Description `
-        -Force | Out-Null
-
-    # Repetition cannot be set on the trigger object before registration. Update post-register.
-    if ($RepetitionInterval) {
-        $task = Get-ScheduledTask -TaskName $Name
-        $iso = "PT$([int]$RepetitionInterval.TotalMinutes)M"
-        $task.Triggers[0].Repetition.Interval = $iso
-        if ($RepetitionDuration) {
-            $hr = [int]$RepetitionDuration.TotalHours
-            $min = [int]($RepetitionDuration.TotalMinutes - ($hr * 60))
-            $task.Triggers[0].Repetition.Duration = "PT${hr}H${min}M"
-        }
-        $task | Set-ScheduledTask | Out-Null
-        Write-Host "  Registered: $Name @ $($AtTime.ToString('HH:mm')) repeating every $($RepetitionInterval.TotalMinutes)m for $($RepetitionDuration.TotalHours)h$([int]($RepetitionDuration.TotalMinutes % 60))m"
-    } else {
-        Write-Host "  Registered: $Name @ $($AtTime.ToString('HH:mm'))"
-    }
-}
-
-Write-Host "Installing Gamma autonomy tasks..."
-Write-Host "  Working dir: $WorkDir"
-Write-Host ""
-
-# 08:00 ET - Launch TradingView with CDP
-Register-GammaTask `
-    -Name "Gamma_LaunchTV" `
-    -ScriptName "run-launch-tv.ps1" `
-    -AtTime ([DateTime]"08:00") `
-    -Description "Gamma: Launch TradingView with --remote-debugging-port=9222 before market open"
-
-# 08:30 ET - Premarket routine
-Register-GammaTask `
-    -Name "Gamma_Premarket" `
-    -ScriptName "run-premarket.ps1" `
-    -AtTime ([DateTime]"08:30") `
-    -Description "Gamma: Pre-market routine (level audit, today-bias.json, falsifiable hypothesis, draw levels, seed journal)"
-
-# 09:30 ET - Heartbeat starts, repeats every 3 min for 6h25m (until 15:55)
-Register-GammaTask `
-    -Name "Gamma_Heartbeat" `
-    -ScriptName "run-heartbeat.ps1" `
-    -AtTime ([DateTime]"09:30") `
-    -RepetitionInterval (New-TimeSpan -Minutes 3) `
-    -RepetitionDuration (New-TimeSpan -Hours 6 -Minutes 25) `
-    -Description "Gamma: Heartbeat tick (every 3 min during market hours, loop v2 adaptive cadence inside prompt)"
-
-# 15:55 ET - EOD flatten safety net
-Register-GammaTask `
-    -Name "Gamma_EodFlatten" `
-    -ScriptName "run-eod-flatten.ps1" `
-    -AtTime ([DateTime]"15:55") `
-    -Description "Gamma: EOD flatten safety net - close any 0DTE position not already closed by heartbeat time stop"
-
-
-# 09:30 ET - Aggressive heartbeat (second paper account), repeats every 3 min for 6h25m
-Register-GammaTask `
-    -Name "Gamma_Heartbeat_Aggressive" `
-    -ScriptName "run-heartbeat-aggressive.ps1" `
-    -AtTime ([DateTime]"09:30") `
-    -RepetitionInterval (New-TimeSpan -Minutes 3) `
-    -RepetitionDuration (New-TimeSpan -Hours 6 -Minutes 25) `
-    -Description "Gamma: Aggressive heartbeat -- second paper account, wider stops, relaxed gates"
-
-# 15:55 ET - Aggressive EOD flatten safety net
-Register-GammaTask `
-    -Name "Gamma_EodFlatten_Aggressive" `
-    -ScriptName "run-eod-flatten-aggressive.ps1" `
-    -AtTime ([DateTime]"15:55") `
-    -Description "Gamma: Aggressive EOD flatten safety net -- close any open aggressive 0DTE before expiry"
+$ErrorActionPreference = "Continue"
 
 Write-Host ""
-Write-Host "Installed 6 tasks (4 safe + 2 aggressive). Verify with: Get-ScheduledTask -TaskName 'Gamma_*' | Format-Table"
+Write-Host "========================================================================" -ForegroundColor Red
+Write-Host " install-tasks.ps1 is RETIRED (G17, 2026-06-27). NOTHING was registered." -ForegroundColor Red
+Write-Host "========================================================================" -ForegroundColor Red
 Write-Host ""
-Write-Host "First run:"
-Write-Host "  Tomorrow 08:00 ET - launch-tv"
-Write-Host "  Tomorrow 08:30 ET - premarket (shared -- same SPY levels for both strategies)"
-Write-Host "  Tomorrow 09:30 ET - safe + aggressive heartbeats begin"
-Write-Host "  Sunday 18:00 ET - weekly review (Mon-Fri rollup)"
+Write-Host " Reason: it passed ET times straight to -At on the Mountain-time rig (fires" -ForegroundColor Yellow
+Write-Host "         2h late -> EodFlatten after the close) AND it registered the RETIRED" -ForegroundColor Yellow
+Write-Host "         LLM heartbeats (superseded by Gamma_HeartbeatCore on 2026-06-25)." -ForegroundColor Yellow
 Write-Host ""
-Write-Host "To uninstall: setup\uninstall-tasks.ps1"
+Write-Host " Use instead:" -ForegroundColor Cyan
+Write-Host "   - Registry / authority : automation/state/SCHEDULED-TASKS.md"
+Write-Host "   - Prep chain           : setup/install-swarm-task.ps1,"
+Write-Host "                            setup/install-ema-snapshot.ps1,"
+Write-Host "                            setup/scripts/register_tz_fixed_tasks.ps1"
+Write-Host "   - Trading-task repair  : setup/scripts/fix-trading-tasks.ps1 -Fix"
+Write-Host ""
+Write-Host " Each core task has its own per-task installer listed in SCHEDULED-TASKS.md." -ForegroundColor Cyan
+Write-Host ""
+
+exit 1

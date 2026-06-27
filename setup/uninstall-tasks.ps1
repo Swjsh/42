@@ -24,4 +24,5 @@ foreach ($t in $tasks) {
 }
 
 Write-Host ""
-Write-Host "Uninstalled. Re-install with: setup\install-tasks.ps1"
+Write-Host "Uninstalled. Re-register via the per-task installers in automation\state\SCHEDULED-TASKS.md"
+Write-Host "(install-tasks.ps1 was RETIRED 2026-06-27 - it registered a stale 2h-late chain)."
