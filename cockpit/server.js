@@ -366,9 +366,20 @@ function stripMarkdown(s) {
     .trim();
 }
 
+// Truncate to ~n chars but never mid-word: back up to the last clause
+// boundary or word break before the limit, then add an ellipsis.
 function truncate(s, n) {
   s = s.trim();
-  return s.length <= n ? s : s.slice(0, n - 1) + '…';
+  if (s.length <= n) return s;
+  let cut = s.slice(0, n - 1);
+  // Prefer the last clause boundary (— ; , space) so we end cleanly.
+  const boundary = Math.max(
+    cut.lastIndexOf(' '), cut.lastIndexOf('—'),
+    cut.lastIndexOf(';'), cut.lastIndexOf(',')
+  );
+  if (boundary > n * 0.6) cut = cut.slice(0, boundary);
+  cut = cut.replace(/[\s—–\-:;,]+$/, '');
+  return cut + '…';
 }
 
 // Real acronyms / proper-noun caps to KEEP as-is (everything else loud is softened).
@@ -482,23 +493,81 @@ function leadLower(s) {
   return s.charAt(0).toLowerCase() + s.slice(1);
 }
 
+// Finish a sentence: collapse stray whitespace, drop a dangling trailing
+// fragment / connector, sentence-case the head, and add a single terminal
+// period. Keeps clauses reading like a competent operator's one-line text.
+function finishSentence(s) {
+  s = String(s || '').replace(/\s{2,}/g, ' ').trim();
+  // Drop a dangling trailing connector left over from a clause cut
+  // ("… is wired but", "… and", "… so").
+  s = s.replace(/\s+(?:but|and|so|while|then|with|for|to|of|on|in|the|a|an|that)$/i, '');
+  // Strip a trailing dash/colon/comma left mid-thought.
+  s = s.replace(/[\s—–\-:;,]+$/, '').trim();
+  if (!s) return '';
+  // Sentence case the head without lowercasing an acronym/ID start.
+  if (/^[a-z]/.test(s)) s = s.charAt(0).toUpperCase() + s.slice(1);
+  // Exactly one terminal period (leave ! / ? / … if already there).
+  if (!/[.!?…]$/.test(s)) s += '.';
+  return s;
+}
+
+// Is this distilled clause a STATEMENT OF FACT — a subject followed by a
+// linking / passive verb ("X is live", "the root cause was eliminated",
+// "both accounts are flat") OR a subject + its own past-tense action verb
+// ("G6 shipped disarmed", "the batch graduated to a guard")? Such a clause
+// already stands on its own and reads awkwardly under a forced "I shipped …"
+// lead — so we render it as a clean statement instead.
+function looksLikeStatement(s) {
+  // subject … is/are/was/were/'s/'re … predicate (need a predicate after the verb)
+  if (/^\S[^.]*?\b(?:is|are|was|were|isn['’]t|aren['’]t|wasn['’]t|weren['’]t)\b\s+\S/i.test(s)) return true;
+  if (/^\S[^.]*?['’](?:s|re)\s+\S/i.test(s)) return true;
+  // subject (not itself the verb) + an embedded action verb mid-clause —
+  // e.g. "G6 shipped disarmed", "the batch graduated to a guard". Guards against
+  // "I shipped G6 shipped …" double-verb collisions.
+  if (/^\S+\s+(?:shipped|committed|retired|wired|graduated|resolved|drained|closed|encoded|reframed|pinned|hardened|decoupled|documented|swept|landed)\b\s+\S/i.test(s)) return true;
+  return false;
+}
+
+// Pick the right first-person verb for a "shipped" clause by what it describes.
+//   code / commit / wiring → I shipped / I committed / I wired
+//   a fix                  → I fixed
+//   a doc / lesson / note  → I logged
+// Returns null when the clause already opens with a self-describing verb
+// (then the caller just prefixes "I ").
+function shippedLead(s) {
+  if (/^(shipped|committed|retired|fixed|wired|graduated|resolved|added|built|drained|closed|encoded|reframed|made|pinned|hardened|decoupled|documented|swept)\b/i.test(s)) {
+    return null; // already self-describing — caller prefixes "I "
+  }
+  if (/\b(commit(?:ted)?|commit\s+[0-9a-f]{6,})\b/i.test(s)) return 'I committed ';
+  if (/\b(wired|wiring|feed|guard|backstop|stub|installer|task|hook|module)\b/i.test(s)) return 'I wired ';
+  if (/\b(fix(?:ed|es)?|bug|root cause|regress)/i.test(s)) return 'I fixed ';
+  if (/\b(L\d+|lesson|doc(?:umented|s)?|note(?:d|s)?|encoded|logged|index|breadcrumb)\b/i.test(s)) return 'I logged ';
+  return 'I shipped ';
+}
+
 // Turn a distilled clause + kind into a calm first-person sentence.
 function humanize(clause, kind) {
   const s = distillClause(clause);
   if (!s) return '';
 
-  if (kind === 'shipped') {
-    // Already a self-describing verb ("Committed …", "Retired …")? Just prefix "I ".
-    if (/^(shipped|committed|retired|fixed|wired|graduated|resolved|added|built|drained|closed|encoded|reframed|made|pinned|hardened)\b/i.test(s)) {
-      return 'I ' + leadLower(s);
-    }
-    return 'I shipped ' + leadLower(s);
-  }
   if (kind === 'caution') {
-    return 'Heads up — ' + leadLower(s);
+    // Don't force "Heads up — X is broken" if it already reads as a clean
+    // alarm statement; otherwise a soft first-person caution frame.
+    if (looksLikeStatement(s)) return finishSentence('Heads up — ' + leadLower(s));
+    return finishSentence('Heads up — ' + leadLower(s));
   }
-  // healthy / info: a calm plain statement, no prefix.
-  return s;
+
+  if (kind === 'shipped') {
+    // A statement of fact ("gap_and_go is live", "the root cause was eliminated")
+    // reads cleanest as a plain statement — never "I shipped X is live".
+    if (looksLikeStatement(s)) return finishSentence(s);
+    const lead = shippedLead(s);
+    if (lead === null) return finishSentence('I ' + leadLower(s)); // self-describing verb
+    return finishSentence(lead + leadLower(s));
+  }
+
+  // healthy / info: a calm plain statement, no forced verb.
+  return finishSentence(s);
 }
 
 function buildFeed() {
@@ -636,6 +705,119 @@ function getVitals() {
   ];
 
   return { spy, accounts };
+}
+
+// ─── Presence pulse (read-only — proves the autonomous loop is alive) ─────────
+// Reads ONLY cached state (conductor-outcomes.jsonl last line + STATUS.md newest
+// header). NEVER touches the Task Scheduler or a broker. Fail-open: any
+// missing/bad input collapses to { awake:false }.
+
+// "2026-06-27" in ET — the day boundary the autonomous loop is counted against.
+function etToday() {
+  try {
+    const p = new Date().toLocaleString('en-US', {
+      timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
+    }); // "06/27/2026"
+    const [mo, d, y] = p.split(/[\/,]/).map(s => s.trim());
+    return `${y}-${mo}-${d}`;
+  } catch (_) { return new Date().toISOString().slice(0, 10); }
+}
+
+// Short ET clock from a timestamp → "11:55 ET".
+//  - A zoned/UTC ISO ("…Z" / "…+00:00") is converted to the ET wall clock.
+//  - A naive ET ISO (no offset, from a STATUS.md "~HH:MM ET" header) keeps its
+//    own HH:MM verbatim — it is ALREADY ET, so don't re-zone it.
+function utcToEtShort(isoStr) {
+  if (!isoStr) return '';
+  const zoned = /[zZ]$|[+\-]\d{2}:?\d{2}$/.test(isoStr);
+  if (!zoned) {
+    const m = isoStr.match(/T(\d{2}:\d{2})/);
+    if (m) return `${m[1]} ET`;
+  }
+  try {
+    const hm = new Date(isoStr).toLocaleString('en-US', {
+      timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hour12: false,
+    });
+    return `${hm} ET`;
+  } catch (_) { return ''; }
+}
+
+// Compress a conductor note / STATUS clause into a short presence label.
+function pulseLabel(raw, kind) {
+  try {
+    const txt = humanize(String(raw || ''), kind || classifyKind(String(raw || '')));
+    return truncate(txt.replace(/\.$/, ''), 64);
+  } catch (_) {
+    return truncate(String(raw || '').replace(/\s+/g, ' ').trim(), 64);
+  }
+}
+
+function getPulse() {
+  const today = etToday();
+  let lastActed = null;      // UTC ISO of the most recent autonomous action
+  let lastLabel = '';
+  let actionsToday = 0;
+
+  // ── Primary signal: conductor-outcomes.jsonl (precise UTC fired_at) ──
+  try {
+    const lines = fs.readFileSync(path.join(STATE, 'conductor-outcomes.jsonl'), 'utf8')
+      .trim().split('\n').filter(Boolean);
+    if (lines.length) {
+      const last = JSON.parse(lines[lines.length - 1]);
+      if (last && last.fired_at) {
+        lastActed = last.fired_at;
+        lastLabel = pulseLabel(last.note, last.regressions > 0 ? 'caution' : 'shipped');
+      }
+      // Count today's (ET) conductor outcomes.
+      for (const l of lines) {
+        try {
+          const r = JSON.parse(l);
+          if (r && r.fired_at && utcToEtDate(r.fired_at) === today) actionsToday++;
+        } catch (_) {}
+      }
+    }
+  } catch (_) {}
+
+  // ── Fallback / cross-check: newest STATUS.md "## [YYYY-MM-DD ~HH:MM ET]" header ──
+  try {
+    const raw = fs.readFileSync(path.join(REPO, 'automation', 'overnight', 'STATUS.md'), 'utf8');
+    const re = /^##\s+\[(\d{4}-\d{2}-\d{2})\s+~([\d:]+)\s+ET\]\s+[^:]*:\s*(.+)$/gm;
+    let m, newest = null, statusToday = 0;
+    while ((m = re.exec(raw)) !== null) {
+      if (!newest) newest = { date: m[1], time: m[2], text: m[3].trim() };
+      if (m[1] === today) statusToday++;
+    }
+    // If we had no conductor signal, take the newest STATUS header as the pulse.
+    if (!lastActed && newest) {
+      // Build a rough ET ISO so the short clock + label still render.
+      lastActed = `${newest.date}T${newest.time.length === 5 ? newest.time : '00:00'}:00`;
+      lastLabel = pulseLabel(newest.text);
+      lastLabel = lastLabel; // already short
+    }
+    // Use the larger of the two counts so a STATUS-only loop still shows moves.
+    actionsToday = Math.max(actionsToday, statusToday);
+  } catch (_) {}
+
+  if (!lastActed) return { awake: false };
+
+  return {
+    awake: true,
+    lastActed,
+    lastActedEt: utcToEtShort(lastActed),
+    lastLabel,
+    actionsToday,
+  };
+}
+
+// "YYYY-MM-DD" in ET for a UTC ISO timestamp (for today-counting).
+function utcToEtDate(isoStr) {
+  try {
+    const p = new Date(isoStr).toLocaleString('en-US', {
+      timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
+    });
+    const [mo, d, y] = p.split(/[\/,]/).map(s => s.trim());
+    return `${y}-${mo}-${d}`;
+  } catch (_) { return ''; }
 }
 
 // ─── File watchers for state change events ────────────────────────────────────
@@ -781,6 +963,16 @@ const server = http.createServer((req, res) => {
     catch (_) { vitals = { spy: { last: null, ts: '' }, accounts: [] }; }
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(vitals));
+    return;
+  }
+
+  // Presence pulse — proves the autonomous loop is alive (read-only cached state)
+  if (url.pathname === '/api/pulse') {
+    let pulse;
+    try { pulse = getPulse(); }
+    catch (_) { pulse = { awake: false }; }
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(pulse));
     return;
   }
 

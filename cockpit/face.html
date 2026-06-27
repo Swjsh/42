@@ -154,6 +154,38 @@
   }
   .subline .dot{opacity:.5;padding:0 5px;}
 
+  /* ── presence pulse ── ambient "the loop is alive" cue under the sub-line ── */
+  .presence{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    margin-top:8px;
+    font-size:11.5px;
+    color:var(--text-2);
+    letter-spacing:.015em;
+    opacity:.78;
+    transition:opacity .4s ease;
+  }
+  .presence.is-hidden{display:none;}
+  .presence #presenceText{font-family:var(--ui);}
+  .presence .presence-time{font-family:var(--mono);color:var(--text);}
+  .presence-dot{
+    width:6px;height:6px;border-radius:50%;
+    flex:0 0 6px;
+    background:var(--accent);
+    box-shadow:0 0 7px rgba(147,168,221,.7);
+    animation:presencePulse 2.6s ease-in-out infinite;
+  }
+  .presence.is-asleep{opacity:.5;}
+  .presence.is-asleep .presence-dot{
+    background:var(--muted);box-shadow:none;animation:none;
+  }
+  @keyframes presencePulse{
+    0%,100%{opacity:1;transform:scale(1);}
+    50%{opacity:.4;transform:scale(.82);}
+  }
+
   /* ── glass card base ─────────────────────────────── */
   .card{
     background:var(--glass);
@@ -342,7 +374,7 @@
   @keyframes livepulse{0%,100%{opacity:1;}50%{opacity:.35;}}
 
   @media (prefers-reduced-motion:reduce){
-    .core,.core-wrap::before,.footer .live{animation:none;}
+    .core,.core-wrap::before,.footer .live,.presence-dot{animation:none;}
   }
 </style>
 </head>
@@ -357,6 +389,10 @@
       </div>
       <h1 class="verdict" id="verdict">All systems healthy</h1>
       <p class="subline" id="subline">Watching<span class="dot">·</span>market closed<span class="dot">·</span>both accounts flat</p>
+      <!-- presence pulse: ambient proof the autonomous loop is alive (GET /api/pulse) -->
+      <p class="presence is-hidden" id="presence">
+        <span class="presence-dot"></span><span id="presenceText"></span>
+      </p>
     </section>
 
     <!-- NEEDS YOU (display-only — approval bus not wired) -->
@@ -538,6 +574,40 @@
     if (bold) setFig(el("figBold"), fmtMoney(bold.equity), bold.stale);
   }
 
+  // ── PRESENCE pulse from /api/pulse ────────────────────────
+  // Ambient "the loop is alive" cue: a pulsing accent dot + a calm line like
+  // "Awake · last acted 11:55 ET · 6 moves today". Quiet by design.
+  function renderPulse(p){
+    var node = el("presence");
+    var txt  = el("presenceText");
+    if (!node || !txt) return;
+    if (!p || typeof p !== "object" || !p.awake){
+      // Asleep / unknown — keep it subtle (dim dot, no pulse) rather than hiding,
+      // but if we have nothing at all, stay hidden so we never show a bare dot.
+      if (!p || !p.lastActedEt){
+        node.classList.add("is-hidden");
+        return;
+      }
+      node.classList.remove("is-hidden");
+      node.classList.add("is-asleep");
+      txt.innerHTML = 'Idle<span class="dot" style="opacity:.4;padding:0 5px;">·</span>' +
+                      'last acted <span class="presence-time">'+esc(p.lastActedEt)+'</span>';
+      return;
+    }
+    node.classList.remove("is-hidden","is-asleep");
+    var when = p.lastActedEt ? esc(p.lastActedEt) : "just now";
+    var html = 'Awake<span class="dot" style="opacity:.4;padding:0 5px;">·</span>' +
+               'last acted <span class="presence-time">'+when+'</span>';
+    if (typeof p.actionsToday === "number" && p.actionsToday > 0){
+      html += '<span class="dot" style="opacity:.4;padding:0 5px;">·</span>' +
+              esc(p.actionsToday) + (p.actionsToday === 1 ? " move today" : " moves today");
+    }
+    txt.innerHTML = html;
+    // Title carries the longer label for a hover ("I fixed …") — kept out of the
+    // visible line to stay quiet.
+    node.title = p.lastLabel ? String(p.lastLabel) : "";
+  }
+
   // ── fetchers ──────────────────────────────────────────────
   function loadTiles(){
     fetch("/api/tiles").then(function(r){return r.json();})
@@ -554,6 +624,11 @@
     fetch("/api/vitals").then(function(r){return r.json();})
       .then(renderVitals)
       .catch(function(){ /* fail-open: keep last figures */ });
+  }
+  function loadPulse(){
+    fetch("/api/pulse").then(function(r){return r.json();})
+      .then(renderPulse)
+      .catch(function(){ /* fail-open: keep last presence */ });
   }
 
   var footerEl = el("footer");
@@ -580,6 +655,7 @@
         loadTiles();
         loadFeed();
         loadVitals();
+        loadPulse();
       }, 250);
     };
     es.onopen = markLive;
@@ -607,11 +683,13 @@
   loadTiles();
   loadFeed();
   loadVitals();
+  loadPulse();
   connectSSE();
   // safety re-poll in case SSE is silent for a while
   setInterval(loadTiles, 30000);
   setInterval(loadFeed, 60000);
   setInterval(loadVitals, 30000);
+  setInterval(loadPulse, 60000);
 })();
 </script>
 <script>
