@@ -44,6 +44,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 STATE = REPO / "automation" / "state"
 PROPOSALS = STATE / "conductor-proposals.jsonl"
+COMPANION_DECISIONS = STATE / "companion-decisions.jsonl"
 CHANGELOG = STATE / "autonomy-changelog.jsonl"
 SNAP_DIR = STATE / ".autonomy-snapshots"
 GATE = REPO / "backtest" / "tests" / "run_safety_gate.py"
@@ -99,6 +100,74 @@ def _rewrite_proposals(rows: list[dict]) -> None:
         for r in rows:
             f.write(json.dumps(r) + "\n")
     tmp.replace(PROPOSALS)
+
+
+def _read_companion_decisions() -> list[dict]:
+    if not COMPANION_DECISIONS.exists():
+        return []
+    rows = []
+    for line in COMPANION_DECISIONS.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            try:
+                rows.append(json.loads(line))
+            except Exception:
+                pass  # skip a torn line; never crash the bridge
+    return rows
+
+
+def sync_companion_approvals() -> int:
+    """Bridge J's companion (localhost:4317) Approve/Reject taps into the proposal
+    ledger -- the symmetric companion equivalent of the Discord `ship <id>` flow.
+
+    THE GAP THIS CLOSES (G8): the conductor enqueues a real proposal card to the
+    companion; J taps Approve; `resolveApproval` (gamma-companion/lib/approvals.js)
+    appends {id, decision, ...} to companion-decisions.jsonl ... and NOTHING flipped
+    the matching conductor-proposals row, so this actuator never saw J's consent.
+    Two approval buses, no bridge. This reads those decisions and, for each that
+    names a REAL proposal_id currently `pending`, flips it: approve -> "approved"
+    (the actuator then applies it under its full safety contract), reject ->
+    "shelved".
+
+    HARD SAFETY CONTRACT (this only RECORDS consent; it applies NOTHING -- rail 4):
+      - Only flips a row currently `status == "pending"`. Never re-touches
+        approved/applied/shelved/reverted -> naturally idempotent, and a later J
+        Discord/actuator action always wins over a stale companion row.
+      - Synthetic companion cards (act-*/oblig-* ids) name no proposal_id -> they
+        match nothing and are silently ignored.
+      - Records J's consent into the SAME ledger the Discord responder feeds; the
+        deterministic apply path (apply_ops + safety gate + snapshot + revert) is
+        unchanged and still does all editing. Fail-open: never raises.
+    Returns the count of proposals whose status it changed.
+    """
+    decisions = _read_companion_decisions()
+    if not decisions:
+        return 0
+    rows = _read_proposals()
+    by_id = {r.get("proposal_id"): r for r in rows if r.get("proposal_id")}
+    changed = 0
+    for d in decisions:
+        pid = d.get("id")
+        prop = by_id.get(pid)
+        if prop is None or prop.get("status") != "pending":
+            continue  # not a real pending proposal (synthetic id / already-resolved)
+        decision = d.get("decision")
+        if decision == "approve":
+            prop["status"] = "approved"
+            prop["approved_via"] = "companion"
+            prop["approved_at"] = _now()
+            _log_change({"proposal_id": pid, "title": prop.get("title", ""),
+                         "outcome": "approved_via_companion", "decision_ts": d.get("ts")})
+            changed += 1
+        elif decision == "reject":
+            prop["status"] = "shelved"
+            prop["shelved_via"] = "companion"
+            prop["shelved_at"] = _now()
+            _log_change({"proposal_id": pid, "title": prop.get("title", ""),
+                         "outcome": "shelved_via_companion", "decision_ts": d.get("ts")})
+            changed += 1
+    if changed:
+        _rewrite_proposals(rows)
+    return changed
 
 
 def _log_change(row: dict) -> None:
@@ -227,6 +296,12 @@ def _set_status(rows: list[dict], pid: str, **fields) -> None:
 
 
 def apply_approved(dry_run: bool = False) -> int:
+    if not dry_run:
+        # Bridge J's companion taps into the ledger BEFORE selecting approved rows,
+        # so a phone/watch Approve reaches the same apply path as a Discord `ship`.
+        synced = sync_companion_approvals()
+        if synced:
+            print(f"[actuator] synced {synced} companion decision(s) into the proposal ledger.")
     if not dry_run and _market_is_open():
         print("[actuator] market open -- deferring apply to after-hours (Rule 9: no mid-session doctrine/params changes).")
         return 0
