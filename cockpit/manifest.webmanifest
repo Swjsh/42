@@ -1,0 +1,25 @@
+{
+  "name": "Gamma",
+  "short_name": "Gamma",
+  "description": "Gamma — live 0DTE SPY operator face",
+  "display": "standalone",
+  "background_color": "#0A0C0F",
+  "theme_color": "#0A0C0F",
+  "start_url": "/",
+  "scope": "/",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

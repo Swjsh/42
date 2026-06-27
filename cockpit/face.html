@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<!--
+  Gamma — companion face (design D)
+  Self-contained, zero-build. Served by cockpit/server.js at GET /face.
+  Reads live data from GET /api/tiles, GET /api/feed, GET /events (SSE).
+  UI / observability ONLY. The Approve button is display-only (data-display-only):
+  the approval bus is NOT wired — clicking it places no orders and calls no trade code.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gamma</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0C0F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/assets/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* ── palette lifted from design D ── */
+    --bg:#0A0C0F;
+    --bg-deep:#080A0E;
+    --glass:rgba(255,255,255,.035);
+    --glass-2:rgba(255,255,255,.05);
+    --hairline:rgba(255,255,255,.07);
+    --hairline-2:rgba(255,255,255,.10);
+    --slate-1:#323747;
+    --slate-2:#3C424F;
+    --slate-3:#4E535A;
+    --accent:#93A8DD;          /* slate-periwinkle */
+    --glow:#CDDFFB;            /* bright core glow */
+    --glow-2:#B4CAF3;
+    --text:#E7EAF2;           /* primary */
+    --text-2:#A4ABBE;         /* secondary */
+    --muted:#6C7384;          /* muted */
+    --pos:#43C98E;
+    --caution:#E0A23C;
+    --alert:#E0574E;
+
+    --serif:'Newsreader',Georgia,serif;
+    --ui:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+
+  html,body{background:var(--bg);}
+  body{
+    font-family:var(--ui);
+    color:var(--text);
+    min-height:100vh;
+    /* ambient depth: a faint blue lift behind the core, fading to deep near-black */
+    background:
+      radial-gradient(120% 80% at 50% 20%, rgba(147,168,221,.06) 0%, rgba(10,12,15,0) 55%),
+      radial-gradient(140% 100% at 50% 120%, #0B0E13 0%, var(--bg-deep) 70%),
+      var(--bg);
+    background-attachment:fixed;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    display:flex;
+    justify-content:center;
+  }
+
+  .frame{
+    width:100%;
+    max-width:440px;
+    min-height:100vh;
+    padding:max(env(safe-area-inset-top),18px) 20px max(env(safe-area-inset-bottom),32px);
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+
+  /* ── HERO ─────────────────────────────────────────── */
+  .wordmark{
+    text-align:center;
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:15px;
+    letter-spacing:.62em;
+    text-indent:.62em; /* compensate trailing tracking so it reads centered */
+    color:var(--text-2);
+    padding-top:6px;
+    opacity:.92;
+  }
+
+  .hero{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    margin-top:2px;
+  }
+  .core-wrap{
+    position:relative;
+    width:min(74vw,300px);
+    height:min(74vw,300px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  /* soft pulsing radial glow behind the core */
+  .core-wrap::before{
+    content:"";
+    position:absolute;
+    inset:-12%;
+    border-radius:50%;
+    background:radial-gradient(circle at 50% 47%, rgba(205,223,251,.30) 0%, rgba(147,168,221,.16) 28%, rgba(147,168,221,0) 62%);
+    filter:blur(8px);
+    animation:halo 6s ease-in-out infinite;
+    pointer-events:none;
+  }
+  .core{
+    position:relative;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    animation:breathe 6s ease-in-out infinite;
+    will-change:transform,opacity;
+    user-select:none;
+    -webkit-user-drag:none;
+  }
+  @keyframes breathe{
+    0%,100%{transform:scale(1.0);opacity:.85;}
+    50%{transform:scale(1.04);opacity:1;}
+  }
+  @keyframes halo{
+    0%,100%{opacity:.55;transform:scale(1.0);}
+    50%{opacity:.95;transform:scale(1.08);}
+  }
+
+  .verdict{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:27px;
+    line-height:1.15;
+    text-align:center;
+    color:var(--text);
+    margin-top:-6px;
+    letter-spacing:.005em;
+  }
+  .verdict.is-watch{color:#EBD7A8;}
+  .verdict.is-alert{color:#F2B0AA;}
+  .subline{
+    text-align:center;
+    font-size:12.5px;
+    color:var(--muted);
+    margin-top:9px;
+    letter-spacing:.01em;
+  }
+  .subline .dot{opacity:.5;padding:0 5px;}
+
+  /* ── glass card base ─────────────────────────────── */
+  .card{
+    background:var(--glass);
+    border:1px solid var(--hairline);
+    border-radius:18px;
+    padding:16px 16px;
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+  }
+  .card-label{
+    font-size:10.5px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:10px;
+    font-weight:600;
+  }
+
+  /* ── NEEDS YOU ───────────────────────────────────── */
+  .needs{
+    position:relative;
+    border-color:rgba(147,168,221,.28);
+    background:
+      linear-gradient(180deg, rgba(147,168,221,.07) 0%, rgba(147,168,221,.02) 100%),
+      var(--glass);
+    box-shadow:0 0 0 1px rgba(147,168,221,.05), 0 8px 30px rgba(80,104,170,.10);
+  }
+  .needs .card-label{color:var(--accent);}
+  .needs .ask{
+    font-family:var(--serif);
+    font-size:18px;
+    line-height:1.4;
+    color:var(--text);
+    margin-bottom:14px;
+  }
+  .btn-row{display:flex;gap:10px;}
+  .btn{
+    flex:1;
+    font-family:var(--ui);
+    font-size:14px;
+    font-weight:600;
+    padding:11px 0;
+    border-radius:12px;
+    border:1px solid var(--hairline-2);
+    cursor:pointer;
+    transition:transform .12s ease, background .15s ease, border-color .15s ease;
+    letter-spacing:.01em;
+  }
+  .btn:active{transform:scale(.975);}
+  .btn-approve{
+    background:linear-gradient(180deg,#A8BCEA 0%, var(--accent) 100%);
+    border-color:transparent;
+    color:#0C1320;
+    box-shadow:0 6px 18px rgba(147,168,221,.22);
+  }
+  .btn-hold{
+    background:rgba(255,255,255,.03);
+    color:var(--text-2);
+  }
+  .btn-hold:hover{border-color:var(--hairline-2);color:var(--text);}
+  .display-note{
+    margin-top:11px;
+    font-size:10.5px;
+    color:var(--muted);
+    text-align:center;
+    letter-spacing:.02em;
+    opacity:.85;
+  }
+
+  /* ── ACTIVITY feed ───────────────────────────────── */
+  .feed{display:flex;flex-direction:column;}
+  .feed-item{
+    display:grid;
+    grid-template-columns:3px 1fr;
+    gap:0;
+    padding:11px 0;
+    border-top:1px solid rgba(255,255,255,.05);
+  }
+  .feed-item:first-of-type{border-top:none;}
+  .feed-rule{
+    width:3px;
+    border-radius:3px;
+    background:var(--slate-3);
+    align-self:stretch;
+  }
+  .feed-rule.shipped{background:var(--pos);}
+  .feed-rule.healthy{background:var(--accent);}
+  .feed-rule.caution{background:var(--alert);}
+  .feed-rule.info{background:var(--slate-3);}
+  .feed-body{padding-left:13px;min-width:0;}
+  .feed-ts{
+    font-family:var(--mono);
+    font-size:10.5px;
+    color:var(--muted);
+    letter-spacing:.01em;
+    display:block;
+    margin-bottom:3px;
+  }
+  .feed-text{
+    font-family:var(--ui);
+    font-size:13.5px;
+    line-height:1.45;
+    color:var(--text-2);
+  }
+  .feed-text .anchor{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:15px;
+    color:var(--text);
+    margin-right:.18em;
+  }
+  .feed-empty{font-size:13px;color:var(--muted);padding:6px 0;text-align:center;}
+
+  /* ── VITALS ──────────────────────────────────────── */
+  .vitals-summary{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--text-2);
+    margin-bottom:14px;
+    letter-spacing:.01em;
+  }
+  .vitals-summary b{color:var(--text);font-weight:600;}
+  .vitals-summary .seg{padding:0 7px;color:var(--muted);}
+  .vitals-summary .v-pos{color:var(--pos);}
+  .vitals-summary .v-watch{color:var(--caution);}
+  .vitals-summary .v-alert{color:var(--alert);}
+
+  .sys-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:9px 14px;
+    margin-bottom:6px;
+  }
+  .sys{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    min-width:0;
+  }
+  .sys-dot{
+    width:8px;height:8px;border-radius:50%;
+    flex:0 0 8px;
+    background:var(--slate-3);
+    box-shadow:0 0 0 0 rgba(0,0,0,0);
+  }
+  .sys-dot.GREEN{background:var(--pos);box-shadow:0 0 7px rgba(67,201,142,.55);}
+  .sys-dot.YELLOW{background:var(--caution);box-shadow:0 0 7px rgba(224,162,60,.5);}
+  .sys-dot.RED{background:var(--alert);box-shadow:0 0 8px rgba(224,87,78,.6);}
+  .sys-name{
+    font-size:12.5px;
+    color:var(--text-2);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .figs{
+    display:flex;
+    border-top:1px solid var(--hairline);
+    margin-top:14px;
+    padding-top:14px;
+    gap:12px;
+  }
+  .fig{flex:1;}
+  .fig-label{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+  .fig-val{font-family:var(--mono);font-size:18px;font-weight:600;color:var(--text);letter-spacing:-.01em;}
+  .fig-val.spy{color:var(--accent);}
+  .fig-val.is-stale{opacity:.45;}
+
+  /* ── footer ──────────────────────────────────────── */
+  .footer{
+    text-align:center;
+    font-size:10px;
+    color:var(--muted);
+    letter-spacing:.06em;
+    opacity:.55;
+    margin-top:2px;
+  }
+  .footer .live{
+    display:inline-block;width:6px;height:6px;border-radius:50%;
+    background:var(--pos);margin-right:6px;vertical-align:middle;
+    box-shadow:0 0 6px rgba(67,201,142,.6);
+    animation:livepulse 2.4s ease-in-out infinite;
+  }
+  .footer.stale .live{background:var(--muted);box-shadow:none;animation:none;}
+  @keyframes livepulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+
+  @media (prefers-reduced-motion:reduce){
+    .core,.core-wrap::before,.footer .live{animation:none;}
+  }
+</style>
+</head>
+<body>
+  <main class="frame">
+
+    <!-- HERO -->
+    <div class="wordmark">GAMMA</div>
+    <section class="hero">
+      <div class="core-wrap">
+        <img class="core" src="/assets/gamma-core.png" alt="Gamma core" width="300" height="300" draggable="false">
+      </div>
+      <h1 class="verdict" id="verdict">All systems healthy</h1>
+      <p class="subline" id="subline">Watching<span class="dot">·</span>market closed<span class="dot">·</span>both accounts flat</p>
+    </section>
+
+    <!-- NEEDS YOU (display-only — approval bus not wired) -->
+    <section class="card needs" data-display-only="true">
+      <div class="card-label">Needs you</div>
+      <div class="ask">Activate the new EOD-flatten task for Monday?</div>
+      <div class="btn-row">
+        <button class="btn btn-approve" id="approveBtn" type="button">Approve</button>
+        <button class="btn btn-hold" id="holdBtn" type="button">Hold</button>
+      </div>
+      <div class="display-note" id="approveNote">Display-only preview · the approval bus isn't wired yet</div>
+    </section>
+
+    <!-- ACTIVITY -->
+    <section class="card">
+      <div class="card-label">Activity</div>
+      <div class="feed" id="feed">
+        <div class="feed-empty">Listening for Gamma…</div>
+      </div>
+    </section>
+
+    <!-- VITALS -->
+    <section class="card">
+      <div class="card-label">Vitals</div>
+      <div class="vitals-summary" id="vitalsSummary">— healthy · — watch · — alert</div>
+      <div class="sys-grid" id="sysGrid"></div>
+      <!-- live vitals: SPY + account equities from GET /api/vitals (read-only cached state) -->
+      <div class="figs">
+        <div class="fig">
+          <div class="fig-label">Gamma-Safe</div>
+          <div class="fig-val" id="figSafe">$2,000</div>
+        </div>
+        <div class="fig">
+          <div class="fig-label">Gamma-Bold</div>
+          <div class="fig-val" id="figBold">$1,649</div>
+        </div>
+        <div class="fig">
+          <div class="fig-label">SPY</div>
+          <div class="fig-val spy" id="figSpy">735.59</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer" id="footer"><span class="live"></span><span id="footerText">live</span></div>
+  </main>
+
+<script>
+(function(){
+  "use strict";
+
+  // ── helpers ───────────────────────────────────────────────
+  function el(id){return document.getElementById(id);}
+  function esc(s){
+    return String(s == null ? "" : s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  }
+
+  // Compress the verbose tile title into a short subsystem label.
+  function shortName(title){
+    var t = String(title || "");
+    if (/Beacon/i.test(t)) return "Beacon";
+    if (/Accounts/i.test(t)) return "Accounts";
+    if (/Autonomy/i.test(t)) return "Autonomy";
+    if (/Discord/i.test(t)) return "Discord";
+    if (/Task Health/i.test(t)) return "Tasks";
+    // strip parenthetical and slash extras: "Accounts / P&L" -> "Accounts"
+    return t.replace(/\s*\/.*$/, "").replace(/\s*\(.*$/, "").trim();
+  }
+
+  // ── VITALS / HERO from /api/tiles ─────────────────────────
+  function renderTiles(tiles){
+    if (!Array.isArray(tiles) || !tiles.length) return;
+
+    var healthy=0, watch=0, alert=0;
+    tiles.forEach(function(t){
+      if (t.light === "GREEN") healthy++;
+      else if (t.light === "YELLOW") watch++;
+      else alert++; // RED or anything unknown
+    });
+
+    // hero verdict derived from worst light
+    var v = el("verdict");
+    var sub = el("subline");
+    v.classList.remove("is-watch","is-alert");
+    if (alert > 0){
+      v.textContent = alert === 1 ? "One system needs me" : (alert + " systems need me");
+      v.classList.add("is-alert");
+    } else if (watch > 0){
+      v.textContent = "Holding steady";
+      v.classList.add("is-watch");
+    } else {
+      v.textContent = "All systems healthy";
+    }
+
+    // sub-line: market state + account flatness pulled from the Accounts tile if present
+    var acct = tiles.find(function(t){return /Accounts/i.test(t.title);});
+    var eng  = tiles.find(function(t){return /Engine/i.test(t.title);});
+    var marketOpen = eng && /market_open=true/i.test(eng.text || "");
+    var bothFlat = acct && /Safe:\s*flat/i.test(acct.text||"") && /Bold:\s*flat/i.test(acct.text||"");
+    var parts = ["Watching",
+                 marketOpen ? "market open" : "market closed",
+                 bothFlat ? "both accounts flat" : (acct ? "positions live" : "accounts unknown")];
+    sub.innerHTML = parts.map(esc).join('<span class="dot">·</span>');
+
+    // summary line
+    el("vitalsSummary").innerHTML =
+      '<b class="v-pos">'+healthy+'</b> healthy<span class="seg">·</span>' +
+      '<b class="v-watch">'+watch+'</b> watch<span class="seg">·</span>' +
+      '<b class="v-alert">'+alert+'</b> alert';
+
+    // refined system row/grid (dot + label, not a cryptic grid)
+    var grid = el("sysGrid");
+    grid.innerHTML = tiles.map(function(t){
+      var light = (t.light === "GREEN" || t.light === "YELLOW" || t.light === "RED") ? t.light : "RED";
+      return '<div class="sys" title="'+esc(t.text||"")+'">' +
+               '<span class="sys-dot '+light+'"></span>' +
+               '<span class="sys-name">'+esc(shortName(t.title))+'</span>' +
+             '</div>';
+    }).join("");
+  }
+
+  // ── ACTIVITY from /api/feed ───────────────────────────────
+  // anchor word = first meaningful token of the message, set in serif.
+  function splitAnchor(text){
+    var s = String(text || "").trim();
+    if (!s) return {anchor:"", rest:""};
+    var m = s.match(/^([\wâ€™'’\-:]+)(\s+)([\s\S]*)$/);
+    if (!m) return {anchor:s, rest:""};
+    return {anchor:m[1], rest:m[3]};
+  }
+
+  function renderFeed(messages){
+    var feed = el("feed");
+    if (!Array.isArray(messages) || !messages.length){
+      feed.innerHTML = '<div class="feed-empty">Quiet for now — nothing new from Gamma.</div>';
+      return;
+    }
+    // newest first (server emits newest-first already; guard anyway by leaving order)
+    feed.innerHTML = messages.slice(0, 14).map(function(m){
+      var kind = ["shipped","caution","healthy","info"].indexOf(m.kind) >= 0 ? m.kind : "info";
+      var a = splitAnchor(m.text);
+      var ts = esc(m.ts_et || "");
+      return '<div class="feed-item">' +
+               '<span class="feed-rule '+kind+'"></span>' +
+               '<div class="feed-body">' +
+                 '<span class="feed-ts">'+ts+'</span>' +
+                 '<span class="feed-text">' +
+                   (a.anchor ? '<span class="anchor">'+esc(a.anchor)+'</span> ' : '') +
+                   esc(a.rest) +
+                 '</span>' +
+               '</div>' +
+             '</div>';
+    }).join("");
+  }
+
+  // ── VITALS figures from /api/vitals ───────────────────────
+  function fmtMoney(n){
+    if (typeof n !== "number" || !isFinite(n)) return "—";
+    return "$" + Math.round(n).toLocaleString("en-US");
+  }
+  function fmtPrice(n){
+    if (typeof n !== "number" || !isFinite(n)) return "—";
+    return n.toFixed(2);
+  }
+  function setFig(node, value, stale){
+    if (!node) return;
+    node.textContent = value;
+    node.classList.toggle("is-stale", !!stale);
+  }
+  function renderVitals(v){
+    if (!v || typeof v !== "object") return;
+    var spy = v.spy || {};
+    setFig(el("figSpy"), fmtPrice(spy.last), false);
+    var accts = Array.isArray(v.accounts) ? v.accounts : [];
+    var safe = accts.find(function(a){return /safe/i.test(a && a.name);});
+    var bold = accts.find(function(a){return /bold/i.test(a && a.name);});
+    if (safe) setFig(el("figSafe"), fmtMoney(safe.equity), safe.stale);
+    if (bold) setFig(el("figBold"), fmtMoney(bold.equity), bold.stale);
+  }
+
+  // ── fetchers ──────────────────────────────────────────────
+  function loadTiles(){
+    fetch("/api/tiles").then(function(r){return r.json();})
+      .then(renderTiles)
+      .then(markLive)
+      .catch(function(){ /* fail-open: keep last render */ });
+  }
+  function loadFeed(){
+    fetch("/api/feed").then(function(r){return r.json();})
+      .then(function(d){ renderFeed(d && d.messages); })
+      .catch(function(){ /* fail-open */ });
+  }
+  function loadVitals(){
+    fetch("/api/vitals").then(function(r){return r.json();})
+      .then(renderVitals)
+      .catch(function(){ /* fail-open: keep last figures */ });
+  }
+
+  var footerEl = el("footer");
+  function markLive(){
+    footerEl.classList.remove("stale");
+    el("footerText").textContent = "live";
+  }
+  function markStale(){
+    footerEl.classList.add("stale");
+    el("footerText").textContent = "reconnecting…";
+  }
+
+  // ── SSE: refetch tiles+feed on any message; reconnect on drop ─
+  var es = null;
+  function connectSSE(){
+    try { if (es) es.close(); } catch(_){}
+    es = new EventSource("/events");
+    var debounce = null;
+    es.onmessage = function(){
+      // coalesce bursts of state-change events into one refetch
+      if (debounce) return;
+      debounce = setTimeout(function(){
+        debounce = null;
+        loadTiles();
+        loadFeed();
+        loadVitals();
+      }, 250);
+    };
+    es.onopen = markLive;
+    es.onerror = function(){
+      markStale();
+      // EventSource auto-reconnects, but if it hard-closes, rebuild after a beat
+      if (es && es.readyState === 2){
+        setTimeout(connectSSE, 3000);
+      }
+    };
+  }
+
+  // ── Approve / Hold: display-only, NO trade/order code ─────
+  el("approveBtn").addEventListener("click", function(){
+    el("approveNote").textContent = "Noted — approvals aren't wired to the engine yet (display-only).";
+    el("approveBtn").textContent = "Approved (preview)";
+    el("approveBtn").disabled = true;
+    el("approveBtn").style.opacity = ".7";
+  });
+  el("holdBtn").addEventListener("click", function(){
+    el("approveNote").textContent = "Held — nothing changes (display-only).";
+  });
+
+  // ── boot ──────────────────────────────────────────────────
+  loadTiles();
+  loadFeed();
+  loadVitals();
+  connectSSE();
+  // safety re-poll in case SSE is silent for a while
+  setInterval(loadTiles, 30000);
+  setInterval(loadFeed, 60000);
+  setInterval(loadVitals, 30000);
+})();
+</script>
+<script>
+// PWA service-worker registration — guarded; only on https or localhost.
+(function(){
+  "use strict";
+  try {
+    var host = location.hostname;
+    var secure = (location.protocol === "https:") ||
+                 host === "localhost" || host === "127.0.0.1" || host === "[::1]";
+    if (secure && "serviceWorker" in navigator) {
+      window.addEventListener("load", function(){
+        navigator.serviceWorker.register("/service-worker.js").catch(function(){ /* non-fatal */ });
+      });
+    }
+  } catch(_){ /* never block the app on SW failure */ }
+})();
+</script>
+</body>
+</html>

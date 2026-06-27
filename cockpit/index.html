@@ -3,21 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gamma Cockpit v1</title>
+<title>Gamma Companion</title>
 <style>
   :root {
     --bg: #0d1117;
     --bg2: #161b22;
     --bg3: #21262d;
-    --border: #30363d;
+    --border: #2a313c;
     --text: #e6edf3;
     --muted: #8b949e;
     --green: #3fb950;
     --green-bg: #0d2012;
     --green-border: #238636;
-    --yellow: #d29922;
-    --yellow-bg: #1f1a05;
-    --yellow-border: #9e6a03;
+    --amber: #d29922;
+    --amber-bg: #1f1a05;
+    --amber-border: #9e6a03;
     --red: #f85149;
     --red-bg: #200d0d;
     --red-border: #6e1d1d;
@@ -35,449 +35,383 @@
     font-size: 14px;
     line-height: 1.5;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 
-  /* ── Header ── */
-  header {
+  /* ── Health strip ── */
+  .health-strip {
     background: var(--bg2);
     border-bottom: 1px solid var(--border);
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    padding: 10px 16px;
     position: sticky;
     top: 0;
     z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
   }
-  header h1 {
-    font-size: 18px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    color: var(--text);
+
+  .strip-identity {
     display: flex;
     align-items: center;
     gap: 8px;
-  }
-  header h1 span.logo { font-size: 22px; }
-  .header-meta {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    color: var(--muted);
-    font-size: 12px;
-    font-family: var(--font-mono);
-  }
-  #clock { color: var(--accent); font-weight: 600; }
-  .pulse-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--green);
-    display: inline-block;
-    animation: pulse 2s ease-in-out infinite;
-  }
-  .pulse-dot.dead { background: var(--red); animation: none; }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
-  }
-
-  /* ── Layout ── */
-  main {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 20px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr;
-    gap: 16px;
-    height: calc(100vh - 57px);
-  }
-
-  section {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-
-  section h2 {
-    padding: 10px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--muted);
-    border-bottom: 1px solid var(--border);
-    background: var(--bg3);
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  /* ── Traffic Light Grid ── */
-  .tiles-section {
-    grid-column: 1 / 2;
-    grid-row: 1 / 2;
-  }
-
-  .tiles-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    padding: 12px;
-    overflow-y: auto;
-    flex: 1;
-  }
-
-  .tile {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 10px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    transition: border-color 0.3s;
-    position: relative;
-  }
-
-  .tile-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .light {
-    width: 10px; height: 10px;
-    border-radius: 50%;
     flex-shrink: 0;
   }
-  .light.GREEN { background: var(--green); box-shadow: 0 0 6px var(--green); }
-  .light.YELLOW { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
-  .light.RED { background: var(--red); box-shadow: 0 0 8px var(--red); animation: redpulse 1s ease-in-out infinite; }
-  @keyframes redpulse {
-    0%, 100% { box-shadow: 0 0 8px var(--red); }
-    50% { box-shadow: 0 0 20px var(--red); }
-  }
-
-  .tile.GREEN { border-color: var(--green-border); background: var(--green-bg); }
-  .tile.YELLOW { border-color: var(--yellow-border); background: var(--yellow-bg); }
-  .tile.RED { border-color: var(--red-border); background: var(--red-bg); }
-
-  .tile-name {
-    font-weight: 600;
-    font-size: 12px;
+  .strip-identity .name {
+    font-weight: 700;
+    font-size: 15px;
     color: var(--text);
+    letter-spacing: 0.2px;
   }
-
-  .tile-status {
+  .strip-identity .version {
     font-size: 11px;
     color: var(--muted);
     font-family: var(--font-mono);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
-  .tile-updated {
-    font-size: 10px;
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
     color: var(--muted);
-    opacity: 0.6;
-    margin-top: 2px;
-  }
-
-  /* ── Beacon mini-chart ── */
-  .beacon-price {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--accent);
     font-family: var(--font-mono);
+    flex-shrink: 0;
+  }
+  .live-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: livepulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  .live-dot.dead { background: var(--red); animation: none; }
+  @keyframes livepulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
   }
 
-  /* ── Activity stream ── */
-  .stream-section {
-    grid-column: 2 / 3;
-    grid-row: 1 / 3;
-  }
-
-  .stream-inner {
+  /* dots row */
+  .dots-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
     flex: 1;
-    overflow-y: auto;
-    padding: 8px;
+  }
+
+  .dot-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+    cursor: default;
+  }
+  .dot-chip .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-chip .dot.GREEN { background: var(--green); }
+  .dot-chip .dot.YELLOW { background: var(--amber); }
+  .dot-chip .dot.RED {
+    background: var(--red);
+    animation: reddot 1.2s ease-in-out infinite;
+  }
+  @keyframes reddot {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(248,81,73,0.5); }
+    50% { box-shadow: 0 0 0 3px rgba(248,81,73,0); }
+  }
+
+  .strip-verdict {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto;
+    white-space: nowrap;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .strip-verdict .verdict-text {
+    color: var(--text);
+    font-weight: 500;
+  }
+  #clock {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+  }
+
+  /* ── Feed ── */
+  .feed-container {
+    flex: 1;
+    max-width: 720px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .feed-header {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 0 4px 4px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+  }
+
+  .bubble-wrapper {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    scroll-behavior: smooth;
+    animation: fadein 0.25s ease-out;
   }
-
-  .event-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 6px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-family: var(--font-mono);
-    border-left: 2px solid transparent;
-    transition: background 0.2s;
-  }
-  .event-row:hover { background: var(--bg3); }
-  .event-row.new { animation: slidein 0.3s ease-out; }
-  @keyframes slidein {
-    from { opacity: 0; transform: translateX(8px); }
+  @keyframes fadein {
+    from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: none; }
   }
 
-  .event-source {
-    width: 70px;
-    flex-shrink: 0;
-    color: var(--muted);
-    font-size: 10px;
-    padding-top: 1px;
-    text-align: right;
-  }
-
-  .event-ts {
-    width: 50px;
-    flex-shrink: 0;
-    color: var(--muted);
-    font-size: 10px;
-    opacity: 0.6;
-    padding-top: 1px;
-    text-align: right;
-  }
-
-  .event-emoji { flex-shrink: 0; width: 18px; text-align: center; }
-
-  .event-body {
-    flex: 1;
-    min-width: 0;
+  .bubble {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text);
     word-break: break-word;
-    white-space: pre-wrap;
   }
+  .bubble.shipped { border-left-color: var(--green); }
+  .bubble.healthy { border-left-color: var(--green); background: var(--green-bg); }
+  .bubble.caution { border-left-color: var(--red); background: var(--red-bg); }
+  .bubble.info    { border-left-color: #58a6ff; }
 
-  .event-summary { color: var(--text); }
-  .event-detail {
-    color: var(--muted);
+  .bubble-meta {
     font-size: 10px;
-    margin-top: 2px;
-    opacity: 0.7;
-  }
-
-  /* source color coding */
-  .event-row[data-source="conductor"] { border-left-color: #a371f7; }
-  .event-row[data-source="manager"] { border-left-color: #58a6ff; }
-  .event-row[data-source="claude-hook"] { border-left-color: #3fb950; }
-  .event-row[data-source="beacon"] { border-left-color: #d29922; }
-  .event-row[data-source="kitchen"] { border-left-color: #f0883e; }
-  .event-row[data-source="cockpit"] { border-left-color: var(--muted); }
-
-  /* ── Lower panels ── */
-  .lower-left {
-    grid-column: 1 / 2;
-    grid-row: 2 / 3;
-  }
-
-  .mini-log {
-    flex: 1;
-    overflow-y: auto;
-    padding: 8px 12px;
-    font-family: var(--font-mono);
-    font-size: 11px;
     color: var(--muted);
-    white-space: pre-wrap;
-    word-break: break-all;
-  }
-  .mini-log .log-entry { margin-bottom: 4px; }
-  .mini-log .log-entry .time { color: var(--accent); margin-right: 4px; }
-
-  /* ── Status bar ── */
-  footer {
-    background: var(--bg3);
-    border-top: 1px solid var(--border);
-    padding: 4px 20px;
+    font-family: var(--font-mono);
+    padding: 0 4px;
     display: flex;
     align-items: center;
-    gap: 16px;
-    font-size: 11px;
-    font-family: var(--font-mono);
-    color: var(--muted);
-    flex-shrink: 0;
+    gap: 6px;
   }
-  footer span { display: flex; align-items: center; gap: 4px; }
+  .bubble-kind-badge {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  .bubble-kind-badge.shipped { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .bubble-kind-badge.healthy { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .bubble-kind-badge.caution { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+  .bubble-kind-badge.info    { background: var(--bg3); color: var(--accent); border: 1px solid var(--border); }
+
+  .feed-empty {
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+    padding: 40px 0;
+    opacity: 0.6;
+  }
 
   /* scroll bars */
   ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-  .refresh-hint {
-    font-size: 10px;
-    color: var(--muted);
-    opacity: 0.5;
-    margin-left: auto;
+  /* ── Tooltip for dots ── */
+  .dot-chip { position: relative; }
+  .dot-chip:hover .dot-tooltip {
+    display: block;
   }
-
-  /* spy price in header */
-  #spy-price {
+  .dot-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
     background: var(--bg3);
     border: 1px solid var(--border);
     border-radius: 4px;
-    padding: 3px 10px;
+    padding: 5px 8px;
+    font-size: 10px;
     font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--accent);
-    font-weight: 700;
-    letter-spacing: 0.5px;
+    color: var(--text);
+    white-space: nowrap;
+    max-width: 260px;
+    white-space: normal;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  /* ── Responsive / mobile ── */
+  @media (max-width: 480px) {
+    .health-strip {
+      padding: 8px 12px;
+      gap: 8px;
+    }
+    .strip-identity .name { font-size: 14px; }
+    .dots-row { gap: 4px; }
+    .dot-chip { font-size: 10px; }
+    .strip-verdict { margin-left: 0; width: 100%; }
+    .feed-container { padding: 12px 10px; }
+    .bubble { font-size: 12px; padding: 9px 12px; }
   }
 </style>
 </head>
 <body>
-<header>
-  <h1><span class="logo">🎯</span> Gamma Cockpit <span style="color:var(--muted);font-weight:400;font-size:13px">v1</span></h1>
-  <div class="header-meta">
-    <span id="spy-price">SPY $—</span>
-    <span><span class="pulse-dot" id="sse-dot"></span> <span id="sse-status">connecting…</span></span>
-    <span id="clock">—</span>
-    <span id="tile-age" style="opacity:0.6">tiles: —</span>
+
+<!-- Health strip -->
+<div class="health-strip" id="health-strip">
+  <div class="strip-identity">
+    <span class="name">Gamma</span>
+    <span class="version">companion</span>
   </div>
-</header>
+  <div class="live-badge">
+    <div class="live-dot dead" id="sse-dot"></div>
+    <span id="sse-label">connecting</span>
+  </div>
+  <div class="dots-row" id="dots-row">
+    <!-- populated by JS -->
+  </div>
+  <div class="strip-verdict">
+    <span class="verdict-text" id="verdict-text">—</span>
+    <span id="clock">—</span>
+  </div>
+</div>
 
-<main>
-  <!-- Panel 1: Traffic lights -->
-  <section class="tiles-section">
-    <h2>📡 System Status</h2>
-    <div class="tiles-grid" id="tiles-grid">
-      <div class="tile YELLOW">
-        <div class="tile-header"><div class="light YELLOW"></div><span class="tile-name">Loading…</span></div>
-        <div class="tile-status">Fetching state files…</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Panel 2: Activity stream -->
-  <section class="stream-section">
-    <h2>⚡ Live Activity Stream <span class="refresh-hint" id="event-count">0 events</span></h2>
-    <div class="stream-inner" id="stream"></div>
-  </section>
-
-  <!-- Panel 3: Conductor log tail -->
-  <section class="lower-left">
-    <h2>📋 Conductor Log (today)</h2>
-    <div class="mini-log" id="conductor-log">Loading…</div>
-  </section>
-</main>
-
-<footer>
-  <span><span class="pulse-dot" id="footer-dot"></span> Gamma Cockpit v1</span>
-  <span>port 4500</span>
-  <span id="last-event-time">no events yet</span>
-  <span id="client-count"></span>
-</footer>
+<!-- Feed -->
+<div class="feed-container">
+  <div class="feed-header">Gamma · first person log</div>
+  <div id="feed">
+    <div class="feed-empty">Loading…</div>
+  </div>
+</div>
 
 <script>
-const PORT = 4500;
-let eventSource = null;
-let allEvents = [];
-let tilesRefreshTimer = null;
-let autoScroll = true;
+const PORT = location.port || 4500;
+const BASE = `${location.protocol}//${location.hostname}:${PORT}`;
 
-// ── Clock ──
+// ── Clock (ET) ──
 function updateClock() {
   const now = new Date();
   const et = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-  const pad = n => String(n).padStart(2, '0');
-  const str = `ET ${pad(et.getMonth()+1)}/${pad(et.getDate())} ${pad(et.getHours())}:${pad(et.getMinutes())}:${pad(et.getSeconds())}`;
-  document.getElementById('clock').textContent = str;
+  const p = n => String(n).padStart(2, '0');
+  document.getElementById('clock').textContent =
+    `ET ${p(et.getMonth()+1)}/${p(et.getDate())} ${p(et.getHours())}:${p(et.getMinutes())}`;
 }
-setInterval(updateClock, 1000);
+setInterval(updateClock, 30000);
 updateClock();
 
-// ── SSE connection ──
+// ── SSE ──
+let es = null;
 function connectSSE() {
-  if (eventSource) eventSource.close();
-  eventSource = new EventSource(`http://localhost:${PORT}/events`);
-
-  eventSource.onopen = () => {
-    setSseStatus(true);
-  };
-
-  eventSource.onmessage = (e) => {
-    try {
-      const evt = JSON.parse(e.data);
-      addEventToStream(evt, true);
-    } catch (_) {}
-  };
-
-  eventSource.onerror = () => {
-    setSseStatus(false);
-    setTimeout(connectSSE, 3000);
+  if (es) es.close();
+  es = new EventSource(`${BASE}/events`);
+  es.onopen = () => setSse(true);
+  es.onerror = () => { setSse(false); setTimeout(connectSSE, 3000); };
+  es.onmessage = () => {
+    // Any state-change event → refresh tiles + feed
+    refreshTiles();
+    refreshFeed();
   };
 }
-
-function setSseStatus(ok) {
+function setSse(ok) {
   const dot = document.getElementById('sse-dot');
-  const txt = document.getElementById('sse-status');
-  const fdot = document.getElementById('footer-dot');
-  dot.className = ok ? 'pulse-dot' : 'pulse-dot dead';
-  fdot.className = ok ? 'pulse-dot' : 'pulse-dot dead';
-  txt.textContent = ok ? 'live' : 'reconnecting…';
+  dot.className = ok ? 'live-dot' : 'live-dot dead';
+  document.getElementById('sse-label').textContent = ok ? 'live' : 'reconnecting';
 }
 
-// ── Event stream rendering ──
-function tsToEt(isoStr) {
+// ── Tiles / health dots ──
+const DOT_LABELS = {
+  'Engine': 'Engine',
+  'Beacon (Eye)': 'Beacon',
+  'Accounts / P&L': 'Accounts',
+  'Conductor': 'Conductor',
+  'Gym': 'Gym',
+  'Kitchen': 'Kitchen',
+  'Spend': 'Spend',
+  'Discord Bridge': 'Discord',
+  'Autonomy Loop': 'Loop',
+  'Task Health': 'Tasks',
+};
+
+async function refreshTiles() {
   try {
-    const d = new Date(isoStr);
-    return d.toLocaleTimeString('en-US', {
-      timeZone: 'America/New_York',
-      hour: '2-digit', minute: '2-digit', second: '2-digit',
-      hour12: false,
-    });
-  } catch (_) { return ''; }
+    const res = await fetch(`${BASE}/api/tiles`);
+    const tiles = await res.json();
+    renderDots(tiles);
+  } catch (_) {}
 }
 
-function addEventToStream(evt, isNew) {
-  allEvents.push(evt);
-  if (allEvents.length > 500) allEvents = allEvents.slice(-500);
-
-  const stream = document.getElementById('stream');
-  const row = document.createElement('div');
-  row.className = 'event-row' + (isNew ? ' new' : '');
-  row.dataset.source = evt.source || '';
-  row.dataset.seq = evt.seq || 0;
-
-  const detailHtml = evt.detail ? `<div class="event-detail">${escHtml(evt.detail)}</div>` : '';
-
-  row.innerHTML = `
-    <span class="event-ts">${tsToEt(evt.ts)}</span>
-    <span class="event-emoji">${evt.emoji || '·'}</span>
-    <span class="event-source">${escHtml(evt.source || '')}</span>
-    <span class="event-body">
-      <span class="event-summary">${escHtml(evt.summary || '')}</span>
-      ${detailHtml}
-    </span>
-  `;
-
-  stream.appendChild(row);
-
-  // auto-scroll
-  if (autoScroll) {
-    stream.scrollTop = stream.scrollHeight;
+function renderDots(tiles) {
+  const row = document.getElementById('dots-row');
+  row.innerHTML = '';
+  let reds = 0, ambers = 0;
+  for (const t of tiles) {
+    const label = DOT_LABELS[t.title] || t.title;
+    const chip = document.createElement('div');
+    chip.className = 'dot-chip';
+    chip.title = t.text || '';
+    chip.innerHTML = `
+      <div class="dot ${t.light}"></div>
+      <span>${escHtml(label)}</span>
+      <div class="dot-tooltip">${escHtml(t.text || '')}</div>
+    `;
+    row.appendChild(chip);
+    if (t.light === 'RED') reds++;
+    else if (t.light === 'YELLOW') ambers++;
   }
-
-  document.getElementById('event-count').textContent = `${allEvents.length} events`;
-  document.getElementById('last-event-time').textContent = `last: ${tsToEt(evt.ts)} ET`;
+  // Verdict sentence
+  const vt = document.getElementById('verdict-text');
+  if (reds > 0) vt.textContent = `${reds} need${reds === 1 ? 's' : ''} attention`;
+  else if (ambers > 0) vt.textContent = `Healthy · ${ambers} caution`;
+  else vt.textContent = 'All systems healthy';
 }
 
-// Detect manual scroll up to pause auto-scroll
-document.getElementById('stream').addEventListener('scroll', function() {
-  const el = this;
-  const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 50;
-  autoScroll = atBottom;
-});
+// ── Feed ──
+async function refreshFeed() {
+  try {
+    const res = await fetch(`${BASE}/api/feed`);
+    const { messages } = await res.json();
+    renderFeed(messages);
+  } catch (_) {}
+}
+
+function renderFeed(messages) {
+  const feed = document.getElementById('feed');
+  if (!messages || messages.length === 0) {
+    feed.innerHTML = '<div class="feed-empty">No messages yet — Gamma is warming up.</div>';
+    return;
+  }
+  feed.innerHTML = '';
+  for (const msg of messages) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'bubble-wrapper';
+    const kindLabel = { shipped: 'shipped', caution: 'needs attention', healthy: 'healthy', info: 'info' }[msg.kind] || msg.kind;
+    wrapper.innerHTML = `
+      <div class="bubble-meta">
+        <span>${escHtml(msg.ts_et || '')}</span>
+        <span class="bubble-kind-badge ${escHtml(msg.kind)}">${escHtml(kindLabel)}</span>
+      </div>
+      <div class="bubble ${escHtml(msg.kind)}">${escHtml(msg.text || '')}</div>
+    `;
+    feed.appendChild(wrapper);
+  }
+}
 
 function escHtml(s) {
   return String(s)
@@ -487,66 +421,12 @@ function escHtml(s) {
     .replace(/"/g, '&quot;');
 }
 
-// ── Traffic light tiles ──
-async function refreshTiles() {
-  try {
-    const res = await fetch(`http://localhost:${PORT}/api/tiles`);
-    const tiles = await res.json();
-    renderTiles(tiles);
-    document.getElementById('tile-age').textContent = `tiles: ${new Date().toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false })}`;
-  } catch (e) {
-    document.getElementById('tile-age').textContent = 'tiles: error';
-  }
-}
-
-function renderTiles(tiles) {
-  const grid = document.getElementById('tiles-grid');
-  grid.innerHTML = '';
-
-  for (const t of tiles) {
-    const tile = document.createElement('div');
-    tile.className = `tile ${t.light}`;
-    const isBeacon = t.title === 'Beacon (Eye)';
-    const priceMatch = isBeacon ? t.text.match(/SPY \$(\d+\.\d+)/) : null;
-    if (priceMatch) {
-      document.getElementById('spy-price').textContent = `SPY $${priceMatch[1]}`;
-    }
-
-    tile.innerHTML = `
-      <div class="tile-header">
-        <div class="light ${t.light}"></div>
-        <span class="tile-name">${escHtml(t.title)}</span>
-      </div>
-      <div class="tile-status" title="${escHtml(t.text)}">${escHtml(t.text)}</div>
-      <div class="tile-updated">updated ${escHtml(t.updated || '?')} ET</div>
-    `;
-    grid.appendChild(tile);
-  }
-}
-
-// ── Conductor log ──
-async function refreshConductorLog() {
-  try {
-    // Fetch today's conductor log via API
-    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
-    const res = await fetch(`http://localhost:${PORT}/api/conductor-log?date=${today}`);
-    if (res.ok) {
-      const { lines } = await res.json();
-      const el = document.getElementById('conductor-log');
-      el.innerHTML = lines.map(l =>
-        `<div class="log-entry">${escHtml(l)}</div>`
-      ).join('');
-      el.scrollTop = el.scrollHeight;
-    }
-  } catch (_) {}
-}
-
 // ── Init ──
 connectSSE();
 refreshTiles();
-setInterval(refreshTiles, 5000);
-setTimeout(refreshConductorLog, 1000);
-setInterval(refreshConductorLog, 30000);
+refreshFeed();
+setInterval(refreshTiles, 10000);
+setInterval(refreshFeed, 30000);
 </script>
 </body>
 </html>

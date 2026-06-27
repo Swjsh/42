@@ -28,6 +28,13 @@
       "runtimeArgs": ["server.js"],
       "port": 4500,
       "cwd": "cockpit"
+    },
+    {
+      "name": "gammaface",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["server.js"],
+      "autoPort": true,
+      "cwd": "cockpit"
     }
   ]
 }

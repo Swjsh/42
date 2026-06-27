@@ -15,7 +15,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const PORT = 4500;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 4500;
 const REPO = path.resolve(__dirname, '..');
 const STATE = path.join(REPO, 'automation', 'state');
 
@@ -343,10 +343,299 @@ function getAllTiles() {
   ];
 }
 
+// ─── Gamma voice feed ────────────────────────────────────────────────────────
+// Parses STATUS.md headers and recent conductor-outcomes, then rewrites each into
+// a calm, first-person, human one-liner — should read like a competent operator
+// texting a one-line update, NOT like tailing a logfile.
+
+function classifyKind(text) {
+  const t = text.toUpperCase();
+  if (/SHIPPED|COMMITTED|FIXED|GRADUATED|RESOLVED|CLOSED|DONE/.test(t)) return 'shipped';
+  if (/RED|BLOCKED|BROKEN|ERROR|FAIL|KILL|DEAD/.test(t)) return 'caution';
+  if (/GREEN|HEALTHY|FLAT|OK|ALL CLEAN|PASS/.test(t)) return 'healthy';
+  return 'info';
+}
+
+function stripMarkdown(s) {
+  return s
+    .replace(/\*\*/g, '')
+    .replace(/`/g, '')
+    .replace(/\*/g, '')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/#+\s*/g, '')
+    .trim();
+}
+
+function truncate(s, n) {
+  s = s.trim();
+  return s.length <= n ? s : s.slice(0, n - 1) + '…';
+}
+
+// Real acronyms / proper-noun caps to KEEP as-is (everything else loud is softened).
+const KEEP_CAPS = new Set([
+  'TV', 'VIX', 'EOD', 'SPY', 'RTH', 'MCP', 'LLM', 'TZ', 'AST', 'OOS', 'WF',
+  'PDT', 'API', 'REST', 'CDP', 'JSON', 'SSE', 'ET', 'MT', 'UTC', 'OP', 'WR',
+  'BS', 'ATM', 'ITM', 'OTM', 'DTE', 'FOMC', 'CPI', 'NFP', 'J',
+]);
+// Small English words that, when shouted, should just go lowercase.
+const CALM_STOP = new Set([
+  'TO', 'A', 'AN', 'AND', 'OR', 'BUT', 'IS', 'ARE', 'THE', 'OF', 'ON', 'IN',
+  'AT', 'BY', 'AS', 'IT', 'NO', 'NOT', 'ALL', 'WAS', 'WHY', 'NEW', 'OFF',
+  'NOW', 'PER', 'VIA', 'WITH', 'INTO', 'THAT', 'THIS', 'ITS',
+]);
+
+// Soften a single ALLCAPS token. Token IDs like G17/L188/PA3S… and kept acronyms
+// stay; shouted stopwords go lowercase; other long screams get title-cased so the
+// clause reads like prose, not a logfile.
+function softenToken(tok) {
+  // Preserve IDs: a letter+digit mix (G17, L188, PA3S2PYAS2WQ, cd-2026…).
+  if (/\d/.test(tok)) return tok;
+  // Split a hyphen/underscore scream and soften each part (RESOLVED-AS-STALE).
+  if (/[-_]/.test(tok)) {
+    return tok.split(/([-_])/).map(p => (/[-_]/.test(p) ? p : softenToken(p))).join('');
+  }
+  if (!/^[A-Z]{2,}$/.test(tok)) return tok; // not an all-caps word, leave it
+  if (KEEP_CAPS.has(tok)) return tok;
+  // Shouted English → lowercase prose (DONE→done, DEAD KNOB→dead knob).
+  // Sentence-start capitalization is reapplied afterward by toSentenceCase.
+  return tok.toLowerCase();
+}
+
+// Calm a SHOUTING clause token-by-token.
+function calmShouting(s) {
+  return String(s || '').replace(/[A-Za-z][A-Za-z0-9'&._-]*/g, softenToken);
+}
+
+// Sentence-case: calm the shout, then capitalize the first letter. Never
+// lowercases an acronym/ID at the start (e.g. "TV hang", "L188 encoded").
+function toSentenceCase(s) {
+  s = calmShouting(String(s || '').trim());
+  if (!s) return s;
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+// Is this clause a short, screamy status TAG (e.g. "G17 SHIPPED",
+// "self-audit gap GRADUATED TO A GUARD", "OPEN-BLINDNESS-TV-HANG RESOLVED-AS-STALE")?
+// Heuristic: short-ish AND caps-dominant. Such a tag reads better replaced by the
+// human description that follows the colon.
+function looksLikeTag(seg) {
+  const letters = seg.replace(/[^A-Za-z]/g, '');
+  const uppers = seg.replace(/[^A-Z]/g, '');
+  if (!letters.length) return false;
+  return seg.length <= 70 && uppers.length / letters.length > 0.5;
+}
+
+// Collapse a raw conductor/status line down to ONE clean, human clause.
+//  1. strip markdown + leading log noise (OK, OK —, conductor:, dashes)
+//  2. if it's "<screamy TAG>: <description>", keep the human description
+//  3. cut to the first clause boundary (—, →, ;, sentence end)
+//  4. de-jargon (commit hashes, (HIGH)/(rail-4) parentheticals), calm the shout
+function distillClause(raw) {
+  let s = stripMarkdown(String(raw || ''));
+
+  // Leading log noise: "OK —", "OK -", "OK:", "conductor:", stray leading dashes.
+  s = s.replace(/^\s*conductor\s*:\s*/i, '');
+  s = s.replace(/^\s*(ok|done|status)\b\s*[—–\-:]*\s*/i, '');
+  s = s.replace(/^[\s—–\-:>]+/, '');
+
+  // "<TAG>: <description>" — prefer the description when the tag is screamy.
+  const colon = s.search(/:\s/);
+  if (colon > 0 && looksLikeTag(s.slice(0, colon))) {
+    s = s.slice(colon + 1).trim();
+  }
+
+  // Cut to the first clause boundary so we keep ONE clean clause.
+  const cut = s.search(/\s+[—–]\s+|\s*→\s*|;\s+/);
+  if (cut > 0) s = s.slice(0, cut);
+  // Stop at the first sentence end if it comes even sooner.
+  const dot = s.search(/\.\s+[A-Z(]/);
+  if (dot > 0) s = s.slice(0, dot);
+  // Trim a " + more" / " AND <verb> more" continuation tail (compound updates).
+  const tail = s.search(/\s+\+\s+|\s+(?:AND|and)\s+(?:uncovered|fixed|pinned|added|decoupled|committed|graduated)\b/);
+  if (tail > 0) s = s.slice(0, tail);
+  // Drop a parenthetical aside (mid or trailing) — it's detail, not the headline.
+  s = s.replace(/\s*\([^)]*\)/g, '');
+  // Soft clause boundary: if still long, cut at " but "/" so " to keep the lead idea.
+  if (s.length > 96) {
+    const soft = s.search(/\s+(?:but|so|while|then)\s+/i);
+    if (soft > 24) s = s.slice(0, soft);
+  }
+
+  // De-jargon: drop "(commit abc1234)" / "commit abc1234" / "(HIGH)" / "(rail-4 …)".
+  s = s.replace(/\(?\bcommit\s+[0-9a-f]{6,}\)?/gi, '');
+  s = s.replace(/\((?:HIGH|LOW|MED|P0|P1|P2|rail-4[^)]*)\)/gi, '');
+  // Drop a trailing bare status word ("… batch DONE", "… RESOLVED").
+  s = s.replace(/\s+(DONE|RESOLVED|SHIPPED|COMMITTED|CLOSED|FIXED)\s*$/i, '');
+  s = s.replace(/\s{2,}/g, ' ').replace(/\s+([.,;])/g, '$1').trim();
+  s = s.replace(/[—–\-:;,]+$/, '').trim();
+
+  return toSentenceCase(s);
+}
+
+// Lowercase the lead word for splicing after "I " — but ONLY if it isn't an
+// acronym/ID (all-caps or mixed like "TV"/"L188"); otherwise keep it as-is.
+function leadLower(s) {
+  const sp = s.indexOf(' ');
+  const first = sp === -1 ? s : s.slice(0, sp);
+  const isAcronymOrId = /^[A-Z0-9][A-Z0-9'&._-]*$/.test(first) && /[A-Z0-9]/.test(first.slice(1) || first);
+  if (isAcronymOrId) return s;
+  return s.charAt(0).toLowerCase() + s.slice(1);
+}
+
+// Turn a distilled clause + kind into a calm first-person sentence.
+function humanize(clause, kind) {
+  const s = distillClause(clause);
+  if (!s) return '';
+
+  if (kind === 'shipped') {
+    // Already a self-describing verb ("Committed …", "Retired …")? Just prefix "I ".
+    if (/^(shipped|committed|retired|fixed|wired|graduated|resolved|added|built|drained|closed|encoded|reframed|made|pinned|hardened)\b/i.test(s)) {
+      return 'I ' + leadLower(s);
+    }
+    return 'I shipped ' + leadLower(s);
+  }
+  if (kind === 'caution') {
+    return 'Heads up — ' + leadLower(s);
+  }
+  // healthy / info: a calm plain statement, no prefix.
+  return s;
+}
+
+function buildFeed() {
+  const messages = [];
+
+  try {
+    // Parse STATUS.md: headers look like ## [YYYY-MM-DD ~HH:MM ET] conductor: <summary>
+    const statusPath = path.join(REPO, 'automation', 'overnight', 'STATUS.md');
+    const raw = fs.readFileSync(statusPath, 'utf8');
+    const headerRe = /^##\s+\[(\d{4}-\d{2}-\d{2}\s+~[\d:]+\s+ET)\]\s+conductor:\s+(.+)$/gm;
+    let m;
+    const statusEntries = [];
+    while ((m = headerRe.exec(raw)) !== null) {
+      statusEntries.push({ ts_et: m[1].replace('~', '').trim(), rawText: m[2].trim() });
+    }
+    // Newest first — STATUS.md is newest-first already but regex finds in order, so reverse
+    statusEntries.reverse();
+    for (const entry of statusEntries.slice(0, 12)) {
+      const kind = classifyKind(entry.rawText);
+      const text = humanize(entry.rawText, kind);
+      if (!text) continue; // skip lines that distilled to nothing
+      messages.push({ ts_et: entry.ts_et, kind, text: truncate(text, 120) });
+    }
+  } catch (_) {
+    // fail-open: no messages from STATUS.md
+  }
+
+  try {
+    // Fold in latest 2 conductor-outcomes if they add signal not already in STATUS messages
+    const outcomesPath = path.join(STATE, 'conductor-outcomes.jsonl');
+    const lines = fs.readFileSync(outcomesPath, 'utf8')
+      .trim().split('\n').filter(Boolean).slice(-2);
+    for (const l of lines) {
+      try {
+        const r = JSON.parse(l);
+        // Only add if no STATUS entry covers this fired_at ET date+hour
+        const firedDate = new Date(r.fired_at);
+        const firedEtHour = firedDate.toLocaleString('en-US', {
+          timeZone: 'America/New_York', year: 'numeric', month: '2-digit',
+          day: '2-digit', hour: '2-digit', hour12: false,
+        });
+        const alreadyCovered = messages.some(msg => {
+          // ts_et is like "2026-06-27 09:55 ET"
+          return msg.ts_et.startsWith(firedEtHour.slice(6, 10) + '-' + firedEtHour.slice(0, 2) + '-' + firedEtHour.slice(3, 5));
+        });
+        if (!alreadyCovered && r.note) {
+          const kind = r.regressions > 0 ? 'caution' :
+                       r.lessons_shipped > 0 || r.tests_delta > 0 ? 'shipped' : 'info';
+          const text = humanize(r.note, kind);
+          if (!text) continue;
+          const ts = firedDate.toLocaleString('en-US', {
+            timeZone: 'America/New_York',
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', hour12: false,
+          }).replace(/,\s*/, ' ').replace(/\//g, '-');
+          messages.unshift({ ts_et: ts + ' ET', kind, text: truncate(text, 120) });
+        }
+      } catch (_) {}
+    }
+  } catch (_) {}
+
+  return messages;
+}
+
 function getPrevDate(dateStr, n) {
   const d = new Date(dateStr + 'T00:00:00Z');
   d.setUTCDate(d.getUTCDate() - n);
   return d.toISOString().slice(0, 10);
+}
+
+// ─── Live vitals (read-only — never calls a broker, never places orders) ──────
+// Pulls real numbers from cached state files only. Fail-open: any missing/bad
+// file falls back to sensible defaults and (for accounts) marks stale:true.
+
+const ACCOUNT_BASE = { safe: 2000, bold: 1649 };
+
+// Pull the best cached equity for an arm id from a fleet/accounts.json record.
+function armEquity(arm) {
+  if (!arm || typeof arm !== 'object') return null;
+  for (const k of ['equity', 'current_equity', 'last_equity', 'cash']) {
+    const v = arm[k];
+    if (typeof v === 'number' && isFinite(v) && v > 0) return v;
+  }
+  return null;
+}
+
+function getVitals() {
+  // ── SPY last, from the never-blind sight beacon ──
+  let spy = { last: null, ts: '' };
+  try {
+    const beacon = readJSON(path.join(STATE, 'sight-beacon.json'));
+    if (beacon && typeof beacon.spy === 'number' && isFinite(beacon.spy)) {
+      spy = { last: beacon.spy, ts: beacon.ts_et || beacon.ts_utc || '' };
+    }
+  } catch (_) {}
+
+  // ── Accounts: prefer a live cached equity; else fall back to base (stale) ──
+  // Map the fleet CONTROL arms to the two display accounts (safe-2 / bold-2).
+  let safeLive = null, boldLive = null;
+  try {
+    const fleet = readJSON(path.join(STATE, 'fleet', 'accounts.json'));
+    const arms = (fleet && Array.isArray(fleet.arms)) ? fleet.arms : [];
+    const safeArm = arms.find(a => a && a.id === 'safe-2');
+    const boldArm = arms.find(a => a && a.id === 'bold-2');
+    // A live equity field would win; the registry only carries starting_equity,
+    // so this stays null today and we fall through to the base (stale) value.
+    safeLive = armEquity(safeArm);
+    boldLive = armEquity(boldArm);
+  } catch (_) {}
+
+  // current-position files tell us flat vs in-position for each account.
+  let safeFlat = true, boldFlat = true;
+  try {
+    const posSafe = readJSON(path.join(STATE, 'current-position-safe.json'));
+    safeFlat = !(posSafe && posSafe.status);
+  } catch (_) {}
+  try {
+    const posBold = readJSON(path.join(STATE, 'current-position-bold.json'));
+    boldFlat = !(posBold && posBold.status);
+  } catch (_) {}
+
+  const accounts = [
+    {
+      name: 'Gamma-Safe',
+      equity: safeLive != null ? safeLive : ACCOUNT_BASE.safe,
+      flat: safeFlat,
+      stale: safeLive == null,
+    },
+    {
+      name: 'Gamma-Bold',
+      equity: boldLive != null ? boldLive : ACCOUNT_BASE.bold,
+      flat: boldFlat,
+      stale: boldLive == null,
+    },
+  ];
+
+  return { spy, accounts };
 }
 
 // ─── File watchers for state change events ────────────────────────────────────
@@ -478,6 +767,23 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Gamma voice feed — first-person bubbles from STATUS.md + conductor-outcomes
+  if (url.pathname === '/api/feed') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ messages: buildFeed() }));
+    return;
+  }
+
+  // Live vitals — real SPY + account equities from cached state (read-only)
+  if (url.pathname === '/api/vitals') {
+    let vitals;
+    try { vitals = getVitals(); }
+    catch (_) { vitals = { spy: { last: null, ts: '' }, accounts: [] }; }
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(vitals));
+    return;
+  }
+
   // Conductor log API
   if (url.pathname === '/api/conductor-log') {
     const date = url.searchParams.get('date') || new Date().toISOString().slice(0, 10);
@@ -496,8 +802,87 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Serve main HTML
-  if (url.pathname === '/' || url.pathname === '/index.html') {
+  // Serve the FACE (design D) — now the app's front door (GET /), plus /face alias.
+  // The face is mobile-first and installable (PWA); the old console moves to /console.
+  if (url.pathname === '/' || url.pathname === '/face' || url.pathname === '/face.html') {
+    try {
+      const html = fs.readFileSync(path.join(__dirname, 'face.html'), 'utf8');
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(html);
+    } catch (_) {
+      res.writeHead(500);
+      res.end('face.html missing');
+    }
+    return;
+  }
+
+  // PWA manifest — served from root so start_url "/" and scope "/" resolve correctly.
+  if (url.pathname === '/manifest.webmanifest') {
+    try {
+      const body = fs.readFileSync(path.join(__dirname, 'manifest.webmanifest'), 'utf8');
+      res.writeHead(200, {
+        'Content-Type': 'application/manifest+json',
+        'Cache-Control': 'public, max-age=3600',
+      });
+      res.end(body);
+    } catch (_) {
+      res.writeHead(500);
+      res.end('manifest missing');
+    }
+    return;
+  }
+
+  // Service worker — MUST be served from ROOT scope so it controls the whole app.
+  if (url.pathname === '/service-worker.js') {
+    try {
+      const body = fs.readFileSync(path.join(__dirname, 'service-worker.js'), 'utf8');
+      res.writeHead(200, {
+        'Content-Type': 'application/javascript',
+        // No-store on the SW script itself so updates aren't pinned by the browser.
+        'Cache-Control': 'no-cache',
+        'Service-Worker-Allowed': '/',
+      });
+      res.end(body);
+    } catch (_) {
+      res.writeHead(500);
+      res.end('service-worker missing');
+    }
+    return;
+  }
+
+  // Static assets — serve ONLY from cockpit/assets/, basename-sanitized (no traversal)
+  if (url.pathname.startsWith('/assets/')) {
+    const requested = decodeURIComponent(url.pathname.slice('/assets/'.length));
+    const safeName = path.basename(requested); // strips any path / .. components
+    if (!safeName || safeName === '.' || safeName === '..') {
+      res.writeHead(400); res.end('bad asset name'); return;
+    }
+    const assetsDir = path.join(__dirname, 'assets');
+    const filePath = path.join(assetsDir, safeName);
+    // Belt-and-suspenders: confirm the resolved path stays inside assetsDir
+    if (path.dirname(filePath) !== assetsDir) {
+      res.writeHead(400); res.end('bad asset path'); return;
+    }
+    const TYPES = {
+      '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
+      '.gif': 'image/gif', '.webp': 'image/webp', '.svg': 'image/svg+xml',
+      '.ico': 'image/x-icon',
+    };
+    const ext = path.extname(safeName).toLowerCase();
+    fs.readFile(filePath, (err, buf) => {
+      if (err) { res.writeHead(404); res.end('asset not found'); return; }
+      res.writeHead(200, {
+        'Content-Type': TYPES[ext] || 'application/octet-stream',
+        'Cache-Control': 'public, max-age=3600',
+      });
+      res.end(buf);
+    });
+    return;
+  }
+
+  // Old console (the original index.html dashboard) — preserved at /console.
+  // /index.html kept as an alias so nothing that linked the old shell breaks.
+  if (url.pathname === '/console' || url.pathname === '/index.html') {
     try {
       const html = fs.readFileSync(HTML_PATH, 'utf8');
       res.writeHead(200, { 'Content-Type': 'text/html' });
