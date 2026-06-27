@@ -39,6 +39,47 @@ import pytest
 REPO = Path(__file__).resolve().parents[2]
 PARAMS_PATH = REPO / "automation" / "state" / "params.json"
 RECENCY_PATH = REPO / "automation" / "state" / "recency-confirmation.json"
+LICENSE_MONITOR_DIR = REPO / "backtest" / "autoresearch"
+
+# ---------------------------------------------------------------------------
+# Recency-coverage registry (added 2026-06-26 — closes the self-audit gap that
+# gap_and_go went LIVE without recency monitoring).
+#
+# ENTRY_SETUP_RECENCY maps each ENTRY-GENERATING setup flag to its recency edge
+# family name.  Modifier flags (j_vwap_cont_strike_override / _1dte / _dollar_stop)
+# and VETO flags (structure_veto_enabled) are deliberately EXCLUDED — they do not
+# open positions, so they have no recency edge of their own.
+#
+# Invariant: any of these flags set True in params.json must be covered by ongoing
+# recency monitoring — i.e. an edge entry in recency-confirmation.json AND a
+# license_monitor.TIER_PATH mapping — so the weekly recency gate can RED-block it
+# and license_monitor can ping J on a RED->green transition.  Without that, a live
+# setup whose real-fills edge decays would keep trading, unmonitored and silent.
+# ---------------------------------------------------------------------------
+ENTRY_SETUP_RECENCY = {
+    "j_vwap_cont_enabled": "vwap_continuation",
+    "j_vwap_reclaim_fb_enabled": "vwap_reclaim_failed_break",
+    "j_vix_dayside_enabled": "vix_regime_dayside",
+    "gap_and_go_enabled": "gap_and_go",
+}
+
+# Live-enabled setups KNOWN to lack recency-confirmation coverage.  SHRINKS-ONLY
+# ratchet: each entry MUST be removed the moment the setup gains a recency edge +
+# a license_monitor TIER_PATH mapping (or is reverted to dormant).  An entry here
+# means "A/B-validated by a scorecard but NOT wired into the ongoing recency gate."
+KNOWN_UNMONITORED = {
+    "gap_and_go_enabled": (
+        "gap_and_go is A/B-validated (analysis/recommendations/gap-and-go-LIVE.json: "
+        "exp +$41.6 / WR 72.6% / n=84 / DSR PASS / WF +1.87 / 6/6 quarters+) and LIVE, "
+        "but has NO recency-confirmation.json edge entry and NO license_monitor "
+        "TIER_PATH mapping -> license_monitor cannot ping a RED->green transition and "
+        "recency_check has no RED-block for it. Flagged by Gamma self-audit "
+        "2026-06-26T20:42; J-decision-gated via DIRECTION-BLOCK-BATCH-RECONCILE "
+        "(queue Tier-2). REMOVE this entry once a 'gap_and_go' edge is added to "
+        "recency-confirmation.json + license_monitor.TIER_PATH, or the setup is "
+        "reverted to dormant."
+    ),
+}
 
 
 def _load_params() -> dict:
@@ -202,8 +243,12 @@ def test_vix_dayside_disabled_only_if_recency_hold_recorded() -> None:
 # Guard 3 — recency file content sanity (prevents stale/empty JSON)
 # ---------------------------------------------------------------------------
 
-def test_recency_file_is_fresh_and_covers_all_four_setups() -> None:
-    """The recency-confirmation.json must cover all four validated setups.
+def test_recency_file_is_fresh_and_covers_the_three_recency_tracked_setups() -> None:
+    """The recency-confirmation.json must cover the three recency-tracked setups.
+
+    NOTE: gap_and_go is a 4th validated/live setup but is NOT in recency-confirmation
+    (see KNOWN_UNMONITORED + test_live_entry_setups_are_recency_monitored). The three
+    asserted here are the ones the weekly recency gate actually tracks today.
 
     If someone accidentally clears the file or it becomes stale, the dormant-setup
     guards above would pass vacuously (no RED verdict found = enable?). This guard
@@ -299,3 +344,117 @@ def test_regression_disabling_live_setup_would_fail() -> None:
     actual_params = _load_params()
     assert actual_params.get("gap_and_go_enabled") is True
     assert actual_params.get("j_vwap_cont_enabled") is True
+
+
+# ---------------------------------------------------------------------------
+# Guard 5 — every LIVE entry setup must be covered by ongoing recency monitoring
+# (recency-confirmation.json edge + license_monitor.TIER_PATH), else explicitly
+# documented in KNOWN_UNMONITORED.  Closes the self-audit gap (2026-06-26T20:42):
+# gap_and_go went LIVE with no recency tracker, so license_monitor is blind to it.
+# ---------------------------------------------------------------------------
+
+def _live_entry_setups() -> dict[str, str]:
+    """Return {flag: edge} for every entry setup currently enabled in params.json."""
+    params = _load_params()
+    return {
+        flag: edge
+        for flag, edge in ENTRY_SETUP_RECENCY.items()
+        if params.get(flag) is True
+    }
+
+
+def _tier_path_edges() -> set[str]:
+    """Edges referenced by license_monitor.TIER_PATH (the RED->green ping wiring)."""
+    if str(LICENSE_MONITOR_DIR) not in sys.path:
+        sys.path.insert(0, str(LICENSE_MONITOR_DIR))
+    import license_monitor as lm  # noqa: PLC0415
+
+    return {edge for (edge, _tier) in lm.TIER_PATH.values()}
+
+
+def test_live_entry_setups_are_recency_monitored() -> None:
+    """Every LIVE entry setup must have a recency-confirmation.json edge entry,
+    OR be explicitly documented in KNOWN_UNMONITORED.
+
+    A setup enabled for live trading without a recency edge is invisible to the
+    weekly CONFIRM-BEFORE-CAPITAL gate — its edge could decay into a confirmed
+    drawdown and keep trading, because recency_check has no RED-block for it.
+    (Self-audit 2026-06-26T20:42; gap_and_go is the current known instance.)
+    """
+    recency = _load_recency()
+    edges = recency.get("edges", {})
+    unmonitored = [
+        (flag, edge)
+        for flag, edge in _live_entry_setups().items()
+        if edge not in edges and flag not in KNOWN_UNMONITORED
+    ]
+    assert not unmonitored, (
+        f"Live entry setups with NO recency-confirmation edge coverage and NOT in "
+        f"KNOWN_UNMONITORED: {unmonitored}. Enabling a setup for live trading means "
+        f"the weekly recency gate must be able to RED-block it. Either add the edge "
+        f"to recency-confirmation.json (re-run autoresearch/recency_check.py) or, if "
+        f"the deferral is intentional, add the flag to KNOWN_UNMONITORED with a dated "
+        f"justification."
+    )
+
+
+def test_live_entry_setups_have_license_monitor_path() -> None:
+    """Every LIVE, recency-tracked entry setup must also be wired into
+    license_monitor.TIER_PATH, so a RED->green transition actually pings J.
+
+    A setup that has a recency edge but no TIER_PATH mapping would be RED-blockable
+    by the weekly gate yet never trigger the automatic 'now ELIGIBLE' notification —
+    the deploy loop would silently never close. KNOWN_UNMONITORED setups are exempt
+    (they have neither edge nor path, tracked by guard 5 above).
+    """
+    tier_edges = _tier_path_edges()
+    missing = [
+        (flag, edge)
+        for flag, edge in _live_entry_setups().items()
+        if flag not in KNOWN_UNMONITORED and edge not in tier_edges
+    ]
+    assert not missing, (
+        f"Live entry setups recency-tracked but missing a license_monitor.TIER_PATH "
+        f"mapping: {missing}. Add a TIER_PATH entry in backtest/autoresearch/"
+        f"license_monitor.py so RED->green transitions ping J."
+    )
+
+
+def test_known_unmonitored_ratchet_shrinks() -> None:
+    """SHRINKS-ONLY ratchet: a KNOWN_UNMONITORED setup that has SINCE gained full
+    recency coverage (edge entry AND TIER_PATH mapping) MUST be removed from the
+    allowlist. This prevents the allowlist from hiding a setup that is now actually
+    monitored — the documented gap must close, not linger.
+    """
+    recency = _load_recency()
+    edges = recency.get("edges", {})
+    tier_edges = _tier_path_edges()
+    now_covered = []
+    for flag in KNOWN_UNMONITORED:
+        edge = ENTRY_SETUP_RECENCY.get(flag)
+        if edge in edges and edge in tier_edges:
+            now_covered.append(flag)
+    assert not now_covered, (
+        f"These KNOWN_UNMONITORED setups now HAVE full recency coverage "
+        f"(edge + TIER_PATH): {now_covered}. Remove them from KNOWN_UNMONITORED — "
+        f"the ratchet must shrink toward zero."
+    )
+
+
+def test_gap_and_go_is_the_known_unmonitored_instance() -> None:
+    """Pin the current known gap: gap_and_go is LIVE, A/B-validated, but absent from
+    BOTH recency-confirmation.json edges AND license_monitor.TIER_PATH. This test
+    documents the present truth; when J adds a tracker entry (or reverts the enable),
+    test_known_unmonitored_ratchet_shrinks forces the allowlist update and this test
+    should be retired alongside it.
+    """
+    params = _load_params()
+    if params.get("gap_and_go_enabled") is not True:
+        pytest.skip("gap_and_go reverted to dormant — gap closed; retire this test.")
+    recency = _load_recency()
+    assert "gap_and_go" not in recency.get("edges", {}), (
+        "gap_and_go now HAS a recency edge — update KNOWN_UNMONITORED and retire this test."
+    )
+    assert "gap_and_go" not in _tier_path_edges(), (
+        "gap_and_go now HAS a TIER_PATH mapping — update KNOWN_UNMONITORED and retire this test."
+    )
