@@ -1407,6 +1407,16 @@ function getAgentsLive() {
       agents.push({ id: 'engine', role: 'engine', runner: 'Python', task: 'watching the tape', status: 'working' });
     }
   } catch (_) {}
+  // The 6 equity accounts are always-on "residents" — they hang out in the Accounts
+  // sector (liveliness + a steady pathing test). Skip the mes-* futures sims.
+  try {
+    const fleet = readJSON(path.join(STATE, 'fleet', 'accounts.json'));
+    const arms = (fleet && Array.isArray(fleet.arms)) ? fleet.arms : [];
+    for (const a of arms) {
+      if (!a || !a.id || /^mes-/i.test(a.id)) continue;
+      agents.push({ id: 'acct-' + a.id, role: 'account', runner: a.alias || a.id, task: 'account', status: 'thinking' });
+    }
+  } catch (_) {}
   return { agents };
 }
 

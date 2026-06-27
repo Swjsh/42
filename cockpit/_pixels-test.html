@@ -73,14 +73,15 @@
     var $ = function (id) { return document.getElementById(id); };
     var canvas = $('gx-office');
 
-    // ── mock roster ──────────────────────────────────────────────────────────
-    var ROLES   = ['engine', 'conductor', 'kitchen', 'gym', 'research', 'claude'];
+    // ── mock roster (sector model) ───────────────────────────────────────────
+    var ROLES   = ['engine', 'conductor', 'kitchen', 'gym', 'research'];
     var RUNNERS = {
       engine: 'Python', conductor: 'Claude Opus', kitchen: 'Nemotron · free',
-      gym: 'Python', research: 'Claude Sonnet', claude: 'Claude Opus'
+      gym: 'Python', research: 'Claude Sonnet'
     };
     var TASKS = ['wiring G6 vix feed', 'ranking candidates', 'seeding cook tasks',
                  '42 validators', 'edge-hunt sweep', 'reading the tape'];
+    var ACCT_ALIASES = ['Gamma-Safe-2', 'Gamma-Risky-2', 'Safe-1', 'Bold-1', 'Paper-A', 'Paper-B'];
     var seqId = 0;
     var roster = [];
 
@@ -94,11 +95,19 @@
         status: Math.random() < 0.3 ? 'thinking' : 'working'
       };
     }
+    // the 6 always-on equity-account residents (one per Accounts cubicle)
+    function accountResidents() {
+      return ACCT_ALIASES.map(function (alias, i) {
+        return { id: 'acct-' + i, role: 'account', runner: alias, account: alias, status: 'working' };
+      });
+    }
     function push() { roster = roster.concat([mk()]); apply(); }
     function pop() { if (roster.length) { roster = roster.slice(0, -1); apply(); } }
     function markDone() {
-      if (!roster.length) return;
-      var i = Math.floor(Math.random() * roster.length);
+      // only role-workers finish + leave; account residents are always-on
+      var workerIdx = roster.map(function (r, i) { return r.role !== 'account' ? i : -1; }).filter(function (i) { return i >= 0; });
+      if (!workerIdx.length) return;
+      var i = workerIdx[Math.floor(Math.random() * workerIdx.length)];
       roster = roster.map(function (r, j) { return j === i ? Object.assign({}, r, { status: 'done' }) : r; });
       apply();
     }
@@ -110,49 +119,50 @@
       render();
     }
 
-    // ── self-evidence: dump live snapshot + the planned A* paths ──────────────
+    // ── self-evidence: dump sector layout + live workers (sector + spot) ───────
     function render() {
       var snap = (window.__gxSnapshot && window.__gxSnapshot()) || [];
       var grid = (window.__gxGrid && window.__gxGrid()) || {};
+      var sec = (window.__gxSectors && window.__gxSectors()) || {};
       var lines = [];
       lines.push('grid: ' + (grid.cols || '?') + 'x' + (grid.rows || '?') + ' tiles');
+      Object.keys(sec).filter(function (k) { return k[0] !== '_'; }).forEach(function (k) {
+        lines.push('  [' + k.toUpperCase() + '] (' + sec[k].x + ',' + sec[k].y + ')..(' + sec[k].x2 + ',' + sec[k].y2 +
+          ') furn=' + sec[k].furnitureCount + ' [' + sec[k].furnitureKinds.join(',') + ']');
+      });
+      lines.push('— workers —');
       snap.forEach(function (s) {
         var pathStr = (window.__lastPaths && window.__lastPaths[s.id]) || [];
         lines.push(
-          s.role.padEnd(9) + ' ' + s.state.padEnd(9) +
-          ' tile(' + s.c + ',' + s.r + ') dir=' + s.dir +
-          ' pathCells=' + (pathStr.length || s.pathLen) + ' idx=' + s.pathIdx +
-          (s.desk ? ' desk=' + s.desk.join(',') : '')
+          (s.role + '/' + s.sector).padEnd(18) + ' ' + s.state.padEnd(9) +
+          ' tile(' + s.c + ',' + s.r + ') path=' + (pathStr.length || s.pathLen) +
+          (s.spot ? ' spot=' + s.spot.join(',') : '') + (s.account ? ' ' + s.account : '')
         );
       });
       $('out').textContent = lines.join('\n') || '(no workers)';
     }
 
-    // PROVE the pathing: assert at least one worker's last path is a multi-cell,
-    // 4-connected route (i.e. NOT a 1- or 2-cell straight shot). Prints PASS/FAIL.
+    // PROVE pathing + CONTAINMENT: every worker's tile is inside its home sector
+    // rectangle, AND at least some follow a multi-cell A* route. Prints PASS/FAIL.
     function provePathing() {
+      var sec = (window.__gxSectors && window.__gxSectors()) || {};
+      var snap = (window.__gxSnapshot && window.__gxSnapshot()) || [];
       var paths = window.__lastPaths || {};
-      var ids = Object.keys(paths);
-      var multi = 0, straightOnly = 0, details = [];
-      ids.forEach(function (id) {
-        var p = paths[id]; if (!p || p.length < 2) return;
-        // is it 4-connected?
-        var connected = true, turns = 0, prevDir = null;
-        for (var i = 1; i < p.length; i++) {
-          var dc = p[i][0] - p[i-1][0], dr = p[i][1] - p[i-1][1];
-          if (Math.abs(dc) + Math.abs(dr) !== 1) connected = false;
-          var dir = dc !== 0 ? 'h' : 'v';
-          if (prevDir && dir !== prevDir) turns++;
-          prevDir = dir;
+      var multi = 0, breaches = [], details = [];
+      snap.forEach(function (s) {
+        var sd = sec[s.sector];
+        if (sd && (s.c < sd.x || s.c > sd.x2 || s.r < sd.y || s.r > sd.y2) && s.state !== 'leaving')
+          breaches.push(s.id + '@(' + s.c + ',' + s.r + ') outside ' + s.sector);
+        var p = paths[s.id];
+        if (p && p.length >= 4) {
+          var connected = true;
+          for (var i = 1; i < p.length; i++) { var d = Math.abs(p[i][0] - p[i-1][0]) + Math.abs(p[i][1] - p[i-1][1]); if (d !== 1) connected = false; }
+          if (connected) { multi++; details.push(s.id + ': ' + p.length + ' cells in ' + s.sector); }
         }
-        if (p.length >= 4 && connected) multi++; else straightOnly++;
-        details.push(id + ': ' + p.length + ' cells, ' + turns + ' turns, ' +
-          (connected ? '4-connected' : 'NOT-connected'));
       });
-      var verdict = multi > 0
-        ? '<PASS> ' + multi + ' worker(s) follow a real multi-cell A* route (turning corners).'
-        : '<FAIL> no multi-cell routes captured yet — add agents / cycle roster, then retry.';
-      $('out').textContent = verdict + '\n\n' + details.join('\n');
+      var v1 = breaches.length === 0 ? '<PASS> containment: all workers inside their sector.' : '<FAIL> containment breach: ' + breaches.join(' | ');
+      var v2 = multi > 0 ? '<PASS> ' + multi + ' worker(s) follow a multi-cell confined A* route.' : '<info> no long routes captured this instant (try again).';
+      $('out').textContent = v1 + '\n' + v2 + '\n\n' + details.join('\n');
     }
 
     // ── wire controls ──
@@ -173,21 +183,27 @@
       apply();
     };
 
-    // ── boot: mount with debug paths ON, seed 4 mixed workers ──
+    // ── boot: mount with debug paths ON, seed the coordinator's spec roster:
+    //    kitchen + conductor + research + engine + gym + the 6 account residents. ──
     GammaPixels.mount(canvas, { debugPaths: true });
-    // wait a tick for assets, then seed + start the auto-churn so it's self-driving
     setTimeout(function () {
-      ['engine', 'conductor', 'kitchen', 'research'].forEach(function (role) { roster.push(mk(role)); });
+      ['kitchen', 'conductor', 'research', 'engine', 'gym'].forEach(function (role) { roster.push(mk(role)); });
+      roster = roster.concat(accountResidents()); // 6 always-on cubicle residents
       apply();
     }, 250);
 
-    // gentle auto-churn every ~6s so an idle observer still sees spawn/despawn
+    // gentle auto-churn every ~6s — only the ROLE workers churn; the 6 account
+    // residents persist (proving stable cubicle occupancy + sustained pathing).
     setInterval(function () {
+      var workers = roster.filter(function (r) { return r.role !== 'account'; });
       var roll = Math.random();
-      if (roll < 0.35 && roster.length < 7) push();
-      else if (roll < 0.6 && roster.length > 2) pop();
-      else if (roll < 0.75) markDone();
-      else render();
+      if (roll < 0.35 && workers.length < 7) roster = roster.concat([mk()]);
+      else if (roll < 0.6 && workers.length > 2) {
+        var idx = roster.map(function (r, i) { return r.role !== 'account' ? i : -1; }).filter(function (i) { return i >= 0; }).pop();
+        if (idx != null) roster = roster.filter(function (_, i) { return i !== idx; });
+      } else if (roll < 0.75) markDone();
+      else { render(); return; }
+      apply();
     }, 6000);
 
     // keep the snapshot panel fresh

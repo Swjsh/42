@@ -1,20 +1,23 @@
 /*
- * cockpit/pixels.js — Gamma "office" pixel-art presence layer.
+ * cockpit/pixels.js — Gamma "sectioned office" pixel-art presence layer.
  * ===========================================================================
- * One little pixel worker per LIVE Gamma agent. They WALK AROUND a pixel office
- * (desks + monitors, coffee station, R&D whiteboard, door) doing things — sit
- * and type at a desk, sip at the coffee station, point at the whiteboard. This
- * is the "Gamma is alive" background layer for the cockpit face.
+ * A living pixel office split into THEMED SECTORS. One little pixel worker per
+ * LIVE Gamma agent walks around — but each worker is CONFINED to its home
+ * sector (a kitchen Nemotron cook stays in the Kitchen, a Python validator
+ * stays in the Gym, Claude research stays in the Lab, each equity account has
+ * a resident in its own Accounts cubicle, the engine lives in Trading). This is
+ * the "Gamma is alive" background layer behind the cockpit face.
  *
  * Self-contained. Vanilla JS + Canvas. No frameworks, no build step.
- * Sprites are MIT (Pablo De Lucca) — see assets/pixel/LICENSE-pixel-agents.txt.
+ * Worker sprites are MIT (Pablo De Lucca) — assets/pixel/LICENSE-pixel-agents.txt.
+ * All FURNITURE (stoves, weight racks, whiteboards, account terminals, coffee
+ * machine) is drawn PROCEDURALLY in pixel art — no external furniture assets.
  *
  * ---------------------------------------------------------------------------
  * INTEGRATION CONTRACT  (the only lines the caller adds to face.html)
  * ---------------------------------------------------------------------------
- * 1) A full-viewport background canvas BEHIND the dashboard content. Add to the
- *    page (the cards/frame must sit at a higher z-index, e.g. .frame{position:
- *    relative; z-index:1}):
+ * 1) A full-viewport background canvas BEHIND the dashboard content. The cards
+ *    sit at a higher z-index (e.g. .frame{position:relative; z-index:1}):
  *
  *      <canvas id="gx-office"
  *              style="position:fixed;inset:0;width:100vw;height:100vh;z-index:0;
@@ -22,82 +25,98 @@
  *      <script src="/pixels.js"></script>
  *      <script>
  *        GammaPixels.mount(document.getElementById('gx-office'));
- *        // Feed it the live roster on an interval (see /api/agents-live below):
  *        async function pumpAgents(){
  *          try {
  *            const r = await fetch('/api/agents-live', { cache:'no-store' });
- *            const j = await r.json();
- *            GammaPixels.setAgents(j.agents || []);
+ *            GammaPixels.setAgents((await r.json()).agents || []);
  *          } catch (_) { (keep last roster on fetch error - fail open) }
  *        }
  *        pumpAgents(); setInterval(pumpAgents, 2000);
  *      </script>
  *
- * 2) Serve this file + the sprites. NOTE on the existing cockpit/server.js:
- *    its /assets/ handler is FLAT (path.basename) — it cannot serve the nested
- *    /assets/pixel/characters/*.png paths this module requests by default.
- *    Pick ONE of:
+ * 2) Serve this file + the worker sprites. The existing cockpit/server.js
+ *    /assets/ handler is FLAT (path.basename) — it can't serve the nested
+ *    /assets/pixel/characters/*.png paths by default. Pick ONE:
  *      (a) add a nested static route for /assets/pixel/** in server.js, OR
  *      (b) flatten the sprites into cockpit/assets/ and call
- *            GammaPixels.mount(el, { assetBase: '/assets', flat: true })
- *          which then requests /assets/char_0.png, /assets/floor_1.png, etc.
+ *            GammaPixels.mount(el, { assetBase:'/assets', flat:true })
  *    Also add a route for GET /pixels.js (mirror the /realtime.js handler).
  *
  * ---------------------------------------------------------------------------
  * EXPECTED /api/agents-live SHAPE
  * ---------------------------------------------------------------------------
  *   { "agents": [
- *       { "id": "conductor-2026-06-27T0955",   // STABLE unique id (required)
- *         "role": "conductor",                 // engine|conductor|kitchen|gym|research|claude
- *         "runner": "Claude Opus",             // who's DRIVING it (LLM / free-agent / Python)
- *         "task": "wiring G6 vix feed",        // short human label (optional)
- *         "status": "working" },               // thinking|working|done   (optional, default working)
- *       ...
+ *       { "id": "kitchen-2026...",   // STABLE unique id (required)
+ *         "role": "kitchen",         // kitchen|gym|research|conductor|claude|voice|engine|beacon|account
+ *         "runner": "Nemotron · free",// who's DRIVING it (LLM / free-agent / Python / account alias)
+ *         "task": "seeding cooks",   // short human label (optional)
+ *         "status": "working",       // thinking|working|done (optional, default working)
+ *         "account": "Gamma-Safe-2"} // ONLY for role=account: the cubicle alias/label (optional)
  *   ] }
  *
- * - A NEW id → a worker walks IN through the door and goes to work.
- * - An id that VANISHES from the list (or arrives with status:"done") → that
- *   worker finishes up and walks OUT through the door, then despawns. No ghosts:
- *   the live roster is the single source of truth, the seen-set is pruned to it.
+ * role → home SECTOR (worker is A*-confined to that sector):
+ *   kitchen                              → Kitchen
+ *   gym                                  → Gym
+ *   research | conductor | claude | voice→ Lab
+ *   engine  | beacon                     → Trading
+ *   account                              → its own Accounts cubicle (by id order / alias)
+ * Unknown roles fall back to the Lab.
+ *
+ * The 6 equity accounts are great always-on residents: emit them as
+ * role:"account" rows (runner = alias) and each gets a labeled cubicle.
+ *
+ * - A NEW id → a worker appears at its sector door and walks to a workspot.
+ * - An id that VANISHES (or status:"done") → it walks back to its sector door
+ *   and despawns. No ghosts: live roster is the source of truth; seen-set pruned.
  *
  * ---------------------------------------------------------------------------
  * PUBLIC API
- *   GammaPixels.mount(canvasEl, opts?)   // start rAF loop. opts: {assetBase, flat, debugPaths}
- *   GammaPixels.setAgents(list)          // feed the live roster (array, see shape above)
- *   GammaPixels.unmount()                // stop loop, free listeners, clear workers
- *   GammaPixels.setDebugPaths(bool)      // toggle the faint planned-path overlay
- * Test-only globals (set by _pixels-test.html-style harness):
- *   window.__lastPaths                   // { id: [ [c,r], ... ] } last A* path per worker
- *   window.__gxSnapshot()                // read-only worker positions/phases
+ *   GammaPixels.mount(canvasEl, opts?)   // opts: {assetBase, flat, debugPaths}
+ *   GammaPixels.setAgents(list)          // feed the live roster (array)
+ *   GammaPixels.unmount()                // stop loop, free listeners, clear
+ *   GammaPixels.setDebugPaths(bool)      // planned-path overlay (OFF by default)
+ * Test-only read globals:
+ *   window.__gxSnapshot()   window.__gxGrid()   window.__gxSectors()
+ *   window.__lastPaths      // { id: [[c,r],...] } last A* path per worker
  * ===========================================================================
  */
 (function (global) {
   'use strict';
 
-  // ── Sprite sheet geometry (matches the MIT char sheets: 112x96 = 7x16 frames,
-  //    3 direction rows of 32px). Down=row0, Up=row1, Right=row2 (Left = mirror). ──
+  // ── MIT char sheets: 112x96 = 7x16 frames, 3 dir rows of 32px.
+  //    Down=row0, Up=row1, Right=row2 (Left = horizontal mirror of Right). ──
   var FW = 16, FH = 32, FRAMES = 7;
   var DIR_ROW = { down: 0, up: 1, right: 2, left: 2 };
 
-  // ── Tile world. TILE px is a target; the real grid is recomputed to fill the
-  //    canvas so the office always spans the whole viewport. ──
-  var TILE = 28;          // logical tile size in CSS px (workers are scaled to it)
-  var SPRITE_SCALE = 2;   // 16x32 sprite drawn at 32x64
+  var TILE = 30;          // target tile size (px); grid recomputed to fill canvas
+  var SPRITE_SCALE = 2;   // 16x32 sprite → 32x64
 
-  // Role → preferred destination station kind + a 1-2 word label.
-  var ROLE_META = {
-    engine:    { word: 'Engine',    home: 'desk' },
-    conductor: { word: 'Conductor', home: 'whiteboard' },
-    kitchen:   { word: 'Kitchen',   home: 'coffee' },
-    gym:       { word: 'Gym',       home: 'desk' },
-    research:  { word: 'Research',  home: 'whiteboard' },
-    claude:    { word: 'Claude',    home: 'desk' },
-    _default:  { word: 'Agent',     home: 'desk' }
+  // ── palette (matches the cockpit face design D) ──
+  var COL = {
+    bg: '#0A0C0F', floor: '#161b24', floorLit: '#1d2430', wall: '#2b323f',
+    wallTop: '#39414f', ink: '#E7EAF2', muted: '#6C7384', accent: '#93A8DD',
+    glow: '#CDDFFB', pos: '#43C98E', caution: '#E0A23C', alert: '#E0574E',
+    steel: '#9aa6b4', steelDk: '#6b7686', wood: '#5a4636'
   };
-  function roleMeta(role) { return ROLE_META[role] || ROLE_META._default; }
 
-  // Each role gets a stable sprite index (0..5) so the same role looks consistent.
-  var ROLE_SPRITE = { engine: 0, conductor: 1, kitchen: 2, gym: 3, research: 4, claude: 5 };
+  // ── role → sector key + a 1-2 word nameplate role word ──
+  var ROLE_SECTOR = {
+    kitchen: 'kitchen',
+    gym: 'gym',
+    research: 'lab', conductor: 'lab', claude: 'lab', voice: 'lab', doc: 'lab',
+    engine: 'trading', beacon: 'trading', pilot: 'trading',
+    account: 'accounts'
+  };
+  var ROLE_WORD = {
+    kitchen: 'Cook', gym: 'Trainer', research: 'Research', conductor: 'Conductor',
+    claude: 'Claude', voice: 'Voice', engine: 'Engine', beacon: 'Beacon',
+    pilot: 'Pilot', account: 'Account', doc: 'Docs'
+  };
+  function sectorForRole(role) { return ROLE_SECTOR[role] || 'lab'; }
+  function roleWord(role) { return ROLE_WORD[role] || 'Agent'; }
+
+  // stable sprite index (0..5) per role so a role looks consistent
+  var ROLE_SPRITE = { engine: 0, conductor: 1, kitchen: 2, gym: 3, research: 4, claude: 5, account: 1, beacon: 0, voice: 4 };
   function spriteFor(role, id) {
     if (ROLE_SPRITE[role] != null) return ROLE_SPRITE[role];
     var h = 0; for (var i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
@@ -105,59 +124,53 @@
   }
 
   // ───────────────────────────────────────────────────────────────────────────
-  //  A* grid pathfinding (4-connected, obstacle-aware). Returns a list of
-  //  [col,row] cells from start to goal INCLUSIVE, or null if unreachable.
-  //  Walkability is passed as fn(c,r)=>bool so callers can treat a worker's OWN
-  //  reserved seat as walkable while every other occupied tile is blocked.
+  //  A* (4-connected, obstacle-aware). walkable(c,r)=>bool. Returns [[c,r]...]
+  //  start→goal inclusive, or null. Used CONFINED: callers pass a walkable fn
+  //  that returns false outside the worker's home sector → natural containment.
   // ───────────────────────────────────────────────────────────────────────────
   function astar(cols, rows, walkable, start, goal) {
     if (start[0] === goal[0] && start[1] === goal[1]) return [[start[0], start[1]]];
+    if (!walkable(goal[0], goal[1])) return null;
     var key = function (c, r) { return r * cols + c; };
-    var open = [];              // tiny binary-ish heap kept as a sorted-on-pop array
-    var gScore = {}, fScore = {}, came = {}, inOpen = {};
+    var open = [], gScore = {}, fScore = {}, came = {}, inOpen = {};
     var sk = key(start[0], start[1]);
     gScore[sk] = 0; fScore[sk] = heur(start, goal);
     open.push(sk); inOpen[sk] = true;
     var DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
-    var guard = cols * rows * 4; // hard cap so a pathological map can never spin forever
+    var guard = cols * rows * 4;
     while (open.length && guard-- > 0) {
-      // pop lowest f (linear scan — grids here are small, < ~1k cells)
       var bi = 0;
       for (var i = 1; i < open.length; i++) if (fScore[open[i]] < fScore[open[bi]]) bi = i;
-      var cur = open[bi];
-      open.splice(bi, 1); inOpen[cur] = false;
+      var cur = open[bi]; open.splice(bi, 1); inOpen[cur] = false;
       var cc = cur % cols, cr = (cur - cc) / cols;
       if (cc === goal[0] && cr === goal[1]) return reconstruct(came, cur, cols);
       for (var d = 0; d < 4; d++) {
         var nc = cc + DIRS[d][0], nr = cr + DIRS[d][1];
         if (nc < 0 || nr < 0 || nc >= cols || nr >= rows) continue;
         if (!walkable(nc, nr)) continue;
-        var nk = key(nc, nr);
-        var tentative = gScore[cur] + 1;
+        var nk = key(nc, nr), tentative = gScore[cur] + 1;
         if (gScore[nk] == null || tentative < gScore[nk]) {
-          came[nk] = cur;
-          gScore[nk] = tentative;
-          fScore[nk] = tentative + heur([nc, nr], goal);
+          came[nk] = cur; gScore[nk] = tentative; fScore[nk] = tentative + heur([nc, nr], goal);
           if (!inOpen[nk]) { open.push(nk); inOpen[nk] = true; }
         }
       }
     }
     return null;
-    function heur(a, b) { return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]); } // Manhattan
+    function heur(a, b) { return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]); }
     function reconstruct(came, cur, cols) {
       var path = [];
-      while (cur != null) {
-        var c = cur % cols, r = (cur - c) / cols;
-        path.push([c, r]);
-        cur = came[cur];
-      }
-      path.reverse();
-      return path;
+      while (cur != null) { var c = cur % cols, r = (cur - c) / cols; path.push([c, r]); cur = came[cur]; }
+      path.reverse(); return path;
     }
   }
 
-  // ───────────────────────────────────────────────────────────────────────────
-  //  The module instance.
+  function tidy(s, n) { s = (s == null ? '' : String(s)).replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; }
+  function roundRectPath(ctx, x, y, w, h, r) {
+    ctx.beginPath(); ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  }
+
   // ───────────────────────────────────────────────────────────────────────────
   var inst = null;
 
@@ -166,21 +179,24 @@
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.assetBase = (opts.assetBase || '/assets/pixel').replace(/\/$/, '');
-    this.flat = !!opts.flat;            // flat = no subfolders (server can't nest)
-    this.debugPaths = !!opts.debugPaths;
+    this.flat = !!opts.flat;
+    this.debugPaths = !!opts.debugPaths;     // OFF by default (production)
     this.dpr = 1; this.W = 0; this.H = 0;
     this.assets = {};
-    this.workers = {};                  // id -> worker
-    this.roster = {};                   // id -> last roster record (live source of truth)
-    this.seen = {};                     // id -> true (so a leaving worker never re-spawns)
+    this.workers = {};
+    this.roster = {};
+    this.seen = {};
     this.grid = null;
-    this.stations = null;
+    this.sectors = null;       // { key: {label,x,y,w,h, interior:Set, door:[c,r], spots:[...], color} }
+    this.obstacles = null;     // global obstacle set (walls + card rect + furniture)
+    this.cardRect = null;
     this.raf = 0; this.last = 0; this.running = false;
     this._spawnSeq = 0;
+    this._acctSlot = 0;        // round-robin assignment of account cubicles
     this._onResize = this._resize.bind(this);
   }
 
-  // ── asset paths (flat or nested) ──
+  // ── asset paths (worker sprites only) ──
   Office.prototype._url = function (kind, name) {
     if (this.flat) return this.assetBase + '/' + name;
     var sub = kind === 'char' ? 'characters' : kind === 'floor' ? 'floors' : 'furniture';
@@ -190,23 +206,19 @@
     return new Promise(function (resolve) {
       var im = new Image();
       im.onload = function () { resolve(im); };
-      im.onerror = function () { resolve(null); }; // fail-open → vector fallback
+      im.onerror = function () { resolve(null); };
       im.src = src;
     });
   };
   Office.prototype.loadAssets = function () {
     var self = this, jobs = [];
     for (var c = 0; c < 6; c++) (function (c) {
-      jobs.push(self._loadImg(self._url('char', 'char_' + c + '.png'))
-        .then(function (im) { self.assets['char' + c] = im; }));
+      jobs.push(self._loadImg(self._url('char', 'char_' + c + '.png')).then(function (im) { self.assets['char' + c] = im; }));
     })(c);
-    jobs.push(self._loadImg(self._url('floor', 'floor_1.png')).then(function (im) { self.assets.floor = im; }));
-    jobs.push(self._loadImg(self._url('furniture', 'DESK_FRONT.png')).then(function (im) { self.assets.desk = im; }));
-    jobs.push(self._loadImg(self._url('furniture', 'CACTUS.png')).then(function (im) { self.assets.cactus = im; }));
-    return Promise.all(jobs);
+    return Promise.all(jobs); // furniture is procedural; only worker sprites load
   };
 
-  // ── canvas sizing / grid build ──
+  // ── canvas sizing ──
   Office.prototype._resize = function () {
     var canvas = this.canvas;
     this.dpr = Math.max(1, Math.min(2, global.devicePixelRatio || 1));
@@ -215,471 +227,635 @@
     canvas.width = Math.round(this.W * this.dpr);
     canvas.height = Math.round(this.H * this.dpr);
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    this._buildGrid();
+    this._buildLayout();
   };
 
-  // Build the tile grid + station layout. Recomputed whenever the canvas size
-  // changes so the office always fills the viewport. Workers re-validate their
-  // tile coords against the new grid.
-  Office.prototype._buildGrid = function () {
-    var cols = Math.max(8, Math.floor(this.W / TILE));
-    var rows = Math.max(6, Math.floor(this.H / TILE));
+  Office.prototype._cx = function (c) { return (c + 0.5) * this.grid.cw; };
+  Office.prototype._cy = function (r) { return (r + 0.5) * this.grid.ch; };
+  Office.prototype._tileRect = function (c, r) { return { x: c * this.grid.cw, y: r * this.grid.ch, w: this.grid.cw, h: this.grid.ch }; };
+
+  // ───────────────────────────────────────────────────────────────────────────
+  //  LAYOUT — the sectioned office. Reserve the top-center card column, then
+  //  carve the open floor (bottom band + side margins) into themed sectors with
+  //  visible walls between them. Each sector gets: a wall border (obstacle), a
+  //  walkable interior, a door tile, themed furniture spots, and a label.
+  // ───────────────────────────────────────────────────────────────────────────
+  Office.prototype._buildLayout = function () {
+    var cols = Math.max(16, Math.floor(this.W / TILE));
+    var rows = Math.max(12, Math.floor(this.H / TILE));
     var cw = this.W / cols, ch = this.H / rows;
     this.grid = { cols: cols, rows: rows, cw: cw, ch: ch };
 
-    // Reserve the center column band (where the dashboard cards sit) as a
-    // "no-station" corridor so workers roam the visible MARGINS (sides on a
-    // wide screen, top/bottom on a narrow one) rather than hiding behind cards.
-    var centerHalf = Math.ceil((220 / cw)); // ~440px column / 2, in tiles
+    // reserved card rectangle: ~450px column centered, top → ~55% height
+    var halfCard = Math.ceil(228 / cw);
     var midC = Math.floor(cols / 2);
-    var cardLo = Math.max(0, midC - centerHalf), cardHi = Math.min(cols - 1, midC + centerHalf);
+    var cardLo = Math.max(0, midC - halfCard), cardHi = Math.min(cols - 1, midC + halfCard);
+    var cardBottom = Math.min(rows - 4, Math.round(rows * 0.55));
+    this.cardRect = { lo: cardLo, hi: cardHi, bottom: cardBottom };
 
-    var stations = { desks: [], coffee: null, whiteboard: null, door: null, obstacles: {} };
-    var occ = function (c, r) { stations.obstacles[r * cols + c] = true; };
+    var obstacles = {};                 // global blockers (walls/card/furniture)
+    this.obstacles = obstacles;
+    var occ = function (c, r) { obstacles[r * cols + c] = true; };
+    for (var rr = 0; rr <= cardBottom; rr++) for (var cc = cardLo; cc <= cardHi; cc++) occ(cc, rr);
 
-    // DOOR — bottom edge, slightly right of center but outside the card band.
-    var doorC = Math.min(cols - 2, cardHi + 1);
-    if (doorC <= cardHi) doorC = Math.max(1, cardLo - 1);
-    stations.door = { c: doorC, r: rows - 1, kind: 'door' };
+    // ── Decide sector RECTANGLES. Wide viewport → spread horizontally; narrow →
+    //    stack. The available floor = (a) the BOTTOM band (all cols, rows
+    //    cardBottom+1 .. rows-1) and (b) the two SIDE margins beside the card
+    //    column (rows 0..cardBottom). We place 5 functional sectors. ──
+    var bandTop = cardBottom + 1;
+    var bandH = rows - bandTop;          // height of the bottom band
+    var sectors = {};
+    this.sectors = sectors;
 
-    // Helper: is a column inside the protected card band?
-    var inCard = function (c) { return c >= cardLo && c <= cardHi; };
-
-    // Collect the usable left / right margin columns (outside the card band).
-    var leftCols = [], rightCols = [];
-    for (var c = 1; c < cols - 1; c++) {
-      if (inCard(c)) continue;
-      if (c < midC) leftCols.push(c); else rightCols.push(c);
-    }
-
-    // KEY PATHING FIX: a column packed with desks every-other-row becomes a
-    // near-solid wall (desk/seat/desk/seat…) that blocks vertical travel UP that
-    // column. So each desk column MUST have an OPEN circulation lane immediately
-    // beside it that the seats open onto. We therefore lay desks on a column and
-    // keep the neighbouring (inward) column clear as a lane. Coffee + whiteboard
-    // get their OWN columns that never coincide with a desk column.
-    var deskRows = [];
-    for (var r = 1; r < rows - 2; r += 2) deskRows.push(r);
-
-    // Pick desk columns: the OUTERMOST margin column on each side (+ one more in
-    // from it if the margin is wide), always leaving an inward lane free.
-    var deskCols = [];
-    if (leftCols.length >= 2) {
-      deskCols.push(leftCols[0]);                                  // outer-left wall
-      if (leftCols.length >= 5) deskCols.push(leftCols[2]);        // a second bank, lane at [1] between
-    }
-    if (rightCols.length >= 2) {
-      deskCols.push(rightCols[rightCols.length - 1]);              // outer-right wall
-      if (rightCols.length >= 5) deskCols.push(rightCols[rightCols.length - 3]);
-    }
-
-    for (var di = 0; di < deskCols.length; di++) {
-      var dc = deskCols[di];
-      for (var ri = 0; ri < deskRows.length; ri++) {
-        var dr = deskRows[ri];
-        if (dr + 1 > rows - 2) continue;
-        stations.desks.push({ c: dc, r: dr, seatC: dc, seatR: dr + 1, taken: null });
-        occ(dc, dr); // desk top is solid; seat (dr+1) stays walkable, opens to the lane
-      }
-    }
-    var isDeskCol = function (c) { return deskCols.indexOf(c) !== -1; };
-
-    // COFFEE STATION — top-left, on an OPEN (non-desk) margin column so its stand
-    // tile below is reachable. Appliance at row 0; stand tile at row 1.
-    var coffeeC = null;
-    for (var li = 0; li < leftCols.length; li++) {
-      if (!isDeskCol(leftCols[li])) { coffeeC = leftCols[li]; break; }
-    }
-    if (coffeeC == null) coffeeC = leftCols.length ? leftCols[0] : 1;
-    stations.coffee = { c: coffeeC, r: 0, standC: coffeeC, standR: 1, kind: 'coffee' };
-    occ(coffeeC, 0);
-
-    // WHITEBOARD — top-right, on an OPEN (non-desk) margin column. The "R&D"
-    // board at row 0; a worker stands at row 1 to point.
-    var wbC = null;
-    for (var wi = rightCols.length - 1; wi >= 0; wi--) {
-      if (!isDeskCol(rightCols[wi]) && rightCols[wi] !== coffeeC) { wbC = rightCols[wi]; break; }
-    }
-    if (wbC == null) wbC = rightCols.length ? rightCols[rightCols.length - 1] : cols - 2;
-    stations.whiteboard = { c: wbC, r: 0, standC: wbC, standR: 1, kind: 'whiteboard' };
-    occ(wbC, 0);
-
-    this.stations = stations;
-
-    // Re-validate workers: clamp their tile coords + re-resolve their desk
-    // reservation against the rebuilt grid so a resize never strands anyone.
     var self = this;
+    // build a sector rectangle [x..x2] x [y..y2] inclusive; carves a 1-tile wall
+    // ring (obstacles) and records the interior walkable set + a door on its
+    // top or side wall. Furniture spots are added later per theme.
+    function makeSector(key, label, color, x, y, x2, y2, doorSide) {
+      x = Math.max(0, x); y = Math.max(0, y); x2 = Math.min(cols - 1, x2); y2 = Math.min(rows - 1, y2);
+      if (x2 - x < 2 || y2 - y < 2) return null; // too small to be a room
+      var interior = {}, interiorList = [];
+      // wall ring = the rectangle border tiles (obstacles)
+      for (var c = x; c <= x2; c++) { occ(c, y); occ(c, y2); }
+      for (var r = y; r <= y2; r++) { occ(x, r); occ(x2, r); }
+      // interior = inside the ring
+      for (var ic = x + 1; ic <= x2 - 1; ic++) for (var ir = y + 1; ir <= y2 - 1; ir++) {
+        interior[ir * cols + ic] = true; interiorList.push([ic, ir]);
+      }
+      // a DOOR: punch one wall tile open + record it as the entry tile. Default
+      // top-center; doorSide can be 'top'|'bottom'|'left'|'right'.
+      var door;
+      if (doorSide === 'bottom') door = [Math.round((x + x2) / 2), y2];
+      else if (doorSide === 'left') door = [x, Math.round((y + y2) / 2)];
+      else if (doorSide === 'right') door = [x2, Math.round((y + y2) / 2)];
+      else door = [Math.round((x + x2) / 2), y];
+      delete obstacles[door[1] * cols + door[0]];           // open the doorway
+      interior[door[1] * cols + door[0]] = true;            // door tile is walkable for this sector
+      var s = {
+        key: key, label: label, color: color, x: x, y: y, x2: x2, y2: y2,
+        interior: interior, interiorList: interiorList, door: door,
+        spots: [], furniture: []
+      };
+      sectors[key] = s;
+      return s;
+    }
+
+    // is a column inside the reserved card band (top region)?
+    var cardCols = function (c) { return c >= cardLo && c <= cardHi; };
+
+    // sector vertical extents in the bottom band (leave a 1-row gap at very bottom)
+    var by = bandTop, by2 = rows - 1;
+
+    if (cols >= 30 && bandH >= 6) {
+      // ── WIDE: spread 5 sectors horizontally across the bottom band, using the
+      //    full width. Kitchen | Gym | Lab | Accounts | Trading. The Accounts
+      //    sector (6 cubicles) gets the widest slot. ──
+      var n = 5;
+      // weighted widths: accounts widest, lab next
+      var weights = [1.0, 0.9, 1.15, 1.5, 0.85]; // kitchen,gym,lab,accounts,trading
+      var wsum = weights.reduce(function (a, b) { return a + b; }, 0);
+      var avail = cols - 2; // 1-tile outer margin each side
+      var xcur = 1, rects = [];
+      for (var i = 0; i < n; i++) {
+        var w = Math.floor(avail * weights[i] / wsum);
+        rects.push([xcur, xcur + w - 1]); xcur += w;
+      }
+      rects[n - 1][1] = cols - 2; // snap last to the right edge
+      makeSector('kitchen',  'KITCHEN',  COL.caution, rects[0][0], by, rects[0][1] - 1, by2, 'top');
+      makeSector('gym',      'GYM',      COL.pos,     rects[1][0], by, rects[1][1] - 1, by2, 'top');
+      makeSector('lab',      'LAB / R&D',COL.accent,  rects[2][0], by, rects[2][1] - 1, by2, 'top');
+      makeSector('accounts', 'ACCOUNTS', COL.glow,    rects[3][0], by, rects[3][1] - 1, by2, 'top');
+      makeSector('trading',  'TRADING',  COL.alert,   rects[4][0], by, rects[4][1],     by2, 'top');
+    } else {
+      // ── NARROW: a 2-column x 3-row GRID of small sectors stacked in the bottom
+      //    band (the card column eats the horizontal room, so we stack down).
+      //    Row1: Kitchen | Gym   Row2: Lab | Accounts   Row3: Trading (full width).
+      //    Guarantees ALL 5 sectors exist even on a phone-width screen. ──
+      var midX = Math.floor(cols / 2);
+      var rowH = Math.max(3, Math.floor(bandH / 3));     // each sector-row height
+      var r1 = by, r1b = by + rowH - 1;
+      var r2 = r1b + 1, r2b = r2 + rowH - 1;
+      var r3 = r2b + 1, r3b = by2;
+      makeSector('kitchen',  'KITCHEN',  COL.caution, 1,        r1, midX - 1, r1b, 'bottom');
+      makeSector('gym',      'GYM',      COL.pos,     midX,     r1, cols - 2, r1b, 'bottom');
+      makeSector('lab',      'LAB',      COL.accent,  1,        r2, midX - 1, r2b, 'top');
+      makeSector('accounts', 'ACCOUNTS', COL.glow,    midX,     r2, cols - 2, r2b, 'top');
+      makeSector('trading',  'TRADING',  COL.alert,   1,        r3, cols - 2, r3b, 'top');
+    }
+
+    // Ensure every sector key exists; if one failed to build (a too-thin grid),
+    // ALIAS its role to a present sector so no worker is ever sector-less. Lab is
+    // the universal fallback and is guaranteed below.
+    if (!sectors.lab) {
+      makeSector('lab', 'LAB', COL.accent, 1, by, Math.min(cols - 2, 1 + 8), by2, 'top');
+    }
+    // sectorAlias maps a missing sector key → an existing one (used by sectorForRole
+    // consumers via _resolveSector). Built fresh each layout.
+    this.sectorAlias = {};
+    var allKeys = ['kitchen', 'gym', 'lab', 'accounts', 'trading'];
+    for (var ak = 0; ak < allKeys.length; ak++) {
+      if (!sectors[allKeys[ak]]) this.sectorAlias[allKeys[ak]] = 'lab';
+    }
+
+    // ── populate THEMED furniture + dwell spots per sector ──
+    this._furnishSectors();
+
+    // re-validate workers against the rebuilt layout
     Object.keys(this.workers).forEach(function (id) {
       var w = self.workers[id];
-      w.c = Math.max(0, Math.min(cols - 1, w.c));
-      w.r = Math.max(0, Math.min(rows - 1, w.r));
+      var sec = sectors[w.sectorKey] || sectors.lab;
+      w.sectorKey = sec ? sec.key : 'lab';
+      // clamp into the sector interior; reset pathing
+      var spot = self._spotFor(w);
+      w.c = spot ? spot.c : (sec ? sec.door[0] : 1);
+      w.r = spot ? spot.r : (sec ? sec.door[1] : 1);
       w.px = self._cx(w.c); w.py = self._cy(w.r);
-      w.desk = null; w.path = null; w.pathIdx = 0; w.target = null;
-      w.dwellUntil = 0; w.state = (w.state === 'leaving') ? 'leaving' : 'idle';
+      w.path = null; w.pathIdx = 0; w.target = null; w.dwellUntil = 0;
+      w.state = (w.state === 'leaving') ? 'leaving' : 'idle';
     });
   };
 
-  // tile-center → pixel-center helpers
-  Office.prototype._cx = function (c) { return (c + 0.5) * this.grid.cw; };
-  Office.prototype._cy = function (r) { return (r + 0.5) * this.grid.ch; };
-
-  // Is tile (c,r) walkable for worker `w`? Obstacles block everyone; another
-  // worker's reserved desk-seat blocks; `w`'s OWN seat is walkable.
+  // Walkability for worker `w`: ONLY tiles inside w's home sector interior, minus
+  // furniture obstacles, minus other workers' claimed spots (its own spot is OK).
   Office.prototype._walkableFor = function (w) {
-    var self = this, g = this.grid, st = this.stations;
+    var self = this, g = this.grid, sec = this.sectors[w.sectorKey];
     return function (c, r) {
+      if (!sec) return false;
       if (c < 0 || r < 0 || c >= g.cols || r >= g.rows) return false;
-      if (st.obstacles[r * g.cols + c]) return false;
-      // another worker's reserved seat tile is "their chair" — don't path through it
+      if (!sec.interior[r * g.cols + c]) return false;          // CONTAINMENT
+      if (self.obstacles[r * g.cols + c]) return false;          // furniture/wall
       var ids = Object.keys(self.workers);
       for (var i = 0; i < ids.length; i++) {
         var o = self.workers[ids[i]];
-        if (o === w || !o.desk) continue;
-        if (o.desk.seatC === c && o.desk.seatR === r) return false;
+        if (o === w || !o.spot) continue;
+        if (o.spot.c === c && o.spot.r === r) return false;      // someone's chair
       }
       return true;
     };
   };
 
-  // ── desk reservation ──
-  Office.prototype._claimDesk = function (w) {
-    if (w.desk) return w.desk;
-    var desks = this.stations.desks;
-    for (var i = 0; i < desks.length; i++) {
-      if (!desks[i].taken) { desks[i].taken = w.id; w.desk = desks[i]; return w.desk; }
-    }
-    return null; // office full of desks — worker will wander/coffee instead
-  };
-  Office.prototype._freeDesk = function (w) {
-    if (w.desk) { w.desk.taken = null; w.desk = null; }
+  // ── FURNITURE: each sector gets a capped, themed set. A "spot" is a walkable
+  //    tile a worker dwells on, facing an adjacent furniture obstacle. ──
+  Office.prototype._furnishSectors = function () {
+    var g = this.grid, cols = g.cols, self = this;
+    var occ = function (c, r) { self.obstacles[r * cols + c] = true; };
+
+    Object.keys(this.sectors).forEach(function (key) {
+      var s = self.sectors[key];
+      s.spots = []; s.furniture = [];
+      var x = s.x + 1, y = s.y + 1, x2 = s.x2 - 1, y2 = s.y2 - 1; // interior bounds
+      var iw = x2 - x + 1, ih = y2 - y + 1;
+
+      // helper: add a furniture obstacle tile + a dwell spot in front of it
+      // (spot is on the row BELOW the furniture so the worker faces UP at it).
+      function addUnit(fc, fr, kind, faceDir) {
+        if (fc < x || fc > x2 || fr < y || fr > y2) return false;
+        if (self.obstacles[fr * cols + fc]) return false;
+        // spot in front
+        var sc = fc, sr = fr + 1, sdir = 'up';
+        if (faceDir === 'down') { sr = fr - 1; sdir = 'down'; }
+        if (sr < y || sr > y2) { sr = fr + 1; sdir = 'up'; if (sr > y2) return false; }
+        if (self.obstacles[sr * cols + sc]) return false;
+        occ(fc, fr);
+        s.furniture.push({ c: fc, r: fr, kind: kind });
+        s.spots.push({ c: sc, r: sr, dir: sdir, kind: kind, taken: null });
+        return true;
+      }
+
+      if (key === 'kitchen') {
+        // a row of STOVES along the top interior wall, a FRIDGE in a corner,
+        // PREP COUNTERS along the bottom. Capped to fit.
+        var cap = Math.min(4, Math.max(2, Math.floor(iw / 2)));
+        var placed = 0;
+        for (var c = x + 1; c <= x2 - 1 && placed < cap; c += 2) { if (addUnit(c, y, 'stove', 'down')) placed++; }
+        addUnit(x, y, 'fridge', 'down');
+        // a couple of prep counters lower down
+        var cc = x + 1;
+        if (ih >= 4) { addUnit(cc, y2, 'counter', 'up'); addUnit(cc + 2, y2, 'counter', 'up'); }
+      } else if (key === 'gym') {
+        // weight RACKS along the top, a BENCH center, a TREADMILL corner, dumbbells.
+        var gcap = Math.min(3, Math.max(2, Math.floor(iw / 2)));
+        var gp = 0;
+        for (var gc = x; gc <= x2 && gp < gcap; gc += 2) { if (addUnit(gc, y, 'rack', 'down')) gp++; }
+        addUnit(x + Math.floor(iw / 2), y2, 'bench', 'up');
+        addUnit(x2, y, 'treadmill', 'down');
+        if (iw >= 4) addUnit(x + 1, y2, 'dumbbell', 'up');
+      } else if (key === 'lab') {
+        // WHITEBOARDS along the top + a couple of SERVER/research desks.
+        var lcap = Math.min(3, Math.max(1, Math.floor(iw / 3)));
+        var lp = 0;
+        for (var lc = x; lc <= x2 && lp < lcap; lc += 3) { if (addUnit(lc, y, 'whiteboard', 'down')) lp++; }
+        // research desks lower
+        var ldc = x + 1;
+        if (ih >= 4) { addUnit(ldc, y2, 'serverdesk', 'up'); addUnit(ldc + 2, y2, 'serverdesk', 'up'); }
+      } else if (key === 'accounts') {
+        // up to 6 CUBICLE TERMINALS (one per equity account). The resident sits
+        // BELOW the terminal (faceDir 'up' → spot at fr+1) so each row's seats
+        // are DISTINCT. Rows are spaced by 3 (terminal, seat, lane) so seats from
+        // different rows never collide; columns by 2 (terminal, gap).
+        var want = 6, made = 0;
+        for (var rr = y; rr <= y2 - 1 && made < want; rr += 3) {
+          for (var ccx = x; ccx <= x2 && made < want; ccx += 2) {
+            if (addUnit(ccx, rr, 'terminal', 'up')) made++;
+          }
+        }
+        // if a 2-row grid didn't fit (short sector), top up along a single row
+        for (var ccx2 = x; ccx2 <= x2 && made < want; ccx2 += 2) {
+          if (!s.furniture.some(function (f2) { return f2.c === ccx2 && f2.r === y; }))
+            if (addUnit(ccx2, y, 'terminal', 'up')) made++;
+        }
+        s.cubicleCount = made;
+      } else if (key === 'trading') {
+        // engine TERMINALS (a couple of $ / chart screens) + a coffee machine.
+        var tp = 0, tcap = Math.min(3, Math.max(1, Math.floor(iw / 2)));
+        for (var tc = x; tc <= x2 && tp < tcap; tc += 2) { if (addUnit(tc, y, 'engine', 'down')) tp++; }
+        addUnit(x2, y2, 'coffee', 'up');
+      }
+
+      // guarantee at least ONE spot even if furniture didn't fit, so a worker can
+      // still stand somewhere inside its sector.
+      if (!s.spots.length) {
+        var fallbackC = Math.round((s.x + s.x2) / 2), fallbackR = Math.round((s.y + s.y2) / 2);
+        if (!self.obstacles[fallbackR * cols + fallbackC])
+          s.spots.push({ c: fallbackC, r: fallbackR, dir: 'down', kind: 'idle', taken: null });
+      }
+    });
   };
 
-  // ── spawn / despawn ──
+  // ── spot reservation within a sector ──
+  Office.prototype._spotFor = function (w) {
+    var sec = this.sectors[w.sectorKey]; if (!sec) return null;
+    if (w.spot && w.spot.taken === w.id) return w.spot;
+    // account residents prefer their assigned cubicle index
+    var pool = sec.spots, i;
+    if (w.role === 'account' && w.acctSlot != null && pool[w.acctSlot] && !pool[w.acctSlot].taken) {
+      pool[w.acctSlot].taken = w.id; w.spot = pool[w.acctSlot]; return w.spot;
+    }
+    for (i = 0; i < pool.length; i++) if (!pool[i].taken) { pool[i].taken = w.id; w.spot = pool[i]; return w.spot; }
+    return null; // sector full → worker will wander between interior tiles
+  };
+  Office.prototype._freeSpot = function (w) { if (w.spot) { w.spot.taken = null; w.spot = null; } };
+
+  // ── spawn / leave ──
   Office.prototype._spawn = function (rec) {
     if (this.workers[rec.id]) return;
     this.seen[rec.id] = true;
-    var st = this.stations, door = st.door;
+    var role = rec.role || 'claude';
+    var secKey = sectorForRole(role);
+    var sec = this.sectors[secKey] || this.sectors.lab;
+    secKey = sec ? sec.key : 'lab';
     var w = {
       id: rec.id, seq: this._spawnSeq++,
-      role: rec.role || 'claude', runner: rec.runner || '', task: rec.task || '',
-      status: rec.status || 'working',
-      sprite: spriteFor(rec.role || 'claude', rec.id),
-      // start just BELOW the door tile, walking up into the room
-      c: door.c, r: door.r,
-      px: this._cx(door.c), py: this.H + TILE, // enter from off-screen-bottom
-      dir: 'up', frame: 0, frameT: 0,
-      state: 'entering', desk: null, target: null,
+      role: role, runner: rec.runner || '', task: rec.task || '',
+      status: rec.status || 'working', account: rec.account || '',
+      sprite: spriteFor(role, rec.id),
+      sectorKey: secKey, acctSlot: null,
+      c: sec ? sec.door[0] : 1, r: sec ? sec.door[1] : 1,
+      px: 0, py: 0, dir: 'down', frame: 0, frameT: 0,
+      state: 'entering', spot: null, target: null,
       path: null, pathIdx: 0, dwellUntil: 0, dwellKind: null,
       alpha: 0, bob: Math.random() * Math.PI * 2
     };
+    if (role === 'account') { w.acctSlot = this._acctSlot % 6; this._acctSlot++; }
+    w.px = this._cx(w.c); w.py = this._cy(w.r);
     this.workers[rec.id] = w;
-    // first move: walk to the door tile, then pick a real destination
-    w.px = this._cx(door.c); w.py = this.H + TILE;
-    this._setPath(w, [door.c, door.r]);
   };
 
   Office.prototype._beginLeave = function (w) {
     if (w.state === 'leaving') return;
-    this._freeDesk(w);
+    this._freeSpot(w);
     w.state = 'leaving';
     w.dwellUntil = 0;
-    this._setPath(w, [this.stations.door.c, this.stations.door.r]);
+    var sec = this.sectors[w.sectorKey];
+    if (sec) this._setPath(w, sec.door); else w.path = null;
   };
 
-  // ── path planning to a goal TILE ──
+  // ── path to a goal tile, confined to the worker's sector ──
   Office.prototype._setPath = function (w, goal) {
-    var start = [Math.round((w.px / this.grid.cw) - 0.5), Math.round((w.py / this.grid.ch) - 0.5)];
-    start[0] = Math.max(0, Math.min(this.grid.cols - 1, start[0]));
-    start[1] = Math.max(0, Math.min(this.grid.rows - 1, start[1]));
-    var path = astar(this.grid.cols, this.grid.rows, this._walkableFor(w), start, goal);
-    if (!path) {
-      // unreachable (shouldn't happen on an open floor) — snap a 1-step plan so
-      // the worker still nudges toward the goal instead of freezing.
-      path = [start, goal];
-    }
+    var g = this.grid;
+    var start = [Math.max(0, Math.min(g.cols - 1, Math.round((w.px / g.cw) - 0.5))),
+                 Math.max(0, Math.min(g.rows - 1, Math.round((w.py / g.ch) - 0.5)))];
+    var path = astar(g.cols, g.rows, this._walkableFor(w), start, goal);
+    if (!path) path = [start]; // stay put if unreachable (never slide across walls)
     w.path = path; w.pathIdx = 0; w.c = start[0]; w.r = start[1];
-    // expose for the test harness / debug overlay
     if (global.__lastPaths) global.__lastPaths[w.id] = path.slice();
   };
 
-  // Choose a fresh destination for a working/idle worker and path to it.
+  // pick a destination INSIDE the home sector: usually the worker's own spot;
+  // sometimes another spot or a random interior tile (so they roam their room).
   Office.prototype._pickDestination = function (w) {
-    var meta = roleMeta(w.role), st = this.stations;
+    var sec = this.sectors[w.sectorKey]; if (!sec) return;
     var roll = Math.random();
-    // role "home" is the dominant choice; sometimes wander for life.
-    var kind = meta.home;
-    if (roll < 0.25) kind = 'coffee';
-    else if (roll < 0.40 && st.whiteboard) kind = 'whiteboard';
-
-    if (kind === 'whiteboard' && st.whiteboard) {
-      w.target = { kind: 'whiteboard' };
-      this._setPath(w, [st.whiteboard.standC, st.whiteboard.standR]);
-      return;
+    if (roll < 0.62) {
+      var spot = this._spotFor(w);
+      if (spot) { w.target = { kind: 'spot', spot: spot }; this._setPath(w, [spot.c, spot.r]); return; }
     }
-    if (kind === 'coffee' && st.coffee) {
-      w.target = { kind: 'coffee' };
-      this._setPath(w, [st.coffee.standC, st.coffee.standR]);
-      return;
+    // wander to a random walkable interior tile of this sector
+    var w2 = this._walkableFor(w), tries = 0, list = sec.interiorList;
+    while (tries++ < 12 && list.length) {
+      var t = list[(Math.random() * list.length) | 0];
+      if (w2(t[0], t[1])) { w.target = { kind: 'wander' }; this._setPath(w, [t[0], t[1]]); return; }
     }
-    // desk (default): claim one and go to its seat
-    var desk = this._claimDesk(w);
-    if (desk) {
-      w.target = { kind: 'desk', desk: desk };
-      this._setPath(w, [desk.seatC, desk.seatR]);
-      return;
-    }
-    // no free desk → idle near coffee
-    if (st.coffee) {
-      w.target = { kind: 'coffee' };
-      this._setPath(w, [st.coffee.standC, st.coffee.standR]);
-    } else {
-      w.target = { kind: 'wander' };
-      this._setPath(w, [Math.max(1, st.door.c - 2), Math.max(1, this.grid.rows - 3)]);
-    }
+    // fallback: go to (or stay at) the door
+    w.target = { kind: 'idle' }; this._setPath(w, sec.door);
   };
 
   // ───────────────────────────────────────────────────────────────────────────
-  //  Public roster intake. The live list is the SOURCE OF TRUTH: ids present →
-  //  ensure spawned; ids absent (or status done) → begin leaving. Pruned so a
-  //  worker that finished walking out is gone for good (no ghost-leak).
+  //  roster intake — live list is source of truth (spawn-in / despawn-out / no
+  //  ghosts). Account residents keyed by id; their cubicle slot is stable.
   // ───────────────────────────────────────────────────────────────────────────
   Office.prototype.setAgents = function (list) {
-    if (!this.stations) return; // not mounted yet; ignore until grid exists
+    if (!this.sectors) return;
     list = Array.isArray(list) ? list : [];
-    var liveIds = {};
+    var liveIds = {}, self = this;
     for (var i = 0; i < list.length; i++) {
-      var rec = list[i];
-      if (!rec || !rec.id) continue;
-      liveIds[rec.id] = true;
-      this.roster[rec.id] = rec;
+      var rec = list[i]; if (!rec || !rec.id) continue;
+      liveIds[rec.id] = true; this.roster[rec.id] = rec;
       var w = this.workers[rec.id];
-      if (!w) {
-        // brand-new agent → only spawn if not already shown-and-left this cycle
-        this._spawn(rec);
-        w = this.workers[rec.id];
-      }
+      if (!w) { this._spawn(rec); w = this.workers[rec.id]; }
       if (w) {
         w.role = rec.role || w.role;
         w.runner = rec.runner != null ? rec.runner : w.runner;
         w.task = rec.task != null ? rec.task : w.task;
+        w.account = rec.account != null ? rec.account : w.account;
         w.status = rec.status || w.status;
         w.sprite = spriteFor(w.role, w.id);
         if (rec.status === 'done' && w.state !== 'leaving') this._beginLeave(w);
       }
     }
-    // any worker whose id is no longer live → walk it out
-    var self = this;
     Object.keys(this.workers).forEach(function (id) {
-      if (!liveIds[id] && self.workers[id].state !== 'leaving') {
-        self._beginLeave(self.workers[id]);
-      }
+      if (!liveIds[id] && self.workers[id].state !== 'leaving') self._beginLeave(self.workers[id]);
     });
-    // prune the seen-set down to live ids so a future re-appearance re-spawns clean
     Object.keys(this.seen).forEach(function (id) {
       if (!liveIds[id] && !self.workers[id]) delete self.seen[id];
     });
   };
 
   // ───────────────────────────────────────────────────────────────────────────
-  //  Per-frame update: move each worker one grid-step interpolation along its
-  //  A* path, then dwell / re-path / leave per its state machine.
+  //  update — grid-step interpolation + per-worker state machine (confined).
   // ───────────────────────────────────────────────────────────────────────────
   Office.prototype._update = function (dt, ts) {
     var g = this.grid, ids = Object.keys(this.workers);
-    var STEP = (TILE * 5) * dt / 1000; // ~5 tiles/sec walking speed (reads as a brisk walk)
+    var STEP = (TILE * 4.6) * dt / 1000;
     for (var i = 0; i < ids.length; i++) {
       var w = this.workers[ids[i]];
-      // fade in on spawn
-      if (w.alpha < 1 && w.state !== 'leaving') w.alpha = Math.min(1, w.alpha + dt / 280);
+      if (w.alpha < 1 && w.state !== 'leaving') w.alpha = Math.min(1, w.alpha + dt / 300);
 
       var moving = false;
       if (w.path && w.pathIdx < w.path.length) {
         var cell = w.path[w.pathIdx];
         var tx = this._cx(cell[0]), ty = this._cy(cell[1]);
         var dx = tx - w.px, dy = ty - w.py, dist = Math.hypot(dx, dy);
-        if (dist <= STEP) {
-          // arrived at this cell — snap and advance
-          w.px = tx; w.py = ty; w.c = cell[0]; w.r = cell[1]; w.pathIdx++;
-        } else {
+        if (dist <= STEP) { w.px = tx; w.py = ty; w.c = cell[0]; w.r = cell[1]; w.pathIdx++; }
+        else {
           w.px += (dx / dist) * STEP; w.py += (dy / dist) * STEP;
-          // facing follows the dominant axis of travel
           w.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 'left' : 'right') : (dy < 0 ? 'up' : 'down');
           moving = true;
         }
       }
-
-      // walk-frame animation while moving
-      if (moving) {
-        w.frameT += dt;
-        if (w.frameT > 110) { w.frameT = 0; w.frame = (w.frame % (FRAMES - 1)) + 1; }
-      } else {
-        w.frame = 0;
-      }
+      if (moving) { w.frameT += dt; if (w.frameT > 110) { w.frameT = 0; w.frame = (w.frame % (FRAMES - 1)) + 1; } }
+      else w.frame = 0;
 
       var arrived = !w.path || w.pathIdx >= w.path.length;
-
-      // ── state machine on arrival ──
       if (arrived && !moving) {
         if (w.state === 'leaving') {
-          // reached the door → fade out and despawn
           w.alpha -= dt / 260;
-          w.py += STEP * 0.6; // step down through the door
-          if (w.alpha <= 0.02) { this._freeDesk(w); delete this.workers[w.id]; delete this.seen[w.id]; continue; }
+          if (w.alpha <= 0.02) { this._freeSpot(w); delete this.workers[w.id]; delete this.seen[w.id]; continue; }
         } else if (w.state === 'entering') {
-          // crossed the threshold → go pick a real destination
-          w.state = 'toStation';
-          this._pickDestination(w);
-        } else if (w.state === 'toStation') {
-          // reached the station → dwell + face the station (up)
+          w.state = 'toSpot'; this._pickDestination(w);
+        } else if (w.state === 'toSpot') {
           w.state = 'dwell';
-          w.dir = 'up';
-          w.dwellKind = w.target ? w.target.kind : 'desk';
-          var base = w.dwellKind === 'desk' ? 5200 : w.dwellKind === 'whiteboard' ? 4200 : 3200;
-          w.dwellUntil = ts + base + Math.random() * 2600;
+          // face the furniture this spot belongs to
+          w.dir = (w.target && w.target.spot) ? w.target.spot.dir : 'up';
+          w.dwellKind = (w.target && w.target.spot) ? w.target.spot.kind : 'idle';
+          var base = w.role === 'account' ? 6000 : 3600;
+          w.dwellUntil = ts + base + Math.random() * 3000;
         } else if (w.state === 'dwell') {
           if (ts >= w.dwellUntil) {
-            // done dwelling → release a desk if we were at one (so others can use
-            // it while we wander), then pick a new destination.
-            if (w.target && w.target.kind === 'desk') this._freeDesk(w);
-            w.state = 'toStation';
-            this._pickDestination(w);
+            // account residents mostly stay at their terminal; others roam more
+            if (w.role !== 'account' && w.target && w.target.kind === 'spot' && Math.random() < 0.5) this._freeSpot(w);
+            w.state = 'toSpot'; this._pickDestination(w);
           }
-        } else { // idle (e.g. after a resize reset) → pick something to do
-          w.state = 'toStation';
-          this._pickDestination(w);
-        }
+        } else { w.state = 'toSpot'; this._pickDestination(w); }
       }
       w.bob += dt / 1000;
     }
   };
 
   // ───────────────────────────────────────────────────────────────────────────
-  //  Rendering.
+  //  RENDER
   // ───────────────────────────────────────────────────────────────────────────
   Office.prototype._drawFloor = function () {
-    var ctx = this.ctx, W = this.W, H = this.H;
-    ctx.imageSmoothingEnabled = false;
-    if (this.assets.floor) {
-      var ts = FW * 2; // floor tile drawn at 32px
-      for (var y = 0; y < H; y += ts) for (var x = 0; x < W; x += ts)
-        ctx.drawImage(this.assets.floor, 0, 0, 16, 16, x, y, ts, ts);
-    } else {
-      ctx.fillStyle = '#10141b'; ctx.fillRect(0, 0, W, H);
+    var ctx = this.ctx, W = this.W, H = this.H, g = this.grid;
+    // base
+    ctx.fillStyle = COL.bg; ctx.fillRect(0, 0, W, H);
+    // checker floor only on sector interiors (so the office reads as rooms, not a
+    // full-screen grid). Card region stays near-black.
+    if (g && this.sectors) {
+      var keys = Object.keys(this.sectors);
+      for (var k = 0; k < keys.length; k++) {
+        var s = this.sectors[keys[k]];
+        for (var c = s.x + 1; c <= s.x2 - 1; c++) for (var r = s.y + 1; r <= s.y2 - 1; r++) {
+          var t = this._tileRect(c, r);
+          ctx.fillStyle = ((c + r) & 1) ? COL.floor : COL.floorLit;
+          ctx.fillRect(t.x, t.y, t.w + 0.6, t.h + 0.6);
+        }
+      }
     }
-    ctx.imageSmoothingEnabled = true;
-    // tint toward the dashboard palette (bg #0A0C0F), warm-dark + a center vignette
-    ctx.fillStyle = 'rgba(10,12,15,0.62)'; ctx.fillRect(0, 0, W, H);
-    var vg = ctx.createRadialGradient(W / 2, H * 0.5, Math.min(W, H) * 0.18, W / 2, H * 0.55, Math.max(W, H) * 0.72);
-    vg.addColorStop(0, 'rgba(20,28,44,0)');
-    vg.addColorStop(1, 'rgba(6,8,12,0.92)');
+    // card rectangle: push to near-black so the dashboard cards read cleanly
+    if (g && this.cardRect) {
+      var cr = this.cardRect;
+      ctx.fillStyle = 'rgba(6,8,11,0.9)';
+      ctx.fillRect(cr.lo * g.cw, 0, (cr.hi - cr.lo + 1) * g.cw, (cr.bottom + 1) * g.ch);
+    }
+    // gentle vignette
+    var vg = ctx.createRadialGradient(W / 2, H * 0.66, Math.min(W, H) * 0.25, W / 2, H * 0.6, Math.max(W, H) * 0.82);
+    vg.addColorStop(0, 'rgba(20,28,44,0)'); vg.addColorStop(1, 'rgba(5,7,11,0.8)');
     ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
   };
 
-  Office.prototype._tileRect = function (c, r) {
-    return { x: c * this.grid.cw, y: r * this.grid.ch, w: this.grid.cw, h: this.grid.ch };
+  Office.prototype._drawSectorWalls = function () {
+    var ctx = this.ctx, g = this.grid, keys = Object.keys(this.sectors);
+    for (var k = 0; k < keys.length; k++) {
+      var s = this.sectors[keys[k]];
+      // draw the wall ring as chunky pixel walls
+      for (var c = s.x; c <= s.x2; c++) { this._wallTile(c, s.y, s); this._wallTile(c, s.y2, s); }
+      for (var r = s.y; r <= s.y2; r++) { this._wallTile(s.x, r, s); this._wallTile(s.x2, r, s); }
+      // re-open the doorway visually (draw floor over the door tile)
+      var dt = this._tileRect(s.door[0], s.door[1]);
+      ctx.fillStyle = COL.floorLit; ctx.fillRect(dt.x, dt.y, dt.w + 0.6, dt.h + 0.6);
+      // a thin accent frame on the doorway posts
+      ctx.fillStyle = s.color;
+      ctx.globalAlpha = 0.5;
+      ctx.fillRect(dt.x - 1, dt.y, 2, dt.h); ctx.fillRect(dt.x + dt.w - 1, dt.y, 2, dt.h);
+      ctx.globalAlpha = 1;
+    }
   };
-
-  Office.prototype._drawDesk = function (c, r) {
+  Office.prototype._wallTile = function (c, r, s) {
     var ctx = this.ctx, t = this._tileRect(c, r);
-    // desk body
-    ctx.imageSmoothingEnabled = false;
-    if (this.assets.desk) {
-      // sprite is 48x32; fit to ~1.4 tiles wide, anchored on the tile
-      var dw = t.w * 1.5, dh = t.h * 1.2, dx = t.x + (t.w - dw) / 2, dy = t.y + (t.h - dh);
-      ctx.drawImage(this.assets.desk, 0, 0, 48, 32, dx, dy, dw, dh);
-    } else {
-      ctx.fillStyle = '#4a3a2c'; ctx.fillRect(t.x + 1, t.y + t.h * 0.45, t.w - 2, t.h * 0.5);
+    ctx.fillStyle = COL.wall; ctx.fillRect(t.x, t.y, t.w + 0.6, t.h + 0.6);
+    ctx.fillStyle = COL.wallTop; ctx.fillRect(t.x, t.y, t.w + 0.6, Math.max(2, t.h * 0.28)); // top bevel
+    ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(t.x, t.y + t.h * 0.82, t.w + 0.6, t.h * 0.18); // base shadow
+  };
+
+  Office.prototype._drawSectorLabels = function () {
+    var ctx = this.ctx, keys = Object.keys(this.sectors);
+    ctx.save(); ctx.imageSmoothingEnabled = true; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    for (var k = 0; k < keys.length; k++) {
+      var s = this.sectors[keys[k]];
+      var t = this._tileRect(s.x, s.y);
+      var lx = t.x + 4, ly = t.y + this.grid.ch * 0.5;
+      ctx.font = '700 10px "JetBrains Mono", ui-monospace, monospace';
+      var txt = s.label;
+      var tw = ctx.measureText(txt).width + 10;
+      ctx.fillStyle = 'rgba(10,12,15,0.8)';
+      roundRectPath(ctx, lx - 3, ly - 8, tw, 15, 4); ctx.fill();
+      ctx.fillStyle = s.color;
+      ctx.fillText(txt, lx + 2, ly);
     }
-    // little MONITOR glow on top of the desk (pixel-art rectangle + screen)
-    ctx.imageSmoothingEnabled = true;
-    var mw = t.w * 0.5, mh = t.h * 0.42, mx = t.x + (t.w - mw) / 2, my = t.y + t.h * 0.06;
-    ctx.fillStyle = '#0c0f15'; ctx.fillRect(mx - 1, my - 1, mw + 2, mh + 2);
-    ctx.fillStyle = '#17324a'; ctx.fillRect(mx, my, mw, mh);
-    // a faint scanline shimmer driven by time so monitors feel "on"
-    var t2 = (performance.now() / 600) % 1;
-    ctx.fillStyle = 'rgba(120,180,230,' + (0.10 + 0.06 * Math.sin(t2 * Math.PI * 2)) + ')';
-    ctx.fillRect(mx, my + mh * (0.2 + 0.6 * t2), mw, 1.5);
+    ctx.restore();
   };
 
-  Office.prototype._drawCoffee = function (s) {
-    var ctx = this.ctx, t = this._tileRect(s.c, s.r);
-    // counter
-    ctx.fillStyle = '#2a2f3a'; ctx.fillRect(t.x + 2, t.y + t.h * 0.55, t.w - 4, t.h * 0.42);
-    // machine
-    ctx.fillStyle = '#3c4250'; ctx.fillRect(t.x + t.w * 0.28, t.y + t.h * 0.18, t.w * 0.44, t.h * 0.42);
-    ctx.fillStyle = '#e0a23c'; ctx.fillRect(t.x + t.w * 0.4, t.y + t.h * 0.3, t.w * 0.2, 3); // warm light
-    // rising "steam" wisp
-    var st = (performance.now() / 700) % 1;
-    ctx.strokeStyle = 'rgba(200,210,225,' + (0.28 * (1 - st)) + ')'; ctx.lineWidth = 1.4;
-    ctx.beginPath();
-    var sx = t.x + t.w * 0.5, sy = t.y + t.h * 0.18 - st * t.h * 0.3;
-    ctx.moveTo(sx, sy + 6); ctx.quadraticCurveTo(sx + 4, sy + 2, sx, sy - 3); ctx.stroke();
-  };
-
-  Office.prototype._drawWhiteboard = function (s) {
-    var ctx = this.ctx, t = this._tileRect(s.c, s.r);
-    var bx = t.x + 2, by = t.y + 2, bw = t.w - 4, bh = t.h * 0.7;
-    ctx.fillStyle = '#11151c'; ctx.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
-    ctx.fillStyle = '#e7eaf2'; ctx.fillRect(bx, by, bw, bh);     // board surface
-    // scribbled "R&D" marks (periwinkle accent from the palette)
-    ctx.strokeStyle = '#93A8DD'; ctx.lineWidth = 1.4;
-    ctx.beginPath();
-    ctx.moveTo(bx + bw * 0.15, by + bh * 0.3); ctx.lineTo(bx + bw * 0.45, by + bh * 0.3);
-    ctx.moveTo(bx + bw * 0.15, by + bh * 0.55); ctx.lineTo(bx + bw * 0.6, by + bh * 0.55);
-    ctx.moveTo(bx + bw * 0.55, by + bh * 0.72); ctx.lineTo(bx + bw * 0.85, by + bh * 0.72);
-    ctx.stroke();
-    ctx.fillStyle = '#43C98E';
-    ctx.fillRect(bx + bw * 0.68, by + bh * 0.2, bw * 0.18, 3); // a green sticky
-  };
-
-  Office.prototype._drawDoor = function (s) {
-    var ctx = this.ctx, t = this._tileRect(s.c, s.r);
-    ctx.fillStyle = '#1a1f29'; ctx.fillRect(t.x + t.w * 0.2, t.y + t.h * 0.08, t.w * 0.6, t.h * 0.9);
-    ctx.fillStyle = '#0a0c0f'; ctx.fillRect(t.x + t.w * 0.28, t.y + t.h * 0.16, t.w * 0.44, t.h * 0.8);
-    ctx.fillStyle = '#93A8DD'; ctx.fillRect(t.x + t.w * 0.6, t.y + t.h * 0.5, 3, 4); // knob
-    // "EXIT" hint glow above
-    ctx.fillStyle = 'rgba(224,87,78,0.5)';
-    ctx.fillRect(t.x + t.w * 0.3, t.y, t.w * 0.4, 2);
-  };
-
-  Office.prototype._drawStations = function () {
-    var st = this.stations;
-    for (var i = 0; i < st.desks.length; i++) this._drawDesk(st.desks[i].c, st.desks[i].r);
-    if (st.coffee) this._drawCoffee(st.coffee);
-    if (st.whiteboard) this._drawWhiteboard(st.whiteboard);
-    if (st.door) this._drawDoor(st.door);
-    // a couple of cacti in the bottom corners for life
-    if (this.assets.cactus) {
-      this.ctx.imageSmoothingEnabled = false;
-      var s = 1.6, cw = 16 * s, ch = 32 * s;
-      this.ctx.drawImage(this.assets.cactus, 0, 0, 16, 32, 6, this.H - ch - 4, cw, ch);
-      this.ctx.drawImage(this.assets.cactus, 0, 0, 16, 32, this.W - cw - 6, this.H - ch - 4, cw, ch);
+  // ── procedural pixel FURNITURE ──
+  Office.prototype._drawFurniture = function () {
+    var keys = Object.keys(this.sectors);
+    for (var k = 0; k < keys.length; k++) {
+      var s = this.sectors[keys[k]];
+      for (var f = 0; f < s.furniture.length; f++) {
+        var u = s.furniture[f], t = this._tileRect(u.c, u.r);
+        this._drawUnit(u.kind, t, s);
+      }
+      // account cubicle labels (alias) under each terminal
+      if (s.key === 'accounts') this._drawCubicleLabels(s);
     }
   };
 
-  // faint planned-path overlay (debug / self-evidence of real A* routing)
+  Office.prototype._drawUnit = function (kind, t, s) {
+    var ctx = this.ctx; ctx.imageSmoothingEnabled = false;
+    var x = t.x, y = t.y, w = t.w, h = t.h, T = performance.now() / 1000;
+    if (kind === 'stove') {
+      // stainless steel stove: body + 4 burners + oven door
+      ctx.fillStyle = COL.steel; ctx.fillRect(x + 1, y + h * 0.18, w - 2, h * 0.8);
+      ctx.fillStyle = COL.steelDk; ctx.fillRect(x + 1, y + h * 0.18, w - 2, 2);
+      // burners (two glowing)
+      var bx = [x + w * 0.28, x + w * 0.62], by2 = y + h * 0.34;
+      for (var b = 0; b < 2; b++) {
+        ctx.fillStyle = '#222'; ctx.fillRect(bx[b] - 3, by2 - 3, 6, 6);
+        var glow = 0.4 + 0.4 * Math.abs(Math.sin(T * 3 + b));
+        ctx.fillStyle = 'rgba(224,87,46,' + glow + ')'; ctx.fillRect(bx[b] - 2, by2 - 2, 4, 4);
+      }
+      // oven door + handle
+      ctx.fillStyle = COL.steelDk; ctx.fillRect(x + 2, y + h * 0.56, w - 4, h * 0.38);
+      ctx.fillStyle = '#1b1f27'; ctx.fillRect(x + 3, y + h * 0.62, w - 6, h * 0.2);
+      ctx.fillStyle = COL.ink; ctx.fillRect(x + 4, y + h * 0.58, w - 8, 2);
+    } else if (kind === 'fridge') {
+      ctx.fillStyle = '#c8cfd8'; ctx.fillRect(x + w * 0.18, y + 2, w * 0.64, h - 4);
+      ctx.fillStyle = '#aab2bd'; ctx.fillRect(x + w * 0.18, y + h * 0.46, w * 0.64, 2); // split
+      ctx.fillStyle = COL.steelDk; ctx.fillRect(x + w * 0.7, y + h * 0.12, 2, h * 0.28); // handle
+      ctx.fillStyle = COL.steelDk; ctx.fillRect(x + w * 0.7, y + h * 0.54, 2, h * 0.3);
+    } else if (kind === 'counter') {
+      ctx.fillStyle = '#7d858f'; ctx.fillRect(x + 1, y + h * 0.4, w - 2, h * 0.55);
+      ctx.fillStyle = '#cdd4dc'; ctx.fillRect(x + 1, y + h * 0.4, w - 2, 3); // worktop
+      ctx.fillStyle = COL.caution; ctx.fillRect(x + w * 0.3, y + h * 0.28, w * 0.18, h * 0.12); // a pot
+    } else if (kind === 'rack') {
+      // weight rack: two posts + a barbell with plates
+      ctx.fillStyle = COL.steelDk; ctx.fillRect(x + w * 0.2, y + 2, 2, h * 0.9); ctx.fillRect(x + w * 0.78, y + 2, 2, h * 0.9);
+      ctx.fillStyle = COL.steel; ctx.fillRect(x + w * 0.2, y + h * 0.3, w * 0.6, 2); // bar
+      ctx.fillStyle = COL.ink; ctx.fillRect(x + w * 0.22, y + h * 0.22, 3, h * 0.18); ctx.fillRect(x + w * 0.72, y + h * 0.22, 3, h * 0.18); // plates
+    } else if (kind === 'bench') {
+      ctx.fillStyle = '#3a4150'; ctx.fillRect(x + w * 0.18, y + h * 0.5, w * 0.64, h * 0.14); // pad
+      ctx.fillStyle = COL.steelDk; ctx.fillRect(x + w * 0.24, y + h * 0.64, 2, h * 0.28); ctx.fillRect(x + w * 0.72, y + h * 0.64, 2, h * 0.28); // legs
+      // a barbell over the bench
+      ctx.fillStyle = COL.steel; ctx.fillRect(x + w * 0.12, y + h * 0.4, w * 0.76, 2);
+      ctx.fillStyle = COL.ink; ctx.fillRect(x + w * 0.12, y + h * 0.34, 3, h * 0.14); ctx.fillRect(x + w * 0.85, y + h * 0.34, 3, h * 0.14);
+    } else if (kind === 'treadmill') {
+      ctx.fillStyle = '#2c323d'; ctx.fillRect(x + 2, y + h * 0.55, w - 4, h * 0.4); // deck
+      ctx.fillStyle = COL.steelDk; ctx.fillRect(x + 2, y + h * 0.55, w - 4, 2);
+      ctx.fillStyle = '#3a4150'; ctx.fillRect(x + w * 0.7, y + h * 0.2, w * 0.2, h * 0.4); // console
+      ctx.fillStyle = COL.pos; ctx.fillRect(x + w * 0.73, y + h * 0.26, w * 0.12, 3);
+    } else if (kind === 'dumbbell') {
+      ctx.fillStyle = COL.ink; ctx.fillRect(x + w * 0.3, y + h * 0.6, 4, 6); ctx.fillRect(x + w * 0.6, y + h * 0.6, 4, 6);
+      ctx.fillStyle = COL.steelDk; ctx.fillRect(x + w * 0.34, y + h * 0.63, w * 0.26, 2);
+    } else if (kind === 'whiteboard') {
+      ctx.fillStyle = '#11151c'; ctx.fillRect(x + 1, y + 2, w - 2, h * 0.66);
+      ctx.fillStyle = '#e7eaf2'; ctx.fillRect(x + 2, y + 3, w - 4, h * 0.6);
+      ctx.strokeStyle = COL.accent; ctx.lineWidth = 1.2; ctx.beginPath();
+      ctx.moveTo(x + w * 0.16, y + h * 0.18); ctx.lineTo(x + w * 0.5, y + h * 0.18);
+      ctx.moveTo(x + w * 0.16, y + h * 0.34); ctx.lineTo(x + w * 0.66, y + h * 0.34);
+      ctx.moveTo(x + w * 0.5, y + h * 0.5); ctx.lineTo(x + w * 0.82, y + h * 0.5); ctx.stroke();
+      ctx.fillStyle = COL.pos; ctx.fillRect(x + w * 0.68, y + h * 0.12, w * 0.16, 3);
+    } else if (kind === 'serverdesk') {
+      ctx.fillStyle = COL.wood; ctx.fillRect(x + 1, y + h * 0.5, w - 2, h * 0.45); // desk
+      // a server tower with blinking LEDs
+      ctx.fillStyle = '#20262f'; ctx.fillRect(x + w * 0.12, y + h * 0.16, w * 0.22, h * 0.4);
+      for (var L = 0; L < 3; L++) { ctx.fillStyle = ((Math.floor(T * 4) + L) % 2) ? COL.pos : '#234'; ctx.fillRect(x + w * 0.15, y + h * 0.2 + L * 4, 3, 2); }
+      // a monitor
+      this._screen(x + w * 0.5, y + h * 0.18, w * 0.4, h * 0.3, COL.accent);
+    } else if (kind === 'terminal') {
+      // account cubicle: a small desk + a $ screen
+      ctx.fillStyle = COL.wood; ctx.fillRect(x + 1, y + h * 0.52, w - 2, h * 0.42);
+      this._screen(x + w * 0.22, y + h * 0.14, w * 0.56, h * 0.34, COL.glow, '$');
+    } else if (kind === 'engine') {
+      // trading engine terminal: a chart screen
+      ctx.fillStyle = '#20262f'; ctx.fillRect(x + 1, y + h * 0.5, w - 2, h * 0.45);
+      this._screen(x + w * 0.18, y + h * 0.12, w * 0.64, h * 0.36, COL.alert, 'chart');
+    } else if (kind === 'coffee') {
+      ctx.fillStyle = '#2a2f3a'; ctx.fillRect(x + 2, y + h * 0.55, w - 4, h * 0.4);
+      ctx.fillStyle = '#3c4250'; ctx.fillRect(x + w * 0.3, y + h * 0.2, w * 0.4, h * 0.4);
+      ctx.fillStyle = COL.caution; ctx.fillRect(x + w * 0.4, y + h * 0.32, w * 0.2, 3);
+      var st = (performance.now() / 700) % 1;
+      ctx.strokeStyle = 'rgba(200,210,225,' + (0.3 * (1 - st)) + ')'; ctx.lineWidth = 1.4;
+      var sx = x + w * 0.5, sy = y + h * 0.2 - st * h * 0.25; ctx.beginPath(); ctx.moveTo(sx, sy + 5); ctx.quadraticCurveTo(sx + 3, sy + 1, sx, sy - 3); ctx.stroke();
+    }
+  };
+
+  // a little CRT screen with an animated scanline; optional glyph hint
+  Office.prototype._screen = function (x, y, w, h, color, glyph) {
+    var ctx = this.ctx;
+    ctx.fillStyle = '#0c0f15'; ctx.fillRect(x - 1, y - 1, w + 2, h + 2);
+    ctx.fillStyle = '#13202e'; ctx.fillRect(x, y, w, h);
+    var T = (performance.now() / 600) % 1;
+    ctx.fillStyle = 'rgba(' + this._rgb(color) + ',' + (0.16 + 0.1 * Math.sin(T * Math.PI * 2)) + ')';
+    ctx.fillRect(x, y + h * (0.15 + 0.7 * T), w, 1.4);
+    if (glyph === '$') { ctx.fillStyle = color; ctx.font = 'bold ' + Math.round(h * 0.6) + 'px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('$', x + w / 2, y + h / 2 + 1); }
+    else if (glyph === 'chart') {
+      ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.beginPath();
+      ctx.moveTo(x + 2, y + h * 0.7); ctx.lineTo(x + w * 0.35, y + h * 0.4); ctx.lineTo(x + w * 0.6, y + h * 0.55); ctx.lineTo(x + w - 2, y + h * 0.22); ctx.stroke();
+    }
+  };
+  Office.prototype._rgb = function (hex) {
+    var h = hex.replace('#', ''); return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)].join(',');
+  };
+
+  Office.prototype._drawCubicleLabels = function (s) {
+    // label each terminal with the resident account alias (if a worker sits there)
+    var ctx = this.ctx; ctx.save(); ctx.imageSmoothingEnabled = true; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = '600 8px Inter, system-ui, sans-serif';
+    for (var i = 0; i < s.spots.length; i++) {
+      var sp = s.spots[i]; if (!sp.taken) continue;
+      var w = this.workers[sp.taken]; if (!w) continue;
+      var alias = tidy(w.account || w.runner || '', 12);
+      if (!alias) continue;
+      var t = this._tileRect(sp.c, sp.r);
+      ctx.fillStyle = 'rgba(10,12,15,0.7)';
+      var tw = ctx.measureText(alias).width + 6;
+      roundRectPath(ctx, t.x + t.w / 2 - tw / 2, t.y + t.h * 0.7, tw, 11, 3); ctx.fill();
+      ctx.fillStyle = COL.glow; ctx.fillText(alias, t.x + t.w / 2, t.y + t.h * 0.7 + 6);
+    }
+    ctx.restore();
+  };
+
   Office.prototype._drawDebugPaths = function () {
     if (!this.debugPaths) return;
     var ctx = this.ctx, ids = Object.keys(this.workers);
-    ctx.save();
-    ctx.lineWidth = 2;
+    ctx.save(); ctx.lineWidth = 2;
     for (var i = 0; i < ids.length; i++) {
-      var w = this.workers[ids[i]];
-      if (!w.path || w.path.length < 2) continue;
-      ctx.strokeStyle = 'rgba(147,168,221,0.35)';
-      ctx.beginPath();
-      for (var p = 0; p < w.path.length; p++) {
-        var x = this._cx(w.path[p][0]), y = this._cy(w.path[p][1]);
-        if (p === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
+      var w = this.workers[ids[i]]; if (!w.path || w.path.length < 2) continue;
+      ctx.strokeStyle = 'rgba(147,168,221,0.4)'; ctx.beginPath();
+      for (var p = 0; p < w.path.length; p++) { var x = this._cx(w.path[p][0]), y = this._cy(w.path[p][1]); if (p === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
       ctx.stroke();
-      // dots at each remaining waypoint
-      ctx.fillStyle = 'rgba(205,223,251,0.5)';
-      for (var q = w.pathIdx; q < w.path.length; q++) {
-        ctx.beginPath();
-        ctx.arc(this._cx(w.path[q][0]), this._cy(w.path[q][1]), 2.2, 0, Math.PI * 2);
-        ctx.fill();
-      }
+      ctx.fillStyle = 'rgba(205,223,251,0.55)';
+      for (var q = w.pathIdx; q < w.path.length; q++) { ctx.beginPath(); ctx.arc(this._cx(w.path[q][0]), this._cy(w.path[q][1]), 2.2, 0, Math.PI * 2); ctx.fill(); }
     }
     ctx.restore();
   };
@@ -687,146 +863,84 @@
   Office.prototype._drawWorker = function (w) {
     var ctx = this.ctx, sheet = this.assets['char' + w.sprite];
     var sw = FW * SPRITE_SCALE, sh = FH * SPRITE_SCALE;
-    var bobY = (w.state === 'dwell') ? Math.sin(w.bob * 2) * 1.2 : 0;
+    var bobY = (w.state === 'dwell') ? Math.sin(w.bob * 2) * 1.1 : 0;
     var dx = Math.round(w.px - sw / 2), dy = Math.round(w.py - sh + 8 + bobY);
-
     ctx.save();
     ctx.globalAlpha = Math.max(0, Math.min(1, w.alpha));
-    // soft shadow
-    ctx.globalAlpha *= 1;
-    ctx.fillStyle = 'rgba(0,0,0,0.34)';
-    ctx.beginPath(); ctx.ellipse(w.px, w.py + 2, sw * 0.32, 4, 0, 0, Math.PI * 2); ctx.fill();
-
+    ctx.fillStyle = 'rgba(0,0,0,0.34)'; ctx.beginPath(); ctx.ellipse(w.px, w.py + 2, sw * 0.32, 4, 0, 0, Math.PI * 2); ctx.fill();
     ctx.imageSmoothingEnabled = false;
     var row = DIR_ROW[w.dir], col = w.frame % FRAMES;
     if (sheet) {
-      if (w.dir === 'left') {
-        ctx.translate(dx + sw, dy); ctx.scale(-1, 1);
-        ctx.drawImage(sheet, col * FW, row * FH, FW, FH, 0, 0, sw, sh);
-      } else {
-        ctx.drawImage(sheet, col * FW, row * FH, FW, FH, dx, dy, sw, sh);
-      }
-    } else {
-      // vector fallback so the office is never empty if a sprite 404s
-      ctx.fillStyle = '#93A8DD'; ctx.fillRect(dx + 6, dy + 8, sw - 12, sh - 12);
-    }
+      if (w.dir === 'left') { ctx.translate(dx + sw, dy); ctx.scale(-1, 1); ctx.drawImage(sheet, col * FW, row * FH, FW, FH, 0, 0, sw, sh); }
+      else ctx.drawImage(sheet, col * FW, row * FH, FW, FH, dx, dy, sw, sh);
+    } else { ctx.fillStyle = COL.accent; ctx.fillRect(dx + 6, dy + 8, sw - 12, sh - 12); }
     ctx.restore();
-
-    // station activity glyph
     this._drawActivity(w, dx, dy, sw, sh);
-    // nameplate (runner + role) + status glyph
     this._drawNameplate(w, w.px, dy);
   };
 
-  // typing shimmer at a desk; sip arc at coffee; pointer line at whiteboard
   Office.prototype._drawActivity = function (w, dx, dy, sw, sh) {
     if (w.state !== 'dwell') return;
-    var ctx = this.ctx, t = performance.now() / 1000;
-    if (w.dwellKind === 'desk') {
-      // typing shimmer — flickering caret cluster at the desk monitor
-      ctx.fillStyle = 'rgba(147,168,221,' + (0.4 + 0.4 * Math.abs(Math.sin(t * 6))) + ')';
-      for (var k = 0; k < 3; k++) {
-        if (((Math.floor(t * 8) + k) % 3) === 0)
-          ctx.fillRect(w.px - 6 + k * 5, dy - 4, 3, 3);
-      }
-    } else if (w.dwellKind === 'coffee') {
-      // a small sip arc
-      ctx.strokeStyle = 'rgba(224,162,60,0.6)'; ctx.lineWidth = 1.4;
-      ctx.beginPath(); ctx.arc(w.px + 6, w.py - sh * 0.4, 3, 0, Math.PI); ctx.stroke();
-    } else if (w.dwellKind === 'whiteboard') {
-      // a pointer line that sweeps
-      ctx.strokeStyle = 'rgba(67,201,142,0.7)'; ctx.lineWidth = 1.6;
-      var a = Math.sin(t * 2) * 0.4;
-      ctx.beginPath();
-      ctx.moveTo(w.px, w.py - sh * 0.5);
-      ctx.lineTo(w.px + Math.cos(-1 + a) * 10, w.py - sh * 0.5 + Math.sin(-1 + a) * 10);
-      ctx.stroke();
+    var ctx = this.ctx, T = performance.now() / 1000, k = w.dwellKind;
+    if (k === 'stove' || k === 'counter') {
+      ctx.fillStyle = 'rgba(224,162,60,' + (0.4 + 0.4 * Math.abs(Math.sin(T * 5))) + ')';
+      ctx.fillRect(w.px - 2, dy - 4, 3, 3); // a little cooking spark
+    } else if (k === 'rack' || k === 'bench' || k === 'dumbbell' || k === 'treadmill') {
+      // exertion puff
+      ctx.fillStyle = 'rgba(67,201,142,' + (0.3 + 0.3 * Math.abs(Math.sin(T * 4))) + ')';
+      ctx.fillRect(w.px + 4, dy - 2, 2, 2);
+    } else if (k === 'whiteboard') {
+      ctx.strokeStyle = 'rgba(67,201,142,0.7)'; ctx.lineWidth = 1.5; var a = Math.sin(T * 2) * 0.4;
+      ctx.beginPath(); ctx.moveTo(w.px, w.py - sh * 0.5); ctx.lineTo(w.px + Math.cos(-1 + a) * 9, w.py - sh * 0.5 + Math.sin(-1 + a) * 9); ctx.stroke();
+    } else { // terminal / serverdesk / engine / idle → typing shimmer
+      ctx.fillStyle = 'rgba(147,168,221,' + (0.4 + 0.4 * Math.abs(Math.sin(T * 6))) + ')';
+      for (var i2 = 0; i2 < 3; i2++) if (((Math.floor(T * 8) + i2) % 3) === 0) ctx.fillRect(w.px - 6 + i2 * 5, dy - 4, 3, 3);
     }
   };
 
-  function tidy(s, n) {
-    s = (s == null ? '' : String(s)).replace(/\s+/g, ' ').trim();
-    return s.length > n ? s.slice(0, n - 1) + '…' : s;
-  }
-  function roundRectPath(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
-  }
-
   Office.prototype._drawNameplate = function (w, cx, topY) {
-    var ctx = this.ctx, meta = roleMeta(w.role);
+    var ctx = this.ctx;
     var glyph = w.status === 'thinking' ? '…' : w.status === 'done' ? '✓' : '';
     var runner = tidy(w.runner || '—', 22);
-    var roleWord = meta.word;
-    ctx.save();
-    ctx.globalAlpha = Math.max(0, Math.min(1, w.alpha));
-    ctx.imageSmoothingEnabled = true;
+    var line2 = roleWord(w.role) + (glyph ? ' ' + glyph : '');
+    ctx.save(); ctx.globalAlpha = Math.max(0, Math.min(1, w.alpha)); ctx.imageSmoothingEnabled = true;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-
-    // line 1: runner (who's driving)
-    ctx.font = '600 11px "JetBrains Mono", ui-monospace, monospace';
-    var w1 = ctx.measureText(runner).width;
-    // line 2: role word + glyph
-    ctx.font = '600 10px Inter, system-ui, sans-serif';
-    var line2 = roleWord + (glyph ? ' ' + glyph : '');
-    var w2 = ctx.measureText(line2).width;
-
+    ctx.font = '600 11px "JetBrains Mono", ui-monospace, monospace'; var w1 = ctx.measureText(runner).width;
+    ctx.font = '600 10px Inter, system-ui, sans-serif'; var w2 = ctx.measureText(line2).width;
     var plateW = Math.max(w1, w2) + 14, plateH = 28;
     var px = Math.round(cx - plateW / 2), py = Math.round(topY - plateH - 4);
-
-    ctx.fillStyle = 'rgba(10,12,15,0.86)';
-    ctx.strokeStyle = 'rgba(147,168,221,0.30)';
-    ctx.lineWidth = 1;
-    roundRectPath(ctx, px, py, plateW, plateH, 6);
-    ctx.fill(); ctx.stroke();
-
-    ctx.font = '600 11px "JetBrains Mono", ui-monospace, monospace';
-    ctx.fillStyle = '#CDDFFB';
-    ctx.fillText(runner, cx, py + 9);
-
+    ctx.fillStyle = 'rgba(10,12,15,0.86)'; ctx.strokeStyle = 'rgba(147,168,221,0.3)'; ctx.lineWidth = 1;
+    roundRectPath(ctx, px, py, plateW, plateH, 6); ctx.fill(); ctx.stroke();
+    ctx.font = '600 11px "JetBrains Mono", ui-monospace, monospace'; ctx.fillStyle = COL.glow; ctx.fillText(runner, cx, py + 9);
     ctx.font = '600 10px Inter, system-ui, sans-serif';
-    ctx.fillStyle = w.status === 'thinking' ? '#A4ABBE' : w.status === 'done' ? '#43C98E' : '#93A8DD';
-    ctx.fillText(line2, cx, py + 21);
-
-    // little pointer down to the head
-    ctx.fillStyle = 'rgba(10,12,15,0.86)';
-    ctx.beginPath();
-    ctx.moveTo(cx - 4, py + plateH - 1); ctx.lineTo(cx + 4, py + plateH - 1); ctx.lineTo(cx, py + plateH + 5);
-    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = w.status === 'thinking' ? COL.muted : w.status === 'done' ? COL.pos : COL.accent; ctx.fillText(line2, cx, py + 21);
+    ctx.fillStyle = 'rgba(10,12,15,0.86)'; ctx.beginPath();
+    ctx.moveTo(cx - 4, py + plateH - 1); ctx.lineTo(cx + 4, py + plateH - 1); ctx.lineTo(cx, py + plateH + 5); ctx.closePath(); ctx.fill();
     ctx.restore();
   };
 
-  // ── main loop ──
   Office.prototype._frame = function (ts) {
     if (!this.running) return;
-    var dt = this.last ? Math.min(60, ts - this.last) : 16;
-    if (dt <= 0) dt = 16;
-    this.last = ts;
-
-    // auto-correct a stale canvas size (CSS resize without a window resize event)
-    if (this.canvas.clientWidth !== this.W || this.canvas.clientHeight !== this.H) this._resize();
-
-    this._update(dt, ts);
-
-    this._drawFloor();
-    this._drawStations();
-    this._drawDebugPaths();
-    // depth-sort workers by screen-Y so lower ones overlap higher ones
-    var ids = Object.keys(this.workers).sort(function (a, b) {
-      return this.workers[a].py - this.workers[b].py;
-    }.bind(this));
-    for (var i = 0; i < ids.length; i++) this._drawWorker(this.workers[ids[i]]);
-
+    // The per-frame body is wrapped so a single transient draw/update error can
+    // never permanently kill the rAF loop (it would otherwise stop rescheduling
+    // and the office would freeze). The first error is surfaced for debugging.
+    try {
+      var dt = this.last ? Math.min(60, ts - this.last) : 16; if (dt <= 0) dt = 16; this.last = ts;
+      if (this.canvas.clientWidth !== this.W || this.canvas.clientHeight !== this.H) this._resize();
+      this._update(dt, ts);
+      this._drawFloor();
+      this._drawSectorWalls();
+      this._drawFurniture();
+      this._drawSectorLabels();
+      this._drawDebugPaths();
+      var ids = Object.keys(this.workers).sort(function (a, b) { return this.workers[a].py - this.workers[b].py; }.bind(this));
+      for (var i = 0; i < ids.length; i++) this._drawWorker(this.workers[ids[i]]);
+    } catch (e) {
+      if (!global.__gxFrameError) { global.__gxFrameError = String((e && e.stack) || e); try { console.error('GammaPixels frame error:', e); } catch (_) {} }
+    }
     this.raf = global.requestAnimationFrame(this._frame.bind(this));
   };
 
-  // ───────────────────────────────────────────────────────────────────────────
-  //  Public module surface.
   // ───────────────────────────────────────────────────────────────────────────
   var GammaPixels = {
     mount: function (canvasEl, opts) {
@@ -835,12 +949,9 @@
       if (!global.__lastPaths) global.__lastPaths = {};
       inst = new Office(canvasEl, opts);
       global.addEventListener('resize', inst._onResize);
-      var self = inst;
-      self._resize();
+      var self = inst; self._resize();
       self.loadAssets().then(function () {
-        self._resize();          // re-measure now fonts/images may have shifted layout
-        self.running = true;
-        self.last = performance.now();
+        self._resize(); self.running = true; self.last = performance.now();
         self.raf = global.requestAnimationFrame(self._frame.bind(self));
       });
       return this;
@@ -854,27 +965,49 @@
       global.removeEventListener('resize', inst._onResize);
       inst.workers = {}; inst.seen = {}; inst.roster = {};
       if (global.__lastPaths) global.__lastPaths = {};
-      // clear the canvas so no last frame lingers
       try { inst.ctx.clearRect(0, 0, inst.canvas.width, inst.canvas.height); } catch (_) {}
-      inst = null;
-      return this;
+      inst = null; return this;
     }
   };
 
-  // read-only snapshot for the test harness / verification
+  // read-only verification globals
   global.__gxSnapshot = function () {
     if (!inst) return [];
     return Object.keys(inst.workers).map(function (id) {
       var w = inst.workers[id];
-      return {
-        id: id, role: w.role, runner: w.runner, status: w.status, state: w.state,
-        c: w.c, r: w.r, px: Math.round(w.px), py: Math.round(w.py), dir: w.dir,
-        pathLen: w.path ? w.path.length : 0, pathIdx: w.pathIdx,
-        desk: w.desk ? [w.desk.c, w.desk.r] : null, alpha: +w.alpha.toFixed(2)
-      };
+      return { id: id, role: w.role, runner: w.runner, account: w.account, status: w.status,
+        state: w.state, sector: w.sectorKey, c: w.c, r: w.r, px: Math.round(w.px), py: Math.round(w.py),
+        dir: w.dir, pathLen: w.path ? w.path.length : 0, pathIdx: w.pathIdx,
+        spot: w.spot ? [w.spot.c, w.spot.r] : null, alpha: +w.alpha.toFixed(2) };
     });
   };
   global.__gxGrid = function () { return inst ? inst.grid : null; };
+  // Deterministic frame driver — ONLY for verification when a headless test tab is
+  // backgrounded (Chromium suspends rAF while document.hidden, so the self-driven
+  // loop can't tick). On a real visible window the rAF loop drives itself and this
+  // is never needed. Steps `frames` updates+draws of `dtMs` each from a synthetic
+  // clock that never lags performance.now() (so dwell timers still fire).
+  global.__gxPump = function (frames, dtMs) {
+    if (!inst) return null;
+    frames = frames || 1; dtMs = dtMs || 16;
+    var base = (global.__gxPumpClock == null) ? (inst.last || performance.now()) : global.__gxPumpClock;
+    base = Math.max(base, performance.now());
+    for (var i = 0; i < frames; i++) { base += dtMs; inst.running = true; inst._frame(base); }
+    global.__gxPumpClock = base;
+    return global.__gxSnapshot();
+  };
+  global.__gxSectors = function () {
+    if (!inst || !inst.sectors) return null;
+    var out = {};
+    Object.keys(inst.sectors).forEach(function (k) {
+      var s = inst.sectors[k];
+      out[k] = { label: s.label, x: s.x, y: s.y, x2: s.x2, y2: s.y2, door: s.door,
+        furnitureCount: s.furniture.length, spotCount: s.spots.length,
+        furnitureKinds: s.furniture.map(function (f) { return f.kind; }) };
+    });
+    out.__cardRect = inst.cardRect;
+    return out;
+  };
 
   global.GammaPixels = GammaPixels;
   if (typeof module !== 'undefined' && module.exports) module.exports = GammaPixels;

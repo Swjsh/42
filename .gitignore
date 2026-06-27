@@ -102,3 +102,7 @@ automation/state/.companion-token
 **/.companion-token
 automation/state/.tailnet-host
 **/.tailnet-host
+
+# pixel-office local-only assets (LimeZu: not redistributable; sources: scratch)
+cockpit/assets/pixel/limezu/
+cockpit/assets/pixel/sources/
