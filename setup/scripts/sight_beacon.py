@@ -46,7 +46,12 @@ STALE_AFTER_S = 180  # consumers must treat a beacon older than this as untrustw
 
 
 def _et_now() -> datetime:
-    return datetime.now(timezone.utc) + timedelta(hours=-4)
+    # G2 fix: DST-aware ET (replaces hardcoded UTC-4 which breaks Nov 1 EST flip).
+    _scripts = str(Path(__file__).resolve().parent)
+    if _scripts not in sys.path:
+        sys.path.insert(0, _scripts)
+    from et_clock import et_now as _et_clock_now
+    return _et_clock_now()
 
 
 def _load_alpaca_key() -> tuple[str, str]:

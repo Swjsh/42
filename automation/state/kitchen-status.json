@@ -1,24 +1,69 @@
 {
-  "updated_at_et": "2026-06-26T19:51:26",
+  "updated_at_et": "2026-06-26T20:27:17",
   "daemon_pid": 38400,
   "daemon_alive": true,
   "idle": false,
-  "current_task_id": "76dd05f3-929f-4766-a0fa-8087c740d54c",
+  "current_task_id": "f1aaad4a-cf74-4ead-b2ed-e524bb23fcca",
   "queue_summary": {
     "by_status": {
-      "completed": 1099,
-      "pending": 45,
+      "completed": 1104,
+      "pending": 41,
       "failed_permanent": 11
     },
     "by_priority_pending": {
       "low": 23,
-      "medium": 22
+      "medium": 18
     },
-    "total": 1155
+    "total": 1156
   },
   "today_cost_usd_paid_tier": 0.0,
   "today_cost_cap_usd": 3.0,
   "recent_completed_top_10": [
+    {
+      "task_id": "35d61ff7",
+      "task": "Run walk-forward on the top keeper parameters across 2025-Q3 + 2026-Q1 to verify regime stability and perform real-fills",
+      "completed_at": "2026-06-27T00:26:17+00:00",
+      "cost_usd": 0.0,
+      "model": "groq::llama-3.3-70b-versatile",
+      "tier": -2,
+      "output_path": "strategy\\candidates\\2026-06-26-chef-nemo-trendline-break-call-veto.md"
+    },
+    {
+      "task_id": "85e7d14c",
+      "task": "Run walk-forward on the optimized parameters across 2025-Q3 + 2026-Q1 to verify regime stability and perform real-fills ",
+      "completed_at": "2026-06-27T00:25:12+00:00",
+      "cost_usd": 0.0,
+      "model": "groq::llama-3.3-70b-versatile",
+      "tier": -2,
+      "output_path": "strategy\\candidates\\2026-06-26-chef-nemo-walk-forward-verification-2025-q3-2026-q1.md"
+    },
+    {
+      "task_id": "507988b2",
+      "task": "Run walk-forward on the top keeper parameters across 2025-Q3 + 2026-Q1 to verify regime stability and perform real-fills",
+      "completed_at": "2026-06-27T00:24:07+00:00",
+      "cost_usd": 0.0,
+      "model": "groq::llama-3.3-70b-versatile",
+      "tier": -2,
+      "output_path": "strategy\\candidates\\2026-06-26-chef-nemo-walk-forward-verification-of-top-keeper-parameters.md"
+    },
+    {
+      "task_id": "098bd3f7",
+      "task": "Run walk-forward on the top keeper parameters across 2025-Q3 + 2026-Q1 to verify regime stability and perform real-fills",
+      "completed_at": "2026-06-27T00:23:01+00:00",
+      "cost_usd": 0.0,
+      "model": "groq::llama-3.3-70b-versatile",
+      "tier": -2,
+      "output_path": "strategy\\candidates\\2026-06-26-chef-nemo-trendline-break-call-veto.md"
+    },
+    {
+      "task_id": "76dd05f3",
+      "task": "Run opening_drive_fade_grinder parameter sweep: Opening drive fade sweep \u2014 09:30-10:00 exhaustion reversal knobs. Find k",
+      "completed_at": "2026-06-27T00:21:56+00:00",
+      "cost_usd": 0.0,
+      "model": "grinder-python",
+      "tier": -1,
+      "output_path": "strategy\\candidates\\2026-06-26-chef-nemo-grinder-opening-drive-fade-grinder-20260626-2021.md"
+    },
     {
       "task_id": "b9a9a1f3",
       "task": "Run shotgun_scalper_grinder parameter sweep: SHOTGUN_SCALPER Stage-1 sweep \u2014 2160-combo grid, strict keeper gates. Find ",
@@ -63,51 +108,6 @@
       "model": "groq::llama-3.3-70b-versatile",
       "tier": -2,
       "output_path": "strategy\\candidates\\2026-06-26-chef-nemo-bearish-rejection-ride-the-ribbon-v2.md"
-    },
-    {
-      "task_id": "4ee0d992",
-      "task": "Run a walk-forward test on the proposed refinement to verify its effectiveness.",
-      "completed_at": "2026-06-26T17:24:09+00:00",
-      "cost_usd": 0.0,
-      "model": "groq::llama-3.3-70b-versatile",
-      "tier": -2,
-      "output_path": "strategy\\candidates\\2026-06-26-chef-nemo-structure-veto-dir-vs-trend.md"
-    },
-    {
-      "task_id": "897b3405",
-      "task": "Run a Stage-1 backtest to evaluate the candidate's impact on OP-16 anchors.",
-      "completed_at": "2026-06-26T17:23:03+00:00",
-      "cost_usd": 0.0,
-      "model": "groq::llama-3.3-70b-versatile",
-      "tier": -2,
-      "output_path": "strategy\\candidates\\2026-06-26-chef-nemo-bearish-rejection-ride-the-ribbon-v2.md"
-    },
-    {
-      "task_id": "e22ea456",
-      "task": "Run a walk-forward test on the proposed mechanism to verify its effectiveness.",
-      "completed_at": "2026-06-26T17:21:57+00:00",
-      "cost_usd": 0.0,
-      "model": "groq::llama-3.3-70b-versatile",
-      "tier": -2,
-      "output_path": "strategy\\candidates\\2026-06-26-chef-nemo-bearish-rejection-ride-the-ribbon-v2.md"
-    },
-    {
-      "task_id": "a6e1360f",
-      "task": "Interpret sniper_stage2_grinder grinder output: 5 keepers found. Top: wide_pnl=40656.65, edge_capture=373.48, WR=0.932. ",
-      "completed_at": "2026-06-26T17:20:51+00:00",
-      "cost_usd": 0.0,
-      "model": "groq::llama-3.3-70b-versatile",
-      "tier": -2,
-      "output_path": "strategy\\candidates\\2026-06-26-chef-nemo-sniper-stage2-grinder-refinement.md"
-    },
-    {
-      "task_id": "41803d7e",
-      "task": "Run sniper_stage2_grinder parameter sweep: SNIPER_LEVEL_BREAK Stage-2 refinement \u2014 refines top-5 keepers from stage1. Fi",
-      "completed_at": "2026-06-26T17:19:44+00:00",
-      "cost_usd": 0.0,
-      "model": "grinder-python",
-      "tier": -1,
-      "output_path": "strategy\\candidates\\2026-06-26-chef-nemo-grinder-sniper-stage2-grinder-20260626-1319.md"
     }
   ],
   "model_ladder": [

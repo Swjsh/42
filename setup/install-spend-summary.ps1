@@ -47,8 +47,10 @@ $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `
     -Argument "//nologo `"$runExeHidden`" `"$pythonw`" `"$runPs1Hidden`" `"$targetPs1`""
 
-# 23:30 ET daily -- after all EOD pipelines + manager + analyst have written.
-$trigger = New-ScheduledTaskTrigger -Daily -At "23:30"
+# TZ-SYSTEMIC fix (2026-06-26): machine is Mountain time (ET = local + 2h).
+# Intended fire time: 23:30 ET = 21:30 MT.  Use MT local time for -At.
+# If the machine moves back to ET, change 21:30 -> 23:30 and update this comment.
+$trigger = New-ScheduledTaskTrigger -Daily -At "21:30"
 
 $settings = New-ScheduledTaskSettingsSet `
     -StartWhenAvailable `

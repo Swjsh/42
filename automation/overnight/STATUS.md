@@ -201,6 +201,8 @@
 
 
 ## Kitchen
-Kitchen: alive, queue 45 pending, last cook 0 min ago, today $0.00, model=grinder-python
+Kitchen: alive, queue 41 pending, last cook 0 min ago, today $0.00, model=groq::llama-3.3-70b-versatile
 
 - [2026-06-26 17:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 39.74% in last 24h (31/78) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 43.38% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 18:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 43.9% in last 24h (36/82) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 43.05% of last-24h iterations :: see crypto/data/scorecards/drift_report.json

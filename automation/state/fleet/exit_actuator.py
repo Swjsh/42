@@ -23,14 +23,16 @@ exit_manager core stays broker-free and unit-testable on its own.
 from __future__ import annotations
 
 import json
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "setup" / "scripts"))
+from et_clock import ET_TZ as ET  # DST-aware ET (TZ-SYSTEMIC fix: was timezone(timedelta(hours=-4)))
 import exit_manager as em
 
 FLEET_DIR = Path(__file__).resolve().parent
-ET = timezone(timedelta(hours=-4))
 
 
 def _state_path(arm_id: str) -> Path:

@@ -24,6 +24,8 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO / "setup" / "scripts"))
+from et_clock import et_now as _et_clock_now  # DST-aware ET (TZ-SYSTEMIC fix)
 SWARM = REPO / "setup" / "scripts" / "swarm_consult.py"
 PY = REPO / "backtest" / ".venv" / "Scripts" / "python.exe"
 LOG = REPO / "analysis" / "self-audit" / "gap-log.jsonl"
@@ -40,7 +42,8 @@ STANDING_QUESTION = (
 
 
 def _et_now() -> datetime:
-    return datetime.now(timezone.utc) - timedelta(hours=4)
+    """ET from UTC via DST-aware et_clock (replaces hardcoded -4)."""
+    return _et_clock_now()
 
 
 def _recent_context() -> str:

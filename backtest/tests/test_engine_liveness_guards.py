@@ -681,6 +681,354 @@ class TestEngineHealthWatchesNewProducers:
 
 
 # ---------------------------------------------------------------------------
+# (e) GAMMA_CORE_MANAGES_EXITS=1 in run-heartbeat-core.ps1 (P0 bracket-rejection fix)
+# ---------------------------------------------------------------------------
+#
+# ROOT CAUSE (2026-06-26 P0 gap G1):
+#   heartbeat_core._execute calls fleet_broker.place_bracket(simple_fallback=CORE_MANAGES_EXITS).
+#   CORE_MANAGES_EXITS = os.environ.get("GAMMA_CORE_MANAGES_EXITS","0") == "1".
+#   When the env var is absent (default "0"), simple_fallback=False.
+#   Alpaca paper always rejects bracket+oto for options (code 42210000).
+#   With simple_fallback=False there is NO plain-limit fallback -- every armed entry
+#   returns PLACE_FAIL.  The engine is ARMED but cannot place any order.
+#
+# FIX: run-heartbeat-core.ps1 must set $env:GAMMA_CORE_MANAGES_EXITS = '1' before
+#   launching heartbeat_core.py so the child process inherits it.
+#
+# This guard FAILS if someone comments out or removes that line from the PS1.
+# ---------------------------------------------------------------------------
+
+_HC_PS1_PATH = _REPO / "setup" / "scripts" / "run-heartbeat-core.ps1"
+_HC_PY_PATH  = _REPO / "setup" / "scripts" / "heartbeat_core.py"
+
+
+class TestCoreManagedExitsEnabled:
+    """(e) GAMMA_CORE_MANAGES_EXITS must be set to '1' in the heartbeat-core launcher.
+
+    Without it, simple_fallback=False reaches fleet_broker.place_bracket and every
+    armed option entry returns PLACE_FAIL (Alpaca 42210000 — complex orders not
+    supported for options).  The engine is armed but permanently blocked.
+    """
+
+    def test_ps1_sets_gamma_core_manages_exits_1(self):
+        """run-heartbeat-core.ps1 must contain `$env:GAMMA_CORE_MANAGES_EXITS = '1'`.
+
+        This is the env-var that flips CORE_MANAGES_EXITS True in heartbeat_core.py,
+        which in turn passes simple_fallback=True to fleet_broker.place_bracket,
+        enabling the plain-limit fallback when Alpaca rejects the bracket order.
+
+        REGRESSION: if this line is removed/commented, CORE_MANAGES_EXITS defaults
+        to False, simple_fallback=False, and EVERY armed entry is a PLACE_FAIL.
+        """
+        assert _HC_PS1_PATH.exists(), (
+            f"run-heartbeat-core.ps1 not found at {_HC_PS1_PATH}. "
+            "Has the launcher script been moved or deleted?"
+        )
+        source = _HC_PS1_PATH.read_text(encoding="utf-8")
+        # Must contain the assignment (not just a comment about it).
+        # Accept both single-quote and double-quote forms.
+        import re as _re
+        pattern = _re.compile(
+            r"^\s*\$env:GAMMA_CORE_MANAGES_EXITS\s*=\s*['\"]1['\"]",
+            _re.MULTILINE,
+        )
+        assert pattern.search(source), (
+            "run-heartbeat-core.ps1 does not set GAMMA_CORE_MANAGES_EXITS=1.\n\n"
+            "WITHOUT THIS LINE every armed option entry returns PLACE_FAIL:\n"
+            "  heartbeat_core:  CORE_MANAGES_EXITS = os.environ.get('GAMMA_CORE_MANAGES_EXITS','0') == '1'\n"
+            "  heartbeat_core:  simple_fallback=CORE_MANAGES_EXITS   # line ~784\n"
+            "  fleet_broker:    simple_fallback=False -> no plain-limit fallback on bracket rejection\n"
+            "  Alpaca paper:    bracket+oto rejected (code 42210000) -> PLACE_FAIL\n\n"
+            "FIX: add this line to run-heartbeat-core.ps1 before Process.Start:\n"
+            "  $env:GAMMA_CORE_MANAGES_EXITS = '1'\n\n"
+            f"Current PS1 content:\n{source[:400]}"
+        )
+
+    def test_ps1_sets_gamma_core_armed_1(self):
+        """run-heartbeat-core.ps1 must also set GAMMA_CORE_ARMED=1.
+
+        Belt-and-suspenders: ARMED=0 means the engine only logs verdicts but never
+        calls _execute at all.  Even with MANAGES_EXITS=1, ARMED=0 = no orders placed.
+        Both env vars must be present and set to '1' for the engine to trade live.
+        """
+        assert _HC_PS1_PATH.exists()
+        source = _HC_PS1_PATH.read_text(encoding="utf-8")
+        import re as _re
+        pattern = _re.compile(
+            r"^\s*\$env:GAMMA_CORE_ARMED\s*=\s*['\"]1['\"]",
+            _re.MULTILINE,
+        )
+        assert pattern.search(source), (
+            "run-heartbeat-core.ps1 does not set GAMMA_CORE_ARMED=1.\n"
+            "ARMED=0 means the engine only dry-runs (no orders) regardless of MANAGES_EXITS.\n"
+            "FIX: add `$env:GAMMA_CORE_ARMED = '1'` to run-heartbeat-core.ps1."
+        )
+
+    def test_heartbeat_core_reads_env_for_core_manages_exits(self):
+        """heartbeat_core.py must read GAMMA_CORE_MANAGES_EXITS from os.environ.
+
+        If the env-var name is misspelled or the default is changed from '0', the
+        guard is silently broken.  Source-level check: both the env-var name and the
+        default='0' must appear in the CORE_MANAGES_EXITS assignment.
+        """
+        source = _HC_PY_PATH.read_text(encoding="utf-8")
+        assert "GAMMA_CORE_MANAGES_EXITS" in source, (
+            "GAMMA_CORE_MANAGES_EXITS not found in heartbeat_core.py. "
+            "Has the env-var check been removed?"
+        )
+        # The default must be '0' (False when not set) -- otherwise the engine trades
+        # without exit management when the PS1 fails to set the env var (fail-safe).
+        import re as _re
+        default_zero = _re.search(
+            r'os\.environ\.get\(["\']GAMMA_CORE_MANAGES_EXITS["\'],\s*["\']0["\']\)',
+            source,
+        )
+        assert default_zero, (
+            "GAMMA_CORE_MANAGES_EXITS os.environ.get must have default='0' (fail-safe). "
+            "If the default is '1' and the PS1 fails to launch, the engine trades without "
+            "exit management (stopless naked longs). Keep the default at '0' so the PS1 "
+            "must explicitly opt in. Current source around the assignment:\n"
+            + source[source.find("GAMMA_CORE_MANAGES_EXITS") - 50:
+                     source.find("GAMMA_CORE_MANAGES_EXITS") + 200]
+        )
+
+    def test_broken_state_simple_fallback_false_causes_place_fail(self):
+        """Document that simple_fallback=False + Alpaca bracket rejection = PLACE_FAIL.
+
+        The OLD/BROKEN state: GAMMA_CORE_MANAGES_EXITS not set -> CORE_MANAGES_EXITS=False
+        -> simple_fallback=False -> fleet_broker returns {'_error': ...} on 42210000
+        -> heartbeat_core sets plan['status'] = 'PLACE_FAIL'.
+
+        This test inlines the logic so it always documents the failure mode without
+        touching live code.
+        """
+        # Simulate the broken env (env var not set)
+        CORE_MANAGES_EXITS_BROKEN = False  # os.environ.get("GAMMA_CORE_MANAGES_EXITS","0") == "1"
+
+        # Simulate fleet_broker.place_bracket behaviour when simple_fallback=False
+        # and Alpaca rejects with 42210000:
+        def _place_bracket_stub(creds, *, symbol, qty, limit_price,
+                                take_profit_price, stop_price, live, simple_fallback):
+            if not live:
+                return {"_skipped": "WATCH mode"}
+            if not simple_fallback:
+                # Both bracket and oto are rejected (42210000); no plain-limit branch
+                return {"_error": "42210000 complex orders not supported",
+                        "_status": 422}
+            # simple_fallback=True: plain limit entry succeeds
+            return {"id": "fake-order-id", "status": "accepted"}
+
+        result_broken = _place_bracket_stub(
+            {}, symbol="SPY260628P00580000", qty=5,
+            limit_price=1.50, take_profit_price=2.25, stop_price=0.75,
+            live=True, simple_fallback=CORE_MANAGES_EXITS_BROKEN,
+        )
+        assert "_error" in result_broken, (
+            "Broken state (simple_fallback=False) must return _error on bracket rejection."
+        )
+
+        # Plan status as set by heartbeat_core._execute (line ~785):
+        status_broken = "PLACED" if not result_broken.get("_error") else "PLACE_FAIL"
+        assert status_broken == "PLACE_FAIL", (
+            "Broken state must produce PLACE_FAIL status -- engine can never place orders."
+        )
+
+        # With the fix (GAMMA_CORE_MANAGES_EXITS=1 -> simple_fallback=True):
+        CORE_MANAGES_EXITS_FIXED = True
+        result_fixed = _place_bracket_stub(
+            {}, symbol="SPY260628P00580000", qty=5,
+            limit_price=1.50, take_profit_price=2.25, stop_price=0.75,
+            live=True, simple_fallback=CORE_MANAGES_EXITS_FIXED,
+        )
+        status_fixed = "PLACED" if not result_fixed.get("_error") else "PLACE_FAIL"
+        assert status_fixed == "PLACED", (
+            "Fixed state (simple_fallback=True) must produce PLACED status."
+        )
+
+
+# ---------------------------------------------------------------------------
+# (f) TZ-SYSTEMIC: et_clock.py is the canonical ET clock; broken sites fixed
+# ---------------------------------------------------------------------------
+#
+# ROOT CAUSE (2026-06-26 TZ-SYSTEMIC):
+#   Machine moved Ohio (ET=local) -> Colorado (Mountain=local, ET=local+2h).
+#   Code calling datetime.now() or datetime.now().astimezone() and treating the
+#   result as ET is now 2h early.
+#
+# TWO CONFIRMED BROKEN SITES (both fixed):
+#   grade_decisions.py:253  -- datetime.now().astimezone().strftime(%Y-%m-%d)
+#                              -> grades wrong day if run between 22:00-23:59 MT (00:00-01:59 ET)
+#   audit_scheduled_tasks.py:207 -- datetime.now().weekday()
+#                              -> Mountain Saturday at 22:00 is still ET Friday ->
+#                                 weekend suppression fires 2h early, misses Friday tasks
+#
+# FIX: et_clock.py (setup/scripts/et_clock.py) provides et_now(), et_today_str(),
+#      et_weekday() using DST-aware UTC-to-ET conversion; both sites migrated.
+# ---------------------------------------------------------------------------
+
+_ET_CLOCK_PATH = _REPO / "setup" / "scripts" / "et_clock.py"
+_GRADE_DEC_PATH = _REPO / "setup" / "scripts" / "grade_decisions.py"
+_AUDIT_TASKS_PATH = _REPO / "setup" / "scripts" / "audit_scheduled_tasks.py"
+
+
+class TestEtClockAndTzFix:
+    """(f) TZ-systemic fixes: et_clock.py + migrated call sites."""
+
+    def test_et_clock_file_exists(self):
+        """et_clock.py must exist at setup/scripts/et_clock.py."""
+        assert _ET_CLOCK_PATH.exists(), (
+            f"et_clock.py not found at {_ET_CLOCK_PATH}. "
+            "The shared DST-aware ET clock is missing. "
+            "Re-create it from the canonical template (et_now/et_today_str/et_weekday)."
+        )
+
+    def test_et_clock_exports_et_now(self):
+        """et_clock.py must export et_now() (returns a naive ET datetime)."""
+        source = _ET_CLOCK_PATH.read_text(encoding="utf-8")
+        assert "def et_now" in source, "et_clock.py must define et_now()"
+
+    def test_et_clock_exports_et_today_str(self):
+        """et_clock.py must export et_today_str() (returns 'YYYY-MM-DD' in ET)."""
+        source = _ET_CLOCK_PATH.read_text(encoding="utf-8")
+        assert "et_today_str" in source, "et_clock.py must define et_today_str()"
+
+    def test_et_clock_derives_from_utc_not_local(self):
+        """et_clock.py must NOT use datetime.now() without UTC in executable code lines.
+
+        Comments and docstrings may mention datetime.now() when explaining the old broken
+        pattern.  Only executable code (non-comment, non-docstring lines) is checked.
+        """
+        source = _ET_CLOCK_PATH.read_text(encoding="utf-8")
+        # Strip docstring and comment lines before scanning
+        exec_lines = _non_docstring_code_lines(source)
+        import re as _re
+        # Allow datetime.now(timezone.utc) but NOT bare datetime.now()
+        bare_now = [
+            ln for ln in exec_lines
+            if _re.search(r"datetime\.now\(\)", ln)
+            and "timezone.utc" not in ln
+        ]
+        assert not bare_now, (
+            "et_clock.py contains bare datetime.now() in executable code -- "
+            "this returns local Mountain time, not ET.\n"
+            "Use datetime.now(timezone.utc) then convert with _et_offset_hours().\n"
+            f"Offending lines:\n" + "\n".join("  " + ln for ln in bare_now)
+        )
+
+    def test_et_clock_dst_correct_summer(self):
+        """et_now() returns EDT (-4) during EDT period (e.g. 2026-06-26 noon UTC)."""
+        import sys as _sys
+        _sys.path.insert(0, str(_ET_CLOCK_PATH.parent))
+        from et_clock import et_now, _et_offset_hours  # noqa: PLC0415
+        from datetime import datetime, timezone  # noqa: PLC0415
+        # 2026-06-26 16:00 UTC = 12:00 EDT (summer, -4)
+        utc_june = datetime(2026, 6, 26, 16, 0, 0, tzinfo=timezone.utc)
+        offset = _et_offset_hours(utc_june)
+        assert offset == -4, f"Expected EDT (-4) in June, got {offset}"
+
+    def test_et_clock_dst_correct_winter(self):
+        """et_now() returns EST (-5) during EST period (e.g. 2026-01-15 noon UTC)."""
+        import sys as _sys
+        _sys.path.insert(0, str(_ET_CLOCK_PATH.parent))
+        from et_clock import _et_offset_hours  # noqa: PLC0415
+        from datetime import datetime, timezone  # noqa: PLC0415
+        # 2026-01-15 17:00 UTC = 12:00 EST (winter, -5)
+        utc_jan = datetime(2026, 1, 15, 17, 0, 0, tzinfo=timezone.utc)
+        offset = _et_offset_hours(utc_jan)
+        assert offset == -5, f"Expected EST (-5) in January, got {offset}"
+
+    def test_grade_decisions_uses_et_today_str(self):
+        """grade_decisions.py must NOT call datetime.now().astimezone() for today's date.
+
+        The OLD broken site (grade_decisions.py:253): used datetime.now().astimezone()
+        which returns Mountain time (2h behind ET).  After midnight ET but before midnight
+        MT (22:00-23:59 MT), it grades the WRONG day -- the previous trading day.
+
+        Fix: migrate to _et_today_str() from et_clock.py.
+        """
+        source = _GRADE_DEC_PATH.read_text(encoding="utf-8")
+        import re as _re
+        # Must NOT contain the broken pattern in non-comment code
+        lines = source.splitlines()
+        broken_lines = [
+            ln for ln in lines
+            if "astimezone()" in ln and "strftime" in ln
+            and not ln.strip().startswith("#")
+        ]
+        assert not broken_lines, (
+            "grade_decisions.py still calls datetime.now().astimezone().strftime() "
+            "for today's date -- this returns Mountain time, not ET.\n"
+            "Broken lines:\n" + "\n".join("  " + ln for ln in broken_lines) + "\n\n"
+            "FIX: replace with `_et_today_str()` from et_clock (already imported)."
+        )
+        # Must reference et_today_str (proof the fix is present)
+        assert "et_today_str" in source, (
+            "grade_decisions.py must import and use et_today_str from et_clock.py. "
+            "The broken datetime.now().astimezone() has been removed but the replacement "
+            "et_today_str() was not added."
+        )
+
+    def test_audit_scheduled_tasks_uses_et_weekday(self):
+        """audit_scheduled_tasks.py must NOT call datetime.now().weekday() without ET.
+
+        The OLD broken site (audit_scheduled_tasks.py:207): used datetime.now().weekday()
+        which returns Mountain weekday.  Mountain Saturday 22:00 MT is still Friday ET --
+        the weekend suppression incorrectly fires 2h early, letting real Friday task gaps
+        slip through as 'ok (weekend)' instead of 'SILENT_TASK'.
+
+        Fix: migrate to _et_weekday() from et_clock.py.
+        """
+        source = _AUDIT_TASKS_PATH.read_text(encoding="utf-8")
+        import re as _re
+        # Must NOT contain the bare broken pattern in non-comment code
+        lines = source.splitlines()
+        broken_lines = [
+            ln for ln in lines
+            if _re.search(r"datetime\.now\(\)\.weekday\(\)", ln)
+            and not ln.strip().startswith("#")
+        ]
+        assert not broken_lines, (
+            "audit_scheduled_tasks.py still calls datetime.now().weekday() -- "
+            "this returns Mountain weekday, not ET.\n"
+            "Broken lines:\n" + "\n".join("  " + ln for ln in broken_lines) + "\n\n"
+            "FIX: replace with `_et_weekday()` from et_clock (already imported via try/except)."
+        )
+        # Must reference et_weekday (proof the fix is present)
+        assert "et_weekday" in source, (
+            "audit_scheduled_tasks.py must use et_weekday() from et_clock.py. "
+            "The broken datetime.now().weekday() has been removed but the replacement "
+            "_et_weekday() was not added."
+        )
+
+    def test_broken_local_weekday_vs_et_weekday(self):
+        """Document the Mountain-vs-ET weekday discrepancy.
+
+        At 22:00 Mountain (= 00:00 ET next day), local weekday is N but ET weekday is N+1.
+        The weekend suppression must use ET weekday to correctly classify the day.
+        """
+        from datetime import datetime, timezone, timedelta  # noqa: PLC0415
+        # Simulate: Mountain Saturday 22:00 = ET Sunday 00:00
+        # Mountain offset from UTC = -6 (MDT in summer); ET offset = -4 (EDT)
+        # At UTC 2026-06-28 04:00 (Sunday ET midnight):
+        #   Mountain time = 2026-06-27 22:00 (Saturday night local)
+        #   ET time       = 2026-06-28 00:00 (Sunday ET)
+        utc_ref = datetime(2026, 6, 28, 4, 0, tzinfo=timezone.utc)  # Sunday 00:00 ET
+        mountain_dt = utc_ref + timedelta(hours=-6)  # Saturday 22:00 MT
+        et_dt       = utc_ref + timedelta(hours=-4)  # Sunday 00:00 ET
+
+        local_weekday = mountain_dt.weekday()  # 5 = Saturday (wrong for ET)
+        et_weekday    = et_dt.weekday()         # 6 = Sunday (correct for ET)
+
+        # Demonstrate the discrepancy
+        assert local_weekday == 5, "Mountain datetime must be Saturday at this UTC reference"
+        assert et_weekday    == 6, "ET datetime must be Sunday at this UTC reference"
+        assert local_weekday != et_weekday, (
+            "Mountain and ET weekdays must DIFFER at this reference time -- "
+            "proving the bug is real and the fix is necessary."
+        )
+
+
+# ---------------------------------------------------------------------------
 # Utilities: extract function source / filter code lines
 # ---------------------------------------------------------------------------
 

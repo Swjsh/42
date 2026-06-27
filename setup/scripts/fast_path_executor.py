@@ -44,8 +44,9 @@ from typing import Any, Literal
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-ET_TZ = timezone(timedelta(hours=-4))
+from et_clock import ET_TZ  # noqa: E402 — DST-aware ET (TZ-SYSTEMIC fix: was timezone(timedelta(hours=-4)))
 CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
 # Keys are loaded at runtime from .mcp.json (gitignored) — never hardcode here.

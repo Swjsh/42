@@ -42,11 +42,7 @@ from typing import Any
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from alpaca_keys import keys_for  # noqa: E402
-
-# EDT (UTC-4) -- matches atomic_bracket_guard.py's ET convention; correct for the
-# trading week. The guard only runs post-tick during market hours, so DST edge cases
-# are not in play here.
-ET_TZ = timezone(timedelta(hours=-4))
+from et_clock import ET_TZ  # noqa: E402 — DST-aware ET (TZ-SYSTEMIC fix: was timezone(timedelta(hours=-4)))
 ALPACA_BASE = "https://paper-api.alpaca.markets/v2"
 
 # Per-account breaker schema mapping. The two breaker files use DIVERGENT field names

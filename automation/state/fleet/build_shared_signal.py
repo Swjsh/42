@@ -23,11 +23,14 @@ HOLD/no-signal stub rather than crashing if decisions.jsonl is empty/unreadable)
 from __future__ import annotations
 
 import json
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 FLEET_DIR = Path(__file__).resolve().parent
 REPO_ROOT = FLEET_DIR.parents[2]
+sys.path.insert(0, str(REPO_ROOT / "setup" / "scripts"))
+from et_clock import ET_TZ as ET  # DST-aware ET (TZ-SYSTEMIC fix: was timezone(timedelta(hours=-4)))
 DECISIONS = REPO_ROOT / "automation" / "state" / "decisions.jsonl"
 # CORE ledger (the deterministic heartbeat_core brain): one row per account per tick
 # (account in {"safe","bold"}). This is the LIVE producer source as of the 2026-06-25
@@ -36,7 +39,6 @@ DECISIONS = REPO_ROOT / "automation" / "state" / "decisions.jsonl"
 CORE_DECISIONS = REPO_ROOT / "automation" / "state" / "core-decisions.jsonl"
 BEACON = REPO_ROOT / "automation" / "state" / "sight-beacon.json"
 OUT = FLEET_DIR / "shared-signal.json"
-ET = timezone(timedelta(hours=-4))
 
 _ENTERS = {"ENTER_BEAR", "ENTER_BULL"}
 

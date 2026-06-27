@@ -38,11 +38,11 @@ from typing import Any
 
 FLEET_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(FLEET_DIR))
+sys.path.insert(0, str(FLEET_DIR.parents[2] / "setup" / "scripts"))
 import fleet_broker as fb  # noqa: E402
 import fleet_executor as fx  # noqa: E402
 import exit_actuator as ea  # noqa: E402  (the tick-managed scale-out engine)
-
-ET = timezone(timedelta(hours=-4))
+from et_clock import ET_TZ as ET  # noqa: E402 — DST-aware ET (TZ-SYSTEMIC fix: was timezone(timedelta(hours=-4)))
 ACCOUNTS_PATH = FLEET_DIR / "accounts.json"
 DEFAULT_SIGNAL = FLEET_DIR / "shared-signal.json"
 SIGNAL_MAX_AGE_SEC = 420  # 7 min -- a heartbeat tick is every 3 min

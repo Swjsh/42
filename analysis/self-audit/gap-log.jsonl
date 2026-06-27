@@ -10,3 +10,15 @@
 {"ts_et": "2026-06-26T18:14:02", "key": "099d6284ba4a", "gap": "The OP\u201122 \u201cstanding authorization\u201d for the reversible commit lacks an automated rollback trigger (circuit\u2011breaker) that ", "new": true}
 {"ts_et": "2026-06-26T18:14:02", "key": "a4a56f62ba0f", "gap": "Adding four new entry streams increases strategy crowding, slippage, and market\u2011impact risk, especially for low\u2011volume 0", "new": true}
 {"ts_et": "2026-06-26T18:14:02", "key": "fbf021b76942", "gap": "The exit manager is sized for the historical mix; the extra streams risk exceeding its concurrency limits and dropping T", "new": true}
+{"ts_et": "2026-06-26T20:42:25", "key": "e8472485334c", "gap": "Rule\u202f9", "new": false}
+{"ts_et": "2026-06-26T20:42:25", "key": "0a094e467e0d", "gap": "Rule\u202f10", "new": false}
+{"ts_et": "2026-06-26T20:42:25", "key": "e65f46134941", "gap": "OP\u201125", "new": true}
+{"ts_et": "2026-06-26T20:42:25", "key": "046e9be9594f", "gap": "The newly live `gap_and_go_enabled=True` strategy lacks a recency\u2011tracker entry, so the `license_monitor` gate cannot en", "new": true}
+{"ts_et": "2026-06-26T20:42:25", "key": "05c140b6034f", "gap": "This creates a mid\u2011session, non\u2011atomic change (Rule\u202f9 violation) because the conductor cannot modify params/filters and ", "new": true}
+{"ts_et": "2026-06-26T20:42:25", "key": "4563608b9c6f", "gap": "Without the tracker, the strategy will continue to trade even after its hidden recency score drifts RED, only being noti", "new": true}
+{"ts_et": "2026-06-26T20:42:25", "key": "5623b76faeb2", "gap": "The unmonitored strategy will corrupt the shared signal used for fleet\u2011wide performance weighting, potentially causing o", "new": true}
+{"ts_et": "2026-06-26T20:42:25", "key": "60a5d5f3f5be", "gap": "Alert fatigue may arise if J repeatedly receives manual \u201ccheck your logs\u201d pings for undetected RED states.", "new": true}
+{"ts_et": "2026-06-26T20:42:25", "key": "a3949f28aa1d", "gap": "The partial\u2011apply state (e.g., `entry_bar_body_pct_min` still at 0.2, Bold unblocks still true) yields a hybrid configur", "new": true}
+{"ts_et": "2026-06-26T20:42:25", "key": "a5761053148d", "gap": "No disagreements can be identified because Perspectives\u202f2 and\u202f3 failed to load (model\u2011unavailable errors). Consequently,", "new": true}
+{"ts_et": "2026-06-26T20:42:25", "key": "7f17a36c4aed", "gap": "**Confidence: 6/10** \u2013 The recommendation is grounded in a detailed, concrete failure mode identified by the sole succes", "new": true}
+{"ts_et": "2026-06-26T20:42:25", "key": "11c17873d87c", "gap": "**Today, before market open, add a pre\u2011commit hook to the strategy\u2011enablement pipeline** that, upon setting `enabled=tru", "new": true}

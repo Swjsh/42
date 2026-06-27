@@ -34,6 +34,10 @@ import sys
 from datetime import datetime, time, timedelta, timezone
 from pathlib import Path
 
+# et_clock is in the same directory; insert its parent so it resolves before the
+# bare `setup` entry point adds it later.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 try:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 except Exception:
@@ -110,8 +114,12 @@ GATE_KEYS = [
 ]
 
 
+from et_clock import et_now as _et_clock_now  # noqa: E402  (after sys.path insert above)
+
+
 def _et_now() -> datetime:
-    return datetime.now(timezone.utc) + timedelta(hours=-4)
+    """ET from UTC via DST-aware et_clock (replaces hardcoded -4, TZ-SYSTEMIC fix)."""
+    return _et_clock_now()
 
 
 def _is_rth(et: datetime) -> bool:
@@ -638,8 +646,10 @@ def _prior_fill_stopped(creds: dict, last_entry_symbol: "str | None") -> tuple[b
         last = sells[0]
         last_exit = None
         try:
-            last_exit = datetime.fromisoformat(str(last.get("transaction_time")).replace("Z", "+00:00"))
-            last_exit = last_exit + timedelta(hours=-4)  # ET
+            last_exit_utc = datetime.fromisoformat(str(last.get("transaction_time")).replace("Z", "+00:00"))
+            # DST-aware conversion: use et_clock instead of hardcoded -4 (TZ-SYSTEMIC fix)
+            from et_clock import _et_offset_hours  # noqa: PLC0415
+            last_exit = last_exit_utc + timedelta(hours=_et_offset_hours(last_exit_utc.replace(tzinfo=timezone.utc)))
         except (ValueError, TypeError):
             last_exit = None
         # any partial TP fill on the same symbol today? (qty < position implies a TP1 leg)

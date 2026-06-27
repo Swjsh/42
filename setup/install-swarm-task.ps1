@@ -48,10 +48,12 @@ $action = New-ScheduledTaskAction `
     -Execute "powershell.exe" `
     -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$scriptPath`""
 
-# Fires at 06:00 ET (system time, assuming machine is in ET zone)
+# TZ-SYSTEMIC fix (2026-06-26): machine is Mountain time (ET = local + 2h).
+# Intended fire time: 08:15 ET = 06:15 MT.  Use MT local time for -At.
+# If the machine moves back to ET, change 06:15 -> 08:15 and update this comment.
 $trigger = New-ScheduledTaskTrigger -Weekly `
     -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday `
-    -At ([DateTime]"06:00")
+    -At ([DateTime]"06:15")
 
 # 15-min execution limit (generous — all 6 agents run within ~10 min typically)
 $settings = New-ScheduledTaskSettingsSet `

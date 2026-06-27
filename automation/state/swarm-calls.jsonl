@@ -409,3 +409,7 @@
 {"ts":"2026-06-26T22:45:06+00:00","task_id":"kitchen.reviewer.chef","lane":"groq::llama-3.3-70b-versatile","ok":true,"input_tokens":13420,"output_tokens":526,"elapsed_s":4.094,"error":null}
 {"ts":"2026-06-26T22:53:15+00:00","task_id":"manager.pick.coordinator","lane":"groq::llama-3.1-8b-instant","ok":true,"input_tokens":2880,"output_tokens":55,"elapsed_s":1.487,"error":null}
 {"ts":"2026-06-26T22:53:16+00:00","task_id":"manager.pick.repair.coordinator","lane":"groq::llama-3.1-8b-instant","ok":true,"input_tokens":2901,"output_tokens":82,"elapsed_s":0.751,"error":null}
+{"ts":"2026-06-27T00:23:01+00:00","task_id":"kitchen.cook.run-walk-forward-on-the-top-ke.chef","lane":"groq::llama-3.3-70b-versatile","ok":true,"input_tokens":37629,"output_tokens":671,"elapsed_s":5.377,"error":null}
+{"ts":"2026-06-27T00:24:07+00:00","task_id":"kitchen.cook.run-walk-forward-on-the-top-ke.chef","lane":"groq::llama-3.3-70b-versatile","ok":true,"input_tokens":37629,"output_tokens":723,"elapsed_s":5.432,"error":null}
+{"ts":"2026-06-27T00:25:12+00:00","task_id":"kitchen.cook.run-walk-forward-on-the-optimi.chef","lane":"groq::llama-3.3-70b-versatile","ok":true,"input_tokens":37628,"output_tokens":702,"elapsed_s":5.252,"error":null}
+{"ts":"2026-06-27T00:26:17+00:00","task_id":"kitchen.cook.run-walk-forward-on-the-top-ke.chef","lane":"groq::llama-3.3-70b-versatile","ok":true,"input_tokens":37629,"output_tokens":681,"elapsed_s":5.025,"error":null}

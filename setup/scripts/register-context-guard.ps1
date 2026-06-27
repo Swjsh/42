@@ -14,8 +14,10 @@ if (-not (Test-Path $scriptPath)) {
     exit 1
 }
 
-# Trigger: daily at 16:10 ET (after the EOD pipeline; outside market hours so edits are allowed)
-$trigger = New-ScheduledTaskTrigger -Daily -At "16:10"
+# TZ-SYSTEMIC fix (2026-06-26): machine is Mountain time (ET = local + 2h).
+# Intended fire time: 16:10 ET = 14:10 MT.  Use MT local time for -At.
+# If the machine moves back to ET, change 14:10 -> 16:10 and update this comment.
+$trigger = New-ScheduledTaskTrigger -Daily -At "14:10"
 
 $action = New-ScheduledTaskAction `
     -Execute "powershell.exe" `

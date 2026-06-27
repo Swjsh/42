@@ -14,16 +14,20 @@ from __future__ import annotations
 
 import glob
 import json
+import sys
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1].parent
 STATE = REPO / "automation" / "state"
+sys.path.insert(0, str(REPO / "setup" / "scripts"))
+from et_clock import et_now as _et_clock_now  # DST-aware ET (TZ-SYSTEMIC fix)
 
 
 def _et_now() -> datetime:
-    return datetime.now(timezone.utc) + timedelta(hours=-4)
+    """ET from UTC via DST-aware et_clock (replaces hardcoded -4)."""
+    return _et_clock_now()
 
 
 TODAY = _et_now().strftime("%Y-%m-%d")

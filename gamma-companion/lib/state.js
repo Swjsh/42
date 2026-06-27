@@ -159,11 +159,14 @@ function buildState(root) {
   // buildState used to read the whole file twice (readActivity + todaySpend).
   const activityRows = loadActivity(root);
   const recentActivity = activityRows.slice(-10);
-  const todayUTC = new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
+  // TZ-SYSTEMIC FIX (2026-06-26): machine is Mountain time; using UTC date for "today"
+  // bucketing means activity after midnight ET but before midnight UTC gets credited to
+  // the wrong day.  Use Intl API to get the ET date, consistent with obligations.etToday.
+  const todayET = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date()); // YYYY-MM-DD
   let spendToday = 0;
   for (const rec of activityRows) {
     const ts = rec && typeof rec.ts === "string" ? rec.ts : "";
-    if (ts.slice(0, 10) !== todayUTC) continue;
+    if (ts.slice(0, 10) !== todayET) continue;
     const c = Number(rec && rec.cost_usd);
     if (Number.isFinite(c)) spendToday += c;
   }

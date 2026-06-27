@@ -25,6 +25,13 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+SCRIPTS_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(SCRIPTS_DIR))
+# TZ-SYSTEMIC FIX (2026-06-26): machine is Mountain time; datetime.now().weekday() returns
+# Mountain weekday, which can be Saturday (5) when ET is still Friday.  Weekend-suppression
+# logic that depends on the local weekday must use ET weekday.
+from et_clock import et_weekday as _et_weekday  # DST-aware ET weekday
+
 REGISTRY_PATH = Path("automation/state/SCHEDULED-TASKS.md")
 AUDIT_OUT = Path("automation/state/scheduled-tasks-audit.json")
 
@@ -204,7 +211,7 @@ def audit() -> dict:
             continue
         # Weekend false-positive suppression: weekday-only tasks are expected silent on
         # Sat/Sun. Max legitimate gap = ~62h (Thu EOD -> Mon premarket); allow 70h.
-        _today_dow = datetime.now().weekday()  # 5=Sat, 6=Sun
+        _today_dow = _et_weekday()  # 5=Sat, 6=Sun — ET (not local Mountain) — TZ-SYSTEMIC fix
         if _today_dow >= 5 and age_h <= 70:
             continue
         # Heuristic: anything > 26h old without successful run = SILENT

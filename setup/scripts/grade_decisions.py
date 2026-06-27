@@ -32,9 +32,15 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 from datetime import datetime, timedelta
 from json import JSONDecoder
 from pathlib import Path
+
+# TZ-SYSTEMIC FIX (2026-06-26): machine is now Mountain time; datetime.now().astimezone()
+# returns Mountain time, NOT ET.  Use the shared DST-aware ET clock.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from et_clock import et_today_str as _et_today_str  # DST-aware ET
 
 import pandas as pd
 
@@ -249,8 +255,8 @@ def main() -> int:
 
     only_date = None if args.backfill_all else args.date
     if not only_date and not args.backfill_all:
-        # default to today (matches the run-eod-summary.ps1 wiring without args)
-        only_date = datetime.now().astimezone().strftime("%Y-%m-%d")
+        # default to today in ET (DST-aware; not local Mountain time — TZ-SYSTEMIC 2026-06-26)
+        only_date = _et_today_str()
 
     spy = _load_spy()
     grand = {}

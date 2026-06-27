@@ -37,7 +37,8 @@ import urllib.error
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-ET_TZ = timezone(timedelta(hours=-4))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from et_clock import ET_TZ  # noqa: E402 — DST-aware ET (TZ-SYSTEMIC fix: was timezone(timedelta(hours=-4)))
 
 # Live paper Alpaca creds load from the GITIGNORED project-root .mcp.json (the same
 # file Claude Code loads the MCP servers from) -- NOT hard-coded. This guarantees the
