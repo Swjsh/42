@@ -186,6 +186,35 @@ def _fetch_vix_daily_ma() -> tuple[float, float]:
         return 0.0, 0.0
 
 
+def _fetch_vix_intraday(cap_ts_et=None) -> list[float] | None:
+    """Intraday ^VIX 5m closes (RTH-only, newest LAST) for the vix_regime_dayside regime
+    (trailing-median 78 + slope 5). CAUSALLY capped at ``cap_ts_et`` (no VIX bar later than
+    the trigger bar — preserves no-look-ahead, C6). Returns the FULL RTH series (warmup +
+    today) so the watcher's median(78)/slope(5) have their window; the watcher tail-slices
+    to today's RTH frame. None on any failure / empty / all-NaN (fail-open -> watcher SKIPs,
+    never guesses the regime). Only fetched when j_vix_dayside_enabled is set, so while the
+    setup is DORMANT this is never called (zero hot-path cost)."""
+    try:
+        import yfinance as yf
+        d = yf.download("^VIX", period="2d", interval="5m", auto_adjust=False, progress=False)
+        if d is None or d.empty:
+            return None
+        if hasattr(d.columns, "nlevels") and d.columns.nlevels > 1:
+            d.columns = d.columns.get_level_values(0)
+        idx = pd.to_datetime(d.index)
+        idx = idx.tz_localize("America/New_York") if idx.tz is None else idx.tz_convert("America/New_York")
+        s = pd.Series([float(x) for x in d["Close"].tolist()], index=idx).dropna()
+        s = s.between_time("09:30", "15:55")  # RTH 5m closes (bars stamped 09:30..15:55 ET)
+        if cap_ts_et is not None:
+            cap = pd.Timestamp(cap_ts_et)
+            cap = cap.tz_localize("America/New_York") if cap.tz is None else cap.tz_convert("America/New_York")
+            s = s[s.index <= cap]
+        vals = [float(x) for x in s.tolist()]
+        return vals or None
+    except Exception:
+        return None
+
+
 def _read_levels(spy: float) -> tuple[list[float], list[float]]:
     try:
         kl = json.loads((STATE / "key-levels.json").read_text(encoding="utf-8"))
@@ -300,9 +329,11 @@ def _norm_no_trade_window(value) -> "list | None":
 
 def _build_payload(df: pd.DataFrame, account_params: dict, *,
                    vix: tuple | None = None, levels: tuple | None = None,
-                   vix_ma: tuple | None = None) -> dict | None:
+                   vix_ma: tuple | None = None,
+                   vix_intraday: list | None = None) -> dict | None:
     """Live by default; the historical replay injects `vix`=(now,prior),
-    `levels`=(active,multi), and `vix_ma`=(5d,20d) so it can reproduce a past bar exactly."""
+    `levels`=(active,multi), `vix_ma`=(5d,20d), and `vix_intraday`=[5m VIX closes,
+    newest last] so it can reproduce a past bar exactly."""
     # RTH-ONLY (>=09:30, <16:00 ET) BEFORE anything — the backtest computes its ribbon +
     # baselines on RTH-only bars (orchestrator.py:786-798, "matches the live indicator").
     # Extended-hours bars shift the EMAs 1-3c and flip the stack -> score drift. This is THE
@@ -397,6 +428,15 @@ def _build_payload(df: pd.DataFrame, account_params: dict, *,
             "timestamp_iso": str(_r["timestamp"].isoformat() if hasattr(_r["timestamp"], "isoformat")
                                  else _r["timestamp"]),
         })
+    # vix_regime_dayside (edge #4) intraday VIX feed (G6). ONLY fetched when the setup is
+    # ENABLED — the dispatch loop (setup_dispatch.py) skips _dispatch_vix_dayside entirely
+    # while j_vix_dayside_enabled is false, so producer + consumer arm together: dormant =>
+    # byte-identical no-op (no extra hot-path download, vix_intraday absent from bar_ctx).
+    # Causally capped at the trigger bar; fail-open (None -> watcher SKIPs, never guesses).
+    if account_params.get("j_vix_dayside_enabled"):
+        _vi = vix_intraday if vix_intraday is not None else _fetch_vix_intraday(_trig_ts)
+        if _vi:
+            bar_ctx["vix_intraday"] = list(_vi)
     # Top-level frames the GATES walk via .loc (look-ahead fill-bar + momentum/duration).
     return {"bar_ctx": bar_ctx, "gate_params": gate_params, "score_params": score_params,
             "spy_df": bars_all, "ribbon_df": ribbon_series,

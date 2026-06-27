@@ -59,6 +59,11 @@ _REPO = Path(__file__).resolve().parents[2]
 _BACKTEST_LIB = str(_REPO / "backtest" / "lib")
 if _BACKTEST_LIB not in sys.path:
     sys.path.insert(0, _BACKTEST_LIB)
+# Also expose the repo root so `backtest.lib.*` PACKAGE imports resolve — filters.py uses a
+# relative `from .ribbon import RibbonState`, which fails when filters is loaded as a bare
+# top-level module (the latent _build_ctx ImportError that silently no-op'd every extra setup).
+if str(_REPO) not in sys.path:
+    sys.path.insert(0, str(_REPO))
 
 # Lazy import of watcher types — only performed when a flag is ON.
 # We define the type hints as strings to avoid import at module load time.
@@ -150,8 +155,18 @@ class SetupDispatcher:
             import datetime as dt
             import pandas as pd
 
-            from filters import BarContext  # type: ignore[import]
-            from ribbon import RibbonState   # type: ignore[import]
+            # Package-first: filters.py does `from .ribbon import RibbonState`, which only
+            # resolves when filters is loaded as `backtest.lib.filters` (a package member).
+            # Loading it as a bare top-level `filters` raises "attempted relative import with
+            # no known parent package" -> _build_ctx returned None -> EVERY extra setup silently
+            # SKIP'd. Prefer the package import (REPO is on sys.path above); keep the bare form
+            # as a legacy fallback so nothing regresses if the layout changes.
+            try:
+                from backtest.lib.filters import BarContext  # type: ignore[import]
+                from backtest.lib.ribbon import RibbonState   # type: ignore[import]
+            except ImportError:
+                from filters import BarContext  # type: ignore[import]
+                from ribbon import RibbonState   # type: ignore[import]
 
             bar_ctx_d = self._payload.get("bar_ctx", {})
             sameday = self._payload.get("sameday_5m_bars", [])
@@ -234,6 +249,16 @@ class SetupDispatcher:
                 multi_day_levels=list(bar_ctx_d.get("multi_day_levels", [])),
                 htf_15m_stack=bar_ctx_d.get("htf_15m_stack"),
             )
+            # G6: thread the OPTIONAL intraday VIX series (heartbeat_core supplies it on
+            # bar_ctx ONLY when j_vix_dayside_enabled). BarContext is frozen, so set it via
+            # object.__setattr__ — the vix_regime_dayside watcher reads getattr(ctx,
+            # "vix_intraday", None). Absent -> attribute never set -> watcher SKIPs (DORMANT-safe).
+            _vi = bar_ctx_d.get("vix_intraday")
+            if _vi is not None:
+                try:
+                    object.__setattr__(ctx, "vix_intraday", list(_vi))
+                except Exception:  # noqa: BLE001 — never break the tick over an optional feed
+                    pass
             self._ctx_cache = ctx
             return ctx
 
