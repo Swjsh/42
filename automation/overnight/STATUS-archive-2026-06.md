@@ -13,6 +13,304 @@
 
 
 
+
+<!-- rolled off 2026-06-26 by status_retention.py (L181 consolidation): 4 entries / 294 lines -->
+
+## [2026-06-24 19:00 ET] conductor: OK — WATCHER-FEED-REARM-CONFIRM CLOSED (watcher_feed re-armed to critical=True; the ~5-fire named pickup, drained). Commit 33c22ed.
+
+> **Signal J wakes to (OP-25).** After-hours conductor fire, market CLOSED (19:00 ET; engine YELLOW — only the non-critical stale TV watchdog, both heartbeats/watcher-feed/kill-switches/positions GREEN, both accounts flat). Gym detector_verdict GREEN (00:40 fix holding) → no detector-touch restriction. ALL author inboxes EMPTY. Picked the loop-CLOSING item named as next-fire pickup by ~5 consecutive fires and uniquely actionable ONLY in this window (post-trading-day close): `WATCHER-FEED-REARM-CONFIRM` (MED). Task-scorer ranked GATE-STACK-OVERBLOCK (6.0) + BOLD-FLEET-PRODUCER-KEYSTONE (5.0) higher, but both are large rail-4-propose-only / multi-step design tasks that any after-hours fire can take — whereas the re-arm requires a *completed trading-day RTH* to verify and is a clean bounded loop-closer (tiebreak: close a loop > create an artifact).
+> - **VERIFIED (the precondition, $0):** today's (06-24, a trading day) watcher feed produced **154 diag + 78 obs rows, FULL 09:30–15:55 ET coverage** — diag bars span every ET hour (09:6 / 10:12 / 11:12 / 12:12 / 13:12 / 14:12 / 15:10), incl. **30 rows in the 09/10/11 morning window** that was BLIND until 11:30 ET before the ET-gate fix. Only routine skip reasons (77 `load_data_fallback_history_only` + 1 transient `stale_csv_date`), **ZERO crash/darkness signals** (no `unexpected_error` / `watcher_run_exception` / `no_bars_after_topup`). All 3 guard layers held (ET-gate 3e8ed79, load-fallback 57cef40, integration 2eceac1). The 06-23 total-darkness anomaly did NOT recur.
+> - **SHIPPED (engine-benefit, rail-4 CLEAR — observability/monitoring code, NOT heartbeat/params/CLAUDE/filters/orders → ships on green tests, no A/B):** re-armed the producer-dark RTH branch of `check_watcher_feed` to `critical=True` in `setup/scripts/engine_health.py` (the 06-22 downgrade was an explicitly-temporary cry-wolf measure while the producer rebuild was in flight; that rebuild is now complete + the re-arm condition the old comment named — "reliably emits today's rows" — is met).
+> - **KEY VERIFICATION (L181/L185 — did NOT blindly follow the breadcrumb):** the queue note said "re-arm critical=True"; the 06-22 comment warned critical=True "would gate the engine to trade-halt RED." I traced the consumers BEFORE flipping: **engine-health.json is NOT read by the heartbeat** — only the conductor STAGE-0 backpressure, the alerter, the healer, and gym_session.py consume it. So critical=True does NOT trade-halt the engine; it only drives the overall verdict RED on a genuine producer-dark (correctly gating the conductor's "don't build on a dark engine" backpressure + staying loud). The over-block concern doesn't apply → re-arm is safe AND correct.
+> - **GRADUATED TO CODE (STAGE 4.5):** `backtest/tests/test_engine_health_watcher_feed.py` 4/4 — pins (1) producer-dark RTH = critical=True (a re-downgrade fails loud), (2) producing-today = GREEN/critical, (3) quiet-when-closed = GREEN (no overnight cry-wolf), (4) missing-file = YELLOW/non-critical fail-safe. The cry-wolf-era downgrade can no longer silently return.
+> - **VALIDATED (paste-real, $0):** 4/4 new green; live `engine_health.py` regen clean (verdict YELLOW = only non-critical stale TV watchdog; watcher_feed GREEN critical=True, correctly quiet overnight — no spurious RED). Pre-commit safety gate PASS (29 tests + 5 curated suites). Commit **33c22ed** (scoped add — only my 2 files; engine-health.json is regenerated operational state, excluded per L164; working tree has unrelated mods).
+> - **NEXT FIRE picks up:** the 3 fresh HIGH LIVE-PROOF items from today's tape, all now the top of the backlog (task-scorer order): (1) `GATE-STACK-OVERBLOCK-A-PLUS-RECLAIM` (6.0 — stratify the morning-bull IS pop by score; the `block_bull_morning_agg` blunt time-veto threw out an 11/11 A+ reclaim; research→DRAFT, params=rail-4 propose-only); (2) `BOLD-FLEET-PRODUCER-KEYSTONE` (5.0 — `build_shared_signal.py` derives passed only from SAFE ENTER rows so a gated-but-perfect signal makes the live fleet INERT; after-close architecture rewrite, NOT mid-session); (3) `OPEN-BLINDNESS-TV-HANG` remaining (wire Alpaca-bars fallback into the heartbeat fast-fail path — rail-4 propose-only, swap at close). RANGE-SCALP + RIBBON-LAG depend on OPEN-BLINDNESS (sight first). ALL author inboxes EMPTY. Standing direction holds (premium axis exhaustively dead L182/L183/L184; sizing-overlay closed #9): COMPOUND live edge #1 `vwap_continuation` (recency-RED → base size; license_monitor pings J on RED→green).
+> - Files: `setup/scripts/engine_health.py` (watcher_feed re-arm + rationale rewrite), `backtest/tests/test_engine_health_watcher_feed.py` (new guard, 4/4), `automation/overnight/queue.md` (→ Completed), this STATUS entry.
+
+---
+
+## [2026-06-24 18:00 ET] conductor: OK — OPEN-BLINDNESS Layer-1a SHIPPED (the Alpaca-OHLCV→Saty-ribbon fallback compute core; the engine can now derive price+ribbon when TV hangs). Commit 178b6b7.
+
+> **Signal J wakes to (OP-25).** After-hours conductor fire, market CLOSED (18:00 ET; engine YELLOW — only the non-critical stale TV watchdog, both heartbeats/watcher-feed/kill-switches/positions GREEN, both accounts flat). Gym overall=RED but **detector_verdict=GREEN** (my 00:40 fix working exactly as designed — operational audits cap at YELLOW, the chart-reading harness is green) → no detector-touch restriction. Author inboxes EMPTY (validator/chef empty, both lesson items .DONE, skill = only the auto-handled correction-queue). Per priority-2 I picked the **#1-ranked HIGH ready item** (task_scorer 7.5): `OPEN-BLINDNESS-TV-HANG` — the literal "engine must SEE + act" pain point, LIVE-PROVEN today (engine blind through the 09:30–09:40 PMH-rejection scalp J called manually, while Alpaca bars were live the whole time).
+> - **KEY FINDING (stale-breadcrumb corrected — L170/L173/L181 no-closing-handshake family):** the queue item's STEP-1 stated a HARD prerequisite + C11/L180 blocker — *"read exact Saty Pivot Ribbon EMA lengths off the live indicator (NOT in repo)"*. That claim is **STALE**: the spec is canonically **fingerprinted in `backtest/lib/ribbon_config.json`** (fast=13/pivot=20/slow=48/sma=50, all within 5c of live TV, captured 2026-05-07) with `compute_ema_snapshot.py` as the reference impl. So the fallback can reuse the EXACT spec → the same-opportunity-set trap is resolved BY CONSTRUCTION (no live TV re-read, no drift). Corrected the queue note so the next fire doesn't waste a TV read.
+> - **SHIPPED (engine-benefit, rail-4 CLEAR — a NEW standalone compute module + tests, ZERO trading-logic/params/orders/heartbeat touch → ships on green tests, no A/B; same class as compute_ema_snapshot.py):** `backtest/lib/ribbon_fallback.py` — source-agnostic `compute_ribbon(closes)` → `RibbonRead` (price, ema_fast/pivot/slow, sma_50, spread_cents, stack ∈ {BULL/BEAR/MIXED/UNKNOWN}). Stack semantics match heartbeat.md exactly (BULL fast>pivot>slow / BEAR fast<pivot<slow). **Fail-closed by design:** too few bars to seed an EMA → stack=UNKNOWN, None values, NO raise (uncertainty = the engine abstains, never trades a misread ribbon). Periods LOADED from ribbon_config.json (not hardcoded → re-fingerprint updates the module). `closes_from_bars()` handles Alpaca/yfinance/CSV key spellings, raises loud on a malformed feed.
+> - **GUARDED (the C11/L180 same-decision invariant, in code):** `backtest/tests/test_ribbon_fallback.py` 11/11 — the load-bearing one = a **byte-identical EMA PARITY test** asserting `tv_ema` equals the canonical `compute_ema_snapshot.ema` last value to <1e-9 across all periods, so the TV-down fallback can never silently make a DIFFERENT ribbon decision than live TV. Plus: periods-from-config + fingerprint canary, stack classification, ribbon-width spread, fail-closed-on-short-input, empty-input-no-raise, clean BULL/BEAR stacks, bar extraction, frozen-dataclass immutability.
+> - **VALIDATED (paste-real, $0):** 11/11 green; pre-commit safety gate PASS (29 tests + 5 curated suites). Commit **178b6b7** (scoped add — only my 2 files; working tree has unrelated mods per L164). **Bounded honesty:** this is Layer-1a (the correctness-critical COMPUTE core) of the 3-part OPEN-BLINDNESS fix; it does NOT touch the live heartbeat. The note "Layer-1 alone would NOT have captured today's trade (see RIBBON-LAG)" still stands — sight is necessary, not sufficient.
+> - **NEXT FIRE picks up:** OPEN-BLINDNESS REMAINING (rail-4 propose-only, swap at CLOSE not mid-session): (a) wire Alpaca-bars fetch → `closes_from_bars` → `compute_ribbon` into the heartbeat fast-fail path; (b) fast-fail TV reads (~15s cap +1 retry, no 280s burn); (c) stagger Safe/Bold off each other. These touch heartbeat.md/run-heartbeat.ps1 → DRAFT + ping J. Also still open: `WATCHER-FEED-REARM-CONFIRM` (today was the first RTH since the 3-fix chain — read 06-24 `watcher-live-diag.jsonl`/`watcher-observations.jsonl`, confirm full 09:30–15:55 ET coverage, re-arm `watcher_feed critical=True`) and the sibling HIGH items GATE-STACK-OVERBLOCK / RIBBON-LAG / RANGE-SCALP. Standing direction holds (premium axis dead L182–L184; compound vwap_continuation).
+> - Files: `backtest/lib/ribbon_fallback.py` (new), `backtest/tests/test_ribbon_fallback.py` (new, 11/11), `automation/overnight/queue.md` (OPEN-BLINDNESS progress + STEP-1 correction), this STATUS entry.
+
+---
+
+## [2026-06-24 07:39 ET] conductor: OK — STATUS-RETENTION-AUTOWIRE closed (the L181 guard is now SELF-EXECUTING; STATUS.md no longer regrows past the Read cap between fires). Commit 27b5782.
+
+> **Signal J wakes to (OP-25).** After-hours conductor fire, market CLOSED (07:39 ET pre-open; engine YELLOW — only stale TV watchdog non-critical, both heartbeats/watcher feed/kill-switches/positions GREEN, both accounts flat). ALL author inboxes EMPTY (validator all .DONE / skill correction-queue 0 rows / lesson .DONE-only / chef). Gym detector_verdict GREEN (overall YELLOW = operational audits per the 00:40 false-RED fix) → no detector-touch restriction. Task-scorer top-3 all blocked for autonomous shipping (EOD-PHASE multi-day fails the bounded rail; SAFE-VIX propose-only params + C22/L122 regime-fragile; CLAUDE-FOLD rail-4 + no Agent/lesson-author tool). Per priority-6 BRAINSTORM+DRIVE I picked the highest-value **loop-CLOSING** item the scorer can't see: the **last mile of THIS NIGHT'S OWN work** — the 06:49 fire BUILT the retention guard (commit a795fc3) but it still required a fire to NOTICE + run it, so STATUS.md silently regrew **48KB→52KB / over budget AGAIN within hours** (verify-now proof: `--check` exit 2 at fire start), no fire having run it. A built guard that depends on a fire noticing is not self-executing.
+> - **SHIPPED (engine-benefit, rail-4 clear — operational tooling wiring, ZERO trading-logic/params/orders/doctrine change → ships on green tests, no A/B; same class as the watcher_live fixes):** wired `setup/scripts/status_retention.py` into `setup/scripts/run-conductor.ps1` right **after the rail-1 after-hours gate** (so it runs after-hours ONLY) and **before the claude launch** (so THIS fire reads a freshly-trimmed STATUS). Guarded **fail-open** (`try{}catch{}` — a retention hiccup can never block the conductor fire, rail 2), **CREATE_NO_WINDOW** via `Invoke-PythonHidden` (no flash, OP-27 L42), system Python313 (tool is stdlib-only). The tool is **idempotent** (noop under budget) so calling it every wake is safe.
+> - **GRADUATED TO CODE (STAGE 4.5):** added `test_retention_is_autowired_into_conductor_wrapper` to `backtest/tests/test_status_retention.py` — asserts the wrapper invokes `status_retention.py` AND that the call is fail-open-wrapped (`try {` precedes the real invocation; uses `rindex` so it pins the call, not the comment). A deleted autowire = the L181 foot-gun returns = the test fails loud. The autowire is now a tested operation, not a fragile one-off.
+> - **RAN IT LIVE (verify-now-not-later, $0):** fixed the current over-budget condition: STATUS.md **52.9KB → 46.8KB** (rolled 1 entry verbatim to `STATUS-archive-2026-06.md`). Confirmed **idempotent + stable** at the floor: run 2 = `within budget -> noop` (apply-mode keeps the newest entries incl. the one that first crosses the 45KB SOFT byte budget, by design — 46.8KB ≈ 11.5K tokens, comfortably under the ~25K-token Read cap; it does NOT roll every fire).
+> - **VALIDATED (paste-real, $0):** 11/11 retention tests green (10 existing + 1 new autowire guard); pre-commit safety gate PASS (29 tests + 5 curated suites). Commit **27b5782** (scoped add — only my 2 code files; STATUS.md/archive are on-disk operational state per L164; working tree has unrelated mods).
+> - **MINOR WRINKLE (noted, not fixed — scope):** apply-mode (keeps the budget-crossing entry) and `--check` mode (exit 2 if literally over the byte budget) disagree at the floor. Harmless: the autowire uses apply-mode; `--check` is wired nowhere as a gate. Not worth a re-run to reconcile a cosmetic disagreement.
+> - **NEXT FIRE picks up:** today is a trading day → after the close, CLOSE `WATCHER-FEED-REARM-CONFIRM` (now de-risked to a live-RTH formality — all 3 guard layers in: ET-gate 3e8ed79, load-fallback 57cef40, integration 2eceac1; read 06-24 `watcher-live-diag.jsonl` + `watcher-observations.jsonl`, confirm full 09:30–15:55 ET coverage, then re-arm `watcher_feed critical=True` in `engine_health.py`). ALL author inboxes EMPTY. Standing direction holds (premium axis exhaustively dead L182/L183/L184; sizing-overlay closed #9): COMPOUND live edge #1 `vwap_continuation` (recency-RED → base size; license_monitor pings J on RED→green) + passive GEX forward-bank. Loop-closing fallback: `CLAUDE-INDEX-FOLD-BATCH` (24 unindexed, needs interactive/lesson-author).
+> - Files: `setup/scripts/run-conductor.ps1` (autowire), `backtest/tests/test_status_retention.py` (+1 guard, 11/11), `automation/overnight/STATUS.md` (trimmed + this entry), `automation/overnight/STATUS-archive-2026-06.md` (1-entry roll), queue Completed.
+
+---
+
+## [2026-06-24 06:49 ET] conductor: OK — STATUS.md retention GRADUATED to a reusable tested guard (L181 re-violation closed; live file 226KB→48KB, reads whole again). Commit a795fc3.
+
+> **Signal J wakes to (OP-25).** After-hours conductor fire, market CLOSED (06:49 ET pre-open; engine GREEN — both heartbeats/watcher feed/TV/kill-switches/positions all green). ALL author inboxes EMPTY (validator all .DONE / skill correction-queue 0 rows / lesson / chef). Task-scorer top-3 all blocked for autonomous shipping (EOD-PHASE multi-day fails the bounded rail; SAFE-VIX propose-only params + C22/L122 regime-fragile; CLAUDE-FOLD rail-4 + no Agent/lesson-author tool). Autonomy trend=regressing → per priority-6 BRAINSTORM+DRIVE I picked the highest-value **loop-CLOSING** item the scorer can't see: the **L181 foot-gun had RE-VIOLATED** — STATUS.md regrew to **226KB / 58 entries** (105K tokens, unreadable in one Read; cap 25K), the exact condition that makes a fire trust a stale breadcrumb and re-do solved work.
+> - **DIAGNOSED:** the 2026-06-22 fix (307KB→141KB) was a **manual one-off** — there was **no automated retention cap** (grep-confirmed: nothing tests/caps STATUS.md). So it silently regrew in 2 days. A re-violated lesson MUST graduate to a guard (STAGE 4.5 / OP-25), not be hand-consolidated again.
+> - **SHIPPED (engine-benefit, rail-4 clear — operational state hygiene + tooling, ZERO trading-logic/params/orders/doctrine change → ships on green tests, no A/B; same class as the watcher_live observability fixes):** `setup/scripts/status_retention.py` — pure-Python, **idempotent, fail-open (L181/OP-25), atomic-write**. Splits STATUS.md on `## [` entry boundaries (newest-first), KEEPS the newest entries that fit a byte budget (default 45KB, safely under the ~25K-token Read cap; min-keep floor), ROLLS the older tail VERBATIM to `STATUS-archive-YYYY-MM.md` (newest roll inserted at top, nothing deleted), with a `--check` mode (exit 2 if over budget) for future wiring.
+> - **GRADUATED TO CODE (STAGE 4.5):** `backtest/tests/test_status_retention.py` — **10 cases**: split/preamble, keep-newest-roll-rest, min-keep floor, idempotent-noop-when-within-budget, **verbatim nothing-lost (kept ∪ archive = original)**, second-run idempotence, newest-roll-on-top ordering, fail-open on missing file, --check exit codes. The tool is now a tested operation, never another bespoke manual consolidation.
+> - **RAN IT (the loop-closing action, $0):** live STATUS.md **226KB/58 entries → 48KB/13 entries (154 lines, reads whole)**; 45 entries / 814 lines rolled verbatim to `STATUS-archive-2026-06.md` (newest roll at top). Kept window = 06-24 05:42 → 06-22 07:06 (ample recent cross-fire memory).
+> - **VALIDATED (paste-real, $0):** 10/10 new green; pre-commit safety gate PASS (29 tests + 5 curated suites). Commit **a795fc3** (scoped add — only my 2 code files; STATUS.md/archive are on-disk operational state per L164; working tree has unrelated mods).
+> - **NEXT FIRE picks up:** today is a trading day → after the close, CLOSE `WATCHER-FEED-REARM-CONFIRM` by reading 06-24 `watcher-live-diag.jsonl` + `watcher-observations.jsonl` (all three guard layers now in: ET-gate 3e8ed79, load-fallback 57cef40, integration 2eceac1) → confirm full 09:30–15:55 ET coverage → re-arm `watcher_feed critical=True` in engine_health.py. ALL author inboxes EMPTY. Standing direction holds (premium axis exhaustively dead L182/L183/L184; sizing-overlay closed #9): COMPOUND live edge #1 `vwap_continuation` (recency-RED → base size; license_monitor pings J on RED→green) + passive GEX forward-bank. **Follow-up queued (LOW):** `STATUS-RETENTION-AUTOWIRE` — register `status_retention.py --apply` as an after-hours-gated step so consolidation runs without a fire having to notice (the durable cap is built; auto-invocation is the last mile).
+> - Files: `setup/scripts/status_retention.py` (new tool), `backtest/tests/test_status_retention.py` (new guard, 10/10), `automation/overnight/STATUS.md` (consolidated + this entry), `automation/overnight/STATUS-archive-2026-06.md` (45-entry roll), queue Completed + follow-up.
+
+---
+
+
+## Kitchen
+Kitchen: alive, queue 43 pending, last cook 0 min ago, today $0.00, model=groq::llama-3.3-70b-versatile
+
+- [2026-06-24 23:27:16] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 68.75% in last 24h (33/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 33.38% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+### WARN: spend-summary threshold breach
+- ts: 2026-06-25T05:30:23+00:00
+- date_et: 2026-06-25
+- total: $291.51 (threshold $30.00)
+- claude: $291.51  minimax: $0.00
+- claude_sessions: 4
+
+- [2026-06-24 23:57:16] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 31.48% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 00:27:16] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 72.92% in last 24h (35/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 00:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 01:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 01:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 02:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 02:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 03:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 03:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 04:00:02] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+- [2026-06-25 04:00:02] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-06-25 04:00:02] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-06-25.md
+
+- [2026-06-25 04:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 04:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 05:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 05:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 06:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 79.17% in last 24h (38/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 06:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 79.17% in last 24h (38/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 07:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 07:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 08:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 72.92% in last 24h (35/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 08:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 30.06% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 09:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 68.75% in last 24h (33/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 31.92% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 09:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 68.75% in last 24h (33/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 32.5% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 10:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 68.75% in last 24h (33/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 32.4% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 10:57:45] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 68.75% in last 24h (33/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 32.4% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 11:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 68.75% in last 24h (33/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 32.75% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 11:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 68.75% in last 24h (33/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 32.75% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 12:27:16] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 31.18% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 12:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 72.92% in last 24h (35/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 13:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 13:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-06-25T20:01:00+00:00
+- task: eod-summary
+- date_et: 2026-06-25
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-06-25 14:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-06-25T20:45:13+00:00
+- task: analyst
+- date_et: 2026-06-25
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-06-25 14:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 79.17% in last 24h (38/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 21:00:03] gym-session (2026-06-25) → **YELLOW** :: see `automation\state\gym-scorecard-2026-06-25.json`
+- [2026-06-25 15:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 81.25% in last 24h (39/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-06-25T21:30:28+00:00
+- task: manager
+- date_et: 2026-06-25
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-06-25 15:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 79.17% in last 24h (38/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 16:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 16:57:16] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 17:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 17:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 72.92% in last 24h (35/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 18:27:16] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 72.92% in last 24h (35/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 18:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 72.92% in last 24h (35/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 19:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 19:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 68.75% in last 24h (33/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 30.24% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 20:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 31.71% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 20:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 32.11% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 21:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 64.58% in last 24h (31/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 34.02% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 21:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 62.5% in last 24h (30/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 36.08% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 22:27:16] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 60.42% in last 24h (29/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 38.0% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 22:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 58.33% in last 24h (28/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 39.68% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-25 23:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 58.33% in last 24h (28/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 40.92% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+### WARN: spend-summary threshold breach
+- ts: 2026-06-26T05:30:31+00:00
+- date_et: 2026-06-26
+- total: $207.21 (threshold $30.00)
+- claude: $207.21  minimax: $0.00
+- claude_sessions: 4
+
+- [2026-06-25 23:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 58.33% in last 24h (28/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 40.86% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 00:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 58.33% in last 24h (28/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 40.92% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 00:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 56.25% in last 24h (27/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 41.8% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 01:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 54.17% in last 24h (26/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 43.87% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 01:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 52.08% in last 24h (25/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 46.09% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 02:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 52.08% in last 24h (25/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 47.27% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 02:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 52.08% in last 24h (25/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 47.42% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 03:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 52.08% in last 24h (25/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 47.42% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 03:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 52.08% in last 24h (25/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 47.42% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 04:00:02] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+- [2026-06-26 04:00:02] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-06-26 04:00:02] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-06-26.md
+
+- [2026-06-26 04:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 52.08% in last 24h (25/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 47.42% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 04:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 52.08% in last 24h (25/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 47.42% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 05:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 52.08% in last 24h (25/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 47.42% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 05:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 52.08% in last 24h (25/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 47.42% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 06:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 52.08% in last 24h (25/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 47.35% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 06:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 54.17% in last 24h (26/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 46.61% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 07:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 54.17% in last 24h (26/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 46.46% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 07:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 54.17% in last 24h (26/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 46.46% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 08:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 54.17% in last 24h (26/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 46.46% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 08:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 54.17% in last 24h (26/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 46.46% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 09:27:16] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 44.83% in last 24h (26/58) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 46.38% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 09:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 41.27% in last 24h (26/63) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 46.38% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 10:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 40.62% in last 24h (26/64) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 46.38% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 10:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 41.54% in last 24h (27/65) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 45.49% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 11:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 42.19% in last 24h (27/64) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 44.46% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 11:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 42.19% in last 24h (27/64) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 44.4% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 12:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 42.19% in last 24h (27/64) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 43.95% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 12:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 42.19% in last 24h (27/64) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 43.95% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 13:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 42.19% in last 24h (27/64) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 43.81% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 13:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 42.19% in last 24h (27/64) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 43.74% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-06-26T20:00:29+00:00
+- task: eod-summary
+- date_et: 2026-06-26
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-06-26 14:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 35.71% in last 24h (25/70) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 47.28% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 21:00:02] gym-session (2026-06-26) → **YELLOW** :: see `automation\state\gym-scorecard-2026-06-26.json`
+- [2026-06-26 15:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 32.43% in last 24h (24/74) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 49.34% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-06-26T21:30:24+00:00
+- task: manager
+- date_et: 2026-06-26
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-06-26 15:57:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 33.78% in last 24h (25/74) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 49.48% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 16:27:15] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 36.0% in last 24h (27/75) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 47.57% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 16:53:33] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 36.84% in last 24h (28/76) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 45.74% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 16:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 37.66% in last 24h (29/77) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 45.59% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 17:26:34] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 38.96% in last 24h (30/77) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 44.2% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-26 17:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 39.74% in last 24h (31/78) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 44.2% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
 <!-- rolled off 2026-06-24 by status_retention.py (L181 consolidation): 1 entries / 16 lines -->
 
 ## [2026-06-24 05:42 ET] conductor: OK — watcher_live END-TO-END integration guard shipped (WATCHER-FEED-REARM de-risked, verify-now-not-later). Commit 2eceac1.

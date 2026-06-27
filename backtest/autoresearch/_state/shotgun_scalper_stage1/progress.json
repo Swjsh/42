@@ -2,9 +2,9 @@
   "started_at": "2026-06-26T14:49:59.406584",
   "deadline_at": "2026-06-26T17:49:59.406584",
   "total_combos": 2160,
-  "completed": 145,
+  "completed": 311,
   "passed_floors": 0,
-  "rejected": 145,
+  "rejected": 311,
   "keepers": 0,
   "best_edge_capture": 0.0,
   "best_final_score": 0.0,
@@ -19,6 +19,7 @@
     "code_source": "git",
     "computed_at": "2026-06-26T14:49:59"
   },
-  "last_update": "2026-06-26T16:15:11.109439",
-  "status": "running"
+  "last_update": "2026-06-26T17:49:45.784975",
+  "status": "deadline_reached",
+  "completed_at": "2026-06-26T17:50:06.902400"
 }

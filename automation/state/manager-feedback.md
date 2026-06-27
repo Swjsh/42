@@ -1,13 +1,14 @@
-<!-- Sonnet overseer 2026-06-26 18:03 ET -->
-- **STOP repeating validate-top-contender** — it ran at least twice this week; skip any action whose title contains "validate", "top contender", or "survivor" until a new candidate clears the grinder.
-- **STOP pulling VIXCLS** — it was foraged twice today (1633 + 1713). If foraging again, pick a different series (e.g. `T10Y2Y` yield-curve spread, `DPCREDIT` Fed credit, or `SOFR`).
-- **STOP accepting degenerate output** — the grinder-analysis cook hallucinated a culinary report ("500 kg of ingredients", "Chef Nemo culinary expert"). Any output that does not mention SPY, 0DTE, bars, strikes, or P&L within the first 100 words is **VOID**; log it as `LOW_QUALITY` and re-dispatch to a different lane.
+<!-- Sonnet overseer 2026-06-26 20:03 ET -->
+- **STOP** calling `rank_contenders` — you have run it three consecutive cycles (1813, 1833, 1853) and the output is byte-identical each time. The top survivor is known: `OTM-2:LR0:mt1:stop-8:tp+150%:sell80%:fixed` (edge=1692, WF=1.98). Do not call `rank_contenders` again until the backtest data changes.
 
-**Next 4 actions (pick in order, skip if already done this session):**
+- **STOP** accepting chef outputs that misread the config (the 1753 draft described LR0 as "implying a short strategy" — that is wrong; LR0 is a long-ratio knob). Reject and re-prompt when the output contradicts the actual parameter definitions.
 
-1. **Rank** — read `analysis/recommendations/contender-rank-2026-06-26.json` and rank the listed candidates by `edge_capture` against the 771 J-edge floor; output a 5-row table with pass/fail.
-2. **Critique** — send `vwap_reclaim_failed_break` (dormant WP edge) to the critic lane: "Does its stop at −8% still realize before theta kills the position given current VIX ~14.8 regime?"
-3. **Ideate** — chef proposes ONE `vwap_continuation` variant gated on `rvol_floor ≥ 1.2` (relative volume at trigger bar); write backtest hypothesis card only, no code.
-4. **Forage** — pull `T10Y2Y` (yield curve) from FRED; one paragraph: does the current inversion/steepening favour momentum or mean-reversion 0DTE bias?
+- **Action 1 — Adversarial critique:** Prompt critic: "The top contender `OTM-2:LR0:mt1:stop-8:tp+150%:sell80%` has WR=12.15%. At 0DTE OTM-2, does tp+150% ever realize before expiry worthless? Estimate how many of the 1880 survivors share this TP target and whether the edge is a stop-asymmetry artifact, not a true signal. Answer ≤200 words, structured."
 
-**Output rule:** every response ≤ 400 words, must contain at least one concrete SPY/options data point, no repeated headers, no hallucinated domain content.
+- **Action 2 — Sub-window stability check:** Run or prompt chef to check whether the top-2 contenders (edge=1692 and edge=1563) hold positive OOS expectancy across each of the 4 calendar quarters in the backtest data. Report pass/fail per quarter.
+
+- **Action 3 — Ideate one variant:** Chef proposes ONE `vwap_continuation` variant that adds an RVOL floor (e.g. rvol ≥ 1.2 at entry bar) to the existing live edge. State the hypothesis, expected filter rate, and what metric to check — no backtest needed yet.
+
+- **Action 4 — Forage:** Pull one free FRED series not yet in the system (e.g. `T10YIE` breakeven inflation) and write one sentence on whether it correlates with SPY 0DTE realized vol direction.
+
+- **Rule:** Every output ≤400 words, structured headers, no filler prose. If a free-model response exceeds 400 words or misreads a parameter, log `REJECTED: token-salad` and re-dispatch with a tighter prompt — do not accept and move on.

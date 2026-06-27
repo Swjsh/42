@@ -67,9 +67,8 @@ The spine. J's rules — Gamma enforces them, doesn't write them.
 - **Sizing tiers (v13b):** At $2K Safe account → OTM-2 strikes, 5 base / 8 elite contracts. $10k+ = 10 base / 15 elite. ELITE = trigger set includes confluence OR sequence_rejection/reclaim.
 - **Kill switch Safe-2:** −30% of start-of-day equity = −$600/day hard limit.
 - **Instrument:** SPY 0DTE options. **Tax/regulatory:** US retail.
-- **Kill switches isolated:** Safe-2's −30% daily limit does NOT halt Risky-2. Risky-2's −50% does NOT halt Safe-2.
-- **Origin:** Safe-2 replaced Safe-1 (PA3PHRM47D1J, $713 remaining after losses) on 2026-06-15 with $2K fresh capital. Risky-2 is a fresh replacement for Risky-1 (PA35NRWPGKD5, retired 2026-05-20).
-- **MCP wiring:** Both wired in project-local `.mcp.json` at repo root. `alpaca` MCP server → Gamma-Safe-2 (key `PK7WRO5T...`). `alpaca_aggressive` MCP server → Gamma-Risky-2 (key `PKQMQD2N...`). Verify account number on next Claude restart (MCP picks up new key then).
+- **Kill switches isolated:** Safe-2's −30% does NOT halt Risky-2. Risky-2's −50% does NOT halt Safe-2.
+- **MCP wiring:** `alpaca` → Gamma-Safe-2 (key `PK7WRO5T...`). `alpaca_aggressive` → Gamma-Risky-2 (key `PKQMQD2N...`). Both in project-root `.mcp.json`.
 
 ---
 
