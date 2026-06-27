@@ -397,15 +397,22 @@
   .sys-grid{
     display:flex;
     flex-wrap:wrap;
-    gap:9px 11px;
+    gap:6px 7px;
     margin-bottom:2px;
   }
   .sys{
     display:flex;
     align-items:center;
-    gap:9px;
-    min-width:0;
+    gap:6px;
+    padding:4px 9px;
+    border-radius:999px;
+    border:1px solid var(--hairline);
+    background:rgba(255,255,255,.025);
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease, transform .1s ease;
   }
+  .sys:hover{border-color:var(--hairline-2);background:rgba(255,255,255,.06);}
+  .sys:active{transform:scale(.97);}
   .sys-dot{
     width:8px;height:8px;border-radius:50%;
     flex:0 0 8px;
@@ -415,7 +422,7 @@
   .sys-dot.GREEN{background:var(--pos);box-shadow:0 0 7px rgba(67,201,142,.55);}
   .sys-dot.YELLOW{background:var(--caution);box-shadow:0 0 7px rgba(224,162,60,.5);}
   .sys-dot.RED{background:var(--alert);box-shadow:0 0 8px rgba(224,87,78,.6);}
-  .sys-name{display:none;}
+  .sys-name{font-size:11.5px;color:var(--text-2);white-space:nowrap;}
 
   .figs{
     display:flex;
@@ -429,6 +436,39 @@
   .fig-val{font-family:var(--mono);font-size:18px;font-weight:600;color:var(--text);letter-spacing:-.01em;}
   .fig-val.spy{color:var(--accent);}
   .fig-val.is-stale{opacity:.45;}
+
+  /* ── system detail sheet — tap any chip → who's doing what ── */
+  .sys-hint{font-size:10px;color:var(--muted);letter-spacing:.04em;margin-left:auto;}
+  .sheet-backdrop{position:fixed;inset:0;background:rgba(6,8,11,.62);z-index:50;opacity:0;pointer-events:none;transition:opacity .2s ease;}
+  .sheet-backdrop.open{opacity:1;pointer-events:auto;}
+  .sheet{
+    position:fixed;left:0;right:0;bottom:0;z-index:51;
+    width:100%;max-width:440px;margin:0 auto;
+    background:#0E1117;border:1px solid var(--hairline-2);border-bottom:none;
+    border-radius:18px 18px 0 0;
+    padding:14px 16px max(env(safe-area-inset-bottom),16px);
+    max-height:82vh;overflow-y:auto;
+    transform:translateY(101%);transition:transform .26s cubic-bezier(.22,1,.36,1);
+  }
+  .sheet.open{transform:translateY(0);}
+  .sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .sheet-title{font-family:var(--serif);font-size:18px;color:var(--text);}
+  .sheet-sub{font-size:11px;color:var(--muted);margin-bottom:8px;}
+  .sheet-close{width:30px;height:30px;border-radius:50%;border:1px solid var(--hairline-2);background:var(--glass-2);color:var(--text-2);font-size:13px;cursor:pointer;line-height:1;}
+  .sheet-close:hover{color:var(--text);}
+  .sys-row{display:grid;grid-template-columns:11px 1fr;gap:11px;padding:11px 0;border-top:1px solid rgba(255,255,255,.06);}
+  .sys-row:first-of-type{border-top:none;}
+  .sys-row .rdot{width:9px;height:9px;border-radius:50%;margin-top:6px;}
+  .sys-row .rdot.GREEN{background:var(--pos);box-shadow:0 0 7px rgba(67,201,142,.5);}
+  .sys-row .rdot.YELLOW{background:var(--caution);box-shadow:0 0 7px rgba(224,162,60,.5);}
+  .sys-row .rdot.RED{background:var(--alert);box-shadow:0 0 8px rgba(224,87,78,.6);}
+  .sys-row .rhead{display:flex;align-items:baseline;gap:9px;}
+  .sys-row .rname{font-size:15px;color:var(--text);font-weight:500;}
+  .sys-row .rstatus{font-size:10px;letter-spacing:.08em;text-transform:uppercase;}
+  .sys-row .rstatus.GREEN{color:var(--pos);}
+  .sys-row .rstatus.YELLOW{color:var(--caution);}
+  .sys-row .rstatus.RED{color:var(--alert);}
+  .sys-row .rdetail{font-family:var(--mono);font-size:11.5px;color:var(--text-2);line-height:1.5;margin-top:4px;word-break:break-word;}
 
   /* ── footer ──────────────────────────────────────── */
   .footer{
@@ -507,7 +547,7 @@
 
     <!-- VITALS -->
     <section class="card">
-      <div class="card-label">Vitals</div>
+      <div class="card-label" style="display:flex;align-items:center">Vitals<span class="sys-hint">tap a system ›</span></div>
       <div class="vitals-summary" id="vitalsSummary">— healthy · — watch · — alert</div>
       <div class="sys-grid" id="sysGrid"></div>
       <!-- live vitals: SPY + account equities from GET /api/vitals (read-only cached state) -->
@@ -529,6 +569,14 @@
 
     <div class="footer" id="footer"><span class="live"></span><span id="footerText">live</span></div>
   </main>
+
+  <!-- system detail sheet — what each part of Gamma is doing (tap any chip) -->
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+  <aside class="sheet" id="sysSheet" role="dialog" aria-label="System detail" aria-hidden="true">
+    <div class="sheet-head"><div class="sheet-title">Systems</div><button class="sheet-close" id="sheetClose" type="button" aria-label="Close">✕</button></div>
+    <div class="sheet-sub">What each part of Gamma is doing right now</div>
+    <div id="sheetBody"></div>
+  </aside>
 
 <!-- OpenAI Realtime voice client (WebRTC). Loads BEFORE the inline app script so
      window.GammaRealtime exists when the mic is wired. The raw OpenAI key never
@@ -559,8 +607,10 @@
   }
 
   // ── VITALS / HERO from /api/tiles ─────────────────────────
+  var lastTiles = [];
   function renderTiles(tiles){
     if (!Array.isArray(tiles) || !tiles.length) return;
+    lastTiles = tiles;
 
     var healthy=0, watch=0, alert=0;
     tiles.forEach(function(t){
@@ -627,7 +677,7 @@
       return;
     }
     // newest first (server emits newest-first already; guard anyway by leaving order)
-    feed.innerHTML = messages.slice(0, 3).map(function(m){
+    feed.innerHTML = messages.slice(0, 2).map(function(m){
       var kind = ["shipped","caution","healthy","info"].indexOf(m.kind) >= 0 ? m.kind : "info";
       var a = splitAnchor(m.text);
       var ts = esc(m.ts_et || "");
@@ -818,6 +868,29 @@
   }
   el("approveBtn").addEventListener("click", function(){ decide("approve"); });
   el("holdBtn").addEventListener("click", function(){ decide("reject"); });
+
+  // ── SYSTEM DETAIL SHEET — tap a health chip → what each part is doing now ────
+  function cleanDetail(s){ return String(s||"").replace(/\s*\|\s*/g," · ").replace(/\s+/g," ").trim() || "No detail reported."; }
+  function statusWord(light){ return light==="GREEN"?"healthy":light==="YELLOW"?"watch":"alert"; }
+  function buildSheet(tiles){
+    el("sheetBody").innerHTML = (tiles||[]).map(function(t){
+      var light = (t.light==="GREEN"||t.light==="YELLOW"||t.light==="RED") ? t.light : "RED";
+      return '<div class="sys-row">' +
+               '<span class="rdot '+light+'"></span>' +
+               '<div>' +
+                 '<div class="rhead"><span class="rname">'+esc(t.title||"")+'</span>' +
+                 '<span class="rstatus '+light+'">'+statusWord(light)+'</span></div>' +
+                 '<div class="rdetail">'+esc(cleanDetail(t.text))+'</div>' +
+               '</div>' +
+             '</div>';
+    }).join("");
+  }
+  function openSheet(){ buildSheet(lastTiles); el("sheetBackdrop").classList.add("open"); el("sysSheet").classList.add("open"); el("sysSheet").setAttribute("aria-hidden","false"); }
+  function closeSheet(){ el("sheetBackdrop").classList.remove("open"); el("sysSheet").classList.remove("open"); el("sysSheet").setAttribute("aria-hidden","true"); }
+  el("sysGrid").addEventListener("click", openSheet);
+  el("sheetClose").addEventListener("click", closeSheet);
+  el("sheetBackdrop").addEventListener("click", closeSheet);
+  document.addEventListener("keydown", function(e){ if(e.key==="Escape") closeSheet(); });
 
   // ── VOICE (mic) — tap to talk to Gamma via OpenAI Realtime ─
   // Read/answer only: GammaRealtime streams mic in, plays Gamma's audio out, and
