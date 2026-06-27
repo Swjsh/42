@@ -76,6 +76,8 @@
 | Proposed Task | Slot | Script | Why |
 |---|---|---|---|
 | `Gamma_LevelQualityGym` | Sun 17:30 ET | `python analysis/level-quality/level_quality_gym.py` | Weekly level-quality scorecard GREEN/YELLOW/RED vs DM-null baseline. RED appends Known-broken to STATUS.md. $0 cost. |
+| `Gamma_EodFlattenCore` | 13:55 MT = 15:55 ET weekdays | `setup/scripts/install-eod-flatten-core.ps1` → `setup/scripts/eod_flatten.py` (safe-2) | G7 pure-Python EOD-flatten backstop replacing the fragile LLM `Gamma_EodFlatten` (no Max-pool dependency). Code+12/12 guard COMMITTED 2026-06-27; **activation J-gated** — installing disables the working LLM task (an order-close-surface swap). $0. |
+| `Gamma_EodFlattenCore_Aggressive` | 13:55 MT = 15:55 ET weekdays | `setup/scripts/install-eod-flatten-core.ps1` → `setup/scripts/eod_flatten.py` (bold-2) | Bold-2 arm of the G7 pure-Python EOD-flatten backstop. Same activation gating as `Gamma_EodFlattenCore`. $0. |
 
 > _`Gamma_ArchiveKeyLevels` promoted from Proposed -> Wired (2026-06-19): install script authored (`setup/install-archive-key-levels.ps1`), worker now writes the backtest-consumed `journal/key-levels-archive/` path (not just the unused snapshots dir). See the "Wired — NOT yet enabled" section above._
 

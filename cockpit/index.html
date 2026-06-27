@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gamma Cockpit v1</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #21262d;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --green: #3fb950;
+    --green-bg: #0d2012;
+    --green-border: #238636;
+    --yellow: #d29922;
+    --yellow-bg: #1f1a05;
+    --yellow-border: #9e6a03;
+    --red: #f85149;
+    --red-bg: #200d0d;
+    --red-border: #6e1d1d;
+    --accent: #58a6ff;
+    --font-mono: 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  header h1 span.logo { font-size: 22px; }
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: var(--muted);
+    font-size: 12px;
+    font-family: var(--font-mono);
+  }
+  #clock { color: var(--accent); font-weight: 600; }
+  .pulse-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    display: inline-block;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .pulse-dot.dead { background: var(--red); animation: none; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* ── Layout ── */
+  main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 16px;
+    height: calc(100vh - 57px);
+  }
+
+  section {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  section h2 {
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ── Traffic Light Grid ── */
+  .tiles-section {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+  }
+
+  .tiles-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 12px;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .tile {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: border-color 0.3s;
+    position: relative;
+  }
+
+  .tile-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .light {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .light.GREEN { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .light.YELLOW { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+  .light.RED { background: var(--red); box-shadow: 0 0 8px var(--red); animation: redpulse 1s ease-in-out infinite; }
+  @keyframes redpulse {
+    0%, 100% { box-shadow: 0 0 8px var(--red); }
+    50% { box-shadow: 0 0 20px var(--red); }
+  }
+
+  .tile.GREEN { border-color: var(--green-border); background: var(--green-bg); }
+  .tile.YELLOW { border-color: var(--yellow-border); background: var(--yellow-bg); }
+  .tile.RED { border-color: var(--red-border); background: var(--red-bg); }
+
+  .tile-name {
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--text);
+  }
+
+  .tile-status {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .tile-updated {
+    font-size: 10px;
+    color: var(--muted);
+    opacity: 0.6;
+    margin-top: 2px;
+  }
+
+  /* ── Beacon mini-chart ── */
+  .beacon-price {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: var(--font-mono);
+  }
+
+  /* ── Activity stream ── */
+  .stream-section {
+    grid-column: 2 / 3;
+    grid-row: 1 / 3;
+  }
+
+  .stream-inner {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    scroll-behavior: smooth;
+  }
+
+  .event-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    border-left: 2px solid transparent;
+    transition: background 0.2s;
+  }
+  .event-row:hover { background: var(--bg3); }
+  .event-row.new { animation: slidein 0.3s ease-out; }
+  @keyframes slidein {
+    from { opacity: 0; transform: translateX(8px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .event-source {
+    width: 70px;
+    flex-shrink: 0;
+    color: var(--muted);
+    font-size: 10px;
+    padding-top: 1px;
+    text-align: right;
+  }
+
+  .event-ts {
+    width: 50px;
+    flex-shrink: 0;
+    color: var(--muted);
+    font-size: 10px;
+    opacity: 0.6;
+    padding-top: 1px;
+    text-align: right;
+  }
+
+  .event-emoji { flex-shrink: 0; width: 18px; text-align: center; }
+
+  .event-body {
+    flex: 1;
+    min-width: 0;
+    word-break: break-word;
+    white-space: pre-wrap;
+  }
+
+  .event-summary { color: var(--text); }
+  .event-detail {
+    color: var(--muted);
+    font-size: 10px;
+    margin-top: 2px;
+    opacity: 0.7;
+  }
+
+  /* source color coding */
+  .event-row[data-source="conductor"] { border-left-color: #a371f7; }
+  .event-row[data-source="manager"] { border-left-color: #58a6ff; }
+  .event-row[data-source="claude-hook"] { border-left-color: #3fb950; }
+  .event-row[data-source="beacon"] { border-left-color: #d29922; }
+  .event-row[data-source="kitchen"] { border-left-color: #f0883e; }
+  .event-row[data-source="cockpit"] { border-left-color: var(--muted); }
+
+  /* ── Lower panels ── */
+  .lower-left {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+  }
+
+  .mini-log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .mini-log .log-entry { margin-bottom: 4px; }
+  .mini-log .log-entry .time { color: var(--accent); margin-right: 4px; }
+
+  /* ── Status bar ── */
+  footer {
+    background: var(--bg3);
+    border-top: 1px solid var(--border);
+    padding: 4px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  footer span { display: flex; align-items: center; gap: 4px; }
+
+  /* scroll bars */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .refresh-hint {
+    font-size: 10px;
+    color: var(--muted);
+    opacity: 0.5;
+    margin-left: auto;
+  }
+
+  /* spy price in header */
+  #spy-price {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="logo">🎯</span> Gamma Cockpit <span style="color:var(--muted);font-weight:400;font-size:13px">v1</span></h1>
+  <div class="header-meta">
+    <span id="spy-price">SPY $—</span>
+    <span><span class="pulse-dot" id="sse-dot"></span> <span id="sse-status">connecting…</span></span>
+    <span id="clock">—</span>
+    <span id="tile-age" style="opacity:0.6">tiles: —</span>
+  </div>
+</header>
+
+<main>
+  <!-- Panel 1: Traffic lights -->
+  <section class="tiles-section">
+    <h2>📡 System Status</h2>
+    <div class="tiles-grid" id="tiles-grid">
+      <div class="tile YELLOW">
+        <div class="tile-header"><div class="light YELLOW"></div><span class="tile-name">Loading…</span></div>
+        <div class="tile-status">Fetching state files…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Panel 2: Activity stream -->
+  <section class="stream-section">
+    <h2>⚡ Live Activity Stream <span class="refresh-hint" id="event-count">0 events</span></h2>
+    <div class="stream-inner" id="stream"></div>
+  </section>
+
+  <!-- Panel 3: Conductor log tail -->
+  <section class="lower-left">
+    <h2>📋 Conductor Log (today)</h2>
+    <div class="mini-log" id="conductor-log">Loading…</div>
+  </section>
+</main>
+
+<footer>
+  <span><span class="pulse-dot" id="footer-dot"></span> Gamma Cockpit v1</span>
+  <span>port 4500</span>
+  <span id="last-event-time">no events yet</span>
+  <span id="client-count"></span>
+</footer>
+
+<script>
+const PORT = 4500;
+let eventSource = null;
+let allEvents = [];
+let tilesRefreshTimer = null;
+let autoScroll = true;
+
+// ── Clock ──
+function updateClock() {
+  const now = new Date();
+  const et = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const pad = n => String(n).padStart(2, '0');
+  const str = `ET ${pad(et.getMonth()+1)}/${pad(et.getDate())} ${pad(et.getHours())}:${pad(et.getMinutes())}:${pad(et.getSeconds())}`;
+  document.getElementById('clock').textContent = str;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── SSE connection ──
+function connectSSE() {
+  if (eventSource) eventSource.close();
+  eventSource = new EventSource(`http://localhost:${PORT}/events`);
+
+  eventSource.onopen = () => {
+    setSseStatus(true);
+  };
+
+  eventSource.onmessage = (e) => {
+    try {
+      const evt = JSON.parse(e.data);
+      addEventToStream(evt, true);
+    } catch (_) {}
+  };
+
+  eventSource.onerror = () => {
+    setSseStatus(false);
+    setTimeout(connectSSE, 3000);
+  };
+}
+
+function setSseStatus(ok) {
+  const dot = document.getElementById('sse-dot');
+  const txt = document.getElementById('sse-status');
+  const fdot = document.getElementById('footer-dot');
+  dot.className = ok ? 'pulse-dot' : 'pulse-dot dead';
+  fdot.className = ok ? 'pulse-dot' : 'pulse-dot dead';
+  txt.textContent = ok ? 'live' : 'reconnecting…';
+}
+
+// ── Event stream rendering ──
+function tsToEt(isoStr) {
+  try {
+    const d = new Date(isoStr);
+    return d.toLocaleTimeString('en-US', {
+      timeZone: 'America/New_York',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      hour12: false,
+    });
+  } catch (_) { return ''; }
+}
+
+function addEventToStream(evt, isNew) {
+  allEvents.push(evt);
+  if (allEvents.length > 500) allEvents = allEvents.slice(-500);
+
+  const stream = document.getElementById('stream');
+  const row = document.createElement('div');
+  row.className = 'event-row' + (isNew ? ' new' : '');
+  row.dataset.source = evt.source || '';
+  row.dataset.seq = evt.seq || 0;
+
+  const detailHtml = evt.detail ? `<div class="event-detail">${escHtml(evt.detail)}</div>` : '';
+
+  row.innerHTML = `
+    <span class="event-ts">${tsToEt(evt.ts)}</span>
+    <span class="event-emoji">${evt.emoji || '·'}</span>
+    <span class="event-source">${escHtml(evt.source || '')}</span>
+    <span class="event-body">
+      <span class="event-summary">${escHtml(evt.summary || '')}</span>
+      ${detailHtml}
+    </span>
+  `;
+
+  stream.appendChild(row);
+
+  // auto-scroll
+  if (autoScroll) {
+    stream.scrollTop = stream.scrollHeight;
+  }
+
+  document.getElementById('event-count').textContent = `${allEvents.length} events`;
+  document.getElementById('last-event-time').textContent = `last: ${tsToEt(evt.ts)} ET`;
+}
+
+// Detect manual scroll up to pause auto-scroll
+document.getElementById('stream').addEventListener('scroll', function() {
+  const el = this;
+  const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 50;
+  autoScroll = atBottom;
+});
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ── Traffic light tiles ──
+async function refreshTiles() {
+  try {
+    const res = await fetch(`http://localhost:${PORT}/api/tiles`);
+    const tiles = await res.json();
+    renderTiles(tiles);
+    document.getElementById('tile-age').textContent = `tiles: ${new Date().toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false })}`;
+  } catch (e) {
+    document.getElementById('tile-age').textContent = 'tiles: error';
+  }
+}
+
+function renderTiles(tiles) {
+  const grid = document.getElementById('tiles-grid');
+  grid.innerHTML = '';
+
+  for (const t of tiles) {
+    const tile = document.createElement('div');
+    tile.className = `tile ${t.light}`;
+    const isBeacon = t.title === 'Beacon (Eye)';
+    const priceMatch = isBeacon ? t.text.match(/SPY \$(\d+\.\d+)/) : null;
+    if (priceMatch) {
+      document.getElementById('spy-price').textContent = `SPY $${priceMatch[1]}`;
+    }
+
+    tile.innerHTML = `
+      <div class="tile-header">
+        <div class="light ${t.light}"></div>
+        <span class="tile-name">${escHtml(t.title)}</span>
+      </div>
+      <div class="tile-status" title="${escHtml(t.text)}">${escHtml(t.text)}</div>
+      <div class="tile-updated">updated ${escHtml(t.updated || '?')} ET</div>
+    `;
+    grid.appendChild(tile);
+  }
+}
+
+// ── Conductor log ──
+async function refreshConductorLog() {
+  try {
+    // Fetch today's conductor log via API
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+    const res = await fetch(`http://localhost:${PORT}/api/conductor-log?date=${today}`);
+    if (res.ok) {
+      const { lines } = await res.json();
+      const el = document.getElementById('conductor-log');
+      el.innerHTML = lines.map(l =>
+        `<div class="log-entry">${escHtml(l)}</div>`
+      ).join('');
+      el.scrollTop = el.scrollHeight;
+    }
+  } catch (_) {}
+}
+
+// ── Init ──
+connectSSE();
+refreshTiles();
+setInterval(refreshTiles, 5000);
+setTimeout(refreshConductorLog, 1000);
+setInterval(refreshConductorLog, 30000);
+</script>
+</body>
+</html>

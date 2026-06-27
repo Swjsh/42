@@ -21,6 +21,13 @@
       "runtimeArgs": ["test-preview.js"],
       "port": 4319,
       "cwd": "gamma-companion"
+    },
+    {
+      "name": "cockpit",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["server.js"],
+      "port": 4500,
+      "cwd": "cockpit"
     }
   ]
 }
