@@ -1136,14 +1136,15 @@
 })();
 </script>
 
-<!-- Pixel office — living agents roam behind the dashboard, fed by /api/agents-live -->
+<!-- Pixel office — DESKTOP ONLY (phone stays plain Gamma); living agents fed by /api/agents-live -->
 <script src="/pixels.js"></script>
 <script>
 (function(){
   "use strict";
   var canvas = document.getElementById("gx-office");
   if (!canvas || !window.GammaPixels) return;
-  try { window.GammaPixels.mount(canvas); } catch(_) { return; }
+  var DESKTOP = 1000;            // office needs the wide side margins; below this = plain Gamma
+  var mounted = false, timer = null;
   function pump(){
     fetch("/api/agents-live", { cache: "no-store" })
       .then(function(r){ return r.json(); })
@@ -1157,8 +1158,23 @@
       })
       .catch(function(){ /* fail-open: office keeps its last roster */ });
   }
-  pump();
-  setInterval(pump, 2500);
+  function evalView(){
+    var wide = window.innerWidth >= DESKTOP;
+    if (wide && !mounted){
+      try { window.GammaPixels.mount(canvas); } catch(_){ return; }
+      canvas.style.display = ""; mounted = true;
+      pump(); timer = setInterval(pump, 2500);
+    } else if (!wide && mounted){
+      try { if (window.GammaPixels.unmount) window.GammaPixels.unmount(); } catch(_){}
+      if (timer){ clearInterval(timer); timer = null; }
+      canvas.style.display = "none"; mounted = false;
+    } else if (!wide){
+      canvas.style.display = "none";   // phone: never show the office
+    }
+  }
+  evalView();
+  var rt = null;
+  window.addEventListener("resize", function(){ clearTimeout(rt); rt = setTimeout(evalView, 250); });
 })();
 </script>
 </body>

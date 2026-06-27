@@ -258,10 +258,21 @@
     var occ = function (c, r) { obstacles[r * cols + c] = true; };
     for (var rr = 0; rr <= cardBottom; rr++) for (var cc = cardLo; cc <= cardHi; cc++) occ(cc, rr);
 
-    // ── Decide sector RECTANGLES. Wide viewport → spread horizontally; narrow →
-    //    stack. The available floor = (a) the BOTTOM band (all cols, rows
-    //    cardBottom+1 .. rows-1) and (b) the two SIDE margins beside the card
-    //    column (rows 0..cardBottom). We place 5 functional sectors. ──
+    // ── DESKTOP-ONLY layout (face.html gates mount at innerWidth>=1000, so we
+    //    assume a wide viewport — no narrow/phone fallback). J's drawn layout:
+    //
+    //      ┌──────────┬──────────────┬──────────┐
+    //      │          │  (card col   │          │
+    //      │ ACCOUNTS │   reserved   │   LAB    │   ← left & right margins,
+    //      │  (left   │   obstacle)  │  (right  │     FULL HEIGHT top→bottom
+    //      │  margin, ├──────────────┤  margin, │
+    //      │  6 cubes │ KITCH│TRD│GYM│  R&D)    │   ← bottom band (center strip
+    //      │  2x3)    │      │   │   │          │     below the card) split into
+    //      └──────────┴──────────────┴──────────┘     thirds: Kitchen|Trading|Gym
+    //
+    //    Left margin  = x 0..cardLo-1, full height          → ACCOUNTS
+    //    Right margin = x cardHi+1..cols-1, full height      → LAB / R&D
+    //    Bottom band  = x cardLo..cardHi, y cardBottom+1..   → KITCHEN|TRADING|GYM
     var bandTop = cardBottom + 1;
     var bandH = rows - bandTop;          // height of the bottom band
     var sectors = {};
@@ -300,57 +311,34 @@
       return s;
     }
 
-    // is a column inside the reserved card band (top region)?
-    var cardCols = function (c) { return c >= cardLo && c <= cardHi; };
+    // ── LEFT MARGIN → ACCOUNTS (full height) ──
+    // Everything left of the card column, top to bottom. The 6 cubicles are laid
+    // out as a 2-col x 3-row grid filling this tall zone (see _furnishSectors).
+    makeSector('accounts', 'ACCOUNTS', COL.glow, 0, 0, cardLo - 1, rows - 1, 'right');
 
-    // sector vertical extents in the bottom band (leave a 1-row gap at very bottom)
-    var by = bandTop, by2 = rows - 1;
+    // ── RIGHT MARGIN → LAB / R&D (full height) ──
+    // Everything right of the card column, top to bottom. Whiteboards + research
+    // / server desks distributed down its height.
+    makeSector('lab', 'LAB / R&D', COL.accent, cardHi + 1, 0, cols - 1, rows - 1, 'left');
 
-    if (cols >= 30 && bandH >= 6) {
-      // ── WIDE: spread 5 sectors horizontally across the bottom band, using the
-      //    full width. Kitchen | Gym | Lab | Accounts | Trading. The Accounts
-      //    sector (6 cubicles) gets the widest slot. ──
-      var n = 5;
-      // weighted widths: accounts widest, lab next
-      var weights = [1.0, 0.9, 1.15, 1.5, 0.85]; // kitchen,gym,lab,accounts,trading
-      var wsum = weights.reduce(function (a, b) { return a + b; }, 0);
-      var avail = cols - 2; // 1-tile outer margin each side
-      var xcur = 1, rects = [];
-      for (var i = 0; i < n; i++) {
-        var w = Math.floor(avail * weights[i] / wsum);
-        rects.push([xcur, xcur + w - 1]); xcur += w;
-      }
-      rects[n - 1][1] = cols - 2; // snap last to the right edge
-      makeSector('kitchen',  'KITCHEN',  COL.caution, rects[0][0], by, rects[0][1] - 1, by2, 'top');
-      makeSector('gym',      'GYM',      COL.pos,     rects[1][0], by, rects[1][1] - 1, by2, 'top');
-      makeSector('lab',      'LAB / R&D',COL.accent,  rects[2][0], by, rects[2][1] - 1, by2, 'top');
-      makeSector('accounts', 'ACCOUNTS', COL.glow,    rects[3][0], by, rects[3][1] - 1, by2, 'top');
-      makeSector('trading',  'TRADING',  COL.alert,   rects[4][0], by, rects[4][1],     by2, 'top');
-    } else {
-      // ── NARROW: a 2-column x 3-row GRID of small sectors stacked in the bottom
-      //    band (the card column eats the horizontal room, so we stack down).
-      //    Row1: Kitchen | Gym   Row2: Lab | Accounts   Row3: Trading (full width).
-      //    Guarantees ALL 5 sectors exist even on a phone-width screen. ──
-      var midX = Math.floor(cols / 2);
-      var rowH = Math.max(3, Math.floor(bandH / 3));     // each sector-row height
-      var r1 = by, r1b = by + rowH - 1;
-      var r2 = r1b + 1, r2b = r2 + rowH - 1;
-      var r3 = r2b + 1, r3b = by2;
-      makeSector('kitchen',  'KITCHEN',  COL.caution, 1,        r1, midX - 1, r1b, 'bottom');
-      makeSector('gym',      'GYM',      COL.pos,     midX,     r1, cols - 2, r1b, 'bottom');
-      makeSector('lab',      'LAB',      COL.accent,  1,        r2, midX - 1, r2b, 'top');
-      makeSector('accounts', 'ACCOUNTS', COL.glow,    midX,     r2, cols - 2, r2b, 'top');
-      makeSector('trading',  'TRADING',  COL.alert,   1,        r3, cols - 2, r3b, 'top');
-    }
+    // ── BOTTOM BAND (center strip below the card) → KITCHEN | TRADING | GYM ──
+    // The card-column width, below the reserved card rect, split into three. GYM
+    // gets the largest share (J: "the BIG one").
+    var bandX = cardLo, bandX2 = cardHi, by = bandTop, by2 = rows - 1;
+    var bandW = bandX2 - bandX + 1;
+    // thirds with GYM widest: kitchen 0.30, trading 0.30, gym 0.40
+    var kEnd = bandX + Math.floor(bandW * 0.30) - 1;
+    var tEnd = bandX + Math.floor(bandW * 0.60) - 1;
+    makeSector('kitchen', 'KITCHEN', COL.caution, bandX,     by, kEnd,   by2, 'top');
+    makeSector('trading', 'TRADING', COL.alert,   kEnd + 1,  by, tEnd,   by2, 'top');
+    makeSector('gym',     'GYM',     COL.pos,     tEnd + 1,  by, bandX2, by2, 'top');
 
-    // Ensure every sector key exists; if one failed to build (a too-thin grid),
-    // ALIAS its role to a present sector so no worker is ever sector-less. Lab is
-    // the universal fallback and is guaranteed below.
-    if (!sectors.lab) {
-      makeSector('lab', 'LAB', COL.accent, 1, by, Math.min(cols - 2, 1 + 8), by2, 'top');
-    }
-    // sectorAlias maps a missing sector key → an existing one (used by sectorForRole
-    // consumers via _resolveSector). Built fresh each layout.
+    // Safety: if a sector failed to build (degenerate tiny grid — shouldn't happen
+    // on the desktop-only viewport this targets), alias its role to Lab so no
+    // worker is ever sector-less. Lab spans the full-height right margin and is the
+    // most robust fallback; guarantee it exists.
+    if (!sectors.lab) makeSector('lab', 'LAB / R&D', COL.accent, cardHi + 1, 0, cols - 1, rows - 1, 'left');
+    if (!sectors.lab) makeSector('lab', 'LAB / R&D', COL.accent, 1, by, Math.min(cols - 2, 1 + 8), by2, 'top');
     this.sectorAlias = {};
     var allKeys = ['kitchen', 'gym', 'lab', 'accounts', 'trading'];
     for (var ak = 0; ak < allKeys.length; ak++) {
@@ -422,54 +410,56 @@
         return true;
       }
 
-      if (key === 'kitchen') {
-        // a row of STOVES along the top interior wall, a FRIDGE in a corner,
-        // PREP COUNTERS along the bottom. Capped to fit.
-        var cap = Math.min(4, Math.max(2, Math.floor(iw / 2)));
-        var placed = 0;
-        for (var c = x + 1; c <= x2 - 1 && placed < cap; c += 2) { if (addUnit(c, y, 'stove', 'down')) placed++; }
-        addUnit(x, y, 'fridge', 'down');
-        // a couple of prep counters lower down
-        var cc = x + 1;
-        if (ih >= 4) { addUnit(cc, y2, 'counter', 'up'); addUnit(cc + 2, y2, 'counter', 'up'); }
-      } else if (key === 'gym') {
-        // weight RACKS along the top, a BENCH center, a TREADMILL corner, dumbbells.
-        var gcap = Math.min(3, Math.max(2, Math.floor(iw / 2)));
-        var gp = 0;
-        for (var gc = x; gc <= x2 && gp < gcap; gc += 2) { if (addUnit(gc, y, 'rack', 'down')) gp++; }
-        addUnit(x + Math.floor(iw / 2), y2, 'bench', 'up');
-        addUnit(x2, y, 'treadmill', 'down');
-        if (iw >= 4) addUnit(x + 1, y2, 'dumbbell', 'up');
-      } else if (key === 'lab') {
-        // WHITEBOARDS along the top + a couple of SERVER/research desks.
-        var lcap = Math.min(3, Math.max(1, Math.floor(iw / 3)));
-        var lp = 0;
-        for (var lc = x; lc <= x2 && lp < lcap; lc += 3) { if (addUnit(lc, y, 'whiteboard', 'down')) lp++; }
-        // research desks lower
-        var ldc = x + 1;
-        if (ih >= 4) { addUnit(ldc, y2, 'serverdesk', 'up'); addUnit(ldc + 2, y2, 'serverdesk', 'up'); }
-      } else if (key === 'accounts') {
-        // up to 6 CUBICLE TERMINALS (one per equity account). The resident sits
-        // BELOW the terminal (faceDir 'up' → spot at fr+1) so each row's seats
-        // are DISTINCT. Rows are spaced by 3 (terminal, seat, lane) so seats from
-        // different rows never collide; columns by 2 (terminal, gap).
+      // place furniture in ROWS spread down the zone height: a furniture row,
+      // a seat row, a walking lane — repeated every 3 rows. This fills tall zones
+      // (the left/right margins) AND wide ones (the bottom thirds) evenly instead
+      // of cramming everything against one wall.
+      function fillRows(kinds, colStep, cap) {
+        var made = 0;
+        for (var fr = y; fr <= y2 - 1 && made < (cap || 999); fr += 3) {
+          var ki = 0;
+          for (var fc = x; fc <= x2 && made < (cap || 999); fc += colStep) {
+            var kind = kinds[(ki++) % kinds.length];
+            if (addUnit(fc, fr, kind, 'up')) made++;
+          }
+        }
+        return made;
+      }
+
+      if (key === 'accounts') {
+        // 6 CUBICLE TERMINALS as a 2-col x 3-row grid filling the TALL left zone.
+        // Resident sits BELOW the terminal (faceDir 'up'); rows spaced by 3 so
+        // seats never collide; we choose a column step that yields ~2 columns.
         var want = 6, made = 0;
-        for (var rr = y; rr <= y2 - 1 && made < want; rr += 3) {
-          for (var ccx = x; ccx <= x2 && made < want; ccx += 2) {
+        var aColStep = Math.max(2, Math.floor(iw / 2));        // ~2 cubicle columns
+        var rowGap = Math.max(3, Math.floor(ih / 3));          // ~3 cubicle rows down the height
+        for (var rr = y; rr <= y2 - 1 && made < want; rr += rowGap) {
+          for (var ccx = x; ccx <= x2 && made < want; ccx += aColStep) {
             if (addUnit(ccx, rr, 'terminal', 'up')) made++;
           }
         }
-        // if a 2-row grid didn't fit (short sector), top up along a single row
-        for (var ccx2 = x; ccx2 <= x2 && made < want; ccx2 += 2) {
-          if (!s.furniture.some(function (f2) { return f2.c === ccx2 && f2.r === y; }))
-            if (addUnit(ccx2, y, 'terminal', 'up')) made++;
+        // top up if the grid under-filled (narrow/short interior): add along any
+        // free furniture rows until we reach 6.
+        for (var rr2 = y; rr2 <= y2 - 1 && made < want; rr2 += 3) {
+          for (var cx2 = x; cx2 <= x2 && made < want; cx2 += 2) {
+            if (!self.obstacles[rr2 * cols + cx2]) { if (addUnit(cx2, rr2, 'terminal', 'up')) made++; }
+          }
         }
         s.cubicleCount = made;
+      } else if (key === 'lab') {
+        // R&D right margin (tall): WHITEBOARDS + SERVER/research desks distributed
+        // down the full height, alternating, every 3 rows.
+        fillRows(['whiteboard', 'serverdesk'], Math.max(3, Math.floor(iw / 2)), 8);
+      } else if (key === 'kitchen') {
+        // KITCHEN (bottom-left third): stoves, fridge, prep counters spread across.
+        fillRows(['stove', 'counter', 'fridge'], 2, 6);
       } else if (key === 'trading') {
-        // engine TERMINALS (a couple of $ / chart screens) + a coffee machine.
-        var tp = 0, tcap = Math.min(3, Math.max(1, Math.floor(iw / 2)));
-        for (var tc = x; tc <= x2 && tp < tcap; tc += 2) { if (addUnit(tc, y, 'engine', 'down')) tp++; }
-        addUnit(x2, y2, 'coffee', 'up');
+        // TRADING (bottom-middle third): engine/beacon terminals + a coffee machine.
+        var tmade = fillRows(['engine', 'engine', 'coffee'], 2, 6);
+      } else if (key === 'gym') {
+        // GYM (bottom-right third, the BIG one): racks, benches, dumbbells, treadmill
+        // spread across the wider area.
+        fillRows(['rack', 'bench', 'dumbbell', 'treadmill'], 2, 8);
       }
 
       // guarantee at least ONE spot even if furniture didn't fit, so a worker can

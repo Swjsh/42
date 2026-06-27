@@ -74,10 +74,10 @@
     var canvas = $('gx-office');
 
     // ── mock roster (sector model) ───────────────────────────────────────────
-    var ROLES   = ['engine', 'conductor', 'kitchen', 'gym', 'research'];
+    var ROLES   = ['engine', 'conductor', 'kitchen', 'gym', 'research', 'voice', 'beacon'];
     var RUNNERS = {
       engine: 'Python', conductor: 'Claude Opus', kitchen: 'Nemotron · free',
-      gym: 'Python', research: 'Claude Sonnet'
+      gym: 'Python', research: 'Claude Sonnet', voice: 'Realtime', beacon: 'Python'
     };
     var TASKS = ['wiring G6 vix feed', 'ranking candidates', 'seeding cook tasks',
                  '42 validators', 'edge-hunt sweep', 'reading the tape'];
@@ -183,11 +183,14 @@
       apply();
     };
 
-    // ── boot: mount with debug paths ON, seed the coordinator's spec roster:
-    //    kitchen + conductor + research + engine + gym + the 6 account residents. ──
+    // ── boot: mount with debug paths ON, seed a roster covering every sector:
+    //    kitchen + conductor/research/voice (Lab) + engine/beacon (Trading) + gym
+    //    + the 6 account residents (Accounts left margin). The real office mounts
+    //    DESKTOP-ONLY (face.html gates at innerWidth>=1000); this harness always
+    //    mounts so you can inspect a wide viewport. ──
     GammaPixels.mount(canvas, { debugPaths: true });
     setTimeout(function () {
-      ['kitchen', 'conductor', 'research', 'engine', 'gym'].forEach(function (role) { roster.push(mk(role)); });
+      ['kitchen', 'conductor', 'research', 'voice', 'engine', 'beacon', 'gym'].forEach(function (role) { roster.push(mk(role)); });
       roster = roster.concat(accountResidents()); // 6 always-on cubicle residents
       apply();
     }, 250);
