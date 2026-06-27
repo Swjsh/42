@@ -533,6 +533,7 @@ def run_account(account: str) -> dict:
     # watcher, and logs the result. Order placement via these signals is NOT wired here
     # yet — SKIP_NO_FEED / SKIP_NO_SIGNAL are the expected outputs until each detector
     # is promoted to LIVE. This call must never raise (setup_dispatch fails open).
+    extra: list = []
     try:
         from setup_dispatch import dispatch_extra_setups  # noqa: PLC0415
         extra = dispatch_extra_setups(account, params, payload, verdict, armed=ARMED)
@@ -557,6 +558,15 @@ def run_account(account: str) -> dict:
             rec["action"] = rec["exec"].get("status")
     else:
         rec["action"] = v
+        # G4: on a non-ENTER ribbon verdict (HOLD/SKIP), route any fired + exec-armed extra
+        # setup through the SAME _execute path. Default = byte-identical no-op (no setup is
+        # exec-armed -> every fired row logs WATCH_NOT_ARMED, _execute is never called). The
+        # else-branch placement guarantees the ribbon path and an extra setup never double-
+        # place on the same tick (and _execute's own is_flat check is the backstop).
+        if extra:
+            routed = _route_extra_setups(account, extra, payload, params)
+            if routed:
+                rec["extra_exec"] = routed
     _log(rec)
     return rec
 
@@ -818,6 +828,68 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
         except Exception:  # bookkeeping must never fail an accepted entry
             plan["exit_managed"] = False
     return plan
+
+
+# ----- extra-setup execution routing (G4) ------------------------------------
+# The 4 validated detectors (vwap_continuation / gap_and_go / vwap_reclaim_failed_break /
+# vix_regime_dayside) are individually enabled in params (j_*_enabled) to EVALUATE + LOG a
+# signal each tick (WATCH). Routing a fired signal to a LIVE order is a SEPARATE arming step,
+# gated on params["extra_setup_exec_armed"][setup_name] is True — a NEW key, default ABSENT ->
+# nothing armed -> this whole path is a byte-identical no-op. This decouples the detector-enable
+# (perception) from the execution-arm (capital): the books are recency-RED (DIRECTION-BLOCK-
+# BATCH-RECONCILE) so exec-arm stays OFF until license_monitor clears the RED->green; a J params
+# edit (rail-4) arms it setup-by-setup. Execution reuses the SAME _execute (flat-verify +
+# quality-lock + risk_gate + place) plus the same free-model veto, so an extra-setup entry is
+# held to identical safety as a core ribbon entry.
+_EXTRA_DIR_TO_VERDICT = {"long": "ENTER_BULL", "short": "ENTER_BEAR"}
+
+
+def _synthetic_verdict_from_extra(row: dict) -> "dict | None":
+    """Map a FIRED dispatch_extra_setups row to a verdict dict _execute understands.
+    Returns None for non-fired / neutral / malformed rows (fail-closed -> no trade)."""
+    if not isinstance(row, dict) or not row.get("fired"):
+        return None
+    v = _EXTRA_DIR_TO_VERDICT.get(str(row.get("direction", "")).lower())
+    if v is None:  # neutral / unknown direction -> no trade
+        return None
+    return {"verdict": v, "setup_name": row.get("setup_name"),
+            "triggers_fired": list(row.get("triggers") or [])}
+
+
+def _extra_exec_armed(params: dict, setup_name: "str | None") -> bool:
+    """A fired extra-setup is routed to a LIVE order ONLY when params explicitly arms it.
+    Default (key absent / not a dict / value not True) -> OFF -> the G4 path is a pure no-op."""
+    if not setup_name:
+        return False
+    armed_map = params.get("extra_setup_exec_armed")
+    return isinstance(armed_map, dict) and armed_map.get(setup_name) is True
+
+
+def _route_extra_setups(account: str, extra: list, payload: dict, params: dict) -> list:
+    """Route fired + exec-armed extra-setup signals through the SAME _execute path as the
+    ribbon verdict. Returns a list of {setup, action, ...} ledger outcomes. Never raises."""
+    out: list = []
+    for row in extra or []:
+        sv = _synthetic_verdict_from_extra(row)
+        if sv is None:
+            continue
+        setup = sv.get("setup_name")
+        if not _extra_exec_armed(params, setup):
+            out.append({"setup": setup, "action": "WATCH_NOT_ARMED"})
+            continue
+        try:
+            ev = _free_model_eval(account, payload, sv)
+            if ev.get("veto"):
+                out.append({"setup": setup, "action": "VETOED_BY_MODELS", "free_eval": ev})
+                continue
+            if not CORE_PLACES_ORDERS:
+                out.append({"setup": setup, "action": "PERCEPTION_ONLY"})
+                continue
+            ex = _execute(account, sv, payload, params, dry=not ARMED)
+            out.append({"setup": setup, "action": ex.get("status"), "exec": ex})
+        except Exception as e:  # noqa: BLE001 — never crash the tick
+            out.append({"setup": setup, "action": "EXTRA_EXEC_ERROR", "err": str(e)[:120]})
+    return out
 
 
 def main() -> int:
