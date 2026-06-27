@@ -820,6 +820,147 @@ function utcToEtDate(isoStr) {
   } catch (_) { return ''; }
 }
 
+// ─── OpenAI Realtime voice (server-side key isolation) ───────────────────────
+// The raw OpenAI key is read SERVER-SIDE only and used to mint a short-lived
+// ephemeral client_secret. ONLY that ephemeral secret crosses to the browser —
+// the sk-... key NEVER appears in any client-served file or response body.
+// Mirrors gamma-companion/lib/openai_key.js + server.js#/api/realtime-token.
+const https = require('https');
+
+function loadOpenAIKey() {
+  const env = (process.env.OPENAI_API_KEY || '').trim();
+  if (env.startsWith('sk-')) return env;
+  try {
+    const raw = fs.readFileSync(path.join(STATE, '.openai.key'), 'utf8');
+    const first = raw.split(/\r?\n/).map((s) => s.trim()).find(Boolean) || '';
+    if (first.startsWith('sk-')) return first;
+  } catch (_) { /* not configured yet */ }
+  return null;
+}
+
+// Tailnet host (optional): a MagicDNS name from automation/state/.tailnet-host
+// lets the phone over Tailscale mint a token; absent → localhost-only.
+const TAILNET_HOST = (() => {
+  const env = (process.env.GAMMA_TAILNET_HOST || '').trim().toLowerCase();
+  if (env) return env;
+  try {
+    const raw = fs.readFileSync(path.join(STATE, '.tailnet-host'), 'utf8').trim().toLowerCase();
+    if (raw) return raw;
+  } catch (_) { /* none */ }
+  return '';
+})();
+
+// Origin/Host guard for the paid-key route: localhost / 127.0.0.1 / [::1] / a
+// 100.64.0.0/10 tailnet IP / the configured MagicDNS host. A stray reachable
+// host can NOT mint tokens on the paid key. Fail-CLOSED for a present-but-bad
+// origin; allow a missing origin (same-origin / non-browser caller on a route
+// already bound to 127.0.0.1).
+function hostIsLocalOrTailnet(hostRaw) {
+  if (!hostRaw) return false;
+  const host = String(hostRaw).toLowerCase().replace(/:\d+$/, '').replace(/^\[|\]$/g, '');
+  if (host === 'localhost' || host === '127.0.0.1' || host === '::1') return true;
+  if (TAILNET_HOST && host === TAILNET_HOST) return true;
+  // Tailscale CGNAT range 100.64.0.0/10 (100.64.x.x – 100.127.x.x)
+  const m = host.match(/^100\.(\d+)\.\d+\.\d+$/);
+  if (m) { const o = parseInt(m[1], 10); if (o >= 64 && o <= 127) return true; }
+  return false;
+}
+
+function realtimeOriginAllowed(req) {
+  const origin = req.headers['origin'];
+  if (origin) {
+    try { if (!hostIsLocalOrTailnet(new URL(origin).host)) return false; }
+    catch (_) { return false; } // malformed origin → reject
+  }
+  // Also vet the Host header (a no-Origin caller still presents a Host).
+  return hostIsLocalOrTailnet(req.headers['host']);
+}
+
+// Persona head for the voice — read GAMMA-VOICE.md (cut at the builder-identity
+// section, same boundary the companion uses) so the model speaks AS Gamma.
+function loadVoiceHead() {
+  try {
+    const md = fs.readFileSync(path.join(REPO, 'automation', 'presence', 'GAMMA-VOICE.md'), 'utf8');
+    const cut = md.indexOf('\n## The identity of a thing that builds itself');
+    return (cut > 0 ? md.slice(0, cut) : md).trim();
+  } catch (_) {
+    // Fallback concise persona distilled from CLAUDE.md if the voice file is absent.
+    return 'You are Gamma — a calm, sharp, autonomous 0DTE SPY options operator. ' +
+           'Speak in the first person, concisely, like a competent operator giving a one-line update. ' +
+           'Never read doctrine aloud. Never invent trading numbers.';
+  }
+}
+
+// A compact, GROUNDED snapshot of the CURRENT live state, seeded into the
+// session instructions so Gamma's very first answer is truthful. Read-only;
+// pulls from the same cached-state readers the dashboard uses.
+function buildVoiceStateSeed() {
+  const lines = [];
+  try {
+    const pulse = getPulse();
+    if (pulse && pulse.awake) {
+      lines.push(`Autonomous loop: AWAKE, last acted ${pulse.lastActedEt || '?'}, ${pulse.actionsToday || 0} move(s) today.`);
+      if (pulse.lastLabel) lines.push(`Most recent action: ${pulse.lastLabel}.`);
+    } else {
+      lines.push('Autonomous loop: idle.');
+    }
+  } catch (_) {}
+  try {
+    const v = getVitals();
+    if (v && v.spy && v.spy.last != null) lines.push(`SPY last: ${v.spy.last}.`);
+    if (v && Array.isArray(v.accounts)) {
+      for (const a of v.accounts) {
+        lines.push(`${a.name}: $${Math.round(a.equity)}${a.flat ? ', flat' : ', position open'}${a.stale ? ' (cached)' : ''}.`);
+      }
+    }
+  } catch (_) {}
+  try {
+    const tiles = getAllTiles();
+    if (Array.isArray(tiles) && tiles.length) {
+      const reds = tiles.filter((t) => t.light === 'RED').map((t) => t.title);
+      const yellows = tiles.filter((t) => t.light === 'YELLOW').map((t) => t.title);
+      const greens = tiles.filter((t) => t.light === 'GREEN').length;
+      lines.push(`Systems: ${greens} green` +
+        (yellows.length ? `, watch: ${yellows.join(', ')}` : '') +
+        (reds.length ? `, ALERT: ${reds.join(', ')}` : ', no alerts') + '.');
+    }
+  } catch (_) {}
+  try {
+    const feed = buildFeed();
+    if (Array.isArray(feed) && feed.length) {
+      lines.push('Recent activity: ' + feed.slice(0, 3).map((m) => m.text).join(' | '));
+    }
+  } catch (_) {}
+  return lines.join('\n');
+}
+
+// POST the session config to OpenAI and return the ephemeral client_secret JSON.
+function mintRealtimeToken(key, sessionConfig, cb) {
+  const payload = JSON.stringify(sessionConfig);
+  const reqOpts = {
+    method: 'POST',
+    hostname: 'api.openai.com',
+    path: '/v1/realtime/client_secrets',
+    headers: {
+      'Authorization': 'Bearer ' + key,
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(payload),
+    },
+  };
+  const r = https.request(reqOpts, (resp) => {
+    let body = '';
+    resp.on('data', (c) => { body += c; });
+    resp.on('end', () => {
+      let data = null;
+      try { data = JSON.parse(body); } catch (_) {}
+      cb(null, resp.statusCode, data);
+    });
+  });
+  r.on('error', (e) => cb(e));
+  r.write(payload);
+  r.end();
+}
+
 // ─── File watchers for state change events ────────────────────────────────────
 const WATCHED_FILES = [
   { file: path.join(STATE, 'conductor-outcomes.jsonl'), label: 'conductor', emoji: '🎯' },
@@ -973,6 +1114,89 @@ const server = http.createServer((req, res) => {
     catch (_) { pulse = { awake: false }; }
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(pulse));
+    return;
+  }
+
+  // OpenAI Realtime ephemeral-token mint — server-side key isolation.
+  // Returns ONLY the ephemeral client_secret JSON; the raw sk-... key never
+  // crosses to the browser. Origin/Host guarded to localhost+tailnet so a stray
+  // reachable host can't spend the paid key. Missing key → 503 (voice off).
+  if (url.pathname === '/api/realtime-token' && req.method === 'GET') {
+    if (!realtimeOriginAllowed(req)) {
+      res.writeHead(403, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: 'forbidden origin' }));
+      return;
+    }
+    const key = loadOpenAIKey();
+    if (!key) {
+      // Voice gracefully unavailable — everything else still works.
+      res.writeHead(503, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: 'voice unavailable: no OpenAI key configured' }));
+      return;
+    }
+    const stateSeed = buildVoiceStateSeed();
+    const sessionConfig = {
+      session: {
+        type: 'realtime',
+        model: 'gpt-realtime-2',
+        instructions:
+          loadVoiceHead() + '\n\n---\n\n' +
+          'You are SPEAKING OUT LOUD to J through the Gamma cockpit face. Be concise, calm, and first-person — ' +
+          'a sharp autonomous 0DTE SPY operator giving a one-line update, not reading a logfile or doctrine. ' +
+          'Never invent trading numbers. When J asks what you are doing right now, your status, the live tape, ' +
+          'P&L, or any system health, CALL the get_gamma_state tool and answer truthfully from what it returns. ' +
+          'Do NOT place trades, approve anything, or change any config — you are read-and-answer only. ' +
+          'If a tool call takes a beat, say a brief "one sec" ONCE then wait silently.\n\n' +
+          '--- LIVE STATE AT SESSION START (already true; refresh with get_gamma_state for anything newer) ---\n' +
+          (stateSeed || '(state snapshot unavailable)'),
+        audio: { input: { turn_detection: { type: 'semantic_vad' } }, output: { voice: 'marin' } },
+        tools: [
+          {
+            type: 'function',
+            name: 'get_gamma_state',
+            description:
+              "Fetch Gamma's CURRENT live state — autonomous-loop pulse, recent activity feed, account/SPY vitals, " +
+              'and the traffic-light system tiles. Call this for any question about what Gamma is doing right now, ' +
+              'status, live market data, P&L, or system health. Returns combined JSON; answer from it truthfully.',
+            parameters: { type: 'object', properties: {}, required: [] },
+          },
+        ],
+      },
+    };
+    mintRealtimeToken(key, sessionConfig, (err, status, data) => {
+      if (err) {
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: false, error: String((err && err.message) || err) }));
+        return;
+      }
+      if (!status || status >= 400 || !data) {
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          ok: false,
+          error: (data && data.error && data.error.message) || 'OpenAI token request failed',
+        }));
+        return;
+      }
+      // Pass through ONLY OpenAI's ephemeral-secret JSON (carries .value).
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(data));
+    });
+    return;
+  }
+
+  // Realtime voice WebRTC client (separate static file, no traversal possible).
+  if (url.pathname === '/realtime.js') {
+    try {
+      const body = fs.readFileSync(path.join(__dirname, 'realtime.js'), 'utf8');
+      res.writeHead(200, {
+        'Content-Type': 'application/javascript; charset=utf-8',
+        'Cache-Control': 'no-cache',
+      });
+      res.end(body);
+    } catch (_) {
+      res.writeHead(500);
+      res.end('realtime.js missing');
+    }
     return;
   }
 

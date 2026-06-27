@@ -186,6 +186,81 @@
     50%{opacity:.4;transform:scale(.82);}
   }
 
+  /* ── MIC (voice) — small glowing control under the core ── */
+  .mic-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:7px;
+    margin-top:10px;
+  }
+  .mic-btn{
+    position:relative;
+    width:46px;height:46px;
+    border-radius:50%;
+    border:1px solid var(--hairline-2);
+    background:
+      radial-gradient(circle at 50% 38%, rgba(147,168,221,.16) 0%, rgba(147,168,221,0) 70%),
+      var(--glass-2);
+    color:var(--text-2);
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .12s ease, border-color .2s ease, color .2s ease, box-shadow .25s ease;
+    -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  }
+  .mic-btn:hover{border-color:rgba(147,168,221,.45);color:var(--text);}
+  .mic-btn:active{transform:scale(.94);}
+  .mic-btn svg{width:20px;height:20px;display:block;}
+  /* connecting — soft amber pulse */
+  .mic-btn.is-connecting{
+    color:var(--caution);border-color:rgba(224,162,60,.5);
+    box-shadow:0 0 0 0 rgba(224,162,60,.4);
+    animation:micPulse 1.6s ease-in-out infinite;
+  }
+  /* listening — live accent ring */
+  .mic-btn.is-listening{
+    color:var(--glow);border-color:rgba(147,168,221,.7);
+    box-shadow:0 0 14px rgba(147,168,221,.45), 0 0 0 1px rgba(147,168,221,.3);
+    animation:micPulse 2.2s ease-in-out infinite;
+  }
+  /* user talking — brighter, faster */
+  .mic-btn.is-user{
+    color:var(--glow);border-color:rgba(205,223,251,.85);
+    box-shadow:0 0 18px rgba(205,223,251,.55);
+    animation:micPulse 1.1s ease-in-out infinite;
+  }
+  /* Gamma speaking — green-tinted */
+  .mic-btn.is-speaking{
+    color:var(--pos);border-color:rgba(67,201,142,.7);
+    box-shadow:0 0 16px rgba(67,201,142,.5);
+    animation:micPulse 1.4s ease-in-out infinite;
+  }
+  .mic-btn.is-error{color:var(--alert);border-color:rgba(224,87,78,.6);}
+  @keyframes micPulse{
+    0%,100%{box-shadow:0 0 10px rgba(147,168,221,.30);}
+    50%{box-shadow:0 0 20px rgba(147,168,221,.55);}
+  }
+  .mic-status{
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:.04em;
+    min-height:14px;
+    text-align:center;
+    transition:color .2s ease;
+  }
+  .mic-status.is-live{color:var(--text-2);}
+  .mic-status.is-error{color:var(--alert);}
+
+  /* the hero core reacts while the voice is active — reuse the accent glow */
+  .core-wrap.voice-listening::before{
+    background:radial-gradient(circle at 50% 47%, rgba(147,168,221,.42) 0%, rgba(147,168,221,.20) 30%, rgba(147,168,221,0) 64%);
+    animation:halo 3.4s ease-in-out infinite;
+  }
+  .core-wrap.voice-speaking::before{
+    background:radial-gradient(circle at 50% 47%, rgba(67,201,142,.40) 0%, rgba(67,201,142,.18) 30%, rgba(67,201,142,0) 64%);
+    animation:halo 2.2s ease-in-out infinite;
+  }
+
   /* ── glass card base ─────────────────────────────── */
   .card{
     background:var(--glass);
@@ -374,7 +449,7 @@
   @keyframes livepulse{0%,100%{opacity:1;}50%{opacity:.35;}}
 
   @media (prefers-reduced-motion:reduce){
-    .core,.core-wrap::before,.footer .live,.presence-dot{animation:none;}
+    .core,.core-wrap::before,.footer .live,.presence-dot,.mic-btn{animation:none;}
   }
 </style>
 </head>
@@ -393,6 +468,19 @@
       <p class="presence is-hidden" id="presence">
         <span class="presence-dot"></span><span id="presenceText"></span>
       </p>
+      <!-- voice mic: tap to talk to Gamma (OpenAI Realtime). Read/answer only —
+           grounded in live state via the get_gamma_state tool. -->
+      <div class="mic-wrap">
+        <button class="mic-btn" id="micBtn" type="button" aria-label="Talk to Gamma" title="Tap to talk to Gamma">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="9" y="2.5" width="6" height="11" rx="3"></rect>
+            <path d="M5.5 11a6.5 6.5 0 0 0 13 0"></path>
+            <line x1="12" y1="17.5" x2="12" y2="21"></line>
+            <line x1="8.5" y1="21" x2="15.5" y2="21"></line>
+          </svg>
+        </button>
+        <span class="mic-status" id="micStatus">Tap to talk</span>
+      </div>
     </section>
 
     <!-- NEEDS YOU (display-only — approval bus not wired) -->
@@ -439,6 +527,10 @@
     <div class="footer" id="footer"><span class="live"></span><span id="footerText">live</span></div>
   </main>
 
+<!-- OpenAI Realtime voice client (WebRTC). Loads BEFORE the inline app script so
+     window.GammaRealtime exists when the mic is wired. The raw OpenAI key never
+     ships here — only an ephemeral token minted by /api/realtime-token. -->
+<script src="/realtime.js"></script>
 <script>
 (function(){
   "use strict";
@@ -678,6 +770,58 @@
   el("holdBtn").addEventListener("click", function(){
     el("approveNote").textContent = "Held — nothing changes (display-only).";
   });
+
+  // ── VOICE (mic) — tap to talk to Gamma via OpenAI Realtime ─
+  // Read/answer only: GammaRealtime streams mic in, plays Gamma's audio out, and
+  // fulfills the get_gamma_state tool from the live read-only endpoints. A second
+  // tap ends the session and stops all tracks (usage-billed — teardown matters).
+  (function wireMic(){
+    var btn = el("micBtn");
+    var statusEl = el("micStatus");
+    var coreWrap = document.querySelector(".core-wrap");
+    if (!btn || !window.GammaRealtime) {
+      if (btn) { btn.disabled = true; btn.title = "Voice unavailable"; }
+      return;
+    }
+    var MIC_CLASSES = ["is-connecting","is-listening","is-user","is-speaking","is-error"];
+    function clearMic(){ MIC_CLASSES.forEach(function(c){ btn.classList.remove(c); }); }
+    function setCoreVoice(state){
+      if (!coreWrap) return;
+      coreWrap.classList.remove("voice-listening","voice-speaking");
+      if (state === "listening" || state === "user") coreWrap.classList.add("voice-listening");
+      else if (state === "speaking") coreWrap.classList.add("voice-speaking");
+    }
+    function setStatus(text, kind){
+      statusEl.textContent = text;
+      statusEl.classList.toggle("is-live", kind === "live");
+      statusEl.classList.toggle("is-error", kind === "error");
+    }
+    function onStatus(s){
+      clearMic();
+      if (s === "connecting"){ btn.classList.add("is-connecting"); setStatus("Connecting…"); setCoreVoice(null); return; }
+      if (s === "listening"){ btn.classList.add("is-listening"); setStatus("Listening — tap to end", "live"); setCoreVoice("listening"); return; }
+      if (s === "user_speaking"){ btn.classList.add("is-user"); setStatus("Listening — tap to end", "live"); setCoreVoice("user"); return; }
+      if (s === "speaking"){ btn.classList.add("is-speaking"); setStatus("Gamma is speaking…", "live"); setCoreVoice("speaking"); return; }
+      if (s === "stopped"){ setStatus("Tap to talk"); setCoreVoice(null); return; }
+      if (s && s.indexOf("error:") === 0){
+        btn.classList.add("is-error");
+        setStatus(s.slice(6) || "Voice error", "error");
+        setCoreVoice(null);
+        return;
+      }
+    }
+    btn.addEventListener("click", function(){
+      if (window.GammaRealtime.isActive()){
+        window.GammaRealtime.stop();   // second tap → end session, stop all tracks
+      } else {
+        window.GammaRealtime.start(onStatus);
+      }
+    });
+    // Tearing down on page hide stops the billed session if the tab is closed.
+    window.addEventListener("pagehide", function(){
+      try { if (window.GammaRealtime.isActive()) window.GammaRealtime.stop(true); } catch(_){}
+    });
+  })();
 
   // ── boot ──────────────────────────────────────────────────
   loadTiles();
