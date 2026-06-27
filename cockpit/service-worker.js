@@ -11,7 +11,7 @@
  * shows up immediately when online.
  */
 
-const CACHE = 'gamma-face-v1';
+const CACHE = 'gamma-face-v3';
 
 // Static, rarely-changing assets safe to serve cache-first.
 const STATIC_PRECACHE = [

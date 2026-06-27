@@ -10,8 +10,15 @@
  *
  * Self-contained. Vanilla JS + Canvas. No frameworks, no build step.
  * Worker sprites are MIT (Pablo De Lucca) — assets/pixel/LICENSE-pixel-agents.txt.
- * All FURNITURE (stoves, weight racks, whiteboards, account terminals, coffee
- * machine) is drawn PROCEDURALLY in pixel art — no external furniture assets.
+ *
+ * FURNITURE/FLOORS: if the premium LimeZu Modern Interiors sheets are present
+ * (assets/pixel/limezu/interiors16.png + roombuilder16.png — gitignored,
+ * local-only), the office draws REAL LimeZu pixel-art furniture + floors/walls.
+ * GRACEFUL FALLBACK: when those sheets are absent (a fresh clone), it falls back
+ * to the built-in PROCEDURAL furniture/floors — the committed file always works
+ * and looks fine with zero LimeZu assets. Gym gear is always procedural (the
+ * free LimeZu pack has no gym equipment). Workers stay on the MIT char sheets
+ * (the LimeZu character frame grid wasn't cleanly determinable — see report).
  *
  * ---------------------------------------------------------------------------
  * INTEGRATION CONTRACT  (the only lines the caller adds to face.html)
@@ -98,6 +105,30 @@
     glow: '#CDDFFB', pos: '#43C98E', caution: '#E0A23C', alert: '#E0574E',
     steel: '#9aa6b4', steelDk: '#6b7686', wood: '#5a4636'
   };
+
+  // ── LimeZu interiors16.png tile regions (16px tiles, col,row,w,h) mapped by
+  //    reading the sheet (cols 0-15 x rows 0-88). Each entry is a recognizable
+  //    multi-tile object. Furniture kinds NOT listed here (gym gear) stay
+  //    procedural. Tiles confirmed from zoomed grid crops. ──
+  var LZ_FURN = {
+    // KITCHEN
+    stove:      { c: 12, r: 84, w: 2, h: 2 },   // oven/stove unit (grey top + body)
+    counter:    { c: 3,  r: 55, w: 2, h: 2 },   // wood counter + cabinet doors
+    fridge:     { c: 7,  r: 51, w: 2, h: 2 },   // tall brown cabinet (fridge stand-in)
+    sink:       { c: 5,  r: 55, w: 2, h: 2 },   // counter (sink stand-in)
+    // LAB / R&D
+    whiteboard: { c: 8,  r: 36, w: 1, h: 2 },   // green board on stand
+    serverdesk: { c: 2,  r: 38, w: 2, h: 2 },   // desk + chair
+    bookshelf:  { c: 10, r: 69, w: 3, h: 2 },   // stocked shelves (colored)
+    // ACCOUNTS / TRADING — a desk+chair reads as a terminal workstation
+    terminal:   { c: 2,  r: 38, w: 2, h: 2 },
+    engine:     { c: 4,  r: 38, w: 2, h: 2 },   // a second desk variant
+    // shared decor
+    plant:      { c: 13, r: 44, w: 1, h: 2 }    // potted palm
+  };
+  // roombuilder16.png tiles (16px). A clean modern floor + a wall strip.
+  var LZ_FLOOR = { c: 11, r: 11, w: 1, h: 1 };  // grey-blue modern tile floor
+  var LZ_WALL  = { c: 0,  r: 17, w: 1, h: 1 };  // grey-blue wall strip top
 
   // ── role → sector key + a 1-2 word nameplate role word ──
   var ROLE_SECTOR = {
@@ -215,7 +246,27 @@
     for (var c = 0; c < 6; c++) (function (c) {
       jobs.push(self._loadImg(self._url('char', 'char_' + c + '.png')).then(function (im) { self.assets['char' + c] = im; }));
     })(c);
-    return Promise.all(jobs); // furniture is procedural; only worker sprites load
+    // OPTIONAL premium LimeZu Modern Interiors sheets (gitignored, local-only).
+    // GRACEFUL FALLBACK: if any sheet is absent (fresh clone), self.lz stays
+    // incomplete and we keep drawing the procedural furniture/floors. We only
+    // switch to LimeZu drawing once interiors16 + roombuilder are BOTH loaded.
+    self.lz = { interiors: null, room: null };
+    // Served at <assetBase>/limezu/* (nested route, verified 200). In flat mode
+    // the caller flattened sprites under assetBase, so limezu still nests there.
+    var lzBase = self.assetBase + '/limezu';
+    jobs.push(self._loadImg(lzBase + '/interiors16.png').then(function (im) { self.lz.interiors = im; }));
+    jobs.push(self._loadImg(lzBase + '/roombuilder16.png').then(function (im) { self.lz.room = im; }));
+    return Promise.all(jobs);
+  };
+  // LimeZu furniture is usable only when both sheets are present + decoded.
+  Office.prototype._lzReady = function () {
+    return !!(this.lz && this.lz.interiors && this.lz.interiors.width &&
+              this.lz.room && this.lz.room.width);
+  };
+  // Blit a tile-region of a 16px sheet to a dest rect (crisp, no smoothing).
+  Office.prototype._blit = function (sheet, tc, tr, tw, th, dx, dy, dw, dh) {
+    var ctx = this.ctx; ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(sheet, tc * 16, tr * 16, tw * 16, th * 16, dx, dy, dw, dh);
   };
 
   // ── canvas sizing ──
@@ -639,16 +690,22 @@
     var ctx = this.ctx, W = this.W, H = this.H, g = this.grid;
     // base
     ctx.fillStyle = COL.bg; ctx.fillRect(0, 0, W, H);
-    // checker floor only on sector interiors (so the office reads as rooms, not a
-    // full-screen grid). Card region stays near-black.
+    // Floor on sector interiors only (so the office reads as rooms, not a
+    // full-screen grid). Card region stays near-black. Use the LimeZu modern
+    // floor tile when the sheet is loaded; otherwise the procedural checker.
+    var lz = this._lzReady();
     if (g && this.sectors) {
       var keys = Object.keys(this.sectors);
       for (var k = 0; k < keys.length; k++) {
         var s = this.sectors[keys[k]];
         for (var c = s.x + 1; c <= s.x2 - 1; c++) for (var r = s.y + 1; r <= s.y2 - 1; r++) {
           var t = this._tileRect(c, r);
-          ctx.fillStyle = ((c + r) & 1) ? COL.floor : COL.floorLit;
-          ctx.fillRect(t.x, t.y, t.w + 0.6, t.h + 0.6);
+          if (lz) {
+            this._blit(this.lz.room, LZ_FLOOR.c, LZ_FLOOR.r, 1, 1, t.x, t.y, t.w + 0.6, t.h + 0.6);
+          } else {
+            ctx.fillStyle = ((c + r) & 1) ? COL.floor : COL.floorLit;
+            ctx.fillRect(t.x, t.y, t.w + 0.6, t.h + 0.6);
+          }
         }
       }
     }
@@ -683,6 +740,12 @@
   };
   Office.prototype._wallTile = function (c, r, s) {
     var ctx = this.ctx, t = this._tileRect(c, r);
+    if (this._lzReady()) {
+      // LimeZu modern wall strip + a darkening overlay tinted to the sector accent
+      this._blit(this.lz.room, LZ_WALL.c, LZ_WALL.r, 1, 1, t.x, t.y, t.w + 0.6, t.h + 0.6);
+      ctx.fillStyle = 'rgba(10,12,15,0.32)'; ctx.fillRect(t.x, t.y, t.w + 0.6, t.h + 0.6);
+      return;
+    }
     ctx.fillStyle = COL.wall; ctx.fillRect(t.x, t.y, t.w + 0.6, t.h + 0.6);
     ctx.fillStyle = COL.wallTop; ctx.fillRect(t.x, t.y, t.w + 0.6, Math.max(2, t.h * 0.28)); // top bevel
     ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(t.x, t.y + t.h * 0.82, t.w + 0.6, t.h * 0.18); // base shadow
@@ -723,6 +786,22 @@
   Office.prototype._drawUnit = function (kind, t, s) {
     var ctx = this.ctx; ctx.imageSmoothingEnabled = false;
     var x = t.x, y = t.y, w = t.w, h = t.h, T = performance.now() / 1000;
+
+    // PREMIUM PATH: if the LimeZu sheets are loaded AND this kind has a tile
+    // mapping, blit the real sprite. The multi-tile object is anchored so its
+    // BOTTOM sits at the furniture tile's bottom and it's centered horizontally,
+    // scaled by the grid cell size. Gym kinds (no LimeZu gear) fall through to
+    // the procedural drawing below.
+    if (this._lzReady() && LZ_FURN[kind]) {
+      var m = LZ_FURN[kind];
+      var cw = this.grid.cw, ch = this.grid.ch;
+      var dw = m.w * cw, dh = m.h * ch;
+      var dx = x + w / 2 - dw / 2;          // center on the furniture tile
+      var dy = y + h - dh;                  // bottom-anchored (object stands on the tile)
+      this._blit(this.lz.interiors, m.c, m.r, m.w, m.h, Math.round(dx), Math.round(dy), Math.round(dw), Math.round(dh));
+      return;
+    }
+
     if (kind === 'stove') {
       // stainless steel stove: body + 4 burners + oven door
       ctx.fillStyle = COL.steel; ctx.fillRect(x + 1, y + h * 0.18, w - 2, h * 0.8);
@@ -972,6 +1051,9 @@
     });
   };
   global.__gxGrid = function () { return inst ? inst.grid : null; };
+  // LimeZu asset state (for verification): true once both premium sheets are
+  // loaded + decoded. false → the office is drawing procedural furniture/floors.
+  global.__gxLzReady = function () { return inst ? inst._lzReady() : false; };
   // Deterministic frame driver — ONLY for verification when a headless test tab is
   // backgrounded (Chromium suspends rAF while document.hidden, so the self-driven
   // loop can't tick). On a real visible window the rAF loop drives itself and this
