@@ -152,7 +152,7 @@ def _fetch_vix() -> tuple[float, float]:
     """(vix_now, vix_prior) from yfinance ^VIX 5m — direction is what the gates need. Fallback (0,0)."""
     try:
         import yfinance as yf
-        d = yf.download("^VIX", period="2d", interval="5m", auto_adjust=False, progress=False)
+        d = yf.download("^VIX", period="2d", interval="5m", auto_adjust=False, progress=False, timeout=10)
         if d is None or d.empty:
             return 0.0, 0.0
         if hasattr(d.columns, "nlevels") and d.columns.nlevels > 1:
@@ -169,7 +169,7 @@ def _fetch_vix_daily_ma() -> tuple[float, float]:
     insufficient history (same default the orchestrator's .get(...,0.0) yields)."""
     try:
         import yfinance as yf
-        d = yf.download("^VIX", period="40d", interval="1d", auto_adjust=False, progress=False)
+        d = yf.download("^VIX", period="40d", interval="1d", auto_adjust=False, progress=False, timeout=10)
         if d is None or d.empty:
             return 0.0, 0.0
         if hasattr(d.columns, "nlevels") and d.columns.nlevels > 1:
@@ -196,7 +196,7 @@ def _fetch_vix_intraday(cap_ts_et=None) -> list[float] | None:
     setup is DORMANT this is never called (zero hot-path cost)."""
     try:
         import yfinance as yf
-        d = yf.download("^VIX", period="2d", interval="5m", auto_adjust=False, progress=False)
+        d = yf.download("^VIX", period="2d", interval="5m", auto_adjust=False, progress=False, timeout=10)
         if d is None or d.empty:
             return None
         if hasattr(d.columns, "nlevels") and d.columns.nlevels > 1:
