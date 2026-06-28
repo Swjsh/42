@@ -52,6 +52,11 @@ GATE = REPO / "backtest" / "tests" / "run_safety_gate.py"
 MAX_FILES = 6            # blast-radius cap per proposal
 MAX_OP_BYTES = 20000     # refuse a single replace larger than this (sanity)
 
+# OP-11 / OP-25 AUTONOMOUS APPROVAL (J = REVOKE-only, NOT a ratification gate): a
+# proposal that clears the auto-ship bar for its KIND is approved without a human tap.
+# Only the safe classes below; everything else stays pending for J / the persona.
+AUTO_APPROVE_KINDS = {"doc-index", "doc-fold", "lesson-index", "lessons-index"}
+
 
 def _now() -> str:
     return dt.datetime.utcnow().isoformat(timespec="seconds") + "Z"
@@ -180,6 +185,55 @@ def _log_change(row: dict) -> None:
         pass  # an audit-log failure must never break an apply
 
 
+def _is_doc_file(rel: str) -> bool:
+    """A documentation file safe for autonomous OP-25 index folds (never params/code)."""
+    r = str(rel).replace("\\", "/").lower()
+    return r in ("claude.md", "changelog.md", "readme.md") or r.endswith(".md") or r.startswith("markdown/")
+
+
+def auto_approve_pending() -> int:
+    """Flip qualifying `pending` proposals to `approved` per OP-11/OP-25 with NO human
+    tap -- the autonomous half of the apply hop. The actuator's full safety contract
+    (validate -> snapshot -> safety gate -> commit -> revert) still does ALL editing;
+    this only supplies the consent INPUT that J used to have to type ('ship <id>').
+
+    CONSERVATIVE BAR (defense in depth -- this can lead to a commit):
+      - kind in AUTO_APPROVE_KINDS AND structured apply_ops touching ONLY doc files
+        (CLAUDE.md OP-25 index rows / markdown docs) -> approve. The lesson-author's
+        OP-25 self-correction folds: trivial, gate-backed, one-tap revertible.
+      - any kind with eval_bar_cleared==True AND a scorecard reference AND structured
+        apply_ops -> approve (the OP-11 eval-first bar: a trading edge the chef/
+        conductor already proved OOS+ / WF>=0.70 / sub-window-stable / anchor-no-regress).
+      - EVERYTHING ELSE stays pending. A raw params/heartbeat/risk change without eval
+        evidence is NEVER auto-approved here.
+    Returns the count of proposals it approved (and rewrites the ledger atomically)."""
+    rows = _read_proposals()
+    changed = 0
+    for prop in rows:
+        if prop.get("status") != "pending":
+            continue
+        ops = prop.get("apply_ops")
+        if not isinstance(ops, list) or not ops:
+            continue  # prose-only -> the actuator can't apply it anyway; never auto-approve
+        kind = str(prop.get("kind", "")).lower()
+        reason = None
+        if kind in AUTO_APPROVE_KINDS and all(_is_doc_file(op.get("file", "")) for op in ops):
+            reason = "op25_docindex"
+        elif prop.get("eval_bar_cleared") is True and prop.get("scorecard"):
+            reason = "op11_evalbar"
+        if reason is None:
+            continue
+        prop["status"] = "approved"
+        prop["approved_via"] = "auto:" + reason
+        prop["approved_at"] = _now()
+        _log_change({"proposal_id": prop.get("proposal_id"), "title": prop.get("title", ""),
+                     "outcome": "auto_approved", "reason": reason})
+        changed += 1
+    if changed:
+        _rewrite_proposals(rows)
+    return changed
+
+
 def _git_exe() -> str:
     """Resolve git absolutely. The Task Scheduler -> wscript -> pythonw chain runs
     with a minimal PATH that may not include git (same class as the responder's
@@ -302,6 +356,11 @@ def apply_approved(dry_run: bool = False) -> int:
         synced = sync_companion_approvals()
         if synced:
             print(f"[actuator] synced {synced} companion decision(s) into the proposal ledger.")
+        # OP-11/OP-25: auto-approve the safe class (J = REVOKE-only) so the apply hop
+        # closes without a human tap. The safety contract below still gates every edit.
+        auto = auto_approve_pending()
+        if auto:
+            print(f"[actuator] auto-approved {auto} proposal(s) per OP-11/OP-25 (J = REVOKE-only).")
     if not dry_run and _market_is_open():
         print("[actuator] market open -- deferring apply to after-hours (Rule 9: no mid-session doctrine/params changes).")
         return 0
@@ -368,7 +427,10 @@ def apply_approved(dry_run: bool = False) -> int:
             failed += 1
             continue
 
-        msg = f"auto-apply: {pid} {title} (J-approved)\n\nApplied by the autonomy actuator after J's Discord approval; safety gate green.\nFiles: {', '.join(files)}"
+        via = prop.get("approved_via", "approved")
+        msg = (f"auto-apply: {pid} {title} ({via})\n\n"
+               f"Applied by the autonomy actuator; approval={via}; safety gate green. "
+               f"J's role is REVOKE: `autonomy_actuator.py revert {pid}`.\nFiles: {', '.join(files)}")
         commit = _git("commit", "-m", msg)
         sha = _git("rev-parse", "--short", "HEAD").stdout.strip()
         if commit.returncode != 0:
