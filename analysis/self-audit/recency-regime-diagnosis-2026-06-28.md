@@ -47,5 +47,5 @@ This matches C5 lesson: "VIX character > VIX level; high-score + 0-trade + decli
 ### Action
 
 - [x] Filed as `analysis/self-audit/recency-regime-diagnosis-2026-06-28.md`
-- [ ] Queue range-scalp R&D family to kitchen (see Priority #6 in handoff)
+- [x] Queue range-scalp R&D family to kitchen (see Priority #6 in handoff) — task 2b429363 queued 2026-06-28
 - [ ] Monitor: recency-confirmation next run after market week 2026-06-30 to check for regime shift back
