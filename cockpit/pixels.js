@@ -150,7 +150,7 @@
   //    kitchen=Generic Home, trading=TV Studio consoles, dispatch=Ice-Cream counter.
   var DESIGNS = {
     gym:      { w: 304, h: 240, layers: ['gymBase', 'gymFurn'] },
-    accounts: { w: 160, h: 166, layers: ['acctBase', 'acctFurn'] },
+    accounts: { w: 304, h: 214, layers: ['acctBase', 'acctFurn'] },
     lab:      { w: 320, h: 272, layers: ['labBase', 'labFurn'] },
     kitchen:  { w: 224, h: 214, layers: ['kitBase', 'kitFurn'] },
     trading:  { w: 176, h: 160, layers: ['trdBase', 'trdFurn', 'trdTop'] },
@@ -448,16 +448,26 @@
     //      TRADING + DISPATCH                              — short strip BELOW card
     //    Every room inset by M so a corridor lane runs each edge; the bottom
     //    margin row + the strip lanes keep the corridor one connected region.
-    var M = 1;
+    // ── DOOR-AWARE LAYOUT ────────────────────────────────────────────────────
+    //   Each LimeZu design has its OWN doorway baked into the art. Rooms are
+    //   placed + anchored so that real door faces a HALLWAY, and the hallways
+    //   form a connected network that leads to DISPATCH.
+    //     LAB (TL) / GYM (TR)        — doors at BOTTOM -> the mid hallway
+    //     ACCOUNTS (BL)              — door at BOTTOM  -> the bottom hallway
+    //     KITCHEN (BR)               — door at LEFT    -> the card hallway
+    //     DISPATCH + TRADING (centre)— doors at BOTTOM -> the bottom hallway
+    //   HALL-wide lanes flank the card + split top/bottom + run along the bottom.
+    var M = 1, HALL = 2;
     var topY = M;
-    var leftMX = M, leftMX2 = cardLo - 1 - M;          // left margin column span
-    var rightMX = cardHi + 1 + M, rightMX2 = cols - 1 - M;
-    var bRoomBot = rows - 1 - M;
-    var midSplit = Math.floor((topY + bRoomBot) / 2);
+    var bRoomBot = rows - 1 - HALL;               // HALL rows of bottom hallway below
+    var leftMX = M, leftMX2 = cardLo - 1 - HALL;  // left rooms (card hallway to their right)
+    var rightMX = cardHi + 1 + HALL, rightMX2 = cols - 1 - M;
+    var midRow = Math.floor((topY + bRoomBot) / 2);
+    var topY2 = midRow - 1;                        // top rooms bottom edge
+    var botY1 = midRow + HALL;                     // bottom rooms top edge
 
-    // Fit a room to its DESIGN's aspect ratio, anchored to a corner of its zone so
-    // each pre-built room fills its footprint (minimal matte) with clean corridor
-    // around it. ax: 'l'|'r'|'c', ay: 't'|'b'|'c'.
+    // Fit a room to its DESIGN's aspect, anchored so the art fills the footprint
+    // and the chosen door edge faces open corridor. ax 'l'|'r'|'c', ay 't'|'b'|'c'.
     function fitRoom(key, label, color, zx, zy, zx2, zy2, doorSide, ax, ay) {
       zx = Math.max(0, zx); zy = Math.max(0, zy); zx2 = Math.min(cols - 1, zx2); zy2 = Math.min(rows - 1, zy2);
       var zw = zx2 - zx + 1, zh = zy2 - zy + 1;
@@ -474,21 +484,22 @@
       return makeRoom(key, label, color, ox, oy, ox + rw - 1, oy + rh - 1, doorSide);
     }
 
-    // Four corner zones around the card + a center strip below it. Each room
-    // anchors to its screen corner, so the corridor forms a clean cross.
-    fitRoom('accounts', 'ACCOUNTS', COL.glow,   leftMX,  topY,          leftMX2,  midSplit - 1, 'right', 'l', 't');
-    fitRoom('kitchen',  'KITCHEN',  COL.caution, leftMX,  midSplit + 1,  leftMX2,  bRoomBot,     'right', 'l', 'b');
-    fitRoom('lab',      'LAB / R&D', COL.accent, rightMX, topY,          rightMX2, midSplit - 1, 'left',  'r', 't');
-    fitRoom('gym',      'GYM',      COL.pos,     rightMX, midSplit + 1,  rightMX2, bRoomBot,     'left',  'r', 'b');
-
-    // CENTER STRIP below the card: TRADING (left) + DISPATCH (right).
-    var stripTop = cardBottom + 1, stripX = cardLo, stripX2 = cardHi;
-    var stripMidC = (stripX + stripX2) >> 1;
-    fitRoom('trading',  'TRADING',  COL.alert,   stripX,         stripTop, stripMidC - 1, bRoomBot, 'bottom', 'c', 'b');
-    fitRoom('dispatch', 'DISPATCH', COL.glow,    stripMidC + 1,  stripTop, stripX2,       bRoomBot, 'bottom', 'c', 'b');
+    // TOP rooms — anchored to the top so their bottom door opens into the mid hall.
+    fitRoom('lab', 'LAB / R&D', COL.accent, leftMX,  topY, leftMX2,  topY2, 'bottom', 'l', 't');
+    fitRoom('gym', 'GYM',       COL.pos,    rightMX, topY, rightMX2, topY2, 'bottom', 'r', 't');
+    // BOTTOM rooms — anchored to the bottom; ACCOUNTS door->bottom hall, KITCHEN door->card hall.
+    fitRoom('accounts', 'ACCOUNTS', COL.glow,   leftMX,  botY1, leftMX2,  bRoomBot, 'bottom', 'l', 'b');
+    fitRoom('kitchen',  'KITCHEN',  COL.caution, rightMX, botY1, rightMX2, bRoomBot, 'left',  'r', 'b');
+    // CENTRE-BOTTOM hub — DISPATCH + TRADING fill the gap BETWEEN accounts and
+    // kitchen (wider than the card column) so they aren't tiny. Doors -> bottom hall.
+    var accR = sectors.accounts ? sectors.accounts.x2 + 1 + HALL : cardLo;
+    var kitL = sectors.kitchen ? sectors.kitchen.x - 1 - HALL : cardHi;
+    var cbX = Math.max(M, accR), cbX2 = Math.min(cols - 1 - M, kitL), cbY1 = cardBottom + 1, cbMid = (cbX + cbX2) >> 1;
+    fitRoom('dispatch', 'DISPATCH', COL.glow,  cbX,       cbY1, cbMid - 1, bRoomBot, 'bottom', 'c', 'b');
+    fitRoom('trading',  'TRADING',  COL.alert, cbMid + 1, cbY1, cbX2,      bRoomBot, 'bottom', 'c', 'b');
 
     // Fallbacks so no role is ever sector-less (degenerate tiny grids).
-    if (!sectors.lab) makeRoom('lab', 'LAB / R&D', COL.accent, Math.max(M, rightMX), topY, cols - 1 - M, midSplit - 1, 'left');
+    if (!sectors.lab) makeRoom('lab', 'LAB / R&D', COL.accent, Math.max(M, rightMX), topY, cols - 1 - M, topY2, 'left');
     this.sectorAlias = {};
     var allKeys = ['kitchen', 'gym', 'lab', 'accounts', 'trading', 'dispatch'];
     for (var ak = 0; ak < allKeys.length; ak++) {
@@ -794,18 +805,11 @@
   // sometimes another spot or a random interior tile (so they roam their room).
   Office.prototype._pickDestination = function (w) {
     var sec = this.sectors[w.sectorKey]; if (!sec) return;
-    var roll = Math.random();
-    if (roll < 0.62) {
-      var spot = this._spotFor(w);
-      if (spot) { w.target = { kind: 'spot', spot: spot }; this._setPath(w, [spot.c, spot.r]); return; }
-    }
-    // wander to a random walkable interior tile of this sector
-    var w2 = this._walkableFor(w), tries = 0, list = sec.interiorList;
-    while (tries++ < 12 && list.length) {
-      var t = list[(Math.random() * list.length) | 0];
-      if (w2(t[0], t[1])) { w.target = { kind: 'wander' }; this._setPath(w, [t[0], t[1]]); return; }
-    }
-    // fallback: go to (or stay at) the door
+    // Always head to a STATION and work there — no aimless wandering (that read as
+    // headless-chicken pacing). If every station is taken, stand quietly by the
+    // door rather than pace the room.
+    var spot = this._spotFor(w);
+    if (spot) { w.target = { kind: 'spot', spot: spot }; this._setPath(w, [spot.c, spot.r]); return; }
     w.target = { kind: 'idle' }; this._setPath(w, sec.door);
   };
 
@@ -904,11 +908,12 @@
           w.state = 'dwell';
           w.dir = (w.target && w.target.spot) ? w.target.spot.dir : 'up';
           w.dwellKind = (w.target && w.target.spot) ? w.target.spot.kind : 'idle';
-          var base = w.role === 'account' ? 6000 : 3600;
-          w.dwellUntil = ts + base + Math.random() * 3000;
+          var base = w.role === 'account' ? 16000 : 10000;
+          w.dwellUntil = ts + base + Math.random() * 9000;
         } else if (w.state === 'dwell') {
           if (ts >= w.dwellUntil) {
-            if (w.role !== 'account' && w.target && w.target.kind === 'spot' && Math.random() < 0.5) this._freeSpot(w);
+            // mostly stay seated; occasionally get up + walk to a different station.
+            if (w.target && w.target.kind === 'spot' && Math.random() < 0.18) this._freeSpot(w);
             w.state = 'toSpot'; this._pickDestination(w);
           }
         } else { w.state = 'toSpot'; this._pickDestination(w); }
@@ -932,11 +937,11 @@
       for (var ci = 0; ci < ck.length; ci++) {
         var idx = +ck[ci], cc = idx % g.cols, rrr = (idx - cc) / g.cols;
         var ct = this._tileRect(cc, rrr);
-        // flat, uniform HALLWAY floor — skip the noisy concrete tile so the
-        // walled lanes between rooms read as deliberate halls, not a checkered
-        // void. A faint center dot adds just enough texture for long runs.
-        ctx.fillStyle = '#0f131a'; ctx.fillRect(ct.x, ct.y, ct.w + 0.6, ct.h + 0.6);
-        ctx.fillStyle = 'rgba(147,168,221,0.05)'; ctx.fillRect(ct.x + ct.w * 0.46, ct.y + ct.h * 0.46, Math.max(1, ct.w * 0.08), Math.max(1, ct.h * 0.08));
+        // a real LimeZu HALLWAY floor, so the whole office reads as one connected
+        // building floor with rooms set on it — not rooms floating in a void.
+        if (lz) this._blit(this.lz.floors, 13, 29, 1, 1, ct.x, ct.y, ct.w + 0.6, ct.h + 0.6);
+        else { ctx.fillStyle = '#222a38'; ctx.fillRect(ct.x, ct.y, ct.w + 0.6, ct.h + 0.6); }
+        ctx.fillStyle = 'rgba(9,12,18,0.22)'; ctx.fillRect(ct.x, ct.y, ct.w + 0.6, ct.h + 0.6);
       }
     }
 
