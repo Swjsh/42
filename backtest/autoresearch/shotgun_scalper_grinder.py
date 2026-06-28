@@ -528,6 +528,7 @@ def run_shotgun_day(
     combo: ShotgunCombo,
     opra_cache: dict,
     max_trades_per_day: int = 5,  # scalp strategy — fire multiple times if confirmed
+    tier_filter: Optional[int] = None,  # if set, only fire signals whose detector tier == this (e.g. 2 = LEVEL_REJECT_LIVE). None = all tiers (default; byte-identical to prior behavior).
 ) -> list[ShotgunTrade]:
     """Run SHOTGUN_SCALPER detector across one trading day's RTH bars."""
     import pandas as pd
@@ -578,6 +579,11 @@ def run_shotgun_day(
         except Exception:
             continue
         if signal is None:
+            continue
+
+        # Optional tier isolation (range-scalp probe filters to tier 2 LEVEL_REJECT_LIVE).
+        # Default None => no filtering => byte-identical to prior grinder behavior.
+        if tier_filter is not None and signal.get("tier") != tier_filter:
             continue
 
         # vol_ratio gate: filter low-volume signals below the combo threshold.
