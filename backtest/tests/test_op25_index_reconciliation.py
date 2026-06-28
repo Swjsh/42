@@ -45,9 +45,10 @@ LESSONS_MD = ROOT / "markdown" / "doctrine" / "LESSONS-LEARNED.md"
 # pre-existing gaps the new reconciliation surfaced. TRIM as folds land; the
 # ratchet asserts this set only ever SHRINKS.
 KNOWN_UNINDEXED_BASELINE = frozenset(
-    {3, 13, 16, 24, 25, 29, 31, 43, 56, 126, 137, 146, 188}
+    {3, 13, 16, 24, 25, 29, 31, 43, 56, 126, 137, 146, 188, 189}
     # 169,170,173,174,177,178,179,181,182,183,184,185,186,187 folded 2026-06-24 batch
     # 188 added 2026-06-26 conductor (L188 dir-controlled null) -- CLAUDE.md C3 fold rail-4-blocked, proposal cd-2026-06-26-001
+    # 189 added 2026-06-27 conductor (L189 stuck-RED audit masks new orphans) -- CLAUDE.md C7 fold rail-4-blocked, proposal cd-2026-06-27-002
 )
 
 
