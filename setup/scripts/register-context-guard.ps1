@@ -19,9 +19,14 @@ if (-not (Test-Path $scriptPath)) {
 # If the machine moves back to ET, change 14:10 -> 16:10 and update this comment.
 $trigger = New-ScheduledTaskTrigger -Daily -At "14:10"
 
+# Windowless launch chain (project_mcp_window_leak_fix / audit BARE_CMD_POWERSHELL):
+# a direct powershell.exe action flashes OpenConsole on Win11 -- route via wscript->pythonw.
+$pythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runPs1  = "C:\Users\jackw\Desktop\42\setup\scripts\run_ps1_hidden.py"
+$runExe  = "C:\Users\jackw\Desktop\42\setup\scripts\run_exe_hidden.vbs"
 $action = New-ScheduledTaskAction `
-    -Execute "powershell.exe" `
-    -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$scriptPath`" -AutoFix"
+    -Execute "wscript.exe" `
+    -Argument ("//nologo `"" + $runExe + "`" `"" + $pythonw + "`" `"" + $runPs1 + "`" `"" + $scriptPath + "`" -AutoFix")
 
 $settings = New-ScheduledTaskSettingsSet `
     -ExecutionTimeLimit (New-TimeSpan -Minutes 10) `
@@ -47,8 +52,8 @@ try {
     Write-Output "MANUAL: run from elevated PowerShell:"
     Write-Output ("  powershell -NoProfile -ExecutionPolicy Bypass -File `"" + $PSCommandPath + "`"")
     Write-Output "Or Task Scheduler GUI:"
-    Write-Output "  Name: $taskName   Trigger: Daily 16:10   Action: powershell.exe"
-    Write-Output ("    Args: -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"" + $scriptPath + "`" -AutoFix")
+    Write-Output "  Name: $taskName   Trigger: Daily 14:10 (MT = 16:10 ET)   Action: wscript.exe"
+    Write-Output ("    Args: //nologo `"" + $runExe + "`" `"" + $pythonw + "`" `"" + $runPs1 + "`" `"" + $scriptPath + "`" -AutoFix")
     exit 1
 }
 

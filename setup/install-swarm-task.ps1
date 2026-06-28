@@ -44,9 +44,14 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Write-Host "Removed existing $taskName"
 }
 
+# Windowless launch chain (project_mcp_window_leak_fix / audit BARE_CMD_POWERSHELL):
+# a direct powershell.exe action flashes OpenConsole on Win11 -- route via wscript->pythonw.
+$pythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runPs1  = Join-Path $projectRoot "setup\scripts\run_ps1_hidden.py"
+$runExe  = Join-Path $projectRoot "setup\scripts\run_exe_hidden.vbs"
 $action = New-ScheduledTaskAction `
-    -Execute "powershell.exe" `
-    -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$scriptPath`""
+    -Execute "wscript.exe" `
+    -Argument ("//nologo `"" + $runExe + "`" `"" + $pythonw + "`" `"" + $runPs1 + "`" `"" + $scriptPath + "`"")
 
 # TZ-SYSTEMIC fix (2026-06-26): machine is Mountain time (ET = local + 2h).
 # Intended fire time: 08:15 ET = 06:15 MT.  Use MT local time for -At.

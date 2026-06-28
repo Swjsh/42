@@ -15,6 +15,13 @@ $ErrorActionPreference = "Stop"
 $etz = [System.TimeZoneInfo]::FindSystemTimeZoneById('Eastern Standard Time')
 $root = "C:\Users\jackw\Desktop\42"
 
+# Windowless launch chain (project_mcp_window_leak_fix / audit_scheduled_tasks BARE_CMD_POWERSHELL).
+# A DIRECT `powershell.exe -WindowStyle Hidden` action still flashes OpenConsole on Win11.
+# Route every Gamma task through wscript -> run_exe_hidden.vbs -> pythonw -> run_ps1_hidden.py -> <ps1>.
+$pythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runPs1  = Join-Path $root "setup\scripts\run_ps1_hidden.py"
+$runExe  = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
+
 function Show-NextET {
     param([string]$TaskName)
     $info = Get-ScheduledTaskInfo -TaskName $TaskName -ErrorAction SilentlyContinue
@@ -32,8 +39,8 @@ $scriptPath = Join-Path $root "setup\scripts\run-swarm-premarket.ps1"
 if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
-$action   = New-ScheduledTaskAction -Execute "powershell.exe" `
-              -Argument ("-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"" + $scriptPath + "`"")
+$action   = New-ScheduledTaskAction -Execute "wscript.exe" `
+              -Argument ("//nologo `"" + $runExe + "`" `"" + $pythonw + "`" `"" + $runPs1 + "`" `"" + $scriptPath + "`"")
 $trigger  = New-ScheduledTaskTrigger -Weekly `
               -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday `
               -At ([DateTime]"06:15")
@@ -53,8 +60,8 @@ $scriptPath = Join-Path $root "setup\scripts\check-context-budget.ps1"
 if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
-$action   = New-ScheduledTaskAction -Execute "powershell.exe" `
-              -Argument ("-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"" + $scriptPath + "`" -AutoFix")
+$action   = New-ScheduledTaskAction -Execute "wscript.exe" `
+              -Argument ("//nologo `"" + $runExe + "`" `"" + $pythonw + "`" `"" + $runPs1 + "`" `"" + $scriptPath + "`" -AutoFix")
 $trigger  = New-ScheduledTaskTrigger -Daily -At ([DateTime]"14:10")
 $settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 10) `
               -RestartCount 1 -RestartInterval (New-TimeSpan -Minutes 5) `

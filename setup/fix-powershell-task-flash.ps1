@@ -29,7 +29,7 @@ foreach($p in @($vbs,$runner,$pythonw)){ if(-not (Test-Path $p)){ Write-Error "m
 
 # Every Gamma task whose action is a bare powershell.exe (flashes OpenConsole on Win11).
 $targets = @(
-  'Gamma_ContextGuard','Gamma_CryptoDaily','Gamma_CryptoGrinderKeepalive',
+  'Gamma_ContextGuard','Gamma_SwarmPremarket','Gamma_CryptoDaily','Gamma_CryptoGrinderKeepalive',
   'Gamma_CryptoRegression','Gamma_FuturesEod','Gamma_FuturesHeartbeat','Gamma_FuturesPremarket'
 )
 
