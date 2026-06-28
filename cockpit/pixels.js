@@ -143,6 +143,20 @@
     _default: { c: 13, r: 5 }    // grey concrete for corridors
   };
 
+  // ── PRE-BUILT LimeZu ROOM DESIGNS (6_Home_Designs): one whole, professionally
+  //    arranged room blitted per sector — the technique that makes the gym look
+  //    great, now applied to EVERY room. {w,h}=native px, layers=lz keys bottom→top.
+  //    Thematic mapping: accounts=Shooting-Range booths, lab=Museum gallery,
+  //    kitchen=Generic Home, trading=TV Studio consoles, dispatch=Ice-Cream counter.
+  var DESIGNS = {
+    gym:      { w: 304, h: 240, layers: ['gymBase', 'gymFurn'] },
+    accounts: { w: 160, h: 166, layers: ['acctBase', 'acctFurn'] },
+    lab:      { w: 320, h: 272, layers: ['labBase', 'labFurn'] },
+    kitchen:  { w: 224, h: 214, layers: ['kitBase', 'kitFurn'] },
+    trading:  { w: 176, h: 160, layers: ['trdBase', 'trdFurn', 'trdTop'] },
+    dispatch: { w: 192, h: 160, layers: ['dispBase', 'dispFurn', 'dispTop'] }
+  };
+
   // ── role → sector key + a 1-2 word nameplate role word ──
   var ROLE_SECTOR = {
     kitchen: 'kitchen',
@@ -266,7 +280,10 @@
     // built-in PROCEDURAL furniture/floors. The gym room blit is best-effort: if
     // gym_base/gym_furn are missing, the gym falls back to procedural gear too.
     self.lz = { walls: null, floors: null, doors: null, gymBase: null, gymFurn: null,
-                kitchen: null, conf: null, generic: null, grocery: null, interiors: null };
+                kitchen: null, conf: null, generic: null, grocery: null, interiors: null,
+                acctBase: null, acctFurn: null, labBase: null, labFurn: null,
+                kitBase: null, kitFurn: null, trdBase: null, trdFurn: null, trdTop: null,
+                dispBase: null, dispFurn: null, dispTop: null };
     var lzBase = self.assetBase + '/limezu';
     var load = function (file, key) { jobs.push(self._loadImg(lzBase + '/' + file).then(function (im) { self.lz[key] = im; })); };
     load('rb_walls.png', 'walls'); load('rb_floors.png', 'floors'); load('rb_doors.png', 'doors');
@@ -274,6 +291,13 @@
     load('th_kitchen.png', 'kitchen'); load('th_conf.png', 'conf');
     load('th_generic.png', 'generic'); load('th_grocery.png', 'grocery');
     load('interiors16.png', 'interiors');   // legacy decor (plants etc.)
+    // PRE-BUILT ROOM DESIGNS (6_Home_Designs) — one whole room blitted per sector,
+    // the same technique as the gym. See DESIGNS map for native sizes + layers.
+    load('acct_base.png', 'acctBase'); load('acct_furn.png', 'acctFurn');
+    load('lab_base.png', 'labBase');   load('lab_furn.png', 'labFurn');
+    load('kit_base.png', 'kitBase');   load('kit_furn.png', 'kitFurn');
+    load('trd_base.png', 'trdBase');   load('trd_furn.png', 'trdFurn'); load('trd_top.png', 'trdTop');
+    load('disp_base.png', 'dispBase'); load('disp_furn.png', 'dispFurn'); load('disp_top.png', 'dispTop');
     return Promise.all(jobs);
   };
   // The premium look needs walls + floors + all 4 furniture themes decoded.
@@ -429,32 +453,42 @@
     var leftMX = M, leftMX2 = cardLo - 1 - M;          // left margin column span
     var rightMX = cardHi + 1 + M, rightMX2 = cols - 1 - M;
     var bRoomBot = rows - 1 - M;
+    var midSplit = Math.floor((topY + bRoomBot) / 2);
 
-    // Split each margin vertically: ACCOUNTS/LAB on top, KITCHEN/GYM on the bottom
-    // (kept generous + near-square for the pre-built gym). Clamp so neither half
-    // collapses. Independent of the card height — the strip below the card absorbs
-    // the squeeze instead.
-    var botMarginH = Math.max(6, Math.min(13, Math.round((bRoomBot - topY) * 0.46)));
-    var marginBandTop = bRoomBot - botMarginH + 1;
-    var sideBot = Math.max(topY + 4, marginBandTop - 1 - M);
+    // Fit a room to its DESIGN's aspect ratio, anchored to a corner of its zone so
+    // each pre-built room fills its footprint (minimal matte) with clean corridor
+    // around it. ax: 'l'|'r'|'c', ay: 't'|'b'|'c'.
+    function fitRoom(key, label, color, zx, zy, zx2, zy2, doorSide, ax, ay) {
+      zx = Math.max(0, zx); zy = Math.max(0, zy); zx2 = Math.min(cols - 1, zx2); zy2 = Math.min(rows - 1, zy2);
+      var zw = zx2 - zx + 1, zh = zy2 - zy + 1;
+      if (zw < 4 || zh < 4) return null;
+      var rw = zw, rh = zh, d = DESIGNS[key];
+      if (d) {
+        var a = d.w / d.h;
+        if (zw / zh > a) { rh = zh; rw = Math.max(4, Math.round(zh * a)); }
+        else { rw = zw; rh = Math.max(4, Math.round(zw / a)); }
+        rw = Math.min(rw, zw); rh = Math.min(rh, zh);
+      }
+      var ox = ax === 'l' ? zx : ax === 'r' ? (zx2 - rw + 1) : zx + Math.floor((zw - rw) / 2);
+      var oy = ay === 't' ? zy : ay === 'b' ? (zy2 - rh + 1) : zy + Math.floor((zh - rh) / 2);
+      return makeRoom(key, label, color, ox, oy, ox + rw - 1, oy + rh - 1, doorSide);
+    }
 
-    // ACCOUNTS (top-left) + LAB (top-right) — doors face the center corridor.
-    makeRoom('accounts', 'ACCOUNTS', COL.glow, leftMX, topY, Math.max(leftMX + 3, leftMX2), sideBot, 'right');
-    makeRoom('lab', 'LAB / R&D', COL.accent, Math.min(rightMX2 - 3, rightMX), topY, rightMX2, sideBot, 'left');
-    // KITCHEN (bottom-left) + GYM (bottom-right) — tall margin rooms.
-    makeRoom('kitchen', 'KITCHEN', COL.caution, leftMX, marginBandTop, Math.max(leftMX + 3, leftMX2), bRoomBot, 'right');
-    makeRoom('gym', 'GYM', COL.pos, Math.min(rightMX2 - 3, rightMX), marginBandTop, rightMX2, bRoomBot, 'left');
+    // Four corner zones around the card + a center strip below it. Each room
+    // anchors to its screen corner, so the corridor forms a clean cross.
+    fitRoom('accounts', 'ACCOUNTS', COL.glow,   leftMX,  topY,          leftMX2,  midSplit - 1, 'right', 'l', 't');
+    fitRoom('kitchen',  'KITCHEN',  COL.caution, leftMX,  midSplit + 1,  leftMX2,  bRoomBot,     'right', 'l', 'b');
+    fitRoom('lab',      'LAB / R&D', COL.accent, rightMX, topY,          rightMX2, midSplit - 1, 'left',  'r', 't');
+    fitRoom('gym',      'GYM',      COL.pos,     rightMX, midSplit + 1,  rightMX2, bRoomBot,     'left',  'r', 'b');
 
-    // CENTER STRIP below the card: TRADING (left) + DISPATCH (right). As tall as
-    // the space under the card allows (short when the card is tall — that's fine).
-    var stripTop = cardBottom + 1;
-    var stripX = cardLo, stripX2 = cardHi;
-    var stripMid = (stripX + stripX2) >> 1;
-    makeRoom('trading', 'TRADING', COL.alert, stripX, stripTop, stripMid - 1, bRoomBot, 'bottom');
-    makeRoom('dispatch', 'DISPATCH', COL.glow, stripMid + M, stripTop, stripX2, bRoomBot, 'bottom');
+    // CENTER STRIP below the card: TRADING (left) + DISPATCH (right).
+    var stripTop = cardBottom + 1, stripX = cardLo, stripX2 = cardHi;
+    var stripMidC = (stripX + stripX2) >> 1;
+    fitRoom('trading',  'TRADING',  COL.alert,   stripX,         stripTop, stripMidC - 1, bRoomBot, 'bottom', 'c', 'b');
+    fitRoom('dispatch', 'DISPATCH', COL.glow,    stripMidC + 1,  stripTop, stripX2,       bRoomBot, 'bottom', 'c', 'b');
 
     // Fallbacks so no role is ever sector-less (degenerate tiny grids).
-    if (!sectors.lab) makeRoom('lab', 'LAB / R&D', COL.accent, Math.max(M, rightRoomX), topY, cols - 1 - M, sideBot, 'left');
+    if (!sectors.lab) makeRoom('lab', 'LAB / R&D', COL.accent, Math.max(M, rightMX), topY, cols - 1 - M, midSplit - 1, 'left');
     this.sectorAlias = {};
     var allKeys = ['kitchen', 'gym', 'lab', 'accounts', 'trading', 'dispatch'];
     for (var ak = 0; ak < allKeys.length; ak++) {
@@ -912,7 +946,7 @@
       var keys = Object.keys(this.sectors);
       for (var k = 0; k < keys.length; k++) {
         var s = this.sectors[keys[k]];
-        if (s.key === 'gym' && this._gymRoomReady()) continue; // pre-built blit covers it
+        if (this._designReady(s.key)) continue; // pre-built design supplies its own floor
         var fl = LZ_FLOORS[s.key] || LZ_FLOORS._default;
         for (var c = s.x + 1; c <= s.x2 - 1; c++) for (var r = s.y + 1; r <= s.y2 - 1; r++) {
           var t = this._tileRect(c, r);
@@ -922,8 +956,8 @@
       }
     }
 
-    // 3) GYM pre-built room — blit gym_base (walls+floor) scaled into the sector.
-    this._drawGymRoom();
+    // 3) PRE-BUILT DESIGNS — blit each sector's whole LimeZu room (gym-quality).
+    this._drawDesignRooms();
 
     // card rectangle: push to near-black so the dashboard cards read cleanly
     if (g && this.cardRect) {
@@ -968,13 +1002,42 @@
     ctx.drawImage(this.lz.gymFurn, 0, 0, gw, gh, dx, dy, dw, dh);
   };
 
+  // True once every layer of this sector's pre-built DESIGN is decoded. false →
+  // the room falls back to procedural floor/walls/furniture (fresh-clone safe).
+  Office.prototype._designReady = function (key) {
+    var d = DESIGNS[key]; if (!d || !this.lz) return false;
+    for (var i = 0; i < d.layers.length; i++) { var im = this.lz[d.layers[i]]; if (!im || !im.width) return false; }
+    return true;
+  };
+  // Blit one sector's pre-built LimeZu room — uniform scale, centered, letterboxed
+  // onto a dark matte (so margins read as a clean frame, never a void). All layers
+  // bottom→top (walls/floor → furniture → ceiling overlay).
+  Office.prototype._drawDesignRoom = function (key) {
+    if (!this._designReady(key)) return false;
+    var d = DESIGNS[key], s = this.sectors[key]; if (!s) return false;
+    var ctx = this.ctx; ctx.imageSmoothingEnabled = false;
+    var t0 = this._tileRect(s.x, s.y);
+    var roomW = (s.x2 - s.x + 1) * this.grid.cw, roomH = (s.y2 - s.y + 1) * this.grid.ch;
+    ctx.fillStyle = '#0e1118'; ctx.fillRect(t0.x, t0.y, roomW + 0.6, roomH + 0.6);
+    var scale = Math.min(roomW / d.w, roomH / d.h);
+    var dw = Math.round(d.w * scale), dh = Math.round(d.h * scale);
+    var dx = Math.round(t0.x + (roomW - dw) / 2), dy = Math.round(t0.y + (roomH - dh) / 2);
+    for (var i = 0; i < d.layers.length; i++) { var im = this.lz[d.layers[i]]; if (im && im.width) ctx.drawImage(im, 0, 0, d.w, d.h, dx, dy, dw, dh); }
+    return true;
+  };
+  Office.prototype._drawDesignRooms = function () {
+    if (!this.sectors) return;
+    var keys = Object.keys(this.sectors);
+    for (var k = 0; k < keys.length; k++) this._drawDesignRoom(keys[k]);
+  };
+
   Office.prototype._drawSectorWalls = function () {
     var ctx = this.ctx, g = this.grid, keys = Object.keys(this.sectors);
     for (var k = 0; k < keys.length; k++) {
       var s = this.sectors[keys[k]];
-      if (s.key === 'gym' && this._gymRoomReady()) {
-        // pre-built gym already has its own walls + doorway — just re-open the
-        // logical doorway floor so the worker path reads through it.
+      if (this._designReady(s.key)) {
+        // pre-built design supplies its own walls — just punch the logical
+        // doorway so the worker path + entrance read through it.
         this._openDoorway(s); continue;
       }
       for (var c = s.x; c <= s.x2; c++) { this._wallTile(c, s.y, s); this._wallTile(c, s.y2, s); }
@@ -1039,12 +1102,13 @@
     var keys = Object.keys(this.sectors);
     for (var k = 0; k < keys.length; k++) {
       var s = this.sectors[keys[k]];
-      // the pre-built gym room already includes its equipment — don't draw
-      // procedural gear on top of it.
-      if (s.key === 'gym' && this._gymRoomReady()) continue;
-      for (var f = 0; f < s.furniture.length; f++) {
-        var u = s.furniture[f], t = this._tileRect(u.c, u.r);
-        this._drawUnit(u.kind, t, s);
+      // design rooms are blitted whole (furniture is in the design) — only draw
+      // procedural furniture for a sector WITHOUT a ready pre-built design.
+      if (!this._designReady(s.key)) {
+        for (var f = 0; f < s.furniture.length; f++) {
+          var u = s.furniture[f], t = this._tileRect(u.c, u.r);
+          this._drawUnit(u.kind, t, s);
+        }
       }
       if (s.key === 'accounts') this._drawCubicleLabels(s);
       if (s.key === 'dispatch') this._drawDispatchSign(s);
@@ -1351,6 +1415,12 @@
   // LimeZu asset state (for verification): true once both premium sheets are
   // loaded + decoded. false → the office is drawing procedural furniture/floors.
   global.__gxLzReady = function () { return inst ? inst._lzReady() : false; };
+  global.__gxLzState = function () {
+    if (!inst || !inst.lz) return null;
+    var o = {}; Object.keys(inst.lz).forEach(function (k) { var im = inst.lz[k]; o[k] = im ? (im.width + 'x' + im.height) : 'null'; });
+    o.__designReady = {}; ['gym','accounts','lab','kitchen','trading','dispatch'].forEach(function (k) { o.__designReady[k] = inst._designReady(k); });
+    return o;
+  };
   // Deterministic frame driver — ONLY for verification when a headless test tab is
   // backgrounded (Chromium suspends rAF while document.hidden, so the self-driven
   // loop can't tick). On a real visible window the rAF loop drives itself and this
