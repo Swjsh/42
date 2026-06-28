@@ -371,6 +371,16 @@
       var p = this._cardPx;
       cardLo = Math.max(0, Math.floor(p.x / cw) - 1);
       cardHi = Math.min(cols - 1, Math.ceil((p.x + p.w) / cw) + 1);
+      // SANITY: never let a bad measurement eat a whole side margin — keep the card
+      // a CENTRED column with usable margins on BOTH sides, so the office can never
+      // collapse into one side (defends the layout even if the footprint is wrong).
+      var minMargin = Math.max(7, Math.floor(cols * 0.14));
+      if (cardLo < minMargin || cardHi > cols - 1 - minMargin || cardHi <= cardLo) {
+        var ctr = Math.round((p.x + p.w / 2) / cw);
+        var hw = Math.max(6, Math.min(Math.floor(cols * 0.22), Math.max(6, (cardHi - cardLo) >> 1)));
+        ctr = Math.max(minMargin + hw, Math.min(cols - 1 - minMargin - hw, ctr));
+        cardLo = ctr - hw; cardHi = ctr + hw;
+      }
       // reserve the FULL card height — the office now lives in the side margins,
       // so a tall card no longer starves it, and the vitals can't bleed through.
       cardBottom = Math.max(3, Math.min(rows - 2, Math.ceil((p.y + p.h) / ch)));

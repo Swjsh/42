@@ -1166,17 +1166,16 @@
     try {
       var frame = document.querySelector(".frame"); if (!frame) return;
       var fr = frame.getBoundingClientRect();
-      var left = Infinity, right = -Infinity, bottom = fr.top;
+      // x/width from the frame CENTRE + the known card width — STABLE from first
+      // paint and immune to a stray/early child element measuring at the far left
+      // (that was reserving the whole left side and collapsing the office).
+      var cx = (fr.left + fr.right) / 2;
+      var cardW = Math.min(fr.width || 460, 480);
+      var bottom = fr.top;
       frame.querySelectorAll(".hero, .card").forEach(function(el){
-        var r = el.getBoundingClientRect();
-        if (r.left < left) left = r.left;
-        if (r.right > right) right = r.right;
-        if (r.bottom > bottom) bottom = r.bottom;
+        var r = el.getBoundingClientRect(); if (r.bottom > bottom) bottom = r.bottom;
       });
-      if (left === Infinity) { left = fr.left; right = fr.right; }
-      // reserve the actual card elements' extent (tighter than the .frame column)
-      // so the office floor + rooms come right up to the card, not a wide dark band.
-      window.GammaPixels.setCardRect({ x: left, y: 0, w: right - left, h: Math.min(bottom + 16, window.innerHeight) });
+      window.GammaPixels.setCardRect({ x: cx - cardW / 2, y: 0, w: cardW, h: Math.min(bottom + 16, window.innerHeight) });
     } catch(_){}
   }
   function evalView(){
