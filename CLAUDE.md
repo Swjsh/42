@@ -263,7 +263,7 @@ These are non-negotiable, second only to the 10 rules above.
 
     | # | Theme | Lessons |
     |---|---|---|
-    | C1 | Real-fills is the only WR authority; BS-sim is ranking-only | L02,12,23,50,71,99,100,107,182 |
+    | C1 | Real-fills is the only WR authority; BS-sim is ranking-only | L02,12,23,50,71,99,100,107,182,182 |
     | C2 | First-strike entries: chart-stop only, premium-stop disabled | L51,55,64,171 |
     | C3 | SPY-price edge != option edge (delta/theta/stop-misfire); a structural-gate pass that a random-entry null reproduces is an exit-structure artifact, not signal alpha -- beat the null MAX | L58,74,100,101,112,136,148,149,172,177,183,184 |
     | C4 | Disclose concentration, normalize OOS, stratify by regime; use per-trade expectancy not WR standalone; a published cross-sectional anomaly != a per-trade option edge | L01,04,05,10,11,22,46,48,92,104,122,124,128,129,154,166,167,175,174,178 |
