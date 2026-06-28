@@ -1,0 +1,90 @@
+{
+  "proposal_id": "pk-2026-06-28-001",
+  "scored_at": "2026-06-28T15:40:29Z",
+  "contender_file": "contender-rank-2026-06-28.json",
+  "contender_label": "OTM-2:LR0:mt1:stop-8:tp+150%:sell80%:fixed",
+  "contender_ranked_at": "2026-06-28 11:33",
+  "combo": [
+    "OTM-2",
+    2,
+    false,
+    1,
+    "-8",
+    -0.08,
+    1.5,
+    0.8,
+    "fixed"
+  ],
+  "is_metrics": {
+    "edge_capture": 1692.39,
+    "wf": 1.98,
+    "n": 214,
+    "expectancy": 23.78,
+    "wr": 0.1215,
+    "max_dd": -1162.6
+  },
+  "full_window": {
+    "n": 229,
+    "edge_capture": 1692.39,
+    "expectancy": 31.13,
+    "wr": 0.1266,
+    "max_dd": -1162.6,
+    "total_dollar": 7128.74,
+    "trading_days": 171,
+    "wf_per_trade": 3.566
+  },
+  "oos_split": {
+    "IS": "<2026-01-01",
+    "OOS": ">=2026-01-01",
+    "IS_n": 144,
+    "IS_exp": 15.94,
+    "IS_total": 2295.94,
+    "OOS_n": 85,
+    "OOS_exp": 56.86,
+    "OOS_total": 4832.8,
+    "wf_ratio": 3.566
+  },
+  "quarterly": {
+    "2025Q1": {
+      "n": 26,
+      "total": 1008.0,
+      "exp": 38.77
+    },
+    "2025Q2": {
+      "n": 26,
+      "total": -639.48,
+      "exp": -24.6
+    },
+    "2025Q3": {
+      "n": 61,
+      "total": 559.3,
+      "exp": 9.17
+    },
+    "2025Q4": {
+      "n": 31,
+      "total": 1368.11,
+      "exp": 44.13
+    },
+    "2026Q1": {
+      "n": 24,
+      "total": 303.4,
+      "exp": 12.64
+    },
+    "2026Q2": {
+      "n": 61,
+      "total": 4529.4,
+      "exp": 74.25
+    }
+  },
+  "quarter_positive_fraction": 0.833,
+  "gates": {
+    "oos_positive": true,
+    "wf_ge_0.70": true,
+    "sub_window_stable_ge_0.60": true,
+    "anchor_no_regression": true,
+    "ALL_PASS": true
+  },
+  "eval_bar_cleared": true,
+  "verdict": "CLEARED",
+  "failed_gates": []
+}

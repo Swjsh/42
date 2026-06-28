@@ -17,7 +17,7 @@
   "premium_stop_multiplier": 0.5,
   "tp1_premium_pct": 0.5,
   "tp1_premium_multiplier": 1.5,
-  "tp1_qty_fraction": 0.667,
+  "tp1_qty_fraction": 0.8,
   "runner_be_stop_after_tp1": true,
   "exit_all_on_runner_signal_if_tp1_unfired": true,
   "runner_max_premium_pct": 2.5,
@@ -194,7 +194,7 @@
     }
   ],
   "v15_hard_gate_logic": "If (qty x premium x 100) > (account_equity x max_pct), reduce qty or skip OTM until fits. Prevents 315%-leverage situations like the actual 5/13 trade if account were $1K (15x $2.10 = $3,150 = 315% of $1K).",
-  "v15_profit_lock_mode": "trailing",
+  "v15_profit_lock_mode": "fixed",
   "v15_profit_lock_threshold_pct": 0.05,
   "v15_profit_lock_trail_pct": 0.125,
   "_v15_profit_lock_trail_pct_doc_2026_06_19": "CHANDELIER_TRAIL_20_TO_15 (2026-06-19): 0.20 -> 0.15 (tighter premium profit-lock). SAFE ONLY (Bold/aggressive runs NO chandelier - aggressive/params.json has no profit_lock key). Re-confirmed on the CURRENT LIVE config (full-engine run_backtest: all gates, chandelier ON, real OPRA fills, tp1 0.50@0.667, bear stop -0.50) AFTER the weekend scorecard's research-isolated config (tp1 0.30@0.50, chandelier-only) was found NOT to match live. ATM/Safe live-config A/B (2025-01-02..2026-05-29): IS n=110 +$9,166->+$11,363 (IS_delta +$2,198), OOS +$155, WF_per_trade=0.861 PASS, sub_windows 4/4 HELP (W1+953 W2+278 W3+387 W4+734), walk-forward 6/6 folds stable, anchor-no-regression (gate-path anchor edge tie at 0). All 5 OP-22 gates PASS. ITM2/Bold did NOT ship (WF=0.50<0.70 - C29 knobs don't transfer across strike tiers; also Bold runs no chandelier so N/A). Re-confirm scorecard: analysis/recommendations/weekend-fixes-live-reconfirm-2026-06-19.json + part-A. Original weekend scorecard: analysis/recommendations/regime-chandelier-sweep.json. Synced to heartbeat.md (lines ~39 + ~228: 'trail 20%' -> 'trail 15%'). Revert: set 0.2 + restore heartbeat.md '15%'->'20%'. Supersedes v15_profit_lock_decision_data (T50 2026-05-13 trailing-20% rationale; trailing remains, only the trail % tightened).",
