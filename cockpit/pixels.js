@@ -396,23 +396,27 @@
     var rightRoomX = cardHi + 1 + M;          // lab left edge
     var topY = M;
 
-    // DISPATCH sits in the gap directly UNDER the card column. Build it FIRST
-    // (fixed height) so the bottom band starts cleanly below it with a corridor
-    // lane between — no overlap.
-    var dispY = bandTop + M;                   // 1 corridor lane below the cards
-    var dispH = 3;                             // 3 interior rows
-    var dispBot = dispY + dispH;
+    // BOTTOM BAND uses the FULL vertical space below the cards, running to the
+    // viewport bottom — as TALL as the layout allows so the rooms breathe and the
+    // GYM can be near-square. DISPATCH is a compact hub tucked into the corridor
+    // gap directly under the cards; the band starts just below it.
+    var bRoomBot = rows - 1 - M;
+    // The band runs to the bottom and should be GENEROUS (≥ ~7 interior rows for
+    // a near-square gym). Reserve that height first, then fit a COMPACT dispatch
+    // hub in the gap between the cards and the band — shrinking dispatch (even to
+    // 2 interior rows) before stealing band height.
+    var dispY = bandTop + M;                              // dispatch top (1 lane under cards)
+    // DISPATCH needs ≥3 INTERIOR rows so the counter+register read as the hub.
+    // makeRoom interior height = (y2 - y - 1), so for 3 interior rows dispBot =
+    // dispY + 4. Reserve that height first, then the band runs below it.
+    var dispBot = dispY + 4;                              // → 3 interior rows
+    var wantBandH = 9;                                    // desired band interior rows
+    var bRoomTop = Math.max(dispBot + 1 + M, bRoomBot - (wantBandH + 1));
+    var bandIntH = Math.max(3, bRoomBot - bRoomTop - 1);  // interior rows of the band rooms
+    var sideBot = bRoomTop - 1 - M;                      // accounts/lab bottom (above the band)
+
     var dispW = Math.max(5, Math.min(cardHi - cardLo - 1, Math.round((cardHi - cardLo) * 0.8)));
     var dispX = ((cardLo + cardHi) >> 1) - (dispW >> 1);
-
-    // BOTTOM BAND (full width) starts below dispatch + a corridor lane, runs to
-    // the bottom. KITCHEN | TRADING | GYM — GYM widest + tall enough for the
-    // pre-built gym to render legibly.
-    var bRoomTop = dispBot + 1 + M;
-    var bRoomBot = rows - 1 - M;
-    if (bRoomBot - bRoomTop < 4) { bRoomTop = Math.max(dispBot + 2, bRoomBot - 6); } // guarantee room height
-    var sideBot = bRoomTop - 1 - M;            // accounts/lab bottom (above the band)
-
     makeRoom('dispatch', 'DISPATCH', COL.glow, dispX, dispY, dispX + dispW, dispBot, 'bottom');
 
     // ACCOUNTS — left margin room (top region), door on its RIGHT to the corridor.
@@ -420,13 +424,29 @@
     // LAB / R&D — right margin room (top region), door on its LEFT.
     makeRoom('lab', 'LAB / R&D', COL.accent, Math.min(cols - 2 - 3, rightRoomX), topY, cols - 1 - M, sideBot, 'left');
 
+    // KITCHEN | TRADING | GYM share the (tall) band. The GYM gets a footprint in
+    // the bottom-RIGHT whose INTERIOR width ≈ interior-height × 1.27 (the pre-
+    // built gym's native aspect) so the gym fills it edge-to-edge with no
+    // letterbox and no squish. We size the gym to the band height (not a fixed
+    // min), so it stays correctly-proportioned at any band height; the letterbox
+    // in _drawGymRoom is the safety net for the leftover. Kitchen + Trading take
+    // the remaining left/center width.
     var bandX = M, bandX2 = cols - 1 - M;
-    var bandW = bandX2 - bandX + 1;
-    var kEnd = bandX + Math.floor(bandW * 0.30);
-    var tEnd = bandX + Math.floor(bandW * 0.58);
-    makeRoom('kitchen', 'KITCHEN', COL.caution, bandX,    bRoomTop, kEnd - 1, bRoomBot, 'top');
-    makeRoom('trading', 'TRADING', COL.alert,   kEnd + M, bRoomTop, tEnd - 1, bRoomBot, 'top');
-    makeRoom('gym',     'GYM',     COL.pos,     tEnd + M, bRoomTop, bandX2,   bRoomBot, 'top');
+    var bandTotW = bandX2 - bandX + 1;
+    // GYM keeps a near-square footprint (interior width ≈ height × 1.27) so the
+    // pre-built gym fills it. Then KITCHEN + TRADING split the remaining width
+    // EVENLY (≈50/50) so the three bottom rooms read as balanced — Trading no
+    // longer dwarfs Kitchen.
+    var gymIntW = Math.round(bandIntH * 1.27);
+    var gymOuterW = gymIntW + 2;                              // + its two walls
+    var maxGymOuterW = Math.max(6, bandTotW - (2 * 9));       // leave ~9 cols each for K+T+lanes
+    gymOuterW = Math.max(8, Math.min(gymOuterW, maxGymOuterW));
+    var gymX = bandX2 - (gymOuterW - 1);
+    var leftW = (gymX - M) - bandX;                          // width left of the gym (incl its lane)
+    var kEnd = bandX + Math.max(4, Math.floor(leftW * 0.50)); // even kitchen/trading split
+    makeRoom('kitchen', 'KITCHEN', COL.caution, bandX,    bRoomTop, kEnd - 1,  bRoomBot, 'top');
+    makeRoom('trading', 'TRADING', COL.alert,   kEnd + M, bRoomTop, gymX - M - 1, bRoomBot, 'top');
+    makeRoom('gym',     'GYM',     COL.pos,     gymX,     bRoomTop, bandX2,    bRoomBot, 'top');
 
     // Fallbacks so no role is ever sector-less (degenerate tiny grids).
     if (!sectors.lab) makeRoom('lab', 'LAB / R&D', COL.accent, Math.max(M, rightRoomX), topY, cols - 1 - M, botY, 'left');
@@ -505,12 +525,11 @@
       var x = s.x + 1, y = s.y + 1, x2 = s.x2 - 1, y2 = s.y2 - 1; // interior bounds
       var iw = x2 - x + 1, ih = y2 - y + 1;
 
-      // helper: add a furniture obstacle tile + a dwell spot in front of it
-      // (spot is on the row BELOW the furniture so the worker faces UP at it).
+      // STATION unit: a furniture obstacle + a dwell SPOT in front of it (a tile a
+      // worker stands on, facing the furniture). Used for the things workers use.
       function addUnit(fc, fr, kind, faceDir) {
         if (fc < x || fc > x2 || fr < y || fr > y2) return false;
         if (self.obstacles[fr * cols + fc]) return false;
-        // spot in front
         var sc = fc, sr = fr + 1, sdir = 'up';
         if (faceDir === 'down') { sr = fr - 1; sdir = 'down'; }
         if (sr < y || sr > y2) { sr = fr + 1; sdir = 'up'; if (sr > y2) return false; }
@@ -520,76 +539,136 @@
         s.spots.push({ c: sc, r: sr, dir: sdir, kind: kind, taken: null });
         return true;
       }
+      // DECOR unit: a furniture obstacle with NO dwell spot — pure visual fill so
+      // a room never reads as empty floor. Placed only where it does NOT trap a
+      // tile (every decor tile keeps ≥3 open orthogonal neighbours so lanes
+      // remain and the room stays fully traversable → containment/routes hold).
+      function freeTile(c, r) { return c >= x && c <= x2 && r >= y && r <= y2 && !self.obstacles[r * cols + c]; }
+      function openNeighbours(c, r) {
+        var n = 0;
+        if (freeTile(c - 1, r)) n++; if (freeTile(c + 1, r)) n++;
+        if (freeTile(c, r - 1)) n++; if (freeTile(c, r + 1)) n++;
+        return n;
+      }
+      function addDecor(fc, fr, kind) {
+        if (!freeTile(fc, fr)) return false;
+        if (fc === s.door[0] && fr === s.door[1]) return false;
+        // don't sit a decor tile ON a worker's dwell spot
+        for (var i = 0; i < s.spots.length; i++) if (s.spots[i].c === fc && s.spots[i].r === fr) return false;
+        // keep the tile from becoming a chokepoint: require ≥3 currently-open
+        // orthogonal neighbours so removing this tile can't disconnect the room.
+        if (openNeighbours(fc, fr) < 3) return false;
+        occ(fc, fr);
+        s.furniture.push({ c: fc, r: fr, kind: kind, decor: true });
+        return true;
+      }
 
-      // place furniture in ROWS spread down the zone height: a furniture row,
-      // a seat row, a walking lane — repeated every 3 rows. This fills tall zones
-      // (the left/right margins) AND wide ones (the bottom thirds) evenly instead
-      // of cramming everything against one wall.
-      function fillRows(kinds, colStep, cap) {
-        var made = 0;
-        for (var fr = y; fr <= y2 - 1 && made < (cap || 999); fr += 3) {
-          var ki = 0;
-          for (var fc = x; fc <= x2 && made < (cap || 999); fc += colStep) {
-            var kind = kinds[(ki++) % kinds.length];
-            if (addUnit(fc, fr, kind, 'up')) made++;
+      // Fill density scales with ROOM AREA. We (1) place the room's STATION
+      // furniture (the things workers use), then (2) DENSE-LINE the perimeter +
+      // sprinkle interior clusters with themed DECOR so big rooms read as fully
+      // furnished, lived-in spaces — never large empty floors. Decor is placed on
+      // a sparse lattice (every other tile, walls first) so walking lanes remain.
+      var area = iw * ih;
+      function lineWalls(kinds, density) {
+        // walk the inner-perimeter ring, dropping decor every `density` tiles.
+        var ki = 0, step = density || 2, i = 0;
+        // top + bottom rows
+        for (var c = x; c <= x2; c++) {
+          if (i++ % step === 0) { if (addDecor(c, y, kinds[ki++ % kinds.length])) {} }
+          if (ih > 2 && (i++ % step === 0)) { addDecor(c, y2, kinds[ki++ % kinds.length]); }
+        }
+        // left + right columns
+        for (var r = y + 1; r <= y2 - 1; r++) {
+          if (i++ % step === 0) { addDecor(x, r, kinds[ki++ % kinds.length]); }
+          if (iw > 2 && (i++ % step === 0)) { addDecor(x2, r, kinds[ki++ % kinds.length]); }
+        }
+      }
+      function interiorClusters(kinds, targetCount) {
+        // scatter decor through the interior on a coarse lattice (every 2 tiles
+        // each axis, offset rows) until we hit the area-scaled target.
+        var ki = 0, placed = 0, guard = 0;
+        for (var r = y + 1; r <= y2 - 1 && placed < targetCount; r += 2) {
+          var off = ((r - y) >> 1) % 2;                  // stagger alternate rows
+          for (var c = x + 1 + off; c <= x2 - 1 && placed < targetCount; c += 2) {
+            if (guard++ > 4000) return placed;
+            if (addDecor(c, r, kinds[ki++ % kinds.length])) placed++;
           }
         }
-        return made;
+        return placed;
       }
 
       if (key === 'dispatch') {
-        // DISPATCH HUB: a service COUNTER + register along the top wall. Agents
-        // walk up to the counter (the spots below it) to pick up their task.
-        // Several counter spots so multiple agents can visit/queue.
-        for (var dc = x; dc <= x2; dc += 1) {
-          if (dc % 2 === 0) addUnit(dc, y, 'counter_svc', 'up');
-        }
-        // a register accent on one counter tile
-        if (s.furniture.length) s.furniture[0].kind = 'register';
-        // ensure at least 2 counter spots
+        // DISPATCH HUB (≥3 interior rows): a service COUNTER + register runs the
+        // full top wall (the pickup desk, a worker spot below every other tile);
+        // the BACK wall gets a row of shelves/servers so the hub reads as a busy
+        // task-dispatch station. The middle row stays open so agents reach the
+        // counter from the bottom doorway (pickup route).
+        for (var dc = x; dc <= x2; dc += 2) addUnit(dc, y, 'counter_svc', 'up');
+        if (s.furniture.length) s.furniture[Math.floor(s.furniture.length / 2)].kind = 'register';
         if (s.spots.length < 2) { addUnit(x, y, 'counter_svc', 'up'); addUnit(x2, y, 'counter_svc', 'up'); }
+        // back-wall shelves (bottom interior row, beside the doorway) as decor
+        var bk = ['server', 'counter', 'plant'], bi = 0;
+        for (var bxc = x; bxc <= x2; bxc += 2) {
+          if (bxc === s.door[0]) continue;                 // keep the doorway clear
+          addDecor(bxc, y2, bk[bi++ % bk.length]);
+        }
       } else if (key === 'accounts') {
-        // 6 CUBICLE TERMINALS as a 2-col x 3-row grid filling the TALL left zone.
-        // Resident sits BELOW the terminal (faceDir 'up'); rows spaced by 3 so
-        // seats never collide; we choose a column step that yields ~2 columns.
-        var want = 6, made = 0;
-        var aColStep = Math.max(2, Math.floor(iw / 2));        // ~2 cubicle columns
-        var rowGap = Math.max(3, Math.floor(ih / 3));          // ~3 cubicle rows down the height
-        for (var rr = y; rr <= y2 - 1 && made < want; rr += rowGap) {
-          for (var ccx = x; ccx <= x2 && made < want; ccx += aColStep) {
+        // CUBICLE TERMINALS fill the whole accounts room — a workstation every
+        // ~3 cols x 3 rows so the room is a dense grid of cubicles, not 6 floating
+        // desks. (Account residents claim the first 6; extras read as more desks.)
+        var made = 0;
+        for (var rr = y; rr <= y2 - 1; rr += 3) {
+          for (var ccx = x; ccx <= x2; ccx += 3) {
             if (addUnit(ccx, rr, 'terminal', 'up')) made++;
           }
         }
-        // top up if the grid under-filled (narrow/short interior): add along any
-        // free furniture rows until we reach 6.
-        for (var rr2 = y; rr2 <= y2 - 1 && made < want; rr2 += 3) {
-          for (var cx2 = x; cx2 <= x2 && made < want; cx2 += 2) {
-            if (!self.obstacles[rr2 * cols + cx2]) { if (addUnit(cx2, rr2, 'terminal', 'up')) made++; }
-          }
-        }
         s.cubicleCount = made;
+        // densely fill the leftover floor: plants/shelves line the walls AND
+        // interior clusters so the tall accounts room is never bare floor.
+        lineWalls(['plant', 'serverdesk', 'server'], 2);
+        interiorClusters(['plant', 'serverdesk'], Math.round(area * 0.12));
       } else if (key === 'lab') {
-        // R&D right margin (tall): WHITEBOARDS + SERVER/research desks distributed
-        // down the full height, alternating, every 3 rows.
-        fillRows(['whiteboard', 'serverdesk'], Math.max(3, Math.floor(iw / 2)), 8);
+        // R&D: whiteboards + research/server desks as STATIONS spread on a 3-grid,
+        // then dense decor (servers, plants, shelves) lining walls + interior.
+        for (var lr = y; lr <= y2 - 1; lr += 3) {
+          var lk = 0;
+          for (var lc = x; lc <= x2; lc += 3) { addUnit(lc, lr, (lk++ % 2 ? 'serverdesk' : 'whiteboard'), 'up'); }
+        }
+        lineWalls(['server', 'whiteboard', 'plant'], 2);
+        interiorClusters(['server', 'plant'], Math.round(area * 0.10));
       } else if (key === 'kitchen') {
-        // KITCHEN (bottom-left third): stoves, fridge, prep counters spread across.
-        fillRows(['stove', 'counter', 'fridge'], 2, 6);
+        // KITCHEN: stoves/counters/fridge/sink as STATIONS on a 3-grid, then
+        // counters + fridges line the walls densely so it reads as a full kitchen.
+        var kk = ['stove', 'counter', 'fridge', 'sink'];
+        for (var kr = y; kr <= y2 - 1; kr += 3) {
+          var ki2 = 0;
+          for (var kc = x; kc <= x2; kc += 3) { addUnit(kc, kr, kk[ki2++ % kk.length], 'up'); }
+        }
+        lineWalls(['counter', 'stove', 'fridge', 'sink'], 1);  // dense (wide, short room)
+        interiorClusters(['counter', 'stove'], Math.round(area * 0.20));
       } else if (key === 'trading') {
-        // TRADING (bottom-middle third): engine/beacon terminals + a coffee machine.
-        var tmade = fillRows(['engine', 'engine', 'coffee'], 2, 6);
+        // TRADING: engine/beacon terminals as STATIONS on a 3-grid, then desks +
+        // screens + coffee densely fill the room (was the big empty purple room).
+        for (var tr = y; tr <= y2 - 1; tr += 3) {
+          for (var tc = x; tc <= x2; tc += 3) { addUnit(tc, tr, 'engine', 'up'); }
+        }
+        lineWalls(['engine', 'serverdesk', 'coffee', 'plant'], 1);  // dense (wide, short room)
+        interiorClusters(['engine', 'serverdesk'], Math.round(area * 0.20));
       } else if (key === 'gym') {
-        // GYM (bottom-right third, the BIG one): racks, benches, dumbbells, treadmill
-        // spread across the wider area.
-        fillRows(['rack', 'bench', 'dumbbell', 'treadmill'], 2, 8);
+        // GYM keeps the pre-built room blit (full of equipment) — no procedural
+        // furniture needed. Spots still placed so gym workers have somewhere to
+        // stand, but they aren't drawn (the gym room covers them).
+        for (var gr = y; gr <= y2 - 1; gr += 3) {
+          var gk = ['rack', 'bench', 'dumbbell', 'treadmill'];
+          var gi = 0;
+          for (var gc = x; gc <= x2; gc += 3) { addUnit(gc, gr, gk[gi++ % gk.length], 'up'); }
+        }
       }
 
-      // guarantee at least ONE spot even if furniture didn't fit, so a worker can
-      // still stand somewhere inside its sector.
+      // guarantee at least ONE spot so a worker can always stand somewhere.
       if (!s.spots.length) {
-        var fallbackC = Math.round((s.x + s.x2) / 2), fallbackR = Math.round((s.y + s.y2) / 2);
-        if (!self.obstacles[fallbackR * cols + fallbackC])
-          s.spots.push({ c: fallbackC, r: fallbackR, dir: 'down', kind: 'idle', taken: null });
+        var fbC = Math.round((s.x + s.x2) / 2), fbR = Math.round((s.y + s.y2) / 2);
+        if (!self.obstacles[fbR * cols + fbC]) s.spots.push({ c: fbC, r: fbR, dir: 'down', kind: 'idle', taken: null });
       }
     });
   };
@@ -852,17 +931,34 @@
   };
 
   // Blit the LimeZu PRE-BUILT GYM room (gym_base = walls+floor, gym_furn =
-  // equipment) scaled into the gym sector rect. It's a finished pro gym, so we
-  // draw it whole rather than tiling. Only when both gym sheets are present.
+  // equipment) into the gym sector rect — FIT-PRESERVE-ASPECT (letterbox), never
+  // stretched. The pre-built gym is 19x15 tiles; we scale it UNIFORMLY to fit
+  // within the room and CENTER it, then fill the leftover with the gym floor tile
+  // so the equipment always reads at its native proportions (no squish).
   Office.prototype._drawGymRoom = function () {
     if (!this._gymRoomReady()) return;
     var s = this.sectors.gym; if (!s) return;
-    var t0 = this._tileRect(s.x, s.y);
-    var dw = (s.x2 - s.x + 1) * this.grid.cw, dh = (s.y2 - s.y + 1) * this.grid.ch;
-    var gw = this.lz.gymBase.width, gh = this.lz.gymBase.height;
     var ctx = this.ctx; ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(this.lz.gymBase, 0, 0, gw, gh, t0.x, t0.y, dw, dh);
-    ctx.drawImage(this.lz.gymFurn, 0, 0, gw, gh, t0.x, t0.y, dw, dh);
+    var t0 = this._tileRect(s.x, s.y);
+    var roomW = (s.x2 - s.x + 1) * this.grid.cw, roomH = (s.y2 - s.y + 1) * this.grid.ch;
+    var gw = this.lz.gymBase.width, gh = this.lz.gymBase.height;     // 304 x 240
+
+    // fill the WHOLE room with the gym floor tile first (so letterbox margins
+    // read as gym floor, not the room's default floor / dark bg).
+    if (this._lzReady() && this.lz.floors && this.lz.floors.width) {
+      var fl = LZ_FLOORS.gym;
+      for (var c = s.x; c <= s.x2; c++) for (var r = s.y; r <= s.y2; r++) {
+        var ft = this._tileRect(c, r);
+        this._blit(this.lz.floors, fl.c, fl.r, 1, 1, ft.x, ft.y, ft.w + 0.6, ft.h + 0.6);
+      }
+    }
+
+    // uniform scale to fit inside the room, centered (letterbox).
+    var scale = Math.min(roomW / gw, roomH / gh);
+    var dw = Math.round(gw * scale), dh = Math.round(gh * scale);
+    var dx = Math.round(t0.x + (roomW - dw) / 2), dy = Math.round(t0.y + (roomH - dh) / 2);
+    ctx.drawImage(this.lz.gymBase, 0, 0, gw, gh, dx, dy, dw, dh);
+    ctx.drawImage(this.lz.gymFurn, 0, 0, gw, gh, dx, dy, dw, dh);
   };
 
   Office.prototype._drawSectorWalls = function () {
