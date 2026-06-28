@@ -191,6 +191,44 @@ def _is_doc_file(rel: str) -> bool:
     return r in ("claude.md", "changelog.md", "readme.md") or r.endswith(".md") or r.startswith("markdown/")
 
 
+def _scorecard_clears_bar(scorecard_rel: str) -> bool:
+    """Verify the A/B scorecard FILE actually proves the OP-11 bar -- defends against a
+    proposal that merely CLAIMS eval_bar_cleared (reward-hacking / hallucination). Reads
+    the JSON and requires walk-forward >= 0.70 AND non-negative OOS AND anchor-no-
+    regression, ALL present. CONSERVATIVE: missing file or unverifiable fields => False
+    (a validated edge whose scorecard can't be machine-verified simply waits for J)."""
+    if not scorecard_rel:
+        return False
+    p = REPO / str(scorecard_rel).replace("\\", "/").lstrip("/")
+    try:
+        if not p.exists():
+            return False
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return False
+    if not isinstance(data, dict):
+        return False
+
+    def _num(*keys):
+        for k in keys:
+            v = data.get(k)
+            if isinstance(v, (int, float)) and not isinstance(v, bool):
+                return float(v)
+        return None
+
+    wf = _num("wf", "walk_forward", "walkforward", "wf_score")
+    if wf is None or wf < 0.70:
+        return False
+    oos = _num("oos", "oos_pnl", "oos_expectancy", "oos_delta")
+    if data.get("oos_positive") is not True and not (oos is not None and oos > 0):
+        return False
+    anchor_ok = data.get("anchor_no_regression")
+    if anchor_ok is None:
+        ec_delta = _num("anchor_edge_capture_delta", "edge_capture_delta")
+        anchor_ok = (ec_delta is not None and ec_delta >= 0)
+    return anchor_ok is True
+
+
 def auto_approve_pending() -> int:
     """Flip qualifying `pending` proposals to `approved` per OP-11/OP-25 with NO human
     tap -- the autonomous half of the apply hop. The actuator's full safety contract
@@ -219,7 +257,7 @@ def auto_approve_pending() -> int:
         reason = None
         if kind in AUTO_APPROVE_KINDS and all(_is_doc_file(op.get("file", "")) for op in ops):
             reason = "op25_docindex"
-        elif prop.get("eval_bar_cleared") is True and prop.get("scorecard"):
+        elif prop.get("eval_bar_cleared") is True and _scorecard_clears_bar(prop.get("scorecard", "")):
             reason = "op11_evalbar"
         if reason is None:
             continue

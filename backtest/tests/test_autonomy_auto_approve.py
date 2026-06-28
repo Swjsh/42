@@ -32,23 +32,34 @@ def _redirect(tmp_path, monkeypatch):
 
 def test_bar_approves_only_safe_class(tmp_path, monkeypatch):
     prop = _redirect(tmp_path, monkeypatch)
+    monkeypatch.setattr(act, "REPO", tmp_path)
+    sc = tmp_path / "analysis" / "recommendations"
+    sc.mkdir(parents=True)
+    (sc / "pass.json").write_text(json.dumps(
+        {"wf": 1.8, "oos_positive": True, "anchor_no_regression": True}), encoding="utf-8")
+    (sc / "fail.json").write_text(json.dumps(
+        {"wf": 0.4, "oos_positive": True, "anchor_no_regression": True}), encoding="utf-8")
     _write(prop, [
-        # 1) OP-25 doc-index fold touching only CLAUDE.md -> APPROVE
+        # OP-25 doc-index fold touching only CLAUDE.md -> APPROVE
         {"proposal_id": "doc-ok", "status": "pending", "kind": "doc-index",
          "apply_ops": [{"file": "CLAUDE.md", "find": "L1,2", "replace": "L1,2,9"}]},
-        # 2) raw params change, no eval evidence -> STAY PENDING
+        # raw params change, no eval evidence -> STAY PENDING
         {"proposal_id": "params-raw", "status": "pending", "kind": "params",
          "apply_ops": [{"file": "automation/state/params.json", "find": "a", "replace": "b"}]},
-        # 3) doc-index MISLABEL that actually edits params.json -> STAY PENDING
+        # doc-index MISLABEL that actually edits params.json -> STAY PENDING
         {"proposal_id": "doc-mislabeled", "status": "pending", "kind": "doc-index",
          "apply_ops": [{"file": "automation/state/params.json", "find": "a", "replace": "b"}]},
-        # 4) trading edge that cleared the OP-11 eval bar (+scorecard) -> APPROVE
+        # cleared the OP-11 bar WITH a verifiable passing scorecard -> APPROVE
         {"proposal_id": "edge-cleared", "status": "pending", "kind": "params",
-         "eval_bar_cleared": True, "scorecard": "analysis/recommendations/x.json",
+         "eval_bar_cleared": True, "scorecard": "analysis/recommendations/pass.json",
          "apply_ops": [{"file": "automation/state/params.json", "find": "a", "replace": "b"}]},
-        # 5) doc-index but PROSE-only (no apply_ops) -> STAY PENDING
+        # CLAIMS cleared but the scorecard FAILS the bar (wf<0.70) -> STAY PENDING (the safety)
+        {"proposal_id": "edge-failscore", "status": "pending", "kind": "params",
+         "eval_bar_cleared": True, "scorecard": "analysis/recommendations/fail.json",
+         "apply_ops": [{"file": "automation/state/params.json", "find": "a", "replace": "b"}]},
+        # doc-index but PROSE-only -> STAY PENDING
         {"proposal_id": "doc-prose", "status": "pending", "kind": "doc-index", "apply": "do it"},
-        # 6) eval flag set but NO scorecard -> STAY PENDING (evidence required)
+        # eval flag but NO scorecard -> STAY PENDING
         {"proposal_id": "edge-noscore", "status": "pending", "kind": "heartbeat",
          "eval_bar_cleared": True,
          "apply_ops": [{"file": "automation/prompts/heartbeat.md", "find": "a", "replace": "b"}]},
@@ -57,6 +68,7 @@ def test_bar_approves_only_safe_class(tmp_path, monkeypatch):
     status = {r["proposal_id"]: r["status"] for r in act._read_proposals()}
     assert status["doc-ok"] == "approved"
     assert status["edge-cleared"] == "approved"
+    assert status["edge-failscore"] == "pending"   # failing scorecard never ships
     assert status["params-raw"] == "pending"
     assert status["doc-mislabeled"] == "pending"
     assert status["doc-prose"] == "pending"

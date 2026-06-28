@@ -101,7 +101,8 @@ Work is not "done" until it is *validated*. Before you ship or claim completion:
 > Ship autonomously when **ALL** hold: **OOS positive** AND **walk-forward ≥ 0.70** AND **sub-window stable** AND **anchor no-regression** AND an **A/B scorecard is filed** at `analysis/recommendations/{rule_id}.json`. (CLAUDE.md OP-11 / OP-16 / OP-22.) `evidence_n ≥ 15` is a quality signal, not a hard gate. J's role = REVOKE only.
 
 - **Clears the gate AND is engine-benefit (validator / skill / lesson / candidate-doc / backtest infra / prune):** SHIP it. Author auto-merges per OP-22/OP-26. File the scorecard. Note it in STATUS for J's REVOKE surface.
-- **Does NOT clear the gate, OR touches a doctrine/params/order surface (rail 4):** do NOT apply. Write the change as a **DRAFT** (e.g. `heartbeat-v15-draft.md`, `strategy/candidates/...`, `analysis/treasury/draft-params-changes.md`) and **ping J via Discord** with a one-line proposal. Then it waits for J.
+- **Clears the FULL gate AND is a params/doctrine DEPLOY (a validated trading edge):** this ALSO ships autonomously — J is REVOKE-only, NOT a ratification gate (OP-11). File the A/B scorecard at `analysis/recommendations/{rule_id}.json` with machine-readable `wf`, `oos_positive`, `anchor_no_regression` fields, then emit the proposal row (below) carrying **`"eval_bar_cleared": true`** + **`"scorecard": "<that path>"`** + structured `apply_ops`. The AutoApply actuator's op11 path RE-VERIFIES the scorecard (wf ≥ 0.70 AND OOS+ AND anchor-no-regression) before it auto-applies → safety-gate → commit → STATUS. **Deploy to a PAPER surface ONLY** (a `params.json` enable-flag / strike-depth knob, or a `automation/state/fleet/staged-challengers.json` entry); **NEVER** set `GAMMA_CORE_ARMED` or a fleet `live:true` — live-money arming stays J's, full stop.
+- **Does NOT clear the gate:** do NOT apply. Write the change as a **DRAFT** (e.g. `heartbeat-v15-draft.md`, `strategy/candidates/...`, `analysis/treasury/draft-params-changes.md`) and **ping J via Discord** with a one-line proposal. Then it waits for J.
 
 **How to ping J (the async approval channel).** Append ONE line to `automation/state/discord-outbox.jsonl` (the bridge sends it; sharp-operator voice per `automation/presence/SOUL.md`). To make it actionable by the approve/revoke responder, include a stable `proposal_id`:
 
@@ -112,8 +113,10 @@ Work is not "done" until it is *validated*. Before you ship or claim completion:
 Also append the proposal to `automation/state/conductor-proposals.jsonl` (one row). **Carry a STRUCTURED `apply_ops` array** so the AutoApply actuator can apply it deterministically once J approves — each op is an EXACT string replacement whose `find` occurs verbatim EXACTLY ONCE in the target file:
 
 ```json
-{"proposal_id":"gp-...","created_at":"<ISO>Z","title":"...","kind":"doctrine|params|doc-index","draft_path":"...","apply":"<one-line human summary>","apply_ops":[{"file":"CLAUDE.md","find":"<exact unique current text>","replace":"<exact new text>"}],"status":"pending"}
+{"proposal_id":"gp-...","created_at":"<ISO>Z","title":"...","kind":"params|doctrine|doc-index","draft_path":"...","apply":"<one-line human summary>","eval_bar_cleared":true,"scorecard":"analysis/recommendations/{rule_id}.json","apply_ops":[{"file":"automation/state/params.json","find":"<exact unique current text>","replace":"<exact new text>"}],"status":"pending"}
 ```
+
+`eval_bar_cleared` + `scorecard` are **REQUIRED for a params/doctrine change to auto-ship** (the op11 path verifies the scorecard); OMIT them for a draft-only / FYI ping that should wait for J. A doc-index fold needs neither (it auto-ships on the OP-25 path).
 
 **The conductor never applies the change itself** (rail 4) — it stages the DRAFT + the proposal row with `apply_ops`. After J approves on Discord/the wrist (responder flips `status → approved`), the **AutoApply actuator** (`Gamma_AutoApply`, after-hours, $0, `setup/scripts/autonomy_actuator.py`) applies the `apply_ops`, runs the fast safety gate, snapshots, and commits — OR, if the row is prose-only (no `apply_ops`), flags it `needs_structured_apply`. So: ALWAYS include `apply_ops` for any edit you want applied autonomously, and quote enough surrounding context that the `find` is unique (a non-unique `find` is refused). J can undo any applied change with `revert <proposal_id>`.
 
