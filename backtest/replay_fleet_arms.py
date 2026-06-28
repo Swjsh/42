@@ -415,17 +415,27 @@ def _entry_fidelity(arm, gt_trades, verdict_by_bar, payload_by_bar, gt_decs, spy
             "matched": matched, "extra": extra, "missed": missed}
 
 
-def main() -> int:
-    spy = pd.read_csv(SPY_CSV)
-    vix = pd.read_csv(VIX_CSV)
+def compute_arm_fidelity(spy_csv: Path = SPY_CSV, vix_csv: Path = VIX_CSV,
+                         n_days: int = N_DAYS) -> dict:
+    """Pure compute (no printing) of the per-arm entry-fidelity parity result.
+
+    Extracted from main() so the curated/full pytest suite can assert the parity
+    invariants WITHOUT scraping stdout. main() calls this then prints. Returns:
+      {days, start, end, score_pct, safe_n, bold_n, safe_errs, bold_errs,
+       rows: [{arm, gt_n, matched, extra, missed, score_pct, ready, benched,
+               notes, fid, gt_trades}]}.
+    The expensive bits (run_backtest x several) live here -> the harness runs in
+    ~36s, so the wrapping test belongs in the FULL suite / CI, NOT the curated
+    <2s pre-commit gate (same category as test_graduated_guards.py)."""
+    spy = pd.read_csv(spy_csv)
+    vix = pd.read_csv(vix_csv)
     spy["timestamp_et"] = pd.to_datetime(spy["timestamp_et"])
     vix["timestamp_et"] = pd.to_datetime(vix["timestamp_et"])
     spy = spy[(spy["timestamp_et"].dt.time >= dtime(9, 30))
               & (spy["timestamp_et"].dt.time < dtime(16, 0))].reset_index(drop=True)
     spy["date"] = spy["timestamp_et"].dt.date
-    days = sorted(spy["date"].unique())[-N_DAYS:]
+    days = sorted(spy["date"].unique())[-n_days:]
     start, end = days[0], days[-1]
-    print(f"replaying {len(days)} days: {start} .. {end}  (spy rows={len(spy)})")
 
     # DUAL-PERCEPTION replay: SAFE arms read the safe-params verdict (core 'safe' row),
     # BOLD/RISKY arms read the bold-params verdict (core 'bold' row). Two replays, routed
@@ -433,12 +443,6 @@ def main() -> int:
     safe_pack = _replay_verdicts(spy, vix, days, start, end, PARAMS_SAFE)
     bold_pack = _replay_verdicts(spy, vix, days, start, end, PARAMS_BOLD)
     score_pct = safe_pack[4]  # scoring is param-independent; report from the safe replay
-    print(f"deterministic verdicts replayed (safe) at {safe_pack[5]} bars / (bold) at {bold_pack[5]} bars "
-          f"| score parity (bear exact) = {score_pct:.1%}")
-    for nm, pk in (("safe", safe_pack), ("bold", bold_pack)):
-        errs = {k: c for k, c in pk[6].items() if k.startswith("replay_err")}
-        if errs:
-            print(f"  {nm} replay errors:", errs)
 
     rows = []
     for arm_id in ARMS_UNDER_TEST:
@@ -457,6 +461,27 @@ def main() -> int:
             "benched": benched, "notes": notes, "fid": fid,
             "gt_trades": gt_trades,
         })
+
+    return {
+        "days": days, "start": start, "end": end, "score_pct": score_pct,
+        "safe_n": safe_pack[5], "bold_n": bold_pack[5],
+        "safe_errs": {k: c for k, c in safe_pack[6].items() if k.startswith("replay_err")},
+        "bold_errs": {k: c for k, c in bold_pack[6].items() if k.startswith("replay_err")},
+        "rows": rows,
+    }
+
+
+def main() -> int:
+    result = compute_arm_fidelity()
+    days, start, end = result["days"], result["start"], result["end"]
+    score_pct = result["score_pct"]
+    rows = result["rows"]
+    print(f"replaying {len(days)} days: {start} .. {end}")
+    print(f"deterministic verdicts replayed (safe) at {result['safe_n']} bars / (bold) at {result['bold_n']} bars "
+          f"| score parity (bear exact) = {score_pct:.1%}")
+    for nm, errs in (("safe", result["safe_errs"]), ("bold", result["bold_errs"])):
+        if errs:
+            print(f"  {nm} replay errors:", errs)
 
     print("\n" + "=" * 92)
     print("PER-ARM ENTRY-FIDELITY (deterministic-signal-driven arm trades vs run_backtest GT)")
