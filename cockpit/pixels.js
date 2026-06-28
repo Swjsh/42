@@ -234,6 +234,7 @@
     this.sectors = null;       // { key: {label,x,y,w,h, interior:Set, door:[c,r], spots:[...], color} }
     this.obstacles = null;     // global obstacle set (walls + card rect + furniture)
     this.cardRect = null;
+    this._cardPx = null;        // real dashboard-card footprint in px (set by face.html)
     this.raf = 0; this.last = 0; this.running = false;
     this._spawnSeq = 0;
     this._acctSlot = 0;        // round-robin assignment of account cubicles
@@ -308,6 +309,20 @@
     this._buildLayout();
   };
 
+  // Reserve the REAL dashboard-card footprint (px, from face.html). Rebuilds the
+  // layout only when the reserved tile span meaningfully changes (avoids thrash).
+  Office.prototype.setCardRect = function (rect) {
+    if (!rect || !(rect.w > 0)) return;
+    var next = { x: rect.x || 0, y: rect.y || 0, w: rect.w, h: rect.h || 0 };
+    var prev = this._cardPx;
+    this._cardPx = next;
+    if (!this.grid) return;                 // first build will pick it up
+    if (prev && Math.abs(prev.x - next.x) < this.grid.cw &&
+        Math.abs(prev.w - next.w) < this.grid.cw &&
+        Math.abs(prev.h - next.h) < this.grid.ch) return;
+    this._buildLayout();
+  };
+
   Office.prototype._cx = function (c) { return (c + 0.5) * this.grid.cw; };
   Office.prototype._cy = function (r) { return (r + 0.5) * this.grid.ch; };
   Office.prototype._tileRect = function (c, r) { return { x: c * this.grid.cw, y: r * this.grid.ch, w: this.grid.cw, h: this.grid.ch }; };
@@ -324,11 +339,22 @@
     var cw = this.W / cols, ch = this.H / rows;
     this.grid = { cols: cols, rows: rows, cw: cw, ch: ch };
 
-    // reserved card rectangle: ~450px column centered, top → ~55% height
-    var halfCard = Math.ceil(228 / cw);
-    var midC = Math.floor(cols / 2);
-    var cardLo = Math.max(0, midC - halfCard), cardHi = Math.min(cols - 1, midC + halfCard);
-    var cardBottom = Math.min(rows - 4, Math.round(rows * 0.55));
+    // reserved card rectangle. Prefer the REAL dashboard-card footprint measured
+    // by face.html (setCardRect) so the office never overhangs the card and bleeds
+    // through the glass; fall back to a centered ~450px column to ~55% height.
+    var cardLo, cardHi, cardBottom;
+    if (this._cardPx && this._cardPx.w > 0) {
+      var p = this._cardPx;
+      cardLo = Math.max(0, Math.floor(p.x / cw) - 1);
+      cardHi = Math.min(cols - 1, Math.ceil((p.x + p.w) / cw) + 1);
+      // reserve down to the real card bottom; cap so ≥5 rows survive for the band.
+      cardBottom = Math.max(3, Math.min(rows - 6, Math.ceil((p.y + p.h) / ch)));
+    } else {
+      var halfCard = Math.ceil(228 / cw);
+      var midC = Math.floor(cols / 2);
+      cardLo = Math.max(0, midC - halfCard); cardHi = Math.min(cols - 1, midC + halfCard);
+      cardBottom = Math.min(rows - 4, Math.round(rows * 0.55));
+    }
     this.cardRect = { lo: cardLo, hi: cardHi, bottom: cardBottom };
 
     var obstacles = {};                 // global blockers (walls/furniture)
@@ -390,66 +416,45 @@
     function clampc(c) { return Math.max(0, Math.min(cols - 1, c)); }
     function clampr(r) { return Math.max(0, Math.min(rows - 1, r)); }
 
-    // Geometry. Inset rooms by 1 tile so a corridor lane runs along every edge.
-    var M = 1;                                // corridor margin (tiles)
-    var leftRoomX2 = cardLo - 1 - M;          // accounts right edge (gap before card)
-    var rightRoomX = cardHi + 1 + M;          // lab left edge
+    // ── GEOMETRY (robust to any card height) ─────────────────────────────────
+    //    The card occupies center-top. Rooms wrap AROUND it so none overlap and
+    //    nothing bleeds under the card no matter how tall it is:
+    //      ACCOUNTS (top-left)  ·  LAB (top-right)        — tall margin rooms
+    //      KITCHEN (bottom-left) · GYM (bottom-right)     — tall (gym ≈ square)
+    //      TRADING + DISPATCH                              — short strip BELOW card
+    //    Every room inset by M so a corridor lane runs each edge; the bottom
+    //    margin row + the strip lanes keep the corridor one connected region.
+    var M = 1;
     var topY = M;
-
-    // BOTTOM BAND uses the FULL vertical space below the cards, running to the
-    // viewport bottom — as TALL as the layout allows so the rooms breathe and the
-    // GYM can be near-square. DISPATCH is a compact hub tucked into the corridor
-    // gap directly under the cards; the band starts just below it.
+    var leftMX = M, leftMX2 = cardLo - 1 - M;          // left margin column span
+    var rightMX = cardHi + 1 + M, rightMX2 = cols - 1 - M;
     var bRoomBot = rows - 1 - M;
-    // The band runs to the bottom and should be GENEROUS (≥ ~7 interior rows for
-    // a near-square gym). Reserve that height first, then fit a COMPACT dispatch
-    // hub in the gap between the cards and the band — shrinking dispatch (even to
-    // 2 interior rows) before stealing band height.
-    var dispY = bandTop + M;                              // dispatch top (1 lane under cards)
-    // DISPATCH needs ≥3 INTERIOR rows so the counter+register read as the hub.
-    // makeRoom interior height = (y2 - y - 1), so for 3 interior rows dispBot =
-    // dispY + 4. Reserve that height first, then the band runs below it.
-    var dispBot = dispY + 4;                              // → 3 interior rows
-    var wantBandH = 9;                                    // desired band interior rows
-    var bRoomTop = Math.max(dispBot + 1 + M, bRoomBot - (wantBandH + 1));
-    var bandIntH = Math.max(3, bRoomBot - bRoomTop - 1);  // interior rows of the band rooms
-    var sideBot = bRoomTop - 1 - M;                      // accounts/lab bottom (above the band)
 
-    var dispW = Math.max(5, Math.min(cardHi - cardLo - 1, Math.round((cardHi - cardLo) * 0.8)));
-    var dispX = ((cardLo + cardHi) >> 1) - (dispW >> 1);
-    makeRoom('dispatch', 'DISPATCH', COL.glow, dispX, dispY, dispX + dispW, dispBot, 'bottom');
+    // Split each margin vertically: ACCOUNTS/LAB on top, KITCHEN/GYM on the bottom
+    // (kept generous + near-square for the pre-built gym). Clamp so neither half
+    // collapses. Independent of the card height — the strip below the card absorbs
+    // the squeeze instead.
+    var botMarginH = Math.max(6, Math.min(13, Math.round((bRoomBot - topY) * 0.46)));
+    var marginBandTop = bRoomBot - botMarginH + 1;
+    var sideBot = Math.max(topY + 4, marginBandTop - 1 - M);
 
-    // ACCOUNTS — left margin room (top region), door on its RIGHT to the corridor.
-    makeRoom('accounts', 'ACCOUNTS', COL.glow, M, topY, Math.max(M + 3, leftRoomX2), sideBot, 'right');
-    // LAB / R&D — right margin room (top region), door on its LEFT.
-    makeRoom('lab', 'LAB / R&D', COL.accent, Math.min(cols - 2 - 3, rightRoomX), topY, cols - 1 - M, sideBot, 'left');
+    // ACCOUNTS (top-left) + LAB (top-right) — doors face the center corridor.
+    makeRoom('accounts', 'ACCOUNTS', COL.glow, leftMX, topY, Math.max(leftMX + 3, leftMX2), sideBot, 'right');
+    makeRoom('lab', 'LAB / R&D', COL.accent, Math.min(rightMX2 - 3, rightMX), topY, rightMX2, sideBot, 'left');
+    // KITCHEN (bottom-left) + GYM (bottom-right) — tall margin rooms.
+    makeRoom('kitchen', 'KITCHEN', COL.caution, leftMX, marginBandTop, Math.max(leftMX + 3, leftMX2), bRoomBot, 'right');
+    makeRoom('gym', 'GYM', COL.pos, Math.min(rightMX2 - 3, rightMX), marginBandTop, rightMX2, bRoomBot, 'left');
 
-    // KITCHEN | TRADING | GYM share the (tall) band. The GYM gets a footprint in
-    // the bottom-RIGHT whose INTERIOR width ≈ interior-height × 1.27 (the pre-
-    // built gym's native aspect) so the gym fills it edge-to-edge with no
-    // letterbox and no squish. We size the gym to the band height (not a fixed
-    // min), so it stays correctly-proportioned at any band height; the letterbox
-    // in _drawGymRoom is the safety net for the leftover. Kitchen + Trading take
-    // the remaining left/center width.
-    var bandX = M, bandX2 = cols - 1 - M;
-    var bandTotW = bandX2 - bandX + 1;
-    // GYM keeps a near-square footprint (interior width ≈ height × 1.27) so the
-    // pre-built gym fills it. Then KITCHEN + TRADING split the remaining width
-    // EVENLY (≈50/50) so the three bottom rooms read as balanced — Trading no
-    // longer dwarfs Kitchen.
-    var gymIntW = Math.round(bandIntH * 1.27);
-    var gymOuterW = gymIntW + 2;                              // + its two walls
-    var maxGymOuterW = Math.max(6, bandTotW - (2 * 9));       // leave ~9 cols each for K+T+lanes
-    gymOuterW = Math.max(8, Math.min(gymOuterW, maxGymOuterW));
-    var gymX = bandX2 - (gymOuterW - 1);
-    var leftW = (gymX - M) - bandX;                          // width left of the gym (incl its lane)
-    var kEnd = bandX + Math.max(4, Math.floor(leftW * 0.50)); // even kitchen/trading split
-    makeRoom('kitchen', 'KITCHEN', COL.caution, bandX,    bRoomTop, kEnd - 1,  bRoomBot, 'top');
-    makeRoom('trading', 'TRADING', COL.alert,   kEnd + M, bRoomTop, gymX - M - 1, bRoomBot, 'top');
-    makeRoom('gym',     'GYM',     COL.pos,     gymX,     bRoomTop, bandX2,    bRoomBot, 'top');
+    // CENTER STRIP below the card: TRADING (left) + DISPATCH (right). As tall as
+    // the space under the card allows (short when the card is tall — that's fine).
+    var stripTop = cardBottom + 1;
+    var stripX = cardLo, stripX2 = cardHi;
+    var stripMid = (stripX + stripX2) >> 1;
+    makeRoom('trading', 'TRADING', COL.alert, stripX, stripTop, stripMid - 1, bRoomBot, 'bottom');
+    makeRoom('dispatch', 'DISPATCH', COL.glow, stripMid + M, stripTop, stripX2, bRoomBot, 'bottom');
 
     // Fallbacks so no role is ever sector-less (degenerate tiny grids).
-    if (!sectors.lab) makeRoom('lab', 'LAB / R&D', COL.accent, Math.max(M, rightRoomX), topY, cols - 1 - M, botY, 'left');
+    if (!sectors.lab) makeRoom('lab', 'LAB / R&D', COL.accent, Math.max(M, rightRoomX), topY, cols - 1 - M, sideBot, 'left');
     this.sectorAlias = {};
     var allKeys = ['kitchen', 'gym', 'lab', 'accounts', 'trading', 'dispatch'];
     for (var ak = 0; ak < allKeys.length; ak++) {
@@ -893,9 +898,11 @@
       for (var ci = 0; ci < ck.length; ci++) {
         var idx = +ck[ci], cc = idx % g.cols, rrr = (idx - cc) / g.cols;
         var ct = this._tileRect(cc, rrr);
-        if (lz) this._blit(this.lz.floors, LZ_FLOORS._default.c, LZ_FLOORS._default.r, 1, 1, ct.x, ct.y, ct.w + 0.6, ct.h + 0.6);
-        else { ctx.fillStyle = '#12161d'; ctx.fillRect(ct.x, ct.y, ct.w + 0.6, ct.h + 0.6); }
-        ctx.fillStyle = 'rgba(8,10,14,0.35)'; ctx.fillRect(ct.x, ct.y, ct.w + 0.6, ct.h + 0.6); // darken
+        // flat, uniform HALLWAY floor — skip the noisy concrete tile so the
+        // walled lanes between rooms read as deliberate halls, not a checkered
+        // void. A faint center dot adds just enough texture for long runs.
+        ctx.fillStyle = '#0f131a'; ctx.fillRect(ct.x, ct.y, ct.w + 0.6, ct.h + 0.6);
+        ctx.fillStyle = 'rgba(147,168,221,0.05)'; ctx.fillRect(ct.x + ct.w * 0.46, ct.y + ct.h * 0.46, Math.max(1, ct.w * 0.08), Math.max(1, ct.h * 0.08));
       }
     }
 
@@ -981,14 +988,19 @@
     var fl = LZ_FLOORS[s.key] || LZ_FLOORS._default;
     if (this._lzReady()) this._blit(this.lz.floors, fl.c, fl.r, 1, 1, dt.x, dt.y, dt.w + 0.6, dt.h + 0.6);
     else { ctx.fillStyle = COL.floorLit; ctx.fillRect(dt.x, dt.y, dt.w + 0.6, dt.h + 0.6); }
-    // arched doorway frame from rb_doors (grey arch matches the grey wall), else
-    // a thin accent post pair.
+    // EVERY door reads at a glance: a lit threshold mat + jambs in the room's
+    // colour set into the wall opening, with the rb_doors arch on top if present.
+    ctx.save();
+    var pad = Math.min(dt.w, dt.h) * 0.16;
+    ctx.fillStyle = 'rgba(205,223,251,0.15)';
+    ctx.fillRect(dt.x + pad, dt.y + pad, dt.w - 2 * pad, dt.h - 2 * pad);
+    var horiz = (s.door[1] === s.y || s.door[1] === s.y2);   // door in a top/bottom wall
+    ctx.fillStyle = s.color; ctx.globalAlpha = 0.85;
+    if (horiz) { ctx.fillRect(dt.x, dt.y + 1, 2, dt.h - 2); ctx.fillRect(dt.x + dt.w - 2, dt.y + 1, 2, dt.h - 2); }
+    else { ctx.fillRect(dt.x + 1, dt.y, dt.w - 2, 2); ctx.fillRect(dt.x + 1, dt.y + dt.h - 2, dt.w - 2, 2); }
+    ctx.restore();
     if (this._lzReady() && this.lz.doors && this.lz.doors.width) {
       this._blit(this.lz.doors, 0, 5, 2, 2, dt.x - dt.w * 0.5, dt.y - dt.h * 0.4, dt.w * 2, dt.h * 1.4);
-    } else {
-      ctx.fillStyle = s.color; ctx.globalAlpha = 0.5;
-      ctx.fillRect(dt.x - 1, dt.y, 2, dt.h); ctx.fillRect(dt.x + dt.w - 1, dt.y, 2, dt.h);
-      ctx.globalAlpha = 1;
     }
   };
   Office.prototype._wallTile = function (c, r, s) {
@@ -1310,6 +1322,7 @@
       return this;
     },
     setAgents: function (list) { if (inst) inst.setAgents(list); return this; },
+    setCardRect: function (rect) { if (inst) inst.setCardRect(rect); return this; },
     setDebugPaths: function (on) { if (inst) inst.debugPaths = !!on; return this; },
     unmount: function () {
       if (!inst) return this;

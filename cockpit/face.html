@@ -1158,12 +1158,27 @@
       })
       .catch(function(){ /* fail-open: office keeps its last roster */ });
   }
+  // Measure the ACTUAL Gamma card footprint (top → bottom of the last card) and hand
+  // it to the office so it reserves exactly that area — no office renders behind the
+  // card (the card is glass; anything behind it bleeds through and hides the vitals).
+  function measureCard(){
+    if (!mounted || !window.GammaPixels || !window.GammaPixels.setCardRect) return;
+    try {
+      var frame = document.querySelector(".frame"); if (!frame) return;
+      var fr = frame.getBoundingClientRect();
+      var bottom = fr.top;
+      frame.querySelectorAll(".hero, .card").forEach(function(el){
+        var r = el.getBoundingClientRect(); if (r.bottom > bottom) bottom = r.bottom;
+      });
+      window.GammaPixels.setCardRect({ x: fr.left, y: 0, w: fr.width, h: Math.min(bottom + 16, window.innerHeight) });
+    } catch(_){}
+  }
   function evalView(){
     var wide = window.innerWidth >= DESKTOP;
     if (wide && !mounted){
       try { window.GammaPixels.mount(canvas); } catch(_){ return; }
       canvas.style.display = ""; mounted = true;
-      pump(); timer = setInterval(pump, 2500);
+      measureCard(); pump(); timer = setInterval(pump, 2500);
     } else if (!wide && mounted){
       try { if (window.GammaPixels.unmount) window.GammaPixels.unmount(); } catch(_){}
       if (timer){ clearInterval(timer); timer = null; }
