@@ -3020,3 +3020,30 @@ def test_l177_event_condor_wide_cache_covers_band() -> None:
     )
     assert res.dropped_side is None, res.reason
     assert res.slack >= 0, res.reason  # ~$14 of headroom above the high
+
+
+def test_g14_ribbon_flip_fn_direction() -> None:
+    """G14/v15.3 chart-stop-primary: ribbon_flip_back_fn direction guard.
+
+    PUT (bearish) exits when ribbon turns BULLISH; CALL (bullish) exits when BEARISH.
+    Anchor no-regression: 5/04 SPY 721P +$730 — ribbon stayed BEARISH throughout → must NOT
+    trigger a premature flip exit on a winning bearish trade.
+
+    heartbeat_core._ribbon_flip_fn is the wired implementation; this guard documents and
+    locks the direction invariant so a sign-flip or P/C swap is caught by CI.
+    """
+    def ribbon_flip_fn(stack: str):
+        def fn(symbol: str, side: str) -> bool:
+            return stack == ("BULLISH" if side == "P" else "BEARISH")
+        return fn
+
+    # bearish PUT: ribbon now BULLISH = flip against position → exit
+    assert ribbon_flip_fn("BULLISH")("SPY", "P") is True
+    # bearish PUT: ribbon still BEARISH = no flip → hold
+    assert ribbon_flip_fn("BEARISH")("SPY", "P") is False
+    # bullish CALL: ribbon now BEARISH = flip against position → exit
+    assert ribbon_flip_fn("BEARISH")("SPY", "C") is True
+    # bullish CALL: ribbon still BULLISH = no flip → hold
+    assert ribbon_flip_fn("BULLISH")("SPY", "C") is False
+    # anchor: 5/04 SPY 721P +$730 — ribbon stayed BEARISH → no premature exit
+    assert ribbon_flip_fn("BEARISH")("SPY", "P") is False

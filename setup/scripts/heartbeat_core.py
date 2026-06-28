@@ -524,7 +524,18 @@ def _log(rec: dict) -> None:
         f.write(json.dumps(rec) + "\n")
 
 
-def _manage_exits(account: str) -> list:
+def _ribbon_flip_fn(ribbon_stack: str):
+    """Return a ribbon_flip_back_fn for exit_actuator.manage_tick.
+    Fires when the ribbon reverses against the open position's direction:
+      PUT (bearish): exits when ribbon turns BULLISH.
+      CALL (bullish): exits when ribbon turns BEARISH.
+    """
+    def fn(symbol: str, side: str) -> bool:  # noqa: ANN001
+        return ribbon_stack == ("BULLISH" if side == "P" else "BEARISH")
+    return fn
+
+
+def _manage_exits(account: str, ribbon_stack: str | None = None) -> list:
     """Run the tick-managed scale-out over this account's open positions (flag-gated caller).
     Places only when ARMED (live); WATCH otherwise. Fail-safe: any error is captured, never
     raised, so the exit pass can never abort the entry/verdict path of the armed brain."""
@@ -535,7 +546,8 @@ def _manage_exits(account: str) -> list:
         creds = fb.load_creds().get(arm)
         if not creds:
             return [{"error": "no_creds", "arm": arm}]
-        return ea.manage_tick(arm, creds, live=ARMED, now_et=_et_now())
+        flip_fn = _ribbon_flip_fn(ribbon_stack) if ribbon_stack else None
+        return ea.manage_tick(arm, creds, live=ARMED, now_et=_et_now(), ribbon_flip_back_fn=flip_fn)
     except Exception as e:  # noqa: BLE001
         return [{"error": f"manage_exits: {type(e).__name__}: {e}"}]
 
@@ -565,7 +577,7 @@ def run_account(account: str) -> dict:
     # winner's TP1/runner or a stop is realized this tick. Places only when ARMED (live);
     # otherwise computes + logs (WATCH). OFF unless GAMMA_CORE_MANAGES_EXITS=1.
     if CORE_MANAGES_EXITS:
-        rec["exit_pass"] = _manage_exits(account)
+        rec["exit_pass"] = _manage_exits(account, ribbon_stack=bc["ribbon_now"].get("stack"))
     # EXTRA-SETUP DISPATCH — evaluates 4 validated detectors that are individually
     # flag-gated in params.json. When ALL flags are OFF (current default) this is a
     # pure no-op: dispatch_extra_setups returns [] in O(1). When a flag is ON, the
