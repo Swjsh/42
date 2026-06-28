@@ -24,10 +24,17 @@ if (-not (Test-Path $WatchdogScript)) {
 # Remove existing task (idempotent re-register).
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
 
+# Action: run the watchdog PS1 via the windowless launch chain
+# (project_mcp_window_leak_fix / audit BARE_CMD_POWERSHELL): a direct powershell.exe
+# action flashes OpenConsole on Win11 -- route via wscript->run_exe_hidden.vbs->pythonw->
+# run_ps1_hidden.py, which forwards argv[2:] to the .ps1 (-File ... -TargetIterations N
+# -BatchSize N).
+$pythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runPs1  = "C:\Users\jackw\Desktop\42\setup\scripts\run_ps1_hidden.py"
+$runExe  = "C:\Users\jackw\Desktop\42\setup\scripts\run_exe_hidden.vbs"
 $action = New-ScheduledTaskAction `
-    -Execute "powershell.exe" `
-    -Argument ("-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$WatchdogScript`" " +
-               "-TargetIterations $TargetIterations -BatchSize $BatchSize")
+    -Execute "wscript.exe" `
+    -Argument ("//nologo `"" + $runExe + "`" `"" + $pythonw + "`" `"" + $runPs1 + "`" `"" + $WatchdogScript + "`" -TargetIterations $TargetIterations -BatchSize $BatchSize")
 
 # First trigger fires 1 minute from now, repeats every $IntervalMinutes for $DurationHours.
 $startAt = (Get-Date).AddMinutes(1)

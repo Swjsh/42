@@ -43,9 +43,13 @@ SETUP = REPO / "setup"
 _BARE_EXEC = re.compile(r'-Execute\s+"(?:powershell|cmd)\.exe"', re.IGNORECASE)
 _REGISTERS_TASK = re.compile(r"New-ScheduledTaskAction", re.IGNORECASE)
 
-# Installers fixed 2026-06-27 -- MUST stay on the wscript hidden chain.
+# Installers fixed 2026-06-27/28 -- MUST stay on the wscript hidden chain.
 #   G18 fire (cf3ef6a): register_tz_fixed_tasks / register-context-guard / install-swarm-task.
-#   Latent-offender drain fire: the 4 below (crypto x3 + register-eod-deep-dive), ratchet 6->2.
+#   G18b drain #1 (cf88aec): crypto x3 + register-eod-deep-dive (ratchet 6->2).
+#   G18b drain #2 (this fire): install-watchdog-modes-sweep + scripts/setup-all (ratchet 2->0 = WIN STATE).
+#     - install-watchdog-modes-sweep.ps1: DYNAMIC -TargetIterations/-BatchSize ride through
+#       run_ps1_hidden.py's argv[2:] forwarding -> -File ... -TargetIterations N -BatchSize N.
+#     - scripts/setup-all.ps1: only the step-4 inline freshness-watchdog register was bare.
 FIXED_CLEAN = {
     "setup/scripts/register_tz_fixed_tasks.ps1",
     "setup/scripts/register-context-guard.ps1",
@@ -54,21 +58,16 @@ FIXED_CLEAN = {
     "setup/install-crypto-grinder-keepalive.ps1",
     "setup/install-crypto-regression.ps1",
     "setup/scripts/register-eod-deep-dive.ps1",
-}
-
-# Pre-existing latent offenders (live tasks are flash-fix-converted; installer
-# source still emits bare). SHRINKS-ONLY: remove an entry the moment you fix it
-# (the stale-entry test forces it). Do NOT add to this list -- a NEW bare
-# installer is a regression, not an allowance.
-#   Remaining 2 are the harder converts (deferred follow-ups):
-#   - install-watchdog-modes-sweep.ps1: passes DYNAMIC -TargetIterations/-BatchSize args
-#     (must append through the wscript chain's extra-args tail).
-#   - scripts/setup-all.ps1: orchestrator with an INLINE bare freshness-watchdog register
-#     (line ~53, lacks even -WindowStyle Hidden) -- convert in a scoped fire.
-KNOWN_BARE_INSTALLERS = {
     "setup/install-watchdog-modes-sweep.ps1",
     "setup/scripts/setup-all.ps1",
 }
+
+# Pre-existing latent offenders. SHRINKS-ONLY: remove an entry the moment you fix it
+# (the stale-entry test forces it). Do NOT add to this list -- a NEW bare installer is
+# a regression, not an allowance. RATCHET FULLY DRAINED 2026-06-28 (G18b) -> empty = the
+# win state: every task-constructing installer in setup/** is now on the wscript hidden
+# chain, and test_no_new_bare_console_installer guards that no new one can appear.
+KNOWN_BARE_INSTALLERS: set[str] = set()
 
 
 def _rel(p: Path) -> str:

@@ -50,7 +50,14 @@ try { & (Join-Path $scripts "prune-crypto-hoard.ps1") -Execute } catch { Write-H
 Section "4/4  Register hourly freshness check in Task Scheduler"
 try {
     $taskName = "Gamma_FreshnessWatchdog"
-    $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument ("-NoProfile -ExecutionPolicy Bypass -File `"" + (Join-Path $scripts "freshness-watchdog.ps1") + "`"")
+    # Windowless launch chain (project_mcp_window_leak_fix / audit BARE_CMD_POWERSHELL):
+    # a direct powershell.exe action flashes OpenConsole on Win11 -- route via
+    # wscript->run_exe_hidden.vbs->pythonw->run_ps1_hidden.py.
+    $pythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+    $runPs1  = "C:\Users\jackw\Desktop\42\setup\scripts\run_ps1_hidden.py"
+    $runExe  = "C:\Users\jackw\Desktop\42\setup\scripts\run_exe_hidden.vbs"
+    $fw      = Join-Path $scripts "freshness-watchdog.ps1"
+    $action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument ("//nologo `"" + $runExe + "`" `"" + $pythonw + "`" `"" + $runPs1 + "`" `"" + $fw + "`"")
     $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).Date.AddHours(8) -RepetitionInterval (New-TimeSpan -Hours 1) -RepetitionDuration (New-TimeSpan -Days 3650)
     Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Force -RunLevel Limited | Out-Null
     Write-Host "registered $taskName (runs hourly from 08:00)." -ForegroundColor Green
