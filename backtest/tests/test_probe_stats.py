@@ -34,6 +34,7 @@ from autoresearch.probe_stats import (  # noqa: E402
 _REC = _REPO / "analysis" / "recommendations"
 _UNGATED = _REC / "range-scalp-probe-2026-06-28.json"
 _GATED = _REC / "range-scalp-regime-gated-2026-06-28.json"
+_SWEEP = _REC / "range-scalp-gate-sweep-2026-06-28.json"
 
 
 def _load(p: Path) -> dict:
@@ -114,6 +115,48 @@ def test_base_verdict_ladder_full():
     assert base_verdict(20, 5.0, 200.0) == "CONCENTRATED"   # edge but fragile
     assert base_verdict(20, 5.0, 90.0) == "CLEAN"           # edge, spread out
     assert base_verdict(20, 5.0, None) == "CLEAN"           # zero-net -> not fragile
+
+
+# --- gate-leg sweep (slice 3 part 2): faithful reuse + the locked finding ------
+
+def test_gate_sweep_baseline_reproduces_slice2():
+    """The sweep's slice-2 baseline variant (spread<30 / VIX[14,20]) must reproduce
+    the committed slice-2 gated numbers EXACTLY -- proves the one-OPRA-pass reuse +
+    the probe_stats adoption did not change a result (the C14 reuse-drift guard)."""
+    d = _load(_SWEEP)
+    base = d["slice2_baseline"]
+    assert base["is_slice2_baseline"] is True
+    s = base["summary_gross"]
+    assert s["n_trades"] == 8
+    assert s["expectancy_per_trade_usd"] == 44.4
+    assert s["total_pnl_usd"] == 355.2
+    assert base["concentration"]["top3_day_pct_of_net"] == 117.2
+    assert base["base_verdict"] == "INCONCLUSIVE"     # n=8 < 10, via canonical ladder
+    assert base["big_losers_killed"] is True
+
+
+def test_gate_sweep_finding_locked():
+    """The slice-3 finding: loosening the SPREAD leg recovers count (n=8->11->12) but
+    every recovered variant goes NEGATIVE net of 0.05 slippage AND concentration gets
+    WORSE -- so no variant 'recovers' cleanly; the lever is more data, not looser
+    gates. Pins the verdict so a future edit can't silently flip the conclusion."""
+    d = _load(_SWEEP)
+    assert d["verdict"] == "GATE_KNIFE_EDGE_WIDEN_DATA"
+    assert d["best_recoverable"] is None
+    # the VIX leg is INERT on this window (a C14 dead-knob): for a fixed spread cap,
+    # widening the VIX band changes nothing.
+    by_spread: dict[float, set] = {}
+    for v in d["variants"]:
+        key = v["gate"]["spread_max_cents"]
+        by_spread.setdefault(key, set()).add(
+            (v["summary_gross"]["n_trades"], v["summary_gross"]["expectancy_per_trade_usd"])
+        )
+    for sp, outcomes in by_spread.items():
+        assert len(outcomes) == 1, f"VIX leg not inert at spread<{sp}: {outcomes}"
+    # every significant (n>=10) variant dies under 0.05 slippage (negative net exp).
+    for v in d["variants"]:
+        if v["significance"]["sufficient"]:
+            assert v["summary_net_0.05"]["expectancy_per_trade_usd"] < 0
 
 
 # --- empty-input safety -------------------------------------------------------
