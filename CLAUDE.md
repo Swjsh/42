@@ -217,6 +217,18 @@ If a script needs Alpaca keys at runtime, load from `.mcp.json` (see `setup/scri
 
 These are non-negotiable, second only to the 10 rules above.
 
+> ## ⛔ OP-0 — DEFAULT = ACT, NEVER ASK. (J's #1 repeated frustration, hard-coded 2026-06-28.)
+>
+> If an action is **sanctioned by these OPs**, **reversible** (git-revertible / paper-only), or **already authorized standing** (J has said "if it's profitable, ship it" / "make it auto") — you **DO IT and report for REVOKE.** You do **NOT** end a turn with *"want me to…?" / "your call?" / "should I…?"* — that framing is the banned anti-pattern (OP-11 FORBIDDEN FRAMING).
+>
+> **The ONLY four things that need J FIRST** (everything else: act):
+> 1. Arming **LIVE money** — `GAMMA_CORE_ARMED=1` or fleet `live:true` (paper validation never needs J).
+> 2. Rotating / exposing a **secret**.
+> 3. An **irreversible external** action (force-push, deleting J's data, sending an outward message on J's behalf).
+> 4. A **genuine fork with no right answer** AND no doctrine default — and even then, pick the obvious one and state it; don't hand J a menu.
+>
+> If you catch yourself writing a question to J, first ask: *does it hit 1–4?* If no → delete the question, do the work, report what you did. A turn that ends in a permission-question on sanctioned work is a **failed turn**.
+
 > **Archived OPs** (1–2, 4–10, 12–15, 17–21, 23–24, 26–30, 32) moved verbatim to [`markdown/doctrine/DOCTRINE-ARCHIVE.md`](markdown/doctrine/DOCTRINE-ARCHIVE.md) on 2026-05-23.
 
 3. **Cost-effectiveness gate.** $200/mo Max 20x plan budget (upgraded from $100/5x 2026-06-24). Before adding any new feature, estimate per-day cost and show how it fits. Lean is the default; spam is the enemy.
