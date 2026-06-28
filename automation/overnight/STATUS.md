@@ -1,3 +1,12 @@
+## [2026-06-28 PM ET] G14 WIRED: ribbon_flip_back_fn now live in heartbeat_core._manage_exits. Commit **6b3f30b**. + 7 stale conductor proposals marked applied.
+
+> **G14 exit ribbon-flip-back wire shipped.** v15.3 chart-stop-primary names ribbon-flip-back as a PRIMARY invalidation signal, but `_manage_exits` always called `ea.manage_tick(ribbon_flip_back_fn=None)` — the exit NEVER fired. Fix: added `_ribbon_flip_fn(ribbon_stack)` helper (PUT exits on BULLISH ribbon; CALL exits on BEARISH ribbon) and wired it from the live tick's `bc["ribbon_now"]["stack"]`. Call site: `_manage_exits(account, ribbon_stack=bc["ribbon_now"].get("stack"))`. Guard: `test_g14_ribbon_flip_fn_direction` in `test_graduated_guards.py` (direction invariant + 5/04 anchor no-regression: BEARISH ribbon = no flip on winning PUT). Safety gate 31/31 + replay parity 6/6 PASS.
+> - **7 stale proposals cleaned up:** 6 doc-index folds (L169-L178 already in CLAUDE.md) + gp-2026-06-24-002 (em-dash already applied) → marked applied in conductor-proposals.jsonl.
+> - **Remaining pending:** cd-2026-06-27-001 (G7 EOD-flatten, J-gated) + cd-2026-06-28-002 (BOLD-FLEET slice 2, J-gated).
+> - **NEXT FIRE picks up:** G14 done. G16 confirmed (1b14e9b). Range-scalp queued to kitchen (2b429363). J-gated: G7 + BOLD-FLEET slice 2. Consider: FUTURE-IMPROVEMENTS.md bounded task or self-audit sweep.
+
+---
+
 ## [2026-06-28 PM ET] risky-3 PARITY GAP CLOSED + C14 dead-knob fixed (require_bearish_fill_bar). Commit **12bc8bf**.
 
 > **root cause diagnosed**: risky-3 missed=2 (bars 1394, 1540) was NOT a blocked_pre artifact. Root cause: `require_bearish_fill_bar: true` is in `aggressive/params.json` but `_params_to_kwargs` had NO mapping for it → `run_backtest` always used default `False` → GT backtest ran WITHOUT the gate → GT entered at bars with BULLISH fill bars (1394 fill_body=+0.28, 1540 fill_body=+0.24) while engine (which reads gate from GATE_KEYS) correctly SKIPS them → 2 GT entries that arm correctly holds → missed=2.
@@ -172,3 +181,5 @@
 - [2026-06-28 10:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.75% in last 24h (45/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
 
 - [2026-06-28 10:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.75% in last 24h (45/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-28 11:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.75% in last 24h (45/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
