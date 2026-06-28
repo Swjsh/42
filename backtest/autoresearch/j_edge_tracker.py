@@ -163,7 +163,7 @@ V15_J_EDGE_OVERRIDES = {
     # param sweep confirmed tp1=0.30 + runner=2.50 is the $26,601 optimum and v15.2
     # heartbeat already runs exactly these values per markdown/0dte/V15-ACTIVATION-2026-05-13.md.)
     "tp1_premium_pct": 0.50,           # heartbeat.md: premium >= entry * 1.50 fallback (Rank-36 2026-06-17)
-    "tp1_qty_fraction": 0.667,          # params.json: 66.7% off at TP1 (synced 2026-06-17)
+    "tp1_qty_fraction": 0.8,            # params.json: 80% off at TP1 (pk-2026-06-28-001; was 0.667)
     "runner_max_premium_pct": 2.5,     # heartbeat.md: runner_target_premium_pct = 2.50 (params.json key = runner_max_premium_pct)
     "premium_stop_pct_bear": -0.50,    # params.json: CHART-STOP-PRIMARY 2026-06-18 — premium stop demoted to a -50% catastrophe cap; chart/ribbon/profit-lock are primary. Scorecard: analysis/recommendations/chart-stops-ab-2026-06-18.json
 }

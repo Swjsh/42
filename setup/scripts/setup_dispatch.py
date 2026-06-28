@@ -312,7 +312,7 @@ class SetupDispatcher:
                                   skip_reason="SKIP_NO_FEED:sameday_5m_bars_missing")
 
         try:
-            from watchers.vwap_continuation_watcher import detect_vwap_continuation_setup  # type: ignore[import]
+            from backtest.lib.watchers.vwap_continuation_watcher import detect_vwap_continuation_setup  # type: ignore[import]
         except ImportError as e:
             return DispatchResult("vwap_continuation", fired=False,
                                   skip_reason=f"SKIP_IMPORT_ERROR:{e}")
@@ -340,7 +340,7 @@ class SetupDispatcher:
                                   skip_reason="SKIP_NO_FEED:sameday_5m_bars_missing")
 
         try:
-            from watchers.gap_and_go_watcher import detect_gap_and_go_setup  # type: ignore[import]
+            from backtest.lib.watchers.gap_and_go_watcher import detect_gap_and_go_setup  # type: ignore[import]
         except ImportError as e:
             return DispatchResult("gap_and_go", fired=False,
                                   skip_reason=f"SKIP_IMPORT_ERROR:{e}")
@@ -370,7 +370,7 @@ class SetupDispatcher:
                                   skip_reason="SKIP_NO_FEED:sameday_5m_bars_missing")
 
         try:
-            from watchers.vwap_reclaim_failed_break_watcher import detect_vwap_reclaim_failed_break_setup  # type: ignore[import]
+            from backtest.lib.watchers.vwap_reclaim_failed_break_watcher import detect_vwap_reclaim_failed_break_setup  # type: ignore[import]
         except ImportError as e:
             return DispatchResult("vwap_reclaim_failed_break", fired=False,
                                   skip_reason=f"SKIP_IMPORT_ERROR:{e}")
@@ -404,7 +404,7 @@ class SetupDispatcher:
                                   skip_reason="SKIP_NO_FEED:vix_intraday_not_wired")
 
         try:
-            from watchers.vix_regime_dayside_watcher import detect_vix_regime_dayside_setup  # type: ignore[import]
+            from backtest.lib.watchers.vix_regime_dayside_watcher import detect_vix_regime_dayside_setup  # type: ignore[import]
         except ImportError as e:
             return DispatchResult("vix_regime_dayside", fired=False,
                                   skip_reason=f"SKIP_IMPORT_ERROR:{e}")
@@ -436,7 +436,7 @@ class SetupDispatcher:
                                   skip_reason="SKIP_NO_FEED:sameday_5m_bars_missing")
 
         try:
-            from watchers.double_bottom_base_quiet_watcher import detect_db_base_quiet_setup  # type: ignore[import]
+            from backtest.lib.watchers.double_bottom_base_quiet_watcher import detect_db_base_quiet_setup  # type: ignore[import]
         except ImportError as e:
             return DispatchResult("double_bottom_base_quiet", fired=False,
                                   skip_reason=f"SKIP_IMPORT_ERROR:{e}")
