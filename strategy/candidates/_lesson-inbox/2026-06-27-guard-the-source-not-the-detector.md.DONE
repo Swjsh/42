@@ -1,0 +1,40 @@
+# Lesson candidate: a guard on the DETECTOR is not a guard on the SOURCE
+
+**Surfaced:** 2026-06-27 conductor (G18 fire, commit cf3ef6a)
+
+## Symptom
+`Gamma_SwarmPremarket` + `Gamma_ContextGuard` flashed an OpenConsole window on every
+fire and tripped `audit_scheduled_tasks.py` BARE_CMD_POWERSHELL (HEALTH RED) -- even
+though `setup/fix-powershell-task-flash.ps1` had *already* converted them to the
+windowless wscript chain weeks earlier, and `test_guard_cmd_popup_fix_ws6.py` was green.
+
+## Root cause (two compounding mechanisms)
+1. **A fixer's effect was silently undone by a later re-registration script that was
+   never updated to the new pattern.** The 2026-06-26 TZ-systemic fix
+   `register_tz_fixed_tasks.ps1` re-registered both tasks with BARE `powershell.exe`
+   actions (its section #3 SpendSummary already used the correct wscript chain, but #1/#2
+   did not). A re-run of the TZ fixer re-clobbered the flash fix. Same class as the
+   TZ-install time-bomb, but for the *window-hiding* property instead of the *schedule*.
+2. **The existing guard tested the DETECTOR, not the SOURCE.** `test_guard_cmd_popup_fix_ws6.py`
+   only exercised the audit's `_is_bare_console_launcher` / `_is_hidden` helpers against
+   synthetic strings -- it proved the audit *can* detect a bare action, never that no
+   installer *emits* one. So an installer re-introducing a bare action stayed green; the
+   regression only surfaced live, in the audit's HEALTH flag (and that audit was itself
+   stuck RED for unrelated reasons -- see L189 -- so even the live signal was muted).
+
+## Fix (shipped)
+`backtest/tests/test_installer_no_bare_console_action.py` (4/4, bite-tested): a STATIC
+scan of `setup/**/*.ps1` that fails if any installer constructs a task with a bare
+`-Execute "powershell.exe"`/`"cmd.exe"`. Pins the 3 fixed installers clean + a shrinks-only
+ratchet over 6 pre-existing latent offenders. Source fixes applied to all 3 clobberers.
+
+## Principle (reusable -- candidate fold into C7, sibling to L189)
+When a property is enforced by a fixer/converter script, GUARD THE ARTIFACT THE PRODUCER
+WRITES, not the validator's detection logic. "The audit can detect X" + "no producer emits
+not-X" are two different invariants; only the second prevents a later script from silently
+undoing the fix. A green detector-unit-test next to a red live-audit is the tell.
+
+## Related
+L189 (audit the real artifact not a proxy; persistently-RED audit masks new breakage),
+project_scheduled_task_tz (one fixer's output clobbered by another re-registration),
+project_mcp_window_leak_fix (the bare-powershell OpenConsole flash class).
