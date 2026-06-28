@@ -96,6 +96,40 @@ def test_et_clock_november_rth_gate():
     assert offset == -5, f"Nov 15 should be EST (-5), got {offset}"
 
 
+def test_aware_et_tz_datetime_does_not_recurse():
+    """REGRESSION (2026-06-28): utcoffset / astimezone / strftime('%z') on an ET_TZ-AWARE
+    datetime must NOT infinitely recurse.
+
+    The bug: _EasternTZ.utcoffset called dt.astimezone(utc) for an aware dt, and astimezone
+    needs dt.utcoffset() -> re-entered utcoffset -> RecursionError. This crashed the LIVE
+    fleet producer: build_shared_signal.build()'s default now = datetime.now(utc).astimezone(
+    ET_TZ), then now.strftime('...%z') for written_at hit it (confirmed: the exact production
+    invocation `python build_shared_signal.py` crashed). A naive-now caller (et_now()) dodged
+    it, which is why it lay latent until the et_clock wiring landed after the last RTH.
+
+    Bite: against the pre-fix code every assertion below raises RecursionError."""
+    ec = _import_et_clock()
+    # EDT instant (June) and EST instant (December), both made AWARE in ET_TZ.
+    edt_aware = datetime(2026, 6, 15, 14, 30, tzinfo=timezone.utc).astimezone(ec.ET_TZ)
+    est_aware = datetime(2026, 12, 31, 15, 30, tzinfo=timezone.utc).astimezone(ec.ET_TZ)
+
+    # 1. utcoffset returns the correct offset, no recursion.
+    assert edt_aware.utcoffset() == timedelta(hours=-4), "aware EDT dt must be -4, not recurse"
+    assert est_aware.utcoffset() == timedelta(hours=-5), "aware EST dt must be -5, not recurse"
+
+    # 2. strftime('%z') -- the EXACT production trigger (build_shared_signal written_at) -- works.
+    assert edt_aware.strftime("%z") == "-0400"
+    assert est_aware.strftime("%z") == "-0500"
+
+    # 3. astimezone(utc) round-trips to the same instant (no recursion, correct conversion).
+    assert edt_aware.astimezone(timezone.utc) == datetime(2026, 6, 15, 14, 30, tzinfo=timezone.utc)
+
+    # 4. Consistency: the aware-in-ET offset equals the equivalent naive wall-clock offset
+    #    (the fix routes both through the same DST lookup).
+    naive_same_wall = edt_aware.replace(tzinfo=None)
+    assert ec.ET_TZ.utcoffset(naive_same_wall) == edt_aware.utcoffset()
+
+
 # ---------------------------------------------------------------------------
 # 2. Static: no naive -4 constant in live-trade-path files
 # ---------------------------------------------------------------------------

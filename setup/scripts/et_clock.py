@@ -89,8 +89,16 @@ class _EasternTZ(tzinfo):
         if dt is None:
             return timedelta(hours=-5)
         # dt may be naive (from aware arithmetic) or already aware.
-        if dt.tzinfo is None:
-            # Naive: treat as already-ET wall clock, approximate UTC for DST lookup.
+        # RECURSION GUARD (2026-06-28): if dt is aware *in this very zone* (tzinfo is self),
+        # we MUST NOT call dt.astimezone(utc) -- astimezone needs dt.utcoffset(), which re-
+        # enters THIS method -> infinite recursion (the confirmed Monday-open fleet-producer
+        # crash: build_shared_signal.build()'s default now = datetime.now(utc).astimezone(ET)
+        # then strftime("%z") triggered it). For an ET_TZ-aware dt the wall clock already IS
+        # the ET local time, so its wall-clock components feed the DST lookup identically to
+        # the naive branch (same approximation test_et_clock validates). Only a *foreign*-zone
+        # aware dt needs a real astimezone conversion (that tzinfo's utcoffset never calls back).
+        if dt.tzinfo is None or dt.tzinfo is self:
+            # Naive OR aware-in-ET: treat wall clock as ET-local, approximate UTC for DST lookup.
             utc_approx = datetime(dt.year, dt.month, dt.day,
                                   dt.hour, dt.minute, dt.second, tzinfo=timezone.utc)
         else:
