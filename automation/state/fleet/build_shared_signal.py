@@ -463,10 +463,19 @@ ENTRY_TRIGGERS = frozenset({
 })
 
 
+# Hard gates that override scoring peak — the fill bar being counter-directional is trade
+# quality (computable at signal time), NOT a conservative production gate, so no loose arm
+# should bypass it via high score. Added 2026-06-28 (C14 fix: require_bearish_fill_bar).
+_HARD_SKIP_VERDICTS = frozenset({"SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY"})
+
+
 def passed_scoring_peak(side: str, action, score, trigger, fired) -> bool:
     """Looser-than-production 'passed': production ENTERED this side, OR the score hit the
     peak threshold WITH a real entry-trigger fired (the quality gate that stops pure-score
-    over-emission). This is what lets a loose arm take a setup production's gates blocked."""
+    over-emission). This is what lets a loose arm take a setup production's gates blocked.
+    Hard gates in _HARD_SKIP_VERDICTS always return False regardless of score."""
+    if action in _HARD_SKIP_VERDICTS:
+        return False
     enter = "ENTER_BULL" if side == "bull" else "ENTER_BEAR"
     peak = BULL_PEAK_THRESHOLD if side == "bull" else BEAR_PEAK_THRESHOLD
     trig_ok = bool(fired) and (trigger in ENTRY_TRIGGERS)

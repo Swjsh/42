@@ -452,6 +452,10 @@ def _params_to_kwargs(overrides: dict, account_equity: Optional[float] = None) -
         kwargs["block_bull_1100_1200"] = bool(overrides["block_bull_1100_1200"])
     if "block_bull_morning_agg" in overrides and overrides["block_bull_morning_agg"] is not None:
         kwargs["block_bull_morning_agg"] = bool(overrides["block_bull_morning_agg"])
+    # C14/L38: require_bearish_fill_bar was in aggressive/params.json but never mapped →
+    # run_backtest always used default=False (gate dead in all _params_to_kwargs callers).
+    if "require_bearish_fill_bar" in overrides and overrides["require_bearish_fill_bar"] is not None:
+        kwargs["require_bearish_fill_bar"] = bool(overrides["require_bearish_fill_bar"])
     return kwargs
 
 

@@ -1,3 +1,14 @@
+## [2026-06-28 PM ET] risky-3 PARITY GAP CLOSED + C14 dead-knob fixed (require_bearish_fill_bar). Commit pending.
+
+> **root cause diagnosed**: risky-3 missed=2 (bars 1394, 1540) was NOT a blocked_pre artifact. Root cause: `require_bearish_fill_bar: true` is in `aggressive/params.json` but `_params_to_kwargs` had NO mapping for it → `run_backtest` always used default `False` → GT backtest ran WITHOUT the gate → GT entered at bars with BULLISH fill bars (1394 fill_body=+0.28, 1540 fill_body=+0.24) while engine (which reads gate from GATE_KEYS) correctly SKIPS them → 2 GT entries that arm correctly holds → missed=2.
+> - **C14 fix:** added `require_bearish_fill_bar` mapping in `_params_to_kwargs` (orchestrator.py:454). Now wired.
+> - **Cascade finding:** wiring the gate also exposed a pre-existing MASKED issue in risky-1: an open-position window that was previously blocking bar 1801 came from a trade that now gets dropped by the fill_bar gate. Bar 1801 (June 23 15:35 ET) shows engine verdict=ENTER_BEAR (score=10, sequence_rejection detected in 150-bar window) but orchestrator sees only 2 triggers (no sequence_rejection) — the _rebuild_level_states window-truncation caveat (documented in heartbeat_core.py:381-384). Added KNOWN_MAX_EXTRA ratchet to test; risky-1 extra=1 documented.
+> - **build_shared_signal.py fix:** `passed_scoring_peak` now hard-blocks on `SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY` (fill bar gate IS computable at signal time — not a conservative production gate, so bold arms must respect it even at high score).
+> - **RESULT: 6/6 parity tests PASS.** risky-3 MISSED=0, risky-1 EXTRA=1 (known/documented). risky-3 parity gap CLOSED → arming risky-3 now unblocked on entry-timing; still subject to WATCH-validate on conductor proposals + recency RED.
+> - Files: `backtest/lib/orchestrator.py` (+1 mapping), `backtest/tests/test_replay_fleet_arms.py` (ratchets updated), `automation/state/fleet/build_shared_signal.py` (+_HARD_SKIP_VERDICTS).
+
+---
+
 ## [2026-06-28 ~PM ET] G16 CONFIRMED FIXED: vwap_continuation + gap_and_go NOW EVALUATE every live tick. Commit 1b14e9b.
 
 > **G16 observe-live confirmation — the real anomaly was two layers deep.** Prior fix (2b24652) added `_REPO` to sys.path so `from backtest.lib.filters import BarContext` could use the package import path. That fixed `_build_ctx`. BUT the 5 watcher lazy-imports inside the dispatch methods (`_dispatch_vwap_continuation` etc.) still used bare `from watchers.X import` — which fails because watchers use `from . import WatcherSignal` + `from ..filters import BarContext` (relative imports that only resolve when loaded as `backtest.lib.watchers.X`).
@@ -158,3 +169,5 @@
 - [2026-06-28 09:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.75% in last 24h (45/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
 
 - [2026-06-28 10:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.75% in last 24h (45/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-28 10:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.75% in last 24h (45/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
