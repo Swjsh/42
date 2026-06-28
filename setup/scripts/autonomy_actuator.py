@@ -234,6 +234,50 @@ def auto_approve_pending() -> int:
     return changed
 
 
+def _already_applied(prop: dict) -> bool:
+    """True if EVERY op's edit has already landed (find absent, replace present) -- a
+    chained/duplicate fold whose change is already in the tree. Distinguished from a
+    genuinely-stale op (neither find nor replace present)."""
+    ops = prop.get("apply_ops")
+    if not isinstance(ops, list) or not ops:
+        return False
+    for op in ops:
+        rel = str(op.get("file", "")).replace("\\", "/").lstrip("/")
+        target = REPO / rel
+        if not target.exists():
+            return False
+        text = target.read_text(encoding="utf-8")
+        find_s, repl_s = str(op.get("find", "")), str(op.get("replace", ""))
+        if not find_s or text.count(find_s) != 0:           # find still present -> not yet applied
+            return False
+        if not repl_s or text.count(repl_s) == 0:           # replace absent -> genuinely stale, not applied
+            return False
+    return True
+
+
+def drain_already_applied() -> int:
+    """Self-clear the apply loop: close proposals whose edit has ALREADY landed (find
+    absent, replace present) -- the chained doc-folds that otherwise pile up at
+    needs_structured_apply forever. Marks them 'applied' (no-op, no commit) so the
+    actuator never gets permanently stuck on a duplicate. Returns the count closed."""
+    rows = _read_proposals()
+    n = 0
+    for prop in rows:
+        if prop.get("status") not in ("needs_structured_apply", "approved", "apply_failed"):
+            continue
+        if _already_applied(prop):
+            prop["status"] = "applied"
+            prop["applied_at"] = _now()
+            prop["commit_sha"] = "(already-applied no-op)"
+            prop["actuator_note"] = "edit already present in tree; closed as no-op (drain)"
+            _log_change({"proposal_id": prop.get("proposal_id"), "title": prop.get("title", ""),
+                         "outcome": "already_applied_noop"})
+            n += 1
+    if n:
+        _rewrite_proposals(rows)
+    return n
+
+
 def _git_exe() -> str:
     """Resolve git absolutely. The Task Scheduler -> wscript -> pythonw chain runs
     with a minimal PATH that may not include git (same class as the responder's
@@ -361,6 +405,9 @@ def apply_approved(dry_run: bool = False) -> int:
         auto = auto_approve_pending()
         if auto:
             print(f"[actuator] auto-approved {auto} proposal(s) per OP-11/OP-25 (J = REVOKE-only).")
+        drained = drain_already_applied()
+        if drained:
+            print(f"[actuator] drained {drained} already-applied proposal(s) -- apply loop self-cleared.")
     if not dry_run and _market_is_open():
         print("[actuator] market open -- deferring apply to after-hours (Rule 9: no mid-session doctrine/params changes).")
         return 0

@@ -71,3 +71,22 @@ def test_idempotent(tmp_path, monkeypatch):
     assert act.auto_approve_pending() == 1
     assert act.auto_approve_pending() == 0  # already approved -> never re-approves
     assert act._read_proposals()[0]["approved_via"] == "auto:op25_docindex"
+
+
+def test_drain_already_applied(tmp_path, monkeypatch):
+    """A chained fold whose edit already landed (find absent, replace present) is
+    closed as a no-op; a genuinely-stale one (replace also absent) is left alone."""
+    prop = _redirect(tmp_path, monkeypatch)
+    monkeypatch.setattr(act, "REPO", tmp_path)
+    (tmp_path / "doc.md").write_text("hello ALREADY-THERE world", encoding="utf-8")
+    _write(prop, [
+        {"proposal_id": "stuck", "status": "needs_structured_apply", "kind": "doc-index",
+         "apply_ops": [{"file": "doc.md", "find": "MISSING-FIND", "replace": "ALREADY-THERE"}]},
+        {"proposal_id": "genuine-stale", "status": "needs_structured_apply", "kind": "doc-index",
+         "apply_ops": [{"file": "doc.md", "find": "MISSING-FIND", "replace": "ALSO-MISSING"}]},
+    ])
+    n = act.drain_already_applied()
+    status = {r["proposal_id"]: r["status"] for r in act._read_proposals()}
+    assert status["stuck"] == "applied"
+    assert status["genuine-stale"] == "needs_structured_apply"
+    assert n == 1
