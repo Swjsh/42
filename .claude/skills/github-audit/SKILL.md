@@ -190,7 +190,7 @@ const { ALPACA_API_KEY, ALPACA_SECRET_KEY } = mcp.mcpServers.alpaca.env;
 ### Finding: secret in a changelog / doc entry
 
 Replace the value with a placeholder or abbreviated form:
-- Full key `PK7WRO5TKX2FKASLM2CTXT47QO` → `PK7WRO5T…` or `<redacted>`
+- Full key `PKEXAMPLE1234FAKEKEY5678` → `PKEXAMPL…` or `<redacted>`
 - Never put even the first 8 chars if they uniquely identify an account
 
 ### Finding: key in git history (the hard case)
