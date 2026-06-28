@@ -371,8 +371,9 @@
       var p = this._cardPx;
       cardLo = Math.max(0, Math.floor(p.x / cw) - 1);
       cardHi = Math.min(cols - 1, Math.ceil((p.x + p.w) / cw) + 1);
-      // reserve down to the real card bottom; cap so ≥5 rows survive for the band.
-      cardBottom = Math.max(3, Math.min(rows - 6, Math.ceil((p.y + p.h) / ch)));
+      // reserve the FULL card height — the office now lives in the side margins,
+      // so a tall card no longer starves it, and the vitals can't bleed through.
+      cardBottom = Math.max(3, Math.min(rows - 2, Math.ceil((p.y + p.h) / ch)));
     } else {
       var halfCard = Math.ceil(228 / cw);
       var midC = Math.floor(cols / 2);
@@ -440,66 +441,59 @@
     function clampc(c) { return Math.max(0, Math.min(cols - 1, c)); }
     function clampr(r) { return Math.max(0, Math.min(rows - 1, r)); }
 
-    // ── GEOMETRY (robust to any card height) ─────────────────────────────────
-    //    The card occupies center-top. Rooms wrap AROUND it so none overlap and
-    //    nothing bleeds under the card no matter how tall it is:
-    //      ACCOUNTS (top-left)  ·  LAB (top-right)        — tall margin rooms
-    //      KITCHEN (bottom-left) · GYM (bottom-right)     — tall (gym ≈ square)
-    //      TRADING + DISPATCH                              — short strip BELOW card
-    //    Every room inset by M so a corridor lane runs each edge; the bottom
-    //    margin row + the strip lanes keep the corridor one connected region.
-    // ── DOOR-AWARE LAYOUT ────────────────────────────────────────────────────
-    //   Each LimeZu design has its OWN doorway baked into the art. Rooms are
-    //   placed + anchored so that real door faces a HALLWAY, and the hallways
-    //   form a connected network that leads to DISPATCH.
-    //     LAB (TL) / GYM (TR)        — doors at BOTTOM -> the mid hallway
-    //     ACCOUNTS (BL)              — door at BOTTOM  -> the bottom hallway
-    //     KITCHEN (BR)               — door at LEFT    -> the card hallway
-    //     DISPATCH + TRADING (centre)— doors at BOTTOM -> the bottom hallway
-    //   HALL-wide lanes flank the card + split top/bottom + run along the bottom.
-    var M = 1, HALL = 2;
+    // ── ROBUST LAYOUT (works at ANY window size) ─────────────────────────────
+    //   The Gamma card can be very tall, so the office lives entirely in the two
+    //   side MARGINS (full height) — NEVER below the card, so a tall card can't
+    //   starve it. Each margin STACKS 3 rooms; a 1-tile hallway flanks the card,
+    //   runs between the stacked rooms, and along the bottom — forming ONE
+    //   connected corridor that reaches DISPATCH from every room.
+    //     LEFT : LAB / ACCOUNTS / DISPATCH       RIGHT: GYM / KITCHEN / TRADING
+    //   Each design's REAL door faces that corridor (bottom doors -> the hall
+    //   below the room; KITCHEN's left door -> the centre corridor).
+    var M = 1, HALL = 1;
     var topY = M;
-    var bRoomBot = rows - 1 - HALL;               // HALL rows of bottom hallway below
-    var leftMX = M, leftMX2 = cardLo - 1 - HALL;  // left rooms (card hallway to their right)
-    var rightMX = cardHi + 1 + HALL, rightMX2 = cols - 1 - M;
-    var midRow = Math.floor((topY + bRoomBot) / 2);
-    var topY2 = midRow - 1;                        // top rooms bottom edge
-    var botY1 = midRow + HALL;                     // bottom rooms top edge
+    var bRoomBot = rows - 1 - M;
+    var leftX = M, leftX2 = cardLo - 1 - HALL;          // left-margin room cols
+    var rightX = cardHi + 1 + HALL, rightX2 = cols - 1 - M;
 
     // Fit a room to its DESIGN's aspect, anchored so the art fills the footprint
     // and the chosen door edge faces open corridor. ax 'l'|'r'|'c', ay 't'|'b'|'c'.
     function fitRoom(key, label, color, zx, zy, zx2, zy2, doorSide, ax, ay) {
       zx = Math.max(0, zx); zy = Math.max(0, zy); zx2 = Math.min(cols - 1, zx2); zy2 = Math.min(rows - 1, zy2);
       var zw = zx2 - zx + 1, zh = zy2 - zy + 1;
-      if (zw < 4 || zh < 4) return null;
+      if (zw < 3 || zh < 3) return null;
       var rw = zw, rh = zh, d = DESIGNS[key];
       if (d) {
         var a = d.w / d.h;
-        if (zw / zh > a) { rh = zh; rw = Math.max(4, Math.round(zh * a)); }
-        else { rw = zw; rh = Math.max(4, Math.round(zw / a)); }
+        if (zw / zh > a) { rh = zh; rw = Math.max(3, Math.round(zh * a)); }
+        else { rw = zw; rh = Math.max(3, Math.round(zw / a)); }
         rw = Math.min(rw, zw); rh = Math.min(rh, zh);
       }
       var ox = ax === 'l' ? zx : ax === 'r' ? (zx2 - rw + 1) : zx + Math.floor((zw - rw) / 2);
       var oy = ay === 't' ? zy : ay === 'b' ? (zy2 - rh + 1) : zy + Math.floor((zh - rh) / 2);
       return makeRoom(key, label, color, ox, oy, ox + rw - 1, oy + rh - 1, doorSide);
     }
-
-    // TOP rooms — anchored to the top so their bottom door opens into the mid hall.
-    fitRoom('lab', 'LAB / R&D', COL.accent, leftMX,  topY, leftMX2,  topY2, 'bottom', 'l', 't');
-    fitRoom('gym', 'GYM',       COL.pos,    rightMX, topY, rightMX2, topY2, 'bottom', 'r', 't');
-    // BOTTOM rooms — anchored to the bottom; ACCOUNTS door->bottom hall, KITCHEN door->card hall.
-    fitRoom('accounts', 'ACCOUNTS', COL.glow,   leftMX,  botY1, leftMX2,  bRoomBot, 'bottom', 'l', 'b');
-    fitRoom('kitchen',  'KITCHEN',  COL.caution, rightMX, botY1, rightMX2, bRoomBot, 'left',  'r', 'b');
-    // CENTRE-BOTTOM hub — DISPATCH + TRADING fill the gap BETWEEN accounts and
-    // kitchen (wider than the card column) so they aren't tiny. Doors -> bottom hall.
-    var accR = sectors.accounts ? sectors.accounts.x2 + 1 + HALL : cardLo;
-    var kitL = sectors.kitchen ? sectors.kitchen.x - 1 - HALL : cardHi;
-    var cbX = Math.max(M, accR), cbX2 = Math.min(cols - 1 - M, kitL), cbY1 = cardBottom + 1, cbMid = (cbX + cbX2) >> 1;
-    fitRoom('dispatch', 'DISPATCH', COL.glow,  cbX,       cbY1, cbMid - 1, bRoomBot, 'bottom', 'c', 'b');
-    fitRoom('trading',  'TRADING',  COL.alert, cbMid + 1, cbY1, cbX2,      bRoomBot, 'bottom', 'c', 'b');
+    // split [y0..y1] vertically into 3 stacked sub-zones with a 1-tile hall between.
+    function stack3(y0, y1) {
+      var h = y1 - y0 + 1, sub = Math.max(3, Math.floor((h - 2 * HALL) / 3));
+      return [[y0, y0 + sub - 1],
+              [y0 + sub + HALL, y0 + 2 * sub + HALL - 1],
+              [y0 + 2 * sub + 2 * HALL, y1]];
+    }
+    var lz3 = stack3(topY, bRoomBot), rz3 = stack3(topY, bRoomBot);
+    // LEFT margin — rooms hug the card (anchor right); the bottom door opens into
+    // the hall below each room, the outer screen edge is the peripheral corridor.
+    fitRoom('lab',      'LAB / R&D', COL.accent, leftX, lz3[0][0], leftX2, lz3[0][1], 'bottom', 'r', 'c');
+    fitRoom('accounts', 'ACCOUNTS',  COL.glow,   leftX, lz3[1][0], leftX2, lz3[1][1], 'bottom', 'r', 'c');
+    fitRoom('dispatch', 'DISPATCH',  COL.glow,   leftX, lz3[2][0], leftX2, lz3[2][1], 'bottom', 'r', 'c');
+    // RIGHT margin — rooms hug the card (anchor left); KITCHEN's left door faces
+    // the centre corridor.
+    fitRoom('gym',     'GYM',      COL.pos,     rightX, rz3[0][0], rightX2, rz3[0][1], 'bottom', 'l', 'c');
+    fitRoom('kitchen', 'KITCHEN',  COL.caution, rightX, rz3[1][0], rightX2, rz3[1][1], 'left',   'l', 'c');
+    fitRoom('trading', 'TRADING',  COL.alert,   rightX, rz3[2][0], rightX2, rz3[2][1], 'bottom', 'l', 'c');
 
     // Fallbacks so no role is ever sector-less (degenerate tiny grids).
-    if (!sectors.lab) makeRoom('lab', 'LAB / R&D', COL.accent, Math.max(M, rightMX), topY, cols - 1 - M, topY2, 'left');
+    if (!sectors.lab) makeRoom('lab', 'LAB / R&D', COL.accent, Math.max(M, rightX), topY, cols - 1 - M, Math.floor(rows / 2), 'left');
     this.sectorAlias = {};
     var allKeys = ['kitchen', 'gym', 'lab', 'accounts', 'trading', 'dispatch'];
     for (var ak = 0; ak < allKeys.length; ak++) {
@@ -523,9 +517,15 @@
     // re-validate workers against the rebuilt layout
     Object.keys(this.workers).forEach(function (id) {
       var w = self.workers[id];
-      var sec = sectors[w.sectorKey] || sectors.lab;
+      // re-derive the home sector from the ROLE so a worker that spawned while its
+      // room was briefly missing gets moved back to its real room once it exists.
+      var want = sectorForRole(w.role);
+      var sec = sectors[want] || sectors[w.sectorKey] || sectors.lab;
       w.sectorKey = sec ? sec.key : 'lab';
-      // clamp into the sector interior; reset pathing
+      // clamp into the sector interior; reset pathing. DROP the stale spot first —
+      // it points into the OLD layout, so _spotFor must hand out a fresh desk in
+      // the rebuilt room (else the worker teleports to where its desk used to be).
+      w.spot = null;
       var spot = self._spotFor(w);
       w.c = spot ? spot.c : (sec ? sec.door[0] : 1);
       w.r = spot ? spot.r : (sec ? sec.door[1] : 1);
