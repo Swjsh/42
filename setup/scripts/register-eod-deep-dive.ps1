@@ -14,10 +14,15 @@ if (-not (Test-Path $scriptPath)) {
 # Trigger: daily at 16:05 ET (5 min after EodSummary at 16:00)
 $trigger = New-ScheduledTaskTrigger -Daily -At "16:05"
 
-# Action: run the runner PS1
+# Action: run the runner PS1 via the windowless launch chain
+# (project_mcp_window_leak_fix / audit BARE_CMD_POWERSHELL): a direct powershell.exe
+# action flashes OpenConsole on Win11 -- route via wscript->pythonw.
+$pythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runPs1  = "C:\Users\jackw\Desktop\42\setup\scripts\run_ps1_hidden.py"
+$runExe  = "C:\Users\jackw\Desktop\42\setup\scripts\run_exe_hidden.vbs"
 $action = New-ScheduledTaskAction `
-    -Execute "powershell.exe" `
-    -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$scriptPath`""
+    -Execute "wscript.exe" `
+    -Argument ("//nologo `"" + $runExe + "`" `"" + $pythonw + "`" `"" + $runPs1 + "`" `"" + $scriptPath + "`"")
 
 # Settings: hardened per harden-tasks pattern
 $settings = New-ScheduledTaskSettingsSet `
@@ -50,8 +55,8 @@ try {
     Write-Output "Or use Task Scheduler GUI to create a task:"
     Write-Output "  Name: $taskName"
     Write-Output "  Trigger: Daily at 16:05"
-    Write-Output "  Action: powershell.exe"
-    Write-Output ("    Args: -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"" + $scriptPath + "`"")
+    Write-Output "  Action: wscript.exe"
+    Write-Output ("    Args: //nologo `"" + $runExe + "`" `"" + $pythonw + "`" `"" + $runPs1 + "`" `"" + $scriptPath + "`"")
     exit 1
 }
 
