@@ -34,13 +34,26 @@ function pickEquity(o) {
   return null;
 }
 
-function accountView(label, pos, loop) {
+// Read live equity from a circuit-breaker file.
+// Safe schema: .current_equity; Aggressive schema: .equity_current
+// (divergent field names -- see _schema_note in each breaker file; C9 symmetry trap).
+function breakerEquity(breakerObj, safeSchema) {
+  if (!breakerObj || typeof breakerObj !== "object") return null;
+  const key = safeSchema ? "current_equity" : "equity_current";
+  const v = breakerObj[key];
+  return typeof v === "number" && isFinite(v) && v > 0 ? v : null;
+}
+
+function accountView(label, pos, loop, breakerObj, safeSchema) {
   const inPos = !!(pos && pos.status);
+  // Prefer circuit-breaker live equity (updated every heartbeat tick) over
+  // loop-state (which rarely carries an equity field).
+  const equity = breakerEquity(breakerObj, safeSchema) ?? pickEquity(loop);
   return {
     label,
     status: inPos ? "in position" : "flat",
     in_position: inPos,
-    equity: pickEquity(loop),
+    equity,
     position: inPos ? pos.status : null,
   };
 }
@@ -124,6 +137,10 @@ function buildState(root) {
   const posBold = readJSON(S("current-position-bold.json"));
   const loopSafe = readJSON(S("loop-state.json"));
   const loopBold = readJSON(S("aggressive", "loop-state.json"));
+  // Circuit-breaker files carry the most up-to-date equity per heartbeat tick.
+  // Schemas diverge: safe uses .current_equity; aggressive uses .equity_current.
+  const cbSafe = readJSON(S("circuit-breaker.json"));
+  const cbBold = readJSON(S("aggressive", "circuit-breaker.json"));
 
   const kitchen = kitchenRaw
     ? {
@@ -143,8 +160,8 @@ function buildState(root) {
     : null;
 
   const accounts = {
-    safe: accountView("Gamma-Safe", posSafe, loopSafe),
-    bold: accountView("Gamma-Bold", posBold, loopBold),
+    safe: accountView("Gamma-Safe", posSafe, loopSafe, cbSafe, true),
+    bold: accountView("Gamma-Bold", posBold, loopBold, cbBold, false),
   };
 
   // Read the two card sources independently so a derivedCards throw can NEVER

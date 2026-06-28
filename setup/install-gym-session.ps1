@@ -8,7 +8,7 @@
 
 .DESCRIPTION
   Unified chart-reading audit "physical exam":
-    crypto-gym (42 validators) + chart-data-verify + heartbeat-tick-audit
+    crypto-gym (53 validators) + chart-data-verify + heartbeat-tick-audit
     + pin-chain-verify + heartbeat-mcp-self-test + heartbeat-pulse-check
     + watcher-state-inspector
   -> ONE GREEN/YELLOW/RED scorecard at automation/state/gym-scorecard-{date}.json

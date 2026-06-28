@@ -4,7 +4,7 @@ Orchestrates every chart-reading audit + crypto-validator gym + 5/14 replay benc
 and writes ONE consolidated GREEN/YELLOW/RED scorecard.
 
 Reads (consumes existing scorecards, or re-runs if stale > 2h):
-    crypto/data/scorecards/latest.json          (22 validators x offline+live = 42 stages)
+    crypto/data/scorecards/latest.json          (53 validators x offline+live = 104+ stages)
     automation/state/chart-data-verify-{date}.json
     automation/state/heartbeat-tick-audit-{date}.json
     automation/state/pin-chain-verify-latest.json
@@ -102,7 +102,7 @@ def _read_json(p: Path) -> Optional[dict]:
 
 
 def _classify_crypto_gym(data: Optional[dict]) -> AuditResult:
-    name = "crypto-gym (42 validators)"
+    name = "crypto-gym (53 validators)"
     src = "crypto/data/scorecards/latest.json"
     if data is None:
         return AuditResult(name, src, "MISSING", "scorecard file not found", {})
@@ -277,7 +277,7 @@ def _maybe_rerun_stale(stale_hours: float, rerun_all: bool, date_str: str) -> di
 # The chart-reading harness — the audit whose verdict STAGE-0 backpressure actually means
 # when it says "don't touch detectors". Its absence (MISSING) means detector health is
 # unknown → fail-closed RED.
-_DETECTOR_HARNESS = "crypto-gym (42 validators)"
+_DETECTOR_HARNESS = "crypto-gym (53 validators)"
 
 # Audits whose RED genuinely reflects chart-reading / trading correctness — only these
 # escalate the overall verdict to RED:

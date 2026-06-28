@@ -7,7 +7,7 @@
   Fires from Gamma_GymSession task at 17:00 ET weekdays (between Analyst 16:45 and
   Manager 17:30). Manager consumes the scorecard for the daily brief.
 
-  Aggregates: crypto-gym (42 validators) + chart-data-verify + heartbeat-tick-audit
+  Aggregates: crypto-gym (53 validators) + chart-data-verify + heartbeat-tick-audit
   + pin-chain-verify + heartbeat-mcp-self-test + heartbeat-pulse-check
   + watcher-state-inspector → ONE GREEN/YELLOW/RED scorecard.
 

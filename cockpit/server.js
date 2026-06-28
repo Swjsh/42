@@ -272,21 +272,41 @@ function getKitchenStatus() {
 }
 
 function getSpendStatus() {
-  // Read spend-daily.jsonl for last entry
+  // Read spend-daily.jsonl for the entry whose date_et matches today ET.
+  // IMPORTANT: the last entry may be from a prior session day -- do NOT apply
+  // thresholds to stale data (that caused the tile to be permanently RED after
+  // any spending day even with $0 spend today).
+  const todayEtDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date()); // YYYY-MM-DD
+
   const f = path.join(STATE, 'spend-daily.jsonl');
-  if (!fs.existsSync(f)) return { light: 'YELLOW', title: 'Spend', text: 'no spend log', updated: '?' };
+  if (!fs.existsSync(f)) return { light: 'GREEN', title: 'Spend', text: '$0 today (no log)', updated: todayEtDate };
 
   const lines = fs.readFileSync(f, 'utf8').trim().split('\n').filter(Boolean);
-  if (!lines.length) return { light: 'GREEN', title: 'Spend', text: '$0 today', updated: '?' };
+  if (!lines.length) return { light: 'GREEN', title: 'Spend', text: '$0 today', updated: todayEtDate };
 
   try {
-    const last = JSON.parse(lines[lines.length - 1]);
-    const cost = last.total_cost_usd || 0;
+    // Find the entry for today; entries are in ascending date order so scan from end.
+    let todayEntry = null;
+    for (let i = lines.length - 1; i >= 0; i--) {
+      try {
+        const r = JSON.parse(lines[i]);
+        if (r && r.date_et === todayEtDate) { todayEntry = r; break; }
+        // Stop scanning once we pass into a prior day (entries are sorted ascending).
+        if (r && r.date_et && r.date_et < todayEtDate) break;
+      } catch (_) {}
+    }
+
+    if (!todayEntry) {
+      // No entry yet for today -- treat as $0 spend, GREEN.
+      return { light: 'GREEN', title: 'Spend', text: '$0 today', updated: todayEtDate };
+    }
+
+    const cost = todayEntry.total_cost_usd || 0;
     const light = cost > 400 ? 'RED' : cost > 200 ? 'YELLOW' : 'GREEN';
-    const text = `$${cost.toFixed(2)} on ${last.date_et} | sessions=${last.claude_sessions || 0}`;
-    return { light, title: 'Spend', text, updated: last.date_et };
+    const text = `$${cost.toFixed(2)} today | sessions=${todayEntry.claude_sessions || 0}`;
+    return { light, title: 'Spend', text, updated: todayEtDate };
   } catch (_) {
-    return { light: 'YELLOW', title: 'Spend', text: 'parse error', updated: '?' };
+    return { light: 'YELLOW', title: 'Spend', text: 'parse error', updated: todayEtDate };
   }
 }
 
@@ -1181,6 +1201,19 @@ function armEquity(arm) {
   return null;
 }
 
+// Read live equity from the circuit-breaker files (most reliable per-session source).
+// Safe breaker: .current_equity; Aggressive breaker: .equity_current (divergent schema --
+// see _schema_note in each file).
+function circuitBreakerEquity(filePath, safeSchema) {
+  try {
+    const d = readJSON(filePath);
+    if (!d) return null;
+    const key = safeSchema ? 'current_equity' : 'equity_current';
+    const v = d[key];
+    return (typeof v === 'number' && isFinite(v) && v > 0) ? v : null;
+  } catch (_) { return null; }
+}
+
 function getVitals() {
   // ── SPY last, from the never-blind sight beacon ──
   let spy = { last: null, ts: '' };
@@ -1191,19 +1224,26 @@ function getVitals() {
     }
   } catch (_) {}
 
-  // ── Accounts: prefer a live cached equity; else fall back to base (stale) ──
-  // Map the fleet CONTROL arms to the two display accounts (safe-2 / bold-2).
+  // ── Accounts: prefer circuit-breaker live equity (authoritative per-session);
+  //    then fall back to fleet/accounts.json arm equity; then the hardcoded base. ──
   let safeLive = null, boldLive = null;
-  try {
-    const fleet = readJSON(path.join(STATE, 'fleet', 'accounts.json'));
-    const arms = (fleet && Array.isArray(fleet.arms)) ? fleet.arms : [];
-    const safeArm = arms.find(a => a && a.id === 'safe-2');
-    const boldArm = arms.find(a => a && a.id === 'bold-2');
-    // A live equity field would win; the registry only carries starting_equity,
-    // so this stays null today and we fall through to the base (stale) value.
-    safeLive = armEquity(safeArm);
-    boldLive = armEquity(boldArm);
-  } catch (_) {}
+
+  // Primary: circuit-breaker files (updated every heartbeat tick, real equity).
+  safeLive = circuitBreakerEquity(path.join(STATE, 'circuit-breaker.json'), true);
+  boldLive = circuitBreakerEquity(path.join(STATE, 'aggressive', 'circuit-breaker.json'), false);
+
+  // Secondary fallback: fleet/accounts.json arm record (only has starting_equity today
+  // but may carry last_equity after arm updates).
+  if (safeLive == null || boldLive == null) {
+    try {
+      const fleet = readJSON(path.join(STATE, 'fleet', 'accounts.json'));
+      const arms = (fleet && Array.isArray(fleet.arms)) ? fleet.arms : [];
+      const safeArm = arms.find(a => a && a.id === 'safe-2');
+      const boldArm = arms.find(a => a && a.id === 'bold-2');
+      if (safeLive == null) safeLive = armEquity(safeArm);
+      if (boldLive == null) boldLive = armEquity(boldArm);
+    } catch (_) {}
+  }
 
   // current-position files tell us flat vs in-position for each account.
   let safeFlat = true, boldFlat = true;
