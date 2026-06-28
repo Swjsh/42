@@ -35,11 +35,30 @@ WIRING NOTE (heartbeat_core.py integration)
   Called from run_account() AFTER _engine_verdict() and BEFORE _execute(), so
   extra signals are evaluated on the same tick state.
 
-PER-DETECTOR STATUS (as of 2026-06-26):
-  vwap_continuation       : j_vwap_cont_enabled=true  → ALREADY LIVE in params
-  gap_and_go              : gap_and_go_enabled=true    → ALREADY LIVE in params
+PER-DETECTOR STATUS (as of 2026-06-28):
+  vwap_continuation        : j_vwap_cont_enabled=true  → ALREADY LIVE in params
+  gap_and_go               : gap_and_go_enabled=true    → ALREADY LIVE in params
   vwap_reclaim_failed_break: j_vwap_reclaim_fb_enabled=false → DORMANT (recency RED)
-  vix_regime_dayside      : j_vix_dayside_enabled=false  → DORMANT (no vix_intraday feed)
+  vix_regime_dayside       : j_vix_dayside_enabled=false  → DORMANT (no vix_intraday feed)
+  double_bottom_base_quiet : db_base_quiet_enabled=false → WIRED DISARMED (exec gated on
+                             extra_setup_exec_armed["double_bottom_base_quiet"]=True; NOT present
+                             in params.json → default-off byte-identical no-op; 2026-06-28)
+                             EVIDENCE: edgehunt-double_bottom_base_quiet.json (2026-06-20)
+                             4 cells clear full bar (OOS>0, posQ>=4, top5<200, N>=20):
+                             strike+0_stop-0.99: N=122, WR=63.9%, OOS_avg=+$26.3/trade
+                             strike-1_stop-0.99: N=121, WR=62.0%, OOS_avg=+$13.2/trade
+                             strike-2_stop-0.2:  N=115, WR=41.7%, OOS_avg=+$1.3/trade
+                             strike-1_stop-0.5:  N=121, WR=61.2%, OOS_avg=+$5.9/trade
+  head_and_shoulders_bear  : DOES NOT CLEAR — N=19 completed (7 missing OPRA), all cells
+                             fail n_trades<20; anchor-no-regression pending; NOT wired.
+                             Source: edgehunt-hs_bear.json (2026-06-20).
+  double_top               : DOES NOT CLEAR — new observe-only stream, no edge hunt;
+                             explicitly PENDING all OP-21 gates. NOT wired.
+                             Source: backtest/lib/watchers/double_top_watcher.py.
+  trendline_break (v52)    : DOES NOT CLEAR — standalone pure trendline entries IS avg
+                             -$8.92/trade (n=64); only ribbon_flip sub has edge (n=6, IS
+                             only). OOS gate fails (WF=-1.371). NOT wired.
+                             Source: trendline-subclassification.json + trendline-ribbon-flip-01.json.
 
 DO NOT change any enabled flags to True here. The dispatcher reads them from params.
 """
@@ -103,7 +122,14 @@ class SetupDispatcher:
     # ------------------------------------------------------------------
 
     def run(self) -> list[DispatchResult]:
-        """Evaluate all 4 detectors. Returns [] when every flag is OFF."""
+        """Evaluate all detectors. Returns [] when every flag is OFF.
+
+        Execution for each detector requires BOTH:
+          1. its enable flag = True (WATCH mode)
+          2. extra_setup_exec_armed[setup_name] = True (ORDER mode)
+        Flags absent in params.json default to False — heartbeat_core._extra_exec_armed
+        enforces this contract; this dispatcher only signals intent.
+        """
         results: list[DispatchResult] = []
 
         # Each entry: (setup_name, enabled_flag_key, _dispatch_method)
@@ -112,6 +138,11 @@ class SetupDispatcher:
             ("gap_and_go",                "gap_and_go_enabled",         self._dispatch_gap_and_go),
             ("vwap_reclaim_failed_break", "j_vwap_reclaim_fb_enabled",  self._dispatch_vwap_reclaim_fb),
             ("vix_regime_dayside",        "j_vix_dayside_enabled",      self._dispatch_vix_dayside),
+            # 2026-06-28: double_bottom_base_quiet wired DISARMED — enable flag present, exec-arm
+            # key absent in params.json → WATCH_NOT_ARMED on every tick (byte-identical no-op).
+            # Evidence: edgehunt-double_bottom_base_quiet.json, 4 cells clear full bar, OOS>0.
+            # ARM requires: extra_setup_exec_armed["double_bottom_base_quiet"]=True in params.json.
+            ("double_bottom_base_quiet",  "db_base_quiet_enabled",      self._dispatch_db_base_quiet),
         ]
 
         for setup_name, flag_key, method in dispatchers:
@@ -383,6 +414,38 @@ class SetupDispatcher:
             return DispatchResult("vix_regime_dayside", fired=False,
                                   skip_reason="SKIP_NO_SIGNAL")
         return DispatchResult("vix_regime_dayside", fired=True, signal=sig)
+
+    def _dispatch_db_base_quiet(self) -> DispatchResult:
+        """Dispatch the double_bottom_base_quiet detector (WIRED DISARMED, 2026-06-28).
+
+        Evidence (edgehunt-double_bottom_base_quiet.json, run 2026-06-20):
+          4/20 strike/stop cells clear the full candidate-edge bar:
+            best cell: strike+0_stop-0.99 — N=122, WR=63.9%, OOS avg=+$26.3/trade
+          Bars required: OOS_avg>0, posQ>=4/6, top5_day_pct<200, N>=20. All real OPRA fills (C1).
+
+        DISARMED by default: this method dispatches the signal (fired=True when detector fires),
+        but heartbeat_core._extra_exec_armed gates live order placement on:
+            params["extra_setup_exec_armed"]["double_bottom_base_quiet"] = True
+        That key is ABSENT from params.json — so every tick routes to WATCH_NOT_ARMED (no order).
+
+        Feed: needs session sameday_5m_bars with timestamps + vix_now — same as vwap_continuation.
+        """
+        ctx = self._build_ctx()
+        if ctx is None:
+            return DispatchResult("double_bottom_base_quiet", fired=False,
+                                  skip_reason="SKIP_NO_FEED:sameday_5m_bars_missing")
+
+        try:
+            from watchers.double_bottom_base_quiet_watcher import detect_db_base_quiet_setup  # type: ignore[import]
+        except ImportError as e:
+            return DispatchResult("double_bottom_base_quiet", fired=False,
+                                  skip_reason=f"SKIP_IMPORT_ERROR:{e}")
+
+        sig = detect_db_base_quiet_setup(ctx)
+        if sig is None:
+            return DispatchResult("double_bottom_base_quiet", fired=False,
+                                  skip_reason="SKIP_NO_SIGNAL")
+        return DispatchResult("double_bottom_base_quiet", fired=True, signal=sig)
 
     # ------------------------------------------------------------------
     # Helpers
