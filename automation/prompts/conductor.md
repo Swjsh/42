@@ -49,7 +49,7 @@ Priority order (first ready, eligible item wins):
 
 1. **Engine RED / STATUS `### BROKEN:` flags** — infra repair or flag-to-J first. CRITICAL.
 2. **Self-audit gaps** — un-actioned entries in `analysis/self-audit/new-gaps-flagged.md` (gaps Gamma self-identified via the swarm; this is Gamma driving ITSELF). Treat like HIGH backlog: fix → validate (gym/tests MUST pass, Stage 3) → graduate to a GUARD test (so it can't regress) → ship-or-propose (Stage 4) → mark actioned by appending `<!-- DONE <ts> <fire-id> -->` under the gap. Skip ones already actioned. A self-found-and-shipped gap is the whole point — it is why J should not have to babysit.
-3. **`queue.md` priority HIGH** — explicit high-priority backlog.
+3. **`queue.md` priority HIGH** — explicit high-priority backlog. This includes `PROMOTE-KEEPER-OOS-VALIDATION` (research->deploy bridge): run `python setup/scripts/promote_keeper.py` each fire to emit a fresh op11 proposal from the newest `analysis/recommendations/contender-rank-*.json`, then queue the OOS validation step so the proposal can eventually clear `eval_bar_cleared=true` and auto-ship via the actuator.
 4. **Author inboxes** (oldest non-README first): `_validator-inbox` → validator-author, `_skill-inbox` → skill-author, `_lesson-inbox` → lesson-author, `_chef-inbox` → chef. These are **engine-benefit, observer/authoring-only** — they ship without J ratification (OP-22/OP-26), because they do NOT touch live doctrine.
 5. **Kitchen promotions** — a cook output worth promoting (you are the only writer to `_LEADERBOARD.md`).
 6. **`queue.md` priority MED → LOW.**

@@ -19,6 +19,14 @@ MUST become a test) so the producer cannot silently regress to emitting nulls:
   3. patch_today_bias() FILLS null key_levels fields from the snapshot.
   4. patch_today_bias() does NOT overwrite already-populated (TradingView) values.
   5. ema() matches the TradingView SMA-seed EMA convention on a known series.
+
+EMA-STALENESS FIX (2026-06-28):
+  6. _csv_end_date() parses the end-date from spy_5m filenames correctly.
+  7. load_latest_spy() selects the CSV with the newest end-date, NOT the largest
+     file size (the root-cause of the 10-day-stale EMA injection).
+  8. _spot_deviation_ok() rejects a snapshot whose last_close deviates >3% from
+     the live sight-beacon spot (catches wrong-CSV selection at patch time).
+  9. patch_today_bias() refuses to patch when the spot-deviation guard fires.
 """
 from __future__ import annotations
 
@@ -121,3 +129,158 @@ def test_ema_matches_tradingview_sma_seed_convention():
     # Next bar: close=6, k=2/6 -> 6*k + 3*(1-k)
     k = 2.0 / (period + 1)
     assert out.iloc[5] == pytest.approx(6.0 * k + 3.0 * (1 - k))
+
+
+# ---------------------------------------------------------------------------
+# EMA-STALENESS FIX GUARDS (2026-06-28)
+# Root cause: load_latest_spy sorted by st_size, picking a large old file
+# (spy_5m_2025-01-01_2026-06-18.csv) over the smaller but newer file
+# (spy_5m_2026-05-19_2026-06-26.csv) -> 10-day-stale EMA values in today-bias.
+# ---------------------------------------------------------------------------
+
+def test_csv_end_date_parses_standard_filename():
+    """_csv_end_date() extracts the end-date from a standard spy_5m filename."""
+    import datetime as dt
+    p = Path("spy_5m_2025-01-01_2026-06-26.csv")
+    assert MOD._csv_end_date(p) == dt.date(2026, 6, 26)
+
+
+def test_csv_end_date_parses_merged_filename():
+    """_csv_end_date() works on filenames with _merged suffix."""
+    import datetime as dt
+    p = Path("spy_5m_2025-01-01_2026-05-19_merged.csv")
+    assert MOD._csv_end_date(p) == dt.date(2026, 5, 19)
+
+
+def test_csv_end_date_returns_min_for_unparseable():
+    """_csv_end_date() returns date.min for filenames that don't match the pattern."""
+    import datetime as dt
+    assert MOD._csv_end_date(Path("random_file.csv")) == dt.date.min
+
+
+def test_load_latest_spy_selects_by_end_date_not_size(tmp_path, monkeypatch):
+    """Regression: load_latest_spy must pick the CSV with the newest end-date.
+
+    Scenario mirrors the 2026-06-28 incident: a large old file
+    (end=2026-06-18) and a smaller newer file (end=2026-06-26).
+    The function must pick the newer file regardless of size.
+    """
+    import datetime as dt
+
+    # Build the newer (smaller) CSV — 2 days of 5-min bars
+    newer_rows = MOD.MIN_BARS + 5
+    start = pd.Timestamp("2026-06-25 09:30:00")
+    ts_new = [start + pd.Timedelta(minutes=5 * i) for i in range(newer_rows)]
+    closes_new = [730.0 + 0.01 * i for i in range(newer_rows)]
+    df_new = pd.DataFrame({"timestamp_et": [str(t) for t in ts_new], "close": closes_new})
+    newer_csv = tmp_path / "spy_5m_2026-06-25_2026-06-26.csv"
+    df_new.to_csv(newer_csv, index=False)
+
+    # Build the older (larger) CSV — many more rows so it wins by size
+    older_rows = MOD.MIN_BARS + 100
+    start_old = pd.Timestamp("2025-01-01 09:30:00")
+    ts_old = [start_old + pd.Timedelta(minutes=5 * i) for i in range(older_rows)]
+    closes_old = [720.0 + 0.01 * i for i in range(older_rows)]
+    df_old = pd.DataFrame({"timestamp_et": [str(t) for t in ts_old], "close": closes_old})
+    older_csv = tmp_path / "spy_5m_2025-01-01_2026-06-18.csv"
+    df_old.to_csv(older_csv, index=False)
+
+    # Verify older file is actually larger (confirms the scenario)
+    assert older_csv.stat().st_size > newer_csv.stat().st_size, \
+        "test setup broken: old file should be larger"
+
+    monkeypatch.setattr(MOD, "DATA_DIR", tmp_path)
+    df = MOD.load_latest_spy()
+    assert df is not None
+
+    # The last bar's close should come from the NEWER file (closes_new[-1] ~ 730.5)
+    last_close = float(df.iloc[-1]["close"])
+    assert last_close == pytest.approx(closes_new[-1], abs=0.01), (
+        f"load_latest_spy picked the wrong CSV: last_close={last_close} "
+        f"(expected ~{closes_new[-1]} from 2026-06-26, not ~{closes_old[-1]} from 2026-06-18)"
+    )
+
+
+def test_spot_deviation_ok_passes_within_threshold(tmp_path):
+    """_spot_deviation_ok() returns True when deviation is within 3%."""
+    beacon = {"spy": 730.0, "ok": True}
+    bp = tmp_path / "sight-beacon.json"
+    bp.write_text(json.dumps(beacon))
+    # 1% deviation — should pass
+    snap = {"last_close": 737.3}
+    assert MOD._spot_deviation_ok(snap, bp) is True
+
+
+def test_spot_deviation_ok_fails_beyond_threshold(tmp_path):
+    """_spot_deviation_ok() returns False when deviation exceeds 3%."""
+    beacon = {"spy": 730.0, "ok": True}
+    bp = tmp_path / "sight-beacon.json"
+    bp.write_text(json.dumps(beacon))
+    # 4% deviation — should fail
+    snap = {"last_close": 759.2}
+    assert MOD._spot_deviation_ok(snap, bp) is False
+
+
+def test_spot_deviation_ok_failopen_missing_beacon(tmp_path):
+    """_spot_deviation_ok() fails-open (returns True) when beacon file is absent."""
+    bp = tmp_path / "no-beacon.json"  # does not exist
+    snap = {"last_close": 999.0}
+    assert MOD._spot_deviation_ok(snap, bp) is True
+
+
+def test_spot_deviation_ok_failopen_missing_spot(tmp_path):
+    """_spot_deviation_ok() fails-open when beacon has no 'spy' field."""
+    beacon = {"ok": True}  # no 'spy' key
+    bp = tmp_path / "sight-beacon.json"
+    bp.write_text(json.dumps(beacon))
+    snap = {"last_close": 999.0}
+    assert MOD._spot_deviation_ok(snap, bp) is True
+
+
+def test_patch_rejected_when_spot_deviates(tmp_path, monkeypatch):
+    """patch_today_bias() must NOT patch when spot-deviation guard fires.
+
+    Regression guard: a stale CSV producing a last_close 4% from the live spot
+    should never contaminate today-bias with stale EMA values.
+    """
+    bias = {"date": "2026-06-28", "key_levels": {"ema_fast": None, "ema_pivot": None,
+                                                  "ema_slow": None, "sma_50": None}}
+    bias_path = tmp_path / "today-bias.json"
+    bias_path.write_text(json.dumps(bias))
+
+    # Beacon spot = 730; snapshot last_close = 759 (4% deviation — should block)
+    beacon = {"spy": 730.0, "ok": True}
+    beacon_path = tmp_path / "sight-beacon.json"
+    beacon_path.write_text(json.dumps(beacon))
+
+    monkeypatch.setattr(MOD, "STATE_DIR", tmp_path)
+    snap = {"last_close": 759.2, "ema_fast": 758.0, "ema_pivot": 758.5,
+            "ema_slow": 759.0, "sma_50": 759.5}
+    result = MOD.patch_today_bias(snap, beacon_path=beacon_path)
+    assert result is False, "patch should have been blocked by spot-deviation guard"
+
+    # today-bias must remain untouched
+    out = json.loads(bias_path.read_text())["key_levels"]
+    assert out["ema_fast"] is None, "stale EMA must not have been written to today-bias"
+
+
+def test_patch_proceeds_when_spot_within_threshold(tmp_path, monkeypatch):
+    """patch_today_bias() patches normally when spot-deviation is within 3%."""
+    bias = {"date": "2026-06-28", "key_levels": {"ema_fast": None, "ema_pivot": None,
+                                                  "ema_slow": None, "sma_50": None}}
+    bias_path = tmp_path / "today-bias.json"
+    bias_path.write_text(json.dumps(bias))
+
+    # Beacon spot = 730; last_close = 737 (< 1% deviation — should pass)
+    beacon = {"spy": 730.0, "ok": True}
+    beacon_path = tmp_path / "sight-beacon.json"
+    beacon_path.write_text(json.dumps(beacon))
+
+    monkeypatch.setattr(MOD, "STATE_DIR", tmp_path)
+    snap = {"last_close": 737.3, "ema_fast": 731.9, "ema_pivot": 732.2,
+            "ema_slow": 732.8, "sma_50": 733.3}
+    result = MOD.patch_today_bias(snap, beacon_path=beacon_path)
+    assert result is True
+
+    out = json.loads(bias_path.read_text())["key_levels"]
+    assert out["ema_fast"] == 731.9

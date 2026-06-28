@@ -14,10 +14,16 @@ EMA periods from backtest/lib/ribbon_config.json (fingerprinted 2026-05-07):
 Price source: close. Seed: SMA-then-EMA (matches TradingView ta.ema).
 
 Cost: $0. No LLM, no MCP, no network calls.
+
+FIX 2026-06-28: select CSV by end-date parsed from filename (not st_size).
+  st_size selected spy_5m_2025-01-01_2026-06-18.csv (large old file) over the
+  smaller but newer spy_5m_2026-05-19_2026-06-26.csv -> 10-day-stale EMAs.
+  Filename pattern: spy_5m_{start}_{end}[_suffix].csv — sort by parsed end-date.
 """
 from __future__ import annotations
 
 import json
+import re
 import sys
 import datetime as dt
 from pathlib import Path
@@ -34,6 +40,24 @@ SLOW_EMA = 48
 SMA_50 = 50
 # Bars of history needed to seed EMAs reliably (2x the longest period)
 MIN_BARS = SMA_50 * 4
+
+# Spot-deviation guard: if the snapshot's last_close deviates by more than this
+# fraction from the live sight-beacon spot, the snapshot is stale / wrong CSV.
+SPOT_DEVIATION_MAX = 0.03  # 3%
+
+# Regex to extract the end-date from spy_5m_{start}_{end}[_suffix].csv
+_CSV_END_DATE_RE = re.compile(r"spy_5m_\d{4}-\d{2}-\d{2}_(\d{4}-\d{2}-\d{2})")
+
+
+def _csv_end_date(p: Path) -> dt.date:
+    """Return the end-date from a spy_5m filename, or date.min if unparseable."""
+    m = _CSV_END_DATE_RE.search(p.stem)
+    if m:
+        try:
+            return dt.date.fromisoformat(m.group(1))
+        except ValueError:
+            pass
+    return dt.date.min
 
 
 def _parse_wall_clock(s: pd.Series) -> pd.Series:
@@ -59,11 +83,20 @@ def sma(closes: pd.Series, period: int) -> pd.Series:
 
 
 def load_latest_spy() -> pd.DataFrame | None:
-    """Load the largest (most recent) SPY CSV in DATA_DIR."""
-    csvs = sorted(DATA_DIR.glob("spy_5m_*.csv"), key=lambda p: p.stat().st_size, reverse=True)
+    """Load the SPY CSV with the newest end-date in DATA_DIR.
+
+    FIX 2026-06-28: previously sorted by st_size (file size), which selected a
+    large historical file (spy_5m_2025-01-01_2026-06-18.csv) over a smaller but
+    newer file (spy_5m_2026-05-19_2026-06-26.csv) and injected 10-day-old EMAs.
+    Now sorts by the end-date parsed from the filename instead.
+    """
+    csvs = sorted(DATA_DIR.glob("spy_5m_*.csv"), key=_csv_end_date, reverse=True)
     if not csvs:
         return None
-    df = pd.read_csv(csvs[0])
+    chosen = csvs[0]
+    print(f"[INFO] Selected CSV by end-date: {chosen.name} (end={_csv_end_date(chosen)})",
+          file=sys.stderr)
+    df = pd.read_csv(chosen)
     df["timestamp_et"] = _parse_wall_clock(df["timestamp_et"])
     df = df.drop_duplicates(subset=["timestamp_et"]).sort_values("timestamp_et").reset_index(drop=True)
     df["close"] = pd.to_numeric(df["close"], errors="coerce")
@@ -98,10 +131,50 @@ def compute_snapshot(df: pd.DataFrame) -> dict:
     }
 
 
-def patch_today_bias(snap: dict) -> bool:
-    """Patch today-bias.json key_levels EMA fields in-place. Returns True if patched."""
+def _spot_deviation_ok(snap: dict, beacon_path: Path | None = None) -> bool:
+    """Return True if snap.last_close is within SPOT_DEVIATION_MAX of the sight-beacon spot.
+
+    If the beacon file is missing/stale/unreadable the check passes (fail-open).
+    Called by patch_today_bias before patching so a stale-CSV snapshot never
+    silently contaminates today-bias with 10-day-old EMA values.
+    """
+    if beacon_path is None:
+        beacon_path = STATE_DIR / "sight-beacon.json"
+    last_close = snap.get("last_close")
+    if last_close is None:
+        return True  # no close to check; let downstream catch it
+    try:
+        beacon = json.loads(beacon_path.read_bytes().decode("utf-8", errors="replace"))
+        spot = beacon.get("spy")
+        if spot is None or spot <= 0:
+            return True  # beacon has no valid spot; fail-open
+        deviation = abs(last_close - spot) / spot
+        if deviation > SPOT_DEVIATION_MAX:
+            print(
+                f"[WARN] EMA snapshot spot-deviation too large: "
+                f"last_close={last_close} beacon_spot={spot} "
+                f"deviation={deviation:.2%} > {SPOT_DEVIATION_MAX:.0%} — "
+                f"snapshot NOT patched into today-bias (likely stale CSV)",
+                file=sys.stderr,
+            )
+            return False
+        return True
+    except Exception as e:
+        print(f"[WARN] spot-deviation check skipped (beacon read error): {e}", file=sys.stderr)
+        return True  # fail-open
+
+
+def patch_today_bias(snap: dict, beacon_path: Path | None = None) -> bool:
+    """Patch today-bias.json key_levels EMA fields in-place. Returns True if patched.
+
+    Spot-deviation guard: if snap.last_close deviates >3% from the live
+    sight-beacon spot, the patch is rejected (stale CSV guard).
+    beacon_path is injectable for tests; defaults to automation/state/sight-beacon.json.
+    """
     bias_path = STATE_DIR / "today-bias.json"
     if not bias_path.exists():
+        return False
+    if not _spot_deviation_ok(snap, beacon_path):
         return False
     try:
         bias = json.loads(bias_path.read_bytes().decode("utf-8", errors="replace"))

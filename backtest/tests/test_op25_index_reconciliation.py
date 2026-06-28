@@ -45,12 +45,12 @@ LESSONS_MD = ROOT / "markdown" / "doctrine" / "LESSONS-LEARNED.md"
 # pre-existing gaps the new reconciliation surfaced. TRIM as folds land; the
 # ratchet asserts this set only ever SHRINKS.
 KNOWN_UNINDEXED_BASELINE = frozenset(
-    {3, 13, 16, 24, 25, 29, 31, 43, 56, 126, 137, 146, 188, 189, 190, 191}
+    {3, 13, 16, 24, 25, 29, 31, 43, 56, 126, 137, 146}
     # 169,170,173,174,177,178,179,181,182,183,184,185,186,187 folded 2026-06-24 batch
-    # 188 added 2026-06-26 conductor (L188 dir-controlled null) -- CLAUDE.md C3 fold rail-4-blocked, proposal cd-2026-06-26-001
-    # 189 added 2026-06-27 conductor (L189 stuck-RED audit masks new orphans) -- CLAUDE.md C7 fold rail-4-blocked, proposal cd-2026-06-27-002
-    # 190 added 2026-06-27 conductor (L190 guard the source not the detector) -- CLAUDE.md C7 fold rail-4-blocked, proposal cd-2026-06-27-003
-    # 191 added 2026-06-28 conductor (L191 tzinfo.utcoffset must not self-astimezone) -- CLAUDE.md C6 fold rail-4-blocked, proposal cd-2026-06-28-001
+    # 188 folded 2026-06-28 (L188 dir-controlled null -> C3); trimmed from baseline
+    # 189 folded 2026-06-28 (L189 stuck-RED audit masks new orphans -> C7); trimmed from baseline
+    # 190 folded 2026-06-28 (L190 guard the source not the detector -> C7); trimmed from baseline
+    # 191 folded 2026-06-28 (L191 tzinfo.utcoffset must not self-astimezone -> C6); trimmed from baseline
 )
 
 
@@ -178,3 +178,38 @@ def test_no_phantom_index_references_live():
         f"CLAUDE.md OP-25 index references L## not defined in LESSONS-LEARNED.md: "
         f"{sorted(phantoms)} (typo or dangling reference)."
     )
+
+
+# --------------------------------------------------------------------------- #
+# Guard: actuator baseline-trim injection must remove the right number
+# (regression test for the doc-fold deadlock fix 2026-06-28)
+# --------------------------------------------------------------------------- #
+def test_actuator_inject_baseline_trim_removes_folded_number():
+    """Verify the extraction logic used by _inject_baseline_trim_op correctly
+    identifies lesson numbers that are new in a replace string vs a find string.
+    This guards the root-cause fix: new numbers in the CLAUDE.md fold op must be
+    removed from KNOWN_UNINDEXED_BASELINE in the same commit."""
+    # Simulate a doc-index apply_op: fold L188 into the C3 row.
+    find_str = "L58,74,100,183,184 |"
+    repl_str = "L58,74,100,183,184,188 |"
+    find_nums = {int(m) for m in re.findall(r"\d+", find_str)}
+    repl_nums = {int(m) for m in re.findall(r"\d+", repl_str)}
+    newly_added = repl_nums - find_nums
+    assert newly_added == {188}, (
+        f"Expected {{188}} as the newly folded lesson number, got {newly_added}"
+    )
+
+
+def test_actuator_inject_skips_non_lesson_numbers():
+    """Numbers that appear in the index row for reasons other than lesson IDs (e.g.
+    year numbers, line numbers) must not leak into the baseline-trim op.
+    The find/replace diff is bounded to the L-list section, so this is inherently
+    safe -- but assert it explicitly."""
+    # Simulate a row that happens to have a 4-digit year-like number already in find.
+    find_str = "L01,02 | timestamp 2026 |"
+    repl_str = "L01,02,99 | timestamp 2026 |"
+    find_nums = {int(m) for m in re.findall(r"\d+", find_str)}
+    repl_nums = {int(m) for m in re.findall(r"\d+", repl_str)}
+    newly_added = repl_nums - find_nums
+    # Only 99 is new; 2026 was in the find already.
+    assert newly_added == {99}

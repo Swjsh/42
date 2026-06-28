@@ -36,6 +36,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -411,6 +412,120 @@ def _apply_ops(prop: dict) -> None:
         target.write_text(text, encoding="utf-8")
 
 
+# Ratchet guard: test_op25_index_reconciliation::test_baseline_only_shrinks REDs when a
+# lesson is folded into the CLAUDE.md OP-25 index but its number is still listed in
+# KNOWN_UNINDEXED_BASELINE.  The conductor emits one apply_op (the CLAUDE.md fold) but
+# omits the paired baseline-trim, so the safety gate always blocks the commit.
+# This helper detects that case and auto-injects the matching trim op so the fold and the
+# trim land in the SAME commit -- keeping the ratchet honestly shrinks-only without
+# requiring J to hand-edit the test file.
+_RATCHET_TEST = (
+    "backtest/tests/test_op25_index_reconciliation.py"
+)
+_BASELINE_RE = re.compile(
+    r"(KNOWN_UNINDEXED_BASELINE\s*=\s*frozenset\(\s*\{)([^}]*)\}", re.DOTALL
+)
+_L_NUM_RE = re.compile(r"\bL(\d+)\b")
+
+
+def _inject_baseline_trim_op(prop: dict) -> None:
+    """For doc-index proposals that fold an L## into CLAUDE.md, auto-append a second
+    apply_op that removes the same L## from KNOWN_UNINDEXED_BASELINE in the ratchet test.
+
+    Only fires when:
+    - kind is doc-index / doc-fold (auto-approve class)
+    - at least one op targets CLAUDE.md
+    - the lesson number can be extracted from the replace string
+    - that number is currently in KNOWN_UNINDEXED_BASELINE
+    - there is no existing baseline-trim op already in apply_ops
+
+    Side-effect: appends to prop['apply_ops'] in place.  Idempotent: harmless if the
+    number is already absent from the baseline (the find-string won't match and validation
+    will skip it).
+    """
+    kind = str(prop.get("kind", "")).lower()
+    if kind not in AUTO_APPROVE_KINDS:
+        return
+    ops = prop.get("apply_ops")
+    if not isinstance(ops, list):
+        return
+    # Skip if a baseline-trim op already exists.
+    ratchet_rel = _RATCHET_TEST
+    if any(str(op.get("file", "")).replace("\\", "/").lstrip("/") == ratchet_rel for op in ops):
+        return
+    # Find lesson numbers being added to CLAUDE.md by scanning replace strings.
+    new_lesson_nums: list[int] = []
+    for op in ops:
+        if str(op.get("file", "")).replace("\\", "/").lower().endswith("claude.md"):
+            # Numbers in replace but NOT in find = newly added
+            find_nums = {int(m) for m in re.findall(r"\d+", str(op.get("find", "")))}
+            repl_nums = {int(m) for m in re.findall(r"\d+", str(op.get("replace", "")))}
+            for n in sorted(repl_nums - find_nums):
+                if n not in new_lesson_nums:
+                    new_lesson_nums.append(n)
+    if not new_lesson_nums:
+        return
+    # Read the ratchet test to find which of those numbers are in KNOWN_UNINDEXED_BASELINE.
+    ratchet_path = REPO / ratchet_rel
+    if not ratchet_path.exists():
+        return
+    ratchet_text = ratchet_path.read_text(encoding="utf-8")
+    m = _BASELINE_RE.search(ratchet_text)
+    if not m:
+        return
+    baseline_body = m.group(2)
+    baseline_nums = {int(x) for x in re.findall(r"\d+", baseline_body)}
+    to_trim = sorted(n for n in new_lesson_nums if n in baseline_nums)
+    if not to_trim:
+        return  # nothing to trim; ratchet already clean
+    # Build the exact find/replace strings by removing the to_trim numbers from the
+    # baseline body.  We rebuild only the numeric literals inside the braces so the
+    # comments and whitespace above the set are untouched.
+    def _remove_nums(body: str, nums: set) -> str:
+        """Remove specific integers from a comma-separated number set in a Python literal.
+        Preserves surrounding whitespace and comments (lines without a bare integer)."""
+        result_lines = []
+        for line in body.split("\n"):
+            # Strip comment-only lines untouched.
+            stripped = line.strip()
+            if stripped.startswith("#") or not stripped:
+                # Only keep comment/blank lines if their numbers are all still in baseline.
+                # Actually: always keep comment lines (they are metadata).
+                result_lines.append(line)
+                continue
+            # Line may contain integers mixed with commas and whitespace.
+            tokens = re.split(r"(\s*,\s*)", stripped)
+            kept = []
+            for tok in tokens:
+                num_match = re.fullmatch(r"\s*(\d+)\s*", tok.strip())
+                if num_match:
+                    n = int(num_match.group(1))
+                    if n not in nums:
+                        kept.append(tok)
+                else:
+                    kept.append(tok)
+            # Collapse empty separators.
+            rebuilt = "".join(kept).strip().strip(",").strip()
+            if rebuilt:
+                result_lines.append("    " + rebuilt)
+        return "\n".join(result_lines)
+
+    baseline_body_new = _remove_nums(baseline_body, set(to_trim))
+    find_str = m.group(1) + baseline_body + "}"
+    repl_str = m.group(1) + baseline_body_new + "}"
+    if find_str == repl_str:
+        return  # nothing actually changed
+    if ratchet_text.count(find_str) != 1:
+        return  # ambiguous or absent; skip (validation will catch it)
+    ops.append({
+        "file": ratchet_rel,
+        "find": find_str,
+        "replace": repl_str,
+    })
+    print(f"[actuator] injected baseline-trim op: removed {to_trim} from KNOWN_UNINDEXED_BASELINE "
+          f"to match CLAUDE.md fold (ratchet deadlock prevention).")
+
+
 # ------------------------------------------------------------------------ gate
 def _run_gate() -> tuple[bool, str]:
     py = sys.executable
@@ -459,6 +574,9 @@ def apply_approved(dry_run: bool = False) -> int:
     for prop in approved:
         pid = prop.get("proposal_id", "?")
         title = prop.get("title", "")
+        # Auto-inject the KNOWN_UNINDEXED_BASELINE trim op for doc-index folds so the
+        # ratchet test (test_baseline_only_shrinks) passes in the same commit.
+        _inject_baseline_trim_op(prop)
         files, err = _validate_ops(prop)
         if err:
             print(f"[actuator] SKIP {pid}: {err}")
