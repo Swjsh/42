@@ -252,8 +252,16 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
         stop_pct = CATASTROPHE_STOP
         stop_price = round(mid * (1 + stop_pct), 2)
 
+    # simple_fallback=True (2026-06-28 MONEY-PATH FIX): Alpaca rejects BOTH bracket and oto for
+    # options (42210000) -> WITHOUT this, every fleet ENTER returned _error -> placed=False ->
+    # ZERO fills since 2026-06-22 (the "nothing is working" root cause). With it, on the complex-
+    # order rejection we place a plain limit entry; TP/stop are owned by the ticking exit_manager
+    # (register_entry below + ea.manage_tick runs FIRST each cycle, enforcing premium/target/time
+    # stops via the per-tick worst<=stop check). SAFE: exits ARE engine-managed here, the exact C2
+    # condition place_bracket's docstring requires. Identical to the proven core-engine fix.
     res = fb.place_bracket(creds, symbol=symbol, qty=qty, limit_price=mid,
-                           take_profit_price=tp_price, stop_price=stop_price, live=True)
+                           take_profit_price=tp_price, stop_price=stop_price, live=True,
+                           simple_fallback=True)
     placed = not res.get("_error") and not res.get("_refused")
     # EXIT ENGINE WIRING (FIX1 follow-up, 2026-06-25): the bracket above is only the
     # entry leg + a catastrophe-floor stop. Register the position with the exit_manager so

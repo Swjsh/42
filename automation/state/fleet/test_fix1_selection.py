@@ -108,10 +108,10 @@ class _FakeBroker:
         return self.mid
 
     def place_bracket(self, creds, *, symbol, qty, limit_price, take_profit_price,
-                      stop_price, live):
+                      stop_price, live, simple_fallback=False):
         self.captured = {"symbol": symbol, "qty": qty, "limit_price": limit_price,
                          "take_profit_price": take_profit_price, "stop_price": stop_price,
-                         "live": live}
+                         "live": live, "simple_fallback": simple_fallback}
         return {"id": "fake-order", "status": "accepted"}
 
 
