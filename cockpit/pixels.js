@@ -451,20 +451,20 @@
     function clampc(c) { return Math.max(0, Math.min(cols - 1, c)); }
     function clampr(r) { return Math.max(0, Math.min(rows - 1, r)); }
 
-    // ── ROBUST LAYOUT (works at ANY window size) ─────────────────────────────
-    //   The Gamma card can be very tall, so the office lives entirely in the two
-    //   side MARGINS (full height) — NEVER below the card, so a tall card can't
-    //   starve it. Each margin STACKS 3 rooms; a 1-tile hallway flanks the card,
-    //   runs between the stacked rooms, and along the bottom — forming ONE
-    //   connected corridor that reaches DISPATCH from every room.
-    //     LEFT : LAB / ACCOUNTS / DISPATCH       RIGHT: GYM / KITCHEN / TRADING
-    //   Each design's REAL door faces that corridor (bottom doors -> the hall
-    //   below the room; KITCHEN's left door -> the centre corridor).
+    // ── ADAPTIVE LAYOUT (fills the window at any size) ───────────────────────
+    //   The office uses the full-height side MARGINS so a tall card can't starve
+    //   it. When there's room BELOW the card (tall/normal windows), DISPATCH +
+    //   TRADING (the two smallest designs) drop into that centre space and each
+    //   margin holds only 2 rooms — so every room is bigger and the centre gap is
+    //   filled. On short windows they fall back into the margins (3 each). One
+    //   connected corridor (card-flanks + inter-room halls + bottom) reaches every
+    //   door, so DISPATCH is always walkable from every room.
     var M = 1, HALL = 1;
     var topY = M;
     var bRoomBot = rows - 1 - M;
     var leftX = M, leftX2 = cardLo - 1 - HALL;          // left-margin room cols
     var rightX = cardHi + 1 + HALL, rightX2 = cols - 1 - M;
+    var useCentre = (bRoomBot - (cardBottom + 1)) >= 9; // enough room below the card?
 
     // Fit a room to its DESIGN's aspect, anchored so the art fills the footprint
     // and the chosen door edge faces open corridor. ax 'l'|'r'|'c', ay 't'|'b'|'c'.
@@ -483,24 +483,30 @@
       var oy = ay === 't' ? zy : ay === 'b' ? (zy2 - rh + 1) : zy + Math.floor((zh - rh) / 2);
       return makeRoom(key, label, color, ox, oy, ox + rw - 1, oy + rh - 1, doorSide);
     }
-    // split [y0..y1] vertically into 3 stacked sub-zones with a 1-tile hall between.
-    function stack3(y0, y1) {
-      var h = y1 - y0 + 1, sub = Math.max(3, Math.floor((h - 2 * HALL) / 3));
-      return [[y0, y0 + sub - 1],
-              [y0 + sub + HALL, y0 + 2 * sub + HALL - 1],
-              [y0 + 2 * sub + 2 * HALL, y1]];
+    // split [y0..y1] into N stacked sub-zones with a 1-tile hall between.
+    function stackN(y0, y1, n) {
+      var h = y1 - y0 + 1, sub = Math.max(3, Math.floor((h - (n - 1) * HALL) / n)), z = [];
+      for (var i = 0; i < n; i++) { var a0 = y0 + i * (sub + HALL); z.push([a0, i === n - 1 ? y1 : a0 + sub - 1]); }
+      return z;
     }
-    var lz3 = stack3(topY, bRoomBot), rz3 = stack3(topY, bRoomBot);
-    // LEFT margin — rooms hug the card (anchor right); the bottom door opens into
-    // the hall below each room, the outer screen edge is the peripheral corridor.
-    fitRoom('lab',      'LAB / R&D', COL.accent, leftX, lz3[0][0], leftX2, lz3[0][1], 'bottom', 'r', 'c');
-    fitRoom('accounts', 'ACCOUNTS',  COL.glow,   leftX, lz3[1][0], leftX2, lz3[1][1], 'bottom', 'r', 'c');
-    fitRoom('dispatch', 'DISPATCH',  COL.glow,   leftX, lz3[2][0], leftX2, lz3[2][1], 'bottom', 'r', 'c');
-    // RIGHT margin — rooms hug the card (anchor left); KITCHEN's left door faces
-    // the centre corridor.
-    fitRoom('gym',     'GYM',      COL.pos,     rightX, rz3[0][0], rightX2, rz3[0][1], 'bottom', 'l', 'c');
-    fitRoom('kitchen', 'KITCHEN',  COL.caution, rightX, rz3[1][0], rightX2, rz3[1][1], 'left',   'l', 'c');
-    fitRoom('trading', 'TRADING',  COL.alert,   rightX, rz3[2][0], rightX2, rz3[2][1], 'bottom', 'l', 'c');
+    var nPer = useCentre ? 2 : 3;
+    var lz = stackN(topY, bRoomBot, nPer), rz = stackN(topY, bRoomBot, nPer);
+    // margin rooms hug the screen edges; doors face the centre corridor / the hall
+    // below each room.
+    fitRoom('lab',      'LAB / R&D', COL.accent, leftX, lz[0][0], leftX2, lz[0][1], 'bottom', 'l', 'c');
+    fitRoom('accounts', 'ACCOUNTS',  COL.glow,   leftX, lz[1][0], leftX2, lz[1][1], 'bottom', 'l', 'c');
+    fitRoom('gym',      'GYM',       COL.pos,    rightX, rz[0][0], rightX2, rz[0][1], 'bottom', 'r', 'c');
+    fitRoom('kitchen',  'KITCHEN',   COL.caution, rightX, rz[1][0], rightX2, rz[1][1], 'left',  'r', 'c');
+    if (useCentre) {
+      // DISPATCH + TRADING fill the centre space below the card.
+      var ccX = leftX2 + 1 + HALL, ccX2 = rightX - 1 - HALL;
+      var cz = stackN(cardBottom + 1 + HALL, bRoomBot, 2);
+      fitRoom('dispatch', 'DISPATCH', COL.glow,  ccX, cz[0][0], ccX2, cz[0][1], 'bottom', 'c', 'c');
+      fitRoom('trading',  'TRADING',  COL.alert, ccX, cz[1][0], ccX2, cz[1][1], 'bottom', 'c', 'c');
+    } else {
+      fitRoom('dispatch', 'DISPATCH', COL.glow,  leftX, lz[2][0], leftX2, lz[2][1], 'bottom', 'l', 'c');
+      fitRoom('trading',  'TRADING',  COL.alert, rightX, rz[2][0], rightX2, rz[2][1], 'bottom', 'r', 'c');
+    }
 
     // Fallbacks so no role is ever sector-less (degenerate tiny grids).
     if (!sectors.lab) makeRoom('lab', 'LAB / R&D', COL.accent, Math.max(M, rightX), topY, cols - 1 - M, Math.floor(rows / 2), 'left');

@@ -1183,7 +1183,11 @@
     if (wide && !mounted){
       try { window.GammaPixels.mount(canvas); } catch(_){ return; }
       canvas.style.display = ""; mounted = true;
-      measureCard(); pump(); timer = setInterval(pump, 2500);
+      measureCard(); pump();
+      // re-measure as the card grows (vitals load in late) + every cycle, so the
+      // reservation always covers the full card and the vitals never bleed.
+      setTimeout(measureCard, 700); setTimeout(measureCard, 1800);
+      timer = setInterval(function(){ measureCard(); pump(); }, 2500);
     } else if (!wide && mounted){
       try { if (window.GammaPixels.unmount) window.GammaPixels.unmount(); } catch(_){}
       if (timer){ clearInterval(timer); timer = null; }
@@ -1194,7 +1198,7 @@
   }
   evalView();
   var rt = null;
-  window.addEventListener("resize", function(){ clearTimeout(rt); rt = setTimeout(evalView, 250); });
+  window.addEventListener("resize", function(){ clearTimeout(rt); rt = setTimeout(function(){ evalView(); measureCard(); }, 250); });
 })();
 </script>
 </body>
