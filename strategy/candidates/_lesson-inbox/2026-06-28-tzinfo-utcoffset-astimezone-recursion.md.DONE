@@ -1,0 +1,49 @@
+# Lesson candidate — a custom tzinfo whose utcoffset() calls astimezone() recurses; a naive caller masks it
+
+**Date:** 2026-06-28
+**Surfaced by:** conductor fire c8f2465 (while shipping the BOLD-FLEET-PRODUCER-KEYSTONE first slice).
+
+## Symptom
+The exact production invocation `python automation/state/fleet/build_shared_signal.py`
+(how `run-fleet-executor.ps1` calls it) crashed with `RecursionError: maximum recursion
+depth exceeded` — `[Previous line repeated 994 more times]` at `et_clock.py:97`. No crash
+in any test that used `et_now()`; only the producer's DEFAULT-now path crashed.
+
+## Root cause
+`et_clock._EasternTZ.utcoffset(dt)` did, for an aware `dt`:
+`utc_approx = dt.astimezone(timezone.utc)`. But `datetime.astimezone(utc)` must call
+`dt.utcoffset()` to convert — and when `dt.tzinfo is self` (the same `_EasternTZ`), that
+re-enters `_EasternTZ.utcoffset` → which calls `astimezone` again → infinite recursion.
+A `tzinfo` cannot compute its own offset by asking the datetime to convert itself.
+
+## Why it stayed latent (the dangerous part)
+`et_now()` returns a **naive** ET datetime, so almost every caller passed naive values →
+the naive branch (build `utc_approx` from wall-clock components) never recursed. The ONLY
+trigger is an **aware** ET_TZ datetime (`datetime.now(utc).astimezone(ET_TZ)`, then any
+`utcoffset()` / `astimezone()` / `strftime("%z")`). `build_shared_signal.build()`'s default
+`now` is exactly that aware form, and `written_at = now.strftime("...%z")` hit it. The bug
+landed in the TZ-systemic wiring commit (50071b4, 2026-06-26 18:42) AFTER the last RTH, so
+it never ran in production — it was a Monday-open timebomb that would have frozen
+`shared-signal.json` and blinded the live paper fleet.
+
+## Fix (root, in et_clock — protects all 9+ live paths)
+In `utcoffset`, treat `dt.tzinfo is None OR dt.tzinfo is self` identically: build the DST-
+lookup proxy from the wall-clock components (no `astimezone`). Only a *foreign*-zone aware
+dt takes the `astimezone` branch (its tzinfo's `utcoffset` never calls back into ET_TZ).
+
+## Principle / watch-out
+A custom `tzinfo.utcoffset()` must NEVER call `dt.astimezone(...)` (or anything that needs
+`dt.utcoffset()`) on a datetime whose `tzinfo is self` — that is an infinite recursion by
+construction. Compute the offset from the wall-clock fields directly. And: **a naive-only
+caller base masks an aware-path crash** — when a clock utility supports both naive and aware
+inputs, a test that only exercises naive inputs is not coverage; exercise the aware path too.
+
+## Detection / encoded-in
+`backtest/tests/test_et_clock.py::test_aware_et_tz_datetime_does_not_recurse` (bite-tested
+non-vacuous: the pre-fix code recurses). Reproduce a production crash by running the script
+as `__main__`, not just by calling helpers with synthetic naive fixtures.
+
+## Related
+C6 (entry_time_et tz handling / localize naive vs aware), G2/TZ-SYSTEMIC (et_clock), L181/L185
+(stale breadcrumb — the queue item that led here was itself stale; the real find was elsewhere).
+Best-fit CLAUDE.md OP-25 fold: C6 or C7.
