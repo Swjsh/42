@@ -63,6 +63,18 @@ def _nn(x):
 STATE = REPO / "automation" / "state"
 LEDGER = STATE / "core-decisions.jsonl"
 import os  # noqa: E402
+import logging  # noqa: E402
+
+# Module logger — was referenced (logger.warning at the dispatch except, logger.critical
+# at the bull-wiring guard) but NEVER defined: a latent NameError that would have masked
+# the real dispatch error if that except ever fired. Defined here once. Routes to stderr.
+logger = logging.getLogger("heartbeat_core")
+if not logger.handlers:
+    _h = logging.StreamHandler(sys.stderr)
+    _h.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s heartbeat_core %(message)s"))
+    logger.addHandler(_h)
+    logger.setLevel(logging.INFO)
+
 # SHADOW (DISARMED) — left disarmed deliberately; J flips the switch. As of 2026-06-25 the
 # historical replay (backtest/replay_heartbeat_core.py) now PASSES the full arm-gate:
 #   - bear_score exact-match 98.0% (avg diff 0.02) — input/score wiring byte-faithful
@@ -608,6 +620,15 @@ def run_account(account: str) -> dict:
         else:
             rec["exec"] = _execute(account, verdict, payload, params, dry=not ARMED)
             rec["action"] = rec["exec"].get("status")
+            # BULL-WIRING REGRESSION GUARD (2026-06-28, swarm-recommended): an ENTER_BULL
+            # verdict MUST reach _execute exactly like ENTER_BEAR. If a future change ever
+            # severs the bull path (e.g. a bear-only exec gate sneaks in), this surfaces it
+            # instantly in the logs instead of silently reverting to "bear-only".
+            if v == "ENTER_BULL" and not rec.get("exec"):
+                logger.critical(
+                    "[BULL-GUARD] ENTER_BULL produced no exec record — bull path may be severed. "
+                    "Bull and bear MUST share the _execute path (see CLAUDE.md OP-16 setup scope)."
+                )
     else:
         rec["action"] = v
         # G4: on a non-ENTER ribbon verdict (HOLD/SKIP), route any fired + exec-armed extra

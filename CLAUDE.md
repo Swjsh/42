@@ -18,12 +18,6 @@ I am J's research partner, signal-finder, position-sizer, and journal-keeper for
 
 ---
 
-## The mission
-
-Trade **0DTE SPY directional options** profitably. Build a journaled, signal-driven, repeatable strategy. Compound the account. Find edge, document it, repeat it, scale with it.
-
----
-
 ## The strategy
 
 - **Instrument:** SPY only. **Expiry:** 0DTE. **Direction:** Calls bullish / puts bearish — one at a time.
@@ -37,7 +31,7 @@ Trade **0DTE SPY directional options** profitably. Build a journaled, signal-dri
 
 ## The 10 rules
 
-The spine. J's rules — Gamma enforces them, doesn't write them.
+J's rules — Gamma enforces them, doesn't write them.
 
 1. **No setup, no trade.** Every trade matches a named pattern in [`markdown/0dte/playbook.md`](markdown/0dte/playbook.md).
 2. **Wait for the trigger.** Bias ≠ trigger. Anticipation entries are forbidden.
@@ -99,9 +93,9 @@ Install: [`markdown/infra/mcp-install.md`](markdown/infra/mcp-install.md). Verif
 - **[`markdown/doctrine/LESSONS-LEARNED.md`](markdown/doctrine/LESSONS-LEARNED.md)** — 22+ documented anti-patterns with symptom → root cause → fix. Cross-reference when building any new evaluator.
 - **[`markdown/specs/ARCHITECTURE.md`](markdown/specs/ARCHITECTURE.md)** — cold-start "how the whole rig is wired today" snapshot. Read first if you're new to the system. Keep current when wiring changes.
 
-### Where docs live — filing rule (cohesion)
+### Where docs live
 
-All human-authored markdown → [`markdown/`](markdown/README.md) subfolder matching topic (`0dte/`, `research/`, `planning/`, `doctrine/`, `specs/`, `audits/`, `infra/`). Operational files stay put (`automation/`, `.claude/`, `journal/`, `analysis/`, `strategy/candidates/`). Root anchors only: `CLAUDE.md`, `README.md`, `CHANGELOG.md`. Legacy `docs/`, `doctrine/`, `workflow/` = **tombstoned** — never write `.md` there.
+Human-authored markdown → [`markdown/`](markdown/README.md) subfolder by topic (`0dte/`, `research/`, `planning/`, `doctrine/`, `specs/`, `audits/`, `infra/`). Operational state stays in `automation/`. Root anchors only: `CLAUDE.md`, `README.md`, `CHANGELOG.md`. Legacy `docs/`, `doctrine/`, `workflow/` = **tombstoned** — never write `.md` there.
 
 ---
 
@@ -121,8 +115,6 @@ All human-authored markdown → [`markdown/`](markdown/README.md) subfolder matc
 | 24/7 every 5 min | Gamma_KitchenDaemonKeepalive | Keeps kitchen_daemon.py alive; daemon polls cook-queue.jsonl |
 | Hourly :20 | Gamma_KitchenSeeder | Generates 5 fresh cook tasks via Nemotron free tier |
 | Every 2h :45 | Gamma_KitchenReviewer | Triages cook outputs → PROMOTE/VALIDATE/DUPLICATE/LOW_QUALITY |
-
-**Self-healing:** `_shared.ps1#Repair-StateFiles` validates state JSONs before/after each invocation, restores from `automation/state/.lastgood/`.
 
 ---
 
@@ -144,15 +136,7 @@ All human-authored markdown → [`markdown/`](markdown/README.md) subfolder matc
 
 ## What "journaling everything" means here
 
-- **Daily log** (`journal/YYYY-MM-DD.md`): bias, key levels, every trade considered (taken or skipped), EOD reflection.
-- **Trade log** (`journal/trades.csv`): 41 columns including counterfactuals + archetype + tape-assistance.
-- **Mistakes file** (`journal/mistakes.md`): every rule break. Read every Monday before open.
-- **Decisions ledger** (`automation/state/decisions.jsonl`): per-tick decision log, EOD-graded.
-- **Hypothesis grades** (`automation/state/hypothesis-grades.jsonl`): per-prediction grade, weekly-aggregated.
-- **Rule-breaks ledger** (`automation/state/rule-breaks.jsonl`): cost-tagged, setup-clustered.
-- **Weekly review** (`analysis/YYYY-Www.md`): every Sunday. Win rate, avg R, expectancy, biggest win/loss.
-
-If it's not in the journal, it didn't happen.
+See [`markdown/0dte/journaling-guide.md`](markdown/0dte/journaling-guide.md) — daily log, trade log, mistakes file, decisions ledger, hypothesis grades, rule-breaks ledger, weekly review. If it's not in the journal, it didn't happen.
 
 ---
 
@@ -170,9 +154,7 @@ If it's not in the journal, it didn't happen.
 
 ## Trading System Workflow
 
-- Always verify chart data is live (not cached) before drawing trendlines or levels.
-- After any backtest change, compare results across ALL historical days before declaring improvement — a fix that helps one day may regress others (e.g., 5/04, 4/29).
-- Never delete `.next`, build artifacts, or kill processes without confirming no dev server is running on the target port.
+See [`markdown/0dte/TRADING-SYSTEM-OPS.md`](markdown/0dte/TRADING-SYSTEM-OPS.md) — chart data freshness, backtest cross-day validation, dev server safety.
 
 ---
 
@@ -180,7 +162,7 @@ If it's not in the journal, it didn't happen.
 
 > General protocol: `~/.claude/rules/common/debugging.md`. Rules: name root cause before fixing; stop repeating failing actions; quote the evidence; one hypothesis → one change → one test.
 
-- **THIS RIG KILLS ITS OWN PROCESSES.** Silent process death — clean stderr, **no Windows Event Log entry**, recurring ~3–5 min cadence — is an *external kill*, NOT a crash. Suspect #1: [`setup/scripts/_shared.ps1`](setup/scripts/_shared.ps1)`#Stop-StaleClaudeProcesses` (fires every 3 min, reaps `python.exe` older than 5 min unless in `$EXEMPT_DAEMONS`). Grep repo + OS for process killers before assuming a crash. (2026-06-25 scar: 12h "silent grind crashes" were the reaper — exempting `backtest\.venv`/`mass_grind` was the fix; long grinds run as ONE 6–8-worker Scheduled Task — 3 concurrent processes deadlock on OPRA cache.)
+- **THIS RIG KILLS ITS OWN PROCESSES.** Silent process death — clean stderr, **no Windows Event Log entry**, recurring ~3–5 min cadence — is an *external kill*, NOT a crash. Suspect #1: [`setup/scripts/_shared.ps1`](setup/scripts/_shared.ps1)`#Stop-StaleClaudeProcesses` (fires every 3 min, reaps `python.exe` older than 5 min unless in `$EXEMPT_DAEMONS`). Grep repo + OS for process killers before assuming a crash. Long grinds run as ONE 6–8-worker Scheduled Task (3 concurrent deadlock on OPRA cache); backtest venv must be in `$EXEMPT_DAEMONS`.
 
 ---
 
@@ -201,15 +183,13 @@ If a script needs Alpaca keys at runtime, load from `.mcp.json` (see `setup/scri
 
 ## PowerShell Compatibility
 
-- Target PowerShell 5.1 syntax — no em-dashes, no PS 7+ only features — in all scripts and one-liners.
-- Before running any resilience/cleanup script, dry-run trace every process it would kill and every file it would delete. Confirm none belong to the active Claude session, dev server (port 3000), or build artifacts (`.next`, `node_modules`).
+See [`markdown/infra/POWERSHELL-COMPAT.md`](markdown/infra/POWERSHELL-COMPAT.md) — PS 5.1 syntax rules + dry-run safety protocol for cleanup scripts.
 
 ---
 
 ## UI/Frontend Work
 
-- When J provides a reference image/screenshot, USE IT as the background or direct asset — do not rebuild from scratch procedurally.
-- Do not resize based on screenshots alone; screenshots can misrepresent actual browser rendering. Confirm with J before resize-only changes.
+See [`markdown/doctrine/FRONTEND-OPS.md`](markdown/doctrine/FRONTEND-OPS.md) — use reference images directly; don't resize from screenshots alone.
 
 ---
 
@@ -248,9 +228,9 @@ These are non-negotiable, second only to the 10 rules above.
 
     **Sim accuracy gate:** verify sim's strike picker matches production (OTM/ITM via `strike_offset`) before any ratification — BS-sim-ignored-strike-offset incident invalidated an entire weekend of research.
 
-    **Setup scope lock:** BEARISH_REJECTION_RIDE_THE_RIBBON only until J proves otherwise. BULLISH_RECLAIM stays DRAFT until J has 3 live wins on it.
+    **Setup scope = BOTH directions (UNLOCKED 2026-06-28 by J's direct order "we need bull strats wired in").** Direction is NOT a scope — *validation* is the scope. Both BEARISH_REJECTION_RIDE_THE_RIBBON and BULLISH_RECLAIM_RIDE_THE_RIBBON are ACTIVE, validated setups. `enable_bullish=True` by default (orchestrator v12 + heartbeat_core); the engine scores + executes ENTER_BULL through the identical path as ENTER_BEAR. Bull is net-positive on real OPRA fills (chef-bull-scope-ab 2026-06-26: +$5,586 / 56% WR / Sharpe 0.046→0.156 over 25 trades, current engine). Each direction's per-block filters (block_elite_bull confluence+level_reclaim combo [0,25), VIX<17.2 bull block, elite-bull VIX 15-18, block_bull_1100_1200) stay ON — they are individually A/B-validated to remove *losing* cohorts, not to suppress the direction. Guard: `test_enable_bullish_live_true` + `test_enter_bull_in_placement_path` red on regression. **Live-money arming of EITHER direction still needs J (OP-0 #1); paper/shadow does not.**
 
-22. **Compound, don't accumulate.** "Always-on" = always-IMPROVING. Session measured by net improvement (shipped fix, promotion, closed loop) — not artifacts. "Good enough" is a valid terminal state. BANNED: SILENT stopping (no logged outcome) and blocked-on-J-with-no-stated-reason. Every append-only producer has a retention cap; hitting it triggers CONSOLIDATION (prune/dedupe/archive). **BOUNDED-task priority:** (1) perfect current work/re-test, (2) known TODOs/caveats, (3) `markdown/planning/FUTURE-IMPROVEMENTS.md`, (4) audit staleness, (5) more replays/validations, (6) improve BACKTESTING-PLAYBOOK/LESSONS-LEARNED, (7) investigate underperformers.
+22. **Compound, don't accumulate.** "Always-on" = always-IMPROVING. Session measured by net improvement (shipped fix, promotion, closed loop) — not artifacts. "Good enough" is a valid terminal state. BANNED: SILENT stopping (no logged outcome) and blocked-on-J-with-no-stated-reason. Every append-only producer has a retention cap; hitting it triggers CONSOLIDATION (prune/dedupe/archive). **BOUNDED-task priority:** (1) perfect current work, (2) known TODOs, (3) `markdown/planning/FUTURE-IMPROVEMENTS.md`, (4) audit staleness, (5) replays/validations, (6) improve BACKTESTING-PLAYBOOK/LESSONS-LEARNED, (7) investigate underperformers.
 
     **Work-cadence windows:**
 
@@ -267,7 +247,7 @@ These are non-negotiable, second only to the 10 rules above.
 
     I COMPOUND (curate, prune, ratify), not accumulate. Any guard MUST fail open — no automated process may kill or block J's interactive Claude session (OP-32 scar: market-hours firewall locked J out 2026-05-22).
 
-    **Required:** (a) Empty queue → BRAINSTORM: read `markdown/planning/FUTURE-IMPROVEMENTS.md`, `LESSONS-LEARNED.md`, `journal/mistakes.md`, latest trades → ship 3+ candidate tasks. (b) Market event (FOMC/CPI/NFP/earnings/geopolitical) → write `automation/state/news.json`. (c) New foot-gun → encode prevention in CLAUDE.md or new automation script → fold L# into Lessons index below.
+    **Required:** (a) Empty queue → BRAINSTORM from `markdown/planning/FUTURE-IMPROVEMENTS.md` + `LESSONS-LEARNED.md` + `journal/mistakes.md` + latest trades → ship 3+ candidate tasks. (b) Market event → write `automation/state/news.json`. (c) New foot-gun → encode in CLAUDE.md or automation → fold L# into Lessons index.
 
     **Silent failure is the only true failure.** Every fire ships work OR a flagged failure to `STATUS.md ## Known broken`. J always wakes up to a SIGNAL.
 
@@ -307,12 +287,6 @@ These are non-negotiable, second only to the 10 rules above.
     | C30 | Unconstrained exit targets (runner never hits 5x in 0DTE) = dead knob; audit what % of exits actually hit the target before sweeping it | L148,176 |
     | C31 | J's 667 real trades: 1-2 lots +$4,576 / 3+ lots -$17,461 / scaled-in -$327/trade — the killer is sizing-UP/adding behavior (Rule 6 + Rule 4 + no-add-after-loss), not flat count per se; min-3-vs-J's-losing-band is an OPEN question for J (his 3+ sample is all scaled-in, no clean flat-3); risk_gate has no post-loss size throttle | L168 |
 
-    
-    <details><summary>Full chronological one-liner log (pre-consolidation)</summary>
-
-    Archived verbatim to [`markdown/doctrine/LESSONS-CHRONOLOGICAL-LOG.md`](markdown/doctrine/LESSONS-CHRONOLOGICAL-LOG.md) on 2026-06-17 (Tier 0 lean pass). The themed **Lessons index** table above is the canonical quick view; full prose is in [`markdown/doctrine/LESSONS-LEARNED.md`](markdown/doctrine/LESSONS-LEARNED.md).
-
-    </details>
 31. **The Kitchen — 24/7 autonomous free-tier R&D loop.** KitchenDaemonKeepalive (5 min) + KitchenSeeder (hourly :20) + KitchenReviewer (2h :45). Claude-when-awake = the driver: steer, promote, prune via `kitchen-status.json`. Daemon NEVER touches `heartbeat*.md` / `params*.json` / `CLAUDE.md`, NEVER places orders. Full spec: [`markdown/infra/KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md).
 ---
 

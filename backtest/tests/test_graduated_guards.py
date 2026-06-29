@@ -3278,3 +3278,50 @@ def test_swarm_roster_models_distinct_vendors() -> None:
     assert len(sc.DEFAULT_PERSPECTIVE_MODELS) == 3
     assert len(vendors) >= 3, f"Need >=3 distinct vendors for perspective diversity, got {vendors}"
     assert all(m.endswith(":free") for m in sc.DEFAULT_PERSPECTIVE_MODELS), "All perspectives must be free-tier"
+
+
+# ── Bull-wiring regression guards (2026-06-28: J unlocked both directions; swarm-confirmed) ──
+
+def test_enable_bullish_live_true() -> None:
+    """G-BULL-WIRE: the live deterministic engine MUST score bull every tick.
+
+    Regression guarded: if a future edit flips enable_bullish off, the engine
+    silently reverts to bear-only — exactly the drift J flagged 2026-06-28.
+    """
+    src = (REPO / "setup" / "scripts" / "heartbeat_core.py").read_text(encoding="utf-8")
+    assert '"enable_bullish": True' in src, (
+        "heartbeat_core must set enable_bullish=True so the engine scores bull. "
+        "Bull and bear are BOTH active setups (CLAUDE.md OP-16 — direction is not a scope)."
+    )
+
+
+def test_enter_bull_in_placement_path() -> None:
+    """G-BULL-WIRE: ENTER_BULL must travel the SAME placement path as ENTER_BEAR.
+
+    Guards against a bear-only exec gate sneaking in. The core dispatch tuple that
+    routes a verdict into _execute must contain BOTH verdicts.
+    """
+    src = (REPO / "setup" / "scripts" / "heartbeat_core.py").read_text(encoding="utf-8")
+    tree = ast.parse(src)
+    found = False
+    for node in ast.walk(tree):
+        # Look for: if v in ("ENTER_BEAR", "ENTER_BULL")
+        if isinstance(node, ast.Compare) and any(isinstance(op, ast.In) for op in node.ops):
+            for comp in node.comparators:
+                if isinstance(comp, (ast.Tuple, ast.List, ast.Set)):
+                    vals = {e.value for e in comp.elts if isinstance(e, ast.Constant)}
+                    if "ENTER_BEAR" in vals and "ENTER_BULL" in vals:
+                        found = True
+    assert found, (
+        "heartbeat_core placement dispatch must route ENTER_BULL through the same "
+        "`if v in (ENTER_BEAR, ENTER_BULL)` branch as bear — no bear-only exec gate."
+    )
+
+
+def test_orchestrator_enable_bullish_defaults_true() -> None:
+    """G-BULL-WIRE: run_backtest must default enable_bullish=True so backtests
+    and the live engine agree that bull is an active direction."""
+    import inspect
+    sig = inspect.signature(run_backtest)
+    default = sig.parameters["enable_bullish"].default
+    assert default is True, f"run_backtest enable_bullish must default True, got {default!r}"
