@@ -1,0 +1,131 @@
+{
+  "probe": "futures_range_fade",
+  "generated_et": "2026-06-28",
+  "question": "Does the SPY range-scalp vein (LEVEL_REJECT_LIVE mean-reversion fade) generalize to deep-data MES/MNQ futures, escaping the 25-day OPRA wall?",
+  "yardstick": "per_trade_expectancy + IS/OOS walk-forward + concentration + direction (L192, NOT edge_capture)",
+  "data_window": "2025-01-02..2026-06-12 (18 months, free cached 5m futures bars)",
+  "results": [
+    {
+      "instrument": "MES",
+      "setup": "LEVEL_REJECT_LIVE",
+      "summary": {
+        "n_trades": 379,
+        "wins": 238,
+        "losses": 141,
+        "win_rate": 0.628,
+        "expectancy_per_trade_usd": 5.48,
+        "total_pnl_usd": 2077.87,
+        "mean_trade_usd": 5.48,
+        "median_trade_usd": 16.28,
+        "worst_trade_usd": -1271.97,
+        "best_trade_usd": 721.28
+      },
+      "concentration": {
+        "n_active_days": 263,
+        "n_losing_days": 99,
+        "total_pnl_usd": 2077.87,
+        "top3_day_pct_of_net": 101.1,
+        "median_day_usd": 18.78,
+        "trimmed_day_mean_usd": 9.47,
+        "trimmed_day_total_usd": 2471.0
+      },
+      "significance": {
+        "n": 379,
+        "min_n": 10,
+        "sufficient": true,
+        "note": "n=379 >= 10: sample sufficient"
+      },
+      "walk_forward": {
+        "is_n": 265,
+        "is_expectancy": -4.93,
+        "is_total": -1306.05,
+        "is_positive": false,
+        "oos_n": 114,
+        "oos_expectancy": 29.68,
+        "oos_total": 3383.92,
+        "oos_positive": true,
+        "wf_pass": false,
+        "regime_flip": true
+      },
+      "direction": {
+        "by_direction": {
+          "short": {
+            "n": 210,
+            "net": -1230.95
+          },
+          "long": {
+            "n": 169,
+            "net": 3308.82
+          }
+        },
+        "both_sided": false
+      },
+      "base_verdict": "CLEAN",
+      "verdict": "WALK_FORWARD_FAIL_REGIME_FLIP"
+    },
+    {
+      "instrument": "MNQ",
+      "setup": "LEVEL_REJECT_LIVE",
+      "summary": {
+        "n_trades": 259,
+        "wins": 174,
+        "losses": 85,
+        "win_rate": 0.672,
+        "expectancy_per_trade_usd": 9.27,
+        "total_pnl_usd": 2401.72,
+        "mean_trade_usd": 9.27,
+        "median_trade_usd": 36.28,
+        "worst_trade_usd": -1958.52,
+        "best_trade_usd": 1889.28
+      },
+      "concentration": {
+        "n_active_days": 209,
+        "n_losing_days": 70,
+        "total_pnl_usd": 2401.72,
+        "top3_day_pct_of_net": 193.5,
+        "median_day_usd": 29.28,
+        "trimmed_day_mean_usd": 11.94,
+        "trimmed_day_total_usd": 2470.96
+      },
+      "significance": {
+        "n": 259,
+        "min_n": 10,
+        "sufficient": true,
+        "note": "n=259 >= 10: sample sufficient"
+      },
+      "walk_forward": {
+        "is_n": 178,
+        "is_expectancy": -8.6,
+        "is_total": -1530.96,
+        "is_positive": false,
+        "oos_n": 81,
+        "oos_expectancy": 48.55,
+        "oos_total": 3932.68,
+        "oos_positive": true,
+        "wf_pass": false,
+        "regime_flip": true
+      },
+      "direction": {
+        "by_direction": {
+          "short": {
+            "n": 155,
+            "net": -2491.1
+          },
+          "long": {
+            "n": 104,
+            "net": 4892.82
+          }
+        },
+        "both_sided": false
+      },
+      "base_verdict": "CONCENTRATED",
+      "verdict": "WALK_FORWARD_FAIL_REGIME_FLIP"
+    }
+  ],
+  "instruments_failing_generalization": [
+    "MES",
+    "MNQ"
+  ],
+  "conclusion": "RANGE_FADE_DOES_NOT_GENERALIZE",
+  "note": "The instrument rung's MOMENTUM fleet was already dry (2026-06-20 control). This probe tests the un-mined FADE cohort on deep data. The decisive read: both instruments are IS-NEGATIVE (edge only appears in 2026 OOS = regime-flip), concentrated, and long-direction-only -- moving to free deep data does NOT rescue the range-fade vein. The CLIMB ladder should advance past 'instrument' for this lens; the fade vein is dry at the honest large-N read."
+}
