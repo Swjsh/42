@@ -168,6 +168,112 @@ def concentration_flag(
     }
 
 
+# --- slippage robustness (self-audit gap #3, 2026-06-28T17:30:40) --------------
+# Both range-scalp probes reported net-of-slippage at only TWO fixed haircuts
+# (0.02 and 0.05 $/share half-spread). The gap: there was no automated SWEEP across
+# a range of slippage assumptions, and no single robustness number. The deployable
+# question is not "does it survive 0.05?" but "how MUCH slippage can it absorb before
+# the edge dies?" -- the breakeven half-spread. An edge whose breakeven sits below
+# realistic slippage is not deployable; a high breakeven is a robust edge (C4 / OP-20
+# disclosure: state the robustness margin, don't pick a single flattering haircut).
+#
+# Cost model (matches both committed probes EXACTLY): options quote in $/share, the
+# contract multiplier is 100, and a round trip pays the half-spread on BOTH entry and
+# exit -> per-trade $ haircut = 2 * half_spread * 100 * qty.
+SLIPPAGE_MULTIPLIER: float = 100.0  # standard options contract multiplier
+# A round-trip half-spread we treat as "realistic" for 0DTE SPY (the harsh-end
+# reference both probes already used). Breakeven >= this == survives realistic slippage.
+REALISTIC_SLIPPAGE_HALF_SPREAD: float = 0.05
+DEFAULT_SLIPPAGE_GRID: tuple[float, ...] = (0.0, 0.01, 0.02, 0.03, 0.05, 0.075, 0.10)
+
+
+def slippage_haircut_per_trade(half_spread: float, qty: float) -> float:
+    """Round-trip $ haircut for ONE trade of `qty` contracts at `half_spread` $/share
+    (charged on entry AND exit, x100 contract multiplier)."""
+    return round(2.0 * half_spread * SLIPPAGE_MULTIPLIER * qty, 2)
+
+
+def net_pnls_after_slippage(
+    rows: Sequence[Mapping], half_spread: float,
+    pnl_key: str = "dollar_pnl", qty_key: str = "qty",
+) -> list[float]:
+    """Per-trade $ PnLs after a round-trip half-spread haircut. `rows` is a sequence
+    of mappings each carrying a $ PnL (`pnl_key`) and a contract count (`qty_key`)."""
+    return [
+        round(r[pnl_key] - slippage_haircut_per_trade(half_spread, r[qty_key]), 2)
+        for r in rows
+    ]
+
+
+def breakeven_half_spread(
+    rows: Sequence[Mapping], pnl_key: str = "dollar_pnl", qty_key: str = "qty",
+) -> float | None:
+    """The half-spread $/share at which per-trade expectancy crosses to 0.
+
+    Since the haircut is LINEAR in the half-spread, this is exact:
+        expectancy_net(h) = mean(pnl) - 2*h*100*mean(qty)
+        => breakeven h* = mean(pnl) / (200 * mean(qty))
+    Returns None when there are no trades, mean(qty) <= 0, or the gross expectancy is
+    already <= 0 (no positive edge to erode -- the edge is DRY at zero slippage)."""
+    if not rows:
+        return None
+    pnls = [r[pnl_key] for r in rows]
+    mean_pnl = statistics.mean(pnls)
+    mean_qty = statistics.mean([r[qty_key] for r in rows])
+    if mean_qty <= 0 or mean_pnl <= 0:
+        return None
+    return round(mean_pnl / (2.0 * SLIPPAGE_MULTIPLIER * mean_qty), 4)
+
+
+def slippage_sweep(
+    rows: Sequence[Mapping],
+    grid: Sequence[float] = DEFAULT_SLIPPAGE_GRID,
+    pnl_key: str = "dollar_pnl", qty_key: str = "qty",
+    realistic: float = REALISTIC_SLIPPAGE_HALF_SPREAD,
+) -> dict:
+    """Self-audit gap #3: sweep per-trade expectancy across a RANGE of slippage
+    assumptions (not just 2 fixed haircuts) and report the BREAKEVEN half-spread.
+
+    Verdict (slippage robustness only -- significance/concentration are separate):
+        DRY_AT_ZERO          -- expectancy <= 0 even with no slippage (no edge)
+        FRAGILE_TO_SLIPPAGE  -- positive, but breakeven < `realistic` (dies too soon)
+        SURVIVES_REALISTIC   -- positive AND breakeven >= `realistic`
+    """
+    points = []
+    for h in grid:
+        net = net_pnls_after_slippage(rows, h, pnl_key, qty_key)
+        s = summarize_trades(net)
+        points.append({
+            "half_spread": h,
+            "expectancy_per_trade_usd": s["expectancy_per_trade_usd"],
+            "total_pnl_usd": s["total_pnl_usd"],
+            "win_rate": s["win_rate"],
+            "positive": s["expectancy_per_trade_usd"] > 0,
+        })
+    be = breakeven_half_spread(rows, pnl_key, qty_key)
+    gross_exp = summarize_trades([r[pnl_key] for r in rows])["expectancy_per_trade_usd"]
+    if gross_exp <= 0:
+        verdict = "DRY_AT_ZERO"
+    elif be is not None and be >= realistic:
+        verdict = "SURVIVES_REALISTIC"
+    else:
+        verdict = "FRAGILE_TO_SLIPPAGE"
+    return {
+        "n_trades": len(rows),
+        "gross_expectancy_per_trade_usd": gross_exp,
+        "breakeven_half_spread": be,
+        "realistic_half_spread": realistic,
+        "verdict": verdict,
+        "grid": points,
+        "note": (
+            f"edge breakeven at {be} $/share half-spread "
+            f"(realistic reference {realistic}); {verdict}"
+            if be is not None
+            else f"no positive edge to erode at zero slippage; {verdict}"
+        ),
+    }
+
+
 def base_verdict(
     n: int,
     expectancy_per_trade_usd: float,

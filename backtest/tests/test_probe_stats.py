@@ -24,13 +24,18 @@ if str(_REPO / "backtest") not in sys.path:
 from autoresearch.probe_stats import (  # noqa: E402
     CONCENTRATION_TOP3_PCT_MAX,
     INCONCLUSIVE_MIN_N,
+    REALISTIC_SLIPPAGE_HALF_SPREAD,
     base_verdict,
+    breakeven_half_spread,
     concentration_flag,
     day_concentration,
     edge_capture_gate_misapplied,
+    net_pnls_after_slippage,
     recommended_yardstick,
     requires_directional_anchor,
     significance,
+    slippage_haircut_per_trade,
+    slippage_sweep,
     summarize_trades,
 )
 
@@ -160,6 +165,75 @@ def test_gate_sweep_finding_locked():
     for v in d["variants"]:
         if v["significance"]["sufficient"]:
             assert v["summary_net_0.05"]["expectancy_per_trade_usd"] < 0
+
+
+# --- slippage sweep (self-audit gap #3): breakeven robustness -----------------
+# Both range-scalp probes reported net-of-slippage at only 2 fixed haircuts. The
+# canonical helper sweeps a RANGE and reports the breakeven half-spread. These pin
+# that it reproduces the committed probe's published net numbers EXACTLY (so adopting
+# it can't silently change a result) AND that the breakeven math is correct.
+
+def test_slippage_haircut_matches_probe_cost_model():
+    # round-trip half-spread x100 multiplier x qty, the exact model both probes use
+    assert slippage_haircut_per_trade(0.05, 3) == 30.0   # 2 * 0.05 * 100 * 3
+    assert slippage_haircut_per_trade(0.02, 10) == 40.0  # 2 * 0.02 * 100 * 10
+    assert slippage_haircut_per_trade(0.0, 5) == 0.0
+
+
+def test_slippage_sweep_reproduces_gated_net_0_05():
+    """GOLDEN: the helper's net@0.05 on the committed gated trades must reproduce the
+    probe's published half_spread_0.05 block EXACTLY (total $115.2, exp $14.4)."""
+    d = _load(_GATED)
+    kept = [r for r in d["trades"] if r["kept"]]
+    pub05 = d["gated_net_of_slippage"]["half_spread_0.05"]
+    net05 = net_pnls_after_slippage(kept, 0.05)
+    s = summarize_trades(net05)
+    assert s["total_pnl_usd"] == pub05["total_pnl_usd"] == 115.2
+    assert s["expectancy_per_trade_usd"] == pub05["expectancy_per_trade_usd"] == 14.4
+    # and the 0.02 haircut block too (both published points reproduced)
+    pub02 = d["gated_net_of_slippage"]["half_spread_0.02"]
+    s02 = summarize_trades(net_pnls_after_slippage(kept, 0.02))
+    assert s02["total_pnl_usd"] == pub02["total_pnl_usd"] == 259.2
+    assert s02["expectancy_per_trade_usd"] == pub02["expectancy_per_trade_usd"] == 32.4
+
+
+def test_breakeven_half_spread_is_exact():
+    """The gated edge (mean $44.4/trade on 3 contracts) breaks even at
+    44.4/(200*3) = 0.074 $/share half-spread -- above the 0.05 realistic reference,
+    so it SURVIVES realistic slippage (it's just n=8, separately inconclusive)."""
+    d = _load(_GATED)
+    kept = [r for r in d["trades"] if r["kept"]]
+    be = breakeven_half_spread(kept)
+    assert be == 0.074
+    sweep = slippage_sweep(kept)
+    assert sweep["breakeven_half_spread"] == 0.074
+    assert sweep["verdict"] == "SURVIVES_REALISTIC"   # 0.074 >= 0.05
+    # the swept grid must straddle breakeven: positive below it, negative above it
+    pts = {p["half_spread"]: p["positive"] for p in sweep["grid"]}
+    assert pts[0.05] is True       # below breakeven -> still positive
+    assert pts[0.10] is False      # above breakeven -> negative
+    assert REALISTIC_SLIPPAGE_HALF_SPREAD == 0.05
+
+
+def test_slippage_sweep_verdict_ladder():
+    # DRY_AT_ZERO: negative even with no slippage
+    dry = slippage_sweep([{"dollar_pnl": -10.0, "qty": 1}, {"dollar_pnl": -5.0, "qty": 1}])
+    assert dry["verdict"] == "DRY_AT_ZERO" and dry["breakeven_half_spread"] is None
+    # FRAGILE: positive but breakeven below 0.05 (tiny edge, big size)
+    #   mean_pnl=2.0, qty=10 -> breakeven = 2/(200*10) = 0.001 < 0.05
+    frag = slippage_sweep([{"dollar_pnl": 2.0, "qty": 10}, {"dollar_pnl": 2.0, "qty": 10}])
+    assert frag["verdict"] == "FRAGILE_TO_SLIPPAGE"
+    assert frag["breakeven_half_spread"] == 0.001
+    # SURVIVES: robust edge, breakeven well above 0.05
+    surv = slippage_sweep([{"dollar_pnl": 50.0, "qty": 1}, {"dollar_pnl": 30.0, "qty": 1}])
+    assert surv["verdict"] == "SURVIVES_REALISTIC"
+
+
+def test_slippage_sweep_empty_safe():
+    s = slippage_sweep([])
+    assert s["n_trades"] == 0
+    assert s["breakeven_half_spread"] is None
+    assert s["verdict"] == "DRY_AT_ZERO"
 
 
 # --- L192: strategy-class yardstick policy ------------------------------------
