@@ -1,3 +1,16 @@
+## [2026-06-29 ~17:55 ET] conductor: OK -- FIXED THE SELF-AUDIT ORGAN ITSELF (close-a-loop): the proactive gap-finder that feeds THIS conductor was emitting 100% noise -- the 06-29 batch's 12 "gaps" were all model reasoning-scaffold / template SECTION HEADERS, and 12 scaffold items from one early perspective crowded the REAL gaps out of the [:12] budget. Now a noise filter drops scaffold BEFORE the cap so genuine gaps survive. Commit 63fb9ea.
+
+> **Signal J wakes to (OP-25) -- fixed the self-improvement loop's own input, didn't add an artifact.** After-hours conductor fire, market CLOSED (Mon 17:55 ET; engine **GREEN** -- both heartbeats/beacon/watcher-feed/kill-switches GREEN, both accounts flat; gym overall YELLOW = only the intentional Bold v15.2 pin + benign empty-watcher, detector GREEN -> rail-clear for this non-detector infra). No `### BROKEN:` flags. **The freshest self-audit batch (2026-06-29T17:34:46) WAS the gap:** all 12 flagged "gaps" were pure scaffold ("Analyze the Request:", "Role:", "Task:", "Risk score", "Failure mode", "Rule 9") -> the gap-finder organ that surfaces Gamma's own gaps before J does was producing 100% noise = a C7 silent-success-is-failure in the self-improvement loop.
+> - **ROOT CAUSE (diagnosed, not guessed -- ran the live extractor on the committed fixtures):** `self_audit._extract_gaps` harvested EVERY bold/numbered bullet from the perspective bodies + synthesis indiscriminately, so the model's chain-of-thought headers + the pre-ship-check 7-section template names ("Failure mode", "Impact on J", "Risk score", "Key question") got captured as gaps. **The mechanism:** scaffold from perspective 0 filled the dedup list, and `ded[:12]` truncated -> the 4 REAL gaps in perspective 4 ("Filter 5/9 static thresholds", "Silent task duplication", "Intraday broker degradation blindness", "Anchor-day drift undetected") never made the cut. Verified empirically: pre-fix the 06-29 fixture extracted 12/12 scaffold, 0 real.
+> - **SHIPPED (engine-benefit infra, rail-4 CLEAR -- pure-Python extractor filter + guard; touches NO params/doctrine/orders/heartbeat/filters/CLAUDE, places NO order, arms NOTHING, NEVER trade-halts -> ships on green tests, no A/B):** `_is_real_gap()` in `setup/scripts/self_audit.py` rejects ONLY clear noise (trailing-colon markdown headers, commit-hash dashbolds, 1-2 word headers, known template section-names via a curated startswith stoplist with a multi-word-prefix matcher for normalizer-fused tokens like `pilot/heartbeat`->`pilotheartbeat`) and is applied BEFORE the `[:12]` cap so real gaps in later perspectives survive. **Conservative by design** -- rejects only unmistakable scaffold; when in doubt KEEP (flooding out every real gap is far costlier than one stray header). Re-run on the SAME 06-29 fixture now surfaces 12 GENUINE gaps; the 06-28/06-27 real-gap batches are byte-preserved.
+> - **GRADUATED TO A GUARD (OP-25, $0):** `backtest/tests/test_self_audit_extract.py` (41/41) -- the load-bearing `test_scaffold_does_not_crowd_out_real_gaps` reproduces the exact 06-29 bug (15 scaffold items in an early perspective must not starve 4 real gaps in a later one) + `test_bite_filter_actually_removes_scaffold` (pure-scaffold perspective -> ZERO gaps) + per-string scaffold/real parametrized assertions + the fused-token `pilotheartbeat` case + a skip-if-absent real-fixture lock. **Bite-verified non-vacuous:** neutering `_is_real_gap` -> both regression tests go RED (2/2).
+> - **LEARN (4.5):** no new L## -- "the self-audit ran exit-0 and produced 12 'gaps' but they were noise" IS the C7 silent-success-is-failure / audit-outputs-not-exit-codes class already in doctrine; the filter + bite guard is its encoding (loop closed > artifact added). The malformed 06-29 batch is marked DONE-noise in `new-gaps-flagged.md` so the next fire doesn't action scaffold.
+> - **VALIDATED ($0, verify-now-not-later):** diagnosed against 3 real committed fixtures (06-29/06-28/06-27); py_compile OK; guard 41/41 (0.06s) + bite 2/2; curated safety gate **31 + 5 suites PASS** (pre-commit re-ran green at 63fb9ea); verify-committed clean (all 3 files absent from porcelain).
+> - **NEXT FIRE picks up:** the self-audit organ now emits clean gaps -- the genuine 06-29 gaps it surfaces (intraday param-adaptation, silent-failure/liveness watchdog, intraday pre-open re-validation, risk circuit-breakers, post-trade attribution) overlap EXISTING tracked work (engine-health beacon / Rule5+risk_gate / Gamma_PreopenReadiness) so none needs new flagging. Standing direction stays GEX-calendar-gated (premium axis dead L182-184; instrument rung closed 04adc35; range-scalp data-blocked n=8; ~7 GEX days accrued of ~60-90 owed). The genuinely-unblocked needle-mover beyond GEX-accrual-wait remains the open BRAINSTORM target; next fire should generate a new vein OR drain a loop-closer. Self-audit #4 (dynamic regime-threshold, rail-4-adjacent) remains. J: proposals cd-2026-06-28-002 (CLAUDE-INDEX-FOLD) + cd-2026-06-27-001 (G7 EOD-flatten activate) await. Metric trend `improving` (net +18, 0 regressions, 18 drained, $3.50/drained).
+> - Files: `setup/scripts/self_audit.py` (+_is_real_gap/_SCAFFOLD_PREFIXES/_COMMIT_RE, filter in _extract_gaps), `backtest/tests/test_self_audit_extract.py` (new, 41/41), `analysis/self-audit/new-gaps-flagged.md` (06-29 batch DONE-noise) -- all 63fb9ea; `conductor-outcomes.jsonl`, this STATUS entry.
+
+---
+
 ## [2026-06-29 ~07:55 ET] conductor: OK -- FULLY CLOSED THE W26 PRE-OPEN LOOP (close-a-loop, time-sensitive, fires THIS morning): the 05:54 fire built the pre-open readiness verifier + guard + ran it GREEN, but **nothing scheduled it and it had no J-ping** -- a one-command tool, not an automated ritual. Now `Gamma_PreopenReadiness` fires 08:25 ET daily (NextRun = TODAY, before Premarket 08:30) and pings J once on a RED. Commit e385567.
 
 > **Signal J wakes to (OP-25) -- closed BOTH halves of last fire's loop; the W26 manual pre-Monday ritual is now fully automated AND runs this morning.** After-hours conductor fire, market CLOSED (Mon 07:55 ET, opens in ~1.5h; engine **GREEN** -- both heartbeats/beacon/watcher-feed/kill-switches GREEN, both accounts flat). task_scorer **#1 = WIRE-PREOPEN-READINESS-SCHEDULE** (score 6.5, engine-benefit + quick-win + ready-now) -- outranks PROMOTE-KEEPER (#2, dead premium axis L182-184). Self-audit gaps drained/rail-4-gated (only #4 dynamic-regime-threshold open = propose-only); all 4 author inboxes empty. Gym YELLOW but this is pure observability infra (no detector touch) -> rail-clear.
@@ -151,3 +164,112 @@
 
 ---
 
+
+- [2026-06-29 05:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.51% in last 24h (37/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) :: see crypto/data/scorecards/drift_report.json
+
+## Kitchen
+Kitchen: alive, queue 43 pending, last cook 0 min ago, today $0.00, model=?
+
+- [2026-06-29 06:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 73.47% in last 24h (36/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-29 06:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 71.43% in last 24h (35/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-29 07:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 69.39% in last 24h (34/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) | v02 source parity drift in 30.36% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+- [06-29 09:40 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5524min — hung bridge, force-restarting TV
+- [06-29 09:50 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5534min — hung bridge, force-restarting TV
+
+- [2026-06-29 07:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 67.35% in last 24h (33/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) | v02 source parity drift in 32.51% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+- [06-29 10:00 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5544min — hung bridge, force-restarting TV
+- [06-29 10:10 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5554min — hung bridge, force-restarting TV
+- [06-29 10:20 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5564min — hung bridge, force-restarting TV
+
+- [2026-06-29 08:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 65.31% in last 24h (32/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) | v02 source parity drift in 34.6% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+- [06-29 10:30 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5574min — hung bridge, force-restarting TV
+- [06-29 10:40 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5584min — hung bridge, force-restarting TV
+- [06-29 10:50 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5594min — hung bridge, force-restarting TV
+
+- [2026-06-29 08:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 63.27% in last 24h (31/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) | v02 source parity drift in 36.64% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+- [06-29 11:00 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5604min — hung bridge, force-restarting TV
+- [06-29 11:10 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5614min — hung bridge, force-restarting TV
+- [06-29 11:20 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5624min — hung bridge, force-restarting TV
+
+- [2026-06-29 09:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 61.22% in last 24h (30/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) | v02 source parity drift in 38.78% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+- [06-29 11:30 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5634min — hung bridge, force-restarting TV
+- [06-29 11:40 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5644min — hung bridge, force-restarting TV
+- [06-29 11:50 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5654min — hung bridge, force-restarting TV
+
+- [2026-06-29 09:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 59.18% in last 24h (29/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) | v02 source parity drift in 40.88% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+- [06-29 12:00 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5664min — hung bridge, force-restarting TV
+- [06-29 12:10 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5674min — hung bridge, force-restarting TV
+- [06-29 12:20 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5684min — hung bridge, force-restarting TV
+
+- [2026-06-29 10:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 57.14% in last 24h (28/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) | v02 source parity drift in 42.92% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+- [06-29 12:30 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5694min — hung bridge, force-restarting TV
+- [06-29 12:40 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5704min — hung bridge, force-restarting TV
+- [06-29 12:50 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5714min — hung bridge, force-restarting TV
+
+- [2026-06-29 10:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 57.14% in last 24h (28/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) | v02 source parity drift in 43.44% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+- [06-29 13:00 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5724min — hung bridge, force-restarting TV
+- [06-29 13:10 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5734min — hung bridge, force-restarting TV
+- [06-29 13:20 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5744min — hung bridge, force-restarting TV
+
+- [2026-06-29 11:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 55.1% in last 24h (27/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) | v02 source parity drift in 45.34% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+- [06-29 13:30 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5754min — hung bridge, force-restarting TV
+- [06-29 13:40 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5764min — hung bridge, force-restarting TV
+- [06-29 13:50 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5774min — hung bridge, force-restarting TV
+
+- [2026-06-29 11:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 53.06% in last 24h (26/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | v02 source parity drift in 47.45% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+- [06-29 14:00 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5784min — hung bridge, force-restarting TV
+- [06-29 14:10 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5794min — hung bridge, force-restarting TV
+- [06-29 14:20 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5804min — hung bridge, force-restarting TV
+
+- [2026-06-29 12:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 51.02% in last 24h (25/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 89.8% in last 24h (44/49) | v02 source parity drift in 49.56% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+- [06-29 14:30 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5814min — hung bridge, force-restarting TV
+- [06-29 14:40 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5824min — hung bridge, force-restarting TV
+- [06-29 14:50 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5834min — hung bridge, force-restarting TV
+
+- [2026-06-29 12:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 51.02% in last 24h (25/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 91.84% in last 24h (45/49) | v02 source parity drift in 49.71% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+- [06-29 15:00 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5844min — hung bridge, force-restarting TV
+- [06-29 15:10 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5854min — hung bridge, force-restarting TV
+- [06-29 15:20 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5864min — hung bridge, force-restarting TV
+
+- [2026-06-29 13:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 51.02% in last 24h (25/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 93.88% in last 24h (46/49) | v02 source parity drift in 49.78% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+- [06-29 15:30 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5874min — hung bridge, force-restarting TV
+- [06-29 15:40 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5884min — hung bridge, force-restarting TV
+- [06-29 15:50 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5894min — hung bridge, force-restarting TV
+
+- [2026-06-29 13:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 51.02% in last 24h (25/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 49.78% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-06-29T20:00:13+00:00
+- task: eod-summary
+- date_et: 2026-06-29
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-06-29 14:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 48.98% in last 24h (24/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 51.6% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-06-29T20:45:21+00:00
+- task: analyst
+- date_et: 2026-06-29
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-06-29 14:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 46.94% in last 24h (23/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 53.72% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-29 21:00:02] gym-session (2026-06-29) → **YELLOW** :: see `automation\state\gym-scorecard-2026-06-29.json`[2026-06-29 17:10] Gamma_WatcherGrader FAILED exit=1 shotgun_exit=0 � check C:\Users\jackw\Desktop\42\automation\state\logs\watcher-grader-2026-06-29.log
+
+- [2026-06-29 15:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 44.9% in last 24h (22/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 55.77% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-06-29T21:30:27+00:00
+- task: manager
+- date_et: 2026-06-29
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-06-29 15:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 44.9% in last 24h (22/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 55.98% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
