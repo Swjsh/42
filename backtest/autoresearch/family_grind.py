@@ -14,7 +14,13 @@ PIPELINE (per family, edgehunt-style 2-phase + null):
   PHASE 3 (funnel)  : P2 qpf>=.60 -> P3 qpf>=.75 + live-realizable + n>=20 + top5<200 ->
                       P4 random-entry NULL with the cell's MATCHING exit bracket. Each
                       P3 survivor -> mass-grind-{family}-funnel.jsonl with its verdict.
-  CONSOLIDATE       : collapse P4 elites to distinct strike|stop setups, rank by
+  PHASE 5 (dir-null): for a DIRECTIONAL/high-firing family (C27 firing rate >80% of days),
+                      a PASS-P4 cell must ALSO beat the DIRECTION-CONTROLLED null (random
+                      bars, side = the bar's OWN direction = momentum-aware random entry).
+                      Survives both -> PASS-P5 (true selection alpha); collapses -> PASS-P4-
+                      DIR-ARTIFACT (direction-following, NOT an elite). L188 graduation: the
+                      stock null shuffles side, so a directional family beats it trivially.
+  CONSOLIDATE       : collapse PASS-P4/PASS-P5 elites to distinct strike|stop setups, rank by
                       edge_over_null x qpf -> elite-consolidation-{family}.json.
 
 PASS LADDER vs the ribbon grind (the one deliberate deviation, documented): the ribbon
@@ -31,6 +37,7 @@ from __future__ import annotations
 import datetime as dt
 import functools
 import json
+import random
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -46,7 +53,8 @@ for _p in (str(_REPO), str(_ROOT)):
         sys.path.insert(0, _p)
 
 from lib.simulator_real import simulate_trade_real            # noqa: E402 — real OPRA fills (C1)
-from autoresearch.null_baseline import random_entry_null, null_gate  # noqa: E402 — C3/L58/L171
+from autoresearch.null_baseline import (  # noqa: E402 — C3/L58/L171/L188
+    random_entry_null, null_gate, _eligible_indices, _swing_invalidation)
 from autoresearch.mass_grind import qty_realizability         # noqa: E402 — L180 cap frontier
 from autoresearch.strategy_space_grind import edge_capture_block  # noqa: E402 — OP-16 (disclosure only)
 from autoresearch import family_detectors as fdet             # noqa: E402
@@ -78,6 +86,9 @@ QPF_P3 = 0.75
 LIVE_KEY = "safe2000_q3"          # the minimum live order at the $2K Safe account
 ADMIT_FLOOR = 0.50
 N_NULL_SEEDS = 10
+# ── P5 DIRECTION-CONTROLLED null (L188) ───────────────────────────────────────
+N_DIR_NULL_SEEDS = 20
+DIR_NULL_FIRING_RATE_FLAG = 0.80   # C27: a family firing on >80% of trading days measures direction, not selection
 
 
 def _q(d: dt.date) -> str:
@@ -215,6 +226,88 @@ def _run_null(rth, fills, so: int, stop: float, tp1, tq, trail, window) -> dict:
     }
 
 
+# ── P5: DIRECTION-CONTROLLED null (L188) ──────────────────────────────────────
+# The PHASE-3 null (random_entry_null) shuffles the SIDE, so any DIRECTIONAL family beats
+# it just by being directionally correct — it does NOT isolate selection alpha. For a
+# high-firing/directional family the decisive test is a DIRECTION-CONTROLLED null: random
+# bars, but side = the bar's OWN direction (a momentum-aware random entry). If the family's
+# edge collapses vs this null, the "edge" is direction-following, not selection.
+
+def firing_rate(rth: pd.DataFrame, signals: list) -> float:
+    """Fraction of distinct RTH trading days on which the family fires >=1 signal (C27).
+    A high rate is the smell that a family measures direction-following, not selection."""
+    if not signals:
+        return 0.0
+    sig_days = {rth.iloc[int(s["bar_idx"])]["date"] for s in signals}
+    all_days = set(rth["date"].unique())
+    return (len(sig_days) / len(all_days)) if all_days else 0.0
+
+
+def is_directional_family(rth: pd.DataFrame, signals: list) -> bool:
+    """L188: flag a family for the P5 direction-controlled null when it fires on
+    >DIR_NULL_FIRING_RATE_FLAG of trading days (the C27 high-firing-rate smell)."""
+    return firing_rate(rth, signals) > DIR_NULL_FIRING_RATE_FLAG
+
+
+def dir_null_survives(signal_exp: float, drop_top5: float, dir_null: dict) -> bool:
+    """L188 STRICT gate: a directional family must beat the direction-controlled null's
+    MAX on per-trade expectancy AND beat its MEAN on drop-top5 (concentration-robust).
+    Fail-CLOSED: an uncomputable null can never certify the edge."""
+    nmax, nmean = dir_null.get("null_max"), dir_null.get("null_mean")
+    if nmax is None or nmean is None:
+        return False
+    return signal_exp > nmax and drop_top5 > nmean
+
+
+def p5_verdict(p4_verdict: str, family_directional: bool, dir_null: Optional[dict]) -> str:
+    """Pure verdict mapping (unit-testable): the P5 dir-null gate only acts on a cell that
+    already cleared the stock null (PASS-P4) for a directional family. PASS-P5 = survives
+    both nulls (true selection alpha); PASS-P4-DIR-ARTIFACT = direction-following artifact.
+    Non-directional families are untouched (byte-identical to pre-P5 behavior)."""
+    if p4_verdict != "PASS-P4" or not family_directional or dir_null is None:
+        return p4_verdict
+    return "PASS-P5" if dir_null.get("dir_null_pass") else "PASS-P4-DIR-ARTIFACT"
+
+
+def _dir_null(rth, fills, so: int, stop: float, tp1, tq, trail, window,
+              drop_top5: float, seeds: int = N_DIR_NULL_SEEDS) -> dict:
+    """Direction-controlled null (L188): random eligible bars, side = the random bar's OWN
+    direction (call if up-bar, put if down-bar) = a momentum-aware random entry. Causal swing
+    stop geometry matches the signal's (same _swing_invalidation as the stock null)."""
+    o = rth["open"].to_numpy(); c = rth["close"].to_numpy()
+    elig = [int(i) for i in _eligible_indices(rth, window)]
+    n_draw = min(len(fills), len(elig))
+    ek = _exit_kwargs(tp1, tq, trail)
+    per_seed: list[float] = []
+    for seed in range(seeds):
+        rng = random.Random(1000 + seed)
+        picks = rng.sample(elig, n_draw) if 0 < n_draw <= len(elig) else list(elig)
+        pnl, nn = 0.0, 0
+        for idx in picks:
+            side = "C" if c[idx] >= o[idx] else "P"     # momentum-aware: follow THIS bar
+            rej = _swing_invalidation(rth, idx, side, 12)
+            f = simulate_trade_real(
+                entry_bar_idx=idx, entry_bar=rth.iloc[idx], spy_df=rth, ribbon_df=None,
+                rejection_level=round(float(rej), 2), triggers_fired=["dir_null"], side=side,
+                qty=QTY, setup="DIR_NULL", premium_stop_pct=stop, strike_offset=so, **ek)
+            if f is None:
+                continue
+            pnl += float(f.dollar_pnl); nn += 1
+        per_seed.append(pnl / nn if nn else 0.0)
+    exp = (sum(float(f.dollar_pnl) for f in fills) / len(fills)) if fills else 0.0
+    dmean = float(np.mean(per_seed)) if per_seed else 0.0
+    dmax = float(max(per_seed)) if per_seed else 0.0
+    survives = dir_null_survives(round(exp, 2), round(drop_top5, 2),
+                                 {"null_max": round(dmax, 2), "null_mean": round(dmean, 2)})
+    return {
+        "dir_null_pass": bool(survives),
+        "per_trade": round(exp, 2), "drop_top5_per_trade": round(drop_top5, 2),
+        "null_mean": round(dmean, 2), "null_max": round(dmax, 2),
+        "edge_over_dir_null": round(exp - dmax, 2),
+        "seeds": seeds,
+    }
+
+
 def run_family(rth, family: str, signals: list, log=print) -> dict:
     """Full pipeline for one family. Writes progress + funnel + consolidation JSONLs."""
     prog = _RECO / f"mass-grind-{family}-progress.jsonl"
@@ -222,7 +315,9 @@ def run_family(rth, family: str, signals: list, log=print) -> dict:
     prog.write_text("", encoding="utf-8")     # fresh run
     funnel.write_text("", encoding="utf-8")
     window = fdet.FAMILY_WINDOW[family]
-    log(f"[{family}] {len(signals)} signals; PHASE 1 strike x stop ({len(STRIKES)*len(STOPS)} cells)")
+    family_directional = is_directional_family(rth, signals)   # L188 P5-gate flag (C27 firing rate)
+    log(f"[{family}] {len(signals)} signals; firing_rate={firing_rate(rth, signals):.2f} "
+        f"directional={family_directional}; PHASE 1 strike x stop ({len(STRIKES)*len(STOPS)} cells)")
 
     # ── PHASE 1: strike x stop, default exit ──────────────────────────────────
     p1: list[dict] = []
@@ -271,6 +366,7 @@ def run_family(rth, family: str, signals: list, log=print) -> dict:
     # ── PHASE 3: funnel (P2/P3) + null on best-exit P3 survivors ──────────────
     elites: list[dict] = []
     p3_survivors = 0
+    p5_dir_artifacts = 0
     for row in refined:
         m = row["metrics"]
         live = (row.get("qty_frontier") or {}).get(LIVE_KEY, {})
@@ -279,40 +375,53 @@ def run_family(rth, family: str, signals: list, log=print) -> dict:
         pass_p3 = (pass_p2 and (m.get("qpf") or 0) >= QPF_P3 and m.get("n", 0) >= BAR_N
                    and (m.get("top5_day_pct") or 1e9) < BAR_TOP5_PCT
                    and live_exp > 0 and live_admit >= ADMIT_FLOOR)
-        verdict, null = "PASS-P2" if pass_p2 else "STOP-P2", None
+        verdict, null, dir_null = "PASS-P2" if pass_p2 else "STOP-P2", None, None
         if pass_p3:
             p3_survivors += 1
             null = _run_null(rth, row["_fills"], row["strike_offset"], row["stop_pct"],
                              row["tp1"], row["tq"], row["trail"], window)
             verdict = "PASS-P4" if null["null_pass"] else "PASS-P3"
+            # ── P5 (L188): a directional family must ALSO beat the direction-controlled null
+            if verdict == "PASS-P4" and family_directional:
+                dir_null = _dir_null(rth, row["_fills"], row["strike_offset"], row["stop_pct"],
+                                     row["tp1"], row["tq"], row["trail"], window,
+                                     null["drop_top5_per_trade"])
+                verdict = p5_verdict("PASS-P4", family_directional, dir_null)
         elif pass_p2:
             verdict = "PASS-P2"
         out = {k: v for k, v in row.items() if k != "_fills"}
         out.update({"phase": 3, "verdict": verdict, "p3_pass": pass_p3,
                     "live_real_exp": round(live_exp, 2), "live_admit_pct": round(live_admit, 3),
-                    "null": null})
+                    "family_directional": family_directional, "null": null, "dir_null": dir_null})
         with open(funnel, "a", encoding="utf-8") as fh:
             fh.write(json.dumps(out, default=str) + "\n")
-        if verdict == "PASS-P4":
+        if verdict in ("PASS-P4", "PASS-P5"):
             elites.append(out)
+        elif verdict == "PASS-P4-DIR-ARTIFACT":
+            p5_dir_artifacts += 1
         log(f"[{family}] {row['cell']} tp{row['tp1']}/sell{int(row['tq']*100)}/"
             f"{'trail' if row['trail'] else 'fix'} -> {verdict}"
-            + (f" null[exp={null['per_trade']} vs max={null['null_max']}]" if null else ""))
+            + (f" null[exp={null['per_trade']} vs max={null['null_max']}]" if null else "")
+            + (f" dir_null[exp={dir_null['per_trade']} vs max={dir_null['null_max']}]" if dir_null else ""))
 
     summary = {
         "family": family, "generated": dt.datetime.now().isoformat(timespec="seconds"),
         "window": f"{START}..{END}", "n_signals": len(signals),
         "entry_window": [window[0].strftime("%H:%M"), window[1].strftime("%H:%M")],
+        "firing_rate": round(firing_rate(rth, signals), 3),
+        "family_directional": family_directional,
         "p1_candidate_cells": sum(1 for r in p1 if r["candidate_bar"]),
         "p1_oos_positive": len(oos_pos), "p3_survivors": p3_survivors,
-        "p4_elites": len(elites),
+        "p4_elites": len(elites), "p5_dir_artifacts": p5_dir_artifacts,
         "elites": sorted(elites, key=lambda e: -((e["null"]["edge_over_null"] or 0)
                                                   * (e["metrics"].get("qpf") or 0)))[:10],
         "authority": "real OPRA fills (C1); null=random-entry MATCHING-exit (C3/L58/L171); "
+                     "P5=direction-controlled null for directional families (L188); "
                      "gate=candidate-bar+null (edge_capture vacuous for non-J-anchor entries, disclosed)",
     }
     (_RECO / f"family-grind-{family}.json").write_text(
         json.dumps(summary, indent=2, default=str), encoding="utf-8")
     log(f"[{family}] DONE. P1-candidates={summary['p1_candidate_cells']} "
-        f"P3-survivors={p3_survivors} P4-elites={len(elites)}")
+        f"P3-survivors={p3_survivors} P4/P5-elites={len(elites)} "
+        f"P5-dir-artifacts={p5_dir_artifacts} (directional={family_directional})")
     return summary

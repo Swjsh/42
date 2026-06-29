@@ -3047,3 +3047,24 @@ def test_g14_ribbon_flip_fn_direction() -> None:
     assert ribbon_flip_fn("BULLISH")("SPY", "C") is False
     # anchor: 5/04 SPY 721P +$730 — ribbon stayed BEARISH → no premature exit
     assert ribbon_flip_fn("BEARISH")("SPY", "P") is False
+
+
+def test_l188_dir_null_p5_gate_wired_into_family_grind() -> None:
+    """L188 graduation: the DIRECTION-CONTROLLED null must remain wired into family_grind's
+    run_family as the P5 gate. The stock random-entry null shuffles the SIDE, so a directional
+    family beats it just by being directionally correct — only the dir-null isolates selection
+    alpha. A refactor that silently drops the gate REDs here.
+
+    Static (AST/source) so the guard stays cheap; behavioral coverage lives in
+    test_dir_null_p5_gate.py. Asserts the gate helpers exist AND are invoked inside run_family
+    (dead-code guard) AND the PASS-P4-DIR-ARTIFACT downgrade verdict still exists.
+    """
+    src = (BACKTEST / "autoresearch" / "family_grind.py").read_text(encoding="utf-8")
+    for name in ("def is_directional_family", "def dir_null_survives",
+                 "def p5_verdict", "def _dir_null"):
+        assert name in src, f"L188 P5-gate helper dropped: {name}"
+    rf = src[src.index("def run_family"):]
+    assert "is_directional_family(rth, signals)" in rf, "run_family no longer flags directional families"
+    assert "_dir_null(" in rf, "run_family no longer calls the direction-controlled null"
+    assert "p5_verdict(" in rf, "run_family no longer applies the P5 verdict"
+    assert "PASS-P4-DIR-ARTIFACT" in src, "the dir-artifact downgrade verdict was removed"
