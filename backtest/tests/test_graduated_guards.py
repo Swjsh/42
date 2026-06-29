@@ -3218,3 +3218,63 @@ def test_chain_next_stage_fn_skips_below_min_keepers() -> None:
         daemon._chain_next_stage("sniper_overnight_grinder", [{"ec": 1}, {"ec": 2}], "test")
 
     assert len(enqueued) == 0, f"Should not have chained with only 2 keepers (min=3), got {enqueued}"
+
+
+# ── Swarm roster rotation guards (fix 2026-06-28: stale-slug rot + no 429 fallback) ──
+
+def test_swarm_rotatable_error_classification() -> None:
+    """G-SWARM-ROT: 429/404/timeout are rotatable; auth/empty-prompt are not.
+
+    Root cause being guarded: the swarm collapsed to 1 perspective because a 429
+    on a primary model was treated as terminal. Transient errors MUST rotate.
+    """
+    sys.path.insert(0, str(REPO / "setup" / "scripts"))
+    import importlib
+    sc = importlib.import_module("swarm_consult")
+
+    assert sc._is_rotatable_error("RateLimitError: Error code: 429")
+    assert sc._is_rotatable_error("NotFoundError: Error code: 404 - unavailable for free")
+    assert sc._is_rotatable_error("Timeout waiting for response")
+    assert not sc._is_rotatable_error("auth-failed: key missing")
+    assert not sc._is_rotatable_error("empty_prompt")
+    assert not sc._is_rotatable_error(None)
+
+
+def test_swarm_perspective_rotates_on_429() -> None:
+    """G-SWARM-ROT: _call_one_perspective falls through to a fallback on 429
+    and returns an OK perspective from the fallback model (not a dead lane)."""
+    sys.path.insert(0, str(REPO / "setup" / "scripts"))
+    import importlib, unittest.mock as mock
+    sc = importlib.import_module("swarm_consult")
+
+    calls = []
+
+    def fake_call(*, prompt, model, system, max_tokens, temperature, timeout, task_id):
+        calls.append(model)
+        if model == "primary/dead:free":
+            return {"ok": False, "content": "", "error": "RateLimitError: 429",
+                    "input_tokens": 0, "output_tokens": 0, "cost_usd": 0.0, "elapsed_s": 0.1}
+        return {"ok": True, "content": "real answer", "error": None,
+                "input_tokens": 5, "output_tokens": 5, "cost_usd": 0.0, "elapsed_s": 0.2}
+
+    with mock.patch.object(sc, "call_minimax", side_effect=fake_call):
+        p = sc._call_one_perspective(
+            model="primary/dead:free", prompt="q", system="s",
+            max_tokens=50, task_id="t", fallbacks=("backup/live:free",),
+        )
+
+    assert p.ok, f"Should have rotated to a live fallback, got error={p.error}"
+    assert p.model == "backup/live:free", f"Perspective should report the model that answered, got {p.model}"
+    assert calls == ["primary/dead:free", "backup/live:free"], f"Should try primary then fallback, got {calls}"
+
+
+def test_swarm_roster_models_distinct_vendors() -> None:
+    """G-SWARM-ROT: the 3 default perspectives span >=3 distinct vendor prefixes
+    (diversity is the whole point of a swarm — 3 copies of one model is not a swarm)."""
+    sys.path.insert(0, str(REPO / "setup" / "scripts"))
+    import importlib
+    sc = importlib.import_module("swarm_consult")
+    vendors = {m.split("/")[0] for m in sc.DEFAULT_PERSPECTIVE_MODELS}
+    assert len(sc.DEFAULT_PERSPECTIVE_MODELS) == 3
+    assert len(vendors) >= 3, f"Need >=3 distinct vendors for perspective diversity, got {vendors}"
+    assert all(m.endswith(":free") for m in sc.DEFAULT_PERSPECTIVE_MODELS), "All perspectives must be free-tier"

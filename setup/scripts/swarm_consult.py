@@ -65,12 +65,28 @@ from run_minimax import call_minimax  # noqa: E402
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
 
-# Default fan-out: 3 independent free-tier perspectives.
+# Default fan-out: 3 independent free-tier perspectives, DIVERSE vendors.
+# LIVE-VERIFIED 2026-06-28 against OpenRouter /models catalog (--audit-roster).
+# Lesson: NEVER hand-pick slugs from memory — the free catalog rotates constantly
+# (de-tagging to paid). Probe the live catalog; that is the only source of truth.
 DEFAULT_PERSPECTIVE_MODELS: tuple[str, ...] = (
-    "nvidia/nemotron-3-super-120b-a12b:free",
-    "deepseek/deepseek-v4-flash:free",
-    "minimax/minimax-m2.5:free",
+    "nvidia/nemotron-3-super-120b-a12b:free",   # NVIDIA 120B — 1M ctx, strong reasoning
+    "openai/gpt-oss-120b:free",                  # OpenAI open 120B — distinct training lineage
+    "google/gemma-4-31b-it:free",                # Google 31B — 262K ctx, third vendor
 )
+# Rotation pool: when a primary 429s/404s, _call_one_perspective falls through to
+# the next live model so we still get 3 perspectives instead of 1. Ordered by
+# preference; all verified live 2026-06-28. 429 = transient (rotate), 404 = dead (skip).
+PERSPECTIVE_FALLBACK_POOL: tuple[str, ...] = (
+    "openai/gpt-oss-20b:free",                   # OpenAI 20B — fast
+    "qwen/qwen3-next-80b-a3b-instruct:free",     # Qwen 80B
+    "meta-llama/llama-3.3-70b-instruct:free",    # Meta 70B
+    "nousresearch/hermes-3-llama-3.1-405b:free", # Nous 405B
+    "qwen/qwen3-coder:free",                      # Qwen coder 1M ctx
+    "nvidia/nemotron-3-ultra-550b-a55b:free",    # NVIDIA 550B — heavy
+)
+# Errors worth rotating to a different model (transient capacity / de-tagged slug).
+_ROTATABLE_ERR_MARKERS = ("429", "RateLimit", "404", "NotFound", "unavailable", "Timeout", "timed out", "503", "502")
 DEFAULT_SYNTHESIZER_MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
 
 # Generous timeouts — free tier can be slow under load. Total worst case per call ~5min.
@@ -312,6 +328,13 @@ def _build_synthesis_prompt(
 # ────────────────────────────────────────────────────────────────────────────
 
 
+def _is_rotatable_error(err: Optional[str]) -> bool:
+    """True if the error is transient/capacity/de-tag — worth trying another model."""
+    if not err:
+        return False
+    return any(marker.lower() in err.lower() for marker in _ROTATABLE_ERR_MARKERS)
+
+
 def _call_one_perspective(
     *,
     model: str,
@@ -319,26 +342,68 @@ def _call_one_perspective(
     system: str,
     max_tokens: int,
     task_id: str,
+    fallbacks: tuple[str, ...] = (),
+    claimed: Optional[set] = None,
+    claim_lock=None,
 ) -> Perspective:
-    """Single model call. Always returns a Perspective (never raises)."""
-    result = call_minimax(
-        prompt=prompt,
-        model=model,
-        system=system,
-        max_tokens=max_tokens,
-        temperature=0.4,
-        timeout=PERSPECTIVE_TIMEOUT_S,
-        task_id=task_id,
-    )
+    """Single perspective. Tries `model` first, then rotates through `fallbacks`
+    on transient errors (429/404/timeout) so the swarm still returns a full set
+    of perspectives instead of collapsing to 1.
+
+    `claimed` + `claim_lock` (optional) keep parallel lanes on DISTINCT models so
+    3 perspectives don't all land on the same fallback. Always returns a
+    Perspective (never raises).
+    """
+    def _claim(m: str) -> bool:
+        if claimed is None or claim_lock is None:
+            return True
+        with claim_lock:
+            if m in claimed:
+                return False
+            claimed.add(m)
+            return True
+
+    candidates = [model, *[m for m in fallbacks if m != model]]
+    last_err: Optional[str] = None
+    attempts: list[str] = []
+
+    for cand in candidates:
+        if not _claim(cand):
+            continue  # another lane owns this model — keep diversity
+        attempts.append(cand)
+        result = call_minimax(
+            prompt=prompt,
+            model=cand,
+            system=system,
+            max_tokens=max_tokens,
+            temperature=0.4,
+            timeout=PERSPECTIVE_TIMEOUT_S,
+            task_id=task_id,
+        )
+        ok = bool(result.get("ok")) and (result.get("content", "") or "").strip()
+        if ok:
+            return Perspective(
+                model=cand,
+                ok=True,
+                content=result.get("content", "") or "",
+                input_tokens=int(result.get("input_tokens", 0) or 0),
+                output_tokens=int(result.get("output_tokens", 0) or 0),
+                cost_usd=float(result.get("cost_usd", 0.0) or 0.0),
+                elapsed_s=float(result.get("elapsed_s", 0.0) or 0.0),
+                error=None,
+            )
+        last_err = result.get("error") or "empty_content"
+        # Release the claim on a dead/transient model so a later lane could retry it.
+        if claimed is not None and claim_lock is not None:
+            with claim_lock:
+                claimed.discard(cand)
+        if not _is_rotatable_error(last_err):
+            break  # hard error (bad prompt, auth) — rotating won't help
+
     return Perspective(
-        model=model,
-        ok=bool(result.get("ok")),
-        content=result.get("content", "") or "",
-        input_tokens=int(result.get("input_tokens", 0) or 0),
-        output_tokens=int(result.get("output_tokens", 0) or 0),
-        cost_usd=float(result.get("cost_usd", 0.0) or 0.0),
-        elapsed_s=float(result.get("elapsed_s", 0.0) or 0.0),
-        error=result.get("error"),
+        model=model, ok=False, content="",
+        input_tokens=0, output_tokens=0, cost_usd=0.0, elapsed_s=0.0,
+        error=f"all_lanes_failed (tried {attempts}): {last_err}",
     )
 
 
@@ -378,7 +443,13 @@ def consult(
     )
 
     import time
+    import threading
     swarm_start = time.monotonic()
+
+    # Shared claim-set keeps the 3 lanes on DISTINCT models when they rotate
+    # through the shared fallback pool (preserves perspective diversity).
+    claimed: set = set()
+    claim_lock = threading.Lock()
 
     # Fan out in parallel
     with ThreadPoolExecutor(max_workers=len(models)) as pool:
@@ -390,6 +461,9 @@ def consult(
                 system=system,
                 max_tokens=max_tokens_per_perspective,
                 task_id=f"swarm.{mode}.{slug[:20]}.{i}",
+                fallbacks=PERSPECTIVE_FALLBACK_POOL,
+                claimed=claimed,
+                claim_lock=claim_lock,
             ): (i, m)
             for i, m in enumerate(models)
         }
@@ -558,11 +632,92 @@ def _write_outputs(result: SwarmResult) -> tuple[Path, Path]:
 
 
 # ────────────────────────────────────────────────────────────────────────────
+# Roster self-heal — query the LIVE OpenRouter catalog (the only source of truth)
+# ────────────────────────────────────────────────────────────────────────────
+
+
+def audit_roster(verify_calls: bool = True) -> dict:
+    """Probe OpenRouter's live /models catalog + (optionally) test each configured
+    perspective model with a tiny call. Returns a report dict and prints it.
+
+    This is the self-heal that prevents the "all models 404" rot: the free catalog
+    rotates constantly, so we re-derive truth from the API instead of trusting
+    hand-picked slugs. Run from a scheduled task or by hand after a swarm comes
+    back with <3 perspectives.
+    """
+    import urllib.request
+
+    try:
+        key = _load_api_key_for_audit()
+    except Exception as exc:  # noqa: BLE001
+        return {"ok": False, "error": f"key load failed: {exc}"}
+
+    req = urllib.request.Request(
+        "https://openrouter.ai/api/v1/models",
+        headers={"Authorization": f"Bearer {key}"},
+    )
+    try:
+        catalog = json.loads(urllib.request.urlopen(req, timeout=30).read())
+    except Exception as exc:  # noqa: BLE001
+        return {"ok": False, "error": f"catalog fetch failed: {exc}"}
+
+    free_ids = set()
+    for m in catalog.get("data", []):
+        pr = m.get("pricing", {})
+        try:
+            if float(pr.get("prompt", "1") or "1") == 0.0 and float(pr.get("completion", "1") or "1") == 0.0:
+                free_ids.add(m["id"])
+        except (TypeError, ValueError):
+            continue
+
+    configured = list(DEFAULT_PERSPECTIVE_MODELS) + list(PERSPECTIVE_FALLBACK_POOL)
+    report = {
+        "ok": True,
+        "checked_at_et": _et_now().isoformat(timespec="seconds"),
+        "free_catalog_count": len(free_ids),
+        "in_catalog": [m for m in configured if m in free_ids],
+        "DROPPED_FROM_FREE": [m for m in configured if m not in free_ids],
+        "live_call_ok": [],
+        "live_call_fail": [],
+    }
+
+    if verify_calls:
+        for m in DEFAULT_PERSPECTIVE_MODELS:
+            r = call_minimax("Reply with exactly: OK", model=m, max_tokens=10,
+                             timeout=30, task_id="roster_audit", temperature=0)
+            (report["live_call_ok"] if r.get("ok") else report["live_call_fail"]).append(
+                m if r.get("ok") else f"{m} :: {(r.get('error') or '')[:60]}"
+            )
+
+    print(json.dumps(report, indent=2))
+    if report["DROPPED_FROM_FREE"]:
+        print(
+            f"\n[audit-roster] WARNING: {len(report['DROPPED_FROM_FREE'])} configured model(s) "
+            f"no longer free. Replace them from this free catalog:",
+            file=sys.stderr,
+        )
+        for mid in sorted(free_ids):
+            print(f"  {mid}", file=sys.stderr)
+    return report
+
+
+def _load_api_key_for_audit() -> str:
+    """Reuse run_minimax's key resolution without importing private names."""
+    from run_minimax import _load_api_key  # noqa: PLC0415
+    return _load_api_key()
+
+
+# ────────────────────────────────────────────────────────────────────────────
 # CLI
 # ────────────────────────────────────────────────────────────────────────────
 
 
 def _main() -> int:
+    # Standalone self-heal command — bypasses the positional-mode parser.
+    if "--audit-roster" in sys.argv:
+        rep = audit_roster(verify_calls="--no-verify" not in sys.argv)
+        return 0 if rep.get("ok") and not rep.get("DROPPED_FROM_FREE") else 1
+
     parser = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
