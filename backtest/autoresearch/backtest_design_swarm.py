@@ -32,6 +32,15 @@ from typing import Optional
 
 import pandas as pd
 
+# Windows cp1252 console can't encode unicode (a swarm-generated design name with a U+2011
+# hyphen crashed a full run AFTER all backtests, BEFORE the save). Force utf-8 so a print
+# can never lose computed results.
+for _s in ("stdout", "stderr"):
+    try:
+        getattr(sys, _s).reconfigure(encoding="utf-8", errors="replace")
+    except Exception:  # noqa: BLE001
+        pass
+
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO)); sys.path.insert(0, str(REPO / "backtest")); sys.path.insert(0, str(REPO / "setup" / "scripts"))
 from backtest.lib.orchestrator import run_backtest, _params_to_kwargs  # noqa: E402
@@ -172,7 +181,7 @@ def swarm_propose_designs(hypothesis: str, base_disable: list, side: str, n: int
                 continue
             try:
                 out.append(Design(
-                    name=str(o.get("name", "swarm-design"))[:60],
+                    name=str(o.get("name", "swarm-design")).encode("ascii", "ignore").decode()[:60],
                     side=str(o.get("side", side)),
                     disable_filters=[int(x) for x in (o.get("disable_filters") or base_disable)],
                     stop_sweep=[float(x) for x in (o.get("stop_sweep") or [-0.20])],
