@@ -75,7 +75,7 @@ J's rules — Gamma enforces them, doesn't write them.
 | Account/chain/fills/orders (Gamma-Bold) | Alpaca MCP — `alpaca_aggressive` server | Same binary, key `PKQMQD2N…` (Risky-2) in project-root `.mcp.json`. Tools: `mcp__alpaca_aggressive__*`. REST fallback if MCP not connected. |
 | Host | Claude Code | Active |
 | Trade engine | `Gamma_SightBeacon` + `Gamma_HeartbeatCore` (Python) | Never-blind sight beacon (direct REST) + deterministic `heartbeat_core.py` (engine_cli score+gates + 2 free-model veto + risk_gate). LLM heartbeats RETIRED 2026-06-25. Arch: [`markdown/specs/ARCHITECTURE.md`](markdown/specs/ARCHITECTURE.md) §3.2. |
-| Heartbeat scheduler | Windows Task Scheduler (Python tasks; LLM `claude --print` heartbeats retired) | 63 registered (57 active + 6 disabled; reconciled 2026-06-28). Registry: [`automation/state/SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md) |
+| Heartbeat scheduler | Windows Task Scheduler (Python tasks; LLM `claude --print` heartbeats retired) | 64 registered (58 active + 6 disabled; reconciled 2026-06-28). Registry: [`automation/state/SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md) |
 | Nemotron shadow eval | `setup/scripts/shadow_model_eval.py` + `Gamma_ShadowEval` (16:05 ET) | $0. Scores decisions.jsonl daily. 27/27 DTs = 100%. Grad bar: ≥85% DT over ≥15 days. Scorecard: [`analysis/shadow-model/PROMOTION-SCORECARD.md`](analysis/shadow-model/PROMOTION-SCORECARD.md). |
 | Kitchen R&D loop | `setup/scripts/kitchen_daemon.py` + free-tier models | 24/7 autonomous. Spec: [`markdown/infra/KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md). |
 | Dashboard | Next.js 15 + React 19 + Canvas pixel-art | **DEPLOYED 2026-05-06.** localhost:3000. `dashboard/` |

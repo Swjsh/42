@@ -108,3 +108,6 @@ cockpit/assets/pixel/limezu/
 cockpit/assets/pixel/sources/
 
 cockpit/_devshot.png
+
+# engine-stress-swarm per-cell dumps (large; ledger+report are the tracked deliverables)
+analysis/stress-swarm/grid-*.json
