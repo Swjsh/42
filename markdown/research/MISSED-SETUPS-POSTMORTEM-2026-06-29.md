@@ -65,3 +65,21 @@ The free 5-model swarm adversarially reviewed the two detectors. **Consensus + m
 3. Only the **residual edge BEYOND the level fix** justifies building DUAL_REJECTION / DOUBLE_BOTTOM_ADJACENT — and each must still beat its null (the breakdown-bar-alone null for A; the random-green-reclaim-with-same-ribbon-exit null for B) and disclose the twin-wick / adjacent-W false-positive base rate.
 
 **THE next action (swarm-confirmed + queued to kitchen):** the level-fix-only redundancy backtest on 06-29 + the anchor tape. Build the candle detectors only for what it leaves on the table.
+
+
+---
+
+## REDUNDANCY BACKTEST RESULT (ran it — this CORRECTS the post-mortem)
+
+Re-ran 06-29 through run_backtest (which caches today session H/L, so 739.9/732 ARE in levels_active) with REAL VIX. Finding:
+
+**The PUT side is NOT a missing-detector problem.** With the level present, the existing `level_rejection` trigger FIRED at **bear_score 8** (+confluence at 10:00) on every rejection bar 09:45-10:05. The engine SAW the rejection. It HELD because of **two filters**:
+- **Filter 5 (ribbon must be BEAR-stacked)** — ribbon was BULL the entire window. A top/rejection forms WHILE the ribbon is still bull; it only flips bear AFTER the breakdown. So filter 5 structurally forbids entering on a rejection-at-top. **This is the mechanism behind "theorize before the move": the engine is forced to wait for ribbon confirmation that lags the rejection.**
+- **Filter 9 (breakdown bar required)** — the shooting-star rejection bars are not breakdown bars; only 09:55 was, and by then filter 5 still blocked.
+- Filter 8 (VIX) only blocked 1 bar with real VIX — mostly a flat-VIX test artifact, NOT a real blocker.
+
+**=> The DUAL_REJECTION candle detector is largely REDUNDANT (level_rejection already fires at bear 8). The REAL lever is a controlled relaxation of filter 5 / filter 9 for a HIGH-CONFIDENCE rejection-at-mapped-resistance (bear>=8 + confluence + level_rejection + shooting-star/volume structure).**
+
+**DANGER (why this is gated, not shipped):** filter 5 (ribbon-must-be-bear) is one of the most load-bearing filters — it blocks counter-trend losers (shorting into an uptrend is mostly a loser). Relaxing it lets in counter-trend trades. 06-29 is N=1 survivorship. The swarm's exact warning applies: how many twin-rejections-at-resistance-while-ribbon-bull RIP HIGHER instead? This MUST beat the null with the false-positive base rate disclosed, on real OPRA fills, OOS-stable, anchor-no-regression, before any arming.
+
+**Revised next task:** an A/B on relaxing filter 5/9 for the strong-rejection-at-resistance case (NOT a new candle detector). The candle-structure (shooting-star + volume) becomes the QUALITY GATE that makes the counter-trend relaxation safe — that is where it earns its place, if at all.
