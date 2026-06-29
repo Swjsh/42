@@ -147,3 +147,75 @@ def test_fetchers_fail_open(monkeypatch):
     # A scheduler/broker failure must degrade to {}, never raise (rail-2 fail-open).
     monkeypatch.setattr(por.subprocess, "run", lambda *a, **k: (_ for _ in ()).throw(OSError("boom")))
     assert por.fetch_task_states() == {}
+
+
+# ---- transition-only J-ping (the WIRE-PREOPEN-READINESS-SCHEDULE addition) ----
+
+def _red_report():
+    """A report carrying one critical RED check (a transition source)."""
+    states = _all_ready()
+    del states["Gamma_HeartbeatCore"]
+    return por.build_report("t", states, _good_acct())
+
+
+def test_build_report_has_red_checks_key():
+    # red_checks is the idempotency key the alerter reads -- it must always exist.
+    rep = por.build_report("t", _all_ready(), _good_acct())
+    assert rep["red_checks"] == []
+    rep2 = _red_report()
+    assert "Gamma_HeartbeatCore" in rep2["red_checks"]
+
+
+def test_alert_fires_on_new_red(tmp_path, monkeypatch):
+    outbox = tmp_path / "discord-outbox.jsonl"
+    monkeypatch.setattr(por, "OUTBOX", outbox)
+    rep = _red_report()
+    assert por.maybe_alert(rep, prior_reds=set(), queued_at_utc="2026-06-29T12:25:00Z") is True
+    lines = outbox.read_text(encoding="utf-8").strip().splitlines()
+    assert len(lines) == 1
+    import json as _j
+    row = _j.loads(lines[0])
+    assert "Gamma_HeartbeatCore" in row["content"]
+    assert row["content"].startswith(por.J_MENTION)
+    assert row["queued_at"] == "2026-06-29T12:25:00Z"
+
+
+def test_alert_idempotent_on_same_red(tmp_path, monkeypatch):
+    # Same red carried over from the prior run -> NO re-ping (alert-fatigue guard).
+    outbox = tmp_path / "discord-outbox.jsonl"
+    monkeypatch.setattr(por, "OUTBOX", outbox)
+    rep = _red_report()
+    assert por.maybe_alert(rep, prior_reds={"Gamma_HeartbeatCore"}, queued_at_utc="t") is False
+    assert not outbox.exists()
+
+
+def test_alert_silent_on_green(tmp_path, monkeypatch):
+    outbox = tmp_path / "discord-outbox.jsonl"
+    monkeypatch.setattr(por, "OUTBOX", outbox)
+    rep = por.build_report("t", _all_ready(), _good_acct())
+    assert por.maybe_alert(rep, prior_reds=set(), queued_at_utc="t") is False
+    assert not outbox.exists()
+
+
+def test_alert_bite_neutering_prior_reds_would_double_ping(tmp_path, monkeypatch):
+    # Non-vacuous: prove the idempotency key actually bites. With the SAME prior reds
+    # the alert is suppressed; flip prior to empty and the identical report DOES ping.
+    outbox = tmp_path / "discord-outbox.jsonl"
+    monkeypatch.setattr(por, "OUTBOX", outbox)
+    rep = _red_report()
+    assert por.maybe_alert(rep, prior_reds={"Gamma_HeartbeatCore"}, queued_at_utc="t") is False
+    assert por.maybe_alert(rep, prior_reds=set(), queued_at_utc="t") is True
+
+
+def test_alert_fail_open_on_outbox_error(monkeypatch):
+    # An un-writable outbox must NOT raise (rail-2): notify-only can never crash the verifier.
+    def _boom(*a, **k):
+        raise OSError("disk full")
+    monkeypatch.setattr(por.Path, "open", _boom)
+    rep = _red_report()
+    assert por.maybe_alert(rep, prior_reds=set(), queued_at_utc="t") is False
+
+
+def test_prior_reds_fail_open_on_missing_file(tmp_path, monkeypatch):
+    monkeypatch.setattr(por, "OUT_PATH", tmp_path / "does-not-exist.json")
+    assert por._prior_reds() == set()

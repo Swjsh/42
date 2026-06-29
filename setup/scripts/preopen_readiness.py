@@ -29,12 +29,17 @@ import json
 import subprocess
 import sys
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 FLEET_DIR = REPO_ROOT / "automation" / "state" / "fleet"
 OUT_PATH = REPO_ROOT / "automation" / "state" / "preopen-readiness.json"
+# Reuse the EXISTING Discord outbox + mention convention (engine_health.py pattern,
+# L17/L36 reuse-don't-rebuild). NO new path.
+OUTBOX = REPO_ROOT / "automation" / "state" / "discord-outbox.jsonl"
+J_MENTION = "<@207983230618435584> "
 
 # --- The canonical LIVE trading chain (reconciled to the deterministic engine,
 #     NOT the retired LLM heartbeats). `critical` => a missing/dead one REDs the
@@ -202,9 +207,60 @@ def build_report(et_iso: str, task_states: dict, snapshots: dict) -> dict:
             for c in checks
         ],
         "reds": [c.name for c in checks if c.status == "RED"],
+        # `red_checks` is the idempotency key for the transition-only alert (same as
+        # `reds` here -- check names are already canonical). Kept distinct for parity
+        # with engine_health.py's outbox convention.
+        "red_checks": [c.name for c in checks if c.status == "RED"],
         "note": "read-only/notify-only; verifies the LIVE chain (HeartbeatCore + SightBeacon"
                 " + EodFlatten) + broker auth. NEVER trade-halts.",
     }
+
+
+# ----------------------------- transition-only J-ping (rail-2 fail-open) -----------------------------
+
+def _prior_reds() -> set:
+    """Prior set-of-red-check-names from the last written report (the idempotency key
+    for the transition alert). Fail-open -> empty set on any read error."""
+    try:
+        data = json.loads(OUT_PATH.read_text(encoding="utf-8"))
+        return set(data.get("red_checks") or [])
+    except Exception:
+        return set()
+
+
+def maybe_alert(report: dict, prior_reds: set, queued_at_utc: str) -> bool:
+    """Append ONE SOUL-voice line to the EXISTING Discord outbox on a *transition into
+    RED* -- a RED check that was NOT red on the previous run. Idempotent (keyed on the
+    SET of red check-names) so it pings ONCE per transition and never re-spams while the
+    same red persists (avoids the alert-fatigue foot-gun). FAIL-OPEN (rail-2): any error
+    returns False and never raises -- a notify-only observer can never crash the pre-open
+    window nor block J.
+
+    NOTE the conservative direction: we alert on a NEWLY-red check regardless of whether
+    the fused verdict is RED (critical) or YELLOW (non-critical degraded) -- a broker that
+    can't authenticate at open is worth one ping even if a non-critical task carried it to
+    YELLOW. But we do NOT ping on GREEN, and never on a red that already pinged."""
+    now_reds = set(report.get("red_checks") or [])
+    new_reds = now_reds - prior_reds
+    if not new_reds:
+        return False
+    triggered = sorted(new_reds)
+    head = triggered[0]
+    extra = f" (+{len(triggered) - 1} more)" if len(triggered) > 1 else ""
+    content = (
+        f"{J_MENTION}\U0001f534 Pre-open NOT READY: {head}{extra}. "
+        "Live chain / broker auth failed before open. Verify before 09:30 ET."
+    )
+    if len(content) > 1900:
+        content = content[:1880] + "...[truncated]"
+    row = {"queued_at": queued_at_utc, "content": content}
+    try:
+        with OUTBOX.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
+        return True
+    except Exception as e:  # noqa: BLE001 -- never let alerting crash the verifier
+        print(f"[preopen_readiness] outbox append failed: {e}", file=sys.stderr)
+        return False
 
 
 def main() -> int:
@@ -215,10 +271,14 @@ def main() -> int:
         et_iso = et_now().strftime("%Y-%m-%d %H:%M:%S")
     except Exception:
         et_iso = "unknown"
+    utc_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     try:
+        prior_reds = _prior_reds()  # read BEFORE we overwrite OUT_PATH
         report = build_report(et_iso, fetch_task_states(), fetch_broker_snapshots())
+        report["alerted"] = maybe_alert(report, prior_reds, utc_iso)
         OUT_PATH.write_text(json.dumps(report, indent=2), encoding="utf-8")
-        print(f"PRE-OPEN READINESS [{et_iso}] -> {report['verdict']}")
+        print(f"PRE-OPEN READINESS [{et_iso}] -> {report['verdict']}"
+              + (" (J PINGED)" if report["alerted"] else ""))
         for c in report["checks"]:
             flag = "*" if c["critical"] else " "
             print(f"  {flag} {c['status']:6} {c['name']:32} {c['detail']}")

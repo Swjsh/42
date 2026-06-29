@@ -1,5 +1,5 @@
 {
-  "checked_at_et": "2026-06-29 05:53:53",
+  "checked_at_et": "2026-06-29 07:53:13",
   "verdict": "GREEN",
   "checks": [
     {
@@ -82,5 +82,7 @@
     }
   ],
   "reds": [],
-  "note": "read-only/notify-only; verifies the LIVE chain (HeartbeatCore + SightBeacon + EodFlatten) + broker auth. NEVER trade-halts."
+  "red_checks": [],
+  "note": "read-only/notify-only; verifies the LIVE chain (HeartbeatCore + SightBeacon + EodFlatten) + broker auth. NEVER trade-halts.",
+  "alerted": false
 }
