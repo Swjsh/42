@@ -79,9 +79,56 @@ def _known_gap_keys() -> set[str]:
     return keys
 
 
+# --- Noise filter (2026-06-29) ----------------------------------------------
+# The bold/numbered-bullet harvest also catches the MODEL'S OWN reasoning scaffold
+# and the pre-ship-check / prompt-skeleton SECTION HEADERS (the model echoes the
+# template back as bold lead-ins). On 2026-06-29 a whole batch of 12 "gaps" was
+# pure scaffold ("Analyze the Request:", "Role:", "Task:", "Risk score",
+# "Failure mode", ...) which crowded the REAL gaps (in a later perspective) out of
+# the [:12] budget -> the self-audit organ flagged 100% noise. Reject scaffold so
+# genuine gaps survive. Conservative by design: reject only CLEAR noise; when in
+# doubt KEEP (the downstream conductor applies its own judgment, and flooding out
+# every real gap is far costlier than one stray header surviving).
+_SCAFFOLD_PREFIXES = (
+    "rule 9", "rule 10", "failure mode", "most likely failure mode",
+    "impact on j", "impact on pilot", "worstcase impact", "worst case impact",
+    "secondorder effects", "second order effects", "hidden secondorder effects",
+    "hidden second order effects", "risk score", "key question",
+    "single mostimportant question", "single most important question",
+    "op 32", "op32", "op violations", "trade missed", "wrong direction", "overfit",
+    "analyze the", "identify gaps", "refine and rank", "drafting the response",
+    "specific output format", "final polish", "impact on pilotheartbeat",
+    "first a ranked", "then for the", "produce the seven",
+)
+_COMMIT_RE = re.compile(r"^[0-9a-f]{7,8}(?:/[0-9a-f]{6,8})*$")
+
+
+def _is_real_gap(text: str) -> bool:
+    """True if `text` reads like an actionable gap, not model scaffold / a header.
+
+    Rejects (clear noise only): markdown section headers (trailing ':'),
+    commit-hash dashbolds, one/two-word headers, and known prompt/template
+    section-names echoed back as bold lead-ins. Everything substantive is kept.
+    """
+    t = (text or "").strip()
+    if not t or t.endswith(":"):            # markdown section header
+        return False
+    if _COMMIT_RE.match(t.replace(" ", "")):  # commit-hash dashbold
+        return False
+    n = _norm(t)
+    if len(n.split()) < 3:                   # 'Overfit' / 'Risk score' / 'Trade missed'
+        return False
+    for p in _SCAFFOLD_PREFIXES:
+        # multi-word scaffold prefixes match as a true prefix (handles tokens the
+        # normalizer fuses, e.g. "pilot/heartbeat" -> "pilotheartbeat"); single-word
+        # prefixes require an exact/word-boundary match to avoid over-rejecting.
+        if n == p or n.startswith(p + " ") or (" " in p and n.startswith(p)):
+            return False
+    return True
+
+
 def _extract_gaps(consult_json: dict) -> list[str]:
     """Pull the ranked gap bullets out of the swarm synthesis + perspectives."""
-    text = json.dumps(consult_json)
     # The synthesis + perspective markdown carries numbered/bulleted gaps; grab bold lead-ins
     # and numbered items from the raw perspective text.
     out = []
@@ -95,9 +142,12 @@ def _extract_gaps(consult_json: dict) -> list[str]:
     sbody = synth.get("content") if isinstance(synth, dict) else str(synth)
     for m in re.findall(r"(?m)^\s*[-*]\s+(.+)$", sbody or ""):
         out.append(m.strip()[:120])
-    # dedupe preserving order
+    # filter scaffold/headers, then dedupe preserving order (filter BEFORE the [:12]
+    # cap so real gaps in later perspectives aren't crowded out by early scaffold)
     seen, ded = set(), []
     for g in out:
+        if not _is_real_gap(g):
+            continue
         k = _norm(g)
         if k and k not in seen:
             seen.add(k); ded.append(g)

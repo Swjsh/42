@@ -60,3 +60,21 @@
 
 <!-- DONE 2026-06-28T17:52 conductor (commit probe_stats) :: ACTIONED gaps #1 (no automated statistical-significance check, n<10) + #2 (no canonical concentration metric/alert, top3-day %). Root: range_scalp_probe + range_scalp_regime_gated_probe each HAND-ROLLED n<10 + top3>150% inline with already-divergent verdict vocabulary (C14 divergent-knob class). FIX: extracted the canonical single-source helper backtest/autoresearch/probe_stats.py (summarize_trades / day_concentration / significance / concentration_flag / base_verdict). GRADUATED to a golden-file guard backtest/tests/test_probe_stats.py (8/8) that proves the helper reproduces BOTH committed probes' published numbers EXACTLY (n=8 INCONCLUSIVE/117.2%, n=30 CONCENTRATED/223.9%) so adoption cannot silently change a result + the two thresholds can never drift apart again. Curated safety gate 31+5 PASS. REMAINING (named next, NOT done this fire): #3 slippage-sweep helper (probe currently uses 2 fixed haircuts), #4 dynamic regime-threshold re-estimation (rail-4-adjacent — touches gate logic), #5 auto-ingest the directional-anchor lesson to veto edge_capture-gated proposals (a chef/promote_keeper guard). The next range-scalp data-widening slice should IMPORT probe_stats instead of re-deriving (compound). -->
 
+
+<!-- DONE 2026-06-28T21:55 conductor (commit 99f1a3c) :: ACTIONED 17:30:40-batch gap #3 (slippage analysis limited to 2 fixed haircuts; no sweep across a range). Root: range_scalp_regime_gated + gate_sweep probes each reported net-of-slippage at only 0.02 + 0.05 with no sweep and no single robustness number. FIX (COMPOUND into the canonical probe_stats module, not a new file): slippage_haircut_per_trade / net_pnls_after_slippage / breakeven_half_spread / slippage_sweep. breakeven = mean_pnl/(200*mean_qty) (exact, linear in half-spread) + verdict ladder DRY_AT_ZERO / FRAGILE_TO_SLIPPAGE / SURVIVES_REALISTIC. GRADUATED to golden guard: helper reproduces the committed gated probe's net@0.05 (115.2/14.4) + net@0.02 (259.2/32.4) EXACTLY; range-scalp gated edge breakeven 0.074 >= 0.05 -> SURVIVES_REALISTIC (separately n=8 inconclusive). +5 tests (19/19), curated gate 31+5 PASS. REMAINING: #4 dynamic regime-threshold re-estimation (rail-4-adjacent, touches gate logic — a heavier design fire); #5 directional-anchor auto-ingest already CLOSED 20:06 (L192 in probe_stats). -->
+
+## 2026-06-29T17:34:46 -- 12 new gap(s) Gamma self-identified
+- Analyze the Request:
+- Analyze the Context (Recent Commits):
+- Identify Gaps (Brainstorming based on Principles & Context):
+- Refine and Rank the Gaps:
+- Drafting the Response (Iterative refinement for tone):
+- Final Polish:
+- Formatting:
+- Role:
+- Task:
+- Context:
+- Constraints:
+- Specific Output Format:
+
+<!-- DONE 2026-06-29T17:55 conductor :: This batch is 100% NOISE, not real gaps -- all 12 are model reasoning-scaffold / prompt-template SECTION HEADERS that the bold/bullet harvest in self_audit._extract_gaps grabbed indiscriminately, and 12 scaffold items from one early perspective crowded the REAL gaps (in perspective 4: "Filter 5/9 static thresholds", "Silent task duplication", "Intraday broker degradation blindness", "Anchor-day drift undetected") out of the [:12] budget. ROOT-CAUSE FIXED (commit below): added _is_real_gap() noise filter to self_audit.py (rejects trailing-colon headers, commit-hash dashbolds, one/two-word headers, and known template section-names; filters BEFORE the [:12] cap so real gaps in later perspectives survive). Graduated to guard backtest/tests/test_self_audit_extract.py (41/41, bite-tested non-vacuous). Re-running the extractor on this same fixture now surfaces 12 GENUINE gaps (intraday param-adaptation, silent-failure/liveness watchdog, intraday pre-open re-validation, risk circuit-breakers, post-trade attribution + the 4 perspective-4 gaps). These do NOT need re-flagging here -- they overlap existing tracked work (intraday liveness=engine-health beacon; circuit-breakers=Rule5+risk_gate; pre-open re-validation=Gamma_PreopenReadiness) or are LOW hygiene; this DONE marker records the batch as resolved noise so the next fire doesn't action scaffold. -->
