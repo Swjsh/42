@@ -112,3 +112,35 @@ null on its own — but the aggregate sitting exactly at the null is a strong pr
 The CALL side (double-bottom-at-mapped-support) is a separate, still-open question — its
 existing trigger path (level_reclaim, ribbon already bullish so filter-5-equivalent passes)
 was not the same coin flip and is worth its own triage.
+
+---
+
+## CALL-SIDE TRIAGE RESULT (ran it too) — weak edge, washes out, also not the trade
+
+Slid the production `double_bottom_detector` over the same ~1yr (n=318 confirmed
+neckline reclaims), measured forward direction:
+
+| set | n | up% +60min | mean +60min | up% +to-EOD | mean +to-EOD |
+|---|---|---|---|---|---|
+| double-bottom reclaim | 318 | **56%** | +0.028% | 53% | +0.039% |
+| null (all bars) | 16113 | 53% | +0.003% | 55% | +0.017% |
+| null (GREEN bars, +to-EOD) | 8111 | — | — | 55% | +0.016% |
+
+**Findings:** (1) a WEAK ~60-min edge — 56% up vs 53% null, mean +0.028% vs +0.003%
+(~10x the drift but still only ≈$0.21 on SPY). (2) **The "ride the ribbon all afternoon"
+thesis is NOT supported** — by EOD the double-bottom (53% up) is no better than a random
+green bar (55%). 06-29's all-day ride was again survivorship. (3) The adjacent-bar patch
+made ZERO difference (identical n=318) — the blind spot is real but empirically irrelevant.
+
+**Conclusion:** the 60-min lift is real but marginal and almost certainly too small to beat
+0DTE call theta/spread (a $0.21 move in 60min won't move an OTM call enough). Low-priority:
+only a real-OPRA-fills test of the 60-min-exit variant could confirm, but the prior is it's
+theta-eaten. The all-day-ride framing is dead.
+
+## NET OF THE ENTIRE 06-29 MISSION
+- ✅ **Intraday level feed** — a genuine bug, genuinely fixed (the ONLY real shippable win).
+- ❌ DUAL_REJECTION candle detector — redundant (level_rejection already fires at bear 8).
+- ❌ Filter-5 relaxation — coin flip (48% vs 47% null). Filter 5 correctly blocks it.
+- ⚠️ Double-bottom calls — weak 60-min lift that washes out by EOD; likely theta-eaten.
+- **Both setups J flagged are mirages in aggregate. The engine's HOLD on both was correct
+  process, not a bug.** N=1 winners drawn from coin-flip / wash populations. Process > outcome.
