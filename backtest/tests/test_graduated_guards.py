@@ -3268,16 +3268,46 @@ def test_swarm_perspective_rotates_on_429() -> None:
     assert calls == ["primary/dead:free", "backup/live:free"], f"Should try primary then fallback, got {calls}"
 
 
+def _swarm_vendor(spec: str) -> str:
+    """Family root of a perspective spec: 'cerebras:zai-glm-4.7'->'zai-glm',
+    'nvidia/nemotron-..:free'->'nvidia', 'openai/gpt-oss-120b:free'->'openai'."""
+    body = spec.split(":", 1)[1] if spec.split(":", 1)[0] in ("cerebras", "groq", "openrouter") else spec
+    if "/" in body:
+        return body.split("/")[0]
+    # provider-hosted bare model (e.g. zai-glm-4.7) — take the family token
+    return "-".join(body.split("-")[:2])
+
+
 def test_swarm_roster_models_distinct_vendors() -> None:
-    """G-SWARM-ROT: the 3 default perspectives span >=3 distinct vendor prefixes
-    (diversity is the whole point of a swarm — 3 copies of one model is not a swarm)."""
+    """G-SWARM-ROT: the 5 default perspectives span >=4 distinct vendor families
+    (diversity is the whole point of a swarm — copies of one model is not a swarm)."""
     sys.path.insert(0, str(REPO / "setup" / "scripts"))
     import importlib
     sc = importlib.import_module("swarm_consult")
-    vendors = {m.split("/")[0] for m in sc.DEFAULT_PERSPECTIVE_MODELS}
-    assert len(sc.DEFAULT_PERSPECTIVE_MODELS) == 3
-    assert len(vendors) >= 3, f"Need >=3 distinct vendors for perspective diversity, got {vendors}"
-    assert all(m.endswith(":free") for m in sc.DEFAULT_PERSPECTIVE_MODELS), "All perspectives must be free-tier"
+    models = sc.DEFAULT_PERSPECTIVE_MODELS
+    vendors = {_swarm_vendor(m) for m in models}
+    assert len(models) == 5, f"Expected 5 perspectives (J 2026-06-28), got {len(models)}"
+    assert len(vendors) >= 4, f"Need >=4 distinct vendor families for diversity, got {vendors}"
+    # Free-tier only: OpenRouter specs end :free; cerebras/groq specs are free-tier providers.
+    for m in models:
+        prov = sc._split_spec(m)[0]
+        assert prov in ("openrouter", "cerebras", "groq"), f"unknown provider in {m}"
+        if prov == "openrouter":
+            assert m.endswith(":free"), f"OpenRouter perspective must be :free, got {m}"
+
+
+def test_swarm_split_spec_routing() -> None:
+    """G-SWARM-MP: provider routing parses specs correctly. Bare slugs -> openrouter;
+    'cerebras:'/'groq:' prefixes -> that provider. Guards GLM (Cerebras) staying reachable."""
+    sys.path.insert(0, str(REPO / "setup" / "scripts"))
+    import importlib
+    sc = importlib.import_module("swarm_consult")
+    assert sc._split_spec("cerebras:zai-glm-4.7") == ("cerebras", "zai-glm-4.7")
+    assert sc._split_spec("groq:llama-3.3-70b-versatile") == ("groq", "llama-3.3-70b-versatile")
+    assert sc._split_spec("nvidia/nemotron-3-super-120b-a12b:free") == ("openrouter", "nvidia/nemotron-3-super-120b-a12b:free")
+    assert sc._split_spec("openai/gpt-oss-120b:free") == ("openrouter", "openai/gpt-oss-120b:free")
+    # GLM must be in the default roster (J explicitly asked for it)
+    assert any("glm" in m.lower() for m in sc.DEFAULT_PERSPECTIVE_MODELS), "GLM must be a default perspective"
 
 
 # ── Bull-wiring regression guards (2026-06-28: J unlocked both directions; swarm-confirmed) ──

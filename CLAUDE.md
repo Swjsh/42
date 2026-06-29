@@ -25,7 +25,7 @@ I am J's research partner, signal-finder, position-sizer, and journal-keeper for
 - **Hold time:** Minutes to hours. All flat by EOD.
 - **Decision support:** TradingView (chart, levels, indicators). Alpaca (account, chain, Greeks, fills).
 
-**Current rule version: v15.3** (Safe; ratified live 2026-06-01 · Bold on v15.2). **Chart-stop-primary** (2026-06-18): chart-level / ribbon-flip-back / chandelier profit-lock are the primary invalidation; premium stops are now −50% catastrophe caps both sides (was bear −20% / bull −8%). Per-tier strike selection (OTM-3 at $1K / OTM-2 at $2-10K / OTM-1 at $10-25K / ITM-2 at $25K+), chandelier trailing profit-lock (arms at +5% favor, trails 15% off HWM), 09:35 ET entry gate, tp1_qty_fraction 0.667, runner target 2.5×. **Source of truth:** [`automation/state/params.json`](automation/state/params.json). Rule mismatch = kill-switch event. Revert command (3 steps) documented in `markdown/0dte/V15-ACTIVATION-2026-05-13.md`. v14 backup: `automation/prompts/heartbeat-v14-prod-backup.md`.
+**Current rule version: v15.3** (Safe; ratified live 2026-06-01 · Bold on v15.2). **Chart-stop-primary** (2026-06-18): chart-level / ribbon-flip-back / chandelier profit-lock are the primary invalidation; premium stops are now −50% catastrophe caps both sides (was bear −20% / bull −8%). Per-tier strike selection (OTM-3 at $1K / OTM-2 at $2-10K / OTM-1 at $10-25K / ITM-2 at $25K+), chandelier trailing profit-lock (arms at +5% favor, trails 15% off HWM), 09:35 ET entry gate, tp1_qty_fraction 0.8 Safe / 0.667 Bold (Safe raised 2026-06-28, pk-2026-06-28-001), runner target 2.5×. **Source of truth:** [`automation/state/params.json`](automation/state/params.json). Rule mismatch = kill-switch event. Revert command (3 steps) documented in `markdown/0dte/V15-ACTIVATION-2026-05-13.md`. v14 backup: `automation/prompts/heartbeat-v14-prod-backup.md`.
 
 ---
 
@@ -52,8 +52,8 @@ J's rules — Gamma enforces them, doesn't write them.
 
 | Account | Alias | Account # | Equity | Style | Config |
 |---|---|---|---|---|---|
-| **Account 1** | Gamma-Safe-2 | `PA3S2PYAS2WQ` | $2,000 (replaced 2026-06-15, key PK7WRO5T…) | Conservative — OTM-2, 30% risk, +30% TP1, CONFIRMED setups only | `automation/state/params.json` |
-| **Account 2** | Gamma-Risky-2 | `PA33W2KUAT40` | ~$1,649 (as of 2026-06-21) | Aggressive — ITM-2, 50% risk, +75% TP1, ALL setups | `automation/state/aggressive/params.json` |
+| **Account 1** | Gamma-Safe-2 | `PA3S2PYAS2WQ` | $1,763 (as of 2026-06-26; opened $2,000 2026-06-15, key PK7WRO5T…) | Conservative — OTM-2, 30% risk, +30% TP1, CONFIRMED setups only | `automation/state/params.json` |
+| **Account 2** | Gamma-Risky-2 | `PA33W2KUAT40` | $1,633 (as of 2026-06-26) | Aggressive — ITM-2, 50% risk, +75% TP1, ALL setups | `automation/state/aggressive/params.json` |
 
 - **Goal:** Both accounts grow → $5K → $10K → $25K+. Dual-account experiment answers which risk profile compounds better at each tier.
 - **Live threshold (per account independently):** ≥ 20 trades, WR ≥ 45%, positive expectancy, ≤ 2 rule breaks.
@@ -75,7 +75,7 @@ J's rules — Gamma enforces them, doesn't write them.
 | Account/chain/fills/orders (Gamma-Bold) | Alpaca MCP — `alpaca_aggressive` server | Same binary, key `PKQMQD2N…` (Risky-2) in project-root `.mcp.json`. Tools: `mcp__alpaca_aggressive__*`. REST fallback if MCP not connected. |
 | Host | Claude Code | Active |
 | Trade engine | `Gamma_SightBeacon` + `Gamma_HeartbeatCore` (Python) | Never-blind sight beacon (direct REST) + deterministic `heartbeat_core.py` (engine_cli score+gates + 2 free-model veto + risk_gate). LLM heartbeats RETIRED 2026-06-25. Arch: [`markdown/specs/ARCHITECTURE.md`](markdown/specs/ARCHITECTURE.md) §3.2. |
-| Heartbeat scheduler | Windows Task Scheduler + `claude --print` | 44 registered. Registry: [`automation/state/SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md) |
+| Heartbeat scheduler | Windows Task Scheduler (Python tasks; LLM `claude --print` heartbeats retired) | 63 registered (57 active + 6 disabled; reconciled 2026-06-28). Registry: [`automation/state/SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md) |
 | Nemotron shadow eval | `setup/scripts/shadow_model_eval.py` + `Gamma_ShadowEval` (16:05 ET) | $0. Scores decisions.jsonl daily. 27/27 DTs = 100%. Grad bar: ≥85% DT over ≥15 days. Scorecard: [`analysis/shadow-model/PROMOTION-SCORECARD.md`](analysis/shadow-model/PROMOTION-SCORECARD.md). |
 | Kitchen R&D loop | `setup/scripts/kitchen_daemon.py` + free-tier models | 24/7 autonomous. Spec: [`markdown/infra/KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md). |
 | Dashboard | Next.js 15 + React 19 + Canvas pixel-art | **DEPLOYED 2026-05-06.** localhost:3000. `dashboard/` |
@@ -108,8 +108,7 @@ Human-authored markdown → [`markdown/`](markdown/README.md) subfolder by topic
 | 08:00 | Gamma_LaunchTV | TradingView up with CDP |
 | 08:05–16:00 /5min | Gamma_TvWatchdog | Keeps TV+CDP alive, relaunches on death, flags stale heartbeat — the "no TV = no trades" fix |
 | 08:30 | Gamma_Premarket | Level audit, bias, falsifiable hypothesis, levels drawn, journal seeded, rule-version pin check |
-| 09:30–15:55 | Gamma_Heartbeat | Up to 127 ticks every 3 min (HOT/BASE/COOL throttle), Safe account |
-| 09:30–15:55 | Gamma_Heartbeat_Aggressive | Same cadence, Bold account |
+| 09:30–15:55 | Gamma_HeartbeatCore | **THE live trading engine** — both accounts (Safe-2 + Bold-2), every 1 min. Deterministic Python: engine_cli score+gates + structure-veto + 2 free-model veto + risk_gate. Supersedes the disabled LLM heartbeats (`Gamma_Heartbeat`/`_Aggressive`, retired 2026-06-25, kept registered as rollback fallback). |
 | 15:55 | Gamma_EodFlatten | Closes any 0DTE Safe position not closed by 15:50 |
 | 15:55 | Gamma_EodFlatten_Aggressive | Closes any 0DTE Bold position not closed by 15:50 |
 | 24/7 every 5 min | Gamma_KitchenDaemonKeepalive | Keeps kitchen_daemon.py alive; daemon polls cook-queue.jsonl |
@@ -228,7 +227,7 @@ These are non-negotiable, second only to the 10 rules above.
 
     **Sim accuracy gate:** verify sim's strike picker matches production (OTM/ITM via `strike_offset`) before any ratification — BS-sim-ignored-strike-offset incident invalidated an entire weekend of research.
 
-    **Setup scope = BOTH directions (UNLOCKED 2026-06-28 by J's direct order "we need bull strats wired in").** Direction is NOT a scope — *validation* is the scope. Both BEARISH_REJECTION_RIDE_THE_RIBBON and BULLISH_RECLAIM_RIDE_THE_RIBBON are ACTIVE, validated setups. `enable_bullish=True` by default (orchestrator v12 + heartbeat_core); the engine scores + executes ENTER_BULL through the identical path as ENTER_BEAR. Bull is net-positive on real OPRA fills (chef-bull-scope-ab 2026-06-26: +$5,586 / 56% WR / Sharpe 0.046→0.156 over 25 trades, current engine). Each direction's per-block filters (block_elite_bull confluence+level_reclaim combo [0,25), VIX<17.2 bull block, elite-bull VIX 15-18, block_bull_1100_1200) stay ON — they are individually A/B-validated to remove *losing* cohorts, not to suppress the direction. Guard: `test_enable_bullish_live_true` + `test_enter_bull_in_placement_path` red on regression. **Live-money arming of EITHER direction still needs J (OP-0 #1); paper/shadow does not.**
+    **Setup scope = BOTH directions (UNLOCKED 2026-06-28 by J's direct order "we need bull strats wired in").** Direction is NOT a scope — *validation* is the scope. Both BEARISH_REJECTION_RIDE_THE_RIBBON and BULLISH_RECLAIM_RIDE_THE_RIBBON are ACTIVE, validated setups. `enable_bullish=True` by default (orchestrator v12 + heartbeat_core); the engine scores + executes ENTER_BULL through the identical path as ENTER_BEAR. Bull is net-positive on real OPRA fills (chef-bull-scope-ab 2026-06-26: +$5,586 / 56% WR / Sharpe 0.046→0.156 over 25 trades, current engine). Each direction's per-block filters stay ON — they are individually A/B-validated to remove *losing* cohorts, not to suppress the direction: block_bull_ribbon_flip (ribbon_flip reclaim bulls = n21 WR10% −$2,222 loser; non-ribbon_flip reclaim = n24 WR29% +$6,901 winner), block_elite_bull confluence+level_reclaim combo [0,25), VIX<17.2 bull block, elite-bull VIX 15-18, block_bull_1100_1200. The validated winner is specifically the NON-ribbon_flip BULLISH_RECLAIM cohort. Guard: `test_enable_bullish_live_true` + `test_enter_bull_in_placement_path` red on regression. **Live-money arming of EITHER direction still needs J (OP-0 #1); paper/shadow does not.**
 
 22. **Compound, don't accumulate.** "Always-on" = always-IMPROVING. Session measured by net improvement (shipped fix, promotion, closed loop) — not artifacts. "Good enough" is a valid terminal state. BANNED: SILENT stopping (no logged outcome) and blocked-on-J-with-no-stated-reason. Every append-only producer has a retention cap; hitting it triggers CONSOLIDATION (prune/dedupe/archive). **BOUNDED-task priority:** (1) perfect current work, (2) known TODOs, (3) `markdown/planning/FUTURE-IMPROVEMENTS.md`, (4) audit staleness, (5) replays/validations, (6) improve BACKTESTING-PLAYBOOK/LESSONS-LEARNED, (7) investigate underperformers.
 
@@ -251,14 +250,14 @@ These are non-negotiable, second only to the 10 rules above.
 
     **Silent failure is the only true failure.** Every fire ships work OR a flagged failure to `STATUS.md ## Known broken`. J always wakes up to a SIGNAL.
 
-    **Lessons index** (full prose + symptom/root-cause/fix in [markdown/doctrine/LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md) — through L180 as of 2026-06-21). Themed canonical set; when you hit a NEW anti-pattern, add prose to LESSONS-LEARNED.md and fold the L# into a row here. A lesson that gets re-violated is a missing guardrail — graduate it to a code assertion (see `backtest/tests/test_graduated_guards.py`).
+    **Lessons index** (full prose + symptom/root-cause/fix in [markdown/doctrine/LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md) — through L192 as of 2026-06-28). Themed canonical set; when you hit a NEW anti-pattern, add prose to LESSONS-LEARNED.md and fold the L# into a row here. A lesson that gets re-violated is a missing guardrail — graduate it to a code assertion (see `backtest/tests/test_graduated_guards.py`).
 
     | # | Theme | Lessons |
     |---|---|---|
-    | C1 | Real-fills is the only WR authority; BS-sim is ranking-only | L02,12,23,50,71,99,100,107,182,182 |
+    | C1 | Real-fills is the only WR authority; BS-sim is ranking-only | L02,12,23,50,71,99,100,107,182 |
     | C2 | First-strike entries: chart-stop only, premium-stop disabled | L51,55,64,171 |
-    | C3 | SPY-price edge != option edge (delta/theta/stop-misfire); a structural-gate pass that a random-entry null reproduces is an exit-structure artifact, not signal alpha -- beat the null MAX | L58,74,100,101,112,136,148,149,172,183,184,177,183,184,188 |
-    | C4 | Disclose concentration, normalize OOS, stratify by regime; use per-trade expectancy not WR standalone; a published cross-sectional anomaly != a per-trade option edge | L01,04,05,10,11,22,46,48,92,104,122,124,128,129,154,166,167,175,174,178 |
+    | C3 | SPY-price edge != option edge (delta/theta/stop-misfire); a structural-gate pass that a random-entry null reproduces is an exit-structure artifact, not signal alpha -- beat the null MAX | L58,74,100,101,112,136,148,149,172,177,183,184,188 |
+    | C4 | Disclose concentration, normalize OOS, stratify by regime; use per-trade expectancy not WR standalone; a published cross-sectional anomaly != a per-trade option edge | L01,04,05,10,11,22,46,48,92,104,122,124,128,129,154,166,167,174,175,178 |
     | C5 | VIX *character* > VIX level; as-of trigger time; high-score + 0-trade + declining-VIX = correct abstention; validate seasonality/time-gates against OUR per-hour P&L histogram, never folklore | L40,44,45,73,93,118,133,134,154,162,167 |
     | C6 | No look-ahead: filter <= current bar, verify bar closed, slice prior_bars; entry_time_et is naive ET (localize America/New_York, not UTC); verify causality AND OOS sign-stability before trusting an "inverse arm confirms it" cross-check | L14,34,57,61,94,161,165,166,191 |
     | C7 | Silent success is failure — audit outputs, not exit codes; verify new files git-tracked (--only drops untracked) | L19,26,28,32,39,53,62,67,79,80,82,83,84,85,86,87,90,91,92,96,97,98,105,106,117,155,160,161,164,169,170,173,179,181,185,186,187,189,190 |

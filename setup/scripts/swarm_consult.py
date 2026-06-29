@@ -65,21 +65,52 @@ from run_minimax import call_minimax  # noqa: E402
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
 
-# Default fan-out: 3 independent free-tier perspectives, DIVERSE vendors.
-# LIVE-VERIFIED 2026-06-28 against OpenRouter /models catalog (--audit-roster).
-# Lesson: NEVER hand-pick slugs from memory — the free catalog rotates constantly
-# (de-tagging to paid). Probe the live catalog; that is the only source of truth.
+# ────────────────────────────────────────────────────────────────────────────
+# Multi-provider routing — a perspective model is a "provider:model" spec.
+# Bare slugs (no prefix) default to OpenRouter (back-compat). Non-OpenRouter
+# providers (cerebras/groq) are called directly via the OpenAI-compatible SDK so
+# the swarm can pull GLM (Cerebras), etc. ALL providers here are NO-TRAIN (safe
+# for sensitive engine internals); Gemini/Mistral train on input and are excluded.
+# ────────────────────────────────────────────────────────────────────────────
+_PROVIDERS: dict[str, dict] = {
+    "openrouter": {"base_url": "https://openrouter.ai/api/v1",  "key_file": STATE_DIR / ".openrouter.key", "trains": False},
+    "cerebras":   {"base_url": "https://api.cerebras.ai/v1",     "key_file": STATE_DIR / ".cerebras.key",   "trains": False},
+    "groq":       {"base_url": "https://api.groq.com/openai/v1", "key_file": STATE_DIR / ".groq.key",       "trains": False},
+}
+
+
+def _split_spec(spec: str) -> tuple[str, str]:
+    """'cerebras:zai-glm-4.7' -> ('cerebras','zai-glm-4.7'); bare slug -> ('openrouter', slug).
+
+    OpenRouter slugs contain '/' (vendor/model) so the FIRST ':' only counts as a
+    provider prefix when the prefix is a known provider — avoids mis-splitting a
+    rare ':free' suffix or a slug with a colon.
+    """
+    if ":" in spec:
+        head = spec.split(":", 1)[0]
+        if head in _PROVIDERS:
+            return head, spec.split(":", 1)[1]
+    return "openrouter", spec
+
+
+# Default fan-out: 5 independent free perspectives across 4 distinct VENDORS + 2
+# providers (J 2026-06-28: "get 5 in the swarm" incl. GLM + DeepSeek). GLM via
+# Cerebras (free, no-train). DeepSeek is PAID on every reachable host right now
+# (OpenRouter paid; Groq decommissioned the free distills) — excluded under the
+# free-only rule; swap in when a free host returns. LIVE-VERIFIED 2026-06-28.
+# Lesson: NEVER hand-pick slugs from memory — catalogs rotate; probe live (--audit-roster).
 DEFAULT_PERSPECTIVE_MODELS: tuple[str, ...] = (
-    "nvidia/nemotron-3-super-120b-a12b:free",   # NVIDIA 120B — 1M ctx, strong reasoning
-    "openai/gpt-oss-120b:free",                  # OpenAI open 120B — distinct training lineage
-    "google/gemma-4-31b-it:free",                # Google 31B — 262K ctx, third vendor
+    "cerebras:zai-glm-4.7",                      # GLM 4.7 — Cerebras free, no-train, strong reasoner
+    "nvidia/nemotron-3-super-120b-a12b:free",   # NVIDIA 120B — 1M ctx
+    "openai/gpt-oss-120b:free",                  # OpenAI open 120B — distinct lineage
+    "google/gemma-4-31b-it:free",                # Google 31B — 262K ctx
+    "qwen/qwen3-next-80b-a3b-instruct:free",     # Qwen 80B — fifth vendor
 )
 # Rotation pool: when a primary 429s/404s, _call_one_perspective falls through to
-# the next live model so we still get 3 perspectives instead of 1. Ordered by
-# preference; all verified live 2026-06-28. 429 = transient (rotate), 404 = dead (skip).
+# the next live model so we still get a full set. 429 = transient (rotate), 404 = dead (skip).
 PERSPECTIVE_FALLBACK_POOL: tuple[str, ...] = (
+    "cerebras:gpt-oss-120b",                     # Cerebras gpt-oss — GLM-lane fallback (no-train)
     "openai/gpt-oss-20b:free",                   # OpenAI 20B — fast
-    "qwen/qwen3-next-80b-a3b-instruct:free",     # Qwen 80B
     "meta-llama/llama-3.3-70b-instruct:free",    # Meta 70B
     "nousresearch/hermes-3-llama-3.1-405b:free", # Nous 405B
     "qwen/qwen3-coder:free",                      # Qwen coder 1M ctx
@@ -88,6 +119,65 @@ PERSPECTIVE_FALLBACK_POOL: tuple[str, ...] = (
 # Errors worth rotating to a different model (transient capacity / de-tagged slug).
 _ROTATABLE_ERR_MARKERS = ("429", "RateLimit", "404", "NotFound", "unavailable", "Timeout", "timed out", "503", "502")
 DEFAULT_SYNTHESIZER_MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
+
+
+def _provider_call(spec: str, *, prompt: str, system: Optional[str], max_tokens: int,
+                   temperature: float, timeout: int, task_id: str) -> dict:
+    """Call a perspective model on its provider. Returns the same envelope shape as
+    call_minimax (ok/content/model/input_tokens/output_tokens/cost_usd/elapsed_s/error).
+
+    OpenRouter specs delegate to call_minimax (keeps its telemetry + cap logic).
+    Cerebras/Groq are called directly. Reasoning models (GLM, gpt-oss) often put the
+    answer in `.reasoning` when `.content` is empty under a tight budget — we fall
+    back to reasoning so a thinking model never reads as an empty failure.
+    """
+    provider, model = _split_spec(spec)
+    if provider == "openrouter":
+        return call_minimax(prompt=prompt, model=model, system=system, max_tokens=max_tokens,
+                            temperature=temperature, timeout=timeout, task_id=task_id)
+
+    import time as _t
+    start = _t.monotonic()
+    cfg = _PROVIDERS.get(provider)
+    if not cfg:
+        return {"ok": False, "content": "", "model": spec, "input_tokens": 0, "output_tokens": 0,
+                "cost_usd": 0.0, "elapsed_s": 0.0, "error": f"unknown_provider:{provider}"}
+    try:
+        key = cfg["key_file"].read_text(encoding="utf-8").strip().splitlines()[0].strip()
+    except Exception as exc:  # noqa: BLE001
+        return {"ok": False, "content": "", "model": spec, "input_tokens": 0, "output_tokens": 0,
+                "cost_usd": 0.0, "elapsed_s": round(_t.monotonic() - start, 3),
+                "error": f"key_load_failed:{provider}:{exc}"}
+    try:
+        from openai import OpenAI
+        client = OpenAI(base_url=cfg["base_url"], api_key=key, timeout=float(timeout))
+        messages = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": prompt}]
+        resp = client.chat.completions.create(model=model, messages=messages,
+                                              max_tokens=max_tokens, temperature=temperature)
+        choice = resp.choices[0] if resp.choices else None
+        msg = choice.message if choice else None
+        content = (getattr(msg, "content", None) or "") if msg else ""
+        if not content.strip() and msg is not None:
+            content = getattr(msg, "reasoning", "") or ""  # thinking model fallback
+        usage = getattr(resp, "usage", None)
+        in_tok = int(getattr(usage, "prompt_tokens", 0) or 0) if usage else 0
+        out_tok = int(getattr(usage, "completion_tokens", 0) or 0) if usage else 0
+        elapsed = round(_t.monotonic() - start, 3)
+        entry = {"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"), "task_id": task_id,
+                 "model": spec, "input_tokens": in_tok, "output_tokens": out_tok, "cost_usd": 0.0,
+                 "elapsed_s": elapsed, "ok": bool(content.strip()), "provider": provider}
+        try:
+            with open(STATE_DIR / "swarm-calls.jsonl", "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry) + "\n")
+        except OSError:
+            pass
+        return {"ok": bool(content.strip()), "content": content, "model": spec, "input_tokens": in_tok,
+                "output_tokens": out_tok, "cost_usd": 0.0, "elapsed_s": elapsed,
+                "error": None if content.strip() else "empty_content"}
+    except Exception as exc:  # noqa: BLE001
+        return {"ok": False, "content": "", "model": spec, "input_tokens": 0, "output_tokens": 0,
+                "cost_usd": 0.0, "elapsed_s": round(_t.monotonic() - start, 3),
+                "error": f"{type(exc).__name__}: {str(exc)[:200]}"}
 
 # Generous timeouts — free tier can be slow under load. Total worst case per call ~5min.
 PERSPECTIVE_TIMEOUT_S = 240
@@ -371,9 +461,9 @@ def _call_one_perspective(
         if not _claim(cand):
             continue  # another lane owns this model — keep diversity
         attempts.append(cand)
-        result = call_minimax(
+        result = _provider_call(
+            cand,
             prompt=prompt,
-            model=cand,
             system=system,
             max_tokens=max_tokens,
             temperature=0.4,
@@ -486,9 +576,9 @@ def consult(
     # Synthesize if at least 1 perspective came back
     if succeeded and not skip_synthesis:
         synth_prompt = _build_synthesis_prompt(mode, question, context, result.perspectives)
-        synth_result = call_minimax(
+        synth_result = _provider_call(
+            synthesizer,
             prompt=synth_prompt,
-            model=synthesizer,
             system=_SHARED_PREAMBLE,
             max_tokens=max_tokens_synthesis,
             temperature=0.3,
@@ -671,20 +761,25 @@ def audit_roster(verify_calls: bool = True) -> dict:
             continue
 
     configured = list(DEFAULT_PERSPECTIVE_MODELS) + list(PERSPECTIVE_FALLBACK_POOL)
+    # Catalog-check applies only to OpenRouter specs (cerebras/groq have their own
+    # catalogs we don't list-probe; their live-call result below is the proof).
+    or_specs = [m for m in configured if _split_spec(m)[0] == "openrouter"]
     report = {
         "ok": True,
         "checked_at_et": _et_now().isoformat(timespec="seconds"),
         "free_catalog_count": len(free_ids),
-        "in_catalog": [m for m in configured if m in free_ids],
-        "DROPPED_FROM_FREE": [m for m in configured if m not in free_ids],
+        "in_catalog": [m for m in or_specs if m in free_ids],
+        "DROPPED_FROM_FREE": [m for m in or_specs if m not in free_ids],
+        "non_openrouter": [m for m in configured if _split_spec(m)[0] != "openrouter"],
         "live_call_ok": [],
         "live_call_fail": [],
     }
 
     if verify_calls:
+        # Cerebras reasoning models need a bigger budget or content comes back empty.
         for m in DEFAULT_PERSPECTIVE_MODELS:
-            r = call_minimax("Reply with exactly: OK", model=m, max_tokens=10,
-                             timeout=30, task_id="roster_audit", temperature=0)
+            r = _provider_call(m, prompt="Reply with exactly: OK", system=None, max_tokens=300,
+                               timeout=40, task_id="roster_audit", temperature=0)
             (report["live_call_ok"] if r.get("ok") else report["live_call_fail"]).append(
                 m if r.get("ok") else f"{m} :: {(r.get('error') or '')[:60]}"
             )
