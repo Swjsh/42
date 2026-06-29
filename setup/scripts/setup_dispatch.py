@@ -465,14 +465,16 @@ class SetupDispatcher:
             if not bias_path.exists():
                 return None
             bias = json.loads(bias_path.read_text(encoding="utf-8"))
-            # Try common keys written by premarket
-            for key in ("prior_close", "prev_close", "prev_rth_close", "prior_rth_close"):
+            # Try common keys written by premarket. NOTE: the premarket writer uses
+            # 'prior_day_close' (confirmed in today-bias.json 2026-06-28) — it MUST be in
+            # this list or gap_and_go silently SKIP_NO_FEEDs forever (root cause of G4c).
+            for key in ("prior_day_close", "prior_close", "prev_close", "prev_rth_close", "prior_rth_close"):
                 v = bias.get(key)
                 if v is not None:
                     return float(v)
             # Also try nested key_levels
             kl = bias.get("key_levels") or {}
-            for key in ("prev_close", "prior_close"):
+            for key in ("prior_day_close", "prev_close", "prior_close", "pdc"):
                 v = kl.get(key)
                 if v is not None:
                     return float(v)

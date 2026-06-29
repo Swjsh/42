@@ -3325,3 +3325,37 @@ def test_orchestrator_enable_bullish_defaults_true() -> None:
     sig = inspect.signature(run_backtest)
     default = sig.parameters["enable_bullish"].default
     assert default is True, f"run_backtest enable_bullish must default True, got {default!r}"
+
+
+# ── gap_and_go prior-close feed guard (G4c fix 2026-06-28: key-name mismatch) ──
+
+def test_gap_and_go_prior_close_key_match() -> None:
+    """G-GAP-FEED: the prior-close resolver MUST check the key the premarket writer
+    actually uses ('prior_day_close'). The mismatch left gap_and_go SKIP_NO_FEED forever.
+    """
+    src = (REPO / "setup" / "scripts" / "setup_dispatch.py").read_text(encoding="utf-8")
+    # The resolver and the premarket writer must agree on this key.
+    assert "prior_day_close" in src, (
+        "setup_dispatch._get_prior_rth_close must check 'prior_day_close' — the key "
+        "today-bias.json actually uses. Without it gap_and_go never gets a prior close."
+    )
+
+
+def test_gap_and_go_resolves_real_prior_close() -> None:
+    """G-GAP-FEED (integration): if today-bias.json carries a prior_day_close, the
+    dispatcher's resolver must return it (not None). Skips if the live file lacks it."""
+    import sys as _sys, json as _json
+    _sys.path.insert(0, str(REPO / "setup" / "scripts"))
+    _sys.path.insert(0, str(REPO / "backtest"))
+    import importlib
+    sd = importlib.import_module("setup_dispatch")
+    bias_path = REPO / "automation" / "state" / "today-bias.json"
+    if not bias_path.exists():
+        pytest.skip("no today-bias.json in this checkout")
+    bias = _json.loads(bias_path.read_text(encoding="utf-8"))
+    expected = bias.get("prior_day_close")
+    if expected is None:
+        pytest.skip("today-bias.json has no prior_day_close right now")
+    disp = sd.SetupDispatcher({}, {})
+    got = disp._get_prior_rth_close()
+    assert got == float(expected), f"resolver returned {got}, expected {expected} from today-bias.json"
