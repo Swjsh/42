@@ -144,3 +144,41 @@ theta-eaten. The all-day-ride framing is dead.
 - ⚠️ Double-bottom calls — weak 60-min lift that washes out by EOD; likely theta-eaten.
 - **Both setups J flagged are mirages in aggregate. The engine's HOLD on both was correct
   process, not a bug.** N=1 winners drawn from coin-flip / wash populations. Process > outcome.
+
+---
+
+## CORRECTION (J's challenge): I measured DIRECTION, not EXPECTANCY — the asymmetry is real
+
+J caught the error: the "48% coin flip" was win-RATE, not expectancy. With filters 5/9 OFF
+(take the rejection regardless of ribbon/breakdown) + a TIGHT stop + the real exit engine,
+real-OPRA P&L (bear/PUT, 2025-07..2026-06, n≈72):
+
+| config | n | WR | total | exp/trade | avg win / loss | max DD |
+|---|---|---|---|---|---|---|
+| baseline (filters on) | 54 | 46% | -$1151 | -$21 | $208/-$219 | -$3027 |
+| 5+9 off, -50% stop | 66 | 47% | -$861 | -$13 | $199/-$201 | -$3230 |
+| 5+9 off, -30% stop | 71 | 35% | -$663 | -$9 | $221/-$135 | -$1556 |
+| **5+9 off, -20% stop** | 72 | 32% | **+$473** | **+$6.6** | $224/-$95 (2.3:1) | -$1006 |
+| 5+9 off, -12% stop | 72 | 24% | +$71 | +$1.0 | $206/-$62 | -$624 |
+
+So **the asymmetry IS real** — a 32% WR with a tight -20% stop is +EV on the full period
+because the tight stop caps the counter-trend losers and the runners pay. My direction-only
+"coin flip = dead" was the wrong metric (C4: expectancy, not WR).
+
+## BUT — the OOS split KILLS arming it (regime-dependent)
+
+Walk-forward, real fills, -20% stop:
+- **TRAIN 2025-07..2026-02: +$1235 (exp +$27, WR 31%)**
+- **TEST  2026-03..2026-06: -$762 (exp -$28, WR 33%)** — NEGATIVE.
+- -15% stop same shape: TRAIN +$665 / TEST -$801.
+
+The full-period positive was carried ENTIRELY by the older regime; in the recent quarter it
+LOSES at every stop. **Why it makes sense:** 2026-Q2 is a bull-RECOVERY regime — failed
+gap-ups that sell off then get bought back (06-29 IS one: rejected 739 -> dropped to 732 ->
+recovered to 738). A counter-trend put held with a runner gives the gains back on the
+recovery. **06-29 was the exact regime where this strategy is net-negative.**
+
+**FINAL VERDICT: real asymmetry (J was right on the metric), but NOT OOS-stable, and the
+current regime is precisely where it loses. Do NOT arm.** It fails the WF gate (test window
+negative). Revisit if/when the regime shifts to trend-down (where counter-trend-down = with-
+trend). The level feed remains the only shippable win of the mission.
