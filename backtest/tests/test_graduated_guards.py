@@ -3068,3 +3068,153 @@ def test_l188_dir_null_p5_gate_wired_into_family_grind() -> None:
     assert "_dir_null(" in rf, "run_family no longer calls the direction-controlled null"
     assert "p5_verdict(" in rf, "run_family no longer applies the P5 verdict"
     assert "PASS-P4-DIR-ARTIFACT" in src, "the dir-artifact downgrade verdict was removed"
+
+
+# ─── G-PIPELINE-CHAIN: auto-chain wiring (2026-06-28) ───────────────────────
+
+def test_pipeline_chain_all_stages_registered() -> None:
+    """G-PIPELINE-CHAIN: shotgun_scalper stages 1-5 all registered in GRINDER_REGISTRY
+    with correct next_stage_script pointers.  A refactor that breaks the chain REDs here.
+    """
+    sys.path.insert(0, str(REPO / "setup" / "scripts"))
+    import importlib
+    daemon = importlib.import_module("kitchen_daemon")
+
+    registry = daemon.GRINDER_REGISTRY
+    chain = [
+        ("shotgun_scalper_grinder",  "shotgun_scalper_stage2"),
+        ("shotgun_scalper_stage2",   "shotgun_scalper_stage3"),
+        ("shotgun_scalper_stage3",   "shotgun_scalper_stage4"),
+        ("shotgun_scalper_stage4",   "shotgun_scalper_stage5"),
+    ]
+    for src, dst in chain:
+        assert src in registry, f"GRINDER_REGISTRY missing {src!r}"
+        assert dst in registry, f"GRINDER_REGISTRY missing {dst!r}"
+        assert registry[src].get("next_stage_script") == dst, (
+            f"{src} next_stage_script should be {dst!r}, "
+            f"got {registry[src].get('next_stage_script')!r}"
+        )
+    # Stage5 must be flagged as scorecard
+    assert registry["shotgun_scalper_stage5"].get("is_scorecard"), (
+        "shotgun_scalper_stage5 must have is_scorecard=True in registry"
+    )
+    # Stage4 must signal next_is_scorecard so daemon uses pipeline_scorecard handler
+    assert registry["shotgun_scalper_stage4"].get("next_is_scorecard"), (
+        "shotgun_scalper_stage4 must have next_is_scorecard=True"
+    )
+
+
+def test_pipeline_chain_sniper_chain_registered() -> None:
+    """G-PIPELINE-CHAIN: sniper chain s1->s2->real_fills all registered and linked."""
+    sys.path.insert(0, str(REPO / "setup" / "scripts"))
+    import importlib
+    daemon = importlib.import_module("kitchen_daemon")
+    registry = daemon.GRINDER_REGISTRY
+
+    chain = [
+        ("sniper_overnight_grinder", "sniper_stage2_grinder"),
+        ("sniper_stage2_grinder",    "sniper_real_fills_grinder"),
+    ]
+    for src, dst in chain:
+        assert src in registry, f"GRINDER_REGISTRY missing {src!r}"
+        assert registry[src].get("next_stage_script") == dst, (
+            f"{src}.next_stage_script should be {dst!r}"
+        )
+    assert registry["sniper_real_fills_grinder"].get("promotes_to_watcher"), (
+        "sniper_real_fills_grinder must have promotes_to_watcher=True"
+    )
+
+
+def test_pipeline_promoter_gates_pass_on_good_scorecard() -> None:
+    """G-PIPELINE-CHAIN: promoter returns True and writes files when all gates pass."""
+    import tempfile, json as _json
+    sys.path.insert(0, str(REPO / "backtest"))
+    from autoresearch.pipeline_promoter import check_and_promote, _check_gates
+
+    good_scorecard = {
+        "walk_forward": {
+            "passed": True,
+            "train_pnl": 4000.0,
+            "test_pnl": 3200.0,          # ratio = 0.80 >= 0.70
+            "test_positive_quarters": 2,
+            "total_test_quarters": 2,
+        },
+        "best_keeper": {
+            "directional_score": 3,       # >= 2
+            "top5_pct": 0.35,             # <= 0.50
+            "wide_pnl": 5500.0,
+            "expectancy_per_trade": 12.5,
+        },
+    }
+    passed, details = _check_gates(good_scorecard)
+    assert passed, f"Expected gates to pass on good scorecard, got details={details}"
+    assert details["wf_ratio"] >= 0.70
+    assert details["anchor_no_regression"] is True
+    assert details["concentration_ok"] is True
+
+
+def test_pipeline_promoter_gates_block_on_bad_wf() -> None:
+    """G-PIPELINE-CHAIN: promoter blocks when WF ratio is below 0.70."""
+    sys.path.insert(0, str(REPO / "backtest"))
+    from autoresearch.pipeline_promoter import _check_gates
+
+    bad_scorecard = {
+        "walk_forward": {
+            "passed": True,
+            "train_pnl": 5000.0,
+            "test_pnl": 2000.0,          # ratio = 0.40 — FAIL
+            "test_positive_quarters": 2,
+            "total_test_quarters": 2,
+        },
+        "best_keeper": {
+            "directional_score": 3,
+            "top5_pct": 0.30,
+            "wide_pnl": 4000.0,
+        },
+    }
+    passed, details = _check_gates(bad_scorecard)
+    assert not passed, "Should have blocked on WF ratio < 0.70"
+    assert details["wf_ratio"] < 0.70
+
+
+def test_chain_next_stage_fn_enqueues_scorecard() -> None:
+    """G-PIPELINE-CHAIN: _chain_next_stage enqueues pipeline_scorecard for stage4->stage5."""
+    sys.path.insert(0, str(REPO / "setup" / "scripts"))
+    import importlib, unittest.mock as mock
+
+    daemon = importlib.import_module("kitchen_daemon")
+    enqueued = []
+
+    def fake_enqueue(task, *, priority, source, task_type, script_name, **kw):
+        enqueued.append({"task_type": task_type, "script_name": script_name})
+        return "fake-tid"
+
+    with mock.patch.object(daemon, "enqueue_task", side_effect=fake_enqueue):
+        daemon._chain_next_stage(
+            "shotgun_scalper_stage4",
+            [{"wide_pnl": 5000}],   # 1 keeper — enough to advance
+            "test task",
+        )
+
+    assert len(enqueued) == 1, "Expected exactly 1 task enqueued"
+    assert enqueued[0]["task_type"] == "pipeline_scorecard"
+    assert enqueued[0]["script_name"] == "shotgun_scalper_stage5"
+
+
+def test_chain_next_stage_fn_skips_below_min_keepers() -> None:
+    """G-PIPELINE-CHAIN: _chain_next_stage does NOT chain when below min_keepers_to_advance."""
+    sys.path.insert(0, str(REPO / "setup" / "scripts"))
+    import importlib, unittest.mock as mock
+
+    daemon = importlib.import_module("kitchen_daemon")
+    enqueued = []
+
+    def fake_enqueue(*a, **kw):
+        enqueued.append(kw)
+        return "fake-tid"
+
+    with mock.patch.object(daemon, "enqueue_task", side_effect=fake_enqueue):
+        # sniper_overnight_grinder requires min 3 keepers
+        daemon._chain_next_stage("sniper_overnight_grinder", [{"ec": 1}, {"ec": 2}], "test")
+
+    assert len(enqueued) == 0, f"Should not have chained with only 2 keepers (min=3), got {enqueued}"

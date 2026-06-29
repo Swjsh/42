@@ -183,6 +183,8 @@ GRINDER_REGISTRY: dict[str, dict] = {
         "state_dir": _GRINDER_STATE / "sniper_stage1",
         "default_hours": 2.0,
         "description": "SNIPER_LEVEL_BREAK parameter sweep — ★★+ level break triggers",
+        "next_stage_script": "sniper_stage2_grinder",
+        "min_keepers_to_advance": 3,
     },
     "bullish_grinder": {
         "module": "autoresearch.bullish_grinder",
@@ -218,6 +220,8 @@ GRINDER_REGISTRY: dict[str, dict] = {
         "default_hours": 1.5,
         "cooldown_h": 8.0,  # only run after sniper stage1 has fresh keepers
         "description": "SNIPER_LEVEL_BREAK Stage-2 refinement — refines top-5 keepers from stage1",
+        "next_stage_script": "sniper_real_fills_grinder",
+        "min_keepers_to_advance": 1,
     },
     "shotgun_scalper_grinder": {
         "module": "autoresearch.shotgun_scalper_grinder",
@@ -225,6 +229,8 @@ GRINDER_REGISTRY: dict[str, dict] = {
         "default_hours": 3.0,
         "cooldown_h": 6.0,
         "description": "SHOTGUN_SCALPER Stage-1 sweep — 2160-combo grid, strict keeper gates",
+        "next_stage_script": "shotgun_scalper_stage2",
+        "min_keepers_to_advance": 1,
     },
     "sniper_real_fills_grinder": {
         "module": "autoresearch.sniper_real_fills_grinder",
@@ -232,6 +238,46 @@ GRINDER_REGISTRY: dict[str, dict] = {
         "default_hours": 2.0,
         "cooldown_h": 8.0,  # run after sniper stage1/2 has fresh keepers
         "description": "SNIPER_LEVEL_BREAK real-fills validation grinder — OPRA fills vs BS-sim comparison",
+        "promotes_to_watcher": True,
+        "watcher_name": "sniper_level_break",
+        "min_keepers_to_advance": 1,
+    },
+    # ── Shotgun-scalper multi-stage pipeline (auto-chained) ─────────────────
+    "shotgun_scalper_stage2": {
+        "module": "autoresearch.shotgun_scalper_stage2",
+        "state_dir": _GRINDER_STATE / "shotgun_scalper_stage2",
+        "default_hours": 6.0,
+        "cooldown_h": 8.0,
+        "description": "SHOTGUN_SCALPER Stage-2 — relaxed gates, winning-region focus (1458 combos)",
+        "next_stage_script": "shotgun_scalper_stage3",
+        "min_keepers_to_advance": 1,
+    },
+    "shotgun_scalper_stage3": {
+        "module": "autoresearch.shotgun_scalper_stage3",
+        "state_dir": _GRINDER_STATE / "shotgun_scalper_stage3",
+        "default_hours": 3.0,
+        "cooldown_h": 6.0,
+        "description": "SHOTGUN_SCALPER Stage-3 — directional participation scoring (972 combos)",
+        "next_stage_script": "shotgun_scalper_stage4",
+        "min_keepers_to_advance": 1,
+    },
+    "shotgun_scalper_stage4": {
+        "module": "autoresearch.shotgun_scalper_stage4",
+        "state_dir": _GRINDER_STATE / "shotgun_scalper_stage4",
+        "default_hours": 6.0,
+        "cooldown_h": 8.0,
+        "description": "SHOTGUN_SCALPER Stage-4 — HTF-gated directional scoring (288 combos)",
+        "next_stage_script": "shotgun_scalper_stage5",
+        "next_is_scorecard": True,
+        "min_keepers_to_advance": 1,
+    },
+    # Stage 5 = scorecard only (read stage4 keepers, run WF+gates, auto-promote)
+    "shotgun_scalper_stage5": {
+        "module": "autoresearch.shotgun_scalper_stage5",
+        "state_dir": _GRINDER_STATE / "shotgun_scalper_stage4",  # reads stage4 keepers
+        "is_scorecard": True,
+        "watcher_name": "shotgun_scalper",
+        "description": "SHOTGUN_SCALPER Stage-5 — walk-forward scorecard + auto-promote to WATCH if gates pass",
     },
 }
 
@@ -820,6 +866,111 @@ def _enqueue_grinder_analysis(original_task_desc: str, script_name: str, keepers
     _log(f"GRINDER_SWEEP auto-enqueued analysis task_id={tid[:8]}")
 
 
+def _chain_next_stage(script_name: str, keepers: list, task_desc: str) -> None:
+    """After a grinder finishes with keepers, auto-enqueue the next pipeline stage."""
+    info = GRINDER_REGISTRY.get(script_name, {})
+    next_script = info.get("next_stage_script")
+    min_keepers = info.get("min_keepers_to_advance", 1)
+    if not next_script:
+        return
+    if len(keepers) < min_keepers:
+        _log(
+            f"PIPELINE_CHAIN skip: {script_name} produced {len(keepers)} keepers "
+            f"< min={min_keepers} to advance to {next_script}"
+        )
+        return
+    next_info = GRINDER_REGISTRY.get(next_script, {})
+    if next_info.get("is_scorecard"):
+        desc = (
+            f"Pipeline scorecard: run {next_script} on {len(keepers)} Stage-4 keepers "
+            f"from {script_name}. Compute WF split, OP-16 edge_capture gate, concentration "
+            f"disclosure. Auto-promote to WATCH if all gates pass."
+        )
+        tid = enqueue_task(
+            desc,
+            priority="high",
+            source="pipeline-chain",
+            task_type="pipeline_scorecard",
+            script_name=next_script,
+        )
+        _log(f"PIPELINE_CHAIN {script_name} -> {next_script} (scorecard) task_id={tid[:8]}")
+    else:
+        desc = (
+            f"Auto-chain: {next_script} after {script_name} produced {len(keepers)} keepers. "
+            f"Parent: {task_desc[:80]}"
+        )
+        tid = enqueue_task(
+            desc,
+            priority="high",
+            source="pipeline-chain",
+            task_type="grinder_sweep",
+            script_name=next_script,
+            hours=next_info.get("default_hours", 2.0),
+        )
+        _log(f"PIPELINE_CHAIN {script_name} -> {next_script} task_id={tid[:8]}")
+
+
+def _run_pipeline_scorecard(task_state: dict) -> dict:
+    """Run a terminal pipeline scorecard (e.g. shotgun_scalper_stage5) inline.
+
+    The scorecard scripts are fast (read keepers, compute stats, write JSON) so
+    they run in the daemon process rather than as a subprocess.  On gates-pass,
+    calls pipeline_promoter to flip the watcher flag in params.json and ping Discord.
+    """
+    script_name = task_state.get("script_name", "shotgun_scalper_stage5")
+    info = GRINDER_REGISTRY.get(script_name, {})
+    module_name = info.get("module", f"autoresearch.{script_name}")
+    watcher_name = info.get("watcher_name", "")
+
+    _log(f"PIPELINE_SCORECARD start script={script_name} module={module_name}")
+
+    # Build env so the module can import backtest deps
+    import importlib
+    venv_site = _BACKTEST_DIR / ".venv" / "Lib" / "site-packages"
+    orig_path = list(sys.path)
+    try:
+        for p in [str(venv_site), str(_BACKTEST_DIR), str(REPO)]:
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        mod = importlib.import_module(module_name)
+        # Stage5 modules expose a main() or run() function
+        if hasattr(mod, "main"):
+            exit_code = mod.main()
+        elif hasattr(mod, "run"):
+            exit_code = mod.run()
+        else:
+            _log(f"PIPELINE_SCORECARD ERROR: {module_name} has no main() or run()")
+            return {"ok": False, "error": "no entry point"}
+    except Exception as exc:  # noqa: BLE001
+        _log(f"PIPELINE_SCORECARD ERROR: {type(exc).__name__}: {exc}")
+        return {"ok": False, "error": str(exc)}
+    finally:
+        sys.path[:] = orig_path
+
+    _log(f"PIPELINE_SCORECARD {script_name} exit_code={exit_code}")
+
+    # Check if a scorecard JSON was produced and gates passed → auto-promote
+    if watcher_name:
+        try:
+            sys.path.insert(0, str(_BACKTEST_DIR))
+            from autoresearch.pipeline_promoter import check_and_promote  # noqa: E402
+            promoted = check_and_promote(script_name, watcher_name)
+            if promoted:
+                _log(f"PIPELINE_CHAIN promoted {watcher_name} -> WATCH_NOT_ARMED in params.json")
+            else:
+                _log(f"PIPELINE_CHAIN {watcher_name} did not clear auto-promote gates (not promoted)")
+        except Exception as exc:  # noqa: BLE001
+            _log(f"PIPELINE_CHAIN promoter error: {type(exc).__name__}: {exc}")
+
+    return {
+        "ok": True,
+        "output_path": f"analysis/recommendations/{script_name}.json",
+        "tier": -1,
+        "model": "scorecard-python",
+        "cost_usd": 0.0,
+    }
+
+
 def _run_grinder_task(task_state: dict) -> dict:
     """Spawn a pure-Python parameter-sweep grinder, monitor it, then auto-enqueue LLM analysis.
 
@@ -962,8 +1113,10 @@ def _run_grinder_task(task_state: dict) -> dict:
     # Auto-enqueue Nemotron interpretation if we have something to analyse
     if keepers:
         _enqueue_grinder_analysis(task_state.get("task", ""), script_name, keepers)
+        # Chain to next pipeline stage (if registered)
+        _chain_next_stage(script_name, keepers, task_state.get("task", ""))
     else:
-        _log(f"GRINDER_SWEEP no keepers ({final_status}) — no analysis task enqueued")
+        _log(f"GRINDER_SWEEP no keepers ({final_status}) — no analysis or chain enqueued")
 
     return {
         "ok": True,
@@ -1130,7 +1283,9 @@ def main() -> int:
 
             try:
                 task_type = task.get("task_type", "llm_cook")
-                if task_type == "grinder_sweep":
+                if task_type == "pipeline_scorecard":
+                    result = _run_pipeline_scorecard(task)
+                elif task_type == "grinder_sweep":
                     # Check: don't block urgent LLM tasks behind a 2h grinder
                     high_prio_llm = sum(
                         1 for s in queue.values()
