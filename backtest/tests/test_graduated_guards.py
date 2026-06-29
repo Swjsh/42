@@ -3422,3 +3422,28 @@ def test_stress_swarm_covers_j_named_variants() -> None:
     perts = set(ess.PERTURBATIONS)
     for p in ("baseline", "trend_flip", "dampen"):
         assert p in perts, f"perturbation '{p}' (J's 'what if the bars did this') missing"
+
+
+def test_design_swarm_canonical_battery_covers_the_metric_we_missed() -> None:
+    """G-DESIGN-SWARM (2026-06-29 lesson): a single perspective measured WR (coin flip) and
+    missed EXPECTANCY-with-tight-stops + OOS. The canonical battery MUST always run those
+    framings for every hypothesis, so the right metric can never be silently skipped again.
+    """
+    sys.path.insert(0, str(REPO / "backtest" / "autoresearch"))
+    sys.path.insert(0, str(REPO / "backtest"))
+    sys.path.insert(0, str(REPO))
+    import importlib
+    bds = importlib.import_module("backtest_design_swarm")
+    battery = bds.canonical_battery([5, 9], "P")
+    metrics = {d.metric for d in battery}
+    splits = {d.split for d in battery}
+    # the exact things the single perspective missed must ALWAYS be in the battery
+    assert "expectancy" in metrics, "battery must always run EXPECTANCY (the metric WR-only missed)"
+    assert "drawdown" in metrics, "battery must always run DRAWDOWN"
+    assert "oos" in splits, "battery must always run an OOS walk-forward split (curve-fit guard)"
+    # at least one design must sweep tight stops (the asymmetry unlock)
+    assert any(any(s > -0.25 for s in d.stop_sweep) for d in battery), "battery must sweep a TIGHT stop (<=-0.20)"
+    # the review gate must reject a malformed design (smart-review is real, not a pass-through)
+    kept, rejected = bds.review_designs([bds.Design("ok", "P", [5], [-0.2]),
+                                         bds.Design("bad", "X", [99], [0.5], "nonsense")])
+    assert any("bad" in r for r in rejected), "review gate must reject malformed designs"
