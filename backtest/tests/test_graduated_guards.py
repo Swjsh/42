@@ -3389,3 +3389,36 @@ def test_gap_and_go_resolves_real_prior_close() -> None:
     disp = sd.SetupDispatcher({}, {})
     got = disp._get_prior_rth_close()
     assert got == float(expected), f"resolver returned {got}, expected {expected} from today-bias.json"
+
+
+# ── Engine-stress-swarm harness guards (2026-06-28: "tenfold the swarm") ──
+
+def test_stress_swarm_bs_sim_only_disclosure() -> None:
+    """G-STRESS-C1: the harness perturbs/synthesizes bars, which have NO OPRA chain.
+    It MUST run the engine with use_real_fills=False and MUST disclose ranking-only.
+    A regression that flips real_fills on synthetic bars would fabricate a fake WR
+    authority (CLAUDE.md C1 — real fills are the ONLY WR authority).
+    """
+    src = (REPO / "backtest" / "autoresearch" / "engine_stress_swarm.py").read_text(encoding="utf-8")
+    assert "use_real_fills=False" in src, "stress harness must run engine with use_real_fills=False on synthetic bars"
+    assert "RANKING-ONLY" in src, "stress harness must disclose BS-sim results are ranking-only"
+    # It must NOT ever pass use_real_fills=True (would claim a fake WR authority).
+    assert "use_real_fills=True" not in src, "stress harness must NEVER use real fills on perturbed bars"
+
+
+def test_stress_swarm_covers_j_named_variants() -> None:
+    """G-STRESS-COV: the variant grid must cover J's explicitly-named counterfactuals
+    (5-contracts-scaled-out-at-30%, direction flip). Guards the harness from silently
+    dropping the scenarios J asked for."""
+    sys.path.insert(0, str(REPO / "backtest" / "autoresearch"))
+    sys.path.insert(0, str(REPO / "backtest"))
+    sys.path.insert(0, str(REPO))
+    import importlib
+    ess = importlib.import_module("engine_stress_swarm")
+    names = {v.name for v in ess.variant_grid(full=True)}
+    assert "tp1_30_allout" in names, "must test 'scale out 30% on all' (J's example)"
+    assert "bull_off" in names, "must test a direction counterfactual"
+    assert any("risk_" in n for n in names), "must test contract-count/risk variants"
+    perts = set(ess.PERTURBATIONS)
+    for p in ("baseline", "trend_flip", "dampen"):
+        assert p in perts, f"perturbation '{p}' (J's 'what if the bars did this') missing"
