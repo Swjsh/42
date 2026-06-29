@@ -27,6 +27,9 @@ from autoresearch.probe_stats import (  # noqa: E402
     base_verdict,
     concentration_flag,
     day_concentration,
+    edge_capture_gate_misapplied,
+    recommended_yardstick,
+    requires_directional_anchor,
     significance,
     summarize_trades,
 )
@@ -157,6 +160,48 @@ def test_gate_sweep_finding_locked():
     for v in d["variants"]:
         if v["significance"]["sufficient"]:
             assert v["summary_net_0.05"]["expectancy_per_trade_usd"] < 0
+
+
+# --- L192: strategy-class yardstick policy ------------------------------------
+# J `edge_capture` (OP-16, 771 floor) is a DIRECTIONAL-anchor metric -- applying it
+# to a regime / mean-reversion strategy auto-rejects it by construction. These pin
+# the lesson as executable logic so a future gate can't silently re-mis-apply it.
+
+def test_directional_classes_keep_edge_capture():
+    for cls in ("directional", "momentum", "continuation", "breakout",
+                "bearish_rejection", "bullish_reclaim"):
+        assert requires_directional_anchor(cls) is True, cls
+        assert recommended_yardstick(cls) == "edge_capture", cls
+        # a directional candidate gated on edge_capture is CORRECT, not mis-applied
+        assert edge_capture_gate_misapplied(cls, gate_uses_edge_capture=True) is False, cls
+
+
+def test_regime_classes_reject_edge_capture():
+    # the exact classes this lesson was born from (range-scalp = level fade)
+    for cls in ("range", "mean_reversion", "mean-reversion", "scalp",
+                "level_fade", "overnight", "fade"):
+        assert requires_directional_anchor(cls) is False, cls
+        assert recommended_yardstick(cls) == "per_trade_expectancy", cls
+        # the foot-gun: gating a range strategy on edge_capture<771 is MIS-APPLIED
+        assert edge_capture_gate_misapplied(cls, gate_uses_edge_capture=True) is True, cls
+        # ...but if the gate ISN'T edge_capture, nothing is mis-applied
+        assert edge_capture_gate_misapplied(cls, gate_uses_edge_capture=False) is False, cls
+
+
+def test_unknown_class_is_conservative():
+    # an unclassified strategy must NOT be silently auto-rejected by a directional
+    # gate -- unknown defaults to the expectancy yardstick (don't lose a real lead).
+    for cls in ("", "weird_new_thing", "vix_dayside_???"):
+        assert requires_directional_anchor(cls) is False
+        assert recommended_yardstick(cls) == "per_trade_expectancy"
+        assert edge_capture_gate_misapplied(cls, gate_uses_edge_capture=True) is True
+
+
+def test_class_label_normalization():
+    # case / hyphen / space variants resolve to the same policy
+    assert requires_directional_anchor("Mean-Reversion") is False
+    assert requires_directional_anchor(" BREAKOUT ") is True
+    assert recommended_yardstick("Mean Reversion") == "per_trade_expectancy"
 
 
 # --- empty-input safety -------------------------------------------------------

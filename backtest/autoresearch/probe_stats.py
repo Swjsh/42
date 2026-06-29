@@ -40,6 +40,53 @@ INCONCLUSIVE_MIN_N: int = 10
 CONCENTRATION_TOP3_PCT_MAX: float = 150.0
 
 
+# --- strategy-class yardstick policy (lesson L192) -----------------------------
+# J's `edge_capture` (OP-16, 771 floor) is anchored on J's DIRECTIONAL trend-day
+# winners (5/14 +$1,208, 5/04 +$730, ...). A regime / mean-reversion strategy is
+# flat-to-slightly-negative on big trend days BY CONSTRUCTION (it fades INTO the
+# trend), so it can never capture those winners -> edge_capture << 771 -> the gate
+# AUTO-REJECTS it before it is ever tested. Match the yardstick to the class:
+# directional candidates compete on edge_capture; regime classes are judged on
+# per-trade expectancy against a regime-MATCHED anchor (C4 / C24 / L192).
+DIRECTIONAL_CLASSES: frozenset = frozenset({
+    "directional", "momentum", "continuation", "breakout", "trend",
+    "bearish_rejection", "bullish_reclaim", "rejection", "reclaim",
+})
+REGIME_CLASSES: frozenset = frozenset({
+    "range", "mean_reversion", "scalp", "fade", "overnight", "level_fade",
+})
+
+
+def _norm_class(strategy_class: str) -> str:
+    """Normalize a class label: lowercase, hyphens -> underscores, trim."""
+    return (strategy_class or "").strip().lower().replace("-", "_").replace(" ", "_")
+
+
+def requires_directional_anchor(strategy_class: str) -> bool:
+    """True iff J `edge_capture` (OP-16) is a VALID yardstick for this class.
+
+    Only directional / continuation candidates compete to replicate J's
+    directional source-of-truth winners. Regime / mean-reversion classes -- and
+    any UNKNOWN class (conservative: don't auto-reject what we can't classify) --
+    return False, so they are NOT gated on a metric they can't satisfy."""
+    return _norm_class(strategy_class) in DIRECTIONAL_CLASSES
+
+
+def edge_capture_gate_misapplied(strategy_class: str, gate_uses_edge_capture: bool) -> bool:
+    """Lesson L192 detector. A regime / mean-reversion (or unknown) strategy gated
+    on `edge_capture < 771` is a MIS-APPLIED gate -- it auto-rejects by
+    construction. Returns True when the gate is being mis-applied to such a class."""
+    return bool(gate_uses_edge_capture) and not requires_directional_anchor(strategy_class)
+
+
+def recommended_yardstick(strategy_class: str) -> str:
+    """The correct merge yardstick for a strategy class:
+        'edge_capture'          -- directional candidates (OP-16 valid)
+        'per_trade_expectancy'  -- regime / mean-reversion / unknown (C4, L192)
+    """
+    return "edge_capture" if requires_directional_anchor(strategy_class) else "per_trade_expectancy"
+
+
 def summarize_trades(pnls: Sequence[float]) -> dict:
     """Per-trade summary. Keys are a superset of what the probes emit so a probe
     can adopt this and select the subset it publishes without changing schema."""
