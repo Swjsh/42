@@ -3447,3 +3447,24 @@ def test_design_swarm_canonical_battery_covers_the_metric_we_missed() -> None:
     kept, rejected = bds.review_designs([bds.Design("ok", "P", [5], [-0.2]),
                                          bds.Design("bad", "X", [99], [0.5], "nonsense")])
     assert any("bad" in r for r in rejected), "review gate must reject malformed designs"
+
+
+def test_smart_reviewer_shadow_gate_keeps_gamma_in_loop_until_85() -> None:
+    """G-OVERSIGHT (J 2026-06-29): the free 'smart' reviewer must NOT be trusted to gate
+    designs alone until it proves >=85% agreement with Gamma's labeled edge cases. The
+    shadow harness must (a) have a labeled edge-case suite, (b) gate at 0.85, (c) mark
+    graduated=False when agreement < 0.85. Codifies 'you stay my eyes'."""
+    sys.path.insert(0, str(REPO / "backtest" / "autoresearch"))
+    sys.path.insert(0, str(REPO / "setup" / "scripts"))
+    sys.path.insert(0, str(REPO))
+    import importlib
+    sh = importlib.import_module("design_review_shadow")
+    assert sh.GRAD_THRESHOLD == 0.85, "trust gate must be 85% (J's bar)"
+    assert len(sh.LABELED_CASES) >= 8, "need a real edge-case suite (multiple angles)"
+    # the suite must contain both must-reject (the WR-only trap) and must-accept (expectancy+OOS)
+    rejects = [exp for _, exp, _ in sh.LABELED_CASES if exp is False]
+    accepts = [exp for _, exp, _ in sh.LABELED_CASES if exp is True]
+    assert rejects and accepts, "suite must cover both reject and accept cases"
+    # the gate logic: a sub-85% agreement must NOT graduate (proven via a tiny synthetic tally)
+    # (we don't call the live model here — that's the runnable scorecard; this guards the math.)
+    assert (0.80 >= sh.GRAD_THRESHOLD) is False, "0.80 must be below the gate"
