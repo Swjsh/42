@@ -83,3 +83,32 @@ Re-ran 06-29 through run_backtest (which caches today session H/L, so 739.9/732 
 **DANGER (why this is gated, not shipped):** filter 5 (ribbon-must-be-bear) is one of the most load-bearing filters — it blocks counter-trend losers (shorting into an uptrend is mostly a loser). Relaxing it lets in counter-trend trades. 06-29 is N=1 survivorship. The swarm's exact warning applies: how many twin-rejections-at-resistance-while-ribbon-bull RIP HIGHER instead? This MUST beat the null with the false-positive base rate disclosed, on real OPRA fills, OOS-stable, anchor-no-regression, before any arming.
 
 **Revised next task:** an A/B on relaxing filter 5/9 for the strong-rejection-at-resistance case (NOT a new candle detector). The candle-structure (shooting-star + volume) becomes the QUALITY GATE that makes the counter-trend relaxation safe — that is where it earns its place, if at all.
+
+---
+
+## BASE-RATE TRIAGE RESULT (ran it) — the filter-5 relaxation is KILLED by data
+
+Ran the forward-direction base rate over 2025-07..2026-06-18 (1 year). The "signal" = every
+bar with bear_score>=8 + level_rejection that was blocked ONLY by filter 5/8/9 (i.e. the
+exact relaxation candidates, n=1298):
+
+| set | n | breakdown% (put wins, +30min) | mean fwd move |
+|---|---|---|---|
+| signal (filter-5/9-blocked strong bear rejection) | 1298 | **48%** | -0.003% |
+| signal + confluence | 673 | 48% | -0.009% |
+| NULL (all RTH bars) | 15884 | **47%** | +0.002% |
+
+**The signal is a COIN FLIP** — 48% breakdown vs 47% random null, mean forward move ~zero.
+There is NO directional edge. **Filter 5 (ribbon-must-be-BEAR) is CORRECTLY blocking
+counter-trend noise.** Relaxing it would add ~1300 coin-flip counter-trend trades/year =
+a guaranteed loser after theta/costs. 06-29 was **N=1 survivorship** — the one instance that
+worked, out of a population that nets to nothing (exactly the anti-overfit agent's warning).
+
+**CONCLUSION: the engine's HOLD on 06-29 was CORRECT PROCESS, not a bug.** It declined a
+setup that is a coin flip in general. Process > outcome (CLAUDE.md). The pattern we "missed"
+loses money in aggregate. Do NOT relax filter 5 on this signal. If any edge exists it is in a
+narrow sub-slice (specific VIX character / time-of-day / tighter geometry) that must beat the
+null on its own — but the aggregate sitting exactly at the null is a strong prior against it.
+The CALL side (double-bottom-at-mapped-support) is a separate, still-open question — its
+existing trigger path (level_reclaim, ribbon already bullish so filter-5-equivalent passes)
+was not the same coin flip and is worth its own triage.
