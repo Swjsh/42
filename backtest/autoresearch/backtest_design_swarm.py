@@ -100,6 +100,43 @@ def review_designs(designs: list[Design]) -> tuple[list[Design], list[str]]:
     return kept, rejected
 
 
+# ────────────────────────────────────────────────────────────────────────────
+# Smart-model review gate — "Opus/Sonnet reviews before designs run" (J's ask).
+# Uses a strong FREE 120B model by default (it has a brain at $0); escalatable to paid.
+# Only SWARM-GENERATED designs are smart-reviewed — the canonical battery is trusted.
+# ────────────────────────────────────────────────────────────────────────────
+_DESIGN_REVIEW_SYSTEM = (
+    "You review a proposed backtest DESIGN for a 0DTE SPY options hypothesis. Score its "
+    "methodological legitimacy 0-10 and decide recommended (true/false). HARD-FAIL (recommended=false) "
+    "if ANY: (1) it could only be judged on win-rate/direction alone with no expectancy metric "
+    "(the exact trap that fooled us); (2) no out-of-sample / walk-forward split when claiming edge; "
+    "(3) look-ahead (decision uses a future bar); (4) absurd knobs (e.g. positive stop). "
+    "SOFT-DEMERIT: over-fit (far more knob combos than trades), no null/baseline, metric that "
+    "anti-correlates with the setup structure. Reply ONLY JSON: "
+    '{"recommended": bool, "score": int, "flags": [str]}.'
+)
+
+
+def smart_review_design(ds: "Design", model: str = "nvidia/nemotron-3-super-120b-a12b:free") -> dict:
+    """Smart-model legitimacy review of ONE design. Returns {recommended, score, flags}.
+    Fail-open: on any model/parse error returns recommended=True (don't block on infra)."""
+    try:
+        sys.path.insert(0, str(REPO / "setup" / "scripts"))
+        from run_minimax import call_minimax
+        prompt = ("DESIGN: " + json.dumps(asdict(ds)) +
+                  "\nIs this a legitimate, non-overfit, properly-measured backtest design? Score it.")
+        r = call_minimax(prompt=prompt, model=model, system=_DESIGN_REVIEW_SYSTEM,
+                         max_tokens=800, temperature=0.0, task_id="design_review")
+        if not r.get("ok"):
+            return {"recommended": True, "score": 5, "flags": [f"review_unavailable:{(r.get('error') or '')[:40]}"]}
+        from swarm_client import extract_json
+        o = extract_json(r.get("content", "")) or {}
+        return {"recommended": bool(o.get("recommended", True)), "score": int(o.get("score", 5)),
+                "flags": [str(f) for f in (o.get("flags") or [])]}
+    except Exception as exc:  # noqa: BLE001
+        return {"recommended": True, "score": 5, "flags": [f"review_error:{str(exc)[:40]}"]}
+
+
 def swarm_propose_designs(hypothesis: str, base_disable: list, side: str, n: int = 6) -> list[Design]:
     """Free 5-model swarm proposes ADDITIONAL structured framings. Robust: any model that
     fails to emit clean JSON is skipped; the canonical battery still guarantees coverage."""
@@ -207,7 +244,7 @@ def run_design(ds: Design, spy, vix, full_range, oos_split) -> dict:
     return {"design": asdict(ds), "metric": ds.metric, "rows": rows}
 
 
-def run_hypothesis(hypothesis: str, base_disable: list, side: str, *, start, end, oos_cut, use_swarm=True) -> dict:
+def run_hypothesis(hypothesis: str, base_disable: list, side: str, *, start, end, oos_cut, use_swarm=True, use_smart_review=True) -> dict:
     spy = pd.read_csv(DATA / "spy_5m_2025-01-01_2026-06-18.csv")
     vix = pd.read_csv(DATA / "vix_5m_2025-01-01_2026-06-18.csv")
     spy = spy[(spy["timestamp_et"] >= start) & (spy["timestamp_et"] < end + "T23:59")].reset_index(drop=True)
@@ -216,6 +253,21 @@ def run_hypothesis(hypothesis: str, base_disable: list, side: str, *, start, end
     designs = canonical_battery(base_disable, side)
     swarm_extra = swarm_propose_designs(hypothesis, base_disable, side) if use_swarm else []
     kept, rejected = review_designs(designs + swarm_extra)
+
+    # SMART-MODEL GATE: Opus/Sonnet-class review of the SWARM-generated designs before they
+    # spend compute (J: "have a brain review them before they get fed in"). Canonical battery
+    # is trusted (it's the guardrail). Free 120B reviewer = $0.
+    if use_smart_review:
+        gated = []
+        for ds in kept:
+            if not str(ds.note).startswith("swarm:"):
+                gated.append(ds); continue          # canonical battery: keep
+            verdict = smart_review_design(ds)
+            if verdict["recommended"] and verdict["score"] >= 7:
+                ds.note += f" [reviewed {verdict['score']}/10]"; gated.append(ds)
+            else:
+                rejected.append(f"{ds.name}: smart-gate {verdict['score']}/10 {verdict['flags']}")
+        kept = gated
     print(f"[design-swarm] {len(designs)} canonical + {len(swarm_extra)} swarm-proposed -> {len(kept)} kept, {len(rejected)} rejected")
 
     full_range = (start, end); oos_split = (start, oos_cut, oos_cut, end)
@@ -256,7 +308,8 @@ if __name__ == "__main__":
     ap.add_argument("--start", default="2025-07-01"); ap.add_argument("--end", default="2026-06-18")
     ap.add_argument("--oos-cut", default="2026-02-28")
     ap.add_argument("--no-swarm", action="store_true")
+    ap.add_argument("--no-smart-review", action="store_true")
     args = ap.parse_args()
     base = [int(x) for x in args.disable.split(",") if x.strip()]
     run_hypothesis(args.hypothesis, base, args.side, start=args.start, end=args.end,
-                   oos_cut=args.oos_cut, use_swarm=not args.no_swarm)
+                   oos_cut=args.oos_cut, use_swarm=not args.no_swarm, use_smart_review=not args.no_smart_review)
