@@ -107,3 +107,10 @@
 - When a direction RESOLVES (edge found OR honestly walled with documented reason), mark it + move to the next. A wall is progress (it eliminates a class).
 - **Replenish:** each resolved direction's findings generate the next structural question (e.g. if premium-selling walls on the steamroller tail → calendar/diagonal for long-vol protection is the natural child). Append new self-generated directions as they emerge.
 - This queue is NON-EMPTY by construction — there is always a next structural pivot. No "give me a direction" punts.
+
+## [2026-06-29] Two detectors from the 06-29 missed-setups post-mortem (WATCH-ONLY pending validation)
+
+- **DUAL_REJECTION_SEQUENCE_BREAKDOWN** (bearish (puts)): PRE-BREAK twin-rejection at a single resistance level + high-volume breakdown. Distinct from the existing detect_sequence_rejection (which is POST-bre... GO/NO-GO: beat-null >=2sigma real OPRA + OOS sign-stable + anchor-no-regression.
+- **DOUBLE_BOTTOM_ADJACENT_RECLAIM** (bullish (calls)): Double-bottom reversal where the two lows are ADJACENT 5m bars (zero bars between), then a single-bar neckline reclaim. The production double_bottom_d... GO/NO-GO: beat-null >=2sigma real OPRA + OOS sign-stable + anchor-no-regression.
+
+Shared dep: intraday swing-level discovery (frozen-levels bug — partially shipped via Gamma_LevelRefresh 2026-06-29; per-bar in-engine version queued).

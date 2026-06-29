@@ -1,0 +1,17 @@
+# Gym validators: dual-rejection-sequence (from 2026-06-29 missed-setups post-mortem)
+
+Source: markdown/research/MISSED-SETUPS-POSTMORTEM-2026-06-29.md. N=1 discipline: assert DETECTION on fixtures, arm nothing.
+
+Fixtures = the real 06-29 SPY 5m bars (in the post-mortem). Build crypto/validators/v{NN}_{slug}.py with run_offline()+run_live().
+
+## v_dual_rejection_sequence_detects
+On a fixture of the 06-29 09:45/09:50/09:55 bars WITH 739.80 in levels_active, the DUAL_REJECTION_SEQUENCE_BREAKDOWN detector FIRES on the bar after 09:55 close, returns rejection_level≈739.80, stop≈740.36, and entry_bar = breakdown_idx+1 (never the breakdown bar itself — Rule 2).
+
+## v_dual_rejection_needs_two
+On a fixture with only ONE shooting-star rejection then a breakdown (the second rejection removed), the detector does NOT fire — proving the SECOND rejection is load-bearing and distinguishes this from a single-bar rejection.
+
+## v_dual_rejection_starved_without_level
+On the exact 06-29 bars but with levels_active = premarket-frozen set (top level 738.10, no 739.80), the detector does NOT fire — pinning the frozen-key-levels root cause as a regression guard so the fix can't silently rot.
+
+## v_vol_expansion_ratio_math
+vol_expansion_ratio on the 09:55 bar (vol 31978) vs prior 5 bars returns ~1.5-2.0x and is strictly > the same bar's ratio against the 20-bar MA, proving the new primitive captures bar-to-bar expansion the old vol-mult check ignores.
