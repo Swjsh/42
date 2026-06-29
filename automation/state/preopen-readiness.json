@@ -1,0 +1,86 @@
+{
+  "checked_at_et": "2026-06-29 05:53:53",
+  "verdict": "GREEN",
+  "checks": [
+    {
+      "name": "Gamma_HeartbeatCore",
+      "status": "GREEN",
+      "detail": "Ready (live trading engine, fires ~09:30 ET, last_result=0)",
+      "critical": true
+    },
+    {
+      "name": "Gamma_SightBeacon",
+      "status": "GREEN",
+      "detail": "Ready (never-blind eye, fires ~session/1min ET, last_result=0)",
+      "critical": true
+    },
+    {
+      "name": "Gamma_EodFlatten",
+      "status": "GREEN",
+      "detail": "Ready (EOD flatten (Safe), fires ~15:55 ET, last_result=0)",
+      "critical": true
+    },
+    {
+      "name": "Gamma_EodFlatten_Aggressive",
+      "status": "GREEN",
+      "detail": "Ready (EOD flatten (Bold), fires ~15:55 ET, last_result=0)",
+      "critical": true
+    },
+    {
+      "name": "Gamma_LaunchTV",
+      "status": "GREEN",
+      "detail": "Ready (TV+CDP up, fires ~08:00 ET, last_result=0)",
+      "critical": false
+    },
+    {
+      "name": "Gamma_Premarket",
+      "status": "GREEN",
+      "detail": "Ready (bias/level audit, fires ~08:30 ET, last_result=0)",
+      "critical": false
+    },
+    {
+      "name": "Gamma_TvWatchdog",
+      "status": "GREEN",
+      "detail": "Ready (keeps TV+CDP alive, fires ~08:05/5min ET, last_result=0)",
+      "critical": false
+    },
+    {
+      "name": "broker:safe-1",
+      "status": "GREEN",
+      "detail": "ACTIVE, optsL3, equity=$2000, dtc=0, pdt=False",
+      "critical": true
+    },
+    {
+      "name": "broker:bold-2",
+      "status": "GREEN",
+      "detail": "ACTIVE, optsL3, equity=$1633, dtc=0, pdt=False",
+      "critical": true
+    },
+    {
+      "name": "broker:safe-3",
+      "status": "GREEN",
+      "detail": "ACTIVE, optsL3, equity=$2000, dtc=0, pdt=False",
+      "critical": true
+    },
+    {
+      "name": "broker:risky-1",
+      "status": "GREEN",
+      "detail": "ACTIVE, optsL3, equity=$2000, dtc=0, pdt=False",
+      "critical": true
+    },
+    {
+      "name": "broker:risky-3",
+      "status": "GREEN",
+      "detail": "ACTIVE, optsL3, equity=$2000, dtc=0, pdt=False",
+      "critical": true
+    },
+    {
+      "name": "broker:safe-2",
+      "status": "GREEN",
+      "detail": "ACTIVE, optsL3, equity=$1763, dtc=0, pdt=False",
+      "critical": true
+    }
+  ],
+  "reds": [],
+  "note": "read-only/notify-only; verifies the LIVE chain (HeartbeatCore + SightBeacon + EodFlatten) + broker auth. NEVER trade-halts."
+}
