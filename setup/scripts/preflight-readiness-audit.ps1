@@ -1,63 +1,17 @@
 #!/usr/bin/env pwsh
-# Pre-flight readiness audit for tomorrow's market open (5/14 09:30 ET).
-# Verifies each operational scheduled task's command line + trigger times.
-$ErrorActionPreference = "Continue"
-
-$tasks = @(
-    "Gamma_LaunchTV",
-    "Gamma_Premarket",
-    "Gamma_Heartbeat",
-    "Gamma_EodFlatten",
-    "Gamma_EodSummary",
-    "Gamma_DailyReview",
-    "Gamma_WatcherLive",
-    "Gamma_WatcherMorningReport",
-    "Gamma_WatcherReplay",
-    "Gamma_DiscordWatchdog",
-    "Gamma_SelfAudit"
-)
-
-Write-Output "=== PRE-FLIGHT READINESS AUDIT 5/14 ==="
-Write-Output ("audit_at: " + (Get-Date -Format "yyyy-MM-ddTHH:mm:ss"))
-Write-Output ""
-
-foreach ($name in $tasks) {
-    try {
-        $task = Get-ScheduledTask -TaskName $name -ErrorAction Stop
-        $info = Get-ScheduledTaskInfo -TaskName $name -ErrorAction SilentlyContinue
-        $actions = $task.Actions
-        $triggers = $task.Triggers
-
-        Write-Output ("--- " + $name + " ---")
-        Write-Output ("  State:        " + $task.State)
-        Write-Output ("  LastRun:      " + $info.LastRunTime)
-        Write-Output ("  LastResult:   " + $info.LastTaskResult)
-        Write-Output ("  NextRun:      " + $info.NextRunTime)
-
-        foreach ($a in $actions) {
-            if ($a -is [Microsoft.Management.Infrastructure.CimInstance]) {
-                $execPath = $a.CimInstanceProperties["Execute"].Value
-                $args = $a.CimInstanceProperties["Arguments"].Value
-                Write-Output ("  Execute:      " + $execPath)
-                Write-Output ("  Arguments:    " + $args)
-            } else {
-                Write-Output ("  Action:       " + ($a | Out-String).Trim())
-            }
-        }
-
-        foreach ($t in $triggers) {
-            $tStart = $t.StartBoundary
-            $rep = $t.Repetition
-            Write-Output ("  StartBoundary: " + $tStart)
-            if ($rep -and $rep.Interval) {
-                Write-Output ("  Interval:     " + $rep.Interval)
-                Write-Output ("  Duration:     " + $rep.Duration)
-            }
-        }
-        Write-Output ""
-    } catch {
-        Write-Output ("--- " + $name + " ---")
-        Write-Output ("  ERROR: " + $_.Exception.Message)
-        Write-Output ""
-    }
-}
+# RETIRED 2026-06-29 -- replaced by setup/scripts/preopen_readiness.py
+#
+# This script was a STALE time-bomb: it verified `Gamma_Heartbeat` (the LLM
+# heartbeat RETIRED 2026-06-25) as "the heartbeat", omitted the actual live
+# engine `Gamma_HeartbeatCore` + the never-blind eye `Gamma_SightBeacon`,
+# hardcoded a "5/14" date, and had NO broker-auth check. A readiness audit that
+# verifies a DEAD task reports a false-GREEN while the real engine is unverified
+# (C7: a stale audit masks live state).
+#
+# The replacement `preopen_readiness.py` checks the LIVE chain (HeartbeatCore +
+# SightBeacon + EodFlatten) AND broker auth (both accounts: ACTIVE / not blocked
+# / options level / PDT headroom), emits a machine-readable GREEN/YELLOW/RED
+# verdict to automation/state/preopen-readiness.json, and is pytest-guarded
+# (backtest/tests/test_preopen_readiness.py) so it cannot silently go stale again.
+Write-Output "preflight-readiness-audit.ps1 is RETIRED. Use: python setup/scripts/preopen_readiness.py"
+exit 1
