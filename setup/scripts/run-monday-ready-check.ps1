@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'Continue'  # don't fail the task on non-zero exit
+﻿$ErrorActionPreference = 'Continue'  # don't fail the task on non-zero exit
 $repoRoot = (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
 $venvPython = Join-Path $repoRoot 'backtest\.venv\Scripts\python.exe'
 $venvPythonW = Join-Path $repoRoot 'backtest\.venv\Scripts\pythonw.exe'

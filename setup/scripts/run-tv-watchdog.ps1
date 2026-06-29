@@ -1,4 +1,4 @@
-# Gamma_TvWatchdog - keeps TradingView + CDP (port 9222) alive during trading hours,
+﻿# Gamma_TvWatchdog - keeps TradingView + CDP (port 9222) alive during trading hours,
 # and flags a stale heartbeat. This is the "no TV = no trades" fix.
 #
 # WHY: Gamma_LaunchTV fires ONCE at 08:00 ET. Nothing recovered a mid-session TV death,

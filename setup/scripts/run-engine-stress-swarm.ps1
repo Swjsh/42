@@ -4,9 +4,9 @@
   Fire one engine-stress-swarm batch (overnight "cook all night" cadence).
 
   Runs the counterfactual engine-stress harness via the BACKTEST venv interpreter
-  (backtest\.venv) — which is reaper-EXEMPT in _shared.ps1, so the 3-min stale-process
+  (backtest\.venv) -- which is reaper-EXEMPT in _shared.ps1, so the 3-min stale-process
   reaper will not kill a long batch. The free 5-model swarm does the evaluation ($0,
-  separate API pool from the Max heartbeat — never starves market-hours trading).
+  separate API pool from the Max heartbeat -- never starves market-hours trading).
 
   Market-hours guard: skips the batch during 09:30-15:55 ET (uses local MT clock +2h)
   so the CPU burst never overlaps live trading. After-hours/overnight only.
@@ -27,7 +27,7 @@ $etNow = $nowLocal.AddHours(2)
 $isWeekday = ($etNow.DayOfWeek -ne 'Saturday') -and ($etNow.DayOfWeek -ne 'Sunday')
 $marketOpen = ($etNow.TimeOfDay -ge [TimeSpan]::Parse("09:30")) -and ($etNow.TimeOfDay -le [TimeSpan]::Parse("15:55"))
 if ($isWeekday -and $marketOpen) {
-    Add-Content -Path $log -Value ("[" + (Get-Date -Format o) + "] SKIP: market hours (ET " + $etNow.ToString("HH:mm") + ") — overnight/after-hours only")
+    Add-Content -Path $log -Value ("[" + (Get-Date -Format o) + "] SKIP: market hours (ET " + $etNow.ToString("HH:mm") + ") -- overnight/after-hours only")
     return
 }
 

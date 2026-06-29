@@ -1,4 +1,4 @@
-# Shadow model daily evaluator — fires after market close on weekdays.
+﻿# Shadow model daily evaluator — fires after market close on weekdays.
 # Runs shadow_model_eval.py for today's date on both Safe + Bold accounts.
 # Primary: Nemotron ($0 cost, full eval). Challengers: Hermes + Qwen (dt-only, Safe only).
 # Challenger failures do NOT abort the primary Nemotron eval.
