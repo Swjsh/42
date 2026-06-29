@@ -77,6 +77,18 @@ HEARTBEAT_LOG_STEM = {
 # TV watchdog writes ~every 5 min; flag if its own timestamp is older than this.
 TV_STALE_MIN = 20
 
+# GEX OI archive continuity (2026-06-29): the months-long dealer-positioning accrual
+# (Gamma_CboeOiBank, daily 15:55 ET -> journal/gex-archive/) is the 'class'-rung data
+# engine. It can die SILENTLY (un-scheduled / reaped / CBOE format change) and only be
+# discovered months later as a gap-riddled, backtest-worthless archive (C7 silent-failure).
+# assess_archive_continuity already encodes the GREEN/YELLOW/RED ladder + a synthetic-fixture
+# guard, but nothing RAN it against the LIVE archive on a schedule -- so this check wires the
+# checker into the every-minute health beacon. It is NON-CRITICAL by design: a stalled RESEARCH
+# accrual must NEVER trade-halt nor flip the critical engine verdict RED (it can only degrade to
+# YELLOW), but a genuine multi-day stall returns RED status so the transition-only alerter pings
+# J exactly once (the silent-accrual-death surfaced -- J's #1 gap is visibility).
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
 # ---------------------------------------------------------------------------
 # DST / ET helpers (copied verbatim from session_guard.py convention -- system
 # Python on this host lacks tzdata, so we compute the US offset by hand).
@@ -436,6 +448,35 @@ def check_killswitch(name: str, path: Path) -> dict:
     return _chk(name, "GREEN", "armed, not tripped", critical=True)
 
 
+def check_gex_archive(et: datetime) -> dict:
+    """Continuity of the GEX OI accrual (the 'class'-rung data engine). NON-CRITICAL:
+    a stalled research accrual must never trade-halt nor RED the critical verdict -- it
+    degrades to YELLOW at most, and a genuine multi-day stall returns RED *status* so the
+    transition-only alerter pings J once. Fail-open: any import/read error is a benign
+    YELLOW (never crashes the beacon, never pings). as_of = the ET date (rig is MT, so the
+    naive ET date, NOT the system-local date, defines 'owed'); expect_today=False so a
+    not-yet-captured today is never falsely flagged."""
+    name = "gex_archive"
+    try:
+        if str(REPO_ROOT) not in sys.path:
+            sys.path.insert(0, str(REPO_ROOT))
+        from backtest.tools.gex_archive_health import assess_archive_continuity
+    except Exception as e:  # noqa: BLE001 -- never let a research checker break the beacon
+        return _chk(name, "YELLOW", f"continuity checker unavailable ({type(e).__name__})", critical=False)
+    try:
+        r = assess_archive_continuity(as_of=et.date(), expect_today=False)
+    except Exception as e:  # noqa: BLE001
+        return _chk(name, "YELLOW", f"continuity assess failed ({type(e).__name__})", critical=False)
+    status = r.get("status", "YELLOW")
+    if status not in ("GREEN", "YELLOW", "RED"):
+        status = "YELLOW"
+    days = r.get("days_accrued")
+    latest = r.get("latest_session")
+    detail = f"{r.get('reason', '?')} ({days} sessions, latest {latest})"
+    # NON-CRITICAL always: research-data continuity, never a live-trade gate.
+    return _chk(name, status, detail, critical=False)
+
+
 def check_position(name: str, path: Path) -> dict:
     data, err = _read_json(path)
     if data is None:
@@ -492,6 +533,9 @@ def build_report() -> dict:
         check_killswitch("killswitch_bold", AGG / "circuit-breaker.json"),
         check_position("position_safe", STATE / "current-position.json"),
         check_position("position_bold", STATE / "current-position-bold.json"),
+        # NON-CRITICAL research-data continuity watcher (2026-06-29): surfaces a silent
+        # GEX-accrual death without ever trade-halting or RED-ing the critical verdict.
+        check_gex_archive(et),
     ]
     verdict, reds = fuse(checks)
     red_checks = sorted(c["name"] for c in checks if c["status"] == "RED")
