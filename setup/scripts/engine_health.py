@@ -92,6 +92,29 @@ TV_STALE_MIN = 20
 LEVEL_FEED_STALE_MIN = 20
 LEVEL_FEED_WARMUP_MIN = 12
 
+# Extra-setup dispatch health (2026-06-29): the setup_dispatch layer feeds the validated-
+# but-mostly-dormant detectors (vwap_continuation edge #1, gap_and_go, ...). It silently
+# returned None on EVERY tick for an extended period -- the G16 _build_ctx ImportError --
+# and that blindness was INVISIBLE until a manual observe-live caught it 2026-06-27. This
+# check graduates that manual ritual into an automated guard: when an extra-setup detector
+# flag is ENABLED in an account's params, the live decisions MUST carry extra_signals on
+# that account's ticks. Enabled-but-ZERO over a populated RTH is the EXACT G16 silent-
+# dispatch-death signature. NON-CRITICAL (research/observability path, never a live-trade
+# gate) + fail-open. RED only on the unambiguous zero-with-sufficient-ticks case (no
+# partial-ratio YELLOW -> avoids false alarms during open warmup / short sessions).
+DISPATCH_FLAGS = (
+    "j_vwap_cont_enabled", "gap_and_go_enabled",
+    "j_vwap_reclaim_fb_enabled", "j_vix_dayside_enabled",
+    "db_base_quiet_enabled",
+)
+# An RTH must have produced at least this many ticks before "zero extra_signals" is
+# unambiguously a silent death (vs a just-opened or holiday-short session). A full RTH is
+# ~380 ticks/account; 30 = the first ~30 min, well past dispatch warmup.
+DISPATCH_MIN_TICKS = 30
+# Bound the tail read so the every-minute beacon never parses an unbounded ledger.
+# ~2 full trading days/account at ~380 ticks each x2 accounts = headroom for the latest RTH.
+DISPATCH_TAIL_LINES = 2500
+
 # GEX OI archive continuity (2026-06-29): the months-long dealer-positioning accrual
 # (Gamma_CboeOiBank, daily 15:55 ET -> journal/gex-archive/) is the 'class'-rung data
 # engine. It can die SILENTLY (un-scheduled / reaped / CBOE format change) and only be
@@ -526,6 +549,119 @@ def check_level_feed(market_open: bool, et: datetime) -> dict:
     return _chk(name, "GREEN", detail, critical=True)
 
 
+def assess_dispatch_health(rows: list, enabled_by_account: dict,
+                           min_ticks: int = DISPATCH_MIN_TICKS) -> dict:
+    """Pure assessor (testable, no IO). Detects the G16 silent-dispatch-death.
+
+    rows               -- list of decision dicts, each with 'account', 'ts_et', and
+                          optionally 'extra_signals'.
+    enabled_by_account -- {account_name: bool} -- whether ANY extra-setup flag is enabled
+                          in that account's params (so dispatch is EXPECTED to emit rows).
+
+    For each ENABLED account, evaluate the MOST RECENT date present in its rows. RED only
+    when that date is populated (>= min_ticks rows) AND ZERO of them carry extra_signals --
+    the unambiguous G16 signature (dispatch silently emitting nothing despite an enabled
+    detector). Healthy / insufficient-data / no-enabled-account -> GREEN. Never raises on a
+    malformed row (the caller fail-opens on any exception)."""
+    by_acct: dict = {}
+    for r in rows:
+        if not isinstance(r, dict):
+            continue
+        acct = r.get("account")
+        if acct is None:
+            continue
+        by_acct.setdefault(acct, []).append(r)
+
+    enabled = [a for a, on in enabled_by_account.items() if on]
+    if not enabled:
+        return {"status": "GREEN", "detail": "no extra-setup flag enabled (dispatch idle)",
+                "accounts": {}}
+
+    acct_stats: dict = {}
+    blind: list = []
+    healthy: list = []
+    insufficient: list = []
+    for acct in enabled:
+        ar = by_acct.get(acct, [])
+        # latest date present for this account (ts_et is naive ET 'YYYY-MM-DD...')
+        dates = sorted({str(r.get("ts_et", ""))[:10] for r in ar if r.get("ts_et")})
+        latest = dates[-1] if dates else None
+        day_rows = [r for r in ar if str(r.get("ts_et", ""))[:10] == latest] if latest else []
+        n_total = len(day_rows)
+        n_extra = sum(1 for r in day_rows if r.get("extra_signals"))
+        acct_stats[acct] = {"date": latest, "n_total": n_total, "n_extra": n_extra}
+        if n_total < min_ticks:
+            insufficient.append(f"{acct}({n_total}t<{min_ticks})")
+        elif n_extra == 0:
+            blind.append(f"{acct} {latest}: 0/{n_total} ticks emitted extra_signals")
+        else:
+            healthy.append(f"{acct} {n_extra}/{n_total}")
+
+    if blind:
+        detail = ("EXTRA-SETUP DISPATCH BLIND -- " + "; ".join(blind)
+                  + " (G16 silent-dispatch-death signature; an enabled detector emitted "
+                  "NOTHING all session -- check setup_dispatch._build_ctx)")
+        return {"status": "RED", "detail": detail, "accounts": acct_stats}
+    parts = healthy + insufficient
+    return {"status": "GREEN", "detail": "dispatch live: " + ", ".join(parts) if parts
+            else "dispatch idle (no decisions yet)", "accounts": acct_stats}
+
+
+def _enabled_dispatch_flags(params_path: Path) -> Optional[bool]:
+    """True if ANY extra-setup flag is enabled in params_path; None if unreadable."""
+    data, _err = _read_json(params_path)
+    if data is None:
+        return None
+    return any(data.get(f) is True for f in DISPATCH_FLAGS)
+
+
+def _tail_decisions(path: Path, n: int) -> list:
+    """Read the last n JSON lines of the decisions ledger. Fail-open: returns [] on any
+    read/parse error (the check then reports GREEN-quiet, never crashes the beacon)."""
+    try:
+        with path.open("r", encoding="utf-8") as fh:
+            lines = fh.readlines()
+    except OSError:
+        return []
+    out = []
+    for ln in lines[-n:]:
+        ln = ln.strip()
+        if not ln:
+            continue
+        try:
+            out.append(json.loads(ln))
+        except (ValueError, TypeError):
+            continue
+    return out
+
+
+def check_dispatch_health(et: datetime) -> dict:
+    """Extra-setup dispatch liveness (the G16 silent-death guard). Reads each account's
+    enabled dispatch flags + the recent decisions ledger and asserts that an ENABLED
+    detector actually emits extra_signals on the latest RTH. NON-CRITICAL always (research/
+    observability path -- never trade-halts, never REDs the critical verdict) + fail-open
+    (any read/parse error -> benign YELLOW). A genuine BLIND-dispatch returns RED *status*
+    so the transition-only alerter pings J once."""
+    name = "dispatch_health"
+    try:
+        enabled = {
+            "safe": _enabled_dispatch_flags(STATE / "params.json"),
+            "bold": _enabled_dispatch_flags(AGG / "params.json"),
+        }
+        if all(v is None for v in enabled.values()):
+            return _chk(name, "YELLOW", "no params readable", critical=False)
+        # Drop unreadable accounts (None) -> never expect dispatch from a params we can't read.
+        enabled_clean = {a: bool(v) for a, v in enabled.items() if v is not None}
+        rows = _tail_decisions(STATE / "core-decisions.jsonl", DISPATCH_TAIL_LINES)
+        r = assess_dispatch_health(rows, enabled_clean)
+    except Exception as e:  # noqa: BLE001 -- never let the dispatch checker break the beacon
+        return _chk(name, "YELLOW", f"dispatch assess failed ({type(e).__name__})", critical=False)
+    status = r.get("status", "YELLOW")
+    if status not in ("GREEN", "YELLOW", "RED"):
+        status = "YELLOW"
+    return _chk(name, status, r.get("detail", "?"), critical=False)
+
+
 def check_position(name: str, path: Path) -> dict:
     data, err = _read_json(path)
     if data is None:
@@ -590,6 +726,11 @@ def build_report() -> dict:
         # guard for the only shippable win of the 06-29 missed-setups mission. Never
         # trade-halts; degrades to YELLOW and pings J once on a genuine RTH stall.
         check_level_feed(mkt, et),
+        # NON-CRITICAL extra-setup dispatch liveness (2026-06-29): graduates the G16
+        # observe-live ritual into a guard -- surfaces a silent setup_dispatch death
+        # (an enabled detector emitting ZERO extra_signals all session, the exact bug
+        # that was invisible for weeks). Never trade-halts; RED status pings J once.
+        check_dispatch_health(et),
     ]
     verdict, reds = fuse(checks)
     red_checks = sorted(c["name"] for c in checks if c["status"] == "RED")
