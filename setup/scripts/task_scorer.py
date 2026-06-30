@@ -39,6 +39,16 @@ from typing import NamedTuple
 # ---------------------------------------------------------------------------
 REPO_ROOT = Path(__file__).resolve().parents[2]
 QUEUE = REPO_ROOT / "automation" / "overnight" / "queue.md"
+# Confirm-before-capital recency state (produced by the weekly recency_check).
+# A promote-keeper item is only ACTIONABLE when a contender can clear this gate;
+# when it is explicitly RED the promote cannot ship, so it must NOT be surfaced
+# as the top ready task (that just wastes a fire re-verifying the wall).
+RECENCY_STATE = REPO_ROOT / "automation" / "state" / "recency-confirmation.json"
+
+# Items whose readiness is externally gated by the recency state (substring,
+# case-insensitive). PROMOTE-KEEPER ranks HIGH on every fire but is unshippable
+# while recency is RED — the actuator + contender_oos_check both block it.
+RECENCY_GATED_ID_MARKER = "PROMOTE-KEEPER"
 
 # ---------------------------------------------------------------------------
 # Section parsing markers.
@@ -118,6 +128,33 @@ def _extract_field(rest: str, key: str) -> str:
         if chunk.lower().startswith(key + ":"):
             return chunk[len(key) + 1 :].strip()
     return ""
+
+
+def _recency_explicitly_red(path: Path | None = None) -> bool:
+    """True ONLY when the confirm-before-capital headline is readable and
+    EXPLICITLY RED (``headline.edges_confirmed_on_recent is False``).
+
+    Missing / garbled / confirmed (``True``) → returns False (do NOT suppress).
+    This is deliberately the *conservative* direction for ATTENTION-routing: we
+    only down-rank a promote when we POSITIVELY know it is recency-blocked, never
+    hiding work on uncertainty. (The capital gates in autonomy_actuator /
+    contender_oos_check fail CLOSED — that is the right direction for *shipping*;
+    this scorer only routes attention, so it fails OPEN toward surfacing.)
+
+    Reads the SAME field as ``autonomy_actuator._recency_gate_clears`` — the
+    field contract is pinned by ``test_task_scorer_recency.py``'s parity test so
+    the two readers can never drift apart (C14). Never raises.
+    """
+    p = path or RECENCY_STATE
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        headline = data.get("headline") if isinstance(data, dict) else None
+        return (
+            isinstance(headline, dict)
+            and headline.get("edges_confirmed_on_recent") is False
+        )
+    except Exception:
+        return False
 
 
 def _is_blocked_by_deps(depends: str) -> bool:
@@ -244,6 +281,19 @@ def parse_queue(text: str) -> list[Task]:
 
             ready = bool(status_ok) and not has_deps
 
+            # Confirm-before-capital: a recency-gated item (PROMOTE-KEEPER) is
+            # only ACTIONABLE when a contender can actually clear the recency
+            # gate. When recency is explicitly RED the promote cannot ship, so
+            # surfacing it as the top READY item just wastes a fire re-verifying
+            # the wall — down-rank it to not-ready (still visible under --all).
+            recency_blocked = (
+                ready
+                and RECENCY_GATED_ID_MARKER in task_id.upper()
+                and _recency_explicitly_red()
+            )
+            if recency_blocked:
+                ready = False
+
             score, reason = score_item(
                 priority=priority,
                 description=description,
@@ -251,6 +301,11 @@ def parse_queue(text: str) -> list[Task]:
                 ready=ready,
                 has_deps=has_deps,
             )
+            if recency_blocked:
+                reason += (
+                    "; blocked: confirm-before-capital recency RED "
+                    "(no shippable contender)"
+                )
             tasks.append(
                 Task(
                     id=task_id,
