@@ -1,4 +1,4 @@
-# Weekly Review — fires at Sunday 18:00 ET.
+﻿# Weekly Review — fires at Sunday 18:00 ET.
 . "$PSScriptRoot\_shared.ps1"
 
 $task = "weekly-review"

@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 <#
 .SYNOPSIS
   Daily Analyst EOD -- fires 16:45 ET via Gamma_AnalystEodReview.

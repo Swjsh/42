@@ -1,4 +1,4 @@
-# Daily morning status report — fires at 08:00 ET.
+﻿# Daily morning status report — fires at 08:00 ET.
 # Generates docs/STATUS.md + automation/state/research-queue.json so the
 # next session/dashboard/J reading the file all see the same state.
 $ErrorActionPreference = 'Stop'

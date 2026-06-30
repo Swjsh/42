@@ -1,4 +1,4 @@
-# Aggressive EOD flatten safety net — fires at 15:55 ET weekdays.
+﻿# Aggressive EOD flatten safety net — fires at 15:55 ET weekdays.
 # Closes any 0DTE position in the aggressive paper account not already
 # closed by the aggressive heartbeat's 15:50 time stop.
 . "$PSScriptRoot\_shared.ps1"

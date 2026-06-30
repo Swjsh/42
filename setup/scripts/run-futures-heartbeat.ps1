@@ -1,4 +1,4 @@
-# Futures Heartbeat tick — Gamma Futures Edition (MNQ/MES, watch-only until TT approved).
+﻿# Futures Heartbeat tick — Gamma Futures Edition (MNQ/MES, watch-only until TT approved).
 # Task Scheduler fires every 3 min from 09:30 to 15:55 ET weekdays.
 # WATCH-ONLY: logs would-be trades while Tastytrade account is under review (3-5 days).
 # Flip WATCH_ONLY = False in backtest/futures/tastytrade_paper.py after account approval.

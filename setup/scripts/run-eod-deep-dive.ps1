@@ -1,4 +1,4 @@
-# EOD Deep-Dive runner — fires at 16:05 ET (post-EodSummary).
+﻿# EOD Deep-Dive runner — fires at 16:05 ET (post-EodSummary).
 # Pure Python pipeline, no LLM in loop, ~1 sec runtime.
 #
 # Phase 1: runs from journal+state files only (no MCP injection).

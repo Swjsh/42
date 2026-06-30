@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 <#
 .SYNOPSIS
   Gamma Swarm Pre-Market Hypothesis Engine -- fires at 06:00 ET weekdays.

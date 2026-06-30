@@ -1,4 +1,4 @@
-# Aggressive heartbeat tick — same 3-min schedule as safe heartbeat.
+﻿# Aggressive heartbeat tick — same 3-min schedule as safe heartbeat.
 # Runs the second paper account (mcp__alpaca_aggressive__) with wider stops,
 # relaxed time gates, and larger sizing. State in automation/state/aggressive/.
 #

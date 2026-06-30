@@ -1,4 +1,4 @@
-# EOD summary write -- fires at 16:00 ET weekdays.
+﻿# EOD summary write -- fires at 16:00 ET weekdays.
 # OP-30 FREE-TIER-FIRST: tries Nemotron/DeepSeek/MiniMax-free ladder first ($0).
 # Only escalates to Claude if the entire free-tier ladder fails.
 . "$PSScriptRoot\_shared.ps1"

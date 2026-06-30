@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 <#
 .SYNOPSIS
   Ghost order reconciler -- fires every 1 min during 09:30-15:55 ET.

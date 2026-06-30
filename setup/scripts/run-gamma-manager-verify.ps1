@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 <#
 .SYNOPSIS
   Daily Gamma Manager verification -- fires 17:30 ET via Gamma_ManagerDailyVerify.

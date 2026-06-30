@@ -1,4 +1,4 @@
-# Daily Review — fires at 16:30 ET weekdays.
+﻿# Daily Review — fires at 16:30 ET weekdays.
 . "$PSScriptRoot\_shared.ps1"
 
 $task = "daily-review"

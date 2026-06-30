@@ -1,4 +1,4 @@
-# Premarket routine — fires at 08:30 ET weekdays.
+﻿# Premarket routine — fires at 08:30 ET weekdays.
 # Self-heal: hard wall-clock cap 6 min, retry once on timeout/failure (but only
 # if there's enough buffer before market open at 09:30).
 . "$PSScriptRoot\_shared.ps1"

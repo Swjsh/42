@@ -1,4 +1,4 @@
-# EOD flatten safety net — fires at 15:55 ET weekdays.
+﻿# EOD flatten safety net — fires at 15:55 ET weekdays.
 . "$PSScriptRoot\_shared.ps1"
 
 $task = "eod-flatten"

@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 <#
 .SYNOPSIS
   Daily crypto-harness routine. Fires once per day at 06:00 ET via Gamma_CryptoDaily.

@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 <#
 .SYNOPSIS
   Daily gym session — unified chart-reading audit scorecard for the SPY engine.

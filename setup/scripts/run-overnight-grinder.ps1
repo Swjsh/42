@@ -1,4 +1,4 @@
-# Gamma_OvernightGrinder fire — invokes Claude Code with the wake prompt.
+﻿# Gamma_OvernightGrinder fire — invokes Claude Code with the wake prompt.
 # Each fire = a fresh Claude session that grinds one task from the queue.
 #
 # Cost: ~$0.30/fire on Sonnet. Total ~$4-5/night across 14 fires.

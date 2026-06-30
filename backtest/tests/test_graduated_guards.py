@@ -3468,3 +3468,25 @@ def test_smart_reviewer_shadow_gate_keeps_gamma_in_loop_until_85() -> None:
     # the gate logic: a sub-85% agreement must NOT graduate (proven via a tiny synthetic tally)
     # (we don't call the live model here — that's the runnable scorecard; this guards the math.)
     assert (0.80 >= sh.GRAD_THRESHOLD) is False, "0.80 must be below the gate"
+
+
+def test_run_ps1_ascii_or_bom() -> None:
+    """G-ENCODING (2026-06-29, the 544-day silent-failure class): every scheduled-task
+    run-*.ps1 must be pure-ASCII OR start with a UTF-8 BOM. A BOM-less non-ASCII .ps1 is
+    read by PowerShell 5.1 as Windows-1252 and parse-crashes SILENTLY (wrapper exits 0,
+    no output) — the exact bug that killed Gamma_TvWatchdog for hours. RED on regression."""
+    bad = []
+    for p in sorted((REPO / "setup" / "scripts").glob("run-*.ps1")):
+        raw = p.read_bytes()
+        if raw[:3] == b"\xef\xbb\xbf":
+            continue
+        try:
+            txt = raw.decode("utf-8")
+        except UnicodeDecodeError:
+            bad.append(p.name + " (not utf-8)"); continue
+        if any(ord(c) > 127 for c in txt):
+            bad.append(p.name)
+    assert not bad, (
+        f"{len(bad)} run-*.ps1 are non-ASCII without a BOM -> PS 5.1 silent parse-crash: "
+        f"{bad[:8]}. Fix: prepend a UTF-8 BOM (b'\xef\xbb\xbf') or make ASCII-only."
+    )

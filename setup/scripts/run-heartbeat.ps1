@@ -1,4 +1,4 @@
-# Heartbeat tick — Task Scheduler fires every 3 min from 09:30 to 15:50 ET weekdays.
+﻿# Heartbeat tick — Task Scheduler fires every 3 min from 09:30 to 15:50 ET weekdays.
 # Each tick is a fresh `claude --print` invocation. State lives in JSON files.
 #
 # Cost-control layers (2026-05-06 v2):

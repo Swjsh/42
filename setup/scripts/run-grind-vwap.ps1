@@ -1,4 +1,4 @@
-# One-shot vwap_continuation strategy-family pipeline: grind -> funnel -> consolidation.
+﻿# One-shot vwap_continuation strategy-family pipeline: grind -> funnel -> consolidation.
 #
 # Launched hidden via the OP-27 L42 zero-leak chain
 #   (wscript -> run_exe_hidden.vbs -> pythonw -> run_ps1_hidden.py -> THIS).

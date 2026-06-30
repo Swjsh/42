@@ -1,4 +1,4 @@
-# Gamma Next.js dashboard keepalive -- every 5 min, restart dashboard (port 3000) if dead.
+﻿# Gamma Next.js dashboard keepalive -- every 5 min, restart dashboard (port 3000) if dead.
 # Mirrors run-companion-keepalive.ps1 (HTTP liveness probe, CreateNoWindow node spawn).
 # The dashboard is the primary visibility layer at http://localhost:3000.
 #

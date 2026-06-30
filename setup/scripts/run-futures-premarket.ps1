@@ -1,4 +1,4 @@
-# Futures pre-market routine — fires 08:30 ET weekdays.
+﻿# Futures pre-market routine — fires 08:30 ET weekdays.
 # Sets key levels, bias, VIX gate, journal header for MNQ/MES session.
 . "$PSScriptRoot\_shared.ps1"
 

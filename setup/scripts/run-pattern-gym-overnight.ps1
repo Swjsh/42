@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 <#
 .SYNOPSIS
   Pattern Gym Overnight -- nightly chart-pattern detector regression.

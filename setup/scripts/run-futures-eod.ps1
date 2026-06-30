@@ -1,4 +1,4 @@
-# Futures EOD review — fires 16:05 ET weekdays.
+﻿# Futures EOD review — fires 16:05 ET weekdays.
 # Reviews trades, runs in-prompt replay, updates journal and trades.csv.
 . "$PSScriptRoot\_shared.ps1"
 
