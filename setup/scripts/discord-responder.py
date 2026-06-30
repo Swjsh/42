@@ -42,6 +42,8 @@ import re
 import shutil
 import subprocess
 import sys
+
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0  # no conhost flash on win32 (OP-27 L41)
 from datetime import timedelta, timezone
 from pathlib import Path
 
@@ -335,6 +337,7 @@ def _try_revert(content: str, user_id: str) -> bool:
         res = subprocess.run(
             [sys.executable, str(actuator), "revert", target_id],
             capture_output=True, text=True, timeout=120, cwd=str(REPO),
+            creationflags=_CREATE_NO_WINDOW,
         )
         ok = res.returncode == 0
         last = ((res.stdout or "") + (res.stderr or "")).strip().splitlines()

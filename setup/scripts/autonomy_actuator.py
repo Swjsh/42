@@ -40,6 +40,8 @@ import re
 import shutil
 import subprocess
 import sys
+
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0  # no conhost flash on win32 (OP-27 L41)
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -369,7 +371,8 @@ _GIT = _git_exe()
 
 
 def _git(*args: str) -> subprocess.CompletedProcess:
-    return subprocess.run([_GIT, *args], cwd=str(REPO), capture_output=True, text=True)
+    return subprocess.run([_GIT, *args], cwd=str(REPO), capture_output=True, text=True,
+                          creationflags=_CREATE_NO_WINDOW)
 
 
 # ---------------------------------------------------------------- snapshot/restore
@@ -565,7 +568,8 @@ def _run_gate() -> tuple[bool, str]:
     venv = REPO / "backtest" / ".venv" / "Scripts" / "python.exe"
     if venv.exists():
         py = str(venv)
-    proc = subprocess.run([py, str(GATE)], cwd=str(REPO), capture_output=True, text=True)
+    proc = subprocess.run([py, str(GATE)], cwd=str(REPO), capture_output=True, text=True,
+                          creationflags=_CREATE_NO_WINDOW)
     tail = (proc.stdout + "\n" + proc.stderr).strip().splitlines()
     return proc.returncode == 0, "\n".join(tail[-12:])
 

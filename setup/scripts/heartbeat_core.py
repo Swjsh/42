@@ -31,6 +31,8 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0  # no conhost flash on win32 (OP-27 L41)
 from datetime import datetime, time, timedelta, timezone
 from pathlib import Path
 
@@ -460,7 +462,7 @@ def _engine_verdict(payload: dict) -> dict:
     try:
         proc = subprocess.run([sys.executable, "-m", "backtest.lib.engine.engine_cli"],
                               input=json.dumps(payload), capture_output=True, text=True,
-                              cwd=str(REPO), timeout=30)
+                              cwd=str(REPO), timeout=30, creationflags=_CREATE_NO_WINDOW)
         return json.loads(proc.stdout.strip().splitlines()[-1])
     except Exception as e:  # noqa: BLE001
         return {"verdict": "SKIP_BAD_INPUT", "error": f"{type(e).__name__}: {e}"}

@@ -29,6 +29,8 @@ import datetime as dt
 import json
 import subprocess
 import sys
+
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0  # no conhost flash on win32 (OP-27 L41)
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]              # ...\42\backtest
@@ -173,7 +175,8 @@ def _refresh_recency() -> None:
     """Re-invoke recency_check.py (same interpreter) to refresh the verdicts on the latest cache."""
     try:
         subprocess.run([sys.executable, str(RECENCY_PY)], cwd=str(ROOT),
-                       check=True, capture_output=True, text=True, timeout=900)
+                       check=True, capture_output=True, text=True, timeout=900,
+                       creationflags=_CREATE_NO_WINDOW)
     except Exception as e:  # noqa: BLE001 — fail-loud, then fall back to existing JSON (OP-25)
         print(f"[license-monitor] WARN recency refresh failed ({e}); using existing JSON", flush=True)
 

@@ -28,6 +28,8 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0  # no conhost flash on win32 (OP-27 L41)
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -170,6 +172,7 @@ def fetch_task_states() -> dict:
         out = subprocess.run(
             ["powershell.exe", "-NoProfile", "-Command", ps],
             capture_output=True, text=True, timeout=60,
+            creationflags=_CREATE_NO_WINDOW,
         )
         for line in out.stdout.splitlines():
             parts = line.strip().split("|")

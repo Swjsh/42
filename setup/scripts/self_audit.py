@@ -20,6 +20,8 @@ import json
 import re
 import subprocess
 import sys
+
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0  # no conhost flash on win32 (OP-27 L41)
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
@@ -56,7 +58,8 @@ def _recent_context() -> str:
         pass
     try:
         log = subprocess.run(["git", "-C", str(REPO), "log", "--oneline", "-12"],
-                             capture_output=True, text=True, timeout=20)
+                             capture_output=True, text=True, timeout=20,
+                             creationflags=_CREATE_NO_WINDOW)
         bits.append("RECENT COMMITS:\n" + log.stdout)
     except Exception:
         pass
@@ -165,7 +168,8 @@ def main() -> int:
     try:
         subprocess.run([exe, str(SWARM), "audit", "--quiet", "--question", STANDING_QUESTION,
                         "--context", _recent_context()],
-                       cwd=str(REPO), timeout=300, capture_output=True, text=True)
+                       cwd=str(REPO), timeout=300, capture_output=True, text=True,
+                       creationflags=_CREATE_NO_WINDOW)
     except Exception as e:  # noqa: BLE001
         print(f"self_audit: swarm run failed ({type(e).__name__}: {e})")
         return 0

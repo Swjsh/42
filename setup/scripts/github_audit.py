@@ -21,6 +21,8 @@ import json
 import re
 import subprocess
 import sys
+
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0  # no conhost flash on win32 (OP-27 L41)
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -114,7 +116,8 @@ class Finding:
 
 def _run(cmd: list[str], timeout: int = 120) -> str:
     result = subprocess.run(
-        cmd, capture_output=True, text=True, cwd=str(PROJECT_ROOT), timeout=timeout
+        cmd, capture_output=True, text=True, cwd=str(PROJECT_ROOT), timeout=timeout,
+        creationflags=_CREATE_NO_WINDOW,
     )
     return result.stdout
 

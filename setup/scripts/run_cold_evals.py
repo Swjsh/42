@@ -22,6 +22,8 @@ Qwen dates) so each model's inter-run sleep applies only within that model's bur
 
 import subprocess
 import sys
+
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0  # no conhost flash on win32 (OP-27 L41)
 import time
 from pathlib import Path
 
@@ -57,7 +59,7 @@ def run_eval(model: str, date: str, clear: bool = False, dry_run: bool = False) 
     print(f"CMD: {' '.join(cmd)}")
     print(f"{'='*60}")
     sys.stdout.flush()
-    result = subprocess.run(cmd, capture_output=False)
+    result = subprocess.run(cmd, capture_output=False, creationflags=_CREATE_NO_WINDOW)
     return result.returncode
 
 

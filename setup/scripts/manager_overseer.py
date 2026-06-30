@@ -17,6 +17,8 @@ import json
 import os
 import subprocess
 import sys
+
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0  # no conhost flash on win32 (OP-27 L41)
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -116,7 +118,8 @@ def main() -> int:
         # as a Windows positional arg). shell=True uses cmd.exe's < redirect.
         proc = subprocess.run(f'"{exe}" --print --model {SONNET} < "{tf}"',
                               shell=True, capture_output=True, text=True,
-                              timeout=240, cwd=str(REPO), encoding="utf-8", errors="replace")
+                              timeout=240, cwd=str(REPO), encoding="utf-8", errors="replace",
+                              creationflags=_CREATE_NO_WINDOW)
     except Exception as exc:  # noqa: BLE001
         print(f"overseer claude call failed: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1

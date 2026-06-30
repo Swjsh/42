@@ -22,6 +22,8 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0  # no conhost flash on win32 (OP-27 L41)
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -234,7 +236,8 @@ def run_cycle(*, allow_heavy: bool = True) -> dict:
         cmd = [sys.executable] + [str(REPO / p) for p in PYTHON_TOOLS[ptool]]
         try:
             proc = subprocess.run(cmd, capture_output=True, text=True, timeout=240,
-                                  cwd=str(REPO), encoding="utf-8", errors="replace")
+                                  cwd=str(REPO), encoding="utf-8", errors="replace",
+                                  creationflags=_CREATE_NO_WINDOW)
             out = (proc.stdout or proc.stderr or "")[:4000]
             OUT_DIR.mkdir(parents=True, exist_ok=True)
             op = OUT_DIR / f"{_et_now():%Y-%m-%d-%H%M}-python-{ptool}.md"

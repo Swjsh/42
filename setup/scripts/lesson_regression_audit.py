@@ -22,6 +22,8 @@ import json
 import re
 import subprocess
 import sys
+
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0  # no conhost flash on win32 (OP-27 L41)
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -49,7 +51,8 @@ def run_guards() -> tuple[int, str]:
     if not targets:
         return 0, "no graduated guard tests found"
     proc = subprocess.run([py, "-m", "pytest", "-q", "--tb=line", "-p", "no:cacheprovider", *targets],
-                          cwd=str(REPO), capture_output=True, text=True)
+                          cwd=str(REPO), capture_output=True, text=True,
+                          creationflags=_CREATE_NO_WINDOW)
     return proc.returncode, proc.stdout + "\n" + proc.stderr
 
 
