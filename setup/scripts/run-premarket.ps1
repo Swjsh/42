@@ -60,4 +60,25 @@ if ($exit -ne 0) {
         Write-TaskLog -TaskName $task -Message ("NO_RETRY exit=" + $exit + ", only " + ([math]::Round($minutesUntilOpen,1)) + "min until open - give up cleanly")
     }
 }
+
+# OP-33 / insight-#1: VERIFY THE WORK, not the exit code. The LLM can exit 0 without writing a
+# bias (the 06-30 silent failure: claude returned 0, today-bias stayed dated yesterday, engine
+# would have opened on a stale read). If today-bias is not dated today, the run FAILED -- fail
+# LOUDLY (force a non-zero scheduler result + STATUS.md BROKEN) instead of exit-0-silent.
+try {
+    $biasFile = Join-Path $WorkDir "automation\state\today-bias.json"
+    $todayEt  = $et.ToString("yyyy-MM-dd")
+    $biasDate = (Get-Content $biasFile -Raw -ErrorAction Stop | ConvertFrom-Json).date
+    if ($biasDate -ne $todayEt) {
+        $msg = "PREMARKET SILENT FAILURE: claude exit=$exit but today-bias.date=$biasDate != today $todayEt (no fresh bias written). Engine would open on a STALE bias."
+        Write-TaskLog -TaskName $task -Message $msg
+        $statusMd = Join-Path $WorkDir "automation\overnight\STATUS.md"
+        try { Add-Content -Path $statusMd -Value ("`n### BROKEN: premarket " + $todayEt + "`n- " + $msg + "`n") -Encoding utf8 } catch {}
+        if ($exit -eq 0) { $exit = 3 }   # force a LOUD non-zero result so the scheduler + self_check see it
+    } else {
+        Write-TaskLog -TaskName $task -Message ("VERIFIED today-bias dated " + $todayEt + " - premarket produced a fresh bias.")
+    }
+} catch {
+    Write-TaskLog -TaskName $task -Message ("premarket bias-verify errored (fail-open): " + $_.Exception.Message)
+}
 exit $exit

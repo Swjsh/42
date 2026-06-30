@@ -3579,3 +3579,13 @@ def test_self_check_flags_stale_premarket() -> None:
     proactively instead of being found at the open."""
     src = (REPO / "setup" / "scripts" / "self_check.py").read_text(encoding="utf-8")
     assert "PREMARKET STALE" in src, "self_check must detect a stale-dated today-bias (premarket silent-failure)"
+
+
+def test_premarket_verifies_work_not_exitcode() -> None:
+    """G-PREMARKET-LOUD (2026-06-30): run-premarket.ps1 must VERIFY the work (today-bias dated
+    today) and fail LOUDLY if the LLM exited 0 without writing a bias (the 06-30 silent failure).
+    OP-33 verify-don't-claim applied to the premarket wrapper."""
+    src = (REPO / "setup" / "scripts" / "run-premarket.ps1").read_text(encoding="utf-8", errors="replace")
+    assert "today-bias" in src and "biasDate" in src, "wrapper must read + check today-bias.date"
+    assert "PREMARKET SILENT FAILURE" in src, "must fail loudly on exit-0-no-bias"
+    assert "$exit = 3" in src, "must force a non-zero result when the bias is stale"
