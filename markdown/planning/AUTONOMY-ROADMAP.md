@@ -201,10 +201,10 @@ Run this cycle continuously. OP-22: **compound, don't accumulate** -- a session 
 > The strung-together picture: every subsystem, how they connect into ONE autonomous
 > loop, what got fixed this pass, what runs unattended TODAY vs. what still needs J,
 > and the remaining gap queue. Builds on (does NOT replace):
-> - `markdown/planning/GAMMA-AUTONOMY-BLUEPRINT-2026-06-18.md` (architecture diagnosis)
-> - `AUTONOMY-ROADMAP.md` (## Superseded snapshots) (deployment-not-discovery)
+> - the 2026-06-18 blueprint in this file's "## Superseded snapshots" appendix (architecture diagnosis)
+> - the 2026-06-21 next-level snapshot in this file's "## Superseded snapshots" appendix (deployment-not-discovery)
 > - `markdown/specs/ARCHITECTURE.md` (cold-start wiring snapshot, refreshed 2026-06-25)
-> - `markdown/planning/ENGINE-WINS-PLAN-2026-06-26.md` (per-workstream deep design)
+> - `markdown/planning/LIVE-PATH-WORKPACKAGE.md` (Folded workstream designs → Engine Wins section; per-workstream deep design)
 >
 > Every claim here was grounded in a file this fire. Where a value differs from the
 > ENGINE-WINS plan it is because the plan's recommended fix has since LANDED.
@@ -404,7 +404,7 @@ loop closes on itself: find→fix→learn→loop continues without J in the path
 
 > **Date:** 2026-06-21 · **Author:** Gamma (25-agent grounded gap analysis, adversarially verified)
 > **Premise:** Gamma is already ~80% autonomous. This plan closes the four specific gaps that stop it from *truly* working on the project itself — unattended, safely, and measurably improving.
-> **Companion read:** [GAMMA-AUTONOMY-BLUEPRINT-2026-06-18.md](GAMMA-AUTONOMY-BLUEPRINT-2026-06-18.md) (the prior audit — much of it now shipped).
+> **Companion read:** the 2026-06-18 blueprint in this file's "## Superseded snapshots" appendix (the prior audit — much of it now shipped).
 
 ---
 
