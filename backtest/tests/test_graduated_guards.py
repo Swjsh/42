@@ -3490,3 +3490,30 @@ def test_run_ps1_ascii_or_bom() -> None:
         f"{len(bad)} run-*.ps1 are non-ASCII without a BOM -> PS 5.1 silent parse-crash: "
         f"{bad[:8]}. Fix: prepend a UTF-8 BOM (b'\xef\xbb\xbf') or make ASCII-only."
     )
+
+
+def test_operator_friction_harvest_wired() -> None:
+    """G-J-MIND (OP-33(e), 2026-06-29 metacog dissection): a REPEATED state-question from J
+    is a MISSING INSTRUMENT, not a query. The load-bearing root cause of why Gamma never
+    invented the self-check on its own: the friction organ counted the RIG's pain and never
+    J's, so 'J asked 6 times' crossed no threshold. This guards the mechanization so the
+    blind spot cannot silently reopen: (1) friction_distiller has the operator-friction class
+    escalating FAST (>=2), (2) it counts that class ONLY from J's question-ledger -- never
+    from prose mentioning the phrases (else an empty ledger phantom-escalates = trust killer),
+    (3) the prompt-submit hook captures J's interrogatives to that ledger, BOM-less + ASCII."""
+    sys.path.insert(0, str(REPO / "setup" / "scripts"))
+    import importlib
+    fd = importlib.import_module("friction_distiller")
+    # (1) class exists + fast-escalates in 2 asks (not the months-of-system-friction bar)
+    assert "recurring_user_question" in fd.PATTERNS, "operator-friction class missing"
+    assert fd.FAST_ESCALATE.get("recurring_user_question") == 2, "must escalate at >=2 asks"
+    # (2) ledger-only: arbitrary prose must NOT classify as operator-friction
+    assert fd._classify("we had no visibility and you told me it worked") != "recurring_user_question",         "operator-friction must come ONLY from the question-ledger, not doc prose"
+    # (3) the harvest source: the prompt-submit hook
+    hook = (REPO / "setup" / "hook-detect-correction.ps1").read_text(encoding="utf-8", errors="replace")
+    assert "j-question-ledger.jsonl" in hook, "hook must write the question ledger"
+    for sig in ("is it (running", "trading", "did|has) it (crash"):
+        assert sig in hook, f"hook missing interrogative pattern: {sig}"
+    assert "UTF8Encoding($false)" in hook, "hook must write the ledger BOM-less (json-safe)"
+    # the hook is in the UserPromptSubmit chain -- a non-ASCII parse crash kills BOTH captures
+    assert all(ord(c) < 128 for c in hook), "prompt-submit hook must be pure ASCII (PS 5.1 silent-crash class)"

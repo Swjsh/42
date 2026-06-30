@@ -11,6 +11,13 @@ been grinding us for weeks. See markdown/meta/REFRAME-ENGINE.md.
 PIPELINE 2 (meta-ideation). Pure-Python, $0, propose-only, never writes analysis/recommendations/.
 A pattern is STEP-BACK-ELIGIBLE at occurrences>=5 across >=2 sources spanning >=14 days —
 that threshold IS the encoded form of "metabolized for months."
+
+EXCEPTION — OPERATOR friction (recurring_user_question): a REPEATED state-question from J is
+a missing instrument, not a query (OP-33(e)). It escalates in 2 asks (FAST_ESCALATE), trips
+action=BUILD_ELIMINATING_INSTRUMENT (build the standing surface, don't re-answer), and is fed
+by automation/state/j-question-ledger.jsonl (captured by setup/hook-detect-correction.ps1).
+This points the friction organ at the OPERATOR, closing the blind spot the metacog dissection
+(2026-06-29) found let the self-check go un-invented until J had to dictate it.
 """
 from __future__ import annotations
 
@@ -56,12 +63,33 @@ PATTERNS = {
         "constraint": "the $2K account's min-contracts / risk-cap / PDT plumbing suppresses signals",
         "keys": ["min 3 contracts", "min-3", "notional cap", "pdt", "risk cap", "$2k", "2000", "sizing tier", "per-trade risk"],
     },
+    # OPERATOR friction (not rig friction). A REPEATED state-question from J is a missing
+    # instrument, not a query (OP-33(e)). The metacog dissection (2026-06-29) found the
+    # load-bearing root cause of the self-check blind spot: the friction organ counted the
+    # SYSTEM's pain and never J's, so "J asked 6 times" crossed no threshold. This class
+    # fixes that — it is fed by automation/state/j-question-ledger.jsonl (J's interrogatives,
+    # captured by setup/hook-detect-correction.ps1) and escalates FAST (>=2, see distill()).
+    "recurring_user_question": {
+        "constraint": "J has to repeatedly ASK the same state-question (is-it-running / did-it-crash / is-it-trading) -- a visibility gap that should be a standing instrument, not a per-turn answer",
+        "keys": ["is it running", "is it trading", "did it crash", "is it working", "well?",
+                 "any update", "is it actually", "did it fire", "still running", "no visibility",
+                 "no confidence", "you told me", "you said it worked", "did it save", "where is"],
+    },
 }
+
+# This class escalates on operator-repetition, NOT on the months-of-system-friction bar.
+FAST_ESCALATE = {"recurring_user_question": 2}
 
 
 def _classify(text: str) -> str | None:
     t = text.lower()
     for pid, spec in PATTERNS.items():
+        # recurring_user_question is OPERATOR friction -- it must come ONLY from J's actual
+        # question-ledger (force-classified in _harvest), never from prose in mistakes/LESSONS
+        # that happens to mention "no visibility"/"you told me". Else an empty ledger still
+        # falsely trips BUILD_ELIMINATING_INSTRUMENT = a phantom signal that erodes trust.
+        if pid == "recurring_user_question":
+            continue
         if any(k in t for k in spec["keys"]):
             return pid
     return None
@@ -109,6 +137,17 @@ def _harvest():
             pid = _classify(ln)
             if pid:
                 yield pid, src, (_date_in(ln) or today)
+    # OPERATOR friction: J's question-ledger. Every line is a state-question J had to ask,
+    # so force the class (don't rely on keyword match) -- each line is one occurrence.
+    qledger = REPO / "automation" / "state" / "j-question-ledger.jsonl"
+    if qledger.exists():
+        try:
+            for ln in qledger.read_text(encoding="utf-8", errors="replace").splitlines():
+                if len(ln.strip()) < 2:
+                    continue
+                yield "recurring_user_question", "j_questions", (_date_in(ln) or today)
+        except OSError:
+            pass
 
 
 def distill() -> dict:
@@ -131,11 +170,17 @@ def distill() -> dict:
                 span_days = (dt.date.fromisoformat(last) - dt.date.fromisoformat(first)).days
             except ValueError:
                 span_days = 0
-        eligible = a["occurrences"] >= 5 and len(a["sources"]) >= 2 and span_days >= 14
+        if pid in FAST_ESCALATE:
+            # operator-repetition escalates in N asks, not months across 2 sources
+            eligible = a["occurrences"] >= FAST_ESCALATE[pid]
+            action = "BUILD_ELIMINATING_INSTRUMENT"  # build the standing surface, not re-answer
+        else:
+            eligible = a["occurrences"] >= 5 and len(a["sources"]) >= 2 and span_days >= 14
+            action = "STEP_BACK_RITUAL"  # Opus weekly Constraint Provenance Audit
         rows.append({"pattern_id": pid, "constraint": a["constraint"], "occurrences": a["occurrences"],
                      "n_sources": len(a["sources"]), "sources": sorted(a["sources"]),
                      "first_seen": first, "last_seen": last, "span_days": span_days,
-                     "step_back_eligible": eligible})
+                     "step_back_eligible": eligible, "action": action})
     rows.sort(key=lambda r: (-int(r["step_back_eligible"]), -r["occurrences"]))
 
     LEDGER.parent.mkdir(parents=True, exist_ok=True)
@@ -143,7 +188,9 @@ def distill() -> dict:
         for r in rows:
             f.write(json.dumps(r) + "\n")
     return {"ts_et": et_now().strftime("%Y-%m-%dT%H:%M:%S"), "patterns": rows,
-            "eligible": [r["pattern_id"] for r in rows if r["step_back_eligible"]]}
+            "eligible": [r["pattern_id"] for r in rows if r["step_back_eligible"]],
+            "build_now": [r["pattern_id"] for r in rows
+                          if r["step_back_eligible"] and r.get("action") == "BUILD_ELIMINATING_INSTRUMENT"]}
 
 
 if __name__ == "__main__":
@@ -155,3 +202,5 @@ if __name__ == "__main__":
               f"span={r['span_days']}d {flag}")
         print(f"     constraint: {r['constraint']}")
     print(f"\n  Eligible for the Step-Back ritual (Constraint Provenance Audit): {out['eligible']}")
+    if out["build_now"]:
+        print(f"  ** BUILD THE ELIMINATING INSTRUMENT NOW (operator friction): {out['build_now']} **")

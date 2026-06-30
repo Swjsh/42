@@ -37,6 +37,79 @@ $low = $prompt.ToLowerInvariant()
 # --- strip trading-jargon false positives BEFORE matching ("stop loss" is not a correction) ---
 $scan = $low -replace 'stop[\s\-]?loss', '' -replace 'stop(ped)?\s+out', '' -replace 'stop[\s\-]?out', ''
 
+# ============================================================================
+# J-MIND CHECK harvest (OP-33(e)) -- a REPEATED state-question from J is a MISSING
+# INSTRUMENT, not a query. Capture J's interrogatives-about-state to a ledger that
+# friction_distiller counts (recurring_user_question, escalates at >=2 -> "build the
+# standing surface that retires the question"). This is the harvest source the metacog
+# dissection (2026-06-29) found was missing: the rig counted its own friction, never J's.
+# Runs alongside the correction capture below (does NOT exit) so both can fire.
+# ============================================================================
+$qLedger = Join-Path $Repo 'automation\state\j-question-ledger.jsonl'
+$qStamp  = Join-Path $Repo 'automation\state\.jquestion_last'
+$qIntent = ''
+$qRules = @(
+    @{ rx = 'is it (actually |really )?trading'; intent = 'is_trading' },
+    @{ rx = 'are we (actually )?(trading|live)'; intent = 'is_trading' },
+    @{ rx = 'is it (running|working|live|on|up|firing)'; intent = 'is_running' },
+    @{ rx = 'is .{0,25}(running|working|firing|trading|live)\b'; intent = 'is_running' },
+    @{ rx = '(did|has) it (crash|crashed|die|died|stop|stopped|fail|failed)'; intent = 'did_crash' },
+    @{ rx = 'did it (save|fire|work|run|output|actually)'; intent = 'did_it_x' },
+    @{ rx = 'still (running|working|firing|alive)'; intent = 'is_running' },
+    @{ rx = '^\s*well\s*\??\s*$'; intent = 'status_poke' },
+    @{ rx = 'any update'; intent = 'status_poke' },
+    @{ rx = "what'?s (the )?status"; intent = 'status_poke' },
+    @{ rx = 'no (visibility|confidence)'; intent = 'no_visibility' },
+    @{ rx = 'you (told|said) me.{0,40}(work|ran|run|fix|done|trad)'; intent = 'claim_mismatch' }
+)
+foreach ($qr in $qRules) {
+    if ($scan -match $qr.rx) { $qIntent = $qr.intent; break }
+}
+if ($qIntent) {
+    $qnow = Get-Date
+    $qThrottleOk = $true
+    if (Test-Path $qStamp) {
+        try {
+            $qlast = [datetime]::FromFileTimeUtc([int64](Get-Content $qStamp -Raw))
+            if (($qnow.ToUniversalTime() - $qlast).TotalSeconds -lt 15) { $qThrottleOk = $false }
+        } catch {}
+    }
+    # hash for exact-duplicate suppression (same message firing twice), NOT for repeat-intent
+    $qHash = ''
+    try {
+        $qsha   = [System.Security.Cryptography.SHA256]::Create()
+        $qbytes = [System.Text.Encoding]::UTF8.GetBytes($prompt)
+        $qHash  = ([System.BitConverter]::ToString($qsha.ComputeHash($qbytes)) -replace '-', '').Substring(0, 16)
+    } catch { $qHash = "len$($prompt.Length)" }
+    $qDup = $false
+    if (Test-Path $qLedger) {
+        $qLastLine = Get-Content $qLedger -Tail 1
+        if ($qLastLine -and $qLastLine -match [regex]::Escape($qHash)) { $qDup = $true }
+    }
+    if ($qThrottleOk -and -not $qDup) {
+        $qSnippet = $prompt
+        if ($qSnippet.Length -gt 400) { $qSnippet = $qSnippet.Substring(0, 400) + ' [truncated]' }
+        $qEntry = [ordered]@{
+            ts        = $qnow.ToString('yyyy-MM-ddTHH:mm:ssK')
+            hash      = $qHash
+            intent    = $qIntent
+            prompt    = $qSnippet
+            processed = $false
+        }
+        try {
+            # BOM-less UTF-8 (PS 5.1 Add-Content -Encoding UTF8 prepends a BOM that breaks
+            # json.loads on line 1 -- the exact silent-corruption class self-check guards).
+            $qUtf8 = New-Object System.Text.UTF8Encoding($false)
+            $qLine = ($qEntry | ConvertTo-Json -Compress -Depth 3)
+            [System.IO.File]::AppendAllText($qLedger, $qLine + "`n", $qUtf8)
+            $qnow.ToUniversalTime().ToFileTimeUtc() | Out-File -FilePath $qStamp -Encoding ascii -NoNewline
+            $qAll = @(Get-Content $qLedger)
+            if ($qAll.Count -gt 500) { [System.IO.File]::WriteAllLines($qLedger, $qAll[-500..-1], $qUtf8) }
+        } catch {}
+        Write-Output ("[j-mind-check] J asked a STATE question (intent=" + $qIntent + "). OP-33(e): a REPEATED question is a MISSING INSTRUMENT, not a query. If J has asked this kind before, STOP answering ad-hoc and BUILD the standing surface (state file + glanceable view + auto-ping) that retires it; then report you built it. Logged to automation/state/j-question-ledger.jsonl; friction_distiller escalates recurring_user_question at >=2.")
+    }
+}
+
 # --- high-precision correction phrases (curated for low false-positive rate) ---
 $patterns = @(
     "stop doing", "quit doing", "stop trying to", "stop being",

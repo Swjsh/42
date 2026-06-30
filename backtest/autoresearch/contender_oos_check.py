@@ -9,9 +9,22 @@ GATES CHECKED (OP-11 auto-ship bar):
   2. wf_ge_0.70       -- OOS/IS per-trade expectancy ratio >= 0.70
   3. sub_window_stable -- fraction of quarters with positive expectancy >= 0.60
   4. anchor_no_regression -- edge_capture >= 771 (50% of J-edge max, OP-16)
+  5. recency_confirmed -- CONFIRM-BEFORE-CAPITAL: edges_confirmed_on_recent=true
+     in automation/state/recency-confirmation.json. NO live-params flip may
+     auto-clear while the freshest-weeks recency verdict is RED. Fails CLOSED
+     (unreadable/missing -> no auto-clear). This NEVER blocks J's manual
+     approval -- rail-2 fail-open is about J's session, not the auto-ship path.
 
 If ALL gates pass -> prints EVAL_BAR_CLEARED=TRUE
 If ANY gate fails -> prints EVAL_BAR_CLEARED=FALSE with which gate failed.
+
+WHY GATE 5 EXISTS (2026-06-29 incident): on 2026-06-28 a dead-premium-axis
+contender (OTM-2 long single leg, WR 12%, tp+150%) cleared gates 1-4 on an IS
+sweep and AUTO-APPLIED to live params (tp1_qty_fraction 0.667->0.8 +
+v15_profit_lock_mode trailing->fixed, commit b8896df) DESPITE the recency gate
+reading edges_confirmed_on_recent=false. The OP-11 bar verified IS/OOS but never
+the documented CONFIRM-BEFORE-CAPITAL gate. L182-184 (premium axis dead) +
+the CONFIRM-BEFORE-CAPITAL doctrine are now an enforced assertion here.
 
 Output written to: analysis/recommendations/<proposal_id>-scorecard.json
 
@@ -39,6 +52,7 @@ from autoresearch.runner import load_data         # noqa: E402
 
 RECS_DIR = _ROOT / "analysis" / "recommendations"
 PARAMS_PATH = _ROOT / "automation" / "state" / "params.json"
+RECENCY_PATH = _ROOT / "automation" / "state" / "recency-confirmation.json"
 
 
 def _find_newest_contender() -> Path:
@@ -50,6 +64,39 @@ def _find_newest_contender() -> Path:
 
 def _load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def assess_recency_gate(path: Path | None = None) -> tuple[bool, str]:
+    """CONFIRM-BEFORE-CAPITAL gate (OP-11 gate 5).
+
+    A contender may NOT auto-clear (eval_bar_cleared=true -> actuator auto-apply
+    to live params) while the freshest-weeks recency verdict is RED, i.e.
+    recency-confirmation.json headline.edges_confirmed_on_recent is not True.
+
+    Returns (passed, detail). FAILS CLOSED: any unreadable/missing/garbled input
+    returns False -- uncertainty must never auto-ship a live-params change
+    (mirrors risk_gate's fail-closed-on-unreadable-input discipline). This gate
+    only blocks the AUTONOMOUS auto-ship path; J can always still approve a
+    proposal manually, so failing closed here never blocks J's session (rail-2).
+    """
+    p = path or RECENCY_PATH
+    try:
+        d = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return False, f"recency-confirmation unreadable ({exc}) -> fail-closed, no auto-clear"
+    if not isinstance(d, dict):
+        return False, "recency-confirmation not a dict -> fail-closed, no auto-clear"
+    headline = d.get("headline", {})
+    if not isinstance(headline, dict):
+        return False, "recency-confirmation headline malformed -> fail-closed, no auto-clear"
+    confirmed = headline.get("edges_confirmed_on_recent")
+    if confirmed is True:
+        return True, "edges_confirmed_on_recent=true"
+    return (
+        False,
+        f"edges_confirmed_on_recent={confirmed} (any_red={headline.get('any_red')}) "
+        "-> CONFIRM-BEFORE-CAPITAL blocks auto-clear",
+    )
 
 
 def main() -> int:
@@ -113,7 +160,10 @@ def main() -> int:
     sw_pass = bool(val["gate"]["sub_window_stable"])
     anchor_pass = m["edge_capture"] >= ssg.EDGE_CAPTURE_REJECT_BELOW
 
-    all_pass = oos_pos and wf_pass and sw_pass and anchor_pass
+    # Gate 5: CONFIRM-BEFORE-CAPITAL recency gate (the 2026-06-28 incident fix).
+    recency_pass, recency_detail = assess_recency_gate()
+
+    all_pass = oos_pos and wf_pass and sw_pass and anchor_pass and recency_pass
 
     # 6. Build scorecard.
     proposal_id = args.proposal_id or f"pk-{cfile.stem.replace('contender-rank-', '')}-001"
@@ -160,8 +210,10 @@ def main() -> int:
             "wf_ge_0.70": wf_pass,
             "sub_window_stable_ge_0.60": sw_pass,
             "anchor_no_regression": anchor_pass,
+            "recency_confirmed": recency_pass,
             "ALL_PASS": all_pass,
         },
+        "recency_gate_detail": recency_detail,
         "eval_bar_cleared": all_pass,
         "verdict": "CLEARED" if all_pass else "BLOCKED",
         "failed_gates": [
@@ -170,6 +222,7 @@ def main() -> int:
                 ("wf_ge_0.70", wf_pass),
                 ("sub_window_stable", sw_pass),
                 ("anchor_no_regression", anchor_pass),
+                ("recency_confirmed", recency_pass),
             ] if not v
         ],
     }
@@ -193,6 +246,7 @@ def main() -> int:
     print(f"  wf_ge_0.70:          {'PASS' if wf_pass else 'FAIL'}  ({m['wf']:.3f})")
     print(f"  sub_window_stable:   {'PASS' if sw_pass else 'FAIL'}  ({val['quarter_positive_fraction']:.2f} >= 0.60)")
     print(f"  anchor_no_regression:{'PASS' if anchor_pass else 'FAIL'}  ({m['edge_capture']:.2f} >= 771)")
+    print(f"  recency_confirmed:   {'PASS' if recency_pass else 'FAIL'}  ({recency_detail})")
     print()
     print(f"VERDICT: {'EVAL_BAR_CLEARED=TRUE' if all_pass else 'EVAL_BAR_CLEARED=FALSE'}")
     if not all_pass:
