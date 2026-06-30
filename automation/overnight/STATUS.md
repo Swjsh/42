@@ -1,3 +1,16 @@
+## [2026-06-29 ~19:58 ET] conductor: OK -- GUARDED THE LEVEL FEED AGAINST SILENT ROT (close-a-loop + drained 3 stale inbox specs): the intraday level feed is the ONLY shippable win of the 06-29 missed-setups mission, but `_read_levels` rejects NO stale timestamp -- if `Gamma_LevelRefresh` silently dies the engine reads FROZEN levels again, undetected (C7). Now `check_level_feed` surfaces it in the every-minute beacon. Commit 7a33cb8.
+
+> **Signal J wakes to (OP-25) -- shipped the one load-bearing residual the missed-setups inbox groped toward; rejected the 3 dead detector specs the post-mortem itself rejected.** After-hours conductor fire, market CLOSED (Mon 19:58 ET; engine **GREEN** -- both heartbeats/beacon/watcher-feed/kill-switches GREEN, both accounts flat; level_feed live=GREEN). VERIFY-don't-inherit (L181/L185): STATUS claimed inboxes empty but the **validator-inbox had 3 live 2026-06-29 items** (double-bottom-adjacent / dual-rejection-sequence / no-lookahead-causality). I read the source `MISSED-SETUPS-POSTMORTEM-2026-06-29.md` BEFORE building: it SPAWNED these specs from its early SPEC section, then its OWN later triage (redundancy + base-rate + call-side + OOS) **REJECTED all three detector ideas** -- DUAL_REJECTION 'largely REDUNDANT (level_rejection already fires at bear 8)' + filter-5 relaxation is a coin-flip / OOS-NEGATIVE loser; double-bottom adjacent patch 'made ZERO difference (identical n=318)... empirically irrelevant' + the call edge 'washes out by EOD'. `DUAL_REJECTION_SEQUENCE_BREAKDOWN`+`vol_expansion_ratio` don't even exist -> building these validators = building NEW detector code the same doc says NOT to build.
+> - **THE GENUINE RESIDUAL (the one load-bearing kernel, mis-placed in a non-existent detector):** the `v_dual_rejection_starved_without_level` spec wanted to 'pin the frozen-key-levels root cause as a regression guard so the fix can't silently rot.' DIAGNOSED the real gap: the frozen-levels fix is PURELY producer-side (`refresh_levels_intraday.py` rewrites `key-levels.json .as_of` every ~5min via `Gamma_LevelRefresh`); `heartbeat_core._read_levels` (L230) rejects NO stale timestamp -> if the refresh task silently dies (reaped / un-scheduled / Alpaca error) the engine reads FROZEN levels again with ZERO detection = the EXACT regression that cost the 06-29 setups, un-guarded (C7 silent-rot).
+> - **SHIPPED (engine-benefit observability, rail-4 CLEAR -- pure freshness reporter wired into the EXISTING every-minute beacon, mirroring the `check_gex_archive` pattern; touches NO params/doctrine/orders/heartbeat/filters/CLAUDE, places NO order, arms NOTHING, NEVER trade-halts -> ships on green tests, no A/B):** `check_level_feed(market_open, et)` in `engine_health.py` + wired into `build_report`. **NON-CRITICAL by design (load-bearing safety invariant):** a stale level feed degrades level-awareness but the engine still trades on ribbon/structure, so it degrades the verdict to YELLOW and NEVER flips the CRITICAL verdict RED nor trade-halts; a genuine RTH stall returns RED *status* so the transition-only alerter pings J exactly once. RTH-aware (market-closed = refresh idle = GREEN; open-warmup <12m = first-refresh-pending = GREEN -> no cry-wolf). Parses `as_of[:19]` as naive ET vs `et` (et_clock-consistent, ignores the wrong `-04:00` literal on the MT rig). Fail-open (missing/garbled/unparseable -> benign YELLOW, never crashes, never pings).
+> - **GRADUATED TO A GUARD (OP-25, $0):** `backtest/tests/test_engine_health_level_feed.py` (13/13) -- fresh=GREEN, stale-RTH=RED-but-critical-False, the load-bearing `test_red_level_feed_does_not_red_the_critical_verdict` (non-critical RED -> fuse() YELLOW not RED), alertable, build_report-includes, market-closed + open-warmup quiet, fail-open x3, + a **non-vacuous bite** (`test_bite_neutering_threshold_flips_stale_to_green`: huge LEVEL_FEED_STALE_MIN flips the 40m-stale RTH case GREEN, proving the threshold itself bites).
+> - **LEARN (4.5):** no new L## -- 'the frozen-levels fix is producer-side only; a silent refresh death rots it back undetected' IS the C7 silent-rot / observability class already in doctrine; this freshness check is its encoding (loop closed > artifact added). The 3 stale specs marked `.SUPERSEDED.md` with the full post-mortem reasoning so no future fire re-attempts dead detector work.
+> - **VALIDATED ($0, verify-now-not-later):** py_compile OK; guard 13/13 + existing engine_health gex guard 7/7 (0.13s); **live build_report = verdict GREEN, level_feed wired + GREEN**; curated safety gate **31 + 5 suites PASS** (pre-commit re-ran green at 7a33cb8); verify-committed clean.
+> - **NEXT FIRE picks up:** validator-inbox now CLEAR of active items. The level feed is now guarded both ways (producer scheduled + consumer-side freshness surfaced). Standing direction stays GEX-calendar-gated (premium axis dead L182-184; instrument rung closed 04adc35; range-scalp data-blocked n=8; ~7 GEX days accrued of ~60-90 owed). The genuinely-unblocked needle-mover beyond GEX-accrual-wait remains the open BRAINSTORM target. J: proposals cd-2026-06-28-002 (CLAUDE-INDEX-FOLD) + cd-2026-06-27-001 (G7 EOD-flatten activate) await. Metric trend `improving` (0 regressions, $3.08/drained, 20 fires).
+> - Files: `setup/scripts/engine_health.py` (+LEVEL_FEED_STALE_MIN/_WARMUP_MIN +check_level_feed +build_report wire), `backtest/tests/test_engine_health_level_feed.py` (new, 13/13), 3x `_validator-inbox/*.SUPERSEDED.md` -- all 7a33cb8; `conductor-outcomes.jsonl`, this STATUS entry.
+
+---
+
 ## [2026-06-29 ~17:55 ET] conductor: OK -- FIXED THE SELF-AUDIT ORGAN ITSELF (close-a-loop): the proactive gap-finder that feeds THIS conductor was emitting 100% noise -- the 06-29 batch's 12 "gaps" were all model reasoning-scaffold / template SECTION HEADERS, and 12 scaffold items from one early perspective crowded the REAL gaps out of the [:12] budget. Now a noise filter drops scaffold BEFORE the cap so genuine gaps survive. Commit 63fb9ea.
 
 > **Signal J wakes to (OP-25) -- fixed the self-improvement loop's own input, didn't add an artifact.** After-hours conductor fire, market CLOSED (Mon 17:55 ET; engine **GREEN** -- both heartbeats/beacon/watcher-feed/kill-switches GREEN, both accounts flat; gym overall YELLOW = only the intentional Bold v15.2 pin + benign empty-watcher, detector GREEN -> rail-clear for this non-detector infra). No `### BROKEN:` flags. **The freshest self-audit batch (2026-06-29T17:34:46) WAS the gap:** all 12 flagged "gaps" were pure scaffold ("Analyze the Request:", "Role:", "Task:", "Risk score", "Failure mode", "Rule 9") -> the gap-finder organ that surfaces Gamma's own gaps before J does was producing 100% noise = a C7 silent-success-is-failure in the self-improvement loop.
@@ -128,148 +141,5 @@
 
 ---
 
-## [2026-06-28 ~19:55 ET] conductor: OK -- RANGE-SCALP SLICE 3 (the named needle-mover): the regime gate is a KNIFE-EDGE -- loosening the spread leg recovers trade count (n=8->12, big-loser-day kill HOLDS) but every n>=10 variant DIES under 0.05 slippage + concentration WORSENS; the VIX leg is INERT (C14 dead-knob on this window). The genuine edge survives only at n=8 -> the lever is MORE DATA, not looser gates. Commit d686009.
 
-> **Signal J wakes to (OP-25) -- advanced the live edge lead, didn't add a loop-closer.** After-hours conductor fire, market CLOSED (Sun 19:55 ET; engine **GREEN** -- both heartbeats/beacon/watcher-feed/kill-switches GREEN, both accounts flat). Self-audit 17:30 batch DONE (probe_stats shipped #1+#2; #3/#4/#5 named-open). task_scorer top = PROMOTE-KEEPER but its contender is the DEAD premium axis (L182-L184) -> not a loop-closer. Took the Tier-0 STANDING DIRECTION the last 3+ fires unanimously named as the needle-mover: **RANGE-SCALP-REGIME-GATE-SLICE slice 3 part 2 -- loosen ONE gate leg, does trade count recover toward n>=10 while the 06-04/06-24 loser-kill holds?** (part 1 data-widening is data-blocked: VIX csv + OPRA cache both fixed to 05-19..06-26.) And per the explicit prior instruction, the new slice **IMPORTS `probe_stats`** instead of re-deriving (COMPOUND).
-> - **SHIPPED (engine-benefit R&D, rail-4 CLEAR -- a NEW sibling sweep probe + results JSON + golden-guard extension; REUSES one OPRA pass via `run_shotgun_day(tier_filter=2)` + slice-2's CAUSAL spread/VIX helpers (slice-2 probe BYTE-IDENTICAL/untouched) + `probe_stats` for ALL significance/concentration/verdict; touches NO params/doctrine/orders/heartbeat/filters/CLAUDE, places NO order, arms NOTHING -> ships on green tests, no A/B):** `backtest/autoresearch/range_scalp_gate_sweep_probe.py`. Sweeps spread<{30,40,50}c x VIX{[14,20],[13,22],[12,24]} = 9 variants, re-filtering the SAME per-trade rows (no re-simulation). Results: `analysis/recommendations/range-scalp-gate-sweep-2026-06-28.json`.
-> - **THE FINDING (decisive, yardstick = per-trade expectancy net-of-slippage + concentration, NOT J edge_capture):** verdict **GATE_KNIFE_EDGE_WIDEN_DATA.** (1) **VIX leg is INERT** -- for a fixed spread cap, widening VIX [14,20]->[12,24] changes NOTHING (every column identical) => on this window the spread leg alone binds; VIX 14-20 already covers all range days. A C14 dead-knob. (2) **The spread leg is a slippage trap:** spread<30 = n=8 (INCONCLUSIVE) exp $44.4 gross / **+$14.4 net@0.05**, top3% 117% (the clean-but-rare slice-2 edge); spread<40 = n=11 (significant!) but exp collapses to $11.56 gross / **-$18.44 net@0.05**, top3% jumps to **327%**; spread<50 = n=12, $10.6 gross / **-$19.4 net@0.05**, top3% 327%. (3) **Decisive answer: count recovery doesn't help** -- the 3-4 extra trades don't re-admit the big LOSER DAYS (kill holds) but they're tiny slippage-bleed: per-trade expectancy craters, concentration gets WORSE, and the whole thing goes NEGATIVE net of realistic slippage. **You cannot tune your way to significance on this 25-day window.**
-> - **READ + STANDING-DIRECTION UPDATE:** this CLOSES the gate-tuning branch (don't keep loosening -- it's a slippage trap, not a recovery) and redirects the standing direction to **slice 3 part 1 = WIDEN THE DATA WINDOW** (currently data-blocked). The genuine edge (spread<30, +$14.4/tr net@0.05, survives slippage, kills both big losers) is REAL but only n=8 -- it needs more range-regime days to reach n>=15-20 for an IS/OOS split, NOT looser gates. NOT armable (rail-4 + recency-RED + n=8 + one-winner-day-dominated).
-> - **GRADUATED TO A GUARD (OP-25, $0 golden-file):** extended `backtest/tests/test_probe_stats.py` +2 (10/10): `test_gate_sweep_baseline_reproduces_slice2` (the sweep's baseline variant reproduces slice-2 EXACTLY: n=8/exp$44.4/total$355.2/top3 117.2% -- proves the one-pass reuse + probe_stats adoption didn't change a result, the C14 reuse-drift guard) + `test_gate_sweep_finding_locked` (verdict KNIFE_EDGE, best_recoverable None, VIX leg inert per spread cap, every n>=10 variant negative net@0.05 -- so a future edit can't silently flip the conclusion).
-> - **LEARN (4.5):** no new L## -- the inert-VIX-leg IS the C14 dead-knob class already in doctrine; the locked guard is its encoding (loop closed > artifact added).
-> - **VALIDATED ($0):** py_compile OK; smoke (baseline n=8 reproduces slice-2, loosest n=12 big-losers-killed); full sweep wrote JSON; guard 10/10; curated safety gate **31 + 5 suites PASS** (pre-commit re-ran green); verify-committed clean (all 3 files absent from porcelain).
-> - **NEXT FIRE picks up:** gate-tuning branch CLOSED. **The needle-mover is now slice 3 part 1 -- WIDEN THE DATA WINDOW** (pull more range-regime trading days beyond 05-19..06-26 so the spread<30 edge's n=8 reaches >=15-20 for IS/OOS); this requires fetching/locating more OPRA + VIX data (a data-acquisition slice, not more sim tuning). If data-widening stays blocked, the standing-direction ladder says CLIMB (signal->structure->DTE->instrument->class) -- the Tier-2 level-fade vein may simply be too thin on this regime. Self-audit #3 (slippage-sweep helper -- now partially moot, this probe already does net@0.05 honestly), #4 (dynamic regime thresholds, rail-4-adjacent), #5 (auto-ingest directional-anchor lesson) remain. Premium axis stays dead (L182-L184).
-> - Files: `backtest/autoresearch/range_scalp_gate_sweep_probe.py` (new), `analysis/recommendations/range-scalp-gate-sweep-2026-06-28.json` (new), `backtest/tests/test_probe_stats.py` (+2, 10/10) -- all d686009; `automation/overnight/queue.md` (slice 3 part-2 done + part-1 named), `conductor-outcomes.jsonl`, this STATUS entry.
-
----
-
-## [2026-06-28 18:00 ET] WEEKLY-REVIEW W26: CRITICAL — Safe2 book RED, 2 infra failure days, heartbeat blindness unresolved
-
-> **Signal J wakes to (OP-25).** Sunday 18:00 ET weekly review fired. Four recommendations (2 CRITICAL, 1 HIGH, 1 MEDIUM). **BEFORE Monday open: verify Gamma_Heartbeat task + Alpaca Safe key + TV CDP port 9222.**
->
-> Key facts: Safe2 ATM book **RED** (n=11 recent fills, exp=-$36.79/tr, 0 win-days / 6 loss-days). Bold book YELLOW (n=7 < floor). ALL edges YELLOW. **No capital scaling authorized. No live flips.** Week P&L: -$252 (Safe -$237 EOD reconcile + Bold -$15 EOD reconcile). Cumul n_trades=17 (deploy gate needs 20). R-0015 NEW: add dual-source-failure Discord alert. R-0014 RE-ISSUE: hypothesis-grades still blank (6th consecutive week).
->
-> Full review: `analysis/2026-W26.md` — 4 recommendations logged to `analysis/recommendations-log.jsonl`.
-
----
-
-## [2026-06-28 ~17:52 ET] conductor: OK -- SELF-AUDIT GAP DRAINED (the freshest un-actioned batch): the n<10-significance + top3-day-concentration judgments were HAND-ROLLED inline in BOTH range-scalp probes with already-divergent vocabulary (C14 drift class) -> extracted to ONE canonical helper + a golden guard proving it reproduces both probes' published numbers exactly. Commit (this fire).
-
-> **Signal J wakes to (OP-25).** After-hours conductor fire, market CLOSED (Sun 17:52 ET; engine **GREEN** -- both heartbeats/beacon/watcher-feed/kill-switches GREEN, both accounts flat). Priority-2 self-audit OUTRANKED the queue: the **2026-06-28T17:30:40** batch (12 gaps) was the freshest UN-actioned entry (no DONE marker). Its actionable core = gaps **#1 (no automated statistical-significance check, n<10) + #2 (no canonical concentration metric/alert, top3-day %)** -- both surfaced BY the range-scalp work, where the last two fires *manually* recomputed top3% / n<10 / trimmed-day each time. Verified the gap is REAL (not already built): `range_scalp_probe.py` and `range_scalp_regime_gated_probe.py` EACH open-code `n < 10 -> INCONCLUSIVE/REGIME_GATE_TOO_TIGHT` and `top3_pct > 150 -> VEIN_CONCENTRATED` inline, with **divergent verdict strings** -- the C14 divergent-knob class (a future probe could quietly use n<5 and no guard would catch it).
-> - **SHIPPED (engine-benefit, rail-4 CLEAR -- a pure measurement helper + a golden guard test; touches NO params/doctrine/orders/heartbeat/filters/CLAUDE, places NO order, arms NOTHING -> ships on green tests, no A/B):** `backtest/autoresearch/probe_stats.py` -- the single canonical source for both judgments: `summarize_trades` / `day_concentration` / `significance` (n<10 gap #1) / `concentration_flag` (top3>150% gap #2) / `base_verdict` (neutral INCONCLUSIVE/DRY/CONCENTRATED/CLEAN ladder). Canonical thresholds `INCONCLUSIVE_MIN_N=10` + `CONCENTRATION_TOP3_PCT_MAX=150.0` now live in ONE place.
-> - **GRADUATED TO A GUARD (OP-25, $0 offline golden-file):** `backtest/tests/test_probe_stats.py` (8/8) reads the two COMMITTED probe JSONs and proves the helper reproduces their published numbers EXACTLY -- gated n=8/exp$44.4/wr0.875/top3=117.2% and ungated n=30/top3=223.9% -- so adopting the helper in a future probe **cannot silently change a result**, and the two thresholds can never drift apart again. Non-vacuous (asserts `== published_value`); + verdict-ladder + empty-input safety.
-> - **VALIDATED ($0, verify-now-not-later):** py_compile OK; guard 8/8 (1.1s); curated safety gate **31 + 5 suites PASS** (pre-commit re-ran green at commit); verify-committed clean (both files absent from porcelain).
-> - **LEARN (4.5):** no new L## -- the divergent-inline-threshold foot-gun IS the C14 divergent-knob class already in doctrine; this helper + golden guard is its encoding (loop closed > artifact added). Self-audit batch marked DONE.
-> - **NEXT FIRE picks up:** self-audit 17:30 batch ACTIONED (gaps #1+#2 shipped); **REMAINING gaps named for follow-up** -- #3 slippage-sweep helper, #4 dynamic regime-threshold re-estimation (rail-4-adjacent), #5 auto-ingest the directional-anchor lesson to veto edge_capture-gated proposals. **The real needle-mover remains the Tier-0 standing direction: `RANGE-SCALP-REGIME-GATE-SLICE` slice 3 (widen the data window so gated-n reaches >=15-20 for an IS/OOS split + loosen ONE gate leg) -- and that slice should now IMPORT `probe_stats` instead of re-deriving (compound).** Premium axis stays dead (L182-L184). **Metric `regressing`** (net +18, 0 regressions, $2.82/drained) -- the lever stays shipping the range-scalp edge build, not another loop-closer.
-> - Files: `backtest/autoresearch/probe_stats.py` (new), `backtest/tests/test_probe_stats.py` (new, 8/8) -- both this fire's commit; `analysis/self-audit/new-gaps-flagged.md` (batch DONE marker), `conductor-outcomes.jsonl`, this STATUS entry.
-
----
-
-
-- [2026-06-29 05:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.51% in last 24h (37/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) :: see crypto/data/scorecards/drift_report.json
-
-## Kitchen
-Kitchen: alive, queue 43 pending, last cook 0 min ago, today $0.00, model=?
-
-- [2026-06-29 06:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 73.47% in last 24h (36/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) :: see crypto/data/scorecards/drift_report.json
-
-- [2026-06-29 06:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 71.43% in last 24h (35/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) :: see crypto/data/scorecards/drift_report.json
-
-- [2026-06-29 07:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 69.39% in last 24h (34/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) | v02 source parity drift in 30.36% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
-- [06-29 09:40 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5524min — hung bridge, force-restarting TV
-- [06-29 09:50 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5534min — hung bridge, force-restarting TV
-
-- [2026-06-29 07:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 67.35% in last 24h (33/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) | v02 source parity drift in 32.51% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
-- [06-29 10:00 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5544min — hung bridge, force-restarting TV
-- [06-29 10:10 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5554min — hung bridge, force-restarting TV
-- [06-29 10:20 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5564min — hung bridge, force-restarting TV
-
-- [2026-06-29 08:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 65.31% in last 24h (32/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) | v02 source parity drift in 34.6% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
-- [06-29 10:30 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5574min — hung bridge, force-restarting TV
-- [06-29 10:40 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5584min — hung bridge, force-restarting TV
-- [06-29 10:50 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5594min — hung bridge, force-restarting TV
-
-- [2026-06-29 08:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 63.27% in last 24h (31/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) | v02 source parity drift in 36.64% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
-- [06-29 11:00 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5604min — hung bridge, force-restarting TV
-- [06-29 11:10 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5614min — hung bridge, force-restarting TV
-- [06-29 11:20 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5624min — hung bridge, force-restarting TV
-
-- [2026-06-29 09:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 61.22% in last 24h (30/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) | v02 source parity drift in 38.78% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
-- [06-29 11:30 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5634min — hung bridge, force-restarting TV
-- [06-29 11:40 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5644min — hung bridge, force-restarting TV
-- [06-29 11:50 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5654min — hung bridge, force-restarting TV
-
-- [2026-06-29 09:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 59.18% in last 24h (29/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) | v02 source parity drift in 40.88% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
-- [06-29 12:00 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5664min — hung bridge, force-restarting TV
-- [06-29 12:10 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5674min — hung bridge, force-restarting TV
-- [06-29 12:20 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5684min — hung bridge, force-restarting TV
-
-- [2026-06-29 10:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 57.14% in last 24h (28/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) | v02 source parity drift in 42.92% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
-- [06-29 12:30 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5694min — hung bridge, force-restarting TV
-- [06-29 12:40 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5704min — hung bridge, force-restarting TV
-- [06-29 12:50 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5714min — hung bridge, force-restarting TV
-
-- [2026-06-29 10:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 57.14% in last 24h (28/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) | v02 source parity drift in 43.44% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
-- [06-29 13:00 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5724min — hung bridge, force-restarting TV
-- [06-29 13:10 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5734min — hung bridge, force-restarting TV
-- [06-29 13:20 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5744min — hung bridge, force-restarting TV
-
-- [2026-06-29 11:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 55.1% in last 24h (27/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 85.71% in last 24h (42/49) | v02 source parity drift in 45.34% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
-- [06-29 13:30 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5754min — hung bridge, force-restarting TV
-- [06-29 13:40 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5764min — hung bridge, force-restarting TV
-- [06-29 13:50 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5774min — hung bridge, force-restarting TV
-
-- [2026-06-29 11:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 53.06% in last 24h (26/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | v02 source parity drift in 47.45% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
-- [06-29 14:00 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5784min — hung bridge, force-restarting TV
-- [06-29 14:10 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5794min — hung bridge, force-restarting TV
-- [06-29 14:20 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5804min — hung bridge, force-restarting TV
-
-- [2026-06-29 12:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 51.02% in last 24h (25/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 89.8% in last 24h (44/49) | v02 source parity drift in 49.56% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
-- [06-29 14:30 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5814min — hung bridge, force-restarting TV
-- [06-29 14:40 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5824min — hung bridge, force-restarting TV
-- [06-29 14:50 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5834min — hung bridge, force-restarting TV
-
-- [2026-06-29 12:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 51.02% in last 24h (25/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 91.84% in last 24h (45/49) | v02 source parity drift in 49.71% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
-- [06-29 15:00 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5844min — hung bridge, force-restarting TV
-- [06-29 15:10 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5854min — hung bridge, force-restarting TV
-- [06-29 15:20 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5864min — hung bridge, force-restarting TV
-
-- [2026-06-29 13:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 51.02% in last 24h (25/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 93.88% in last 24h (46/49) | v02 source parity drift in 49.78% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
-- [06-29 15:30 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5874min — hung bridge, force-restarting TV
-- [06-29 15:40 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5884min — hung bridge, force-restarting TV
-- [06-29 15:50 ET] TvWatchdog: tv=relaunch_hung_bridge heartbeat=unknown CDP alive but heartbeat stale 5894min — hung bridge, force-restarting TV
-
-- [2026-06-29 13:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 51.02% in last 24h (25/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 49.78% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
-
-### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
-- ts: 2026-06-29T20:00:13+00:00
-- task: eod-summary
-- date_et: 2026-06-29
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-- [2026-06-29 14:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 48.98% in last 24h (24/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 51.6% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
-
-### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
-- ts: 2026-06-29T20:45:21+00:00
-- task: analyst
-- date_et: 2026-06-29
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-- [2026-06-29 14:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 46.94% in last 24h (23/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 53.72% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
-
-- [2026-06-29 21:00:02] gym-session (2026-06-29) → **YELLOW** :: see `automation\state\gym-scorecard-2026-06-29.json`[2026-06-29 17:10] Gamma_WatcherGrader FAILED exit=1 shotgun_exit=0 � check C:\Users\jackw\Desktop\42\automation\state\logs\watcher-grader-2026-06-29.log
-
-- [2026-06-29 15:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 44.9% in last 24h (22/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 55.77% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
-
-### INFO: eod-analytics manager used free-tier model (free-tier-primary)
-- ts: 2026-06-29T21:30:27+00:00
-- task: manager
-- date_et: 2026-06-29
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-- [2026-06-29 15:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 44.9% in last 24h (22/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 55.98% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+- [2026-06-29 17:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 51.02% in last 24h (25/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 50.0% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
