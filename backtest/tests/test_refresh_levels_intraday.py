@@ -29,6 +29,13 @@ _spec = importlib.util.spec_from_file_location("refresh_levels_intraday", MOD_PA
 rli = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(rli)
 
+# self_check is the live consumer that REDs on contradictory roles — assert the producer's
+# output actually satisfies it (close the producer/consumer contract, not just unit logic).
+_SC_PATH = REPO / "setup" / "scripts" / "self_check.py"
+_sc_spec = importlib.util.spec_from_file_location("self_check", _SC_PATH)
+sc = importlib.util.module_from_spec(_sc_spec)
+_sc_spec.loader.exec_module(sc)
+
 
 # Bars: (hm, high, low, close, volume). Last RTH close == spot (df["close"].iloc[-1]).
 def _make_df(rth_bars, pre_bars=()):
@@ -141,3 +148,71 @@ def test_preserves_non_intraday_levels(_state):
 
 def test_empty_bars_fail_open():
     assert rli.refresh(df=pd.DataFrame())["ok"] is False
+
+
+# --- 2026-06-30 contradictory-role / duplication fix (drain the live BROKEN flag) ----------
+# self_check.check_level_integrity REDs when one price carries BOTH a ceiling and a floor role,
+# or appears >2x. The live key-levels.json was polluted: 741.81 x9, 741.61 x7, each as BOTH a
+# curated resistance AND an INTRADAY support. _normalize_levels enforces one-polarity-role-per-
+# price + price-dedup at the producer so the engine can never read contradictory structure.
+
+def test_normalize_collapses_contradictory_roles_to_one_polarity():
+    """The exact live shape: a curated resistance + an INTRADAY support at the SAME price.
+    With spot above, both resolve to support; collapse to a single entry -> no contradiction."""
+    polluted = ([{"price": 741.81, "role": "resistance", "type": "resistance",
+                  "label": "PMH_2026-06-30", "tier": "Active"} for _ in range(6)]
+                + [{"price": 741.81, "role": "support", "type": "support",
+                   "label": "INTRADAY_PMH_2026-06-30", "tier": "Active"}])
+    out = rli._normalize_levels(polluted, spot=745.0)   # 741.81 < spot -> support
+    assert len(out) == 1
+    assert out[0]["role"] == out[0]["type"] == "support"
+    assert out[0]["label"] == "PMH_2026-06-30"          # curated survivor (exact-price tiebreak)
+
+
+def test_normalize_collapses_heavy_duplicates():
+    dupes = [{"price": 741.81, "role": "resistance", "type": "resistance",
+              "label": "PMH_X", "tier": "Active"} for _ in range(8)]
+    out = rli._normalize_levels(dupes, spot=736.0)       # 741.81 > spot -> resistance
+    assert len(out) == 1 and out[0]["role"] == "resistance"
+
+
+def test_normalize_preserves_expired_untouched():
+    levels = [{"price": 730.0, "role": "support", "tier": "expired", "label": "OLD"},
+              {"price": 740.0, "role": "support", "tier": "Active", "label": "A"}]
+    out = rli._normalize_levels(levels, spot=736.0)
+    active = [lv for lv in out if str(lv.get("tier", "")).lower() != "expired"]
+    expired = [lv for lv in out if str(lv.get("tier", "")).lower() == "expired"]
+    assert len(active) == 1 and active[0]["role"] == "resistance"   # 740 > 736 -> resistance
+    assert len(expired) == 1 and expired[0]["role"] == "support"    # expired passes through
+
+
+def test_refresh_output_passes_level_integrity_check(_state):
+    """INTEGRATION (producer/consumer contract): seed a curated SUPPORT at the same price the
+    live RTH high (resistance) lands on -> pre-fix the engine reads 739.9 as BOTH. The producer
+    must emit a file self_check.check_level_integrity accepts."""
+    kl, _ = _state
+    seed = {"schema_version": 1, "levels": [
+        {"price": 739.9, "role": "support", "type": "support",
+         "label": "STALE_SUPPORT", "tier": "Active"}]}
+    kl.write_text(json.dumps(seed), encoding="utf-8")
+    rli.refresh(df=_make_df(_RTH, _PRE))                 # spot 736.0; RTH high 739.9 -> resistance
+    assert sc.check_level_integrity(path=kl) == []
+    at = [lv for lv in json.loads(kl.read_text())["levels"] if abs(lv["price"] - 739.9) <= 0.10]
+    assert len(at) == 1 and at[0]["role"] == "resistance"
+
+
+def test_bite_pre_normalize_contradiction_is_real(tmp_path):
+    """BITE (non-vacuous): the producer's INPUT genuinely contains the contradiction the
+    self-check flags, and _normalize_levels is what clears it. Neuter the normalize step and
+    the RED returns -> the guard is doing real work."""
+    polluted = [
+        {"price": 741.81, "role": "resistance", "type": "resistance", "label": "PMH_X", "tier": "Active"},
+        {"price": 741.81, "role": "support", "type": "support", "label": "INTRADAY_PMH_X", "tier": "Active"},
+    ]
+    f = tmp_path / "k.json"
+    f.write_text(json.dumps({"levels": polluted}), encoding="utf-8")
+    assert sc.check_level_integrity(path=f) != []        # input contradicts (the bite)
+    fixed = rli._normalize_levels(polluted, spot=745.0)
+    f.write_text(json.dumps({"levels": fixed}), encoding="utf-8")
+    assert sc.check_level_integrity(path=f) == []        # normalized clears it
+    assert len(fixed) == 1

@@ -37,6 +37,7 @@ sys.path.insert(0, str(REPO / "setup" / "scripts"))
 from et_clock import et_now  # noqa: E402
 
 ACTIVE_BAND = 12.0   # the engine only considers levels within $12 of spot (heartbeat_core._read_levels)
+ROLE_EPSILON = 0.10  # active levels within this $ collapse to ONE entry with ONE role
 
 
 def _spy_bars() -> pd.DataFrame:
@@ -89,6 +90,49 @@ def _level(price: float, spot: float, label: str, source: str, now_iso: str) -> 
     }
 
 
+def _polarity_role(price: float, spot: float) -> str:
+    """A level's role is its position relative to LIVE price: at/above spot = a ceiling the
+    engine could reject DOWN from (resistance); below spot = a floor it could bounce UP from
+    (support). One price -> exactly one role, so no entry can ever be read as BOTH (the
+    2026-06-30 contradictory-role BROKEN signature, self_check.check_level_integrity). This is
+    the same rule _level already uses, applied UNIFORMLY to every active level the producer
+    writes (incl. curated PMH/PML the upstream draw may have left at a stale/contradicting role)."""
+    return "resistance" if price >= spot else "support"
+
+
+def _normalize_levels(levels: list[dict], spot: float) -> list[dict]:
+    """Producer-side invariant for the engine's level feed: every ACTIVE price carries one
+    polarity role, and near-equal prices collapse to a single canonical entry (a curated /
+    non-INTRADAY label wins as the survivor). Kills BOTH self_check.check_level_integrity
+    signatures at the source -- contradictory ceiling+floor roles AND >2x duplication -- no
+    matter which upstream producer polluted key-levels.json (refresh is the freshest every-few-min
+    writer, so the file self-heals each run). Expired levels pass through untouched (the engine
+    and the self-check both ignore tier=='expired')."""
+    def _is_intraday(lv: dict) -> bool:
+        return str(lv.get("label", "")).startswith("INTRADAY_")
+
+    def _price_of(lv: dict):
+        try:
+            return round(float(lv["price"]), 2)
+        except (KeyError, TypeError, ValueError):
+            return None
+
+    expired = [lv for lv in levels if str(lv.get("tier", "")).lower() == "expired"]
+    active = [lv for lv in levels
+              if str(lv.get("tier", "")).lower() != "expired" and _price_of(lv) is not None]
+    # structural (non-INTRADAY) sorts first WITHIN a price so it becomes the cluster survivor.
+    active.sort(key=lambda lv: (_price_of(lv), _is_intraday(lv)))
+    out: list[dict] = []
+    for lv in active:
+        price = _price_of(lv)
+        role = _polarity_role(price, spot)
+        canon = {**lv, "price": price, "type": role, "role": role}
+        if out and abs(_price_of(out[-1]) - price) <= ROLE_EPSILON:
+            continue  # represented by the canonical (structural-first) survivor of this cluster
+        out.append(canon)
+    return out + expired
+
+
 def refresh(df: pd.DataFrame | None = None) -> dict:
     now = et_now()
     now_iso = now.strftime("%Y-%m-%dT%H:%M:%S-04:00")
@@ -130,6 +174,11 @@ def refresh(df: pd.DataFrame | None = None) -> dict:
         lvl = _level(price, spot, f"{label}_{today}", source, now_iso)
         levels.append(lvl)
         added.append((lvl["label"], lvl["price"], lvl["role"]))
+
+    # Normalize the FULL written set: one polarity role per price + collapse near-equal
+    # duplicates, so the engine never reads a price as both resistance and support and the
+    # 6-9x curated PMH/PML pile-up self-heals every run (2026-06-30 contradictory-role fix).
+    levels = _normalize_levels(levels, spot)
 
     kl["levels"] = levels
     kl["as_of"] = now_iso

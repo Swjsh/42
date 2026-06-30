@@ -1,0 +1,13 @@
+# A producer guard that checks output PRESENCE/FRESHNESS but not output CONSISTENCY ships a contradictory-structure regression green
+
+**Theme:** C7 (silent-success-is-failure / audit-outputs-not-exit-codes) + the 2026-06-30 audit's central disease (every green signal certifies MOTION not FUNCTION).
+
+**Symptom:** `refresh_levels_intraday.py` had a guard since 2026-06-29 (`test_refresh_levels_intraday.py`, 8/8) that proved the live level feed (a) stays FRESH (`as_of` updates) and (b) UPSERTS the live RTH high/low. Both green. Yet on 2026-06-30 the live `key-levels.json` carried prices 741.61 (×7) and 741.81 (×9) each as BOTH a ceiling (resistance) and a floor (support) role — the engine read the same price as resistance AND support at once. The content-aware `self_check.check_level_integrity` caught it (RED), the producer guard did not.
+
+**Root cause:** the 06-29 guard certified that the producer *runs and emits levels* (MOTION) but never that the emitted set is *self-consistent* (FUNCTION): one price → one role, no >2× duplication. `refresh()` only deduped its OWN `INTRADAY_*` labels (line 126); it preserved upstream-duplicated curated `PMH_/PML_` entries and re-added `INTRADAY_PMH/PML` at a colliding price with a polarity-derived role that contradicted the curated role. A presence/freshness guard is structurally blind to a consistency regression.
+
+**Fix (shipped):** `_normalize_levels(levels, spot)` at the producer enforces one-polarity-role-per-price + price-cluster dedup over the FULL written set (refresh is the freshest every-few-min writer, so the file self-heals regardless of which upstream producer pollutes it). Guard extended with the producer/consumer contract test (`test_refresh_output_passes_level_integrity_check` asserts the output satisfies the live `self_check`), a duplicate-collapse test, an expired-passthrough test, and a non-vacuous bite (`test_bite_pre_normalize_contradiction_is_real`). Live file repaired (26→11 levels, RED→GREEN).
+
+**Lesson:** when guarding a PRODUCER, assert the OUTPUT INVARIANT the downstream consumer depends on (here: one-role-per-price), not just that output exists and is fresh. Wire the producer guard to call the consumer's actual integrity check so the contract can't drift. This is the rig-never-traded disease (MOTION vs FUNCTION) applied to the level feed.
+
+**Follow-up (LOW, separate fire):** find the UPSTREAM producer that creates the 6-9× curated `PMH_/PML_` duplicates (candidates: `compute_levels.py` / `fetch_swarm_data.py` / premarket draw) and dedup at the source too — refresh-normalization is the durable last-writer guard, but a non-duplicating source is cleaner.
