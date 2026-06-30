@@ -3521,3 +3521,14 @@ def test_operator_friction_harvest_wired() -> None:
         "hook must skip system/agent/tool messages (no phantom operator-question fires)"
     # the hook is in the UserPromptSubmit chain -- a non-ASCII parse crash kills BOTH captures
     assert all(ord(c) < 128 for c in hook), "prompt-submit hook must be pure ASCII (PS 5.1 silent-crash class)"
+
+
+def test_tv_watchdog_checks_live_heartbeat() -> None:
+    """G-TVWATCHDOG (2026-06-29): the TV watchdog's hung-bridge auto-restart must check the
+    LIVE engine task Gamma_HeartbeatCore, NOT the retired LLM Gamma_Heartbeat (disabled
+    2026-06-25, perpetually stale). Pointed at the retired task it reads stale every RTH cycle
+    and force-kills TV every 5 min all day -- the self-inflicted 'TV keeps crashing' bug J hit.
+    RED on regression."""
+    wd = (REPO / "setup" / "scripts" / "run-tv-watchdog.ps1").read_text(encoding="utf-8", errors="replace")
+    assert '-TaskName "Gamma_HeartbeatCore"' in wd, "watchdog must check the LIVE engine task"
+    assert '-TaskName "Gamma_Heartbeat"' not in wd,         "watchdog must NOT call Get-ScheduledTaskInfo on the retired Gamma_Heartbeat (force-kills TV all RTH)"

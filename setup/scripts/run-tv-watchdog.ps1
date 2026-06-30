@@ -60,12 +60,15 @@ if ($cdpReady) {
 }
 
 # --- 2. Heartbeat task freshness ("watching heartbeat") ---------------------
-# Only meaningful 09:35-15:55 ET when the engine should tick every 3 min.
+# Only meaningful 09:35-15:55 ET when the engine should tick every 1 min.
+# 2026-06-29 FIX: this checked the RETIRED "Gamma_Heartbeat" (LLM, disabled 06-25) which is
+# ALWAYS stale -> the hung-bridge branch force-killed TV every 5 min all day (the "TV keeps
+# crashing" bug). Must check the LIVE Python engine, Gamma_HeartbeatCore.
 $hbFlag = "na"
 $mins = $et.Hour * 60 + $et.Minute
 if ($mins -ge 575 -and $mins -le 955) {
     try {
-        $hb = Get-ScheduledTaskInfo -TaskName "Gamma_Heartbeat" -ErrorAction Stop
+        $hb = Get-ScheduledTaskInfo -TaskName "Gamma_HeartbeatCore" -ErrorAction Stop
         $ageMin = ((Get-Date) - $hb.LastRunTime).TotalMinutes
         if ($ageMin -gt 7) { $hbFlag = "STALE_$([int]$ageMin)min" }
         elseif ($hb.LastTaskResult -ne 0) { $hbFlag = ("ERR_0x{0:X}" -f $hb.LastTaskResult) }
