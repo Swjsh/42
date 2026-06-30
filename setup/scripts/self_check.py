@@ -60,6 +60,45 @@ def check_ps1_encoding() -> list[str]:
     return bad
 
 
+def check_broker_keys() -> list[str]:
+    """Broker-key / account health -- the 401-stale-key class (folds the /insights 'broker-health
+    MCP' suggestion into self-check; a new MCP server would be unreachable autonomously since the
+    engine has no Claude tick). Cheap READ-ONLY GET /v2/account on the two ENGINE-WIRED arms
+    (safe-2, bold-2). A 401/403 = stale/revoked key = NO trades can place = BROKEN. Network error =
+    DEGRADED (transient). Reuses the proven accounts_status.py pattern. Fail-open: returns [] on any
+    unexpected error (never raises into the scheduler; never places orders)."""
+    import urllib.request, urllib.error
+    out: list[str] = []
+    sec_file = STATE / "fleet" / "secrets.json"
+    try:
+        accts = json.loads(sec_file.read_text(encoding="utf-8")).get("accounts", {})
+    except Exception:  # noqa: BLE001
+        return []  # can't read secrets -> don't fabricate a problem (fail-open)
+    for arm in ("safe-2", "bold-2"):
+        a = accts.get(arm, {})
+        key = a.get("api_key") or a.get("ALPACA_API_KEY") or a.get("key", "")
+        sec = a.get("secret_key") or a.get("ALPACA_SECRET_KEY") or a.get("secret", "")
+        base = a.get("base_url", "https://paper-api.alpaca.markets")
+        if not key:
+            out.append(f"BROKER KEY MISSING: {arm} has no key in fleet/secrets.json -- engine cannot place.")
+            continue
+        try:
+            req = urllib.request.Request(base.rstrip("/") + "/v2/account",
+                                         headers={"APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": sec})
+            with urllib.request.urlopen(req, timeout=8) as r:
+                d = json.loads(r.read())
+            if d.get("status") != "ACTIVE":
+                out.append(f"BROKER account {arm} status={d.get('status')} (not ACTIVE) -- trades may be blocked.")
+        except urllib.error.HTTPError as e:
+            if e.code in (401, 403):
+                out.append(f"BROKER KEY STALE/REVOKED: {arm} account-ping HTTP {e.code} -- rotate + RELOAD the MCP key before trading (CLAUDE.md secret rule). NO trades can place.")
+            else:
+                out.append(f"BROKER UNREACHABLE: {arm} account-ping HTTP {e.code}.")
+        except Exception as e:  # noqa: BLE001
+            out.append(f"BROKER UNREACHABLE: {arm} {type(e).__name__} (network/timeout -- likely transient).")
+    return out
+
+
 def run() -> dict:
     now = et_now(); hm = now.strftime("%H:%M")
     rth = ("09:30" <= hm <= "15:55") and now.weekday() < 5
@@ -89,7 +128,11 @@ def run() -> dict:
     if h.get("verdict") == "RED":
         problems.append(f"engine-health RED: reds={h.get('reds')}")
 
-    verdict = "GREEN" if not problems else ("BROKEN" if any("crash" in p.lower() or "RED" in p for p in problems) else "DEGRADED")
+    # 4. broker key / account health (the 401-stale-key class)
+    problems.extend(check_broker_keys())
+
+    _broken = lambda p: ("crash" in p.lower()) or ("RED" in p) or ("STALE/REVOKED" in p) or ("KEY MISSING" in p)
+    verdict = "GREEN" if not problems else ("BROKEN" if any(_broken(p) for p in problems) else "DEGRADED")
     result = {"ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "verdict": verdict, "problems": problems, "rth": rth}
     LAST.write_text(json.dumps(result, indent=2), encoding="utf-8")
 

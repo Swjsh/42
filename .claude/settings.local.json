@@ -92,6 +92,15 @@
             "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/jackw/Desktop/42/cockpit/hook-emit.ps1 -HookType pre"
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/jackw/Desktop/42/setup/hook-market-hours-doctrine-guard.ps1"
+          }
+        ]
       }
     ],
     "PostToolUse": [

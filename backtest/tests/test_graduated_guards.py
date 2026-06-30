@@ -3532,3 +3532,32 @@ def test_tv_watchdog_checks_live_heartbeat() -> None:
     wd = (REPO / "setup" / "scripts" / "run-tv-watchdog.ps1").read_text(encoding="utf-8", errors="replace")
     assert '-TaskName "Gamma_HeartbeatCore"' in wd, "watchdog must check the LIVE engine task"
     assert '-TaskName "Gamma_Heartbeat"' not in wd,         "watchdog must NOT call Get-ScheduledTaskInfo on the retired Gamma_Heartbeat (force-kills TV all RTH)"
+
+
+def test_market_hours_guard_is_fail_open_and_narrow() -> None:
+    """G-MKT-GUARD (2026-06-29): the PreToolUse market-hours edit guard must enforce Rule 9 on a
+    NARROW live-trading denylist ONLY, fail-OPEN, soft-block (exit 2 not a hard kill), and be
+    overridable -- so it can NEVER recreate the OP-32 market-hours LOCKOUT (2026-05-22)."""
+    g = (REPO / "setup" / "hook-market-hours-doctrine-guard.ps1").read_text(encoding="utf-8", errors="replace")
+    assert "catch { exit 0 }" in g, "guard must fail-open: any exception -> exit 0 (allow)"
+    assert "params.json" in g and "heartbeat.md" in g, "guard must target only the live-trading denylist"
+    assert g.count("exit 0") >= 5, "guard must have many allow-paths (fail-open by construction)"
+    assert "exit 2" in g, "guard must SOFT-block (exit 2 = return to Claude), not hard-kill"
+    assert "GAMMA_RULE9_OVERRIDE" in g, "guard must be overridable in one move"
+    assert "et_clock" in g and "et_now" in g, "guard must use trusted et_clock, never Bash TZ"
+    settings = (REPO / ".claude" / "settings.local.json").read_text(encoding="utf-8")
+    assert "hook-market-hours-doctrine-guard.ps1" in settings, "guard must be registered"
+    assert '"matcher": "Edit|Write|MultiEdit"' in settings, "guard must be matcher-scoped to edit tools, never global"
+
+
+def test_self_check_broker_keys() -> None:
+    """G-BROKER (2026-06-29): self_check folds broker-health 401 detection (NOT a new MCP server).
+    Pings ONLY the engine-wired arms (read-only GET), classifies 401 as BROKEN, fail-open."""
+    sys.path.insert(0, str(REPO / "setup" / "scripts"))
+    import importlib
+    sc = importlib.import_module("self_check")
+    assert hasattr(sc, "check_broker_keys"), "self_check must expose check_broker_keys"
+    src = (REPO / "setup" / "scripts" / "self_check.py").read_text(encoding="utf-8")
+    assert "safe-2" in src and "bold-2" in src, "ping only the engine-wired arms"
+    assert "/v2/account" in src, "read-only account ping"
+    assert "STALE/REVOKED" in src, "401 must map to a BROKEN-class problem"

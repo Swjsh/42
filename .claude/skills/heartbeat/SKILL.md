@@ -1,6 +1,6 @@
 ---
 name: heartbeat
-description: Run ONE standardized SPY 0DTE heartbeat tick by hand (state -> preflight -> 5m chart -> score gates -> HOLD/ENTER -> write loop-state). Wraps the production doctrine in automation/prompts/heartbeat.md with a fixed, ordered tool sequence so a manual tick never dead-ends on a malformed ToolSearch call. Use for ad-hoc "tick now" / "what would the engine do this minute" fires. Production auto-ticks keep running via Gamma_Heartbeat; this is the manual entry point.
+description: Run ONE standardized SPY 0DTE heartbeat tick by hand (state -> preflight -> 5m chart -> score gates -> HOLD/ENTER -> write loop-state). Wraps the production doctrine in automation/prompts/heartbeat.md with a fixed, ordered tool sequence so a manual tick never dead-ends on a malformed ToolSearch call. Use for ad-hoc "tick now" / "what would the engine do this minute" fires. Production auto-ticks run via the deterministic Python engine Gamma_HeartbeatCore (heartbeat_core.py, every 1 min RTH, $0, no LLM on the hot path); the LLM Gamma_Heartbeat was RETIRED/disabled 2026-06-25. This is the MANUAL ad-hoc entry point only — never the production tick.
 context: fork
 agent: pilot
 allowed-tools: Bash Read Grep Glob Write Edit
@@ -12,7 +12,7 @@ You are running ONE heartbeat tick by hand, as Pilot, in a forked context.
 
 The `/insights` report (2026-06-18) found 6+ near-identical heartbeat sessions, one of which **failed entirely on a malformed, unparseable ToolSearch call**. This skill removes that failure mode: it gives you a single fixed sequence with the exact tools pre-named, so you never improvise a tool lookup mid-tick.
 
-> **Authoritative doctrine is `automation/prompts/heartbeat.md`** (the same prompt the `Gamma_Heartbeat` scheduled task runs). This skill is the manual harness around it, NOT a re-implementation. When in doubt, the doctrine file wins.
+> **Authoritative doctrine is `automation/prompts/heartbeat.md`** (the v15 rubric). NOTE: production no longer runs this as an LLM prompt — the live engine is deterministic code (`heartbeat_core.py` / `Gamma_HeartbeatCore`) that encodes the same rubric; the LLM `Gamma_Heartbeat` was retired 2026-06-25. This skill is the MANUAL harness around the doctrine, NOT the production path. When in doubt, the doctrine file + `engine_cli` win.
 
 ---
 
@@ -106,4 +106,4 @@ ACTIONs: `HOLD HOLD_DEV ENTER_BULL ENTER_BEAR EXIT_TP1 EXIT_RUNNER EXIT_STOP EXI
 - **Doctrine (source of truth):** `automation/prompts/heartbeat.md`
 - **Pre-flight:** `preflight-gate` skill (Step 0)
 - **Persona:** `.claude/agents/pilot.md`
-- **Production path:** `Gamma_Heartbeat` scheduled task (auto, every 3 min RTH) - unaffected by this manual skill.
+- **Production path:** `Gamma_HeartbeatCore` — the deterministic PYTHON engine (`heartbeat_core.py`, every 1 min RTH, $0, no LLM/MCP/CDP on the hot path). The LLM `Gamma_Heartbeat` was retired/disabled 2026-06-25. This manual skill is ad-hoc review only and does not affect production.
