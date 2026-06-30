@@ -68,15 +68,51 @@ if ($exit -ne 0) {
 try {
     $biasFile = Join-Path $WorkDir "automation\state\today-bias.json"
     $todayEt  = $et.ToString("yyyy-MM-dd")
-    $biasDate = (Get-Content $biasFile -Raw -ErrorAction Stop | ConvertFrom-Json).date
+    $bias     = (Get-Content $biasFile -Raw -ErrorAction Stop | ConvertFrom-Json)
+    $biasDate = $bias.date
+
+    # 2026-06-30 / insight-#17b: the .date check ALONE is not enough. Both
+    # refresh_levels_intraday and a manual hand-rebuild stamp today's date, so the gate
+    # went GREEN on 06-30 even though the LLM "produced NO bias" (the today-bias was a
+    # by-hand rebuild after a silent LLM failure). The gate must check that the
+    # DELIVERABLE was authored THIS run, not just that the date is fresh.
+    #   (a) updated_by must NOT look like a hand-rebuild / non-LLM author.
+    #   (b) falsifiable_predictions must be a non-empty array (the LLM's actual work).
+    #   (c) bias_note must be a real paragraph (length > 80), not a stub.
+    $deliverableMsg = $null
     if ($biasDate -ne $todayEt) {
-        $msg = "PREMARKET SILENT FAILURE: claude exit=$exit but today-bias.date=$biasDate != today $todayEt (no fresh bias written). Engine would open on a STALE bias."
+        $deliverableMsg = "today-bias.date=$biasDate != today $todayEt (no fresh bias written). Engine would open on a STALE bias."
+    } else {
+        $updatedBy = [string]$bias.updated_by
+        $updatedByLc = $updatedBy.ToLowerInvariant()
+        $bannedAuthor = @("interactive", "rebuilt", "by hand", "by_hand")
+        $hitAuthor = $null
+        foreach ($b in $bannedAuthor) {
+            if ($updatedByLc.Contains($b)) { $hitAuthor = $b; break }
+        }
+        $preds = $bias.falsifiable_predictions
+        $predCount = 0
+        if ($null -ne $preds) { $predCount = @($preds).Count }
+        $biasNote = [string]$bias.bias_note
+        $biasNoteLen = $biasNote.Length
+
+        if ($null -ne $hitAuthor) {
+            $deliverableMsg = "today-bias.updated_by='$updatedBy' looks like a non-LLM hand-rebuild (matched '$hitAuthor') -- the premarket LLM did NOT author this run's deliverable."
+        } elseif ($predCount -lt 1) {
+            $deliverableMsg = "today-bias.falsifiable_predictions is empty ($predCount) -- the premarket LLM produced no predictions (silent failure)."
+        } elseif ($biasNoteLen -le 80) {
+            $deliverableMsg = "today-bias.bias_note is too short ($biasNoteLen chars <= 80) -- stub, not a real LLM-authored bias."
+        }
+    }
+
+    if ($null -ne $deliverableMsg) {
+        $msg = "PREMARKET SILENT FAILURE: claude exit=$exit but $deliverableMsg"
         Write-TaskLog -TaskName $task -Message $msg
         $statusMd = Join-Path $WorkDir "automation\overnight\STATUS.md"
         try { Add-Content -Path $statusMd -Value ("`n### BROKEN: premarket " + $todayEt + "`n- " + $msg + "`n") -Encoding utf8 } catch {}
         if ($exit -eq 0) { $exit = 3 }   # force a LOUD non-zero result so the scheduler + self_check see it
     } else {
-        Write-TaskLog -TaskName $task -Message ("VERIFIED today-bias dated " + $todayEt + " - premarket produced a fresh bias.")
+        Write-TaskLog -TaskName $task -Message ("VERIFIED today-bias dated " + $todayEt + " - premarket LLM authored a fresh bias (predictions + note + non-hand author).")
     }
 } catch {
     Write-TaskLog -TaskName $task -Message ("premarket bias-verify errored (fail-open): " + $_.Exception.Message)

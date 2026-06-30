@@ -39,6 +39,26 @@ from et_clock import et_now  # noqa: E402
 ACTIVE_BAND = 12.0   # the engine only considers levels within $12 of spot (heartbeat_core._read_levels)
 ROLE_EPSILON = 0.10  # active levels within this $ collapse to ONE entry with ONE role
 
+# SEMANTIC role map (2026-06-30 contradictory-role fix). A level's role is a STRUCTURAL property
+# of WHERE IT CAME FROM, not of transient price-vs-spot at compute time. A premarket HIGH is a
+# ceiling the session formed overhead; it stays resistance whether spot is below OR above it later.
+# Driving role off (price >= spot) is the bug: a premarket high flips resistance->support the moment
+# price runs through it, and two refresh runs at different spots leave the SAME logical price carrying
+# BOTH roles (self_check.check_level_integrity RED). Keyed by `source`; the per-keyword fallback
+# (_high/pmh -> ceiling, _low/pml -> floor) covers any source not enumerated here.
+SEMANTIC_SOURCE_ROLE = {
+    "premarket_high": "resistance",
+    "intraday_rth_high": "resistance",
+    "intraday_swing_high": "resistance",
+    "double_session_low": "resistance",  # double-bottom that, once reclaimed, caps as overhead structure (per audit spec)
+    "premarket_low": "support",
+    "intraday_rth_low": "support",
+    "intraday_swing_low": "support",
+}
+# prefixes the dedup must strip so PMH_/PML_ (curated, non-INTRADAY) writers collapse with their
+# INTRADAY_ twins at the same rounded price (root cause #2: dedup only caught INTRADAY_ before).
+_DEDUP_PREFIXES = ("INTRADAY_", "PMH_", "PML_")
+
 
 def _spy_bars() -> pd.DataFrame:
     """SPY 5m, ~7 days, direct Alpaca REST (same un-blockable path as the engine + beacon)."""
@@ -78,8 +98,27 @@ def _swing_levels(rth: pd.DataFrame) -> tuple[float | None, float | None]:
     return sh, sl
 
 
+def _semantic_role(source: str | None, label: str | None, fallback: str | None = None) -> str | None:
+    """Structural role from the level's SOURCE (then label), independent of live price. Stable
+    across the session, so one logical price = one role no matter where spot wanders. Returns the
+    `fallback` (the level's pre-existing role) only when neither source nor label carries any
+    high/low semantics — non-directional refs (prior_close, round_number) keep what they had."""
+    src = str(source or "").lower()
+    if src in SEMANTIC_SOURCE_ROLE:
+        return SEMANTIC_SOURCE_ROLE[src]
+    blob = f"{src} {str(label or '').lower()}"
+    has_high = any(k in blob for k in ("_high", "pmh", "session_high", "rth_high", "swing_high"))
+    has_low = any(k in blob for k in ("_low", "pml", "session_low", "rth_low", "swing_low"))
+    if has_high and not has_low:
+        return "resistance"
+    if has_low and not has_high:
+        return "support"
+    return fallback
+
+
 def _level(price: float, spot: float, label: str, source: str, now_iso: str) -> dict:
-    role = "resistance" if price >= spot else "support"
+    # role by SEMANTIC source (stable), never by transient price-vs-spot (the flip-flop bug).
+    role = _semantic_role(source, label) or ("resistance" if price >= spot else "support")
     return {
         "price": round(price, 2), "type": role, "role": role, "label": label,
         "tier": "Active", "source": source, "verified_at": now_iso,
@@ -90,24 +129,26 @@ def _level(price: float, spot: float, label: str, source: str, now_iso: str) -> 
     }
 
 
-def _polarity_role(price: float, spot: float) -> str:
-    """A level's role is its position relative to LIVE price: at/above spot = a ceiling the
-    engine could reject DOWN from (resistance); below spot = a floor it could bounce UP from
-    (support). One price -> exactly one role, so no entry can ever be read as BOTH (the
-    2026-06-30 contradictory-role BROKEN signature, self_check.check_level_integrity). This is
-    the same rule _level already uses, applied UNIFORMLY to every active level the producer
-    writes (incl. curated PMH/PML the upstream draw may have left at a stale/contradicting role)."""
-    return "resistance" if price >= spot else "support"
+def _dedup_key(label: str | None) -> str:
+    """The label with any writer prefix (INTRADAY_/PMH_/PML_) stripped, so the SAME logical level
+    written by different producers (a curated PMH_<date> and its INTRADAY_PMH twin) shares a key
+    and collapses. Root cause #2 of the 06-30 pile-up: dedup only matched INTRADAY_ before, so the
+    non-prefixed PMH_/PML_ writers accumulated 6-9x."""
+    s = str(label or "")
+    for pre in _DEDUP_PREFIXES:
+        if s.startswith(pre):
+            return s[len(pre):]
+    return s
 
 
 def _normalize_levels(levels: list[dict], spot: float) -> list[dict]:
-    """Producer-side invariant for the engine's level feed: every ACTIVE price carries one
-    polarity role, and near-equal prices collapse to a single canonical entry (a curated /
-    non-INTRADAY label wins as the survivor). Kills BOTH self_check.check_level_integrity
-    signatures at the source -- contradictory ceiling+floor roles AND >2x duplication -- no
-    matter which upstream producer polluted key-levels.json (refresh is the freshest every-few-min
-    writer, so the file self-heals each run). Expired levels pass through untouched (the engine
-    and the self-check both ignore tier=='expired')."""
+    """Producer-side invariant for the engine's level feed: every ACTIVE price carries ONE
+    SEMANTIC role (structural, not price-relative), and near-equal prices collapse to a single
+    canonical entry (a curated / non-INTRADAY label wins as the survivor). Kills BOTH
+    self_check.check_level_integrity signatures at the source -- contradictory ceiling+floor roles
+    AND >2x duplication -- no matter which upstream producer polluted key-levels.json (refresh is
+    the freshest every-few-min writer, so the file self-heals each run). Expired levels pass
+    through untouched (the engine and the self-check both ignore tier=='expired')."""
     def _is_intraday(lv: dict) -> bool:
         return str(lv.get("label", "")).startswith("INTRADAY_")
 
@@ -123,12 +164,21 @@ def _normalize_levels(levels: list[dict], spot: float) -> list[dict]:
     # structural (non-INTRADAY) sorts first WITHIN a price so it becomes the cluster survivor.
     active.sort(key=lambda lv: (_price_of(lv), _is_intraday(lv)))
     out: list[dict] = []
+    seen_keys: set[str] = set()
     for lv in active:
         price = _price_of(lv)
-        role = _polarity_role(price, spot)
+        # role by SEMANTIC source/label (stable) for any directional level; only a NON-directional
+        # ref (no high/low semantics in source or label) falls back to price-side. Either way each
+        # PRICE maps to exactly ONE role here, so a price can never end up as both ceiling and floor.
+        role = _semantic_role(lv.get("source"), lv.get("label"),
+                              fallback=("resistance" if price >= spot else "support"))
         canon = {**lv, "price": price, "type": role, "role": role}
-        if out and abs(_price_of(out[-1]) - price) <= ROLE_EPSILON:
+        key = _dedup_key(lv.get("label"))
+        # collapse by EITHER near-equal price (cluster) OR shared prefix-stripped label key, so
+        # PMH_<date> and INTRADAY_PMH at the same level become one entry across ALL writers.
+        if (out and abs(_price_of(out[-1]) - price) <= ROLE_EPSILON) or (key and key in seen_keys):
             continue  # represented by the canonical (structural-first) survivor of this cluster
+        seen_keys.add(key)
         out.append(canon)
     return out + expired
 
@@ -157,8 +207,8 @@ def refresh(df: pd.DataFrame | None = None) -> dict:
     if sl is not None:
         computed.append(("INTRADAY_SWING_LOW", sl, "intraday_swing_low"))
     if len(pre):
-        # INTRADAY_ prefix so the line-124 dedup catches them (else they piled up 2/run = the
-        # 06-30 duplication bug); distinct from the curated PMH_<date> the premarket draws.
+        # INTRADAY_PMH/PML collapse with any curated PMH_<date>/PML_<date> via _normalize_levels'
+        # prefix-stripped dedup key (root-cause #2 fix) -- one logical premarket level, not 2/run.
         computed.append(("INTRADAY_PMH", float(pre["high"].max()), "premarket_high"))
         computed.append(("INTRADAY_PML", float(pre["low"].min()), "premarket_low"))
 

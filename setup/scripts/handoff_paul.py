@@ -23,6 +23,8 @@ try:  # Windows console is cp1252; emoji in commit msgs / docs choke print() oth
 except Exception:  # noqa: BLE001
     pass
 
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0  # no conhost flash on win32 (OP-27 L41)
+
 REPO = Path(__file__).resolve().parents[1].parent
 STATE = REPO / "automation" / "state"
 sys.path.insert(0, str(REPO / "setup" / "scripts"))
@@ -36,7 +38,8 @@ except Exception:  # noqa: BLE001
 def _git(args: list[str]) -> str:
     try:
         return subprocess.run(["git", *args], cwd=str(REPO), capture_output=True,
-                              text=True, encoding="utf-8", errors="replace", timeout=10).stdout.strip()
+                              text=True, encoding="utf-8", errors="replace", timeout=10,
+                              creationflags=_CREATE_NO_WINDOW).stdout.strip()
     except Exception:  # noqa: BLE001
         return ""
 

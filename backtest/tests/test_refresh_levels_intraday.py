@@ -157,15 +157,17 @@ def test_empty_bars_fail_open():
 # price + price-dedup at the producer so the engine can never read contradictory structure.
 
 def test_normalize_collapses_contradictory_roles_to_one_polarity():
-    """The exact live shape: a curated resistance + an INTRADAY support at the SAME price.
-    With spot above, both resolve to support; collapse to a single entry -> no contradiction."""
+    """The exact live shape: a curated PMH + its INTRADAY PMH twin at the SAME price. Role is now
+    by SEMANTIC source (2026-06-30 root-cause #1 fix) -> a premarket HIGH is structurally RESISTANCE
+    no matter where spot wanders (was: price-side, which flip-flopped to support once price ran
+    through it -> the contradiction). Both collapse to ONE resistance entry -> no contradiction."""
     polluted = ([{"price": 741.81, "role": "resistance", "type": "resistance",
-                  "label": "PMH_2026-06-30", "tier": "Active"} for _ in range(6)]
+                  "label": "PMH_2026-06-30", "source": "premarket_high", "tier": "Active"} for _ in range(6)]
                 + [{"price": 741.81, "role": "support", "type": "support",
-                   "label": "INTRADAY_PMH_2026-06-30", "tier": "Active"}])
-    out = rli._normalize_levels(polluted, spot=745.0)   # 741.81 < spot -> support
+                   "label": "INTRADAY_PMH_2026-06-30", "source": "premarket_high", "tier": "Active"}])
+    out = rli._normalize_levels(polluted, spot=745.0)   # spot ABOVE the PMH; semantic role ignores that
     assert len(out) == 1
-    assert out[0]["role"] == out[0]["type"] == "support"
+    assert out[0]["role"] == out[0]["type"] == "resistance"   # PMH is structurally a ceiling, stable
     assert out[0]["label"] == "PMH_2026-06-30"          # curated survivor (exact-price tiebreak)
 
 
